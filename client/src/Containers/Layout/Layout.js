@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import classes from './Layout.css';
 import Navbar from '../../Components/Navigation/Navbar';
+import Login from '../Login/Login';
 import api from '../../utils/apiRequests';
 
 class Layout extends Component {
@@ -9,7 +10,7 @@ class Layout extends Component {
     age: '',
     text: '',
   }
-  
+
   componentDidMount() {
     // get a user and a message from the backend
     api.getUsers()
@@ -41,6 +42,7 @@ class Layout extends Component {
       <div className={classes.Layout}>
         <div>Welcome to Virtual Math Teams</div>
         <Navbar />
+        <Login />
       </div>
     )
   }
