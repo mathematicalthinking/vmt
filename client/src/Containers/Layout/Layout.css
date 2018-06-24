@@ -1,0 +1,19 @@
+.Layout {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
+.Image {
+  width: 50%;
+  margin-top: 50px;
+  box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12), 0 11px 15px -7px rgba(0,0,0,0.2);
+  border-radius: 10px;
+}
+
+.Content {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 50px;
+  width: 800px;
+}
