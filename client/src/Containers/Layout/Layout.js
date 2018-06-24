@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
-import User from '../../Components/User/User';
-import Message from '../../Components/Message/Message';
-import { Link } from 'react-router-dom';
 import classes from './Layout.css';
-import image from './Assets/mern.jpg';
+import Navbar from '../../Components/Navigation/Navbar';
 import api from '../../utils/apiRequests';
 
 class Layout extends Component {
@@ -12,7 +9,7 @@ class Layout extends Component {
     age: '',
     text: '',
   }
-
+  
   componentDidMount() {
     // get a user and a message from the backend
     api.getUsers()
@@ -42,12 +39,8 @@ class Layout extends Component {
   render() {
     return (
       <div className={classes.Layout}>
-        <img className={classes.Image} src={image} alt="mern"/>
-        <div className={classes.Content}>
-          <User name={this.state.username} age={this.state.age} />
-          <Message text={this.state.text} user={this.state.username} />
-        </div>
-        <Link to="/otherPage">go to other page</Link>
+        <div>Welcome to Virtual Math Teams</div>
+        <Navbar />
       </div>
     )
   }
