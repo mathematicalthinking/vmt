@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import User from '../../Components/User/User';
 import Message from '../../Components/Message/Message';
 import { Link } from 'react-router-dom';
-import classes from './layout.css';
+import classes from './Layout.css';
 import image from './Assets/mern.jpg';
 import api from '../../utils/apiRequests';
 

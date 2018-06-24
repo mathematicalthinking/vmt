@@ -1,14 +1,17 @@
-const message = require('./messageController');
-const user = require('./userController');
+const Assignment = require('./AssignmentController');
+const Course = require('./CourseController');
+const Message = require('./MessageController');
+const Room = require('./RoomController');
+const Tab = require('./TabController');
+const Team = require('./TeamController');
+const User = require('./UserController');
 
-// es6 shorthand for creating an object with property names that match the value
-// equivalent to
-// module.exports = {
-//   chat: chat,
-//   user: user,
-//   location: location
-// }
 module.exports = {
-  message,
-  user,
-}
+  Assignment,
+  Course,
+  Message,
+  Room,
+  Tab,
+  Team,
+  User,
+};
