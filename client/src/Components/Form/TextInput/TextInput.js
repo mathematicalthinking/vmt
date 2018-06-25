@@ -1,8 +1,16 @@
 import React from 'react';
 import classes from './textInput.css'
 const TextInput = (props) => {
+  console.log(props.name);
   return (
-    <input className={classes.Input} type={props.type} placeholder={props.placeholder} onChange={props.changeHandler}/>
+    <input
+      className={classes.Input}
+      type={props.type}
+      id={props.name}
+      name={props.name}
+      placeholder={props.placeholder}
+      onChange={props.change}
+    />
   )
 }
 
