@@ -1,34 +1,35 @@
-// // import * as actionTypes from '../actions/loginActions'
-//
-// const initialState = {
-//   username: '',
-//   password: '',
-//   loggedIn: false,
-//   loggingIn: false,
-// }
-//
-// const reducer = (state = initialState, action) => {
-//   switch (action.type) {
-//     case actionTypes.UPDATE_USERNAME:
-//       return {
-//         ...state,
-//         username: action.username
-//       };
-//     case actionTypes.UPDATE_PASSWORD:
-//       return {
-//         ...state,
-//         password: action.password
-//       };
-//     case actionTypes.USER_LOGIN:
-//       // login authentication
-//       return {
-//         ...state,
-//         loggedIn: true,
-//         userId: action.userId
-//       }
-//     default:
-//       return state
-//   }
-// };
-//
-// export default reducer;
+import * as actionTypes from '../actions/actionTypes';
+
+const initialState = {
+  username: '',
+  password: '',
+  loggedIn: false,
+  loggingIn: false,
+}
+
+const reducer = (state = initialState, action) => {
+  switch (action.type) {
+    case actionTypes.LOGIN_START:
+      return {
+        ...state,
+        loggingIn: true,
+      };
+    case actionTypes.LOGIN_FAIL:
+      return {
+        ...state,
+        loggingIn: false,
+      };
+    case actionTypes.LOGIN_SUCCESS:
+      // login authentication
+      return {
+        ...state,
+        loggedIn: true,
+        loggingIn: false,
+        username: action.username
+      }
+    default:
+      return state
+  }
+};
+
+export default reducer;

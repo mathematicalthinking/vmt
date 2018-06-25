@@ -12,7 +12,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 // REQUIRE FILES
-const configure = require('./middleware/passport');
+const configure = require('./config/passport');
 const api = require('./routes/api');
 const auth = require('./routes/auth');
 

@@ -1,8 +1,9 @@
 import axios from 'axios';
 export default {
-  login: (email, password) => {
+  login: (username, password) => {
     return new Promise((resolve, reject) => {
-      axios.post('/auth/login', {email, password,})
+      console.log("Making auth request from front end");
+      axios.post('/auth/login', {username, password,})
       .then(response => {
         resolve(response.data.result)
       })

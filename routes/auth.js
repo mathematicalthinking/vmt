@@ -13,19 +13,21 @@ const router = express.Router()
 const controllers = require('../controllers')
 
 router.post('/login', (req, res, next) => {
-  console.log("logging in");
-  passport.authenticate('local-login', {
-      successRedirect: '/',
-      failureRedirect: '/#/auth/login',
-      // failureFlash: true,
-      // passReqToCallback: true
-  });
+  passport.authenticate('local-login', (err, user, info) => {
+    if (user) {
+      console.log("validated");
+      return res.json(user)
+    }
+    else {return res.status(401).json({message: info})}
+    // res.json({message: 'success'})
+  })(req, res, next);
 });
 
+
 router.post('/signup', (req, res, next) => {
-  passport.authenticate('local-signup', {
-      successRedirect: '/',
-      failureRedirect: '/#/auth/signup',
+  passport.authenticate('local-signup', (err, user, info) => {
+    console.log(user)
+
   })(req, res, next);
 });
 
@@ -41,7 +43,7 @@ const googleReturn = (req, res, next) => {
   passport.authenticate('google', {
     failureRedirect: "/#/login",
     successRedirect: "/"
-  })(req, res, next);
+  })(req, res, next)
 };
 
 const logout = (req, res, next) => {
