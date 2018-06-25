@@ -1,7 +1,6 @@
 import React from 'react';
 import classes from './textInput.css'
 const TextInput = (props) => {
-  console.log(props.name);
   return (
     <input
       className={classes.Input}

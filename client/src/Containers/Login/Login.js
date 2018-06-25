@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Input from '../../Components/Form/TextInput/TextInput';
+import * as actions from '../../store/actions/'
 class Login extends Component {
   state = {
     controls: {
@@ -17,21 +19,22 @@ class Login extends Component {
   }
 
   changeHandler = (event) => {
-    console.log(event.target.name)
-    console.log("here", event.target.name, event.target.value);
     let updatedControls =  { ...this.state.controls };
     updatedControls[event.target.name].value = event.target.value;
-    console.log(updatedControls)
     this.setState({
       controls: updatedControls,
     })
 
   }
 
+  loginHandler = (event) => {
+    event.preventDefault();
+    this.props.onLogin(this.state.controls.username.value, this.state.controls.password.value)
+  }
+
   render() {
     const formElements = Object.keys(this.state.controls);
     const form = formElements.map(formElement => {
-      console.log(this.state.controls[formElement])
       const elem = {...this.state.controls[formElement]}
       return (
         <Input
@@ -47,11 +50,18 @@ class Login extends Component {
     return (
       <div>
         <div>Login</div>
-        {form}
-        <button>Submit</button>
+        <form onSubmit={this.login}>
+          {form}
+          <button>Submit</button>
+        </form>
       </div>
     )
   }
 }
 
-export default Login;
+const mapDispatchToProps = dispatch => {
+  return {
+    onLogin: () => dispatch(actions.login(email, password))
+  }
+}
+export default connect(null, mapDispatchToProps)(Login);
