@@ -6,13 +6,13 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const passport = require('passport');
-const configure = require('')
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 const mongoose = require('mongoose');
 require('dotenv').config();
 
 // REQUIRE FILES
+const configure = require('./middleware/passport');
 const api = require('./routes/api');
 const auth = require('./routes/auth');
 

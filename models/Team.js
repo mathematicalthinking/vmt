@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const ObjectId = mongoose.Types.ObjectId;
+const ObjectId = mongoose.Schema.Types.ObjectId;
 const Team = new mongoose.Schema({
   name: {type: String},
   creator: {type: ObjectId, ref: 'User'},

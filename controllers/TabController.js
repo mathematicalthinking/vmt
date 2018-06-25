@@ -10,7 +10,7 @@ module.exports = {
   },
 
   getById: (id) => {
-    return new Promise({resolve, reject} => {
+    return new Promise((resolve, reject) => {
       db.Tab.findById(id)
       .then(tab => resolve(tab))
       .catch(err => reject(err))

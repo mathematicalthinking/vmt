@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const ObjectId = mongoose.Types.ObjectId;
+const ObjectId = mongoose.Schema.Types.ObjectId;
 const Assignment = new mongoose.Schema({
   courseName: {type: String},
   description: {type: String},

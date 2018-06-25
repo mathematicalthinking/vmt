@@ -12,21 +12,22 @@ const express = require('express')
 const router = express.Router()
 const controllers = require('../controllers')
 
-router.post('/localLogin', (req, res, next) => {
+router.post('/login', (req, res, next) => {
+  console.log("logging in");
   passport.authenticate('local-login', {
       successRedirect: '/',
       failureRedirect: '/#/auth/login',
       // failureFlash: true,
       // passReqToCallback: true
   });
-};
+});
 
-router.post('/localSignup', (req, res, next) => {
+router.post('/signup', (req, res, next) => {
   passport.authenticate('local-signup', {
       successRedirect: '/',
       failureRedirect: '/#/auth/signup',
   })(req, res, next);
-};
+});
 
 router.post('/googleAuth', (req, res, next) => {
   passport.authenticate('google', {
@@ -34,7 +35,7 @@ router.post('/googleAuth', (req, res, next) => {
      "https://www.googleapis.com/auth/plus.profile.emails.read"
    ]
   })(req,res,next);
-};
+});
 
 const googleReturn = (req, res, next) => {
   passport.authenticate('google', {
@@ -49,4 +50,4 @@ const logout = (req, res, next) => {
   res.redirect('/');
 };
 
-modules.exports = router;
+module.exports = router;

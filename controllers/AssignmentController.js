@@ -10,7 +10,7 @@ module.exports = {
   },
 
   getById: (id) => {
-    return new Promise({resolve, reject} => {
+    return new Promise((resolve, reject) => {
       db.Assignment.findById(id)
       .then(assignment => resolve(assignment))
       .catch(err => reject(err))

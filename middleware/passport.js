@@ -34,23 +34,20 @@ module.exports = (passport) => {
   });
 
   passport.use('local-login', new LocalStrategy((username, password, next) => {
-   console.log(`in local with username: ${username}, password ${password}`);
+    console.log("configuring local login strategy")
+    console.log(`in local with username: ${username}, password ${password}`);
     User.findOne({
       username: username
     }, (err, user) => {
-      console.log('user', user);
       if (err) {
-        console.log('err from db', err);
         return next(err);
       }
       if (!user) {
-        console.log('incorrect username');
         return next(null, false, {
           message: "Incorrect username"
         });
       }
       if (!bcrypt.compareSync(password, user.password)) {
-        console.log('incorrect password');
         return next(null, false, {
           message: "Incorrect password"
         });
@@ -73,15 +70,11 @@ module.exports = (passport) => {
           }
 
           if (user) {
-            console.log('username already exists');
             return next(null, false, {
               message: "Username already exists"
             });
           } else {
-            const {
-              username,
-              password,
-            } = req.body;
+            const {username, password,} = req.body;
             const hashPass = bcrypt.hashSync(password, bcrypt.genSaltSync(12), null);
             const newUser = new User({
               username,
