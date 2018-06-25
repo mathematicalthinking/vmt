@@ -1,24 +1,35 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var mongoose = require('mongoose');
+// REQUIRE MODULES
+const express = require('express');
+const path = require('path');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const passport = require('passport');
+const configure = require('')
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
+const mongoose = require('mongoose');
 require('dotenv').config();
 
-var api = require('./routes/api');
+// REQUIRE FILES
+const api = require('./routes/api');
+const auth = require('./routes/auth');
 
-var app = express();
+const app = express();
 
+// SETUP DATABASE & SESSION
 mongoose.connect(process.env.MONGO_URI, (err, res) => {
-  if (err){
-    console.log('DB CONNECTION FAILED: '+err)
-  }
-  else{
-    console.log('DB CONNECTION SUCCESS')
-  }
+  if (err){console.log('DB CONNECTION FAILED: '+err)}
+  else{console.log('DB CONNECTION SUCCESS')}
 });
+
+app.use(require('express-session')({
+  secret: 'my-secret',
+  resave: false,
+  saveUninitialized: false,
+  store: new MongoStore({mongooseConnection: mongoose.connection, stringify: false})
+}))
 
 //serve react files in a production enviornment
 app.use(express.static(path.join(__dirname, 'client/build')));
@@ -28,12 +39,20 @@ app.get('/', (req, res) => {
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
+// MIDDLEWARE
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, 'public')));
 
+// PASSPORT
+configure(passport); // SETUP STRATEGIES ./middleware/passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// CONNECT ROUTES
+app.use('/auth', auth);
 app.use('/api', api);
 
 // catch 404 and forward to error handler

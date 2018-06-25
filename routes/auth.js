@@ -1,8 +1,7 @@
-
 /**
  * # Auth API
  * @description This is the API passport authentication
- * @author Philip Wisner & Daniel Kelly
+ * @author Michael McVeigh
  */
 
 //REQUIRE MODULES
@@ -29,7 +28,7 @@ router.post('/localSignup', (req, res, next) => {
   })(req, res, next);
 };
 
-const googleAuth = (req, res, next) => {
+router.post('/googleAuth', (req, res, next) => {
   passport.authenticate('google', {
      scope:["https://www.googleapis.com/auth/plus.login",
      "https://www.googleapis.com/auth/plus.profile.emails.read"
@@ -50,8 +49,4 @@ const logout = (req, res, next) => {
   res.redirect('/');
 };
 
-module.exports.logout = logout;
-module.exports.localLogin = localLogin;
-module.exports.localSignup = localSignup;
-module.exports.googleAuth = googleAuth;
-module.exports.googleReturn = googleReturn;
+modules.exports = router;
