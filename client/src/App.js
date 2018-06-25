@@ -20,13 +20,13 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(rootReducer, composeEnhancers(applyMiddleware(logger, thunk)));
 
 const App = (props) => (
-  // <Provider store={store}>
+  <Provider store={store}>
     <BrowserRouter>
       <main>
         <Route path="/" exact component={Layout} />
       </main>
-      {/* </Provider> */}
     </BrowserRouter>
+  </Provider>
 );
 
 export default App;

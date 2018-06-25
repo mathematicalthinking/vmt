@@ -29,7 +29,10 @@ class Login extends Component {
 
   loginHandler = (event) => {
     event.preventDefault();
-    this.props.onLogin(this.state.controls.username.value, this.state.controls.password.value)
+    this.props.onLogin(
+      this.state.controls.username.value,
+      this.state.controls.password.value
+    )
   }
 
   render() {
@@ -50,7 +53,7 @@ class Login extends Component {
     return (
       <div>
         <div>Login</div>
-        <form onSubmit={this.login}>
+        <form onSubmit={this.loginHandler}>
           {form}
           <button>Submit</button>
         </form>
@@ -61,7 +64,7 @@ class Login extends Component {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onLogin: () => dispatch(actions.login(email, password))
+    onLogin: (email, password) => dispatch(actions.login(email, password))
   }
 }
 export default connect(null, mapDispatchToProps)(Login);

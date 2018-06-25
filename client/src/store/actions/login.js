@@ -2,7 +2,7 @@ import * as actionTypes from './actionTypes';
 
 export const loginStart = () => {
   return {
-    type: actionTypes.AUTH_START
+    type: actionTypes.LOGIN_START
   }
 }
 
