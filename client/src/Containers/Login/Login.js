@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Input from '../../Components/Form/TextInput/TextInput';
-import * as actions from '../../store/actions/'
+import * as actions from '../../store/actions/';
+import GoogleSignIn from '../../Components/Form/Google/LoginButton';
 class Login extends Component {
   state = {
     controls: {
@@ -57,6 +58,8 @@ class Login extends Component {
           {form}
           <button>Submit</button>
         </form>
+        <div>or sign in with google</div>
+        <GoogleSignIn />
       </div>
     )
   }
