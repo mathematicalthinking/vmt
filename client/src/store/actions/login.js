@@ -20,6 +20,19 @@ export const loginFail = err => {
   }
 }
 
+export const googleLogin = (username, password) => {
+  return dispatch => {
+    dispatch(loginStart());
+    auth.googleLogin(username, password)
+    .then(result => {
+      dispatch(loginSuccess(result));
+    })
+    .catch(err => {
+      dispatch(loginFail(err));
+    })
+  }
+}
+
 export const login = (email, password) => {
   return dispatch => {
     dispatch(loginStart());

@@ -67,8 +67,9 @@ module.exports = (passport) => {
   passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: "/auth/google/callback"
+    callbackURL: "http://localhost:3000/auth/google/callback"
   }, (accessToken, refreshToken, profile, done) => {
+    console.log("ANything here?")
     console.log('profileid', profile.id);
     User.findOne({
       googleId: profile.id
@@ -95,7 +96,7 @@ module.exports = (passport) => {
           console.log('error saving', err);
           return done(err);
         }
-        done(null, newUser);
+        return done(null, newUser);
       });
     });
 

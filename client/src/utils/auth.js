@@ -12,4 +12,16 @@ export default {
       })
     })
   },
+
+  googleLogin: (username, password) => {
+    return new Promise((resolve, reject) => {
+      axios.post('/auth/googleAuth', {username, password,})
+      .then(response => {
+        resolve(response.data)
+      })
+      .catch(err => {
+        reject(err);
+      })
+    })
+  }
 }

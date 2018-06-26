@@ -36,6 +36,13 @@ class Login extends Component {
     )
   }
 
+  googleLogin = (event) => {
+    this.props.onGoogleLogin(
+      this.state.controls.username.value,
+      this.state.controls.password.value
+    )
+  }
+
   render() {
     const formElements = Object.keys(this.state.controls);
     const form = formElements.map(formElement => {
@@ -59,7 +66,7 @@ class Login extends Component {
           <button>Submit</button>
         </form>
         <div>or sign in with google</div>
-        <GoogleSignIn />
+        <GoogleSignIn click={this.googleLogin} />
       </div>
     )
   }
@@ -67,7 +74,8 @@ class Login extends Component {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onLogin: (email, password) => dispatch(actions.login(email, password))
+    onLogin: (username, password) => dispatch(actions.login(username, password)),
+    onGoogleLogin: (username, password) => dispatch(actions.googleLogin(username, password))
   }
 }
 export default connect(null, mapDispatchToProps)(Login);

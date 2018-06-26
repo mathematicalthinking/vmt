@@ -3,4 +3,5 @@ export {
   loginSuccess,
   loginFail,
   login,
+  googleLogin,
 } from './login';
