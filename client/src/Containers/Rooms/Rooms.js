@@ -4,7 +4,6 @@ import NewRoom from './NewRoom/NewRoom';
 import classes from './rooms.css';
 import api from '../../utils/apiRequests';
 class Rooms extends Component {
-
   state = {
     rooms: []
   }
@@ -16,8 +15,9 @@ class Rooms extends Component {
     })
   }
 
-  filter = () => {
-
+  filter = (event) => {
+    event.preventDefault();
+    console.log('filtering')
   }
 
   render() {
@@ -26,6 +26,7 @@ class Rooms extends Component {
     ))
     return (
       <div className={classes.Container}>
+        <button onClick={this.filter}>Show rooms created by me</button>
         <ul>
           {roomElems}
         </ul>

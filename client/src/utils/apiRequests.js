@@ -1,6 +1,9 @@
 import axios from 'axios';
 import Promise from 'bluebird';
 
+// we could make this more modular like the api handler on the backend
+// instead of having resource specific functions we could pass the resource
+// to the function along with other params, ids, etc.
 export default {
   getMessages: params => {
     return new Promise((resolve, reject) => {
