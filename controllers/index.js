@@ -1,17 +1,17 @@
-const Assignment = require('./AssignmentController');
-const Course = require('./CourseController');
-const Message = require('./MessageController');
-const Room = require('./RoomController');
-const Tab = require('./TabController');
-const Team = require('./TeamController');
-const User = require('./UserController');
+const assignment = require('./AssignmentController');
+const course = require('./CourseController');
+const message = require('./MessageController');
+const room = require('./RoomController');
+const tab = require('./TabController');
+const team = require('./TeamController');
+const user = require('./UserController');
 
 module.exports = {
-  Assignment,
-  Course,
-  Message,
-  Room,
-  Tab,
-  Team,
-  User,
+  assignment,
+  course,
+  message,
+  room,
+  tab,
+  team,
+  user,
 };

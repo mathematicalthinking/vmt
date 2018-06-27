@@ -6,7 +6,7 @@ router.get('/:resource', (req, res, next) => {
 	const resource = req.params.resource;
 	const controller = controllers[resource];
 	if (controller == null){
-		return res.json({
+		return res.status(400).json({
 			confirmation:'fail',
 			message:'Invalid resource...check your spelling'
 		})
@@ -30,7 +30,7 @@ router.get('/:resource/:id', (req, res, next) => {
 	const id = req.params.id
 	const controller  = controllers[resource]
 	if (controller == null){
-		res.json({
+		res.status(400).json({
 			confirmation:'fail',
 			message:'Invalid resource...check your spelling'
 		})
@@ -43,7 +43,7 @@ router.get('/:resource/:id', (req, res, next) => {
 		})
 	})
 	.catch(err => {
-		res.json({
+		res.status(400).json({
 			confirmation: 'fail',
 			message: err
 		})
@@ -54,7 +54,7 @@ router.post('/:action', (req, res, next) => {
 	const action = req.params.action;
 	const controller = controllers[action]
 	if (controller == null){
-		return res.json({
+		return res.status(400).json({
 			confirmation:'fail',
 			message:'Invalid resource...check your spelling'
 		})
@@ -70,7 +70,7 @@ router.post('/:action', (req, res, next) => {
 		})
 	})
 	.catch(err => {
-		res.json({
+		res.status(400).json({
 			confirmation: 'fail',
 			message: err
 		})
@@ -91,7 +91,7 @@ router.put('/:resouce', (req, res, next) => {
     res.json(result);
   })
   .catch(err => {
-    res.json({
+    res.status(400).json({
       confirmation: 'fail',
       message: err,
     })

@@ -2,7 +2,7 @@ import axios from 'axios';
 import Promise from 'bluebird';
 
 export default {
-  getMessages: () => {
+  getMessages: params => {
     return new Promise((resolve, reject) => {
       axios.get('/api/message')
       .then(response => {
@@ -14,7 +14,7 @@ export default {
     })
   },
 
-  postMessage: (message) => {
+  postMessage: message => {
     return new Promise((resolve, reject) => {
       axios.post('/api/message', message)
       .then(response => {
@@ -26,7 +26,7 @@ export default {
     })
   },
 
-  getUsers: () => {
+  getUsers: params => {
     return new Promise((resolve, reject) => {
       axios.get('/api/user')
       .then(response => {
@@ -38,15 +38,19 @@ export default {
     });
   },
 
-  postUser: (user) => {
+  postUser: user => {
     return new Promise((resolve, reject) => {
       axios.post('/api/user', user)
-      .then(response => {
-        resolve(response.data.results);
-      })
-      .catch(err => {
-        reject(err);
-      });
+      .then(response => resolve(response.data.results))
+      .catch(err => reject(err));
     });
+  },
+
+  getRooms: params => {
+    return new Promise((resolve, reject) => {
+      axios.get('/api/room')
+      .then(response => resolve(response.data.results))
+      .catch(err => reject(err))
+    })
   }
 }
