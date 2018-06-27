@@ -33,10 +33,10 @@ export const googleLogin = (username, password) => {
   }
 }
 
-export const login = (email, password) => {
+export const login = (username, password) => {
   return dispatch => {
     dispatch(loginStart());
-    auth.login(email, password)
+    auth.login(username, password)
     .then(result => {
       console.log(result);
       dispatch(loginSuccess(result))

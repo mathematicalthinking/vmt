@@ -5,7 +5,7 @@ export default {
       console.log("Making auth request from front end");
       axios.post('/auth/login', {username, password,})
       .then(response => {
-        resolve(response.data.result)
+        resolve(response.data)
       })
       .catch(err => {
         reject(err)

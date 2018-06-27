@@ -5,8 +5,6 @@ import { Provider } from 'react-redux';
 import rootReducer from './store/reducers'
 import thunk from 'redux-thunk';
 
-import { BrowserRouter, Route } from 'react-router-dom';
-
 const logger = store => {
   return next => {
     return action => {
@@ -21,11 +19,7 @@ const store = createStore(rootReducer, composeEnhancers(applyMiddleware(logger, 
 
 const App = (props) => (
   <Provider store={store}>
-    <BrowserRouter>
-      <main>
-        <Route path="/" exact component={Layout} />
-      </main>
-    </BrowserRouter>
+    <Layout />
   </Provider>
 );
 
