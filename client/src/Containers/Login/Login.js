@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import Input from '../../Components/Form/TextInput/TextInput';
 import * as actions from '../../store/actions/';
 import GoogleSignIn from '../../Components/Form/Google/LoginButton';
+import { Redirect } from 'react-router-dom';
 class Login extends Component {
   state = {
     controls: {
@@ -59,6 +60,8 @@ class Login extends Component {
       )
     })
     return (
+      this.props.loggedIn ?
+      <Redirect to='/rooms'/> :
       <div>
         <div>Login</div>
         <form onSubmit={this.loginHandler}>
@@ -67,7 +70,7 @@ class Login extends Component {
         </form>
         <div>or sign in with google</div>
         <GoogleSignIn click={this.googleLogin} />
-      </div>
+      </div> 
     )
   }
 }
@@ -78,4 +81,10 @@ const mapDispatchToProps = dispatch => {
     onGoogleLogin: (username, password) => dispatch(actions.googleLogin(username, password))
   }
 }
-export default connect(null, mapDispatchToProps)(Login);
+
+const mapStateToProps = store => {
+  return {
+    loggedIn: store.authReducer.loggedIn
+  }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

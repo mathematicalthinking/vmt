@@ -7,11 +7,11 @@ const navbar = (props) => {
       <NavItem link='/' name='VMT' />
       <NavItem link='/rooms' name='Rooms' />
       <NavItem link='/rooms/new' name='New Room' />
-      <NavItem link='/' name='New User' />
-      <NavItem link='/' name='Courses' />
-      <NavItem link='/' name='New Course' />
-      <NavItem link='/' name='Assign' />
-      <NavItem link='/' name='Logout' />
+      <NavItem link='/users/new' name='New User' />
+      <NavItem link='/courses/' name='Courses' />
+      <NavItem link='/courses/new' name='New Course' />
+      <NavItem link='/assign' name='Assign' />
+      <button onClick={props.Logout}>Logout</button>
     </div>
   )
 }
