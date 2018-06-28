@@ -1,0 +1,132 @@
+{{#if isEditing}}
+<div class="container-fluid">
+<div class="row-fluid">
+<div class="col-md-5">
+
+  <form>
+    <div class="form-group">
+      <label>Room Name:</label>{{input type="text" class="form-control" value=model.roomName}}
+    </div>
+  <h4>Current Tabs</h4>
+  {{#each tabEventMap as |item|}}
+    {{#unless item.count}}
+    <button {{action 'deleteTab' item.tabObj}} class="btn btn-danger">Delete</button>
+    {{/unless}}
+    {{item.tabObj.tabName}}
+  {{/each}}
+  <h4>Add A Tab</h4>
+    <div class="form-group">
+      <label>{{i18n "createRoom.tabName"}}:</label>{{input type="text" class="form-control" value=newTabName}}
+    </div>
+    <div class="form-group">
+      <label>Tab Type:</label>{{input type="text" class="form-control" value=newTabType}}
+    </div>
+    <div class="form-group">
+      <label>{{i18n "createRoom.initFile"}}</label>{{file-upload vController=this value=newTabFile onUpload=(action "tabFileLoaded") data-elmId='0'}}
+    </div>
+    <button {{action 'addTab'}} class="btn btn-default">Add</button>
+  </form>
+  <br/>
+  <button {{action 'doneEditing'}} class="btn btn-default">Done Editing</button>
+  <br/>
+
+<div class="col-md-7">
+</div> <!-- col 7 -->
+
+</div>
+</div>
+</div>
+{{else}}
+  <h3>{{model.roomName}}
+     <small>
+        <button id="enterRoomButton" {{action 'join'}} class="btn btn-primary">Enter</button>
+        {{#link-to 'room.logs' model.id class='btn btn-info' id='viewLogsButton'}}View Logs{{/link-to}}
+        <button {{action 'edit'}} class="btn btn-warning">Edit</button>
+        {{! replayer is experimental code for now}}
+        <button id="replayRoomButton" {{action 'replay'}} class="btn btn-primary">Replayer</button>
+        <!--
+        <button {{action 'chatReq'}} class="btn btn-danger">Chat Req</button>
+        -->
+     </small>
+  </h3>
+  <small class='muted'>created by {{model.creator}}</small>
+  <br/>
+{{/if}}
+  {{i18n "roomPage.usersInRoom"}}: {{currentUsers}}
+  {{i18n "roomPage.chatCount"}}: {{chatCount}}
+  {{i18n "roomPage.eventCount"}}: {{eventCount}}
+  <h4>Description:</h4>
+  <p>{{model.description}}</p>
+  <strong>{{i18n "roomPage.tabs"}}: </strong>
+  {{#each model.tabs as |tab|}}
+    <span class="tabNameListItem"><u>{{tab.tabName}}</u></span>
+  {{/each}}
+
+  <div class="container-fluid"> <!-- vmt session container -->
+  <div class="row">
+
+  <div class="col-md-9 nopadding-sides">
+  <div id="tabs">
+    <ul>
+      {{#each model.tabs as |tab index|}}
+      <li id="tab{{unbound tab.id}}" data-tabName={{tab.tabName}}>
+        <a href="#fragment-{{index1 index}}">{{tab.tabName}}
+          <br/>
+          <span id="tab{{unbound tab.id}}Controller" class="controllerLabel">none</span>
+        </a>
+          <button id="tab{{unbound tab.id}}CtrlBtn" class="in-control-none btn btn-default" {{action 'control' tab.id}} style="float:right;">control</button>
+      </li>
+      {{/each}}
+    </ul>
+
+
+    {{#each model.tabs as |tab index|}}
+    <iframe id="fragment-{{index1 index}}" class="vmtTab" src={{tab.url}} seamless></iframe>
+    {{/each}}
+  </div> <!-- end div id=tabs -->
+  </div> <!-- end div col-md-9 -->
+
+  <div class="col-md-3 nopadding-sides">
+    <div id="chatPane" class="hidden">
+      <section id="userList"></section>
+      <section id="chatWindow"></section>
+      <div id="chatEntryPanel">
+        <section id="chatControls" class="pull-left">
+          <span id="makeRef" class="btn btn-info" data-toggle="tooltip" data-placement="top" title="Reference another chat message">
+            <span class="fa-stack fa">
+              <i class="fa fa-square-o fa-stack-2x"></i>
+              <i class="fa fa-external-link fa-stack-1x"></i>
+            </span>
+          </span>
+
+          <span id="sendMsg" class="btn btn-success" data-toggle="tooltip" data-placement="top" title="Send message">
+            <span class="fa-stack fa">
+              <i class="fa fa-square-o fa-stack-2x"></i>
+              <i class="fa fa-send fa-stack-1x"></i>
+            </span>
+          </span>
+        </section>
+        <textarea id="chatEntry" placeholder="type chats here"></textarea>
+      </div>
+    </div>
+  </div>
+
+
+  </div> <!-- end row -->
+
+  <div class="row">
+    {{outlet}}
+  </div> <!-- end row -->
+
+  <div id="replayerControlPanel" class="row hidden">
+    <div class="col-md-12 nopadding-sides">
+      <button id="startReplay" {{action 'play'}} class="btn btn-primary">Play</button>
+      <button id="startReplay" {{action 'manual'}} class="btn btn-primary">Manual</button>
+      <button id="stopReplay" {{action 'stop'}} class="btn btn-danger">Stop</button>
+      <button id="stopReplay" {{action 'reset'}} class="btn btn-warning">Reset</button>
+    </div>
+    <div id="sliderRegion" class="col-md-12 nopadding-sides">
+    </div>
+  </div>
+
+  </div> <!-- end vmt session container -->

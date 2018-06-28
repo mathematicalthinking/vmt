@@ -12,13 +12,14 @@ class Rooms extends Component {
     allRooms: true,
   }
   componentDidMount() {
-    this.props.getRooms()
+    // only dispatch action if we need to
+    if (!this.props.rooms.length) {
+      this.props.getRooms();
+    }
   }
 
   filter = (event) => {
-    this.setState({
-      allRooms: !this.state.allRooms
-    })
+    this.setState({allRooms: !this.state.allRooms})
   }
 
   render() {

@@ -3,6 +3,7 @@ import classes from './Layout.css';
 import Navbar from '../../Components/Navigation/Navbar';
 import Login from '../Login/Login';
 import Rooms from '../Rooms/Rooms';
+import Room from '../Room/Room';
 import PrivateRoute from '../../Components/HOC/PrivateRoute';
 import { connect } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
@@ -18,7 +19,7 @@ class Layout extends Component {
             <Route exact path='/' component={Login}/>
             <PrivateRoute path='/rooms' authed={this.props.loggedIn} component={Rooms}/>
             <PrivateRoute path='/rooms/new' authed={this.props.loggedIn} component={Rooms}/>
-            <PrivateRoute path='/rooms/:id' authed={this.props.loggedIn} component={Rooms}/>
+            <PrivateRoute path='/room/:id' authed={this.props.loggedIn} component={Room}/>
             <PrivateRoute path='/users/new' authed={this.props.loggedIn} component={Rooms}/>
             <PrivateRoute path='/courses' authed={this.props.loggedIn} component={Rooms}/>
             <PrivateRoute path='/courses/new' authed={this.props.loggedIn} component={Rooms}/>
