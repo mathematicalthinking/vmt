@@ -31,7 +31,7 @@ router.post('/signup', (req, res, next) => {
   })(req, res, next);
 });
 
-router.post('/googleAuth', (req, res, next) => {
+router.get('/googleAuth', (req, res, next) => {
   console.log("authorizing google")
   passport.authenticate('google', {
      scope:["https://www.googleapis.com/auth/plus.login",
@@ -40,7 +40,7 @@ router.post('/googleAuth', (req, res, next) => {
   })(req,res,next);
 });
 
-router.get('/auth/google/callback', (req, res, next) => {
+router.get('/google/callback', (req, res, next) => {
   console.log("callback initiated");
   passport.authenticate('google', {
     failureRedirect: "/#/login",

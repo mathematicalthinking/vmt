@@ -6,6 +6,7 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const passport = require('passport');
+const exphbs = require('express-handlebars');
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 const mongoose = require('mongoose');
@@ -31,11 +32,20 @@ app.use(require('express-session')({
   store: new MongoStore({mongooseConnection: mongoose.connection, stringify: false})
 }))
 
+// setup view engine for server side rendering
+// app.engine('handlebars', exphbs({defaultLayout: 'ggbMain'}));
+// app.set('view engine', 'handlebars');
+
 //serve react files in a production enviornment
-app.use(express.static(path.join(__dirname, 'client/build')));
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname+'/client/build/index.html'));
-});
+// app.use(express.static(path.join(__dirname, 'client/build')));
+// app.use( '/ggb', express.static(__dirname + '/concertChatApps/ggbMulti') );
+// app.get('/ggb/:id', (req, res, next) => {
+//   res.render()
+// })
+// app.get('/', (req, res) => {
+//   res.sendFile(path.join(__dirname+'/client/build/index.html'));
+// });
+
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
