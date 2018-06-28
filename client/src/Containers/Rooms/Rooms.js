@@ -2,17 +2,16 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import NewRoom from './NewRoom/NewRoom';
 import classes from './rooms.css';
-import api from '../../utils/apiRequests';
+import * as actions from '../../store/actions/';
+import { connect } from 'react-redux';
+
 class Rooms extends Component {
   state = {
     rooms: []
   }
 
   componentDidMount() {
-    api.getRooms()
-    .then(result => {
-      this.setState({rooms: result})
-    })
+    this.props.getRooms()
   }
 
   filter = (event) => {
@@ -36,4 +35,18 @@ class Rooms extends Component {
   }
 }
 
-export default Rooms;
+// connect react functions to redux actions
+const mapDispatchToProps = dispatch => {
+  return {
+    getRooms: (username, password) => dispatch(actions.getRooms()),
+  }
+}
+
+// connect redux store to react props
+const mapStateToProps = store => {
+  return {
+    rooms: store.roomReducer.rooms,
+    myRooms: store.userReduce.rooms
+  }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(Rooms);

@@ -19,7 +19,7 @@ class Login extends Component {
       }
     }
   }
-
+  // pass to text inputs to update state from user input
   changeHandler = (event) => {
     let updatedControls =  { ...this.state.controls };
     updatedControls[event.target.name].value = event.target.value;
@@ -29,13 +29,16 @@ class Login extends Component {
 
   }
 
+  // submit form
   loginHandler = (event) => {
     event.preventDefault();
+    // pass submission off to redux
     this.props.onLogin(
       this.state.controls.username.value,
       this.state.controls.password.value
     )
   }
+
 
   googleLogin = (event) => {
     this.props.onGoogleLogin(
@@ -70,11 +73,12 @@ class Login extends Component {
         </form>
         <div>or sign in with google</div>
         <GoogleSignIn click={this.googleLogin} />
-      </div> 
+      </div>
     )
   }
 }
 
+// connect react functions to redux actions
 const mapDispatchToProps = dispatch => {
   return {
     onLogin: (username, password) => dispatch(actions.login(username, password)),
@@ -82,6 +86,7 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
+// connect redux store to react props
 const mapStateToProps = store => {
   return {
     loggedIn: store.authReducer.loggedIn
