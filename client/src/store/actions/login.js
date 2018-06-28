@@ -37,8 +37,7 @@ export const login = (username, password) => {
   return dispatch => {
     dispatch(loginStart());
     auth.login(username, password)
-    .then(result => {
-      console.log(result);
+    .then(result => {;
       dispatch(loginSuccess(result))
     })
     .catch(err => {

@@ -15,7 +15,7 @@ const controllers = require('../controllers')
 router.post('/login', (req, res, next) => {
   passport.authenticate('local-login', (err, user, info) => {
     if (user) {
-      console.log("validated");
+      console.log("validated: ", user);
       return res.json(user)
     }
     else {return res.status(401).json({message: info})}

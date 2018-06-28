@@ -6,21 +6,24 @@ import * as actions from '../../store/actions/';
 import { connect } from 'react-redux';
 
 class Rooms extends Component {
+  // local state describing which rooms should be displayed
+  // all, or just the user's
   state = {
-    rooms: []
+    allRooms: true,
   }
-
   componentDidMount() {
     this.props.getRooms()
   }
 
   filter = (event) => {
-    event.preventDefault();
-    console.log('filtering')
+    this.setState({
+      allRooms: !this.state.allRooms
+    })
   }
 
   render() {
-    const roomElems = this.state.rooms.map(room => (
+    const rooms = this.state.allRooms ? 'rooms' : 'myRooms';
+    const roomElems = this.props[rooms].map(room => (
       <li><b>Name: </b><Link to={`/room/${room._id}`}>{room.roomName}</Link></li>
     ))
     return (
@@ -45,8 +48,8 @@ const mapDispatchToProps = dispatch => {
 // connect redux store to react props
 const mapStateToProps = store => {
   return {
-    rooms: store.roomReducer.rooms,
-    myRooms: store.userReduce.rooms
+    rooms: store.roomsReducer.rooms,
+    myRooms: store.authReducer.myRooms
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Rooms);

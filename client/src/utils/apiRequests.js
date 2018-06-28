@@ -51,6 +51,7 @@ export default {
 
   getRooms: params => {
     return new Promise((resolve, reject) => {
+      console.log("getting rooms")
       axios.get('/api/room')
       .then(response => resolve(response.data.results))
       .catch(err => reject(err))

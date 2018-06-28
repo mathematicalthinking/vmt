@@ -10,7 +10,7 @@ export const gotRooms = (rooms) => {
 
 export const getRooms = () => {
   return dispatch => {
-    API.get('/rooms')
+    API.getRooms()
     .then(result => dispatch(gotRooms(result)))
     .catch(err => console.log(err));
   }
