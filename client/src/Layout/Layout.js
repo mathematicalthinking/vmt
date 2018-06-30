@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import Navbar from '../../Components/Navigation/Navbar';
-import Login from '../Login/Login';
-import Rooms from '../Rooms/Rooms';
-import Room from '../Room/Room';
-import PrivateRoute from '../../Components/HOC/PrivateRoute';
+import Navbar from '../Components/Navigation/Navbar';
+import Login from '../Containers/Login/Login';
+import Rooms from '../Containers/Rooms/Rooms';
+import Room from '../Containers/Room/Room';
+import PrivateRoute from '../Components/HOC/PrivateRoute';
 import { connect } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 class Layout extends Component {

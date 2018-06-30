@@ -1,5 +1,5 @@
 import React from 'react';
-import Layout from './Containers/Layout/Layout';
+import Layout from './Layout/Layout';
 import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
 import rootReducer from './store/reducers'
