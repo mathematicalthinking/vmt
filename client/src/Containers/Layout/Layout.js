@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import classes from './Layout.css';
 import Navbar from '../../Components/Navigation/Navbar';
 import Login from '../Login/Login';
 import Rooms from '../Rooms/Rooms';
@@ -12,8 +11,8 @@ class Layout extends Component {
   render() {
     return (
       <Router>
-        <div className={classes.Layout}>
-          <div>Welcome to Virtual Math Teams</div>
+        <div style={{margin: 20}}>
+          <h2>Welcome To Virtual Math Teams</h2>
           <Navbar />
           <Switch>
             <Route exact path='/' component={Login}/>
