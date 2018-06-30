@@ -4,6 +4,7 @@ import Input from '../../Components/Form/TextInput/TextInput';
 import * as actions from '../../store/actions/';
 import GoogleSignIn from '../../Components/Form/Google/LoginButton';
 import { Redirect } from 'react-router-dom';
+import glb from '../../global.css';
 class Login extends Component {
   state = {
     controls: {
@@ -59,17 +60,18 @@ class Login extends Component {
           placeholder={elem.placeholder}
           value={elem.value}
           change={this.changeHandler}
+          label={elem.placeholder}
         />
       )
     })
+
     return (
-      this.props.loggedIn ?
-      <Redirect to='/rooms'/> :
-      <div>
-        <div>Login</div>
-        <form onSubmit={this.loginHandler}>
+      this.props.loggedIn ? <Redirect to='/rooms'/> :
+      <div className='col-md-5'>
+        <h3>Login</h3>
+        <form onSubmit={this.loginHandler} className={glb.FlexCol}>
           {form}
-          <button>Submit</button>
+          <Input type='submit' value='login'/>
         </form>
         <div>or sign in with google</div>
         <GoogleSignIn click={this.googleLogin} />
