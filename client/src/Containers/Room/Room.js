@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import Workspace from './Workspace/Workspace';
+import Chat from './Chat/Chat';
 class Room extends Component {
   state = {
     roomName: 'room1',
@@ -22,44 +24,43 @@ class Room extends Component {
   }
   render() {
     let tabList;
-    let geogebraWorkSpace = this.state.roomActive ?
-    <iframe
-      height={400}
-      width={600}
-      title={this.state.roomName}
-      id={`fragment-${this.state.roomName}`}
-      src={`http://localhost:3001/ggb/5b33e4907cd6eb3a6079b0ec`}>
-    </iframe> : null;
-      return(
+    return(
+      <div>
+        <h3>
+          {this.state.roomName}
+        </h3>
         <div>
-          <h3>
-            {this.state.roomName}
-            <small>
-              <button id="enterRoomButton" onClick={this.joinRoom} className="btn btn-primary">Enter</button>
-              <Link to='rooms/logs' className='btn btn-info'>View Logs</Link>
-              <button onClick={this.editRoom} className="btn btn-warning">Edit</button>
-              <button id="replayRoomButton" onClick={this.replayEvents} class="btn btn-primary">Replayer</button>
-            </small>
-          </h3>
-          <small className='muted'>createdBy {this.state.creator}</small>
-          <br/>
-          <div>Users in room</div>
-          <div>chat count</div>
-          <div>event count</div>
-          <h4>Description</h4>
-          <p>{this.state.description}</p>
-          <strong>Tabs: </strong>
-          {tabList}
-          <div className='container-fluid'>
+          <button id="enterRoomButton" onClick={this.joinRoom} className='btn btn-primary' style={{margin: 10}}>Enter</button>
+          <Link to='rooms/logs' className='btn btn-info' style={{margin: 10}}>View Logs</Link>
+          <button onClick={this.editRoom} className="btn btn-warning" style={{margin: 10}}>Edit</button>
+          <button id="replayRoomButton" onClick={this.replayEvents} class="btn btn-primary" style={{margin: 10}}>Replayer</button>
+        </div>
+        <small className='muted'>createdBy {this.state.creator}</small>
+        <br/>
+        <div>
+          <span>Users in room: </span>
+          <span>chats: </span>
+          <span>events: </span>
+        </div>
+        <h4>Description</h4>
+        <p>{this.state.description}</p>
+        <strong>Tabs: </strong>
+        {tabList}
+        <div className='container-fluid'>
+          <div className='col-md-9'>
             <div id="tabs">
               <ul>
                 {tabList}
               </ul>
             </div>
-            {geogebraWorkSpace}
+            {this.state.roomActive ? <Workspace roomName={this.state.roomName}/> : null}
+          </div>
+          <div className='col-md-3'>
+            {this.state.roomActive ? <Chat /> : null}
           </div>
         </div>
-      )
+      </div>
+    )
   }
 }
 
