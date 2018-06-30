@@ -6,6 +6,7 @@ const TextInput = (props) => {
     <Aux>
       {props.label ? <label htmlFor={props.name}>{props.label}</label> : null}
       <input
+        className={props.class}
         type={props.type}
         id={props.name}
         name={props.name}

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import NewRoom from './NewRoom/NewRoom';
-import classes from './rooms.css';
+// import classes from './rooms.css';
 import * as actions from '../../store/actions/';
 import { connect } from 'react-redux';
 
@@ -12,6 +12,8 @@ class Rooms extends Component {
     allRooms: true,
   }
   componentDidMount() {
+    console.log(this.props.history.location.pathname)
+    console.log(this.props.match)
     // only dispatch action if we need to
     if (!this.props.rooms.length) {
       this.props.getRooms();
@@ -19,21 +21,30 @@ class Rooms extends Component {
   }
 
   filter = (event) => {
+    console.log('filtering')
+    event.preventDefault();
     this.setState({allRooms: !this.state.allRooms})
   }
 
   render() {
     const rooms = this.state.allRooms ? 'rooms' : 'myRooms';
     const roomElems = this.props[rooms].map(room => (
-      <li><b>Name: </b><Link to={`/room/${room._id}`}>{room.roomName}</Link></li>
+      <li><label>Name: </label><Link to={`/room/${room._id}`}>{room.roomName}</Link></li>
     ))
     return (
-      <div className={classes.Container}>
-        <button onClick={this.filter}>Show rooms created by me</button>
-        <ul>
-          {roomElems}
-        </ul>
-        <NewRoom />
+      <div className='container-fluid'>
+        <div className='row-fluid'>
+          <div className='col-md-2'>
+            <label>Show rooms created by me:</label>
+            <input type='checkbox' name='showMyRooms' onClick={this.filter}/>
+            <ul>
+              {roomElems}
+            </ul>
+          </div>
+          <div className='col-md-10'>
+            {(this.props.match.path === '/rooms/new') ? <NewRoom /> : null}
+          </div>
+        </div>
       </div>
     )
   }
