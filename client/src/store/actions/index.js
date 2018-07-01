@@ -9,3 +9,7 @@ export {
   getRooms,
   gotRooms,
 } from './rooms';
+export {
+  getCourses,
+  gotCourses,
+} from './courses';

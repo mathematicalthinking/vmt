@@ -6,6 +6,7 @@ const initialState = {
   loggedIn: false,
   loggingIn: false,
   myRooms: [],
+  myCourses: [],
 }
 
 const reducer = (state = initialState, action) => {

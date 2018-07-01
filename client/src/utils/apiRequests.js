@@ -56,5 +56,13 @@ export default {
       .then(response => resolve(response.data.results))
       .catch(err => reject(err))
     })
+  },
+
+  getCourses: params => {
+    return new Promise((resolve, reject) => {
+      axios.get('/api/courses')
+      .then(response => {resolve(response.data.results)})
+      .catch(err => reject(err))
+    })
   }
 }

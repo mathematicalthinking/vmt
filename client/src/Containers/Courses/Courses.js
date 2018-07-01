@@ -1,9 +1,16 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 import NewCourse from './NewCourse/NewCourse';
+import * as actions from '../../store/actions';
+
 class Courses extends Component {
   state = {
     allCourses: true
+  }
+
+  componentDidMount() {
+    this.props.getCourses()
   }
 
   filter = (event) => {
@@ -12,7 +19,7 @@ class Courses extends Component {
   }
 
   render() {
-    const courses = this.state.allRooms ? 'courses' : 'myCourses';
+    const courses = this.state.allCourses ? 'courses' : 'myCourses';
     const courseElems = this.props[courses].map(course => (
       <li><label>Name: </label><Link to={`/room/${course._id}`}>{course.name}</Link></li>
     ))
@@ -35,5 +42,16 @@ class Courses extends Component {
   }
 }
 
+const mapDispatchToProps = dispatch => {
+  return {
+    getCourses: () => dispatch(actions.getCourses()),
+  }
+}
 
-export default Courses;
+const mapStateToProps = store => ({
+    courses: store.coursesReducer.courses,
+    myCourses: store.authReducer.myCourses
+  })
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(Courses);
