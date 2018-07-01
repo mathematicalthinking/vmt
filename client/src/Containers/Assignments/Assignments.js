@@ -4,6 +4,7 @@ class Assignments extends Component {
   state = {
     assignCourses: true, // falses = rooms
     assignIndividuals: true, // false = teams
+    assignment: {}
   }
 
   toggleWhat = () => {

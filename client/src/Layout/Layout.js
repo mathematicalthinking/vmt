@@ -4,6 +4,7 @@ import Login from '../Containers/Login/Login';
 import Rooms from '../Containers/Rooms/Rooms';
 import Room from '../Containers/Room/Room';
 import Courses from '../Containers/Courses/Courses';
+import NewUser from '../Containers/NewUser/NewUser';
 import Assignments from '../Containers/Assignments/Assignments';
 import PrivateRoute from '../Components/HOC/PrivateRoute';
 import { connect } from 'react-redux';
@@ -21,7 +22,7 @@ class Layout extends Component {
             <PrivateRoute exact path='/rooms' authed={this.props.loggedIn} component={Rooms}/>
             <PrivateRoute exact path='/rooms/new' authed={this.props.loggedIn} component={Rooms}/>
             <PrivateRoute path='/room/:id' authed={this.props.loggedIn} component={Room}/>
-            <PrivateRoute path='/users/new' authed={this.props.loggedIn} component={Rooms}/>
+            <PrivateRoute path='/users/new' authed={this.props.loggedIn} component={NewUser}/>
             <PrivateRoute exact path='/courses' authed={this.props.loggedIn} component={Courses}/>
             <PrivateRoute exact path='/courses/new' authed={this.props.loggedIn} component={Courses}/>
             <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/>
