@@ -6,6 +6,21 @@ class Assignments extends Component {
     assignIndividuals: true, // false = teams
   }
 
+  toggleWhat = () => {
+    console.log('we in here')
+    const assignCourses = this.state.assignCourses;
+    this.setState({
+      assignCourses: !assignCourses
+    })
+  }
+
+  toggleTo = () => {
+    const assignIndividuals = this.state.assignIndividuals;
+    this.setState({
+      assignIndividuals: !assignIndividuals
+    })
+  }
+
   render() {
     const courses = ['sampleCourse1', 'samplecourse2'];
     const teams = ['sampleteam1', 'sampleTeam2'];
@@ -19,7 +34,7 @@ class Assignments extends Component {
     let assignToTitle = 'Users to give assignments';
     let assignToList = users.map(user => <div>{user}</div>)
 
-    if (!this.state.assignCourse) {
+    if (!this.state.assignCourses) {
       assignWhat = 'Assign Rooms';
       assignWhatTitle = 'Rooms you can assign';
       assignWhatList = rooms.map(room => (
@@ -42,7 +57,7 @@ class Assignments extends Component {
           <div className='row-fluid'>
             <div className='col-md-4'>
               <div>
-                <button className='btn btn-default'>{assignWhat}</button>
+                <button onClick={this.toggleWhat} className='btn btn-default'>{assignWhat}</button>
                 <section>
                   <h4>{assignWhatTitle}</h4>
                   {assignWhatList}
@@ -50,7 +65,7 @@ class Assignments extends Component {
               </div>
             </div>
             <div className='col-md-4'>
-              <button className='btn btn-default'>{assignTo}</button>
+              <button onClick={this.toggleTo} className='btn btn-default'>{assignTo}</button>
               <section>
                 <h4>{assignToTitle}</h4>
                 {assignToList}

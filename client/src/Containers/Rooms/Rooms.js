@@ -22,8 +22,9 @@ class Rooms extends Component {
 
   filter = (event) => {
     console.log('filtering')
+    const allRooms = this.state.allRooms;
     event.preventDefault();
-    this.setState({allRooms: !this.state.allRooms})
+    this.setState({allRooms: !allRooms})
   }
 
   render() {
