@@ -11,8 +11,7 @@ router.get('/:resource', (req, res, next) => {
 			message:'Invalid resource...check your spelling'
 		})
 	}
-	controller.get(req.query)
-	.then(results => {
+	controller.get(req.query).then(results => {
 		res.json({
 	    confirmation: 'success',
 	    results: results

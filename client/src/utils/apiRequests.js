@@ -60,7 +60,7 @@ export default {
 
   getCourses: params => {
     return new Promise((resolve, reject) => {
-      axios.get('/api/courses')
+      axios.get('/api/course')
       .then(response => {resolve(response.data.results)})
       .catch(err => reject(err))
     })

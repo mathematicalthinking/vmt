@@ -52,14 +52,13 @@ module.exports = (passport) => {
   }));
 
   passport.use('local-login', new LocalStrategy((username, password, next) => {
-    console.log(username, password, " <-- un and pw")
     User.findOne({ 'username':  username }, (err, user) => {
       console.log("Find anything?")
       if (err) return next(err);
       if (!user) return next(null, false, {message: 'No user found.'});
       // if (!user.validPassword(password)) return next(null, false, {message: 'Oops! Wrong password.'});
       return next(null, user);
-    }).populate('rooms').lean();
+    }).populate('rooms').populate('courses').lean();
   }));
 
 
