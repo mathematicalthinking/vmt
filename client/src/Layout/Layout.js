@@ -21,8 +21,8 @@ class Layout extends Component {
             <PrivateRoute exact path='/rooms/new' authed={this.props.loggedIn} component={Rooms}/>
             <PrivateRoute path='/room/:id' authed={this.props.loggedIn} component={Room}/>
             <PrivateRoute path='/users/new' authed={this.props.loggedIn} component={Rooms}/>
-            <PrivateRoute path='/courses' authed={this.props.loggedIn} component={Courses}/>
-            <PrivateRoute path='/courses/new' authed={this.props.loggedIn} component={Courses}/>
+            <PrivateRoute exact path='/courses' authed={this.props.loggedIn} component={Courses}/>
+            <PrivateRoute exact path='/courses/new' authed={this.props.loggedIn} component={Courses}/>
             <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Rooms}/>
             <Route path="*" render={() => {
               return (<div>Error</div>)

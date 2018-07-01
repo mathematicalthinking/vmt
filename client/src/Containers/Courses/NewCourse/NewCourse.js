@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
 class NewCourse extends Component {
   state = {
-    roomName: '',
+    courseName: '',
     description: ''
   }
 
-  changeHandler = (event) => {
+  changeHandler = event => {
     let updatedControls =  { ...this.state.controls };
     updatedControls[event.target.name].value = event.target.value;
     this.setState({
@@ -14,9 +14,13 @@ class NewCourse extends Component {
     })
   }
 
-  submitForm = (event) => {
-    event.preventDefault();
+  addRoom = () => {
 
+  }
+
+  submitForm = event => {
+    event.preventDefault();
+    console.log('do nopthiong?')
   }
 
   render() {
@@ -28,7 +32,7 @@ class NewCourse extends Component {
               <div className='form-group'>
                 <TextInput
                   name="roomName"
-                  label="Enter Room Name"
+                  label="Enter Course Name"
                   class='form-control'
                 />
               </div>
@@ -39,7 +43,11 @@ class NewCourse extends Component {
                   class='form-control'
                 />
               </div>
-              <button className='btn btn-default' onClick={this.addTab}>Add Tab</button>
+              <select>
+                {/** this will need to be a dynamically rendered list**/}
+                <option value='1'>{this.props.course}</option>
+              </select>
+              <button className='btn btn-default' onClick={this.addTab}>Add Room</button>
               <p></p>
               <button className='btn btn-default' onClick={this.submitForm}>Submit</button>
             </form>

@@ -21,8 +21,9 @@ class Courses extends Component {
   render() {
     const courses = this.state.allCourses ? 'courses' : 'myCourses';
     const courseElems = this.props[courses].map(course => (
-      <li><label>Name: </label><Link to={`/room/${course._id}`}>{course.name}</Link></li>
+      <li><label>Name: </label><Link to={`/course/${course._id}`}>{course.name}</Link></li>
     ))
+    console.log(this.props.match.path);
     return (
       <div className='container-fluid'>
         <div className='row-fluid'>
@@ -34,7 +35,9 @@ class Courses extends Component {
             </ul>
           </div>
           <div className='col-md-10'>
-            {(this.props.match.path === '/courses/new') ? <NewCourse /> : null}
+            {/* eventually we'll want to make this.props.myRooms the whole list
+            but for now we can just send the first element */}
+            {(this.props.match.path === '/courses/new') ? <NewCourse room={this.props.myRooms[0]}/> : null}
           </div>
         </div>
       </div>
@@ -50,7 +53,8 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = store => ({
     courses: store.coursesReducer.courses,
-    myCourses: store.authReducer.myCourses
+    myCourses: store.authReducer.myCourses,
+    myRooms: store.authReducer.myRooms
   })
 
 
