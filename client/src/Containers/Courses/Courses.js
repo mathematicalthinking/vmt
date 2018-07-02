@@ -53,8 +53,8 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = store => ({
     courses: store.coursesReducer.courses,
-    myCourses: store.authReducer.myCourses,
-    myRooms: store.authReducer.myRooms
+    myCourses: store.userReducer.myCourses,
+    myRooms: store.userReducer.myRooms
   })
 
 

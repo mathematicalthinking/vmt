@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import Workspace from './Workspace/Workspace';
 import Chat from './Chat/Chat';
+import { connect } from 'react-redux';
 class Room extends Component {
   state = {
     roomName: 'room1',
@@ -57,7 +58,7 @@ class Room extends Component {
             {this.state.roomActive ? <Workspace roomName={this.state.roomName}/> : null}
           </div>
           <div className='col-md-3'>
-            {this.state.roomActive ? <Chat /> : null}
+            {this.state.roomActive ? <Chat user={this.props.user}/> : null}
           </div>
         </div>
       </div>
@@ -65,4 +66,11 @@ class Room extends Component {
   }
 }
 
-export default Room;
+const mapStateToProps = store => {
+  return {user: store.userReducer.username}
+}
+
+const mapDispatchToProps = dispatch => {
+
+}
+export default connect(mapStateToProps, mapDispatchToProps)(Room);
