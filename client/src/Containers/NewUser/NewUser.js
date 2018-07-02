@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import TextInput from '../../Components/Form/TextInput/TextInput';
-import Aux from '../../Components/HOC/Auxil';
 import glb from '../../global.css';
 class NewUser extends Component {
   state = {
@@ -42,13 +41,13 @@ class NewUser extends Component {
       )
     )
     return (
-      <Aux>
+      <div className='col-md-4'>
         <h2>Create A New User</h2>
         <div className={glb.FlexCol}>
           {formElements}
         </div>
         <button classNamee='btn btn-default'>Create</button>
-      </Aux>
+      </div>
     )
   }
 }

@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
+import NewTab from './NewTab/NewTab';
+
 class NewRoom extends Component {
   state = {
     roomName: '',
-    description: ''
+    description: '',
+    tabCount: 0,
   }
 
   changeHandler = (event) => {
@@ -14,12 +17,28 @@ class NewRoom extends Component {
     })
   }
 
+  addTab = (event) => {
+    console.log('we in here')
+    event.preventDefault();
+    let tabCount = this.state.tabCount;
+    tabCount++;
+    this.setState({
+      tabCount,
+    })
+  }
+
   submitForm = (event) => {
     event.preventDefault();
 
   }
 
   render() {
+    let tabs = [];
+    if (this.state.tabCount > 0) {
+      for (let i = 0; i < this.state.tabCount; i++) {
+        tabs.push(<NewTab />)
+      }
+    }
     return (
       <div className='container-fluid'>
         <div className='row-fluid'>
@@ -39,6 +58,7 @@ class NewRoom extends Component {
                   class='form-control'
                 />
               </div>
+              {tabs}
               <button className='btn btn-default' onClick={this.addTab}>Add Tab</button>
               <p></p>
               <button className='btn btn-default' onClick={this.submitForm}>Submit</button>

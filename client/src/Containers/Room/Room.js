@@ -8,6 +8,7 @@ class Room extends Component {
     creator: 'mike',
     description:'welcome to room 1',
     roomActive: false,
+    addingTab: false,
   }
 
   joinRoom = () => {
