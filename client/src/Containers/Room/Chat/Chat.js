@@ -29,7 +29,6 @@ class Chat extends Component {
       timestamp: Date.now()
     }
     let updatedMessages = [...this.state.messages, newMessage]
-    console.log(updatedMessages);
     this.setState({
       messages: updatedMessages,
       newMessage: '',
@@ -56,7 +55,7 @@ class Chat extends Component {
           {messages}
         </section>
         <div id='chatEntryPanel'>
-          <TextInput change={this.changeHandler} type='text' name='message'/>
+          <TextInput change={this.changeHandler} type='text' name='message' value={this.state.newMessage}/>
           <button onClick={this.submitMessage}>send</button>
         </div>
       </div>
