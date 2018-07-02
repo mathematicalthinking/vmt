@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
 import classes from './chat.css';
 import glb from '../../../global.css';
+import io from 'socket.io-client';
 class Chat extends Component {
   state = {
     users: [{username: 'mike', }, {username: 'steve'}],
@@ -13,6 +14,23 @@ class Chat extends Component {
       timestamp: 'some date'
     }],
     newMessage: ''
+  }
+
+  componentDidMount() {
+    //connect to the backend websocket
+    this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
+    // join a chat room for this location
+    this.socket.on('connect', () => {
+      this.socket.emit('JOIN', 123456);
+    })
+    this.socket.on('RECEIVE_MESSAGE', (data) => {
+      console.log("received message ")
+      let newMessages = [...this.state.messages, data]
+      console.log('Setting state line 40')
+      this.setState({
+        messages: newMessages
+      })
+    });
   }
 
   changeHandler = (event) => {
@@ -28,6 +46,12 @@ class Chat extends Component {
       user: this.props.user,
       timestamp: Date.now()
     }
+
+    this.socket.emit('SEND_MESSAGE', newMessage, () => {
+      console.log("SETTING STATE");
+      console.log("MESSAGE SENT");
+    })
+
     let updatedMessages = [...this.state.messages, newMessage]
     this.setState({
       messages: updatedMessages,

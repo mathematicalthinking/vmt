@@ -10,8 +10,6 @@ const exphbs = require('express-handlebars');
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 const mongoose = require('mongoose');
-const socket_io = require('socket-io');
-const io = socket_io();
 require('dotenv').config();
 
 // REQUIRE FILES
@@ -20,8 +18,20 @@ const api = require('./routes/api');
 const auth = require('./routes/auth');
 
 const app = express();
-// Attach io to the app
-app.io = io;
+
+// io.on('connection', socket => {
+//   console.log("as user connected: ", socket.id);
+//   socket.on('JOIN', (room) => {
+//     console.log("JOIN: ",room)
+//     socket.join(room)
+//   });
+//   socket.on('SEND_MESSAGE', (data) => {
+//     console.log(data)
+//     socket.broadcast.to(data.room).emit('RECEIVE_MESSAGE', data);
+//   })
+// })
+
+
 
 // SETUP DATABASE & SESSION
 mongoose.connect(process.env.MONGO_URI, (err, res) => {
