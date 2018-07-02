@@ -25,6 +25,7 @@ class Room extends Component {
 
   }
   render() {
+    console.log(this.props.match)
     let tabList;
     return(
       <div>
@@ -58,7 +59,7 @@ class Room extends Component {
             {this.state.roomActive ? <Workspace roomName={this.state.roomName}/> : null}
           </div>
           <div className='col-md-3'>
-            {this.state.roomActive ? <Chat user={this.props.user}/> : null}
+            {this.state.roomActive ? <Chat roomId={this.props.match.params.id} user={this.props.user}/> : null}
           </div>
         </div>
       </div>
@@ -67,7 +68,10 @@ class Room extends Component {
 }
 
 const mapStateToProps = store => {
-  return {user: store.userReducer.username}
+  return {
+    user: store.userReducer.username,
+
+  }
 }
 
 const mapDispatchToProps = dispatch => {

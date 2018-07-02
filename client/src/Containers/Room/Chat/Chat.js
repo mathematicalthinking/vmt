@@ -19,9 +19,10 @@ class Chat extends Component {
   componentDidMount() {
     //connect to the backend websocket
     this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
-    // join a chat room for this location
+    // join a chat for this room
+    console.log(this.props.roomId)
     this.socket.on('connect', () => {
-      this.socket.emit('JOIN', 123456);
+      this.socket.emit('JOIN', this.props.roomId);
     })
     this.socket.on('RECEIVE_MESSAGE', (data) => {
       console.log("received message ")
@@ -46,7 +47,7 @@ class Chat extends Component {
       user: this.props.user,
       timestamp: Date.now()
     }
-
+    newMessage.room = this.props.roomId;
     this.socket.emit('SEND_MESSAGE', newMessage, () => {
       console.log("SETTING STATE");
       console.log("MESSAGE SENT");
