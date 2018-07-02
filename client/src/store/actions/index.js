@@ -4,7 +4,8 @@ export {
   loginFail,
   login,
   googleLogin,
-} from './login';
+  updateUserRooms,
+} from './user';
 export {
   getRooms,
   gotRooms,

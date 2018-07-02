@@ -12,7 +12,6 @@ const Room = new mongoose.Schema({
 // Method for adding Room the creators list of rooms
 // @TODO for some reason I can't get $push to work
 Room.post('save', doc => {
-  console.log(doc.creator)
   User.findById(doc.creator, (err, res) => {
     res.rooms.push(doc._id)
     res.save()

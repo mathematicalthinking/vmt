@@ -38,8 +38,7 @@ class Layout extends Component {
 
 // Provide login status to all private routes
 const mapStateToProps = (store) => {
-  console.log(store);
-  return {loggedIn: store.authReducer.loggedIn};
+  return {loggedIn: store.userReducer.loggedIn};
 }
 
 export default connect(mapStateToProps, null)(Layout);

@@ -32,6 +32,11 @@ const reducer = (state = initialState, action) => {
         myRooms: action.authData.rooms,
         userId: action.authData._id
       }
+    case actionTypes.UPDATE_USER_ROOMS:
+      return {
+        ...state,
+        myRooms: [...state.myRooms, action.newRoom]
+      }
     default:
       return state
   }

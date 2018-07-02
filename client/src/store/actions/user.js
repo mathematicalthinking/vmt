@@ -20,6 +20,13 @@ export const loginFail = err => {
   }
 }
 
+export const updateUserRooms = newRoom => {
+  return {
+    type: actionTypes.UPDATE_USER_ROOMS,
+    newRoom,
+  }
+}
+
 export const googleLogin = (username, password) => {
   return dispatch => {
     dispatch(loginStart());

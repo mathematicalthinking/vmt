@@ -91,7 +91,7 @@ const mapDispatchToProps = dispatch => {
 // connect redux store to react props
 const mapStateToProps = store => {
   return {
-    loggedIn: store.authReducer.loggedIn
+    loggedIn: store.userReducer.loggedIn
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

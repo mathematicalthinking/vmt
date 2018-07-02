@@ -37,11 +37,13 @@ class NewRoom extends Component {
   submitForm = event => {
     console.log("are we in here")
     event.preventDefault();
-    this.props.createRoom({
+    const newRoom = {
       roomName: this.state.roomName,
       description: this.state.description,
       creator: this.props.userId
-    })
+    }
+    this.props.createRoom(newRoom)
+    this.props.updateUserRooms(newRoom)
   }
 
   render() {
