@@ -12,8 +12,7 @@ class Rooms extends Component {
     allRooms: true,
   }
   componentDidMount() {
-    console.log(this.props.history.location.pathname)
-    console.log(this.props.match)
+    console.log('rerender of rooms triggered')
     // only dispatch action if we need to
     if (!this.props.rooms.length) {
       this.props.getRooms();
@@ -43,7 +42,7 @@ class Rooms extends Component {
             </ul>
           </div>
           <div className='col-md-10'>
-            {(this.props.match.path === '/rooms/new') ? <NewRoom /> : null}
+            {(this.props.match.path === '/rooms/new') ? <NewRoom createRoom={this.props.createRoom}/> : null}
           </div>
         </div>
       </div>
@@ -55,6 +54,7 @@ class Rooms extends Component {
 const mapDispatchToProps = dispatch => {
   return {
     getRooms: (username, password) => dispatch(actions.getRooms()),
+    createRoom: body => dispatch(actions.createRoom(body))
   }
 }
 

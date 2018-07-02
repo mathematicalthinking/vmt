@@ -9,10 +9,27 @@ export const gotRooms = resp => {
   }
 }
 
+export const createdRoom = resp => {
+  console.log(resp)
+  const newRoom = resp.data.result
+  console.log(newRoom)
+  return {
+    type: actionTypes.CREATED_ROOM,
+    newRoom,
+  }
+}
+
 export const getRooms = () => {
   return dispatch => {
     API.get('room')
     .then(resp => dispatch(gotRooms(resp)))
     .catch(err => console.log(err));
+  }
+}
+
+export const createRoom = body => {
+  return dispatch => {
+    API.post('room', body)
+    .then(resp => dispatch(createdRoom(resp)))
   }
 }

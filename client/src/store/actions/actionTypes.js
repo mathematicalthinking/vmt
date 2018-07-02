@@ -6,6 +6,7 @@ export const LOGIN_FAIL = 'LOGIN_FAIL';
 // ROOMS
 export const GET_ROOMS = 'GET_ROOMS';
 export const GOT_ROOMS = 'GOT_ROOMS';
+export const CREATED_ROOM = 'CREATED_ROOM';
 
 // COURSES
 export const GOT_COURSES = 'GOT_COURSES';

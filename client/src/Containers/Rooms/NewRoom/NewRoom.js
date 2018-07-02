@@ -7,18 +7,16 @@ class NewRoom extends Component {
     roomName: '',
     description: '',
     tabCount: 0,
+    tabs: [],
   }
 
-  changeHandler = (event) => {
-    let updatedControls =  { ...this.state.controls };
-    updatedControls[event.target.name].value = event.target.value;
+  changeHandler = event => {
     this.setState({
-      controls: updatedControls,
+      [event.target.name]: event.target.value,
     })
   }
 
-  addTab = (event) => {
-    console.log('we in here')
+  addTab = event => {
     event.preventDefault();
     let tabCount = this.state.tabCount;
     tabCount++;
@@ -27,16 +25,29 @@ class NewRoom extends Component {
     })
   }
 
-  submitForm = (event) => {
+  removeTab = event => {
     event.preventDefault();
+    let tabCount = this.state.tabCount;
+    tabCount--;
+    this.setState({
+      tabCount,
+    })
+  }
 
+  submitForm = event => {
+    console.log("are we in here")
+    event.preventDefault();
+    this.props.createRoom({
+      roomName: this.state.roomName,
+      description: this.state.description
+    })
   }
 
   render() {
     let tabs = [];
     if (this.state.tabCount > 0) {
       for (let i = 0; i < this.state.tabCount; i++) {
-        tabs.push(<NewTab />)
+        tabs.push(<NewTab change={this.changeHandler} id={i} key={i}/>)
       }
     }
     return (
@@ -46,6 +57,7 @@ class NewRoom extends Component {
             <form>
               <div className='form-group'>
                 <TextInput
+                  change={this.changeHandler}
                   name="roomName"
                   label="Enter Room Name"
                   class='form-control'
@@ -53,6 +65,7 @@ class NewRoom extends Component {
               </div>
               <div className='form-group'>
                 <TextInput
+                  change={this.changeHandler}
                   name='description'
                   label='Description'
                   class='form-control'

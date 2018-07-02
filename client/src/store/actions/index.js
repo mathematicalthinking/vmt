@@ -8,6 +8,7 @@ export {
 export {
   getRooms,
   gotRooms,
+  createRoom,
 } from './rooms';
 export {
   getCourses,

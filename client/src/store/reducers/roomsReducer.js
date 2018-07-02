@@ -13,6 +13,11 @@ const reducer = (state = initialState, action) => {
       };
     default:
       return state
+    case actionTypes.CREATED_ROOM:
+      return  {
+        ...state,
+        rooms: [...state.rooms, action.newRoom]
+      }
   }
 };
 
