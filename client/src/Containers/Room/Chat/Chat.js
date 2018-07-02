@@ -20,7 +20,6 @@ class Chat extends Component {
     //connect to the backend websocket
     this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
     // join a chat for this room
-    console.log(this.props.roomId)
     this.socket.on('connect', () => {
       this.socket.emit('JOIN', this.props.roomId);
     })
@@ -44,10 +43,11 @@ class Chat extends Component {
   submitMessage = () => {
     const newMessage = {
       text: this.state.newMessage,
-      user: this.props.user,
+      user: this.props.username,
       timestamp: Date.now()
     }
     newMessage.room = this.props.roomId;
+    newMessage.userId = this.props.userId;
     this.socket.emit('SEND_MESSAGE', newMessage, () => {
       console.log("SETTING STATE");
       console.log("MESSAGE SENT");
@@ -59,6 +59,7 @@ class Chat extends Component {
       newMessage: '',
     })
   }
+
   render() {
     const users = this.state.users.map(user => (
       <span key={user.username}>{user.username} </span>

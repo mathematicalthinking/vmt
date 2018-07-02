@@ -59,7 +59,12 @@ class Room extends Component {
             {this.state.roomActive ? <Workspace roomName={this.state.roomName}/> : null}
           </div>
           <div className='col-md-3'>
-            {this.state.roomActive ? <Chat roomId={this.props.match.params.id} user={this.props.user}/> : null}
+            {this.state.roomActive ?
+              <Chat
+                roomId={this.props.match.params.id}
+                username={this.props.username}
+                userId={this.props.userId}
+              /> : null}
           </div>
         </div>
       </div>
@@ -69,7 +74,8 @@ class Room extends Component {
 
 const mapStateToProps = store => {
   return {
-    user: store.userReducer.username,
+    username: store.userReducer.username,
+    userId: store.userReducer.userId,
 
   }
 }
