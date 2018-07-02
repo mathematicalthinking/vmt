@@ -42,7 +42,8 @@ class Rooms extends Component {
             </ul>
           </div>
           <div className='col-md-10'>
-            {(this.props.match.path === '/rooms/new') ? <NewRoom createRoom={this.props.createRoom}/> : null}
+            {(this.props.match.path === '/rooms/new') ?
+              <NewRoom createRoom={this.props.createRoom} userId={this.props.userId}/> : null}
           </div>
         </div>
       </div>
@@ -62,7 +63,9 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = store => {
   return {
     rooms: store.roomsReducer.rooms,
-    myRooms: store.authReducer.myRooms
+    myRooms: store.authReducer.myRooms,
+    username: store.authReducer.username,
+    userId: store.authReducer.userId
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Rooms);

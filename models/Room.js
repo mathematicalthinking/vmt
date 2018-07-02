@@ -8,4 +8,6 @@ const Room = new mongoose.Schema({
   chat: [{type: ObjectId, ref: 'Message'}],
 });
 
+// Method for adding Room the creators list of rooms
+
 module.exports = mongoose.model('Room', Room);

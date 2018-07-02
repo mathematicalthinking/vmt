@@ -2,7 +2,7 @@ import * as actionTypes from '../actions/actionTypes';
 
 const initialState = {
   username: '',
-  password: '',
+  userId: '',
   loggedIn: false,
   loggingIn: false,
   myRooms: [],
@@ -29,7 +29,8 @@ const reducer = (state = initialState, action) => {
         loggedIn: true,
         loggingIn: false,
         username: action.authData.username,
-        myRooms: action.authData.rooms
+        myRooms: action.authData.rooms,
+        userId: action.authData._id
       }
     default:
       return state

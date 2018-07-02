@@ -39,7 +39,8 @@ class NewRoom extends Component {
     event.preventDefault();
     this.props.createRoom({
       roomName: this.state.roomName,
-      description: this.state.description
+      description: this.state.description,
+      creator: this.props.userId
     })
   }
 
