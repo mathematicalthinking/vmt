@@ -6,10 +6,10 @@
 
 //REQUIRE MODULES
 const passport = require('passport');
-
-//REQUIRE FILES
 const express = require('express')
 const router = express.Router()
+
+//REQUIRE FILES
 const controllers = require('../controllers')
 
 router.post('/login', (req, res, next) => {

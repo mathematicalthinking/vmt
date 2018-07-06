@@ -15,23 +15,10 @@ require('dotenv').config();
 // REQUIRE FILES
 const configure = require('./config/passport');
 const api = require('./routes/api');
+const ggb = require('./routes/ggb');
 const auth = require('./routes/auth');
 
 const app = express();
-
-// io.on('connection', socket => {
-//   console.log("as user connected: ", socket.id);
-//   socket.on('JOIN', (room) => {
-//     console.log("JOIN: ",room)
-//     socket.join(room)
-//   });
-//   socket.on('SEND_MESSAGE', (data) => {
-//     console.log(data)
-//     socket.broadcast.to(data.room).emit('RECEIVE_MESSAGE', data);
-//   })
-// })
-
-
 
 // SETUP DATABASE & SESSION
 mongoose.connect(process.env.MONGO_URI, (err, res) => {
@@ -47,22 +34,28 @@ app.use(require('express-session')({
 }))
 
 // setup view engine for server side rendering
-// app.engine('handlebars', exphbs({defaultLayout: 'ggbMain'}));
-// app.set('view engine', 'handlebars');
+app.engine('handlebars', exphbs({defaultLayout: 'ggbMain'}));
+app.set('view engine', 'handlebars');
 
 //serve react files in a production enviornment
 // app.use(express.static(path.join(__dirname, 'client/build')));
-// app.use( '/ggb', express.static(__dirname + '/concertChatApps/ggbMulti') );
-// app.get('/ggb/:id', (req, res, next) => {
-//   res.render()
-// })
-// app.get('/', (req, res) => {
-//   res.sendFile(path.join(__dirname+'/client/build/index.html'));
-// });
+app.use( "/ggb", express.static(__dirname + '/concertChatApps/ggbMulti'));
+app.get('/ggb/:roomId', (req, res, next) => {
+  console.log("are we even getting here")
+   var roomId = "room" + req.params.roomId;
+   console.log("Got request for ggb multi for room: " + req.params.roomId );
+   res.render('ggbWorksheet', {roomIdValue: roomId, username: req.session.username, hostValue: nconf.get('server').host, portValue: nconf.get('server').port, tabId: req.query.tabId, tabFile: req.tabFileData});
+});
+
+app.use(express.static(path.join(__dirname, 'client/build')));
+app.get('/', (req, res) => {
+  console.log('params: ', req.params)
+  res.sendFile(path.join(path.join(__dirname, '/client/build/index.html')));
+});
 
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+// app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 // MIDDLEWARE
 app.use(logger('dev'));
@@ -94,6 +87,7 @@ app.use(passport.session());
 // CONNECT ROUTES
 app.use('/auth', auth);
 app.use('/api', api);
+app.use('/ggb', ggb);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

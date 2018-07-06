@@ -16,8 +16,8 @@ Message.post('save', doc => {
     res.chat.push(doc._id)
     console.log(res)
     res.save()
-    .then(res => console.log('all good'))
-    .catch(err => console.log("ERR: ",err))
+    // .then(res => console.log('all good'))
+    // .catch(err => console.log("ERR: ",err))
   })
 })
 module.exports = mongoose.model('Message', Message);

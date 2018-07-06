@@ -5,7 +5,7 @@ const navbar = (props) => {
     <nav className='navbar navbar-default' htmlrole='navigation'>
       <div className='container-fluid'>
         <div className='navbar-header'>
-          <a class='navbar-brand' href='#'>VMT</a>
+          <a className='navbar-brand' href='#'>VMT</a>
         </div>
         <ul className='nav navbar-nav'>
           <NavItem link='/rooms' name='Rooms' />
