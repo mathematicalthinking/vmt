@@ -45,7 +45,10 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
   </body>
-  <!-- <script type="text/javascript" language="javascript" src="web/web.nocache.js"></script>
-  <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
-  <script src="js/ggbClient.js"></script> -->
+  <script>
+    var ggbApp = new GGBApplet({"appName": "graphing", "width": 800, "height": 600, "showToolBar": true, "showAlgebraInput": true, "showMenuBar": true }, true);
+    window.addEventListener("load", function() {
+        ggbApp.inject('ggb-element');
+    });
+  </script>
 </html>

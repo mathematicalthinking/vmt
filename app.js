@@ -39,15 +39,9 @@ app.set('view engine', 'handlebars');
 
 //serve react files in a production enviornment
 // app.use(express.static(path.join(__dirname, 'client/build')));
-app.use( "/ggb", express.static(__dirname + '/concertChatApps/ggbMulti'));
-app.get('/ggb/:roomId', (req, res, next) => {
-  console.log("are we even getting here")
-   var roomId = "room" + req.params.roomId;
-   console.log("Got request for ggb multi for room: " + req.params.roomId );
-   res.render('ggbWorksheet', {roomIdValue: roomId, username: req.session.username, hostValue: nconf.get('server').host, portValue: nconf.get('server').port, tabId: req.query.tabId, tabFile: req.tabFileData});
-});
 
-app.use(express.static(path.join(__dirname, 'client/build')));
+
+app.use(express.static(path.join(__dirname, 'client/public')));
 app.get('/', (req, res) => {
   console.log('params: ', req.params)
   res.sendFile(path.join(path.join(__dirname, '/client/build/index.html')));
