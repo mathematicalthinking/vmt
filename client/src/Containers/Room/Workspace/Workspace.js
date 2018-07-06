@@ -14,7 +14,7 @@ const workspace = (props) => {
               height={600}
               width={800}
               title={props.roomName}
-              id={`fragment-${props.roomName}`}
+              id={props.roomName}
               src={`/Geogebra.html`}>
             </iframe>
           </div>

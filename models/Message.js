@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const Room = require('./Room.js');
 const Message = new mongoose.Schema({
-  userId: {type: ObjectId, ref: 'User'},
+  user: {type: ObjectId, ref: 'User'},
   text: {type: String},
   room: {type: ObjectId, ref: 'Room'},
 });

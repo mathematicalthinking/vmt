@@ -3,7 +3,7 @@ const db = require('../models')
 module.exports = {
   get: (params) => {
     return new Promise((resolve, reject) => {
-      db.Message.find(params)
+      db.Message.find(params).populate('user')
       .then(messages => resolve(messages))
       .catch(err => reject(err));
     });

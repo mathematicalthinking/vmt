@@ -5,23 +5,33 @@ import TextInput from '../../../Components/Form/TextInput/TextInput';
 import classes from './chat.css';
 import glb from '../../../global.css';
 import io from 'socket.io-client';
+import api from '../../../utils/apiRequests';
 class Chat extends Component {
   state = {
-    users: [{username: 'mike', }, {username: 'steve'}],
-    messages: [{
-      text: 'hello',
-      user: 'mike',
-      timestamp: 'some date'
-    }],
+    users: [],
+    messages: [],
     newMessage: ''
   }
 
   componentDidMount() {
+    // Load existing chat history
+    console.log('making api request for chat hiustoryu');
+    api.get('message', {room: this.props.roomId})
+    .then(result => {
+      const fetchedMessages = result.data.results.map(message => (
+        {user: message.user.username, text: message.text}
+      ))
+      this.setState({
+        messages: fetchedMessages
+      })
+    })
+    .catch(err => console.log(err))
     //connect to the backend websocket
     this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
     // join a chat for this room
     this.socket.on('connect', () => {
       this.socket.emit('JOIN', this.props.roomId);
+      // should get the other users in the room here
     })
     this.socket.on('RECEIVE_MESSAGE', (data) => {
       console.log("received message ")
@@ -41,23 +51,27 @@ class Chat extends Component {
   }
 
   submitMessage = () => {
-    const newMessage = {
-      text: this.state.newMessage,
-      user: this.props.username,
-      timestamp: Date.now()
-    }
-    newMessage.room = this.props.roomId;
-    newMessage.userId = this.props.userId;
-    this.socket.emit('SEND_MESSAGE', newMessage, () => {
-      console.log("SETTING STATE");
-      console.log("MESSAGE SENT");
-    })
+    if (this.state.newMessage.length > 1) {
+      const newMessage = {
+        text: this.state.newMessage,
+        user: this.props.userId,
+        timestamp: Date.now()
+      }
+      newMessage.room = this.props.roomId;
+      newMessage.userId = this.props.userId;
+      this.socket.emit('SEND_MESSAGE', newMessage, () => {
+        // we should set state in here so we can handle errors and
+        // let the user know whether their message made it to the others
+        console.log("SETTING STATE");
+        console.log("MESSAGE SENT");
+      })
 
-    let updatedMessages = [...this.state.messages, newMessage]
-    this.setState({
-      messages: updatedMessages,
-      newMessage: '',
-    })
+      let updatedMessages = [...this.state.messages, newMessage]
+      this.setState({
+        messages: updatedMessages,
+        newMessage: '',
+      })
+    }
   }
 
   render() {
