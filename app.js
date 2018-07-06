@@ -15,7 +15,6 @@ require('dotenv').config();
 // REQUIRE FILES
 const configure = require('./config/passport');
 const api = require('./routes/api');
-const ggb = require('./routes/ggb');
 const auth = require('./routes/auth');
 
 const app = express();

@@ -7,7 +7,6 @@ import Courses from '../Containers/Courses/Courses';
 import NewUser from '../Containers/NewUser/NewUser';
 import Assignments from '../Containers/Assignments/Assignments';
 import PrivateRoute from '../Components/HOC/PrivateRoute';
-import Geogebra from '../Containers/Geogebra/Geogebra';
 import { connect } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 class Layout extends Component {
@@ -27,7 +26,6 @@ class Layout extends Component {
             <PrivateRoute exact path='/courses' authed={this.props.loggedIn} component={Courses}/>
             <PrivateRoute exact path='/courses/new' authed={this.props.loggedIn} component={Courses}/>
             <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/>
-            <Route path='/ggb/:id' component={Geogebra} />
             <Route path="*" render={() => {
               return (<div>Error</div>)
             }}/>

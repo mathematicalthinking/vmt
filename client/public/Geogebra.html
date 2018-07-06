@@ -7,9 +7,25 @@
   </head>
   <body>
     <div id='ggb-element'></div>
+    <div className='loader'>
+      <img src='./Ripple-2.3s-200px.gif' />
+    </div>
   </body>
   <script>
-    var ggbApp = new GGBApplet({"appName": "graphing", "width": 800, "height": 600, "showToolBar": true, "showAlgebraInput": true, "showMenuBar": true }, true);
+    var parameters = {
+      "id":"ggbApplet",
+      "width": 800,
+      "height": 600,
+      "scaleContainerClass": 'applet_container',
+      "showToolBar":true,
+      "showMenuBar": true,
+      "showAlgebraInput":true,
+      "language": "en",
+      "useBrowserForJS":true,
+      "preventFocus":true,
+      //"appName":"graphing"
+    };
+    var ggbApp = new GGBApplet(parameters, true);
     window.addEventListener("load", function() {
         ggbApp.inject('ggb-element');
     });
