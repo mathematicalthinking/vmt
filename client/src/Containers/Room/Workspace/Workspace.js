@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 // let GGBApplet;
+let ggbApplet;
 class Workspace extends Component {
   componentDidMount() {
     // const script = document.createElement('script')
@@ -29,16 +30,50 @@ class Workspace extends Component {
         const timer = setInterval(() => {
           console.log('looking for ggbApplet')
           const iframe = document.getElementById('ggbRoom').contentDocument;
-          let ggbApplet = iframe.ggbApplet;
+          ggbApplet = iframe.ggbApplet;
           console.log(ggbApplet)
           if (ggbApplet) {
             console.log('found it!');
+            this.initialize();
             clearInterval(timer);
           }
         }, 1000)
 
     // }
 
+  }
+  initialize = () => {
+    ggbApplet.registerUpdateListener(updateListener);
+    ggbApplet.registerAddListener(addListener);
+    ggbApplet.registerRemoveListener(removeListener);
+    ggbApplet.registerStoreUndoListener(undoListener);
+    ggbApplet.registerClearListener(clearListener);
+    console.log('registered listeners')
+    function updateListener(objName) {
+      var applet = document.ggbApplet;
+      console.log("Update " + objName);
+      let isChanged = true;
+    }
+
+    function addListener(objName) {
+        console.log("Add " + objName);
+        let isChanged = true;
+    }
+
+    function undoListener() {
+        console.log("undo");
+        let isChanged = true;
+    }
+
+    function removeListener(objName) {
+        console.log("Remove " + objName);
+        let isChanged = true;
+    }
+
+    function clearListener() {
+        console.log("clear");
+        let isChanged = true;
+    }
   }
   render() {
     return (
