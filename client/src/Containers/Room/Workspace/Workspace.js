@@ -52,16 +52,19 @@ class Workspace extends Component {
     function updateListener(objName) {
       var applet = document.ggbApplet;
       console.log("Update " + objName);
+      console.log(ggbApplet)
       let isChanged = true;
     }
 
     function addListener(objName) {
+        console.log(ggbApplet)
         console.log("Add " + objName);
         let isChanged = true;
     }
 
     function undoListener() {
         console.log("undo");
+        console.log(ggbApplet.getBase64())
         let isChanged = true;
     }
 
