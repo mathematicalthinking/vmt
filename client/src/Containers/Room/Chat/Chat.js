@@ -33,6 +33,7 @@ class Chat extends Component {
       this.socket.emit('JOIN', this.props.roomId);
       // should get the other users in the room here
     })
+    // initialize the socket listener
     this.socket.on('RECEIVE_MESSAGE', (data) => {
       console.log("received message ")
       let newMessages = [...this.state.messages, data]

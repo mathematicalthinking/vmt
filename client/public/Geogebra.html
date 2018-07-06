@@ -6,12 +6,14 @@
    <script src="https://cdn.geogebra.org/apps/deployggb.js"></script>
   </head>
   <body>
-    <div id='ggb-element'></div>
+    <div id='ggb-element' class='applet-container'></div>
     <div className='loader'>
       <img src='./Ripple-2.3s-200px.gif' />
     </div>
   </body>
+  <script src="/js/ggbClient.js"></script>
   <script>
+    console.log("SCRIPT LOADED");
     var parameters = {
       "id":"ggbApplet",
       "width": 800,
@@ -21,13 +23,19 @@
       "showMenuBar": true,
       "showAlgebraInput":true,
       "language": "en",
-      "useBrowserForJS":true,
+      "useBrowserForJS":false,
       "preventFocus":true,
       //"appName":"graphing"
     };
+    var ggbApplet;
     var ggbApp = new GGBApplet(parameters, true);
     window.addEventListener("load", function() {
         ggbApp.inject('ggb-element');
+        console.log("DOCUMENT: ", document)
     });
-</script>
+    // setInterval(function(){
+    //   ggbApplet = document.ggbApplet;
+    //   console.log(ggbApplet)
+    // }, 5000)
+  </script>
 </html>
