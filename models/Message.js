@@ -10,11 +10,8 @@ const Message = new mongoose.Schema({
 // Add this message to the room's chat
 // @TODO for some reason I can't get $push to work
 Message.post('save', doc => {
-  console.log('updating room: ', doc.room)
   Room.findById(doc.room, (err, res) => {
-    console.log("error saving room: ",err)
     res.chat.push(doc._id)
-    console.log(res)
     res.save()
     // .then(res => console.log('all good'))
     // .catch(err => console.log("ERR: ",err))

@@ -73,7 +73,7 @@ class Room extends Component {
           <div className='col-md-3'>
             {this.state.roomActive ?
               <Chat
-                roomId={this.props.match.params.id}
+                roomId={this.state.room._id}
                 username={this.props.username}
                 userId={this.props.userId}
               /> : null}

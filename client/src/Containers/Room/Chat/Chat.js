@@ -14,15 +14,11 @@ class Chat extends Component {
   }
 
   componentDidMount() {
-    // Load existing chat history
-    console.log('making api request for chat hiustoryu');
     api.get('message', {room: this.props.roomId})
-    .then(result => {
-      const fetchedMessages = result.data.results.map(message => (
-        {user: message.user.username, text: message.text}
-      ))
+    .then(response => {
+      console.log('messages: ', response.data.results)
       this.setState({
-        messages: fetchedMessages
+        messages: response.data.results
       })
     })
     .catch(err => console.log(err))
@@ -42,6 +38,11 @@ class Chat extends Component {
         messages: newMessages
       })
     });
+
+    this.setState({
+      messages: this.props.messages
+    })
+
   }
 
   changeHandler = (event) => {
@@ -52,39 +53,38 @@ class Chat extends Component {
   }
 
   submitMessage = () => {
-    if (this.state.newMessage.length > 1) {
-      const newMessage = {
-        text: this.state.newMessage,
-        user: this.props.userId,
-        timestamp: Date.now()
-      }
-      newMessage.room = this.props.roomId;
-      newMessage.userId = this.props.userId;
-      this.socket.emit('SEND_MESSAGE', newMessage, () => {
-        // we should set state in here so we can handle errors and
-        // let the user know whether their message made it to the others
-        console.log("SETTING STATE");
-        console.log("MESSAGE SENT");
-      })
-
-      let updatedMessages = [...this.state.messages, newMessage]
-      this.setState({
-        messages: updatedMessages,
-        newMessage: '',
-      })
+    const newMessage = {
+      text: this.state.newMessage,
+      user: {username: this.props.username, userId: this.props.userId},
+      roomId: this.props.roomId,
+      timestamp: Date.now()
     }
+    this.socket.emit('SEND_MESSAGE', newMessage, () => {
+      // we should set state in here so we can handle errors and
+      // let the user know whether their message made it to the others
+      console.log("SETTING STATE");
+      console.log("MESSAGE SENT");
+    })
+
+    let updatedMessages = [...this.state.messages, newMessage]
+    this.setState({
+      messages: updatedMessages,
+      newMessage: '',
+    })
   }
 
   render() {
     const users = this.state.users.map(user => (
       <span key={user.username}>{user.username} </span>
     ))
-
-    const messages = this.state.messages.map((message, i) => (
-      <div key={i}>
-        <b>{message.user}: </b><span>{message.text}</span>
-      </div>
-    ))
+    let messages;
+    if (this.state.messages) {
+      messages = this.state.messages.map((message, i) => (
+        <div key={i}>
+          <b>{message.user ? message.user.username : null}: </b><span>{message.text}</span>
+        </div>
+            ))
+          }
 
     return (
       <div className={glb.FlexCol} id='chatPane'>

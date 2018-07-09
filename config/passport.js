@@ -53,7 +53,6 @@ module.exports = (passport) => {
 
   passport.use('local-login', new LocalStrategy((username, password, next) => {
     User.findOne({ 'username':  username }, (err, user) => {
-      console.log("Find anything?")
       if (err) return next(err);
       if (!user) return next(null, false, {message: 'No user found.'});
       // if (!user.validPassword(password)) return next(null, false, {message: 'Oops! Wrong password.'});
@@ -79,7 +78,6 @@ module.exports = (passport) => {
         return done(err);
       }
       if (user) {
-        console.log('found google user', user);
         return done(null, user);
       }
 
@@ -90,10 +88,8 @@ module.exports = (passport) => {
         email: profile.emails[0].value,
         isAuthorized: true
       });
-      console.log('new user', newUser);
       newUser.save((err) => {
         if (err) {
-          console.log('error saving', err);
           return done(err);
         }
         return done(null, newUser);
