@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
 import classes from './chat.css';
 import glb from '../../../global.css';
-import io from 'socket.io-client';
 import api from '../../../utils/apiRequests';
 class Chat extends Component {
   state = {
@@ -22,14 +21,10 @@ class Chat extends Component {
       })
     })
     .catch(err => console.log(err))
-    //connect to the backend websocket
-    this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
-    // join a chat for this room
-    this.socket.on('connect', () => {
-      this.socket.emit('JOIN', this.props.roomId);
-      // should get the other users in the room here
-    })
+    // API call to get initial users
+
     // initialize the socket listener
+    this.socket = this.props.socket;
     this.socket.on('RECEIVE_MESSAGE', (data) => {
       console.log("received message ")
       let newMessages = [...this.state.messages, data]
@@ -39,13 +34,16 @@ class Chat extends Component {
       })
     });
 
-    this.setState({
-      messages: this.props.messages
+    this.socket.on('NEW_USER', user => {
+      console.log('new user joined: ', user)
+      const updatedUsers = [...this.state.users, user]
+      this.setState({
+        users: updatedUsers
+      })
     })
-
   }
 
-  changeHandler = (event) => {
+  changeHandler = event => {
     console.log(event.target.value)
     this.setState({
       newMessage: event.target.value
@@ -75,7 +73,7 @@ class Chat extends Component {
 
   render() {
     const users = this.state.users.map(user => (
-      <span key={user.username}>{user.username} </span>
+      <span key={user}>{user} </span>
     ))
     let messages;
     if (this.state.messages) {

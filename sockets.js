@@ -6,9 +6,11 @@ sockets.init = server => {
     var io = require('socket.io').listen(server);
     io.sockets.on('connection', socket => {
       // client joins room ==> update other clients room list
-      socket.on('JOIN', (room) => {
-        socket.join(room)
+      socket.on('JOIN', data => {
+        console.log('joining')
+        socket.join(data.room)
         // emit to the clients we've got a new user
+        socket.broadcast.to(data.room).emit('NEW_USER', data.user)
       });
       // Message sent from a client to be dispatched to the other clients
       // in that room
@@ -26,6 +28,12 @@ sockets.init = server => {
         // broadcast new message
         socket.broadcast.to(data.roomId).emit('RECEIVE_MESSAGE', data);
       }))
+
+      socket.on('SEND_EVENT', data => {
+        console.log("RECEIVED DATA");
+        console.log("ggbdata: ", data)
+        socket.broadcast.to(data.roomId).emit('RECEIVE_EVENT', data.event)
+      })
     });
 
 }

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import Workspace from './Workspace/Workspace';
 import Chat from './Chat/Chat';
+import io from 'socket.io-client';
 import { connect } from 'react-redux';
 class Room extends Component {
   state = {
@@ -11,20 +12,31 @@ class Room extends Component {
   }
 
   componentDidMount() {
-    const roomId = this.props.match.params;
     console.log(this.props.rooms)
-    console.log(roomId);
+    console.log(this.props.match.params)
     const currentRoom = this.props.rooms.find(room => {
-      console.log(room._id, roomId)
-      return (room._id === roomId.id)
+      return (room._id === this.props.match.params.id)
     })
-    console.log(currentRoom.tabList[0])
+    // join a chat for this room
+    console.log(currentRoom)
     this.setState({
       room: currentRoom
     })
   }
 
   joinRoom = () => {
+    this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
+    this.socket.on('connect', () => {
+      console.log('connected')
+      const data = {
+        room: this.props.match.params,
+        user: this.props.username
+      }
+      this.socket.emit('JOIN', data, () => {
+        console.log('joined')
+      });
+      // should get the other users in the room here
+    })
     this.setState({
       roomActive: true
     })
@@ -67,7 +79,7 @@ class Room extends Component {
                 {tabList}
               </ul>
             </div>
-            {this.state.roomActive ? <Workspace room={this.state.room}/> : null}
+            {this.state.roomActive ? <Workspace room={this.state.room} socket={this.socket}/> : null}
           </div>
           <div className='col-md-3'>
             {this.state.roomActive ?
@@ -75,6 +87,7 @@ class Room extends Component {
                 roomId={this.state.room._id}
                 username={this.props.username}
                 userId={this.props.userId}
+                socket={this.socket}
               /> : null}
           </div>
         </div>

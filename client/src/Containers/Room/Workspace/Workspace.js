@@ -20,40 +20,53 @@ class Workspace extends Component {
         clearInterval(timer);
       }
     }, 1000)
+    console.log(this.props.socket)
+    this.socket = this.props.socket;
 
-    // }
+    this.socket.on('RECEIVE_EVENT', event => {
+      console.log('we got the event!')
+      ggbApplet.setBase64(event, () => {
+        console.log('and we appended it to the event')
+      })
+    })
 
   }
   initialize = () => {
+    console.log('registered listeners')
+    const updateListener = (objName) => {
+      console.log("Update " + objName);
+      console.log(ggbApplet)
+    }
+
+    const addListener = (objName) => {
+        console.log(ggbApplet)
+        console.log("Add " + objName);
+    }
+
+    const undoListener = () => {
+      // this seems to fire when an event is completed
+        console.log("undo");
+        const newData = {}
+        newData.room = this.props.room._id;
+        newData.event = ggbApplet.getBase64();
+
+        this.socket.emit('SEND_EVENT', newData, () => {
+          console.log('success');
+        })
+    }
+
+    const removeListener = (objName) => {
+        console.log("Remove " + objName);
+    }
+
+    const clearListener = () =>  {
+        console.log("clear");
+    }
     ggbApplet.registerUpdateListener(updateListener);
     ggbApplet.registerAddListener(addListener);
     ggbApplet.registerRemoveListener(removeListener);
     ggbApplet.registerStoreUndoListener(undoListener);
     ggbApplet.registerClearListener(clearListener);
-    console.log('registered listeners')
-    function updateListener(objName) {
-      console.log("Update " + objName);
-      console.log(ggbApplet)
-    }
-
-    function addListener(objName) {
-        console.log(ggbApplet)
-        console.log("Add " + objName);
-    }
-
-    function undoListener() {
-        console.log("undo");
-        console.log("base64: ", ggbApplet.getBase64())
-        console.log(ggbApplet.getLateXBase64())
-    }
-
-    function removeListener(objName) {
-        console.log("Remove " + objName);
-    }
-
-    function clearListener() {
-        console.log("clear");
-    }
   }
   render() {
     return (
