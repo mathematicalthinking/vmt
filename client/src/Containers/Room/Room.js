@@ -5,11 +5,23 @@ import Chat from './Chat/Chat';
 import { connect } from 'react-redux';
 class Room extends Component {
   state = {
-    roomName: 'room1',
-    creator: 'mike',
-    description:'welcome to room 1',
+    room: {},
     roomActive: false,
     addingTab: false,
+  }
+
+  componentDidMount() {
+    const roomId = this.props.match.params;
+    console.log(this.props.rooms)
+    console.log(roomId);
+    const currentRoom = this.props.rooms.find(room => {
+      console.log(room._id, roomId)
+      return (room._id === roomId.id)
+    })
+    console.log(currentRoom.tabList)
+    this.setState({
+      room: currentRoom
+    })
   }
 
   joinRoom = () => {
@@ -56,7 +68,7 @@ class Room extends Component {
                 {tabList}
               </ul>
             </div>
-            {this.state.roomActive ? <Workspace roomName={this.state.roomName}/> : null}
+            {this.state.roomActive ? <Workspace room={this.state.room}/> : null}
           </div>
           <div className='col-md-3'>
             {this.state.roomActive ?
@@ -76,7 +88,7 @@ const mapStateToProps = store => {
   return {
     username: store.userReducer.username,
     userId: store.userReducer.userId,
-
+    rooms: store.roomsReducer.rooms,
   }
 }
 

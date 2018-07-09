@@ -41,6 +41,11 @@ app.set('view engine', 'handlebars');
 
 
 app.use(express.static(path.join(__dirname, 'client/public')));
+
+app.get('/ggb/:roomNumber', (req, res, next) => {
+  console.log("in the ggb route")
+  res.render('home', {someTestData: 'testroomData'})
+})
 app.get('/', (req, res) => {
   console.log('params: ', req.params)
   res.sendFile(path.join(path.join(__dirname, '/client/build/index.html')));

@@ -3,41 +3,23 @@ import React, { Component } from 'react';
 let ggbApplet;
 class Workspace extends Component {
   componentDidMount() {
-    // const script = document.createElement('script')
-    // script.src = 'https://cdn.geogebra.org/apps/deployggb.js';
-    // script.async = true;
-    // document.body.appendChild(script);
-    // script.onload = () => {
-    //   console.log("SCRIPT LOADED");
-    //   var parameters = {
-    //     "id":"ggbApplet",
-    //     "width": 800,
-    //     "height": 600,
-    //     "scaleContainerClass": 'applet_container',
-    //     "showToolBar":true,
-    //     "showMenuBar": true,
-    //     "showAlgebraInput":true,
-    //     "language": "en",
-    //     "useBrowserForJS":false,
-    //     "preventFocus":true,
-    //     //"appName":"graphing"
-    //   };
-    //   var ggbApp = new GGBApplet(parameters, true);
-    //   window.addEventListener("load", function() {
-    //       ggbApp.inject('ggb-element');
-    //       console.log("DOCUMENT: ", document)
-    //   });
-        const timer = setInterval(() => {
-          console.log('looking for ggbApplet')
-          const iframe = document.getElementById('ggbRoom').contentDocument;
-          ggbApplet = iframe.ggbApplet;
-          console.log(ggbApplet)
-          if (ggbApplet) {
-            console.log('found it!');
-            this.initialize();
-            clearInterval(timer);
-          }
-        }, 1000)
+    // THIS IS EXTREMELEY HACKY -- basically what's going on here is that
+    // we need to access the ggbApplet object that is attached to the iframe
+    // window by the external geogebra cdn script. This takes a little bit of
+    // time but there doesn't seem to be a way to listen for that change, so
+    // instead we are essentially polling window object to see if it has
+    // the ggbApplet property yet.
+    const timer = setInterval(() => {
+      console.log('looking for ggbApplet')
+      const iframe = document.getElementById('ggbRoom').contentDocument;
+      ggbApplet = iframe.ggbApplet;
+      console.log(ggbApplet)
+      if (ggbApplet) {
+        console.log('found it!');
+        this.initialize();
+        clearInterval(timer);
+      }
+    }, 1000)
 
     // }
 
@@ -50,32 +32,27 @@ class Workspace extends Component {
     ggbApplet.registerClearListener(clearListener);
     console.log('registered listeners')
     function updateListener(objName) {
-      var applet = document.ggbApplet;
       console.log("Update " + objName);
       console.log(ggbApplet)
-      let isChanged = true;
     }
 
     function addListener(objName) {
         console.log(ggbApplet)
         console.log("Add " + objName);
-        let isChanged = true;
     }
 
     function undoListener() {
         console.log("undo");
-        console.log(ggbApplet.getBase64())
-        let isChanged = true;
+        console.log("base64: ", ggbApplet.getBase64())
+        console.log(ggbApplet.getLateXBase64())
     }
 
     function removeListener(objName) {
         console.log("Remove " + objName);
-        let isChanged = true;
     }
 
     function clearListener() {
         console.log("clear");
-        let isChanged = true;
     }
   }
   render() {
@@ -93,7 +70,7 @@ class Workspace extends Component {
                 width={800}
                 title={this.props.roomName}
                 id='ggbRoom'
-                src={`/Geogebra.html`}
+                src={`/Geogebra.html?file=${this.props.room.tabList[0]}`}
                 ref={(element) => {this.ifr = element}}
               >
               </iframe>

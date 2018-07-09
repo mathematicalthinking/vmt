@@ -1,33 +1,45 @@
-    <!DOCTYPE html>
-<html>
-<head>
-<title>Multi User GeogebraWeb Test</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" href="web/css/ggbFrame.css">
-    <script src="web/lib/jquery.js"></script>
-    <script>
-     // ios safari won't squeez the ggb iframe into its div, so
-     // we have to detect the size of the div that contains the iframe
-     // and adjust the ggb canvas size, otherwise, the iframe will
-     // will accomodate ggb, and safari will let it spill over its div.
-     // At least this way everyone gets a ggb that is custom fit to their screen.
-     $(document).ready( function(){
-
-       var tabsWidth = Math.floor(parent.$("#tabs").width());
-       console.log("ARM window width: " + tabsWidth );
-       $(".geogebraweb").attr("data-param-width", tabsWidth-15 );
-
-       var viewportHeight = window.parent.innerHeight - window.parent.$("#tabs ul").innerHeight();
-       var vpHeight = Math.floor( viewportHeight );
-       console.log("ViewPort height: " + vpHeight );
-       $(".geogebraweb").attr("data-param-height", vpHeight );
-     });
-    </script>
-    <!-- <script type="text/javascript" language="javascript" src="web/web.nocache.js"></script> -->
-    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
-    <script src="web/lib/ggbClient.js"></script>
-</head>
-<body>
-    {{{body}}}
-</body>
-</html>
+<!-- <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+   <script src="https://cdn.geogebra.org/apps/deployggb.js"></script>
+  </head>
+  <body>
+    <div id='ggb-element' class='applet-container'></div>
+    <div className='loader'>
+      <img src='./Ripple-2.3s-200px.gif' />
+    </div>
+  </body>
+  <script src="/js/ggbClient.js"></script>
+  <script>
+    console.log("SCRIPT LOADED");
+    var parameters = {
+      "id":"ggbApplet",
+      "width": 800,
+      "height": 600,
+      "scaleContainerClass": 'applet_container',
+      "showToolBar":true,
+      "showMenuBar": true,
+      "showAlgebraInput":true,
+      "language": "en",
+      "useBrowserForJS":false,
+      "preventFocus":true,
+      "ggbBase64": {{roomData}}
+    };
+    var ggbApplet;
+    var ggbApp = new GGBApplet(parameters, true);
+    window.addEventListener("load", function() {
+        ggbApp.inject('ggb-element');
+        console.log("DOCUMENT: ", document)
+    });
+    // setInterval(function(){
+    //   ggbApplet = document.ggbApplet;
+    //   console.log(ggbApplet)
+    // }, 5000)
+  </script>
+</html> -->
+<div>
+  {{sometTestData}}
+</div>
+{{body}}
