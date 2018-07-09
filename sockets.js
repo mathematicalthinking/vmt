@@ -14,6 +14,11 @@ sockets.init = server => {
       // in that room
       socket.on('SEND_MESSAGE', data => new Promise(function(resolve, reject) {
         // update the db
+        console.log(data)
+        // when we fetch the message we populate the user field
+        // below we are essentially de-populating it, i.e., setting user to
+        // userId again
+        data.user = data.user.userId;
         controllers.message.post(data)
         .then(res => {
         })

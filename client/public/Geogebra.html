@@ -16,6 +16,7 @@
 
     // request the ggb file
     var file = location.href.split('file=').slice(1);
+    console.log(file)
     var parameters = {
       "id":"ggbApplet",
       "width": 800,
@@ -34,7 +35,6 @@
     var ggbApp = new GGBApplet(parameters, true);
     window.addEventListener("load", function() {
         ggbApp.inject('ggb-element');
-        console.log("DOCUMENT: ", document)
     });
     // setInterval(function(){
     //   ggbApplet = document.ggbApplet;

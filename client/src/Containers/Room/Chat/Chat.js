@@ -56,7 +56,7 @@ class Chat extends Component {
     const newMessage = {
       text: this.state.newMessage,
       user: {username: this.props.username, userId: this.props.userId},
-      roomId: this.props.roomId,
+      room: this.props.roomId,
       timestamp: Date.now()
     }
     this.socket.emit('SEND_MESSAGE', newMessage, () => {

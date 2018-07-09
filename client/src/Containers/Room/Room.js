@@ -18,7 +18,7 @@ class Room extends Component {
       console.log(room._id, roomId)
       return (room._id === roomId.id)
     })
-    console.log(currentRoom.tabList)
+    console.log(currentRoom.tabList[0])
     this.setState({
       room: currentRoom
     })
@@ -37,7 +37,6 @@ class Room extends Component {
 
   }
   render() {
-    console.log(this.props.match)
     let tabList;
     return(
       <div>
