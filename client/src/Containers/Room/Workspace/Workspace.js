@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 // let GGBApplet;
 let ggbApplet;
 class Workspace extends Component {
+  state = {
+    receivingData: false
+  }
+
   componentDidMount() {
     this.socket = this.props.socket;
     // THIS IS EXTREMELEY HACKY -- basically what's going on here is that
@@ -25,9 +29,10 @@ class Workspace extends Component {
 
     this.socket.on('RECEIVE_EVENT', event => {
       console.log('we got the event!')
-      ggbApplet.setBase64(event, () => {
-        console.log('and we appended it to the event')
+      this.setState({
+        receivingData: true
       })
+      ggbApplet.setBase64(event)
     })
 
   }
@@ -46,12 +51,17 @@ class Workspace extends Component {
     const undoListener = () => {
       // this seems to fire when an event is completed
         console.log("undo");
-        const newData = {}
-        newData.roomId = this.props.room._id;
-        newData.event = ggbApplet.getBase64();
-
-        this.socket.emit('SEND_EVENT', newData, () => {
-          console.log('success');
+        if (!this.state.receivingData) {
+          const newData = {}
+          newData.roomId = this.props.room._id;
+          newData.event = ggbApplet.getBase64();
+          console.log('emiting event from client')
+          this.socket.emit('SEND_EVENT', newData, () => {
+            console.log('success');
+          })
+        }
+        this.setState({
+          receivingData: false
         })
     }
 
