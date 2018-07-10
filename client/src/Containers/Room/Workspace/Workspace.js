@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 let ggbApplet;
 class Workspace extends Component {
   componentDidMount() {
+    this.socket = this.props.socket;
     // THIS IS EXTREMELEY HACKY -- basically what's going on here is that
     // we need to access the ggbApplet object that is attached to the iframe
     // window by the external geogebra cdn script. This takes a little bit of
@@ -21,7 +22,6 @@ class Workspace extends Component {
       }
     }, 1000)
     console.log(this.props.socket)
-    this.socket = this.props.socket;
 
     this.socket.on('RECEIVE_EVENT', event => {
       console.log('we got the event!')
@@ -47,7 +47,7 @@ class Workspace extends Component {
       // this seems to fire when an event is completed
         console.log("undo");
         const newData = {}
-        newData.room = this.props.room._id;
+        newData.roomId = this.props.room._id;
         newData.event = ggbApplet.getBase64();
 
         this.socket.emit('SEND_EVENT', newData, () => {
@@ -87,10 +87,6 @@ class Workspace extends Component {
                 ref={(element) => {this.ifr = element}}
               >
               </iframe>
-              {/* <div id='ggb-element' class='applet-container'></div>
-                <div className='loader'>
-                <img src='./Ripple-2.3s-200px.gif' />
-              </div> */}
             </div>
           </div>
         </div>

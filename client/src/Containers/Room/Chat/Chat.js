@@ -25,7 +25,8 @@ class Chat extends Component {
 
     // initialize the socket listener
     this.socket = this.props.socket;
-    this.socket.on('RECEIVE_MESSAGE', (data) => {
+
+    this.socket.on('RECEIVE_MESSAGE', data => {
       console.log("received message ")
       let newMessages = [...this.state.messages, data]
       console.log('Setting state line 40')
