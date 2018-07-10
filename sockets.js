@@ -16,16 +16,12 @@ sockets.init = server => {
       // Message sent from a client to be dispatched to the other clients
       // in that room
       socket.on('SEND_MESSAGE', data => new Promise(function(resolve, reject) {
-        // update the db
-        console.log(data)
         // when we fetch the message we populate the user field
         // below we are essentially de-populating it, i.e., setting user to
         // userId again
         const username = data.user.username;
         const userId = data.user.userId
         data.user = data.user.userId;
-        console.log(io.sockets)
-        console.log(Object.keys(io.sockets.sockets))
         controllers.message.post(data)
         .then(res => {
           // and then re-populate ==> theres probably a better way to do this
@@ -37,9 +33,8 @@ sockets.init = server => {
       }))
 
       socket.on('SEND_EVENT', data => new Promise((resolve, reject) => {
-        console.log("RECEIVED DATA");
-        console.log("ggbdata: ", data.roomId)
-
+        // save data to the db
+        controllers['event'].post(data)
         // console.log(io.sockets.clients(data.roomId))
         socket.broadcast.to(data.roomId).emit('RECEIVE_EVENT', data.event)
       }))

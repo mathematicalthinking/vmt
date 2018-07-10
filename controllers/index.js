@@ -5,6 +5,7 @@ const room = require('./RoomController');
 const tab = require('./TabController');
 const team = require('./TeamController');
 const user = require('./UserController');
+const event = require('./eventController');
 
 module.exports = {
   assignment,
@@ -14,4 +15,5 @@ module.exports = {
   tab,
   team,
   user,
+  event,
 };
