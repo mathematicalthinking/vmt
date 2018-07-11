@@ -86,19 +86,19 @@ class Workspace extends Component {
     const undoListener = () => {
       // this seems to fire when an event is completed
         console.log("undo");
-        if (!this.state.receivingData) {
-          const newData = {}
-          newData.room = this.props.room._id;
-          newData.event = ggbApplet.getBase64();
-          newData.user = this.props.userId;
-          console.log('emiting event from client')
-          this.socket.emit('SEND_EVENT', newData, () => {
-            console.log('success');
-          })
-        }
-        this.setState({
-          receivingData: false
-        })
+        // if (!this.state.receivingData) {
+        //   const newData = {}
+        //   newData.room = this.props.room._id;
+        //   newData.event = ggbApplet.getBase64();
+        //   newData.user = this.props.userId;
+        //   console.log('emiting event from client')
+        //   this.socket.emit('SEND_EVENT', newData, () => {
+        //     console.log('success');
+        //   })
+        // }
+        // this.setState({
+        //   receivingData: false
+        // })
     }
 
     const removeListener = objName => {

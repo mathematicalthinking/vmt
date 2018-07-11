@@ -10,3 +10,8 @@ bootstrapped with https://github.com/okputadora/MERN-template.git
   * Perhaps we could also give the option to speed up
 1. Have the user who performed the action highlighted (or something)
 1. Replay the chat in unison?
+1. Movie-player-like UI
+1. When you draw a square, that should be four events (each point). but right now
+when an event is fired when we add each point, but also when we make a line by
+connecting two points, and also when we make a square by connecting the last point
+--- this looks weird in the replayer
