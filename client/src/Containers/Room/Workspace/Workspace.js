@@ -8,11 +8,11 @@ class Workspace extends Component {
   // turn emits an event which will be received by the client who initiated
   // the event in the first place.
   state = {
-    receivingData: false
+    receivingData: false,
+    events: [],
   }
 
   componentDidMount() {
-    this.socket = this.props.socket;
     console.log(this.props.events)
     // THIS IS EXTREMELEY HACKY -- basically what's going on here is that
     // we need to access the ggbApplet object that is attached to the iframe
@@ -25,22 +25,25 @@ class Workspace extends Component {
       const iframe = document.getElementById('ggbRoom').contentDocument;
       ggbApplet = iframe.ggbApplet;
       console.log(ggbApplet)
-      if (ggbApplet) {
+      if (ggbApplet) { // @TODO dont intialiZe if replaying
         console.log('found it!');
         this.initialize();
         clearInterval(timer);
       }
     }, 1000)
 
-    // define the socket listeners for handling events from the backend
-    this.socket.on('RECEIVE_EVENT', event => {
-      console.log('we got the event!')
-      this.setState({
-        receivingData: true
+    // we dont need socket functionality on replay
+    if (!this.props.replaying) {
+      this.socket = this.props.socket;
+      // define the socket listeners for handling events from the backend
+      this.socket.on('RECEIVE_EVENT', event => {
+        console.log('we got the event!')
+        this.setState({
+          receivingData: true
+        })
+        ggbApplet.setBase64(event)
       })
-      ggbApplet.setBase64(event)
-    })
-
+    }
   }
 
   // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
@@ -89,7 +92,8 @@ class Workspace extends Component {
     ggbApplet.registerClearListener(clearListener);
   }
   render() {
-    // send the most recent event history
+    // send the most recent event history if live
+    // send the first event if not
     const file = (this.props.events.length > 0) ?
       this.props.events[this.props.room.events.length - 1].event : '';
 

@@ -3,13 +3,16 @@ import { Link } from 'react-router-dom';
 import Workspace from './Workspace/Workspace';
 import Chat from './Chat/Chat';
 import io from 'socket.io-client';
+import Replayer from './Replayer/Replayer'
 import { connect } from 'react-redux';
+
 import API from '../../utils/apiRequests';
 class Room extends Component {
   state = {
     room: {},
     roomActive: false,
     addingTab: false,
+    replaying: false,
   }
 
   componentDidMount() {
@@ -22,24 +25,21 @@ class Room extends Component {
       })
     })
     .catch(err => {
-
+      // Handle error
     })
-    // this.setState({
-    //   room: currentRoom
-    // })
   }
 
   // User clickes 'enter room'
   joinRoom = () => {
     this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
     this.socket.on('connect', () => {
-      console.log('connected')
       const data = {
         room: this.props.match.params,
         user: this.props.username
       }
       this.socket.emit('JOIN', data, () => {
-        console.log('joined')
+        console.log('joined') // we should indicate the status of joining
+        // i.e. pending, success, fail, via state
       });
       // should get the other users in the room here
     })
@@ -53,13 +53,16 @@ class Room extends Component {
 
   // this should be its own component
   replayEvents = () => {
-
+    this.setState({
+      replaying: true
+    })
   }
   render() {
     let tabList;
     let stats;
     let description;
     // if the room object is not empty
+    // prepare its stats for rendering
     if (Object.keys(this.state.room).length !== 0) {
       stats = <div>
         <span>Users in room: </span>
@@ -93,14 +96,18 @@ class Room extends Component {
                 {tabList}
               </ul>
             </div>
+            {this.state.replaying ? <Replayer /> : null}
             {/* show the workspace and chat if the rooms is active, i.e. entered */}
-            {this.state.roomActive ?
-              <Workspace
-                room={this.state.room}
-                socket={this.socket}
-                userId={this.props.userId}
-                events={this.state.room.events}
-              /> : null}
+            {(this.state.roomActive || this.state.replaying) ?
+              // we could just load this right away (instead of waiting for them to hit
+              // enter) and set a prop of visible to false
+                <Workspace
+                  room={this.state.room}
+                  socket={this.socket}
+                  userId={this.props.userId}
+                  events={this.state.room.events}
+                  replaying={this.state.replaying}
+                /> : null}
           </div>
           <div className='col-md-3'>
             {this.state.roomActive ?
