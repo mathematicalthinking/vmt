@@ -30,7 +30,7 @@ class Workspace extends Component {
         this.initialize();
         clearInterval(timer);
       }
-    }, 1000)
+    }, 2000)
 
     // we dont need socket functionality on replay
     if (!this.props.replaying) {
@@ -45,7 +45,17 @@ class Workspace extends Component {
       })
     }
   }
+  componentWillReceiveProps(nextProps) {
+    // checking that this props and the incoming props are both replayin
+    // ensures that this is not the first time we received
+    if (nextProps.replaying && this.props.replaying) {
+      console.log(this.props.room.events[this.props.eventIndex].event)
+      ggbApplet.setBase64(this.props.room.events[this.props.eventIndex].event)
+    }
+  }
 
+  update = () => {
+  }
   // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
   initialize = () => {
     console.log('registered listeners')
@@ -91,12 +101,17 @@ class Workspace extends Component {
     ggbApplet.registerStoreUndoListener(undoListener);
     ggbApplet.registerClearListener(clearListener);
   }
-  render() {
-    // send the most recent event history if live
-    // send the first event if not
-    const file = (this.props.events.length > 0) ?
-      this.props.events[this.props.room.events.length - 1].event : '';
 
+  render() {
+    console.log('workspace rendering')
+    console.log(this.props.eventIndex)
+    // send the most recent event history if live
+    let file = '';
+    const events = this.props.room.events;
+    if (events.length > 0) file = events[events.length - 1].event;
+
+    // send the first event if not
+    // send and empty strting if theres no event history
     return (
       <div className='container-fluid'>
         <div className='row'>

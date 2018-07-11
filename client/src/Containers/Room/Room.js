@@ -13,16 +13,22 @@ class Room extends Component {
     roomActive: false,
     addingTab: false,
     replaying: false,
+    replayEventIndex: 0,
+
   }
 
   componentDidMount() {
     // get all of the information for the current room with all fields populated
     API.getById('room', this.props.match.params.id)
     .then(res => {
-      console.log(res.data.result)
+      const result = res.data.result
       this.setState({
-        room: res.data.result
+        room: result,
+        replayEventIndex: result.events.length - 1,
       })
+      // should we save the room's events array in the redux store so it can be accessed
+      // by both the Workspace and the Replayer components
+      // or is it fins keeping it in the room state and passing it as props
     })
     .catch(err => {
       // Handle error
@@ -51,12 +57,24 @@ class Room extends Component {
 
   }
 
-  // this should be its own component
-  replayEvents = () => {
+  startReplay = () => {
+    console.log('start replay')
+    const replay = setInterval(() => {
+      let index = this.state.replayEventIndex;
+      if (index === this.state.room.events.length) return clearInterval(replay);
+      console.log('updating index: ', index)
+      index++;
+      this.setState({replayEventIndex: index})
+    }, 1000)
+  }
+  enterReplayMode = () => {
+    //@TODO check if we're already replaying and then just return;
     this.setState({
-      replaying: true
+      replaying: true,
+      replayEventIndex: 0,
     })
   }
+
   render() {
     let tabList;
     let stats;
@@ -80,7 +98,7 @@ class Room extends Component {
           <button id="enterRoomButton" onClick={this.joinRoom} className='btn btn-primary' style={{margin: 10}}>Enter</button>
           <Link to='rooms/logs' className='btn btn-info' style={{margin: 10}}>View Logs</Link>
           <button onClick={this.editRoom} className="btn btn-warning" style={{margin: 10}}>Edit</button>
-          <button id="replayRoomButton" onClick={this.replayEvents} class="btn btn-primary" style={{margin: 10}}>Replayer</button>
+          <button id="replayRoomButton" onClick={this.enterReplayMode} class="btn btn-primary" style={{margin: 10}}>Replayer</button>
         </div>
         <small className='muted'>createdBy {this.props.username}</small>
         <br/>
@@ -96,7 +114,11 @@ class Room extends Component {
                 {tabList}
               </ul>
             </div>
-            {this.state.replaying ? <Replayer /> : null}
+            {this.state.replaying ?
+              <Replayer
+                play={this.startReplay}
+                index={this.state.replayEventIndex}
+              /> : null}
             {/* show the workspace and chat if the rooms is active, i.e. entered */}
             {(this.state.roomActive || this.state.replaying) ?
               // we could just load this right away (instead of waiting for them to hit
@@ -105,8 +127,8 @@ class Room extends Component {
                   room={this.state.room}
                   socket={this.socket}
                   userId={this.props.userId}
-                  events={this.state.room.events}
                   replaying={this.state.replaying}
+                  eventIndex={this.state.replayEventIndex}
                 /> : null}
           </div>
           <div className='col-md-3'>
