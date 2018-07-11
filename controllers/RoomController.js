@@ -1,7 +1,7 @@
 const db = require('../models')
 
 module.exports = {
-  get: (params) => {
+  get: params => {
     return new Promise((resolve, reject) => {
       db.Room.find(params)
       .then(rooms => resolve(rooms))
@@ -9,15 +9,15 @@ module.exports = {
     });
   },
 
-  getById: (id) => {
+  getById: id => {
     return new Promise((resolve, reject) => {
-      db.Room.findById(id)
+      db.Room.findById(id).populate('chat').populate('events')
       .then(room => resolve(room))
       .catch(err => reject(err))
     });
   },
 
-  post: (body) => {
+  post: body => {
     return new Promise((resolve, reject) => {
       console.log(body)
       db.Room.create(body)

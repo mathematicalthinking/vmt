@@ -4,6 +4,7 @@ import Workspace from './Workspace/Workspace';
 import Chat from './Chat/Chat';
 import io from 'socket.io-client';
 import { connect } from 'react-redux';
+import API from '../../utils/apiRequests';
 class Room extends Component {
   state = {
     room: {},
@@ -12,14 +13,17 @@ class Room extends Component {
   }
 
   componentDidMount() {
-    // go through all of the rooms and return the one
-    // we're in
-    const currentRoom = this.props.rooms.find(room => {
-      return (room._id === this.props.match.params.id)
+    // get all of the information for the current room with all fields populated
+    API.getById('room', this.props.match.params.id)
+    .then(res => {
+      console.log(res)
     })
-    this.setState({
-      room: currentRoom
+    .catch(err => {
+
     })
+    // this.setState({
+    //   room: currentRoom
+    // })
   }
 
   // User clickes 'enter room'

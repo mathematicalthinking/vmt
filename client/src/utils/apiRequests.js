@@ -8,5 +8,9 @@ export default {
   post: (resource, body) => {
     return axios.post(`/api/${resource}`, body)
   },
+
+  getById: (resource, id) => {
+    return axios.get(`/api/${resource}/${id}`)
+  }
 }
   // put: (resource, )
