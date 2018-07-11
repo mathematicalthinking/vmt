@@ -12,18 +12,17 @@ class Room extends Component {
   }
 
   componentDidMount() {
-    console.log(this.props.rooms)
-    console.log(this.props.match.params)
+    // go through all of the rooms and return the one
+    // we're in
     const currentRoom = this.props.rooms.find(room => {
       return (room._id === this.props.match.params.id)
     })
-    // join a chat for this room
-    console.log(currentRoom)
     this.setState({
       room: currentRoom
     })
   }
 
+  // User clickes 'enter room'
   joinRoom = () => {
     this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
     this.socket.on('connect', () => {
@@ -45,6 +44,7 @@ class Room extends Component {
 
   }
 
+  // this should be its own component
   replayEvents = () => {
 
   }
@@ -53,7 +53,7 @@ class Room extends Component {
     return(
       <div>
         <h3>
-          {this.state.roomName}
+          {this.state.room.roomName}
         </h3>
         <div>
           <button id="enterRoomButton" onClick={this.joinRoom} className='btn btn-primary' style={{margin: 10}}>Enter</button>
@@ -79,7 +79,13 @@ class Room extends Component {
                 {tabList}
               </ul>
             </div>
-            {this.state.roomActive ? <Workspace room={this.state.room} socket={this.socket}/> : null}
+            {/* show the workspace and chat if the rooms is active, i.e. entered */}
+            {this.state.roomActive ?
+              <Workspace
+                room={this.state.room}
+                socket={this.socket}
+                userId={this.props.userId}
+              /> : null}
           </div>
           <div className='col-md-3'>
             {this.state.roomActive ?

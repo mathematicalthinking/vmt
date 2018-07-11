@@ -19,10 +19,9 @@ class Rooms extends Component {
     }
   }
 
-  filter = (event) => {
-    console.log('filtering')
-    const allRooms = this.state.allRooms;
+  filter = event => {
     event.preventDefault();
+    const allRooms = this.state.allRooms;
     this.setState({allRooms: !allRooms})
   }
 
@@ -37,9 +36,7 @@ class Rooms extends Component {
           <div className='col-md-2'>
             <label>Show rooms created by me:</label>
             <input type='checkbox' name='showMyRooms' onClick={this.filter}/>
-            <ul>
-              {roomElems}
-            </ul>
+            <ul>{roomElems}</ul>
           </div>
           <div className='col-md-10'>
             {(this.props.match.path === '/rooms/new') ?
@@ -58,7 +55,7 @@ class Rooms extends Component {
 // connect react functions to redux actions
 const mapDispatchToProps = dispatch => {
   return {
-    getRooms: (username, password) => dispatch(actions.getRooms()),
+    getRooms: () => dispatch(actions.getRooms()),
     createRoom: body => dispatch(actions.createRoom(body)),
     updateUserRooms: newRoom => dispatch(actions.updateUserRooms(newRoom)),
   }

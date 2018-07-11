@@ -34,9 +34,9 @@ sockets.init = server => {
 
       socket.on('SEND_EVENT', data => new Promise((resolve, reject) => {
         // save data to the db
-        controllers['event'].post(data)
+        controllers.event.post(data)
         // console.log(io.sockets.clients(data.roomId))
-        socket.broadcast.to(data.roomId).emit('RECEIVE_EVENT', data.event)
+        socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data.event)
       }))
     });
 

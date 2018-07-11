@@ -1,7 +1,7 @@
 const db = require('../models')
 
 module.exports = {
-  get: (params) => {
+  get: params => {
     return new Promise((resolve, reject) => {
       db.Event.find(params).populate('user')
       .then(events => resolve(events))
@@ -9,7 +9,7 @@ module.exports = {
     });
   },
 
-  getById: (id) => {
+  getById: id => {
     return new Promise((resolve, reject) => {
       db.Event.findById(id)
       .then(event => resolve(event))
@@ -19,7 +19,6 @@ module.exports = {
 
   post: (body) => {
     return new Promise((resolve, reject) => {
-      console.log("Controller: ",body)
       db.Event.create(body)
       .then(event => resolve(event))
       .catch(err => reject(err))

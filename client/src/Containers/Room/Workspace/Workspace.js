@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
-// let GGBApplet;
 let ggbApplet;
 class Workspace extends Component {
+  // we need to track whether or not the ggbBase64 data was updated
+  // by this user or by another client. Otherwise we were getting stuck
+  // in an infinite loop because ggbApplet.setBase64 would be triggered
+  // by socket.on('RECEIVE_EVENT') which then triggers undoListener which in
+  // turn emits an event which will be received by the client who initiated
+  // the event in the first place.
   state = {
     receivingData: false
   }
@@ -25,8 +30,8 @@ class Workspace extends Component {
         clearInterval(timer);
       }
     }, 1000)
-    console.log(this.props.socket)
 
+    // define the socket listeners for handling events from the backend
     this.socket.on('RECEIVE_EVENT', event => {
       console.log('we got the event!')
       this.setState({
@@ -36,14 +41,16 @@ class Workspace extends Component {
     })
 
   }
+
+  // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
   initialize = () => {
     console.log('registered listeners')
-    const updateListener = (objName) => {
+    const updateListener = objName => {
       console.log("Update " + objName);
       console.log(ggbApplet)
     }
 
-    const addListener = (objName) => {
+    const addListener = objName => {
         console.log(ggbApplet)
         console.log("Add " + objName);
     }
@@ -53,8 +60,9 @@ class Workspace extends Component {
         console.log("undo");
         if (!this.state.receivingData) {
           const newData = {}
-          newData.roomId = this.props.room._id;
+          newData.room = this.props.room._id;
           newData.event = ggbApplet.getBase64();
+          newData.user = this.props.userId;
           console.log('emiting event from client')
           this.socket.emit('SEND_EVENT', newData, () => {
             console.log('success');
@@ -65,13 +73,14 @@ class Workspace extends Component {
         })
     }
 
-    const removeListener = (objName) => {
+    const removeListener = objName => {
         console.log("Remove " + objName);
     }
 
     const clearListener = () =>  {
         console.log("clear");
     }
+    // attach this listeners to the ggbApplet
     ggbApplet.registerUpdateListener(updateListener);
     ggbApplet.registerAddListener(addListener);
     ggbApplet.registerRemoveListener(removeListener);
@@ -79,6 +88,10 @@ class Workspace extends Component {
     ggbApplet.registerClearListener(clearListener);
   }
   render() {
+    // send the most recent event history
+    const file = (this.props.room.events.length > 0) ?
+      this.props.room.events[this.props.room.events.length - 1] : '';
+
     return (
       <div className='container-fluid'>
         <div className='row'>
@@ -93,7 +106,7 @@ class Workspace extends Component {
                 width={800}
                 title={this.props.roomName}
                 id='ggbRoom'
-                src={`/Geogebra.html?file=${this.props.room.tabList[0]}`}
+                src={`/Geogebra.html?file=${file}`}
                 ref={(element) => {this.ifr = element}}
               >
               </iframe>

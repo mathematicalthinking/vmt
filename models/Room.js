@@ -6,6 +6,7 @@ const Room = new mongoose.Schema({
   description: {type: String},
   creator: {type: ObjectId, ref: 'User'},
   tabListKey: [{type: ObjectId, ref: 'Tab'}],
+  events: [{type: ObjectId}],
   chat: [{type: ObjectId, ref: 'Message'}],
 });
 
@@ -13,6 +14,9 @@ const Room = new mongoose.Schema({
 // @TODO for some reason I can't get $push to work
 Room.post('save', doc => {
   User.findById(doc.creator, (err, res) => {
+    if (err) {
+      return console.log(err)
+    }
     res.rooms.push(doc._id)
     res.save()
   })
