@@ -13,6 +13,7 @@ class Workspace extends Component {
 
   componentDidMount() {
     this.socket = this.props.socket;
+    console.log(this.props.events)
     // THIS IS EXTREMELEY HACKY -- basically what's going on here is that
     // we need to access the ggbApplet object that is attached to the iframe
     // window by the external geogebra cdn script. This takes a little bit of
@@ -89,8 +90,8 @@ class Workspace extends Component {
   }
   render() {
     // send the most recent event history
-    const file = (this.props.room.events.length > 0) ?
-      this.props.room.events[this.props.room.events.length - 1] : '';
+    const file = (this.props.events.length > 0) ?
+      this.props.events[this.props.room.events.length - 1].event : '';
 
     return (
       <div className='container-fluid'>

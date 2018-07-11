@@ -6,7 +6,7 @@ const Room = new mongoose.Schema({
   description: {type: String},
   creator: {type: ObjectId, ref: 'User'},
   tabListKey: [{type: ObjectId, ref: 'Tab'}],
-  events: [{type: ObjectId}],
+  events: [{type: ObjectId, ref: 'Event'}],
   chat: [{type: ObjectId, ref: 'Message'}],
 });
 

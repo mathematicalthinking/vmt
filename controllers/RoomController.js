@@ -11,8 +11,12 @@ module.exports = {
 
   getById: id => {
     return new Promise((resolve, reject) => {
-      db.Room.findById(id).populate({path: 'chat', populate: {path: 'user'}}).populate('events')
-      .then(room => resolve(room))
+      db.Room.findById(id)
+      .populate({path: 'events', populate: {path: 'user'}})
+      .populate({path: 'chat', populate: {path: 'user'}})
+      .then(room => {
+        console.log(room)
+        resolve(room)})
       .catch(err => reject(err))
     });
   },

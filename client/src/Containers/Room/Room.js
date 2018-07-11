@@ -16,6 +16,7 @@ class Room extends Component {
     // get all of the information for the current room with all fields populated
     API.getById('room', this.props.match.params.id)
     .then(res => {
+      console.log(res.data.result)
       this.setState({
         room: res.data.result
       })
