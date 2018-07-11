@@ -65,7 +65,7 @@ class Room extends Component {
       console.log('updating index: ', index)
       index++;
       this.setState({replayEventIndex: index})
-    }, 1000)
+    }, 500)
   }
   enterReplayMode = () => {
     //@TODO check if we're already replaying and then just return;

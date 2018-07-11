@@ -30,7 +30,7 @@ class Workspace extends Component {
         this.initialize();
         clearInterval(timer);
       }
-    }, 2000)
+    }, 1000)
 
     // we dont need socket functionality on replay
     if (!this.props.replaying) {
@@ -66,7 +66,21 @@ class Workspace extends Component {
 
     const addListener = objName => {
         console.log(ggbApplet)
+        console.log(ggbApplet.getBase64())
         console.log("Add " + objName);
+        if (!this.state.receivingData) {
+          const newData = {}
+          newData.room = this.props.room._id;
+          newData.event = ggbApplet.getBase64();
+          newData.user = this.props.userId;
+          console.log('emiting event from client')
+          this.socket.emit('SEND_EVENT', newData, () => {
+            console.log('success');
+          })
+        }
+        this.setState({
+          receivingData: false
+        })
     }
 
     const undoListener = () => {
