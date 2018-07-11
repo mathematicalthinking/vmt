@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
 import classes from './chat.css';
 import glb from '../../../global.css';
-import api from '../../../utils/apiRequests';
 class Chat extends Component {
   state = {
     users: [],
@@ -13,19 +12,12 @@ class Chat extends Component {
   }
 
   componentDidMount() {
-    api.get('message', {room: this.props.roomId})
-    .then(response => {
-      console.log('messages: ', response.data.results)
-      this.setState({
-        messages: response.data.results
-      })
-    })
-    .catch(err => console.log(err))
-    // API call to get initial users
-
+    console.log(this.props.messages)
     // initialize the socket listener
     this.socket = this.props.socket;
-
+    this.setState({
+      messages: this.props.messages
+    })
     this.socket.on('RECEIVE_MESSAGE', data => {
       console.log("received message ")
       let newMessages = [...this.state.messages, data]

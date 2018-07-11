@@ -16,7 +16,9 @@ class Room extends Component {
     // get all of the information for the current room with all fields populated
     API.getById('room', this.props.match.params.id)
     .then(res => {
-      console.log(res)
+      this.setState({
+        room: res.data.result
+      })
     })
     .catch(err => {
 
@@ -54,6 +56,17 @@ class Room extends Component {
   }
   render() {
     let tabList;
+    let stats;
+    let description;
+    // if the room object is not empty
+    if (Object.keys(this.state.room).length !== 0) {
+      stats = <div>
+        <span>Users in room: </span>
+        <span>chats: {this.state.room.chat.length} </span>
+        <span>events: {this.state.room.events.length} </span>
+      </div>
+      description = <p>{this.state.room.description}</p>
+    }
     return(
       <div>
         <h3>
@@ -65,15 +78,11 @@ class Room extends Component {
           <button onClick={this.editRoom} className="btn btn-warning" style={{margin: 10}}>Edit</button>
           <button id="replayRoomButton" onClick={this.replayEvents} class="btn btn-primary" style={{margin: 10}}>Replayer</button>
         </div>
-        <small className='muted'>createdBy {this.state.creator}</small>
+        <small className='muted'>createdBy {this.props.username}</small>
         <br/>
-        <div>
-          <span>Users in room: </span>
-          <span>chats: </span>
-          <span>events: </span>
-        </div>
+        {stats}
         <h4>Description</h4>
-        <p>{this.state.description}</p>
+        {description}
         <strong>Tabs: </strong>
         {tabList}
         <div className='container-fluid'>
@@ -89,6 +98,7 @@ class Room extends Component {
                 room={this.state.room}
                 socket={this.socket}
                 userId={this.props.userId}
+                events={this.state.room.events}
               /> : null}
           </div>
           <div className='col-md-3'>
@@ -98,6 +108,7 @@ class Room extends Component {
                 username={this.props.username}
                 userId={this.props.userId}
                 socket={this.socket}
+                messages={this.state.room.chat}
               /> : null}
           </div>
         </div>
@@ -114,7 +125,4 @@ const mapStateToProps = store => {
   }
 }
 
-const mapDispatchToProps = dispatch => {
-
-}
-export default connect(mapStateToProps, mapDispatchToProps)(Room);
+export default connect(mapStateToProps, null)(Room);
