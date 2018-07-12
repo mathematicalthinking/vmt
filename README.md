@@ -1,6 +1,18 @@
 # VMT React
 bootstrapped with https://github.com/okputadora/MERN-template.git
 
+
+## TODO
+
+### General
+1. Loading screens for when the user should not be clicking around
+1.
+
+### Chat
+1. Make chat scroll to bottom by default
+1. make message components & style it up
+1. Dynamic styling for users own messages vs incoming
+
 ## Bugs
 1. We need to disable all buttons related replaying and interacting with the room
 until the ggbClient is loaded.
@@ -26,3 +38,5 @@ connecting two points, and also when we make a square by connecting the last poi
 ### Ideas for rooms
 1. Filtering
   * Allow filtering across multiple fields (active rooms with people in them etc.)
+  * When someone leaves a room take a snapshot as png and display images of the rooms
+  in the ContentBoxes that list them

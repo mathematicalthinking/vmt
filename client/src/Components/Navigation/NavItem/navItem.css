@@ -17,3 +17,8 @@
   background-color: #0078EC;
   text-decoration: none;
 }
+
+.Link:active{
+  color: white;
+  background-color: #0078EC;
+}

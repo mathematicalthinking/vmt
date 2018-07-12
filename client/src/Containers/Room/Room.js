@@ -70,7 +70,8 @@ class Room extends Component {
 
   playEvents = () => {
     let index = this.state.replayEventIndex;
-    if (index === this.state.room.events.length) {
+    if (index === this.state.room.events.length - 1) {
+      this.setState({replaying: false, replayEventIndex: 0})
       return clearInterval(this.player)
     }
     index++;
@@ -81,9 +82,11 @@ class Room extends Component {
   // for fastforwarding rewinding
   goToEventIndex = index => {
     clearTimeout(this.player)
+    console.log(index)
     // dont let the user go outside of the range of events
     if (index < 0) index = 0;
     if (index >= this.state.room.events.length) index = this.state.room.events.length - 1;
+    console.log(index)
     this.setState({
       replaying: false,
       replayEventIndex: index,
@@ -91,15 +94,12 @@ class Room extends Component {
   }
 
   togglePlaying = () => {
-    console.log('toggling play')
-    console.log('playing: ',this.state.replaying)
-    // attach the interval to 'this' so we can clear it from any function
     if (this.state.replaying) {
       this.setState({replaying: false})
       return clearInterval(this.player)
     }
+    // if we're at the end, start from the beginning
     this.setState({replaying: true})
-    console.log('playing: ',this.state.replaying)
     this.player = setInterval(this.playEvents, 1000);
   }
   enterReplayMode = () => {
@@ -116,7 +116,8 @@ class Room extends Component {
     // prepare its stats for rendering
     if (Object.keys(this.state.room).length !== 0) {
       stats = <ContentBox title='Room Stats' align='left'>
-        <div><b>Created by:</b> {this.props.username}</div>
+        <div><b>Name:</b> {this.state.room.roomName}</div>
+        <div><b>Created by:</b> {this.state.room.creator}</div>
         <div><b>Description:</b> {this.state.room.description}</div>
         <div><b>Users in room:</b> </div>
         <div><b>Chats:</b> {this.state.room.chat.length} </div>
@@ -125,9 +126,6 @@ class Room extends Component {
     }
     return(
       <div className={[classes.Container, glb.FlexCol].join(' ')}>
-        <h3>
-          {this.state.room.roomName}
-        </h3>
         <div className={classes.Controls}>
           <Button click={this.joinRoom}>Enter</Button>
           <Button> <Link to='rooms/logs'>View Logs</Link></Button>

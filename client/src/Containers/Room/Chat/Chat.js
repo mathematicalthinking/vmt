@@ -2,6 +2,7 @@
 // redux store?
 import React, { Component } from 'react';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
+import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 import classes from './chat.css';
 import glb from '../../../global.css';
 class Chat extends Component {
@@ -12,23 +13,32 @@ class Chat extends Component {
   }
 
   componentDidMount() {
-    console.log(this.props.messages)
+    // event handler for enter key presses
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter'){
+        // handle differenct contexts of Enter clicks
+        if (this.state.messages.length > 0){
+          // this.submitMessage(); @TODO we need to check if the chat enry is in focuse with a ref()
+        }
+      }
+    })
+    // start the chat scrolled to the bottom
+    this.scrollToBottom();
     // initialize the socket listener
     this.setState({
       messages: this.props.messages
     })
+    // we dont want the chat to be live on replay
     if (!this.props.replaying) {
       this.socket = this.props.socket;
       this.socket.on('RECEIVE_MESSAGE', data => {
-        console.log("received message ")
         let newMessages = [...this.state.messages, data]
-        console.log('Setting state line 40')
         this.setState({
           messages: newMessages
         })
+        this.scrollToBottom()
       });
       this.socket.on('NEW_USER', user => {
-        console.log('new user joined: ', user)
         const updatedUsers = [...this.state.users, user]
         this.setState({
           users: updatedUsers
@@ -37,8 +47,14 @@ class Chat extends Component {
     }
   }
 
+  scrollToBottom = () => {
+    if (this.messagesEnd) {
+      console.log(this.messagesEnd)
+      this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+
   changeHandler = event => {
-    console.log(event.target.value)
     this.setState({
       newMessage: event.target.value
     })
@@ -54,11 +70,11 @@ class Chat extends Component {
     this.socket.emit('SEND_MESSAGE', newMessage, () => {
       // we should set state in here so we can handle errors and
       // let the user know whether their message made it to the others
-      console.log("SETTING STATE");
       console.log("MESSAGE SENT");
     })
 
     let updatedMessages = [...this.state.messages, newMessage]
+    this.scrollToBottom();
     this.setState({
       messages: updatedMessages,
       newMessage: '',
@@ -75,19 +91,20 @@ class Chat extends Component {
         <div key={i}>
           <b>{message.user ? message.user.username : null}: </b><span>{message.text}</span>
         </div>
-            ))
-          }
+      ))
+      // use this to scroll to the bottom
+      messages.push(<div ref={el => { this.messagesEnd = el}}></div>)
+    }
 
     return (
-      <div className={glb.FlexCol} id='chatPane'>
-        <div>Users in Session</div>
-        <section className={classes.UserList} id='userList'>
+      <div className={glb.FlexCol}>
+        <ContentBox title='Current users'>
           {users}
-        </section>
-        <section className={classes.ChatWindow} id='chatWindow'>
-          {messages}
-        </section>
-        <div id='chatEntryPanel'>
+        </ContentBox>
+        <div className={classes.ChatWindow}>
+          <div className={classes.ChatScroll} id='scrollable'>{messages}</div>
+        </div>
+        <div className={classes.ChatEntry}>
           <TextInput change={this.changeHandler} type='text' name='message' value={this.state.newMessage}/>
           <button onClick={this.submitMessage}>send</button>
         </div>

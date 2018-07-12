@@ -7,7 +7,7 @@ const replayer = props => {
   const pausePlay = props.playing ? <i class="fas fa-pause"></i> : <i className="fas fa-play"></i>;
   const progress = (props.index / (props.duration - 1)) * 100
   const disableBack = (props.index === 0) ? true : false;
-  const disableForward = (props.index > props.duration);
+  const disableForward = (props.index >=  props.duration - 1);
   console.log(props.index)
   console.log(props.duration)
   console.log(progress)
