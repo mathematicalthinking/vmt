@@ -17,3 +17,7 @@ bootstrapped with https://github.com/okputadora/MERN-template.git
 when an event is fired when we add each point, but also when we make a line by
 connecting two points, and also when we make a square by connecting the last point
 --- this looks weird in the replayer
+
+### Ideas for rooms
+1. Filtering
+  * Allow filtering across multiple fields (active rooms with people in them etc.)

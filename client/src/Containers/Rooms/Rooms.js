@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import NewRoom from './NewRoom/NewRoom';
-import ContentBox from '../../Components/UI/ContentBox/ContentBox'
+import ContentBox from '../../Components/UI/ContentBox/ContentBox';
+import Checkbox from '../../Components/Form/Checkbox/Checkbox';
 import classes from './rooms.css';
 import glb from '../../global.css';
 import * as actions from '../../store/actions/';
@@ -37,11 +38,6 @@ class Rooms extends Component {
     ))
     return (
       <div>
-        <div className=''>
-          <label>Show rooms created by me:</label>
-          <input type='checkbox' name='showMyRooms' onClick={this.filter}/>
-          <div className={classes.Container}>{roomElems}</div>
-        </div>
         <div>
           {(this.props.match.path === '/rooms/new') ?
             <NewRoom
@@ -49,6 +45,14 @@ class Rooms extends Component {
               userId={this.props.userId}
               updateUserRooms={this.props.updateUserRooms}
             /> : null}
+        </div>
+        <div>
+          <div className={classes.Filters}>
+            <button onClick={this.filter}>
+              <i className="fas fa-filter"></i>
+              {this.state.allRooms ? 'Show My Rooms' : 'Show Public Rooms'}</button>
+          </div>
+          <div className={classes.Container}>{roomElems}</div>
         </div>
       </div>
     )
