@@ -3,6 +3,7 @@
   flex-flow: column;
   align-items: center;
   width: 100vw;
+  min-height: 100vh;
 }
 
 .Image {
@@ -12,9 +13,13 @@
   border-radius: 10px;
 }
 
-.Content {
+.Banner{letter-spacing: .1em;}
+
+.Main {
   display: flex;
-  justify-content: space-around;
-  margin-top: 50px;
-  width: 800px;
+  flex-flow: column;
+  margin-top: 150px;
+  width: 100%;
+  max-width: 1300px;
+  min-height: calc(100vh - 300px);
 }

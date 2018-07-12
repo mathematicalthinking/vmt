@@ -1,3 +1,19 @@
-.NavItem {
-  margin: 20px;
+.Item {
+  list-style-type: none;
+  height: 100%;
+}
+
+.Link {
+  padding: 10px;
+  color: white;
+  letter-spacing: .07em;
+  height: 100%;
+  background-color: inherit;
+  transition: .1s ease-in;
+}
+
+.Link:hover {
+  color: white;
+  background-color: #0078EC;
+  text-decoration: none;
 }
