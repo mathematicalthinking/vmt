@@ -15,10 +15,10 @@ class Layout extends Component {
   render() {
     return (
       <Router>
-        <body className={classes.Layout}>
+        <main className={classes.Main}>
           <h2 className={classes.Banner}>Welcome To Virtual Math Teams</h2>
           <Navbar />
-          <main className={classes.Main}>
+          <section className={classes.Section}>
             <Switch>
               <Route exact path='/' component={Login}/>
               <PrivateRoute exact path='/rooms' authed={this.props.loggedIn} component={Rooms}/>
@@ -32,8 +32,8 @@ class Layout extends Component {
                 return (<div>Error</div>)
               }}/>
             </Switch>
-          </main>
-        </body>
+          </section>
+        </main>
       </Router>
     )
   }

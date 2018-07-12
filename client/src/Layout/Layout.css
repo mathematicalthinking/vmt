@@ -1,4 +1,4 @@
-.Layout {
+.Main {
   display: flex;
   flex-flow: column;
   align-items: center;
@@ -15,7 +15,7 @@
 
 .Banner{letter-spacing: .1em;}
 
-.Main {
+.Section {
   display: flex;
   flex-flow: column;
   margin-top: 150px;

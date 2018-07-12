@@ -34,7 +34,8 @@ class Login extends Component {
   }
 
   // submit form
-  loginHandler = (event) => {
+  loginHandler = event => {
+    event.preventDefault();
     // pass submission off to redux
     this.props.onLogin(
       this.state.controls.username.value,
@@ -71,10 +72,10 @@ class Login extends Component {
       this.props.loggedIn ? <Redirect to='/rooms'/> :
       <div className={classes.LoginContainer}>
         <ContentBox title='Login'>
-          <div className={glb.FlexCol}>
+          <form onSubmit={this.loginHandler} className={glb.FlexCol}>
             {form}
-            <Button click={this.loginHandler}>Login</Button>
-          </div>
+            <Button>Login</Button>
+          </form>
           <div>or</div>
           <GoogleSignIn click={this.googleLogin} />
         </ContentBox>
