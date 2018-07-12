@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import classes from './workspace.css';
 import glb from '../../../global.css';
+import Aux from '../../../Components/HOC/Auxil';
+import Loading from '../../../Components/UI/Loading/Loading';
 let ggbApplet;
 class Workspace extends Component {
   // we need to track whether or not the ggbBase64 data was updated
@@ -12,6 +14,7 @@ class Workspace extends Component {
   state = {
     receivingData: false,
     events: [],
+    loading: true,
   }
 
   componentDidMount() {
@@ -27,6 +30,11 @@ class Workspace extends Component {
       ggbApplet = iframe.ggbApplet;
       if (ggbApplet) { // @TODO dont intialiZe if replaying
         this.initialize();
+        this.setState({loading: false})
+        // @TODO insread of passing the file to the iframe we could instead just set
+        // base64 right here and then setState of loading in it's call back,
+        // because right now we're losing the loading screen after the geogebra
+        // frame is loaded, but before the data is loaded
         clearInterval(timer);
       }
     }, 1000)
@@ -114,16 +122,19 @@ class Workspace extends Component {
     // send the first event if not
     // send and empty strting if theres no event history
     return (
-      <div className={[classes.Container, glb.FlexRow].join(' ')}>
-        <iframe
-          className={classes.Iframe}
-          title={this.props.roomName}
-          id='ggbRoom'
-          src={`/Geogebra.html?file=${file}`}
-          ref={(element) => {this.ifr = element}}
-        >
-        </iframe>
-      </div>
+      <Aux>
+        <Loading show={this.state.loading} message="Loading the Geogebra workspace...this may take a moment"/>
+        <div className={[classes.Container, glb.FlexRow].join(' ')}>
+          <iframe
+            className={classes.Iframe}
+            title={this.props.roomName}
+            id='ggbRoom'
+            src={`/Geogebra.html?file=${file}`}
+            ref={(element) => {this.ifr = element}}
+          >
+          </iframe>
+        </div>
+      </Aux>
     )
   }
 }

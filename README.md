@@ -34,6 +34,8 @@ until the ggbClient is loaded.
 when an event is fired when we add each point, but also when we make a line by
 connecting two points, and also when we make a square by connecting the last point
 --- this looks weird in the replayer
+1. Perhaps we could make the playback look nice by utilizing geogebra's animation api
+e.g., setAnimating, startAnimcation
 
 ### Ideas for rooms
 1. Filtering

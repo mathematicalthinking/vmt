@@ -23,7 +23,7 @@ class Chat extends Component {
       }
     })
     // start the chat scrolled to the bottom
-    this.scrollToBottom();
+    // this.scrollToBottom(); @TODO this function isnt working properly
     // initialize the socket listener
     this.setState({
       messages: this.props.messages
@@ -36,7 +36,7 @@ class Chat extends Component {
         this.setState({
           messages: newMessages
         })
-        this.scrollToBottom()
+        // this.scrollToBottom() @TODO
       });
       this.socket.on('NEW_USER', user => {
         const updatedUsers = [...this.state.users, user]
@@ -74,7 +74,7 @@ class Chat extends Component {
     })
 
     let updatedMessages = [...this.state.messages, newMessage]
-    this.scrollToBottom();
+    // this.scrollToBottom(); @TODO
     this.setState({
       messages: updatedMessages,
       newMessage: '',

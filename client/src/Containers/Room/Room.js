@@ -4,8 +4,10 @@ import Workspace from './Workspace/Workspace';
 import Chat from './Chat/Chat';
 import io from 'socket.io-client';
 import Replayer from './Replayer/Replayer';
+import Aux from '../../Components/HOC/Auxil';
 import Button from '../../Components/UI/Button/Button';
 import ContentBox from '../../Components/UI/ContentBox/ContentBox';
+import Loading from '../../Components/UI/Loading/Loading';
 import classes from './room.css';
 import glb from '../../global.css'
 import { connect } from 'react-redux';
@@ -19,6 +21,7 @@ class Room extends Component {
     replayMode: false,
     replaying: false,
     replayEventIndex: 0,
+    loading: true,
 
   }
 
@@ -32,6 +35,7 @@ class Room extends Component {
       this.setState({
         room: result,
         replayEventIndex: result.events.length - 1,
+        loading: false,
       })
       // should we save the room's events array in the redux store so it can be accessed
       // by both the Workspace and the Replayer components
@@ -125,52 +129,55 @@ class Room extends Component {
       </ContentBox>
     }
     return(
-      <div className={[classes.Container, glb.FlexCol].join(' ')}>
-        <div className={classes.Controls}>
-          <Button click={this.joinRoom}>Enter</Button>
-          <Button> <Link to='rooms/logs'>View Logs</Link></Button>
-          <Button click={this.editRoom}>Edit</Button>
-          <Button click={this.enterReplayMode}>Replayer</Button>
-        </div>
-        <div className={glb.FlexRow}>
-          <div className={classes.Stats}>
-            {stats}
+      <Aux>
+        <Loading show={this.state.loading ? true : false }/>
+        <div className={[classes.Container, glb.FlexCol].join(' ')}>
+          <div className={classes.Controls}>
+            <Button click={this.joinRoom}>Enter</Button>
+            <Button> <Link to='rooms/logs'>View Logs</Link></Button>
+            <Button click={this.editRoom}>Edit</Button>
+            <Button click={this.enterReplayMode}>Replayer</Button>
           </div>
-          {this.state.replayMode ?
-            <Replayer
-              playing={this.state.replaying}
-              play={this.togglePlaying}
-              index={this.state.replayEventIndex}
-              duration={this.state.room.events.length}
-              goToIndex={this.goToEventIndex}
-            /> : null}
-        </div>
-        {/* show the workspace and chat if the rooms is active, i.e. entered */}
-        {(this.state.roomActive || this.state.replayMode) ?
           <div className={glb.FlexRow}>
-            <Workspace
-              room={this.state.room}
-              socket={this.socket}
-              userId={this.props.userId}
-              replaying={this.state.replayMode}
-              eventIndex={this.state.replayEventIndex}
-            />
-            <Chat
-              roomId={this.state.room._id}
-              username={this.props.username}
-              userId={this.props.userId}
-              socket={this.socket}
-              replaying={this.state.replayMode}
-              messages={this.state.room.chat}
-            />
-          </div> : null }
-      </div>
-    )
+            <div className={classes.Stats}>
+              {stats}
+            </div>
+            {this.state.replayMode ?
+              <Replayer
+                playing={this.state.replaying}
+                play={this.togglePlaying}
+                index={this.state.replayEventIndex}
+                duration={this.state.room.events.length}
+                goToIndex={this.goToEventIndex}
+              /> : null}
+          </div>
+          {/* show the workspace and chat if the rooms is active, i.e. entered */}
+          {(this.state.roomActive || this.state.replayMode) ?
+            <div className={glb.FlexRow}>
+              <Workspace
+                room={this.state.room}
+                socket={this.socket}
+                userId={this.props.userId}
+                replaying={this.state.replayMode}
+                eventIndex={this.state.replayEventIndex}
+              />
+              <Chat
+                roomId={this.state.room._id}
+                username={this.props.username}
+                userId={this.props.userId}
+                socket={this.socket}
+                replaying={this.state.replayMode}
+                messages={this.state.room.chat}
+              />
+            </div> : null }
+        </div>
+      </Aux>
+      )
+    }
   }
-}
 
-const mapStateToProps = store => {
-  return {
+  const mapStateToProps = store => {
+          return {
     username: store.userReducer.username,
     userId: store.userReducer.userId,
     rooms: store.roomsReducer.rooms,
