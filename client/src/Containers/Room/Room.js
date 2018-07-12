@@ -16,7 +16,7 @@ import API from '../../utils/apiRequests';
 class Room extends Component {
   state = {
     room: {},
-    roomActive: false,
+    liveMode: false,
     addingTab: false,
     replayMode: false,
     replaying: false,
@@ -52,7 +52,17 @@ class Room extends Component {
   }
 
   // User clickes 'enter room'
-  joinRoom = () => {
+  toggleRoomEntry = () => {
+    // if 'were already in the room --> leave'
+    if (this.state.liveMode || this.state.replayMode) {
+      this.setState({
+        liveMode: false,
+        replayMode: false,
+        replayEventIndex: this.state.room.events.length - 1,
+      });
+      clearInterval(this.player);
+      return;
+    }
     this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
     this.socket.on('connect', () => {
       const data = {
@@ -65,7 +75,7 @@ class Room extends Component {
       // should get the other users in the room here
     })
     this.setState({
-      roomActive: true
+      liveMode: true
     })
   }
   editRoom = () => {
@@ -130,10 +140,12 @@ class Room extends Component {
     }
     return(
       <Aux>
-        <Loading show={this.state.loading ? true : false }/>
+        <Loading show={this.state.loading ? true : false } message='Fetching room info'/>
         <div className={[classes.Container, glb.FlexCol].join(' ')}>
           <div className={classes.Controls}>
-            <Button click={this.joinRoom}>Enter</Button>
+            <Button click={this.toggleRoomEntry}>
+              {(this.state.liveMode || this.state.replayMode )? 'Leave Room' : 'Enter Room'}
+            </Button>
             <Button> <Link to='rooms/logs'>View Logs</Link></Button>
             <Button click={this.editRoom}>Edit</Button>
             <Button click={this.enterReplayMode}>Replayer</Button>
@@ -142,7 +154,7 @@ class Room extends Component {
             <div className={classes.Stats}>
               {stats}
             </div>
-            {this.state.replayMode ?
+            {this.state.replayMode && !this.state.liveMode ?
               <Replayer
                 playing={this.state.replaying}
                 play={this.togglePlaying}
@@ -152,7 +164,7 @@ class Room extends Component {
               /> : null}
           </div>
           {/* show the workspace and chat if the rooms is active, i.e. entered */}
-          {(this.state.roomActive || this.state.replayMode) ?
+          {(this.state.liveMode || this.state.replayMode) ?
             <div className={glb.FlexRow}>
               <Workspace
                 room={this.state.room}
