@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Input from '../../Components/Form/TextInput/TextInput';
+import ContentBox from '../../Components/UI/ContentBox/ContentBox';
 import * as actions from '../../store/actions/';
 import GoogleSignIn from '../../Components/Form/Google/LoginButton';
 import { Redirect } from 'react-router-dom';
 import glb from '../../global.css';
+import classes from './login.css'
 class Login extends Component {
   state = {
     controls: {
@@ -67,14 +69,15 @@ class Login extends Component {
 
     return (
       this.props.loggedIn ? <Redirect to='/rooms'/> :
-      <div className='col-md-5'>
-        <h3>Login</h3>
-        <form onSubmit={this.loginHandler} className={glb.FlexCol}>
-          {form}
-          <Input type='submit' value='login'/>
-        </form>
-        <div>or sign in with google</div>
-        <GoogleSignIn click={this.googleLogin} />
+      <div className={classes.LoginContainer}>
+        <ContentBox title='Login'>
+          <form onSubmit={this.loginHandler} className={glb.FlexCol}>
+            {form}
+            <Input type='submit' value='login'/>
+          </form>
+          <div>or sign in with google</div>
+          <GoogleSignIn click={this.googleLogin} />
+        </ContentBox>
       </div>
     )
   }
