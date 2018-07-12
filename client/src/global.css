@@ -7,3 +7,15 @@
   flex-flow: column;
   width: 100%;
 }
+
+.FlexRow {
+  display: flex;
+}
+
+.Link {
+  text-decoration: none;
+}
+
+.Link:hover {
+  text-decoration: none;
+}

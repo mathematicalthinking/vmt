@@ -22,7 +22,6 @@ const reducer = (state = initialState, action) => {
         loggingIn: false,
       };
     case actionTypes.LOGIN_SUCCESS:
-      console.log("SHOULD HAVE SOME ROOMS HERE: ", action)
       // login authentication
       return {
         ...state,

@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import NewRoom from './NewRoom/NewRoom';
-// import classes from './rooms.css';
+import ContentBox from '../../Components/UI/ContentBox/ContentBox'
+import classes from './rooms.css';
+import glb from '../../global.css';
 import * as actions from '../../store/actions/';
 import { connect } from 'react-redux';
 
@@ -27,25 +29,26 @@ class Rooms extends Component {
 
   render() {
     const rooms = this.state.allRooms ? 'rooms' : 'myRooms';
-    const roomElems = this.props[rooms].map(room => (
-      <li><label>Name: </label><Link to={`/room/${room._id}`}>{room.roomName}</Link></li>
+    const roomElems = this.props[rooms].map((room, i) => (
+      <ContentBox title={
+        <Link className={glb.Link} to={`/room/${room._id}`}>{room.roomName}</Link>} key={i}>
+        {/* room info */}
+      </ContentBox>
     ))
     return (
-      <div className='container-fluid'>
-        <div className='row-fluid'>
-          <div className='col-md-2'>
-            <label>Show rooms created by me:</label>
-            <input type='checkbox' name='showMyRooms' onClick={this.filter}/>
-            <ul>{roomElems}</ul>
-          </div>
-          <div className='col-md-10'>
-            {(this.props.match.path === '/rooms/new') ?
-              <NewRoom
-                createRoom={this.props.createRoom}
-                userId={this.props.userId}
-                updateUserRooms={this.props.updateUserRooms}
-              /> : null}
-          </div>
+      <div>
+        <div className=''>
+          <label>Show rooms created by me:</label>
+          <input type='checkbox' name='showMyRooms' onClick={this.filter}/>
+          <div className={classes.Container}>{roomElems}</div>
+        </div>
+        <div>
+          {(this.props.match.path === '/rooms/new') ?
+            <NewRoom
+              createRoom={this.props.createRoom}
+              userId={this.props.userId}
+              updateUserRooms={this.props.updateUserRooms}
+            /> : null}
         </div>
       </div>
     )

@@ -2,7 +2,7 @@
   display: flex;
   flex-flow: column;
   align-items: center;
-  width: 500px;
+  /* width: 500px; */
   background-color: #f9f8f7;
   padding: 30px;
   border: 1px solid #d8d9da;

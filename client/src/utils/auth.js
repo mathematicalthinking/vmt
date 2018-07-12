@@ -1,8 +1,9 @@
 import axios from 'axios';
+//@TODO get rid of these cutsome promises -- axios is already retruning a promise
+// so return axios.get.... will work fine
 export default {
   login: (username, password) => {
     return new Promise((resolve, reject) => {
-      console.log("Making auth request from front end");
       axios.post('/auth/login', {username, password,})
       .then(response => {
         resolve(response.data)
