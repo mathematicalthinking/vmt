@@ -131,6 +131,7 @@ class Room extends Component {
               playing={this.state.replaying}
               play={this.togglePlaying}
               index={this.state.replayEventIndex}
+              duration={this.state.room.events.length}
             /> : null}
         </div>
         {/* show the workspace and chat if the rooms is active, i.e. entered */}

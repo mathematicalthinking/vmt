@@ -1,6 +1,11 @@
 # VMT React
 bootstrapped with https://github.com/okputadora/MERN-template.git
 
+## Bugs
+1. We need to disable all buttons related replaying and interacting with the room
+until the ggbClient is loaded.
+
+## Ideas for further Development
 ### Ideas for the replayer
 1. have the time between each event = the actual time between events at creation
   * we could accomplish this with moment and taking a diff of the timestamps of each event
