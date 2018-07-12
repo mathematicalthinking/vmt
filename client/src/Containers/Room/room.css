@@ -1,0 +1,15 @@
+.Container {
+  align-items: center;
+}
+
+.Controls {
+  align-self: flex-start;
+}
+
+.Stats {
+  margin: 10px;
+  align-self: flex-start;
+  /* padding: 10px;
+  background-color: #f9f8f6;
+  border: 1px solid #ddd; */
+}

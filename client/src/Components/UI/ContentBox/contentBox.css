@@ -16,3 +16,12 @@
   margin-bottom: 10px;
   border-bottom: 1px solid #ddd;
 }
+
+.Content {
+  display: flex;
+  flex-flow: column;
+}
+
+.Center {align-items: center;}
+.Left {-ms-align-items: flex-start;}
+.Center {align-items: flex-end;}

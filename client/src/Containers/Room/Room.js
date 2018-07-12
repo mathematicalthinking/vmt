@@ -3,7 +3,11 @@ import { Link } from 'react-router-dom';
 import Workspace from './Workspace/Workspace';
 import Chat from './Chat/Chat';
 import io from 'socket.io-client';
-import Replayer from './Replayer/Replayer'
+import Replayer from './Replayer/Replayer';
+import Button from '../../Components/UI/Button/Button';
+import ContentBox from '../../Components/UI/ContentBox/ContentBox';
+import classes from './room.css';
+import glb from '../../global.css'
 import { connect } from 'react-redux';
 
 import API from '../../utils/apiRequests';
@@ -19,7 +23,7 @@ class Room extends Component {
 
   componentDidMount() {
     // get all of the information for the current room with all fields populated
-    ///@TODO this takes a little too long to display the name -- we should grab the name 
+    ///@TODO this takes a little too long to display the name -- we should grab the name
     // from the props.room by filtering it for the id in the url param
     API.getById('room', this.props.match.params.id)
     .then(res => {
@@ -82,35 +86,31 @@ class Room extends Component {
   render() {
     let tabList;
     let stats;
-    let description;
     // if the room object is not empty
     // prepare its stats for rendering
     if (Object.keys(this.state.room).length !== 0) {
-      stats = <div>
-        <span>Users in room: </span>
-        <span>chats: {this.state.room.chat.length} </span>
-        <span>events: {this.state.room.events.length} </span>
-      </div>
-      description = <p>{this.state.room.description}</p>
+      stats = <ContentBox title='Room Stats' align='left'>
+        <div><b>Created by:</b> {this.props.username}</div>
+        <div><b>Description:</b> {this.state.room.description}</div>
+        <div><b>Users in room:</b> </div>
+        <div><b>Chats:</b> {this.state.room.chat.length} </div>
+        <div><b>Events:</b> {this.state.room.events.length} </div>
+      </ContentBox>
     }
     return(
-      <div>
+      <div className={[classes.Container, glb.FlexCol].join(' ')}>
         <h3>
           {this.state.room.roomName}
         </h3>
-        <div>
-          <button id="enterRoomButton" onClick={this.joinRoom} className='btn btn-primary' style={{margin: 10}}>Enter</button>
-          <Link to='rooms/logs' className='btn btn-info' style={{margin: 10}}>View Logs</Link>
-          <button onClick={this.editRoom} className="btn btn-warning" style={{margin: 10}}>Edit</button>
-          <button id="replayRoomButton" onClick={this.enterReplayMode} class="btn btn-primary" style={{margin: 10}}>Replayer</button>
+        <div className={classes.Controls}>
+          <Button click={this.joinRoom}>Enter</Button>
+          <Button> <Link to='rooms/logs'>View Logs</Link></Button>
+          <Button click={this.editRoom}>Edit</Button>
+          <Button click={this.enterReplayMode}>Replayer</Button>
         </div>
-        <small className='muted'>createdBy {this.props.username}</small>
-        <br/>
-        {stats}
-        <h4>Description</h4>
-        {description}
-        <strong>Tabs: </strong>
-        {tabList}
+        <div className={classes.Stats}>
+          {stats}
+        </div>
         <div className='container-fluid'>
           <div className='col-md-9'>
             <div id="tabs">
