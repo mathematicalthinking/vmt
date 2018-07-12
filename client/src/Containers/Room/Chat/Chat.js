@@ -14,26 +14,27 @@ class Chat extends Component {
   componentDidMount() {
     console.log(this.props.messages)
     // initialize the socket listener
-    this.socket = this.props.socket;
     this.setState({
       messages: this.props.messages
     })
-    this.socket.on('RECEIVE_MESSAGE', data => {
-      console.log("received message ")
-      let newMessages = [...this.state.messages, data]
-      console.log('Setting state line 40')
-      this.setState({
-        messages: newMessages
+    if (!this.props.replaying) {
+      this.socket = this.props.socket;
+      this.socket.on('RECEIVE_MESSAGE', data => {
+        console.log("received message ")
+        let newMessages = [...this.state.messages, data]
+        console.log('Setting state line 40')
+        this.setState({
+          messages: newMessages
+        })
+      });
+      this.socket.on('NEW_USER', user => {
+        console.log('new user joined: ', user)
+        const updatedUsers = [...this.state.users, user]
+        this.setState({
+          users: updatedUsers
+        })
       })
-    });
-
-    this.socket.on('NEW_USER', user => {
-      console.log('new user joined: ', user)
-      const updatedUsers = [...this.state.users, user]
-      this.setState({
-        users: updatedUsers
-      })
-    })
+    }
   }
 
   changeHandler = event => {

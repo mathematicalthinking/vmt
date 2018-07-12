@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import classes from './workspace.css';
+import glb from '../../../global.css';
 let ggbApplet;
 class Workspace extends Component {
   // we need to track whether or not the ggbBase64 data was updated
@@ -127,26 +129,15 @@ class Workspace extends Component {
     // send the first event if not
     // send and empty strting if theres no event history
     return (
-      <div className='container-fluid'>
-        <div className='row'>
-          <div className='col-md-9 nopadding-sides'>
-            <div class='ui-tabs ui-widget-content ui-corner-all'>
-
-              <ul  class='ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-wdget-header ui-cornern-all'>
-                <li className=''>Click</li>
-              </ul>
-              <iframe
-                height={600}
-                width={800}
-                title={this.props.roomName}
-                id='ggbRoom'
-                src={`/Geogebra.html?file=${file}`}
-                ref={(element) => {this.ifr = element}}
-              >
-              </iframe>
-            </div>
-          </div>
-        </div>
+      <div className={[classes.Container, glb.FlexRow].join(' ')}>
+        <iframe
+          className={classes.Iframe}
+          title={this.props.roomName}
+          id='ggbRoom'
+          src={`/Geogebra.html?file=${file}`}
+          ref={(element) => {this.ifr = element}}
+        >
+        </iframe>
       </div>
     )
   }

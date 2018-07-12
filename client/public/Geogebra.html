@@ -13,14 +13,14 @@
   </body>
   <script src="/js/ggbClient.js"></script>
   <script>
-
+   //@TODO configure the height and width based off of the window size
     // request the ggb file
     var file = location.href.split('file=').slice(1);
     console.log(file)
     var parameters = {
       "id":"ggbApplet",
-      "width": 800,
-      "height": 600,
+      "width": 1000,
+      "height": 1000,
       "scaleContainerClass": 'applet_container',
       "showToolBar":true,
       "showMenuBar": true,
@@ -36,9 +36,5 @@
     window.addEventListener("load", function() {
         ggbApp.inject('ggb-element');
     });
-    // setInterval(function(){
-    //   ggbApplet = document.ggbApplet;
-    //   console.log(ggbApplet)
-    // }, 5000)
   </script>
 </html>

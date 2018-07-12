@@ -84,7 +84,6 @@ class Room extends Component {
   }
 
   render() {
-    let tabList;
     let stats;
     // if the room object is not empty
     // prepare its stats for rendering
@@ -108,44 +107,35 @@ class Room extends Component {
           <Button click={this.editRoom}>Edit</Button>
           <Button click={this.enterReplayMode}>Replayer</Button>
         </div>
-        <div className={classes.Stats}>
-          {stats}
-        </div>
-        <div className='container-fluid'>
-          <div className='col-md-9'>
-            <div id="tabs">
-              <ul>
-                {tabList}
-              </ul>
-            </div>
-            {this.state.replaying ?
-              <Replayer
-                play={this.startReplay}
-                index={this.state.replayEventIndex}
-              /> : null}
-            {/* show the workspace and chat if the rooms is active, i.e. entered */}
-            {(this.state.roomActive || this.state.replaying) ?
-              // we could just load this right away (instead of waiting for them to hit
-              // enter) and set a prop of visible to false
-                <Workspace
-                  room={this.state.room}
-                  socket={this.socket}
-                  userId={this.props.userId}
-                  replaying={this.state.replaying}
-                  eventIndex={this.state.replayEventIndex}
-                /> : null}
+        <div className={glb.FlexRow}>
+          <div className={classes.Stats}>
+            {stats}
           </div>
-          <div className='col-md-3'>
-            {this.state.roomActive ?
-              <Chat
-                roomId={this.state.room._id}
-                username={this.props.username}
-                userId={this.props.userId}
-                socket={this.socket}
-                messages={this.state.room.chat}
-              /> : null}
-          </div>
+          {this.state.replaying ?
+            <Replayer
+              play={this.startReplay}
+              index={this.state.replayEventIndex}
+            /> : null}
         </div>
+        {/* show the workspace and chat if the rooms is active, i.e. entered */}
+        {(this.state.roomActive || this.state.replaying) ?
+          <div className={glb.FlexRow}>
+            <Workspace
+              room={this.state.room}
+              socket={this.socket}
+              userId={this.props.userId}
+              replaying={this.state.replaying}
+              eventIndex={this.state.replayEventIndex}
+            />
+            <Chat
+              roomId={this.state.room._id}
+              username={this.props.username}
+              userId={this.props.userId}
+              socket={this.socket}
+              replaying={this.state.replaying}
+              messages={this.state.room.chat}
+            />
+          </div> : null }
       </div>
     )
   }
