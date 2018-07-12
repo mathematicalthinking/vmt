@@ -68,13 +68,24 @@ class Room extends Component {
 
   }
 
-  incrementEvent = () => {
+  playEvents = () => {
     let index = this.state.replayEventIndex;
     if (index === this.state.room.events.length) {
       return clearInterval(this.player)
     }
     index++;
     this.setState({
+      replayEventIndex: index,
+    })
+  }
+  // for fastforwarding rewinding
+  goToEventIndex = index => {
+    clearTimeout(this.player)
+    // dont let the user go outside of the range of events
+    if (index < 0) index = 0;
+    if (index >= this.state.room.events.length) index = this.state.room.events.length - 1;
+    this.setState({
+      replaying: false,
       replayEventIndex: index,
     })
   }
@@ -88,7 +99,8 @@ class Room extends Component {
       return clearInterval(this.player)
     }
     this.setState({replaying: true})
-    this.player = setInterval(this.incrementEvent, 1000);
+    console.log('playing: ',this.state.replaying)
+    this.player = setInterval(this.playEvents, 1000);
   }
   enterReplayMode = () => {
     //@TODO check if we're already replaying and then just return;
@@ -132,6 +144,7 @@ class Room extends Component {
               play={this.togglePlaying}
               index={this.state.replayEventIndex}
               duration={this.state.room.events.length}
+              goToIndex={this.goToEventIndex}
             /> : null}
         </div>
         {/* show the workspace and chat if the rooms is active, i.e. entered */}
