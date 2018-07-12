@@ -1,0 +1,27 @@
+.Filter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px;
+  padding: 6px;
+  border: 1px solid #2f91f2;
+  border-radius: 3px;
+  width: 220px;
+  text-align: left;
+  transition: .3s;
+}
+
+.Icon {
+  font-size: 1.2em;
+  transition: .3s;
+}
+
+.On {
+  color: white;
+  background-color: #2f91f2;
+}
+
+.Off {
+  color: #2f91f2;
+  background-color: white;
+}

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import NewRoom from './NewRoom/NewRoom';
 import ContentBox from '../../Components/UI/ContentBox/ContentBox';
-import Checkbox from '../../Components/Form/Checkbox/Checkbox';
+import Filter from '../../Components/UI/Button/Filter/Filter';
 import classes from './rooms.css';
 import glb from '../../global.css';
 import * as actions from '../../store/actions/';
@@ -48,9 +48,9 @@ class Rooms extends Component {
         </div>
         <div>
           <div className={classes.Filters}>
-            <button onClick={this.filter}>
-              <i className="fas fa-filter"></i>
-              {this.state.allRooms ? 'Show My Rooms' : 'Show Public Rooms'}</button>
+            <Filter click={this.filter} on={this.state.allRooms}>
+              {this.state.allRooms ? 'Show rooms created by me' : 'Show public rooms'}
+            </Filter>
           </div>
           <div className={classes.Container}>{roomElems}</div>
         </div>
