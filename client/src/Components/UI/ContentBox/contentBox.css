@@ -2,7 +2,6 @@
   display: flex;
   flex-flow: column;
   align-items: center;
-  /* width: 500px; */
   background-color: #f9f8f7;
   padding: 30px;
   border: 1px solid #d8d9da;
@@ -23,5 +22,5 @@
 }
 
 .Center {align-items: center;}
-.Left {-ms-align-items: flex-start;}
-.Center {align-items: flex-end;}
+.Left {align-items: flex-start;}
+.Right {align-items: flex-end;}

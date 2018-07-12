@@ -23,12 +23,9 @@ class Workspace extends Component {
     // instead we are essentially polling window object to see if it has
     // the ggbApplet property yet.
     const timer = setInterval(() => {
-      console.log('looking for ggbApplet')
       const iframe = document.getElementById('ggbRoom').contentDocument;
       ggbApplet = iframe.ggbApplet;
-      console.log(ggbApplet)
       if (ggbApplet) { // @TODO dont intialiZe if replaying
-        console.log('found it!');
         this.initialize();
         clearInterval(timer);
       }
@@ -39,7 +36,6 @@ class Workspace extends Component {
       this.socket = this.props.socket;
       // define the socket listeners for handling events from the backend
       this.socket.on('RECEIVE_EVENT', event => {
-        console.log('we got the event!')
         this.setState({
           receivingData: true
         })
@@ -47,11 +43,11 @@ class Workspace extends Component {
       })
     }
   }
+  // @TODO IM thinking we should use shouldupdate instead??? thought??
   componentWillReceiveProps(nextProps) {
     // checking that this props and the incoming props are both replayin
     // ensures that this is not the first time we received
     if (nextProps.replaying && this.props.replaying) {
-      console.log(this.props.room.events[this.props.eventIndex].event)
       ggbApplet.setBase64(this.props.room.events[this.props.eventIndex].event)
     }
   }
@@ -60,16 +56,10 @@ class Workspace extends Component {
   }
   // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
   initialize = () => {
-    console.log('registered listeners')
     const updateListener = objName => {
-      console.log("Update " + objName);
-      console.log(ggbApplet)
     }
 
     const addListener = objName => {
-        console.log(ggbApplet)
-        console.log(ggbApplet.getBase64())
-        console.log("Add " + objName);
         if (!this.state.receivingData) {
           const newData = {}
           newData.room = this.props.room._id;
@@ -87,7 +77,6 @@ class Workspace extends Component {
 
     const undoListener = () => {
       // this seems to fire when an event is completed
-        console.log("undo");
         // if (!this.state.receivingData) {
         //   const newData = {}
         //   newData.room = this.props.room._id;
@@ -104,11 +93,9 @@ class Workspace extends Component {
     }
 
     const removeListener = objName => {
-        console.log("Remove " + objName);
     }
 
     const clearListener = () =>  {
-        console.log("clear");
     }
     // attach this listeners to the ggbApplet
     ggbApplet.registerUpdateListener(updateListener);
@@ -119,8 +106,6 @@ class Workspace extends Component {
   }
 
   render() {
-    console.log('workspace rendering')
-    console.log(this.props.eventIndex)
     // send the most recent event history if live
     let file = '';
     const events = this.props.room.events;

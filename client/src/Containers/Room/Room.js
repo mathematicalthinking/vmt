@@ -16,6 +16,7 @@ class Room extends Component {
     room: {},
     roomActive: false,
     addingTab: false,
+    replayMode: false,
     replaying: false,
     replayEventIndex: 0,
 
@@ -39,6 +40,11 @@ class Room extends Component {
     .catch(err => {
       // Handle error
     })
+
+  }
+
+  componentWillUnmount () {
+    clearInterval(this.player)
   }
 
   // User clickes 'enter room'
@@ -50,7 +56,6 @@ class Room extends Component {
         user: this.props.username
       }
       this.socket.emit('JOIN', data, () => {
-        console.log('joined') // we should indicate the status of joining
         // i.e. pending, success, fail, via state
       });
       // should get the other users in the room here
@@ -63,22 +68,32 @@ class Room extends Component {
 
   }
 
-  startReplay = () => {
-    console.log('start replay')
-    const replay = setInterval(() => {
-      let index = this.state.replayEventIndex;
-      if (index === this.state.room.events.length) {
-        // this.setState({replayEventIndex: 0})
-        return clearInterval(replay)}
-      console.log('updating index: ', index)
-      index++;
-      this.setState({replayEventIndex: index})
-    }, 500)
+  incrementEvent = () => {
+    let index = this.state.replayEventIndex;
+    if (index === this.state.room.events.length) {
+      return clearInterval(this.player)
+    }
+    index++;
+    this.setState({
+      replayEventIndex: index,
+    })
+  }
+
+  togglePlaying = () => {
+    console.log('toggling play')
+    console.log('playing: ',this.state.replaying)
+    // attach the interval to 'this' so we can clear it from any function
+    if (this.state.replaying) {
+      this.setState({replaying: false})
+      return clearInterval(this.player)
+    }
+    this.setState({replaying: true})
+    this.player = setInterval(this.incrementEvent, 1000);
   }
   enterReplayMode = () => {
     //@TODO check if we're already replaying and then just return;
     this.setState({
-      replaying: true,
+      replayMode: true,
       replayEventIndex: 0,
     })
   }
@@ -111,20 +126,21 @@ class Room extends Component {
           <div className={classes.Stats}>
             {stats}
           </div>
-          {this.state.replaying ?
+          {this.state.replayMode ?
             <Replayer
-              play={this.startReplay}
+              playing={this.state.replaying}
+              play={this.togglePlaying}
               index={this.state.replayEventIndex}
             /> : null}
         </div>
         {/* show the workspace and chat if the rooms is active, i.e. entered */}
-        {(this.state.roomActive || this.state.replaying) ?
+        {(this.state.roomActive || this.state.replayMode) ?
           <div className={glb.FlexRow}>
             <Workspace
               room={this.state.room}
               socket={this.socket}
               userId={this.props.userId}
-              replaying={this.state.replaying}
+              replaying={this.state.replayMode}
               eventIndex={this.state.replayEventIndex}
             />
             <Chat
@@ -132,7 +148,7 @@ class Room extends Component {
               username={this.props.username}
               userId={this.props.userId}
               socket={this.socket}
-              replaying={this.state.replaying}
+              replaying={this.state.replayMode}
               messages={this.state.room.chat}
             />
           </div> : null }
