@@ -1,0 +1,17 @@
+.Button {
+  width: 100px;
+  color: #2D91F2;
+  background-color: white;
+  border: none;
+  align-self: center;
+  margin: 13px;
+  padding: 7px;
+  border-radius: 3px;
+  border: 1px solid #d3d2d4;
+  transition: .2s;
+}
+
+.Button:hover {
+  color: white;
+  background-color: #2f91f2
+}

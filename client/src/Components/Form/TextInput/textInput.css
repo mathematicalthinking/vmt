@@ -1,18 +1,18 @@
 .Input{
-  width: 95%;
-  padding: 10px;
+  width: 100%;
+  padding: 5px;
   margin: 10px;
   border-radius: 4px;
-  text-align: center;
-  color: white;
-  background: #1f89e0 !important;
+  background: white !important;
 }
 
+ /* uncomment to control autofill settings */
+/*
 .Input::placeholder {
   color: white;
 }
 
 .Input:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0px 1000px #1f89e0 inset;
+    -webkit-box-shadow: 0 0 0px 1000px white inset;
     -webkit-text-fill-color: white;
-}
+} */

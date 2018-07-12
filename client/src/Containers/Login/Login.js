@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Input from '../../Components/Form/TextInput/TextInput';
+import Button from '../../Components/UI/Button/Button';
 import ContentBox from '../../Components/UI/ContentBox/ContentBox';
 import * as actions from '../../store/actions/';
 import GoogleSignIn from '../../Components/Form/Google/LoginButton';
@@ -34,7 +35,6 @@ class Login extends Component {
 
   // submit form
   loginHandler = (event) => {
-    event.preventDefault();
     // pass submission off to redux
     this.props.onLogin(
       this.state.controls.username.value,
@@ -71,11 +71,11 @@ class Login extends Component {
       this.props.loggedIn ? <Redirect to='/rooms'/> :
       <div className={classes.LoginContainer}>
         <ContentBox title='Login'>
-          <form onSubmit={this.loginHandler} className={glb.FlexCol}>
+          <div className={glb.FlexCol}>
             {form}
-            <Input type='submit' value='login'/>
-          </form>
-          <div>or sign in with google</div>
+            <Button click={this.loginHandler}>Login</Button>
+          </div>
+          <div>or</div>
           <GoogleSignIn click={this.googleLogin} />
         </ContentBox>
       </div>

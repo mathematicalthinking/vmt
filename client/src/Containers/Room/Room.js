@@ -19,6 +19,8 @@ class Room extends Component {
 
   componentDidMount() {
     // get all of the information for the current room with all fields populated
+    ///@TODO this takes a little too long to display the name -- we should grab the name 
+    // from the props.room by filtering it for the id in the url param
     API.getById('room', this.props.match.params.id)
     .then(res => {
       const result = res.data.result
@@ -61,7 +63,9 @@ class Room extends Component {
     console.log('start replay')
     const replay = setInterval(() => {
       let index = this.state.replayEventIndex;
-      if (index === this.state.room.events.length) return clearInterval(replay);
+      if (index === this.state.room.events.length) {
+        // this.setState({replayEventIndex: 0})
+        return clearInterval(replay)}
       console.log('updating index: ', index)
       index++;
       this.setState({replayEventIndex: index})
