@@ -154,7 +154,7 @@ class Room extends Component {
             <div className={classes.Stats}>
               {stats}
             </div>
-            {this.state.replayMode && !this.state.liveMode ?
+            {this.state.replayMode ?
               <Replayer
                 playing={this.state.replaying}
                 play={this.togglePlaying}

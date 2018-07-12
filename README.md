@@ -5,17 +5,19 @@ bootstrapped with https://github.com/okputadora/MERN-template.git
 ## TODO
 
 ### General
-1. Loading screens for when the user should not be clicking around
-1.
-
+1. ~~Loading screens for when the user should not be clicking around~~
+1. Make ContentBox's content collapsible (to allow more room for workspace) 
 ### Chat
 1. Make chat scroll to bottom by default
 1. make message components & style it up
 1. Dynamic styling for users own messages vs incoming
 
 ## Bugs
-1. We need to disable all buttons related replaying and interacting with the room
-until the ggbClient is loaded.
+1. ~~We need to disable all buttons related replaying and interacting with the room
+until the ggbClient is loaded.~~
+1. Navigating around the room (i.e. from replayer to enter-room is buggy and bad UX)
+ enter room should change to exit room upon entering --> upon replaying it should
+ say
 
 ## Ideas for further Development
 ### Ideas for the replayer
