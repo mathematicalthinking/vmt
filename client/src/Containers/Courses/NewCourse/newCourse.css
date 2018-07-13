@@ -1,3 +1,13 @@
-.SelectedRooms {
-  
+.NewCourse {
+  padding-bottom: 20px;
+  border-bottom: 2px solid #ddd;
+}
+
+.Selected {
+  margin: 10px;
+  width: 500px !important;
+}
+
+.Dropdown {
+  margin: 10px;
 }

@@ -3,6 +3,7 @@ import TextInput from '../../../Components/Form/TextInput/TextInput';
 import Dropdown from '../../../Components/UI/Dropdown/Dropdown';
 import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 import classes from './newCourse.css';
+import glb from '../../../global.css';
 class NewCourse extends Component {
   state = {
     courseName: '',
@@ -44,34 +45,28 @@ class NewCourse extends Component {
       id: room._id, name: room.roomName,
     }))
     return (
-      <div className='container-fluid'>
-        <div className='row-fluid'>
-          <div className='col-md-5'>
-            <form>
-              <div className='form-group'>
-                <TextInput
-                  name="roomName"
-                  label="Enter Course Name"
-                  class='form-control'
-                />
-              </div>
-              <div className='form-group'>
-                <TextInput
-                  name='description'
-                  label='Description'
-                  class='form-control'
-                />
-              </div>
-              <ContentBox title="Rooms added to this course">
+      <div className={classes.NewCourse}>
+        <form>
+          <TextInput
+            name="roomName"
+            label="Enter Course Name"
+          />
+          <TextInput
+            name='description'
+            label='Description'
+          />
+          <div className={glb.FlexRow}>
+            <div className={classes.Dropdown}>
+              <Dropdown list={dropdownList} title="Select Rooms..." selectHandler={this.updateRooms}/>
+            </div>
+            <div className={classes.Selected}>
+              <ContentBox title="Rooms added to this course" align="left">
                 {roomsSelected}
               </ContentBox>
-              <Dropdown list={dropdownList} title="Select Rooms..." selectHandler={this.updateRooms}/>
-              <button className='btn btn-default' onClick={this.addTab}>Add Room</button>
-              <p></p>
-              <button className='btn btn-default' onClick={this.submitForm}>Submit</button>
-            </form>
+            </div>
           </div>
-        </div>
+          <button className='btn btn-default' onClick={this.submitForm}>Submit</button>
+        </form>
       </div>
     )
   }

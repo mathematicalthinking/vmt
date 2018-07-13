@@ -10,6 +10,7 @@ bootstrapped with https://github.com/okputadora/MERN-template.git
 ### General
 1. ~~Loading screens for when the user should not be clicking around~~
 1. Make ContentBox's content collapsible (to allow more room for workspace)
+1. Make arrow for dropdown menu spin w/r/t state
 ### Chat
 1. Make chat scroll to bottom by default
 1. make message components & style it up

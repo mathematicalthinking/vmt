@@ -3,7 +3,6 @@
   border: 2px solid #bbb;
   border-radius: 3px;
   cursor: pointer;
-  margin: 10px;
   transition: height .2s;
 }
 
@@ -12,6 +11,9 @@
 }
 
 .Header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background-color: #f9f9f9;
   padding: 5px;
   color: #2D91F2;

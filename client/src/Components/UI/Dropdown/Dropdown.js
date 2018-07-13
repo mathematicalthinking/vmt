@@ -59,7 +59,7 @@ class Dropdown extends Component{
     const ddState = this.state.listOpen ? classes.Open : classes.Close;
     return (
       <div className={classes.Wrapper}>
-        <div onClick={this.toggleList} className={classes.Header}>{this.props.title}</div>
+        <div onClick={this.toggleList} className={classes.Header}><span>{this.props.title}</span> <i class="fas fa-caret-down"></i></div>
         <div className={[classes.Dropdown, ddState].join(" ")}>{list}</div>
       </div>
     )

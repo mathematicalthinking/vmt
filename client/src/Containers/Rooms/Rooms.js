@@ -31,10 +31,12 @@ class Rooms extends Component {
   render() {
     const rooms = this.state.allRooms ? 'rooms' : 'myRooms';
     const roomElems = this.props[rooms].map((room, i) => (
-      <ContentBox title={
-        <Link className={glb.Link} to={`/room/${room._id}`}>{room.roomName}</Link>} key={i}>
-        {/* room info */}
-      </ContentBox>
+      <div className={classes.ContentBox}>
+        <ContentBox title={
+          <Link className={glb.Link} to={`/room/${room._id}`}>{room.roomName}</Link>} key={i}>
+          {/* room info */}
+        </ContentBox>
+      </div>
     ))
     return (
       <div>
