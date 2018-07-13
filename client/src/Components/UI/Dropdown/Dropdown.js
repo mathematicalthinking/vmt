@@ -13,10 +13,10 @@ class Dropdown extends Component{
     })
   }
 
-  openList = event => {
-    this.setState({
-      listOpen: true,
-    })
+  toggleList = event => {
+    this.setState(prevState => ({
+      listOpen: !prevState.listOpen,
+    }))
   }
 
   select = (name, id, selected) => {
@@ -30,6 +30,7 @@ class Dropdown extends Component{
       selected: updatedSelected,
     })
     // run function passed in props to update parents state
+    this.props.selectHandler(updatedSelected)
   }
 
   render() {
@@ -57,8 +58,8 @@ class Dropdown extends Component{
 
     const ddState = this.state.listOpen ? classes.Open : classes.Close;
     return (
-      <div onClick={this.openList} className={classes.Wrapper}>
-        <div className={classes.Header}>{this.props.title}</div>
+      <div className={classes.Wrapper}>
+        <div onClick={this.toggleList} className={classes.Header}>{this.props.title}</div>
         <div className={[classes.Dropdown, ddState].join(" ")}>{list}</div>
       </div>
     )

@@ -3,9 +3,10 @@ bootstrapped with https://github.com/okputadora/MERN-template.git
 
 ## Setup for local Development
 
+## Project structure
+
 
 ## TODO
-
 ### General
 1. ~~Loading screens for when the user should not be clicking around~~
 1. Make ContentBox's content collapsible (to allow more room for workspace)
@@ -19,7 +20,8 @@ bootstrapped with https://github.com/okputadora/MERN-template.git
 We should have some sort of small animation to signify the click is registered
 or at the very least change the color for selected so it doesnt match hover.
 Its confusing when you click de-select but then nothing appears to happen because
-you're still hovering over it 
+you're still hovering over it
+1. Transitions not working on dropdown (not a huge deal right now)
 
 ## Bugs
 1. ~~We need to disable all buttons related replaying and interacting with the room

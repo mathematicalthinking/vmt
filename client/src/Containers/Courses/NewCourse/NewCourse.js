@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
 import Dropdown from '../../../Components/UI/Dropdown/Dropdown';
+import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 import classes from './newCourse.css';
 class NewCourse extends Component {
   state = {
     courseName: '',
-    description: ''
+    description: '',
+    rooms: [],
   }
 
   changeHandler = event => {
@@ -24,9 +26,20 @@ class NewCourse extends Component {
     event.preventDefault();
     console.log('do nopthiong?')
   }
+  // this will be passed down to the dropdown menu and when we make a selection
+  // it will pass a list of selected rooms back up and then we can synch our state
+  updateRooms = rooms => {
+    this.setState({
+      rooms: rooms
+    })
+  }
 
   render() {
     // prepare dropdown list of rooms
+    const roomsSelected = this.state.rooms.map(room => (
+      // sel- to differentiate between dropdown ids
+      <div id={`sel-${room.id}`}>{room.name}</div>
+    ))
     const dropdownList = this.props.myRooms.map(room => ({
       id: room._id, name: room.roomName,
     }))
@@ -49,10 +62,10 @@ class NewCourse extends Component {
                   class='form-control'
                 />
               </div>
-              <div className={classes.SelectedRooms}>
-
-              </div>
-              <Dropdown list={dropdownList} title="Select Rooms..."/>
+              <ContentBox title="Rooms added to this course">
+                {roomsSelected}
+              </ContentBox>
+              <Dropdown list={dropdownList} title="Select Rooms..." selectHandler={this.updateRooms}/>
               <button className='btn btn-default' onClick={this.addTab}>Add Room</button>
               <p></p>
               <button className='btn btn-default' onClick={this.submitForm}>Submit</button>
