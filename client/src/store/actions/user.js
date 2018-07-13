@@ -10,7 +10,7 @@ export const loginStart = () => {
 export const loginSuccess = authData => {
   return {
     type: actionTypes.LOGIN_SUCCESS,
-    authData: authData
+    user: authData
   }
 }
 

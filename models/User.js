@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const User = new mongoose.Schema({
-  courses: {type: Array},
+  courses: [{type: ObjectId, ref: 'Course'}],
+  rooms: [{type: ObjectId, ref: 'Room'}]
   firstName: {type: String},
   lastName: {type: String},
   username: {type: String, required: true},
@@ -11,6 +12,7 @@ const User = new mongoose.Schema({
       return emailRegex.test(email);
     }, message: '{VALUE} is not a valid email address'}
   },
+  password: {type: String,}
 });
 
 module.exports = mongoose.model('User', User);

@@ -27,9 +27,9 @@ const reducer = (state = initialState, action) => {
         ...state,
         loggedIn: true,
         loggingIn: false,
-        username: action.authData.username,
-        myRooms: action.authData.rooms,
-        userId: action.authData._id
+        username: action.user.username,
+        myRooms: action.user.rooms,
+        userId: action.user._id
       }
     case actionTypes.UPDATE_USER_ROOMS:
       return {
