@@ -16,7 +16,7 @@ class NewCourse extends Component {
       [event.target.name]: event.target.value,
     })
   }
-  
+
   submitForm = event => {
     event.preventDefault();
     const newCourse = {
@@ -42,8 +42,11 @@ class NewCourse extends Component {
       // sel- to differentiate between dropdown ids
       <div id={`sel-${room.id}`}>{room.name}</div>
     ))
-    const dropdownList = this.props.myRooms.map(room => ({
+    const myRooms = this.props.myRooms.map(room => ({
       id: room._id, name: room.roomName,
+    }))
+    const publicRooms = this.props.rooms.map(room => ({
+      id: room._id, name: room.roomName
     }))
     return (
       <div className={classes.NewCourse}>
@@ -60,7 +63,8 @@ class NewCourse extends Component {
           />
           <div className={glb.FlexRow}>
             <div className={classes.Dropdown}>
-              <Dropdown list={dropdownList} title="Select Rooms..." selectHandler={this.updateRooms}/>
+              <Dropdown list={publicRooms} title="Select public rooms..." selectHandler={this.updateRooms}/>
+              <Dropdown list={myRooms} title="Select your rooms..." selectHandler={this.updateRooms}/>
             </div>
             <div className={classes.Selected}>
               <ContentBox title="Rooms added to this course" align="left">

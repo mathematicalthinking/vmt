@@ -14,6 +14,7 @@ class Dropdown extends Component{
   }
 
   toggleList = event => {
+    console.log("toggling list")
     this.setState(prevState => ({
       listOpen: !prevState.listOpen,
     }))
@@ -34,27 +35,31 @@ class Dropdown extends Component{
   }
 
   render() {
-    console.log(this.props.list)
-
-    const list = this.props.list.map((item, i)=> {
-      // check if this item is in state.selected
-      let colorClass = classes.ListItem;
-      let selected = false;
-      if (this.state.selected.find(room => room.id === item.id)){
-        colorClass = classes.ListItemSelected;
-        selected = true
-      }
-      const backgroundClass = (i%2 === 0) ? classes.Background1 : classes.Background2;
-      const className = [colorClass, backgroundClass].join(" ")
-      return (
-      <div
-        key={i}
-        onClick={event => this.select(item.name, item.id, selected)}
-        className={className}
-        id={item.id}
-      >{item.name}</div>
-    )
-    })
+    let list;
+    if (this.props.list.length === 0) {
+      list = <div className={classes.ErrorItem}>There's nothing in here yet</div>
+    }
+    else {
+      list = this.props.list.map((item, i)=> {
+        // check if this item is in state.selected
+        let colorClass = classes.ListItem;
+        let selected = false;
+        if (this.state.selected.find(room => room.id === item.id)){
+          colorClass = classes.ListItemSelected;
+          selected = true
+        }
+        const backgroundClass = (i%2 === 0) ? classes.Background1 : classes.Background2;
+        const className = [colorClass, backgroundClass].join(" ")
+        return (
+          <div
+            key={i}
+            onClick={event => this.select(item.name, item.id, selected)}
+            className={className}
+            id={item.id}
+          >{item.name}</div>
+        )
+      })
+    }
 
     const ddState = this.state.listOpen ? classes.Open : classes.Close;
     return (

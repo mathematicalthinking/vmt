@@ -47,6 +47,7 @@ class Courses extends Component {
               userId={this.props.userId}
               updateUserCourses={this.props.updateUserCourses}
               myRooms={this.props.myRooms}
+              rooms={this.props.rooms}
             /> : null}
         </div>
         <div>
@@ -73,11 +74,13 @@ const mapDispatchToProps = dispatch => {
 
 // connect redux store to react props
 const mapStateToProps = store => {
+  console.log(store.roomsReducer)
   return {
     courses: store.coursesReducer.courses,
     myCourses: store.userReducer.myCourses,
     username: store.userReducer.username,
     myRooms: store.userReducer.myRooms,
+    rooms: store.roomsReducer.rooms,
     userId: store.userReducer.userId
   }
 }
