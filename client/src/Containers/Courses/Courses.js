@@ -33,7 +33,7 @@ class Courses extends Component {
     const courseElems = this.props[courses].map((course, i) => (
       <div className={classes.ContentBox}>
         <ContentBox title={
-          <Link className={glb.Link} to={`/course/${course._id}`}>{course.name}</Link>} key={i}>
+          <Link className={glb.Link} to={`/course/${course._id}`}>{course.courseName}</Link>} key={i}>
           {/* course info */}
         </ContentBox>
       </div>

@@ -12,17 +12,11 @@ class NewCourse extends Component {
   }
 
   changeHandler = event => {
-    let updatedControls =  { ...this.state.controls };
-    updatedControls[event.target.name].value = event.target.value;
     this.setState({
-      controls: updatedControls,
+      [event.target.name]: event.target.value,
     })
   }
-
-  addRoom = () => {
-
-  }
-
+  
   submitForm = event => {
     event.preventDefault();
     const newCourse = {
@@ -55,12 +49,14 @@ class NewCourse extends Component {
       <div className={classes.NewCourse}>
         <form>
           <TextInput
-            name="roomName"
+            name="courseName"
             label="Enter Course Name"
+            change={this.changeHandler}
           />
           <TextInput
             name='description'
             label='Description'
+            change={this.changeHandler}
           />
           <div className={glb.FlexRow}>
             <div className={classes.Dropdown}>
