@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import classes from './dropDown.css'
+import classes from './dropdown.css'
 import onClickOutside from 'react-onclickoutside'
-class DropDown extends Component{
+class Dropdown extends Component{
   state = {
-    listOpen: false
+    listOpen: false,
+    selected: [],
   }
 
   handleClickOutside = event => {
@@ -12,24 +13,47 @@ class DropDown extends Component{
     })
   }
 
-  toggleList = event => {
-    console.log("clickInside")
+  openList = event => {
+    this.setState({
+      listOpen: true,
+    })
+  }
+
+  select = (name, id) => {
     this.setState(prevState => ({
-      listOpen: !prevState.listOpen
+      selected: [...prevState.selected, {name, id,}]
     }))
+    // run function passed in props to update parents state
   }
 
   render() {
-    const list = this.props.list.map(item => {
-      return <div>{item}</div>
+    console.log(this.props.list)
+
+    const list = this.props.list.map((item, i)=> {
+      // check if this item is in state.selected
+      let colorClass = classes.ListItem;
+      if (this.state.selected.find(room => room.id === item.id)){
+        colorClass = classes.ListItemSelected
+      }
+      const backgroundClass = (i%2 === 0) ? classes.Background1 : classes.Background2;
+      const className = [colorClass, backgroundClass].join(" ")
+      return (
+      <div
+        key={i}
+        onClick={event => this.select(item.name, item.id)}
+        className={className}
+        id={item.id}
+      >{item.name}</div>
+    )
     })
+
     const ddState = this.state.listOpen ? classes.Open : classes.Close;
     return (
-      <div onClick={this.toggleList} className={classes.Wrapper}>
+      <div onClick={this.openList} className={classes.Wrapper}>
         <div className={classes.Header}>{this.props.title}</div>
-        <div className={[classes.DropDown, ddState].join(", ")}>{list}</div>
+        <div className={[classes.Dropdown, ddState].join(" ")}>{list}</div>
       </div>
     )
   }
 }
-export default  onClickOutside(DropDown);
+export default  onClickOutside(Dropdown);

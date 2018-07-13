@@ -1,20 +1,37 @@
 .Wrapper {
-  position: fixed;
   width: 300px;
-  left: calc(50% - 150px);
-  border: 3px solid rgb(26, 33, 51);
-  text-align: center;
+  border: 2px solid #bbb;
+  border-radius: 3px;
+  cursor: pointer;
+  margin: 10px;
 }
 
-.DropDown > div {
+.Dropdown > div {
   padding: 8px;
 }
 
+.Header {
+  background-color: #f9f9f9;
+  padding: 5px;
+  color: #2D91F2;
+}
+
+.ListItem {
+  color: black
+}
+
+.ListItemSelected {
+  color: #2D91F2;
+}
+.ListItem:hover {
+  color: #2D91F2;
+}
 .Open {
   display: flex;
   flex-flow: column;
-  height: 300px;
+  height: 100%;
   transition: height .2s;
+  overflow-y: scroll;
 }
 
 .Close {
@@ -22,7 +39,6 @@
   transition: height .2s;
 }
 
-.DropDown {
+.Dropdown {
   overflow-y: hidden;
-
 }

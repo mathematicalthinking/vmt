@@ -44,6 +44,7 @@ class Courses extends Component {
               createCourse={this.props.createCourse}
               userId={this.props.userId}
               updateUserCourses={this.props.updateUserCourses}
+              myRooms={this.props.myRooms}
             /> : null}
         </div>
         <div>
@@ -74,6 +75,7 @@ const mapStateToProps = store => {
     courses: store.coursesReducer.courses,
     myCourses: store.userReducer.myCourses,
     username: store.userReducer.username,
+    myRooms: store.userReducer.myRooms,
     userId: store.userReducer.userId
   }
 }
