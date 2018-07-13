@@ -1,3 +1,15 @@
+.Container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+.Container > div {
+  flex: 1 1 auto;
+  margin: 10px;
+}
+
 .ContentBox {
   max-width: 300px;
 }

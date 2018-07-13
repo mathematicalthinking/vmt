@@ -50,12 +50,12 @@ class Courses extends Component {
               rooms={this.props.rooms}
             /> : null}
         </div>
+        <div className={classes.Filters}>
+          <Filter click={this.filter} on={this.state.allCourses}>
+            {this.state.allCourses ? 'Show courses created by me' : 'Show public courses'}
+          </Filter>
+        </div>
         <div>
-          <div className={classes.Filters}>
-            <Filter click={this.filter} on={this.state.allCourses}>
-              {this.state.allCourses ? 'Show courses created by me' : 'Show public courses'}
-            </Filter>
-          </div>
           <div className={classes.Container}>{courseElems}</div>
         </div>
       </div>

@@ -19,10 +19,11 @@ class NewCourse extends Component {
 
   submitForm = event => {
     event.preventDefault();
+    const roomIds = this.state.rooms.map(room => room.id);
     const newCourse = {
       courseName: this.state.courseName,
       description: this.state.description,
-      rooms: this.state.Rooms,
+      rooms: roomIds,
       creator: this.props.userId,
     }
     // update backend via redux so we can add this to the global state of courses
