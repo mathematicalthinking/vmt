@@ -11,10 +11,26 @@ export const gotCourses = resp => {
   }
 }
 
+export const createdCourse = resp => {
+  const course = resp.data.result
+  return {
+    type: actionTypes.CREATED_COURSE,
+    course,
+  }
+}
+
 export const getCourses = () => {
   return dispatch => {
     API.get('course')
     .then(resp => dispatch(gotCourses(resp)))
     .catch(err => console.log(err));
+  }
+}
+
+export const createCourse = body => {
+  return dispatch => {
+    API.post('course', body)
+    .then(resp => dispatch(createdCourse(resp)))
+    .catch(err => console.log(err))
   }
 }

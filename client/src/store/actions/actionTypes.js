@@ -11,3 +11,4 @@ export const CREATED_ROOM = 'CREATED_ROOM';
 
 // COURSES
 export const GOT_COURSES = 'GOT_COURSES';
+export const CREATED_COURSE = 'CREATED_COURSE';

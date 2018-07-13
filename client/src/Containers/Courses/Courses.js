@@ -66,7 +66,7 @@ class Courses extends Component {
 const mapDispatchToProps = dispatch => {
   return {
     getCourses: () => dispatch(actions.getCourses()),
-    // createCourse: body => dispatch(actions.createCourse(body)),
+    createCourse: body => dispatch(actions.createCourse(body)),
     // updateUserCourses: newCourse => dispatch(actions.updateUserCourses(newCourse)),
   }
 }

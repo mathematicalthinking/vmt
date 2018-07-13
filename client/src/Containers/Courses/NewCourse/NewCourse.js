@@ -25,7 +25,14 @@ class NewCourse extends Component {
 
   submitForm = event => {
     event.preventDefault();
-    console.log('do nopthiong?')
+    const newCourse = {
+      courseName: this.state.courseName,
+      description: this.state.description,
+      rooms: this.state.Rooms,
+      creator: this.props.userId,
+    }
+    // update backend via redux so we can add this to the global state of courses
+    this.props.createCourse(newCourse)
   }
   // this will be passed down to the dropdown menu and when we make a selection
   // it will pass a list of selected rooms back up and then we can synch our state

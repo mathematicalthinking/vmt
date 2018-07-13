@@ -14,4 +14,6 @@ export {
 export {
   getCourses,
   gotCourses,
+  createCourse,
+  createdCourses,
 } from './courses';
