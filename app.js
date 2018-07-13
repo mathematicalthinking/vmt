@@ -40,7 +40,7 @@ app.set('view engine', 'handlebars');
 // app.use(express.static(path.join(__dirname, 'client/build')));
 
 
-app.use(express.static(path.join(__dirname, 'client/public')));
+app.use(express.static(path.join(__dirname, 'client/build')));
 
 // app.get('/ggb/:roomNumber', (req, res, next) => {
 //   res.render('home', {someTestData: 'testroomData'})
