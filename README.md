@@ -32,6 +32,9 @@ on room and clicking on enter room we fall out of synch, perhaps it would be bes
 room immediately and just hide the geogebra workspace?  
 
 ## Ideas for further Development
+### General/Optimization
+1. Rooms and Courses containers have the exact same structure, we probably should
+have made a more general container that can handle both of these but c'est la vie
 ### Ideas for the replayer
 1. have the time between each event = the actual time between events at creation
     * we could accomplish this with moment and taking a diff of the timestamps of each event

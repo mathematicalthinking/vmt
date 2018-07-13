@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import NewRoom from './NewRoom/NewRoom';
+import NewCourse from './NewCourse/NewCourse';
 import ContentBox from '../../Components/UI/ContentBox/ContentBox';
 import Filter from '../../Components/UI/Button/Filter/Filter';
 import classes from './courses.css';
@@ -30,18 +30,18 @@ class Courses extends Component {
 
   render() {
     const courses = this.state.allCourses ? 'courses' : 'myCourses';
-    const roomElems = this.props[courses].map((room, i) => (
+    const courseElems = this.props[courses].map((course, i) => (
       <ContentBox title={
-        <Link className={glb.Link} to={`/room/${room._id}`}>{room.roomName}</Link>} key={i}>
-        {/* room info */}
+        <Link className={glb.Link} to={`/course/${course._id}`}>{course.name}</Link>} key={i}>
+        {/* course info */}
       </ContentBox>
     ))
     return (
       <div>
         <div>
           {(this.props.match.path === '/courses/new') ?
-            <NewRoom
-              createRoom={this.props.createRoom}
+            <NewCourse
+              createCourse={this.props.createCourse}
               userId={this.props.userId}
               updateUserCourses={this.props.updateUserCourses}
             /> : null}
@@ -52,7 +52,7 @@ class Courses extends Component {
               {this.state.allCourses ? 'Show courses created by me' : 'Show public courses'}
             </Filter>
           </div>
-          <div className={classes.Container}>{roomElems}</div>
+          <div className={classes.Container}>{courseElems}</div>
         </div>
       </div>
     )
@@ -63,8 +63,8 @@ class Courses extends Component {
 const mapDispatchToProps = dispatch => {
   return {
     getCourses: () => dispatch(actions.getCourses()),
-    createRoom: body => dispatch(actions.createRoom(body)),
-    updateUserCourses: newRoom => dispatch(actions.updateUserCourses(newRoom)),
+    // createCourse: body => dispatch(actions.createCourse(body)),
+    // updateUserCourses: newCourse => dispatch(actions.updateUserCourses(newCourse)),
   }
 }
 
