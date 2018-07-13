@@ -8,6 +8,8 @@ bootstrapped with https://github.com/okputadora/MERN-template.git
 
 ## TODO
 ### General
+1. Check the redux store before requesting data and see if we already have it,
+we should only ever load rooms and courses once 
 1. ~~Loading screens for when the user should not be clicking around~~
 1. Make ContentBox's content collapsible (to allow more room for workspace)
 1. Make arrow for dropdown menu spin w/r/t state

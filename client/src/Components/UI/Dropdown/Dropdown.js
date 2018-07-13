@@ -36,7 +36,7 @@ class Dropdown extends Component{
 
   render() {
     let list;
-    if (this.props.list.length === 0) {
+    if (this.props.list.length === 0 || !this.props.list) {
       list = <div className={classes.ErrorItem}>There's nothing in here yet</div>
     }
     else {

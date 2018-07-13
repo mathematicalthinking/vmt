@@ -30,14 +30,17 @@ class Courses extends Component {
 
   render() {
     const courses = this.state.allCourses ? 'courses' : 'myCourses';
-    const courseElems = this.props[courses].map((course, i) => (
-      <div className={classes.ContentBox}>
-        <ContentBox title={
-          <Link className={glb.Link} to={`/course/${course._id}`}>{course.courseName}</Link>} key={i}>
-          {/* course info */}
-        </ContentBox>
-      </div>
-    ))
+    let courseElems
+    if (this.props[courses]) {
+      courseElems = this.props[courses].map((course, i) => (
+        <div className={classes.ContentBox}>
+          <ContentBox title={
+            <Link className={glb.Link} to={`/course/${course._id}`}>{course.courseName}</Link>} key={i}>
+            {/* course info */}
+          </ContentBox>
+        </div>
+      ))
+    }
     return (
       <div>
         <div>

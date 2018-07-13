@@ -43,9 +43,14 @@ class NewCourse extends Component {
       // sel- to differentiate between dropdown ids
       <div id={`sel-${room.id}`}>{room.name}</div>
     ))
-    const myRooms = this.props.myRooms.map(room => ({
-      id: room._id, name: room.roomName,
-    }))
+    // i find this to be annoying...why wont .map just return an empty array
+    // if this.props.myRooms does not exist
+    let myRooms;
+    if (this.props.myRooms) {
+      myRooms = this.props.myRooms.map(room => ({
+        id: room._id, name: room.roomName,
+      }))
+    }
     const publicRooms = this.props.rooms.map(room => ({
       id: room._id, name: room.roomName
     }))
