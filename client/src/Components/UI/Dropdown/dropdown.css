@@ -1,0 +1,28 @@
+.Wrapper {
+  position: fixed;
+  width: 300px;
+  left: calc(50% - 150px);
+  border: 3px solid rgb(26, 33, 51);
+  text-align: center;
+}
+
+.DropDown > div {
+  padding: 8px;
+}
+
+.Open {
+  display: flex;
+  flex-flow: column;
+  height: 300px;
+  transition: height .2s;
+}
+
+.Close {
+  height: 0px;
+  transition: height .2s;
+}
+
+.DropDown {
+  overflow-y: hidden;
+
+}
