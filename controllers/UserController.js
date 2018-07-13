@@ -1,7 +1,7 @@
 const db = require('../models')
 
 module.exports = {
-  get: (params) => {
+  get: params => {
     return new Promise((resolve, reject) => {
       db.User.find(params)
       .then(users => resolve(users))
@@ -9,7 +9,7 @@ module.exports = {
     });
   },
 
-  getById: (id) => {
+  getById: id => {
     return new Promise((resolve, reject) => {
       db.User.findById(id)
       .then(user => resolve(user))
@@ -17,7 +17,8 @@ module.exports = {
     });
   },
 
-  post: (body) => {
+  post: body => {
+    console.log("posting user", body)
     return new Promise((resolve, reject) => {
       db.User.create(body)
       .then(user => resolve(user))

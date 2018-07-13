@@ -1,5 +1,6 @@
 import * as actionTypes from './actionTypes';
 import auth from '../../utils/auth';
+import API from '../../utils/apiRequests';
 export const loginStart = () => {
   return {
     type: actionTypes.LOGIN_START
@@ -20,6 +21,14 @@ export const loginFail = err => {
   }
 }
 
+export const signUp = body => {
+  return dispatch => {
+    dispatch(loginStart())
+    API.post('user', body)
+    .then(resp => dispatch(loginSuccess(resp)))
+    .catch(err => dispatch(loginFail(err)))
+  }
+}
 export const updateUserRooms = newRoom => {
   return {
     type: actionTypes.UPDATE_USER_ROOMS,

@@ -3,6 +3,7 @@ export {
   loginSuccess,
   loginFail,
   login,
+  signUp,
   googleLogin,
   updateUserRooms,
 } from './user';
