@@ -44,6 +44,7 @@ class Workspace extends Component {
       this.socket = this.props.socket;
       // define the socket listeners for handling events from the backend
       this.socket.on('RECEIVE_EVENT', event => {
+        console.log('receiving event')
         this.setState({
           receivingData: true
         })
@@ -52,6 +53,7 @@ class Workspace extends Component {
     }
   }
   // @TODO IM thinking we should use shouldupdate instead??? thought??
+  // or takesnapshot or whatever its called
   componentWillReceiveProps(nextProps) {
     // checking that this props and the incoming props are both replayin
     // ensures that this is not the first time we received
