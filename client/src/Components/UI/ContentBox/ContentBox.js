@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { Component } from 'react';
 import classes from './contentBox.css'
-const contentBox = props => {
 let alignClass= classes.Center;
-if (props.align === 'left') alignClass = classes.Left;
-if (props.align === 'right') alignClass = classes.Right
-return (
-  <div className={classes.Container}>
-    <div className={classes.Title}>{props.title}</div>
-    <div className={[classes.Content, alignClass].join(' ')}>
-      {props.children}
-    </div>
-  </div>
-)
+class ContentBox extends Component {
+  render() {
+    if (this.props.align === 'left') alignClass = classes.Left;
+    if (this.props.align === 'right') alignClass = classes.Right
+
+    return (
+      <div className={classes.Container} onClick={this.toggleCollapse}>
+        <div className={classes.Title}>{this.props.title}</div>
+        <div className={[classes.Content, alignClass].join(' ')}>
+          {this.props.children}
+        </div>
+      </div>
+    )
+  }
 }
 
-export default contentBox;
+export default ContentBox;

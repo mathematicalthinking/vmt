@@ -129,7 +129,13 @@ class Room extends Component {
     // if the room object is not empty
     // prepare its stats for rendering
     if (Object.keys(this.state.room).length !== 0) {
-      stats = <ContentBox title='Room Stats' align='left'>
+      stats =
+      <ContentBox
+        title='Room Stats'
+        align='left'
+        collapsible={true}
+        collapsed={this.state.liveMode || this.state.replayMode}
+      >
         <div><b>Name:</b> {this.state.room.roomName}</div>
         <div><b>Created by:</b> {this.state.room.creator}</div>
         <div><b>Description:</b> {this.state.room.description}</div>

@@ -5,7 +5,7 @@
 }
 
 .Controls {
-  margin-top: 40px;
+  margin-top: 30px;
   justify-content: center;
 }
 
@@ -17,7 +17,6 @@
   border-style: inset;
   border-radius: 15px;
   margin: 10px;
-  position: absolute
 }
 
 .Progress {

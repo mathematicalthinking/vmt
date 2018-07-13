@@ -6,7 +6,7 @@ bootstrapped with https://github.com/okputadora/MERN-template.git
 
 ### General
 1. ~~Loading screens for when the user should not be clicking around~~
-1. Make ContentBox's content collapsible (to allow more room for workspace) 
+1. Make ContentBox's content collapsible (to allow more room for workspace)
 ### Chat
 1. Make chat scroll to bottom by default
 1. make message components & style it up
@@ -15,9 +15,12 @@ bootstrapped with https://github.com/okputadora/MERN-template.git
 ## Bugs
 1. ~~We need to disable all buttons related replaying and interacting with the room
 until the ggbClient is loaded.~~
-1. Navigating around the room (i.e. from replayer to enter-room is buggy and bad UX)
+1. ~~Navigating around the room (i.e. from replayer to enter-room is buggy and bad UX)
  enter room should change to exit room upon entering --> upon replaying it should
- say
+ say~~
+1. When we enter a room with now data, make some events, and then click replayer
+we get an error that there are no events (perhaps we need to make a new api call? not sure?)
+1. Users in room is not updated via socket.io 
 
 ## Ideas for further Development
 ### Ideas for the replayer

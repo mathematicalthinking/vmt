@@ -7,9 +7,9 @@ import classes from './chat.css';
 import glb from '../../../global.css';
 class Chat extends Component {
   state = {
-    users: [],
+    users: [this.props.username],
     messages: [],
-    newMessage: ''
+    newMessage: '',
   }
 
   componentDidMount() {
@@ -98,9 +98,11 @@ class Chat extends Component {
 
     return (
       <div className={glb.FlexCol}>
-        <ContentBox title='Current users'>
-          {users}
-        </ContentBox>
+        <div className={classes.UserList}>
+          <ContentBox title='Current users'>
+            {users}
+          </ContentBox>
+        </div>
         <div className={classes.ChatWindow}>
           <div className={classes.ChatScroll} id='scrollable'>{messages}</div>
         </div>

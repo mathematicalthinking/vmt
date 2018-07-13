@@ -1,5 +1,5 @@
 .UserList {
-  border: 1px dotted black;
+  margin-top: 18px;
 }
 
 .ChatWindow {
@@ -17,7 +17,7 @@
 .ChatScroll::-webkit-scrollbar {
   width: 0.5em;
   height: 0.09em;
-  background-color: #f9f9f9;
+  background-color: #eee;
 }
 
 .ChatScroll::-webkit-scrollbar-thumb {
