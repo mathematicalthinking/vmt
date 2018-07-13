@@ -19,10 +19,16 @@ class Dropdown extends Component{
     })
   }
 
-  select = (name, id) => {
-    this.setState(prevState => ({
-      selected: [...prevState.selected, {name, id,}]
-    }))
+  select = (name, id, selected) => {
+    let updatedSelected = [...this.state.selected]
+    // if already selected remove from list
+    if (selected) {
+      updatedSelected = updatedSelected.filter(room => room.id !== id)
+    }
+    else {updatedSelected.push({name, id,})}
+    this.setState({
+      selected: updatedSelected,
+    })
     // run function passed in props to update parents state
   }
 
@@ -32,15 +38,17 @@ class Dropdown extends Component{
     const list = this.props.list.map((item, i)=> {
       // check if this item is in state.selected
       let colorClass = classes.ListItem;
+      let selected = false;
       if (this.state.selected.find(room => room.id === item.id)){
-        colorClass = classes.ListItemSelected
+        colorClass = classes.ListItemSelected;
+        selected = true
       }
       const backgroundClass = (i%2 === 0) ? classes.Background1 : classes.Background2;
       const className = [colorClass, backgroundClass].join(" ")
       return (
       <div
         key={i}
-        onClick={event => this.select(item.name, item.id)}
+        onClick={event => this.select(item.name, item.id, selected)}
         className={className}
         id={item.id}
       >{item.name}</div>

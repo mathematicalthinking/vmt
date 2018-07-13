@@ -14,6 +14,12 @@ bootstrapped with https://github.com/okputadora/MERN-template.git
 1. make message components & style it up
 1. Dynamic styling for users own messages vs incoming
 1. Disable chat funcitonality in replayMode
+### New Course
+1. When selecting rooms to add or remove from the course the UX ain't great.
+We should have some sort of small animation to signify the click is registered
+or at the very least change the color for selected so it doesnt match hover.
+Its confusing when you click de-select but then nothing appears to happen because
+you're still hovering over it 
 
 ## Bugs
 1. ~~We need to disable all buttons related replaying and interacting with the room

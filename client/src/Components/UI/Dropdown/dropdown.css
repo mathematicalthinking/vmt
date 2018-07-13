@@ -26,6 +26,14 @@
 .ListItem:hover {
   color: #2D91F2;
 }
+
+.Background1 {
+  background-color: #ddd;
+}
+
+.Background2 {
+  background-color: white;
+}
 .Open {
   display: flex;
   flex-flow: column;
