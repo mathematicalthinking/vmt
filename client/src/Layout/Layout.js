@@ -28,6 +28,9 @@ class Layout extends Component {
               <PrivateRoute exact path='/courses' authed={this.props.loggedIn} component={Courses}/>
               <PrivateRoute exact path='/courses/new' authed={this.props.loggedIn} component={Courses}/>
               <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/>
+              <Route path='/ggb' render={() => {
+                console.log('getting ggb route')
+              }}/>
               <Route path="*" render={() => {
                 return (<div>Error</div>)
               }}/>

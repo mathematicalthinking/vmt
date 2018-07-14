@@ -3,7 +3,8 @@ import classes from './workspace.css';
 import glb from '../../../global.css';
 import Aux from '../../../Components/HOC/Auxil';
 import Loading from '../../../Components/UI/Loading/Loading';
-let ggbApplet;
+// let ggbApplet;
+// let GGBApplet;
 class Workspace extends Component {
   // we need to track whether or not the ggbBase64 data was updated
   // by this user or by another client. Otherwise we were getting stuck
@@ -18,7 +19,16 @@ class Workspace extends Component {
   }
 
   componentDidMount() {
-    console.log(this.props.events)
+    console.log(window.ggbApp)
+    window.ggbApp.inject('ggb-element')
+    // load the geogebra code
+    // this.loadGgbScript()
+    // .then(() => {
+    //   console.log('script loaded!')
+    //   this.postLoad();
+    // })
+    // .catch(err => {console.log(err)})
+    // console.log(this.props.events)
     // THIS IS EXTREMELEY HACKY -- basically what's going on here is that
     // we need to access the ggbApplet object that is attached to the iframe
     // window by the external geogebra cdn script. This takes a little bit of
@@ -26,9 +36,8 @@ class Workspace extends Component {
     // instead we are essentially polling window object to see if it has
     // the ggbApplet property yet.
     const timer = setInterval(() => {
-      const iframe = document.getElementById('ggbRoom').contentDocument;
-      ggbApplet = iframe.ggbApplet;
-      if (ggbApplet) { // @TODO dont intialiZe if replaying
+    this.ggbApplet = document.ggbApplet;
+      if (this.ggbApplet) { // @TODO dont intialiZe if replaying
         this.initialize();
         this.setState({loading: false})
         // @TODO insread of passing the file to the iframe we could instead just set
@@ -48,7 +57,7 @@ class Workspace extends Component {
         this.setState({
           receivingData: true
         })
-        ggbApplet.setBase64(event)
+        this.ggbApplet.setBase64(event)
       })
     }
   }
@@ -58,9 +67,50 @@ class Workspace extends Component {
     // checking that this props and the incoming props are both replayin
     // ensures that this is not the first time we received
     if (nextProps.replaying && this.props.replaying) {
-      ggbApplet.setBase64(this.props.room.events[this.props.eventIndex].event)
+      this.ggbApplet.setBase64(this.props.room.events[this.props.eventIndex].event)
     }
   }
+  // https://stackoverflow.com/questions/42847126/script-load-in-react
+  // loadGgbScript = () => {
+  //   console.log('loading ggb script')
+  //   // promise structure ensures the script is loaded only once
+  //   return new Promise((resolve, reject) => {
+  //     const ggbScript = document.createElement('script');
+  //     ggbScript.src = "https://cdn.geogebra.org/apps/deployggb.js";
+  //     ggbScript.addEventListener('load', () => {
+  //       console.log("Loaded!")
+  //       resolve()
+  //     })
+  //     ggbScript.addEventListener('error', (error) => {
+  //       console.log("ERROR!")
+  //       reject(error)
+  //     })
+  //     document.body.appendChild(ggbScript);
+  //   })
+  // }
+
+  // postLoad = () => {
+  //   // var file = location.href.split('file=').slice(1);
+  //   const parameters = {
+  //     "id":"ggbApplet",
+  //     "width": 1000,
+  //     "height": 1000,
+  //     "scaleContainerClass": 'applet_container',
+  //     "showToolBar": true,
+  //     "showMenuBar": true,
+  //     "showAlgebraInput":true,
+  //     "language": "en",
+  //     "useBrowserForJS":true,
+  //     "preventFocus":true,
+  //     "ggbBase64": '',
+  //     //"appName":"graphing"
+  //   };
+  //   var ggbApp = new GGBApplet(parameters, true);
+  //   window.addEventListener("load", function() {
+  //       ggbApp.inject('ggb-element');
+  //   });
+  //   this.state({loading: false})
+  // }
 
   update = () => {
   }
@@ -73,7 +123,7 @@ class Workspace extends Component {
         if (!this.state.receivingData) {
           const newData = {}
           newData.room = this.props.room._id;
-          newData.event = ggbApplet.getBase64();
+          newData.event = this.ggbApplet.getBase64();
           newData.user = this.props.userId;
           console.log('emiting event from client')
           this.socket.emit('SEND_EVENT', newData, () => {
@@ -108,34 +158,26 @@ class Workspace extends Component {
     const clearListener = () =>  {
     }
     // attach this listeners to the ggbApplet
-    ggbApplet.registerUpdateListener(updateListener);
-    ggbApplet.registerAddListener(addListener);
-    ggbApplet.registerRemoveListener(removeListener);
-    ggbApplet.registerStoreUndoListener(undoListener);
-    ggbApplet.registerClearListener(clearListener);
+    this.ggbApplet.registerUpdateListener(updateListener);
+    this.ggbApplet.registerAddListener(addListener);
+    this.ggbApplet.registerRemoveListener(removeListener);
+    this.ggbApplet.registerStoreUndoListener(undoListener);
+    this.ggbApplet.registerClearListener(clearListener);
   }
 
   render() {
+    // Load the ggb script
     // send the most recent event history if live
     let file = '';
     const events = this.props.room.events;
-    if (events.length > 0) file = events[events.length - 1].event;
+    if (events.length > 0 && !this.props.replaying) file = events[events.length - 1].event;
 
     // send the first event if not
     // send and empty strting if theres no event history
     return (
       <Aux>
         <Loading show={this.state.loading} message="Loading the Geogebra workspace...this may take a moment"/>
-        <div className={[classes.Container, glb.FlexRow].join(' ')}>
-          <iframe
-            className={classes.Iframe}
-            title={this.props.roomName}
-            id='ggbRoom'
-            src={`/Geogebra.html?file=${file}`}
-            ref={(element) => {this.ifr = element}}
-          >
-          </iframe>
-        </div>
+        <div className={classes.Workspace} id='ggb-element'></div>
       </Aux>
     )
   }

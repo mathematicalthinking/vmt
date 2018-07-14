@@ -40,14 +40,17 @@ app.set('view engine', 'handlebars');
 // app.use(express.static(path.join(__dirname, 'client/build')));
 
 
-app.use(express.static(path.join(__dirname, 'client/build')));
+app.use(express.static(path.join(__dirname, 'client/public')));
 
-// app.get('/ggb/:roomNumber', (req, res, next) => {
-//   res.render('home', {someTestData: 'testroomData'})
-// })
-app.get('/', (req, res) => {
-  res.sendFile(path.join(path.join(__dirname, '/client/build/index.html')));
+app.get('/:page', (req, res) => {
+  console.log(req.params.page)
+  res.sendFile(path.join(path.join(__dirname, '/client/public/index.html')));
 });
+
+// app.get('/ggb', (req, res) => {
+//   console.log('in the ggb route')
+//   res.sendFile(path.join(path.join(__dirname, '/client/build/Geogebra.html')));
+// })
 
 
 // uncomment after placing your favicon in /public

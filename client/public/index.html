@@ -15,7 +15,7 @@
 
     <!-- jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
+    <script async src="https://cdn.geogebra.org/apps/deployggb.js"></script>
     <!-- Latest compiled JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
@@ -46,4 +46,32 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
   </body>
+  <script>
+   //@TODO configure the height and width based off of the window size
+    // request the ggb file
+    var file = location.href.split('file=').slice(1); //@TODO file now needs to be deliver via setBase64 in Workspace after it loads
+    console.log(file)
+    var parameters = {
+      "id":"ggbApplet",
+      "width": 990,
+      "height": 600,
+      "scaleContainerClass": 'applet_container',
+      "showToolBar": true,
+      "showMenuBar": true,
+      "showAlgebraInput":true,
+      "language": "en",
+      "useBrowserForJS":false,
+      "preventFocus":true,
+      "ggbBase64": file
+      //"appName":"graphing"
+    };
+    var ggbApplet;
+    var ggbApp = new GGBApplet(parameters, true);
+    window.addEventListener("load", function() {
+      console.log('window loaded')
+      console.log(ggbApp)
+      this.ggb = ggbApp;
+      console.log('save inject function to window: ', this)
+    });
+  </script>
 </html>

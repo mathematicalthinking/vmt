@@ -1,6 +1,6 @@
-.Iframe {
+.Workspace {
   margin: 10px;
-  height: 1300px;
+  height: 610px;
   width: 1000px;
-  border: none;
+  border: 1px solid #ddd;
 }
