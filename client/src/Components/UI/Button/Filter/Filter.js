@@ -1,3 +1,5 @@
+// PROPS: on (t/f), click() --(onClick function), children -- (jsx)
+
 import React from 'react';
 import classes from './filter.css';
 const filter = props => {

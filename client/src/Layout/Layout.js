@@ -35,7 +35,7 @@ class Layout extends Component {
               <PrivateRoute exact path='/courses' authed={this.props.loggedIn} component={Courses}/>
               <PrivateRoute exact path='/courses/new' authed={this.props.loggedIn} component={Courses}/>
               <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/>
-              <Route exact path='/logout' component={Login}/> 
+              <Route exact path='/logout' component={Login}/>
               <Route path="*" render={() => {
                 return (<div>Error</div>)
               }}/>
@@ -51,7 +51,7 @@ class Layout extends Component {
 const mapStateToProps = store => {
   return {
     username: store.userReducer.username,
-    loggedIn: store.userReducer.loggedIn
+    loggedIn: store.userReducer.loggedIn,
   };
 }
 
