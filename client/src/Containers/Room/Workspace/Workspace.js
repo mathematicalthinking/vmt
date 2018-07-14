@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import classes from './workspace.css';
-import glb from '../../../global.css';
 import Aux from '../../../Components/HOC/Auxil';
 import Loading from '../../../Components/UI/Loading/Loading';
-// let ggbApplet;
-// let GGBApplet;
 class Workspace extends Component {
   // we need to track whether or not the ggbBase64 data was updated
   // by this user or by another client. Otherwise we were getting stuck
@@ -64,23 +61,22 @@ class Workspace extends Component {
 
   // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
   initialize = () => {
-    // if in live mode set the base64 to the most recent event
-    console.log('initialized!')
+    // console.log('initialized!')
     const updateListener = objName => {
-      console.log('update listener')
+      // console.log('update listener')
     }
 
     const addListener = objName => {
-      console.log('add listener')
-      console.log(this.state.receivingData)
+      // console.log('add listener')
+      // console.log(this.state.receivingData)
       if (!this.state.receivingData) {
         const newData = {}
         newData.room = this.props.room._id;
         newData.event = this.ggbApplet.getBase64();
         newData.user = this.props.userId;
-        console.log('emiting event from client')
         this.socket.emit('SEND_EVENT', newData, () => {
-          console.log('success');
+          // console.log('emiting event from client')
+          // console.log('success');
         })
       }
       this.setState({
@@ -89,7 +85,7 @@ class Workspace extends Component {
     }
 
     const undoListener = () => {
-      console.log('undo listener')
+      // console.log('undo listener')
       // this seems to fire when an event is completed
         if (!this.state.receivingData) {
           const newData = {}

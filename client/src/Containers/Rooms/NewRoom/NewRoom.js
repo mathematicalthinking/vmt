@@ -1,13 +1,17 @@
+// @TODO NEED FILE UPLOAD FUNCTIONALITY
+
 import React, { Component } from 'react';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
 import NewTab from './NewTab/NewTab';
+import Button from '../../../Components/UI/Button/Button';
+import classes from './newRoom.css';
 
 class NewRoom extends Component {
   state = {
     roomName: '',
     description: '',
-    tabCount: 0,
-    tabs: [],
+    // tabCount: 0,
+    // tabs: [],
   }
 
   changeHandler = event => {
@@ -43,6 +47,8 @@ class NewRoom extends Component {
       creator: this.props.userId
     }
     this.props.createRoom(newRoom)
+    // this will be done on the backend but instead of fetching that data again
+    // lets just update our redux store
     this.props.updateUserRooms(newRoom)
   }
 
@@ -54,33 +60,23 @@ class NewRoom extends Component {
       }
     }
     return (
-      <div className='container-fluid'>
-        <div className='row-fluid'>
-          <div className='col-md-5'>
-            <form>
-              <div className='form-group'>
-                <TextInput
-                  change={this.changeHandler}
-                  name="roomName"
-                  label="Enter Room Name"
-                  class='form-control'
-                />
-              </div>
-              <div className='form-group'>
-                <TextInput
-                  change={this.changeHandler}
-                  name='description'
-                  label='Description'
-                  class='form-control'
-                />
-              </div>
-              {tabs}
-              <button className='btn btn-default' onClick={this.addTab}>Add Tab</button>
-              <p></p>
-              <button className='btn btn-default' onClick={this.submitForm}>Submit</button>
-            </form>
-          </div>
-        </div>
+      <div className={classes.NewRoom}>
+        <form>
+          <TextInput
+            change={this.changeHandler}
+            name="roomName"
+            label="Enter Room Name"
+            class='form-control'
+          />
+          <TextInput
+            change={this.changeHandler}
+            name='description'
+            label='Description'
+            class='form-control'
+          />
+        </form>
+        <Button click={this.addTab}>Upload a file</Button>
+        <Button click={this.submitForm}>Submit</Button>
       </div>
     )
   }
