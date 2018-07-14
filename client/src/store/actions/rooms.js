@@ -33,3 +33,9 @@ export const createRoom = body => {
     .then(resp => dispatch(createdRoom(resp)))
   }
 }
+
+export const createdRoomConfirm = () => {
+  return {
+    type: actionTypes.CREATED_ROOM_CONFIRMED,
+  }
+}

@@ -49,6 +49,8 @@ class Rooms extends Component {
               createRoom={this.props.createRoom}
               userId={this.props.userId}
               updateUserRooms={this.props.updateUserRooms}
+              createdNewRoom={this.props.createdNewRoom}
+              createdRoomConfirm={this.props.createdRoomConfirm}
             /> : null}
         </div>
         <div>
@@ -70,6 +72,7 @@ const mapDispatchToProps = dispatch => {
     getRooms: () => dispatch(actions.getRooms()),
     createRoom: body => dispatch(actions.createRoom(body)),
     updateUserRooms: newRoom => dispatch(actions.updateUserRooms(newRoom)),
+    createdRoomConfirm: () => dispatch(actions.createdRoomConfirm())
   }
 }
 
@@ -79,7 +82,8 @@ const mapStateToProps = store => {
     rooms: store.roomsReducer.rooms,
     myRooms: store.userReducer.myRooms,
     username: store.userReducer.username,
-    userId: store.userReducer.userId
+    userId: store.userReducer.userId,
+    createdNewRoom: store.roomsReducer.createdNewRoom,
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Rooms);

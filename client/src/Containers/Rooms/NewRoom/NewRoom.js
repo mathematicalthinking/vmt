@@ -53,12 +53,6 @@ class NewRoom extends Component {
   }
 
   render() {
-    let tabs = [];
-    if (this.state.tabCount > 0) {
-      for (let i = 0; i < this.state.tabCount; i++) {
-        tabs.push(<NewTab change={this.changeHandler} id={i} key={i}/>)
-      }
-    }
     return (
       <div className={classes.NewRoom}>
         <form>

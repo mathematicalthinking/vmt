@@ -11,6 +11,7 @@ export {
   getRooms,
   gotRooms,
   createRoom,
+  createdRoomConfirmed,
 } from './rooms';
 export {
   getCourses,
