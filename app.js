@@ -42,7 +42,7 @@ app.set('view engine', 'handlebars');
 
 app.use(express.static(path.join(__dirname, 'client/build')));
 
-app.get('/:page', (req, res) => {
+app.get('/', (req, res) => {
   console.log(req.params.page)
   res.sendFile(path.join(path.join(__dirname, '/client/build/index.html')));
 });
