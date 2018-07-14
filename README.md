@@ -9,7 +9,7 @@ bootstrapped with https://github.com/okputadora/MERN-template.git
 ## TODO
 ### General
 1. Check the redux store before requesting data and see if we already have it,
-we should only ever load rooms and courses once 
+we should only ever load rooms and courses once
 1. ~~Loading screens for when the user should not be clicking around~~
 1. Make ContentBox's content collapsible (to allow more room for workspace)
 1. Make arrow for dropdown menu spin w/r/t state
@@ -25,6 +25,11 @@ or at the very least change the color for selected so it doesnt match hover.
 Its confusing when you click de-select but then nothing appears to happen because
 you're still hovering over it
 1. Transitions not working on dropdown (not a huge deal right now)
+### Rooms
+1. have the rooms order from newest to oldest, so when a new room is created
+its right at the top of the list and visible to the user
+1. Filter is broken... myRooms seems to list every room i've ever entered including
+duplicates
 
 ## Bugs
 1. ~~We need to disable all buttons related replaying and interacting with the room

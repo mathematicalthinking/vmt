@@ -1,3 +1,5 @@
+//PROPS: title,  list, selectHandler(listOfSelectedItems)  
+
 import React, { Component } from 'react';
 import classes from './dropdown.css'
 import onClickOutside from 'react-onclickoutside'
