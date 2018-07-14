@@ -14,6 +14,8 @@
 }
 
 .Banner{
+  display: flex;
+  justify-content: space-between;
   width: 100%;
   max-width: 1300px;
   letter-spacing: .1em;
@@ -26,4 +28,19 @@
   width: 100%;
   max-width: 1300px;
   min-height: calc(100vh - 300px);
+}
+
+.UserInfo {
+  align-self: flex-end;
+  margin-bottom: 5px;
+}
+
+.Avatar {
+  margin-right: 5px;
+  background-color: #2D91F2;
+  color: white;
+  padding: 7px;
+  border-radius: 50%;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
 }

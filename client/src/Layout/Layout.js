@@ -16,7 +16,14 @@ class Layout extends Component {
     return (
       <Router>
         <main className={classes.Main}>
-          <h2 className={classes.Banner}>Virtual Math Teams</h2>
+          <div className={classes.Banner}>
+            <h2>Virtual Math Teams</h2>
+            {this.props.loggedIn ?
+              <div className={classes.UserInfo}>
+                <i className={["fas fa-user", classes.Avatar].join(' ')}></i>
+                {this.props.username}
+              </div> : null}
+          </div>
           <Navbar />
           <section className={classes.Section}>
             <Switch>
@@ -44,7 +51,10 @@ class Layout extends Component {
 
 // Provide login status to all private routes
 const mapStateToProps = store => {
-  return {loggedIn: store.userReducer.loggedIn};
+  return {
+    username: store.userReducer.username,
+    loggedIn: store.userReducer.loggedIn
+  };
 }
 
 export default connect(mapStateToProps, null)(Layout);
