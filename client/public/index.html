@@ -49,8 +49,6 @@
   <script>
    //@TODO configure the height and width based off of the window size
     // request the ggb file
-    var file = location.href.split('file=').slice(1); //@TODO file now needs to be deliver via setBase64 in Workspace after it loads
-    console.log(file)
     var parameters = {
       "id":"ggbApplet",
       "width": 990,
@@ -62,7 +60,6 @@
       "language": "en",
       "useBrowserForJS":false,
       "preventFocus":true,
-      "ggbBase64": file
       //"appName":"graphing"
     };
     var ggbApplet;

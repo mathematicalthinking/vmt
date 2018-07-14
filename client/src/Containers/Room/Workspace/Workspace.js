@@ -29,11 +29,12 @@ class Workspace extends Component {
       if (this.ggbApplet) { // @TODO dont intialiZe if replaying
         // setup the even listeners
         this.initialize();
-        this.setState({loading: false})
-        // @TODO insread of passing the file to the iframe we could instead just set
-        // base64 right here and then setState of loading in it's call back,
-        // because right now we're losing the loading screen after the geogebra
-        // frame is loaded, but before the data is loaded
+        // load the most recent workspace event if we're not replaying
+        if (!this.props.replaying && this.props.room.events){
+          this.ggbApplet.setBase64(this.props.room.events[this.props.room.events.length - 1].event, () => {
+            this.setState({loading: false})
+          })
+        }
         clearInterval(timer);
       }
     }, 1000)
@@ -63,6 +64,7 @@ class Workspace extends Component {
 
   // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
   initialize = () => {
+    // if in live mode set the base64 to the most recent event
     console.log('initialized!')
     const updateListener = objName => {
       console.log('update listener')
@@ -118,14 +120,6 @@ class Workspace extends Component {
   }
 
   render() {
-    // Load the ggb script
-    // send the most recent event history if live
-    let file = ''; // @TODO as stated above file should be included by using setBase64
-    const events = this.props.room.events;
-    if (events.length > 0 && !this.props.replaying) file = events[events.length - 1].event;
-
-    // send the first event if not
-    // send and empty strting if theres no event history
     return (
       <Aux>
         <Loading show={this.state.loading} message="Loading the Geogebra workspace...this may take a moment"/>
