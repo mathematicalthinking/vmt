@@ -34,8 +34,8 @@ export const createRoom = body => {
   }
 }
 
-export const createdRoomConfirm = () => {
+export const createdRoomConfirmed = () => {
   return {
-    type: actionTypes.CREATED_ROOM_CONFIRMED,
+    type: actionTypes.CREATE_ROOM_CONFIRMED,
   }
 }

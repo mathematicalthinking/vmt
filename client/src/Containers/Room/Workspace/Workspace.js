@@ -27,11 +27,12 @@ class Workspace extends Component {
         // setup the even listeners
         this.initialize();
         // load the most recent workspace event if we're not replaying
-        if (!this.props.replaying && this.props.room.events){
+        if (!this.props.replaying && this.props.room.events.length > 0){
           this.ggbApplet.setBase64(this.props.room.events[this.props.room.events.length - 1].event, () => {
             this.setState({loading: false})
           })
         }
+        else {this.setState({loading: false})}
         clearInterval(timer);
       }
     }, 1000)

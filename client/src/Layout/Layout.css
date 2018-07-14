@@ -13,7 +13,11 @@
   border-radius: 10px;
 }
 
-.Banner{letter-spacing: .1em;}
+.Banner{
+  width: 100%;
+  max-width: 1300px;
+  letter-spacing: .1em;
+}
 
 .Section {
   display: flex;

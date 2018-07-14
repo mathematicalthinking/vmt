@@ -16,7 +16,7 @@ class Layout extends Component {
     return (
       <Router>
         <main className={classes.Main}>
-          <h2 className={classes.Banner}>Welcome To Virtual Math Teams</h2>
+          <h2 className={classes.Banner}>Virtual Math Teams</h2>
           <Navbar />
           <section className={classes.Section}>
             <Switch>

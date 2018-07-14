@@ -72,7 +72,7 @@ const mapDispatchToProps = dispatch => {
     getRooms: () => dispatch(actions.getRooms()),
     createRoom: body => dispatch(actions.createRoom(body)),
     updateUserRooms: newRoom => dispatch(actions.updateUserRooms(newRoom)),
-    createdRoomConfirm: () => dispatch(actions.createdRoomConfirm())
+    createdRoomConfirm: () => dispatch(actions.createdRoomConfirmed())
   }
 }
 
