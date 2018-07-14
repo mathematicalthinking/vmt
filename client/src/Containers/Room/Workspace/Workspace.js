@@ -19,25 +19,15 @@ class Workspace extends Component {
   }
 
   componentDidMount() {
-    console.log(window.ggbApp)
+    // In index.html create the ggbApp and attach it to the window. We need to do this
+    // in index.html so the we have access to GGBApplet constructor
     window.ggbApp.inject('ggb-element')
-    // load the geogebra code
-    // this.loadGgbScript()
-    // .then(() => {
-    //   console.log('script loaded!')
-    //   this.postLoad();
-    // })
-    // .catch(err => {console.log(err)})
-    // console.log(this.props.events)
-    // THIS IS EXTREMELEY HACKY -- basically what's going on here is that
-    // we need to access the ggbApplet object that is attached to the iframe
-    // window by the external geogebra cdn script. This takes a little bit of
-    // time but there doesn't seem to be a way to listen for that change, so
-    // instead we are essentially polling window object to see if it has
-    // the ggbApplet property yet.
+    // ggbApp will attach the ggbApplet to the document object; poll the document
+    // until that has happened
     const timer = setInterval(() => {
-    this.ggbApplet = document.ggbApplet;
+      this.ggbApplet = document.ggbApplet;
       if (this.ggbApplet) { // @TODO dont intialiZe if replaying
+        // setup the even listeners
         this.initialize();
         this.setState({loading: false})
         // @TODO insread of passing the file to the iframe we could instead just set
@@ -61,7 +51,7 @@ class Workspace extends Component {
       })
     }
   }
-  // @TODO IM thinking we should use shouldupdate instead??? thought??
+  // @TODO IM thinking we should use shouldupdate instead??? thoughts??
   // or takesnapshot or whatever its called
   componentWillReceiveProps(nextProps) {
     // checking that this props and the incoming props are both replayin
@@ -70,56 +60,35 @@ class Workspace extends Component {
       this.ggbApplet.setBase64(this.props.room.events[this.props.eventIndex].event)
     }
   }
-  // https://stackoverflow.com/questions/42847126/script-load-in-react
-  // loadGgbScript = () => {
-  //   console.log('loading ggb script')
-  //   // promise structure ensures the script is loaded only once
-  //   return new Promise((resolve, reject) => {
-  //     const ggbScript = document.createElement('script');
-  //     ggbScript.src = "https://cdn.geogebra.org/apps/deployggb.js";
-  //     ggbScript.addEventListener('load', () => {
-  //       console.log("Loaded!")
-  //       resolve()
-  //     })
-  //     ggbScript.addEventListener('error', (error) => {
-  //       console.log("ERROR!")
-  //       reject(error)
-  //     })
-  //     document.body.appendChild(ggbScript);
-  //   })
-  // }
 
-  // postLoad = () => {
-  //   // var file = location.href.split('file=').slice(1);
-  //   const parameters = {
-  //     "id":"ggbApplet",
-  //     "width": 1000,
-  //     "height": 1000,
-  //     "scaleContainerClass": 'applet_container',
-  //     "showToolBar": true,
-  //     "showMenuBar": true,
-  //     "showAlgebraInput":true,
-  //     "language": "en",
-  //     "useBrowserForJS":true,
-  //     "preventFocus":true,
-  //     "ggbBase64": '',
-  //     //"appName":"graphing"
-  //   };
-  //   var ggbApp = new GGBApplet(parameters, true);
-  //   window.addEventListener("load", function() {
-  //       ggbApp.inject('ggb-element');
-  //   });
-  //   this.state({loading: false})
-  // }
-
-  update = () => {
-  }
   // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
   initialize = () => {
+    console.log('initialized!')
     const updateListener = objName => {
+      console.log('update listener')
     }
 
     const addListener = objName => {
+      console.log('add listener')
+      console.log(this.state.receivingData)
+      if (!this.state.receivingData) {
+        const newData = {}
+        newData.room = this.props.room._id;
+        newData.event = this.ggbApplet.getBase64();
+        newData.user = this.props.userId;
+        console.log('emiting event from client')
+        this.socket.emit('SEND_EVENT', newData, () => {
+          console.log('success');
+        })
+      }
+      this.setState({
+        receivingData: false
+      })
+    }
+
+    const undoListener = () => {
+      console.log('undo listener')
+      // this seems to fire when an event is completed
         if (!this.state.receivingData) {
           const newData = {}
           newData.room = this.props.room._id;
@@ -133,23 +102,6 @@ class Workspace extends Component {
         this.setState({
           receivingData: false
         })
-    }
-
-    const undoListener = () => {
-      // this seems to fire when an event is completed
-        // if (!this.state.receivingData) {
-        //   const newData = {}
-        //   newData.room = this.props.room._id;
-        //   newData.event = ggbApplet.getBase64();
-        //   newData.user = this.props.userId;
-        //   console.log('emiting event from client')
-        //   this.socket.emit('SEND_EVENT', newData, () => {
-        //     console.log('success');
-        //   })
-        // }
-        // this.setState({
-        //   receivingData: false
-        // })
     }
 
     const removeListener = objName => {
@@ -168,7 +120,7 @@ class Workspace extends Component {
   render() {
     // Load the ggb script
     // send the most recent event history if live
-    let file = '';
+    let file = ''; // @TODO as stated above file should be included by using setBase64
     const events = this.props.room.events;
     if (events.length > 0 && !this.props.replaying) file = events[events.length - 1].event;
 
