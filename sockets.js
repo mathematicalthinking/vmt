@@ -7,9 +7,14 @@ sockets.init = server => {
     io.sockets.on('connection', socket => {
       // client joins room ==> update other clients room list
       socket.on('JOIN', data => {
-        console.log('joining room: ', data.room)
         socket.join(data.room.id, () => {
-          socket.broadcast.to(data.room.id).emit('NEW_USER', data.user)
+          // update current users of this room
+          console.log(data.user)
+          controllers.room.updateCurrentUsers(data.room.id, data.user.id)
+          .then(room => console.log(room))
+          .catch(err => console.log(err))
+          // emit to other clients
+          socket.broadcast.to(data.room.id).emit('NEW_USER', data.user.name)
         })
         // emit to the clients we've got a new user
       });

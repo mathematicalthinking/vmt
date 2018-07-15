@@ -12,8 +12,9 @@ module.exports = {
   getById: id => {
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
-      .populate({path: 'events', populate: {path: 'user'}})
+      .populate({path: 'events'})
       .populate({path: 'chat', populate: {path: 'user'}})
+      .populate({path: 'currentUsers'})
       .then(room => {
         console.log(room)
         resolve(room)})
@@ -32,8 +33,15 @@ module.exports = {
 
   put: (id, body) => {
     return new Promise((resolve, reject) => {
-      if (Object.bo)
       db.Room.findByIdAndUpdate(id, body)
+      .then(room => resolve(room))
+      .catch(err => reject(err))
+    })
+  },
+
+  updateCurrentUsers: (roomId, userId) => {
+    return new Promise((resolve, reject) => {
+      db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentUsers: userId}}, {new: true})
       .then(room => resolve(room))
       .catch(err => reject(err))
     })

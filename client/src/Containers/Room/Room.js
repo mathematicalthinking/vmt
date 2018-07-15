@@ -26,9 +26,6 @@ class Room extends Component {
   }
 
   componentDidMount() {
-    // get all of the information for the current room with all fields populated
-    ///@TODO this takes a little too long to display the name -- we should grab the name
-    // from the props.room by filtering it for the id in the url param
     API.getById('room', this.props.match.params.id)
     .then(res => {
       const result = res.data.result
@@ -48,6 +45,7 @@ class Room extends Component {
   }
 
   componentWillUnmount () {
+    // @TODO close socket connection
     clearInterval(this.player)
   }
 
@@ -63,11 +61,12 @@ class Room extends Component {
       clearInterval(this.player);
       return;
     }
+    // if we're not in the room --> enter
     this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
     this.socket.on('connect', () => {
       const data = {
         room: this.props.match.params,
-        user: this.props.username
+        user: {id: this.props.userId, name: this.props.username}
       }
       this.socket.emit('JOIN', data, () => {
         // i.e. pending, success, fail, via state
@@ -126,9 +125,13 @@ class Room extends Component {
 
   render() {
     let stats;
-    // if the room object is not empty
-    // prepare its stats for rendering
+    const room = this.state.room;
     if (Object.keys(this.state.room).length !== 0) {
+      console.log(room)
+
+      const currentUsers = room.currentUsers.map(user => `${user.username}, `)
+      // if the room object is not empty
+      // prepare its stats for rendering
       stats =
       <ContentBox
         title='Room Stats'
@@ -136,12 +139,12 @@ class Room extends Component {
         collapsible={true}
         collapsed={this.state.liveMode || this.state.replayMode}
       >
-        <div><b>Name:</b> {this.state.room.roomName}</div>
-        <div><b>Created by:</b> {this.state.room.creator}</div>
-        <div><b>Description:</b> {this.state.room.description}</div>
-        <div><b>Users in room:</b> </div>
-        <div><b>Chats:</b> {this.state.room.chat.length} </div>
-        <div><b>Events:</b> {this.state.room.events.length} </div>
+        <div><b>Name:</b> {room.roomName}</div>
+        <div><b>Created by:</b> {room.creator}</div>
+        <div><b>Description:</b> {room.description}</div>
+        <div><b>Users in room:</b> {currentUsers}</div>
+        <div><b>Chats:</b> {room.chat.length} </div>
+        <div><b>Events:</b> {room.events.length} </div>
       </ContentBox>
     }
     return(

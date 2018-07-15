@@ -8,6 +8,7 @@ const Room = new mongoose.Schema({
   tabListKey: [{type: ObjectId, ref: 'Tab'}],
   events: [{type: ObjectId, ref: 'Event'}],
   chat: [{type: ObjectId, ref: 'Message'}],
+  currentUsers: [{type: ObjectId, ref: 'User'}]
 });
 
 // Method for adding Room the creators list of rooms
