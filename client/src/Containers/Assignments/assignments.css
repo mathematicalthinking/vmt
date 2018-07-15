@@ -1,3 +1,13 @@
 .Assignments {
-  
+  /* display: flex; */
+}
+
+.AssignWhat {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.Selected {
+  margin: 10px;
+  width: 500px !important;
 }
