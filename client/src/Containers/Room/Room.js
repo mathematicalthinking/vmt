@@ -158,8 +158,10 @@ class Room extends Component {
     const room = this.state.room;
     if (Object.keys(this.state.room).length !== 0) {
       console.log(room)
-
-      const currentUsers = room.currentUsers.map(user => `${user.username}, `)
+      let currentUsers;
+      if (room.currentUsers.length > 0) {
+        currentUsers = room.currentUsers.map(user => `${user.username}, `)
+      }
       // if the room object is not empty
       // prepare its stats for rendering
 

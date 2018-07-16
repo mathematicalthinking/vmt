@@ -15,6 +15,7 @@ sockets.init = server => {
           .then(room => console.log(room))
           .catch(err => console.log(err))
           // emit to other clients
+          console.log('new user joind emit other clients')
           socket.broadcast.to(data.room.id).emit('NEW_USER', data.user.name)
         })
         // emit to the clients we've got a new user

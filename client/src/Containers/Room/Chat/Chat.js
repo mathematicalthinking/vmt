@@ -76,9 +76,6 @@ class Chat extends Component {
   }
 
   render() {
-    const users = this.state.users.map(user => (
-      <span key={user}>{user} </span>
-    ))
     let messages;
     if (this.state.messages) {
       messages = this.state.messages.map((message, i) => (
@@ -93,9 +90,6 @@ class Chat extends Component {
     return (
       <div className={glb.FlexCol}>
         <div className={classes.UserList}>
-          <ContentBox title='Current users'>
-            {users}
-          </ContentBox>
         </div>
         <div className={classes.ChatWindow}>
           <div className={classes.ChatScroll} id='scrollable'>{messages}</div>
