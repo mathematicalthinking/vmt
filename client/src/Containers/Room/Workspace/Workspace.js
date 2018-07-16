@@ -50,6 +50,7 @@ class Workspace extends Component {
       })
     }
   }
+
   // @TODO IM thinking we should use shouldupdate instead??? thoughts??
   // or takesnapshot or whatever its called
   componentWillReceiveProps(nextProps) {

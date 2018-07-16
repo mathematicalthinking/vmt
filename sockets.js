@@ -7,10 +7,11 @@ sockets.init = server => {
     io.sockets.on('connection', socket => {
       // client joins room ==> update other clients room list
       socket.on('JOIN', data => {
+        console.log('Joinin socket')
         socket.join(data.room.id, () => {
+          console.log('socket.join')
           // update current users of this room
-          console.log(data.user)
-          controllers.room.updateCurrentUsers(data.room.id, data.user.id)
+          controllers.room.addCurrentUsers(data.room.id, data.user.id)
           .then(room => console.log(room))
           .catch(err => console.log(err))
           // emit to other clients
@@ -20,6 +21,17 @@ sockets.init = server => {
       });
       // Message sent from a client to be dispatched to the other clients
       // in that room
+      socket.on('LEAVE_ROOM', data => {
+        console.log('DISCONNECTING FROM SOCKETS')
+        socket.leave(data.roomId, () => {
+          controllers.room.removeCurrentUsers(data.roomId, data.userId)
+          .then(room => {
+            console.log("room after disconnect: ",room);
+            socket.broadcast.to(data.roomId).emit('USER_LEFT', room.currentUsers);
+          })
+          .catch(err => console.log(err))
+        })
+      })
       socket.on('SEND_MESSAGE', data => new Promise(function(resolve, reject) {
         // when we fetch the message we populate the user field
         // below we are essentially de-populating it, i.e., setting user to
@@ -38,8 +50,6 @@ sockets.init = server => {
       }))
 
       socket.on('SEND_EVENT', data => new Promise((resolve, reject) => {
-        // save data to the db
-        console.log('got data on backend via socket ', data);
         controllers.event.post(data)
         // console.log(io.sockets.clients(data.roomId))
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data.event)

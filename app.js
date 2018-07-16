@@ -37,15 +37,15 @@ app.engine('handlebars', exphbs({defaultLayout: 'ggbMain'}));
 app.set('view engine', 'handlebars');
 
 //serve react files in a production enviornment
-app.use(express.static(path.join(__dirname, 'client/build')));
+// app.use(express.static(path.join(__dirname, 'client/build')));
 
 
-// app.use(express.static(path.join(__dirname, 'client/public')));
+app.use(express.static(path.join(__dirname, 'client/public')));
 
 app.get('/', (req, res) => {
   console.log(req.params.page)
-  // res.sendFile(path.join(__dirname, '/client/public/index.html'));
-  res.sendFile(path.join(__dirname, 'client/build/index.html'))
+  res.sendFile(path.join(__dirname, '/client/public/index.html'));
+  // res.sendFile(path.join(__dirname, 'client/build/index.html'))
 });
 
 // app.get('/ggb', (req, res) => {

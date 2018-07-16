@@ -16,7 +16,6 @@ module.exports = {
       .populate({path: 'chat', populate: {path: 'user'}})
       .populate({path: 'currentUsers'})
       .then(room => {
-        console.log(room)
         resolve(room)})
       .catch(err => reject(err))
     });
@@ -39,9 +38,19 @@ module.exports = {
     })
   },
 
-  updateCurrentUsers: (roomId, userId) => {
+  addCurrentUsers: (roomId, userId) => {
+    console.log('updating current users');
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentUsers: userId}}, {new: true})
+      .then(room => resolve(room))
+      .catch(err => reject(err))
+    })
+  },
+
+  removeCurrentUsers: (roomId, userId) => {
+    console.log('removing a user from room controller')
+    return new Promise ((resolve, reject) => {
+      db.Room.findByIdAndUpdate(roomId, {$pull: {currentUsers: userId}}, {new: true})
       .then(room => resolve(room))
       .catch(err => reject(err))
     })

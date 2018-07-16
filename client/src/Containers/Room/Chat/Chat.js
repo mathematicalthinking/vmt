@@ -38,12 +38,6 @@ class Chat extends Component {
         })
         // this.scrollToBottom() @TODO
       });
-      this.socket.on('NEW_USER', user => {
-        const updatedUsers = [...this.state.users, user]
-        this.setState({
-          users: updatedUsers
-        })
-      })
     }
   }
 

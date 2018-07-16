@@ -26,6 +26,7 @@ class Room extends Component {
   }
 
   componentDidMount() {
+    this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
     API.getById('room', this.props.match.params.id)
     .then(res => {
       const result = res.data.result
@@ -34,14 +35,30 @@ class Room extends Component {
         replayEventIndex: result.events.length - 1,
         loading: false,
       })
-      // should we save the room's events array in the redux store so it can be accessed
-      // by both the Workspace and the Replayer components
-      // or is it fins keeping it in the room state and passing it as props
     })
     .catch(err => {
       // Handle error
     })
 
+    // listen for users entering/leaving the room
+    this.socket.on('NEW_USER', user => {
+      console.log('new user joined room: ', user)
+      const updatedRoom = {...this.state.room}
+      const updatedUsers = {...this.state.room.currentUsers, user}
+      updatedRoom.currentUsers = updatedUsers;
+      this.setState({
+        room: updatedRoom,
+      })
+    })
+
+    this.socket.on('USER_LEFT', currentUsers => {
+      console.log("A DIFFERENT CLIENT LEFT")
+      const updatedRoom = {...this.state.room}
+      updatedRoom.currentUsers = currentUsers;
+      this.setState({
+        room: updatedRoom,
+      })
+    })
   }
 
   componentWillUnmount () {
@@ -53,16 +70,24 @@ class Room extends Component {
   toggleRoomEntry = () => {
     // if 'were already in the room --> leave'
     if (this.state.liveMode || this.state.replayMode) {
+      console.log('leaving room')
+      this.socket.emit('LEAVE_ROOM', {roomId: this.state.room._id, userId: this.props.userId})
+      console.log("socket disconnected")
+      const updatedRoom = {...this.state.room}
+      const updatedUsers = this.state.room.currentUsers.filter(user => user.id !== this.props.userId);
+      console.log(updatedUsers)
+      updatedRoom.currentUsers = updatedUsers;
       this.setState({
         liveMode: false,
         replayMode: false,
         replayEventIndex: this.state.room.events.length - 1,
+        room: updatedRoom,
       });
+
       clearInterval(this.player);
       return;
     }
     // if we're not in the room --> enter
-    this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
     this.socket.on('connect', () => {
       const data = {
         room: this.props.match.params,
@@ -73,8 +98,13 @@ class Room extends Component {
       });
       // should get the other users in the room here
     })
+    const updatedRoom = {...this.state.room}
+    const updatedUsers = [...this.state.room.currentUsers, {username: this.props.username, id: this.props.userId}]
+    console.log(updatedUsers);
+    updatedRoom.currentUsers = updatedUsers
     this.setState({
-      liveMode: true
+      liveMode: true,
+      room: updatedRoom,
     })
   }
   editRoom = () => {
@@ -132,6 +162,7 @@ class Room extends Component {
       const currentUsers = room.currentUsers.map(user => `${user.username}, `)
       // if the room object is not empty
       // prepare its stats for rendering
+
       stats =
       <ContentBox
         title='Room Stats'
