@@ -5,18 +5,23 @@ sockets.init = server => {
 
     var io = require('socket.io').listen(server);
     io.sockets.on('connection', socket => {
+      console.log('connection!')
       // client joins room ==> update other clients room list
-      socket.on('JOIN', data => {
+      socket.on('JOIN', (data, callback) => {
         console.log('Joinin socket')
-        socket.join(data.room.id, () => {
+        socket.join(data.roomId, () => {
           console.log('socket.join')
           // update current users of this room
-          controllers.room.addCurrentUsers(data.room.id, data.user.id)
-          .then(room => console.log(room))
+          controllers.room.addCurrentUsers(data.roomId, data.user._id)
+          .then(room => {
+            console.log('room.currentUsers = ', room.currentUsers)
+            // executes the callback on the clientside to confirm join
+            callback('success');
+            socket.broadcast.to(data.roomId).emit('NEW_USER', room.currentUsers)
+          })
           .catch(err => console.log(err))
           // emit to other clients
           console.log('new user joind emit other clients')
-          socket.broadcast.to(data.room.id).emit('NEW_USER', data.user.name)
         })
         // emit to the clients we've got a new user
       });

@@ -7,10 +7,11 @@ export const loginStart = () => {
   }
 }
 
-export const loginSuccess = authData => {
+export const loginSuccess = user => {
+  console.log(user)
   return {
     type: actionTypes.LOGIN_SUCCESS,
-    user: authData
+    user,
   }
 }
 
@@ -25,7 +26,7 @@ export const signUp = body => {
   return dispatch => {
     dispatch(loginStart())
     API.post('user', body)
-    .then(resp => dispatch(loginSuccess(resp)))
+    .then(resp => dispatch(loginSuccess(resp.data.result)))
     .catch(err => dispatch(loginFail(err)))
   }
 }

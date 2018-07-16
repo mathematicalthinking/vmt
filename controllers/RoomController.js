@@ -43,6 +43,7 @@ module.exports = {
     console.log('updating current users');
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentUsers: userId}}, {new: true})
+      .populate('currentUsers')
       .then(room => resolve(room))
       .catch(err => reject(err))
     })
@@ -52,6 +53,7 @@ module.exports = {
     console.log('removing a user from room controller')
     return new Promise ((resolve, reject) => {
       db.Room.findByIdAndUpdate(roomId, {$pull: {currentUsers: userId}}, {new: true})
+      .populate('currentUsers')
       .then(room => resolve(room))
       .catch(err => reject(err))
     })

@@ -27,6 +27,7 @@ class Room extends Component {
 
   componentDidMount() {
     this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
+    // Get room info from the backend
     API.getById('room', this.props.match.params.id)
     .then(res => {
       const result = res.data.result
@@ -39,13 +40,32 @@ class Room extends Component {
     .catch(err => {
       // Handle error
     })
-
-    // listen for users entering/leaving the room
-    this.socket.on('NEW_USER', user => {
-      console.log('new user joined room: ', user)
+    const data = {
+      roomId: this.props.match.params.id,
+      user: {_id: this.props.userId, username: this.props.username}
+    };
+    this.socket.on('connect', acknowledgement => {
+      console.log("connect on clientside")
+      this.socket.emit('JOIN', data, () => {
+        // i.e. pending, success, fail, via state
+        console.log('emitted join')
+        // should get the other users in the room here
       const updatedRoom = {...this.state.room}
-      const updatedUsers = {...this.state.room.currentUsers, user}
-      updatedRoom.currentUsers = updatedUsers;
+      const updatedUsers = [...this.state.room.currentUsers, {username: this.props.username, _id: this.props.userId}]
+      console.log(updatedUsers);
+      updatedRoom.currentUsers = updatedUsers
+      console.log(updatedRoom.currentUsers)
+      this.setState({
+        room: updatedRoom,
+      })
+      });
+    }   );
+
+    // setup socket listeners for users entering and leaving room
+    this.socket.on('NEW_USER', currentUsers => {
+      console.log('new user joined room: ', currentUsers)
+      const updatedRoom = {...this.state.room}
+      updatedRoom.currentUsers = currentUsers;
       this.setState({
         room: updatedRoom,
       })
@@ -61,21 +81,26 @@ class Room extends Component {
     })
   }
 
+
   componentWillUnmount () {
     // @TODO close socket connection
-    clearInterval(this.player)
+    this.socket.emit('LEAVE_ROOM', {roomId: this.state.room._id, userId: this.props.userId})
+    if (this.state.replaying) {
+      clearInterval(this.player)
+    }
   }
 
   // User clickes 'enter room'
   toggleRoomEntry = () => {
+    const data = {
+      roomId: this.props.match.params.id,
+      user: {id: this.props.userId, name: this.props.username}
+    };
     // if 'were already in the room --> leave'
     if (this.state.liveMode || this.state.replayMode) {
-      console.log('leaving room')
-      this.socket.emit('LEAVE_ROOM', {roomId: this.state.room._id, userId: this.props.userId})
-      console.log("socket disconnected")
+      this.socket.emit('LEAVE_ROOM', data)
       const updatedRoom = {...this.state.room}
       const updatedUsers = this.state.room.currentUsers.filter(user => user.id !== this.props.userId);
-      console.log(updatedUsers)
       updatedRoom.currentUsers = updatedUsers;
       this.setState({
         liveMode: false,
@@ -83,29 +108,14 @@ class Room extends Component {
         replayEventIndex: this.state.room.events.length - 1,
         room: updatedRoom,
       });
-
       clearInterval(this.player);
       return;
     }
-    // if we're not in the room --> enter
-    this.socket.on('connect', () => {
-      const data = {
-        room: this.props.match.params,
-        user: {id: this.props.userId, name: this.props.username}
-      }
-      this.socket.emit('JOIN', data, () => {
-        // i.e. pending, success, fail, via state
-      });
-      // should get the other users in the room here
-    })
-    const updatedRoom = {...this.state.room}
-    const updatedUsers = [...this.state.room.currentUsers, {username: this.props.username, id: this.props.userId}]
-    console.log(updatedUsers);
-    updatedRoom.currentUsers = updatedUsers
     this.setState({
       liveMode: true,
-      room: updatedRoom,
     })
+
+
   }
   editRoom = () => {
 

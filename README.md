@@ -30,7 +30,8 @@ you're still hovering over it
 its right at the top of the list and visible to the user
 1. Filter is broken... myRooms seems to list every room i've ever entered including
 duplicates
-
+### Replayer
+1. allow the user to click on or drag the progress bas to change the time  
 ## Bugs
 1. ~~We need to disable all buttons related replaying and interacting with the room
 until the ggbClient is loaded.~~

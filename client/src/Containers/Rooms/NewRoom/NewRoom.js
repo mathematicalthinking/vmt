@@ -49,6 +49,7 @@ class NewRoom extends Component {
     this.props.createRoom(newRoom)
     // this will be done on the backend but instead of fetching that data again
     // lets just update our redux store
+    console.log(newRoom);
     this.props.updateUserRooms(newRoom)
   }
 
