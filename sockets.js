@@ -38,7 +38,7 @@ sockets.init = server => {
           .catch(err => console.log(err))
         })
       })
-      socket.on('SEND_MESSAGE', data => new Promise(function(resolve, reject) {
+      socket.on('SEND_MESSAGE', data => {
         // when we fetch the message we populate the user field
         // below we are essentially de-populating it, i.e., setting user to
         // userId again
@@ -53,7 +53,7 @@ sockets.init = server => {
         })
         .catch(err => console.log(err))
         // broadcast new message
-      }))
+      })
 
       socket.on('SEND_EVENT', data => new Promise((resolve, reject) => {
         controllers.event.post(data)

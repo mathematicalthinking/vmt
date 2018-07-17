@@ -50,14 +50,14 @@ class Room extends Component {
         // i.e. pending, success, fail, via state
         console.log('emitted join')
         // should get the other users in the room here
-      const updatedRoom = {...this.state.room}
-      const updatedUsers = [...this.state.room.currentUsers, {username: this.props.username, _id: this.props.userId}]
-      console.log(updatedUsers);
-      updatedRoom.currentUsers = updatedUsers
-      console.log(updatedRoom.currentUsers)
-      this.setState({
-        room: updatedRoom,
-      })
+        const updatedRoom = {...this.state.room}
+        const updatedUsers = [...this.state.room.currentUsers, {username: this.props.username, _id: this.props.userId}]
+        console.log(updatedUsers);
+        updatedRoom.currentUsers = updatedUsers
+        console.log(updatedRoom.currentUsers)
+        this.setState({
+          room: updatedRoom,
+        })
       });
     }   );
 
@@ -84,6 +84,7 @@ class Room extends Component {
 
   componentWillUnmount () {
     // @TODO close socket connection
+    console.log('leaving room')
     this.socket.emit('LEAVE_ROOM', {roomId: this.state.room._id, userId: this.props.userId})
     if (this.state.replaying) {
       clearInterval(this.player)
@@ -98,6 +99,7 @@ class Room extends Component {
     };
     // if 'were already in the room --> leave'
     if (this.state.liveMode || this.state.replayMode) {
+      console.log('leavubg room')
       this.socket.emit('LEAVE_ROOM', data)
       const updatedRoom = {...this.state.room}
       const updatedUsers = this.state.room.currentUsers.filter(user => user.id !== this.props.userId);

@@ -32,6 +32,7 @@ class Chat extends Component {
     if (!this.props.replaying) {
       this.socket = this.props.socket;
       this.socket.on('RECEIVE_MESSAGE', data => {
+        console.log('receive message')
         let newMessages = [...this.state.messages, data]
         this.setState({
           messages: newMessages
