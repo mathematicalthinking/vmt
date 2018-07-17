@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import classes from './workspace.css';
 import Aux from '../../../Components/HOC/Auxil';
-import Loading from '../../../Components/UI/Loading/Loading';
 class Workspace extends Component {
   // we need to track whether or not the ggbBase64 data was updated
   // by this user or by another client. Otherwise we were getting stuck
@@ -11,7 +10,6 @@ class Workspace extends Component {
   // the event in the first place.
   state = {
     receivingData: false,
-    loading: true,
   }
 
   componentDidMount() {
@@ -30,9 +28,11 @@ class Workspace extends Component {
         if (!this.props.replaying && events.length > 0){
           console.log('setting xml')
           this.ggbApplet.setXML(events[events.length - 1].event)
-          this.setState({loading: false})
+          console.log('loiaded')
+          console.log(this.props.loaded)
+          this.props.loaded()
         }
-        else {this.setState({loading: false})}
+        else {console.log("loaded"); this.props.loaded()}
         this.initialize();
         clearInterval(timer);
       }
@@ -141,7 +141,6 @@ class Workspace extends Component {
   render() {
     return (
       <Aux>
-        <Loading show={this.state.loading} message="Loading the Geogebra workspace...this may take a moment"/>
         <div className={classes.Workspace} id='ggb-element'></div>
       </Aux>
     )

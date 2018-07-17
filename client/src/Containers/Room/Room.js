@@ -21,7 +21,8 @@ class Room extends Component {
     replayMode: false,
     replaying: false,
     replayEventIndex: 0,
-    loading: true,
+    loadingRoom: true,
+    loadingWorkspace: true,
 
   }
 
@@ -34,7 +35,7 @@ class Room extends Component {
       this.setState({
         room: result,
         replayEventIndex: result.events.length - 1,
-        loading: false,
+        loadingRoom: false,
       })
     })
     .catch(err => {
@@ -95,33 +96,33 @@ class Room extends Component {
   }
 
   // User clickes 'enter room'
-  toggleRoomEntry = () => {
-    const data = {
-      roomId: this.props.match.params.id,
-      user: {id: this.props.userId, name: this.props.username}
-    };
-    // if 'were already in the room --> leave'
-    if (this.state.liveMode || this.state.replayMode) {
-      console.log('leavubg room')
-      this.socket.emit('LEAVE_ROOM', data)
-      const updatedRoom = {...this.state.room}
-      const updatedUsers = this.state.room.currentUsers.filter(user => user.id !== this.props.userId);
-      updatedRoom.currentUsers = updatedUsers;
-      this.setState({
-        liveMode: false,
-        replayMode: false,
-        replayEventIndex: this.state.room.events.length - 1,
-        room: updatedRoom,
-      });
-      clearInterval(this.player);
-      return;
-    }
-    this.setState({
-      liveMode: true,
-    })
-
-
-  }
+  // toggleRoomEntry = () => {
+  //   const data = {
+  //     roomId: this.props.match.params.id,
+  //     user: {id: this.props.userId, name: this.props.username}
+  //   };
+  //   // if 'were already in the room --> leave'
+  //   if (this.state.liveMode || this.state.replayMode) {
+  //     console.log('leavubg room')
+  //     this.socket.emit('LEAVE_ROOM', data)
+  //     const updatedRoom = {...this.state.room}
+  //     const updatedUsers = this.state.room.currentUsers.filter(user => user.id !== this.props.userId);
+  //     updatedRoom.currentUsers = updatedUsers;
+  //     this.setState({
+  //       liveMode: false,
+  //       replayMode: false,
+  //       replayEventIndex: this.state.room.events.length - 1,
+  //       room: updatedRoom,
+  //     });
+  //     clearInterval(this.player);
+  //     return;
+  //   }
+  //   this.setState({
+  //     liveMode: true,
+  //   })
+  //
+  //
+  // }
   editRoom = () => {
 
   }
@@ -198,9 +199,17 @@ class Room extends Component {
         <div><b>Events:</b> {room.events.length} </div>
       </ContentBox>
     }
+    let showLoading = true;
+    let loadingMessage = 'Fetching room info';
+    if (!this.state.loadingRoom) {
+      loadingMessage = 'Loading geogebra workspace...this may take a moment'
+    }
+    if (!this.state.loadingWorkspace) {
+      showLoading = false;
+    }
     return(
       <Aux>
-        <Loading show={this.state.loading ? true : false } message='Fetching room info'/>
+        <Loading show={showLoading} message={loadingMessage}/>
         <div className={[classes.Container, glb.FlexCol].join(' ')}>
           <div className={classes.Controls}>
             {/* <Button click={this.toggleRoomEntry}>
@@ -224,7 +233,7 @@ class Room extends Component {
               /> : null}
           </div>
           {/* show the workspace and chat if the rooms is active, i.e. entered */}
-          {!this.state.loading ?
+          {!this.state.loadingRoom ?
             <div className={glb.FlexRow}>
               <Workspace
                 room={this.state.room}
@@ -232,6 +241,7 @@ class Room extends Component {
                 userId={this.props.userId}
                 replaying={this.state.replayMode}
                 eventIndex={this.state.replayEventIndex}
+                loaded={() => {this.setState({loadingWorkspace: false})}}
               />
               <Chat
                 roomId={this.state.room._id}
