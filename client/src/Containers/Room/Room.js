@@ -135,7 +135,11 @@ class Room extends Component {
     }
 
     this.socket.emit('JOIN', data, () => {
-      const updatedUsers = [...this.state.room.currentUsers, {username: this.props.username, _id: this.props.userId}]
+      // check for duplicated ...sometimes is a user is left in if they dont disconnect properly
+      const duplicate = this.state.room.currentUsers.find(user => user._id === this.props.userId)
+      const updatedUsers = duplicate ? [...this.state.room.currentUsers] :
+        [...this.state.room.currentUsers, {username: this.props.username, _id: this.props.userId}];
+
       this.setState(prevState => ({
         room: {
           ...prevState.room,
