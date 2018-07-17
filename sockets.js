@@ -52,11 +52,11 @@ sockets.init = server => {
         // broadcast new message
       })
 
-      socket.on('SEND_EVENT', data => new Promise((resolve, reject) => {
-        controllers.event.post(data)
+      socket.on('SEND_EVENT', data => {
+        controllers.event.post(data) // @TODO set this up as middleware
         // console.log(io.sockets.clients(data.roomId))
         return socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data.event)
-      }))
+      })
     });
 
 }

@@ -1,6 +1,8 @@
 # VMT React
 bootstrapped with https://github.com/okputadora/MERN-template.git
 
+[geogebra docs](https://wiki.geogebra.org/en/Reference:GeoGebra_Apps_API)
+
 ## Setup for local Development
 
 ## Project structure
@@ -32,6 +34,7 @@ its right at the top of the list and visible to the user
 duplicates
 ### Replayer
 1. allow the user to click on or drag the progress bas to change the time  
+
 ## Bugs
 1. ~~We need to disable all buttons related replaying and interacting with the room
 until the ggbClient is loaded.~~
@@ -46,7 +49,9 @@ see who is already in the room
 1. When we click on a room we load up the events and then we click enter room we take the
 last event and set the ggbBase64 with said event. If new events happen between time of clicking
 on room and clicking on enter room we fall out of synch, perhaps it would be best to join
-room immediately and just hide the geogebra workspace?  
+room immediately and just hide the geogebra workspace?  -- I think the best solution is to
+
+1. __VERY WEIRD AND PROBLEMATIC__ --> the geogebra addListener only fires the first time you go into room
 
 ## Ideas for further Development
 ### General/Optimization

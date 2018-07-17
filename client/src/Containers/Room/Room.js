@@ -170,9 +170,12 @@ class Room extends Component {
 
   render() {
     let stats;
-    const room = this.state.room;
-    if (Object.keys(this.state.room).length !== 0) {
-      console.log(room)
+    const room = {...this.state.room};
+    console.log(room)
+    // making sure we at least two properties in room
+    // this is because socket.io can get currentUsers before the api call
+    // gets the rest of the information.
+    if (Object.keys(this.state.room).length > 1) {
       let currentUsers;
       if (room.currentUsers.length > 0) {
         currentUsers = room.currentUsers.map(user => `${user.username}, `)

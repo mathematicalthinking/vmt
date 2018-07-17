@@ -11,7 +11,6 @@ class Workspace extends Component {
   // the event in the first place.
   state = {
     receivingData: false,
-    events: [],
     loading: true,
   }
 
@@ -25,14 +24,15 @@ class Workspace extends Component {
       this.ggbApplet = document.ggbApplet;
       if (this.ggbApplet) { // @TODO dont intialiZe if replaying
         // setup the even listeners
-        this.initialize();
         // load the most recent workspace event if we're not replaying
-        if (!this.props.replaying && this.props.room.events.length > 0){
-          this.ggbApplet.setBase64(this.props.room.events[this.props.room.events.length - 1].event, () => {
-            this.setState({loading: false})
-          })
+        let events = this.props.room.events;
+        if (!this.props.replaying && events.length > 0){
+          console.log('setting xml')
+          this.ggbApplet.setXML(events[events.length - 1].event)
+          this.setState({loading: false})
         }
         else {this.setState({loading: false})}
+        this.initialize();
         clearInterval(timer);
       }
     }, 1000)
@@ -43,10 +43,11 @@ class Workspace extends Component {
       // define the socket listeners for handling events from the backend
       this.socket.on('RECEIVE_EVENT', event => {
         console.log('receiving event')
+        /// @TODO update room object in parents state so that the events stay up to date
         this.setState({
-          receivingData: true
+          receivingData: true //@TODO consider moving this out of state as it doesn't really have anything to do with the UI
         })
-        this.ggbApplet.setBase64(event)
+        this.ggbApplet.setXML(event)
       })
     }
   }
@@ -57,64 +58,83 @@ class Workspace extends Component {
     // checking that this props and the incoming props are both replayin
     // ensures that this is not the first time we received
     if (nextProps.replaying && this.props.replaying) {
-      this.ggbApplet.setBase64(this.props.room.events[this.props.eventIndex].event)
+      this.ggbApplet.setXML(this.props.room.events[this.props.eventIndex].event)
     }
+  }
+
+  componentWillUnmount() {
+    console.log('unregistering listeners')
+    this.ggbApplet.unregisterAddListener(this.addListener);
+    this.ggbApplet.unregisterUpdateListener(this.updateListener);
+    this.ggbApplet.unregisterRemoveListener(this.removeListener);
+    // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
+    // this.ggbApplet.unregisterClearListener(this.clearListener);
   }
 
   // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
   initialize = () => {
+    console.log("INTIALIZED GGB LISTENERS")
     // console.log('initialized!')
-    const updateListener = objName => {
+    this.updateListener = objName => {
       // console.log('update listener')
     }
 
-    const addListener = objName => {
-      // console.log('add listener')
-      // console.log(this.state.receivingData)
+
+    this.undoListener = () => {
+      console.log('undolistener')
+      // console.log('undo listener')
+      // this seems to fire when an event is completed
+        // if (!this.state.receivingData) {
+        //   const newData = {}
+        //   newData.room = this.props.room._id;
+        //   newData.event = this.ggbApplet.getBase64();
+        //   newData.user = this.props.userId;
+        //   console.log('emiting event from client')
+        //   this.socket.emit('SEND_EVENT', newData, () => {
+        //     console.log('success');
+        //   })
+        // }
+        // this.setState({
+        //   receivingData: false
+        // })
+    }
+
+    this.removeListener = objName => {
+      console.log('removeListener')
+    }
+
+    this.clearListener = () =>  {
+      console.log('clearListener')
+    }
+    this.addListener = obj => {
+      console.log(this.ggbApplet.getXML(obj))
+      console.log('add listener')
+      console.log(this.state.receivingData)
       if (!this.state.receivingData) {
         const newData = {}
         newData.room = this.props.room._id;
-        newData.event = this.ggbApplet.getBase64();
+        newData.event = this.ggbApplet.getXML(obj.xml);
         newData.user = this.props.userId;
+        console.log('sending event')
         this.socket.emit('SEND_EVENT', newData, () => {
-          // console.log('emiting event from client')
-          // console.log('success');
+          console.log('emiting event from client')
+          console.log('success');
         })
       }
       this.setState({
         receivingData: false
       })
     }
-
-    const undoListener = () => {
-      // console.log('undo listener')
-      // this seems to fire when an event is completed
-        if (!this.state.receivingData) {
-          const newData = {}
-          newData.room = this.props.room._id;
-          newData.event = this.ggbApplet.getBase64();
-          newData.user = this.props.userId;
-          console.log('emiting event from client')
-          this.socket.emit('SEND_EVENT', newData, () => {
-            console.log('success');
-          })
-        }
-        this.setState({
-          receivingData: false
-        })
-    }
-
-    const removeListener = objName => {
-    }
-
-    const clearListener = () =>  {
-    }
     // attach this listeners to the ggbApplet
-    this.ggbApplet.registerUpdateListener(updateListener);
-    this.ggbApplet.registerAddListener(addListener);
-    this.ggbApplet.registerRemoveListener(removeListener);
-    this.ggbApplet.registerStoreUndoListener(undoListener);
-    this.ggbApplet.registerClearListener(clearListener);
+    console.log(this.ggbApplet.listeners.length)
+    if (this.ggbApplet.listeners.length === 0) {
+      this.ggbApplet.registerAddListener(this.addListener);
+      this.ggbApplet.registerUpdateListener(this.updateListener);
+      this.ggbApplet.registerRemoveListener(this.removeListener);
+      this.ggbApplet.registerStoreUndoListener(this.undoListener);
+      this.ggbApplet.registerClearListener(this.clearListener);
+      console.log(this.ggbApplet)
+    }
   }
 
   render() {
