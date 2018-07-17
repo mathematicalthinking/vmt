@@ -15,7 +15,9 @@ import { connect } from 'react-redux';
 import API from '../../utils/apiRequests';
 class Room extends Component {
   state = {
-    room: {},
+    room: {
+      currentUsers: [],
+    },
     liveMode: false,
     addingTab: false,
     replayMode: false,
@@ -28,6 +30,7 @@ class Room extends Component {
 
   componentDidMount() {
     this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
+    this.joinRoom();
     // Get room info from the backend
     API.getById('room', this.props.match.params.id)
     .then(res => {
@@ -41,29 +44,6 @@ class Room extends Component {
     .catch(err => {
       // Handle error
     })
-    const data = {
-      roomId: this.props.match.params.id,
-      user: {_id: this.props.userId, username: this.props.username}
-    };
-    this.socket.on('connect', acknowledgement => {
-      console.log("connect on clientside")
-      this.socket.emit('JOIN', data, () => {
-        // i.e. pending, success, fail, via state
-        console.log('emitted join')
-        // should get the other users in the room here
-        const updatedRoom = {...this.state.room}
-        let updatedUsers;
-        if (this.state.room.currentUsers) {
-          updatedUsers = [...this.state.room.currentUsers, {username: this.props.username, _id: this.props.userId}];
-        } else updatedUsers = [{username: this.props.username, _id: this.props.userId}]
-        console.log(updatedUsers);
-        updatedRoom.currentUsers = updatedUsers
-        console.log(updatedRoom.currentUsers)
-        this.setState({
-          room: updatedRoom,
-        })
-      });
-    }   );
 
     // setup socket listeners for users entering and leaving room
     this.socket.on('NEW_USER', currentUsers => {
@@ -89,40 +69,10 @@ class Room extends Component {
   componentWillUnmount () {
     // @TODO close socket connection
     console.log('leaving room')
-    this.socket.emit('LEAVE_ROOM', {roomId: this.state.room._id, userId: this.props.userId})
-    if (this.state.replaying) {
-      clearInterval(this.player)
-    }
+    this.leaveRoom()
   }
 
-  // User clickes 'enter room'
-  // toggleRoomEntry = () => {
-  //   const data = {
-  //     roomId: this.props.match.params.id,
-  //     user: {id: this.props.userId, name: this.props.username}
-  //   };
-  //   // if 'were already in the room --> leave'
-  //   if (this.state.liveMode || this.state.replayMode) {
-  //     console.log('leavubg room')
-  //     this.socket.emit('LEAVE_ROOM', data)
-  //     const updatedRoom = {...this.state.room}
-  //     const updatedUsers = this.state.room.currentUsers.filter(user => user.id !== this.props.userId);
-  //     updatedRoom.currentUsers = updatedUsers;
-  //     this.setState({
-  //       liveMode: false,
-  //       replayMode: false,
-  //       replayEventIndex: this.state.room.events.length - 1,
-  //       room: updatedRoom,
-  //     });
-  //     clearInterval(this.player);
-  //     return;
-  //   }
-  //   this.setState({
-  //     liveMode: true,
-  //   })
-  //
-  //
-  // }
+
   updateRoom = update => {
     console.log('updating room: ', update)
     const updatedRoom = {...this.state.room}
@@ -168,14 +118,48 @@ class Room extends Component {
     this.setState({replaying: true})
     this.player = setInterval(this.playEvents, 1000);
   }
-  enterReplayMode = () => {
-    //@TODO check if we're already replaying and then just return;
+
+  toggleReplayMode = () => {
+    this.state.replayMode ? this.joinRoom() : this.leaveRoom();
+
     this.setState({
       replayMode: true,
       replayEventIndex: 0,
     })
   }
 
+  joinRoom = () => {
+    const data = {
+      roomId: this.props.match.params.id,
+      user: {_id: this.props.userId, username: this.props.username}
+    }
+
+    this.socket.emit('JOIN', data, () => {
+      const updatedUsers = [...this.state.room.currentUsers, {username: this.props.username, _id: this.props.userId}]
+      this.setState(prevState => ({
+        room: {
+          ...prevState.room,
+          currentUsers: updatedUsers
+        },
+        replayMode: false,
+        replaying: false,
+      }))
+    })
+  }
+  leaveRoom = () => {
+    this.socket.emit('LEAVE_ROOM', {roomId: this.state.room._id, userId: this.props.userId})
+    // remove this client from the state of current Users
+    const updatedUsers = this.state.room.currentUsers.filter(user => user._id !== this.props.userId)
+    this.setState({
+      room: {
+        ...this.state.room,
+        currentUsers: updatedUsers,
+      }
+    })
+    if (this.state.replaying) {
+      clearInterval(this.player)
+    }
+  }
   render() {
     let stats;
     const room = {...this.state.room};
@@ -224,7 +208,9 @@ class Room extends Component {
             </Button> */}
             <Button> <Link to='rooms/logs'>View Logs</Link></Button>
             <Button click={this.editRoom}>Edit</Button>
-            <Button click={this.enterReplayMode}>Replayer</Button>
+            <Button click={this.toggleReplayMode}>
+              {this.state.replayMode ? 'Live Mode' : 'Replay Mode'}
+            </Button>
           </div>
           <div className={glb.FlexRow}>
             <div className={classes.Stats}>
