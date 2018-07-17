@@ -2,12 +2,10 @@
 // redux store?
 import React, { Component } from 'react';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
-import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 import classes from './chat.css';
 import glb from '../../../global.css';
 class Chat extends Component {
   state = {
-    users: [this.props.username],
     messages: [],
     newMessage: '',
   }
@@ -37,6 +35,7 @@ class Chat extends Component {
         this.setState({
           messages: newMessages
         })
+        this.props.updateRoom({chat: data})
         // this.scrollToBottom() @TODO
       });
     }
@@ -74,6 +73,7 @@ class Chat extends Component {
       messages: updatedMessages,
       newMessage: '',
     })
+    this.props.updateRoom({chat: newMessage})
   }
 
   render() {

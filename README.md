@@ -51,7 +51,8 @@ last event and set the ggbBase64 with said event. If new events happen between t
 on room and clicking on enter room we fall out of synch, perhaps it would be best to join
 room immediately and just hide the geogebra workspace?  -- I think the best solution is to
 
-1. __VERY WEIRD AND PROBLEMATIC__ --> the geogebra addListener only fires the first time you go into room
+1. ~~ __VERY WEIRD AND PROBLEMATIC__ --> the geogebra addListener only fires the first time you go into room~~
+1. Now __even stranger__ addListener won't fire after receiving event from another client
 
 ## Ideas for further Development
 ### General/Optimization
@@ -82,3 +83,6 @@ e.g., setAnimating, startAnimcation
     * Allow filtering across multiple fields (active rooms with people in them etc.)
     * When someone leaves a room take a snapshot as png and display images of the rooms
   in the ContentBoxes that list them
+
+### Ideas for analytics
+1. What kind of statistics can/should we generate?

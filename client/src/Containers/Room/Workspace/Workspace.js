@@ -45,6 +45,7 @@ class Workspace extends Component {
         /// @TODO update room object in parents state so that the events.length stay up to date
         // this.receivingData = true;
         this.ggbApplet.setXML(event)
+        this.props.updateRoom({events: event})
       })
     }
   }
@@ -88,7 +89,7 @@ class Workspace extends Component {
       newData.event = this.ggbApplet.getXML();
       newData.user = this.props.userId;
       console.log('newData: ', 'newData')
-      this.props.updateRoom({event: newData})
+      this.props.updateRoom({events: newData})
       this.socket.emit('SEND_EVENT', newData, () => {
         console.log('success');
       })
