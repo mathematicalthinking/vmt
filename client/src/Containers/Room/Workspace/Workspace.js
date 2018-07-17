@@ -15,6 +15,7 @@ class Workspace extends Component {
   }
 
   componentDidMount() {
+    this.receivingData = false
     // In index.html create the ggbApp and attach it to the window. We need to do this
     // in index.html so the we have access to GGBApplet constructor
     window.ggbApp.inject('ggb-element')
@@ -44,9 +45,7 @@ class Workspace extends Component {
       this.socket.on('RECEIVE_EVENT', event => {
         console.log('receiving event')
         /// @TODO update room object in parents state so that the events stay up to date
-        this.setState({
-          receivingData: true //@TODO consider moving this out of state as it doesn't really have anything to do with the UI
-        })
+        this.receivingData = true;
         this.ggbApplet.setXML(event)
       })
     }
@@ -75,8 +74,9 @@ class Workspace extends Component {
   initialize = () => {
     console.log("INTIALIZED GGB LISTENERS")
     // console.log('initialized!')
-    this.updateListener = objName => {
+    this.updateListener = obj => {
       // console.log('update listener')
+      sendEvent(obj)
     }
 
 
@@ -99,40 +99,41 @@ class Workspace extends Component {
         // })
     }
 
-    this.removeListener = objName => {
+    this.removeListener = obj => {
       console.log('removeListener')
+      sendEvent(obj)
     }
 
     this.clearListener = () =>  {
       console.log('clearListener')
     }
-    this.addListener = obj => {
-      console.log(this.ggbApplet.getXML(obj))
-      console.log('add listener')
-      console.log(this.state.receivingData)
+    this.eventListener = obj => {
+      console.log('is this being invoked')
+      console.log(this.state.receivingData);
+      console.log(obj)
       if (!this.state.receivingData) {
-        const newData = {}
-        newData.room = this.props.room._id;
-        newData.event = this.ggbApplet.getXML(obj.xml);
-        newData.user = this.props.userId;
-        console.log('sending event')
-        this.socket.emit('SEND_EVENT', newData, () => {
-          console.log('emiting event from client')
-          console.log('success');
-        })
+        sendEvent(obj)
       }
-      this.setState({
-        receivingData: false
+      this.receivingData = false;
+    }
+
+    const sendEvent = obj => {
+      const newData = {}
+      newData.room = this.props.room._id;
+      newData.event = this.ggbApplet.getXML(obj.xml);
+      newData.user = this.props.userId;
+      this.socket.emit('SEND_EVENT', newData, () => {
+        console.log('success');
       })
     }
     // attach this listeners to the ggbApplet
     console.log(this.ggbApplet.listeners.length)
     if (this.ggbApplet.listeners.length === 0) {
-      this.ggbApplet.registerAddListener(this.addListener);
-      this.ggbApplet.registerUpdateListener(this.updateListener);
+      this.ggbApplet.registerAddListener(this.eventListener);
+      this.ggbApplet.registerUpdateListener(this.eventListener);
       this.ggbApplet.registerRemoveListener(this.removeListener);
-      this.ggbApplet.registerStoreUndoListener(this.undoListener);
-      this.ggbApplet.registerClearListener(this.clearListener);
+      this.ggbApplet.registerStoreUndoListener(this.eventListener);
+      this.ggbApplet.registerClearListener(this.eventListener);
       console.log(this.ggbApplet)
     }
   }
