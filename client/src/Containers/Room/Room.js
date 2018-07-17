@@ -203,9 +203,9 @@ class Room extends Component {
         <Loading show={this.state.loading ? true : false } message='Fetching room info'/>
         <div className={[classes.Container, glb.FlexCol].join(' ')}>
           <div className={classes.Controls}>
-            <Button click={this.toggleRoomEntry}>
+            {/* <Button click={this.toggleRoomEntry}>
               {(this.state.liveMode || this.state.replayMode )? 'Leave Room' : 'Enter Room'}
-            </Button>
+            </Button> */}
             <Button> <Link to='rooms/logs'>View Logs</Link></Button>
             <Button click={this.editRoom}>Edit</Button>
             <Button click={this.enterReplayMode}>Replayer</Button>
@@ -224,7 +224,7 @@ class Room extends Component {
               /> : null}
           </div>
           {/* show the workspace and chat if the rooms is active, i.e. entered */}
-          {(this.state.liveMode || this.state.replayMode) ?
+          {!this.state.loading ?
             <div className={glb.FlexRow}>
               <Workspace
                 room={this.state.room}

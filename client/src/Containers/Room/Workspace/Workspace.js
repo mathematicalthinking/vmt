@@ -43,9 +43,8 @@ class Workspace extends Component {
       this.socket = this.props.socket;
       // define the socket listeners for handling events from the backend
       this.socket.on('RECEIVE_EVENT', event => {
-        console.log('receiving event')
-        /// @TODO update room object in parents state so that the events stay up to date
-        this.receivingData = true;
+        /// @TODO update room object in parents state so that the events.length stay up to date
+        // this.receivingData = true;
         this.ggbApplet.setXML(event)
       })
     }
@@ -111,16 +110,17 @@ class Workspace extends Component {
       console.log('is this being invoked')
       console.log(this.state.receivingData);
       console.log(obj)
-      if (!this.state.receivingData) {
+      // if (!this.state.receivingData) {
         sendEvent(obj)
-      }
-      this.receivingData = false;
+      // }
+      // this.receivingData = false;
     }
 
     const sendEvent = obj => {
+      //@TODO get information from obj.xml to save for more detailed playback
       const newData = {}
       newData.room = this.props.room._id;
-      newData.event = this.ggbApplet.getXML(obj.xml);
+      newData.event = this.ggbApplet.getXML();
       newData.user = this.props.userId;
       this.socket.emit('SEND_EVENT', newData, () => {
         console.log('success');
