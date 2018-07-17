@@ -123,8 +123,16 @@ class Room extends Component {
   //
   //
   // }
-  editRoom = () => {
-
+  updateRoom = update => {
+    console.log('updating room: ', update)
+    const updatedRoom = {...this.state.room}
+    if (update.event) {
+      const updatedEvents = [...this.state.room.events, update.event]
+      updatedRoom.events = updatedEvents;
+      this.setState({
+        room: updatedRoom
+      })
+    }
   }
 
   playEvents = () => {
@@ -242,6 +250,7 @@ class Room extends Component {
                 replaying={this.state.replayMode}
                 eventIndex={this.state.replayEventIndex}
                 loaded={() => {this.setState({loadingWorkspace: false})}}
+                updateRoom={room => this.updateRoom(room)}
               />
               <Chat
                 roomId={this.state.room._id}
@@ -250,6 +259,7 @@ class Room extends Component {
                 socket={this.socket}
                 replaying={this.state.replayMode}
                 messages={this.state.room.chat}
+                updateRoom={room => this.updateRoom(room)}
               />
             </div> : null }
         </div>

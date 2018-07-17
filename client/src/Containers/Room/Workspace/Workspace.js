@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import classes from './workspace.css';
-import Aux from '../../../Components/HOC/Auxil';
 class Workspace extends Component {
   // we need to track whether or not the ggbBase64 data was updated
   // by this user or by another client. Otherwise we were getting stuck
@@ -72,40 +71,6 @@ class Workspace extends Component {
   // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
   initialize = () => {
     console.log("INTIALIZED GGB LISTENERS")
-    // console.log('initialized!')
-    this.updateListener = obj => {
-      // console.log('update listener')
-      sendEvent(obj)
-    }
-
-
-    this.undoListener = () => {
-      console.log('undolistener')
-      // console.log('undo listener')
-      // this seems to fire when an event is completed
-        // if (!this.state.receivingData) {
-        //   const newData = {}
-        //   newData.room = this.props.room._id;
-        //   newData.event = this.ggbApplet.getBase64();
-        //   newData.user = this.props.userId;
-        //   console.log('emiting event from client')
-        //   this.socket.emit('SEND_EVENT', newData, () => {
-        //     console.log('success');
-        //   })
-        // }
-        // this.setState({
-        //   receivingData: false
-        // })
-    }
-
-    this.removeListener = obj => {
-      console.log('removeListener')
-      sendEvent(obj)
-    }
-
-    this.clearListener = () =>  {
-      console.log('clearListener')
-    }
     this.eventListener = obj => {
       console.log('is this being invoked')
       console.log(this.state.receivingData);
@@ -122,6 +87,8 @@ class Workspace extends Component {
       newData.room = this.props.room._id;
       newData.event = this.ggbApplet.getXML();
       newData.user = this.props.userId;
+      console.log('newData: ', 'newData')
+      this.props.updateRoom({event: newData})
       this.socket.emit('SEND_EVENT', newData, () => {
         console.log('success');
       })
@@ -131,7 +98,7 @@ class Workspace extends Component {
     if (this.ggbApplet.listeners.length === 0) {
       this.ggbApplet.registerAddListener(this.eventListener);
       this.ggbApplet.registerUpdateListener(this.eventListener);
-      this.ggbApplet.registerRemoveListener(this.removeListener);
+      this.ggbApplet.registerRemoveListener(this.eventListener);
       this.ggbApplet.registerStoreUndoListener(this.eventListener);
       this.ggbApplet.registerClearListener(this.eventListener);
       console.log(this.ggbApplet)
@@ -140,9 +107,7 @@ class Workspace extends Component {
 
   render() {
     return (
-      <Aux>
         <div className={classes.Workspace} id='ggb-element'></div>
-      </Aux>
     )
   }
 }
