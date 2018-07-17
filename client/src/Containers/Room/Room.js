@@ -51,7 +51,10 @@ class Room extends Component {
         console.log('emitted join')
         // should get the other users in the room here
         const updatedRoom = {...this.state.room}
-        const updatedUsers = [...this.state.room.currentUsers, {username: this.props.username, _id: this.props.userId}]
+        let updatedUsers;
+        if (this.state.room.currentUsers) {
+          updatedUsers = [...this.state.room.currentUsers, {username: this.props.username, _id: this.props.userId}];
+        } else updatedUsers = [{username: this.props.username, _id: this.props.userId}]
         console.log(updatedUsers);
         updatedRoom.currentUsers = updatedUsers
         console.log(updatedRoom.currentUsers)

@@ -3,21 +3,18 @@ const controllers = require('./controllers')
 const sockets = {};
 sockets.init = server => {
 
-    var io = require('socket.io').listen(server);
+    var io = require('socket.io')(server, {wsEngine: 'ws'}); // AHHHH FUCK YOU WINDOWS
+    // without this wsEngine setting the socket events would be delayed upwards of 20 seconds
     io.sockets.on('connection', socket => {
-      console.log('connection!')
       // client joins room ==> update other clients room list
       socket.on('JOIN', (data, callback) => {
-        console.log('Joinin socket')
         socket.join(data.roomId, () => {
-          console.log('socket.join')
           // update current users of this room
           controllers.room.addCurrentUsers(data.roomId, data.user._id)
           .then(room => {
-            console.log('room.currentUsers = ', room.currentUsers)
             // executes the callback on the clientside to confirm join
-            callback('success');
-            socket.broadcast.to(data.roomId).emit('NEW_USER', room.currentUsers)
+            callback('success'); // @TODO eventually do error handling with this
+            return socket.broadcast.to(data.roomId).emit('NEW_USER', room.currentUsers)
           })
           .catch(err => console.log(err))
           // emit to other clients
@@ -33,7 +30,7 @@ sockets.init = server => {
           controllers.room.removeCurrentUsers(data.roomId, data.userId)
           .then(room => {
             console.log("room after disconnect: ",room);
-            socket.broadcast.to(data.roomId).emit('USER_LEFT', room.currentUsers);
+            return socket.broadcast.to(data.roomId).emit('USER_LEFT', room.currentUsers);
           })
           .catch(err => console.log(err))
         })
@@ -49,7 +46,7 @@ sockets.init = server => {
         .then(res => {
           // and then re-populate ==> theres probably a better way to do this
           data.user = {username, userId,}
-          socket.broadcast.to(data.room).emit('RECEIVE_MESSAGE', data);
+          return socket.broadcast.to(data.room).emit('RECEIVE_MESSAGE', data);
         })
         .catch(err => console.log(err))
         // broadcast new message
@@ -58,7 +55,7 @@ sockets.init = server => {
       socket.on('SEND_EVENT', data => new Promise((resolve, reject) => {
         controllers.event.post(data)
         // console.log(io.sockets.clients(data.roomId))
-        socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data.event)
+        return socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data.event)
       }))
     });
 
