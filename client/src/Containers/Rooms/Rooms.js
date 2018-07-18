@@ -33,7 +33,7 @@ class Rooms extends Component {
     let roomElems;
     if (this.props[rooms]){
       roomElems = this.props[rooms].map((room, i) => (
-        <div className={classes.ContentBox}>
+        <div className={classes.ContentBox} key={room._id}>
           <ContentBox title={
             <Link className={glb.Link} to={`/room/${room._id}`}>{room.roomName}</Link>} key={i}>
             {/* room info */}

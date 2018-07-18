@@ -85,7 +85,7 @@ class Chat extends Component {
         </div>
       ))
       // use this to scroll to the bottom
-      messages.push(<div ref={el => { this.messagesEnd = el}}></div>)
+      messages.push(<div key='end' ref={el => { this.messagesEnd = el}}></div>)
     }
 
     return (

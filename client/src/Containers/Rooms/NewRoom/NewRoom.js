@@ -2,7 +2,6 @@
 
 import React, { Component } from 'react';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
-import NewTab from './NewTab/NewTab';
 import Button from '../../../Components/UI/Button/Button';
 import classes from './newRoom.css';
 

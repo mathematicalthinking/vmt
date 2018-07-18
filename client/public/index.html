@@ -64,10 +64,9 @@
     };
     var ggbApplet;
     var ggbApp = new GGBApplet(parameters, true);
-    console.log("document object: ", document.ggbApplet)
     window.addEventListener("load", function() {
       this.ggb = ggbApp;
-      console.log('save inject function to window: ', this)
+      console.log('ggbApplete added')
     });
   </script>
 </html>
