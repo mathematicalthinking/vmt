@@ -28,13 +28,13 @@ const reducer = (state = initialState, action) => {
         loggedIn: true,
         loggingIn: false,
         username: action.user.username,
-        myRooms: action.user.rooms,
+        myRooms: action.user.rooms.reverse(),
         userId: action.user._id
       }
     case actionTypes.UPDATE_USER_ROOMS:
       return {
         ...state,
-        myRooms: [...state.myRooms, action.newRoom]
+        myRooms: [action.newRoom, ...state.myRooms]
       }
     default:
       return state

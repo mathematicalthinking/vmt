@@ -28,10 +28,11 @@ Its confusing when you click de-select but then nothing appears to happen becaus
 you're still hovering over it
 1. Transitions not working on dropdown (not a huge deal right now)
 ### Rooms
-1. have the rooms order from newest to oldest, so when a new room is created
-its right at the top of the list and visible to the user
-1. Filter is broken... myRooms seems to list every room i've ever entered including
-duplicates
+1. ~~have the rooms order from newest to oldest, so when a new room is created
+its right at the top of the list and visible to the user~~
+    * this doesn't work for myRooms 
+1. ~~Filter is broken... myRooms seems to list every room i've ever entered including
+duplicates~~
 ### Replayer
 1. allow the user to click on or drag the progress bas to change the time  
 

@@ -2,15 +2,15 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const User = require('./User')
 const Room = new mongoose.Schema({
-  roomName: {type: String},
+  roomName: {type: String, required: true},
   description: {type: String},
   creator: {type: ObjectId, ref: 'User'},
   tabListKey: [{type: ObjectId, ref: 'Tab'}],
   events: [{type: ObjectId, ref: 'Event'}],
   chat: [{type: ObjectId, ref: 'Message'}],
   currentUsers: [{type: ObjectId, ref: 'User'}],
-  timestamp: {type: Date, default: Date.now()}
-});
+},
+{timestamps: true});
 
 Room.pre('save', function (next) {
   console.log(this.isNew)
