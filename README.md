@@ -4,9 +4,38 @@ bootstrapped with https://github.com/okputadora/MERN-template.git
 [geogebra docs](https://wiki.geogebra.org/en/Reference:GeoGebra_Apps_API)
 
 ## Setup for local Development
+This project runs on two ports. The front-end react app runs on PORT 3000 and
+the back-end node app runs on PORT 3001. Requests from the front-end are proxied
+to the backend. [create-react-app](https://github.com/facebookincubator/create-react-app) makes this painless with a simple addition to the package.json in the client directory.
+`"proxy": "http://localhost:3001",`
+
+Becuase the project is essentially split in two, we need to run npm install
+in both the root directory (to install the server dependencies) and in the client
+directory (to install the react dependencies). Similarly, when booting up the project we need to run nodemon in the root and npm start in client.   
+1. `$ git clone https://github.com/okputadora/mern-vmt`
+1. `$ npm install`
+1. `$ nodemon`
+1. open a new console tab
+1. `$ cd client && npm install`
+1. `$ npm start`
+1. At this point create-react-app will open a browser window for you and refresh it
+every time a change is made.
+
+## Deployment
+This should be changed eventually, but it works for now.
+```
+$ git checkout heroku
+$ git merge master
+$ cd client && npm run build
+$ cd ..
+$ git add .
+$ git commit -m 'built'
+$ git push -f heroku HEAD:master
+```
 
 ## Project structure
-
+This project was bootstrapped with [this template](https://github.com/okputadora/MERN-template.git)
+refer to its README for information regarding the directory structure.
 
 ## TODO
 ### General
@@ -30,7 +59,7 @@ you're still hovering over it
 ### Rooms
 1. ~~have the rooms order from newest to oldest, so when a new room is created
 its right at the top of the list and visible to the user~~
-    * this doesn't work for myRooms 
+    * this doesn't work for myRooms
 1. ~~Filter is broken... myRooms seems to list every room i've ever entered including
 duplicates~~
 ### Replayer
