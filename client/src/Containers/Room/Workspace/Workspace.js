@@ -6,7 +6,8 @@ class Workspace extends Component {
   // in an infinite loop because ggbApplet.setBase64 would be triggered
   // by socket.on('RECEIVE_EVENT') which then triggers undoListener which in
   // turn emits an event which will be received by the client who initiated
-  // the event in the first place.
+  // the event in the first place. --- actually it seems like with the new
+  // method of setXML this infinite loop is avoided and then we can get rid of state 
   state = {
     receivingData: false,
   }
@@ -43,10 +44,7 @@ class Workspace extends Component {
         // this.receivingData = true;
         this.ggbApplet.setXML(event)
         this.props.updateRoom({events: event})
-        console.log("Listeners: ", this.ggbApplet.listeners)
-        console.log(this.ggbApplet)
         this.ggbApplet.registerAddListener(this.eventListener)
-        console.log("Listeners: ", this.ggbApplet.listeners)
       })
     }
   }
@@ -65,11 +63,13 @@ class Workspace extends Component {
       this.ggbApplet.setXML(events[events.length - 1].event)
       return true;
     }
+    if (!nextProps.room.events !== this.props.room.events) {
+      return true;
+    }
     else return false;
   }
 
   componentWillUnmount() {
-    console.log('unregistering listeners')
     this.ggbApplet.unregisterAddListener(this.eventListener);
     this.ggbApplet.unregisterUpdateListener(this.eventListener);
     this.ggbApplet.unregisterRemoveListener(this.eventListener);
@@ -79,11 +79,7 @@ class Workspace extends Component {
 
   // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
   initialize = () => {
-    console.log("INTIALIZED GGB LISTENERS")
     this.eventListener = obj => {
-      console.log('is this being invoked')
-      console.log(this.state.receivingData);
-      console.log(obj)
       // if (!this.state.receivingData) {
         sendEvent(obj)
       // }
@@ -108,7 +104,6 @@ class Workspace extends Component {
       this.ggbApplet.registerRemoveListener(this.eventListener);
       this.ggbApplet.registerStoreUndoListener(this.eventListener);
       this.ggbApplet.registerClearListener(this.eventListener);
-      console.log(this.ggbApplet)
     }
   }
 

@@ -15,7 +15,6 @@ class Rooms extends Component {
     allRooms: true,
   }
   componentDidMount() {
-    console.log('rerender of rooms triggered')
     // only dispatch action if we need to
     if (!this.props.rooms.length) {
       this.props.getRooms();

@@ -65,13 +65,11 @@ class Room extends Component {
     })
   }
 
-
   componentWillUnmount () {
     // @TODO close socket connection
     console.log('leaving room')
     this.leaveRoom()
   }
-
 
   updateRoom = update => {
     console.log('updating room: ', update)
@@ -156,6 +154,7 @@ class Room extends Component {
       }))
     })
   }
+
   leaveRoom = () => {
     this.socket.emit('LEAVE_ROOM', {roomId: this.state.room._id, userId: this.props.userId})
     // remove this client from the state of current Users
@@ -170,6 +169,7 @@ class Room extends Component {
       clearInterval(this.player)
     }
   }
+
   render() {
     let stats;
     const room = {...this.state.room};

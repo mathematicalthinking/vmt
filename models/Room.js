@@ -8,18 +8,26 @@ const Room = new mongoose.Schema({
   tabListKey: [{type: ObjectId, ref: 'Tab'}],
   events: [{type: ObjectId, ref: 'Event'}],
   chat: [{type: ObjectId, ref: 'Message'}],
-  currentUsers: [{type: ObjectId, ref: 'User'}]
+  currentUsers: [{type: ObjectId, ref: 'User'}],
+});
+
+Room.pre('save', function (next) {
+  console.log(this.isNew)
+    this.wasNew = this.isNew;
+    next();
 });
 
 // Method for adding Room the creators list of rooms
 // @TODO for some reason I can't get $push to work
-Room.post('save', doc => {
+Room.post('save', function(doc) {
   User.findById(doc.creator, (err, res) => {
     if (err) {
       return console.log(err)
     }
-    res.rooms.push(doc._id)
-    res.save()
+    if (this.wasNew) {
+      res.rooms.push(doc._id)
+      res.save()
+    }
   })
 })
 

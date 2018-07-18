@@ -28,12 +28,9 @@ export const getCourses = () => {
 }
 
 export const createCourse = body => {
-  console.log("body in course ",body)
   return dispatch => {
     API.post('course', body)
     .then(resp =>{
-
-      console.log(resp)
       return dispatch(createdCourse(resp))
     })
     .catch(err => console.log(err))

@@ -10,9 +10,7 @@ export const gotRooms = resp => {
 }
 
 export const createdRoom = resp => {
-  console.log(resp)
-  const newRoom = resp.data.result
-  console.log(newRoom)
+  const newRoom = resp.data.result;
   return {
     type: actionTypes.CREATED_ROOM,
     newRoom,
