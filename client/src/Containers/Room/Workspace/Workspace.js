@@ -7,7 +7,7 @@ class Workspace extends Component {
   // by socket.on('RECEIVE_EVENT') which then triggers undoListener which in
   // turn emits an event which will be received by the client who initiated
   // the event in the first place. --- actually it seems like with the new
-  // method of setXML this infinite loop is avoided and then we can get rid of state 
+  // method of setXML this infinite loop is avoided and then we can get rid of state
   state = {
     receivingData: false,
   }
@@ -43,7 +43,11 @@ class Workspace extends Component {
         /// @TODO update room object in parents state so that the events.length stay up to date
         // this.receivingData = true;
         this.ggbApplet.setXML(event)
-        this.props.updateRoom({events: event})
+        this.props.updateRoom({events: {event,}})
+        // @TODO ^^^^^ this seems strange events: {event,} but we need
+        // this to match the structure of the database so when we replay these received 
+        // events or events from the db they have the same structure...what we probably
+        // want to do actually is rename the event property of event to xml or something
         this.ggbApplet.registerAddListener(this.eventListener)
       })
     }
