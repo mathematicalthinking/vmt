@@ -19,7 +19,7 @@ class Workspace extends Component {
     // ggbApp will attach the ggbApplet to the document object; poll the document
     // until that has happened
     const timer = setInterval(() => {
-      this.ggbApplet = document.ggbApplet;
+      this.ggbApplet = window.ggbApplet;
       if (this.ggbApplet) { // @TODO dont intialiZe if replaying
         // setup the even listeners
         // load the most recent workspace event if we're not replaying
@@ -46,6 +46,10 @@ class Workspace extends Component {
         // this.receivingData = true;
         this.ggbApplet.setXML(event)
         this.props.updateRoom({events: event})
+        console.log("Listeners: ", this.ggbApplet.listeners)
+        console.log(this.ggbApplet)
+        this.ggbApplet.registerAddListener(this.eventListener)
+        console.log("Listeners: ", this.ggbApplet.listeners)
       })
     }
   }
