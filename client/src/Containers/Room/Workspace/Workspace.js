@@ -25,13 +25,10 @@ class Workspace extends Component {
         // load the most recent workspace event if we're not replaying
         let events = this.props.room.events;
         if (!this.props.replaying && events.length > 0){
-          console.log('setting xml')
           this.ggbApplet.setXML(events[events.length - 1].event)
-          console.log('loiaded')
-          console.log(this.props.loaded)
           this.props.loaded()
         }
-        else {console.log("loaded"); this.props.loaded()}
+        else {this.props.loaded()}
         this.initialize();
         clearInterval(timer);
       }
@@ -55,20 +52,27 @@ class Workspace extends Component {
   }
 
   // @TODO IM thinking we should use shouldupdate instead??? thoughts??
-  // or takesnapshot or whatever its called
-  componentWillReceiveProps(nextProps) {
+  // or takesnapshot or whatever its called -- this seems BAD
+  shouldComponentUpdate(nextProps, nextState) {
     // checking that this props and the incoming props are both replayin
     // ensures that this is not the first time we received
     if (nextProps.replaying && this.props.replaying) {
       this.ggbApplet.setXML(this.props.room.events[this.props.eventIndex].event)
+      return true;
     }
+    if (!nextProps.replaying && this.props.replaying) {
+      const events = nextProps.room.events;
+      this.ggbApplet.setXML(events[events.length - 1].event)
+      return true;
+    }
+    else return false;
   }
 
   componentWillUnmount() {
     console.log('unregistering listeners')
-    this.ggbApplet.unregisterAddListener(this.addListener);
-    this.ggbApplet.unregisterUpdateListener(this.updateListener);
-    this.ggbApplet.unregisterRemoveListener(this.removeListener);
+    this.ggbApplet.unregisterAddListener(this.eventListener);
+    this.ggbApplet.unregisterUpdateListener(this.eventListener);
+    this.ggbApplet.unregisterRemoveListener(this.eventListener);
     // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
     // this.ggbApplet.unregisterClearListener(this.clearListener);
   }
@@ -92,14 +96,12 @@ class Workspace extends Component {
       newData.room = this.props.room._id;
       newData.event = this.ggbApplet.getXML();
       newData.user = this.props.userId;
-      console.log('newData: ', 'newData')
       this.props.updateRoom({events: newData})
       this.socket.emit('SEND_EVENT', newData, () => {
         console.log('success');
       })
     }
     // attach this listeners to the ggbApplet
-    console.log(this.ggbApplet.listeners.length)
     if (this.ggbApplet.listeners.length === 0) {
       this.ggbApplet.registerAddListener(this.eventListener);
       this.ggbApplet.registerUpdateListener(this.eventListener);

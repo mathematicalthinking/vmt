@@ -85,6 +85,7 @@ class Room extends Component {
   }
 
   playEvents = () => {
+    console.log("replaying")
     let index = this.state.replayEventIndex;
     if (index === this.state.room.events.length - 1) {
       this.setState({replaying: false, replayEventIndex: 0})
@@ -120,12 +121,17 @@ class Room extends Component {
   }
 
   toggleReplayMode = () => {
-    this.state.replayMode ? this.joinRoom() : this.leaveRoom();
-
-    this.setState({
-      replayMode: true,
-      replayEventIndex: 0,
-    })
+    if (this.state.replayMode) {
+      this.joinRoom();
+      clearTimeout(this.player)
+    }
+    else{
+      this.setState({
+        replayMode: true,
+        replayEventIndex: 0,
+      })
+      this.leaveRoom();
+    }
   }
 
   joinRoom = () => {
@@ -139,7 +145,7 @@ class Room extends Component {
       const duplicate = this.state.room.currentUsers.find(user => user._id === this.props.userId)
       const updatedUsers = duplicate ? [...this.state.room.currentUsers] :
         [...this.state.room.currentUsers, {username: this.props.username, _id: this.props.userId}];
-
+        console.log('setting replaying to false')
       this.setState(prevState => ({
         room: {
           ...prevState.room,

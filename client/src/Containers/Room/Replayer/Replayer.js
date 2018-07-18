@@ -8,9 +8,7 @@ const replayer = props => {
   const progress = (props.index / (props.duration - 1)) * 100
   const disableBack = (props.index === 0) ? true : false;
   const disableForward = (props.index >=  props.duration - 1);
-  console.log(props.index)
-  console.log(props.duration)
-  console.log(progress)
+
   return (
     <div className={classes.Container}>
       <ContentBox title="Replayer">
