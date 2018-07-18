@@ -38,7 +38,6 @@ class NewRoom extends Component {
   }
 
   submitForm = event => {
-    console.log("are we in here")
     event.preventDefault();
     const newRoom = {
       roomName: this.state.roomName,
@@ -48,7 +47,6 @@ class NewRoom extends Component {
     this.props.createRoom(newRoom)
     // this will be done on the backend but instead of fetching that data again
     // lets just update our redux store
-    console.log(newRoom);
     this.props.updateUserRooms(newRoom)
   }
 

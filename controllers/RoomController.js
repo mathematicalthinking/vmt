@@ -3,7 +3,7 @@ const db = require('../models')
 module.exports = {
   get: params => {
     return new Promise((resolve, reject) => {
-      db.Room.find(params)
+      db.Room.find(params).sort('-timestamp')
       .then(rooms => resolve(rooms))
       .catch(err => reject(err));
     });

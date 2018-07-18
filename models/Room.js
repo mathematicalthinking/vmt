@@ -9,6 +9,7 @@ const Room = new mongoose.Schema({
   events: [{type: ObjectId, ref: 'Event'}],
   chat: [{type: ObjectId, ref: 'Message'}],
   currentUsers: [{type: ObjectId, ref: 'User'}],
+  timestamp: {type: Date, default: Date.now()}
 });
 
 Room.pre('save', function (next) {
