@@ -75,9 +75,9 @@ class Login extends Component {
         <ContentBox title='Login'>
           <form onSubmit={this.loginHandler} className={glb.FlexCol}>
             {form}
+            {this.props.errorMessage}
             <Button>Login</Button>
           </form>
-          {this.props.errorMessage}
           <div>or</div>
           <GoogleSignIn click={this.googleLogin} />
         </ContentBox>

@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import TextInput from '../../Components/Form/TextInput/TextInput';
+import ContentBox from '../../Components/UI/ContentBox/ContentBox';
 import glb from '../../global.css';
 import * as actions from '../../store/actions/';
 import { connect } from 'react-redux';
 class NewUser extends Component {
   // @TODO Redo Login containers state to match this. cleaner
+  // @TODO dispatch an action to clear error message when user starts typing again
   state = {
     firstName: {type: 'text', label: 'First Name', value:''},
     lastName: {type: 'text', label: 'Last Name', value:''},
@@ -18,7 +20,6 @@ class NewUser extends Component {
     let updatedState = {...this.state};
     updatedState[event.target.name].value = event.target.value;
     this.setState(updatedState);
-    console.log(this.state)
   }
 
   signUp = () => {
@@ -29,10 +30,7 @@ class NewUser extends Component {
       email: this.state.email.value,
       password: this.state.password.value,
     }
-    // dispatch redux action so we can update global state that this new user
-    // is now signed in
     this.props.signup(newUser);
-
   }
 
   render() {
@@ -48,14 +46,13 @@ class NewUser extends Component {
       // after creating a user redirect to login @TODO figure out if this is for creating students or for signing up on your own
       // the answer will determine where/if we redirect to
       this.props.loggedIn ? <Redirect to='/'/> :
-      <div className='col-md-4'>
-        <h2>Create A New User</h2>
+      <ContentBox title='Create a New User'>
         <div className={glb.FlexCol}>
           {formElements}
         </div>
         <div>{this.props.errorMessage}</div>
         <button onClick={this.signUp} classNamee='btn btn-default'>Create</button>
-      </div>
+      </ContentBox>
     )
   }
 }

@@ -18,7 +18,7 @@ const User = models.User;
 // passport needs ability to serialize and unserialize users out of session
 
 // used to serialize the user for the session
-module.exports = (passport) => {
+module.exports = passport => {
   passport.serializeUser((user, next) => {
     next(null, user.id);
   });
@@ -61,8 +61,9 @@ module.exports = (passport) => {
   passport.use('local-login', new LocalStrategy((username, password, next) => {
     User.findOne({ 'username':  username }, (err, user) => {
       if (err) return next(err);
-      if (!user) return next(null, false, {message: 'No user found.'});
-      if (!bcrypt.compareSync(password, user.password)) return next(null, false, {message: 'Oops! Wrong password.'});
+      // @TODO we actually want to just provide a link here instead of telling htem where to go
+      if (!user) return next(null, false, {errorMessage: 'That username does not exist. If you want to create an account go to Register'});
+      if (!bcrypt.compareSync(password, user.password)) return next(null, false, {errorMessage: 'The password you entered is incorrect'});
       return next(null, user);
     }).populate('rooms').populate('courses').lean();
   }));
@@ -75,8 +76,6 @@ module.exports = (passport) => {
     clientSecret: process.env.CLIENT_SECRET,
     callbackURL: "http://localhost:3000/auth/google/callback"
   }, (accessToken, refreshToken, profile, done) => {
-    console.log("ANything here?")
-    console.log('profileid', profile.id);
     User.findOne({
       googleId: profile.id
     }, (err, user) => {

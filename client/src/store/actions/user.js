@@ -1,6 +1,13 @@
 import * as actionTypes from './actionTypes';
 import auth from '../../utils/auth';
-import API from '../../utils/apiRequests';
+
+export const updateUserRooms = newRoom => {
+  return {
+    type: actionTypes.UPDATE_USER_ROOMS,
+    newRoom,
+  }
+}
+
 export const loginStart = () => {
   return {
     type: actionTypes.LOGIN_START
@@ -30,17 +37,28 @@ export const signup = body => {
       if (res.data.errorMessage) {
         return dispatch(loginFail(res.data.errorMessage))
       }
-      dispatch(loginSuccess(res.data.result))
+      dispatch(loginSuccess(res.data))
     })
     .catch(err => {
-      console.log(err)
       dispatch(loginFail('something went wrong'))})
   }
 }
-export const updateUserRooms = newRoom => {
-  return {
-    type: actionTypes.UPDATE_USER_ROOMS,
-    newRoom,
+
+export const login = (username, password) => {
+  return dispatch => {
+    dispatch(loginStart());
+    auth.login(username, password)
+    .then(res => {
+      console.log(res)
+      if (res.data.errorMessage) {
+        return dispatch(loginFail(res.data.errorMessage))
+      }
+      dispatch(loginSuccess(res.data))
+    })
+    .catch(err => {
+      console.log(err)
+      dispatch(loginFail(err))
+    })
   }
 }
 
@@ -53,21 +71,6 @@ export const googleLogin = (username, password) => {
     })
     .catch(err => {
       dispatch(loginFail(err));
-    })
-  }
-}
-
-export const login = (username, password) => {
-  return dispatch => {
-    dispatch(loginStart());
-    auth.login(username, password)
-    .then(result => {;
-      dispatch(loginSuccess(result))
-    })
-    .catch(err => {
-      console.log(err);
-
-      dispatch(loginFail(err))
     })
   }
 }

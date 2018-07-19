@@ -14,10 +14,14 @@ const controllers = require('../controllers')
 
 router.post('/login', (req, res, next) => {
   passport.authenticate('local-login', (err, user, info) => {
+    console.log(user)
     if (user) {
       return res.json(user)
     }
-    else {return res.status(401).json({message: info})}
+    if (info) {
+      return res.json(info)
+    }
+    res.status(401).send({message: info})
     // res.json({message: 'success'})
   })(req, res, next);
 });
@@ -27,8 +31,7 @@ router.post('/signup', (req, res, next) => {
   console.log(req.body)
   passport.authenticate('local-signup', (err, user, info) => {
     if (user) {
-      console.log("USER IN ROUTE: ",user)
-      return res.status(200).json(user)
+      return res.json(user)
     }
     if (info) {
       console.log(info)
