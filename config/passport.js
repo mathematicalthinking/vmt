@@ -32,15 +32,22 @@ module.exports = (passport) => {
     });
   });
 
-  passport.use('local-signup', new LocalStrategy((username, password, next) => {
+  passport.use('local-signup', new LocalStrategy({
+    passReqToCallback: true,
+  },(req, username, password, next) => {
+    console.log(req.body)
     process.nextTick(() => {
       User.findOne({ 'username':  username }, (err, user) => {
         if (err)  return next(err);
-        if (user) {return next(null, false, {message: 'That email is already taken.'});}
+        if (user) {return next(null, false, {message: 'That username is already taken.'});}
         else {
+          console.log('did not find user')
           var newUser = new User();
-          newUserusername = username;
-          newUser.password = password;
+          newUser.username = username;
+          newUser.email = req.body.email;
+          newUser.firstName = req.body.firstName;
+          newUser.lastName = req.body.lastName;
+          newUser.password = bcrypt.hashSync(password, bcrypt.genSaltSync(12), null);
           newUser.save(function(err) {
             if (err)
               throw err;
@@ -55,7 +62,7 @@ module.exports = (passport) => {
     User.findOne({ 'username':  username }, (err, user) => {
       if (err) return next(err);
       if (!user) return next(null, false, {message: 'No user found.'});
-      // if (!user.validPassword(password)) return next(null, false, {message: 'Oops! Wrong password.'});
+      if (!bcrypt.compareSync(password, user.password)) return next(null, false, {message: 'Oops! Wrong password.'});
       return next(null, user);
     }).populate('rooms').populate('courses').lean();
   }));

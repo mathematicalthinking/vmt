@@ -2,27 +2,14 @@ import axios from 'axios';
 //@TODO get rid of these cutsome promises -- axios is already retruning a promise
 // so return axios.get.... will work fine
 export default {
+  signup: user => {
+    return axios.post('/auth/signup', user)
+  },
   login: (username, password) => {
-    return new Promise((resolve, reject) => {
-      axios.post('/auth/login', {username, password,})
-      .then(response => {
-        resolve(response.data)
-      })
-      .catch(err => {
-        reject(err)
-      })
-    })
+    return axios.post('/auth/login', {username, password,})
   },
 
   googleLogin: (username, password) => {
-    return new Promise((resolve, reject) => {
-      axios.get('/auth/googleAuth', {username, password,})
-      .then(response => {
-        resolve(response.data)
-      })
-      .catch(err => {
-        reject(err);
-      })
-    })
-  }
+    return axios.get('/auth/googleAuth', {username, password,})
+  },
 }

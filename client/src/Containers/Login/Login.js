@@ -9,6 +9,7 @@ import { Redirect } from 'react-router-dom';
 import glb from '../../global.css';
 import classes from './login.css'
 class Login extends Component {
+  // Im not really a fan of how this is setup anymore
   state = {
     controls: {
       username: {
@@ -76,6 +77,7 @@ class Login extends Component {
             {form}
             <Button>Login</Button>
           </form>
+          {this.props.errorMessage}
           <div>or</div>
           <GoogleSignIn click={this.googleLogin} />
         </ContentBox>
@@ -95,7 +97,8 @@ const mapDispatchToProps = dispatch => {
 // connect redux store to react props
 const mapStateToProps = store => {
   return {
-    loggedIn: store.userReducer.loggedIn
+    loggedIn: store.userReducer.loggedIn,
+    errorMessage: store.userReducer.loginError,
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

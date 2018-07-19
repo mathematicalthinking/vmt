@@ -18,9 +18,8 @@ Room.pre('save', function (next) {
     next();
 });
 
-// Method for adding Room the creators list of rooms
-// @TODO for some reason I can't get $push to work
-Room.post('save', function(doc) {
+Room.post('save', function(doc) { // intentionally not using arrow functions
+  // so 'this' refers to the model
   User.findById(doc.creator, (err, res) => {
     if (err) {
       return console.log(err)

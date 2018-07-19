@@ -7,6 +7,7 @@ const initialState = {
   loggingIn: false,
   myRooms: [],
   myCourses: [],
+  loginError: '',
 }
 
 const reducer = (state = initialState, action) => {
@@ -20,6 +21,7 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         loggingIn: false,
+        loginError: action.error
       };
     case actionTypes.LOGIN_SUCCESS:
       // login authentication

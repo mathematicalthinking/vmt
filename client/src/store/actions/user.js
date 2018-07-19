@@ -24,7 +24,7 @@ export const loginFail = err => {
 export const signUp = body => {
   return dispatch => {
     dispatch(loginStart())
-    API.post('user', body)
+    auth.signup(body)
     .then(resp => dispatch(loginSuccess(resp.data.result)))
     .catch(err => dispatch(loginFail(err)))
   }
@@ -58,6 +58,7 @@ export const login = (username, password) => {
     })
     .catch(err => {
       console.log(err);
+
       dispatch(loginFail(err))
     })
   }

@@ -1,7 +1,4 @@
 # VMT React
-bootstrapped with https://github.com/okputadora/MERN-template.git
-
-[geogebra docs](https://wiki.geogebra.org/en/Reference:GeoGebra_Apps_API)
 
 ## Setup for local Development
 This project runs on two ports. The front-end react app runs on PORT 3000 and
@@ -9,7 +6,7 @@ the back-end node app runs on PORT 3001. Requests from the front-end are proxied
 to the backend. [create-react-app](https://github.com/facebookincubator/create-react-app) makes this painless with a simple addition to the package.json in the client directory.
 `"proxy": "http://localhost:3001",`
 
-Becuase the project is essentially split in two, we need to run npm install
+Because the project is essentially split in two, we need to run npm install
 in both the root directory (to install the server dependencies) and in the client
 directory (to install the react dependencies). Similarly, when booting up the project we need to run nodemon in the root and npm start in client.   
 1. `$ git clone https://github.com/okputadora/mern-vmt`
@@ -36,6 +33,9 @@ $ git push -f heroku HEAD:master
 ## Project structure
 This project was bootstrapped with [this template](https://github.com/okputadora/MERN-template.git)
 refer to its README for information regarding the directory structure.
+
+## Geogebra
+This application makes use of the Geogebra software.
 
 ## TODO
 ### General
@@ -116,3 +116,7 @@ e.g., setAnimating, startAnimcation
 
 ### Ideas for analytics
 1. What kind of statistics can/should we generate?
+
+### Profile page
+## References
+1. [geogebra docs](https://wiki.geogebra.org/en/Reference:GeoGebra_Apps_API)
