@@ -14,19 +14,27 @@ export const loginSuccess = user => {
   }
 }
 
-export const loginFail = err => {
+export const loginFail = errorMessage => {
+  console.log(errorMessage);
   return {
     type: actionTypes.LOGIN_FAIL,
-    error: err
+    error: errorMessage,
   }
 }
 
-export const signUp = body => {
+export const signup = body => {
   return dispatch => {
-    dispatch(loginStart())
+    dispatch(loginStart());
     auth.signup(body)
-    .then(resp => dispatch(loginSuccess(resp.data.result)))
-    .catch(err => dispatch(loginFail(err)))
+    .then(res => {
+      if (res.data.errorMessage) {
+        return dispatch(loginFail(res.data.errorMessage))
+      }
+      dispatch(loginSuccess(res.data.result))
+    })
+    .catch(err => {
+      console.log(err)
+      dispatch(loginFail('something went wrong'))})
   }
 }
 export const updateUserRooms = newRoom => {
@@ -40,8 +48,8 @@ export const googleLogin = (username, password) => {
   return dispatch => {
     dispatch(loginStart());
     auth.googleLogin(username, password)
-    .then(result => {
-      dispatch(loginSuccess(result));
+    .then(res => {
+      dispatch(loginSuccess(res));
     })
     .catch(err => {
       dispatch(loginFail(err));

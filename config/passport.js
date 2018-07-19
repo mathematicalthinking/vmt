@@ -39,7 +39,7 @@ module.exports = (passport) => {
     process.nextTick(() => {
       User.findOne({ 'username':  username }, (err, user) => {
         if (err)  return next(err);
-        if (user) {return next(null, false, {message: 'That username is already taken.'});}
+        if (user) {return next(null, false, {errorMessage: 'That username is already taken.'});}
         else {
           console.log('did not find user')
           var newUser = new User();

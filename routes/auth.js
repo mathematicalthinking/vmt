@@ -27,13 +27,16 @@ router.post('/signup', (req, res, next) => {
   console.log(req.body)
   passport.authenticate('local-signup', (err, user, info) => {
     if (user) {
-      console.log(user)
+      console.log("USER IN ROUTE: ",user)
       return res.status(200).json(user)
     }
     if (info) {
       console.log(info)
-      return res.status(409).json(info)
+      // For some reason I couldn't my error message
+      // with a 400 status code
+      return res.json(info)
     }
+    return res.status(500).end()
   })(req, res, next);
 });
 

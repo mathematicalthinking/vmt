@@ -5,6 +5,7 @@ import glb from '../../global.css';
 import * as actions from '../../store/actions/';
 import { connect } from 'react-redux';
 class NewUser extends Component {
+  // @TODO Redo Login containers state to match this. cleaner
   state = {
     firstName: {type: 'text', label: 'First Name', value:''},
     lastName: {type: 'text', label: 'Last Name', value:''},
@@ -30,11 +31,12 @@ class NewUser extends Component {
     }
     // dispatch redux action so we can update global state that this new user
     // is now signed in
-    this.props.signUp(newUser);
+    this.props.signup(newUser);
 
   }
 
   render() {
+    console.log(this.props.errorMessage)
     if (this.props.loggedIn) {
     }
     const formList = Object.keys(this.state)
@@ -51,6 +53,7 @@ class NewUser extends Component {
         <div className={glb.FlexCol}>
           {formElements}
         </div>
+        <div>{this.props.errorMessage}</div>
         <button onClick={this.signUp} classNamee='btn btn-default'>Create</button>
       </div>
     )
@@ -60,12 +63,13 @@ class NewUser extends Component {
 const mapStateToProps = store => {
   return {
     loggedIn: store.userReducer.loggedIn,
+    errorMessage: store.userReducer.loginError,
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    signUp: body => dispatch(actions.signUp(body)),
+    signup: body => dispatch(actions.signup(body)),
   }
 }
 
