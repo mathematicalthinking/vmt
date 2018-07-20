@@ -11,7 +11,7 @@ const replayer = props => {
 
   return (
     <div className={classes.Container}>
-      <ContentBox title="Replayer">
+      <ContentBox title='Replayer' align='center'>
         <div className={classes.ProgressBar}>
           <div className={classes.Progress} style={{width: progress + '%'}}></div>
         </div>

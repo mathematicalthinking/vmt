@@ -17,6 +17,7 @@
   border-style: inset;
   border-radius: 15px;
   margin: 10px;
+  align-self: center;
 }
 
 .Progress {
