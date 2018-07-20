@@ -192,7 +192,7 @@ class Room extends Component {
         collapsible={true}
         collapsed={this.state.liveMode || this.state.replayMode}
       >
-        <div><b>Name:</b> {room.roomName}</div>
+        <div><b>Name:</b> {room.name}</div>
         <div><b>Created by:</b> {room.creator.username}</div>
         <div><b>Description:</b> {room.description}</div>
         <div><b>Users in room:</b> {currentUsers}</div>

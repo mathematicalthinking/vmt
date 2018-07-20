@@ -40,7 +40,7 @@ class NewRoom extends Component {
   submitForm = event => {
     event.preventDefault();
     const newRoom = {
-      roomName: this.state.roomName,
+      name: this.state.roomName,
       description: this.state.description,
       creator: this.props.userId
     }

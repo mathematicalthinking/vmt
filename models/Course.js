@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const User = require('./User');
 const Course = new mongoose.Schema({
-  courseName: {type: String},
+  name: {type: String},
   description: {type: String},
   creator: {type: ObjectId, ref: 'User'},
   nextRoom: {type: ObjectId, ref: 'Room'},

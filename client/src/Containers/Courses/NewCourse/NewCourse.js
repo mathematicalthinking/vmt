@@ -50,11 +50,11 @@ class NewCourse extends Component {
     let myRooms;
     if (this.props.myRooms) {
       myRooms = this.props.myRooms.map(room => ({
-        id: room._id, name: room.roomName,
+        id: room._id, name: room.name,
       }))
     }
     const publicRooms = this.props.rooms.map(room => ({
-      id: room._id, name: room.roomName
+      id: room._id, name: room.name
     }))
     return (
       <div className={classes.NewCourse}>

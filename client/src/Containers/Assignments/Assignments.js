@@ -88,7 +88,7 @@ class Assignments extends Component {
     }
     if (!this.state.assignCourses && this.props.rooms) {
       assignWhatTitle = 'Rooms'
-      assignWhatList = this.props.rooms.map(room => ({name: room.roomName, id: room._id}));
+      assignWhatList = this.props.rooms.map(room => ({name: room.name, id: room._id}));
     }
 
     // Get the lists of all individuals and team to make selections from

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import NewRoom from './NewRoom/NewRoom';
 import ContentBox from '../../Components/UI/ContentBox/ContentBox';
+import BoxList from '../../Layout/BoxList/BoxList';
 import Filter from '../../Components/UI/Button/Filter/Filter';
 import classes from './rooms.css';
 import glb from '../../global.css';
@@ -29,36 +30,26 @@ class Rooms extends Component {
 
   render() {
     const rooms = this.state.allRooms ? 'rooms' : 'myRooms';
-    let roomElems;
-    if (this.props[rooms]){
-      roomElems = this.props[rooms].map((room, i) => (
-        <div className={classes.ContentBox} key={room._id}>
-          <ContentBox title={
-            <Link className={glb.Link} to={`/room/${room._id}`}>{room.roomName}</Link>} key={i}>
-            {/* room info */}
-          </ContentBox>
-        </div>
-      ))
-    }
+    const list = this.props[rooms];
     return (
       <div>
-        {/* <div>
+        <div>
           {(this.props.match.path === '/rooms/new') ?
             <NewRoom
-          createRoom={this.props.createRoom}
-          userId={this.props.userId}
-          updateUserRooms={this.props.updateUserRooms}
-          createdNewRoom={this.props.createdNewRoom}
-          createdRoomConfirm={this.props.createdRoomConfirm}
+              createRoom={this.props.createRoom}
+              userId={this.props.userId}
+              updateUserRooms={this.props.updateUserRooms}
+              createdNewRoom={this.props.createdNewRoom}
+              createdRoomConfirm={this.props.createdRoomConfirm}
             /> : null}
-        </div> */}
+        </div>
         <div>
           <div className={classes.Filters}>
             <Filter click={this.filter} on={this.state.allRooms}>
               {this.state.allRooms ? 'Show rooms created by me' : 'Show public rooms'}
             </Filter>
           </div>
-          <div className={classes.Container}>{roomElems}</div>
+          <BoxList list={list} resource='room'/>
         </div>
       </div>
     )
