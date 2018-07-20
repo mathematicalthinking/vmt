@@ -6,14 +6,16 @@ const tabs = ['Rooms', 'Students', 'Grades', 'Insights', 'Settings'];
 class Course extends Component {
   state = {
     activeTab: 'Rooms',
-    rooms: [],
+    course: {
+      creator: '',
+    },
   }
 
   componentDidMount() {
     // populate the courses data
     console.log(this.props.match.params.id)
     API.getById('course', this.props.match.params.id)
-    .then(res => console.log(res))
+    .then(res => this.setState({course: res.data.result}))
   }
   activateTab = event => {
     this.setState({activeTab: event.target.id});
@@ -29,22 +31,26 @@ class Course extends Component {
       )
     })
     const active = this.state.activeTab;
-    let activeContent;
-
+    let content;
+    if (this.state.course.rooms && active === 'Rooms') {
+      content = <BoxList list={this.state.course.rooms} resource={'room'}/>
+    }
     return (
       <section className={classes.Container}>
         <section className={classes.SidePanel}>
           <div className={classes.CourseImage}>Image</div>
-          <div className={classes.CourseName}><b>COURSE NAME</b></div>
-          <div className={classes.Teachers}>Teacher</div>
-          <div className={classes.Description}>Description</div>
+          <div className={classes.CourseName}><b>{this.state.course.name}</b></div>
+          <div className={classes.Instructor}>
+            <b>Instructor: </b>{this.state.course.creator.username}
+          </div>
+          <div className={classes.Description}>{this.state.course.description}</div>
         </section>
         <section className={classes.Main}>
           <div className={classes.Tabs}>
             {tabElems}
           </div>
           <div className={classes.MainContent}>
-            {/* <BoxList list={} resource={}/> */}
+            {content}
           </div>
         </section>
       </section>

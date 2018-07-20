@@ -19,6 +19,10 @@
   border: 1px solid #ddd;
 }
 
+.CourseName {
+  font-size: 1.2em;
+}
+
 .Main {
   display: flex;
   flex-flow: column;
@@ -40,6 +44,10 @@
 
 .ActiveTab {
   border-bottom: 1px solid #2D91F2;
+}
+
+.MainContent {
+  padding-top: 30px;
 }
 
 body {

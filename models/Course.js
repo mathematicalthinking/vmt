@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const User = require('./User');
 const Course = new mongoose.Schema({
+  template: {type: ObjectId, ref: 'CourseTemplate'},
   name: {type: String},
   description: {type: String},
   creator: {type: ObjectId, ref: 'User'},

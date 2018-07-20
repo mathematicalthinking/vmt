@@ -1,21 +1,16 @@
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const User = require('./User')
-const Room = new mongoose.Schema({
-  template: {type: ObjectId, ref: 'RoomTemplate'},
-  name: {type: String},
+const RoomTemplate = new mongoose.Schema({
+  name: {type: String, required: true},
   description: {type: String},
   creator: {type: ObjectId, ref: 'User'},
-  events: [{type: ObjectId, ref: 'Event'}],
-  chat: [{type: ObjectId, ref: 'Message'}],
-  currentUsers: [{type: ObjectId, ref: 'User'}],
-},
-{timestamps: true});
+},{timestamps: true});
 
 Room.pre('save', function (next) {
-  console.log(this.isNew)
-    this.wasNew = this.isNew;
-    next();
+  // setting up a way for our post save method to see if this 'save' was the first
+  this.wasNew = this.isNew;
+  next();
 });
 
 Room.post('save', function(doc) { // intentionally not using arrow functions
@@ -24,11 +19,13 @@ Room.post('save', function(doc) { // intentionally not using arrow functions
     if (err) {
       return console.log(err)
     }
+    // if we're creating this Room (rather than updating)
+    // add it to the users templates
     if (this.wasNew) {
-      res.rooms.push(doc._id)
+      res.roomTemplates.push(doc._id)
       res.save()
     }
   })
 })
 
-module.exports = mongoose.model('Room', Room);
+module.exports = mongoose.model('RoomTemplate', RoomTemplate);
