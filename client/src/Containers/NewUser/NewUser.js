@@ -17,11 +17,20 @@ class NewUser extends Component {
     email: {type: 'email', label: 'Email', value:''},
     password: {type: 'password', label: 'Password', value:'', name: 'password'},
   }
+
+  componentWillUnmount() {
+    if (this.props.errorMessage) {
+      this.props.clearError();
+    }
+  }
   // pass to text inputs to update state from user input
   changeHandler = event => {
     let updatedState = {...this.state};
     updatedState[event.target.name].value = event.target.value;
     this.setState(updatedState);
+    if (this.props.errorMessage) {
+      this.props.clearError();
+    }
   }
 
   signUp = () => {
@@ -71,6 +80,7 @@ const mapStateToProps = store => {
 const mapDispatchToProps = dispatch => {
   return {
     signup: body => dispatch(actions.signup(body)),
+    clearError: () => dispatch(actions.clearError()),
   }
 }
 

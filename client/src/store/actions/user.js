@@ -74,3 +74,7 @@ export const googleLogin = (username, password) => {
     })
   }
 }
+
+export const clearError = () => {
+  return {type: actionTypes.CLEAR_ERROR}
+}

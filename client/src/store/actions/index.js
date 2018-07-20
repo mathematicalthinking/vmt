@@ -6,6 +6,7 @@ export {
   signup,
   googleLogin,
   updateUserRooms,
+  clearError,
 } from './user';
 export {
   getRooms,

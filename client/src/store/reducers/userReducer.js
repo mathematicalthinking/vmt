@@ -38,6 +38,11 @@ const reducer = (state = initialState, action) => {
         ...state,
         myRooms: [action.newRoom, ...state.myRooms]
       }
+    case actionTypes.CLEAR_ERROR:
+      return {
+        ...state,
+        loginError: '',
+      }
     default:
       return state
   }

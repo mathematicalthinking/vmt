@@ -24,6 +24,11 @@ class Login extends Component {
       }
     }
   }
+  componentWillUnmount() {
+    if (this.props.errorMessage) {
+      this.props.clearError();
+    }
+  }
   // pass to text inputs to update state from user input
   changeHandler = (event) => {
     let updatedControls =  { ...this.state.controls };
@@ -31,7 +36,11 @@ class Login extends Component {
     this.setState({
       controls: updatedControls,
     })
-
+    // if there's an error message clear it.
+    if (this.props.errorMessage) {
+      console.log('clearing')
+      this.props.clearError();
+    }
   }
 
   // submit form
@@ -90,7 +99,8 @@ class Login extends Component {
 const mapDispatchToProps = dispatch => {
   return {
     onLogin: (username, password) => dispatch(actions.login(username, password)),
-    onGoogleLogin: (username, password) => dispatch(actions.googleLogin(username, password))
+    onGoogleLogin: (username, password) => dispatch(actions.googleLogin(username, password)),
+    clearError: () => dispatch(actions.clearError()),
   }
 }
 
