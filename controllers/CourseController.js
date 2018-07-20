@@ -11,7 +11,7 @@ module.exports = {
 
   getById: (id) => {
     return new Promise((resolve, reject) => {
-      db.Course.findById(id)
+      db.Course.findById(id).populate('creator').populate('rooms')
       .then(course => resolve(course))
       .catch(err => reject(err))
     });

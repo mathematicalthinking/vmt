@@ -42,16 +42,16 @@ class Rooms extends Component {
     }
     return (
       <div>
-        <div>
+        {/* <div>
           {(this.props.match.path === '/rooms/new') ?
             <NewRoom
-              createRoom={this.props.createRoom}
-              userId={this.props.userId}
-              updateUserRooms={this.props.updateUserRooms}
-              createdNewRoom={this.props.createdNewRoom}
-              createdRoomConfirm={this.props.createdRoomConfirm}
+          createRoom={this.props.createRoom}
+          userId={this.props.userId}
+          updateUserRooms={this.props.updateUserRooms}
+          createdNewRoom={this.props.createdNewRoom}
+          createdRoomConfirm={this.props.createdRoomConfirm}
             /> : null}
-        </div>
+        </div> */}
         <div>
           <div className={classes.Filters}>
             <Filter click={this.filter} on={this.state.allRooms}>

@@ -28,14 +28,14 @@ class Layout extends Component {
           <Navbar />
           <section className={classes.Section}>
             <Switch>
-              {/* <Route exact path='/' component={Login}/> */}
+              <Route exact path='/' component={Login}/>
               <Route path='/users/new' authed={this.props.loggedIn} component={NewUser}/>
               <PrivateRoute exact path='/rooms' authed={this.props.loggedIn} component={Rooms}/>
               <PrivateRoute exact path='/rooms/new' authed={this.props.loggedIn} component={Rooms}/>
               <PrivateRoute path='/room/:id' authed={this.props.loggedIn} component={Room}/>
               <PrivateRoute exact path='/courses' authed={this.props.loggedIn} component={Courses}/>
               <PrivateRoute exact path='/courses/new' authed={this.props.loggedIn} component={Courses}/>
-              <Route exact path='/' authed={this.props.loggedIn} component={Course} />
+              <PrivateRoute exact path='/course/:id' authed={this.props.loggedIn} component={Course} />
               <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/>
               <Route exact path='/logout' component={Login}/>
               <Route path="*" render={() => {

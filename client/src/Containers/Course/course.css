@@ -16,6 +16,7 @@
   width: 250px;
   border-radius: 7px;
   background-color: #f3f3f3;
+  border: 1px solid #ddd;
 }
 
 .Main {
@@ -33,6 +34,8 @@
 .Tab {
   padding: 15px;
   margin: 8px 35px 0 0;
+  letter-spacing: .08em;
+  cursor: pointer;
 }
 
 .ActiveTab {
@@ -41,4 +44,5 @@
 
 body {
   background-image: none;
+  transition: background-image .4s;
 }
