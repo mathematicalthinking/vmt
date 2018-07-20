@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Main from '../../Layout/Main/Main';
 import classes from './course.css';
 import BoxList from '../../Layout/BoxList/BoxList';
 import API from '../../utils/apiRequests';
@@ -31,30 +32,14 @@ class Course extends Component {
       )
     })
     const active = this.state.activeTab;
-    let content;
+    let contentList;
     if (this.state.course.rooms && active === 'Rooms') {
-      content = <BoxList list={this.state.course.rooms} resource={'room'}/>
+      contentList = this.state.course.rooms
     }
+    const content = <BoxList list={contentList} resource={'room'}/>
     return (
-      <section className={classes.Container}>
-        <section className={classes.SidePanel}>
-          <div className={classes.CourseImage}>Image</div>
-          <div className={classes.CourseName}><b>{this.state.course.name}</b></div>
-          <div className={classes.Instructor}>
-            <b>Instructor: </b>{this.state.course.creator.username}
-          </div>
-          <div className={classes.Description}>{this.state.course.description}</div>
-        </section>
-        <section className={classes.Main}>
-          <div className={classes.Tabs}>
-            {tabElems}
-          </div>
-          <div className={classes.MainContent}>
-            {content}
-          </div>
-        </section>
-      </section>
-    )
+      <Main content={content} tabs={tabElems} />
+        )
   }
 }
 

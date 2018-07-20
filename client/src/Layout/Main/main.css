@@ -1,0 +1,56 @@
+.Container {
+  display: flex;
+}
+
+.SidePanel {
+  width: 300px;
+}
+
+
+.SidePanel > div {
+  margin-bottom: 7px;
+}
+
+.Image {
+  height: 250px;
+  width: 250px;
+  border-radius: 7px;
+  background-color: #f3f3f3;
+  border: 1px solid #ddd;
+}
+
+.CourseName {
+  font-size: 1.2em;
+}
+
+.Main {
+  display: flex;
+  flex-flow: column;
+  flex-grow: 2;
+}
+
+.Tabs {
+  display: flex;
+  justify-content: flex-start;
+  border-bottom: 1px solid #ddd;
+}
+
+.Tab {
+  padding: 15px;
+  margin: 8px 35px 0 0;
+  letter-spacing: .08em;
+  cursor: pointer;
+}
+
+.ActiveTab {
+  border-bottom: 1px solid #2D91F2;
+}
+
+.MainContent {
+  padding-top: 30px;
+}
+
+body {
+  background-image: none;
+  transition: background-image .4s;
+}
