@@ -1,0 +1,10 @@
+.Register {
+  width: 66%;
+  align-self: center;
+}
+
+.ErrorMsg {
+  color: red;
+  text-align: center;
+  height: 20px;
+}

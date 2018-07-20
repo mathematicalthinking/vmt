@@ -21,6 +21,7 @@
 .Content {
   display: flex;
   flex-flow: column;
+  width: 90%;
 }
 
 .Center {align-items: center;}

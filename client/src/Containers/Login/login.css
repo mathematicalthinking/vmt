@@ -1,5 +1,16 @@
 .LoginContainer {
-  width: 100%;
+  width: 66%;
   display: flex;
   justify-content: center;
+  align-self: center;
+}
+
+.ErrorMsg {
+  color: red;
+  height: 20px;
+  text-align: center;
+}
+
+.Form {
+  width: 90%;
 }

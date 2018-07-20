@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import TextInput from '../../Components/Form/TextInput/TextInput';
 import ContentBox from '../../Components/UI/ContentBox/ContentBox';
+import Button from '../../Components/UI/Button/Button';
 import glb from '../../global.css';
+import classes from './newUser.css';
 import * as actions from '../../store/actions/';
 import { connect } from 'react-redux';
 class NewUser extends Component {
@@ -46,13 +48,15 @@ class NewUser extends Component {
       // after creating a user redirect to login @TODO figure out if this is for creating students or for signing up on your own
       // the answer will determine where/if we redirect to
       this.props.loggedIn ? <Redirect to='/'/> :
-      <ContentBox title='Create a New User'>
-        <div className={glb.FlexCol}>
-          {formElements}
-        </div>
-        <div>{this.props.errorMessage}</div>
-        <button onClick={this.signUp} classNamee='btn btn-default'>Create</button>
-      </ContentBox>
+      <div className={classes.Register}>
+        <ContentBox title='Create a New User'>
+          <div className={glb.FlexCol}>
+            {formElements}
+          </div>
+          <div className={classes.ErrorMsg}>{this.props.errorMessage}</div>
+          <Button click={this.signUp}>Create</Button>
+        </ContentBox>
+      </div>
     )
   }
 }
