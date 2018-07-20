@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import NewCourse from './NewCourse/NewCourse';
-import ContentBox from '../../Components/UI/ContentBox/ContentBox';
+import BoxList from '../../Layout/BoxList/BoxList';
 import Filter from '../../Components/UI/Button/Filter/Filter';
 import classes from './courses.css';
-import glb from '../../global.css';
 import * as actions from '../../store/actions/';
 import { connect } from 'react-redux';
 
@@ -31,17 +29,7 @@ class Courses extends Component {
 
   render() {
     const courses = this.state.allCourses ? 'courses' : 'myCourses';
-    let courseElems
-    if (this.props[courses]) {
-      courseElems = this.props[courses].map((course, i) => (
-        <div className={classes.ContentBox}>
-          <ContentBox title={
-            <Link className={glb.Link} to={`/course/${course._id}`}>{course.courseName}</Link>} key={i}>
-            {/* course info */}
-          </ContentBox>
-        </div>
-      ))
-    }
+    const list = this.props[courses];
     return (
       <div>
         <div>
@@ -60,8 +48,8 @@ class Courses extends Component {
           </Filter>
         </div>
         <div>
-          <div className={classes.Container}>{courseElems}</div>
-        </div>
+          <BoxList list={list} resource='course'/>
+            </div>
       </div>
     )
   }

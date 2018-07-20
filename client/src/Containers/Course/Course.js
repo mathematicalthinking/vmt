@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import classes from './course.css';
-import Rooms from '../Rooms/Rooms';
+import BoxList from '../../Layout/BoxList/BoxList';
 import API from '../../utils/apiRequests';
 const tabs = ['Rooms', 'Students', 'Grades', 'Insights', 'Settings'];
 class Course extends Component {
   state = {
-    activeTab: 'Rooms'
+    activeTab: 'Rooms',
+    rooms: [],
   }
 
   componentDidMount() {
@@ -29,14 +30,7 @@ class Course extends Component {
     })
     const active = this.state.activeTab;
     let activeContent;
-    switch (active) {
-      case 'Rooms': activeContent = <Rooms />
-      // case 'Students': activeContent = <Student />
-      // case 'Grades': activeContent = <Settings />;
-      // case 'Insights': activeContent = <Insights />;
-      // case 'Settings': activeContent = <Settings />;
-      default : <Rooms />
-    }
+
     return (
       <section className={classes.Container}>
         <section className={classes.SidePanel}>
@@ -50,7 +44,7 @@ class Course extends Component {
             {tabElems}
           </div>
           <div className={classes.MainContent}>
-            {activeContent}
+            {/* <BoxList list={} resource={}/> */}
           </div>
         </section>
       </section>

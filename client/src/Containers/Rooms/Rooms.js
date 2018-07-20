@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import NewRoom from './NewRoom/NewRoom';
-import ContentBox from '../../Components/UI/ContentBox/ContentBox';
 import BoxList from '../../Layout/BoxList/BoxList';
 import Filter from '../../Components/UI/Button/Filter/Filter';
 import classes from './rooms.css';
-import glb from '../../global.css';
 import * as actions from '../../store/actions/';
 import { connect } from 'react-redux';
 

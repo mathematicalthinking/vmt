@@ -22,7 +22,7 @@ class NewCourse extends Component {
     event.preventDefault();
     const roomIds = this.state.rooms.map(room => room.id);
     const newCourse = {
-      courseName: this.state.courseName,
+      name: this.state.courseName,
       description: this.state.description,
       rooms: roomIds,
       creator: this.props.userId,
