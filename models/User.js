@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const User = new mongoose.Schema({
   courseTemplates: [{type: ObjectId, ref: 'CourseTemplate'}],
+  roomTemplates: [{type: ObjectId, ref: 'RoomTemplate'}],
   courses: [{type: ObjectId, ref: 'Course'}],
-  roomTemplates: [{type: ObjectId, ref: 'RoomTemplate'}]
   rooms: [{type: ObjectId, ref: 'Room'}],
   firstName: {type: String},
   lastName: {type: String},

@@ -9,6 +9,7 @@ const Room = new mongoose.Schema({
   events: [{type: ObjectId, ref: 'Event'}],
   chat: [{type: ObjectId, ref: 'Message'}],
   currentUsers: [{type: ObjectId, ref: 'User'}],
+  isPublic: {type: Boolean, default: false}
 },
 {timestamps: true});
 

@@ -5,6 +5,7 @@ const RoomTemplate = new mongoose.Schema({
   name: {type: String, required: true},
   description: {type: String},
   creator: {type: ObjectId, ref: 'User'},
+  isPublic: {type: Boolean, default: false},
 },{timestamps: true});
 
 Room.pre('save', function (next) {

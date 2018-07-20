@@ -5,7 +5,8 @@ const CourseTemplate = new mongoose.Schema({
   name: {type: String},
   description: {type: String},
   creator: {type: ObjectId, ref: 'User'},
-  roomTemplates: [{type: ObjectId, ref: 'RoomTemplate'}]
+  roomTemplates: [{type: ObjectId, ref: 'RoomTemplate'}],
+  isPublic: {type: Boolean, default: false},
 },{timestamps: true});
 
 

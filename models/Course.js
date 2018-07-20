@@ -7,7 +7,8 @@ const Course = new mongoose.Schema({
   description: {type: String},
   creator: {type: ObjectId, ref: 'User'},
   nextRoom: {type: ObjectId, ref: 'Room'},
-  rooms: [{type: ObjectId, ref: 'Room'}]
+  rooms: [{type: ObjectId, ref: 'Room'}],
+  isPublic: {type: Boolean, default: false},
 },{timestamps: true});
 
 // Add this message to the room's chat
