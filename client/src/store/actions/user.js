@@ -8,6 +8,13 @@ export const updateUserRooms = newRoom => {
   }
 }
 
+export const updateUserCourses = newCourse => {
+  return {
+    type:actionTypes.UPDATE_USER_COURSES,
+    newCourse,
+  }
+}
+
 export const loginStart = () => {
   return {
     type: actionTypes.LOGIN_START

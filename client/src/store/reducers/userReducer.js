@@ -31,12 +31,18 @@ const reducer = (state = initialState, action) => {
         loggingIn: false,
         username: action.user.username,
         myRooms: action.user.rooms.reverse(),
+        myCourses: action.user.courses.reverse(),
         userId: action.user._id
       }
     case actionTypes.UPDATE_USER_ROOMS:
       return {
         ...state,
         myRooms: [action.newRoom, ...state.myRooms]
+      }
+    case actionTypes.UPDATE_USER_COURSES:
+      return {
+        ...state,
+        myCourses: [action.newCourse, ...state.myCourses]
       }
     case actionTypes.CLEAR_ERROR:
       return {

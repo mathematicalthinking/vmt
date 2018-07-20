@@ -9,6 +9,7 @@ import * as actions from '../../store/actions/';
 import { connect } from 'react-redux';
 
 class Courses extends Component {
+  // @TODO Toggling myCourses doesn't work
   // local state describing which courses should be displayed
   // all, or just the user's
   state = {
@@ -71,7 +72,7 @@ const mapDispatchToProps = dispatch => {
   return {
     getCourses: () => dispatch(actions.getCourses()),
     createCourse: body => dispatch(actions.createCourse(body)),
-    // updateUserCourses: newCourse => dispatch(actions.updateUserCourses(newCourse)),
+    updateUserCourses: newCourse => dispatch(actions.updateUserCourses(newCourse)),
   }
 }
 

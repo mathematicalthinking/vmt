@@ -13,7 +13,7 @@ const reducer = (state = initialState, action) => {
       };
     case actionTypes.CREATED_COURSE:
       return {
-        courses: [...state.courses, action.course]
+        courses: [action.course, ...state.courses]
       }
     default:
       return state

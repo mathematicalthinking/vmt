@@ -7,7 +7,7 @@ const Course = new mongoose.Schema({
   creator: {type: ObjectId, ref: 'User'},
   nextRoom: {type: ObjectId, ref: 'Room'},
   rooms: [{type: ObjectId, ref: 'Room'}]
-});
+},{timestamps: true});
 
 // Add this message to the room's chat
 // @TODO for some reason I can't get $push to work

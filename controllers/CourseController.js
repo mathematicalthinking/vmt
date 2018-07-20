@@ -3,7 +3,7 @@ const db = require('../models')
 module.exports = {
   get: (params) => {
     return new Promise((resolve, reject) => {
-      db.Course.find(params)
+      db.Course.find(params).sort('-createdAt')
       .then(courses => resolve(courses))
       .catch(err => reject(err));
     });

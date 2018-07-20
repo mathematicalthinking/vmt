@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
 import Dropdown from '../../../Components/UI/Dropdown/Dropdown';
 import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
+import Button from '../../../Components/UI/Button/Button';
 import classes from './newCourse.css';
 import glb from '../../../global.css';
 class NewCourse extends Component {
@@ -27,7 +28,8 @@ class NewCourse extends Component {
       creator: this.props.userId,
     }
     // update backend via redux so we can add this to the global state of courses
-    this.props.createCourse(newCourse)
+    this.props.createCourse(newCourse);
+    this.props.updateUserCourses(newCourse);
   }
   // this will be passed down to the dropdown menu and when we make a selection
   // it will pass a list of selected rooms back up and then we can synch our state
@@ -58,8 +60,8 @@ class NewCourse extends Component {
       <div className={classes.NewCourse}>
         <form>
           <TextInput
-            name="courseName"
-            label="Enter Course Name"
+            name='courseName'
+            label='Enter Course Name'
             change={this.changeHandler}
           />
           <TextInput
@@ -69,16 +71,16 @@ class NewCourse extends Component {
           />
           <div className={glb.FlexRow}>
             <div className={classes.Dropdown}>
-              <Dropdown list={publicRooms} title="Select public rooms..." selectHandler={this.updateRooms}/>
-              <Dropdown list={myRooms} title="Select your rooms..." selectHandler={this.updateRooms}/>
+              <Dropdown list={publicRooms} title='Select public rooms...' selectHandler={this.updateRooms}/>
+              <Dropdown list={myRooms} title='Select your rooms...' selectHandler={this.updateRooms}/>
             </div>
             <div className={classes.Selected}>
-              <ContentBox title="Rooms added to this course" align="left">
+              <ContentBox title='Rooms added to this course' align='center'>
                 {roomsSelected}
               </ContentBox>
             </div>
           </div>
-          <button className='btn btn-default' onClick={this.submitForm}>Submit</button>
+          <Button click={this.submitForm}>Submit</Button>
         </form>
       </div>
     )

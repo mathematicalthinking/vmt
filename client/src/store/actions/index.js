@@ -6,6 +6,7 @@ export {
   signup,
   googleLogin,
   updateUserRooms,
+  updateUserCourses,
   clearError,
 } from './user';
 export {

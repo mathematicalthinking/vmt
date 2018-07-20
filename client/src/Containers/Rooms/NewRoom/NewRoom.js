@@ -56,15 +56,13 @@ class NewRoom extends Component {
         <form>
           <TextInput
             change={this.changeHandler}
-            name="roomName"
-            label="Enter Room Name"
-            class='form-control'
+            name='roomName'
+            label='Enter Room Name'
           />
           <TextInput
             change={this.changeHandler}
             name='description'
             label='Description'
-            class='form-control'
           />
         </form>
         <Button click={this.addTab}>Upload a file</Button>

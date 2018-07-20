@@ -1,5 +1,6 @@
 // USER
 export const UPDATE_USER_ROOMS = 'UPDATE_USER_ROOMS';
+export const UPDATE_USER_COURSES = 'UPDATE_USER_COURSES';
 export const CLEAR_ERROR = 'CLEAR_ERROR'
 // // LOGIN
 export const LOGIN_START = 'LOGIN_START';

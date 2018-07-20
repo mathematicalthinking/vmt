@@ -35,12 +35,12 @@ This project was bootstrapped with [this template](https://github.com/okputadora
 refer to its README for information regarding the directory structure.
 
 ## Geogebra
-This application makes use of the Geogebra software.
+This application makes use of the Geogebra software. LICENSE
 
 ## TODO
 ### General
-1. Check the redux store before requesting data and see if we already have it,
-we should only ever load rooms and courses once
+1. ~~Check the redux store before requesting data and see if we already have it,
+we should only ever load rooms and courses once~~
 1. ~~Loading screens for when the user should not be clicking around~~
 1. Make ContentBox's content collapsible (to allow more room for workspace)
 1. Make arrow for dropdown menu spin w/r/t state
@@ -56,6 +56,19 @@ or at the very least change the color for selected so it doesnt match hover.
 Its confusing when you click de-select but then nothing appears to happen because
 you're still hovering over it
 1. Transitions not working on dropdown (not a huge deal right now)
+1. Filter for myCourses not working
+
+### Course page
+1. What do we want this to look like? functionality?
+1. Current members, list of rooms, list of active rooms (I'm thinking the teacher
+would want a list of all the room they're going to assign throughout the year,
+and when they want students working in that room they can mark it as active with
+a due date or something?)
+1. NEW COURSE: dropdown menus need to synch. If we have the same room in both lists
+selecting one should highlight the other as well
+
+### Profile page
+
 ### Rooms
 1. ~~have the rooms order from newest to oldest, so when a new room is created
 its right at the top of the list and visible to the user~~
