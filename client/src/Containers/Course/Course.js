@@ -18,28 +18,27 @@ class Course extends Component {
     API.getById('course', this.props.match.params.id)
     .then(res => this.setState({course: res.data.result}))
   }
+
   activateTab = event => {
     this.setState({activeTab: event.target.id});
   }
+
   render() {
-    const tabElems = tabs.map(tab => {
-      let style = classes.Tab;
-      if (tab === this.state.activeTab) {
-        style = [classes.Tab, classes.ActiveTab].join(' ')
-      }
-      return (
-        <div key={tab} id={tab} onClick={this.activateTab} className={style}>{tab}</div>
-      )
-    })
     const active = this.state.activeTab;
-    let contentList;
+    let contentList = [];
+    let content;
     if (this.state.course.rooms && active === 'Rooms') {
       contentList = this.state.course.rooms
+      content = <BoxList list={contentList} resource={'room'}/>
     }
-    const content = <BoxList list={contentList} resource={'room'}/>
     return (
-      <Main content={content} tabs={tabElems} />
-        )
+      <Main
+        content={content}
+        tabs={tabs}
+        activeTab={this.state.activeTab}
+        activateTab={event => this.setState({activeTab: event.target.id})}
+      />
+    )
   }
 }
 

@@ -11,7 +11,7 @@ import Assignments from '../Containers/Assignments/Assignments';
 import PrivateRoute from '../Components/HOC/PrivateRoute';
 import classes from './Layout.css';
 import { connect } from 'react-redux';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
 class Layout extends Component {
 
   render() {
@@ -21,10 +21,10 @@ class Layout extends Component {
           <div className={classes.Banner}>
             <h2>Virtual Math Teams</h2>
             {this.props.loggedIn ?
-              <div className={classes.UserInfo}>
+              <div className={classes.UserInfo}><Link to='/profile'>
                 <i className={["fas fa-user", classes.Avatar].join(' ')}></i>
                 {this.props.username}
-              </div> : null}
+              </Link></div> : null}
           </div>
           <Navbar />
           <section className={classes.Section}>

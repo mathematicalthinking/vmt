@@ -1,14 +1,30 @@
 import React, { Component } from 'react';
 import Main from '../../Layout/Main/Main';
+import BoxList from '../../Layout/BoxList/BoxList'
 import { connect } from 'react-redux';
 const tabs = ['Courses', 'Rooms', 'Templates', 'Settings']
 class Profile extends Component {
   state = {
     activeTab: 'Courses',
   }
+  activateTab = event => {
+    this.setState({activeTab: event.target.id});
+  }
   render() {
+
+    let contentList = [];
+    let content;
+    if (this.state.activeTab === 'Courses') {
+      contentList = this.props.myCourses;
+      content = <BoxList list={contentList} resource={'course'} />
+    }
     return (
-      <Main />
+      <Main
+        content={content}
+        tabs={tabs}
+        activeTab={this.state.activeTab}
+        activateTab={event => this.setState({activeTab: event.target.id})}
+      />
     )
   }
 }

@@ -1,16 +1,29 @@
+// PROPS:
+  // tabs:  list of strings
+  // content: jsx
+  // activeTab: string
+//
 import React from 'react';
 import classes from './main.css';
 const main = props => {
-  let details;
+  const tabElems = props.tabs.map(tab => {
+    let style = classes.Tab;
+    if (tab === props.activeTab) {
+      style = [classes.Tab, classes.ActiveTab].join(' ')
+    }
+    return (
+      <div key={tab} id={tab} onClick={props.activateTab} className={style}>{tab}</div>
+    )
+  })
   return (
     <section className={classes.Container}>
       <section className={classes.SidePanel}>
         <div className={classes.Image}>Image</div>
-        {details}
+
       </section>
       <section className={classes.Main}>
         <div className={classes.Tabs}>
-          {props.tabs}
+          {tabElems}
         </div>
         <div className={classes.MainContent}>
           {props.content}
