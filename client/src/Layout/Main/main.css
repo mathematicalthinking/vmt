@@ -1,5 +1,13 @@
 .Container {
   display: flex;
+  background-color: #fdfdfd;
+  padding: 20px;
+  align-self: center;
+  width: 98%;
+  /* box-shadow: 11px 20px 61px 20px rgba(248,248,248,1); */
+  border: 1px solid #ddd;
+  min-height: calc(100vh - 220px);
+  margin-bottom: 50px;
 }
 
 .SidePanel {
