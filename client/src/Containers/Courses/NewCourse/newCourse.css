@@ -1,6 +1,22 @@
 .NewCourse {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
   padding-bottom: 20px;
   border-bottom: 2px solid #ddd;
+}
+
+.Title {
+  padding-bottom: 12px;
+  margin: 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.Form {
+  display: flex;
+  flex-flow: column;
+  align-items: flex-start;
+  width: 95%;
 }
 
 .Selected {

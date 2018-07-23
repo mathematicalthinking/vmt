@@ -37,6 +37,7 @@ class Course extends Component {
         tabs={tabs}
         activeTab={this.state.activeTab}
         activateTab={event => this.setState({activeTab: event.target.id})}
+        title='Course'
       />
     )
   }

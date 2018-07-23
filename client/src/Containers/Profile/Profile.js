@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Main from '../../Layout/Main/Main';
 import BoxList from '../../Layout/BoxList/BoxList';
 import NewCourse from '../Courses/NewCourse/NewCourse';
+import * as actions from '../../store/actions/';
 import { connect } from 'react-redux';
 const tabs = ['Courses', 'Rooms', 'Templates', 'Settings']
 class Profile extends Component {
@@ -15,10 +16,12 @@ class Profile extends Component {
 
     let contentList = [];
     let resource;
+    let contentCreate;
     switch (this.state.activeTab) {
       case 'Courses' :
+      resource = 'course';
         contentList = this.props.myCourses;
-        resource = 'course';
+        contentCreate = <NewCourse/>;
         break;
       case 'Rooms' :
         contentList = this.props.myRooms;
@@ -32,10 +35,11 @@ class Profile extends Component {
     return (
       <Main
         content={content}
-        contentCreate={NewCourse}
+        contentCreate={contentCreate}
         tabs={tabs}
         activeTab={this.state.activeTab}
         activateTab={event => this.setState({activeTab: event.target.id})}
+        title='Profile'
       />
     )
   }
@@ -45,6 +49,7 @@ const mapStateToProps = store => {
   const user = store.userReducer;
   return {
     myRooms: user.myRooms,
+    rooms: store.roomsReducer.rooms,
     myCourses: user.myCourses,
     myCourseTemplates: user.myCourseTemplates,
     myRoomTemplates: user.myRoomTemplates,
@@ -52,7 +57,8 @@ const mapStateToProps = store => {
   }
 }
 const mapDispatchToProps = dispatch => {
-
+  return {
+  }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Profile);

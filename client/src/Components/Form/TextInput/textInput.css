@@ -6,6 +6,10 @@
   background: white !important;
 }
 
+.Label {
+
+}
+
  /* uncomment to control autofill settings */
 /*
 .Input::placeholder {

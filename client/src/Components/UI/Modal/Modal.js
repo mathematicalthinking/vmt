@@ -1,8 +1,8 @@
 // PROPS:
   // show: Boolean
   // closeModal: function()
-  // content: jsx
-  // message: if no content display loading icon with custom message
+  // children: jsx
+  // message: String (if no children display loading icon with custom message)
 //
 
 import React from 'react';
@@ -23,14 +23,14 @@ const modal = props => (
         opacity: props.show ? '1' : '0'
       }}
     >
-      {props.content ? props.contnet :
+      {props.children ? props.children :
       <Aux>
         <div className='loader'>
           <img src={gif} alt='loading' />
         </div>
         <div className={classes.Message}>
           {props.message}
-        </div>s
+        </div>
       </Aux>
       }
     </div>

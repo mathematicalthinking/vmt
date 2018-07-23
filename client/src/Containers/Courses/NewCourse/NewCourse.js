@@ -1,15 +1,17 @@
 import React, { Component } from 'react';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
 import Dropdown from '../../../Components/UI/Dropdown/Dropdown';
-import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 import Button from '../../../Components/UI/Button/Button';
 import classes from './newCourse.css';
 import glb from '../../../global.css';
+import { connect } from 'react-redux';
+import * as actions from '../../../store/actions/';
 class NewCourse extends Component {
   state = {
     courseName: '',
     description: '',
     rooms: [],
+    creating: false,
   }
 
   changeHandler = event => {
@@ -27,6 +29,12 @@ class NewCourse extends Component {
       rooms: roomIds,
       creator: this.props.userId,
     }
+    this.setState({
+      courseName: '',
+      description: '',
+      rooms: [],
+      creating: false,
+    })
     // update backend via redux so we can add this to the global state of courses
     this.props.createCourse(newCourse);
     this.props.updateUserCourses(newCourse);
@@ -57,34 +65,44 @@ class NewCourse extends Component {
       id: room._id, name: room.name
     }))
     return (
-      <div className={classes.NewCourse}>
-        <form>
+      this.state.creating ? <div className={classes.NewCourse}>
+        <h3 className={classes.Title}>Create a New Course</h3>
+        <form className={classes.Form}>
           <TextInput
             name='courseName'
-            label='Enter Course Name'
+            label='Course Name'
             change={this.changeHandler}
+            width='40%'
           />
           <TextInput
             name='description'
             label='Description'
             change={this.changeHandler}
+            width='80%'
           />
           <div className={glb.FlexRow}>
-            <div className={classes.Dropdown}>
-              <Dropdown list={publicRooms} title='Select public rooms...' selectHandler={this.updateRooms}/>
-              <Dropdown list={myRooms} title='Select your rooms...' selectHandler={this.updateRooms}/>
-            </div>
-            <div className={classes.Selected}>
-              <ContentBox title='Rooms added to this course' align='center'>
-                {roomsSelected}
-              </ContentBox>
-            </div>
+            <Button click={this.submitForm}>Submit</Button>
+            <Button click={() => this.setState({creating: false})}>Cancel</Button>
           </div>
-          <Button click={this.submitForm}>Submit</Button>
         </form>
-      </div>
+      </div> : <Button click={() => {this.setState({creating: true})}}>Create</Button>
     )
   }
 }
 
-export default NewCourse;
+const mapStateToProps = store => {
+  return {
+    myRooms: store.userReducer.myRooms,
+    rooms: store.roomsReducer.rooms,
+    userId: store.userReducer.userId,
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    createCourse: body => dispatch(actions.createCourse(body)),
+    updateUserCourses: newCourse => dispatch(actions.updateUserCourses(newCourse)),
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(NewCourse);
