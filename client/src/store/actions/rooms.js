@@ -1,6 +1,6 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
-
+import { updateUserRooms } from './user';
 export const gotRooms = resp => {
   const rooms = resp.data.results
   return {
@@ -10,7 +10,7 @@ export const gotRooms = resp => {
 }
 
 export const createdRoom = resp => {
-  const newRoom = resp.data.result;
+  const newRoom = resp
   return {
     type: actionTypes.CREATED_ROOM,
     newRoom,
@@ -28,7 +28,11 @@ export const getRooms = () => {
 export const createRoom = body => {
   return dispatch => {
     API.post('room', body)
-    .then(resp => dispatch(createdRoom(resp)))
+    .then(resp => {
+      console.log("RESPO: ", resp)
+      dispatch(updateUserRooms(resp.data.result));
+      dispatch(createdRoom(resp.data.result))
+    })
   }
 }
 

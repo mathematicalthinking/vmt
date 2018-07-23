@@ -35,6 +35,7 @@ class Course extends Component {
         resource = 'room';
         contentCreate = <NewRoom />
         contentList = this.state.course.rooms
+      
       default : resource = null;
     }
     if (this.state.course.rooms && active === 'Rooms') {
