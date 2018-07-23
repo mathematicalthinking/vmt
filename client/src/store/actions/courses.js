@@ -1,4 +1,5 @@
 import * as actionTypes from './actionTypes';
+import { updateUserCourses } from './user';
 import API from '../../utils/apiRequests';
 
 
@@ -12,10 +13,9 @@ export const gotCourses = resp => {
 }
 
 export const createdCourse = resp => {
-  const course = resp.data.result
   return {
     type: actionTypes.CREATED_COURSE,
-    course,
+    course: resp,
   }
 }
 
@@ -31,7 +31,8 @@ export const createCourse = body => {
   return dispatch => {
     API.post('course', body)
     .then(resp =>{
-      return dispatch(createdCourse(resp))
+      dispatch(updateUserCourses(resp.data.result))
+      return dispatch(createdCourse(resp.data.result))
     })
     .catch(err => console.log(err))
   }

@@ -39,7 +39,6 @@ class NewCourse extends Component {
     })
     // update backend via redux so we can add this to the global state of courses
     this.props.createCourse(newCourse);
-    this.props.updateUserCourses(newCourse);
   }
   // this will be passed down to the dropdown menu and when we make a selection
   // it will pass a list of selected rooms back up and then we can synch our state
@@ -115,9 +114,6 @@ const mapStateToProps = store => {
 const mapDispatchToProps = dispatch => {
   return {
     createCourse: body => dispatch(actions.createCourse(body)),
-    // @TODO we should have the user courses updated automatically within redux
-    // rather than having to call two funcitons
-    updateUserCourses: newCourse => dispatch(actions.updateUserCourses(newCourse)),
   }
 }
 
