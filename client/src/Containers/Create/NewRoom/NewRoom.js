@@ -45,7 +45,8 @@ class NewRoom extends Component {
     const newRoom = {
       name: this.state.roomName,
       description: this.state.description,
-      creator: this.props.userId
+      creator: this.props.userId,
+      course: this.props.course,
     }
     this.props.createRoom(newRoom)
     this.setState({
@@ -88,6 +89,7 @@ class NewRoom extends Component {
           </div>
         </Modal>
         <Button click={() => {this.setState({creating: true})}}>Create</Button>
+        {this.props.course ? <Button>Select From Template</Button> : null}
       </Aux>
     )
   }

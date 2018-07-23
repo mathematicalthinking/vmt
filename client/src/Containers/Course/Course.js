@@ -34,8 +34,8 @@ class Course extends Component {
       case 'Rooms' :
         resource = 'room';
         contentCreate = <NewRoom course={this.state.course._id}/>
-        contentList = this.state.course.rooms
-
+        contentList = this.state.course.rooms;
+        break;
       default : resource = null;
     }
     if (this.state.course.rooms && active === 'Rooms') {

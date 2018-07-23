@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
-const User = require('./User')
+const User = require('./User');
+const Course = require('./Course');
 const Room = new mongoose.Schema({
   template: {type: ObjectId, ref: 'RoomTemplate'},
   name: {type: String},
   description: {type: String},
+  course: {type: ObjectId, ref: 'Course'},
   creator: {type: ObjectId, ref: 'User', required: true},
   events: [{type: ObjectId, ref: 'Event'}],
   chat: [{type: ObjectId, ref: 'Message'}],
@@ -36,6 +38,13 @@ Room.post('save', function(doc) { // intentionally not using arrow functions
       }
     }
   })
+  if (doc.course) {
+    Course.findByid(doc.course, (err, res) => {
+      if (err) {return console.log(err)}
+      res.course = doc._idl
+      res.save();
+    })
+  }
 })
 
 module.exports = mongoose.model('Room', Room);
