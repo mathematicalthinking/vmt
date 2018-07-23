@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import Navbar from '../Components/Navigation/Navbar';
 import Login from '../Containers/Login/Login';
-import Rooms from '../Containers/Rooms/Rooms';
 import Room from '../Containers/Room/Room';
-import Courses from '../Containers/Courses/Courses';
 import Course from '../Containers/Course/Course';
 import NewUser from '../Containers/NewUser/NewUser';
 import Profile from '../Containers/Profile/Profile';
@@ -33,11 +31,7 @@ class Layout extends Component {
               <Route exact path='/' component={Login}/>
               <Route path='/users/new' authed={this.props.loggedIn} component={NewUser}/>
               <PrivateRoute exact path='/profile' authed={this.props.loggedIn} component={Profile}/>
-              <PrivateRoute exact path='/rooms' authed={this.props.loggedIn} component={Rooms}/>
-              <PrivateRoute exact path='/rooms/new' authed={this.props.loggedIn} component={Rooms}/>
               <PrivateRoute path='/room/:id' authed={this.props.loggedIn} component={Room}/>
-              <PrivateRoute exact path='/courses' authed={this.props.loggedIn} component={Courses}/>
-              <PrivateRoute exact path='/courses/new' authed={this.props.loggedIn} component={Courses}/>
               <PrivateRoute exact path='/course/:id' authed={this.props.loggedIn} component={Course} />
               <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/>
               <Route exact path='/logout' component={Login}/>
