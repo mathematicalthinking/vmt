@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Main from '../../Layout/Main/Main';
 import classes from './course.css';
-import NewRoom from '../Rooms/NewRoom/NewRoom'
+import NewRoom from '../Create/NewRoom/NewRoom'
 import BoxList from '../../Layout/BoxList/BoxList';
 import API from '../../utils/apiRequests';
 const tabs = ['Rooms', 'Students', 'Grades', 'Insights', 'Settings'];
@@ -33,9 +33,9 @@ class Course extends Component {
     switch (this.state.activeTab) {
       case 'Rooms' :
         resource = 'room';
-        contentCreate = <NewRoom />
+        contentCreate = <NewRoom course={this.state.course._id}/>
         contentList = this.state.course.rooms
-      
+
       default : resource = null;
     }
     if (this.state.course.rooms && active === 'Rooms') {

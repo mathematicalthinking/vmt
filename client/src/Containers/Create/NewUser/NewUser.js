@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
-import TextInput from '../../Components/Form/TextInput/TextInput';
-import ContentBox from '../../Components/UI/ContentBox/ContentBox';
-import Button from '../../Components/UI/Button/Button';
-import glb from '../../global.css';
+import TextInput from '../../../Components/Form/TextInput/TextInput';
+import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
+import Button from '../../../Components/UI/Button/Button';
+import glb from '../../../global.css';
 import classes from './newUser.css';
-import * as actions from '../../store/actions/';
+import * as actions from '../../../store/actions/';
 import { connect } from 'react-redux';
 class NewUser extends Component {
   // @TODO Redo Login containers state to match this. cleaner

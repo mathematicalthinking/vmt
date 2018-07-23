@@ -3,7 +3,7 @@ import Navbar from '../Components/Navigation/Navbar';
 import Login from '../Containers/Login/Login';
 import Room from '../Containers/Room/Room';
 import Course from '../Containers/Course/Course';
-import NewUser from '../Containers/NewUser/NewUser';
+import NewUser from '../Containers/Create/NewUser/NewUser';
 import Profile from '../Containers/Profile/Profile';
 import Assignments from '../Containers/Assignments/Assignments';
 import PrivateRoute from '../Components/HOC/PrivateRoute';

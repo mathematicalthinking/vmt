@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import Main from '../../Layout/Main/Main';
 import BoxList from '../../Layout/BoxList/BoxList';
-import NewCourse from '../Courses/NewCourse/NewCourse';
-import NewRoom from '../Rooms/NewRoom/NewRoom';
+import NewCourse from '../Create/NewCourse/NewCourse';
+import NewRoom from '../Create/NewRoom/NewRoom';
 import * as actions from '../../store/actions/';
 import { connect } from 'react-redux';
 const tabs = ['Courses', 'Rooms', 'Templates', 'Settings']
