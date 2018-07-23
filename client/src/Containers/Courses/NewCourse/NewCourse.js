@@ -49,6 +49,11 @@ class NewCourse extends Component {
     })
   }
 
+  closeModal = event => {
+    event.preventDefault();
+    this.setState({creating: false})
+  }
+
   render() {
     // prepare dropdown list of rooms
     const roomsSelected = this.state.rooms.map(room => (
@@ -68,7 +73,10 @@ class NewCourse extends Component {
     }))
     return (
       <Aux>
-        <Modal show={this.state.creating}><div className={classes.NewCourse}>
+        <Modal
+          show={this.state.creating}
+          closeModal={this.closeModal}
+        ><div className={classes.NewCourse}>
           <h3 className={classes.Title}>Create a New Course</h3>
           <form className={classes.Form}>
             <TextInput
@@ -85,7 +93,7 @@ class NewCourse extends Component {
             />
             <div className={glb.FlexRow}>
               <Button click={this.submitForm}>Submit</Button>
-              <Button click={() => this.setState({creating: false})}>Cancel</Button>
+              <Button click={this.closeModal}>Cancel</Button>
             </div>
           </form>
         </div>
@@ -107,6 +115,8 @@ const mapStateToProps = store => {
 const mapDispatchToProps = dispatch => {
   return {
     createCourse: body => dispatch(actions.createCourse(body)),
+    // @TODO we should have the user courses updated automatically within redux
+    // rather than having to call two funcitons
     updateUserCourses: newCourse => dispatch(actions.updateUserCourses(newCourse)),
   }
 }

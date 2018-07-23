@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Main from '../../Layout/Main/Main';
 import BoxList from '../../Layout/BoxList/BoxList';
 import NewCourse from '../Courses/NewCourse/NewCourse';
+import NewRoom from '../Rooms/NewRoom/NewRoom';
 import * as actions from '../../store/actions/';
 import { connect } from 'react-redux';
 const tabs = ['Courses', 'Rooms', 'Templates', 'Settings']
@@ -20,12 +21,13 @@ class Profile extends Component {
     let contentCreate;
     switch (this.state.activeTab) {
       case 'Courses' :
-      resource = 'course';
+        resource = 'course';
         contentList = this.props.myCourses;
-        contentCreate = <NewCourse/>;
+        contentCreate = <NewCourse />;
         break;
       case 'Rooms' :
         contentList = this.props.myRooms;
+        contentCreate = <NewRoom />
         resource = 'room';
         break;
       default:
@@ -34,11 +36,10 @@ class Profile extends Component {
     let content = <BoxList list={contentList} resource={resource} />
     if (contentList.length === 0) {content = `You don't seem to have any ${resource}s yet. Click "Create" to get started`}
 
-    const sidePanelTitle = this.props.username;
     return (
       <Main
         title='Profile'
-        sidePanelTitle={sidePanelTitle}
+        sidePanelTitle={this.props.username}
         content={content}
         contentCreate={contentCreate}
         tabs={tabs}

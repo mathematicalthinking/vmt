@@ -5,7 +5,7 @@ const Room = new mongoose.Schema({
   template: {type: ObjectId, ref: 'RoomTemplate'},
   name: {type: String},
   description: {type: String},
-  creator: {type: ObjectId, ref: 'User'},
+  creator: {type: ObjectId, ref: 'User', required: true},
   events: [{type: ObjectId, ref: 'Event'}],
   chat: [{type: ObjectId, ref: 'Message'}],
   currentUsers: [{type: ObjectId, ref: 'User'}],
@@ -26,8 +26,14 @@ Room.post('save', function(doc) { // intentionally not using arrow functions
       return console.log(err)
     }
     if (this.wasNew) {
-      res.rooms.push(doc._id)
-      res.save()
+      console.log(res.rooms)
+      if (!res.rooms) {
+        res.rooms = [doc._id];
+        res.save();
+      } else {
+        res.rooms.push(doc._id);
+        res.save();
+      }
     }
   })
 })
