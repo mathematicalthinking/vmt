@@ -18,7 +18,7 @@ class Layout extends Component {
     return (
       <Router>
         <main className={classes.Main}>
-          <div className={classes.Particles} id='particles-js'></div>
+          {/* <div className={classes.Particles} id='particles-js'></div> */}
           <div className={classes.Banner}>
             <h2>Virtual Math Teams</h2>
             {this.props.loggedIn ?

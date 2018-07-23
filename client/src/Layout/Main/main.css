@@ -58,7 +58,6 @@
   padding-top: 30px;
 }
 
-body {
-  background-image: none;
-  transition: background-image .4s;
+.CreateContainer {
+  
 }

@@ -7,7 +7,7 @@ import Replayer from './Replayer/Replayer';
 import Aux from '../../Components/HOC/Auxil';
 import Button from '../../Components/UI/Button/Button';
 import ContentBox from '../../Components/UI/ContentBox/ContentBox';
-import Loading from '../../Components/UI/Loading/Loading';
+import Loading from '../../Components/UI/Modal/Modal';
 import classes from './room.css';
 import glb from '../../global.css'
 import { connect } from 'react-redux';
