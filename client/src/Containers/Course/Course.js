@@ -33,11 +33,11 @@ class Course extends Component {
     }
     return (
       <Main
+        title={this.state.course.name ? `Course: ${this.state.course.name}` : null}
         content={content}
         tabs={tabs}
         activeTab={this.state.activeTab}
         activateTab={event => this.setState({activeTab: event.target.id})}
-        title='Course'
       />
     )
   }

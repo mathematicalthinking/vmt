@@ -8,6 +8,7 @@ const tabs = ['Courses', 'Rooms', 'Templates', 'Settings']
 class Profile extends Component {
   state = {
     activeTab: 'Courses',
+    modalOpen: false,
   }
   activateTab = event => {
     this.setState({activeTab: event.target.id});
@@ -32,14 +33,17 @@ class Profile extends Component {
     }
     let content = <BoxList list={contentList} resource={resource} />
     if (contentList.length === 0) {content = `You don't seem to have any ${resource}s yet. Click "Create" to get started`}
+
+    const sidePanelTitle = this.props.username;
     return (
       <Main
+        title='Profile'
+        sidePanelTitle={sidePanelTitle}
         content={content}
         contentCreate={contentCreate}
         tabs={tabs}
         activeTab={this.state.activeTab}
         activateTab={event => this.setState({activeTab: event.target.id})}
-        title='Profile'
       />
     )
   }

@@ -10,10 +10,6 @@ import Button from '../../Components/UI/Button/Button';
 import Modal from '../../Components/UI/Modal/Modal';
 
 class Main extends Component {
-  state = {
-    modalOpen: false,
-  }
-
   render() {
     const tabElems = this.props.tabs.map(tab => {
       let style = classes.Tab;
@@ -26,25 +22,24 @@ class Main extends Component {
     })
     console.log(this.props.contentCreate)
     return (
-      <Aux>
-        <h1 className={classes.Title}>{this.props.title}</h1>
-        <section className={classes.Container}>
-          <section className={classes.SidePanel}>
-            <div className={classes.Image}>Image</div>
-          </section>
-          <section className={classes.Main}>
-            <div className={classes.Tabs}>
-              {tabElems}
-            </div>
-            <div className={classes.MainContent}>
-              {(this.props.activeTab !== 'Settings') ? <div className={classes.CreateContainer}>
-                {this.props.contentCreate}
-              </div> : null}
-              {this.props.content}
-            </div>
-          </section>
+      <section className={classes.Container}>
+        <section className={classes.SidePanel}>
+          <div className={classes.Title}>{this.props.title}</div>
+          <div className={classes.Image}>Image</div>
+          <div className={classes.SpTitle}>{this.props.sidePanelTitle}</div> 
         </section>
-      </Aux>
+        <section className={classes.Main}>
+          <div className={classes.Tabs}>
+            {tabElems}
+          </div>
+          <div className={classes.MainContent}>
+            {(this.props.activeTab !== 'Settings') ? <div className={classes.CreateContainer}>
+              {this.props.contentCreate}
+            </div> : null}
+            {this.props.content}
+          </div>
+        </section>
+      </section>
     )
   }
 }

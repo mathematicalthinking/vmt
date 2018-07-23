@@ -1,34 +1,29 @@
 .Container {
   display: flex;
   background-color: #fdfdfd;
-  padding: 20px;
+  padding: 0 20px 20px 20px;
   align-self: center;
   width: 98%;
   /* box-shadow: 11px 20px 61px 20px rgba(248,248,248,1); */
   border: 1px solid #ddd;
+  border-top: 1px solid #75b7f6;
   min-height: calc(100vh - 220px);
   margin-bottom: 50px;
 }
 
 .Title {
-  margin: -20px 0 10px 10px;
-  padding: 5px;
-  width: 150px;
-  border: 1px solid #ddd;
-  border-radius: 3px;
-  background-color: #2D91F2;
+  margin-bottom: 20px;
   color: white;
-  font-size: 1.3em;
+  background-color: #4ba1f3;
+  padding: 3px;
+  border-radius: 0 0 14px 14px;
   text-align: center;
+  height: 27px;
 }
 
 .SidePanel {
-  width: 300px;
-}
-
-
-.SidePanel > div {
-  margin-bottom: 7px;
+  width: 250px;
+  margin-right: 50px;
 }
 
 .Image {
@@ -47,6 +42,7 @@
   display: flex;
   flex-flow: column;
   flex-grow: 2;
+  max-width: 850px;
 }
 
 .Tabs {

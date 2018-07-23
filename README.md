@@ -88,14 +88,14 @@ until the ggbClient is loaded.~~
 we get an error that there are no events (perhaps we need to make a new api call? not sure?)~~
 1. ~~We need to store current room users in the room object so that new users joining can
 see who is already in the room~~
-1. Every time a user enters a room it adds that room to "their rooms" (even it its already in their rooms)
+1. ~~Every time a user enters a room it adds that room to "their rooms" (even it its already in their rooms)~~
 1. When we click on a room we load up the events and then we click enter room we take the
 last event and set the ggbBase64 with said event. If new events happen between time of clicking
 on room and clicking on enter room we fall out of synch, perhaps it would be best to join
 room immediately and just hide the geogebra workspace?  -- I think the best solution is to
 
 1. ~~the geogebra addListener only fires the first time you go into room~~
-1. Now addListener won't fire after receiving event from another client
+1. ~~Now addListener won't fire after receiving event from another client~~
 
 ## Ideas for further Development
 ### General/Optimization

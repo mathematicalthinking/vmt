@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
 import Dropdown from '../../../Components/UI/Dropdown/Dropdown';
+import Aux from '../../../Components/HOC/Auxil';
+import Modal from '../../../Components/UI/Modal/Modal';
 import Button from '../../../Components/UI/Button/Button';
 import classes from './newCourse.css';
 import glb from '../../../global.css';
@@ -65,27 +67,31 @@ class NewCourse extends Component {
       id: room._id, name: room.name
     }))
     return (
-      this.state.creating ? <div className={classes.NewCourse}>
-        <h3 className={classes.Title}>Create a New Course</h3>
-        <form className={classes.Form}>
-          <TextInput
-            name='courseName'
-            label='Course Name'
-            change={this.changeHandler}
-            width='40%'
-          />
-          <TextInput
-            name='description'
-            label='Description'
-            change={this.changeHandler}
-            width='80%'
-          />
-          <div className={glb.FlexRow}>
-            <Button click={this.submitForm}>Submit</Button>
-            <Button click={() => this.setState({creating: false})}>Cancel</Button>
-          </div>
-        </form>
-      </div> : <Button click={() => {this.setState({creating: true})}}>Create</Button>
+      <Aux>
+        <Modal show={this.state.creating}><div className={classes.NewCourse}>
+          <h3 className={classes.Title}>Create a New Course</h3>
+          <form className={classes.Form}>
+            <TextInput
+              name='courseName'
+              label='Course Name'
+              change={this.changeHandler}
+              width='40%'
+            />
+            <TextInput
+              name='description'
+              label='Description'
+              change={this.changeHandler}
+              width='80%'
+            />
+            <div className={glb.FlexRow}>
+              <Button click={this.submitForm}>Submit</Button>
+              <Button click={() => this.setState({creating: false})}>Cancel</Button>
+            </div>
+          </form>
+        </div>
+        </Modal>
+        <Button click={() => {this.setState({creating: true})}}>Create</Button>
+      </Aux>
     )
   }
 }
