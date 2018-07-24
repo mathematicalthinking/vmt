@@ -53,6 +53,9 @@ export const createCourse = body => {
   }
 }
 
-export const updateCourseRooms = course => {
-
+export const updateCourseRooms = room => {
+  return {
+    type: actionTypes.UPDATE_COURSE_ROOMS,
+    room,
+  }
 }
