@@ -18,6 +18,9 @@ export {
 export {
   getCourses,
   gotCourses,
+  getCurrentCourse,
+  gotCurrentCourse,
   createCourse,
   createdCourses,
+  updateCourseRooms,
 } from './courses';

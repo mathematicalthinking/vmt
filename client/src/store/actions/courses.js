@@ -12,6 +12,12 @@ export const gotCourses = resp => {
   }
 }
 
+export const gotCurrentCourse = currentCourse => {
+  return {
+    type: actionTypes.GOT_CURRENT_COURSE,
+    currentCourse,
+  }
+}
 export const createdCourse = resp => {
   return {
     type: actionTypes.CREATED_COURSE,
@@ -27,6 +33,15 @@ export const getCourses = () => {
   }
 }
 
+export const getCurrentCourse = id => {
+  console.log(id)
+  return dispatch => {
+    API.getById('course', id)
+    .then(resp => dispatch(gotCurrentCourse(resp.data.result)))
+    .catch(err => console.log(err))
+  }
+}
+
 export const createCourse = body => {
   return dispatch => {
     API.post('course', body)
@@ -36,4 +51,8 @@ export const createCourse = body => {
     })
     .catch(err => console.log(err))
   }
+}
+
+export const updateCourseRooms = course => {
+
 }

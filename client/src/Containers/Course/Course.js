@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import * as actions from '../../store/actions/'
 import Main from '../../Layout/Main/Main';
 import classes from './course.css';
 import NewRoom from '../Create/NewRoom/NewRoom'
@@ -16,14 +18,12 @@ class Course extends Component {
   componentDidMount() {
     // populate the courses data
     console.log(this.props.match.params.id)
-    API.getById('course', this.props.match.params.id)
-    .then(res => this.setState({course: res.data.result}))
+    this.props.getCurrentCourse(this.props.match.params.id)
   }
 
   activateTab = event => {
     this.setState({activeTab: event.target.id});
   }
-
   render() {
     const active = this.state.activeTab;
     let contentList = [];
@@ -33,20 +33,24 @@ class Course extends Component {
     switch (this.state.activeTab) {
       case 'Rooms' :
         resource = 'room';
-        contentCreate = <NewRoom course={this.state.course._id} updateParent={this.addRoom}/>
-        contentList = this.state.course.rooms;
+        contentCreate =
+        <NewRoom
+          course={this.props.currentCourse._id}
+          updateParent={room => this.props.updateCourseRooms(room)}
+        />
+        contentList = this.props.currentCourse.rooms;
         break;
       default : resource = null;
     }
-    if (this.state.course.rooms && active === 'Rooms') {
-      contentList = this.state.course.rooms
+    if (this.props.currentCourse.rooms && active === 'Rooms') {
+      contentList = this.props.currentCourse.rooms
       content = <BoxList list={contentList} resource={'room'}/>
     }
-    console.log(this.state.course)
+    console.log(this.props.currentCourse)
     return (
       <Main
-        title={this.state.course.name ? `Course: ${this.state.course.name}` : null}
-        sidePanelTitle={this.state.course.name}
+        title={this.props.currentCourse.name ? `Course: ${this.props.currentCourse.name}` : null}
+        sidePanelTitle={this.props.currentCourse.name}
         contentCreate={contentCreate}
         content={content}
         tabs={tabs}
@@ -57,4 +61,16 @@ class Course extends Component {
   }
 }
 
-export default Course;
+const mapStateToProps = store => {
+  return {
+    currentCourse: store.coursesReducer.currentCourse,
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
+    getCurrentCourse: id => dispatch(actions.getCurrentCourse(id)),
+  }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(Course);

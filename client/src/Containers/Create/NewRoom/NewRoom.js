@@ -56,6 +56,7 @@ class NewRoom extends Component {
     this.setState({
       creating: false,
     })
+    this.props.updateParent(newRoom)
     // this will be done on the backend but instead of fetching that data again
     // lets just update our redux store
     // @TODO: actually ?? is this ^^ the way to do it

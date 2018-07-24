@@ -1,7 +1,8 @@
 import * as actionTypes from '../actions/actionTypes';
 
 const initialState = {
-  courses: []
+  courses: [],
+  currentCourse: {}
 }
 
 const reducer = (state = initialState, action) => {
@@ -13,7 +14,13 @@ const reducer = (state = initialState, action) => {
       };
     case actionTypes.CREATED_COURSE:
       return {
+        ...state,
         courses: [action.course, ...state.courses]
+      }
+    case actionTypes.GOT_CURRENT_COURSE:
+      return {
+        ...state,
+        currentCourse: action.currentCourse,
       }
     default:
       return state
