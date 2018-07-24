@@ -33,7 +33,7 @@ class Course extends Component {
     switch (this.state.activeTab) {
       case 'Rooms' :
         resource = 'room';
-        contentCreate = <NewRoom course={this.state.course._id}/>
+        contentCreate = <NewRoom course={this.state.course._id} updateParent={this.addRoom}/>
         contentList = this.state.course.rooms;
         break;
       default : resource = null;
@@ -42,6 +42,7 @@ class Course extends Component {
       contentList = this.state.course.rooms
       content = <BoxList list={contentList} resource={'room'}/>
     }
+    console.log(this.state.course)
     return (
       <Main
         title={this.state.course.name ? `Course: ${this.state.course.name}` : null}

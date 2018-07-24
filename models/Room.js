@@ -23,27 +23,24 @@ Room.pre('save', function (next) {
 
 Room.post('save', function(doc) { // intentionally not using arrow functions
   // so 'this' refers to the model
-  User.findById(doc.creator, (err, res) => {
-    if (err) {
-      return console.log(err)
-    }
-    if (this.wasNew) {
-      console.log(res.rooms)
-      if (!res.rooms) {
-        res.rooms = [doc._id];
-        res.save();
-      } else {
-        res.rooms.push(doc._id);
-        res.save();
+  console.log('saved!', doc)
+  if (this.wasNew) {
+    User.findById(doc.creator, (err, res) => {
+      if (err) {
+        return console.log(err)
       }
-    }
-  })
-  if (doc.course) {
-    Course.findByid(doc.course, (err, res) => {
-      if (err) {return console.log(err)}
-      res.course = doc._idl
+      if (!res.rooms) {res.rooms = [doc._id]}
+      else {res.rooms.push(doc._id)}
       res.save();
     })
+    if (doc.course) {
+      Course.findById(doc.course, (err, res) => {
+        if (err) {return console.log(err)}
+        if (!res.rooms) {res.rooms = [doc._id]}
+        else {res.rooms.push(doc._id)}
+        res.save();
+      })
+    }
   }
 })
 

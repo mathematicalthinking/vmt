@@ -1,0 +1,13 @@
+import React from 'react';
+import classes from './radioBtn.css';
+const radioBtn = props => {
+  return (
+    <label className={classes.Container}>
+      {props.children}
+      <input type='radio' checked={props.checked} name='radio' onClick={props.check}/>
+      <span className={classes.Checkmark}></span>
+    </label>
+  )
+}
+
+export default radioBtn;

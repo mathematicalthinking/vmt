@@ -5,6 +5,7 @@ import TextInput from '../../../Components/Form/TextInput/TextInput';
 import Aux from '../../../Components/HOC/Auxil';
 import Modal from '../../../Components/UI/Modal/Modal';
 import Button from '../../../Components/UI/Button/Button';
+import RadioBtn from '../../../Components/Form/RadioBtn/RadioBtn';
 import { connect } from 'react-redux';
 import * as actions from '../../../store/actions/'
 import classes from './newRoom.css';
@@ -13,6 +14,7 @@ class NewRoom extends Component {
   state = {
     roomName: '',
     description: '',
+    isPublic: true,
     creating: false,
   }
 
@@ -48,12 +50,14 @@ class NewRoom extends Component {
       creator: this.props.userId,
       course: this.props.course,
     }
+    console.log(newRoom)
     this.props.createRoom(newRoom)
     this.setState({
       creating: false,
     })
     // this will be done on the backend but instead of fetching that data again
     // lets just update our redux store
+    // @TODO: actually ?? is this ^^ the way to do it
     // this.props.updateUserRooms(newRoom)
   }
 
@@ -69,9 +73,9 @@ class NewRoom extends Component {
           show={this.state.creating}
           closeModal={this.closeModal}
         >
-
-          <div className={classes.NewRoom}>
-            <form>
+          <div className={classes.Container}>
+            <h3 className={classes.Title}>Create a New Room</h3>
+            <div className={classes.Form}>
               <TextInput
                 change={this.changeHandler}
                 name='roomName'
@@ -82,7 +86,11 @@ class NewRoom extends Component {
                 name='description'
                 label='Description'
               />
-            </form>
+              <div className={classes.RadioButtons}>
+                <RadioBtn checked={this.state.isPublic} check={() => this.setState({isPublic: true})}>Public</RadioBtn>
+                <RadioBtn checked={!this.state.isPublic} check={() => this.setState({isPublic: false})}>Private</RadioBtn>
+              </div>
+            </div>
             <Button click={this.addTab}>Upload a file</Button>
             <Button click={this.submitForm}>Submit</Button>
             <Button click={this.closeModal}>Cancel</Button>
@@ -97,17 +105,13 @@ class NewRoom extends Component {
 const mapStateToProps = store => {
   return {
     rooms: store.roomsReducer.rooms,
-
-    // username: store.userReducer.username,
     userId: store.userReducer.userId,
-    // createdNewRoom: store.roomsReducer.createdNewRoom,
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
     createRoom: body => dispatch(actions.createRoom(body)),
-    // updateUserRooms:
   }
 }
 

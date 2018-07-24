@@ -15,20 +15,28 @@ const Course = new mongoose.Schema({
 // @TODO for some reason I can't get $push to work
 // ALso we're using the post method here instead of pre because we need
 // the doc_id and because that is supplied by mongoose we have to do it after
-Course.post('save', doc => {
-  console.log('post method on course')
-  console.log(doc.creator)
-  User.findById(doc.creator, (err, res) => {
-    if (err) {
-      console.log('there was an error')
-      return console.log(err)
-    }
-    console.log(res)
-    console.log('found the user!: ', doc)
-    res.courses.push(doc._id)
-    res.save()
-    // .then(res => console.log('all good'))
-    // .catch(err => console.log("ERR: ",err))
-  })
+Course.pre('save', function (next) {
+  console.log(this.isNew)
+    this.wasNew = this.isNew;
+    next();
+});
+
+Course.post('save', function (doc) {
+  if (this.wasNew) {
+    console.log('post method on course')
+    console.log(doc.creator)
+    User.findById(doc.creator, (err, res) => {
+      if (err) {
+        console.log('there was an error')
+        return console.log(err)
+      }
+      console.log(res)
+      console.log('found the user!: ', doc)
+      res.courses.push(doc._id)
+      res.save()
+      // .then(res => console.log('all good'))
+      // .catch(err => console.log("ERR: ",err))
+    })
+  }
 })
 module.exports = mongoose.model('Course', Course);
