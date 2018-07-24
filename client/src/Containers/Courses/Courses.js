@@ -18,6 +18,10 @@ class Courses extends Component {
 
   filter = value => {
     console.log(value)
+    console.log(this.state.courses)
+    const updatedCourses = allCourses.filter(course => course.name.toLowerCase().includes(value.toLowerCase()))
+    console.log(updatedCourses)
+    this.setState({courses: updatedCourses})
   }
   render () {
     return (
