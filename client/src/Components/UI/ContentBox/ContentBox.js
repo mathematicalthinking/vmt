@@ -1,3 +1,5 @@
+// PROPS
+  //
 import React, { Component } from 'react';
 import classes from './contentBox.css'
 let alignClass= classes.Center;

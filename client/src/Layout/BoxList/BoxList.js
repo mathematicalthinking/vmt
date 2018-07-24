@@ -6,7 +6,9 @@ import glb from '../../global.css';
 const boxList = props => {
   const listElems = props.list.map(item => (
     <div className={classes.ContentBox} key={item._id}>
-      <ContentBox title={<Link className={glb.Link} to={`/${props.resource}/${item._id}`} key={item._id}>{item.name}</Link>} />
+      <ContentBox title={<Link className={glb.Link} to={`/${props.resource}/${item._id}`} key={item._id}>{item.name}</Link>}>
+        {item.description}
+      </ContentBox>
     </div>
   ))
   return <div className={classes.Container}>{listElems}</div>
