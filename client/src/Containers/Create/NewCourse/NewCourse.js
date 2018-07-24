@@ -4,7 +4,7 @@ import Dropdown from '../../../Components/UI/Dropdown/Dropdown';
 import Aux from '../../../Components/HOC/Auxil';
 import Modal from '../../../Components/UI/Modal/Modal';
 import Button from '../../../Components/UI/Button/Button';
-import classes from './newCourse.css';
+import classes from '../create.css';
 import glb from '../../../global.css';
 import { connect } from 'react-redux';
 import * as actions from '../../../store/actions/';
@@ -75,7 +75,7 @@ class NewCourse extends Component {
         <Modal
           show={this.state.creating}
           closeModal={this.closeModal}
-        ><div className={classes.NewCourse}>
+        ><div className={classes.Container}>
           <h3 className={classes.Title}>Create a New Course</h3>
           <form className={classes.Form}>
             <TextInput

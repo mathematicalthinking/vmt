@@ -8,7 +8,7 @@ import Button from '../../../Components/UI/Button/Button';
 import RadioBtn from '../../../Components/Form/RadioBtn/RadioBtn';
 import { connect } from 'react-redux';
 import * as actions from '../../../store/actions/'
-import classes from './newRoom.css';
+import classes from '../create.css';
 
 class NewRoom extends Component {
   state = {
@@ -49,6 +49,7 @@ class NewRoom extends Component {
       description: this.state.description,
       creator: this.props.userId,
       course: this.props.course,
+      isPublic: this.state.isPublic,
     }
     console.log(newRoom)
     this.props.createRoom(newRoom)
@@ -75,25 +76,29 @@ class NewRoom extends Component {
         >
           <div className={classes.Container}>
             <h3 className={classes.Title}>Create a New Room</h3>
-            <div className={classes.Form}>
+            <form className={classes.Form}>
               <TextInput
                 change={this.changeHandler}
                 name='roomName'
                 label='Enter Room Name'
+                width='50%'
               />
               <TextInput
                 change={this.changeHandler}
                 name='description'
                 label='Description'
+                width='100%'
               />
               <div className={classes.RadioButtons}>
                 <RadioBtn checked={this.state.isPublic} check={() => this.setState({isPublic: true})}>Public</RadioBtn>
                 <RadioBtn checked={!this.state.isPublic} check={() => this.setState({isPublic: false})}>Private</RadioBtn>
               </div>
-            </div>
-            <Button click={this.addTab}>Upload a file</Button>
-            <Button click={this.submitForm}>Submit</Button>
-            <Button click={this.closeModal}>Cancel</Button>
+              <div><Button click={this.addTab}>Upload a file</Button></div>
+              <div className={classes.Submit}>
+                <Button click={this.submitForm}>Submit</Button>
+                <Button click={this.closeModal}>Cancel</Button>
+              </div>
+            </form>
           </div>
         </Modal>
         <Button click={() => {this.setState({creating: true})}}>Create</Button>
