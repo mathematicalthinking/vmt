@@ -2,17 +2,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../../store/actions/'
 import Main from '../../Layout/Main/Main';
-import classes from './course.css';
 import NewRoom from '../Create/NewRoom/NewRoom'
 import BoxList from '../../Layout/BoxList/BoxList';
-import API from '../../utils/apiRequests';
 const tabs = ['Rooms', 'Students', 'Grades', 'Insights', 'Settings'];
 class Course extends Component {
   state = {
     activeTab: 'Rooms',
-    course: {
-      creator: '',
-    },
   }
 
   componentDidMount() {
@@ -25,32 +20,38 @@ class Course extends Component {
     this.setState({activeTab: event.target.id});
   }
   render() {
+    const course = this.props.currentCourse;
     const active = this.state.activeTab;
     let contentList = [];
     let content;
     let resource;
     let contentCreate;
-    switch (this.state.activeTab) {
+    switch (active) {
       case 'Rooms' :
         resource = 'room';
         contentCreate =
         <NewRoom
-          course={this.props.currentCourse._id}
+          course={course._id}
           updateParent={room => this.props.updateCourseRooms(room)}
         />
-        contentList = this.props.currentCourse.rooms;
+        contentList = course.rooms ? course.rooms : [];
+        break;
+      case 'Students' :
+        resource = 'user'
+        contentCreate = <div>Add Students</div>
+        contentList = course.students ? course.students : [];
         break;
       default : resource = null;
     }
-    if (this.props.currentCourse.rooms && active === 'Rooms') {
-      contentList = this.props.currentCourse.rooms
-      content = <BoxList list={contentList} resource={'room'}/>
+    if (contentList.length === 0) {
+      content = `You don't seem to have any ${resource}s yet. Click "Create" to get started`
     }
-    console.log(this.props.currentCourse)
+    content = <BoxList list={contentList} resource={'room'}/>
+
     return (
       <Main
-        title={this.props.currentCourse.name ? `Course: ${this.props.currentCourse.name}` : null}
-        sidePanelTitle={this.props.currentCourse.name}
+        title={course.name ? `Course: ${course.name}` : null}
+        sidePanelTitle={course.name}
         contentCreate={contentCreate}
         content={content}
         tabs={tabs}

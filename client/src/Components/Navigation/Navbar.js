@@ -5,7 +5,9 @@ const navbar = (props) => {
   return (
     <nav className={classes.NavContainer}>
       <ul className={classes.NavList}>
-        <NavItem link='/users/new' name='Register' />
+        <NavItem link='/users/new' name='Login/Signup' />
+        <NavItem link='/courses' name='Courses' />
+        <NavItem link='/rooms' name='Rooms' />
         <NavItem link='/profile' name='Dashboard' />
         <NavItem link='/rooms/new' name='Community' />
         <NavItem link='/logout' name='Logout' />

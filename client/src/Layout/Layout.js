@@ -3,6 +3,7 @@ import Navbar from '../Components/Navigation/Navbar';
 import Login from '../Containers/Login/Login';
 import Room from '../Containers/Room/Room';
 import Course from '../Containers/Course/Course';
+import Courses from '../Containers/Courses/Courses';
 import NewUser from '../Containers/Create/NewUser/NewUser';
 import Profile from '../Containers/Profile/Profile';
 import Assignments from '../Containers/Assignments/Assignments';
@@ -31,6 +32,7 @@ class Layout extends Component {
               <Route exact path='/' component={Login}/>
               <Route path='/users/new' authed={this.props.loggedIn} component={NewUser}/>
               <PrivateRoute exact path='/profile' authed={this.props.loggedIn} component={Profile}/>
+              <PrivateRoute exact path='/courses' authed={this.props.loggedIn} component={Courses}/>
               <PrivateRoute path='/room/:id' authed={this.props.loggedIn} component={Room}/>
               <PrivateRoute exact path='/course/:id' authed={this.props.loggedIn} component={Course} />
               <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/>
