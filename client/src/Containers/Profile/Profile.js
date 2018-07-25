@@ -33,7 +33,7 @@ class Profile extends Component {
       default:
         resource = null;
     }
-    let content = <BoxList list={contentList} resource={resource} />
+    let content = <BoxList list={contentList} resource={resource} notifications={true}/>
     if (contentList.length === 0) {content = `You don't seem to have any ${resource}s yet. Click "Create" to get started`}
 
     return (
