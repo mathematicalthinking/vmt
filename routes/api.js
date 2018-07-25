@@ -65,7 +65,7 @@ router.post('/:action', (req, res, next) => {
 		}
 		res.json({
 			confirmation: 'success',
-			result: result
+			result,
 		})
 	})
 	.catch(err => {
@@ -76,18 +76,21 @@ router.post('/:action', (req, res, next) => {
 	})
 })
 
-router.put('/:resouce', (req, res, next) => {
+router.put('/:resource/:id', (req, res, next) => {
   const resource = req.params.resource;
-  const controller = controller[resource];
+  const controller = controllers[resource];
   if (controller == null){
 		return res.json({
 			confirmation:'fail',
 			message:'Invalid resource...check your spelling'
 		})
 	}
-  controller.put(req.body)
+  controller.put(req.params.id, req.body)
   .then(result => {
-    res.json(result);
+    res.json({
+      confirmation: 'success',
+      result,
+    });
   })
   .catch(err => {
     res.status(400).json({

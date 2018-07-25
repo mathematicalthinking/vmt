@@ -76,6 +76,7 @@ its right at the top of the list and visible to the user~~
 1. ~~Filter is broken... myRooms seems to list every room i've ever entered including
 duplicates~~
 ### Replayer
+1. capture dragging events. 
 1. allow the user to click on or drag the progress bas to change the time  
 
 ## Bugs

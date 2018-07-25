@@ -26,8 +26,13 @@ module.exports = {
   },
 
   put: (id, body) => {
+    const updatedField = Object.keys(body)
+    if (updatedField[0] === 'notifications'){
+      body = {$addToSet: body}
+      console.log(body)
+    }
     return new Promise((resolve, reject) => {
-      db.Course.findByIdAndUpdate(id, body)
+      db.Course.findByIdAndUpdate(id, body, {new: true})
       .then(course => resolve(course))
       .catch(err => reject(err))
     })

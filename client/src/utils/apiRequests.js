@@ -11,6 +11,10 @@ export default {
 
   getById: (resource, id) => {
     return axios.get(`/api/${resource}/${id}`)
+  },
+
+  requestAccess: (resource, resourceId, userId) => {
+    const notification = {notifications: {user: userId, notificationType: 'requestAcess'}}
+    return axios.put(`/api/${resource}/${resourceId}`, notification)
   }
 }
-  // put: (resource, )

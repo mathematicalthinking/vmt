@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import * as actions from '../../store/actions/'
+import * as actions from '../../store/actions/';
+import API from '../../utils/apiRequests';
 import Main from '../../Layout/Main/Main';
 import NewRoom from '../Create/NewRoom/NewRoom'
 import BoxList from '../../Layout/BoxList/BoxList';
@@ -11,14 +12,35 @@ const tabs = ['Rooms', 'Students', 'Grades', 'Insights', 'Settings'];
 class Course extends Component {
   state = {
     activeTab: 'Rooms',
-    guestMode: true,
+    access: false,
+    guestMode: false,
+    currentCourse: '',
   }
 
   componentDidMount() {
     // populate the courses data
     console.log(this.props.match.params.id)
     this.props.getCurrentCourse(this.props.match.params.id)
-    // if (this.props.course.members.includes())
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.currentCourse !== prevState.currentCourse && nextProps.currentCourse.members) {
+      console.log('got currentCourse')
+      if (nextProps.currentCourse.members.find(member => member.user === nextProps.userId)){
+        console.log(nextProps.currentCourse)
+        return {
+          access: true,
+          currentCourse: nextProps.currentCourse,
+        }
+
+      } else {
+        return {
+          access: true,
+          guestMode: true,
+          currentCourse: nextProps.currentCourse
+        }
+      }
+    }
   }
 
   activateTab = event => {
@@ -26,9 +48,17 @@ class Course extends Component {
   }
 
   requestAccess = () => {
-    
+    // Should we make this post through redux? I don't really see a good reason to
+    // we don't need access to this information anywhere else in the app
+    API.requestAccess('course', this.props.match.params.id, this.props.userId)
+    .then(res => {
+      console.log(res.data.result)
+      // @TODO SEND/DISPLAY CONFIRMATION somehow
+      this.props.history.push('/profile')
+    })
   }
   render() {
+    console.log(this.props.currentCourse)
     const course = this.props.currentCourse;
     const active = this.state.activeTab;
     let contentList = [];
@@ -64,9 +94,11 @@ class Course extends Component {
         </p>
         <Button click={this.requestAccess}>Join</Button>
       </Modal> : null;
+    const accessModal = !this.state.access ? <Modal show={true} message='Loading course'/> : null;
     return (
       <Aux>
         {guestModal}
+        {accessModal}
         <Main
           title={course.name ? `Course: ${course.name}` : null}
           sidePanelTitle={course.name}
@@ -84,6 +116,7 @@ class Course extends Component {
 const mapStateToProps = store => {
   return {
     currentCourse: store.coursesReducer.currentCourse,
+    userId: store.userReducer.userId,
   }
 }
 
