@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import BoxList from '../../Layout/BoxList/BoxList';
 import Search from '../../Components/Search/Search';
+import classes from './courses.css';
 import API from '../../utils/apiRequests';
 // import { connect } from 'react-redux';
 let allCourses = [];
@@ -16,19 +17,24 @@ class Courses extends Component {
     })
   }
 
-  filter = value => {
-    console.log(value)
-    console.log(this.state.courses)
-    const updatedCourses = allCourses.filter(course => course.name.toLowerCase().includes(value.toLowerCase()))
-    console.log(updatedCourses)
+  filterResults = value => {
+    value = value.toLowerCase();
+    const updatedCourses = allCourses.filter(course => {
+      return (
+        course.name.toLowerCase().includes(value) ||
+        course.description.toLowerCase().includes(value) ||
+        course.creator.toLowerCase().includes(value)
+      )
+    })
     this.setState({courses: updatedCourses})
   }
   render () {
     return (
       <div>
         <h2>Courses</h2>
-        <Search filter={value => this.filter(value)} />
-        <BoxList list={this.state.courses}/>
+        <Search filter={value => this.filterResults(value)} />
+        <div className={classes.Seperator}></div>
+        <BoxList list={this.state.courses} resource='course'/>
       </div>
     )
   }

@@ -30,6 +30,7 @@ class NewCourse extends Component {
       description: this.state.description,
       rooms: roomIds,
       creator: this.props.userId,
+      members: [{user: this.props.userId, role: 'teacher'}]
     }
     this.setState({
       courseName: '',
