@@ -11,6 +11,9 @@
     top: 30%;
     box-sizing: border-box;
     text-align: center;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
     transition: all 0.3s ease-out;
     border-radius: 6px;
 }
