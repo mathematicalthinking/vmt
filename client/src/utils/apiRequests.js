@@ -14,7 +14,8 @@ export default {
   },
 
   requestAccess: (resource, resourceId, userId) => {
-    const notification = {notifications: {user: userId, notificationType: 'requestAcess'}}
+    // @TODO consider making notificationTypes a directory of constants like action types
+    const notification = {notifications: {user: userId, notificationType: 'requestAccess'}}
     return axios.put(`/api/${resource}/${resourceId}`, notification)
   }
 }

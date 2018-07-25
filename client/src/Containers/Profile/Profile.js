@@ -17,7 +17,9 @@ class Profile extends Component {
       {name: 'Settings'},
     ],
   }
-
+  // I seem to be over using this lifeCycle hook
+  // The problem I'm facing is that the first time this
+  // component renders it doesn't have the props from redux -- why is that? shouldn't it?
   static getDerivedStateFromProps(nextProps, prevState) {
     console.log('nextPRops: ', nextProps.myCourses)
     if (nextProps.myCourses) {

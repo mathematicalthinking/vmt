@@ -2,7 +2,6 @@ import React from 'react';
 import classes from './tabList.css';
 const tabList = props => {
   const tabElems = props.tabs.map(tab => {
-    console.log(tab)
     let style = classes.Tab;
     if (tab.name === props.activeTab) {
       style = [classes.Tab, classes.ActiveTab].join(' ')

@@ -8,19 +8,54 @@ import BoxList from '../../Layout/BoxList/BoxList';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
-const tabs = [
-  {name: 'Rooms', notifications: 0},
-  {name: 'Students', notifications: 0},
-  {name: 'Grades', notifications: 0},
-  {name: 'Insights', notifications: 0},
-  {name:'Settings'}
-];
 class Course extends Component {
   state = {
     activeTab: 'Rooms',
     access: false,
     guestMode: false,
-    currentCourse: '',
+    currentCourse: {},
+    tabs: [
+      {name: 'Rooms'},
+      {name: 'Students'},
+      {name: 'Grades'},
+      {name: 'Insights'},
+      {name:'Settings'}
+    ],
+  }
+  // Check if the user has access to this course
+  // @TODO Yikes this is messy. This could all be avoided if
+  // we didnt do the API call through redux.
+  static getDerivedStateFromProps(nextProps, prevState) {
+    const currentCourse = nextProps.currentCourse;
+    if (currentCourse !== prevState.currentCourse) {
+      let access = false;
+      let guestMode = false;
+      let studentNotifications = 0;
+      // let roomNotifications = 0;
+      const updatedTabs = [...prevState.tabs];
+      if (currentCourse.members) {
+        if (currentCourse.members.find(member => member.user === nextProps.userId)){
+          access = true;
+        } else {
+          access = true;
+          guestMode = true;
+        }
+      }
+      if (currentCourse.notifications) {
+        nextProps.currentCourse.notifications.forEach(notification => {
+          console.log(notification)
+          if (notification.notificationType === 'requestAccess') {
+            studentNotifications += 1;
+          }
+        })
+        updatedTabs[1].notifications = studentNotifications;
+      }
+      return {
+        tabs: updatedTabs,
+        access,
+        guestMode,
+      }
+    } else return null
   }
 
   componentDidMount() {
@@ -29,25 +64,6 @@ class Course extends Component {
     this.props.getCurrentCourse(this.props.match.params.id)
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.currentCourse !== prevState.currentCourse && nextProps.currentCourse.members) {
-      console.log('got currentCourse')
-      if (nextProps.currentCourse.members.find(member => member.user === nextProps.userId)){
-        console.log(nextProps.currentCourse)
-        return {
-          access: true,
-          currentCourse: nextProps.currentCourse,
-        }
-
-      } else {
-        return {
-          access: true,
-          guestMode: true,
-          currentCourse: nextProps.currentCourse
-        }
-      }
-    }
-  }
 
   activateTab = event => {
     this.setState({activeTab: event.target.id});
@@ -64,6 +80,7 @@ class Course extends Component {
     })
   }
   render() {
+    console.log(this.state.tabs)
     const course = this.props.currentCourse;
     const active = this.state.activeTab;
     let contentList = [];
@@ -109,7 +126,7 @@ class Course extends Component {
           sidePanelTitle={course.name}
           contentCreate={contentCreate}
           content={content}
-          tabs={tabs}
+          tabs={this.state.tabs}
           activeTab={this.state.activeTab}
           activateTab={event => this.setState({activeTab: event.target.id})}
         />
