@@ -8,6 +8,7 @@ import BoxList from '../../Layout/BoxList/BoxList';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
+import Students from './Students/Students';
 class Course extends Component {
   state = {
     activeTab: 'Rooms',
@@ -35,6 +36,7 @@ class Course extends Component {
       const updatedTabs = [...prevState.tabs];
       if (currentCourse.members) {
         if (currentCourse.members.find(member => member.user === nextProps.userId)){
+          console.log('hello!')
           access = true;
         } else {
           access = true;
@@ -83,31 +85,20 @@ class Course extends Component {
     console.log(this.state.tabs)
     const course = this.props.currentCourse;
     const active = this.state.activeTab;
-    let contentList = [];
     let content;
-    let resource;
     let contentCreate;
     switch (active) {
       case 'Rooms' :
-        resource = 'room';
-        contentCreate =
-        <NewRoom
-          course={course._id}
-          updateParent={room => this.props.updateCourseRooms(room)}
-        />
-        contentList = course.rooms ? course.rooms : [];
+        contentCreate = <NewRoom course={course._id} updateParent={room => this.props.updateCourseRooms(room)}/>
+        content = <BoxList list={course.rooms ? course.rooms : []} resource={'room'}/>
         break;
       case 'Students' :
-        resource = 'user'
-        contentCreate = <div>Add Students</div>
-        contentList = course.students ? course.students : [];
+      console.log(course)
+        let notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
+        content = <Students classList={course.members} notifications={notifications} />
         break;
-      default : resource = null;
+      default : content = null;
     }
-    if (contentList.length === 0) {
-      content = `You don't seem to have any ${resource}s yet. Click "Create" to get started`
-    }
-    content = <BoxList list={contentList} resource={'room'}/>
     const guestModal = this.state.guestMode ?
       <Modal show={true}>
         <p>You currently don't have access to this course. If you would like to

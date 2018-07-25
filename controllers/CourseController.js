@@ -1,7 +1,7 @@
 const db = require('../models')
 
 module.exports = {
-  get: (params) => {
+  get: params => {
     return new Promise((resolve, reject) => {
       db.Course.find(params).sort('-createdAt')
       .then(courses => resolve(courses))
@@ -9,15 +9,19 @@ module.exports = {
     });
   },
 
-  getById: (id) => {
+  getById: id => {
     return new Promise((resolve, reject) => {
-      db.Course.findById(id).populate('creator').populate('rooms')
+      db.Course.findById(id)
+      .populate('creator')
+      .populate('rooms')
+      // .populate('members.user')
+      .populate('notifications.user')
       .then(course => resolve(course))
       .catch(err => reject(err))
     });
   },
 
-  post: (body) => {
+  post: body => {
     return new Promise((resolve, reject) => {
       db.Course.create(body)
       .then(course => resolve(course))

@@ -19,6 +19,8 @@ const main = props => {
       <section className={classes.Main}>
         <TabList tabs={props.tabs} activeTab={props.activeTab} activateTab={props.activateTab}/>
         <div className={classes.MainContent}>
+          {/* THIS IS BAD -- THIS LAYOUT SHOULDNT NEED TO KNOW WHAT THE ACTIVE TAB IS  */}
+          {/* I THINK IT COULD BE EASILYU FIXED JUST PASS THE CREATE PIECE IF WE WANT IT THERE AND DONT IF WE DONT */}
           {(props.activeTab !== 'Settings') ? <div className={classes.CreateContainer}>
             {props.contentCreate}
           </div> : null}
