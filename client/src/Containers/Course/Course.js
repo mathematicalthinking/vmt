@@ -8,7 +8,13 @@ import BoxList from '../../Layout/BoxList/BoxList';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
-const tabs = ['Rooms', 'Students', 'Grades', 'Insights', 'Settings'];
+const tabs = [
+  {name: 'Rooms', notifications: 0},
+  {name: 'Students', notifications: 0},
+  {name: 'Grades', notifications: 0},
+  {name: 'Insights', notifications: 0},
+  {name:'Settings'}
+];
 class Course extends Component {
   state = {
     activeTab: 'Rooms',
@@ -58,7 +64,6 @@ class Course extends Component {
     })
   }
   render() {
-    console.log(this.props.currentCourse)
     const course = this.props.currentCourse;
     const active = this.state.activeTab;
     let contentList = [];

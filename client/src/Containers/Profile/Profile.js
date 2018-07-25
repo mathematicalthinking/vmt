@@ -5,7 +5,12 @@ import NewCourse from '../Create/NewCourse/NewCourse';
 import NewRoom from '../Create/NewRoom/NewRoom';
 import * as actions from '../../store/actions/';
 import { connect } from 'react-redux';
-const tabs = ['Courses', 'Rooms', 'Templates', 'Settings']
+const tabs = [
+  {name: 'Courses', notifications: 0},
+  {name: 'Rooms', notifcations: 0},
+  {name: 'Templates'},
+  {name: 'Settings'},
+];
 class Profile extends Component {
   state = {
     activeTab: 'Courses',

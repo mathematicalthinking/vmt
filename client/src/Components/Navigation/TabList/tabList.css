@@ -1,0 +1,16 @@
+.Tabs {
+  display: flex;
+  justify-content: flex-start;
+  border-bottom: 1px solid #ddd;
+}
+
+.Tab {
+  padding: 15px;
+  margin: 8px 35px 0 0;
+  letter-spacing: .08em;
+  cursor: pointer;
+}
+
+.ActiveTab {
+  border-bottom: 1px solid #2D91F2;
+}

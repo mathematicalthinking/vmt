@@ -7,8 +7,8 @@ const boxList = props => {
   const listElems = props.list.map(item => {
     console.log(item)
     let notifications = 0;
-    if (props.notifications && item.notifications.length > 0) {
-      notifications += 1;
+    if (props.notifications && item.notifications) {
+      notifications = item.notifications.length
     }
     return (<div className={classes.ContentBox} key={item._id}>
       <ContentBox
