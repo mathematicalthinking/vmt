@@ -5,6 +5,7 @@
 }
 
 .Tab {
+  display: flex;
   padding: 15px;
   margin: 8px 35px 0 0;
   letter-spacing: .08em;
@@ -13,4 +14,14 @@
 
 .ActiveTab {
   border-bottom: 1px solid #2D91F2;
+}
+/* @TODO might consider extracting out Notification to its own component */
+.Notifications {
+  margin-left: 10px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  text-align: center;
 }

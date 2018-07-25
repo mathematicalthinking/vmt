@@ -5,30 +5,57 @@ import NewCourse from '../Create/NewCourse/NewCourse';
 import NewRoom from '../Create/NewRoom/NewRoom';
 import * as actions from '../../store/actions/';
 import { connect } from 'react-redux';
-const tabs = [
-  {name: 'Courses', notifications: 0},
-  {name: 'Rooms', notifcations: 0},
-  {name: 'Templates'},
-  {name: 'Settings'},
-];
+
 class Profile extends Component {
   state = {
     activeTab: 'Courses',
     modalOpen: false,
+    tabs: [
+      {name: 'Courses'},
+      {name: 'Rooms'},
+      {name: 'Templates'},
+      {name: 'Settings'},
+    ],
   }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    console.log('nextPRops: ', nextProps.myCourses)
+    if (nextProps.myCourses) {
+      let notifications = 0;
+      nextProps.myCourses.forEach(course => {
+        if (course.notifications) {
+          console.log(course.notifications)
+          notifications += course.notifications.length;
+        }
+      })
+      console.log(notifications);
+      const updatedTabs = [...prevState.tabs];
+      updatedTabs[0].notifications = notifications;
+      return {
+        tabs: updatedTabs,
+      }
+    }
+  }
+
+  componentDidMount() {
+    console.log(this.props.myCourses)
+
+  }
+
+
   activateTab = event => {
     this.setState({activeTab: event.target.id});
   }
   render() {
-
     let contentList = [];
     let resource;
     let contentCreate;
+    // Load content based on
     switch (this.state.activeTab) {
       case 'Courses' :
         resource = 'course';
         contentList = this.props.myCourses;
-        contentCreate = <NewCourse />;
+        contentCreate = <NewCourse />
         break;
       case 'Rooms' :
         contentList = this.props.myRooms;
@@ -38,8 +65,10 @@ class Profile extends Component {
       default:
         resource = null;
     }
+    // Put content in a boxlist layout
     let content = <BoxList list={contentList} resource={resource} notifications={true}/>
     if (contentList.length === 0) {content = `You don't seem to have any ${resource}s yet. Click "Create" to get started`}
+
 
     return (
       <Main
@@ -47,7 +76,7 @@ class Profile extends Component {
         sidePanelTitle={this.props.username}
         content={content}
         contentCreate={contentCreate}
-        tabs={tabs}
+        tabs={this.state.tabs}
         activeTab={this.state.activeTab}
         activateTab={event => this.setState({activeTab: event.target.id})}
       />
