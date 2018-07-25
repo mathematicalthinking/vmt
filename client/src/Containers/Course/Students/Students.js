@@ -1,12 +1,14 @@
 import React from 'react';
 import classes from './students.css';
+import Avatar from '../../../Components/UI/Avatar/Avatar';
 
 const students = props => {
   console.log(props.notifications)
   const joinRequests = props.notifications.map(ntf => (
     <div className={classes.Ntf}>
-      {ntf.user.username}
-    </div>
+      <Avatar username={ntf.user.username} />
+      {/* <Button click={} */}
+        </div>
   ))
   console.log(joinRequests)
   return (

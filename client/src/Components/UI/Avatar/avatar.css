@@ -1,0 +1,15 @@
+
+.UserInfo {
+  align-self: flex-end;
+  margin-bottom: 5px;
+}
+
+.Avatar {
+  margin-right: 5px;
+  background-color: #2D91F2;
+  color: white;
+  padding: 7px;
+  border-radius: 50%;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+}

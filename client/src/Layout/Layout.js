@@ -7,10 +7,11 @@ import Courses from '../Containers/Courses/Courses';
 import NewUser from '../Containers/Create/NewUser/NewUser';
 import Profile from '../Containers/Profile/Profile';
 import Assignments from '../Containers/Assignments/Assignments';
+import Avatar from '../Components/UI/Avatar/Avatar';
 import PrivateRoute from '../Components/HOC/PrivateRoute';
 import classes from './Layout.css';
 import { connect } from 'react-redux';
-import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 class Layout extends Component {
 
   render() {
@@ -20,11 +21,7 @@ class Layout extends Component {
           {/* <div className={classes.Particles} id='particles-js'></div> */}
           <div className={classes.Banner}>
             <h2>Virtual Math Teams</h2>
-            {this.props.loggedIn ?
-              <div className={classes.UserInfo}><Link to='/profile'>
-                <i className={["fas fa-user", classes.Avatar].join(' ')}></i>
-                {this.props.username}
-              </Link></div> : null}
+            {this.props.loggedIn ? <Avatar username={this.props.username} /> : null}
           </div>
           <Navbar />
           <section className={classes.Section}>
