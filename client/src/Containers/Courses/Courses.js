@@ -29,6 +29,7 @@ class Courses extends Component {
     this.setState({courses: updatedCourses})
   }
   render () {
+    console.log(this.state.courses)
     return (
       <div>
         <h2>Courses</h2>

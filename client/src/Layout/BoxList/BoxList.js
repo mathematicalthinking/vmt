@@ -5,14 +5,14 @@ import classes from './boxList.css';
 import glb from '../../global.css';
 const boxList = props => {
   console.log(props)
-  const listElems = props.list.map(item => {
+  const listElems = props.list.map((item, i)=> {
     let notifications = 0;
     // attach notification icon to the box if it has active notifications
     if (props.notifications && item.notifications) {
       notifications = item.notifications.length
     }
-    const linkPath = props.dashboard ? '/dashboard' : null;
-    return (<div className={classes.ContentBox} key={item._id}>
+    const linkPath = props.dashboard ? '/dashboard' : '';
+    return (<div className={classes.ContentBox} key={i}>
       <ContentBox
         title={<Link className={glb.Link} to={`${linkPath}/${props.resource}/${item._id}`} key={item._id}>{item.name}</Link>}
         notifications={notifications}
