@@ -8,11 +8,10 @@ import classes from './dashboard.css';
 import TabList from '../../Components/Navigation/TabList/TabList';
 import BreadCrumbs from '../../Components/Navigation/BreadCrumbs/BreadCrumbs'
 const dashboard = props => {
-  console.log(props.contentCreate)
   return (
     <section className={classes.Container}>
       <div className={classes.BreadCrumbs}>
-        <BreadCrumbs crumbs={['Profile']}/>
+        <BreadCrumbs crumbs={props.crumbs}/>
       </div>
       <div className={classes.Main}>
         <div className={classes.SidePanel}>

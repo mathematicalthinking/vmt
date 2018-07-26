@@ -1,3 +1,5 @@
+// CONSIDER RENAMING THIS WHOLE COMPONENT TO DASHBOARD
+// WE WOULD WANT TO RENAME THE LAYOUT CONTAINER DASHBOARD
 import React, { Component } from 'react';
 import Dashboard from '../../Layout/Dashboard/Dashboard';
 import BoxList from '../../Layout/BoxList/BoxList';
@@ -59,13 +61,14 @@ class Profile extends Component {
         resource = null;
     }
     // Put content in a boxlist layout
-    let content = <BoxList list={contentList} resource={resource} notifications={true}/>
+    let content = <BoxList list={contentList} resource={resource} notifications={true} dashboard={true}/>
     if (contentList.length === 0) {content = `You don't seem to have any ${resource}s yet. Click "Create" to get started`}
 
 
     return (
       <Dashboard
         title='Profile'
+        crumbs={[{title: 'Profile', link: 'dashboard'}]}
         sidePanelTitle={this.props.username}
         content={content}
         contentCreate={contentCreate}

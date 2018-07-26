@@ -86,6 +86,7 @@ its right at the top of the list and visible to the user~~
     * this doesn't work for myRooms
 1. ~~Filter is broken... myRooms seems to list every room i've ever entered including
 duplicates~~
+1. Room ContentBox should say if that room belongs to any courses
 ### Replayer
 1. capture dragging events.
 1. allow the user to click on or drag the progress bas to change the time  

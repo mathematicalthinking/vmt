@@ -29,6 +29,7 @@ class Main extends Component {
               <Route exact path='/' component={Login}/>
               <Route path='/users/new' authed={this.props.loggedIn} component={NewUser}/>
               <PrivateRoute exact path='/dashboard' authed={this.props.loggedIn} component={Profile}/>
+              <PrivateRoute path = '/dashboard/course/:id' authed={this.props.loggedIn} component={Course}/>
               <PrivateRoute exact path='/courses' authed={this.props.loggedIn} component={Courses}/>
               <PrivateRoute path='/room/:id' authed={this.props.loggedIn} component={Room}/>
               <PrivateRoute exact path='/course/:id' authed={this.props.loggedIn} component={Course} />

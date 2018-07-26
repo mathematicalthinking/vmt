@@ -109,6 +109,7 @@ class Course extends Component {
         {accessModal}
         <Dashboard
           title={course.name ? `Course: ${course.name}` : null}
+          crumbs={[{title: 'Profile', link: '/dashboard'}, {title: course.name ? `Course: ${course.name}` : null, link: `/dashboard/course/${course._id}`}]}
           sidePanelTitle={course.name}
           contentCreate={contentCreate}
           content={content}

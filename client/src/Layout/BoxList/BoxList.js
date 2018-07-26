@@ -4,14 +4,17 @@ import { Link } from 'react-router-dom';
 import classes from './boxList.css';
 import glb from '../../global.css';
 const boxList = props => {
+  console.log(props)
   const listElems = props.list.map(item => {
     let notifications = 0;
+    // attach notification icon to the box if it has active notifications
     if (props.notifications && item.notifications) {
       notifications = item.notifications.length
     }
+    const linkPath = props.dashboard ? '/dashboard' : null;
     return (<div className={classes.ContentBox} key={item._id}>
       <ContentBox
-        title={<Link className={glb.Link} to={`/${props.resource}/${item._id}`} key={item._id}>{item.name}</Link>}
+        title={<Link className={glb.Link} to={`${linkPath}/${props.resource}/${item._id}`} key={item._id}>{item.name}</Link>}
         notifications={notifications}
       >
         {item.description}
