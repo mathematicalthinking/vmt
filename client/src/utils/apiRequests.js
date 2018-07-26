@@ -17,5 +17,10 @@ export default {
     // @TODO consider making notificationTypes a directory of constants like action types
     const notification = {notifications: {user: userId, notificationType: 'requestAccess'}}
     return axios.put(`/api/${resource}/${resourceId}`, notification)
+  },
+
+  grantAccess: (user, resource, id) => {
+    const members = {members: {user, role: 'Student'}}
+    return axios.put(`/api/${resource}/${id}`, members)
   }
 }

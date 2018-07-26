@@ -2,17 +2,24 @@ import React from 'react';
 import classes from './students.css';
 import Avatar from '../../../Components/UI/Avatar/Avatar';
 import Button from '../../../Components/UI/Button/Button';
+import * as actions from '../../../store/actions/'
+import { connect } from 'react-redux';
 
 const students = props => {
-  console.log(props.notifications)
-  const joinRequests = props.notifications.map(ntf => (
-    <div className={classes.Ntf}>
+  console.log(props.classList)
+  const joinRequests = props.notifications.map((ntf, i) => (
+    <div className={classes.UserRow} key={i}>
       <div style={{margin: 20}}><Avatar username={ntf.user.username} /></div>
       <div>requested access to join this course [TIMESTAMP]</div>
-      <Button click={''}>Grant Access</Button>
-        </div>
+      <Button click={() => props.grantAccess(ntf.user._id, 'course', props.course)}>Grant Access</Button>
+    </div>
   ))
-  console.log(joinRequests)
+  const classList = props.classList.map((member, i) => (
+    <div className={classes.UserRow} key={i}>
+      <div style={{margin: 20}}><Avatar username={member.user.username} /></div>
+      <div className={classes.Role}>{member.role}</div>
+    </div>
+  ))
   return (
     <div className={classes.Container}>
       <h3>New Requests to Join</h3>
@@ -20,9 +27,16 @@ const students = props => {
         {joinRequests}
       </div>
       <h3>Add New Students</h3>
-      <h3>Student List</h3>
+      <h3>Class List</h3>
+      {classList}
     </div>
   )
 }
 
-export default students;
+const mapDispatchToProps = dispatch => {
+  return {
+    grantAccess: (user, resource, id) => dispatch(actions.grantAccess(user, resource, id))
+  }
+}
+
+export default connect(null, mapDispatchToProps)(students);

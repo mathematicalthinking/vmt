@@ -25,6 +25,14 @@ export const createdCourse = resp => {
   }
 }
 
+export const updateCourseRooms = room => {
+  return {
+    type: actionTypes.UPDATE_COURSE_ROOMS,
+    room,
+  }
+}
+
+// MIDDLEWARE
 export const getCourses = () => {
   return dispatch => {
     API.get('course')
@@ -53,9 +61,12 @@ export const createCourse = body => {
   }
 }
 
-export const updateCourseRooms = room => {
-  return {
-    type: actionTypes.UPDATE_COURSE_ROOMS,
-    room,
+export const grantAccess = (user, resource, id) => {
+  return dispatch => {
+    API.grantAccess(user, resource, id)
+    .then(resp => {
+      // dispatch(updateUserCourses(resp.data.result))
+      return dispatch(gotCurrentCourse(resp.data.result))
+    })
   }
 }

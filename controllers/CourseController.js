@@ -14,8 +14,8 @@ module.exports = {
       db.Course.findById(id)
       .populate('creator')
       .populate('rooms')
-      // .populate('members.user')
-      .populate('notifications.user')
+      .populate('members.user')
+      .populate('notifications.user') // @TODO Reconsider this population, we shold request data individually as we need it
       .then(course => resolve(course))
       .catch(err => reject(err))
     });
@@ -31,12 +31,20 @@ module.exports = {
 
   put: (id, body) => {
     const updatedField = Object.keys(body)
-    if (updatedField[0] === 'notifications'){
+    if (updatedField[0] === 'notifications') {
       body = {$addToSet: body}
       console.log(body)
     }
+    if (updatedField[0] === 'members') {
+      console.log(body)
+      body = {$addToSet: body, $pull: {notifications: {user: body.members.user}}}
+    }
     return new Promise((resolve, reject) => {
       db.Course.findByIdAndUpdate(id, body, {new: true})
+      .populate('creator')
+      .populate('rooms')
+      .populate('members.user')
+      .populate('notifications.user')
       .then(course => resolve(course))
       .catch(err => reject(err))
     })

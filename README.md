@@ -34,6 +34,15 @@ $ git push -f heroku HEAD:master
 This project was bootstrapped with [this template](https://github.com/okputadora/MERN-template.git)
 refer to its README for information regarding the directory structure.
 
+### Dataflow
+* As a user navigates around the application, we want the rendering to be fast.
+This means we only want to request data at the moment we need to display it, and
+we only want to request that data once. If two components share data they should
+check if that data is already accessible before requesting it.
+*
+#### Redux
+From the redux docs: "For maximum rendering performance in a React application, state should be stored in a normalized shape, many individual components should be connected to the store instead of just a few, and connected list components should pass item IDs to their connected child list items (allowing the list items to look up their own data by ID). This minimizes the overall amount of rendering to be done. Use of memoized selector functions is also an important performance consideration."
+[source](https://redux.js.org/faq/performance)
 ## Geogebra
 This application makes use of the Geogebra software. LICENSE
 
@@ -76,7 +85,7 @@ its right at the top of the list and visible to the user~~
 1. ~~Filter is broken... myRooms seems to list every room i've ever entered including
 duplicates~~
 ### Replayer
-1. capture dragging events. 
+1. capture dragging events.
 1. allow the user to click on or drag the progress bas to change the time  
 
 ## Bugs

@@ -23,4 +23,5 @@ export {
   createCourse,
   createdCourses,
   updateCourseRooms,
+  grantAccess,
 } from './courses';

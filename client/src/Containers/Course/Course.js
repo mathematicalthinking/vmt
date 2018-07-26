@@ -14,7 +14,7 @@ class Course extends Component {
     activeTab: 'Rooms',
     access: false,
     guestMode: false,
-    currentCourse: {},
+    currentCourse: {}, // Right now I'm just saving currentCourse is state to compare the incoming props currentCourse to look for changes
     tabs: [
       {name: 'Rooms'},
       {name: 'Students'},
@@ -34,8 +34,9 @@ class Course extends Component {
       let studentNotifications = 0;
       // let roomNotifications = 0;
       const updatedTabs = [...prevState.tabs];
+      // check
       if (currentCourse.members) {
-        if (currentCourse.members.find(member => member.user === nextProps.userId)){
+        if (currentCourse.members.find(member => member.user._id === nextProps.userId)){
           console.log('hello!')
           access = true;
         } else {
@@ -95,7 +96,7 @@ class Course extends Component {
       case 'Students' :
       console.log(course)
         let notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
-        content = <Students classList={course.members} notifications={notifications} />
+        content = <Students classList={course.members} notifications={notifications} course={course._id}/>
         break;
       default : content = null;
     }
