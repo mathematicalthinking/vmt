@@ -21,16 +21,13 @@ class Profile extends Component {
   // The problem I'm facing is that the first time this
   // component renders it doesn't have the props from redux -- why is that? shouldn't it?
   static getDerivedStateFromProps(nextProps, prevState) {
-    console.log('nextPRops: ', nextProps.myCourses)
     if (nextProps.myCourses) {
       let notifications = 0;
       nextProps.myCourses.forEach(course => {
         if (course.notifications) {
-          console.log(course.notifications)
           notifications += course.notifications.length;
         }
       })
-      console.log(notifications);
       const updatedTabs = [...prevState.tabs];
       updatedTabs[0].notifications = notifications;
       return {
@@ -38,13 +35,7 @@ class Profile extends Component {
       }
     }
   }
-
-  componentDidMount() {
-    console.log(this.props.myCourses)
-
-  }
-
-
+  
   activateTab = event => {
     this.setState({activeTab: event.target.id});
   }

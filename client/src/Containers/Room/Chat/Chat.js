@@ -30,7 +30,6 @@ class Chat extends Component {
     if (!this.props.replaying) {
       this.socket = this.props.socket;
       this.socket.on('RECEIVE_MESSAGE', data => {
-        console.log('receive message')
         let newMessages = [...this.state.messages, data]
         this.setState({
           messages: newMessages
@@ -43,7 +42,6 @@ class Chat extends Component {
 
   scrollToBottom = () => {
     if (this.messagesEnd) {
-      console.log(this.messagesEnd)
       this.messagesEnd.scrollIntoView({ behavior: "smooth" });
     }
   }
@@ -64,7 +62,6 @@ class Chat extends Component {
     this.socket.emit('SEND_MESSAGE', newMessage, () => {
       // we should set state in here so we can handle errors and
       // let the user know whether their message made it to the others
-      console.log("MESSAGE SENT");
     })
 
     let updatedMessages = [...this.state.messages, newMessage]

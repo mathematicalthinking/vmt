@@ -1,4 +1,4 @@
-//PROPS: title,  list, selectHandler(listOfSelectedItems)  
+//PROPS: title,  list, selectHandler(listOfSelectedItems)
 
 import React, { Component } from 'react';
 import classes from './dropdown.css'
@@ -16,7 +16,6 @@ class Dropdown extends Component{
   }
 
   toggleList = event => {
-    console.log("toggling list")
     this.setState(prevState => ({
       listOpen: !prevState.listOpen,
     }))

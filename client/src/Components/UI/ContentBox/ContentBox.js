@@ -8,7 +8,6 @@ class ContentBox extends Component {
     if (this.props.align === 'left') alignClass = classes.Left;
     if (this.props.align === 'right') alignClass = classes.Right
     let notifications = null;
-    console.log(this.props.notifications)
     if (this.props.notifications > 0){
       notifications = <div className={classes.Notification}>{this.props.notifications}</div>
     }

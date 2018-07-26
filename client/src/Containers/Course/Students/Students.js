@@ -6,7 +6,6 @@ import * as actions from '../../../store/actions/'
 import { connect } from 'react-redux';
 
 const students = props => {
-  console.log(props.classList)
   const joinRequests = props.notifications.map((ntf, i) => (
     <div className={classes.UserRow} key={i}>
       <div style={{margin: 20}}><Avatar username={ntf.user.username} /></div>

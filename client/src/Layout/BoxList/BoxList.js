@@ -5,7 +5,6 @@ import classes from './boxList.css';
 import glb from '../../global.css';
 const boxList = props => {
   const listElems = props.list.map(item => {
-    console.log(item)
     let notifications = 0;
     if (props.notifications && item.notifications) {
       notifications = item.notifications.length

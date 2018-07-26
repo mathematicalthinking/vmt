@@ -47,7 +47,6 @@ class Room extends Component {
 
     // setup socket listeners for users entering and leaving room
     this.socket.on('NEW_USER', currentUsers => {
-      console.log('new user joined room: ', currentUsers)
       const updatedRoom = {...this.state.room}
       updatedRoom.currentUsers = currentUsers;
       this.setState({
@@ -56,7 +55,6 @@ class Room extends Component {
     })
 
     this.socket.on('USER_LEFT', currentUsers => {
-      console.log("A DIFFERENT CLIENT LEFT")
       const updatedRoom = {...this.state.room}
       updatedRoom.currentUsers = currentUsers;
       this.setState({
@@ -67,12 +65,10 @@ class Room extends Component {
 
   componentWillUnmount () {
     // @TODO close socket connection
-    console.log('leaving room')
     this.leaveRoom()
   }
 
   updateRoom = update => {
-    console.log('updating room: ', update)
     const updatedRoom = {...this.state.room}
     const resource = Object.keys(update);
     const updatedResource = [...this.state.room[resource], update[resource]]
@@ -83,7 +79,6 @@ class Room extends Component {
   }
 
   playEvents = () => {
-    console.log("replaying")
     let index = this.state.replayEventIndex;
     if (index === this.state.room.events.length - 1) {
       this.setState({replaying: false, replayEventIndex: 0})
@@ -97,11 +92,9 @@ class Room extends Component {
   // for fastforwarding rewinding
   goToEventIndex = index => {
     clearTimeout(this.player)
-    console.log(index)
     // dont let the user go outside of the range of events
     if (index < 0) index = 0;
     if (index >= this.state.room.events.length) index = this.state.room.events.length - 1;
-    console.log(index)
     this.setState({
       replaying: false,
       replayEventIndex: index,
@@ -143,7 +136,6 @@ class Room extends Component {
       const duplicate = this.state.room.currentUsers.find(user => user._id === this.props.userId)
       const updatedUsers = duplicate ? [...this.state.room.currentUsers] :
         [...this.state.room.currentUsers, {username: this.props.username, _id: this.props.userId}];
-        console.log('setting replaying to false')
       this.setState(prevState => ({
         room: {
           ...prevState.room,
@@ -173,7 +165,6 @@ class Room extends Component {
   render() {
     let stats;
     const room = {...this.state.room};
-    console.log(room)
     // making sure we at least two properties in room
     // this is because socket.io can get currentUsers before the api call
     // gets the rest of the information.

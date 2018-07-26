@@ -51,7 +51,6 @@ class NewRoom extends Component {
       course: this.props.course,
       isPublic: this.state.isPublic,
     }
-    console.log(newRoom)
     this.props.createRoom(newRoom)
     this.setState({
       creating: false,

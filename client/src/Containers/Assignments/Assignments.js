@@ -25,7 +25,6 @@ class Assignments extends Component {
     // check if we have have the data we need in the redux store
       // if not get it @TODO is this the best way to handle things? should we just gett
       // all of the data at the beginning ?
-      console.log('courses', this.props.courses)
     if (this.props.courses.length === 0) {
       this.props.getCourses();
     }
@@ -33,7 +32,6 @@ class Assignments extends Component {
   }
 
   toggleWhat = () => {
-    console.log('we in here')
     const assignCourses = this.state.assignCourses;
     this.setState({
       assignCourses: !assignCourses
@@ -41,7 +39,6 @@ class Assignments extends Component {
   }
 
   assignWhat = selected => {
-    console.log(selected)
     // add type to each selected element
     selected.forEach(item => item.type = this.state.assignCourses ? 'course' : 'room')
     // haha is this naming getting confusing? Its late
@@ -50,7 +47,6 @@ class Assignments extends Component {
     this.setState({
       assignment: updatedAssignment,
     })
-    console.log(this.state.assignment)
   }
 
   toggleWho = () => {

@@ -38,7 +38,6 @@ class Login extends Component {
     })
     // if there's an error message clear it.
     if (this.props.errorMessage) {
-      console.log('clearing')
       this.props.clearError();
     }
   }

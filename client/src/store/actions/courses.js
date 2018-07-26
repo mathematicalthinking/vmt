@@ -42,7 +42,6 @@ export const getCourses = () => {
 }
 
 export const getCurrentCourse = id => {
-  console.log(id)
   return dispatch => {
     API.getById('course', id)
     .then(resp => dispatch(gotCurrentCourse(resp.data.result)))

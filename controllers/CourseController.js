@@ -33,10 +33,8 @@ module.exports = {
     const updatedField = Object.keys(body)
     if (updatedField[0] === 'notifications') {
       body = {$addToSet: body}
-      console.log(body)
     }
     if (updatedField[0] === 'members') {
-      console.log(body)
       body = {$addToSet: body, $pull: {notifications: {user: body.members.user}}}
     }
     return new Promise((resolve, reject) => {

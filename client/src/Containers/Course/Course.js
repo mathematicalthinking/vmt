@@ -37,7 +37,6 @@ class Course extends Component {
       // check
       if (currentCourse.members) {
         if (currentCourse.members.find(member => member.user._id === nextProps.userId)){
-          console.log('hello!')
           access = true;
         } else {
           access = true;
@@ -46,7 +45,6 @@ class Course extends Component {
       }
       if (currentCourse.notifications) {
         nextProps.currentCourse.notifications.forEach(notification => {
-          console.log(notification)
           if (notification.notificationType === 'requestAccess') {
             studentNotifications += 1;
           }
@@ -63,7 +61,6 @@ class Course extends Component {
 
   componentDidMount() {
     // populate the courses data
-    console.log(this.props.match.params.id)
     this.props.getCurrentCourse(this.props.match.params.id)
   }
 
@@ -77,13 +74,11 @@ class Course extends Component {
     // we don't need access to this information anywhere else in the app
     API.requestAccess('course', this.props.match.params.id, this.props.userId)
     .then(res => {
-      console.log(res.data.result)
       // @TODO SEND/DISPLAY CONFIRMATION somehow
       this.props.history.push('/profile')
     })
   }
   render() {
-    console.log(this.state.tabs)
     const course = this.props.currentCourse;
     const active = this.state.activeTab;
     let content;
@@ -94,7 +89,6 @@ class Course extends Component {
         content = <BoxList list={course.rooms ? course.rooms : []} resource={'room'}/>
         break;
       case 'Students' :
-      console.log(course)
         let notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
         content = <Students classList={course.members} notifications={notifications} course={course._id}/>
         break;

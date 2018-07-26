@@ -45,7 +45,6 @@ class NewUser extends Component {
   }
 
   render() {
-    console.log(this.props.errorMessage)
     if (this.props.loggedIn) {
     }
     const formList = Object.keys(this.state)
