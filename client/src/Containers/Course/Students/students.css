@@ -1,0 +1,15 @@
+.Container {
+width: 100%;
+}
+
+.Notifications {
+  width: 100%;
+}
+
+.Ntf {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  border: 1px solid #ddd;
+}
