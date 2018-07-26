@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Main from '../../Layout/Main/Main';
+import Dashboard from '../../Layout/Dashboard/Dashboard';
 import BoxList from '../../Layout/BoxList/BoxList';
 import NewCourse from '../Create/NewCourse/NewCourse';
 import NewRoom from '../Create/NewRoom/NewRoom';
@@ -35,7 +35,7 @@ class Profile extends Component {
       }
     }
   }
-  
+
   activateTab = event => {
     this.setState({activeTab: event.target.id});
   }
@@ -64,7 +64,7 @@ class Profile extends Component {
 
 
     return (
-      <Main
+      <Dashboard
         title='Profile'
         sidePanelTitle={this.props.username}
         content={content}

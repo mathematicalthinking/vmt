@@ -4,10 +4,10 @@
   // activeTab: string
 //
 import React from 'react';
-import classes from './main.css';
+import classes from './dashboard.css';
 import TabList from '../../Components/Navigation/TabList/TabList';
 
-const main = props => {
+const dashboard = props => {
   console.log(props.contentCreate)
   return (
     <section className={classes.Container}>
@@ -32,4 +32,4 @@ const main = props => {
 }
 
 
-export default main;
+export default dashboard;

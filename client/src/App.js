@@ -1,5 +1,5 @@
 import React from 'react';
-import Layout from './Layout/Layout';
+import Main from './Layout/Main';
 import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
 import rootReducer from './store/reducers'
@@ -19,7 +19,7 @@ const store = createStore(rootReducer, composeEnhancers(applyMiddleware(logger, 
 
 const App = (props) => (
   <Provider store={store}>
-    <Layout />
+    <Main />
   </Provider>
 );
 

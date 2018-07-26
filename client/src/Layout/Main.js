@@ -9,11 +9,11 @@ import Profile from '../Containers/Profile/Profile';
 import Assignments from '../Containers/Assignments/Assignments';
 import Avatar from '../Components/UI/Avatar/Avatar';
 import PrivateRoute from '../Components/HOC/PrivateRoute';
-import classes from './Layout.css';
+import classes from './main.css';
 import { connect } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch} from 'react-router-dom';
-class Layout extends Component {
 
+class Main extends Component {
   render() {
     return (
       <Router>
@@ -53,4 +53,4 @@ const mapStateToProps = store => {
   };
 }
 
-export default connect(mapStateToProps, null)(Layout);
+export default connect(mapStateToProps, null)(Main);

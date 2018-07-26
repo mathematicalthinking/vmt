@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../../store/actions/';
 import API from '../../utils/apiRequests';
-import Main from '../../Layout/Main/Main';
+import Dashboard from '../../Layout/Dashboard/Dashboard';
 import NewRoom from '../Create/NewRoom/NewRoom'
 import BoxList from '../../Layout/BoxList/BoxList';
 import Aux from '../../Components/HOC/Auxil';
@@ -107,7 +107,7 @@ class Course extends Component {
       <Aux>
         {guestModal}
         {accessModal}
-        <Main
+        <Dashboard
           title={course.name ? `Course: ${course.name}` : null}
           sidePanelTitle={course.name}
           contentCreate={contentCreate}
