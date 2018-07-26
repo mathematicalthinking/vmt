@@ -73,11 +73,13 @@ you're still hovering over it
 would want a list of all the room they're going to assign throughout the year,
 and when they want students working in that room they can mark it as active with
 a due date or something?)
-1. NEW COURSE: dropdown menus need to synch. If we have the same room in both lists
-selecting one should highlight the other as well
+1. ? Do we want to allow a teacher to select rooms when they're creating a course
+or should that just happen after?
+1. Students should have a similar course dashboard but should not have the ability
+to create new rooms or add students or see student notifications
 
-### Profile page
-
+### Profile page/Dashboard page
+1. Have breadcrumbs so user can easily navigate back and forth between resources  
 ### Rooms
 1. ~~have the rooms order from newest to oldest, so when a new room is created
 its right at the top of the list and visible to the user~~
