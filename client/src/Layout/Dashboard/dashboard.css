@@ -1,24 +1,23 @@
 .Container {
   display: flex;
+  flex-flow: column;
   background-color: #fdfdfd;
-  padding: 0 20px 20px 20px;
-  align-self: center;
   width: 98%;
-  /* box-shadow: 11px 20px 61px 20px rgba(248,248,248,1); */
   border: 1px solid #ddd;
   border-top: 1px solid #75b7f6;
   min-height: calc(100vh - 220px);
   margin-bottom: 50px;
+  padding: 0 20px 20px 20px;
 }
 
-.Title {
+.Main {
+  width: 100%;
+  display: flex;
+  /* box-shadow: 11px 20px 61px 20px rgba(248,248,248,1); */
+}
+
+.BreadCrumbs {
   margin-bottom: 20px;
-  color: white;
-  background-color: #4ba1f3;
-  padding: 3px;
-  border-radius: 0 0 14px 14px;
-  text-align: center;
-  height: 27px;
 }
 
 .SidePanel {
@@ -38,7 +37,7 @@
   font-size: 1.2em;
 }
 
-.Main {
+.Content {
   display: flex;
   flex-flow: column;
   flex-grow: 2;

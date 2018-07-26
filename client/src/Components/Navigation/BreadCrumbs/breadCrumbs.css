@@ -1,0 +1,19 @@
+.CrumbContainer {
+  background-color: #d1d1d1;
+  border: 2px solid #666 inset;
+  padding: 0 40px 0 4px;
+  border-radius: 0 0 14px 14px;
+  height: 27px;
+  width: auto;
+}
+
+.Crumb {
+  margin-bottom: 20px;
+  color: white;
+  background-color: #4ba1f3;
+  padding: 3px;
+  border-radius: 0 0 10px 10px;
+  text-align: center;
+  height: 85%;
+  width: 200px;
+}
