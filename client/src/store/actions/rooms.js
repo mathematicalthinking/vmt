@@ -1,11 +1,19 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { updateUserRooms } from './user';
-export const gotRooms = resp => {
-  const rooms = resp.data.results
+
+export const gotRooms = rooms => {
   return {
     type: actionTypes.GOT_ROOMS,
     rooms,
+  }
+}
+
+export const gotCurrentRoom = room => {
+  console.log(room)
+  return {
+    type: actionTypes.GOT_CURRENT_ROOM,
+    room,
   }
 }
 
@@ -20,8 +28,15 @@ export const createdRoom = resp => {
 export const getRooms = () => {
   return dispatch => {
     API.get('room')
-    .then(resp => dispatch(gotRooms(resp)))
+    .then(resp => dispatch(gotRooms(resp.data.results)))
     .catch(err => console.log(err));
+  }
+}
+
+export const getCurrentRoom = id => {
+  return dispatch => {
+    API.getById('room', id)
+    .then(resp => dispatch(gotCurrentRoom(resp.data.result)))
   }
 }
 

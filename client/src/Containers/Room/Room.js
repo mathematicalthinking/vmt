@@ -14,7 +14,7 @@ class Room extends Component {
     activeTab: 'Summary',
     access: false,
     guestMode: false,
-    currentRoom: {}, // Right now I'm just saving currentCourse is state to compare the incoming props currentCourse to look for changes
+    currentRoom: {}, // Right now I'm just saving currentCourse is state to compare the incoming props currentRoom to look for changes -- is this a thing people do?
     tabs: [
       {name: 'Summary'},
       {name: 'Students'},
@@ -25,9 +25,11 @@ class Room extends Component {
   }
 
   async componentDidMount() {
-    await this.props.getCurrentRoom();
-
+    console.log(this.props.match.params)
+    await this.props.getCurrentRoom(this.props.match.params.room_id);
+    this.setState({currentRoom: this.props.currentRoom})
   }
+  
   render() {
     const room = {}
     room.name = 'Room'
@@ -56,14 +58,15 @@ class Room extends Component {
 
 const mapStateToProps = store => {
   return {
-    currentRoom: store.roomReducer.currentRoom,
-    currentCourse: store.courseReducer.currentCourse,
+    currentRoom: store.roomsReducer.currentRoom,
+    currentCourse: store.coursesReducer.currentCourse,
     userId: store.userReducer.userId,
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
+    getCurrentRoom: id => dispatch(actions.getCurrentRoom(id)),
     // updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
     // getCurrentCourse: id => dispatch(actions.getCurrentCourse(id)),
   }

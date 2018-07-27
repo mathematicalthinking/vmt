@@ -2,6 +2,7 @@ import * as actionTypes from '../actions/actionTypes';
 
 const initialState = {
   rooms: [],
+  currentRoom: {},
   createdNewRoom: false,
   newRoomId: '',
 }
@@ -13,9 +14,12 @@ const reducer = (state = initialState, action) => {
         ...state,
         rooms: action.rooms,
       };
-    default:
-      return state
-    // if we've created a new room alert the user so we can redirect
+    case actionTypes.GOT_CURRENT_ROOM:
+      return {
+        ...state,
+        currentRoom: action.room,
+      }
+    // @TODO if we've created a new room alert the user so we can redirect
     // to the room --> do this by updating the sto
     case actionTypes.CREATED_ROOM:
       return  {
@@ -28,6 +32,8 @@ const reducer = (state = initialState, action) => {
         ...state,
         createdNewRoom: false,
       }
+      default:
+      return state
   }
 };
 
