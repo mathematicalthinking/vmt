@@ -15,6 +15,7 @@
   background-color: #f9f9f9;
   letter-spacing: .08em;
   color: #666;
+  caret-color: #2D91F2;
 }
 .Input:focus{
   border: none;

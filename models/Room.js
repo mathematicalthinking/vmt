@@ -12,6 +12,7 @@ const Room = new mongoose.Schema({
   chat: [{type: ObjectId, ref: 'Message'}],
   members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}}],
   currentUsers: [{type: ObjectId, ref: 'User'}],
+  notifications: [{user: {type: ObjectId, ref: 'User'}, notificationType: {type: String}}],
   isPublic: {type: Boolean, default: false}
 },
 {timestamps: true});

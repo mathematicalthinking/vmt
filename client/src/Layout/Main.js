@@ -3,7 +3,7 @@ import Navbar from '../Components/Navigation/Navbar';
 import Login from '../Containers/Login/Login';
 import Room from '../Containers/Room/Room';
 import Course from '../Containers/Course/Course';
-import Courses from '../Containers/Courses/Courses';
+import PublicList from '../Containers/PublicList/PublicList';
 import NewUser from '../Containers/Create/NewUser/NewUser';
 import Profile from '../Containers/Profile/Profile';
 import Assignments from '../Containers/Assignments/Assignments';
@@ -30,7 +30,8 @@ class Main extends Component {
               <Route path='/users/new' authed={this.props.loggedIn} component={NewUser}/>
               <PrivateRoute exact path='/dashboard' authed={this.props.loggedIn} component={Profile}/>
               <PrivateRoute exact path = '/dashboard/course/:course_id' authed={this.props.loggedIn} component={Course}/>
-              <PrivateRoute exact path='/courses' authed={this.props.loggedIn} component={Courses}/>
+              <Route exact path='/courses' render={props => <PublicList {...props} resource='course' />}/>
+              <Route exact oath='/rooms' render={props => <PublicList {...props} resource='room' />}/>
               <PrivateRoute path='/room/:room_id' authed={this.props.loggedIn} component={Room}/>
               <PrivateRoute exact path='/dashboard/course/:course_id/room/:room_id' authed={this.props.loggedIn} component={Room}/>
               <PrivateRoute exact path='/course/:course_id' authed={this.props.loggedIn} component={Course} />

@@ -43,7 +43,7 @@ class Course extends Component {
           guestMode = true;
         }
       }
-      // check notifications 
+      // check notifications
       if (currentCourse.notifications) {
         nextProps.currentCourse.notifications.forEach(notification => {
           if (notification.notificationType === 'requestAccess') {
@@ -74,7 +74,7 @@ class Course extends Component {
   requestAccess = () => {
     // Should we make this post through redux? I don't really see a good reason to
     // we don't need access to this information anywhere else in the app
-    API.requestAccess('course', this.props.match.params.id, this.props.userId)
+    API.requestAccess('course', this.props.match.params.course_id, this.props.userId)
     .then(res => {
       // @TODO SEND/DISPLAY CONFIRMATION somehow
       this.props.history.push('/profile')
@@ -100,7 +100,7 @@ class Course extends Component {
     const guestModal = this.state.guestMode ?
       <Modal show={true}>
         <p>You currently don't have access to this course. If you would like to
-          reuqest access from the owner click "Join". When your request is accepted
+          request access from the owner click "Join". When your request is accepted
           this course will appear in your list of courses on your dashboard.
         </p>
         <Button click={this.requestAccess}>Join</Button>
