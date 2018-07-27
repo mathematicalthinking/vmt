@@ -10,6 +10,7 @@ const Room = new mongoose.Schema({
   creator: {type: ObjectId, ref: 'User', required: true},
   events: [{type: ObjectId, ref: 'Event'}],
   chat: [{type: ObjectId, ref: 'Message'}],
+  members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}}],
   currentUsers: [{type: ObjectId, ref: 'User'}],
   isPublic: {type: Boolean, default: false}
 },
@@ -21,9 +22,8 @@ Room.pre('save', function (next) {
     next();
 });
 
-Room.post('save', function(doc) { // intentionally not using arrow functions
-  // so 'this' refers to the model
-  console.log('saved!', doc)
+Room.post('save', function(doc) { // intentionally not using arrow functions so 'this' refers to the model
+  // If this is a post request hook
   if (this.wasNew) {
     User.findById(doc.creator, (err, res) => {
       if (err) {

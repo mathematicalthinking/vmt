@@ -10,7 +10,6 @@ export const gotRooms = rooms => {
 }
 
 export const gotCurrentRoom = room => {
-  console.log(room)
   return {
     type: actionTypes.GOT_CURRENT_ROOM,
     room,

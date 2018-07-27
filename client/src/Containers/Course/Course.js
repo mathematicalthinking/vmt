@@ -34,7 +34,7 @@ class Course extends Component {
       let studentNotifications = 0;
       // let roomNotifications = 0;
       const updatedTabs = [...prevState.tabs];
-      // check
+      // check permissions
       if (currentCourse.members) {
         if (currentCourse.members.find(member => member.user._id === nextProps.userId)){
           access = true;
@@ -43,6 +43,7 @@ class Course extends Component {
           guestMode = true;
         }
       }
+      // check notifications 
       if (currentCourse.notifications) {
         nextProps.currentCourse.notifications.forEach(notification => {
           if (notification.notificationType === 'requestAccess') {
@@ -55,6 +56,7 @@ class Course extends Component {
         tabs: updatedTabs,
         access,
         guestMode,
+        currentCourse,
       }
     } else return null
   }
@@ -64,7 +66,6 @@ class Course extends Component {
     console.log(this.props.match)
     this.props.getCurrentCourse(this.props.match.params.course_id)
   }
-
 
   activateTab = event => {
     this.setState({activeTab: event.target.id});
@@ -79,6 +80,7 @@ class Course extends Component {
       this.props.history.push('/profile')
     })
   }
+
   render() {
     const course = this.props.currentCourse;
     const active = this.state.activeTab;

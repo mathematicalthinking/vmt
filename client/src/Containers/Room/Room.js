@@ -23,27 +23,69 @@ class Room extends Component {
       {name:'Settings'}
     ],
   }
-
-  async componentDidMount() {
-    console.log(this.props.match.params)
-    await this.props.getCurrentRoom(this.props.match.params.room_id);
-    this.setState({currentRoom: this.props.currentRoom})
+ // @TODO see corresponding note in Course.js
+  static getDerivedStateFromProps(nextProps, prevState) {
+    console.log('getting dreives state')
+    const currentRoom = nextProps.currentRoom;
+    const currentCourse = nextProps.currentCourse;
+    if (currentRoom !== prevState.currentRoom) {
+      let access = false;
+      let guestMode = false;
+      // let studentNotifications = 0;
+      const updatedTabs = [...prevState.tabs]
+      // if this room belongs to a course check course.members for permission
+      if (currentRoom.course && currentCourse.members) {
+        if (currentCourse.members.find(member => member.user._id === nextProps.userId)) {
+          access = true;
+        }
+        else {
+          access = true;
+          guestMode = true;
+        }
+      }
+      // if there are new notifications
+      // if (currentRoom.notifications)
+      return {
+        tabs: updatedTabs,
+        access,
+        guestMode,
+        currentRoom,
+      }
+    } else return null;
   }
-  
+
+  componentDidMount() {
+    this.props.getCurrentRoom(this.props.match.params.room_id)
+  }
+
   render() {
-    const room = {}
-    room.name = 'Room'
+    const room = this.state.currentRoom;
+    const course = this.props.currentCourse;
     switch (this.state.activeTab) {
 
     }
-
+    console.log(course)
+    console.log(room)
+    const guestModal = this.state.guestMode ?
+      <Modal show={true}>
+        <p>You currently don't have access to this course. If you would like to
+          reuqest access from the owner click "Join". When your request is accepted
+          this course will appear in your list of courses on your dashboard.
+        </p>
+        <Button click={this.requestAccess}>Join</Button>
+      </Modal> : null;
+    const accessModal = !this.state.access ? <Modal show={true} message='Loading Room'/> : null;
     return (
       <Aux>
-        {/* {guestModal}
-        {accessModal} */}
+        {guestModal}
+        {accessModal}
         <Dashboard
           title={room.name ? `Course: ${room.name}` : null}
-          crumbs={[{title: 'Profile', link: '/dashboard'}, {title: room.name ? room.name : null, link: `/dashboard/room/${room._id}`}]}
+          crumbs={[
+            {title: 'Profile', link: '/dashboard'},
+            {title: course.name ? course.name : null, link: `/dashboard/course/${course._id}`},
+            {title: room.name ? room.name : null, link: `/dashboard/room/${room._id}`}
+          ]}
           sidePanelTitle={room.name}
           // contentCreate={contentCreate}
           // content={content}
