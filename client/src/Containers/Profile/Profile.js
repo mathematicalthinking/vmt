@@ -60,7 +60,7 @@ class Profile extends Component {
         resource = null;
     }
     // Put content in a boxlist layout
-    let content = <BoxList list={contentList} resource={resource} notifications={true} dashboard={true}/>
+    let content = <BoxList list={contentList} resource={resource} notifications={true} dashboard={true}/> //IDEA what if we just connected to the boxlist to the store> instead of passing all these props just pass which list it should render
     if (contentList.length === 0) {content = `You don't seem to have any ${resource}s yet. Click "Create" to get started`}
 
 

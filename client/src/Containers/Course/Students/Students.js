@@ -9,7 +9,7 @@ const students = props => {
   const joinRequests = props.notifications.map((ntf, i) => (
     <div className={classes.UserRow} key={i}>
       <div style={{margin: 20}}><Avatar username={ntf.user.username} /></div>
-      <div>requested access to join this course [TIMESTAMP]</div>
+      <div>requested access to join this course [TIMESTAMP @TODO]</div>
       <Button click={() => props.grantAccess(ntf.user._id, 'course', props.course)}>Grant Access</Button>
     </div>
   ))

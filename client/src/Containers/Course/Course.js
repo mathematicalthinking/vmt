@@ -64,7 +64,11 @@ class Course extends Component {
   componentDidMount() {
     // populate the courses data
     console.log(this.props.match)
-    this.props.getCurrentCourse(this.props.match.params.course_id)
+    console.log("CurrentCourse from redux IN COMPONENT DID MOUNT: ", this.props.currentCourse)
+    if (Object.keys(this.props.currentCourse).length === 0) {
+      console.log('dispatching action')
+      this.props.getCurrentCourse(this.props.match.params.course_id)
+    }
   }
 
   activateTab = event => {

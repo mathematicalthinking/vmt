@@ -1,20 +1,35 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import * as actions from '../../store/actions/';
 import BoxList from '../../Layout/BoxList/BoxList';
 import Search from '../../Components/Search/Search';
 import classes from './publicList.css';
-import API from '../../utils/apiRequests';
-// import { connect } from 'react-redux';
 let allResources = [];
 class PublicList extends Component {
   state = {
     resources: [],
   }
+  
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.resource === 'course')
+    return {
+      resources: nextProps.publicCourses
+    }
+    else if (nextProps.resource === 'room') {
+      return {
+        resources: nextProps.publicRooms
+      }
+    }
+  }
+
   componentDidMount() {
-    API.get(this.props.resource)
-    .then(res => {
-      allResources = res.data.results
-      this.setState({resources: allResources})
-    })
+    // get the rooms
+    if (Object.keys(this.props.publicRooms).length === 0){
+      this.props.getCourses();
+    }
+    if (Object.keys(this.props.publicCourses).length === 0){
+      this.props.getRooms();
+    }
   }
 
   filterResults = value => {
@@ -41,4 +56,17 @@ class PublicList extends Component {
   }
 }
 
-export default PublicList;
+const mapStateToProps = store => {
+  return {
+    publicRooms: store.roomsReducer.rooms,
+    publicCourses: store.coursesReducer.courses,
+  }
+}
+const mapDispatchToProps = dispatch => {
+  return {
+    getRooms: () => dispatch(actions.getRooms()),
+    getCourses: () => dispatch(actions.getCourses())
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps,)(PublicList);

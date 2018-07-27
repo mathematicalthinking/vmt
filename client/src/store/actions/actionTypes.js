@@ -10,7 +10,6 @@ export const LOGIN_FAIL = 'LOGIN_FAIL';
 // // SIGNUP
 export const SIGNUP = 'SIGNUP';
 
-
 // ROOMS
 export const GET_ROOMS = 'GET_ROOMS';
 export const GOT_ROOMS = 'GOT_ROOMS';
