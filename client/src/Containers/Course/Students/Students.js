@@ -21,12 +21,12 @@ const students = props => {
   ))
   return (
     <div className={classes.Container}>
-      <h3>New Requests to Join</h3>
+      <h3 className={classes.SubHeader}>New Requests to Join</h3>
       <div className={classes.Notifications}>
         {joinRequests}
       </div>
-      <h3>Add New Students</h3>
-      <h3>Class List</h3>
+      <h3 className={classes.SubHeader}>Add New Students</h3>
+      <h3 className={classes.SubHeader}>Class List</h3>
       {classList}
     </div>
   )

@@ -5,7 +5,6 @@ import Dashboard from '../../Layout/Dashboard/Dashboard';
 import BoxList from '../../Layout/BoxList/BoxList';
 import NewCourse from '../Create/NewCourse/NewCourse';
 import NewRoom from '../Create/NewRoom/NewRoom';
-import * as actions from '../../store/actions/';
 import { connect } from 'react-redux';
 
 class Profile extends Component {

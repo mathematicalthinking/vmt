@@ -61,7 +61,8 @@ class Course extends Component {
 
   componentDidMount() {
     // populate the courses data
-    this.props.getCurrentCourse(this.props.match.params.id)
+    console.log(this.props.match)
+    this.props.getCurrentCourse(this.props.match.params.course_id)
   }
 
 
@@ -86,7 +87,7 @@ class Course extends Component {
     switch (active) {
       case 'Rooms' :
         contentCreate = <NewRoom course={course._id} updateParent={room => this.props.updateCourseRooms(room)}/>
-        content = <BoxList list={course.rooms ? course.rooms : []} resource={'room'}/>
+        content = <BoxList list={course.rooms ? course.rooms : []} resource={'room'} notifications={true} dashboard={true} course={course._id}/>
         break;
       case 'Students' :
         let notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
@@ -109,7 +110,7 @@ class Course extends Component {
         {accessModal}
         <Dashboard
           title={course.name ? `Course: ${course.name}` : null}
-          crumbs={[{title: 'Profile', link: '/dashboard'}, {title: course.name ? `Course: ${course.name}` : null, link: `/dashboard/course/${course._id}`}]}
+          crumbs={[{title: 'Profile', link: '/dashboard'}, {title: course.name ? course.name : null, link: `/dashboard/course/${course._id}`}]}
           sidePanelTitle={course.name}
           contentCreate={contentCreate}
           content={content}

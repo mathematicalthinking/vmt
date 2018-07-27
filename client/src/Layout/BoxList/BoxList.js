@@ -11,7 +11,8 @@ const boxList = props => {
     if (props.notifications && item.notifications) {
       notifications = item.notifications.length
     }
-    const linkPath = props.dashboard ? '/dashboard' : '';
+    let linkPath = props.dashboard ? '/dashboard' : '';
+    if (props.course) { linkPath += `/course/${props.course}`}
     return (<div className={classes.ContentBox} key={i}>
       <ContentBox
         title={<Link className={glb.Link} to={`${linkPath}/${props.resource}/${item._id}`} key={item._id}>{item.name}</Link>}
