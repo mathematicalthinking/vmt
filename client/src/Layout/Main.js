@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import Navbar from '../Components/Navigation/Navbar';
 import Login from '../Containers/Login/Login';
-import Room from '../Containers/Room/Room';
-import Course from '../Containers/Course/Course';
 import PublicList from '../Containers/PublicList/PublicList';
 import NewUser from '../Containers/Create/NewUser/NewUser';
 import Dashboard from '../Containers/Dashboard/Dashboard';
@@ -32,9 +30,6 @@ class Main extends Component {
               <PrivateRoute path='/dashboard' authed={this.props.loggedIn} component={Dashboard}/>
               <Route exact path='/courses' render={props => <PublicList {...props} resource='course' />}/>
               <Route exact path='/rooms' render={props => <PublicList {...props} resource='room' />}/>
-              <PrivateRoute exact path='/room/:room_id' authed={this.props.loggedIn} component={Room}/>
-              {/* <PrivateRoute exact path='/dashboard/course/:course_id/room/:room_id' authed={this.props.loggedIn} component={Room}/> */}
-              <PrivateRoute exact path='/course/:course_id' authed={this.props.loggedIn} component={Course} />
               <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/>
               <Route exact path='/logout' component={Login}/>
               <Route path="*" render={() => {

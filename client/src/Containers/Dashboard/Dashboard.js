@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
+import Course from './Course/Course'
 import { Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 
@@ -13,7 +14,7 @@ class Dashboard extends Component {
       {name: 'Templates'},
       {name: 'Settings'},
     ],
-    crumbs: [{title: 'Dashboard', link: 'dashbaord'}],
+    crumbs: [{title: 'Dashboard', link: '/dashbaord'}],
     resource: 'course',
   }
   // I seem to be over using this lifeCycle hook
@@ -40,9 +41,8 @@ class Dashboard extends Component {
     return(
       <Switch>
         <Route path='/dashboard/:resource/:id' render={props => {
-          console.log('render course!')
           return (
-
+            <Course courseId={props.match.params.id} crumbs={this.state.crumbs}/>
           )
         }} />
         <Route path='/dashboard/:resource' render={props => {
@@ -56,6 +56,7 @@ class Dashboard extends Component {
               tabs={this.state.tabs}
               resource={resource}
               resourceList={resourceList}
+              loaded={true}
             />
           )}}/>
 

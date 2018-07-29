@@ -15,7 +15,8 @@ const dashboard = props => {
   return (
     <section className={classes.Container}>
       <div className={classes.BreadCrumbs}>
-        <BreadCrumbs crumbs={props.crumbs}/>
+        {props.loaded ? <BreadCrumbs crumbs={props.crumbs}/> : null}
+        {/* @TODO Would bne cool to have a blank element here as a placeholder */}
       </div>
       <div className={classes.Main}>
         <div className={classes.SidePanel}>
@@ -23,9 +24,9 @@ const dashboard = props => {
           {/* <div className={classes.SpTitle}>{props.sidePanelTitle}</div> */}
         </div>
         <div className={classes.Content}>
-          <TabList tabs={props.tabs} activeTab={props.activeTab} activateTab={props.resource}/>
+          <TabList tabs={props.tabs} activeTab={props.resource}/>
           <div className={classes.MainContent}>
-            <DashboardContent resourceList={props.resourceList} resource={props.resource}/>
+            {props.loaded ? <DashboardContent resourceList={props.resourceList} resource={props.resource}/> : null}
           </div>
         </div>
       </div>
