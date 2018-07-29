@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
-// import BoxList from '../../Layout/BoxList/BoxList';
-// import NewCourse from '../Create/NewCourse/NewCourse';
-// import NewRoom from '../Create/NewRoom/NewRoom';
+import { Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 class Dashboard extends Component {
@@ -38,24 +36,33 @@ class Dashboard extends Component {
   }
 
   render() {
-    console.log('rendering dashboard container')
-    let resources = this.props.match.params.resource;
-    let resource = resources.substring(0, resources.length - 1);
-    let resourceList = this.props.myCourses
-    if (resources === 'rooms') { resourceList = this.props.myRooms}
-    console.log('re rendering Dashboard container')
-    return (
-      <DashboardLayout
-        crumbs={this.state.crumbs}
-        tabs={this.state.tabs}
-        activeTab={resources}
-        resource={resource}
-        resourceList={resourceList}
-      />
+    console.log(this.props)
+    return(
+      <Switch>
+        <Route path='/dashboard/:resource/:id' render={props => {
+          console.log('render course!')
+          return (
+
+          )
+        }} />
+        <Route path='/dashboard/:resource' render={props => {
+          console.log(props)
+          const { resource } = props.match.params
+          let resourceList = this.props.myCourses;
+          if (resource === 'rooms') { resourceList = this.props.myRooms}
+          return (
+            <DashboardLayout
+              crumbs={this.state.crumbs}
+              tabs={this.state.tabs}
+              resource={resource}
+              resourceList={resourceList}
+            />
+          )}}/>
+
+      </Switch>
     )
   }
 }
-
 const mapStateToProps = store => {
   const user = store.userReducer;
   return {

@@ -23,7 +23,7 @@ const dashboard = props => {
           {/* <div className={classes.SpTitle}>{props.sidePanelTitle}</div> */}
         </div>
         <div className={classes.Content}>
-          <TabList tabs={props.tabs} activeTab={props.activeTab} activateTab={props.activateTab}/>
+          <TabList tabs={props.tabs} activeTab={props.activeTab} activateTab={props.resource}/>
           <div className={classes.MainContent}>
             <DashboardContent resourceList={props.resourceList} resource={props.resource}/>
           </div>
