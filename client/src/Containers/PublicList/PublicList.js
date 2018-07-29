@@ -9,7 +9,7 @@ class PublicList extends Component {
   state = {
     resources: [],
   }
-  
+
   static getDerivedStateFromProps(nextProps, prevState) {
     if (nextProps.resource === 'course')
     return {
@@ -50,7 +50,9 @@ class PublicList extends Component {
         <h2>{this.props.resource + 's'}</h2>
         <Search filter={value => this.filterResults(value)} />
         <div className={classes.Seperator}></div>
-        <BoxList list={this.state.resources} resource={this.props.resource}/>
+        {/* @ TODO Eventually remove dashboard...we want to have a public facing view
+        that does not show up in  the dashboard. */}
+        <BoxList list={this.state.resources} resource={this.props.resource} dashboard={true}/>
       </div>
     )
   }

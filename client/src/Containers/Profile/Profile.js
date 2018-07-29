@@ -41,6 +41,7 @@ class Profile extends Component {
     this.setState({activeTab: event.target.id});
   }
   render() {
+    console.log("MYCOURSES: ",this.props.myCourses)
     let contentList = [];
     let resource;
     let contentCreate;

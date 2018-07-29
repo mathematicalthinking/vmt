@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../../store/actions/';
-import API from '../../utils/apiRequests';
 import Dashboard from '../../Layout/Dashboard/Dashboard';
 import NewRoom from '../Create/NewRoom/NewRoom'
 import BoxList from '../../Layout/BoxList/BoxList';
