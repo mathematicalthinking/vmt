@@ -1,11 +1,10 @@
-// CONSIDER RENAMING THIS WHOLE COMPONENT TO DASHBOARD
-// WE WOULD WANT TO RENAME THE LAYOUT CONTAINER DASHBOARD
 import React, { Component } from 'react';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
-import BoxList from '../../Layout/BoxList/BoxList';
-import NewCourse from '../Create/NewCourse/NewCourse';
-import NewRoom from '../Create/NewRoom/NewRoom';
+// import BoxList from '../../Layout/BoxList/BoxList';
+// import NewCourse from '../Create/NewCourse/NewCourse';
+// import NewRoom from '../Create/NewRoom/NewRoom';
 import { connect } from 'react-redux';
+import { Route } from 'react-router-dom';
 
 class Dashboard extends Component {
   state = {
@@ -17,6 +16,9 @@ class Dashboard extends Component {
       {name: 'Templates'},
       {name: 'Settings'},
     ],
+    crumbs: [{title: 'Dashboard', link: 'dashbaord'}],
+    resource: 'course',
+    myResources: this.props.myCourses,
   }
   // I seem to be over using this lifeCycle hook
   // The problem I'm facing is that the first time this
@@ -38,44 +40,56 @@ class Dashboard extends Component {
   }
 
   activateTab = event => {
-    this.setState({activeTab: event.target.id});
+    console.log(event.target.id)
+    const resource = event.target.id.toLowerCase().substring(0, event.target.id.length - 1);
+    this.setState({
+      activeTab: event.target.id,
+      resource,
+    });
   }
   render() {
-    console.log("MYCOURSES: ",this.props.myCourses)
-    let contentList = [];
-    let resource;
-    let contentCreate;
-    // Load content based on
-    switch (this.state.activeTab) {
-      case 'Courses' :
-        resource = 'course';
-        contentList = this.props.myCourses;
-        contentCreate = <NewCourse />
-        break;
-      case 'Rooms' :
-        contentList = this.props.myRooms;
-        contentCreate = <NewRoom />
-        resource = 'room';
-        break;
-      default:
-        resource = null;
-    }
-    // Put content in a boxlist layout
-    let content = <BoxList list={contentList} resource={resource} notifications={true} dashboard={true}/> //IDEA what if we just connected to the boxlist to the store> instead of passing all these props just pass which list it should render
-    if (contentList.length === 0) {content = `You don't seem to have any ${resource}s yet. Click "Create" to get started`}
+    // console.log("MYCOURSES: ",this.props.myCourses)
+    // let contentList = [];
+    // let contentCreate;
+    // // Load content based on
+    // switch (this.state.activeTab) {
+    //   case 'Courses' :
+    //     contentList = this.props.myCourses;
+    //     contentCreate = <NewCourse />
+    //     break;
+    //   case 'Rooms' :
+    //     contentList = this.props.myRooms;
+    //     contentCreate = <NewRoom />
+    //     break;
+    //   default:
+    // }
+    // // Put content in a boxlist layout
+    // let content = <BoxList list={contentList} resource={this.state.resource} notifications={true} dashboard={true}/> //IDEA what if we just connected to the boxlist to the store> instead of passing all these props just pass which list it should render
+    // if (contentList.length === 0) {content = `You don't seem to have any ${this.state.resource}s yet. Click "Create" to get started`}
 
 
     return (
-      <DashboardLayout
-        title='Dashboard'
-        crumbs={[{title: 'Dashboard', link: 'dashboard'}]}
-        sidePanelTitle={this.props.username}
-        content={content}
-        contentCreate={contentCreate}
-        tabs={this.state.tabs}
-        activeTab={this.state.activeTab}
-        activateTab={event => this.setState({activeTab: event.target.id})}
-      />
+      <Route exact path="/dashboard/courses" render={props => (
+        <DashboardLayout
+          {...props}
+          crumbs={this.state.crumbs}
+          tabs={this.state.tabs}
+          activeTab={this.state.activeTab}
+          resource={this.state.resource}
+          myResourceList={this.state.myResources}
+          activateTab={this.activateTab}
+        />)}/>
+
+      // <DashboardLayout
+      //   title='Dashboard'
+      //   crumbs={[{title: 'Dashboard', link: 'dashboard'}]}
+      //   resource={this.state.resource}
+      //   sidePanelInfo={this.props.username}
+      //   resourceList={this.state.myResources}
+      //   tabs={this.state.tabs}
+      //   activeTab={this.state.activeTab}
+      //   activateTab={this.activateTab}
+      // />
     )
   }
 }
