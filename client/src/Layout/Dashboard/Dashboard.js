@@ -26,6 +26,7 @@ const dashboard = props => {
         <div className={classes.Content}>
           <TabList tabs={props.tabs} activeTab={props.resource}/>
           <div className={classes.MainContent}>
+            {/* We might even consider checking this loaded in the DashboardContent so we can reveal things as the load across the dashboard instead of all at once  */}
             {props.loaded ? <DashboardContent resourceList={props.resourceList} resource={props.resource}/> : null}
           </div>
         </div>
