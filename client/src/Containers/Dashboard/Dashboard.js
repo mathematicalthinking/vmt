@@ -4,7 +4,6 @@ import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 // import NewCourse from '../Create/NewCourse/NewCourse';
 // import NewRoom from '../Create/NewRoom/NewRoom';
 import { connect } from 'react-redux';
-import { Route } from 'react-router-dom';
 
 class Dashboard extends Component {
   state = {
@@ -18,7 +17,6 @@ class Dashboard extends Component {
     ],
     crumbs: [{title: 'Dashboard', link: 'dashbaord'}],
     resource: 'course',
-    myResources: this.props.myCourses,
   }
   // I seem to be over using this lifeCycle hook
   // The problem I'm facing is that the first time this
@@ -39,57 +37,21 @@ class Dashboard extends Component {
     }
   }
 
-  activateTab = event => {
-    console.log(event.target.id)
-    const resource = event.target.id.toLowerCase().substring(0, event.target.id.length - 1);
-    this.setState({
-      activeTab: event.target.id,
-      resource,
-    });
-  }
   render() {
-    // console.log("MYCOURSES: ",this.props.myCourses)
-    // let contentList = [];
-    // let contentCreate;
-    // // Load content based on
-    // switch (this.state.activeTab) {
-    //   case 'Courses' :
-    //     contentList = this.props.myCourses;
-    //     contentCreate = <NewCourse />
-    //     break;
-    //   case 'Rooms' :
-    //     contentList = this.props.myRooms;
-    //     contentCreate = <NewRoom />
-    //     break;
-    //   default:
-    // }
-    // // Put content in a boxlist layout
-    // let content = <BoxList list={contentList} resource={this.state.resource} notifications={true} dashboard={true}/> //IDEA what if we just connected to the boxlist to the store> instead of passing all these props just pass which list it should render
-    // if (contentList.length === 0) {content = `You don't seem to have any ${this.state.resource}s yet. Click "Create" to get started`}
-
-
+    console.log('rendering dashboard container')
+    let resources = this.props.match.params.resource;
+    let resource = resources.substring(0, resources.length - 1);
+    let resourceList = this.props.myCourses
+    if (resources === 'rooms') { resourceList = this.props.myRooms}
+    console.log('re rendering Dashboard container')
     return (
-      <Route exact path="/dashboard/courses" render={props => (
-        <DashboardLayout
-          {...props}
-          crumbs={this.state.crumbs}
-          tabs={this.state.tabs}
-          activeTab={this.state.activeTab}
-          resource={this.state.resource}
-          myResourceList={this.state.myResources}
-          activateTab={this.activateTab}
-        />)}/>
-
-      // <DashboardLayout
-      //   title='Dashboard'
-      //   crumbs={[{title: 'Dashboard', link: 'dashboard'}]}
-      //   resource={this.state.resource}
-      //   sidePanelInfo={this.props.username}
-      //   resourceList={this.state.myResources}
-      //   tabs={this.state.tabs}
-      //   activeTab={this.state.activeTab}
-      //   activateTab={this.activateTab}
-      // />
+      <DashboardLayout
+        crumbs={this.state.crumbs}
+        tabs={this.state.tabs}
+        activeTab={resources}
+        resource={resource}
+        resourceList={resourceList}
+      />
     )
   }
 }

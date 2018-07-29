@@ -26,3 +26,9 @@ body {
 .Link:hover {
   text-decoration: none;
 }
+
+.Link:active {
+  text-decoration: none;
+}
+
+a:active {text-decoration: none;}
