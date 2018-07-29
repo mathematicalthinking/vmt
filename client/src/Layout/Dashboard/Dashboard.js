@@ -1,7 +1,8 @@
 // PROPS:
-  // tabs:  list of strings
-  // content: jsx || string (if no content)
-  // activeTab: string
+  // tabs:  [String]
+  // content: jsx || String (if no content)
+  // activeTab: String
+  // crumbs: [{name: String, notifications: Number}]
 //
 import React from 'react';
 import classes from './dashboard.css';

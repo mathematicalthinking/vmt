@@ -1,13 +1,13 @@
 // CONSIDER RENAMING THIS WHOLE COMPONENT TO DASHBOARD
 // WE WOULD WANT TO RENAME THE LAYOUT CONTAINER DASHBOARD
 import React, { Component } from 'react';
-import Dashboard from '../../Layout/Dashboard/Dashboard';
+import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import BoxList from '../../Layout/BoxList/BoxList';
 import NewCourse from '../Create/NewCourse/NewCourse';
 import NewRoom from '../Create/NewRoom/NewRoom';
 import { connect } from 'react-redux';
 
-class Profile extends Component {
+class Dashboard extends Component {
   state = {
     activeTab: 'Courses',
     modalOpen: false,
@@ -66,9 +66,9 @@ class Profile extends Component {
 
 
     return (
-      <Dashboard
-        title='Profile'
-        crumbs={[{title: 'Profile', link: 'dashboard'}]}
+      <DashboardLayout
+        title='Dashboard'
+        crumbs={[{title: 'Dashboard', link: 'dashboard'}]}
         sidePanelTitle={this.props.username}
         content={content}
         contentCreate={contentCreate}
@@ -96,4 +96,4 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

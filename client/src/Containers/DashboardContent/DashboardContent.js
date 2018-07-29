@@ -10,6 +10,7 @@ const dashboardContent = props => {
 
       </div>
       <div className={classes.ContentList}>
+        {/* <Filter /> */}
         <BoxList list={props.list} />
       </div>
     </div>

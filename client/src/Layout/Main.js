@@ -5,7 +5,7 @@ import Room from '../Containers/Room/Room';
 import Course from '../Containers/Course/Course';
 import PublicList from '../Containers/PublicList/PublicList';
 import NewUser from '../Containers/Create/NewUser/NewUser';
-import Profile from '../Containers/Profile/Profile';
+import Dashboard from '../Containers/Dashboard/Dashboard';
 import Assignments from '../Containers/Assignments/Assignments';
 import Avatar from '../Components/UI/Avatar/Avatar';
 import PrivateRoute from '../Components/HOC/PrivateRoute';
@@ -29,7 +29,7 @@ class Main extends Component {
             <Switch>
               <Route exact path='/' component={Login}/>
               <Route path='/users/new' authed={this.props.loggedIn} component={NewUser}/>
-              <PrivateRoute exact path='/dashboard' authed={this.props.loggedIn} component={Profile}/>
+              <PrivateRoute exact path='/dashboard' authed={this.props.loggedIn} component={Dashboard}/>
               <PrivateRoute exact path = '/dashboard/course/:course_id' authed={this.props.loggedIn} component={Course}/>
               <Route exact path='/courses' render={props => <PublicList {...props} resource='course' />}/>
               <Route exact path='/rooms' render={props => <PublicList {...props} resource='room' />}/>
