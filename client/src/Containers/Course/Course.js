@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../../store/actions/';
 import API from '../../utils/apiRequests';
-import Dashboard from '../../Layout/Dashboard/Dashboard';
-import NewRoom from '../Create/NewRoom/NewRoom'
+import DashboardLayout from '../../Layout/Dashboard/Dashboard';
+import PublicListLayout from '../../Layout/PublicResource/PublicResource';
 import BoxList from '../../Layout/BoxList/BoxList';
+import NewRoom from '../Create/NewRoom/NewRoom'
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
@@ -64,13 +65,8 @@ class Course extends Component {
     this.props.getCurrentCourse(this.props.match.params.course_id);
   }
 
-  activateTab = event => {
-    this.setState({activeTab: event.target.id});
-  }
-
   requestAccess = () => {
-    // Should we make this post through redux? I don't really see a good reason to
-    // we don't need access to this information anywhere else in the app // NO we should
+    // @TODO Use redux actions to make this request
     API.requestAccess('course', this.props.match.params.course_id, this.props.userId)
     .then(res => {
       // @TODO SEND/DISPLAY CONFIRMATION somehow
@@ -88,9 +84,10 @@ class Course extends Component {
     switch (resource) {
       case 'rooms' :
         contentCreate = <NewRoom course={course._id} updateParent={room => this.props.updateCourseRooms(room)}/>
-        content = <BoxList loading={loading} list={course.rooms ? course.rooms : []} resource={'room'} notifications={true} dashboard={true} course={course._id}/>
+        content = <BoxList loading={loading} list={course.rooms ? course.rooms : []} resource={'rooms'} notifications dashboard/>
         break;
       case 'students' :
+      // @TODO make a folder or NOTFICATION_TYPES
         let notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
         content = <Students classList={course.members} notifications={notifications} course={course._id}/>
         break;
@@ -105,12 +102,11 @@ class Course extends Component {
         <Button click={this.requestAccess}>Join</Button>
       </Modal> : null;
     const accessModal = !this.state.access ? <Modal show={true} message='Loading course'/> : null;
-    console.log(loading)
     return (
       <Aux>
         {guestModal}
         {accessModal}
-        <Dashboard
+        {this.props.match.url.includes('dashboard') ? <DashboardLayout
           routingInfo={this.props.match}
           title={!loading ? `Course: ${course.name}` : null}
           crumbs={[{title: 'Dashboard', link: '/dashboard/courses'}, {title: course.name ? course.name : null, link: `/dashboard/course/${course._id}/rooms`}]}
@@ -118,9 +114,8 @@ class Course extends Component {
           contentCreate={contentCreate}
           content={content}
           tabs={this.state.tabs}
-          activeTab={resource}
-          activateTab={event => this.setState({activeTab: event.target.id})}
-        />
+                                                      /> :
+                                                      <PublicListLayout />}
       </Aux>
         )
   }

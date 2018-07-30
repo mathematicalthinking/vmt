@@ -30,12 +30,11 @@ class Main extends Component {
               <Route path='/users/new' authed={this.props.loggedIn} component={NewUser}/>
               <PrivateRoute exact path='/dashboard/:resource' authed={this.props.loggedIn} component={Dashboard}/>
               <PrivateRoute exact path = '/dashboard/course/:course_id/:resource' authed={this.props.loggedIn} component={Course}/>
-              <PrivateRoute exact path = '/dashboard/room/:room_id' authed={this.props.loggedIn} component={Room} />
-              <Route exact path='/courses' render={props => <PublicList {...props} resource='course' />}/>
-              <Route exact path='/rooms' render={props => <PublicList {...props} resource='room' />}/>
-              <PrivateRoute exact path='/room/:room_id' authed={this.props.loggedIn} component={Room}/>
-              <PrivateRoute exact path='/dashboard/course/:course_id/room/:room_id' authed={this.props.loggedIn} component={Room}/>
-              <PrivateRoute exact path='/course/:course_id' authed={this.props.loggedIn} component={Course} />
+              <PrivateRoute exact path = '/dashboard/room/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
+              <Route exact path='/publicList/:resource' component={PublicList}/>
+              <Route exact path='/publicResource/room/:room_id/:resource' authed={this.props.loggedIn} component={Room}/>
+              <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />
+              {/* <Route exact path='/dashboard/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room}/> */}
               <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/>
               <Route exact path='/logout' component={Login}/>
               <Route path="*" render={() => {

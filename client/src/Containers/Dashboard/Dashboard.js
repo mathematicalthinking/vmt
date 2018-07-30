@@ -36,9 +36,6 @@ class Dashboard extends Component {
     }
   }
 
-  // activateTab = event => {
-  //   this.setState({activeTab: event.target.id});
-  // }
   render() {
     let contentList = [];
     const resource = this.props.match.params.resource;
@@ -70,8 +67,6 @@ class Dashboard extends Component {
         content={content}
         contentCreate={contentCreate}
         tabs={this.state.tabs}
-        activeTab={resource}
-        activateTab={event => this.setState({activeTab: event.target.id})}
       />
     )
   }

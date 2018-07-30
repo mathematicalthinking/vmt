@@ -14,8 +14,9 @@ class PublicList extends Component {
 
   static getDerivedStateFromProps(nextProps, prevState) {
     if (nextProps.resource !== prevState.resource) {
-      allResources = nextProps[`${nextProps.resource}s`];
-      return {resource: nextProps.resource, resources: nextProps[`${nextProps.resource}s`]}
+      const resource = nextProps.match.params.resource;
+      allResources = nextProps[resource];
+      return {resource: resource, resources: nextProps[resource]}
     }
   }
 
@@ -49,12 +50,12 @@ class PublicList extends Component {
     console.log(this.state.resources)
     return (
       <div>
-        <h2>{this.props.resource + 's'}</h2>
+        <h2>{this.props.match.params.resource}</h2>
         <Search filter={value => this.filterResults(value)} />
         <div className={classes.Seperator}></div>
         {/* @ TODO Eventually remove dashboard...we want to have a public facing view
         that does not show up in  the dashboard. */}
-        <BoxList list={this.state.resources} resource={this.props.resource} dashboard={true}/>
+        <BoxList list={this.state.resources} resource={this.props.match.params.resource} />
       </div>
     )
   }
