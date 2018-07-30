@@ -11,7 +11,6 @@ import Button from '../../Components/UI/Button/Button';
 import Students from './Students/Students';
 class Course extends Component {
   state = {
-    activeTab: 'Rooms',
     access: false,
     guestMode: false,
     currentCourse: {}, // Right now I'm just saving currentCourse is state to compare the incoming props currentCourse to look for changes
@@ -80,17 +79,18 @@ class Course extends Component {
   }
 
   render() {
+    // check if the course has loaded
     const loading = (this.props.currentCourse._id !== this.props.match.params.course_id)
     const course = this.props.currentCourse;
-    const active = this.state.activeTab;
+    const resource = this.props.match.params.resource;
     let content;
     let contentCreate;
-    switch (active) {
-      case 'Rooms' :
+    switch (resource) {
+      case 'rooms' :
         contentCreate = <NewRoom course={course._id} updateParent={room => this.props.updateCourseRooms(room)}/>
         content = <BoxList loading={loading} list={course.rooms ? course.rooms : []} resource={'room'} notifications={true} dashboard={true} course={course._id}/>
         break;
-      case 'Students' :
+      case 'students' :
         let notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
         content = <Students classList={course.members} notifications={notifications} course={course._id}/>
         break;
@@ -111,13 +111,14 @@ class Course extends Component {
         {guestModal}
         {accessModal}
         <Dashboard
+          routingInfo={this.props.match}
           title={!loading ? `Course: ${course.name}` : null}
-          crumbs={[{title: 'Profile', link: '/dashboard'}, {title: course.name ? course.name : null, link: `/dashboard/course/${course._id}`}]}
+          crumbs={[{title: 'Dashboard', link: '/dashboard/courses'}, {title: course.name ? course.name : null, link: `/dashboard/course/${course._id}/rooms`}]}
           sidePanelTitle={course.name}
           contentCreate={contentCreate}
           content={content}
           tabs={this.state.tabs}
-          activeTab={this.state.activeTab}
+          activeTab={resource}
           activateTab={event => this.setState({activeTab: event.target.id})}
         />
       </Aux>

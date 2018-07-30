@@ -21,7 +21,7 @@ const dashboard = props => {
           <div className={classes.SpTitle}>{props.sidePanelTitle}</div>
         </div>
         <div className={classes.Content}>
-          <TabList tabs={props.tabs} activeTab={props.activeTab} activateTab={props.activateTab}/>
+          <TabList routingInfo={props.routingInfo} tabs={props.tabs} />
           <div className={classes.MainContent}>
             {/* THIS IS BAD -- THIS LAYOUT SHOULDNT NEED TO KNOW WHAT THE ACTIVE TAB IS  */}
             {/* I THINK IT COULD BE EASILYU FIXED JUST PASS THE CREATE PIECE IF WE WANT IT THERE AND DONT IF WE DONT */}

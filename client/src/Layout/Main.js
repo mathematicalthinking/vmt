@@ -29,7 +29,7 @@ class Main extends Component {
               <Route exact path='/' component={Login}/>
               <Route path='/users/new' authed={this.props.loggedIn} component={NewUser}/>
               <PrivateRoute exact path='/dashboard/:resource' authed={this.props.loggedIn} component={Dashboard}/>
-              <PrivateRoute exact path = '/dashboard/course/:course_id' authed={this.props.loggedIn} component={Course}/>
+              <PrivateRoute exact path = '/dashboard/course/:course_id/:resource' authed={this.props.loggedIn} component={Course}/>
               <PrivateRoute exact path = '/dashboard/room/:room_id' authed={this.props.loggedIn} component={Room} />
               <Route exact path='/courses' render={props => <PublicList {...props} resource='course' />}/>
               <Route exact path='/rooms' render={props => <PublicList {...props} resource='room' />}/>

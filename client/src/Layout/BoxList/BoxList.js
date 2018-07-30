@@ -11,13 +11,14 @@ const boxList = props => {
     if (props.notifications && item.notifications) {
       notifications = item.notifications.length
     }
-    let linkPath = props.dashboard ? '/dashboard' : '';
+    const linkPath = props.dashboard ? '/dashboard' : '';
     // the resource comes in plural -- as we apply it to instances make it singular
-    let resource = props.resource.substring(0, props.resource.length - 1)
+    const resource = props.resource.substring(0, props.resource.length - 1)
+    const suffix = (resource === 'course') ? 'rooms' : 'summary'
     // if (props.course) { linkPath += `/course/${props.course}`}
     return (<div className={classes.ContentBox} key={i}>
       <ContentBox
-        title={<Link className={glb.Link} to={`${linkPath}/${resource}/${item._id}`} key={item._id}>{item.name}</Link>}
+        title={<Link className={glb.Link} to={`${linkPath}/${resource}/${item._id}/${suffix}`} key={item._id}>{item.name}</Link>}
         notifications={notifications}
       >
         {item.description}

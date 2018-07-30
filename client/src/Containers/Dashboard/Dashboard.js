@@ -63,8 +63,9 @@ class Dashboard extends Component {
 
     return (
       <DashboardLayout
+        routingInfo={this.props.match}
         title='Dashboard'
-        crumbs={[{title: 'Dashboard', link: 'dashboard'}]}
+        crumbs={[{title: 'Dashboard', link: '/dashboard/courses'}]}
         sidePanelTitle={this.props.username}
         content={content}
         contentCreate={contentCreate}
