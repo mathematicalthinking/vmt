@@ -9,7 +9,6 @@ import { connect } from 'react-redux';
 
 class Dashboard extends Component {
   state = {
-    activeTab: 'Courses',
     modalOpen: false,
     tabs: [
       {name: 'Courses'},
@@ -37,32 +36,28 @@ class Dashboard extends Component {
     }
   }
 
-  activateTab = event => {
-    this.setState({activeTab: event.target.id});
-  }
+  // activateTab = event => {
+  //   this.setState({activeTab: event.target.id});
+  // }
   render() {
-    console.log("MYCOURSES: ",this.props.myCourses)
     let contentList = [];
-    let resource;
+    const resource = this.props.match.params.resource;
+    console.log(resource)
     let contentCreate;
     // Load content based on
     switch (this.state.activeTab) {
       case 'Courses' :
-        resource = 'course';
         contentList = this.props.myCourses;
         contentCreate = <NewCourse />
         break;
       case 'Rooms' :
         contentList = this.props.myRooms;
         contentCreate = <NewRoom />
-        resource = 'room';
         break;
       default:
-        resource = null;
     }
-    const loading = false;
     // Put content in a boxlist layout
-    let content = <BoxList loading={loading} list={contentList} resource={resource} notifications={true} dashboard={true}/> //IDEA what if we just connected to the boxlist to the store> instead of passing all these props just pass which list it should render
+    let content = <BoxList list={contentList} resource={resource} notifications dashboard/> //IDEA what if we just connected to the boxlist to the store> instead of passing all these props just pass which list it should render
     if (contentList.length === 0) {content = `You don't seem to have any ${resource}s yet. Click "Create" to get started`}
 
 
@@ -74,7 +69,7 @@ class Dashboard extends Component {
         content={content}
         contentCreate={contentCreate}
         tabs={this.state.tabs}
-        activeTab={this.state.activeTab}
+        activeTab={resource}
         activateTab={event => this.setState({activeTab: event.target.id})}
       />
     )

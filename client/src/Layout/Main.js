@@ -25,11 +25,10 @@ class Main extends Component {
           </div>
           <Navbar />
           <section className={classes.Section}>
-            {/* @TODO This Whole structure needs to be retought... we need to utilize sub routes further down the component tree */}
             <Switch>
               <Route exact path='/' component={Login}/>
               <Route path='/users/new' authed={this.props.loggedIn} component={NewUser}/>
-              <PrivateRoute exact path='/dashboard' authed={this.props.loggedIn} component={Dashboard}/>
+              <PrivateRoute exact path='/dashboard/:resource' authed={this.props.loggedIn} component={Dashboard}/>
               <PrivateRoute exact path = '/dashboard/course/:course_id' authed={this.props.loggedIn} component={Course}/>
               <PrivateRoute exact path = '/dashboard/room/:room_id' authed={this.props.loggedIn} component={Room} />
               <Route exact path='/courses' render={props => <PublicList {...props} resource='course' />}/>
@@ -41,6 +40,7 @@ class Main extends Component {
               <Route exact path='/logout' component={Login}/>
               <Route path="*" render={() => {
                 return (<div>Error</div>)
+                // ^ @TODO 404 page
               }}/>
             </Switch>
           </section>
