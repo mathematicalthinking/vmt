@@ -3,7 +3,7 @@ import classes from './breadCrumbs.css';
 import glb from '../../../global.css';
 import { Link } from 'react-router-dom';
 const breadCrumbs = props => {
-  console.log('re rendering crumbs', props.crumbs)
+  console.log('re rendering crumbs')
   const crumbs = props.crumbs.map((crumb, i)=> (
     <Link className={glb.Link} to={crumb.link} key={i} style={{zIndex: 10 - i}}>
       <div className={classes.Crumb}>

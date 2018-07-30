@@ -3,6 +3,7 @@ import classes from './tabList.css';
 import glb from '../../../global.css';
 import { Link } from 'react-router-dom';
 const tabList = props => {
+  console.log(props.activeTab)
   const tabElems = props.tabs.map(tab => {
     let style = classes.Tab;
     if (tab.name.toLowerCase() === props.activeTab) {
@@ -11,7 +12,7 @@ const tabList = props => {
     return (
       <div key={tab.name} id={tab.name} className={style}>
         <Link
-          to={`/dashboard/${tab.name.toLowerCase()}`}
+          to={tab.path}
           className={glb.Link}
         >{tab.name}</Link>
         {tab.notifications ? <div className={classes.Notifications}>{tab.notifications}</div> : null}

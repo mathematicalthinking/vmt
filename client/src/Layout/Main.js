@@ -28,8 +28,8 @@ class Main extends Component {
               <Route exact path='/' component={Login}/>
               <Route path='/users/new' authed={this.props.loggedIn} component={NewUser}/>
               <PrivateRoute path='/dashboard' authed={this.props.loggedIn} component={Dashboard}/>
-              <Route exact path='/courses' render={props => <PublicList {...props} resource='course' />}/>
-              <Route exact path='/rooms' render={props => <PublicList {...props} resource='room' />}/>
+              <Route path='/public/:resource' render={props => <PublicList {...props} />}/>
+              <Route exact path='/rooms' render={props => <PublicList {...props} resource='rooms' />}/>
               <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/>
               <Route exact path='/logout' component={Login}/>
               <Route path="*" render={() => {

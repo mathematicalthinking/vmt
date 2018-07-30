@@ -1,0 +1,27 @@
+.Container {
+  flex-grow: 2;
+  margin: 10px;
+  height: 100%;
+}
+
+.Controls {
+  margin-top: 30px;
+  justify-content: center;
+}
+
+.ProgressBar {
+  height: 10px;
+  width: 600px;
+  background-color: white;
+  border: 1px solid #bbb;
+  border-style: inset;
+  border-radius: 15px;
+  align-self: center;
+}
+
+.Progress {
+  background-color: #2f91f2;
+  position: relative;
+  border-radius: 15px;
+  height: 8px;
+}

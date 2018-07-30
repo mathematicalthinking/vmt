@@ -10,7 +10,7 @@ import TabList from '../../Components/Navigation/TabList/TabList';
 import BreadCrumbs from '../../Components/Navigation/BreadCrumbs/BreadCrumbs';
 import DashboardContent from './DashboardContent/DashboardContent';
 const dashboard = props => {
-  console.log(props.resourceList)
+  console.log(props.resource)
   console.log('re rendering dashboard layout')
   return (
     <section className={classes.Container}>

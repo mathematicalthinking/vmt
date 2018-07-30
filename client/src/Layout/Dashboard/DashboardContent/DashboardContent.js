@@ -4,7 +4,8 @@ import React from 'react';
 import BoxList from '../../BoxList/BoxList'
 import classes from './dashboardContent.css';
 const dashboardContent = props => {
-  console.log("dashboardContent re-rendering")
+  console.log(props.resource)
+  console.log(props.resourceList)
   return (
     <div className={classes.Container}>
       <div className={classes.ContentCreate}>

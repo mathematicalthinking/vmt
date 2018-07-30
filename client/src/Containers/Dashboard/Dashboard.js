@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
-import Course from './Course/Course'
+import Course from '../Course/Course';
+import Room from '../Room/Room';
 import { Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 
@@ -9,12 +10,12 @@ class Dashboard extends Component {
     activeTab: 'Courses',
     modalOpen: false,
     tabs: [
-      {name: 'Courses'},
-      {name: 'Rooms'},
-      {name: 'Templates'},
-      {name: 'Settings'},
+      {name: 'Courses', path: `/dashboard/courses`},
+      {name: 'Rooms', path: `/dashboard/rooms`},
+      {name: 'Templates', path: `/dashboard/templates`},
+      {name: 'Settings', path: `/dashboard/settings`},
     ],
-    crumbs: [{title: 'Dashboard', link: '/dashbaord'}],
+    crumbs: [{title: 'Dashboard', link: '/dashboard/courses'}],
     resource: 'course',
   }
   // I seem to be over using this lifeCycle hook
@@ -40,12 +41,8 @@ class Dashboard extends Component {
     console.log(this.props)
     return(
       <Switch>
-        <Route path='/dashboard/:resource/:id' render={props => {
-          return (
-            <Course courseId={props.match.params.id} crumbs={this.state.crumbs}/>
-          )
-        }} />
-        <Route path='/dashboard/:resource' render={props => {
+        {/* Render the dashboard homepage */}
+        <Route exact path='/dashboard/:resource' render={props => {
           console.log(props)
           const { resource } = props.match.params
           let resourceList = this.props.myCourses;
@@ -59,7 +56,19 @@ class Dashboard extends Component {
               loaded={true}
             />
           )}}/>
-
+        {/* Render a Course in dashboard mode */}
+        <Route path='/dashboard/courses/:course_id/:resource' render={props => {
+          return (
+            <Course {...props} courseId={props.match.params.course_id} crumbs={this.state.crumbs} dashboard/>
+          )
+        }} />
+        {/* Render a Room in dashboard */}
+        <Route exact path='/dashboard/rooms/:room_id/:resource' render={props => {
+          console.log('')
+          return (
+            <Room {...props} roomId={props.match.params.room_id} crumbs={this.state.crumbs} dashboard />
+          )
+        }}/>
       </Switch>
     )
   }
