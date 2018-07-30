@@ -5,43 +5,45 @@ import BoxList from '../../Layout/BoxList/BoxList';
 import Search from '../../Components/Search/Search';
 import classes from './publicList.css';
 let allResources = [];
+
 class PublicList extends Component {
   state = {
     resources: [],
+    resource: ''
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.resource === 'course')
-    return {
-      resources: nextProps.publicCourses
-    }
-    else if (nextProps.resource === 'room') {
-      return {
-        resources: nextProps.publicRooms
-      }
+    if (nextProps.resource !== prevState.resource) {
+      allResources = nextProps[`${nextProps.resource}s`];
+      return {resource: nextProps.resource, resources: nextProps[`${nextProps.resource}s`]}
     }
   }
 
   componentDidMount() {
     // get the rooms
-    if (Object.keys(this.props.publicRooms).length === 0){
+    if (Object.keys(this.props.rooms).length === 0){
       this.props.getCourses();
     }
-    if (Object.keys(this.props.publicCourses).length === 0){
+    if (Object.keys(this.props.courses).length === 0){
       this.props.getRooms();
     }
   }
 
   filterResults = value => {
     value = value.toLowerCase();
+    console.log(value)
+    console.log(this.state.resources)
     const updatedResources = allResources.filter(resource => {
+      console.log(resource)
       return (
         resource.name.toLowerCase().includes(value) ||
         resource.description.toLowerCase().includes(value) ||
         resource.creator.toLowerCase().includes(value)
       )
     })
+    console.log(updatedResources)
     this.setState({resources: updatedResources})
+
   }
   render () {
     console.log(this.state.resources)
@@ -60,8 +62,8 @@ class PublicList extends Component {
 
 const mapStateToProps = store => {
   return {
-    publicRooms: store.roomsReducer.rooms,
-    publicCourses: store.coursesReducer.courses,
+    rooms: store.roomsReducer.rooms,
+    courses: store.coursesReducer.courses,
   }
 }
 const mapDispatchToProps = dispatch => {

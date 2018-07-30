@@ -60,8 +60,9 @@ class Dashboard extends Component {
       default:
         resource = null;
     }
+    const loading = false;
     // Put content in a boxlist layout
-    let content = <BoxList list={contentList} resource={resource} notifications={true} dashboard={true}/> //IDEA what if we just connected to the boxlist to the store> instead of passing all these props just pass which list it should render
+    let content = <BoxList loading={loading} list={contentList} resource={resource} notifications={true} dashboard={true}/> //IDEA what if we just connected to the boxlist to the store> instead of passing all these props just pass which list it should render
     if (contentList.length === 0) {content = `You don't seem to have any ${resource}s yet. Click "Create" to get started`}
 
 

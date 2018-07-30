@@ -22,7 +22,7 @@ const boxList = props => {
       </ContentBox>
     </div>)
   })
-  return <div className={classes.Container}>{listElems}</div>
+  return !props.loading ? <div className={classes.Container}>{listElems}</div> : null;
 }
 
 
