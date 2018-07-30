@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Route } from 'react-router-dom';
 import * as actions from '../../store/actions/';
 import BoxList from '../../Layout/BoxList/BoxList';
 import Search from '../../Components/Search/Search';
@@ -10,21 +11,8 @@ class PublicList extends Component {
     resources: [],
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    console.log(nextProps)
-    if (nextProps.match.params.resource === 'courses')
-    return {
-      resources: nextProps.publicCourses
-    }
-    else if (nextProps.match.params.resource === 'rooms') {
-      return {
-        resources: nextProps.publicRooms
-      }
-    }
-  }
-
   componentDidMount() {
-    // get the rooms
+    // get the rooms --> save them in the redux store
     if (Object.keys(this.props.publicRooms).length === 0){
       this.props.getCourses();
     }
@@ -53,8 +41,14 @@ class PublicList extends Component {
         <div className={classes.Seperator}></div>
         {/* @ TODO Eventually remove dashboard...we want to have a public facing view
         that does not show up in  the dashboard. */}
-        <BoxList list={this.state.resources} resource={this.props.match.params.resource} dashboard={false}/>
-      </div>
+        <Route path={`${this.props.match.url}/rooms`} render={(props => (
+          <BoxList list={this.props.publicRooms} resource='rooms' dashboard={false}/>
+        ))} />
+        <Route path={`${this.props.match.url}/courses`} render={(props => (
+          <BoxList list={this.props.publicCourses} resource='courses' dashboard={false}/>
+        ))} />
+
+          </div>
     )
   }
 }

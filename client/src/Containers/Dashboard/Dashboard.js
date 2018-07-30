@@ -38,11 +38,11 @@ class Dashboard extends Component {
   }
 
   render() {
-    console.log(this.props)
+    const path = this.props.match.url;
     return(
       <Switch>
         {/* Render the dashboard homepage */}
-        <Route exact path='/dashboard/:resource' render={props => {
+        <Route exact path={`${path}/:resource`} render={props => {
           console.log(props)
           const { resource } = props.match.params
           let resourceList = this.props.myCourses;
@@ -57,13 +57,13 @@ class Dashboard extends Component {
             />
           )}}/>
         {/* Render a Course in dashboard mode */}
-        <Route path='/dashboard/courses/:course_id/:resource' render={props => {
+        <Route path={`${path}/courses/:course_id/:resource`} render={props => {
           return (
             <Course {...props} courseId={props.match.params.course_id} crumbs={this.state.crumbs} dashboard/>
           )
         }} />
         {/* Render a Room in dashboard */}
-        <Route exact path='/dashboard/rooms/:room_id/:resource' render={props => {
+        <Route exact path={`${path}/rooms/:room_id/:resource`} render={props => {
           console.log('')
           return (
             <Room {...props} roomId={props.match.params.room_id} crumbs={this.state.crumbs} dashboard />
