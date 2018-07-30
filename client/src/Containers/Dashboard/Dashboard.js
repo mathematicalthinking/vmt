@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 
 class Dashboard extends Component {
   state = {
-    activeTab: 'Courses',
     modalOpen: false,
     tabs: [
       {name: 'Courses', path: `/dashboard/courses`},
@@ -38,38 +37,37 @@ class Dashboard extends Component {
   }
 
   render() {
-    const path = this.props.match.url;
-    return(
-      <Switch>
-        {/* Render the dashboard homepage */}
-        <Route exact path={`${path}/:resource`} render={props => {
-          console.log(props)
-          const { resource } = props.match.params
-          let resourceList = this.props.myCourses;
-          if (resource === 'rooms') { resourceList = this.props.myRooms}
-          return (
-            <DashboardLayout
-              crumbs={this.state.crumbs}
-              tabs={this.state.tabs}
-              resource={resource}
-              resourceList={resourceList}
-              loaded={true}
-            />
-          )}}/>
-        {/* Render a Course in dashboard mode */}
-        <Route path={`${path}/courses/:course_id/:resource`} render={props => {
-          return (
-            <Course {...props} courseId={props.match.params.course_id} crumbs={this.state.crumbs} dashboard/>
-          )
-        }} />
-        {/* Render a Room in dashboard */}
-        <Route exact path={`${path}/rooms/:room_id/:resource`} render={props => {
-          console.log('')
-          return (
-            <Room {...props} roomId={props.match.params.room_id} crumbs={this.state.crumbs} dashboard />
-          )
-        }}/>
-      </Switch>
+    let contentList = [];
+    const resource = this.props.match.params.resource;
+    console.log(resource)
+    let contentCreate;
+    // Load content based on
+    switch (resource) {
+      case 'courses' :
+        contentList = this.props.myCourses;
+        contentCreate = <NewCourse />
+        break;
+      case 'rooms' :
+        contentList = this.props.myRooms;
+        contentCreate = <NewRoom />
+        break;
+      default:
+    }
+    // Put content in a boxlist layout
+    let content = <BoxList list={contentList} resource={resource} notifications dashboard/> //IDEA what if we just connected to the boxlist to the store> instead of passing all these props just pass which list it should render
+    if (contentList.length === 0) {content = `You don't seem to have any ${resource}s yet. Click "Create" to get started`}
+
+
+    return (
+      <DashboardLayout
+        routingInfo={this.props.match}
+        title='Dashboard'
+        crumbs={[{title: 'Dashboard', link: '/dashboard/courses'}]}
+        sidePanelTitle={this.props.username}
+        content={content}
+        contentCreate={contentCreate}
+        tabs={this.state.tabs}
+      />
     )
   }
 }

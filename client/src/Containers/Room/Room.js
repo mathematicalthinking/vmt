@@ -1,19 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../../store/actions/';
-import Dashboard from '../../Layout/Dashboard/Dashboard';
-import NewRoom from '../Create/NewRoom/NewRoom'
-import BoxList from '../../Layout/BoxList/BoxList';
+import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
 // import Students from './Students/Students';
 class Room extends Component {
   state = {
-    activeTab: 'Summary',
     access: false,
     guestMode: false,
-    currentRoom: {}, // Right now I'm just saving currentCourse is state to compare the incoming props currentRoom to look for changes -- is this a thing people do?
+    currentRoom: {}, // Right now I'm just saving currentRoom is state to compare the incoming props currentRoom to look for changes -- is this a thing people do?
     tabs: [
       {name: 'Summary'},
       {name: 'Students'},
@@ -60,7 +57,8 @@ class Room extends Component {
   render() {
     const room = this.state.currentRoom;
     const course = this.props.currentCourse;
-    switch (this.state.activeTab) {
+    const resource = this.props.match.params.resource;
+    switch (resource) {
 
     }
     console.log(course)
@@ -78,18 +76,20 @@ class Room extends Component {
       <Aux>
         {guestModal}
         {accessModal}
-        <Dashboard
+        <DashboardLayout
+          routingInfo={this.props.match}
           title={room.name ? `Course: ${room.name}` : null}
           crumbs={[
-            {title: 'Profile', link: '/dashboard'},
-            {title: course.name ? course.name : null, link: `/dashboard/course/${course._id}`},
-            {title: room.name ? room.name : null, link: `/dashboard/room/${room._id}`}
+            {title: 'Dashboard', link: '/dashboard/courses'},
+            {title: course.name ? course.name : null, link: `/dashboard/course/${course._id}/rooms`},
+            {title: room.name ? room.name : null, link: `/dashboard/room/${room._id}/summary`}
           ]}
           sidePanelTitle={room.name}
           // contentCreate={contentCreate}
           // content={content}
           tabs={this.state.tabs}
-          activeTab={this.state.activeTab}
+          activeTab={resource}
+
           activateTab={event => this.setState({activeTab: event.target.id})}
         />
       </Aux>
