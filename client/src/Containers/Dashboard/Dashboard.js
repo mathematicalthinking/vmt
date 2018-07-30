@@ -45,12 +45,12 @@ class Dashboard extends Component {
     console.log(resource)
     let contentCreate;
     // Load content based on
-    switch (this.state.activeTab) {
-      case 'Courses' :
+    switch (resource) {
+      case 'courses' :
         contentList = this.props.myCourses;
         contentCreate = <NewCourse />
         break;
-      case 'Rooms' :
+      case 'rooms' :
         contentList = this.props.myRooms;
         contentCreate = <NewRoom />
         break;
