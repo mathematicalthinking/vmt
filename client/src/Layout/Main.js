@@ -28,12 +28,12 @@ class Main extends Component {
             <Switch>
               <Route exact path='/' component={Login}/>
               <Route path='/users/new' authed={this.props.loggedIn} component={NewUser}/>
+              <Route exact path='/publicList/:resource' component={PublicList}/>
+              <Route exact path='/publicResource/room/:room_id/:resource' component={Room}/>
+              <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />
               <PrivateRoute exact path='/dashboard/:resource' authed={this.props.loggedIn} component={Dashboard}/>
               <PrivateRoute exact path = '/dashboard/course/:course_id/:resource' authed={this.props.loggedIn} component={Course}/>
               <PrivateRoute exact path = '/dashboard/room/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
-              <Route exact path='/publicList/:resource' component={PublicList}/>
-              <Route exact path='/publicResource/room/:room_id/:resource' authed={this.props.loggedIn} component={Room}/>
-              <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />
               {/* <Route exact path='/dashboard/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room}/> */}
               <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/>
               <Route exact path='/logout' component={Login}/>
