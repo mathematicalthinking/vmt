@@ -34,6 +34,82 @@ $ git push -f heroku HEAD:master
 This project was bootstrapped with [this template](https://github.com/okputadora/MERN-template.git)
 refer to its README for information regarding the directory structure.
 
+## Conventions and Standards
+The following section is intended to help collaborators contribute to the app.
+Serval conventions and standards are delineated to keep the app clean and maintainable.
+
+### Making API Requests
+ALL  requests to the backend should be performed via Redux. This will ensure that our
+Redux store and backend database stay in synch with each other, and updates (to both)
+will be immediately seen by the user.
+
+To see why this is important consider the following scenario:
+
+1. A user logs in and we populate the store with their `courses` from the backend
+1. The user creates a new course triggering a post request to the backend
+
+If we don't perform this post request with redux, then we need to make an API request to
+the backend AND dispatch an action with the response to update the list of courses in the store.
+While that will work, it is cleaner to make the API request with redux so we can dispatch the updates
+with middleware.
+
+Let's take a look at the proper way to achieve this by following the course creation example.
+
+1. User logs in
+
+Containers/Login
+```
+login: (username, password) => dispatch(actions.login(username, password)),
+```
+when the user licks the login button we'll dispatch the action by calling
+`this.props.login(username, password)`
+
+store/actions/user
+```
+export const login = (username, password) => {
+  return dispatch => {
+    dispatch(loginStart());
+    auth.login(username, password)
+    .then(res => {
+      if (res.data.errorMessage) {
+        return dispatch(loginFail(res.data.errorMessage))
+      }
+      dispatch(loginSuccess(res.data))
+    })
+    .catch(err => {
+      dispatch(loginFail(err))
+    })
+  }
+}
+```
+In the action creator we immediately dispatch loginStart so we can cue up a loading widget. Then
+we make our API call with auth.login(username, password). If we get a 200 response then we dispatch
+loginSuccess with the user's data, else we dispatch loginFail with an error message.
+
+store/reducers/userReducer
+```
+...
+case actionTypes.LOGIN_SUCCESS:
+  // login authentication
+  return {
+    ...state,
+    loggedIn: true,
+    loggingIn: false,
+    username: action.user.username,
+    myRooms: action.user.rooms,
+    myCourses: action.user.courses,
+    myCourseTemplates: action.user.courseTemplates,
+    userId: action.user._id,
+  }
+```
+In the user reducer we update our state with the user info.
+
+2. User creates a new course
+
+
+### Receiving API requests
+The api route should remain untouched.  
+
 ### Dataflow
 * As a user navigates around the application, we want the rendering to be fast.
 This means we only want to request data at the moment we need to display it, and

@@ -36,7 +36,7 @@ class Login extends Component {
     this.setState({
       controls: updatedControls,
     })
-    // if there's an error message clear it.
+    // if there's an error message from a previous request clear it.
     if (this.props.errorMessage) {
       this.props.clearError();
     }
@@ -46,7 +46,7 @@ class Login extends Component {
   loginHandler = event => {
     event.preventDefault();
     // pass submission off to redux
-    this.props.onLogin(
+    this.props.login(
       this.state.controls.username.value,
       this.state.controls.password.value
     )
@@ -97,7 +97,7 @@ class Login extends Component {
 // connect react functions to redux actions
 const mapDispatchToProps = dispatch => {
   return {
-    onLogin: (username, password) => dispatch(actions.login(username, password)),
+    login: (username, password) => dispatch(actions.login(username, password)),
     onGoogleLogin: (username, password) => dispatch(actions.googleLogin(username, password)),
     clearError: () => dispatch(actions.clearError()),
   }
