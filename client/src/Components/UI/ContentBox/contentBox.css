@@ -29,6 +29,13 @@
 .Left {align-items: flex-start;}
 .Right {align-items: flex-end;}
 
+.Lock {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  color: #666;   
+}
+
 .Notification {
   position: absolute;
   top: -10px;

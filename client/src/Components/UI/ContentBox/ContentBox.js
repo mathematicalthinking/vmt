@@ -1,26 +1,26 @@
 // PROPS
-  //
-import React, { Component } from 'react';
+  // Title
+  // notifications
+  // locked
+
+import React from 'react';
 import classes from './contentBox.css'
 let alignClass= classes.Center;
-class ContentBox extends Component {
-  render() {
-    if (this.props.align === 'left') alignClass = classes.Left;
-    if (this.props.align === 'right') alignClass = classes.Right
-    let notifications = null;
-    if (this.props.notifications > 0){
-      notifications = <div className={classes.Notification}>{this.props.notifications}</div>
-    }
-    return (
-      <div className={classes.Container} onClick={this.toggleCollapse}>
-        {notifications}
-        <div className={classes.Title}>{this.props.title}</div>
-        <div className={[classes.Content, alignClass].join(' ')}>
-          {this.props.children}
-        </div>
+const contentBox = props => {
+  if (props.align === 'left') alignClass = classes.Left;
+  if (props.align === 'right') alignClass = classes.Right;
+  const notifications = (props.notifications > 0) ? <div className={classes.Notification}>{props.notifications}</div> : null;
+  const locked = props.locked ? <div className={classes.Lock}><i class="fas fa-lock"></i></div> : null;
+  return (
+    <div className={classes.Container} onClick={this.toggleCollapse}>
+      {notifications}
+      {locked}
+      <div className={classes.Title}>{props.title}</div>
+      <div className={[classes.Content, alignClass].join(' ')}>
+        {props.children}
       </div>
-    )
-  }
+    </div>
+  )
 }
 
-export default ContentBox;
+export default contentBox;

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
 import Dropdown from '../../../Components/UI/Dropdown/Dropdown';
+import RadioBtn from '../../../Components/Form/RadioBtn/RadioBtn';
 import Aux from '../../../Components/HOC/Auxil';
 import Modal from '../../../Components/UI/Modal/Modal';
 import Button from '../../../Components/UI/Button/Button';
@@ -13,6 +14,7 @@ class NewCourse extends Component {
     courseName: '',
     description: '',
     rooms: [],
+    isPublic: false,
     creating: false,
   }
 
@@ -55,22 +57,23 @@ class NewCourse extends Component {
   }
 
   render() {
+    // @TODO DO we want to allow selecting of rooms for course at the time of course creation?
     // prepare dropdown list of rooms
-    const roomsSelected = this.state.rooms.map(room => (
-      // sel- to differentiate between dropdown ids
-      <div id={`sel-${room.id}`}>{room.name}</div>
-    ))
+    // const roomsSelected = this.state.rooms.map(room => (
+    //   // sel- to differentiate between dropdown ids
+    //   <div id={`sel-${room.id}`}>{room.name}</div>
+    // ))
     // i find this to be annoying...why wont .map just return an empty array
     // if this.props.myRooms does not exist
-    let myRooms;
-    if (this.props.myRooms) {
-      myRooms = this.props.myRooms.map(room => ({
-        id: room._id, name: room.name,
-      }))
-    }
-    const publicRooms = this.props.rooms.map(room => ({
-      id: room._id, name: room.name
-    }))
+    // let myRooms;
+    // if (this.props.myRooms) {
+    //   myRooms = this.props.myRooms.map(room => ({
+    //     id: room._id, name: room.name,
+    //   }))
+    // }
+    // const publicRooms = this.props.rooms.map(room => ({
+    //   id: room._id, name: room.name
+    // }))
     return (
       <Aux>
         <Modal
@@ -91,6 +94,14 @@ class NewCourse extends Component {
               change={this.changeHandler}
               width='80%'
             />
+            <div className={classes.RadioButtons}>
+              <RadioBtn checked={this.state.isPublic} check={() => this.setState({isPublic: true})}>Public</RadioBtn>
+              <RadioBtn checked={!this.state.isPublic} check={() => this.setState({isPublic: false})}>Private</RadioBtn>
+            </div>
+            <div className={classes.PrivacyDesc}>
+              Marking your course as public allows other VMT users to view the activity
+              in your rooms without seeing any personal information about your students.
+            </div>
             <div className={glb.FlexRow}>
               <Button click={this.submitForm}>Submit</Button>
               <Button click={this.closeModal}>Cancel</Button>

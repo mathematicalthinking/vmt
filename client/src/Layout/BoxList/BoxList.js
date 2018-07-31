@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import classes from './boxList.css';
 import glb from '../../global.css';
 const boxList = props => {
+  console.log(props)
   let listElems = [];
   if (props.list) {
     listElems = props.list.map((item, i)=> {
@@ -21,6 +22,7 @@ const boxList = props => {
         <ContentBox
           title={<Link className={glb.Link} to={`${linkPath}/${resource}/${item._id}/${suffix}`} key={item._id}>{item.name}</Link>}
           notifications={notifications}
+          locked={!item.isPublic}
         >
           {item.description}
         </ContentBox>

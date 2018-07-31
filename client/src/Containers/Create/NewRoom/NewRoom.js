@@ -90,8 +90,12 @@ class NewRoom extends Component {
                 width='100%'
               />
               <div className={classes.RadioButtons}>
-                <RadioBtn checked={this.state.isPublic} check={() => this.setState({isPublic: true})}>Public</RadioBtn>
-                <RadioBtn checked={!this.state.isPublic} check={() => this.setState({isPublic: false})}>Private</RadioBtn>
+                <RadioBtn  checked={this.state.isPublic} check={() => this.setState({isPublic: true})}>Public</RadioBtn>
+                <RadioBtn  checked={!this.state.isPublic} check={() => this.setState({isPublic: false})}>Private</RadioBtn>
+              </div>
+              <div className={classes.PrivacyDesc}>
+                Marking your room as public allows other VMT users to view the activity
+                in this room but does not expose any information about your students.
               </div>
               <div><Button click={this.addTab}>Upload a file</Button></div>
               <div className={classes.Submit}>
