@@ -3,8 +3,7 @@
 import React, { Component } from 'react';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import BoxList from '../../Layout/BoxList/BoxList';
-import NewCourse from '../Create/NewCourse/NewCourse';
-import NewRoom from '../Create/NewRoom/NewRoom';
+import NewResource from '../Create/NewResource/NewResource';
 import NewTemplate from '../Create/NewTemplate/NewTemplate';
 import { connect } from 'react-redux';
 
@@ -46,11 +45,11 @@ class Dashboard extends Component {
     switch (resource) {
       case 'courses' :
         contentList = this.props.myCourses;
-        contentCreate = <NewCourse />
+        contentCreate = <NewResource resource='course' />
         break;
       case 'rooms' :
         contentList = this.props.myRooms;
-        contentCreate = <NewRoom />
+        contentCreate = <NewResource resource='room'/>
         break;
       case 'templates' :
       console.log(this.props.myCourseTemplates)
