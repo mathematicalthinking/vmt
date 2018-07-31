@@ -10,7 +10,7 @@ const contentBox = props => {
   if (props.align === 'left') alignClass = classes.Left;
   if (props.align === 'right') alignClass = classes.Right;
   const notifications = (props.notifications > 0) ? <div className={classes.Notification}>{props.notifications}</div> : null;
-  const locked = props.locked ? <div className={classes.Lock}><i class="fas fa-lock"></i></div> : null;
+  const locked = props.locked ? <div className={classes.Lock}><i className="fas fa-lock"></i></div> : null;
   return (
     <div className={classes.Container} onClick={this.toggleCollapse}>
       {notifications}

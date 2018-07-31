@@ -1,11 +1,12 @@
 .Modal {
     position: fixed;
-    right: 100%;
+    right: 50%;
+    left: calc(50% - 250px);
     top: 20%;
     display: flex;
     flex-flow: column;
     justify-content: center;
-    width: 70%;
+    width: 500px;
     min-height: 300px;
     text-align: center;
     border: 1px solid #ccc;
@@ -23,9 +24,16 @@
   border-radius: 3px;
 }
 
-@media (min-width: 600px) {
-    .Modal {
-        width: 500px;
-        left: calc(50% - 250px);
-    }
+@media (max-width: 600px) {
+  .Modal {
+      width: 400px;
+      left: calc(50% - 200px);
+  }
+}
+
+@media (max-width: 400px) {
+  .Modal {
+      width: 380px;
+      left: calc(50% - 160px);
+  }
 }

@@ -14,7 +14,7 @@ class NewCourse extends Component {
   state = {
     courseName: '',
     description: '',
-    rooms: [],
+    // rooms: [],
     isPublic: false,
     makeTemplate: false,
     templateIsPublic: false,
@@ -29,32 +29,27 @@ class NewCourse extends Component {
 
   submitForm = event => {
     event.preventDefault();
-    const roomIds = this.state.rooms.map(room => room.id);
+    // const roomIds = this.state.rooms.map(room => room.id);
     const newCourse = {
       name: this.state.courseName,
       description: this.state.description,
-      rooms: roomIds,
+      // rooms: roomIds,
       creator: this.props.userId,
       members: [{user: this.props.userId, role: 'teacher'}],
       isPublic: this.state.isPublic,
       template: this.state.makeTemplate,
+      templateIsPublic: this.state.templateIsPublic,
     }
-    // this.setState({
-    //   courseName: '',
-    //   description: '',
-    //   rooms: [],
-    //   creating: false,
-    // })
     // update backend via redux so we can add this to the global state of courses
     this.props.createCourse(newCourse);
   }
   // this will be passed down to the dropdown menu and when we make a selection
   // it will pass a list of selected rooms back up and then we can synch our state
-  updateRooms = rooms => {
-    this.setState({
-      rooms: rooms
-    })
-  }
+  // updateRooms = rooms => {
+  //   this.setState({
+  //     rooms: rooms
+  //   })
+  // }
 
   closeModal = event => {
     event.preventDefault();
@@ -62,7 +57,7 @@ class NewCourse extends Component {
   }
 
   render() {
-    // @TODO DO we want to allow selecting of rooms for course at the time of course creation? If so, uncomment Below
+    // @TODO DO we want to allow selecting of rooms for course at the time of course creation? If so, uncomment Below and any reference to state.rooms
     // prepare dropdown list of rooms
     // const roomsSelected = this.state.rooms.map(room => (
     //   // sel- to differentiate between dropdown ids

@@ -22,10 +22,29 @@ module.exports = {
   },
 
   post: body => {
+    console.log("creating course: ", body)
+    // check if we should make a template from this course
     return new Promise((resolve, reject) => {
-      db.Course.create(body)
-      .then(course => resolve(course))
-      .catch(err => reject(err))
+      if (body.template) {
+        const {name, description, templateIsPublic, creator} = body;
+        const template = {name, description, templateIsPublic, creator,}
+        console.log(template)
+        db.CourseTemplate.create(template)
+        .then(template => {
+          body.template = template._id;
+          delete body[templateIsPublic]
+          console.log(template._id)
+          db.Course.create(body)
+          .then(course => resolve(course))
+          .catch(err => reject(err))
+
+        })
+        .catch(err => {console.log(err); reject(err)})
+      } else {
+        db.Course.create(body)
+        .then(course => resolve(course))
+        .catch(err => reject(err))
+      }
     })
   },
 

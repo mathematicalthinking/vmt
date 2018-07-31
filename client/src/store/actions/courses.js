@@ -50,9 +50,11 @@ export const getCurrentCourse = id => {
 }
 
 export const createCourse = body => {
+  console.log(body)
   return dispatch => {
     API.post('course', body)
     .then(resp =>{
+      console.log(resp)
       dispatch(updateUserCourses(resp.data.result))
       return dispatch(createdCourse(resp.data.result))
     })
