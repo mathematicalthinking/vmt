@@ -1,5 +1,5 @@
 import * as actionTypes from './actionTypes';
-import { updateUserCourses } from './user';
+import { updateUserCourses, updateUserCourseTemplates } from './user';
 import API from '../../utils/apiRequests';
 
 
@@ -50,12 +50,15 @@ export const getCurrentCourse = id => {
 }
 
 export const createCourse = body => {
-  console.log(body)
   return dispatch => {
     API.post('course', body)
     .then(resp =>{
-      console.log(resp)
       dispatch(updateUserCourses(resp.data.result))
+      console.log(body)
+      if (body.template) {
+        console.log('we should create a template')
+        dispatch(updateUserCourseTemplates({...resp.data.result}))
+      }
       return dispatch(createdCourse(resp.data.result))
     })
     .catch(err => console.log(err))
@@ -66,7 +69,7 @@ export const grantAccess = (user, resource, id) => {
   return dispatch => {
     API.grantAccess(user, resource, id)
     .then(resp => {
-      // dispatch(updateUserCourses(resp.data.result))
+      // dispatch(updateUserCourses(resp.data.result)) @TODO Need to update the notifcations associated with this course
       return dispatch(gotCurrentCourse(resp.data.result))
     })
   }

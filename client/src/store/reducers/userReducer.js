@@ -22,7 +22,7 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         loggingIn: false,
-        loginError: action.error
+        loginError: action.error,
       };
     case actionTypes.LOGIN_SUCCESS:
       // login authentication
@@ -45,6 +45,11 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         myCourses: [action.newCourse, ...state.myCourses]
+      }
+    case actionTypes.UPDATE_USER_COURSE_TEMPLATES:
+      return {
+        ...state,
+        myCourseTemplates: [action.newTemplate, ...state.myCourseTemplates],
       }
     case actionTypes.CLEAR_ERROR:
       return {

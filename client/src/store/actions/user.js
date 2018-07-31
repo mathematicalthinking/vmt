@@ -15,6 +15,14 @@ export const updateUserCourses = newCourse => {
   }
 }
 
+export const updateUserCourseTemplates = newTemplate => {
+  console.log(newTemplate)
+  return {
+    type: actionTypes.UPDATE_USER_COURSE_TEMPLATES,
+    newTemplate,
+  }
+}
+
 export const loginStart = () => {
   return {
     type: actionTypes.LOGIN_START
