@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import Course from '../Course/Course';
+import NewCourse from '../Create/NewCourse/NewCourse';
+import NewRoom from '../Create/NewRoom/NewRoom';
+import BoxList from '../../Layout/BoxList/BoxList';
 import Room from '../Room/Room';
 import { Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -54,9 +57,10 @@ class Dashboard extends Component {
       default:
     }
     // Put content in a boxlist layout
-    let content = <BoxList list={contentList} resource={resource} notifications dashboard/> //IDEA what if we just connected to the boxlist to the store> instead of passing all these props just pass which list it should render
+    console.log(contentList, resource)
+    let content = <BoxList list={contentList} resource={resource} notifications dashboard/> //IDEA what if we just connected to the boxlist to the store> // instead of passing all these props just pass which list it should render
     if (contentList.length === 0) {content = `You don't seem to have any ${resource}s yet. Click "Create" to get started`}
-
+    console.log(content)
 
     return (
       <DashboardLayout
@@ -65,6 +69,7 @@ class Dashboard extends Component {
         crumbs={[{title: 'Dashboard', link: '/dashboard/courses'}]}
         sidePanelTitle={this.props.username}
         content={content}
+        resource={resource}
         contentCreate={contentCreate}
         tabs={this.state.tabs}
       />
@@ -82,6 +87,7 @@ const mapStateToProps = store => {
     username: user.username
   }
 }
+// @TODO consider requesting the resources here instead of on Login // maybe it doesnt matter since we're just redirected here right after login
 const mapDispatchToProps = dispatch => {
   return {
   }

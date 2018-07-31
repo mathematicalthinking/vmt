@@ -9,12 +9,12 @@ import NewRoom from '../Create/NewRoom/NewRoom'
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
-import Students from './Students/Students';
+import Students from '../Students/Students';
 class Course extends Component {
   state = {
     access: false,
     guestMode: false,
-    currentCourse: {}, // Right now I'm just saving currentCourse is state to compare the incoming props currentCourse to look for changes
+    currentCourse: {}, // Right now I'm just saving currentCourse in state to compare the incoming props currentCourse to look for changes
     tabs: [
       {name: 'Rooms'},
       {name: 'Students'},
@@ -113,6 +113,7 @@ class Course extends Component {
           sidePanelTitle={course.name}
           contentCreate={contentCreate}
           content={content}
+          resource={resource}
           tabs={this.state.tabs}
                                                       /> :
                                                       <PublicListLayout />}
