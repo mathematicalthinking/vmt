@@ -10,7 +10,7 @@ import classes from '../create.css';
 import glb from '../../../global.css';
 import { connect } from 'react-redux';
 import * as actions from '../../../store/actions/';
-class NewCourse extends Component {
+class NewTemplate extends Component {
   state = {
     courseName: '',
     description: '',
@@ -141,4 +141,4 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewCourse);
+export default connect(mapStateToProps, mapDispatchToProps)(NewTemplate);

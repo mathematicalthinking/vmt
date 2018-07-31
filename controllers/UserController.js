@@ -10,13 +10,15 @@ module.exports = {
   },
 
   getById: id => {
+    console.log('Getting user ', id, ' info')
     return new Promise((resolve, reject) => {
       db.User.findById(id)
-      .populate({
-        path: 'rooms',
-        // options: {sort: {createdAt: -1}} this is not working so in the redux reducer we're just reversing the array 
-      })
+      // .populate({
+      //   path: 'rooms',
+      //   options: {sort: {createdAt: -1}}
+      // })
       .populate('courses')
+      .populate('courseTemplates')
       .then(user => resolve(user))
       .catch(err => reject(err))
     });

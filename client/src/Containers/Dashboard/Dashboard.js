@@ -5,6 +5,7 @@ import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import BoxList from '../../Layout/BoxList/BoxList';
 import NewCourse from '../Create/NewCourse/NewCourse';
 import NewRoom from '../Create/NewRoom/NewRoom';
+import NewTemplate from '../Create/NewTemplate/NewTemplate';
 import { connect } from 'react-redux';
 
 class Dashboard extends Component {
@@ -51,11 +52,16 @@ class Dashboard extends Component {
         contentList = this.props.myRooms;
         contentCreate = <NewRoom />
         break;
+      case 'templates' :
+      console.log(this.props.myCourseTemplates)
+        contentList = this.props.myCourseTemplates
+        contentCreate = <NewTemplate />
       default:
     }
     // Put content in a boxlist layout
     let content = <BoxList list={contentList} resource={resource} notifications dashboard/> //IDEA what if we just connected to the boxlist to the store> instead of passing all these props just pass which list it should render
-    if (contentList.length === 0) {content = `You don't seem to have any ${resource}s yet. Click "Create" to get started`}
+    // NB this must be a double equals below so if contentList in undefined we don't get an error
+    if (contentList.length == 0) {content = `You don't seem to have any ${resource} yet. Click "Create" to get started`}
 
 
     return (

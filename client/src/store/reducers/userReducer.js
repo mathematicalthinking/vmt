@@ -7,6 +7,7 @@ const initialState = {
   loggingIn: false,
   myRooms: [],
   myCourses: [],
+  myCourseTemplates: [],
   loginError: '',
 }
 
@@ -30,9 +31,10 @@ const reducer = (state = initialState, action) => {
         loggedIn: true,
         loggingIn: false,
         username: action.user.username,
-        myRooms: action.user.rooms.reverse(),
-        myCourses: action.user.courses.reverse(),
-        userId: action.user._id
+        myRooms: action.user.rooms,
+        myCourses: action.user.courses,
+        myCourseTemplates: action.user.courseTemplates,
+        userId: action.user._id,
       }
     case actionTypes.UPDATE_USER_ROOMS:
       return {

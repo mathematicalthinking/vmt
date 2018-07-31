@@ -87,7 +87,7 @@ class Course extends Component {
         content = <BoxList loading={loading} list={course.rooms ? course.rooms : []} resource={'rooms'} notifications dashboard/>
         break;
       case 'students' :
-      // @TODO make a folder or NOTFICATION_TYPES
+      // @TODO make a folder of NOTFICATION_TYPES
         let notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
         content = <Students classList={course.members} notifications={notifications} course={course._id}/>
         break;
@@ -106,16 +106,17 @@ class Course extends Component {
       <Aux>
         {guestModal}
         {accessModal}
-        {this.props.match.url.includes('dashboard') ? <DashboardLayout
-          routingInfo={this.props.match}
-          title={!loading ? `Course: ${course.name}` : null}
-          crumbs={[{title: 'Dashboard', link: '/dashboard/courses'}, {title: course.name ? course.name : null, link: `/dashboard/course/${course._id}/rooms`}]}
-          sidePanelTitle={course.name}
-          contentCreate={contentCreate}
-          content={content}
-          tabs={this.state.tabs}
-                                                      /> :
-                                                      <PublicListLayout />}
+        {this.props.match.url.includes('dashboard') ?
+          <DashboardLayout
+            routingInfo={this.props.match}
+            title={!loading ? `Course: ${course.name}` : null}
+            crumbs={[{title: 'Dashboard', link: '/dashboard/courses'}, {title: course.name ? course.name : null, link: `/dashboard/course/${course._id}/rooms`}]}
+            sidePanelTitle={course.name}
+            contentCreate={contentCreate}
+            content={content}
+            tabs={this.state.tabs}
+          /> :
+          <PublicListLayout />}
       </Aux>
         )
   }

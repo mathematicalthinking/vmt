@@ -65,7 +65,11 @@ module.exports = passport => {
       if (!user) return next(null, false, {errorMessage: 'That username does not exist. If you want to create an account go to Register'});
       if (!bcrypt.compareSync(password, user.password)) return next(null, false, {errorMessage: 'The password you entered is incorrect'});
       return next(null, user);
-    }).populate('rooms').populate('courses').lean();
+    })
+    .populate({path: 'rooms', options: {sort: {createdAt: -1}}})
+    .populate({path: 'courses', options: {sort: {createdAt: -1}}})
+    .populate({path: 'courseTemplates', options: {sort: {createdAt: -1}}})
+    .lean();
   }));
 
 
