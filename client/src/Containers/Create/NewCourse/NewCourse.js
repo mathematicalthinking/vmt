@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
 import Dropdown from '../../../Components/UI/Dropdown/Dropdown';
 import RadioBtn from '../../../Components/Form/RadioBtn/RadioBtn';
+import Checkbox from '../../../Components/Form/Checkbox/Checkbox';
 import Aux from '../../../Components/HOC/Auxil';
 import Modal from '../../../Components/UI/Modal/Modal';
 import Button from '../../../Components/UI/Button/Button';
@@ -15,6 +16,8 @@ class NewCourse extends Component {
     description: '',
     rooms: [],
     isPublic: false,
+    makeTemplate: false,
+    templateIsPublic: false,
     creating: false,
   }
 
@@ -32,14 +35,16 @@ class NewCourse extends Component {
       description: this.state.description,
       rooms: roomIds,
       creator: this.props.userId,
-      members: [{user: this.props.userId, role: 'teacher'}]
+      members: [{user: this.props.userId, role: 'teacher'}],
+      isPublic: this.state.isPublic,
+      template: this.state.makeTemplate,
     }
-    this.setState({
-      courseName: '',
-      description: '',
-      rooms: [],
-      creating: false,
-    })
+    // this.setState({
+    //   courseName: '',
+    //   description: '',
+    //   rooms: [],
+    //   creating: false,
+    // })
     // update backend via redux so we can add this to the global state of courses
     this.props.createCourse(newCourse);
   }
@@ -57,7 +62,7 @@ class NewCourse extends Component {
   }
 
   render() {
-    // @TODO DO we want to allow selecting of rooms for course at the time of course creation?
+    // @TODO DO we want to allow selecting of rooms for course at the time of course creation? If so, uncomment Below
     // prepare dropdown list of rooms
     // const roomsSelected = this.state.rooms.map(room => (
     //   // sel- to differentiate between dropdown ids
@@ -95,14 +100,25 @@ class NewCourse extends Component {
               width='80%'
             />
             <div className={classes.RadioButtons}>
-              <RadioBtn checked={this.state.isPublic} check={() => this.setState({isPublic: true})}>Public</RadioBtn>
-              <RadioBtn checked={!this.state.isPublic} check={() => this.setState({isPublic: false})}>Private</RadioBtn>
+              <RadioBtn name='public' checked={this.state.isPublic} check={() => this.setState({isPublic: true})}>Public</RadioBtn>
+              <RadioBtn name='private' checked={!this.state.isPublic} check={() => this.setState({isPublic: false})}>Private</RadioBtn>
             </div>
             <div className={classes.PrivacyDesc}>
               Marking your course as public allows other VMT users to view the activity
               in your rooms without seeing any personal information about your students.
             </div>
-            <div className={glb.FlexRow}>
+            <div className={classes.Template}>
+              <div className={classes.Checkbox}>
+                <Checkbox checked={this.state.makeTemplate} change={() => this.setState(prevState => ({makeTemplate: !prevState.makeTemplate}))}>Create a Template From this Course</Checkbox>
+              </div>
+              {this.state.makeTemplate ? <div className={classes.RadioButtons}>
+                <RadioBtn name='Tpublic' checked={this.state.templateIsPublic} check={() => this.setState({templateIsPublic: true})}>Public</RadioBtn>
+                <RadioBtn name='Tprivate' checked={!this.state.templateIsPublic} check={() => this.setState({templateIsPublic: false})}>Private</RadioBtn>
+              </div> : null}
+              Creating a template will copy this course into your template folder. Every room you add to
+              this course will also be added to your template (along with the files associated with the room). Course members and activity in the rooms will not be saved to the template. This allow you to resuse this template for multiple groups of students.
+            </div>
+            <div className={classes.Submit}>
               <Button click={this.submitForm}>Submit</Button>
               <Button click={this.closeModal}>Cancel</Button>
             </div>
