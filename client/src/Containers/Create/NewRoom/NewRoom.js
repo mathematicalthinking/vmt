@@ -6,16 +6,19 @@ import Aux from '../../../Components/HOC/Auxil';
 import Modal from '../../../Components/UI/Modal/Modal';
 import Button from '../../../Components/UI/Button/Button';
 import RadioBtn from '../../../Components/Form/RadioBtn/RadioBtn';
+import Checkbox from '../../../Components/Form/Checkbox/Checkbox';
 import { connect } from 'react-redux';
-import * as actions from '../../../store/actions/'
+import * as actions from '../../../store/actions/';
 import classes from '../create.css';
 
 class NewRoom extends Component {
   state = {
     roomName: '',
     description: '',
-    isPublic: true,
+    isPublic: false,
     creating: false,
+    makeTemplate: false,
+    isTemplatePublic: false,
   }
 
   changeHandler = event => {
@@ -50,6 +53,8 @@ class NewRoom extends Component {
       creator: this.props.userId,
       course: this.props.course,
       isPublic: this.state.isPublic,
+      template: this.state.makeTemplate,
+      isTemplatePublic: this.state.isTemplatePublic,
     }
     this.props.createRoom(newRoom)
     this.setState({
@@ -89,6 +94,7 @@ class NewRoom extends Component {
                 label='Description'
                 width='100%'
               />
+              <div><Button click={this.addTab}>Upload a file</Button></div>
               <div className={classes.RadioButtons}>
                 <RadioBtn  checked={this.state.isPublic} check={() => this.setState({isPublic: true})}>Public</RadioBtn>
                 <RadioBtn  checked={!this.state.isPublic} check={() => this.setState({isPublic: false})}>Private</RadioBtn>
@@ -97,7 +103,17 @@ class NewRoom extends Component {
                 Marking your room as public allows other VMT users to view the activity
                 in this room but does not expose any information about your students.
               </div>
-              <div><Button click={this.addTab}>Upload a file</Button></div>
+              <div className={classes.Template}>
+                <div className={classes.Checkbox}>
+                  <Checkbox checked={this.state.makeTemplate} change={() => this.setState(prevState => ({makeTemplate: !prevState.makeTemplate}))}>Create a Template From this Course</Checkbox>
+                </div>
+                {this.state.makeTemplate ? <div className={classes.RadioButtons}>
+                  <RadioBtn name='Tpublic' checked={this.state.templateIsPublic} check={() => this.setState({templateIsPublic: true})}>Public</RadioBtn>
+                  <RadioBtn name='Tprivate' checked={!this.state.templateIsPublic} check={() => this.setState({templateIsPublic: false})}>Private</RadioBtn>
+                </div> : null}
+                Creating a template will copy this course into your template folder. Every room you add to
+                this course will also be added to your template (along with the files associated with the room). Course members and activity in the rooms will not be saved to the template. This allow you to resuse this template for multiple groups of students.
+              </div>
               <div className={classes.Submit}>
                 <Button click={this.submitForm}>Submit</Button>
                 <Button click={this.closeModal}>Cancel</Button>
