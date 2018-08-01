@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import BoxList from '../../Layout/BoxList/BoxList';
+import Templates from '../../Layout/Dashboard/Templates/Templates'
 import NewResource from '../Create/NewResource/NewResource';
 import NewTemplate from '../Create/NewTemplate/NewTemplate';
 import { connect } from 'react-redux';
@@ -19,7 +20,7 @@ class Dashboard extends Component {
   }
   // I seem to be over using this lifeCycle hook
   // The problem I'm facing is that the first time this
-  // component renders it doesn't have the props from redux -- why is that? shouldn't it?
+  // component renders it doesn't have the props from redux -- why is that? shouldn't it? --  yeahs wait a second, it definitley should
   static getDerivedStateFromProps(nextProps, prevState) {
     if (nextProps.myCourses) {
       let notifications = 0;
@@ -53,20 +54,18 @@ class Dashboard extends Component {
         contentCreate = <NewResource resource='room'/>
         break;
       case 'templates' :
-      console.log(this.props.myCourseTemplates)
-        const courseList = this.props.myCourseTemplates;
-        const roomList = this.props.myRoomTemplates;
-        content = <div>
-          
-        </div>
-        contentCreate = <NewTemplate />
+        content = <Templates courses={this.props.myCourseTemplates} rooms={this.props.myRoomTemplates} />
+      case 'settings' :
+        // content = <Settings />
       default:
     }
     // NB this must be a double equals below so if contentList in undefined we don't get an error
-    if (contentList.length == 0) {content = `You don't seem to have any ${resource} yet. Click "Create" to get started`}
+    // @TODO redo all of this just make layout componenest like <Templates />
+    if (contentList.length == 0 && content === undefined) {content = `You don't seem to have any ${resource} yet. Click "Create" to get started`}
     // Put content in a boxlist layout
-    content = <BoxList list={contentList} resource={resource} notifications dashboard/>
-
+    if( content === undefined ) {
+      content = <BoxList list={contentList} resource={resource} notifications dashboard/>
+    }
 
     return (
       <DashboardLayout

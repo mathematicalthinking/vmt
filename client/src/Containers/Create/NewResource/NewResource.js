@@ -34,20 +34,31 @@ class NewResource extends Component {
       description: this.state.description,
       // rooms: roomIds,
       creator: this.props.userId,
-      members: [{user: this.props.userId, role: 'teacher'}], // @TODO Do we want to default the creator to a teacher?
       isPublic: this.state.isPublic,
-      template: this.state.makeTemplate,
-      templateIsPublic: this.state.templateIsPublic,
     }
     // update backend via redux so we can add this to the global state of courses
-    switch (this.props.resource) {
-      case 'course' :
+    if (this.props.template) {
+      switch (this.props.resource) {
+        case 'course' :
+          this.props.createCourseTemplate(newResource);
+          break;
+        case 'room' :
+          this.props.createRoomTemplate(newResource);
+          break;
+        default:;
+    }} else {
+      newResource.members = [{user: this.props.userId, role: 'teacher'}]; // @TODO Do we want to default the creator to a teacher?
+      newResource.template = this.state.makeTemplate;
+      newResource.templateIsPublic = this.state.templateIsPublic;
+      switch (this.props.resource) {
+        case 'course' :
         this.props.createCourse(newResource);
         break;
-      case 'room' :
+        case 'room' :
         this.props.createRoom(newResource);
         break;
-      default:;
+        default:;
+      }
     }
     this.setState({creating: false})
   }
@@ -82,6 +93,7 @@ class NewResource extends Component {
     const displayResource = resource.charAt(0).toUpperCase() + resource.slice(1);
     // const displayResource = "RESOURCE";
     const templateDetails = (resource === 'course') ? "Every room you add to this course will also be added to your template (along with the files associated with the room). Course members and activity in the rooms will not be saved to the template. This allow you to resuse this template for multiple groups of students." : '';
+    // @IDEA ^ while I've never seen this done before...maybe it'd be cleaner to have a file of static content and just import it in so we don't have these long strings all over
     return (
       <Aux>
         <Modal
@@ -89,7 +101,7 @@ class NewResource extends Component {
           closeModal={() => this.setState({creating: false})}
         >
           <div className={classes.Container}>
-            <h3 className={classes.Title}>Create a New {displayResource}</h3>
+            <h3 className={classes.Title}>Create a New {displayResource} {this.props.template ? 'Template' : null}</h3>
             <form className={classes.Form}>
               <TextInput
                 name={`${resource}Name`}
@@ -113,7 +125,7 @@ class NewResource extends Component {
                   in your rooms without seeing any personal information about your students.
                 </div>
               </div>
-              <div className={classes.Template}>
+              {!this.props.template ? <div className={classes.Template}>
                 <div className={classes.Checkbox}>
                   <Checkbox checked={this.state.makeTemplate} change={() => this.setState(prevState => ({makeTemplate: !prevState.makeTemplate}))}>Create a Template From this {displayResource}</Checkbox>
                 </div>
@@ -123,7 +135,7 @@ class NewResource extends Component {
                 </div> : null}
                 Creating a template will copy this {resource} into your template folder.
                 {templateDetails}
-              </div>
+              </div> : null}
               <div className={classes.Submit}>
                 <Button click={this.submitForm}>Submit</Button>
                 <Button click={e => {e.preventDefault(); this.setState({creating: false})}}>Cancel</Button>
@@ -131,8 +143,8 @@ class NewResource extends Component {
             </form>
           </div>
         </Modal>
-        <Button click={() => {this.setState({creating: true})}}>Create New {displayResource}</Button>
-        <Button>Create From Template</Button>
+        <Button click={() => {this.setState({creating: true})}}>Create New {displayResource} {this.props.template ? 'Template' : null}</Button>
+        {!this.props.template ? <Button>Create From Template</Button> : null}
       </Aux>
     )
   }

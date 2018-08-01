@@ -81,7 +81,7 @@ class NewTemplate extends Component {
           show={this.state.creating}
           closeModal={this.closeModal}
         ><div className={classes.Container}>
-          <h3 className={classes.Title}>Create a New Course</h3>
+          <h3 className={classes.Title}>Create a New Template</h3>
           <form className={classes.Form}>
             <TextInput
               name='courseName'
@@ -121,7 +121,7 @@ class NewTemplate extends Component {
           </form>
         </div>
         </Modal>
-        <Button click={() => {this.setState({creating: true})}}>Create</Button>
+        <Button click={() => {this.setState({creating: true})}}>Create Template</Button>
       </Aux>
     )
   }
