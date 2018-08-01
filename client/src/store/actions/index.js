@@ -28,3 +28,9 @@ export {
   updateCourseRooms,
   grantAccess,
 } from './courses';
+export {
+  getTemplates,
+  gotTemplates,
+  createTemplate,
+  createdTemplate,
+} from './templates';
