@@ -27,7 +27,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       if (body.template) {
         const {name, description, templateIsPublic, creator} = body;
-        const template = {name, description, templateIsPublic, creator,}
+        const template = {name, description, isPublic: templateIsPublic, creator,}
         console.log(template)
         db.CourseTemplate.create(template)
         .then(template => {

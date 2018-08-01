@@ -6,7 +6,7 @@ const CourseTemplate = new mongoose.Schema({
   description: {type: String},
   creator: {type: ObjectId, ref: 'User'},
   roomTemplates: [{type: ObjectId, ref: 'RoomTemplate'}],
-  templateIsPublic: {type: Boolean, default: false},
+  isPublic: {type: Boolean, default: false},
   // course: {type: ObjectId, ref, 'Course'} //If template is created from an instance
 },{timestamps: true});
 

@@ -126,12 +126,13 @@ class NewResource extends Component {
               </div>
               <div className={classes.Submit}>
                 <Button click={this.submitForm}>Submit</Button>
-                <Button click={this.closeModal}>Cancel</Button>
+                <Button click={e => {e.preventDefault(); this.setState({creating: false})}}>Cancel</Button>
               </div>
             </form>
           </div>
         </Modal>
-        <Button click={() => {this.setState({creating: true})}}>Create</Button>
+        <Button click={() => {this.setState({creating: true})}}>Create New {displayResource}</Button>
+        <Button>Create From Template</Button>
       </Aux>
     )
   }

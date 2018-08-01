@@ -8,7 +8,7 @@ const navbar = (props) => {
         <NavItem link='/users/new' name='Login/Signup' />
         <NavItem link='/publicList/courses' name='Courses' />
         <NavItem link='/publicList/rooms' name='Rooms' />
-        <NavItem link='/dashboard/rooms' name='Dashboard' />
+        <NavItem link='/dashboard/courses' name='Dashboard' />
         <NavItem link='/rooms/new' name='Community' />
         <NavItem link='/logout' name='Logout' />
       </ul>

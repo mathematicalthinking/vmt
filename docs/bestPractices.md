@@ -2,8 +2,8 @@
 The following section is intended to help collaborators contribute to the app.
 Serval conventions and standards are delineated to keep the app clean and maintainable.
 
-### Making API Requests
-ALL  requests to the backend should be performed via Redux. This will ensure that our
+## Making API Requests
+ALL  requests to the backend should be performed via __Redux__. This will ensure that our
 Redux store and backend database stay in synch with each other, and updates (to both)
 will be immediately seen by the user.
 
@@ -95,5 +95,7 @@ export const createCourse = body => {
   }
 }
 ```
-In the createCourse middleware we make a post request to the backend and then (*This is the crucial point*)
+In the createCourse middleware we make a post request to the backend and then (__*This is the crucial point*__)
 update the relevant parts of the redux store so that it is synchronized. When creating a course we want to update the complete list of courses, but we also need to update the user's courseList and the courseTemplate list if this was a template. To do this we dispatch updateUserCourses, updateUserCourseTemplates and createdCourse which in turn update the relevant parts of the store via their reducers.
+
+## Receive

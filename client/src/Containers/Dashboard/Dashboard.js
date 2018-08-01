@@ -39,6 +39,7 @@ class Dashboard extends Component {
   render() {
     let contentList = [];
     const resource = this.props.match.params.resource;
+    let content;
     console.log(resource)
     let contentCreate;
     // Load content based on
@@ -53,14 +54,18 @@ class Dashboard extends Component {
         break;
       case 'templates' :
       console.log(this.props.myCourseTemplates)
-        contentList = this.props.myCourseTemplates
+        const courseList = this.props.myCourseTemplates;
+        const roomList = this.props.myRoomTemplates;
+        content = <div>
+          
+        </div>
         contentCreate = <NewTemplate />
       default:
     }
-    // Put content in a boxlist layout
-    let content = <BoxList list={contentList} resource={resource} notifications dashboard/> //IDEA what if we just connected to the boxlist to the store> instead of passing all these props just pass which list it should render
     // NB this must be a double equals below so if contentList in undefined we don't get an error
     if (contentList.length == 0) {content = `You don't seem to have any ${resource} yet. Click "Create" to get started`}
+    // Put content in a boxlist layout
+    content = <BoxList list={contentList} resource={resource} notifications dashboard/>
 
 
     return (

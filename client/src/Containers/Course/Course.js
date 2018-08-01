@@ -83,7 +83,7 @@ class Course extends Component {
     let contentCreate;
     switch (resource) {
       case 'rooms' :
-        contentCreate = <NewResource course={course._id} updateParent={room => this.props.updateCourseRooms(room)}/>
+        contentCreate = <NewResource course={course._id} resource='room' updateParent={room => this.props.updateCourseRooms(room)}/>
         content = <BoxList loading={loading} list={course.rooms ? course.rooms : []} resource={'rooms'} notifications dashboard/>
         break;
       case 'students' :
