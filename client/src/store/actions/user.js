@@ -80,7 +80,7 @@ export const login = (username, password) => {
     })
     .catch(err => {
       console.log(err)
-      dispatch(loginFail(err))
+      dispatch(loginFail(err.response.statusText))
     })
   }
 }

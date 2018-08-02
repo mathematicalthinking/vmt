@@ -17,6 +17,7 @@ class NewResource extends Component {
     makeTemplate: false,
     templateIsPublic: false,
     creating: false,
+    desmosLink: '',
   }
 
   changeHandler = event => {
@@ -102,19 +103,32 @@ class NewResource extends Component {
           <div className={classes.Container}>
             <h3 className={classes.Title}>Create a New {displayResource} {this.props.template ? 'Template' : null}</h3>
             <form className={classes.Form}>
-              <TextInput
-                name='resourceName'
-                label={`${displayResource} Name`}
-                change={this.changeHandler}
-                width='40%'
-              />
-              <TextInput
-                name='description'
-                label='Description'
-                change={this.changeHandler}
-                width='80%'
-              />
-              <div>
+              <div className={classes.FormSection}>
+                <TextInput
+                  name='resourceName'
+                  label={`${displayResource} Name`}
+                  change={this.changeHandler}
+                  width='40%'
+                />
+                <TextInput
+                  name='description'
+                  label='Description'
+                  change={this.changeHandler}
+                  width='80%'
+                />
+              </div>
+              {(resource === 'room') ?
+                <div className={classes.FormSection}>
+                  <div>Import a GeoGebra workspace</div>
+                  <div><Button>Select a Geogebra File</Button></div>
+                  <TextInput
+                    name='desmosLink'
+                    label='Paste a Desmos workspace'
+                    change={this.changeHandler}
+                  width='80%'/>
+                </div>
+              : null}
+              <div className={classes.FormSection}>
                 <div className={classes.RadioButtons}>
                   <RadioBtn name='public' checked={this.state.isPublic} check={() => this.setState({isPublic: true})}>Public</RadioBtn>
                   <RadioBtn name='private' checked={!this.state.isPublic} check={() => this.setState({isPublic: false})}>Private</RadioBtn>
@@ -124,7 +138,8 @@ class NewResource extends Component {
                   in your rooms without seeing any personal information about your students.
                 </div>
               </div>
-              {!this.props.template ? <div className={classes.Template}>
+
+              {!this.props.template ? <div className={classes.FormSection}>
                 <div className={classes.Checkbox}>
                   <Checkbox checked={this.state.makeTemplate} change={() => this.setState(prevState => ({makeTemplate: !prevState.makeTemplate}))}>Create a Template From this {displayResource}</Checkbox>
                 </div>
