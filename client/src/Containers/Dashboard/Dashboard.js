@@ -20,7 +20,7 @@ class Dashboard extends Component {
   }
   // I seem to be over using this lifeCycle hook
   // The problem I'm facing is that the first time this
-  // component renders it doesn't have the props from redux -- why is that? shouldn't it? --  yeahs wait a second, it definitley should
+  // component renders it doesn't have the props from redux -- why is that? shouldn't it? --  yeah wait a second, it definitley should
   static getDerivedStateFromProps(nextProps, prevState) {
     if (nextProps.myCourses) {
       let notifications = 0;

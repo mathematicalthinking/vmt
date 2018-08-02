@@ -37,6 +37,7 @@ export const loginStart = () => {
 }
 
 export const loginSuccess = user => {
+  console.log(user)
   return {
     type: actionTypes.LOGIN_SUCCESS,
     user,

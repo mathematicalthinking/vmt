@@ -66,9 +66,12 @@ module.exports = passport => {
       if (!bcrypt.compareSync(password, user.password)) return next(null, false, {errorMessage: 'The password you entered is incorrect'});
       return next(null, user);
     })
+    // @IDEA consider not doing this all at once but making subsequent api calls as these resources
+    // are needed
     .populate({path: 'rooms', options: {sort: {createdAt: -1}}})
     .populate({path: 'courses', options: {sort: {createdAt: -1}}})
     .populate({path: 'courseTemplates', options: {sort: {createdAt: -1}}})
+    .populate({path: 'roomTemplates', options: {sort: {createdAt: -1}}})
     .lean();
   }));
 
