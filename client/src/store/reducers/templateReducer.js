@@ -21,11 +21,13 @@ const reducer = (state = initialState, action) => {
         ...state,
         courseTemplates: [action.template, ...state.courseTemplates]
       }
-      case actionTypes.CREATED_ROOM_TEMPLATE :
-        return {
-          ...state,
-          roomTemplates: [action.template, ...state.roomTemplates]
-        }
-    default :
+    case actionTypes.CREATED_ROOM_TEMPLATE :
+      return {
+        ...state,
+        roomTemplates: [action.template, ...state.roomTemplates]
+      }
+    default : return state
   }
 }
+
+export default reducer;
