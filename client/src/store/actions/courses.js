@@ -52,14 +52,14 @@ export const getCurrentCourse = id => {
 export const createCourse = body => {
   return dispatch => {
     API.post('course', body)
-    .then(resp =>{
-      dispatch(updateUserCourses(resp.data.result))
+    .then(res =>{
+      dispatch(updateUserCourses(res.data.result))
       console.log(body)
       if (body.template) {
         console.log('we should create a template')
-        dispatch(updateUserCourseTemplates({...resp.data.result}))
+        dispatch(updateUserCourseTemplates({...res.data.result}))
       }
-      return dispatch(createdCourse(resp.data.result))
+      return dispatch(createdCourse(res.data.result))
     })
     .catch(err => console.log(err))
   }

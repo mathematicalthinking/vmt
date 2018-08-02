@@ -24,10 +24,23 @@ module.exports = {
 
   post: body => {
     return new Promise((resolve, reject) => {
-      console.log(body)
-      db.Room.create(body)
-      .then(room => resolve(room))
-      .catch(err => reject(err))
+      if (body.template) {
+        const {name, description, templateIsPublic, creator} = body;
+        const template = {name, description, isPublic: templateIsPublic, creator,}
+        db.RoomTemplate.create(template)
+        .then(template => {
+          body.template = template._id,
+          delete body[templateIsPublic]
+          db.Room.create(body)
+          .then(room => resolve(room))
+          .catch(err => reject(err))
+        })
+        .catch(err => reject(err))
+      } else {
+        db.Room.create(body)
+        .then(room => resolve(room))
+        .catch(err => reject(err))
+      }
     })
   },
 

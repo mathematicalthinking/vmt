@@ -23,6 +23,13 @@ export const updateUserCourseTemplates = newTemplate => {
   }
 }
 
+export const updateUserRoomTemplates = newTemplate => {
+  return {
+    type: actionTypes.UPDATE_USER_ROOM_TEMPLATES,
+    newTemplate,
+  }
+}
+
 export const loginStart = () => {
   return {
     type: actionTypes.LOGIN_START

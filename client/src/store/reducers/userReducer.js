@@ -8,6 +8,7 @@ const initialState = {
   myRooms: [],
   myCourses: [],
   myCourseTemplates: [],
+  myRoomTemplates: [],
   loginError: '',
 }
 
@@ -50,6 +51,11 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         myCourseTemplates: [action.newTemplate, ...state.myCourseTemplates],
+      }
+    case actionTypes.UPDATE_USER_ROOM_TEMPLATES:
+      return {
+        ...state,
+        myRoomTemplates: [action.newTemplate, ...state.myRoomTemplates]
       }
     case actionTypes.CLEAR_ERROR:
       return {

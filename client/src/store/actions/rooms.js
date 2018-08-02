@@ -1,6 +1,6 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
-import { updateUserRooms } from './user';
+import { updateUserRooms, updateUserRoomTemplates } from './user';
 
 export const gotRooms = rooms => {
   return {
@@ -40,12 +40,16 @@ export const getCurrentRoom = id => {
 }
 
 export const createRoom = body => {
+  console.log(body)
   return dispatch => {
     API.post('room', body)
-    .then(resp => {
-      console.log("RESPO: ", resp)
-      dispatch(updateUserRooms(resp.data.result));
-      dispatch(createdRoom(resp.data.result))
+    .then(res => {
+      console.log("RESPO: ", res)
+      dispatch(updateUserRooms(res.data.result));
+      if (body.template) {
+        dispatch(updateUserRoomTemplates({...res.data.result}))
+      }
+      return dispatch(createdRoom(res.data.result))
     })
   }
 }

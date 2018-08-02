@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
-import Dropdown from '../../../Components/UI/Dropdown/Dropdown';
 import RadioBtn from '../../../Components/Form/RadioBtn/RadioBtn';
 import Checkbox from '../../../Components/Form/Checkbox/Checkbox';
 import Aux from '../../../Components/HOC/Auxil';
@@ -11,7 +10,7 @@ import { connect } from 'react-redux';
 import * as actions from '../../../store/actions/';
 class NewResource extends Component {
   state = {
-    courseName: '',
+    resourceName: '',
     description: '',
     // rooms: [],
     isPublic: false,
@@ -30,7 +29,7 @@ class NewResource extends Component {
     event.preventDefault();
     // const roomIds = this.state.rooms.map(room => room.id);
     const newResource = {
-      name: this.state.courseName,
+      name: this.state.resourceName,
       description: this.state.description,
       // rooms: roomIds,
       creator: this.props.userId,
@@ -104,7 +103,7 @@ class NewResource extends Component {
             <h3 className={classes.Title}>Create a New {displayResource} {this.props.template ? 'Template' : null}</h3>
             <form className={classes.Form}>
               <TextInput
-                name={`${resource}Name`}
+                name='resourceName'
                 label={`${displayResource} Name`}
                 change={this.changeHandler}
                 width='40%'
