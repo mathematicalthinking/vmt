@@ -26,13 +26,14 @@ module.exports = {
     return new Promise((resolve, reject) => {
       if (body.template) {
         const {name, description, templateIsPublic, creator} = body;
+        console.log(templateIsPublic)
         const template = {name, description, isPublic: templateIsPublic, creator,}
         db.RoomTemplate.create(template)
         .then(template => {
           body.template = template._id,
           delete body[templateIsPublic]
           db.Room.create(body)
-          .then(room => resolve(room))
+          .then(room => resolve([room, template]))
           .catch(err => reject(err))
         })
         .catch(err => reject(err))

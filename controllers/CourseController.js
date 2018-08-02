@@ -28,14 +28,12 @@ module.exports = {
       if (body.template) {
         const {name, description, templateIsPublic, creator} = body;
         const template = {name, description, isPublic: templateIsPublic, creator,}
-        console.log(template)
         db.CourseTemplate.create(template)
         .then(template => {
           body.template = template._id;
           delete body[templateIsPublic]
-          console.log(template._id)
           db.Course.create(body)
-          .then(course => resolve(course))
+          .then(course => resolve([course, template]))
           .catch(err => reject(err))
 
         })

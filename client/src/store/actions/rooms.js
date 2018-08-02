@@ -45,10 +45,13 @@ export const createRoom = body => {
     API.post('room', body)
     .then(res => {
       console.log("RESPO: ", res)
-      dispatch(updateUserRooms(res.data.result));
       if (body.template) {
-        dispatch(updateUserRoomTemplates({...res.data.result}))
+        // @TODO We meed to have userRooms reference rooms and not have two seperate copies. will make synchornization easier
+        dispatch(updateUserRooms(res.data.result[0]));
+        dispatch(updateUserRoomTemplates(res.data.result[1]))
+        return dispatch(createdRoom(res.data.result[0]))
       }
+      dispatch(updateUserRooms(res.data.result))
       return dispatch(createdRoom(res.data.result))
     })
   }
