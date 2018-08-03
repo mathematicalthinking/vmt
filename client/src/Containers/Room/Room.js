@@ -28,9 +28,9 @@ class Room extends Component {
       let access = false;
       let guestMode = false;
       // let studentNotifications = 0;
-      const updatedTabs = [...prevState.tabs]
+      const updatedTabs = [...prevState.tabs] // what am I doing here???
       // if this room belongs to a course check course.members for permission
-      if (currentRoom.course && currentCourse.members) {
+      if (currentRoom.course && currentCourse.members ) {
         if (currentCourse.members.find(member => member.user._id === nextProps.userId)) {
           access = true;
         }

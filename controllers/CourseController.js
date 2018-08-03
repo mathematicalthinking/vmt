@@ -22,7 +22,6 @@ module.exports = {
   },
 
   post: body => {
-    console.log("creating course: ", body)
     // check if we should make a template from this course
     return new Promise((resolve, reject) => {
       if (body.template) {
@@ -39,9 +38,11 @@ module.exports = {
         })
         .catch(err => {console.log(err); reject(err)})
       } else {
+        delete body.templateIsPublic
+        delete body.template;
         db.Course.create(body)
         .then(course => resolve(course))
-        .catch(err => reject(err))
+        .catch(err => {console.log(err); reject(err)})
       }
     })
   },

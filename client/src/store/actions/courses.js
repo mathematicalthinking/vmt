@@ -51,6 +51,7 @@ export const getCurrentCourse = id => {
 
 export const createCourse = body => {
   return dispatch => {
+    console.log(body)
     API.post('course', body)
     .then(res =>{
       console.log(body)

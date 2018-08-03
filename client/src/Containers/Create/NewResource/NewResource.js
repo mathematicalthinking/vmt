@@ -52,10 +52,11 @@ class NewResource extends Component {
       newResource.templateIsPublic = this.state.templateIsPublic;
       switch (this.props.resource) {
         case 'course' :
-        this.props.createCourse(newResource);
-        break;
+          this.props.createCourse(newResource);
+          break;
         case 'room' :
-        this.props.createRoom(newResource);
+          newResource.tabs = [{ggbFile: this.state.ggbFile, desmosLink: this.state.desmosLink}]
+          this.props.createRoom(newResource);
         break;
         default:;
       }
