@@ -1,8 +1,16 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import io from 'socket.io-client';
+import Aux from '../../../Components/HOC/Auxil';
+import Graph from '../Graph/Graph';
 class Workspace extends Component {
 
+  state = {
+    loading: true,
+  }
+
   componentDidMount() {
+    console.log(this.props)
     this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
     this.joinRoom();
   }
@@ -14,7 +22,7 @@ class Workspace extends Component {
 
   joinRoom = () => {
     const data = {
-      roomId: this.props.match.params.id,
+      roomId: this.props.room_id,
       user: {_id: this.props.userId, username: this.props.username}
     }
 
@@ -52,10 +60,19 @@ class Workspace extends Component {
 
   render() {
     return (
-      <div></div>
+      <Aux>
+        <Graph room={this.props.room} replay={false}/>
+        {/* <Chat /> */}
+      </Aux>
     );
   }
 
 }
 
-export default Workspace;
+const mapStateToProps = state => {
+  return {
+    room: state.roomsReducer.currentRoom,
+  }
+}
+
+export default connect(mapStateToProps, null)(Workspace);

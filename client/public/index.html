@@ -44,9 +44,9 @@
   <script>
    //@TODO configure the height and width based off of the window size
     // request the ggb file -- max width 990
-    particlesJS.load('particles-js', './particlesjs-config.json', function() {
-      console.log('particles loaded')
-    })
+    // particlesJS.load('particles-js', './particlesjs-config.json', function() {
+    //   console.log('particles loaded')
+    // })
     var parameters = {
       "id":"ggbApplet",
       "width": 990,
@@ -64,6 +64,8 @@
     var ggbApp = new GGBApplet(parameters, true);
     window.addEventListener("load", function() {
       this.ggb = ggbApp;
+      console.log(this)
+      console.log(this.ggb)
       console.log('ggbApplete added')
     });
   </script>

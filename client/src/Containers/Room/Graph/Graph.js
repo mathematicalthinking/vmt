@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import classes from './workspace.css';
+import Aux from '../../../Components/HOC/Auxil';
+import Modal from '../../../Components/UI/Modal/Modal';
 class Workspace extends Component {
   // we need to track whether or not the ggbBase64 data was updated
   // by this user or by another client. Otherwise we were getting stuck
@@ -11,9 +13,9 @@ class Workspace extends Component {
   state = {
     receivingData: false,
     loadingWorkspace: true,
-
+    loading: true,
   }
-
+  //
   componentDidMount() {
     this.receivingData = false
     // In index.html create the ggbApp and attach it to the window. We need to do this
@@ -27,63 +29,64 @@ class Workspace extends Component {
         // setup the even listeners
         // load the most recent workspace event if we're not replaying
         let events = this.props.room.events;
-        if (!this.props.replaying && events.length > 0){
+        if (!this.props.replay && events.length > 0){
           this.ggbApplet.setXML(events[events.length - 1].event)
-          this.props.loaded()
+          this.setState({loading: false})
         }
-        else {this.props.loaded()}
+        else {this.setState({loading: false})}
         this.initialize();
         clearInterval(timer);
       }
     }, 1000)
-
-    // we dont need socket functionality on replay
-    if (!this.props.replaying) {
-      this.socket = this.props.socket;
-      // define the socket listeners for handling events from the backend
-      this.socket.on('RECEIVE_EVENT', event => {
-        /// @TODO update room object in parents state so that the events.length stay up to date
-        // this.receivingData = true;
-        this.ggbApplet.setXML(event)
-        this.props.updateRoom({events: {event,}})
-        // @TODO ^^^^^ this seems strange events: {event,} but we need
-        // this to match the structure of the database so when we replay these received
-        // events or events from the db they have the same structure...what we probably
-        // want to do actually is rename the event property of event to xml or something
-        this.ggbApplet.registerAddListener(this.eventListener)
-      })
-    }
   }
-
-  // @TODO IM thinking we should use shouldupdate instead??? thoughts??
-  // or takesnapshot or whatever its called -- this seems BAD
-  shouldComponentUpdate(nextProps, nextState) {
-    // checking that this props and the incoming props are both replayin
-    // ensures that this is not the first time we received
-    if (nextProps.replaying && this.props.replaying) {
-      this.ggbApplet.setXML(this.props.room.events[this.props.eventIndex].event)
-      return true;
-    }
-    if (!nextProps.replaying && this.props.replaying) {
-      const events = nextProps.room.events;
-      this.ggbApplet.setXML(events[events.length - 1].event)
-      return true;
-    }
-    if (!nextProps.room.events !== this.props.room.events) {
-      return true;
-    }
-    else return false;
-  }
-
-  componentWillUnmount() {
-    this.ggbApplet.unregisterAddListener(this.eventListener);
-    this.ggbApplet.unregisterUpdateListener(this.eventListener);
-    this.ggbApplet.unregisterRemoveListener(this.eventListener);
-    // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
-    // this.ggbApplet.unregisterClearListener(this.clearListener);
-  }
-
-  // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
+  //
+  //   // we dont need socket functionality on replay
+  //   if (!this.props.replaying) {
+  //     this.socket = this.props.socket;
+  //     // define the socket listeners for handling events from the backend
+  //     this.socket.on('RECEIVE_EVENT', event => {
+  //       /// @TODO update room object in parents state so that the events.length stay up to date
+  //       // this.receivingData = true;
+  //       this.ggbApplet.setXML(event)
+  //       this.props.updateRoom({events: {event,}})
+  //       // @TODO ^^^^^ this seems strange events: {event,} but we need
+  //       // this to match the structure of the database so when we replay these received
+  //       // events or events from the db they have the same structure...what we probably
+  //       // want to do actually is rename the event property of event to xml or something
+  //       this.ggbApplet.registerAddListener(this.eventListener)
+  //     })
+  //   }
+  // }
+  //
+  // // @TODO IM thinking we should use shouldupdate instead??? thoughts??
+  // // or takesnapshot or whatever its called -- this seems BAD
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   // checking that this props and the incoming props are both replayin
+  //   // ensures that this is not the first time we received
+  //   if (nextProps.replaying && this.props.replaying) {
+  //     this.ggbApplet.setXML(this.props.room.events[this.props.eventIndex].event)
+  //     return true;
+  //   }
+  //   if (!nextProps.replaying && this.props.replaying) {
+  //     const events = nextProps.room.events;
+  //     this.ggbApplet.setXML(events[events.length - 1].event)
+  //     return true;
+  //   }
+  //   if (!nextProps.room.events !== this.props.room.events) {
+  //     return true;
+  //   }
+  //   else return false;
+  // }
+  //
+  // componentWillUnmount() {
+  //   this.ggbApplet.unregisterAddListener(this.eventListener);
+  //   this.ggbApplet.unregisterUpdateListener(this.eventListener);
+  //   this.ggbApplet.unregisterRemoveListener(this.eventListener);
+  //   // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
+  //   // this.ggbApplet.unregisterClearListener(this.clearListener);
+  // }
+  //
+  // // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
   initialize = () => {
     this.eventListener = obj => {
       // if (!this.state.receivingData) {
@@ -115,7 +118,10 @@ class Workspace extends Component {
 
   render() {
     return (
-        <div className={classes.Workspace} id='ggb-element'></div>
+      <Aux>
+        <div className={classes.Workspace} id='ggb-element'>GGB ELEMENT</div>
+        <Modal message='Loading your workspace' show={this.state.loading}/>
+      </Aux>
     )
   }
 }
