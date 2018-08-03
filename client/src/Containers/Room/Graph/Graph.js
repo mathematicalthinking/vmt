@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import classes from './workspace.css';
 import Aux from '../../../Components/HOC/Auxil';
 import Modal from '../../../Components/UI/Modal/Modal';
+import Script from 'react-load-script';
 class Workspace extends Component {
   // we need to track whether or not the ggbBase64 data was updated
   // by this user or by another client. Otherwise we were getting stuck
@@ -17,13 +18,28 @@ class Workspace extends Component {
   }
   //
   componentDidMount() {
-    console.log(this.props.room)
+    if (this.props.roomType === 'geogebra') {
+
+    }
     this.receivingData = false
-    // In index.html create the ggbApp and attach it to the window. We need to do this
-    // in index.html so the we have access to GGBApplet constructor
-    window.ggbApp.inject('ggb-element')
-    // ggbApp will attach the ggbApplet to the document object; poll the document
-    // until that has happened
+  }
+
+  handleScriptLoad = () => {
+    var parameters = {
+      "id":"ggbApplet",
+      "width": 990,
+      "height": 600,
+      "scaleContainerClass": 'applet_container',
+      "showToolBar": true,
+      "showMenuBar": true,
+      "showAlgebraInput":true,
+      "language": "en",
+      "useBrowserForJS":false,
+      "preventFocus":true,
+      "appName":"whiteboard"
+    };
+    var ggbApp = new window.GGBApplet(parameters, true);
+    ggbApp.inject('ggb-element')
     const timer = setInterval(() => {
       this.ggbApplet = window.ggbApplet;
       if (this.ggbApplet) { // @TODO dont intialiZe if replaying
@@ -120,7 +136,10 @@ class Workspace extends Component {
   render() {
     return (
       <Aux>
-        <div className={classes.Workspace} id='ggb-element'>GGB ELEMENT</div>
+        <Script url="https://cdn.geogebra.org/apps/deployggb.js"
+          onLoad={this.handleScriptLoad}
+        />
+        <div className={classes.Workspace} id='ggb-element'></div>
         <Modal message='Loading your workspace' show={this.state.loading}/>
       </Aux>
     )

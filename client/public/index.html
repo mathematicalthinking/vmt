@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css?family=Voces" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
     <!-- <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico"> -->
-    <script async src="https://cdn.geogebra.org/apps/deployggb.js"></script>
+    <!-- <script async src="https://cdn.geogebra.org/apps/deployggb.js"></script> -->
     <script src="https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
@@ -41,32 +41,4 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
   </body>
-  <script>
-   //@TODO configure the height and width based off of the window size
-    // request the ggb file -- max width 990
-    // particlesJS.load('particles-js', './particlesjs-config.json', function() {
-    //   console.log('particles loaded')
-    // })
-    var parameters = {
-      "id":"ggbApplet",
-      "width": 990,
-      "height": 600,
-      "scaleContainerClass": 'applet_container',
-      "showToolBar": true,
-      "showMenuBar": true,
-      "showAlgebraInput":true,
-      "language": "en",
-      "useBrowserForJS":false,
-      "preventFocus":true,
-      "appName":"whiteboard"
-    };
-    var ggbApplet;
-    var ggbApp = new GGBApplet(parameters, true);
-    window.addEventListener("load", function() {
-      this.ggb = ggbApp;
-      console.log(this)
-      console.log(this.ggb)
-      console.log('ggbApplete added')
-    });
-  </script>
 </html>
