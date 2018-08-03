@@ -5,6 +5,7 @@ import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
+import Students from '../Students/Students';
 // import Students from './Students/Students';
 class Room extends Component {
   state = {
@@ -21,17 +22,12 @@ class Room extends Component {
   }
  // @TODO see corresponding note in Course.js
   static getDerivedStateFromProps(nextProps, prevState) {
-    console.log('getting dreives state')
     const currentRoom = nextProps.currentRoom;
-    const currentCourse = nextProps.currentCourse;
     if (currentRoom !== prevState.currentRoom) {
       let access = false;
       let guestMode = false;
-      // let studentNotifications = 0;
-      const updatedTabs = [...prevState.tabs] // what am I doing here???
-      // if this room belongs to a course check course.members for permission
-      if (currentRoom.course && currentCourse.members ) {
-        if (currentCourse.members.find(member => member.user._id === nextProps.userId)) {
+      if (currentRoom.members) {
+        if (currentRoom.members.find(member => member.user._id === nextProps.userId)) {
           access = true;
         }
         else {
@@ -39,10 +35,7 @@ class Room extends Component {
           guestMode = true;
         }
       }
-      // if there are new notifications
-      // if (currentRoom.notifications)
       return {
-        tabs: updatedTabs,
         access,
         guestMode,
         currentRoom,
@@ -51,18 +44,28 @@ class Room extends Component {
   }
 
   componentDidMount() {
-    this.props.getCurrentRoom(this.props.match.params.room_id)
+    if (this.props.currentRoom._id !== this.props.match.params.room_id){
+      this.props.getCurrentRoom(this.props.match.params.room_id);
+    }
   }
 
   render() {
     const room = this.state.currentRoom;
-    const course = this.props.currentCourse;
     const resource = this.props.match.params.resource;
-    switch (resource) {
-
-    }
-    console.log(course)
     console.log(room)
+    let content;
+    switch (resource) {
+      case 'summary':
+        content = room.description;
+        break;
+      case 'students':
+        content = <Students classList={room.members} notifications={[]}/>
+      default:
+    }
+    const crumbs = [
+      {title: 'Dashboard', link: '/dashboard/courses'},
+      {title: room.name ? room.name : null, link: `/dashboard/room/${room._id}/summary`}]
+    if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/dashboard/course/${room.course._id}/rooms`})}
     const guestModal = this.state.guestMode ?
       <Modal show={true}>
         <p>You currently don't have access to this course. If you would like to
@@ -79,14 +82,9 @@ class Room extends Component {
         <DashboardLayout
           routingInfo={this.props.match}
           title={room.name ? `Course: ${room.name}` : null}
-          crumbs={[
-            {title: 'Dashboard', link: '/dashboard/courses'},
-            {title: course.name ? course.name : null, link: `/dashboard/course/${course._id}/rooms`},
-            {title: room.name ? room.name : null, link: `/dashboard/room/${room._id}/summary`}
-          ]}
+          crumbs={crumbs}
           sidePanelTitle={room.name}
-          // contentCreate={contentCreate}
-          // content={content}
+          content={content}
           tabs={this.state.tabs}
           activeTab={resource}
 

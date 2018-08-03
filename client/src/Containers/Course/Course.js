@@ -9,7 +9,7 @@ import NewResource from '../Create/NewResource/NewResource'
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
-import Students from './Students/Students';
+import Students from '../Students/Students';
 class Course extends Component {
   state = {
     access: false,

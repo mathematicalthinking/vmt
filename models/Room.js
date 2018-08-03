@@ -10,11 +10,12 @@ const Room = new mongoose.Schema({
   creator: {type: ObjectId, ref: 'User', required: true},
   events: [{type: ObjectId, ref: 'Event'}],
   chat: [{type: ObjectId, ref: 'Message'}],
-  members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}}],
+  members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}, _id: false}],
   currentUsers: [{type: ObjectId, ref: 'User'}],
   tabs: [{
     ggbFile: {type: String,},
     desmosLink: {type: String,},
+    _id: false,
   }],
   notifications: [{user: {type: ObjectId, ref: 'User'}, notificationType: {type: String}}],
   isPublic: {type: Boolean, default: false}

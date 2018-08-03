@@ -1,8 +1,8 @@
 import React from 'react';
 import classes from './students.css';
-import Avatar from '../../../Components/UI/Avatar/Avatar';
-import Button from '../../../Components/UI/Button/Button';
-import * as actions from '../../../store/actions/'
+import Avatar from '../../Components/UI/Avatar/Avatar';
+import Button from '../../Components/UI/Button/Button';
+import * as actions from '../../store/actions/'
 import { connect } from 'react-redux';
 
 const students = props => {

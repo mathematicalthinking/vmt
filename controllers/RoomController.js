@@ -16,6 +16,7 @@ module.exports = {
       .populate({path: 'events'})
       .populate({path: 'chat', populate: {path: 'user'}})
       .populate({path: 'currentUsers'})
+      .populate({path: 'members.user'})
       .then(room => {
         resolve(room)})
       .catch(err => reject(err))
@@ -25,9 +26,9 @@ module.exports = {
   post: body => {
     return new Promise((resolve, reject) => {
       if (body.template) {
-        const {name, description, templateIsPublic, creator} = body;
+        const {name, description, templateIsPublic, creator, tabs} = body;
         console.log(templateIsPublic)
-        const template = {name, description, isPublic: templateIsPublic, creator,}
+        const template = {name, description, isPublic: templateIsPublic, creator, tabs,}
         db.RoomTemplate.create(template)
         .then(template => {
           body.template = template._id,
@@ -38,6 +39,8 @@ module.exports = {
         })
         .catch(err => reject(err))
       } else {
+        delete body.template;
+        delete body.templateIsPublic;
         db.Room.create(body)
         .then(room => resolve(room))
         .catch(err => reject(err))
