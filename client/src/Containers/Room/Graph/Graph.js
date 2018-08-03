@@ -17,6 +17,7 @@ class Workspace extends Component {
   }
   //
   componentDidMount() {
+    console.log(this.props.room)
     this.receivingData = false
     // In index.html create the ggbApp and attach it to the window. We need to do this
     // in index.html so the we have access to GGBApplet constructor

@@ -6,6 +6,7 @@ const Room = new mongoose.Schema({
   template: {type: ObjectId, ref: 'RoomTemplate'},
   name: {type: String},
   description: {type: String},
+  roomType: {type: String, default: 'geogebra'},
   course: {type: ObjectId, ref: 'Course'},
   creator: {type: ObjectId, ref: 'User', required: true},
   events: [{type: ObjectId, ref: 'Event'}],

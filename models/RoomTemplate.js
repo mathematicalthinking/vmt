@@ -4,6 +4,7 @@ const User = require('./User')
 const RoomTemplate = new mongoose.Schema({
   name: {type: String, required: true},
   description: {type: String},
+  roomType: {type: String, default: 'geogebra'},
   creator: {type: ObjectId, ref: 'User'},
   isPublic: {type: Boolean, default: false},
 },{timestamps: true});

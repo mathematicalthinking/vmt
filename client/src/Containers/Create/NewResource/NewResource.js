@@ -19,6 +19,7 @@ class NewResource extends Component {
     templateIsPublic: false,
     creating: false,
     desmosLink: '',
+    ggb: true, // false = desmos
   }
 
   changeHandler = event => {
@@ -57,6 +58,7 @@ class NewResource extends Component {
           break;
         case 'room' :
           newResource.tabs = [{ggbFile: this.state.ggbFile, desmosLink: this.state.desmosLink}]
+          newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
           this.props.createRoom(newResource);
         break;
         default:;
@@ -120,13 +122,21 @@ class NewResource extends Component {
               </div>
               {(resource === 'room') ?
                 <div className={classes.FormSection}>
-                  <div>Import a GeoGebra workspace</div>
-                  <div><Button>Select a Geogebra File</Button></div>
-                  <TextInput
-                    name='desmosLink'
-                    label='Paste a Desmos workspace'
-                    change={this.changeHandler}
-                  width='80%'/>
+                  <div className={classes.RadioButtons}>
+                    <RadioBtn name='geogebra' checked={this.state.ggb} check={() => this.setState({ggb: true})}>GeoGebra</RadioBtn>
+                    <RadioBtn name='desmos' checked={!this.state.ggb} check={() => this.setState({ggb: false})}>Desmos</RadioBtn>
+                  </div>
+                  {this.state.ggb ?
+                    <div>
+                      <div>Import a GeoGebra workspace</div>
+                      <div><Button>Select a Geogebra File</Button></div>
+                    </div> :
+                    <TextInput
+                      name='desmosLink'
+                      label='Paste a Desmos workspace'
+                      change={this.changeHandler}
+                    width='80%'/>
+                  }
                 </div>
               : null}
               <div className={classes.FormSection}>
