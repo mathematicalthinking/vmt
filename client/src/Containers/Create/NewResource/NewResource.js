@@ -10,7 +10,8 @@ import { connect } from 'react-redux';
 import * as actions from '../../../store/actions/';
 class NewResource extends Component {
   state = {
-    resourceName: '',
+    roomName: '',
+    courseName: '',
     description: '',
     // rooms: [],
     isPublic: false,
@@ -30,7 +31,7 @@ class NewResource extends Component {
     event.preventDefault();
     // const roomIds = this.state.rooms.map(room => room.id);
     const newResource = {
-      name: this.state.resourceName,
+      name: this.state[`${this.props.resource}Name`],
       description: this.state.description,
       // rooms: roomIds,
       creator: this.props.userId,
@@ -90,7 +91,6 @@ class NewResource extends Component {
     //   id: room._id, name: room.name
     // }))
     const resource = this.props.resource;
-    console.log(resource)
     const displayResource = resource.charAt(0).toUpperCase() + resource.slice(1);
     // const displayResource = "RESOURCE";
     const templateDetails = (resource === 'course') ? "Every room you add to this course will also be added to your template (along with the files associated with the room). Course members and activity in the rooms will not be saved to the template. This allow you to resuse this template for multiple groups of students." : '';
@@ -106,7 +106,7 @@ class NewResource extends Component {
             <form className={classes.Form}>
               <div className={classes.FormSection}>
                 <TextInput
-                  name='resourceName'
+                  name={`${resource}Name`}
                   label={`${displayResource} Name`}
                   change={this.changeHandler}
                   width='40%'

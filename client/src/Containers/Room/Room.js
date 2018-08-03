@@ -6,6 +6,7 @@ import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
 import Students from '../Students/Students';
+import Summary from '../../Layout/Room/Summary/Summary'
 // import Students from './Students/Students';
 class Room extends Component {
   state = {
@@ -56,7 +57,7 @@ class Room extends Component {
     let content;
     switch (resource) {
       case 'summary':
-        content = room.description;
+        content = <Summary history={this.props.history} room={room}/>
         break;
       case 'students':
         content = <Students classList={room.members} notifications={[]}/>

@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import Workspace from './Workspace/Workspace';
-import Chat from './Chat/Chat';
+import Workspace from './Workspace';
+import Chat from '../Chat/Chat';
 import io from 'socket.io-client';
-import Replayer from './Replayer/Replayer';
-import Aux from '../../Components/HOC/Auxil';
-import Button from '../../Components/UI/Button/Button';
-import ContentBox from '../../Components/UI/ContentBox/ContentBox';
-import Loading from '../../Components/UI/Modal/Modal';
+import Replayer from '../Replayer/Replayer';
+import Aux from '../../../Components/HOC/Auxil';
+import Button from '../../../Components/UI/Button/Button';
+import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
+import Loading from '../../../Components/UI/Modal/Modal';
 import classes from './room.css';
-import glb from '../../global.css'
+import glb from '../../../global.css'
 import { connect } from 'react-redux';
 
-import API from '../../utils/apiRequests';
+import API from '../../../utils/apiRequests';
 class Room extends Component {
   state = {
     room: {
