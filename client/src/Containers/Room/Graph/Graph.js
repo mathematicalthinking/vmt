@@ -25,7 +25,7 @@ class Workspace extends Component {
   }
 
   handleScriptLoad = () => {
-    var parameters = {
+    const parameters = {
       "id":"ggbApplet",
       "width": 990,
       "height": 600,
@@ -38,23 +38,31 @@ class Workspace extends Component {
       "preventFocus":true,
       "appName":"whiteboard"
     };
-    var ggbApp = new window.GGBApplet(parameters, true);
+    const ggbApp = new window.GGBApplet(parameters, true);
     ggbApp.inject('ggb-element')
+    console.log(window.ggbAppler)
     const timer = setInterval(() => {
-      this.ggbApplet = window.ggbApplet;
-      if (this.ggbApplet) { // @TODO dont intialiZe if replaying
+      if (window.ggbApplet) {
+        console.log('we have the applet ')
+        if (window.ggbApplet.listeners) {
+          console.log('we have the listeners')
+          console.log(window.ggbApplet.listeners)
+          this.ggbApplet = window.ggbApplet;
+          // this.initialize();
+          this.setState({loading: false})
+          clearInterval(timer);
+        }
+      }
+    })
         // setup the even listeners
         // load the most recent workspace event if we're not replaying
-        let events = this.props.room.events;
-        if (!this.props.replay && events.length > 0){
-          this.ggbApplet.setXML(events[events.length - 1].event)
-          this.setState({loading: false})
-        }
-        else {this.setState({loading: false})}
-        this.initialize();
-        clearInterval(timer);
-      }
-    }, 1000)
+    // let events = this.props.room.events;
+    // if (!this.props.replay && events.length > 0){
+    //   this.ggbApplet.setXML(events[events.length - 1].event)
+    //   this.setState({loading: false})
+    // }
+    // else {this.setState({loading: false})}
+
   }
   //
   //   // we dont need socket functionality on replay
@@ -124,13 +132,14 @@ class Workspace extends Component {
       })
     }
     // attach this listeners to the ggbApplet
-    if (this.ggbApplet.listeners.length === 0) {
-      this.ggbApplet.registerAddListener(this.eventListener);
-      this.ggbApplet.registerUpdateListener(this.eventListener);
-      this.ggbApplet.registerRemoveListener(this.eventListener);
-      this.ggbApplet.registerStoreUndoListener(this.eventListener);
-      this.ggbApplet.registerClearListener(this.eventListener);
-    }
+    console.log(this.ggbApplet)
+    // if (this.ggbApplet.Listeners.length === 0) {
+    //   this.ggbApplet.registerAddListener(this.eventListener);
+    //   this.ggbApplet.registerUpdateListener(this.eventListener);
+    //   this.ggbApplet.registerRemoveListener(this.eventListener);
+    //   this.ggbApplet.registerStoreUndoListener(this.eventListener);
+    //   this.ggbApplet.registerClearListener(this.eventListener);
+    // }
   }
 
   render() {
@@ -138,6 +147,8 @@ class Workspace extends Component {
       <Aux>
         <Script url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.handleScriptLoad}
+          // onError={}
+
         />
         <div className={classes.Workspace} id='ggb-element'></div>
         <Modal message='Loading your workspace' show={this.state.loading}/>
