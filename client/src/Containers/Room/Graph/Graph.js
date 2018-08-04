@@ -3,6 +3,7 @@ import classes from './workspace.css';
 import Aux from '../../../Components/HOC/Auxil';
 import Modal from '../../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
+import io from 'socket.io-client';
 class Workspace extends Component {
   // we need to track whether or not the ggbBase64 data was updated
   // by this user or by another client. Otherwise we were getting stuck
@@ -18,13 +19,12 @@ class Workspace extends Component {
   }
   //
   componentDidMount() {
-    if (this.props.roomType === 'geogebra') {
-
-    }
-    this.receivingData = false
+    console.log(this.props)
+    // this.socket = io.connect(process.env.REACT_APP_SERVER_URL)
+    // this.joinRoom()
   }
 
-  handleScriptLoad = () => {
+  handleGgbLoad = () => {
     const parameters = {
       "id":"ggbApplet",
       "width": 990,
@@ -48,9 +48,10 @@ class Workspace extends Component {
           console.log('we have the listeners')
           console.log(window.ggbApplet.listeners)
           this.ggbApplet = window.ggbApplet;
-          // this.initialize();
+          this.initializeGgb();
           this.setState({loading: false})
           clearInterval(timer);
+
         }
       }
     })
@@ -83,36 +84,38 @@ class Workspace extends Component {
   //   }
   // }
   //
-  // // @TODO IM thinking we should use shouldupdate instead??? thoughts??
-  // // or takesnapshot or whatever its called -- this seems BAD
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   // checking that this props and the incoming props are both replayin
-  //   // ensures that this is not the first time we received
-  //   if (nextProps.replaying && this.props.replaying) {
-  //     this.ggbApplet.setXML(this.props.room.events[this.props.eventIndex].event)
-  //     return true;
-  //   }
-  //   if (!nextProps.replaying && this.props.replaying) {
-  //     const events = nextProps.room.events;
-  //     this.ggbApplet.setXML(events[events.length - 1].event)
-  //     return true;
-  //   }
-  //   if (!nextProps.room.events !== this.props.room.events) {
-  //     return true;
-  //   }
-  //   else return false;
-  // }
+  // @TODO IM thinking we should use shouldupdate instead??? thoughts??
+  // or takesnapshot or whatever its called -- this seems BAD
+  shouldComponentUpdate(nextProps, nextState) {
+    // checking that this props and the incoming props are both replayin
+    // ensures that this is not the first time we received
+    if (nextProps.replaying && this.props.replaying) {
+      this.ggbApplet.setXML(this.props.room.events[this.props.eventIndex].event)
+      return true;
+    }
+    if (!nextProps.replaying && this.props.replaying) {
+      const events = nextProps.room.events;
+      this.ggbApplet.setXML(events[events.length - 1].event)
+      return true;
+    }
+    if (!nextProps.room.events !== this.props.room.events) {
+      return true;
+    }
+    else return false;
+  }
   //
-  // componentWillUnmount() {
-  //   this.ggbApplet.unregisterAddListener(this.eventListener);
-  //   this.ggbApplet.unregisterUpdateListener(this.eventListener);
-  //   this.ggbApplet.unregisterRemoveListener(this.eventListener);
-  //   // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
-  //   // this.ggbApplet.unregisterClearListener(this.clearListener);
-  // }
+  componentWillUnmount() {
+    if (this.props.room.roomType === 'geogebra') {
+      this.ggbApplet.unregisterAddListener(this.eventListener);
+      this.ggbApplet.unregisterUpdateListener(this.eventListener);
+      this.ggbApplet.unregisterRemoveListener(this.eventListener);
+      // this.ggbApplet.unregisterClearListener(this.clearListener);
+      // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
+    }
+  }
   //
   // // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
-  initialize = () => {
+  initializeGgb = () => {
     this.eventListener = obj => {
       // if (!this.state.receivingData) {
         sendEvent(obj)
@@ -145,11 +148,14 @@ class Workspace extends Component {
   render() {
     return (
       <Aux>
-        <Script url="https://cdn.geogebra.org/apps/deployggb.js"
-          onLoad={this.handleScriptLoad}
-          // onError={}
-
-        />
+        {this.props.room.roomType === 'geogebra' ?
+          <Script url="https://cdn.geogebra.org/apps/deployggb.js"
+            onLoad={this.handleGgbLoad}
+            // onError={}
+            ///
+          /> :
+          <Script url="https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"
+            onLoad={this.handleDesmosLoad} />}
         <div className={classes.Workspace} id='ggb-element'></div>
         <Modal message='Loading your workspace' show={this.state.loading}/>
       </Aux>

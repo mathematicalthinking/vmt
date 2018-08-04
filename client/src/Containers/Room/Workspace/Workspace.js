@@ -13,6 +13,22 @@ class Workspace extends Component {
     console.log(this.props)
     this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
     this.joinRoom();
+    // setup socket listeners for users entering and leaving room
+    this.socket.on('NEW_USER', currentUsers => {
+      const updatedRoom = {...this.state.room}
+      updatedRoom.currentUsers = currentUsers;
+      this.setState({
+        room: updatedRoom,
+      })
+    })
+
+    this.socket.on('USER_LEFT', currentUsers => {
+      const updatedRoom = {...this.state.room}
+      updatedRoom.currentUsers = currentUsers;
+      this.setState({
+        room: updatedRoom,
+      })
+    })
   }
 
   componentWillUnmount () {
@@ -61,7 +77,7 @@ class Workspace extends Component {
   render() {
     return (
       <Aux>
-        <Graph room={this.props.room} replay={false}/>
+        <Graph room={this.props.room} replay={false} socket={this.socket}/>
         {/* <Chat /> */}
       </Aux>
     );

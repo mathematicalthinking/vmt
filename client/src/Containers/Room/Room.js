@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import io from 'socket.io-client';
 import * as actions from '../../store/actions/';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
 import Students from '../Students/Students';
-import Summary from '../../Layout/Room/Summary/Summary'
+import Summary from '../../Layout/Room/Summary/Summary';
 // import Students from './Students/Students';
 class Room extends Component {
   state = {
@@ -61,6 +62,7 @@ class Room extends Component {
         break;
       case 'students':
         content = <Students classList={room.members} notifications={[]}/>
+        break;
       default:
     }
     const crumbs = [
