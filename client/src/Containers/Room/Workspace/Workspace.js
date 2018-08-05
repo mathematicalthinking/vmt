@@ -7,12 +7,13 @@ class Workspace extends Component {
 
   state = {
     loading: true,
+    currentUsers: [],
   }
 
   componentDidMount() {
     console.log(this.props)
     this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
-    this.joinRoom();
+    // this.joinRoom();
     // setup socket listeners for users entering and leaving room
     this.socket.on('NEW_USER', currentUsers => {
       const updatedRoom = {...this.state.room}
@@ -38,23 +39,23 @@ class Workspace extends Component {
 
   joinRoom = () => {
     const data = {
-      roomId: this.props.room_id,
+      roomId: this.props.room._id,
       user: {_id: this.props.userId, username: this.props.username}
     }
 
     this.socket.emit('JOIN', data, () => {
       // check for duplicated ...sometimes is a user is left in if they dont disconnect properly
-      const duplicate = this.props.room.currentUsers.find(user => user._id === this.props.userId)
-      const updatedUsers = duplicate ? [...this.props.room.currentUsers] :
-        [...this.props.room.currentUsers, {username: this.props.username, _id: this.props.userId}];
-      this.setState(prevState => ({
-        room: {
-          ...prevState.room,
-          currentUsers: updatedUsers
-        },
-        replayMode: false,
-        replaying: false,
-      }))
+    //   const duplicate = this.props.room.currentUsers.find(user => user._id === this.props.userId)
+    //   const updatedUsers = duplicate ? [...this.props.room.currentUsers] :
+    //     [...this.props.room.currentUsers, {username: this.props.username, _id: this.props.userId}];
+    //   this.setState(prevState => ({
+    //     room: {
+    //       ...prevState.room,
+    //       currentUsers: updatedUsers
+    //     },
+    //     replayMode: false,
+    //     replaying: false,
+    //   }))
     })
   }
 
@@ -88,6 +89,8 @@ class Workspace extends Component {
 const mapStateToProps = state => {
   return {
     room: state.roomsReducer.currentRoom,
+    userId: state.userReducer._id,
+    username: state.userReducer.username,
   }
 }
 

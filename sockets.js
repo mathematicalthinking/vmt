@@ -8,10 +8,13 @@ sockets.init = server => {
     io.sockets.on('connection', socket => {
       // client joins room ==> update other clients room list
       socket.on('JOIN', (data, callback) => {
+        console.log(data)
+        console.log(data.roomId, data.user._id)
         socket.join(data.roomId, () => {
           // update current users of this room
           controllers.room.addCurrentUsers(data.roomId, data.user._id)
           .then(room => {
+            console.log(room)
             // executes the callback on the clientside to confirm join
             callback('success'); // @TODO eventually do error handling with this
             return socket.broadcast.to(data.roomId).emit('NEW_USER', room.currentUsers)

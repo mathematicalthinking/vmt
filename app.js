@@ -16,6 +16,7 @@ require('dotenv').config();
 const configure = require('./config/passport');
 const api = require('./routes/api');
 const auth = require('./routes/auth');
+const desmos = require('./routes/desmos');
 
 const app = express();
 
@@ -84,9 +85,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // CONNECT ROUTES
+app.use('/desmos', desmos);
 app.use('/auth', auth);
 app.use('/api', api);
-
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');

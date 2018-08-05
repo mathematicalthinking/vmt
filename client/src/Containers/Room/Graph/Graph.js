@@ -3,7 +3,7 @@ import classes from './workspace.css';
 import Aux from '../../../Components/HOC/Auxil';
 import Modal from '../../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
-import io from 'socket.io-client';
+import API from '../../../utils/apiRequests';
 class Workspace extends Component {
   // we need to track whether or not the ggbBase64 data was updated
   // by this user or by another client. Otherwise we were getting stuck
@@ -20,6 +20,7 @@ class Workspace extends Component {
   //
   componentDidMount() {
     console.log(this.props)
+    this.socket = this.props.socket;
     // this.socket = io.connect(process.env.REACT_APP_SERVER_URL)
     // this.joinRoom()
   }
@@ -65,6 +66,27 @@ class Workspace extends Component {
     // else {this.setState({loading: false})}
 
   }
+
+  handleDesmosLoad = () => {
+    console.log('desmos')
+    const elt = document.getElementById('calculator');
+    this.desmos = window.Desmos.GraphingCalculator(elt);
+    const tabs = this.props.room.tabs;
+    if (tabs.length > 0) {
+      if (tabs[0].desmosLink) {
+        API.getDesmos()
+        .then(res => {
+          var elt = document.getElementById('desmos');
+          var calculator = window.Desmos.GraphingCalculator(elt);
+
+          calculator.setState(res.state)
+          this.setState({loading: false})
+          console.log(res)
+        })
+        .catch(err => console.log(err))
+      }
+    }
+  }
   //
   //   // we dont need socket functionality on replay
   //   if (!this.props.replaying) {
@@ -86,23 +108,23 @@ class Workspace extends Component {
   //
   // @TODO IM thinking we should use shouldupdate instead??? thoughts??
   // or takesnapshot or whatever its called -- this seems BAD
-  shouldComponentUpdate(nextProps, nextState) {
-    // checking that this props and the incoming props are both replayin
-    // ensures that this is not the first time we received
-    if (nextProps.replaying && this.props.replaying) {
-      this.ggbApplet.setXML(this.props.room.events[this.props.eventIndex].event)
-      return true;
-    }
-    if (!nextProps.replaying && this.props.replaying) {
-      const events = nextProps.room.events;
-      this.ggbApplet.setXML(events[events.length - 1].event)
-      return true;
-    }
-    if (!nextProps.room.events !== this.props.room.events) {
-      return true;
-    }
-    else return false;
-  }
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   // checking that this props and the incoming props are both replayin
+  //   // ensures that this is not the first time we received
+  //   if (nextProps.replaying && this.props.replaying) {
+  //     this.ggbApplet.setXML(this.props.room.events[this.props.eventIndex].event)
+  //     return true;
+  //   }
+  //   if (!nextProps.replaying && this.props.replaying) {
+  //     const events = nextProps.room.events;
+  //     this.ggbApplet.setXML(events[events.length - 1].event)
+  //     return true;
+  //   }
+  //   if (!nextProps.room.events !== this.props.room.events) {
+  //     return true;
+  //   }
+  //   else return false;
+  // }
   //
   componentWillUnmount() {
     if (this.props.room.roomType === 'geogebra') {
@@ -157,6 +179,7 @@ class Workspace extends Component {
           <Script url="https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"
             onLoad={this.handleDesmosLoad} />}
         <div className={classes.Workspace} id='ggb-element'></div>
+        <div className={classes.Workspace} id='desmos'></div>
         <Modal message='Loading your workspace' show={this.state.loading}/>
       </Aux>
     )

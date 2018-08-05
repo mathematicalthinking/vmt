@@ -12,7 +12,7 @@ const Room = new mongoose.Schema({
   events: [{type: ObjectId, ref: 'Event'}],
   chat: [{type: ObjectId, ref: 'Message'}],
   members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}, _id: false}],
-  currentUsers: [{type: ObjectId, ref: 'User'}],
+  currentUsers: {type: [{type: ObjectId, ref: 'User'}], default: []}, 
   tabs: [{
     ggbFile: {type: String,},
     desmosLink: {type: String,},

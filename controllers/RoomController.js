@@ -57,6 +57,7 @@ module.exports = {
   },
 
   addCurrentUsers: (roomId, userId) => {
+    console.log(roomId)
     console.log('updating current users');
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentUsers: userId}}, {new: true})
