@@ -76,12 +76,16 @@ class Workspace extends Component {
       if (tabs[0].desmosLink) {
         API.getDesmos()
         .then(res => {
-          var elt = document.getElementById('desmos');
-          var calculator = window.Desmos.GraphingCalculator(elt);
-
-          calculator.setState(res.state)
+          console.log(res.data.result)
+          const elt = document.getElementById('desmos');
+          console.log(elt)
+          console.log(window)
+          const calculator = window.Desmos.GraphingCalculator(elt);
+          console.log(calculator)
+          calculator.setState(res.data.result.state)
+          console.log(calculator.getState())
           this.setState({loading: false})
-          console.log(res)
+
         })
         .catch(err => console.log(err))
       }
@@ -168,20 +172,25 @@ class Workspace extends Component {
   }
 
   render() {
+    const roomType = this.props.room.roomType;
     return (
-      <Aux>
-        {this.props.room.roomType === 'geogebra' ?
+        (roomType === 'geogebra') ?
+        <Aux>
           <Script url="https://cdn.geogebra.org/apps/deployggb.js"
             onLoad={this.handleGgbLoad}
             // onError={}
             ///
-          /> :
-          <Script url="https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"
-            onLoad={this.handleDesmosLoad} />}
-        <div className={classes.Workspace} id='ggb-element'></div>
-        <div className={classes.Workspace} id='desmos'></div>
-        <Modal message='Loading your workspace' show={this.state.loading}/>
-      </Aux>
+          />
+          <div className={classes.Workspace} id='ggb-element'></div>
+        </Aux> :
+        <Aux>
+          <Script
+            url="https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"
+            onLoad={this.handleDesmosLoad}
+          />
+          <div className={classes.Workspace} id='desmos'></div>
+          <Modal message='Loading your workspace' show={this.state.loading}/>
+        </Aux>
     )
   }
 }

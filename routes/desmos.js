@@ -5,7 +5,7 @@ router.get('/', (req, res, next) => {
   console.log('getyting Desoms')
 	axios({
     method: 'GET',
-    url: "https://www.desmos.com/calculator/krixwfwu1u",
+    url: "https://www.desmos.com/calculator/r7uuazp5ow",
     headers: {'Accept': 'application/json'}
   })
   .then(result => {
