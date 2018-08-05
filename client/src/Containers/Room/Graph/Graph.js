@@ -173,24 +173,21 @@ class Workspace extends Component {
 
   render() {
     const roomType = this.props.room.roomType;
+    let url; let id; let onLoad;
+    if (roomType === 'geogebra') {
+      url = 'https://cdn.geogebra.org/apps/deployggb.js'
+      id = 'ggb-element'
+      onLoad = this.handleGgbLoad;
+    } else {
+      url = 'https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6'
+      id = 'desmos';
+      onLoad = this.handleDesmosLoad;
+    }
     return (
-        (roomType === 'geogebra') ?
-        <Aux>
-          <Script url="https://cdn.geogebra.org/apps/deployggb.js"
-            onLoad={this.handleGgbLoad}
-            // onError={}
-            ///
-          />
-          <div className={classes.Workspace} id='ggb-element'></div>
-        </Aux> :
-        <Aux>
-          <Script
-            url="https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"
-            onLoad={this.handleDesmosLoad}
-          />
-          <div className={classes.Workspace} id='desmos'></div>
-          <Modal message='Loading your workspace' show={this.state.loading}/>
-        </Aux>
+      <Aux>
+        <Script url={url} onLoad={onLoad} />
+        <div className={classes.Graph} id={id}></div>
+      </Aux>
     )
   }
 }

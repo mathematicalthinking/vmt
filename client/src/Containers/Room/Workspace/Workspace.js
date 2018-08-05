@@ -13,7 +13,7 @@ class Workspace extends Component {
   componentDidMount() {
     console.log(this.props)
     this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
-    // this.joinRoom();
+    this.joinRoom();
     // setup socket listeners for users entering and leaving room
     this.socket.on('NEW_USER', currentUsers => {
       const updatedRoom = {...this.state.room}
