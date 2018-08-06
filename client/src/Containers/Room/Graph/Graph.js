@@ -187,6 +187,7 @@ class Workspace extends Component {
       <Aux>
         <Script url={url} onLoad={onLoad} />
         <div className={classes.Graph} id={id}></div>
+        {/* <Modal show={this.state.loading} message='Loading...'/> */}
       </Aux>
     )
   }

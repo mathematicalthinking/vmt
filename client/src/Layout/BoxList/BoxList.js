@@ -13,12 +13,9 @@ const boxList = props => {
       if (props.notifications && item.notifications) {
         notifications = item.notifications.length
       }
-      const linkPath = props.dashboard ? '/dashboard' : '/publicResource';
-      const resource = props.resource.substring(0, props.resource.length - 1)
-      const suffix = (resource === 'course') ? 'rooms' : 'summary'
       return (<div className={classes.ContentBox} key={i}>
         <ContentBox
-          title={<Link className={glb.Link} to={`${linkPath}/${resource}/${item._id}/${suffix}`} key={item._id}>{item.name}</Link>}
+          title={<Link className={glb.Link} to={`${props.linkPath}${item._id}${props.linkSuffix}`} key={item._id}>{item.name}</Link>}
           notifications={notifications}
           locked={!item.isPublic} // @TODO Should it appear locked if the user has access ? I can see reasons for both
         >

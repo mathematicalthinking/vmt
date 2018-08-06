@@ -49,6 +49,13 @@ module.exports = {
   },
 
   put: (id, body) => {
+    const updatedField = Object.keys(body)
+    if (updatedField[0] === 'notifications') {
+      body = {$addToSet: body}
+    }
+    if (updatedField[0] === 'members') {
+      body = {$addToSet: body, $pull: {notifications: {user: body.members.user}}}
+    }
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(id, body)
       .then(room => resolve(room))

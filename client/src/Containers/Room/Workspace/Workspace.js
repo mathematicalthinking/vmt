@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import io from 'socket.io-client';
 import Aux from '../../../Components/HOC/Auxil';
+import * as actions from '../../../store/actions';
+import Modal from '../../../Components/UI/Modal/Modal';
 import Graph from '../Graph/Graph';
 class Workspace extends Component {
 
@@ -10,13 +12,21 @@ class Workspace extends Component {
     currentUsers: [],
   }
 
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (Object.keys(nextProps.room).length > 0) {
+      return {loading: false}
+    }
+  }
+
   componentDidMount() {
-    console.log(this.props)
     this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
     this.joinRoom();
     // setup socket listeners for users entering and leaving room
+    if (Object.keys(this.props.room).length === 0) {
+      this.props.getCurrentRoom(this.props.match.params.room_id)
+    }
     this.socket.on('NEW_USER', currentUsers => {
-      const updatedRoom = {...this.state.room}
+      const updatedRoom = {...this.props.room}
       updatedRoom.currentUsers = currentUsers;
       this.setState({
         room: updatedRoom,
@@ -59,26 +69,30 @@ class Workspace extends Component {
     })
   }
 
+
   leaveRoom = () => {
-    this.socket.emit('LEAVE_ROOM', {roomId: this.state.room._id, userId: this.props.userId})
+    this.socket.emit('LEAVE_ROOM', {roomId: this.props.room._id, userId: this.props.userId})
     // remove this client from the state of current Users
-    const updatedUsers = this.state.room.currentUsers.filter(user => user._id !== this.props.userId)
-    this.setState({
-      room: {
-        ...this.state.room,
-        currentUsers: updatedUsers,
-      }
-    })
-    if (this.state.replaying) {
-      clearInterval(this.player)
-    }
+  //   const updatedUsers = this.props.room.currentUsers.filter(user => user._id !== this.props.userId)
+  //   this.setState({
+  //     room: {
+  //       ...this.state.room,
+  //       currentUsers: updatedUsers,
+  //     }
+  //   })
+  //   if (this.state.replaying) {
+  //     clearInterval(this.player)
+  //   }
   }
 
 
   render() {
     return (
       <Aux>
-        <Graph room={this.props.room} replay={false} socket={this.socket}/>
+        {this.state.loading ?
+          <Modal show={this.state.loading} message='Loading...'/> :
+          <Graph room={this.props.room} replay={false} socket={this.socket}/>
+        }
         {/* <Chat /> */}
       </Aux>
     );
@@ -94,4 +108,12 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(mapStateToProps, null)(Workspace);
+const mapDispatchToProps = dispatch => {
+  return {
+    getCurrentRoom: id => dispatch(actions.getCurrentRoom(id)),
+  }
+}
+
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(Workspace);

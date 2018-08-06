@@ -7,6 +7,7 @@ import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
 import Students from '../Students/Students';
 import Summary from '../../Layout/Room/Summary/Summary';
+import API from '../../utils/apiRequests';
 // import Students from './Students/Students';
 class Room extends Component {
   state = {
@@ -48,6 +49,15 @@ class Room extends Component {
     if (this.props.currentRoom._id !== this.props.match.params.room_id){
       this.props.getCurrentRoom(this.props.match.params.room_id);
     }
+  }
+
+  requestAccess = () => {
+    // @TODO Use redux actions to make this request
+    API.requestAccess('room', this.props.match.params.room_id, this.props.userId)
+    .then(res => {
+      // @TODO SEND/DISPLAY CONFIRMATION somehow
+      this.props.history.push('/confirmation')
+    })
   }
 
   render() {

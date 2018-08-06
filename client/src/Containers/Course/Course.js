@@ -70,7 +70,7 @@ class Course extends Component {
     API.requestAccess('course', this.props.match.params.course_id, this.props.userId)
     .then(res => {
       // @TODO SEND/DISPLAY CONFIRMATION somehow
-      this.props.history.push('/dashboard')
+      this.props.history.push('/confirmation')
     })
   }
 
