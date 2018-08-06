@@ -18,6 +18,13 @@ export const gotCurrentCourse = currentCourse => {
     currentCourse,
   }
 }
+
+export const clearCurrentCourse = () => {
+  return {
+    type: actionTypes.CLEAR_COURSE,
+  }
+}
+
 export const createdCourse = resp => {
   return {
     type: actionTypes.CREATED_COURSE,

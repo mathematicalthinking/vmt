@@ -72,6 +72,10 @@ class Course extends Component {
     }
   }
 
+  componentWillUnmount() {
+    this.props.clearCurrentCourse();
+  }
+
   requestAccess = () => {
     // @TODO Use redux actions to make this request
     API.requestAccess('course', this.props.match.params.course_id, this.props.userId)
@@ -144,6 +148,7 @@ const mapDispatchToProps = dispatch => {
   return {
     updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
     getCurrentCourse: id => dispatch(actions.getCurrentCourse(id)),
+    clearCurrentCourse: () => {dispatch(actions.clearCurrentCourse())}
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Course);

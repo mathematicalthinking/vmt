@@ -22,6 +22,11 @@ const reducer = (state = initialState, action) => {
         ...state,
         currentCourse: action.currentCourse,
       }
+    case actionTypes.CLEAR_COURSE:
+      return {
+        ...state,
+        currentCourse: {}
+      }
     case actionTypes.UPDATE_COURSE_ROOMS:
       let updatedCourse = {...state.currentCourse}
       updatedCourse.rooms.unshift(action.room)

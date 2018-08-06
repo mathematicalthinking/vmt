@@ -27,6 +27,11 @@ const reducer = (state = initialState, action) => {
         rooms: [action.newRoom, ...state.rooms],
         createdNewRoom: true,
       }
+    case actionTypes.CLEAR_ROOM:
+      return {
+        ...state,
+        currentRoom: {},
+      }
     case actionTypes.CREATE_ROOM_CONFIRMED:
       return {
         ...state,

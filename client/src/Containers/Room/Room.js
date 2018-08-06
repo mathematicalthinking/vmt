@@ -65,6 +65,9 @@ class Room extends Component {
     }
   }
 
+  componentWillUnmount() {
+    this.props.clearCurrentRoom()
+  }
   requestAccess = () => {
     // @TODO Use redux actions to make this request
     API.requestAccess('room', this.props.match.params.room_id, this.props.userId)
@@ -137,6 +140,7 @@ const mapStateToProps = store => {
 const mapDispatchToProps = dispatch => {
   return {
     getCurrentRoom: id => dispatch(actions.getCurrentRoom(id)),
+    clearCurrentRoom: () => dispatch(actions.clearCurrentRoom()),
     // updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
     // getCurrentCourse: id => dispatch(actions.getCurrentCourse(id)),
   }

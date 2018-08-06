@@ -16,6 +16,12 @@ export const gotCurrentRoom = room => {
   }
 }
 
+export const clearCurrentRoom = () => {
+  return {
+    type: actionTypes.CLEAR_ROOM
+  }
+}
+
 export const createdRoom = resp => {
   const newRoom = resp
   return {
