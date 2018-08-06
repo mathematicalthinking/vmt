@@ -9,7 +9,7 @@ class Filter extends Component {
   render() {
     return (
       <div className={classes.Search}>
-        <input ref={input => this.searchRef = input} className={classes.Input} onChange={event => this.props.filter(event.target.value.trim())} />
+        <input ref={input => this.searchRef = input} className={classes.Input} onChange={event => this.props._filter(event.target.value.trim())} />
         <i className={["fas fa-search", classes.Icon].join(' ')}></i>
       </div>
     )

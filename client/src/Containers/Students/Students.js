@@ -6,13 +6,16 @@ import * as actions from '../../store/actions/'
 import { connect } from 'react-redux';
 
 const students = props => {
-  const joinRequests = props.notifications.map((ntf, i) => (
-    <div className={classes.UserRow} key={i}>
-      <div style={{margin: 20}}><Avatar username={ntf.user.username} /></div>
-      <div>requested access to join this course [TIMESTAMP @TODO]</div>
-      <Button click={() => props.grantAccess(ntf.user._id, props.resource, props.resourceId)}>Grant Access</Button>
-    </div>
-  ))
+  let joinRequests;
+  if (props.owner) {
+    joinRequests = props.notifications.map((ntf, i) => (
+      <div className={classes.UserRow} key={i}>
+        <div style={{margin: 20}}><Avatar username={ntf.user.username} /></div>
+        <div>requested access to join this course [TIMESTAMP @TODO]</div>
+        <Button click={() => props.grantAccess(ntf.user._id, props.resource, props.resourceId)}>Grant Access</Button>
+      </div>
+    ))
+  }
   const classList = props.classList.map((member, i) => (
     <div className={classes.UserRow} key={i}>
       <div style={{margin: 20}}><Avatar username={member.user.username} /></div>

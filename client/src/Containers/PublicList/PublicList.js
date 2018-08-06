@@ -13,11 +13,15 @@ class PublicList extends Component {
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.resource !== prevState.resource) {
-      const resource = nextProps.match.params.resource;
+    console.log('next resource: ', nextProps.match.params.resource)
+    console.log('prevState.resource: ', prevState.resource)
+    const resource = nextProps.match.params.resource;
+    console.log(nextProps[resource])
+    if (resource !== prevState.resource && nextProps[resource].length > 0){
+      console.log('setting state from props')
       allResources = nextProps[resource];
       return {resource: resource, resources: nextProps[resource]}
-    }
+    } else return null;
   }
 
   componentDidMount() {
@@ -30,18 +34,18 @@ class PublicList extends Component {
     }
   }
 
+  componentWillUnmount() {
+    this.setState({resource: ''})
+  }
+
   filterResults = value => {
     value = value.toLowerCase();
     console.log(value)
     console.log(this.state.resources)
-    const updatedResources = allResources.filter(resource => {
-      console.log(resource)
-      return (
-        resource.name.toLowerCase().includes(value) ||
-        resource.description.toLowerCase().includes(value) ||
-        resource.creator.toLowerCase().includes(value)
-      )
-    })
+    const updatedResources = allResources.filter(resource => (
+      resource.name.toLowerCase().includes(value) ||
+      resource.description.toLowerCase().includes(value)
+    ));
     console.log(updatedResources)
     this.setState({resources: updatedResources})
 
@@ -56,7 +60,7 @@ class PublicList extends Component {
     return (
       <div>
         <h2>{this.props.match.params.resource}</h2>
-        <Search filter={value => this.filterResults(value)} />
+        <Search _filter={value => this.filterResults(value)} />
         <div className={classes.Seperator}></div>
         {/* @ TODO Eventually remove dashboard...we want to have a public facing view
         that does not show up in  the dashboard. */}
