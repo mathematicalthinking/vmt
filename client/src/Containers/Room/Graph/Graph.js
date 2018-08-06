@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import classes from './workspace.css';
+import classes from './graph.css';
 import Aux from '../../../Components/HOC/Auxil';
 import Modal from '../../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
@@ -187,7 +187,7 @@ class Workspace extends Component {
       <Aux>
         <Script url={url} onLoad={onLoad} />
         <div className={classes.Graph} id={id}></div>
-        {/* <Modal show={this.state.loading} message='Loading...'/> */}
+        <Modal show={this.state.loading} message='Loading...'/>
       </Aux>
     )
   }
