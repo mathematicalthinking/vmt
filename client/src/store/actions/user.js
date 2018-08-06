@@ -89,10 +89,12 @@ export const login = (username, password) => {
 }
 
 export const grantAccess = (user, resource, id) => {
+  console.log('grNTING access to - ', user, resource, id)
   return dispatch => {
     API.grantAccess(user, resource, id)
     .then(res => {
       if (resource === 'room') {
+        console.log(res.data.result)
         return dispatch(gotCurrentRoom(res.data.result))
       }
       // dispatch(updateUserCourses(resp.data.result)) @TODO Need to update the notifcations associated with this course

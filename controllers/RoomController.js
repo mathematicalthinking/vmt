@@ -59,11 +59,11 @@ module.exports = {
       body = {$addToSet: body, $pull: {notifications: {user: body.members.user}}}
     }
     return new Promise((resolve, reject) => {
-      db.Room.findByIdAndUpdate(id, body)
+      db.Room.findByIdAndUpdate(id, body, {new: true})
       .populate('creator')
       .populate('members.user')
       .populate('notifications.user')
-      .then(room => resolve(room))
+      .then(room => { console.log(room); resolve(room)})
       .catch(err => reject(err))
     })
   },
