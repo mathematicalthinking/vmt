@@ -18,9 +18,6 @@ class Course extends Component {
     tabs: [
       {name: 'Rooms'},
       {name: 'Students'},
-      {name: 'Grades'},
-      {name: 'Insights'},
-      {name:'Settings'}
     ],
   }
   // Check if the user has access to this course
@@ -28,6 +25,7 @@ class Course extends Component {
   // we didnt do the API call through redux.
   static getDerivedStateFromProps(nextProps, prevState) {
     const currentCourse = nextProps.currentCourse;
+    console.log(currentCourse)
     if (currentCourse !== prevState.currentCourse) {
       let access = false;
       let guestMode = false;
@@ -35,8 +33,13 @@ class Course extends Component {
       // let roomNotifications = 0;
       const updatedTabs = [...prevState.tabs];
       // check permissions
+      if (currentCourse.creator)
+        if (currentCourse.creator._id === nextProps.userId) {
+        updatedTabs.concat([{name: 'Insights'}, {name:'Settings'}, {name: 'Grades'}]);
+
+      }
       if (currentCourse.members) {
-        if (currentCourse.members.find(member => member.user._id === nextProps.userId)){
+        if (currentCourse.members.find(member => member.user._id === nextProps.userId) || currentCourse.isPublic){
           access = true;
         } else {
           access = true;
@@ -62,7 +65,9 @@ class Course extends Component {
   }
 
   componentDidMount() {
-    this.props.getCurrentCourse(this.props.match.params.course_id);
+    if (Object.keys(this.props.currentCourse).length === 0) {
+      this.props.getCurrentCourse(this.props.match.params.course_id);
+    }
   }
 
   requestAccess = () => {
