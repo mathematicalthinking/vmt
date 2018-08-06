@@ -1,0 +1,11 @@
+.Container {
+  display: flex;
+}
+
+.Graph {
+  width: 75%;
+}
+.Chat {
+  width: 25%;
+  height: 100%;
+}

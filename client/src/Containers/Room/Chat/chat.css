@@ -3,7 +3,7 @@
 }
 
 .ChatWindow {
-  height: 400px;
+  height: 100%;
   border: 1px solid #ddd;
   border-radius: 2px;
   background-color: #f9f9f9;

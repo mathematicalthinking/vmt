@@ -11,6 +11,7 @@ class Chat extends Component {
   }
 
   componentDidMount() {
+    console.log(this.props)
     // event handler for enter key presses
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Enter'){
@@ -86,7 +87,7 @@ class Chat extends Component {
     }
 
     return (
-      <div className={glb.FlexCol}>
+      <div className={glb.FlexCol} style={{height: window.innerHeight - 300}}>
         <div className={classes.UserList}>
         </div>
         <div className={classes.ChatWindow}>

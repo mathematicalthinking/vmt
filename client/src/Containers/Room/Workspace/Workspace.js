@@ -3,8 +3,10 @@ import { connect } from 'react-redux';
 import io from 'socket.io-client';
 import Aux from '../../../Components/HOC/Auxil';
 import * as actions from '../../../store/actions';
+import WorkspaceLayout from '../../../Layout/Room/Workspace/Workspace';
 import Modal from '../../../Components/UI/Modal/Modal';
 import Graph from '../Graph/Graph';
+import Chat from '../Chat/Chat';
 class Workspace extends Component {
 
   state = {
@@ -15,7 +17,7 @@ class Workspace extends Component {
   static getDerivedStateFromProps(nextProps, prevState) {
     if (Object.keys(nextProps.room).length > 0) {
       return {loading: false}
-    }
+    } else return null;
   }
 
   componentDidMount() {
@@ -87,14 +89,12 @@ class Workspace extends Component {
 
 
   render() {
+    const graph = <Graph room={this.props.room} replay={false} socket={this.socket}/>;
+    const chat = <Chat messages={this.props.room.chat} username={this.props.username} userId={this.props.userId} replaying={false} socket={this.socket}/>
     return (
-      <Aux>
-        {this.state.loading ?
-          <Modal show={this.state.loading} message='Loading...'/> :
-          <Graph room={this.props.room} replay={false} socket={this.socket}/>
-        }
-        {/* <Chat /> */}
-      </Aux>
+      this.state.loading ?
+        <Modal show={this.state.loading} message='Loading...'/> :
+        <WorkspaceLayout graph={graph} chat ={chat} />
     );
   }
 

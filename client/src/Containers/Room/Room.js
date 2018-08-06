@@ -28,7 +28,7 @@ class Room extends Component {
       let studentNotifications = 0;
       let updatedTabs = [...prevState.tabs];
       if (currentRoom.creator) {
-        if (currentRoom.creator._id === nextProps.userId) {
+        if (currentRoom.creator._id === nextProps.userId && prevState.tabs.length < 3) {
           updatedTabs = updatedTabs.concat([{name: 'Grades'},{name: 'Insights'},{name:'Settings'}])
         }
       }
@@ -66,7 +66,7 @@ class Room extends Component {
   }
 
   componentWillUnmount() {
-    this.props.clearCurrentRoom()
+    // this.props.clearCurrentRoom()
   }
   requestAccess = () => {
     // @TODO Use redux actions to make this request

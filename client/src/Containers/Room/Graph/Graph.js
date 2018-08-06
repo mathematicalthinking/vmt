@@ -28,8 +28,8 @@ class Workspace extends Component {
   handleGgbLoad = () => {
     const parameters = {
       "id":"ggbApplet",
-      "width": 990,
-      "height": 600,
+      "width": 1300 * .75, // 75% width of container
+      "height": window.innerHeight - 300,
       "scaleContainerClass": 'applet_container',
       "showToolBar": true,
       "showMenuBar": true,

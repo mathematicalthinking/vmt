@@ -73,7 +73,7 @@ class Course extends Component {
   }
 
   componentWillUnmount() {
-    this.props.clearCurrentCourse();
+    // this.props.clearCurrentCourse();
   }
 
   requestAccess = () => {
