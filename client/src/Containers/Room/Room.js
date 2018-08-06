@@ -24,10 +24,15 @@ class Room extends Component {
   }
  // @TODO see corresponding note in Course.js
   static getDerivedStateFromProps(nextProps, prevState) {
+    console.log('geting derived state ')
     const currentRoom = nextProps.currentRoom;
     if (currentRoom !== prevState.currentRoom) {
+      console.log('incoming room is not the same as currentRoom')
+      console.log(currentRoom)
       let access = false;
       let guestMode = false;
+      let studentNotifications = 0;
+      const updatedTabs = [...prevState.tabs];
       if (currentRoom.members) {
         if (currentRoom.members.find(member => member.user._id === nextProps.userId)) {
           access = true;
@@ -37,7 +42,19 @@ class Room extends Component {
           guestMode = true;
         }
       }
+      console.log('notis: ', currentRoom.notifications);
+      if (currentRoom.notifications) {
+        console.log('current room has notifications')
+        nextProps.currentRoom.notifications.forEach(notification => {
+          if (notification.notificationType === 'requestAccess') {
+            studentNotifications += 1;
+          }
+        })
+        updatedTabs[1].notifications = studentNotifications;
+      }
+      console.log(updatedTabs)
       return {
+        tabs: updatedTabs,
         access,
         guestMode,
         currentRoom,
