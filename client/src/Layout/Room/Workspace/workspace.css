@@ -9,3 +9,11 @@
   width: 25%;
   height: 100%;
 }
+
+.CurrentUsers {
+  margin-top: 50px;
+}
+
+.Avatar {
+  margin: 5px;
+}

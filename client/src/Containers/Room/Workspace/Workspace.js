@@ -12,19 +12,25 @@ class Workspace extends Component {
   state = {
     loading: true,
     currentUsers: [],
+    currentRoom: {}
   }
+  socket = io.connect(process.env.REACT_APP_SERVER_URL);
 
   static getDerivedStateFromProps(nextProps, prevState) {
+    // if (nextProps.match.params.room_id !== prevState.currentRoom._id) {
+    //
+    // }
     if (Object.keys(nextProps.room).length > 0) {
+      console.log(nextProps.room)
       return {loading: false}
     } else return null;
   }
 
   componentDidMount() {
-    this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
     this.joinRoom();
     // setup socket listeners for users entering and leaving room
     if (Object.keys(this.props.room).length === 0) {
+      console.log('requesting current room again')
       this.props.getCurrentRoom(this.props.match.params.room_id)
     }
     this.socket.on('NEW_USER', currentUsers => {
@@ -54,7 +60,7 @@ class Workspace extends Component {
       roomId: this.props.room._id,
       user: {_id: this.props.userId, username: this.props.username}
     }
-
+    console.log(data)
     this.socket.emit('JOIN', data, () => {
       // check for duplicated ...sometimes is a user is left in if they dont disconnect properly
     //   const duplicate = this.props.room.currentUsers.find(user => user._id === this.props.userId)
@@ -89,12 +95,17 @@ class Workspace extends Component {
 
 
   render() {
-    const graph = <Graph room={this.props.room} replay={false} socket={this.socket}/>;
-    const chat = <Chat messages={this.props.room.chat} username={this.props.username} userId={this.props.userId} replaying={false} socket={this.socket}/>
+    console.log(this.socket)
+    console.log(this.props.room.currentUsers)
+    let workspace = null;
+    if (!this.state.loading) {
+      const graph = <Graph room={this.props.room} replay={false} socket={this.socket} />;
+      const chat = <Chat messages={this.props.room.chat} username={this.props.username} userId={this.props.userId} replaying={false} socket={this.socket}/>
+      workspace = <WorkspaceLayout graph={graph} chat ={chat} userList={this.props.room.currentUsers} />
+    }
     return (
       this.state.loading ?
-        <Modal show={this.state.loading} message='Loading...'/> :
-        <WorkspaceLayout graph={graph} chat ={chat} />
+        <Modal show={this.state.loading} message='Loading...'/> : workspace
     );
   }
 
@@ -103,7 +114,7 @@ class Workspace extends Component {
 const mapStateToProps = state => {
   return {
     room: state.roomsReducer.currentRoom,
-    userId: state.userReducer._id,
+    userId: state.userReducer.userId,
     username: state.userReducer.username,
   }
 }
