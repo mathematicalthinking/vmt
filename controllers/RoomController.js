@@ -12,11 +12,12 @@ module.exports = {
   getById: id => {
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
-      .populate({path: 'creator'})
-      .populate({path: 'events'})
-      .populate({path: 'chat', populate: {path: 'user'}})
-      .populate({path: 'currentUsers'})
-      .populate({path: 'members.user'})
+      .populate('creator')
+      .populate('events')
+      .populate('chat.user')
+      .populate('currentUsers')
+      .populate('members.user')
+      .populate('notifications.user')
       .then(room => {
         resolve(room)})
       .catch(err => reject(err))
@@ -54,10 +55,14 @@ module.exports = {
       body = {$addToSet: body}
     }
     if (updatedField[0] === 'members') {
+      console.log('updating members')
       body = {$addToSet: body, $pull: {notifications: {user: body.members.user}}}
     }
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(id, body)
+      .populate('creator')
+      .populate('members.user')
+      .populate('notifications.user')
       .then(room => resolve(room))
       .catch(err => reject(err))
     })

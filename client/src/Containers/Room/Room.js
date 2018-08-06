@@ -87,7 +87,9 @@ class Room extends Component {
         content = <Summary history={this.props.history} room={room}/>
         break;
       case 'students':
-        content = <Students classList={room.members} notifications={[]}/>
+        const notifications = room.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
+        console.log(room.members)
+        content = <Students classList={room.members} notifications={notifications} resource='room' resourceId={room._id}/>
         break;
       default:
     }

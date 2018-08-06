@@ -1,5 +1,8 @@
 import * as actionTypes from './actionTypes';
 import auth from '../../utils/auth';
+import API from '../../utils/apiRequests';
+import { gotCurrentCourse } from './courses';
+import { gotCurrentRoom } from './rooms';
 
 export const updateUserRooms = newRoom => {
   return {
@@ -81,6 +84,19 @@ export const login = (username, password) => {
     .catch(err => {
       console.log(err)
       dispatch(loginFail(err.response.statusText))
+    })
+  }
+}
+
+export const grantAccess = (user, resource, id) => {
+  return dispatch => {
+    API.grantAccess(user, resource, id)
+    .then(res => {
+      if (resource === 'room') {
+        return dispatch(gotCurrentRoom(res.data.result))
+      }
+      // dispatch(updateUserCourses(resp.data.result)) @TODO Need to update the notifcations associated with this course
+      return dispatch(gotCurrentCourse(res.data.result))
     })
   }
 }

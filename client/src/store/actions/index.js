@@ -3,6 +3,7 @@ export {
   loginSuccess,
   loginFail,
   login,
+  grantAccess,
   signup,
   googleLogin,
   updateUserRooms,
@@ -26,7 +27,6 @@ export {
   createCourse,
   createdCourses,
   updateCourseRooms,
-  grantAccess,
 } from './courses';
 export {
   getTemplates,

@@ -89,7 +89,7 @@ class Course extends Component {
       case 'students' :
       // @TODO make a folder of NOTFICATION_TYPES ...somewhere
         let notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
-        content = <Students classList={course.members} notifications={notifications} course={course._id}/>
+        content = <Students classList={course.members} notifications={notifications} resource='course'  resourceId={course._id}/>
         break;
       default : content = null;
     }

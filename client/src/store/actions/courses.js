@@ -67,13 +67,3 @@ export const createCourse = body => {
     .catch(err => console.log(err))
   }
 }
-
-export const grantAccess = (user, resource, id) => {
-  return dispatch => {
-    API.grantAccess(user, resource, id)
-    .then(resp => {
-      // dispatch(updateUserCourses(resp.data.result)) @TODO Need to update the notifcations associated with this course
-      return dispatch(gotCurrentCourse(resp.data.result))
-    })
-  }
-}

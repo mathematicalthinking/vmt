@@ -10,7 +10,7 @@ const students = props => {
     <div className={classes.UserRow} key={i}>
       <div style={{margin: 20}}><Avatar username={ntf.user.username} /></div>
       <div>requested access to join this course [TIMESTAMP @TODO]</div>
-      <Button click={() => props.grantAccess(ntf.user._id, 'course', props.course)}>Grant Access</Button>
+      <Button click={() => props.grantAccess(ntf.user._id, props.resource, props.resourceId)}>Grant Access</Button>
     </div>
   ))
   const classList = props.classList.map((member, i) => (
