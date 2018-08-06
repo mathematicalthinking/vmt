@@ -17,22 +17,21 @@ class Room extends Component {
     tabs: [
       {name: 'Summary'},
       {name: 'Students'},
-      {name: 'Grades'},
-      {name: 'Insights'},
-      {name:'Settings'}
     ],
   }
  // @TODO see corresponding note in Course.js
   static getDerivedStateFromProps(nextProps, prevState) {
-    console.log('geting derived state ')
     const currentRoom = nextProps.currentRoom;
     if (currentRoom !== prevState.currentRoom) {
-      console.log('incoming room is not the same as currentRoom')
-      console.log(currentRoom)
       let access = false;
       let guestMode = false;
       let studentNotifications = 0;
-      const updatedTabs = [...prevState.tabs];
+      let updatedTabs = [...prevState.tabs];
+      if (currentRoom.creator) {
+        if (currentRoom.creator._id === nextProps.userId) {
+          updatedTabs = updatedTabs.concat([{name: 'Grades'},{name: 'Insights'},{name:'Settings'}])
+        }
+      }
       if (currentRoom.members) {
         if (currentRoom.members.find(member => member.user._id === nextProps.userId)) {
           access = true;
@@ -42,9 +41,7 @@ class Room extends Component {
           guestMode = true;
         }
       }
-      console.log('notis: ', currentRoom.notifications);
       if (currentRoom.notifications) {
-        console.log('current room has notifications')
         nextProps.currentRoom.notifications.forEach(notification => {
           if (notification.notificationType === 'requestAccess') {
             studentNotifications += 1;
@@ -88,8 +85,11 @@ class Room extends Component {
         break;
       case 'students':
         const notifications = room.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
-        console.log(room.members)
-        content = <Students classList={room.members} notifications={notifications} resource='room' resourceId={room._id}/>
+        let owner = false;
+        if (this.props.currentRoom.creator._id === this.props.userId) {
+          owner = true
+        }
+        content = <Students classList={room.members} notifications={notifications} resource='room' resourceId={room._id} owner={owner}/>
         break;
       default:
     }

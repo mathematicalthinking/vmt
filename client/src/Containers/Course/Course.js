@@ -31,12 +31,14 @@ class Course extends Component {
       let guestMode = false;
       let studentNotifications = 0;
       // let roomNotifications = 0;
-      const updatedTabs = [...prevState.tabs];
+      let updatedTabs = [...prevState.tabs];
       // check permissions
-      if (currentCourse.creator)
+      if (currentCourse.creator) {
+        console.log(currentCourse.creator)
         if (currentCourse.creator._id === nextProps.userId) {
-        updatedTabs.concat([{name: 'Insights'}, {name:'Settings'}, {name: 'Grades'}]);
-
+          console.log(currentCourse.creator._id, nextProps.userId)
+          updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
+        }
       }
       if (currentCourse.members) {
         if (currentCourse.members.find(member => member.user._id === nextProps.userId) || currentCourse.isPublic){
@@ -94,7 +96,11 @@ class Course extends Component {
       case 'students' :
       // @TODO make a folder of NOTFICATION_TYPES ...somewhere
         let notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
-        content = <Students classList={course.members} notifications={notifications} resource='course'  resourceId={course._id}/>
+        let owner = false;
+        if (this.props.currentCourse.creator._id === this.props.userId) {
+          owner = true;
+        }
+        content = <Students classList={course.members} notifications={notifications} resource='course'  resourceId={course._id} owner={owner}/>
         break;
       default : content = null;
     }
