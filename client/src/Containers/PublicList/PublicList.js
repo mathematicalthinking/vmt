@@ -77,8 +77,8 @@ class PublicList extends Component {
 
 const mapStateToProps = store => {
   return {
-    rooms: store.roomsReducer.rooms,
-    courses: store.coursesReducer.courses,
+    rooms: store.rooms.rooms,
+    courses: store.courses.courses,
   }
 }
 const mapDispatchToProps = dispatch => {

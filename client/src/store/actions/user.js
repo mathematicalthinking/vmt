@@ -1,7 +1,7 @@
 import * as actionTypes from './actionTypes';
 import auth from '../../utils/auth';
 import API from '../../utils/apiRequests';
-import { gotCurrentCourse } from './courses';
+import { gotCurrentCourse, gotCourses } from './courses';
 import { gotCurrentRoom } from './rooms';
 
 export const updateUserRooms = newRoom => {
@@ -75,11 +75,16 @@ export const login = (username, password) => {
     dispatch(loginStart());
     auth.login(username, password)
     .then(res => {
-      console.log(res)
       if (res.data.errorMessage) {
         return dispatch(loginFail(res.data.errorMessage))
       }
-      dispatch(loginSuccess(res.data))
+      // prepare the data for the store
+      const { username, _id, courses } = res.data
+      console.log(res.data)
+      const userCourses = courses.map(crs => crs._id)
+      console.log(userCourses)
+      dispatch(loginSuccess({username, _id, courses: userCourses}))
+      // dispatch(gotCourses(courses))
     })
     .catch(err => {
       console.log(err)

@@ -63,6 +63,8 @@ export const createRoom = body => {
   }
 }
 
+export const UpdateCurrentRoom = body => {}
+
 export const createdRoomConfirmed = () => {
   return {
     type: actionTypes.CREATE_ROOM_CONFIRMED,

@@ -144,8 +144,8 @@ class Assignments extends Component {
 }
 
 const mapStateToProps = store => ({
-  rooms: store.roomsReducer.rooms,
-  courses: store.coursesReducer.courses,
+  rooms: store.rooms.rooms,
+  courses: store.courses.courses,
   // users: store.userReducer.users,
   // teams: store.teamsReducer.teams,
 })

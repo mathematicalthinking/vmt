@@ -139,8 +139,8 @@ class Course extends Component {
 
 const mapStateToProps = store => {
   return {
-    currentCourse: store.coursesReducer.currentCourse,
-    userId: store.userReducer.userId,
+    currentCourse: store.courses.currentCourse,
+    userId: store.user.userId,
   }
 }
 

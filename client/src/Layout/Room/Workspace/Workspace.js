@@ -3,6 +3,7 @@ import classes from './workspace.css';
 import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 import Avatar from '../../../Components/UI/Avatar/Avatar';
 const workspace = props => {
+  console.log('workspace layout props: ', props)
   const currentUsers = props.userList.map(user => (
     <div className={classes.Avatar}><Avatar username={user.username} /></div>)
   )

@@ -56,12 +56,12 @@ class Dashboard extends Component {
     // Load content based on
     switch (resource) {
       case 'courses' :
-        contentList = this.props.myCourses;
+        contentList = this.props.courses;
         contentCreate = <NewResource resource='course' />
         linkSuffix = '/rooms';
         break;
       case 'rooms' :
-        contentList = this.props.myRooms;
+        contentList = this.props.rooms;
         contentCreate = <NewResource resource='room'/>
         linkSuffix = '/summary';
         break;
@@ -94,14 +94,11 @@ class Dashboard extends Component {
 }
 
 const mapStateToProps = store => {
-  const user = store.userReducer;
   return {
-    myRooms: user.myRooms,
-    rooms: store.roomsReducer.rooms,
-    myCourses: user.myCourses,
-    myCourseTemplates: user.myCourseTemplates,
-    myRoomTemplates: user.myRoomTemplates,
-    username: user.username
+    myRooms: store.user.myRooms,
+    rooms: store.rooms,
+    courses: store.courses,
+    username: store.user.username,
   }
 }
 const mapDispatchToProps = dispatch => {

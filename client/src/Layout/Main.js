@@ -55,10 +55,8 @@ class Main extends Component {
 
 // Provide login status to all private routes
 const mapStateToProps = store => {
-  return {
-    username: store.userReducer.username,
-    loggedIn: store.userReducer.loggedIn,
-  };
+  const { username, loggedIn } = store.user
+  return {username,loggedIn,};
 }
 
 export default connect(mapStateToProps, null)(Main);

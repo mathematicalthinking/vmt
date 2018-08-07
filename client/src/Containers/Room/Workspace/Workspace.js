@@ -17,32 +17,33 @@ class Workspace extends Component {
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    // if (nextProps.match.params.room_id !== prevState.currentRoom._id) {
-    //
-    // }
-    if (Object.keys(nextProps.room).length > 0) {
-      console.log(nextProps.room)
-      return {loading: false}
+    if (Object.keys(nextProps.currentRoom).length > 0) {
+      console.log(nextProps.currentRoom)
+      const currentRoom = {...nextProps.currentRoom}
+      currentRoom.currentUsers.push({username: nextProps.username, id: nextProps.userId})
+      return {loading: false, currentRoom: currentRoom}
     } else return null;
   }
 
   componentDidMount() {
     this.joinRoom();
     // setup socket listeners for users entering and leaving room
-    if (Object.keys(this.props.room).length === 0) {
+    if (Object.keys(this.props.currentRoom).length === 0) {
       console.log('requesting current room again')
       this.props.getCurrentRoom(this.props.match.params.room_id)
     }
+    // initialize the socket @IDEA consider making this its own function
     this.socket.on('NEW_USER', currentUsers => {
-      const updatedRoom = {...this.props.room}
+      const updatedRoom = {...this.props.currentRoom}
       updatedRoom.currentUsers = currentUsers;
       this.setState({
-        room: updatedRoom,
+        currentRoom: updatedRoom,
       })
     })
 
     this.socket.on('USER_LEFT', currentUsers => {
-      const updatedRoom = {...this.state.room}
+      console.log('user left')
+      const updatedRoom = {...this.state.currentRoom}
       updatedRoom.currentUsers = currentUsers;
       this.setState({
         room: updatedRoom,
@@ -57,7 +58,7 @@ class Workspace extends Component {
 
   joinRoom = () => {
     const data = {
-      roomId: this.props.room._id,
+      roomId: this.props.currentRoom._id,
       user: {_id: this.props.userId, username: this.props.username}
     }
     console.log(data)
@@ -79,7 +80,7 @@ class Workspace extends Component {
 
 
   leaveRoom = () => {
-    this.socket.emit('LEAVE_ROOM', {roomId: this.props.room._id, userId: this.props.userId})
+    this.socket.emit('LEAVE_ROOM', {roomId: this.props.currentRoom._id, userId: this.props.userId})
     // remove this client from the state of current Users
   //   const updatedUsers = this.props.room.currentUsers.filter(user => user._id !== this.props.userId)
   //   this.setState({
@@ -95,25 +96,21 @@ class Workspace extends Component {
 
 
   render() {
-    console.log(this.socket)
-    console.log(this.props.room.currentUsers)
-    let workspace = null;
+    let content = <Modal show={this.state.loading} message='loading...' />
     if (!this.state.loading) {
-      const graph = <Graph room={this.props.room} replay={false} socket={this.socket} />;
-      const chat = <Chat messages={this.props.room.chat} username={this.props.username} userId={this.props.userId} replaying={false} socket={this.socket}/>
-      workspace = <WorkspaceLayout graph={graph} chat ={chat} userList={this.props.room.currentUsers} />
+      console.log('not loading we have the room info: ', )
+      const graph = <Graph room={this.state.currentRoom} replay={false} socket={this.socket} />;
+      const chat = <Chat messages={this.state.currentRoom.chat} username={this.props.username} userId={this.props.userId} replaying={false} socket={this.socket}/>
+      content = <WorkspaceLayout graph={graph} chat ={chat} userList={this.state.currentRoom.currentUsers} />
     }
-    return (
-      this.state.loading ?
-        <Modal show={this.state.loading} message='Loading...'/> : workspace
-    );
+    return content;
   }
 
 }
 
 const mapStateToProps = state => {
   return {
-    room: state.roomsReducer.currentRoom,
+    currentRoom: state.roomsReducer.currentRoom,
     userId: state.userReducer.userId,
     username: state.userReducer.username,
   }

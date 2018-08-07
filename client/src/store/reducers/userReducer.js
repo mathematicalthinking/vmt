@@ -2,14 +2,11 @@ import * as actionTypes from '../actions/actionTypes';
 
 const initialState = {
   username: '',
-  userId: '',
+  id: '',
   loggedIn: false,
   loggingIn: false,
-  myRooms: [],
-  myCourses: [],
-  myCourseTemplates: [],
-  myRoomTemplates: [],
   loginError: '',
+  courses: [],
 }
 
 const reducer = (state = initialState, action) => {
@@ -32,11 +29,8 @@ const reducer = (state = initialState, action) => {
         loggedIn: true,
         loggingIn: false,
         username: action.user.username,
-        myRooms: action.user.rooms,
-        myCourses: action.user.courses,
-        myCourseTemplates: action.user.courseTemplates,
-        myRoomTemplates: action.user.roomTemplates,
-        userId: action.user._id,
+        id: action.user._id,
+        courses: action.user.courses
       }
     case actionTypes.UPDATE_USER_ROOMS:
       return {
