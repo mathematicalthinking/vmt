@@ -13,3 +13,13 @@ const rootReducer = combineReducers({
 })
 
 export default rootReducer;
+
+// Selector functions (prepare Data for the UI)
+export const getUserResources = (state, resource) => {
+  console.log(resource)
+  console.log(state)
+  return state.user[resource].map(id => (
+    state[resource].byId[id]
+  ))
+
+}

@@ -10,7 +10,7 @@ const reducer = (state = initialState, action) => {
     case actionTypes.GOT_COURSES:
       return {
         ...state,
-        courses: action.courses,
+        byId: action.courses,
       };
     case actionTypes.CREATED_COURSE:
       return {
@@ -40,3 +40,5 @@ const reducer = (state = initialState, action) => {
 };
 
 export default reducer;
+
+// Selector functions (prepare Data for the UI)

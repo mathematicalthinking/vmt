@@ -39,6 +39,7 @@ export const updateCourseRooms = room => {
   }
 }
 
+
 // MIDDLEWARE
 export const getCourses = () => {
   return dispatch => {

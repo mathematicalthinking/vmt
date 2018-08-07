@@ -1,6 +1,7 @@
 import * as actionTypes from './actionTypes';
 import auth from '../../utils/auth';
 import API from '../../utils/apiRequests';
+
 import { gotCurrentCourse, gotCourses } from './courses';
 import { gotCurrentRoom } from './rooms';
 
@@ -83,9 +84,13 @@ export const login = (username, password) => {
       console.log(res.data)
       const userCourses = courses.map(crs => crs._id)
       console.log(userCourses)
-      const masterCourses = 
+      const masterCourses = courses.reduce((acc, cur) => {
+        acc[cur._id] = {name: cur.name, description: cur.description}
+        return acc;
+      }, {});
+      console.log(masterCourses)
       dispatch(loginSuccess({username, _id, courses: userCourses}))
-      // dispatch(gotCourses(courses))
+      dispatch(gotCourses(masterCourses))
     })
     .catch(err => {
       console.log(err)

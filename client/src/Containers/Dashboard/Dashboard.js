@@ -6,6 +6,7 @@ import BoxList from '../../Layout/BoxList/BoxList';
 import Templates from '../../Layout/Dashboard/Templates/Templates'
 import NewResource from '../Create/NewResource/NewResource';
 import NewTemplate from '../Create/NewTemplate/NewTemplate';
+import { getUserResources } from '../../store/reducers';
 import { connect } from 'react-redux';
 
 class Dashboard extends Component {
@@ -96,7 +97,7 @@ class Dashboard extends Component {
 const mapStateToProps = store => ({
   myRooms: store.user.myRooms,
   rooms: store.rooms,
-  courses: store.courses,
+  myCourses: getUserResources(store, 'courses'),
   username: store.user.username,
 })
 const mapDispatchToProps = dispatch => ({})

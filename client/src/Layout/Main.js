@@ -18,7 +18,6 @@ import { BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 class Main extends Component {
   render() {
     return (
-      <Router>
         <main className={classes.Main}>
           {/* <div className={classes.Particles} id='particles-js'></div> */}
           <div className={classes.Banner}>
@@ -48,7 +47,6 @@ class Main extends Component {
             </Switch>
           </section>
         </main>
-      </Router>
     )
   }
 };

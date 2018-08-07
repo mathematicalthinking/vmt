@@ -1,34 +1,15 @@
 import React from 'react';
 import Main from './Layout/Main';
-import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
-import rootReducer from './store/reducers'
-import thunk from 'redux-thunk';
-import { loadState, saveState } from './utils/localStorage';
+import configureStore from './configureStore';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 
-const logger = store => {
-  return next => {
-    return action => {
-      const result = next(action);
-      return result;
-    }
-  }
-};
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const persistedState = loadState();
-const store = createStore(
-  rootReducer,
-  persistedState,
-  composeEnhancers(applyMiddleware(logger, thunk))
-);
-
-store.subscribe(() => {
-  saveState(store.getState())
-});
-
+const store = configureStore();
 const App = props => (
   <Provider store={store}>
-    <Main />
+    <Router >
+      <Route path={'/'} component={Main} />
+    </Router>
   </Provider>
 );
 

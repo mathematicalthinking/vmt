@@ -177,9 +177,9 @@ class NewResource extends Component {
 
 const mapStateToProps = store => {
   return {
-    myRooms: store.userReducer.myRooms,
-    rooms: store.roomsReducer.rooms,
-    userId: store.userReducer.userId,
+    myRooms: store.user.rooms,
+    rooms: store.rooms.rooms,
+    userId: store.user.userId,
   }
 }
 
