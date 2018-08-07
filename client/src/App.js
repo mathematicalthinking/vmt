@@ -4,6 +4,7 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
 import rootReducer from './store/reducers'
 import thunk from 'redux-thunk';
+import { loadState, saveState } from './utils/localStorage';
 
 const logger = store => {
   return next => {
@@ -14,8 +15,16 @@ const logger = store => {
   }
 };
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const persistedState = loadState();
+const store = createStore(
+  rootReducer,
+  persistedState,
+  composeEnhancers(applyMiddleware(logger, thunk))
+);
 
-const store = createStore(rootReducer, composeEnhancers(applyMiddleware(logger, thunk)));
+store.subscribe(() => {
+  saveState(store.getState())
+});
 
 const App = props => (
   <Provider store={store}>

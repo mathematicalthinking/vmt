@@ -83,6 +83,7 @@ export const login = (username, password) => {
       console.log(res.data)
       const userCourses = courses.map(crs => crs._id)
       console.log(userCourses)
+      const masterCourses = 
       dispatch(loginSuccess({username, _id, courses: userCourses}))
       // dispatch(gotCourses(courses))
     })

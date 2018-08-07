@@ -93,17 +93,13 @@ class Dashboard extends Component {
   }
 }
 
-const mapStateToProps = store => {
-  return {
-    myRooms: store.user.myRooms,
-    rooms: store.rooms,
-    courses: store.courses,
-    username: store.user.username,
-  }
-}
-const mapDispatchToProps = dispatch => {
-  return {
-  }
-}
+const mapStateToProps = store => ({
+  myRooms: store.user.myRooms,
+  rooms: store.rooms,
+  courses: store.courses,
+  username: store.user.username,
+})
+const mapDispatchToProps = dispatch => ({})
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
