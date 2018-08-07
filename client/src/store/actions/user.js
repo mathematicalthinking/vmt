@@ -80,18 +80,16 @@ export const login = (username, password) => {
         return dispatch(loginFail(res.data.errorMessage))
       }
       // prepare the data for the store
-      const { username, _id, courses } = res.data
-      console.log(res.data)
-      const userCourses = courses.map(crs => crs._id)
-      console.log(userCourses)
+      const { username, _id, courses, rooms } = res.data
+      const userCourses = courses.map(crs => crs._id);
+      const userRooms = rooms.map(rm => rm._id);
       const masterCourses = courses.reduce((acc, cur) => {
         acc[cur._id] = {name: cur.name, description: cur.description}
         return acc;
       }, {});
-      console.log(masterCourses)
-      dispatch(gotCourses(masterCourses))
-      dispatch(loginSuccess({username, _id, courses: userCourses}))
-      console.log('were good here!')
+      disptach(gotRooms())
+      dispatch(gotCourses(masterCourses)); // @TODO Do we want to do this if we already have all of the public courses
+      dispatch(loginSuccess({username, _id, courses: userCourses, rooms: userRooms}));
     })
     .catch(err => {
       console.log(err)

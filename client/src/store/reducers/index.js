@@ -16,7 +16,7 @@ export default rootReducer;
 
 // Selector functions (prepare Data for the UI)
 export const getUserResources = (state, resource) => {
-  console.log(state[resource])
+  console.log(state.user[resource])
   const populatedResources = state.user[resource].map(id => {
     console.log(id)
     const popRec = state[resource].byId[id]

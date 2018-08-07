@@ -22,32 +22,32 @@ class Dashboard extends Component {
   // I seem to be over using this lifeCycle hook
   // The problem I'm facing is that the first time this
   // component renders it doesn't have the props from redux -- why is that? shouldn't it? --  yeah wait a second, it definitley should
-  // static getDerivedStateFromProps(nextProps, prevState) {
-  //   console.log(nextProps)
-  //   let updatedTabs = [...prevState.tabs]
-  //   // IDEA perhaps refactor this into a function so we don't have two if statements doing the same thing just with different resources.
-  //   if (nextProps.myCourses) {
-  //     let notifications = 0;
-  //     nextProps.myCourses.forEach(course => {
-  //       if (course.notifications) {
-  //         notifications += course.notifications.length;
-  //       }
-  //     })
-  //     updatedTabs[0].notifications = notifications;
-  //   }
-  //   if (nextProps.myRooms) {
-  //     let notifications = 0;
-  //     nextProps.myRooms.forEach(room => {
-  //       if (room.notifications) {
-  //         notifications += room.notifications.length;
-  //       }
-  //     })
-  //     updatedTabs[1].notifications = notifications;
-  //   }
-  //   return {
-  //     tabs: updatedTabs,
-  //   }
-  // }
+  static getDerivedStateFromProps(nextProps, prevState) {
+    console.log(nextProps)
+    let updatedTabs = [...prevState.tabs]
+    // IDEA perhaps refactor this into a function so we don't have two if statements doing the same thing just with different resources.
+    if (nextProps.myCourses) {
+      let notifications = 0;
+      nextProps.myCourses.forEach(course => {
+        if (course.notifications) {
+          notifications += course.notifications.length;
+        }
+      })
+      updatedTabs[0].notifications = notifications;
+    }
+    if (nextProps.myRooms) {
+      let notifications = 0;
+      nextProps.myRooms.forEach(room => {
+        if (room.notifications) {
+          notifications += room.notifications.length;
+        }
+      })
+      updatedTabs[1].notifications = notifications;
+    }
+    return {
+      tabs: updatedTabs,
+    }
+  }
 
   render() {
     let contentList = [];
@@ -97,7 +97,7 @@ class Dashboard extends Component {
 
 const mapStateToProps = store => ({
   myRooms: store.user.myRooms,
-  rooms: store.rooms,
+  // rooms: getUserResources(store, 'rooms'),
   myCourses: getUserResources(store, 'courses'),
   username: store.user.username,
 })
