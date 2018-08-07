@@ -4,26 +4,19 @@ import API from '../../utils/apiRequests';
 
 
 //@TODO HAVE MORE ACTIONS HERE FOR TRACKING STATUS OF REQUEST i.e. pending erro success
-export const gotCourses = resp => {
-  const courses = resp.data.results;
-  return {
-    type: actionTypes.GOT_COURSES,
-    courses,
-  }
-}
+export const gotCourses = courses => ({
+  type: actionTypes.GOT_COURSES,
+  courses,
+})
 
-export const gotCurrentCourse = currentCourse => {
-  return {
-    type: actionTypes.GOT_CURRENT_COURSE,
-    currentCourse,
-  }
-}
+export const gotCurrentCourse = currentCourse => ({
+  type: actionTypes.GOT_CURRENT_COURSE,
+  currentCourse,
+})
 
-export const clearCurrentCourse = () => {
-  return {
-    type: actionTypes.CLEAR_COURSE,
-  }
-}
+export const clearCurrentCourse = () => ({
+  type: actionTypes.CLEAR_COURSE,
+})
 
 export const createdCourse = resp => {
   return {

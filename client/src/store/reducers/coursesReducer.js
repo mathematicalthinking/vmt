@@ -8,6 +8,7 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.GOT_COURSES:
+    console.log(action.courses)
       return {
         ...state,
         byId: action.courses,
@@ -40,5 +41,3 @@ const reducer = (state = initialState, action) => {
 };
 
 export default reducer;
-
-// Selector functions (prepare Data for the UI)

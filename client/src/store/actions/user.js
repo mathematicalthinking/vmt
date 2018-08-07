@@ -89,8 +89,9 @@ export const login = (username, password) => {
         return acc;
       }, {});
       console.log(masterCourses)
-      dispatch(loginSuccess({username, _id, courses: userCourses}))
       dispatch(gotCourses(masterCourses))
+      dispatch(loginSuccess({username, _id, courses: userCourses}))
+      console.log('were good here!')
     })
     .catch(err => {
       console.log(err)
