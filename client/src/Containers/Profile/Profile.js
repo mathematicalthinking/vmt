@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 // import BoxList from '../../Layout/BoxList/BoxList';
 import Courses from '../Courses/Courses';
-// import Rooms from '../Rooms/Rooms';
+import Rooms from '../Rooms/Rooms';
 // import Templates from '../../Layout/Dashboard/Templates/Templates'
 // import NewResource from '../Create/NewResource/NewResource';
 // import NewTemplate from '../Create/NewTemplate/NewTemplate';
@@ -13,7 +13,6 @@ import { connect } from 'react-redux';
 
 class Profile extends Component {
   state = {
-    modalOpen: false,
     tabs: [
       {name: 'Courses'},
       {name: 'Rooms'},
@@ -22,13 +21,14 @@ class Profile extends Component {
     ],
   }
   render() {
+    console.log('profile rendered')
     const resource = this.props.match.params.resource;
     let content;
     console.log(resource)
     // Load content based on
     switch (resource) {
       case 'courses' : content = <Courses />; break;
-      // case 'rooms' : content = <Rooms />; break;
+      case 'rooms' : content = <Rooms />; break;
       default:
     }
 
@@ -36,10 +36,9 @@ class Profile extends Component {
       <DashboardLayout
         routingInfo={this.props.match}
         title='Profile'
-        crumbs={[{title: 'Dashboard', link: '/profile/courses'}]}
+        crumbs={[{title: 'Profile', link: '/profile/courses'}]}
         // sidePanelTitle={this.props.username}
         content={content}
-        // contentCreate={contentCreate}
         tabs={this.state.tabs}
       />
     )

@@ -2,7 +2,7 @@ import React from 'react';
 import classes from './tabList.css';
 import { Link } from 'react-router-dom';
 const tabList = props => {
-  console.log(props)
+  console.log('rendering tablist: ', props)
   const { params, url } = props.routingInfo
   const tabElems = props.tabs.map(tab => {
     let style = classes.Tab;

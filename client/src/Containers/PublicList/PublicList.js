@@ -8,34 +8,31 @@ let allResources = [];
 
 class PublicList extends Component {
   state = {
-    resources: [],
-    resource: ''
+    visibleResources: [],
   }
-
-  static getDerivedStateFromProps(nextProps, prevState) {
-    console.log('next resource: ', nextProps.match.params.resource)
-    console.log('prevState.resource: ', prevState.resource)
-    const resource = nextProps.match.params.resource;
-    console.log(nextProps[resource])
-    if (resource !== prevState.resource && nextProps[resource].length > 0){
-      console.log('setting state from props')
-      allResources = nextProps[resource];
-      return {resource: resource, resources: nextProps[resource]}
-    } else return null;
-  }
+  // static getDerivedStateFromProps(nextProps, prevState) {
+  //   console.log('next resource: ', nextProps.match.params.resource)
+  //   console.log('prevState.resource: ', prevState.resource)
+  //   const resource = nextProps.match.params.resource;
+  //   console.log(nextProps[resource])
+  //   if (resource !== prevState.resource && nextProps[resource].length > 0){
+  //     console.log('setting state from props')
+  //     allResources = nextProps[resource];
+  //     return {resource: resource, resources: nextProps[resource]}
+  //   } else return null;
+  // }
 
   componentDidMount() {
+    console.log('public list mounted ', this.props)
+    const resource = this.props.match.params.resource;
     // get the rooms
-    if (Object.keys(this.props.rooms).length === 0){
+    if (Object.keys(this.props.courses).length === 0 && (resource === 'courses')){
+      console.log('getting courses')
       this.props.getCourses();
     }
-    if (Object.keys(this.props.courses).length === 0){
+    if (Object.keys(this.props.rooms).length === 0 && (resource === 'rooms')){
       this.props.getRooms();
     }
-  }
-
-  componentWillUnmount() {
-    this.setState({resource: ''})
   }
 
   filterResults = value => {
@@ -47,16 +44,19 @@ class PublicList extends Component {
       resource.description.toLowerCase().includes(value)
     ));
     console.log(updatedResources)
-    this.setState({resources: updatedResources})
+    this.setState({visibleResources: updatedResources})
 
   }
   render () {
-    console.log(this.state.resources)
-    console.log(this.state.resource)
+    let linkPath; let resourceList; let linkSuffix;
     // @ TODO conditional logic for displaying room in dahsboard if it belongs to the user
-    const linkPath = (this.state.resource === 'rooms') ? '/dashboard/room/' : '/dashboard/course/';
-    const linkSuffix = (this.state.resource === 'rooms') ? '/summary' : '/rooms'
-    console.log(linkPath)
+    if (this.props.match.params.resource === 'courses' && this.props.coursesArr.length > 0) {
+      linkPath = (this.state.resource === 'rooms') ? '/dashboard/room/' : '/dashboard/course/';
+      linkSuffix = (this.state.resource === 'rooms') ? '/summary' : '/rooms'
+      resourceList = this.props.coursesArr.map(id => this.props.courses[id])
+    } else {
+
+    }
     return (
       <div>
         <h2>{this.props.match.params.resource}</h2>
@@ -65,7 +65,7 @@ class PublicList extends Component {
         {/* @ TODO Eventually remove dashboard...we want to have a public facing view
         that does not show up in  the dashboard. */}
         <BoxList
-          list={this.state.resources}
+          list={resourceList}
           resource={this.props.match.params.resource}
           linkPath={linkPath}
           linkSuffix={linkSuffix}
@@ -78,7 +78,8 @@ class PublicList extends Component {
 const mapStateToProps = store => {
   return {
     rooms: store.rooms.rooms,
-    courses: store.courses.courses,
+    courses: store.courses.byId,
+    coursesArr: store.courses.allIds,
   }
 }
 const mapDispatchToProps = dispatch => {

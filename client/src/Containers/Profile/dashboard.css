@@ -1,0 +1,53 @@
+.Container {
+  display: flex;
+  flex-flow: column;
+  background-color: #fdfdfd;
+  width: 98%;
+  border: 1px solid #ddd;
+  border-top: 1px solid #75b7f6;
+  min-height: calc(100vh - 220px);
+  margin-bottom: 50px;
+  padding: 0 20px 20px 20px;
+}
+
+.Main {
+  width: 100%;
+  display: flex;
+  /* box-shadow: 11px 20px 61px 20px rgba(248,248,248,1); */
+}
+
+.BreadCrumbs {
+  margin-bottom: 20px;
+}
+
+.SidePanel {
+  width: 250px;
+  margin-right: 50px;
+}
+
+.Image {
+  height: 250px;
+  width: 250px;
+  border-radius: 7px;
+  background-color: #f3f3f3;
+  border: 1px solid #ddd;
+}
+
+.CourseName {
+  font-size: 1.2em;
+}
+
+.Content {
+  display: flex;
+  flex-flow: column;
+  flex-grow: 2;
+  max-width: 850px;
+}
+
+.MainContent {
+  padding-top: 30px;
+}
+
+.CreateContainer {
+
+}

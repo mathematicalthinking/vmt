@@ -4,9 +4,10 @@ import API from '../../utils/apiRequests';
 
 
 //@TODO HAVE MORE ACTIONS HERE FOR TRACKING STATUS OF REQUEST i.e. pending erro success
-export const gotCourses = courses => ({
+export const gotCourses = (courses, courseIds) => ({
   type: actionTypes.GOT_COURSES,
   courses,
+  courseIds,
 })
 
 export const gotCurrentCourse = currentCourse => ({
@@ -37,7 +38,16 @@ export const updateCourseRooms = room => {
 export const getCourses = () => {
   return dispatch => {
     API.get('course')
-    .then(resp => dispatch(gotCourses(resp)))
+    .then(res => {
+      // Normalze Data
+      console.log(res.data.results)
+      const courses = res.data.results.reduce((acc, current) => {
+        acc[current._id] = current;
+        return acc;
+      }, {});
+      const courseIds = Object.keys(courses)
+      dispatch(gotCourses(courses, courseIds))
+    })
     .catch(err => console.log(err));
   }
 }
