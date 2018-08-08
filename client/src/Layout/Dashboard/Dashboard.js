@@ -9,6 +9,7 @@ import classes from './dashboard.css';
 import TabList from '../../Components/Navigation/TabList/TabList';
 import BreadCrumbs from '../../Components/Navigation/BreadCrumbs/BreadCrumbs'
 const dashboard = props => {
+  console.log('dashboard layout rendered')
   return (
     <section className={classes.Container}>
       <div className={classes.BreadCrumbs}>

@@ -59,7 +59,7 @@ module.exports = passport => {
   }));
 
   passport.use('local-login', new LocalStrategy((username, password, next) => {
-    const populateSettings = {select: 'name description notifcations', options: {sort: {createdAt: -1}}}
+    const populateSettings = {select: 'name description', options: {sort: {createdAt: -1}}}
      //@IDEA consider moving this to the userController
     User.findOne({ 'username':  username }, (err, user) => {
       if (err) return next(err);
@@ -72,7 +72,7 @@ module.exports = passport => {
     })
     // @IDEA consider not doing this all at once but making subsequent api calls as these resources
     // are needed
-    .populate({path: 'rooms', ...populateSettings})
+    // .populate({path: 'rooms', ...populateSettings})
     .populate({path: 'courses', ...populateSettings})
     // .populate({path: 'courseTemplates', ...populateSettings})
     // .populate({path: 'roomTemplates', ...populateSettings})

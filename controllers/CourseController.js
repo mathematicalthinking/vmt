@@ -15,7 +15,7 @@ module.exports = {
       .populate('creator')
       .populate('rooms')
       .populate('members.user')
-      .populate('notifications.user') // @TODO Reconsider this population, we shold request data individually as we need it
+      .populate('notifications.user') 
       .then(course => resolve(course))
       .catch(err => reject(err))
     });

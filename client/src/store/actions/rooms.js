@@ -2,19 +2,16 @@ import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { updateUserRooms, updateUserRoomTemplates } from './user';
 
-export const gotRooms = rooms => {
-  return {
-    type: actionTypes.GOT_ROOMS,
-    rooms,
-  }
-}
+export const gotRooms = (rooms, roomIds) => ({
+  type: actionTypes.GOT_ROOMS,
+  rooms,
+  roomIds,
+})
 
-export const gotCurrentRoom = room => {
-  return {
-    type: actionTypes.GOT_CURRENT_ROOM,
-    room,
-  }
-}
+export const gotCurrentRoom = room => ({
+  type: actionTypes.GOT_CURRENT_ROOM,
+  room,
+})
 
 export const clearCurrentRoom = () => {
   return {
@@ -30,10 +27,19 @@ export const createdRoom = resp => {
   }
 }
 
-export const getRooms = () => {
+export const getRooms = params => {
   return dispatch => {
-    API.get('room')
-    .then(resp => dispatch(gotRooms(resp.data.results)))
+    API.get('room', params)
+    .then(res => {
+      // Normalize res
+      const rooms = res.data.results.reduce((acc, current) => {
+        acc[current._id] = current;
+        return acc;
+      }, {});
+      const roomIds = Object.keys(rooms)
+      console.log(roomIds)
+      dispatch(gotRooms(rooms, roomIds))
+    })
     .catch(err => console.log(err));
   }
 }

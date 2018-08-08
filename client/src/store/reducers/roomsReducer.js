@@ -1,10 +1,8 @@
 import * as actionTypes from '../actions/actionTypes';
 
 const initialState = {
-  rooms: [],
-  currentRoom: {},
-  createdNewRoom: false,
-  newRoomId: '',
+  byId: {},
+  allIds: [],
 }
 
 const reducer = (state = initialState, action) => {
@@ -12,7 +10,8 @@ const reducer = (state = initialState, action) => {
     case actionTypes.GOT_ROOMS:
       return {
         ...state,
-        rooms: action.rooms,
+        byId: action.rooms,
+        allIds: action.roomIds,
       };
     case actionTypes.GOT_CURRENT_ROOM:
       return {

@@ -30,7 +30,8 @@ const reducer = (state = initialState, action) => {
         loggingIn: false,
         username: action.user.username,
         id: action.user._id,
-        courses: action.user.courses
+        courses: action.user.courses,
+        rooms: action.user.rooms,
       }
     case actionTypes.UPDATE_USER_ROOMS:
       return {
