@@ -23,9 +23,9 @@ export {
 export {
   getCourses,
   gotCourses,
+  updateCourses,
   getCurrentCourse,
   clearCurrentCourse,
-  gotCurrentCourse,
   createCourse,
   createdCourses,
   updateCourseRooms,

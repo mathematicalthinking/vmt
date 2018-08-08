@@ -18,7 +18,7 @@ class Rooms extends Component {
     console.log('Rooms rendered')
     return (
       <div>
-        <BoxList list={this.props.userRooms} resource='room'/>
+        <BoxList list={this.props.userRooms} resource='room' linkPath='/profile/room/' linkSuffix='/summary'/>
       </div>
     )
   }
