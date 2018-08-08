@@ -86,8 +86,9 @@ export const login = (username, password) => {
         }, {});
         dispatch(gotCourses(masterCourses)); // @TODO Do we want to do this if we already have all of the public courses
       }
-      const user = {...res.data.result}
+      const user = {...res.data}
       user.courses = res.data.courses.map(crs => crs._id);
+      console.log(user)
       dispatch(loginSuccess(user));
     })
     .catch(err => {

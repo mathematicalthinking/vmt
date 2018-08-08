@@ -27,9 +27,9 @@ export const createdRoom = resp => {
   }
 }
 
-export const getRooms = () => {
+export const getRooms = params => {
   return dispatch => {
-    API.get('room')
+    API.get('room', params)
     .then(res => {
       // Normalize res
       const rooms = res.data.results.reduce((acc, current) => {
