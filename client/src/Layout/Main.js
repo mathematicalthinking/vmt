@@ -14,7 +14,7 @@ import Workspace from '../Containers/Room/Workspace/Workspace';
 import Confirmation from '../Layout/Confirmation/Confirmation';
 import classes from './main.css';
 import { connect } from 'react-redux';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 
 class Main extends Component {
   render() {
