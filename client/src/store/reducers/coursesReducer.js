@@ -2,7 +2,7 @@ import * as actionTypes from '../actions/actionTypes';
 
 const initialState = {
   byId: {},
-  allIds: {},
+  allIds: [],
   currentCourse: {}
 }
 

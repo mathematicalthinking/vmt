@@ -9,18 +9,33 @@ let allResources = [];
 class PublicList extends Component {
   state = {
     visibleResources: [],
+    resource: '',
   }
+
+  // // Check if the resource has changed
   // static getDerivedStateFromProps(nextProps, prevState) {
-  //   console.log('next resource: ', nextProps.match.params.resource)
-  //   console.log('prevState.resource: ', prevState.resource)
+  //   console.log('getting derived state from props: ', nextProps)
   //   const resource = nextProps.match.params.resource;
-  //   console.log(nextProps[resource])
-  //   if (resource !== prevState.resource && nextProps[resource].length > 0){
-  //     console.log('setting state from props')
-  //     allResources = nextProps[resource];
-  //     return {resource: resource, resources: nextProps[resource]}
-  //   } else return null;
+  //   if (resource !== prevState.resource) {
+  //     return {resource,}
+  //   }
+  //   return null;
   // }
+
+  componentDidUpdate(prevProps, prevState) {
+    console.log('public list updated')
+    const resource = this.props.match.params.resource;
+    // get the rooms
+    if (Object.keys(this.props.courses).length === 0 && (resource === 'courses')){
+      console.log('getting courses')
+      this.props.getCourses();
+    }
+    // or get the courses
+    if (Object.keys(this.props.rooms).length === 0 && (resource === 'rooms')){
+      console.log('getting rooms')
+      this.props.getRooms();
+    }
+  }
 
   componentDidMount() {
     console.log('public list mounted ', this.props)
@@ -30,7 +45,9 @@ class PublicList extends Component {
       console.log('getting courses')
       this.props.getCourses();
     }
+    // or get the courses
     if (Object.keys(this.props.rooms).length === 0 && (resource === 'rooms')){
+      console.log('getting rooms')
       this.props.getRooms();
     }
   }
@@ -51,11 +68,13 @@ class PublicList extends Component {
     let linkPath; let resourceList; let linkSuffix;
     // @ TODO conditional logic for displaying room in dahsboard if it belongs to the user
     if (this.props.match.params.resource === 'courses' && this.props.coursesArr.length > 0) {
-      linkPath = (this.state.resource === 'rooms') ? '/dashboard/room/' : '/dashboard/course/';
-      linkSuffix = (this.state.resource === 'rooms') ? '/summary' : '/rooms'
+      linkPath = '/dashboard/course/';
+      linkSuffix = '/rooms'
       resourceList = this.props.coursesArr.map(id => this.props.courses[id])
-    } else {
-
+    } else if (this.props.roomsArr.length > 0){
+      linkPath = '/dashboard/room/';
+      linkSuffix = '/summary';
+      resourceList = this.props.roomsArr.map(id => this.props.rooms[id])
     }
     return (
       <div>
@@ -77,7 +96,8 @@ class PublicList extends Component {
 
 const mapStateToProps = store => {
   return {
-    rooms: store.rooms.rooms,
+    rooms: store.rooms.byId,
+    roomsArr: store.rooms.allIds,
     courses: store.courses.byId,
     coursesArr: store.courses.allIds,
   }
