@@ -5,7 +5,8 @@ import Room from '../Containers/Room/Room';
 import Course from '../Containers/Course/Course';
 import PublicList from '../Containers/PublicList/PublicList';
 import NewUser from '../Containers/Create/NewUser/NewUser';
-import Dashboard from '../Containers/Dashboard/Dashboard';
+import Profile from '../Containers/Profile/Profile';
+// import Dashboard from '../Layout/Dashboard/Dashboard';
 import Assignments from '../Containers/Assignments/Assignments';
 import Avatar from '../Components/UI/Avatar/Avatar';
 import PrivateRoute from '../Components/HOC/PrivateRoute';
@@ -13,7 +14,7 @@ import Workspace from '../Containers/Room/Workspace/Workspace';
 import Confirmation from '../Layout/Confirmation/Confirmation';
 import classes from './main.css';
 import { connect } from 'react-redux';
-import { BrowserRouter as Router, Route, Switch} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 class Main extends Component {
   render() {
@@ -32,7 +33,7 @@ class Main extends Component {
               <Route exact path='/publicList/:resource' component={PublicList}/>
               <Route exact path='/publicResource/room/:room_id/:resource' component={Room}/>
               <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />
-              <PrivateRoute exact path='/dashboard/:resource' authed={this.props.loggedIn} component={Dashboard}/>
+              <PrivateRoute exact path='/profile/:resource' authed={this.props.loggedIn} component={Profile}/>
               <PrivateRoute exact path = '/dashboard/course/:course_id/:resource' authed={this.props.loggedIn} component={Course}/>
               <PrivateRoute exact path = '/dashboard/room/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
               <PrivateRoute expact path = '/workspace/:room_id' authed={this.props.loggedIn} component={Workspace} />

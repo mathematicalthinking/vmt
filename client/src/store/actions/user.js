@@ -80,16 +80,15 @@ export const login = (username, password) => {
         return dispatch(loginFail(res.data.errorMessage))
       }
       // prepare the data for the store
-      const { username, _id, courses, rooms } = res.data
+      const { username, _id, courses, } = res.data
       const userCourses = courses.map(crs => crs._id);
-      const userRooms = rooms.map(rm => rm._id);
       const masterCourses = courses.reduce((acc, cur) => {
         acc[cur._id] = {name: cur.name, description: cur.description}
         return acc;
       }, {});
-      disptach(gotRooms())
+      // disptach(gotRooms())
       dispatch(gotCourses(masterCourses)); // @TODO Do we want to do this if we already have all of the public courses
-      dispatch(loginSuccess({username, _id, courses: userCourses, rooms: userRooms}));
+      dispatch(loginSuccess({username, _id, courses: userCourses}));
     })
     .catch(err => {
       console.log(err)
@@ -125,6 +124,12 @@ export const googleLogin = (username, password) => {
     })
   }
 }
+
+// export const getUserCourses = userId => {
+//   return dispatch => {
+//     API.getById()
+//   }
+// }
 
 export const clearError = () => {
   return {type: actionTypes.CLEAR_ERROR}

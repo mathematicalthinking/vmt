@@ -72,7 +72,7 @@ module.exports = passport => {
     })
     // @IDEA consider not doing this all at once but making subsequent api calls as these resources
     // are needed
-    .populate({path: 'rooms', ...populateSettings})
+    // .populate({path: 'rooms', ...populateSettings})
     .populate({path: 'courses', ...populateSettings})
     // .populate({path: 'courseTemplates', ...populateSettings})
     // .populate({path: 'roomTemplates', ...populateSettings})

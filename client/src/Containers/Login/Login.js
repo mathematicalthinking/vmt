@@ -78,7 +78,7 @@ class Login extends Component {
     })
 
     return (
-      this.props.loggedIn ? <Redirect to='/dashboard/courses'/> :
+      this.props.loggedIn ? <Redirect to='/profile/courses'/> :
       <div className={classes.LoginContainer}>
         <ContentBox title='Login' align='center'>
           <form onSubmit={this.loginHandler} className={[glb.FlexCol, classes.Form].join(' ')}>
