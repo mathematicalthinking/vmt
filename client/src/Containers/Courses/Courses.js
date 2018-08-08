@@ -19,7 +19,7 @@ class Courses extends Component {
     return (
       <div>
         <div> create new course </div>
-        <BoxList list={this.props.courses} resource='courses'/>
+        <BoxList list={this.props.courses} resource='courses' linkPath='/profile/course/' linkSuffix='/rooms'/>
       </div>
     )
   }

@@ -1,9 +1,8 @@
 import * as actionTypes from '../actions/actionTypes';
-
+import merge from 'lodash/merge';
 const initialState = {
   byId: {},
   allIds: [],
-  currentCourse: {}
 }
 
 const reducer = (state = initialState, action) => {
@@ -20,10 +19,12 @@ const reducer = (state = initialState, action) => {
         ...state,
         courses: [action.course, ...state.courses]
       }
-    case actionTypes.GOT_CURRENT_COURSE:
+    case actionTypes.UPDATE_COURSE:
+      const updatedCourses = {...state.byId}
+      updatedCourses[action.course._id] = action.course;
       return {
         ...state,
-        currentCourse: action.currentCourse,
+        byId: updatedCourses,
       }
     case actionTypes.CLEAR_COURSE:
       return {

@@ -10,9 +10,9 @@ export const gotCourses = (courses, courseIds) => ({
   courseIds,
 })
 
-export const gotCurrentCourse = currentCourse => ({
-  type: actionTypes.GOT_CURRENT_COURSE,
-  currentCourse,
+export const updateCourse = course => ({
+  type: actionTypes.UPDATE_COURSE,
+  course,
 })
 
 export const clearCurrentCourse = () => ({
@@ -34,12 +34,11 @@ export const updateCourseRooms = room => {
 }
 
 
-// MIDDLEWARE
 export const getCourses = () => {
   return dispatch => {
     API.get('course')
     .then(res => {
-      // Normalze Data
+      // Normalze Data @TODO think about where this should be done...perhaps in the reducer?
       console.log(res.data.results)
       const courses = res.data.results.reduce((acc, current) => {
         acc[current._id] = current;
@@ -55,7 +54,9 @@ export const getCourses = () => {
 export const getCurrentCourse = id => {
   return dispatch => {
     API.getById('course', id)
-    .then(resp => dispatch(gotCurrentCourse(resp.data.result)))
+    .then(res => {
+      console.log(res.data.result)
+      dispatch(updateCourse(res.data.result))})
     .catch(err => console.log(err))
   }
 }
