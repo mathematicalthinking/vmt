@@ -78,18 +78,18 @@ export const login = (username, password) => {
     .then(res => {
       if (res.data.errorMessage) {return dispatch(loginFail(res.data.errorMessage))}
       // If we havent previously grabbed courses from the backend we should populate the courses list in the store
-      let masterCourses;
+      const user = {...res.data}
+      const coursesArr = res.data.courses.map(crs => crs._id);
+      user.courses = coursesArr;
       if (getState().courses.allIds.length === 0) {
-        masterCourses = res.data.courses.reduce((acc, cur) => {
+        const byId = res.data.courses.reduce((acc, cur) => {
           acc[cur._id] = cur;
           return acc;
         }, {});
-        dispatch(gotCourses(masterCourses)); // @TODO Do we want to do this if we already have all of the public courses
+        console.log(byId, user.courses)
+        dispatch(gotCourses(byId, coursesArr)); // @TODO Do we want to do this if we already have all of the public courses
       }
-      const user = {...res.data}
-      user.courses = res.data.courses.map(crs => crs._id);
-      console.log(user)
-      dispatch(loginSuccess(user));
+      return dispatch(loginSuccess(user));
     })
     .catch(err => {
       console.log(err)

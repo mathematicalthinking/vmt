@@ -8,6 +8,11 @@ class Rooms extends Component {
   componentDidMount() {
     console.log('Rooms Mounted')
     console.log('props: ', this.props)
+    const { roomsArr, userRoomIds } = this.props
+    // if the user has rooms but they haven't been added to the store yet
+    if (roomsArr.length === 0 && userRoomIds.length > 0) {
+      this.props.populateRooms(userRoomIds)
+    }
   }
   render() {
     console.log('Rooms rendered')
@@ -22,7 +27,6 @@ class Rooms extends Component {
 const mapStateToProps = store => ({
   userRoomIds: store.user.rooms,
   userRooms: getUserResources(store, 'rooms'),
-  rooms: store.rooms.byId,
   roomsArr: store.rooms.allIds,
 })
 

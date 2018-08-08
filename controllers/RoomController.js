@@ -2,6 +2,9 @@ const db = require('../models')
 
 module.exports = {
   get: params => {
+    if (params.constructor === Array) {
+      params = {'_id': {$in: params}}
+    }
     return new Promise((resolve, reject) => {
       db.Room.find(params).sort('-createdAt')
       .then(rooms => resolve(rooms))
