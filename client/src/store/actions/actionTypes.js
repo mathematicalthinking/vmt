@@ -17,7 +17,7 @@ export const SIGNUP = 'SIGNUP';
 // ROOMS
 export const GET_ROOMS = 'GET_ROOMS';
 export const GOT_ROOMS = 'GOT_ROOMS';
-export const GOT_CURRENT_ROOM = 'GOT_CURRENT_ROOM';
+export const UPDATE_ROOM = 'UPDATE_ROOM';
 export const CREATED_ROOM = 'CREATED_ROOM';
 export const CREATE_ROOM_CONFIRMED = 'CREATE_ROOM_CONFIRMED';
 export const CLEAR_ROOM = 'CLEAR_ROOM';
