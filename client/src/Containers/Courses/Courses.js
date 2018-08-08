@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import * as actions from '../../store/actions/';
 import { getUserResources } from '../../store/reducers/';
 import BoxList from '../../Layout/BoxList/BoxList';
+import NewCourse from '../Create/NewResource/NewResource'
 class Courses extends Component {
 
   componentDidMount() {
@@ -18,7 +19,7 @@ class Courses extends Component {
     console.log('props: ', this.props)
     return (
       <div>
-        <div> create new course </div>
+        <NewCourse resource='course'/>
         <BoxList list={this.props.courses} resource='courses' linkPath='/profile/course/' linkSuffix='/rooms'/>
       </div>
     )
