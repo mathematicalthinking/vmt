@@ -90,7 +90,6 @@ class Course extends Component {
 
   render() {
     // check if the course has loaded
-    console.log(this.props.currentCourse)
     const course = this.props.currentCourse;
     const resource = this.props.match.params.resource;
     let content;

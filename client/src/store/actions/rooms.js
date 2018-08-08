@@ -8,8 +8,8 @@ export const gotRooms = (rooms, roomIds) => ({
   roomIds,
 })
 
-export const gotCurrentRoom = room => ({
-  type: actionTypes.GOT_CURRENT_ROOM,
+export const updateRoom = room => ({
+  type: actionTypes.UPDATE_ROOM,
   room,
 })
 
@@ -47,7 +47,7 @@ export const getRooms = params => {
 export const getCurrentRoom = id => {
   return dispatch => {
     API.getById('room', id)
-    .then(resp => dispatch(gotCurrentRoom(resp.data.result)))
+    .then(res => dispatch(updateRoom(res.data.result)))
   }
 }
 
