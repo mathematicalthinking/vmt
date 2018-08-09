@@ -15,7 +15,7 @@ export const createdCourseTemplate = template => {
 
 export const getCourseTemplates = params => {
   return dispatch => {
-    API.get()
+    API.get('courseTemplate', params)
     .then(res => dispatch(gotCourseTemplates(res.data.results)))
   }
 

@@ -19,8 +19,16 @@ class Templates extends Component {
     console.log('props: ', this.props)
     return (
       <div>
+        <h2>Create a New Template</h2>
         {/* <NewCourse resource='course'/> */}
-        <BoxList list={this.props.courses} resource='courses' linkPath='/profile/course/' linkSuffix='/rooms'/>
+        <h2>Course Templates</h2>
+        <BoxList list={this.props.userCourseTemplates}
+          resource='courseTemplates'
+          linkPath='/profile/courseTemplates/'
+          linkSuffix='/rooms'
+          template
+        />
+        <h2>Room Templates</h2>
       </div>
     )
   }

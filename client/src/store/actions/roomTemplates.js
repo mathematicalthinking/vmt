@@ -16,7 +16,7 @@ export const createdRoomTemplate = template => {
 export const getRoomTemplates = params => {
   return dispatch => {
     API.get('')
-    .then(res => dispatch(gotRoomTemplates(resource, res.data.results)))
+    .then(res => dispatch(gotRoomTemplates(res.data.results)))
   }
 
 }
