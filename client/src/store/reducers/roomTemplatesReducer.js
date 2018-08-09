@@ -14,12 +14,12 @@ const reducer = (state = initialState, action) => {
       }
     case actionTypes.CREATED_ROOM_TEMPLATE :
     console.log(action.template)
-      let updatedTemplates = {...state.byId}
-      updatedTemplates[action.template._id] = action.template;
+      let updatedRoomTemplates = {...state.byId}
+      updatedRoomTemplates[action.template._id] = action.template;
       return {
         ...state,
-        byId: updatedTemplates,
-        allIds: [action.template, ...state.allIds]
+        byId: updatedRoomTemplates,
+        allIds: [action.template._id, ...state.allIds]
       }
     default : return state
   }
