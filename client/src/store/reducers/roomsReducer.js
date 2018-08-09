@@ -14,7 +14,7 @@ const reducer = (state = initialState, action) => {
         allIds: action.roomIds,
       };
     case actionTypes.UPDATE_ROOM:
-      const updatedRooms = {...state.byId};
+      let updatedRooms = {...state.byId};
       updatedRooms[action.room._id] = action.room;
       return {
         ...state,
@@ -23,10 +23,12 @@ const reducer = (state = initialState, action) => {
     // @TODO if we've created a new room alert the user so we can redirect
     // to the room --> do this by updating the sto
     case actionTypes.CREATED_ROOM:
+      updatedRooms = {...state.byId};
+      updatedRooms[action.newRoom._id] = action.newRoom;
       return  {
         ...state,
-        rooms: [action.newRoom, ...state.rooms],
-        createdNewRoom: true,
+        byId: updatedRooms,
+        allIds: [action.newRoom._id, ...state.allIds],
       }
     case actionTypes.CLEAR_ROOM:
       return {

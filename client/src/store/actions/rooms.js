@@ -63,8 +63,8 @@ export const createRoom = body => {
         dispatch(updateUserRoomTemplates(res.data.result[1]))
         return dispatch(createdRoom(res.data.result[0]))
       }
-      dispatch(updateUserRooms(res.data.result))
-      return dispatch(createdRoom(res.data.result))
+      dispatch(createdRoom(res.data.result))
+      return dispatch(updateUserRooms(res.data.result._id))
     })
   }
 }

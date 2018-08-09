@@ -64,18 +64,15 @@ export const createCourse = body => {
   return dispatch => {
     API.post('course', body)
     .then(res =>{
-      console.log(res.data.result)
       if (body.template) {
         dispatch(updateUserCourseTemplates(res.data.result[1]._id))
         dispatch(createdCourse(res.data.result[0]))
         dispatch(createdCourseTemplate(res.data.result[1]))
-        console.log('template')
         // NB If we're creating a template we're going to get back two results in an array (the course that was created & then template that was created)
         return dispatch(updateUserCourses(res.data.result[0]._id))
       }
-      const id = res.data.result._id;
       dispatch(createdCourse(res.data.result))
-      return dispatch(updateUserCourses(id))
+      return dispatch(updateUserCourses(res.data.result._id))
     })
     .catch(err => console.log(err))
   }

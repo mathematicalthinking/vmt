@@ -9,7 +9,8 @@ const reducer = (state = initialState, action) => {
     case actionTypes.GOT_COURSE_TEMPLATES :
       return {
         ...state,
-        courseTemplates: action.templates,
+        byId: action.templates,
+        allIds: action.templateIds,
       }
     case actionTypes.CREATED_COURSE_TEMPLATE :
       let updatedCourseTemplates = {...state.byId}

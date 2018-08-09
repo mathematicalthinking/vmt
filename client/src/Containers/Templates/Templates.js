@@ -7,10 +7,9 @@ import { getUserResources } from '../../store/reducers/';
 class Templates extends Component {
 
   componentDidMount() {
-    console.log('Courses mounted')
-    console.log('props: ', this.props)
-    // We should always have the user courses because we grab them when they login
-    if (Object.keys(this.props.userCourseTemplates).length === 0) {
+    console.log(this.props)
+    if (!this.props.userCourseTemplates) {
+      console.log('populating course templates')
       this.props.populateCourseTemplates(this.props.userId);
     }
   }

@@ -1,9 +1,12 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 
-export const gotCourseTemplates = (resource, templates) => {
-  const type = (resource === 'room') ? actionTypes.GOT_ROOM_TEMPLATES : actionTypes.GOT_COURSE_TEMPLATES;
-  return { type, templates, }
+export const gotCourseTemplates = (templates, templateIds) => {
+  return {
+    type: actionTypes.GOT_COURSE_TEMPLATES,
+    templates,
+    templateIds,
+  }
 }
 
 export const createdCourseTemplate = template => {
@@ -16,7 +19,15 @@ export const createdCourseTemplate = template => {
 export const getCourseTemplates = params => {
   return dispatch => {
     API.get('courseTemplate', params)
-    .then(res => dispatch(gotCourseTemplates(res.data.results)))
+    .then(res => {
+      // Normalize Data
+      const courseTemplates = res.data.results.reduce((acc, current) => {
+        acc[current._id] = current;
+        return acc;
+      }, {});
+      const templateIds = res.data.results.map(template => template._id)
+      dispatch(gotCourseTemplates(courseTemplates, templateIds))
+    })
   }
 
 }

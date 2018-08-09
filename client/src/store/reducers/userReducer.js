@@ -35,8 +35,11 @@ const reducer = (state = initialState, action) => {
         id: action.user._id,
         courses: action.user.courses,
         rooms: action.user.rooms,
+        courseTemplates: action.user.courseTemplates,
+        roomTemplates: action.user.roomTemplates,
       }
     case actionTypes.UPDATE_USER_ROOMS:
+    console.log(action.newRoom)
       return {
         ...state,
         rooms: [action.newRoom, ...state.rooms]
