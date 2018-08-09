@@ -15,12 +15,16 @@ const reducer = (state = initialState, action) => {
         allIds: action.courseIds,
       };
     case actionTypes.CREATED_COURSE:
+      let updatedCourses = {...state.byId}
+      updatedCourses[action.course._id] = action.course
       return {
         ...state,
-        courses: [action.course, ...state.courses]
+        byId: updatedCourses,
+        allIds: [action.course._id, ...state.allIds]
       }
     case actionTypes.UPDATE_COURSE:
-      const updatedCourses = {...state.byId}
+    // We should probably check to make sure thid id exsits?
+      updatedCourses = {...state.byId}
       updatedCourses[action.course._id] = action.course;
       return {
         ...state,

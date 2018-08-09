@@ -23,8 +23,8 @@ export {
 export {
   getCourses,
   gotCourses,
-  updateCourses,
-  getCurrentCourse,
+  updateCourse,
+  addCourse,
   clearCurrentCourse,
   createCourse,
   createdCourses,

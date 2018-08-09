@@ -15,7 +15,7 @@ module.exports = {
       .populate('creator')
       .populate('rooms')
       .populate('members.user')
-      .populate('notifications.user') 
+      .populate('notifications.user')
       .then(course => resolve(course))
       .catch(err => reject(err))
     });
@@ -24,6 +24,7 @@ module.exports = {
   post: body => {
     // check if we should make a template from this course
     return new Promise((resolve, reject) => {
+      console.log('BODY: ', body)
       if (body.template) {
         const {name, description, templateIsPublic, creator} = body;
         const template = {name, description, isPublic: templateIsPublic, creator,}
@@ -40,6 +41,7 @@ module.exports = {
       } else {
         delete body.templateIsPublic
         delete body.template;
+        console.log('posting body: ', body)
         db.Course.create(body)
         .then(course => resolve(course))
         .catch(err => {console.log(err); reject(err)})

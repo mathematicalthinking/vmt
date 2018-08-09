@@ -13,8 +13,9 @@ export const updateUserRooms = newRoom => {
 }
 
 export const updateUserCourses = newCourse => {
+  console.log(newCourse)
   return {
-    type:actionTypes.UPDATE_USER_COURSES,
+    type: actionTypes.UPDATE_USER_COURSES,
     newCourse,
   }
 }

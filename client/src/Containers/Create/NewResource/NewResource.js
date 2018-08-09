@@ -54,6 +54,7 @@ class NewResource extends Component {
       newResource.templateIsPublic = this.state.templateIsPublic;
       switch (this.props.resource) {
         case 'course' :
+          console.log(newResource)
           this.props.createCourse(newResource);
           break;
         case 'room' :
@@ -179,7 +180,7 @@ const mapStateToProps = store => {
   return {
     myRooms: store.user.rooms,
     rooms: store.rooms.rooms,
-    userId: store.user.userId,
+    userId: store.user.id,
   }
 }
 
