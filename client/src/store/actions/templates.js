@@ -6,9 +6,11 @@ export const gotTemplates = (resource, templates) => {
   return { type, templates, }
 }
 
-export const createdTemplate = (resource, template) => {
-  const type = (resource === 'room') ? actionTypes.CREATED_ROOM_TEMPLATE : actionTypes.CREATED_COURSE_TEMPLATE;
-  return { type, template, }
+export const createdCourseTemplate = template => {
+  return {
+    type: actionTypes.CREATED_COURSE_TEMPLATE,
+    template,
+  }
 }
 
 export const getTemplates = resource => {
@@ -22,6 +24,6 @@ export const getTemplates = resource => {
 export const createTemplate = (resource, body) => {
   return dispatch => {
     API.post(`${resource}Template`, body)
-    .then(res => dispatch(createdTemplate(resource, res.data.result)))
+    .then(res => dispatch(createdCourseTemplate(resource, res.data.result)))
   }
 }

@@ -1,6 +1,6 @@
 import * as actionTypes from './actionTypes';
 import { updateUserCourses, updateUserCourseTemplates } from './user';
-import { createdTemplate } from './templates';
+import { createdCourseTemplate } from './templates';
 import API from '../../utils/apiRequests';
 
 
@@ -68,7 +68,7 @@ export const createCourse = body => {
       if (body.template) {
         dispatch(updateUserCourseTemplates(res.data.result[1]._id))
         dispatch(createdCourse(res.data.result[0]))
-        dispatch(createdTemplate(res.data.result[1]))
+        dispatch(createdCourseTemplate(res.data.result[1]))
         console.log('template')
         // NB If we're creating a template we're going to get back two results in an array (the course that was created & then template that was created)
         return dispatch(updateUserCourses(res.data.result[0]._id))

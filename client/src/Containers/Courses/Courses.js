@@ -10,9 +10,9 @@ class Courses extends Component {
     console.log('Courses mounted')
     console.log('props: ', this.props)
     // We should always have the user courses because we grab them when they login
-    if (Object.keys(this.props.courses).length === 0) {
+    // if (Object.keys(this.props.courses).length === 0) {
       // this.props.getUserCourses(this.props.userId);
-    }
+    // }
   }
   render(){
     console.log('Courses rendereddd')
