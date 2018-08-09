@@ -1,6 +1,6 @@
 import * as actionTypes from './actionTypes';
 import { updateUserCourses, updateUserCourseTemplates } from './user';
-import { createdCourseTemplate } from './templates';
+import { createdCourseTemplate } from './courseTemplates';
 import API from '../../utils/apiRequests';
 
 

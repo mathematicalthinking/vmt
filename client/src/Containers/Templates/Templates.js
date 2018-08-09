@@ -10,16 +10,16 @@ class Templates extends Component {
     console.log('Courses mounted')
     console.log('props: ', this.props)
     // We should always have the user courses because we grab them when they login
-    // if (Object.keys(this.props.courses).length === 0) {
-    // this.props.getUserCourses(this.props.userId);
-    // }
+    if (Object.keys(this.props.userCourseTemplates).length === 0) {
+      this.props.populateCourseTemplates(this.props.userId);
+    }
   }
   render(){
     console.log('Courses rendereddd')
     console.log('props: ', this.props)
     return (
       <div>
-        <NewCourse resource='course'/>
+        {/* <NewCourse resource='course'/> */}
         <BoxList list={this.props.courses} resource='courses' linkPath='/profile/course/' linkSuffix='/rooms'/>
       </div>
     )
@@ -27,12 +27,14 @@ class Templates extends Component {
 }
 
 const mapStateToProps = store => ({
-  courseTemplates: getUserResources(store, 'courseTemplates'),
-  roomTemplates: getUserResources(store, 'roomTemplates'),
+  userCourseTemplateIds: store.user.courseTemplates,
+  userCourseTemplates: getUserResources(store, 'courseTemplates'),
+  userRoomTemplates: getUserResources(store, 'roomTemplates'),
   userId: store.user.id,
 })
 
 const mapDispatchToProps = dispatch => ({
-  // getUserCourses: userId => {dispatch(actions.getUserCourses)}
+  populateCourseTemplates: ids => {dispatch(actions.getCourseTemplates(ids))},
+  populateRoomTemplates: ids => {dispatch(actions.getRoomTemplates(ids))}
 })
 export default connect(mapStateToProps, mapDispatchToProps)(Templates);

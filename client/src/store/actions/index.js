@@ -31,8 +31,14 @@ export {
   updateCourseRooms,
 } from './courses';
 export {
-  getTemplates,
-  gotTemplates,
-  createTemplate,
-  createdTemplate,
-} from './templates';
+  getCourseTemplates,
+  gotCourseTemplates,
+  createCourseTemplate,
+  createdCourseTemplate,
+} from './courseTemplates';
+export {
+  getRoomTemplates,
+  gotRoomTemplates,
+  createRoomTemplate,
+  createdRoomTemplate,
+} from './roomTemplates';
