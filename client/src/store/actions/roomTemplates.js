@@ -1,9 +1,12 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 
-export const gotRoomTemplates = (resource, templates) => {
-  const type = (resource === 'room') ? actionTypes.GOT_ROOM_TEMPLATES : actionTypes.GOT_COURSE_TEMPLATES;
-  return { type, templates, }
+export const gotRoomTemplates = (templates, templateIds) => {
+  return {
+    type: actionTypes.GOT_ROOM_TEMPLATES,
+    templates,
+    templateIds
+  }
 }
 
 export const createdRoomTemplate = template => {
@@ -15,8 +18,16 @@ export const createdRoomTemplate = template => {
 
 export const getRoomTemplates = params => {
   return dispatch => {
-    API.get('')
-    .then(res => dispatch(gotRoomTemplates(res.data.results)))
+    API.get('roomTemplate', params)
+    .then(res => {
+      // Normalize data
+      const roomTemplates = res.data.results.reduce((acc, current) => {
+        acc[current._id] = current;
+        return acc;
+      }, {});
+      const templateIds = res.data.results.map(template => template._id)
+      dispatch(gotRoomTemplates(roomTemplates, templateIds))
+    })
   }
 
 }

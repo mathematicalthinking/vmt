@@ -8,9 +8,16 @@ class Templates extends Component {
 
   componentDidMount() {
     console.log(this.props)
-    if (!this.props.userCourseTemplates) {
+    const {userCourseTemplates, userCourseTemplateIds,
+      userRoomTemplates, userRoomTemplateIds} = this.props;
+    if (!userCourseTemplates && userCourseTemplateIds.length > 0) {
       console.log('populating course templates')
-      this.props.populateCourseTemplates(this.props.userId);
+      this.props.populateCourseTemplates(userCourseTemplateIds);
+    }
+    console.log(userRoomTemplateIds)
+    if (!userRoomTemplates & userRoomTemplateIds.length > 0) {
+      console.log()
+      this.props.populateRoomTemplates(userRoomTemplateIds);
     }
   }
   render(){
@@ -28,6 +35,12 @@ class Templates extends Component {
           template
         />
         <h2>Room Templates</h2>
+        <BoxList list={this.props.userRoomTemplates}
+          resource='roomTemplates'
+          linkPath='/profile/courseTemplates/'
+          linkSuffix='/summary'
+          template
+        />
       </div>
     )
   }
@@ -36,6 +49,7 @@ class Templates extends Component {
 const mapStateToProps = store => ({
   userCourseTemplateIds: store.user.courseTemplates,
   userCourseTemplates: getUserResources(store, 'courseTemplates'),
+  userRoomTemplateIds: store.user.roomTemplates,
   userRoomTemplates: getUserResources(store, 'roomTemplates'),
   userId: store.user.id,
 })

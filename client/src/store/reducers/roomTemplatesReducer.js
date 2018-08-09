@@ -9,7 +9,8 @@ const reducer = (state = initialState, action) => {
     case actionTypes.GOT_ROOM_TEMPLATES :
       return {
         ...state,
-        roomTemplates: action.templates
+        byId: action.templates,
+        allIds: action.templateIds,
       }
     case actionTypes.CREATED_ROOM_TEMPLATE :
       return {
