@@ -188,8 +188,8 @@ const mapDispatchToProps = dispatch => {
   return {
     createCourse: body => dispatch(actions.createCourse(body)),
     createRoom: body => dispatch(actions.createRoom(body)),
-    // createCourseTemplate: body => dispatch(actions.createCourseTemplate),
-    // createRoomTemplate: body => dispatch(actions.createRoomTemplate),
+    createCourseTemplate: body => dispatch(actions.createCourseTemplate(body)),
+    createRoomTemplate: body => dispatch(actions.createRoomTemplate(body)),
   }
 }
 

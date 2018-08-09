@@ -1,4 +1,5 @@
 import * as actionTypes from './actionTypes';
+import { updateUserCourseTemplates } from './user';
 import API from '../../utils/apiRequests';
 
 export const gotCourseTemplates = (templates, templateIds) => {
@@ -30,12 +31,16 @@ export const getCourseTemplates = params => {
       dispatch(gotCourseTemplates(courseTemplates, templateIds))
     })
   }
-
 }
 
-export const createTemplate = (resource, body) => {
+export const createCourseTemplate = body => {
   return dispatch => {
-    API.post(`${resource}Template`, body)
-    .then(res => dispatch(createdCourseTemplate(resource, res.data.result)))
+    API.post('courseTemplate', body)
+    .then(res => {
+      // BUG ORDER MATTERS HERE! BAD!!!! can we even gaurantee the order in which these dispatches will resolve? Yes Iguess so ? they're synchronous
+      dispatch(createdCourseTemplate(res.data.result))
+      dispatch(updateUserCourseTemplates(res.data.result._id))
+      console.log(res.data.result)
+    })
   }
 }
