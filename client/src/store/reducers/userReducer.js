@@ -7,6 +7,9 @@ const initialState = {
   loggingIn: false,
   loginError: '',
   courses: [],
+  rooms: [],
+  courseTemplates: [],
+  roomTemplates: [],
 }
 
 const reducer = (state = initialState, action) => {
@@ -32,26 +35,30 @@ const reducer = (state = initialState, action) => {
         id: action.user._id,
         courses: action.user.courses,
         rooms: action.user.rooms,
+        courseTemplates: action.user.courseTemplates,
+        roomTemplates: action.user.roomTemplates,
       }
     case actionTypes.UPDATE_USER_ROOMS:
+    console.log(action.newRoom)
       return {
         ...state,
-        myRooms: [action.newRoom, ...state.myRooms]
+        rooms: [action.newRoom, ...state.rooms]
       }
     case actionTypes.UPDATE_USER_COURSES:
+    console.log(action.newCourse)
       return {
         ...state,
-        myCourses: [action.newCourse, ...state.myCourses]
+        courses: [action.newCourse, ...state.courses]
       }
     case actionTypes.UPDATE_USER_COURSE_TEMPLATES:
       return {
         ...state,
-        myCourseTemplates: [action.newTemplate, ...state.myCourseTemplates],
+        courseTemplates: [action.newTemplate, ...state.courseTemplates],
       }
     case actionTypes.UPDATE_USER_ROOM_TEMPLATES:
       return {
         ...state,
-        myRoomTemplates: [action.newTemplate, ...state.myRoomTemplates]
+        roomTemplates: [action.newTemplate, ...state.roomTemplates]
       }
     case actionTypes.CLEAR_ERROR:
       return {

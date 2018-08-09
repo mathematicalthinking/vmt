@@ -25,11 +25,8 @@ Course.pre('save', function (next) {
 
 Course.post('save', function (doc) {
   if (this.wasNew) {
-    User.findById(doc.creator, (err, res) => {
-      if (err) {
-        console.log('there was an error')
-        return console.log(err)
-      }
+    User.findById(doc.creator)
+    .then(res => {
       console.log(res)
       console.log('found the user!: ', doc)
       res.courses.push(doc._id)
@@ -37,6 +34,7 @@ Course.post('save', function (doc) {
       // .then(res => console.log('all good'))
       // .catch(err => console.log("ERR: ",err))
     })
-  } 
+    .catch(err => console.log(err))
+  }
 })
 module.exports = mongoose.model('Course', Course);

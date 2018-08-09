@@ -1,5 +1,6 @@
 import * as actionTypes from './actionTypes';
 import { updateUserCourses, updateUserCourseTemplates } from './user';
+import { createdCourseTemplate } from './courseTemplates';
 import API from '../../utils/apiRequests';
 
 
@@ -38,8 +39,6 @@ export const getCourses = () => {
   return dispatch => {
     API.get('course')
     .then(res => {
-      // Normalze Data @TODO think about where this should be done...perhaps in the reducer?
-      console.log(res.data.results)
       const courses = res.data.results.reduce((acc, current) => {
         acc[current._id] = current;
         return acc;
@@ -63,18 +62,19 @@ export const getCurrentCourse = id => {
 
 export const createCourse = body => {
   return dispatch => {
-    console.log(body)
     API.post('course', body)
     .then(res =>{
-      console.log(body)
       if (body.template) {
+        dispatch(updateUserCourseTemplates(res.data.result[1]._id))
+        // BUG THE ORDER HERE MATTERS. IF WE UPDATE USERCOURSES BEFORE COURSES THE getUserResource SELECTOR WILL FAIL
+        // AND CAUSE THE COURSES COMPONENT TO ERROR
+        dispatch(createdCourse(res.data.result[0]))
+        dispatch(createdCourseTemplate(res.data.result[1]))
         // NB If we're creating a template we're going to get back two results in an array (the course that was created & then template that was created)
-        dispatch(updateUserCourses(res.data.result[0]))
-        dispatch(updateUserCourseTemplates({...res.data.result[1]}))
-        return dispatch(createdCourse(res.data.result[0]))
+        return dispatch(updateUserCourses(res.data.result[0]._id))
       }
-      dispatch(updateUserCourses(res.data.result))
-      return dispatch(createdCourse(res.data.result))
+      dispatch(createdCourse(res.data.result))
+      return dispatch(updateUserCourses(res.data.result._id))
     })
     .catch(err => console.log(err))
   }

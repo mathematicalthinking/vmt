@@ -6,6 +6,7 @@ import { gotCurrentCourse, gotCourses } from './courses';
 import { gotCurrentRoom } from './rooms';
 
 export const updateUserRooms = newRoom => {
+  console.log("NEW ROOM: ", newRoom)
   return {
     type: actionTypes.UPDATE_USER_ROOMS,
     newRoom,
@@ -13,8 +14,9 @@ export const updateUserRooms = newRoom => {
 }
 
 export const updateUserCourses = newCourse => {
+  console.log(newCourse)
   return {
-    type:actionTypes.UPDATE_USER_COURSES,
+    type: actionTypes.UPDATE_USER_COURSES,
     newCourse,
   }
 }
@@ -28,6 +30,7 @@ export const updateUserCourseTemplates = newTemplate => {
 }
 
 export const updateUserRoomTemplates = newTemplate => {
+  console.log(newTemplate)
   return {
     type: actionTypes.UPDATE_USER_ROOM_TEMPLATES,
     newTemplate,
@@ -89,6 +92,7 @@ export const login = (username, password) => {
         console.log(byId, user.courses)
         dispatch(gotCourses(byId, coursesArr)); // @TODO Do we want to do this if we already have all of the public courses
       }
+      console.log(user)
       return dispatch(loginSuccess(user));
     })
     .catch(err => {

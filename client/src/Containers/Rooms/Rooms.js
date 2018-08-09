@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../../store/actions/';
 import { getUserResources } from '../../store/reducers/';
+import NewResource from '../Create/NewResource/NewResource';
 import BoxList from '../../Layout/BoxList/BoxList';
 class Rooms extends Component {
 
@@ -18,6 +19,7 @@ class Rooms extends Component {
     console.log('Rooms rendered')
     return (
       <div>
+        <NewResource resource='room' />
         <BoxList list={this.props.userRooms} resource='room' linkPath='/profile/room/' linkSuffix='/summary'/>
       </div>
     )

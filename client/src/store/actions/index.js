@@ -23,16 +23,22 @@ export {
 export {
   getCourses,
   gotCourses,
-  updateCourses,
-  getCurrentCourse,
+  updateCourse,
+  addCourse,
   clearCurrentCourse,
   createCourse,
   createdCourses,
   updateCourseRooms,
 } from './courses';
 export {
-  getTemplates,
-  gotTemplates,
-  createTemplate,
-  createdTemplate,
-} from './templates';
+  getCourseTemplates,
+  gotCourseTemplates,
+  createCourseTemplate,
+  createdCourseTemplate,
+} from './courseTemplates';
+export {
+  getRoomTemplates,
+  gotRoomTemplates,
+  createRoomTemplate,
+  createdRoomTemplate,
+} from './roomTemplates';
