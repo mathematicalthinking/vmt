@@ -1,6 +1,7 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { updateUserRooms, updateUserRoomTemplates } from './user';
+import { createdRoomTemplate } from './roomTemplates';
 
 export const gotRooms = (rooms, roomIds) => ({
   type: actionTypes.GOT_ROOMS,
@@ -58,10 +59,11 @@ export const createRoom = body => {
     .then(res => {
       console.log("RESPO: ", res)
       if (body.template) {
+        dispatch(updateUserRoomTemplates(res.data.result[1]._id))
         // @TODO We meed to have userRooms reference rooms and not have two seperate copies. will make synchornization easier
-        dispatch(updateUserRooms(res.data.result[0]));
-        dispatch(updateUserRoomTemplates(res.data.result[1]))
-        return dispatch(createdRoom(res.data.result[0]))
+        dispatch(createdRoom(res.data.result[0]))
+        dispatch(createdRoomTemplate(res.data.result[1]._id))
+        return dispatch(updateUserRooms(res.data.result[0]._id));
       }
       dispatch(createdRoom(res.data.result))
       return dispatch(updateUserRooms(res.data.result._id))

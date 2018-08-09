@@ -22,9 +22,11 @@ export const getUserResources = (state, resource) => {
   console.log(state[resource])
   let populatedResources;
   if (state[resource].allIds.length > 0) {
+    console.log(state.user[resource])
     populatedResources = state.user[resource].map(id => {
       console.log(id)
         const popRec = state[resource].byId[id]
+        console.log(popRec)
         popRec.id = id;
         return popRec
     })

@@ -58,7 +58,7 @@ const reducer = (state = initialState, action) => {
     case actionTypes.UPDATE_USER_ROOM_TEMPLATES:
       return {
         ...state,
-        myRoomTemplates: [action.newTemplate, ...state.myRoomTemplates]
+        roomTemplates: [action.newTemplate, ...state.roomTemplates]
       }
     case actionTypes.CLEAR_ERROR:
       return {

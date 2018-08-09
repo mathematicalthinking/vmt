@@ -10,6 +10,7 @@ export const gotCourseTemplates = (templates, templateIds) => {
 }
 
 export const createdCourseTemplate = template => {
+  console.log(template)
   return {
     type: actionTypes.CREATED_COURSE_TEMPLATE,
     template,

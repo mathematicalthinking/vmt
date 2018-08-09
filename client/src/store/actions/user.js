@@ -30,6 +30,7 @@ export const updateUserCourseTemplates = newTemplate => {
 }
 
 export const updateUserRoomTemplates = newTemplate => {
+  console.log(newTemplate)
   return {
     type: actionTypes.UPDATE_USER_ROOM_TEMPLATES,
     newTemplate,
