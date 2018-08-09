@@ -2,14 +2,16 @@ import { combineReducers } from 'redux';
 import user from './userReducer';
 import rooms from './roomsReducer';
 import courses from './coursesReducer';
-import templates from './templateReducer';
+import courseTemplates from './courseTemplatesReducer';
+import roomTemplates from './roomTemplatesReducer';
 // import registrationReducer from './registrationReducer';
 
 const rootReducer = combineReducers({
   user,
   rooms,
   courses,
-  templates,
+  courseTemplates,
+  roomTemplates,
 })
 
 export default rootReducer;

@@ -1,5 +1,6 @@
 import * as actionTypes from './actionTypes';
 import { updateUserCourses, updateUserCourseTemplates } from './user';
+import { createdTemplate } from './templates';
 import API from '../../utils/apiRequests';
 
 
@@ -38,8 +39,6 @@ export const getCourses = () => {
   return dispatch => {
     API.get('course')
     .then(res => {
-      // Normalze Data @TODO think about where this should be done...perhaps in the reducer?
-      console.log(res.data.results)
       const courses = res.data.results.reduce((acc, current) => {
         acc[current._id] = current;
         return acc;
@@ -67,11 +66,12 @@ export const createCourse = body => {
     .then(res =>{
       console.log(res.data.result)
       if (body.template) {
+        dispatch(updateUserCourseTemplates(res.data.result[1]._id))
+        dispatch(createdCourse(res.data.result[0]))
+        dispatch(createdTemplate(res.data.result[1]))
         console.log('template')
         // NB If we're creating a template we're going to get back two results in an array (the course that was created & then template that was created)
-        dispatch(updateUserCourses(res.data.result[0]))
-        // dispatch(updateUserCourseTemplates({...res.data.result[1]}))
-        return dispatch(createdCourse(res.data.result[0]))
+        return dispatch(updateUserCourses(res.data.result[0]._id))
       }
       const id = res.data.result._id;
       dispatch(createdCourse(res.data.result))
