@@ -12,6 +12,7 @@ const students = props => {
     console.log('were the owner!')
     joinRequests = props.notifications.map((ntf, i) => {
       console.log(ntf)
+      console.log()
       return (
         <div className={classes.UserRow} key={i}>
           <div style={{margin: 20}}><Avatar username={ntf.user.username} /></div>
