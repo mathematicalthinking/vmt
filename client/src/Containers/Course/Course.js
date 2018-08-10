@@ -10,74 +10,64 @@ import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
 import Students from '../Students/Students';
-// seems hacky but the only
-let  courseId
+
 class Course extends Component {
   state = {
-    access: true,
-    guestMode: false,
+    owner: false,
+    member: false,
     currentCourse: {}, // Right now I'm just saving currentCourse is state to compare the incoming props currentCourse to look for changes
     tabs: [
       {name: 'Rooms'},
       {name: 'Members'},
     ],
   }
-  // Check if the user has access to this course
-  // @TODO Yikes this is messy. This could all be avoided if
-  // we didnt do the API call through redux.
-  // static getDerivedStateFromProps(nextProps, prevState) {
-  //   const currentCourse = nextProps.currentCourse;
-  //   console.log(currentCourse)
-  //   if (currentCourse !== prevState.currentCourse) {
-  //     let access = false;
-  //     let guestMode = false;
-  //     let studentNotifications = 0;
-  //     // let roomNotifications = 0;
-  //     let updatedTabs = [...prevState.tabs];
-  //     // check permissions
-  //     if (currentCourse.creator) {
-  //       console.log(currentCourse.creator)
-  //       if (currentCourse.creator._id === nextProps.userId) {
-  //         console.log(currentCourse.creator._id, nextProps.userId)
-  //         updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
-  //       }
-  //     }
-  //     if (currentCourse.members) {
-  //       if (currentCourse.members.find(member => member.user._id === nextProps.userId) || currentCourse.isPublic){
-  //         access = true;
-  //       } else {
-  //         access = true;
-  //         guestMode = true;
-  //       }
-  //     }
-  //     // check notifications
-  //     if (currentCourse.notifications) {
-  //       nextProps.currentCourse.notifications.forEach(notification => {
-  //         if (notification.notificationType === 'requestAccess') {
-  //           studentNotifications += 1;
-  //         }
-  //       })
-  //       updatedTabs[1].notifications = studentNotifications;
-  //     }
-  //     return {
-  //       tabs: updatedTabs,
-  //       access,
-  //       guestMode,
-  //       currentCourse,
-  //     }
-  //   } else return null
-  // }
 
-  componentDidMount() {
-    // The idea here is that a course will not have members unless it has already been populated
-    if (!this.props.currentCourse.members) {
-      this.props.getCurrentCourse(this.props.match.params.course_id);
+  static getDerivedStateFromProps(nextProps, prevState) {
+    const { currentCourse } = nextProps
+    let studentNotifications = 0;
+    let updatedTabs = [...prevState.tabs]
+    // check notifications
+    if (currentCourse.notifications) {
+      console.log(currentCourse.notifications)
+      nextProps.currentCourse.notifications.forEach(notification => {
+        if (notification.notificationType === 'requestAccess') {
+          studentNotifications += 1;
+        }
+      })
+      updatedTabs[1].notifications = studentNotifications;
+    }
+    return {
+      tabs: updatedTabs,
     }
   }
 
-  // componentWillUnmount() {
-  //   // this.props.clearCurrentCourse();
-  // }
+  componentDidMount() {
+    const { currentCourse, userId } = this.props;
+    // The idea here is that a course will not have members unless it has already been populated
+    if (!currentCourse.members) {
+      this.props.populateCurrentCourse(this.props.match.params.course_id);
+    }
+
+    // Check user's permission level -- owner, member, or guest
+    let updatedTabs = [...this.state.tabs];
+    let owner = false;
+    let member = false;
+    if (currentCourse.creator === userId) {
+      console.log(currentCourse.creator, userId)
+      updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
+      owner = true;
+    }
+    else if (currentCourse.members) {
+      if (currentCourse.members.find(member => member.user === userId)) {
+        member = true;
+      }
+    }
+    this.setState({
+      tabs: updatedTabs,
+      owner: owner,
+      member: member,
+    })
+  }
 
   requestAccess = () => {
     // @TODO Use redux actions to make this request
@@ -110,19 +100,16 @@ class Course extends Component {
         break;
       default : content = null;
     }
-    const guestModal = this.state.guestMode ?
-      <Modal show={true}>
-        <p>You currently don't have access to this course. If you would like to
-          request access from the owner click "Join". When your request is accepted
-          this course will appear in your list of courses on your profile.
-        </p>
-        <Button click={this.requestAccess}>Join</Button>
-      </Modal> : null;
-    const accessModal = !this.state.access ? <Modal show={true} message='Loading course'/> : null;
+    const guestModal = <Modal show={!this.state.owner && !this.state.member}>
+      <p>You currently don't have access to this course. If you would like to
+        request access from the owner click "Join". When your request is accepted
+        this course will appear in your list of courses on your profile.
+      </p>
+      <Button click={this.requestAccess}>Join</Button>
+    </Modal>;
     return (
       <Aux>
         {guestModal}
-        {accessModal}
         {this.props.match.url.includes('profile') ?
           <DashboardLayout
             routingInfo={this.props.match}
@@ -140,13 +127,14 @@ class Course extends Component {
 
 const mapStateToProps = (store, ownProps) => ({
   currentCourse: store.courses.byId[ownProps.match.params.course_id],
-  userId: store.user.userId,
+  userId: store.user.id,
 })
 
 const mapDispatchToProps = dispatch => {
   return {
     updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
-    clearCurrentCourse: () => {dispatch(actions.clearCurrentCourse())}
+    populateCurrentCourse: id => dispatch(actions.populateCurrentCourse(id)),
+    clearCurrentCourse: () => dispatch(actions.clearCurrentCourse())
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Course);

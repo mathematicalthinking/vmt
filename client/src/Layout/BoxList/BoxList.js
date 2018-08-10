@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import classes from './boxList.css';
 import glb from '../../global.css';
 const boxList = props => {
-  
+
   let listElems = [];
   if (props.list) {
     listElems = props.list.map((item, i)=> {
@@ -15,7 +15,7 @@ const boxList = props => {
       }
       return (<div className={classes.ContentBox} key={i}>
         <ContentBox
-          title={<Link className={glb.Link} to={`${props.linkPath}${item.id}${props.linkSuffix}`} key={item._id}>{item.name}</Link>}
+          title={<Link className={glb.Link} to={`${props.linkPath}${item._id}${props.linkSuffix}`} key={item._id}>{item.name}</Link>}
           notifications={notifications}
           locked={!item.isPublic} // @TODO Should it appear locked if the user has access ? I can see reasons for both
         >

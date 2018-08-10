@@ -39,6 +39,7 @@ export const getCourses = () => {
   return dispatch => {
     API.get('course')
     .then(res => {
+      // Normalize data
       const courses = res.data.results.reduce((acc, current) => {
         acc[current._id] = current;
         return acc;
@@ -50,7 +51,7 @@ export const getCourses = () => {
   }
 }
 
-export const getCurrentCourse = id => {
+export const populateCurrentCourse = id => {
   return dispatch => {
     API.getById('course', id)
     .then(res => {
