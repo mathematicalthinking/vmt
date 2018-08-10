@@ -2,8 +2,8 @@ import * as actionTypes from './actionTypes';
 import auth from '../../utils/auth';
 import API from '../../utils/apiRequests';
 
-import { gotCurrentCourse, gotCourses } from './courses';
-import { gotCurrentRoom } from './rooms';
+import { updateCourse, gotCourses } from './courses';
+import { updateRoom, gotRooms } from './rooms';
 
 export const updateUserRooms = newRoom => {
   console.log("NEW ROOM: ", newRoom)
@@ -79,20 +79,30 @@ export const login = (username, password) => {
     dispatch(loginStart());
     auth.login(username, password)
     .then(res => {
+      console.log(res.data)
       if (res.data.errorMessage) {return dispatch(loginFail(res.data.errorMessage))}
-      // If we havent previously grabbed courses from the backend we should populate the courses list in the store
       const user = {...res.data}
       const coursesArr = res.data.courses.map(crs => crs._id);
       user.courses = coursesArr;
+      //@TODO Eventually what we'll need to do is check if the populated courses
+      // match the user course IDs
       if (getState().courses.allIds.length === 0) {
+        // Normalize Data
         const byId = res.data.courses.reduce((acc, cur) => {
           acc[cur._id] = cur;
           return acc;
         }, {});
-        console.log(byId, user.courses)
         dispatch(gotCourses(byId, coursesArr)); // @TODO Do we want to do this if we already have all of the public courses
       }
-      console.log(user)
+      if (getState().rooms.allIds.length === 0) {
+        const roomsArr = res.data.rooms.map(crs => crs._id);
+        user.rooms = roomsArr;
+        const byId = res.data.rooms.reduce((acc, cur) => {
+          acc[cur._id] = cur;
+          return acc;
+        }, {});
+        dispatch(gotRooms(byId, roomsArr))
+      }
       return dispatch(loginSuccess(user));
     })
     .catch(err => {
@@ -102,20 +112,20 @@ export const login = (username, password) => {
   }
 }
 
-// export const grantAccess = (user, resource, id) => {
-//   console.log('grNTING access to - ', user, resource, id)
-//   return dispatch => {
-//     API.grantAccess(user, resource, id)
-//     .then(res => {
-//       if (resource === 'room') {
-//         console.log(res.data.result)
-//         return dispatch(gotCurrentRoom(res.data.result))
-//       }
-//       // dispatch(updateUserCourses(resp.data.result)) @TODO Need to update the notifcations associated with this course
-//       return dispatch(gotCurrentCourse(res.data.result))
-//     })
-//   }
-// }
+export const grantAccess = (user, resource, id) => {
+  console.log('grNTING access to - ', user, resource, id)
+  return dispatch => {
+    API.grantAccess(user, resource, id)
+    .then(res => {
+      if (resource === 'room') {
+        console.log(res.data.result)
+        return dispatch(updateRoom(res.data.result))
+      }
+      // dispatch(updateUserCourses(resp.data.result)) @TODO Need to update the notifcations associated with this course
+      return dispatch(updateCourse(res.data.result))
+    })
+  }
+}
 
 export const googleLogin = (username, password) => {
   return dispatch => {
@@ -129,12 +139,6 @@ export const googleLogin = (username, password) => {
     })
   }
 }
-
-// export const getUserCourses = userId => {
-//   return dispatch => {
-//     API.getById()
-//   }
-// }
 
 export const clearError = () => {
   return {type: actionTypes.CLEAR_ERROR}

@@ -11,6 +11,7 @@ export const gotCourses = (courses, courseIds) => ({
   courseIds,
 })
 
+// params: course = un-normalized backend model
 export const updateCourse = course => ({
   type: actionTypes.UPDATE_COURSE,
   course,
@@ -39,6 +40,7 @@ export const getCourses = () => {
   return dispatch => {
     API.get('course')
     .then(res => {
+      // Normalize data
       const courses = res.data.results.reduce((acc, current) => {
         acc[current._id] = current;
         return acc;
@@ -50,7 +52,7 @@ export const getCourses = () => {
   }
 }
 
-export const getCurrentCourse = id => {
+export const populateCurrentCourse = id => {
   return dispatch => {
     API.getById('course', id)
     .then(res => {

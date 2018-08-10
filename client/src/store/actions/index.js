@@ -23,6 +23,7 @@ export {
 export {
   getCourses,
   gotCourses,
+  populateCurrentCourse,
   updateCourse,
   addCourse,
   clearCurrentCourse,

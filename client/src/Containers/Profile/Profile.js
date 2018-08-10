@@ -1,15 +1,9 @@
-// CONSIDER RENAMING THIS WHOLE COMPONENT TO DASHBOARD
-// WE WOULD WANT TO RENAME THE LAYOUT CONTAINER DASHBOARD
 import React, { Component } from 'react';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
-// import BoxList from '../../Layout/BoxList/BoxList';
 import Courses from '../Courses/Courses';
 import Rooms from '../Rooms/Rooms';
 import Templates from '../Templates/Templates';
-// import Templates from '../../Layout/Dashboard/Templates/Templates'
-// import NewResource from '../Create/NewResource/NewResource';
-// import NewTemplate from '../Create/NewTemplate/NewTemplate';
-// import { getUserResources } from '../../store/reducers';
+import { getUserResources }from '../../store/reducers/';
 import { connect } from 'react-redux';
 
 class Profile extends Component {
@@ -21,14 +15,27 @@ class Profile extends Component {
       {name: 'Settings'},
     ],
   }
+
+  componentDidMount() {
+    const { userCourses } = this.props;
+    let updatedTabs = [...this.state.tabs]
+    const courseNotifications = userCourses.reduce((acc, course) => {
+      // @TODO Only give the user notifications if they're the owner?
+      acc += course.notifications.length
+      return acc;
+    }, 0)
+    console.log(courseNotifications)
+    updatedTabs[0].notifications = courseNotifications;
+    this.setState({tabs: updatedTabs})
+  }
+
   render() {
-    console.log('profile rendered')
     const resource = this.props.match.params.resource;
     let content;
     console.log(resource)
     // Load content based on
     switch (resource) {
-      case 'courses' : content = <Courses />; break;
+      case 'courses' : content = <Courses userCourses={this.props.userCourses} />; break;
       case 'rooms' : content = <Rooms />; break;
       case 'templates' : content = <Templates />; break;
       default:
@@ -48,6 +55,7 @@ class Profile extends Component {
 }
 
 const mapStateToProps = store => ({
+  userCourses: getUserResources(store, 'courses'),
   username: store.user.username,
 })
 const mapDispatchToProps = dispatch => ({})
