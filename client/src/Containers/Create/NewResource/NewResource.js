@@ -170,7 +170,7 @@ class NewResource extends Component {
           </div>
         </Modal>
         <Button click={() => {this.setState({creating: true})}}>Create New {displayResource} {this.props.template ? 'Template' : null}</Button>
-        {!this.props.template ? <Button>Create From Template</Button> : null}
+        {!this.props.template ? <Button click={() => this.setState({creating: true})}>Create From Template</Button> : null}
       </Aux>
     )
   }
