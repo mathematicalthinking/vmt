@@ -1,4 +1,5 @@
 import * as actionTypes from './actionTypes';
+import { updateUserRoomTemplates } from './user'
 import API from '../../utils/apiRequests';
 
 export const gotRoomTemplates = (templates, templateIds) => {
@@ -11,7 +12,7 @@ export const gotRoomTemplates = (templates, templateIds) => {
 
 export const createdRoomTemplate = template => {
   return {
-    type: actionTypes.CREATED_COURSE_TEMPLATE,
+    type: actionTypes.CREATED_ROOM_TEMPLATE,
     template,
   }
 }
@@ -29,12 +30,14 @@ export const getRoomTemplates = params => {
       dispatch(gotRoomTemplates(roomTemplates, templateIds))
     })
   }
-
 }
 
-export const createRoomTemplate = (resource, body) => {
+export const createRoomTemplate = body => {
   return dispatch => {
-    API.post(`${resource}Template`, body)
-    .then(res => dispatch(createdRoomTemplate(resource, res.data.result)))
+    API.post('roomTemplate', body)
+    .then(res => {
+      dispatch(createdRoomTemplate(res.data.result))
+      dispatch(updateUserRoomTemplates(res.data.result._id))
+    })
   }
 }

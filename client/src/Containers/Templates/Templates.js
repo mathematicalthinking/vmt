@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../../store/actions/';
 import BoxList from '../../Layout/BoxList/BoxList';
+import NewResource from '../Create/NewResource/NewResource';
 import { getUserResources } from '../../store/reducers/';
 
 class Templates extends Component {
@@ -11,21 +12,17 @@ class Templates extends Component {
     const {userCourseTemplates, userCourseTemplateIds,
       userRoomTemplates, userRoomTemplateIds} = this.props;
     if (!userCourseTemplates && userCourseTemplateIds.length > 0) {
-      console.log('populating course templates')
       this.props.populateCourseTemplates(userCourseTemplateIds);
     }
-    console.log(userRoomTemplateIds)
     if (!userRoomTemplates & userRoomTemplateIds.length > 0) {
-      console.log()
       this.props.populateRoomTemplates(userRoomTemplateIds);
     }
   }
   render(){
-    console.log('Courses rendereddd')
-    console.log('props: ', this.props)
     return (
       <div>
-        <h2>Create a New Template</h2>
+        <NewResource resource='course' template/>
+        <NewResource resource='room' template/>
         {/* <NewCourse resource='course'/> */}
         <h2>Course Templates</h2>
         <BoxList list={this.props.userCourseTemplates}
