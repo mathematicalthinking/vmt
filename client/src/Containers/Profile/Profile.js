@@ -17,10 +17,10 @@ class Profile extends Component {
   }
 
   componentDidMount() {
-    console.log(this.props.userCourses)
     const { userCourses } = this.props;
     let updatedTabs = [...this.state.tabs]
     const courseNotifications = userCourses.reduce((acc, course) => {
+      // @TODO Only give the user notifications if they're the owner?
       acc += course.notifications.length
       return acc;
     }, 0)

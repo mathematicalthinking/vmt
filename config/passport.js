@@ -70,7 +70,11 @@ module.exports = passport => {
       return next(null, user);
     })
     .lean()
-    .populate({path: 'courses', options: {sort: {createdAt: -1}}})
+    .populate({
+      path: 'courses',
+      options: {sort: {createdAt: -1}},
+      populate: {path: 'members.user', select: 'username'},
+      populate: {path: 'notifications.user', select: 'username'}})
     .populate('rooms', 'notifications')
     .populate('templates', 'notifications')
   }));

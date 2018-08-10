@@ -92,11 +92,7 @@ class Course extends Component {
       case 'members' :
       // @TODO make a folder of NOTFICATION_TYPES ...somewhere
         let notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
-        let owner = false;
-        if (this.props.currentCourse.creator._id === this.props.userId) {
-          owner = true;
-        }
-        content = <Students classList={course.members} notifications={notifications} resource='course'  resourceId={course._id} owner={owner}/>
+        content = <Students classList={course.members} notifications={notifications} resource='course'  resourceId={course._id} owner={this.state.owner}/>
         break;
       default : content = null;
     }
