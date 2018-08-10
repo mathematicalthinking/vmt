@@ -69,8 +69,10 @@ module.exports = passport => {
 
       return next(null, user);
     })
+    .lean()
     .populate({path: 'courses', options: {sort: {createdAt: -1}}})
-    .lean();
+    .populate('rooms', 'notifications')
+    .populate('templates', 'notifications')
   }));
 
 

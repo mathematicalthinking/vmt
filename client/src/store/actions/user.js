@@ -79,20 +79,25 @@ export const login = (username, password) => {
     dispatch(loginStart());
     auth.login(username, password)
     .then(res => {
+      console.log(res.data)
       if (res.data.errorMessage) {return dispatch(loginFail(res.data.errorMessage))}
-      // If we havent previously grabbed courses from the backend we should populate the courses list in the store
       const user = {...res.data}
       const coursesArr = res.data.courses.map(crs => crs._id);
       user.courses = coursesArr;
+      // If we havent previously grabbed courses from the backend we should populate the courses list in the store
+      //@TODO Eventually what we'll need to do is check if the populated courses
+      // match the user course IDs
       if (getState().courses.allIds.length === 0) {
+        // Normalize Data
         const byId = res.data.courses.reduce((acc, cur) => {
           acc[cur._id] = cur;
           return acc;
         }, {});
-        console.log(byId, user.courses)
         dispatch(gotCourses(byId, coursesArr)); // @TODO Do we want to do this if we already have all of the public courses
       }
-      console.log(user)
+      if (getState().rooms.allIds.length === 0) {
+
+      }
       return dispatch(loginSuccess(user));
     })
     .catch(err => {
