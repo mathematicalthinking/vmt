@@ -11,6 +11,7 @@ class Rooms extends Component {
     console.log('props: ', this.props)
     const { roomsArr, userRoomIds } = this.props
     // if the user has rooms but they haven't been added to the store yet
+    // yeah this dones't quite get the job done
     if (roomsArr.length === 0 && userRoomIds.length > 0) {
       this.props.populateRooms(userRoomIds)
     }

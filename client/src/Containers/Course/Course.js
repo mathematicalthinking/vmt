@@ -44,6 +44,7 @@ class Course extends Component {
   componentDidMount() {
     const { currentCourse, userId } = this.props;
     // The idea here is that a course will not have members unless it has already been populated
+    console.log(currentCourse.members)
     if (!currentCourse.members) {
       this.props.populateCurrentCourse(this.props.match.params.course_id);
     }
