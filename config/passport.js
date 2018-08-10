@@ -75,7 +75,7 @@ module.exports = passport => {
       options: {sort: {createdAt: -1}},
       populate: {path: 'members.user', select: 'username'},
       populate: {path: 'notifications.user', select: 'username'}})
-    .populate('rooms', 'notifications')
+    .populate('rooms', 'notifications.user name description')
     .populate('templates', 'notifications')
   }));
 
