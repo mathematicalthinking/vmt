@@ -18,11 +18,14 @@ class Profile extends Component {
   componentDidMount() {
     const { userCourses } = this.props;
     let updatedTabs = [...this.state.tabs]
-    const courseNotifications = userCourses.reduce((acc, course) => {
-      // @TODO Only give the user notifications if they're the owner?
-      acc += course.notifications.length
-      return acc;
-    }, 0)
+    let courseNotifications;
+    if (userCourses) {
+      courseNotifications = userCourses.reduce((acc, course) => {
+        // @TODO Only give the user notifications if they're the owner?
+        acc += course.notifications.length
+        return acc;
+      }, 0)
+    }
     console.log(courseNotifications)
     updatedTabs[0].notifications = courseNotifications;
     this.setState({tabs: updatedTabs})
@@ -35,12 +38,12 @@ class Profile extends Component {
     // Load content based on
     switch (resource) {
       case 'courses' : content = <Resources
-        userResources={this.props.userCourses}
+        userResources={this.props.userCourses || []}
         resource='course'
         userId={this.props.userId}/>;
         break;
       case 'rooms' : content = <Resources
-        userResources={this.props.userRooms}
+        userResources={this.props.userRooms || []}
         resource='room'
         userId={this.props.userId}/>;
         break;
