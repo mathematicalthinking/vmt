@@ -19,22 +19,20 @@ const Course = new mongoose.Schema({
 // the doc_id and because that is supplied by mongoose we have to do it after
 Course.pre('save', function (next) {
   console.log(this.isNew)
-    this.wasNew = this.isNew;
-    next();
+  console.log(this.modifiedPaths())
+  
+  this.wasNew = this.isNew;
+  next();
 });
 
 Course.post('save', function (doc) {
   if (this.wasNew) {
-    User.findById(doc.creator)
+    User.findByIdAndUpdate(doc.creator, {$addToSet: {courses: doc._id}})
     .then(res => {
-      console.log(res)
-      console.log('found the user!: ', doc)
-      res.courses.push(doc._id)
-      res.save()
-      // .then(res => console.log('all good'))
-      // .catch(err => console.log("ERR: ",err))
+      console.log('all good') // what should we actually do with this response ?
     })
     .catch(err => console.log(err))
   }
+  // if ()
 })
 module.exports = mongoose.model('Course', Course);

@@ -45,6 +45,8 @@ Room.post('save', function(doc) { // intentionally not using arrow functions so 
         if (err) {return console.log(err)}
         if (!res.rooms) {res.rooms = [doc._id]}
         else {res.rooms.push(doc._id)}
+        // Add this room to all of the members of this course @TODO CONSIDER DOING THIS A DIFFERENT WAY
+        // User.find({$in: res.members})
         res.save();
       })
     }

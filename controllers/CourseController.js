@@ -54,11 +54,14 @@ module.exports = {
     if (updatedField[0] === 'notifications') {
       body = {$addToSet: body}
     }
+    // Results from a grantAccess() on the front end
     if (updatedField[0] === 'members') {
-      console.log('adding to user')
-      console.log(body.members.user)
       // also...add this course to the user model of the user who signed up
-      db.User.findByIdAndUpdate(body.members.user, {$addToSet: {courses: id}}, {new: true})
+      db.User.findByIdAndUpdate(
+        body.members.user,
+        {$addToSet: {courses: id}},
+        {new: true},
+      )
       .then(res => {
         console.log("res: ,", res)
       })

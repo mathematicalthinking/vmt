@@ -26,7 +26,8 @@ module.exports = {
       .catch(err => reject(err))
     });
   },
-
+// @TODO I SEEM TO BE USING MODEL METHODS SOMETIMES AND THEN OTHER TIMES (LIKE HERE)
+// JUST DOING ALL OF THE WORK IN THE CONTROLLER...PROBABLY NEED TO BE CONSISTENT
   post: body => {
     return new Promise((resolve, reject) => {
       if (body.template) {

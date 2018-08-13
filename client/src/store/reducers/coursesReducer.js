@@ -32,17 +32,17 @@ const reducer = (state = initialState, action) => {
         ...state,
         byId: updatedCourses,
       }
-    case actionTypes.CLEAR_COURSE:
-      return {
-        ...state,
-        currentCourse: {}
-      }
+    // case actionTypes.CLEAR_COURSE:
+    //   return {
+    //     ...state,
+    //     currentCourse: {}
+    //   }
     case actionTypes.UPDATE_COURSE_ROOMS:
-      let updatedCourse = {...state.currentCourse}
-      updatedCourse.rooms.unshift(action.room)
+      updatedCourses = {...state.byId}
+      updatedCourses[action.courseId].rooms.push(action.roomId)
       return {
         ...state,
-        currentCourse: updatedCourse,
+        byId: updatedCourses,
       }
     default:
       return state

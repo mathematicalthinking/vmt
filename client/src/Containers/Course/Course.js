@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { populateCurrentCourse } from '../../store/reducers/';
 import * as actions from '../../store/actions/';
 import API from '../../utils/apiRequests';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
@@ -21,25 +22,6 @@ class Course extends Component {
       {name: 'Members'},
     ],
   }
-
-  // static getDerivedStateFromProps(nextProps, prevState) {
-  //   const { currentCourse } = nextProps
-  //   let studentNotifications = 0;
-  //   let updatedTabs = [...prevState.tabs]
-  //   // check notifications
-  //   if (currentCourse.notifications) {
-  //     console.log(currentCourse.notifications)
-  //     nextProps.currentCourse.notifications.forEach(notification => {
-  //       if (notification.notificationType === 'requestAccess') {
-  //         studentNotifications += 1;
-  //       }
-  //     })
-  //     updatedTabs[1].notifications = studentNotifications;
-  //   }
-  //   return {
-  //     tabs: updatedTabs,
-  //   }
-  // }
 
   componentDidMount() {
     console.log('mounted: ', this.props)
@@ -84,6 +66,7 @@ class Course extends Component {
     // check if the course has loaded
     const course = this.props.currentCourse;
     const resource = this.props.match.params.resource;
+    console.log(course)
     let content;
     switch (resource) {
       case 'rooms' :
@@ -124,7 +107,7 @@ class Course extends Component {
 }
 
 const mapStateToProps = (store, ownProps) => ({
-  currentCourse: store.courses.byId[ownProps.match.params.course_id],
+  currentCourse: populateCurrentCourse(store, ownProps.match.params.course_id),
   userId: store.user.id,
 })
 

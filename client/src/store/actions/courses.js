@@ -31,10 +31,11 @@ export const createdCourse = resp => {
   }
 }
 
-export const updateCourseRooms = room => {
+export const updateCourseRooms = (courseId, roomId) => {
   return {
     type: actionTypes.UPDATE_COURSE_ROOMS,
-    room,
+    courseId,
+    roomId,
   }
 }
 
