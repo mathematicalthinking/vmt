@@ -1,5 +1,5 @@
 import * as actionTypes from '../actions/actionTypes';
-
+import merge from 'lodash/merge';
 const initialState = {
   byId: {},
   allIds: [],
@@ -8,13 +8,15 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.GOT_ROOMS:
-      return {
-        ...state,
-        byId: action.rooms,
-        allIds: action.roomIds,
-      };
+    let updatedRooms = merge({...state.byId}, action.byId)
+    console.log(updatedRooms)
+    return {
+      ...state,
+      byId: updatedRooms,
+      allIds: action.allIds,
+    };
     case actionTypes.UPDATE_ROOM:
-      let updatedRooms = {...state.byId};
+      updatedRooms = {...state.byId};
       updatedRooms[action.room._id] = action.room;
       return {
         ...state,

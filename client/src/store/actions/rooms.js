@@ -1,12 +1,13 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
+import { normalize } from '../utils/normalize';
 import { updateUserRooms, updateUserRoomTemplates } from './user';
 import { createdRoomTemplate } from './roomTemplates';
 
-export const gotRooms = (rooms, roomIds) => ({
+export const gotRooms = (rooms) => ({
   type: actionTypes.GOT_ROOMS,
-  rooms,
-  roomIds,
+  byId: rooms.byId,
+  allIds: rooms.allIds
 })
 
 export const updateRoom = room => ({
@@ -33,13 +34,8 @@ export const getRooms = params => {
     API.get('room', params)
     .then(res => {
       // Normalize res
-      const rooms = res.data.results.reduce((acc, current) => {
-        acc[current._id] = current;
-        return acc;
-      }, {});
-      const roomIds = Object.keys(rooms)
-      console.log(roomIds)
-      dispatch(gotRooms(rooms, roomIds))
+      const rooms = normalize(res.data.results)
+      dispatch(gotRooms(rooms))
     })
     .catch(err => console.log(err));
   }

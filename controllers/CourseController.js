@@ -24,7 +24,6 @@ module.exports = {
   post: body => {
     // check if we should make a template from this course
     return new Promise((resolve, reject) => {
-      console.log('BODY: ', body)
       if (body.template) {
         const {name, description, templateIsPublic, creator} = body;
         const template = {name, description, isPublic: templateIsPublic, creator,}
@@ -50,20 +49,34 @@ module.exports = {
   },
 
   put: (id, body) => {
+    console.log(id, body)
     const updatedField = Object.keys(body)
     if (updatedField[0] === 'notifications') {
       body = {$addToSet: body}
     }
     if (updatedField[0] === 'members') {
+      console.log('adding to user')
+      console.log(body.members.user)
+      // also...add this course to the user model of the user who signed up
+      db.User.findByIdAndUpdate(body.members.user, {$addToSet: {courses: id}}, {new: true})
+      .then(res => {
+        console.log("res: ,", res)
+      })
+      .catch(err => {
+        console.log(err)
+      })
       body = {$addToSet: body, $pull: {notifications: {user: body.members.user}}}
     }
     return new Promise((resolve, reject) => {
+      console.log('editing course')
       db.Course.findByIdAndUpdate(id, body, {new: true})
       .populate('creator')
       .populate('rooms')
       .populate('members.user')
       .populate('notifications.user')
-      .then(course => resolve(course))
+      .then(course => {
+        console.log(course)
+        resolve(course)})
       .catch(err => reject(err))
     })
   }

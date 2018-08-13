@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
-import Courses from '../Courses/Courses';
-import Rooms from '../Rooms/Rooms';
+import Resources from '../../Layout/Dashboard/Resources/Resources';
 import Templates from '../Templates/Templates';
 import { getUserResources }from '../../store/reducers/';
 import { connect } from 'react-redux';
@@ -19,11 +18,14 @@ class Profile extends Component {
   componentDidMount() {
     const { userCourses } = this.props;
     let updatedTabs = [...this.state.tabs]
-    const courseNotifications = userCourses.reduce((acc, course) => {
-      // @TODO Only give the user notifications if they're the owner?
-      acc += course.notifications.length
-      return acc;
-    }, 0)
+    let courseNotifications;
+    if (userCourses) {
+      courseNotifications = userCourses.reduce((acc, course) => {
+        // @TODO Only give the user notifications if they're the owner?
+        acc += course.notifications.length
+        return acc;
+      }, 0)
+    }
     console.log(courseNotifications)
     updatedTabs[0].notifications = courseNotifications;
     this.setState({tabs: updatedTabs})
@@ -35,8 +37,16 @@ class Profile extends Component {
     console.log(resource)
     // Load content based on
     switch (resource) {
-      case 'courses' : content = <Courses userCourses={this.props.userCourses} />; break;
-      case 'rooms' : content = <Rooms />; break;
+      case 'courses' : content = <Resources
+        userResources={this.props.userCourses || []}
+        resource='course'
+        userId={this.props.userId}/>;
+        break;
+      case 'rooms' : content = <Resources
+        userResources={this.props.userRooms || []}
+        resource='room'
+        userId={this.props.userId}/>;
+        break;
       case 'templates' : content = <Templates />; break;
       default:
     }
@@ -56,7 +66,9 @@ class Profile extends Component {
 
 const mapStateToProps = store => ({
   userCourses: getUserResources(store, 'courses'),
+  userRooms: getUserResources(store, 'rooms'),
   username: store.user.username,
+  userId: store.user.id,
 })
 const mapDispatchToProps = dispatch => ({})
 

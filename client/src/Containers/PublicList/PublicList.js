@@ -4,21 +4,22 @@ import * as actions from '../../store/actions/';
 import BoxList from '../../Layout/BoxList/BoxList';
 import Search from '../../Components/Search/Search';
 import classes from './publicList.css';
-let allResources = [];
+
 
 class PublicList extends Component {
   state = {
     visibleResources: [],
     resource: '',
   }
-
+  allResources = [];
   componentDidUpdate(prevProps, prevState) {
       // if resource changed see if we need to fetch the data
     const resource = this.props.match.params.resource;
     const resourceList = this.props[`${resource}Arr`].map(id => this.props[resource][id])
     if (prevProps.match.params.resource !== resource) {
-      if (resourceList.length === 0) {
+      if (resourceList.length < 50) {
         this.fetchData(resource);
+
       }
       // if we already have the data just set the state
       else {this.setState({visibleResources: resourceList})}
@@ -27,16 +28,22 @@ class PublicList extends Component {
     if (prevProps[resource] !== this.props[resource]) {
       this.setState({visibleResources: resourceList})
     }
+    this.allResources = resourceList;
   }
 
   componentDidMount() {
     const resource = this.props.match.params.resource;
-    if (Object.keys(this.props[resource]).length === 0) {
+    // @TODO WHen should we refresh this data. Here we're saying:
+    // if there aren't fift result then we've probably only loaded the users
+    // own courses. This is assuming that the database will have more than 50 courses and rooms
+    // MAYBE conside having and upToDate flag in resoure that tracks whether we've requested this recently
+    if (Object.keys(this.props[resource]).length < 50 && !this.state.upToDate) {
       this.fetchData(resource);
     }
     else {
       const resourceList = this.props[`${resource}Arr`].map(id => this.props[resource][id])
       this.setState({visibleResources: resourceList})
+      this.allResources = resourceList;
     }
   }
 
@@ -48,10 +55,14 @@ class PublicList extends Component {
 
   filterResults = value => {
     value = value.toLowerCase();
-    const updatedResources = allResources.filter(resource => (
+    console.log(this.allResources)
+    const updatedResources = this.allResources.filter(resource => {
+      console.log(resource)
+      return (
       resource.name.toLowerCase().includes(value) ||
       resource.description.toLowerCase().includes(value)
-    ));
+    )});
+    console.log(updatedResources)
     this.setState({visibleResources: updatedResources})
 
   }
@@ -59,10 +70,10 @@ class PublicList extends Component {
     console.log(this.state.visibleResources)
     let linkPath; let linkSuffix;
     // @ TODO conditional logic for displaying room in dahsboard if it belongs to the user
-    if (this.props.match.params.resource === 'courses' && this.props.coursesArr.length > 0) {
+    if (this.props.match.params.resource === 'courses') {
       linkPath = '/profile/course/';
       linkSuffix = '/rooms'
-    } else if (this.props.roomsArr.length > 0){
+    } else {
       linkPath = '/profile/room/';
       linkSuffix = '/summary';
     }

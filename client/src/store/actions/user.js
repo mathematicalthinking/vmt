@@ -1,5 +1,6 @@
 import * as actionTypes from './actionTypes';
 import auth from '../../utils/auth';
+import { normalize } from '../utils/normalize';
 import API from '../../utils/apiRequests';
 
 import { updateCourse, gotCourses } from './courses';
@@ -79,29 +80,15 @@ export const login = (username, password) => {
     dispatch(loginStart());
     auth.login(username, password)
     .then(res => {
-      console.log(res.data)
       if (res.data.errorMessage) {return dispatch(loginFail(res.data.errorMessage))}
-      const user = {...res.data}
-      const coursesArr = res.data.courses.map(crs => crs._id);
-      user.courses = coursesArr;
-      //@TODO Eventually what we'll need to do is check if the populated courses
-      // match the user course IDs
-      if (getState().courses.allIds.length === 0) {
-        // Normalize Data
-        const byId = res.data.courses.reduce((acc, cur) => {
-          acc[cur._id] = cur;
-          return acc;
-        }, {});
-        dispatch(gotCourses(byId, coursesArr)); // @TODO Do we want to do this if we already have all of the public courses
-      }
-      if (getState().rooms.allIds.length === 0) {
-        const roomsArr = res.data.rooms.map(crs => crs._id);
-        user.rooms = roomsArr;
-        const byId = res.data.rooms.reduce((acc, cur) => {
-          acc[cur._id] = cur;
-          return acc;
-        }, {});
-        dispatch(gotRooms(byId, roomsArr))
+      const courses = normalize(res.data.courses)
+      const rooms = normalize(res.data.rooms)
+      dispatch(gotCourses(courses));
+      dispatch(gotRooms(rooms))
+      const user = {
+        ...res.data,
+        rooms: res.data.rooms.map(r => r._id),
+        courses: res.data.courses.map(c => c._id),
       }
       return dispatch(loginSuccess(user));
     })

@@ -59,8 +59,9 @@ module.exports = passport => {
   }));
 
   passport.use('local-login', new LocalStrategy((username, password, next) => {
-     //@IDEA consider moving this to the userController
+    console.log('loggin ing: ', username, password)
     User.findOne({ 'username':  username }, (err, user) => {
+      console.log(user)
       if (err) return next(err);
       // @TODO we actually want to just provide a link here instead of telling htem where to go
       if (!user) return next(null, false, {errorMessage: 'That username does not exist. If you want to create an account go to Register'});
@@ -72,11 +73,11 @@ module.exports = passport => {
     .lean()
     .populate({
       path: 'courses',
+      populate: {path: 'notifications.user members.user', select: 'username'},
       options: {sort: {createdAt: -1}},
-      populate: {path: 'members.user', select: 'username'},
-      populate: {path: 'notifications.user', select: 'username'}})
-    .populate('rooms', 'notifications.user name description')
-    .populate('templates', 'notifications')
+    })
+    .populate('rooms', 'notifications.user name description isPublic creator')
+    // .populate('courseTemplates', 'notifications name description isPublic')
   }));
 
 
