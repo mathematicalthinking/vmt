@@ -24,7 +24,6 @@ module.exports = {
   post: body => {
     // check if we should make a template from this course
     return new Promise((resolve, reject) => {
-      console.log('BODY: ', body)
       if (body.template) {
         const {name, description, templateIsPublic, creator} = body;
         const template = {name, description, isPublic: templateIsPublic, creator,}
@@ -56,6 +55,8 @@ module.exports = {
     }
     if (updatedField[0] === 'members') {
       body = {$addToSet: body, $pull: {notifications: {user: body.members.user}}}
+      // also...add this course to the user model of the user who signed up
+      db.User.findByIdAndUpdate(body.members.user, {$addToSet: {courses: id}})
     }
     return new Promise((resolve, reject) => {
       db.Course.findByIdAndUpdate(id, body, {new: true})

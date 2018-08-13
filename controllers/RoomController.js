@@ -60,6 +60,7 @@ module.exports = {
     if (updatedField[0] === 'members') {
       console.log('updating members')
       body = {$addToSet: body, $pull: {notifications: {user: body.members.user}}}
+      db.User.findByIdAndUpdate(body.members.user, {$addToSet: {rooms: id}})
     }
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(id, body, {new: true})

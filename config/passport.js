@@ -59,7 +59,9 @@ module.exports = passport => {
   }));
 
   passport.use('local-login', new LocalStrategy((username, password, next) => {
+    console.log('loggin ing: ', username, password)
     User.findOne({ 'username':  username }, (err, user) => {
+      console.log(user)
       if (err) return next(err);
       // @TODO we actually want to just provide a link here instead of telling htem where to go
       if (!user) return next(null, false, {errorMessage: 'That username does not exist. If you want to create an account go to Register'});
