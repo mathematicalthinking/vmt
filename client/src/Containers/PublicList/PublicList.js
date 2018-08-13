@@ -48,10 +48,13 @@ class PublicList extends Component {
 
   filterResults = value => {
     value = value.toLowerCase();
-    const updatedResources = allResources.filter(resource => (
+    const updatedResources = allResources.filter(resource => {
+      console.log(resource)
+      return (
       resource.name.toLowerCase().includes(value) ||
       resource.description.toLowerCase().includes(value)
-    ));
+    )});
+    console.log(updatedResources)
     this.setState({visibleResources: updatedResources})
 
   }
@@ -59,11 +62,10 @@ class PublicList extends Component {
     console.log(this.state.visibleResources)
     let linkPath; let linkSuffix;
     // @ TODO conditional logic for displaying room in dahsboard if it belongs to the user
-    console.log(this.props)
-    if (this.props.match.params.resource === 'courses' && this.props.coursesArr) {
+    if (this.props.match.params.resource === 'courses') {
       linkPath = '/profile/course/';
       linkSuffix = '/rooms'
-    } else if (this.props.roomsArr.length > 0){
+    } else {
       linkPath = '/profile/room/';
       linkSuffix = '/summary';
     }

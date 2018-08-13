@@ -2,14 +2,17 @@ import * as actionTypes from './actionTypes';
 import { updateUserCourses, updateUserCourseTemplates } from './user';
 import { createdCourseTemplate } from './courseTemplates';
 import API from '../../utils/apiRequests';
+import { normalize } from '../utils/normalize';
 
 
 //@TODO HAVE MORE ACTIONS HERE FOR TRACKING STATUS OF REQUEST i.e. pending erro success
-export const gotCourses = (courses, courseIds) => ({
+export const gotCourses = (courses) => {
+  console.log()
+  return {
   type: actionTypes.GOT_COURSES,
-  byId: courses,
-  allIds: courseIds,
-})
+  byId: courses.byId,
+  allIds: courses.allIds
+}}
 
 // params: course = un-normalized backend model
 export const updateCourse = course => ({
@@ -41,12 +44,8 @@ export const getCourses = () => {
     API.get('course')
     .then(res => {
       // Normalize data
-      const courses = res.data.results.reduce((acc, current) => {
-        acc[current._id] = current;
-        return acc;
-      }, {});
-      const courseIds = Object.keys(courses)
-      dispatch(gotCourses(courses, courseIds))
+      const courses = normalize(res.data.results)
+      dispatch(gotCourses(courses))
     })
     .catch(err => console.log(err));
   }
