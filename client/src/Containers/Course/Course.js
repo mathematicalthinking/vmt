@@ -22,30 +22,31 @@ class Course extends Component {
     ],
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    const { currentCourse } = nextProps
-    let studentNotifications = 0;
-    let updatedTabs = [...prevState.tabs]
-    // check notifications
-    if (currentCourse.notifications) {
-      console.log(currentCourse.notifications)
-      nextProps.currentCourse.notifications.forEach(notification => {
-        if (notification.notificationType === 'requestAccess') {
-          studentNotifications += 1;
-        }
-      })
-      updatedTabs[1].notifications = studentNotifications;
-    }
-    return {
-      tabs: updatedTabs,
-    }
-  }
+  // static getDerivedStateFromProps(nextProps, prevState) {
+  //   const { currentCourse } = nextProps
+  //   let studentNotifications = 0;
+  //   let updatedTabs = [...prevState.tabs]
+  //   // check notifications
+  //   if (currentCourse.notifications) {
+  //     console.log(currentCourse.notifications)
+  //     nextProps.currentCourse.notifications.forEach(notification => {
+  //       if (notification.notificationType === 'requestAccess') {
+  //         studentNotifications += 1;
+  //       }
+  //     })
+  //     updatedTabs[1].notifications = studentNotifications;
+  //   }
+  //   return {
+  //     tabs: updatedTabs,
+  //   }
+  // }
 
   componentDidMount() {
+    console.log('mounted: ', this.props)
     const { currentCourse, userId } = this.props;
     // The idea here is that a course will not have members unless it has already been populated
     console.log(currentCourse.members)
-    if (!currentCourse.members) {
+    if (!currentCourse.members) { // I DONT THINK WE EVER GET A COURSE FROM THE DB W/O ITS MEMBERS
       this.props.populateCurrentCourse(this.props.match.params.course_id);
     }
 
@@ -59,7 +60,7 @@ class Course extends Component {
       owner = true;
     }
     else if (currentCourse.members) {
-      if (currentCourse.members.find(member => member.user === userId)) {
+      if (currentCourse.members.find(member => member.user._id === userId)) {
         member = true;
       }
     }
