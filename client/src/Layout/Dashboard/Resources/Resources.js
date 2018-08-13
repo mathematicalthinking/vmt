@@ -10,17 +10,18 @@ const resources = props => {
       resource.creator !== props.userId
     ))
     const linkSuffix = props.resource === 'course' ? '/rooms' : '/summary'
+    const displayResource = props.resource[0].toUpperCase() + props.resource.slice(1)
     return (
       <div>
         <NewResource resource={props.resource}/>
-        <h2>{props.resource}s I Own</h2>
+        <h2>{displayResource}s I Own</h2>
         <BoxList
           list={ownedResources}
           linkPath={`/profile/${props.resource}/`}
           linkSuffix={linkSuffix}
           notifications
         />
-        <h2>{props.resource}s I'm Enrolled in</h2>
+        <h2>{displayResource}s I'm Enrolled in</h2>
         <BoxList
           list={enrolledResources}
           linkPath={`/profile/${props.resource}/`}

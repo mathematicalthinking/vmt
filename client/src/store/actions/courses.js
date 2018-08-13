@@ -5,10 +5,10 @@ import API from '../../utils/apiRequests';
 
 
 //@TODO HAVE MORE ACTIONS HERE FOR TRACKING STATUS OF REQUEST i.e. pending erro success
-export const gotCourses = (courses) => ({
+export const gotCourses = (courses, courseIds) => ({
   type: actionTypes.GOT_COURSES,
-  byId:  courses.byId,
-  allIds: courses.allIds
+  byId: courses,
+  allIds: courseIds,
 })
 
 // params: course = un-normalized backend model
