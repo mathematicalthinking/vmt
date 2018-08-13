@@ -4,18 +4,18 @@ import * as actions from '../../store/actions/';
 import BoxList from '../../Layout/BoxList/BoxList';
 import NewCourse from '../Create/NewResource/NewResource'
 class Courses extends Component {
-
-  componentDidMount() {
-    console.log('Courses mounted')
-    console.log('props: ', this.props)
-  }
   render(){
-    console.log('Courses rendereddd')
-    console.log('props: ', this.props)
+    const ownedResources = this.props.userCourses.filter(course => (
+      course.creator === this.props.userId
+    ))
+    console.log(ownedResources)
     return (
       <div>
         <NewCourse resource='course'/>
-        <BoxList list={this.props.userCourses} resource='courses' linkPath='/profile/course/' linkSuffix='/rooms' notifications/>
+        <h2>Courses I Own</h2>
+        <BoxList list={ownedResources} resource='courses'
+        linkPath='/profile/course/' linkSuffix='/rooms' notifications/>
+        <h2>Courses I'm Enrolled in</h2>
       </div>
     )
   }

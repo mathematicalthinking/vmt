@@ -59,7 +59,6 @@ module.exports = passport => {
   }));
 
   passport.use('local-login', new LocalStrategy((username, password, next) => {
-     //@IDEA consider moving this to the userController
     User.findOne({ 'username':  username }, (err, user) => {
       if (err) return next(err);
       // @TODO we actually want to just provide a link here instead of telling htem where to go
@@ -75,8 +74,8 @@ module.exports = passport => {
       populate: {path: 'notifications.user members.user', select: 'username'},
       options: {sort: {createdAt: -1}},
     })
-    .populate('rooms', 'notifications.user name description')
-    .populate('templates', 'notifications')
+    .populate('rooms', 'notifications.user name description isPublic creator')
+    // .populate('courseTemplates', 'notifications name description isPublic')
   }));
 
 

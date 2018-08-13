@@ -7,11 +7,7 @@ import BoxList from '../../Layout/BoxList/BoxList';
 class Rooms extends Component {
 
   componentDidMount() {
-    console.log('Rooms Mounted')
-    console.log('props: ', this.props)
     const { roomsArr, userRoomIds } = this.props
-    // if the user has rooms but they haven't been added to the store yet
-    // yeah this dones't quite get the job done
     if (roomsArr.length === 0 && userRoomIds.length > 0) {
       this.props.populateRooms(userRoomIds)
     }

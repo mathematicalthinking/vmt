@@ -80,21 +80,17 @@ export const login = (username, password) => {
     dispatch(loginStart());
     auth.login(username, password)
     .then(res => {
-      console.log(res.data)
       if (res.data.errorMessage) {return dispatch(loginFail(res.data.errorMessage))}
-      // match the user course IDs
-      const { byId, allIds, } = normalize(res.data.courses)
-      dispatch(gotCourses(byId, allIds)); // @TODO Do we want to do this if we already have all of the public courses
-      // if (getState().rooms.allIds.length === 0) {
-      //   const roomsArr = res.data.rooms.map(crs => crs._id);
-      //   user.rooms = roomsArr;
-      //   const byId = res.data.rooms.reduce((acc, cur) => {
-      //     acc[cur._id] = cur;
-      //     return acc;
-      //   }, {});
-      //   dispatch(gotRooms(byId, roomsArr))
-      // }
-      return dispatch(loginSuccess(res.data));
+      const courses = normalize(res.data.courses)
+      const rooms = normalize(res.data.rooms)
+      dispatch(gotCourses(courses));
+      dispatch(gotRooms(rooms))
+      const user = {
+        ...res.data,
+        rooms: res.data.rooms.map(r => r._id),
+        courses: res.data.courses.map(c => c._id),
+      }
+      return dispatch(loginSuccess(user));
     })
     .catch(err => {
       console.log(err)

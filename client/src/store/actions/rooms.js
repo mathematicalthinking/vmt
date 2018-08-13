@@ -3,10 +3,10 @@ import API from '../../utils/apiRequests';
 import { updateUserRooms, updateUserRoomTemplates } from './user';
 import { createdRoomTemplate } from './roomTemplates';
 
-export const gotRooms = (rooms, roomIds) => ({
+export const gotRooms = (rooms) => ({
   type: actionTypes.GOT_ROOMS,
-  rooms,
-  roomIds,
+  byId: rooms.byId,
+  allIds: rooms.allIds
 })
 
 export const updateRoom = room => ({
