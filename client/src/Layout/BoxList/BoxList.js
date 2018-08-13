@@ -4,9 +4,8 @@ import { Link } from 'react-router-dom';
 import classes from './boxList.css';
 import glb from '../../global.css';
 const boxList = props => {
-  console.log(props)
-  let listElems = [];
-  if (props.list) {
+  let listElems = "There doesn't appear to be anything here yet";
+  if (props.list.length > 0) {
     listElems = props.list.map((item, i)=> {
       let notifications = 0;
       // attach notification icon to the box if it has active notifications

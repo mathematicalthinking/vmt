@@ -60,6 +60,9 @@ class NewResource extends Component {
         case 'room' :
           newResource.tabs = [{ggbFile: this.state.ggbFile, desmosLink: this.state.desmosLink}]
           newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
+          if (this.props.course) {
+            newResource.course = this.props.course;
+          }
           this.props.createRoom(newResource);
         break;
         default:;

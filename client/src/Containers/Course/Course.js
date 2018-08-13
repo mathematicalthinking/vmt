@@ -3,9 +3,9 @@ import { connect } from 'react-redux';
 import * as actions from '../../store/actions/';
 import API from '../../utils/apiRequests';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
-import PublicListLayout from '../../Layout/PublicResource/PublicResource';
 import BoxList from '../../Layout/BoxList/BoxList';
-import NewResource from '../Create/NewResource/NewResource'
+import NewResource from '../Create/NewResource/NewResource';
+import PublicListLayout from '../../Layout/PublicResource/PublicResource';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
@@ -85,11 +85,12 @@ class Course extends Component {
     const course = this.props.currentCourse;
     const resource = this.props.match.params.resource;
     let content;
-    let contentCreate;
     switch (resource) {
       case 'rooms' :
-        contentCreate = <NewResource course={course._id} resource='room' updateParent={room => this.props.updateCourseRooms(room)}/>
-        content = <BoxList list={course.rooms ? course.rooms : []} resource='rooms' notifications dashboard/>
+        content = <div>
+          {this.state.owner ? <NewResource resource='room' course={course._id}/> : null}
+          <BoxList list={course.rooms || []} />
+        </div>
         break;
       case 'members' :
       // @TODO make a folder of NOTFICATION_TYPES ...somewhere
@@ -113,7 +114,6 @@ class Course extends Component {
             routingInfo={this.props.match}
             crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/course/${course._id}/rooms`}]}
             sidePanelTitle={course.name}
-            contentCreate={contentCreate}
             content={content}
             tabs={this.state.tabs}
           /> :
