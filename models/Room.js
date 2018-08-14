@@ -24,8 +24,6 @@ const Room = new mongoose.Schema({
 {timestamps: true});
 
 Room.pre('save', function (next) {
-  console.log("room pre save hook ", this.course)
-  console.log(this.creator)
   // ON CREATION UPDATE THE CONNECTED MODELS
   if (this.isNew) {
     User.findById(this.creator)
@@ -38,24 +36,30 @@ Room.pre('save', function (next) {
       return console.log(err)
     })
     if (this.course) {
-      console.log('looking for course')
       Course.findById(this.course)
       .then(course => {
         if (!course.rooms) {course.rooms = [this._id]}
         else {course.rooms.push(this._id)}
         // add this room members of this course
+        console.log(course.members)
         const members = course.members.reduce((filtered, member) => {
+          console.log(member)
+          console.log(this.creator)
+          // NOTE DOUBLE == WE SHOULD CONVERT member.user to ObjectId
           if (member.user !== this.creator) {
-            filtered.push(member.user._id)
+            console.log(typeof member.user, '!==', typeof this.creator)
+            filtered.push(member.user)
           }
+          return filtered;
         }, [])
         console.log('MEMBERS ', members)
         if (members) {
-          User.update({_id: {$in: members}}, {$addToSet: {rooms: this._id}})
+          User.update({_id: {$in: members}}, {$addToSet: {rooms: this._id}}, {'multi': true})
           .then(users => {
-
+            console.log('updated existing course users with new room');
+            console.log(users)
           })
-
+          .catch(err => {console.log(err)})
         }
         course.save();
       })
@@ -64,7 +68,6 @@ Room.pre('save', function (next) {
   }
   next();
 });
-
 Room.post('save', function(doc) { // intentionally not using arrow functions so 'this' refers to the model
   // If this is a post request hook
 
