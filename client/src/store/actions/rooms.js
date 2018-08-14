@@ -3,6 +3,7 @@ import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
 import { updateUserRooms, updateUserRoomTemplates } from './user';
 import { createdRoomTemplate } from './roomTemplates';
+import { updateCourseRooms } from './courses';
 
 export const gotRooms = (rooms) => ({
   type: actionTypes.GOT_ROOMS,
@@ -53,16 +54,18 @@ export const createRoom = body => {
   return dispatch => {
     API.post('room', body)
     .then(res => {
+      let result = res.data.result;
+      dispatch(createdRoom(result))
       console.log("RESPO: ", res)
       if (body.template) {
         dispatch(updateUserRoomTemplates(res.data.result[1]._id))
-        // @TODO We meed to have userRooms reference rooms and not have two seperate copies. will make synchornization easier
-        dispatch(createdRoom(res.data.result[0]))
         dispatch(createdRoomTemplate(res.data.result[1]))
-        return dispatch(updateUserRooms(res.data.result[0]._id));
+        result = res.data.result[0];
       }
-      dispatch(createdRoom(res.data.result))
-      return dispatch(updateUserRooms(res.data.result._id))
+      if (body.course) {
+        dispatch(updateCourseRooms(body.course, result._id))
+      }
+      return dispatch(updateUserRooms(result._id))
     })
   }
 }

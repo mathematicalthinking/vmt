@@ -104,6 +104,7 @@ export const grantAccess = (user, resource, id) => {
   return dispatch => {
     API.grantAccess(user, resource, id)
     .then(res => {
+      console.log(res.data.result)
       if (resource === 'room') {
         console.log(res.data.result)
         return dispatch(updateRoom(res.data.result))

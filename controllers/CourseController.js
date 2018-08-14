@@ -49,34 +49,46 @@ module.exports = {
   },
 
   put: (id, body) => {
-    console.log(id, body)
-    const updatedField = Object.keys(body)
-    if (updatedField[0] === 'notifications') {
-      body = {$addToSet: body}
-    }
-    if (updatedField[0] === 'members') {
-      console.log('adding to user')
-      console.log(body.members.user)
-      // also...add this course to the user model of the user who signed up
-      db.User.findByIdAndUpdate(body.members.user, {$addToSet: {courses: id}}, {new: true})
-      .then(res => {
-        console.log("res: ,", res)
-      })
-      .catch(err => {
-        console.log(err)
-      })
-      body = {$addToSet: body, $pull: {notifications: {user: body.members.user}}}
-    }
+    // console.log(id, body)
+    const updatedFields = Object.keys(body);
     return new Promise((resolve, reject) => {
       console.log('editing course')
-      db.Course.findByIdAndUpdate(id, body, {new: true})
-      .populate('creator')
-      .populate('rooms')
-      .populate('members.user')
-      .populate('notifications.user')
+      db.Course.findById(id)
       .then(course => {
-        console.log(course)
-        resolve(course)})
+        // console.log(updatedFields)
+        // console.log(body)
+        if (updatedFields[0] === 'notifications') {
+          // body = {$addToSet: body}
+          // console.log(doc.notifications)
+          course.notifications.push(body.notifications)
+          // console.log(doc.notifications)
+        }
+        // Results from a grantAccess() on the front end
+        if (updatedFields[0] === 'newMember') {
+          console.log("body.newMember: ", body.newMember)
+          console.log('course.notifications', course.notifications)
+          console.log('course.members', course.members)
+
+          course.members.push(body.newMember)
+          course.notifications = course.notifications.filter(ntf => {
+            console.log('user ids should match: ', ntf.user, body.newMember.user._id)
+            console.log(ntf.user !== body.newMember.user._id)
+            // DOUBLE == IMPORTANT HERE. WE DONT WANT TO CHECK TYPE
+            // OR WE SHOULD JUST USE AN OBJECTID() method on the body.newMember.iser._id
+            return (ntf.user != body.newMember.user._id)
+          })
+        }
+        // console.log("DOC ", course)
+        course.save(); // @TODO CONSIDER AWAITING THIS SO WE CAN ONLY RESOLVE IF THE SAVE WORKS
+        course.populate({path: 'members.user', select: 'username'})
+        .populate({path: 'notifications.user', select: 'username'})
+        .populate('creator', (err, pop) => {
+          console.log('course after popo: ', pop)
+          resolve(pop)})
+
+        })
+
+
       .catch(err => reject(err))
     })
   }

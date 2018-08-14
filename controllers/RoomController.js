@@ -26,13 +26,15 @@ module.exports = {
       .catch(err => reject(err))
     });
   },
-
+// @TODO I SEEM TO BE USING MODEL METHODS SOMETIMES AND THEN OTHER TIMES (LIKE HERE)
+// JUST DOING ALL OF THE WORK IN THE CONTROLLER...PROBABLY NEED TO BE CONSISTENT
   post: body => {
     return new Promise((resolve, reject) => {
       if (body.template) {
         const {name, description, templateIsPublic, creator, tabs} = body;
         console.log(templateIsPublic)
         const template = {name, description, isPublic: templateIsPublic, creator, tabs,}
+        // COnsider moving this to the pre hook...we can stil do delete bodt.template there rifht?
         db.RoomTemplate.create(template)
         .then(template => {
           body.template = template._id,

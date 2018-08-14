@@ -12,12 +12,12 @@ const students = props => {
     console.log('were the owner!')
     joinRequests = props.notifications.map((ntf, i) => {
       console.log(ntf)
-      console.log()
+      // console.log()
       return (
         <div className={classes.UserRow} key={i}>
           <div style={{margin: 20}}><Avatar username={ntf.user.username} /></div>
           <div>requested access to join this course [TIMESTAMP @TODO]</div>
-          <Button click={() => props.grantAccess(ntf.user._id, props.resource, props.resourceId)}>Grant Access</Button>
+          <Button click={() => props.grantAccess(ntf.user, props.resource, props.resourceId)}>Grant Access</Button>
         </div>
       )
     })

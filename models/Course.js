@@ -13,28 +13,53 @@ const Course = new mongoose.Schema({
   notifications: [{user: {type: ObjectId, ref: 'User'}, notificationType: {type: String}, _id: false}],
 },{timestamps: true});
 
-// Add this message to the room's chat
-// @TODO for some reason I can't get $push to work
-// ALso we're using the post method here instead of pre because we need
-// the doc_id and because that is supplied by mongoose we have to do it after
-Course.pre('save', function (next) {
-  console.log(this.isNew)
-    this.wasNew = this.isNew;
-    next();
+// Not using arrow function so we can have access to THIS docuemnt
+Course.pre('save', function(next){
+  // console.log(this.isNew)
+  if (this.isNew) {
+    // console.log(this._id)
+    User.findByIdAndUpdate(this.creator, {$addToSet: {courses: this._id}})
+    .then(user => {
+      next()
+      // console.log('success', user)
+    })
+  }
+  // IF We're updating
+  if (!this.isNew) {
+    const editedFields = this.modifiedPaths()
+    editedFields.forEach(field => {
+      if (field === 'rooms') {
+        // console.log('updating rooms in course pre save hook')
+      // add these rooms to all of the members in this course
+      // and add all of the members of this course to the room.
+
+      }
+      else if (field === 'members') {
+        console.log('UPDATING MEMBERS')
+        // @TODO IS it safe to assume it will be at the end...I think so
+        // cause we're using push
+        const member = this.members[this.members.length - 1]
+        console.log(member)
+        // console.log('new member: ', member)
+        User.findByIdAndUpdate(member.user, {
+          $addToSet: {courses: this._id, rooms: this.rooms}
+        })
+        .then(user => {
+          console.log(user)
+          next();
+        })
+        // add all of the rooms of this course to the new member
+        // and add them to the rooms' list of members
+        // console.log(this._id)
+        // console.log(this.members)
+      } else next();
+    })
+  }
+  console.log('next')
 });
 
-Course.post('save', function (doc) {
-  if (this.wasNew) {
-    User.findById(doc.creator)
-    .then(res => {
-      console.log(res)
-      console.log('found the user!: ', doc)
-      res.courses.push(doc._id)
-      res.save()
-      // .then(res => console.log('all good'))
-      // .catch(err => console.log("ERR: ",err))
-    })
-    .catch(err => console.log(err))
-  }
-})
+// Course.post('save', function (doc) {
+//
+//   // if ()
+// })
 module.exports = mongoose.model('Course', Course);
