@@ -28,6 +28,7 @@ class Course extends Component {
     const { currentCourse, userId } = this.props;
     // The idea here is that a course will not have members unless it has already been populated
     if (!currentCourse.members) { // I DONT THINK WE EVER GET A COURSE FROM THE DB W/O ITS MEMBERS
+      console.log('got a current course w/o its members')
       this.props.populateCurrentCourse(this.props.match.params.course_id);
     }
 
@@ -77,7 +78,7 @@ class Course extends Component {
     const course = this.props.currentCourse;
     const resource = this.props.match.params.resource;
     const notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
-    console.log(notifications)
+    console.log("MEMBER?: ",this.state.member)
     let content;
     switch (resource) {
       case 'rooms' :
