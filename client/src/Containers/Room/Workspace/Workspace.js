@@ -108,11 +108,11 @@ class Workspace extends Component {
 
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, ownProps) => {
   return {
-    currentRoom: state.roomsReducer.currentRoom,
-    userId: state.userReducer.userId,
-    username: state.userReducer.username,
+    currentRoom: state.rooms.byId[ownProps.match.params.room_id],
+    userId: state.user.id,
+    username: state.user.username,
   }
 }
 

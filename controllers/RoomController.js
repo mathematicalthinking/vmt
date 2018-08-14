@@ -15,12 +15,12 @@ module.exports = {
   getById: id => {
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
-      .populate('creator')
-      .populate('events')
-      .populate('chat.user')
-      .populate('currentUsers')
-      .populate('members.user')
-      .populate('notifications.user')
+      .populate({path: 'creator', select: 'username'})
+      .populate({path: 'chat.user', select: 'username'})
+      .populate({path: 'currentUsers', select: 'username'})
+      .populate({path: 'members.user', select: 'username'})
+      .populate({path: 'notifications.user', select: 'username'})
+      .populate({path: 'course', select: 'name'})
       .then(room => {
         resolve(room)})
       .catch(err => reject(err))
@@ -39,15 +39,31 @@ module.exports = {
           body.template = template._id,
           delete body[templateIsPublic]
           db.Room.create(body)
-          .then(room => resolve([room, template]))
+          .then(room => {
+            if (body.course) {
+              room.populate({path: 'course', select: 'name'})
+            }
+            room.populate({path: 'members.user', select: 'username'}, () => {
+              resolve([room, template])
+            })
+          })
           .catch(err => reject(err))
         })
         .catch(err => reject(err))
       } else {
         delete body.template;
         delete body.templateIsPublic;
+        console.log("BODY: ", body)
+        // MAYBE EXTRACT THIS OUT INTO A DIFFERENT FUNCTION CAUSE ITS THE SAME CODE AS ABOVE
         db.Room.create(body)
-        .then(room => resolve(room))
+        .then(room => {
+          if (body.course) {
+            room.populate({path: 'course', select: 'name'})
+          }
+          room.populate({path: 'members.user', select: 'username'}, () => {
+            resolve(room)
+          })
+        })
         .catch(err => reject(err))
       }
     })

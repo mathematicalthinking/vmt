@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+// @TODO Make these import less verbose
 import TextInput from '../../../Components/Form/TextInput/TextInput';
 import RadioBtn from '../../../Components/Form/RadioBtn/RadioBtn';
 import Checkbox from '../../../Components/Form/Checkbox/Checkbox';
@@ -61,7 +62,9 @@ class NewResource extends Component {
           newResource.tabs = [{ggbFile: this.state.ggbFile, desmosLink: this.state.desmosLink}]
           newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
           if (this.props.course) {
-            newResource.course = this.props.course;
+            console.log(this.props.course)
+            newResource.members = this.props.course.members
+            newResource.course = this.props.course._id;
           }
           this.props.createRoom(newResource);
         break;
@@ -70,32 +73,8 @@ class NewResource extends Component {
     }
     this.setState({creating: false})
   }
-  // this will be passed down to the dropdown menu and when we make a selection
-  // it will pass a list of selected rooms back up and then we can synch our state
-  // updateRooms = rooms => {
-  //   this.setState({
-  //     rooms: rooms
-  //   })
-  // }
 
   render() {
-    // @TODO DO we want to allow selecting of rooms for course at the time of course creation? If so, uncomment Below and any reference to state.rooms
-    // prepare dropdown list of rooms
-    // const roomsSelected = this.state.rooms.map(room => (
-    //   // sel- to differentiate between dropdown ids
-    //   <div id={`sel-${room.id}`}>{room.name}</div>
-    // ))
-    // i find this to be annoying...why wont .map just return an empty array
-    // if this.props.myRooms does not exist
-    // let myRooms;
-    // if (this.props.myRooms) {
-    //   myRooms = this.props.myRooms.map(room => ({
-    //     id: room._id, name: room.name,
-    //   }))
-    // }
-    // const publicRooms = this.props.rooms.map(room => ({
-    //   id: room._id, name: room.name
-    // }))
     const resource = this.props.resource;
     const displayResource = resource.charAt(0).toUpperCase() + resource.slice(1);
     // const displayResource = "RESOURCE";

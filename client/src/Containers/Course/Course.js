@@ -89,8 +89,12 @@ class Course extends Component {
     switch (resource) {
       case 'rooms' :
         content = <div>
-          {this.state.owner ? <NewResource resource='room' course={course._id}/> : null}
-          <BoxList list={course.rooms || []} />
+          {this.state.owner ? <NewResource resource='room' course={{_id: course._id, members: course.members}}/> : null}
+          <BoxList
+            list={course.rooms || []}
+            linkPath={`/profile/course/${course._id}/room/`}
+            linkSuffix='/summary'
+          />
         </div>
         break;
       case 'members' :

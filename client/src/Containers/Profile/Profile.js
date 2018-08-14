@@ -56,7 +56,7 @@ class Profile extends Component {
         routingInfo={this.props.match}
         title='Profile'
         crumbs={[{title: 'Profile', link: '/profile/courses'}]}
-        // sidePanelTitle={this.props.username}
+        sidePanelTitle={this.props.username}
         content={content}
         tabs={this.state.tabs}
       />
