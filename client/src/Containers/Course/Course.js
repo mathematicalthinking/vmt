@@ -16,6 +16,7 @@ class Course extends Component {
   state = {
     owner: false,
     member: false,
+    guestMode: false,
     currentCourse: {}, // Right now I'm just saving currentCourse is state to compare the incoming props currentCourse to look for changes
     tabs: [
       {name: 'Rooms'},
@@ -24,11 +25,9 @@ class Course extends Component {
   }
 
   componentDidMount() {
-    console.log('mounted: ', this.props)
     const { currentCourse, userId } = this.props;
     // The idea here is that a course will not have members unless it has already been populated
     if (!currentCourse.members) { // I DONT THINK WE EVER GET A COURSE FROM THE DB W/O ITS MEMBERS
-      console.log('got a current course w/o its members')
       this.props.populateCurrentCourse(this.props.match.params.course_id);
     }
 
@@ -55,12 +54,20 @@ class Course extends Component {
       member: member,
     })
   }
-  componentDidUpdate(prevProps, preState) {
+  componentDidUpdate(prevProps, prevState) {
+    console.log(prevProps.currentCourse)
+    console.log(this.props.currentCourse)
     if (prevProps.currentCourse.notifications !== this.props.currentCourse.notifications) {
       let updatedTabs = [...this.state.tabs];
       let notifications = this.props.currentCourse.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
       updatedTabs[1] = {name: 'Members', notifications: notifications.length}
       this.setState({tabs: updatedTabs})
+    }
+
+    if (prevProps.currentCourse.members !== this.props.currentCourse.members) { // @TODO THIS WILL LIKELY HAVE TO CHANGE WHEN WE HAVE REMOVE USER FUNCTIONALITY
+      console.log('added a new member')
+      console.log(this.props.currentCourse.members)
+      this.setState({member: true}) // CAN WE JUST ASSUME THIS? OR SHOULD WE FILTER THROUGH MEMBERS TO MAKE SURE CURRENT USER IS A MEMBER
     }
   }
   requestAccess = () => {
@@ -71,7 +78,6 @@ class Course extends Component {
       this.props.history.push('/confirmation')
     })
   }
-
 
   render() {
     // check if the course has loaded
@@ -93,7 +99,15 @@ class Course extends Component {
         break;
       default : content = null;
     }
-    const guestModal = <Modal show={!this.state.owner && !this.state.member}>
+    const publicAccessModal = <Modal show={true}>
+      <p>If you would like to add this course (and all of this course's rooms) to your
+        list of courses and rooms, click 'Join'. If you just want to poke around click 'Explore'
+      </p>
+      <Button click={() => this.props.grantAccess(
+        {_id: this.props.userId, username: this.props.username}, 'course', course._id)}>Join</Button>
+      <Button click={() => {this.setState({guestMode: true})}}>Explore</Button>
+    </Modal>
+    const privateAccessModal = <Modal show={true}>
       <p>You currently don't have access to this course. If you would like to
         request access from the owner click "Join". When your request is accepted
         this course will appear in your list of courses on your profile.
@@ -102,7 +116,7 @@ class Course extends Component {
     </Modal>;
     return (
       <Aux>
-        {( this.state.owner || this.state.member ) ?
+        {( this.state.owner || this.state.member || (course.isPublic && this.state.guestMode)) ?
           <DashboardLayout
             routingInfo={this.props.match}
             crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/course/${course._id}/rooms`}]}
@@ -110,7 +124,7 @@ class Course extends Component {
             content={content}
             tabs={this.state.tabs}
           /> :
-        guestModal }
+          (course.isPublic ? publicAccessModal : privateAccessModal)}
       </Aux>
     )
   }
@@ -119,13 +133,15 @@ class Course extends Component {
 const mapStateToProps = (store, ownProps) => ({
   currentCourse: populateCurrentCourse(store, ownProps.match.params.course_id),
   userId: store.user.id,
+  username: store.user.username,
 })
 
 const mapDispatchToProps = dispatch => {
   return {
     updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
     populateCurrentCourse: id => dispatch(actions.populateCurrentCourse(id)),
-    clearCurrentCourse: () => dispatch(actions.clearCurrentCourse())
+    clearCurrentCourse: () => dispatch(actions.clearCurrentCourse()),
+    grantAccess: (user, resource, id) => dispatch(actions.grantAccess(user, resource, id))
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Course);
