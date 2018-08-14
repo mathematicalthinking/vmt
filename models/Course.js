@@ -13,26 +13,45 @@ const Course = new mongoose.Schema({
   notifications: [{user: {type: ObjectId, ref: 'User'}, notificationType: {type: String}, _id: false}],
 },{timestamps: true});
 
-// Add this message to the room's chat
-// @TODO for some reason I can't get $push to work
-// ALso we're using the post method here instead of pre because we need
-// the doc_id and because that is supplied by mongoose we have to do it after
-Course.pre('save', function (next) {
-  console.log(this.isNew)
-  console.log(this.modifiedPaths())
-  
-  this.wasNew = this.isNew;
-  next();
+// Not using arrow function so we can have access to THIS docuemnt
+Course.pre('save', function(next){
+  // console.log(this.isNew)
+  if (this.isNew) {
+    // console.log(this._id)
+    User.findByIdAndUpdate(this.creator, {$addToSet: {courses: this._id}})
+    .then(user => {
+      next()
+      // console.log('success', user)
+    })
+  }
+  // IF We're updating
+  if (!this.isNew) {
+    const editedFields = this.modifiedPaths()
+    editedFields.forEach(field => {
+      if (field === 'rooms') {
+        // console.log('updating rooms in course pre save hook')
+      // add these rooms to all of the members in this course
+      // and add all of the members of this course to the room.
+
+      }
+      if (field === 'members') {
+        console.log('UPDATING MEMBERS')
+        const member = this.members[this.members.length - 1]
+        // console.log('new member: ', member)
+        // User.findByIdAndUpdate()
+        // add all of the rooms of this course to the new member
+        // and add them to the rooms' list of members
+        // console.log(this._id)
+        // console.log(this.members)
+      }
+    })
+    next();
+  }
+  console.log('next')
 });
 
-Course.post('save', function (doc) {
-  if (this.wasNew) {
-    User.findByIdAndUpdate(doc.creator, {$addToSet: {courses: doc._id}})
-    .then(res => {
-      console.log('all good') // what should we actually do with this response ?
-    })
-    .catch(err => console.log(err))
-  }
-  // if ()
-})
+// Course.post('save', function (doc) {
+//
+//   // if ()
+// })
 module.exports = mongoose.model('Course', Course);

@@ -20,8 +20,8 @@ export default {
   },
 
   grantAccess: (user, resource, id) => {
-    const members = {members: {user, role: 'Student'}}
-    return axios.put(`/api/${resource}/${id}`, members)
+    const newMember = {newMember: {user, role: 'Student'}}
+    return axios.put(`/api/${resource}/${id}`, newMember)
   },
   getDesmos: () => {
     console.log('geting desoms')

@@ -24,33 +24,50 @@ const Room = new mongoose.Schema({
 {timestamps: true});
 
 Room.pre('save', function (next) {
-  console.log(this.isNew)
-    this.wasNew = this.isNew;
-    next();
+  console.log("room pre save hook ", this.course)
+  console.log(this.creator)
+  // ON CREATION UPDATE THE CONNECTED MODELS
+  if (this.isNew) {
+    User.findById(this.creator)
+    .then(user => {
+      if (!user.rooms) {user.rooms = [this._id]}
+      else {user.rooms.push(this._id)}
+      user.save();
+    })
+    .catch(err => {
+      return console.log(err)
+    })
+    if (this.course) {
+      console.log('looking for course')
+      Course.findById(this.course)
+      .then(course => {
+        if (!course.rooms) {course.rooms = [this._id]}
+        else {course.rooms.push(this._id)}
+        // add this room members of this course
+        const members = course.members.reduce((filtered, member) => {
+          if (member.user !== this.creator) {
+            filtered.push(member.user._id)
+          }
+        }, [])
+        console.log('MEMBERS ', members)
+        if (members) {
+          User.update({_id: {$in: members}}, {$addToSet: {rooms: this._id}})
+          .then(users => {
+
+          })
+
+        }
+        course.save();
+      })
+      .catch(err => console.log(err))
+    }
+  }
+  next();
 });
 
 Room.post('save', function(doc) { // intentionally not using arrow functions so 'this' refers to the model
   // If this is a post request hook
-  if (this.wasNew) {
-    User.findById(doc.creator, (err, res) => {
-      if (err) {
-        return console.log(err)
-      }
-      if (!res.rooms) {res.rooms = [doc._id]}
-      else {res.rooms.push(doc._id)}
-      res.save();
-    })
-    if (doc.course) {
-      Course.findById(doc.course, (err, res) => {
-        if (err) {return console.log(err)}
-        if (!res.rooms) {res.rooms = [doc._id]}
-        else {res.rooms.push(doc._id)}
-        // Add this room to all of the members of this course @TODO CONSIDER DOING THIS A DIFFERENT WAY
-        // User.find({$in: res.members})
-        res.save();
-      })
-    }
-  }
+
 })
 
 module.exports = mongoose.model('Room', Room);

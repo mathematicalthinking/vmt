@@ -91,8 +91,7 @@ class Course extends Component {
     </Modal>;
     return (
       <Aux>
-        {guestModal}
-        {this.props.match.url.includes('profile') ?
+        {( this.state.owner || this.state.member ) ?
           <DashboardLayout
             routingInfo={this.props.match}
             crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/course/${course._id}/rooms`}]}
@@ -100,7 +99,7 @@ class Course extends Component {
             content={content}
             tabs={this.state.tabs}
           /> :
-          <PublicListLayout />}
+        guestModal }
       </Aux>
     )
   }
