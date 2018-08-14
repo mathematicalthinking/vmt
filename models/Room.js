@@ -31,6 +31,7 @@ Room.pre('save', function (next) {
       if (!user.rooms) {user.rooms = [this._id]}
       else {user.rooms.push(this._id)}
       user.save();
+      return next();
     })
     .catch(err => {
       return console.log(err)
@@ -41,27 +42,23 @@ Room.pre('save', function (next) {
         if (!course.rooms) {course.rooms = [this._id]}
         else {course.rooms.push(this._id)}
         // add this room members of this course
-        console.log(course.members)
         const members = course.members.reduce((filtered, member) => {
-          console.log(member)
-          console.log(this.creator)
           // NOTE DOUBLE == WE SHOULD CONVERT member.user to ObjectId
           if (member.user !== this.creator) {
-            console.log(typeof member.user, '!==', typeof this.creator)
             filtered.push(member.user)
           }
           return filtered;
         }, [])
-        console.log('MEMBERS ', members)
         if (members) {
           User.update({_id: {$in: members}}, {$addToSet: {rooms: this._id}}, {'multi': true})
           .then(users => {
-            console.log('updated existing course users with new room');
             console.log(users)
+            return next();
           })
           .catch(err => {console.log(err)})
         }
         course.save();
+        return next();
       })
       .catch(err => console.log(err))
     }

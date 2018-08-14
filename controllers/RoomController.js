@@ -15,12 +15,12 @@ module.exports = {
   getById: id => {
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
-      .populate('creator')
-      .populate('events')
-      .populate('chat.user')
-      .populate('currentUsers')
-      .populate('members.user')
-      .populate('notifications.user')
+      .populate({path: 'creator', select: 'username'})
+      .populate({path: 'chat.user', select: 'username'})
+      .populate({path: 'currentUsers', select: 'username'})
+      .populate({path: 'members.user', select: 'username'})
+      .populate({path: 'notifications.user', select: 'username'})
+      .populate({path: 'course', select: 'name'})
       .then(room => {
         resolve(room)})
       .catch(err => reject(err))
@@ -46,6 +46,7 @@ module.exports = {
       } else {
         delete body.template;
         delete body.templateIsPublic;
+        console.log("BODY: ", body)
         db.Room.create(body)
         .then(room => resolve(room))
         .catch(err => reject(err))

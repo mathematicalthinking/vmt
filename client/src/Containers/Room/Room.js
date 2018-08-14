@@ -19,55 +19,20 @@ class Room extends Component {
       {name: 'Members'},
     ],
   }
- // @TODO see corresponding note in Course.js
-  // static getDerivedStateFromProps(nextProps, prevState) {
-  //   const currentRoom = nextProps.currentRoom;
-  //   if (currentRoom !== prevState.currentRoom) {
-  //     let access = false;
-  //     let guestMode = false;
-  //     let studentNotifications = 0;
-  //     let updatedTabs = [...prevState.tabs];
-  //     if (currentRoom.creator) {
-  //       if (currentRoom.creator._id === nextProps.userId && prevState.tabs.length < 3) {
-  //         updatedTabs = updatedTabs.concat([{name: 'Grades'},{name: 'Insights'},{name:'Settings'}])
-  //       }
-  //     }
-  //     if (currentRoom.members) {
-  //       if (currentRoom.members.find(member => member.user._id === nextProps.userId)) {
-  //         access = true;
-  //       }
-  //       else {
-  //         access = true;
-  //         guestMode = true;
-  //       }
-  //     }
-  //     if (currentRoom.notifications) {
-  //       nextProps.currentRoom.notifications.forEach(notification => {
-  //         if (notification.notificationType === 'requestAccess') {
-  //           studentNotifications += 1;
-  //         }
-  //       })
-  //       updatedTabs[1].notifications = studentNotifications;
-  //     }
-  //     console.log(updatedTabs)
-  //     return {
-  //       tabs: updatedTabs,
-  //       access,
-  //       guestMode,
-  //       currentRoom,
-  //     }
-  //   } else return null;
-  // }
 
   componentDidMount() {
-    if (this.props.currentRoom.members){
+    if (!this.props.currentRoom.members){
+      console.log('fetching current room')
       this.props.getCurrentRoom(this.props.match.params.room_id);
     }
   }
 
-  componentWillUnmount() {
+  componentDidUpdate(prevProps, prevState) {
+    console.log(prevProps, prevState)
+
     // this.props.clearCurrentRoom()
   }
+
   requestAccess = () => {
     // @TODO Use redux actions to make this request
     API.requestAccess('room', this.props.match.params.room_id, this.props.userId)
@@ -97,9 +62,9 @@ class Room extends Component {
       default:
     }
     const crumbs = [
-      {title: 'Dashboard', link: '/profile/courses'},
+      {title: 'Profile', link: '/profile/courses'},
       {title: room.name, link: `/profile/room/${room._id}/summary`}]
-    if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/dashboard/course/${room.course._id}/rooms`})}
+    if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/profile/course/${room.course._id}/rooms`})}
     const guestModal = this.state.guestMode ?
       <Modal show={true}>
         <p>You currently don't have access to this course. If you would like to
@@ -132,7 +97,7 @@ class Room extends Component {
 const mapStateToProps = (store, ownProps) => {
   return {
     currentRoom: store.rooms.byId[ownProps.match.params.room_id],
-    userId: store.user.userId,
+    userId: store.user.id,
   }
 }
 
