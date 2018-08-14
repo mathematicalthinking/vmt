@@ -41,7 +41,9 @@ Course.pre('save', function(next){
         const member = this.members[this.members.length - 1]
         console.log(member)
         // console.log('new member: ', member)
-        User.findByIdAndUpdate(member.user, {$addToSet: {courses: this._id}})
+        User.findByIdAndUpdate(member.user, {
+          $addToSet: {courses: this._id, rooms: this.rooms}
+        })
         .then(user => {
           console.log(user)
           next();
