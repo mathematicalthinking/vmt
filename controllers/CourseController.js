@@ -43,7 +43,9 @@ module.exports = {
         delete body.template;
         console.log('posting body: ', body)
         db.Course.create(body)
-        .then(course => resolve(course))
+        .then(course => {
+          course.populate({path: 'members.user', select: 'username'}, () => resolve(course))
+        })
         .catch(err => {console.log(err); reject(err)})
       }
     })

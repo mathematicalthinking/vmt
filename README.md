@@ -30,11 +30,16 @@ refer to its README for information regarding the directory structure.
 ### Profile/Dashboard
 ### PublicList
 ### Course
+### Create
 #### Creating Rooms for a course
 1. should Public courses be allowed to contain private rooms? Its seems like
 no. A Course is just a collection of rooms. We need to add this functionality to
 the create resource container `src/containers/create/newResource` If course.isPublic
 then no private option...could they still make a private room template?
+#### Bug creating resources
+1. ~~When we create a new course or room we do not see that users name show up in
+the list of members until there is a refresh and they pull from the db again.
+We are not saving the user's name in the member list when we update redux, just their id...should be an easy enough fix~~
 ### Room
 ### Workspace
 ### Chat

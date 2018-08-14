@@ -39,7 +39,14 @@ module.exports = {
           body.template = template._id,
           delete body[templateIsPublic]
           db.Room.create(body)
-          .then(room => resolve([room, template]))
+          .then(room => {
+            if (body.course) {
+              room.populate({path: 'course', select: 'name'})
+            }
+            room.populate({path: 'members.user', select: 'username'}, () => {
+              resolve([room, template])
+            })
+          })
           .catch(err => reject(err))
         })
         .catch(err => reject(err))
@@ -47,8 +54,16 @@ module.exports = {
         delete body.template;
         delete body.templateIsPublic;
         console.log("BODY: ", body)
+        // MAYBE EXTRACT THIS OUT INTO A DIFFERENT FUNCTION CAUSE ITS THE SAME CODE AS ABOVE
         db.Room.create(body)
-        .then(room => resolve(room))
+        .then(room => {
+          if (body.course) {
+            room.populate({path: 'course', select: 'name'})
+          }
+          room.populate({path: 'members.user', select: 'username'}, () => {
+            resolve(room)
+          })
+        })
         .catch(err => reject(err))
       }
     })

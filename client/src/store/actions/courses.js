@@ -64,6 +64,7 @@ export const populateCurrentCourse = id => {
 
 export const createCourse = body => {
   return dispatch => {
+    console.log(body)
     API.post('course', body)
     .then(res =>{
       if (body.template) {
@@ -75,6 +76,7 @@ export const createCourse = body => {
         // NB If we're creating a template we're going to get back two results in an array (the course that was created & then template that was created)
         return dispatch(updateUserCourses(res.data.result[0]._id))
       }
+      console.log(res.data.result)
       dispatch(createdCourse(res.data.result))
       return dispatch(updateUserCourses(res.data.result._id))
     })
