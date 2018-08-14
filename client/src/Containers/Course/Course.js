@@ -27,7 +27,6 @@ class Course extends Component {
     console.log('mounted: ', this.props)
     const { currentCourse, userId } = this.props;
     // The idea here is that a course will not have members unless it has already been populated
-    console.log(currentCourse.members)
     if (!currentCourse.members) { // I DONT THINK WE EVER GET A COURSE FROM THE DB W/O ITS MEMBERS
       this.props.populateCurrentCourse(this.props.match.params.course_id);
     }
@@ -37,8 +36,11 @@ class Course extends Component {
     let owner = false;
     let member = false;
     if (currentCourse.creator === userId) {
-      console.log(currentCourse.creator, userId)
+      let notifications = currentCourse.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
+      if (notifications.length > 0) {
+        updatedTabs[1] = {name: 'Members', notifications: notifications.length}
+      }
       owner = true;
     }
     else if (currentCourse.members) {
@@ -67,6 +69,7 @@ class Course extends Component {
     const course = this.props.currentCourse;
     const resource = this.props.match.params.resource;
     console.log(course)
+    let notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
     let content;
     switch (resource) {
       case 'rooms' :
@@ -77,7 +80,6 @@ class Course extends Component {
         break;
       case 'members' :
       // @TODO make a folder of NOTFICATION_TYPES ...somewhere
-        let notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
         content = <Students classList={course.members} notifications={notifications} resource='course'  resourceId={course._id} owner={this.state.owner}/>
         break;
       default : content = null;
