@@ -32,9 +32,8 @@ module.exports = {
     return new Promise((resolve, reject) => {
       if (body.template) {
         const {name, description, templateIsPublic, creator, tabs} = body;
-        console.log(templateIsPublic)
         const template = {name, description, isPublic: templateIsPublic, creator, tabs,}
-        // COnsider moving this to the pre hook...we can stil do delete bodt.template there rifht?
+//        COnsider moving this to the pre hook...we can stil do delete bodt.template there rifht?
         db.RoomTemplate.create(template)
         .then(template => {
           body.template = template._id,

@@ -4,6 +4,7 @@ module.exports = {
   get: params => {
     return new Promise((resolve, reject) => {
       db.Course.find(params).sort('-createdAt')
+      .populate({path: 'members.user', select: 'username'})
       .then(courses => resolve(courses))
       .catch(err => reject(err));
     });

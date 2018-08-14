@@ -25,14 +25,14 @@ class Templates extends Component {
         <NewResource resource='room' template/>
         {/* <NewCourse resource='course'/> */}
         <h2>Course Templates</h2>
-        <BoxList list={this.props.userCourseTemplates}
+        <BoxList list={this.props.userCourseTemplates || []}
           resource='courseTemplates'
           linkPath='/profile/courseTemplates/'
           linkSuffix='/rooms'
           template
         />
         <h2>Room Templates</h2>
-        <BoxList list={this.props.userRoomTemplates}
+        <BoxList list={this.props.userRoomTemplates || []}
           resource='roomTemplates'
           linkPath='/profile/courseTemplates/'
           linkSuffix='/summary'
