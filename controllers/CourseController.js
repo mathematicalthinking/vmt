@@ -74,24 +74,12 @@ module.exports = {
             console.log('user ids should match: ', ntf.user, body.newMember.user._id)
             console.log(ntf.user !== body.newMember.user._id)
             // DOUBLE == IMPORTANT HERE. WE DONT WANT TO CHECK TYPE
+            // OR WE SHOULD JUST USE AN OBJECTID() method on the body.newMember.iser._id
             return (ntf.user != body.newMember.user._id)
           })
-          console.log("NOTFICATIONS SHOULD BE EMPTY: ", course.notifications)
-          console.log('course.members should have new member: ', course.members)
-          // member should be singular MEMBER for clarity
-          // // console.log("BODY.MEMBERS", body.members)
-          // console.log('body', body)
-          // course.members.push({user: {_id: body.members._id, username: body.members.username}, role: body.role})
-          // console.log('course.members ', course.members)
-          // course.notifications = course.notifications.filter(ntf => {
-          //   console.log(ntf.user._id, body.members.user._id)
-          //   return (ntf.user._id !== body.members.user._id)
-          // })
-          // console.log("course noti after granting access", course.notifcations)
-          // console.log(members)
         }
         // console.log("DOC ", course)
-        course.save();
+        course.save(); // @TODO CONSIDER AWAITING THIS SO WE CAN ONLY RESOLVE IF THE SAVE WORKS
         course.populate({path: 'members.user', select: 'username'})
         .populate({path: 'notifications.user', select: 'username'})
         .populate('creator', (err, pop) => {

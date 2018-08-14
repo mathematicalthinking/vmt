@@ -34,18 +34,24 @@ Course.pre('save', function(next){
       // and add all of the members of this course to the room.
 
       }
-      if (field === 'members') {
+      else if (field === 'members') {
         console.log('UPDATING MEMBERS')
+        // @TODO IS it safe to assume it will be at the end...I think so
+        // cause we're using push
         const member = this.members[this.members.length - 1]
+        console.log(member)
         // console.log('new member: ', member)
-        // User.findByIdAndUpdate()
+        User.findByIdAndUpdate(member.user, {$addToSet: {courses: this._id}})
+        .then(user => {
+          console.log(user)
+          next();
+        })
         // add all of the rooms of this course to the new member
         // and add them to the rooms' list of members
         // console.log(this._id)
         // console.log(this.members)
-      }
+      } else next();
     })
-    next();
   }
   console.log('next')
 });
