@@ -90,7 +90,11 @@ class Course extends Component {
       case 'rooms' :
         content = <div>
           {this.state.owner ? <NewResource resource='room' course={course._id}/> : null}
-          <BoxList list={course.rooms || []} />
+          <BoxList
+            list={course.rooms || []}
+            linkPath={`/profile/course/${course._id}/room/`}
+            linkSuffix='/summary' 
+          />
         </div>
         break;
       case 'members' :
