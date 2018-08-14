@@ -54,7 +54,14 @@ class Course extends Component {
       member: member,
     })
   }
-
+  componentDidUpdate(prevProps, preState) {
+    if (prevProps.currentCourse.notifications !== this.props.currentCourse.notifications) {
+      let updatedTabs = [...this.state.tabs];
+      let notifications = this.props.currentCourse.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
+      updatedTabs[1] = {name: 'Members', notifications: notifications.length}
+      this.setState({tabs: updatedTabs})
+    }
+  }
   requestAccess = () => {
     // @TODO Use redux actions to make this request
     API.requestAccess('course', this.props.match.params.course_id, this.props.userId)
@@ -64,12 +71,13 @@ class Course extends Component {
     })
   }
 
+
   render() {
     // check if the course has loaded
     const course = this.props.currentCourse;
     const resource = this.props.match.params.resource;
-    console.log(course)
-    let notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
+    const notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
+    console.log(notifications)
     let content;
     switch (resource) {
       case 'rooms' :
@@ -80,7 +88,7 @@ class Course extends Component {
         break;
       case 'members' :
       // @TODO make a folder of NOTFICATION_TYPES ...somewhere
-        content = <Students classList={course.members} notifications={notifications} resource='course'  resourceId={course._id} owner={this.state.owner}/>
+        content = <Students classList={course.members} notifications={notifications} resource='course'  resourceId={course._id} owner={this.state.owner} />
         break;
       default : content = null;
     }

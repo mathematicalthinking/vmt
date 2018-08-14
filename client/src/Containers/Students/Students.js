@@ -6,12 +6,9 @@ import * as actions from '../../store/actions/'
 import { connect } from 'react-redux';
 
 const students = props => {
-  console.log(props)
   let joinRequests;
   if (props.owner) {
-    console.log('were the owner!')
     joinRequests = props.notifications.map((ntf, i) => {
-      console.log(ntf)
       // console.log()
       return (
         <div className={classes.UserRow} key={i}>
@@ -39,7 +36,7 @@ const students = props => {
           <h3 className={classes.SubHeader}>Add New Students</h3>
         </div>
       : null }
-          <h3 className={classes.SubHeader}>Class List</h3>
+      <h3 className={classes.SubHeader}>Class List</h3>
       {classList}
     </div>
   )
