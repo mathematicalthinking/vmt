@@ -19,6 +19,7 @@ class Course extends Component {
     guestMode: false,
     currentCourse: {}, // Right now I'm just saving currentCourse is state to compare the incoming props currentCourse to look for changes
     tabs: [
+      {name: 'Assignments'},
       {name: 'Rooms'},
       {name: 'Members'},
     ],

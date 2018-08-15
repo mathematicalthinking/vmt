@@ -103,8 +103,14 @@ class NewResource extends Component {
                   width='80%'
                 />
               </div>
-              {(resource === 'room') ?
+              {(resource === 'assignment') ?
                 <div className={classes.FormSection}>
+                  {/* <TextInput
+                    name='dueDate'
+                    label='Due Date'
+                    change={this.changeHandler}
+                    width='80%'
+                  /> */}
                   <div className={classes.RadioButtons}>
                     <RadioBtn name='geogebra' checked={this.state.ggb} check={() => this.setState({ggb: true})}>GeoGebra</RadioBtn>
                     <RadioBtn name='desmos' checked={!this.state.ggb} check={() => this.setState({ggb: false})}>Desmos</RadioBtn>
