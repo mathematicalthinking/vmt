@@ -3,6 +3,18 @@
   align-self: center;
 }
 
+.Form {
+  display: flex;
+  flex-flow: column;
+}
+
+.Radios {
+  display: flex;
+  justify-content: space-between;
+  width: 33%;
+  margin: 10px;
+}
+
 .ErrorMsg {
   color: red;
   text-align: center;

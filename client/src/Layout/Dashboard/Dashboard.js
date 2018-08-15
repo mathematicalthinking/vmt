@@ -21,7 +21,9 @@ const dashboard = props => {
           <div className={classes.SpTitle}>{props.sidePanelTitle}</div>
         </div>
         <div className={classes.Content}>
-          <TabList routingInfo={props.routingInfo} tabs={props.tabs} />
+          <div className={classes.Tabs}>
+            <TabList routingInfo={props.routingInfo} tabs={props.tabs} />
+          </div>
           <div className={classes.MainContent}>
             {props.content}
           </div>
