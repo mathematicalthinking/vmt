@@ -29,11 +29,14 @@
 .Left {align-items: flex-start;}
 .Right {align-items: flex-end;}
 
-.Lock {
+.Icons {
+  display: flex;
+  justify-content: space-between;
+  width: 50px;
   position: absolute;
   left: 10px;
   top: 10px;
-  color: #666;   
+  color: #666;
 }
 
 .Notification {

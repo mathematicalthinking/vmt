@@ -17,6 +17,7 @@ const boxList = props => {
         <ContentBox
           title={<Link className={glb.Link} to={`${props.linkPath}${item._id}${props.linkSuffix}`} key={item._id}>{item.name}</Link>}
           notifications={notifications}
+          roomType={item.roomType}
           locked={!item.isPublic} // @TODO Should it appear locked if the user has access ? I can see reasons for both
         >
           {item.description}
