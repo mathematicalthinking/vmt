@@ -10,6 +10,7 @@ const initialState = {
   rooms: [],
   courseTemplates: [],
   roomTemplates: [],
+  seenTour: false,
 }
 
 const reducer = (state = initialState, action) => {
@@ -37,6 +38,7 @@ const reducer = (state = initialState, action) => {
         rooms: action.user.rooms,
         courseTemplates: action.user.courseTemplates,
         roomTemplates: action.user.roomTemplates,
+        seenTour: action.user.seenTour,
       }
     case actionTypes.UPDATE_USER_ROOMS:
     console.log(action.newRoom)

@@ -13,11 +13,14 @@ class Profile extends Component {
       {name: 'Templates'},
       {name: 'Settings'},
     ],
+    touring: false,
   }
 
   componentDidMount() {
-
-    const { userCourses } = this.props;
+    const { userCourses, seenTour } = this.props;
+    if (!seenTour) {
+      this.setState({touring: true})
+    }
     let updatedTabs = [...this.state.tabs]
     let courseNotifications;
     if (userCourses) {
@@ -53,14 +56,16 @@ class Profile extends Component {
     }
 
     return (
-      <DashboardLayout
-        routingInfo={this.props.match}
-        title='Profile'
-        crumbs={[{title: 'Profile', link: '/profile/courses'}]}
-        sidePanelTitle={this.props.username}
-        content={content}
-        tabs={this.state.tabs}
-      />
+      // <Aux>
+        <DashboardLayout
+          routingInfo={this.props.match}
+          title='Profile'
+          crumbs={[{title: 'Profile', link: '/profile/courses'}]}
+          sidePanelTitle={this.props.username}
+          content={content}
+          tabs={this.state.tabs}
+        />
+      // </Aux>
     )
   }
 }
