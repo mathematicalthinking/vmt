@@ -43,6 +43,7 @@ enrolled in.
 no. A Course is just a collection of rooms. We need to add this functionality to
 the create resource container `src/containers/create/newResource` If course.isPublic
 then no private option...could they still make a private room template?
+1. Creating a template along with room crashes the app `TypeError cannot read property creator of undefined Resource.js 6`
 #### Bug creating resources
 1. ~~When we create a new course or room we do not see that users name show up in
 the list of members until there is a refresh and they pull from the db again.
