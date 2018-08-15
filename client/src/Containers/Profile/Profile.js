@@ -16,6 +16,7 @@ class Profile extends Component {
   }
 
   componentDidMount() {
+
     const { userCourses } = this.props;
     let updatedTabs = [...this.state.tabs]
     let courseNotifications;
@@ -69,6 +70,7 @@ const mapStateToProps = store => ({
   userRooms: getUserResources(store, 'rooms'),
   username: store.user.username,
   userId: store.user.id,
+  seenTour: store.user.seenTour,
 })
 const mapDispatchToProps = dispatch => ({})
 

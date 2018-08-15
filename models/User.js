@@ -14,9 +14,9 @@ const User = new mongoose.Schema({
       return emailRegex.test(email);
     }, message: '{VALUE} is not a valid email address'}
   },
-  password: {type: String,}
+  password: {type: String, required: true},
+  accountType: {type: String,},
+  seenTour: {type: Boolean, default: false},
 });
-
-
 
 module.exports = mongoose.model('User', User);

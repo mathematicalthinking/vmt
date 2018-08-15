@@ -35,22 +35,23 @@ module.exports = passport => {
   passport.use('local-signup', new LocalStrategy({
     passReqToCallback: true,
   },(req, username, password, next) => {
-    console.log(req.body)
     process.nextTick(() => {
       User.findOne({ 'username':  username }, (err, user) => {
         if (err)  return next(err);
         if (user) {return next(null, false, {errorMessage: 'That username is already taken.'});}
         else {
-          console.log('did not find user')
           var newUser = new User();
           newUser.username = username;
           newUser.email = req.body.email;
           newUser.firstName = req.body.firstName;
           newUser.lastName = req.body.lastName;
           newUser.password = bcrypt.hashSync(password, bcrypt.genSaltSync(12), null);
+          newUser.accountType = req.body.accountType;
           newUser.save(function(err) {
-            if (err)
-              throw err;
+            if (err) {
+              const keys = Object.keys(err.errors)
+              return next(null, false, {errorMessage: err.errors[keys[0]].message})
+            };
             return next(null, newUser);
           });
         }
@@ -59,9 +60,7 @@ module.exports = passport => {
   }));
 
   passport.use('local-login', new LocalStrategy((username, password, next) => {
-    console.log('loggin ing: ', username, password)
     User.findOne({ 'username':  username }, (err, user) => {
-      console.log(user)
       if (err) return next(err);
       // @TODO we actually want to just provide a link here instead of telling htem where to go
       if (!user) return next(null, false, {errorMessage: 'That username does not exist. If you want to create an account go to Register'});
