@@ -8,6 +8,8 @@ export {
   googleLogin,
   updateUserRooms,
   updateUserCourses,
+  updateUserAssignments,
+  updateUserAssignmentTemplates,
   updateUserCourseTemplates,
   clearError,
 } from './user';

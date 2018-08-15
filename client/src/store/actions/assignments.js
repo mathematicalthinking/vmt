@@ -2,7 +2,7 @@ import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
 import { updateUserAssignments, updateUserAssignmentTemplates } from './user';
-import { createdAssignmentTemplate } from './assignmentTemplates';
+// import { createdAssignmentTemplate } from './assignmentTemplates';
 import { updateCourseAssignments } from './courses';
 
 export const gotAssignments = (assignments) => ({
@@ -59,7 +59,7 @@ export const createAssignment = body => {
       console.log("RESPO: ", res)
       if (body.template) {
         dispatch(updateUserAssignmentTemplates(res.data.result[1]._id))
-        dispatch(createdAssignmentTemplate(res.data.result[1]))
+        // dispatch(createdAssignmentTemplate(res.data.result[1]))
         result = res.data.result[0];
       }
       if (body.course) {

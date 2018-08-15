@@ -4,12 +4,14 @@ import rooms from './roomsReducer';
 import courses from './coursesReducer';
 import courseTemplates from './courseTemplatesReducer';
 import roomTemplates from './roomTemplatesReducer';
+import assignments from './assignmentsReducer';
 // import registrationReducer from './registrationReducer';
 
 const rootReducer = combineReducers({
   user,
-  rooms,
   courses,
+  assignments,
+  rooms,
   courseTemplates,
   roomTemplates,
 })

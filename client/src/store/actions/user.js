@@ -6,19 +6,27 @@ import API from '../../utils/apiRequests';
 import { updateCourse, gotCourses } from './courses';
 import { updateRoom, gotRooms } from './rooms';
 
-export const updateUserRooms = newRoom => {
-  console.log("NEW ROOM: ", newRoom)
-  return {
-    type: actionTypes.UPDATE_USER_ROOMS,
-    newRoom,
-  }
-}
 
 export const updateUserCourses = newCourse => {
   console.log(newCourse)
   return {
     type: actionTypes.UPDATE_USER_COURSES,
     newCourse,
+  }
+}
+
+export const updateUserAssignments = newAssignment => {
+  return {
+    type: actionTypes.UPDATE_USER_ASSIGNMENTS,
+    newAssignment,
+  }
+}
+
+export const updateUserRooms = newRoom => {
+  console.log("NEW ROOM: ", newRoom)
+  return {
+    type: actionTypes.UPDATE_USER_ROOMS,
+    newRoom,
   }
 }
 
@@ -30,6 +38,13 @@ export const updateUserCourseTemplates = newTemplate => {
   }
 }
 
+export const updateUserAssignmentTemplates = newTemplate => {
+  return {
+    type: actionTypes.UPDATE_USER_ASSIGNMENT_TEMPLATES,
+    newTemplate,
+  }
+}
+
 export const updateUserRoomTemplates = newTemplate => {
   console.log(newTemplate)
   return {
@@ -37,6 +52,7 @@ export const updateUserRoomTemplates = newTemplate => {
     newTemplate,
   }
 }
+
 
 export const loginStart = () => {
   return {

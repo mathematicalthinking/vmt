@@ -66,7 +66,7 @@ class NewResource extends Component {
             newResource.members = this.props.course.members
             newResource.course = this.props.course._id;
           }
-          this.props.createRoom(newResource);
+          this.props.createAssignment(newResource);
           break;
         // case 'ROOM' :
         //   newResource.
