@@ -43,3 +43,12 @@ export {
   createRoomTemplate,
   createdRoomTemplate,
 } from './roomTemplates';
+export {
+  getAssignments,
+  gotAssignments,
+  getCurrentAssignment,
+  clearCurrentAssignment,
+  gotCurrentAssignment,
+  createAssignment,
+  createdAssignmentConfirmed,
+} from './assignments'

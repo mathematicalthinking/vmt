@@ -58,7 +58,7 @@ class NewResource extends Component {
           console.log(newResource)
           this.props.createCourse(newResource);
           break;
-        case 'room' :
+        case 'assignment' :
           newResource.tabs = [{ggbFile: this.state.ggbFile, desmosLink: this.state.desmosLink}]
           newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
           if (this.props.course) {
@@ -67,7 +67,9 @@ class NewResource extends Component {
             newResource.course = this.props.course._id;
           }
           this.props.createRoom(newResource);
-        break;
+          break;
+        // case 'ROOM' :
+        //   newResource.
         default:;
       }
     }
@@ -176,6 +178,7 @@ const mapDispatchToProps = dispatch => {
   return {
     createCourse: body => dispatch(actions.createCourse(body)),
     createRoom: body => dispatch(actions.createRoom(body)),
+    createAssignment: body => dispatch(actions.createAssignment(body)),
     createCourseTemplate: body => dispatch(actions.createCourseTemplate(body)),
     createRoomTemplate: body => dispatch(actions.createRoomTemplate(body)),
   }

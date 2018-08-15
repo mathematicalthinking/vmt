@@ -82,12 +82,23 @@ class Course extends Component {
 
   render() {
     // check if the course has loaded
+    // @TODO We should put this in MOunt or Update so that we can leverage some codesplitting?
     const course = this.props.currentCourse;
     const resource = this.props.match.params.resource;
     const notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
     console.log("MEMBER?: ",this.state.member)
     let content;
     switch (resource) {
+      case 'assignments' :
+        content = <div>
+          {this.state.owner ? <NewResource resource='assignment' course={{_id: course._id, members: course.members}}/> : null }
+          <BoxList
+            list={course.assignments || []}
+            linkPath={`/profile/course/${course._id}/assignment`}
+            linkSuffix={`/summary`}
+          />
+        </div>
+        break;
       case 'rooms' :
         content = <div>
           {this.state.owner ? <NewResource resource='room' course={{_id: course._id, members: course.members}}/> : null}
@@ -124,7 +135,7 @@ class Course extends Component {
         {( this.state.owner || this.state.member || (course.isPublic && this.state.guestMode)) ?
           <DashboardLayout
             routingInfo={this.props.match}
-            crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/course/${course._id}/rooms`}]}
+            crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/course/${course._id}/assignments`}]}
             sidePanelTitle={course.name}
             content={content}
             tabs={this.state.tabs}
