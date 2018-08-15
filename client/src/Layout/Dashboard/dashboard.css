@@ -11,18 +11,26 @@
 }
 
 .Main {
+  /* border: 1px solid green; */
   width: 100%;
   display: flex;
   /* box-shadow: 11px 20px 61px 20px rgba(248,248,248,1); */
 }
 
 .BreadCrumbs {
+  /* border: 1px solid purple; */
   margin-bottom: 20px;
 }
 
+
 .SidePanel {
+  /* border: 1px solid red; */
   width: 250px;
   margin-right: 50px;
+}
+
+.Tabs {
+  /* border: 1px solid orange; */
 }
 
 .Image {
@@ -45,6 +53,7 @@
 }
 
 .MainContent {
+  /* border: 1px solid blue; */
   padding-top: 30px;
 }
 
