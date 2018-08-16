@@ -61,6 +61,7 @@ export const createAssignment = body => {
       if (body.course) {
         dispatch(updateCourseAssignments(body.course, result._id))
       }
+      console.log('RESULTS._ID', result._id)
       return dispatch(updateUserAssignments(result._id))
     })
   }

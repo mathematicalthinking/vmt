@@ -84,6 +84,7 @@ class Course extends Component {
     // check if the course has loaded
     // @TODO We should put this in MOunt or Update so that we can leverage some codesplitting?
     const course = this.props.currentCourse;
+    console.log("COURSE: ", course)
     const resource = this.props.match.params.resource;
     const notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
     console.log("MEMBER?: ",this.state.member)
@@ -135,7 +136,7 @@ class Course extends Component {
         {( this.state.owner || this.state.member || (course.isPublic && this.state.guestMode)) ?
           <DashboardLayout
             routingInfo={this.props.match}
-            crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/course/${course._id}/assignments`}]}
+            crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/course/${course._id}/assignments/`}]}
             sidePanelTitle={course.name}
             content={content}
             tabs={this.state.tabs}
@@ -147,7 +148,7 @@ class Course extends Component {
 }
 
 const mapStateToProps = (store, ownProps) => ({
-  currentCourse: populateCurrentCourse(store, ownProps.match.params.course_id),
+  currentCourse: populateCurrentCourse(store, ownProps.match.params.course_id, ['assignments']),
   userId: store.user.id,
   username: store.user.username,
 })
