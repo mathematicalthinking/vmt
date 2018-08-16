@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import Resources from '../../Layout/Dashboard/Resources/Resources';
 import Templates from '../Templates/Templates';
-import Assignments from '../Assignments/Assignments';
+// import Assignments from '../Assignments/Assignments';
 import { getUserResources }from '../../store/reducers/';
 import { connect } from 'react-redux';
 
@@ -52,7 +52,7 @@ class Profile extends Component {
         resource='room'
         userId={this.props.userId}/>;
         break;
-      case 'assignments' : content = <Assignments />; break;
+      // case 'assignments' : content = <Assignments />; break;
       default:
     }
 

@@ -93,8 +93,8 @@ class Course extends Component {
           {this.state.owner ? <NewResource resource='assignment' course={{_id: course._id, members: course.members}}/> : null }
           <BoxList
             list={course.assignments || []}
-            linkPath={`/profile/course/${course._id}/assignment`}
-            linkSuffix={`/summary`}
+            linkPath={`/profile/course/${course._id}/assignment/`}
+            linkSuffix={`/details`}
           />
         </div>
         break;

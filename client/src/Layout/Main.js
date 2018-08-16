@@ -3,11 +3,12 @@ import Navbar from '../Components/Navigation/Navbar';
 import Login from '../Containers/Login/Login';
 import Room from '../Containers/Room/Room';
 import Course from '../Containers/Course/Course';
+import Assignment from '../Containers/Assignment/Assignment';
 import PublicList from '../Containers/PublicList/PublicList';
 import NewUser from '../Containers/Create/NewUser/NewUser';
 import Profile from '../Containers/Profile/Profile';
 // import Dashboard from '../Layout/Dashboard/Dashboard';
-import Assignments from '../Containers/Assignments/Assignments';
+// import Assignments from '../Containers/Assignments/Assignments';
 import Avatar from '../Components/UI/Avatar/Avatar';
 import PrivateRoute from '../Components/HOC/PrivateRoute';
 import Workspace from '../Containers/Room/Workspace/Workspace';
@@ -34,12 +35,13 @@ class Main extends Component {
               <Route exact path='/publicResource/room/:room_id/:resource' component={Room}/>
               <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />
               <PrivateRoute exact path='/profile/:resource' authed={this.props.loggedIn} component={Profile}/>
+              <PrivateRoute exact path='/profile/course/:course_id/assignment/:assignment_id/:resource' authed={this.props.loggedIn} component={Assignment} />
               <PrivateRoute exact path = '/profile/course/:course_id/:resource' authed={this.props.loggedIn} component={Course}/>
               <PrivateRoute exact path = '/profile/room/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
               <PrivateRoute exact path = '/profile/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
               <PrivateRoute expact path = '/workspace/:room_id' authed={this.props.loggedIn} component={Workspace} />
               {/* <Route exact path='/dashboard/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room}/> */}
-              <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/>
+              {/* <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/> */}
               <Route path='/confirmation' component={Confirmation} />
               <Route exact path='/logout' component={Login}/>
               <Route path="*" render={() => {
