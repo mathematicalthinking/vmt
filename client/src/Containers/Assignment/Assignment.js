@@ -3,6 +3,7 @@ import Filter from '../../Components/UI/Button/Filter/Filter';
 import Button from '../../Components/UI/Button/Button';
 import classes from './assignment.css';
 import Aux from '../../Components/HOC/Auxil';
+import MakeRooms from './MakeRooms/MakeRooms';
 import Modal from '../../Components/UI/Modal/Modal';
 import glb from '../../global.css';
 // import Dropdown from '../../Components/UI/Dropdown/Dropdown';
@@ -47,7 +48,9 @@ class Assignment extends Component {
           content={content}
           tabs={this.state.tabs}
         />
-        {this.state.assigning ? <Modal show={true} closeModal={() => {this.setState({assigning: false})}}></Modal> : null}
+        {this.state.assigning ? <Modal show={true} closeModal={() => {this.setState({assigning: false})}}>
+          <MakeRooms />
+        </Modal> : null}
           </Aux>
         )
   }
