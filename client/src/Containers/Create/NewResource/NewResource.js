@@ -50,22 +50,20 @@ class NewResource extends Component {
           break;
         default:;
     }} else {
-      newResource.members = [{user: this.props.userId, role: 'teacher'}]; // @TODO Do we want to default the creator to a teacher?
       newResource.template = this.state.makeTemplate;
       newResource.templateIsPublic = this.state.templateIsPublic;
       switch (this.props.resource) {
         case 'course' :
-          console.log(newResource)
+        newResource.members = [{user: this.props.userId, role: 'teacher'}]; // @TODO Do we want to default the creator to a teacher?
           this.props.createCourse(newResource);
           break;
         case 'assignment' :
           newResource.tabs = [{ggbFile: this.state.ggbFile, desmosLink: this.state.desmosLink}]
           newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
           if (this.props.course) {
-            console.log(this.props.course)
-            newResource.members = this.props.course.members
             newResource.course = this.props.course._id;
           }
+          console.log(newResource)
           this.props.createAssignment(newResource);
           break;
         // case 'ROOM' :

@@ -28,9 +28,9 @@ class Course extends Component {
   componentDidMount() {
     const { currentCourse, userId } = this.props;
     // The idea here is that a course will not have members unless it has already been populated
-    if (!currentCourse.members) { // I DONT THINK WE EVER GET A COURSE FROM THE DB W/O ITS MEMBERS
-      this.props.populateCurrentCourse(this.props.match.params.course_id);
-    }
+    // if (!currentCourse.members) { // I DONT THINK WE EVER GET A COURSE FROM THE DB W/O ITS MEMBERS
+    //   this.props.populateCurrentCourse(this.props.match.params.course_id);
+    // }
 
     // Check user's permission level -- owner, member, or guest
     let updatedTabs = [...this.state.tabs];
@@ -84,10 +84,8 @@ class Course extends Component {
     // check if the course has loaded
     // @TODO We should put this in MOunt or Update so that we can leverage some codesplitting?
     const course = this.props.currentCourse;
-    console.log("COURSE: ", course)
     const resource = this.props.match.params.resource;
     const notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
-    console.log("MEMBER?: ",this.state.member)
     let content;
     switch (resource) {
       case 'assignments' :
@@ -156,7 +154,7 @@ const mapStateToProps = (store, ownProps) => ({
 const mapDispatchToProps = dispatch => {
   return {
     updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
-    populateCurrentCourse: id => dispatch(actions.populateCurrentCourse(id)),
+    // populateCurrentCourse: id => dispatch(actions.populateCurrentCourse(id)),
     clearCurrentCourse: () => dispatch(actions.clearCurrentCourse()),
     grantAccess: (user, resource, id) => dispatch(actions.grantAccess(user, resource, id))
   }

@@ -32,12 +32,17 @@ export const getUserResources = (state, resource) => {
 }
 
 export const populateCurrentCourse = (state, courseId, resources) => {
+  console.log('populating ', resources)
+  console.log(state)
   const currentCourse = {...state.courses.byId[courseId]}
   resources.forEach(resource => {
+    console.log(state.courses.byId[courseId][resource])
     const populatedResources = state.courses.byId[courseId][resource].map(id => {
-      return state.assignments.byId[id];
+      console.log(state[resource].byId[id])
+      return state[resource].byId[id];
     })
     currentCourse[resource] = populatedResources;
   })
+  console.log(currentCourse)
   return currentCourse;
 }

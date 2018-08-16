@@ -32,6 +32,13 @@ const reducer = (state = initialState, action) => {
         ...state,
         byId: updatedCourses,
       }
+    case actionTypes.UPDATE_COURSE_ASSIGNMENTS:
+      updatedCourses = { ...state.byId}
+      updatedCourses[action.courseId].assignments.push(action.assignmentId)
+      return {
+        ...state,
+        byId: updatedCourses,
+      }
     // case actionTypes.CLEAR_COURSE:
     //   return {
     //     ...state,
