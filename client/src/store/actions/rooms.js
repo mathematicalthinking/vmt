@@ -56,7 +56,6 @@ export const createRoom = body => {
     .then(res => {
       let result = res.data.result;
       dispatch(createdRoom(result))
-      console.log("RESPO: ", res)
       if (body.template) {
         dispatch(updateUserRoomTemplates(res.data.result[1]._id))
         dispatch(createdRoomTemplate(res.data.result[1]))

@@ -5,6 +5,7 @@ import API from '../../utils/apiRequests';
 
 import { updateCourse, gotCourses } from './courses';
 import { updateRoom, gotRooms } from './rooms';
+import { gotAssignments } from './assignments';
 
 
 export const updateUserCourses = newCourse => {
@@ -38,12 +39,6 @@ export const updateUserCourseTemplates = newTemplate => {
   }
 }
 
-export const updateUserAssignmentTemplates = newTemplate => {
-  return {
-    type: actionTypes.UPDATE_USER_ASSIGNMENT_TEMPLATES,
-    newTemplate,
-  }
-}
 
 export const updateUserRoomTemplates = newTemplate => {
   console.log(newTemplate)
@@ -52,7 +47,6 @@ export const updateUserRoomTemplates = newTemplate => {
     newTemplate,
   }
 }
-
 
 export const loginStart = () => {
   return {
@@ -99,12 +93,15 @@ export const login = (username, password) => {
       if (res.data.errorMessage) {return dispatch(loginFail(res.data.errorMessage))}
       const courses = normalize(res.data.courses)
       const rooms = normalize(res.data.rooms)
+      const assignments = normalize(res.data.assignments)
       dispatch(gotCourses(courses));
-      dispatch(gotRooms(rooms))
+      dispatch(gotRooms(rooms));
+      dispatch(gotAssignments(assignments));
       const user = {
         ...res.data,
-        rooms: res.data.rooms.map(r => r._id),
-        courses: res.data.courses.map(c => c._id),
+        rooms: rooms.allIds,
+        courses: courses.allIds,
+        assignments: assignments.allIds
       }
       return dispatch(loginSuccess(user));
     })

@@ -26,39 +26,21 @@ const Room = new mongoose.Schema({
 Room.pre('save', function (next) {
   // ON CREATION UPDATE THE CONNECTED MODELS
   if (this.isNew) {
-    User.findById(this.creator)
+    User.findByIdAndUpdate(this.creator, {$addToSet: {assignments: this._id}})
     .then(user => {
-      if (!user.rooms) {user.rooms = [this._id]}
-      else {user.rooms.push(this._id)}
-      user.save();
       return next();
     })
     .catch(err => {
       return console.log(err)
     })
     if (this.course) {
-      Course.findById(this.course)
+      Course.findByIdAndUpdate(this.course, {$addToSet: {assignments: this._id}})
       .then(course => {
-        if (!course.rooms) {course.rooms = [this._id]}
-        else {course.rooms.push(this._id)}
-        // add this room members of this course
-        const members = course.members.reduce((filtered, member) => {
-          // NOTE DOUBLE == WE SHOULD CONVERT member.user to ObjectId
-          if (member.user !== this.creator) {
-            filtered.push(member.user)
-          }
-          return filtered;
-        }, [])
-        if (members) {
-          User.update({_id: {$in: members}}, {$addToSet: {rooms: this._id}}, {'multi': true})
-          .then(users => {
-            console.log(users)
-            return next();
-          })
+        if (course.members) {
+          User.update({_id: {$in: course.members}}, {$addToSet: {rooms: this._id}}, {'multi': true})
+          .then(users => { return next()})
           .catch(err => {console.log(err)})
-        }
-        course.save();
-        return next();
+        } else return next();
       })
       .catch(err => console.log(err))
     }

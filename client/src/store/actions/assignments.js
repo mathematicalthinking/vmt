@@ -1,7 +1,7 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
-import { updateUserAssignments, updateUserAssignmentTemplates } from './user';
+import { updateUserAssignments } from './user';
 // import { createdAssignmentTemplate } from './assignmentTemplates';
 import { updateCourseAssignments } from './courses';
 
@@ -36,6 +36,7 @@ export const getAssignments = params => {
     .then(res => {
       // Normalize res
       const assignments = normalize(res.data.results)
+      console.log(assignments)
       dispatch(gotAssignments(assignments))
     })
     .catch(err => console.log(err));
@@ -57,11 +58,6 @@ export const createAssignment = body => {
       let result = res.data.result;
       dispatch(createdAssignment(result))
       console.log("RESPO: ", res)
-      if (body.template) {
-        dispatch(updateUserAssignmentTemplates(res.data.result[1]._id))
-        // dispatch(createdAssignmentTemplate(res.data.result[1]))
-        result = res.data.result[0];
-      }
       if (body.course) {
         dispatch(updateCourseAssignments(body.course, result._id))
       }
