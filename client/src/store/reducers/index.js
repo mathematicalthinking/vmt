@@ -4,12 +4,14 @@ import rooms from './roomsReducer';
 import courses from './coursesReducer';
 import courseTemplates from './courseTemplatesReducer';
 import roomTemplates from './roomTemplatesReducer';
+import assignments from './assignmentsReducer';
 // import registrationReducer from './registrationReducer';
 
 const rootReducer = combineReducers({
   user,
-  rooms,
   courses,
+  assignments,
+  rooms,
   courseTemplates,
   roomTemplates,
 })
@@ -29,12 +31,18 @@ export const getUserResources = (state, resource) => {
   return undefined;
 }
 
-export const populateCurrentCourse = (state, courseId) => {
+export const populateCurrentCourse = (state, courseId, resources) => {
+  console.log('populating ', resources)
+  console.log(state)
   const currentCourse = {...state.courses.byId[courseId]}
-  console.log(currentCourse)
-  const rooms = state.courses.byId[courseId].rooms.map(rmId => {
-    return state.rooms.byId[rmId];
+  resources.forEach(resource => {
+    console.log(state.courses.byId[courseId][resource])
+    const populatedResources = state.courses.byId[courseId][resource].map(id => {
+      console.log(state[resource].byId[id])
+      return state[resource].byId[id];
+    })
+    currentCourse[resource] = populatedResources;
   })
-  currentCourse.rooms = rooms;
+  console.log(currentCourse)
   return currentCourse;
 }

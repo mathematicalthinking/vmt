@@ -18,10 +18,22 @@ module.exports = {
   },
 
   post: (body) => {
+    console.log("hello?")
     return new Promise((resolve, reject) => {
+      console.log('body: ', body)
+      if (body.template) {
+
+      }
+      delete body.template;
+      delete body.templateIsPublic;
       db.Assignment.create(body)
-      .then(assignment => resolve(assignment))
-      .catch(err => reject(err))
+      .then(assignment => {
+        console.log(assignment)
+        resolve(assignment)})
+      .catch(err => {
+        console.log(err)
+        reject(err)
+      })
     })
   },
 
@@ -34,5 +46,5 @@ module.exports = {
   }
 
   // delete
-  
+
 }

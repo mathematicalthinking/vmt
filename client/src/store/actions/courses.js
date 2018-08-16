@@ -20,6 +20,12 @@ export const updateCourse = course => ({
   course,
 })
 
+export const updateCourseAssignments = (courseId, assignmentId) => ({
+  type: actionTypes.UPDATE_COURSE_ASSIGNMENTS,
+  courseId,
+  assignmentId,
+})
+
 export const clearCurrentCourse = () => ({
   type: actionTypes.CLEAR_COURSE,
 })

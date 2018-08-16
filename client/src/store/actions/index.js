@@ -8,6 +8,7 @@ export {
   googleLogin,
   updateUserRooms,
   updateUserCourses,
+  updateUserAssignments,
   updateUserCourseTemplates,
   clearError,
 } from './user';
@@ -43,3 +44,12 @@ export {
   createRoomTemplate,
   createdRoomTemplate,
 } from './roomTemplates';
+export {
+  getAssignments,
+  gotAssignments,
+  getCurrentAssignment,
+  clearCurrentAssignment,
+  gotCurrentAssignment,
+  createAssignment,
+  createdAssignmentConfirmed,
+} from './assignments'

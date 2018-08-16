@@ -50,24 +50,24 @@ class NewResource extends Component {
           break;
         default:;
     }} else {
-      newResource.members = [{user: this.props.userId, role: 'teacher'}]; // @TODO Do we want to default the creator to a teacher?
       newResource.template = this.state.makeTemplate;
       newResource.templateIsPublic = this.state.templateIsPublic;
       switch (this.props.resource) {
         case 'course' :
-          console.log(newResource)
+        newResource.members = [{user: this.props.userId, role: 'teacher'}]; // @TODO Do we want to default the creator to a teacher?
           this.props.createCourse(newResource);
           break;
-        case 'room' :
+        case 'assignment' :
           newResource.tabs = [{ggbFile: this.state.ggbFile, desmosLink: this.state.desmosLink}]
           newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
           if (this.props.course) {
-            console.log(this.props.course)
-            newResource.members = this.props.course.members
             newResource.course = this.props.course._id;
           }
-          this.props.createRoom(newResource);
-        break;
+          console.log(newResource)
+          this.props.createAssignment(newResource);
+          break;
+        // case 'ROOM' :
+        //   newResource.
         default:;
       }
     }
@@ -103,8 +103,14 @@ class NewResource extends Component {
                   width='80%'
                 />
               </div>
-              {(resource === 'room') ?
+              {(resource === 'assignment') ?
                 <div className={classes.FormSection}>
+                  {/* <TextInput
+                    name='dueDate'
+                    label='Due Date'
+                    change={this.changeHandler}
+                    width='80%'
+                  /> */}
                   <div className={classes.RadioButtons}>
                     <RadioBtn name='geogebra' checked={this.state.ggb} check={() => this.setState({ggb: true})}>GeoGebra</RadioBtn>
                     <RadioBtn name='desmos' checked={!this.state.ggb} check={() => this.setState({ggb: false})}>Desmos</RadioBtn>
@@ -170,6 +176,7 @@ const mapDispatchToProps = dispatch => {
   return {
     createCourse: body => dispatch(actions.createCourse(body)),
     createRoom: body => dispatch(actions.createRoom(body)),
+    createAssignment: body => dispatch(actions.createAssignment(body)),
     createCourseTemplate: body => dispatch(actions.createCourseTemplate(body)),
     createRoomTemplate: body => dispatch(actions.createRoomTemplate(body)),
   }

@@ -6,7 +6,7 @@ const Course = new mongoose.Schema({
   name: {type: String},
   description: {type: String},
   creator: {type: ObjectId, ref: 'User'},
-  nextRoom: {type: ObjectId, ref: 'Room'},
+  assignments: [{type: ObjectId, ref: 'Assignment'}],
   rooms: [{type: ObjectId, ref: 'Room'}],
   isPublic: {type: Boolean, default: false},
   members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}, _id: false}],

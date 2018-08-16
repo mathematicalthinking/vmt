@@ -5,20 +5,29 @@ import API from '../../utils/apiRequests';
 
 import { updateCourse, gotCourses } from './courses';
 import { updateRoom, gotRooms } from './rooms';
+import { gotAssignments } from './assignments';
 
-export const updateUserRooms = newRoom => {
-  console.log("NEW ROOM: ", newRoom)
-  return {
-    type: actionTypes.UPDATE_USER_ROOMS,
-    newRoom,
-  }
-}
 
 export const updateUserCourses = newCourse => {
   console.log(newCourse)
   return {
     type: actionTypes.UPDATE_USER_COURSES,
     newCourse,
+  }
+}
+
+export const updateUserAssignments = newAssignment => {
+  return {
+    type: actionTypes.UPDATE_USER_ASSIGNMENTS,
+    newAssignment,
+  }
+}
+
+export const updateUserRooms = newRoom => {
+  console.log("NEW ROOM: ", newRoom)
+  return {
+    type: actionTypes.UPDATE_USER_ROOMS,
+    newRoom,
   }
 }
 
@@ -29,6 +38,7 @@ export const updateUserCourseTemplates = newTemplate => {
     newTemplate,
   }
 }
+
 
 export const updateUserRoomTemplates = newTemplate => {
   console.log(newTemplate)
@@ -83,12 +93,15 @@ export const login = (username, password) => {
       if (res.data.errorMessage) {return dispatch(loginFail(res.data.errorMessage))}
       const courses = normalize(res.data.courses)
       const rooms = normalize(res.data.rooms)
+      const assignments = normalize(res.data.assignments)
       dispatch(gotCourses(courses));
-      dispatch(gotRooms(rooms))
+      dispatch(gotRooms(rooms));
+      dispatch(gotAssignments(assignments));
       const user = {
         ...res.data,
-        rooms: res.data.rooms.map(r => r._id),
-        courses: res.data.courses.map(c => c._id),
+        rooms: rooms.allIds,
+        courses: courses.allIds,
+        assignments: assignments.allIds
       }
       return dispatch(loginSuccess(user));
     })

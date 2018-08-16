@@ -19,6 +19,7 @@ class Course extends Component {
     guestMode: false,
     currentCourse: {}, // Right now I'm just saving currentCourse is state to compare the incoming props currentCourse to look for changes
     tabs: [
+      {name: 'Assignments'},
       {name: 'Rooms'},
       {name: 'Members'},
     ],
@@ -27,9 +28,9 @@ class Course extends Component {
   componentDidMount() {
     const { currentCourse, userId } = this.props;
     // The idea here is that a course will not have members unless it has already been populated
-    if (!currentCourse.members) { // I DONT THINK WE EVER GET A COURSE FROM THE DB W/O ITS MEMBERS
-      this.props.populateCurrentCourse(this.props.match.params.course_id);
-    }
+    // if (!currentCourse.members) { // I DONT THINK WE EVER GET A COURSE FROM THE DB W/O ITS MEMBERS
+    //   this.props.populateCurrentCourse(this.props.match.params.course_id);
+    // }
 
     // Check user's permission level -- owner, member, or guest
     let updatedTabs = [...this.state.tabs];
@@ -81,12 +82,22 @@ class Course extends Component {
 
   render() {
     // check if the course has loaded
+    // @TODO We should put this in MOunt or Update so that we can leverage some codesplitting?
     const course = this.props.currentCourse;
     const resource = this.props.match.params.resource;
     const notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
-    console.log("MEMBER?: ",this.state.member)
     let content;
     switch (resource) {
+      case 'assignments' :
+        content = <div>
+          {this.state.owner ? <NewResource resource='assignment' course={{_id: course._id, members: course.members}}/> : null }
+          <BoxList
+            list={course.assignments || []}
+            linkPath={`/profile/course/${course._id}/assignment/`}
+            linkSuffix={`/details`}
+          />
+        </div>
+        break;
       case 'rooms' :
         content = <div>
           {this.state.owner ? <NewResource resource='room' course={{_id: course._id, members: course.members}}/> : null}
@@ -123,7 +134,7 @@ class Course extends Component {
         {( this.state.owner || this.state.member || (course.isPublic && this.state.guestMode)) ?
           <DashboardLayout
             routingInfo={this.props.match}
-            crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/course/${course._id}/rooms`}]}
+            crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/course/${course._id}/assignments/`}]}
             sidePanelTitle={course.name}
             content={content}
             tabs={this.state.tabs}
@@ -135,7 +146,7 @@ class Course extends Component {
 }
 
 const mapStateToProps = (store, ownProps) => ({
-  currentCourse: populateCurrentCourse(store, ownProps.match.params.course_id),
+  currentCourse: populateCurrentCourse(store, ownProps.match.params.course_id, ['assignments']),
   userId: store.user.id,
   username: store.user.username,
 })
@@ -143,7 +154,7 @@ const mapStateToProps = (store, ownProps) => ({
 const mapDispatchToProps = dispatch => {
   return {
     updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
-    populateCurrentCourse: id => dispatch(actions.populateCurrentCourse(id)),
+    // populateCurrentCourse: id => dispatch(actions.populateCurrentCourse(id)),
     clearCurrentCourse: () => dispatch(actions.clearCurrentCourse()),
     grantAccess: (user, resource, id) => dispatch(actions.grantAccess(user, resource, id))
   }
