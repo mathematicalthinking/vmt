@@ -27,6 +27,8 @@ class Assignment extends Component {
     console.log('CURRENT ASSIGNMENT: ', this.props.currentAssignment)
     const resource = this.props.match.params.resource;
     const assignment = this.props.currentAssignment
+    const course = this.props.currentCourse;
+    console.log('CURRENT COURSE: ', course)
     let content;
     switch (resource) {
       case 'details':
@@ -46,7 +48,7 @@ class Assignment extends Component {
           routingInfo={this.props.match}
           crumbs={[
             {title: 'Profile', link: ''},
-            {title: `${this.props.currentCourse.name}`, link: ''},
+            {title: `${course.name}`, link: ''},
             {title: `Assignment ${assignment.name}`, link: ''}
           ]}
           sidePanelTitle={'side panel'}
@@ -54,7 +56,7 @@ class Assignment extends Component {
           tabs={this.state.tabs}
         />
         {this.state.assigning ? <Modal show={true} closeModal={() => {this.setState({assigning: false})}}>
-          <MakeRooms />
+          <MakeRooms students={course.members.filter(member => member.role === 'Student')}/>
         </Modal> : null}
       </Aux>
     )
@@ -64,7 +66,7 @@ class Assignment extends Component {
 const mapStateToProps = (store, ownProps ) => {
   const { assignment_id, course_id } = ownProps.match.params;
   return {
-    currentAssignment: store.assignments.byId[assignment_id],// rooms: store.rooms
+    currentAssignment: store.assignments.byId[assignment_id],
     currentCourse: store.courses.byId[course_id],
   }
 }

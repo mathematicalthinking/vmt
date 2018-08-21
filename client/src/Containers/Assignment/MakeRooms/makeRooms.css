@@ -1,0 +1,52 @@
+@value colors: '../../../colors.css';
+@value blue from colors;
+
+.Container {
+  display: flex;
+  flex-flow: column;
+  width: 100%;
+  align-items: center;
+  min-height: 500px;
+}
+
+.Radios {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+
+.SubContainer {
+  display: flex;
+  flex-flow: column;
+  width: 100%;
+}
+
+.StudentList {
+  margin: 10px 0 10px 0;
+  display: flex;
+  flex-flow: column;
+  align-items: flex-start;
+  max-height: 300px;
+  overflow-y: scroll;
+  width: 100%;
+}
+
+.Student {
+  color: black;
+  padding: 7px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.Student:hover {
+  color: blue;
+}
+
+.Selected {
+  color: #444;
+}
+
+.EvenStudent {
+  background-color: #ddd;
+}
