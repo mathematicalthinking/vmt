@@ -35,8 +35,8 @@ class Main extends Component {
               <Route exact path='/publicResource/room/:room_id/:resource' component={Room}/>
               <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />
               <PrivateRoute exact path='/profile/:resource' authed={this.props.loggedIn} component={Profile}/>
-              <PrivateRoute exact path='/profile/course/:course_id/assignment/:assignment_id/:resource' authed={this.props.loggedIn} component={Assignment} />
-              <PrivateRoute exact path = '/profile/course/:course_id/:resource' authed={this.props.loggedIn} component={Course}/>
+              <PrivateRoute exact path = '/profile/courses/:course_id/:resource' authed={this.props.loggedIn} component={Course}/>
+              <PrivateRoute exact path='/profile/courses/:course_id/assignments/:assignment_id/:resource' authed={this.props.loggedIn} component={Assignment} />
               <PrivateRoute exact path = '/profile/room/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
               <PrivateRoute exact path = '/profile/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
               <PrivateRoute expact path = '/workspace/:room_id' authed={this.props.loggedIn} component={Workspace} />

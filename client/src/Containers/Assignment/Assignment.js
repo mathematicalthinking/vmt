@@ -23,6 +23,8 @@ class Assignment extends Component {
   }
 
   render() {
+    console.log(this.props.match)
+    console.log('CURRENT ASSIGNMENT: ', this.props.currentAssignment)
     const resource = this.props.match.params.resource;
     const assignment = this.props.currentAssignment
     let content;
@@ -38,12 +40,15 @@ class Assignment extends Component {
         break;
       default : content = null;
     }
-    console.log(this.props.match)
     return (
       <Aux>
         <DashboardLayout
           routingInfo={this.props.match}
-          crumbs={[]}
+          crumbs={[
+            {title: 'Profile', link: ''},
+            {title: `${this.props.currentCourse.name}`, link: ''},
+            {title: `Assignment ${assignment.name}`, link: ''}
+          ]}
           sidePanelTitle={'side panel'}
           content={content}
           tabs={this.state.tabs}
@@ -51,14 +56,18 @@ class Assignment extends Component {
         {this.state.assigning ? <Modal show={true} closeModal={() => {this.setState({assigning: false})}}>
           <MakeRooms />
         </Modal> : null}
-          </Aux>
-        )
+      </Aux>
+    )
   }
 }
 
-const mapStateToProps = (store, ownProps )=> ({
-  currentAssignment: store.assignments.byId[ownProps.match.params.assignment_id]// rooms: store.rooms
-})
+const mapStateToProps = (store, ownProps ) => {
+  const { assignment_id, course_id } = ownProps.match.params;
+  return {
+    currentAssignment: store.assignments.byId[assignment_id],// rooms: store.rooms
+    currentCourse: store.courses.byId[course_id],
+  }
+}
 
 // connect react functions to redux actions
 const mapDispatchToProps = dispatch => {

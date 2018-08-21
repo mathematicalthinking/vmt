@@ -55,9 +55,8 @@ class Course extends Component {
       member: member,
     })
   }
+
   componentDidUpdate(prevProps, prevState) {
-    console.log(prevProps.currentCourse)
-    console.log(this.props.currentCourse)
     if (prevProps.currentCourse.notifications !== this.props.currentCourse.notifications) {
       let updatedTabs = [...this.state.tabs];
       let notifications = this.props.currentCourse.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
@@ -66,8 +65,6 @@ class Course extends Component {
     }
 
     if (prevProps.currentCourse.members !== this.props.currentCourse.members) { // @TODO THIS WILL LIKELY HAVE TO CHANGE WHEN WE HAVE REMOVE USER FUNCTIONALITY
-      console.log('added a new member')
-      console.log(this.props.currentCourse.members)
       this.setState({member: true}) // CAN WE JUST ASSUME THIS? OR SHOULD WE FILTER THROUGH MEMBERS TO MAKE SURE CURRENT USER IS A MEMBER
     }
   }
@@ -93,7 +90,7 @@ class Course extends Component {
           {this.state.owner ? <NewResource resource='assignment' course={{_id: course._id, members: course.members}}/> : null }
           <BoxList
             list={course.assignments || []}
-            linkPath={`/profile/course/${course._id}/assignment/`}
+            linkPath={`/profile/courses/${course._id}/assignments/`}
             linkSuffix={`/details`}
           />
         </div>
@@ -103,7 +100,7 @@ class Course extends Component {
           {this.state.owner ? <NewResource resource='room' course={{_id: course._id, members: course.members}}/> : null}
           <BoxList
             list={course.rooms || []}
-            linkPath={`/profile/course/${course._id}/room/`}
+            linkPath={`/profile/courses/${course._id}/rooms/`}
             linkSuffix='/summary'
           />
         </div>
