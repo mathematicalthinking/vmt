@@ -67,10 +67,10 @@ class PublicList extends Component {
     let linkPath; let linkSuffix;
     // @ TODO conditional logic for displaying room in dahsboard if it belongs to the user
     if (this.props.match.params.resource === 'courses') {
-      linkPath = '/profile/course/';
+      linkPath = '/profile/courses/';
       linkSuffix = '/rooms'
     } else {
-      linkPath = '/profile/room/';
+      linkPath = '/profile/rooms/';
       linkSuffix = '/summary';
     }
     return (

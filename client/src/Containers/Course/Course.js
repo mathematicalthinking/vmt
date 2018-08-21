@@ -40,7 +40,7 @@ class Course extends Component {
       let notifications = currentCourse.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
       if (notifications.length > 0) {
-        updatedTabs[1] = {name: 'Members', notifications: notifications.length}
+        updatedTabs[2] = {name: 'Members', notifications: notifications.length}
       }
       owner = true;
     }
@@ -60,7 +60,7 @@ class Course extends Component {
     if (prevProps.currentCourse.notifications !== this.props.currentCourse.notifications) {
       let updatedTabs = [...this.state.tabs];
       let notifications = this.props.currentCourse.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
-      updatedTabs[1] = {name: 'Members', notifications: notifications.length}
+      updatedTabs[2] = {name: 'Members', notifications: notifications.length}
       this.setState({tabs: updatedTabs})
     }
 
