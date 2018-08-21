@@ -84,6 +84,8 @@ class Course extends Component {
     const resource = this.props.match.params.resource;
     const notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
     let content;
+    // @TODO THIS VAN BE LESS VERBOSE USE PROGILE CONTAINER AS A TEMPLATE. WE'LL NEED TO USE RESOURCES LAYOUT
+    // INSTEAD OF BOXLIST
     switch (resource) {
       case 'assignments' :
         content = <div>

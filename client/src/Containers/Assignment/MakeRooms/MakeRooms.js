@@ -11,7 +11,7 @@ class MakeRooms extends Component  {
     assignRandom: true,
     studentsPerRoom: 0,
     selectedStudents: [],
-    remainingStudents: this.props.students.map(student => student.user._id),
+    remainingStudents: this.props.students,
   }
 
   setNumber = event => {
@@ -47,12 +47,13 @@ class MakeRooms extends Component  {
         creator: this.props.userId,
         course: this.props.course,
       }
-      this.props.createRoom(newRoom)
+      // this.props.createRoom(newRoom)
       const remainingStudents = this.state.remainingStudents.filter(student => {
-        if (this.state.selectedStudents.includes(student)) {
+        if (this.state.selectedStudents.includes(student.user._id)) {
           return false;
-        } else return student;
+        } else return true;
       })
+      console.log(remainingStudents)
       this.setState({
         selectedStudents: [],
         remainingStudents,
@@ -63,7 +64,9 @@ class MakeRooms extends Component  {
   }
 
   render() {
-    const studentList = this.props.students.map((student, i) => {
+    // @TODO STUDENTLIST SHOULD REFLECT THIS.STATE.REMAINING STUDENTS -- RIGHT NOW THERE IS A
+    // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
+    const studentList = this.state.remainingStudents.map((student, i) => {
       let rowClass = (i%2 === 0) ? [classes.EvenStudent, classes.Student].join(' ') : classes.Student;
       rowClass = this.state.selectedStudents.includes(student.user._id) ? [rowClass, classes.Selected].join(' ') : rowClass;
       return (

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import Resources from '../../Layout/Dashboard/Resources/Resources';
-import Templates from '../Templates/Templates';
 // import Assignments from '../Assignments/Assignments';
 import { getUserResources }from '../../store/reducers/';
 import { connect } from 'react-redux';
@@ -42,20 +41,6 @@ class Profile extends Component {
     console.log(resource)
     // Load content based on
     content = <Resources userResources={this.props[resource] || []} resource={resource} userId={this.props.userId}/>
-    // switch (resource) {
-    //   case 'courses' : content = <Resources
-    //     userResources={this.props.userCourses || []}
-    //     resource='course'
-    //     userId={this.props.userId}/>;
-    //     break;
-    //   case 'rooms' : content = <Resources
-    //     userResources={this.props.userRooms || []}
-    //     resource='room'
-    //     userId={this.props.userId}/>;
-    //     break;
-    //   case 'assignments' : content = <Resources />; break;
-    //   default:
-    // }
 
     return (
       // <Aux>

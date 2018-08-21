@@ -57,8 +57,9 @@ export const createRoom = body => {
       let result = res.data.result;
       dispatch(createdRoom(result))
       if (body.template) {
-        dispatch(updateUserRoomTemplates(res.data.result[1]._id))
-        dispatch(createdRoomTemplate(res.data.result[1]))
+        // @TODO U[DATE ASSIGNMENTS]
+        // dispatch(updateUserRoomTemplates(res.data.result[1]._id))
+        // dispatch(createdRoomTemplate(res.data.result[1]))
         result = res.data.result[0];
       }
       if (body.course) {

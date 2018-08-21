@@ -52,9 +52,11 @@ class NewResource extends Component {
     }} else {
       newResource.template = this.state.makeTemplate;
       newResource.templateIsPublic = this.state.templateIsPublic;
+      console.log("CREATING RESOURCE: ", this.props.resource)
       switch (this.props.resource) {
-        case 'course' :
+        case 'courses' :
         newResource.members = [{user: this.props.userId, role: 'teacher'}]; // @TODO Do we want to default the creator to a teacher?
+          console.log(newResource)
           this.props.createCourse(newResource);
           break;
         case 'assignment' :
