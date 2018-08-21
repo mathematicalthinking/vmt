@@ -56,7 +56,11 @@ class Assignment extends Component {
           tabs={this.state.tabs}
         />
         {this.state.assigning ? <Modal show={true} closeModal={() => {this.setState({assigning: false})}}>
-          <MakeRooms students={course.members.filter(member => member.role === 'Student')}/>
+          <MakeRooms
+            assignment={assignment}
+            course={course._id}
+            userId={this.props.userId}
+            students={course.members.filter(member => member.role === 'Student')}/>
         </Modal> : null}
       </Aux>
     )
@@ -68,6 +72,7 @@ const mapStateToProps = (store, ownProps ) => {
   return {
     currentAssignment: store.assignments.byId[assignment_id],
     currentCourse: store.courses.byId[course_id],
+    userId: store.user.id,
   }
 }
 

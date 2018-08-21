@@ -4,11 +4,14 @@ import TextInput from '../../../Components/Form/TextInput/TextInput';
 import Aux from '../../../Components/HOC/Auxil';
 import RadioBtn from '../../../Components/Form/RadioBtn/RadioBtn';
 import classes from './makeRooms.css';
+import { connect } from 'react-redux';
+import { createRoom } from '../../../store/actions';
 class MakeRooms extends Component  {
   state = {
     assignRandom: true,
     studentsPerRoom: 0,
     selectedStudents: [],
+    remainingStudents: this.props.students.map(student => student.user._id),
   }
 
   setNumber = event => {
@@ -16,7 +19,6 @@ class MakeRooms extends Component  {
   }
 
   selectStudent = (event, data) => {
-    console.log(event.target.id)
     const newStudent = event.target.id;
     let updatedStudents = [...this.state.selectedStudents];
     // if user is in list, remove them.
@@ -25,12 +27,39 @@ class MakeRooms extends Component  {
     } else {
       updatedStudents.push(newStudent)
     }
-    console.log(updatedStudents)
     this.setState({selectedStudents: updatedStudents})
    // Else add them
   }
   submit = () => {
+    if (!this.state.assignRandom) {
+      // create a room with the selected students
+      const { _id, name, description, roomType, tabs, dueDate} = this.props.assignment;
+      let members = this.state.selectedStudents.map(student => ({user: student, role: 'Student'}))
+      members.push({user: this.props.userId, role: 'Teacher'})
+      const newRoom = {
+        assignment: _id,
+        name,
+        description,
+        roomType,
+        tabs,
+        dueDate,
+        members,
+        creator: this.props.userId,
+        course: this.props.course,
+      }
+      this.props.createRoom(newRoom)
+      const remainingStudents = this.state.remainingStudents.filter(student => {
+        if (this.state.selectedStudents.includes(student)) {
+          return false;
+        } else return student;
+      })
+      this.setState({
+        selectedStudents: [],
+        remainingStudents,
+      })
+    } else {
 
+    }
   }
 
   render() {
@@ -63,11 +92,14 @@ class MakeRooms extends Component  {
               </div>
             </div>
           }
-          <Button>Assign</Button>
+          <Button click={this.submit}>Assign</Button>
         </div>
       </Aux>
     )
   }
 }
 
-export default MakeRooms;
+const mapDispatchToProps = dispatch => ({
+  createRoom: room => dispatch(createRoom(room)),
+})
+export default connect(null, mapDispatchToProps)(MakeRooms);

@@ -151,7 +151,6 @@ const mapStateToProps = (store, ownProps) => ({
 const mapDispatchToProps = dispatch => {
   return {
     updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
-    // populateCurrentCourse: id => dispatch(actions.populateCurrentCourse(id)),
     clearCurrentCourse: () => dispatch(actions.clearCurrentCourse()),
     grantAccess: (user, resource, id) => dispatch(actions.grantAccess(user, resource, id))
   }

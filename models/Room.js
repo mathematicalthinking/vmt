@@ -3,12 +3,13 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 const User = require('./User');
 const Course = require('./Course');
 const Room = new mongoose.Schema({
-  template: {type: ObjectId, ref: 'RoomTemplate'},
+  assignment: {type: ObjectId, ref: 'RoomTemplate'},
   name: {type: String},
   description: {type: String},
   roomType: {type: String, default: 'geogebra'},
   course: {type: ObjectId, ref: 'Course'},
   creator: {type: ObjectId, ref: 'User', required: true},
+  dueDate: {type: Date,},
   events: [{type: ObjectId, ref: 'Event'}],
   chat: [{type: ObjectId, ref: 'Message'}],
   members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}, _id: false}],
