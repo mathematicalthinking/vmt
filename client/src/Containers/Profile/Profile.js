@@ -41,20 +41,21 @@ class Profile extends Component {
     let content;
     console.log(resource)
     // Load content based on
-    switch (resource) {
-      case 'courses' : content = <Resources
-        userResources={this.props.userCourses || []}
-        resource='course'
-        userId={this.props.userId}/>;
-        break;
-      case 'rooms' : content = <Resources
-        userResources={this.props.userRooms || []}
-        resource='room'
-        userId={this.props.userId}/>;
-        break;
-      // case 'assignments' : content = <Assignments />; break;
-      default:
-    }
+    content = <Resources userResources={this.props[resource] || []} resource={resource} userId={this.props.userId}/>
+    // switch (resource) {
+    //   case 'courses' : content = <Resources
+    //     userResources={this.props.userCourses || []}
+    //     resource='course'
+    //     userId={this.props.userId}/>;
+    //     break;
+    //   case 'rooms' : content = <Resources
+    //     userResources={this.props.userRooms || []}
+    //     resource='room'
+    //     userId={this.props.userId}/>;
+    //     break;
+    //   case 'assignments' : content = <Resources />; break;
+    //   default:
+    // }
 
     return (
       // <Aux>
@@ -72,8 +73,9 @@ class Profile extends Component {
 }
 
 const mapStateToProps = store => ({
-  userCourses: getUserResources(store, 'courses'),
-  userRooms: getUserResources(store, 'rooms'),
+  courses: getUserResources(store, 'courses'),
+  rooms: getUserResources(store, 'rooms'),
+  assignments: getUserResources(store, 'assignments'),
   username: store.user.username,
   userId: store.user.id,
   seenTour: store.user.seenTour,

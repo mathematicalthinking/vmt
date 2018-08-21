@@ -9,7 +9,7 @@ const resources = props => {
     const enrolledResources = props.userResources.filter(resource => (
       resource.creator !== props.userId
     ))
-    const linkSuffix = props.resource === 'course' ? '/assignments' : '/summary'
+    const linkSuffix = props.resource === 'courses' ? '/assignments' : '/summary'
     const displayResource = props.resource[0].toUpperCase() + props.resource.slice(1)
     return (
       <div>
