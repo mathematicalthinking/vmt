@@ -60,6 +60,7 @@ class Assignment extends Component {
             assignment={assignment}
             course={course._id}
             userId={this.props.userId}
+            close={() => {this.setState({assigning: false})}}
             students={course.members.filter(member => member.role === 'Student')}/>
         </Modal> : null}
       </Aux>

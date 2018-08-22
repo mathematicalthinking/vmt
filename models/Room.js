@@ -35,7 +35,7 @@ Room.pre('save', function (next) {
       return console.log(err)
     })
     if (this.course) {
-      Course.findByIdAndUpdate(this.course, {$addToSet: {assignments: this._id}})
+      Course.findById(this.course)
       .then(course => {
         if (course.members) {
           User.update({_id: {$in: course.members}}, {$addToSet: {rooms: this._id}}, {'multi': true})

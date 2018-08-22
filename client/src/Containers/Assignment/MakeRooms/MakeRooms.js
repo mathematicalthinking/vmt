@@ -37,17 +37,17 @@ class MakeRooms extends Component  {
       let members = this.state.selectedStudents.map(student => ({user: student, role: 'Student'}))
       members.push({user: this.props.userId, role: 'Teacher'})
       const newRoom = {
-        assignment: _id,
         name,
         description,
         roomType,
         tabs,
         dueDate,
         members,
+        assignment: _id,
         creator: this.props.userId,
         course: this.props.course,
       }
-      // this.props.createRoom(newRoom)
+      this.props.createRoom(newRoom)
       const remainingStudents = this.state.remainingStudents.filter(student => {
         if (this.state.selectedStudents.includes(student.user._id)) {
           return false;
@@ -58,6 +58,9 @@ class MakeRooms extends Component  {
         selectedStudents: [],
         remainingStudents,
       })
+      if (remainingStudents.length === 0) {
+        this.props.close();
+      }
     } else {
 
     }
