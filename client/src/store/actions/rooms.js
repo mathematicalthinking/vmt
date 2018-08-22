@@ -1,9 +1,9 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
-import { updateUserRooms, updateUserRoomTemplates } from './user';
-import { createdRoomTemplate } from './roomTemplates';
+import { updateUserRooms } from './user';
 import { updateCourseRooms } from './courses';
+import { updateAssignmentRooms } from './assignments';
 
 export const gotRooms = (rooms) => ({
   type: actionTypes.GOT_ROOMS,
@@ -64,6 +64,9 @@ export const createRoom = body => {
       }
       if (body.course) {
         dispatch(updateCourseRooms(body.course, result._id))
+      }
+      if (body.assignment) {
+        dispatch(updateAssignmentRooms(body.assignment, result._id))
       }
       return dispatch(updateUserRooms(result._id))
     })

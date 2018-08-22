@@ -30,6 +30,14 @@ export const createdAssignment = resp => {
   }
 }
 
+export const updateAssignmentRooms = (assignmentId, roomId) => {
+    return {
+      type: actionTypes.UPDATE_ASSIGNMENT_ROOMS,
+      assignmentId,
+      roomId,
+    }
+}
+
 export const getAssignments = params => {
   return dispatch => {
     API.get('assignment', params)
@@ -66,6 +74,7 @@ export const createAssignment = body => {
     })
   }
 }
+
 
 export const UpdateCurrentAssignment = body => {}
 

@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
-import Filter from '../../Components/UI/Button/Filter/Filter';
 import Button from '../../Components/UI/Button/Button';
-import classes from './assignment.css';
 import Aux from '../../Components/HOC/Auxil';
 import MakeRooms from './MakeRooms/MakeRooms';
 import Modal from '../../Components/UI/Modal/Modal';
-import glb from '../../global.css';
+import BoxList from '../../Layout/BoxList/BoxList';
 // import Dropdown from '../../Components/UI/Dropdown/Dropdown';
-import ContentBox from '../../Components/UI/ContentBox/ContentBox';
 import TextInput from '../../Components/Form/TextInput/TextInput';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import * as actions from '../../store/actions';
@@ -32,6 +29,7 @@ class Assignment extends Component {
     let content;
     switch (resource) {
       case 'details':
+        // @IDEA PERHAPS EXTRACT THIS OUT TO ITS OWN COMPONENT
         content = <div>
           <div>Assignment Name: {assignment.name}</div>
           <div>Details: {assignment.description}</div>
@@ -39,6 +37,9 @@ class Assignment extends Component {
           <div>Type: {assignment.roomType}</div>
           <Button click={() => {this.setState({assigning: true})}}>Activate</Button>
         </div>
+        break;
+      case 'rooms':
+        content = <BoxList list={this.props.currentAssignment} />
         break;
       default : content = null;
     }
@@ -72,6 +73,7 @@ const mapStateToProps = (store, ownProps ) => {
   const { assignment_id, course_id } = ownProps.match.params;
   return {
     currentAssignment: store.assignments.byId[assignment_id],
+    // rooms:
     currentCourse: store.courses.byId[course_id],
     userId: store.user.id,
   }

@@ -9,7 +9,7 @@ const Assignment = new mongoose.Schema({
   dueDate: {type: Date,},
   roomType: {type: String, default: 'geogebra'},
   creator: {type: ObjectId, ref: 'User'},
-  rooms: [{type: ObjectId, ref: 'Room'}],
+  rooms: {type: [{type: ObjectId, ref: 'Room'}], _id: false},
   tabs: [{
     ggbFile: {type: String},
     desmosLink: {type: String},

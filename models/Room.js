@@ -27,7 +27,7 @@ const Room = new mongoose.Schema({
 Room.pre('save', function (next) {
   // ON CREATION UPDATE THE CONNECTED MODELS
   if (this.isNew) {
-    User.findByIdAndUpdate(this.creator, {$addToSet: {assignments: this._id}})
+    User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}})
     .then(user => {
       return next();
     })
@@ -35,7 +35,7 @@ Room.pre('save', function (next) {
       return console.log(err)
     })
     if (this.course) {
-      Course.findById(this.course)
+      Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id}})
       .then(course => {
         if (course.members) {
           User.update({_id: {$in: course.members}}, {$addToSet: {rooms: this._id}}, {'multi': true})
