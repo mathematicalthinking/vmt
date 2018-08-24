@@ -26,7 +26,9 @@ const reducer = (state = initialState, action) => {
     // to the assignment --> do this by updating the sto
     case actionTypes.UPDATE_ASSIGNMENT_ROOMS:
       updatedAssignments = {...state.byId};
-      updatedAssignments[action.assignmentId].rooms.push(action.roomId)
+      if (updatedAssignments[action.assignmentId].rooms) {
+        updatedAssignments[action.assignmentId].rooms.push(action.roomId)
+      } else updatedAssignments[action.assignmentId].rooms = [action.roomId];
       return {
         ...state,
         byId: updatedAssignments,

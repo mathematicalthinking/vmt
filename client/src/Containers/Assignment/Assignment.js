@@ -40,7 +40,7 @@ class Assignment extends Component {
         </div>
         break;
       case 'rooms':
-        content = <BoxList list={this.props.currentAssignment} />
+        content = <BoxList list={this.props.currentAssignment.rooms} />
         break;
       default : content = null;
     }
