@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const User = require('./User');
 const Course = require('./Course');
+const Assignment = require('./Assignment');
 const Room = new mongoose.Schema({
   assignment: {type: ObjectId, ref: 'RoomTemplate'},
   name: {type: String},
@@ -27,24 +28,26 @@ const Room = new mongoose.Schema({
 Room.pre('save', function (next) {
   // ON CREATION UPDATE THE CONNECTED MODELS
   if (this.isNew) {
-    User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}})
-    .then(user => {
-      return next();
-    })
-    .catch(err => {
-      return console.log(err)
-    })
+    const promises = [];
+    const users = this.members.map(member => member.user)
+    promises.push(User.find({'_id': {$in: users}}))
     if (this.course) {
-      Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id}})
-      .then(course => {
-        if (course.members) {
-          User.update({_id: {$in: course.members}}, {$addToSet: {rooms: this._id}}, {'multi': true})
-          .then(users => { return next()})
-          .catch(err => {console.log(err)})
-        } else return next();
-      })
-      .catch(err => console.log(err))
+      promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id}}))
     }
+    if (this.assignment) {
+      promises.push(Assignment.findByIdAndUpdate(this.assignment, {$addToSet: {rooms: this._id}}))
+    }
+    Promise.all(promises)
+    .then(values => {
+      console.log('VALUES: ', values)
+      values[0].forEach(user => {
+        console.log("user: ", user)
+        user.rooms.push(this._id)
+        user.save();
+        next()
+      })
+    })
+    .catch(err => console.log(err))
   }
   next();
 });
