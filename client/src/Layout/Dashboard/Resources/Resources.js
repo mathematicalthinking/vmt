@@ -14,14 +14,14 @@ const resources = props => {
     return (
       <div>
         <NewResource resource={props.resource}/>
-        <h2>{displayResource}s I Own</h2>
+        <h2>{displayResource} I Own</h2>
         <BoxList
           list={ownedResources}
           linkPath={`/profile/${props.resource}/`}
           linkSuffix={linkSuffix}
           notifications
         />
-        <h2>{displayResource}s I'm Enrolled in</h2>
+        <h2>{displayResource} I'm Enrolled in</h2>
         <BoxList
           list={enrolledResources}
           linkPath={`/profile/${props.resource}/`}

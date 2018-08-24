@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
+import MakeRooms from './MakeRooms/MakeRooms';
+import BoxList from '../../Layout/BoxList/BoxList';
+import DashboardLayout from '../../Layout/Dashboard/Dashboard';
+// import Dropdown from '../../Components/UI/Dropdown/Dropdown';
+import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
 import Aux from '../../Components/HOC/Auxil';
-import MakeRooms from './MakeRooms/MakeRooms';
-import Modal from '../../Components/UI/Modal/Modal';
-import BoxList from '../../Layout/BoxList/BoxList';
-// import Dropdown from '../../Components/UI/Dropdown/Dropdown';
 import TextInput from '../../Components/Form/TextInput/TextInput';
-import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import * as actions from '../../store/actions';
 import { connect } from 'react-redux';
 import { populateResource } from '../../store/reducers/';
@@ -21,12 +21,9 @@ class Assignment extends Component {
   }
 
   render() {
-    console.log(this.props.match)
-    console.log('CURRENT ASSIGNMENT: ', this.props.currentAssignment)
     const resource = this.props.match.params.resource;
     const assignment = this.props.currentAssignment
     const course = this.props.currentCourse;
-    console.log('CURRENT COURSE: ', course)
     let content;
     switch (resource) {
       case 'details':
@@ -40,7 +37,7 @@ class Assignment extends Component {
         </div>
         break;
       case 'rooms':
-        content = <BoxList list={this.props.currentAssignment.rooms} />
+        content = <BoxList list={this.props.currentAssignment.rooms} linkPath='/profile/rooms/' linkSuffix='/summary'/>
         break;
       default : content = null;
     }
@@ -51,7 +48,7 @@ class Assignment extends Component {
           crumbs={[
             {title: 'Profile', link: ''},
             {title: `${course.name}`, link: ''},
-            {title: `Assignment ${assignment.name}`, link: ''}
+            {title: `${assignment.name}`, link: ''}
           ]}
           sidePanelTitle={'side panel'}
           content={content}

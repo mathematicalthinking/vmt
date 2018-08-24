@@ -11,6 +11,7 @@ class MakeRooms extends Component  {
     assignRandom: true,
     studentsPerRoom: 0,
     selectedStudents: [],
+    roomsCreated: 0,
     remainingStudents: this.props.students,
   }
 
@@ -31,13 +32,14 @@ class MakeRooms extends Component  {
    // Else add them
   }
   submit = () => {
+    const { _id, name, description, roomType, tabs, dueDate} = this.props.assignment;
+
     if (!this.state.assignRandom) {
       // create a room with the selected students
-      const { _id, name, description, roomType, tabs, dueDate} = this.props.assignment;
       let members = this.state.selectedStudents.map(student => ({user: student, role: 'Student'}))
       members.push({user: this.props.userId, role: 'Teacher'})
       const newRoom = {
-        name,
+        name: `${name} ${this.state.roomsCreated + 1}`,
         description,
         roomType,
         tabs,
@@ -53,16 +55,41 @@ class MakeRooms extends Component  {
           return false;
         } else return true;
       })
-      console.log(remainingStudents)
-      this.setState({
+      this.setState(prevState => ({
         selectedStudents: [],
+        roomsCreated: prevState.roomsCreated + 1,
         remainingStudents,
-      })
+      }))
       if (remainingStudents.length === 0) {
         this.props.close();
       }
-    } else {
-
+    }
+    else {
+      // @TODO IF THIS.STATE.REMAININGSTUDENTS !== THIS.PROPS.STUDENTS THEN WE KNOW
+      // THEY ALREADY STARTED ADDING SOME MANUALLY AND NOW ARE TRYING TO ADD THE REST
+      // RANDOMLY. WE SHOULD WARN AGAINST THIS
+      let { remainingStudents, studentsPerRoom } = {...this.state}
+      // @TODO THIS COULD PROBABLY BE OPTIMIZED
+      remainingStudents = shuffle(remainingStudents)
+      const numRooms = remainingStudents.length/studentsPerRoom
+      console.log(numRooms);
+      for (let i = 0; i < numRooms; i++) {
+        let members = remainingStudents.splice(0, studentsPerRoom)
+        members.push({user: this.props.userId, role: 'Teacher'})
+        let newRoom = {
+          name: `${name} ${this.state.roomsCreated + i + 1}`,
+          description,
+          roomType,
+          tabs,
+          dueDate,
+          members,
+          assignment: _id,
+          creator: this.props.userId,
+          course: this.props.course,
+        }
+        this.props.createRoom(newRoom)
+      }
+      this.props.close();
     }
   }
 
@@ -108,4 +135,24 @@ class MakeRooms extends Component  {
 const mapDispatchToProps = dispatch => ({
   createRoom: room => dispatch(createRoom(room)),
 })
+
+const shuffle = (array) => {
+  let currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+
 export default connect(null, mapDispatchToProps)(MakeRooms);

@@ -63,10 +63,10 @@ class Room extends Component {
     }
     const crumbs = [
       {title: 'Profile', link: '/profile/courses'},
-      {title: room.name, link: `/profile/room/${room._id}/summary`}]
+      {title: room.name, link: `/profile/rooms/${room._id}/summary`}]
       //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
       // THE REDUX STORE USING THE COURSE ID IN THE URL
-    if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/profile/course/${room.course._id}/rooms`})}
+    if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/profile/courses/${room.course._id}/assignments`})}
     const guestModal = this.state.guestMode ?
       <Modal show={true}>
         <p>You currently don't have access to this course. If you would like to
