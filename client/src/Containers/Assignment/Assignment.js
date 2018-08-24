@@ -9,6 +9,7 @@ import TextInput from '../../Components/Form/TextInput/TextInput';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import * as actions from '../../store/actions';
 import { connect } from 'react-redux';
+import { populateResource } from '../../store/reducers/';
 class Assignment extends Component {
   state = {
     tabs: [
@@ -72,7 +73,7 @@ class Assignment extends Component {
 const mapStateToProps = (store, ownProps ) => {
   const { assignment_id, course_id } = ownProps.match.params;
   return {
-    currentAssignment: store.assignments.byId[assignment_id],
+    currentAssignment: populateResource(store, 'assignments', assignment_id, ['rooms']),
     // rooms:
     currentCourse: store.courses.byId[course_id],
     userId: store.user.id,

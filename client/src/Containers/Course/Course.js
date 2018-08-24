@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { populateCurrentCourse } from '../../store/reducers/';
+import { populateResource } from '../../store/reducers/';
 import * as actions from '../../store/actions/';
 import API from '../../utils/apiRequests';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
@@ -145,7 +145,7 @@ class Course extends Component {
 }
 
 const mapStateToProps = (store, ownProps) => ({
-  currentCourse: populateCurrentCourse(store, ownProps.match.params.course_id, ['assignments']),
+  currentCourse: populateResource(store, 'courses', ownProps.match.params.course_id, ['assignments', 'rooms']),
   userId: store.user.id,
   username: store.user.username,
 })

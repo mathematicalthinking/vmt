@@ -31,18 +31,19 @@ export const getUserResources = (state, resource) => {
   return undefined;
 }
 
-export const populateCurrentCourse = (state, courseId, resources) => {
-  console.log('populating ', resources)
-  console.log(state)
-  const currentCourse = {...state.courses.byId[courseId]}
+// store, assignments, assignment_id, rooms
+export const populateResource = (state, resourceToPop, resourceId, resources) => {
+  const currentResource = {...state[resourceToPop].byId[resourceId]}
   resources.forEach(resource => {
-    console.log(state.courses.byId[courseId][resource])
-    const populatedResources = state.courses.byId[courseId][resource].map(id => {
-      console.log(state[resource].byId[id])
-      return state[resource].byId[id];
-    })
-    currentCourse[resource] = populatedResources;
+    // state.rooms.byId
+    let populatedResources;
+    if (state[resourceToPop].byId[resourceId][resource]) {
+      populatedResources = state[resourceToPop].byId[resourceId][resource].map(id => {
+        console.log(state[resource].byId[id])
+        return state[resource].byId[id];
+      });
+    }
+    currentResource[resource] = populatedResources;
   })
-  console.log(currentCourse)
-  return currentCourse;
+  return currentResource;
 }
