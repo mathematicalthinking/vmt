@@ -13,10 +13,17 @@ class MakeRooms extends Component  {
     selectedStudents: [],
     roomsCreated: 0,
     remainingStudents: this.props.students,
+    dueDate: '',
   }
 
   setNumber = event => {
     this.setState({studentsPerRoom: event.target.value})
+  }
+
+  setDate = event => {
+    console.log(event.target.value)
+    this.setState({dueDate: event.target.value})
+    console.log(this.state)
   }
 
   selectStudent = (event, data) => {
@@ -100,11 +107,12 @@ class MakeRooms extends Component  {
       <Aux>
         <div className={classes.Container}>
           <h2>Assign Rooms</h2>
+          <div className={classes.SubContainer}><TextInput label='Due Date' name='dueDate' type='date' change={this.setDate}/></div>
           <div className={classes.Radios}>
             <RadioBtn name='random' checked={this.state.assignRandom} check={() => this.setState({assignRandom: true})}>Assign Randomly</RadioBtn>
             <RadioBtn name='manual' checked={!this.state.assignRandom} check={() => this.setState({assignRandom: false})}>Assign Manually</RadioBtn>
           </div>
-          {this.state.assignRandom ?
+          {this.state.assignRandom ?//
             <div className={classes.SubContainer}>
               <TextInput label='Number of students per room' type='number' change={this.setNumber}/>
             </div> :

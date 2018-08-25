@@ -14,3 +14,9 @@
 .Form {
   width: 90%;
 }
+
+.Loading {
+  position: fixed;
+  margin: auto;
+  z-index: 1000;
+}

@@ -5,6 +5,9 @@ import Button from '../../Components/UI/Button/Button';
 import ContentBox from '../../Components/UI/ContentBox/ContentBox';
 import * as actions from '../../store/actions/';
 import GoogleSignIn from '../../Components/Form/Google/LoginButton';
+import Loading from '../../Components/UI/Modal/Ripple.gif';
+import Aux from '../../Components/HOC/Auxil';
+import Backdrop from '../../Components/UI/Backdrop/Backdrop';
 import { Redirect } from 'react-router-dom';
 import glb from '../../global.css';
 import classes from './login.css'
@@ -84,6 +87,12 @@ class Login extends Component {
           <form onSubmit={this.loginHandler} className={[glb.FlexCol, classes.Form].join(' ')}>
             {form}
             <div className={classes.ErrorMsg}>{this.props.errorMessage}</div>
+            {this.props.loading ?
+              <Aux>
+                <Backdrop show={true} />
+                {/* <img className={classes.Loading} src={Loading} alt='loading' /> */}
+              </Aux>
+            : null}
             <Button>Login</Button>
           </form>
           <div>or</div>
@@ -108,6 +117,7 @@ const mapStateToProps = store => {
   return {
     loggedIn: store.user.loggedIn,
     errorMessage: store.user.loginError,
+    loading: store.user.loggingIn,
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

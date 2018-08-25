@@ -31,7 +31,6 @@ class Assignment extends Component {
         content = <div>
           <div>Assignment Name: {assignment.name}</div>
           <div>Details: {assignment.description}</div>
-          <div>Due Date: {assignment.dueDate ? assignment.dueDate : <TextInput name='dueDate' type='date'/> }</div>
           <div>Type: {assignment.roomType}</div>
           <Button click={() => {this.setState({assigning: true})}}>Activate</Button>
         </div>

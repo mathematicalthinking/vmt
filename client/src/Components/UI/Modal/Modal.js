@@ -6,7 +6,7 @@
 //
 
 import React from 'react';
-import gif from './Ripple-2.3s-200px.gif';
+import gif from './Ripple.gif';
 import Aux from '../../HOC/Auxil';
 import Backdrop from '../Backdrop/Backdrop';
 import classes from './modal.css';
