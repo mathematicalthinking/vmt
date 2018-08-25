@@ -30,7 +30,6 @@ class Profile extends Component {
         return acc;
       }, 0)
     }
-    console.log(courseNotifications)
     updatedTabs[0].notifications = courseNotifications;
     this.setState({tabs: updatedTabs})
   }
@@ -38,7 +37,6 @@ class Profile extends Component {
   render() {
     const resource = this.props.match.params.resource;
     let content;
-    console.log(resource)
     // Load content based on
     content = <Resources userResources={this.props[resource] || []} resource={resource} userId={this.props.userId}/>
 

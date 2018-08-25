@@ -9,7 +9,6 @@ import { gotAssignments } from './assignments';
 
 
 export const updateUserCourses = newCourse => {
-  console.log(newCourse)
   return {
     type: actionTypes.UPDATE_USER_COURSES,
     newCourse,
@@ -24,7 +23,6 @@ export const updateUserAssignments = newAssignment => {
 }
 
 export const updateUserRooms = newRoom => {
-  console.log("NEW ROOM: ", newRoom)
   return {
     type: actionTypes.UPDATE_USER_ROOMS,
     newRoom,
@@ -32,7 +30,6 @@ export const updateUserRooms = newRoom => {
 }
 
 export const updateUserCourseTemplates = newTemplate => {
-  console.log(newTemplate)
   return {
     type: actionTypes.UPDATE_USER_COURSE_TEMPLATES,
     newTemplate,
@@ -41,7 +38,6 @@ export const updateUserCourseTemplates = newTemplate => {
 
 
 export const updateUserRoomTemplates = newTemplate => {
-  console.log(newTemplate)
   return {
     type: actionTypes.UPDATE_USER_ROOM_TEMPLATES,
     newTemplate,
@@ -55,7 +51,6 @@ export const loginStart = () => {
 }
 
 export const loginSuccess = user => {
-  console.log(user)
   return {
     type: actionTypes.LOGIN_SUCCESS,
     user,
@@ -63,7 +58,6 @@ export const loginSuccess = user => {
 }
 
 export const loginFail = errorMessage => {
-  console.log(errorMessage);
   return {
     type: actionTypes.LOGIN_FAIL,
     error: errorMessage,
@@ -106,20 +100,16 @@ export const login = (username, password) => {
       return dispatch(loginSuccess(user));
     })
     .catch(err => {
-      console.log(err)
       dispatch(loginFail(err.response.statusText))
     })
   }
 }
 
 export const grantAccess = (user, resource, id) => {
-  console.log('grNTING access to - ', user, resource, id)
   return dispatch => {
     API.grantAccess(user, resource, id)
     .then(res => {
-      console.log(res.data.result)
       if (resource === 'room') {
-        console.log(res.data.result)
         return dispatch(updateRoom(res.data.result))
       }
       // dispatch(updateUserCourses(resp.data.result)) @TODO Need to update the notifcations associated with this course

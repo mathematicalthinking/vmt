@@ -8,13 +8,12 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.GOT_ROOMS:
-    let updatedRooms = merge({...state.byId}, action.byId)
-    console.log(updatedRooms)
-    return {
-      ...state,
-      byId: updatedRooms,
-      allIds: action.allIds,
-    };
+      let updatedRooms = merge({...state.byId}, action.byId)
+      return {
+        ...state,
+        byId: updatedRooms,
+        allIds: action.allIds,
+      };
     case actionTypes.UPDATE_ROOM:
       updatedRooms = {...state.byId};
       updatedRooms[action.room._id] = action.room;

@@ -41,13 +41,11 @@ const reducer = (state = initialState, action) => {
         seenTour: action.user.seenTour,
       }
     case actionTypes.UPDATE_USER_ROOMS:
-    console.log(action.newRoom)
       return {
         ...state,
         rooms: [action.newRoom, ...state.rooms]
       }
     case actionTypes.UPDATE_USER_COURSES:
-    console.log(action.newCourse)
       return {
         ...state,
         courses: [action.newCourse, ...state.courses]
@@ -58,7 +56,6 @@ const reducer = (state = initialState, action) => {
         courseTemplates: [action.newTemplate, ...state.courseTemplates],
       }
     case actionTypes.UPDATE_USER_ASSIGNMENTS:
-      console.log(action.newAssignment)
       return {
         ...state,
         assignments: [action.newAssignment, ...state.assignments]

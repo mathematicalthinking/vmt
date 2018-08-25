@@ -50,7 +50,6 @@ export const getCurrentRoom = id => {
 }
 
 export const createRoom = body => {
-  console.log(body)
   return dispatch => {
     API.post('room', body)
     .then(res => {
@@ -66,7 +65,6 @@ export const createRoom = body => {
         dispatch(updateCourseRooms(body.course, result._id))
       }
       if (body.assignment) {
-        console.log('updating assignment rooms')
         dispatch(updateAssignmentRooms(body.assignment, result._id))
       }
       return dispatch(updateUserRooms(result._id))

@@ -9,7 +9,6 @@ const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.GOT_ASSIGNMENTS:
     let updatedAssignments = merge({...state.byId}, action.byId)
-    console.log(updatedAssignments)
     return {
       ...state,
       byId: updatedAssignments,

@@ -6,7 +6,6 @@ import API from '../../utils/apiRequests';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import BoxList from '../../Layout/BoxList/BoxList';
 import NewResource from '../Create/NewResource/NewResource';
-import PublicListLayout from '../../Layout/PublicResource/PublicResource';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import io from 'socket.io-client';
-import Aux from '../../../Components/HOC/Auxil';
 import * as actions from '../../../store/actions';
 import WorkspaceLayout from '../../../Layout/Room/Workspace/Workspace';
 import Modal from '../../../Components/UI/Modal/Modal';
@@ -29,7 +28,6 @@ class Workspace extends Component {
     this.joinRoom();
     // setup socket listeners for users entering and leaving room
     if (Object.keys(this.props.currentRoom).length === 0) {
-      console.log('requesting current room again')
       this.props.getCurrentRoom(this.props.match.params.room_id)
     }
     // initialize the socket @IDEA consider making this its own function
@@ -42,7 +40,6 @@ class Workspace extends Component {
     })
 
     this.socket.on('USER_LEFT', currentUsers => {
-      console.log('user left')
       const updatedRoom = {...this.state.currentRoom}
       updatedRoom.currentUsers = currentUsers;
       this.setState({
@@ -61,7 +58,6 @@ class Workspace extends Component {
       roomId: this.props.currentRoom._id,
       user: {_id: this.props.userId, username: this.props.username}
     }
-    console.log(data)
     this.socket.emit('JOIN', data, () => {
       // check for duplicated ...sometimes is a user is left in if they dont disconnect properly
     //   const duplicate = this.props.room.currentUsers.find(user => user._id === this.props.userId)
@@ -98,7 +94,6 @@ class Workspace extends Component {
   render() {
     let content = <Modal show={this.state.loading} message='loading...' />
     if (!this.state.loading) {
-      console.log('not loading we have the room info: ', )
       const graph = <Graph room={this.state.currentRoom} replay={false} socket={this.socket} />;
       const chat = <Chat messages={this.state.currentRoom.chat} username={this.props.username} userId={this.props.userId} replaying={false} socket={this.socket}/>
       content = <WorkspaceLayout graph={graph} chat ={chat} userList={this.state.currentRoom.currentUsers} />

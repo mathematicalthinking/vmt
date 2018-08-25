@@ -40,7 +40,6 @@ export const createCourseTemplate = body => {
       // BUG ORDER MATTERS HERE! BAD!!!! can we even gaurantee the order in which these dispatches will resolve? Yes Iguess so ? they're synchronous
       dispatch(createdCourseTemplate(res.data.result))
       dispatch(updateUserCourseTemplates(res.data.result._id))
-      console.log(res.data.result)
     })
   }
 }

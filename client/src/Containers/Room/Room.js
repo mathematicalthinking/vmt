@@ -22,13 +22,12 @@ class Room extends Component {
 
   componentDidMount() {
     if (!this.props.currentRoom.members){
-      console.log('fetching current room')
       this.props.getCurrentRoom(this.props.match.params.room_id);
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log(prevProps, prevState)
+    
 
     // this.props.clearCurrentRoom()
   }
@@ -45,7 +44,6 @@ class Room extends Component {
   render() {
     const room = this.props.currentRoom;
     const resource = this.props.match.params.resource;
-    console.log(room)
     let content;
     switch (resource) {
       case 'summary':

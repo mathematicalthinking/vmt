@@ -44,7 +44,6 @@ export const getAssignments = params => {
     .then(res => {
       // Normalize res
       const assignments = normalize(res.data.results)
-      console.log(assignments)
       dispatch(gotAssignments(assignments))
     })
     .catch(err => console.log(err));
@@ -59,17 +58,14 @@ export const getCurrentAssignment = id => {
 }
 
 export const createAssignment = body => {
-  console.log(body)
   return dispatch => {
     API.post('assignment', body)
     .then(res => {
       let result = res.data.result;
       dispatch(createdAssignment(result))
-      console.log("RESPO: ", res)
       if (body.course) {
         dispatch(updateCourseAssignments(body.course, result._id))
       }
-      console.log('RESULTS._ID', result._id)
       return dispatch(updateUserAssignments(result._id))
     })
   }

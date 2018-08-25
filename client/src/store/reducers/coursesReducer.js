@@ -8,9 +8,7 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.GOT_COURSES:
-    console.log(action)
     let updatedCourses = merge({...state.byId}, action.byId);
-      console.log(updatedCourses)
       return {
         ...state,
         byId: updatedCourses,

@@ -11,7 +11,6 @@ class Chat extends Component {
   }
 
   componentDidMount() {
-    console.log(this.props)
     // event handler for enter key presses
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Enter'){

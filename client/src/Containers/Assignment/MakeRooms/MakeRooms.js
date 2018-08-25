@@ -32,23 +32,22 @@ class MakeRooms extends Component  {
    // Else add them
   }
   submit = () => {
-    const { _id, name, description, roomType, tabs, dueDate} = this.props.assignment;
-
+    const { _id, name, description, roomType, tabs, } = this.props.assignment;
+    const newRoom = {
+      assignment: _id,
+      creator: this.props.userId,
+      course: this.props.course,
+      description,
+      roomType,
+      tabs,
+      dueDate: this.state.dueDate,
+    }
     if (!this.state.assignRandom) {
       // create a room with the selected students
       let members = this.state.selectedStudents.map(student => ({user: student, role: 'Student'}))
       members.push({user: this.props.userId, role: 'Teacher'})
-      const newRoom = {
-        name: `${name} ${this.state.roomsCreated + 1}`,
-        description,
-        roomType,
-        tabs,
-        dueDate,
-        members,
-        assignment: _id,
-        creator: this.props.userId,
-        course: this.props.course,
-      }
+      newRoom.name = `${name} ${this.state.roomsCreated + 1}`;
+      newRoom.members = members;
       this.props.createRoom(newRoom)
       const remainingStudents = this.state.remainingStudents.filter(student => {
         if (this.state.selectedStudents.includes(student.user._id)) {
@@ -72,21 +71,11 @@ class MakeRooms extends Component  {
       // @TODO THIS COULD PROBABLY BE OPTIMIZED
       remainingStudents = shuffle(remainingStudents)
       const numRooms = remainingStudents.length/studentsPerRoom
-      console.log(numRooms);
       for (let i = 0; i < numRooms; i++) {
         let members = remainingStudents.splice(0, studentsPerRoom)
         members.push({user: this.props.userId, role: 'Teacher'})
-        let newRoom = {
-          name: `${name} ${this.state.roomsCreated + i + 1}`,
-          description,
-          roomType,
-          tabs,
-          dueDate,
-          members,
-          assignment: _id,
-          creator: this.props.userId,
-          course: this.props.course,
-        }
+        newRoom.name = `${name} ${this.state.roomsCreated + i + 1}`;
+        newRoom.members = members;
         this.props.createRoom(newRoom)
       }
       this.props.close();
@@ -136,6 +125,8 @@ const mapDispatchToProps = dispatch => ({
   createRoom: room => dispatch(createRoom(room)),
 })
 
+
+// @TODO CONSIDER DOING THIS DIFFERENTLY
 const shuffle = (array) => {
   let currentIndex = array.length, temporaryValue, randomIndex;
 
