@@ -30,30 +30,7 @@ module.exports = {
 // JUST DOING ALL OF THE WORK IN THE CONTROLLER...PROBABLY NEED TO BE CONSISTENT
   post: body => {
     return new Promise((resolve, reject) => {
-//       if (body.template) {
-//         const {name, description, templateIsPublic, creator, tabs} = body;
-//         const template = {name, description, isPublic: templateIsPublic, creator, tabs,}
-// //        COnsider moving this to the pre hook...we can stil do delete bodt.template there rifht?
-//         db.RoomTemplate.create(template)
-//         .then(template => {
-//           body.template = template._id,
-//           delete body[templateIsPublic]
-//           db.Room.create(body)
-//           .then(room => {
-//             if (body.course) {
-//               room.populate({path: 'course', select: 'name'})
-//             }
-//             room.populate({path: 'members.user', select: 'username'}, () => {
-//               resolve([room, template])
-//             })
-//           })
-//           .catch(err => reject(err))
-//         })
-//         .catch(err => reject(err))
-//       } else {
-        // delete body.template;
-        // delete body.templateIsPublic;
-        console.log("BODY: ", body)
+      body.notifications = [{user: body.creator, notificationType: 'newRoom'}]
         // MAYBE EXTRACT THIS OUT INTO A DIFFERENT FUNCTION CAUSE ITS THE SAME CODE AS ABOVE
         db.Room.create(body)
         .then(room => {

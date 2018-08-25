@@ -20,7 +20,7 @@ const Room = new mongoose.Schema({
     desmosLink: {type: String,},
     _id: false,
   }],
-  notifications: [{user: {type: ObjectId, ref: 'User'}, notificationType: {type: String}, _id: false}],
+  notifications: {type: [{user: {type: ObjectId, ref: 'User'}, notificationType: {type: String}, _id: false}], default: []},
   isPublic: {type: Boolean, default: false}
 },
 {timestamps: true});
@@ -32,17 +32,18 @@ Room.pre('save', function (next) {
     const users = this.members.map(member => member.user)
     promises.push(User.find({'_id': {$in: users}}))
     if (this.course) {
-      promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id}}))
+      promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id}, $addToSet: {notifications: {user: this.creator, notificationType: 'newRoom'}}}))
     }
     if (this.assignment) {
       promises.push(Assignment.findByIdAndUpdate(this.assignment, {$addToSet: {rooms: this._id}}))
     }
     Promise.all(promises)
     .then(values => {
-      console.log('VALUES: ', values)
       values[0].forEach(user => {
-        console.log("user: ", user)
         user.rooms.push(this._id)
+        if (this.assignment) {
+          user.assignments.push(this.assignment)
+        }
         user.save();
         next()
       })

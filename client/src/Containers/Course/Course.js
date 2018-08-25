@@ -26,20 +26,15 @@ class Course extends Component {
 
   componentDidMount() {
     const { currentCourse, userId } = this.props;
-    // The idea here is that a course will not have members unless it has already been populated
-    // if (!currentCourse.members) { // I DONT THINK WE EVER GET A COURSE FROM THE DB W/O ITS MEMBERS
-    //   this.props.populateCurrentCourse(this.props.match.params.course_id);
-    // }
-
     // Check user's permission level -- owner, member, or guest
     let updatedTabs = [...this.state.tabs];
     let owner = false;
     let member = false;
     if (currentCourse.creator === userId) {
-      let notifications = currentCourse.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
+      let memberNotifications = currentCourse.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
-      if (notifications.length > 0) {
-        updatedTabs[2] = {name: 'Members', notifications: notifications.length}
+      if (memberNotifications.length > 0) {
+        updatedTabs[2] = {name: 'Members', notifications: memberNotifications.length}
       }
       owner = true;
     }
@@ -47,6 +42,12 @@ class Course extends Component {
       if (currentCourse.members.find(member => member.user._id === userId)) {
         member = true;
       }
+    }
+    // Get Any other notifications
+    let roomNotifications = currentCourse.notifications.filter(ntf => (ntf.notificationType === 'newRoom'))
+    if (roomNotifications.length > 0) {
+      console.log(roomNotifications)
+      updatedTabs[1] = {name: 'Rooms', notifications: roomNotifications.length}
     }
     this.setState({
       tabs: updatedTabs,
@@ -132,7 +133,7 @@ class Course extends Component {
         {( this.state.owner || this.state.member || (course.isPublic && this.state.guestMode)) ?
           <DashboardLayout
             routingInfo={this.props.match}
-            crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/course/${course._id}/assignments/`}]}
+            crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/courses/${course._id}/assignments/`}]}
             sidePanelTitle={course.name}
             content={content}
             tabs={this.state.tabs}
