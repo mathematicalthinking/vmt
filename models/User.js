@@ -2,10 +2,11 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const User = new mongoose.Schema({
   courseTemplates: {type: [{type: ObjectId, ref: 'CourseTemplate'}], default: []},
-  roomTemplates: {type: [{type: ObjectId, ref: 'RoomTemplate'}], default: []},
   courses: {type: [{type: ObjectId, ref: 'Course'}], default: []},
   rooms: {type: [{type: ObjectId, ref: 'Room'}], default: []},
   assignments: {type: [{type: ObjectId, ref: 'Assignment'}], default: []},
+  roomNotifications: {type: [{notificationType: String, _id: {type: ObjectId, ref: 'Room'}}], default: []},
+  courseNotifications: {type: [{notificationType: String, _id: {type: ObjectId, ref: 'Course'}}], default: []},
   firstName: {type: String},
   lastName: {type: String},
   username: {type: String, required: true},

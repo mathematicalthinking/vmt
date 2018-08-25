@@ -13,14 +13,16 @@ const Room = new mongoose.Schema({
   dueDate: {type: Date,},
   events: [{type: ObjectId, ref: 'Event'}],
   chat: [{type: ObjectId, ref: 'Message'}],
-  members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}, _id: false}],
+  members: [{
+    user: {type: ObjectId, ref: 'User'},
+    role: {type: String},
+    _id: false}],
   currentUsers: {type: [{type: ObjectId, ref: 'User'}], default: []},
   tabs: [{
     ggbFile: {type: String,},
     desmosLink: {type: String,},
     _id: false,
   }],
-  notifications: {type: [{user: {type: ObjectId, ref: 'User'}, notificationType: {type: String}, _id: false}], default: []},
   isPublic: {type: Boolean, default: false}
 },
 {timestamps: true});
@@ -32,7 +34,7 @@ Room.pre('save', function (next) {
     const users = this.members.map(member => member.user)
     promises.push(User.find({'_id': {$in: users}}))
     if (this.course) {
-      promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id}, $addToSet: {notifications: {user: this.creator, notificationType: 'newRoom'}}}))
+      promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id}}))
     }
     if (this.assignment) {
       promises.push(Assignment.findByIdAndUpdate(this.assignment, {$addToSet: {rooms: this._id}}))
@@ -41,9 +43,9 @@ Room.pre('save', function (next) {
     .then(values => {
       values[0].forEach(user => {
         user.rooms.push(this._id)
-        if (this.assignment) {
-          user.assignments.push(this.assignment)
-        }
+        user.roomNotifications.push({notificationType: 'newRoom', _id: this._id})
+        if (this.course) user.courseNotifications.push({notificationType: 'newRoom', _id: this.course})
+        if (this.assignment) user.assignments.push(this.assignment)
         user.save();
         next()
       })

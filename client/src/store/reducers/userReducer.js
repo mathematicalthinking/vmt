@@ -7,6 +7,8 @@ const initialState = {
   loggingIn: false,
   loginError: '',
   courses: [],
+  courseNotifications: [],
+  roomNotifications: [],
   rooms: [],
   courseTemplates: [],
   assignments: [],
@@ -28,6 +30,7 @@ const reducer = (state = initialState, action) => {
       };
     case actionTypes.LOGIN_SUCCESS:
       // login authentication
+      console.log(action.user)
       return {
         ...state,
         loggedIn: true,
@@ -35,7 +38,9 @@ const reducer = (state = initialState, action) => {
         username: action.user.username,
         id: action.user._id,
         courses: action.user.courses,
+        courseNotifications: action.user.courseNotifications,
         rooms: action.user.rooms,
+        roomNotifications: action.user.roomNotifications,
         courseTemplates: action.user.courseTemplates,
         assignments: action.user.assignments,
         seenTour: action.user.seenTour,

@@ -25,12 +25,12 @@ class Course extends Component {
   }
 
   componentDidMount() {
-    const { currentCourse, userId } = this.props;
+    const { currentCourse, user } = this.props;
     // Check user's permission level -- owner, member, or guest
     let updatedTabs = [...this.state.tabs];
     let owner = false;
     let member = false;
-    if (currentCourse.creator === userId) {
+    if (currentCourse.creator === user.id) {
       let memberNotifications = currentCourse.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
       if (memberNotifications.length > 0) {
@@ -38,17 +38,17 @@ class Course extends Component {
       }
       owner = true;
     }
-    else if (currentCourse.members) {
-      if (currentCourse.members.find(member => member.user._id === userId)) {
-        member = true;
+    if (currentCourse.members) {
+      if (currentCourse.members.find(member => member.user._id === user.id)) member = true;
+      if (user.courseNotifications) {
+        const roomNotifications = user.courseNotifications.filter(ntf => (
+          ntf.notificationType === 'newRoom' && ntf._id === currentCourse._id
+        ))
+        updatedTabs[1] = {name: 'Rooms', notifications: roomNotifications.length}
       }
+
     }
     // Get Any other notifications
-    let roomNotifications = currentCourse.notifications.filter(ntf => (ntf.notificationType === 'newRoom'))
-    if (roomNotifications.length > 0) {
-      console.log(roomNotifications)
-      updatedTabs[1] = {name: 'Rooms', notifications: roomNotifications.length}
-    }
     this.setState({
       tabs: updatedTabs,
       owner: owner,
@@ -70,7 +70,7 @@ class Course extends Component {
   }
   requestAccess = () => {
     // @TODO Use redux actions to make this request
-    API.requestAccess('course', this.props.match.params.course_id, this.props.userId)
+    API.requestAccess('course', this.props.match.params.course_id, this.props.user.id)
     .then(res => {
       // @TODO SEND/DISPLAY CONFIRMATION somehow
       this.props.history.push('/confirmation')
@@ -118,7 +118,7 @@ class Course extends Component {
         list of courses and rooms, click 'Join'. If you just want to poke around click 'Explore'
       </p>
       <Button click={() => this.props.grantAccess(
-        {_id: this.props.userId, username: this.props.username}, 'course', course._id)}>Join</Button>
+        {_id: this.props.user.id, username: this.props.user.username}, 'course', course._id)}>Join</Button>
       <Button click={() => {this.setState({guestMode: true})}}>Explore</Button>
     </Modal>
     const privateAccessModal = <Modal show={true}>
@@ -146,8 +146,7 @@ class Course extends Component {
 
 const mapStateToProps = (store, ownProps) => ({
   currentCourse: populateResource(store, 'courses', ownProps.match.params.course_id, ['assignments', 'rooms']),
-  userId: store.user.id,
-  username: store.user.username,
+  user: store.user,
 })
 
 const mapDispatchToProps = dispatch => {
