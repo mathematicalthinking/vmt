@@ -14,8 +14,10 @@ export {
 export {
   fail,
   start,
+  clear,
   success,
   clearError,
+  accessSuccess,
 } from './loading';
 export {
   getRooms,

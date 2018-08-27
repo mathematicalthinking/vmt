@@ -51,12 +51,12 @@ const reducer = (state = initialState, action) => {
     case actionTypes.UPDATE_USER_COURSE_TEMPLATES:
       return {
         ...state,
-        courseTemplates: [action.newTemplate, ...state.courseTemplates],
+        courseTemplates: [...state.courseTemplates, action.newTemplate],
       }
     case actionTypes.UPDATE_USER_ASSIGNMENTS:
       return {
         ...state,
-        assignments: [action.newAssignment, ...state.assignments]
+        assignments: [...state.assignments, action.newAssignment]
       }
     case actionTypes.CLEAR_ERROR:
       return {

@@ -75,6 +75,7 @@ class Course extends Component {
   requestAccess = () => {
     const {currentCourse, user} = this.props;
     this.props.requestAccess(currentCourse.creator, user.id, 'course', currentCourse._id)
+    this.props.history.push('/confirmation')
   }
 
   render() {
@@ -148,8 +149,6 @@ class Course extends Component {
 const mapStateToProps = (store, ownProps) => ({
   currentCourse: populateResource(store, 'courses', ownProps.match.params.course_id, ['assignments', 'rooms']),
   user: store.user,
-  requestingAccess: store.loading.requestingAccess,
-  accessSuccess: store.loading.accessSuccess,
 })
 
 const mapDispatchToProps = dispatch => {

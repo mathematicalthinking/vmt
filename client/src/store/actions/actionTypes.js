@@ -13,6 +13,8 @@ export const CLEAR_ERROR = 'CLEAR_ERROR';
 export const START = 'START';
 export const SUCCESS = 'SUCESS';
 export const FAIL = 'FAIL';
+export const ACCESS_SUCCESS = 'ACCESS_SUCCESS';
+export const CLEAR = 'CLEAR';
 
 // // SIGNUP
 

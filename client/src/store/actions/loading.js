@@ -19,3 +19,15 @@ export const fail = errorMessage => {
     error: errorMessage,
   }
 }
+
+export const accessSuccess = () => {
+  return {
+    type: actionTypes.ACCESS_SUCCESS,
+  }
+}
+
+export const clear = () => {
+  return {
+    type: actionTypes.CLEAR,
+  }
+}
