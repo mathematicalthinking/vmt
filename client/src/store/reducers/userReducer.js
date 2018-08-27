@@ -17,7 +17,7 @@ const initialState = {
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case actionTypes.LOGIN_SUCCESS:
+    case actionTypes.GOT_USER:
       // login authentication
       console.log(action.user)
       return {

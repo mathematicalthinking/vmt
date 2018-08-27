@@ -2,14 +2,18 @@ import * as actionTypes from './actionTypes';
 import auth from '../../utils/auth';
 import { normalize } from '../utils/normalize';
 import API from '../../utils/apiRequests';
-import {
-  loginStart,
-  loginFail,
-  loginSuccess } from './index'
+import * as loading from './loading'
 import { updateCourse, gotCourses } from './courses';
 import { updateRoom, gotRooms } from './rooms';
 import { gotAssignments } from './assignments';
 
+
+export const gotUser = user => {
+  return {
+    type: actionTypes.GOT_USER,
+    user,
+  }
+}
 
 export const updateUserCourses = newCourse => {
   return {
@@ -49,25 +53,25 @@ export const updateUserRoomTemplates = newTemplate => {
 
 export const signup = body => {
   return dispatch => {
-    dispatch(loginStart());
+    dispatch(loading.loginStart());
     auth.signup(body)
     .then(res => {
       if (res.data.errorMessage) {
-        return dispatch(loginFail(res.data.errorMessage))
+        return dispatch(loading.loginFail(res.data.errorMessage))
       }
-      dispatch(loginSuccess(res.data))
+      dispatch(loading.loginSuccess(res.data))
     })
     .catch(err => {
-      dispatch(loginFail('something went wrong'))})
+      dispatch(loading.loginFail('something went wrong'))})
   }
 }
 
 export const login = (username, password) => {
   return (dispatch, getState) => {
-    dispatch(loginStart());
+    dispatch(loading.loginStart());
     auth.login(username, password)
     .then(res => {
-      if (res.data.errorMessage) {return dispatch(loginFail(res.data.errorMessage))}
+      if (res.data.errorMessage) {return dispatch(loading.loginFail(res.data.errorMessage))}
       const courses = normalize(res.data.courses)
       const rooms = normalize(res.data.rooms)
       const assignments = normalize(res.data.assignments)
@@ -80,20 +84,24 @@ export const login = (username, password) => {
         courses: courses.allIds,
         assignments: assignments.allIds
       }
-      return dispatch(loginSuccess(user));
+      dispatch(gotUser(user))
+      return dispatch(loading.loginSuccess());
     })
     .catch(err => {
-      dispatch(loginFail(err.response.statusText))
+      dispatch(loading.loginFail(err.response.statusText))
     })
   }
 }
 
 export const requestAccess = (toUser, fromUser, resource, resourceId) => {
   return dispatch => {
+    dispatch(loading.requestingAccess());
     API.requestAccess(toUser, fromUser, resource, resourceId)
     .then(res => {
-      return 'success';
+      return dispatch(loading.accessSuccess())
     })
+    .catch(err => {
+      return dispatch(loading.accessFail())})
   }
 }
 
@@ -112,13 +120,13 @@ export const grantAccess = (user, resource, id) => {
 
 export const googleLogin = (username, password) => {
   return dispatch => {
-    dispatch(loginStart());
+    dispatch(loading.loginStart());
     auth.googleLogin(username, password)
     .then(res => {
-      dispatch(loginSuccess(res));
+      dispatch(loading.loginSuccess(res));
     })
     .catch(err => {
-      dispatch(loginFail(err));
+      dispatch(loading.loginFail(err));
     })
   }
 }

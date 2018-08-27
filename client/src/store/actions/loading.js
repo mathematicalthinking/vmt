@@ -6,10 +6,9 @@ export const loginStart = () => {
   }
 }
 
-export const loginSuccess = user => {
+export const loginSuccess = () => {
   return {
     type: actionTypes.LOGIN_SUCCESS,
-    user,
   }
 }
 
@@ -19,3 +18,16 @@ export const loginFail = errorMessage => {
     error: errorMessage,
   }
 }
+
+export const requestingAccess = () => ({
+  type: actionTypes.REQUESTING_ACCESS,
+})
+
+export const accessSuccess = () => ({
+  type: actionTypes.ACCESS_SUCCESS,
+})
+
+export const accessFail = (err) => ({
+  type: actionTypes.ACCESS_FAIL,
+  err,
+})

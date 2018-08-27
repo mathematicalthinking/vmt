@@ -21,7 +21,19 @@ const reducer = (state = initialState, action) => {
       loggingIn: false,
       loginError: action.error,
     };
-    default: return;
+    case actionTypes.REQUESTING_ACCESS:
+      return {
+        ...state,
+        requestingAccess: true,
+        requestAccessSuccess: false,
+      }
+    case actionTypes.ACCESS_SUCCESS:
+      return {
+        ...state,
+        requestingAccess: false,
+        requestAccessSuccess: true,
+      }
+    default: return {...state};
   }
 }
 

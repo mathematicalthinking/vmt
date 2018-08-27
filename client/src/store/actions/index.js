@@ -1,6 +1,7 @@
 export {
   login,
   signup,
+  gotUser,
   grantAccess,
   requestAccess,
   googleLogin,
@@ -14,6 +15,9 @@ export {
   loginStart,
   loginSuccess,
   loginFail,
+  requestingAccess,
+  accessSuccess,
+  accessFail,
 } from './loading';
 export {
   getRooms,
