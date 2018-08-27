@@ -53,24 +53,24 @@ export const updateUserRoomTemplates = newTemplate => {
 
 export const signup = body => {
   return dispatch => {
-    dispatch(loading.loginStart());
+    dispatch(loading.start());
     auth.signup(body)
     .then(res => {
-      if (res.data.errorMessage) return dispatch(loading.loginFail(res.data.errorMessage))
+      if (res.data.errorMessage) return dispatch(loading.fail(res.data.errorMessage))
       dispatch(gotUser(res.data));
-      dispatch(loading.loginSuccess());
+      dispatch(loading.success());
     })
     .catch(err => {
-      dispatch(loading.loginFail('something went wrong'))})
+      dispatch(loading.fail('something went wrong'))})
   }
 }
 
 export const login = (username, password) => {
   return (dispatch, getState) => {
-    dispatch(loading.loginStart());
+    dispatch(loading.start());
     auth.login(username, password)
     .then(res => {
-      if (res.data.errorMessage) {return dispatch(loading.loginFail(res.data.errorMessage))}
+      if (res.data.errorMessage) {return dispatch(loading.fail(res.data.errorMessage))}
       const courses = normalize(res.data.courses)
       const rooms = normalize(res.data.rooms)
       const assignments = normalize(res.data.assignments)
@@ -84,29 +84,30 @@ export const login = (username, password) => {
         assignments: assignments.allIds
       }
       dispatch(gotUser(user))
-      return dispatch(loading.loginSuccess());
+      return dispatch(loading.success());
     })
     .catch(err => {
-      dispatch(loading.loginFail(err.response.statusText))
+      dispatch(loading.fail(err.response.statusText))
     })
   }
 }
 
 export const requestAccess = (toUser, fromUser, resource, resourceId) => {
   return dispatch => {
-    dispatch(loading.requestingAccess());
+    dispatch(loading.start());
     API.requestAccess(toUser, fromUser, resource, resourceId)
     .then(res => {
-      return dispatch(loading.accessSuccess())
+      return dispatch(loading.success())
     })
     .catch(err => {
-      return dispatch(loading.accessFail())})
+      return dispatch(loading.fail())})
   }
 }
 
-export const grantAccess = (user, resource, id) => {
+export const grantAccess = (toUser, fromUser, resource, resourceId) => {
   return dispatch => {
-    API.grantAccess(user, resource, id)
+    dispatch(loading.start())
+    API.grantAccess(toUser, fromUser, resource, resourceId)
     .then(res => {
       if (resource === 'room') {
         return dispatch(updateRoom(res.data.result))
@@ -119,13 +120,13 @@ export const grantAccess = (user, resource, id) => {
 
 export const googleLogin = (username, password) => {
   return dispatch => {
-    dispatch(loading.loginStart());
+    dispatch(loading.start());
     auth.googleLogin(username, password)
     .then(res => {
-      dispatch(loading.loginSuccess(res));
+      dispatch(loading.success(res));
     })
     .catch(err => {
-      dispatch(loading.loginFail(err));
+      dispatch(loading.fail(err));
     })
   }
 }

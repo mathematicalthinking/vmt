@@ -12,12 +12,9 @@ export {
   clearError,
 } from './user';
 export {
-  loginStart,
-  loginSuccess,
-  loginFail,
-  requestingAccess,
-  accessSuccess,
-  accessFail,
+  start,
+  success,
+  fail,
 } from './loading';
 export {
   getRooms,

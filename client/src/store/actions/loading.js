@@ -1,33 +1,21 @@
 import * as actionTypes from './actionTypes';
 
-export const loginStart = () => {
+export const start = () => {
   return {
-    type: actionTypes.LOGIN_START
+    type: actionTypes.START
   }
 }
 
-export const loginSuccess = () => {
+
+export const success = () => {
   return {
-    type: actionTypes.LOGIN_SUCCESS,
+    type: actionTypes.SUCCESS,
   }
 }
 
-export const loginFail = errorMessage => {
+export const fail = errorMessage => {
   return {
-    type: actionTypes.LOGIN_FAIL,
+    type: actionTypes.FAIL,
     error: errorMessage,
   }
 }
-
-export const requestingAccess = () => ({
-  type: actionTypes.REQUESTING_ACCESS,
-})
-
-export const accessSuccess = () => ({
-  type: actionTypes.ACCESS_SUCCESS,
-})
-
-export const accessFail = (err) => ({
-  type: actionTypes.ACCESS_FAIL,
-  err,
-})

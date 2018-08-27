@@ -44,7 +44,7 @@ const students = props => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    grantAccess: (user, resource, id) => dispatch(actions.grantAccess(user, resource, id))
+    grantAccess: (user, resource, resourceId) => dispatch(actions.grantAccess(user, resource, resourceId))
   }
 }
 

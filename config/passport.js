@@ -69,14 +69,16 @@ module.exports = passport => {
 
       return next(null, user);
     })
-    .lean()
     .populate({
       path: 'courses',
-      populate: {path: 'notifications.user members.user', select: 'username'},
+      populate: {path: 'members.user', select: 'username'},
       options: {sort: {createdAt: -1}},
     })
-    .populate('rooms', 'notifications.user name description isPublic creator roomType')
-    .populate('assignments', 'name description isPublic creator roomType rooms')
+    // .populate('rooms', 'notifications.user name description isPublic creator roomType')
+    // .populate('assignments', 'name description isPublic creator roomType rooms')
+    .populate({path: 'courseNotifications.access.user', select: 'username'})
+    // .populat({path: 'roomNotifications.access.user', select: 'username'})
+    .lean()
     // .populate('courseTemplates', 'notifications name description isPublic')
   }));
 

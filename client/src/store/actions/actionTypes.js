@@ -9,13 +9,9 @@ export const UPDATE_USER_ROOM_TEMPLATES = 'UPDATE_USER_ROOM_TEMPLATES';
 export const CLEAR_ERROR = 'CLEAR_ERROR';
 
 // LOADING
-export const SIGNUP = 'SIGNUP';
-export const LOGIN_START = 'LOGIN_START';
-export const LOGIN_SUCCESS ='LOGIN_SUCCESS';
-export const LOGIN_FAIL = 'LOGIN_FAIL';
-export const REQUESTING_ACCESS = 'REQUESTING_ACCESS';
-export const ACCESS_SUCCESS = 'ACCESS_SUCCESS';
-export const ACCESS_FAIL = 'ACCESS_FAIL';
+export const START = 'START';
+export const SUCCESS = 'SUCESS';
+export const FAIL = 'FAIL';
 
 // // SIGNUP
 

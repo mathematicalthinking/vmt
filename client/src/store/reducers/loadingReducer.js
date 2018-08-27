@@ -10,35 +10,35 @@ const initialState = {
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case actionTypes.LOGIN_START:
+    case actionTypes.START:
     return {
       ...state,
       loggingIn: true,
     };
-    case actionTypes.LOGIN_FAIL:
+    case actionTypes.FAIL:
     return {
       ...state,
       loggingIn: false,
       loginError: action.error,
     };
-    case actionTypes.LOGIN_SUCCESS:
+    case actionTypes.SUCCESS:
       return {
         ...state,
         loggingIn: false,
         loginSuccess: true,
       }
-    case actionTypes.REQUESTING_ACCESS:
-      return {
-        ...state,
-        requestingAccess: true,
-        requestAccessSuccess: false,
-      }
-    case actionTypes.ACCESS_SUCCESS:
-      return {
-        ...state,
-        requestingAccess: false,
-        requestAccessSuccess: true,
-      }
+    // case actionTypes.REQUESTING_ACCESS:
+    //   return {
+    //     ...state,
+    //     requestingAccess: true,
+    //     requestAccessSuccess: false,
+    //   }
+    // case actionTypes.ACCESS_SUCCESS:
+    //   return {
+    //     ...state,
+    //     requestingAccess: false,
+    //     requestAccessSuccess: true,
+    //   }
     default: return {...state};
   }
 }

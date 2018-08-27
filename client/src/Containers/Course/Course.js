@@ -82,7 +82,9 @@ class Course extends Component {
     // @TODO We should put this in MOunt or Update so that we can leverage some codesplitting?
     const course = this.props.currentCourse;
     const resource = this.props.match.params.resource;
+    const user = this.props.user;
     let content;
+    console.log("COURSE: ", course)
     // @TODO THIS VAN BE LESS VERBOSE USE PROGILE CONTAINER AS A TEMPLATE. WE'LL NEED TO USE RESOURCES LAYOUT
     // INSTEAD OF BOXLIST
     switch (resource) {
@@ -108,7 +110,7 @@ class Course extends Component {
         break;
       case 'members' :
       // @TODO make a folder of NOTFICATION_TYPES ...somewhere
-        content = <Students classList={course.members} notifications={[]} resource='course'  resourceId={course._id} owner={this.state.owner} />
+        content = <Students classList={course.members} notifications={user.courseNotifications.access} resource='course'  resourceId={course._id} owner={this.state.owner} />
         break;
       default : content = null;
     }
