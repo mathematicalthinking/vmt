@@ -138,6 +138,8 @@ class Course extends Component {
 const mapStateToProps = (store, ownProps) => ({
   currentCourse: populateResource(store, 'courses', ownProps.match.params.course_id, ['assignments', 'rooms']),
   user: store.user,
+  requestingAccess: store.loading.requestingAccess,
+  accessSuccess: store.loading.accessSuccess,
 })
 
 const mapDispatchToProps = dispatch => {

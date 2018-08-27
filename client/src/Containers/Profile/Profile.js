@@ -21,43 +21,38 @@ class Profile extends Component {
   }
 
   componentDidMount() {
-    const { courses, user } = this.props;
-    if (!user.seenTour) {
-      this.setState({touring: true})
+    const { courseNotifications, roomNotifications } = this.props.user;
+    const updatedTabs = [...this.state.tabs]
+    // if (!user.seenTour) {
+    //   this.setState({touring: true})
+    // }
+    if (courseNotifications.access.length > 0) {
+      updatedTabs[0].notifications = courseNotifications.access.length;
     }
-    let updatedTabs = [...this.state.tabs]
-    let courseNtfs = [];
-    let roomNtfs = [];
-    // @TODO Only give the user memberNotifications if they're the owner?
-    console.log(courses)
-    if (courses) {
-      courseNtfs = courses.reduce((acc, course) => {
-        console.log(course.notifications)
-        acc = acc.concat(course.notifications)
-        return acc;
-      }, [])
+    if (courseNotifications.newRoom.length > 0){
+      updatedTabs[0].notifications += courseNotifications.newRoom.length;
     }
-    console.log(user.courseNotifications)
-    courseNtfs = courseNtfs.concat(user.courseNotifications)
-    if (courseNtfs.length > 0) updatedTabs[0].notifications = courseNtfs.length;
-    this.setState({
-      tabs: updatedTabs,
-      notifications: {
-        courses: courseNtfs,
-        rooms: roomNtfs,
-      }
-    })
+    if (roomNotifications.newRoom.length > 0){
+      updatedTabs[1].notifications = roomNotifications.newRoom.length;
+    }
     console.log(updatedTabs)
-    console.log(courseNtfs)
+    this.setState({
+      tabs: updatedTabs
+    })
   }
 
   render() {
-    const resource = this.props.match.params.resource;
+    const { user, match } = this.props;
+    const resource = match.params.resource;
+    console.log('RESOURCE: ', resource)
     let content;
     // Load content based on
     // const updatedResources = {...this.props[resource]}
-    content = <Resources userResources={this.props[resource] || []} resource={resource} userId={this.props.user.id}/>
-
+    content = <Resources
+      userResources={this.props[resource] || []}
+      notifications={resource === 'courses' ? user.courseNotifications : user.roomNotifications}
+      resource={resource}
+      userId={user.id}/>
     return (
       // <Aux>
         <DashboardLayout

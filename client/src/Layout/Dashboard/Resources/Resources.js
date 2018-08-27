@@ -4,7 +4,7 @@ import NewResource from '../../../Containers/Create/NewResource/NewResource';
 const resources = props => {
     // @TODO Is there a way to do this passing over the array only once?
     console.log('PROPS.USERrESOURCES ', props.userResources )
-    console.log('PROPS.USERid ', props.userId)
+    console.log(props.notifications)
     const ownedResources = props.userResources.filter(resource => (
       resource.creator === props.userId
     ))
@@ -13,8 +13,6 @@ const resources = props => {
     ))
     const linkSuffix = props.resource === 'courses' ? '/assignments' : '/summary';
     const displayResource = props.resource[0].toUpperCase() + props.resource.slice(1);
-    console.log(ownedResources);
-    console.log(enrolledResources);
     return (
       <div>
         <NewResource resource={props.resource}/>
@@ -23,14 +21,14 @@ const resources = props => {
           list={ownedResources}
           linkPath={`/profile/${props.resource}/`}
           linkSuffix={linkSuffix}
-          notifications
+          notifications = {props.notifications}
         />
         <h2>{displayResource} I'm Enrolled in</h2>
         <BoxList
           list={enrolledResources}
           linkPath={`/profile/${props.resource}/`}
           linkSuffix={linkSuffix}
-          notifications
+          notifications = {props.notifications}
         />
       </div>
     )

@@ -56,10 +56,9 @@ export const signup = body => {
     dispatch(loading.loginStart());
     auth.signup(body)
     .then(res => {
-      if (res.data.errorMessage) {
-        return dispatch(loading.loginFail(res.data.errorMessage))
-      }
-      dispatch(loading.loginSuccess(res.data))
+      if (res.data.errorMessage) return dispatch(loading.loginFail(res.data.errorMessage))
+      dispatch(gotUser(res.data));
+      dispatch(loading.loginSuccess());
     })
     .catch(err => {
       dispatch(loading.loginFail('something went wrong'))})

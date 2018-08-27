@@ -8,9 +8,12 @@ const boxList = props => {
   if (props.list.length > 0) {
     listElems = props.list.map((item, i)=> {
       let notifications = 0;
-      // attach notification icon to the box if it has active notifications
-      if (props.notifications && item.notifications) {
-        notifications = item.notifications.length
+      if (props.notifications) {
+        props.notifications.access.forEach((ntf) => {
+          if (ntf._id === item._id) {
+            notifications += 1;
+          }
+        })
       }
       return (<div className={classes.ContentBox} key={i}>
         <ContentBox
