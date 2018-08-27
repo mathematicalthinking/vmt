@@ -58,14 +58,13 @@ module.exports = {
       console.log('editing course')
       db.Course.findById(id)
       .then(course => {
+        console.log(updatedFields[0])
         if (updatedFields[0] === 'newMember') {
-          course.members.push(body.newMember)
+          course.members.push({role: 'Student', user: body.newMember})
         }
         // console.log("DOC ", course)
         course.save(); // @TODO CONSIDER AWAITING THIS SO WE CAN ONLY RESOLVE IF THE SAVE WORKS
-        course.populate({path: 'members.user', select: 'username'})
-        .populate('creator', (err, pop) => {
-          console.log('course after popo: ', pop)
+        course.populate({path: 'members.user', select: 'username'}, (err, pop) => {
           resolve(pop)})
         })
       .catch(err => reject(err))

@@ -104,14 +104,15 @@ export const requestAccess = (toUser, fromUser, resource, resourceId) => {
   }
 }
 
-export const grantAccess = (toUser, fromUser, resource, resourceId) => {
+export const grantAccess = (user, resource, resourceId) => {
   return dispatch => {
     dispatch(loading.start())
-    API.grantAccess(toUser, fromUser, resource, resourceId)
+    API.grantAccess(user, resource, resourceId)
     .then(res => {
       if (resource === 'room') {
         return dispatch(updateRoom(res.data.result))
       }
+      console.log(res.data.result)
       // dispatch(updateUserCourses(resp.data.result)) @TODO Need to update the notifcations associated with this course
       return dispatch(updateCourse(res.data.result))
     })

@@ -7,7 +7,7 @@ const User = new mongoose.Schema({
   assignments: {type: [{type: ObjectId, ref: 'Assignment'}], default: []},
   roomNotifications: {
     access: [{
-      notificationType: String, // grantAccess || requestAccess
+      notificationType: String, // grantedAccess || requestAccess
       _id: {type: ObjectId, ref: 'Room'},
       user: {type: ObjectId, ref: 'User'},
     }],

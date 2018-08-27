@@ -14,19 +14,15 @@ const Course = new mongoose.Schema({
 
 // Not using arrow function so we can have access to THIS docuemnt
 Course.pre('save', function(next){
-  // console.log(this.isNew)
   if (this.isNew) {
-    // console.log(this._id)
     User.findByIdAndUpdate(this.creator, {$addToSet: {courses: this._id}})
     .then(user => {
       next()
-      // console.log('success', user)
     })
   }
   // IF We're updating
   if (!this.isNew) {
-    const editedFields = this.modifiedPaths()
-    editedFields.forEach(field => {
+    this.modifiedPaths().forEach(field => {
       if (field === 'rooms') {
         // console.log('updating rooms in course pre save hook')
       // add these rooms to all of the members in this course
@@ -34,19 +30,28 @@ Course.pre('save', function(next){
 
       }
       else if (field === 'members') {
-        console.log('UPDATING MEMBERS')
         // @TODO IS it safe to assume it will be at the end...I think so
         // cause we're using push
         const member = this.members[this.members.length - 1]
-        console.log(member)
         // console.log('new member: ', member)
-        User.findByIdAndUpdate(member.user, {
-          $addToSet: {courses: this._id, rooms: this.rooms}
+        const promises = [];
+        promises.push(User.findByIdAndUpdate(member.user, {
+          $addToSet: {courses: this._id, rooms: this.rooms},
+          $addToSet: {'courseNotifications.access': {
+            notificationType: 'grantedAccess',
+            _id: this._id,
+          }
+          // $addToSet ROOM NOTIFICATIONS
+          }
+        }))
+        promises.push(User.findByIdAndUpdate(this.creator, {
+          $pull: {'courseNotifications.access': {user: member.user}}
         })
         .then(user => {
           console.log(user)
           next();
-        })
+        }))
+        Promise.all(promises).then(res => next())
         // add all of the rooms of this course to the new member
         // and add them to the rooms' list of members
         // console.log(this._id)
