@@ -3,7 +3,7 @@ import * as actionTypes from '../actions/actionTypes';
 const initialState = {
   loggingIn: false,
   logginError: '',
-  loginSucess: false,
+  loginSuccess: false,
   requestingAccess: false,
   requestAccessSuccess: false,
 }
@@ -21,6 +21,12 @@ const reducer = (state = initialState, action) => {
       loggingIn: false,
       loginError: action.error,
     };
+    case actionTypes.LOGIN_SUCCESS:
+      return {
+        ...state,
+        loggingIn: false,
+        loginSuccess: true,
+      }
     case actionTypes.REQUESTING_ACCESS:
       return {
         ...state,

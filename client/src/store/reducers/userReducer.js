@@ -4,8 +4,6 @@ const initialState = {
   username: '',
   id: '',
   loggedIn: false,
-  loggingIn: false,
-  loginError: '',
   courses: [],
   courseNotifications: [],
   roomNotifications: [],
@@ -23,7 +21,6 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         loggedIn: true,
-        loggingIn: false,
         username: action.user.username,
         id: action.user._id,
         courses: action.user.courses,

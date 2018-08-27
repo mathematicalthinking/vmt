@@ -116,8 +116,8 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = store => {
   return {
     loggedIn: store.user.loggedIn,
-    errorMessage: store.user.loginError,
-    loading: store.user.loggingIn,
+    errorMessage: store.loading.loginError,
+    loading: store.loading.loggingIn,
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
