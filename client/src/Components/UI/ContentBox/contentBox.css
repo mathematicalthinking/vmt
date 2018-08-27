@@ -49,4 +49,6 @@
   background-color: red;
   color: white;
   text-align: center;
+  -webkit-text-stroke-width: .01em;
+  -webkit-text-stroke-color: #333;
 }

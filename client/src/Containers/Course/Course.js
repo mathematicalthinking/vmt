@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { populateResource } from '../../store/reducers/';
 import * as actions from '../../store/actions/';
-import API from '../../utils/apiRequests';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import BoxList from '../../Layout/BoxList/BoxList';
 import NewResource from '../Create/NewResource/NewResource';
@@ -26,7 +25,7 @@ class Course extends Component {
 
   componentDidMount() {
     const { currentCourse, user } = this.props;
-    const { courseNotifications } = user;
+
     // Check user's permission level -- owner, member, or guest
     let updatedTabs = [...this.state.tabs];
     let owner = false;
@@ -40,17 +39,7 @@ class Course extends Component {
       // if (!user.seenTour) {
       //   this.setState({touring: true})
       // }
-      if (courseNotifications.access.length > 0) {
-        updatedTabs[2].notifications = courseNotifications.access.length;
-      }
-      if (courseNotifications.newRoom.length > 0){
-        updatedTabs[1].notifications = courseNotifications.newRoom.length;
-      }
-      console.log(updatedTabs)
-      this.setState({
-        tabs: updatedTabs
-      })
-
+      updatedTabs = this.displayNotifications(updatedTabs);
     }
     // Get Any other notifications
     this.setState({
@@ -61,21 +50,26 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.currentCourse.notifications !== this.props.currentCourse.notifications) {
-      let updatedTabs = [...this.state.tabs];
-      let notifications = this.props.currentCourse.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
-      updatedTabs[2] = {name: 'Members', notifications: notifications.length}
+    if (prevProps.currentCourse.members !== this.props.currentCourse.members) {
+      const updatedTabs = this.displayNotifications([...this.state.tabs]);
       this.setState({tabs: updatedTabs})
-    }
-
-    if (prevProps.currentCourse.members !== this.props.currentCourse.members) { // @TODO THIS WILL LIKELY HAVE TO CHANGE WHEN WE HAVE REMOVE USER FUNCTIONALITY
-      this.setState({member: true}) // CAN WE JUST ASSUME THIS? OR SHOULD WE FILTER THROUGH MEMBERS TO MAKE SURE CURRENT USER IS A MEMBER
     }
   }
   requestAccess = () => {
     const {currentCourse, user} = this.props;
     this.props.requestAccess(currentCourse.creator, user.id, 'course', currentCourse._id)
     this.props.history.push('/confirmation')
+  }
+
+  displayNotifications = (tabs) => {
+    const { courseNotifications } = this.props.user;
+    if (courseNotifications.access.length > 0) {
+      tabs[2].notifications = courseNotifications.access.length;
+    }
+    if (courseNotifications.newRoom.length > 0){
+      tabs[1].notifications = courseNotifications.newRoom.length;
+    }
+    return tabs;
   }
 
   render() {

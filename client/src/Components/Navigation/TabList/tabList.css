@@ -24,4 +24,6 @@
   width: 20px;
   height: 20px;
   text-align: center;
+  -webkit-text-stroke-width: .01em;
+  -webkit-text-stroke-color: #333;
 }
