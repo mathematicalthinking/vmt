@@ -26,6 +26,7 @@ class Course extends Component {
 
   componentDidMount() {
     const { currentCourse, user } = this.props;
+    const { courseNotifications } = user;
     // Check user's permission level -- owner, member, or guest
     let updatedTabs = [...this.state.tabs];
     let owner = false;
@@ -36,12 +37,19 @@ class Course extends Component {
     }
     if (currentCourse.members) {
       if (currentCourse.members.find(member => member.user._id === user.id)) member = true;
-      // if (user.courseNotifications) {
-      //   const roomNotifications = user.courseNotifications.filter(ntf => (
-      //     ntf.notificationType === 'newRoom' && ntf._id === currentCourse._id
-      //   ))
-      //   updatedTabs[1].notifications =  roomNotifications
+      // if (!user.seenTour) {
+      //   this.setState({touring: true})
       // }
+      if (courseNotifications.access.length > 0) {
+        updatedTabs[2].notifications = courseNotifications.access.length;
+      }
+      if (courseNotifications.newRoom.length > 0){
+        updatedTabs[1].notifications = courseNotifications.newRoom.length;
+      }
+      console.log(updatedTabs)
+      this.setState({
+        tabs: updatedTabs
+      })
 
     }
     // Get Any other notifications

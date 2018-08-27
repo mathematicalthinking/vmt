@@ -9,7 +9,8 @@ const boxList = props => {
     listElems = props.list.map((item, i)=> {
       let notifications = 0;
       if (props.notifications) {
-        props.notifications.access.forEach((ntf) => {
+        const allNtfs = props.notifications.access.concat(props.notifications.newRoom)
+        allNtfs.forEach((ntf) => {
           if (ntf._id === item._id) {
             notifications += 1;
           }
