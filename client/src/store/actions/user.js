@@ -36,6 +36,16 @@ export const updateUserRooms = newRoom => {
   }
 }
 
+export const updateUserAccessNtfs = (resource, user) => {
+  console.log('we ever getting here?')
+  if (resource === 'course') {
+    return {
+      type: actionTypes.UPDATE_USER_COURSE_ACCESS_NTFS,
+      user,
+    }
+  }
+}
+
 export const updateUserCourseTemplates = newTemplate => {
   return {
     type: actionTypes.UPDATE_USER_COURSE_TEMPLATES,
@@ -114,6 +124,7 @@ export const grantAccess = (user, resource, resourceId) => {
       }
       console.log(res.data.result)
       // dispatch(updateUserCourses(resp.data.result)) @TODO Need to update the notifcations associated with this course
+      dispatch(updateUserAccessNtfs(resource, user))
       return dispatch(updateCourse(res.data.result))
     })
   }

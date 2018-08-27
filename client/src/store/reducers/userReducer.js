@@ -5,8 +5,8 @@ const initialState = {
   id: '',
   loggedIn: false,
   courses: [],
-  courseNotifications: [],
-  roomNotifications: [],
+  courseNotifications: {},
+  roomNotifications: {},
   rooms: [],
   courseTemplates: [],
   assignments: [],
@@ -40,6 +40,13 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         courses: [action.newCourse, ...state.courses]
+      }
+    case actionTypes.UPDATE_USER_COURSE_ACCESS_NTFS:
+      const courseNtfs = {...state.courseNotifications}
+      const updatedCourseNtfs = courseNtfs.access.filter(ntf => ntf.user._id !== action.user._id)
+      return {
+        ...state,
+        courseNotifications: {...courseNtfs, access: updatedCourseNtfs},
       }
     case actionTypes.UPDATE_USER_COURSE_TEMPLATES:
       return {

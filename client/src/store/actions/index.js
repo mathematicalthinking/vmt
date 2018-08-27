@@ -2,39 +2,40 @@ export {
   login,
   signup,
   gotUser,
+  googleLogin,
   grantAccess,
   requestAccess,
-  googleLogin,
   updateUserRooms,
   updateUserCourses,
+  updateUserAccessNtfs,
   updateUserAssignments,
   updateUserCourseTemplates,
-  clearError,
 } from './user';
 export {
+  fail,
   start,
   success,
-  fail,
+  clearError,
 } from './loading';
 export {
   getRooms,
   gotRooms,
+  createRoom,
+  gotCurrentRoom,
   getCurrentRoom,
   clearCurrentRoom,
-  gotCurrentRoom,
-  createRoom,
   createdRoomConfirmed,
 } from './rooms';
 export {
+  addCourse,
   getCourses,
   gotCourses,
-  populateCurrentCourse,
   updateCourse,
-  addCourse,
-  clearCurrentCourse,
   createCourse,
   createdCourses,
   updateCourseRooms,
+  clearCurrentCourse,
+  populateCurrentCourse,
 } from './courses';
 export {
   getCourseTemplates,
