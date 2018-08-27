@@ -3,14 +3,18 @@ import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
 const resources = props => {
     // @TODO Is there a way to do this passing over the array only once?
+    console.log('PROPS.USERrESOURCES ', props.userResources )
+    console.log('PROPS.USERid ', props.userId)
     const ownedResources = props.userResources.filter(resource => (
       resource.creator === props.userId
     ))
     const enrolledResources = props.userResources.filter(resource => (
       resource.creator !== props.userId
     ))
-    const linkSuffix = props.resource === 'courses' ? '/assignments' : '/summary'
-    const displayResource = props.resource[0].toUpperCase() + props.resource.slice(1)
+    const linkSuffix = props.resource === 'courses' ? '/assignments' : '/summary';
+    const displayResource = props.resource[0].toUpperCase() + props.resource.slice(1);
+    console.log(ownedResources);
+    console.log(enrolledResources);
     return (
       <div>
         <NewResource resource={props.resource}/>

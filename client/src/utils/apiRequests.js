@@ -13,15 +13,16 @@ export default {
     return axios.get(`/api/${resource}/${id}`)
   },
 
-  requestAccess: (resource, resourceId, userId) => {
+  requestAccess: (toUser, fromUser, resource, resourceId) => {
+    console.log(toUser)
     // @TODO consider making notificationTypes a directory of constants like action types
-    const notification = {notifications: {user: userId, notificationType: 'requestAccess'}}
-    return axios.put(`/api/${resource}/${resourceId}`, notification)
+    return axios.put(`/api/user/${toUser}`, {notificationType: 'requestAccess', user: fromUser, resource, _id: resourceId})
+    
   },
 
   grantAccess: (user, resource, id) => {
     const newMember = {newMember: {user, role: 'Student'}}
-    return axios.put(`/api/${resource}/${id}`, newMember)
+    return axios.put(`/api/user/${id}`, newMember)
   },
   getDesmos: () => {
     console.log('geting desoms')

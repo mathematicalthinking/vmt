@@ -17,17 +17,6 @@ const initialState = {
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case actionTypes.LOGIN_START:
-      return {
-        ...state,
-        loggingIn: true,
-      };
-    case actionTypes.LOGIN_FAIL:
-      return {
-        ...state,
-        loggingIn: false,
-        loginError: action.error,
-      };
     case actionTypes.LOGIN_SUCCESS:
       // login authentication
       console.log(action.user)

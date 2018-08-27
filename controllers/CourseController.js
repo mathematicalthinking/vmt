@@ -60,12 +60,12 @@ module.exports = {
       .then(course => {
         // console.log(updatedFields)
         // console.log(body)
-        if (updatedFields[0] === 'notifications') {
-          // body = {$addToSet: body}
-          // console.log(doc.notifications)
-          course.notifications.push(body.notifications)
-          // console.log(doc.notifications)
-        }
+        // if (updatedFields[0] === 'notifications') {
+        //   // body = {$addToSet: body}
+        //   // console.log(doc.notifications)
+        //   course.notifications.push(body.notifications)
+        //   // console.log(doc.notifications)
+        // }
         // Results from a grantAccess() on the front end
         if (updatedFields[0] === 'newMember') {
           console.log("body.newMember: ", body.newMember)
@@ -73,18 +73,17 @@ module.exports = {
           console.log('course.members', course.members)
 
           course.members.push(body.newMember)
-          course.notifications = course.notifications.filter(ntf => {
-            console.log('user ids should match: ', ntf.user, body.newMember.user._id)
-            console.log(ntf.user !== body.newMember.user._id)
-            // DOUBLE == IMPORTANT HERE. WE DONT WANT TO CHECK TYPE
-            // OR WE SHOULD JUST USE AN OBJECTID() method on the body.newMember.iser._id
-            return (ntf.user != body.newMember.user._id)
-          })
+          // course.notifications = course.notifications.filter(ntf => {
+          //   console.log('user ids should match: ', ntf.user, body.newMember.user._id)
+          //   console.log(ntf.user !== body.newMember.user._id)
+          //   // DOUBLE == IMPORTANT HERE. WE DONT WANT TO CHECK TYPE
+          //   // OR WE SHOULD JUST USE AN OBJECTID() method on the body.newMember.iser._id
+          //   return (ntf.user != body.newMember.user._id)
+          // })
         }
         // console.log("DOC ", course)
         course.save(); // @TODO CONSIDER AWAITING THIS SO WE CAN ONLY RESOLVE IF THE SAVE WORKS
         course.populate({path: 'members.user', select: 'username'})
-        .populate({path: 'notifications.user', select: 'username'})
         .populate('creator', (err, pop) => {
           console.log('course after popo: ', pop)
           resolve(pop)})

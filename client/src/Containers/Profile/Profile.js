@@ -14,31 +14,49 @@ class Profile extends Component {
       {name: 'Settings'},
     ],
     touring: false,
+    notifications: {
+      courses: [],
+      rooms: [],
+    },
   }
 
   componentDidMount() {
-    const { userCourses, seenTour } = this.props;
-    if (!seenTour) {
+    const { courses, user } = this.props;
+    if (!user.seenTour) {
       this.setState({touring: true})
     }
     let updatedTabs = [...this.state.tabs]
-    let courseNotifications;
-    if (userCourses) {
-      courseNotifications = userCourses.reduce((acc, course) => {
-        // @TODO Only give the user notifications if they're the owner?
-        acc += course.notifications.length
+    let courseNtfs = [];
+    let roomNtfs = [];
+    // @TODO Only give the user memberNotifications if they're the owner?
+    console.log(courses)
+    if (courses) {
+      courseNtfs = courses.reduce((acc, course) => {
+        console.log(course.notifications)
+        acc = acc.concat(course.notifications)
         return acc;
-      }, 0)
+      }, [])
     }
-    updatedTabs[0].notifications = courseNotifications;
-    this.setState({tabs: updatedTabs})
+    console.log(user.courseNotifications)
+    courseNtfs = courseNtfs.concat(user.courseNotifications)
+    if (courseNtfs.length > 0) updatedTabs[0].notifications = courseNtfs.length;
+    this.setState({
+      tabs: updatedTabs,
+      notifications: {
+        courses: courseNtfs,
+        rooms: roomNtfs,
+      }
+    })
+    console.log(updatedTabs)
+    console.log(courseNtfs)
   }
 
   render() {
     const resource = this.props.match.params.resource;
     let content;
     // Load content based on
-    content = <Resources userResources={this.props[resource] || []} resource={resource} userId={this.props.userId}/>
+    // const updatedResources = {...this.props[resource]}
+    content = <Resources userResources={this.props[resource] || []} resource={resource} userId={this.props.user.id}/>
 
     return (
       // <Aux>
@@ -46,7 +64,7 @@ class Profile extends Component {
           routingInfo={this.props.match}
           title='Profile'
           crumbs={[{title: 'Profile', link: '/profile/courses'}]}
-          sidePanelTitle={this.props.username}
+          sidePanelTitle={this.props.user.username}
           content={content}
           tabs={this.state.tabs}
         />
@@ -59,11 +77,9 @@ const mapStateToProps = store => ({
   courses: getUserResources(store, 'courses'),
   rooms: getUserResources(store, 'rooms'),
   assignments: getUserResources(store, 'assignments'),
-  username: store.user.username,
-  userId: store.user.id,
-  seenTour: store.user.seenTour,
+  user: store.user,
 })
-const mapDispatchToProps = dispatch => ({})
+// const mapDispatchToProps = dispatch => ({})
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default connect(mapStateToProps, null)(Profile);

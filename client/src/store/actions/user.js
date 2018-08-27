@@ -2,7 +2,10 @@ import * as actionTypes from './actionTypes';
 import auth from '../../utils/auth';
 import { normalize } from '../utils/normalize';
 import API from '../../utils/apiRequests';
-
+import {
+  loginStart,
+  loginFail,
+  loginSuccess } from './index'
 import { updateCourse, gotCourses } from './courses';
 import { updateRoom, gotRooms } from './rooms';
 import { gotAssignments } from './assignments';
@@ -44,26 +47,6 @@ export const updateUserRoomTemplates = newTemplate => {
   }
 }
 
-export const loginStart = () => {
-  return {
-    type: actionTypes.LOGIN_START
-  }
-}
-
-export const loginSuccess = user => {
-  return {
-    type: actionTypes.LOGIN_SUCCESS,
-    user,
-  }
-}
-
-export const loginFail = errorMessage => {
-  return {
-    type: actionTypes.LOGIN_FAIL,
-    error: errorMessage,
-  }
-}
-
 export const signup = body => {
   return dispatch => {
     dispatch(loginStart());
@@ -101,6 +84,15 @@ export const login = (username, password) => {
     })
     .catch(err => {
       dispatch(loginFail(err.response.statusText))
+    })
+  }
+}
+
+export const requestAccess = (toUser, fromUser, resource, resourceId) => {
+  return dispatch => {
+    API.requestAccess(toUser, fromUser, resource, resourceId)
+    .then(res => {
+      return 'success';
     })
   }
 }

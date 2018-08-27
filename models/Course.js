@@ -10,7 +10,6 @@ const Course = new mongoose.Schema({
   rooms: [{type: ObjectId, ref: 'Room'}],
   isPublic: {type: Boolean, default: false},
   members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}, _id: false}],
-  notifications: [{user: {type: ObjectId, ref: 'User'}, notificationType: {type: String}, _id: false}],
 },{timestamps: true});
 
 // Not using arrow function so we can have access to THIS docuemnt

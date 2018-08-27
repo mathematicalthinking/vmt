@@ -33,8 +33,25 @@ module.exports = {
   },
 
   put: (id, body) => {
+    console.log(id, body.notificationType)
+    let query;
+    if (body.notificationType === 'requestAccess' || body.notificationType === 'grantAccess') {
+      console.log('in here')
+      if (body.resource === 'course') {
+        console.log('should be in here')
+        delete body.resource;
+        query = {$addToSet: {'courseNotifications.access': body}}
+      } else {
+        delete body.resource;
+        query = {$addToSet: {'roomNotifications.access': body}}
+      }
+    }
+    if (body.notificationType === 'newRoom') {
+
+    }
+    console.log(query)
     return new Promise((resolve, reject) => {
-      db.User.findByIdAndUpdate(id, body)
+      db.User.findByIdAndUpdate(id, query, {new: true})
       .then(user => resolve(user))
       .catch(err => reject(err))
     })

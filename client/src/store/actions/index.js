@@ -1,10 +1,8 @@
 export {
-  loginStart,
-  loginSuccess,
-  loginFail,
   login,
-  grantAccess,
   signup,
+  grantAccess,
+  requestAccess,
   googleLogin,
   updateUserRooms,
   updateUserCourses,
@@ -12,6 +10,11 @@ export {
   updateUserCourseTemplates,
   clearError,
 } from './user';
+export {
+  loginStart,
+  loginSuccess,
+  loginFail,
+} from './loading';
 export {
   getRooms,
   gotRooms,

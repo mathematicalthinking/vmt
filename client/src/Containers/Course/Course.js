@@ -31,21 +31,17 @@ class Course extends Component {
     let owner = false;
     let member = false;
     if (currentCourse.creator === user.id) {
-      let memberNotifications = currentCourse.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
-      if (memberNotifications.length > 0) {
-        updatedTabs[2] = {name: 'Members', notifications: memberNotifications.length}
-      }
       owner = true;
     }
     if (currentCourse.members) {
       if (currentCourse.members.find(member => member.user._id === user.id)) member = true;
-      if (user.courseNotifications) {
-        const roomNotifications = user.courseNotifications.filter(ntf => (
-          ntf.notificationType === 'newRoom' && ntf._id === currentCourse._id
-        ))
-        updatedTabs[1] = {name: 'Rooms', notifications: roomNotifications.length}
-      }
+      // if (user.courseNotifications) {
+      //   const roomNotifications = user.courseNotifications.filter(ntf => (
+      //     ntf.notificationType === 'newRoom' && ntf._id === currentCourse._id
+      //   ))
+      //   updatedTabs[1].notifications =  roomNotifications
+      // }
 
     }
     // Get Any other notifications
@@ -69,12 +65,8 @@ class Course extends Component {
     }
   }
   requestAccess = () => {
-    // @TODO Use redux actions to make this request
-    API.requestAccess('course', this.props.match.params.course_id, this.props.user.id)
-    .then(res => {
-      // @TODO SEND/DISPLAY CONFIRMATION somehow
-      this.props.history.push('/confirmation')
-    })
+    const {currentCourse, user} = this.props;
+    this.props.requestAccess(currentCourse.creator, user.id, 'course', currentCourse._id)
   }
 
   render() {
@@ -82,7 +74,6 @@ class Course extends Component {
     // @TODO We should put this in MOunt or Update so that we can leverage some codesplitting?
     const course = this.props.currentCourse;
     const resource = this.props.match.params.resource;
-    const notifications = course.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
     let content;
     // @TODO THIS VAN BE LESS VERBOSE USE PROGILE CONTAINER AS A TEMPLATE. WE'LL NEED TO USE RESOURCES LAYOUT
     // INSTEAD OF BOXLIST
@@ -109,7 +100,7 @@ class Course extends Component {
         break;
       case 'members' :
       // @TODO make a folder of NOTFICATION_TYPES ...somewhere
-        content = <Students classList={course.members} notifications={notifications} resource='course'  resourceId={course._id} owner={this.state.owner} />
+        content = <Students classList={course.members} notifications={[]} resource='course'  resourceId={course._id} owner={this.state.owner} />
         break;
       default : content = null;
     }
@@ -153,7 +144,8 @@ const mapDispatchToProps = dispatch => {
   return {
     updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
     clearCurrentCourse: () => dispatch(actions.clearCurrentCourse()),
-    grantAccess: (user, resource, id) => dispatch(actions.grantAccess(user, resource, id))
+    grantAccess: (user, resource, id) => dispatch(actions.grantAccess(user, resource, id)),
+    requestAccess: (toUser, fromUser, resource, resourceId) => dispatch(actions.requestAccess(toUser, fromUser, resource, resourceId))
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Course);

@@ -5,8 +5,27 @@ const User = new mongoose.Schema({
   courses: {type: [{type: ObjectId, ref: 'Course'}], default: []},
   rooms: {type: [{type: ObjectId, ref: 'Room'}], default: []},
   assignments: {type: [{type: ObjectId, ref: 'Assignment'}], default: []},
-  roomNotifications: {type: [{notificationType: String, _id: {type: ObjectId, ref: 'Room'}}], default: []},
-  courseNotifications: {type: [{notificationType: String, _id: {type: ObjectId, ref: 'Course'}}], default: []},
+  roomNotifications: {
+    access: [{
+      notificationType: String, // grantAccess || requestAccess
+      _id: {type: ObjectId, ref: 'Room'},
+      user: {type: ObjectId, ref: 'User'},
+    }],
+    newRoom: [{
+      _id: {type: ObjectId, ref: 'Room'}
+    }]
+  },
+  courseNotifications: {
+    access: [{
+      notificationType: String,
+      _id: {type: ObjectId, ref: 'Course'},
+      user: {type: ObjectId, ref: 'User'},
+    }],
+    newRoom: [{
+      notificationType: String,
+      _id: {type: ObjectId, ref: 'Course'},
+    }]
+  },
   firstName: {type: String},
   lastName: {type: String},
   username: {type: String, required: true},
