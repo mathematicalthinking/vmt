@@ -82,16 +82,11 @@ export const login = (username, password) => {
     .then(res => {
       if (res.data.errorMessage) {return dispatch(loading.fail(res.data.errorMessage))}
       const courses = normalize(res.data.courses)
-      const rooms = normalize(res.data.rooms)
-      const assignments = normalize(res.data.assignments)
+      // const assignments = normalize(res.data.assignments)
       dispatch(gotCourses(courses));
-      dispatch(gotRooms(rooms));
-      dispatch(gotAssignments(assignments));
       const user = {
         ...res.data,
-        rooms: rooms.allIds,
         courses: courses.allIds,
-        assignments: assignments.allIds
       }
       dispatch(gotUser(user))
       return dispatch(loading.success());

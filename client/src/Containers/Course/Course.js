@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import difference from 'lodash/difference';
 import { populateResource } from '../../store/reducers/';
 import * as actions from '../../store/actions/';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
@@ -25,7 +26,8 @@ class Course extends Component {
 
   componentDidMount() {
     const { currentCourse, user } = this.props;
-
+    // check if we need to fetch data
+    this.checkForFetch();
     // Check user's permission level -- owner, member, or guest
     let updatedTabs = [...this.state.tabs];
     let owner = false;
@@ -50,11 +52,13 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    this.checkForFetch();
     if (prevProps.currentCourse.members !== this.props.currentCourse.members) {
       const updatedTabs = this.displayNotifications([...this.state.tabs]);
       this.setState({tabs: updatedTabs})
     }
   }
+
   requestAccess = () => {
     const {currentCourse, user} = this.props;
     this.props.requestAccess(currentCourse.creator, user.id, 'course', currentCourse._id)
@@ -72,14 +76,27 @@ class Course extends Component {
     return tabs;
   }
 
+  checkForFetch = () => {
+    const { currentCourse, user, match } = this.props;
+    const resource = match.params.resource;
+    const needToFetch = difference(user[resource], this.props[resource]).length !== 0;
+    console.log(needToFetch)
+    if (needToFetch) {
+      let re = resource[0].toUpperCase() + resource.substr(1)
+      console.log(re)
+      this.props[`get${re}`](currentCourse[resource])
+    }
+
+  }
+
   render() {
     // check if the course has loaded
     // @TODO We should put this in MOunt or Update so that we can leverage some codesplitting?
-    const course = this.props.currentCourse;
+    const course = this.props.currentCourse
     const resource = this.props.match.params.resource;
     const user = this.props.user;
+    console.log("COURSE: ", course);
     let content;
-    console.log("COURSE: ", course)
     // @TODO THIS VAN BE LESS VERBOSE USE PROGILE CONTAINER AS A TEMPLATE. WE'LL NEED TO USE RESOURCES LAYOUT
     // INSTEAD OF BOXLIST
     switch (resource) {
@@ -142,11 +159,15 @@ class Course extends Component {
 
 const mapStateToProps = (store, ownProps) => ({
   currentCourse: populateResource(store, 'courses', ownProps.match.params.course_id, ['assignments', 'rooms']),
+  assignments: store.assignments.allIds,
+  rooms: store.rooms.allIds,
   user: store.user,
 })
 
 const mapDispatchToProps = dispatch => {
   return {
+    getAssignments: ids => dispatch(actions.getAssignments(ids)),
+    getRooms: ids => dispatch(actions.getRooms(ids)),
     updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
     clearCurrentCourse: () => dispatch(actions.clearCurrentCourse()),
     grantAccess: (user, resource, id) => dispatch(actions.grantAccess(user, resource, id)),
