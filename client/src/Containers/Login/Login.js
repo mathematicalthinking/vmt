@@ -116,7 +116,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = store => {
   return {
     loggedIn: store.user.loggedIn,
-    errorMessage: store.loading.loginError,
+    errorMessage: store.loading.errorMessage,
     loading: store.loading.loggingIn,
   }
 }

@@ -43,8 +43,8 @@ Room.pre('save', function (next) {
     .then(values => {
       values[0].forEach(user => {
         user.rooms.push(this._id)
-        user.roomNotifications.push({notificationType: 'newRoom', _id: this._id})
-        if (this.course) user.courseNotifications.push({notificationType: 'newRoom', _id: this.course})
+        console.log("USER: ", user)
+        if (this.course) user.courseNotifications.newRoom.push({notificationType: 'newRoom', _id: this.course})
         if (this.assignment) user.assignments.push(this.assignment)
         user.save();
         next()

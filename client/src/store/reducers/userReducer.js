@@ -58,6 +58,12 @@ const reducer = (state = initialState, action) => {
         ...state,
         assignments: [...state.assignments, action.newAssignment]
       }
+    case actionTypes.CLEAR_NOTIFICATION:
+      const updatedNotifications = state[`${action.resource}Notifications`]
+      return {
+        ...state,
+
+      }
     case actionTypes.CLEAR_ERROR:
       return {
         ...state,

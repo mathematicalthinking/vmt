@@ -27,7 +27,7 @@ class Room extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    
+
 
     // this.props.clearCurrentRoom()
   }
@@ -50,12 +50,11 @@ class Room extends Component {
         content = <Summary history={this.props.history} room={room}/>
         break;
       case 'members':
-        const notifications = room.notifications.filter(ntf => (ntf.notificationType === 'requestAccess'))
         let owner = false;
         if (this.props.currentRoom.creator._id === this.props.userId) {
           owner = true
         }
-        content = <Students classList={room.members} notifications={notifications} resource='room' resourceId={room._id} owner={owner}/>
+        content = <Students classList={room.members} resource='room' resourceId={room._id} owner={owner}/>
         break;
       default:
     }

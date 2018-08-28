@@ -26,8 +26,8 @@ export const accessSuccess = () => {
   }
 }
 
-export const clear = () => {
+export const clearError = () => {
   return {
-    type: actionTypes.CLEAR,
+    type: actionTypes.CLEAR_ERROR,
   }
 }

@@ -35,7 +35,7 @@ const reducer = (state = initialState, action) => {
         accessSuccess: true,
         successMessage: 'Your request has been sent'
       }
-    case actionTypes.CLEAR:
+    case actionTypes.CLEAR_ERROR:
     return {
       initialState,
     }

@@ -7,6 +7,7 @@ export {
   requestAccess,
   updateUserRooms,
   updateUserCourses,
+  clearNotification,
   updateUserAccessNtfs,
   updateUserAssignments,
   updateUserCourseTemplates,

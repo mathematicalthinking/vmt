@@ -22,6 +22,7 @@ class Course extends Component {
       {name: 'Rooms'},
       {name: 'Members'},
     ],
+    firstView: false,
   }
   initialTabs = [
     {name: 'Assignments'},
@@ -32,6 +33,12 @@ class Course extends Component {
 
   componentDidMount() {
     const { currentCourse, user } = this.props;
+    let firstView = false;
+    if (user.courseNotifications.access.filter(ntf => (ntf.notificationType === 'grantedAccess' && ntf._id === currentCourse._id)).length > 0) {
+      console.log("I was granted access")
+      firstView = true;
+      this.props.clearNotification(currentCourse._id, user.id, 'course', 'access')
+    }
     // check if we need to fetch data
     this.checkForFetch();
     // Check user's permission level -- owner, member, or guest
@@ -46,31 +53,29 @@ class Course extends Component {
     }
     if (currentCourse.members) {
       if (currentCourse.members.find(member => member.user._id === user.id)) member = true;
-      // if (!user.seenTour) {
-      //   this.setState({touring: true})
-      // }
       updatedTabs = this.displayNotifications(updatedTabs);
       console.log(this.initialTabs)
     }
     // Get Any other notifications
+    console.log(updatedTabs)
     this.setState({
       tabs: updatedTabs,
-      owner: owner,
-      member: member,
+      owner,
+      member,
+      firstView,
     })
   }
 
   componentDidUpdate(prevProps, prevState) {
-    this.checkForFetch();
-    // if (prevProps.currentCourse.members !== this.props.currentCourse.members) {
-    //   const updatedTabs = this.displayNotifications([...this.state.tabs]);
-    //   this.setState({tabs: updatedTabs})
-    // }
-    if (prevProps.user.courseNotifications.access !== this.props.user.courseNotifications.access) {
-      let tabs = this.initialTabs;
-      if (this.state.owner) tabs = [...this.initialTabs, {name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]
-      const updatedTabs = this.displayNotifications(tabs)
-      this.setState({tabs: updatedTabs})
+    if (this.state.member || this.state.owner) {
+      this.checkForFetch();
+      if (prevProps.user.courseNotifications.access !== this.props.user.courseNotifications.access) {
+        let tabs = this.initialTabs;
+        if (this.state.owner) tabs = [...this.initialTabs, {name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]
+        const updatedTabs = this.displayNotifications(tabs)
+        console.log(updatedTabs)
+        this.setState({tabs: updatedTabs})
+      }
     }
   }
 
@@ -81,16 +86,17 @@ class Course extends Component {
   }
 
   displayNotifications = (tabs) => {
-    console.log(tabs)
-    const { courseNotifications } = this.props.user;
-    console.log(courseNotifications)
-    if (courseNotifications.access.length > 0) {
+
+    const { user, currentCourse } = this.props;
+    const { courseNotifications }= user
+    console.log(courseNotifications.access.length > 0 && this.state.owner)
+    if (courseNotifications.access.length > 0 && currentCourse.creator === user.id) {
+      console.log('we in here alright')
       tabs[2].notifications = courseNotifications.access.length;
     }
     if (courseNotifications.newRoom.length > 0){
       tabs[1].notifications = courseNotifications.newRoom.length;
     }
-    console.log(tabs)
     return tabs;
   }
 
@@ -159,13 +165,20 @@ class Course extends Component {
     return (
       <Aux>
         {( this.state.owner || this.state.member || (course.isPublic && this.state.guestMode)) ?
-          <DashboardLayout
-            routingInfo={this.props.match}
-            crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/courses/${course._id}/assignments/`}]}
-            sidePanelTitle={course.name}
-            content={content}
-            tabs={this.state.tabs}
-          /> :
+          <Aux>
+            <DashboardLayout
+              routingInfo={this.props.match}
+              crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/courses/${course._id}/assignments/`}]}
+              sidePanelTitle={course.name}
+              content={content}
+              tabs={this.state.tabs}
+            />
+            <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
+              <p>Welcome to {course.name}. If this is your first time joining a course,
+              we recommend you take a tour. Otherwise you can start exploring this course's features.</p>
+              <Button click={() => this.setState({firstView: false})}>Explore</Button>
+              </Modal>
+          </Aux> :
           (course.isPublic ? publicAccessModal : privateAccessModal)}
       </Aux>
     )
@@ -186,7 +199,8 @@ const mapDispatchToProps = dispatch => {
     updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
     clearCurrentCourse: () => dispatch(actions.clearCurrentCourse()),
     grantAccess: (user, resource, id) => dispatch(actions.grantAccess(user, resource, id)),
-    requestAccess: (toUser, fromUser, resource, resourceId) => dispatch(actions.requestAccess(toUser, fromUser, resource, resourceId))
+    requestAccess: (toUser, fromUser, resource, resourceId) => dispatch(actions.requestAccess(toUser, fromUser, resource, resourceId)),
+    clearNotification: (ntfId, userId, resource, list) => dispatch(actions.clearNotification(ntfId, userId, resource, list)),
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Course);

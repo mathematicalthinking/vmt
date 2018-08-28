@@ -17,7 +17,13 @@ export default {
     console.log(toUser)
     // @TODO consider making notificationTypes a directory of constants like action types
     return axios.put(`/api/user/${toUser}`, {notificationType: 'requestAccess', user: fromUser, resource, _id: resourceId})
+  },
 
+  removeNotification: (ntfId, userId, resource, listType) => {
+    console.log({$pull: {[`${resource}Notifications.${listType}`]: {_id: ntfId}}})
+    return axios.put(`/api/user/${userId}`, {
+      $pull: {[`${resource}Notifications.${listType}`]: {_id: ntfId}}
+    })
   },
 
   grantAccess: (user, resource, resourceId) => {

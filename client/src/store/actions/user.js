@@ -4,8 +4,7 @@ import { normalize } from '../utils/normalize';
 import API from '../../utils/apiRequests';
 import * as loading from './loading'
 import { updateCourse, gotCourses } from './courses';
-import { updateRoom, gotRooms } from './rooms';
-import { gotAssignments } from './assignments';
+import { updateRoom } from './rooms';
 
 
 export const gotUser = user => {
@@ -58,6 +57,16 @@ export const updateUserRoomTemplates = newTemplate => {
   return {
     type: actionTypes.UPDATE_USER_ROOM_TEMPLATES,
     newTemplate,
+  }
+}
+
+export const clearNotification = (ntfId, userId, resource, listType) => {
+  return (dispatch) => {
+    API.removeNotification(ntfId, userId, resource, listType)
+    .then(res => {
+      // dispatch(gotUser(res.data))
+    })
+    .catch(err => console.log(err))
   }
 }
 

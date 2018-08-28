@@ -91,7 +91,7 @@ class NewUser extends Component {
 const mapStateToProps = store => {
   return {
     loggedIn: store.user.loggedIn,
-    errorMessage: store.user.loginError,
+    errorMessage: store.loading.errorMessage,
   }
 }
 

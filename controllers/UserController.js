@@ -49,9 +49,10 @@ module.exports = {
     if (body.notificationType === 'newRoom') {
 
     }
+
     console.log(query)
     return new Promise((resolve, reject) => {
-      db.User.findByIdAndUpdate(id, query, {new: true})
+      db.User.findByIdAndUpdate(id, query || body, {new: true})
       .then(user => resolve(user))
       .catch(err => reject(err))
     })
