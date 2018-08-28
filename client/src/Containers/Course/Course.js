@@ -10,6 +10,11 @@ import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
 import Students from '../Students/Students';
+const INITIAL_TABS = [
+  {name: 'Assignments'},
+  {name: 'Rooms'},
+  {name: 'Members'},
+]
 
 class Course extends Component {
   state = {
@@ -23,6 +28,7 @@ class Course extends Component {
       {name: 'Members'},
     ],
   }
+  // SO we can reset the tabs easily
 
   componentDidMount() {
     const { currentCourse, user } = this.props;
@@ -34,6 +40,8 @@ class Course extends Component {
     let member = false;
     if (currentCourse.creator === user.id) {
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
+      INITIAL_TABS.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}])
+      console.log(this.initialTabs)
       owner = true;
     }
     if (currentCourse.members) {
@@ -42,6 +50,7 @@ class Course extends Component {
       //   this.setState({touring: true})
       // }
       updatedTabs = this.displayNotifications(updatedTabs);
+      console.log(this.initialTabs)
     }
     // Get Any other notifications
     this.setState({
@@ -53,8 +62,13 @@ class Course extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     this.checkForFetch();
-    if (prevProps.currentCourse.members !== this.props.currentCourse.members) {
-      const updatedTabs = this.displayNotifications([...this.state.tabs]);
+    // if (prevProps.currentCourse.members !== this.props.currentCourse.members) {
+    //   const updatedTabs = this.displayNotifications([...this.state.tabs]);
+    //   this.setState({tabs: updatedTabs})
+    // }
+    if (prevProps.user.courseNotifications.access !== this.props.user.courseNotifications.access) {
+      console.log('notificaitions are different: ', this.initialTabs)
+      const updatedTabs = this.displayNotifications(INITIAL_TABS)
       this.setState({tabs: updatedTabs})
     }
   }
@@ -66,13 +80,16 @@ class Course extends Component {
   }
 
   displayNotifications = (tabs) => {
+    console.log(tabs)
     const { courseNotifications } = this.props.user;
+    console.log(courseNotifications)
     if (courseNotifications.access.length > 0) {
       tabs[2].notifications = courseNotifications.access.length;
     }
     if (courseNotifications.newRoom.length > 0){
       tabs[1].notifications = courseNotifications.newRoom.length;
     }
+    console.log(tabs)
     return tabs;
   }
 
@@ -80,10 +97,8 @@ class Course extends Component {
     const { currentCourse, user, match } = this.props;
     const resource = match.params.resource;
     const needToFetch = difference(user[resource], this.props[resource]).length !== 0;
-    console.log(needToFetch)
     if (needToFetch) {
       let re = resource[0].toUpperCase() + resource.substr(1)
-      console.log(re)
       this.props[`get${re}`](currentCourse[resource])
     }
 
@@ -95,7 +110,6 @@ class Course extends Component {
     const course = this.props.currentCourse
     const resource = this.props.match.params.resource;
     const user = this.props.user;
-    console.log("COURSE: ", course);
     let content;
     // @TODO THIS VAN BE LESS VERBOSE USE PROGILE CONTAINER AS A TEMPLATE. WE'LL NEED TO USE RESOURCES LAYOUT
     // INSTEAD OF BOXLIST

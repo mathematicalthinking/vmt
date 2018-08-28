@@ -36,26 +36,19 @@ Course.pre('save', function(next){
         // console.log('new member: ', member)
         const promises = [];
         promises.push(User.findByIdAndUpdate(member.user, {
-          $addToSet: {courses: this._id, rooms: this.rooms},
-          $addToSet: {'courseNotifications.access': {
-            notificationType: 'grantedAccess',
-            _id: this._id,
+          $addToSet: {
+            courses: this._id,
+            'courseNotifications.access': {
+              notificationType: 'grantedAccess',
+              _id: this._id,
+            },
+            rooms: {$each: this.rooms}
           }
-          // $addToSet ROOM NOTIFICATIONS
-          }
-        }))
+        }, {new: true}))
         promises.push(User.findByIdAndUpdate(this.creator, {
           $pull: {'courseNotifications.access': {user: member.user}}
-        })
-        .then(user => {
-          console.log(user)
-          next();
-        }))
+        }, {new: true}))
         Promise.all(promises).then(res => next())
-        // add all of the rooms of this course to the new member
-        // and add them to the rooms' list of members
-        // console.log(this._id)
-        // console.log(this.members)
       } else next();
     })
   }

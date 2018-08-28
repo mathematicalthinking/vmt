@@ -39,9 +39,7 @@ export const populateResource = (state, resourceToPop, resourceId, resources) =>
   resources.forEach(resource => {
     // state.rooms.byId
     let populatedResources;
-    console.log(state[resourceToPop].byId[resourceId][resource])
     if (state[resourceToPop].byId[resourceId][resource]) {
-      console.log('we in here')
       populatedResources = state[resourceToPop].byId[resourceId][resource].filter(id => {
         return state[resource].byId[id] || null
       }).map(id => {
@@ -50,6 +48,5 @@ export const populateResource = (state, resourceToPop, resourceId, resources) =>
     }
     currentResource[resource] = populatedResources;
   })
-  console.log("CURRENT RESOURCE: ", currentResource)
   return currentResource;
 }
