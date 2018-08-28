@@ -31,3 +31,9 @@ export const clearError = () => {
     type: actionTypes.CLEAR_ERROR,
   }
 }
+
+export const clear = () => {
+  return {
+    type: actionTypes.CLEAR,
+  }
+}

@@ -13,6 +13,7 @@ const Course = new mongoose.Schema({
 },{timestamps: true});
 
 // Not using arrow function so we can have access to THIS docuemnt
+// DO WE NEED TO CALL NEXT?
 Course.pre('save', function(next){
   if (this.isNew) {
     User.findByIdAndUpdate(this.creator, {$addToSet: {courses: this._id}})
@@ -50,7 +51,7 @@ Course.pre('save', function(next){
           $pull: {'courseNotifications.access': {user: member.user}}
         }, {new: true}))
         Promise.all(promises).then(res => next())
-      } else next();
+      };
     })
   }
   console.log('next')

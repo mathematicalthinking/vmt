@@ -36,9 +36,15 @@ const reducer = (state = initialState, action) => {
         successMessage: 'Your request has been sent'
       }
     case actionTypes.CLEAR_ERROR:
-    return {
-      initialState,
-    }
+      return {
+        ...state,
+        errorMessage: '',
+      }
+    case actionTypes.CLEAR:
+      return {
+        ...state,
+        initialState
+      }
     default: return {...state};
   }
 }
