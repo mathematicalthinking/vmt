@@ -74,7 +74,7 @@ class Workspace extends Component {
     const tabs = this.props.room.tabs;
     if (tabs.length > 0) {
       if (tabs[0].desmosLink) {
-        API.getDesmos()
+        API.getDesmos(tabs[0].desmosLink)
         .then(res => {
           console.log(res.data.result)
           const elt = document.getElementById('desmos');

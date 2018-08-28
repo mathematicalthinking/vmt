@@ -4,7 +4,7 @@ const router = express.Router()
 router.get('/', (req, res, next) => {
 	axios({
     method: 'GET',
-    url: "https://www.desmos.com/calculator/r7uuazp5ow",
+    url: req.query.url,
     headers: {'Accept': 'application/json'}
   })
   .then(result => {

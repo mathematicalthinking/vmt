@@ -29,8 +29,9 @@ export default {
   grantAccess: (user, resource, resourceId) => {
     return axios.put(`/api/${resource}/${resourceId}`, {newMember: user})
   },
-  getDesmos: () => {
+  getDesmos: url => {
     console.log('geting desoms')
-    return axios.get(`/desmos`)
+    console.log(url)
+    return axios.get(`/desmos?url=${url}`)
   }
 }
