@@ -42,6 +42,7 @@ Course.pre('save', function(next){
               notificationType: 'grantedAccess',
               _id: this._id,
             },
+            assignments: this.assignments,
             rooms: {$each: this.rooms}
           }
         }, {new: true}))

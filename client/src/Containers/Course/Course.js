@@ -10,11 +10,6 @@ import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
 import Students from '../Students/Students';
-const INITIAL_TABS = [
-  {name: 'Assignments'},
-  {name: 'Rooms'},
-  {name: 'Members'},
-]
 
 class Course extends Component {
   state = {
@@ -28,6 +23,11 @@ class Course extends Component {
       {name: 'Members'},
     ],
   }
+  initialTabs = [
+    {name: 'Assignments'},
+    {name: 'Rooms'},
+    {name: 'Members'},
+  ]
   // SO we can reset the tabs easily
 
   componentDidMount() {
@@ -40,7 +40,7 @@ class Course extends Component {
     let member = false;
     if (currentCourse.creator === user.id) {
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
-      INITIAL_TABS.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}])
+      this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}])
       console.log(this.initialTabs)
       owner = true;
     }
@@ -67,8 +67,9 @@ class Course extends Component {
     //   this.setState({tabs: updatedTabs})
     // }
     if (prevProps.user.courseNotifications.access !== this.props.user.courseNotifications.access) {
-      console.log('notificaitions are different: ', this.initialTabs)
-      const updatedTabs = this.displayNotifications(INITIAL_TABS)
+      let tabs = this.initialTabs;
+      if (this.state.owner) tabs = [...this.initialTabs, {name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]
+      const updatedTabs = this.displayNotifications(tabs)
       this.setState({tabs: updatedTabs})
     }
   }
