@@ -5,14 +5,13 @@
   // crumbs: [{name: String, notifications: Number}]
 //
 import React from 'react';
-import { connect } from 'react-redux';
 import classes from './dashboard.css';
 import TabList from '../../Components/Navigation/TabList/TabList';
 import BreadCrumbs from '../../Components/Navigation/BreadCrumbs/BreadCrumbs';
 import DnDTrash from '../../Containers/DnDTrash/DnDTrash';
 import Resources from './Resources/Resources';
 import Trash from '../../Components/UI/Trash/Trash';
-import { removeCourse } from '../../store/actions';
+
 const dashboard = props => {
   return (
     <section className={classes.Container}>
@@ -31,7 +30,7 @@ const dashboard = props => {
           <div className={classes.MainContent}>
             <DnDTrash>
               <Resources {...props.contentData} />
-              <div className={classes.Trash}><Trash removeResource={props.removeCourse}/></div>
+              <div className={classes.Trash}><Trash /></div>
             </DnDTrash>
           </div>
         </div>
@@ -40,4 +39,4 @@ const dashboard = props => {
   )
 }
 
-export default connect(null, {removeCourse})(dashboard);
+export default (dashboard);

@@ -19,18 +19,16 @@ const ItemTypes = {
 
 const trashTarget = {
   drop(props, monitor) {
-    console.log(props)
-    console.log(monitor)
-    console.log(monitor.cardId)
-    props.removeResource()
-    // props.moveCard(props.x, props.y);
+    return {trashed: true};
   }
 }
 
 function collect(connect, monitor) {
+  // console.log(monitor)
   return {
     connectDropTarget: connect.dropTarget(),
-    isOver: monitor.isOver()
+    isOver: monitor.isOver(),
+
   }
 }
 

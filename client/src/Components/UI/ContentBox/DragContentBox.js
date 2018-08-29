@@ -2,25 +2,34 @@ import React, { Component } from 'react';
 import classes from './contentBox.css';
 import Icons from './Icons/Icons';
 import { DragSource } from 'react-dnd';
+import { removeCourse } from '../../../store/actions';
+import { connect } from 'react-redux';
 const ItemTypes = {
   CARD: 'card'
 }
 
 const cardSource = {
   beginDrag(props) {
-    console.log(props)
-    console.log("KEY: ",props.id)
     return {
       cardId: props.id
     };
+  },
+  endDrag(props, monitor){
+    console.log(props)
+    if (monitor.getDropResult()) {
+      if (props.resource === 'courses')
+        props.removeCourse(props.id)
+    }
   }
 }
 
-const collect = (connect, monitor) => ({
+const collect = (connect, monitor) => {
+  return {
   connectDragSource: connect.dragSource(),
   isDragging: monitor.isDragging(),
-})
+}}
 
+@connect(null, { removeCourse })
 @DragSource(ItemTypes.CARD, cardSource, collect)
 class ContentBox extends Component {
   render() {

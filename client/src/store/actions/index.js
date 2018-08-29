@@ -64,4 +64,5 @@ export {
 } from './assignments';
 export {
   moveCard,
+  removeResource,
 } from './trash';

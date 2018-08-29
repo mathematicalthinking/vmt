@@ -45,10 +45,19 @@ export const updateCourseRooms = (courseId, roomId) => {
   }
 }
 
-export const removeCourse = courseId => {
+export const courseRemoved = (courseId) => {
   return {
     type: actionTypes.REMOVE_COURSE,
     courseId,
+  }
+}
+
+export const removeCourse = courseId => {
+  return dispatch => {
+    API.remove('course', courseId)
+    .then(res => {
+      dispatch(courseRemoved(courseId))
+    })
   }
 }
 
