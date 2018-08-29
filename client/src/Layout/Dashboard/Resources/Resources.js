@@ -20,6 +20,7 @@ const resources = props => {
           linkPath={`/profile/${props.resource}/`}
           linkSuffix={linkSuffix}
           notifications = {props.notifications}
+          draggable
         />
         <h2>{displayResource} I'm Enrolled in</h2>
         <BoxList
@@ -27,6 +28,7 @@ const resources = props => {
           linkPath={`/profile/${props.resource}/`}
           linkSuffix={linkSuffix}
           notifications = {props.notifications}
+          draggable
         />
       </div>
     )

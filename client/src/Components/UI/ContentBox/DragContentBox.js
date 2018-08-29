@@ -8,8 +8,10 @@ const ItemTypes = {
 
 const cardSource = {
   beginDrag(props) {
+    console.log(props)
+    console.log("KEY: ",props.id)
     return {
-      cardId: props.key
+      cardId: props.id
     };
   }
 }

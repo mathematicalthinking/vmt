@@ -20,7 +20,9 @@ const ItemTypes = {
 const trashTarget = {
   drop(props, monitor) {
     console.log(props)
-
+    console.log(monitor)
+    console.log(monitor.cardId)
+    props.removeResource()
     // props.moveCard(props.x, props.y);
   }
 }
@@ -32,28 +34,10 @@ function collect(connect, monitor) {
   }
 }
 
-// const collect: DropTargetCollector<CollectedProps> = (
-//   connect: DropTargetConnector,
-//   monitor: DropTargetMonitor,
-// ) => ({
-//   connectDropTarget: connect.dropTarget(),
-//   isOver: !!monitor.isOver(),
-//   canDrop: !!monitor.canDrop(),
-// })
-
-const mapStateToProps = store => ({
-  cardPosition: store.dnd.cardPosition
-})
-
-const mapDispatchToProps = dispatch => ({
-  moveCard: (x, y) => {dispatch(moveCard(x, y))}
-})
-
 @DropTarget(ItemTypes.CARD, trashTarget, collect)
-@connect(mapStateToProps, mapDispatchToProps)
 export default class Trash extends Component {
   render() {
-    const { x, y, connectDropTarget, isOver } = this.props;
+    const { connectDropTarget, isOver } = this.props;
     const activeClass = isOver ? classes.Over : classes.Default;
     return connectDropTarget(
       <div

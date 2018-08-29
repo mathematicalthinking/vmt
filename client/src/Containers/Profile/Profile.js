@@ -65,17 +65,12 @@ class Profile extends Component {
   render() {
     const { user, match } = this.props;
     const resource = match.params.resource;
-    console.log('RESOURCE: ', resource)
-    console.log(this.props[`user${resource}`])
-    let content;
-    // Load content based on
-    // const updatedResources = {...this.props[resource]}
-    content = <Resources
-      userResources={this.props[`user${resource}`] || []}
-      notifications={resource === 'courses' ? user.courseNotifications : user.roomNotifications}
-      resource={resource}
-      userId={user.id}
-              />
+    const contentData = {
+      resource,
+      userResources: this.props[`user${resource}`] || [],
+      notifications: (resource === 'courses') ? user.courseNotifications : user.roomNotifications,
+      userId: user.id
+    }
     return (
       // <Aux>
         <DashboardLayout
@@ -83,7 +78,7 @@ class Profile extends Component {
           title='Profile'
           crumbs={[{title: 'Profile', link: '/profile/courses'}]}
           sidePanelTitle={this.props.user.username}
-          content={content}
+          contentData={contentData}
           tabs={this.state.tabs}
         />
       // </Aux>
