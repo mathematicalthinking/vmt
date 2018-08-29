@@ -43,9 +43,9 @@ class Profile extends Component {
     // check that we have the data we need
     const { user, loading } = this.props;
     const { resource } = this.props.match.params;
-    // console.log(resource)
-    // console.log(user[resource])
-    // console.log(this.props[resource])
+    console.log(resource)
+    console.log(user[resource])
+    console.log('ASSIGNMENTS: ', this.props[resource])
     if (!loading) {
       if (user[resource].length !== this.props[resource].length) {
         this.fetchData(resource)
@@ -101,7 +101,7 @@ const mapStateToProps = store => ({
   user: store.user,
   rooms: store.rooms.allIds,
   courses: store.courses.allIds,
-  assignments: store.courses.allIds,
+  assignments: store.assignments.allIds,
   // HACK WHEN THE COMPONENT UPDATES WE COMPARE USER RESOURCES AND RESOURCES TO SEE
   // IF WE NEED TO FETCH DATA. HOWEVER. WHEN WE CREATE A NEW RESOURCE THE USER RESOURCES
   // AND RESOURCES ARE OUT OF SYNCH FOR A SPLIT SECOND. IF WE MARK WHEN THE USER IS
