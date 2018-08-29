@@ -16,8 +16,6 @@ import Confirmation from '../Layout/Confirmation/Confirmation';
 import classes from './main.css';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
-import { DragDropContext } from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
 
 // Provide login status to all private routes
 const mapStateToProps = store => ({
@@ -25,9 +23,8 @@ const mapStateToProps = store => ({
   loggedIn: store.user.loggedIn,
 })
 
-@DragDropContext(HTML5Backend, { window })
-@connect(mapStateToProps, null)
 
+@connect(mapStateToProps, null)
 export default class Main extends Component {
   render() {
     return (

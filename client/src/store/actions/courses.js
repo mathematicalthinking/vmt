@@ -45,6 +45,12 @@ export const updateCourseRooms = (courseId, roomId) => {
   }
 }
 
+export const removeCourse = courseId => {
+  return {
+    type: actionTypes.REMOVE_COURSE,
+    courseId,
+  }
+}
 
 export const getCourses = () => {
   return dispatch => {

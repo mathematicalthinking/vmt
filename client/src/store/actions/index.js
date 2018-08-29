@@ -33,6 +33,7 @@ export {
   addCourse,
   getCourses,
   gotCourses,
+  removeCourse,
   updateCourse,
   createCourse,
   createdCourses,
@@ -60,4 +61,7 @@ export {
   gotCurrentAssignment,
   createAssignment,
   createdAssignmentConfirmed,
-} from './assignments'
+} from './assignments';
+export {
+  moveCard,
+} from './trash';

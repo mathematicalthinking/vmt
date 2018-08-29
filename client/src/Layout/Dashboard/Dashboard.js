@@ -8,7 +8,7 @@ import React from 'react';
 import classes from './dashboard.css';
 import TabList from '../../Components/Navigation/TabList/TabList';
 import BreadCrumbs from '../../Components/Navigation/BreadCrumbs/BreadCrumbs';
-import Trash from '../../Components/UI/Trash/Trash';
+import DnDTrash from '../../Containers/DnDTrash/DnDTrash';
 const dashboard = props => {
   return (
     <section className={classes.Container}>
@@ -25,11 +25,12 @@ const dashboard = props => {
             <TabList routingInfo={props.routingInfo} tabs={props.tabs} />
           </div>
           <div className={classes.MainContent}>
-            {props.content}
+            <DnDTrash>
+              {props.content}
+            </DnDTrash>
           </div>
         </div>
       </div>
-      <div className={classes.Trash}><Trash /></div>
     </section>
   )
 }

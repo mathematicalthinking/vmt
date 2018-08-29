@@ -49,6 +49,11 @@ const reducer = (state = initialState, action) => {
         ...state,
         byId: updatedCourses,
       }
+    case actionTypes.REMOVE_COURSE:
+      console.log("REMOVING COURSE FROM STORE")
+      return {
+        ...state
+      }
     default:
       return state
   }

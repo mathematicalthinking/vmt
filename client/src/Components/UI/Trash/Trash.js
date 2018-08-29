@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { moveCard } from '../../../store/actions'
 import {
   DropTarget,
-  DropTargetMonitor,
-  DropTargetConnector,
-  DropTargetCollector,
-  ConnectDropTarget,
+  // DropTargetMonitor,
+  // DropTargetConnector,
+  // DropTargetCollector,
+  // ConnectDropTarget,
 } from 'react-dnd';
 import classes from './trash.css';
 
@@ -14,9 +16,12 @@ import classes from './trash.css';
 const ItemTypes = {
   CARD: 'card',
 }
+
 const trashTarget = {
   drop(props, monitor) {
-    moveCard(props.x, props.y);
+    console.log(props)
+
+    // props.moveCard(props.x, props.y);
   }
 }
 
@@ -36,14 +41,23 @@ function collect(connect, monitor) {
 //   canDrop: !!monitor.canDrop(),
 // })
 
+const mapStateToProps = store => ({
+  cardPosition: store.dnd.cardPosition
+})
+
+const mapDispatchToProps = dispatch => ({
+  moveCard: (x, y) => {dispatch(moveCard(x, y))}
+})
+
 @DropTarget(ItemTypes.CARD, trashTarget, collect)
+@connect(mapStateToProps, mapDispatchToProps)
 export default class Trash extends Component {
   render() {
     const { x, y, connectDropTarget, isOver } = this.props;
+    const activeClass = isOver ? classes.Over : classes.Default;
     return connectDropTarget(
       <div
-        className={classes.Trash}
-        style={{fontSize: isOver ? '4em' : '3em'}}
+        className={activeClass}
       ><i class="far fa-trash-alt"></i></div>
     )
   }

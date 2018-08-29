@@ -1,8 +1,6 @@
-import { MOVE_CARD } from './actionTypes';
-
-export const setCardPosition = (x, y) => {
-  return {
-    type: MOVE_CARD,
-    position: {x, y}
-  }
-}
+// import { MOVE_CARD } from './actionTypes';
+// import { removeCourse } from
+//
+// export const removeResource = (resource, id) => {
+//   return
+// }

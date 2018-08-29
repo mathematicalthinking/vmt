@@ -1,3 +1,13 @@
-.Trash {
-  
+.Default {
+  padding: 55px;
+  transition: .2s;
+  color: #ddd;
+  font-size: 1em;
+}
+
+.Over {
+  padding: 55px;
+  transition: .2s;
+  color: #444;
+  font-size: 2em;
 }
