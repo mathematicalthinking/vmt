@@ -3,6 +3,7 @@ import { updateUserCourses, updateUserCourseTemplates } from './user';
 import { createdCourseTemplate } from './courseTemplates';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
+import * as loading from './loading';
 
 
 //@TODO HAVE MORE ACTIONS HERE FOR TRACKING STATUS OF REQUEST i.e. pending erro success
@@ -68,6 +69,7 @@ export const populateCurrentCourse = id => {
 
 export const createCourse = body => {
   return dispatch => {
+    dispatch(loading.start())
     API.post('course', body)
     .then(res =>{
       if (body.template) {
@@ -80,7 +82,8 @@ export const createCourse = body => {
         return dispatch(updateUserCourses(res.data.result[0]._id))
       }
       dispatch(createdCourse(res.data.result))
-      return dispatch(updateUserCourses(res.data.result._id))
+      dispatch(updateUserCourses(res.data.result._id))
+      dispatch(loading.success())
     })
     .catch(err => console.log(err))
   }

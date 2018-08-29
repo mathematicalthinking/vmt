@@ -41,20 +41,21 @@ class Profile extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     // check that we have the data we need
-    const { user } = this.props;
+    const { user, loading } = this.props;
     const { resource } = this.props.match.params;
     // console.log(resource)
     // console.log(user[resource])
     // console.log(this.props[resource])
-    if (user[resource].length !== this.props[resource].length) {
-      console.log("THEY RE NOT EQUAL");
-      this.fetchData(resource)
+    if (!loading) {
+      if (user[resource].length !== this.props[resource].length) {
+        this.fetchData(resource)
+      }
+      else {
+        let haveResource = user[resource].every(re => this.props[resource].includes(re))
+        if (!haveResource) this.fetchData(resource)
+      }
+      return;
     }
-    else {
-      let haveResource = user[resource].every(re => this.props[resource].includes(re))
-      console.log("HAVE RESOURCE ", haveResource)
-    }
-    return;
   }
 
   fetchData = resource => {
@@ -73,7 +74,8 @@ class Profile extends Component {
       userResources={this.props[`user${resource}`] || []}
       notifications={resource === 'courses' ? user.courseNotifications : user.roomNotifications}
       resource={resource}
-      userId={user.id}/>
+      userId={user.id}
+              />
     return (
       // <Aux>
         <DashboardLayout
@@ -99,6 +101,13 @@ const mapStateToProps = store => ({
   user: store.user,
   rooms: store.rooms.allIds,
   courses: store.courses.allIds,
+  assignments: store.courses.allIds,
+  // HACK WHEN THE COMPONENT UPDATES WE COMPARE USER RESOURCES AND RESOURCES TO SEE
+  // IF WE NEED TO FETCH DATA. HOWEVER. WHEN WE CREATE A NEW RESOURCE THE USER RESOURCES
+  // AND RESOURCES ARE OUT OF SYNCH FOR A SPLIT SECOND. IF WE MARK WHEN THE USER IS
+  // CREATING SOMETHING WE CAN SKIP THE FETCH CHECK UNTIL THE CREATING FLAG IS TURNED
+  // BACK OFF
+  loading: store.loading.loading,
 })
 const mapDispatchToProps = dispatch => ({
   getrooms: () => dispatch(actions.getRooms()),

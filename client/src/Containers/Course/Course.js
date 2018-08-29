@@ -105,6 +105,7 @@ class Course extends Component {
     const resource = match.params.resource;
     const needToFetch = difference(user[resource], this.props[resource]).length !== 0;
     if (needToFetch) {
+      // @IDEA We could avoid this formatting if we dont use camel case like in the Profile container
       let re = resource[0].toUpperCase() + resource.substr(1)
       console.log('we need to fetch ' + resource)
       this.props[`get${re}`](currentCourse[resource])
@@ -116,6 +117,7 @@ class Course extends Component {
     // check if the course has loaded
     // @TODO We should put this in MOunt or Update so that we can leverage some codesplitting?
     const course = this.props.currentCourse
+    console.log(course)
     const resource = this.props.match.params.resource;
     const user = this.props.user;
     let content;

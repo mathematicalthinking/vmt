@@ -1,7 +1,7 @@
 import * as actionTypes from '../actions/actionTypes';
 
 const initialState = {
-  loggingIn: false,
+  loading: false,
   logginError: false,
   errorMessage: '',
   loginSuccess: false,
@@ -14,19 +14,19 @@ const reducer = (state = initialState, action) => {
     case actionTypes.START:
     return {
       ...state,
-      loggingIn: true,
+      loading: true,
     };
     case actionTypes.FAIL:
     return {
       ...state,
-      loggingIn: false,
+      loading: false,
       loginError: true,
       errorMessage: action.error,
     };
     case actionTypes.SUCCESS:
       return {
         ...state,
-        loggingIn: false,
+        loading: false,
         loginSuccess: true,
       }
     case actionTypes.ACCESS_SUCCESS:
