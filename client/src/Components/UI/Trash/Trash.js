@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { moveCard } from '../../../store/actions'
 import {
   DropTarget,
   // DropTargetMonitor,
@@ -28,19 +27,27 @@ function collect(connect, monitor) {
   return {
     connectDropTarget: connect.dropTarget(),
     isOver: monitor.isOver(),
-
+    dragging: monitor.getItem(),
   }
 }
 
+// const mapStateToProps = store => ({
+//   dragging: store.trash.dragging,
+// })
+// @connect(mapStateToProps, null)
 @DropTarget(ItemTypes.CARD, trashTarget, collect)
 export default class Trash extends Component {
   render() {
-    const { connectDropTarget, isOver } = this.props;
-    const activeClass = isOver ? classes.Over : classes.Default;
+    console.log(this.props.dragging)
+    const { connectDropTarget, isOver, dragging } = this.props;
+    const activeClass = isOver ? classes.Over : classes.Default
     return connectDropTarget(
       <div
         className={activeClass}
-      ><i class="far fa-trash-alt"></i></div>
+        style={{opacity: dragging ? 1 : 0}}
+      >
+        <i class="far fa-trash-alt"></i>
+      </div>
     )
   }
 }
