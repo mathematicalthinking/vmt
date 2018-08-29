@@ -106,6 +106,7 @@ class Course extends Component {
     const needToFetch = difference(user[resource], this.props[resource]).length !== 0;
     if (needToFetch) {
       let re = resource[0].toUpperCase() + resource.substr(1)
+      console.log('we need to fetch ' + resource)
       this.props[`get${re}`](currentCourse[resource])
     }
 

@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import Resources from '../../Layout/Dashboard/Resources/Resources';
+import difference from 'lodash/difference'
 // import Assignments from '../Assignments/Assignments';
 import { getUserResources }from '../../store/reducers/';
 import { connect } from 'react-redux';
+import * as actions from '../../store/actions'
 
 class Profile extends Component {
   state = {
@@ -14,10 +16,6 @@ class Profile extends Component {
       {name: 'Settings'},
     ],
     touring: false,
-    notifications: {
-      courses: [],
-      rooms: [],
-    },
   }
 
   componentDidMount() {
@@ -41,15 +39,38 @@ class Profile extends Component {
     })
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    // check that we have the data we need
+    const { user } = this.props;
+    const { resource } = this.props.match.params;
+    // console.log(resource)
+    // console.log(user[resource])
+    // console.log(this.props[resource])
+    if (user[resource].length !== this.props[resource].length) {
+      console.log("THEY RE NOT EQUAL");
+      this.fetchData(resource)
+    }
+    else {
+      let haveResource = user[resource].every(re => this.props[resource].includes(re))
+      console.log("HAVE RESOURCE ", haveResource)
+    }
+    return;
+  }
+
+  fetchData = resource => {
+    this.props[`get${resource}`]()
+  }
+
   render() {
     const { user, match } = this.props;
     const resource = match.params.resource;
     console.log('RESOURCE: ', resource)
+    console.log(this.props[`user${resource}`])
     let content;
     // Load content based on
     // const updatedResources = {...this.props[resource]}
     content = <Resources
-      userResources={this.props[resource] || []}
+      userResources={this.props[`user${resource}`] || []}
       notifications={resource === 'courses' ? user.courseNotifications : user.roomNotifications}
       resource={resource}
       userId={user.id}/>
@@ -68,13 +89,21 @@ class Profile extends Component {
   }
 }
 
+// @NB THE LACK OF CAMEL CASE HERE IS INTENTIONAL AND ALLOWS US TO AVOID LOTS
+// OF CONDITIONAL LOGIC CHECKING THE RESOURCE TYPE AND THEN GRABBING DATA BASED
+// ON ITS VALUE. INSTEAD, WITH THE CURRENT METHOD WE CAN DO LIKE user[resource] or get[resource]
 const mapStateToProps = store => ({
-  courses: getUserResources(store, 'courses'),
-  rooms: getUserResources(store, 'rooms'),
-  assignments: getUserResources(store, 'assignments'),
+  usercourses: getUserResources(store, 'courses'),
+  userrooms: getUserResources(store, 'rooms'),
+  userassignments: getUserResources(store, 'assignments'),
   user: store.user,
+  rooms: store.rooms.allIds,
+  courses: store.courses.allIds,
 })
-// const mapDispatchToProps = dispatch => ({})
+const mapDispatchToProps = dispatch => ({
+  getrooms: () => dispatch(actions.getRooms()),
+  getassignments: () => dispatch(actions.getAssignments())
+})
 
 
-export default connect(mapStateToProps, null)(Profile);
+export default connect(mapStateToProps, mapDispatchToProps)(Profile);
