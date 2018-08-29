@@ -35,6 +35,7 @@ const boxList = props => {
             id={item._id}
             notifications={notifications}
             roomType={item.roomType}
+            resource={props.resource}
             locked={!item.isPublic} // @TODO Should it appear locked if the user has access ? I can see reasons for both
           >
             {item.description}

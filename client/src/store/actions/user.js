@@ -14,6 +14,13 @@ export const gotUser = user => {
   }
 }
 
+export const removeUserCourses = courseId => {
+  return {
+    type: actionTypes.REMOVE_USER_COURSES,
+    courseId,
+  }
+}
+
 export const updateUserCourses = newCourse => {
   return {
     type: actionTypes.UPDATE_USER_COURSES,

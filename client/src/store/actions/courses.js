@@ -1,5 +1,9 @@
 import * as actionTypes from './actionTypes';
-import { updateUserCourses, updateUserCourseTemplates } from './user';
+import {
+  updateUserCourses,
+  updateUserCourseTemplates,
+  removeUserCourses,
+} from './user';
 import { createdCourseTemplate } from './courseTemplates';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
@@ -54,9 +58,12 @@ export const courseRemoved = (courseId) => {
 
 export const removeCourse = courseId => {
   return dispatch => {
+    dispatch(loading.start())
     API.remove('course', courseId)
     .then(res => {
+      dispatch(removeUserCourses(courseId))
       dispatch(courseRemoved(courseId))
+      return dispatch(loading.success())
     })
   }
 }

@@ -50,9 +50,13 @@ const reducer = (state = initialState, action) => {
         byId: updatedCourses,
       }
     case actionTypes.REMOVE_COURSE:
-      console.log("REMOVING COURSE FROM STORE")
+      const updatedIds = state.allIds.filter(id => id !== action.courseId)
+      const updatedById = {...state.byId}
+      delete updatedById[action.courseId]
       return {
-        ...state
+        ...state,
+        byId: updatedById,
+        allIds: updatedIds,
       }
     default:
       return state

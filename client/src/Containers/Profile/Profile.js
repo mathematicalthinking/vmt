@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
-import Resources from '../../Layout/Dashboard/Resources/Resources';
-import difference from 'lodash/difference'
 // import Assignments from '../Assignments/Assignments';
 import { getUserResources }from '../../store/reducers/';
 import { connect } from 'react-redux';
@@ -21,7 +19,7 @@ class Profile extends Component {
   componentDidMount() {
     const { courseNotifications, roomNotifications } = this.props.user;
     const updatedTabs = [...this.state.tabs]
-    // if (!user.seenTour) {
+    // @TODO if (!user.seenTour) {
     //   this.setState({touring: true})
     // }
     if (courseNotifications.access.length > 0) {
@@ -33,19 +31,24 @@ class Profile extends Component {
     if (roomNotifications.newRoom.length > 0){
       updatedTabs[1].notifications = roomNotifications.newRoom.length;
     }
-    console.log(updatedTabs)
     this.setState({
       tabs: updatedTabs
     })
   }
 
+  // @BUG THIS IS BAD -- does not necessarily prevent a rerender
+  // componentShouldUpdate(nextProps, nextState){
+  //   if (nextProps.loading) {
+  //     return false;
+  //   }
+  // }
+
   componentDidUpdate(prevProps, prevState) {
     // check that we have the data we need
     const { user, loading } = this.props;
     const { resource } = this.props.match.params;
+    console.log(loading)
     console.log(resource)
-    console.log(user[resource])
-    console.log('ASSIGNMENTS: ', this.props[resource])
     if (!loading) {
       if (user[resource].length !== this.props[resource].length) {
         this.fetchData(resource)
@@ -106,7 +109,8 @@ const mapStateToProps = store => ({
 })
 const mapDispatchToProps = dispatch => ({
   getrooms: () => dispatch(actions.getRooms()),
-  getassignments: () => dispatch(actions.getAssignments())
+  getassignments: () => dispatch(actions.getAssignments()),
+  getcourses: () => dispatch(actions.getCourses())
 })
 
 

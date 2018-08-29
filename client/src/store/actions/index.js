@@ -11,6 +11,7 @@ export {
   updateUserAccessNtfs,
   updateUserAssignments,
   updateUserCourseTemplates,
+  removeUserCourses,
 } from './user';
 export {
   fail,
