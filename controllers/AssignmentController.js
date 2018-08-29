@@ -43,8 +43,14 @@ module.exports = {
       .then(assignment => resolve(assignment))
       .catch(err => reject(err))
     })
-  }
+  },
 
-  // delete
+  delete: id => {
+    return new Promise((resolve, reject) => {
+      db.Assignment.findByIdAndRemove(id)
+      .then(course => resolve(course))
+      .catch(err => reject(err))
+    })
+  }
 
 }

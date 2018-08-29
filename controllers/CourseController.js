@@ -69,5 +69,13 @@ module.exports = {
         })
       .catch(err => reject(err))
     })
+  },
+
+  delete: id => {
+    return new Promise((resolve, reject) => {
+      db.Course.findByIdAndRemove(id)
+      .then(course => resolve(course))
+      .catch(err => reject(err))
+    })
   }
 }

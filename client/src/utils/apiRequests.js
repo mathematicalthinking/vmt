@@ -13,6 +13,10 @@ export default {
     return axios.get(`/api/${resource}/${id}`)
   },
 
+  remove: (resource, id) => {
+    return axios.delete(`/api/${resource}/${id}`)
+  },
+
   requestAccess: (toUser, fromUser, resource, resourceId) => {
     console.log(toUser)
     // @TODO consider making notificationTypes a directory of constants like action types
