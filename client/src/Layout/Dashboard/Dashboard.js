@@ -8,7 +8,7 @@ import React from 'react';
 import classes from './dashboard.css';
 import TabList from '../../Components/Navigation/TabList/TabList';
 import BreadCrumbs from '../../Components/Navigation/BreadCrumbs/BreadCrumbs'
-
+import Trash from '../../Components/UI/Trash/Trash'
 const dashboard = props => {
   return (
     <section className={classes.Container}>
@@ -29,6 +29,7 @@ const dashboard = props => {
           </div>
         </div>
       </div>
+      <div className={classes.Trash}><Trash /></div>
     </section>
   )
 }

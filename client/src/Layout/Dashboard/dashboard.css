@@ -1,6 +1,7 @@
 .Container {
   display: flex;
   flex-flow: column;
+  position: relative;
   background-color: #fdfdfd;
   width: 98%;
   border: 1px solid #ddd;
@@ -55,6 +56,14 @@
 .MainContent {
   /* border: 1px solid blue; */
   padding-top: 30px;
+}
+
+
+.Trash {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  font-size: 3em;
 }
 
 .CreateContainer {
