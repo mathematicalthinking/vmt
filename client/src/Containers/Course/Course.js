@@ -64,6 +64,7 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log("COMPONENT DID UPDATE")
     if (this.state.member || this.state.owner) {
       this.checkForFetch();
       if (prevProps.user.courseNotifications.access !== this.props.user.courseNotifications.access) {
@@ -110,24 +111,19 @@ class Course extends Component {
   }
 
   render() {
-    // check if the course has loaded
-    // @TODO We should put this in MOunt or Update so that we can leverage some codesplitting?
     const { course, user, match } = this.props;
     const resource = match.params.resource;
-
-    // @TODO THIS VAN BE LESS VERBOSE USE PROGILE CONTAINER AS A TEMPLATE. WE'LL NEED TO USE RESOURCES LAYOUT
-    // INSTEAD OF BOXLIST
-    console.log(resource)
+    console.log(course)
+    console.log(course[resource])
     const contentData = {
       resource,
       parentResource: "courses",
       parentResourceId: course._id,
-      userResources: this.props.course[resource] || [],
+      userResources: course[resource] || [],
       notifications:  user.courseNotifications || [],
       userId: user.id,
       owner: this.state.owner,
     }
-    console.log(contentData.notifications)
     const publicAccessModal = <Modal show={true}>
       <p>If you would like to add this course (and all of this course's rooms) to your
         list of courses and rooms, click 'Join'. If you just want to poke around click 'Explore'

@@ -2,7 +2,6 @@ import React from 'react';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
 const resources = props => {
-  console.log(props)
     // @TODO Is there a way to do this passing over the array only once?
     const ownedResources = props.userResources.filter(resource => (
       resource.creator === props.userId
@@ -19,7 +18,7 @@ const resources = props => {
     }
     return (
       <div>
-        <NewResource resource={props.resource} courseId={props.resource === 'courses'?  props.resourceId : null}/>
+        <NewResource resource={props.resource} courseId={props.parentResource === 'courses'?  props.parentResourceId : null}/>
         <h2>{displayResource} I Own</h2>
         <BoxList
           list={ownedResources}

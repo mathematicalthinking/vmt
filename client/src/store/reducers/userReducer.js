@@ -55,7 +55,7 @@ const reducer = (state = initialState, action) => {
 
     case actionTypes.UPDATE_USER_COURSE_ACCESS_NTFS:
       const courseNtfs = {...state.courseNotifications}
-      const updatedCourseNtfs = courseNtfs.access.filter(ntf => ntf.user._id !== action.user._id)
+      const updatedCourseNtfs = courseNtfs.access.filter(ntf => ntf.user._id !== action.user)
       return {
         ...state,
         courseNotifications: {...courseNtfs, access: updatedCourseNtfs},

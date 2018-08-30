@@ -21,6 +21,7 @@ class Assignment extends Component {
       resource,
       assignment,
       course,
+      userResources: course[resource] || [],
       parentResource: 'assignments',
       userId: this.props.userId,
     }
@@ -44,7 +45,6 @@ const mapStateToProps = (store, ownProps ) => {
   const { assignment_id, course_id } = ownProps.match.params;
   return {
     currentAssignment: populateResource(store, 'assignments', assignment_id, ['rooms']),
-    // rooms:
     currentCourse: store.courses.byId[course_id],
     userId: store.user.id,
   }

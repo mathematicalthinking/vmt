@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 
 const students = props => {
   console.log(props)
-  const { userResources, notifications, owner, resourceId, parentResource} = props
+  const { userResources, notifications, owner, parentResourceId, parentResource} = props
   let joinRequests;
   if (props.owner) {
     joinRequests = notifications.access.map((ntf, i) => {
@@ -16,7 +16,7 @@ const students = props => {
         <div className={classes.UserRow} key={i}>
           <div style={{margin: 20}}><Avatar username={ntf.user.username} /></div>
           <div>requested access to join this course [TIMESTAMP @TODO]</div>
-          <Button click={() => props.grantAccess(ntf.user, parentResource, resourceId)}>Grant Access</Button>
+          <Button click={() => props.grantAccess(ntf.user._id, parentResource.slice(0, parentResource.length - 1), parentResourceId)}>Grant Access</Button>
         </div>
       )
     })

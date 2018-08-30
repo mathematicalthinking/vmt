@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import {
   DropTarget,
   // DropTargetMonitor,
@@ -38,7 +37,6 @@ function collect(connect, monitor) {
 @DropTarget(ItemTypes.CARD, trashTarget, collect)
 export default class Trash extends Component {
   render() {
-    console.log(this.props.dragging)
     const { connectDropTarget, isOver, dragging } = this.props;
     const activeClass = isOver ? classes.Over : classes.Default
     return connectDropTarget(

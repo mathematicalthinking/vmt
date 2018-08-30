@@ -133,8 +133,8 @@ export const requestAccess = (toUser, fromUser, resource, resourceId) => {
 }
 
 export const grantAccess = (user, resource, resourceId) => {
-  console.log(user, resource, resourceId)
   return dispatch => {
+    console.log(user, resource, resourceId)
     dispatch(loading.start())
     API.grantAccess(user, resource, resourceId)
     .then(res => {

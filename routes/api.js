@@ -51,9 +51,7 @@ router.get('/:resource/:id', (req, res, next) => {
 
 router.post('/:action', (req, res, next) => {
 	const action = req.params.action;
-  console.log(action)
 	const controller = controllers[action]
-  console.log('controller: ', controller)
 	if (controller == null){
 		return res.status(400).json(defaultError)
 	}

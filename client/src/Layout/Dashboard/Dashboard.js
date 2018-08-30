@@ -16,10 +16,10 @@ import MakeRoomsLayout from './MakeRooms/MakeRooms';
 
 const dashboard = props => {
   console.log(props)
-  const {resource, parentResource, assignment, course} = props.contentData;
+  const {resource, parentResource, assignment, course, userId} = props.contentData;
   let content;
   if (parentResource === 'assignments' && resource === 'details') {
-    content = <MakeRoomsLayout assignment={assignment} course={course}/>
+    content = <MakeRoomsLayout assignment={assignment} course={course} userId={userId}/>
   } else content = <DnDTrash>
     {props.contentData.resource === 'members' ?
       <Students {...props.contentData}/>

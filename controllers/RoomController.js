@@ -29,6 +29,7 @@ module.exports = {
 // @TODO I SEEM TO BE USING MODEL METHODS SOMETIMES AND THEN OTHER TIMES (LIKE HERE)
 // JUST DOING ALL OF THE WORK IN THE CONTROLLER...PROBABLY NEED TO BE CONSISTENT
   post: body => {
+    console.log("BODY: ", body)
     return new Promise((resolve, reject) => {
       body.notifications = [{user: body.creator, notificationType: 'newRoom'}]
         // MAYBE EXTRACT THIS OUT INTO A DIFFERENT FUNCTION CAUSE ITS THE SAME CODE AS ABOVE
@@ -52,7 +53,6 @@ module.exports = {
       body = {$addToSet: body}
     }
     if (updatedField[0] === 'members') {
-      console.log('updating members')
       body = {$addToSet: body, $pull: {notifications: {user: body.members.user}}}
       db.User.findByIdAndUpdate(body.members.user, {$addToSet: {rooms: id}})
     }
@@ -62,7 +62,7 @@ module.exports = {
       .populate('members.user')
       .populate('notifications.user')
       .then(room => { console.log(room); resolve(room)})
-      .catch(err => reject(err))
+      .catch(err => {console.log(err); reject(err)})
     })
   },
 
@@ -75,8 +75,6 @@ module.exports = {
   },
 
   addCurrentUsers: (roomId, userId) => {
-    console.log(roomId)
-    console.log('updating current users');
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentUsers: userId}}, {new: true})
       .populate('currentUsers')
@@ -86,7 +84,6 @@ module.exports = {
   },
 
   removeCurrentUsers: (roomId, userId) => {
-    console.log('removing a user from room controller')
     return new Promise ((resolve, reject) => {
       db.Room.findByIdAndUpdate(roomId, {$pull: {currentUsers: userId}}, {new: true})
       .populate('currentUsers')
