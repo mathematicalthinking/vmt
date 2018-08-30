@@ -14,8 +14,7 @@ import Students from '../../Containers/Students/Students'
 import Trash from '../../Components/UI/Trash/Trash';
 
 const dashboard = props => {
-  const { userResources, notifications, owner} = props.contentData
-  console.log(notifications)
+  
   return (
     <section className={classes.Container}>
       <div className={classes.BreadCrumbs}>
@@ -33,7 +32,7 @@ const dashboard = props => {
           <div className={classes.MainContent}>
             <DnDTrash>
               {props.contentData.resource === 'members' ?
-                <Students classList={userResources} notifications={notifications.access} owner={owner}/>
+                <Students {...props.contentData}/>
               : <Resources {...props.contentData} /> }
               <div className={classes.Trash}><Trash /></div>
             </DnDTrash>

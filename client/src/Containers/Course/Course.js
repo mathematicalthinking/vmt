@@ -120,9 +120,10 @@ class Course extends Component {
     console.log(resource)
     const contentData = {
       resource,
+      parentResource: "course",
       resourceId: course._id,
-      userResources: this.props.course[resource]|| [],
-      notifications:  user.courseNotifications,
+      userResources: this.props.course[resource] || [],
+      notifications:  user.courseNotifications || [],
       userId: user.id,
       owner: this.state.owner,
     }
