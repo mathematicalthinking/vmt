@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import * as actions from '../../store/actions';
 import { connect } from 'react-redux';

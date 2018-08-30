@@ -22,7 +22,6 @@ const trashTarget = {
 }
 
 function collect(connect, monitor) {
-  // console.log(monitor)
   return {
     connectDropTarget: connect.dropTarget(),
     isOver: monitor.isOver(),

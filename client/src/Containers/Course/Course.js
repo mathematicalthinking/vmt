@@ -32,7 +32,6 @@ class Course extends Component {
     const { course, user } = this.props;
     let firstView = false;
     if (user.courseNotifications.access.filter(ntf => (ntf.notificationType === 'grantedAccess' && ntf._id === course._id)).length > 0) {
-      console.log("I was granted access")
       firstView = true;
       this.props.clearNotification(course._id, user.id, 'course', 'access')
     }
@@ -45,16 +44,13 @@ class Course extends Component {
     if (course.creator === user.id) {
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
       this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}])
-      console.log(this.initialTabs)
       owner = true;
     }
     if (course.members) {
       if (course.members.find(member => member.user._id === user.id)) member = true;
       updatedTabs = this.displayNotifications(updatedTabs);
-      console.log(this.initialTabs)
     }
     // Get Any other notifications
-    console.log(updatedTabs)
     this.setState({
       tabs: updatedTabs,
       owner,
@@ -64,14 +60,12 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log("COMPONENT DID UPDATE")
     if (this.state.member || this.state.owner) {
       this.checkForFetch();
       if (prevProps.user.courseNotifications.access !== this.props.user.courseNotifications.access) {
         let tabs = this.initialTabs;
         if (this.state.owner) tabs = [...this.initialTabs, {name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]
         const updatedTabs = this.displayNotifications(tabs)
-        console.log(updatedTabs)
         this.setState({tabs: updatedTabs})
       }
     }
@@ -87,9 +81,7 @@ class Course extends Component {
 
     const { user, course } = this.props;
     const { courseNotifications }= user
-    console.log(courseNotifications.access.length > 0 && this.state.owner)
     if (courseNotifications.access.length > 0 && course.creator === user.id) {
-      console.log('we in here alright')
       tabs[2].notifications = courseNotifications.access.length;
     }
     if (courseNotifications.newRoom.length > 0){
@@ -113,8 +105,6 @@ class Course extends Component {
   render() {
     const { course, user, match } = this.props;
     const resource = match.params.resource;
-    console.log(course)
-    console.log(course[resource])
     const contentData = {
       resource,
       parentResource: "courses",
