@@ -21,6 +21,15 @@ const reducer = (state = initialState, action) => {
         ...state,
         byId: updatedAssignments,
       }
+    case actionTypes.REMOVE_ASSIGNMENT:
+    const updatedIds = state.allIds.filter(id => id !== action.assignmentId)
+    const updatedById = {...state.byId}
+    delete updatedById[action.assignmentId]
+    return {
+      ...state,
+      byId: updatedById,
+      allIds: updatedIds,
+    }
     // @TODO if we've created a new assignment alert the user so we can redirect
     // to the assignment --> do this by updating the sto
     case actionTypes.UPDATE_ASSIGNMENT_ROOMS:

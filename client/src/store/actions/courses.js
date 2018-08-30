@@ -2,7 +2,7 @@ import * as actionTypes from './actionTypes';
 import {
   updateUserCourses,
   updateUserCourseTemplates,
-  removeUserCourses,
+  removeUserCourse,
 } from './user';
 import { createdCourseTemplate } from './courseTemplates';
 import API from '../../utils/apiRequests';
@@ -49,6 +49,14 @@ export const updateCourseRooms = (courseId, roomId) => {
   }
 }
 
+export const removeCourseAssignment = (courseId, assignmentId) => {
+  return {
+    type: actionTypes.REMOVE_COURSE_ASSIGNMENT,
+    courseId,
+    assignmentId,
+  }
+}
+
 export const courseRemoved = (courseId) => {
   return {
     type: actionTypes.REMOVE_COURSE,
@@ -61,7 +69,7 @@ export const removeCourse = courseId => {
     dispatch(loading.start())
     API.remove('course', courseId)
     .then(res => {
-      dispatch(removeUserCourses(courseId))
+      dispatch(removeUserCourse(courseId))
       dispatch(courseRemoved(courseId))
       return dispatch(loading.success())
     })

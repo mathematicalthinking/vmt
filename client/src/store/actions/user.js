@@ -14,10 +14,17 @@ export const gotUser = user => {
   }
 }
 
-export const removeUserCourses = courseId => {
+export const removeUserCourse = courseId => {
   return {
-    type: actionTypes.REMOVE_USER_COURSES,
+    type: actionTypes.REMOVE_USER_COURSE,
     courseId,
+  }
+}
+
+export const removeUserAssignment = assignmentId => {
+  return {
+    type: actionTypes.REMOVE_USER_ASSIGNMENT,
+    assignmentId,
   }
 }
 

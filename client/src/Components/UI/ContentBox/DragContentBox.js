@@ -22,11 +22,7 @@ const cardSource = {
   endDrag(props, monitor){
     console.log(props)
     if (monitor.getDropResult()) {
-      if (props.resource === 'courses') {
-        props.removeCourse(props.id)
-      } else if (props.resource === 'assignments') {
-        props.remove
-      }
+      props.remove[props.resource](props.id);
     }
   }
 }
@@ -40,9 +36,9 @@ const collect = (connect, monitor) => {
 const mapDispatchToProps = dispatch => {
   return {
     remove: {
-      course: (id) => dispatch(removeCourse(id)),
-      assignment: (id) => dispatch(removeAssignment(id)),
-      room: (id) => dispatch(removeRoom(id)),
+      courses: (id) => dispatch(removeCourse(id)),
+      assignments: (id) => dispatch(removeAssignment(id)),
+      rooms: (id) => dispatch(removeRoom(id)),
       // member: (id, courseId) => dispatch(removeMember(id, courseId))
     }
   }
