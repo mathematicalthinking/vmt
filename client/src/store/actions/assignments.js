@@ -80,13 +80,15 @@ export const createAssignment = body => {
   }
 }
 
+// @TODO MAKE SURE ONLY CREATOR CAN REMOVE
 export const removeAssignment = assignmentId => {
   return dispatch => {
     dispatch(loading.start())
     API.remove('assignment', assignmentId)
     .then(res => {
+      console.log(res.data)
       dispatch(removeUserAssignment(assignmentId))
-      dispatch(removeCourseAssignment(assignmentId))
+      dispatch(removeCourseAssignment(res.data.result.course, assignmentId))
       dispatch(assignmentRemoved(assignmentId))
       dispatch(loading.success())
     })
