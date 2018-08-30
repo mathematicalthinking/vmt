@@ -120,8 +120,8 @@ class Course extends Component {
     console.log(resource)
     const contentData = {
       resource,
-      parentResource: "course",
-      resourceId: course._id,
+      parentResource: "courses",
+      parentResourceId: course._id,
       userResources: this.props.course[resource] || [],
       notifications:  user.courseNotifications || [],
       userId: user.id,
@@ -136,6 +136,7 @@ class Course extends Component {
         {_id: this.props.user.id, username: this.props.user.username}, 'course', course._id)}>Join</Button>
       <Button click={() => {this.setState({guestMode: true})}}>Explore</Button>
     </Modal>
+    // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
     const privateAccessModal = <Modal show={true}>
       <p>You currently don't have access to this course. If you would like to
         request access from the owner click "Join". When your request is accepted
