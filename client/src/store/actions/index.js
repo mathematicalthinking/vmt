@@ -11,6 +11,7 @@ export {
   updateUserAccessNtfs,
   updateUserAssignments,
   updateUserCourseTemplates,
+  removeUserCourse,
 } from './user';
 export {
   fail,
@@ -28,15 +29,18 @@ export {
   getCurrentRoom,
   clearCurrentRoom,
   createdRoomConfirmed,
+  removeRoom,
 } from './rooms';
 export {
   addCourse,
   getCourses,
   gotCourses,
+  removeCourse,
   updateCourse,
   createCourse,
   createdCourses,
   updateCourseRooms,
+  updateCourseAssignments,
   clearCurrentCourse,
   populateCurrentCourse,
 } from './courses';
@@ -60,4 +64,5 @@ export {
   gotCurrentAssignment,
   createAssignment,
   createdAssignmentConfirmed,
-} from './assignments'
+  removeAssignment,
+} from './assignments';

@@ -14,28 +14,23 @@ const Course = new mongoose.Schema({
 
 // Not using arrow function so we can have access to THIS docuemnt
 // DO WE NEED TO CALL NEXT?
-Course.pre('save', function(next){
+Course.pre('save', async function(){
+  console.log("PRE SAVE HOOK")
   if (this.isNew) {
-    User.findByIdAndUpdate(this.creator, {$addToSet: {courses: this._id}})
-    .then(user => {
-      next()
-    })
+    await User.findByIdAndUpdate(this.creator, {$addToSet: {courses: this._id}})
   }
   // IF We're updating
   if (!this.isNew) {
+    const promises = [];
     this.modifiedPaths().forEach(field => {
+      console.log(field)
       if (field === 'rooms') {
         // console.log('updating rooms in course pre save hook')
       // add these rooms to all of the members in this course
       // and add all of the members of this course to the room.
 
-      }
-      else if (field === 'members') {
-        // @TODO IS it safe to assume it will be at the end...I think so
-        // cause we're using push
+      } else if (field === 'members') {
         const member = this.members[this.members.length - 1]
-        // console.log('new member: ', member)
-        const promises = [];
         promises.push(User.findByIdAndUpdate(member.user, {
           $addToSet: {
             courses: this._id,
@@ -46,17 +41,27 @@ Course.pre('save', function(next){
             assignments: this.assignments,
             rooms: {$each: this.rooms}
           }
-        }, {new: true}))
+        }))
         promises.push(User.findByIdAndUpdate(this.creator, {
           $pull: {'courseNotifications.access': {user: member.user}}
-        }, {new: true}))
-        Promise.all(promises).then(res => next())
-      };
+        }))
+        // next()
+      } else if (field === 'assignments') {
+
+      }
     })
+    await Promise.all(promises)
   }
-  console.log('next')
 });
 
+Course.pre('remove', function() {
+  console.log("HEWLLO")
+  this.members.forEach(async member => {
+    user = await User.findById(member.user)
+    user.courses = user.courses.filter(course => course !== this._id)
+    await user.save()
+  })
+})
 // Course.post('save', function (doc) {
 //
 //   // if ()

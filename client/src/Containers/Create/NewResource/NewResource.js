@@ -42,10 +42,10 @@ class NewResource extends Component {
     // update backend via redux so we can add this to the global state of courses
     if (this.props.template) {
       switch (this.props.resource) {
-        case 'course' :
+        case 'courses' :
           this.props.createCourseTemplate(newResource);
           break;
-        case 'room' :
+        case 'rooms' :
           this.props.createRoomTemplate(newResource);
           break;
         default:;
@@ -59,13 +59,12 @@ class NewResource extends Component {
           console.log(newResource)
           this.props.createCourse(newResource);
           break;
-        case 'assignment' :
+        case 'assignments' :
           newResource.tabs = [{ggbFile: this.state.ggbFile, desmosLink: this.state.desmosLink}]
           newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
-          if (this.props.course) {
-            newResource.course = this.props.course._id;
+          if (this.props.courseId) {
+            newResource.course = this.props.courseId;
           }
-          console.log(newResource)
           this.props.createAssignment(newResource);
           break;
         // case 'ROOM' :
@@ -105,7 +104,7 @@ class NewResource extends Component {
                   width='80%'
                 />
               </div>
-              {(resource === 'assignment') ?
+              {(resource === 'assignments') ?
                 <div className={classes.FormSection}>
                   {/* <TextInput
                     name='dueDate'
@@ -159,7 +158,7 @@ class NewResource extends Component {
             </form>
           </div>
         </Modal>
-        <Button click={() => {this.setState({creating: true})}}>Create New {displayResource} {this.props.template ? 'Template' : null}</Button>
+        <Button click={() => {this.setState({creating: true})}}>Create A New {displayResource.slice(0, displayResource.length - 1)} {this.props.template ? 'Template' : null}</Button>
         {!this.props.template ? <Button click={() => this.setState({creating: true})}>Create From Template</Button> : null}
       </Aux>
     )

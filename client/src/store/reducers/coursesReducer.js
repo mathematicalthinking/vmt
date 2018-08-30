@@ -49,6 +49,31 @@ const reducer = (state = initialState, action) => {
         ...state,
         byId: updatedCourses,
       }
+    case actionTypes.REMOVE_COURSE:
+      let updatedIds = state.allIds.filter(id => id !== action.courseId)
+      let updatedById = {...state.byId}
+      delete updatedById[action.courseId]
+      return {
+        ...state,
+        byId: updatedById,
+        allIds: updatedIds,
+      }
+    case actionTypes.REMOVE_COURSE_ROOM:
+      updatedById = {...state.byId}
+      const updatedCourseRooms = updatedById[action.courseId].rooms.filter(id => id !== action.roomId)
+      updatedById[action.courseId].rooms = updatedCourseRooms
+      return {
+        ...state,
+        byId: updatedById,
+      }
+    case actionTypes.REMOVE_COURSE_ASSIGNMENT:
+      updatedById = {...state.byId}
+      const updatedCourseAssignments = updatedById[action.courseId].assignments.filter(id => id !== action.assignmentId)
+      updatedById[action.courseId].rooms = updatedCourseAssignments;
+      return {
+        ...state,
+        byId: updatedById,
+      }
     default:
       return state
   }

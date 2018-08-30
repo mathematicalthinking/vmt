@@ -21,22 +21,24 @@ const Assignment = new mongoose.Schema({
 
 // STOP CHANGING THIS FUNCTION BELOW TO AN ARROW FUNCTION!!!
 // WE NEED 'THIS' TO REFER TO THE FUNCTIONS CONTEXT
-Assignment.pre('save', function (next) {
+Assignment.pre('save', async function() {
+  const promises = []
   if (this.isNew) {
-    User.findByIdAndUpdate(this.creator, {$addToSet: {assignments: this._id}})
-    .then(user => {
-      return next();
-    })
-    .catch(err => {
-      // 'what do we even do with an error like this...seems like we should abort assignment creation if we cant create all the connections -- how do we do that'
-      console.log(err);
-    })
-
+    promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {assignments: this._id}}))
     if (this.course) {
-      Course.findByIdAndUpdate(this.course, {$addToSet: {assignments: this._id}})
-      .catch(err => console.log(err))
+      promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {assignments: this._id}}))
     }
   }
+  await Promise.all(promises)
+})
+
+Assignment.pre('remove', async function() {
+  const promises = [];
+  promises.push(User.findByIdAndUpdate(this.creator, {$pull: {assignments: this._id}}))
+  if (this.course) {
+    promises.push(Course.findByIdAndUpdate(this.course, {$pull: {assignments: this._id}}))
+  }
+  await Promise.all(promises);
 })
 
 module.exports = mongoose.model('Assignment', Assignment);

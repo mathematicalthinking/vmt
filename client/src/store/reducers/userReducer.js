@@ -41,6 +41,18 @@ const reducer = (state = initialState, action) => {
         ...state,
         courses: [action.newCourse, ...state.courses]
       }
+    case actionTypes.REMOVE_USER_COURSE:
+      const courses = state.courses.filter(id => id !== action.courseId)
+      return {...state, courses, }
+
+    case actionTypes.REMOVE_USER_ASSIGNMENT:
+    const assignments = state.assignments.filter(id => id !== action.assignmentId)
+      return {...state, assignments,}
+
+    case actionTypes.REMOVE_USER_ROOM:
+    const rooms = state.rooms.filter(id => id !== action.roomId)
+      return {...state, rooms,}
+
     case actionTypes.UPDATE_USER_COURSE_ACCESS_NTFS:
       const courseNtfs = {...state.courseNotifications}
       const updatedCourseNtfs = courseNtfs.access.filter(ntf => ntf.user._id !== action.user._id)
@@ -48,27 +60,32 @@ const reducer = (state = initialState, action) => {
         ...state,
         courseNotifications: {...courseNtfs, access: updatedCourseNtfs},
       }
+
     case actionTypes.UPDATE_USER_COURSE_TEMPLATES:
       return {
         ...state,
         courseTemplates: [...state.courseTemplates, action.newTemplate],
       }
+
     case actionTypes.UPDATE_USER_ASSIGNMENTS:
       return {
         ...state,
         assignments: [...state.assignments, action.newAssignment]
       }
+
     case actionTypes.CLEAR_NOTIFICATION:
       const updatedNotifications = state[`${action.resource}Notifications`]
       return {
         ...state,
-
+        [`${action.resource}Notifications`]: updatedNotifications,
       }
+
     case actionTypes.CLEAR_ERROR:
       return {
         ...state,
         loginError: '',
       }
+
     default:
       return state
   }

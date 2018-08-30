@@ -7,9 +7,14 @@
 import React from 'react';
 import classes from './dashboard.css';
 import TabList from '../../Components/Navigation/TabList/TabList';
-import BreadCrumbs from '../../Components/Navigation/BreadCrumbs/BreadCrumbs'
+import BreadCrumbs from '../../Components/Navigation/BreadCrumbs/BreadCrumbs';
+import DnDTrash from '../../Containers/DnDTrash/DnDTrash';
+import Resources from './Resources/Resources';
+import Students from '../../Containers/Students/Students'
+import Trash from '../../Components/UI/Trash/Trash';
 
 const dashboard = props => {
+  
   return (
     <section className={classes.Container}>
       <div className={classes.BreadCrumbs}>
@@ -18,14 +23,19 @@ const dashboard = props => {
       <div className={classes.Main}>
         <div className={classes.SidePanel}>
           <div className={classes.Image}>Image</div>
-          <div className={classes.SpTitle}>{props.sidePanelTitle}</div>
+          <div className={classes.SpTitle}></div>
         </div>
         <div className={classes.Content}>
           <div className={classes.Tabs}>
             <TabList routingInfo={props.routingInfo} tabs={props.tabs} />
           </div>
           <div className={classes.MainContent}>
-            {props.content}
+            <DnDTrash>
+              {props.contentData.resource === 'members' ?
+                <Students {...props.contentData}/>
+              : <Resources {...props.contentData} /> }
+              <div className={classes.Trash}><Trash /></div>
+            </DnDTrash>
           </div>
         </div>
       </div>
@@ -33,4 +43,4 @@ const dashboard = props => {
   )
 }
 
-export default dashboard;
+export default (dashboard);

@@ -17,48 +17,48 @@ import classes from './main.css';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 
-class Main extends Component {
-  render() {
-    return (
-        <main className={classes.Main}>
-          {/* <div className={classes.Particles} id='particles-js'></div> */}
-          <div className={classes.Banner}>
-            <h2>Virtual Math Teams</h2>
-            {this.props.loggedIn ? <Avatar username={this.props.username} /> : null}
-          </div>
-          <Navbar />
-          <section className={classes.Section}>
-            <Switch>
-              <Route exact path='/' component={Login}/>
-              <Route path='/users/new' authed={this.props.loggedIn} component={NewUser}/>
-              <Route exact path='/publicList/:resource' component={PublicList}/>
-              <Route exact path='/publicResource/room/:room_id/:resource' component={Room}/>
-              <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />
-              <PrivateRoute exact path='/profile/:resource' authed={this.props.loggedIn} component={Profile}/>
-              <PrivateRoute exact path = '/profile/courses/:course_id/:resource' authed={this.props.loggedIn} component={Course}/>
-              <PrivateRoute exact path='/profile/courses/:course_id/assignments/:assignment_id/:resource' authed={this.props.loggedIn} component={Assignment} />
-              <PrivateRoute exact path = '/profile/rooms/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
-              <PrivateRoute exact path = '/profile/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
-              <PrivateRoute expact path = '/workspace/:room_id' authed={this.props.loggedIn} component={Workspace} />
-              {/* <Route exact path='/dashboard/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room}/> */}
-              {/* <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/> */}
-              <Route path='/confirmation' component={Confirmation} />
-              <Route exact path='/logout' component={Login}/>
-              <Route path="*" render={() => {
-                return (<div>Error</div>)
-                // ^ @TODO 404 page
-              }}/>
-            </Switch>
-          </section>
-        </main>
-    )
-  }
-};
-
 // Provide login status to all private routes
 const mapStateToProps = store => ({
   username: store.user.username,
   loggedIn: store.user.loggedIn,
 })
 
-export default connect(mapStateToProps, null)(Main);
+
+@connect(mapStateToProps, null)
+export default class Main extends Component {
+  render() {
+    return (
+      <main className={classes.Main}>
+        {/* <div className={classes.Particles} id='particles-js'></div> */}
+        <div className={classes.Banner}>
+          <h2>Virtual Math Teams</h2>
+          {this.props.loggedIn ? <Avatar username={this.props.username} /> : null}
+        </div>
+        <Navbar />
+        <section className={classes.Section}>
+          <Switch>
+            <Route exact path='/' component={Login}/>
+            <Route path='/users/new' authed={this.props.loggedIn} component={NewUser}/>
+            <Route exact path='/publicList/:resource' component={PublicList}/>
+            <Route exact path='/publicResource/room/:room_id/:resource' component={Room}/>
+            <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />
+            <PrivateRoute exact path='/profile/:resource' authed={this.props.loggedIn} component={Profile}/>
+            <PrivateRoute exact path = '/profile/courses/:course_id/:resource' authed={this.props.loggedIn} component={Course}/>
+            <PrivateRoute exact path='/profile/courses/:course_id/assignments/:assignment_id/:resource' authed={this.props.loggedIn} component={Assignment} />
+            <PrivateRoute exact path = '/profile/rooms/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
+            <PrivateRoute exact path = '/profile/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
+            <PrivateRoute expact path = '/workspace/:room_id' authed={this.props.loggedIn} component={Workspace} />
+            {/* <Route exact path='/dashboard/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room}/> */}
+            {/* <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/> */}
+            <Route path='/confirmation' component={Confirmation} />
+            <Route exact path='/logout' component={Login}/>
+            <Route path="*" render={() => {
+              return (<div>Error</div>)
+              // ^ @TODO 404 page
+            }}/>
+          </Switch>
+        </section>
+      </main>
+    )
+  }
+};

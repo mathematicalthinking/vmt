@@ -51,3 +51,8 @@ We are not saving the user's name in the member list when we update redux, just 
 ### Workspace
 ### Chat
 ### Replayer
+
+
+### Tests to Write
+1. create
+* course, room, userAccount, courseAssignment, courseRoom,

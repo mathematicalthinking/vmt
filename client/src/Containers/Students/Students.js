@@ -6,20 +6,22 @@ import * as actions from '../../store/actions/'
 import { connect } from 'react-redux';
 
 const students = props => {
+  console.log(props)
+  const { userResources, notifications, owner, resourceId, parentResource} = props
   let joinRequests;
   if (props.owner) {
-    joinRequests = props.notifications.map((ntf, i) => {
+    joinRequests = notifications.access.map((ntf, i) => {
       // console.log()
       return (
         <div className={classes.UserRow} key={i}>
           <div style={{margin: 20}}><Avatar username={ntf.user.username} /></div>
           <div>requested access to join this course [TIMESTAMP @TODO]</div>
-          <Button click={() => props.grantAccess(ntf.user, props.resource, props.resourceId)}>Grant Access</Button>
+          <Button click={() => props.grantAccess(ntf.user, parentResource, resourceId)}>Grant Access</Button>
         </div>
       )
     })
   }
-  const classList = props.classList.map((member, i) => (
+  const classList = userResources.map((member, i) => (
     <div className={classes.UserRow} key={i}>
       <div style={{margin: 20}}><Avatar username={member.user.username} /></div>
       <div className={classes.Role}>{member.role}</div>
@@ -27,7 +29,7 @@ const students = props => {
   ))
   return (
     <div className={classes.Container}>
-      {props.owner ?
+      {owner ?
         <div>
           <h3 className={classes.SubHeader}>New Requests to Join</h3>
           <div className={classes.Notifications}>

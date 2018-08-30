@@ -14,6 +14,20 @@ export const gotUser = user => {
   }
 }
 
+export const removeUserCourse = courseId => {
+  return {
+    type: actionTypes.REMOVE_USER_COURSE,
+    courseId,
+  }
+}
+
+export const removeUserAssignment = assignmentId => {
+  return {
+    type: actionTypes.REMOVE_USER_ASSIGNMENT,
+    assignmentId,
+  }
+}
+
 export const updateUserCourses = newCourse => {
   return {
     type: actionTypes.UPDATE_USER_COURSES,
@@ -119,6 +133,7 @@ export const requestAccess = (toUser, fromUser, resource, resourceId) => {
 }
 
 export const grantAccess = (user, resource, resourceId) => {
+  console.log(user, resource, resourceId)
   return dispatch => {
     dispatch(loading.start())
     API.grantAccess(user, resource, resourceId)

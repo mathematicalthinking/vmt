@@ -13,13 +13,15 @@ const resources = props => {
     const displayResource = props.resource[0].toUpperCase() + props.resource.slice(1);
     return (
       <div>
-        <NewResource resource={props.resource}/>
+        <NewResource resource={props.resource} courseId={props.resource === 'courses'?  props.resourceId : null}/>
         <h2>{displayResource} I Own</h2>
         <BoxList
           list={ownedResources}
           linkPath={`/profile/${props.resource}/`}
           linkSuffix={linkSuffix}
           notifications = {props.notifications}
+          resource = {props.resource}
+          draggable
         />
         <h2>{displayResource} I'm Enrolled in</h2>
         <BoxList

@@ -66,6 +66,14 @@ module.exports = {
     })
   },
 
+  delete: id => {
+    return new Promise((resolve, reject) => {
+      db.Room.findByIdAndRemove(id)
+      .then(course => resolve(course))
+      .catch(err => reject(err))
+    })
+  },
+
   addCurrentUsers: (roomId, userId) => {
     console.log(roomId)
     console.log('updating current users');
@@ -85,5 +93,7 @@ module.exports = {
       .then(room => resolve(room))
       .catch(err => reject(err))
     })
-  }
+  },
+
+
 }
