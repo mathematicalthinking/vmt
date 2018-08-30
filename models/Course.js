@@ -46,6 +46,8 @@ Course.pre('save', async function(){
           $pull: {'courseNotifications.access': {user: member.user}}
         }))
         // next()
+      } else if (field === 'assignments') {
+
       }
     })
     await Promise.all(promises)

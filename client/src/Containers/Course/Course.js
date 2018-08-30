@@ -4,12 +4,9 @@ import difference from 'lodash/difference';
 import { populateResource } from '../../store/reducers/';
 import * as actions from '../../store/actions/';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
-import BoxList from '../../Layout/BoxList/BoxList';
-import NewResource from '../Create/NewResource/NewResource';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
-import Students from '../Students/Students';
 
 class Course extends Component {
   state = {
@@ -80,8 +77,8 @@ class Course extends Component {
   }
 
   requestAccess = () => {
-    const {currentCourse, user} = this.props;
-    this.props.requestAccess(currentCourse.creator, user.id, 'course', currentCourse._id)
+    const {course, user} = this.props;
+    this.props.requestAccess(course.creator, user.id, 'course', course._id)
     this.props.history.push('/confirmation')
   }
 
@@ -107,7 +104,6 @@ class Course extends Component {
     if (needToFetch) {
       // @IDEA We could avoid this formatting if we dont use camel case like in the Profile container
       let re = resource[0].toUpperCase() + resource.substr(1)
-      console.log('we need to fetch ' + resource)
       this.props[`get${re}`](course[resource])
     }
 
@@ -129,33 +125,6 @@ class Course extends Component {
       notifications: (resource === 'courses') ? user.courseNotifications : user.roomNotifications,
       userId: user.id
     }
-    // switch (resource) {
-    //   case 'assignments' :
-    //     content = <div>
-    //       {this.state.owner ? <NewResource resource='assignment' course={{_id: course._id, members: course.members}}/> : null }
-    //       <BoxList
-    //         list={course.assignments || []}
-    //         linkPath={`/profile/courses/${course._id}/assignments/`}
-    //         linkSuffix={`/details`}
-    //       />
-    //     </div>
-    //     break;
-    //   case 'rooms' :
-    //     content = <div>
-    //       {this.state.owner ? <NewResource resource='room' course={{_id: course._id, members: course.members}}/> : null}
-    //       <BoxList
-    //         list={course.rooms || []}
-    //         linkPath={`/profile/courses/${course._id}/rooms/`}
-    //         linkSuffix='/summary'
-    //       />
-    //     </div>
-    //     break;
-    //   case 'members' :
-    //   // @TODO make a folder of NOTFICATION_TYPES ...somewhere
-    //     content = <Students classList={course.members} notifications={user.courseNotifications.access} resource='course'  resourceId={course._id} owner={this.state.owner} />
-    //     break;
-    //   default : content = null;
-    // }
     const publicAccessModal = <Modal show={true}>
       <p>If you would like to add this course (and all of this course's rooms) to your
         list of courses and rooms, click 'Join'. If you just want to poke around click 'Explore'
@@ -206,6 +175,7 @@ const mapDispatchToProps = dispatch => {
     getAssignments: ids => dispatch(actions.getAssignments(ids)),
     getRooms: ids => dispatch(actions.getRooms(ids)),
     updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
+    updateCourseAssignments: assignment => dispatch(actions.updateCourseAssignments),
     clearCurrentCourse: () => dispatch(actions.clearCurrentCourse()),
     grantAccess: (user, resource, id) => dispatch(actions.grantAccess(user, resource, id)),
     requestAccess: (toUser, fromUser, resource, resourceId) => dispatch(actions.requestAccess(toUser, fromUser, resource, resourceId)),

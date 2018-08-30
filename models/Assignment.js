@@ -33,7 +33,9 @@ Assignment.pre('save', function (next) {
     })
 
     if (this.course) {
+      console.log("THIS COURSE")
       Course.findByIdAndUpdate(this.course, {$addToSet: {assignments: this._id}})
+      .then(cours => next())
       .catch(err => console.log(err))
     }
   }

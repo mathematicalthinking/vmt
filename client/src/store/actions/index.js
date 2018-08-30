@@ -39,6 +39,7 @@ export {
   createCourse,
   createdCourses,
   updateCourseRooms,
+  updateCourseAssignments,
   clearCurrentCourse,
   populateCurrentCourse,
 } from './courses';
