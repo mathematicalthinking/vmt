@@ -6,6 +6,7 @@ import * as actions from '../../store/actions/'
 import { connect } from 'react-redux';
 
 const students = props => {
+  console.log(props)
   let joinRequests;
   if (props.owner) {
     joinRequests = props.notifications.map((ntf, i) => {

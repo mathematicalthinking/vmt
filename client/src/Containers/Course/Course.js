@@ -113,18 +113,20 @@ class Course extends Component {
     // check if the course has loaded
     // @TODO We should put this in MOunt or Update so that we can leverage some codesplitting?
     const { course, user, match } = this.props;
-    console.log(course)
     const resource = match.params.resource;
 
     // @TODO THIS VAN BE LESS VERBOSE USE PROGILE CONTAINER AS A TEMPLATE. WE'LL NEED TO USE RESOURCES LAYOUT
     // INSTEAD OF BOXLIST
+    console.log(resource)
     const contentData = {
       resource,
-      courseId: course._id,
+      resourceId: course._id,
       userResources: this.props.course[resource]|| [],
-      notifications: (resource === 'courses') ? user.courseNotifications : user.roomNotifications,
-      userId: user.id
+      notifications:  user.courseNotifications,
+      userId: user.id,
+      owner: this.state.owner,
     }
+    console.log(contentData.notifications)
     const publicAccessModal = <Modal show={true}>
       <p>If you would like to add this course (and all of this course's rooms) to your
         list of courses and rooms, click 'Join'. If you just want to poke around click 'Explore'
@@ -147,7 +149,6 @@ class Course extends Component {
             <DashboardLayout
               routingInfo={this.props.match}
               crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/courses/${course._id}/assignments/`}]}
-              sidePanelTitle={course.name}
               contentData={contentData}
               tabs={this.state.tabs}
             />
