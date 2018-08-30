@@ -32,12 +32,12 @@ class Course extends Component {
   // SO we can reset the tabs easily
 
   componentDidMount() {
-    const { currentCourse, user } = this.props;
+    const { course, user } = this.props;
     let firstView = false;
-    if (user.courseNotifications.access.filter(ntf => (ntf.notificationType === 'grantedAccess' && ntf._id === currentCourse._id)).length > 0) {
+    if (user.courseNotifications.access.filter(ntf => (ntf.notificationType === 'grantedAccess' && ntf._id === course._id)).length > 0) {
       console.log("I was granted access")
       firstView = true;
-      this.props.clearNotification(currentCourse._id, user.id, 'course', 'access')
+      this.props.clearNotification(course._id, user.id, 'course', 'access')
     }
     // check if we need to fetch data
     this.checkForFetch();
@@ -45,14 +45,14 @@ class Course extends Component {
     let updatedTabs = [...this.state.tabs];
     let owner = false;
     let member = false;
-    if (currentCourse.creator === user.id) {
+    if (course.creator === user.id) {
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
       this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}])
       console.log(this.initialTabs)
       owner = true;
     }
-    if (currentCourse.members) {
-      if (currentCourse.members.find(member => member.user._id === user.id)) member = true;
+    if (course.members) {
+      if (course.members.find(member => member.user._id === user.id)) member = true;
       updatedTabs = this.displayNotifications(updatedTabs);
       console.log(this.initialTabs)
     }
@@ -87,10 +87,10 @@ class Course extends Component {
 
   displayNotifications = (tabs) => {
 
-    const { user, currentCourse } = this.props;
+    const { user, course } = this.props;
     const { courseNotifications }= user
     console.log(courseNotifications.access.length > 0 && this.state.owner)
-    if (courseNotifications.access.length > 0 && currentCourse.creator === user.id) {
+    if (courseNotifications.access.length > 0 && course.creator === user.id) {
       console.log('we in here alright')
       tabs[2].notifications = courseNotifications.access.length;
     }
@@ -101,14 +101,14 @@ class Course extends Component {
   }
 
   checkForFetch = () => {
-    const { currentCourse, user, match } = this.props;
+    const { course, user, match } = this.props;
     const resource = match.params.resource;
     const needToFetch = difference(user[resource], this.props[resource]).length !== 0;
     if (needToFetch) {
       // @IDEA We could avoid this formatting if we dont use camel case like in the Profile container
       let re = resource[0].toUpperCase() + resource.substr(1)
       console.log('we need to fetch ' + resource)
-      this.props[`get${re}`](currentCourse[resource])
+      this.props[`get${re}`](course[resource])
     }
 
   }
@@ -116,40 +116,46 @@ class Course extends Component {
   render() {
     // check if the course has loaded
     // @TODO We should put this in MOunt or Update so that we can leverage some codesplitting?
-    const course = this.props.currentCourse
+    const { course, user, match } = this.props;
     console.log(course)
-    const resource = this.props.match.params.resource;
-    const user = this.props.user;
-    let content;
+    const resource = match.params.resource;
+
     // @TODO THIS VAN BE LESS VERBOSE USE PROGILE CONTAINER AS A TEMPLATE. WE'LL NEED TO USE RESOURCES LAYOUT
     // INSTEAD OF BOXLIST
-    switch (resource) {
-      case 'assignments' :
-        content = <div>
-          {this.state.owner ? <NewResource resource='assignment' course={{_id: course._id, members: course.members}}/> : null }
-          <BoxList
-            list={course.assignments || []}
-            linkPath={`/profile/courses/${course._id}/assignments/`}
-            linkSuffix={`/details`}
-          />
-        </div>
-        break;
-      case 'rooms' :
-        content = <div>
-          {this.state.owner ? <NewResource resource='room' course={{_id: course._id, members: course.members}}/> : null}
-          <BoxList
-            list={course.rooms || []}
-            linkPath={`/profile/courses/${course._id}/rooms/`}
-            linkSuffix='/summary'
-          />
-        </div>
-        break;
-      case 'members' :
-      // @TODO make a folder of NOTFICATION_TYPES ...somewhere
-        content = <Students classList={course.members} notifications={user.courseNotifications.access} resource='course'  resourceId={course._id} owner={this.state.owner} />
-        break;
-      default : content = null;
+    const contentData = {
+      resource,
+      courseId: course._id,
+      userResources: this.props.course[resource]|| [],
+      notifications: (resource === 'courses') ? user.courseNotifications : user.roomNotifications,
+      userId: user.id
     }
+    // switch (resource) {
+    //   case 'assignments' :
+    //     content = <div>
+    //       {this.state.owner ? <NewResource resource='assignment' course={{_id: course._id, members: course.members}}/> : null }
+    //       <BoxList
+    //         list={course.assignments || []}
+    //         linkPath={`/profile/courses/${course._id}/assignments/`}
+    //         linkSuffix={`/details`}
+    //       />
+    //     </div>
+    //     break;
+    //   case 'rooms' :
+    //     content = <div>
+    //       {this.state.owner ? <NewResource resource='room' course={{_id: course._id, members: course.members}}/> : null}
+    //       <BoxList
+    //         list={course.rooms || []}
+    //         linkPath={`/profile/courses/${course._id}/rooms/`}
+    //         linkSuffix='/summary'
+    //       />
+    //     </div>
+    //     break;
+    //   case 'members' :
+    //   // @TODO make a folder of NOTFICATION_TYPES ...somewhere
+    //     content = <Students classList={course.members} notifications={user.courseNotifications.access} resource='course'  resourceId={course._id} owner={this.state.owner} />
+    //     break;
+    //   default : content = null;
+    // }
     const publicAccessModal = <Modal show={true}>
       <p>If you would like to add this course (and all of this course's rooms) to your
         list of courses and rooms, click 'Join'. If you just want to poke around click 'Explore'
@@ -173,7 +179,7 @@ class Course extends Component {
               routingInfo={this.props.match}
               crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/courses/${course._id}/assignments/`}]}
               sidePanelTitle={course.name}
-              content={content}
+              contentData={contentData}
               tabs={this.state.tabs}
             />
             <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
@@ -189,7 +195,7 @@ class Course extends Component {
 }
 
 const mapStateToProps = (store, ownProps) => ({
-  currentCourse: populateResource(store, 'courses', ownProps.match.params.course_id, ['assignments', 'rooms']),
+  course: populateResource(store, 'courses', ownProps.match.params.course_id, ['assignments', 'rooms']),
   assignments: store.assignments.allIds,
   rooms: store.rooms.allIds,
   user: store.user,

@@ -36,19 +36,10 @@ class Profile extends Component {
     })
   }
 
-  // @BUG THIS IS BAD -- does not necessarily prevent a rerender
-  // componentShouldUpdate(nextProps, nextState){
-  //   if (nextProps.loading) {
-  //     return false;
-  //   }
-  // }
-
   componentDidUpdate(prevProps, prevState) {
     // check that we have the data we need
     const { user, loading } = this.props;
     const { resource } = this.props.match.params;
-    console.log(loading)
-    console.log(resource)
     if (!loading) {
       if (user[resource].length !== this.props[resource].length) {
         this.fetchData(resource)
@@ -104,7 +95,7 @@ const mapStateToProps = store => ({
   // IF WE NEED TO FETCH DATA. HOWEVER. WHEN WE CREATE A NEW RESOURCE THE USER RESOURCES
   // AND RESOURCES ARE OUT OF SYNCH FOR A SPLIT SECOND. IF WE MARK WHEN THE USER IS
   // CREATING SOMETHING WE CAN SKIP THE FETCH CHECK UNTIL THE CREATING FLAG IS TURNED
-  // BACK OFF
+  // BACK OFF -- actually whats wrong with this
   loading: store.loading.loading,
 })
 const mapDispatchToProps = dispatch => ({

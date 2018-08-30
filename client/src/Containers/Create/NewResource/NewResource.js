@@ -42,10 +42,10 @@ class NewResource extends Component {
     // update backend via redux so we can add this to the global state of courses
     if (this.props.template) {
       switch (this.props.resource) {
-        case 'course' :
+        case 'courses' :
           this.props.createCourseTemplate(newResource);
           break;
-        case 'room' :
+        case 'rooms' :
           this.props.createRoomTemplate(newResource);
           break;
         default:;
@@ -59,13 +59,12 @@ class NewResource extends Component {
           console.log(newResource)
           this.props.createCourse(newResource);
           break;
-        case 'assignment' :
+        case 'assignments' :
           newResource.tabs = [{ggbFile: this.state.ggbFile, desmosLink: this.state.desmosLink}]
           newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
-          if (this.props.course) {
-            newResource.course = this.props.course._id;
+          if (this.props.courseId) {
+            newResource.course = this.props.courseId;
           }
-          console.log(newResource)
           this.props.createAssignment(newResource);
           break;
         // case 'ROOM' :
@@ -77,7 +76,9 @@ class NewResource extends Component {
   }
 
   render() {
+    console.log("COURSE: ", this.props.courseId)
     const resource = this.props.resource;
+    console.log("RESOURCE: ", resource)
     const displayResource = resource.charAt(0).toUpperCase() + resource.slice(1);
     // const displayResource = "RESOURCE";
     const templateDetails = (resource === 'course') ? "Every room you add to this course will also be added to your template (along with the files associated with the room). Course members and activity in the rooms will not be saved to the template. This allow you to resuse this template for multiple groups of students." : '';
@@ -105,7 +106,7 @@ class NewResource extends Component {
                   width='80%'
                 />
               </div>
-              {(resource === 'assignment') ?
+              {(resource === 'assignments') ?
                 <div className={classes.FormSection}>
                   {/* <TextInput
                     name='dueDate'

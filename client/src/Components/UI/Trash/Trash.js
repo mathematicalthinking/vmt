@@ -46,7 +46,7 @@ export default class Trash extends Component {
         className={activeClass}
         style={{opacity: dragging ? 1 : 0}}
       >
-        <i class="far fa-trash-alt"></i>
+        <i className="far fa-trash-alt"></i>
       </div>
     )
   }

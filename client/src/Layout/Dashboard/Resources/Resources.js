@@ -13,7 +13,7 @@ const resources = props => {
     const displayResource = props.resource[0].toUpperCase() + props.resource.slice(1);
     return (
       <div>
-        <NewResource resource={props.resource}/>
+        <NewResource resource={props.resource} courseId={props.courseId}/>
         <h2>{displayResource} I Own</h2>
         <BoxList
           list={ownedResources}
