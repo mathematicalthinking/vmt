@@ -29,6 +29,7 @@ export {
   getCurrentRoom,
   clearCurrentRoom,
   createdRoomConfirmed,
+  removeRoom,
 } from './rooms';
 export {
   addCourse,
@@ -63,8 +64,5 @@ export {
   gotCurrentAssignment,
   createAssignment,
   createdAssignmentConfirmed,
+  removeAssignment,
 } from './assignments';
-export {
-  moveCard,
-  removeResource,
-} from './trash';

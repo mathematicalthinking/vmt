@@ -1,9 +1,11 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
-import { updateUserAssignments } from './user';
+import { updateUserAssignments, removeUserAssignment } from './user';
 // import { createdAssignmentTemplate } from './assignmentTemplates';
-import { updateCourseAssignments } from './courses';
+import { updateCourseAssignments, removeCourseAssignment } from './courses';
+
+import * as loading from './loading';
 
 export const gotAssignments = (assignments) => ({
   type: actionTypes.GOT_ASSIGNMENTS,
@@ -38,6 +40,13 @@ export const updateAssignmentRooms = (assignmentId, roomId) => {
     }
 }
 
+export const assignmentRemoved = (assignmentId) => {
+  return {
+    type: actionTypes.REMOVE_ASSIGNMENT,
+    assignmentId,
+  }
+}
+
 export const getAssignments = params => {
   return dispatch => {
     API.get('assignment', params)
@@ -67,6 +76,19 @@ export const createAssignment = body => {
         dispatch(updateCourseAssignments(body.course, result._id))
       }
       return dispatch(updateUserAssignments(result._id))
+    })
+  }
+}
+
+export const removeAssignment = assignmentId => {
+  return dispatch => {
+    dispatch(loading.start())
+    API.remove('assignment', assignmentId)
+    .then(res => {
+      dispatch(removeUserAssignment(assignmentId))
+      dispatch(removeCourseAssignment(assignmentId))
+      dispatch(assignmentRemoved(assignmentId))
+      dispatch(loading.success())
     })
   }
 }

@@ -2,7 +2,12 @@ import React, { Component } from 'react';
 import classes from './contentBox.css';
 import Icons from './Icons/Icons';
 import { DragSource } from 'react-dnd';
-import { removeCourse } from '../../../store/actions';
+import {
+  removeCourse,
+  removeAssignment,
+  removeRoom,
+  // removeMember,
+} from '../../../store/actions';
 import { connect } from 'react-redux';
 const ItemTypes = {
   CARD: 'card'
@@ -17,8 +22,11 @@ const cardSource = {
   endDrag(props, monitor){
     console.log(props)
     if (monitor.getDropResult()) {
-      if (props.resource === 'courses')
+      if (props.resource === 'courses') {
         props.removeCourse(props.id)
+      } else if (props.resource === 'assignments') {
+        props.remove
+      }
     }
   }
 }
@@ -29,7 +37,18 @@ const collect = (connect, monitor) => {
   isDragging: monitor.isDragging(),
 }}
 
-@connect(null, { removeCourse })
+const mapDispatchToProps = dispatch => {
+  return {
+    remove: {
+      course: (id) => dispatch(removeCourse(id)),
+      assignment: (id) => dispatch(removeAssignment(id)),
+      room: (id) => dispatch(removeRoom(id)),
+      // member: (id, courseId) => dispatch(removeMember(id, courseId))
+    }
+  }
+}
+
+@connect(null, mapDispatchToProps)
 @DragSource(ItemTypes.CARD, cardSource, collect)
 class ContentBox extends Component {
   render() {

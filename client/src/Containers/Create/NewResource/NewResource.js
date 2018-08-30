@@ -76,9 +76,7 @@ class NewResource extends Component {
   }
 
   render() {
-    console.log("COURSE: ", this.props.courseId)
     const resource = this.props.resource;
-    console.log("RESOURCE: ", resource)
     const displayResource = resource.charAt(0).toUpperCase() + resource.slice(1);
     // const displayResource = "RESOURCE";
     const templateDetails = (resource === 'course') ? "Every room you add to this course will also be added to your template (along with the files associated with the room). Course members and activity in the rooms will not be saved to the template. This allow you to resuse this template for multiple groups of students." : '';
