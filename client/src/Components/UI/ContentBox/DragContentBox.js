@@ -20,7 +20,7 @@ const cardSource = {
     };
   },
   endDrag(props, monitor){
-    console.log(props)
+    console.log("RESOURCE: ", props.resource)
     if (monitor.getDropResult()) {
       props.remove[props.resource](props.id);
     }

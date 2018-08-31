@@ -12,6 +12,8 @@ export {
   updateUserAssignments,
   updateUserCourseTemplates,
   removeUserCourse,
+  removeUserRoom,
+  removeUserAssignment, // ARE WE STORING ASSIGNMENTS ON THE USER OBJECT?
 } from './user';
 export {
   fail,
@@ -36,6 +38,7 @@ export {
   getCourses,
   gotCourses,
   removeCourse,
+  removeCourseRoom,
   updateCourse,
   createCourse,
   createdCourses,

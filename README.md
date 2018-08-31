@@ -27,6 +27,9 @@ This project was bootstrapped with [this template](https://github.com/okputadora
 refer to its README for information regarding the directory structure.
 
 ## TODO
+1. immediate todo
+  * Resolve newRoom notifications
+  * get Rooms list working 
 ### General
 1. Make React import less verbose by making an index file for Containers Components and Layout
 and then import relevant components as named imports

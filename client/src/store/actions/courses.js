@@ -57,6 +57,14 @@ export const removeCourseAssignment = (courseId, assignmentId) => {
   }
 }
 
+export const removeCourseRoom = (courseId, roomId) => {
+  return {
+    type: actionTypes.REMOVE_COURSE_ROOM,
+    courseId,
+    roomId,
+  }
+}
+
 export const courseRemoved = (courseId) => {
   return {
     type: actionTypes.REMOVE_COURSE,

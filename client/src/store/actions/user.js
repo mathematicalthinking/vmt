@@ -49,6 +49,13 @@ export const updateUserRooms = newRoom => {
   }
 }
 
+export const removeUserRoom = roomId => {
+  return {
+    type: actionTypes.REMOVE_USER_ROOM,
+    roomId, 
+  }
+}
+
 export const updateUserAccessNtfs = (resource, user) => {
   console.log('we ever getting here?')
   if (resource === 'course') {

@@ -31,10 +31,14 @@ const reducer = (state = initialState, action) => {
         byId: updatedRooms,
         allIds: [action.newRoom._id, ...state.allIds],
       }
-    case actionTypes.CLEAR_ROOM:
+    case actionTypes.REMOVE_ROOM:
+      updatedRooms = {...state.byId}
+      delete updatedRooms[action.id]
+      let updatedRoomIds = state.allIds.filter(id => id !== action.id)
       return {
         ...state,
-        currentRoom: {},
+        byId: updatedRooms,
+        allIds: updatedRoomIds,
       }
     case actionTypes.CREATE_ROOM_CONFIRMED:
       return {
