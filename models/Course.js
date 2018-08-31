@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
-const User = require('./User');
 const Course = new mongoose.Schema({
   template: {type: ObjectId, ref: 'CourseTemplate'},
   name: {type: String},
@@ -15,7 +14,7 @@ const Course = new mongoose.Schema({
 // Not using arrow function so we can have access to THIS docuemnt
 // DO WE NEED TO CALL NEXT?
 Course.pre('save', async function(){
-  console.log("PRE SAVE HOOK")
+  const User = require('./User');
   if (this.isNew) {
     await User.findByIdAndUpdate(this.creator, {$addToSet: {courses: this._id}})
   }
@@ -55,7 +54,12 @@ Course.pre('save', async function(){
 });
 
 Course.pre('remove', async function() {
-  console.log("HEWLLO")
+  const User = require('./User');
+  const Room = require('./Room');
+  const Assignment = require('./Assignment')
+  const promises = [];
+  promises.push(Room.deleteMany({_id: {$in: this.rooms}}))
+    await Assignment.deleteMany({_id: {$in: this.assignments}})
   const users = await Promise.all(this.members.map(member => User.findById(member.user)))
   users.forEach(user => {
     user.courses = user.courses.filter(course => course.toString() !== this._id.toString())

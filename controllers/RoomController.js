@@ -29,10 +29,7 @@ module.exports = {
 // @TODO I SEEM TO BE USING MODEL METHODS SOMETIMES AND THEN OTHER TIMES (LIKE HERE)
 // JUST DOING ALL OF THE WORK IN THE CONTROLLER...PROBABLY NEED TO BE CONSISTENT
   post: body => {
-    console.log("BODY: ", body)
     return new Promise((resolve, reject) => {
-      body.notifications = [{user: body.creator, notificationType: 'newRoom'}]
-        // MAYBE EXTRACT THIS OUT INTO A DIFFERENT FUNCTION CAUSE ITS THE SAME CODE AS ABOVE
         db.Room.create(body)
         .then(room => {
           if (body.course) {
@@ -42,16 +39,13 @@ module.exports = {
             resolve(room)
           })
         })
-        .catch(err => reject(err))
+        .catch(err => {console.log(err); reject(err)})
       // }
     })
   },
 
   put: (id, body) => {
     const updatedField = Object.keys(body)
-    if (updatedField[0] === 'notifications') {
-      body = {$addToSet: body}
-    }
     if (updatedField[0] === 'members') {
       body = {$addToSet: body, $pull: {notifications: {user: body.members.user}}}
       db.User.findByIdAndUpdate(body.members.user, {$addToSet: {rooms: id}})
