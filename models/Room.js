@@ -54,15 +54,18 @@ Room.pre('save', function (next) {
   } else {next()}
 });
 Room.pre('remove', async function() {
+  const promises = []
   if (this.course) {
-    Course.findByIdAndUpdate(this.course, {$pull: {rooms: this._id}})
+    promises.push(Course.findByIdAndUpdate(this.course, {$pull: {rooms: this._id}}))
   }
-  const users = await Promise.all(this.members.map(member => User.findById(member.user)))
-  console.log("USERS: ", users)
-  users.forEach(user => {
-    user.rooms = user.rooms.filter(room => (room.toString() !== this._id.toString()))
-    user.save()
-  })
+  promises.push(User.update({_id: {$in: this.members.map(member => member.user)}}, {
+    $pull: {
+      rooms: this._id,
+      'roomNotifications.access': {_id: this._id},
+      'roomNotications.newRoom': {_id: this._id}
+    }
+  }, {multi: true}))
+  await Promise.all(promises)
 })
 
 module.exports = mongoose.model('Room', Room);

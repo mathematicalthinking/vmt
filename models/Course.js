@@ -61,6 +61,10 @@ Course.pre('remove', async function() {
     $pull: {
       courses: this._id,
       rooms: {$in: this.rooms},
+      'roomNotifications.access': {_id: {$in: this.rooms}},
+      'roomNotifications.newRoom': {_id: {$in: this.rooms}},
+      'courseNotifications.access': {_id: this._id},
+      'courseNotifications.newRoom': {_id: {$in: this._id}},
       assignments: {$in: this.assignments}
     }
   }, {multi: true})];
