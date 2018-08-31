@@ -46,8 +46,6 @@ class Templates extends Component {
 const mapStateToProps = store => ({
   userCourseTemplateIds: store.user.courseTemplates,
   userCourseTemplates: getUserResources(store, 'courseTemplates'),
-  userRoomTemplateIds: store.user.roomTemplates,
-  userRoomTemplates: getUserResources(store, 'roomTemplates'),
   userId: store.user.id,
 })
 

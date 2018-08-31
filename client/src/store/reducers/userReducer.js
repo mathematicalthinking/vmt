@@ -31,26 +31,34 @@ const reducer = (state = initialState, action) => {
         assignments: action.user.assignments,
         seenTour: action.user.seenTour,
       }
-    case actionTypes.UPDATE_USER_ROOMS:
+    case actionTypes.ADD_USER_COURSES:
+      return {
+        ...state,
+        courses: state.courses.concat(action.newCoursesArr)
+      }
+
+    case actionTypes.ADD_USER_ASSIGNMENTS:
+      return {
+        ...state,
+        assignments: [...state.assignments, action.newAssignment]
+      }
+
+    case actionTypes.ADD_USER_ROOMS:
       return {
         ...state,
         rooms: [action.newRoom, ...state.rooms]
       }
-    case actionTypes.UPDATE_USER_COURSES:
-      return {
-        ...state,
-        courses: [action.newCourse, ...state.courses]
-      }
+
     case actionTypes.REMOVE_USER_COURSE:
       const courses = state.courses.filter(id => id !== action.courseId)
       return {...state, courses, }
 
-    case actionTypes.REMOVE_USER_ASSIGNMENT:
-    const assignments = state.assignments.filter(id => id !== action.assignmentId)
+    case actionTypes.REMOVE_USER_ASSIGNMENTS:
+    const assignments = state.assignments.filter(id => !action.assignmentIdArr.includes(id))
       return {...state, assignments,}
 
-    case actionTypes.REMOVE_USER_ROOM:
-    const rooms = state.rooms.filter(id => id !== action.roomId)
+    case actionTypes.REMOVE_USER_ROOMS:
+    const rooms = state.rooms.filter(id => !action.roomId.includes(id))
       return {...state, rooms,}
 
     case actionTypes.UPDATE_USER_COURSE_ACCESS_NTFS:
@@ -59,18 +67,6 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         courseNotifications: {...courseNtfs, access: updatedCourseNtfs},
-      }
-
-    case actionTypes.UPDATE_USER_COURSE_TEMPLATES:
-      return {
-        ...state,
-        courseTemplates: [...state.courseTemplates, action.newTemplate],
-      }
-
-    case actionTypes.UPDATE_USER_ASSIGNMENTS:
-      return {
-        ...state,
-        assignments: [...state.assignments, action.newAssignment]
       }
 
     case actionTypes.CLEAR_NOTIFICATION:

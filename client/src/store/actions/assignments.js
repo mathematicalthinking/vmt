@@ -1,9 +1,9 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
-import { updateUserAssignments, removeUserAssignment } from './user';
+import { addUserAssignments, removeUserAssignments } from './user';
 // import { createdAssignmentTemplate } from './assignmentTemplates';
-import { updateCourseAssignments, removeCourseAssignment } from './courses';
+import { addCourseAssignments, removeCourseAssignments } from './courses';
 
 import * as loading from './loading';
 
@@ -13,8 +13,8 @@ export const gotAssignments = (assignments) => ({
   allIds: assignments.allIds
 })
 
-export const updateAssignment = assignment => ({
-  type: actionTypes.UPDATE_ASSIGNMENT,
+export const addAssignment = assignment => ({
+  type: actionTypes.ADD_ASSIGNMENT,
   assignment,
 })
 
@@ -32,9 +32,9 @@ export const createdAssignment = resp => {
   }
 }
 
-export const updateAssignmentRooms = (assignmentId, roomId) => {
+export const addAssignmentRooms = (assignmentId, roomId) => {
     return {
-      type: actionTypes.UPDATE_ASSIGNMENT_ROOMS,
+      type: actionTypes.ADD_ASSIGNMENT_ROOMS,
       assignmentId,
       roomId,
     }
@@ -62,7 +62,7 @@ export const getAssignments = params => {
 export const getCurrentAssignment = id => {
   return dispatch => {
     API.getById('assignment', id)
-    .then(res => dispatch(updateAssignment(res.data.result)))
+    .then(res => dispatch(addAssignment(res.data.result)))
   }
 }
 
@@ -73,9 +73,9 @@ export const createAssignment = body => {
       let result = res.data.result;
       dispatch(createdAssignment(result))
       if (body.course) {
-        dispatch(updateCourseAssignments(body.course, result._id))
+        dispatch(addCourseAssignments(body.course, result._id))
       }
-      return dispatch(updateUserAssignments(result._id))
+      return dispatch(addUserAssignments(result._id))
     })
   }
 }
@@ -87,8 +87,8 @@ export const removeAssignment = assignmentId => {
     API.remove('assignment', assignmentId)
     .then(res => {
       console.log(res.data)
-      dispatch(removeUserAssignment(assignmentId))
-      dispatch(removeCourseAssignment(res.data.result.course, assignmentId))
+      dispatch(removeUserAssignments(assignmentId))
+      dispatch(removeCourseAssignments(res.data.result.course, assignmentId))
       dispatch(assignmentRemoved(assignmentId))
       dispatch(loading.success())
     })

@@ -1,5 +1,5 @@
 import * as actionTypes from './actionTypes';
-import { updateUserCourseTemplates } from './user';
+import { addUserCourseTemplates } from './user';
 import API from '../../utils/apiRequests';
 
 export const gotCourseTemplates = (templates, templateIds) => {
@@ -39,7 +39,7 @@ export const createCourseTemplate = body => {
     .then(res => {
       // BUG ORDER MATTERS HERE! BAD!!!! can we even gaurantee the order in which these dispatches will resolve? Yes Iguess so ? they're synchronous
       dispatch(createdCourseTemplate(res.data.result))
-      dispatch(updateUserCourseTemplates(res.data.result._id))
+      dispatch(addUserCourseTemplates(res.data.result._id))
     })
   }
 }

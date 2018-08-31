@@ -21,38 +21,38 @@ export const removeUserCourse = courseId => {
   }
 }
 
-export const removeUserAssignment = assignmentId => {
+export const removeUserAssignments = assignmentsArr => {
   return {
-    type: actionTypes.REMOVE_USER_ASSIGNMENT,
-    assignmentId,
+    type: actionTypes.REMOVE_USER_ASSIGNMENTS,
+    assignmentsArr,
   }
 }
 
-export const updateUserCourses = newCourse => {
+export const addUserCourses = newCoursesArr => {
   return {
-    type: actionTypes.UPDATE_USER_COURSES,
-    newCourse,
+    type: actionTypes.ADD_USER_COURSES,
+    newCoursesArr,
   }
 }
 
-export const updateUserAssignments = newAssignment => {
+export const addUserAssignments = newAssignmentsArr => {
   return {
-    type: actionTypes.UPDATE_USER_ASSIGNMENTS,
-    newAssignment,
+    type: actionTypes.ADD_USER_ASSIGNMENTS,
+    newAssignmentsArr,
   }
 }
 
-export const updateUserRooms = newRoom => {
+export const addUserRooms = newRoomsArr => {
   return {
-    type: actionTypes.UPDATE_USER_ROOMS,
-    newRoom,
+    type: actionTypes.ADD_USER_ROOMS,
+    newRoomsArr,
   }
 }
 
-export const removeUserRoom = roomId => {
+export const removeUserRooms = roomIdArr => {
   return {
-    type: actionTypes.REMOVE_USER_ROOM,
-    roomId, 
+    type: actionTypes.REMOVE_USER_ROOMS,
+    roomIdArr,
   }
 }
 
@@ -66,17 +66,9 @@ export const updateUserAccessNtfs = (resource, user) => {
   }
 }
 
-export const updateUserCourseTemplates = newTemplate => {
+export const addUserCourseTemplates = newTemplate => {
   return {
-    type: actionTypes.UPDATE_USER_COURSE_TEMPLATES,
-    newTemplate,
-  }
-}
-
-
-export const updateUserRoomTemplates = newTemplate => {
-  return {
-    type: actionTypes.UPDATE_USER_ROOM_TEMPLATES,
+    type: actionTypes.ADD_USER_COURSE_TEMPLATES,
     newTemplate,
   }
 }

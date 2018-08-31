@@ -1,8 +1,9 @@
 import * as actionTypes from './actionTypes';
 import {
-  updateUserCourses,
-  updateUserCourseTemplates,
+  addUserCourses,
+  addUserCourseTemplates,
   removeUserCourse,
+  removeUserRooms,
 } from './user';
 import { createdCourseTemplate } from './courseTemplates';
 import API from '../../utils/apiRequests';
@@ -24,7 +25,7 @@ export const updateCourse = course => ({
   course,
 })
 
-export const updateCourseAssignments = (courseId, assignmentId) => ({
+export const addCourseAssignments = (courseId, assignmentId) => ({
   type: actionTypes.UPDATE_COURSE_ASSIGNMENTS,
   courseId,
   assignmentId,
@@ -41,7 +42,7 @@ export const createdCourse = resp => {
   }
 }
 
-export const updateCourseRooms = (courseId, roomId) => {
+export const addCourseRooms = (courseId, roomId) => {
   return {
     type: actionTypes.UPDATE_COURSE_ROOMS,
     courseId,
@@ -49,7 +50,7 @@ export const updateCourseRooms = (courseId, roomId) => {
   }
 }
 
-export const removeCourseAssignment = (courseId, assignmentId) => {
+export const removeCourseAssignments = (courseId, assignmentId) => {
   return {
     type: actionTypes.REMOVE_COURSE_ASSIGNMENT,
     courseId,
@@ -57,7 +58,7 @@ export const removeCourseAssignment = (courseId, assignmentId) => {
   }
 }
 
-export const removeCourseRoom = (courseId, roomId) => {
+export const removeCourseRooms = (courseId, roomId) => {
   return {
     type: actionTypes.REMOVE_COURSE_ROOM,
     courseId,
@@ -77,7 +78,13 @@ export const removeCourse = courseId => {
     dispatch(loading.start())
     API.remove('course', courseId)
     .then(res => {
+      // remove course from user
       dispatch(removeUserCourse(courseId))
+        // remove courseRooms from user
+        dispatch(removeUserRooms)
+        // remove courseAssignments from user
+        // remove courseRooms
+        // remove courseAssignments
       dispatch(courseRemoved(courseId))
       return dispatch(loading.success())
     })
@@ -111,16 +118,16 @@ export const createCourse = body => {
     API.post('course', body)
     .then(res =>{
       if (body.template) {
-        dispatch(updateUserCourseTemplates(res.data.result[1]._id))
+        dispatch(addUserCourseTemplates(res.data.result[1]._id))
         // BUG THE ORDER HERE MATTERS. IF WE UPDATE USERCOURSES BEFORE COURSES THE getUserResource SELECTOR WILL FAIL
         // AND CAUSE THE COURSES COMPONENT TO ERROR
         dispatch(createdCourse(res.data.result[0]))
         dispatch(createdCourseTemplate(res.data.result[1]))
         // NB If we're creating a template we're going to get back two results in an array (the course that was created & then template that was created)
-        return dispatch(updateUserCourses(res.data.result[0]._id))
+        return dispatch(addUserCourses(res.data.result[0]._id))
       }
       dispatch(createdCourse(res.data.result))
-      dispatch(updateUserCourses(res.data.result._id))
+      dispatch(addUserCourses([res.data.result._id]))
       dispatch(loading.success())
     })
     .catch(err => console.log(err))

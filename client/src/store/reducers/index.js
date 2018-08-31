@@ -3,7 +3,6 @@ import user from './userReducer';
 import rooms from './roomsReducer';
 import courses from './coursesReducer';
 import courseTemplates from './courseTemplatesReducer';
-import roomTemplates from './roomTemplatesReducer';
 import assignments from './assignmentsReducer';
 import loading from './loadingReducer';
 import dnd from './dndReducer';
@@ -16,7 +15,6 @@ const rootReducer = combineReducers({
   assignments,
   rooms,
   courseTemplates,
-  roomTemplates,
   dnd,
 })
 

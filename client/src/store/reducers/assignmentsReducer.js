@@ -14,7 +14,7 @@ const reducer = (state = initialState, action) => {
       byId: updatedAssignments,
       allIds: action.allIds,
     };
-    case actionTypes.UPDATE_ASSIGNMENT:
+    case actionTypes.ADD_ASSIGNMENT:
       updatedAssignments = {...state.byId};
       updatedAssignments[action.assignment._id] = action.assignment;
       return {
@@ -32,7 +32,7 @@ const reducer = (state = initialState, action) => {
     }
     // @TODO if we've created a new assignment alert the user so we can redirect
     // to the assignment --> do this by updating the sto
-    case actionTypes.UPDATE_ASSIGNMENT_ROOMS:
+    case actionTypes.ADD_ASSIGNMENT_ROOMS:
       updatedAssignments = {...state.byId};
       if (updatedAssignments[action.assignmentId].rooms) {
         updatedAssignments[action.assignmentId].rooms.push(action.roomId)

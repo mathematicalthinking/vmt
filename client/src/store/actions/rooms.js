@@ -1,9 +1,9 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
-import { updateUserRooms, removeUserRoom } from './user';
-import { updateCourseRooms, removeCourseRoom } from './courses';
-import { updateAssignmentRooms } from './assignments';
+import { addUserRooms, removeUserRooms } from './user';
+import { addCourseRooms, removeCourseRooms } from './courses';
+import { addAssignmentRooms, removeAssignmentRooms } from './assignments';
 import * as loading from './loading'
 
 export const gotRooms = (rooms) => ({
@@ -71,12 +71,12 @@ export const createRoom = body => {
         result = res.data.result[0];
       }
       if (body.course) {
-        dispatch(updateCourseRooms(body.course, result._id))
+        dispatch(addCourseRooms(body.course, result._id))
       }
       if (body.assignment) {
-        dispatch(updateAssignmentRooms(body.assignment, result._id))
+        dispatch(addAssignmentRooms(body.assignment, result._id))
       }
-      return dispatch(updateUserRooms(result._id))
+      return dispatch(addUserRooms(result._id))
     })
   }
 }
@@ -86,9 +86,9 @@ export const removeRoom = roomId => {
     dispatch(loading.start())
     API.remove('room', roomId)
     .then(res => {
-      dispatch(removeUserRoom(roomId));
+      dispatch(removeUserRooms([roomId]));
       if (res.data.result.course) {
-        dispatch(removeCourseRoom(res.data.result.course, roomId))
+        dispatch(removeCourseRooms(res.data.result.course, [roomId]))
       }
       dispatch(removedRoom(roomId))
       dispatch(loading.success())
