@@ -60,7 +60,7 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.member || this.state.owner) {
+    if ((this.state.member || this.state.owner) && !this.props.loading) {
       this.checkForFetch();
       if (prevProps.user.courseNotifications.access !== this.props.user.courseNotifications.access) {
         let tabs = this.initialTabs;
@@ -157,6 +157,7 @@ const mapStateToProps = (store, ownProps) => ({
   assignments: store.assignments.allIds,
   rooms: store.rooms.allIds,
   user: store.user,
+  loading: store.loading.loading,
 })
 
 const mapDispatchToProps = dispatch => {

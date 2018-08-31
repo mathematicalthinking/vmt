@@ -25,12 +25,13 @@ export const updateCourse = course => ({
   course,
 })
 
-export const addCourseAssignments = (courseId, assignmentId) => ({
-  type: actionTypes.UPDATE_COURSE_ASSIGNMENTS,
+export const addCourseAssignments = (courseId, assignmentIdsArr) => ({
+  type: actionTypes.ADD_COURSE_ASSIGNMENTS,
   courseId,
-  assignmentId,
+  assignmentIdsArr,
 })
 
+//@TODO REMOVE THIS
 export const clearCurrentCourse = () => ({
   type: actionTypes.CLEAR_COURSE,
 })
@@ -42,27 +43,27 @@ export const createdCourse = resp => {
   }
 }
 
-export const addCourseRooms = (courseId, roomId) => {
+export const addCourseRooms = (courseId, roomIdsArr) => {
   return {
-    type: actionTypes.UPDATE_COURSE_ROOMS,
+    type: actionTypes.ADD_COURSE_ROOMS,
     courseId,
-    roomId,
+    roomIdsArr,
   }
 }
 
-export const removeCourseAssignments = (courseId, assignmentId) => {
+export const removeCourseAssignments = (courseId, assignmentIdsArr) => {
   return {
-    type: actionTypes.REMOVE_COURSE_ASSIGNMENT,
+    type: actionTypes.REMOVE_COURSE_ASSIGNMENTS,
     courseId,
-    assignmentId,
+    assignmentIdsArr,
   }
 }
 
-export const removeCourseRooms = (courseId, roomId) => {
+export const removeCourseRooms = (courseId, roomIdsArr) => {
   return {
-    type: actionTypes.REMOVE_COURSE_ROOM,
+    type: actionTypes.REMOVE_COURSE_ROOMS,
     courseId,
-    roomId,
+    roomIdsArr,
   }
 }
 

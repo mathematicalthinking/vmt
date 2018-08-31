@@ -49,11 +49,13 @@ export const assignmentRemoved = (assignmentId) => {
 
 export const getAssignments = params => {
   return dispatch => {
+    dispatch(loading.start())
     API.get('assignment', params)
     .then(res => {
       // Normalize res
       const assignments = normalize(res.data.results)
       dispatch(gotAssignments(assignments))
+      dispatch(loading.success())
     })
     .catch(err => console.log(err));
   }
@@ -61,21 +63,27 @@ export const getAssignments = params => {
 
 export const getCurrentAssignment = id => {
   return dispatch => {
+    dispatch(loading.start())
     API.getById('assignment', id)
-    .then(res => dispatch(addAssignment(res.data.result)))
+    .then(res => {
+      dispatch(loading.success())
+      dispatch(addAssignment(res.data.result))
+    })
   }
 }
 
 export const createAssignment = body => {
   return dispatch => {
+    dispatch(loading.start())
     API.post('assignment', body)
     .then(res => {
       let result = res.data.result;
       dispatch(createdAssignment(result))
       if (body.course) {
-        dispatch(addCourseAssignments(body.course, result._id))
+        dispatch(addCourseAssignments(body.course, [result._id]))
       }
-      return dispatch(addUserAssignments(result._id))
+      dispatch(addUserAssignments([result._id]))
+      return dispatch(loading.success());
     })
   }
 }

@@ -40,7 +40,7 @@ const reducer = (state = initialState, action) => {
     case actionTypes.ADD_USER_ASSIGNMENTS:
       return {
         ...state,
-        assignments: [...state.assignments, action.newAssignment]
+        assignments: state.assignments.concat(action.newAssignmentsArr)
       }
 
     case actionTypes.ADD_USER_ROOMS:

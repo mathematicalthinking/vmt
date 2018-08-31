@@ -60,6 +60,7 @@ export const getCurrentRoom = id => {
 
 export const createRoom = body => {
   return dispatch => {
+    dispatch(loading.start())
     API.post('room', body)
     .then(res => {
       let result = res.data.result;
@@ -76,7 +77,8 @@ export const createRoom = body => {
       if (body.assignment) {
         dispatch(addAssignmentRooms(body.assignment, result._id))
       }
-      return dispatch(addUserRooms(result._id))
+      dispatch(addUserRooms(result._id))
+      return dispatch(loading.success())
     })
   }
 }
