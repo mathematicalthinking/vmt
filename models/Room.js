@@ -28,14 +28,12 @@ const Room = new mongoose.Schema({
 {timestamps: true});
 
 Room.pre('save', function (next) {
-  console.log(Course)
   // ON CREATION UPDATE THE CONNECTED MODELS
   if (this.isNew) {
     const promises = [];
     const users = this.members.map(member => member.user)
     promises.push(User.find({'_id': {$in: users}}))
     if (this.course) {
-      console.log(this.course, Course)
       promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id}}))
     }
     if (this.assignment) {
@@ -56,6 +54,9 @@ Room.pre('save', function (next) {
   } else {next()}
 });
 Room.pre('remove', async function() {
+  if (this.course) {
+    Course.findByIdAndUpdate(this.course, {$pull: {rooms: this._id}})
+  }
   const users = await Promise.all(this.members.map(member => User.findById(member.user)))
   console.log("USERS: ", users)
   users.forEach(user => {

@@ -57,17 +57,16 @@ Course.pre('remove', async function() {
   const User = require('./User');
   const Room = require('./Room');
   const Assignment = require('./Assignment')
-  const promises = [];
-  promises.push(Room.deleteMany({_id: {$in: this.rooms}}))
-    await Assignment.deleteMany({_id: {$in: this.assignments}})
-  const users = await Promise.all(this.members.map(member => User.findById(member.user)))
-  users.forEach(user => {
-    user.courses = user.courses.filter(course => course.toString() !== this._id.toString())
-    user.save()
-  })
+  const promises = [User.update({_id: {$in: this.members.map(member => member.user)}}, {
+    $pull: {
+      courses: this._id,
+      rooms: {$in: this.rooms},
+      assignments: {$in: this.assignments}
+    }
+  }, {multi: true})];
+  promises.push(Room.deleteMany({_id: {$in: this.rooms}}));
+  promises.push(Assignment.deleteMany({_id: {$in: this.assignments}}));
+  await Promise.all(promises);
 })
-// Course.post('save', function (doc) {
-//
-//   // if ()
-// })
+
 module.exports = mongoose.model('Course', Course);
