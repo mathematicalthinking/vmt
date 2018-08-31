@@ -68,8 +68,11 @@ module.exports = {
 
   delete: id => {
     return new Promise((resolve, reject) => {
-      db.Room.findByIdAndRemove(id)
-      .then(course => resolve(course))
+      db.Room.findById(id)
+      .then(room => {
+        room.remove()
+        resolve(room)
+      })
       .catch(err => reject(err))
     })
   },

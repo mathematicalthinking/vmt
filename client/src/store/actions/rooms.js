@@ -88,7 +88,7 @@ export const removeRoom = roomId => {
     .then(res => {
       dispatch(removeUserRoom(roomId));
       if (res.data.result.course) {
-        dispatch(removeCourseRoom(roomId))
+        dispatch(removeCourseRoom(res.data.result.course, roomId))
       }
       dispatch(removedRoom(roomId))
       dispatch(loading.success())

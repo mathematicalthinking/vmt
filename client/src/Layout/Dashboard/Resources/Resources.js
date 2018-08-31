@@ -2,6 +2,7 @@ import React from 'react';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
 const resources = props => {
+  console.log("PROPS: ", props.userResources)
     // @TODO Is there a way to do this passing over the array only once?
     const ownedResources = props.userResources.filter(resource => (
       resource.creator === props.userId

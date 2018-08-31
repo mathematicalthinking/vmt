@@ -54,12 +54,12 @@ Course.pre('save', async function(){
   }
 });
 
-Course.pre('remove', function() {
+Course.pre('remove', async function() {
   console.log("HEWLLO")
-  this.members.forEach(async member => {
-    user = await User.findById(member.user)
-    user.courses = user.courses.filter(course => course !== this._id)
-    await user.save()
+  const users = await Promise.all(this.members.map(member => User.findById(member.user)))
+  users.forEach(user => {
+    user.courses = user.courses.filter(course => course.toString() !== this._id.toString())
+    user.save()
   })
 })
 // Course.post('save', function (doc) {

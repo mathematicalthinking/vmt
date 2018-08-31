@@ -54,9 +54,13 @@ Room.pre('save', function (next) {
   }
   next();
 });
-Room.post('save', function(doc) { // intentionally not using arrow functions so 'this' refers to the model
-  // If this is a post request hook
-
+Room.pre('remove', async function() {
+  const users = await Promise.all(this.members.map(member => User.findById(member.user)))
+  console.log("USERS: ", users)
+  users.forEach(user => {
+    user.rooms = user.rooms.filter(room => (room.toString() !== this._id.toString()))
+    user.save()
+  })
 })
 
 module.exports = mongoose.model('Room', Room);
