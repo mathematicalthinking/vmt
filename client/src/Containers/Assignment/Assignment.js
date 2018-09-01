@@ -26,14 +26,19 @@ class Assignment extends Component {
       parentResource: 'assignments',
       userId: this.props.userId,
     }
+    const crumbs = [{title: 'Profile', link: '/profile/courses'}]
+    if (course) {
+      crumbs.push(
+        {title: `${course.name}`, link: `${crumbs[0].link}/${course._id}/assignments`},
+        {title: `${assignment.name}`, link: `${crumbs[0].link}/${course._id}/assignments/${assignment._id}/details`},
+      )
+    } else {
+      crumbs.push({title: `${assignment.name}`, link: `/profile/assignments/${assignment._id}/details`})
+    }
     return (
       <DashboardLayout
         routingInfo={this.props.match}
-        crumbs={[
-          {title: 'Profile', link: ''},
-          {title: `${course.name}`, link: ''},
-          {title: `${assignment.name}`, link: ''}
-        ]}
+        crumbs={crumbs}
         sidePanelTitle={'side panel'}
         contentData={contentData}
         tabs={this.state.tabs}

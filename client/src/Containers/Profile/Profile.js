@@ -91,11 +91,6 @@ const mapStateToProps = store => ({
   rooms: store.rooms.allIds,
   courses: store.courses.allIds,
   assignments: store.assignments.allIds,
-  // HACK WHEN THE COMPONENT UPDATES WE COMPARE USER RESOURCES AND RESOURCES TO SEE
-  // IF WE NEED TO FETCH DATA. HOWEVER. WHEN WE CREATE A NEW RESOURCE THE USER RESOURCES
-  // AND RESOURCES ARE OUT OF SYNCH FOR A SPLIT SECOND. IF WE MARK WHEN THE USER IS
-  // CREATING SOMETHING WE CAN SKIP THE FETCH CHECK UNTIL THE CREATING FLAG IS TURNED
-  // BACK OFF -- actually whats wrong with this
   loading: store.loading.loading,
 })
 const mapDispatchToProps = dispatch => ({
