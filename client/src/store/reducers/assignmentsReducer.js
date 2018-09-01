@@ -8,12 +8,13 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.GOT_ASSIGNMENTS:
-    let updatedAssignments = merge({...state.byId}, action.byId)
-    return {
-      ...state,
-      byId: updatedAssignments,
-      allIds: action.allIds,
-    };
+      let updatedAssignments = merge({...state.byId}, action.byId)
+      return {
+        ...state,
+        byId: updatedAssignments,
+        allIds: action.allIds,
+      };
+
     case actionTypes.ADD_ASSIGNMENT:
       updatedAssignments = {...state.byId};
       updatedAssignments[action.assignment._id] = action.assignment;
@@ -21,15 +22,17 @@ const reducer = (state = initialState, action) => {
         ...state,
         byId: updatedAssignments,
       }
+
     case actionTypes.REMOVE_ASSIGNMENT:
-    const updatedIds = state.allIds.filter(id => id !== action.assignmentId)
-    const updatedById = {...state.byId}
-    delete updatedById[action.assignmentId]
-    return {
-      ...state,
-      byId: updatedById,
-      allIds: updatedIds,
-    }
+      const updatedIds = state.allIds.filter(id => id !== action.assignmentId)
+      const updatedById = {...state.byId}
+      delete updatedById[action.assignmentId]
+      return {
+        ...state,
+        byId: updatedById,
+        allIds: updatedIds,
+      }
+
     // @TODO if we've created a new assignment alert the user so we can redirect
     // to the assignment --> do this by updating the sto
     case actionTypes.ADD_ASSIGNMENT_ROOMS:
@@ -41,6 +44,7 @@ const reducer = (state = initialState, action) => {
         ...state,
         byId: updatedAssignments,
       }
+
     case actionTypes.CREATED_ASSIGNMENT:
       updatedAssignments = {...state.byId};
       updatedAssignments[action.newAssignment._id] = action.newAssignment;
@@ -49,11 +53,13 @@ const reducer = (state = initialState, action) => {
         byId: updatedAssignments,
         allIds: [action.newAssignment._id, ...state.allIds],
       }
+
     case actionTypes.CLEAR_ASSIGNMENT:
       return {
         ...state,
         currentAssignment: {},
       }
+      
     case actionTypes.CREATE_ASSIGNMENT_CONFIRMED:
       return {
         ...state,

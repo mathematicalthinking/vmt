@@ -95,8 +95,8 @@ export const removeAssignment = assignmentId => {
     API.remove('assignment', assignmentId)
     .then(res => {
       console.log(res.data)
-      dispatch(removeUserAssignments(assignmentId))
-      dispatch(removeCourseAssignments(res.data.result.course, assignmentId))
+      dispatch(removeUserAssignments([assignmentId]))
+      dispatch(removeCourseAssignments(res.data.result.course, [assignmentId]))
       dispatch(assignmentRemoved(assignmentId))
       dispatch(loading.success())
     })

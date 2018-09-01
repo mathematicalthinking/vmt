@@ -54,11 +54,11 @@ const reducer = (state = initialState, action) => {
       return {...state, courses, }
 
     case actionTypes.REMOVE_USER_ASSIGNMENTS:
-    const assignments = state.assignments.filter(id => !action.assignmentIdArr.includes(id))
+      const assignments = state.assignments.filter(id => !action.assignmentIdsArr.includes(id))
       return {...state, assignments,}
 
     case actionTypes.REMOVE_USER_ROOMS:
-    const rooms = state.rooms.filter(id => !action.roomId.includes(id))
+      const rooms = state.rooms.filter(id => !action.roomIdsArr.includes(id))
       return {...state, rooms,}
 
     case actionTypes.UPDATE_USER_COURSE_ACCESS_NTFS:

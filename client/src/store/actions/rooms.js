@@ -52,8 +52,12 @@ export const getRooms = params => {
 
 export const getCurrentRoom = id => {
   return dispatch => {
+    dispatch(loading.start())
     API.getById('room', id)
-    .then(res => dispatch(updateRoom(res.data.result)))
+    .then(res => {
+      dispatch(updateRoom(res.data.result))
+      return dispatch(loading.success())
+    })
   }
 }
 

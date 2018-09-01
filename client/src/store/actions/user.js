@@ -21,13 +21,6 @@ export const removeUserCourse = courseId => {
   }
 }
 
-export const removeUserAssignments = assignmentsArr => {
-  return {
-    type: actionTypes.REMOVE_USER_ASSIGNMENTS,
-    assignmentsArr,
-  }
-}
-
 export const addUserCourses = newCoursesArr => {
   return {
     type: actionTypes.ADD_USER_COURSES,
@@ -42,6 +35,13 @@ export const addUserAssignments = newAssignmentsArr => {
   }
 }
 
+export const removeUserAssignments = assignmentIdsArr => {
+  return {
+    type: actionTypes.REMOVE_USER_ASSIGNMENTS,
+    assignmentIdsArr,
+  }
+}
+
 export const addUserRooms = newRoomsArr => {
   return {
     type: actionTypes.ADD_USER_ROOMS,
@@ -49,10 +49,10 @@ export const addUserRooms = newRoomsArr => {
   }
 }
 
-export const removeUserRooms = roomIdArr => {
+export const removeUserRooms = roomIdsArr => {
   return {
     type: actionTypes.REMOVE_USER_ROOMS,
-    roomIdArr,
+    roomIdsArr,
   }
 }
 
