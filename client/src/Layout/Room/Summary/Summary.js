@@ -2,6 +2,7 @@ import React from 'react';
 import classes from './summary.css';
 import Button from '../../../Components/UI/Button/Button';
 import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
+import { withRouter } from 'react-router-dom';
 const summary = props => {
   const { room } = props;
   const activate = () => {
@@ -33,4 +34,4 @@ const summary = props => {
   )
 }
 
-export default summary;
+export default withRouter(summary);

@@ -5,8 +5,6 @@ import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
-import Students from '../Students/Students';
-import Summary from '../../Layout/Room/Summary/Summary';
 import API from '../../utils/apiRequests';
 // import Students from './Students/Students';
 class Room extends Component {
@@ -20,11 +18,11 @@ class Room extends Component {
     ],
   }
 
-  componentDidMount() {
-    if (!this.props.currentRoom.members){
-      this.props.getCurrentRoom(this.props.match.params.room_id);
-    }
-  }
+  // componentDidMount() {
+  //   if (!this.props.currentRoom.members){
+  //     this.props.getCurrentRoom(this.props.match.params.room_id);
+  //   }
+  // }
 
   componentDidUpdate(prevProps, prevState) {
 
@@ -42,22 +40,14 @@ class Room extends Component {
   }
 
   render() {
-    const room = this.props.currentRoom;
-    const resource = this.props.match.params.resource;
-    let content;
-    switch (resource) {
-      case 'summary':
-        content = <Summary history={this.props.history} room={room}/>
-        break;
-      case 'members':
-        let owner = false;
-        if (this.props.currentRoom.creator._id === this.props.userId) {
-          owner = true
-        }
-        content = <Students classList={room.members} resource='room' resourceId={room._id} owner={owner}/>
-        break;
-      default:
+    const { room, match }= this.props;
+    const resource = match.params.resource;
+    const contentData = {
+      resource,
+      parentResource: 'room',
+      room,
     }
+
     const crumbs = [
       {title: 'Profile', link: '/profile/courses'},
       {title: room.name, link: `/profile/rooms/${room._id}/summary`}]
@@ -79,10 +69,8 @@ class Room extends Component {
         {accessModal}
         <DashboardLayout
           routingInfo={this.props.match}
-          title={room.name ? `Course: ${room.name}` : null}
           crumbs={crumbs}
-          sidePanelTitle={room.name}
-          content={content}
+          contentData={contentData}
           tabs={this.state.tabs}
           activeTab={resource}
 
@@ -95,7 +83,7 @@ class Room extends Component {
 
 const mapStateToProps = (store, ownProps) => {
   return {
-    currentRoom: store.rooms.byId[ownProps.match.params.room_id],
+    room: store.rooms.byId[ownProps.match.params.room_id],
     userId: store.user.id,
   }
 }
