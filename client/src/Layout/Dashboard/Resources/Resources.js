@@ -13,6 +13,11 @@ const resources = props => {
 
     let linkPath =`/profile/${props.resource}/`
     let linkSuffix = props.resource === 'courses' ? '/assignments' : '/summary';
+    if (props.resource === 'courses') {
+      linkSuffix = '/assignments'
+    } else if (props.resource === 'assignments') {
+      linkSuffix = '/details'
+    } else {linkSuffix = '/summary'}
     const displayResource = props.resource[0].toUpperCase() + props.resource.slice(1);
     if (props.parentResource === 'courses') {
       linkPath = `/profile/${props.parentResource}/${props.parentResourceId}/${props.resource}/`
