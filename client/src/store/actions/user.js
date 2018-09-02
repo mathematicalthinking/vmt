@@ -43,6 +43,7 @@ export const removeUserAssignments = assignmentIdsArr => {
 }
 
 export const addUserRooms = newRoomsArr => {
+  console.log(newRoomsArr)
   return {
     type: actionTypes.ADD_USER_ROOMS,
     newRoomsArr,

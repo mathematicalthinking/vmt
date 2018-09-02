@@ -63,7 +63,7 @@ const reducer = (state = initialState, action) => {
 
     case actionTypes.ADD_COURSE_ROOMS:
       updatedCourses = {...state.byId}
-      updatedCourses[action.courseId].rooms.push(action.roomId)
+      updatedCourses[action.courseId].rooms = updatedCourses[action.courseId].rooms.concat(action.roomIdsArr)
       return {
         ...state,
         byId: updatedCourses,

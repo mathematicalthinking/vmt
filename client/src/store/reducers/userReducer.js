@@ -46,7 +46,7 @@ const reducer = (state = initialState, action) => {
     case actionTypes.ADD_USER_ROOMS:
       return {
         ...state,
-        rooms: [action.newRoom, ...state.rooms]
+        rooms: state.rooms.concat(action.newRoomsArr)
       }
 
     case actionTypes.REMOVE_USER_COURSE:

@@ -32,11 +32,11 @@ export const createdAssignment = resp => {
   }
 }
 
-export const addAssignmentRooms = (assignmentId, roomId) => {
+export const addAssignmentRooms = (assignmentId, roomIdsArr) => {
     return {
       type: actionTypes.ADD_ASSIGNMENT_ROOMS,
       assignmentId,
-      roomId,
+      roomIdsArr,
     }
 }
 

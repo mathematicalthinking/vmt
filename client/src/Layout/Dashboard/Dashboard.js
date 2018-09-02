@@ -1,9 +1,3 @@
-// PROPS:
-  // tabs:  [String]
-  // content: jsx || String (if no content)
-  // activeTab: String
-  // crumbs: [{name: String, notifications: Number}]
-//
 import React from 'react';
 import classes from './dashboard.css';
 import TabList from '../../Components/Navigation/TabList/TabList';
@@ -21,8 +15,7 @@ const dashboard = props => {
   if (parentResource === 'assignments' && resource === 'details') {
     content = <MakeRoomsLayout assignment={assignment} course={course} userId={userId}/>
   } else content = <DnDTrash>
-    {props.contentData.resource === 'members' ?
-      <Students {...props.contentData}/>
+    {props.contentData.resource === 'members' ? <Students {...props.contentData}/>
     : <Resources {...props.contentData} /> }
     <div className={classes.Trash}><Trash /></div>
   </DnDTrash>

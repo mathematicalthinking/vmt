@@ -69,19 +69,15 @@ export const createRoom = body => {
     .then(res => {
       let result = res.data.result;
       dispatch(createdRoom(result))
-      if (body.template) {
-        // @TODO U[DATE ASSIGNMENTS]
-        // dispatch(updateUserRoomTemplates(res.data.result[1]._id))
-        // dispatch(createdRoomTemplate(res.data.result[1]))
-        result = res.data.result[0];
-      }
       if (body.course) {
-        dispatch(addCourseRooms(body.course, result._id))
+        console.log("COURSE ID ", body.course)
+        dispatch(addCourseRooms(body.course, [result._id]))
       }
       if (body.assignment) {
-        dispatch(addAssignmentRooms(body.assignment, result._id))
+        console.log("ASSIGNMENT ID: ", body.assignment)
+        dispatch(addAssignmentRooms(body.assignment, [result._id]))
       }
-      dispatch(addUserRooms(result._id))
+      dispatch(addUserRooms([result._id]))
       return dispatch(loading.success())
     })
   }

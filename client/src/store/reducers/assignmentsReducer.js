@@ -37,9 +37,7 @@ const reducer = (state = initialState, action) => {
     // to the assignment --> do this by updating the sto
     case actionTypes.ADD_ASSIGNMENT_ROOMS:
       updatedAssignments = {...state.byId};
-      if (updatedAssignments[action.assignmentId].rooms) {
-        updatedAssignments[action.assignmentId].rooms.push(action.roomId)
-      } else updatedAssignments[action.assignmentId].rooms = [action.roomId];
+      updatedAssignments[action.assignmentId].rooms = updatedAssignments[action.assignmentId].rooms.concat(action.roomIdsArr)
       return {
         ...state,
         byId: updatedAssignments,
@@ -59,7 +57,7 @@ const reducer = (state = initialState, action) => {
         ...state,
         currentAssignment: {},
       }
-      
+
     case actionTypes.CREATE_ASSIGNMENT_CONFIRMED:
       return {
         ...state,

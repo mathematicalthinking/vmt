@@ -17,26 +17,15 @@ class Profile extends Component {
   }
 
   componentDidMount() {
-    const { courseNotifications, roomNotifications } = this.props.user;
-    const updatedTabs = [...this.state.tabs]
-    // @TODO if (!user.seenTour) {
-    //   this.setState({touring: true})
-    // }
-    if (courseNotifications.access.length > 0) {
-      updatedTabs[0].notifications = courseNotifications.access.length;
-    }
-    if (courseNotifications.newRoom.length > 0){
-      updatedTabs[0].notifications += courseNotifications.newRoom.length;
-    }
-    if (roomNotifications.newRoom.length > 0){
-      updatedTabs[1].notifications = roomNotifications.newRoom.length;
-    }
-    this.setState({
-      tabs: updatedTabs
-    })
+    this.updateTabs();
   }
 
   componentDidUpdate(prevProps, prevState) {
+    // const {roomNotifications, courseNotifications } = this.props.user
+    // if (roomNotifications.access.length !== prevProps.user.roomNotifications.access.length
+    // || courseNotifications.access.length !== prevProps.user.courseNotifications.access.length
+    // || )
+    // this.updateTabs()
     // check that we have the data we need
     const { user, loading } = this.props;
     const { resource } = this.props.match.params;
@@ -54,6 +43,23 @@ class Profile extends Component {
 
   fetchData = resource => {
     this.props[`get${resource}`]()
+  }
+
+  updateTabs = () => {
+    const { courseNotifications, roomNotifications } = this.props.user;
+    const updatedTabs = [...this.state.tabs]
+    if (courseNotifications.access.length > 0) {
+      updatedTabs[0].notifications = courseNotifications.access.length;
+    }
+    if (courseNotifications.newRoom.length > 0){
+      updatedTabs[0].notifications += courseNotifications.newRoom.length;
+    }
+    if (roomNotifications.newRoom.length > 0){
+      updatedTabs[1].notifications = roomNotifications.newRoom.length;
+    }
+    this.setState({
+      tabs: updatedTabs
+    })
   }
 
   render() {

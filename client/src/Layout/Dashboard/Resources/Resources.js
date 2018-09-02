@@ -10,6 +10,7 @@ const resources = props => {
     const enrolledResources = props.userResources.filter(resource => (
       resource.creator !== props.userId
     ))
+
     let linkPath =`/profile/${props.resource}/`
     let linkSuffix = props.resource === 'courses' ? '/assignments' : '/summary';
     const displayResource = props.resource[0].toUpperCase() + props.resource.slice(1);
