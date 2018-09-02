@@ -47,6 +47,7 @@ class Assignment extends Component {
       course,
       userResources: assignment[resource] || [],
       parentResource: 'assignments',
+      parentResourceId: assignment._id,
       userId: this.props.userId,
     }
     console.log(contentData)

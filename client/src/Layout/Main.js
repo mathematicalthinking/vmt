@@ -48,7 +48,7 @@ export default class Main extends Component {
             <PrivateRoute exact path = '/profile/rooms/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
             <PrivateRoute exact path = '/profile/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
             <PrivateRoute expact path = '/workspace/:room_id' authed={this.props.loggedIn} component={Workspace} />
-            {/* <Route exact path='/dashboard/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room}/> */}
+            <Route exact path='/dashboard/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room}/>
             {/* <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/> */}
             <Route path='/confirmation' component={Confirmation} />
             <Route exact path='/logout' component={Login}/>

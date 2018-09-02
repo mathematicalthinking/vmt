@@ -20,7 +20,7 @@ const resources = props => {
     }
     return (
       <div>
-        <NewResource resource={props.resource} courseId={props.parentResource === 'courses'?  props.parentResourceId : null}/>
+        {props.parentResource !== 'assignments' ? <NewResource resource={props.resource} courseId={props.parentResource === 'courses'?  props.parentResourceId : null}/> : null}
         <h2>{displayResource} I Own</h2>
         <BoxList
           list={ownedResources}
