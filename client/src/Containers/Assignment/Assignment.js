@@ -14,18 +14,42 @@ class Assignment extends Component {
     assigning: false,
   }
 
+  componentDidMount() {
+    const { resource } = this.props.match.params;
+    if (resource === 'rooms') {
+      this.fetchRooms();
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const prevResource = prevProps.match.params.resource;
+    const { resource } = this.props.match.params;
+    if (prevResource !== resource && resource === 'rooms') {
+      this.fetchRooms()
+    }
+  }
+
+  fetchRooms() {
+    console.log('fetching rooms')
+    const { assignment, populatedAssignment } = this.props;
+    if (assignment.rooms.length !== populatedAssignment.rooms.length) {
+      this.props.getRooms(assignment.rooms)
+    }
+  }
+
   render() {
     const resource = this.props.match.params.resource;
-    const assignment = this.props.currentAssignment
+    const assignment = this.props.populatedAssignment
     const course = this.props.currentCourse;
     const contentData = {
       resource,
       assignment,
       course,
-      userResources: course[resource] || [],
+      userResources: assignment[resource] || [],
       parentResource: 'assignments',
       userId: this.props.userId,
     }
+    console.log(contentData)
     const crumbs = [{title: 'Profile', link: '/profile/courses'}]
     if (course) {
       crumbs.push(
@@ -50,7 +74,8 @@ class Assignment extends Component {
 const mapStateToProps = (store, ownProps ) => {
   const { assignment_id, course_id } = ownProps.match.params;
   return {
-    currentAssignment: populateResource(store, 'assignments', assignment_id, ['rooms']),
+    assignment: store.assignments.byId[assignment_id],
+    populatedAssignment: populateResource(store, 'assignments', assignment_id, ['rooms']),
     currentCourse: store.courses.byId[course_id],
     userId: store.user.id,
   }
@@ -59,8 +84,8 @@ const mapStateToProps = (store, ownProps ) => {
 // connect react functions to redux actions
 const mapDispatchToProps = dispatch => {
   return {
-    getCourses: () => dispatch(actions.getCourses()),
-    getRooms: () => dispatch(actions.getRooms()),
+    getCourses: (ids) => dispatch(actions.getCourses(ids)),
+    getRooms: (ids) => dispatch(actions.getRooms(ids)),
     // updateUserCourses: newCourse => dispatch(actions.updateUserCourses(newCourse)),
   }
 }
