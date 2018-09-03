@@ -75,6 +75,7 @@ class Course extends Component {
 
   requestAccess = () => {
     const {course, user} = this.props;
+    // HEY? WHY DO WE NEED COURSE.CREATOR RIGHT HERE
     this.props.requestAccess(course.creator, user.id, 'course', course._id)
     this.props.history.push('/confirmation')
   }

@@ -3,11 +3,8 @@ import { connect } from 'react-redux';
 import * as actions from '../../store/actions/';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import Aux from '../../Components/HOC/Auxil';
-import Modal from '../../Components/UI/Modal/Modal';
-import Button from '../../Components/UI/Button/Button';
-import PrivateAccessModal from '../../Components/UI/Modal/PrivateAccess';
+import PrivateRoomAccessModal from '../../Components/UI/Modal/PrivateRoomAccess';
 import PublicAccessModal from '../../Components/UI/Modal/PublicAccess'
-import API from '../../utils/apiRequests';
 // import Students from './Students/Students';
 class Room extends Component {
   state = {
@@ -55,7 +52,7 @@ class Room extends Component {
 
   }
 
-  requestAccess = () => {
+  requestAccess = (entryCode) => {
     const {room, user} = this.props;
     this.props.requestAccess(room.creator, user.id, 'room', room._id)
     this.props.history.push('/confirmation')
@@ -92,7 +89,7 @@ class Room extends Component {
               activateTab={event => this.setState({activeTab: event.target.id})}
             />
           </Aux> :
-          (room.isPublic ? <PublicAccessModal requestAccess={this.grantPublicAccess}/> : <PrivateAccessModal requestAccess={this.requestAccess}/>)}
+          (room.isPublic ? <PublicAccessModal requestAccess={this.grantPublicAccess}/> : <PrivateRoomAccessModal requestAccess={(entryCode) => this.requestAccess(entryCode)} course={room.course}/>)}
       </Aux>
     )
   }
