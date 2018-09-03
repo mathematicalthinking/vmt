@@ -52,7 +52,6 @@ class NewResource extends Component {
     }} else {
       newResource.template = this.state.makeTemplate;
       newResource.templateIsPublic = this.state.templateIsPublic;
-      console.log("CREATING RESOURCE: ", this.props.resource)
       switch (this.props.resource) {
         case 'courses' :
         newResource.members = [{user: this.props.userId, role: 'teacher'}]; // @TODO Do we want to default the creator to a teacher?
@@ -67,11 +66,14 @@ class NewResource extends Component {
           }
           this.props.createAssignment(newResource);
           break;
-        // case 'ROOM' :
-        //   newResource.
-        default:;
+        case 'rooms' :
+          newResource.entryCode =   
+          this.props.createAssignment(newResource);
+          break;
+        default: null;
       }
     }
+    console.log("NEW RESOURCE: ", newResource)
     this.setState({creating: false})
   }
 
@@ -104,14 +106,8 @@ class NewResource extends Component {
                   width='80%'
                 />
               </div>
-              {(resource === 'assignments') ?
+              {(resource === 'assignments' || 'rooms') ?
                 <div className={classes.FormSection}>
-                  {/* <TextInput
-                    name='dueDate'
-                    label='Due Date'
-                    change={this.changeHandler}
-                    width='80%'
-                  /> */}
                   <div className={classes.RadioButtons}>
                     <RadioBtn name='geogebra' checked={this.state.ggb} check={() => this.setState({ggb: true})}>GeoGebra</RadioBtn>
                     <RadioBtn name='desmos' checked={!this.state.ggb} check={() => this.setState({ggb: false})}>Desmos</RadioBtn>
@@ -129,6 +125,11 @@ class NewResource extends Component {
                   }
                 </div>
               : null}
+              {(resource === 'rooms') ?
+                <div className={classes.FormSection}>
+                  <TextInput label='Due Date (Optional)' name='dueDate' type='data' date={this.setDate} />
+                </div>
+              : }
               <div className={classes.FormSection}>
                 <div className={classes.RadioButtons}>
                   <RadioBtn name='public' checked={this.state.isPublic} check={() => this.setState({isPublic: true})}>Public</RadioBtn>
