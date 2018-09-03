@@ -21,6 +21,7 @@ class NewResource extends Component {
     templateIsPublic: false,
     creating: false,
     desmosLink: '',
+    dueDate: '',
     ggb: true, // false = desmos
   }
 
@@ -56,7 +57,6 @@ class NewResource extends Component {
       newResource.templateIsPublic = this.state.templateIsPublic;
       switch (this.props.resource) {
         case 'courses' :
-          console.log(newResource)
           this.props.createCourse(newResource);
           break;
         case 'assignments' :
@@ -64,12 +64,13 @@ class NewResource extends Component {
           newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
           if (this.props.courseId) {
             newResource.course = this.props.courseId;
+            delete newResource.members
           }
           this.props.createAssignment(newResource);
           break;
         case 'rooms' :
           newResource.entryCode = hri.random();
-          console.log(newResource.entryCode)
+          newResource.dueDate = this.state.dueDate;
           this.props.createRoom(newResource);
           break;
         default: null;

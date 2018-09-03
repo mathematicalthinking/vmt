@@ -5,17 +5,26 @@ import { Link } from 'react-router-dom';
 import classes from './boxList.css';
 import glb from '../../global.css';
 const boxList = props => {
+  console.log("PROPS.lIST: ", props.list)
   let listElems = "There doesn't appear to be anything here yet";
   if (props.list.length > 0) {
     listElems = props.list.map((item, i) => {
       let notifications = 0;
-      if (props.notifications) {
-        const allNtfs = props.notifications.access.concat(props.notifications.newRoom)
-        allNtfs.forEach((ntf) => {
-          if (ntf._id === item._id) {
-            notifications += 1;
-          }
-        })
+      let details = undefined;
+      if (props.listType === 'private') {
+        if (props.notifications) {
+          const allNtfs = props.notifications.access.concat(props.notifications.newRoom)
+          allNtfs.forEach((ntf) => {
+            if (ntf._id === item._id) {
+              notifications += 1;
+            }
+          })
+        }
+        details = {
+          teachers: item.members ? item.members.filter(member => member.type === 'teacher') : [],
+          entryCode: item.entryCode,
+          description: item.description,
+        }
       }
       return (
         <div className={classes.ContentBox} key={i}>
@@ -25,6 +34,7 @@ const boxList = props => {
             notifications={notifications}
             roomType={item.roomType}
             locked={!item.isPublic} // @TODO Should it appear locked if the user has access ? I can see reasons for both
+            details={details}
                               >
             {item.description}
           </ContentBox> :
@@ -36,8 +46,8 @@ const boxList = props => {
             roomType={item.roomType}
             resource={props.resource}
             locked={!item.isPublic} // @TODO Should it appear locked if the user has access ? I can see reasons for both
+            details={details}
           >
-            {item.description}
           </DragContentBox>
           }
         </div>

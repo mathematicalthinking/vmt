@@ -9,8 +9,8 @@ import API from '../../utils/apiRequests';
 // import Students from './Students/Students';
 class Room extends Component {
   state = {
-    access: true,
-    guestMode: false,
+    access: false,
+    guestMode: true,
     currentRoom: {}, // Right now I'm just saving currentRoom is state to compare the incoming props currentRoom to look for changes -- is this a thing people do?
     tabs: [
       {name: 'Summary'},
@@ -26,8 +26,6 @@ class Room extends Component {
 
   componentDidUpdate(prevProps, prevState) {
 
-
-    // this.props.clearCurrentRoom()
   }
 
   requestAccess = () => {

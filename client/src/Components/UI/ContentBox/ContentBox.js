@@ -1,9 +1,3 @@
-// PROPS
-  // Title
-  // notifications
-  // locked
-  // contentType
-
 import React from 'react';
 import classes from './contentBox.css';
 import Icons from './Icons/Icons';
@@ -19,7 +13,13 @@ const contentBox = props => {
       {notifications}
       <div className={classes.Title}>{props.title}</div>
       <div className={[classes.Content, alignClass].join(' ')}>
-        {props.children}
+        {/* // Maybe separate all of this out ot its own component or revert back passing in props.children */}
+        {props.details ?
+          <div>
+            <div>{props.details.description || ''}</div>
+            <div>{props.details.teachers.forEach(teacher => teacher) || ''}</div>
+            {props.details.entryCode ? <div>Entry Code: {props.details.entryCode}</div> : null}
+          </div> : props.children}
       </div>
     </div>
   )

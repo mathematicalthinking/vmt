@@ -33,6 +33,7 @@ const resources = props => {
           linkSuffix={linkSuffix}
           notifications = {props.notifications}
           resource = {props.resource}
+          listType = 'private'
           draggable
         />
         <h2>{displayResource} I'm Enrolled in</h2>
@@ -41,6 +42,7 @@ const resources = props => {
           linkPath={linkPath}
           linkSuffix={linkSuffix}
           notifications = {props.notifications}
+          listType = 'private'
         />
       </div>
     )
