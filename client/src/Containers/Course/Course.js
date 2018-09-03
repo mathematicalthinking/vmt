@@ -6,6 +6,8 @@ import * as actions from '../../store/actions/';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
+import PrivateAccessModal from '../../Components/UI/Modal/PrivateAccess';
+import PublicAccessModal from '../../Components/UI/Modal/PublicAccess'
 import Button from '../../Components/UI/Button/Button';
 
 class Course extends Component {
@@ -77,6 +79,12 @@ class Course extends Component {
     this.props.history.push('/confirmation')
   }
 
+  requestPublicAccess = () => {
+    this.props.grantAccess(
+      {_id: this.props.user.id, username: this.props.user.username}, 'course', this.props.course._id
+    )
+  }
+
   displayNotifications = (tabs) => {
 
     const { user, course } = this.props;
@@ -114,22 +122,7 @@ class Course extends Component {
       userId: user.id,
       owner: this.state.owner,
     }
-    const publicAccessModal = <Modal show={true}>
-      <p>If you would like to add this course (and all of this course's rooms) to your
-        list of courses and rooms, click 'Join'. If you just want to poke around click 'Explore'
-      </p>
-      <Button click={() => this.props.grantAccess(
-        {_id: this.props.user.id, username: this.props.user.username}, 'course', course._id)}>Join</Button>
-      <Button click={() => {this.setState({guestMode: true})}}>Explore</Button>
-    </Modal>
     // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
-    const privateAccessModal = <Modal show={true}>
-      <p>You currently don't have access to this course. If you would like to
-        request access from the owner click "Join". When your request is accepted
-        this course will appear in your list of courses on your profile.
-      </p>
-      <Button click={this.requestAccess}>Join</Button>
-    </Modal>;
     return (
       <Aux>
         {( this.state.owner || this.state.member || (course.isPublic && this.state.guestMode)) ?
@@ -144,9 +137,9 @@ class Course extends Component {
               <p>Welcome to {course.name}. If this is your first time joining a course,
               we recommend you take a tour. Otherwise you can start exploring this course's features.</p>
               <Button click={() => this.setState({firstView: false})}>Explore</Button>
-              </Modal>
+            </Modal>
           </Aux> :
-          (course.isPublic ? publicAccessModal : privateAccessModal)}
+          (course.isPublic ? <PublicAccessModal requestAccess={this.grantPublicAccess}/> : <PrivateAccessModal requestAccess={this.requestAccess}/>)}
       </Aux>
     )
   }
