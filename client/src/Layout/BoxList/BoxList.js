@@ -7,7 +7,7 @@ import glb from '../../global.css';
 const boxList = props => {
   let listElems = "There doesn't appear to be anything here yet";
   if (props.list.length > 0) {
-    listElems = props.list.map((item, i)=> {
+    listElems = props.list.map((item, i) => {
       let notifications = 0;
       if (props.notifications) {
         const allNtfs = props.notifications.access.concat(props.notifications.newRoom)
@@ -17,7 +17,6 @@ const boxList = props => {
           }
         })
       }
-      console.log("ITEMID: ", item._id)
       return (
         <div className={classes.ContentBox} key={i}>
           {!props.draggable ? <ContentBox
