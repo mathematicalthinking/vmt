@@ -5,8 +5,9 @@ const Course = require('./Course');
 const Assignment = require('./Assignment');
 const Room = new mongoose.Schema({
   assignment: {type: ObjectId, ref: 'RoomTemplate'},
-  name: {type: String},
+  name: {type: String, required: true},
   description: {type: String},
+  entryCode: {type: String},
   roomType: {type: String, default: 'geogebra'},
   course: {type: ObjectId, ref: 'Course'},
   creator: {type: ObjectId, ref: 'User', required: true},
@@ -45,7 +46,7 @@ Room.pre('save', function (next) {
         user.rooms.push(this._id)
         console.log("USER: ", user)
         // DONT THINK WE NEED THE CODE BWLOW...THE USER SHOULD ALREADY HAVE
-        // THE ASSIGNMENT AND THE COURSE IN THEIR RESOURCES 
+        // THE ASSIGNMENT AND THE COURSE IN THEIR RESOURCES
         // if (this.course) user.courseNotifications.newRoom.push({notificationType: 'newRoom', _id: this.course})
         // if (this.assignment) user.assignments.push(this.assignment)
         user.save();

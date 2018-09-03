@@ -29,6 +29,7 @@
     "file-loader": "1.1.5",
     "fs-extra": "3.0.1",
     "html-webpack-plugin": "2.29.0",
+    "human-readable-ids": "^1.0.4",
     "jest": "20.0.4",
     "lodash": "^4.17.10",
     "object-assign": "4.1.1",

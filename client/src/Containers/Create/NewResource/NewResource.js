@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { hri } from 'human-readable-ids';
 // @TODO Make these import less verbose
 import TextInput from '../../../Components/Form/TextInput/TextInput';
 import RadioBtn from '../../../Components/Form/RadioBtn/RadioBtn';
@@ -36,6 +37,7 @@ class NewResource extends Component {
       name: this.state[`${this.props.resource}Name`],
       description: this.state.description,
       // rooms: roomIds,
+      members: [{user: this.props.userId, role: 'teacher'}], // @TODO Do we want to default the creator to a teacher?
       creator: this.props.userId,
       isPublic: this.state.isPublic,
     }
@@ -54,7 +56,6 @@ class NewResource extends Component {
       newResource.templateIsPublic = this.state.templateIsPublic;
       switch (this.props.resource) {
         case 'courses' :
-        newResource.members = [{user: this.props.userId, role: 'teacher'}]; // @TODO Do we want to default the creator to a teacher?
           console.log(newResource)
           this.props.createCourse(newResource);
           break;
@@ -67,8 +68,9 @@ class NewResource extends Component {
           this.props.createAssignment(newResource);
           break;
         case 'rooms' :
-          newResource.entryCode =   
-          this.props.createAssignment(newResource);
+          newResource.entryCode = hri.random();
+          console.log(newResource.entryCode)
+          this.props.createRoom(newResource);
           break;
         default: null;
       }
@@ -127,9 +129,9 @@ class NewResource extends Component {
               : null}
               {(resource === 'rooms') ?
                 <div className={classes.FormSection}>
-                  <TextInput label='Due Date (Optional)' name='dueDate' type='data' date={this.setDate} />
+                  <TextInput label='Due Date (Optional)' name='dueDate' type='date' date={this.setDate} />
                 </div>
-              : }
+              : null}
               <div className={classes.FormSection}>
                 <div className={classes.RadioButtons}>
                   <RadioBtn name='public' checked={this.state.isPublic} check={() => this.setState({isPublic: true})}>Public</RadioBtn>

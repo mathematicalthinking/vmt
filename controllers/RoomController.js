@@ -29,9 +29,11 @@ module.exports = {
 // @TODO I SEEM TO BE USING MODEL METHODS SOMETIMES AND THEN OTHER TIMES (LIKE HERE)
 // JUST DOING ALL OF THE WORK IN THE CONTROLLER...PROBABLY NEED TO BE CONSISTENT
   post: body => {
+    console.log('posting new room: ', body)
     return new Promise((resolve, reject) => {
         db.Room.create(body)
         .then(room => {
+          console.log('successful room creation: ', room  )
           if (body.course) {
             room.populate({path: 'course', select: 'name'})
           }
@@ -39,7 +41,9 @@ module.exports = {
             resolve(room)
           })
         })
-        .catch(err => {console.log(err); reject(err)})
+        .catch(err => {
+          console.log("HELLO>")
+          console.log(err); reject(err)})
       // }
     })
   },

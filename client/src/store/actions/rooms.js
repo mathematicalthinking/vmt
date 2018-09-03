@@ -63,11 +63,14 @@ export const getCurrentRoom = id => {
 
 
 export const createRoom = body => {
+  console.log('creating room')
   return dispatch => {
     dispatch(loading.start())
+    console.log("CREATING ROOM")
     API.post('room', body)
     .then(res => {
       let result = res.data.result;
+      console.log(result)
       dispatch(createdRoom(result))
       if (body.course) {
         console.log("COURSE ID ", body.course)
@@ -79,6 +82,10 @@ export const createRoom = body => {
       }
       dispatch(addUserRooms([result._id]))
       return dispatch(loading.success())
+    })
+    .catch(err => {
+      console.log(err)
+      dispatch(loading.fail(err))
     })
   }
 }
