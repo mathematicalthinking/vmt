@@ -7,7 +7,7 @@ import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import PrivateAccessModal from '../../Components/UI/Modal/PrivateAccess';
-import PublicAccessModal from '../../Components/UI/Modal/PublicAccess'
+import PublicAccessModal from '../../Components/UI/Modal/PublicAccess';
 import Button from '../../Components/UI/Button/Button';
 
 class Course extends Component {

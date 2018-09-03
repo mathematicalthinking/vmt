@@ -5,6 +5,8 @@ import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
+import PrivateAccessModal from '../../Components/UI/Modal/PrivateAccess';
+import PublicAccessModal from '../../Components/UI/Modal/PublicAccess'
 import API from '../../utils/apiRequests';
 // import Students from './Students/Students';
 class Room extends Component {
@@ -52,30 +54,24 @@ class Room extends Component {
       //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
       // THE REDUX STORE USING THE COURSE ID IN THE URL
     if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/profile/courses/${room.course._id}/assignments`})}
-    const guestModal = this.state.guestMode ?
-      <Modal show={true}>
-        <p>You currently don't have access to this course. If you would like to
-          reuqest access from the owner click "Join". When your request is accepted
-          this course will appear in your list of courses on your dashboard.
-        </p>
-        <Button click={this.requestAccess}>Join</Button>
-      </Modal> : null;
-    const accessModal = !this.state.access ? <Modal show={true} message='Loading Room'/> : null;
+
     return (
       <Aux>
-        {guestModal}
-        {accessModal}
-        <DashboardLayout
-          routingInfo={this.props.match}
-          crumbs={crumbs}
-          contentData={contentData}
-          tabs={this.state.tabs}
-          activeTab={resource}
+        {( this.state.owner || this.state.member || (room.isPublic && this.state.guestMode)) ?
+          <Aux>
+            <DashboardLayout
+              routingInfo={this.props.match}
+              crumbs={crumbs}
+              contentData={contentData}
+              tabs={this.state.tabs}
+              activeTab={resource}
 
-          activateTab={event => this.setState({activeTab: event.target.id})}
-        />
+              activateTab={event => this.setState({activeTab: event.target.id})}
+            />
+          </Aux> :
+          (room.isPublic ? <PublicAccessModal requestAccess={this.grantPublicAccess}/> : <PrivateAccessModal requestAccess={this.requestAccess}/>)}
       </Aux>
-      )
+    )
   }
 }
 
