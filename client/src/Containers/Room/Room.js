@@ -11,7 +11,8 @@ import API from '../../utils/apiRequests';
 // import Students from './Students/Students';
 class Room extends Component {
   state = {
-    access: false,
+    owner: false,
+    member: false,
     guestMode: true,
     currentRoom: {}, // Right now I'm just saving currentRoom is state to compare the incoming props currentRoom to look for changes -- is this a thing people do?
     tabs: [
@@ -20,24 +21,46 @@ class Room extends Component {
     ],
   }
 
-  // componentDidMount() {
-  //   if (!this.props.currentRoom.members){
-  //     this.props.getCurrentRoom(this.props.match.params.room_id);
-  //   }
-  // }
+  initialTabs = [
+    {name: 'Assignments'},
+    {name: 'Rooms'},
+    {name: 'Members'},
+  ]
+
+  componentDidMount() {
+    // @TODO ? DO WE NEED TO CHECK IF WE NEED ADDITIONAL DATA?
+    const { room, user } = this.props;
+    // CHECK ACCESS
+    let updatedTabs = [...this.state.tabs];
+    let owner = false;
+    let member = false;
+    if (room.creator === user.id) {
+      updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
+      this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}])
+      owner = true;
+    }
+    if (room.members) {
+      if (room.members.find(member => member.user._id === user.id)) member = true;
+    }
+    // Get Any other notifications
+    this.setState({
+      tabs: updatedTabs,
+      owner,
+      member,
+    })
+
+  }
 
   componentDidUpdate(prevProps, prevState) {
 
   }
 
   requestAccess = () => {
-    // @TODO Use redux actions to make this request
-    API.requestAccess('room', this.props.match.params.room_id, this.props.userId)
-    .then(res => {
-      // @TODO SEND/DISPLAY CONFIRMATION somehow
-      this.props.history.push('/confirmation')
-    })
+    const {room, user} = this.props;
+    this.props.requestAccess(room.creator, user.id, 'room', room._id)
+    this.props.history.push('/confirmation')
   }
+
 
   render() {
     const { room, match }= this.props;
@@ -78,7 +101,7 @@ class Room extends Component {
 const mapStateToProps = (store, ownProps) => {
   return {
     room: store.rooms.byId[ownProps.match.params.room_id],
-    userId: store.user.id,
+    user: store.user,
   }
 }
 
@@ -86,6 +109,8 @@ const mapDispatchToProps = dispatch => {
   return {
     getCurrentRoom: id => dispatch(actions.getCurrentRoom(id)),
     clearCurrentRoom: () => dispatch(actions.clearCurrentRoom()),
+    requestAccess: (user, resource, id) => dispatch(actions.requestAccess(user, resource, id)),
+
     // updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
     // getCurrentCourse: id => dispatch(actions.getCurrentCourse(id)),
   }

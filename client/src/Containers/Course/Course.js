@@ -159,7 +159,6 @@ const mapDispatchToProps = dispatch => {
     getRooms: ids => dispatch(actions.getRooms(ids)),
     updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
     updateCourseAssignments: assignment => dispatch(actions.updateCourseAssignments),
-    clearCurrentCourse: () => dispatch(actions.clearCurrentCourse()),
     grantAccess: (user, resource, id) => dispatch(actions.grantAccess(user, resource, id)),
     requestAccess: (toUser, fromUser, resource, resourceId) => dispatch(actions.requestAccess(toUser, fromUser, resource, resourceId)),
     clearNotification: (ntfId, userId, resource, list) => dispatch(actions.clearNotification(ntfId, userId, resource, list)),
