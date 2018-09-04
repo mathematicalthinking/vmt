@@ -49,13 +49,19 @@ class Room extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log("COMPONENT UPDATED")
     if (prevProps.room.members.length !== this.props.room.members.length) {
+      console.log("CHECKIN ACCESS")
       this.checkAccess();
     }
   }
 
   checkAccess () {
+    console.log(this.props.user.id)
+    console.log(this.props.room.members)
+    console.log(this.props.room.members.find(member => member.user._id === this.props.user.id))
     if (this.props.room.members.find(member => member.user._id === this.props.user.id)) {
+      console.log('setting state')
       this.setState({member: true})
     };
 

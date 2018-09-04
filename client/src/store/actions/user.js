@@ -121,6 +121,7 @@ export const login = (username, password) => {
 }
 
 // ENTRY CODE IS OPTIONAL
+// WE SHOULD JUST SEPARATE OUT CHECKROOMACCESS into the ROOM ACTIONS FILE
 export const requestAccess = (toUser, fromUser, resource, resourceId, entryCode) => {
   return dispatch => {
     dispatch(loading.start());

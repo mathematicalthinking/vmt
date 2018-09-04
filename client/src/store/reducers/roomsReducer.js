@@ -17,6 +17,7 @@ const reducer = (state = initialState, action) => {
     case actionTypes.UPDATE_ROOM:
       updatedRooms = {...state.byId};
       updatedRooms[action.room._id] = action.room;
+      console.log(updatedRooms[action.room._id])
       return {
         ...state,
         byId: updatedRooms,

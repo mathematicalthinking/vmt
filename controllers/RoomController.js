@@ -60,7 +60,9 @@ module.exports = {
           if (room.entryCode === entryCode) {
             room.members.push({user: userId, role: 'student'})
             room.save()
-            resolve(room)
+            room.populate({path: 'members.user', select: 'username'}, function() {
+              resolve(room)
+            })
           }
           else resolve(room)
         })
