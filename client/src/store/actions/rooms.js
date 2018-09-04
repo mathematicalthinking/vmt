@@ -50,6 +50,18 @@ export const getRooms = params => {
   }
 }
 
+export const populateRoom = id => {
+  return dispatch => {
+    dispatch(loading.start())
+    API.getById('room', id)
+    .then(res => {
+      dispatch(updateRoom(res.data.result))
+      dispatch(loading.success())
+    })
+    .catch(err => dispatch(loading.fail(err)))
+  }
+}
+
 export const getCurrentRoom = id => {
   return dispatch => {
     dispatch(loading.start())

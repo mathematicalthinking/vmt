@@ -130,15 +130,15 @@ class Workspace extends Component {
   //   else return false;
   // }
   //
-  componentWillUnmount() {
-    if (this.props.room.roomType === 'geogebra') {
-      this.ggbApplet.unregisterAddListener(this.eventListener);
-      this.ggbApplet.unregisterUpdateListener(this.eventListener);
-      this.ggbApplet.unregisterRemoveListener(this.eventListener);
-      // this.ggbApplet.unregisterClearListener(this.clearListener);
-      // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
-    }
-  }
+  // componentWillUnmount() {
+  //   if (this.props.room.roomType === 'geogebra') {
+  //     this.ggbApplet.unregisterAddListener(this.eventListener);
+  //     this.ggbApplet.unregisterUpdateListener(this.eventListener);
+  //     this.ggbApplet.unregisterRemoveListener(this.eventListener);
+  //     // this.ggbApplet.unregisterClearListener(this.clearListener);
+  //     // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
+  //   }
+  // }
   //
   // // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
   initializeGgb = () => {
