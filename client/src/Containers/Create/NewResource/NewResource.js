@@ -3,7 +3,7 @@ import { hri } from 'human-readable-ids';
 // @TODO Make these import less verbose
 import TextInput from '../../../Components/Form/TextInput/TextInput';
 import RadioBtn from '../../../Components/Form/RadioBtn/RadioBtn';
-import Checkbox from '../../../Components/Form/Checkbox/Checkbox';
+// import Checkbox from '../../../Components/Form/Checkbox/Checkbox';
 import Aux from '../../../Components/HOC/Auxil';
 import Modal from '../../../Components/UI/Modal/Modal';
 import Button from '../../../Components/UI/Button/Button';
@@ -86,6 +86,7 @@ class NewResource extends Component {
     // const displayResource = "RESOURCE";
     const templateDetails = (resource === 'course') ? "Every room you add to this course will also be added to your template (along with the files associated with the room). Course members and activity in the rooms will not be saved to the template. This allow you to resuse this template for multiple groups of students." : '';
     // @IDEA ^ while I've never seen this done before...maybe it'd be cleaner to have a file of static content and just import it in so we don't have these long strings all over
+    console.log(resource)
     return (
       <Aux>
         <Modal
@@ -109,7 +110,7 @@ class NewResource extends Component {
                   width='80%'
                 />
               </div>
-              {(resource === 'assignments' || 'rooms') ?
+              {(resource === 'assignments' || resource === 'rooms') ?
                 <div className={classes.FormSection}>
                   <div className={classes.RadioButtons}>
                     <RadioBtn name='geogebra' checked={this.state.ggb} check={() => this.setState({ggb: true})}>GeoGebra</RadioBtn>
@@ -144,7 +145,7 @@ class NewResource extends Component {
                 </div>
               </div>
 
-              {!this.props.template ? <div className={classes.FormSection}>
+              {/* {!this.props.template ? <div className={classes.FormSection}>
                 <div className={classes.Checkbox}>
                   <Checkbox checked={this.state.makeTemplate} change={() => this.setState(prevState => ({makeTemplate: !prevState.makeTemplate}))}>Create a Template From this {displayResource}</Checkbox>
                 </div>
@@ -154,7 +155,7 @@ class NewResource extends Component {
                 </div> : null}
                 Creating a template will copy this {resource} into your template folder.
                 {templateDetails}
-              </div> : null}
+              </div> : null} */}
               <div className={classes.Submit}>
                 <Button click={this.submitForm}>Submit</Button>
                 <Button click={e => {e.preventDefault(); this.setState({creating: false})}}>Cancel</Button>

@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import classes from './boxList.css';
 import glb from '../../global.css';
 const boxList = props => {
-  console.log("PROPS.lIST: ", props.list)
   let listElems = "There doesn't appear to be anything here yet";
   if (props.list.length > 0) {
     listElems = props.list.map((item, i) => {

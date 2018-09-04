@@ -10,7 +10,6 @@ import Summary from '../Room/Summary/Summary';
 import MakeRoomsLayout from './MakeRooms/MakeRooms';
 
 const dashboard = props => {
-  console.log(props)
   const {resource, parentResource, assignment, course, room, userId} = props.contentData;
   let content;
   if (parentResource === 'assignments' && resource === 'details') {
