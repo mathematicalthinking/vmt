@@ -49,13 +49,22 @@ class Room extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    if (prevProps.room.members.length !== this.props.room.members.length) {
+      this.checkAccess();
+    }
+  }
+
+  checkAccess () {
+    if (this.props.room.members.find(member => member.user._id === this.props.user.id)) {
+      this.setState({member: true})
+    };
 
   }
 
-  requestAccess = (entryCode) => {
+  requestAccess = entryCode => {
     const {room, user} = this.props;
-    this.props.requestAccess(room.creator, user.id, 'room', room._id)
-    this.props.history.push('/confirmation')
+    console.log(entryCode)
+    this.props.requestAccess(user.id, 'room', room._id, entryCode)
   }
 
 
@@ -106,7 +115,7 @@ const mapDispatchToProps = dispatch => {
   return {
     getCurrentRoom: id => dispatch(actions.getCurrentRoom(id)),
     clearCurrentRoom: () => dispatch(actions.clearCurrentRoom()),
-    requestAccess: (user, resource, id) => dispatch(actions.requestAccess(user, resource, id)),
+    requestAccess: (user, resource, id, entryCode) => dispatch(actions.requestAccess(null, user, resource, id, entryCode)),
 
     // updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
     // getCurrentCourse: id => dispatch(actions.getCurrentCourse(id)),

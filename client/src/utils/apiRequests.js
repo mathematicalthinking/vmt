@@ -17,6 +17,12 @@ export default {
     return axios.delete(`/api/${resource}/${id}`)
   },
 
+  // CONSIDER MOVING ALL OF THE ACCESS CHECKING / GRANTING TO THE AUTH util
+  checkRoomAccess: (roomId, userId, entryCode) => {
+    console.log(roomId, userId, entryCode)
+    return axios.put(`/api/room/${roomId}`, {checkAccess: {userId, entryCode,}})
+  },
+
   requestAccess: (toUser, fromUser, resource, resourceId) => {
     console.log(toUser)
     // @TODO consider making notificationTypes a directory of constants like action types

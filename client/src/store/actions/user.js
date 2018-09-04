@@ -120,16 +120,29 @@ export const login = (username, password) => {
   }
 }
 
-export const requestAccess = (toUser, fromUser, resource, resourceId) => {
+// ENTRY CODE IS OPTIONAL
+export const requestAccess = (toUser, fromUser, resource, resourceId, entryCode) => {
   return dispatch => {
     dispatch(loading.start());
-    API.requestAccess(toUser, fromUser, resource, resourceId)
-    .then(res => {
-      return dispatch(loading.accessSuccess())
-    })
-    .catch(err => {
-      return dispatch(loading.fail())})
-  }
+    console.log("RESOUCE:L ", resource, entryCode)
+    if (resource === 'room' && entryCode) {
+      console.log('checking room access')
+      API.checkRoomAccess(resourceId, fromUser, entryCode)
+      .then(res => {
+        console.log(res)
+        return dispatch(updateRoom(res.data.result))
+      })
+      .catch(err => loading.fail(err))
+    } else {
+      console.log("REQUESTING ACCESS")
+      API.requestAccess(toUser, fromUser, resource, resourceId)
+      .then(res => {
+        return dispatch(loading.accessSuccess())
+      })
+      .catch(err => {
+        return dispatch(loading.fail())})
+      }
+    }
 }
 
 export const grantAccess = (user, resource, resourceId) => {

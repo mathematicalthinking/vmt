@@ -49,18 +49,34 @@ module.exports = {
   },
 
   put: (id, body) => {
-    const updatedField = Object.keys(body)
-    if (updatedField[0] === 'members') {
-      body = {$addToSet: body, $pull: {notifications: {user: body.members.user}}}
-      db.User.findByIdAndUpdate(body.members.user, {$addToSet: {rooms: id}})
-    }
     return new Promise((resolve, reject) => {
-      db.Room.findByIdAndUpdate(id, body, {new: true})
-      .populate('creator')
-      .populate('members.user')
-      .populate('notifications.user')
-      .then(room => { console.log(room); resolve(room)})
-      .catch(err => {console.log(err); reject(err)})
+      console.log("EDITING ROOM: ", id, body)
+      const updatedField = Object.keys(body)
+      const { entryCode, userId } = body.checkAccess;
+      if (updatedField[0] === 'checkAccess') {
+        db.Room.findById(id)
+        .then(room => {
+          console.log(room.entryCode, entryCode)
+          if (room.entryCode === entryCode) {
+            room.members.push({user: userId, role: 'student'})
+            room.save()
+            resolve(room)
+          }
+          else resolve(room)
+        })
+        .catch(err => reject(err))
+      }
+      else if (updatedField[0] === 'members') {
+        body = {$addToSet: body, $pull: {notifications: {user: body.members.user}}}
+        // THIS SHOULD BE DONE ELSE WHERE YEAH?
+        db.User.findByIdAndUpdate(body.members.user, {$addToSet: {rooms: id}})
+        db.Room.findByIdAndUpdate(id, body, {new: true})
+        .populate('creator')
+        .populate('members.user')
+        .populate('notifications.user')
+        .then(room => { console.log(room); resolve(room)})
+        .catch(err => {console.log(err); reject(err)})
+      }
     })
   },
 

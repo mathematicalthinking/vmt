@@ -63,21 +63,17 @@ export const getCurrentRoom = id => {
 
 
 export const createRoom = body => {
-  console.log('creating room')
   return dispatch => {
     dispatch(loading.start())
-    console.log("CREATING ROOM")
     API.post('room', body)
     .then(res => {
       let result = res.data.result;
       console.log(result)
       dispatch(createdRoom(result))
       if (body.course) {
-        console.log("COURSE ID ", body.course)
         dispatch(addCourseRooms(body.course, [result._id]))
       }
       if (body.assignment) {
-        console.log("ASSIGNMENT ID: ", body.assignment)
         dispatch(addAssignmentRooms(body.assignment, [result._id]))
       }
       dispatch(addUserRooms([result._id]))
