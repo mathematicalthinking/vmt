@@ -11,23 +11,18 @@ sockets.init = server => {
           // update current users of this room
           controllers.room.addCurrentUsers(data.roomId, data.user._id)
           .then(room => {
-            console.log(room)
-            socket.broadcast.to(data.roomId).emit('NEW_USER', {_id: data.user._id, username: data.user.username})
-            room.populate({path: 'currentUsers', select: 'username'}, () => {
-              callback({confirmation: 'success', result: room}); // @TODO eventually do error handling with this
-            })
-            // executes the callback on the clientside to confirm join
+            socket.broadcast.to(data.roomId).emit('USER_JOINED', {_id: data.user._id, username: data.user.username})
+            room.populate({path: 'currentUsers', select: 'username'}, callback({result: room}, null))
           })
-          .catch(err => console.log(err))
+          .catch(err => callback(null, err))
         })
       });
-      socket.on('LEAVE_ROOM', data => {
-        console.log('DISCONNECTING FROM SOCKETS')
+      socket.on('LEAVE', data => {
         socket.leave(data.roomId, () => {
           controllers.room.removeCurrentUsers(data.roomId, data.userId)
           .then(room => {
             console.log("room after disconnect: ",room);
-            return socket.broadcast.to(data.roomId).emit('USER_LEFT', room.currentUsers);
+            socket.broadcast.to(data.roomId).emit('USER_LEFT', room.currentUsers);
           })
           .catch(err => console.log(err))
         })

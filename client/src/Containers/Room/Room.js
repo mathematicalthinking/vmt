@@ -26,7 +26,7 @@ class Room extends Component {
 
   componentDidMount() {
     // @TODO ? DO WE NEED TO CHECK IF WE NEED ADDITIONAL DATA?
-    const { room, user } = this.props;
+    const { room, user, members } = this.props;
     // CHECK ACCESS
     let updatedTabs = [...this.state.tabs];
     let owner = false;
@@ -36,8 +36,8 @@ class Room extends Component {
       this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}])
       owner = true;
     }
-    if (room.members) {
-      if (room.members.find(member => member.user._id === user.id)) member = true;
+    if (members) {
+      if (members.find(member => member.user._id === user.id)) member = true;
     }
     // Get Any other notifications
     this.setState({
@@ -49,13 +49,13 @@ class Room extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.room.members.length !== this.props.room.members.length) {
+    if (prevProps.members.length !== this.props.room.members.length) {
       this.checkAccess();
     }
   }
 
   checkAccess () {
-    if (this.props.room.members.find(member => member.user._id === this.props.user.id)) {
+    if (this.props.members.find(member => member.user._id === this.props.user.id)) {
       this.setState({member: true})
     };
 
@@ -106,6 +106,9 @@ class Room extends Component {
 const mapStateToProps = (store, ownProps) => {
   return {
     room: store.rooms.byId[ownProps.match.params.room_id],
+    // EVEN THOUGH MEMBERS IS INCLUDED IN ROOM, WE GRAB IT SEPARATELY
+    // SO THAT CONNECT() UPDATES PROPS CORRECTLY
+    members: store.rooms.byId[ownProps.match.params.room_id].members,
     user: store.user,
   }
 }

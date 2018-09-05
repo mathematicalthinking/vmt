@@ -64,6 +64,7 @@ module.exports = {
             room.members.push({user: userId, role: 'student'})
             room.save()
             room.populate({path: 'members.user', select: 'username'}, function() {
+              console.log("ROOM: ", room)
               resolve(room)
             })
           }

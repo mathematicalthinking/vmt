@@ -32,6 +32,7 @@ export {
   clearCurrentRoom,
   createdRoomConfirmed,
   populateRoom,
+  updateRoom,
   joinRoom,
   leaveRoom,
   removeRoom,

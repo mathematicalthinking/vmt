@@ -54,7 +54,18 @@ Room.pre('save', function (next) {
       })
     })
     .catch(err => next(err))
-  } else {next()}
+  } else {
+    console.log('hello')
+    const field = this.modifiedPaths().forEach(field => {
+      if (field === 'members') {
+        console.log(this.members[this.members.length - 1].user)
+        User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
+          $addToSet: {rooms: this._id}
+        }).then(user => {next()})
+        .catch(err => console.log(err))
+      }
+    })
+  }
 });
 
 Room.pre('remove', async function() {

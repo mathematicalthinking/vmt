@@ -19,6 +19,7 @@ export const gotRooms = (rooms) => ({
 // })
 
 export const updateRoom = (roomId, body) => {
+  console.log(roomId, body)
   return {
     type: actionTypes.UPDATE_ROOM,
     roomId,
@@ -138,8 +139,11 @@ export const joinRoom = (roomId, userId) => {
 }
 
 export const leaveRoom = (roomId, userId) => {
-  return disaptch => {
+  return dispatch => {
     Sockets.emit.leaveRoom(roomId, userId,)
+    .then(res => {
+      dispatch(updateRoom(roomId, {currentUsers: res.result.currentUsers}))
+    })
   }
 }
 

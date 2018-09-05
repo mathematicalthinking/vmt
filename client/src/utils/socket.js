@@ -20,8 +20,13 @@ export default {
       })})
     },
 
-    leaveRoom: (roomId, userId) => {
-
+    leaveRoom: (roomId, userId, username) => {
+      const data = {roomId, user: {_id: userId, username,}}
+      return new Promise((resolve, reject) => {
+        socket.emit('LEAVE', data, (res, err) => {
+          resolve(res)
+        })
+      })
     },
 
     sendMessage: (roomId, message) => {
@@ -33,6 +38,15 @@ export default {
     }
   },
   receive: {
-    joinRoom: () => {socket.on('NEW_USER', newUser => {})}
+    joinRoom: () => {
+      socket.on('USER_JOINED', newUser => {
+        console.log('A NEW USER JOINED ', newUser)
+      })
+    },
+    leaveRoom: () => {
+      socket.on('USER_LEFT', data => {
+        console.log("ANOTHER USER LEFT: ", data)
+      })
+    }
   },
 }
