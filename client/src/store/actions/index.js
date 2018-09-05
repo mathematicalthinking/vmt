@@ -32,6 +32,7 @@ export {
   clearCurrentRoom,
   createdRoomConfirmed,
   populateRoom,
+  joinRoom,
   removeRoom,
 } from './rooms';
 export {

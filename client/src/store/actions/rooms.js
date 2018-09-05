@@ -1,5 +1,6 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
+import Sockets from '../../utils/socket';
 import { normalize } from '../utils/normalize';
 import { addUserRooms, removeUserRooms } from './user';
 import { addCourseRooms, removeCourseRooms } from './courses';
@@ -55,6 +56,7 @@ export const populateRoom = id => {
     dispatch(loading.start())
     API.getById('room', id)
     .then(res => {
+      console.log("POPULATED");
       dispatch(updateRoom(res.data.result))
       dispatch(loading.success())
     })
@@ -111,6 +113,24 @@ export const removeRoom = roomId => {
       dispatch(loading.success())
     })
   }
+}
+
+// export const addCurrentUser = (roomId, userId)
+
+// SOCKET STUFF
+export const joinRoom = (roomId, userId) => {
+  return (dispatch, getState) => {
+    Sockets.emit.joinRoom(roomId, userId)
+    .then(res => {
+      const state = getState()
+      const room = state.rooms.byId[roomId]
+      room.currentUsers = res.result.currentUsers
+      // console.log(room)
+      dispatch(updateRoom(room))
+    })
+    // console.log(getState)
+  }
+
 }
 
 export const UpdateCurrentRoom = body => {}

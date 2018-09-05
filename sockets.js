@@ -3,30 +3,24 @@ const controllers = require('./controllers')
 const sockets = {};
 sockets.init = server => {
 
-    var io = require('socket.io')(server, {wsEngine: 'ws'}); // AHHHH FUCK YOU WINDOWS
+    const io = require('socket.io')(server, {wsEngine: 'ws'}); // AHHHH FUCK YOU WINDOWS
     // without this wsEngine setting the socket events would be delayed upwards of 20 seconds
     io.sockets.on('connection', socket => {
-      // client joins room ==> update other clients room list
       socket.on('JOIN', (data, callback) => {
-        console.log(data)
-        console.log(data.roomId, data.user._id)
         socket.join(data.roomId, () => {
           // update current users of this room
           controllers.room.addCurrentUsers(data.roomId, data.user._id)
           .then(room => {
             console.log(room)
+            socket.broadcast.to(data.roomId).emit('NEW_USER', {_id: data.user._id, username: data.user.username})
+            room.populate({path: 'currentUsers', select: 'username'}, () => {
+              callback({confirmation: 'success', result: room}); // @TODO eventually do error handling with this
+            })
             // executes the callback on the clientside to confirm join
-            callback('success'); // @TODO eventually do error handling with this
-            return socket.broadcast.to(data.roomId).emit('NEW_USER', room.currentUsers)
           })
           .catch(err => console.log(err))
-          // emit to other clients
-          console.log('new user joind emit other clients')
         })
-        // emit to the clients we've got a new user
       });
-      // Message sent from a client to be dispatched to the other clients
-      // in that room
       socket.on('LEAVE_ROOM', data => {
         console.log('DISCONNECTING FROM SOCKETS')
         socket.leave(data.roomId, () => {
