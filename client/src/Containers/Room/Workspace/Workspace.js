@@ -5,6 +5,7 @@ import Modal from '../../../Components/UI/Modal/Modal';
 import classes from './workspace.css';
 import Graph from '../Graph/Graph';
 import Chat from '../Chat/Chat';
+import Avatar from '../../../Components/UI/Avatar/Avatar';
 import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 class Workspace extends Component {
 
@@ -15,25 +16,16 @@ class Workspace extends Component {
 
   componentWillUnmount () {
     // @TODO close socket connection
-    this.leaveRoom()
+    const {leaveRoom, room, user} = this.props;
+    leaveRoom(room._id, user.id)
   }
-
-
-  leaveRoom = () => {
-    this.socket.emit('LEAVE_ROOM', {roomId: this.props.room._id, userId: this.props.user.id})
-  }
-
-  componentWillReceiveProps = (nextProps) => {
-    console.log("NEXTPROPS: ", nextProps)
-  }
-
 
   render() {
     console.log('rendering ', this.props.room)
     const { room, user, loading, currentUsers } = this.props;
 
     const userList = currentUsers ? currentUsers.map(user =>
-      <div key={user.username}>{user.username}</div>
+      <div className={classes.Avatar} key={user.username}><Avatar username={user.username} /></div>
     ) : [];
     console.log(userList)
     return (
@@ -71,7 +63,8 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    joinRoom: (roomId, userId) => dispatch(actions.joinRoom(roomId, userId))
+    joinRoom: (roomId, userId) => dispatch(actions.joinRoom(roomId, userId)),
+    leaveRoom: (roomId, userId) => dispatch(actions.leaveRoom(roomId, userId))
   }
 }
 

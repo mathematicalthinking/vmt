@@ -13,10 +13,18 @@ export const gotRooms = (rooms) => ({
   allIds: rooms.allIds
 })
 
-export const updateRoom = room => ({
-  type: actionTypes.UPDATE_ROOM,
-  room,
-})
+// export const gotRoom = room => ({
+//   type: actionTypes.GOT_ROOM,
+//   room,
+// })
+
+export const updateRoom = (roomId, body) => {
+  return {
+    type: actionTypes.UPDATE_ROOM,
+    roomId,
+    body,
+  }
+}
 
 export const clearCurrentRoom = () => {
   return {
@@ -54,29 +62,28 @@ export const getRooms = params => {
   }
 }
 
-export const populateRoom = id => {
-  return dispatch => {
-    dispatch(loading.start())
-    API.getById('room', id)
-    .then(res => {
-      console.log("POPULATED");
-      dispatch(updateRoom(res.data.result))
-      dispatch(loading.success())
-    })
-    .catch(err => dispatch(loading.fail(err)))
-  }
-}
-
-export const getCurrentRoom = id => {
-  return dispatch => {
-    dispatch(loading.start())
-    API.getById('room', id)
-    .then(res => {
-      dispatch(updateRoom(res.data.result))
-      return dispatch(loading.success())
-    })
-  }
-}
+// export const populateRoom = id => {
+//   return dispatch => {
+//     dispatch(loading.start())
+//     API.getById('room', id)
+//     .then(res => {
+//       dispatch(gotRoom(res.data.result))
+//       dispatch(loading.success())
+//     })
+//     .catch(err => dispatch(loading.fail(err)))
+//   }
+// }
+//
+// export const getCurrentRoom = id => {
+//   return dispatch => {
+//     dispatch(loading.start())
+//     API.getById('room', id)
+//     .then(res => {
+//       dispatch(updateRoom(res.data.result))
+//       return dispatch(loading.success())
+//     })
+//   }
+// }
 
 
 export const createRoom = body => {
@@ -122,19 +129,18 @@ export const removeRoom = roomId => {
 
 // SOCKET STUFF
 export const joinRoom = (roomId, userId) => {
-  return (dispatch, getState) => {
+  return (dispatch) => {
     Sockets.emit.joinRoom(roomId, userId)
     .then(res => {
-      const state = getState()
-      const updatedState = {...state};
-      const room = updatedState.rooms.byId[roomId]
-      room.currentUsers = res.result.currentUsers
-      // console.log(room)
-      dispatch(updateRoom(room))
+      dispatch(updateRoom(roomId, {currentUsers: res.result.currentUsers}))
     })
-    // console.log(getState)
   }
+}
 
+export const leaveRoom = (roomId, userId) => {
+  return disaptch => {
+    Sockets.emit.leaveRoom(roomId, userId,)
+  }
 }
 
 export const UpdateCurrentRoom = body => {}
