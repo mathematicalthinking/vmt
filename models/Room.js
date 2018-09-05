@@ -56,6 +56,7 @@ Room.pre('save', function (next) {
     .catch(err => next(err))
   } else {next()}
 });
+
 Room.pre('remove', async function() {
   const promises = []
   if (this.course) {
@@ -71,4 +72,23 @@ Room.pre('remove', async function() {
   await Promise.all(promises)
 })
 
+Room.methods.summary = function() {
+  // @TODO ONLY RETURN THE ENTRY CODE IF THE CLIENT IS THE OWNER
+  obj = {
+    entryCode: this.entryCode,
+    assignment: this.assignment,
+    name: this.name,
+    description: this.description,
+    roomType: this.roomType,
+    course: this.course,
+    creator: this.creator,
+    dueDate: this.dueDate,
+    members: this.members,
+    tabs: this.tabs,
+    _id: this._id,
+  }
+  console.log(obj)
+  return (obj)
+  // next();
+}
 module.exports = mongoose.model('Room', Room);

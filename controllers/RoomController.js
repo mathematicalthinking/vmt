@@ -7,7 +7,11 @@ module.exports = {
     }
     return new Promise((resolve, reject) => {
       db.Room.find(params).sort('-createdAt')
-      .then(rooms => resolve(rooms))
+      .then(rooms => {
+        rooms = rooms.map(room => room.summary())
+        console.log(rooms)
+        resolve(rooms)
+      })
       .catch(err => reject(err));
     });
   },
@@ -17,12 +21,11 @@ module.exports = {
       db.Room.findById(id)
       .populate({path: 'creator', select: 'username'})
       .populate({path: 'chat.user', select: 'username'})
-      .populate({path: 'currentUsers', select: 'username'})
       .populate({path: 'members.user', select: 'username'})
       .populate({path: 'notifications.user', select: 'username'})
       .populate({path: 'course', select: 'name'})
       .then(room => {
-        resolve(room)})
+        resolve(room.summary())})
       .catch(err => reject(err))
     });
   },
