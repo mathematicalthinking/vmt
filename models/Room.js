@@ -44,7 +44,6 @@ Room.pre('save', function (next) {
     .then(values => {
       values[0].forEach(user => {
         user.rooms.push(this._id)
-        console.log("USER: ", user)
         // DONT THINK WE NEED THE CODE BWLOW...THE USER SHOULD ALREADY HAVE
         // THE ASSIGNMENT AND THE COURSE IN THEIR RESOURCES
         // if (this.course) user.courseNotifications.newRoom.push({notificationType: 'newRoom', _id: this.course})
@@ -55,10 +54,8 @@ Room.pre('save', function (next) {
     })
     .catch(err => next(err))
   } else {
-    console.log('hello')
     const field = this.modifiedPaths().forEach(field => {
       if (field === 'members') {
-        console.log(this.members[this.members.length - 1].user)
         User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
           $addToSet: {rooms: this._id}
         }).then(user => {next()})

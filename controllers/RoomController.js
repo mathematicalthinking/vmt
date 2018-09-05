@@ -6,12 +6,13 @@ module.exports = {
       params = {'_id': {$in: params}}
     }
     return new Promise((resolve, reject) => {
-      db.Room.find(params).sort('-createdAt')
+      db.Room
+      .find(params)
+      .sort('-createdAt')
+      .populate({path: 'members.user', select: 'username'})
       .then(rooms => {
         rooms = rooms.map(room => room.summary())
-        console.log(rooms)
-        resolve(rooms)
-      })
+        resolve(rooms)})
       .catch(err => reject(err));
     });
   },
@@ -32,7 +33,6 @@ module.exports = {
 // @TODO I SEEM TO BE USING MODEL METHODS SOMETIMES AND THEN OTHER TIMES (LIKE HERE)
 // JUST DOING ALL OF THE WORK IN THE CONTROLLER...PROBABLY NEED TO BE CONSISTENT
   post: body => {
-    console.log('posting new room: ', body)
     return new Promise((resolve, reject) => {
         db.Room.create(body)
         .then(room => {
@@ -45,7 +45,6 @@ module.exports = {
           })
         })
         .catch(err => {
-          console.log("HELLO>")
           console.log(err); reject(err)})
       // }
     })
@@ -53,13 +52,11 @@ module.exports = {
 
   put: (id, body) => {
     return new Promise((resolve, reject) => {
-      console.log("EDITING ROOM: ", id, body)
       const updatedField = Object.keys(body)
       const { entryCode, userId } = body.checkAccess;
       if (updatedField[0] === 'checkAccess') {
         db.Room.findById(id)
         .then(room => {
-          console.log(room.entryCode, entryCode)
           if (room.entryCode === entryCode) {
             room.members.push({user: userId, role: 'student'})
             room.save()

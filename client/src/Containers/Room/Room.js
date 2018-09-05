@@ -37,6 +37,8 @@ class Room extends Component {
       owner = true;
     }
     if (members) {
+      console.log(members)
+      console.log(user.id)
       if (members.find(member => member.user._id === user.id)) member = true;
     }
     // Get Any other notifications
