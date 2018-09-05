@@ -4,6 +4,7 @@ import NewResource from '../../../Containers/Create/NewResource/NewResource';
 // CONSIDER RENAMING TO DASHBOARDCONTENT
 const resources = props => {
     // @TODO Is there a way to do this passing over the array only once?
+    console.log(props.userResources)
     const ownedResources = props.userResources.filter(resource => (
       resource.creator === props.userId
     ))

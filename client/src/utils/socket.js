@@ -1,10 +1,13 @@
 import io from 'socket.io-client';
+let socket;
+const connect = () => {
+  socket = io.connect(process.env.REACT_APP_SERVER_URL);
+};
 
-const socket = io.connect(process.env.REACT_APP_SERVER_URL);
-console.log(socket)
 export default {
   emit: {
     joinRoom: (roomId, userId, username) => {
+      connect();
       const data = {
         roomId,
         user: {_id: userId, username,}

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import io from 'socket.io-client';
 import * as actions from '../../../store/actions';
 import Modal from '../../../Components/UI/Modal/Modal';
 import classes from './workspace.css';
@@ -9,10 +8,9 @@ import Chat from '../Chat/Chat';
 import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 class Workspace extends Component {
 
-  socket = io.connect(process.env.REACT_APP_SERVER_URL);
-
   componentDidMount() {
-    this.props.joinRoom(this.props.room._id, this.props.user.id, this.props.user.username)
+    const {joinRoom, room, user} = this.props;
+    joinRoom(room._id, user.id, user.username)
   }
 
   componentWillUnmount () {
@@ -25,9 +23,19 @@ class Workspace extends Component {
     this.socket.emit('LEAVE_ROOM', {roomId: this.props.room._id, userId: this.props.user.id})
   }
 
+  componentWillReceiveProps = (nextProps) => {
+    console.log("NEXTPROPS: ", nextProps)
+  }
+
 
   render() {
-    const { room, user, loading } = this.props;
+    console.log('rendering ', this.props.room)
+    const { room, user, loading, currentUsers } = this.props;
+
+    const userList = currentUsers ? currentUsers.map(user =>
+      <div key={user.username}>{user.username}</div>
+    ) : [];
+    console.log(userList)
     return (
       <div>
         <Modal show={loading} message='loading...' />
@@ -36,12 +44,12 @@ class Workspace extends Component {
             <Graph room={room} replay={false} />
           </div>
           <div className={classes.Chat}>
-            <Chat messages={room.chat} user={user}/>
+            {/* <Chat messages={room.chat} user={user}/> */}
           </div>
         </div>
         <div className={classes.CurrentUsers}>
           <ContentBox align='left'>
-            <div className={classes.Container}>{room.currentUsers.map(user => user.username)}</div>
+            <div className={classes.Container}>{userList}</div>
           </ContentBox>
         </div>
       </div>
@@ -51,8 +59,11 @@ class Workspace extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
+  console.log('mapping state to props')
+  console.log({...state.rooms.byId[ownProps.match.params.room_id]})
   return {
     room: state.rooms.byId[ownProps.match.params.room_id],
+    currentUsers: state.rooms.byId[ownProps.match.params.room_id].currentUsers,
     user: state.user,
     loading: state.loading.loading,
   }
@@ -60,7 +71,6 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    populateRoom: id => dispatch(actions.populateRoom(id)),
     joinRoom: (roomId, userId) => dispatch(actions.joinRoom(roomId, userId))
   }
 }

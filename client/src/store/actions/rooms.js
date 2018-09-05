@@ -41,11 +41,14 @@ export const removedRoom = id => {
 
 export const getRooms = params => {
   return dispatch => {
+    dispatch(loading.start())
     API.get('room', params)
     .then(res => {
       // Normalize res
+      console.log(res.data.results)
       const rooms = normalize(res.data.results)
       dispatch(gotRooms(rooms))
+      dispatch(loading.success())
     })
     .catch(err => console.log(err));
   }
@@ -123,7 +126,8 @@ export const joinRoom = (roomId, userId) => {
     Sockets.emit.joinRoom(roomId, userId)
     .then(res => {
       const state = getState()
-      const room = state.rooms.byId[roomId]
+      const updatedState = {...state};
+      const room = updatedState.rooms.byId[roomId]
       room.currentUsers = res.result.currentUsers
       // console.log(room)
       dispatch(updateRoom(room))
