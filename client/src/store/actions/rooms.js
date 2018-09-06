@@ -1,6 +1,5 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
-import Sockets from '../../utils/socket';
 import { normalize } from '../utils/normalize';
 import { addUserRooms, removeUserRooms } from './user';
 import { addCourseRooms, removeCourseRooms } from './courses';
@@ -125,29 +124,6 @@ export const removeRoom = roomId => {
     })
   }
 }
-
-// export const addCurrentUser = (roomId, userId)
-
-// SOCKET STUFF
-export const joinRoom = (roomId, userId) => {
-  return (dispatch) => {
-    Sockets.emit.joinRoom(roomId, userId)
-    .then(res => {
-      dispatch(updateRoom(roomId, {currentUsers: res.result.currentUsers}))
-    })
-  }
-}
-
-export const leaveRoom = (roomId, userId) => {
-  return dispatch => {
-    Sockets.emit.leaveRoom(roomId, userId,)
-    .then(res => {
-      dispatch(updateRoom(roomId, {currentUsers: res.result.currentUsers}))
-    })
-  }
-}
-
-export const UpdateCurrentRoom = body => {}
 
 export const createdRoomConfirmed = () => {
   return {

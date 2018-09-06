@@ -4,15 +4,15 @@ const sockets = {};
 sockets.init = server => {
 
     const io = require('socket.io')(server, {wsEngine: 'ws'}); // AHHHH FUCK YOU WINDOWS
-    // without this wsEngine setting the socket events would be delayed upwards of 20 seconds
+    // without this wsEngine setting the socket events would be delayed upwards of 20 seconds // NOT SURE IF MAC DEVELOPERS WILL NEED TO REMOVE THIS
     io.sockets.on('connection', socket => {
       socket.on('JOIN', (data, callback) => {
         socket.join(data.roomId, () => {
           // update current users of this room
-          controllers.room.addCurrentUsers(data.roomId, data.user._id)
+          controllers.room.addCurrentUsers(data.roomId, data.userId)
           .then(room => {
-            socket.broadcast.to(data.roomId).emit('USER_JOINED', {_id: data.user._id, username: data.user.username})
-            room.populate({path: 'currentUsers', select: 'username'}, callback({result: room}, null))
+            socket.broadcast.to(data.roomId).emit('USER_JOINED', {currentUsers: room.currentUsers, roomId: data.roomId});
+            callback({result: room}, null)
           })
           .catch(err => callback(null, err))
         })

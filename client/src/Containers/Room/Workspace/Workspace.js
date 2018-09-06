@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import io from 'socket.io-client';
+
 import * as actions from '../../../store/actions';
 import Modal from '../../../Components/UI/Modal/Modal';
 import classes from './workspace.css';
@@ -10,24 +12,47 @@ import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 class Workspace extends Component {
 
   componentDidMount() {
-    const {joinRoom, room, user} = this.props;
-    joinRoom(room._id, user.id, user.username)
+    const { updateRoom, room, user} = this.props;
+    this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
+    const data = {
+      userId: user.id,
+      roomId: room._id,
+    }
+    this.socket.emit('JOIN', data, (res, err) => {
+      if (err) {
+        console.log(err) // HOW SHOULD WE HANDLE THIS
+      }
+      console.log(res.result)
+      updateRoom(room._id, res.result)
+    })
+
+    this.socket.on('USER_JOINED', data => {
+      updateRoom(data.roomId, {currentUsers: data.currentUsers})
+    })
+
+    this.socket.on('USER_LEFT', data => {
+      console.log("ANOTHER USER LEFT: ", data)
+    })
   }
 
   componentWillUnmount () {
-    // @TODO close socket connection
-    const {leaveRoom, room, user} = this.props;
-    leaveRoom(room._id, user.id)
+    const { updateRoom, room, user} = this.props;
+    const data = {
+      userId: user.id,
+      roomId: room._id,
+    }
+    this.socket.emit('LEAVE', data, () => {
+      updateRoom(room._id, user.id)
+    })
+
   }
 
   render() {
-    console.log('rendering ', this.props.room)
     const { room, user, loading, currentUsers } = this.props;
 
     const userList = currentUsers ? currentUsers.map(user =>
       <div className={classes.Avatar} key={user.username}><Avatar username={user.username} /></div>
     ) : [];
-    console.log(userList)
     return (
       <div>
         <Modal show={loading} message='loading...' />
@@ -47,12 +72,9 @@ class Workspace extends Component {
       </div>
     )
   }
-
 }
 
 const mapStateToProps = (state, ownProps) => {
-  console.log('mapping state to props')
-  console.log({...state.rooms.byId[ownProps.match.params.room_id]})
   return {
     room: state.rooms.byId[ownProps.match.params.room_id],
     currentUsers: state.rooms.byId[ownProps.match.params.room_id].currentUsers,
@@ -63,8 +85,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    joinRoom: (roomId, userId) => dispatch(actions.joinRoom(roomId, userId)),
-    leaveRoom: (roomId, userId) => dispatch(actions.leaveRoom(roomId, userId))
+    updateRoom: (roomId, body) => dispatch(actions.updateRoom(roomId, body)),
   }
 }
 

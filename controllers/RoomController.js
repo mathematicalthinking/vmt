@@ -97,7 +97,8 @@ module.exports = {
   addCurrentUsers: (roomId, userId) => {
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentUsers: userId}}, {new: true})
-      .populate('currentUsers')
+      .populate({path: 'currentUsers', select: 'username'})
+      .select('currentUsers events chat')
       .then(room => resolve(room))
       .catch(err => reject(err))
     })

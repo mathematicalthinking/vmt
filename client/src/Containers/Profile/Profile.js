@@ -65,7 +65,6 @@ class Profile extends Component {
   render() {
     const { user, match } = this.props;
     const resource = match.params.resource;
-    console.log(this.props.userrooms)
     const contentData = {
       resource,
       userResources: this.props[`user${resource}`] || [],
