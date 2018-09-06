@@ -11,18 +11,19 @@ sockets.init = server => {
           // update current users of this room
           controllers.room.addCurrentUsers(data.roomId, data.userId)
           .then(room => {
-            socket.broadcast.to(data.roomId).emit('USER_JOINED', {currentUsers: room.currentUsers, roomId: data.roomId});
+            socket.broadcast.to(data.roomId).emit('USER_JOINED', room.currentUsers);
             callback({result: room}, null)
           })
           .catch(err => callback(null, err))
         })
       });
-      socket.on('LEAVE', data => {
+      socket.on('LEAVE', (data, callback) => {
         socket.leave(data.roomId, () => {
           controllers.room.removeCurrentUsers(data.roomId, data.userId)
           .then(room => {
             console.log("room after disconnect: ",room);
             socket.broadcast.to(data.roomId).emit('USER_LEFT', room.currentUsers);
+            callback({result: room.currentUsers})
           })
           .catch(err => console.log(err))
         })

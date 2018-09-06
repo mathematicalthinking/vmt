@@ -107,7 +107,8 @@ module.exports = {
   removeCurrentUsers: (roomId, userId) => {
     return new Promise ((resolve, reject) => {
       db.Room.findByIdAndUpdate(roomId, {$pull: {currentUsers: userId}}, {new: true})
-      .populate('currentUsers')
+      .populate({path: 'currentUsers', select: 'username'})
+      .select('currentUsers')
       .then(room => resolve(room))
       .catch(err => reject(err))
     })

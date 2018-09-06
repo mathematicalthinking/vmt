@@ -55,7 +55,7 @@ class Workspace extends Component {
 
         }
       }
-    })
+    }, 1000)
         // setup the even listeners
         // load the most recent workspace event if we're not replaying
     // let events = this.props.room.events;
@@ -76,14 +76,9 @@ class Workspace extends Component {
       if (tabs[0].desmosLink) {
         API.getDesmos(tabs[0].desmosLink)
         .then(res => {
-          console.log(res.data.result)
           const elt = document.getElementById('desmos');
-          console.log(elt)
-          console.log(window)
           const calculator = window.Desmos.GraphingCalculator(elt);
-          console.log(calculator)
           calculator.setState(res.data.result.state)
-          console.log(calculator.getState())
           this.setState({loading: false})
 
         })

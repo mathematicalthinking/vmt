@@ -11,14 +11,14 @@ import Avatar from '../../../Components/UI/Avatar/Avatar';
 import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 class Workspace extends Component {
 
+  socket = io.connect(process.env.REACT_APP_SERVER_URL);
   componentDidMount() {
     const { updateRoom, room, user} = this.props;
-    this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
-    const data = {
+    const sendData = {
       userId: user.id,
       roomId: room._id,
     }
-    this.socket.emit('JOIN', data, (res, err) => {
+    this.socket.emit('JOIN', sendData, (res, err) => {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
@@ -27,11 +27,12 @@ class Workspace extends Component {
     })
 
     this.socket.on('USER_JOINED', data => {
-      updateRoom(data.roomId, {currentUsers: data.currentUsers})
+      updateRoom(room._id, {currentUsers: data})
     })
 
     this.socket.on('USER_LEFT', data => {
       console.log("ANOTHER USER LEFT: ", data)
+      updateRoom(room._id, {currentUsers: data})
     })
   }
 
@@ -41,13 +42,16 @@ class Workspace extends Component {
       userId: user.id,
       roomId: room._id,
     }
-    this.socket.emit('LEAVE', data, () => {
-      updateRoom(room._id, user.id)
+    this.socket.emit('LEAVE', data, (res) => {
+      console.log('updatingRoom')
+      updateRoom(room._id, {currentUsers: res.result})
     })
 
   }
 
   render() {
+    console.log(this)
+    console.log(this.socket)
     const { room, user, loading, currentUsers } = this.props;
 
     const userList = currentUsers ? currentUsers.map(user =>
@@ -58,10 +62,10 @@ class Workspace extends Component {
         <Modal show={loading} message='loading...' />
         <div className={classes.Container}>
           <div className={classes.Graph}>
-            <Graph room={room} replay={false} />
+            <Graph room={room} socket={this.socket} replay={false} />
           </div>
           <div className={classes.Chat}>
-            {/* <Chat messages={room.chat} user={user}/> */}
+            <Chat messages={room.chat || []} socket={this.socket} user={user}/>
           </div>
         </div>
         <div className={classes.CurrentUsers}>
