@@ -11,7 +11,6 @@ class Chat extends Component {
   }
 
   componentDidMount() {
-    console.log(this.props.socket)
     this.socket = this.props.socket;
     // event handler for enter key presses
     document.addEventListener('keydown', (event) => {
@@ -24,7 +23,6 @@ class Chat extends Component {
     })
     // start the chat scrolled to the bottom
     // this.scrollToBottom(); @TODO this function isnt working properly
-    // initialize the socket listener
     this.setState({
       messages: this.props.messages
     })
@@ -56,22 +54,28 @@ class Chat extends Component {
   submitMessage = () => {
     const newMessage = {
       text: this.state.newMessage,
-      user: {username: this.props.username, userId: this.props.userId},
+      username: this.props.user.username,
+      user: this.props.user.id,
       room: this.props.roomId,
       timestamp: Date.now()
     }
-    this.socket.emit('SEND_MESSAGE', newMessage, () => {
+    this.socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
       // we should set state in here so we can handle errors and
       // let the user know whether their message made it to the others
-    })
 
+    })
+    delete newMessage.room;
     let updatedMessages = [...this.state.messages, newMessage]
     // this.scrollToBottom(); @TODO
     this.setState({
       messages: updatedMessages,
       newMessage: '',
     })
-    this.props.updateRoom({chat: newMessage})
+    this.props.updateRoom({chat: updatedMessages})
   }
 
   render() {
@@ -79,7 +83,7 @@ class Chat extends Component {
     if (this.state.messages) {
       messages = this.state.messages.map((message, i) => (
         <div key={i}>
-          <b>{message.user ? message.user.username : null}: </b><span>{message.text}</span>
+          <b>{message.username}: </b><span>{message.text}</span>
         </div>
       ))
       // use this to scroll to the bottom

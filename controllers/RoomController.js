@@ -50,6 +50,7 @@ module.exports = {
     })
   },
 
+// @TODO WE SHOULD PROBABLY JUST CREATE DIFFERENT METHODS FOR EACH OF THESE CASES?
   put: (id, body) => {
     return new Promise((resolve, reject) => {
       const updatedField = Object.keys(body)
@@ -68,8 +69,7 @@ module.exports = {
           else resolve(room)
         })
         .catch(err => reject(err))
-      }
-      else if (updatedField[0] === 'members') {
+      } else if (updatedField[0] === 'members') {
         body = {$addToSet: body, $pull: {notifications: {user: body.members.user}}}
         // THIS SHOULD BE DONE ELSE WHERE YEAH?
         db.User.findByIdAndUpdate(body.members.user, {$addToSet: {rooms: id}})
@@ -79,7 +79,7 @@ module.exports = {
         .populate('notifications.user')
         .then(room => { console.log(room); resolve(room)})
         .catch(err => {console.log(err); reject(err)})
-      }
+      } 
     })
   },
 

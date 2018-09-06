@@ -28,20 +28,18 @@ sockets.init = server => {
           .catch(err => console.log(err))
         })
       })
-      socket.on('SEND_MESSAGE', data => {
-        // when we fetch the message we populate the user field
-        // below we are essentially de-populating it, i.e., setting user to
-        // userId again
-        const username = data.user.username;
-        const userId = data.user.userId
-        data.user = data.user.userId;
-        controllers.message.post(data)
+      socket.on('SEND_MESSAGE', (data, callback) => {
+        const postData = {...data}
+        delete postData.username
+        controllers.message.post(postData)
         .then(res => {
-          // and then re-populate ==> theres probably a better way to do this
-          data.user = {username, userId,}
-          return socket.broadcast.to(data.room).emit('RECEIVE_MESSAGE', data);
+          socket.broadcast.to(data.room).emit('RECEIVE_MESSAGE', data);
+          callback('success', null)
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+          callback('fail', err)
+          console.log(err)
+        })
         // broadcast new message
       })
 

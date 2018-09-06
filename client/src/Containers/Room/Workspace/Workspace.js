@@ -22,7 +22,6 @@ class Workspace extends Component {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
-      console.log(res.result)
       updateRoom(room._id, res.result)
     })
 
@@ -31,7 +30,6 @@ class Workspace extends Component {
     })
 
     this.socket.on('USER_LEFT', data => {
-      console.log("ANOTHER USER LEFT: ", data)
       updateRoom(room._id, {currentUsers: data})
     })
   }
@@ -43,16 +41,13 @@ class Workspace extends Component {
       roomId: room._id,
     }
     this.socket.emit('LEAVE', data, (res) => {
-      console.log('updatingRoom')
       updateRoom(room._id, {currentUsers: res.result})
+      this.socket.disconnect();
     })
-
   }
 
   render() {
-    console.log(this)
-    console.log(this.socket)
-    const { room, user, loading, currentUsers } = this.props;
+    const { room, user, loading, currentUsers, updateRoom } = this.props;
 
     const userList = currentUsers ? currentUsers.map(user =>
       <div className={classes.Avatar} key={user.username}><Avatar username={user.username} /></div>
@@ -65,7 +60,7 @@ class Workspace extends Component {
             <Graph room={room} socket={this.socket} replay={false} />
           </div>
           <div className={classes.Chat}>
-            <Chat messages={room.chat || []} socket={this.socket} user={user}/>
+            <Chat messages={room.chat || []} roomId={room._id} socket={this.socket} user={user} updateRoom={(body) => updateRoom(room._id, body)}/>
           </div>
         </div>
         <div className={classes.CurrentUsers}>
