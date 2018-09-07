@@ -5,7 +5,7 @@ import io from 'socket.io-client';
 import * as actions from '../../../store/actions';
 import Modal from '../../../Components/UI/Modal/Modal';
 import classes from './workspace.css';
-import Graph from '../Graph/Graph';
+import Graph from '../Graph/GgbGraph';
 import Chat from '../Chat/Chat';
 import Avatar from '../../../Components/UI/Avatar/Avatar';
 import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
