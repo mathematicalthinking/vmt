@@ -3,7 +3,7 @@ import classes from './graph.css';
 import Aux from '../../../Components/HOC/Auxil';
 import Modal from '../../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
-class Workspace extends Component {
+class GgbGraph extends Component {
   // we need to track whether or not the ggbBase64 data was updated
   // by this user or by another client. Otherwise we were getting stuck
   // in an infinite loop because ggbApplet.setBase64 would be triggered
@@ -28,7 +28,7 @@ class Workspace extends Component {
     })
   }
 
-  handleLoad = () => {
+  onScriptLoad = () => {
     const parameters = {
       "id":"ggbApplet",
       "width": 1300 * .75, // 75% width of container
@@ -55,15 +55,6 @@ class Workspace extends Component {
         }
       }
     }, 1000)
-        // setup the even listeners
-        // load the most recent workspace event if we're not replaying
-    // let events = this.props.room.events;
-    // if (!this.props.replay && events.length > 0){
-    //   this.ggbApplet.setXML(events[events.length - 1].event)
-    //   this.setState({loading: false})
-    // }
-    // else {this.setState({loading: false})}
-
   }
 
 
@@ -112,7 +103,7 @@ class Workspace extends Component {
   render() {
     return (
       <Aux>
-        <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.handleLoad} />
+        <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} />
         <div className={classes.Graph} id='ggb-element'></div>
         <Modal show={this.state.loading} message='Loading...'/>
       </Aux>
@@ -120,4 +111,4 @@ class Workspace extends Component {
   }
 }
 
-export default Workspace;
+export default GgbGraph;

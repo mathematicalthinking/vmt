@@ -5,7 +5,8 @@ import io from 'socket.io-client';
 import * as actions from '../../../store/actions';
 import Modal from '../../../Components/UI/Modal/Modal';
 import classes from './workspace.css';
-import Graph from '../Graph/GgbGraph';
+import GgbGraph from '../Graph/GgbGraph';
+import DesmosGraph from '../Graph/DesmosGraph';
 import Chat from '../Chat/Chat';
 import Avatar from '../../../Components/UI/Avatar/Avatar';
 import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
@@ -49,15 +50,15 @@ class Workspace extends Component {
   render() {
     const { room, user, loading, currentUsers, updateRoom } = this.props;
 
-    const userList = currentUsers ? currentUsers.map(user =>
-      <div className={classes.Avatar} key={user.username}><Avatar username={user.username} /></div>
-    ) : [];
     return (
       <div>
         <Modal show={loading} message='loading...' />
         <div className={classes.Container}>
           <div className={classes.Graph}>
-            <Graph room={room} socket={this.socket} replay={false} userId={user.id}/>
+            {room.roomType === 'ggb' ?
+              <GgbGraph room={room} socket={this.socket} replay={false} userId={user.id} /> :
+              <DesmosGraph room={room} socket={this.socket} replay={false} userId={user.id} />
+                }
           </div>
           <div className={classes.Chat}>
             <Chat messages={room.chat || []} roomId={room._id} socket={this.socket} user={user} updateRoom={(body) => updateRoom(room._id, body)}/>
@@ -65,7 +66,10 @@ class Workspace extends Component {
         </div>
         <div className={classes.CurrentUsers}>
           <ContentBox align='left'>
-            <div className={classes.Container}>{userList}</div>
+            <div className={classes.Container}>{currentUsers ? currentUsers.map(user =>
+              <div className={classes.Avatar} key={user.username}><Avatar username={user.username} />
+              </div>) : null}
+            </div>
           </ContentBox>
         </div>
       </div>

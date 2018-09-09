@@ -1,24 +1,39 @@
+import React, { Component } from 'react';
+import classes from './graph.css';
+import Aux from '../../../Components/HOC/Auxil';
+import Modal from '../../../Components/UI/Modal/Modal';
+import Script from 'react-load-script';
+import API from '../../../utils/apiRequests'
+class DesmosGraph extends Component {
 
+  state = {
+    loading: true,
+  }
 
-handleDesmosLoad = () => {
-  console.log('desmos')
-  const elt = document.getElementById('calculator');
-  this.desmos = window.Desmos.GraphingCalculator(elt);
-  const tabs = this.props.room.tabs;
-  if (tabs.length > 0) {
-    if (tabs[0].desmosLink) {
-      API.getDesmos(tabs[0].desmosLink)
-      .then(res => {
-        const elt = document.getElementById('desmos');
-        const calculator = window.Desmos.GraphingCalculator(elt);
-        calculator.setState(res.data.result.state)
+  componentDidMount() {
+
+  }
+
+  onScriptLoad = () => {
+    const elt = document.getElementById('calculator');
+    this.calculator = window.Desmos.GraphingCalculator(elt);
+    const tabs = this.props.room.tabs;
+    if (tabs.length > 0) {
+      if (tabs[0].desmosLink) {
+        API.getDesmos(tabs[0].desmosLink)
+        .then(res => {
+          this.calculator.setState(res.data.result.state)
+          console.log("CALCULATOR: ", this.calculator)
+          this.setState({loading: false})
+
+        })
+        .catch(err => console.log(err))
+      }
+      else {
         this.setState({loading: false})
-
-      })
-      .catch(err => console.log(err))
+      }
     }
   }
-}
 //
 //   // we dont need socket functionality on replay
 //   if (!this.props.replaying) {
@@ -57,3 +72,15 @@ handleDesmosLoad = () => {
 //   }
 //   else return false;
 // }
+  render() {
+    return (
+      <Aux>
+        <Script url='https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6' onLoad={this.onScriptLoad} />
+        <div className={classes.Graph} id='calculator'></div>
+        <Modal show={this.state.loading} message='Loading...'/>
+      </Aux>
+    )
+  }
+}
+
+export default DesmosGraph;
