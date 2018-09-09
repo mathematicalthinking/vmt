@@ -8,13 +8,14 @@ class DesmosGraph extends Component {
 
   state = {
     loading: true,
+    sendingEvent: false,
   }
 
   componentDidMount() {
-
+    // Initialize socket listener
   }
 
-  onScriptLoad = () => {
+  onScriptLoad =  () => {
     const elt = document.getElementById('calculator');
     this.calculator = window.Desmos.GraphingCalculator(elt);
     const tabs = this.props.room.tabs;
@@ -25,53 +26,47 @@ class DesmosGraph extends Component {
           this.calculator.setState(res.data.result.state)
           console.log("CALCULATOR: ", this.calculator)
           this.setState({loading: false})
+          this.initializeListeners()
 
         })
         .catch(err => console.log(err))
       }
-      else {
-        this.setState({loading: false})
-      }
     }
+    else {
+      this.initializeListeners()
+      this.setState({loading: false})
+    }
+
   }
-//
-//   // we dont need socket functionality on replay
-//   if (!this.props.replaying) {
-//     this.socket = this.props.socket;
-//     // define the socket listeners for handling events from the backend
-//     this.socket.on('RECEIVE_EVENT', event => {
-//       /// @TODO update room object in parents state so that the events.length stay up to date
-//       // this.receivingData = true;
-//       this.ggbApplet.setXML(event)
-//       this.props.updateRoom({events: {event,}})
-//       // @TODO ^^^^^ this seems strange events: {event,} but we need
-//       // this to match the structure of the database so when we replay these received
-//       // events or events from the db they have the same structure...what we probably
-//       // want to do actually is rename the event property of event to xml or something
-//       this.ggbApplet.registerAddListener(this.eventListener)
-//     })
-//   }
-// }
-//
-// @TODO IM thinking we should use shouldupdate instead??? thoughts??
-// or takesnapshot or whatever its called -- this seems BAD
-// shouldComponentUpdate(nextProps, nextState) {
-//   // checking that this props and the incoming props are both replayin
-//   // ensures that this is not the first time we received
-//   if (nextProps.replaying && this.props.replaying) {
-//     this.ggbApplet.setXML(this.props.room.events[this.props.eventIndex].event)
-//     return true;
-//   }
-//   if (!nextProps.replaying && this.props.replaying) {
-//     const events = nextProps.room.events;
-//     this.ggbApplet.setXML(events[events.length - 1].event)
-//     return true;
-//   }
-//   if (!nextProps.room.events !== this.props.room.events) {
-//     return true;
-//   }
-//   else return false;
-// }
+
+  initializeListeners = () => {
+    // INITIALIZE EVENT LISTENER
+    this.calculator.observeEvent('change', () => {
+      const data = {
+        user: this.props.userId,
+        room: this.props.room._id,
+        event: this.calculator.getState(),
+      }
+      console.log(data)
+      if (!this.state.receivingEvent) {
+        this.props.socket.emit('SEND_EVENT', data, res => {
+          console.log(res)
+        })
+      } else {
+        // @TODO CONSIDER DOING THIS AS JUST A PROPERTY OF THIS CLASS AND NOT A PROPERTY
+        // OF STATE ... WE DON"T REALLY NEED RE_RENDERS HERE
+        this.setState({receivingEvent: false})
+      }
+      // this.socket.emit('SEND_EVENT', event)
+    })
+    this.props.socket.on('RECEIVE_EVENT', event => {
+      this.setState({receivingEvent: true})
+      console.log(event)
+      this.calculator.setState(event)
+    })
+  }
+
+
   render() {
     return (
       <Aux>
