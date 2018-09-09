@@ -24,6 +24,7 @@ class Workspace extends Component {
     this.socket.on('RECEIVE_EVENT', data => {
       console.log('received event: ', data)
       this.ggbApplet.setXML(data)
+      this.ggbApplet.registerAddListener(this.eventListener) // @HACK
     })
   }
 
