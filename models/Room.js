@@ -12,7 +12,7 @@ const Room = new mongoose.Schema({
   course: {type: ObjectId, ref: 'Course'},
   creator: {type: ObjectId, ref: 'User', required: true},
   dueDate: {type: Date,},
-  events: [{type: ObjectId, ref: 'Event'}],
+  events: [{type: ObjectId, ref: 'Event', _id: false}],
   chat: [{type: ObjectId, ref: 'Message'}],
   members: [{
     user: {type: ObjectId, ref: 'User'},
@@ -93,6 +93,8 @@ Room.methods.summary = function() {
     dueDate: this.dueDate,
     members: this.members,
     tabs: this.tabs,
+    events: this.events,
+    chat: this.chat,
     _id: this._id,
   }
   console.log(obj)

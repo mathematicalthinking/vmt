@@ -18,6 +18,7 @@ module.exports = {
   },
 
   post: (body) => {
+    console.log(body)
     return new Promise((resolve, reject) => {
       db.Event.create(body)
       .then(event => resolve(event))

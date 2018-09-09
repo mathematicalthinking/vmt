@@ -11,16 +11,15 @@ class DesmosGraph extends Component {
     sendingEvent: false,
   }
 
-  componentDidMount() {
-    // Initialize socket listener
-  }
-
   onScriptLoad =  () => {
     const elt = document.getElementById('calculator');
     this.calculator = window.Desmos.GraphingCalculator(elt);
     const tabs = this.props.room.tabs;
     if (tabs.length > 0) {
       if (tabs[0].desmosLink) {
+        // @TODO This will require some major reconfiguration / But what we shoould do is
+        // when the user creates this room get teh state from the link and then just save it
+        // as as event on this model. 
         API.getDesmos(tabs[0].desmosLink)
         .then(res => {
           this.calculator.setState(res.data.result.state)

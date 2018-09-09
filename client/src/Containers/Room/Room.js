@@ -26,7 +26,7 @@ class Room extends Component {
 
   componentDidMount() {
     // @TODO ? DO WE NEED TO CHECK IF WE NEED ADDITIONAL DATA?
-    const { room, user, members } = this.props;
+    const { room, user, members, populateRoom } = this.props;
     // CHECK ACCESS
     let updatedTabs = [...this.state.tabs];
     let owner = false;
@@ -41,6 +41,7 @@ class Room extends Component {
       console.log(user.id)
       if (members.find(member => member.user._id === user.id)) member = true;
     }
+    populateRoom(room._id)
     // Get Any other notifications
     this.setState({
       tabs: updatedTabs,
@@ -109,7 +110,8 @@ const mapStateToProps = (store, ownProps) => {
   return {
     room: store.rooms.byId[ownProps.match.params.room_id],
     // EVEN THOUGH MEMBERS IS INCLUDED IN ROOM, WE GRAB IT SEPARATELY
-    // SO THAT CONNECT() UPDATES PROPS CORRECTLY
+    // SO THAT CONNECT() UPDATES PROPS CORRECTLY -- I FEEL LIKE SOMETHING IS WRONG HERE
+    // IF WE"RE MAKING A COPY OF STATE IN THE REDUCER WE SHOULDN"T HAVE TO DO THIS
     members: store.rooms.byId[ownProps.match.params.room_id].members,
     user: store.user,
   }
@@ -118,6 +120,7 @@ const mapStateToProps = (store, ownProps) => {
 const mapDispatchToProps = dispatch => {
   return {
     requestAccess: (user, resource, id, entryCode) => dispatch(actions.requestAccess(null, user, resource, id, entryCode)),
+    populateRoom: id => dispatch(actions.populateRoom(id))
   }
 }
 

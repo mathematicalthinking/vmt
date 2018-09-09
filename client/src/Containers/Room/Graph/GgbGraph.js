@@ -71,6 +71,10 @@ class GgbGraph extends Component {
   //
   // // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
   initializeGgb = () => {
+    const { events } = this.props.room
+    if (events.length > 1) {
+      this.ggbApplet.setXML(events[events.length - 1])
+    }
     this.eventListener = obj => {
       // if (!this.state.receivingData) {
         sendEvent(obj)

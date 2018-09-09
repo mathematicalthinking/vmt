@@ -7,20 +7,8 @@ const Event = new mongoose.Schema({
   room: {type: ObjectId, ref: 'Room'},
 });
 
-// Add this message to the room's chat
-// @TODO for some reason I can't get $push to work
-Event.post('save', doc => {
-  console.log('post saving')
-  Room.findById(doc.room, (err, res) => {
-    if (err) {
-      // console.log(err)
-    }
-    console.log(doc._id)
-    console.log("room after posting event: ", res)
-    res.events.push(doc._id)
-    res.save()
-    .then(res => console.log('all good'))
-    .catch(err => console.log("ERR: ",err))
-  })
+Event.pre('save', async function() {
+  console.log('saving event to room')
+  await Room.findByIdAndUpdate(this.room, {$addToSet: {events: this._id}})
 })
 module.exports = mongoose.model('Event', Event);

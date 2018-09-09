@@ -25,8 +25,12 @@ module.exports = {
       .populate({path: 'members.user', select: 'username'})
       .populate({path: 'notifications.user', select: 'username'})
       .populate({path: 'course', select: 'name'})
+      .populate({path: 'events', select: '-room'})
+      .populate({path: 'chat', select: '-room'})
       .then(room => {
-        resolve(room.summary())})
+        console.log("ROOM: ", room)
+        resolve(room)
+      })
       .catch(err => reject(err))
     });
   },
@@ -79,7 +83,7 @@ module.exports = {
         .populate('notifications.user')
         .then(room => { console.log(room); resolve(room)})
         .catch(err => {console.log(err); reject(err)})
-      } 
+      }
     })
   },
 
