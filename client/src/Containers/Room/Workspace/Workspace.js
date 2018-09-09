@@ -57,7 +57,7 @@ class Workspace extends Component {
         <Modal show={loading} message='loading...' />
         <div className={classes.Container}>
           <div className={classes.Graph}>
-            <Graph room={room} socket={this.socket} replay={false} />
+            <Graph room={room} socket={this.socket} replay={false} userId={user.id}/>
           </div>
           <div className={classes.Chat}>
             <Chat messages={room.chat || []} roomId={room._id} socket={this.socket} user={user} updateRoom={(body) => updateRoom(room._id, body)}/>

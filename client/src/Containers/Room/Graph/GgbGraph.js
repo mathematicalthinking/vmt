@@ -3,7 +3,6 @@ import classes from './graph.css';
 import Aux from '../../../Components/HOC/Auxil';
 import Modal from '../../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
-import API from '../../../utils/apiRequests';
 class Workspace extends Component {
   // we need to track whether or not the ggbBase64 data was updated
   // by this user or by another client. Otherwise we were getting stuck
@@ -19,10 +18,13 @@ class Workspace extends Component {
   }
   //
   componentDidMount() {
-    console.log(this.props)
     this.socket = this.props.socket;
-    // this.socket = io.connect(process.env.REACT_APP_SERVER_URL)
-    // this.joinRoom()
+    console.log(this.socket)
+
+    this.socket.on('RECEIVE_EVENT', data => {
+      console.log('received event: ', data)
+      this.ggbApplet.setXML(data)
+    })
   }
 
   handleLoad = () => {
@@ -41,13 +43,9 @@ class Workspace extends Component {
     };
     const ggbApp = new window.GGBApplet(parameters, true);
     ggbApp.inject('ggb-element')
-    console.log(window.ggbAppler)
     const timer = setInterval(() => {
       if (window.ggbApplet) {
-        console.log('we have the applet ')
         if (window.ggbApplet.listeners) {
-          console.log('we have the listeners')
-          console.log(window.ggbApplet.listeners)
           this.ggbApplet = window.ggbApplet;
           this.initializeGgb();
           this.setState({loading: false})
@@ -89,18 +87,18 @@ class Workspace extends Component {
     }
 
     const sendEvent = obj => {
+      console.log(this.props)
       //@TODO get information from obj.xml to save for more detailed playback
       const newData = {}
+      console.log(obj)
       newData.room = this.props.room._id;
       newData.event = this.ggbApplet.getXML();
       newData.user = this.props.userId;
-      this.props.updateRoom({events: newData})
-      this.socket.emit('SEND_EVENT', newData, () => {
-        console.log('success');
-      })
+      console.log(newData)
+      // this.props.updateRoom({events: newData})
+      this.socket.emit('SEND_EVENT', newData)
     }
     // attach this listeners to the ggbApplet
-    console.log(this.ggbApplet)
     if (this.ggbApplet.listeners.length === 0) {
       this.ggbApplet.registerAddListener(this.eventListener);
       this.ggbApplet.registerUpdateListener(this.eventListener);
