@@ -25,7 +25,7 @@ module.exports = {
       .populate({path: 'members.user', select: 'username'})
       .populate({path: 'notifications.user', select: 'username'})
       .populate({path: 'course', select: 'name'})
-      .populate({path: 'events', select: '-room'})
+      .populate({path: 'tabs.events', select: '-room'})
       .populate({path: 'chat', select: '-room'})
       .then(room => {
         console.log("ROOM: ", room)

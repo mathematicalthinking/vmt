@@ -4,7 +4,7 @@ const User = require('./User');
 const Course = require('./Course');
 const Assignment = require('./Assignment');
 const Room = new mongoose.Schema({
-  assignment: {type: ObjectId, ref: 'RoomTemplate'},
+  assignment: {type: ObjectId, ref: 'Assignment'},
   name: {type: String, required: true},
   description: {type: String},
   entryCode: {type: String},
@@ -12,7 +12,6 @@ const Room = new mongoose.Schema({
   course: {type: ObjectId, ref: 'Course'},
   creator: {type: ObjectId, ref: 'User', required: true},
   dueDate: {type: Date,},
-  events: [{type: ObjectId, ref: 'Event', _id: false}],
   chat: [{type: ObjectId, ref: 'Message'}],
   members: [{
     user: {type: ObjectId, ref: 'User'},
@@ -22,6 +21,7 @@ const Room = new mongoose.Schema({
   tabs: [{
     ggbFile: {type: String,},
     desmosLink: {type: String,},
+    events: [{type: ObjectId, ref: 'Event', _id: false}],
     _id: false,
   }],
   isPublic: {type: Boolean, default: false}

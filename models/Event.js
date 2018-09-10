@@ -9,6 +9,8 @@ const Event = new mongoose.Schema({
 
 Event.pre('save', async function() {
   console.log('saving event to room')
-  await Room.findByIdAndUpdate(this.room, {$addToSet: {events: this._id}})
+  this.tabIndex
+  // tabs[this.tabIndex].events.push(this._id)
+  // await Room.findByIdAndUpdate(this.room, {$addToSet: {'tabs.$[].events': this.tabIndex}})
 })
 module.exports = mongoose.model('Event', Event);

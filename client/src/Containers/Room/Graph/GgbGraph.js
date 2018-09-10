@@ -22,9 +22,9 @@ class GgbGraph extends Component {
     console.log(this.socket)
 
     this.socket.on('RECEIVE_EVENT', data => {
-      console.log('received event: ', data)
-      this.ggbApplet.setXML(data)
-      this.ggbApplet.registerAddListener(this.eventListener) // @HACK
+      console.log('dataL ', data)
+      this.ggbApplet.evalXML(data)
+      this.ggbApplet.registerAddListener(this.eventListener) // @HACK we're readding the event listener every time because setXML destorys them.
     })
   }
 
@@ -57,8 +57,6 @@ class GgbGraph extends Component {
     }, 1000)
   }
 
-
-
   componentWillUnmount() {
     if (this.ggbApplet.listeners) {
       this.ggbApplet.unregisterAddListener(this.eventListener);
@@ -71,7 +69,8 @@ class GgbGraph extends Component {
   //
   // // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
   initializeGgb = () => {
-    const { events } = this.props.room
+    console.log(this.props.room)
+    const { events } = this.props.room.tabs[0]
     if (events.length > 1) {
       this.ggbApplet.setXML(events[events.length - 1])
     }
@@ -88,7 +87,8 @@ class GgbGraph extends Component {
       const newData = {}
       console.log(obj)
       newData.room = this.props.room._id;
-      newData.event = this.ggbApplet.getXML();
+      newData.event = this.ggbApplet.getXML(obj);
+      console.log(newData.event)
       newData.user = this.props.userId;
       console.log(newData)
       // this.props.updateRoom({events: newData})

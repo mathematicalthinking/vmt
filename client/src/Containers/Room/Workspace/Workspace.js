@@ -48,20 +48,20 @@ class Workspace extends Component {
   }
 
   render() {
-    const { room, user, loading, currentUsers, updateRoom } = this.props;
+    const { room, user, loading, currentUsers } = this.props;
 
     return (
       <div>
         <Modal show={loading} message='loading...' />
         <div className={classes.Container}>
           <div className={classes.Graph}>
-            {room.roomType === 'ggb' ?
+            {room.roomType === 'geogebra' ?
               <GgbGraph room={room} socket={this.socket} replay={false} userId={user.id} /> :
               <DesmosGraph room={room} socket={this.socket} replay={false} userId={user.id} />
-                }
+            }
           </div>
           <div className={classes.Chat}>
-            <Chat messages={room.chat || []} roomId={room._id} socket={this.socket} user={user} updateRoom={(body) => updateRoom(room._id, body)}/>
+            <Chat messages={room.chat || []} roomId={room._id} socket={this.socket} user={user} />
           </div>
         </div>
         <div className={classes.CurrentUsers}>

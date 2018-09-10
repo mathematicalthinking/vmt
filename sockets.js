@@ -43,7 +43,7 @@ sockets.init = server => {
         // broadcast new message
       })
 
-      socket.on('SEND_EVENT', (data, callback) => {
+      socket.on('SEND_EVENT', (data) => {
         // console.log('receiving event: ', data)
         // console.log(typeof data.event)
         data.event = JSON.stringify(data.event)
@@ -51,7 +51,7 @@ sockets.init = server => {
         // console.log(io.sockets.clients(data.roomId))
         console.log(data)
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data.event)
-        callback('success')
+        // callback('success')
         console.log('success')
       })
     });

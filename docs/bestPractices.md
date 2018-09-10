@@ -1,6 +1,6 @@
 # Best Practices, Conventions, and Standards
 The following section is intended to help collaborators contribute to the app.
-Serval conventions and standards are delineated to keep the app clean and maintainable.
+Several conventions and standards are delineated to keep the app clean and maintainable.
 
 ## Making API Requests
 ALL  requests to the backend should be performed via __Redux__. This will ensure that our
@@ -25,7 +25,7 @@ Let's take a look at the proper way to achieve this by following the course crea
 ```
 login: (username, password) => dispatch(actions.login(username, password)),
 ```
-when the user licks the login button we'll dispatch the action by calling
+when the user clicks the login button we'll dispatch the action by calling
 `this.props.login(username, password)`
 
 📁 store/actions/user
