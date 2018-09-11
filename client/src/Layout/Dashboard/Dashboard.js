@@ -2,7 +2,7 @@ import React from 'react';
 import classes from './dashboard.css';
 import TabList from '../../Components/Navigation/TabList/TabList';
 import BreadCrumbs from '../../Components/Navigation/BreadCrumbs/BreadCrumbs';
-import DnDTrash from '../../Containers/DnDTrash/DnDTrash';
+import DnDTrash from '../../Components/HOC/DnDTrash';
 import Resources from './Resources/Resources';
 import Students from '../../Containers/Students/Students'
 import Trash from '../../Components/UI/Trash/Trash';
