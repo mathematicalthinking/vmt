@@ -34,10 +34,9 @@ const collect = (connect, monitor) => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    remove: {
-      courses: (id) => dispatch(removeCourse(id)),
-      assignments: (id) => dispatch(removeAssignment(id)),
-      rooms: (id) => dispatch(removeRoom(id)),
+    removeMemberFrom: {
+      room: () => {},
+      course: () => {},
       // member: (id, courseId) => dispatch(removeMember(id, courseId))
     }
   }
@@ -51,7 +50,7 @@ class DragBox extends PureComponent {
     return connectDragSource(
       <div
         onClick={this.toggleCollapse}
-        style={{opacity: isDragging ? 0.5 : 1}}
+        style={{opacity: isDragging ? 0.5 : 1}} // @TODO ADD A CUSTOM DRAG LAYER HERE SO ITS NOT AS WIDE AND CAN BE EASILY PLACED IN THE TRASHCAN
       >
         <Member {...this.props}  />
       </div>

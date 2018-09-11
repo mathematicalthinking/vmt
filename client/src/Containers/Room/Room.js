@@ -71,12 +71,14 @@ class Room extends Component {
 
 
   render() {
-    const { room, match } = this.props;
+    const { room, match, user } = this.props;
     const resource = match.params.resource;
     const contentData = {
       resource,
       parentResource: 'room',
       userResources: room[resource],
+      owner: this.state.owner,
+      notifications: user.roomNotifications || [],
       room,
     }
     console.log(contentData)
