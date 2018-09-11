@@ -5,6 +5,8 @@ import Button from '../../Components/UI/Button/Button';
 import * as actions from '../../store/actions/'
 import { connect } from 'react-redux';
 
+
+// @IDEA CONSIDER RENAMING THIS COMPONENT TO MEMBERS
 const students = props => {
   console.log(props)
   const { userResources, notifications, owner, parentResourceId, parentResource} = props

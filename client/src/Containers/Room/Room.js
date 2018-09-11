@@ -11,7 +11,6 @@ class Room extends Component {
     owner: false,
     member: false,
     guestMode: true,
-    currentRoom: {}, // Right now I'm just saving currentRoom is state to compare the incoming props currentRoom to look for changes -- is this a thing people do?
     tabs: [
       {name: 'Summary'},
       {name: 'Members'},
@@ -25,7 +24,6 @@ class Room extends Component {
   ]
 
   componentDidMount() {
-    // @TODO ? DO WE NEED TO CHECK IF WE NEED ADDITIONAL DATA?
     const { room, user, members, populateRoom } = this.props;
     // CHECK ACCESS
     let updatedTabs = [...this.state.tabs];
@@ -41,7 +39,9 @@ class Room extends Component {
       console.log(user.id)
       if (members.find(member => member.user._id === user.id)) member = true;
     }
-    populateRoom(room._id)
+    if (!room.events) {
+      populateRoom(room._id)
+    }
     // Get Any other notifications
     this.setState({
       tabs: updatedTabs,
@@ -76,8 +76,10 @@ class Room extends Component {
     const contentData = {
       resource,
       parentResource: 'room',
+      userResources: room[resource],
       room,
     }
+    console.log(contentData)
 
     const crumbs = [
       {title: 'Profile', link: '/profile/courses'},
@@ -96,7 +98,6 @@ class Room extends Component {
               contentData={contentData}
               tabs={this.state.tabs}
               activeTab={resource}
-
               activateTab={event => this.setState({activeTab: event.target.id})}
             />
           </Aux> :
