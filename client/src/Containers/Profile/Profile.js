@@ -30,14 +30,8 @@ class Profile extends Component {
     const { user, loading } = this.props;
     const { resource } = this.props.match.params;
     if (!loading) {
-      if (user[resource].length !== this.props[resource].length) {
-        this.fetchData(resource)
-      }
-      else {
-        let haveResource = user[resource].every(re => this.props[resource].includes(re))
-        if (!haveResource) this.fetchData(resource)
-      }
-      return;
+      let haveResource = user[resource].every(re => this.props[resource].includes(re))
+      if (!haveResource) this.fetchData(resource)
     }
   }
 

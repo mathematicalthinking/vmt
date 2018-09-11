@@ -8,7 +8,7 @@ class PrivateRoomAccess extends Component {
   }
   render () {
     return (
-      <Modal show={true}>
+      <Modal show={true} closeModal={this.props.closeModal}>
         {!this.props.course ?
           <div>
             <p>This course is private. Enter the room's code to gain access</p>
