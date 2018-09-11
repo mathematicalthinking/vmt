@@ -16,7 +16,7 @@ const Assignment = new mongoose.Schema({
     _id: false,
     events: [{type: String}]
   }],
-  template: {type: ObjectId, ref: 'AssignmentTemplate'},
+  // template: {type: ObjectId, ref: 'AssignmentTemplate'},
 }, {timestamps: true});
 
 // STOP CHANGING THIS FUNCTION BELOW TO AN ARROW FUNCTION!!!

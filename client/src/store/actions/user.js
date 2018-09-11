@@ -43,7 +43,6 @@ export const removeUserAssignments = assignmentIdsArr => {
 }
 
 export const addUserRooms = newRoomsArr => {
-  console.log(newRoomsArr)
   return {
     type: actionTypes.ADD_USER_ROOMS,
     newRoomsArr,
@@ -58,7 +57,6 @@ export const removeUserRooms = roomIdsArr => {
 }
 
 export const updateUserAccessNtfs = (resource, user) => {
-  console.log('we ever getting here?')
   if (resource === 'course') {
     return {
       type: actionTypes.UPDATE_USER_COURSE_ACCESS_NTFS,
@@ -131,7 +129,8 @@ export const requestAccess = (toUser, fromUser, resource, resourceId, entryCode)
       API.checkRoomAccess(resourceId, fromUser, entryCode)
       .then(res => {
         console.log(res)
-        return dispatch(updateRoom(res.data.result))
+        dispatch(addUserRooms([resourceId]))
+        return dispatch(updateRoom(resourceId, {members: res.data.result.members}))
       })
       .catch(err => loading.fail(err))
     } else {
@@ -153,12 +152,13 @@ export const grantAccess = (user, resource, resourceId) => {
     API.grantAccess(user, resource, resourceId)
     .then(res => {
       if (resource === 'room') {
-        return dispatch(updateRoom(res.data.result))
+        return dispatch(updateRoom(resourceId, {members: res.data.result.members}))
       }
       console.log(res.data.result)
       // dispatch(updateUserCourses(resp.data.result)) @TODO Need to update the notifcations associated with this course
       dispatch(updateUserAccessNtfs(resource, user))
-      return dispatch(updateCourse(res.data.result))
+      dispatch(loading.success())
+      // dispatch(updateCourse(res.data.result))
     })
   }
 }

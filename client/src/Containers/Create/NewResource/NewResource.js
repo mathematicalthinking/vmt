@@ -55,6 +55,7 @@ class NewResource extends Component {
     }} else {
       newResource.template = this.state.makeTemplate;
       newResource.templateIsPublic = this.state.templateIsPublic;
+      // BECAUSE ASSIGNMENTS AND ROOMS ARE PRETTY MUCH THE SAME AN IF?ELSE BLOCK WOULD ACTUALLY BE MORE EFFICIENT
       switch (this.props.resource) {
         case 'courses' :
           this.props.createCourse(newResource);
@@ -70,10 +71,12 @@ class NewResource extends Component {
           break;
         case 'rooms' :
           newResource.entryCode = hri.random();
+          newResource.tabs = [{ggbFile: this.state.ggbFile, desmosLink: this.state.desmosLink}]
           newResource.dueDate = this.state.dueDate;
+          newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
           this.props.createRoom(newResource);
           break;
-        default: null;
+        default: break;
       }
     }
     console.log("NEW RESOURCE: ", newResource)

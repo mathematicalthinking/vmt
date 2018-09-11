@@ -13,10 +13,6 @@ module.exports = {
     console.log('Getting user ', id, ' info')
     return new Promise((resolve, reject) => {
       db.User.findById(id)
-      // .populate({
-      //   path: 'rooms',
-      //   options: {sort: {createdAt: -1}}
-      // })
       .populate('courses')
       .populate('courseTemplates')
       .then(user => resolve(user))

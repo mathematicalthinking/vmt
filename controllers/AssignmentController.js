@@ -18,9 +18,7 @@ module.exports = {
   },
 
   post: (body) => {
-    console.log("hello?")
     return new Promise((resolve, reject) => {
-      console.log('body: ', body)
       if (body.template) {
 
       }
@@ -28,7 +26,6 @@ module.exports = {
       delete body.templateIsPublic;
       db.Assignment.create(body)
       .then(assignment => {
-        console.log(assignment)
         resolve(assignment)})
       .catch(err => {
         console.log(err)

@@ -1,0 +1,19 @@
+.Container {
+  display: flex;
+}
+
+.Graph {
+  width: 75%;
+}
+.Chat {
+  width: 25%;
+  height: 100%;
+}
+
+.CurrentUsers {
+  margin: 70px 0 70px 0;
+}
+
+.Avatar {
+  margin: 5px;
+}

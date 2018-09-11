@@ -26,7 +26,7 @@ class Room extends Component {
 
   componentDidMount() {
     // @TODO ? DO WE NEED TO CHECK IF WE NEED ADDITIONAL DATA?
-    const { room, user } = this.props;
+    const { room, user, members, populateRoom } = this.props;
     // CHECK ACCESS
     let updatedTabs = [...this.state.tabs];
     let owner = false;
@@ -36,9 +36,12 @@ class Room extends Component {
       this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}])
       owner = true;
     }
-    if (room.members) {
-      if (room.members.find(member => member.user._id === user.id)) member = true;
+    if (members) {
+      console.log(members)
+      console.log(user.id)
+      if (members.find(member => member.user._id === user.id)) member = true;
     }
+    populateRoom(room._id)
     // Get Any other notifications
     this.setState({
       tabs: updatedTabs,
@@ -49,19 +52,13 @@ class Room extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log("COMPONENT UPDATED")
-    if (prevProps.room.members.length !== this.props.room.members.length) {
-      console.log("CHECKIN ACCESS")
+    if (prevProps.members.length !== this.props.room.members.length) {
       this.checkAccess();
     }
   }
 
   checkAccess () {
-    console.log(this.props.user.id)
-    console.log(this.props.room.members)
-    console.log(this.props.room.members.find(member => member.user._id === this.props.user.id))
-    if (this.props.room.members.find(member => member.user._id === this.props.user.id)) {
-      console.log('setting state')
+    if (this.props.members.find(member => member.user._id === this.props.user.id)) {
       this.setState({member: true})
     };
 
@@ -69,13 +66,12 @@ class Room extends Component {
 
   requestAccess = entryCode => {
     const {room, user} = this.props;
-    console.log(entryCode)
     this.props.requestAccess(user.id, 'room', room._id, entryCode)
   }
 
 
   render() {
-    const { room, match }= this.props;
+    const { room, match } = this.props;
     const resource = match.params.resource;
     const contentData = {
       resource,
@@ -113,18 +109,18 @@ class Room extends Component {
 const mapStateToProps = (store, ownProps) => {
   return {
     room: store.rooms.byId[ownProps.match.params.room_id],
+    // EVEN THOUGH MEMBERS IS INCLUDED IN ROOM, WE GRAB IT SEPARATELY
+    // SO THAT CONNECT() UPDATES PROPS CORRECTLY -- I FEEL LIKE SOMETHING IS WRONG HERE
+    // IF WE"RE MAKING A COPY OF STATE IN THE REDUCER WE SHOULDN"T HAVE TO DO THIS
+    members: store.rooms.byId[ownProps.match.params.room_id].members,
     user: store.user,
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    getCurrentRoom: id => dispatch(actions.getCurrentRoom(id)),
-    clearCurrentRoom: () => dispatch(actions.clearCurrentRoom()),
     requestAccess: (user, resource, id, entryCode) => dispatch(actions.requestAccess(null, user, resource, id, entryCode)),
-
-    // updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
-    // getCurrentCourse: id => dispatch(actions.getCurrentCourse(id)),
+    populateRoom: id => dispatch(actions.populateRoom(id))
   }
 }
 

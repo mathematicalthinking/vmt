@@ -14,10 +14,19 @@ const reducer = (state = initialState, action) => {
         byId: updatedRooms,
         allIds: action.allIds,
       };
+    // case actionTypes.GOT_ROOM:
+    //   updatedRooms = {...state.byId};
+    //   updatedRooms[action.room._id] = action.room;
+    //   console.log(updatedRooms[action.room._id])
+    //   return {
+    //     ...state,
+    //     byId: updatedRooms,
+    //   }
     case actionTypes.UPDATE_ROOM:
-      updatedRooms = {...state.byId};
-      updatedRooms[action.room._id] = action.room;
-      console.log(updatedRooms[action.room._id])
+      updatedRooms = {...state.byId}
+      let updatedRoom = updatedRooms[action.roomId]
+      let fields = Object.keys(action.body)
+      fields.forEach(field => updatedRoom[field] = action.body[field])
       return {
         ...state,
         byId: updatedRooms,

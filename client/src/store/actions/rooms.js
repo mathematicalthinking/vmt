@@ -12,10 +12,19 @@ export const gotRooms = (rooms) => ({
   allIds: rooms.allIds
 })
 
-export const updateRoom = room => ({
-  type: actionTypes.UPDATE_ROOM,
-  room,
-})
+// export const gotRoom = room => ({
+//   type: actionTypes.GOT_ROOM,
+//   room,
+// })
+
+export const updateRoom = (roomId, body) => {
+  console.log(roomId, body)
+  return {
+    type: actionTypes.UPDATE_ROOM,
+    roomId,
+    body,
+  }
+}
 
 export const clearCurrentRoom = () => {
   return {
@@ -40,26 +49,43 @@ export const removedRoom = id => {
 
 export const getRooms = params => {
   return dispatch => {
+    dispatch(loading.start())
     API.get('room', params)
     .then(res => {
       // Normalize res
+      console.log(res.data.results)
       const rooms = normalize(res.data.results)
       dispatch(gotRooms(rooms))
+      dispatch(loading.success())
     })
     .catch(err => console.log(err));
   }
 }
 
-export const getCurrentRoom = id => {
+export const populateRoom = id => {
   return dispatch => {
     dispatch(loading.start())
     API.getById('room', id)
     .then(res => {
-      dispatch(updateRoom(res.data.result))
-      return dispatch(loading.success())
+      console.log(res.data.result)
+      dispatch(updateRoom(id, res.data.result))
+      dispatch(loading.success())
+      console.log('success')
     })
+    .catch(err => dispatch(loading.fail(err)))
   }
 }
+//
+// export const getCurrentRoom = id => {
+//   return dispatch => {
+//     dispatch(loading.start())
+//     API.getById('room', id)
+//     .then(res => {
+//       dispatch(updateRoom(res.data.result))
+//       return dispatch(loading.success())
+//     })
+//   }
+// }
 
 
 export const createRoom = body => {
@@ -100,8 +126,6 @@ export const removeRoom = roomId => {
     })
   }
 }
-
-export const UpdateCurrentRoom = body => {}
 
 export const createdRoomConfirmed = () => {
   return {

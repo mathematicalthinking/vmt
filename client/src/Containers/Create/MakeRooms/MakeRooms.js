@@ -21,9 +21,7 @@ class MakeRooms extends Component  {
   }
 
   setDate = event => {
-    console.log(event.target.value)
     this.setState({dueDate: event.target.value})
-    console.log(this.state)
   }
 
   selectStudent = (event, data) => {
@@ -49,7 +47,6 @@ class MakeRooms extends Component  {
       tabs,
       dueDate: this.state.dueDate,
     }
-    console.log(newRoom.course)
     if (!this.state.assignRandom) {
       // create a room with the selected students
       let members = this.state.selectedStudents.map(student => ({user: student, role: 'Student'}))

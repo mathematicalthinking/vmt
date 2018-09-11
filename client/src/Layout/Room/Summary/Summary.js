@@ -4,14 +4,15 @@ import Button from '../../../Components/UI/Button/Button';
 import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 import { withRouter } from 'react-router-dom';
 const summary = props => {
-  const { room } = props;
+  const { room, history } = props;
   const activate = () => {
 
   }
   const clickHandler = () => {
-    props.history.push(`/workspace/${props.room._id}`);
+    history.push(`/workspace/${room._id}`);
   }
-  console.log('classes: ', classes)
+  console.log(room)
+  console.log(room.currentUsers ? room.currentUsers.length : 0)
   return (
     <div className={classes.Container}>
       <div className={classes.Section}>

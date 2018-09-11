@@ -1,119 +1,94 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import io from 'socket.io-client';
+
 import * as actions from '../../../store/actions';
-import WorkspaceLayout from '../../../Layout/Room/Workspace/Workspace';
 import Modal from '../../../Components/UI/Modal/Modal';
-import Graph from '../Graph/Graph';
+import classes from './workspace.css';
+import GgbGraph from '../Graph/GgbGraph';
+import DesmosGraph from '../Graph/DesmosGraph';
 import Chat from '../Chat/Chat';
+import Avatar from '../../../Components/UI/Avatar/Avatar';
+import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 class Workspace extends Component {
 
-  state = {
-    loading: true,
-    currentUsers: [],
-    currentRoom: {}
-  }
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
-
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (Object.keys(nextProps.currentRoom).length > 0) {
-      console.log(nextProps.currentRoom)
-      const currentRoom = {...nextProps.currentRoom}
-      currentRoom.currentUsers.push({username: nextProps.username, id: nextProps.userId})
-      return {loading: false, currentRoom: currentRoom}
-    } else return null;
-  }
-
   componentDidMount() {
-    this.joinRoom();
-    // setup socket listeners for users entering and leaving room
-    if (Object.keys(this.props.currentRoom).length === 0) {
-      this.props.getCurrentRoom(this.props.match.params.room_id)
+    const { updateRoom, room, user} = this.props;
+    const sendData = {
+      userId: user.id,
+      roomId: room._id,
     }
-    // initialize the socket @IDEA consider making this its own function
-    this.socket.on('NEW_USER', currentUsers => {
-      const updatedRoom = {...this.props.currentRoom}
-      updatedRoom.currentUsers = currentUsers;
-      this.setState({
-        currentRoom: updatedRoom,
-      })
+    this.socket.emit('JOIN', sendData, (res, err) => {
+      if (err) {
+        console.log(err) // HOW SHOULD WE HANDLE THIS
+      }
+      updateRoom(room._id, res.result)
     })
 
-    this.socket.on('USER_LEFT', currentUsers => {
-      const updatedRoom = {...this.state.currentRoom}
-      updatedRoom.currentUsers = currentUsers;
-      this.setState({
-        room: updatedRoom,
-      })
+    this.socket.on('USER_JOINED', data => {
+      updateRoom(room._id, {currentUsers: data})
+    })
+
+    this.socket.on('USER_LEFT', data => {
+      updateRoom(room._id, {currentUsers: data})
     })
   }
 
   componentWillUnmount () {
-    // @TODO close socket connection
-    this.leaveRoom()
-  }
-
-  joinRoom = () => {
+    const { updateRoom, room, user} = this.props;
     const data = {
-      roomId: this.props.currentRoom._id,
-      user: {_id: this.props.userId, username: this.props.username}
+      userId: user.id,
+      roomId: room._id,
     }
-    this.socket.emit('JOIN', data, () => {
-      // check for duplicated ...sometimes is a user is left in if they dont disconnect properly
-    //   const duplicate = this.props.room.currentUsers.find(user => user._id === this.props.userId)
-    //   const updatedUsers = duplicate ? [...this.props.room.currentUsers] :
-    //     [...this.props.room.currentUsers, {username: this.props.username, _id: this.props.userId}];
-    //   this.setState(prevState => ({
-    //     room: {
-    //       ...prevState.room,
-    //       currentUsers: updatedUsers
-    //     },
-    //     replayMode: false,
-    //     replaying: false,
-    //   }))
+    this.socket.emit('LEAVE', data, (res) => {
+      updateRoom(room._id, {currentUsers: res.result})
+      this.socket.disconnect();
     })
   }
 
-
-  leaveRoom = () => {
-    this.socket.emit('LEAVE_ROOM', {roomId: this.props.currentRoom._id, userId: this.props.userId})
-    // remove this client from the state of current Users
-  //   const updatedUsers = this.props.room.currentUsers.filter(user => user._id !== this.props.userId)
-  //   this.setState({
-  //     room: {
-  //       ...this.state.room,
-  //       currentUsers: updatedUsers,
-  //     }
-  //   })
-  //   if (this.state.replaying) {
-  //     clearInterval(this.player)
-  //   }
-  }
-
-
   render() {
-    let content = <Modal show={this.state.loading} message='loading...' />
-    if (!this.state.loading) {
-      const graph = <Graph room={this.state.currentRoom} replay={false} socket={this.socket} />;
-      const chat = <Chat messages={this.state.currentRoom.chat} username={this.props.username} userId={this.props.userId} replaying={false} socket={this.socket}/>
-      content = <WorkspaceLayout graph={graph} chat ={chat} userList={this.state.currentRoom.currentUsers} />
-    }
-    return content;
-  }
+    const { room, user, loading, currentUsers } = this.props;
 
+    return (
+      <div>
+        <Modal show={loading} message='loading...' />
+        <div className={classes.Container}>
+          <div className={classes.Graph}>
+            {room.roomType === 'geogebra' ?
+              <GgbGraph room={room} socket={this.socket} replay={false} userId={user.id} /> :
+              <DesmosGraph room={room} socket={this.socket} replay={false} userId={user.id} />
+            }
+          </div>
+          <div className={classes.Chat}>
+            <Chat messages={room.chat || []} roomId={room._id} socket={this.socket} user={user} />
+          </div>
+        </div>
+        <div className={classes.CurrentUsers}>
+          <ContentBox align='left'>
+            <div className={classes.Container}>{currentUsers ? currentUsers.map(user =>
+              <div className={classes.Avatar} key={user.username}><Avatar username={user.username} />
+              </div>) : null}
+            </div>
+          </ContentBox>
+        </div>
+      </div>
+    )
+  }
 }
 
 const mapStateToProps = (state, ownProps) => {
   return {
-    currentRoom: state.rooms.byId[ownProps.match.params.room_id],
-    userId: state.user.id,
-    username: state.user.username,
+    room: state.rooms.byId[ownProps.match.params.room_id],
+    currentUsers: state.rooms.byId[ownProps.match.params.room_id].currentUsers,
+    user: state.user,
+    loading: state.loading.loading,
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    getCurrentRoom: id => dispatch(actions.getCurrentRoom(id)),
+    updateRoom: (roomId, body) => dispatch(actions.updateRoom(roomId, body)),
   }
 }
 
