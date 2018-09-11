@@ -52,7 +52,7 @@ class DragBox extends PureComponent {
         onClick={this.toggleCollapse}
         style={{opacity: isDragging ? 0.5 : 1}} // @TODO ADD A CUSTOM DRAG LAYER HERE SO ITS NOT AS WIDE AND CAN BE EASILY PLACED IN THE TRASHCAN
       >
-        <Member {...this.props}  />
+        <Member {...this.props} owner={true} />
       </div>
     )
   }

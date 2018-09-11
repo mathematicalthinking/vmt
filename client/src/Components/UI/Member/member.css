@@ -1,12 +1,4 @@
 .Container {
-width: 100%;
-}
-
-.Notifications {
-  width: 100%;
-}
-
-.UserRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -14,12 +6,24 @@ width: 100%;
   border: 1px solid #ddd;
 }
 
+.Row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 150px;
+}
+
 .Role {
   margin: 20px;
 }
 
-.SubHeader {
+.Icon {
   padding: 5px;
-  border-bottom: 1px solid #ddd;
-  margin-top: 0;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+.Icon:hover {
+  font-size: 1.3em;
+  transition: .2s;
 }

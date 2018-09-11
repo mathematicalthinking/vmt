@@ -26,7 +26,7 @@ const students = props => {
   }
   const classList = userResources.map((member, i) => (
     // <div className={classes.UserRow} key={i}>
-      owner ? <DragMember info={member} key={i}/> : <Member info={member} key={i}/>
+      owner ? <DragMember info={member} key={i}/> : <Member info={member}  key={i}/>
     // </div>
   ))
   return (
