@@ -13,6 +13,7 @@ class Member extends PureComponent {
   }
 
   edit = event => {
+    if (this.no)
     this.setState({
       editing: true,
       x: event.pageX,
