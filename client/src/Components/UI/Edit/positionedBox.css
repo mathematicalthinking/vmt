@@ -1,0 +1,6 @@
+.Fixed {
+  position: fixed;
+  background-color: red;
+  font-size: 50px;
+  width: 200px;
+}
