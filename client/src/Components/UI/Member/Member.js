@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import clickOutside from 'react-click-outside';
 import classes from './member.css';
 import Avatar from '../Avatar/Avatar';
 import Aux from '../../HOC/Auxil';
@@ -13,12 +14,17 @@ class Member extends PureComponent {
   }
 
   edit = event => {
-    if (this.no)
     this.setState({
       editing: true,
       x: event.pageX,
       y: event.pageY,
     })
+  }
+
+  handleClickOutside() {
+    if (this.state.editing) {
+      this.setState({editing: false})
+    }
   }
 
   render() {
@@ -38,4 +44,4 @@ class Member extends PureComponent {
   }
 }
 
-export default Member;
+export default clickOutside(Member);
