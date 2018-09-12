@@ -1,12 +1,6 @@
 import React, { PureComponent } from 'react';
 import Member from './Member';
 import { DragSource } from 'react-dnd';
-import {
-  removeCourse,
-  removeAssignment,
-  removeRoom,
-  // removeMember,
-} from '../../../store/actions';
 import { connect } from 'react-redux';
 const ItemTypes = {
   CARD: 'card'

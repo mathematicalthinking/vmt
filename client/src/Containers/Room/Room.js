@@ -76,6 +76,7 @@ class Room extends Component {
     const contentData = {
       resource,
       parentResource: 'room',
+      parentResourceId: room._id,
       userResources: room[resource],
       owner: this.state.owner,
       notifications: user.roomNotifications || [],

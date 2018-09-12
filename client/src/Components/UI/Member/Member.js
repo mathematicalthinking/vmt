@@ -10,6 +10,7 @@ class Member extends PureComponent {
   state = {
     role: this.props.info.role,
     editing: false,
+    changing: false,
     x: 0,
     y: 0,
   }
@@ -23,17 +24,24 @@ class Member extends PureComponent {
   }
 
   changeRole = (event) => {
-    console.log(event.target.name)
-    this.setState({role: event.target.name})
+    const { changeRole, info } = this.props;
+    this.setState({role: event.target.name, changing: true})
+    info.role = event.target.name
+    changeRole(info);
   }
 
   handleClickOutside() {
-    if (this.state.editing) {
-      setTimeout(() => this.setState({editing: false}), 500)
-    }
+    // @QUESTION is this too @HACK y?
+    setTimeout(() => {
+      if (this.state.editing && this.state.changing) {
+        setTimeout(() => this.setState({editing: false, changing: false}), 500)
+      }
+      else {this.setState({editing: false})}
+    }, 0) // MOVE TO THE BACK OF THE CALLSTACK SO THE CHANGEROLE() EXECUTES FIRST - GUARANTEED
   }
 
   render() {
+    console.log(this.props.info.role)
     const { info, owner } = this.props;
     return (
       <Aux>

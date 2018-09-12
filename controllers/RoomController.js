@@ -98,6 +98,7 @@ module.exports = {
     })
   },
 
+  // SOCKET METHODS
   addCurrentUsers: (roomId, userId) => {
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentUsers: userId}}, {new: true})

@@ -6,28 +6,30 @@ import Member from '../../Components/UI/Member/Member';
 import DragMember from '../../Components/UI/Member/DragMember';
 // import Button from '../../Components/UI/Button/Button';
 
-
 // @IDEA CONSIDER RENAMING THIS COMPONENT TO MEMBERS
 const students = props => {
+
   const { userResources, notifications, owner, parentResourceId, parentResource} = props;
+
+  const changeRole = (info) => {
+    console.log(info)
+    let updatedMembers = userResources.map(member => {
+      return (member.user.id === info.user.id) ? info : member;
+    });
+    console.log(parentResourceId)
+    props.changeRoomRole(parentResourceId, updatedMembers)
+  }
   console.log(owner)
   let joinRequests;
   if (props.owner) {
     joinRequests = notifications.access.map((ntf, i) => {
-      // console.log()
       return (
-          owner ? <DragMember info={ntf.user} key={i}/> : <Member info={ntf.user} key={i}/>
-          /* <div style={{margin: 20}}><Avatar username={ntf.user.username} /></div>
-            <div>requested access to join this course [TIMESTAMP @TODO]</div>
-          <Button click={() => props.grantAccess(ntf.user._id, parentResource.slice(0, parentResource.length - 1), parentResourceId)}>Grant Access</Button> */
-
+        owner ? <DragMember changeRole={(info) => changeRole(info)} info={ntf.user} key={i}/> : <Member info={ntf.user} key={i}/>
       )
     })
   }
   const classList = userResources.map((member, i) => (
-    // <div className={classes.UserRow} key={i}>
-      owner ? <DragMember info={member} key={i}/> : <Member info={member}  key={i}/>
-    // </div>
+      owner ? <DragMember changeRole={(info) => changeRole(info)} info={member} key={i}/> : <Member info={member}  key={i}/>
   ))
   return (
     <div className={classes.Container}>
@@ -48,7 +50,8 @@ const students = props => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    grantAccess: (user, resource, resourceId) => dispatch(actions.grantAccess(user, resource, resourceId))
+    grantAccess: (user, resource, resourceId) => dispatch(actions.grantAccess(user, resource, resourceId)),
+    changeRoomRole: (resourceId, updatedMembers) => dispatch(actions.updateRoomMembers(resourceId, updatedMembers)),
   }
 }
 
