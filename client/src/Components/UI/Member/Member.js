@@ -4,6 +4,7 @@ import classes from './member.css';
 import Avatar from '../Avatar/Avatar';
 import Aux from '../../HOC/Auxil';
 import PositionedBox from '../Edit/PositionedBox';
+import EditMember from './EditMember';
 class Member extends PureComponent {
 
   state = {
@@ -21,9 +22,14 @@ class Member extends PureComponent {
     })
   }
 
+  changeRole = (event) => {
+    console.log(event.target.name)
+    this.setState({role: event.target.name})
+  }
+
   handleClickOutside() {
     if (this.state.editing) {
-      this.setState({editing: false})
+      setTimeout(() => this.setState({editing: false}), 500)
     }
   }
 
@@ -31,7 +37,10 @@ class Member extends PureComponent {
     const { info, owner } = this.props;
     return (
       <Aux>
-        {this.state.editing ? <PositionedBox x={this.state.x} y={this.state.y}/> : null}
+        {this.state.editing ?
+          <PositionedBox x={this.state.x} y={this.state.y}>
+            <EditMember role={this.state.role} changeRole={this.changeRole}/>
+          </PositionedBox> : null}
         <div className={classes.Container}>
           <div style={{margin: 20}}><Avatar username={info.user.username} /></div>
           <div className={classes.Row}>

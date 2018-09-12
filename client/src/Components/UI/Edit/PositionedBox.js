@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import classes from './positionedBox.css';
+
 class PositionedBox extends PureComponent {
 
   state = {
@@ -20,7 +21,9 @@ class PositionedBox extends PureComponent {
     console.log(this.props.x, this.props.y)
     console.log(classes.Fixed)
     return (
-      <div ref={this.boxRef} className={classes.Fixed} style={{left: this.state.left, top: this.state.top}}>Hello</div>
+      <div ref={this.boxRef} className={classes.Fixed} style={{left: this.state.left, top: this.state.top}}>
+        {this.props.children}
+      </div>
     )
   }
 }

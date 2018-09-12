@@ -1,6 +1,7 @@
 .Fixed {
   position: fixed;
-  background-color: red;
-  font-size: 50px;
+  background-color: #ddd;
   width: 200px;
+  padding: 20px;
+  border-radius: 3px;
 }
