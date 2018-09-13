@@ -1,2 +1,4 @@
 /node_modules/
 /concertChatApps/
+/cypress/
+/cypress/integration/examples/
