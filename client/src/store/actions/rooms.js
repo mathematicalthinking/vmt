@@ -75,18 +75,6 @@ export const populateRoom = id => {
     .catch(err => dispatch(loading.fail(err)))
   }
 }
-//
-// export const getCurrentRoom = id => {
-//   return dispatch => {
-//     dispatch(loading.start())
-//     API.getById('room', id)
-//     .then(res => {
-//       dispatch(updateRoom(res.data.result))
-//       return dispatch(loading.success())
-//     })
-//   }
-// }
-
 
 export const createRoom = body => {
   return dispatch => {
@@ -109,6 +97,18 @@ export const createRoom = body => {
       console.log(err)
       dispatch(loading.fail(err))
     })
+  }
+}
+
+export const updateRoomMembers = (roomId, updatedMembers) => {
+
+  return dispatch => {
+    API.updateMembers('room', roomId, updatedMembers)
+    .then(res => {
+      console.log(res)
+      dispatch(updateRoom(roomId, res.data.result))
+    })
+    .catch(err => console.log(err))
   }
 }
 

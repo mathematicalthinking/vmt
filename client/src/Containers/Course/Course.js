@@ -123,6 +123,7 @@ class Course extends Component {
       userId: user.id,
       owner: this.state.owner,
     }
+    console.log(contentData)
     // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
     return (
       <Aux>

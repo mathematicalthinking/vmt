@@ -56,36 +56,40 @@ module.exports = {
 
 // @TODO WE SHOULD PROBABLY JUST CREATE DIFFERENT METHODS FOR EACH OF THESE CASES?
   put: (id, body) => {
+    console.log("IN TYHE CONTROLLER: ", id, body)
     return new Promise((resolve, reject) => {
-      const updatedField = Object.keys(body)
-      const { entryCode, userId } = body.checkAccess;
-      if (updatedField[0] === 'checkAccess') {
-        db.Room.findById(id)
-        .then(room => {
-          if (room.entryCode === entryCode) {
-            room.members.push({user: userId, role: 'student'})
-            room.save()
-            room.populate({path: 'members.user', select: 'username'}, function() {
-              console.log("ROOM: ", room)
-              resolve(room)
-            })
-          }
-          else resolve(room)
-        })
-        .catch(err => reject(err))
-      } else if (updatedField[0] === 'members') {
-        body = {$addToSet: body, $pull: {notifications: {user: body.members.user}}}
-        // THIS SHOULD BE DONE ELSE WHERE YEAH?
-        db.User.findByIdAndUpdate(body.members.user, {$addToSet: {rooms: id}})
+      // @TODO THIS SHOULD BE DONE VIA THE AUTH ROUTE MAYBE?
+      // const updatedField = Object.keys(body)
+      // const { entryCode, userId } = body.checkAccess;
+      // if (updatedField[0] === 'checkAccess') {
+      //   console.log("SHOULDNT BE IN HERE")
+      //   db.Room.findById(id)
+      //   .then(room => {
+      //     if (room.entryCode === entryCode) {
+      //       room.members.push({user: userId, role: 'student'})
+      //       room.save()
+      //       room.populate({path: 'members.user', select: 'username'}, function() {
+      //         console.log("ROOM: ", room)
+      //         resolve(room)
+      //       })
+      //     }
+      //     else resolve(room)
+      //   })
+      //   .catch(err => reject(err))
+      // } else {
+        console.log('updating room: ', id, body)
         db.Room.findByIdAndUpdate(id, body, {new: true})
         .populate('creator')
-        .populate('members.user')
+        .populate('members.user', 'username')
         .populate('notifications.user')
         .then(room => { console.log(room); resolve(room)})
         .catch(err => {console.log(err); reject(err)})
-      }
+      // }
     })
   },
+
+  // addMember
+  // remove member
 
   delete: id => {
     return new Promise((resolve, reject) => {
@@ -98,6 +102,7 @@ module.exports = {
     })
   },
 
+  // SOCKET METHODS
   addCurrentUsers: (roomId, userId) => {
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentUsers: userId}}, {new: true})

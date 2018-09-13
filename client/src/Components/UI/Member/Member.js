@@ -1,0 +1,57 @@
+import React, { PureComponent } from 'react';
+import classes from './member.css';
+import Avatar from '../Avatar/Avatar';
+import Aux from '../../HOC/Auxil';
+import PositionedBox from '../Edit/PositionedBox';
+import EditMember from './EditMember';
+class Member extends PureComponent {
+
+  state = {
+    role: this.props.info.role,
+    editing: false,
+    changing: false,
+    x: 0,
+    y: 0,
+  }
+
+  edit = event => {
+    this.setState({
+      editing: true,
+      x: event.pageX,
+      y: event.pageY,
+    })
+  }
+
+  changeRole = (event) => {
+    const { changeRole, info } = this.props;
+    this.setState({role: event.target.name, changing: true})
+    setTimeout(() => {this.setState({editing: false})}, 500)
+    info.role = event.target.name
+    changeRole(info);
+  }
+
+  stopEditing = () => {
+    this.setState({editing: false})
+  }
+
+  render() {
+    const { info, owner } = this.props;
+    return (
+      <Aux>
+        {this.state.editing ?
+          <PositionedBox hide={this.stopEditing} x={this.state.x} y={this.state.y}>
+            <EditMember role={this.state.role} changeRole={this.changeRole}/>
+          </PositionedBox> : null}
+        <div className={classes.Container}>
+          <div style={{margin: 20}}><Avatar username={info.user.username} /></div>
+          <div className={classes.Row}>
+            <div className={classes.Role}>{info.role}</div>
+            {owner ? <div className={classes.Icon} onClick={this.edit}><i className="fas fa-edit"></i></div> : null}
+          </div>
+        </div>
+      </Aux>
+    )
+  }
+}
+
+export default Member;

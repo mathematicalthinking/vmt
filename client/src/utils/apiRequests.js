@@ -32,12 +32,17 @@ export default {
   removeNotification: (ntfId, userId, resource, listType) => {
     console.log({$pull: {[`${resource}Notifications.${listType}`]: {_id: ntfId}}})
     return axios.put(`/api/user/${userId}`, {
-      $pull: {[`${resource}Notifications.${listType}`]: {_id: ntfId}}
+      $pull: {[`${resource}Notifications.${listType}`]: {_id: ntfId}} // THIS IS BAD we shouldnt be writing mongoose syntax onf the front end
     })
   },
 
   grantAccess: (user, resource, resourceId) => {
     return axios.put(`/api/${resource}/${resourceId}`, {newMember: user})
+  },
+
+  updateMembers: (resource, resourceId, updatedMembers) => {
+    console.log(updatedMembers)
+    return axios.put(`/api/${resource}/${resourceId}`, {members: updatedMembers})
   },
   getDesmos: url => {
     console.log('geting desoms')

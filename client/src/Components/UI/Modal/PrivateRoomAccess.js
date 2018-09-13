@@ -1,14 +1,20 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
 import Modal from './Modal';
 import TextInput from '../../Form/TextInput/TextInput';
 import Button from '../Button/Button';
 class PrivateRoomAccess extends Component {
   state = {
     entryCode: '',
+    show: true,
+  }
+  closeModal = () => {
+    this.setState({show: false})
+    this.props.history.goBack()
   }
   render () {
     return (
-      <Modal show={true} closeModal={this.props.closeModal}>
+      <Modal show={this.state.show} closeModal={this.closeModal}>
         {!this.props.course ?
           <div>
             <p>This course is private. Enter the room's code to gain access</p>
@@ -22,4 +28,4 @@ class PrivateRoomAccess extends Component {
   }
 }
 
-export default PrivateRoomAccess;
+export default withRouter(PrivateRoomAccess);
