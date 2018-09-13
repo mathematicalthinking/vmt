@@ -3,7 +3,7 @@ import user from './userReducer';
 import rooms from './roomsReducer';
 import courses from './coursesReducer';
 import courseTemplates from './courseTemplatesReducer';
-import activitys from './activitysReducer';
+import activities from './activitiesReducer';
 import loading from './loadingReducer';
 import dnd from './dndReducer';
 // import registrationReducer from './registrationReducer';
@@ -12,7 +12,7 @@ const rootReducer = combineReducers({
   user,
   loading,
   courses,
-  activitys,
+  activities,
   rooms,
   courseTemplates,
   dnd,
@@ -33,7 +33,7 @@ export const getUserResources = (state, resource) => {
   return undefined;
 }
 
-// store, activitys, activity_id, rooms
+// store, activities, activity_id, rooms
 export const populateResource = (state, resourceToPop, resourceId, resources) => {
   const currentResource = {...state[resourceToPop].byId[resourceId]}
   resources.forEach(resource => {

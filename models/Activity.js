@@ -24,9 +24,9 @@ const Activity = new mongoose.Schema({
 Activity.pre('save', async function() {
   const promises = []
   if (this.isNew) {
-    promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {activitys: this._id}}))
+    promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {activities: this._id}}))
     if (this.course) {
-      promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {activitys: this._id}}))
+      promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {activities: this._id}}))
     }
   }
   await Promise.all(promises)
@@ -34,9 +34,9 @@ Activity.pre('save', async function() {
 
 Activity.pre('remove', async function() {
   const promises = [];
-  promises.push(User.findByIdAndUpdate(this.creator, {$pull: {activitys: this._id}}))
+  promises.push(User.findByIdAndUpdate(this.creator, {$pull: {activities: this._id}}))
   if (this.course) {
-    promises.push(Course.findByIdAndUpdate(this.course, {$pull: {activitys: this._id}}))
+    promises.push(Course.findByIdAndUpdate(this.course, {$pull: {activities: this._id}}))
   }
   await Promise.all(promises);
 })

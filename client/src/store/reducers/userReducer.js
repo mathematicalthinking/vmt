@@ -9,7 +9,7 @@ const initialState = {
   roomNotifications: {},
   rooms: [],
   courseTemplates: [],
-  activitys: [],
+  activities: [],
   seenTour: false,
 }
 
@@ -26,7 +26,7 @@ const reducer = (state = initialState, action) => {
         rooms: action.user.rooms,
         roomNotifications: action.user.roomNotifications,
         courseTemplates: action.user.courseTemplates,
-        activitys: action.user.activitys,
+        activities: action.user.activities,
         seenTour: action.user.seenTour,
       }
     case actionTypes.ADD_USER_COURSES:
@@ -38,7 +38,7 @@ const reducer = (state = initialState, action) => {
     case actionTypes.ADD_USER_ASSIGNMENTS:
       return {
         ...state,
-        activitys: state.activitys.concat(action.newActivitysArr)
+        activities: state.activities.concat(action.newActivitiesArr)
       }
 
     case actionTypes.ADD_USER_ROOMS:
@@ -52,8 +52,8 @@ const reducer = (state = initialState, action) => {
       return {...state, courses, }
 
     case actionTypes.REMOVE_USER_ASSIGNMENTS:
-      const activitys = state.activitys.filter(id => !action.activityIdsArr.includes(id))
-      return {...state, activitys,}
+      const activities = state.activities.filter(id => !action.activityIdsArr.includes(id))
+      return {...state, activities,}
 
     case actionTypes.REMOVE_USER_ROOMS:
       const rooms = state.rooms.filter(id => !action.roomIdsArr.includes(id))

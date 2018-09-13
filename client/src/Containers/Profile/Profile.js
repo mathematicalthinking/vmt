@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import DashboardLayout from '../../Layout/Dashboard/Dashboard';
-// import Activitys from '../Activitys/Activitys';
+// import Activities from '../Activities/Activities';
 import { getUserResources }from '../../store/reducers/';
 import { connect } from 'react-redux';
 import * as actions from '../../store/actions'
@@ -9,7 +9,7 @@ class Profile extends Component {
   state = {
     tabs: [
       {name: 'Courses'},
-      {name: 'Activitys'},
+      {name: 'Activities'},
       {name: 'Rooms'},
       {name: 'Settings'},
     ],
@@ -86,16 +86,16 @@ class Profile extends Component {
 const mapStateToProps = store => ({
   usercourses: getUserResources(store, 'courses'),
   userrooms: getUserResources(store, 'rooms'),
-  useractivitys: getUserResources(store, 'activitys'),
+  useractivities: getUserResources(store, 'activities'),
   user: store.user,
   rooms: store.rooms.allIds,
   courses: store.courses.allIds,
-  activitys: store.activitys.allIds,
+  activities: store.activities.allIds,
   loading: store.loading.loading,
 })
 const mapDispatchToProps = dispatch => ({
   getrooms: () => dispatch(actions.getRooms()),
-  getactivitys: () => dispatch(actions.getActivitys()),
+  getactivities: () => dispatch(actions.getActivities()),
   getcourses: () => dispatch(actions.getCourses())
 })
 

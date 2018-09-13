@@ -46,7 +46,7 @@ const reducer = (state = initialState, action) => {
 
     case actionTypes.ADD_COURSE_ASSIGNMENTS:
       updatedCourses = { ...state.byId}
-      updatedCourses[action.courseId].activitys = updatedCourses[action.courseId].activitys.concat(action.activityIdsArr)
+      updatedCourses[action.courseId].activities = updatedCourses[action.courseId].activities.concat(action.activityIdsArr)
       return {
         ...state,
         byId: updatedCourses,
@@ -54,8 +54,8 @@ const reducer = (state = initialState, action) => {
 
     case actionTypes.REMOVE_COURSE_ASSIGNMENTS:
       updatedById = {...state.byId}
-      const updatedCourseActivitys = updatedById[action.courseId].activitys.filter(id => id !== action.activityId)
-      updatedById[action.courseId].rooms = updatedCourseActivitys;
+      const updatedCourseActivities = updatedById[action.courseId].activities.filter(id => id !== action.activityId)
+      updatedById[action.courseId].rooms = updatedCourseActivities;
       return {
         ...state,
         byId: updatedById,

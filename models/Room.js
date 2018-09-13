@@ -47,7 +47,7 @@ Room.pre('save', function (next) {
         // DONT THINK WE NEED THE CODE BWLOW...THE USER SHOULD ALREADY HAVE
         // THE ASSIGNMENT AND THE COURSE IN THEIR RESOURCES
         // if (this.course) user.courseNotifications.newRoom.push({notificationType: 'newRoom', _id: this.course})
-        // if (this.activity) user.activitys.push(this.activity)
+        // if (this.activity) user.activities.push(this.activity)
         user.save();
         next()
       })

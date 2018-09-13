@@ -4,7 +4,7 @@ module.exports = {
   get: (params) => {
     return new Promise((resolve, reject) => {
       db.Activity.find(params)
-      .then(activitys => resolve(activitys))
+      .then(activities => resolve(activities))
       .catch(err => reject(err));
     });
   },

@@ -25,7 +25,7 @@ export const updateCourse = course => ({
   course,
 })
 
-export const addCourseActivitys = (courseId, activityIdsArr) => ({
+export const addCourseActivities = (courseId, activityIdsArr) => ({
   type: actionTypes.ADD_COURSE_ASSIGNMENTS,
   courseId,
   activityIdsArr,
@@ -51,7 +51,7 @@ export const addCourseRooms = (courseId, roomIdsArr) => {
   }
 }
 
-export const removeCourseActivitys = (courseId, activityIdsArr) => {
+export const removeCourseActivities = (courseId, activityIdsArr) => {
   return {
     type: actionTypes.REMOVE_COURSE_ASSIGNMENTS,
     courseId,
@@ -83,9 +83,9 @@ export const removeCourse = courseId => {
       dispatch(removeUserCourse(courseId))
         // remove courseRooms from user
         dispatch(removeUserRooms)
-        // remove courseActivitys from user
+        // remove courseActivities from user
         // remove courseRooms
-        // remove courseActivitys
+        // remove courseActivities
       dispatch(courseRemoved(courseId))
       return dispatch(loading.success())
     })

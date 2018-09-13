@@ -36,7 +36,7 @@ const mapDispatchToProps = dispatch => {
   return {
     remove: {
       courses: (id) => dispatch(removeCourse(id)),
-      activitys: (id) => dispatch(removeActivity(id)),
+      activities: (id) => dispatch(removeActivity(id)),
       rooms: (id) => dispatch(removeRoom(id)),
       // member: (id, courseId) => dispatch(removeMember(id, courseId))
     }

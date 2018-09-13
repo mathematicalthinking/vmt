@@ -60,7 +60,7 @@ class NewResource extends Component {
         case 'courses' :
           this.props.createCourse(newResource);
           break;
-        case 'activitys' :
+        case 'activities' :
           newResource.tabs = [{ggbFile: this.state.ggbFile, desmosLink: this.state.desmosLink}]
           newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
           if (this.props.courseId) {
@@ -113,7 +113,7 @@ class NewResource extends Component {
                   width='80%'
                 />
               </div>
-              {(resource === 'activitys' || resource === 'rooms') ?
+              {(resource === 'activities' || resource === 'rooms') ?
                 <div className={classes.FormSection}>
                   <div className={classes.RadioButtons}>
                     <RadioBtn name='geogebra' checked={this.state.ggb} check={() => this.setState({ggb: true})}>GeoGebra</RadioBtn>

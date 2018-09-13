@@ -8,19 +8,19 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.GOT_ASSIGNMENTS:
-      let updatedActivitys = merge({...state.byId}, action.byId)
+      let updatedActivities = merge({...state.byId}, action.byId)
       return {
         ...state,
-        byId: updatedActivitys,
+        byId: updatedActivities,
         allIds: action.allIds,
       };
 
     case actionTypes.ADD_ASSIGNMENT:
-      updatedActivitys = {...state.byId};
-      updatedActivitys[action.activity._id] = action.activity;
+      updatedActivities = {...state.byId};
+      updatedActivities[action.activity._id] = action.activity;
       return {
         ...state,
-        byId: updatedActivitys,
+        byId: updatedActivities,
       }
 
     case actionTypes.REMOVE_ASSIGNMENT:
@@ -36,19 +36,19 @@ const reducer = (state = initialState, action) => {
     // @TODO if we've created a new activity alert the user so we can redirect
     // to the activity --> do this by updating the sto
     case actionTypes.ADD_ASSIGNMENT_ROOMS:
-      updatedActivitys = {...state.byId};
-      updatedActivitys[action.activityId].rooms = updatedActivitys[action.activityId].rooms.concat(action.roomIdsArr)
+      updatedActivities = {...state.byId};
+      updatedActivities[action.activityId].rooms = updatedActivities[action.activityId].rooms.concat(action.roomIdsArr)
       return {
         ...state,
-        byId: updatedActivitys,
+        byId: updatedActivities,
       }
 
     case actionTypes.CREATED_ASSIGNMENT:
-      updatedActivitys = {...state.byId};
-      updatedActivitys[action.newActivity._id] = action.newActivity;
+      updatedActivities = {...state.byId};
+      updatedActivities[action.newActivity._id] = action.newActivity;
       return  {
         ...state,
-        byId: updatedActivitys,
+        byId: updatedActivities,
         allIds: [action.newActivity._id, ...state.allIds],
       }
 

@@ -1,16 +1,16 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
-import { addUserActivitys, removeUserActivitys } from './user';
+import { addUserActivities, removeUserActivities } from './user';
 // import { createdActivityTemplate } from './activityTemplates';
-import { addCourseActivitys, removeCourseActivitys } from './courses';
+import { addCourseActivities, removeCourseActivities } from './courses';
 
 import * as loading from './loading';
 
-export const gotActivitys = (activitys) => ({
+export const gotActivities = (activities) => ({
   type: actionTypes.GOT_ASSIGNMENTS,
-  byId: activitys.byId,
-  allIds: activitys.allIds
+  byId: activities.byId,
+  allIds: activities.allIds
 })
 
 export const addActivity = activity => ({
@@ -47,14 +47,14 @@ export const activityRemoved = (activityId) => {
   }
 }
 
-export const getActivitys = params => {
+export const getActivities = params => {
   return dispatch => {
     dispatch(loading.start())
     API.get('activity', params)
     .then(res => {
       // Normalize res
-      const activitys = normalize(res.data.results)
-      dispatch(gotActivitys(activitys))
+      const activities = normalize(res.data.results)
+      dispatch(gotActivities(activities))
       dispatch(loading.success())
     })
     .catch(err => console.log(err));
@@ -80,9 +80,9 @@ export const createActivity = body => {
       let result = res.data.result;
       dispatch(createdActivity(result))
       if (body.course) {
-        dispatch(addCourseActivitys(body.course, [result._id]))
+        dispatch(addCourseActivities(body.course, [result._id]))
       }
-      dispatch(addUserActivitys([result._id]))
+      dispatch(addUserActivities([result._id]))
       return dispatch(loading.success());
     })
   }
@@ -95,8 +95,8 @@ export const removeActivity = activityId => {
     API.remove('activity', activityId)
     .then(res => {
       console.log(res.data)
-      dispatch(removeUserActivitys([activityId]))
-      dispatch(removeCourseActivitys(res.data.result.course, [activityId]))
+      dispatch(removeUserActivities([activityId]))
+      dispatch(removeCourseActivities(res.data.result.course, [activityId]))
       dispatch(activityRemoved(activityId))
       dispatch(loading.success())
     })

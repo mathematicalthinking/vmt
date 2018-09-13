@@ -3,7 +3,7 @@ import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
 import { addUserRooms, removeUserRooms } from './user';
 import { addCourseRooms, removeCourseRooms } from './courses';
-import { addActivityRooms, removeActivityRooms } from './activitys';
+import { addActivityRooms, removeActivityRooms } from './activities';
 import * as loading from './loading'
 
 export const gotRooms = (rooms) => ({

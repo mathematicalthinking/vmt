@@ -17,14 +17,14 @@ class Course extends Component {
     guestMode: false,
     currentCourse: {}, // Right now I'm just saving currentCourse is state to compare the incoming props currentCourse to look for changes
     tabs: [
-      {name: 'Activitys'},
+      {name: 'Activities'},
       {name: 'Rooms'},
       {name: 'Members'},
     ],
     firstView: false,
   }
   initialTabs = [
-    {name: 'Activitys'},
+    {name: 'Activities'},
     {name: 'Rooms'},
     {name: 'Members'},
   ]
@@ -131,7 +131,7 @@ class Course extends Component {
           <Aux>
             <DashboardLayout
               routingInfo={this.props.match}
-              crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/courses/${course._id}/activitys/`}]}
+              crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/courses/${course._id}/activities/`}]}
               contentData={contentData}
               tabs={this.state.tabs}
             />
@@ -148,8 +148,8 @@ class Course extends Component {
 }
 
 const mapStateToProps = (store, ownProps) => ({
-  course: populateResource(store, 'courses', ownProps.match.params.course_id, ['activitys', 'rooms']),
-  activitys: store.activitys.allIds,
+  course: populateResource(store, 'courses', ownProps.match.params.course_id, ['activities', 'rooms']),
+  activities: store.activities.allIds,
   rooms: store.rooms.allIds,
   user: store.user,
   loading: store.loading.loading,
@@ -157,10 +157,10 @@ const mapStateToProps = (store, ownProps) => ({
 
 const mapDispatchToProps = dispatch => {
   return {
-    getActivitys: ids => dispatch(actions.getActivitys(ids)),
+    getActivities: ids => dispatch(actions.getActivities(ids)),
     getRooms: ids => dispatch(actions.getRooms(ids)),
     updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
-    updateCourseActivitys: activity => dispatch(actions.updateCourseActivitys),
+    updateCourseActivities: activity => dispatch(actions.updateCourseActivities),
     grantAccess: (user, resource, id) => dispatch(actions.grantAccess(user, resource, id)),
     requestAccess: (toUser, fromUser, resource, resourceId) => dispatch(actions.requestAccess(toUser, fromUser, resource, resourceId)),
     clearNotification: (ntfId, userId, resource, list) => dispatch(actions.clearNotification(ntfId, userId, resource, list)),

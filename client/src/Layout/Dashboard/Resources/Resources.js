@@ -13,10 +13,10 @@ const resources = props => {
     ))
 
     let linkPath =`/profile/${props.resource}/`
-    let linkSuffix = props.resource === 'courses' ? '/activitys' : '/summary';
+    let linkSuffix = props.resource === 'courses' ? '/activities' : '/summary';
     if (props.resource === 'courses') {
-      linkSuffix = '/activitys'
-    } else if (props.resource === 'activitys') {
+      linkSuffix = '/activities'
+    } else if (props.resource === 'activities') {
       linkSuffix = '/details'
     } else {linkSuffix = '/summary'}
     const displayResource = props.resource[0].toUpperCase() + props.resource.slice(1);
@@ -26,7 +26,7 @@ const resources = props => {
     }
     return (
       <div>
-        {props.parentResource !== 'activitys' ? <NewResource resource={props.resource} courseId={props.parentResource === 'courses'?  props.parentResourceId : null}/> : null}
+        {props.parentResource !== 'activities' ? <NewResource resource={props.resource} courseId={props.parentResource === 'courses'?  props.parentResourceId : null}/> : null}
         <h2>{displayResource} I Own</h2>
         <BoxList
           list={ownedResources}

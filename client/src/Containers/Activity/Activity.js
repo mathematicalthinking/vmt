@@ -46,7 +46,7 @@ class Activity extends Component {
       activity,
       course,
       userResources: activity[resource] || [],
-      parentResource: 'activitys',
+      parentResource: 'activities',
       parentResourceId: activity._id,
       userId: this.props.userId,
     }
@@ -54,11 +54,11 @@ class Activity extends Component {
     const crumbs = [{title: 'Profile', link: '/profile/courses'}]
     if (course) {
       crumbs.push(
-        {title: `${course.name}`, link: `${crumbs[0].link}/${course._id}/activitys`},
-        {title: `${activity.name}`, link: `${crumbs[0].link}/${course._id}/activitys/${activity._id}/details`},
+        {title: `${course.name}`, link: `${crumbs[0].link}/${course._id}/activities`},
+        {title: `${activity.name}`, link: `${crumbs[0].link}/${course._id}/activities/${activity._id}/details`},
       )
     } else {
-      crumbs.push({title: `${activity.name}`, link: `/profile/activitys/${activity._id}/details`})
+      crumbs.push({title: `${activity.name}`, link: `/profile/activities/${activity._id}/details`})
     }
     return (
       <DashboardLayout
@@ -75,8 +75,8 @@ class Activity extends Component {
 const mapStateToProps = (store, ownProps ) => {
   const { activity_id, course_id } = ownProps.match.params;
   return {
-    activity: store.activitys.byId[activity_id],
-    populatedActivity: populateResource(store, 'activitys', activity_id, ['rooms']),
+    activity: store.activities.byId[activity_id],
+    populatedActivity: populateResource(store, 'activities', activity_id, ['rooms']),
     currentCourse: store.courses.byId[course_id],
     userId: store.user.id,
   }
