@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const User = require('./User');
 const Course = require('./Course');
-const Assignment = new mongoose.Schema({
+const Activity = new mongoose.Schema({
   name: {type: String, required: true},
   description: {type: String},
   course: {type: ObjectId, ref: 'Course'},
@@ -16,29 +16,29 @@ const Assignment = new mongoose.Schema({
     _id: false,
     events: [{type: String}]
   }],
-  // template: {type: ObjectId, ref: 'AssignmentTemplate'},
+  // template: {type: ObjectId, ref: 'ActivityTemplate'},
 }, {timestamps: true});
 
 // STOP CHANGING THIS FUNCTION BELOW TO AN ARROW FUNCTION!!!
 // WE NEED 'THIS' TO REFER TO THE FUNCTIONS CONTEXT
-Assignment.pre('save', async function() {
+Activity.pre('save', async function() {
   const promises = []
   if (this.isNew) {
-    promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {assignments: this._id}}))
+    promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {activities: this._id}}))
     if (this.course) {
-      promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {assignments: this._id}}))
+      promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {activities: this._id}}))
     }
   }
   await Promise.all(promises)
 })
 
-Assignment.pre('remove', async function() {
+Activity.pre('remove', async function() {
   const promises = [];
-  promises.push(User.findByIdAndUpdate(this.creator, {$pull: {assignments: this._id}}))
+  promises.push(User.findByIdAndUpdate(this.creator, {$pull: {activities: this._id}}))
   if (this.course) {
-    promises.push(Course.findByIdAndUpdate(this.course, {$pull: {assignments: this._id}}))
+    promises.push(Course.findByIdAndUpdate(this.course, {$pull: {activities: this._id}}))
   }
   await Promise.all(promises);
 })
 
-module.exports = mongoose.model('Assignment', Assignment);
+module.exports = mongoose.model('Activity', Activity);

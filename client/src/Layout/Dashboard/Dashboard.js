@@ -10,10 +10,10 @@ import Summary from '../Room/Summary/Summary';
 import MakeRoomsLayout from './MakeRooms/MakeRooms';
 
 const dashboard = props => {
-  const {resource, parentResource, assignment, course, room, userId} = props.contentData;
+  const {resource, parentResource, activity, course, room, userId} = props.contentData;
   let content;
-  if (parentResource === 'assignments' && resource === 'details') {
-    content = <MakeRoomsLayout assignment={assignment} course={course} userId={userId}/>
+  if (parentResource === 'activities' && resource === 'details') {
+    content = <MakeRoomsLayout activity={activity} course={course} userId={userId}/>
   } else if (resource === 'summary') {
     content = <Summary room={room}/>
   } else {

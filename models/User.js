@@ -4,7 +4,7 @@ const User = new mongoose.Schema({
   courseTemplates: {type: [{type: ObjectId, ref: 'CourseTemplate'}], default: []},
   courses: {type: [{type: ObjectId, ref: 'Course'}], default: []},
   rooms: {type: [{type: ObjectId, ref: 'Room'}], default: []},
-  assignments: {type: [{type: ObjectId, ref: 'Assignment'}], default: []},
+  activities: {type: [{type: ObjectId, ref: 'Activity'}], default: []},
   roomNotifications: {
     access: [{
       notificationType: String, // grantedAccess || requestAccess

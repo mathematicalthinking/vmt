@@ -5,7 +5,7 @@ const Course = new mongoose.Schema({
   name: {type: String},
   description: {type: String},
   creator: {type: ObjectId, ref: 'User'},
-  assignments: [{type: ObjectId, ref: 'Assignment'}],
+  activities: [{type: ObjectId, ref: 'Activity'}],
   rooms: [{type: ObjectId, ref: 'Room'}],
   isPublic: {type: Boolean, default: false},
   members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}, _id: false}],
@@ -37,7 +37,7 @@ Course.pre('save', async function(){
               notificationType: 'grantedAccess',
               _id: this._id,
             },
-            assignments: this.assignments,
+            activities: this.activities,
             rooms: {$each: this.rooms}
           }
         }))
@@ -45,7 +45,7 @@ Course.pre('save', async function(){
           $pull: {'courseNotifications.access': {user: member.user}}
         }))
         // next()
-      } else if (field === 'assignments') {
+      } else if (field === 'activities') {
 
       }
     })
@@ -56,7 +56,7 @@ Course.pre('save', async function(){
 Course.pre('remove', async function() {
   const User = require('./User');
   const Room = require('./Room');
-  const Assignment = require('./Assignment')
+  const Activity = require('./Activity')
   const promises = [User.update({_id: {$in: this.members.map(member => member.user)}}, {
     $pull: {
       courses: this._id,
@@ -65,11 +65,11 @@ Course.pre('remove', async function() {
       'roomNotifications.newRoom': {_id: {$in: this.rooms}},
       'courseNotifications.access': {_id: this._id},
       'courseNotifications.newRoom': {_id: {$in: this._id}},
-      assignments: {$in: this.assignments}
+      activities: {$in: this.activities}
     }
   }, {multi: true})];
   promises.push(Room.deleteMany({_id: {$in: this.rooms}}));
-  promises.push(Assignment.deleteMany({_id: {$in: this.assignments}}));
+  promises.push(Activity.deleteMany({_id: {$in: this.activities}}));
   await Promise.all(promises);
 })
 

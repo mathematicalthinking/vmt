@@ -1,4 +1,4 @@
-const assignment = require('./AssignmentController');
+const activity = require('./ActivityController');
 const course = require('./CourseController');
 const message = require('./MessageController');
 const room = require('./RoomController');
@@ -10,7 +10,7 @@ const courseTemplate = require('./courseTemplateController');
 const roomTemplate = require('./roomTemplateController');
 
 module.exports = {
-  assignment,
+  activity,
   course,
   courseTemplate,
   message,

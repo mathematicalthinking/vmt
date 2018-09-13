@@ -18,7 +18,7 @@ class Room extends Component {
   }
 
   initialTabs = [
-    {name: 'Assignments'},
+    {name: 'Activities'},
     {name: 'Rooms'},
     {name: 'Members'},
   ]
@@ -89,7 +89,7 @@ class Room extends Component {
       {title: room.name, link: `/profile/rooms/${room._id}/summary`}]
       //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
       // THE REDUX STORE USING THE COURSE ID IN THE URL
-    if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/profile/courses/${room.course._id}/assignments`})}
+    if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/profile/courses/${room.course._id}/activities`})}
 
     return (
       <Aux>

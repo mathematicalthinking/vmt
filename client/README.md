@@ -930,7 +930,7 @@ life of the shell session.
 set "REACT_APP_SECRET_CODE=abcdef" && npm start
 ```
 
-(Note: Quotes around the variable assignment are required to avoid a trailing whitespace.)
+(Note: Quotes around the variable activity are required to avoid a trailing whitespace.)
 
 #### Windows (Powershell)
 

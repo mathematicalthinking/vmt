@@ -37,9 +37,9 @@ class MakeRooms extends Component  {
    // Else add them
   }
   submit = () => {
-    const { _id, name, description, roomType, tabs, } = this.props.assignment;
+    const { _id, name, description, roomType, tabs, } = this.props.activity;
     const newRoom = {
-      assignment: _id,
+      activity: _id,
       creator: this.props.userId,
       course: this.props.course,
       description,
@@ -120,7 +120,7 @@ class MakeRooms extends Component  {
               </div>
             </div>
           }
-          <Button click={this.submit}>Assign</Button>
+          <Button click={this.submit}>Activate</Button>
         </div>
       </Aux>
     )

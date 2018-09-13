@@ -3,16 +3,16 @@ const db = require('../models')
 module.exports = {
   get: (params) => {
     return new Promise((resolve, reject) => {
-      db.Assignment.find(params)
-      .then(assignments => resolve(assignments))
+      db.Activity.find(params)
+      .then(activities => resolve(activities))
       .catch(err => reject(err));
     });
   },
 
   getById: (id) => {
     return new Promise((resolve, reject) => {
-      db.Assignment.findById(id)
-      .then(assignment => resolve(assignment))
+      db.Activity.findById(id)
+      .then(activity => resolve(activity))
       .catch(err => reject(err))
     });
   },
@@ -24,9 +24,9 @@ module.exports = {
       }
       delete body.template;
       delete body.templateIsPublic;
-      db.Assignment.create(body)
-      .then(assignment => {
-        resolve(assignment)})
+      db.Activity.create(body)
+      .then(activity => {
+        resolve(activity)})
       .catch(err => {
         console.log(err)
         reject(err)
@@ -36,18 +36,18 @@ module.exports = {
 
   put: (id, body) => {
     return new Promise((resolve, reject) => {
-      db.Assignment.findByIdAndUpdate(id, body)
-      .then(assignment => resolve(assignment))
+      db.Activity.findByIdAndUpdate(id, body)
+      .then(activity => resolve(activity))
       .catch(err => reject(err))
     })
   },
 
   delete: id => {
     return new Promise((resolve, reject) => {
-      db.Assignment.findById(id)
-      .then(assignment => {
-        assignment.remove()
-        resolve(assignment)})
+      db.Activity.findById(id)
+      .then(activity => {
+        activity.remove()
+        resolve(activity)})
       .catch(err => reject(err))
     })
   }

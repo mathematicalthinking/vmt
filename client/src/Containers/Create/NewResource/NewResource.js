@@ -60,14 +60,14 @@ class NewResource extends Component {
         case 'courses' :
           this.props.createCourse(newResource);
           break;
-        case 'assignments' :
+        case 'activities' :
           newResource.tabs = [{ggbFile: this.state.ggbFile, desmosLink: this.state.desmosLink}]
           newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
           if (this.props.courseId) {
             newResource.course = this.props.courseId;
             delete newResource.members
           }
-          this.props.createAssignment(newResource);
+          this.props.createActivity(newResource);
           break;
         case 'rooms' :
           newResource.entryCode = hri.random();
@@ -84,9 +84,11 @@ class NewResource extends Component {
   }
 
   render() {
-    const resource = this.props.resource;
-    const displayResource = resource.charAt(0).toUpperCase() + resource.slice(1);
-    // const displayResource = "RESOURCE";
+    const { resource } = this.props;
+    let displayResource;
+    if (resource === 'activities') {
+      displayResource = 'Activity'
+    } else { displayResource = resource.charAt(0).toUpperCase() + resource.slice(1, resource.length - 1); }
     const templateDetails = (resource === 'course') ? "Every room you add to this course will also be added to your template (along with the files associated with the room). Course members and activity in the rooms will not be saved to the template. This allow you to resuse this template for multiple groups of students." : '';
     // @IDEA ^ while I've never seen this done before...maybe it'd be cleaner to have a file of static content and just import it in so we don't have these long strings all over
     console.log(resource)
@@ -113,7 +115,7 @@ class NewResource extends Component {
                   width='80%'
                 />
               </div>
-              {(resource === 'assignments' || resource === 'rooms') ?
+              {(resource === 'activities' || resource === 'rooms') ?
                 <div className={classes.FormSection}>
                   <div className={classes.RadioButtons}>
                     <RadioBtn name='geogebra' checked={this.state.ggb} check={() => this.setState({ggb: true})}>GeoGebra</RadioBtn>
@@ -166,7 +168,7 @@ class NewResource extends Component {
             </form>
           </div>
         </Modal>
-        <Button click={() => {this.setState({creating: true})}}>Create A New {displayResource.slice(0, displayResource.length - 1)} {this.props.template ? 'Template' : null}</Button>
+        <Button click={() => {this.setState({creating: true})}}>Create A New {displayResource} {this.props.template ? 'Template' : null}</Button>
         {!this.props.template ? <Button click={() => this.setState({creating: true})}>Create From Template</Button> : null}
       </Aux>
     )
@@ -185,7 +187,7 @@ const mapDispatchToProps = dispatch => {
   return {
     createCourse: body => dispatch(actions.createCourse(body)),
     createRoom: body => dispatch(actions.createRoom(body)),
-    createAssignment: body => dispatch(actions.createAssignment(body)),
+    createActivity: body => dispatch(actions.createActivity(body)),
     createCourseTemplate: body => dispatch(actions.createCourseTemplate(body)),
   }
 }

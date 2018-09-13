@@ -8,18 +8,18 @@ class MakeRoomsLayout extends Component {
     assigning: false,
   }
   render() {
-    const { assignment, course } = this.props
+    const { activity, course } = this.props
     return (
       <Aux>
         <div>
-          <div>Assignment Name: {assignment.name}</div>
-          <div>Details: {assignment.description}</div>
-          <div>Type: {assignment.roomType}</div>
+          <div>Activity Name: {activity.name}</div>
+          <div>Details: {activity.description}</div>
+          <div>Type: {activity.roomType}</div>
           <Button click={() => {this.setState({assigning: true})}}>Activate</Button>
         </div>
         {this.state.assigning ? <Modal show={true} closeModal={() => {this.setState({assigning: false})}}>
           <MakeRooms
-            assignment={assignment}
+            activity={activity}
             course={course._id}
             userId={this.props.userId}
             close={() => {this.setState({assigning: false})}}

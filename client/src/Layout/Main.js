@@ -3,12 +3,12 @@ import Navbar from '../Components/Navigation/Navbar';
 import Login from '../Containers/Login/Login';
 import Room from '../Containers/Room/Room';
 import Course from '../Containers/Course/Course';
-import Assignment from '../Containers/Assignment/Assignment';
+import Activity from '../Containers/Activity/Activity';
 import PublicList from '../Containers/PublicList/PublicList';
 import NewUser from '../Containers/Create/NewUser/NewUser';
 import Profile from '../Containers/Profile/Profile';
 // import Dashboard from '../Layout/Dashboard/Dashboard';
-// import Assignments from '../Containers/Assignments/Assignments';
+// import Activities from '../Containers/Activities/Activities';
 import Avatar from '../Components/UI/Avatar/Avatar';
 import PrivateRoute from '../Components/HOC/PrivateRoute';
 import Workspace from '../Containers/Room/Workspace/Workspace';
@@ -44,13 +44,13 @@ export default class Main extends Component {
             <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />
             <PrivateRoute exact path='/profile/:resource' authed={this.props.loggedIn} component={Profile}/>
             <PrivateRoute exact path = '/profile/courses/:course_id/:resource' authed={this.props.loggedIn} component={Course}/>
-            <PrivateRoute exact path='/profile/courses/:course_id/assignments/:assignment_id/:resource' authed={this.props.loggedIn} component={Assignment} />
-            <PrivateRoute exact path='/profile/assignments/:assignment_id/:resource' authed={this.props.loggedIn} component={Assignment} />
+            <PrivateRoute exact path='/profile/courses/:course_id/activities/:activity_id/:resource' authed={this.props.loggedIn} component={Activity} />
+            <PrivateRoute exact path='/profile/activities/:activity_id/:resource' authed={this.props.loggedIn} component={Activity} />
             <PrivateRoute exact path = '/profile/rooms/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
             <PrivateRoute exact path = '/profile/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
             <PrivateRoute expact path = '/workspace/:room_id' authed={this.props.loggedIn} component={Workspace} />
             <Route exact path='/dashboard/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room}/>
-            {/* <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Assignments}/> */}
+            {/* <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Activities}/> */}
             <Route path='/confirmation' component={Confirmation} />
             <Route exact path='/logout' component={Login}/>
             <Route path="*" render={() => {
