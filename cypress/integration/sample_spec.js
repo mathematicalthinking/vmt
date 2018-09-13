@@ -1,0 +1,28 @@
+const user = require('../fixtures/user.json')
+
+describe('user login', function() {
+  it('Clicks each link in the navbar', function() {
+    cy.visit('/')
+    cy.contains('Rooms').click()
+    cy.url().should('include', '/publicList/rooms')
+    cy.contains('Courses').click()
+    cy.url().should('include', '/publicList/courses')
+    cy.contains('Login/Signup').click()
+    cy.url().should('include', '/users/new')
+    cy.contains('Profile').click()
+    cy.url().should('include', '/')
+  })
+  it('signs up a new user', function() {
+    cy.visit('/')
+    cy.contains('Login/Signup').click()
+    cy.url().should('include', 'users/new')
+    cy.get('input[name=firstName]').type(user.firstName)
+    cy.get('input[name=lastName]').type(user.lastName)
+    cy.get('input[name=username]').type(user.username)
+    cy.get('input[name=email]').type(user.email)
+    cy.get('input[name=password]').type(user.password)
+    cy.get('button').click()
+    cy.url().should('include', '/profile')
+  })
+  it('logs in the user we just created')
+})
