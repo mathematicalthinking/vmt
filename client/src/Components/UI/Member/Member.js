@@ -15,7 +15,12 @@ class Member extends PureComponent {
     y: 0,
   }
 
+  componentWillUnmount() {
+
+  }
+
   edit = event => {
+    console.log("turning editing mode on")
     this.setState({
       editing: true,
       x: event.pageX,
@@ -30,24 +35,27 @@ class Member extends PureComponent {
     changeRole(info);
   }
 
-  handleClickOutside() {
-    // @QUESTION is this too @HACK y?
-    console.log("click outside: ", this.props.info)
-    setTimeout(() => {
-      if (this.state.editing && this.state.changing) {
-        setTimeout(() => this.setState({editing: false, changing: false}), 500)
-      }
-      else {this.setState({editing: false})}
-    }, 0) // MOVE TO THE BACK OF THE CALLSTACK SO THE CHANGEROLE() EXECUTES FIRST - GUARANTEED
+  stopEditing = () => {
+    this.setState({editing: false})
   }
 
+  // handleClickOutside() {
+  //   console.log("Clickoutside: ", this.props.info)
+  //   // @QUESTION is this too @HACK y?
+  //   setTimeout(() => {
+  //     if (this.state.editing && this.state.changing) {
+  //       setTimeout(() => this.setState({editing: false, changing: false}), 500)
+  //     }
+  //     else {this.setState({editing: false})}
+  //   }, 0) // MOVE TO THE BACK OF THE CALLSTACK SO THE CHANGEROLE() EXECUTES FIRST - GUARANTEED
+  // }
+
   render() {
-    console.log(this.props.info.role)
     const { info, owner } = this.props;
     return (
       <Aux>
         {this.state.editing ?
-          <PositionedBox x={this.state.x} y={this.state.y}>
+          <PositionedBox hide={this.stopEditing} x={this.state.x} y={this.state.y}>
             <EditMember role={this.state.role} changeRole={this.changeRole}/>
           </PositionedBox> : null}
         <div className={classes.Container}>
@@ -62,4 +70,4 @@ class Member extends PureComponent {
   }
 }
 
-export default clickOutside(Member);
+export default Member;

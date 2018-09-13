@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import clickOutside from 'react-click-outside';
 import classes from './positionedBox.css';
 
 class PositionedBox extends PureComponent {
@@ -16,10 +17,11 @@ class PositionedBox extends PureComponent {
       top: this.props.y - this.boxRef.current.clientHeight,
     })
   }
+  handleClickOutside() {
+    this.props.hide();
+  }
 
   render() {
-    console.log(this.props.x, this.props.y)
-    console.log(classes.Fixed)
     return (
       <div ref={this.boxRef} className={classes.Fixed} style={{left: this.state.left, top: this.state.top}}>
         {this.props.children}
@@ -28,4 +30,4 @@ class PositionedBox extends PureComponent {
   }
 }
 
-export default PositionedBox;
+export default clickOutside(PositionedBox);
