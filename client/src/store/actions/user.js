@@ -155,11 +155,11 @@ export const grantAccess = (user, resource, resourceId) => {
         return dispatch(updateRoom(resourceId, {members: res.data.result.members}))
       }
       console.log(res.data.result)
-      // dispatch(updateUserCourses(resp.data.result)) @TODO Need to update the notifcations associated with this course
       dispatch(updateUserAccessNtfs(resource, user))
       dispatch(loading.success())
       // dispatch(updateCourse(res.data.result))
     })
+    .catch(err => {console.log(err); dispatch(loading.fail(err))})
   }
 }
 

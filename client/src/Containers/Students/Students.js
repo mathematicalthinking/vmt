@@ -14,8 +14,11 @@ const students = props => {
   const changeRole = (info) => {
     console.log(info)
     let updatedMembers = userResources.map(member => {
-      return (member.user.id === info.user.id) ? info : member;
+      console.log("LINE !&: ", info, member)
+      return (member.user._id === info.user._id) ? {role: info.role, user: info.user._id} :
+      {role: member.role, user: member.user._id};
     });
+    console.log(updatedMembers)
     console.log(parentResourceId)
     props.changeRoomRole(parentResourceId, updatedMembers)
   }

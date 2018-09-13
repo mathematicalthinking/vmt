@@ -41,6 +41,7 @@ export default {
   },
 
   updateMembers: (resource, resourceId, updatedMembers) => {
+    console.log(updatedMembers)
     return axios.put(`/api/${resource}/${resourceId}`, {members: updatedMembers})
   },
   getDesmos: url => {

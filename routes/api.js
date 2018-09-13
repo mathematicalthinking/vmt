@@ -79,6 +79,7 @@ router.put('/:resource/:id', (req, res, next) => {
   if (controller == null){
 		return res.json(defaultError)
 	}
+  console.log("PUTTING")
   controller.put(req.params.id, req.body)
   .then(result => {
     res.json({

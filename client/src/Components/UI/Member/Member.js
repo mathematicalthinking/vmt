@@ -32,6 +32,7 @@ class Member extends PureComponent {
 
   handleClickOutside() {
     // @QUESTION is this too @HACK y?
+    console.log("click outside: ", this.props.info)
     setTimeout(() => {
       if (this.state.editing && this.state.changing) {
         setTimeout(() => this.setState({editing: false, changing: false}), 500)

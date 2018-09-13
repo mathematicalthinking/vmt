@@ -106,7 +106,7 @@ export const updateRoomMembers = (roomId, updatedMembers) => {
     API.updateMembers('room', roomId, updatedMembers)
     .then(res => {
       console.log(res)
-      dispatch(updateRoom(res))
+      dispatch(updateRoom(roomId, res.data.result))
     })
     .catch(err => console.log(err))
   }
