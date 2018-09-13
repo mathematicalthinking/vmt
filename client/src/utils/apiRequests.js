@@ -32,7 +32,7 @@ export default {
   removeNotification: (ntfId, userId, resource, listType) => {
     console.log({$pull: {[`${resource}Notifications.${listType}`]: {_id: ntfId}}})
     return axios.put(`/api/user/${userId}`, {
-      $pull: {[`${resource}Notifications.${listType}`]: {_id: ntfId}}
+      $pull: {[`${resource}Notifications.${listType}`]: {_id: ntfId}} // THIS IS BAD we shouldnt be writing mongoose syntax onf the front end
     })
   },
 
