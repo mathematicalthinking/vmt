@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const User = require('./User');
 const Course = require('./Course');
-const Assignment = require('./Assignment');
+const Activity = require('./Activity');
 const Room = new mongoose.Schema({
-  assignment: {type: ObjectId, ref: 'Assignment'},
+  activity: {type: ObjectId, ref: 'Activity'},
   name: {type: String, required: true},
   description: {type: String},
   entryCode: {type: String},
@@ -37,8 +37,8 @@ Room.pre('save', function (next) {
     if (this.course) {
       promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id}}))
     }
-    if (this.assignment) {
-      promises.push(Assignment.findByIdAndUpdate(this.assignment, {$addToSet: {rooms: this._id}}))
+    if (this.activity) {
+      promises.push(Activity.findByIdAndUpdate(this.activity, {$addToSet: {rooms: this._id}}))
     }
     Promise.all(promises)
     .then(values => {
@@ -47,7 +47,7 @@ Room.pre('save', function (next) {
         // DONT THINK WE NEED THE CODE BWLOW...THE USER SHOULD ALREADY HAVE
         // THE ASSIGNMENT AND THE COURSE IN THEIR RESOURCES
         // if (this.course) user.courseNotifications.newRoom.push({notificationType: 'newRoom', _id: this.course})
-        // if (this.assignment) user.assignments.push(this.assignment)
+        // if (this.activity) user.activitys.push(this.activity)
         user.save();
         next()
       })
@@ -84,7 +84,7 @@ Room.methods.summary = function() {
   // @TODO ONLY RETURN THE ENTRY CODE IF THE CLIENT IS THE OWNER
   obj = {
     entryCode: this.entryCode,
-    assignment: this.assignment,
+    activity: this.activity,
     name: this.name,
     description: this.description,
     roomType: this.roomType,

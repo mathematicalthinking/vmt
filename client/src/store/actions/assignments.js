@@ -1,112 +1,112 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
-import { addUserAssignments, removeUserAssignments } from './user';
-// import { createdAssignmentTemplate } from './assignmentTemplates';
-import { addCourseAssignments, removeCourseAssignments } from './courses';
+import { addUserActivitys, removeUserActivitys } from './user';
+// import { createdActivityTemplate } from './activityTemplates';
+import { addCourseActivitys, removeCourseActivitys } from './courses';
 
 import * as loading from './loading';
 
-export const gotAssignments = (assignments) => ({
+export const gotActivitys = (activitys) => ({
   type: actionTypes.GOT_ASSIGNMENTS,
-  byId: assignments.byId,
-  allIds: assignments.allIds
+  byId: activitys.byId,
+  allIds: activitys.allIds
 })
 
-export const addAssignment = assignment => ({
+export const addActivity = activity => ({
   type: actionTypes.ADD_ASSIGNMENT,
-  assignment,
+  activity,
 })
 
-export const clearCurrentAssignment = () => {
+export const clearCurrentActivity = () => {
   return {
     type: actionTypes.CLEAR_ASSIGNMENT
   }
 }
 
-export const createdAssignment = resp => {
-  const newAssignment = resp
+export const createdActivity = resp => {
+  const newActivity = resp
   return {
     type: actionTypes.CREATED_ASSIGNMENT,
-    newAssignment,
+    newActivity,
   }
 }
 
-export const addAssignmentRooms = (assignmentId, roomIdsArr) => {
+export const addActivityRooms = (activityId, roomIdsArr) => {
     return {
       type: actionTypes.ADD_ASSIGNMENT_ROOMS,
-      assignmentId,
+      activityId,
       roomIdsArr,
     }
 }
 
-export const assignmentRemoved = (assignmentId) => {
+export const activityRemoved = (activityId) => {
   return {
     type: actionTypes.REMOVE_ASSIGNMENT,
-    assignmentId,
+    activityId,
   }
 }
 
-export const getAssignments = params => {
+export const getActivitys = params => {
   return dispatch => {
     dispatch(loading.start())
-    API.get('assignment', params)
+    API.get('activity', params)
     .then(res => {
       // Normalize res
-      const assignments = normalize(res.data.results)
-      dispatch(gotAssignments(assignments))
+      const activitys = normalize(res.data.results)
+      dispatch(gotActivitys(activitys))
       dispatch(loading.success())
     })
     .catch(err => console.log(err));
   }
 }
 
-export const getCurrentAssignment = id => {
+export const getCurrentActivity = id => {
   return dispatch => {
     dispatch(loading.start())
-    API.getById('assignment', id)
+    API.getById('activity', id)
     .then(res => {
       dispatch(loading.success())
-      dispatch(addAssignment(res.data.result))
+      dispatch(addActivity(res.data.result))
     })
   }
 }
 
-export const createAssignment = body => {
+export const createActivity = body => {
   return dispatch => {
     dispatch(loading.start())
-    API.post('assignment', body)
+    API.post('activity', body)
     .then(res => {
       let result = res.data.result;
-      dispatch(createdAssignment(result))
+      dispatch(createdActivity(result))
       if (body.course) {
-        dispatch(addCourseAssignments(body.course, [result._id]))
+        dispatch(addCourseActivitys(body.course, [result._id]))
       }
-      dispatch(addUserAssignments([result._id]))
+      dispatch(addUserActivitys([result._id]))
       return dispatch(loading.success());
     })
   }
 }
 
 // @TODO MAKE SURE ONLY CREATOR CAN REMOVE
-export const removeAssignment = assignmentId => {
+export const removeActivity = activityId => {
   return dispatch => {
     dispatch(loading.start())
-    API.remove('assignment', assignmentId)
+    API.remove('activity', activityId)
     .then(res => {
       console.log(res.data)
-      dispatch(removeUserAssignments([assignmentId]))
-      dispatch(removeCourseAssignments(res.data.result.course, [assignmentId]))
-      dispatch(assignmentRemoved(assignmentId))
+      dispatch(removeUserActivitys([activityId]))
+      dispatch(removeCourseActivitys(res.data.result.course, [activityId]))
+      dispatch(activityRemoved(activityId))
       dispatch(loading.success())
     })
   }
 }
 
 
-export const UpdateCurrentAssignment = body => {}
+export const UpdateCurrentActivity = body => {}
 
-export const createdAssignmentConfirmed = () => {
+export const createdActivityConfirmed = () => {
   return {
     type: actionTypes.CREATE_ASSIGNMENT_CONFIRMED,
   }

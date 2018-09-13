@@ -3,7 +3,7 @@ import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
 import { addUserRooms, removeUserRooms } from './user';
 import { addCourseRooms, removeCourseRooms } from './courses';
-import { addAssignmentRooms, removeAssignmentRooms } from './assignments';
+import { addActivityRooms, removeActivityRooms } from './activitys';
 import * as loading from './loading'
 
 export const gotRooms = (rooms) => ({
@@ -87,8 +87,8 @@ export const createRoom = body => {
       if (body.course) {
         dispatch(addCourseRooms(body.course, [result._id]))
       }
-      if (body.assignment) {
-        dispatch(addAssignmentRooms(body.assignment, [result._id]))
+      if (body.activity) {
+        dispatch(addActivityRooms(body.activity, [result._id]))
       }
       dispatch(addUserRooms([result._id]))
       return dispatch(loading.success())

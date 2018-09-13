@@ -3,7 +3,7 @@ import ContentBox from './ContentBox';
 import { DragSource } from 'react-dnd';
 import {
   removeCourse,
-  removeAssignment,
+  removeActivity,
   removeRoom,
   // removeMember,
 } from '../../../store/actions';
@@ -36,7 +36,7 @@ const mapDispatchToProps = dispatch => {
   return {
     remove: {
       courses: (id) => dispatch(removeCourse(id)),
-      assignments: (id) => dispatch(removeAssignment(id)),
+      activitys: (id) => dispatch(removeActivity(id)),
       rooms: (id) => dispatch(removeRoom(id)),
       // member: (id, courseId) => dispatch(removeMember(id, courseId))
     }

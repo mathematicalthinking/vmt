@@ -1,4 +1,4 @@
-const Assignment = require('./Assignment');
+const Activity = require('./Activity');
 const Course = require('./Course');
 const CourseTemplate = require('./CourseTemplate');
 const Message = require('./Message');
@@ -10,7 +10,7 @@ const User = require('./User');
 const Event = require('./Event');
 
 module.exports = {
-  Assignment,
+  Activity,
   Course,
   CourseTemplate,
   Message,

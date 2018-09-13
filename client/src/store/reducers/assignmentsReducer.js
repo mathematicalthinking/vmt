@@ -8,60 +8,60 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.GOT_ASSIGNMENTS:
-      let updatedAssignments = merge({...state.byId}, action.byId)
+      let updatedActivitys = merge({...state.byId}, action.byId)
       return {
         ...state,
-        byId: updatedAssignments,
+        byId: updatedActivitys,
         allIds: action.allIds,
       };
 
     case actionTypes.ADD_ASSIGNMENT:
-      updatedAssignments = {...state.byId};
-      updatedAssignments[action.assignment._id] = action.assignment;
+      updatedActivitys = {...state.byId};
+      updatedActivitys[action.activity._id] = action.activity;
       return {
         ...state,
-        byId: updatedAssignments,
+        byId: updatedActivitys,
       }
 
     case actionTypes.REMOVE_ASSIGNMENT:
-      const updatedIds = state.allIds.filter(id => id !== action.assignmentId)
+      const updatedIds = state.allIds.filter(id => id !== action.activityId)
       const updatedById = {...state.byId}
-      delete updatedById[action.assignmentId]
+      delete updatedById[action.activityId]
       return {
         ...state,
         byId: updatedById,
         allIds: updatedIds,
       }
 
-    // @TODO if we've created a new assignment alert the user so we can redirect
-    // to the assignment --> do this by updating the sto
+    // @TODO if we've created a new activity alert the user so we can redirect
+    // to the activity --> do this by updating the sto
     case actionTypes.ADD_ASSIGNMENT_ROOMS:
-      updatedAssignments = {...state.byId};
-      updatedAssignments[action.assignmentId].rooms = updatedAssignments[action.assignmentId].rooms.concat(action.roomIdsArr)
+      updatedActivitys = {...state.byId};
+      updatedActivitys[action.activityId].rooms = updatedActivitys[action.activityId].rooms.concat(action.roomIdsArr)
       return {
         ...state,
-        byId: updatedAssignments,
+        byId: updatedActivitys,
       }
 
     case actionTypes.CREATED_ASSIGNMENT:
-      updatedAssignments = {...state.byId};
-      updatedAssignments[action.newAssignment._id] = action.newAssignment;
+      updatedActivitys = {...state.byId};
+      updatedActivitys[action.newActivity._id] = action.newActivity;
       return  {
         ...state,
-        byId: updatedAssignments,
-        allIds: [action.newAssignment._id, ...state.allIds],
+        byId: updatedActivitys,
+        allIds: [action.newActivity._id, ...state.allIds],
       }
 
     case actionTypes.CLEAR_ASSIGNMENT:
       return {
         ...state,
-        currentAssignment: {},
+        currentActivity: {},
       }
 
     case actionTypes.CREATE_ASSIGNMENT_CONFIRMED:
       return {
         ...state,
-        createdNewAssignment: false,
+        createdNewActivity: false,
       }
       default:
       return state

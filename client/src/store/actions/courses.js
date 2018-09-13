@@ -25,10 +25,10 @@ export const updateCourse = course => ({
   course,
 })
 
-export const addCourseAssignments = (courseId, assignmentIdsArr) => ({
+export const addCourseActivitys = (courseId, activityIdsArr) => ({
   type: actionTypes.ADD_COURSE_ASSIGNMENTS,
   courseId,
-  assignmentIdsArr,
+  activityIdsArr,
 })
 
 //@TODO REMOVE THIS
@@ -51,11 +51,11 @@ export const addCourseRooms = (courseId, roomIdsArr) => {
   }
 }
 
-export const removeCourseAssignments = (courseId, assignmentIdsArr) => {
+export const removeCourseActivitys = (courseId, activityIdsArr) => {
   return {
     type: actionTypes.REMOVE_COURSE_ASSIGNMENTS,
     courseId,
-    assignmentIdsArr,
+    activityIdsArr,
   }
 }
 
@@ -83,9 +83,9 @@ export const removeCourse = courseId => {
       dispatch(removeUserCourse(courseId))
         // remove courseRooms from user
         dispatch(removeUserRooms)
-        // remove courseAssignments from user
+        // remove courseActivitys from user
         // remove courseRooms
-        // remove courseAssignments
+        // remove courseActivitys
       dispatch(courseRemoved(courseId))
       return dispatch(loading.success())
     })

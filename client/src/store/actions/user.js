@@ -28,17 +28,17 @@ export const addUserCourses = newCoursesArr => {
   }
 }
 
-export const addUserAssignments = newAssignmentsArr => {
+export const addUserActivitys = newActivitysArr => {
   return {
     type: actionTypes.ADD_USER_ASSIGNMENTS,
-    newAssignmentsArr,
+    newActivitysArr,
   }
 }
 
-export const removeUserAssignments = assignmentIdsArr => {
+export const removeUserActivitys = activityIdsArr => {
   return {
     type: actionTypes.REMOVE_USER_ASSIGNMENTS,
-    assignmentIdsArr,
+    activityIdsArr,
   }
 }
 
@@ -103,7 +103,7 @@ export const login = (username, password) => {
     .then(res => {
       if (res.data.errorMessage) {return dispatch(loading.fail(res.data.errorMessage))}
       const courses = normalize(res.data.courses)
-      // const assignments = normalize(res.data.assignments)
+      // const activitys = normalize(res.data.activitys)
       dispatch(gotCourses(courses));
       const user = {
         ...res.data,

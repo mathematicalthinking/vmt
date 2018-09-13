@@ -9,11 +9,11 @@ export {
   updateUserCourses,
   clearNotification,
   updateUserAccessNtfs,
-  updateUserAssignments,
+  updateUserActivitys,
   updateUserCourseTemplates,
   removeUserCourse,
   removeUserRooms,
-  removeUserAssignments, // ARE WE STORING ASSIGNMENTS ON THE USER OBJECT?
+  removeUserActivitys, // ARE WE STORING ASSIGNMENTS ON THE USER OBJECT?
 } from './user';
 export {
   fail,
@@ -48,7 +48,7 @@ export {
   createCourse,
   createdCourses,
   updateCourseRooms,
-  updateCourseAssignments,
+  updateCourseActivitys,
   clearCurrentCourse,
   populateCurrentCourse,
 } from './courses';
@@ -59,12 +59,12 @@ export {
   createdCourseTemplate,
 } from './courseTemplates';
 export {
-  getAssignments,
-  gotAssignments,
-  getCurrentAssignment,
-  clearCurrentAssignment,
-  gotCurrentAssignment,
-  createAssignment,
-  createdAssignmentConfirmed,
-  removeAssignment,
-} from './assignments';
+  getActivitys,
+  gotActivitys,
+  getCurrentActivity,
+  clearCurrentActivity,
+  gotCurrentActivity,
+  createActivity,
+  createdActivityConfirmed,
+  removeActivity,
+} from './activitys';

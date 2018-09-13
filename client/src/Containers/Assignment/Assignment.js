@@ -4,7 +4,7 @@ import DashboardLayout from '../../Layout/Dashboard/Dashboard';
 import * as actions from '../../store/actions';
 import { connect } from 'react-redux';
 import { populateResource } from '../../store/reducers/';
-class Assignment extends Component {
+class Activity extends Component {
   state = {
     tabs: [
       {name: 'Details'},
@@ -31,34 +31,34 @@ class Assignment extends Component {
 
   fetchRooms() {
     console.log('fetching rooms')
-    const { assignment, populatedAssignment } = this.props;
-    if (assignment.rooms.length !== populatedAssignment.rooms.length) {
-      this.props.getRooms(assignment.rooms)
+    const { activity, populatedActivity } = this.props;
+    if (activity.rooms.length !== populatedActivity.rooms.length) {
+      this.props.getRooms(activity.rooms)
     }
   }
 
   render() {
     const resource = this.props.match.params.resource;
-    const assignment = this.props.populatedAssignment
+    const activity = this.props.populatedActivity
     const course = this.props.currentCourse;
     const contentData = {
       resource,
-      assignment,
+      activity,
       course,
-      userResources: assignment[resource] || [],
-      parentResource: 'assignments',
-      parentResourceId: assignment._id,
+      userResources: activity[resource] || [],
+      parentResource: 'activitys',
+      parentResourceId: activity._id,
       userId: this.props.userId,
     }
     console.log(contentData)
     const crumbs = [{title: 'Profile', link: '/profile/courses'}]
     if (course) {
       crumbs.push(
-        {title: `${course.name}`, link: `${crumbs[0].link}/${course._id}/assignments`},
-        {title: `${assignment.name}`, link: `${crumbs[0].link}/${course._id}/assignments/${assignment._id}/details`},
+        {title: `${course.name}`, link: `${crumbs[0].link}/${course._id}/activitys`},
+        {title: `${activity.name}`, link: `${crumbs[0].link}/${course._id}/activitys/${activity._id}/details`},
       )
     } else {
-      crumbs.push({title: `${assignment.name}`, link: `/profile/assignments/${assignment._id}/details`})
+      crumbs.push({title: `${activity.name}`, link: `/profile/activitys/${activity._id}/details`})
     }
     return (
       <DashboardLayout
@@ -73,10 +73,10 @@ class Assignment extends Component {
 }
 
 const mapStateToProps = (store, ownProps ) => {
-  const { assignment_id, course_id } = ownProps.match.params;
+  const { activity_id, course_id } = ownProps.match.params;
   return {
-    assignment: store.assignments.byId[assignment_id],
-    populatedAssignment: populateResource(store, 'assignments', assignment_id, ['rooms']),
+    activity: store.activitys.byId[activity_id],
+    populatedActivity: populateResource(store, 'activitys', activity_id, ['rooms']),
     currentCourse: store.courses.byId[course_id],
     userId: store.user.id,
   }
@@ -91,4 +91,4 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Assignment);
+export default connect(mapStateToProps, mapDispatchToProps)(Activity);

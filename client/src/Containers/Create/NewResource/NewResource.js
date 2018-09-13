@@ -60,14 +60,14 @@ class NewResource extends Component {
         case 'courses' :
           this.props.createCourse(newResource);
           break;
-        case 'assignments' :
+        case 'activitys' :
           newResource.tabs = [{ggbFile: this.state.ggbFile, desmosLink: this.state.desmosLink}]
           newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
           if (this.props.courseId) {
             newResource.course = this.props.courseId;
             delete newResource.members
           }
-          this.props.createAssignment(newResource);
+          this.props.createActivity(newResource);
           break;
         case 'rooms' :
           newResource.entryCode = hri.random();
@@ -113,7 +113,7 @@ class NewResource extends Component {
                   width='80%'
                 />
               </div>
-              {(resource === 'assignments' || resource === 'rooms') ?
+              {(resource === 'activitys' || resource === 'rooms') ?
                 <div className={classes.FormSection}>
                   <div className={classes.RadioButtons}>
                     <RadioBtn name='geogebra' checked={this.state.ggb} check={() => this.setState({ggb: true})}>GeoGebra</RadioBtn>
@@ -185,7 +185,7 @@ const mapDispatchToProps = dispatch => {
   return {
     createCourse: body => dispatch(actions.createCourse(body)),
     createRoom: body => dispatch(actions.createRoom(body)),
-    createAssignment: body => dispatch(actions.createAssignment(body)),
+    createActivity: body => dispatch(actions.createActivity(body)),
     createCourseTemplate: body => dispatch(actions.createCourseTemplate(body)),
   }
 }
