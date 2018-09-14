@@ -1,5 +1,5 @@
 .Modal {
-    position: fixed;
+    position: absolute;
     right: 50%;
     left: calc(50% - 250px);
     top: 20%;
@@ -15,7 +15,19 @@
     background-color: white;
     padding: 16px;
     z-index: 500;
+    overflow: scroll;
     transition: all 0.3s ease-out;
+}
+
+.Modal::-webkit-scrollbar {
+  width: 0.5em;
+  height: 0.09em;
+  background-color: #eee;
+}
+
+.Modal::-webkit-scrollbar-thumb {
+  background-color: #2D91F2;
+  border-radius: 3px;
 }
 
 .Message {
