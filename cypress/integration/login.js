@@ -1,16 +1,8 @@
 const user = require('../fixtures/user.json')
 
-describe('user login', function() {
-  it('Clicks each link in the navbar', function() {
-    cy.visit('/')
-    cy.contains('Rooms').click()
-    cy.url().should('include', '/publicList/rooms')
-    cy.contains('Courses').click()
-    cy.url().should('include', '/publicList/courses')
-    cy.contains('Login/Signup').click()
-    cy.url().should('include', '/users/new')
-    cy.contains('Profile').click()
-    cy.url().should('include', '/')
+describe('user signup/login', function() {
+  before(function() {
+    cy.task('clearDB')
   })
   it('signs up a new user', function() {
     cy.visit('/')
@@ -22,7 +14,13 @@ describe('user login', function() {
     cy.get('input[name=email]').type(user.email)
     cy.get('input[name=password]').type(user.password)
     cy.get('button').click()
-    cy.url().should('include', '/profile')
+    cy.url().should('include', '/profile/courses')
   })
-  it('logs in the user we just created')
+  it('logs in the user we just created', function() {
+    cy.reload(true)
+    cy.get('input[name=username]').type(user.username)
+    cy.get('input[name=password]').type(user.password)
+    cy.get('button').click()
+    cy.url().should('include', '/profile/courses')
+  })
 })
