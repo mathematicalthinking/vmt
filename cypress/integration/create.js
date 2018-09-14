@@ -59,4 +59,15 @@ describe('create each type of resource', function(){
     cy.contains(course.activity.name).should('be.visible')
   })
 
+  it('creates a course room', function(){
+    cy.get('.tabList__Tabs__2HZYa').contains('Rooms').click()
+    cy.url().should('include', '/profile/courses')
+    cy.url().should('include', '/rooms')
+    cy.get('button').contains('Create A New Room').click()
+    cy.get('input[name=roomsName]').type('{selectall} {backspace}').type(course.room.name)
+    cy.get('input[name=description]').type('{selectall} {backspace}').type(course.room.description)
+    cy.get('button').contains('Submit').click()
+    cy.contains(course.room.name).should('be.visible')
+  })
+
 })

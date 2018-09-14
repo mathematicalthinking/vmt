@@ -20,7 +20,7 @@ const desmos = require('./routes/desmos');
 
 const app = express();
 
-console.log(process.env.NODE_ENV)
+console.log("NODE_ENV=",process.env.NODE_ENV)
 // SETUP DATABASE & SESSION
 const mongoURI = (process.env.NODE_ENV === 'dev') ? process.env.MONGO_DEV_URI
 : process.env.MONGO_TEST_URI;
