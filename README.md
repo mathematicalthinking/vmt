@@ -21,7 +21,7 @@ $ git add .
 $ git commit -m 'built'
 $ git push -f heroku HEAD:master
 ```
-## GIT REBASE WORKFLOW
+## Git Rebase Workflow
 
 1. `git checkout master`
 1. `git pull --rebase upstream master`
@@ -55,6 +55,10 @@ $ git push -f heroku HEAD:master
 ## Helpful links
 [Desmos API](https://www.desmos.com/api/v1.1/docs/index.html)
 [Geogebra API](https://wiki.geogebra.org/en/Reference:GeoGebra_Apps_API)
+
+## Testing
+We utilize [Cypress](https://docs.cypress.io/guides/overview/why-cypress.html#In-a-Nutshell) for end to end testing
+To run the tests restart the server is test mode `npm run test` and then in a new console tab `npm run cypress`
 
 ## Project structure
 This project was bootstrapped with [this template](https://github.com/okputadora/MERN-template.git)
