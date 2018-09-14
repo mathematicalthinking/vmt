@@ -1,5 +1,8 @@
 const user = require('../fixtures/user.json')
 const course = require('../fixtures/course.json')
+const room = require('../fixtures/room.json')
+const activity = require('../fixtures/activity.json')
+
 describe('create each type of resource', function(){
   before(function(){
     cy.visit('/')
@@ -8,20 +11,52 @@ describe('create each type of resource', function(){
     cy.get('button').click()
   })
   it('creates a course', function(){
-    cy.get('button').click()
+    // cy.get('button').click()
     cy.url().should('include', '/profile')
     cy.get('button').contains('Create').click()
-    cy.get('input[name=coursesName]').type(course.courseName)
+    cy.get('input[name=coursesName]').type(course.name)
     cy.get('input[name=description]').type(course.description)
     cy.get('button').contains('Submit').click()
-    
+    cy.contains(course.name)
   })
 
-  context('create a course', function(){
-
+  it('creates a room', function(){
+    // cy.get('button').click()
+    cy.url().should('include', '/profile')
+    cy.get('.tabList__Tabs__2HZYa').contains('Rooms').click()
+    cy.url().should('include', '/profile/rooms')
+    cy.get('button').contains('Create').click()
+    cy.get('input[name=roomsName]').type('{selectall} {backspace}').type(room.name)
+    cy.get('input[name=description]').type('{selectall} {backspace}').type(room.description)
+    cy.get('input[name=dueDate]').type(room.dueDate)
+    cy.get('button').contains('Submit').click()
+    cy.contains(room.name).should('be.visible')
   })
-  context('create an assignment', function(){
 
+  it('creates an activity', function(){
+    cy.url().should('include', '/profile')
+    cy.get('.tabList__Tabs__2HZYa').contains('Activities').click()
+    cy.url().should('include', '/profile/activities')
+    cy.get('button').contains('Create A New Activity').click()
+    cy.get('input[name=activitiesName]').type('{selectall} {backspace}').type(activity.name)
+    cy.get('input[name=description]').type('{selectall} {backspace}').type(activity.description)
+    cy.get('button').contains('Submit').click()
+    cy.contains(activity.name).should('be.visible')
+  })
+
+  it('creates a course activity', function(){
+    cy.url().should('include', '/profile')
+    cy.get('.tabList__Tabs__2HZYa').contains('Courses').click()
+    cy.url().should('include', '/profile/courses')
+    cy.contains('test course 1').click()
+    cy.url().should('include', '/profile/courses')
+    cy.url().should('include', '/activities')
+    cy.get('.tabList__Tabs__2HZYa').contains('Activities').click()
+    cy.get('button').contains('Create A New Activity').click()
+    cy.get('input[name=activitiesName]').type('{selectall} {backspace}').type(course.activity.name)
+    cy.get('input[name=description]').type('{selectall} {backspace}').type(course.activity.description)
+    cy.get('button').contains('Submit').click()
+    cy.contains(course.activity.name).should('be.visible')
   })
 
 })

@@ -1,4 +1,8 @@
 {
-  "courseName": "test course 1",
+  "name": "test course 1",
   "description": "test description",
+  "activity": {
+    "name": "test course activity",
+    "description": "course activity description"
+  }
 }
