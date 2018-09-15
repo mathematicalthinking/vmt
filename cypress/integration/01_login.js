@@ -1,4 +1,4 @@
-const user = require('../fixtures/user.json')
+const user = require('../fixtures/user')
 
 describe('user signup/login', function() {
   before(function() {

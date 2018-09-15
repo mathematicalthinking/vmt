@@ -1,7 +1,7 @@
-const user = require('../fixtures/user.json')
-const course = require('../fixtures/course.json')
-const room = require('../fixtures/room.json')
-const activity = require('../fixtures/activity.json')
+const user = require('../fixtures/user')
+const course = require('../fixtures/course')
+const room = require('../fixtures/room')
+const activity = require('../fixtures/activity')
 
 describe('create each type of resource', function(){
   before(function(){
@@ -11,7 +11,6 @@ describe('create each type of resource', function(){
     cy.get('button').click()
   })
   it('creates a course', function(){
-    // cy.get('button').click()
     cy.url().should('include', '/profile')
     cy.get('button').contains('Create').click()
     cy.get('input[name=coursesName]').type(course.name)
@@ -68,6 +67,19 @@ describe('create each type of resource', function(){
     cy.get('input[name=description]').type('{selectall} {backspace}').type(course.room.description)
     cy.get('button').contains('Submit').click()
     cy.contains(course.room.name).should('be.visible')
+  })
+
+  it('creates a room from an activity', function(){
+    cy.get('.tabList__Tabs__2HZYa').contains('Activities').click()
+    cy.contains(course.activity.name).click()
+    cy.url('include', '/activities')
+    cy.url('include', '/details')
+    cy.contains('Assign').click()
+    cy.get('input[name=dueDate]').type(course.room.dueDate)
+    cy.get('input[name=manual]').check()
+    cy.get('.makeRooms__Container__282k- > button').contains('Assign').click()
+    cy.get('.tabList__Tabs__2HZYa').contains('Rooms').click()
+    cy.contains(course.activity.name + " 1").should('be.visible')
   })
 
 })

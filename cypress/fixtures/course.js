@@ -1,4 +1,4 @@
-{
+module.exports = {
   "name": "test course 1",
   "description": "test description",
   "activity": {

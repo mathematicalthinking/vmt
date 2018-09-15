@@ -1,3 +1,5 @@
+// THIS DOESN"T FEEL LIKE ITS IN A VERY LOGICAL PLACE IN THE FILE STRUCUTRE
+
 import React, { Component } from 'react';
 import Button from '../../../Components/UI/Button/Button';
 import Modal from '../../../Components/UI/Modal/Modal';
@@ -15,7 +17,7 @@ class MakeRoomsLayout extends Component {
           <div>Activity Name: {activity.name}</div>
           <div>Details: {activity.description}</div>
           <div>Type: {activity.roomType}</div>
-          <Button click={() => {this.setState({assigning: true})}}>Activate</Button>
+          <Button click={() => {this.setState({assigning: true})}}>Assign</Button>
         </div>
         {this.state.assigning ? <Modal show={true} closeModal={() => {this.setState({assigning: false})}}>
           <MakeRooms

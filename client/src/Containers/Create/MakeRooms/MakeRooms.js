@@ -121,7 +121,7 @@ class MakeRooms extends Component  {
               </div>
             </div>
           }
-          <Button click={this.submit}>Activate</Button>
+          <Button click={this.submit}>Assign</Button>
         </div>
       </Aux>
     )
