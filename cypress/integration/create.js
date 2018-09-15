@@ -5,10 +5,7 @@ const activity = require('../fixtures/activity')
 
 describe('create each type of resource', function(){
   before(function(){
-    cy.visit('/')
-    cy.get('input[name=username]').type(user.username)
-    cy.get('input[name=password]').type(user.password)
-    cy.get('button').click()
+    cy.login()
   })
   it('creates a course', function(){
     cy.url().should('include', '/profile')
