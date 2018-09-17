@@ -11,8 +11,8 @@ const summary = props => {
   const clickHandler = () => {
     history.push(`/workspace/${room._id}`);
   }
-  console.log(room)
-  console.log(room.currentUsers ? room.currentUsers.length : 0)
+
+  const goToReplayer = () => {history.push(`/workspace/${room._id}/replayer`)}
   return (
     <div className={classes.Container}>
       <div className={classes.Section}>
@@ -29,7 +29,7 @@ const summary = props => {
       <div className={classes.Section}>
         <span className={classes.Button}><Button click={activate}>Activate</Button></span>
         <span className={classes.Button}><Button click={clickHandler}>Join</Button></span>
-        <span className={classes.Button}><Button click={clickHandler}>Replayer</Button></span>
+        <span className={classes.Button}><Button click={goToReplayer}>Replayer</Button></span>
       </div>
     </div>
   )

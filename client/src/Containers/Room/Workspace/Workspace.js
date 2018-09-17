@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import io from 'socket.io-client';
-
+import { Route } from 'react-router-dom';
 import * as actions from '../../../store/actions';
 import Modal from '../../../Components/UI/Modal/Modal';
 import classes from './workspace.css';
 import GgbGraph from '../Graph/GgbGraph';
 import DesmosGraph from '../Graph/DesmosGraph';
 import Chat from '../Chat/Chat';
+import Replayer from ''
 import Avatar from '../../../Components/UI/Avatar/Avatar';
 import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 class Workspace extends Component {
@@ -48,7 +49,7 @@ class Workspace extends Component {
   }
 
   render() {
-    const { room, user, loading, currentUsers } = this.props;
+    const { room, user, loading, currentUsers, match } = this.props;
 
     return (
       <div>
@@ -64,6 +65,8 @@ class Workspace extends Component {
             <Chat messages={room.chat || []} roomId={room._id} socket={this.socket} user={user} />
           </div>
         </div>
+        {/* <Route exact path={`${match.url}`} /> */}
+        <Route path={`${match.url}/replayer`} render={ () => <Replayer />}/>
         <div className={classes.CurrentUsers}>
           <ContentBox align='left'>
             <div className={classes.Container}>{currentUsers ? currentUsers.map(user =>
