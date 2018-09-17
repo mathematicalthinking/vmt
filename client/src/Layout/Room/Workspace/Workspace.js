@@ -2,23 +2,23 @@ import React from 'react';
 import classes from './workspace.css';
 import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 import Avatar from '../../../Components/UI/Avatar/Avatar';
-const workspace = props => {
-  console.log('workspace layout props: ', props)
-  const currentUsers = props.userList.map(user => (
-    <div key={user.username} className={classes.Avatar}><Avatar username={user.username} /></div>)
-  )
+import Modal from '../../../Components/UI/Modal/Modal';
+import GgbGraph from '../../../Containers/Room/Graph/GgbGraph';
+import DesmosGraph from '../../../Containers/Room/Graph/DesmosGraph';
+import Chat from '../../../Containers/Room/Chat/Chat';
+const workspaceLayout = ({room, user, loading, currentUsers, match, socket, replaying, updateRoom}) => {
+  console.log('rendering workspace Layout')
   return (
     <div>
-      <Modal show={loading} message='loading...' />
       <div className={classes.Container}>
         <div className={classes.Graph}>
           {room.roomType === 'geogebra' ?
-            <GgbGraph room={room} socket={this.socket} replay={false} userId={user.id} /> :
-            <DesmosGraph room={room} socket={this.socket} replay={false} userId={user.id} />
+            <GgbGraph room={room} socket={socket} replay={replaying} userId={user.id} updateRoom={updateRoom}/> :
+            <DesmosGraph room={room} socket={socket} replay={replaying} userId={user.id} updateRoom={updateRoom}/>
           }
         </div>
         <div className={classes.Chat}>
-          <Chat messages={room.chat || []} roomId={room._id} socket={this.socket} user={user} />
+          <Chat replaying={replaying} messages={room.chat || []} roomId={room._id} socket={socket} user={user} updateRoom={updateRoom}/>
         </div>
       </div>
       <div className={classes.CurrentUsers}>
@@ -32,4 +32,4 @@ const workspace = props => {
     </div>
   )
 }
-export default workspace;
+export default workspaceLayout;

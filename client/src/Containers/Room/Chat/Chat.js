@@ -11,7 +11,7 @@ class Chat extends Component {
   }
 
   componentDidMount() {
-    this.socket = this.props.socket;
+    console.log(this.props.socket)
     // event handler for enter key presses
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Enter'){
@@ -28,7 +28,7 @@ class Chat extends Component {
     })
     // we dont want the chat to be live on replay
     if (!this.props.replaying) {
-      this.socket.on('RECEIVE_MESSAGE', data => {
+      this.props.socket.on('RECEIVE_MESSAGE', data => {
         let newMessages = [...this.state.messages, data]
         this.setState({
           messages: newMessages
@@ -59,7 +59,7 @@ class Chat extends Component {
       room: this.props.roomId,
       timestamp: Date.now()
     }
-    this.socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
+    this.props.socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
       if (err) {
         console.log(err);
         return;

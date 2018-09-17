@@ -101,6 +101,7 @@ class Room extends Component {
               contentData={contentData}
               tabs={this.state.tabs}
               activeTab={resource}
+              loading={this.props.loading}
               activateTab={event => this.setState({activeTab: event.target.id})}
             />
           </Aux> :
@@ -118,6 +119,7 @@ const mapStateToProps = (store, ownProps) => {
     // IF WE"RE MAKING A COPY OF STATE IN THE REDUCER WE SHOULDN"T HAVE TO DO THIS
     members: store.rooms.byId[ownProps.match.params.room_id].members,
     user: store.user,
+    loading: store.loading.loading,
   }
 }
 
