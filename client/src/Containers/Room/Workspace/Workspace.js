@@ -65,8 +65,6 @@ class Workspace extends Component {
             <Chat messages={room.chat || []} roomId={room._id} socket={this.socket} user={user} />
           </div>
         </div>
-        {/* <Route exact path={`${match.url}`} /> */}
-        <Route path={`${match.url}/replayer`} render={ () => <Replayer />}/>
         <div className={classes.CurrentUsers}>
           <ContentBox align='left'>
             <div className={classes.Container}>{currentUsers ? currentUsers.map(user =>

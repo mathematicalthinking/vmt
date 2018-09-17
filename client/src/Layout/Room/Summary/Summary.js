@@ -27,7 +27,6 @@ const summary = props => {
         {/* <div>Events: </div>{room.events ? room.events.length : 0} */}
       </div>
       <div className={classes.Section}>
-        <span className={classes.Button}><Button click={activate}>Activate</Button></span>
         <span className={classes.Button}><Button click={clickHandler}>Join</Button></span>
         <span className={classes.Button}><Button click={goToReplayer}>Replayer</Button></span>
       </div>
