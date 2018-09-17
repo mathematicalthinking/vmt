@@ -83,7 +83,7 @@ class Chat extends Component {
     if (this.state.messages) {
       messages = this.state.messages.map((message, i) => (
         <div key={i}>
-          <b>{message.username}: </b><span>{message.text}</span>
+          <b>{message.user.username}: </b><span>{message.text}</span>
         </div>
       ))
       // use this to scroll to the bottom
