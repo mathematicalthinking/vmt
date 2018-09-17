@@ -21,12 +21,11 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
       .populate({path: 'creator', select: 'username'})
-      .populate({path: 'chat.user', select: 'username'})
+      .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .populate({path: 'members.user', select: 'username'})
       .populate({path: 'notifications.user', select: 'username'})
       .populate({path: 'course', select: 'name'})
       .populate({path: 'tabs.events', select: '-room'})
-      .populate({path: 'chat', select: '-room'})
       .then(room => {
         console.log("ROOM: ", room)
         resolve(room)
@@ -79,9 +78,13 @@ module.exports = {
       // } else {
         console.log('updating room: ', id, body)
         db.Room.findByIdAndUpdate(id, body, {new: true})
-        .populate('creator')
-        .populate('members.user', 'username')
-        .populate('notifications.user')
+        .populate({path: 'creator', select: 'username'})
+        .populate({path: 'chat', populate: {path: 'user', select: 'username'}})
+        .populate({path: 'members.user', select: 'username'})
+        .populate({path: 'notifications.user', select: 'username'})
+        .populate({path: 'course', select: 'name'})
+        .populate({path: 'tabs.events', select: '-room'})
+        .populate({path: 'chat', select: '-room'})
         .then(room => { console.log(room); resolve(room)})
         .catch(err => {console.log(err); reject(err)})
       // }
