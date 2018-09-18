@@ -17,7 +17,10 @@ class Workspace extends Component {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
-      updateRoom(room._id, res.result)
+      // WE COULD MAKE TAKE THIS OUT OF THE CALLBACK AND UPDATE IMMEDIATELY
+      // AND THEN NOTIFY THE USER OF AN ERROR ONLY IF SOMETHING GOES WRONG
+      const updatedUsers = [...room.currentUsers, {_id: user.id, username: user.username}]
+      updateRoom(room._id, {currentUsers: updatedUsers})
     })
 
     this.socket.on('USER_JOINED', data => {
@@ -36,7 +39,7 @@ class Workspace extends Component {
       roomId: room._id,
     }
     this.socket.emit('LEAVE', data, (res) => {
-      updateRoom(room._id, {currentUsers: res.result})
+      updateRoom(room._id, {currentUsers: room.currentUsers.filter(u => u._id !== user.id)})
       this.socket.disconnect();
     })
   }

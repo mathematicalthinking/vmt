@@ -12,7 +12,7 @@ sockets.init = server => {
           controllers.room.addCurrentUsers(data.roomId, data.userId)
           .then(room => {
             socket.broadcast.to(data.roomId).emit('USER_JOINED', room.currentUsers);
-            callback({result: room}, null)
+            callback({result: room.currentUsers}, null)
           })
           .catch(err => callback(null, err))
         })
@@ -46,7 +46,7 @@ sockets.init = server => {
       socket.on('SEND_EVENT', (data) => {
         // console.log('receiving event: ', data)
         // console.log(typeof data.event)
-        controllers.event.post(data) // @TODO set this up as middleware
+        controllers.event.post(data) // @TODO set this up as middleware ?????
         // console.log(io.sockets.clients(data.roomId))
         console.log(data)
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data.event)

@@ -75,7 +75,7 @@ class Chat extends Component {
       messages: updatedMessages,
       newMessage: '',
     })
-    this.props.updateRoom({chat: updatedMessages})
+    // this.props.updateRoom({chat: updatedMessages})
   }
 
   render() {

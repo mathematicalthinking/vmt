@@ -20,6 +20,7 @@ const reducer = (state = initialState, action) => {
       updatedRooms = {...state.byId}
       let updatedRoom = updatedRooms[action.roomId]
       let fields = Object.keys(action.body)
+      console.log("FIELDS: ", fields)
       fields.forEach(field => {
         updatedRoom[field] = action.body[field]
       })

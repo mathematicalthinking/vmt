@@ -11,6 +11,6 @@ Event.pre('save', async function() {
   console.log('saving event to room')
 
   // tabs[this.tabIndex].events.push(this._id)
-  await Room.findByIdAndUpdate(this.room, {$addToSet: {'tabs.$[].events': this.tabIndex}})
+  await Room.findByIdAndUpdate(this.room, {$addToSet: {events: this._id}})
 })
 module.exports = mongoose.model('Event', Event);

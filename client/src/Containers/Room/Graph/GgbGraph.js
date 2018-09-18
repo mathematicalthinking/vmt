@@ -71,7 +71,9 @@ class GgbGraph extends Component {
     console.log(this.props.room)
     const { events } = this.props.room
     if (events.length > 0) {
-      this.ggbApplet.setXML(events[events.length - 1])
+      console.log(events)
+      console.log(events[events.length - 1].event)
+      this.ggbApplet.setXML(events[events.length - 1].event)
     }
     this.eventListener = obj => {
       // if (!this.state.receivingData) {
