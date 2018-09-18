@@ -9,7 +9,7 @@ const Event = new mongoose.Schema({
 
 Event.pre('save', async function() {
   console.log('saving event to room')
-
+  console.log(this.event)
   // tabs[this.tabIndex].events.push(this._id)
   await Room.findByIdAndUpdate(this.room, {$addToSet: {events: this._id}})
 })

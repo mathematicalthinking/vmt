@@ -18,6 +18,8 @@ class DesmosGraph extends Component {
     const { events, desmosLink } = this.props.room;
     if (events.length > 0) {
       this.calculator.setState(events[events.length - 1].event)
+      this.setState({loading: false})
+      this.initializeListeners()
     } else if (desmosLink) {
       // @TODO This will require some major reconfiguration / But what we shoould do is
       // when the user creates this room get teh state from the link and then just save it
@@ -43,14 +45,13 @@ class DesmosGraph extends Component {
   initializeListeners = () => {
     // INITIALIZE EVENT LISTENER
     this.calculator.observeEvent('change', () => {
-      const data = {
-        user: this.props.userId,
-        room: this.props.room._id,
-        event: this.calculator.getState(),
-      }
-      console.log(data)
       if (!this.state.receivingEvent) {
-        this.props.socket.emit('SEND_EVENT', data, res => {
+        const newData = {
+          room: this.props.room._id,
+          event: this.calculator.getState(),
+          user: {_id: this.props.user.id, username: this.props.user.username},
+        }
+        this.props.socket.emit('SEND_EVENT', newData, res => {
           console.log(res)
         })
       } else {
@@ -60,10 +61,10 @@ class DesmosGraph extends Component {
       }
       // this.socket.emit('SEND_EVENT', event)
     })
-    this.props.socket.on('RECEIVE_EVENT', event => {
+    this.props.socket.on('RECEIVE_EVENT', data => {
       this.setState({receivingEvent: true})
-      console.log(event)
-      this.calculator.setState(event)
+      console.log(data)
+      this.calculator.setState(data.event)
     })
   }
 

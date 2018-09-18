@@ -2,7 +2,6 @@ import React from 'react';
 import classes from './workspace.css';
 import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 import Avatar from '../../../Components/UI/Avatar/Avatar';
-import Modal from '../../../Components/UI/Modal/Modal';
 import GgbGraph from '../../../Containers/Room/Graph/GgbGraph';
 import DesmosGraph from '../../../Containers/Room/Graph/DesmosGraph';
 import Chat from '../../../Containers/Room/Chat/Chat';
@@ -13,8 +12,8 @@ const workspaceLayout = ({room, user, loading, currentUsers, match, socket, repl
       <div className={classes.Container}>
         <div className={classes.Graph}>
           {room.roomType === 'geogebra' ?
-            <GgbGraph room={room} socket={socket} replay={replaying} userId={user.id} updateRoom={updateRoom}/> :
-            <DesmosGraph room={room} socket={socket} replay={replaying} userId={user.id} updateRoom={updateRoom}/>
+            <GgbGraph room={room} socket={socket} replay={replaying} user={user} updateRoom={updateRoom}/> :
+            <DesmosGraph room={room} socket={socket} replay={replaying} user={user} updateRoom={updateRoom}/>
           }
         </div>
         <div className={classes.Chat}>

@@ -46,10 +46,13 @@ sockets.init = server => {
       socket.on('SEND_EVENT', (data) => {
         // console.log('receiving event: ', data)
         // console.log(typeof data.event)
-        controllers.event.post(data) // @TODO set this up as middleware ?????
         // console.log(io.sockets.clients(data.roomId))
-        console.log(data)
-        socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data.event)
+        if (typeof data.event !== 'string') {
+          console.log('its an object')
+          data.event = JSON.stringify(data.event)
+        }
+        controllers.event.post(data) // @TODO set this up as middleware ?????
+        socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data)
         // callback('success')
         console.log('success')
       })

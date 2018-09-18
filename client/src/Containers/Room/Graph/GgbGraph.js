@@ -22,7 +22,7 @@ class GgbGraph extends Component {
     console.log(this.socket)
 
     this.socket.on('RECEIVE_EVENT', data => {
-      this.ggbApplet.setXML(data)
+      this.ggbApplet.setXML(data.event)
       this.ggbApplet.registerAddListener(this.eventListener) // @HACK we're readding the event listener every time because setXML destorys them.
     })
   }
@@ -84,11 +84,12 @@ class GgbGraph extends Component {
 
     const sendEvent = obj => {
       //@TODO get information from obj.xml to save for more detailed playback
-      const newData = {}
-      newData.room = this.props.room._id;
-      newData.event = this.ggbApplet.getXML();
+      const newData = {
+        room: this.props.room._id,
+        event: this.ggbApplet.getXML(),
+        user: {_id: this.props.user.id, username: this.props.user.username},
+      }
       // this.ggbApplet.setXML(newData.event)
-      newData.user = this.props.userId;
       // this.props.updateRoom({events: newData})
       this.socket.emit('SEND_EVENT', newData)
     }
