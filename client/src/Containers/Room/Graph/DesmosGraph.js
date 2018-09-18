@@ -15,36 +15,29 @@ class DesmosGraph extends Component {
     console.log('script loaded')
     const elt = document.getElementById('calculator');
     this.calculator = window.Desmos.GraphingCalculator(elt);
-    const tabs = this.props.room.tabs;
-    console.log(tabs)
-    if (tabs.length > 0) {
-      console.log('there are tabs')
-      if (tabs[0].events.length > 0) {
-        this.calculator.setState(tabs[0].events[0].event)
-      }
-      if (tabs[0].desmosLink) {
-        console.log('we have a desmos link')
-        // @TODO This will require some major reconfiguration / But what we shoould do is
-        // when the user creates this room get teh state from the link and then just save it
-        // as as event on this model.
-        API.getDesmos(tabs[0].desmosLink)
-        .then(res => {
-          this.calculator.setState(res.data.result.state)
-          console.log("CALCULATOR: ", this.calculator)
-          // console.
-          this.setState({loading: false})
-          this.initializeListeners()
+    const { events, desmosLink } = this.props.room;
+    if (events.length > 0) {
+      this.calculator.setState(events[events.length - 1].event)
+    } else if (desmosLink) {
+      // @TODO This will require some major reconfiguration / But what we shoould do is
+      // when the user creates this room get teh state from the link and then just save it
+      // as as event on this model.
+      API.getDesmos(desmosLink)
+      .then(res => {
+        this.calculator.setState(res.data.result.state)
+        console.log("CALCULATOR: ", this.calculator)
+        // console.
+        this.setState({loading: false})
+        this.initializeListeners()
 
-        })
-        .catch(err => console.log(err))
-      }
+      })
+      .catch(err => console.log(err))
     }
     else {
-      console.log('no tabs')
+      console.log('no initial state')
       this.initializeListeners()
       this.setState({loading: false})
     }
-
   }
 
   initializeListeners = () => {

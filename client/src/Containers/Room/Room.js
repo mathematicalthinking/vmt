@@ -24,7 +24,6 @@ class Room extends Component {
   ]
 
   componentDidMount() {
-    console.log('component did mount')
     const { room, user, populateRoom } = this.props;
     // CHECK ACCESS
     let updatedTabs = [...this.state.tabs];
@@ -39,9 +38,8 @@ class Room extends Component {
       console.log(user.id)
       this.checkAccess();
     }
-    if (!room.events) {
-      populateRoom(room._id)
-    }
+    // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
+    populateRoom(room._id)
     // Get Any other notifications
     this.setState({
       tabs: updatedTabs,

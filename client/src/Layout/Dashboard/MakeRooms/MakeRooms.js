@@ -20,10 +20,10 @@ class MakeRoomsLayout extends Component {
         {this.state.assigning ? <Modal show={true} closeModal={() => {this.setState({assigning: false})}}>
           <MakeRooms
             activity={activity}
-            course={course._id}
+            course={course ? course._id : null}
             userId={this.props.userId}
             close={() => {this.setState({assigning: false})}}
-            students={course.members.filter(member => member.role === 'Student')}/>
+            students={course ? course.members.filter(member => member.role === 'Student') : []}/>
         </Modal> : null}
       </Aux>
     )

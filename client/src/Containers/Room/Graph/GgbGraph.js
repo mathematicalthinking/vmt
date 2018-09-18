@@ -69,8 +69,8 @@ class GgbGraph extends Component {
   // // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
   initializeGgb = () => {
     console.log(this.props.room)
-    const { events } = this.props.room.tabs[0]
-    if (events.length > 1) {
+    const { events } = this.props.room
+    if (events.length > 0) {
       this.ggbApplet.setXML(events[events.length - 1])
     }
     this.eventListener = obj => {
@@ -85,11 +85,8 @@ class GgbGraph extends Component {
       const newData = {}
       newData.room = this.props.room._id;
       newData.event = this.ggbApplet.getXML();
-      console.log(typeof newData.event)
       // this.ggbApplet.setXML(newData.event)
-      console.log(newData.event)
       newData.user = this.props.userId;
-      console.log(newData)
       // this.props.updateRoom({events: newData})
       this.socket.emit('SEND_EVENT', newData)
     }

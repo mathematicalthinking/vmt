@@ -61,7 +61,8 @@ class NewResource extends Component {
           this.props.createCourse(newResource);
           break;
         case 'activities' :
-          newResource.tabs = [{ggbFile: this.state.ggbFile, desmosLink: this.state.desmosLink}]
+          newResource.ggbFile = this.state.ggbFile;
+          newResource.desmosLink = this.state.desmosLink
           newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
           if (this.props.courseId) {
             newResource.course = this.props.courseId;
@@ -71,7 +72,8 @@ class NewResource extends Component {
           break;
         case 'rooms' :
           newResource.entryCode = hri.random();
-          newResource.tabs = [{ggbFile: this.state.ggbFile, desmosLink: this.state.desmosLink}]
+          newResource.ggbFile = this.state.ggbFile;
+          newResource.desmosLink = this.state.desmosLink;
           newResource.dueDate = this.state.dueDate;
           newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
           this.props.createRoom(newResource);
@@ -89,7 +91,6 @@ class NewResource extends Component {
     if (resource === 'activities') {
       displayResource = 'Activity'
     } else { displayResource = resource.charAt(0).toUpperCase() + resource.slice(1, resource.length - 1); }
-    const templateDetails = (resource === 'course') ? "Every room you add to this course will also be added to your template (along with the files associated with the room). Course members and activity in the rooms will not be saved to the template. This allow you to resuse this template for multiple groups of students." : '';
     // @IDEA ^ while I've never seen this done before...maybe it'd be cleaner to have a file of static content and just import it in so we don't have these long strings all over
     console.log(resource)
     return (
