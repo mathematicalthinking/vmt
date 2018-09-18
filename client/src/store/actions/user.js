@@ -4,7 +4,7 @@ import { normalize } from '../utils/normalize';
 import API from '../../utils/apiRequests';
 import * as loading from './loading'
 import { updateCourse, gotCourses } from './courses';
-import { updateRoom } from './rooms';
+import { updateRoom, addRoomMember } from './rooms';
 
 
 export const gotUser = user => {
@@ -121,16 +121,21 @@ export const login = (username, password) => {
 // ENTRY CODE IS OPTIONAL
 // WE SHOULD JUST SEPARATE OUT CHECKROOMACCESS into the ROOM ACTIONS FILE
 export const requestAccess = (toUser, fromUser, resource, resourceId, entryCode) => {
+  console.log(toUser)
+  console.log(fromUser)
+  console.log(resource)
+  console.log(entryCode)
   return dispatch => {
     dispatch(loading.start());
-    console.log("RESOUCE:L ", resource, entryCode)
     if (resource === 'room' && entryCode) {
       console.log('checking room access')
-      API.checkRoomAccess(resourceId, fromUser, entryCode)
+      API.checkRoomAccess(resourceId, fromUser.id, entryCode)
       .then(res => {
-        console.log(res)
         dispatch(addUserRooms([resourceId]))
-        return dispatch(updateRoom(resourceId, {members: res.data.result.members}))
+        dispatch(addRoomMember(resourceId, {
+          role: 'students', user: {_id: fromUser.id, username: fromUser.username}
+        }))
+        // return dispatch(loading.success())
       })
       .catch(err => loading.fail(err))
     } else {

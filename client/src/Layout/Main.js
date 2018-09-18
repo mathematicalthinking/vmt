@@ -27,6 +27,7 @@ const mapStateToProps = store => ({
 @connect(mapStateToProps, null)
 export default class Main extends Component {
   render() {
+    console.log('main rendering')
     return (
       <main className={classes.Main}>
         {/* <div className={classes.Particles} id='particles-js'></div> */}

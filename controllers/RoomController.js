@@ -57,27 +57,27 @@ module.exports = {
   put: (id, body) => {
     console.log("IN TYHE CONTROLLER: ", id, body)
     return new Promise((resolve, reject) => {
-      // @TODO THIS SHOULD BE DONE VIA THE AUTH ROUTE MAYBE?
-      // const updatedField = Object.keys(body)
-      // const { entryCode, userId } = body.checkAccess;
-      // if (updatedField[0] === 'checkAccess') {
-      //   console.log("SHOULDNT BE IN HERE")
-      //   db.Room.findById(id)
-      //   .then(room => {
-      //     if (room.entryCode === entryCode) {
-      //       room.members.push({user: userId, role: 'student'})
-      //       room.save()
-      //       room.populate({path: 'members.user', select: 'username'}, function() {
-      //         console.log("ROOM: ", room)
-      //         resolve(room)
-      //       })
-      //     }
-      //     else resolve(room)
-      //   })
-      //   .catch(err => reject(err))
-      // } else {
+      const updatedField = Object.keys(body)
+      console.log(updatedField)
+      const { entryCode, userId } = body.checkAccess;
+      if (updatedField[0] === 'checkAccess') {
+        db.Room.findById(id)
+        .then(room => {
+          // @TODO SHOULD PROBABLY HASH THIS
+          if (room.entryCode === entryCode) {
+            room.members.push({user: userId, role: 'student'})
+            room.save()
+            room.populate({path: 'members.user', select: 'username'}, function() {
+              console.log("ROOM: ", room)
+              resolve(room)
+            })
+          } else reject('incorrect entry code')
+        })
+        .catch(err => reject(err))
+      } else {
         console.log('updating room: ', id, body)
         db.Room.findByIdAndUpdate(id, body, {new: true})
+        // @TODO TOO MANY POPULATES
         .populate({path: 'creator', select: 'username'})
         .populate({path: 'chat', populate: {path: 'user', select: 'username'}})
         .populate({path: 'members.user', select: 'username'})
@@ -87,7 +87,7 @@ module.exports = {
         .populate({path: 'chat', select: '-room'})
         .then(room => { console.log(room); resolve(room)})
         .catch(err => {console.log(err); reject(err)})
-      // }
+      }
     })
   },
 

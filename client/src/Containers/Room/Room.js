@@ -24,6 +24,7 @@ class Room extends Component {
   ]
 
   componentDidMount() {
+    console.log("COMPONENT DID MOUNT ")
     const { room, user, members, populateRoom } = this.props;
     // CHECK ACCESS
     let updatedTabs = [...this.state.tabs];
@@ -52,13 +53,18 @@ class Room extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.members.length !== this.props.room.members.length) {
+
+    console.log("PROPS UPDAYED ADDED A NEW MEMBER")
+    console.log({...prevProps}, {...this.props})
+    console.log(prevProps.room.members.length)
+    console.log(this.props.room.members.length)
+    if (prevProps.room.members.length !== this.props.room.members.length) {
       this.checkAccess();
     }
   }
 
   checkAccess () {
-    if (this.props.members.find(member => member.user._id === this.props.user.id)) {
+    if (this.props.room.members.find(member => member.user._id === this.props.user.id)) {
       this.setState({member: true})
     };
 
@@ -66,7 +72,9 @@ class Room extends Component {
 
   requestAccess = entryCode => {
     const {room, user} = this.props;
-    this.props.requestAccess(user.id, 'room', room._id, entryCode)
+    console.log(user, room._id)
+    console.log("ENTRY CODE: ", entryCode)
+    this.props.requestAccess(user, 'room', room._id, entryCode)
   }
 
 
@@ -112,12 +120,12 @@ class Room extends Component {
 }
 
 const mapStateToProps = (store, ownProps) => {
+  console.log({...store.rooms.byId[ownProps.match.params.room_id]})
   return {
     room: store.rooms.byId[ownProps.match.params.room_id],
     // EVEN THOUGH MEMBERS IS INCLUDED IN ROOM, WE GRAB IT SEPARATELY
     // SO THAT CONNECT() UPDATES PROPS CORRECTLY -- I FEEL LIKE SOMETHING IS WRONG HERE
     // IF WE"RE MAKING A COPY OF STATE IN THE REDUCER WE SHOULDN"T HAVE TO DO THIS
-    members: store.rooms.byId[ownProps.match.params.room_id].members,
     user: store.user,
     loading: store.loading.loading,
   }

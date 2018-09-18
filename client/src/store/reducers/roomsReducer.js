@@ -7,6 +7,7 @@ const initialState = {
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
+
     case actionTypes.GOT_ROOMS:
       let updatedRooms = merge({...state.byId}, action.byId)
       return {
@@ -14,25 +15,22 @@ const reducer = (state = initialState, action) => {
         byId: updatedRooms,
         allIds: action.allIds,
       };
-    // case actionTypes.GOT_ROOM:
-    //   updatedRooms = {...state.byId};
-    //   updatedRooms[action.room._id] = action.room;
-    //   console.log(updatedRooms[action.room._id])
-    //   return {
-    //     ...state,
-    //     byId: updatedRooms,
-    //   }
+
     case actionTypes.UPDATE_ROOM:
       updatedRooms = {...state.byId}
       let updatedRoom = updatedRooms[action.roomId]
       let fields = Object.keys(action.body)
-      fields.forEach(field => updatedRoom[field] = action.body[field])
+      fields.forEach(field => {
+        updatedRoom[field] = action.body[field]
+      })
       return {
         ...state,
         byId: updatedRooms,
       }
+
     // @TODO if we've created a new room alert the user so we can redirect
     // to the room --> do this by updating the sto
+
     case actionTypes.CREATED_ROOM:
       updatedRooms = {...state.byId};
       updatedRooms[action.newRoom._id] = action.newRoom;
@@ -41,6 +39,36 @@ const reducer = (state = initialState, action) => {
         byId: updatedRooms,
         allIds: [action.newRoom._id, ...state.allIds],
       }
+
+
+    case actionTypes.ADD_ROOM_MEMBER:
+      let updatedMembers = [...state.byId[action.roomId].members]
+      updatedMembers.push(action.body);
+      return {
+        ...state,
+        byId: {
+          ...state.byId,
+          [action.roomId]: {
+            ...state.byId[action.roomId],
+            members: updatedMembers
+          }
+        },
+      }
+
+    case actionTypes.REMOVE_ROOM_MEMBER:
+      updatedMembers = state.byId[action.roomId].members
+        .filter(member => member._id !== action.userId)
+      return {
+        ...state,
+        byId: {
+          ...state.byId,
+          [action.roomId]: {
+            ...state.byId[action.roomId],
+            members: updatedMembers
+          }
+        },
+      }
+
     case actionTypes.REMOVE_ROOM:
       updatedRooms = {...state.byId}
       delete updatedRooms[action.id]
@@ -50,6 +78,7 @@ const reducer = (state = initialState, action) => {
         byId: updatedRooms,
         allIds: updatedRoomIds,
       }
+
     case actionTypes.CREATE_ROOM_CONFIRMED:
       return {
         ...state,
