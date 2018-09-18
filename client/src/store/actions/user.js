@@ -135,7 +135,7 @@ export const requestAccess = (toUser, fromUser, resource, resourceId, entryCode)
         dispatch(addRoomMember(resourceId, {
           role: 'students', user: {_id: fromUser.id, username: fromUser.username}
         }))
-        // return dispatch(loading.success())
+        return dispatch(loading.success())
       })
       .catch(err => loading.fail(err))
     } else {

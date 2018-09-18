@@ -33,7 +33,7 @@ class Chat extends Component {
         this.setState({
           messages: newMessages
         })
-        this.props.updateRoom({chat: data})
+        // this.props.updateRoom({chat: data})
         // this.scrollToBottom() @TODO
       });
     }
@@ -52,10 +52,10 @@ class Chat extends Component {
   }
 
   submitMessage = () => {
+    const { roomId, user } = this.props;
     const newMessage = {
       text: this.state.newMessage,
-      username: this.props.user.username,
-      user: this.props.user.id,
+      user: {_id: user.id, username: user.username},
       room: this.props.roomId,
       timestamp: Date.now()
     }

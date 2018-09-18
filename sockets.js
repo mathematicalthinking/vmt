@@ -30,7 +30,7 @@ sockets.init = server => {
       })
       socket.on('SEND_MESSAGE', (data, callback) => {
         const postData = {...data}
-        delete postData.username
+        postData.user = postData.user._id;
         controllers.message.post(postData)
         .then(res => {
           socket.broadcast.to(data.room).emit('RECEIVE_MESSAGE', data);

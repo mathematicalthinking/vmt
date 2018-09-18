@@ -27,7 +27,6 @@ module.exports = {
       .populate({path: 'course', select: 'name'})
       .populate({path: 'tabs.events', select: '-room'})
       .then(room => {
-        console.log("ROOM: ", room)
         resolve(room)
       })
       .catch(err => reject(err))
@@ -39,7 +38,6 @@ module.exports = {
     return new Promise((resolve, reject) => {
         db.Room.create(body)
         .then(room => {
-          console.log('successful room creation: ', room  )
           if (body.course) {
             room.populate({path: 'course', select: 'name'})
           }
@@ -55,10 +53,8 @@ module.exports = {
 
 // @TODO WE SHOULD PROBABLY JUST CREATE DIFFERENT METHODS FOR EACH OF THESE CASES?
   put: (id, body) => {
-    console.log("IN TYHE CONTROLLER: ", id, body)
     return new Promise((resolve, reject) => {
       const updatedField = Object.keys(body)
-      console.log(updatedField)
       const { entryCode, userId } = body.checkAccess;
       if (updatedField[0] === 'checkAccess') {
         db.Room.findById(id)
@@ -68,14 +64,12 @@ module.exports = {
             room.members.push({user: userId, role: 'student'})
             room.save()
             room.populate({path: 'members.user', select: 'username'}, function() {
-              console.log("ROOM: ", room)
               resolve(room)
             })
           } else reject('incorrect entry code')
         })
         .catch(err => reject(err))
       } else {
-        console.log('updating room: ', id, body)
         db.Room.findByIdAndUpdate(id, body, {new: true})
         // @TODO TOO MANY POPULATES
         .populate({path: 'creator', select: 'username'})
@@ -84,7 +78,6 @@ module.exports = {
         .populate({path: 'notifications.user', select: 'username'})
         .populate({path: 'course', select: 'name'})
         .populate({path: 'tabs.events', select: '-room'})
-        .populate({path: 'chat', select: '-room'})
         .then(room => { console.log(room); resolve(room)})
         .catch(err => {console.log(err); reject(err)})
       }
