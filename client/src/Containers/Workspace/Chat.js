@@ -11,6 +11,7 @@ class Chat extends Component {
   }
 
   componentDidMount() {
+    console.log("DOES THIS WORK")
     console.log(this.props.socket)
     // event handler for enter key presses
     document.addEventListener('keydown', (event) => {
@@ -52,6 +53,7 @@ class Chat extends Component {
   }
 
   submitMessage = () => {
+    console.log("THIS: ",this)
     const { roomId, user } = this.props;
     const newMessage = {
       text: this.state.newMessage,
@@ -69,7 +71,11 @@ class Chat extends Component {
 
     })
     delete newMessage.room;
-    let updatedMessages = [...this.state.messages, newMessage]
+    console.log(this.state.messages)
+    let updatedMessages = [newMessage]
+    if (this.state.messages) {
+      updatedMessages = [...this.state.messages, newMessage]
+    }
     // this.scrollToBottom(); @TODO
     this.setState({
       messages: updatedMessages,

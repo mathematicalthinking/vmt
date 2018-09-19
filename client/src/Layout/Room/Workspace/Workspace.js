@@ -8,7 +8,7 @@ const workspaceLayout = ({graph, chat, replayer}) => {
     <Aux>
       <div className={classes.Container}>
         <div className={classes.Graph}>{graph()}</div>
-        <div className={classes.Chat}>{chat}</div>
+        <div className={classes.Chat}>{chat()}</div>
       </div>
       <div className={classes.CurrentUsers}>
         {/* <ContentBox align='left'>
