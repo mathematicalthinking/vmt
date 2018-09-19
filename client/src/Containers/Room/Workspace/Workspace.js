@@ -46,7 +46,7 @@ class Workspace extends Component {
 
   render() {
     return (
-      <WorkspaceLayout {...this.props} socket={this.socket} />
+      <WorkspaceLayout {...this.props} socket={this.socket}/>
     )
   }
 }

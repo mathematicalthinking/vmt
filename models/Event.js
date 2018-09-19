@@ -5,11 +5,10 @@ const Event = new mongoose.Schema({
   user: {type: ObjectId, ref: 'User'},
   event: {type: String},
   room: {type: ObjectId, ref: 'Room'},
+  timeStamp: {type: Date, default: Date.now()}
 });
 
 Event.pre('save', async function() {
-  console.log('saving event to room')
-  console.log(this.event)
   // tabs[this.tabIndex].events.push(this._id)
   await Room.findByIdAndUpdate(this.room, {$addToSet: {events: this._id}})
 })

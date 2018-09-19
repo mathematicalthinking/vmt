@@ -6,6 +6,7 @@ import { withRouter } from 'react-router-dom';
 const summary = ({room, history, loading}) => {
   console.log("rendering summary")
   const clickHandler = () => {
+    console.log('go to workspace')
     history.push(`/workspace/${room._id}`);
   }
   const goToReplayer = () => {history.push(`/workspace/${room._id}/replayer`)}

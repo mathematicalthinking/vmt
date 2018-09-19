@@ -48,7 +48,6 @@ sockets.init = server => {
         // console.log(typeof data.event)
         // console.log(io.sockets.clients(data.roomId))
         if (typeof data.event !== 'string') {
-          console.log('its an object')
           data.event = JSON.stringify(data.event)
         }
         controllers.event.post(data) // @TODO set this up as middleware ?????

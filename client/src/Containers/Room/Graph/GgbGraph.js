@@ -88,6 +88,7 @@ class GgbGraph extends Component {
         room: this.props.room._id,
         event: this.ggbApplet.getXML(),
         user: {_id: this.props.user.id, username: this.props.user.username},
+        timeStamp: Date.now(),
       }
       // this.ggbApplet.setXML(newData.event)
       // this.props.updateRoom({events: newData})

@@ -50,6 +50,7 @@ class DesmosGraph extends Component {
           room: this.props.room._id,
           event: this.calculator.getState(),
           user: {_id: this.props.user.id, username: this.props.user.username},
+          timeStamp: Date.now()
         }
         this.props.socket.emit('SEND_EVENT', newData, res => {
           console.log(res)
@@ -63,8 +64,8 @@ class DesmosGraph extends Component {
     })
     this.props.socket.on('RECEIVE_EVENT', data => {
       this.setState({receivingEvent: true})
-      console.log(data)
-      this.calculator.setState(data.event)
+      console.log(JSON.parse(data.event))
+      this.calculator.setState(JSON.parse(data.event))
     })
   }
 

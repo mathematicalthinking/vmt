@@ -5,7 +5,7 @@ const Message = new mongoose.Schema({
   user: {type: ObjectId, ref: 'User'},
   text: {type: String},
   room: {type: ObjectId, ref: 'Room'},
-  timestamp: {type: Date},
+  timeStamp: {type: Date},
 });
 
 // Add this message to the room's chat
