@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "test": "SET \"NODE_ENV=test\" && node ./bin/www",
+    "test": "md-seed run --dropdb && SET \"NODE_ENV=test\" && node ./bin/www",
     "cypress": "./node_modules/.bin/cypress open"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
     "express-handlebars": "^3.0.0",
     "express-session": "^1.15.6",
     "mongoose": "^5.1.5",
+    "mongoose-data-seed": "^1.0.6",
     "morgan": "~1.9.0",
     "passport": "^0.4.0",
     "passport-google-oauth": "^1.0.0",

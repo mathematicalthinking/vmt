@@ -31,6 +31,7 @@ module.exports = (on, config) => {
       .then(() => mongoose.connection.db.dropDatabase())
     },
     seedDB: () => {
+      cy.exec('md-seed run --dropdb')
     }
   })
 }

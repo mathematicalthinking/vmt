@@ -58,7 +58,8 @@ $ git push -f heroku HEAD:master
 
 ## Testing
 We utilize [Cypress](https://docs.cypress.io/guides/overview/why-cypress.html#In-a-Nutshell) for end to end testing
-To run the tests restart the server is test mode `npm run test` and then in a new console tab `npm run cypress`
+To run the tests restart the server in test mode `npm run test` and then in a new console tab `npm run cypress`
+* NB the create-react-app server still needs to be running on port 3000
 
 ## Project structure
 This project was bootstrapped with [this template](https://github.com/okputadora/MERN-template.git)
