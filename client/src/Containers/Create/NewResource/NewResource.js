@@ -75,6 +75,7 @@ class NewResource extends Component {
           newResource.ggbFile = this.state.ggbFile;
           newResource.desmosLink = this.state.desmosLink;
           newResource.dueDate = this.state.dueDate;
+          if (this.props.courseId) newResource.course = this.props.courseId;
           newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
           this.props.createRoom(newResource);
           break;
@@ -86,6 +87,7 @@ class NewResource extends Component {
   }
 
   render() {
+    console.log(this.props)
     const { resource } = this.props;
     let displayResource;
     if (resource === 'activities') {
@@ -150,18 +152,6 @@ class NewResource extends Component {
                   in your rooms without seeing any personal information about your students.
                 </div>
               </div>
-
-              {/* {!this.props.template ? <div className={classes.FormSection}>
-                <div className={classes.Checkbox}>
-                  <Checkbox checked={this.state.makeTemplate} change={() => this.setState(prevState => ({makeTemplate: !prevState.makeTemplate}))}>Create a Template From this {displayResource}</Checkbox>
-                </div>
-                {this.state.makeTemplate ? <div className={classes.RadioButtons}>
-                  <RadioBtn name='Tpublic' checked={this.state.templateIsPublic} check={() => this.setState({templateIsPublic: true})}>Public</RadioBtn>
-                  <RadioBtn name='Tprivate' checked={!this.state.templateIsPublic} check={() => this.setState({templateIsPublic: false})}>Private</RadioBtn>
-                </div> : null}
-                Creating a template will copy this {resource} into your template folder.
-                {templateDetails}
-              </div> : null} */}
               <div className={classes.Submit}>
                 <Button click={this.submitForm}>Submit</Button>
                 <Button click={e => {e.preventDefault(); this.setState({creating: false})}}>Cancel</Button>

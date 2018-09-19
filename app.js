@@ -20,8 +20,11 @@ const desmos = require('./routes/desmos');
 
 const app = express();
 
+console.log("NODE_ENV=",process.env.NODE_ENV)
 // SETUP DATABASE & SESSION
-mongoose.connect(process.env.MONGO_URI, (err, res) => {
+const mongoURI = (process.env.NODE_ENV === 'dev') ? process.env.MONGO_DEV_URI
+: process.env.MONGO_TEST_URI;
+mongoose.connect(mongoURI, (err, res) => {
   if (err){console.log('DB CONNECTION FAILED: '+err)}
   else{console.log('DB CONNECTION SUCCESS')}
 });
