@@ -13,6 +13,10 @@ class Chat extends Component {
 
   }
 
+  componentDidUpdate() {
+
+  }
+
   scrollToBottom = () => {
     if (this.messagesEnd) {
       this.messagesEnd.scrollIntoView({ behavior: "smooth" });

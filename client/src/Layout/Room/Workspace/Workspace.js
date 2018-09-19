@@ -2,7 +2,6 @@ import React from 'react';
 import classes from './workspace.css';
 import Aux from '../../../Components/HOC/Auxil';
 const workspaceLayout = ({graph, chat, replayer}) => {
-  console.log('re-rendering workspace layout')
   return (
     <Aux>
       <div className={classes.Container}>

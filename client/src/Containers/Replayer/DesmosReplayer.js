@@ -16,11 +16,7 @@ class DesmosReplayer extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log('Desmos replay re-rendered')
-    console.log(prevProps.event._id)
-    console.log(this.props.event._id)
     if (prevProps.event._id !== this.props.event._id && !this.state.loading && !this.props.event.text) {
-      console.log(this.props.event.event)
       this.calculator.setState(this.props.event.event)
     }
   }

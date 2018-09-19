@@ -13,8 +13,9 @@ class GgbReplayer extends Component {
 
   }
 
-  componendDidUpdate(prevProps) {
-    if (prevProps.event !== this.props.event && !this.state.loading) {
+  componentDidUpdate(prevProps) {
+    if (prevProps.event._id !== this.props.event._id && !this.state.loading && !this.props.event.text) {
+      console.log(this.ggbApplet)
       this.ggbApplet.setXML(this.props.event.event)
     }
   }
@@ -39,10 +40,8 @@ class GgbReplayer extends Component {
       if (window.ggbApplet) {
         if (window.ggbApplet.listeners) {
           this.ggbApplet = window.ggbApplet;
-          this.initializeGgb();
           this.setState({loading: false})
           clearInterval(timer);
-
         }
       }
     }, 1000)

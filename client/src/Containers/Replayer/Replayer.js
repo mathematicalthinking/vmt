@@ -19,7 +19,6 @@ class Replayer extends Component {
 
   componentDidUpdate(prevProps, prevState){
     if (this.state.playing && this.state.logIndex < this.log.length - 1) {
-      console.log(this.state.logIndex);
       this.playing();
     }
   }
@@ -29,25 +28,19 @@ class Replayer extends Component {
     const nextEvent = this.log[this.state.logIndex + 1];
     // console.log(nextEvent)
     const eventDuration = nextEvent.timeStamp - currentEvent.timeStamp;
-    console.log("event duration: ", eventDuration)
     setTimeout(() => {this.setState(prevState => ({logIndex: prevState.logIndex + 1}))}, eventDuration)
   }
 
   pausePlay = () => {
-    console.log('toggle play')
     this.setState(prevState => ({
       playing: !prevState.playing
     }))
   }
 
   render() {
-    console.log('rendering replayer container')
     const { room } = this.props
     const event = this.log[this.state.logIndex];
     return (
-      // <div>replayer</div>
-      // @ TODO WE SHOULD PASS THE GRAPH CHAT AND REPLAY COMPONENTS TO WORKSPACE SO IT DOENST
-      // HAVE THOSE NESTED IF STATEMENTS SAYING WHICH GRAPH TO DISPLAY
       <WorkspaceLayout
         graph = {room.roomType === 'geogebra' ?
           // I dont like that these need to be wrapped in functions 👇 could do
