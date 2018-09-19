@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import io from 'socket.io-client';
-import * as actions from '../../../store/actions';
-import WorkspaceLayout from '../../../Layout/Room/Workspace/Workspace';
+import * as actions from '../../store/actions';
+import WorkspaceLayout from '../../Layout/Room/Workspace/Workspace';
+import DesmosGraph from './DesmosGraph';
+import GgbGraph from './GgbGraph';
+import Chat from './Chat';
 // import Replayer from ''
 class Workspace extends Component {
 
@@ -45,8 +48,14 @@ class Workspace extends Component {
   }
 
   render() {
+    const { room, user } = this.props;
     return (
-      <WorkspaceLayout {...this.props} socket={this.socket}/>
+      <WorkspaceLayout
+        graph = {room.roomType === 'geogebra' ?
+          () => <GgbGraph room={room} socket={this.socket} user={user} /> :
+          () => <DesmosGraph  room={room} socket={this.socket} user={user} />}
+        chat = {() => <Chat roomId={room._id} message={room.chat} socket={this.socket} user={user} />}
+      />
     )
   }
 }

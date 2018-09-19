@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import classes from './graph.css';
-import Aux from '../../../Components/HOC/Auxil';
-import Modal from '../../../Components/UI/Modal/Modal';
+import Aux from '../../Components/HOC/Auxil';
+import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
-import API from '../../../utils/apiRequests'
+import API from '../../utils/apiRequests'
 class DesmosGraph extends Component {
 
   state = {
@@ -11,10 +11,10 @@ class DesmosGraph extends Component {
     sendingEvent: false,
   }
 
+  calculatorRef = React.createRef();
+
   onScriptLoad =  () => {
-    console.log('script loaded')
-    const elt = document.getElementById('calculator');
-    this.calculator = window.Desmos.GraphingCalculator(elt);
+    this.calculator = window.Desmos.GraphingCalculator(this.calculatorRef.current);
     const { events, desmosLink } = this.props.room;
     if (events.length > 0) {
       this.calculator.setState(events[events.length - 1].event)
@@ -42,7 +42,7 @@ class DesmosGraph extends Component {
     }
   }
 
-  initializeListeners = () => {
+  initializeListeners(){
     // INITIALIZE EVENT LISTENER
     this.calculator.observeEvent('change', () => {
       if (!this.state.receivingEvent) {
@@ -69,12 +69,11 @@ class DesmosGraph extends Component {
     })
   }
 
-
   render() {
     return (
       <Aux>
         <Script url='https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6' onLoad={this.onScriptLoad} />
-        <div className={classes.Graph} id='calculator'></div>
+        <div className={classes.Graph} style={{height: window.innerHeight - 300}} id='calculator' ref={this.calculatorRef}></div>
         <Modal show={this.state.loading} message='Loading...'/>
       </Aux>
     )

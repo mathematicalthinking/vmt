@@ -1,9 +1,9 @@
 // Should we store chat data in this component's state or in the
 // redux store?
 import React, { Component } from 'react';
-import TextInput from '../../../Components/Form/TextInput/TextInput';
+import TextInput from '../../Components/Form/TextInput/TextInput';
 import classes from './chat.css';
-import glb from '../../../global.css';
+import glb from '../../global.css';
 class Chat extends Component {
   state = {
     messages: [],

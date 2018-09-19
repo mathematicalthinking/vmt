@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classes from './graph.css';
-import Aux from '../../../Components/HOC/Auxil';
-import Modal from '../../../Components/UI/Modal/Modal';
+import Aux from '../../Components/HOC/Auxil';
+import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
 class GgbGraph extends Component {
   // we need to track whether or not the ggbBase64 data was updated
