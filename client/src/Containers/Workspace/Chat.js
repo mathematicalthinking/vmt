@@ -59,7 +59,7 @@ class Chat extends Component {
       text: this.state.newMessage,
       user: {_id: user.id, username: user.username},
       room: this.props.roomId,
-      timeStamp: Date.now()
+      timeStamp: new Date(Date.now()).getTime()
     }
     this.props.socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
       if (err) {

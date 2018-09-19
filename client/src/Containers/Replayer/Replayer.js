@@ -15,15 +15,25 @@ class Replayer extends Component {
     logIndex: 0,
   }
 
-  log = this.props.room.events.concat(this.props.room.chat).sort((a, b) => {
-    let timeA = new Date(a.timeStamp).getTime();
-    let timeB = new Date(b.timeStamp).getTime();
-    return timeA - timeB
-  })
+  log = this.props.room.events.concat(this.props.room.chat).sort((a, b) => a.timeStamp - b.timeStamp)
 
-  playing = () => {
-    console.log('playing')
+  componentDidUpdate(prevProps, prevState){
+    if (this.state.playing && this.state.logIndex < this.log.length) {
+      console.log(this.state.logIndex);
+      this.playing();
+    }
   }
+  playing = () => {
+    console.log(this.log)
+    const currentEvent = this.log[this.state.logIndex];
+    // console.log(currentEvent)
+    const nextEvent = this.log[this.state.logIndex + 1];
+    // console.log(nextEvent)
+    const eventDuration = nextEvent.timeStamp - currentEvent.timeStamp;
+    console.log("event duration: ", eventDuration)
+    setTimeout(() => {this.setState(prevState => ({logIndex: prevState.logIndex + 1}))}, eventDuration * 1000)
+  }
+
   pausePlay = () => {
     console.log('toggle play')
     this.setState(prevState => ({
