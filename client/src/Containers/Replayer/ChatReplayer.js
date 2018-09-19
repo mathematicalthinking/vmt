@@ -13,8 +13,10 @@ class Chat extends Component {
 
   }
 
-  componentDidUpdate() {
-
+  componentDidUpdate(prevProps) {
+    if (this.props.event.text && prevProps.event._id !== this.props.event._id) {
+      this.setState(prevState => ({messages: [...prevState.messages, this.props.event]}))
+    }
   }
 
   scrollToBottom = () => {

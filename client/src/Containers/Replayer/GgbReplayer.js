@@ -9,13 +9,8 @@ class GgbReplayer extends Component {
     loading: true,
   }
 
-  componentDidMount() {
-
-  }
-
   componentDidUpdate(prevProps) {
     if (prevProps.event._id !== this.props.event._id && !this.state.loading && !this.props.event.text) {
-      console.log(this.ggbApplet)
       this.ggbApplet.setXML(this.props.event.event)
     }
   }

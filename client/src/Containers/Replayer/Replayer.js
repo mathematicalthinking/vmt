@@ -47,8 +47,8 @@ class Replayer extends Component {
           // props.children but I like naming them.
           () => <GgbReplayer event={event} /> :
           () => <DesmosReplayer event={event} />}
-        // chat = {() => <ChatReplayer event={event} />}
-        chat={() => <div>chat</div>}
+        chat = {() => <ChatReplayer event={event} />}
+        // chat={() => <div>chat</div>}
         replayer={() =>
           (<ReplayControls
             playing={this.state.playing}
