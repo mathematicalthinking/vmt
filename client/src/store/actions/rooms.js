@@ -47,6 +47,22 @@ export const removedRoom = id => {
   }
 }
 
+export const addRoomMember = (roomId, body) => {
+  return {
+    type: actionTypes.ADD_ROOM_MEMBER,
+    roomId,
+    body,
+  }
+}
+
+export const removeRoomMember = (roomId, userId) => {
+  return {
+    type: actionTypes.REMOVE_ROOM_MEMBER,
+    roomId,
+    userId,
+  }
+}
+
 export const getRooms = params => {
   return dispatch => {
     dispatch(loading.start())

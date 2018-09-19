@@ -15,7 +15,7 @@ const dashboard = props => {
   if (parentResource === 'activities' && resource === 'details') {
     content = <MakeRoomsLayout activity={activity} course={course} userId={userId}/>
   } else if (resource === 'summary') {
-    content = <Summary room={room}/>
+    content = <Summary room={room} loading={props.loading}/>
   } else {
     content = <DnDTrash>
       {resource === 'members' ? <Students {...props.contentData}/>

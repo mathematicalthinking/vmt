@@ -3,16 +3,13 @@ import classes from './summary.css';
 import Button from '../../../Components/UI/Button/Button';
 import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 import { withRouter } from 'react-router-dom';
-const summary = props => {
-  const { room, history } = props;
-  const activate = () => {
-
-  }
+const summary = ({room, history, loading}) => {
+  console.log("rendering summary")
   const clickHandler = () => {
+    console.log('go to workspace')
     history.push(`/workspace/${room._id}`);
   }
-  console.log(room)
-  console.log(room.currentUsers ? room.currentUsers.length : 0)
+  const goToReplayer = () => {history.push(`/workspace/${room._id}/replayer`)}
   return (
     <div className={classes.Container}>
       <div className={classes.Section}>
@@ -26,11 +23,13 @@ const summary = props => {
       <div className={classes.Section}>
         {/* <div>Events: </div>{room.events ? room.events.length : 0} */}
       </div>
+      {/*  Make sure we have all of the room info before letting the user enter */}
+      {loading ? null :
       <div className={classes.Section}>
-        <span className={classes.Button}><Button click={activate}>Activate</Button></span>
         <span className={classes.Button}><Button click={clickHandler}>Join</Button></span>
-        <span className={classes.Button}><Button click={clickHandler}>Replayer</Button></span>
+        <span className={classes.Button}><Button click={goToReplayer}>Replayer</Button></span>
       </div>
+      }
     </div>
   )
 }

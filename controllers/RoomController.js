@@ -21,26 +21,23 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
       .populate({path: 'creator', select: 'username'})
-      .populate({path: 'chat.user', select: 'username'})
+      .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .populate({path: 'members.user', select: 'username'})
       .populate({path: 'notifications.user', select: 'username'})
+      .populate({path: 'currentUsers', select: 'username'})
       .populate({path: 'course', select: 'name'})
-      .populate({path: 'tabs.events', select: '-room'})
-      .populate({path: 'chat', select: '-room'})
+      .populate({path: 'events', select: '-room'})
       .then(room => {
-        console.log("ROOM: ", room)
+        console.log("POPULATED ROOM: ", room)
         resolve(room)
       })
       .catch(err => reject(err))
     });
   },
-// @TODO I SEEM TO BE USING MODEL METHODS SOMETIMES AND THEN OTHER TIMES (LIKE HERE)
-// JUST DOING ALL OF THE WORK IN THE CONTROLLER...PROBABLY NEED TO BE CONSISTENT
   post: body => {
     return new Promise((resolve, reject) => {
         db.Room.create(body)
         .then(room => {
-          console.log('successful room creation: ', room  )
           if (body.course) {
             room.populate({path: 'course', select: 'name'})
           }
@@ -56,35 +53,27 @@ module.exports = {
 
 // @TODO WE SHOULD PROBABLY JUST CREATE DIFFERENT METHODS FOR EACH OF THESE CASES?
   put: (id, body) => {
-    console.log("IN TYHE CONTROLLER: ", id, body)
     return new Promise((resolve, reject) => {
-      // @TODO THIS SHOULD BE DONE VIA THE AUTH ROUTE MAYBE?
-      // const updatedField = Object.keys(body)
-      // const { entryCode, userId } = body.checkAccess;
-      // if (updatedField[0] === 'checkAccess') {
-      //   console.log("SHOULDNT BE IN HERE")
-      //   db.Room.findById(id)
-      //   .then(room => {
-      //     if (room.entryCode === entryCode) {
-      //       room.members.push({user: userId, role: 'student'})
-      //       room.save()
-      //       room.populate({path: 'members.user', select: 'username'}, function() {
-      //         console.log("ROOM: ", room)
-      //         resolve(room)
-      //       })
-      //     }
-      //     else resolve(room)
-      //   })
-      //   .catch(err => reject(err))
-      // } else {
-        console.log('updating room: ', id, body)
+      const updatedField = Object.keys(body)
+      const { entryCode, userId } = body.checkAccess;
+      if (updatedField[0] === 'checkAccess') {
+        db.Room.findById(id)
+        .then(room => {
+          // @TODO SHOULD PROBABLY HASH THIS
+          if (room.entryCode === entryCode) {
+            room.members.push({user: userId, role: 'student'})
+            room.save()
+            room.populate({path: 'members.user', select: 'username'}, function() {
+              resolve(room)
+            })
+          } else reject('incorrect entry code')
+        })
+        .catch(err => reject(err))
+      } else {
         db.Room.findByIdAndUpdate(id, body, {new: true})
-        .populate('creator')
-        .populate('members.user', 'username')
-        .populate('notifications.user')
-        .then(room => { console.log(room); resolve(room)})
+        .then(room => { console.log(room); resolve(body)})
         .catch(err => {console.log(err); reject(err)})
-      // }
+      }
     })
   },
 

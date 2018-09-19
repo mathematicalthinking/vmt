@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classes from './graph.css';
-import Aux from '../../../Components/HOC/Auxil';
-import Modal from '../../../Components/UI/Modal/Modal';
+import Aux from '../../Components/HOC/Auxil';
+import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
 class GgbGraph extends Component {
   // we need to track whether or not the ggbBase64 data was updated
@@ -22,7 +22,7 @@ class GgbGraph extends Component {
     console.log(this.socket)
 
     this.socket.on('RECEIVE_EVENT', data => {
-      this.ggbApplet.setXML(data)
+      this.ggbApplet.setXML(data.event)
       this.ggbApplet.registerAddListener(this.eventListener) // @HACK we're readding the event listener every time because setXML destorys them.
     })
   }
@@ -69,9 +69,11 @@ class GgbGraph extends Component {
   // // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
   initializeGgb = () => {
     console.log(this.props.room)
-    const { events } = this.props.room.tabs[0]
-    if (events.length > 1) {
-      this.ggbApplet.setXML(events[events.length - 1])
+    const { events } = this.props.room
+    if (events.length > 0) {
+      console.log(events)
+      console.log(events[events.length - 1].event)
+      this.ggbApplet.setXML(events[events.length - 1].event)
     }
     this.eventListener = obj => {
       // if (!this.state.receivingData) {
@@ -82,14 +84,13 @@ class GgbGraph extends Component {
 
     const sendEvent = obj => {
       //@TODO get information from obj.xml to save for more detailed playback
-      const newData = {}
-      newData.room = this.props.room._id;
-      newData.event = this.ggbApplet.getXML();
-      console.log(typeof newData.event)
+      const newData = {
+        room: this.props.room._id,
+        event: this.ggbApplet.getXML(),
+        user: {_id: this.props.user.id, username: this.props.user.username},
+        timeStamp: new Date().getTime(),
+      }
       // this.ggbApplet.setXML(newData.event)
-      console.log(newData.event)
-      newData.user = this.props.userId;
-      console.log(newData)
       // this.props.updateRoom({events: newData})
       this.socket.emit('SEND_EVENT', newData)
     }

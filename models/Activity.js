@@ -10,12 +10,9 @@ const Activity = new mongoose.Schema({
   roomType: {type: String, default: 'geogebra'},
   creator: {type: ObjectId, ref: 'User'},
   rooms: {type: [{type: ObjectId, ref: 'Room'}], default: [], _id: false},
-  tabs: [{
-    ggbFile: {type: String},
-    desmosLink: {type: String},
-    _id: false,
-    events: [{type: String}]
-  }],
+  ggbFile: {type: String},
+  desmosLink: {type: String},
+  events: [{type: String}],
   // template: {type: ObjectId, ref: 'ActivityTemplate'},
 }, {timestamps: true});
 

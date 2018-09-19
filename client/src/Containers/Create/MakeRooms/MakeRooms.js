@@ -37,14 +37,15 @@ class MakeRooms extends Component  {
    // Else add them
   }
   submit = () => {
-    const { _id, name, description, roomType, tabs, } = this.props.activity;
+    const { _id, name, description, roomType, desmosLink, ggbFile } = this.props.activity;
     const newRoom = {
       activity: _id,
       creator: this.props.userId,
       course: this.props.course,
       description,
       roomType,
-      tabs,
+      desmosLink,
+      ggbFile,
       dueDate: this.state.dueDate,
     }
     if (!this.state.assignRandom) {

@@ -5,12 +5,11 @@ const Event = new mongoose.Schema({
   user: {type: ObjectId, ref: 'User'},
   event: {type: String},
   room: {type: ObjectId, ref: 'Room'},
+  timeStamp: {type: Number} //UNIX TIME but in MS
 });
 
 Event.pre('save', async function() {
-  console.log('saving event to room')
-  this.tabIndex
   // tabs[this.tabIndex].events.push(this._id)
-  // await Room.findByIdAndUpdate(this.room, {$addToSet: {'tabs.$[].events': this.tabIndex}})
+  await Room.findByIdAndUpdate(this.room, {$addToSet: {events: this._id}})
 })
 module.exports = mongoose.model('Event', Event);

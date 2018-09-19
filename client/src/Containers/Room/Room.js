@@ -24,49 +24,49 @@ class Room extends Component {
   ]
 
   componentDidMount() {
-    const { room, user, members, populateRoom } = this.props;
+    const { room, user, populateRoom } = this.props;
     // CHECK ACCESS
     let updatedTabs = [...this.state.tabs];
     let owner = false;
-    let member = false;
     if (room.creator === user.id) {
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
       this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}])
       owner = true;
     }
-    if (members) {
-      console.log(members)
+    if (room.members) {
+      console.log(room.members)
       console.log(user.id)
-      if (members.find(member => member.user._id === user.id)) member = true;
+      this.checkAccess();
     }
-    if (!room.events) {
-      populateRoom(room._id)
-    }
+    // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
+    populateRoom(room._id)
     // Get Any other notifications
     this.setState({
       tabs: updatedTabs,
       owner,
-      member,
     })
 
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.members.length !== this.props.room.members.length) {
+    if (prevProps.room.members.length !== this.props.room.members.length) {
       this.checkAccess();
     }
   }
 
   checkAccess () {
-    if (this.props.members.find(member => member.user._id === this.props.user.id)) {
+    console.log('checking access')
+    if (this.props.room.members.find(member => member.user._id === this.props.user.id)) {
+      console.log("you are a member of this room")
       this.setState({member: true})
     };
 
   }
 
   requestAccess = entryCode => {
+    console.log('requesting access')
     const {room, user} = this.props;
-    this.props.requestAccess(user.id, 'room', room._id, entryCode)
+    this.props.requestAccess(user, 'room', room._id, entryCode)
   }
 
 
@@ -82,7 +82,6 @@ class Room extends Component {
       notifications: user.roomNotifications || [],
       room,
     }
-    console.log(contentData)
 
     const crumbs = [
       {title: 'Profile', link: '/profile/courses'},
@@ -101,6 +100,7 @@ class Room extends Component {
               contentData={contentData}
               tabs={this.state.tabs}
               activeTab={resource}
+              loading={this.props.loading}
               activateTab={event => this.setState({activeTab: event.target.id})}
             />
           </Aux> :
@@ -113,11 +113,8 @@ class Room extends Component {
 const mapStateToProps = (store, ownProps) => {
   return {
     room: store.rooms.byId[ownProps.match.params.room_id],
-    // EVEN THOUGH MEMBERS IS INCLUDED IN ROOM, WE GRAB IT SEPARATELY
-    // SO THAT CONNECT() UPDATES PROPS CORRECTLY -- I FEEL LIKE SOMETHING IS WRONG HERE
-    // IF WE"RE MAKING A COPY OF STATE IN THE REDUCER WE SHOULDN"T HAVE TO DO THIS
-    members: store.rooms.byId[ownProps.match.params.room_id].members,
     user: store.user,
+    loading: store.loading.loading,
   }
 }
 

@@ -52,6 +52,10 @@ $ git push -f heroku HEAD:master
 * `git remote add upstream https://github.com/mathematicalthinking/encompass.git`
 * if existing upstream `git remote rm upstream`
 
+## Helpful links
+[Desmos API](https://www.desmos.com/api/v1.1/docs/index.html)
+[Geogebra API](https://wiki.geogebra.org/en/Reference:GeoGebra_Apps_API)
+
 ## Project structure
 This project was bootstrapped with [this template](https://github.com/okputadora/MERN-template.git)
 refer to its README for information regarding the directory structure.

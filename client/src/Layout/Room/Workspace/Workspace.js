@@ -1,24 +1,23 @@
 import React from 'react';
 import classes from './workspace.css';
-import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
-import Avatar from '../../../Components/UI/Avatar/Avatar';
-const workspace = props => {
-  console.log('workspace layout props: ', props)
-  const currentUsers = props.userList.map(user => (
-    <div key={user.username} className={classes.Avatar}><Avatar username={user.username} /></div>)
-  )
+import Aux from '../../../Components/HOC/Auxil';
+const workspaceLayout = ({graph, chat, replayer}) => {
   return (
-    <div>
+    <Aux>
       <div className={classes.Container}>
-        <div className={classes.Graph}>{props.graph}</div>
-        <div className={classes.Chat}>{props.chat}</div>
+        <div className={classes.Graph}>{graph()}</div>
+        <div className={classes.Chat}>{chat()}</div>
       </div>
-      <div className={classes.CurrentUsers}>
-        <ContentBox align='left'>
-          <div className={classes.Container}>{currentUsers}</div>
-        </ContentBox>
+      <div>
+        {/* <ContentBox align='left'>
+          <div className={classes.Container}>{currentUsers ? currentUsers.map(user =>
+            <div className={classes.Avatar} key={user.username}><Avatar username={user.username} />
+            </div>) : null}
+          </div>
+        </ContentBox> */}
+        {replayer ? replayer() : null}
       </div>
-    </div>
+    </Aux>
   )
 }
-export default workspace;
+export default workspaceLayout;

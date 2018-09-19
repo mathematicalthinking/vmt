@@ -1,9 +1,9 @@
 // Should we store chat data in this component's state or in the
 // redux store?
 import React, { Component } from 'react';
-import TextInput from '../../../Components/Form/TextInput/TextInput';
+import TextInput from '../../Components/Form/TextInput/TextInput';
 import classes from './chat.css';
-import glb from '../../../global.css';
+import glb from '../../global.css';
 class Chat extends Component {
   state = {
     messages: [],
@@ -11,7 +11,8 @@ class Chat extends Component {
   }
 
   componentDidMount() {
-    this.socket = this.props.socket;
+    console.log("DOES THIS WORK")
+    console.log(this.props.socket)
     // event handler for enter key presses
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Enter'){
@@ -28,12 +29,12 @@ class Chat extends Component {
     })
     // we dont want the chat to be live on replay
     if (!this.props.replaying) {
-      this.socket.on('RECEIVE_MESSAGE', data => {
+      this.props.socket.on('RECEIVE_MESSAGE', data => {
         let newMessages = [...this.state.messages, data]
         this.setState({
           messages: newMessages
         })
-        this.props.updateRoom({chat: data})
+        // this.props.updateRoom({chat: data})
         // this.scrollToBottom() @TODO
       });
     }
@@ -52,14 +53,15 @@ class Chat extends Component {
   }
 
   submitMessage = () => {
+    console.log("THIS: ",this)
+    const { roomId, user } = this.props;
     const newMessage = {
       text: this.state.newMessage,
-      username: this.props.user.username,
-      user: this.props.user.id,
+      user: {_id: user.id, username: user.username},
       room: this.props.roomId,
-      timestamp: Date.now()
+      timeStamp: new Date().getTime()
     }
-    this.socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
+    this.props.socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
       if (err) {
         console.log(err);
         return;
@@ -69,13 +71,17 @@ class Chat extends Component {
 
     })
     delete newMessage.room;
-    let updatedMessages = [...this.state.messages, newMessage]
+    console.log(this.state.messages)
+    let updatedMessages = [newMessage]
+    if (this.state.messages) {
+      updatedMessages = [...this.state.messages, newMessage]
+    }
     // this.scrollToBottom(); @TODO
     this.setState({
       messages: updatedMessages,
       newMessage: '',
     })
-    this.props.updateRoom({chat: updatedMessages})
+    // this.props.updateRoom({chat: updatedMessages})
   }
 
   render() {
@@ -83,7 +89,7 @@ class Chat extends Component {
     if (this.state.messages) {
       messages = this.state.messages.map((message, i) => (
         <div key={i}>
-          <b>{message.username}: </b><span>{message.text}</span>
+          <b>{message.user.username}: </b><span>{message.text}</span>
         </div>
       ))
       // use this to scroll to the bottom

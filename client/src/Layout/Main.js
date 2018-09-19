@@ -11,7 +11,8 @@ import Profile from '../Containers/Profile/Profile';
 // import Activities from '../Containers/Activities/Activities';
 import Avatar from '../Components/UI/Avatar/Avatar';
 import PrivateRoute from '../Components/HOC/PrivateRoute';
-import Workspace from '../Containers/Room/Workspace/Workspace';
+import Workspace from '../Containers/Workspace/Workspace';
+import Replayer from '../Containers/Replayer/Replayer';
 import Confirmation from '../Layout/Confirmation/Confirmation';
 import classes from './main.css';
 import { connect } from 'react-redux';
@@ -27,6 +28,7 @@ const mapStateToProps = store => ({
 @connect(mapStateToProps, null)
 export default class Main extends Component {
   render() {
+    console.log('main rendering')
     return (
       <main className={classes.Main}>
         {/* <div className={classes.Particles} id='particles-js'></div> */}
@@ -48,6 +50,7 @@ export default class Main extends Component {
             <PrivateRoute exact path='/profile/activities/:activity_id/:resource' authed={this.props.loggedIn} component={Activity} />
             <PrivateRoute exact path = '/profile/rooms/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
             <PrivateRoute exact path = '/profile/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
+            <PrivateRoute expact path = '/workspace/:room_id/replayer' authed={this.props.loggedIn} component={Replayer} />
             <PrivateRoute expact path = '/workspace/:room_id' authed={this.props.loggedIn} component={Workspace} />
             <Route exact path='/dashboard/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room}/>
             {/* <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Activities}/> */}
