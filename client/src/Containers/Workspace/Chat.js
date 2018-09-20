@@ -39,13 +39,14 @@ class Chat extends Component {
   }
 
   changeHandler = event => {
+    console.log('new message: ', event.target.value)
     this.setState({
       newMessage: event.target.value
     })
   }
 
   submitMessage = () => {
-    console.log("THIS: ",this)
+    console.log('submitting message')
     const { roomId, user } = this.props;
     const newMessage = {
       text: this.state.newMessage,
@@ -53,6 +54,7 @@ class Chat extends Component {
       room: this.props.roomId,
       timeStamp: new Date().getTime()
     }
+    console.log(newMessage)
     this.props.socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
       if (err) {
         console.log(err);
@@ -77,7 +79,7 @@ class Chat extends Component {
 
   render() {
     return (
-      <ChatLayout messages={this.state.messages} change={this.changeHandler}/>
+      <ChatLayout messages={this.state.messages} change={this.changeHandler} submit={this.submitMessage}/>
     )
   }
 }
