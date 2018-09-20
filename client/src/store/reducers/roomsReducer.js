@@ -17,8 +17,7 @@ const reducer = (state = initialState, action) => {
       };
 
     case actionTypes.UPDATE_ROOM:
-      updatedRooms = {...state.byId}
-      let updatedRoom = updatedRooms[action.roomId]
+      let updatedRoom = {...state.byId[action.roomId]}
       let fields = Object.keys(action.body)
       console.log("FIELDS: ", fields)
       fields.forEach(field => {
@@ -26,7 +25,10 @@ const reducer = (state = initialState, action) => {
       })
       return {
         ...state,
-        byId: updatedRooms,
+        byId: {
+          ...state.byId,
+          [action.roomId]: updatedRoom,
+        },
       }
 
     // @TODO if we've created a new room alert the user so we can redirect
