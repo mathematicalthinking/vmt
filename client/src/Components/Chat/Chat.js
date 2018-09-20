@@ -14,7 +14,7 @@ class Chat extends Component {
   }
 
   render() {
-    const {messages, replayer, change, submitMessage} = this.props;
+    const {messages, replayer, change, submit} = this.props;
     let displayMessages = [];
     if (messages) {
       displayMessages = messages.map((message, i) => (
@@ -31,7 +31,7 @@ class Chat extends Component {
         {!replayer ?
           <div className={classes.ChatEntry}>
             <TextInput autoComplete="off" change={change} type='text' name='message' />
-            <button onClick={submitMessage}>send</button>
+            <button onClick={submit}>send</button>
           </div> : null
         }
       </div>

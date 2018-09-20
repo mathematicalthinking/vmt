@@ -43,6 +43,7 @@ class Replayer extends Component {
     const event = this.log[this.state.logIndex];
     return (
       <WorkspaceLayout
+        // members = {room.}
         graph = {room.roomType === 'geogebra' ?
           // I dont like that these need to be wrapped in functions 👇 could do
           // props.children but I like naming them.
