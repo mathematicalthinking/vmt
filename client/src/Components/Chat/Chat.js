@@ -28,12 +28,8 @@ class Chat extends Component {
       displayMessages.push(<div key='end' ref={el => { this.messagesEnd = el}}></div>)
     }
     return (
-      <div className={glb.FlexCol} style={{height: GRAPH_HEIGHT / 2}}>
-        <div className={classes.UserList}>
-        </div>
-        <div className={classes.ChatWindow}>
-          <div className={classes.ChatScroll} id='scrollable'>{displayMessages}</div>
-        </div>
+      <div className={classes.Container}>
+        <div className={classes.ChatScroll} id='scrollable'>{displayMessages}</div>
         {!replayer ?
           <div className={classes.ChatEntry}>
             <TextInput autoComplete="off" change={change} type='text' name='message' />
