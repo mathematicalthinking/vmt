@@ -1,20 +1,20 @@
 import React from 'react';
 import classes from './workspace.css';
 import Aux from '../../../Components/HOC/Auxil';
-const workspaceLayout = ({graph, chat, replayer}) => {
+import CurrentMembers from '../../../Components/CurrentMembers/CurrentMembers';
+const workspaceLayout = ({graph, chat, replayer, members}) => {
   return (
     <Aux>
       <div className={classes.Container}>
         <div className={classes.Graph}>{graph()}</div>
-        <div className={classes.Chat}>{chat()}</div>
+        <div className={classes.SidePanel}>
+          <div className={classes.Chat}>{chat()}</div>
+          <div className={classes.Members}>
+            <CurrentMembers members={members} />
+          </div>
+        </div>
       </div>
       <div>
-        {/* <ContentBox align='left'>
-          <div className={classes.Container}>{currentUsers ? currentUsers.map(user =>
-            <div className={classes.Avatar} key={user.username}><Avatar username={user.username} />
-            </div>) : null}
-          </div>
-        </ContentBox> */}
         {replayer ? replayer() : null}
       </div>
     </Aux>

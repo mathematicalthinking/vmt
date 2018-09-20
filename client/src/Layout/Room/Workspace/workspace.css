@@ -2,16 +2,23 @@
   display: flex;
 }
 
+.SidePanel {
+  display: flex;
+  flex-flow: column;
+  width: 25%;
+}
+
 .Graph {
   width: 75%;
 }
 .Chat {
-  width: 25%;
-  height: 100%;
+  margin: 0px 10px;
+  height: 50%;
 }
 
-.CurrentUsers {
-  margin: 70px 0 70px 0;
+.Members {
+  height: 50%;
+  margin: 10px;
 }
 
 .Avatar {

@@ -5,13 +5,13 @@ import { GRAPH_HEIGHT } from '../../constants';
 import classes from './chat.css';
 class Chat extends Component {
 
-  // messagesEnd = React.createRef();
+  messagesEnd = React.createRef();
 
-  // scrollToBottom = () => {
-  //   if (this.messagesEnd) {
-  //     this.messagesEnd.scrollIntoView({ behavior: "smooth" });
-  //   }
-  // }
+  scrollToBottom = () => {
+    if (this.messagesEnd) {
+      this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+    }
+  }
 
   render() {
     console.log('rendering chat component')
