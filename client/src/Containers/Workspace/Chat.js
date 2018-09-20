@@ -48,6 +48,7 @@ class Chat extends Component {
   submitMessage = () => {
     console.log('submitting message')
     const { roomId, user } = this.props;
+    if (this.state.newMessage.length === 0) return;
     const newMessage = {
       text: this.state.newMessage,
       user: {_id: user.id, username: user.username},

@@ -2,12 +2,18 @@ import React from 'react';
 import classes from './replayer.css';
 import glb from '../../global.css';
 import ContentBox from '../../Components/UI/ContentBox/ContentBox';
-const replayer = ({playing, event, index, duration, pausePlay, goToIndex}) => {
-
+const replayer = ({playing, event, startTime, endTime, pausePlay, goToIndex}) => {
+  const index = 0
+  const duration = endTime - startTime;
+  console.log("START TIME: ", startTime);
+  console.log('ENDTIME: ', endTime);
+  console.log("DURATION (ms): ", duration)
+  const progress = (event.timeStamp - startTime) / duration;
+  console.log("PROGRESS: ", progress)
   const pausePlayButton = playing ? <i className="fas fa-pause"></i> : <i className="fas fa-play"></i>;
-  const progress = (index / (duration - 1)) * 100
-  const disableBack = (index === 0) ? true : false;
-  const disableForward = (index >=  duration - 1);
+  // const progress = (index / (duration - 1)) * 100
+  const disableBack = (event.timeStamp === startTime);
+  const disableForward = (event.timeStamp === endTime);
 
   return (
     <div className={classes.Container}>

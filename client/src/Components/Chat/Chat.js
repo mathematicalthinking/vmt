@@ -6,9 +6,16 @@ import classes from './chat.css';
 class Chat extends Component {
 
   messagesEnd = React.createRef();
-
+  componentDidMount() {
+    console.log('component did mount')
+    this.scrollToBottom();
+  }
+  componentDidUpdate(prevProps){
+    this.scrollToBottom();
+  }
   scrollToBottom = () => {
     if (this.messagesEnd) {
+      console.log('scroll to bottom')
       this.messagesEnd.scrollIntoView({ behavior: "smooth" });
     }
   }
