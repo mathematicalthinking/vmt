@@ -38,6 +38,7 @@ class Replayer extends Component {
   }
 
   render() {
+    console.log('rendering replayer')
     const { room } = this.props
     const event = this.log[this.state.logIndex];
     return (

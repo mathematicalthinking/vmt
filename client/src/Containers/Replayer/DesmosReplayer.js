@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Script from 'react-load-script';
+import { GRAPH_HEIGHT } from '../../constants';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 class DesmosReplayer extends Component {
@@ -25,7 +26,7 @@ class DesmosReplayer extends Component {
     return (
       <Aux>
         <Script url='https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6' onLoad={this.onScriptLoad} />
-        <div style={{height: window.innerHeight - 300}} id='calculator' ref={this.calculatorRef}></div>
+        <div style={{height: GRAPH_HEIGHT}} id='calculator' ref={this.calculatorRef}></div>
         <Modal show={this.state.loading} message='Loading...'/>
       </Aux>
     )
