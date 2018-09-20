@@ -22,20 +22,22 @@ class GgbReplayer extends Component {
       "width": 1300 * .75, // 75% width of container
       "height": GRAPH_HEIGHT,
       "scaleContainerClass": 'applet_container',
-      "showToolBar": true,
-      "showMenuBar": true,
-      "showAlgebraInput":true,
+      "showToolBar": false,
+      "showMenuBar": false,
+      "showAlgebraInput": true,
       "language": "en",
       "useBrowserForJS":false,
       "preventFocus":true,
       "appName":"whiteboard"
     };
+    console.log("parameters: ", parameters)
     const ggbApp = new window.GGBApplet(parameters, true);
     ggbApp.inject('ggb-element')
     const timer = setInterval(() => {
       if (window.ggbApplet) {
         if (window.ggbApplet.listeners) {
           this.ggbApplet = window.ggbApplet;
+          this.ggbApplet.setMode(0)
           this.setState({loading: false})
           clearInterval(timer);
         }
@@ -44,6 +46,7 @@ class GgbReplayer extends Component {
   }
 
   render() {
+
     return (
       <Aux>
         <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} />
