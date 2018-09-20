@@ -49,8 +49,10 @@ class Workspace extends Component {
 
   render() {
     const { room, user } = this.props;
+    console.log("current users", room.currentUsers)
     return (
       <WorkspaceLayout
+        members = {room.currentUsers}
         graph = {room.roomType === 'geogebra' ?
           // I dont like that these need to be wrapped in functions 👇 could do
           // props.children but I like naming them.
@@ -65,7 +67,7 @@ class Workspace extends Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     room: state.rooms.byId[ownProps.match.params.room_id],
-    currentUsers: state.rooms.byId[ownProps.match.params.room_id].currentUsers,
+    // currentUsers: state.rooms.byId[ownProps.match.params.room_id].currentUsers,
     user: state.user,
     loading: state.loading.loading,
   }

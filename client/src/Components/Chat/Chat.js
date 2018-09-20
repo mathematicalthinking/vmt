@@ -14,8 +14,6 @@ class Chat extends Component {
   }
 
   render() {
-    console.log('rendering chat component')
-    console.log(this.props)
     const {messages, replayer, change, submitMessage} = this.props;
     let displayMessages = [];
     if (messages) {

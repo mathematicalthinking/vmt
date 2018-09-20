@@ -3,6 +3,7 @@ import classes from './workspace.css';
 import Aux from '../../../Components/HOC/Auxil';
 import CurrentMembers from '../../../Components/CurrentMembers/CurrentMembers';
 const workspaceLayout = ({graph, chat, replayer, members}) => {
+  console.log(members)
   return (
     <Aux>
       <div className={classes.Container}>
