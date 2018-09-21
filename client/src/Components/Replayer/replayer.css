@@ -34,11 +34,14 @@
 
 .Break {
   width: 5px;
+  height: 8px;
   background: red;
 }
 
 .Active {
+  height: 8px;
   background: green;
+  min-width: 5px;
 }
 
 .Time {
@@ -46,7 +49,7 @@
 }
 
 .Slider {
-
+  display: flex;
   /* flex-grow: 1; */
   height: 10px;
   width: 600px;
