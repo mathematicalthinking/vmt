@@ -15,6 +15,8 @@ class Workspace extends Component {
     const sendData = {
       userId: user.id,
       roomId: room._id,
+      username: user.username,
+      roomName: room.name,
     }
     this.socket.emit('JOIN', sendData, (res, err) => {
       if (err) {
@@ -40,6 +42,8 @@ class Workspace extends Component {
     const data = {
       userId: user.id,
       roomId: room._id,
+      username: user.username,
+      roomName: room.name,
     }
     this.socket.emit('LEAVE', data, (res) => {
       updateRoom(room._id, {currentUsers: room.currentUsers.filter(u => u._id !== user.id)})
