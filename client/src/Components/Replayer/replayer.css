@@ -33,15 +33,15 @@
 }
 
 .Break {
-  width: 2px;
+  width: 6px;
   height: 8px;
-  background: red;
+  background: #C91922;
 }
 
 .Active {
   height: 8px;
-  background: green;
-  min-width: 5px;
+  background: #6CCB3E;
+  min-width: 6px;
 }
 
 .Time {
@@ -50,6 +50,8 @@
 
 .Slider {
   display: flex;
+  align-items: center;
+  position: relative;
   /* flex-grow: 1; */
   height: 10px;
   width: 600px;
@@ -60,9 +62,11 @@
   align-self: center;
 }
 
-.Progress {
-  background-color: #2f91f2;
-  position: relative;
+.ProgressMarker {
+  border: 3px solid #2f91f2;
+  position: absolute;
   border-radius: 15px;
-  height: 8px;
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
 }
