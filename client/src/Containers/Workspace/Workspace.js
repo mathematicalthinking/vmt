@@ -29,11 +29,11 @@ class Workspace extends Component {
     })
 
     this.socket.on('USER_JOINED', data => {
-      updateRoom(room._id, {currentUsers: data})
+      updateRoom(room._id, {currentUsers: data.currentUsers})
     })
 
     this.socket.on('USER_LEFT', data => {
-      updateRoom(room._id, {currentUsers: data})
+      updateRoom(room._id, {currentUsers: data.currentUsers})
     })
   }
 

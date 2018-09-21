@@ -60,10 +60,8 @@ class Chat extends Component {
       if (err) {
         console.log(err);
         return;
+        // IF THERES AN ERROR WE NEED TO UNDO THE SETSTATE BELOW
       }
-      // we should set state in here so we can handle errors and
-      // let the user know whether their message made it to the others
-
     })
     delete newMessage.room;
     let updatedMessages = [newMessage]

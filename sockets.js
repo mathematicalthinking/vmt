@@ -36,10 +36,12 @@ sockets.init = server => {
             text: `${data.username} left ${data.roomName}`,
             timestamp: new Date().getTime(),
           }
-          controllers.room.removeCurrentUsers(data.roomId, data.userId)
-          .then(room => {
-            console.log("room after disconnect: ",room);
-            socket.broadcast.to(data.roomId).emit('USER_LEFT', room.currentUsers);
+          promises.push(controllers.message.post(message))
+          promises.push(controllers.room.removeCurrentUsers(data.roomId, data.userId))
+          Promise.all(promises)
+          .then(results => {
+            console.log("room after disconnect: ",results[1]);
+            socket.broadcast.to(data.roomId).emit('USER_LEFT', {currentUsers: results[1].currentUsers, message,});
             callback({result: room.currentUsers})
           })
           .catch(err => console.log(err))
