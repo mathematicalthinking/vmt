@@ -107,11 +107,10 @@ class Replayer extends Component {
           (<ReplayControls
             playing={this.state.playing}
             pausePlay={this.pausePlay}
-            index={this.state.logIndex}
             displayDuration={this.displayDuration}
             blocks={this.blocks}
             startTime={this.startTime}
-            event={event}
+            // event={event}
             endTime={this.endTime}
            />)
         }

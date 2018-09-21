@@ -1,32 +1,53 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import classes from './replayer.css';
 import glb from '../../global.css';
+// import ProgressMarker from './ProgressMarker';
+import styled, { keyframes, css } from 'react-emotion';
 import Aux from '../HOC/Auxil';
-class Replayer  extends Component {
 
-  state = {
-    progress: 0
+
+class Replayer extends PureComponent{
+
+  // componentShouldUpdate(nextProps){
+  //   // if (nextProps.playing !== this.props.playing) {
+  //   //   console.log('updating')
+  //   //   return true;
+  //   // } else { return false}
+  //   return false
+  // }
+
+  componentDidUpdate(prevProps) {
+    console.log('componentDidUpdate')
+    if (prevProps.playing !== this.props.playing && this.props.playing) {
+      console.log('started playing')
+    }
   }
 
-  componentDidMount() {
-    const movingMarker = setInterval(() => {
-      let updatedProgress = this.state.progress
-      updatedProgress += 25
-      this.setState({progress: updatedProgress});
-    }, 25)
-    if (!this.props.playing) clearInterval(movingMarker)
-  }
   render () {
-    const {playing,
-    event,
-    startTime,
-    endTime,
-    displayDuration,
-    pausePlay,
-    goToIndex,
-    blocks,} = this.props
-
-    console.log("duration: ", displayDuration)
+    console.log('rendering')
+    const {
+      playing,
+      event,
+      startTime,
+      endTime,
+      displayDuration,
+      pausePlay,
+      goToIndex,
+      blocks,
+    } = this.props;
+    const progressAnimation = keyframes`
+    0% {left: 0%}
+    100% {left: 100%}
+    `
+    const ProgressMarker = styled('div')`
+      border: 3px solid #2f91f2;
+      position: absolute;
+      border-radius: 15px;
+      height: 12px;
+      width: 12px;
+      animation: ${ playing ? `${progressAnimation} linear ${displayDuration /1000}s`: null};
+      border-radius: 50%;
+    `
     const index = 0;
     let borderRadius;
     const progressBar = blocks.map((block, i) => {
@@ -42,9 +63,12 @@ class Replayer  extends Component {
     })
     const pausePlayButton = playing ? <i className="fas fa-pause"></i> : <i className="fas fa-play"></i>;
     // const progress = (index / (duration - 1)) * 100
-    const disableBack = (event.timeStamp === startTime);
-    const disableForward = (event.timeStamp === endTime);
-    console.log(this.state.progress)
+    const disableBack = false;
+    // (event.timeStamp === startTime);
+    const disableForward = false;
+    // (event.timeStamp === endTime);
+
+
     return (
       <div className={classes.Container}>
         <div className={classes.Log}>
@@ -55,7 +79,7 @@ class Replayer  extends Component {
           <div className={classes.Time} style={{marginRight: 3}}>{startTime}</div>
           <div className={classes.Slider}>
             {progressBar}
-            <div className={classes.ProgressMarker} style={{left: `${(this.state.progress/displayDuration) * 100}%`}}></div>
+            <ProgressMarker />
           </div>
           <div className={classes.Time} style={{marginLeft: 3}}>{endTime}</div>
         </div>
@@ -68,8 +92,7 @@ class Replayer  extends Component {
         </div>
       </div>
     )
-
   }
-}
 
+}
 export default Replayer;

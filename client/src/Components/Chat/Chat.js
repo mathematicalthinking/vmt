@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
 import TextInput from '../Form/TextInput/TextInput';
-import glb from '../../global.css';
-import { GRAPH_HEIGHT } from '../../constants';
 import classes from './chat.css';
 class Chat extends Component {
 
   messagesEnd = React.createRef();
   componentDidMount() {
-    console.log('component did mount')
     this.scrollToBottom();
   }
   componentDidUpdate(prevProps){
@@ -15,7 +12,6 @@ class Chat extends Component {
   }
   scrollToBottom = () => {
     if (this.messagesEnd) {
-      console.log('scroll to bottom')
       this.messagesEnd.scrollIntoView({ behavior: "smooth" });
     }
   }

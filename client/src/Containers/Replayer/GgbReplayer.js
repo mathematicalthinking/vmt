@@ -30,7 +30,6 @@ class GgbReplayer extends Component {
       "preventFocus":true,
       "appName":"whiteboard"
     };
-    console.log("parameters: ", parameters)
     const ggbApp = new window.GGBApplet(parameters, true);
     ggbApp.inject('ggb-element')
     const timer = setInterval(() => {
