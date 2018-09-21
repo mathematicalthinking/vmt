@@ -10,23 +10,23 @@ const replayer = ({
   displayDuration,
   pausePlay,
   goToIndex,
+  progress,
   blocks,
 }) => {
-  console.log(displayDuration)
-  const totBlockDuration = blocks.reduce((acc, cur) => {
-    return acc += cur.duration;
-  }, 0)
-  console.log(totBlockDuration);
-  const index = 0
-  const progress = (event.timeStamp - startTime) / displayDuration;
-  blocks.forEach(block => {console.log(block.duration/displayDuration)})
-  const progressBar = blocks.map(block => (
-    <Aux>
-      <div className={classes.Active} style={{width: `${ (block.duration/displayDuration) * 100 }%`}}></div>
-      <div className={classes.Break}></div>
-    </Aux>
-  ))
-  console.log(progressBar)
+  console.log("PROGRESS: ", progress)
+  const index = 0;
+  let borderRadius;
+  const progressBar = blocks.map((block, i) => {
+    if (i === 0) borderRadius = '7px 0 0 7px';
+    else if (i === blocks.length - 1) borderRadius = '0 7px 7px 0';
+    else borderRadius = 'none';
+    return (
+      <Aux>
+        <div className={classes.Active} style={{width: `${ (block.duration/displayDuration) * 100 }%`, borderRadius: borderRadius}}></div>
+        {i < blocks.length - 1 ? <div className={classes.Break}></div> : null}
+      </Aux>
+    )
+  })
   const pausePlayButton = playing ? <i className="fas fa-pause"></i> : <i className="fas fa-play"></i>;
   // const progress = (index / (duration - 1)) * 100
   const disableBack = (event.timeStamp === startTime);
@@ -42,7 +42,7 @@ const replayer = ({
         <div className={classes.Time} style={{marginRight: 3}}>{startTime}</div>
         <div className={classes.Slider}>
           {progressBar}
-          {/* <div className={classes.Progress} style={{width: progress + '%'}}></div> */}
+          <div className={classes.ProgressMarker} style={{left: `${progress * 100}%`}}></div>
         </div>
         <div className={classes.Time} style={{marginLeft: 3}}>{endTime}</div>
       </div>
