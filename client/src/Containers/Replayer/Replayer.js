@@ -28,7 +28,7 @@ class Replayer extends Component {
     .format('MM/DD/YYYY h:mm:ss A');
   blocks = [];
   blockStart = {
-    unix: this.log[0].timeStamp / 1000,
+    unix: this.log[0].timeStamp,
     time: moment.unix(this.log[0].timeStamp / 1000).format('MM/DD/YYYY h:mm:ss A'),
     logIndex: 0
   };
@@ -42,19 +42,28 @@ class Replayer extends Component {
         let newBlock = {
           startTime: this.blockStart.time,
           endTime: moment.unix(cur.timeStamp /1000).format('MM/DD/YYYY h:mm:ss A'),
-          duration: (cur.timeStamp / 1000)  - this.blockStart.unix,
+          duration: cur.timeStamp  - this.blockStart.unix,
           startIndex: this.blockStart.logIndex,
           endIndex: idx,
         }
         this.blocks.push(newBlock)
         this.blockStart = {
-          unix: src[idx + 1].timeStamp/1000,
+          unix: src[idx + 1].timeStamp,
           time: moment.unix(src[idx + 1].timeStamp / 1000).format('MM/DD/YYYY h:mm:ss A'),
           logIndex: idx + 1}
       }
+    } else {
+      let newBlock = {
+        startTime: this.blockStart.time,
+        endTime: moment.unix(cur.timeStamp /1000).format('MM/DD/YYYY h:mm:ss A'),
+        duration: cur.timeStamp  - this.blockStart.unix,
+        startIndex: this.blockStart.logIndex,
+        endIndex: idx,
+      }
+      this.blocks.push(newBlock)
     }
     return acc;
-  }, 0) / 1000;
+  }, 0);
 
 
   componentDidUpdate(prevProps, prevState){
@@ -78,6 +87,8 @@ class Replayer extends Component {
   }
 
   render() {
+    console.log(this.blocks.map(entry => entry))
+    console.log(this.log.map(entry => moment.unix(entry.timeStamp/1000).format('MM/DD/YYYY h:mm:ss A')))
     const { room } = this.props
     const event = this.log[this.state.logIndex];
     return (

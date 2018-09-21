@@ -13,8 +13,10 @@ const replayer = ({
   blocks,
 }) => {
   console.log(displayDuration)
-  console.log(startTime)
-
+  const totBlockDuration = blocks.reduce((acc, cur) => {
+    return acc += cur.duration;
+  }, 0)
+  console.log(totBlockDuration);
   const index = 0
   const progress = (event.timeStamp - startTime) / displayDuration;
   blocks.forEach(block => {console.log(block.duration/displayDuration)})
