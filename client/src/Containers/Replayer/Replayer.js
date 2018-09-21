@@ -87,11 +87,10 @@ class Replayer extends Component {
   }
 
   render() {
-    console.log(this.blocks.map(entry => entry))
-    console.log(this.log.map(entry => moment.unix(entry.timeStamp/1000).format('MM/DD/YYYY h:mm:ss A')))
+    // console.log(this.blocks.map(entry => entry))
+    // console.log(this.log.map(entry => moment.unix(entry.timeStamp/1000).format('MM/DD/YYYY h:mm:ss A')))
     const { room } = this.props
     const event = this.log[this.state.logIndex];
-    const progress = this.state.logIndex/(this.log.length - 1)
     return (
       <WorkspaceLayout
         // members = {room.}
@@ -113,7 +112,6 @@ class Replayer extends Component {
             blocks={this.blocks}
             startTime={this.startTime}
             event={event}
-            progress={progress}
             endTime={this.endTime}
            />)
         }
