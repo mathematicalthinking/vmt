@@ -6,7 +6,7 @@ const workspaceLayout = ({graph, chat, replayer, members}) => {
   console.log(members)
   return (
     <Aux>
-      
+
       <div className={classes.Container} style={{maxHeight: window.innerHeight - (replayer ? 400 : 300)}}>
         <div className={classes.Graph}>{graph()}</div>
         <div className={classes.SidePanel}>
@@ -16,9 +16,11 @@ const workspaceLayout = ({graph, chat, replayer, members}) => {
           </div>
         </div>
       </div>
-      <div>
-        {replayer ? replayer() : null}
-      </div>
+      {replayer ?
+        <div className={classes.Replayer}>
+          {replayer()}
+        </div>
+      : null}
     </Aux>
   )
 }
