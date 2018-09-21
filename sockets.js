@@ -9,16 +9,33 @@ sockets.init = server => {
       socket.on('JOIN', (data, callback) => {
         socket.join(data.roomId, () => {
           // update current users of this room
-          controllers.room.addCurrentUsers(data.roomId, data.userId)
-          .then(room => {
-            socket.broadcast.to(data.roomId).emit('USER_JOINED', room.currentUsers);
-            callback({result: room.currentUsers}, null)
+          const promises = [];
+          const message = {
+            user: data.userId,
+            roomId: data.roomId,
+            text: `${data.username} joined ${data.roomName}`,
+            timestamp: new Date().getTime(),
+          }
+          promises.push(controllers.message.post(message))
+
+          promises.push(controllers.room.addCurrentUsers(data.roomId, data.userId))
+          Promise.all(promises)
+          .then(results => {
+            socket.broadcast.to(data.roomId).emit('USER_JOINED', {currentUsers: results[1].currentUsers, message,});
+            callback({result: results[1].currentUsers}, null)
           })
           .catch(err => callback(null, err))
         })
       });
       socket.on('LEAVE', (data, callback) => {
         socket.leave(data.roomId, () => {
+          const promises = [];
+          const message = {
+            user: data.userId,
+            roomId: data.roomId,
+            text: `${data.username} left ${data.roomName}`,
+            timestamp: new Date().getTime(),
+          }
           controllers.room.removeCurrentUsers(data.roomId, data.userId)
           .then(room => {
             console.log("room after disconnect: ",room);
