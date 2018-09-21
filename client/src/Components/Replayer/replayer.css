@@ -32,6 +32,15 @@
   display: flex;
 }
 
+.Break {
+  width: 5px;
+  background: red;
+}
+
+.Active {
+  background: green;
+}
+
 .Time {
   font-size: .8em;
 }

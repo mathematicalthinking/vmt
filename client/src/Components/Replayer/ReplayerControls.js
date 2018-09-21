@@ -1,7 +1,16 @@
 import React from 'react';
 import classes from './replayer.css';
 import glb from '../../global.css';
-const replayer = ({playing, event, startTime, endTime, displayDuration, pausePlay, goToIndex}) => {
+const replayer = ({
+  playing,
+  event,
+  startTime,
+  endTime,
+  displayDuration,
+  pausePlay,
+  goToIndex,
+  blocks,
+}) => {
   console.log(displayDuration)
   console.log(startTime)
 
