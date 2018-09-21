@@ -6,7 +6,7 @@ import DesmosReplayer from './DesmosReplayer';
 import GgbReplayer from './GgbReplayer';
 import ChatReplayer from './ChatReplayer';
 import ReplayControls from '../../Components/Replayer/ReplayerControls';
-
+import moment from 'moment';
 const maxWait = 10000 // 10 seconds
 // import GgbReplayer from './GgbReplayer';
 // import ChatReplayer from './ChatReplayer;'
@@ -17,15 +17,19 @@ class Replayer extends Component {
     logIndex: 0,
   }
 
-  log = this.props.room.events.concat(this.props.room.chat).sort((a, b) => a.timeStamp - b.timeStamp)
-
+  log = this.props.room.events
+    .concat(this.props.room.chat)
+    .sort((a, b) => a.timeStamp - b.timeStamp);
+  startTime = moment
+    .unix(this.log[0].timeStamp / 1000)
+    .format('MM/DD/YYYY h:mm:s A');
+  endTime = moment
+    .unix(this.log[this.log.length - 1].timeStamp / 1000)
+    .format('MM/DD/YYYY h:mm:s A');
   displayDuration = this.log.reduce((acc, cur, idx, src) => {
-    console.log(cur.timeStamp)
     if (src[idx + 1]){
       let diff = src[idx + 1].timeStamp - cur.timeStamp
       if (diff < maxWait) {
-        console.log(src[idx + 1].timeStamp - cur.timeStamp)
-        console.log('less than 10 s')
         acc += diff
       }
     }
@@ -54,8 +58,6 @@ class Replayer extends Component {
   }
 
   render() {
-    console.log("display duration: ", this.displayDuration)
-    console.log('rendering replayer')
     const { room } = this.props
     const event = this.log[this.state.logIndex];
     return (
@@ -75,6 +77,7 @@ class Replayer extends Component {
             playing={this.state.playing}
             pausePlay={this.pausePlay}
             index={this.state.logIndex}
+            displayDuration={this.displayDuration}
             startTime={this.startTime}
             event={event}
             endTime={this.endTime}

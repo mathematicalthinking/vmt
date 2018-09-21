@@ -29,6 +29,15 @@
 }
 
 .ProgressBar {
+  display: flex;
+}
+
+.Time {
+  font-size: .8em;
+}
+
+.Slider {
+
   /* flex-grow: 1; */
   height: 10px;
   width: 600px;
