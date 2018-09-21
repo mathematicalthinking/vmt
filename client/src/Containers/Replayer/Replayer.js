@@ -38,6 +38,7 @@ class Replayer extends Component {
       if (diff < maxWait) {
         acc += diff
       } else {
+        // THIS INFO WAS HELPFUL FOR DEBUGGIN BUT I THINK WE JUST NEED DURATION
         let newBlock = {
           startTime: this.blockStart.time,
           endTime: moment.unix(cur.timeStamp /1000).format('MM/DD/YYYY h:mm:ss A'),
@@ -77,9 +78,6 @@ class Replayer extends Component {
   }
 
   render() {
-    console.log(this.blocks)
-    console.log(this.log.map(ent => moment.unix(ent.timeStamp / 1000).format('MM/DD/YYYY h:mm:ss A')))
-    console.log(this.displayDuration)
     const { room } = this.props
     const event = this.log[this.state.logIndex];
     return (
