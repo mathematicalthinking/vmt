@@ -19,44 +19,44 @@ class Replayer extends Component {
 
   log = this.props.room.events
     .concat(this.props.room.chat)
-    .sort((a, b) => a.timeStamp - b.timeStamp);
+    .sort((a, b) => a.timestamp - b.timestamp);
   startTime = moment
-    .unix(this.log[0].timeStamp / 1000)
+    .unix(this.log[0].timestamp / 1000)
     .format('MM/DD/YYYY h:mm:ss A');
   endTime = moment
-    .unix(this.log[this.log.length - 1].timeStamp / 1000)
+    .unix(this.log[this.log.length - 1].timestamp / 1000)
     .format('MM/DD/YYYY h:mm:ss A');
   blocks = [];
   blockStart = {
-    unix: this.log[0].timeStamp,
-    time: moment.unix(this.log[0].timeStamp / 1000).format('MM/DD/YYYY h:mm:ss A'),
+    unix: this.log[0].timestamp,
+    time: moment.unix(this.log[0].timestamp / 1000).format('MM/DD/YYYY h:mm:ss A'),
     logIndex: 0
   };
   displayDuration = this.log.reduce((acc, cur, idx, src) => {
     if (src[idx + 1]){
-      let diff = src[idx + 1].timeStamp - cur.timeStamp
+      let diff = src[idx + 1].timestamp - cur.timestamp
       if (diff < maxWait) {
         acc += diff
       } else {
         // THIS INFO WAS HELPFUL FOR DEBUGGIN BUT I THINK WE JUST NEED DURATION
         let newBlock = {
           startTime: this.blockStart.time,
-          endTime: moment.unix(cur.timeStamp /1000).format('MM/DD/YYYY h:mm:ss A'),
-          duration: cur.timeStamp  - this.blockStart.unix,
+          endTime: moment.unix(cur.timestamp /1000).format('MM/DD/YYYY h:mm:ss A'),
+          duration: cur.timestamp  - this.blockStart.unix,
           startIndex: this.blockStart.logIndex,
           endIndex: idx,
         }
         this.blocks.push(newBlock)
         this.blockStart = {
-          unix: src[idx + 1].timeStamp,
-          time: moment.unix(src[idx + 1].timeStamp / 1000).format('MM/DD/YYYY h:mm:ss A'),
+          unix: src[idx + 1].timestamp,
+          time: moment.unix(src[idx + 1].timestamp / 1000).format('MM/DD/YYYY h:mm:ss A'),
           logIndex: idx + 1}
       }
     } else {
       let newBlock = {
         startTime: this.blockStart.time,
-        endTime: moment.unix(cur.timeStamp /1000).format('MM/DD/YYYY h:mm:ss A'),
-        duration: cur.timeStamp  - this.blockStart.unix,
+        endTime: moment.unix(cur.timestamp /1000).format('MM/DD/YYYY h:mm:ss A'),
+        duration: cur.timestamp  - this.blockStart.unix,
         startIndex: this.blockStart.logIndex,
         endIndex: idx,
       }
@@ -76,7 +76,7 @@ class Replayer extends Component {
     // console.log(currentEvent)
     const nextEvent = this.log[this.state.logIndex + 1];
     // console.log(nextEvent)
-    const eventDuration = nextEvent.timeStamp - currentEvent.timeStamp;
+    const eventDuration = nextEvent.timestamp - currentEvent.timestamp;
     setTimeout(() => {this.setState(prevState => ({logIndex: prevState.logIndex + 1}))}, eventDuration)
   }
 
@@ -88,7 +88,7 @@ class Replayer extends Component {
 
   render() {
     // console.log(this.blocks.map(entry => entry))
-    // console.log(this.log.map(entry => moment.unix(entry.timeStamp/1000).format('MM/DD/YYYY h:mm:ss A')))
+    // console.log(this.log.map(entry => moment.unix(entry.timestamp/1000).format('MM/DD/YYYY h:mm:ss A')))
     const { room } = this.props
     const event = this.log[this.state.logIndex];
     return (

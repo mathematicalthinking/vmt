@@ -64,9 +64,9 @@ class Replayer extends PureComponent{
     const pausePlayButton = playing ? <i className="fas fa-pause"></i> : <i className="fas fa-play"></i>;
     // const progress = (index / (duration - 1)) * 100
     const disableBack = false;
-    // (event.timeStamp === startTime);
+    // (event.timestamp === startTime);
     const disableForward = false;
-    // (event.timeStamp === endTime);
+    // (event.timestamp === endTime);
 
 
     return (
