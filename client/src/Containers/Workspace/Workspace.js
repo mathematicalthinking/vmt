@@ -10,6 +10,7 @@ import Chat from './Chat';
 class Workspace extends Component {
 
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
+  
   componentDidMount() {
     const { updateRoom, room, user} = this.props;
     const sendData = {
@@ -71,7 +72,6 @@ class Workspace extends Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     room: state.rooms.byId[ownProps.match.params.room_id],
-    // currentUsers: state.rooms.byId[ownProps.match.params.room_id].currentUsers,
     user: state.user,
     loading: state.loading.loading,
   }

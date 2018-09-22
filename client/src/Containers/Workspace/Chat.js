@@ -9,8 +9,6 @@ class Chat extends Component {
   }
 
   componentDidMount() {
-    console.log("DOES THIS WORK")
-    console.log(this.props.socket)
     // event handler for enter key presses
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Enter'){
@@ -39,23 +37,20 @@ class Chat extends Component {
   }
 
   changeHandler = event => {
-    console.log('new message: ', event.target.value)
     this.setState({
       newMessage: event.target.value
     })
   }
 
   submitMessage = () => {
-    console.log('submitting message')
     const { roomId, user } = this.props;
     if (this.state.newMessage.length === 0) return;
     const newMessage = {
       text: this.state.newMessage,
       user: {_id: user.id, username: user.username},
-      room: this.props.roomId,
+      room: roomId,
       timeStamp: new Date().getTime()
     }
-    console.log(newMessage)
     this.props.socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
       if (err) {
         console.log(err);

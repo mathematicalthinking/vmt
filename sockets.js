@@ -11,7 +11,7 @@ sockets.init = server => {
           // update current users of this room
           const promises = [];
           const message = {
-            user: data.userId,
+            user: {_id: data.userId, username: 'VMTbot'},
             roomId: data.roomId,
             text: `${data.username} joined ${data.roomName}`,
             timestamp: new Date().getTime(),
@@ -21,6 +21,7 @@ sockets.init = server => {
           promises.push(controllers.room.addCurrentUsers(data.roomId, data.userId))
           Promise.all(promises)
           .then(results => {
+            io.in(data.roomId).emit('RECEIVE_MESSAGE', message)
             socket.broadcast.to(data.roomId).emit('USER_JOINED', {currentUsers: results[1].currentUsers, message,});
             callback({result: results[1].currentUsers}, null)
           })
@@ -31,7 +32,7 @@ sockets.init = server => {
         socket.leave(data.roomId, () => {
           const promises = [];
           const message = {
-            user: data.userId,
+            user: {_id: data.userId, username: 'VMTbot'},
             roomId: data.roomId,
             text: `${data.username} left ${data.roomName}`,
             timestamp: new Date().getTime(),
@@ -41,6 +42,7 @@ sockets.init = server => {
           Promise.all(promises)
           .then(results => {
             console.log("room after disconnect: ",results[1]);
+            io.in(data.roomId).emit('RECEIVE_MESSAGE', message)
             socket.broadcast.to(data.roomId).emit('USER_LEFT', {currentUsers: results[1].currentUsers, message,});
             callback({result: room.currentUsers})
           })
