@@ -27,6 +27,15 @@
   background-color: #2D91F2;
   border-radius: 3px;
 }
-.ChatEntry {
+.Entry {
+  display: flex;
+  flex-flow: column;
   /* border: 1px solid red; */
+}
+
+.Timestamp {
+  font-style: italic;
+  color: #999;
+  font-size: .8em;
+  align-self: flex-end;
 }
