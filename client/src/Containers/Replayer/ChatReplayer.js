@@ -7,6 +7,14 @@ class Chat extends Component {
     messages: [],
   }
 
+  componentDidMount(){
+    console.log("props in cheat: ", this.props)
+    if (this.props.event.text) {
+      this.setState({messages: [this.props.event]})
+
+    }
+  }
+
   componentDidUpdate(prevProps) {
     if (this.props.event.text && (prevProps.event._id !== this.props.event._id)) {
       this.setState(prevState => ({messages: [...prevState.messages, this.props.event]}))
