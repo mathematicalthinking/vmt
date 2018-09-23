@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import classes from '../Workspace/graph.css';
 import Aux from '../../Components/HOC/Auxil';
+import { GRAPH_HEIGHT } from '../../constants'
 import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
 class GgbReplayer extends Component {
@@ -19,11 +20,11 @@ class GgbReplayer extends Component {
     const parameters = {
       "id":"ggbApplet",
       "width": 1300 * .75, // 75% width of container
-      "height": window.innerHeight - 300,
+      "height": GRAPH_HEIGHT,
       "scaleContainerClass": 'applet_container',
-      "showToolBar": true,
-      "showMenuBar": true,
-      "showAlgebraInput":true,
+      "showToolBar": false,
+      "showMenuBar": false,
+      "showAlgebraInput": true,
       "language": "en",
       "useBrowserForJS":false,
       "preventFocus":true,
@@ -35,6 +36,7 @@ class GgbReplayer extends Component {
       if (window.ggbApplet) {
         if (window.ggbApplet.listeners) {
           this.ggbApplet = window.ggbApplet;
+          this.ggbApplet.setMode(0)
           this.setState({loading: false})
           clearInterval(timer);
         }
@@ -43,6 +45,7 @@ class GgbReplayer extends Component {
   }
 
   render() {
+
     return (
       <Aux>
         <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} />

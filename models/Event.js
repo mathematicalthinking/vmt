@@ -5,7 +5,7 @@ const Event = new mongoose.Schema({
   user: {type: ObjectId, ref: 'User'},
   event: {type: String},
   room: {type: ObjectId, ref: 'Room'},
-  timeStamp: {type: Number} //UNIX TIME but in MS
+  timestamp: {type: Number} //UNIX TIME but in MS
 });
 
 Event.pre('save', async function() {
