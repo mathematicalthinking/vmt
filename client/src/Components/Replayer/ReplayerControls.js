@@ -64,7 +64,7 @@ class Replayer extends PureComponent{
       return (
         <Aux>
           <div className={classes.Active} style={{width: `${ (block.duration/displayDuration) * 100 }%`, borderRadius: borderRadius}}></div>
-          {i < blocks.length - 1 ? <div className={classes.Break}></div> : null}
+          {i < blocks.length - 1 ? <div className={classes.Break} style={{width: `${(2000/displayDuration) * 100}%`}}></div> : null}
         </Aux>
       )
     })

@@ -33,7 +33,7 @@
 }
 
 .Break {
-  width: 6px;
+  /* min-width: 6px; */
   height: 8px;
   background: #C91922;
 }
@@ -71,6 +71,7 @@
   flex-flow: column;
   align-items: center;
   width: 600px;
+  letter-spacing: .1em;
 }
 
 .AbsClocks {
