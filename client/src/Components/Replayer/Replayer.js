@@ -1,10 +1,10 @@
 import React, { PureComponent } from 'react';
-import classes from './replayer.css';
+import classes from './Replayer.Styles.css';
 import glb from '../../global.css';
 // import ProgressMarker from './ProgressMarker';
-import Clock from './Clock';
-import Slider from './Slider';
-
+import Clock from './Replayer.Clock';
+import Slider from './Replayer.Slider';
+import Log from './Log/Log';
 
 class Replayer extends PureComponent{
 
@@ -38,10 +38,11 @@ class Replayer extends PureComponent{
       endTime,
       displayDuration,
       pausePlay,
+      log,
+      index,
       goToIndex,
       blocks,
     } = this.props;
-    const index = 0;
     const pausePlayButton = playing ? <i className="fas fa-pause"></i> : <i className="fas fa-play"></i>;
     // const progress = (index / (duration - 1)) * 100
     const disableBack = false;
@@ -52,10 +53,7 @@ class Replayer extends PureComponent{
 
     return (
       <div className={classes.Container}>
-        <div className={classes.Log}>
-
-        </div>
-
+        <Log log={log} currentIndex={index}/>
         <div className={classes.ProgressBar}>
           <div className={classes.Time} style={{marginRight: 3}}>{startTime}</div>
           <Slider blocks={blocks} displayDuration={displayDuration} playing={playing}/>

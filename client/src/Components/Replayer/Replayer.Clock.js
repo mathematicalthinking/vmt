@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
-import classes from './replayer.css';
 import moment from 'moment';
+import classes from './Replayer.Styles.css';
 
 const msToTime = (duration) => {
   let seconds = parseInt((duration / 1000) % 60, 10);
@@ -26,9 +26,9 @@ class Clock extends PureComponent {
     if (!prevProps.playing && this.props.playing) {
       this.timer = setInterval(this.add, 1000)
     }
-    else if (!this.props.playing && prevProps.playing) clearInterval(this.timer)
-    else if (this.state.remainingTime <= 0) clearInterval(this.timer)
-    else if (prevProps.startTime !== this.props.startTime) {
+    if (!this.props.playing && prevProps.playing) clearInterval(this.timer)
+    if (this.state.remainingTime <= 0) clearInterval(this.timer)
+    if (prevProps.startTime !== this.props.startTime) {
       this.setState({relTime: this.props.startTime})
     }
   }

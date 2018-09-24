@@ -1,0 +1,8 @@
+.Log {
+  width: 75%;
+  background: #333;
+  flex-grow: 2;
+  margin: 10px 0 20px 0;
+  height: 200px;
+  overflow-y: scroll;
+}

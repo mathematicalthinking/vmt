@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import styled, { keyframes } from 'react-emotion';
-import classes from './replayer.css'
+import classes from './Replayer.Styles.css'
 import Aux from '../HOC/Auxil';
 const progressAnimation = keyframes`
 0% {left: 0%}
@@ -14,7 +14,7 @@ class Slider extends PureComponent {
 
   render() {
     const {displayDuration, blocks, playing} = this.props;
-    
+
     let borderRadius;
     const progressBar = blocks.map((block, i) => {
       if (i === 0) borderRadius = '7px 0 0 7px';
