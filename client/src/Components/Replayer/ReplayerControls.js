@@ -90,7 +90,7 @@ class Replayer extends PureComponent{
           </div>
           <div className={classes.Time} style={{marginLeft: 3}}>{endTime}</div>
         </div>
-        <Clock startTime={this.props.startTime} playing={this.props.playing} />
+        <Clock startTime={startTime} playing={playing} duration={displayDuration}/>
         <div className={[classes.Controls, glb.FlexRow].join(' ')}>
           <button disabled={disableBack} onClick={() => goToIndex(0)} className={classes.Button}><i className="fas fa-fast-backward"></i></button>
           <button disabled={disableBack} onClick={() => goToIndex(index - 1)} className={classes.Button}><i className="fas fa-backward"></i></button>

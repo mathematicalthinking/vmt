@@ -70,6 +70,13 @@
   display: flex;
   flex-flow: column;
   align-items: center;
+  width: 600px;
+}
+
+.AbsClocks {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .RelTime {

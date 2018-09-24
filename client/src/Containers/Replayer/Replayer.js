@@ -9,8 +9,6 @@ import ReplayControls from '../../Components/Replayer/ReplayerControls';
 import moment from 'moment';
 const MAX_WAIT = 10000 // 10 seconds
 const BREAK_DURATION = 2000;
-// import GgbReplayer from './GgbReplayer';
-// import ChatReplayer from './ChatReplayer;'
 class Replayer extends Component {
 
   state = {
