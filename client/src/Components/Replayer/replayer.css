@@ -65,3 +65,17 @@
 .ProgressMarker {
 
 }
+
+.Clocks {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
+.RelTime {
+
+}
+
+.AbsTime {
+
+}

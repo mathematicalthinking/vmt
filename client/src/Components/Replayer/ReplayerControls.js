@@ -2,18 +2,12 @@ import React, { PureComponent } from 'react';
 import classes from './replayer.css';
 import glb from '../../global.css';
 // import ProgressMarker from './ProgressMarker';
+import Clock from './Clock';
 import styled, { keyframes, css } from 'react-emotion';
 import Aux from '../HOC/Auxil';
 
-let time = '00:00:00';
-let seconds = 0;
-let minutes = 0;
-let hours = 0;
 
 class Replayer extends PureComponent{
-  state = {
-    time: "00:00:00"
-  }
 
   // componentShouldUpdate(nextProps){
   //   // if (nextProps.playing !== this.props.playing) {
@@ -32,25 +26,8 @@ class Replayer extends PureComponent{
     if (prevProps.playing !== this.props.playing) {
       if (this.props.playing) {
         console.log('started playing')
-        this.timer = setInterval(this.add, 1000)
-      } else {
-        clearInterval(this.timer)
       }
     }
-  }
-
-  add = () => {
-    seconds++;
-    if (seconds >= 60) {
-      seconds = 0;
-      minutes++;
-      if (minutes >= 60) {
-        minutes = 0;
-        hours++;
-      }
-    }
-    time = (hours ? (hours > 9 ? hours : "0" + hours) : "00") + ":" + (minutes ? (minutes > 9 ? minutes : "0" + minutes) : "00") + ":" + (seconds > 9 ? seconds : "0" + seconds);
-    this.setState({time,})
   }
 
   render () {
@@ -113,7 +90,7 @@ class Replayer extends PureComponent{
           </div>
           <div className={classes.Time} style={{marginLeft: 3}}>{endTime}</div>
         </div>
-        <div className={classes.Clock}>{this.state.time}</div>
+        <Clock startTime={this.props.startTime} playing={this.props.playing} />
         <div className={[classes.Controls, glb.FlexRow].join(' ')}>
           <button disabled={disableBack} onClick={() => goToIndex(0)} className={classes.Button}><i className="fas fa-fast-backward"></i></button>
           <button disabled={disableBack} onClick={() => goToIndex(index - 1)} className={classes.Button}><i className="fas fa-backward"></i></button>
