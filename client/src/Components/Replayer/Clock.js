@@ -27,7 +27,7 @@ class Clock extends PureComponent {
       this.timer = setInterval(this.add, 1000)
     } else if (!this.props.playing && prevProps.playing){
       clearInterval(this.timer)
-    }
+    } else if (this.state.remainingTime <= 0) clearInterval(this.timer)
   }
 
   add = () => {

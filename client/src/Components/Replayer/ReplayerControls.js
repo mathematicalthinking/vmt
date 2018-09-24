@@ -42,6 +42,7 @@ class Replayer extends PureComponent{
       goToIndex,
       blocks,
     } = this.props;
+    console.log(event)
     const progressAnimation = keyframes`
     0% {left: 0%}
     100% {left: 100%}
