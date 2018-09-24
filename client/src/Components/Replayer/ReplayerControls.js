@@ -3,8 +3,7 @@ import classes from './replayer.css';
 import glb from '../../global.css';
 // import ProgressMarker from './ProgressMarker';
 import Clock from './Clock';
-import styled, { keyframes, css } from 'react-emotion';
-import Aux from '../HOC/Auxil';
+import Slider from './Slider';
 
 
 class Replayer extends PureComponent{
@@ -42,33 +41,7 @@ class Replayer extends PureComponent{
       goToIndex,
       blocks,
     } = this.props;
-    console.log(event)
-    const progressAnimation = keyframes`
-    0% {left: 0%}
-    100% {left: 100%}
-    `
-    const ProgressMarker = styled('div')`
-      border: 3px solid #2f91f2;
-      position: absolute;
-      border-radius: 15px;
-      height: 12px;
-      width: 12px;
-      animation: ${ playing ? `${progressAnimation} linear ${displayDuration /1000}s`: null};
-      border-radius: 50%;
-    `
     const index = 0;
-    let borderRadius;
-    const progressBar = blocks.map((block, i) => {
-      if (i === 0) borderRadius = '7px 0 0 7px';
-      else if (i === blocks.length - 1) borderRadius = '0 7px 7px 0';
-      else borderRadius = 'none';
-      return (
-        <Aux>
-          <div className={classes.Active} style={{width: `${ (block.duration/displayDuration) * 100 }%`, borderRadius: borderRadius}}></div>
-          {i < blocks.length - 1 ? <div className={classes.Break} style={{width: `${(2000/displayDuration) * 100}%`}}></div> : null}
-        </Aux>
-      )
-    })
     const pausePlayButton = playing ? <i className="fas fa-pause"></i> : <i className="fas fa-play"></i>;
     // const progress = (index / (duration - 1)) * 100
     const disableBack = false;
@@ -85,10 +58,7 @@ class Replayer extends PureComponent{
 
         <div className={classes.ProgressBar}>
           <div className={classes.Time} style={{marginRight: 3}}>{startTime}</div>
-          <div className={classes.Slider}>
-            {progressBar}
-            <ProgressMarker />
-          </div>
+          <Slider blocks={blocks} displayDuration={displayDuration} playing={playing}/>
           <div className={classes.Time} style={{marginLeft: 3}}>{endTime}</div>
         </div>
         <Clock startTime={startTime} playing={playing} duration={displayDuration}/>

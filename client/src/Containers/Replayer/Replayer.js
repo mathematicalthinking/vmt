@@ -97,9 +97,15 @@ class Replayer extends Component {
   playing = () => {
     let eventDuration;
     const nextEvent = this.updatedLog[this.state.logIndex + 1];
-    if (nextEvent.synthetic || this.updatedLog[this.state.logIndex].synthetic) {
+    if (nextEvent.synthetic) {
       console.log('event is sythentic')
       eventDuration = BREAK_DURATION;
+    } else if (this.updatedLog[this.state.logIndex].synthetic) {
+      eventDuration = BREAK_DURATION;
+      this.startTime = nextEvent
+      this.startTime = moment
+        .unix(nextEvent.timestamp / 1000)
+        .format('MM/DD/YYYY h:mm:ss A');
     }
     else {eventDuration = nextEvent.timestamp - this.updatedLog[this.state.logIndex].timestamp};
     console.log('next event: ', nextEvent)
