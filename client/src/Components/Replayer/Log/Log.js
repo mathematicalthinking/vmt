@@ -1,24 +1,43 @@
 import React, { Component } from 'react';
 import classes from './Log.Styles.css';
+import * as ReactDOM from 'react-dom';
 import moment from 'moment';
 class Log extends Component {
-  constructor(props){
-    super(props)
-    this.focusedEntry = React.createRef();
-
-  }
+  // constructor(props){
+  //   super(props)
+  //
+  // }
+  // focusedEntry = React.createRef();
 
   componentDidUpdate(prevProps){
-    console.log("LOG UPDATED")
-    this.focusedEntry.current.scrollIntoView({ behavior: "smooth" });
+    console.log('current index: ', this.props.currentIndex)
+    console.log('prev index: ', prevProps.currentIndex)
+    if (prevProps.currentIndex !== this.props.currentIndex){
+      this.scrollToPosition();
+    }
   }
 
+  scrollToPosition(){
+    console.log('scrolling!')
+    const currentEntry = this.refs[this.props.currentIndex]
+    console.log(currentEntry)
+    // console.log(currentEntry.offset())
+    // console.log(currentEntry.offsetParent.offsetTop)
+    console.log(this.refs.log.offsetTop)
+    console.log(currentEntry.offsetTop)
+    const offset = currentEntry.offsetTop - this.refs.log.offsetTop;
+    this.refs.log.scrollBottom = 0;
+    ReactDOM.findDOMNode(this.refs.log).scrollTop = offset;
+    // currentEntry.scrollIntoView({ behavior: "smooth" });
+    // this.forceUpdate()
+
+  }
 
   render() {
     console.log('rendering log')
     console.log(this.props.log)
     return (
-      <div className={classes.Log}>
+      <div ref='log' className={classes.Log}>
         {
           this.props.log.map((event, i) => {
             let entry;
@@ -40,7 +59,7 @@ class Log extends Component {
             }
             if (i === this.props.currentIndex) {
               console.log('adding a ref to element: ', i)
-              return <div ref={this.focusedEntry} className={classes.Entry} style={{color: 'red'}} key={i}>{entry}</div>
+              return <div ref={i} className={classes.Entry} style={{color: 'red'}} key={i}>{entry}</div>
             } else {
               return <div className={classes.Entry} style={{color: 'red'}} key={i}>{entry}</div>
             }

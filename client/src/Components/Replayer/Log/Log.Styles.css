@@ -9,7 +9,8 @@
 
 .Entry {
   height: 100px;
-  padding: 10px 30px;;
+  padding: 10px 30px;
+  border: 1px solid blue;
 }
 
 .Log::-webkit-scrollbar {
