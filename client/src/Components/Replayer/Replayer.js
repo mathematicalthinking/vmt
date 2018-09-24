@@ -21,7 +21,6 @@ class Replayer extends PureComponent{
 
   }
   componentDidUpdate(prevProps) {
-    console.log('componentDidUpdate')
     if (prevProps.playing !== this.props.playing) {
       if (this.props.playing) {
         console.log('started playing')
@@ -30,7 +29,6 @@ class Replayer extends PureComponent{
   }
 
   render () {
-    console.log('rendering')
     const {
       playing,
       event,

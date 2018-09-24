@@ -28,13 +28,13 @@ class Slider extends PureComponent {
       )
     })
     const ProgressMarker = styled('div')`
-    border: 3px solid #2f91f2;
-    position: absolute;
-    border-radius: 15px;
-    height: 12px;
-    width: 12px;
-    animation: ${ playing ? `${progressAnimation} linear ${displayDuration /1000}s`: null};
-    border-radius: 50%;
+      border: 3px solid #2f91f2;
+      position: absolute;
+      border-radius: 15px;
+      height: 12px;
+      width: 12px;
+      animation: ${ playing ? `${progressAnimation} linear ${displayDuration /1000}s`: null};
+      border-radius: 50%;
     `
     return (
       <div className={classes.Slider}>

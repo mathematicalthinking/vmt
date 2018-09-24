@@ -3,6 +3,22 @@
   background: #333;
   flex-grow: 2;
   margin: 10px 0 20px 0;
-  height: 200px;
+  height: 100px;
   overflow-y: scroll;
+}
+
+.Entry {
+  height: 100px;
+  padding: 10px 30px;;
+}
+
+.Log::-webkit-scrollbar {
+  width: 0.5em;
+  height: 0.09em;
+  background-color: #eee;
+}
+
+.Log::-webkit-scrollbar-thumb {
+  background-color: #2D91F2;
+  border-radius: 3px;
 }
