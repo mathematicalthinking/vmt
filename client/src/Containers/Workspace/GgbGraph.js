@@ -3,6 +3,7 @@ import classes from './graph.css';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
+import { parseString, builder } from 'xml2js';
 class GgbGraph extends Component {
   // we need to track whether or not the ggbBase64 data was updated
   // by this user or by another client. Otherwise we were getting stuck
@@ -21,7 +22,9 @@ class GgbGraph extends Component {
     this.socket = this.props.socket;
 
     this.socket.on('RECEIVE_EVENT', data => {
-      this.ggbApplet.setXML(data.event)
+      this.setState({receivingData: true})
+      console.log('receiving event')
+      this.ggbApplet.evalXML(data.event)
       this.ggbApplet.registerAddListener(this.eventListener) // @HACK we're readding the event listener every time because setXML destorys them.
     })
   }
@@ -72,26 +75,32 @@ class GgbGraph extends Component {
       this.ggbApplet.setXML(events[events.length - 1].event)
     }
     this.eventListener = obj => {
-      // if (!this.state.receivingData) {
+      if (!this.state.receivingData) {
         sendEvent(obj)
-      // }
-      // this.receivingData = false;
+      }
+      this.setState({receivingData: false})
     }
 
     const sendEvent = obj => {
+      if (obj === null) return;
       //@TODO get information from obj.xml to save for more detailed playback
       console.log('obj: ', obj)
-      const newData = {
-        room: this.props.room._id,
-        event: this.ggbApplet.getXML(),
-        user: {_id: this.props.user.id, username: this.props.user.username},
-        timestamp: new Date().getTime(),
-      }
-      console.log("all data: ", newData)
-      console.log("data of event", this.ggbApplet.getXML(obj))
-      // this.ggbApplet.setXML(newData.event)
-      // this.props.updateRoom({events: newData})
-      this.socket.emit('SEND_EVENT', newData)
+      const xml = this.ggbApplet.getXML(obj)
+      parseString(xml, (err, result) => {
+        console.log(result)
+        const newData = {
+          room: this.props.room._id,
+          event: result,
+          user: {_id: this.props.user.id, username: this.props.user.username},
+          timestamp: new Date().getTime(),
+        }
+        if (newData.event === '') // then the object was deleted
+        console.log("all data: ", newData)
+        console.log("data of event", this.ggbApplet.getXML(obj))
+        // this.ggbApplet.setXML(newData.event)
+        // this.props.updateRoom({events: newData})
+        this.socket.emit('SEND_EVENT', newData)
+      })
     }
     // attach this listeners to the ggbApplet
     if (this.ggbApplet.listeners.length === 0) {
