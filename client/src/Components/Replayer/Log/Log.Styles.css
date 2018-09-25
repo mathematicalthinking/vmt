@@ -5,12 +5,13 @@
   margin: 10px 0 20px 0;
   height: 100px;
   overflow-y: scroll;
+  transition: .2s;
 }
 
 .Entry {
   height: 100px;
   padding: 10px 30px;
-  border: 1px solid blue;
+  /* border: 1px solid blue; */
 }
 
 .Log::-webkit-scrollbar {

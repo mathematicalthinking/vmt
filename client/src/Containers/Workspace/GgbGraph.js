@@ -80,12 +80,15 @@ class GgbGraph extends Component {
 
     const sendEvent = obj => {
       //@TODO get information from obj.xml to save for more detailed playback
+      console.log('obj: ', obj)
       const newData = {
         room: this.props.room._id,
         event: this.ggbApplet.getXML(),
         user: {_id: this.props.user.id, username: this.props.user.username},
         timestamp: new Date().getTime(),
       }
+      console.log("all data: ", newData)
+      console.log("data of event", this.ggbApplet.getXML(obj))
       // this.ggbApplet.setXML(newData.event)
       // this.props.updateRoom({events: newData})
       this.socket.emit('SEND_EVENT', newData)

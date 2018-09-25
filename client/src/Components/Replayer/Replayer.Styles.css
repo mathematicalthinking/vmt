@@ -28,7 +28,8 @@
 .Break {
   /* min-width: 6px; */
   height: 8px;
-  background: #C91922;
+  /* background: #C91922; */
+  background: white;
 }
 
 .Active {
