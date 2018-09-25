@@ -3,7 +3,8 @@ import classes from './graph.css';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
-import { parseString, builder } from 'xml2js';
+import { parseString, Builder } from 'xml2js';
+const builder = new Builder();
 class GgbGraph extends Component {
   // we need to track whether or not the ggbBase64 data was updated
   // by this user or by another client. Otherwise we were getting stuck
@@ -24,7 +25,11 @@ class GgbGraph extends Component {
     this.socket.on('RECEIVE_EVENT', data => {
       this.setState({receivingData: true})
       console.log('receiving event')
+      // const xml = builder.buildObject(data.event)
+      console.log(data.event)
+      // console.log(xml)
       this.ggbApplet.evalXML(data.event)
+      console.log(this.ggbApplet.getXML())
       this.ggbApplet.registerAddListener(this.eventListener) // @HACK we're readding the event listener every time because setXML destorys them.
     })
   }
@@ -60,7 +65,8 @@ class GgbGraph extends Component {
 
   componentWillUnmount() {
     if (this.ggbApplet.listeners) {
-      this.ggbApplet.unregisterAddListener(this.eventListener);
+      delete window.ggbApplet;
+      this.ggbApplet.unregisterAddListener(this.addListener);
       this.ggbApplet.unregisterUpdateListener(this.eventListener);
       this.ggbApplet.unregisterRemoveListener(this.eventListener);
       // this.ggbApplet.unregisterClearListener(this.clearListener);
@@ -74,41 +80,56 @@ class GgbGraph extends Component {
     if (events.length > 0) {
       this.ggbApplet.setXML(events[events.length - 1].event)
     }
-    this.eventListener = obj => {
+    this.addListener = obj => {
+      console.log('object added')
+      if (obj === null) {
+        console.log("OBJECT === null");
+        return;
+      }
       if (!this.state.receivingData) {
-        sendEvent(obj)
+        console.log('obj: ', obj)
+        const xml = this.ggbApplet.getXML(obj)
+        if (xml === '') {
+          console.log('deleted: ', obj)
+        }
+        parseString(xml, (err, result) => {
+          console.log(result)
+          console.log(typeof result)
+          console.log("RESULT FROM PARSE: ", result)
+          const { type } = result.element.$
+          const { x, y } = result.element.coords[0].$
+          const event = `<expression label="${obj}" exp="(${x}, ${y})" type="${type}"/>${xml}`
+          const newData = {
+            room: this.props.room._id,
+            event: event,
+            user: {_id: this.props.user.id, username: this.props.user.username},
+            timestamp: new Date().getTime(),
+          }
+          console.log(newData)
+          if (newData.event === '') {
+            console.log('deleted event')
+          }// then the object was deleted
+
+          // this.ggbApplet.setXML(newData.event)
+          // this.props.updateRoom({events: newData})
+          sendEvent(newData);
+        })
       }
       this.setState({receivingData: false})
     }
 
-    const sendEvent = obj => {
-      if (obj === null) return;
+    const sendEvent = newData => {
       //@TODO get information from obj.xml to save for more detailed playback
-      console.log('obj: ', obj)
-      const xml = this.ggbApplet.getXML(obj)
-      parseString(xml, (err, result) => {
-        console.log(result)
-        const newData = {
-          room: this.props.room._id,
-          event: result,
-          user: {_id: this.props.user.id, username: this.props.user.username},
-          timestamp: new Date().getTime(),
-        }
-        if (newData.event === '') // then the object was deleted
-        console.log("all data: ", newData)
-        console.log("data of event", this.ggbApplet.getXML(obj))
-        // this.ggbApplet.setXML(newData.event)
-        // this.props.updateRoom({events: newData})
-        this.socket.emit('SEND_EVENT', newData)
-      })
+      console.log('emit event!')
+      this.socket.emit('SEND_EVENT', newData)
     }
     // attach this listeners to the ggbApplet
     if (this.ggbApplet.listeners.length === 0) {
-      this.ggbApplet.registerAddListener(this.eventListener);
+      this.ggbApplet.registerAddListener(this.addListener);
       this.ggbApplet.registerUpdateListener(this.eventListener);
-      this.ggbApplet.registerRemoveListener(this.eventListener);
-      this.ggbApplet.registerStoreUndoListener(this.eventListener);
-      this.ggbApplet.registerClearListener(this.eventListener);
+      // this.ggbApplet.registerRemoveListener(this.eventListener);
+      // this.ggbApplet.registerStoreUndoListener(this.eventListener);
+      // this.ggbApplet.registerClearListener(this.eventListener);
     }
   }
 
