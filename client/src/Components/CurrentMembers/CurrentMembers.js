@@ -4,13 +4,16 @@ import Avatar from '../UI/Avatar/Avatar';
 class CurrentMembers extends Component {
 
   render() {
-    const { members } = this.props;
+    const { members, activeMember } = this.props;
     return (
       <div className={classes.Container}>
         <h3>Current Members</h3>
         <div className={classes.Left}>
           {members ? members.map(user =>
-            <div className={classes.Avatar} key={user.username}><Avatar username={user.username} />
+            <div
+              className={[classes.Avatar, (user._id === activeMember ? classes.Active : classes.Passive)].join(" ")}
+              key={user.username}>
+              <Avatar username={user.username} />
             </div>) : null}
         </div>
       </div>

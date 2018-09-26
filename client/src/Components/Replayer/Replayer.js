@@ -8,15 +8,6 @@ import Log from './Log/Log';
 
 class Replayer extends PureComponent{
 
-  // componentShouldUpdate(nextProps){
-  //   // if (nextProps.playing !== this.props.playing) {
-  //   //   console.log('updating')
-  //   //   return true;
-  //   // } else { return false}
-  //   return false
-  // }
-
-
   componentDidMount(){
 
   }
