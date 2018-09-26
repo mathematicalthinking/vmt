@@ -12,10 +12,6 @@ class Slider extends PureComponent {
   }
 
   componentDidMount(){
-    this.progressAnimation = keyframes`
-    0% {left: 0%}
-    100% {left: 100%}
-    `
 
   }
 
@@ -36,7 +32,11 @@ class Slider extends PureComponent {
     }
   }
   render() {
-    const {displayDuration, blocks, playing} = this.props;
+    const {displayDuration, blocks, playing, progress } = this.props;
+    const progressAnimation = keyframes`
+    0% {left: ${progress}%}
+    100% {left: 100%}
+    `
 
     let borderRadius;
     const progressBar = blocks.map((block, i) => {
@@ -56,7 +56,7 @@ class Slider extends PureComponent {
       border-radius: 15px;
       height: 12px;
       width: 12px;
-      animation: ${this.progressAnimation} linear ${displayDuration /1000}s;
+      animation: ${progressAnimation} linear ${displayDuration /1000}s;
       animation-play-state: ${playing ? 'running' : 'paused'};
       border-radius: 50%;
     `
