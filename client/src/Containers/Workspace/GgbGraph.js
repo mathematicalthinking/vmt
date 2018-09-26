@@ -19,14 +19,24 @@ class GgbGraph extends Component {
     this.socket.on('RECEIVE_EVENT', data => {
       this.setState({receivingData: true}, () => {
         console.log('receiving data from other client')
+        switch (data.eventType) {
+          case 'ADD':
+            if (data.definition) {
+              this.ggbApplet.evalCommand(`${data.label}:${data.definition}`)
+            }
+            this.ggbApplet.evalXML(data.event)
+            this.ggbApplet.evalCommand('UpdateConstruction()')
+            break;
+          case 'REMOVE':
+            this.ggbApplet.deleteObject(data.label)
+            break;
+          case 'UPDATE':
+            this.ggbApplet.evalXML(data.event)
+            this.ggbApplet.evalCommand('UpdateConstruction()')
+            break;
+          default: break;
+        }
         if (data.eventType === 'ADD') {
-          console.log(`${data.label}:${data.definition}`)
-          console.log(data.event)
-          if (data.definition) {
-            this.ggbApplet.evalCommand(`${data.label}:${data.definition}`)
-          }
-          this.ggbApplet.evalXML(data.event)
-          this.ggbApplet.evalCommand('UpdateConstruction()')
         }
       })
     })
@@ -49,7 +59,7 @@ class GgbGraph extends Component {
 
     const ggbApp = new window.GGBApplet(parameters, true);
     ggbApp.inject('ggb-element')
-    // TRY REPLACING THIS WITH parameters.appletOnLoad
+    // TRY REPLACING THIS WITH parameters.appletOnLoad(ggbApplet)
     const timer = setInterval(() => {
       if (window.ggbApplet) {
         if (window.ggbApplet.listeners) {
@@ -81,41 +91,48 @@ class GgbGraph extends Component {
       this.ggbApplet.setXML(events[events.length - 1].event)
     }
     this.addListener = label => {
-      console.log('something added')
-      if (this.state.receivingData) {
-        console.log('...but not by us')
-      }
       if (!this.state.receivingData) {
         const xml = this.ggbApplet.getXML(label)
         const definition = this.ggbApplet.getCommandString(label);
-        const newData = {
-          room: room._id,
-          event: xml,
-          definition,
-          label,
-          eventType: "ADD",
-          description: `${user.username} created ${label}`,
-          user: {_id: user.id, username: user.username},
-          timestamp: new Date().getTime(),
-        }
-        console.log(newData)
-        sendEvent(newData);
+        sendEvent(xml, definition, label, "ADD");
       }
       this.setState({receivingData: false})
     }
 
-    const sendEvent = newData => {
-      //@TODO get information from obj.xml to save for more detailed playback
-      console.log('emit event!')
+    this.updateListener = label => {
+      if (!this.state.receivingData) {
+        const xml = this.ggbApplet.getXML(label)
+        sendEvent(xml, null, label, "UPDATE")
+      }
+      this.setState({receivingData: false})
+    }
+
+    this.removeListener = label => {
+      if (!this.state.receivingData) {
+        sendEvent(null, null, label, "REMOVE")
+      }
+      this.setState({receivingData: false})
+    }
+
+    const sendEvent = (xml, definition, label, eventType) => {
+      const newData = {
+        definition,
+        label,
+        eventType,
+        room: room._id,
+        event: xml,
+        description: `${user.username} created ${label}`,
+        user: {_id: user.id, username: user.username},
+        timestamp: new Date().getTime(),
+      }
+
       this.socket.emit('SEND_EVENT', newData)
     }
     // attach this listeners to the ggbApplet
     if (this.ggbApplet.listeners.length === 0) {
       this.ggbApplet.registerAddListener(this.addListener);
-      this.ggbApplet.registerUpdateListener(() => {console.log('update listener fired: '); this.addListener()});
-      // this.ggbApplet.registerRemoveListener(this.eventListener);
-      // this.ggbApplet.registerStoreUndoListener(this.eventListener);
-      // this.ggbApplet.registerClearListener(this.eventListener);
+      this.ggbApplet.registerUpdateListener(this.updateListener);
+      this.ggbApplet.registerRemoveListener(this.removeListener);
     }
   }
 
