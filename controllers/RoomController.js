@@ -55,8 +55,8 @@ module.exports = {
   put: (id, body) => {
     return new Promise((resolve, reject) => {
       const updatedField = Object.keys(body)
-      const { entryCode, userId } = body.checkAccess;
       if (updatedField[0] === 'checkAccess') {
+        const { entryCode, userId } = body.checkAccess;
         db.Room.findById(id)
         .then(room => {
           // @TODO SHOULD PROBABLY HASH THIS

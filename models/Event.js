@@ -4,7 +4,11 @@ const Room = require('./Room.js');
 const Event = new mongoose.Schema({
   user: {type: ObjectId, ref: 'User'},
   event: {type: String},
+  definition: {type: String},
+  label: {type: String},
+  description: {type: String},
   room: {type: ObjectId, ref: 'Room'},
+  eventType: {type: String, enum: ['ADD', 'REMOVE', 'UPDATE']},
   timestamp: {type: Number} //UNIX TIME but in MS
 });
 

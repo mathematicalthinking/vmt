@@ -3,8 +3,7 @@ import classes from './graph.css';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
-import { parseString, Builder } from 'xml2js';
-const builder = new Builder();
+import { parseString } from 'xml2js';
 class GgbGraph extends Component {
 
   state = {
@@ -88,7 +87,8 @@ class GgbGraph extends Component {
     const { user, room } = this.props;
     const { events } = room;
     if (events.length > 0) {
-      this.ggbApplet.setXML(events[events.length - 1].event)
+      console.log(room.currentState)
+      this.ggbApplet.setXML(room.currentState)
     }
     this.addListener = label => {
       if (!this.state.receivingData) {
@@ -114,16 +114,19 @@ class GgbGraph extends Component {
       this.setState({receivingData: false})
     }
 
-    const sendEvent = (xml, definition, label, eventType) => {
+    const sendEvent = async (xml, definition, label, eventType) => {
+      let xmlObj;
+      if (xml) xmlObj = await parseXML(xml)
       const newData = {
         definition,
         label,
         eventType,
         room: room._id,
         event: xml,
-        description: `${user.username} created ${label}`,
+        description: `${user.username} created ${xmlObj.element.$.type} ${label}`,
         user: {_id: user.id, username: user.username},
         timestamp: new Date().getTime(),
+        currentState: this.ggbApplet.getXML(),
       }
 
       this.socket.emit('SEND_EVENT', newData)
@@ -133,6 +136,15 @@ class GgbGraph extends Component {
       this.ggbApplet.registerAddListener(this.addListener);
       this.ggbApplet.registerUpdateListener(this.updateListener);
       this.ggbApplet.registerRemoveListener(this.removeListener);
+    }
+
+    const parseXML = (xml) => {
+      return new Promise((resolve, reject) => {
+        parseString(xml, (err, result) => {
+          if (err) return reject(err)
+          return resolve(result)
+        })
+      })
     }
   }
 
