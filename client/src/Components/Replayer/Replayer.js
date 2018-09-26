@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import classes from './Replayer.Styles.css';
 import glb from '../../global.css';
 // import ProgressMarker from './ProgressMarker';
@@ -6,7 +6,11 @@ import Clock from './Replayer.Clock';
 import Slider from './Replayer.Slider';
 import Log from './Log/Log';
 
-class Replayer extends PureComponent{
+class Replayer extends Component{
+
+  state={
+    progress: 0,
+  }
 
   componentDidMount(){
 
@@ -17,6 +21,11 @@ class Replayer extends PureComponent{
         console.log('started playing')
       }
     }
+  }
+
+  getProgress = (progress) => {
+    console.log("PROGRESSSSSS: ", progress)
+    this.setState({progress,})
   }
 
   render () {
@@ -38,17 +47,17 @@ class Replayer extends PureComponent{
     // (event.timestamp === startTime);
     const disableForward = false;
     // (event.timestamp === endTime);
-
+    console.log("PLAYING: ", playing)
 
     return (
       <div className={classes.Container}>
         <Log log={log} currentIndex={index}/>
         <div className={classes.ProgressBar}>
           <div className={classes.Time} style={{marginRight: 3}}>{startTime}</div>
-          <Slider blocks={blocks} displayDuration={displayDuration} playing={playing}/>
+          <Slider progress={this.state.progress} blocks={blocks} displayDuration={displayDuration} playing={playing}/>
           <div className={classes.Time} style={{marginLeft: 3}}>{endTime}</div>
         </div>
-        <Clock startTime={startTime} playing={playing} duration={displayDuration}/>
+        <Clock startTime={startTime} playing={playing} duration={displayDuration} getProgress= {(progress) => this.getProgress(progress)}/>
         <div className={[classes.Controls, glb.FlexRow].join(' ')}>
           <button disabled={disableBack} onClick={() => goToIndex(0)} className={classes.Button}><i className="fas fa-fast-backward"></i></button>
           <button disabled={disableBack} onClick={() => goToIndex(index - 1)} className={classes.Button}><i className="fas fa-backward"></i></button>

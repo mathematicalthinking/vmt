@@ -36,7 +36,10 @@ class Clock extends PureComponent {
   add = () => {
     const absTime = this.state.absTime + 1000
     const relTime = moment(this.state.relTime).add(1, 'second').format('MM/DD/YYYY h:mm:ss A')
-    const remainingTime = this.state.remainingTime - 1000
+    const remainingTime = this.state.remainingTime - 1000;
+    console.log("relTime: ",this.state.absTime)
+    console.log("duration: ", this.props.duration)
+    this.props.getProgress((this.state.absTime/this.props.duration) * 100 )
     this.setState({absTime, relTime, remainingTime,})
   }
 

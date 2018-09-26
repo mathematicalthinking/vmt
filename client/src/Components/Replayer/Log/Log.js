@@ -5,8 +5,6 @@ import moment from 'moment';
 class Log extends Component {
 
   componentDidUpdate(prevProps){
-    console.log('current index: ', this.props.currentIndex)
-    console.log('prev index: ', prevProps.currentIndex)
     if (prevProps.currentIndex !== this.props.currentIndex){
       this.scrollToPosition();
     }
@@ -42,7 +40,6 @@ class Log extends Component {
               </div>
             }
             if (i === this.props.currentIndex) {
-              console.log('adding a ref to element: ', i)
               return <div ref={i} className={classes.Entry} style={{color: 'red'}} key={i}>{entry}</div>
             } else {
               return <div className={classes.Entry} style={{color: 'red'}} key={i}>{entry}</div>

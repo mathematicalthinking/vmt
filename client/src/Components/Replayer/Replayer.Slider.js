@@ -1,17 +1,40 @@
 import React, { PureComponent } from 'react';
+import ReactDOM from 'react-dom';
 import styled, { keyframes } from 'react-emotion';
 import classes from './Replayer.Styles.css'
 import Aux from '../HOC/Auxil';
-const progressAnimation = keyframes`
-0% {left: 0%}
-100% {left: 100%}
-`
+
 
 class Slider extends PureComponent {
-  componentDidMount() {
+
+  state = {
+    position: 0
+  }
+
+  componentDidMount(){
+    this.progressAnimation = keyframes`
+    0% {left: 0%}
+    100% {left: 100%}
+    `
 
   }
 
+  shouldComponentUpdate(nextProps){
+    if (nextProps.playing !== this.props.playing) {
+      return true;
+    }
+    else return false;
+  }
+
+  componentDidUpdate(prevProps){
+    // PAUSE
+    if (prevProps.playing && !this.props.playing) {
+      this.progressAnimation = keyframes`
+      0% {left: ${this.props.progress}%}
+      100% {left: 100%}
+      `
+    }
+  }
   render() {
     const {displayDuration, blocks, playing} = this.props;
 
@@ -33,13 +56,14 @@ class Slider extends PureComponent {
       border-radius: 15px;
       height: 12px;
       width: 12px;
-      animation: ${ playing ? `${progressAnimation} linear ${displayDuration /1000}s`: null};
+      animation: ${this.progressAnimation} linear ${displayDuration /1000}s;
+      animation-play-state: ${playing ? 'running' : 'paused'};
       border-radius: 50%;
     `
     return (
       <div className={classes.Slider}>
         {progressBar}
-        <ProgressMarker />
+        <ProgressMarker ref="marker" onCLick={() => console.log('clicked the marker')} />
       </div>
     )
   }
