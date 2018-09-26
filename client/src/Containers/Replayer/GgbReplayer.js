@@ -12,7 +12,25 @@ class GgbReplayer extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.event._id !== this.props.event._id && !this.state.loading && !this.props.event.text) {
-      this.ggbApplet.setXML(this.props.event.event)
+      const { event } = this.props
+      switch (event.eventType) {
+        case 'ADD':
+          if (event.definition) {
+            this.ggbApplet.evalCommand(`${event.label}:${event.definition}`)
+          }
+          this.ggbApplet.evalXML(event.event)
+          this.ggbApplet.evalCommand('UpdateConstruction()')
+          break;
+        case 'REMOVE':
+        console.log("REMOVING OBJECT: ", event.label)
+          this.ggbApplet.deleteObject(event.label)
+          break;
+        case 'UPDATE':
+          this.ggbApplet.evalXML(event.event)
+          this.ggbApplet.evalCommand('UpdateConstruction()')
+          break;
+        default: break;
+      }
     }
   }
 

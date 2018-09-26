@@ -51,7 +51,6 @@ module.exports = {
     })
   },
 
-// @TODO WE SHOULD PROBABLY JUST CREATE DIFFERENT METHODS FOR EACH OF THESE CASES?
   put: (id, body) => {
     return new Promise((resolve, reject) => {
       const updatedField = Object.keys(body)

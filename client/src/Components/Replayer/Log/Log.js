@@ -3,11 +3,6 @@ import classes from './Log.Styles.css';
 import * as ReactDOM from 'react-dom';
 import moment from 'moment';
 class Log extends Component {
-  // constructor(props){
-  //   super(props)
-  //
-  // }
-  // focusedEntry = React.createRef();
 
   componentDidUpdate(prevProps){
     console.log('current index: ', this.props.currentIndex)
@@ -18,24 +13,13 @@ class Log extends Component {
   }
 
   scrollToPosition(){
-    console.log('scrolling!')
     const currentEntry = this.refs[this.props.currentIndex]
-    console.log(currentEntry)
-    // console.log(currentEntry.offset())
-    // console.log(currentEntry.offsetParent.offsetTop)
-    console.log(this.refs.log.offsetTop)
-    console.log(currentEntry.offsetTop)
     const offset = currentEntry.offsetTop - this.refs.log.offsetTop;
     this.refs.log.scrollBottom = 0;
     ReactDOM.findDOMNode(this.refs.log).scrollTop = offset;
-    // currentEntry.scrollIntoView({ behavior: "smooth" });
-    // this.forceUpdate()
-
   }
 
   render() {
-    console.log('rendering log')
-    console.log(this.props.log)
     return (
       <div ref='log' className={classes.Log}>
         {
@@ -54,7 +38,7 @@ class Log extends Component {
             } else {
               entry = <div>
                 <div>{moment.unix(event.timestamp/1000).format('MM/DD/YYYY h:mm:ss A')}</div>
-                <div>{event._id} by {event.user}</div>
+                <div>{event.description}</div>
               </div>
             }
             if (i === this.props.currentIndex) {
