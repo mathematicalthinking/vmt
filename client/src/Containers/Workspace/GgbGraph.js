@@ -3,26 +3,41 @@ import classes from './graph.css';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
+import { parseString } from 'xml2js';
 class GgbGraph extends Component {
-  // we need to track whether or not the ggbBase64 data was updated
-  // by this user or by another client. Otherwise we were getting stuck
-  // in an infinite loop because ggbApplet.setBase64 would be triggered
-  // by socket.on('RECEIVE_EVENT') which then triggers undoListener which in
-  // turn emits an event which will be received by the client who initiated
-  // the event in the first place. --- actually it seems like with the new
-  // method of setXML this infinite loop is avoided and then we can get rid of state
+
   state = {
     receivingData: false,
     loadingWorkspace: true,
     loading: true,
   }
-  //
+
   componentDidMount() {
     this.socket = this.props.socket;
 
     this.socket.on('RECEIVE_EVENT', data => {
-      this.ggbApplet.setXML(data.event)
-      this.ggbApplet.registerAddListener(this.eventListener) // @HACK we're readding the event listener every time because setXML destorys them.
+      this.setState({receivingData: true}, () => {
+        console.log('receiving data from other client')
+        switch (data.eventType) {
+          case 'ADD':
+            if (data.definition) {
+              this.ggbApplet.evalCommand(`${data.label}:${data.definition}`)
+            }
+            this.ggbApplet.evalXML(data.event)
+            this.ggbApplet.evalCommand('UpdateConstruction()')
+            break;
+          case 'REMOVE':
+            this.ggbApplet.deleteObject(data.label)
+            break;
+          case 'UPDATE':
+            this.ggbApplet.evalXML(data.event)
+            this.ggbApplet.evalCommand('UpdateConstruction()')
+            break;
+          default: break;
+        }
+        if (data.eventType === 'ADD') {
+        }
+      })
     })
   }
 
@@ -40,8 +55,10 @@ class GgbGraph extends Component {
       "preventFocus":true,
       "appName":"whiteboard"
     };
+
     const ggbApp = new window.GGBApplet(parameters, true);
     ggbApp.inject('ggb-element')
+    // TRY REPLACING THIS WITH parameters.appletOnLoad(ggbApplet)
     const timer = setInterval(() => {
       if (window.ggbApplet) {
         if (window.ggbApplet.listeners) {
@@ -57,46 +74,77 @@ class GgbGraph extends Component {
 
   componentWillUnmount() {
     if (this.ggbApplet.listeners) {
-      this.ggbApplet.unregisterAddListener(this.eventListener);
-      this.ggbApplet.unregisterUpdateListener(this.eventListener);
+      delete window.ggbApplet;
+      this.ggbApplet.unregisterAddListener(this.addListener);
+      this.ggbApplet.unregisterUpdateListener();
       this.ggbApplet.unregisterRemoveListener(this.eventListener);
       // this.ggbApplet.unregisterClearListener(this.clearListener);
       // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
     }
   }
-  //
-  // // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
+
   initializeGgb = () => {
-    const { events } = this.props.room
+    const { user, room } = this.props;
+    const { events } = room;
     if (events.length > 0) {
-      this.ggbApplet.setXML(events[events.length - 1].event)
+      console.log(room.currentState)
+      this.ggbApplet.setXML(room.currentState)
     }
-    this.eventListener = obj => {
-      // if (!this.state.receivingData) {
-        sendEvent(obj)
-      // }
-      // this.receivingData = false;
+    this.addListener = label => {
+      if (!this.state.receivingData) {
+        const xml = this.ggbApplet.getXML(label)
+        const definition = this.ggbApplet.getCommandString(label);
+        sendEvent(xml, definition, label, "ADD");
+      }
+      this.setState({receivingData: false})
     }
 
-    const sendEvent = obj => {
-      //@TODO get information from obj.xml to save for more detailed playback
-      const newData = {
-        room: this.props.room._id,
-        event: this.ggbApplet.getXML(),
-        user: {_id: this.props.user.id, username: this.props.user.username},
-        timestamp: new Date().getTime(),
+    this.updateListener = label => {
+      if (!this.state.receivingData) {
+        const xml = this.ggbApplet.getXML(label)
+        sendEvent(xml, null, label, "UPDATE")
       }
-      // this.ggbApplet.setXML(newData.event)
-      // this.props.updateRoom({events: newData})
+      this.setState({receivingData: false})
+    }
+
+    this.removeListener = label => {
+      if (!this.state.receivingData) {
+        sendEvent(null, null, label, "REMOVE")
+      }
+      this.setState({receivingData: false})
+    }
+
+    const sendEvent = async (xml, definition, label, eventType) => {
+      let xmlObj;
+      if (xml) xmlObj = await parseXML(xml)
+      const newData = {
+        definition,
+        label,
+        eventType,
+        room: room._id,
+        event: xml,
+        description: `${user.username} created ${xmlObj.element.$.type} ${label}`,
+        user: {_id: user.id, username: user.username},
+        timestamp: new Date().getTime(),
+        currentState: this.ggbApplet.getXML(),
+      }
+
       this.socket.emit('SEND_EVENT', newData)
     }
     // attach this listeners to the ggbApplet
     if (this.ggbApplet.listeners.length === 0) {
-      this.ggbApplet.registerAddListener(this.eventListener);
-      this.ggbApplet.registerUpdateListener(this.eventListener);
-      this.ggbApplet.registerRemoveListener(this.eventListener);
-      this.ggbApplet.registerStoreUndoListener(this.eventListener);
-      this.ggbApplet.registerClearListener(this.eventListener);
+      this.ggbApplet.registerAddListener(this.addListener);
+      this.ggbApplet.registerUpdateListener(this.updateListener);
+      this.ggbApplet.registerRemoveListener(this.removeListener);
+    }
+
+    const parseXML = (xml) => {
+      return new Promise((resolve, reject) => {
+        parseString(xml, (err, result) => {
+          if (err) return reject(err)
+          return resolve(result)
+        })
+      })
     }
   }
 

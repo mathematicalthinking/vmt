@@ -18,6 +18,7 @@ const Room = new mongoose.Schema({
     role: {type: String},
     _id: false}],
   currentUsers: {type: [{type: ObjectId, ref: 'User'}], default: []},
+  currentState: {type: String}, 
   ggbFile: {type: String,},
   desmosLink: {type: String,},
   events: [{type: ObjectId, ref: 'Event', _id: false}],
