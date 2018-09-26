@@ -6,31 +6,29 @@ import Script from 'react-load-script';
 import { parseString, Builder } from 'xml2js';
 const builder = new Builder();
 class GgbGraph extends Component {
-  // we need to track whether or not the ggbBase64 data was updated
-  // by this user or by another client. Otherwise we were getting stuck
-  // in an infinite loop because ggbApplet.setBase64 would be triggered
-  // by socket.on('RECEIVE_EVENT') which then triggers undoListener which in
-  // turn emits an event which will be received by the client who initiated
-  // the event in the first place. --- actually it seems like with the new
-  // method of setXML this infinite loop is avoided and then we can get rid of state
+
   state = {
     receivingData: false,
     loadingWorkspace: true,
     loading: true,
   }
-  //
+
   componentDidMount() {
     this.socket = this.props.socket;
 
     this.socket.on('RECEIVE_EVENT', data => {
-      this.setState({receivingData: true})
-      console.log('receiving event')
-      // const xml = builder.buildObject(data.event)
-      console.log(data.event)
-      // console.log(xml)
-      this.ggbApplet.evalXML(data.event)
-      console.log(this.ggbApplet.getXML())
-      this.ggbApplet.registerAddListener(this.eventListener) // @HACK we're readding the event listener every time because setXML destorys them.
+      this.setState({receivingData: true}, () => {
+        console.log('receiving data from other client')
+        if (data.eventType === 'ADD') {
+          console.log(`${data.label}:${data.definition}`)
+          console.log(data.event)
+          if (data.definition) {
+            this.ggbApplet.evalCommand(`${data.label}:${data.definition}`)
+          }
+          this.ggbApplet.evalXML(data.event)
+          this.ggbApplet.evalCommand('UpdateConstruction()')
+        }
+      })
     })
   }
 
@@ -48,8 +46,10 @@ class GgbGraph extends Component {
       "preventFocus":true,
       "appName":"whiteboard"
     };
+
     const ggbApp = new window.GGBApplet(parameters, true);
     ggbApp.inject('ggb-element')
+    // TRY REPLACING THIS WITH parameters.appletOnLoad
     const timer = setInterval(() => {
       if (window.ggbApplet) {
         if (window.ggbApplet.listeners) {
@@ -67,53 +67,39 @@ class GgbGraph extends Component {
     if (this.ggbApplet.listeners) {
       delete window.ggbApplet;
       this.ggbApplet.unregisterAddListener(this.addListener);
-      this.ggbApplet.unregisterUpdateListener(this.eventListener);
+      this.ggbApplet.unregisterUpdateListener();
       this.ggbApplet.unregisterRemoveListener(this.eventListener);
       // this.ggbApplet.unregisterClearListener(this.clearListener);
       // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
     }
   }
-  //
-  // // initialize the geoegbra event listeners /// THIS WAS LIFTED FROM VCS
+
   initializeGgb = () => {
-    const { events } = this.props.room
+    const { user, room } = this.props;
+    const { events } = room;
     if (events.length > 0) {
       this.ggbApplet.setXML(events[events.length - 1].event)
     }
-    this.addListener = obj => {
-      console.log('object added')
-      if (obj === null) {
-        console.log("OBJECT === null");
-        return;
+    this.addListener = label => {
+      console.log('something added')
+      if (this.state.receivingData) {
+        console.log('...but not by us')
       }
       if (!this.state.receivingData) {
-        console.log('obj: ', obj)
-        const xml = this.ggbApplet.getXML(obj)
-        if (xml === '') {
-          console.log('deleted: ', obj)
+        const xml = this.ggbApplet.getXML(label)
+        const definition = this.ggbApplet.getCommandString(label);
+        const newData = {
+          room: room._id,
+          event: xml,
+          definition,
+          label,
+          eventType: "ADD",
+          description: `${user.username} created ${label}`,
+          user: {_id: user.id, username: user.username},
+          timestamp: new Date().getTime(),
         }
-        parseString(xml, (err, result) => {
-          console.log(result)
-          console.log(typeof result)
-          console.log("RESULT FROM PARSE: ", result)
-          const { type } = result.element.$
-          const { x, y } = result.element.coords[0].$
-          const event = `<expression label="${obj}" exp="(${x}, ${y})" type="${type}"/>${xml}`
-          const newData = {
-            room: this.props.room._id,
-            event: event,
-            user: {_id: this.props.user.id, username: this.props.user.username},
-            timestamp: new Date().getTime(),
-          }
-          console.log(newData)
-          if (newData.event === '') {
-            console.log('deleted event')
-          }// then the object was deleted
-
-          // this.ggbApplet.setXML(newData.event)
-          // this.props.updateRoom({events: newData})
-          sendEvent(newData);
-        })
+        console.log(newData)
+        sendEvent(newData);
       }
       this.setState({receivingData: false})
     }
@@ -126,7 +112,7 @@ class GgbGraph extends Component {
     // attach this listeners to the ggbApplet
     if (this.ggbApplet.listeners.length === 0) {
       this.ggbApplet.registerAddListener(this.addListener);
-      this.ggbApplet.registerUpdateListener(this.eventListener);
+      this.ggbApplet.registerUpdateListener(() => {console.log('update listener fired: '); this.addListener()});
       // this.ggbApplet.registerRemoveListener(this.eventListener);
       // this.ggbApplet.registerStoreUndoListener(this.eventListener);
       // this.ggbApplet.registerClearListener(this.eventListener);
