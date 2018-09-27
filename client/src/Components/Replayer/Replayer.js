@@ -7,18 +7,12 @@ import Slider from './Replayer.Slider';
 import Log from './Log/Log';
 
 class Replayer extends Component{
-
-  state={
-    progress: 0,
-  }
-
   componentDidMount(){
 
   }
   componentDidUpdate(prevProps) {
     if (prevProps.playing !== this.props.playing) {
       if (this.props.playing) {
-        console.log('started playing')
       }
     }
   }
@@ -47,13 +41,14 @@ class Replayer extends Component{
     // (event.timestamp === startTime);
     const disableForward = false;
     // (event.timestamp === endTime);
+    const progress = relTime/displayDuration * 100; // %
 
     return (
       <div className={classes.Container}>
-        <Log log={log} currentIndex={index} progress={this.state.progress} goToIndex={(index) => goToIndex(index)}/>
+        <Log log={log} currentIndex={index} progress={progress} goToIndex={(index) => goToIndex(index)}/>
         <div className={classes.ProgressBar}>
           <div className={classes.Time} style={{marginRight: 3}}>{startTime}</div>
-          <Slider progress={this.state.progress} blocks={blocks} displayDuration={displayDuration} playing={playing}/>
+          <Slider progress={progress} blocks={blocks} displayDuration={displayDuration} playing={playing}/>
           <div className={classes.Time} style={{marginLeft: 3}}>{endTime}</div>
         </div>
         <Clock startTime={startTime} playing={playing} duration={displayDuration} relTime={relTime} />

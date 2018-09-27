@@ -3,13 +3,15 @@ import moment from 'moment';
 import classes from './Replayer.Styles.css';
 
 const msToTime = (duration) => {
+  // let ms = parseInt((duration % 1000) / 100)
   let seconds = parseInt((duration / 1000) % 60, 10);
   let minutes = parseInt((duration / (1000 * 60)) % 60, 10);
   let hours = parseInt((duration / (1000 * 60 * 60)) % 24, 10);
   hours = (hours < 10) ? "0" + hours : hours;
   minutes = (minutes < 10) ? "0" + minutes : minutes;
   seconds = (seconds < 10) ? "0" + seconds : seconds;
-  return hours + ":" + minutes + ":" + seconds ;
+  return hours + ":" + minutes + ":" + seconds
+  // + ms + "0";
 }
 
 class Clock extends PureComponent {
@@ -40,8 +42,6 @@ class Clock extends PureComponent {
   // }
 
   render() {
-    console.log("RELTIME: ", this.props.relTime)
-    console.log("DUR: ", this.props.duration)
     return (
       <div className={classes.Clocks}>
         <div className={classes.AbsClocks}>

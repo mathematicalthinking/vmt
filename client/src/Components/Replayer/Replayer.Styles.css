@@ -57,7 +57,13 @@
 }
 
 .ProgressMarker {
-
+  border: 3px solid #2f91f2;
+  position: absolute;
+  border-radius: 15px;
+  height: 12px;
+  width: 12px;
+  left: -12px;
+  border-radius: 50%;
 }
 
 .Clocks {
