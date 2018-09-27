@@ -6,15 +6,12 @@ import Aux from '../HOC/Auxil';
 
 class Slider extends PureComponent {
 
-  componentDidMount(){
-
-  }
-
   jumpToPosition = event => {
     console.log(event)
     console.log(event.clientX)
-    console.log(event.target)
-    console.log(ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect())
+    const sliderEl = ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect();
+    console.log(sliderEl.left)
+    console.log("percentage: ", (event.clientX - sliderEl.left)/sliderEl.width * 100)
   }
 
   render() {
@@ -32,10 +29,11 @@ class Slider extends PureComponent {
         </Aux>
       )
     })
+
     return (
       <div ref="slider" className={classes.Slider} onClick={this.jumpToPosition}>
         {progressBar}
-        <div ref="marker" style={{left: `${progress}%`}} className={classes.ProgressMarker}></div>
+        <div ref="marker" style={{left: `calc(${progress}% - 4px)`}} className={classes.ProgressMarker}></div>
       </div>
     )
   }
