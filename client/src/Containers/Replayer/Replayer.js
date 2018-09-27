@@ -132,6 +132,10 @@ class Replayer extends Component {
     }))
   }
 
+  goToIndex = (index) => {
+    console.log(index)
+  }
+
   render() {
     const { room } = this.props
     const event = this.log[this.state.logIndex] || {};
@@ -155,9 +159,9 @@ class Replayer extends Component {
             displayDuration={this.displayDuration}
             blocks={this.blocks}
             startTime={this.state.startTime}
+            goToIndex={(index) => this.goToIndex(index)}
             // event={event}
             index={this.state.logIndex}
-            progress={this.state.logIndex/this.updatedLog.length}
             log={this.updatedLog}
             endTime={this.endTime}
            />)

@@ -4,22 +4,49 @@ import * as ReactDOM from 'react-dom';
 import moment from 'moment';
 class Log extends Component {
 
-  componentDidUpdate(prevProps){
-    if (prevProps.currentIndex !== this.props.currentIndex){
-      this.scrollToPosition();
+  state = {
+    scrolling: false,
+    autoScrolling: false,
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.currentIndex !== this.props.currentIndex) {
+      this.setState({autoScrolling: true}, () => {
+        this.scrollToPosition();
+      })
     }
   }
 
-  scrollToPosition(){
+  scrollToPosition = () => {
     const currentEntry = this.refs[this.props.currentIndex]
     const offset = currentEntry.offsetTop - this.refs.log.offsetTop;
-    this.refs.log.scrollBottom = 0;
+    // this.refs.log.scrollBottom = 0;
     ReactDOM.findDOMNode(this.refs.log).scrollTop = offset;
+    this.setState({autoScrolling: false})
+  }
+
+  handleScroll = () => {
+    if (this.state.autoScrolling) return;
+    console.log('scrolling')
+    if (this.timeout) {
+      console.log('there already is a timeout')
+      clearTimeout(this.timeout)
+    }
+    this.timeout = setTimeout(() => {
+      this.timeout = null;
+      this.setState({scrolling: false})
+      // Calculate index from offset and position
+      const currentEntry = this.refs[this.props.currentIndex]
+      console.log(currentEntry)
+      const offset = currentEntry.offsetTop - this.refs.log.offsetTop;
+      console.log(offset)
+      // this.props.goToIndex()
+    }, 500)
   }
 
   render() {
     return (
-      <div ref='log' className={classes.Log}>
+      <div ref='log' className={classes.Log} onScroll={this.handleScroll}>
         {
           this.props.log.map((event, i) => {
             let entry;

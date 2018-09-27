@@ -34,7 +34,7 @@ class Replayer extends Component{
       event,
       startTime,
       endTime,
-      displayDuration,
+      displayDuration, //ms
       pausePlay,
       log,
       index,
@@ -51,13 +51,13 @@ class Replayer extends Component{
 
     return (
       <div className={classes.Container}>
-        <Log log={log} currentIndex={index}/>
+        <Log log={log} currentIndex={index} progress={this.state.progress} goToIndex={(index) => goToIndex(index)}/>
         <div className={classes.ProgressBar}>
           <div className={classes.Time} style={{marginRight: 3}}>{startTime}</div>
           <Slider progress={this.state.progress} blocks={blocks} displayDuration={displayDuration} playing={playing}/>
           <div className={classes.Time} style={{marginLeft: 3}}>{endTime}</div>
         </div>
-        <Clock startTime={startTime} playing={playing} duration={displayDuration} getProgress= {(progress) => this.getProgress(progress)}/>
+        <Clock startTime={startTime} playing={playing} duration={displayDuration} getProgress= {(progress) => this.getProgress(progress)} progress={this.state.progress}/>
         <div className={[classes.Controls, glb.FlexRow].join(' ')}>
           <button disabled={disableBack} onClick={() => goToIndex(0)} className={classes.Button}><i className="fas fa-fast-backward"></i></button>
           <button disabled={disableBack} onClick={() => goToIndex(index - 1)} className={classes.Button}><i className="fas fa-backward"></i></button>

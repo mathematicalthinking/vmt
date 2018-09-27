@@ -31,6 +31,14 @@ class Slider extends PureComponent {
       `
     }
   }
+
+  jumpToPosition = event => {
+    console.log(event)
+    console.log(event.clientX)
+    console.log(event.target)
+    console.log(ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect())
+  }
+
   render() {
     const {displayDuration, blocks, playing, progress } = this.props;
     const progressAnimation = keyframes`
@@ -61,7 +69,7 @@ class Slider extends PureComponent {
       border-radius: 50%;
     `
     return (
-      <div className={classes.Slider}>
+      <div ref="slider" className={classes.Slider} onClick={this.jumpToPosition}>
         {progressBar}
         <ProgressMarker ref="marker" onCLick={() => console.log('clicked the marker')} />
       </div>
