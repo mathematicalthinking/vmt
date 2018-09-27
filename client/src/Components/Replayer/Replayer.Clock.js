@@ -9,46 +9,46 @@ const msToTime = (duration) => {
   hours = (hours < 10) ? "0" + hours : hours;
   minutes = (minutes < 10) ? "0" + minutes : minutes;
   seconds = (seconds < 10) ? "0" + seconds : seconds;
-
   return hours + ":" + minutes + ":" + seconds ;
 }
 
 class Clock extends PureComponent {
 
   state = {
-    absTime: 0,
+    relTime: 0,
     remainingTime: this.props.duration,
-    relTime: this.props.startTime
+    absTime: this.props.startTime
   }
 
+  // componentDidUpdate(prevProps) {
+  //   if (!prevProps.playing && this.props.playing) {
+  //     this.timer = setInterval(this.add, 1000)
+  //   }
+  //   if (!this.props.playing && prevProps.playing) clearInterval(this.timer)
+  //   if (this.state.remainingTime <= 0) clearInterval(this.timer)
+  //   if (prevProps.startTime !== this.props.startTime) {
+  //     this.setState({relTime: this.props.startTime})
+  //   }
+  // }
 
-  componentDidUpdate(prevProps) {
-    if (!prevProps.playing && this.props.playing) {
-      this.timer = setInterval(this.add, 1000)
-    }
-    if (!this.props.playing && prevProps.playing) clearInterval(this.timer)
-    if (this.state.remainingTime <= 0) clearInterval(this.timer)
-    if (prevProps.startTime !== this.props.startTime) {
-      this.setState({relTime: this.props.startTime})
-    }
-  }
-
-  add = () => {
-    const absTime = this.state.absTime + 1000
-    const relTime = moment(this.state.relTime).add(1, 'second').format('MM/DD/YYYY h:mm:ss A')
-    const remainingTime = this.state.remainingTime - 1000;
-    this.props.getProgress((this.state.absTime/this.props.duration) * 100 )
-    this.setState({absTime, relTime, remainingTime,})
-  }
+  // add = () => {
+  //   const absTime = this.state.absTime + 1000
+  //   const relTime = moment(this.state.relTime).add(1, 'second').format('MM/DD/YYYY h:mm:ss A')
+  //   const remainingTime = this.state.remainingTime - 1000;
+  //   this.props.getProgress((this.state.absTime/this.props.duration) * 100 )
+  //   this.setState({absTime, relTime, remainingTime,})
+  // }
 
   render() {
+    console.log("RELTIME: ", this.props.relTime)
+    console.log("DUR: ", this.props.duration)
     return (
       <div className={classes.Clocks}>
         <div className={classes.AbsClocks}>
-          <div className={classes.AbsTime}>{msToTime(this.state.absTime)}</div>
-          <div className={classes.AbsTime}>{msToTime(this.state.remainingTime)}</div>
+          <div className={classes.AbsTime}>{msToTime(this.props.relTime)}</div>
+          <div className={classes.AbsTime}>{msToTime(this.props.duration - this.props.relTime)}</div>
         </div>
-        <div className={classes.RelTime}>{this.state.relTime}</div>
+        <div className={classes.RelTime}>{this.state.absTime}</div>
 
       </div>
     )

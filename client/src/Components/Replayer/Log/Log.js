@@ -67,9 +67,9 @@ class Log extends Component {
               </div>
             }
             if (i === this.props.currentIndex) {
-              return <div ref={i} className={classes.Entry} style={{color: 'red'}} key={i}>{entry}</div>
+              return <div ref={i} className={classes.Entry} style={{color: 'white'}} key={i}>{entry}</div>
             } else {
-              return <div className={classes.Entry} style={{color: 'red'}} key={i}>{entry}</div>
+              return <div className={classes.Entry} style={{color: 'white'}} key={i}>{entry}</div>
             }
           })
         }
