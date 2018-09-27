@@ -108,8 +108,17 @@ class Replayer extends Component {
 
   goToTime = (percent) => {
     console.log("PERCEN: >",percent)
+    const timeElapsed = percent  * this.relativeDuration
     // fingd the logindex that corresponds
-    this.setState({timeElapsed: percent  * this.relativeDuration})
+    let logIndex;
+    this.updatedLog.reverse().some((entry, i) => {
+      if (entry.relTime < timeElapsed) {
+        logIndex = i;
+        return true;
+      }
+      return false;
+    })
+    this.setState({timeElapsed, logIndex})
   }
 
   render() {
