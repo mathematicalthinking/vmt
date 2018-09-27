@@ -106,8 +106,10 @@ class Replayer extends Component {
     }))
   }
 
-  goToIndex = (index) => {
-    console.log(index)
+  goToTime = (percent) => {
+    console.log("PERCEN: >",percent)
+    // fingd the logindex that corresponds
+    this.setState({timeElapsed: percent  * this.relativeDuration})
   }
 
   render() {
@@ -133,7 +135,7 @@ class Replayer extends Component {
             displayDuration={this.relativeDuration}
             blocks={this.blocks}
             startTime={this.state.startTime}
-            goToIndex={(index) => this.goToIndex(index)}
+            goToTime={(percent) => this.goToTime(percent)}
             // event={event}
             relTime={this.state.timeElapsed}
             index={this.state.logIndex}

@@ -23,6 +23,8 @@
 
 .ProgressBar {
   display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 .Break {
@@ -40,6 +42,7 @@
 
 .Time {
   font-size: .8em;
+  padding: 10px;
 }
 
 .Slider {

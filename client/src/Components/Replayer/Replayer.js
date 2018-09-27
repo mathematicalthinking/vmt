@@ -33,6 +33,7 @@ class Replayer extends Component{
       log,
       index,
       goToIndex,
+      goToTime,
       blocks,
     } = this.props;
     const pausePlayButton = playing ? <i className="fas fa-pause"></i> : <i className="fas fa-play"></i>;
@@ -48,7 +49,7 @@ class Replayer extends Component{
         <Log log={log} currentIndex={index} progress={progress} goToIndex={(index) => goToIndex(index)}/>
         <div className={classes.ProgressBar}>
           <div className={classes.Time} style={{marginRight: 3}}>{startTime}</div>
-          <Slider progress={progress} blocks={blocks} displayDuration={displayDuration} playing={playing}/>
+          <Slider progress={progress} blocks={blocks} displayDuration={displayDuration} playing={playing} goToTime={(percent) => goToTime(percent)}/>
           <div className={classes.Time} style={{marginLeft: 3}}>{endTime}</div>
         </div>
         <Clock startTime={startTime} playing={playing} duration={displayDuration} relTime={relTime} />

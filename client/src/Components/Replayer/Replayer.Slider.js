@@ -11,7 +11,8 @@ class Slider extends PureComponent {
     console.log(event.clientX)
     const sliderEl = ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect();
     console.log(sliderEl.left)
-    console.log("percentage: ", (event.clientX - sliderEl.left)/sliderEl.width * 100)
+    const percent = (event.clientX - sliderEl.left)/sliderEl.width // As a fraction
+    this.props.goToTime(percent)
   }
 
   render() {
@@ -33,7 +34,7 @@ class Slider extends PureComponent {
     return (
       <div ref="slider" className={classes.Slider} onClick={this.jumpToPosition}>
         {progressBar}
-        <div ref="marker" style={{left: `calc(${progress}% - 4px)`}} className={classes.ProgressMarker}></div>
+        <div ref="marker" style={{left: `calc(${progress}% - 6px)`}} className={classes.ProgressMarker}></div>
       </div>
     )
   }
