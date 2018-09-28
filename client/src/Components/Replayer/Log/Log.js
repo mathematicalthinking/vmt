@@ -27,9 +27,7 @@ class Log extends Component {
 
   handleScroll = () => {
     if (this.state.autoScrolling) return;
-    console.log('scrolling')
     if (this.timeout) {
-      console.log('there already is a timeout')
       clearTimeout(this.timeout)
     }
     this.timeout = setTimeout(() => {
@@ -37,9 +35,7 @@ class Log extends Component {
       this.setState({scrolling: false})
       // Calculate index from offset and position
       const currentEntry = this.refs[this.props.currentIndex]
-      console.log(currentEntry)
       const offset = currentEntry.offsetTop - this.refs.log.offsetTop;
-      console.log(offset)
       // this.props.goToIndex()
     }, 500)
   }

@@ -7,13 +7,15 @@ import Slider from './Replayer.Slider';
 import Log from './Log/Log';
 
 class Replayer extends Component{
-  componentDidMount(){
 
-  }
+
   componentDidUpdate(prevProps) {
     if (prevProps.playing !== this.props.playing) {
       if (this.props.playing) {
       }
+    }
+    if (prevProps.startTime !== this.props.startTime) {
+      this.originalStartTime = this.props.startTime;
     }
   }
 
@@ -35,6 +37,7 @@ class Replayer extends Component{
       goToIndex,
       goToTime,
       blocks,
+      absTimeElapsed,
     } = this.props;
     const pausePlayButton = playing ? <i className="fas fa-pause"></i> : <i className="fas fa-play"></i>;
     // const progress = (index / (duration - 1)) * 100
@@ -48,11 +51,11 @@ class Replayer extends Component{
       <div className={classes.Container}>
         <Log log={log} currentIndex={index} progress={progress} goToIndex={(index) => goToIndex(index)}/>
         <div className={classes.ProgressBar}>
-          <div className={classes.Time} style={{marginRight: 3}}>{startTime}</div>
+          <div className={classes.Time} style={{marginRight: 3}}>{this.originalStartTime || startTime}</div>
           <Slider progress={progress} blocks={blocks} displayDuration={displayDuration} playing={playing} goToTime={(percent) => goToTime(percent)}/>
           <div className={classes.Time} style={{marginLeft: 3}}>{endTime}</div>
         </div>
-        <Clock startTime={startTime} playing={playing} duration={displayDuration} relTime={relTime} />
+        <Clock startTime={startTime} playing={playing} duration={displayDuration} relTime={relTime} absTimeElapsed={absTimeElapsed}/>
         <div className={[classes.Controls, glb.FlexRow].join(' ')}>
           <button disabled={disableBack} onClick={() => goToIndex(0)} className={classes.Button}><i className="fas fa-fast-backward"></i></button>
           <button disabled={disableBack} onClick={() => goToIndex(index - 1)} className={classes.Button}><i className="fas fa-backward"></i></button>
