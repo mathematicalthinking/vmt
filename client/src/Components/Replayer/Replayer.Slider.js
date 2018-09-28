@@ -7,10 +7,7 @@ import Aux from '../HOC/Auxil';
 class Slider extends PureComponent {
 
   jumpToPosition = event => {
-    console.log(event)
-    console.log(event.clientX)
     const sliderEl = ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect();
-    console.log(sliderEl.left)
     const percent = (event.clientX - sliderEl.left)/sliderEl.width // As a fraction
     this.props.goToTime(percent)
   }

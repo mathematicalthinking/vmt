@@ -10,27 +10,57 @@ class GgbReplayer extends Component {
     loading: true,
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.event._id !== this.props.event._id && !this.state.loading && !this.props.event.text) {
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.props.index !== nextProps.index
+      || this.state.loading !== nextState.loading) {
+      return true;
+    } return false;
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    console.log(prevProps)
+    console.log(this.props.index)
+    // REbuild the constrution from scratch up to the current index
+    if (this.props.index - prevProps.index !== 1 && !prevState.loading) {
+      console.log(this.props.index, prevProps.index)
+      console.log('skipped around')
+      // this.ggbApplet.setXML(); // CLEAR
+      this.ggbApplet.reset();
+      this.props.log.some((event, i) => {
+        if (i === this.props.index) {
+          return true;
+        }
+        this.constructEvent(event);
+        return false
+      })
+    }
+
+    else if (prevProps.event._id !== this.props.event._id && !this.state.loading && !this.props.event.text) {
+      console.log('regular ol" playing')
       const { event } = this.props
-      switch (event.eventType) {
-        case 'ADD':
-          if (event.definition) {
-            this.ggbApplet.evalCommand(`${event.label}:${event.definition}`)
-          }
-          this.ggbApplet.evalXML(event.event)
-          this.ggbApplet.evalCommand('UpdateConstruction()')
-          break;
-        case 'REMOVE':
-        console.log("REMOVING OBJECT: ", event.label)
-          this.ggbApplet.deleteObject(event.label)
-          break;
-        case 'UPDATE':
-          this.ggbApplet.evalXML(event.event)
-          this.ggbApplet.evalCommand('UpdateConstruction()')
-          break;
-        default: break;
-      }
+      this.constructEvent(event)
+    }
+  }
+
+  constructEvent(event) {
+    switch (event.eventType) {
+      case 'ADD':
+      console.log("ADDING OBJECT: ", event.label, event.definition)
+        if (event.definition) {
+          this.ggbApplet.evalCommand(`${event.label}:${event.definition}`)
+        }
+        this.ggbApplet.evalXML(event.event)
+        this.ggbApplet.evalCommand('UpdateConstruction()')
+        break;
+      case 'REMOVE':
+      console.log("REMOVING OBJECT: ", event.label)
+        this.ggbApplet.deleteObject(event.label)
+        break;
+      case 'UPDATE':
+        this.ggbApplet.evalXML(event.event)
+        this.ggbApplet.evalCommand('UpdateConstruction()')
+        break;
+      default: break;
     }
   }
 

@@ -16,12 +16,8 @@ const msToTime = (duration) => {
 
 class Clock extends PureComponent {
 
-
-
   render() {
     const absTime = moment(this.props.startTime).add(this.props.absTimeElapsed, 'ms').format('MM/DD/YYYY h:mm:ss A')
-    console.log(absTime)
-    console.log(this.props.absTimeElapsed)
     return (
       <div className={classes.Clocks}>
         <div className={classes.AbsClocks}>
