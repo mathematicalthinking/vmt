@@ -18,12 +18,8 @@ class GgbReplayer extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log(prevProps)
-    console.log(this.props.index)
     // REbuild the constrution from scratch up to the current index
     if (this.props.index - prevProps.index !== 1 && !prevState.loading) {
-      console.log(this.props.index, prevProps.index)
-      console.log('skipped around')
       // this.ggbApplet.setXML(); // CLEAR
       this.ggbApplet.reset();
       this.props.log.some((event, i) => {
@@ -45,7 +41,6 @@ class GgbReplayer extends Component {
   constructEvent(event) {
     switch (event.eventType) {
       case 'ADD':
-      console.log("ADDING OBJECT: ", event.label, event.definition)
         if (event.definition) {
           this.ggbApplet.evalCommand(`${event.label}:${event.definition}`)
         }
@@ -53,7 +48,6 @@ class GgbReplayer extends Component {
         this.ggbApplet.evalCommand('UpdateConstruction()')
         break;
       case 'REMOVE':
-      console.log("REMOVING OBJECT: ", event.label)
         this.ggbApplet.deleteObject(event.label)
         break;
       case 'UPDATE':
