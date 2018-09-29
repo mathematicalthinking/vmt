@@ -9,29 +9,30 @@ class Chat extends PureComponent {
 
   componentDidMount(){
     console.log("props in cheat: ", this.props)
-    if (this.props.event.text) {
-      this.setState({messages: [this.props.event]})
+    if (this.props.log[0].text) {
+      this.setState({messages: [this.props.log[0]]})
 
     }
   }
 
   componentDidUpdate(prevProps) {
-    console.log('chat updating')
-    console.log(this.props)
+    console.log('chat updated')
+    const { log, index, reset } = this.props;
     if (!prevProps.skipping && this.props.skipping) {
       let messages = [];
-      this.props.log.some((entry, i) => {
-        if (i <= this.props.index) {
+      log.some((entry, i) => {
+        if (i <= index && entry.text) {
           messages.push(entry)
           return false;
         } return true;
       })
-      console.log(messages)
-      this.props.reset();
+      reset();
+      console.log("'we're skipping ahead and reposting these messages: ", console.log(messages))
       this.setState({messages,})
     }
-    if (this.props.event.text && (prevProps.event._id !== this.props.event._id)) {
-      this.setState(prevState => ({messages: [...prevState.messages, this.props.event]}))
+    else if (log[index].text && (prevProps.log[prevProps.index]._id !== log[index]._id)) {
+      console.log('playing and appending new chat message: ', log[index])
+      this.setState(prevState => ({messages: [...prevState.messages, log[index]]}))
     }
   }
 

@@ -18,23 +18,20 @@ class GgbReplayer extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const { log, index, skipping } = this.props;
     // REbuild the constrution from scratch up to the current index
-    if (this.props.index - prevProps.index !== 1 && !prevState.loading) {
-      // this.ggbApplet.setXML(); // CLEAR
+    if (!prevProps.skipping && skipping) {
       this.ggbApplet.reset();
-      this.props.log.some((event, i) => {
-        if (i === this.props.index) {
-          return true;
-        }
-        this.constructEvent(event);
-        return false
+      log.some((entry, i) => {
+        if (i <= this.props.index && entry.event) {
+          this.constructEvent(entry)
+          return false;
+        } return true;
       })
     }
-
-    else if (prevProps.event._id !== this.props.event._id && !this.state.loading && !this.props.event.text) {
+    else if (prevProps.log[prevProps.index]._id !== log[index]._id && !this.state.loading && !log[index].text) {
       console.log('regular ol" playing')
-      const { event } = this.props
-      this.constructEvent(event)
+      this.constructEvent(log[index])
     }
   }
 
