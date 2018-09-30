@@ -45,6 +45,7 @@
     "react-dnd": "^5.0.0",
     "react-dnd-html5-backend": "^5.0.1",
     "react-dom": "^16.4.1",
+    "react-draggable": "^3.0.5",
     "react-emotion": "^9.2.10",
     "react-load-script": "0.0.6",
     "react-onclickoutside": "^6.7.1",

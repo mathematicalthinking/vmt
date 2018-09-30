@@ -26,7 +26,6 @@ class Replayer extends Component{
   render () {
     const {
       playing,
-      event,
       startTime,
       endTime,
       displayDuration, //ms

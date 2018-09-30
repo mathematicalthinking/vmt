@@ -133,6 +133,11 @@ class Replayer extends Component {
     this.setState({changingIndex: false})
   }
 
+  setCurrentMembers = (currentMembers) => {
+    console.log("CURRENT MEMBERS: ",currentMembers)
+    this.setState({currentMembers,})
+  }
+
   render() {
     const { room } = this.props
     const event = this.log[this.state.logIndex] || {};
@@ -163,7 +168,7 @@ class Replayer extends Component {
             index={this.state.logIndex}
             skipping={this.state.changingIndex}
             reset={this.reset}
-            setActiveMembers={this.setActiveMembers}
+            setCurrentMembers={this.setCurrentMembers}
           />}
         // chat={() => <div>chat</div>}
         replayer={() =>

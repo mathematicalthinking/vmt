@@ -4,20 +4,21 @@ import classes from './chat.css';
 import moment from 'moment';
 class Chat extends Component {
 
-  messagesEnd = React.createRef();
   componentDidMount() {
     this.scrollToBottom();
   }
   componentDidUpdate(prevProps){
+    console.log('component did update: ', this.props.messages)
     this.scrollToBottom();
   }
   scrollToBottom = () => {
-    if (this.messagesEnd) {
-      this.messagesEnd.scrollIntoView({ behavior: "smooth" });
-    }
+    console.log(this.refs.end)
+    console.log('scrolling to bottom')
+    this.refs.end.scrollIntoView({ behavior: "smooth" });
   }
 
   render() {
+    console.log('rendering chat layout')
     const {messages, replayer, change, submit} = this.props;
     let displayMessages = [];
     if (messages) {
@@ -32,8 +33,9 @@ class Chat extends Component {
         </div>
       ))
       // use this to scroll to the bottom
-      displayMessages.push(<div key='end' ref={el => { this.messagesEnd = el}}></div>)
+      displayMessages.push(<div key='end' ref="end"></div>)
     }
+    console.log(displayMessages)
     return (
       <div className={classes.Container}>
         <div className={classes.ChatScroll} id='scrollable'>{displayMessages}</div>
