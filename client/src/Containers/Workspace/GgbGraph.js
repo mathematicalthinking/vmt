@@ -3,6 +3,7 @@ import classes from './graph.css';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
+import throttle from 'lodash/throttle';
 import { parseString } from 'xml2js';
 class GgbGraph extends Component {
 
@@ -97,13 +98,13 @@ class GgbGraph extends Component {
       this.setState({receivingData: false})
     }
 
-    this.updateListener = label => {
+    this.updateListener = throttle(label => {
       if (!this.state.receivingData) {
         const xml = this.ggbApplet.getXML(label)
         sendEvent(xml, null, label, "UPDATE", "updated")
       }
       this.setState({receivingData: false})
-    }
+    }, 333)
 
     this.removeListener = label => {
       if (!this.state.receivingData) {

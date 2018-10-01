@@ -9,7 +9,7 @@ import ReplayControls from '../../Components/Replayer/Replayer';
 import moment from 'moment';
 const MAX_WAIT = 10000; // 10 seconds
 const BREAK_DURATION = 2000;
-const PLAYBACK_FIDELITY = 1000;
+const PLAYBACK_FIDELITY = 100;
 class Replayer extends Component {
 
   state = {
