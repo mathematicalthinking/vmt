@@ -8,35 +8,49 @@ import Draggable from 'react-draggable';
 class Slider extends PureComponent {
 
   state = {
-
+    dragging: false,
+    x: 0,
   }
 
   jumpToPosition = event => {
-    const sliderEl = ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect();
-    const percent = (event.clientX - sliderEl.left)/sliderEl.width // As a fraction
-    this.props.goToTime(percent)
+    // if (this.state.dragging) {
+    //   event.preventDefault();
+    // }
+    if (!this.state.dragging) {
+      console.log(event.clientX)
+      const sliderEl = ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect();
+      const percent = (event.clientX - sliderEl.left)/sliderEl.width // As a fraction
+      console.log(percent)
+      this.setState({x: percent * 100})
+      this.props.goToTime(percent)
+
+    }
   }
 
   startDrag = () => {
+    this.setState({dragging: true, x: 0})
     console.log("start drag ")
+    const sliderEl = ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect();
+    console.log(sliderEl)
   }
   dragging = (e, d) => {
-    console.log(e)
-    console.log(d)
-    console.log("dragging")
+    // console.log(e)
+    // console.log(d)
+    // console.log("dragging")
   }
   stopDrag = (e, d) => {
-    console.log(d)
+    console.log(e.clientX)
     const sliderEl = ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect();
-    const percent = (d.x - sliderEl.left)/sliderEl.width
+    console.log(sliderEl)
+    const percent = (e.clientX - sliderEl.left)/sliderEl.width
     console.log(percent)
     this.props.goToTime(percent)
+    this.setState({dragging: false})
   }
 
   render() {
     const {displayDuration, blocks, playing, progress } = this.props;
-
-    let borderRadius;
+    console.log(this.state.x)
     // const progressBar = blocks.map((block, i) => {
     //   if (i === 0) borderRadius = '7px 0 0 7px';
     //   else if (i === blocks.length - 1) borderRadius = '0 7px 7px 0';
@@ -53,7 +67,7 @@ class Slider extends PureComponent {
       <div ref="slider" className={classes.Slider} onClick={this.jumpToPosition}>
         {/* {progressBar} */}
         <Draggable axis="x" bounds='parent' onStart={this.startDrag} onDrag={this.dragging} onStop={this.stopDrag}>
-          <div style={{left: `calc(${progress}% - 6px)`}} className={classes.ProgressMarker}></div>
+          <div ref='marker' className={classes.ProgressMarker} style={{left: `${this.state.x}%`}}></div>
         </Draggable>
       </div>
     )
