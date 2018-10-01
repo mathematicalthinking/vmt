@@ -21,19 +21,21 @@ class Slider extends PureComponent {
       const sliderEl = ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect();
       const percent = (event.clientX - sliderEl.left)/sliderEl.width // As a fraction
       console.log(percent)
-      this.setState({x: percent * 100})
       this.props.goToTime(percent)
 
     }
   }
 
   startDrag = () => {
-    this.setState({dragging: true, x: 0})
+    this.setState({dragging: true})
     console.log("start drag ")
     const sliderEl = ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect();
     console.log(sliderEl)
   }
   dragging = (e, d) => {
+    if (!this.state.dragging) {
+      // this.setState({dragging: true})
+    }
     // console.log(e)
     // console.log(d)
     // console.log("dragging")
@@ -42,7 +44,10 @@ class Slider extends PureComponent {
     console.log(e.clientX)
     const sliderEl = ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect();
     console.log(sliderEl)
-    const percent = (e.clientX - sliderEl.left)/sliderEl.width
+    let percent = (e.clientX - sliderEl.left)/sliderEl.width
+    console.log(percent)
+    if (percent < 0) percent = 0;
+    if (percent > 1) percent = .9999;
     console.log(percent)
     this.props.goToTime(percent)
     this.setState({dragging: false})
@@ -50,7 +55,7 @@ class Slider extends PureComponent {
 
   render() {
     const {displayDuration, blocks, playing, progress } = this.props;
-    console.log(this.state.x)
+    // const offset = this.state.x * 600
     // const progressBar = blocks.map((block, i) => {
     //   if (i === 0) borderRadius = '7px 0 0 7px';
     //   else if (i === blocks.length - 1) borderRadius = '0 7px 7px 0';
@@ -66,8 +71,17 @@ class Slider extends PureComponent {
     return (
       <div ref="slider" className={classes.Slider} onClick={this.jumpToPosition}>
         {/* {progressBar} */}
-        <Draggable axis="x" bounds='parent' onStart={this.startDrag} onDrag={this.dragging} onStop={this.stopDrag}>
-          <div ref='marker' className={classes.ProgressMarker} style={{left: `${this.state.x}%`}}></div>
+        <Draggable
+          axis="x"
+          bounds='parent'
+          onStart={this.startDrag}
+          onDrag={this.dragging}
+          onStop={this.stopDrag}
+          // style={{left: `${this.state.x}%`}}
+          // Position: x (progress as % * width of slider - 1/2 width of marker)
+          position={{x: ((progress/100) * (600 - 6)), y: 0}}
+        >
+          <div ref='marker' className={classes.ProgressMarker} ></div>
         </Draggable>
       </div>
     )
