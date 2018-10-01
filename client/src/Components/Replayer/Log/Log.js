@@ -3,41 +3,46 @@ import classes from './Log.Styles.css';
 import * as ReactDOM from 'react-dom';
 import moment from 'moment';
 class Log extends Component {
-  // constructor(props){
-  //   super(props)
-  //
-  // }
-  // focusedEntry = React.createRef();
 
-  componentDidUpdate(prevProps){
-    console.log('current index: ', this.props.currentIndex)
-    console.log('prev index: ', prevProps.currentIndex)
-    if (prevProps.currentIndex !== this.props.currentIndex){
-      this.scrollToPosition();
+  state = {
+    scrolling: false,
+    autoScrolling: false,
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.currentIndex !== this.props.currentIndex) {
+      this.setState({autoScrolling: true}, () => {
+        this.scrollToPosition();
+      })
     }
   }
 
-  scrollToPosition(){
-    console.log('scrolling!')
+  scrollToPosition = () => {
     const currentEntry = this.refs[this.props.currentIndex]
-    console.log(currentEntry)
-    // console.log(currentEntry.offset())
-    // console.log(currentEntry.offsetParent.offsetTop)
-    console.log(this.refs.log.offsetTop)
-    console.log(currentEntry.offsetTop)
     const offset = currentEntry.offsetTop - this.refs.log.offsetTop;
-    this.refs.log.scrollBottom = 0;
+    // this.refs.log.scrollBottom = 0;
     ReactDOM.findDOMNode(this.refs.log).scrollTop = offset;
-    // currentEntry.scrollIntoView({ behavior: "smooth" });
-    // this.forceUpdate()
+    this.setState({autoScrolling: false})
+  }
 
+  handleScroll = () => {
+    if (this.state.autoScrolling) return;
+    if (this.timeout) {
+      clearTimeout(this.timeout)
+    }
+    this.timeout = setTimeout(() => {
+      this.timeout = null;
+      this.setState({scrolling: false})
+      // Calculate index from offset and position
+      const currentEntry = this.refs[this.props.currentIndex]
+      const offset = currentEntry.offsetTop - this.refs.log.offsetTop;
+      // this.props.goToIndex()
+    }, 500)
   }
 
   render() {
-    console.log('rendering log')
-    console.log(this.props.log)
     return (
-      <div ref='log' className={classes.Log}>
+      <div ref='log' className={classes.Log} onScroll={this.handleScroll}>
         {
           this.props.log.map((event, i) => {
             let entry;
@@ -54,14 +59,13 @@ class Log extends Component {
             } else {
               entry = <div>
                 <div>{moment.unix(event.timestamp/1000).format('MM/DD/YYYY h:mm:ss A')}</div>
-                <div>{event._id} by {event.user}</div>
+                <div>{event.description}</div>
               </div>
             }
             if (i === this.props.currentIndex) {
-              console.log('adding a ref to element: ', i)
-              return <div ref={i} className={classes.Entry} style={{color: 'red'}} key={i}>{entry}</div>
+              return <div ref={i} className={classes.Entry} style={{color: 'white'}} key={i}>{entry}</div>
             } else {
-              return <div className={classes.Entry} style={{color: 'red'}} key={i}>{entry}</div>
+              return <div className={classes.Entry} style={{color: 'white'}} key={i}>{entry}</div>
             }
           })
         }

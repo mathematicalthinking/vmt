@@ -10,9 +10,46 @@ class GgbReplayer extends Component {
     loading: true,
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.event._id !== this.props.event._id && !this.state.loading && !this.props.event.text) {
-      this.ggbApplet.setXML(this.props.event.event)
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.props.index !== nextProps.index
+      || this.state.loading !== nextState.loading) {
+      return true;
+    } return false;
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { log, index, skipping } = this.props;
+    // REbuild the constrution from scratch up to the current index
+    if (!prevProps.skipping && skipping) {
+      this.ggbApplet.reset();
+      log.forEach((entry, i) => {
+        if (i <= this.props.index && entry.event) {
+          this.constructEvent(entry)
+        }
+      })
+    }
+    else if (prevProps.log[prevProps.index]._id !== log[index]._id && !this.state.loading && !log[index].text) {
+      this.constructEvent(log[index])
+    }
+  }
+
+  constructEvent(event) {
+    switch (event.eventType) {
+      case 'ADD':
+        if (event.definition) {
+          this.ggbApplet.evalCommand(`${event.label}:${event.definition}`)
+        }
+        this.ggbApplet.evalXML(event.event)
+        this.ggbApplet.evalCommand('UpdateConstruction()')
+        break;
+      case 'REMOVE':
+        this.ggbApplet.deleteObject(event.label)
+        break;
+      case 'UPDATE':
+        this.ggbApplet.evalXML(event.event)
+        this.ggbApplet.evalCommand('UpdateConstruction()')
+        break;
+      default: break;
     }
   }
 

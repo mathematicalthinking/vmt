@@ -4,7 +4,6 @@ import classes from './chat.css';
 import moment from 'moment';
 class Chat extends Component {
 
-  messagesEnd = React.createRef();
   componentDidMount() {
     this.scrollToBottom();
   }
@@ -12,9 +11,7 @@ class Chat extends Component {
     this.scrollToBottom();
   }
   scrollToBottom = () => {
-    if (this.messagesEnd) {
-      this.messagesEnd.scrollIntoView({ behavior: "smooth" });
-    }
+    this.refs.end.scrollIntoView({ behavior: "smooth" });
   }
 
   render() {
@@ -32,7 +29,7 @@ class Chat extends Component {
         </div>
       ))
       // use this to scroll to the bottom
-      displayMessages.push(<div key='end' ref={el => { this.messagesEnd = el}}></div>)
+      displayMessages.push(<div key='end' ref="end"></div>)
     }
     return (
       <div className={classes.Container}>
