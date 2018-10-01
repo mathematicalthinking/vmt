@@ -27,11 +27,11 @@
   width: 100%;
 }
 
-.Break {
-  /* min-width: 6px; */
-  height: 8px;
-  /* background: #C91922; */
-  background: white;
+.Event {
+  box-sizing: content-box;
+  position: absolute;
+  width: 4px;
+  height: 100%;
 }
 
 .Active {
@@ -52,7 +52,7 @@
   /* flex-grow: 1; */
   height: 10px;
   width: 600px;
-  background-color: white;
+  background-color: #f9f9f9;
   border: 1px solid #bbb;
   border-style: inset;
   border-radius: 15px;

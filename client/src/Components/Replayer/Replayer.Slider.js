@@ -9,7 +9,10 @@ class Slider extends PureComponent {
 
   state = {
     dragging: false,
-    x: 0,
+  }
+
+  componentDidMount() {
+
   }
 
   jumpToPosition = event => {
@@ -47,7 +50,14 @@ class Slider extends PureComponent {
   }
 
   render() {
-    const {displayDuration, blocks, playing, progress } = this.props;
+    const {displayDuration, log, playing, progress } = this.props;
+    // WE COULD ATTACH THIS OT THE INSTANCE AND THEN ONLY HAVE TO DO THIS ONCE?
+    const eventMarks = log.map((entry, i) => {
+      let color = entry.synthetic ? 'red' : 'green';
+      let percentFromStart = entry.relTime/displayDuration;
+      return <div className={classes.Event} style={{backgroundColor: color, left: `${percentFromStart * 100}%`}}></div>
+
+    })
     // const offset = this.state.x * 600
     // const progressBar = blocks.map((block, i) => {
     //   if (i === 0) borderRadius = '7px 0 0 7px';
@@ -63,15 +73,13 @@ class Slider extends PureComponent {
 
     return (
       <div ref="slider" className={classes.Slider} onClick={this.jumpToPosition}>
-        {/* {progressBar} */}
+        {eventMarks}
         <Draggable
           axis="x"
           bounds='parent'
           onStart={this.startDrag}
           onDrag={this.onDrag}
           onStop={this.stopDrag}
-          // style={{left: `${this.state.x}%`}}
-          // Position: x (progress as % * width of slider - 1/2 width of marker)
           position={{x: ((progress/100) * (600 - 6)), y: 0}}
         >
           <div ref='marker' className={classes.ProgressMarker} ></div>

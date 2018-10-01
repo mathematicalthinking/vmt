@@ -174,7 +174,6 @@ class Replayer extends Component {
             playing={this.state.playing}
             pausePlay={this.pausePlay}
             displayDuration={this.relativeDuration}
-            blocks={this.blocks}
             startTime={this.state.startTime}
             absTimeElapsed={this.state.absTimeElapsed}
             goToTime={(percent) => this.goToTime(percent)}
