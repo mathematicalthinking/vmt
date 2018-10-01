@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
+import Draggable from 'react-draggable';
 import classes from './Replayer.Styles.css';
 import Aux from '../HOC/Auxil';
-import Draggable from 'react-draggable';
-
+import EventDesc from './EventDesc/EventDesc';
 
 class Slider extends PureComponent {
 
@@ -49,38 +49,32 @@ class Slider extends PureComponent {
     this.setState({dragging: false})
   }
 
+  showEventDetail = (event) => {
+    if (!this.state.dragging) {
+      console.log("HELLO?")
+      console.log(event.target)
+      event.target.children.style = {display: 'flex'}
+    }
+  }
+
+  eventMarks = this.props.log.map((entry, i) => {
+    console.log(entry)
+    let color = entry.synthetic ? 'red' : 'green';
+    let percentFromStart = entry.relTime/this.props.displayDuration * 100;
+    return <EventDesc color={color} offset={percentFromStart} entry={entry} dragging={this.state.dragging}/>
+  })
+
   render() {
-    const {displayDuration, log, playing, progress } = this.props;
-    // WE COULD ATTACH THIS OT THE INSTANCE AND THEN ONLY HAVE TO DO THIS ONCE?
-    const eventMarks = log.map((entry, i) => {
-      let color = entry.synthetic ? 'red' : 'green';
-      let percentFromStart = entry.relTime/displayDuration;
-      return <div className={classes.Event} style={{backgroundColor: color, left: `${percentFromStart * 100}%`}}></div>
-
-    })
-    // const offset = this.state.x * 600
-    // const progressBar = blocks.map((block, i) => {
-    //   if (i === 0) borderRadius = '7px 0 0 7px';
-    //   else if (i === blocks.length - 1) borderRadius = '0 7px 7px 0';
-    //   else borderRadius = 'none';
-    //   return (
-    //     <Aux>
-    //       <div className={classes.Active} style={{width: `${ (block.duration/displayDuration) * 100 }%`, borderRadius: borderRadius}}></div>
-    //       {i < blocks.length - 1 ? <div className={classes.Break} style={{width: `${(2000/displayDuration) * 100}%`}}></div> : null}
-    //     </Aux>
-    //   )
-    // })
-
     return (
       <div ref="slider" className={classes.Slider} onClick={this.jumpToPosition}>
-        {eventMarks}
+        {this.eventMarks}
         <Draggable
           axis="x"
           bounds='parent'
           onStart={this.startDrag}
           onDrag={this.onDrag}
           onStop={this.stopDrag}
-          position={{x: ((progress/100) * (600 - 6)), y: 0}}
+          position={{x: ((this.props.progress/100) * (600 - 6)), y: 0}}
         >
           <div ref='marker' className={classes.ProgressMarker} ></div>
         </Draggable>
