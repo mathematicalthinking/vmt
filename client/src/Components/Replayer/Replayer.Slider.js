@@ -17,10 +17,8 @@ class Slider extends PureComponent {
     //   event.preventDefault();
     // }
     if (!this.state.dragging) {
-      console.log(event.clientX)
       const sliderEl = ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect();
       const percent = (event.clientX - sliderEl.left)/sliderEl.width // As a fraction
-      console.log(percent)
       this.props.goToTime(percent)
 
     }
@@ -28,27 +26,22 @@ class Slider extends PureComponent {
 
   startDrag = () => {
     this.setState({dragging: true})
-    console.log("start drag ")
-    const sliderEl = ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect();
-    console.log(sliderEl)
   }
-  dragging = (e, d) => {
-    if (!this.state.dragging) {
-      // this.setState({dragging: true})
-    }
-    // console.log(e)
-    // console.log(d)
-    // console.log("dragging")
-  }
-  stopDrag = (e, d) => {
-    console.log(e.clientX)
+
+  onDrag = (e, d) => {
     const sliderEl = ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect();
-    console.log(sliderEl)
     let percent = (e.clientX - sliderEl.left)/sliderEl.width
-    console.log(percent)
     if (percent < 0) percent = 0;
     if (percent > 1) percent = .9999;
-    console.log(percent)
+    this.props.goToTime(percent)
+    this.setState({dragging: false})
+  }
+
+  stopDrag = (e, d) => {
+    const sliderEl = ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect();
+    let percent = (e.clientX - sliderEl.left)/sliderEl.width
+    if (percent < 0) percent = 0;
+    if (percent > 1) percent = .9999;
     this.props.goToTime(percent)
     this.setState({dragging: false})
   }
@@ -75,7 +68,7 @@ class Slider extends PureComponent {
           axis="x"
           bounds='parent'
           onStart={this.startDrag}
-          onDrag={this.dragging}
+          onDrag={this.onDrag}
           onStop={this.stopDrag}
           // style={{left: `${this.state.x}%`}}
           // Position: x (progress as % * width of slider - 1/2 width of marker)

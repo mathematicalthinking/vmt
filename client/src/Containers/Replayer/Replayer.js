@@ -9,7 +9,7 @@ import ReplayControls from '../../Components/Replayer/Replayer';
 import moment from 'moment';
 const MAX_WAIT = 10000; // 10 seconds
 const BREAK_DURATION = 2000;
-const PLAYBACK_FIDELITY = 50;
+const PLAYBACK_FIDELITY = 1000;
 class Replayer extends Component {
 
   state = {
@@ -111,7 +111,6 @@ class Replayer extends Component {
 
   goToTime = (percent) => {
     const timeElapsed = percent  * this.relativeDuration
-    console.log('timeElapsed: ', timeElapsed)
     let logIndex;
     this.updatedLog.some((entry, i) => {
       if (entry.relTime > timeElapsed) {
@@ -134,7 +133,6 @@ class Replayer extends Component {
   }
 
   setCurrentMembers = (currentMembers) => {
-    console.log("CURRENT MEMBERS: ",currentMembers)
     this.setState({currentMembers,})
   }
 

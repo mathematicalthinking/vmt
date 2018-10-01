@@ -23,7 +23,6 @@ class Log extends Component {
     // this.refs.log.scrollBottom = 0;
     ReactDOM.findDOMNode(this.refs.log).scrollTop = offset;
     this.setState({autoScrolling: false})
-    console.log('scrolling to positions')
   }
 
   handleScroll = () => {
