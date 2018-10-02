@@ -84,9 +84,9 @@ class ReplayerControls extends Component{
         </div>
         <div className={classes.Settings}>
           <button className={(speed === 1) ? classes.Active : classes.Inactive} onClick={() => setSpeed(1)}>1x</button>
-          <button className={(speed === 1.25) ? classes.Active : classes.Inactive} onClick={() => setSpeed(1.25)}>1.25x</button>
-          <button className={(speed === 1.5) ? classes.Active : classes.Inactive} onClick={() => setSpeed(1.5)}>1.5x</button>
           <button className={(speed === 2) ? classes.Active : classes.Inactive} onClick={() => setSpeed(2)}>2x</button>
+          <button className={(speed === 5) ? classes.Active : classes.Inactive} onClick={() => setSpeed(5)}>5x</button>
+          <button className={(speed === 10) ? classes.Active : classes.Inactive} onClick={() => setSpeed(10)}>10x</button>
         </div>
       </div>
     )
