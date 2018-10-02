@@ -35,7 +35,8 @@ class Slider extends PureComponent {
     const sliderEl = ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect();
     let percent = (e.clientX - sliderEl.left)/sliderEl.width
     if (percent < 0) percent = 0;
-    if (percent > 1) percent = .9999;
+    if (percent > 1) percent = 1;
+    console.log(percent)
     this.props.goToTime(percent)
     this.setState({dragging: false})
   }
@@ -44,7 +45,7 @@ class Slider extends PureComponent {
     const sliderEl = ReactDOM.findDOMNode(this.refs.slider).getBoundingClientRect();
     let percent = (e.clientX - sliderEl.left)/sliderEl.width
     if (percent < 0) percent = 0;
-    if (percent > 1) percent = .9999;
+    if (percent > 1) percent = 1;
     this.props.goToTime(percent)
     this.setState({dragging: false})
   }

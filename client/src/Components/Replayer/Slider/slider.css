@@ -1,9 +1,3 @@
-.ProgressBar {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-
 .Slider {
   display: flex;
   align-items: center;
