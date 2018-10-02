@@ -1,5 +1,6 @@
 @value colors: '../../colors.css';
 @value blue from colors;
+@value orange from colors;
 
 .NavContainer {
   display: flex;

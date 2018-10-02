@@ -1,3 +1,6 @@
+@value colors: '../../colors.css';
+@value blue from colors;
+
 .Container {
   display: flex;
   flex-flow: column;
@@ -24,7 +27,7 @@
 }
 
 .ChatScroll::-webkit-scrollbar-thumb {
-  background-color: #2D91F2;
+  background-color: blue;
   border-radius: 3px;
 }
 .Entry {
