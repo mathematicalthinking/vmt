@@ -34,7 +34,7 @@ class ReplayerControls extends Component{
     const percent = log[index - 1].relTime/duration;
     goToTime(percent)
   }
-
+  // THIS SEEMS UNNECESSARY BUT IF WE DO THIS IN RENDER IT REDFINES THE FUNCTION EACH RENDER
   first = () => {
     this.props.goToTime(0)
   }
@@ -56,6 +56,8 @@ class ReplayerControls extends Component{
       goToIndex,
       goToTime,
       absTimeElapsed,
+      speed,
+      setSpeed,
     } = this.props;
     const pausePlayButton = playing ? <i className="fas fa-pause"></i> : <i className="fas fa-play"></i>;
     // const progress = (index / (duration - 1)) * 100
@@ -64,7 +66,6 @@ class ReplayerControls extends Component{
     const disableForward = false;
     // (event.timestamp === endTime);
     const progress = relTime/duration * 100; // %
-
     return (
       <div className={classes.Container}>
         <Log log={log} currentIndex={index} progress={progress} goToIndex={(index) => goToIndex(index)}/>
@@ -75,11 +76,17 @@ class ReplayerControls extends Component{
         </div>
         <Clock startTime={startTime} playing={playing} duration={duration} relTime={relTime} absTimeElapsed={absTimeElapsed}/>
         <div className={[classes.Controls, glb.FlexRow].join(' ')}>
-          <button disabled={disableBack} onClick={this.first} className={classes.Button}><i className="fas fa-fast-backward"></i></button>
-          <button disabled={disableBack} onClick={this.back} className={classes.Button}><i className="fas fa-backward"></i></button>
+          <button disabled={index === 0} onClick={this.first} className={classes.Button}><i className="fas fa-fast-backward"></i></button>
+          <button disabled={index === 0} onClick={this.back} className={classes.Button}><i className="fas fa-backward"></i></button>
           <button onClick={pausePlay} className={classes.Button}>{pausePlayButton}</button>
-          <button disabled={disableForward} onClick={this.next} className={classes.Button}><i className="fas fa-forward"></i></button>
-          <button disabled={disableForward} onClick={this.last} className={classes.Button}><i className="fas fa-fast-forward"></i></button>
+          <button disabled={index === log.length - 1} onClick={this.next} className={classes.Button}><i className="fas fa-forward"></i></button>
+          <button disabled={index === log.length - 1} onClick={this.last} className={classes.Button}><i className="fas fa-fast-forward"></i></button>
+        </div>
+        <div className={classes.Settings}>
+          <button className={(speed === 1) ? classes.Active : classes.Inactive} onClick={() => setSpeed(1)}>1x</button>
+          <button className={(speed === 1.25) ? classes.Active : classes.Inactive} onClick={() => setSpeed(1.25)}>1.25x</button>
+          <button className={(speed === 1.5) ? classes.Active : classes.Inactive} onClick={() => setSpeed(1.5)}>1.5x</button>
+          <button className={(speed === 2) ? classes.Active : classes.Inactive} onClick={() => setSpeed(2)}>2x</button>
         </div>
       </div>
     )

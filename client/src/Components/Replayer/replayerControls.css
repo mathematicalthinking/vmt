@@ -23,15 +23,18 @@
 }
 
 .Button {
-  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  height: 20px;
   width: 70px;
+  font-size: .7em;
 }
 
 
 .Active {
-  height: 8px;
   background: #6CCB3E;
-  min-width: 6px;
 }
 
 .Time {

@@ -14,6 +14,7 @@ class Replayer extends Component {
 
   state = {
     playing: false,
+    playbackSpeed: 1,
     logIndex: 0,
     timeElapsed: 0, // MS
     absTimeElapsed: 0,
@@ -82,8 +83,8 @@ class Replayer extends Component {
       let currentMembers = [...this.state.currentMembers]
       let startTime = this.state.startTime
       let absTimeElapsed = this.state.absTimeElapsed;
-      timeElapsed += PLAYBACK_FIDELITY
-      absTimeElapsed += PLAYBACK_FIDELITY
+      timeElapsed += PLAYBACK_FIDELITY * this.state.playbackSpeed;
+      absTimeElapsed += PLAYBACK_FIDELITY * this.state.playbackSpeed;
       const nextEvent = this.updatedLog[this.state.logIndex + 1];
       if (!nextEvent) {
         return this.setState({playing: false})
@@ -142,6 +143,10 @@ class Replayer extends Component {
     this.setState({currentMembers,})
   }
 
+  setSpeed = speed => {
+    this.setState({playbackSpeed: speed})
+  }
+
   render() {
     const { room } = this.props
     const event = this.log[this.state.logIndex] || {};
@@ -182,8 +187,9 @@ class Replayer extends Component {
             duration={this.relativeDuration}
             startTime={this.state.startTime}
             absTimeElapsed={this.state.absTimeElapsed}
-            goToTime={(percent) => this.goToTime(percent)}
-            // event={event}
+            goToTime={this.goToTime}
+            speed={this.state.playbackSpeed}
+            setSpeed={this.setSpeed}
             relTime={this.state.timeElapsed}
             index={this.state.logIndex}
             log={this.updatedLog}
