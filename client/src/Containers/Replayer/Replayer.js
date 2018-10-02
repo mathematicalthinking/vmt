@@ -5,7 +5,7 @@ import * as actions from '../../store/actions/';
 import DesmosReplayer from './DesmosReplayer';
 import GgbReplayer from './GgbReplayer';
 import ChatReplayer from './ChatReplayer';
-import ReplayControls from '../../Components/Replayer/Replayer';
+import ReplayControls from '../../Components/Replayer/ReplayerControls';
 import moment from 'moment';
 const MAX_WAIT = 10000; // 10 seconds
 const BREAK_DURATION = 2000;
@@ -110,14 +110,20 @@ class Replayer extends Component {
 
 
   goToTime = (percent) => {
-    const timeElapsed = percent  * this.relativeDuration
     let logIndex;
-    this.updatedLog.some((entry, i) => {
-      if (entry.relTime > timeElapsed) {
-        logIndex = i === 0 ? 0 : i - 1;
-        return true;
-      } return false;
-    })
+    let timeElapsed = percent  * this.relativeDuration
+    if (percent === 1) {
+      logIndex = this.updatedLog.length - 1;
+      timeElapsed = this.relativeDuration
+    }
+    else {
+      this.updatedLog.some((entry, i) => {
+        if (entry.relTime > timeElapsed) {
+          logIndex = i === 0 ? 0 : i - 1;
+          return true;
+        } return false;
+      })
+    }
     this.setState({timeElapsed, logIndex, playing: false, changingIndex: true,})
     // setTimeout(() => this.setState({playing:}))
   }
@@ -173,7 +179,7 @@ class Replayer extends Component {
           (<ReplayControls
             playing={this.state.playing}
             pausePlay={this.pausePlay}
-            displayDuration={this.relativeDuration}
+            duration={this.relativeDuration}
             startTime={this.state.startTime}
             absTimeElapsed={this.state.absTimeElapsed}
             goToTime={(percent) => this.goToTime(percent)}

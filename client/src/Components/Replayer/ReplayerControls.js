@@ -6,7 +6,7 @@ import Clock from './Replayer.Clock';
 import Slider from './Replayer.Slider';
 import Log from './Log/Log';
 
-class Replayer extends Component{
+class ReplayerControls extends Component{
 
 
   componentDidUpdate(prevProps) {
@@ -23,14 +23,34 @@ class Replayer extends Component{
     this.setState({progress,})
   }
 
+  next = () => {
+    const {log, index, duration, goToTime} = this.props;
+    const percent = log[index + 1].relTime/duration;
+    goToTime(percent)
+  }
+
+  back = () => {
+    const {log, index, duration, goToTime} = this.props;
+    const percent = log[index - 1].relTime/duration;
+    goToTime(percent)
+  }
+
+  first = () => {
+    this.props.goToTime(0)
+  }
+
+  last = () => {
+    this.props.goToTime(1)
+  }
+
   render () {
     const {
       playing,
       startTime,
-      endTime,
-      displayDuration, //ms
+      duration, //ms
       pausePlay,
       relTime,
+      endTime,
       log,
       index,
       goToIndex,
@@ -43,27 +63,27 @@ class Replayer extends Component{
     // (event.timestamp === startTime);
     const disableForward = false;
     // (event.timestamp === endTime);
-    const progress = relTime/displayDuration * 100; // %
+    const progress = relTime/duration * 100; // %
 
     return (
       <div className={classes.Container}>
         <Log log={log} currentIndex={index} progress={progress} goToIndex={(index) => goToIndex(index)}/>
         <div className={classes.ProgressBar}>
           <div className={classes.Time} style={{marginRight: 3}}>{this.originalStartTime || startTime}</div>
-          <Slider progress={progress} log={log} displayDuration={displayDuration} playing={playing} goToTime={(percent) => goToTime(percent)}/>
+          <Slider progress={progress} log={log} duration={duration} playing={playing} goToTime={(percent) => goToTime(percent)}/>
           <div className={classes.Time} style={{marginLeft: 3}}>{endTime}</div>
         </div>
-        <Clock startTime={startTime} playing={playing} duration={displayDuration} relTime={relTime} absTimeElapsed={absTimeElapsed}/>
+        <Clock startTime={startTime} playing={playing} duration={duration} relTime={relTime} absTimeElapsed={absTimeElapsed}/>
         <div className={[classes.Controls, glb.FlexRow].join(' ')}>
-          <button disabled={disableBack} onClick={() => goToIndex(0)} className={classes.Button}><i className="fas fa-fast-backward"></i></button>
-          <button disabled={disableBack} onClick={() => goToIndex(index - 1)} className={classes.Button}><i className="fas fa-backward"></i></button>
+          <button disabled={disableBack} onClick={this.first} className={classes.Button}><i className="fas fa-fast-backward"></i></button>
+          <button disabled={disableBack} onClick={this.back} className={classes.Button}><i className="fas fa-backward"></i></button>
           <button onClick={pausePlay} className={classes.Button}>{pausePlayButton}</button>
-          <button disabled={disableForward} onClick={() => goToIndex(index + 1)} className={classes.Button}><i className="fas fa-forward"></i></button>
-          <button disabled={disableForward} onClick={() => goToIndex(0)} className={classes.Button}><i className="fas fa-fast-forward"></i></button>
+          <button disabled={disableForward} onClick={this.next} className={classes.Button}><i className="fas fa-forward"></i></button>
+          <button disabled={disableForward} onClick={this.last} className={classes.Button}><i className="fas fa-fast-forward"></i></button>
         </div>
       </div>
     )
   }
 
 }
-export default Replayer;
+export default ReplayerControls;

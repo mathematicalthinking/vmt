@@ -60,7 +60,7 @@ class Slider extends PureComponent {
   eventMarks = this.props.log.map((entry, i) => {
     console.log(entry)
     let color = entry.synthetic ? 'red' : 'green';
-    let percentFromStart = entry.relTime/this.props.displayDuration * 100;
+    let percentFromStart = entry.relTime/this.props.duration * 100;
     return <EventDesc color={color} offset={percentFromStart} entry={entry} dragging={this.state.dragging}/>
   })
 
