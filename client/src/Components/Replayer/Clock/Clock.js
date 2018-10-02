@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import moment from 'moment';
-import classes from './Replayer.Styles.css';
+import classes from './clock.css';
 
 const msToTime = (duration) => {
   // let ms = parseInt((duration % 1000) / 100)

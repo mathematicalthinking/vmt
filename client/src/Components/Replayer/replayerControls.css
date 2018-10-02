@@ -1,0 +1,43 @@
+.Container {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+  height: 100%;
+  background: #f9f9f9;
+  margin-top: 15px;
+  box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.28);
+}
+
+.ProgressBar {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.Controls {
+  margin: 10px 0;
+  justify-content: center;
+  /* flex-grow: 1; */
+}
+
+.Button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  height: 20px;
+  width: 70px;
+  font-size: .7em;
+}
+
+
+.Active {
+  background: #6CCB3E;
+}
+
+.Time {
+  font-size: .8em;
+  padding: 10px;
+}

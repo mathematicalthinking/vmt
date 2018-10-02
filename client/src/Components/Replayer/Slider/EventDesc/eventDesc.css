@@ -1,0 +1,19 @@
+.Event {
+  box-sizing: content-box;
+  position: absolute;
+  width: 4px;
+  height: 100%;
+  cursor: pointer;
+}
+
+.EventDetails {
+  position: absolute;
+  top: -60px;
+  background-color: white;
+  width: 155px;
+  padding: 10px;
+  max-height: 50px;
+  overflow: hidden;
+  border-radius: 4px;
+  /* width: 100px; */
+}

@@ -104,7 +104,7 @@ class GgbGraph extends Component {
         sendEvent(xml, null, label, "UPDATE", "updated")
       }
       this.setState({receivingData: false})
-    }, 333)
+    }, 150)
 
     this.removeListener = label => {
       if (!this.state.receivingData) {
