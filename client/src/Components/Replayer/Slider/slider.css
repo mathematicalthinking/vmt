@@ -1,0 +1,28 @@
+.ProgressBar {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.Slider {
+  display: flex;
+  align-items: center;
+  position: relative;
+  /* flex-grow: 1; */
+  height: 10px;
+  width: 600px;
+  background-color: #f9f9f9;
+  border: 1px solid #bbb;
+  border-style: inset;
+  border-radius: 15px;
+  align-self: center;
+}
+
+.ProgressMarker {
+  border: 3px solid #2f91f2;
+  position: absolute;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+}

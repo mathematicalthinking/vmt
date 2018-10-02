@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import classes from './Replayer.Styles.css';
+import classes from './replayerControls.css';
 import glb from '../../global.css';
 // import ProgressMarker from './ProgressMarker';
-import Clock from './Replayer.Clock';
-import Slider from './Replayer.Slider';
+import Clock from './Clock/Clock';
+import Slider from './Slider/Slider';
 import Log from './Log/Log';
 
 class ReplayerControls extends Component{

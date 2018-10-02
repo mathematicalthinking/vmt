@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import classes from './Log.Styles.css';
+import classes from './log.css';
 import * as ReactDOM from 'react-dom';
 import moment from 'moment';
 class Log extends Component {
