@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { Redirect } from 'react-router-dom';
-import ContentBox from '../../Components/UI/ContentBox/ContentBox';
 import Button from '../../Components/UI/Button/Button';
 import Aux from '../../Components/HOC/Auxil'
 import classes from './login.css';

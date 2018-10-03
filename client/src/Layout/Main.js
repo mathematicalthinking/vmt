@@ -5,7 +5,6 @@ import Room from '../Containers/Room/Room';
 import Course from '../Containers/Course/Course';
 import Activity from '../Containers/Activity/Activity';
 import PublicList from '../Containers/PublicList/PublicList';
-import NewUser from '../Containers/Create/NewUser/NewUser';
 import Profile from '../Containers/Profile/Profile';
 // import Dashboard from '../Layout/Dashboard/Dashboard';
 // import Activities from '../Containers/Activities/Activities';
@@ -34,7 +33,6 @@ class Main extends Component {
         <Navbar />
         <section className={classes.Section}>
           <Switch>
-            <Route path='/signup' authed={this.props.loggedIn} component={NewUser}/>
             <Route exact path='/publicList/:resource' component={PublicList}/>
             <Route exact path='/publicResource/room/:room_id/:resource' component={Room}/>
             <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />
