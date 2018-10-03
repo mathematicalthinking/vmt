@@ -13,23 +13,24 @@ import PrivateRoute from '../Components/HOC/PrivateRoute';
 import Workspace from '../Containers/Workspace/Workspace';
 import Replayer from '../Containers/Replayer/Replayer';
 import Confirmation from '../Layout/Confirmation/Confirmation';
+import Aux from '../Components/HOC/Auxil';
 import classes from './main.css';
-import Homepage from './Homepage/Homepage';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 
 
 
-class Main extends Component {
+class MyVmt extends Component {
   render() {
     console.log('main rendering')
     return (
-      <main className={classes.Main}>
-        {/* <div className={classes.Particles} id='particles-js'></div> */}
-        <div className={classes.Banner}>
-          <h2>Virtual Math Teams</h2>
-          {this.props.loggedIn ? <Avatar username={this.props.username} /> : null}
-        </div>
+      // <main className={classes.Main}>
+      //   {/* <div className={classes.Particles} id='particles-js'></div> */}
+      //   <div className={classes.Banner}>
+      //     <h2>Virtual Math Teams</h2>
+      //     {this.props.loggedIn ? <Avatar username={this.props.username} /> : null}
+      //   </div>
+      <Aux>
         <Navbar />
         <section className={classes.Section}>
           <Switch>
@@ -54,7 +55,7 @@ class Main extends Component {
             }}/>
           </Switch>
         </section>
-      </main>
+      </Aux>
     )
   }
 };
@@ -64,4 +65,4 @@ const mapStateToProps = store => ({
   loggedIn: store.user.loggedIn,
 })
 
-export default connect(mapStateToProps, null)(Main)
+export default connect(mapStateToProps, null)(MyVmt)

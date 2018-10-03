@@ -10,9 +10,12 @@ import Chat from './Chat';
 class Workspace extends Component {
 
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
-  
+
   componentDidMount() {
     const { updateRoom, room, user} = this.props;
+    if (!user) {
+      console.log('the user is not logged in')
+    }
     const sendData = {
       userId: user.id,
       roomId: room._id,
@@ -54,10 +57,9 @@ class Workspace extends Component {
 
   render() {
     const { room, user } = this.props;
-    console.log("current users", room.currentUsers)
     return (
       <WorkspaceLayout
-        members = {room.currentUsers}
+        members = {room ? room.currentUsers : []}
         graph = {room.roomType === 'geogebra' ?
           // I dont like that these need to be wrapped in functions 👇 could do
           // props.children but I like naming them.

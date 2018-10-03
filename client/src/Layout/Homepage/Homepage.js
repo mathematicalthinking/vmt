@@ -21,7 +21,7 @@ class Homepage extends PureComponent {
             <div className={classes.Banner} >
               <div className={classes.GetStarted}>
                 <h2>Collaborative math spaces for teachers and students</h2>
-                <Button theme="secondary"><Link to='/workspace/explore'>Explore</Link></Button>
+                <Button theme="secondary"><Link to='/explore'>Explore</Link></Button>
               </div>
             </div>
           </div>
@@ -30,21 +30,21 @@ class Homepage extends PureComponent {
               <div className={classes.Feature}>
                 <div className={classes.FTitle}>Collaborate</div>
                 <div className={classes.FIcon}>
-                  <i class="fas fa-user-friends"></i>
+                  <i className="fas fa-user-friends"></i>
                 </div>
                 <div className={classes.FDesc}>Solve math problems in groups from anywhere in the world</div>
               </div>
               <div className={classes.Feature}>
                 <div className={classes.FTitle}>Analyze</div>
                 <div className={classes.FIcon}>
-                  <i class="fas fa-chart-pie"></i>
+                  <i className="fas fa-chart-pie"></i>
                 </div>
                 <div className={classes.FDesc}>Replay activity for richer insights into student work</div>
               </div>
               <div className={classes.Feature}>
                 <div className={classes.FTitle}>Share</div>
                 <div className={classes.FIcon}>
-                  <i class="fas fa-share"></i>
+                  <i className="fas fa-share"></i>
                 </div>
                 <div className={classes.FDesc}>Get Access to trillions of activities</div>
               </div>
