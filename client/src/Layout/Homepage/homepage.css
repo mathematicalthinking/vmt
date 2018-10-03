@@ -4,8 +4,11 @@
 :import('../../colors.css') {
   blue: blue;
   orange: orange;
+  gray: backgroundGray;
   backgroundGray: backgroundGray;
   darkShadow: darkShadow;
+  lightShadow: lightShadow;
+  maxWidth: maxWidth;
 }
 
 .Banner {
@@ -33,9 +36,9 @@
 .GetStarted {
   position: relative;
   width: 400px;
-  height: 200px;
+  height: 247px;
   left: calc(50% - 200px);
-  top: calc(50% - 100px);
+  top: calc(50% - 123.5px);
   padding: 15px;
   border-radius: 4px;
   text-align: center;
@@ -48,7 +51,50 @@
   filter: grayscale(0);
 }
 
+.Content {
+  background-color: gray;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .Features {
+  max-width: maxWidth;
   width: 100%;
-  height: 600px;
+  height: 500px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.Feature {
+  display: flex;
+  flex-flow: column;
+  justify-content: space-around;
+  padding: 20px;
+  /* border: 1px solid red; */
+  height: 250px;
+  width: 220px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: lightShadow;
+  text-align: center;
+}
+
+.FTitle {
+  width: 100%;
+}
+
+.FIcon {
+  font-size: 50px;
+}
+
+.Examples {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  /* border: 1px solid yellow; */
+  max-width: maxWidth;
+  width: 100%;
 }
