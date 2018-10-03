@@ -8,7 +8,12 @@ class Home extends PureComponent {
     return (
       <Aux>
         <HomeNav />
-        <Route path='/' component={Homepage} />
+        <Route exact path='/' component={Homepage} />
+        <Route path='/login' component={Login} />
+        {/* <Route path='/signup' component={Signup} />
+          <Route path='/about' component={About} />
+        <Route path='/tutorials' component={Tutorials} /> */}
+
       </Aux>
 
     )

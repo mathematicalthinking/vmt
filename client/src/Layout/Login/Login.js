@@ -73,9 +73,10 @@ class LoginLayout extends PureComponent {
       )
     })
     return (
-      this.props.loggedIn ? <Redirect to='/profile/courses'/> :
-      <div className={classes.LoginContainer}>
-        <ContentBox title='Login' align='center'>
+      this.props.loggedIn ? <Redirect to='/myVMT/courses'/> :
+      <div className={classes.Container}>
+        <div className={classes.LoginContainer}>
+          <h2 className={classes.Title}>Login</h2>
           <form onSubmit={this.loginHandler} className={classes.Form}>
             {form}
             <div className={classes.ErrorMsg}>{this.props.errorMessage}</div>
@@ -89,7 +90,7 @@ class LoginLayout extends PureComponent {
           </form>
           <div>or</div>
           {/* <GoogleSignIn click={this.googleLogin} /> */}
-        </ContentBox>
+        </div>
       </div>
     )
   }

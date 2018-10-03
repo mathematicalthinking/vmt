@@ -1,4 +1,3 @@
-import React from 'react';
 import { connect } from 'react-redux';
 import { getActivities } from '../store/actions';
 import { HomepageLayout } from '../Layout'

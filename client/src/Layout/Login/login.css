@@ -1,8 +1,32 @@
-.LoginContainer {
-  width: 66%;
+:import('../../colors.css'){
+  gray: backgroundGray;
+  blue: blue;
+  lightShadow: lightShadow;
+}
+
+.Container{
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
-  align-self: center;
+}
+
+.LoginContainer {
+  background: gray;
+  margin-top: 110px;
+  border-radius: 4px;
+  padding: 15px;
+  width: 66%;
+  display: flex;
+  flex-flow: column;
+  box-shadow: lightShadow;
+  justify-content: center;
+  align-items: center;
+}
+
+.Title {
+  color: blue;
+  letter-spacing: .09em;
 }
 
 .ErrorMsg {
@@ -12,6 +36,10 @@
 }
 
 .Form {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
   width: 90%;
 }
 

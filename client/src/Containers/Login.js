@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { connect } from 'react-redux';
 import {login, clearError} from '../store/actions/';
 import { LoginLayout } from '../Layout'
