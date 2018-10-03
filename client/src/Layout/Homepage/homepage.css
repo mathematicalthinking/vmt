@@ -3,6 +3,7 @@
 
 :import('../../colors.css') {
   blue: blue;
+  orange: orange;
   backgroundGray: backgroundGray;
   darkShadow: darkShadow;
 }
@@ -40,6 +41,9 @@
   text-align: center;
   box-shadow: darkShadow;
   background-color: backgroundGray;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
   color: blue;
   filter: grayscale(0);
 }
