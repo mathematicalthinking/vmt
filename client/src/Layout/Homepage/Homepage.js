@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Link } from 'react-router-dom';
+import randomString from 'crypto-random-string';
 import classes from './homepage.css';
 import BoxList from '../BoxList/BoxList'
 import Button from '../../Components/UI/Button/Button';
@@ -13,6 +14,7 @@ class Homepage extends PureComponent {
     }
   }
   render() {
+    const randomId = randomString(10);
     const list = Object.keys(this.props.activities).map(id => this.props.activities[id]) || []
     return (
       <div>
@@ -21,7 +23,7 @@ class Homepage extends PureComponent {
             <div className={classes.Banner} >
               <div className={classes.GetStarted}>
                 <h2>Collaborative math spaces for teachers and students</h2>
-                <Button theme="secondary"><Link to='/explore'>Explore</Link></Button>
+                <Button theme="secondary"><Link to={`/explore/${randomId}`}>Explore</Link></Button>
               </div>
             </div>
           </div>

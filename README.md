@@ -81,7 +81,7 @@ guest users and `/myVMT` for logged in users.
 
 ####📁 Containers
 Containers come in one of two forms. Either they inject props into a component from the redux store.
-Or they manage shared local (i.e. non-redux) state for two or more react components. You can find an
+Or they manage shared local (i.e. non-redux) state for two or more react components (or they do both). You can find an
 example of the former [here]() and the latter [here]()
 
 ####📁 Layout
