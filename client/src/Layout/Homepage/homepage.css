@@ -20,7 +20,7 @@
   height: 100%;
   width: 100%;
   position: absolute;
-  top: 5px;
+  top: 3px;
   left: 0;
   filter:blur(5px) brightness(150%) grayscale(20%);
   background: url('./Picture-5.jpg');
@@ -42,4 +42,9 @@
   background-color: backgroundGray;
   color: blue;
   filter: grayscale(0);
+}
+
+.Features {
+  width: 100%;
+  height: 600px;
 }

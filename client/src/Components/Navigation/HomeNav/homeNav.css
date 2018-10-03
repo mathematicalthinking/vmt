@@ -11,7 +11,7 @@
   justify-content: space-between;
   align-items: center;
   /* border-radius: 3px; */
-  box-shadow: 0 12px 20px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12), 0 11px 15px -7px rgba(0,0,0,0.2);
+  box-shadow: darkShadow;
   z-index: 1000;
 }
 

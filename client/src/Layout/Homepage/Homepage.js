@@ -12,6 +12,13 @@ const Homepage = () => {
           <h2>Collaborative math spaces for teachers and students</h2>
         </div>
       </div>
+      <div className={classes.Features}>
+        <div className={classes.Particles} id='particles-js'></div>
+
+      </div>
+      <div className={classes.Examples}>
+
+      </div>
     </div>
   )
 }
