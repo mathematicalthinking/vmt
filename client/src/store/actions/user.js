@@ -30,14 +30,14 @@ export const addUserCourses = newCoursesArr => {
 
 export const addUserActivities = newActivitiesArr => {
   return {
-    type: actionTypes.ADD_USER_ASSIGNMENTS,
+    type: actionTypes.ADD_USER_ACTIVITIES,
     newActivitiesArr,
   }
 }
 
 export const removeUserActivities = activityIdsArr => {
   return {
-    type: actionTypes.REMOVE_USER_ASSIGNMENTS,
+    type: actionTypes.REMOVE_USER_ACTIVITIES,
     activityIdsArr,
   }
 }

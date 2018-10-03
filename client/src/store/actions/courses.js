@@ -26,7 +26,7 @@ export const updateCourse = course => ({
 })
 
 export const addCourseActivities = (courseId, activityIdsArr) => ({
-  type: actionTypes.ADD_COURSE_ASSIGNMENTS,
+  type: actionTypes.ADD_COURSE_ACTIVITIES,
   courseId,
   activityIdsArr,
 })
@@ -53,7 +53,7 @@ export const addCourseRooms = (courseId, roomIdsArr) => {
 
 export const removeCourseActivities = (courseId, activityIdsArr) => {
   return {
-    type: actionTypes.REMOVE_COURSE_ASSIGNMENTS,
+    type: actionTypes.REMOVE_COURSE_ACTIVITIES,
     courseId,
     activityIdsArr,
   }

@@ -43,7 +43,7 @@ Room.pre('save', function (next) {
       values[0].forEach(user => {
         user.rooms.push(this._id)
         // DONT THINK WE NEED THE CODE BWLOW...THE USER SHOULD ALREADY HAVE
-        // THE ASSIGNMENT AND THE COURSE IN THEIR RESOURCES
+        // THE ACTIVITY AND THE COURSE IN THEIR RESOURCES
         // if (this.course) user.courseNotifications.newRoom.push({notificationType: 'newRoom', _id: this.course})
         // if (this.activity) user.activities.push(this.activity)
         user.save();
