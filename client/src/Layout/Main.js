@@ -15,18 +15,13 @@ import Workspace from '../Containers/Workspace/Workspace';
 import Replayer from '../Containers/Replayer/Replayer';
 import Confirmation from '../Layout/Confirmation/Confirmation';
 import classes from './main.css';
+import Homepage from './Homepage/Homepage';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 
-// Provide login status to all private routes
-const mapStateToProps = store => ({
-  username: store.user.username,
-  loggedIn: store.user.loggedIn,
-})
 
 
-@connect(mapStateToProps, null)
-export default class Main extends Component {
+class Main extends Component {
   render() {
     console.log('main rendering')
     return (
@@ -39,7 +34,7 @@ export default class Main extends Component {
         <Navbar />
         <section className={classes.Section}>
           <Switch>
-            <Route exact path='/' component={Login}/>
+            <Route exact path='/' component={Homepage}/>
             <Route path='/users/new' authed={this.props.loggedIn} component={NewUser}/>
             <Route exact path='/publicList/:resource' component={PublicList}/>
             <Route exact path='/publicResource/room/:room_id/:resource' component={Room}/>
@@ -66,3 +61,10 @@ export default class Main extends Component {
     )
   }
 };
+// Provide login status to all private routes
+const mapStateToProps = store => ({
+  username: store.user.username,
+  loggedIn: store.user.loggedIn,
+})
+
+export default connect(mapStateToProps, null)(Main)

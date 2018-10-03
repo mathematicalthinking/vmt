@@ -1,2 +1,10 @@
-@value blue: #2D91F2;
+/* @value blue: #2D91F2;
 @value orange: #FF681F;
+@value yellow: #FFCA1F;
+@value backgroundGray: #F9F9F9; */
+
+
+:export {
+  blue: #2D91F2;
+  backgroundGray: #F9F9F9;
+}
