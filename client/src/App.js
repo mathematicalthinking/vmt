@@ -2,13 +2,17 @@ import React from 'react';
 import Main from './Layout/Main';
 import { Provider } from 'react-redux';
 import configureStore from './configureStore';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import Homepage from './Layout/Homepage/Homepage';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 const store = configureStore();
 const App = props => (
   <Provider store={store}>
     <Router >
-      <Route path={'/'} component={Main} />
+      <Switch>
+        <Route path={'/'} component={Homepage} />
+        <Route path={'/myVMT'} component={Main} />
+      </Switch>
     </Router>
   </Provider>
 );

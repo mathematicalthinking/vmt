@@ -1,5 +1,6 @@
 *, *:before, *:after {
   box-sizing: border-box;
+  margin: 0;
 }
 
 body {
@@ -7,7 +8,7 @@ body {
   overflow-x: hidden;
   background-size: 30px 30px;
   background-image: linear-gradient(to right, #f1f1f1 1px, transparent 1px), linear-gradient(to bottom, #f1f1f1 1px, transparent 1px) !important;
-  font-family: 'Voces', 'sans-serif'
+  font-family: 'Voces', 'sans-serif';
 }
 .FlexCol {
   display: flex;

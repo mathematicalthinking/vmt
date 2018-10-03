@@ -7,4 +7,5 @@
 :export {
   blue: #2D91F2;
   backgroundGray: #F9F9F9;
+  darkShadow: 0 12px 20px 3px rgba(0,0,0,0.34), 0 9px 46px 8px rgba(0,0,0,0.22), 0 11px 15px -7px rgba(0,0,0,0.2)
 }
