@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Navbar from '../Components/Navigation/Navbar';
-import Login from '../Containers/Login/Login';
+// import Login from '../Containers/Login/Login';
 import Room from '../Containers/Room/Room';
 import Course from '../Containers/Course/Course';
 import Activity from '../Containers/Activity/Activity';
@@ -34,8 +34,7 @@ class Main extends Component {
         <Navbar />
         <section className={classes.Section}>
           <Switch>
-            <Route exact path='/' component={Homepage}/>
-            <Route path='/users/new' authed={this.props.loggedIn} component={NewUser}/>
+            <Route path='/signup' authed={this.props.loggedIn} component={NewUser}/>
             <Route exact path='/publicList/:resource' component={PublicList}/>
             <Route exact path='/publicResource/room/:room_id/:resource' component={Room}/>
             <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />
@@ -50,7 +49,7 @@ class Main extends Component {
             <Route exact path='/dashboard/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room}/>
             {/* <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Activities}/> */}
             <Route path='/confirmation' component={Confirmation} />
-            <Route exact path='/logout' component={Login}/>
+            {/* <Route exact path='/logout' component={Login}/> */}
             <Route path="*" render={() => {
               return (<div>Error</div>)
               // ^ @TODO 404 page

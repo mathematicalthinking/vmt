@@ -73,7 +73,6 @@
   flex-flow: column;
   justify-content: space-around;
   padding: 20px;
-  /* border: 1px solid red; */
   height: 250px;
   width: 220px;
   background: white;
@@ -94,7 +93,7 @@
   display: flex;
   flex-flow: column;
   align-items: center;
-  /* border: 1px solid yellow; */
   max-width: maxWidth;
   width: 100%;
+  margin-bottom: 20px;
 }

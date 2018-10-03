@@ -9,7 +9,6 @@ import Button from '../../Components/UI/Button/Button';
 const Homepage = () => {
   return (
     <div>
-      <HomeNav />
       <div className={classes.Main}>
         <div className={classes.Parallax}>
           <div className={classes.Banner} >

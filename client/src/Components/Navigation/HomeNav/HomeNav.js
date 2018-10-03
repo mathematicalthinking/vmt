@@ -7,10 +7,10 @@ const navbar = (props) => {
       <div className={classes.NavContainer}>
         <div className={classes.Logo}>Logo</div>
         <ul className={classes.NavList}>
-          <NavItem link='/Login' name='Login' />
-          <NavItem link='/Signup' name='Signup' />
-          <NavItem link='/About' name='About' />
-          <NavItem link='/Tutorials' name='Tutorials' />
+          <NavItem link='/login' name='Login' />
+          <NavItem link='/signup' name='Signup' />
+          <NavItem link='/about' name='About' />
+          <NavItem link='/tutorials' name='Tutorials' />
         </ul>
       </div>
     </nav>
