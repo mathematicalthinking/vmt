@@ -1,7 +1,7 @@
 import React from 'react';
 import classes from './textInput.css';
 const TextInput = (props) => {
-  let autoComplete = props.type;
+  let autoComplete = props.autoComplete || props.type;
   if (props.type === 'password') {autoComplete = 'current-password'}
   return (
     <div className={classes.Container}>

@@ -71,7 +71,7 @@ module.exports = {
         .catch(err => reject(err))
       } else {
         db.Room.findByIdAndUpdate(id, body, {new: true})
-        .then(room => { console.log(room); resolve(body)})
+        .then(room => {resolve(body)})
         .catch(err => {console.log(err); reject(err)})
       }
     })

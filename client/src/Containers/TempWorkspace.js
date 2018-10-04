@@ -33,7 +33,6 @@ class TempWorkspace extends Component {
       tempRoom: true,
     }
 
-    console.log(sendData)
     this.socket.emit('JOIN', sendData, (room, err) => {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
@@ -70,7 +69,7 @@ class TempWorkspace extends Component {
     return (
       this.state.room ?
       <WorkspaceLayout
-        members = {[]}
+        members = {this.state.room.currentUsers}
         graph = {() => <GgbGraph room={this.state.room} socket={this.socket} user={user} />}
         chat = {() => <Chat roomId={this.state.room._id} messages={this.state.room.chat || []} socket={this.socket} user={user} />}
       /> :

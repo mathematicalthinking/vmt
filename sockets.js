@@ -23,6 +23,8 @@ sockets.init = server => {
             catch(err) {console.log(err)}
             try {
               rooms = await controllers.room.get({tempId: data.roomId})
+              room = await rooms[0].populate('events')
+              // console.log(room)
             }
             catch(err) {console.log(err)}
             if (rooms.length === 0) {
@@ -39,7 +41,7 @@ sockets.init = server => {
               catch(err) {console.log(err)}
             } else {
               try {
-                room = await controllers.room.addCurrentUsers(rooms[0]._id, user._id)
+                room = await controllers.room.addCurrentUsers(room._id, user._id)
               }
               catch(err) {
                 console.log("47: ",err)
@@ -55,7 +57,7 @@ sockets.init = server => {
             // THESE SHOULD NOT BE SEPERATE SOCKET EMITIONS
             io.in(data.roomId).emit('RECEIVE_MESSAGE', message)
             socket.broadcast.to(data.roomId).emit('USER_JOINED', {currentUsers: room.currentUsers, message,});
-            console.log(room.currentUsers)
+            console.log(room)
             callback(room, null)
           }
           else {
@@ -116,16 +118,13 @@ sockets.init = server => {
       })
 
       socket.on('SEND_EVENT', (data) => {
-        console.log("NEW EVENT: ", data)
         if (typeof data.event !== 'string') {
           data.event = JSON.stringify(data.event)
         }
-        console.log(data.currentState)
         controllers.room.put(data.room, {currentState: data.currentState})
         delete data.currentState;
         controllers.event.post(data)
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data)
-        console.log('success')
       })
     });
 
