@@ -33,13 +33,13 @@ class TempWorkspace extends Component {
       tempRoom: true,
     }
 
-    this.socket.emit('JOIN', sendData, (room, err) => {
+    this.socket.emit('JOIN', sendData, (res, err) => {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
-      this.setState({roomCreated: true, room,})
-
-      console.log("HELLO?", room)
+      this.setState({room: res.room,})
+      this.setState({user: res.user})
+      console.log("HELLO?", res.room)
     })
 
     this.socket.on('USER_JOINED', data => {
@@ -53,25 +53,24 @@ class TempWorkspace extends Component {
   // componentWillUnmount () {
   //   const { updateRoom, room, user} = this.props;
   //   const data = {
-  //     userId: user.id,
+  //     userId: user._id,
   //     roomId: room._id,
   //     username: user.username,
   //     roomName: room.name,
   //   }
   //   this.socket.emit('LEAVE', data, (res) => {
-  //     updateRoom(room._id, {currentUsers: room.currentUsers.filter(u => u._id !== user.id)})
+  //     updateRoom(room._id, {currentUsers: room.currentUsers.filter(u => u._id !== user._id)})
   //     this.socket.disconnect();
   //   })
   // }
 
   render() {
-    const user = {_id: 'blah', username: 'whaddup'}
     return (
       this.state.room ?
       <WorkspaceLayout
         members = {this.state.room.currentUsers}
-        graph = {() => <GgbGraph room={this.state.room} socket={this.socket} user={user} />}
-        chat = {() => <Chat roomId={this.state.room._id} messages={this.state.room.chat || []} socket={this.socket} user={user} />}
+        graph = {() => <GgbGraph room={this.state.room} socket={this.socket} user={this.state.user} />}
+        chat = {() => <Chat roomId={this.state.room._id} messages={this.state.room.chat || []} socket={this.socket} user={this.state.user} />}
       /> :
       <Modal show={!this.state.room}>
         Enter a temporary username

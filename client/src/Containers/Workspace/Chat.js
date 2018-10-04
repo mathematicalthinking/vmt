@@ -47,7 +47,7 @@ class Chat extends Component {
     if (this.state.newMessage.length === 0) return;
     const newMessage = {
       text: this.state.newMessage,
-      user: {_id: user.id, username: user.username},
+      user: {_id: user._id, username: user.username},
       room: roomId,
       timestamp: new Date().getTime()
     }

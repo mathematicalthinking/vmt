@@ -126,7 +126,7 @@ class GgbGraph extends Component {
         room: room._id,
         event: xml,
         description: `${user.username} ${action} ${xmlObj ? xmlObj.element.$.type : ''} ${label}`,
-        user: {_id: user.id, username: user.username},
+        user: {_id: user._id, username: user.username},
         timestamp: new Date().getTime(),
         currentState: this.ggbApplet.getXML(),
       }

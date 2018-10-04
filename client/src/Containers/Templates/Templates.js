@@ -46,7 +46,7 @@ class Templates extends Component {
 const mapStateToProps = store => ({
   userCourseTemplateIds: store.user.courseTemplates,
   userCourseTemplates: getUserResources(store, 'courseTemplates'),
-  userId: store.user.id,
+  userId: store.user._id,
 })
 
 const mapDispatchToProps = dispatch => ({

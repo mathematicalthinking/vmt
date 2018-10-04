@@ -28,14 +28,14 @@ class Room extends Component {
     // CHECK ACCESS
     let updatedTabs = [...this.state.tabs];
     let owner = false;
-    if (room.creator === user.id) {
+    if (room.creator === user._id) {
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
       this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}])
       owner = true;
     }
     if (room.members) {
       console.log(room.members)
-      console.log(user.id)
+      console.log(user._id)
       this.checkAccess();
     }
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
@@ -56,7 +56,7 @@ class Room extends Component {
 
   checkAccess () {
     console.log('checking access')
-    if (this.props.room.members.find(member => member.user._id === this.props.user.id)) {
+    if (this.props.room.members.find(member => member.user._id === this.props.user._id)) {
       console.log("you are a member of this room")
       this.setState({member: true})
     };

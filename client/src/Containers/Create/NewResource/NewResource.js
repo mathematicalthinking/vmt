@@ -170,7 +170,7 @@ const mapStateToProps = store => {
   return {
     myRooms: store.user.rooms,
     rooms: store.rooms.rooms,
-    userId: store.user.id,
+    userId: store.user._id,
   }
 }
 
