@@ -23,8 +23,6 @@ sockets.init = server => {
             catch(err) {console.log(err)}
             try {
               rooms = await controllers.room.get({tempId: data.roomId})
-              room = await rooms[0].populate('events')
-              // console.log(room)
             }
             catch(err) {console.log(err)}
             if (rooms.length === 0) {
@@ -41,6 +39,7 @@ sockets.init = server => {
               catch(err) {console.log(err)}
             } else {
               try {
+                room = await rooms[0].populate('events')
                 room = await controllers.room.addCurrentUsers(room._id, user._id)
               }
               catch(err) {
@@ -55,10 +54,10 @@ sockets.init = server => {
               timestamp: new Date().getTime(),
             }
             // THESE SHOULD NOT BE SEPERATE SOCKET EMITIONS
-            io.in(data.roomId).emit('RECEIVE_MESSAGE', message)
+            // io.in(data.roomId).emit('RECEIVE_MESSAGE', message)
             socket.broadcast.to(data.roomId).emit('USER_JOINED', {currentUsers: room.currentUsers, message,});
-            console.log(room)
-            callback({room, user}, null)
+            // console.log(room)
+            callback({room, user, message}, null)
           }
           else {
             const message = {
@@ -73,7 +72,7 @@ sockets.init = server => {
           }
           Promise.all(promises)
           .then(results => {
-            io.in(data.roomId).emit('RECEIVE_MESSAGE', message)
+            // io.in(data.roomId).emit('RECEIVE_MESSAGE', message)
             socket.broadcast.to(data.roomId).emit('USER_JOINED', {currentUsers: results[1].currentUsers, message,});
             callback({result: results[1].currentUsers}, null)
           })

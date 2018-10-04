@@ -11,6 +11,7 @@ module.exports = {
       .sort('-createdAt')
       .populate({path: 'members.user', select: 'username'})
       .populate({path: 'currentUsers', select: 'username'})
+      .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .then(rooms => {
         rooms = rooms.map(room => room.tempRoom ? room : room.summary())
         resolve(rooms)})
@@ -37,18 +38,18 @@ module.exports = {
   },
   post: body => {
     return new Promise((resolve, reject) => {
-        db.Room.create(body)
-        .then(room => {
-          if (body.course) {
-            room.populate({path: 'course', select: 'name'})
-          }
-          room.populate({path: 'members.user', select: 'username'}, () => {
-            resolve(room)
-          })
-        })
-        .catch(err => {
-          console.log(err); reject(err)})
-      // }
+      db.Room.create(body)
+      .then(room => {
+        if (body.course) {
+          room.populate({path: 'course', select: 'name'})
+        }
+        room
+        .populate({path: 'members.user', select: 'username'})
+        .populate({path: 'currentUsers', select: 'username'}, function(){(resolve(room))}) //Hmm why no support for promise here?
+      })
+      .catch(err => {
+        console.log(err); reject(err)
+      })
     })
   },
 
@@ -96,7 +97,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentUsers: userId}}, {new: true})
       .populate({path: 'currentUsers', select: 'username'})
-      .select('currentUsers events chat')
+      .select('currentUsers events chat currentState')
       .then(room => resolve(room))
       .catch(err => reject(err))
     })

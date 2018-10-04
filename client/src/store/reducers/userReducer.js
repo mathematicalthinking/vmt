@@ -2,7 +2,7 @@ import * as actionTypes from '../actions/actionTypes';
 
 const initialState = {
   username: '',
-  id: '',
+  _id: '',
   loggedIn: false,
   courses: [],
   courseNotifications: {},
@@ -20,7 +20,7 @@ const reducer = (state = initialState, action) => {
         ...state,
         loggedIn: true,
         username: action.user.username,
-        id: action.user._id,
+        _id: action.user._id,
         courses: action.user.courses,
         courseNotifications: action.user.courseNotifications,
         rooms: action.user.rooms,

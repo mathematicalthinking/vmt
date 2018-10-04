@@ -43,26 +43,28 @@ class TempWorkspace extends Component {
     })
 
     this.socket.on('USER_JOINED', data => {
+      console.log(data)
     })
 
     this.socket.on('USER_LEFT', data => {
+      console.log(data)
     })
 
 }
 
-  // componentWillUnmount () {
-  //   const { updateRoom, room, user} = this.props;
-  //   const data = {
-  //     userId: user._id,
-  //     roomId: room._id,
-  //     username: user.username,
-  //     roomName: room.name,
-  //   }
-  //   this.socket.emit('LEAVE', data, (res) => {
-  //     updateRoom(room._id, {currentUsers: room.currentUsers.filter(u => u._id !== user._id)})
-  //     this.socket.disconnect();
-  //   })
-  // }
+  componentWillUnmount () {
+    const { room, user} = {...this.state};
+    const data = {
+      userId: user._id,
+      roomId: room._id,
+      username: user.username,
+      roomName: room.name,
+    }
+    this.socket.emit('LEAVE', data, (res) => {
+      // updateRoom(room._id, {currentUsers: room.currentUsers.filter(u => u._id !== user._id)})
+      this.socket.disconnect();
+    })
+  }
 
   render() {
     return (
