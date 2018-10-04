@@ -11,7 +11,7 @@ class Home extends PureComponent {
         <Route exact path='/' component={Homepage} />
         <Route path='/login' component={Login} />
         <Route path='/signup' component={Signup} />
-        <Route path='/explore' component={TempWorkspace} />
+        <Route path='/explore/:id' component={TempWorkspace} />
         {/* <Route path='/about' component={About} />
         <Route path='/tutorials' component={Tutorials} /> */}
 

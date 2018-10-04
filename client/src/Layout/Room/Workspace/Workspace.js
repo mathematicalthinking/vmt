@@ -5,7 +5,6 @@ import CurrentMembers from '../../../Components/CurrentMembers/CurrentMembers';
 const workspaceLayout = ({graph, chat, replayer, members, activeMember}) => {
   return (
     <Aux>
-
       <div className={classes.Container} style={{maxHeight: window.innerHeight - (replayer ? 400 : 300)}}>
         <div className={classes.Graph}>{graph()}</div>
         <div className={classes.SidePanel}>

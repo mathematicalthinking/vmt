@@ -10,7 +10,7 @@ const Room = new mongoose.Schema({
   entryCode: {type: String},
   roomType: {type: String, default: 'geogebra'},
   course: {type: ObjectId, ref: 'Course'},
-  creator: {type: ObjectId, ref: 'User', required: true},
+  creator: {type: ObjectId, ref: 'User'},
   dueDate: {type: Date,},
   chat: [{type: ObjectId, ref: 'Message'}],
   members: [{
@@ -18,11 +18,13 @@ const Room = new mongoose.Schema({
     role: {type: String},
     _id: false}],
   currentUsers: {type: [{type: ObjectId, ref: 'User'}], default: []},
-  currentState: {type: String}, 
+  currentState: {type: String},
   ggbFile: {type: String,},
   desmosLink: {type: String,},
   events: [{type: ObjectId, ref: 'Event', _id: false}],
-  isPublic: {type: Boolean, default: false}
+  isPublic: {type: Boolean, default: false},
+  tempRoom: {type: Boolean, default: false},
+  tempId: {type: String},
 },
 {timestamps: true});
 

@@ -14,7 +14,7 @@ class Homepage extends PureComponent {
     }
   }
   render() {
-    const randomId = randomString(10);
+    const randomId = randomString(12);
     const list = Object.keys(this.props.activities).map(id => this.props.activities[id]) || []
     return (
       <div>
