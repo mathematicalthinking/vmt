@@ -63,6 +63,7 @@ class GgbGraph extends Component {
       if (window.ggbApplet) {
         if (window.ggbApplet.listeners) {
           this.ggbApplet = window.ggbApplet;
+          console.log("successfully attached ggb")
           this.initializeGgb();
           this.setState({loading: false})
           clearInterval(timer);
@@ -85,7 +86,9 @@ class GgbGraph extends Component {
 
   initializeGgb = () => {
     const { user, room } = this.props;
+    console.log("ROOM IN WS: ", room)
     const { events } = room;
+    console.log(events)
     if (events.length > 0) {
       this.ggbApplet.setXML(room.currentState)
     }

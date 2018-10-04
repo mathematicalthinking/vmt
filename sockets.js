@@ -61,7 +61,7 @@ sockets.init = server => {
             io.in(data.roomId).emit('RECEIVE_MESSAGE', message)
             socket.broadcast.to(data.roomId).emit('USER_JOINED', {currentUsers: room.currentUsers, message,});
             console.log(room.currentUsers)
-            callback({room,}, null)
+            callback(room, null)
           }
           else {
             const message = {
