@@ -30,9 +30,16 @@
   background-color: blue;
   border-radius: 3px;
 }
+
+.ChatInput {
+  align-self: center;
+  width: 90%
+}
+
 .Entry {
   display: flex;
   flex-flow: column;
+  /* width: 90%; */
   /* border: 1px solid red; */
 }
 

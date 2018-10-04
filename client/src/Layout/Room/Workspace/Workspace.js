@@ -1,10 +1,10 @@
 import React from 'react';
 import classes from './workspace.css';
-import Aux from '../../../Components/HOC/Auxil';
+// import Aux from '../../../Components/HOC/Auxil';
 import CurrentMembers from '../../../Components/CurrentMembers/CurrentMembers';
 const workspaceLayout = ({graph, chat, replayer, members, activeMember}) => {
   return (
-    <Aux>
+    <div className={classes.PageContainer}>
       <div className={classes.Container} style={{maxHeight: window.innerHeight - (replayer ? 400 : 300)}}>
         <div className={classes.Graph}>{graph()}</div>
         <div className={classes.SidePanel}>
@@ -19,7 +19,7 @@ const workspaceLayout = ({graph, chat, replayer, members, activeMember}) => {
           {replayer()}
         </div>
       : null}
-    </Aux>
+    </div>
   )
 }
 export default workspaceLayout;
