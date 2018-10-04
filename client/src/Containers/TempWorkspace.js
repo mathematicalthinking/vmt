@@ -11,24 +11,10 @@ class TempWorkspace extends Component {
 
   state = {
     roomCreated: false,
+    room: undefined,
     tempUsername: '',
   }
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
-
-  componentDidMount() {
-    // Check if this room already exists
-    // IF YES --- wait to join
-    // IF NO --- create
-    const room = {
-
-    }
-    // const
-      // WE COULD MAKE TAKE THIS OUT OF THE CALLBACK AND UPDATE IMMEDIATELY
-      // AND THEN NOTIFY THE USER OF AN ERROR ONLY IF SOMETHING GOES WRONG
-      // const updatedUsers = [...room.currentUsers, {_id: user.id, username: user.username}]
-
-
-  }
 
   componentDidUpdate(prevProps, prevState) {
     // if (!prevStat.resourcesCreated this.state.)
@@ -48,11 +34,13 @@ class TempWorkspace extends Component {
     }
 
     console.log(sendData)
-    this.socket.emit('JOIN', sendData, (res, err) => {
+    this.socket.emit('JOIN', sendData, (room, err) => {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
-      this.setState({roomCreated: true})
+      this.setState({roomCreated: true, room,})
+
+      console.log("HELLO?", room)
     })
 
     this.socket.on('USER_JOINED', data => {
@@ -78,16 +66,15 @@ class TempWorkspace extends Component {
   // }
 
   render() {
-    const room = {_id: 'dffsdf', chat: []}
     const user = {_id: 'blah', username: 'whaddup'}
     return (
-      this.state.resourcesCreated ?
+      this.state.room ?
       <WorkspaceLayout
         members = {[]}
-        graph = {() => <GgbGraph room={room} socket={this.socket} user={user} />}
-        chat = {() => <Chat roomId={room._id} messages={room.chat || []} socket={this.socket} user={user} />}
+        graph = {() => <GgbGraph room={this.state.room} socket={this.socket} user={user} />}
+        chat = {() => <Chat roomId={this.state.room._id} messages={this.state.room.chat || []} socket={this.socket} user={user} />}
       /> :
-      <Modal show={!this.state.resourcesCreated}>
+      <Modal show={!this.state.room}>
         Enter a temporary username
         <TextInput change={this.setName} />
         <Button click={this.join}>Join</Button>

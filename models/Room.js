@@ -21,7 +21,7 @@ const Room = new mongoose.Schema({
   currentState: {type: String},
   ggbFile: {type: String,},
   desmosLink: {type: String,},
-  events: [{type: ObjectId, ref: 'Event', _id: false}],
+  events: {type: [{type: ObjectId, ref: 'Event', _id: false}], default: []},
   isPublic: {type: Boolean, default: false},
   tempRoom: {type: Boolean, default: false},
   tempId: {type: String},

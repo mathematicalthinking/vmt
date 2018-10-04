@@ -10,8 +10,9 @@ module.exports = {
       .find(params)
       .sort('-createdAt')
       .populate({path: 'members.user', select: 'username'})
+      .populate({path: 'currentUsers', select: 'username'})
       .then(rooms => {
-        rooms = rooms.map(room => room.summary())
+        rooms = rooms.map(room => room.tempRoom ? room : room.summary())
         resolve(rooms)})
       .catch(err => reject(err));
     });

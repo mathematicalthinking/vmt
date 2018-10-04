@@ -3,8 +3,7 @@ const controllers = require('./controllers')
 const sockets = {};
 sockets.init = server => {
 
-    const io = require('socket.io')(server, {wsEngine: 'ws'}); // AHHHH FUCK YOU WINDOWS
-    // without this wsEngine setting the socket events would be delayed upwards of 20 seconds // NOT SURE IF MAC DEVELOPERS WILL NEED TO REMOVE THIS
+    const io = require('socket.io')(server, {wsEngine: 'ws'});
     io.sockets.on('connection', socket => {
       socket.on('JOIN', (data, callback) => {
         socket.join(data.roomId, async () => {
@@ -24,10 +23,11 @@ sockets.init = server => {
             catch(err) {console.log(err)}
             try {
               rooms = await controllers.room.get({tempId: data.roomId})
-            } catch(err) {console.log(err)}
+              console.log("ROOMS: ", rooms)
+            }
+            catch(err) {console.log(err)}
             console.log(rooms)
             if (rooms.length === 0) {
-              console.log('length === 1')
               try {
                 room = await controllers.room.post({
                   tempId: data.roomId,
@@ -40,8 +40,14 @@ sockets.init = server => {
               }
               catch(err) {console.log(err)}
             } else {
-              room = rooms[0];
-              controllers.room.addCurrentUsers(room._id, user._id)
+              try {
+                console.log("ROOM BEFORE: ",rooms[0])
+                const room = await controllers.room.addCurrentUsers(rooms[0]._id, user._id)
+                console.log("ROOM: ", room)
+              }
+              catch(err) {
+                console.log(err)
+              }
             }
             const message = {
               user: {_id: user._id, username: 'VMTbot'},
@@ -51,9 +57,11 @@ sockets.init = server => {
               timestamp: new Date().getTime(),
             }
             console.log('sucess')
+            // THESE SHOULD NOT BE SEPERATE SOCKET EMITIONS
             io.in(data.roomId).emit('RECEIVE_MESSAGE', message)
             socket.broadcast.to(data.roomId).emit('USER_JOINED', {currentUsers: room.currentUsers, message,});
-            callback({result: room.currentUsers}, null)
+            console.log(room.currentUsers)
+            callback({room,}, null)
           }
           else {
             const message = {
