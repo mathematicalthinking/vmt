@@ -13,6 +13,15 @@ class Homepage extends PureComponent {
     }
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.rooms !== this.props.rooms) {
+      const currentRooms = Object.keys(this.props.rooms).map(id => this.props.rooms[id])
+      const prevRooms = Object.keys(prevProps.rooms).map(id => prevProps.rooms[id])
+      let room = currentRooms.filter(room => !prevRooms.includes(room))
+      console.log(room)
+      this.props.history.push(`explore/${room[0]._id}`)
+    }
+  }
 
 
   createRoom = () => {
@@ -22,10 +31,6 @@ class Homepage extends PureComponent {
       tempRoom: true,
       roomType: 'geogebra',
     })
-    // .then(room => {
-    //   console.log(room)
-    //   this.props.history.push(`explore/${room._id}`)
-    // })
   }
 
   render() {
