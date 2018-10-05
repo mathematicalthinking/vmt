@@ -44,7 +44,7 @@ const reducer = (state = initialState, action) => {
           allIds: updatedIds,
         }
 
-    case actionTypes.ADD_COURSE_ASSIGNMENTS:
+    case actionTypes.ADD_COURSE_ACTIVITIES:
       updatedCourses = { ...state.byId}
       updatedCourses[action.courseId].activities = updatedCourses[action.courseId].activities.concat(action.activityIdsArr)
       return {
@@ -52,7 +52,7 @@ const reducer = (state = initialState, action) => {
         byId: updatedCourses,
       }
 
-    case actionTypes.REMOVE_COURSE_ASSIGNMENTS:
+    case actionTypes.REMOVE_COURSE_ACTIVITIES:
       updatedById = {...state.byId}
       const updatedCourseActivities = updatedById[action.courseId].activities.filter(id => id !== action.activityId)
       updatedById[action.courseId].rooms = updatedCourseActivities;

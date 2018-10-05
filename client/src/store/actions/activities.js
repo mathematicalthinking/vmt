@@ -8,33 +8,33 @@ import { addCourseActivities, removeCourseActivities } from './courses';
 import * as loading from './loading';
 
 export const gotActivities = (activities) => ({
-  type: actionTypes.GOT_ASSIGNMENTS,
+  type: actionTypes.GOT_ACTIVITIES,
   byId: activities.byId,
   allIds: activities.allIds
 })
 
 export const addActivity = activity => ({
-  type: actionTypes.ADD_ASSIGNMENT,
+  type: actionTypes.ADD_ACTIVITY,
   activity,
 })
 
 export const clearCurrentActivity = () => {
   return {
-    type: actionTypes.CLEAR_ASSIGNMENT
+    type: actionTypes.CLEAR_ACTIVITY
   }
 }
 
 export const createdActivity = resp => {
   const newActivity = resp
   return {
-    type: actionTypes.CREATED_ASSIGNMENT,
+    type: actionTypes.CREATED_ACTIVITY,
     newActivity,
   }
 }
 
 export const addActivityRooms = (activityId, roomIdsArr) => {
     return {
-      type: actionTypes.ADD_ASSIGNMENT_ROOMS,
+      type: actionTypes.ADD_ACTIVITY_ROOMS,
       activityId,
       roomIdsArr,
     }
@@ -42,7 +42,7 @@ export const addActivityRooms = (activityId, roomIdsArr) => {
 
 export const activityRemoved = (activityId) => {
   return {
-    type: actionTypes.REMOVE_ASSIGNMENT,
+    type: actionTypes.REMOVE_ACTIVITY,
     activityId,
   }
 }
@@ -54,6 +54,7 @@ export const getActivities = params => {
     .then(res => {
       // Normalize res
       const activities = normalize(res.data.results)
+      console.log(activities)
       dispatch(gotActivities(activities))
       dispatch(loading.success())
     })
@@ -108,6 +109,6 @@ export const UpdateCurrentActivity = body => {}
 
 export const createdActivityConfirmed = () => {
   return {
-    type: actionTypes.CREATE_ASSIGNMENT_CONFIRMED,
+    type: actionTypes.CREATE_ACTIVITY_CONFIRMED,
   }
 }

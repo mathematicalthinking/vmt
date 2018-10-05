@@ -20,7 +20,7 @@ const User = models.User;
 // used to serialize the user for the session
 module.exports = passport => {
   passport.serializeUser((user, next) => {
-    next(null, user.id);
+    next(null, user._id);
   });
 
   passport.deserializeUser((id, next) => {

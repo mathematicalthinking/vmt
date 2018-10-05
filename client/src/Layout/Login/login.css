@@ -1,0 +1,50 @@
+:import('../../colors.css'){
+  gray: backgroundGray;
+  blue: blue;
+  lightShadow: lightShadow;
+}
+
+.Container{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.LoginContainer {
+  background: gray;
+  margin-top: 110px;
+  border-radius: 4px;
+  padding: 15px;
+  width: 66%;
+  display: flex;
+  flex-flow: column;
+  box-shadow: lightShadow;
+  justify-content: center;
+  align-items: center;
+}
+
+.Title {
+  color: blue;
+  letter-spacing: .09em;
+}
+
+.ErrorMsg {
+  color: red;
+  height: 20px;
+  text-align: center;
+}
+
+.Form {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  width: 90%;
+}
+
+.Loading {
+  position: fixed;
+  margin: auto;
+  z-index: 1000;
+}

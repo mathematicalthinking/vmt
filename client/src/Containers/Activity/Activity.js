@@ -78,7 +78,7 @@ const mapStateToProps = (store, ownProps ) => {
     activity: store.activities.byId[activity_id],
     populatedActivity: populateResource(store, 'activities', activity_id, ['rooms']),
     currentCourse: store.courses.byId[course_id],
-    userId: store.user.id,
+    userId: store.user._id,
   }
 }
 

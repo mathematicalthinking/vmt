@@ -7,6 +7,8 @@ import glb from '../../global.css';
 const boxList = props => {
   let listElems = "There doesn't appear to be anything here yet";
   if (props.list.length > 0) {
+    console.log(props.list)
+    console.log("BOXLIST")
     listElems = props.list.map((item, i) => {
       let notifications = 0;
       let details = undefined;

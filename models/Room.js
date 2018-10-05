@@ -10,7 +10,7 @@ const Room = new mongoose.Schema({
   entryCode: {type: String},
   roomType: {type: String, default: 'geogebra'},
   course: {type: ObjectId, ref: 'Course'},
-  creator: {type: ObjectId, ref: 'User', required: true},
+  creator: {type: ObjectId, ref: 'User'},
   dueDate: {type: Date,},
   chat: [{type: ObjectId, ref: 'Message'}],
   members: [{
@@ -18,17 +18,18 @@ const Room = new mongoose.Schema({
     role: {type: String},
     _id: false}],
   currentUsers: {type: [{type: ObjectId, ref: 'User'}], default: []},
-  currentState: {type: String}, 
+  currentState: {type: String},
   ggbFile: {type: String,},
   desmosLink: {type: String,},
-  events: [{type: ObjectId, ref: 'Event', _id: false}],
-  isPublic: {type: Boolean, default: false}
+  events: {type: [{type: ObjectId, ref: 'Event', _id: false}], default: []},
+  isPublic: {type: Boolean, default: false},
+  tempRoom: {type: Boolean, default: false},
 },
 {timestamps: true});
 
 Room.pre('save', function (next) {
   // ON CREATION UPDATE THE CONNECTED MODELS
-  if (this.isNew) {
+  if (this.isNew & !this.tempRoom) {
     const promises = [];
     const users = this.members.map(member => member.user)
     promises.push(User.find({'_id': {$in: users}}))
@@ -43,7 +44,7 @@ Room.pre('save', function (next) {
       values[0].forEach(user => {
         user.rooms.push(this._id)
         // DONT THINK WE NEED THE CODE BWLOW...THE USER SHOULD ALREADY HAVE
-        // THE ASSIGNMENT AND THE COURSE IN THEIR RESOURCES
+        // THE ACTIVITY AND THE COURSE IN THEIR RESOURCES
         // if (this.course) user.courseNotifications.newRoom.push({notificationType: 'newRoom', _id: this.course})
         // if (this.activity) user.activities.push(this.activity)
         user.save();
@@ -51,7 +52,7 @@ Room.pre('save', function (next) {
       })
     })
     .catch(err => next(err))
-  } else {
+  } else if (!this.isNew) {
     const field = this.modifiedPaths().forEach(field => {
       if (field === 'members') {
         User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
@@ -60,6 +61,9 @@ Room.pre('save', function (next) {
         .catch(err => console.log(err))
       }
     })
+  }
+  else {
+    next()
   }
 });
 

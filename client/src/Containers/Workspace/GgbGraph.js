@@ -41,11 +41,11 @@ class GgbGraph extends Component {
   }
 
   onScriptLoad = () => {
+    // NOTE: complete list here: https://wiki.geogebra.org/en/Reference:GeoGebra_App_Parameters
     const parameters = {
       "id":"ggbApplet",
-      "width": 1300 * .75, // 75% width of container
+      "width": window.innerWidth * .60, // 75% width of container
       "height": window.innerHeight - 300,
-      "scaleContainerClass": 'applet_container',
       "customToolBar": "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
       "showToolBar": true,
       "showMenuBar": true,
@@ -63,6 +63,7 @@ class GgbGraph extends Component {
       if (window.ggbApplet) {
         if (window.ggbApplet.listeners) {
           this.ggbApplet = window.ggbApplet;
+          console.log("successfully attached ggb")
           this.initializeGgb();
           this.setState({loading: false})
           clearInterval(timer);
@@ -90,7 +91,10 @@ class GgbGraph extends Component {
       this.ggbApplet.setXML(room.currentState)
     }
     this.addListener = label => {
+      console.log("construction cjamhes")
+      console.log(this.state.receivingData)
       if (!this.state.receivingData) {
+        console.log('construction changed by me')
         const xml = this.ggbApplet.getXML(label)
         const definition = this.ggbApplet.getCommandString(label);
         sendEvent(xml, definition, label, "ADD", "added");
@@ -98,13 +102,14 @@ class GgbGraph extends Component {
       this.setState({receivingData: false})
     }
 
-    this.updateListener = throttle(label => {
-      if (!this.state.receivingData) {
-        const xml = this.ggbApplet.getXML(label)
-        sendEvent(xml, null, label, "UPDATE", "updated")
-      }
-      this.setState({receivingData: false})
-    }, 150)
+    // this.updateListener = throttle(label => {
+    //   console.log('construction updated')
+    //   if (!this.state.receivingData) {
+    //     const xml = this.ggbApplet.getXML(label)
+    //     sendEvent(xml, null, label, "UPDATE", "updated")
+    //   }
+    //   this.setState({receivingData: false})
+    // }, 150)
 
     this.removeListener = label => {
       if (!this.state.receivingData) {
@@ -121,13 +126,14 @@ class GgbGraph extends Component {
         label,
         eventType,
         room: room._id,
+        roomId: room._id,
         event: xml,
         description: `${user.username} ${action} ${xmlObj ? xmlObj.element.$.type : ''} ${label}`,
-        user: {_id: user.id, username: user.username},
+        user: {_id: user._id, username: user.username},
         timestamp: new Date().getTime(),
         currentState: this.ggbApplet.getXML(),
       }
-
+      console.log('sending event')
       this.socket.emit('SEND_EVENT', newData)
     }
     // attach this listeners to the ggbApplet

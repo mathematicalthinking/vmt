@@ -1,0 +1,99 @@
+/* @value colors: '../../colors.css'
+@value blue from colors; */
+
+:import('../../colors.css') {
+  blue: blue;
+  orange: orange;
+  gray: backgroundGray;
+  backgroundGray: backgroundGray;
+  darkShadow: darkShadow;
+  lightShadow: lightShadow;
+  maxWidth: maxWidth;
+}
+
+.Banner {
+  position: relative;
+  width: 100%;
+  height: 350px;
+  justify-content: center;
+  align-items: center;
+}
+
+.Banner::before {
+  content: "";
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 3px;
+  left: 0;
+  filter:blur(5px) brightness(150%) grayscale(20%);
+  background: url('./Picture-5.jpg');
+  background-position: 0% 20%;
+  background-size: cover;
+
+}
+
+.GetStarted {
+  position: relative;
+  width: 400px;
+  height: 247px;
+  left: calc(50% - 200px);
+  top: calc(50% - 123.5px);
+  padding: 15px;
+  border-radius: 4px;
+  text-align: center;
+  box-shadow: darkShadow;
+  background-color: backgroundGray;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  color: blue;
+  filter: grayscale(0);
+}
+
+.Content {
+  background-color: gray;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.Features {
+  max-width: maxWidth;
+  width: 100%;
+  height: 500px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.Feature {
+  display: flex;
+  flex-flow: column;
+  justify-content: space-around;
+  padding: 20px;
+  height: 250px;
+  width: 220px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: lightShadow;
+  text-align: center;
+}
+
+.FTitle {
+  width: 100%;
+}
+
+.FIcon {
+  font-size: 50px;
+}
+
+.Examples {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  max-width: maxWidth;
+  width: 100%;
+  margin-bottom: 20px;
+}

@@ -2,7 +2,7 @@ import * as actionTypes from '../actions/actionTypes';
 
 const initialState = {
   username: '',
-  id: '',
+  _id: '',
   loggedIn: false,
   courses: [],
   courseNotifications: {},
@@ -20,7 +20,7 @@ const reducer = (state = initialState, action) => {
         ...state,
         loggedIn: true,
         username: action.user.username,
-        id: action.user._id,
+        _id: action.user._id,
         courses: action.user.courses,
         courseNotifications: action.user.courseNotifications,
         rooms: action.user.rooms,
@@ -35,7 +35,7 @@ const reducer = (state = initialState, action) => {
         courses: state.courses.concat(action.newCoursesArr)
       }
 
-    case actionTypes.ADD_USER_ASSIGNMENTS:
+    case actionTypes.ADD_USER_ACTIVITIES:
       return {
         ...state,
         activities: state.activities.concat(action.newActivitiesArr)
@@ -51,7 +51,7 @@ const reducer = (state = initialState, action) => {
       const courses = state.courses.filter(id => id !== action.courseId)
       return {...state, courses, }
 
-    case actionTypes.REMOVE_USER_ASSIGNMENTS:
+    case actionTypes.REMOVE_USER_ACTIVITIES:
       const activities = state.activities.filter(id => !action.activityIdsArr.includes(id))
       return {...state, activities,}
 

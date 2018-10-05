@@ -81,5 +81,34 @@ To run the tests restart the server in test mode `npm run test` and then in a ne
 * NB the create-react-app server still needs to be running on port 3000
 
 ## Project structure
+### Frontend (client)
+📁 src
+-- App.js
+-- 📁 Routes
+-- 📁 Containers
+-- 📁 Layout
+-- 📁 Components
+
+There are one million and one ways to structure a react app. I've found the following structure to work well enough.
+
+App.js serves as the entry point of the application and exposes the Redux store
+and react-router to the rest of the application.
+
+####📁 Routes
+There are two primary routes. `/` for
+guest users and `/myVMT` for logged in users.
+
+####📁 Containers
+Containers come in one of two forms. Either they inject props into a component from the redux store.
+Or they manage shared local (i.e. non-redux) state for two or more react components (or they do both). You can find an
+example of the former [here]() and the latter [here]()
+
+####📁 Layout
+The layout directory is for organizing...layouts. Each file roughly corresponds to a page.
+
+####📁 Components
+The reusable parts of the app live here
+
+#### Additional notes
 This project was bootstrapped with [this template](https://github.com/okputadora/MERN-template.git)
-refer to its README for information regarding the directory structure.
+refer to its README for additional information regarding the directory structure.

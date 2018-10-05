@@ -1,5 +1,11 @@
+:import('../../../colors.css') {
+  blue: blue;
+  orange: orange;
+  lightestShadow: lightestShadow;
+  lightShadow: lightShadow;
+}
+
 .Button {
-  color: #2D91F2;
   background-color: white;
   border: none;
   align-self: center;
@@ -9,10 +15,26 @@
   border: 1px solid #d3d2d4;
   transition: .2s;
   font-size: inherit;
+  letter-spacing: .1em;
   cursor: pointer;
+  box-shadow: lightestShadow;
 }
 
-.Button:hover {
+.Primary {
+  color: blue;
+}
+
+.Secondary {
   color: white;
-  background-color: #2f91f2;
+  background-color: orange;
+}
+
+.Primary:hover {
+  color: white;
+  background-color: blue;
+}
+
+.Secondary:hover {
+  color: white;
+  box-shadow: lightShadow;
 }

@@ -10,11 +10,14 @@ import Chat from './Chat';
 class Workspace extends Component {
 
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
-  
+
   componentDidMount() {
     const { updateRoom, room, user} = this.props;
+    if (!user) {
+      console.log('the user is not logged in')
+    }
     const sendData = {
-      userId: user.id,
+      userId: user._id,
       roomId: room._id,
       username: user.username,
       roomName: room.name,
@@ -25,7 +28,7 @@ class Workspace extends Component {
       }
       // WE COULD MAKE TAKE THIS OUT OF THE CALLBACK AND UPDATE IMMEDIATELY
       // AND THEN NOTIFY THE USER OF AN ERROR ONLY IF SOMETHING GOES WRONG
-      const updatedUsers = [...room.currentUsers, {_id: user.id, username: user.username}]
+      const updatedUsers = [...room.currentUsers, {_id: user._id, username: user.username}]
       updateRoom(room._id, {currentUsers: updatedUsers})
     })
 
@@ -41,23 +44,22 @@ class Workspace extends Component {
   componentWillUnmount () {
     const { updateRoom, room, user} = this.props;
     const data = {
-      userId: user.id,
+      userId: user._id,
       roomId: room._id,
       username: user.username,
       roomName: room.name,
     }
     this.socket.emit('LEAVE', data, (res) => {
-      updateRoom(room._id, {currentUsers: room.currentUsers.filter(u => u._id !== user.id)})
+      updateRoom(room._id, {currentUsers: room.currentUsers.filter(u => u._id !== user._id)})
       this.socket.disconnect();
     })
   }
 
   render() {
     const { room, user } = this.props;
-    console.log("current users", room.currentUsers)
     return (
       <WorkspaceLayout
-        members = {room.currentUsers}
+        members = {room ? room.currentUsers : []}
         graph = {room.roomType === 'geogebra' ?
           // I dont like that these need to be wrapped in functions 👇 could do
           // props.children but I like naming them.

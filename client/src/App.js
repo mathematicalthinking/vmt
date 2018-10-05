@@ -1,14 +1,19 @@
 import React from 'react';
-import Main from './Layout/Main';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import MyVmt from './Routes/MyVmt';
+import Home from './Routes/Home';
 import { Provider } from 'react-redux';
 import configureStore from './configureStore';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { Login} from './Containers';
 
 const store = configureStore();
 const App = props => (
   <Provider store={store}>
     <Router >
-      <Route path={'/'} component={Main} />
+      <Switch>
+        <Route path={'/'} component={Home} />
+        <Route path={'/myVMT'} component={MyVmt} />
+      </Switch>
     </Router>
   </Provider>
 );

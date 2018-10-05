@@ -1,18 +1,11 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import Input from '../../Components/Form/TextInput/TextInput';
-import Button from '../../Components/UI/Button/Button';
-import ContentBox from '../../Components/UI/ContentBox/ContentBox';
-import * as actions from '../../store/actions/';
-import GoogleSignIn from '../../Components/Form/Google/LoginButton';
-import Loading from '../../Components/UI/Modal/Ripple.gif';
-import Aux from '../../Components/HOC/Auxil';
-import Backdrop from '../../Components/UI/Backdrop/Backdrop';
+import React, { PureComponent } from 'react';
 import { Redirect } from 'react-router-dom';
-import glb from '../../global.css';
-import classes from './login.css'
-class Login extends Component {
-  // Im not really a fan of how this is setup anymore
+import Button from '../../Components/UI/Button/Button';
+import Aux from '../../Components/HOC/Auxil'
+import classes from './login.css';
+import Input from '../../Components/Form/TextInput/TextInput';
+class LoginLayout extends PureComponent {
+  // / Im not really a fan of how this is setup anymore
   state = {
     controls: {
       username: {
@@ -62,7 +55,6 @@ class Login extends Component {
       this.state.controls.password.value
     )
   }
-
   render() {
     const formElements = Object.keys(this.state.controls);
     const form = formElements.map(formElement => {
@@ -79,45 +71,28 @@ class Login extends Component {
         />
       )
     })
-
     return (
-      this.props.loggedIn ? <Redirect to='/profile/courses'/> :
-      <div className={classes.LoginContainer}>
-        <ContentBox title='Login' align='center'>
-          <form onSubmit={this.loginHandler} className={[glb.FlexCol, classes.Form].join(' ')}>
+      this.props.loggedIn ? <Redirect to='/myVMT/courses'/> :
+      <div className={classes.Container}>
+        <div className={classes.LoginContainer}>
+          <h2 className={classes.Title}>Login</h2>
+          <form onSubmit={this.loginHandler} className={classes.Form}>
             {form}
             <div className={classes.ErrorMsg}>{this.props.errorMessage}</div>
             {this.props.loading ?
               <Aux>
-                <Backdrop show={true} />
+                {/* <Backdrop show={true} /> */}
                 {/* <img className={classes.Loading} src={Loading} alt='loading' /> */}
               </Aux>
             : null}
             <Button>Login</Button>
           </form>
           <div>or</div>
-          <GoogleSignIn click={this.googleLogin} />
-        </ContentBox>
+          {/* <GoogleSignIn click={this.googleLogin} /> */}
+        </div>
       </div>
     )
   }
 }
 
-// connect react functions to redux actions
-const mapDispatchToProps = dispatch => {
-  return {
-    login: (username, password) => dispatch(actions.login(username, password)),
-    onGoogleLogin: (username, password) => dispatch(actions.googleLogin(username, password)),
-    clearError: () => dispatch(actions.clearError()),
-  }
-}
-
-// connect redux store to react props
-const mapStateToProps = store => {
-  return {
-    loggedIn: store.user.loggedIn,
-    errorMessage: store.loading.errorMessage,
-    loading: store.loading.loggingIn,
-  }
-}
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default LoginLayout;

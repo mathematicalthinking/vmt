@@ -1,18 +1,21 @@
 .Item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-basis: 100px;
   list-style-type: none;
   height: 100%;
+  transition: .2s ease-out;
+  /* border: 1px solid green; */
 }
 
 .Link {
   padding: 9px;
   color: white;
   letter-spacing: .07em;
-  height: 100%;
-  background-color: inherit;
-  transition: .1s ease-in;
 }
 
-.Link:hover {
+.Item:hover {
   color: white;
   background-color: #0078EC;
   text-decoration: none;

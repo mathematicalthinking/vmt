@@ -1,0 +1,36 @@
+:import('../../../colors.css') {
+  blue: blue;
+  darkShadow: darkShadow;
+}
+
+.Nav {
+  display: flex;
+  width: 100%;
+  height: 60px;
+  background-color: blue;
+  justify-content: center;
+  /* border-radius: 3px; */
+  box-shadow: darkShadow;
+  z-index: 1000;
+}
+
+.NavContainer {
+  display: flex;
+  justify-content: space-between;
+  height: 100%;
+  width: 1300px;
+}
+
+.NavList{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 50%;
+}
+
+.Logo {
+  font-size: 30px;
+  color: white;
+  display: flex;
+  align-items: center;
+}

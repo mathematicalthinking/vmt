@@ -47,7 +47,7 @@ class Chat extends Component {
     if (this.state.newMessage.length === 0) return;
     const newMessage = {
       text: this.state.newMessage,
-      user: {_id: user.id, username: user.username},
+      user: {_id: user._id, username: user.username},
       room: roomId,
       timestamp: new Date().getTime()
     }
@@ -72,8 +72,9 @@ class Chat extends Component {
   }
 
   render() {
+    console.log("MESSAGES: ", this.state.messages)
     return (
-      <ChatLayout messages={this.state.messages} change={this.changeHandler} submit={this.submitMessage}/>
+      <ChatLayout messages={this.state.messages} change={this.changeHandler} submit={this.submitMessage} />
     )
   }
 }

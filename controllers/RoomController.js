@@ -10,8 +10,9 @@ module.exports = {
       .find(params)
       .sort('-createdAt')
       .populate({path: 'members.user', select: 'username'})
+      .populate({path: 'currentUsers', select: 'username'})
       .then(rooms => {
-        rooms = rooms.map(room => room.summary())
+        rooms = rooms.map(room => room.tempRoom ? room : room.summary())
         resolve(rooms)})
       .catch(err => reject(err));
     });
@@ -36,18 +37,19 @@ module.exports = {
   },
   post: body => {
     return new Promise((resolve, reject) => {
-        db.Room.create(body)
-        .then(room => {
-          if (body.course) {
-            room.populate({path: 'course', select: 'name'})
-          }
-          room.populate({path: 'members.user', select: 'username'}, () => {
-            resolve(room)
-          })
-        })
-        .catch(err => {
-          console.log(err); reject(err)})
-      // }
+      db.Room.create(body)
+      .then(room => {
+        if (body.course) {
+          room.populate({path: 'course', select: 'name'})
+        }
+        room
+        .populate({path: 'members.user', select: 'username'})
+        .populate({path: 'currentUsers', select: 'username'}, function(){(resolve(room))}) //Hmm why no support for promise here?
+      })
+      .catch(err => {
+        console.log("why you know show me error")
+        console.log(err); reject(err)
+      })
     })
   },
 
@@ -70,7 +72,7 @@ module.exports = {
         .catch(err => reject(err))
       } else {
         db.Room.findByIdAndUpdate(id, body, {new: true})
-        .then(room => { console.log(room); resolve(body)})
+        .then(room => {resolve(body)})
         .catch(err => {console.log(err); reject(err)})
       }
     })
@@ -95,7 +97,8 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentUsers: userId}}, {new: true})
       .populate({path: 'currentUsers', select: 'username'})
-      .select('currentUsers events chat')
+      .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
+      .select('currentUsers events chat currentState tempId')
       .then(room => resolve(room))
       .catch(err => reject(err))
     })

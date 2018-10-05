@@ -49,7 +49,7 @@ class DesmosGraph extends Component {
         const newData = {
           room: this.props.room._id,
           event: this.calculator.getState(),
-          user: {_id: this.props.user.id, username: this.props.user.username},
+          user: {_id: this.props.user._id, username: this.props.user.username},
           timestamp: new Date().getTime()
         }
         console.log(newData.timestamp)

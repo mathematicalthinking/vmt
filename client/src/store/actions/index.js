@@ -13,7 +13,7 @@ export {
   updateUserCourseTemplates,
   removeUserCourse,
   removeUserRooms,
-  removeUserActivities, // ARE WE STORING ASSIGNMENTS ON THE USER OBJECT?
+  removeUserActivities, // ARE WE STORING ACTIVITIES ON THE USER OBJECT?
 } from './user';
 export {
   fail,

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import TextInput from '../Form/TextInput/TextInput';
 import classes from './chat.css';
+import Button from '../UI/Button/Button';
 import moment from 'moment';
 class Chat extends Component {
 
@@ -35,9 +36,9 @@ class Chat extends Component {
       <div className={classes.Container}>
         <div className={classes.ChatScroll} id='scrollable'>{displayMessages}</div>
         {!replayer ?
-          <div className={classes.ChatEntry}>
+          <div className={classes.ChatInput}>
             <TextInput autoComplete="off" change={change} type='text' name='message' />
-            <button onClick={submit}>send</button>
+            <Button click={submit}>send</Button>
           </div> : null
         }
       </div>

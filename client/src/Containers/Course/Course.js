@@ -35,7 +35,7 @@ class Course extends Component {
     let firstView = false;
     if (user.courseNotifications.access.filter(ntf => (ntf.notificationType === 'grantedAccess' && ntf._id === course._id)).length > 0) {
       firstView = true;
-      this.props.clearNotification(course._id, user.id, 'course', 'access')
+      this.props.clearNotification(course._id, user._id, 'course', 'access')
     }
     // check if we need to fetch data
     this.checkForFetch();
@@ -43,13 +43,13 @@ class Course extends Component {
     let updatedTabs = [...this.state.tabs];
     let owner = false;
     let member = false;
-    if (course.creator === user.id) {
+    if (course.creator === user._id) {
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
       this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}])
       owner = true;
     }
     if (course.members) {
-      if (course.members.find(member => member.user._id === user.id)) member = true;
+      if (course.members.find(member => member.user._id === user._id)) member = true;
       updatedTabs = this.displayNotifications(updatedTabs);
     }
     // Get Any other notifications
@@ -76,13 +76,13 @@ class Course extends Component {
   requestAccess = () => {
     const {course, user} = this.props;
     // HEY? WHY DO WE NEED COURSE.CREATOR RIGHT HERE
-    this.props.requestAccess(course.creator, user.id, 'course', course._id)
+    this.props.requestAccess(course.creator, user._id, 'course', course._id)
     this.props.history.push('/confirmation')
   }
 
   requestPublicAccess = () => {
     this.props.grantAccess(
-      {_id: this.props.user.id, username: this.props.user.username}, 'course', this.props.course._id
+      {_id: this.props.user._id, username: this.props.user.username}, 'course', this.props.course._id
     )
   }
 
@@ -90,7 +90,7 @@ class Course extends Component {
 
     const { user, course } = this.props;
     const { courseNotifications }= user
-    if (courseNotifications.access.length > 0 && course.creator === user.id) {
+    if (courseNotifications.access.length > 0 && course.creator === user._id) {
       tabs[2].notifications = courseNotifications.access.length;
     }
     if (courseNotifications.newRoom.length > 0){
@@ -120,7 +120,7 @@ class Course extends Component {
       parentResourceId: course._id,
       userResources: course[resource] || [],
       notifications:  user.courseNotifications || [],
-      userId: user.id,
+      userId: user._id,
       owner: this.state.owner,
     }
     console.log(contentData)

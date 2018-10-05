@@ -63,7 +63,7 @@ class Profile extends Component {
       resource,
       userResources: this.props[`user${resource}`] || [],
       notifications: (resource === 'courses') ? user.courseNotifications : user.roomNotifications,
-      userId: user.id
+      userId: user._id
     }
     return (
       // <Aux>

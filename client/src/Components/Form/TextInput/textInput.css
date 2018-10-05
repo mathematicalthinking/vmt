@@ -1,22 +1,18 @@
+.Container {
+  display: flex;
+  flex-flow: column;
+  margin-top: 10px;
+  font-size: 18px;
+  width: 100%;
+}
+
 .Input{
   /* width: 100%; */
-  padding: 5px;
-  margin: 10px;
+  padding: 10px;
   border-radius: 4px;
   background: white !important;
 }
 
 .Label {
-
+  margin-bottom: 10px;
 }
-
- /* uncomment to control autofill settings */
-/*
-.Input::placeholder {
-  color: white;
-}
-
-.Input:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0px 1000px white inset;
-    -webkit-text-fill-color: white;
-} */

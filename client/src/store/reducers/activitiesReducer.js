@@ -7,7 +7,7 @@ const initialState = {
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case actionTypes.GOT_ASSIGNMENTS:
+    case actionTypes.GOT_ACTIVITIES:
       let updatedActivities = merge({...state.byId}, action.byId)
       return {
         ...state,
@@ -15,7 +15,7 @@ const reducer = (state = initialState, action) => {
         allIds: action.allIds,
       };
 
-    case actionTypes.ADD_ASSIGNMENT:
+    case actionTypes.ADD_ACTIVITY:
       updatedActivities = {...state.byId};
       updatedActivities[action.activity._id] = action.activity;
       return {
@@ -23,7 +23,7 @@ const reducer = (state = initialState, action) => {
         byId: updatedActivities,
       }
 
-    case actionTypes.REMOVE_ASSIGNMENT:
+    case actionTypes.REMOVE_ACTIVITY:
       const updatedIds = state.allIds.filter(id => id !== action.activityId)
       const updatedById = {...state.byId}
       delete updatedById[action.activityId]
@@ -35,7 +35,7 @@ const reducer = (state = initialState, action) => {
 
     // @TODO if we've created a new activity alert the user so we can redirect
     // to the activity --> do this by updating the sto
-    case actionTypes.ADD_ASSIGNMENT_ROOMS:
+    case actionTypes.ADD_ACTIVITY_ROOMS:
       updatedActivities = {...state.byId};
       updatedActivities[action.activityId].rooms = updatedActivities[action.activityId].rooms.concat(action.roomIdsArr)
       return {
@@ -43,7 +43,7 @@ const reducer = (state = initialState, action) => {
         byId: updatedActivities,
       }
 
-    case actionTypes.CREATED_ASSIGNMENT:
+    case actionTypes.CREATED_ACTIVITY:
       updatedActivities = {...state.byId};
       updatedActivities[action.newActivity._id] = action.newActivity;
       return  {
@@ -52,13 +52,13 @@ const reducer = (state = initialState, action) => {
         allIds: [action.newActivity._id, ...state.allIds],
       }
 
-    case actionTypes.CLEAR_ASSIGNMENT:
+    case actionTypes.CLEAR_ACTIVITY:
       return {
         ...state,
         currentActivity: {},
       }
 
-    case actionTypes.CREATE_ASSIGNMENT_CONFIRMED:
+    case actionTypes.CREATE_ACTIVITY_CONFIRMED:
       return {
         ...state,
         createdNewActivity: false,

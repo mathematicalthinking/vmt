@@ -1,11 +1,10 @@
 import React from 'react';
 import classes from './textInput.css';
-import Aux from '../../HOC/Auxil';
 const TextInput = (props) => {
-  let autoComplete = props.type;
+  let autoComplete = props.autoComplete || props.type;
   if (props.type === 'password') {autoComplete = 'current-password'}
   return (
-    <Aux>
+    <div className={classes.Container}>
       {props.label ? <label className={classes.Label} htmlFor={props.name}>{props.label}</label> : null}
       <input
         autoComplete={autoComplete}
@@ -18,7 +17,7 @@ const TextInput = (props) => {
         value={props.value}
         style={{width: props.width}}
       />
-    </Aux>
+    </div>
   )
 }
 
