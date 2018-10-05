@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { Link } from 'react-router-dom';
-import randomString from 'crypto-random-string';
 import classes from './homepage.css';
 import BoxList from '../BoxList/BoxList'
 import Button from '../../Components/UI/Button/Button';
@@ -13,8 +12,24 @@ class Homepage extends PureComponent {
       this.props.getActivities();
     }
   }
+
+
+
+  createRoom = () => {
+    console.log(this.props.createRoom)
+    this.props.createRoom({
+      name: 'temp room',
+      tempRoom: true,
+      roomType: 'geogebra',
+    })
+    // .then(room => {
+    //   console.log(room)
+    //   this.props.history.push(`explore/${room._id}`)
+    // })
+  }
+
   render() {
-    const randomId = randomString(12);
+    console.log(this.props)
     const list = Object.keys(this.props.activities).map(id => this.props.activities[id]) || []
     return (
       <div>
@@ -23,7 +38,7 @@ class Homepage extends PureComponent {
             <div className={classes.Banner} >
               <div className={classes.GetStarted}>
                 <h2>Collaborative math spaces for teachers and students</h2>
-                <Button theme="secondary"><Link to={`/explore/${randomId}`}>Explore</Link></Button>
+                <Button theme="secondary" click={this.createRoom}>Explore</Button>
               </div>
             </div>
           </div>

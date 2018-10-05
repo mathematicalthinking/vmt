@@ -93,8 +93,10 @@ export const populateRoom = id => {
 }
 
 export const createRoom = body => {
+  console.log('creating room')
   return dispatch => {
     dispatch(loading.start())
+    console.log('loading')
     API.post('room', body)
     .then(res => {
       let result = res.data.result;

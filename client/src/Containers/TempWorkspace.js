@@ -21,16 +21,14 @@ class TempWorkspace extends Component {
   }
 
   setName = (event) => {
-    console.log(event.target.value)
     this.setState({tempUsername: event.target.value})
   }
 
   join = () => {
     let sendData = {
-      roomId: this.props.match.params.id,
-      roomName: `temp room ${this.props.match.params.id}`,
       username: this.state.tempUsername,
       tempRoom: true,
+      roomId: this.props.match.params.id || undefined,
     }
 
     this.socket.emit('JOIN', sendData, (res, err) => {
@@ -40,33 +38,41 @@ class TempWorkspace extends Component {
       this.setState({room: res.room,})
       this.setState({user: res.user})
       console.log("HELLO?", res.room)
+      
     })
 
     this.socket.on('USER_JOINED', data => {
-      console.log(data)
+      this.updateMembers(data.currentUsers)
     })
 
     this.socket.on('USER_LEFT', data => {
-      console.log(data)
+      this.updateMembers(data.currentUsers)
     })
 
-}
+  }
+
+  updateMembers = (newMembers) => {
+    const updatedRoom = {...this.state.room};
+    updatedRoom.currentUsers = newMembers;
+    this.setState({room: updatedRoom})
+  }
 
   componentWillUnmount () {
     const { room, user} = {...this.state};
     const data = {
       userId: user._id,
-      roomId: room._id,
+      roomId: this.props.match.params.id,
       username: user.username,
       roomName: room.name,
     }
-    this.socket.emit('LEAVE', data, (res) => {
-      // updateRoom(room._id, {currentUsers: room.currentUsers.filter(u => u._id !== user._id)})
-      this.socket.disconnect();
-    })
+    this.socket.disconnect(data);
+    // this.socket.emit('LEAVE', data, (res) => {
+    //   // updateRoom(room._id, {currentUsers: room.currentUsers.filter(u => u._id !== user._id)})
+    // })
   }
 
   render() {
+    console.log(this.props)
     console.log("ROOM: ", this.state.room)
     return (
       this.state.room ?

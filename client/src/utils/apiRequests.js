@@ -6,6 +6,7 @@ export default {
   },
 
   post: (resource, body) => {
+    console.log('posting: ', body, resource)
     return axios.post(`/api/${resource}`, body)
   },
 

@@ -36,17 +36,22 @@ module.exports = {
     });
   },
   post: body => {
+    console.log('psoting ', body)
     return new Promise((resolve, reject) => {
+      console.log("what du")
       db.Room.create(body)
       .then(room => {
+        console.log("hello? here")
         if (body.course) {
           room.populate({path: 'course', select: 'name'})
         }
         room
         .populate({path: 'members.user', select: 'username'})
         .populate({path: 'currentUsers', select: 'username'}, function(){(resolve(room))}) //Hmm why no support for promise here?
+        console.log("i bet the toruble is here")
       })
       .catch(err => {
+        console.log("why you know show me error")
         console.log(err); reject(err)
       })
     })
@@ -97,7 +102,7 @@ module.exports = {
       db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentUsers: userId}}, {new: true})
       .populate({path: 'currentUsers', select: 'username'})
       .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
-      .select('currentUsers events chat currentState')
+      .select('currentUsers events chat currentState tempId')
       .then(room => resolve(room))
       .catch(err => reject(err))
     })

@@ -17,6 +17,7 @@ class GgbGraph extends Component {
     this.socket = this.props.socket;
 
     this.socket.on('RECEIVE_EVENT', data => {
+      console.log('receiving event on front end')
       this.setState({receivingData: true}, () => {
         console.log('receiving data from other client')
         switch (data.eventType) {
@@ -123,7 +124,8 @@ class GgbGraph extends Component {
         definition,
         label,
         eventType,
-        room: room._id,
+        room: room.tempId ? room.tempId : room._id,
+        roomId: room._id,
         event: xml,
         description: `${user.username} ${action} ${xmlObj ? xmlObj.element.$.type : ''} ${label}`,
         user: {_id: user._id, username: user.username},

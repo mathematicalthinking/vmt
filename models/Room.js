@@ -24,13 +24,12 @@ const Room = new mongoose.Schema({
   events: {type: [{type: ObjectId, ref: 'Event', _id: false}], default: []},
   isPublic: {type: Boolean, default: false},
   tempRoom: {type: Boolean, default: false},
-  tempId: {type: String},
 },
 {timestamps: true});
 
 Room.pre('save', function (next) {
   // ON CREATION UPDATE THE CONNECTED MODELS
-  if (this.isNew) {
+  if (this.isNew & !this.tempRoom) {
     const promises = [];
     const users = this.members.map(member => member.user)
     promises.push(User.find({'_id': {$in: users}}))
@@ -53,7 +52,7 @@ Room.pre('save', function (next) {
       })
     })
     .catch(err => next(err))
-  } else {
+  } else if (!this.isNew) {
     const field = this.modifiedPaths().forEach(field => {
       if (field === 'members') {
         User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
@@ -62,6 +61,9 @@ Room.pre('save', function (next) {
         .catch(err => console.log(err))
       }
     })
+  }
+  else {
+    next()
   }
 });
 
