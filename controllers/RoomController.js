@@ -11,7 +11,6 @@ module.exports = {
       .sort('-createdAt')
       .populate({path: 'members.user', select: 'username'})
       .populate({path: 'currentUsers', select: 'username'})
-      .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .then(rooms => {
         rooms = rooms.map(room => room.tempRoom ? room : room.summary())
         resolve(rooms)})
@@ -97,6 +96,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentUsers: userId}}, {new: true})
       .populate({path: 'currentUsers', select: 'username'})
+      .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .select('currentUsers events chat currentState')
       .then(room => resolve(room))
       .catch(err => reject(err))

@@ -26,6 +26,7 @@ class Chat extends Component {
     // we dont want the chat to be live on replay
     if (!this.props.replaying) {
       this.props.socket.on('RECEIVE_MESSAGE', data => {
+        console.log("RECEIVED MESSAGE: ", data)
         let newMessages = [...this.state.messages, data]
         this.setState({
           messages: newMessages
@@ -72,6 +73,7 @@ class Chat extends Component {
   }
 
   render() {
+    console.log("MESSAGES: ", this.state.messages)
     return (
       <ChatLayout messages={this.state.messages} change={this.changeHandler} submit={this.submitMessage}/>
     )

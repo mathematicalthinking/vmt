@@ -39,8 +39,7 @@ sockets.init = server => {
               catch(err) {console.log(err)}
             } else {
               try {
-                room = await rooms[0].populate('events')
-                room = await controllers.room.addCurrentUsers(room._id, user._id)
+                room = await controllers.room.addCurrentUsers(rooms[0]._id, user._id)
               }
               catch(err) {
                 console.log("47: ",err)
@@ -57,6 +56,7 @@ sockets.init = server => {
             // io.in(data.roomId).emit('RECEIVE_MESSAGE', message)
             socket.broadcast.to(data.roomId).emit('USER_JOINED', {currentUsers: room.currentUsers, message,});
             // console.log(room)
+            console.log(room)
             callback({room, user, message}, null)
           }
           else {

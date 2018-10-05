@@ -67,6 +67,7 @@ class TempWorkspace extends Component {
   }
 
   render() {
+    console.log("ROOM: ", this.state.room)
     return (
       this.state.room ?
       <WorkspaceLayout
