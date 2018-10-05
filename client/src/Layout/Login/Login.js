@@ -56,6 +56,7 @@ class LoginLayout extends PureComponent {
     )
   }
   render() {
+    console.log(this.props)
     const formElements = Object.keys(this.state.controls);
     const form = formElements.map(formElement => {
       const elem = {...this.state.controls[formElement]}
@@ -78,7 +79,7 @@ class LoginLayout extends PureComponent {
           <h2 className={classes.Title}>Login</h2>
           <form onSubmit={this.loginHandler} className={classes.Form}>
             {form}
-            <div className={classes.ErrorMsg}>{this.props.errorMessage}</div>
+            {/* <div className={classes.ErrorMsg}>{this.props.errorMessage}</div> */}
             {this.props.loading ?
               <Aux>
                 {/* <Backdrop show={true} /> */}
