@@ -23,7 +23,7 @@ class Homepage extends PureComponent {
     }
   }
 
-
+  
   createRoom = () => {
     console.log(this.props.createRoom)
     this.props.createRoom({

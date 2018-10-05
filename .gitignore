@@ -1,3 +1,4 @@
 /node_modules/
 /concertChatApps/
 /cypress/integration/examples/
+.vscode
