@@ -1,7 +1,26 @@
 # VMT React
+Virtual Math Teams (VMT) provides a collaboration infrastructure for visual math and geometry tools, such as Geogebra and Desmos. To provide this infrastructure, this version uses React.js and Redux.js, express and sockets.io.  see 'Installation' below.
+
+## License
+
+* For non-commercial uses, this application is licensed under the [AGPL](https://www.gnu.org/licenses/agpl-3.0.en.html) license.
+* Any use of VMT for commercial purposes is subject to and requires a special license to be negotiated with Mathematical Thinking.
+* See [VMT license details](http://files.mathematicalthinking.org/vmt/license)
+
+
+## Installation (Technologies used)
+To provide the colloaboration infrastructure, this application uses a combination of:
+
+* [MongoDB](http://www.mongodb.org/),
+* [Express](http://expressjs.com/),
+* [Socket.io](https://socket.io/),
+* [React.js](https://reactjs.org/),
+* [Redux](https://redux.js.org/),
+* [Node.js](http://nodejs.org/)
+
 
 ## Setup for local Development
-1. `$ git clone https://github.com/okputadora/mern-vmt`
+1. Fork this repo ([instructions](https://github.com/mathematicalthinking/vmt/blob/master/docs/gitForkRepo.md))
 1. `$ npm install`
 1. `$ nodemon`
 1. open a new console tab
