@@ -4,6 +4,8 @@ import classes from './navbar.css';
 const navbar = (props) => {
   return (
     <nav className={classes.NavContainer}>
+    <div className={classes.SubContainer}>
+      <div className={classes.Logo}>Logo</div>
       <ul className={classes.NavList}>
         <NavItem link='/users/new' name='Login/Signup' />
         <NavItem link='/publicList/courses' name='Courses' />
@@ -12,6 +14,7 @@ const navbar = (props) => {
         <NavItem link='/rooms/new' name='Community' />
         <NavItem link='/logout' name='Logout' />
       </ul>
+    </div>
     </nav>
   )
 }

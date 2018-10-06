@@ -3,11 +3,12 @@
   flex-flow: column;
   position: relative;
   background-color: #fdfdfd;
-  width: 98%;
+  width: 80%;
+  align-self: center;
   border: 1px solid #ddd;
   border-top: 1px solid #75b7f6;
   min-height: calc(100vh - 220px);
-  margin-bottom: 50px;
+  margin: 50px auto;
   padding: 0 20px 20px 20px;
 }
 
