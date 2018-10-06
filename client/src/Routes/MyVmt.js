@@ -5,7 +5,7 @@ import Room from '../Containers/Room/Room';
 import Course from '../Containers/Course/Course';
 import Activity from '../Containers/Activity/Activity';
 import PublicList from '../Containers/PublicList/PublicList';
-import Profile from '../Containers/Profile/Profile';
+import MyVMT from '../Containers/MyVMT';
 // import Dashboard from '../Layout/Dashboard/Dashboard';
 // import Activities from '../Containers/Activities/Activities';
 import Avatar from '../Components/UI/Avatar/Avatar';
@@ -33,9 +33,8 @@ class MyVmt extends Component {
       //   </div>
       <Aux>
         <Navbar />
-        <section className={classes.Section}>
           <Switch>
-            <PrivateRoute path={`${this.props.match.path}/:resource`} authed={this.props.loggedIn} component={Profile}/>
+            <PrivateRoute path={`${this.props.match.path}/:resource`} authed={this.props.loggedIn} component={MyVMT}/>
             {/* <Route exact path='/publicList/:resource' component={PublicList}/>
             <Route exact path='/publicResource/room/:room_id/:resource' component={Room}/>
             <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />
@@ -55,7 +54,6 @@ class MyVmt extends Component {
               // ^ @TODO 404 page
             }}/>
           </Switch>
-        </section>
       </Aux>
     )
   }
