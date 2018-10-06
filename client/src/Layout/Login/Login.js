@@ -79,7 +79,7 @@ class LoginLayout extends PureComponent {
           <h2 className={classes.Title}>Login</h2>
           <form onSubmit={this.loginHandler} className={classes.Form}>
             {form}
-            {/* <div className={classes.ErrorMsg}>{this.props.errorMessage}</div> */}
+            <div className={classes.ErrorMsg}>{this.props.errorMessage}</div>
             {this.props.loading ?
               <Aux>
                 {/* <Backdrop show={true} /> */}

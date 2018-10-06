@@ -1,4 +1,4 @@
-const user = require('../fixtures/user')
+const user = require('../fixtures/user') // <-- this is not how you use fixtures
 
 describe('user signup/login', function() {
   before(function() {
@@ -6,8 +6,8 @@ describe('user signup/login', function() {
   })
   beforeEach(function(){
     cy.window().then((win) => {
-      win.sessionStorage.clear()
       cy.visit('/')
+      win.sessionStorage.clear()
     })
   })
   it('signs up a new user', function() {
@@ -22,11 +22,35 @@ describe('user signup/login', function() {
     cy.url().should('include', '/myVMT')
   })
   it('logs in the user we just created', function() {
-    cy.reload(true)
     cy.contains('Login').click()
     cy.get('input[name=username]').type(user.username)
     cy.get('input[name=password]').type(user.password)
     cy.get('button').click()
     cy.url().should('include', '/myVMT')
+  })
+  it('fails to sign up a user with the same username', function(){
+    cy.contains('Signup').click()
+    cy.url().should('include', 'signup')
+    cy.get('input[name=firstName]').type(user.firstName)
+    cy.get('input[name=lastName]').type(user.lastName)
+    cy.get('input[name=username]').type(user.username)
+    cy.get('input[name=email]').type(user.email)
+    cy.get('input[name=password]').type(user.password)
+    cy.get('button').click()
+    cy.get('.signup__ErrorMsg__4x6oZ').should('have.text', 'That username is already taken.')
+  }) 
+  it('fails to login with wrong password', function(){
+    cy.contains('Login').click()
+    cy.get('input[name=username]').type(user.username)
+    cy.get('input[name=password]').type('incorrect password')
+    cy.get('button').click()
+    cy.get('.login__ErrorMsg__dvYQ-').should('have.text', 'The password you entered is incorrect')
+  })
+  it('fails to login with wrong username', function(){
+    cy.contains('Login').click()
+    cy.get('input[name=username]').type('incorrect username')
+    cy.get('input[name=password]').type(user.password)
+    cy.get('button').click()
+    cy.get('.login__ErrorMsg__dvYQ-').should('have.text', 'That username does not exist. If you want to create an account go to Register')
   })
 })

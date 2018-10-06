@@ -101,6 +101,7 @@ export const login = (username, password) => {
     dispatch(loading.start());
     auth.login(username, password)
     .then(res => {
+      console.log(res.data)
       if (res.data.errorMessage) {return dispatch(loading.fail(res.data.errorMessage))}
       const courses = normalize(res.data.courses)
       // const activities = normalize(res.data.activities)
@@ -113,6 +114,7 @@ export const login = (username, password) => {
       return dispatch(loading.success());
     })
     .catch(err => {
+      console.log(err)
       dispatch(loading.fail(err.response.statusText))
     })
   }

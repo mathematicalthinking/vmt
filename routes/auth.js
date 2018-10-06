@@ -1,26 +1,23 @@
 /**
  * # Auth API
- * @description This is the API passport authentication
+ * @description API passport authentication
  * @author Michael McVeigh
  */
 
-//REQUIRE MODULES
 const passport = require('passport');
 const express = require('express')
 const router = express.Router()
 
-//REQUIRE FILES
-const controllers = require('../controllers')
-
 router.post('/login', (req, res, next) => {
   passport.authenticate('local-login', (err, user, info) => {
-    console.log(user)
     if (user) {
       return res.json(user)
     }
     if (info) {
+      // if (info.errorMessage) return res.status(401).send({message: info})
       return res.json(info)
     }
+    console.log("we should never get here huh?")
     res.status(401).send({message: info})
     // res.json({message: 'success'})
   })(req, res, next);
