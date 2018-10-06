@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import DashboardLayout from '../../Layout/Dashboard/Dashboard';
+import DashboardLayout from '../Layout/Dashboard/Dashboard';
 // import Activities from '../Activities/Activities';
-import { getUserResources }from '../../store/reducers/';
+import { getUserResources }from '../store/reducers';
 import { connect } from 'react-redux';
-import * as actions from '../../store/actions'
+import * as actions from '../store/actions'
 
 class Profile extends Component {
   state = {
@@ -11,7 +11,6 @@ class Profile extends Component {
       {name: 'Courses'},
       {name: 'Activities'},
       {name: 'Rooms'},
-      {name: 'Settings'},
     ],
     touring: false,
   }
