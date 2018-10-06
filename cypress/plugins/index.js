@@ -12,6 +12,7 @@
 // the project's config changing)
 const models = require('../../models');
 const room = require ('../fixtures/room');
+const exec = require('child_process').exec
 const mongoose = require('mongoose');
 const data = [
   {
@@ -30,8 +31,9 @@ module.exports = (on, config) => {
       return mongoose.connect('mongodb://localhost/vmt-test')
       .then(() => mongoose.connection.db.dropDatabase())
     },
-    seedDB: () => {
-      cy.exec('md-seed run --dropdb')
+    seedDB: async () => {
+      await exec('md-seed run --dropdb')
+      return 'sucess';
     }
   })
 }

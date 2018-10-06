@@ -22,6 +22,7 @@ import { Route, Switch } from 'react-router-dom';
 
 class MyVmt extends Component {
   render() {
+    console.log(this.props.match)
     console.log('main rendering')
     return (
       // <main className={classes.Main}>
@@ -34,10 +35,10 @@ class MyVmt extends Component {
         <Navbar />
         <section className={classes.Section}>
           <Switch>
-            <Route exact path='/publicList/:resource' component={PublicList}/>
+            <PrivateRoute path={`${this.props.match.path}/:resource`} authed={this.props.loggedIn} component={Profile}/>
+            {/* <Route exact path='/publicList/:resource' component={PublicList}/>
             <Route exact path='/publicResource/room/:room_id/:resource' component={Room}/>
             <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />
-            <PrivateRoute exact path='/profile/:resource' authed={this.props.loggedIn} component={Profile}/>
             <PrivateRoute exact path = '/profile/courses/:course_id/:resource' authed={this.props.loggedIn} component={Course}/>
             <PrivateRoute exact path='/profile/courses/:course_id/activities/:activity_id/:resource' authed={this.props.loggedIn} component={Activity} />
             <PrivateRoute exact path='/profile/activities/:activity_id/:resource' authed={this.props.loggedIn} component={Activity} />
@@ -47,7 +48,7 @@ class MyVmt extends Component {
             <PrivateRoute expact path = '/workspace/:room_id' authed={this.props.loggedIn} component={Workspace} />
             <Route exact path='/dashboard/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room}/>
             {/* <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Activities}/> */}
-            <Route path='/confirmation' component={Confirmation} />
+            <Route path='/confirmation' component={Confirmation} /> */}
             {/* <Route exact path='/logout' component={Login}/> */}
             <Route path="*" render={() => {
               return (<div>Error</div>)
