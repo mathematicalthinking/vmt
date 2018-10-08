@@ -74,6 +74,18 @@ export const courseRemoved = (courseId) => {
   }
 }
 
+export const updateCourseMembers = (courseId, updatedMembers) => {
+
+  return dispatch => {
+    API.updateMembers('course', courseId, updatedMembers)
+    .then(res => {
+      console.log(res)
+      dispatch(updateCourse(courseId, res.data.result))
+    })
+    .catch(err => console.log(err))
+  }
+}
+
 export const removeCourse = courseId => {
   return dispatch => {
     dispatch(loading.start())

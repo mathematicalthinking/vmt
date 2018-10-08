@@ -74,8 +74,11 @@ router.post('/:action', (req, res, next) => {
 })
 
 router.put('/:resource/:id', (req, res, next) => {
+	console.log("IN THE PUT ROUTE")
   const resource = req.params.resource;
-  const controller = controllers[resource];
+	const controller = controllers[resource];
+	console.log(resource)
+	console.log(req.body)
   if (controller == null){
 		return res.json(defaultError)
 	}
