@@ -8,8 +8,7 @@ describe('create each type of resource', function(){
     cy.window((win) => {
       win.sessionStorage.clear()
     })
-    cy.task('seedDB')
-    cy.login()
+    cy.task('seedDB').then(() => cy.login())
     // cy.visit('/myVMT/courses')
   })
   it('creates a course', function(){

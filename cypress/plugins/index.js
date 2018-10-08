@@ -31,9 +31,12 @@ module.exports = (on, config) => {
       return mongoose.connect('mongodb://localhost/vmt-test')
       .then(() => mongoose.connection.db.dropDatabase())
     },
-    seedDB: async () => {
-      await exec('md-seed run --dropdb')
-      return 'success';
+    seedDB: () => {
+      return new Promise((resolve, reject) => {
+        exec('md-seed run --dropdb', () => {
+          return resolve('success')
+        })
+      })
     }
   })
 }
