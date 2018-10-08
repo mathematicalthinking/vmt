@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import {getCourses, getActivities} from '../store/actions/';
+import { getCourses, getActivities, getRooms } from '../store/actions/';
 import { CommunityLayout } from '../Layout';
 
 class Community extends Component {
@@ -11,7 +11,7 @@ class Community extends Component {
   allResources = [];
   componentDidUpdate(prevProps, prevState) {
       // if resource changed see if we need to fetch the data
-    const resource = this.props.match.params.resource;
+    const { resource } = this.props.match.params;
     const resourceList = this.props[`${resource}Arr`].map(id => this.props[resource][id])
     if (prevProps.match.params.resource !== resource) {
       if (resourceList.length < 50) {
@@ -45,7 +45,8 @@ class Community extends Component {
   }
 
   fetchData = resource => {
-    if (resource === 'rooms') this.props.getRooms();
+    if (resource === 'courses') this.props.getCourses();
+    else if (resource === 'rooms') this.props.getRooms();
     else this.props.getActivities();
   }
 
@@ -64,14 +65,22 @@ class Community extends Component {
     let linkPath; let linkSuffix;
     // @ TODO conditional logic for displaying room in dahsboard if it belongs to the user
     if (this.props.match.params.resource === 'courses') {
-      linkPath = '/profile/courses/';
+      linkPath = '/myVMT/courses/';
       linkSuffix = '/rooms'
-    } else {
-      linkPath = '/profile/rooms/';
+    } else if(this.props.match.params.resource === 'rooms') {
+      linkPath = '/myVMT/rooms/';
       linkSuffix = '/summary';
+    } else {
+      linkPath = '/myVMT/activities';
+      linkSuffix = '/details';
     }
     return (
-        <CommunityLayout {...this.props} visibleResources={this.state.visibleResources}/>
+        <CommunityLayout 
+          visibleResources={this.state.visibleResources} 
+          resource={this.props.match.params.resource}
+          linkPath={linkPath}
+          linkSuffix={linkSuffix}
+        />
     )
   }
 }
@@ -82,7 +91,9 @@ const mapStateToProps = store => {
     coursesArr: store.courses.allIds,
     activities: store.activities.byId,
     activitiesArr: store.activities.allIds,
+    rooms: store.rooms.byId,
+    roomsArr: store.rooms.allIds,
   }
 }
 
-export default connect(mapStateToProps, {getCourses, getActivities})(Community);
+export default connect(mapStateToProps, {getCourses, getActivities, getRooms, })(Community);

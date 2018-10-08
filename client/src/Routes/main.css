@@ -1,9 +1,10 @@
-.Main {
+.Container {
   display: flex;
   flex-flow: column;
-  align-items: center;
-  width: 100vw;
+  align-self: center;
+  width: 100%;
   min-height: 100vh;
+  max-width: 1300px;
 }
 
 .Image {

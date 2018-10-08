@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import Aux from '../../HOC/Auxil';
 import classes from './homeNav.css';
 const navbar = (props) => {
-  console.log("NAVBAR PROPS: ", props)
   return (
     <nav className={classes.Nav}>
       <div className={classes.NavContainer}>

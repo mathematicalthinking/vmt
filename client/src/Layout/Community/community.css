@@ -1,0 +1,13 @@
+.Container {
+  margin-top: 48px;
+}
+
+.Title {
+  font-size: 30px;
+  text-align: center;
+  border-bottom: none;
+}
+
+.List {
+  margin-top: 20px;
+}
