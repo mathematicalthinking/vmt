@@ -13,9 +13,12 @@ class Profile extends Component {
       {name: 'Rooms'},
     ],
     touring: false,
+    teacherView: false,
   }
 
   componentDidMount() {
+    console.log(this.props)
+    this.setState({teacherView: this.props.user.accountType === 'teacher'})
     this.updateTabs();
   }
 
@@ -67,12 +70,13 @@ class Profile extends Component {
     return (
       // <Aux>
         <DashboardLayout
-          routingInfo={this.props.match}
+          routingInfo={match}
           title='Profile'
           crumbs={[{title: 'Profile', link: '/profile/courses'}]}
-          sidePanelTitle={this.props.user.username}
+          sidePanelTitle={user.username}
           contentData={contentData}
           tabs={this.state.tabs}
+          user={user}
         />
       // </Aux>
     )
