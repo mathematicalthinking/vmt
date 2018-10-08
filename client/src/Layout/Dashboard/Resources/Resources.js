@@ -12,7 +12,7 @@ const resources = props => {
       resource.creator !== props.userId
     ))
 
-    let linkPath =`/profile/${props.resource}/`
+    let linkPath =`/myVMT/${props.resource}/`
     let linkSuffix = props.resource === 'courses' ? '/activities' : '/summary';
     if (props.resource === 'courses') {
       linkSuffix = '/activities'
@@ -21,7 +21,7 @@ const resources = props => {
     } else {linkSuffix = '/summary'}
     const displayResource = props.resource[0].toUpperCase() + props.resource.slice(1);
     if (props.parentResource === 'courses') {
-      linkPath = `/profile/${props.parentResource}/${props.parentResourceId}/${props.resource}/`
+      linkPath = `/myVMT/${props.parentResource}/${props.parentResourceId}/${props.resource}/`
       linkSuffix = '/details'
     }
     return (

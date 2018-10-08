@@ -32,13 +32,14 @@ class NewResource extends Component {
   }
 
   submitForm = event => {
+    console.log(this.props.userID)
     event.preventDefault();
     // const roomIds = this.state.rooms.map(room => room.id);
     const newResource = {
       name: this.state[`${this.props.resource}Name`],
       description: this.state.description,
       // rooms: roomIds,
-      members: [{user: this.props.userId, role: 'teacher'}], // @TODO Do we want to default the creator to a teacher?
+      members: [{user: {_id: this.props.userId, username: this.props.username}, role: 'teacher'}], // @TODO Do we want to default the creator to a teacher?
       creator: this.props.userId,
       isPublic: this.state.isPublic,
     }
@@ -58,6 +59,7 @@ class NewResource extends Component {
       // BECAUSE ACTIVITIES AND ROOMS ARE PRETTY MUCH THE SAME AN IF?ELSE BLOCK WOULD ACTUALLY BE MORE EFFICIENT
       switch (this.props.resource) {
         case 'courses' :
+          console.log(newResource)
           this.props.createCourse(newResource);
           break;
         case 'activities' :
@@ -171,6 +173,7 @@ const mapStateToProps = store => {
     myRooms: store.user.rooms,
     rooms: store.rooms.rooms,
     userId: store.user._id,
+    username: store.user.username,
   }
 }
 

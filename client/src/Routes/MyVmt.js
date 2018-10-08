@@ -22,8 +22,7 @@ import { Route, Switch } from 'react-router-dom';
 
 class MyVmt extends Component {
   render() {
-    console.log(this.props.match)
-    console.log('main rendering')
+    const { path } = this.props.match
     return (
       // <main className={classes.Main}>
       //   {/* <div className={classes.Particles} id='particles-js'></div> */}
@@ -34,12 +33,12 @@ class MyVmt extends Component {
       <Aux>
         <Navbar />
           <Switch>
-            <PrivateRoute path={`${this.props.match.path}/:resource`} authed={this.props.loggedIn} component={MyVMT}/>
+            <PrivateRoute exact path={`${path}/:resource`} authed={this.props.loggedIn} component={MyVMT}/>
+            <PrivateRoute exact path = {`${path}/courses/:course_id/:resource`} authed={this.props.loggedIn} component={Course}/>
+            <PrivateRoute exact path={+} authed={this.props.loggedIn} component={Activity} />
             {/* <Route exact path='/publicList/:resource' component={PublicList}/>
             <Route exact path='/publicResource/room/:room_id/:resource' component={Room}/>
             <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />
-            <PrivateRoute exact path = '/profile/courses/:course_id/:resource' authed={this.props.loggedIn} component={Course}/>
-            <PrivateRoute exact path='/profile/courses/:course_id/activities/:activity_id/:resource' authed={this.props.loggedIn} component={Activity} />
             <PrivateRoute exact path='/profile/activities/:activity_id/:resource' authed={this.props.loggedIn} component={Activity} />
             <PrivateRoute exact path = '/profile/rooms/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
             <PrivateRoute exact path = '/profile/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
