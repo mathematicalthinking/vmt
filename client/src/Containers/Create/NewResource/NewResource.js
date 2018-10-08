@@ -31,6 +31,10 @@ class NewResource extends Component {
     })
   }
 
+  showModal = () => {
+    this.setState({creating: true})
+  }
+
   submitForm = event => {
     console.log(this.props.userID)
     event.preventDefault();
@@ -161,8 +165,9 @@ class NewResource extends Component {
             </form>
           </div>
         </Modal>
-        <Button click={() => {this.setState({creating: true})}}>Create A New {displayResource} {this.props.template ? 'Template' : null}</Button>
-        {!this.props.template ? <Button click={() => this.setState({creating: true})}>Create From Template</Button> : null}
+        <Button click={this.showModal}>Create A New {displayResource}</Button>
+        {(resource === 'activities') ? <Button click={this.showModal}>Select an existing {displayResource}</Button> : null}
+        {(resource === 'rooms') ? <Button click={this.showModal}>Create from an Activity</Button> : null}
       </Aux>
     )
   }
