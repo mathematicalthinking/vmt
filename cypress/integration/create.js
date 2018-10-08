@@ -56,7 +56,7 @@ describe('create each type of resource', function(){
 
   it('creates a course room', function(){
     cy.get('.tabList__Tabs__2HZYa').contains('Rooms').click()
-    cy.url().should('include', '/profile/courses')
+    cy.url().should('include', '/myVMT/courses')
     cy.url().should('include', '/rooms')
     cy.get('button').contains('Create A New Room').click()
     cy.get('input[name=roomsName]').type('{selectall} {backspace}').type(course.room.name)
