@@ -28,6 +28,8 @@ const reducer = (state = initialState, action) => {
         courseTemplates: action.user.courseTemplates,
         activities: action.user.activities,
         seenTour: action.user.seenTour,
+        accountType: action.user.accountType,
+        bothRoles: action.user.bothRoles,
       }
     case actionTypes.ADD_USER_COURSES:
       return {

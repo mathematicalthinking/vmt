@@ -27,7 +27,7 @@ const resources = props => {
     return (
       <div>
         {props.parentResource !== 'activities' ? <NewResource resource={props.resource} courseId={props.parentResource === 'courses'?  props.parentResourceId : null}/> : null}
-        <h2>{displayResource} I Own</h2>
+        <h2>My {displayResource}</h2>
         <BoxList
           list={ownedResources}
           linkPath={linkPath}
@@ -35,15 +35,7 @@ const resources = props => {
           notifications = {props.notifications}
           resource = {props.resource}
           listType = 'private'
-          draggable
-        />
-        <h2>{displayResource} I'm Enrolled in</h2>
-        <BoxList
-          list={enrolledResources}
-          linkPath={linkPath}
-          linkSuffix={linkSuffix}
-          notifications = {props.notifications}
-          listType = 'private'
+          // draggable
         />
       </div>
     )
