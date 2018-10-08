@@ -6,7 +6,7 @@ describe('user signup/login', function() {
   })
   beforeEach(function(){
     cy.window().then((win) => {
-      cy.visit('/')
+      cy.visit('')
       win.sessionStorage.clear()
     })
   })
@@ -19,14 +19,14 @@ describe('user signup/login', function() {
     cy.get('input[name=email]').type(user.email)
     cy.get('input[name=password]').type(user.password)
     cy.get('button').click()
-    cy.url().should('include', '/myVMT')
+    cy.url().should('include', '/myVMT/courses')
   })
   it('logs in the user we just created', function() {
     cy.contains('Login').click()
     cy.get('input[name=username]').type(user.username)
     cy.get('input[name=password]').type(user.password)
     cy.get('button').click()
-    cy.url().should('include', '/myVMT')
+    cy.url().should('include', '/myVMT/courses')
   })
   it('fails to sign up a user with the same username', function(){
     cy.contains('Signup').click()
