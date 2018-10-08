@@ -1,4 +1,4 @@
-const user = require('../fixtures/user') // <-- this is not how you use fixtures
+const user = require('../fixtures/user2') // <-- this is not how you use fixtures, yeah whatever it works
 
 describe('user signup/login', function() {
   before(function() {
