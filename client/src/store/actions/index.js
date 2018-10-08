@@ -51,6 +51,7 @@ export {
   updateCourseActivities,
   clearCurrentCourse,
   populateCurrentCourse,
+  updateCourseMembers,
 } from './courses';
 export {
   getCourseTemplates,
