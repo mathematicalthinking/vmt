@@ -123,10 +123,6 @@ export const login = (username, password) => {
 // ENTRY CODE IS OPTIONAL
 // WE SHOULD JUST SEPARATE OUT CHECKROOMACCESS into the ROOM ACTIONS FILE
 export const requestAccess = (toUser, fromUser, resource, resourceId, entryCode) => {
-  console.log(toUser)
-  console.log(fromUser)
-  console.log(resource)
-  console.log(entryCode)
   return dispatch => {
     dispatch(loading.start());
     if (resource === 'room' && entryCode) {
@@ -141,7 +137,6 @@ export const requestAccess = (toUser, fromUser, resource, resourceId, entryCode)
       })
       .catch(err => loading.fail(err))
     } else {
-      console.log("REQUESTING ACCESS")
       API.requestAccess(toUser, fromUser, resource, resourceId)
       .then(res => {
         return dispatch(loading.accessSuccess())
@@ -155,14 +150,16 @@ export const requestAccess = (toUser, fromUser, resource, resourceId, entryCode)
 export const grantAccess = (user, resource, resourceId) => {
   return dispatch => {
     console.log(user, resource, resourceId)
+    let apiResource = resource.slice(0, -1);
+    if (apiResource === 'activitie') apiResource = 'activity';
     dispatch(loading.start())
-    API.grantAccess(user, resource, resourceId)
+    API.grantAccess(user, apiResource, resourceId)
     .then(res => {
       if (resource === 'room') {
         return dispatch(updateRoom(resourceId, {members: res.data.result.members}))
       }
       console.log(res.data.result)
-      dispatch(updateUserAccessNtfs(resource, user))
+      dispatch(updateUserAccessNtfs(apiResource, user))
       dispatch(loading.success())
       // dispatch(updateCourse(res.data.result))
     })

@@ -8,9 +8,9 @@
 
 .Row {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  width: 150px;
+  width: 250px;
 }
 
 .Role {
