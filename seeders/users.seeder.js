@@ -20,10 +20,7 @@ var data = [
     "newRoom": []
   },
   "courseTemplates": [],
-  "courses": [],
-  "rooms": [
-    "5ba289c57223b9429888b9b5",
-  ],
+  "courses": ["5bbb82f72539b95500cf526e"],
   "activities": [],
   "isAdmin": false,
   "seenTour": false,
@@ -33,9 +30,29 @@ var data = [
   "lastName": "picard",
   "password": "$2b$12$xI0a6mVLlVoFYeVsmU2XrOVowVVphu9ORSD9EVHG6lzWMvfP8cgES",
   "accountType": "student",
-  "createdAt": "2018-09-19T17:39:06.857Z",
-  "updatedAt": "2018-09-19T18:13:24.216Z",
   "__v": 2
+},
+{
+  "_id": "5bbbbd9a799302265829f5af",
+  "roomNotifications": {
+    "access": [],
+    "newRoom": []
+  },
+  "courseNotifications": {
+    "access": [],
+    "newRoom": []
+  },
+  "courseTemplates": [],
+  "courses": [],
+  "activities": [],
+  "isAdmin": false,
+  "seenTour": false,
+  "username": "g-laforge",
+  "email": "",
+  "firstName": "Geordi",
+  "lastName": "Laforge",
+  "password": "$2b$12$YNI6y1M6u4/Y4mAP.E312OYN./uTIJqKGfUREnhNJ8vs8t/4hbAua",
+  "accountType": "student",
 }
 ];
 
@@ -45,7 +62,7 @@ var UsersSeeder = Seeder.extend({
   },
   run: function () {
     return User.create(data);
-  }
+  },
 });
 
 module.exports = UsersSeeder;

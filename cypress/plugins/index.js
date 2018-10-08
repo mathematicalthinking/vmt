@@ -31,11 +31,14 @@ module.exports = (on, config) => {
       return mongoose.connect('mongodb://localhost/vmt-test')
       .then(() => mongoose.connection.db.dropDatabase())
     },
-    seedDB: () => {
+    seedDBLogin: () => {
       return new Promise((resolve, reject) => {
-        exec('md-seed run --dropdb', () => {
-          return resolve('success')
-        })
+        exec('md-seed run users --dropdb', () => resolve('success'))
+      })
+    },
+    seedDBAccess: () => {
+      return new Promise((resolve, reject) => {
+        exec('md-seed run users courses --dropdb', () => resolve('success'))
       })
     }
   })

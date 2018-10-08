@@ -5,12 +5,12 @@ import NewResource from '../../../Containers/Create/NewResource/NewResource';
 const resources = props => {
     // @TODO Is there a way to do this passing over the array only once?
     console.log(props.userResources)
-    const ownedResources = props.userResources.filter(resource => (
-      resource.creator === props.userId
-    ))
-    const enrolledResources = props.userResources.filter(resource => (
-      resource.creator !== props.userId
-    ))
+    // const ownedResources = props.userResources.filter(resource => (
+    //   resource.creator === props.userId
+    // ))
+    // const enrolledResources = props.userResources.filter(resource => (
+    //   resource.creator !== props.userId
+    // ))
 
     let linkPath =`/myVMT/${props.resource}/`
     let linkSuffix = props.resource === 'courses' ? '/activities' : '/summary';
@@ -29,7 +29,7 @@ const resources = props => {
         {props.parentResource !== 'activities' ? <NewResource resource={props.resource} courseId={props.parentResource === 'courses'?  props.parentResourceId : null}/> : null}
         <h2>My {displayResource}</h2>
         <BoxList
-          list={ownedResources}
+          list={props.userResources}
           linkPath={linkPath}
           linkSuffix={linkSuffix}
           notifications = {props.notifications}
