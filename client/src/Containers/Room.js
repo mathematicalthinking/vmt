@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import * as actions from '../../store/actions/';
-import DashboardLayout from '../../Layout/Dashboard/Dashboard';
-import Aux from '../../Components/HOC/Auxil';
-import PrivateRoomAccessModal from '../../Components/UI/Modal/PrivateRoomAccess';
-import PublicAccessModal from '../../Components/UI/Modal/PublicAccess'
+import * as actions from '../store/actions';
+import DashboardLayout from '../Layout/Dashboard/Dashboard';
+import Aux from '../Components/HOC/Auxil';
+import PrivateRoomAccessModal from '../Components/UI/Modal/PrivateRoomAccess';
+import PublicAccessModal from '../Components/UI/Modal/PublicAccess'
 // import Students from './Students/Students';
 class Room extends Component {
   state = {
@@ -29,8 +29,8 @@ class Room extends Component {
     let updatedTabs = [...this.state.tabs];
     let owner = false;
     if (room.creator === user._id) {
-      updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
-      this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}])
+      updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
+      this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
       owner = true;
     }
     if (room.members) {
