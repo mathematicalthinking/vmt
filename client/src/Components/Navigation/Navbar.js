@@ -7,7 +7,7 @@ const navbar = (props) => {
     <div className={classes.SubContainer}>
       <div className={classes.Logo}>Logo</div>
       <ul className={classes.NavList}>
-        <NavItem link='/community' name='Community' />
+        <NavItem link='/community/activities' name='Community' />
         <NavItem link='/profile' name='Profile' />
         <NavItem link='/logout' name='Logout' />
       </ul>
