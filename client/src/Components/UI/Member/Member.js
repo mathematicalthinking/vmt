@@ -44,7 +44,7 @@ class Member extends PureComponent {
             <EditMember role={this.state.role} changeRole={this.changeRole}/>
           </PositionedBox> : null}
         <div className={classes.Container}>
-          <div style={{margin: 20}}><Avatar username={info.user.username} /></div>
+          <div className={classes.Avatar}><Avatar username={info.user.username} /></div>
           <div className={classes.Row}>
             {grantAccess ? <Button click={this.props.grantAccess}>Grant Access</Button> : null}
             <div className={classes.Role}>{info.role}</div>

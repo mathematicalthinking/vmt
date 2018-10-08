@@ -10,8 +10,7 @@
 //
 //
 // -- This is a parent command --
-const user = require('../fixtures/user')
-Cypress.Commands.add("login", () => {
+Cypress.Commands.add("login", (user) => {
   cy.visit('/')
   cy.contains('Login').click()
   cy.get('input[name=username]').type(user.username)

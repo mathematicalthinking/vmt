@@ -10,7 +10,7 @@ var mongoose = require('mongoose');
 
 var Users = require('./seeders/users.seeder');
 // var Activities = require('./seeders/sections.seeder');
-// var Courses = require('./seeders/answers.seeder');
+var Courses = require('./seeders/courses.seeder');
 var Rooms = require('./seeders/rooms.seeder');
 
 require('dotenv').config();
@@ -34,6 +34,6 @@ module.exports = {
     Users,
     // Activities,
     Rooms,
-    // Courses,
+    Courses,
   }
 };
