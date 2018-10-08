@@ -6,6 +6,7 @@ import DnDTrash from '../../Components/HOC/DnDTrash';
 import Resources from './Resources/Resources';
 import Students from '../../Containers/Students/Students'
 import Trash from '../../Components/UI/Trash/Trash';
+import Button from '../../Components/UI/Button/Button';
 import Summary from '../Room/Summary/Summary';
 import MakeRoomsLayout from './MakeRooms/MakeRooms';
 
@@ -30,8 +31,18 @@ const dashboard = props => {
       </div>
       <div className={classes.Main}>
         <div className={classes.SidePanel}>
-          <div className={classes.Image}>Image</div>
-          <div className={classes.SpTitle}>{props.sidePanelTitle}</div>
+          <div>
+            <div className={classes.Image}>Image</div>
+            <div className={classes.SpTitle}>{props.sidePanelTitle}</div>
+            <div className={classes.Details}></div>
+            <div className={classes.ViewOpts}></div>
+          </div>
+          {props.user.bothRoles ? 
+          <div>
+            <div>view as...</div>
+            <Button active={true}>Teacher</Button>
+            <Button active={false}>Student</Button>
+          </div> : null }
         </div>
         <div className={classes.Content}>
           <div className={classes.Tabs}>
