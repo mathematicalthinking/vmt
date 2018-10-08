@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
 import Navbar from '../Components/Navigation/Navbar';
-// import Login from '../Containers/Login/Login';
-import Room from '../Containers/Room/Room';
-import Course from '../Containers/Course/Course';
-import Activity from '../Containers/Activity/Activity';
+import { MyVMT, Course, Activity, Room } from '../Containers';
 import PublicList from '../Containers/PublicList/PublicList';
-import MyVMT from '../Containers/MyVMT';
 // import Dashboard from '../Layout/Dashboard/Dashboard';
 // import Activities from '../Containers/Activities/Activities';
 import Avatar from '../Components/UI/Avatar/Avatar';
