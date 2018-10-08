@@ -5,11 +5,15 @@ const activity = require('../fixtures/activity')
 
 describe('create each type of resource', function(){
   before(function(){
+    cy.window((win) => {
+      win.sessionStorage.clear()
+    })
+    cy.task('seedDB')
     cy.login()
+    // cy.visit('/myVMT/courses')
   })
   it('creates a course', function(){
-    cy.url().should('include', '/profile')
-    cy.get('button').contains('Create').click()
+    cy.get('.dashboard__MainContent__1E4zd > :nth-child(1) > :nth-child(2)').click()
     cy.get('input[name=coursesName]').type(course.name)
     cy.get('input[name=description]').type(course.description)
     cy.get('button').contains('Submit').click()
@@ -18,9 +22,7 @@ describe('create each type of resource', function(){
 
   it('creates a room', function(){
     // cy.get('button').click()
-    cy.url().should('include', '/profile')
     cy.get('.tabList__Tabs__2HZYa').contains('Rooms').click()
-    cy.url().should('include', '/profile/rooms')
     cy.get('button').contains('Create').click()
     cy.get('input[name=roomsName]').type('{selectall} {backspace}').type(room.name)
     cy.get('input[name=description]').type('{selectall} {backspace}').type(room.description)
@@ -30,9 +32,8 @@ describe('create each type of resource', function(){
   })
 
   it('creates an activity', function(){
-    cy.url().should('include', '/profile')
     cy.get('.tabList__Tabs__2HZYa').contains('Activities').click()
-    cy.url().should('include', '/profile/activities')
+    cy.url().should('include', '/myVMT/activities')
     cy.get('button').contains('Create A New Activity').click()
     cy.get('input[name=activitiesName]').type('{selectall} {backspace}').type(activity.name)
     cy.get('input[name=description]').type('{selectall} {backspace}').type(activity.description)
@@ -41,11 +42,9 @@ describe('create each type of resource', function(){
   })
 
   it('creates a course activity', function(){
-    cy.url().should('include', '/profile')
     cy.get('.tabList__Tabs__2HZYa').contains('Courses').click()
-    cy.url().should('include', '/profile/courses')
     cy.contains('test course 1').click()
-    cy.url().should('include', '/profile/courses')
+    cy.url().should('include', '/myVMT/courses')
     cy.url().should('include', '/activities')
     cy.get('.tabList__Tabs__2HZYa').contains('Activities').click()
     cy.get('button').contains('Create A New Activity').click()
