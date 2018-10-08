@@ -1,21 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import difference from 'lodash/difference';
-import { populateResource } from '../../store/reducers/';
-import * as actions from '../../store/actions/';
-import DashboardLayout from '../../Layout/Dashboard/Dashboard';
-import Aux from '../../Components/HOC/Auxil';
-import Modal from '../../Components/UI/Modal/Modal';
-import PrivateAccessModal from '../../Components/UI/Modal/PrivateAccess';
-import PublicAccessModal from '../../Components/UI/Modal/PublicAccess';
-import Button from '../../Components/UI/Button/Button';
+import { populateResource } from '../store/reducers';
+import * as actions from '../store/actions';
+import DashboardLayout from '../Layout/Dashboard/Dashboard';
+import Aux from '../Components/HOC/Auxil';
+import Modal from '../Components/UI/Modal/Modal';
+import PrivateAccessModal from '../Components/UI/Modal/PrivateAccess';
+import PublicAccessModal from '../Components/UI/Modal/PublicAccess';
+import Button from '../Components/UI/Button/Button';
 
 class Course extends Component {
   state = {
     owner: false,
     member: false,
     guestMode: false,
-    currentCourse: {}, // Right now I'm just saving currentCourse is state to compare the incoming props currentCourse to look for changes
     tabs: [
       {name: 'Activities'},
       {name: 'Rooms'},
@@ -134,6 +133,7 @@ class Course extends Component {
               crumbs={[{title: 'Profile', link: '/profile/courses'}, {title: course.name, link: `/profile/courses/${course._id}/activities/`}]}
               contentData={contentData}
               tabs={this.state.tabs}
+              user={user}
             />
             <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
               <p>Welcome to {course.name}. If this is your first time joining a course,
