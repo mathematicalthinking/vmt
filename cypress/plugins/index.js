@@ -33,7 +33,7 @@ module.exports = (on, config) => {
     },
     seedDB: async () => {
       await exec('md-seed run --dropdb')
-      return 'sucess';
+      return 'success';
     }
   })
 }

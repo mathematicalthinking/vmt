@@ -10,8 +10,8 @@ const App = props => (
   <Provider store={store}>
     <Router >
       <Switch>
-        <Route exact path={'/'} component={Home} />
         <Route path={'/myVMT'} component={MyVmt} />
+        <Route path={'/'} component={Home} />
       </Switch>
     </Router>
   </Provider>

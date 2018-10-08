@@ -13,10 +13,10 @@
 const user = require('../fixtures/user')
 Cypress.Commands.add("login", () => {
   cy.visit('/')
+  cy.contains('Login').click()
   cy.get('input[name=username]').type(user.username)
   cy.get('input[name=password]').type(user.password)
   cy.get('button').click()
-  cy.url().should('include', '/profile/courses')
   // CANT GET THE CODE BELOW TO WORK -- want to do it programitcally - not through the UI
   // cy.request({
   //   url: 'localhost:3001/auth/login',
