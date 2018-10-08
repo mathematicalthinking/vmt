@@ -3,7 +3,7 @@ import auth from '../../utils/auth';
 import { normalize } from '../utils/normalize';
 import API from '../../utils/apiRequests';
 import * as loading from './loading'
-import { updateCourse, gotCourses } from './courses';
+import { gotCourses } from './courses';
 import { updateRoom, addRoomMember } from './rooms';
 
 
