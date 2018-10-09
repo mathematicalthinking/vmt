@@ -17,7 +17,8 @@ describe('test access requests', function(){
     cy.task('seedDBAccess').then(() => cy.login(user2))
   })
 
-  it("user requests access to a course", function(){
+  // COURSE
+  it("user1 requests access to a course", function(){
     cy.contains('Community').click()
     cy.url().should('include', 'community/activities')
     cy.contains('Courses').click()
@@ -26,7 +27,7 @@ describe('test access requests', function(){
     cy.get('.button__Button__3QQYz').click()
     cy.url().should('include', '/confirmation')
   })
-  it("user granst access to a course", function(){
+  it("user2 granst access to a course", function(){
     cy.login(user1)
     cy.get('.tabList__Notifications__3pVC8').contains('1')
     cy.get('.contentBox__Notification__3lGZv').contains('1')
@@ -35,9 +36,10 @@ describe('test access requests', function(){
     cy.get('#Members').click();
     cy.get('.students__Notifications__2RH6W > [draggable="true"] > .member__Container__2EVLw').contains(user2.username)
     cy.get('.member__Row__DsMp3 > .button__Button__3QQYz').click()
-    // MAKE SURE THE NOTIFICATION IS VISUALLY RSOLVED
+    cy.get('.tabList__Notifications__3pVC8').should('not.exist')
+    // MAKE SURE THE NOTIFICATION IS VISUALLY RESOLVED
   })
-  it("original user now has access", function(){
+  it("user1 user now has access", function(){
     cy.login(user2)
     cy.get('.tabList__Notifications__3pVC8').contains('1')
     cy.get('.contentBox__Notification__3lGZv').contains('1')
@@ -47,4 +49,6 @@ describe('test access requests', function(){
     // NAVIGATE BACK AND MAKE SURE NOTIFICATIONS HAVE BEEN RESOLVED
 
   })
+
+  // ROOM
 })

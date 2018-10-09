@@ -44,6 +44,19 @@ const reducer = (state = initialState, action) => {
           allIds: updatedIds,
         }
 
+    case actionTypes.UPDATE_COURSE:
+      console.log('action.body: ', action.body)
+      const key = Object.keys(action.body)[0]
+      return {
+        ...state,
+        byId: {
+          ...state.byId,
+          [action.id]: {
+            ...state.byId[action.id], 
+            [key]: action.body[key]
+          }
+        }
+      }
     case actionTypes.ADD_COURSE_ACTIVITIES:
       updatedCourses = { ...state.byId}
       updatedCourses[action.courseId].activities = updatedCourses[action.courseId].activities.concat(action.activityIdsArr)
