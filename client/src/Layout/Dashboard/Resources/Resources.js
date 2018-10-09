@@ -24,6 +24,7 @@ const resources = props => {
       linkPath = `/myVMT/${props.parentResource}/${props.parentResourceId}/${props.resource}/`
       linkSuffix = '/details'
     }
+    console.log('resources: ', props.notifications)
     return (
       <div>
         {props.parentResource !== 'activities' ? <NewResource resource={props.resource} courseId={props.parentResource === 'courses'?  props.parentResourceId : null}/> : null}

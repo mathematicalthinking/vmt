@@ -64,7 +64,7 @@ class Profile extends Component {
     const contentData = {
       resource,
       userResources: this.props[`user${resource}`] || [],
-      notifications: (resource === 'courses') ? user.courseNotifications : user.roomNotifications,
+      notifications: (resource === 'courses') ? user.courseNotifications.access : user.roomNotifications,
       userId: user._id
     }
     return (
