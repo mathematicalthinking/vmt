@@ -7,8 +7,8 @@ describe('create each type of resource', function(){
   before(function(){
     cy.window((win) => {
       win.sessionStorage.clear()
+      cy.task('seedDBLogin').then(() => cy.login(user))
     })
-    cy.task('seedDBLogin').then(() => cy.login(user))
     // cy.visit('/myVMT/courses')
   })
   it('creates a course', function(){
@@ -74,7 +74,7 @@ describe('create each type of resource', function(){
     cy.get('input[name=manual]').check()
     cy.get('.makeRooms__Container__282k- > button').contains('Assign').click()
     cy.get('.tabList__Tabs__2HZYa').contains('Rooms').click()
-    cy.contains(course.activity.name + " 1").should('be.visible')
+    cy.get('.contentBox__Title__ytq7u').contains(course.activity.name + " (room 1)").should('exist')
   })
 
 })

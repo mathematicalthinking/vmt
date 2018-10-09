@@ -14,6 +14,7 @@ const initialState = {
   courseTemplates: [],
   activities: [],
   seenTour: false,
+  bothRoles: false,
 }
 
 const reducer = (state = initialState, action) => {
