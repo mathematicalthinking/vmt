@@ -11,9 +11,8 @@ const boxList = props => {
       let notifications = 0;
       let details = undefined;
       if (props.listType === 'private') {
-        if (props.notifications) {
-          const allNtfs = props.notifications.access.concat(props.notifications.newRoom)
-          allNtfs.forEach((ntf) => {
+        if (props.notifications.length > 0) {
+          props.notifications.forEach((ntf) => {
             if (ntf._id === item._id) {
               notifications += 1;
             }
