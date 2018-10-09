@@ -160,23 +160,26 @@ export const requestAccess = (toUser, fromUser, resource, resourceId, entryCode)
 }
 
 export const grantAccess = (user, resource, resourceId) => {
-  return dispatch => {
-    console.log(user, resource, resourceId)
+  return (dispatch, getState) => {
     let apiResource = resource.slice(0, -1);
     if (apiResource === 'activitie') apiResource = 'activity';
     dispatch(loading.start())
     API.grantAccess(user, apiResource, resourceId)
     .then(res => {
-      console.log('successful on the backend')
-      console.log("RESOUCE: ", resource)
+      console.log("RES: ", res)
       if (apiResource === 'room') {
         return dispatch(updateRoom(resourceId, {members: res.data.result.members}))
       } else if (apiResource === 'course') {
-        console.log('updating course')
         dispatch(updateCourse(resourceId, {members: res.data.result.members}))
       }
-      console.log(res.data.result)
-      dispatch(updateUserAccessNtfs(apiResource, user))
+      const { user } = getState()
+      console.log("USER: ", user)
+      const updatedNotifications = user[`${apiResource}Notifications`]
+      updatedNotifications.access = user[`${apiResource}Notifications`].access.filter(ntf => {
+        return ntf._id !== resourceId
+      })
+      console.log(updatedNotifications)
+      dispatch(updateNotifications(apiResource, updatedNotifications))
       dispatch(loading.success())
     })
     .catch(err => {console.log(err); dispatch(loading.fail(err))})
