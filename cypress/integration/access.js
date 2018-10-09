@@ -37,6 +37,7 @@ describe('test access requests', function(){
     cy.get('.students__Notifications__2RH6W > [draggable="true"] > .member__Container__2EVLw').contains(user2.username)
     cy.get('.member__Row__DsMp3 > .button__Button__3QQYz').click()
     cy.get('.tabList__Notifications__3pVC8').should('not.exist')
+    cy.get(':nth-child(4) > .member__Container__2EVLw').should('exist')
     // MAKE SURE THE NOTIFICATION IS VISUALLY RESOLVED
   })
   it("user1 user now has access", function(){
@@ -46,6 +47,9 @@ describe('test access requests', function(){
     cy.contains('course 1').click();
     cy.get('p').contains('Welcome to course 1.')
     cy.contains('Explore').click()
+    cy.get('[href="/myVMT/courses"] > .breadCrumbs__Crumb__1KUPF').click()
+    cy.get('.tabList__Notifications__3pVC8').should('not.exist')
+    cy.get('.contentBox__Notification__3lGZv').should('not.exist')
     // NAVIGATE BACK AND MAKE SURE NOTIFICATIONS HAVE BEEN RESOLVED
 
   })
