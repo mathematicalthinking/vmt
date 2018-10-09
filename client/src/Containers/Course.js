@@ -30,11 +30,20 @@ class Course extends Component {
   // SO we can reset the tabs easily
 
   componentDidMount() {
-    const { course, user } = this.props;
+    const { course, user, clearNotification } = this.props;
     let firstView = false;
-    if (user.courseNotifications.access.filter(ntf => (ntf.notificationType === 'grantedAccess' && ntf._id === course._id)).length > 0) {
-      firstView = true;
-      this.props.clearNotification(course._id, user._id, 'course', 'access')
+    if (user.courseNotifications.access.length > 0) {
+      console.log('there are ntfs')
+      user.courseNotifications.access.forEach(ntf => {
+        console.log(ntf)
+        if (ntf.notificationType === 'grantedAccess' && ntf._id === course._id) {
+          // RESOLVE THIS NOTIFICATION
+          firstView = true;
+          console.log("clearing ntf")
+          clearNotification(course._id, user._id, 'course', 'access')
+
+        }
+      })
     }
     // check if we need to fetch data
     this.checkForFetch();
@@ -51,6 +60,7 @@ class Course extends Component {
       if (course.members.find(member => member.user._id === user._id)) member = true;
       updatedTabs = this.displayNotifications(updatedTabs);
     }
+    // Check for notifications that need resolution
     // Get Any other notifications
     this.setState({
       tabs: updatedTabs,
@@ -111,6 +121,7 @@ class Course extends Component {
   }
 
   render() {
+    console.log(this.props)
     const { course, user, match } = this.props;
     const resource = match.params.resource;
     const contentData = {

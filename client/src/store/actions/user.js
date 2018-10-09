@@ -3,7 +3,7 @@ import auth from '../../utils/auth';
 import { normalize } from '../utils/normalize';
 import API from '../../utils/apiRequests';
 import * as loading from './loading'
-import { gotCourses } from './courses';
+import { gotCourses, updateCourse, updateCourseMembers } from './courses';
 import { updateRoom, addRoomMember } from './rooms';
 
 
@@ -72,10 +72,22 @@ export const addUserCourseTemplates = newTemplate => {
   }
 }
 
+export const updateNotifications = (resource, updatedNotifications) => {
+  return {
+    type: actionTypes.UPDATE_NOTIFICATIONS,
+    updatedNotifications,
+    resource,
+  }
+}
+
 export const clearNotification = (ntfId, userId, resource, listType) => {
   return (dispatch) => {
     API.removeNotification(ntfId, userId, resource, listType)
     .then(res => {
+      console.log("NTF REMOVED: ", res)
+      if (resource === 'course') {
+        dispatch(updateNotifications(resource, res.data.result[`${resource}Notifications`]))
+      }
       // dispatch(gotUser(res.data))
     })
     .catch(err => console.log(err))
@@ -155,13 +167,17 @@ export const grantAccess = (user, resource, resourceId) => {
     dispatch(loading.start())
     API.grantAccess(user, apiResource, resourceId)
     .then(res => {
-      if (resource === 'room') {
+      console.log('successful on the backend')
+      console.log("RESOUCE: ", resource)
+      if (apiResource === 'room') {
         return dispatch(updateRoom(resourceId, {members: res.data.result.members}))
+      } else if (apiResource === 'course') {
+        console.log('updating course')
+        dispatch(updateCourse(resourceId, {members: res.data.result.members}))
       }
       console.log(res.data.result)
       dispatch(updateUserAccessNtfs(apiResource, user))
       dispatch(loading.success())
-      // dispatch(updateCourse(res.data.result))
     })
     .catch(err => {console.log(err); dispatch(loading.fail(err))})
   }
