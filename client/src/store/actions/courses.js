@@ -20,9 +20,10 @@ export const gotCourses = (courses) => {
 }}
 
 // params: course = un-normalized backend model
-export const updateCourse = course => ({
+export const updateCourse = (id, body) => ({
   type: actionTypes.UPDATE_COURSE,
-  course,
+  id,
+  body,
 })
 
 export const addCourseActivities = (courseId, activityIdsArr) => ({

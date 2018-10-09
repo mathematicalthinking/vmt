@@ -68,13 +68,13 @@ const reducer = (state = initialState, action) => {
         ...state,
         courseNotifications: {...courseNtfs, access: updatedCourseNtfs},
       }
-
-    case actionTypes.CLEAR_NOTIFICATION:
-      const updatedNotifications = state[`${action.resource}Notifications`]
-      return {
-        ...state,
-        [`${action.resource}Notifications`]: updatedNotifications,
-      }
+    
+    case actionTypes.UPDATE_NOTIFICATIONS:
+      console.log(action.updatedNotifications)
+    return {
+      ...state,
+      [`${action.resource}Notifications`]: action.updatedNotifications,
+    }
 
     case actionTypes.CLEAR_ERROR:
       return {
