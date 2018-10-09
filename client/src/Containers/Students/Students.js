@@ -23,7 +23,7 @@ const students = props => {
   
   let joinRequests;
   if (props.owner) {
-    joinRequests = notifications.access.map((ntf, i) => {
+    joinRequests = notifications.map((ntf, i) => {
       return (
         <DragMember
           grantAccess={() => {props.grantAccess(ntf.user._id, props.parentResource, props.parentResourceId)}} 
