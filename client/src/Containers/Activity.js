@@ -48,6 +48,7 @@ class Activity extends Component {
       userResources: activity[resource] || [],
       parentResource: 'activities',
       parentResourceId: activity._id,
+      notifications: [],
       userId: this.props.userId,
     }
     console.log(contentData)
@@ -67,6 +68,7 @@ class Activity extends Component {
         sidePanelTitle={'side panel'}
         contentData={contentData}
         tabs={this.state.tabs}
+        user={this.props.user}
       />
     )
   }
@@ -79,6 +81,7 @@ const mapStateToProps = (store, ownProps ) => {
     populatedActivity: populateResource(store, 'activities', activity_id, ['rooms']),
     currentCourse: store.courses.byId[course_id],
     userId: store.user._id,
+    user: store.user,
   }
 }
 

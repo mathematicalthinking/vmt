@@ -13,14 +13,22 @@ describe('temporary room', function() {
     cy.url().should('include', 'explore')
     cy.get('input').type(user.username)
     cy.get('button').click()
+    // cy.wait(3000)
     cy.get('.ggbtoolbarpanel')
-    url = cy.url()
-    console.log(url)
+    cy.url({log: true}).then(res => url = res)
   })
   it('creates another user and joins the same room', function(){
-    cy.visit(url)
-    cy.get('input').type('geordi')
-    cy.get('button').click()
-
+    cy.window().then((win) => {
+      win.sessionStorage.clear()
+      cy.visit('/')
+      cy.log(url)
+      cy.visit(url.substring(21, url.length)) // I wish we could easily override the baseURL defined in cypress.config
+      cy.get('input').type('geordi')
+      cy.get('.button__Button__3QQYz').click()
+      cy.get('.ggbtoolbarpanel')
+      cy.get('.currentMembers__Left__goyKq').children().should('have.length', 2)
+      cy.get('.currentMembers__Left__goyKq').contains(user.username)
+      cy.get('.currentMembers__Left__goyKq').contains('geordi')
+    })
   })
 })
