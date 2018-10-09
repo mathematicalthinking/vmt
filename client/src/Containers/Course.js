@@ -71,10 +71,9 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log("COMPONENT UPDATED ")
-    console.log(JSON.stringify({...this.props.user}, null, 2))
-    console.log(JSON.stringify({...prevProps.user}, null, 2))
-    if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length) {
+    console.log(this.props.accessNotifications)
+    console.log(prevProps.accessNotifications)
+    if (prevProps.accessNotifications.length !== this.props.accessNotifications.length) {
       console.log('REDUX UPDATE OF USER NTFS MADE IT TO REACT')
       let tabs = this.initialTabs;
       if (this.state.owner) tabs = [...this.initialTabs, {name: 'Grades'}, {name: 'Insights'}]
@@ -126,14 +125,14 @@ class Course extends Component {
 
   render() {
     console.log(this.props)
-    const { course, user, match } = this.props;
+    const { course, user, match, accessNotifications } = this.props;
     const resource = match.params.resource;
     const contentData = {
       resource,
       parentResource: "courses",
       parentResourceId: course._id,
       userResources: course[resource] || [],
-      notifications:  user.courseNotifications || [],
+      notifications:  accessNotifications || [],
       userId: user._id,
       owner: this.state.owner,
     }
@@ -162,13 +161,17 @@ class Course extends Component {
   }
 }
 
-const mapStateToProps = (store, ownProps) => ({
-  course: populateResource(store, 'courses', ownProps.match.params.course_id, ['activities', 'rooms']),
-  activities: store.activities.allIds,
-  rooms: store.rooms.allIds,
-  user: store.user,
-  loading: store.loading.loading,
-})
+const mapStateToProps = (store, ownProps) => {
+  console.log('mappingState to props')
+  return {
+    course: populateResource(store, 'courses', ownProps.match.params.course_id, ['activities', 'rooms']),
+    activities: store.activities.allIds,
+    rooms: store.rooms.allIds,
+    user: store.user,
+    accessNotifications: store.user.courseNotifications.access,
+    loading: store.loading.loading,
+  }
+}
 
 const mapDispatchToProps = dispatch => {
   return {
