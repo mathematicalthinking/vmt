@@ -52,8 +52,8 @@ class Course extends Component {
     let owner = false;
     let member = false;
     if (course.creator === user._id) {
-      updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]);
-      this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}])
+      updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
+      this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
       owner = true;
     }
     if (course.members) {
@@ -71,14 +71,18 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log("COMPONENT UPDATED ")
+    console.log(JSON.stringify({...this.props.user}, null, 2))
+    console.log(JSON.stringify({...prevProps.user}, null, 2))
+    if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length) {
+      console.log('REDUX UPDATE OF USER NTFS MADE IT TO REACT')
+      let tabs = this.initialTabs;
+      if (this.state.owner) tabs = [...this.initialTabs, {name: 'Grades'}, {name: 'Insights'}]
+      const updatedTabs = this.displayNotifications(tabs)
+      this.setState({tabs: updatedTabs})
+    }
     if ((this.state.member || this.state.owner) && !this.props.loading) {
       this.checkForFetch();
-      if (prevProps.user.courseNotifications.access !== this.props.user.courseNotifications.access) {
-        let tabs = this.initialTabs;
-        if (this.state.owner) tabs = [...this.initialTabs, {name: 'Grades'}, {name: 'Insights'}, {name:'Settings'}]
-        const updatedTabs = this.displayNotifications(tabs)
-        this.setState({tabs: updatedTabs})
-      }
     }
   }
 
