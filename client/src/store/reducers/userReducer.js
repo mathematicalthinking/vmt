@@ -5,7 +5,10 @@ const initialState = {
   _id: '',
   loggedIn: false,
   courses: [],
-  courseNotifications: {},
+  courseNotifications: {
+    access: [],
+    newRoom: [],
+  },
   roomNotifications: {},
   rooms: [],
   courseTemplates: [],
@@ -71,9 +74,13 @@ const reducer = (state = initialState, action) => {
     
     case actionTypes.UPDATE_NOTIFICATIONS:
       console.log(action.updatedNotifications)
+      console.log(`${action.resource}Notifications`)
     return {
       ...state,
-      [`${action.resource}Notifications`]: action.updatedNotifications,
+      [`${action.resource}Notifications`]: {
+        ...state[`${action.resource}Notifications`],
+        access: [...action.updatedNotifications.access]
+      }
     }
 
     case actionTypes.CLEAR_ERROR:
