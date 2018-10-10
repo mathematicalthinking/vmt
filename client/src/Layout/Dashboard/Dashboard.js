@@ -28,6 +28,7 @@ const dashboard = props => {
   }
 
   let image = <img src={sidePanelData.image}/>
+  console.log("IMAGE? ", sidePanelData.image)
   if (!sidePanelData.image) { 
     if (sidePanelData.title === 'My VMT') {
       image = <Avatar size='large'/>
@@ -43,7 +44,7 @@ const dashboard = props => {
         <div className={classes.SidePanel}>
           <div>
             <div className={classes.Image}>{image}</div>
-            <div className={classes.SpTitle}>{sidePanelData.Title}</div>
+            <div className={classes.SpTitle}>{sidePanelData.title}</div>
             <div className={classes.Details}>
               {sidePanelData.details}
             </div>
