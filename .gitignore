@@ -2,3 +2,4 @@
 /concertChatApps/
 /cypress/integration/examples/
 .vscode
+.env
