@@ -41,19 +41,19 @@ app.engine('handlebars', exphbs({defaultLayout: 'ggbMain'}));
 app.set('view engine', 'handlebars');
 
 //serve react files in a production enviornment
-if (process.env.NODE_ENV === 'test') {
-  app.use(express.static(path.join(__dirname, 'client/build')));
-}
+// if (process.env.NODE_ENV === 'test') {
+//   app.use(express.static(path.join(__dirname, 'client/build')));
+// }
 
 
 app.use(express.static(path.join(__dirname, 'client/public')));
 
 app.get('/', (req, res) => {
-  if (process.emit.NODE_ENV === 'test') {
-    res.sendFile(path.join(__dirname, 'client/build/index.html'))
-  } else {
+  // if (process.emit.NODE_ENV === 'test') {
+  //   res.sendFile(path.join(__dirname, 'client/build/index.html'))
+  // } else {
     res.sendFile(path.join(__dirname, '/client/public/index.html'));
-  }
+  // }
 });
 
 // app.get('/ggb', (req, res) => {
