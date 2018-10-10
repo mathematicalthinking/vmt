@@ -4,7 +4,6 @@ import NewResource from '../../../Containers/Create/NewResource/NewResource';
 // CONSIDER RENAMING TO DASHBOARDCONTENT
 const resources = props => {
     // @TODO Is there a way to do this passing over the array only once?
-    console.log(props.userResources)
     // const ownedResources = props.userResources.filter(resource => (
     //   resource.creator === props.userId
     // ))
@@ -24,7 +23,6 @@ const resources = props => {
       linkPath = `/myVMT/${props.parentResource}/${props.parentResourceId}/${props.resource}/`
       linkSuffix = '/details'
     }
-    console.log('resources: ', props.notifications)
     return (
       <div>
         {/* @TODO don't show create optinos for students */}
