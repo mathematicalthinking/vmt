@@ -136,6 +136,11 @@ class Course extends Component {
       userId: user._id,
       owner: this.state.owner,
     }
+    const sidePanelData = {
+      image: undefined,
+      details: 'some details about the course',
+      title: course.name,
+    }
     console.log(contentData)
     // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
     return (
@@ -147,7 +152,11 @@ class Course extends Component {
               crumbs={[{title: 'My VMT', link: '/myVMT/courses'}, {title: course.name, link: `/myVMT/courses/${course._id}/activities/`}]}
               contentData={contentData}
               tabs={this.state.tabs}
-              user={user}
+              sidePanelData={sidePanelData}
+              // user={user}
+              accountType={user.accountType}
+              bothRoles={this.state.bothRoles}
+              view={'teacher'}
             />
             <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
               <p>Welcome to {course.name}. If this is your first time joining a course,

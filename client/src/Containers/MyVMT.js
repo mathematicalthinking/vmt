@@ -14,7 +14,7 @@ class Profile extends Component {
     ],
     touring: false,
     bothRoles: false,
-    teacherView: false,
+    view: 'teacher',
   }
 
   componentDidMount() {
@@ -38,23 +38,27 @@ class Profile extends Component {
     }
   }
   
+  // CHekcs if the user has mulitple roles for a single resource (i.e. teacher and student)
+  // if so we toggle the "view as" buttons to be visible
   determineRoles = () => {
     const { match, user } = this.props;
   // determine roles
     let isTeacher = false;
     let isStudent = false;
-    this.props[`user${match.params.resource}`].forEach(resource => {
-      console.log(resource)
-      resource.members.forEach((member) => {
-        if (member.user._id === user._id) {
-          if (member.role === 'student') isStudent = true;
-          if (member.role === 'teacher') isTeacher = true;
-        }
+    if (this.props[`user${match.params.resource}`]) {
+      this.props[`user${match.params.resource}`].forEach(resource => {
+        console.log(resource)
+        resource.members.forEach((member) => {
+          if (member.user._id === user._id) {
+            if (member.role === 'student') isStudent = true;
+            if (member.role === 'teacher') isTeacher = true;
+          }
+        })
       })
-    })
+    }
     console.log('isTEacher: ', isTeacher, 'isStudent ', isStudent)
-    if (isTeacher && isStudent) this.setState({bothRoles: true, teacherView: true})
-    else this.setState({teacherView: isTeacher})
+    if (isTeacher && isStudent) this.setState({bothRoles: true, view: 'teacher'})
+    else this.setState({view: isTeacher ? 'teacher' : 'student'})
   }
 
   fetchData = resource => {
@@ -78,12 +82,25 @@ class Profile extends Component {
     })
   }
 
+  toggleView = (event) => {
+    console.log(event.target.value)
+  }
+
   render() {
     const { user, match } = this.props;
     const resource = match.params.resource;
+    const resources = this.props[`user${resource}`].filter(resource => {
+      let included = false
+      resource.members.forEach(member => {
+        if (member.user._id === user._id && member.role === this.state.view) {
+          included = true;
+        }
+      })
+      return included;
+    })
     const contentData = {
       resource,
-      userResources: this.props[`user${resource}`] || [],
+      userResources: resources || [],
       notifications: (resource === 'courses') ? user.courseNotifications.access : user.roomNotifications,
       userId: user._id,
     }
