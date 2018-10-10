@@ -22,14 +22,11 @@ class Profile extends Component {
     // I WONDER IF USING PROMISES LIKE THIS IS BAD?
     // I NEED TO UPDATE STATE IN CHECK MULTIPLE ROLE AND THEN setDisplayResources DEPENDS ON THAT STATE UPDATE
     this.checkMultipleRoles()
-    // .then(res => {return this.setDisplayResources()}) 
+    .then(res => {return this.setDisplayResources()}) 
     .then(res => this.updateTabs())
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log('componentUpdated')
-    console.log(prevProps.usercourses)
-    console.log(this.props.usercourses)
     // IF WE JUST CREATED A NEW RESOURCE WE SHOULD CHECK FOR MULTIPLE ROLES AGAIN
     // const {roomNotifications, courseNotifications } = this.props.user
     // if (roomNotifications.access.length !== prevProps.user.roomNotifications.access.length
@@ -41,7 +38,8 @@ class Profile extends Component {
     const { resource } = this.props.match.params;
     if (prevProps[`user${resource}`].length !== this.props[`user${resource}`].length) {
       console.log("A NEW REC WAS ADDES")
-      this.checkMultipleRoles();
+      this.checkMultipleRoles()
+      .then(res => this.updateTabs())
     }
     if (!loading) {
       let haveResource = user[resource].every(re => this.props[resource].includes(re))
@@ -49,8 +47,8 @@ class Profile extends Component {
     }
     if (prevState.view !== this.state.view) {
       console.log('view changed')
-      // this.setDisplayResources()
-      // .then(() => this.updateTabs())
+      this.setDisplayResources()
+      .then(() => this.updateTabs())
     }
   }
   
@@ -64,8 +62,6 @@ class Profile extends Component {
       let isStudent = false;
       let bothRoles = false;
       let view = 'teacher';
-      console.log("CHGCKIN MULTIPLE ROLES")
-      console.log(this.props[`user${match.params.resource}`])
       if (this.props[`user${match.params.resource}`]) {
         this.props[`user${match.params.resource}`].forEach(resource => {
           resource.members.forEach((member) => {
@@ -91,6 +87,8 @@ class Profile extends Component {
   }
 
   updateTabs = () => {
+    console.log('updatingTabs')
+    const { resource } = this.props.match.params;
     const { courseNotifications, roomNotifications } = this.props.user;
     const updatedTabs = [...this.state.tabs]
     const courseNtfs = courseNotifications.access.filter(ntf => {
@@ -100,6 +98,7 @@ class Profile extends Component {
          found = true; 
         }
       })
+      console.log('found: ', found)
       return found;
     })
     // console.log(courseNotifications.access)
@@ -114,6 +113,26 @@ class Profile extends Component {
       tabs: updatedTabs
     })
   }
+  
+  setDisplayResources = () => {
+    return new Promise((resolve => {
+      const { user, match } = this.props;
+      const { resource } = match.params;
+      let displayResources = [];
+      if (this.props[`user${resource}`]) {
+        displayResources = this.props[`user${resource}`].filter(rsrc => {
+          let included = false
+          rsrc.members.forEach(member => {
+            if (member.user._id === user._id && member.role === this.state.view) {
+              included = true;
+            }
+          })
+          return included;
+        })
+      }
+      this.setState({displayResources, }, () => resolve())
+    }))
+  }
 
   toggleView = (event, data) => {
     this.setState({view: event.target.innerHTML.toLowerCase()})
@@ -125,7 +144,6 @@ class Profile extends Component {
     const resource = match.params.resource;
     let displayResources = [];
     if (this.props[`user${match.params.resource}`]) {
-      console.log('updating')
       displayResources = this.props[`user${match.params.resource}`].filter(rsrc => {
         let included = false
         rsrc.members.forEach(member => {
