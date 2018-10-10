@@ -18,6 +18,7 @@ class Profile extends Component {
 
   componentDidMount() {
     console.log(this.props)
+    
     this.setState({teacherView: this.props.user.accountType === 'teacher'})
     this.updateTabs();
   }
@@ -35,6 +36,24 @@ class Profile extends Component {
       let haveResource = user[resource].every(re => this.props[resource].includes(re))
       if (!haveResource) this.fetchData(resource)
     }
+  }
+  
+  determineRoles = () => {
+    const { match, user } = this.props;
+  // determine roles
+    let isTeacher = false;
+    let isStudent = false;
+    this.props[`user${match.params.resource}`].forEach(resource => {
+      console.log(resource)
+      resource.members.forEach((member) => {
+        if (member.user._id === user._id) {
+          if (member.role === 'student') isStudent = true;
+          if (member.role === 'teacher') isTeacher = true;
+        }
+      })
+    })
+    if (isTeacher && isStudent) this.setState({bothRoles: true, teacherView: true})
+    else this.setState({teacherView: isTeacher})
   }
 
   fetchData = resource => {
@@ -83,6 +102,7 @@ class Profile extends Component {
           tabs={this.state.tabs}
           accountType={user.accountType}
           bothRoles={true}
+          view={'teacher'}
         />
       // </Aux>
     )
