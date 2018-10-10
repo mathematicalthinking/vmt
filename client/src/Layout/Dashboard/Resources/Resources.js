@@ -27,6 +27,7 @@ const resources = props => {
     console.log('resources: ', props.notifications)
     return (
       <div>
+        {/* @TODO don't show create optinos for students */}
         {props.parentResource !== 'activities' ? <NewResource resource={props.resource} courseId={props.parentResource === 'courses'?  props.parentResourceId : null}/> : null}
         <h2>My {displayResource}</h2>
         <BoxList

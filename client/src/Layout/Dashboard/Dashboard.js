@@ -6,6 +6,7 @@ import DnDTrash from '../../Components/HOC/DnDTrash';
 import Resources from './Resources/Resources';
 import Students from '../../Containers/Students/Students'
 import Trash from '../../Components/UI/Trash/Trash';
+import Avatar from '../../Components/UI/Avatar/Avatar';
 import Button from '../../Components/UI/Button/Button';
 import Summary from '../Room/Summary/Summary';
 import MakeRoomsLayout from './MakeRooms/MakeRooms';
@@ -25,6 +26,14 @@ const dashboard = props => {
       <div className={classes.Trash}><Trash /></div>
     </DnDTrash>
   }
+
+  let image = <img src={sidePanelData.image}/>
+  if (!sidePanelData.image) { 
+    if (sidePanelData.title === 'My VMT') {
+      image = <Avatar size='large'/>
+    }
+  }  
+
   return (
     <section className={classes.Container}>
       <div className={classes.BreadCrumbs}>
@@ -33,11 +42,11 @@ const dashboard = props => {
       <div className={classes.Main}>
         <div className={classes.SidePanel}>
           <div>
-            <div className={classes.Image}>
-              {sidePanelData.image }
+            <div className={classes.Image}>{image}</div>
+            <div className={classes.SpTitle}>{sidePanelData.Title}</div>
+            <div className={classes.Details}>
+              {sidePanelData.details}
             </div>
-            <div className={classes.SpTitle}>{props.sidePanelTitle}</div>
-            <div className={classes.Details}></div>
             <div className={classes.ViewOpts}></div>
           </div>
           {props.bothRoles ? 

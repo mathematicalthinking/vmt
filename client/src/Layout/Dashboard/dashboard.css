@@ -40,16 +40,24 @@
   border-right: 1px solid #ddd
 }
 
+
 .Tabs {
   /* border: 1px solid orange; */
 }
 
 .Image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 250px;
   width: 250px;
   border-radius: 7px;
   background-color: #f3f3f3;
   border: 1px solid #ddd;
+}
+
+.Details {
+  margin-top: 5px;
 }
 
 .CourseName {

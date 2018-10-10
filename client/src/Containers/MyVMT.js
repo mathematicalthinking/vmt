@@ -65,9 +65,10 @@ class Profile extends Component {
       resource,
       userResources: this.props[`user${resource}`] || [],
       notifications: (resource === 'courses') ? user.courseNotifications.access : user.roomNotifications,
-      userId: user._id
+      userId: user._id,
     }
     const sidePanelData = {
+      title: 'My VMT',
       image: user.profilePic,
       details: 'some details about the user?'
     }
@@ -80,6 +81,7 @@ class Profile extends Component {
           contentData={contentData}
           sidePanelData={sidePanelData}
           tabs={this.state.tabs}
+          accountType={user.accountType}
           bothRoles={true}
         />
       // </Aux>
