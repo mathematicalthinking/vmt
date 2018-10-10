@@ -11,7 +11,8 @@ import Summary from '../Room/Summary/Summary';
 import MakeRoomsLayout from './MakeRooms/MakeRooms';
 
 const dashboard = props => {
-  const {resource, parentResource, activity, course, room, userId} = props.contentData;
+  const {contentData, sidePanelData,} = props;
+  const {resource, parentResource, activity, course, room, userId} = contentData;
   let content;
   if (parentResource === 'activities' && resource === 'details') {
     content = <MakeRoomsLayout activity={activity} course={course} userId={userId}/>
@@ -32,12 +33,14 @@ const dashboard = props => {
       <div className={classes.Main}>
         <div className={classes.SidePanel}>
           <div>
-            <div className={classes.Image}>Image</div>
+            <div className={classes.Image}>
+              {sidePanelData.image }
+            </div>
             <div className={classes.SpTitle}>{props.sidePanelTitle}</div>
             <div className={classes.Details}></div>
             <div className={classes.ViewOpts}></div>
           </div>
-          {props.user.bothRoles ? 
+          {props.bothRoles ? 
           <div>
             <div>view as...</div>
             <Button active={true}>Teacher</Button>

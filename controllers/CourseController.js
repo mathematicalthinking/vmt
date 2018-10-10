@@ -59,7 +59,7 @@ module.exports = {
       .then(course => {
         console.log(updatedFields[0])
         if (updatedFields[0] === 'newMember') {
-          course.members.push({role: 'Student', user: body.newMember})
+          course.members.push({role: 'student', user: body.newMember})
         }
         // console.log("DOC ", course)
         course.save(); // @TODO CONSIDER AWAITING THIS SO WE CAN ONLY RESOLVE IF THE SAVE WORKS

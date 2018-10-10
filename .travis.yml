@@ -1,0 +1,8 @@
+language: node_js
+install: 
+  - npm install
+script: 
+  - cd client && npm install
+  - node client/scripts/build.js
+  - "SET \"NODE_ENV=test\" && node ./bin/www"
+  - ./node_modules/.bin/cypress open

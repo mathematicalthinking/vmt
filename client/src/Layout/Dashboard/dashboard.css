@@ -35,8 +35,8 @@
   flex-flow: column;
   justify-content: space-between;
   /* flex-grow: 1; */
-  margin-right: 50px;
-  padding-right: 20px;
+  margin-right: 30px;
+  padding-right: 30px;
   border-right: 1px solid #ddd
 }
 

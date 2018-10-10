@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
+    "build": "node client/scripts/build.js",
     "test": "SET \"NODE_ENV=test\" && node ./bin/www",
     "cypress": "./node_modules/.bin/cypress open"
   },
