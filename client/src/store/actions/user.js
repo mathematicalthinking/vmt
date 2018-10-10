@@ -166,19 +166,16 @@ export const grantAccess = (user, resource, resourceId) => {
     dispatch(loading.start())
     API.grantAccess(user, apiResource, resourceId)
     .then(res => {
-      console.log("RES: ", res)
       if (apiResource === 'room') {
         return dispatch(updateRoom(resourceId, {members: res.data.result.members}))
       } else if (apiResource === 'course') {
         dispatch(updateCourse(resourceId, {members: res.data.result.members}))
       }
       const { user } = getState()
-      console.log("USER: ", user)
       const updatedNotifications = user[`${apiResource}Notifications`]
       updatedNotifications.access = user[`${apiResource}Notifications`].access.filter(ntf => {
         return ntf._id !== resourceId
       })
-      console.log(updatedNotifications)
       dispatch(updateNotifications(apiResource, updatedNotifications))
       dispatch(loading.success())
     })

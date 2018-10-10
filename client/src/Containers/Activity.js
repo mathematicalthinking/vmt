@@ -52,14 +52,14 @@ class Activity extends Component {
       userId: this.props.userId,
     }
     console.log(contentData)
-    const crumbs = [{title: 'Profile', link: '/profile/courses'}]
+    const crumbs = [{title: 'My VMT', link: '/myVMT/courses'}]
     if (course) {
       crumbs.push(
         {title: `${course.name}`, link: `${crumbs[0].link}/${course._id}/activities`},
         {title: `${activity.name}`, link: `${crumbs[0].link}/${course._id}/activities/${activity._id}/details`},
       )
     } else {
-      crumbs.push({title: `${activity.name}`, link: `/profile/activities/${activity._id}/details`})
+      crumbs.push({title: `${activity.name}`, link: `/myVMT/activities/${activity._id}/details`})
     }
     return (
       <DashboardLayout

@@ -144,7 +144,7 @@ class Course extends Component {
           <Aux>
             <DashboardLayout
               routingInfo={this.props.match}
-              crumbs={[{title: 'Profile', link: '/myVMT/courses'}, {title: course.name, link: `/myVMT/courses/${course._id}/activities/`}]}
+              crumbs={[{title: 'My VMT', link: '/myVMT/courses'}, {title: course.name, link: `/myVMT/courses/${course._id}/activities/`}]}
               contentData={contentData}
               tabs={this.state.tabs}
               user={user}
