@@ -120,7 +120,6 @@ class Course extends Component {
       let re = resource[0].toUpperCase() + resource.substr(1)
       this.props[`get${re}`](course[resource])
     }
-
   }
 
   render() {

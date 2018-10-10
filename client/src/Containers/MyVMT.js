@@ -14,13 +14,16 @@ class Profile extends Component {
     ],
     touring: false,
     bothRoles: false,
+    displayResources: [],
     view: 'teacher',
   }
 
   componentDidMount() {
-    console.log(this.props)
-    this.determineRoles();
-    this.updateTabs();
+    // I WONDER IF USING PROMISES LIKE THIS IS BAD?
+    // I NEED TO UPDATE STATE IN CHECK MULTIPLE ROLE AND THEN setDisplayResources DEPENDS ON THAT STATE UPDATE
+    this.checkMultipleRoles()
+    .then(res => {return this.setDisplayResources()}) 
+    .then(res => this.updateTabs())
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -36,29 +39,41 @@ class Profile extends Component {
       let haveResource = user[resource].every(re => this.props[resource].includes(re))
       if (!haveResource) this.fetchData(resource)
     }
+    if (prevState.view !== this.state.view) {
+      console.log('view changed')
+      this.setDisplayResources()
+      .then(() => this.updateTabs())
+    }
   }
   
   // CHekcs if the user has mulitple roles for a single resource (i.e. teacher and student)
   // if so we toggle the "view as" buttons to be visible
-  determineRoles = () => {
-    const { match, user } = this.props;
-  // determine roles
-    let isTeacher = false;
-    let isStudent = false;
-    if (this.props[`user${match.params.resource}`]) {
-      this.props[`user${match.params.resource}`].forEach(resource => {
-        console.log(resource)
-        resource.members.forEach((member) => {
-          if (member.user._id === user._id) {
-            if (member.role === 'student') isStudent = true;
-            if (member.role === 'teacher') isTeacher = true;
-          }
+  checkMultipleRoles = () => {
+    return new Promise(resolve => {
+      const { match, user, } = this.props;
+    // determine roles
+      let isTeacher = false;
+      let isStudent = false;
+      let bothRoles = false;
+      let view = 'teacher';
+      if (this.props[`user${match.params.resource}`]) {
+        this.props[`user${match.params.resource}`].forEach(resource => {
+          resource.members.forEach((member) => {
+            if (member.user._id === user._id) {
+              if (member.role === 'student') isStudent = true;
+              if (member.role === 'teacher') isTeacher = true;
+            }
+          })
         })
-      })
-    }
-    console.log('isTEacher: ', isTeacher, 'isStudent ', isStudent)
-    if (isTeacher && isStudent) this.setState({bothRoles: true, view: 'teacher'})
-    else this.setState({view: isTeacher ? 'teacher' : 'student'})
+      }
+      if (isTeacher && isStudent) bothRoles = true
+      else view = isTeacher ? 'teacher' : 'student';
+      this.setState({
+        bothRoles,
+        view,
+      }, () => resolve())
+    })
+  
   }
 
   fetchData = resource => {
@@ -68,39 +83,55 @@ class Profile extends Component {
   updateTabs = () => {
     const { courseNotifications, roomNotifications } = this.props.user;
     const updatedTabs = [...this.state.tabs]
-    if (courseNotifications.access.length > 0) {
-      updatedTabs[0].notifications = courseNotifications.access.length;
-    }
-    if (courseNotifications.newRoom.length > 0){
-      updatedTabs[0].notifications += courseNotifications.newRoom.length;
-    }
-    if (roomNotifications.newRoom.length > 0){
-      updatedTabs[1].notifications = roomNotifications.newRoom.length;
-    }
+    const courseNtfs = courseNotifications.access.filter(ntf => {
+      let found = false;
+      this.state.displayResources.forEach(resource => {
+        if (resource._id === ntf._id) {
+         found = true; 
+        }
+      })
+      return found;
+    })
+    // console.log(courseNotifications.access)
+    updatedTabs[0].notifications = courseNtfs.length === 0 ? '' : courseNtfs.length;
+    // if (courseNotifications.newRoom.length > 0){
+    //   updatedTabs[0].notifications += courseNotifications.newRoom.length;
+    // }
+    // if (roomNotifications.newRoom.length > 0){
+    //   updatedTabs[1].notifications = roomNotifications.newRoom.length;
+    // }
     this.setState({
       tabs: updatedTabs
     })
   }
 
-  toggleView = (event) => {
-    console.log(event.target.value)
+  toggleView = (event, data) => {
+    this.setState({view: event.target.innerHTML.toLowerCase()})
+  }
+
+  setDisplayResources(){
+    return new Promise(resolve => {
+      const {match, user} = this.props;
+      const displayResources = this.props[`user${match.params.resource}`].filter(resource => {
+        let included = false
+        resource.members.forEach(member => {
+          if (member.user._id === user._id && member.role === this.state.view) {
+            included = true;
+          }
+        })
+        return included;
+      })
+      this.setState({displayResources,}, () => resolve())
+    })
   }
 
   render() {
     const { user, match } = this.props;
     const resource = match.params.resource;
-    const resources = this.props[`user${resource}`].filter(resource => {
-      let included = false
-      resource.members.forEach(member => {
-        if (member.user._id === user._id && member.role === this.state.view) {
-          included = true;
-        }
-      })
-      return included;
-    })
+    
     const contentData = {
       resource,
-      userResources: resources || [],
+      userResources: this.state.displayResources || [],
       notifications: (resource === 'courses') ? user.courseNotifications.access : user.roomNotifications,
       userId: user._id,
     }
@@ -120,7 +151,8 @@ class Profile extends Component {
           tabs={this.state.tabs}
           accountType={user.accountType}
           bothRoles={this.state.bothRoles}
-          view={'teacher'}
+          toggleView={this.toggleView}
+          view={this.state.view}
         />
       // </Aux>
     )

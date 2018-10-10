@@ -12,7 +12,7 @@ import Summary from '../Room/Summary/Summary';
 import MakeRoomsLayout from './MakeRooms/MakeRooms';
 
 const dashboard = props => {
-  const {contentData, sidePanelData,} = props;
+  const {contentData, sidePanelData, view, toggleView} = props;
   const {resource, parentResource, activity, course, room, userId} = contentData;
   let content;
   if (parentResource === 'activities' && resource === 'details') {
@@ -28,7 +28,6 @@ const dashboard = props => {
   }
 
   let image = <img src={sidePanelData.image}/>
-  console.log("IMAGE? ", sidePanelData.image)
   if (!sidePanelData.image) { 
     if (sidePanelData.title === 'My VMT') {
       image = <Avatar size='large'/>
@@ -53,8 +52,8 @@ const dashboard = props => {
           {props.bothRoles ? 
           <div>
             <div>view as...</div>
-            <Button active={true}>Teacher</Button>
-            <Button active={false}>Student</Button>
+            <Button click={toggleView} active={view === 'teacher'}>Teacher</Button>
+            <Button click={toggleView} active={view === 'student'}>Student</Button>
           </div> : null }
         </div>
         <div className={classes.Content}>
