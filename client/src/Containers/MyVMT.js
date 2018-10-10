@@ -30,6 +30,7 @@ class Profile extends Component {
     console.log('componentUpdated')
     console.log(prevProps.usercourses)
     console.log(this.props.usercourses)
+    // IF WE JUST CREATED A NEW RESOURCE WE SHOULD CHECK FOR MULTIPLE ROLES AGAIN
     // const {roomNotifications, courseNotifications } = this.props.user
     // if (roomNotifications.access.length !== prevProps.user.roomNotifications.access.length
     // || courseNotifications.access.length !== prevProps.user.courseNotifications.access.length
@@ -38,6 +39,10 @@ class Profile extends Component {
     // check that we have the data we need
     const { user, loading } = this.props;
     const { resource } = this.props.match.params;
+    if (prevProps[`user${resource}`].length !== this.props[`user${resource}`].length) {
+      console.log("A NEW REC WAS ADDES")
+      this.checkMultipleRoles();
+    }
     if (!loading) {
       let haveResource = user[resource].every(re => this.props[resource].includes(re))
       if (!haveResource) this.fetchData(resource)
@@ -59,6 +64,8 @@ class Profile extends Component {
       let isStudent = false;
       let bothRoles = false;
       let view = 'teacher';
+      console.log("CHGCKIN MULTIPLE ROLES")
+      console.log(this.props[`user${match.params.resource}`])
       if (this.props[`user${match.params.resource}`]) {
         this.props[`user${match.params.resource}`].forEach(resource => {
           resource.members.forEach((member) => {
@@ -117,7 +124,7 @@ class Profile extends Component {
     const { user, match } = this.props;
     const resource = match.params.resource;
     let displayResources = [];
-    if (this.props[`usercourses`]) {
+    if (this.props[`user${match.params.resource}`]) {
       console.log('updating')
       displayResources = this.props[`user${match.params.resource}`].filter(rsrc => {
         let included = false
@@ -129,7 +136,6 @@ class Profile extends Component {
         return included;
       })
     }
-    console.log('display resources: ', displayResources)
     const contentData = {
       resource,
       userResources: displayResources,
@@ -164,9 +170,9 @@ class Profile extends Component {
 // OF CONDITIONAL LOGIC CHECKING THE RESOURCE TYPE AND THEN GRABBING DATA BASED
 // ON ITS VALUE. INSTEAD, WITH THE CURRENT METHOD WE CAN DO LIKE user[resource] or get[resource]
 const mapStateToProps = store => ({
-  usercourses: getUserResources(store, 'courses'),
-  userrooms: getUserResources(store, 'rooms'),
-  useractivities: getUserResources(store, 'activities'),
+  usercourses: getUserResources(store, 'courses') || [],
+  userrooms: getUserResources(store, 'rooms') || [],
+  useractivities: getUserResources(store, 'activities') || [],
   user: store.user,
   rooms: store.rooms.allIds,
   courses: store.courses.allIds,
