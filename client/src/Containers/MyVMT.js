@@ -67,16 +67,20 @@ class Profile extends Component {
       notifications: (resource === 'courses') ? user.courseNotifications.access : user.roomNotifications,
       userId: user._id
     }
+    const sidePanelData = {
+      image: user.profilePic,
+      details: 'some details about the user?'
+    }
     return (
       // <Aux>
         <DashboardLayout
           routingInfo={match}
-          title='Profile'
-          crumbs={[{title: 'Profile', link: '/profile/courses'}]}
-          sidePanelTitle={user.username}
+          title='My VMT'
+          crumbs={[{title: 'My VMT', link: '/myVMT/courses'}]}
           contentData={contentData}
+          sidePanelData={sidePanelData}
           tabs={this.state.tabs}
-          user={user}
+          bothRoles={true}
         />
       // </Aux>
     )
