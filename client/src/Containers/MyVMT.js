@@ -13,13 +13,13 @@ class Profile extends Component {
       {name: 'Rooms'},
     ],
     touring: false,
+    bothRoles: false,
     teacherView: false,
   }
 
   componentDidMount() {
     console.log(this.props)
-    
-    this.setState({teacherView: this.props.user.accountType === 'teacher'})
+    this.determineRoles();
     this.updateTabs();
   }
 
@@ -52,6 +52,7 @@ class Profile extends Component {
         }
       })
     })
+    console.log('isTEacher: ', isTeacher, 'isStudent ', isStudent)
     if (isTeacher && isStudent) this.setState({bothRoles: true, teacherView: true})
     else this.setState({teacherView: isTeacher})
   }
@@ -101,7 +102,7 @@ class Profile extends Component {
           sidePanelData={sidePanelData}
           tabs={this.state.tabs}
           accountType={user.accountType}
-          bothRoles={true}
+          bothRoles={this.state.bothRoles}
           view={'teacher'}
         />
       // </Aux>
