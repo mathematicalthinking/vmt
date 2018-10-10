@@ -22,11 +22,14 @@ class Profile extends Component {
     // I WONDER IF USING PROMISES LIKE THIS IS BAD?
     // I NEED TO UPDATE STATE IN CHECK MULTIPLE ROLE AND THEN setDisplayResources DEPENDS ON THAT STATE UPDATE
     this.checkMultipleRoles()
-    .then(res => {return this.setDisplayResources()}) 
+    // .then(res => {return this.setDisplayResources()}) 
     .then(res => this.updateTabs())
   }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log('componentUpdated')
+    console.log(prevProps.usercourses)
+    console.log(this.props.usercourses)
     // const {roomNotifications, courseNotifications } = this.props.user
     // if (roomNotifications.access.length !== prevProps.user.roomNotifications.access.length
     // || courseNotifications.access.length !== prevProps.user.courseNotifications.access.length
@@ -41,8 +44,8 @@ class Profile extends Component {
     }
     if (prevState.view !== this.state.view) {
       console.log('view changed')
-      this.setDisplayResources()
-      .then(() => this.updateTabs())
+      // this.setDisplayResources()
+      // .then(() => this.updateTabs())
     }
   }
   
@@ -109,29 +112,27 @@ class Profile extends Component {
     this.setState({view: event.target.innerHTML.toLowerCase()})
   }
 
-  setDisplayResources(){
-    return new Promise(resolve => {
-      const {match, user} = this.props;
-      const displayResources = this.props[`user${match.params.resource}`].filter(resource => {
+
+  render() {
+    const { user, match } = this.props;
+    const resource = match.params.resource;
+    let displayResources = [];
+    if (this.props[`usercourses`]) {
+      console.log('updating')
+      displayResources = this.props[`user${match.params.resource}`].filter(rsrc => {
         let included = false
-        resource.members.forEach(member => {
+        rsrc.members.forEach(member => {
           if (member.user._id === user._id && member.role === this.state.view) {
             included = true;
           }
         })
         return included;
       })
-      this.setState({displayResources,}, () => resolve())
-    })
-  }
-
-  render() {
-    const { user, match } = this.props;
-    const resource = match.params.resource;
-    
+    }
+    console.log('display resources: ', displayResources)
     const contentData = {
       resource,
-      userResources: this.state.displayResources || [],
+      userResources: displayResources,
       notifications: (resource === 'courses') ? user.courseNotifications.access : user.roomNotifications,
       userId: user._id,
     }

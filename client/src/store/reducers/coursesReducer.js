@@ -26,11 +26,12 @@ const reducer = (state = initialState, action) => {
       }
 
     case actionTypes.CREATED_COURSE:
-      updatedCourses = {...state.byId}
-      updatedCourses[action.course._id] = action.course
       return {
         ...state,
-        byId: updatedCourses,
+        byId: {
+          ...state.byId,
+          [action.course._id]: action.course
+        },
         allIds: [action.course._id, ...state.allIds]
       }
 
