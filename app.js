@@ -6,7 +6,6 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const passport = require('passport');
-const exphbs = require('express-handlebars');
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 const mongoose = require('mongoose');
@@ -36,19 +35,21 @@ app.use(require('express-session')({
   store: new MongoStore({mongooseConnection: mongoose.connection, stringify: false})
 }))
 
-// setup view engine for server side rendering
-app.engine('handlebars', exphbs({defaultLayout: 'ggbMain'}));
-app.set('view engine', 'handlebars');
 
 //serve react files in a production enviornment
-// app.use(express.static(path.join(__dirname, 'client/build')));
+// if (process.env.NODE_ENV === 'test') {
+//   app.use(express.static(path.join(__dirname, 'client/build')));
+// }
 
 
 app.use(express.static(path.join(__dirname, 'client/public')));
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '/client/public/index.html'));
-  // res.sendFile(path.join(__dirname, 'client/build/index.html'))
+  // if (process.emit.NODE_ENV === 'test') {
+  //   res.sendFile(path.join(__dirname, 'client/build/index.html'))
+  // } else {
+    res.sendFile(path.join(__dirname, '/client/public/index.html'));
+  // }
 });
 
 // app.get('/ggb', (req, res) => {

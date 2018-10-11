@@ -29,6 +29,11 @@
   background-color: orange;
 }
 
+.Active {
+  color: white;
+  background-color: blue;
+}
+
 .Primary:hover {
   color: white;
   background-color: blue;

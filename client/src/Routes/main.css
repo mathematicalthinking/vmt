@@ -1,9 +1,10 @@
-.Main {
+.Container {
   display: flex;
   flex-flow: column;
-  align-items: center;
-  width: 100vw;
+  align-self: center;
+  width: 100%;
   min-height: 100vh;
+  max-width: 1300px;
 }
 
 .Image {
@@ -33,8 +34,9 @@
 .Section {
   display: flex;
   flex-flow: column;
+  align-self: center;
   margin-top: 30px;
   width: 100%;
-  max-width: 1300px;
+  /* max-width: 1300px; */
   min-height: calc(100vh - 300px);
 }

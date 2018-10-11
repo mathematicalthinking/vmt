@@ -50,7 +50,7 @@ class Signup extends Component {
     return (
       // after creating a user redirect to login @TODO figure out if this is for creating students or for signing up on your own
       // the answer will determine where/if we redirect to
-      this.props.loggedIn ? <Redirect to='/myVMT'/> :
+      this.props.loggedIn ? <Redirect to='/myVMT/courses'/> :
       <div className={classes.Container}>
         <div className={classes.SignupContainer}>
           <h2 className={classes.Title}>Signup</h2>

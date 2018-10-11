@@ -20,22 +20,39 @@ var data = [
     "newRoom": []
   },
   "courseTemplates": [],
-  "courses": [],
-  "rooms": [
-    "5ba289c57223b9429888b9b5",
-  ],
+  "courses": ["5bbb82f72539b95500cf526e", "5bbf4e5ec1b6d84cb0a4ded8"],
   "activities": [],
   "isAdmin": false,
   "seenTour": false,
-  "username": "michael",
+  "username": "jl-picard",
   "email": "",
-  "firstName": "",
-  "lastName": "",
-  "password": "$2b$12$n1R.Yb9o/QNI5NSd8yV4WeGuZkoMShcMapPHLaoxUUMszPvJJH2ne",
-  "accountType": "student",
-  "createdAt": "2018-09-19T17:39:06.857Z",
-  "updatedAt": "2018-09-19T18:13:24.216Z",
+  "firstName": "jean-luc",
+  "lastName": "picard",
+  "password": "$2b$12$xI0a6mVLlVoFYeVsmU2XrOVowVVphu9ORSD9EVHG6lzWMvfP8cgES",
+  "accountType": "teacher",
   "__v": 2
+},
+{
+  "_id": "5bbbbd9a799302265829f5af",
+  "roomNotifications": {
+    "access": [],
+    "newRoom": []
+  },
+  "courseNotifications": {
+    "access": [],
+    "newRoom": []
+  },
+  "courseTemplates": [],
+  "courses": ["5bbf4e5ec1b6d84cb0a4ded8"],
+  "activities": [],
+  "isAdmin": false,
+  "seenTour": false,
+  "username": "g-laforge",
+  "email": "",
+  "firstName": "Geordi",
+  "lastName": "Laforge",
+  "password": "$2b$12$YNI6y1M6u4/Y4mAP.E312OYN./uTIJqKGfUREnhNJ8vs8t/4hbAua",
+  "accountType": "student",
 }
 ];
 
@@ -45,7 +62,7 @@ var UsersSeeder = Seeder.extend({
   },
   run: function () {
     return User.create(data);
-  }
+  },
 });
 
 module.exports = UsersSeeder;

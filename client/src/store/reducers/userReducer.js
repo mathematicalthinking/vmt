@@ -5,12 +5,16 @@ const initialState = {
   _id: '',
   loggedIn: false,
   courses: [],
-  courseNotifications: {},
+  courseNotifications: {
+    access: [],
+    newRoom: [],
+  },
   roomNotifications: {},
   rooms: [],
   courseTemplates: [],
   activities: [],
   seenTour: false,
+  bothRoles: false,
 }
 
 const reducer = (state = initialState, action) => {
@@ -28,6 +32,8 @@ const reducer = (state = initialState, action) => {
         courseTemplates: action.user.courseTemplates,
         activities: action.user.activities,
         seenTour: action.user.seenTour,
+        accountType: action.user.accountType,
+        bothRoles: action.user.bothRoles,
       }
     case actionTypes.ADD_USER_COURSES:
       return {
@@ -66,13 +72,17 @@ const reducer = (state = initialState, action) => {
         ...state,
         courseNotifications: {...courseNtfs, access: updatedCourseNtfs},
       }
-
-    case actionTypes.CLEAR_NOTIFICATION:
-      const updatedNotifications = state[`${action.resource}Notifications`]
-      return {
-        ...state,
-        [`${action.resource}Notifications`]: updatedNotifications,
+    
+    case actionTypes.UPDATE_NOTIFICATIONS:
+      console.log(action.updatedNotifications)
+      console.log(`${action.resource}Notifications`)
+    return {
+      ...state,
+      [`${action.resource}Notifications`]: {
+        ...state[`${action.resource}Notifications`],
+        access: [...action.updatedNotifications.access]
       }
+    }
 
     case actionTypes.CLEAR_ERROR:
       return {

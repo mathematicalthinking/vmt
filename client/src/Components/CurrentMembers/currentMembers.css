@@ -1,3 +1,6 @@
+@value colors: '../../colors.css';
+@value blue from colors;
+
 .Container {
   display: flex;
   flex-flow: column;
@@ -21,8 +24,24 @@
 }
 
 .Left {
-  margin-left: 10px;
+  /* margin-left: 10px; */
   align-self: flex-start;
+  height: 100%;
+  width: 100%;
+  overflow-y: scroll;
+  padding: 10px;
+}
+
+
+.Left::-webkit-scrollbar {
+  width: 0.5em;
+  height: 0.09em;
+  background-color: #eee;
+}
+
+.Left::-webkit-scrollbar-thumb {
+  background-color: blue;
+  border-radius: 3px;
 }
 
 h3 {
