@@ -11,8 +11,8 @@ cache:
     - ~/.npm
     - ~/.cache
 before_script:
+  - node ./client/scripts/build.js
   - node ./bin/www &
-  # - node ./client/scripts/build.js
-  - node ./client/scripts/start.js &
+  # - node ./client/scripts/start.js &
 script: 
   - cypress run
