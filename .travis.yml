@@ -9,8 +9,5 @@ cache:
   directories:
     - "node_modules"
 script: 
-  # - cd client && npm install
-  # - node scripts/build.js
-  # - cd ..
   - node ./bin/www"
   - ./node_modules/.bin/cypress open
