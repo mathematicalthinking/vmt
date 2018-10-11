@@ -20,7 +20,7 @@ var data = [
     "newRoom": []
   },
   "courseTemplates": [],
-  "courses": ["5bbb82f72539b95500cf526e"],
+  "courses": ["5bbb82f72539b95500cf526e", "5bbf4e5ec1b6d84cb0a4ded8"],
   "activities": [],
   "isAdmin": false,
   "seenTour": false,
@@ -43,7 +43,7 @@ var data = [
     "newRoom": []
   },
   "courseTemplates": [],
-  "courses": ["5bbb82f72539b95500cf526e"],
+  "courses": ["5bbf4e5ec1b6d84cb0a4ded8"],
   "activities": [],
   "isAdmin": false,
   "seenTour": false,
