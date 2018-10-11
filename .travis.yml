@@ -12,6 +12,7 @@ cache:
 before_script:
   - node ./bin/www &
   - node ./client/scripts/build.js
+  - cd ./client && npm install
   - node ./client/scripts/start.js &
 script: 
   - cypress run
