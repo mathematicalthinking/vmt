@@ -1,5 +1,5 @@
 {
-  "baseUrl": "http://localhost:3001",
+  "baseUrl": "http://localhost:3000",
   "env": {
     "NODE_ENV": "test"
   },
