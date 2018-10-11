@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import TextInput from '../../Components/Form/TextInput/TextInput';
 import Button from '../../Components/UI/Button/Button';
-import glb from '../../global.css';
 import classes from './signup.css';
 import RadioBtn from '../../Components/Form/RadioBtn/RadioBtn';
 
