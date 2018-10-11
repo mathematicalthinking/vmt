@@ -6,12 +6,12 @@ services:
 install: 
   - npm install
   - npm --prefix ./client install ./client
+  - node ./client/scripts/build.js
 cache:
  directories:
     - ~/.npm
     - ~/.cache
 before_script:
-  - node ./client/scripts/build.js
   - node ./bin/www &
   # - node ./client/scripts/start.js &
 script: 
