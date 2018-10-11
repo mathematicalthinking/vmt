@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import Draggable from 'react-draggable';
 import classes from './slider.css';
-import Aux from '../../HOC/Auxil';
+// import Aux from '../../HOC/Auxil';
 import EventDesc from './EventDesc/EventDesc';
 
 class Slider extends PureComponent {

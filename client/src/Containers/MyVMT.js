@@ -97,8 +97,8 @@ class Profile extends Component {
   }
 
   updateTabs = () => {
-    const { resource } = this.props.match.params;
-    const { courseNotifications, roomNotifications } = this.props.user;
+    // const { resource } = this.props.match.params;
+    const { courseNotifications, } = this.props.user;
     const updatedTabs = [...this.state.tabs]
     const courseNtfs = courseNotifications.access.filter(ntf => {
       let found = false;

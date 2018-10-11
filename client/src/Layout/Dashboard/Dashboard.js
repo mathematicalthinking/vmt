@@ -27,7 +27,7 @@ const dashboard = props => {
     </DnDTrash>
   }
 
-  let image = <img src={sidePanelData.image}/>
+  let image = <img src={sidePanelData.image} alt='sidePanelImage'/>
   if (!sidePanelData.image) { 
     if (sidePanelData.title === 'My VMT') {
       image = <Avatar size='large'/>
