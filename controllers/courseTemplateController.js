@@ -23,7 +23,6 @@ module.exports = {
 
   post: body => {
     return new Promise((resolve, reject) => {
-      console.log(body)
       db.CourseTemplate.create(body)
       .then(courseTemplate => resolve(courseTemplate))
       .catch(err => reject(err))

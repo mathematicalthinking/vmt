@@ -10,7 +10,6 @@ module.exports = {
   },
 
   getById: id => {
-    console.log('Getting user ', id, ' info')
     return new Promise((resolve, reject) => {
       db.User.findById(id)
       .populate('courses')
@@ -29,7 +28,6 @@ module.exports = {
   },
 
   put: (id, body) => {
-    console.log("ID: ", id, "BODY: ", body)
     let query;
     if (body.notificationType === 'requestAccess' || body.notificationType === 'grantAccess') {
       if (body.resource === 'course') {
@@ -45,13 +43,10 @@ module.exports = {
 
     }
     if (body.removeNotification) {
-      console.log(body.removeNotification)
       const { resource, listType, ntfId } = body.removeNotification;
-      console.log(resource, listType, ntfId)
       query =  {$pull: {[`${resource}Notifications.${listType}`]: {_id: ntfId}}}
     }
 
-    console.log("query: ",query)
     return new Promise((resolve, reject) => {
       db.User.findByIdAndUpdate(id, query || body, {new: true})
       .then(user => resolve(user)) // should we just try to pass back the info that chnaged?
