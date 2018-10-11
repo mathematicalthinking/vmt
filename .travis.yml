@@ -8,6 +8,6 @@ cache:
     - "node_modules"
 script: 
   - cd client && npm install
-  - node client/scripts/build.js
+  - node scripts/build.js
   - "SET \"NODE_ENV=test\" && node ./bin/www"
   - ./node_modules/.bin/cypress open
