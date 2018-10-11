@@ -1,13 +1,14 @@
 language: node_js
 node_js: 
-  - "8.6.0"
+  - 10.8
 services:
   - mongodb
 install: 
   - npm install
 cache:
-  directories:
-    - "node_modules"
+ directories:
+    - ~/.npm
+    - ~/.cache
 before_script:
   - node ./bin/www &
 script: 
