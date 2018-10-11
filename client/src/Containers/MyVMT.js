@@ -39,6 +39,7 @@ class Profile extends Component {
     if (prevProps[`user${resource}`].length !== this.props[`user${resource}`].length) {
       console.log("A NEW REC WAS ADDES")
       this.checkMultipleRoles()
+      .then(() => this.setDisplayResources())
       .then(res => this.updateTabs())
     }
     if (!loading) {
@@ -49,6 +50,10 @@ class Profile extends Component {
       console.log('view changed')
       this.setDisplayResources()
       .then(() => this.updateTabs())
+    }
+
+    if (prevProps.match.params.resource !== resource) {
+      this.setDisplayResources();
     }
   }
   
@@ -87,7 +92,6 @@ class Profile extends Component {
   }
 
   updateTabs = () => {
-    console.log('updatingTabs')
     const { resource } = this.props.match.params;
     const { courseNotifications, roomNotifications } = this.props.user;
     const updatedTabs = [...this.state.tabs]
@@ -98,7 +102,6 @@ class Profile extends Component {
          found = true; 
         }
       })
-      console.log('found: ', found)
       return found;
     })
     // console.log(courseNotifications.access)
@@ -142,21 +145,9 @@ class Profile extends Component {
   render() {
     const { user, match } = this.props;
     const resource = match.params.resource;
-    let displayResources = [];
-    if (this.props[`user${match.params.resource}`]) {
-      displayResources = this.props[`user${match.params.resource}`].filter(rsrc => {
-        let included = false
-        rsrc.members.forEach(member => {
-          if (member.user._id === user._id && member.role === this.state.view) {
-            included = true;
-          }
-        })
-        return included;
-      })
-    }
     const contentData = {
       resource,
-      userResources: displayResources,
+      userResources: this.state.displayResources,
       notifications: (resource === 'courses') ? user.courseNotifications.access : user.roomNotifications,
       userId: user._id,
     }
