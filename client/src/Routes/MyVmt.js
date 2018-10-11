@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Navbar from '../Components/Navigation/Navbar';
-import { MyVMT, Course, Activity, Room } from '../Containers';
+import { MyVMT, Course, Activity, } from '../Containers';
 // import PublicList from '../Containers/PublicList/PublicList';
 // import Dashboard from '../Layout/Dashboard/Dashboard';
 // import Activities from '../Containers/Activities/Activities';
