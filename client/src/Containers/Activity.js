@@ -51,6 +51,11 @@ class Activity extends Component {
       notifications: [],
       userId: this.props.userId,
     }
+    const sidePanelData = {
+      image: undefined,
+      title: activity.name,
+      details: activity.description,
+    }
     console.log(contentData)
     const crumbs = [{title: 'My VMT', link: '/myVMT/courses'}]
     if (course) {
@@ -67,6 +72,7 @@ class Activity extends Component {
         crumbs={crumbs}
         sidePanelTitle={'side panel'}
         contentData={contentData}
+        sidePanelData={sidePanelData}
         tabs={this.state.tabs}
         user={this.props.user}
       />

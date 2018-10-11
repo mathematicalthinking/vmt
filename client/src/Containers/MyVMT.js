@@ -53,15 +53,20 @@ class Profile extends Component {
     }
 
     if (prevProps.match.params.resource !== resource) {
-      this.setDisplayResources();
+      this.checkMultipleRoles()
+      .then(() => {this.setDisplayResources()})
     }
   }
   
   // CHekcs if the user has mulitple roles for a single resource (i.e. teacher and student)
   // if so we toggle the "view as" buttons to be visible
   checkMultipleRoles = () => {
+    const { match, user, } = this.props;
     return new Promise(resolve => {
-      const { match, user, } = this.props;
+      if (match.params.resource === 'activities') {
+        this.setState({bothRoles: false, view: 'teacher'})
+        return resolve(); // Activities are for teachers only
+      }
     // determine roles
       let isTeacher = false;
       let isStudent = false;
@@ -121,6 +126,10 @@ class Profile extends Component {
     return new Promise((resolve => {
       const { user, match } = this.props;
       const { resource } = match.params;
+      if (match.params.resource === 'activities') {
+        this.setState({displayResources: this.props[`user${resource}`]})
+        return resolve();
+      }
       let displayResources = [];
       if (this.props[`user${resource}`]) {
         displayResources = this.props[`user${resource}`].filter(rsrc => {
