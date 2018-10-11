@@ -1,8 +1,18 @@
 language: node_js
-install: 
+node_js:
+  - 10.8
+services:
+  - mongodb
+install:
   - npm install
-script: 
-  - cd client && npm install
-  - node client/scripts/build.js
-  - "SET \"NODE_ENV=test\" && node ./bin/www"
-  - ./node_modules/.bin/cypress open
+  - npm --prefix ./client install ./client
+  - npm run build
+cache:
+ directories:
+    - ~/.npm
+    - ~/.cache
+before_script:
+  - node ./bin/www --silent &
+  # - node ./client/scripts/start.js &
+script:
+  - cypress run --record --key b6a27be0-bdd5-4a35-99de-8d1d331e2e74
