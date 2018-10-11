@@ -5,7 +5,7 @@ services:
   - mongodb
 install: 
   - npm install
-  - npm install ./client/package.json
+  - npm --prefix ./client install ./client
 cache:
  directories:
     - ~/.npm
