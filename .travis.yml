@@ -12,7 +12,7 @@ cache:
     - ~/.npm
     - ~/.cache
 before_script:
-  - node ./bin/www &
+  - node ./bin/www -- --silent &
   # - node ./client/scripts/start.js &
 script: 
   - cypress run

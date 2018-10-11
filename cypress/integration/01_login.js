@@ -6,7 +6,7 @@ describe('user signup/login', function() {
   })
   beforeEach(function(){
     cy.window().then((win) => {
-      cy.visit('')
+      cy.visit('/')
       win.sessionStorage.clear()
     })
   })
