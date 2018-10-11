@@ -36,30 +36,23 @@ app.use(require('express-session')({
 }))
 
 
-//serve react files in a production enviornment
-// if (process.env.NODE_ENV === 'test') {
-//   app.use(express.static(path.join(__dirname, 'client/build')));
-// }
+if (process.env.NODE_ENV === 'travistest') {
+  app.use(express.static(path.join(__dirname, 'client/build')));
+} else {
+  app.use(express.static(path.join(__dirname, 'client/public')));
+}
 
 
-app.use(express.static(path.join(__dirname, 'client/public')));
 
 app.get('/', (req, res) => {
-  // if (process.emit.NODE_ENV === 'test') {
-  //   res.sendFile(path.join(__dirname, 'client/build/index.html'))
-  // } else {
+  if (process.emit.NODE_ENV === 'travistest') {
+    res.sendFile(path.join(__dirname, 'client/build/index.html'))
+  } else {
     res.sendFile(path.join(__dirname, '/client/public/index.html'));
-  // }
+  }
 });
 
-// app.get('/ggb', (req, res) => {
-//   console.log('in the ggb route')
-//   res.sendFile(path.join(path.join(__dirname, '/client/build/Geogebra.html')));
-// })
 
-
-// uncomment after placing your favicon in /public
-// app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 // MIDDLEWARE
 app.use(logger('dev'));
