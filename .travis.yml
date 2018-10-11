@@ -5,6 +5,7 @@ services:
   - mongodb
 install: 
   - npm install
+  - cd ./client && npm install
 cache:
  directories:
     - ~/.npm
@@ -12,7 +13,6 @@ cache:
 before_script:
   - node ./bin/www &
   - node ./client/scripts/build.js
-  - cd ./client && npm install
   - node ./client/scripts/start.js &
 script: 
   - cypress run
