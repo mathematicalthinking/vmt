@@ -11,7 +11,11 @@
 //
 // -- This is a parent command --
 Cypress.Commands.add("login", (user) => {
-  cy.visit('/')
+  cy.visit('/', {
+    onBeforeLoad: (win) => {
+      win.sessionStorage.clear();
+    }
+  })
   cy.contains('Login').click()
   cy.get('input[name=username]').type(user.username)
   cy.get('input[name=password]').type(user.password)

@@ -6,13 +6,7 @@ const course = require('../fixtures/course')
 const room = require('../fixtures/room')
 const activity = require('../fixtures/activity')
 
-describe('test access requests', function(){
-  beforeEach(function(){
-    cy.window((win) => {
-      win.sessionStorage.clear()
-      cy.reload()
-    })
-  })
+describe('test access requests', function(){  
   before(function(){
     cy.task('seedDBAccess').then(() => cy.login(user2))
   })
@@ -31,7 +25,7 @@ describe('test access requests', function(){
     cy.login(user1)
     cy.get('.tabList__Notifications__3pVC8').contains('1')
     cy.get('.contentBox__Notification__3lGZv').contains('1')
-    cy.get('.contentBox__Title__ytq7u > .global__Link__cpx9-').click()
+    cy.contains('course 1').click()
     cy.get('.tabList__Notifications__3pVC8').contains('1')
     cy.get('#Members').click();
     cy.get('.students__Notifications__2RH6W > [draggable="true"] > .member__Container__2EVLw').contains(user2.username)

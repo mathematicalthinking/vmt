@@ -13,6 +13,22 @@ var data = [
       {
         "user": "5ba289ba7223b9429888b9b4",
         "role": "teacher"
+      }
+    ],
+    "creator": "5ba289ba7223b9429888b9b4", // jl-picard
+    "__v": 0
+  },
+  {
+    "_id": "5bbf4e5ec1b6d84cb0a4ded8",
+    "activities": [],
+    "rooms": [],
+    "isPublic": false,
+    "name": "course 2",
+    "description": "",
+    "members": [
+      {
+        "user": "5ba289ba7223b9429888b9b4",
+        "role": "teacher"
       },
       {
         "user": "5bbbbd9a799302265829f5af", // g-laForge
