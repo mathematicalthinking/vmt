@@ -36,7 +36,6 @@ class NewResource extends Component {
   }
 
   submitForm = event => {
-    console.log(this.props.userID)
     event.preventDefault();
     // const roomIds = this.state.rooms.map(room => room.id);
     const newResource = {
@@ -63,7 +62,6 @@ class NewResource extends Component {
       // BECAUSE ACTIVITIES AND ROOMS ARE PRETTY MUCH THE SAME AN IF?ELSE BLOCK WOULD ACTUALLY BE MORE EFFICIENT
       switch (this.props.resource) {
         case 'courses' :
-          console.log(newResource)
           this.props.createCourse(newResource);
           break;
         case 'activities' :
@@ -88,19 +86,16 @@ class NewResource extends Component {
         default: break;
       }
     }
-    console.log("NEW RESOURCE: ", newResource)
     this.setState({creating: false})
   }
 
   render() {
-    console.log(this.props)
     const { resource } = this.props;
     let displayResource;
     if (resource === 'activities') {
       displayResource = 'Activity'
     } else { displayResource = resource.charAt(0).toUpperCase() + resource.slice(1, resource.length - 1); }
     // @IDEA ^ while I've never seen this done before...maybe it'd be cleaner to have a file of static content and just import it in so we don't have these long strings all over
-    console.log(resource)
     return (
       <Aux>
         <Modal
