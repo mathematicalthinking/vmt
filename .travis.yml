@@ -1,6 +1,8 @@
 language: node_js
 node_js: 
   - "8.6.0"
+services:
+  - mongodb
 install: 
   - npm install
 cache:
@@ -10,5 +12,5 @@ script:
   # - cd client && npm install
   # - node scripts/build.js
   # - cd ..
-  - "SET \"NODE_ENV=test\" && node ./bin/www"
+  - node ./bin/www"
   - ./node_modules/.bin/cypress open
