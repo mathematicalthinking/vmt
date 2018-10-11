@@ -29,7 +29,7 @@ var data = [
   "firstName": "jean-luc",
   "lastName": "picard",
   "password": "$2b$12$xI0a6mVLlVoFYeVsmU2XrOVowVVphu9ORSD9EVHG6lzWMvfP8cgES",
-  "accountType": "student",
+  "accountType": "teacher",
   "__v": 2
 },
 {
@@ -43,7 +43,7 @@ var data = [
     "newRoom": []
   },
   "courseTemplates": [],
-  "courses": [],
+  "courses": ["5bbb82f72539b95500cf526e"],
   "activities": [],
   "isAdmin": false,
   "seenTour": false,

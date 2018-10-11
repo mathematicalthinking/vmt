@@ -13,7 +13,12 @@ var data = [
       {
         "user": "5ba289ba7223b9429888b9b4",
         "role": "teacher"
+      },
+      {
+        "user": "5bbbbd9a799302265829f5af", // g-laForge
+        "role": "student",
       }
+
     ],
     "creator": "5ba289ba7223b9429888b9b4", // jl-picard
     "__v": 0
