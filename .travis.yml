@@ -8,6 +8,7 @@ install:
 cache:
   directories:
     - "node_modules"
-script: 
+before_script:
   - node ./bin/www
+script: 
   - ./node_modules/.bin/cypress open
