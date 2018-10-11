@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import DashboardLayout from '../../Layout/Dashboard/Dashboard';
-import * as actions from '../../store/actions';
+// import PropTypes from 'prop-types';
+import DashboardLayout from '../Layout/Dashboard/Dashboard';
+import * as actions from '../store/actions';
 import { connect } from 'react-redux';
-import { populateResource } from '../../store/reducers/';
+import { populateResource } from '../store/reducers';
 class Activity extends Component {
   state = {
     tabs: [
@@ -48,17 +48,23 @@ class Activity extends Component {
       userResources: activity[resource] || [],
       parentResource: 'activities',
       parentResourceId: activity._id,
+      notifications: [],
       userId: this.props.userId,
     }
+    const sidePanelData = {
+      image: undefined,
+      title: activity.name,
+      details: activity.description,
+    }
     console.log(contentData)
-    const crumbs = [{title: 'Profile', link: '/profile/courses'}]
+    const crumbs = [{title: 'My VMT', link: '/myVMT/courses'}]
     if (course) {
       crumbs.push(
         {title: `${course.name}`, link: `${crumbs[0].link}/${course._id}/activities`},
         {title: `${activity.name}`, link: `${crumbs[0].link}/${course._id}/activities/${activity._id}/details`},
       )
     } else {
-      crumbs.push({title: `${activity.name}`, link: `/profile/activities/${activity._id}/details`})
+      crumbs.push({title: `${activity.name}`, link: `/myVMT/activities/${activity._id}/details`})
     }
     return (
       <DashboardLayout
@@ -66,7 +72,9 @@ class Activity extends Component {
         crumbs={crumbs}
         sidePanelTitle={'side panel'}
         contentData={contentData}
+        sidePanelData={sidePanelData}
         tabs={this.state.tabs}
+        user={this.props.user}
       />
     )
   }
@@ -79,6 +87,7 @@ const mapStateToProps = (store, ownProps ) => {
     populatedActivity: populateResource(store, 'activities', activity_id, ['rooms']),
     currentCourse: store.courses.byId[course_id],
     userId: store.user._id,
+    user: store.user,
   }
 }
 

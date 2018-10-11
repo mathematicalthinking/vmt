@@ -4,15 +4,14 @@ import NewResource from '../../../Containers/Create/NewResource/NewResource';
 // CONSIDER RENAMING TO DASHBOARDCONTENT
 const resources = props => {
     // @TODO Is there a way to do this passing over the array only once?
-    console.log(props.userResources)
-    const ownedResources = props.userResources.filter(resource => (
-      resource.creator === props.userId
-    ))
-    const enrolledResources = props.userResources.filter(resource => (
-      resource.creator !== props.userId
-    ))
+    // const ownedResources = props.userResources.filter(resource => (
+    //   resource.creator === props.userId
+    // ))
+    // const enrolledResources = props.userResources.filter(resource => (
+    //   resource.creator !== props.userId
+    // ))
 
-    let linkPath =`/profile/${props.resource}/`
+    let linkPath =`/myVMT/${props.resource}/`
     let linkSuffix = props.resource === 'courses' ? '/activities' : '/summary';
     if (props.resource === 'courses') {
       linkSuffix = '/activities'
@@ -21,29 +20,22 @@ const resources = props => {
     } else {linkSuffix = '/summary'}
     const displayResource = props.resource[0].toUpperCase() + props.resource.slice(1);
     if (props.parentResource === 'courses') {
-      linkPath = `/profile/${props.parentResource}/${props.parentResourceId}/${props.resource}/`
+      linkPath = `/myVMT/${props.parentResource}/${props.parentResourceId}/${props.resource}/`
       linkSuffix = '/details'
     }
     return (
       <div>
+        {/* @TODO don't show create optinos for students */}
         {props.parentResource !== 'activities' ? <NewResource resource={props.resource} courseId={props.parentResource === 'courses'?  props.parentResourceId : null}/> : null}
-        <h2>{displayResource} I Own</h2>
+        <h2>My {displayResource}</h2>
         <BoxList
-          list={ownedResources}
+          list={props.userResources}
           linkPath={linkPath}
           linkSuffix={linkSuffix}
           notifications = {props.notifications}
           resource = {props.resource}
           listType = 'private'
-          draggable
-        />
-        <h2>{displayResource} I'm Enrolled in</h2>
-        <BoxList
-          list={enrolledResources}
-          linkPath={linkPath}
-          linkSuffix={linkSuffix}
-          notifications = {props.notifications}
-          listType = 'private'
+          // draggable
         />
       </div>
     )

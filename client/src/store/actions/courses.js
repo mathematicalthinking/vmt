@@ -20,9 +20,10 @@ export const gotCourses = (courses) => {
 }}
 
 // params: course = un-normalized backend model
-export const updateCourse = course => ({
+export const updateCourse = (id, body) => ({
   type: actionTypes.UPDATE_COURSE,
-  course,
+  id,
+  body,
 })
 
 export const addCourseActivities = (courseId, activityIdsArr) => ({
@@ -71,6 +72,18 @@ export const courseRemoved = (courseId) => {
   return {
     type: actionTypes.REMOVE_COURSE,
     courseId,
+  }
+}
+
+export const updateCourseMembers = (courseId, updatedMembers) => {
+
+  return dispatch => {
+    API.updateMembers('course', courseId, updatedMembers)
+    .then(res => {
+      console.log(res)
+      dispatch(updateCourse(courseId, res.data.result))
+    })
+    .catch(err => console.log(err))
   }
 }
 

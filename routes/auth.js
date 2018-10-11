@@ -17,7 +17,6 @@ router.post('/login', (req, res, next) => {
       // if (info.errorMessage) return res.status(401).send({message: info})
       return res.json(info)
     }
-    console.log("we should never get here huh?")
     res.status(401).send({message: info})
     // res.json({message: 'success'})
   })(req, res, next);
@@ -28,11 +27,9 @@ router.post('/signup', (req, res, next) => {
   passport.authenticate('local-signup', (err, user, info) => {
     console.log(err)
     if (user) {
-      console.log(user)
       return res.json(user)
     }
     if (info) {
-      console.log(info)
       // For some reason I couldn't my error message
       // with a 400 status code
       return res.json(info)
@@ -42,7 +39,6 @@ router.post('/signup', (req, res, next) => {
 });
 
 router.get('/googleAuth', (req, res, next) => {
-  console.log("authorizing google")
   passport.authenticate('google', {
      scope:["https://www.googleapis.com/auth/plus.login",
      "https://www.googleapis.com/auth/plus.profile.emails.read"
@@ -51,7 +47,6 @@ router.get('/googleAuth', (req, res, next) => {
 });
 
 router.get('/google/callback', (req, res, next) => {
-  console.log("callback initiated");
   passport.authenticate('google', {
     failureRedirect: "/#/login",
     successRedirect: "/"

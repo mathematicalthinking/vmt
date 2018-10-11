@@ -60,13 +60,11 @@ module.exports = passport => {
   }));
 
   passport.use('local-login', new LocalStrategy((username, password, next) => {
-    console.log("are we making it here?", username, password)
     User.findOne({ 'username':  username, 'accountType':  {$ne: 'temp'}}, (err, user) => {
       if (err) {console.log(err); return next(err);}
       // @TODO we actually want to just provide a link here instead of telling htem where to go
       if (!user) return next(null, false, {errorMessage: 'That username does not exist. If you want to create an account go to Register'});
       if (!bcrypt.compareSync(password, user.password)) {
-        console.log('password incorrect')
         return next(null, false, {errorMessage: 'The password you entered is incorrect'});
       }
       // Manual field population

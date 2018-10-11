@@ -1,24 +1,36 @@
-@value colors: '../../colors.css';
-@value blue from colors;
-@value orange from colors;
-
+:import('../../colors.css') {
+  blue: blue;
+  darkShadow: darkShadow;
+}
 .NavContainer {
   display: flex;
   width: 100%;
   height: 40px;
-  max-width: 1300px;
   background-color: blue;
-  justify-content: flex-end;
-  align-items: center;
-  border-radius: 3px;
+  color: white;
+  justify-content: center;
   box-shadow: 0 12px 20px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12), 0 11px 15px -7px rgba(0,0,0,0.2);
+}
+
+.SubContainer {
+  width: 1200px;
+  display: flex;
+  justify-content: space-between
+}
+
+.Logo {
+  height: 100%;
+  margin-left: 15px;
+  display: flex;
+  align-items: center;
+  font-size: 25px;
 }
 
 .NavList{
   display: flex;
   justify-content: space-between;
   min-width: 600px;
-  margin: 0;
+  margin-right: 15px;
 }
 
 @media screen (min-width: 1300px) {

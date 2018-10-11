@@ -18,8 +18,10 @@
 .SidePanel {
   display: flex;
   flex-flow: column;
+  justify-content: space-between;
   width: 25%;
   max-height: 100%;
+  box-sizing: border-box;
 }
 
 .Graph {
@@ -28,8 +30,7 @@
   border-radius: 3px;
 }
 .Chat {
-  margin: 0px 15px;
-  height: 61.53%;
+  height: 60.53%;
   border-radius: 3px;
 }
 
@@ -39,9 +40,8 @@
 }
 
 .Members {
-  height: 38.46%;
+  height: 37.46%;
   border-radius: 3px;
-  margin: 15px 15px 0 15px;
 }
 
 .Avatar {

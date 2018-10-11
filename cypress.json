@@ -1,6 +1,9 @@
 {
+  "projectId": "wvk6mc",
   "baseUrl": "http://localhost:3000",
   "env": {
     "NODE_ENV": "test"
-  }
+  },
+  "defaultCommandTimeout": 10000,
+  "chromeWebSecurity": false
 }

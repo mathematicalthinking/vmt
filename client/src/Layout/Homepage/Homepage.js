@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import classes from './homepage.css';
 import BoxList from '../BoxList/BoxList'
 import Button from '../../Components/UI/Button/Button';
