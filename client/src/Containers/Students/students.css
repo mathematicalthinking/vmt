@@ -6,13 +6,13 @@ width: 100%;
   width: 100%;
 }
 
-.UserRow {
+/* .UserRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: white;
   border: 1px solid #ddd;
-}
+} */
 
 .Role {
   margin: 20px;

@@ -2,13 +2,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
   background-color: white;
   border: 1px solid #ddd;
 }
 
+.Avatar {
+  margin: 20px;
+  width: 100px;
+}
+
 .Row {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   width: 150px;
 }
@@ -27,4 +33,13 @@
 
 .Icon:hover {
   color: #888;
+}
+
+@media (max-width: 920px) {
+  .Container {
+    justify-content: flex-start;
+  }
+  .Row {
+    width: 100px;
+  }
 }

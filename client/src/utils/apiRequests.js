@@ -19,20 +19,22 @@ export default {
 
   // CONSIDER MOVING ALL OF THE ACCESS CHECKING / GRANTING TO THE AUTH util
   checkRoomAccess: (roomId, userId, entryCode) => {
-    console.log(roomId, userId, entryCode)
     return axios.put(`/api/room/${roomId}`, {checkAccess: {userId, entryCode,}})
   },
 
   requestAccess: (toUser, fromUser, resource, resourceId) => {
-    console.log(toUser)
     // @TODO consider making notificationTypes a directory of constants like action types
     return axios.put(`/api/user/${toUser}`, {notificationType: 'requestAccess', user: fromUser, resource, _id: resourceId})
   },
 
   removeNotification: (ntfId, userId, resource, listType) => {
-    console.log({$pull: {[`${resource}Notifications.${listType}`]: {_id: ntfId}}})
+    console.log(ntfId, userId, listType, resource)
     return axios.put(`/api/user/${userId}`, {
-      $pull: {[`${resource}Notifications.${listType}`]: {_id: ntfId}} // THIS IS BAD we shouldnt be writing mongoose syntax onf the front end
+      removeNotification: {
+        ntfId,
+        resource,
+        listType,
+      }
     })
   },
 
@@ -41,12 +43,9 @@ export default {
   },
 
   updateMembers: (resource, resourceId, updatedMembers) => {
-    console.log(updatedMembers)
     return axios.put(`/api/${resource}/${resourceId}`, {members: updatedMembers})
   },
   getDesmos: url => {
-    console.log('geting desoms')
-    console.log(url)
     return axios.get(`/desmos?url=${url}`)
   }
 }

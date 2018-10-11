@@ -3,7 +3,7 @@ import auth from '../../utils/auth';
 import { normalize } from '../utils/normalize';
 import API from '../../utils/apiRequests';
 import * as loading from './loading'
-import { updateCourse, gotCourses } from './courses';
+import { gotCourses, updateCourse, updateCourseMembers } from './courses';
 import { updateRoom, addRoomMember } from './rooms';
 
 
@@ -72,10 +72,22 @@ export const addUserCourseTemplates = newTemplate => {
   }
 }
 
+export const updateNotifications = (resource, updatedNotifications) => {
+  return {
+    type: actionTypes.UPDATE_NOTIFICATIONS,
+    updatedNotifications,
+    resource,
+  }
+}
+
 export const clearNotification = (ntfId, userId, resource, listType) => {
   return (dispatch) => {
     API.removeNotification(ntfId, userId, resource, listType)
     .then(res => {
+      console.log("NTF REMOVED: ", res)
+      if (resource === 'course') {
+        dispatch(updateNotifications(resource, res.data.result[`${resource}Notifications`]))
+      }
       // dispatch(gotUser(res.data))
     })
     .catch(err => console.log(err))
@@ -123,10 +135,6 @@ export const login = (username, password) => {
 // ENTRY CODE IS OPTIONAL
 // WE SHOULD JUST SEPARATE OUT CHECKROOMACCESS into the ROOM ACTIONS FILE
 export const requestAccess = (toUser, fromUser, resource, resourceId, entryCode) => {
-  console.log(toUser)
-  console.log(fromUser)
-  console.log(resource)
-  console.log(entryCode)
   return dispatch => {
     dispatch(loading.start());
     if (resource === 'room' && entryCode) {
@@ -141,7 +149,6 @@ export const requestAccess = (toUser, fromUser, resource, resourceId, entryCode)
       })
       .catch(err => loading.fail(err))
     } else {
-      console.log("REQUESTING ACCESS")
       API.requestAccess(toUser, fromUser, resource, resourceId)
       .then(res => {
         return dispatch(loading.accessSuccess())
@@ -153,18 +160,24 @@ export const requestAccess = (toUser, fromUser, resource, resourceId, entryCode)
 }
 
 export const grantAccess = (user, resource, resourceId) => {
-  return dispatch => {
-    console.log(user, resource, resourceId)
+  return (dispatch, getState) => {
+    let apiResource = resource.slice(0, -1);
+    if (apiResource === 'activitie') apiResource = 'activity';
     dispatch(loading.start())
-    API.grantAccess(user, resource, resourceId)
+    API.grantAccess(user, apiResource, resourceId)
     .then(res => {
-      if (resource === 'room') {
+      if (apiResource === 'room') {
         return dispatch(updateRoom(resourceId, {members: res.data.result.members}))
+      } else if (apiResource === 'course') {
+        dispatch(updateCourse(resourceId, {members: res.data.result.members}))
       }
-      console.log(res.data.result)
-      dispatch(updateUserAccessNtfs(resource, user))
+      const { user } = getState()
+      const updatedNotifications = user[`${apiResource}Notifications`]
+      updatedNotifications.access = user[`${apiResource}Notifications`].access.filter(ntf => {
+        return ntf._id !== resourceId
+      })
+      dispatch(updateNotifications(apiResource, updatedNotifications))
       dispatch(loading.success())
-      // dispatch(updateCourse(res.data.result))
     })
     .catch(err => {console.log(err); dispatch(loading.fail(err))})
   }
