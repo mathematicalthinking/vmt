@@ -3,6 +3,9 @@ node_js:
   - "8.6.0"
 install: 
   - npm install
+cache:
+  directories:
+    - "node_modules"
 script: 
   - cd client && npm install
   - node client/scripts/build.js
