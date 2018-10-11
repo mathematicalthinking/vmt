@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import Navbar from '../Components/Navigation/Navbar';
-import { MyVMT, Course, Activity, Room } from '../Containers';
-import PublicList from '../Containers/PublicList/PublicList';
+import { MyVMT, Course, Activity, } from '../Containers';
+// import PublicList from '../Containers/PublicList/PublicList';
 // import Dashboard from '../Layout/Dashboard/Dashboard';
 // import Activities from '../Containers/Activities/Activities';
-import Avatar from '../Components/UI/Avatar/Avatar';
+// import Avatar from '../Components/UI/Avatar/Avatar';
 import PrivateRoute from '../Components/HOC/PrivateRoute';
-import Workspace from '../Containers/Workspace/Workspace';
-import Replayer from '../Containers/Replayer/Replayer';
+// import Workspace from '../Containers/Workspace/Workspace';
+// import Replayer from '../Containers/Replayer/Replayer';
 import Confirmation from '../Layout/Confirmation/Confirmation';
 import Aux from '../Components/HOC/Auxil';
-import classes from './main.css';
+// import classes from './main.css';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 
