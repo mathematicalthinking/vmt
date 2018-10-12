@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import * as actions from '../store/actions';
+import { enterRoomWithCode, populateRoom, requestAccess, } from '../store/actions';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 import Aux from '../Components/HOC/Auxil';
 import PrivateRoomAccessModal from '../Components/UI/Modal/PrivateRoomAccess';
@@ -63,10 +63,10 @@ class Room extends Component {
 
   }
 
-  requestAccess = entryCode => {
+  enterWithCode = entryCode => {
     console.log('requesting access')
     const {room, user} = this.props;
-    this.props.requestAccess(user, 'room', room._id, entryCode)
+    this.props.enterRoomWithCode(room._id, entryCode, user._id, user.username)
   }
 
 
@@ -82,10 +82,15 @@ class Room extends Component {
       notifications: user.roomNotifications || [],
       room,
     }
+    const sidePanelData = {
+      image: undefined,
+      title: room.name,
+      details: room.description,
+    }
 
     const crumbs = [
-      {title: 'Profile', link: '/profile/courses'},
-      {title: room.name, link: `/profile/rooms/${room._id}/summary`}]
+      {title: 'Profile', link: '/myVMT/courses'},
+      {title: room.name, link: `/myVMT/rooms/${room._id}/summary`}]
       //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
       // THE REDUX STORE USING THE COURSE ID IN THE URL
     if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/profile/courses/${room.course._id}/activities`})}
@@ -98,13 +103,14 @@ class Room extends Component {
               routingInfo={this.props.match}
               crumbs={crumbs}
               contentData={contentData}
+              sidePanelData={sidePanelData}
               tabs={this.state.tabs}
               activeTab={resource}
               loading={this.props.loading}
               activateTab={event => this.setState({activeTab: event.target.id})}
             />
           </Aux> :
-          (room.isPublic ? <PublicAccessModal requestAccess={this.grantPublicAccess}/> : <PrivateRoomAccessModal requestAccess={(entryCode) => this.requestAccess(entryCode)} course={room.course}/>)}
+          (room.isPublic ? <PublicAccessModal requestAccess={this.grantPublicAccess}/> : <PrivateRoomAccessModal requestAccess={(entryCode) => this.enterWithCode(entryCode)} course={room.course}/>)}
       </Aux>
     )
   }
@@ -118,11 +124,4 @@ const mapStateToProps = (store, ownProps) => {
   }
 }
 
-const mapDispatchToProps = dispatch => {
-  return {
-    requestAccess: (user, resource, id, entryCode) => dispatch(actions.requestAccess(null, user, resource, id, entryCode)),
-    populateRoom: id => dispatch(actions.populateRoom(id))
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Room);
+export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess,})(Room);

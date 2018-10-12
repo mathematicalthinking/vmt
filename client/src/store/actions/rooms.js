@@ -118,6 +118,21 @@ export const createRoom = body => {
   }
 }
 
+export const enterRoomWithCode = (roomId, entryCode, userId, username) => {
+  return dispatch => {
+    console.log(roomId, userId, entryCode, username)
+    API.enterRoomWithCode(roomId, userId, entryCode)
+    .then(res => {
+      dispatch(addUserRooms([roomId]))
+      dispatch(addRoomMember(roomId, {
+        role: 'student', user: {_id: userId, username: username}
+      }))
+      return dispatch(loading.success())
+    })
+    .catch(err => loading.fail(err))
+  } 
+}
+
 export const updateRoomMembers = (roomId, updatedMembers) => {
 
   return dispatch => {

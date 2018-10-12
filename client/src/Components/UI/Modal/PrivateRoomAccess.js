@@ -21,7 +21,7 @@ class PrivateRoomAccess extends Component {
             <TextInput type='text' name='entryCode' change={event => this.setState({entryCode: event.target.value})}/>
             <Button click={() => this.props.requestAccess(this.state.entryCode)}>Join</Button>
           </div> :
-          <p>This rooms belongs to a private course. Request access to the course to gain entry</p>
+          <p>This room belongs to a private course. Request access to the course to gain entry</p>
         }
       </Modal>
     )

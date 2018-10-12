@@ -12,7 +12,7 @@ describe('test access requests', function(){
   })
 
   // COURSE
-  it("user1 requests access to a course", function(){
+  it("user2 requests access to a course", function(){
     cy.contains('Community').click()
     cy.url().should('include', 'community/activities')
     cy.contains('Courses').click()
@@ -21,7 +21,7 @@ describe('test access requests', function(){
     cy.getTestElement('join-btn').click()
     cy.url().should('include', '/confirmation')
   })
-  it("user2 granst access to a course", function(){
+  it("user1 granst access to a course", function(){
     cy.login(user1)
     cy.getTestElement('tab-ntf').contains('1')
     cy.getTestElement('content-box-ntf').contains('1')
@@ -35,7 +35,7 @@ describe('test access requests', function(){
     cy.contains(user2.username).should('exist')
     // MAKE SURE THE NOTIFICATION IS VISUALLY RESOLVED
   })
-  it("user1 user now has access", function(){
+  it("user2 user now has access", function(){
     cy.login(user2)
     cy.getTestElement('tab-ntf').contains('1')
     cy.getTestElement('content-box-ntf').contains('1')
@@ -50,4 +50,27 @@ describe('test access requests', function(){
   })
 
   // ROOM
+  it('user 2 joins a room by entering entry-code', function(){
+    cy.login(user2)
+    cy.contains('Community').click()
+    cy.url().should('include', 'community/activities')
+    cy.contains('Rooms').click()
+    cy.url().should('include', 'community/rooms')
+    cy.contains('room 1').click()
+    cy.get('#entryCode').type('{selectall} {backspace}').type('rare-shrimp-45')
+    cy.contains('Join').click()
+    cy.url().should('include', 'summary')
+    cy.contains('Room Stats').should('exist')
+    cy.getTestElement('crumb').contains('Profile').click()
+    cy.getTestElement('tab').contains('Rooms').click()
+    cy.getTestElement('content-box-title').contains('room 1').should('exist')
+  })
+
+  it('user 1 should get a notification that user2 joined', function(){
+
+  })
+
+  it('user fails to join with wrong entry code', function(){
+
+  })
 })

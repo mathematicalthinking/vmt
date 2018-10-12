@@ -18,7 +18,7 @@ export default {
   },
 
   // CONSIDER MOVING ALL OF THE ACCESS CHECKING / GRANTING TO THE AUTH util
-  checkRoomAccess: (roomId, userId, entryCode) => {
+  enterRoomWithCode: (roomId, userId, entryCode) => {
     return axios.put(`/api/room/${roomId}`, {checkAccess: {userId, entryCode,}})
   },
 

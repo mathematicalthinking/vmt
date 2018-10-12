@@ -43,7 +43,6 @@ class Profile extends Component {
       .then(res => this.updateTabs())
     }
     if (!loading) {
-      console.log(user[resource])
       let haveResource = user[resource].every(rsrc => this.props[resource].includes(rsrc))
       if (!haveResource) this.fetchData(resource)
     }
@@ -73,16 +72,20 @@ class Profile extends Component {
       let isStudent = false;
       let bothRoles = false;
       let view = 'teacher';
+      console.log("USER RESOURCES: ", this.props[`user${match.params.resource}`])
       if (this.props[`user${match.params.resource}`]) {
         this.props[`user${match.params.resource}`].forEach(resource => {
           resource.members.forEach((member) => {
             if (member.user._id === user._id) {
+              console.log(resource.name)
+              console.log(member.role)
               if (member.role === 'student') isStudent = true;
               if (member.role === 'teacher') isTeacher = true;
             }
           })
         })
       }
+      console.log(isTeacher, isStudent)
       if (isTeacher && isStudent) bothRoles = true
       else view = isTeacher ? 'teacher' : 'student';
       this.setState({
