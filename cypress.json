@@ -4,6 +4,6 @@
   "env": {
     "NODE_ENV": "test"
   },
-  "defaultCommandTimeout": 10000,
+  "defaultCommandTimeout": 9000,
   "chromeWebSecurity": false
 }
