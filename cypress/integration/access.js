@@ -8,7 +8,7 @@ const activity = require('../fixtures/activity')
 
 describe('test access requests', function(){  
   before(function(){
-    cy.task('seedDBAccess').then(() => cy.login(user2))
+    cy.task('seedDB').then(() => cy.login(user2))
   })
 
   // COURSE

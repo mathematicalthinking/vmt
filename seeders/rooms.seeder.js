@@ -41,6 +41,7 @@ var data = [
     "isPublic" : false,
     "name" : "room 2",
     "description" : "hello",
+    "entryCode": "hello",
     "members" : [
       {
         "user": "5ba289ba7223b9429888b9b4", //jl-picard

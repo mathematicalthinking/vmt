@@ -37,9 +37,9 @@ module.exports = (on, config) => {
         exec('md-seed run users --dropdb', () => resolve('success'))
       })
     },
-    seedDBAccess: () => {
+    seedDB: () => {
       return new Promise((resolve, reject) => {
-        exec('md-seed run users courses --dropdb', () => resolve('success'))
+        exec('md-seed run users courses rooms --dropdb', () => resolve('success'))
       })
     }
   })

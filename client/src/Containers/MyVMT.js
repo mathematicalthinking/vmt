@@ -43,7 +43,8 @@ class Profile extends Component {
       .then(res => this.updateTabs())
     }
     if (!loading) {
-      let haveResource = user[resource].every(re => this.props[resource].includes(re))
+      console.log(user[resource])
+      let haveResource = user[resource].every(rsrc => this.props[resource].includes(rsrc))
       if (!haveResource) this.fetchData(resource)
     }
     if (prevState.view !== this.state.view) {
