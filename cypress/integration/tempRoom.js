@@ -21,8 +21,7 @@ describe('temporary room', function() {
     cy.window().then((win) => {
       win.sessionStorage.clear()
       cy.visit('/')
-      cy.log(url)
-      cy.visit(url.substring(21, url.length)) // I wish we could easily override the baseURL defined in cypress.config
+      cy.visit(url) 
       cy.get('input').type('geordi')
       cy.get('.button__Button__3QQYz').click()
       cy.get('.ggbtoolbarpanel')
