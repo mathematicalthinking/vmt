@@ -15,9 +15,7 @@ RoomTemplate.post('save', doc => {
     if (err) {
       return console.log(err)
     }
-    console.log(res)
     res.roomTemplates.push(doc._id)
-    console.log(res)
     res.save()
     // .then(res => console.log('all good'))
     // .catch(err => console.log("ERR: ",err))
