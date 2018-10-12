@@ -46,7 +46,7 @@ class Member extends PureComponent {
         <div className={classes.Container}>
           <div className={classes.Avatar}><Avatar username={info.user.username} /></div>
           <div className={classes.Row}>
-            {grantAccess ? <Button click={this.props.grantAccess}>Grant Access</Button> : null}
+            {grantAccess ? <Button click={this.props.grantAccess} data-testid='grant-access'>Grant Access</Button> : null}
             <div className={classes.Role}>{info.role}</div>
             {owner && !grantAccess ? <div className={classes.Icon} onClick={this.edit}><i className="fas fa-edit"></i></div> : null}
           </div>

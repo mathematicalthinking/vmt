@@ -160,7 +160,7 @@ class NewResource extends Component {
             </form>
           </div>
         </Modal>
-        <Button click={this.showModal}>Create A New {displayResource}</Button>
+        <Button click={this.showModal} data-testid={`create-${displayResource}`}>Create A New {displayResource}</Button>
         {(resource === 'activities') ? <Button click={this.showModal}>Select an existing {displayResource}</Button> : null}
         {(resource === 'rooms') ? <Button click={this.showModal}>Create from an Activity</Button> : null}
       </Aux>

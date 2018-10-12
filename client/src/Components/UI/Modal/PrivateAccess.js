@@ -20,7 +20,7 @@ class privateAccess extends Component {
           request access from the owner click "Join". When your request is accepted
           this course will appear in your list of courses on your profile.
         </p>
-        <Button click={this.props.requestAccess}>Join</Button>
+        <Button click={this.props.requestAccess} data-testid='join-btn'>Join</Button>
       </Modal>
     )
   }
