@@ -20,13 +20,38 @@ var data = [
     "description" : "hello",
     "members" : [
       {
-        "user": "5ba289ba7223b9429888b9b4",
+        "user": "5ba289ba7223b9429888b9b4", //jl-picard
         "role": "teacher"
       }
     ],
     "creator" : "5ba289ba7223b9429888b9b4",
     "entryCode" : "rare-shrimp-45",
     "desmosLink" : "https://www.desmos.com/calculator/krixwfwu1u",
+    "dueDate" : null,
+    "createdAt" : "2018-09-19T17:39:17.490Z",
+    "updatedAt" : "2018-09-19T17:39:55.337Z",
+    "__v" : 0
+  },
+  {
+    "_id" : "5ba289c57223b9429888b9b6",
+    "roomType" : "desmos",
+    "chat" : [],
+    "currentUsers" : [],
+    "events" : [],
+    "isPublic" : false,
+    "name" : "room 2",
+    "description" : "hello",
+    "members" : [
+      {
+        "user": "5ba289ba7223b9429888b9b4", //jl-picard
+        "role": "teacher"
+      },
+      {
+        "user": "5bbbbd9a799302265829f5af", // g-laForge
+        "role": "student",
+      }
+    ],
+    "creator" : "5ba289ba7223b9429888b9b4",
     "dueDate" : null,
     "createdAt" : "2018-09-19T17:39:17.490Z",
     "updatedAt" : "2018-09-19T17:39:55.337Z",
