@@ -46,14 +46,16 @@ const students = props => {
       {owner ?
         <div>
           <h3 className={classes.SubHeader}>New Requests to Join</h3>
-          <div className={classes.Notifications}>
+          <div className={classes.Notifications} data-testid='join-requests'>
             {joinRequests}
           </div>
           <h3 className={classes.SubHeader}>Add New Students</h3>
         </div>
       : null }
       <h3 className={classes.SubHeader}>Class List</h3>
-      {classList}
+      <div data-testid='members'>
+        {classList}
+      </div>
     </div>
   )
 }

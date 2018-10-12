@@ -29,6 +29,10 @@ Cypress.Commands.add("login", (user) => {
   // cy.visit('/')
 })
 
+Cypress.Commands.add('getTestElement', (selector) => {
+  return cy.get(`[data-testid="${selector}"`);
+})
+
 //
 // -- This is a child command --
 // Cypress.Commands.add("drag", { prevSubject: 'element'}, (subject, options) => { ... })

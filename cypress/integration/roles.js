@@ -9,15 +9,15 @@ describe('show different views based on role', function(){
     // cy.visit('/myVMT/courses')
   })
   it('does not display the toggle option when a user only a student', function(){
-    cy.get('.contentBox__Container__VQwJV').contains('course 2').should('exist')
+    cy.getTestElement('content-box-title').contains('course 2').should('exist')
   })
   it('displays the toggle after the student creates a course (becoming a teacher)', function(){
-    cy.get('.dashboard__MainContent__1E4zd > :nth-child(1) > :nth-child(2)').click()
+    cy.getTestElement('create-Course').click()
     cy.get('input[name=coursesName]').type(course.name)
     cy.get('input[name=description]').type(course.description)
     cy.get('button').contains('Submit').click()
     cy.contains(course.name).should('be.visible')
-    cy.get('.button__Active__v9lDR').contains('Teacher');
+    cy.get('button').contains('Teacher').should('be.visible');
   })
   it('toggles the resources when the user switches view', function(){
     cy.contains('Student').click();

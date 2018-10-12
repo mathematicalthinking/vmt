@@ -170,7 +170,6 @@ class Course extends Component {
 }
 
 const mapStateToProps = (store, ownProps) => {
-  console.log('mappingState to props')
   return {
     course: populateResource(store, 'courses', ownProps.match.params.course_id, ['activities', 'rooms']),
     activities: store.activities.allIds,
