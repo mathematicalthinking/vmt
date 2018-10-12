@@ -22,7 +22,6 @@ Course.pre('save', async function(){
   if (!this.isNew) {
     const promises = [];
     this.modifiedPaths().forEach(field => {
-      console.log(field)
       if (field === 'rooms') {
         // console.log('updating rooms in course pre save hook')
       // add these rooms to all of the members in this course

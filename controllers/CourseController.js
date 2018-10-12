@@ -41,7 +41,6 @@ module.exports = {
       } else {
         delete body.templateIsPublic
         delete body.template;
-        console.log('posting body: ', body)
         db.Course.create(body)
         .then(course => {
           course.populate({path: 'members.user', select: 'username'}, () => resolve(course))
@@ -57,7 +56,6 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.Course.findById(id)
       .then(course => {
-        console.log(updatedFields[0])
         if (updatedFields[0] === 'newMember') {
           course.members.push({role: 'student', user: body.newMember})
         }
@@ -72,7 +70,6 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.Course.findById(id)
       .then(course => {
-        console.log(course)
         course.remove()
         resolve(course)}
       )
