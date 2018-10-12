@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import classes from './member.css';
 import Avatar from '../Avatar/Avatar';
+import Button from '../Button/Button';
 import Aux from '../../HOC/Auxil';
 import PositionedBox from '../Edit/PositionedBox';
 import EditMember from './EditMember';
@@ -35,7 +36,7 @@ class Member extends PureComponent {
   }
 
   render() {
-    const { info, owner } = this.props;
+    const { info, owner, grantAccess } = this.props;
     return (
       <Aux>
         {this.state.editing ?
@@ -43,10 +44,11 @@ class Member extends PureComponent {
             <EditMember role={this.state.role} changeRole={this.changeRole}/>
           </PositionedBox> : null}
         <div className={classes.Container}>
-          <div style={{margin: 20}}><Avatar username={info.user.username} /></div>
+          <div className={classes.Avatar}><Avatar username={info.user.username} /></div>
           <div className={classes.Row}>
+            {grantAccess ? <Button click={this.props.grantAccess} data-testid='grant-access'>Grant Access</Button> : null}
             <div className={classes.Role}>{info.role}</div>
-            {owner ? <div className={classes.Icon} onClick={this.edit}><i className="fas fa-edit"></i></div> : null}
+            {owner && !grantAccess ? <div className={classes.Icon} onClick={this.edit}><i className="fas fa-edit"></i></div> : null}
           </div>
         </div>
       </Aux>

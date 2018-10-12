@@ -31,6 +31,10 @@ class NewResource extends Component {
     })
   }
 
+  showModal = () => {
+    this.setState({creating: true})
+  }
+
   submitForm = event => {
     event.preventDefault();
     // const roomIds = this.state.rooms.map(room => room.id);
@@ -38,7 +42,7 @@ class NewResource extends Component {
       name: this.state[`${this.props.resource}Name`],
       description: this.state.description,
       // rooms: roomIds,
-      members: [{user: this.props.userId, role: 'teacher'}], // @TODO Do we want to default the creator to a teacher?
+      members: [{user: {_id: this.props.userId, username: this.props.username}, role: 'teacher'}], // @TODO Do we want to default the creator to a teacher?
       creator: this.props.userId,
       isPublic: this.state.isPublic,
     }
@@ -82,19 +86,16 @@ class NewResource extends Component {
         default: break;
       }
     }
-    console.log("NEW RESOURCE: ", newResource)
     this.setState({creating: false})
   }
 
   render() {
-    console.log(this.props)
     const { resource } = this.props;
     let displayResource;
     if (resource === 'activities') {
       displayResource = 'Activity'
     } else { displayResource = resource.charAt(0).toUpperCase() + resource.slice(1, resource.length - 1); }
     // @IDEA ^ while I've never seen this done before...maybe it'd be cleaner to have a file of static content and just import it in so we don't have these long strings all over
-    console.log(resource)
     return (
       <Aux>
         <Modal
@@ -159,8 +160,9 @@ class NewResource extends Component {
             </form>
           </div>
         </Modal>
-        <Button click={() => {this.setState({creating: true})}}>Create A New {displayResource} {this.props.template ? 'Template' : null}</Button>
-        {!this.props.template ? <Button click={() => this.setState({creating: true})}>Create From Template</Button> : null}
+        <Button click={this.showModal} data-testid={`create-${displayResource}`}>Create A New {displayResource}</Button>
+        {(resource === 'activities') ? <Button click={this.showModal}>Select an existing {displayResource}</Button> : null}
+        {(resource === 'rooms') ? <Button click={this.showModal}>Create from an Activity</Button> : null}
       </Aux>
     )
   }
@@ -171,6 +173,7 @@ const mapStateToProps = store => {
     myRooms: store.user.rooms,
     rooms: store.rooms.rooms,
     userId: store.user._id,
+    username: store.user.username,
   }
 }
 

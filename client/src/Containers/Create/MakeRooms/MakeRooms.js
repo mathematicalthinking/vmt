@@ -52,7 +52,7 @@ class MakeRooms extends Component  {
       // create a room with the selected students
       let members = this.state.selectedStudents.map(student => ({user: student, role: 'Student'}))
       members.push({user: this.props.userId, role: 'Teacher'})
-      newRoom.name = `${name} ${this.state.roomsCreated + 1}`;
+      newRoom.name = `${name} (room ${this.state.roomsCreated + 1})`;
       newRoom.members = members;
       this.props.createRoom(newRoom)
       const remainingStudents = this.state.remainingStudents.filter(student => {
@@ -121,7 +121,7 @@ class MakeRooms extends Component  {
               </div>
             </div>
           }
-          <Button click={this.submit}>Assign</Button>
+          <Button click={this.submit} data-testid="assign-rooms">Assign</Button>
         </div>
       </Aux>
     )

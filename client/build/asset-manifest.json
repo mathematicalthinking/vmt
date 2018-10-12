@@ -1,7 +1,10 @@
 {
-  "main.css": "static/css/main.7a4d9486.css",
-  "main.css.map": "static/css/main.7a4d9486.css.map",
-  "main.js": "static/js/main.d4348e21.js",
-  "main.js.map": "static/js/main.d4348e21.js.map",
-  "static\\media\\Ripple-2.3s-200px.gif": "static/media/Ripple-2.3s-200px.8ca328c3.gif"
+  "main.css": "static/css/main.9f6537a4.css",
+  "main.css.map": "static/css/main.9f6537a4.css.map",
+  "main.js": "static/js/main.96b0b45f.js",
+  "main.js.map": "static/js/main.96b0b45f.js.map",
+  "static\\media\\Picture-5.jpg": "static/media/Picture-5.309d0dce.jpg",
+  "static\\media\\Ripple.gif": "static/media/Ripple.8ca328c3.gif",
+  "static\\media\\desmos.png": "static/media/desmos.1794e3ca.png",
+  "static\\media\\geogebra.png": "static/media/geogebra.1404047d.png"
 }

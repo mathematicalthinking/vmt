@@ -8,7 +8,7 @@ class CurrentMembers extends Component {
     return (
       <div className={classes.Container}>
         <h3>Current Members</h3>
-        <div className={classes.Left}>
+        <div className={classes.Left} data-testid='current-members'>
           {members ? members.map(user =>
             <div
               className={[classes.Avatar, (user._id === activeMember ? classes.Active : classes.Passive)].join(" ")}

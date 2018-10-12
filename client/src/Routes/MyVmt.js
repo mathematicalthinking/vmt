@@ -1,20 +1,16 @@
 import React, { Component } from 'react';
 import Navbar from '../Components/Navigation/Navbar';
-// import Login from '../Containers/Login/Login';
-import Room from '../Containers/Room/Room';
-import Course from '../Containers/Course/Course';
-import Activity from '../Containers/Activity/Activity';
-import PublicList from '../Containers/PublicList/PublicList';
-import Profile from '../Containers/Profile/Profile';
+import { MyVMT, Course, Activity, } from '../Containers';
+// import PublicList from '../Containers/PublicList/PublicList';
 // import Dashboard from '../Layout/Dashboard/Dashboard';
 // import Activities from '../Containers/Activities/Activities';
-import Avatar from '../Components/UI/Avatar/Avatar';
+// import Avatar from '../Components/UI/Avatar/Avatar';
 import PrivateRoute from '../Components/HOC/PrivateRoute';
-import Workspace from '../Containers/Workspace/Workspace';
-import Replayer from '../Containers/Replayer/Replayer';
+// import Workspace from '../Containers/Workspace/Workspace';
+// import Replayer from '../Containers/Replayer/Replayer';
 import Confirmation from '../Layout/Confirmation/Confirmation';
 import Aux from '../Components/HOC/Auxil';
-import classes from './main.css';
+// import classes from './main.css';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 
@@ -22,8 +18,7 @@ import { Route, Switch } from 'react-router-dom';
 
 class MyVmt extends Component {
   render() {
-    console.log(this.props.match)
-    console.log('main rendering')
+    const { path } = this.props.match
     return (
       // <main className={classes.Main}>
       //   {/* <div className={classes.Particles} id='particles-js'></div> */}
@@ -33,14 +28,13 @@ class MyVmt extends Component {
       //   </div>
       <Aux>
         <Navbar />
-        <section className={classes.Section}>
           <Switch>
-            <PrivateRoute path={`${this.props.match.path}/:resource`} authed={this.props.loggedIn} component={Profile}/>
+            <PrivateRoute exact path={`${path}/:resource`} authed={this.props.loggedIn} component={MyVMT}/>
+            <PrivateRoute exact path = {`${path}/courses/:course_id/:resource`} authed={this.props.loggedIn} component={Course}/>
+            <PrivateRoute exact path={`${path}/courses/:course_id/activities/:activity_id/:resource`} authed={this.props.loggedIn} component={Activity} />
             {/* <Route exact path='/publicList/:resource' component={PublicList}/>
             <Route exact path='/publicResource/room/:room_id/:resource' component={Room}/>
             <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />
-            <PrivateRoute exact path = '/profile/courses/:course_id/:resource' authed={this.props.loggedIn} component={Course}/>
-            <PrivateRoute exact path='/profile/courses/:course_id/activities/:activity_id/:resource' authed={this.props.loggedIn} component={Activity} />
             <PrivateRoute exact path='/profile/activities/:activity_id/:resource' authed={this.props.loggedIn} component={Activity} />
             <PrivateRoute exact path = '/profile/rooms/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
             <PrivateRoute exact path = '/profile/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room} />
@@ -55,7 +49,6 @@ class MyVmt extends Component {
               // ^ @TODO 404 page
             }}/>
           </Switch>
-        </section>
       </Aux>
     )
   }

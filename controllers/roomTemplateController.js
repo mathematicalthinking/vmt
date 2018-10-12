@@ -24,7 +24,6 @@ module.exports = {
 
   post: body => {
     return new Promise((resolve, reject) => {
-      console.log(body)
       db.RoomTemplate.create(body)
       .then(roomTemplate => resolve(roomTemplate))
       .catch(err => reject(err))

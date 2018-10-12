@@ -29,7 +29,6 @@ module.exports = {
       .populate({path: 'course', select: 'name'})
       .populate({path: 'events', select: '-room'})
       .then(room => {
-        console.log("POPULATED ROOM: ", room)
         resolve(room)
       })
       .catch(err => reject(err))
@@ -47,7 +46,6 @@ module.exports = {
         .populate({path: 'currentUsers', select: 'username'}, function(){(resolve(room))}) //Hmm why no support for promise here?
       })
       .catch(err => {
-        console.log("why you know show me error")
         console.log(err); reject(err)
       })
     })

@@ -2,6 +2,7 @@ import React from 'react';
 import classes from './tabList.css';
 import { Link } from 'react-router-dom';
 const tabList = props => {
+  console.log(props.tabs)
   const { params, url } = props.routingInfo
   const tabElems = props.tabs.map(tab => {
     let style = classes.Tab;
@@ -10,9 +11,9 @@ const tabList = props => {
     }
     let updatedUrl = url.replace(params.resource, '') + tab.name.toLowerCase();
     return (
-      <Link to={updatedUrl} key={tab.name} id={tab.name} className={style}>
+      <Link to={updatedUrl} key={tab.name} id={tab.name} className={style} data-testid="tab">
         {tab.name}
-        {tab.notifications ? <div className={classes.Notifications}>{tab.notifications}</div> : null}
+        {tab.notifications ? <div className={classes.Notifications} data-testid="tab-ntf">{tab.notifications}</div> : null}
       </Link>
     )
   })

@@ -1,4 +1,4 @@
-const user = require('../fixtures/user') // <-- this is not how you use fixtures
+const user = require('../fixtures/user2') // <-- this is not how you use fixtures, yeah whatever it works
 
 describe('user signup/login', function() {
   before(function() {
@@ -6,7 +6,7 @@ describe('user signup/login', function() {
   })
   beforeEach(function(){
     cy.window().then((win) => {
-      cy.visit('/')
+      cy.visit('')
       win.sessionStorage.clear()
     })
   })
@@ -19,14 +19,14 @@ describe('user signup/login', function() {
     cy.get('input[name=email]').type(user.email)
     cy.get('input[name=password]').type(user.password)
     cy.get('button').click()
-    cy.url().should('include', '/myVMT')
+    cy.url().should('include', '/myVMT/courses')
   })
   it('logs in the user we just created', function() {
     cy.contains('Login').click()
     cy.get('input[name=username]').type(user.username)
     cy.get('input[name=password]').type(user.password)
     cy.get('button').click()
-    cy.url().should('include', '/myVMT')
+    cy.url().should('include', '/myVMT/courses')
   })
   it('fails to sign up a user with the same username', function(){
     cy.contains('Signup').click()
@@ -37,20 +37,20 @@ describe('user signup/login', function() {
     cy.get('input[name=email]').type(user.email)
     cy.get('input[name=password]').type(user.password)
     cy.get('button').click()
-    cy.get('.signup__ErrorMsg__4x6oZ').should('have.text', 'That username is already taken.')
+    cy.contains('That username is already taken.').should('exist')
   }) 
   it('fails to login with wrong password', function(){
     cy.contains('Login').click()
     cy.get('input[name=username]').type(user.username)
     cy.get('input[name=password]').type('incorrect password')
     cy.get('button').click()
-    cy.get('.login__ErrorMsg__dvYQ-').should('have.text', 'The password you entered is incorrect')
+    cy.contains('The password you entered is incorrect').should('exist')
   })
   it('fails to login with wrong username', function(){
     cy.contains('Login').click()
     cy.get('input[name=username]').type('incorrect username')
     cy.get('input[name=password]').type(user.password)
     cy.get('button').click()
-    cy.get('.login__ErrorMsg__dvYQ-').should('have.text', 'That username does not exist. If you want to create an account go to Register')
+    cy.contains('That username does not exist. If you want to create an account go to Register')
   })
 })
