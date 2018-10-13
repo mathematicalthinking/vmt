@@ -36,6 +36,12 @@
   border-radius: 3px;
 }
 
+.Error {
+  color: red;
+  position: abssolute;
+  height: 24px;
+}
+
 @media (max-width: 600px) {
   .Modal {
       width: 400px;

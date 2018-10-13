@@ -78,13 +78,22 @@ describe('test access requests', function(){
     cy.getTestElement('members').children().contains('g-laforge')
     cy.getTestElement('member-ntf').should('exist')
   })
-  
+
   it('should resolve the notification after user 1 has seen it', function(){
     cy.getTestElement('tab').contains('Summary').click()
     cy.getTestElement('tab-ntf').should('not.exist')
   })
 
   it('user fails to join with wrong entry code', function(){
+    cy.task('seedDB').then(() => cy.login(user2))
+    cy.contains('Community').click()
+    cy.url().should('include', 'community/activities')
+    cy.contains('Rooms').click()
+    cy.url().should('include', 'community/rooms')
+    cy.contains('room 1').click()
+    cy.get('#entryCode').type('{selectall} {backspace}').type('WRONG_CODE')
+    cy.contains('Join').click()
+    cy.getTestElement('entry-code-error').contains('That entry code was incorrect. Try again.')
 
   })
 })

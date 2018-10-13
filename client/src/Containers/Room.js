@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { enterRoomWithCode, populateRoom, requestAccess, clearNotification} from '../store/actions';
+import { enterRoomWithCode, populateRoom, requestAccess, clearError} from '../store/actions';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 import Aux from '../Components/HOC/Auxil';
 import PrivateRoomAccessModal from '../Components/UI/Modal/PrivateRoomAccess';
@@ -85,7 +85,14 @@ class Room extends Component {
 
 
   render() {
-    const { room, match, user, roomNotifications } = this.props;
+    const { 
+      room, 
+      match, 
+      user, 
+      roomNotifications, 
+      error, 
+      clearError,
+    } = this.props;
     const resource = match.params.resource;
     const contentData = {
       resource,
@@ -125,7 +132,14 @@ class Room extends Component {
               activateTab={event => this.setState({activeTab: event.target.id})}
             />
           </Aux> :
-          (room.isPublic ? <PublicAccessModal requestAccess={this.grantPublicAccess}/> : <PrivateRoomAccessModal requestAccess={(entryCode) => this.enterWithCode(entryCode)} course={room.course}/>)}
+          (room.isPublic ? <PublicAccessModal requestAccess={this.grantPublicAccess}/> : 
+          <PrivateRoomAccessModal 
+            requestAccess={(entryCode) => this.enterWithCode(entryCode)} 
+            course={room.course} 
+            error={error}
+            clearError={clearError}
+          />
+        )}
       </Aux>
     )
   }
@@ -137,7 +151,8 @@ const mapStateToProps = (store, ownProps) => {
     user: store.user,
     roomNotifications: store.user.roomNotifications,
     loading: store.loading.loading,
+    error: store.loading.errorMessage,
   }
 }
 
-export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, })(Room);
+export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, clearError})(Room);
