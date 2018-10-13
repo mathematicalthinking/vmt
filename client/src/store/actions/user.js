@@ -82,12 +82,11 @@ export const updateNotifications = (resource, updatedNotifications) => {
 
 export const clearNotification = (ntfId, userId, resource, listType) => {
   return (dispatch) => {
+    console.log('removing notification')
     API.removeNotification(ntfId, userId, resource, listType)
     .then(res => {
       console.log("NTF REMOVED: ", res)
-      if (resource === 'course') {
-        dispatch(updateNotifications(resource, res.data.result[`${resource}Notifications`]))
-      }
+      dispatch(updateNotifications(resource, res.data.result[`${resource}Notifications`]))
       // dispatch(gotUser(res.data))
     })
     .catch(err => console.log(err))

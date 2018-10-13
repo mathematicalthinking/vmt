@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { enterRoomWithCode, populateRoom, requestAccess, } from '../store/actions';
+import { enterRoomWithCode, populateRoom, requestAccess, clearNotification} from '../store/actions';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 import Aux from '../Components/HOC/Auxil';
 import PrivateRoomAccessModal from '../Components/UI/Modal/PrivateRoomAccess';
@@ -27,18 +27,14 @@ class Room extends Component {
     // CHECK ACCESS
     let updatedTabs = [...this.state.tabs];
     let owner = false;
-    console.log(room.creator._id, user._id)
-    if (room.creator._id === user._id) {
+    if (room.creator === user._id) {
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
       this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
       owner = true;
       // displayNotifications
       updatedTabs = this.displayNotifications(updatedTabs)
-      console.log('UpDATED TABS: ', updatedTabs)
     }
     if (room.members) {
-      console.log(room.members)
-      console.log(user._id)
       this.checkAccess();
     }
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
@@ -52,22 +48,27 @@ class Room extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log('room updated')
+    console.log(prevProps.roomNotifications.access.length)
+    console.log(this.props.roomNotifications.access.length)
+    // THESE ARE SUSCEPTIBLE TO ERRORS BECAUSE YOU COULD GAIN AND LOSE TWO DIFFERENT NTFS IN A SINGLE UPDATE POTENTIALLY? ACTUALLY COULD YOU?
     if (prevProps.room.members.length !== this.props.room.members.length) {
       this.checkAccess();
+    }
+    if (prevProps.roomNotifications.access.length !== this.props.roomNotifications.access.length) {
+      console.log('updateing tabs!!')
+      let updatedTabs = this.displayNotifications([...this.state.tabs]);
+      this.setState({tabs: updatedTabs})
     }
   }
 
   checkAccess () {
-    console.log('checking access')
     if (this.props.room.members.find(member => member.user._id === this.props.user._id)) {
-      console.log("you are a member of this room")
       this.setState({member: true})
     };
-
   }
 
   enterWithCode = entryCode => {
-    console.log('requesting access')
     const {room, user} = this.props;
     this.props.enterRoomWithCode(room._id, entryCode, user._id, user.username)
   }
@@ -75,15 +76,16 @@ class Room extends Component {
   displayNotifications = (tabs) => {
     const { user, room } = this.props;
     const { roomNotifications } = user;
-    if (roomNotifications.access.length > 0 && room.creator._id === user._id) {
-      tabs[1].notifications = roomNotifications.access.length;
+    if (room.creator === user._id) {
+      tabs[1].notifications = roomNotifications.access.length > 0 ? roomNotifications.access.length: '';
     } 
+    console.log(tabs)
     return tabs;
   }
 
 
   render() {
-    const { room, match, user } = this.props;
+    const { room, match, user, roomNotifications } = this.props;
     const resource = match.params.resource;
     const contentData = {
       resource,
@@ -91,8 +93,9 @@ class Room extends Component {
       parentResourceId: room._id,
       userResources: room[resource],
       owner: this.state.owner,
-      notifications: user.roomNotifications.access || [],
+      notifications: roomNotifications.access || [],
       room,
+      user,
     }
     const sidePanelData = {
       image: undefined,
@@ -132,8 +135,9 @@ const mapStateToProps = (store, ownProps) => {
   return {
     room: store.rooms.byId[ownProps.match.params.room_id],
     user: store.user,
+    roomNotifications: store.user.roomNotifications,
     loading: store.loading.loading,
   }
 }
 
-export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess,})(Room);
+export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, })(Room);

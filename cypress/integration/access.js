@@ -69,10 +69,19 @@ describe('test access requests', function(){
   it('user 1 should get a notification that user2 joined', function(){
     cy.login(user1)
     cy.getTestElement('tab-ntf').contains('1')
-    cy.getTestElement('tab').contains('Room').click()
+    cy.getTestElement('tab').contains('Rooms').click()
+    cy.getTestElement('content-box-ntf').contains('1')
+    cy.getTestElement('content-box-title').contains('room 1').click()
     cy.getTestElement('tab-ntf').contains('1')
     cy.getTestElement('tab').contains('Members').click()
-    
+    cy.getTestElement('members').children().should('have.length', 2)
+    cy.getTestElement('members').children().contains('g-laforge')
+    cy.getTestElement('member-ntf').should('exist')
+  })
+  
+  it('should resolve the notification after user 1 has seen it', function(){
+    cy.getTestElement('tab').contains('Summary').click()
+    cy.getTestElement('tab-ntf').should('not.exist')
   })
 
   it('user fails to join with wrong entry code', function(){

@@ -74,15 +74,12 @@ class Profile extends Component {
         this.props[`user${match.params.resource}`].forEach(resource => {
           resource.members.forEach((member) => {
             if (member.user._id === user._id) {
-              console.log(resource.name)
-              console.log(member.role)
               if (member.role === 'student') isStudent = true;
               if (member.role === 'teacher') isTeacher = true;
             }
           })
         })
       }
-      console.log(isTeacher, isStudent)
       if (isTeacher && isStudent) bothRoles = true
       else view = isTeacher ? 'teacher' : 'student';
       this.setState({

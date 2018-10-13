@@ -18,14 +18,12 @@ class Homepage extends PureComponent {
       const currentRooms = Object.keys(this.props.rooms).map(id => this.props.rooms[id])
       const prevRooms = Object.keys(prevProps.rooms).map(id => prevProps.rooms[id])
       let room = currentRooms.filter(room => !prevRooms.includes(room))
-      console.log(room)
       this.props.history.push(`explore/${room[0]._id}`)
     }
   }
 
   
   createRoom = () => {
-    console.log(this.props.createRoom)
     this.props.createRoom({
       name: 'temp room',
       tempRoom: true,
@@ -34,7 +32,6 @@ class Homepage extends PureComponent {
   }
 
   render() {
-    console.log(this.props)
     const list = Object.keys(this.props.activities).map(id => this.props.activities[id]) || []
     return (
       <div>
