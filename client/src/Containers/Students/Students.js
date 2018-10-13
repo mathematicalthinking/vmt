@@ -22,25 +22,30 @@ const students = props => {
   }
   
   let joinRequests;
+  console.log(props.owner)
   if (props.owner) {
     joinRequests = notifications.map((ntf, i) => {
+      console.log(ntf)
       return (
         <DragMember
           grantAccess={() => {props.grantAccess(ntf.user._id, props.parentResource, props.parentResourceId)}} 
           info={ntf} 
           key={i}/>
       )
-    })
+    }).filter(ntf => ntf.notificationType === 'requestAccess')
   }
-  const classList = userResources.map((member, i) => (
-      owner ? 
-      <DragMember 
-        changeRole={(info) => changeRole(info)}
-        info={member} 
-        key={i}
-      /> : <Member info={member}  key={i}/>
+  const classList = userResources.map((member, i) => {
+    const notification = notifications.filter(ntf => ntf.user === member.user._id)
+    console.log(notification, member.user._id)
+    return owner ? 
+    <DragMember 
+      changeRole={(info) => changeRole(info)}
+      info={member} 
+      key={i}
+      notification={notification.length > 0}
+    /> : <Member info={member}  key={i}/>
 
-  ))
+  })
   return (
     <div className={classes.Container}>
       {owner ?
