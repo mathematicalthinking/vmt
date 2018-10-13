@@ -67,7 +67,12 @@ describe('test access requests', function(){
   })
 
   it('user 1 should get a notification that user2 joined', function(){
-
+    cy.login(user1)
+    cy.getTestElement('tab-ntf').contains('1')
+    cy.getTestElement('tab').contains('Room').click()
+    cy.getTestElement('tab-ntf').contains('1')
+    cy.getTestElement('tab').contains('Members').click()
+    
   })
 
   it('user fails to join with wrong entry code', function(){

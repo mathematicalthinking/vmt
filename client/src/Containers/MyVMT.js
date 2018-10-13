@@ -37,7 +37,6 @@ class Profile extends Component {
     const { user, loading } = this.props;
     const { resource } = this.props.match.params;
     if (prevProps[`user${resource}`].length !== this.props[`user${resource}`].length) {
-      console.log("A NEW REC WAS ADDES")
       this.checkMultipleRoles()
       .then(() => this.setDisplayResources())
       .then(res => this.updateTabs())
@@ -47,7 +46,6 @@ class Profile extends Component {
       if (!haveResource) this.fetchData(resource)
     }
     if (prevState.view !== this.state.view) {
-      console.log('view changed')
       this.setDisplayResources()
       .then(() => this.updateTabs())
     }
@@ -72,7 +70,6 @@ class Profile extends Component {
       let isStudent = false;
       let bothRoles = false;
       let view = 'teacher';
-      console.log("USER RESOURCES: ", this.props[`user${match.params.resource}`])
       if (this.props[`user${match.params.resource}`]) {
         this.props[`user${match.params.resource}`].forEach(resource => {
           resource.members.forEach((member) => {
@@ -102,7 +99,7 @@ class Profile extends Component {
 
   updateTabs = () => {
     // const { resource } = this.props.match.params;
-    const { courseNotifications, } = this.props.user; // add room notifications eventually
+    const { courseNotifications, roomNotifications } = this.props.user; // add room notifications eventually
     const updatedTabs = [...this.state.tabs]
     const courseNtfs = courseNotifications.access.filter(ntf => {
       let found = false;
@@ -118,9 +115,9 @@ class Profile extends Component {
     // if (courseNotifications.newRoom.length > 0){
     //   updatedTabs[0].notifications += courseNotifications.newRoom.length;
     // }
-    // if (roomNotifications.newRoom.length > 0){
-    //   updatedTabs[1].notifications = roomNotifications.newRoom.length;
-    // }
+    if (roomNotifications.access.length > 0){
+      updatedTabs[2].notifications = roomNotifications.access.length;
+    }
     this.setState({
       tabs: updatedTabs
     })
@@ -161,7 +158,7 @@ class Profile extends Component {
     const contentData = {
       resource,
       userResources: this.state.displayResources,
-      notifications: (resource === 'courses') ? user.courseNotifications.access : user.roomNotifications,
+      notifications: (resource === 'courses') ? user.courseNotifications.access : user.roomNotifications.access,
       userId: user._id,
     }
     const sidePanelData = {

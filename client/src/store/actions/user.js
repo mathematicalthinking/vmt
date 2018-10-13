@@ -4,7 +4,7 @@ import { normalize } from '../utils/normalize';
 import API from '../../utils/apiRequests';
 import * as loading from './loading'
 import { gotCourses, updateCourse, } from './courses';
-import { updateRoom, addRoomMember } from './rooms';
+import { updateRoom, } from './rooms';
 
 
 export const gotUser = user => {

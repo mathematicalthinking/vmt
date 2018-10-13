@@ -7,7 +7,7 @@ const User = new mongoose.Schema({
   activities: {type: [{type: ObjectId, ref: 'Activity'}], default: []},
   roomNotifications: {
     access: [{
-      notificationType: String, // grantedAccess || requestAccess
+      notificationType: String, // grantedAccess || requestAccess || newMember (if user gained access through entry code)
       _id: {type: ObjectId, ref: 'Room'},
       user: {type: ObjectId, ref: 'User'},
     }],
