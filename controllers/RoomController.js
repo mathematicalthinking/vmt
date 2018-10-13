@@ -21,7 +21,7 @@ module.exports = {
   getById: id => {
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
-      .populate({path: 'creator', select: 'username'})
+      // .populate({path: 'creator', select: 'username'})
       .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .populate({path: 'members.user', select: 'username'})
       .populate({path: 'notifications.user', select: 'username'})
@@ -58,14 +58,24 @@ module.exports = {
         const { entryCode, userId } = body.checkAccess;
         db.Room.findById(id)
         .then(room => {
-          // @TODO SHOULD PROBABLY HASH THIS
+          // @todo SHOULD PROBABLY HASH THIS
           if (room.entryCode === entryCode) {
             room.members.push({user: userId, role: 'student'})
             room.save()
+            // Send a notification to the room owner
+            console.log('sending a notification the room owner')
+            db.User.findByIdAndUpdate(room.creator, {
+              $addToSet: {
+                'roomNotifications.access': {
+                  notificationType: 'newMember', _id: room._id, user: userId 
+                }
+             }
+            }, {new: true})
+            .then(user => console.log("USER: AFTER ADDING NTF: ", user))
             room.populate({path: 'members.user', select: 'username'}, function() {
               resolve(room)
             })
-          } else reject('incorrect entry code')
+          } else reject({errorMessage: 'incorrect entry code'})
         })
         .catch(err => reject(err))
       } else {

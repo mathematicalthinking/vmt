@@ -4,7 +4,7 @@ import { normalize } from '../utils/normalize';
 import API from '../../utils/apiRequests';
 import * as loading from './loading'
 import { gotCourses, updateCourse, } from './courses';
-import { updateRoom, addRoomMember } from './rooms';
+import { updateRoom, } from './rooms';
 
 
 export const gotUser = user => {
@@ -82,12 +82,11 @@ export const updateNotifications = (resource, updatedNotifications) => {
 
 export const clearNotification = (ntfId, userId, resource, listType) => {
   return (dispatch) => {
+    console.log('removing notification')
     API.removeNotification(ntfId, userId, resource, listType)
     .then(res => {
       console.log("NTF REMOVED: ", res)
-      if (resource === 'course') {
-        dispatch(updateNotifications(resource, res.data.result[`${resource}Notifications`]))
-      }
+      dispatch(updateNotifications(resource, res.data.result[`${resource}Notifications`]))
       // dispatch(gotUser(res.data))
     })
     .catch(err => console.log(err))
@@ -137,25 +136,12 @@ export const login = (username, password) => {
 export const requestAccess = (toUser, fromUser, resource, resourceId, entryCode) => {
   return dispatch => {
     dispatch(loading.start());
-    if (resource === 'room' && entryCode) {
-      console.log('checking room access')
-      API.checkRoomAccess(resourceId, fromUser.id, entryCode)
-      .then(res => {
-        dispatch(addUserRooms([resourceId]))
-        dispatch(addRoomMember(resourceId, {
-          role: 'students', user: {_id: fromUser.id, username: fromUser.username}
-        }))
-        return dispatch(loading.success())
-      })
-      .catch(err => loading.fail(err))
-    } else {
-      API.requestAccess(toUser, fromUser, resource, resourceId)
-      .then(res => {
-        return dispatch(loading.accessSuccess())
-      })
-      .catch(err => {
-        return dispatch(loading.fail())})
-      }
+    API.requestAccess(toUser, fromUser, resource, resourceId)
+    .then(res => {
+      return dispatch(loading.accessSuccess())
+    })
+    .catch(err => {
+      return dispatch(loading.fail())})
     }
 }
 

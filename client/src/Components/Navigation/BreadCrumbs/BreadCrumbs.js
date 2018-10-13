@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 const breadCrumbs = props => {
   const crumbs = props.crumbs.map((crumb, i)=> (
     <Link  key={i} className={glb.Link} to={crumb.link} style={{zIndex: 10 - i}}>
-      <div className={classes.Crumb}>
+      <div className={classes.Crumb} data-testid="crumb">
         {crumb.title}
       </div>
     </Link>

@@ -9,7 +9,14 @@
 
 .Avatar {
   margin: 20px;
-  width: 100px;
+  /* width: 100px; */
+}
+
+.Notification {
+  background: red;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 10px;
 }
 
 .Row {

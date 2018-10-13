@@ -56,7 +56,6 @@ class LoginLayout extends PureComponent {
     )
   }
   render() {
-    console.log(this.props)
     const formElements = Object.keys(this.state.controls);
     const form = formElements.map(formElement => {
       const elem = {...this.state.controls[formElement]}
