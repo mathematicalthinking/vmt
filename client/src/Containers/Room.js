@@ -18,8 +18,7 @@ class Room extends Component {
   }
 
   initialTabs = [
-    {name: 'Activities'},
-    {name: 'Rooms'},
+    {name: 'Summary'},
     {name: 'Members'},
   ]
 
@@ -28,10 +27,14 @@ class Room extends Component {
     // CHECK ACCESS
     let updatedTabs = [...this.state.tabs];
     let owner = false;
-    if (room.creator === user._id) {
+    console.log(room.creator._id, user._id)
+    if (room.creator._id === user._id) {
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
       this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
       owner = true;
+      // displayNotifications
+      updatedTabs = this.displayNotifications(updatedTabs)
+      console.log('UpDATED TABS: ', updatedTabs)
     }
     if (room.members) {
       console.log(room.members)
@@ -69,6 +72,15 @@ class Room extends Component {
     this.props.enterRoomWithCode(room._id, entryCode, user._id, user.username)
   }
 
+  displayNotifications = (tabs) => {
+    const { user, room } = this.props;
+    const { roomNotifications } = user;
+    if (roomNotifications.access.length > 0 && room.creator._id === user._id) {
+      tabs[1].notifications = roomNotifications.access.length;
+    } 
+    return tabs;
+  }
+
 
   render() {
     const { room, match, user } = this.props;
@@ -79,7 +91,7 @@ class Room extends Component {
       parentResourceId: room._id,
       userResources: room[resource],
       owner: this.state.owner,
-      notifications: user.roomNotifications || [],
+      notifications: user.roomNotifications.access || [],
       room,
     }
     const sidePanelData = {
