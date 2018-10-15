@@ -3,8 +3,6 @@ export {
   signup,
   gotUser,
   googleLogin,
-  grantAccess,
-  requestAccess,
   updateUserRooms,
   updateUserCourses,
   clearNotification,
@@ -14,6 +12,8 @@ export {
   removeUserCourse,
   removeUserRooms,
   removeUserActivities, // ARE WE STORING ACTIVITIES ON THE USER OBJECT?
+  addUserRooms,
+  updateNotifications,
 } from './user';
 export {
   fail,
@@ -38,6 +38,7 @@ export {
   removeRoom,
   updateRoomMembers,
   enterRoomWithCode,
+  addRoomMember,
 } from './rooms';
 export {
   addCourse,
@@ -70,3 +71,8 @@ export {
   createdActivityConfirmed,
   removeActivity,
 } from './activities';
+export {
+  joinWithCode,
+  requestAccess,
+  grantAccess,
+} from './access'

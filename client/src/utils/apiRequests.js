@@ -17,7 +17,6 @@ export default {
     return axios.delete(`/api/${resource}/${id}`)
   },
 
-  // CONSIDER MOVING ALL OF THE ACCESS CHECKING / GRANTING TO THE AUTH util
   enterWithCode: (resource, resourceId, userId, entryCode) => {
     return axios.put(`/api/${resource}/${resourceId}`, {checkAccess: {userId, entryCode,}})
   },
