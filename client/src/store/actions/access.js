@@ -45,6 +45,15 @@ export const grantAccess = (user, resource, resourceId) => {
   return (dispatch, getState) => {
     console.log('resource in access acitons: ', resource)
     dispatch(loading.start())
+    let thisUser = getState().user._id;
+    console.log(thisUser)
+    API.removeNotification(resourceId, thisUser, resource, 'access')
+    .then(res => {
+      console.log("NTF REMOVED: ", res)
+      dispatch(updateNotifications(resource, res.data.result[`${resource}Notifications`]))
+      // dispatch(gotUser(res.data))
+    })
+    .catch(err => console.log(err))
     API.grantAccess(user, resource, resourceId)
     .then(res => {
       if (resource === 'room') {
@@ -57,8 +66,6 @@ export const grantAccess = (user, resource, resourceId) => {
       updatedNotifications.access = user[`${resource}Notifications`].access.filter(ntf => {
         return ntf._id !== resourceId
       })
-      console.log('updating notifications')
-      dispatch(updateNotifications(resource, updatedNotifications))
       dispatch(loading.success())
     })
     .catch(err => {console.log(err); dispatch(loading.fail(err))})

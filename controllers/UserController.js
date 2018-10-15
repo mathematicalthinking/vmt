@@ -29,7 +29,6 @@ module.exports = {
 
   put: (id, body) => {
     let query;
-    console.log("BODY>RESOURCE: ", body.resource)
     if (body.notificationType === 'requestAccess' || body.notificationType === 'grantAccess') {
       if (body.resource === 'course') {
         console.log("HELLO FROM USER CONTROLLER: ",body)
@@ -45,7 +44,9 @@ module.exports = {
 
     }
     if (body.removeNotification) {
+      console.log("REMOVING NOTIFICATION ON BACKEND")
       const { resource, listType, ntfId } = body.removeNotification;
+      console.log(resource, listType, ntfId)
       query =  {$pull: {[`${resource}Notifications.${listType}`]: {_id: ntfId}}}
     }
 
