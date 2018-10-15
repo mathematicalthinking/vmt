@@ -30,11 +30,16 @@ class privateAccess extends Component {
     let { resource, owners, resourceId, userId, requestAccess } = this.props;
     requestAccess(owners, userId, resource, resourceId)
     this.props.history.push('/confirmation')
+  }
 
+  joinWithCode = () => {
+    console.log('joining with code')
+    let { resource, resourceId, userId, username, joinWithCode } = this.props;
+    joinWithCode(resource, resourceId, userId, username, this.state.entryCode)
   }
 
   render(){
-    let { resource, joinWithCode } = this.props;
+    let { resource } = this.props;
     console.log('THIS>POROPS: ', this.props)
     return (
       <Modal show={this.state.show} closeModal={this.closeModal}>
@@ -43,7 +48,7 @@ class privateAccess extends Component {
           ${resource}'s entry code, you can enter it below`}
         </p>
         <TextInput type='text' name='entryCode' change={this.updateEntry}/>
-        <Button click={() => joinWithCode(this.state.entryCode)}>Join</Button>
+        <Button click={this.joinWithCode}>Join</Button>
         <p>{`Otherwise you can ask the ${resource}'s owner for access`}</p>
         <Button click={this.requestAccess} data-testid='request-access-btn'>Request Access</Button>
         <div className={classes.Error} data-testid='entry-code-error'>{this.props.error}</div>

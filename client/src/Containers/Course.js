@@ -77,8 +77,6 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log(this.props.accessNotifications)
-    console.log(prevProps.accessNotifications)
     if (prevProps.accessNotifications.length !== this.props.accessNotifications.length) {
       console.log('REDUX UPDATE OF USER NTFS MADE IT TO REACT')
       let tabs = this.initialTabs;
@@ -172,9 +170,10 @@ class Course extends Component {
           course.isPublic ? 
             <PublicAccessModal requestAccess={this.grantPublicAccess}/> : 
             <Access  
-              resource='courses'
+              resource='course'
               resourceId={course._id}
               userId={user._id}
+              username={user.username}
               owners={course.members.filter(member => member.role === 'teacher').map(member => member.user)}
             />
           }

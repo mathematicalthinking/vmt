@@ -52,10 +52,12 @@ module.exports = {
   },
 
   put: (id, body) => {
+    console.log("PUT ROOM CONTROLLER")
     return new Promise((resolve, reject) => {
       const updatedField = Object.keys(body)
       if (updatedField[0] === 'checkAccess') {
-        const { entryCode, userId } = body.checkAccess;
+        let { entryCode, userId } = body.checkAccess;
+        console.log(entryCode, userId, id)
         db.Room.findById(id)
         .then(room => {
           // @todo SHOULD PROBABLY HASH THIS

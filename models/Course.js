@@ -8,6 +8,7 @@ const Course = new mongoose.Schema({
   activities: [{type: ObjectId, ref: 'Activity'}],
   rooms: [{type: ObjectId, ref: 'Room'}],
   isPublic: {type: Boolean, default: false},
+  entryCode: {type: String,},
   members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}, _id: false}],
 },{timestamps: true});
 

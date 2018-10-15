@@ -29,8 +29,9 @@ module.exports = {
 
   put: (id, body) => {
     let query;
+    console.log("BODY>RESOURCE: ", body.resource)
     if (body.notificationType === 'requestAccess' || body.notificationType === 'grantAccess') {
-      if (body.resource === 'courses') {
+      if (body.resource === 'course') {
         console.log("HELLO FROM USER CONTROLLER: ",body)
         delete body.resource;
         query = {$addToSet: {'courseNotifications.access': body}}

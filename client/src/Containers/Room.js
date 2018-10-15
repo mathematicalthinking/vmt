@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { enterRoomWithCode, populateRoom, requestAccess, clearError} from '../store/actions';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 import Aux from '../Components/HOC/Auxil';
-import PrivateAccessModal from '../Components/UI/Modal/PrivateAccess';
+import Access from './Access';
 import PublicAccessModal from '../Components/UI/Modal/PublicAccess'
 // import Students from './Students/Students';
 class Room extends Component {
@@ -132,10 +132,12 @@ class Room extends Component {
             />
           </Aux> :
           (room.isPublic ? <PublicAccessModal requestAccess={this.grantPublicAccess}/> : 
-          <PrivateAccessModal 
-            requestAccess={(entryCode) => this.enterWithCode(entryCode)} 
-            course={room.course} 
+            <Access  
             resource='room'
+            resourceId={room._id}
+            userId={user._id}
+            username={user.username}
+            owners={room.members.filter(member => member.role === 'teacher').map(member => member.user)}
             error={error}
             clearError={clearError}
           />
