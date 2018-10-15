@@ -18,7 +18,7 @@ describe('test access requests', function(){
     cy.contains('Courses').click()
     cy.url().should('include', 'community/courses')
     cy.contains('course 1').click()
-    cy.getTestElement('join-btn').click()
+    cy.getTestElement('request-access-btn').click()
     cy.url().should('include', '/confirmation')
   })
   it("user1 granst access to a course", function(){
@@ -46,11 +46,34 @@ describe('test access requests', function(){
     cy.getTestElement('tab-ntf').should('not.exist')
     cy.getTestElement('content-box-ntf').should('not.exist')
     // NAVIGATE BACK AND MAKE SURE NOTIFICATIONS HAVE BEEN RESOLVED
+  })
+
+  it("user2 enters course with entry-code", function(){
+
+  })
+
+  it("user1 gets notification that user2 joined course", function(){
+
+  })
+
+  it("should resolve notificaiton after user1 seees", function(){
 
   })
 
   // ROOM
-  it('user 2 joins a room by entering entry-code', function(){
+  it('user2 requests access to room', function(){
+
+  })
+
+  it('user1 grants access to user2', function(){
+
+  })
+
+  it('user2 now hace access to room', function(){
+
+  })
+
+  it('user2 joins a room by entering entry-code', function(){
     cy.login(user2)
     cy.contains('Community').click()
     cy.url().should('include', 'community/activities')
@@ -94,6 +117,5 @@ describe('test access requests', function(){
     cy.get('#entryCode').type('{selectall} {backspace}').type('WRONG_CODE')
     cy.contains('Join').click()
     cy.getTestElement('entry-code-error').contains('That entry code was incorrect. Try again.')
-
   })
 })
