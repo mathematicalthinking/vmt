@@ -54,19 +54,19 @@ describe('test access requests', function(){
     cy.contains('entry-code course').click()
     cy.get('#entryCode').type('{selectall} {backspace}').type('entry-code-10')
     cy.contains('Join').click()
-    cy.wait(6000)
-    cy.getTestElement('crumb').contains('Profile').click()
-    cy.getTestElement('tab').contains('Rooms').click()
-    cy.getTestElement('content-box-title').contains('room 1').should('exist')
+    cy.getTestElement('tab').contains('Members').click()
+    cy.getTestElement('members').children().should('have.length', 2)
+    cy.contains(user2.username).should('exist')
+    // cy.getTestElement('content-box-title').contains('room 1').should('exist')
   })
 
-  it("user1 gets notification that user2 joined course", function(){
+  // it("user1 gets notification that user2 joined course", function(){
 
-  })
+  // })
 
-  it("should resolve notificaiton after user1 seees", function(){
+  // it("should resolve notificaiton after user1 seees", function(){
 
-  })
+  // })
 
   // ROOM
   it('user2 requests access to room', function(){
@@ -107,9 +107,6 @@ describe('test access requests', function(){
     cy.contains('Join').click()
     cy.url().should('include', 'summary')
     cy.contains('Room Stats').should('exist')
-    cy.getTestElement('crumb').contains('Profile').click()
-    cy.getTestElement('tab').contains('Rooms').click()
-    cy.getTestElement('content-box-title').contains('room 1').should('exist')
   })
 
   it('user 1 should get a notification that user2 joined', function(){

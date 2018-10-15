@@ -54,24 +54,22 @@ class Course extends Component {
     // Check user's permission level -- owner, member, or guest
     let updatedTabs = [...this.state.tabs];
     let owner = false;
-    let member = false;
     if (course.creator === user._id) {
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
       this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
       owner = true;
       updatedTabs = this.displayNotifications(updatedTabs);
     }
-    if (course.members) {
-      this.checkAccess();
-    }
     // Check for notifications that need resolution
     // Get Any other notifications
     this.setState({
       tabs: updatedTabs,
       owner,
-      member,
       firstView,
     })
+    if (course.members) {
+      this.checkAccess();
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -126,14 +124,24 @@ class Course extends Component {
     }
   }
 
-  checkAccess () {
-    if (this.props.course.members.find(member => member.user._id === this.props.user._id)) {
-      this.setState({member: true})
-    };
+  checkAccess = () => {
+    console.log("CHECKING ACCESS FOR COURSE")
+    console.log("CHECKING ACCESS FOR COURSE")
+    console.log("CHECKING ACCESS FOR COURSE")
+    console.log(this.props.course.members)
+    console.log(this.props.user._id)
+    this.props.course.members.some(member => {
+      console.log(member.user._id)
+      console.log(this.props.user._id === member.user._id)
+       if (member.user._id === this.props.user._id) {
+         this.setState({member: true})
+         return true;
+       }
+    })
   }
 
   render() {
-    console.log(this.props)
+    console.log("MEMBER: ",this.state.member)
     const { course, user, match, accessNotifications } = this.props;
     const resource = match.params.resource;
     const contentData = {

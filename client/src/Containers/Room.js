@@ -107,7 +107,7 @@ class Room extends Component {
     }
 
     const crumbs = [
-      {title: 'Profile', link: '/myVMT/courses'},
+      {title: 'My VMT', link: '/myVMT/courses'},
       {title: room.name, link: `/myVMT/rooms/${room._id}/summary`}]
       //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
       // THE REDUX STORE USING THE COURSE ID IN THE URL
