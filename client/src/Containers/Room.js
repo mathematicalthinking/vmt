@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { enterRoomWithCode, populateRoom, requestAccess, clearError} from '../store/actions';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 import Aux from '../Components/HOC/Auxil';
-import PrivateRoomAccessModal from '../Components/UI/Modal/PrivateRoomAccess';
+import PrivateAccessModal from '../Components/UI/Modal/PrivateAccess';
 import PublicAccessModal from '../Components/UI/Modal/PublicAccess'
 // import Students from './Students/Students';
 class Room extends Component {
@@ -56,7 +56,6 @@ class Room extends Component {
       this.checkAccess();
     }
     if (prevProps.roomNotifications.access.length !== this.props.roomNotifications.access.length) {
-      console.log('updateing tabs!!')
       let updatedTabs = this.displayNotifications([...this.state.tabs]);
       this.setState({tabs: updatedTabs})
     }
@@ -133,9 +132,10 @@ class Room extends Component {
             />
           </Aux> :
           (room.isPublic ? <PublicAccessModal requestAccess={this.grantPublicAccess}/> : 
-          <PrivateRoomAccessModal 
+          <PrivateAccessModal 
             requestAccess={(entryCode) => this.enterWithCode(entryCode)} 
             course={room.course} 
+            resource='room'
             error={error}
             clearError={clearError}
           />

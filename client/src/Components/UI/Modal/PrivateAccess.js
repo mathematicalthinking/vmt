@@ -29,16 +29,15 @@ class privateAccess extends Component {
   render(){
     return (
       <Modal show={this.state.show} closeModal={this.closeModal}>
-        <p>{`You currently don't have access to this ${this.props.resource}. If you know this 
+        <div className={classes.Close} onClick={this.closeModal}><i className="fas fa-times"></i></div>
+        <p className={classes.Description}>{`You currently don't have access to this ${this.props.resource}. If you know this 
           ${this.props.resource}'s entry code, you can enter it below`}
         </p>
         <TextInput type='text' name='entryCode' change={this.updateEntry}/>
         <Button click={() => this.props.requestAccess(this.state.entryCode)}>Join</Button>
-        <p>Otherwise you can request access by clicking
-          <span click={this.props.requestAccess}>here</span>
-        </p>
+        <p>{`Otherwise you can ask the ${this.props.resource}'s owner for access`}</p>
         <Button click={this.props.requestAccess} data-testid='request-access-btn'>Request Access</Button>
-        <Button click={this.closeModal}>Cancel</Button>
+        <div className={classes.Error} data-testid='entry-code-error'>{this.props.error}</div>
       </Modal>
     )
   }

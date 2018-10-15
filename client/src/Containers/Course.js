@@ -2,11 +2,17 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import difference from 'lodash/difference';
 import { populateResource } from '../store/reducers';
-import * as actions from '../store/actions';
+import { 
+  getActivities,
+  getRooms, 
+  updateCourseRooms, 
+  updateCourseActivities, 
+  clearNotification, 
+} from '../store/actions';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 import Aux from '../Components/HOC/Auxil';
 import Modal from '../Components/UI/Modal/Modal';
-import PrivateAccessModal from '../Components/UI/Modal/PrivateAccess';
+import Access from './Access';
 import PublicAccessModal from '../Components/UI/Modal/PublicAccess';
 import Button from '../Components/UI/Button/Button';
 
@@ -163,7 +169,12 @@ class Course extends Component {
               <Button click={() => this.setState({firstView: false})}>Explore</Button>
             </Modal>
           </Aux> :
-          (course.isPublic ? <PublicAccessModal requestAccess={this.grantPublicAccess}/> : <PrivateAccessModal requestAccess={this.requestAccess}/>)}
+          course.isPublic ? 
+            <PublicAccessModal requestAccess={this.grantPublicAccess}/> : 
+            <Access 
+              requestAccess={this.requestAccess} 
+              resource='course'
+            />}
       </Aux>
     )
   }
@@ -180,15 +191,5 @@ const mapStateToProps = (store, ownProps) => {
   }
 }
 
-const mapDispatchToProps = dispatch => {
-  return {
-    getActivities: ids => dispatch(actions.getActivities(ids)),
-    getRooms: ids => dispatch(actions.getRooms(ids)),
-    updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
-    updateCourseActivities: activity => dispatch(actions.updateCourseActivities),
-    grantAccess: (user, resource, id) => dispatch(actions.grantAccess(user, resource, id)),
-    requestAccess: (toUser, fromUser, resource, resourceId) => dispatch(actions.requestAccess(toUser, fromUser, resource, resourceId)),
-    clearNotification: (ntfId, userId, resource, list) => dispatch(actions.clearNotification(ntfId, userId, resource, list)),
-  }
-}
-export default connect(mapStateToProps, mapDispatchToProps)(Course);
+
+export default connect(mapStateToProps, {getActivities, getRooms, updateCourseRooms, updateCourseActivities, clearNotification,})(Course);
