@@ -49,7 +49,8 @@ describe('test access requests', function(){
   })
 
   it("user2 enters course with entry-code", function(){
-
+    cy.contains('Community').click()
+    cy.contains('Courses').click()
   })
 
   it("user1 gets notification that user2 joined course", function(){
@@ -62,11 +63,26 @@ describe('test access requests', function(){
 
   // ROOM
   it('user2 requests access to room', function(){
-
+    cy.login(user2)
+    cy.contains('Community').click()
+    cy.contains('Rooms').click()
+    cy.getTestElement('content-box-title').contains('request access').click()
+    cy.getTestElement('request-access-btn').click()
+    cy.url().should('include', '/confirmation')
   })
 
-  it('user1 grants access to user2', function(){
-
+  it('user1 grants access to user2 (room)', function(){
+    cy.login(user1)
+    cy.getTestElement('tab-ntf').contains('1').click()
+    cy.getTestElement('content-box-ntf').contains('1')
+    cy.contains('request access').click()
+    cy.getTestElement('tab-ntf').contains('1')
+    cy.get('#Members').click()
+    cy.getTestElement('join-requests').children().should('have.length', 1)
+    cy.getTestElement('grant-access').click()
+    cy.getTestElement('tab-ntf').should('not.exist')
+    cy.getTestElement('members').children().should('have.length', 2)
+    cy.contains(user2.username).should('exist')
   })
 
   it('user2 now hace access to room', function(){

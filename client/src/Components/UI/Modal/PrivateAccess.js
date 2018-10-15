@@ -40,7 +40,6 @@ class privateAccess extends Component {
 
   render(){
     let { resource } = this.props;
-    console.log('THIS>POROPS: ', this.props)
     return (
       <Modal show={this.state.show} closeModal={this.closeModal}>
         <div className={classes.Close} onClick={this.closeModal}><i className="fas fa-times"></i></div>

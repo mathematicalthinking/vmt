@@ -54,16 +54,14 @@ module.exports = {
   put: (id, body) => {
     console.log("PUT ROOM CONTROLLER")
     return new Promise((resolve, reject) => {
-      const updatedField = Object.keys(body)
-      if (updatedField[0] === 'checkAccess') {
-        let { entryCode, userId } = body.checkAccess;
-        console.log(entryCode, userId, id)
-        db.Room.findById(id)
-        .then(room => {
+      db.Room.findById(id)
+      .then(room => {
+        if (body.checkAccess) {
+          let { entryCode, userId } = body.checkAccess;
+          console.log(entryCode, userId, id)
           // @todo SHOULD PROBABLY HASH THIS
           if (room.entryCode === entryCode) {
             room.members.push({user: userId, role: 'student'})
-            room.save()
             // Send a notification to the room owner
             console.log('sending a notification the room owner')
             db.User.findByIdAndUpdate(room.creator, {
@@ -71,20 +69,27 @@ module.exports = {
                 'roomNotifications.access': {
                   notificationType: 'newMember', _id: room._id, user: userId 
                 }
-             }
+              }
             }, {new: true})
             .then(user => console.log("USER: AFTER ADDING NTF: ", user))
-            room.populate({path: 'members.user', select: 'username'}, function() {
-              resolve(room)
-            })
           } else reject({errorMessage: 'incorrect entry code'})
+        } else if (body.newMember) {
+          console.log("new member in room!")
+          room.members.push({role: 'student', user: body.newMember})
+          console.log(room.members)
+        }
+        // else {
+        //   // THIS NEEDS TO CHANGE BELOW WE ALREADY HAVE THE ROOM DON"T NEED TO FIND
+        //   db.Room.findByIdAndUpdate(id, body, {new: true})
+        //   .then(room => {resolve(body)})
+        //   .catch(err => {console.log(err); reject(err)})
+        // }
+        room.save()
+        room.populate({path: 'members.user', select: 'username'}, function() {
+          resolve(room)
         })
-        .catch(err => reject(err))
-      } else {
-        db.Room.findByIdAndUpdate(id, body, {new: true})
-        .then(room => {resolve(body)})
-        .catch(err => {console.log(err); reject(err)})
-      }
+      })
+      .catch(err => reject(err))
     })
   },
 

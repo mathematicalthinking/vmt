@@ -19,7 +19,6 @@ class Students extends Component {
   componentWillUnmount(){
     const { room, user, notifications } = this.props
     if (room && notifications.length > 0){
-      console.log("--------------unmounting")
       this.props.clearNotification(room._id, user._id, 'room', 'access')
     }
   }
@@ -38,7 +37,6 @@ class Students extends Component {
   render(){
     const { userResources, notifications, owner,  } = this.props;
     let joinRequests = "There are no current requests";
-    console.log(this.props.owner)
     if (this.props.owner) {
       joinRequests = notifications.filter(ntf => ntf.notificationType === 'requestAccess').map((ntf, i) => {
         console.log(ntf)

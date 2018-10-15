@@ -20,14 +20,14 @@ export default {
   enterWithCode: (resource, resourceId, userId, entryCode) => {
     console.log('Entering with code ')
     console.log(resource, resourceId, userId, entryCode)
-    return axios.put(`/api/${resource}/${resourceId}`, {checkAccess: {userId, entryCode,}})
+    return axios.put(`/api/${resource}/${resourceId}`, {checkAccess: {user: userId, entryCode,}})
   },
 
-  requestAccess: (owners, fromUser, resource, resourceId) => {
+  requestAccess: (owners, userId, resource, resourceId) => {
     // @TODO consider making notificationTypes a directory of constants like action types
-    console.log(owners, fromUser, resource, resourceId,)
+    console.log(owners, userId, resource, resourceId,)
     let promises = owners.map(owner => {
-      return axios.put(`/api/user/${owner._id}`, {notificationType: 'requestAccess', user: fromUser, resource, _id: resourceId})
+      return axios.put(`/api/user/${owner._id}`, {notificationType: 'requestAccess', user: userId, resource, _id: resourceId})
     })
     return Promise.all(promises)
   },
@@ -43,6 +43,7 @@ export default {
   },
 
   grantAccess: (user, resource, resourceId) => {
+    console.log('granting access to ', user, ' for ', resource, resourceId)
     return axios.put(`/api/${resource}/${resourceId}`, {newMember: user})
   },
 

@@ -37,6 +37,7 @@ module.exports = {
         query = {$addToSet: {'courseNotifications.access': body}}
       } else {
         delete body.resource;
+        console.log("ROOMNTF: ", body)
         query = {$addToSet: {'roomNotifications.access': body}}
       }
     }

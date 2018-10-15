@@ -49,13 +49,13 @@ class Room extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     console.log('room updated')
-    console.log(prevProps.roomNotifications.access.length)
-    console.log(this.props.roomNotifications.access.length)
+    console.log(prevProps.accessNotifications.length)
+    console.log(this.props.accessNotifications.length)
     // THESE ARE SUSCEPTIBLE TO ERRORS BECAUSE YOU COULD GAIN AND LOSE TWO DIFFERENT NTFS IN A SINGLE UPDATE POTENTIALLY? ACTUALLY COULD YOU?
     if (prevProps.room.members.length !== this.props.room.members.length) {
       this.checkAccess();
     }
-    if (prevProps.roomNotifications.access.length !== this.props.roomNotifications.access.length) {
+    if (prevProps.accessNotifications.length !== this.props.accessNotifications.length) {
       let updatedTabs = this.displayNotifications([...this.state.tabs]);
       this.setState({tabs: updatedTabs})
     }
@@ -88,7 +88,7 @@ class Room extends Component {
       room, 
       match, 
       user, 
-      roomNotifications, 
+      accessNotifications, 
       error, 
       clearError,
     } = this.props;
@@ -99,7 +99,7 @@ class Room extends Component {
       parentResourceId: room._id,
       userResources: room[resource],
       owner: this.state.owner,
-      notifications: roomNotifications.access || [],
+      notifications: accessNotifications || [],
       room,
       user,
     }
@@ -151,7 +151,7 @@ const mapStateToProps = (store, ownProps) => {
   return {
     room: store.rooms.byId[ownProps.match.params.room_id],
     user: store.user,
-    roomNotifications: store.user.roomNotifications,
+    accessNotifications: store.user.roomNotifications.access,
     loading: store.loading.loading,
     error: store.loading.errorMessage,
   }

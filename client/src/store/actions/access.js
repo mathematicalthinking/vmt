@@ -27,10 +27,10 @@ export const joinWithCode = (resource, resourceId, userId, username, entryCode, 
   } 
 }
 
-export const requestAccess = (owners, fromUser, resource, resourceId) => {
+export const requestAccess = (owners, userId, resource, resourceId) => {
   return dispatch => {
     dispatch(loading.start());
-    API.requestAccess(owners, fromUser, resource, resourceId)
+    API.requestAccess(owners, userId, resource, resourceId)
     .then(res => {
       console.log("RES IN ACTIONS: ", res)
       return dispatch(loading.accessSuccess())
@@ -43,22 +43,22 @@ export const requestAccess = (owners, fromUser, resource, resourceId) => {
 
 export const grantAccess = (user, resource, resourceId) => {
   return (dispatch, getState) => {
-    let apiResource = resource.slice(0, -1);
-    if (apiResource === 'activitie') apiResource = 'activity';
+    console.log('resource in access acitons: ', resource)
     dispatch(loading.start())
-    API.grantAccess(user, apiResource, resourceId)
+    API.grantAccess(user, resource, resourceId)
     .then(res => {
-      if (apiResource === 'room') {
-        return dispatch(updateRoom(resourceId, {members: res.data.result.members}))
-      } else if (apiResource === 'course') {
+      if (resource === 'room') {
+        dispatch(updateRoom(resourceId, {members: res.data.result.members}))
+      } else if (resource === 'course') {
         dispatch(updateCourse(resourceId, {members: res.data.result.members}))
       }
       const { user } = getState()
-      const updatedNotifications = user[`${apiResource}Notifications`]
-      updatedNotifications.access = user[`${apiResource}Notifications`].access.filter(ntf => {
+      const updatedNotifications = user[`${resource}Notifications`]
+      updatedNotifications.access = user[`${resource}Notifications`].access.filter(ntf => {
         return ntf._id !== resourceId
       })
-      dispatch(updateNotifications(apiResource, updatedNotifications))
+      console.log('updating notifications')
+      dispatch(updateNotifications(resource, updatedNotifications))
       dispatch(loading.success())
     })
     .catch(err => {console.log(err); dispatch(loading.fail(err))})

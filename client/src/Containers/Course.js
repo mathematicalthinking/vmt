@@ -39,15 +39,12 @@ class Course extends Component {
     const { course, user, clearNotification } = this.props;
     let firstView = false;
     if (user.courseNotifications.access.length > 0) {
-      console.log('there are ntfs')
       user.courseNotifications.access.forEach(ntf => {
         console.log(ntf)
         if (ntf.notificationType === 'grantedAccess' && ntf._id === course._id) {
           // RESOLVE THIS NOTIFICATION
           firstView = true;
-          console.log("clearing ntf")
           clearNotification(course._id, user._id, 'course', 'access')
-
         }
       })
     }
@@ -78,7 +75,6 @@ class Course extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.accessNotifications.length !== this.props.accessNotifications.length) {
-      console.log('REDUX UPDATE OF USER NTFS MADE IT TO REACT')
       let tabs = this.initialTabs;
       if (this.state.owner) tabs = [...this.initialTabs, {name: 'Grades'}, {name: 'Insights'}]
       const updatedTabs = this.displayNotifications(tabs)
@@ -132,7 +128,7 @@ class Course extends Component {
     const resource = match.params.resource;
     const contentData = {
       resource,
-      parentResource: "courses",
+      parentResource: "course",
       parentResourceId: course._id,
       userResources: course[resource] || [],
       notifications:  accessNotifications || [],
