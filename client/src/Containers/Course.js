@@ -38,6 +38,7 @@ class Course extends Component {
   componentDidMount() {
     const { course, user, clearNotification } = this.props;
     let firstView = false;
+    
     if (user.courseNotifications.access.length > 0) {
       user.courseNotifications.access.forEach(ntf => {
         console.log(ntf)
@@ -58,10 +59,10 @@ class Course extends Component {
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
       this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
       owner = true;
+      updatedTabs = this.displayNotifications(updatedTabs);
     }
     if (course.members) {
-      if (course.members.find(member => member.user._id === user._id)) member = true;
-      updatedTabs = this.displayNotifications(updatedTabs);
+      this.checkAccess();
     }
     // Check for notifications that need resolution
     // Get Any other notifications
@@ -74,6 +75,9 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    if (prevProps.course.members.length !== this.props.course.members.length) {
+      this.checkAccess();
+    }
     if (prevProps.accessNotifications.length !== this.props.accessNotifications.length) {
       let tabs = this.initialTabs;
       if (this.state.owner) tabs = [...this.initialTabs, {name: 'Grades'}, {name: 'Insights'}]
@@ -120,6 +124,12 @@ class Course extends Component {
       let re = resource[0].toUpperCase() + resource.substr(1)
       this.props[`get${re}`](course[resource])
     }
+  }
+
+  checkAccess () {
+    if (this.props.course.members.find(member => member.user._id === this.props.user._id)) {
+      this.setState({member: true})
+    };
   }
 
   render() {

@@ -20,7 +20,7 @@ export default {
   enterWithCode: (resource, resourceId, userId, entryCode) => {
     console.log('Entering with code ')
     console.log(resource, resourceId, userId, entryCode)
-    return axios.put(`/api/${resource}/${resourceId}`, {checkAccess: {user: userId, entryCode,}})
+    return axios.put(`/api/${resource}/${resourceId}`, {checkAccess: {userId, entryCode,}})
   },
 
   requestAccess: (owners, userId, resource, resourceId) => {

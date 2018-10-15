@@ -38,7 +38,7 @@ const reducer = (state = initialState, action) => {
     case actionTypes.ADD_USER_COURSES:
       return {
         ...state,
-        courses: state.courses.concat(action.newCoursesArr)
+        courses: state.courses.concat(...action.newCoursesArr)
       }
 
     case actionTypes.ADD_USER_ACTIVITIES:

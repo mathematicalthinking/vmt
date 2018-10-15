@@ -48,9 +48,6 @@ class Room extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log('room updated')
-    console.log(prevProps.accessNotifications.length)
-    console.log(this.props.accessNotifications.length)
     // THESE ARE SUSCEPTIBLE TO ERRORS BECAUSE YOU COULD GAIN AND LOSE TWO DIFFERENT NTFS IN A SINGLE UPDATE POTENTIALLY? ACTUALLY COULD YOU?
     if (prevProps.room.members.length !== this.props.room.members.length) {
       this.checkAccess();

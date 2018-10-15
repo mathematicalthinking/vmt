@@ -4,12 +4,15 @@ import {
   updateNotifications,
   addUserRooms,
   addRoomMember,
+  addUserCourses,
+  addCourseMember,
 } from './index'
 import * as loading from './loading'
 import API from '../../utils/apiRequests';
 
 export const joinWithCode = (resource, resourceId, userId, username, entryCode, ) => {
   return dispatch => {
+    console.log('join with code')
     console.log(resourceId, userId, entryCode, username)
     API.enterWithCode(resource, resourceId, userId, entryCode)
     .then(res => {
@@ -19,7 +22,10 @@ export const joinWithCode = (resource, resourceId, userId, username, entryCode, 
           role: 'student', user: {_id: userId, username: username}
         }))
       } else if (resource === 'course') {
-
+        dispatch(addUserCourses([resourceId]))
+        dispatch(addCourseMember(resourceId, {
+          role: 'student', user: {_id: userId, username: username}
+        }))
       }
       return dispatch(loading.success())
     })

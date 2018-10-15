@@ -21,7 +21,7 @@ describe('test access requests', function(){
     cy.getTestElement('request-access-btn').click()
     cy.url().should('include', '/confirmation')
   })
-  it("user1 granst access to a course", function(){
+  it("user1 grants access to a course", function(){
     cy.login(user1)
     cy.getTestElement('tab-ntf').contains('1')
     cy.getTestElement('content-box-ntf').contains('1')
@@ -51,6 +51,13 @@ describe('test access requests', function(){
   it("user2 enters course with entry-code", function(){
     cy.contains('Community').click()
     cy.contains('Courses').click()
+    cy.contains('entry-code course').click()
+    cy.get('#entryCode').type('{selectall} {backspace}').type('entry-code-10')
+    cy.contains('Join').click()
+    cy.wait(6000)
+    cy.getTestElement('crumb').contains('Profile').click()
+    cy.getTestElement('tab').contains('Rooms').click()
+    cy.getTestElement('content-box-title').contains('room 1').should('exist')
   })
 
   it("user1 gets notification that user2 joined course", function(){
@@ -85,7 +92,7 @@ describe('test access requests', function(){
     cy.contains(user2.username).should('exist')
   })
 
-  it('user2 now hace access to room', function(){
+  it('user2 now has access to room', function(){
 
   })
 

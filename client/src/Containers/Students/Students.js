@@ -24,7 +24,7 @@ class Students extends Component {
   }
 
   changeRole = (info) => {
-    const { userResources, parentResource, parentResourceId } = this.props;
+    let { userResources, parentResource, parentResourceId } = this.props;
     let updatedMembers = userResources.map(member => {
       return (member.user._id === info.user._id) ? {role: info.role, user: info.user._id} :
       {role: member.role, user: member.user._id};
@@ -35,7 +35,7 @@ class Students extends Component {
   }
 
   render(){
-    const { userResources, notifications, owner,  } = this.props;
+    let { userResources, notifications, owner,  } = this.props;
     let joinRequests = "There are no current requests";
     if (this.props.owner) {
       joinRequests = notifications.filter(ntf => ntf.notificationType === 'requestAccess').map((ntf, i) => {
@@ -49,8 +49,9 @@ class Students extends Component {
         )
       })
     }
-    const classList = userResources.map((member, i) => {
-      const notification = notifications.filter(ntf => ntf.user === member.user._id)
+    console.log("NOTIFICATIONS IN STUDENTS: ", notifications)
+    let classList = userResources.map((member, i) => {
+      let notification = notifications.filter(ntf => ntf.user._id === member.user._id)
       console.log(notification, member.user._id)
       return owner ? 
       <DragMember 

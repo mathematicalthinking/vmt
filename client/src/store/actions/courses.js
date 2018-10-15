@@ -52,6 +52,14 @@ export const addCourseRooms = (courseId, roomIdsArr) => {
   }
 }
 
+export const addCourseMember = (courseId, newMember) => {
+  return {
+    type: actionTypes.ADD_COURSE_MEMBER,
+    courseId,
+    newMember,
+  }
+}
+
 export const removeCourseActivities = (courseId, activityIdsArr) => {
   return {
     type: actionTypes.REMOVE_COURSE_ACTIVITIES,

@@ -14,6 +14,7 @@ export {
   removeUserActivities, // ARE WE STORING ACTIVITIES ON THE USER OBJECT?
   addUserRooms,
   updateNotifications,
+  addUserCourses,
 } from './user';
 export {
   fail,
@@ -54,6 +55,7 @@ export {
   clearCurrentCourse,
   populateCurrentCourse,
   updateCourseMembers,
+  addCourseMember,
 } from './courses';
 export {
   getCourseTemplates,

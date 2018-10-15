@@ -91,6 +91,17 @@ const reducer = (state = initialState, action) => {
         ...state,
         byId: updatedById,
       }
+    case actionTypes.ADD_COURSE_MEMBER:
+      return {
+        ...state,
+        byId: {
+          ...state.byId,
+          [action.courseId]: {
+            ...state.byId[action.courseId],
+            members: [...state.byId[action.courseId].members, action.newMember]
+          }
+        }
+      }
 
     default:
       return state

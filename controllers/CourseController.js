@@ -56,8 +56,25 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.Course.findById(id)
       .then(course => {
-        if (updatedFields[0] === 'newMember') {
+        if (body.newMember) {
           course.members.push({role: 'student', user: body.newMember})
+        } else if (body.checkAccess) {
+          let { entryCode, userId } = body.checkAccess;
+          console.log(entryCode, userId, id)
+          // @todo SHOULD PROBABLY HASH THIS
+          if (course.entryCode === entryCode) {
+            course.members.push({user: userId, role: 'student'})
+            // Send a notification to the room owner
+            console.log('sending a notification the room owner')
+            db.User.findByIdAndUpdate(course.creator, {
+              $addToSet: {
+                'courseNotifications.access': {
+                  notificationType: 'newMember', _id: course._id, user: userId 
+                }
+              }
+            }, {new: true})
+            .then(user => console.log("USER: AFTER ADDING NTF: ", user))
+          } else reject({errorMessage: 'incorrect entry code'})
         }
         // console.log("DOC ", course)
         course.save(); // @TODO CONSIDER AWAITING THIS SO WE CAN ONLY RESOLVE IF THE SAVE WORKS
