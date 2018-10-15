@@ -9,8 +9,8 @@ const defaultError = {
 
 
 router.get('/:resource', (req, res, next) => {
-	const resource = req.params.resource;
-	const controller = controllers[resource];
+	let resource = req.params.resource;
+	let controller = controllers[resource];
 	if (controller == null){
 		return res.status(400).json(defaultError)
 	}
@@ -28,9 +28,9 @@ router.get('/:resource', (req, res, next) => {
 	})
 })
 router.get('/:resource/:id', (req, res, next) => {
-	const resource = req.params.resource
-	const id = req.params.id
-	const controller  = controllers[resource]
+	let resource = req.params.resource
+	let id = req.params.id
+	let controller  = controllers[resource]
 	if (controller == null){
 		res.status(400).json(defaultError)
 	}
@@ -74,8 +74,9 @@ router.post('/:action', (req, res, next) => {
 })
 
 router.put('/:resource/:id', (req, res, next) => {
-  const resource = req.params.resource;
-	const controller = controllers[resource];
+	console.log("HOW BOUT HERE")
+  let resource = req.params.resource;
+	let controller = controllers[resource];
   if (controller == null){
 		return res.json(defaultError)
 	}
@@ -94,9 +95,19 @@ router.put('/:resource/:id', (req, res, next) => {
   })
 })
 
+// router.put('/:resource/:id/requestAccess', (req, res, next) => {
+// 	console.log('requesitng access on the backend')
+// 	let resource = req.param.resource;
+// 	let controller = controller[resource];
+// 	if (controller === null) {
+// 		return res.json(defaultEroor)
+// 	}
+// 	controller.put(req.params.id, {requestAccess: {user: req.body.user}})
+// })
+
 router.delete('/:resource/:id', (req, res, next) => {
-  const { resource, id } = req.params;
-  const controller = controllers[resource];
+  let { resource, id } = req.params;
+  let controller = controllers[resource];
   if (controller == null){
     return res.json(defaultError)
   }

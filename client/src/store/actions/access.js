@@ -27,11 +27,12 @@ export const joinWithCode = (resource, resourceId, userId, username, entryCode, 
   } 
 }
 
-export const requestAccess = (toUser, fromUser, resource, resourceId,) => {
+export const requestAccess = (owners, fromUser, resource, resourceId) => {
   return dispatch => {
     dispatch(loading.start());
-    API.requestAccess(toUser, fromUser, resource, resourceId)
+    API.requestAccess(owners, fromUser, resource, resourceId)
     .then(res => {
+      console.log("RES IN ACTIONS: ", res)
       return dispatch(loading.accessSuccess())
     })
     .catch(err => {

@@ -21,13 +21,16 @@ export default {
     return axios.put(`/api/${resource}/${resourceId}`, {checkAccess: {userId, entryCode,}})
   },
 
-  requestAccess: (toUser, fromUser, resource, resourceId) => {
+  requestAccess: (owners, fromUser, resource, resourceId) => {
     // @TODO consider making notificationTypes a directory of constants like action types
-    return axios.put(`/api/user/${toUser}`, {notificationType: 'requestAccess', user: fromUser, resource, _id: resourceId})
+    console.log(owners, fromUser, resource, resourceId,)
+    let promises = owners.map(owner => {
+      return axios.put(`/api/user/${owner._id}`, {notificationType: 'requestAccess', user: fromUser, resource, _id: resourceId})
+    })
+    return Promise.all(promises)
   },
 
   removeNotification: (ntfId, userId, resource, listType) => {
-    console.log(ntfId, userId, listType, resource)
     return axios.put(`/api/user/${userId}`, {
       removeNotification: {
         ntfId,

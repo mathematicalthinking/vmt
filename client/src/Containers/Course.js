@@ -171,10 +171,13 @@ class Course extends Component {
           </Aux> :
           course.isPublic ? 
             <PublicAccessModal requestAccess={this.grantPublicAccess}/> : 
-            <Access 
-              requestAccess={this.requestAccess} 
-              resource='course'
-            />}
+            <Access  
+              resource='courses'
+              resourceId={course._id}
+              userId={user._id}
+              owners={course.members.filter(member => member.role === 'teacher').map(member => member.user)}
+            />
+          }
       </Aux>
     )
   }

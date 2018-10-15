@@ -30,12 +30,12 @@ module.exports = {
   put: (id, body) => {
     let query;
     if (body.notificationType === 'requestAccess' || body.notificationType === 'grantAccess') {
-      if (body.resource === 'course') {
+      if (body.resource === 'courses') {
+        console.log("HELLO FROM USER CONTROLLER: ",body)
         delete body.resource;
         query = {$addToSet: {'courseNotifications.access': body}}
       } else {
         delete body.resource;
-        
         query = {$addToSet: {'roomNotifications.access': body}}
       }
     }

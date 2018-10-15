@@ -4,8 +4,6 @@ import PrivateAccessModal from '../Components/UI/Modal/PrivateAccess'
 
 const mapStateToProps = (store, ownProps) => ({
   error: store.loading.errorMessage,
-  resource: store[ownProps.resource].byId[ownProps.id],
-  belongsToCourse: ownProps.course,
 })
 
 export default connect(mapStateToProps, { requestAccess, grantAccess, joinWithCode, clearError})(PrivateAccessModal)
