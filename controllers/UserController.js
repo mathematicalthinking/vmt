@@ -44,6 +44,9 @@ module.exports = {
 
     }
     if (body.removeNotification) {
+      // if (body.ntfType === 'newMember') {
+      //   query = 
+      // }
       console.log("REMOVING NOTIFICATION ON BACKEND")
       const { resource, listType, ntfId } = body.removeNotification;
       console.log(resource, listType, ntfId)

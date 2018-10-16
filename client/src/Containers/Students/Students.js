@@ -20,7 +20,12 @@ class Students extends Component {
     const { parentResourceId, user, parentResource, notifications } = this.props
     console.log(parentResource)
     if (notifications.length > 0){
-      this.props.clearNotification(parentResourceId, user._id, parentResource, 'access')
+      notifications.forEach(ntf => {
+        if (ntf.notificationType === 'newMember') {
+          console.log(ntf)
+          this.props.clearNotification(parentResourceId, ntf.user, parentResource, 'access',)
+        }
+      })
     }
   }
 
@@ -52,7 +57,12 @@ class Students extends Component {
     }
     console.log("NOTIFICATIONS IN STUDENTS: ", notifications)
     let classList = userResources.map((member, i) => {
-      let notification = notifications.filter(ntf => ntf.user._id === member.user._id)
+      let notification = notifications.filter(ntf => {
+        if (ntf.user && ntf.notificationType === 'newMember') {
+          return ntf.user._id === member.user._id
+        }
+        else return false;
+      })
       console.log(notification, member.user._id)
       return owner ? 
       <DragMember 

@@ -75,7 +75,7 @@ module.exports = passport => {
     .populate({
       path: 'courses',
       populate: {path: 'members.user', select: 'username'},
-      options: {sort: {createdAt: -1}},
+      // options: {sort: {createdAt: -1}},
     })
     // .populate('rooms', 'notifications.user name description isPublic creator roomType')
     // .populate('activities', 'name description isPublic creator roomType rooms')

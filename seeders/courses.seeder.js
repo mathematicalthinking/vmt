@@ -16,7 +16,7 @@ var data = [
       }
     ],
     "creator": "5ba289ba7223b9429888b9b4", // jl-picard
-    "createdAt" : ISODate("2018-10-13T13:57:01.351Z"),
+    // "createdAt" : "2018-10-13T13:57:01.351Z",
     "__v": 0
   },
   {
@@ -34,7 +34,7 @@ var data = [
       }
     ],
     "creator": "5ba289ba7223b9429888b9b4", // jl-picard
-    "createdAt" : ISODate("2018-10-14T13:57:01.351Z"),
+    // "createdAt" : "2018-10-14T13:57:01.351Z",
     "__v": 0
   },
   {
@@ -56,7 +56,7 @@ var data = [
 
     ],
     "creator": "5ba289ba7223b9429888b9b4", // jl-picard
-    "createdAt" : ISODate("2018-10-15T13:57:01.351Z"),
+    // "createdAt" : "2018-10-15T13:57:01.351Z",
     "__v": 0
   },  {
     "_id": "5bbf4e5ec1b6d84cb0a4ded3",
@@ -73,7 +73,7 @@ var data = [
       },
     ],
     "creator": "5ba289ba7223b9429888b9b4", // jl-picard,
-    "createdAt" : ISODate("2018-10-16T13:57:01.351Z"),
+    // "createdAt" : "2018-10-16T13:57:01.351Z",
     "__v": 0
   }
 ];

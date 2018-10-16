@@ -12,7 +12,7 @@ describe('test access requests', function(){
   })
 
   // COURSE
-  it("user2 requests access to a course", function(){
+  it("user2 requests access to course 1", function(){
     cy.contains('Community').click()
     cy.url().should('include', 'community/activities')
     cy.contains('Courses').click()
@@ -21,13 +21,14 @@ describe('test access requests', function(){
     cy.getTestElement('request-access-btn').click()
     cy.url().should('include', '/confirmation')
   })
-  it("user1 grants access to a course", function(){
+  it("user1 gets a notification and grants access to course 1", function(){
     cy.login(user1)
-    cy.getTestElement('tab-ntf').contains('1')
-    cy.getTestElement('content-box-ntf').contains('1')
-    cy.wait(1111)
-    cy.getTestElement('content-box-title').contains('course 1').click()
-    cy.getTestElement('tab-ntf').contains('1')
+    cy.url().should('include', 'myVMT/courses')
+    // cy.wait(1111)
+    cy.getTestElement('tab-ntf').contains('1').should('exist')
+    cy.getTestElement('content-box-ntf').contains('1').should('exist')
+    cy.contains('course 1').click()
+    // cy.getTestElement('tab-ntf').contains('1')
     cy.get('#Members').click()
     cy.getTestElement('join-requests').children().should('have.length', 1)
     cy.getTestElement('grant-access').click()

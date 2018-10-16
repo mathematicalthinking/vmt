@@ -36,14 +36,16 @@ class Course extends Component {
   // SO we can reset the tabs easily
 
   componentDidMount() {
-    const { course, user, clearNotification } = this.props;
+    const { course, user, accessNotifications, clearNotification } = this.props;
     let firstView = false;
-    
-    if (user.courseNotifications.access.length > 0) {
-      user.courseNotifications.access.forEach(ntf => {
-        console.log(ntf)
+    console.log('access notifications: ', accessNotifications)
+    if (accessNotifications.length > 0) {
+      console.log('notification exsists')
+     accessNotifications.forEach(ntf => {
+       console.log(ntf, " course id ", course._id)
         if (ntf.notificationType === 'grantedAccess' && ntf._id === course._id) {
           // RESOLVE THIS NOTIFICATION
+          console.log('first view true, clear notification!')
           firstView = true;
           clearNotification(course._id, user._id, 'course', 'access') //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
         }
@@ -77,9 +79,8 @@ class Course extends Component {
       this.checkAccess();
     }
     if (prevProps.accessNotifications.length !== this.props.accessNotifications.length) {
-      let tabs = this.initialTabs;
-      if (this.state.owner) tabs = [...this.initialTabs, {name: 'Grades'}, {name: 'Insights'}]
-      const updatedTabs = this.displayNotifications(tabs)
+      console.log('notifications changed')
+      let updatedTabs = this.displayNotifications([...this.state.tabs])
       this.setState({tabs: updatedTabs})
     }
     if ((this.state.member || this.state.owner) && !this.props.loading) {
@@ -102,14 +103,13 @@ class Course extends Component {
 
   displayNotifications = (tabs) => {
 
-    const { user, course } = this.props;
-    const { courseNotifications }= user
-    if (courseNotifications.access.length > 0 && course.creator === user._id) {
-      tabs[2].notifications = courseNotifications.access.length;
+    const { user, course, accessNotifications } = this.props;
+    if (course.creator === user._id) {
+      tabs[2].notifications = (accessNotifications.length > 0) ? accessNotifications.length : '';
     }
-    if (courseNotifications.newRoom.length > 0){
-      tabs[1].notifications = courseNotifications.newRoom.length;
-    }
+    // if (accessNotifications.llength > 0){
+    //   tabs[1].notifications = accessNotifications.llength;
+    // }
     return tabs;
   }
 
@@ -125,23 +125,14 @@ class Course extends Component {
   }
 
   checkAccess = () => {
-    console.log("CHECKING ACCESS FOR COURSE")
-    console.log("CHECKING ACCESS FOR COURSE")
-    console.log("CHECKING ACCESS FOR COURSE")
-    console.log(this.props.course.members)
-    console.log(this.props.user._id)
-    this.props.course.members.some(member => {
-      console.log(member.user._id)
-      console.log(this.props.user._id === member.user._id)
+    this.props.course.members.forEach(member => {
        if (member.user._id === this.props.user._id) {
          this.setState({member: true})
-         return true;
        }
     })
   }
 
   render() {
-    console.log("MEMBER: ",this.state.member)
     const { course, user, match, accessNotifications } = this.props;
     const resource = match.params.resource;
     const contentData = {
@@ -159,7 +150,6 @@ class Course extends Component {
       details: 'some details about the course',
       title: course.name,
     }
-    console.log(contentData)
     // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
     return (
       <Aux>

@@ -51,9 +51,7 @@ module.exports = {
   },
 
   put: (id, body) => {
-    // console.log(id, body)
-    console.log(id, body)
-    console.log("are we even getting here????")
+    let promises = [];
     return new Promise((resolve, reject) => {
       db.Course.findById(id)
       .then(course => {
@@ -75,28 +73,33 @@ module.exports = {
           }).then(user => console.log("succesfully added course to users list"))
         } else if (body.checkAccess) {
           let { entryCode, userId } = body.checkAccess;
-          console.log(entryCode, userId, id)
           // @todo SHOULD PROBABLY HASH THIS
           // When a user gains access with an entry code
           if (course.entryCode === entryCode) {
             course.members.push({user: userId, role: 'student'})
             // Send a notification to the room owner
             console.log('sending a notification the course owner')
-            db.User.findByIdAndUpdate(course.creator, {
-              $addToSet: {
-                'courseNotifications.access': {
-                  notificationType: 'newMember', _id: course._id, user: userId 
+            promises = course.members.filter(member => member.role === 'teacher').map(teacher => {
+              return db.User.findByIdAndUpdate(course.creator, {
+                $addToSet: {
+                  'courseNotifications.access': {
+                    notificationType: 'newMember', _id: course._id, user: userId 
+                  }
                 }
-              }
-            }, {new: true})
+              }, {new: true})
+            })
             db.User.findByIdAndUpdate(userId, {
               $addToSet: {courses: course._id,}
             })
           } else reject({errorMessage: 'incorrect entry code'})
         }
         console.log("saving DOC ", course)
-        course.save(); // @TODO CONSIDER AWAITING THIS SO WE CAN ONLY RESOLVE IF THE SAVE WORKS
-        course.populate({path: 'members.user', select: 'username'}, (err, pop) => {resolve(pop)})})
+        Promise.all(promises)
+        .then(res => {
+          console.log("res of promise.all: ",res)
+          course.save(); // @TODO CONSIDER AWAITING THIS SO WE CAN ONLY RESOLVE IF THE SAVE WORKS
+          course.populate({path: 'members.user', select: 'username'}, (err, pop) => {resolve(pop)})})
+        })
       .catch(err => reject(err))
     })
   },

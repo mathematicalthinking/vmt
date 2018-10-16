@@ -32,13 +32,14 @@ export default {
     return Promise.all(promises)
   },
 
-  removeNotification: (ntfId, userId, resource, listType) => {
+  removeNotification: (ntfId, userId, resource, listType, ntfType) => {
     console.log("REMOVING NOTIFICATION")
     return axios.put(`/api/user/${userId}`, {
       removeNotification: {
         ntfId,
         resource,
         listType,
+        ntfType,
       }
     })
   },
