@@ -17,9 +17,10 @@ import DragMember from '../../Components/UI/Member/DragMember';
 class Students extends Component {
   
   componentWillUnmount(){
-    const { room, user, notifications } = this.props
-    if (room && notifications.length > 0){
-      this.props.clearNotification(room._id, user._id, 'room', 'access')
+    const { parentResourceId, user, parentResource, notifications } = this.props
+    console.log(parentResource)
+    if (notifications.length > 0){
+      this.props.clearNotification(parentResourceId, user._id, parentResource, 'access')
     }
   }
 

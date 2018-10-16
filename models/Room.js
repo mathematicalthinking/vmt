@@ -30,8 +30,8 @@ const Room = new mongoose.Schema({
 Room.pre('save', function (next) {
   // ON CREATION UPDATE THE CONNECTED MODELS
   if (this.isNew & !this.tempRoom) {
-    const promises = [];
-    const users = this.members.map(member => member.user)
+    let promises = [];
+    let users = this.members.map(member => member.user)
     promises.push(User.find({'_id': {$in: users}}))
     if (this.course) {
       promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id}}))
@@ -53,7 +53,7 @@ Room.pre('save', function (next) {
     })
     .catch(err => next(err))
   } else if (!this.isNew) {
-    const field = this.modifiedPaths().forEach(field => {
+    let field = this.modifiedPaths().forEach(field => {
       if (field === 'members') {
         User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
           $addToSet: {rooms: this._id}

@@ -74,6 +74,7 @@ router.post('/:action', (req, res, next) => {
 })
 
 router.put('/:resource/:id', (req, res, next) => {
+	console.log("in the put route!")
   let resource = req.params.resource;
 	let controller = controllers[resource];
   if (controller == null){

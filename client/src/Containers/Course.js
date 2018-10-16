@@ -150,7 +150,8 @@ class Course extends Component {
       parentResourceId: course._id,
       userResources: course[resource] || [],
       notifications:  accessNotifications || [],
-      userId: user._id,
+      userId: user._id, // @TODO <-- get rid of this user user object below
+      user: user,
       owner: this.state.owner,
     }
     const sidePanelData = {

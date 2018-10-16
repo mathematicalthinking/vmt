@@ -24,7 +24,7 @@ export default {
   },
 
   requestAccess: (owners, userId, resource, resourceId) => {
-    // @TODO consider making notificationTypes a directory of constants like action types
+    // @TODO consider making notificationTypes a directory of constants like action types in redux
     console.log(owners, userId, resource, resourceId,)
     let promises = owners.map(owner => {
       return axios.put(`/api/user/${owner._id}`, {notificationType: 'requestAccess', user: userId, resource, _id: resourceId})

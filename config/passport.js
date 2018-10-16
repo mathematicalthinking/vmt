@@ -60,7 +60,6 @@ module.exports = passport => {
   }));
 
   passport.use('local-login', new LocalStrategy((username, password, next) => {
-    console.log("are we making it here?", username, password)
     User.findOne({ 'username':  username, 'accountType':  {$ne: 'temp'}}, (err, user) => {
       if (err) {console.log(err); return next(err);}
       // @TODO we actually want to just provide a link here instead of telling htem where to go

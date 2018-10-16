@@ -25,7 +25,8 @@ describe('test access requests', function(){
     cy.login(user1)
     cy.getTestElement('tab-ntf').contains('1')
     cy.getTestElement('content-box-ntf').contains('1')
-    cy.contains('course 1').click()
+    cy.wait(1111)
+    cy.getTestElement('content-box-title').contains('course 1').click()
     cy.getTestElement('tab-ntf').contains('1')
     cy.get('#Members').click()
     cy.getTestElement('join-requests').children().should('have.length', 1)
@@ -57,16 +58,25 @@ describe('test access requests', function(){
     cy.getTestElement('tab').contains('Members').click()
     cy.getTestElement('members').children().should('have.length', 2)
     cy.contains(user2.username).should('exist')
-    // cy.getTestElement('content-box-title').contains('room 1').should('exist')
   })
 
-  // it("user1 gets notification that user2 joined course", function(){
+  it("user1 gets notification that user2 joined course", function(){
+    cy.login(user1)
+    cy.getTestElement('tab-ntf').contains('1')
+    cy.getTestElement('content-box-ntf').contains('1')
+    cy.contains('entry-code course').click()
+    cy.getTestElement('tab-ntf').contains('1')
+    cy.getTestElement('tab').contains('Members').click()
+    cy.getTestElement('members').children().should('have.length', 2)
+    cy.getTestElement('members').children().contains('g-laforge')
+    cy.getTestElement('member-ntf').should('exist')
+  })
 
-  // })
-
-  // it("should resolve notificaiton after user1 seees", function(){
-
-  // })
+  it("should resolve notificaiton after user1 seees", function(){
+    cy.getTestElement('crumb').contains('My VMT').click()
+    cy.getTestElement('tab-ntf').should('not.exist')
+    cy.getTestElement('content-box-ntf').should('not.exist')
+  })
 
   // ROOM
   it('user2 requests access to room', function(){
@@ -127,15 +137,25 @@ describe('test access requests', function(){
     cy.getTestElement('tab-ntf').should('not.exist')
   })
 
-  it('user fails to join with wrong entry code', function(){
-    cy.task('seedDB').then(() => cy.login(user2))
+  it('user fails to join with wrong entry code (room)', function(){
+    cy.login(user2)
     cy.contains('Community').click()
     cy.url().should('include', 'community/activities')
     cy.contains('Rooms').click()
     cy.url().should('include', 'community/rooms')
-    cy.contains('room 1').click()
+    cy.contains('wrong entry code').click()
     cy.get('#entryCode').type('{selectall} {backspace}').type('WRONG_CODE')
     cy.contains('Join').click()
     cy.getTestElement('entry-code-error').contains('That entry code was incorrect. Try again.')
+    cy.getTestElement('close-modal').click()
+  })
+
+  it('user fails to join with wrong entry code (course)', function(){
+    cy.contains('Courses').click()
+    cy.url().should('include', 'community/courses')
+    cy.contains('wrong entry code').click()
+    cy.get('#entryCode').type('{selectall} {backspace}').type('WRONG_CODE')
+    cy.contains('Join').click()
+    cy.getTestElement('entry-code-error').contains('That entry code was incorrect. Try again.').should('exist')
   })
 })

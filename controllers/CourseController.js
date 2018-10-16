@@ -52,20 +52,36 @@ module.exports = {
 
   put: (id, body) => {
     // console.log(id, body)
-    const updatedFields = Object.keys(body);
+    console.log(id, body)
+    console.log("are we even getting here????")
     return new Promise((resolve, reject) => {
       db.Course.findById(id)
       .then(course => {
+        // When a user is granted access by the owner
         if (body.newMember) {
           course.members.push({role: 'student', user: body.newMember})
+          console.log('body.newMember: ', body.newMember)
+          db.User.findByIdAndUpdate(body.newMember, {
+            $addToSet: {
+              courses: course._id,
+              'courseNotifications.access': {
+                notificationType: 'grantedAccess',
+                _id: course._id,
+              },
+              // @TODO USER SHOULD HAVE ALL OF THE ROOMS OF THIS COURSE COPIED TO THEIR LIST OF COURSES
+              // activities: {$addToSet: {$each: course.activities}},
+              // rooms: {$addToSet: {$each: course.rooms}}
+            }
+          }).then(user => console.log("succesfully added course to users list"))
         } else if (body.checkAccess) {
           let { entryCode, userId } = body.checkAccess;
           console.log(entryCode, userId, id)
           // @todo SHOULD PROBABLY HASH THIS
+          // When a user gains access with an entry code
           if (course.entryCode === entryCode) {
             course.members.push({user: userId, role: 'student'})
             // Send a notification to the room owner
-            console.log('sending a notification the room owner')
+            console.log('sending a notification the course owner')
             db.User.findByIdAndUpdate(course.creator, {
               $addToSet: {
                 'courseNotifications.access': {
@@ -73,10 +89,12 @@ module.exports = {
                 }
               }
             }, {new: true})
-            .then(user => console.log("USER: AFTER ADDING NTF: ", user))
+            db.User.findByIdAndUpdate(userId, {
+              $addToSet: {courses: course._id,}
+            })
           } else reject({errorMessage: 'incorrect entry code'})
         }
-        // console.log("DOC ", course)
+        console.log("saving DOC ", course)
         course.save(); // @TODO CONSIDER AWAITING THIS SO WE CAN ONLY RESOLVE IF THE SAVE WORKS
         course.populate({path: 'members.user', select: 'username'}, (err, pop) => {resolve(pop)})})
       .catch(err => reject(err))

@@ -9,20 +9,14 @@ const express = require('express')
 const router = express.Router()
 
 router.post('/login', (req, res, next) => {
-  console.log("LOGGING IN")
   passport.authenticate('local-login', (err, user, info) => {
-    console.log("err: ", err)
-    console.log("user: ", user)
-    console.log("info: ", info )
     if (user) {
-      console.log('we got a user')
       return res.json(user)
     }
     if (info) {
       // if (info.errorMessage) return res.status(401).send({message: info})
       return res.json(info)
     }
-    console.log('no user!')
     res.status(401).send({message: info})
     // res.json({message: 'success'})
   })(req, res, next);
@@ -31,9 +25,7 @@ router.post('/login', (req, res, next) => {
 
 router.post('/signup', (req, res, next) => {
   passport.authenticate('local-signup', (err, user, info) => {
-    console.log(err)
     if (user) {
-      console.log("WE HAVE A USER")
       return res.json(user)
     }
     if (info) {

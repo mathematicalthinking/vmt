@@ -42,7 +42,7 @@ class privateAccess extends Component {
     let { resource } = this.props;
     return (
       <Modal show={this.state.show} closeModal={this.closeModal}>
-        <div className={classes.Close} onClick={this.closeModal}><i className="fas fa-times"></i></div>
+        <div className={classes.Close} onClick={this.closeModal}><i data-testid='close-modal' className="fas fa-times"></i></div>
         <p className={classes.Description}>{`You currently don't have access to this ${resource}. If you know this 
           ${resource}'s entry code, you can enter it below`}
         </p>
