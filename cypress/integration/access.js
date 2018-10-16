@@ -104,7 +104,16 @@ describe('test access requests', function(){
   })
 
   it('user2 now has access to room', function(){
-
+    cy.login(user2)
+    cy.getTestElement('tab-ntf').contains('1').should('exist')
+    cy.getTestElement('tab').contains('Rooms').click();
+    cy.getTestElement('content-box-ntf').contains('1').should('exist')
+    cy.getTestElement('content-box-title').contains('request access').click()
+    cy.contains('Explore').click();
+    cy.getTestElement('tab').contains('Members').click()
+    cy.getTestElement('members').children().should('have.length', 2)
+    cy.getTestElement('crumb').contains('My VMT').click()
+    cy.wait(111)
   })
 
   it('user2 joins a room by entering entry-code', function(){

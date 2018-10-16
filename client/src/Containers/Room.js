@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { enterRoomWithCode, populateRoom, requestAccess, clearError} from '../store/actions';
+import { enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification} from '../store/actions';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 import Aux from '../Components/HOC/Auxil';
+import Modal from '../Components/UI/Modal/Modal';
+import Button from '../Components/UI/Button/Button';
 import Access from './Access';
 import PublicAccessModal from '../Components/UI/Modal/PublicAccess'
 // import Students from './Students/Students';
@@ -15,6 +17,7 @@ class Room extends Component {
       {name: 'Summary'},
       {name: 'Members'},
     ],
+    firstView: false,
   }
 
   initialTabs = [
@@ -23,10 +26,11 @@ class Room extends Component {
   ]
 
   componentDidMount() {
-    const { room, user, populateRoom } = this.props;
+    const { room, user, populateRoom, accessNotifications, clearNotification } = this.props;
     // CHECK ACCESS
     let updatedTabs = [...this.state.tabs];
     let owner = false;
+    let firstView = false;
     if (room.creator === user._id) {
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
       this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
@@ -34,6 +38,15 @@ class Room extends Component {
       // displayNotifications
       updatedTabs = this.displayNotifications(updatedTabs)
     }
+    if (accessNotifications.length > 0) {
+      accessNotifications.forEach(ntf => {
+        if (ntf.notificationType === 'grantedAccess' && ntf._id === room._id) {
+           // RESOLVE THIS NOTIFICATION
+           firstView = true;
+           clearNotification(room._id, user._id, 'room', 'access') //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
+         }
+       })
+     }
     if (room.members) {
       this.checkAccess();
     }
@@ -43,6 +56,7 @@ class Room extends Component {
     this.setState({
       tabs: updatedTabs,
       owner,
+      firstView,
     })
 
   }
@@ -126,6 +140,11 @@ class Room extends Component {
               loading={this.props.loading}
               activateTab={event => this.setState({activeTab: event.target.id})}
             />
+            <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
+              <p>Welcome to {room.name}. If this is your first time joining a course,
+              we recommend you take a tour. Otherwise you can start exploring this room's features.</p>
+              <Button click={() => this.setState({firstView: false})}>Explore</Button>
+            </Modal>
           </Aux> :
           (room.isPublic ? <PublicAccessModal requestAccess={this.grantPublicAccess}/> : 
             <Access  
@@ -153,4 +172,4 @@ const mapStateToProps = (store, ownProps) => {
   }
 }
 
-export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, clearError})(Room);
+export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification})(Room);

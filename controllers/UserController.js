@@ -29,6 +29,7 @@ module.exports = {
 
   put: (id, body) => {
     let query;
+    console.log(body)
     if (body.notificationType === 'requestAccess' || body.notificationType === 'grantAccess') {
       if (body.resource === 'course') {
         delete body.resource;
