@@ -14,7 +14,6 @@ class Workspace extends Component {
   componentDidMount() {
     const { updateRoom, room, user} = this.props;
     if (!user) {
-      console.log('the user is not logged in')
     }
     const sendData = {
       userId: user._id,

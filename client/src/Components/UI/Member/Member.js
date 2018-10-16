@@ -37,7 +37,6 @@ class Member extends PureComponent {
 
   render() {
     const { info, owner, grantAccess, notification } = this.props;
-    console.log("NTF IN MEMBER: ", notification)
     return (
       <Aux>
         {this.state.editing ?

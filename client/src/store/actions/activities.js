@@ -95,7 +95,6 @@ export const removeActivity = activityId => {
     dispatch(loading.start())
     API.remove('activity', activityId)
     .then(res => {
-      console.log(res.data)
       dispatch(removeUserActivities([activityId]))
       dispatch(removeCourseActivities(res.data.result.course, [activityId]))
       dispatch(activityRemoved(activityId))

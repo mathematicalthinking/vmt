@@ -80,9 +80,7 @@ export const updateNotifications = (resource, updatedNotifications) => {
 }
 
 export const clearNotification = (ntfId, userId, resource, listType, ntfType) => {
-  console.log(ntfId, userId, resource, listType)
   return (dispatch) => {
-    console.log('removing notification')
     API.removeNotification(ntfId, userId, resource, listType, ntfType)
     .then(res => {
       console.log("NTF REMOVED: ", res)

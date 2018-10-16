@@ -58,7 +58,6 @@ module.exports = {
         // When a user is granted access by the owner
         if (body.newMember) {
           course.members.push({role: 'student', user: body.newMember})
-          console.log('body.newMember: ', body.newMember)
           db.User.findByIdAndUpdate(body.newMember, {
             $addToSet: {
               courses: course._id,
@@ -78,7 +77,6 @@ module.exports = {
           if (course.entryCode === entryCode) {
             course.members.push({user: userId, role: 'student'})
             // Send a notification to the room owner
-            console.log('sending a notification the course owner')
             promises = course.members.filter(member => member.role === 'teacher').map(teacher => {
               return db.User.findByIdAndUpdate(course.creator, {
                 $addToSet: {
@@ -93,10 +91,8 @@ module.exports = {
             }).then(res => console.log(id, ", added to ", userId, "'s list of courses"))
           } else reject({errorMessage: 'incorrect entry code'})
         }
-        console.log("saving DOC ", course)
         Promise.all(promises)
         .then(res => {
-          console.log("res of promise.all: ",res)
           course.save(); // @TODO CONSIDER AWAITING THIS SO WE CAN ONLY RESOLVE IF THE SAVE WORKS
           course.populate({path: 'members.user', select: 'username'}, (err, pop) => {resolve(pop)})})
         })

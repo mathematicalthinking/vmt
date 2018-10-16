@@ -18,11 +18,9 @@ class Students extends Component {
   
   componentWillUnmount(){
     const {user, parentResource, notifications } = this.props
-    console.log(parentResource)
     if (notifications.length > 0){
       notifications.forEach(ntf => {
         if (ntf.notificationType === 'newMember') {
-          console.log("UNMOUNTING: ",ntf)
           this.props.clearNotification(ntf._id, user._id, parentResource, 'access',)
         }
       })
@@ -45,7 +43,6 @@ class Students extends Component {
     let joinRequests = "There are no current requests";
     if (this.props.owner) {
       joinRequests = notifications.filter(ntf => ntf.notificationType === 'requestAccess').map((ntf, i) => {
-        console.log(ntf)
         return (
           <DragMember
             grantAccess={() => {this.props.grantAccess(ntf.user._id, this.props.parentResource, this.props.parentResourceId)}} 
@@ -55,7 +52,6 @@ class Students extends Component {
         )
       })
     }
-    console.log("NOTIFICATIONS IN STUDENTS: ", notifications)
     let classList = userResources.map((member, i) => {
       let notification = notifications.filter(ntf => {
         if (ntf.user && ntf.notificationType === 'newMember') {
@@ -63,7 +59,6 @@ class Students extends Component {
         }
         else return false;
       })
-      console.log(notification, member.user._id)
       return owner ? 
       <DragMember 
         changeRole={(info) => this.changeRole(info)}

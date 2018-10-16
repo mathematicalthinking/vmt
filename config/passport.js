@@ -65,7 +65,6 @@ module.exports = passport => {
       // @TODO we actually want to just provide a link here instead of telling htem where to go
       if (!user) return next(null, false, {errorMessage: 'That username does not exist. If you want to create an account go to Register'});
       if (!bcrypt.compareSync(password, user.password)) {
-        console.log('password incorrect')
         return next(null, false, {errorMessage: 'The password you entered is incorrect'});
       }
       // Manual field population
@@ -97,7 +96,6 @@ module.exports = passport => {
       googleId: profile.id
     }, (err, user) => {
       if (err) {
-        console.log('in err block', err);
         return done(err);
       }
       if (user) {

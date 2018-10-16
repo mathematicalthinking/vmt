@@ -74,8 +74,6 @@ const reducer = (state = initialState, action) => {
       }
     
     case actionTypes.UPDATE_NOTIFICATIONS:
-      console.log(action.updatedNotifications)
-      console.log(`${action.resource}Notifications`)
     return {
       ...state,
       [`${action.resource}Notifications`]: {

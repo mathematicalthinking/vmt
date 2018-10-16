@@ -33,7 +33,6 @@ class privateAccess extends Component {
   }
 
   joinWithCode = () => {
-    console.log('joining with code')
     let { resource, resourceId, userId, username, joinWithCode } = this.props;
     joinWithCode(resource, resourceId, userId, username, this.state.entryCode)
   }

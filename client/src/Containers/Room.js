@@ -75,7 +75,6 @@ class Room extends Component {
     if (room.creator === user._id) {
       tabs[1].notifications = roomNotifications.access.length > 0 ? roomNotifications.access.length: '';
     } 
-    console.log(tabs)
     return tabs;
   }
 

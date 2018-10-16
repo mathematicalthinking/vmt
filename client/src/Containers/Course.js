@@ -38,14 +38,10 @@ class Course extends Component {
   componentDidMount() {
     const { course, user, accessNotifications, clearNotification } = this.props;
     let firstView = false;
-    console.log('access notifications: ', accessNotifications)
     if (accessNotifications.length > 0) {
-      console.log('notification exsists')
      accessNotifications.forEach(ntf => {
-       console.log(ntf, " course id ", course._id)
         if (ntf.notificationType === 'grantedAccess' && ntf._id === course._id) {
           // RESOLVE THIS NOTIFICATION
-          console.log('first view true, clear notification!')
           firstView = true;
           clearNotification(course._id, user._id, 'course', 'access') //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
         }
@@ -79,7 +75,6 @@ class Course extends Component {
       this.checkAccess();
     }
     if (prevProps.accessNotifications.length !== this.props.accessNotifications.length) {
-      console.log('notifications changed')
       let updatedTabs = this.displayNotifications([...this.state.tabs])
       this.setState({tabs: updatedTabs})
     }

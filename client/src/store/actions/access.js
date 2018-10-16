@@ -12,8 +12,6 @@ import API from '../../utils/apiRequests';
 
 export const joinWithCode = (resource, resourceId, userId, username, entryCode, ) => {
   return dispatch => {
-    console.log('join with code')
-    console.log(resourceId, userId, entryCode, username)
     API.enterWithCode(resource, resourceId, userId, entryCode)
     .then(res => {
       if (resource === 'room') {
@@ -38,7 +36,6 @@ export const requestAccess = (owners, userId, resource, resourceId) => {
     dispatch(loading.start());
     API.requestAccess(owners, userId, resource, resourceId)
     .then(res => {
-      console.log("RES IN ACTIONS: ", res)
       return dispatch(loading.accessSuccess())
     })
     .catch(err => {
@@ -49,13 +46,10 @@ export const requestAccess = (owners, userId, resource, resourceId) => {
 
 export const grantAccess = (user, resource, resourceId) => {
   return (dispatch, getState) => {
-    console.log('resource in access acitons: ', resource)
     dispatch(loading.start())
     let thisUser = getState().user._id;
-    console.log(thisUser)
     API.removeNotification(resourceId, thisUser, resource, 'access')
     .then(res => {
-      console.log("NTF REMOVED: ", res)
       dispatch(updateNotifications(resource, res.data.result[`${resource}Notifications`]))
       // dispatch(gotUser(res.data))
     })

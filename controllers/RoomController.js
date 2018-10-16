@@ -52,18 +52,15 @@ module.exports = {
   },
 
   put: (id, body) => {
-    console.log("PUT ROOM CONTROLLER")
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
       .then(room => {
         if (body.checkAccess) {
           let { entryCode, userId } = body.checkAccess;
-          console.log(entryCode, userId, id)
           // @todo SHOULD PROBABLY HASH THIS
           if (room.entryCode === entryCode) {
             room.members.push({user: userId, role: 'student'})
             // Send a notification to the room owner
-            console.log('sending a notification the room owner')
             db.User.findByIdAndUpdate(room.creator, {
               $addToSet: {
                 'roomNotifications.access': {
@@ -74,9 +71,7 @@ module.exports = {
             .then(user => console.log("USER: AFTER ADDING NTF: ", user))
           } else reject({errorMessage: 'incorrect entry code'})
         } else if (body.newMember) {
-          console.log("new member in room!")
           room.members.push({role: 'student', user: body.newMember})
-          console.log(room.members)
         }
         // else {
         //   // THIS NEEDS TO CHANGE BELOW WE ALREADY HAVE THE ROOM DON"T NEED TO FIND

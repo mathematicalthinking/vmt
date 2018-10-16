@@ -18,7 +18,6 @@ export const gotRooms = (rooms) => ({
 // })
 
 export const updateRoom = (roomId, body) => {
-  console.log(roomId, body)
   return {
     type: actionTypes.UPDATE_ROOM,
     roomId,
@@ -69,12 +68,11 @@ export const getRooms = params => {
     API.get('room', params)
     .then(res => {
       // Normalize res
-      console.log(res.data.results)
       const rooms = normalize(res.data.results)
       dispatch(gotRooms(rooms))
       dispatch(loading.success())
     })
-    .catch(err => console.log(err));
+    .catch(err => dispatch(loading.fail(err)));
   }
 }
 
@@ -83,24 +81,19 @@ export const populateRoom = id => {
     dispatch(loading.start())
     API.getById('room', id)
     .then(res => {
-      console.log(res.data.result)
       dispatch(updateRoom(id, res.data.result))
       dispatch(loading.success())
-      console.log('success')
     })
     .catch(err => dispatch(loading.fail(err)))
   }
 }
 
 export const createRoom = body => {
-  console.log('creating room')
   return dispatch => {
     dispatch(loading.start())
-    console.log('loading')
     API.post('room', body)
     .then(res => {
       let result = res.data.result;
-      console.log(result)
       dispatch(createdRoom(result))
       if (body.course) {
         dispatch(addCourseRooms(body.course, [result._id]))
@@ -112,7 +105,6 @@ export const createRoom = body => {
       return dispatch(loading.success())
     })
     .catch(err => {
-      console.log(err)
       dispatch(loading.fail(err))
     })
   }
@@ -123,7 +115,6 @@ export const updateRoomMembers = (roomId, updatedMembers) => {
   return dispatch => {
     API.updateMembers('room', roomId, updatedMembers)
     .then(res => {
-      console.log(res)
       dispatch(updateRoom(roomId, res.data.result))
     })
     .catch(err => console.log(err))

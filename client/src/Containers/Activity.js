@@ -30,7 +30,6 @@ class Activity extends Component {
   }
 
   fetchRooms() {
-    console.log('fetching rooms')
     const { activity, populatedActivity } = this.props;
     if (activity.rooms.length !== populatedActivity.rooms.length) {
       this.props.getRooms(activity.rooms)
@@ -56,7 +55,6 @@ class Activity extends Component {
       title: activity.name,
       details: activity.description,
     }
-    console.log(contentData)
     const crumbs = [{title: 'My VMT', link: '/myVMT/courses'}]
     if (course) {
       crumbs.push(
