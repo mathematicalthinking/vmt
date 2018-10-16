@@ -49,13 +49,17 @@ module.exports = {
       // }
       console.log("REMOVING NOTIFICATION ON BACKEND")
       const { resource, listType, ntfId } = body.removeNotification;
-      console.log(resource, listType, ntfId)
+      console.log(body.removeNotification, id)
       query =  {$pull: {[`${resource}Notifications.${listType}`]: {_id: ntfId}}}
+      console.log(query)
     }
 
     return new Promise((resolve, reject) => {
-      db.User.findByIdAndUpdate(id, query || body, {new: true})
-      .then(user => resolve(user)) // should we just try to pass back the info that chnaged?
+      if (query) body = query;
+      db.User.findByIdAndUpdate(id, body, {new: true})
+      .then(user => {
+        console.log("USER AFTER REMOVED NTFS: ", user)
+        resolve(user)}) // should we just try to pass back the info that chnaged?
       .catch(err => reject(err))
     })
   }

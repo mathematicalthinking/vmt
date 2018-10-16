@@ -37,22 +37,30 @@ class Profile extends Component {
     const { user, loading } = this.props;
     const { resource } = this.props.match.params;
     if (prevProps[`user${resource}`].length !== this.props[`user${resource}`].length) {
+      console.log('updating resources/tab')
       this.checkMultipleRoles()
       .then(() => this.setDisplayResources())
       .then(res => this.updateTabs())
     }
     if (!loading) {
+      console.log('updating loading')
       let haveResource = user[resource].every(rsrc => this.props[resource].includes(rsrc))
       if (!haveResource) this.fetchData(resource)
     }
     if (prevState.view !== this.state.view) {
+      console.log('updating view')
       this.setDisplayResources()
       .then(() => this.updateTabs())
     }
 
     if (prevProps.match.params.resource !== resource) {
+      console.log('updating resource')
       this.checkMultipleRoles()
       .then(() => {this.setDisplayResources()})
+    }
+    if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length) {
+      console.log('notifications changed in myVMT')
+      this.updateTabs();
     }
   }
   

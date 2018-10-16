@@ -17,13 +17,13 @@ import DragMember from '../../Components/UI/Member/DragMember';
 class Students extends Component {
   
   componentWillUnmount(){
-    const { parentResourceId, user, parentResource, notifications } = this.props
+    const {user, parentResource, notifications } = this.props
     console.log(parentResource)
     if (notifications.length > 0){
       notifications.forEach(ntf => {
         if (ntf.notificationType === 'newMember') {
-          console.log(ntf)
-          this.props.clearNotification(parentResourceId, ntf.user, parentResource, 'access',)
+          console.log("UNMOUNTING: ",ntf)
+          this.props.clearNotification(ntf._id, user._id, parentResource, 'access',)
         }
       })
     }

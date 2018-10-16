@@ -37,7 +37,7 @@ describe('test access requests', function(){
     cy.contains(user2.username).should('exist')
     // MAKE SURE THE NOTIFICATION IS VISUALLY RESOLVED
   })
-  it("user2 user now has access", function(){
+  it("user2 gets a notification they have access to course 1", function(){
     cy.login(user2)
     cy.getTestElement('tab-ntf').contains('1')
     cy.getTestElement('content-box-ntf').contains('1')
