@@ -2,11 +2,17 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import difference from 'lodash/difference';
 import { populateResource } from '../store/reducers';
-import * as actions from '../store/actions';
+import { 
+  getActivities,
+  getRooms, 
+  updateCourseRooms, 
+  updateCourseActivities, 
+  clearNotification, 
+} from '../store/actions';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 import Aux from '../Components/HOC/Auxil';
 import Modal from '../Components/UI/Modal/Modal';
-import PrivateAccessModal from '../Components/UI/Modal/PrivateAccess';
+import Access from './Access';
 import PublicAccessModal from '../Components/UI/Modal/PublicAccess';
 import Button from '../Components/UI/Button/Button';
 
@@ -30,18 +36,14 @@ class Course extends Component {
   // SO we can reset the tabs easily
 
   componentDidMount() {
-    const { course, user, clearNotification } = this.props;
+    const { course, user, accessNotifications, clearNotification } = this.props;
     let firstView = false;
-    if (user.courseNotifications.access.length > 0) {
-      console.log('there are ntfs')
-      user.courseNotifications.access.forEach(ntf => {
-        console.log(ntf)
+    if (accessNotifications.length > 0) {
+     accessNotifications.forEach(ntf => {
         if (ntf.notificationType === 'grantedAccess' && ntf._id === course._id) {
           // RESOLVE THIS NOTIFICATION
           firstView = true;
-          console.log("clearing ntf")
-          clearNotification(course._id, user._id, 'course', 'access')
-
+          clearNotification(course._id, user._id, 'course', 'access') //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
         }
       })
     }
@@ -50,14 +52,10 @@ class Course extends Component {
     // Check user's permission level -- owner, member, or guest
     let updatedTabs = [...this.state.tabs];
     let owner = false;
-    let member = false;
     if (course.creator === user._id) {
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
       this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
       owner = true;
-    }
-    if (course.members) {
-      if (course.members.find(member => member.user._id === user._id)) member = true;
       updatedTabs = this.displayNotifications(updatedTabs);
     }
     // Check for notifications that need resolution
@@ -65,19 +63,19 @@ class Course extends Component {
     this.setState({
       tabs: updatedTabs,
       owner,
-      member,
       firstView,
     })
+    if (course.members) {
+      this.checkAccess();
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log(this.props.accessNotifications)
-    console.log(prevProps.accessNotifications)
+    if (prevProps.course.members.length !== this.props.course.members.length) {
+      this.checkAccess();
+    }
     if (prevProps.accessNotifications.length !== this.props.accessNotifications.length) {
-      console.log('REDUX UPDATE OF USER NTFS MADE IT TO REACT')
-      let tabs = this.initialTabs;
-      if (this.state.owner) tabs = [...this.initialTabs, {name: 'Grades'}, {name: 'Insights'}]
-      const updatedTabs = this.displayNotifications(tabs)
+      let updatedTabs = this.displayNotifications([...this.state.tabs])
       this.setState({tabs: updatedTabs})
     }
     if ((this.state.member || this.state.owner) && !this.props.loading) {
@@ -100,14 +98,13 @@ class Course extends Component {
 
   displayNotifications = (tabs) => {
 
-    const { user, course } = this.props;
-    const { courseNotifications }= user
-    if (courseNotifications.access.length > 0 && course.creator === user._id) {
-      tabs[2].notifications = courseNotifications.access.length;
+    const { user, course, accessNotifications } = this.props;
+    if (course.creator === user._id) {
+      tabs[2].notifications = (accessNotifications.length > 0) ? accessNotifications.length : '';
     }
-    if (courseNotifications.newRoom.length > 0){
-      tabs[1].notifications = courseNotifications.newRoom.length;
-    }
+    // if (accessNotifications.llength > 0){
+    //   tabs[1].notifications = accessNotifications.llength;
+    // }
     return tabs;
   }
 
@@ -122,17 +119,25 @@ class Course extends Component {
     }
   }
 
+  checkAccess = () => {
+    this.props.course.members.forEach(member => {
+       if (member.user._id === this.props.user._id) {
+         this.setState({member: true})
+       }
+    })
+  }
+
   render() {
-    console.log(this.props)
     const { course, user, match, accessNotifications } = this.props;
     const resource = match.params.resource;
     const contentData = {
       resource,
-      parentResource: "courses",
+      parentResource: "course",
       parentResourceId: course._id,
       userResources: course[resource] || [],
       notifications:  accessNotifications || [],
-      userId: user._id,
+      userId: user._id, // @TODO <-- get rid of this user user object below
+      user: user,
       owner: this.state.owner,
     }
     const sidePanelData = {
@@ -140,7 +145,6 @@ class Course extends Component {
       details: 'some details about the course',
       title: course.name,
     }
-    console.log(contentData)
     // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
     return (
       <Aux>
@@ -163,7 +167,16 @@ class Course extends Component {
               <Button click={() => this.setState({firstView: false})}>Explore</Button>
             </Modal>
           </Aux> :
-          (course.isPublic ? <PublicAccessModal requestAccess={this.grantPublicAccess}/> : <PrivateAccessModal requestAccess={this.requestAccess}/>)}
+          course.isPublic ? 
+            <PublicAccessModal requestAccess={this.grantPublicAccess}/> : 
+            <Access  
+              resource='course'
+              resourceId={course._id}
+              userId={user._id}
+              username={user.username}
+              owners={course.members.filter(member => member.role === 'teacher').map(member => member.user)}
+            />
+          }
       </Aux>
     )
   }
@@ -180,15 +193,5 @@ const mapStateToProps = (store, ownProps) => {
   }
 }
 
-const mapDispatchToProps = dispatch => {
-  return {
-    getActivities: ids => dispatch(actions.getActivities(ids)),
-    getRooms: ids => dispatch(actions.getRooms(ids)),
-    updateCourseRooms: room => dispatch(actions.updateCourseRooms(room)),
-    updateCourseActivities: activity => dispatch(actions.updateCourseActivities),
-    grantAccess: (user, resource, id) => dispatch(actions.grantAccess(user, resource, id)),
-    requestAccess: (toUser, fromUser, resource, resourceId) => dispatch(actions.requestAccess(toUser, fromUser, resource, resourceId)),
-    clearNotification: (ntfId, userId, resource, list) => dispatch(actions.clearNotification(ntfId, userId, resource, list)),
-  }
-}
-export default connect(mapStateToProps, mapDispatchToProps)(Course);
+
+export default connect(mapStateToProps, {getActivities, getRooms, updateCourseRooms, updateCourseActivities, clearNotification,})(Course);

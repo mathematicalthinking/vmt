@@ -17,15 +17,18 @@ import DragMember from '../../Components/UI/Member/DragMember';
 class Students extends Component {
   
   componentWillUnmount(){
-    const { room, user, notifications } = this.props
-    if (room && notifications.length > 0){
-      console.log("--------------unmounting")
-      this.props.clearNotification(room._id, user._id, 'room', 'access')
+    const {user, parentResource, notifications } = this.props
+    if (notifications.length > 0){
+      notifications.forEach(ntf => {
+        if (ntf.notificationType === 'newMember') {
+          this.props.clearNotification(ntf._id, user._id, parentResource, 'access',)
+        }
+      })
     }
   }
 
   changeRole = (info) => {
-    const { userResources, parentResource, parentResourceId } = this.props;
+    let { userResources, parentResource, parentResourceId } = this.props;
     let updatedMembers = userResources.map(member => {
       return (member.user._id === info.user._id) ? {role: info.role, user: info.user._id} :
       {role: member.role, user: member.user._id};
@@ -36,12 +39,10 @@ class Students extends Component {
   }
 
   render(){
-    const { userResources, notifications, owner,  } = this.props;
+    let { userResources, notifications, owner,  } = this.props;
     let joinRequests = "There are no current requests";
-    console.log(this.props.owner)
     if (this.props.owner) {
       joinRequests = notifications.filter(ntf => ntf.notificationType === 'requestAccess').map((ntf, i) => {
-        console.log(ntf)
         return (
           <DragMember
             grantAccess={() => {this.props.grantAccess(ntf.user._id, this.props.parentResource, this.props.parentResourceId)}} 
@@ -51,9 +52,13 @@ class Students extends Component {
         )
       })
     }
-    const classList = userResources.map((member, i) => {
-      const notification = notifications.filter(ntf => ntf.user === member.user._id)
-      console.log(notification, member.user._id)
+    let classList = userResources.map((member, i) => {
+      let notification = notifications.filter(ntf => {
+        if (ntf.user && ntf.notificationType === 'newMember') {
+          return ntf.user._id === member.user._id
+        }
+        else return false;
+      })
       return owner ? 
       <DragMember 
         changeRole={(info) => this.changeRole(info)}

@@ -8,6 +8,7 @@ const Course = new mongoose.Schema({
   activities: [{type: ObjectId, ref: 'Activity'}],
   rooms: [{type: ObjectId, ref: 'Room'}],
   isPublic: {type: Boolean, default: false},
+  entryCode: {type: String,},
   members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}, _id: false}],
 },{timestamps: true});
 
@@ -19,37 +20,37 @@ Course.pre('save', async function(){
     await User.findByIdAndUpdate(this.creator, {$addToSet: {courses: this._id}})
   }
   // IF We're updating
-  if (!this.isNew) {
-    const promises = [];
-    this.modifiedPaths().forEach(field => {
-      if (field === 'rooms') {
-        // console.log('updating rooms in course pre save hook')
-      // add these rooms to all of the members in this course
-      // and add all of the members of this course to the room.
+  // if (!this.isNew) {
+  //   const promises = [];
+  //   this.modifiedPaths().forEach(field => {
+  //     if (field === 'rooms') {
+  //       // console.log('updating rooms in course pre save hook')
+  //     // add these rooms to all of the members in this course
+  //     // and add all of the members of this course to the room.
 
-      } else if (field === 'members') {
-        const member = this.members[this.members.length - 1]
-        promises.push(User.findByIdAndUpdate(member.user, {
-          $addToSet: {
-            courses: this._id,
-            'courseNotifications.access': {
-              notificationType: 'grantedAccess',
-              _id: this._id,
-            },
-            activities: this.activities,
-            rooms: {$each: this.rooms}
-          }
-        }))
-        promises.push(User.findByIdAndUpdate(this.creator, {
-          $pull: {'courseNotifications.access': {user: member.user}}
-        }))
-        // next()
-      } else if (field === 'activities') {
+  //     } else if (field === 'members') {
+  //       const member = this.members[this.members.length - 1]
+  //       promises.push(User.findByIdAndUpdate(member.user, {
+  //         $addToSet: {
+  //           courses: this._id,
+  //           'courseNotifications.access': {
+  //             notificationType: 'grantedAccess',
+  //             _id: this._id,
+  //           },
+  //           activities: this.activities,
+  //           rooms: {$each: this.rooms}
+  //         }
+  //       }))
+  //       promises.push(User.findByIdAndUpdate(this.creator, {
+  //         $pull: {'courseNotifications.access': {user: member.user}}
+  //       }))
+  //       // next()
+  //     } else if (field === 'activities') {
 
-      }
-    })
-    await Promise.all(promises)
-  }
+  //     }
+  //   })
+  //   await Promise.all(promises)
+  // }
 });
 
 Course.pre('remove', async function() {

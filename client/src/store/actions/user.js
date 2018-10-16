@@ -3,8 +3,7 @@ import auth from '../../utils/auth';
 import { normalize } from '../utils/normalize';
 import API from '../../utils/apiRequests';
 import * as loading from './loading'
-import { gotCourses, updateCourse, } from './courses';
-import { updateRoom, } from './rooms';
+import { gotCourses, } from './courses';
 
 
 export const gotUser = user => {
@@ -80,10 +79,9 @@ export const updateNotifications = (resource, updatedNotifications) => {
   }
 }
 
-export const clearNotification = (ntfId, userId, resource, listType) => {
+export const clearNotification = (ntfId, userId, resource, listType, ntfType) => {
   return (dispatch) => {
-    console.log('removing notification')
-    API.removeNotification(ntfId, userId, resource, listType)
+    API.removeNotification(ntfId, userId, resource, listType, ntfType)
     .then(res => {
       console.log("NTF REMOVED: ", res)
       dispatch(updateNotifications(resource, res.data.result[`${resource}Notifications`]))
@@ -112,7 +110,6 @@ export const login = (username, password) => {
     dispatch(loading.start());
     auth.login(username, password)
     .then(res => {
-      console.log(res.data)
       if (res.data.errorMessage) {return dispatch(loading.fail(res.data.errorMessage))}
       const courses = normalize(res.data.courses)
       // const activities = normalize(res.data.activities)
@@ -128,44 +125,6 @@ export const login = (username, password) => {
       console.log(err)
       dispatch(loading.fail(err.response.statusText))
     })
-  }
-}
-
-// ENTRY CODE IS OPTIONAL
-// WE SHOULD JUST SEPARATE OUT CHECKROOMACCESS into the ROOM ACTIONS FILE
-export const requestAccess = (toUser, fromUser, resource, resourceId, entryCode) => {
-  return dispatch => {
-    dispatch(loading.start());
-    API.requestAccess(toUser, fromUser, resource, resourceId)
-    .then(res => {
-      return dispatch(loading.accessSuccess())
-    })
-    .catch(err => {
-      return dispatch(loading.fail())})
-    }
-}
-
-export const grantAccess = (user, resource, resourceId) => {
-  return (dispatch, getState) => {
-    let apiResource = resource.slice(0, -1);
-    if (apiResource === 'activitie') apiResource = 'activity';
-    dispatch(loading.start())
-    API.grantAccess(user, apiResource, resourceId)
-    .then(res => {
-      if (apiResource === 'room') {
-        return dispatch(updateRoom(resourceId, {members: res.data.result.members}))
-      } else if (apiResource === 'course') {
-        dispatch(updateCourse(resourceId, {members: res.data.result.members}))
-      }
-      const { user } = getState()
-      const updatedNotifications = user[`${apiResource}Notifications`]
-      updatedNotifications.access = user[`${apiResource}Notifications`].access.filter(ntf => {
-        return ntf._id !== resourceId
-      })
-      dispatch(updateNotifications(apiResource, updatedNotifications))
-      dispatch(loading.success())
-    })
-    .catch(err => {console.log(err); dispatch(loading.fail(err))})
   }
 }
 

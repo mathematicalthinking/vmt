@@ -60,13 +60,11 @@ module.exports = passport => {
   }));
 
   passport.use('local-login', new LocalStrategy((username, password, next) => {
-    console.log("are we making it here?", username, password)
     User.findOne({ 'username':  username, 'accountType':  {$ne: 'temp'}}, (err, user) => {
       if (err) {console.log(err); return next(err);}
       // @TODO we actually want to just provide a link here instead of telling htem where to go
       if (!user) return next(null, false, {errorMessage: 'That username does not exist. If you want to create an account go to Register'});
       if (!bcrypt.compareSync(password, user.password)) {
-        console.log('password incorrect')
         return next(null, false, {errorMessage: 'The password you entered is incorrect'});
       }
       // Manual field population
@@ -76,12 +74,12 @@ module.exports = passport => {
     .populate({
       path: 'courses',
       populate: {path: 'members.user', select: 'username'},
-      options: {sort: {createdAt: -1}},
+      // options: {sort: {createdAt: -1}},
     })
     // .populate('rooms', 'notifications.user name description isPublic creator roomType')
     // .populate('activities', 'name description isPublic creator roomType rooms')
     .populate({path: 'courseNotifications.access.user', select: 'username'})
-    // .populat({path: 'roomNotifications.access.user', select: 'username'})
+    .populate({path: 'roomNotifications.access.user', select: 'username'})
     // .lean()
     // .populate('courseTemplates', 'notifications name description isPublic')
   }));
@@ -98,7 +96,6 @@ module.exports = passport => {
       googleId: profile.id
     }, (err, user) => {
       if (err) {
-        console.log('in err block', err);
         return done(err);
       }
       if (user) {

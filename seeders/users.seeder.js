@@ -20,8 +20,18 @@ var data = [
     "newRoom": []
   },
   "courseTemplates": [],
-  "courses": ["5bbb82f72539b95500cf526e", "5bbf4e5ec1b6d84cb0a4ded8"],
-  "rooms": ["5ba289c57223b9429888b9b6"],
+  "courses": [
+    "5bbb82f72539b95500cf526e", 
+    "5bbf4e5ec1b6d84cb0a4ded8", 
+    "5bbb82f72539b95500cf526a",
+    "5bbf4e5ec1b6d84cb0a4ded3",
+  ],
+  "rooms": [
+    "5ba289c57223b9429888b9b3",
+    "5ba289c57223b9429888b9b5", 
+    "5ba289c57223b9429888b9b6", 
+    "5ba289c57223b9429888b9b7",
+  ],
   "activities": [],
   "isAdmin": false,
   "seenTour": false,

@@ -19,6 +19,24 @@
     transition: all 0.3s ease-out;
 }
 
+.Close {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  font-size: 30px;
+  color: #666;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.Close:hover {
+  color: black;
+}
+
+.Description {
+  margin-top: 23px;
+}
+
 .Modal::-webkit-scrollbar {
   width: 0.5em;
   height: 0.09em;

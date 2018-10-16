@@ -38,7 +38,6 @@ class TempWorkspace extends Component {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
-      console.log(res.room)
       this.setState({user: res.user, room: res.room})
     })
 
@@ -59,7 +58,6 @@ class TempWorkspace extends Component {
   }
 
   componentWillUnmount () {
-    console.log(this.state.user)
     if (this.state.user) {
       const { room, user } = {...this.state};
       const data = {

@@ -17,23 +17,25 @@ export default {
     return axios.delete(`/api/${resource}/${id}`)
   },
 
-  // CONSIDER MOVING ALL OF THE ACCESS CHECKING / GRANTING TO THE AUTH util
-  enterRoomWithCode: (roomId, userId, entryCode) => {
-    return axios.put(`/api/room/${roomId}`, {checkAccess: {userId, entryCode,}})
+  enterWithCode: (resource, resourceId, userId, entryCode) => {
+    return axios.put(`/api/${resource}/${resourceId}`, {checkAccess: {userId, entryCode,}})
   },
 
-  requestAccess: (toUser, fromUser, resource, resourceId) => {
-    // @TODO consider making notificationTypes a directory of constants like action types
-    return axios.put(`/api/user/${toUser}`, {notificationType: 'requestAccess', user: fromUser, resource, _id: resourceId})
+  requestAccess: (owners, userId, resource, resourceId) => {
+    // @TODO consider making notificationTypes a directory of constants like action types in redux
+    let promises = owners.map(owner => {
+      return axios.put(`/api/user/${owner._id}`, {notificationType: 'requestAccess', user: userId, resource, _id: resourceId})
+    })
+    return Promise.all(promises)
   },
 
-  removeNotification: (ntfId, userId, resource, listType) => {
-    console.log(ntfId, userId, listType, resource)
+  removeNotification: (ntfId, userId, resource, listType, ntfType) => {
     return axios.put(`/api/user/${userId}`, {
       removeNotification: {
         ntfId,
         resource,
         listType,
+        ntfType,
       }
     })
   },

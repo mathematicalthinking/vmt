@@ -45,7 +45,6 @@ class Signup extends Component {
   }
 
   render() {
-    console.log('rendering signup')
     return (
       // after creating a user redirect to login @TODO figure out if this is for creating students or for signing up on your own
       // the answer will determine where/if we redirect to

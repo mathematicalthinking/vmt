@@ -7,7 +7,6 @@ class EventDesc extends Component {
   }
 
   mouseEnter = () => {
-    console.log("show this one")
     if (!this.props.dragging) {
       this.setState({show: true})
     }

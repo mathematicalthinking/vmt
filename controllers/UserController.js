@@ -29,13 +29,13 @@ module.exports = {
 
   put: (id, body) => {
     let query;
+    console.log(body)
     if (body.notificationType === 'requestAccess' || body.notificationType === 'grantAccess') {
       if (body.resource === 'course') {
         delete body.resource;
         query = {$addToSet: {'courseNotifications.access': body}}
       } else {
         delete body.resource;
-        
         query = {$addToSet: {'roomNotifications.access': body}}
       }
     }
@@ -43,13 +43,18 @@ module.exports = {
 
     }
     if (body.removeNotification) {
+      // if (body.ntfType === 'newMember') {
+      //   query = 
+      // }
       const { resource, listType, ntfId } = body.removeNotification;
       query =  {$pull: {[`${resource}Notifications.${listType}`]: {_id: ntfId}}}
     }
 
     return new Promise((resolve, reject) => {
-      db.User.findByIdAndUpdate(id, query || body, {new: true})
-      .then(user => resolve(user)) // should we just try to pass back the info that chnaged?
+      if (query) body = query;
+      db.User.findByIdAndUpdate(id, body, {new: true})
+      .then(user => {
+        resolve(user)}) // should we just try to pass back the info that chnaged?
       .catch(err => reject(err))
     })
   }

@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { enterRoomWithCode, populateRoom, requestAccess, clearError} from '../store/actions';
+import { enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification} from '../store/actions';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 import Aux from '../Components/HOC/Auxil';
-import PrivateRoomAccessModal from '../Components/UI/Modal/PrivateRoomAccess';
+import Modal from '../Components/UI/Modal/Modal';
+import Button from '../Components/UI/Button/Button';
+import Access from './Access';
 import PublicAccessModal from '../Components/UI/Modal/PublicAccess'
 // import Students from './Students/Students';
 class Room extends Component {
@@ -15,6 +17,7 @@ class Room extends Component {
       {name: 'Summary'},
       {name: 'Members'},
     ],
+    firstView: false,
   }
 
   initialTabs = [
@@ -23,10 +26,11 @@ class Room extends Component {
   ]
 
   componentDidMount() {
-    const { room, user, populateRoom } = this.props;
+    const { room, user, populateRoom, accessNotifications, clearNotification } = this.props;
     // CHECK ACCESS
     let updatedTabs = [...this.state.tabs];
     let owner = false;
+    let firstView = false;
     if (room.creator === user._id) {
       updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
       this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
@@ -34,6 +38,15 @@ class Room extends Component {
       // displayNotifications
       updatedTabs = this.displayNotifications(updatedTabs)
     }
+    if (accessNotifications.length > 0) {
+      accessNotifications.forEach(ntf => {
+        if (ntf.notificationType === 'grantedAccess' && ntf._id === room._id) {
+           // RESOLVE THIS NOTIFICATION
+           firstView = true;
+           clearNotification(room._id, user._id, 'room', 'access') //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
+         }
+       })
+     }
     if (room.members) {
       this.checkAccess();
     }
@@ -43,20 +56,17 @@ class Room extends Component {
     this.setState({
       tabs: updatedTabs,
       owner,
+      firstView,
     })
 
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log('room updated')
-    console.log(prevProps.roomNotifications.access.length)
-    console.log(this.props.roomNotifications.access.length)
     // THESE ARE SUSCEPTIBLE TO ERRORS BECAUSE YOU COULD GAIN AND LOSE TWO DIFFERENT NTFS IN A SINGLE UPDATE POTENTIALLY? ACTUALLY COULD YOU?
     if (prevProps.room.members.length !== this.props.room.members.length) {
       this.checkAccess();
     }
-    if (prevProps.roomNotifications.access.length !== this.props.roomNotifications.access.length) {
-      console.log('updateing tabs!!')
+    if (prevProps.accessNotifications.length !== this.props.accessNotifications.length) {
       let updatedTabs = this.displayNotifications([...this.state.tabs]);
       this.setState({tabs: updatedTabs})
     }
@@ -79,7 +89,6 @@ class Room extends Component {
     if (room.creator === user._id) {
       tabs[1].notifications = roomNotifications.access.length > 0 ? roomNotifications.access.length: '';
     } 
-    console.log(tabs)
     return tabs;
   }
 
@@ -89,7 +98,7 @@ class Room extends Component {
       room, 
       match, 
       user, 
-      roomNotifications, 
+      accessNotifications, 
       error, 
       clearError,
     } = this.props;
@@ -100,7 +109,7 @@ class Room extends Component {
       parentResourceId: room._id,
       userResources: room[resource],
       owner: this.state.owner,
-      notifications: roomNotifications.access || [],
+      notifications: accessNotifications || [],
       room,
       user,
     }
@@ -111,7 +120,7 @@ class Room extends Component {
     }
 
     const crumbs = [
-      {title: 'Profile', link: '/myVMT/courses'},
+      {title: 'My VMT', link: '/myVMT/courses'},
       {title: room.name, link: `/myVMT/rooms/${room._id}/summary`}]
       //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
       // THE REDUX STORE USING THE COURSE ID IN THE URL
@@ -131,11 +140,19 @@ class Room extends Component {
               loading={this.props.loading}
               activateTab={event => this.setState({activeTab: event.target.id})}
             />
+            <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
+              <p>Welcome to {room.name}. If this is your first time joining a course,
+              we recommend you take a tour. Otherwise you can start exploring this room's features.</p>
+              <Button click={() => this.setState({firstView: false})}>Explore</Button>
+            </Modal>
           </Aux> :
           (room.isPublic ? <PublicAccessModal requestAccess={this.grantPublicAccess}/> : 
-          <PrivateRoomAccessModal 
-            requestAccess={(entryCode) => this.enterWithCode(entryCode)} 
-            course={room.course} 
+            <Access  
+            resource='room'
+            resourceId={room._id}
+            userId={user._id}
+            username={user.username}
+            owners={room.members.filter(member => member.role === 'teacher').map(member => member.user)}
             error={error}
             clearError={clearError}
           />
@@ -149,10 +166,10 @@ const mapStateToProps = (store, ownProps) => {
   return {
     room: store.rooms.byId[ownProps.match.params.room_id],
     user: store.user,
-    roomNotifications: store.user.roomNotifications,
+    accessNotifications: store.user.roomNotifications.access,
     loading: store.loading.loading,
     error: store.loading.errorMessage,
   }
 }
 
-export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, clearError})(Room);
+export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification})(Room);

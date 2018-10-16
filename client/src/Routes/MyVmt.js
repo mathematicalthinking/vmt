@@ -33,6 +33,7 @@ class MyVmt extends Component {
             <PrivateRoute exact path = {`${path}/courses/:course_id/:resource`} authed={this.props.loggedIn} component={Course}/>
             <PrivateRoute exact path={`${path}/courses/:course_id/activities/:activity_id/:resource`} authed={this.props.loggedIn} component={Activity} />
             <PrivateRoute exact path = {`${path}/rooms/:room_id/:resource`} authed={this.props.loggedIn} component={Room}/>
+            <PrivateRoute exact path={`${path}/activities/:activity_id/:resource`} authed={this.props.loggedIn} component={Activity} />
             {/* <Route exact path='/publicList/:resource' component={PublicList}/>
             <Route exact path='/publicResource/room/:room_id/:resource' component={Room}/>
             <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />

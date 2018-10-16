@@ -54,6 +54,9 @@ class Profile extends Component {
       this.checkMultipleRoles()
       .then(() => {this.setDisplayResources()})
     }
+    if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length) {
+      this.updateTabs();
+    }
   }
   
   // CHekcs if the user has mulitple roles for a single resource (i.e. teacher and student)
