@@ -59,3 +59,13 @@
   justify-content: center;
   width: 100%;
 }
+
+.Plus {
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+}
+
+.Button {
+  margin: 0 5px;
+}

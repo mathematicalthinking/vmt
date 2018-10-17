@@ -8,12 +8,12 @@
 
 .Input {
   border: none;
-  padding: 20px;
-  font-size: 40px;
   width: 100%;
+  padding: 5px;
   transition: .2s;
   background-color: #f9f9f9;
   letter-spacing: .08em;
+  font-size: inherit;
   color: #666;
   caret-color: #2D91F2;
 }
@@ -27,6 +27,6 @@
 }
 
 .Icon {
-  font-size: 40px;
-  padding: 20px;
+  font-size: inherit;
+  padding: 5px;
 }

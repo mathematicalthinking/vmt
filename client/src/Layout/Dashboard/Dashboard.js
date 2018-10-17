@@ -13,10 +13,10 @@ import MakeRoomsLayout from './MakeRooms/MakeRooms';
 
 const dashboard = props => {
   const {contentData, sidePanelData, view, toggleView} = props;
-  const {resource, parentResource, activity, course, room, userId} = contentData;
+  const {resource, parentResource, activity, course, room, user} = contentData;
   let content;
   if (parentResource === 'activities' && resource === 'details') {
-    content = <MakeRoomsLayout activity={activity} course={course} userId={userId}/>
+    content = <MakeRoomsLayout activity={activity} course={course} userId={user._id}/>
   } else if (resource === 'summary') {
     content = <Summary room={room} loading={props.loading}/>
   } else {

@@ -159,7 +159,7 @@ class Profile extends Component {
       resource,
       userResources: this.state.displayResources,
       notifications: (resource === 'courses') ? user.courseNotifications.access : user.roomNotifications.access,
-      userId: user._id,
+      user,
     }
     const sidePanelData = {
       title: 'My VMT',

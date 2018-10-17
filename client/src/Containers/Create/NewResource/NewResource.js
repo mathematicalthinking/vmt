@@ -155,15 +155,15 @@ class NewResource extends Component {
                 </div>
               </div>
               <div className={classes.Submit}>
-                <Button click={this.submitForm}>Submit</Button>
-                <Button click={e => {e.preventDefault(); this.setState({creating: false})}}>Cancel</Button>
+                <div className={classes.Button}><Button click={this.submitForm}>Submit</Button></div>
+                <div className={classes.Button}><Button click={e => {e.preventDefault(); this.setState({creating: false})}}>Cancel</Button></div>
               </div>
             </form>
           </div>
         </Modal>
-        <Button click={this.showModal} data-testid={`create-${displayResource}`}>Create A New {displayResource}</Button>
-        {(resource === 'activities') ? <Button click={this.showModal}>Select an existing {displayResource}</Button> : null}
-        {(resource === 'rooms') ? <Button click={this.showModal}>Create from an Activity</Button> : null}
+        <div className={classes.Button}><Button click={this.showModal} data-testid={`create-${displayResource}`}>New <span className={classes.Plus}><i className="fas fa-plus"></i></span></Button></div>
+        {(resource === 'activities') ? <div className={classes.Button}><Button click={this.showModal}>Select an existing {displayResource}</Button></div> : null}
+        {(resource === 'rooms') ? <div className={classes.Button}><Button click={this.showModal}>Create from an Activity</Button></div> : null}
       </Aux>
     )
   }

@@ -32,7 +32,7 @@ class Signup extends Component {
     }
   }
   signUp = () => {
-    const accountType = this.state.studentAccount ? 'student' : 'teacher';
+    const accountType = this.state.studentAccount ? 'participant' : 'facilitator';
     const newUser = {
       firstName: this.state.firstName,
       lastName: this.state.lastName,
@@ -63,11 +63,11 @@ class Signup extends Component {
               <div className={classes.Radios}>
                 <RadioBtn
                   checked={this.state.studentAccount}
-                  check={() => this.setState({studentAccount: true})}>Student
+                  check={() => this.setState({studentAccount: true})}>Participant
                 </RadioBtn>
                 <RadioBtn
                   checked={!this.state.studentAccount}
-                  check={() => this.setState({studentAccount: false})}>Teacher
+                  check={() => this.setState({studentAccount: false})}>facilitator
                 </RadioBtn>
               </div>
               <p>*Note: This just marks your primary account type, you can still be a
