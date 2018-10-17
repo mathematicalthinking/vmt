@@ -40,7 +40,7 @@ var data = [
   "firstName": "jean-luc",
   "lastName": "picard",
   "password": "$2b$12$xI0a6mVLlVoFYeVsmU2XrOVowVVphu9ORSD9EVHG6lzWMvfP8cgES",
-  "accountType": "teacher",
+  "accountType": "facilitator",
   "__v": 2
 },
 {
@@ -64,7 +64,7 @@ var data = [
   "firstName": "Geordi",
   "lastName": "Laforge",
   "password": "$2b$12$YNI6y1M6u4/Y4mAP.E312OYN./uTIJqKGfUREnhNJ8vs8t/4hbAua",
-  "accountType": "student",
+  "accountType": "participant",
 }
 ];
 

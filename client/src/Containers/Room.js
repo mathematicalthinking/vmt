@@ -114,7 +114,7 @@ class Room extends Component {
       user,
     }
     const sidePanelData = {
-      image: undefined,
+      image: room.image,
       title: room.name,
       details: room.description,
     }

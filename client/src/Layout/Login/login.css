@@ -1,6 +1,7 @@
 :import('../../colors.css'){
   gray: backgroundGray;
   blue: blue;
+  red: red;
   lightShadow: lightShadow;
 }
 
@@ -30,9 +31,19 @@
 }
 
 .ErrorMsg {
+  position: relative;
   color: red;
-  height: 20px;
+  height: 30px;
+  padding: 5px;
   text-align: center;
+  width: 100%;
+}
+
+.Error {
+  position: absolute;
+  text-align: center;
+  width: 100%;
+  
 }
 
 .Form {
@@ -41,6 +52,10 @@
   justify-content: center;
   align-items: center;
   width: 90%;
+}
+
+.Submit {
+  margin-top: 20px;
 }
 
 .Loading {

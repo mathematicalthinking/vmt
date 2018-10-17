@@ -1,5 +1,6 @@
 :import('../../../colors.css') {
   blue: blue;
+  red: red;
   lightShadow: lightShadow;
   lightestShadow: lightestShadow;
 }
@@ -46,8 +47,8 @@
 
 .Icons {
   display: flex;
-  justify-content: space-between;
-  width: 50px;
+  justify-content: space-evenly;
+  width: 70px;
   position: absolute;
   left: 10px;
   top: 10px;

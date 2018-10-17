@@ -48,7 +48,7 @@ class Activity extends Component {
       parentResource: 'activities',
       parentResourceId: activity._id,
       notifications: [],
-      userId: this.props.userId,
+      user: this.props.user
     }
     const sidePanelData = {
       image: undefined,

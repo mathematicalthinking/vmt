@@ -13,8 +13,8 @@ const Icons = props => {
   return (
     <Aux>
       {lock}
-      {roomType}
       <img src={props.image} height={20} width={20} alt={''}/>
+      {roomType}
     </Aux>
   )
 }

@@ -46,14 +46,15 @@ class NewResource extends Component {
 
   submitForm = event => {
     event.preventDefault();
-    // const roomIds = this.state.rooms.map(room => room.id);
-    const newResource = {
+    let theme = imageThemes[Math.floor(Math.random()*imageThemes.length)];
+    let newResource = {
       name: this.state[`${this.props.resource}Name`],
       description: this.state.description,
       // rooms: roomIds,
       members: [{user: {_id: this.props.userId, username: this.props.username}, role: 'teacher'}], // @TODO Do we want to default the creator to a teacher?
       creator: this.props.userId,
       isPublic: this.state.isPublic,
+      image: `http://tinygraphs.com/labs/isogrids/hexa16/${this.state[`${this.props.resource}Name`]}?theme=${theme}&numcolors=4&size=220&fmt=svg`
     }
     // update backend via redux so we can add this to the global state of courses
     if (this.props.template) {
@@ -71,8 +72,8 @@ class NewResource extends Component {
         // BECAUSE ACTIVITIES AND ROOMS ARE PRETTY MUCH THE SAME AN IF?ELSE BLOCK WOULD ACTUALLY BE MORE EFFICIENT
         switch (this.props.resource) {
           case 'courses' :
-          let theme = imageThemes[Math.floor(Math.random()*imageThemes.length)];
-          newResource.image = `http://tinygraphs.com/labs/isogrids/hexa16/${newResource.name}?theme=${theme}&numcolors=4&size=220&fmt=svg`
+          
+          newResource.image = 
           newResource.entryCode = hri.random();
           this.props.createCourse(newResource);
           break;
@@ -102,7 +103,7 @@ class NewResource extends Component {
   }
 
   render() {
-    const { resource } = this.props;
+    let { resource } = this.props;
     let displayResource;
     if (resource === 'activities') {
       displayResource = 'Activity'
@@ -180,7 +181,7 @@ class NewResource extends Component {
   }
 }
 
-const mapStateToProps = store => {
+let mapStateToProps = store => {
   return {
     myRooms: store.user.rooms,
     rooms: store.rooms.rooms,
@@ -189,7 +190,7 @@ const mapStateToProps = store => {
   }
 }
 
-const mapDispatchToProps = dispatch => {
+let mapDispatchToProps = dispatch => {
   return {
     createCourse: body => dispatch(actions.createCourse(body)),
     createRoom: body => dispatch(actions.createRoom(body)),

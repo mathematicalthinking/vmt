@@ -2,6 +2,7 @@
   yellow: yellow;
   orange: orange;
   blue: blue;
+  green: green;
 }
 
 .Container {
@@ -75,6 +76,8 @@
 
 .Button {
   margin: 0 5px;
+  color: white;
+  background: green;
 }
 
 .Button:hover .Plus{

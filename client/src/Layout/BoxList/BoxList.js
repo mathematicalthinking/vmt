@@ -3,7 +3,6 @@ import ContentBox from '../../Components/UI/ContentBox/ContentBox';
 import DragContentBox from '../../Components/UI/ContentBox/DragContentBox';
 
 import classes from './boxList.css';
-import glb from '../../global.css';
 const boxList = props => {
   let listElems = "There doesn't appear to be anything here yet";
   if (props.list.length > 0) {

@@ -9,7 +9,7 @@ const contentBox = props => {
   const notifications = (props.notifications > 0) ? <div className={classes.Notification} data-testid="content-box-ntf">{props.notifications}</div> : null;
 
   return (
-    <Link to={props.link}>
+    <Link to={props.link} data-testid='content-box'>
     <div className={classes.Container} onClick={this.toggleCollapse}>
       <div className={classes.Icons}><Icons image={props.image} lock={props.locked} roomType={props.roomType}/></div>
       {notifications}

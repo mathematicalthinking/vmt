@@ -76,8 +76,10 @@ class Signup extends Component {
               </p>
             </div>
           </form>
-          <div className={classes.ErrorMsg}>{this.props.errorMessage}</div>
-          <Button click={this.signUp}>Signup</Button>
+          <div className={classes.ErrorMsg}>
+            <div className={classes.Error}>{this.props.errorMessage}</div>
+          </div>
+          <div className={classes.Submit}><Button click={this.signUp}>Signup</Button></div>
         </div>
       </div>
     )
