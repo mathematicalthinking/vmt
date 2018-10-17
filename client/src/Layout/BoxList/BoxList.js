@@ -1,7 +1,7 @@
 import React from 'react';
 import ContentBox from '../../Components/UI/ContentBox/ContentBox';
 import DragContentBox from '../../Components/UI/ContentBox/DragContentBox';
-import { Link } from 'react-router-dom';
+
 import classes from './boxList.css';
 import glb from '../../global.css';
 const boxList = props => {
@@ -27,8 +27,10 @@ const boxList = props => {
       return (
         <div className={classes.ContentBox} key={i}>
           {!props.draggable ? <ContentBox
-            title={<Link className={glb.Link} to={`${props.linkPath}${item._id}${props.linkSuffix}`}>{item.name}</Link>}
+            title={item.name}
+            link={`${props.linkPath}${item._id}${props.linkSuffix}`}
             key={item._id}
+            image={item.image}
             notifications={notifications}
             roomType={item.roomType}
             locked={!item.isPublic} // @TODO Should it appear locked if the user has access ? I can see reasons for both
@@ -37,7 +39,8 @@ const boxList = props => {
             {item.description}
           </ContentBox> :
           <DragContentBox
-            title={<Link className={glb.Link} to={`${props.linkPath}${item._id}${props.linkSuffix}`}>{item.name}</Link>}
+            title={item.name}
+            link={`${props.linkPath}${item._id}${props.linkSuffix}`}
             key={item._id}
             id={item._id}
             notifications={notifications}

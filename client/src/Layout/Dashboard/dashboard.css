@@ -13,6 +13,7 @@
   /* min-height: calc(100vh - 220px); */
   /* margin: 50px auto;   */
   padding: 0 20px 20px 20px;
+  max-width: 1400px;
   /* border: 2px solid yellow; */
 }
 
@@ -74,7 +75,7 @@
   display: flex;
   flex-flow: column;
   flex-grow: 3;
-  max-width: 850px;
+  /* max-width: 850px; */
   /* border: 2px solid pink; */
 }
 

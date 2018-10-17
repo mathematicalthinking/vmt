@@ -6,9 +6,9 @@
 
 .Container > div {
   flex: 1 1 auto;
-  margin: 10px;
+  margin: 10px 20px 10px 0;
 }
 
 .ContentBox {
-  max-width: 300px;
+  max-width: 252px;
 }
