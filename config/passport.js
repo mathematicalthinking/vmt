@@ -47,6 +47,7 @@ module.exports = passport => {
           newUser.lastName = req.body.lastName;
           newUser.password = bcrypt.hashSync(password, bcrypt.genSaltSync(12), null);
           newUser.accountType = req.body.accountType;
+          console.log("NEW USER: ", newUser)
           newUser.save(function(err) {
             if (err) {
               const keys = Object.keys(err.errors)

@@ -164,13 +164,19 @@ class Profile extends Component {
     const sidePanelData = {
       title: 'My VMT',
       image: user.profilePic,
-      details: 'some details about the user?'
+      details: {
+        main: `${user.firstName || ''} ${user.lastName || ''}`,
+        secondary: user.username,
+        additional: {
+          courses: user.courses.length,
+          rooms: user.rooms.length,
+        }
+      }
     }
     return (
       // <Aux>
         <DashboardLayout
           routingInfo={match}
-          title='My VMT'
           crumbs={[{title: 'My VMT', link: '/myVMT/courses'}]}
           contentData={contentData}
           sidePanelData={sidePanelData}

@@ -128,9 +128,9 @@ class Course extends Component {
   }
 
   render() {
-    const { course, user, match, accessNotifications } = this.props;
-    const resource = match.params.resource;
-    const contentData = {
+    let { course, user, match, accessNotifications } = this.props;
+    let resource = match.params.resource;
+    let contentData = {
       resource,
       parentResource: "course",
       parentResourceId: course._id,
@@ -140,9 +140,22 @@ class Course extends Component {
       user: user,
       owner: this.state.owner,
     }
-    const sidePanelData = {
+    console.log(course.members)
+    let sidePanelData = {
       image: course.image,
-      details: 'some details about the course',
+      details: {
+        main: course.name,
+        secondary: 'Facilitators: ' + course.members.reduce((acc, member) =>{
+          if (member.role === 'teacher') {
+            acc += member.user.username + " "
+          }
+          return acc;
+        }, ''),
+        additional: {
+          acitivities: course.activities.length,
+          rooms: course.rooms.length,
+        }
+      },
       title: course.name,
     }
     // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI

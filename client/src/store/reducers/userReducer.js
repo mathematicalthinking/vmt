@@ -1,6 +1,8 @@
 import * as actionTypes from '../actions/actionTypes';
 
 const initialState = {
+  firstName: '',
+  lastName: '',
   username: '',
   _id: '',
   loggedIn: false,
@@ -24,6 +26,8 @@ const reducer = (state = initialState, action) => {
         ...state,
         loggedIn: true,
         username: action.user.username,
+        firstName: action.user.firstName,
+        lastName: action.user.lastName,
         _id: action.user._id,
         courses: action.user.courses,
         courseNotifications: action.user.courseNotifications,

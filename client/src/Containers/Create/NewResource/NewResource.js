@@ -66,14 +66,13 @@ class NewResource extends Component {
         this.props.createRoomTemplate(newResource);
         break;
         default:;
-      }} else {
-        newResource.template = this.state.makeTemplate;
-        newResource.templateIsPublic = this.state.templateIsPublic;
-        // BECAUSE ACTIVITIES AND ROOMS ARE PRETTY MUCH THE SAME AN IF?ELSE BLOCK WOULD ACTUALLY BE MORE EFFICIENT
-        switch (this.props.resource) {
-          case 'courses' :
-          
-          newResource.image = 
+      }
+    } else {
+      newResource.template = this.state.makeTemplate;
+      newResource.templateIsPublic = this.state.templateIsPublic;
+      // BECAUSE ACTIVITIES AND ROOMS ARE PRETTY MUCH THE SAME AN IF?ELSE BLOCK WOULD ACTUALLY BE MORE EFFICIENT
+      switch (this.props.resource) {
+        case 'courses' :
           newResource.entryCode = hri.random();
           this.props.createCourse(newResource);
           break;

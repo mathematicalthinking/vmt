@@ -12,8 +12,8 @@ import Summary from '../Room/Summary/Summary';
 import MakeRoomsLayout from './MakeRooms/MakeRooms';
 
 const dashboard = props => {
-  const {contentData, sidePanelData, view, toggleView} = props;
-  const {resource, parentResource, activity, course, room, user} = contentData;
+  let {contentData, sidePanelData, view, toggleView} = props;
+  let {resource, parentResource, activity, course, room, user} = contentData;
   let content;
   if (parentResource === 'activities' && resource === 'details') {
     content = <MakeRoomsLayout activity={activity} course={course} userId={user._id}/>
@@ -33,7 +33,10 @@ const dashboard = props => {
       image = <Avatar size='large'/>
     }
   }  
-
+  let { additional } = sidePanelData.details;
+  let additionalDetails = Object.keys(additional).map(detail => (
+    <div className={classes.Detail}>{detail}: <span className={classes.DetailInfo}>{additional[detail]}</span></div>
+  ))
   return (
     <section className={classes.Container}>
       <div className={classes.BreadCrumbs}>
@@ -43,9 +46,12 @@ const dashboard = props => {
         <div className={classes.SidePanel}>
           <div>
             <div className={classes.Image}>{image}</div>
-            <div className={classes.SpTitle}>{sidePanelData.title}</div>
             <div className={classes.Details}>
-              {sidePanelData.details}
+              <div className={classes.spMain}>{sidePanelData.details.main}</div>
+              <div className={classes.spSecondary}>{sidePanelData.details.secondary}</div>
+              <div className={classes.spAdditional}>
+                {additionalDetails}
+              </div>
             </div>
             <div className={classes.ViewOpts}></div>
           </div>
