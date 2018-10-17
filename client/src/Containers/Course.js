@@ -141,7 +141,7 @@ class Course extends Component {
       owner: this.state.owner,
     }
     const sidePanelData = {
-      image: undefined,
+      image: course.image,
       details: 'some details about the course',
       title: course.name,
     }

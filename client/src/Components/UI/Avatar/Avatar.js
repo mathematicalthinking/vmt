@@ -13,10 +13,12 @@ const avatar = props => {
     border = '3px solid white'
   } 
   return (
-  <div className={classes.UserInfo}><Link to='/profile'>
-    <i className={["fas fa-user", classes.Avatar].join(' ')} style={{fontSize, padding, border,}}></i>
-    {props.username}
-  </Link></div>
+    
+    <div className={classes.UserInfo}><Link to='/profile'>
+      <div className={classes.AvatarContainer}><i className={["fas fa-user", classes.Avatar].join(' ')} style={{fontSize, padding, border,}}></i></div>
+      {props.username}
+    </Link></div>
+    
   )
 }
 

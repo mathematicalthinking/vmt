@@ -1,3 +1,7 @@
+:import('../../../colors.css') {
+  orange: orange;
+}
+
 .Tabs {
   display: flex;
   justify-content: flex-start;
@@ -20,7 +24,7 @@
 
 .ActiveTab {
   /* border-bottom: 1px solid #2D91F2; */
-  border-bottom: 1.5px solid #ffd549 !important;
+  border-bottom: 1.5px solid orange !important;
 }
 /* @TODO might consider extracting out Notification to its own component */
 .Notifications {

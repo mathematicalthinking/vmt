@@ -24,6 +24,7 @@ const Room = new mongoose.Schema({
   events: {type: [{type: ObjectId, ref: 'Event', _id: false}], default: []},
   isPublic: {type: Boolean, default: false},
   tempRoom: {type: Boolean, default: false},
+  image: {type: String,}
 },
 {timestamps: true});
 

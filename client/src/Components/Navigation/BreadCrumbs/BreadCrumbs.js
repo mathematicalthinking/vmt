@@ -3,13 +3,20 @@ import classes from './breadCrumbs.css';
 import glb from '../../../global.css';
 import { Link } from 'react-router-dom';
 const breadCrumbs = props => {
-  const crumbs = props.crumbs.map((crumb, i)=> (
-    <Link  key={i} className={glb.Link} to={crumb.link} style={{zIndex: 10 - i}}>
-      <div className={classes.Crumb} data-testid="crumb">
-        {crumb.title}
-      </div>
-    </Link>
-  ))
+  let crumbs = props.crumbs.map((crumb, i) => {
+    let style = classes.Crumb;
+    if (i === props.crumbs.length - 1) { 
+      style = [classes.Crumb, classes.Active].join(' ')
+    }
+    return (
+      <Link  key={i} className={glb.Link} to={crumb.link} style={{zIndex: i}}>
+        <div className={style} data-testid="crumb">
+          {crumb.title}
+        </div>
+      </Link>
+    )
+  })
+  console.log(crumbs)
   return (
     <div className={classes.CrumbContainer}>
       {crumbs}

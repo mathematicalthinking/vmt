@@ -10,6 +10,7 @@ const Course = new mongoose.Schema({
   isPublic: {type: Boolean, default: false},
   entryCode: {type: String,},
   members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}, _id: false}],
+  image: {type: String,} //URL
 },{timestamps: true});
 
 // Not using arrow function so we can have access to THIS docuemnt

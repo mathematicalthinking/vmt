@@ -10,6 +10,15 @@ import Button from '../../../Components/UI/Button/Button';
 import classes from '../create.css';
 import { connect } from 'react-redux';
 import * as actions from '../../../store/actions/';
+
+const imageThemes = [
+  'frogideas', 'duskfalling',
+  'sugarsweets', 'heatwave',
+  'daisygarden', 'seascape',
+  'summerwarmth', 'bythepool',
+  'berrypie',
+]
+
 class NewResource extends Component {
   state = {
     roomName: '',
@@ -50,18 +59,20 @@ class NewResource extends Component {
     if (this.props.template) {
       switch (this.props.resource) {
         case 'courses' :
-          this.props.createCourseTemplate(newResource);
-          break;
+        this.props.createCourseTemplate(newResource);
+        break;
         case 'rooms' :
-          this.props.createRoomTemplate(newResource);
-          break;
+        this.props.createRoomTemplate(newResource);
+        break;
         default:;
-    }} else {
-      newResource.template = this.state.makeTemplate;
-      newResource.templateIsPublic = this.state.templateIsPublic;
-      // BECAUSE ACTIVITIES AND ROOMS ARE PRETTY MUCH THE SAME AN IF?ELSE BLOCK WOULD ACTUALLY BE MORE EFFICIENT
-      switch (this.props.resource) {
-        case 'courses' :
+      }} else {
+        newResource.template = this.state.makeTemplate;
+        newResource.templateIsPublic = this.state.templateIsPublic;
+        // BECAUSE ACTIVITIES AND ROOMS ARE PRETTY MUCH THE SAME AN IF?ELSE BLOCK WOULD ACTUALLY BE MORE EFFICIENT
+        switch (this.props.resource) {
+          case 'courses' :
+          let theme = imageThemes[Math.floor(Math.random()*imageThemes.length)];
+          newResource.image = `http://tinygraphs.com/labs/isogrids/hexa16/${newResource.name}?theme=${theme}&numcolors=4&size=220&fmt=svg`
           newResource.entryCode = hri.random();
           this.props.createCourse(newResource);
           break;
@@ -161,7 +172,7 @@ class NewResource extends Component {
             </form>
           </div>
         </Modal>
-        <div className={classes.Button}><Button click={this.showModal} data-testid={`create-${displayResource}`}>New <span className={classes.Plus}><i className="fas fa-plus"></i></span></Button></div>
+        <div className={classes.Button}><Button click={this.showModal} data-testid={`create-${displayResource}`}>Create <span className={classes.Plus}><i className="fas fa-plus"></i></span></Button></div>
         {(resource === 'activities') ? <div className={classes.Button}><Button click={this.showModal}>Select an existing {displayResource}</Button></div> : null}
         {(resource === 'rooms') ? <div className={classes.Button}><Button click={this.showModal}>Create from an Activity</Button></div> : null}
       </Aux>
