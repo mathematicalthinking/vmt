@@ -9,7 +9,7 @@ const store = configureStore();
 const App = props => (
   <Provider store={store}>
     <Router >
-      <div style={{display: 'flex', flexFlow: 'column'}}>
+      <div style={{display: 'flex', flexFlow: 'column', minHeight: '100%'}}>
       <Switch>
         <Route path={'/myVMT'} component={MyVmt} />
         <Route path={'/'} component={Home} />
