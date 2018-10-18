@@ -16,7 +16,7 @@ describe('show different views based on role', function(){
     cy.get('input[name=coursesName]').type(course.name)
     cy.get('input[name=description]').type('whatever')
     cy.get('button').contains('Submit').click()
-    cy.getTestElement('content-box-title').contains(course.name).should('exist')
+    cy.contains(course.name).should('exist')
     cy.get('button').contains('Facilitator').should('be.visible');
   })
   it('toggles the resources when the user switches view (course)', function(){
@@ -39,7 +39,7 @@ describe('show different views based on role', function(){
     cy.get('input[name=roomsName]').type('{selectall} {backspace}').type(room.name)
     cy.get('input[name=description]').type('{selectall} {backspace}').type(room.description)
     cy.get('button').contains('Submit').click()
-    cy.getTestElement('content-box-title').contains(room.name).should('exist')
+    cy.contains(room.name).should('exist')
     cy.get('button').contains('Facilitator').should('be.visible');
   })
   it('toggles the resources when the user switches view (room)', function(){

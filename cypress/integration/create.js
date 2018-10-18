@@ -13,7 +13,7 @@ describe('create each type of resource', function(){
     cy.get('input[name=coursesName]').type(course.name)
     cy.get('input[name=description]').type(course.description)
     cy.get('button').contains('Submit').click()
-    cy.getTestElement('content-box-title').contains(course.name).should('exist')
+    cy.contains(course.name).should('exist')
   })
 
   it('creates a room', function(){
