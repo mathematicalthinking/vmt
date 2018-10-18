@@ -20,6 +20,12 @@ const imageThemes = [
   'berrypie',
 ]
 
+const shapes = {
+  activities: 'isogrids', 
+  courses: 'isogrids/hexa16',
+  rooms: 'spaceinvaders',
+}
+
 class NewResource extends Component {
   state = {
     roomName: '',
@@ -46,6 +52,7 @@ class NewResource extends Component {
   }
 
   submitForm = event => {
+    let { resource } = this.props;
     event.preventDefault();
     let theme = imageThemes[Math.floor(Math.random()*imageThemes.length)];
     let newResource = {
@@ -55,7 +62,7 @@ class NewResource extends Component {
       members: [{user: {_id: this.props.userId, username: this.props.username}, role: 'facilitator'}], // @TODO Do we want to default the creator to a facilitator?
       creator: this.props.userId,
       isPublic: this.state.isPublic,
-      image: `http://tinygraphs.com/labs/isogrids/hexa16/${this.state[`${this.props.resource}Name`]}?theme=${theme}&numcolors=4&size=220&fmt=svg`
+      image: `http://tinygraphs.com/labs/${shapes[resource]}/${this.state[`${this.props.resource}Name`]}?theme=${theme}&numcolors=4&size=220&fmt=svg`
     }
     // update backend via redux so we can add this to the global state of courses
     if (this.props.template) {
@@ -72,7 +79,7 @@ class NewResource extends Component {
       newResource.template = this.state.makeTemplate;
       newResource.templateIsPublic = this.state.templateIsPublic;
       // BECAUSE ACTIVITIES AND ROOMS ARE PRETTY MUCH THE SAME AN IF?ELSE BLOCK WOULD ACTUALLY BE MORE EFFICIENT
-      switch (this.props.resource) {
+      switch (resource) {
         case 'courses' :
           newResource.entryCode = hri.random();
           this.props.createCourse(newResource);
@@ -101,7 +108,9 @@ class NewResource extends Component {
       }
     }
     this.setState({creating: false})
-    if (this.props.intro) this.props.history.push(`/myVMT/${this.props.resource}`)
+    if (this.props.intro) {
+      this.props.history.push(`/myVMT/${resource}`)
+    }
   }
 
   render() {
