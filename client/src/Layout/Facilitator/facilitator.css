@@ -1,0 +1,58 @@
+:import('../../colors.css') {
+  navbarHeight: navbarHeight;
+  maxWidth: maxWidth;
+  lightBlue: lightBlue;
+  lightShadow: lightShadow;
+}
+
+.Container {
+  /* height: calc(100vh - navbarHeight); */
+  color: #999;
+}
+
+.FixedTop {
+  border: 1px solid red;
+}
+
+.Center {
+  width: 100%;
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-start;
+  align-items: center;
+
+}
+
+.Title {
+  margin-top: 40px;
+}
+
+.Cards {
+  margin-top: 20px;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  max-wIdth: maxWidth;
+}
+
+.FeatureName{
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.Card {
+  width: 240px;
+  height: 300px;
+  box-shadow: lightShadow;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+.Link {
+  color: lightBlue;
+}
+
+.Create {
+ width: 100%;
+ border: 1px solid green;
+}

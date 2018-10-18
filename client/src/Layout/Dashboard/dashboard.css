@@ -1,3 +1,7 @@
+:import('../../colors.css'){
+  lightBlue: lightBlue;
+}
+
 .Container {
   display: flex;
   flex-flow: column;
@@ -32,7 +36,8 @@
   margin-right: 30px;
   padding-right: 30px;
   width: 280px;
-  border-right: 1px solid #ddd
+  border-right: 1px solid #ddd;
+  letter-spacing: 0.08em;
 }
 
 
@@ -92,4 +97,18 @@
 .spSecondary {
   font-size: 20px;
   color: #666;
+}
+
+.CreateForParticipant {
+  width: 100%;
+  text-align: center;
+  font-style: italic;
+  color: #666;
+  font-size: 15px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.CreateForParticipant:hover {
+  color: lightBlue;
 }

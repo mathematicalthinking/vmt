@@ -102,7 +102,7 @@ class NewResource extends Component {
   }
 
   render() {
-    let { resource } = this.props;
+    let { resource, intro } = this.props;
     let displayResource;
     if (resource === 'activities') {
       displayResource = 'Activity'
@@ -173,8 +173,8 @@ class NewResource extends Component {
           </div>
         </Modal>
         <div className={classes.Button}><Button click={this.showModal} data-testid={`create-${displayResource}`}>Create <span className={classes.Plus}><i className="fas fa-plus"></i></span></Button></div>
-        {(resource === 'activities') ? <div className={classes.Button}><Button click={this.showModal}>Select an existing {displayResource}</Button></div> : null}
-        {(resource === 'rooms') ? <div className={classes.Button}><Button click={this.showModal}>Create from an Activity</Button></div> : null}
+        {(resource === 'activities' && !intro) ? <div className={classes.Button}><Button click={this.showModal}>Select an existing {displayResource}</Button></div> : null}
+        {(resource === 'rooms' && !intro) ? <div className={classes.Button}><Button click={this.showModal}>Create from an Activity</Button></div> : null}
       </Aux>
     )
   }

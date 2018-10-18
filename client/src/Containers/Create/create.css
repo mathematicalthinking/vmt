@@ -75,11 +75,11 @@
   transition: .2s;
 }
 
-.Button {
+/* .Button {
   margin: 0 5px;
   color: white;
   background: green;
-}
+} */
 
 .Button:hover .Plus{
   color: orange;

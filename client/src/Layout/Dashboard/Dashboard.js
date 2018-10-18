@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import classes from './dashboard.css';
 import TabList from '../../Components/Navigation/TabList/TabList';
 import BreadCrumbs from '../../Components/Navigation/BreadCrumbs/BreadCrumbs';
@@ -55,6 +56,7 @@ const dashboard = props => {
             </div>
             <div className={classes.ViewOpts}></div>
           </div>
+          {user.accountType === 'participant' && !props.bothRoles ? <div className={classes.CreateForParticipant}><Link to='facilitator'>become a facilitator</Link></div> : null}
           {props.bothRoles ? 
           <div>
             <div>view as...</div>
