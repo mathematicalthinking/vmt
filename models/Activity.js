@@ -13,6 +13,7 @@ const Activity = new mongoose.Schema({
   ggbFile: {type: String},
   desmosLink: {type: String},
   events: [{type: String}],
+  image: {type:String,}
   // template: {type: ObjectId, ref: 'ActivityTemplate'},
 }, {timestamps: true});
 
@@ -21,7 +22,7 @@ const Activity = new mongoose.Schema({
 Activity.pre('save', async function() {
   const promises = []
   if (this.isNew) {
-    promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {activities: this._id}}))
+    promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {activities: this._id}, accountType: 'facilitator'}))
     if (this.course) {
       promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {activities: this._id}}))
     }

@@ -18,7 +18,7 @@ const Course = new mongoose.Schema({
 Course.pre('save', async function(){
   const User = require('./User');
   if (this.isNew) {
-    await User.findByIdAndUpdate(this.creator, {$addToSet: {courses: this._id}})
+    await User.findByIdAndUpdate(this.creator, {$addToSet: {courses: this._id}, accountType: 'facilitator'})
   }
   // IF We're updating
   // if (!this.isNew) {

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
 import { hri } from 'human-readable-ids';
 // @TODO Make these import less verbose
 import TextInput from '../../../Components/Form/TextInput/TextInput';
@@ -84,6 +85,7 @@ class NewResource extends Component {
             newResource.course = this.props.courseId;
             delete newResource.members
           }
+          console.log('bout to creat and activity: image: ', newResource.image)
           this.props.createActivity(newResource);
           break;
         case 'rooms' :
@@ -199,4 +201,4 @@ let mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewResource);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(NewResource));

@@ -170,6 +170,7 @@ class Profile extends Component {
         additional: {
           courses: user.courses.length,
           rooms: user.rooms.length,
+          activities: user.activities.length
         }
       }
     }

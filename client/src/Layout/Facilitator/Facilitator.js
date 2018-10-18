@@ -55,7 +55,7 @@ class FacilitatorInstructions extends Component{
               </div>
             </div>
               <p className={classes.Tutorial}>
-                What's the difference between an activity and a room? To learn about how VMT works, try one of our <CustomLink to='/tutorials'>tutorials</CustomLink>
+                What's the difference between an activity and a room? To learn about how VMT works, try one of our <CustomLink to='tutorials'>tutorials</CustomLink>
               </p>
           </div>
           {/* <div className={[classes.Center, classes.Invite].join(' ')}>

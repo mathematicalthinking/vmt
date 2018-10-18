@@ -35,7 +35,7 @@ Room.pre('save', function (next) {
     let users = this.members.map(member => member.user)
     promises.push(User.find({'_id': {$in: users}}))
     if (this.course) {
-      promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id}}))
+      promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id}, accountType: 'facilitator'}))
     }
     if (this.activity) {
       promises.push(Activity.findByIdAndUpdate(this.activity, {$addToSet: {rooms: this._id}}))
