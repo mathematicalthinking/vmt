@@ -99,6 +99,7 @@ class NewResource extends Component {
       }
     }
     this.setState({creating: false})
+    if (this.props.intro) this.props.history.push(`/myVMT/${this.props.resource}`)
   }
 
   render() {

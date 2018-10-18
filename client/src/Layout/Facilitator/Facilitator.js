@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import CustomLink from '../../Components/Navigation/CustomLink/CustomLink';
 import NewResource from '../../Containers/Create/NewResource/NewResource';
 import classes from './facilitator.css';
 class FacilitatorInstructions extends Component{
@@ -55,7 +55,7 @@ class FacilitatorInstructions extends Component{
               </div>
             </div>
               <p className={classes.Tutorial}>
-                What's the difference between an activity and a room? To learn about how VMT works, try one of our <Link to='/tutorials'>tutorials</Link>
+                What's the difference between an activity and a room? To learn about how VMT works, try one of our <CustomLink to='/tutorials'>tutorials</CustomLink>
               </p>
           </div>
           {/* <div className={[classes.Center, classes.Invite].join(' ')}>
