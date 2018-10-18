@@ -21,7 +21,7 @@
   width: 100%;
 }
 
-.StudentList {
+.ParticipantList {
   margin: 10px 0 10px 0;
   display: flex;
   flex-flow: column;
@@ -31,7 +31,7 @@
   width: 100%;
 }
 
-.Student {
+.Participant {
   color: black;
   padding: 7px;
   width: 100%;
@@ -39,7 +39,7 @@
   cursor: pointer;
 }
 
-.Student:hover {
+.Participant:hover {
   color: blue;
 }
 
@@ -47,6 +47,6 @@
   color: #999;
 }
 
-.EvenStudent {
+.EvenParticipant {
   background-color: #ddd;
 }

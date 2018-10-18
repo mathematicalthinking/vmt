@@ -25,7 +25,7 @@ class MakeRoomsLayout extends Component {
             course={course ? course._id : null}
             userId={this.props.userId}
             close={() => {this.setState({assigning: false})}}
-            students={course ? course.members.filter(member => member.role === 'Student') : []}/>
+            participants={course ? course.members.filter(member => member.role === 'Participant') : []}/>
         </Modal> : null}
       </Aux>
     )

@@ -7,8 +7,8 @@ class EditMember extends PureComponent {
     const { changeRole, role } = this.props;
     return (
       <Aux>
-        <RadioBtn check={changeRole} checked={role === 'teacher'} name={'teacher'}>Teacher</RadioBtn>
-        <RadioBtn check={changeRole} checked={role === 'student'} name={'student'}>Student</RadioBtn>
+        <RadioBtn check={changeRole} checked={role === 'facilitator'} name={'facilitator'}>Facilitator</RadioBtn>
+        <RadioBtn check={changeRole} checked={role === 'participant'} name={'participant'}>Participant</RadioBtn>
       </Aux>
     )
   }

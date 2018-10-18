@@ -1,24 +1,35 @@
-@value colors: '../../../colors.css';
-@value blue from colors;
+:import('../../../colors.css') {
+  blue: blue;
+  red: red;
+  lightShadow: lightShadow;
+  lightestShadow: lightestShadow;
+}
 
 .Container {
   position: relative;
   display: flex;
   flex-flow: column;
   align-items: center;
-  background-color: #f9f8f7;
-  padding: 30px;
+  /* background-color: ; */
+  padding: 20px 5px;
   border: 1px solid #d8d9da;
   border-radius: 3px;
-  box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.28);
-  transition: all .2s ease-out;
+  /* box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.28); */
+  box-shadow: lightestShadow;
+  transition: all .2s;
   width: 100%;
+  cursor: pointer;
+  max-width: 252px;
+}
+
+.Container:hover {
+  box-shadow: lightShadow;
 }
 
 .Title {
   font-size: 1.6em;
   letter-spacing: .06em;
-  margin-bottom: 10px;
+  margin: 10px 0;
   border-bottom: 1px solid #ddd;
   color: blue;
 }
@@ -36,8 +47,8 @@
 
 .Icons {
   display: flex;
-  justify-content: space-between;
-  width: 50px;
+  justify-content: space-evenly;
+  width: 70px;
   position: absolute;
   left: 10px;
   top: 10px;

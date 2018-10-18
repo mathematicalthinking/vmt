@@ -21,16 +21,16 @@ var data = [
   },
   "courseTemplates": [],
   "courses": [
-    "5bbb82f72539b95500cf526e", 
-    "5bbf4e5ec1b6d84cb0a4ded8", 
-    "5bbb82f72539b95500cf526a",
-    "5bbf4e5ec1b6d84cb0a4ded3",
+    // "5bbb82f72539b95500cf526e",  // THESE WILL BE ADDED TO THIS USER WHEN THEY'RE CREATED BECAUSE COURSE AND ROOM HAVE A PRE SAVE HOOK THAT UPDATES THE USERS
+    // "5bbf4e5ec1b6d84cb0a4ded8", 
+    // "5bbb82f72539b95500cf526a",
+    // "5bbf4e5ec1b6d84cb0a4ded3",
   ],
   "rooms": [
-    "5ba289c57223b9429888b9b3",
-    "5ba289c57223b9429888b9b5", 
-    "5ba289c57223b9429888b9b6", 
-    "5ba289c57223b9429888b9b7",
+    // "5ba289c57223b9429888b9b3",
+    // "5ba289c57223b9429888b9b5", 
+    // "5ba289c57223b9429888b9b6", 
+    // "5ba289c57223b9429888b9b7",
   ],
   "activities": [],
   "isAdmin": false,
@@ -40,7 +40,7 @@ var data = [
   "firstName": "jean-luc",
   "lastName": "picard",
   "password": "$2b$12$xI0a6mVLlVoFYeVsmU2XrOVowVVphu9ORSD9EVHG6lzWMvfP8cgES",
-  "accountType": "teacher",
+  "accountType": "facilitator",
   "__v": 2
 },
 {
@@ -64,7 +64,7 @@ var data = [
   "firstName": "Geordi",
   "lastName": "Laforge",
   "password": "$2b$12$YNI6y1M6u4/Y4mAP.E312OYN./uTIJqKGfUREnhNJ8vs8t/4hbAua",
-  "accountType": "student",
+  "accountType": "participant",
 }
 ];
 

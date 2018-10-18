@@ -35,7 +35,7 @@ const User = new mongoose.Schema({
       return emailRegex.test(email);
     }, message: '{VALUE} is not a valid email address'}
   },
-  accountType: {type: String, enum: ['student', 'teacher', 'temp']},
+  accountType: {type: String, enum: ['participant', 'facilitator', 'temp']},
   bothRoles: {type: Boolean, default: false},
   password: {type: String, required: function() {return this.accountType !== 'temp'}},
   isAdmin: {type: Boolean, default: false},

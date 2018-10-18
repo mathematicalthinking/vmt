@@ -8,7 +8,7 @@ import { MyVMT, Course, Activity, Room } from '../Containers';
 import PrivateRoute from '../Components/HOC/PrivateRoute';
 // import Workspace from '../Containers/Workspace/Workspace';
 // import Replayer from '../Containers/Replayer/Replayer';
-import Confirmation from '../Layout/Confirmation/Confirmation';
+import { Confirmation, FacilitatorInstructions }from '../Layout';
 import Aux from '../Components/HOC/Auxil';
 // import classes from './main.css';
 import { connect } from 'react-redux';
@@ -19,6 +19,7 @@ import { Route, Switch } from 'react-router-dom';
 class MyVmt extends Component {
   render() {
     const { path } = this.props.match
+    console.log(path)
     return (
       // <main className={classes.Main}>
       //   {/* <div className={classes.Particles} id='particles-js'></div> */}
@@ -29,6 +30,7 @@ class MyVmt extends Component {
       <Aux>
         <Navbar />
           <Switch>
+            <PrivateRoute exact path={`${path}/facilitator`} authed={this.props.loggedIn} component={FacilitatorInstructions} />
             <PrivateRoute exact path={`${path}/:resource`} authed={this.props.loggedIn} component={MyVMT}/>
             <PrivateRoute exact path = {`${path}/courses/:course_id/:resource`} authed={this.props.loggedIn} component={Course}/>
             <PrivateRoute exact path={`${path}/courses/:course_id/activities/:activity_id/:resource`} authed={this.props.loggedIn} component={Activity} />
@@ -44,7 +46,7 @@ class MyVmt extends Component {
             <PrivateRoute expact path = '/workspace/:room_id' authed={this.props.loggedIn} component={Workspace} />
             <Route exact path='/dashboard/course/:course_id/room/:room_id/:resource' authed={this.props.loggedIn} component={Room}/>
             {/* <PrivateRoute path='/assign' authed={this.props.loggedIn} component={Activities}/> */}
-            <Route path='/confirmation' component={Confirmation} /> */}
+            <Route path='/confirmation' component={Confirmation} />}
             {/* <Route exact path='/logout' component={Login}/> */}
             <Route path="*" render={() => {
               return (<div>Error</div>)

@@ -1,3 +1,8 @@
+:import('../../../colors.css'){ 
+  red: red;
+  blue: blue;
+  lightblue: lightblue;
+}
 .Modal {
     position: absolute;
     right: 50%;
@@ -44,12 +49,12 @@
 }
 
 .Modal::-webkit-scrollbar-thumb {
-  background-color: #2D91F2;
+  background-color: lightblue;
   border-radius: 3px;
 }
 
 .Message {
-  color: #2D91F2;
+  color: blue;
   border: 1px solid #ddd;
   border-radius: 3px;
 }

@@ -78,16 +78,18 @@ class LoginLayout extends PureComponent {
           <h2 className={classes.Title}>Login</h2>
           <form onSubmit={this.loginHandler} className={classes.Form}>
             {form}
-            <div className={classes.ErrorMsg}>{this.props.errorMessage}</div>
+            <div className={classes.ErrorMsg}>
+              <div className={classes.Error}>{this.props.errorMessage}</div>
+            </div>
             {this.props.loading ?
               <Aux>
                 {/* <Backdrop show={true} /> */}
                 {/* <img className={classes.Loading} src={Loading} alt='loading' /> */}
               </Aux>
             : null}
-            <Button>Login</Button>
+            <div className={classes.Submit}><Button>Login</Button></div>
           </form>
-          <div>or</div>
+          {/* <div>or</div> */}
           {/* <GoogleSignIn click={this.googleLogin} /> */}
         </div>
       </div>

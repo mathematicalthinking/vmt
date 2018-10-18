@@ -1,5 +1,6 @@
 // USER
 export const GOT_USER = 'GOT_USER';
+export const UPDATE_USER = 'UPDATE_USER';
 export const ADD_USER_ROOMS = 'UPDATE_USER_ROOMS';
 export const ADD_USER_COURSES = 'ADD_USER_COURSES';
 export const ADD_USER_ACTIVITIES = 'ADD_USER_ACTIVITIES';

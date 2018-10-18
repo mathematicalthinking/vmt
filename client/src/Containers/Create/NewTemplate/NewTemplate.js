@@ -35,7 +35,7 @@ class NewTemplate extends Component {
       description: this.state.description,
       // rooms: roomIds,
       creator: this.props.userId,
-      members: [{user: this.props.userId, role: 'teacher'}],
+      members: [{user: this.props.userId, role: 'facilitator'}],
       isPublic: this.state.isPublic,
       template: this.state.makeTemplate,
       templateIsPublic: this.state.templateIsPublic,
@@ -101,7 +101,7 @@ class NewTemplate extends Component {
             </div>
             <div className={classes.PrivacyDesc}>
               Marking your course as public allows other VMT users to view the activity
-              in your rooms without seeing any personal information about your students.
+              in your rooms without seeing any personal information about your participants.
             </div>
             <div className={classes.Template}>
               <div className={classes.Checkbox}>
@@ -112,7 +112,7 @@ class NewTemplate extends Component {
                 <RadioBtn name='Tprivate' checked={!this.state.templateIsPublic} check={() => this.setState({templateIsPublic: false})}>Private</RadioBtn>
               </div> : null}
               Creating a template will copy this course into your template folder. Every room you add to
-              this course will also be added to your template (along with the files associated with the room). Course members and activity in the rooms will not be saved to the template. This allow you to resuse this template for multiple groups of students.
+              this course will also be added to your template (along with the files associated with the room). Course members and activity in the rooms will not be saved to the template. This allow you to resuse this template for multiple groups of participants.
             </div>
             <div className={classes.Submit}>
               <Button click={this.submitForm}>Submit</Button>

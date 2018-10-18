@@ -10,6 +10,7 @@ const Course = new mongoose.Schema({
   isPublic: {type: Boolean, default: false},
   entryCode: {type: String,},
   members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}, _id: false}],
+  image: {type: String,} //URL
 },{timestamps: true});
 
 // Not using arrow function so we can have access to THIS docuemnt
@@ -17,7 +18,7 @@ const Course = new mongoose.Schema({
 Course.pre('save', async function(){
   const User = require('./User');
   if (this.isNew) {
-    await User.findByIdAndUpdate(this.creator, {$addToSet: {courses: this._id}})
+    await User.findByIdAndUpdate(this.creator, {$addToSet: {courses: this._id}, accountType: 'facilitator'})
   }
   // IF We're updating
   // if (!this.isNew) {

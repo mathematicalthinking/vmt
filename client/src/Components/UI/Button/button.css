@@ -9,8 +9,7 @@
   background-color: white;
   border: none;
   align-self: center;
-  margin: 13px;
-  padding: 7px;
+  padding: 8px;
   border-radius: 3px;
   border: 1px solid #d3d2d4;
   transition: .2s;
@@ -35,6 +34,12 @@
 }
 
 .Primary:hover {
+  /* color: white; */
+  background-color: #f9f9f9;
+  border: 1px solid #babbb2;
+}
+
+.Active:hover {
   color: white;
   background-color: blue;
 }

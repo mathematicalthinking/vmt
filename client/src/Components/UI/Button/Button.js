@@ -12,7 +12,7 @@ const button = props => {
   styles = styles.join(" ")
 
   return (
-    <button className={styles} onClick={props.click} data-testid={props['data-testid']}>{props.children}</button>
+    <button className={styles} style={{margin: props.m}} onClick={props.click} data-testid={props['data-testid']}>{props.children}</button>
   )
 }
 

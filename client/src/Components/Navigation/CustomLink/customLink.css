@@ -1,0 +1,14 @@
+:import('../../../colors.css'){
+  lightBlue: lightBlue;
+}
+
+.Link {
+  color: lightBlue;
+  padding-bottom: 2px;
+  border-bottom: none;
+  transition: .2s;
+}
+
+.Link:hover {
+  border-bottom: 1px solid #999;
+}

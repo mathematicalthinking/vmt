@@ -1,3 +1,10 @@
+:import('../../colors.css') {
+  yellow: yellow;
+  orange: orange;
+  blue: blue;
+  green: green;
+}
+
 .Container {
   display: flex;
   flex-flow: column;
@@ -58,4 +65,23 @@
   display: flex;
   justify-content: center;
   width: 100%;
+}
+
+.Plus {
+  color: #999;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  transition: .2s;
+}
+
+/* .Button {
+  margin: 0 5px;
+  color: white;
+  background: green;
+} */
+
+.Button:hover .Plus{
+  color: orange;
+  border: 1px solid blue;
 }

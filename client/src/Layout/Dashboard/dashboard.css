@@ -1,43 +1,43 @@
+:import('../../colors.css'){
+  lightBlue: lightBlue;
+}
+
 .Container {
   display: flex;
   flex-flow: column;
-  /* position: relative; */
-  background-color: #fdfdfd;
+  align-content: center;
   width: 80%;
-  min-width: 900px;
+  height: calc(100vh - 50px);
   align-self: center;
-  border: 1px solid #ddd;
   border-top: 1px solid #75b7f6;
-  min-height: calc(100vh - 220px);
-  margin: 50px auto;  
   padding: 0 20px 20px 20px;
-  /* border: 2px solid yellow; */
+  max-width: 1400px;
+}
+
+.BreadCrumbs {
+  margin-bottom: 20px;
+  width: 100%;
+  min-width: 1000px;
+  align-self: flex-start;
 }
 
 .Main {
-  /* border: 1px solid green; */
   width: 100%;
   height: 100%;
   flex-grow: 2;
   display: flex;
-  /* box-shadow: 11px 20px 61px 20px rgba(248,248,248,1); */
-}
-
-.BreadCrumbs {
-  /* border: 1px solid purple; */
-  margin-bottom: 20px;
 }
 
 
 .SidePanel {
-  /* border: 1px solid coral; */
   display: flex;
   flex-flow: column;
   justify-content: space-between;
-  /* flex-grow: 1; */
   margin-right: 30px;
   padding-right: 30px;
-  border-right: 1px solid #ddd
+  width: 280px;
+  border-right: 1px solid #ddd;
+  letter-spacing: 0.08em;
 }
 
 
@@ -68,7 +68,7 @@
   display: flex;
   flex-flow: column;
   flex-grow: 3;
-  max-width: 850px;
+  /* max-width: 850px; */
   /* border: 2px solid pink; */
 }
 
@@ -87,4 +87,32 @@
 
 .CreateContainer {
 
+}
+
+.spMain {
+  font-size: 25px;
+  font-weight: 900;
+}
+
+.spSecondary {
+  font-size: 20px;
+  color: #666;
+}
+
+.spAdditional {
+  border-top: 1px solid #ddd;
+}
+
+.CreateForParticipant {
+  width: 100%;
+  text-align: center;
+  font-style: italic;
+  color: #666;
+  font-size: 15px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.CreateForParticipant:hover {
+  color: lightBlue;
 }

@@ -15,7 +15,7 @@ class Profile extends Component {
     touring: false,
     bothRoles: false,
     displayResources: [],
-    view: 'teacher',
+    view: 'facilitator',
   }
 
   componentDidMount() {
@@ -59,32 +59,33 @@ class Profile extends Component {
     }
   }
   
-  // CHekcs if the user has mulitple roles for a single resource (i.e. teacher and student)
+  // CHekcs if the user has mulitple roles for a single resource (i.e. facilitator and participant)
   // if so we toggle the "view as" buttons to be visible
   checkMultipleRoles = () => {
     const { match, user, } = this.props;
     return new Promise(resolve => {
       if (match.params.resource === 'activities') {
-        this.setState({bothRoles: false, view: 'teacher'})
-        return resolve(); // Activities are for teachers only
+        this.setState({bothRoles: false, view: 'facilitator'})
+        return resolve(); // Activities are for facilitators only
       }
     // determine roles
-      let isTeacher = false;
-      let isStudent = false;
+      let isFacilitator = false;
+      let isParticipant = false;
       let bothRoles = false;
-      let view = 'teacher';
+      let view = 'facilitator';
       if (this.props[`user${match.params.resource}`]) {
         this.props[`user${match.params.resource}`].forEach(resource => {
           resource.members.forEach((member) => {
             if (member.user._id === user._id) {
-              if (member.role === 'student') isStudent = true;
-              if (member.role === 'teacher') isTeacher = true;
+              if (member.role === 'participant') isParticipant = true;
+              if (member.role === 'facilitator') isFacilitator = true;
             }
           })
         })
       }
-      if (isTeacher && isStudent) bothRoles = true
-      else view = isTeacher ? 'teacher' : 'student';
+      // @TODO Theres some redundancy here
+      if (isFacilitator && isParticipant) bothRoles = true
+      else view = isFacilitator ? 'facilitator' : 'participant';
       this.setState({
         bothRoles,
         view,
@@ -143,6 +144,8 @@ class Profile extends Component {
           return included;
         })
       }
+      console.log(this.props[`user${resource}`])
+      console.log(displayResources)
       this.setState({displayResources, }, () => resolve())
     }))
   }
@@ -159,18 +162,24 @@ class Profile extends Component {
       resource,
       userResources: this.state.displayResources,
       notifications: (resource === 'courses') ? user.courseNotifications.access : user.roomNotifications.access,
-      userId: user._id,
+      user,
     }
     const sidePanelData = {
-      title: 'My VMT',
       image: user.profilePic,
-      details: 'some details about the user?'
+      details: {
+        main: `${user.firstName || ''} ${user.lastName || ''}`,
+        secondary: user.username,
+        additional: {
+          courses: user.courses.length,
+          rooms: user.rooms.length,
+          activities: user.activities.length
+        }
+      }
     }
     return (
       // <Aux>
         <DashboardLayout
           routingInfo={match}
-          title='My VMT'
           crumbs={[{title: 'My VMT', link: '/myVMT/courses'}]}
           contentData={contentData}
           sidePanelData={sidePanelData}

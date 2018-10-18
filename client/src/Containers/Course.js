@@ -128,9 +128,9 @@ class Course extends Component {
   }
 
   render() {
-    const { course, user, match, accessNotifications } = this.props;
-    const resource = match.params.resource;
-    const contentData = {
+    let { course, user, match, accessNotifications } = this.props;
+    let resource = match.params.resource;
+    let contentData = {
       resource,
       parentResource: "course",
       parentResourceId: course._id,
@@ -140,9 +140,24 @@ class Course extends Component {
       user: user,
       owner: this.state.owner,
     }
-    const sidePanelData = {
-      image: undefined,
-      details: 'some details about the course',
+    console.log(course.members)
+    let sidePanelData = {
+      image: course.image,
+      details: {
+        main: course.name,
+        secondary: course.description,
+        additional: {
+          code: course.entryCode,
+          facilitators: course.members.reduce((acc, member) =>{
+            if (member.role === 'facilitator') {
+              acc += member.user.username + " "
+            }
+            return acc;
+          }, ''),
+          acitivities: course.activities.length,
+          rooms: course.rooms.length,
+        }
+      },
       title: course.name,
     }
     // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
@@ -159,7 +174,7 @@ class Course extends Component {
               // user={user}
               accountType={user.accountType}
               bothRoles={this.state.bothRoles}
-              view={'teacher'}
+              view={'facilitator'}
             />
             <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
               <p>Welcome to {course.name}. If this is your first time joining a course,
@@ -174,7 +189,7 @@ class Course extends Component {
               resourceId={course._id}
               userId={user._id}
               username={user.username}
-              owners={course.members.filter(member => member.role === 'teacher').map(member => member.user)}
+              owners={course.members.filter(member => member.role === 'facilitator').map(member => member.user)}
             />
           }
       </Aux>

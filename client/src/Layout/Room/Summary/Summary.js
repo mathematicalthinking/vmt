@@ -1,7 +1,6 @@
 import React from 'react';
 import classes from './summary.css';
 import Button from '../../../Components/UI/Button/Button';
-import ContentBox from '../../../Components/UI/ContentBox/ContentBox';
 import { withRouter } from 'react-router-dom';
 const summary = ({room, history, loading}) => {
   console.log("rendering summary")
@@ -13,12 +12,12 @@ const summary = ({room, history, loading}) => {
   return (
     <div className={classes.Container}>
       <div className={classes.Section}>
-        <ContentBox align='left' title='Room Stats'>
+        <div>
           {/*CONSIDER: COULD REPLACE THESE 0'S WITH LOADING SPINNERS? */}
           <div>Current Members: {room.currentUsers ? room.currentUsers.length : 0}</div>
           <div>Total Events: {room.events ? room.events.length : 0}</div>
           <div>Total Messages: {room.chat ? room.chat.length : 0}</div>
-        </ContentBox>
+        </div>
       </div>
       <div className={classes.Section}>
         {/* <div>Events: </div>{room.events ? room.events.length : 0} */}
@@ -26,8 +25,8 @@ const summary = ({room, history, loading}) => {
       {/*  Make sure we have all of the room info before letting the user enter */}
       {loading ? null :
       <div className={classes.Section}>
-        <span className={classes.Button}><Button click={clickHandler}>Join</Button></span>
-        <span className={classes.Button}><Button click={goToReplayer}>Replayer</Button></span>
+        <span className={classes.Button}><Button m={5} click={clickHandler}>Join</Button></span>
+        <span className={classes.Button}><Button m={5} click={goToReplayer}>Replayer</Button></span>
       </div>
       }
     </div>

@@ -1,15 +1,10 @@
 import React from 'react';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
+import classes from './resources.css';
+import Search from '../../../Components/Search/Search';
 // CONSIDER RENAMING TO DASHBOARDCONTENT
 const resources = props => {
-    // @TODO Is there a way to do this passing over the array only once?
-    // const ownedResources = props.userResources.filter(resource => (
-    //   resource.creator === props.userId
-    // ))
-    // const enrolledResources = props.userResources.filter(resource => (
-    //   resource.creator !== props.userId
-    // ))
 
     let linkPath =`/myVMT/${props.resource}/`
     let linkSuffix = props.resource === 'courses' ? '/activities' : '/summary';
@@ -25,8 +20,16 @@ const resources = props => {
     }
     return (
       <div>
-        {/* @TODO don't show create optinos for students */}
-        {props.parentResource !== 'activities' ? <NewResource resource={props.resource} courseId={props.parentResource === 'course'?  props.parentResourceId : null}/> : null}
+        {/* @TODO don't show create optinos for participants */}
+        <div className={classes.Controls}>
+          <div className={classes.Search}><Search /></div>
+          {props.parentResource !== 'activities' && props.user.accountType === 'facilitator' ? 
+          <NewResource 
+            resource={props.resource} 
+            courseId={props.parentResource === 'course'?  
+            props.parentResourceId : null}
+          /> : null}
+        </div>
         <h2>My {displayResource}</h2>
         <BoxList
           list={props.userResources}

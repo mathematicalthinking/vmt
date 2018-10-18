@@ -1,13 +1,30 @@
-
+:import('../../../colors.css') {
+  blue: blue;
+}
 .UserInfo {
   margin-bottom: 5px;
+  display: flex;
 }
 
 .Avatar {
-  margin-right: 5px;
-  background-color: #2D91F2;
+  background-color:blue;
   color: white;
   border-radius: 50%;
-  -webkit-text-stroke-width: 1px;
-  -webkit-text-stroke-color: black;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: #888;
+}
+
+.AvatarContainer {
+  /* margin-right: 5px; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  background: white;
+  border-radius: 50%;
+  border: 1px solid #999;
+}
+
+.Username {
+  margin-left: 2px;
 }

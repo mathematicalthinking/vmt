@@ -11,9 +11,9 @@ class Community extends Component {
         <div className={classes.Container}>
         <h3 className={classes.Title}>Search for activities or ask to join rooms and courses</h3>
         <div className={classes.ResourceOpts}>
-          <Link to="/community/activities"><Button active={resource === 'activities'}>Activities</Button></Link>
-          <Link to="/community/courses"><Button active={resource === 'courses'}>Courses</Button></Link>
-          <Link to="/community/rooms"><Button active={resource === 'rooms'}>Rooms</Button></Link>
+          <Link to="/community/activities"><Button m={5} active={resource === 'activities'}>Activities</Button></Link>
+          <Link to="/community/courses"><Button m={5} active={resource === 'courses'}>Courses</Button></Link>
+          <Link to="/community/rooms"><Button m={5} active={resource === 'rooms'}>Rooms</Button></Link>
         </div>
         <Search _filter={value => this.filterResults(value)} />
         <div className={classes.List}>
