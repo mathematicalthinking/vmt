@@ -145,13 +145,14 @@ class Course extends Component {
       image: course.image,
       details: {
         main: course.name,
-        secondary: 'Facilitators: ' + course.members.reduce((acc, member) =>{
-          if (member.role === 'teacher') {
-            acc += member.user.username + " "
-          }
-          return acc;
-        }, ''),
+        secondary: course.description,
         additional: {
+          Facilitators: course.members.reduce((acc, member) =>{
+            if (member.role === 'teacher') {
+              acc += member.user.username + " "
+            }
+            return acc;
+          }, ''),
           acitivities: course.activities.length,
           rooms: course.rooms.length,
         }

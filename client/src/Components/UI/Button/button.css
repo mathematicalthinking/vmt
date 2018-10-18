@@ -39,6 +39,11 @@
   border: 1px solid #babbb2;
 }
 
+.Active:hover {
+  color: white;
+  background-color: blue;
+}
+
 .Secondary:hover {
   color: white;
   box-shadow: lightShadow;
