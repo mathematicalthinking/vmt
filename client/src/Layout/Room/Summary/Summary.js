@@ -25,8 +25,8 @@ const summary = ({room, history, loading}) => {
       {/*  Make sure we have all of the room info before letting the user enter */}
       {loading ? null :
       <div className={classes.Section}>
-        <span className={classes.Button}><Button click={clickHandler}>Join</Button></span>
-        <span className={classes.Button}><Button click={goToReplayer}>Replayer</Button></span>
+        <span className={classes.Button}><Button m={5} click={clickHandler}>Join</Button></span>
+        <span className={classes.Button}><Button m={5} click={goToReplayer}>Replayer</Button></span>
       </div>
       }
     </div>

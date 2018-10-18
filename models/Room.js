@@ -32,25 +32,26 @@ Room.pre('save', function (next) {
   // ON CREATION UPDATE THE CONNECTED MODELS
   if (this.isNew & !this.tempRoom) {
     let promises = [];
-    let users = this.members.map(member => member.user)
-    promises.push(User.find({'_id': {$in: users}}))
+    promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}, accountType: 'facilitator'}))
     if (this.course) {
-      promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id}, accountType: 'facilitator'}))
+      promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id},}))
     }
     if (this.activity) {
       promises.push(Activity.findByIdAndUpdate(this.activity, {$addToSet: {rooms: this._id}}))
     }
     Promise.all(promises)
     .then(values => {
-      values[0].forEach(user => {
-        user.rooms.push(this._id)
-        // DONT THINK WE NEED THE CODE BWLOW...THE USER SHOULD ALREADY HAVE
-        // THE ACTIVITY AND THE COURSE IN THEIR RESOURCES
-        // if (this.course) user.courseNotifications.newRoom.push({notificationType: 'newRoom', _id: this.course})
-        // if (this.activity) user.activities.push(this.activity)
-        user.save();
+      // values[0].forEach(user => {
+      //   console.log('user!: ', user)
+      //   user.rooms.push(this._id)
+      //   user
+      //   // DONT THINK WE NEED THE CODE BWLOW...THE USER SHOULD ALREADY HAVE
+      //   // THE ACTIVITY AND THE COURSE IN THEIR RESOURCES
+      //   // if (this.course) user.courseNotifications.newRoom.push({notificationType: 'newRoom', _id: this.course})
+      //   // if (this.activity) user.activities.push(this.activity)
+      //   user.save();
         next()
-      })
+      // })
     })
     .catch(err => next(err))
   } else if (!this.isNew) {
@@ -98,9 +99,9 @@ Room.methods.summary = function() {
     tabs: this.tabs,
     events: this.events,
     chat: this.chat,
+    image: this.image,
     _id: this._id,
   }
-  console.log(obj)
   return (obj)
   // next();
 }

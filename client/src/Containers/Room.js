@@ -116,7 +116,13 @@ class Room extends Component {
     const sidePanelData = {
       image: room.image,
       title: room.name,
-      details: room.description,
+      details: {
+        main: room.name,
+        secondary: room.description,
+        additional: {
+          code: room.entryCode,
+        }
+      }
     }
 
     const crumbs = [

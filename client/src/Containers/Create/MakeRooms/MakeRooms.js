@@ -25,7 +25,7 @@ class MakeRooms extends Component  {
   }
 
   selectParticipant = (event, data) => {
-    const newParticipant = event.target.id;
+    let newParticipant = event.target.id;
     let updatedParticipants = [...this.state.selectedParticipants];
     // if user is in list, remove them.
     if (updatedParticipants.includes(newParticipant)) {
@@ -37,8 +37,8 @@ class MakeRooms extends Component  {
    // Else add them
   }
   submit = () => {
-    const { _id, name, description, roomType, desmosLink, ggbFile } = this.props.activity;
-    const newRoom = {
+    let { _id, name, description, roomType, desmosLink, ggbFile, image } = this.props.activity;
+    let newRoom = {
       activity: _id,
       creator: this.props.userId,
       course: this.props.course,
@@ -47,6 +47,7 @@ class MakeRooms extends Component  {
       desmosLink,
       ggbFile,
       dueDate: this.state.dueDate,
+      image,
     }
     if (!this.state.assignRandom) {
       // create a room with the selected participants
@@ -55,7 +56,7 @@ class MakeRooms extends Component  {
       newRoom.name = `${name} (room ${this.state.roomsCreated + 1})`;
       newRoom.members = members;
       this.props.createRoom(newRoom)
-      const remainingParticipants = this.state.remainingParticipants.filter(participant => {
+      let remainingParticipants = this.state.remainingParticipants.filter(participant => {
         if (this.state.selectedParticipants.includes(participant.user._id)) {
           return false;
         } else return true;
@@ -76,7 +77,7 @@ class MakeRooms extends Component  {
       let { remainingParticipants, participantsPerRoom } = {...this.state}
       // @TODO THIS COULD PROBABLY BE OPTIMIZED
       remainingParticipants = shuffle(remainingParticipants)
-      const numRooms = remainingParticipants.length/participantsPerRoom
+      let numRooms = remainingParticipants.length/participantsPerRoom
       for (let i = 0; i < numRooms; i++) {
         let members = remainingParticipants.splice(0, participantsPerRoom)
         members.push({user: this.props.userId, role: 'Facilitator'})
@@ -91,7 +92,7 @@ class MakeRooms extends Component  {
   render() {
     // @TODO STUDENTLIST SHOULD REFLECT THIS.STATE.REMAINING STUDENTS -- RIGHT NOW THERE IS A
     // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
-    const participantList = this.state.remainingParticipants.map((participant, i) => {
+    let participantList = this.state.remainingParticipants.map((participant, i) => {
       let rowClass = (i%2 === 0) ? [classes.EvenParticipant, classes.Participant].join(' ') : classes.Participant;
       rowClass = this.state.selectedParticipants.includes(participant.user._id) ? [rowClass, classes.Selected].join(' ') : rowClass;
       return (

@@ -46,12 +46,12 @@ class FacilitatorInstructions extends Component{
               </div>
               <div className={classes.CardContainer}>
                 <div className={classes.CreateTitle}>Room</div>
-                <NewResource resource={'rooms'} intro/>
+                <NewResource resource={'rooms'} intro />
               </div>
               
               <div className={classes.CardContainer}>
                 <div className={classes.CreateTitle}>Course</div>
-                <NewResource resource={'courses'} intro/>
+                <NewResource resource={'courses'} intro />
               </div>
             </div>
               <p className={classes.Tutorial}>

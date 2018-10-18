@@ -11,11 +11,12 @@ describe('show different views based on role', function(){
     cy.getTestElement('content-box-title').contains('course 2').should('exist')
   })
   it('displays the toggle after the participant creates a COURSE (becoming a facilitator)', function(){
+    cy.getTestElement('become-facilitator').click()
     cy.getTestElement('create-Course').click()
     cy.get('input[name=coursesName]').type(course.name)
-    cy.get('input[name=description]').type(course.description)
+    cy.get('input[name=description]').type('whatever')
     cy.get('button').contains('Submit').click()
-    cy.contains(course.name).should('be.visible')
+    cy.getTestElement('content-box').contains(course.name).should('be.visible')
     cy.get('button').contains('Facilitator').should('be.visible');
   })
   it('toggles the resources when the user switches view (course)', function(){
@@ -38,7 +39,7 @@ describe('show different views based on role', function(){
     cy.get('input[name=roomsName]').type('{selectall} {backspace}').type(room.name)
     cy.get('input[name=description]').type('{selectall} {backspace}').type(room.description)
     cy.get('button').contains('Submit').click()
-    cy.contains(room.name).should('be.visible')
+    cy.getTestElement('content-box').contains(room.name).should('be.visible')
     cy.get('button').contains('Facilitator').should('be.visible');
   })
   it('toggles the resources when the user switches view (room)', function(){

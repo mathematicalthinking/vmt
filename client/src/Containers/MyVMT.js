@@ -84,7 +84,7 @@ class Profile extends Component {
         })
       }
       // @TODO Theres some redundancy here
-      if ((isFacilitator && isParticipant) || (isParticipant && user.accountType === 'facilitator')) bothRoles = true
+      if (isFacilitator && isParticipant) bothRoles = true
       else view = isFacilitator ? 'facilitator' : 'participant';
       this.setState({
         bothRoles,
@@ -144,6 +144,8 @@ class Profile extends Component {
           return included;
         })
       }
+      console.log(this.props[`user${resource}`])
+      console.log(displayResources)
       this.setState({displayResources, }, () => resolve())
     }))
   }
@@ -163,7 +165,6 @@ class Profile extends Component {
       user,
     }
     const sidePanelData = {
-      title: 'My VMT',
       image: user.profilePic,
       details: {
         main: `${user.firstName || ''} ${user.lastName || ''}`,

@@ -51,10 +51,16 @@ class Activity extends Component {
       user: this.props.user
     }
     const sidePanelData = {
-      image: undefined,
-      title: activity.name,
-      details: activity.description,
+      image: activity.image,
+      details: {
+        main: activity.name,
+        secondary: activity.description,
+        additional: {
+          
+        }
+      }
     }
+    
     const crumbs = [{title: 'My VMT', link: '/myVMT/courses'}]
     if (course) {
       crumbs.push(

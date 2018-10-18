@@ -56,7 +56,7 @@ const dashboard = props => {
             </div>
             <div className={classes.ViewOpts}></div>
           </div>
-          {user.accountType === 'participant' && !props.bothRoles ? <div className={classes.CreateForParticipant}><Link to='facilitator'>become a facilitator</Link></div> : null}
+          {user.accountType === 'participant' && !props.bothRoles ? <div className={classes.CreateForParticipant}><Link to='facilitator' data-testid='become-facilitator'>become a facilitator</Link></div> : null}
           {props.bothRoles ? 
           <div>
             <div>view as...</div>
