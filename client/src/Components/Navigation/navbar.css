@@ -4,6 +4,7 @@
   navbarHeight: navbarHeight;
 }
 .NavContainer {
+  position: fixed;
   display: flex;
   width: 100%;
   height: navbarHeight;
