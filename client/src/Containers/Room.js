@@ -7,7 +7,7 @@ import Modal from '../Components/UI/Modal/Modal';
 import Button from '../Components/UI/Button/Button';
 import Access from './Access';
 import PublicAccessModal from '../Components/UI/Modal/PublicAccess'
-// import Students from './Students/Students';
+// import Participants from './Participants/Participants';
 class Room extends Component {
   state = {
     owner: false,
@@ -152,7 +152,7 @@ class Room extends Component {
             resourceId={room._id}
             userId={user._id}
             username={user.username}
-            owners={room.members.filter(member => member.role === 'teacher').map(member => member.user)}
+            owners={room.members.filter(member => member.role === 'facilitator').map(member => member.user)}
             error={error}
             clearError={clearError}
           />

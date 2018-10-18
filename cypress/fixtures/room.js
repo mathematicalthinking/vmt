@@ -20,7 +20,7 @@ module.exports = {
   "members": [
     {
       "user": "5b9c18e7b49205412c4df738",
-      "role": "Teacher"
+      "role": "Facilitator"
     }
   ],
 }

@@ -5,7 +5,7 @@ import TabList from '../../Components/Navigation/TabList/TabList';
 import BreadCrumbs from '../../Components/Navigation/BreadCrumbs/BreadCrumbs';
 import DnDTrash from '../../Components/HOC/DnDTrash';
 import Resources from './Resources/Resources';
-import Students from '../../Containers/Students/Students'
+import Members from '../../Containers/Members/Members'
 import Trash from '../../Components/UI/Trash/Trash';
 import Avatar from '../../Components/UI/Avatar/Avatar';
 import Button from '../../Components/UI/Button/Button';
@@ -22,7 +22,7 @@ const dashboard = props => {
     content = <Summary room={room} loading={props.loading}/>
   } else {
     content = <DnDTrash>
-      {resource === 'members' ? <Students {...props.contentData}/>
+      {resource === 'members' ? <Members {...props.contentData}/>
       : <Resources {...props.contentData} /> }
       <div className={classes.Trash}><Trash /></div>
     </DnDTrash>
@@ -60,8 +60,8 @@ const dashboard = props => {
           {props.bothRoles ? 
           <div>
             <div>view as...</div>
-            <Button click={toggleView} active={view === 'teacher'}>Teacher</Button>
-            <Button click={toggleView} active={view === 'student'}>Student</Button>
+            <Button m={5} click={toggleView} active={view === 'facilitator'}>Facilitator</Button>
+            <Button m={5} click={toggleView} active={view === 'participant'}>Participant</Button>
           </div> : null }
         </div>
         <div className={classes.Content}>

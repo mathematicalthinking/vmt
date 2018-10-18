@@ -52,7 +52,7 @@ class NewResource extends Component {
       name: this.state[`${this.props.resource}Name`],
       description: this.state.description,
       // rooms: roomIds,
-      members: [{user: {_id: this.props.userId, username: this.props.username}, role: 'teacher'}], // @TODO Do we want to default the creator to a teacher?
+      members: [{user: {_id: this.props.userId, username: this.props.username}, role: 'facilitator'}], // @TODO Do we want to default the creator to a facilitator?
       creator: this.props.userId,
       isPublic: this.state.isPublic,
       image: `http://tinygraphs.com/labs/isogrids/hexa16/${this.state[`${this.props.resource}Name`]}?theme=${theme}&numcolors=4&size=220&fmt=svg`
@@ -165,7 +165,7 @@ class NewResource extends Component {
                 </div>
                 <div className={classes.PrivacyDesc}>
                   Marking your {resource} as public allows other VMT users to view the activity
-                  in your rooms without seeing any personal information about your students.
+                  in your rooms without seeing any personal information about your participants.
                 </div>
               </div>
               <div className={classes.Submit}>

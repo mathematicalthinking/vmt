@@ -57,7 +57,7 @@ module.exports = {
       .then(course => {
         // When a user is granted access by the owner
         if (body.newMember) {
-          course.members.push({role: 'student', user: body.newMember})
+          course.members.push({role: 'participant', user: body.newMember})
           db.User.findByIdAndUpdate(body.newMember, {
             $addToSet: {
               courses: course._id,
@@ -75,9 +75,9 @@ module.exports = {
           // @todo SHOULD PROBABLY HASH THIS
           // When a user gains access with an entry code
           if (course.entryCode === entryCode) {
-            course.members.push({user: userId, role: 'student'})
+            course.members.push({user: userId, role: 'participant'})
             // Send a notification to the room owner
-            promises = course.members.filter(member => member.role === 'teacher').map(teacher => {
+            promises = course.members.filter(member => member.role === 'facilitator').map(facilitator => {
               return db.User.findByIdAndUpdate(course.creator, {
                 $addToSet: {
                   'courseNotifications.access': {

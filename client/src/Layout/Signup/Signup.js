@@ -14,7 +14,7 @@ class Signup extends Component {
     username: '',
     email: '',
     password: '',
-    studentAccount: true,
+    participantAccount: true,
   }
 
   componentWillUnmount() {
@@ -32,7 +32,7 @@ class Signup extends Component {
     }
   }
   signUp = () => {
-    const accountType = this.state.studentAccount ? 'participant' : 'facilitator';
+    const accountType = this.state.participantAccount ? 'participant' : 'facilitator';
     const newUser = {
       firstName: this.state.firstName,
       lastName: this.state.lastName,
@@ -46,7 +46,7 @@ class Signup extends Component {
 
   render() {
     return (
-      // after creating a user redirect to login @TODO figure out if this is for creating students or for signing up on your own
+      // after creating a user redirect to login @TODO figure out if this is for creating participants or for signing up on your own
       // the answer will determine where/if we redirect to
       this.props.loggedIn ? <Redirect to='/myVMT/courses'/> :
       <div className={classes.Container}>
@@ -62,16 +62,16 @@ class Signup extends Component {
               <label>Account Type</label>
               <div className={classes.Radios}>
                 <RadioBtn
-                  checked={this.state.studentAccount}
-                  check={() => this.setState({studentAccount: true})}>Participant
+                  checked={this.state.participantAccount}
+                  check={() => this.setState({participantAccount: true})}>Participant
                 </RadioBtn>
                 <RadioBtn
-                  checked={!this.state.studentAccount}
-                  check={() => this.setState({studentAccount: false})}>facilitator
+                  checked={!this.state.participantAccount}
+                  check={() => this.setState({participantAccount: false})}>facilitator
                 </RadioBtn>
               </div>
               <p>*Note: This just marks your primary account type, you can still be a
-                student in some scenarios and a teacher in others without making separate
+                participant in some scenarios and a facilitator in others without making separate
                 accounts.
               </p>
             </div>

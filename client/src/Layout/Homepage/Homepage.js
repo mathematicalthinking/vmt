@@ -39,7 +39,7 @@ class Homepage extends PureComponent {
           <div className={classes.Parallax}>
             <div className={classes.Banner} >
               <div className={classes.GetStarted}>
-                <h2>Collaborative math spaces for teachers and students</h2>
+                <h2>Collaborative math spaces for facilitators and participants</h2>
                 <Button theme="secondary" click={this.createRoom}>Explore</Button>
               </div>
             </div>
@@ -58,7 +58,7 @@ class Homepage extends PureComponent {
                 <div className={classes.FIcon}>
                   <i className="fas fa-chart-pie"></i>
                 </div>
-                <div className={classes.FDesc}>Replay activity for richer insights into student work</div>
+                <div className={classes.FDesc}>Replay activity for richer insights into participant work</div>
               </div>
               <div className={classes.Feature}>
                 <div className={classes.FTitle}>Share</div>

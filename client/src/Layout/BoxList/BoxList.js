@@ -18,7 +18,7 @@ const boxList = props => {
           })
         }
         details = {
-          teachers: item.members ? item.members.filter(member => member.type === 'teacher') : [],
+          facilitators: item.members ? item.members.filter(member => member.type === 'facilitator') : [],
           entryCode: item.entryCode,
           description: item.description,
         }

@@ -22,7 +22,7 @@ var data = [
     "members" : [
       {
         "user": "5ba289ba7223b9429888b9b4", //jl-picard
-        "role": "teacher"
+        "role": "facilitator"
       }
     ],
     "creator" : "5ba289ba7223b9429888b9b4",
@@ -46,7 +46,7 @@ var data = [
     "members" : [
       {
         "user": "5ba289ba7223b9429888b9b4", //jl-picard
-        "role": "teacher"
+        "role": "facilitator"
       }
     ],
     "creator" : "5ba289ba7223b9429888b9b4",
@@ -70,11 +70,11 @@ var data = [
     "members" : [
       {
         "user": "5ba289ba7223b9429888b9b4", //jl-picard
-        "role": "teacher"
+        "role": "facilitator"
       },
       {
         "user": "5bbbbd9a799302265829f5af", // g-laForge
-        "role": "student",
+        "role": "participant",
       }
     ],
     "creator" : "5ba289ba7223b9429888b9b4",
@@ -97,7 +97,7 @@ var data = [
     "members" : [
       {
         "user": "5ba289ba7223b9429888b9b4", //jl-picard
-        "role": "teacher"
+        "role": "facilitator"
       },
     ],
     "creator" : "5ba289ba7223b9429888b9b4",

@@ -17,12 +17,12 @@ export const joinWithCode = (resource, resourceId, userId, username, entryCode, 
       if (resource === 'room') {
         dispatch(addUserRooms([resourceId]))
         dispatch(addRoomMember(resourceId, {
-          role: 'student', user: {_id: userId, username: username}
+          role: 'participant', user: {_id: userId, username: username}
         }))
       } else if (resource === 'course') {
         dispatch(addUserCourses([resourceId]))
         dispatch(addCourseMember(resourceId, {
-          role: 'student', user: {_id: userId, username: username}
+          role: 'participant', user: {_id: userId, username: username}
         }))
       }
       return dispatch(loading.success())

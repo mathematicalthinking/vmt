@@ -147,8 +147,9 @@ class Course extends Component {
         main: course.name,
         secondary: course.description,
         additional: {
-          Facilitators: course.members.reduce((acc, member) =>{
-            if (member.role === 'teacher') {
+          code: course.entryCode,
+          facilitators: course.members.reduce((acc, member) =>{
+            if (member.role === 'facilitator') {
               acc += member.user.username + " "
             }
             return acc;
@@ -173,7 +174,7 @@ class Course extends Component {
               // user={user}
               accountType={user.accountType}
               bothRoles={this.state.bothRoles}
-              view={'teacher'}
+              view={'facilitator'}
             />
             <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
               <p>Welcome to {course.name}. If this is your first time joining a course,
@@ -188,7 +189,7 @@ class Course extends Component {
               resourceId={course._id}
               userId={user._id}
               username={user.username}
-              owners={course.members.filter(member => member.role === 'teacher').map(member => member.user)}
+              owners={course.members.filter(member => member.role === 'facilitator').map(member => member.user)}
             />
           }
       </Aux>

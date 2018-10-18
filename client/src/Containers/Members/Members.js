@@ -8,13 +8,13 @@ import {
   updateCourseMembers, 
   updateRoomMembers, 
   clearNotification 
-} from '../../store/actions/'
-import classes from './students.css';
+} from '../../store/actions'
+import classes from './members.css';
 import Member from '../../Components/UI/Member/Member';
 import DragMember from '../../Components/UI/Member/DragMember';
 // import Button from '../../Components/UI/Button/Button';
 
-class Students extends Component {
+class Members extends Component {
   
   componentWillUnmount(){
     const {user, parentResource, notifications } = this.props
@@ -76,7 +76,7 @@ class Students extends Component {
             <div className={classes.Notifications} data-testid='join-requests'>
               {joinRequests}
             </div>
-            <h3 className={classes.SubHeader}>Add New Students</h3>
+            <h3 className={classes.SubHeader}>Add New Participants</h3>
           </div>
         : null }
         <h3 className={classes.SubHeader}>Class List</h3>
@@ -90,4 +90,4 @@ class Students extends Component {
 }
 
 
-export default connect(null, {grantAccess, updateCourseMembers, updateRoomMembers, clearNotification})(Students);
+export default connect(null, {grantAccess, updateCourseMembers, updateRoomMembers, clearNotification})(Members);

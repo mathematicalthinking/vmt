@@ -20,7 +20,7 @@ const resources = props => {
     }
     return (
       <div>
-        {/* @TODO don't show create optinos for students */}
+        {/* @TODO don't show create optinos for participants */}
         <div className={classes.Controls}>
           <div className={classes.Search}><Search /></div>
           {props.parentResource !== 'activities' && props.user.accountType === 'facilitator' ? 

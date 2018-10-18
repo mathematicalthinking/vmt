@@ -56,7 +56,7 @@ module.exports = {
       db.Room.findById(id)
       .then(room => {
         if (body.newMember) {
-          room.members.push({role: 'student', user: body.newMember})
+          room.members.push({role: 'participant', user: body.newMember})
           db.User.findByIdAndUpdate(body.newMember, {
             $addToSet: {
               rooms: room._id,
@@ -71,7 +71,7 @@ module.exports = {
           let { entryCode, userId } = body.checkAccess;
           // @todo SHOULD PROBABLY HASH THIS
           if (room.entryCode === entryCode) {
-            room.members.push({user: userId, role: 'student'})
+            room.members.push({user: userId, role: 'participant'})
             // Send a notification to the room owner
             db.User.findByIdAndUpdate(room.creator, {
               $addToSet: {
