@@ -2,6 +2,7 @@ export {
   login,
   signup,
   gotUser,
+  updateUser,
   googleLogin,
   updateUserRooms,
   updateUserCourses,

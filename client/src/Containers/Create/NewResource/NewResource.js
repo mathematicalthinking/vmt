@@ -10,7 +10,13 @@ import Modal from '../../../Components/UI/Modal/Modal';
 import Button from '../../../Components/UI/Button/Button';
 import classes from '../create.css';
 import { connect } from 'react-redux';
-import * as actions from '../../../store/actions/';
+import {
+  createCourse, 
+  createRoom, 
+  createActivity, 
+  createCourseTemplate,
+  updateUser,
+} from '../../../store/actions/';
 
 const imageThemes = [
   'frogideas', 'duskfalling',
@@ -62,7 +68,7 @@ class NewResource extends Component {
       members: [{user: {_id: this.props.userId, username: this.props.username}, role: 'facilitator'}], // @TODO Do we want to default the creator to a facilitator?
       creator: this.props.userId,
       isPublic: this.state.isPublic,
-      image: `http://tinygraphs.com/labs/${shapes[resource]}/${this.state[`${this.props.resource}Name`]}?theme=${theme}&numcolors=4&size=220&fmt=svg`
+      image: `http://tinygraphs.com/${shapes[resource]}/${this.state[`${this.props.resource}Name`]}?theme=${theme}&numcolors=4&size=220&fmt=svg`
     }
     // update backend via redux so we can add this to the global state of courses
     if (this.props.template) {
@@ -109,6 +115,7 @@ class NewResource extends Component {
     }
     this.setState({creating: false})
     if (this.props.intro) {
+      this.props.updateUser({accountType: 'facilitator'})
       this.props.history.push(`/myVMT/${resource}`)
     }
   }
@@ -201,13 +208,10 @@ let mapStateToProps = store => {
   }
 }
 
-let mapDispatchToProps = dispatch => {
-  return {
-    createCourse: body => dispatch(actions.createCourse(body)),
-    createRoom: body => dispatch(actions.createRoom(body)),
-    createActivity: body => dispatch(actions.createActivity(body)),
-    createCourseTemplate: body => dispatch(actions.createCourseTemplate(body)),
-  }
-}
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(NewResource));
+export default withRouter(connect(mapStateToProps, {
+  createCourse, 
+  createRoom, 
+  createActivity, 
+  createCourseTemplate,
+  updateUser,
+})(NewResource));

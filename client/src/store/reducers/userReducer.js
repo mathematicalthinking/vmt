@@ -39,6 +39,11 @@ const reducer = (state = initialState, action) => {
         accountType: action.user.accountType,
         bothRoles: action.user.bothRoles,
       }
+    case actionTypes.UPDATE_USER:
+      return {
+        ...state,
+        ...action.body
+      }
     case actionTypes.ADD_USER_COURSES:
       return {
         ...state,

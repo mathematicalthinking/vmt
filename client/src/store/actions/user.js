@@ -13,6 +13,13 @@ export const gotUser = user => {
   }
 }
 
+export const updateUser = (body) => {
+  return {
+    type: actionTypes.UPDATE_USER,
+    body,
+  }
+}
+
 export const removeUserCourse = courseId => {
   return {
     type: actionTypes.REMOVE_USER_COURSE,
