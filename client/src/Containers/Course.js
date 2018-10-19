@@ -156,9 +156,8 @@ class Course extends Component {
           }, ''),
           acitivities: course.activities.length,
           rooms: course.rooms.length,
-        }
+        },
       },
-      title: course.name,
     }
     // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
     return (

@@ -156,9 +156,9 @@ class Profile extends Component {
 
 
   render() {
-    const { user, match } = this.props;
-    const resource = match.params.resource;
-    const contentData = {
+    let { user, match } = this.props;
+    let resource = match.params.resource;
+    let contentData = {
       resource,
       userResources: this.state.displayResources,
       notifications: (resource === 'courses') ? user.courseNotifications.access : user.roomNotifications.access,
@@ -172,9 +172,10 @@ class Profile extends Component {
         additional: {
           courses: user.courses.length,
           rooms: user.rooms.length,
-          activities: user.activities.length
+          activities: user.activities.length, 
         }
-      }
+      },
+      edit: {link: '/profile', text: 'edit profile'}
     }
     return (
       // <Aux>

@@ -28,7 +28,7 @@ const imageThemes = [
 
 const shapes = {
   activities: 'isogrids', 
-  courses: 'isogrids/hexa16',
+  courses: 'labs/isogrids/hexa16',
   rooms: 'spaceinvaders',
 }
 

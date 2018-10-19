@@ -37,7 +37,7 @@
   padding-right: 30px;
   width: 280px;
   border-right: 1px solid #ddd;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
 }
 
 
@@ -100,7 +100,9 @@
 }
 
 .spAdditional {
+  padding: 3px 0; 
   border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
 }
 
 .CreateForParticipant {

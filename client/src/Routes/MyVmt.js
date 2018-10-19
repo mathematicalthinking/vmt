@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Navbar from '../Components/Navigation/Navbar';
-import { MyVMT, Course, Activity, Room } from '../Containers';
+import { MyVMT, Course, Activity, Room, Workspace, Replayer } from '../Containers';
 // import PublicList from '../Containers/PublicList/PublicList';
 // import Dashboard from '../Layout/Dashboard/Dashboard';
 // import Activities from '../Containers/Activities/Activities';
@@ -36,6 +36,9 @@ class MyVmt extends Component {
             <PrivateRoute exact path={`${path}/courses/:course_id/activities/:activity_id/:resource`} authed={this.props.loggedIn} component={Activity} />
             <PrivateRoute exact path = {`${path}/rooms/:room_id/:resource`} authed={this.props.loggedIn} component={Room}/>
             <PrivateRoute exact path={`${path}/activities/:activity_id/:resource`} authed={this.props.loggedIn} component={Activity} />
+            <PrivateRoute exact path={`${path}/workspace/:room_id/replayer`} authed={this.props.loggedIn} component={Replayer} />
+            <PrivateRoute exact path={`${path}/workspace/:room_id`} authed={this.props.loggedIn} component={Workspace} />
+
             {/* <Route exact path='/publicList/:resource' component={PublicList}/>
             <Route exact path='/publicResource/room/:room_id/:resource' component={Room}/>
             <Route exact path='/publicResource/course/:course_id/:resource' component={Course} />
