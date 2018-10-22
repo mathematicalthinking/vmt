@@ -6,13 +6,11 @@ import Search from '../../../Components/Search/Search';
 // CONSIDER RENAMING TO DASHBOARDCONTENT
 const resources = props => {
   console.log(props.parentResource)
-    let linkPath =`/myVMT/${props.resource}/`
-    let linkSuffix = props.resource === 'courses' ? '/activities' : '/summary';
+    let linkPath =`/myVMT/${props.resource}/`;
+    let linkSuffix;
     if (props.resource === 'courses') {
       linkSuffix = '/activities'
-    } else if (props.resource === 'activities') {
-      linkSuffix = '/details'
-    } else {linkSuffix = '/summary'}
+    } else {linkSuffix = '/details'}
     const displayResource = props.resource[0].toUpperCase() + props.resource.slice(1);
     if (props.parentResource === 'courses') {
       linkPath = `/myVMT/${props.parentResource}/${props.parentResourceId}/${props.resource}/`
