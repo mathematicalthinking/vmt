@@ -2,33 +2,29 @@ import React, { PureComponent } from 'react';
 import classes from './member.css';
 import Avatar from '../Avatar/Avatar';
 import Button from '../Button/Button';
-import Aux from '../../HOC/Auxil';
-import PositionedBox from '../Edit/PositionedBox';
-import EditMember from './EditMember';
+import Modal from '../Modal/Modal';
+import RoleDropdown from '../../Form/Dropdown/RoleDropdown';
+
 class Member extends PureComponent {
 
   state = {
     role: this.props.info.role,
     editing: false,
-    changing: false,
-    x: 0,
-    y: 0,
   }
 
-  edit = event => {
-    this.setState({
-      editing: true,
-      x: event.pageX,
-      y: event.pageY,
-    })
+  edit = () => {
+    this.setState(prevState => ({
+      editing: !prevState.editing,
+    }))
   }
 
-  changeRole = (event) => {
+  changeRole = (role) => {
+    console.log("NEW ROLE: ", role)
     const { changeRole, info } = this.props;
-    this.setState({role: event.target.name, changing: true})
-    setTimeout(() => {this.setState({editing: false})}, 500)
-    info.role = event.target.name
-    changeRole(info);
+    this.setState({role,})
+    info.role = role
+    console.log(info)
+    // changeRole(info);
   }
 
   stopEditing = () => {
@@ -38,21 +34,21 @@ class Member extends PureComponent {
   render() {
     const { info, owner, grantAccess, notification } = this.props;
     return (
-      <Aux>
-        {this.state.editing ?
-          <PositionedBox hide={this.stopEditing} x={this.state.x} y={this.state.y}>
-            <EditMember role={this.state.role} changeRole={this.changeRole}/>
-          </PositionedBox> : null}
-        <div className={classes.Container}>
-          <div className={classes.Avatar}><Avatar username={info.user.username} /></div>
-          {notification ? <div className={classes.Notification} data-testid="member-ntf">new member</div>: null}
-          <div className={classes.Row}>
-            {grantAccess ? <Button click={this.props.grantAccess} data-testid='grant-access'>Grant Access</Button> : null}
-            <div className={classes.Role}>{info.role}</div>
-            {owner && !grantAccess ? <div className={classes.Icon} onClick={this.edit}><i className="fas fa-edit"></i></div> : null}
-          </div>
+      <div className={classes.Container}>
+        <div className={classes.Avatar}><Avatar username={info.user.username} /></div>
+        {notification ? <div className={classes.Notification} data-testid="member-ntf">new member</div>: null}
+        <div className={classes.Row}>
+          {grantAccess ? <Button m={5} click={this.props.grantAccess} data-testid='grant-access'>Grant Access</Button> : null}
+          {this.state.editing ? 
+            <div className={classes.DropDown}>
+              <RoleDropdown selectHandler={this.changeRole} list={[info.role, (info.role === 'participant') ? 'facilitator' : 'participant']}/>  
+            </div>: 
+            <div className={classes.Role}>{info.role}</div>}
+          {this.state.editing ? <div className={classes.Trash}><i className="fas fa-trash-alt"></i></div>: null}
+    
+          {owner && !grantAccess ? <div className={classes.Edit} onClick={this.edit}><i className="fas fa-edit"></i></div> : null}
         </div>
-      </Aux>
+      </div>
     )
   }
 }

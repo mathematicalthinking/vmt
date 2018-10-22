@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import Button from '../../../Components/UI/Button/Button';
 import TextInput from '../../../Components/Form/TextInput/TextInput';
 import Aux from '../../../Components/HOC/Auxil';
 import RadioBtn from '../../../Components/Form/RadioBtn/RadioBtn';
 import classes from './makeRooms.css';
-import { connect } from 'react-redux';
 import { createRoom } from '../../../store/actions';
 class MakeRooms extends Component  {
   state = {
@@ -68,6 +69,8 @@ class MakeRooms extends Component  {
       }))
       if (remainingParticipants.length === 0) {
         this.props.close();
+        let { url } = this.props.match;
+        this.props.history.push(`${url.slice(0, url.length - 7)}rooms`)
       }
     }
     else {
@@ -86,10 +89,13 @@ class MakeRooms extends Component  {
         this.props.createRoom(newRoom)
       }
       this.props.close();
+      let { url } = this.props.match;
+      this.props.history.push(`${url.slice(0, url.length - 7)}rooms`)
     }
   }
 
   render() {
+    console.log(this.props)
     // @TODO STUDENTLIST SHOULD REFLECT THIS.STATE.REMAINING STUDENTS -- RIGHT NOW THERE IS A
     // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
     let participantList = this.state.remainingParticipants.map((participant, i) => {
@@ -122,7 +128,7 @@ class MakeRooms extends Component  {
               </div>
             </div>
           }
-          <Button click={this.submit} data-testid="assign-rooms">Assign</Button>
+          <Button m={5} click={this.submit} data-testid="assign-rooms">Assign</Button>
         </div>
       </Aux>
     )
@@ -154,4 +160,4 @@ const shuffle = (array) => {
   return array;
 }
 
-export default connect(null, mapDispatchToProps)(MakeRooms);
+export default withRouter(connect(null, mapDispatchToProps)(MakeRooms));

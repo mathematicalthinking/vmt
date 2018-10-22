@@ -11,7 +11,6 @@ import {
 } from '../../store/actions'
 import classes from './members.css';
 import Member from '../../Components/UI/Member/Member';
-import DragMember from '../../Components/UI/Member/DragMember';
 // import Button from '../../Components/UI/Button/Button';
 
 class Members extends Component {
@@ -44,7 +43,7 @@ class Members extends Component {
     if (this.props.owner) {
       joinRequests = notifications.filter(ntf => ntf.notificationType === 'requestAccess').map((ntf, i) => {
         return (
-          <DragMember
+          <Member
             grantAccess={() => {this.props.grantAccess(ntf.user._id, this.props.parentResource, this.props.parentResourceId)}} 
             info={ntf} 
             key={i}
@@ -60,11 +59,12 @@ class Members extends Component {
         else return false;
       })
       return owner ? 
-      <DragMember 
+      <Member 
         changeRole={(info) => this.changeRole(info)}
         info={member} 
         key={i}
         notification={notification.length > 0}
+        owner
       /> : <Member info={member}  key={i}/>
   
     })

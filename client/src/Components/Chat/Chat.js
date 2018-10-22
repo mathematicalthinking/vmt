@@ -38,7 +38,7 @@ class Chat extends Component {
         {!replayer ?
           <div className={classes.ChatInput}>
             <TextInput autoComplete="off" change={change} type='text' name='message' />
-            <Button click={submit}>send</Button>
+            <Button m={5} click={submit}>send</Button>
           </div> : null
         }
       </div>

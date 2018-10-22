@@ -1,11 +1,9 @@
 //PROPS: title,  list, selectHandler(listOfSelectedItems)
-// @TODO THINK ABOUT COMBINING THIS CODE WITH ROLEDROPDOWN ... WE'RE REPEATING 
-// A BUNCH OF CODE BUT SOMETIMES I FEEL LIKE THATS BETTER THAN ALL THESE COMPLEX 
-// CONDITIONALS DETERMINNING WHAT KIND OF ITEMS THE DROP DOWN SHOULD
+
 import React, { Component } from 'react';
 import classes from './dropdown.css'
 import onClickOutside from 'react-onclickoutside'
-class Dropdown extends Component{
+class RoleDropdown extends Component{
   state = {
     listOpen: false,
     selected: [],
@@ -23,20 +21,6 @@ class Dropdown extends Component{
     }))
   }
 
-  select = (name, id, selected) => {
-    let updatedSelected = [...this.state.selected]
-    // if already selected remove from list
-    if (selected) {
-      updatedSelected = updatedSelected.filter(room => room.id !== id)
-    }
-    else {updatedSelected.push({name, id,})}
-    this.setState({
-      selected: updatedSelected,
-    })
-    // run function passed in props to update parents state
-    this.props.selectHandler(updatedSelected)
-  }
-
   render() {
     let list;
     if (this.props.list.length === 0 || !this.props.list) {
@@ -47,12 +31,16 @@ class Dropdown extends Component{
         console.log("ITEM: ", item)
         // check if this item is in state.selected
         let colorClass = classes.ListItem;
+        let selected = false;
         const backgroundClass = (i%2 === 0) ? classes.Background1 : classes.Background2;
         const className = [colorClass, backgroundClass].join(" ")
         return (
           <div
-            key={i}            
-            onClick={event => this.select(item)}
+            key={i}
+            onClick={event => {
+              this.setState({listOpen: false})
+              this.props.selectHandler(item)
+            }}
             className={className}
           >{item}</div>
         )
@@ -67,4 +55,4 @@ class Dropdown extends Component{
     )
   }
 }
-export default  onClickOutside(Dropdown);
+export default onClickOutside(RoleDropdown);
