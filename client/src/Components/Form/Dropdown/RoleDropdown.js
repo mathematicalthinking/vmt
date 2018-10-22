@@ -10,9 +10,11 @@ class RoleDropdown extends Component{
   }
 
   handleClickOutside = event => {
-    this.setState({
-      listOpen: false
-    })
+    if (this.state.listOpen) {
+      this.setState({
+        listOpen: false
+      })
+    }
   }
 
   toggleList = event => {
@@ -28,7 +30,6 @@ class RoleDropdown extends Component{
     }
     else {
       list = this.props.list.map((item, i)=> {
-        console.log("ITEM: ", item)
         // check if this item is in state.selected
         let colorClass = classes.ListItem;
         let selected = false;

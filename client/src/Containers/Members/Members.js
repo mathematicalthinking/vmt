@@ -33,12 +33,13 @@ class Members extends Component {
       {role: member.role, user: member.user._id};
     });
     if (parentResource === 'courses') {
-      this.this.props.changeCourseRole(parentResourceId, updatedMembers);
-    } else this.this.props.changeRoomRole(parentResourceId, updatedMembers);
+      this.props.updateCourseMembers(parentResourceId, updatedMembers);
+    } else this.props.updateRoomMembers(parentResourceId, updatedMembers);
   }
 
   render(){
-    let { userResources, notifications, owner,  } = this.props;
+    console.log("PROPS: ", this.props)
+    let { userResources, notifications, owner, parentResource  } = this.props;
     let joinRequests = "There are no current requests";
     if (this.props.owner) {
       joinRequests = notifications.filter(ntf => ntf.notificationType === 'requestAccess').map((ntf, i) => {
@@ -63,6 +64,7 @@ class Members extends Component {
         changeRole={(info) => this.changeRole(info)}
         info={member} 
         key={i}
+        resourceName={parentResource.slice(0, parentResource.length - 1)}
         notification={notification.length > 0}
         owner
       /> : <Member info={member}  key={i}/>
