@@ -18,11 +18,21 @@ const boxList = props => {
           })
         }
         details = {
-          facilitators: item.members ? item.members.filter(member => member.type === 'facilitator') : [],
           entryCode: item.entryCode,
           description: item.description,
+          facilitators: [],
+        }
+      } else {
+        details = {
+          facilitators: item.members ? item.members.reduce((acc, member) => {
+
+            if (member.role === 'facilitator') acc.push(member.user.username);
+            return acc;
+          }, []) : []
         }
       }
+      console.log(item.members)
+      console.log(details.facilitators)
       return (
         <div className={classes.ContentBox} key={i}>
           {!props.draggable ? <ContentBox

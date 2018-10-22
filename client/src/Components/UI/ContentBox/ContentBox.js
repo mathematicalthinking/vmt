@@ -19,7 +19,7 @@ const contentBox = props => {
         {props.details ?
           <div>
             <div>{props.details.description || ''}</div>
-            <div>{props.details.facilitators.forEach(facilitator => facilitator) || ''}</div>
+            {props.details.facilitators.length > 0 ? <div>Facilitators: {props.details.facilitators.map(facilitator => facilitator)}</div> : null}
             {props.details.entryCode ? <div>Entry Code: {props.details.entryCode}</div> : null}
           </div> : props.children}
       </div>
