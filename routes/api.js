@@ -74,7 +74,7 @@ router.post('/:action', (req, res, next) => {
 })
 
 router.put('/:resource/:id', (req, res, next) => {
-  let resource = req.params.resource;
+	let resource = req.params.resource;
 	let controller = controllers[resource];
   if (controller == null){
 		return res.json(defaultError)

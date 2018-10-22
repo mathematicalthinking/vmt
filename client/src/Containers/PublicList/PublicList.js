@@ -71,7 +71,7 @@ class PublicList extends Component {
       linkSuffix = '/rooms'
     } else {
       linkPath = '/profile/rooms/';
-      linkSuffix = '/summary';
+      linkSuffix = '/details';
     }
     return (
       <div>

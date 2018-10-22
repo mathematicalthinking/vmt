@@ -148,6 +148,7 @@ class NewResource extends Component {
                   label='Description'
                   change={this.changeHandler}
                   width='80%'
+                  data-testid={`${resource}-description`}
                   />
               </div>
               {(resource === 'activities' || resource === 'rooms') ?
@@ -185,7 +186,7 @@ class NewResource extends Component {
                 </div>
               </div>
               <div className={classes.Submit}>
-                <div className={classes.Button}><Button m={5} click={this.submitForm}>Submit</Button></div>
+                <div className={classes.Button}><Button data-testid={`${resource}-submit`} m={5} click={this.submitForm}>Submit</Button></div>
                 <div className={classes.Button}><Button m={5} click={e => {e.preventDefault(); this.setState({creating: false})}}>Cancel</Button></div>
               </div>
             </form>

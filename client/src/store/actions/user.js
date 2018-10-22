@@ -62,14 +62,14 @@ export const removeUserRooms = roomIdsArr => {
   }
 }
 
-export const updateUserAccessNtfs = (resource, user) => {
-  if (resource === 'course') {
-    return {
-      type: actionTypes.UPDATE_USER_COURSE_ACCESS_NTFS,
-      user,
-    }
-  }
-}
+// export const updateUserAccessNtfs = (resource, user) => {
+//   if (resource === 'courses') {
+//     return {
+//       type: actionTypes.UPDATE_USER_COURSE_ACCESS_NTFS,
+//       user,
+//     }
+//   }
+// }
 
 export const addUserCourseTemplates = newTemplate => {
   return {
@@ -87,11 +87,13 @@ export const updateNotifications = (resource, updatedNotifications) => {
 }
 
 export const clearNotification = (ntfId, userId, resource, listType, ntfType) => {
+  console.log("ACTION CLEARING NOTF: ", resource)
   return (dispatch) => {
     API.removeNotification(ntfId, userId, resource, listType, ntfType)
     .then(res => {
       console.log("NTF REMOVED: ", res)
-      dispatch(updateNotifications(resource, res.data.result[`${resource}Notifications`]))
+      let singResource = resource.slice(0, resource.length - 1)
+      dispatch(updateNotifications(singResource, res.data.result[`${singResource}Notifications`]))
       // dispatch(gotUser(res.data))
     })
     .catch(err => console.log(err))

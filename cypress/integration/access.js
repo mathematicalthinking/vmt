@@ -125,7 +125,7 @@ describe('test access requests', function(){
     cy.getTestElement('content-box').contains('room 1').click()
     cy.get('#entryCode').type('{selectall} {backspace}').type('rare-shrimp-45')
     cy.contains('Join').click()
-    cy.url().should('include', 'summary')
+    cy.url().should('include', 'details')
   })
 
   it('user 1 should get a notification that user2 joined', function(){
@@ -142,7 +142,7 @@ describe('test access requests', function(){
   })
 
   it('should resolve the notification after user 1 has seen it', function(){
-    cy.getTestElement('tab').contains('Summary').click()
+    cy.getTestElement('tab').contains('Details').click()
     cy.getTestElement('tab-ntf').should('not.exist')
   })
 

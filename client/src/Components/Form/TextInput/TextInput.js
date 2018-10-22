@@ -16,6 +16,7 @@ const TextInput = (props) => {
         onChange={props.change}
         value={props.value}
         style={{width: props.width}}
+        data-testid={props['data-testid'] || null}
       />
     </div>
   )

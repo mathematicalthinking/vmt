@@ -50,7 +50,7 @@ export const activityRemoved = (activityId) => {
 export const getActivities = params => {
   return dispatch => {
     dispatch(loading.start())
-    API.get('activity', params)
+    API.get('activities', params)
     .then(res => {
       // Normalize res
       const activities = normalize(res.data.results)
@@ -65,7 +65,7 @@ export const getActivities = params => {
 export const getCurrentActivity = id => {
   return dispatch => {
     dispatch(loading.start())
-    API.getById('activity', id)
+    API.getById('activities', id)
     .then(res => {
       dispatch(loading.success())
       dispatch(addActivity(res.data.result))
@@ -76,7 +76,7 @@ export const getCurrentActivity = id => {
 export const createActivity = body => {
   return dispatch => {
     dispatch(loading.start())
-    API.post('activity', body)
+    API.post('activities', body)
     .then(res => {
       let result = res.data.result;
       dispatch(createdActivity(result))
@@ -93,7 +93,7 @@ export const createActivity = body => {
 export const removeActivity = activityId => {
   return dispatch => {
     dispatch(loading.start())
-    API.remove('activity', activityId)
+    API.remove('activities', activityId)
     .then(res => {
       dispatch(removeUserActivities([activityId]))
       dispatch(removeCourseActivities(res.data.result.course, [activityId]))

@@ -86,7 +86,7 @@ export const courseRemoved = (courseId) => {
 export const updateCourseMembers = (courseId, updatedMembers) => {
 
   return dispatch => {
-    API.updateMembers('course', courseId, updatedMembers)
+    API.updateMembers('courses', courseId, updatedMembers)
     .then(res => {
       console.log(res)
       dispatch(updateCourse(courseId, res.data.result))
@@ -98,7 +98,7 @@ export const updateCourseMembers = (courseId, updatedMembers) => {
 export const removeCourse = courseId => {
   return dispatch => {
     dispatch(loading.start())
-    API.remove('course', courseId)
+    API.remove('courses', courseId)
     .then(res => {
       // remove course from user
       dispatch(removeUserCourse(courseId))
@@ -115,7 +115,7 @@ export const removeCourse = courseId => {
 
 export const getCourses = () => {
   return dispatch => {
-    API.get('course')
+    API.get('courses')
     .then(res => {
       // Normalize data
       const courses = normalize(res.data.results)
@@ -127,7 +127,7 @@ export const getCourses = () => {
 
 export const populateCurrentCourse = id => {
   return dispatch => {
-    API.getById('course', id)
+    API.getById('courses', id)
     .then(res => {
       dispatch(updateCourse(res.data.result))})
     .catch(err => console.log(err))
@@ -137,7 +137,7 @@ export const populateCurrentCourse = id => {
 export const createCourse = body => {
   return dispatch => {
     dispatch(loading.start())
-    API.post('course', body)
+    API.post('courses', body)
     .then(res =>{
       if (body.template) {
         dispatch(addUserCourseTemplates(res.data.result[1]._id))

@@ -145,8 +145,6 @@ class Profile extends Component {
           return included;
         })
       }
-      console.log(this.props[`user${resource}`])
-      console.log(displayResources)
       this.setState({displayResources, }, () => resolve())
     }))
   }
@@ -157,7 +155,6 @@ class Profile extends Component {
 
 
   render() {
-    console.log(this.props.useractivities)
     let { user, match } = this.props;
     let resource = match.params.resource;
     let contentData = {

@@ -14,14 +14,14 @@ class Room extends Component {
     member: false,
     guestMode: true,
     tabs: [
-      {name: 'Summary'},
+      {name: 'Details'},
       {name: 'Members'},
     ],
     firstView: false,
   }
 
   initialTabs = [
-    {name: 'Summary'},
+    {name: 'Details'},
     {name: 'Members'},
   ]
 
@@ -43,7 +43,7 @@ class Room extends Component {
         if (ntf.notificationType === 'grantedAccess' && ntf._id === room._id) {
            // RESOLVE THIS NOTIFICATION
            firstView = true;
-           clearNotification(room._id, user._id, 'room', 'access') //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
+           clearNotification(room._id, user._id, 'rooms', 'access') //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
          }
        })
      }
@@ -128,7 +128,7 @@ class Room extends Component {
 
     const crumbs = [
       {title: 'My VMT', link: '/myVMT/courses'},
-      {title: room.name, link: `/myVMT/rooms/${room._id}/summary`}]
+      {title: room.name, link: `/myVMT/rooms/${room._id}/details`}]
       //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
       // THE REDUX STORE USING THE COURSE ID IN THE URL
     if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/myVMT/courses/${room.course._id}/activities`})}
@@ -155,7 +155,7 @@ class Room extends Component {
           </Aux> :
           (room.isPublic ? <PublicAccessModal requestAccess={this.grantPublicAccess}/> : 
             <Access  
-            resource='room'
+            resource='rooms'
             resourceId={room._id}
             userId={user._id}
             username={user.username}
