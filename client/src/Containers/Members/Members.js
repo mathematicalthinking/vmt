@@ -33,7 +33,7 @@ class Members extends Component {
       return (member.user._id === info.user._id) ? {role: info.role, user: info.user._id} :
       {role: member.role, user: member.user._id};
     });
-    if (parentResource === 'course') {
+    if (parentResource === 'courses') {
       this.this.props.changeCourseRole(parentResourceId, updatedMembers);
     } else this.this.props.changeRoomRole(parentResourceId, updatedMembers);
   }

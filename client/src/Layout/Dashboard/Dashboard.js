@@ -16,6 +16,7 @@ import MakeRoomsLayout from './MakeRooms/MakeRooms';
 const dashboard = props => {
   let {contentData, sidePanelData, view, toggleView} = props;
   let {resource, parentResource, activity, course, room, user} = contentData;
+  console.log(parentResource)
   let content;
   if (parentResource === 'activities' && resource === 'details') {
     content = <MakeRoomsLayout activity={activity} course={course} userId={user._id}/>

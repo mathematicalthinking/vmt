@@ -5,7 +5,7 @@ import classes from './resources.css';
 import Search from '../../../Components/Search/Search';
 // CONSIDER RENAMING TO DASHBOARDCONTENT
 const resources = props => {
-
+  console.log(props.parentResource)
     let linkPath =`/myVMT/${props.resource}/`
     let linkSuffix = props.resource === 'courses' ? '/activities' : '/summary';
     if (props.resource === 'courses') {
@@ -26,7 +26,7 @@ const resources = props => {
           {props.parentResource !== 'activities' && props.user.accountType === 'facilitator' ? 
           <NewResource 
             resource={props.resource} 
-            courseId={props.parentResource === 'course'?  
+            courseId={props.parentResource === 'courses'?  
             props.parentResourceId : null}
           /> : null}
         </div>

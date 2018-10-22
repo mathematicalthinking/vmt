@@ -105,7 +105,7 @@ class Room extends Component {
     const resource = match.params.resource;
     const contentData = {
       resource,
-      parentResource: 'room',
+      parentResource: 'rooms',
       parentResourceId: room._id,
       userResources: room[resource],
       owner: this.state.owner,

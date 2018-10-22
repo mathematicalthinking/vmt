@@ -132,7 +132,7 @@ class Course extends Component {
     let resource = match.params.resource;
     let contentData = {
       resource,
-      parentResource: "course",
+      parentResource: "courses",
       parentResourceId: course._id,
       userResources: course[resource] || [],
       notifications:  accessNotifications || [],
