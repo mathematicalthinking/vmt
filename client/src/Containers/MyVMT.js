@@ -124,6 +124,7 @@ class Profile extends Component {
     })
   }
   
+  // Display different content depending on the user's current role
   setDisplayResources = () => {
     return new Promise((resolve => {
       const { user, match } = this.props;
@@ -156,6 +157,7 @@ class Profile extends Component {
 
 
   render() {
+    console.log(this.props.useractivities)
     let { user, match } = this.props;
     let resource = match.params.resource;
     let contentData = {
