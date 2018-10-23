@@ -67,7 +67,7 @@ module.exports = {
       db.Course.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
       .populate({path: 'members.user', select: 'username'})
       .then(res => {
-        resolve(res)})
+        resolve(res.members)})
       .catch(err => reject(err))
     })
   },
@@ -78,7 +78,8 @@ module.exports = {
       // Remove this course from the user's list of courses
       db.User.findByIdAndUpdate(body.members.user, {$pull: {courses: id}})
       db.Course.findByIdAndUpdate(id, {$pull: body}, {new: true})
-      .then(res => resolve(res))
+      .populate({path: 'members.user', select: 'username'})
+      .then(res => resolve(res.members))
       .catch(err => reject(err))
     })
   },

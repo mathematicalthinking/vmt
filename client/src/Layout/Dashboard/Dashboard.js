@@ -16,7 +16,6 @@ import MakeRoomsLayout from './MakeRooms/MakeRooms';
 const dashboard = props => {
   let {contentData, sidePanelData, view, toggleView} = props;
   let {resource, parentResource, activity, course, room, user} = contentData;
-  console.log(parentResource)
   let content;
   if (parentResource === 'activities' && resource === 'details') {
     content = <MakeRoomsLayout activity={activity} course={course} userId={user._id}/>
@@ -29,7 +28,6 @@ const dashboard = props => {
       <div className={classes.Trash}><Trash /></div>
     </DnDTrash>
   }
-  console.log(sidePanelData.image)
   let image = sidePanelData.image ? <img src={sidePanelData.image} alt='sidePanelImage'/> :  <Avatar size='large'/>
   let { additional } = sidePanelData.details;
   let additionalDetails = Object.keys(additional).map(detail => (

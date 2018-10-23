@@ -85,10 +85,7 @@ router.put('/:resource/:id', (req, res, next) => {
 	}
   controller.put(req.params.id, req.body)
   .then(result => {
-    res.json({
-      confirmation: 'success',
-      result,
-    });
+    res.json({confirmation: 'success', result,});
   })
   .catch(err => {
     res.status(400).json({

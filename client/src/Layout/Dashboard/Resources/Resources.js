@@ -5,7 +5,6 @@ import classes from './resources.css';
 import Search from '../../../Components/Search/Search';
 // CONSIDER RENAMING TO DASHBOARDCONTENT
 const resources = props => {
-  console.log(props.parentResource)
     let linkPath =`/myVMT/${props.resource}/`;
     let linkSuffix;
     if (props.resource === 'courses') {

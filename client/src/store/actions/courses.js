@@ -88,7 +88,8 @@ export const removeCourseMember = (courseId, userId) => {
     dispatch(loading.start())
     API.removeMember('courses', courseId, userId)
     .then(res => {
-      dispatch(updateCourse, courseId, res.data.result)
+      console.log(res.data)
+      dispatch(updateCourse(courseId, {members: res.data}))
       dispatch(loading.success())
     })
     .catch(err => dispatch(loading.fail(err)))
@@ -100,7 +101,8 @@ export const updateCourseMembers = (courseId, updatedMembers) => {
     dispatch(loading.start())
     API.updateMembers('courses', courseId, updatedMembers)
     .then(res => {
-      dispatch(updateCourse(courseId, res.data.result))
+      console.log("ACTION: ",res)
+      dispatch(updateCourse(courseId, {members: res.data.result.members}))
       dispatch(loading.success())
     })
     .catch(err => dispatch(loading.fail(err)))

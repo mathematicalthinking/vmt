@@ -41,7 +41,6 @@ export default {
   },
 
   removeMember: (resource, resourceId, user) => {
-    console.log('removing in apirequest: ', resource, resourceId, user)
     return axios.put(`/api/${resource}/${resourceId}/remove`, {members: {user,}})
   },
 
@@ -50,7 +49,6 @@ export default {
   },
 
   updateMembers: (resource, resourceId, updatedMembers) => {
-    console.log("U{PDATED <EBERS: ", updatedMembers)
     return axios.put(`/api/${resource}/${resourceId}`, {members: updatedMembers})
   },
   getDesmos: url => {
