@@ -52,8 +52,9 @@ module.exports = {
 
   add: (id, body) => {
     return new Promise((resolve, reject) => {
+      console.log(body.members)
       // Send a notification to user that they've been granted access to a new course
-      db.User.findByIdAndUpdate(body.members, {
+      db.User.findByIdAndUpdate(body.members.user, {
         $addToSet: {
           courses: id,
           'courseNotifications.access': {
@@ -61,9 +62,12 @@ module.exports = {
             _id: id,
           }
         }
-      })
+      }, {new: true})
+      .then(res => console.log("RESSS: r", res))
       db.Course.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
-      .then(res => resolve(res))
+      .populate({path: 'members.user', select: 'username'})
+      .then(res => {
+        resolve(res)})
       .catch(err => reject(err))
     })
   },
@@ -71,7 +75,7 @@ module.exports = {
   remove: (id, body) => {
     return new Promise((resolve, reject) => {
       // Remove this course from the user's list of courses
-      db.User.findByIdAndUpdate(body.members, {$pull: {courses: id}})
+      db.User.findByIdAndUpdate(body.members.user, {$pull: {courses: id}})
       db.Course.findByIdAndUpdate(id, {$pull: body}, {new: true})
       .then(res => resolve(res))
       .catch(err => reject(err))
@@ -103,12 +107,18 @@ module.exports = {
               $addToSet: {courses: id,}
             }).then(res => console.log(id, ", added to ", userId, "'s list of courses"))
           } else reject({errorMessage: 'incorrect entry code'})
+        } else {
+          for (key in body) {
+            course[key] = body[key]
+          }
         }
         Promise.all(promises)
         .then(res => {
-          course.save(); // @TODO CONSIDER AWAITING THIS SO WE CAN ONLY RESOLVE IF THE SAVE WORKS
-          course.populate({path: 'members.user', select: 'username'}, (err, pop) => {resolve(pop)})})
+          course.save().then((c) => {
+            c.populate({path: 'members.user', select: 'username'}, (err, pop) => {resolve(pop)})
+          })
         })
+      })
       .catch(err => reject(err))
     })
   },

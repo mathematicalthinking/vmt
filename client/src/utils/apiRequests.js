@@ -45,10 +45,11 @@ export default {
   },
 
   grantAccess: (user, resource, resourceId) => {
-    return axios.put(`/api/${resource}/${resourceId}/add`, {members: {user, role: 'participant'}})
+    return axios.post(`/api/${resource}/${resourceId}/add`, {members: {user, role: 'participant'}})
   },
 
   updateMembers: (resource, resourceId, updatedMembers) => {
+    console.log("U{PDATED <EBERS: ", updatedMembers)
     return axios.put(`/api/${resource}/${resourceId}`, {members: updatedMembers})
   },
   getDesmos: url => {

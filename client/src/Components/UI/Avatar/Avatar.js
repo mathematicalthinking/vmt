@@ -19,7 +19,7 @@ const avatar = props => {
         <span className={props.size === 'large' ? classes.AvatarContainer : null}>
           <i className={["fas fa-user", classes.Avatar].join(' ')} style={{fontSize, padding, border,}}></i>
         </span>
-        <span className={classes.Username}>{props.username}</span>
+        <span data-testid='avatar-name' className={classes.Username}>{props.username}</span>
       </Link>
     </div>
     

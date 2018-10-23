@@ -42,6 +42,7 @@ class RoleDropdown extends Component{
               this.props.selectHandler(item)
             }}
             className={className}
+            data-testid='dropdown-item'
           >{item}</div>
         )
       })
@@ -49,7 +50,7 @@ class RoleDropdown extends Component{
     const ddState = this.state.listOpen ? classes.Open : classes.Close;
     return (
       <div className={classes.Wrapper}>
-        <div onClick={this.toggleList} className={classes.Header}><span>{list[0]}</span> <i className="fas fa-caret-down"></i></div>
+        <div onClick={this.toggleList} className={classes.Header} data-testid='dropdown'><span>{list[0]}</span> <i className="fas fa-caret-down"></i></div>
         <div className={[classes.Dropdown, ddState].join(" ")}>{list.slice(1)}</div>
       </div>
     )

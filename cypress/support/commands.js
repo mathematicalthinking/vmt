@@ -27,7 +27,7 @@ Cypress.Commands.add("login", (user) => {
 })
 
 Cypress.Commands.add('getTestElement', (selector) => {
-  return cy.get(`[data-testid="${selector}"`);
+  return cy.get(`[data-testid="${selector}"]`);
 })
 
 //

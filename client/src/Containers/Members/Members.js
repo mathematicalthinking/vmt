@@ -27,18 +27,19 @@ class Members extends Component {
   }
 
   changeRole = (info) => {
+    console.log("CHANGING ROLE? ")
     let { userResources, parentResource, parentResourceId } = this.props;
     let updatedMembers = userResources.map(member => {
       return (member.user._id === info.user._id) ? {role: info.role, user: info.user._id} :
       {role: member.role, user: member.user._id};
-    });
+    })
     if (parentResource === 'courses') {
+      console.log("UPDSTED MEMBERS: ", updatedMembers)
       this.props.updateCourseMembers(parentResourceId, updatedMembers);
     } else this.props.updateRoomMembers(parentResourceId, updatedMembers);
   }
 
   render(){
-    console.log("PROPS: ", this.props)
     let { userResources, notifications, owner, parentResource  } = this.props;
     let joinRequests = "There are no current requests";
     if (this.props.owner) {

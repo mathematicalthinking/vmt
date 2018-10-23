@@ -59,6 +59,7 @@ router.post('/:action', (req, res, next) => {
 })
 
 router.post('/:resource/:id/add', (req, res, next) => {
+	console.log('hit the add route')
 	let { resource, id, } = req.params;
 	let controller = controllers[resource];
 	if (controller === null) return res.status(400).json(defaultError)

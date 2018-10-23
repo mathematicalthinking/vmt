@@ -31,8 +31,6 @@ const boxList = props => {
           }, []) : []
         }
       }
-      console.log(item.members)
-      console.log(details.facilitators)
       return (
         <div className={classes.ContentBox} key={i}>
           {!props.draggable ? <ContentBox

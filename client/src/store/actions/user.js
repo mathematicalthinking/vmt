@@ -87,11 +87,9 @@ export const updateNotifications = (resource, updatedNotifications) => {
 }
 
 export const clearNotification = (ntfId, userId, resource, listType, ntfType) => {
-  console.log("ACTION CLEARING NOTF: ", resource)
   return (dispatch) => {
     API.removeNotification(ntfId, userId, resource, listType, ntfType)
     .then(res => {
-      console.log("NTF REMOVED: ", res)
       let singResource = resource.slice(0, resource.length - 1)
       dispatch(updateNotifications(singResource, res.data.result[`${singResource}Notifications`]))
       // dispatch(gotUser(res.data))
@@ -127,6 +125,7 @@ export const login = (username, password) => {
         ...res.data,
         courses: courses.allIds,
       }
+      console.log(user)
       dispatch(gotUser(user))
       return dispatch(loading.success());
     })

@@ -5,6 +5,8 @@ import Button from '../Button/Button';
 import Modal from '../Modal/Modal';
 import Aux from '../../HOC/Auxil';
 import RoleDropdown from '../../Form/Dropdown/RoleDropdown';
+import { removeUserActivities } from '../../../store/actions';
+import { removeRoomMember } from '../../../store/actions/rooms';
 
 class Member extends PureComponent {
 
@@ -22,17 +24,16 @@ class Member extends PureComponent {
 
   changeRole = (role) => {
     if (role === this.state.role) return;
-    console.log("NEW ROLE: ", role)
-    const { changeRole, info } = this.props;
+    let { changeRole, info } = this.props;
     this.setState({role, editing: false})
     info.role = role
-    console.log(info)
     changeRole(info);
   }
 
   trash = () => {
-    console.log('trashing')
-    // REMOVE USER...YOU CAN"T REMOVE CREATOR/OWNER
+    // DONT ALLOW REMOVING CREATOR
+    let { info, removeMember } = this.props;
+    removeMember(info)
     this.setState({trashing: false, editing: false})
   }
 
@@ -44,33 +45,33 @@ class Member extends PureComponent {
     console.log(this.props)
     const { info, owner, grantAccess, notification, resourceName } = this.props;
     return (
-      <Aux>
-      <div className={classes.Container}>
-        <div className={classes.Avatar}><Avatar username={info.user.username} /></div>
-        {notification ? <div className={classes.Notification} data-testid="member-ntf">new member</div>: null}
-        <div className={classes.Row}>
-          {grantAccess ? <Button m={5} click={this.props.grantAccess} data-testid='grant-access'>Grant Access</Button> : null}
-          {this.state.editing ? 
-            <div className={classes.DropDown}>
-              <RoleDropdown selectHandler={this.changeRole} list={[info.role, (info.role === 'participant') ? 'facilitator' : 'participant']}/>  
-            </div>: 
-            <div className={classes.Role}>{info.role}</div>}
-          {this.state.editing ? <div className={classes.Trash} onClick={() => this.setState({trashing: true})}><i className="fas fa-trash-alt"></i></div>: null}
-    
-          {owner && !grantAccess ? <div className={classes.Edit} onClick={this.edit}><i className="fas fa-edit"></i></div> : null}
-        </div>
-      </div>
-      <Modal show={this.state.trashing}>
-        <div>
-          <div>Are you sure you want to remove {info.user.username} from this {resourceName}?</div>
-          <div>
-            <Button m={5} click={this.trash}>Yes</Button>
-            <Button m={5} click={() => this.setState({trashing: false})}>No</Button>
+      <div>
+        <div className={classes.Container}>
+          <div className={classes.Avatar}><Avatar username={info.user.username} /></div>
+          {notification ? <div className={classes.Notification} data-testid="member-ntf">new member</div>: null}
+          <div className={classes.Row}>
+            {grantAccess ? <Button m={5} click={this.props.grantAccess} data-testid='grant-access'>Grant Access</Button> : null}
+            {this.state.editing ? 
+              <div className={classes.DropDown}>
+                <RoleDropdown selectHandler={this.changeRole} list={[info.role, (info.role === 'participant') ? 'facilitator' : 'participant']}/>  
+              </div>: 
+              <div className={classes.Role}>{info.role}</div>}
+            {this.state.editing ? <div className={classes.Trash} onClick={() => this.setState({trashing: true})} data-testid={'trash-member'}><i className="fas fa-trash-alt"></i></div>: null}
+      
+            {owner && !grantAccess ? <div className={classes.Edit} onClick={this.edit} data-testid='edit-member'><i className="fas fa-edit"></i></div> : null}
           </div>
         </div>
+        <Modal show={this.state.trashing} closeModal={() => this.setState({trashing: false})}>
+          <div>
+            <div>Are you sure you want to remove {info.user.username} from this {resourceName}?</div>
+            <div>
+              <Button m={5} click={this.trash}>Yes</Button>
+              <Button m={5} click={() => this.setState({trashing: false})}>No</Button>
+            </div>
+          </div>
 
-      </Modal>
-      </Aux>
+        </Modal>
+      </div>
     )
   }
 }

@@ -58,10 +58,11 @@ export const grantAccess = (user, resource, resourceId) => {
     .catch(err => console.log(err))
     API.grantAccess(user, resource, resourceId)
     .then(res => {
+      console.log("RES: ", res.data.members)
       if (resource === 'rooms') {
-        dispatch(updateRoom(resourceId, {members: res.data.result.members}))
+        dispatch(updateRoom(resourceId, {members: res.data.members}))
       } else if (resource === 'courses') {
-        dispatch(updateCourse(resourceId, {members: res.data.result.members}))
+        dispatch(updateCourse(resourceId, {members: res.data.members}))
       }
       let { user } = getState()
       let singResource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOTING \\ WE COULD JUST REANME THE FIELD courseSnotifications?
