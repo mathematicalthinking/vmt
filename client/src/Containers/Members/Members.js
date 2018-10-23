@@ -7,7 +7,9 @@ import {
   grantAccess, 
   updateCourseMembers, 
   updateRoomMembers, 
-  clearNotification 
+  clearNotification,
+  removeCourseMember,
+  removeRoomMember, 
 } from '../../store/actions'
 import classes from './members.css';
 import Member from '../../Components/UI/Member/Member';
@@ -26,15 +28,21 @@ class Members extends Component {
     }
   }
 
+  removeMember = (info) => {
+    let { userResources, parentResource, parentResourceId } = this.props;
+    let updatedMembers = userResources.filter(member => (member.user._id !== info.user._id))
+    if (parentResource === 'courses') {
+      this.props.removeCourseMember(parentResourceId, updatedMembers);
+    } else this.props.removeRoomMember(parentResourceId, updatedMembers);
+  }
+
   changeRole = (info) => {
-    console.log("CHANGING ROLE? ")
     let { userResources, parentResource, parentResourceId } = this.props;
     let updatedMembers = userResources.map(member => {
       return (member.user._id === info.user._id) ? {role: info.role, user: info.user._id} :
       {role: member.role, user: member.user._id};
     })
     if (parentResource === 'courses') {
-      console.log("UPDSTED MEMBERS: ", updatedMembers)
       this.props.updateCourseMembers(parentResourceId, updatedMembers);
     } else this.props.updateRoomMembers(parentResourceId, updatedMembers);
   }
@@ -62,7 +70,8 @@ class Members extends Component {
       })
       return owner ? 
       <Member 
-        changeRole={(info) => this.changeRole(info)}
+        changeRole={this.changeRole}
+        removeMember={this.removeMember}
         info={member} 
         key={i}
         resourceName={parentResource.slice(0, parentResource.length - 1)}
@@ -93,4 +102,11 @@ class Members extends Component {
 }
 
 
-export default connect(null, {grantAccess, updateCourseMembers, updateRoomMembers, clearNotification})(Members);
+export default connect(null, {
+  grantAccess, 
+  updateCourseMembers, 
+  updateRoomMembers, 
+  clearNotification,
+  removeRoomMember,
+  removeCourseMember,  
+})(Members);

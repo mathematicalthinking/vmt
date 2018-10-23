@@ -54,11 +54,22 @@ export const addRoomMember = (roomId, body) => {
   }
 }
 
+// export const removeRoomMember = (roomId, userId) => {
+//   return {
+//     type: actionTypes.REMOVE_ROOM_MEMBER,
+//     roomId,
+//     userId,
+//   }
+// }
+
 export const removeRoomMember = (roomId, userId) => {
-  return {
-    type: actionTypes.REMOVE_ROOM_MEMBER,
-    roomId,
-    userId,
+  return dispatch => {
+    dispatch(loading.start())
+    API.delete('rooms', roomId, userId)
+    .then(res => {
+      dispatch(updateRoom(res.data.result))
+    })
+    .catch(err => dispatch(loading.fail(err)))
   }
 }
 

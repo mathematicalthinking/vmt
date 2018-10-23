@@ -83,15 +83,27 @@ export const courseRemoved = (courseId) => {
   }
 }
 
-export const updateCourseMembers = (courseId, updatedMembers) => {
-
+export const removeCourseMember = (courseId, userId) => {
   return dispatch => {
+    dispatch(loading.start())
+    API.removeMember('courses', courseId, userId)
+    .then(res => {
+      dispatch(updateCourse, courseId, res.data.result)
+      dispatch(loading.success())
+    })
+    .catch(err => dispatch(loading.fail(err)))
+  }
+}
+
+export const updateCourseMembers = (courseId, updatedMembers) => {
+  return dispatch => {
+    dispatch(loading.start())
     API.updateMembers('courses', courseId, updatedMembers)
     .then(res => {
-      console.log(res)
       dispatch(updateCourse(courseId, res.data.result))
+      dispatch(loading.success())
     })
-    .catch(err => console.log(err))
+    .catch(err => dispatch(loading.fail(err)))
   }
 }
 

@@ -41,6 +41,7 @@ export {
   updateRoomMembers,
   enterRoomWithCode,
   addRoomMember,
+  removeRoomMember,
 } from './rooms';
 export {
   addCourse,
@@ -57,6 +58,7 @@ export {
   populateCurrentCourse,
   updateCourseMembers,
   addCourseMember,
+  removeCourseMember,
 } from './courses';
 export {
   getCourseTemplates,

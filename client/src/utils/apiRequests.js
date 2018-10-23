@@ -40,7 +40,7 @@ export default {
     })
   },
 
-  removeUserFrom: (resource, resourceId, user) => {
+  removeMember: (resource, resourceId, user) => {
     return axios.delete(`api/${resource}/${resourceId}/remove`, {members: {user,}})
   },
 
