@@ -2,6 +2,10 @@
   lightBlue: lightBlue;
 }
 
+:root {
+  --side-panel-width: 280px;
+}
+
 .Container {
   display: flex;
   flex-flow: column;
@@ -12,12 +16,13 @@
   border-top: 1px solid #75b7f6;
   padding: 0 20px 20px 20px;
   max-width: 1400px;
+  transition: .2s;
 }
 
 .BreadCrumbs {
   margin-bottom: 20px;
   width: 100%;
-  min-width: 1000px;
+  /* min-width: 1000px; */
   align-self: flex-start;
 }
 
@@ -35,7 +40,7 @@
   justify-content: space-between;
   margin-right: 30px;
   padding-right: 30px;
-  width: 280px;
+  width: var(--side-panel-width);
   border-right: 1px solid #ddd;
   letter-spacing: 0.06em;
 }
@@ -67,7 +72,8 @@
 .Content {
   display: flex;
   flex-flow: column;
-  flex-grow: 3;
+  width: calc(100% - var(--side-panel-width))
+  /* flex-grow: 3; */
   /* max-width: 850px; */
   /* border: 2px solid pink; */
 }
@@ -117,4 +123,10 @@
 
 .CreateForParticipant:hover {
   color: lightBlue;
+}
+
+@media screen and (max-width: 1100px) {
+  .Container {
+    align-self: flex-start
+  }
 }

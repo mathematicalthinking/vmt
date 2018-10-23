@@ -68,10 +68,8 @@ router.put('/:resource/:id/add', (req, res, next) => {
 })
 
 router.put('/:resource/:id/remove', (req, res, next) => {
-	console.log('hitting the remove route')
 	let { resource, id, } = req.params;
 	let controller = controllers[resource];
-	console.log(resource, id, req.body)
 	controller.remove(id, req.body)
 	.then(result => res.json(result))
 	.catch((err) => res.status(400).json({confirmation: 'fail', message: err})) 

@@ -65,7 +65,7 @@ class Member extends PureComponent {
           <div>
             <div>Are you sure you want to remove {info.user.username} from this {resourceName}?</div>
             <div>
-              <Button m={5} click={this.trash}>Yes</Button>
+              <Button m={5} click={this.trash} data-testid='confirm-trash'>Yes</Button>
               <Button m={5} click={() => this.setState({trashing: false})}>No</Button>
             </div>
           </div>

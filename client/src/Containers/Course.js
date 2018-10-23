@@ -140,7 +140,6 @@ class Course extends Component {
       user: user,
       owner: this.state.owner,
     }
-    console.log(course.members)
     let sidePanelData = {
       image: course.image,
       details: {

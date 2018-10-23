@@ -41,7 +41,16 @@ describe('test access requests', function(){
     cy.getTestElement('tab').contains('Members').click();
     cy.getTestElement('edit-member').last().click();
     cy.getTestElement('trash-member').click();
+    cy.getTestElement('confirm-trash').last().click();
+    cy.getTestElement('members').children().should('have.length', 1)
 
   })
-  it("does not display course 2 to user2 after they're removed")
+  it("does not display course 2 to user2 after they're removed", function(){
+    cy.login(user2)
+    cy.contains("There doesn't appear to be anything here yet")
+    cy.contains('Community').click()
+    cy.contains('Courses').click()
+    cy.getTestElement('content-box').contains('course 2').click()
+    cy.contains("You currently don't have access");
+  })
 })

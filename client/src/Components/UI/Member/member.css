@@ -60,9 +60,10 @@
   margin-right: 20px;
 }
 
-@media (max-width: 920px) {
-  .Container {
+@media screen and (max-width: 800px) {
+  .Trash, .Edit {
     /* justify-content: flex-start; */
+    margin-right: 5px;
   }
   .Row {
     /* width: 100px; */

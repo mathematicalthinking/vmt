@@ -111,7 +111,7 @@ describe('test access requests', function(){
     cy.getTestElement('content-box').contains('request access').click()
     cy.contains('Explore').click();
     cy.getTestElement('tab').contains('Members').click()
-    cy.getTestElement('members').children().should('have.length', 4)
+    cy.getTestElement('members').children().should('have.length', 2)
     cy.getTestElement('crumb').contains('My VMT').click()
     cy.wait(111)
   })
@@ -136,7 +136,7 @@ describe('test access requests', function(){
     cy.getTestElement('content-box-title').contains('room 1').click()
     cy.getTestElement('tab-ntf').contains('1')
     cy.getTestElement('tab').contains('Members').click()
-    cy.getTestElement('members').children().should('have.length', 4)
+    cy.getTestElement('members').children().should('have.length', 2)
     cy.getTestElement('members').children().contains('g-laforge')
     cy.getTestElement('member-ntf').should('exist')
   })
