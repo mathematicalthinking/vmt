@@ -29,11 +29,10 @@ class Members extends Component {
   }
 
   removeMember = (info) => {
-    let { userResources, parentResource, parentResourceId } = this.props;
-    let updatedMembers = userResources.filter(member => (member.user._id !== info.user._id))
+    let {parentResource, parentResourceId } = this.props;
     if (parentResource === 'courses') {
-      this.props.removeCourseMember(parentResourceId, updatedMembers);
-    } else this.props.removeRoomMember(parentResourceId, updatedMembers);
+      this.props.removeCourseMember(parentResourceId, info.user._id);
+    } else this.props.removeRoomMember(parentResourceId, info.user._id);
   }
 
   changeRole = (info) => {

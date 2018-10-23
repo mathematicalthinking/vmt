@@ -58,8 +58,7 @@ router.post('/:action', (req, res, next) => {
 	.catch(err => res.status(400).json({confirmation: 'fail', message: err}))
 })
 
-router.post('/:resource/:id/add', (req, res, next) => {
-	console.log('hit the add route')
+router.put('/:resource/:id/add', (req, res, next) => {
 	let { resource, id, } = req.params;
 	let controller = controllers[resource];
 	if (controller === null) return res.status(400).json(defaultError)
@@ -68,9 +67,11 @@ router.post('/:resource/:id/add', (req, res, next) => {
 	.catch((err) => res.status(400).json({confirmation: 'fail', message: err})) 
 })
 
-router.delete('/:resource/:id/remove', (req, res, next) => {
-	let { resource, id, field } = req.params;
+router.put('/:resource/:id/remove', (req, res, next) => {
+	console.log('hitting the remove route')
+	let { resource, id, } = req.params;
 	let controller = controllers[resource];
+	console.log(resource, id, req.body)
 	controller.remove(id, req.body)
 	.then(result => res.json(result))
 	.catch((err) => res.status(400).json({confirmation: 'fail', message: err})) 
