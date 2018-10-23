@@ -1,23 +1,23 @@
-const activity = require('./ActivityController');
-const course = require('./CourseController');
-const message = require('./MessageController');
-const room = require('./RoomController');
-const tab = require('./TabController');
-const team = require('./TeamController');
+const activities = require('./ActivityController');
+const courses = require('./CourseController');
+const messages = require('./MessageController');
+const rooms = require('./RoomController');
+const tabs = require('./TabController');
+const teams = require('./TeamController');
 const user = require('./UserController');
-const event = require('./eventController');
+const events = require('./eventController');
 const courseTemplate = require('./courseTemplateController');
 const roomTemplate = require('./roomTemplateController');
 
 module.exports = {
-  activity,
-  course,
+  activities,
+  courses,
   courseTemplate,
-  message,
-  room,
+  messages,
+  rooms,
   roomTemplate,
-  tab,
-  team,
+  tabs,
+  teams,
   user,
-  event,
+  events,
 };

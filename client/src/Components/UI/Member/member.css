@@ -23,30 +23,50 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  width: 150px;
+  /* width: 150px; */
 }
 
 .Role {
   margin: 20px;
 }
 
-.Icon {
-  padding: 5px;
+.Edit {
+  /* padding: 5px; */
+  margin-right: 20px;
   cursor: pointer;
-  font-size: 1em;
+  font-size: 19px;
   color: black;
   transition: .2s;
 }
 
-.Icon:hover {
+.Edit:hover {
   color: #888;
 }
 
-@media (max-width: 920px) {
-  .Container {
-    justify-content: flex-start;
+.Trash {
+  font-size: 23px;
+  color: black;
+  /* padding: 5px;s */
+  margin-right: 20px;
+  cursor: pointer;
+}
+
+.Trash:hover {
+  color: #888;
+}
+
+.DropDown {
+  /* width: 100px; */
+  margin-right: 20px;
+}
+
+@media screen and (max-width: 800px) {
+  .Trash, .Edit {
+    /* justify-content: flex-start; */
+    margin-right: 5px;
   }
   .Row {
-    width: 100px;
+    
+    /* width: 100px; */
   }
 }

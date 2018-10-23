@@ -51,6 +51,41 @@ module.exports = {
     })
   },
 
+  add: (id, body) => {
+    return new Promise((resolve, reject) => {
+      console.log(body.members)
+      // Send a notification to user that they've been granted access to a new course
+      db.User.findByIdAndUpdate(body.members.user, {
+        $addToSet: {
+          rooms: id,
+          'roomNotifications.access': {
+            notificationType: 'grantedAccess',
+            _id: id,
+          }
+        }
+      }, {new: true})
+      .then(res => console.log("RESSS: r", res))
+      db.Room.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
+      .populate({path: 'members.user', select: 'username'})
+      .then(res => {
+        resolve(res.members)})
+      .catch(err => reject(err))
+    })
+  },
+
+  remove: (id, body) => {
+    return new Promise((resolve, reject) => {
+      // Remove this course from the user's list of courses
+      db.User.findByIdAndUpdate(body.members.user, {$pull: {rooms: id}})
+      db.Room.findByIdAndUpdate(id, {$pull: body}, {new: true})
+      .populate({path: 'members.user', select: 'username'})
+      .then(res => resolve(res.members))
+      .catch(err => reject(err))
+    })
+  },
+
+
+
   put: (id, body) => {
     return new Promise((resolve, reject) => {
       db.Room.findById(id)

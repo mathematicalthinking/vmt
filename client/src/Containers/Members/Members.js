@@ -7,11 +7,12 @@ import {
   grantAccess, 
   updateCourseMembers, 
   updateRoomMembers, 
-  clearNotification 
+  clearNotification,
+  removeCourseMember,
+  removeRoomMember, 
 } from '../../store/actions'
 import classes from './members.css';
 import Member from '../../Components/UI/Member/Member';
-import DragMember from '../../Components/UI/Member/DragMember';
 // import Button from '../../Components/UI/Button/Button';
 
 class Members extends Component {
@@ -27,24 +28,31 @@ class Members extends Component {
     }
   }
 
+  removeMember = (info) => {
+    let {parentResource, parentResourceId } = this.props;
+    if (parentResource === 'courses') {
+      this.props.removeCourseMember(parentResourceId, info.user._id);
+    } else this.props.removeRoomMember(parentResourceId, info.user._id);
+  }
+
   changeRole = (info) => {
     let { userResources, parentResource, parentResourceId } = this.props;
     let updatedMembers = userResources.map(member => {
       return (member.user._id === info.user._id) ? {role: info.role, user: info.user._id} :
       {role: member.role, user: member.user._id};
-    });
-    if (parentResource === 'course') {
-      this.this.props.changeCourseRole(parentResourceId, updatedMembers);
-    } else this.this.props.changeRoomRole(parentResourceId, updatedMembers);
+    })
+    if (parentResource === 'courses') {
+      this.props.updateCourseMembers(parentResourceId, updatedMembers);
+    } else this.props.updateRoomMembers(parentResourceId, updatedMembers);
   }
 
   render(){
-    let { userResources, notifications, owner,  } = this.props;
+    let { userResources, notifications, owner, parentResource  } = this.props;
     let joinRequests = "There are no current requests";
     if (this.props.owner) {
       joinRequests = notifications.filter(ntf => ntf.notificationType === 'requestAccess').map((ntf, i) => {
         return (
-          <DragMember
+          <Member
             grantAccess={() => {this.props.grantAccess(ntf.user._id, this.props.parentResource, this.props.parentResourceId)}} 
             info={ntf} 
             key={i}
@@ -60,11 +68,14 @@ class Members extends Component {
         else return false;
       })
       return owner ? 
-      <DragMember 
-        changeRole={(info) => this.changeRole(info)}
+      <Member 
+        changeRole={this.changeRole}
+        removeMember={this.removeMember}
         info={member} 
         key={i}
+        resourceName={parentResource.slice(0, parentResource.length - 1)}
         notification={notification.length > 0}
+        owner
       /> : <Member info={member}  key={i}/>
   
     })
@@ -90,4 +101,11 @@ class Members extends Component {
 }
 
 
-export default connect(null, {grantAccess, updateCourseMembers, updateRoomMembers, clearNotification})(Members);
+export default connect(null, {
+  grantAccess, 
+  updateCourseMembers, 
+  updateRoomMembers, 
+  clearNotification,
+  removeRoomMember,
+  removeCourseMember,  
+})(Members);

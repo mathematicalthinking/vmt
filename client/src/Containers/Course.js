@@ -43,7 +43,7 @@ class Course extends Component {
         if (ntf.notificationType === 'grantedAccess' && ntf._id === course._id) {
           // RESOLVE THIS NOTIFICATION
           firstView = true;
-          clearNotification(course._id, user._id, 'course', 'access') //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
+          clearNotification(course._id, user._id, 'courses', 'access') //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
         }
       })
     }
@@ -86,13 +86,13 @@ class Course extends Component {
   requestAccess = () => {
     const {course, user} = this.props;
     // HEY? WHY DO WE NEED COURSE.CREATOR RIGHT HERE
-    this.props.requestAccess(course.creator, user._id, 'course', course._id)
+    this.props.requestAccess(course.creator, user._id, 'courses', course._id)
     this.props.history.push('/confirmation')
   }
 
   requestPublicAccess = () => {
     this.props.grantAccess(
-      {_id: this.props.user._id, username: this.props.user.username}, 'course', this.props.course._id
+      {_id: this.props.user._id, username: this.props.user.username}, 'courses', this.props.course._id
     )
   }
 
@@ -132,7 +132,7 @@ class Course extends Component {
     let resource = match.params.resource;
     let contentData = {
       resource,
-      parentResource: "course",
+      parentResource: "courses",
       parentResourceId: course._id,
       userResources: course[resource] || [],
       notifications:  accessNotifications || [],
@@ -140,7 +140,6 @@ class Course extends Component {
       user: user,
       owner: this.state.owner,
     }
-    console.log(course.members)
     let sidePanelData = {
       image: course.image,
       details: {
@@ -156,9 +155,8 @@ class Course extends Component {
           }, ''),
           acitivities: course.activities.length,
           rooms: course.rooms.length,
-        }
+        },
       },
-      title: course.name,
     }
     // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
     return (
@@ -185,7 +183,7 @@ class Course extends Component {
           course.isPublic ? 
             <PublicAccessModal requestAccess={this.grantPublicAccess}/> : 
             <Access  
-              resource='course'
+              resource='courses'
               resourceId={course._id}
               userId={user._id}
               username={user.username}

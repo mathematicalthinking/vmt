@@ -50,41 +50,40 @@ router.get('/:resource/:id', (req, res, next) => {
 })
 
 router.post('/:action', (req, res, next) => {
-	const action = req.params.action;
-	const controller = controllers[action]
-	if (controller == null){
-		return res.status(400).json(defaultError)
-	}
+	let action = req.params.action;
+	let controller = controllers[action]
+	if (controller == null) return res.status(400).json(defaultError);
 	controller.post(req.body)
-	.then(result => {
-		if (action == 'inquiry'){
-			return res.json(result);
-		}
-		res.json({
-			confirmation: 'success',
-			result,
-		})
-	})
-	.catch(err => {
-		res.status(400).json({
-			confirmation: 'fail',
-			message: err
-		})
-	})
+	.then(result => res.json({confirmation: 'success', result,}))
+	.catch(err => res.status(400).json({confirmation: 'fail', message: err}))
+})
+
+router.put('/:resource/:id/add', (req, res, next) => {
+	let { resource, id, } = req.params;
+	let controller = controllers[resource];
+	if (controller === null) return res.status(400).json(defaultError)
+	controller.add(id, req.body)
+	.then(result => res.json(result))
+	.catch((err) => res.status(400).json({confirmation: 'fail', message: err})) 
+})
+
+router.put('/:resource/:id/remove', (req, res, next) => {
+	let { resource, id, } = req.params;
+	let controller = controllers[resource];
+	controller.remove(id, req.body)
+	.then(result => res.json(result))
+	.catch((err) => res.status(400).json({confirmation: 'fail', message: err})) 
 })
 
 router.put('/:resource/:id', (req, res, next) => {
-  let resource = req.params.resource;
+	let resource = req.params.resource;
 	let controller = controllers[resource];
   if (controller == null){
 		return res.json(defaultError)
 	}
   controller.put(req.params.id, req.body)
   .then(result => {
-    res.json({
-      confirmation: 'success',
-      result,
-    });
+    res.json({confirmation: 'success', result,});
   })
   .catch(err => {
     res.status(400).json({
@@ -93,16 +92,6 @@ router.put('/:resource/:id', (req, res, next) => {
     })
   })
 })
-
-// router.put('/:resource/:id/requestAccess', (req, res, next) => {
-// 	console.log('requesitng access on the backend')
-// 	let resource = req.param.resource;
-// 	let controller = controller[resource];
-// 	if (controller === null) {
-// 		return res.json(defaultEroor)
-// 	}
-// 	controller.put(req.params.id, {requestAccess: {user: req.body.user}})
-// })
 
 router.delete('/:resource/:id', (req, res, next) => {
   let { resource, id } = req.params;

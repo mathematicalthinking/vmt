@@ -35,7 +35,7 @@ class Templates extends Component {
         <BoxList list={this.props.userRoomTemplates || []}
           resource='roomTemplates'
           linkPath='/profile/courseTemplates/'
-          linkSuffix='/summary'
+          linkSuffix='/details'
           template
         />
       </div>

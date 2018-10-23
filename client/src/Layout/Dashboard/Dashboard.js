@@ -9,6 +9,7 @@ import Members from '../../Containers/Members/Members'
 import Trash from '../../Components/UI/Trash/Trash';
 import Avatar from '../../Components/UI/Avatar/Avatar';
 import Button from '../../Components/UI/Button/Button';
+import CustomLink from '../../Components/Navigation/CustomLink/CustomLink';
 import Summary from '../Room/Summary/Summary';
 import MakeRoomsLayout from './MakeRooms/MakeRooms';
 
@@ -18,7 +19,7 @@ const dashboard = props => {
   let content;
   if (parentResource === 'activities' && resource === 'details') {
     content = <MakeRoomsLayout activity={activity} course={course} userId={user._id}/>
-  } else if (resource === 'summary') {
+  } else if (resource === 'details') {
     content = <Summary room={room} loading={props.loading}/>
   } else {
     content = <DnDTrash>
@@ -27,13 +28,7 @@ const dashboard = props => {
       <div className={classes.Trash}><Trash /></div>
     </DnDTrash>
   }
-
-  let image = <img src={sidePanelData.image} alt='sidePanelImage'/>
-  if (!sidePanelData.image) { 
-    if (sidePanelData.title === 'My VMT') {
-      image = <Avatar size='large'/>
-    }
-  }  
+  let image = sidePanelData.image ? <img src={sidePanelData.image} alt='sidePanelImage'/> :  <Avatar size='large'/>
   let { additional } = sidePanelData.details;
   let additionalDetails = Object.keys(additional).map(detail => (
     <div className={classes.Detail}>{detail}: <span className={classes.DetailInfo}>{additional[detail]}</span></div>
@@ -53,6 +48,7 @@ const dashboard = props => {
               <div className={classes.spAdditional}>
                 {additionalDetails}
               </div>
+              { sidePanelData.edit ? <CustomLink to={sidePanelData.edit.link}>{sidePanelData.edit.text} <i className="fas fa-edit"></i></CustomLink> : null}
             </div>
             <div className={classes.ViewOpts}></div>
           </div>

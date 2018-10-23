@@ -29,9 +29,8 @@ module.exports = {
 
   put: (id, body) => {
     let query;
-    console.log(body)
     if (body.notificationType === 'requestAccess' || body.notificationType === 'grantAccess') {
-      if (body.resource === 'course') {
+      if (body.resource === 'courses') {
         delete body.resource;
         query = {$addToSet: {'courseNotifications.access': body}}
       } else {
@@ -44,9 +43,12 @@ module.exports = {
     }
     if (body.removeNotification) {
       // if (body.ntfType === 'newMember') {
-      //   query = 
-      // }
-      const { resource, listType, ntfId } = body.removeNotification;
+        //   query = 
+        // }
+      console.log("EDITING USER: ", body, id)
+      let { resource, listType, ntfId } = body.removeNotification;
+      resource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOYING
+      console.log(resource)
       query =  {$pull: {[`${resource}Notifications.${listType}`]: {_id: ntfId}}}
     }
 

@@ -69,7 +69,7 @@ class Community extends Component {
       linkSuffix = '/rooms'
     } else if(this.props.match.params.resource === 'rooms') {
       linkPath = '/myVMT/rooms/';
-      linkSuffix = '/summary';
+      linkSuffix = '/details';
     } else {
       linkPath = '/myVMT/activities';
       linkSuffix = '/details';

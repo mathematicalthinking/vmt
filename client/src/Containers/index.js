@@ -9,3 +9,4 @@ export { default as Course } from './Course';
 export { default as Activity } from './Activity';
 export { default as Room } from './Room';
 export { default as Access } from './Access';
+export { default as Replayer } from './Replayer/Replayer';

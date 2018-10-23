@@ -54,18 +54,29 @@ export const addRoomMember = (roomId, body) => {
   }
 }
 
+// export const removeRoomMember = (roomId, userId) => {
+//   return {
+//     type: actionTypes.REMOVE_ROOM_MEMBER,
+//     roomId,
+//     userId,
+//   }
+// }
+
 export const removeRoomMember = (roomId, userId) => {
-  return {
-    type: actionTypes.REMOVE_ROOM_MEMBER,
-    roomId,
-    userId,
+  return dispatch => {
+    dispatch(loading.start())
+    API.delete('rooms', roomId, userId)
+    .then(res => {
+      dispatch(updateRoom(res.data.result))
+    })
+    .catch(err => dispatch(loading.fail(err)))
   }
 }
 
 export const getRooms = params => {
   return dispatch => {
     dispatch(loading.start())
-    API.get('room', params)
+    API.get('rooms', params)
     .then(res => {
       // Normalize res
       const rooms = normalize(res.data.results)
@@ -79,7 +90,7 @@ export const getRooms = params => {
 export const populateRoom = id => {
   return dispatch => {
     dispatch(loading.start())
-    API.getById('room', id)
+    API.getById('rooms', id)
     .then(res => {
       dispatch(updateRoom(id, res.data.result))
       dispatch(loading.success())
@@ -91,7 +102,7 @@ export const populateRoom = id => {
 export const createRoom = body => {
   return dispatch => {
     dispatch(loading.start())
-    API.post('room', body)
+    API.post('rooms', body)
     .then(res => {
       let result = res.data.result;
       dispatch(createdRoom(result))
@@ -113,7 +124,7 @@ export const createRoom = body => {
 export const updateRoomMembers = (roomId, updatedMembers) => {
 
   return dispatch => {
-    API.updateMembers('room', roomId, updatedMembers)
+    API.updateMembers('rooms', roomId, updatedMembers)
     .then(res => {
       dispatch(updateRoom(roomId, res.data.result))
     })
@@ -124,7 +135,7 @@ export const updateRoomMembers = (roomId, updatedMembers) => {
 export const removeRoom = roomId => {
   return dispatch => {
     dispatch(loading.start())
-    API.remove('room', roomId)
+    API.remove('rooms', roomId)
     .then(res => {
       dispatch(removeUserRooms([roomId]));
       if (res.data.result.course) {

@@ -14,8 +14,8 @@ describe('show different views based on role', function(){
     cy.getTestElement('become-facilitator').click()
     cy.getTestElement('create-Course').click()
     cy.get('input[name=coursesName]').type(course.name)
-    cy.get('input[name=description]').type('whatever')
-    cy.get('button').contains('Submit').click()
+    cy.getTestElement('courses-description').type('whatever')
+    cy.getTestElement('courses-submit').contains('Submit').click()
     cy.contains(course.name).should('exist')
     cy.get('button').contains('Facilitator').should('be.visible');
   })

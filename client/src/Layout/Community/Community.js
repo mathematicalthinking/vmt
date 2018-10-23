@@ -22,6 +22,7 @@ class Community extends Component {
             resource={resource}
             linkPath={linkPath}
             linkSuffix={linkSuffix}
+            listType='public'
           />
         </div>
 

@@ -6,9 +6,9 @@ const summary = ({room, history, loading}) => {
   console.log("rendering summary")
   const clickHandler = () => {
     console.log('go to workspace')
-    history.push(`/workspace/${room._id}`);
+    history.push(`/myVMT/workspace/${room._id}`);
   }
-  const goToReplayer = () => {history.push(`/workspace/${room._id}/replayer`)}
+  const goToReplayer = () => {history.push(`/myVMT/workspace/${room._id}/replayer`)}
   return (
     <div className={classes.Container}>
       <div className={classes.Section}>

@@ -50,33 +50,51 @@ module.exports = {
     })
   },
 
+  add: (id, body) => {
+    return new Promise((resolve, reject) => {
+      console.log(body.members)
+      // Send a notification to user that they've been granted access to a new course
+      db.User.findByIdAndUpdate(body.members.user, {
+        $addToSet: {
+          courses: id,
+          'courseNotifications.access': {
+            notificationType: 'grantedAccess',
+            _id: id,
+          }
+        }
+      }, {new: true})
+      .then(res => console.log("RESSS: r", res))
+      db.Course.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
+      .populate({path: 'members.user', select: 'username'})
+      .then(res => {
+        resolve(res.members)})
+      .catch(err => reject(err))
+    })
+  },
+
+  remove: (id, body) => {
+    return new Promise((resolve, reject) => {
+      // Remove this course from the user's list of courses
+      db.User.findByIdAndUpdate(body.members.user, {$pull: {courses: id}})
+      db.Course.findByIdAndUpdate(id, {$pull: body}, {new: true})
+      .populate({path: 'members.user', select: 'username'})
+      .then(res => resolve(res.members))
+      .catch(err => reject(err))
+    })
+  },
+
   put: (id, body) => {
     let promises = [];
     return new Promise((resolve, reject) => {
       db.Course.findById(id)
       .then(course => {
-        // When a user is granted access by the owner
-        if (body.newMember) {
-          course.members.push({role: 'participant', user: body.newMember})
-          db.User.findByIdAndUpdate(body.newMember, {
-            $addToSet: {
-              courses: course._id,
-              'courseNotifications.access': {
-                notificationType: 'grantedAccess',
-                _id: course._id,
-              },
-              // @TODO USER SHOULD HAVE ALL OF THE ROOMS OF THIS COURSE COPIED TO THEIR LIST OF COURSES
-              // activities: {$addToSet: {$each: course.activities}},
-              // rooms: {$addToSet: {$each: course.rooms}}
-            }
-          }).then(user => console.log("succesfully added course to users list"))
-        } else if (body.checkAccess) {
+        if (body.checkAccess) {
           let { entryCode, userId } = body.checkAccess;
-          // @todo SHOULD PROBABLY HASH THIS
+          // @todo SHOULD PROBABLY HASH THIS AND MOVE TO AUTH ROUTE
           // When a user gains access with an entry code
           if (course.entryCode === entryCode) {
             course.members.push({user: userId, role: 'participant'})
-            // Send a notification to the room owner
+            // Send a notification to all teachers of the room
             promises = course.members.filter(member => member.role === 'facilitator').map(facilitator => {
               return db.User.findByIdAndUpdate(course.creator, {
                 $addToSet: {
@@ -90,12 +108,18 @@ module.exports = {
               $addToSet: {courses: id,}
             }).then(res => console.log(id, ", added to ", userId, "'s list of courses"))
           } else reject({errorMessage: 'incorrect entry code'})
+        } else {
+          for (key in body) {
+            course[key] = body[key]
+          }
         }
         Promise.all(promises)
         .then(res => {
-          course.save(); // @TODO CONSIDER AWAITING THIS SO WE CAN ONLY RESOLVE IF THE SAVE WORKS
-          course.populate({path: 'members.user', select: 'username'}, (err, pop) => {resolve(pop)})})
+          course.save().then((c) => {
+            c.populate({path: 'members.user', select: 'username'}, (err, pop) => {resolve(pop)})
+          })
         })
+      })
       .catch(err => reject(err))
     })
   },

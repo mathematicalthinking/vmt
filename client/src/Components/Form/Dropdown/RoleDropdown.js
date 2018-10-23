@@ -1,40 +1,26 @@
 //PROPS: title,  list, selectHandler(listOfSelectedItems)
-// @TODO THINK ABOUT COMBINING THIS CODE WITH ROLEDROPDOWN ... WE'RE REPEATING 
-// A BUNCH OF CODE BUT SOMETIMES I FEEL LIKE THATS BETTER THAN ALL THESE COMPLEX 
-// CONDITIONALS DETERMINNING WHAT KIND OF ITEMS THE DROP DOWN SHOULD
+
 import React, { Component } from 'react';
 import classes from './dropdown.css'
 import onClickOutside from 'react-onclickoutside'
-class Dropdown extends Component{
+class RoleDropdown extends Component{
   state = {
     listOpen: false,
     selected: [],
   }
 
   handleClickOutside = event => {
-    this.setState({
-      listOpen: false
-    })
+    if (this.state.listOpen) {
+      this.setState({
+        listOpen: false
+      })
+    }
   }
 
   toggleList = event => {
     this.setState(prevState => ({
       listOpen: !prevState.listOpen,
     }))
-  }
-
-  select = (name, id, selected) => {
-    let updatedSelected = [...this.state.selected]
-    // if already selected remove from list
-    if (selected) {
-      updatedSelected = updatedSelected.filter(room => room.id !== id)
-    }
-    else {updatedSelected.push({name, id,})}
-    this.setState({
-      selected: updatedSelected,
-    })
-    // run function passed in props to update parents state
-    this.props.selectHandler(updatedSelected)
   }
 
   render() {
@@ -44,16 +30,19 @@ class Dropdown extends Component{
     }
     else {
       list = this.props.list.map((item, i)=> {
-        console.log("ITEM: ", item)
         // check if this item is in state.selected
         let colorClass = classes.ListItem;
         const backgroundClass = (i%2 === 0) ? classes.Background1 : classes.Background2;
         const className = [colorClass, backgroundClass].join(" ")
         return (
           <div
-            key={i}            
-            onClick={event => this.select(item)}
+            key={i}
+            onClick={event => {
+              this.setState({listOpen: false})
+              this.props.selectHandler(item)
+            }}
             className={className}
+            data-testid='dropdown-item'
           >{item}</div>
         )
       })
@@ -67,4 +56,4 @@ class Dropdown extends Component{
     )
   }
 }
-export default  onClickOutside(Dropdown);
+export default onClickOutside(RoleDropdown);

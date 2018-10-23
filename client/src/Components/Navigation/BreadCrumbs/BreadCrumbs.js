@@ -16,7 +16,6 @@ const breadCrumbs = props => {
       </Link>
     )
   })
-  console.log(crumbs)
   return (
     <div className={classes.CrumbContainer}>
       {crumbs}
