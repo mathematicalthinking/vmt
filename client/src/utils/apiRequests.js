@@ -40,8 +40,12 @@ export default {
     })
   },
 
+  removeUserFrom: (resource, resourceId, user) => {
+    return axios.delete(`api/${resource}/${resourceId}/remove`, {members: {user,}})
+  },
+
   grantAccess: (user, resource, resourceId) => {
-    return axios.put(`/api/${resource}/${resourceId}`, {newMember: user})
+    return axios.put(`/api/${resource}/${resourceId}/add`, {members: {user, role: 'participant'}})
   },
 
   updateMembers: (resource, resourceId, updatedMembers) => {

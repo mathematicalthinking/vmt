@@ -34,7 +34,7 @@ class Log extends Component {
       this.timeout = null;
       this.setState({scrolling: false})
       // Calculate index from offset and position
-      const currentEntry = this.refs[this.props.currentIndex]
+      // const currentEntry = this.refs[this.props.currentIndex]
       // const offset = currentEntry.offsetTop - this.refs.log.offsetTop;
       // this.props.goToIndex()
     }, 500)

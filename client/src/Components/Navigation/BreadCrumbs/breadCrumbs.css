@@ -34,10 +34,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: .2s;
 }
 
 .Active {
   color: yellow;
   /* border: 2px solid yellow; */
   border-top: none;
+}
+
+@media screen and (max-width: 800px) {
+  .Crumb {
+    width: 100px;
+    text-align: left;
+  }
 }
