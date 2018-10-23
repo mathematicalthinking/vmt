@@ -53,7 +53,7 @@ module.exports = {
 
   add: (id, body) => {
     return new Promise((resolve, reject) => {
-      console.log(body.members.user)
+      console.log(body.members)
       // Send a notification to user that they've been granted access to a new course
       db.User.findByIdAndUpdate(body.members.user, {
         $addToSet: {
@@ -68,7 +68,7 @@ module.exports = {
       db.Room.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
       .populate({path: 'members.user', select: 'username'})
       .then(res => {
-        resolve(res)})
+        resolve(res.members)})
       .catch(err => reject(err))
     })
   },
@@ -78,7 +78,8 @@ module.exports = {
       // Remove this course from the user's list of courses
       db.User.findByIdAndUpdate(body.members.user, {$pull: {rooms: id}})
       db.Room.findByIdAndUpdate(id, {$pull: body}, {new: true})
-      .then(res => resolve(res))
+      .populate({path: 'members.user', select: 'username'})
+      .then(res => resolve(res.members))
       .catch(err => reject(err))
     })
   },

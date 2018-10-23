@@ -3,10 +3,10 @@ import classes from './member.css';
 import Avatar from '../Avatar/Avatar';
 import Button from '../Button/Button';
 import Modal from '../Modal/Modal';
-import Aux from '../../HOC/Auxil';
+// import Aux from '../../HOC/Auxil';
 import RoleDropdown from '../../Form/Dropdown/RoleDropdown';
-import { removeUserActivities } from '../../../store/actions';
-import { removeRoomMember } from '../../../store/actions/rooms';
+// import { removeUserActivities } from '../../../store/actions';
+// import { removeRoomMember } from '../../../store/actions/rooms';
 
 class Member extends PureComponent {
 

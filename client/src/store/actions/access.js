@@ -32,7 +32,6 @@ export const joinWithCode = (resource, resourceId, userId, username, entryCode, 
 }
 
 export const requestAccess = (owners, userId, resource, resourceId) => {
-  console.log("REQUEST ACCESS: ", resource)
   return dispatch => {
     dispatch(loading.start());
     API.requestAccess(owners, userId, resource, resourceId)
@@ -46,6 +45,7 @@ export const requestAccess = (owners, userId, resource, resourceId) => {
 }
 
 export const grantAccess = (user, resource, resourceId) => {
+  console.log(user, resource, resourceId)
   return (dispatch, getState) => {
     dispatch(loading.start())
     let thisUser = getState().user._id;
@@ -58,8 +58,9 @@ export const grantAccess = (user, resource, resourceId) => {
     .catch(err => console.log(err))
     API.grantAccess(user, resource, resourceId)
     .then(res => {
-      console.log("RES: ", res.data)
       if (resource === 'rooms') {
+        console.log("UPDATING ROOMS ")
+        console.log("RES: ", res.data)
         dispatch(updateRoom(resourceId, {members: res.data}))
       } else if (resource === 'courses') {
         dispatch(updateCourse(resourceId, {members: res.data}))
