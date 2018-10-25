@@ -1,6 +1,7 @@
 :import('../../../colors.css') {
   blue: blue;
   red: red;
+  green: green;
   lightShadow: lightShadow;
   lightestShadow: lightestShadow;
 }
@@ -80,10 +81,31 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #232323;
+  background-color: rgba(200, 200, 200, 0.7);
   font-size: 40px;
   /* width: 100%;
   height: 100%; */
-  background: #ddd;
-  opacity: .7;
+  /* background: #ddd; */
+  /* opacity: .7; */
+}
+
+.Plus {
+  color: black;
+  opacity: .6;
+  margin-top: 0;
+  transition: .4s ease-in-out;
+}
+
+.Selecting {
+  color: green;
+  opacity: 1;
+  margin-top: -250px;
+}
+
+.Selected {
+  background-color: rgba(200, 200, 200, 0.7);
+}
+
+.SelectedPlus {
+  opacity: 0;
 }
