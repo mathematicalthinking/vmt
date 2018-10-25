@@ -2,6 +2,7 @@
   green: green;
   lightShadow: lightShadow;
   darkShadow: darkShadow;
+  backgroundGray: backgroundGray; 
 }
 :root{
   --margin-top: 48px;
@@ -26,10 +27,27 @@
   top: calc(var(--margin-top) * -1);
   width: 120px;
   text-align: center;
-  padding: 10px;
+  padding: 4px 10px;
   z-index: 1100;
   box-shadow: lightShadow;
-  border-radius: 0 0 5px 5px;
+  border-radius: 0 0 9px 9px;
+  background: green;
+  color: white;
+}
+
+.SelectCount {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  transition: .2s ease-in-out;
+}
+
+.SelectCountNone {
+  background: backgroundGray;
+  color: red;
+}
+
+.SelectCountPos {
   background: green;
   color: white;
 }

@@ -7,12 +7,14 @@ class Community extends Component {
   state = {
     visibleResources: [],
     resource: '',
-    selecting: this.props.match.params.action === 'selecting'
+    selecting: this.props.match.params.action === 'selecting',
+    selectCount: 0,
   }
   allResources = [];
+
   componentDidUpdate(prevProps, prevState) {
       // if resource changed see if we need to fetch the data
-    const { resource } = this.props.match.params;
+    const { resource, action } = this.props.match.params;
     const resourceList = this.props[`${resource}Arr`].map(id => this.props[resource][id])
     if (prevProps.match.params.resource !== resource) {
       if (resourceList.length < 50) {
@@ -25,6 +27,9 @@ class Community extends Component {
     // if rooms/courses updated from redux
     if (prevProps[resource] !== this.props[resource]) {
       this.setState({visibleResources: resourceList})
+    }
+    if (prevProps.match.params.action !== action) {
+      this.setState({selecting: action === 'selecting'})
     }
     this.allResources = resourceList;
   }
@@ -43,7 +48,6 @@ class Community extends Component {
       this.setState({visibleResources: resourceList})
       this.allResources = resourceList;
     }
-    console.log(action)
     this.setState({selecting: action})
   }
 
@@ -62,7 +66,13 @@ class Community extends Component {
       resource.description.toLowerCase().includes(value)
     )});
     this.setState({visibleResources: updatedResources})
+  }
 
+  select = (id) => {
+    console.log("selecting!!!")
+    console.log(id) 
+    
+    this.setState(prevState => ({selectCount: prevState.selectCount + 1}))
   }
   render () {
     let linkPath; let linkSuffix;
@@ -84,6 +94,8 @@ class Community extends Component {
           linkPath={linkPath}
           linkSuffix={linkSuffix}
           selecting={this.state.selecting}
+          select={this.select}
+          selectCount={this.state.selectCount}
         />
     )
   }

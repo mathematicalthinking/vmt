@@ -37,12 +37,14 @@ const boxList = props => {
             title={item.name}
             link={`${props.linkPath}${item._id}${props.linkSuffix}`}
             key={item._id}
+            id={item._id}
             image={item.image}
             notifications={notifications}
             roomType={item.roomType}
             locked={!item.isPublic} // @TODO Should it appear locked if the user has access ? I can see reasons for both
             details={details}
             selecting={props.selecting}
+            select={props.select}
                               >
             {item.description}
           </ContentBox> :

@@ -6,6 +6,8 @@ const Activity = new mongoose.Schema({
   name: {type: String, required: true},
   description: {type: String},
   course: {type: ObjectId, ref: 'Course'},
+  courses: {type: [{type: ObjectId, ref: 'Course'}], default: [], _id: false},
+  users: {type: [{type: ObjectId, ref: 'User'}], default: [], _id: false},
   dueDate: {type: Date,},
   roomType: {type: String, default: 'geogebra'},
   creator: {type: ObjectId, ref: 'User'},

@@ -12,12 +12,13 @@ class ContentBox extends PureComponent{
   }
   
   hoverOnSelect = () => {
-    console.log('mouse enter')
     this.setState({showOverlay: true})
   }
 
   select = () => {
+    if (this.state.selected) return;
     this.setState({selectAnimation: true})
+    this.props.select(this.props.id)
     setTimeout(this.setState({selected: true}), 400)
   }
   render() {
