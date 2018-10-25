@@ -12,6 +12,7 @@ class Home extends PureComponent {
         <div className={classes.Container}>
         <Switch>
           <Route exact path='/' component={Homepage} />
+          <Route path='/community/:resource/:action' component={Community} />
           <Route path='/community/:resource' component={Community} />
           <Route path='/login' component={Login} />
           <Route path='/signup' component={Signup} />

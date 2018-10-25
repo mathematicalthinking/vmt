@@ -1,5 +1,14 @@
+:import('../../colors.css'){
+  green: green;
+  lightShadow: lightShadow;
+  darkShadow: darkShadow;
+}
+:root{
+  --margin-top: 48px;
+}
 .Container {
-  margin-top: 48px;
+  margin-top: var(--margin-top);
+  position: relative;
 }
 
 .Title {
@@ -10,4 +19,17 @@
 
 .List {
   margin-top: 20px;
+}
+
+.Selecting {
+  position: absolute;
+  top: calc(var(--margin-top) * -1);
+  width: 120px;
+  text-align: center;
+  padding: 10px;
+  z-index: 1100;
+  box-shadow: lightShadow;
+  border-radius: 0 0 5px 5px;
+  background: green;
+  color: white;
 }

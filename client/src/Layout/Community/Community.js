@@ -6,9 +6,11 @@ import Button from '../../Components/UI/Button/Button';
 import classes from './community.css';
 class Community extends Component {
     render() {
-      const { resource, visibleResources, linkPath, linkSuffix } = this.props;
+      const { resource, visibleResources, linkPath, linkSuffix, selecting } = this.props;
+      console.log(selecting)
       return (
         <div className={classes.Container}>
+        {selecting ? <div className={classes.Selecting}>Selecting</div> : null}
         <h3 className={classes.Title}>Search for activities or ask to join rooms and courses</h3>
         <div className={classes.ResourceOpts}>
           <Link to="/community/activities"><Button m={5} active={resource === 'activities'}>Activities</Button></Link>

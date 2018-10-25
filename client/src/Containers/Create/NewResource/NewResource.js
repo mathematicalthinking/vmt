@@ -120,8 +120,12 @@ class NewResource extends Component {
     }
   }
 
+  redirectToActivity = () => {
+    this.props.history('/community/activities/selecting')
+  }
+
   render() {
-    let { resource, intro } = this.props;
+    let { resource, intro, courseId } = this.props;
     let displayResource;
     if (resource === 'activities') {
       displayResource = 'Activity'
@@ -193,7 +197,8 @@ class NewResource extends Component {
           </div>
         </Modal>
         <div className={classes.Button}><Button m={5} click={this.showModal} data-testid={`create-${displayResource}`}>Create <span className={classes.Plus}><i className="fas fa-plus"></i></span></Button></div>
-        {(resource === 'activities' && !intro) ? <div className={classes.Button}><Button m={5} click={this.showModal}>Select an existing {displayResource}</Button></div> : null}
+        {(resource === 'activities' && courseId) ? <div className={classes.Button}><Button m={5} click={this.showModal}>Select an existing activity</Button></div> : null}
+        {(resource === 'activities' && !courseId) ? <div className={classes.Button}><Button m={5} click={this.redirectToActivity}>Select an activity from the community</Button></div> : null}
         {(resource === 'rooms' && !intro) ? <div className={classes.Button}><Button m={5} click={this.showModal}>Create from an Activity</Button></div> : null}
       </Aux>      
     )

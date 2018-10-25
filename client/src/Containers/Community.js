@@ -7,6 +7,7 @@ class Community extends Component {
   state = {
     visibleResources: [],
     resource: '',
+    selecting: this.props.match.params.action === 'selecting'
   }
   allResources = [];
   componentDidUpdate(prevProps, prevState) {
@@ -29,7 +30,7 @@ class Community extends Component {
   }
 
   componentDidMount() {
-    const resource = this.props.match.params.resource;
+    let { resource, action } = this.props.match.params;
     // @TODO WHen should we refresh this data. Here we're saying:
     // if there aren't fift result then we've probably only loaded the users
     // own courses. This is assuming that the database will have more than 50 courses and rooms
@@ -38,10 +39,12 @@ class Community extends Component {
       this.fetchData(resource);
     }
     else {
-      const resourceList = this.props[`${resource}Arr`].map(id => this.props[resource][id])
+      let resourceList = this.props[`${resource}Arr`].map(id => this.props[resource][id])
       this.setState({visibleResources: resourceList})
       this.allResources = resourceList;
     }
+    console.log(action)
+    this.setState({selecting: action})
   }
 
   fetchData = resource => {
@@ -80,6 +83,7 @@ class Community extends Component {
           resource={this.props.match.params.resource}
           linkPath={linkPath}
           linkSuffix={linkSuffix}
+          selecting={this.state.selecting}
         />
     )
   }
