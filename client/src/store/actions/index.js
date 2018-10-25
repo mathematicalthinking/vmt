@@ -16,6 +16,7 @@ export {
   addUserRooms,
   updateNotifications,
   addUserCourses,
+  updateUserResource,
 } from './user';
 export {
   fail,

@@ -45,7 +45,7 @@ export default {
   },
 
   addUserResource: (resource, resourceId, userId) => {
-    return axios.put(`/api/user/${userId}/add`, {resource: resource, _id: resourceId})
+    return axios.put(`/api/user/${userId}/add`, {[resource]: resourceId})
   },
 
   grantAccess: (user, resource, resourceId) => {

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { getCourses, getActivities, getRooms } from '../store/actions/';
+import { getCourses, getActivities, getRooms, updateUserResource } from '../store/actions/';
 import { CommunityLayout } from '../Layout';
 
 class Community extends Component {
@@ -71,7 +71,7 @@ class Community extends Component {
   select = (id) => {
     console.log("selecting!!!")
     console.log(id) 
-    
+    this.props.updateUserResource('activities', id, this.props.userId)
     this.setState(prevState => ({selectCount: prevState.selectCount + 1}))
   }
   render () {
@@ -109,7 +109,8 @@ const mapStateToProps = store => {
     activitiesArr: store.activities.allIds,
     rooms: store.rooms.byId,
     roomsArr: store.rooms.allIds,
+    userId: store.user._id,
   }
 }
 
-export default connect(mapStateToProps, {getCourses, getActivities, getRooms, })(Community);
+export default connect(mapStateToProps, {getCourses, getActivities, getRooms, updateUserResource})(Community);
