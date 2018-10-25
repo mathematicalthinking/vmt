@@ -42,6 +42,7 @@ const boxList = props => {
             roomType={item.roomType}
             locked={!item.isPublic} // @TODO Should it appear locked if the user has access ? I can see reasons for both
             details={details}
+            selecting={props.selecting}
                               >
             {item.description}
           </ContentBox> :

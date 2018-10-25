@@ -74,7 +74,7 @@ class Community extends Component {
       linkPath = '/myVMT/rooms/';
       linkSuffix = '/details';
     } else {
-      linkPath = '/myVMT/activities';
+      linkPath = '/myVMT/activities/';
       linkSuffix = '/details';
     }
     return (

@@ -19,12 +19,14 @@ class Community extends Component {
         </div>
         <Search _filter={value => this.filterResults(value)} />
         <div className={classes.List}>
+          {selecting ? <div className={classes.selectCount}>you have selected: {0} activities</div> : null}
           <BoxList
             list={visibleResources}
             resource={resource}
             linkPath={linkPath}
             linkSuffix={linkSuffix}
             listType='public'
+            selecting={selecting}
           />
         </div>
 
