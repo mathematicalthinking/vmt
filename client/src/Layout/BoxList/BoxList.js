@@ -65,7 +65,7 @@ const boxList = props => {
       )
     })
   }
-  return <div className={classes.Container}>{listElems}</div>;
+  return <div className={classes.Container} data-testid='box-list'>{listElems}</div>;
 }
 
 

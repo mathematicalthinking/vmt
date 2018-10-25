@@ -84,6 +84,7 @@ describe('test access requests', function(){
     cy.login(user2)
     cy.contains('Community').click()
     cy.contains('Rooms').click()
+    cy.wait(0)
     cy.getTestElement('content-box').contains('request access').click()
     cy.getTestElement('request-access-btn').click()
     cy.url().should('include', '/confirmation')

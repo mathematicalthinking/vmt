@@ -74,4 +74,20 @@ describe('create each type of resource', function(){
     cy.getTestElement('content-box-title').contains(course.activity.name + " (room 1)").should('exist')
   })
 
+  it('adds a community activitiy user1s myVMT', function(){
+    cy.getTestElement('crumb').contains('My VMT').click()
+    cy.getTestElement('tab').contains('Activities').click()
+    // cy.getTestElement('box-list').contains("There doesn't appear to be anything here yet").should('exist')
+    cy.contains('Select an activity from the community').click()
+    cy.url().should('include', 'community/activities/selecting')
+    cy.getTestElement('select-tag').should('exist')
+    cy.getTestElement('select-count').contains('0').should('exist')
+    cy.getTestElement('content-box').contains('ACTIVITY 1').trigger('mouseover')
+    cy.getTestElement('overlay').click();
+    cy.getTestElement('select-count').contains('1').should('exist')
+    cy.contains('My VMT').click()
+    cy.getTestElement('tab').contains('Activities').click()
+    cy.getTestElement('box-list').children().last().contains("ACTIVITY 1").should('exist')
+  })
+
 })

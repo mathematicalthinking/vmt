@@ -5,7 +5,7 @@ const course = require('../fixtures/course')
 const room = require('../fixtures/room')
 const activity = require('../fixtures/activity')
 
-describe('test access requests', function(){  
+describe('Edit Members Roles', function(){  
   before(function(){
     cy.task('seedDB').then(() => cy.login(user1))
   })

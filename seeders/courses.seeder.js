@@ -78,7 +78,7 @@ var data = [
   }
 ];
 
-var RoomsSeeder = Seeder.extend({
+var CoursesSeeder = Seeder.extend({
   shouldRun: function () {
     return Course.count().exec().then(count => count === 0);
   },
@@ -87,4 +87,4 @@ var RoomsSeeder = Seeder.extend({
   }
 });
 
-module.exports = RoomsSeeder;
+module.exports = CoursesSeeder;

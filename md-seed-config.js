@@ -9,7 +9,7 @@
 var mongoose = require('mongoose');
 
 var Users = require('./seeders/users.seeder');
-// var Activities = require('./seeders/sections.seeder');
+var Activities = require('./seeders/activities.seeder');
 var Courses = require('./seeders/courses.seeder');
 var Rooms = require('./seeders/rooms.seeder');
 
@@ -32,7 +32,7 @@ module.exports = {
   */
   seedersList: {
     Users,
-    // Activities,
+    Activities,
     Rooms,
     Courses,
   }
