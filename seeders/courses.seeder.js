@@ -63,7 +63,7 @@ var data = [
     "activities": [],
     "rooms": [],
     "isPublic": false,
-    "name": "wrong entry code",
+    "name": "wrong entry code course",
     "entryCode": "rare-shrimp-45",
     "description": "",
     "members": [

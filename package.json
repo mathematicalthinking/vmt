@@ -6,6 +6,7 @@
     "start": "node ./bin/www",
     "build": "cd client && npm run build",
     "test": "SET \"NODE_ENV=test\" && node ./bin/www",
+    "prodTes": "SET \"NODE_ENV=travistest\" && node ./bin/www",
     "cypress": "./node_modules/.bin/cypress open"
   },
   "dependencies": {

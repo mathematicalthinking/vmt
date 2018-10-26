@@ -8,7 +8,7 @@ describe('show different views based on role', function(){
     // cy.visit('/myVMT/courses')
   })
   it('does not display the toggle option when a user only a participant (course)', function(){
-    cy.getTestElement('content-box-title').contains('course 2').should('exist')
+    cy.getTestElement('content-box-course 2').should('exist')
   })
   it('displays the toggle after the participant creates a COURSE (becoming a facilitator)', function(){
     cy.getTestElement('become-facilitator').click()
@@ -32,7 +32,7 @@ describe('show different views based on role', function(){
   })
   it('does not display the toggle option when a user only a participant (room)', function(){
     cy.get('#Rooms').click()
-    cy.getTestElement('content-box-title').contains('room 2').should('exist')
+    cy.getTestElement('content-box-room 2').should('exist')
   })
   it('displays the toggle after the participant creates a ROOM (becoming a facilitator)', function(){
     cy.getTestElement('create-Room').click()

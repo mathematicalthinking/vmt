@@ -91,7 +91,7 @@ var data = [
     "currentUsers" : [],
     "events" : [],
     "isPublic" : false,
-    "name" : "wrong entry code",
+    "name" : "wrong entry code room",
     "description" : "hello",
     "entryCode": "hello",
     "members" : [

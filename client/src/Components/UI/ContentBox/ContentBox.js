@@ -22,6 +22,7 @@ class ContentBox extends PureComponent{
     setTimeout(this.setState({selected: true}), 400)
   }
   render() {
+    console.log('CONTENT BOX PROPS: ', this.props)
     let { selecting } = this.props;
     let alignClass = classes.Center;
     let animatedClass = '';
@@ -39,7 +40,7 @@ class ContentBox extends PureComponent{
     <Aux>
       <Link to={selecting ? "#" : this.props.link}>
       <div 
-        data-testid='content-box' 
+        data-testid={`content-box-${this.props.title}`} 
         className={[classes.Container, selectedClass].join(" ")} 
         onClick={selecting ? this.select : null}
         onMouseEnter={selecting ? this.hoverOnSelect : null}
@@ -50,7 +51,7 @@ class ContentBox extends PureComponent{
         </div> : null}
         <div className={classes.Icons}><Icons image={this.props.image} lock={this.props.locked} roomType={this.props.roomType}/></div>
         {notifications}
-        <div className={classes.Title} data-testid="content-box-title">{this.props.title}</div>
+        <div className={classes.Title} data-testid="">{this.props.title}</div>
         <div className={[classes.Content, alignClass].join(' ')}>
           {/* // Maybe separate all of this out ot its own component or revert back passing in this.props.children */}
           {this.props.details ?
