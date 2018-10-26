@@ -39,7 +39,7 @@ describe('create each type of resource', function(){
 
   it('creates a course activity', function(){
     cy.getTestElement('tab').contains('Courses').click()
-    cy.getTestElement('content-box').contains('test course 1').click()
+    cy.getTestElement('content-box-title').contains('test course 1').click()
     cy.url().should('include', '/myVMT/courses')
     cy.url().should('include', '/activities')
     cy.getTestElement('tab').contains('Activities').click()
@@ -63,7 +63,7 @@ describe('create each type of resource', function(){
 
   it('creates a room from an activity', function(){
     cy.getTestElement('tab').contains('Activities').click()
-    cy.getTestElement('content-box').contains(course.activity.name).click()
+    cy.getTestElement('content-box-title').contains(course.activity.name).click()
     cy.url('include', '/activities')
     cy.url('include', '/details')
     cy.contains('Assign').click()
@@ -82,7 +82,7 @@ describe('create each type of resource', function(){
     cy.url().should('include', 'community/activities/selecting')
     cy.getTestElement('select-tag').should('exist')
     cy.getTestElement('select-count').contains('0').should('exist')
-    cy.getTestElement('content-box').contains('ACTIVITY 1').trigger('mouseover')
+    cy.getTestElement('content-box-title').contains('ACTIVITY 1').trigger('mouseover')
     cy.getTestElement('overlay').click();
     cy.getTestElement('select-count').contains('1').should('exist')
     cy.contains('My VMT').click()

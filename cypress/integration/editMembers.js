@@ -5,14 +5,14 @@ const course = require('../fixtures/course')
 const room = require('../fixtures/room')
 const activity = require('../fixtures/activity')
 
-describe('Edit Members Rolesmongo', function(){  
+describe('Edit Members Roles', function(){  
   before(function(){
     cy.task('seedDB').then(() => cy.login(user1))
   })
 
   // COURSE
   it("user 1 changes user2 from participant to facilitator", function(){
-    cy.getTestElement('content-box').contains('course 2').click();
+    cy.getTestElement('content-box-title').contains('course 2').click();
     cy.getTestElement('tab').contains('Members').click();
     cy.getTestElement('edit-member').last().click();
     cy.getTestElement('trash-member').should('be.visible');
@@ -25,7 +25,7 @@ describe('Edit Members Rolesmongo', function(){
 
   it('allows user2 to see edit controls after being made a facilitator', function(){
     cy.login(user2)
-    cy.getTestElement('content-box').contains('course 2').click();
+    cy.getTestElement('content-box-title').contains('course 2').click();
     cy.getTestElement('tab').contains('Members').click();
     cy.getTestElement('avatar-name').contains('g-laforge')
       .parent().parent().parent()
@@ -37,7 +37,7 @@ describe('Edit Members Rolesmongo', function(){
   })
   it('user1 deletes user2 from course 2', function() {
     cy.login(user1)
-    cy.getTestElement('content-box').contains('course 2').click();
+    cy.getTestElement('content-box-title').contains('course 2').click();
     cy.getTestElement('tab').contains('Members').click();
     cy.getTestElement('edit-member').last().click();
     cy.getTestElement('trash-member').click();
@@ -50,7 +50,7 @@ describe('Edit Members Rolesmongo', function(){
     cy.contains("There doesn't appear to be anything here yet")
     cy.contains('Community').click()
     cy.contains('Courses').click()
-    cy.getTestElement('content-box').contains('course 2').click()
+    cy.getTestElement('content-box-title').contains('course 2').click()
     cy.contains("You currently don't have access");
   })
 })
