@@ -37,6 +37,7 @@ class MakeRooms extends Component  {
     this.setState({selectedParticipants: updatedParticipants})
    // Else add them
   }
+  
   submit = () => {
     let { _id, name, description, roomType, desmosLink, ggbFile, image } = this.props.activity;
     let newRoom = {

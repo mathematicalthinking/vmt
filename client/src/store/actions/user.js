@@ -35,6 +35,7 @@ export const addUserCourses = newCoursesArr => {
 }
 
 export const addUserActivities = newActivitiesArr => {
+  console.log("DISPATCH ADD_USER_ACIVITIES")
   return {
     type: actionTypes.ADD_USER_ACTIVITIES,
     newActivitiesArr,
@@ -83,6 +84,18 @@ export const updateNotifications = (resource, updatedNotifications) => {
     type: actionTypes.UPDATE_NOTIFICATIONS,
     updatedNotifications,
     resource,
+  }
+}
+
+export const updateUserResource = (resource, resourceId, userId) => {
+  console.log('why we no make it here')
+  return (dispatch) => {
+    API.addUserResource(resource, resourceId, userId)
+    .then(res => {
+      console.log('success')
+      dispatch(addUserActivities([resourceId]))
+    })
+    .catch(err => dispatch(loading.fail(err)))
   }
 }
 

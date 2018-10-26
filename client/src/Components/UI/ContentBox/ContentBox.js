@@ -1,31 +1,71 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
+import { Link } from 'react-router-dom';
 import classes from './contentBox.css';
 import Icons from './Icons/Icons';
-import { Link } from 'react-router-dom';
-const contentBox = props => {
-  let alignClass = classes.Center;
-  if (props.align === 'left') alignClass = classes.Left;
-  if (props.align === 'right') alignClass = classes.Right;
-  const notifications = (props.notifications > 0) ? <div className={classes.Notification} data-testid="content-box-ntf">{props.notifications}</div> : null;
+import Aux from '../../HOC/Auxil';
+class ContentBox extends PureComponent{
+  
+  state = {
+    showOverlay: false,
+    selectAnimation: false,
+    selected: false,
+  }
+  
+  hoverOnSelect = () => {
+    this.setState({showOverlay: true})
+  }
 
-  return (
-    <Link to={props.link} data-testid='content-box'>
-    <div className={classes.Container} onClick={this.toggleCollapse}>
-      <div className={classes.Icons}><Icons image={props.image} lock={props.locked} roomType={props.roomType}/></div>
-      {notifications}
-      <div className={classes.Title} data-testid="content-box-title">{props.title}</div>
-      <div className={[classes.Content, alignClass].join(' ')}>
-        {/* // Maybe separate all of this out ot its own component or revert back passing in props.children */}
-        {props.details ?
-          <div>
-            <div>{props.details.description || ''}</div>
-            {props.details.facilitators.length > 0 ? <div>Facilitators: {props.details.facilitators.map(facilitator => facilitator)}</div> : null}
-            {props.details.entryCode ? <div>Entry Code: {props.details.entryCode}</div> : null}
-          </div> : props.children}
+  select = () => {
+    if (this.state.selected) return;
+    this.setState({selectAnimation: true})
+    this.props.select(this.props.id)
+    setTimeout(this.setState({selected: true}), 400)
+  }
+  render() {
+    console.log('CONTENT BOX PROPS: ', this.props)
+    let { selecting } = this.props;
+    let alignClass = classes.Center;
+    let animatedClass = '';
+    let selectedClass = '';
+    let selectedClassPlus = '';
+    if (this.props.align === 'left') alignClass = classes.Left;
+    if (this.props.align === 'right') alignClass = classes.Right;
+    if (this.state.selectAnimation) animatedClass = classes.Selecting;
+    if (this.state.selected) {
+      selectedClassPlus = classes.SelectedPlus;
+      selectedClass = classes.Selected;
+    };
+    const notifications = (this.props.notifications > 0) ? <div className={classes.Notification} data-testid="content-box-ntf">{this.props.notifications}</div> : null;
+    return (
+    <Aux>
+      <Link to={selecting ? "#" : this.props.link}>
+      <div 
+        data-testid={`content-box-${this.props.title}`} 
+        className={[classes.Container, selectedClass].join(" ")} 
+        onClick={selecting ? this.select : null}
+        onMouseEnter={selecting ? this.hoverOnSelect : null}
+        onMouseLeave={selecting ? () => {this.setState({showOverlay: false})} : null}
+      >
+        {this.state.showOverlay ? <div className={classes.SelectOverlay} data-testid='overlay'>
+          <i className={[classes.Plus, "fas fa-plus", animatedClass, selectedClassPlus].join(" ")}></i>
+        </div> : null}
+        <div className={classes.Icons}><Icons image={this.props.image} lock={this.props.locked} roomType={this.props.roomType}/></div>
+        {notifications}
+        <div className={classes.Title} data-testid="">{this.props.title}</div>
+        <div className={[classes.Content, alignClass].join(' ')}>
+          {/* // Maybe separate all of this out ot its own component or revert back passing in this.props.children */}
+          {this.props.details ?
+            <div>
+              <div>{this.props.details.description || ''}</div>
+              {this.props.details.facilitators.length > 0 ? <div>Facilitators: {this.props.details.facilitators.map(facilitator => facilitator)}</div> : null}
+              {this.props.details.entryCode ? <div>Entry Code: {this.props.details.entryCode}</div> : null}
+            </div> : this.props.children}
+        </div>
       </div>
-    </div>
-    </Link>
-  )
+      </Link>
+    </Aux>
+    )
+  }
 }
 
-export default contentBox;
+export default ContentBox;

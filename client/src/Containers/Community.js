@@ -1,17 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { getCourses, getActivities, getRooms } from '../store/actions/';
+import { getCourses, getActivities, getRooms, updateUserResource } from '../store/actions/';
 import { CommunityLayout } from '../Layout';
 
 class Community extends Component {
   state = {
     visibleResources: [],
     resource: '',
+    selecting: this.props.match.params.action === 'selecting',
+    selectCount: 0,
   }
   allResources = [];
+
   componentDidUpdate(prevProps, prevState) {
       // if resource changed see if we need to fetch the data
-    const { resource } = this.props.match.params;
+    const { resource, action } = this.props.match.params;
     const resourceList = this.props[`${resource}Arr`].map(id => this.props[resource][id])
     if (prevProps.match.params.resource !== resource) {
       if (resourceList.length < 50) {
@@ -25,11 +28,14 @@ class Community extends Component {
     if (prevProps[resource] !== this.props[resource]) {
       this.setState({visibleResources: resourceList})
     }
+    if (prevProps.match.params.action !== action) {
+      this.setState({selecting: action === 'selecting'})
+    }
     this.allResources = resourceList;
   }
 
   componentDidMount() {
-    const resource = this.props.match.params.resource;
+    let { resource, action } = this.props.match.params;
     // @TODO WHen should we refresh this data. Here we're saying:
     // if there aren't fift result then we've probably only loaded the users
     // own courses. This is assuming that the database will have more than 50 courses and rooms
@@ -38,10 +44,11 @@ class Community extends Component {
       this.fetchData(resource);
     }
     else {
-      const resourceList = this.props[`${resource}Arr`].map(id => this.props[resource][id])
+      let resourceList = this.props[`${resource}Arr`].map(id => this.props[resource][id])
       this.setState({visibleResources: resourceList})
       this.allResources = resourceList;
     }
+    this.setState({selecting: action})
   }
 
   fetchData = resource => {
@@ -59,7 +66,13 @@ class Community extends Component {
       resource.description.toLowerCase().includes(value)
     )});
     this.setState({visibleResources: updatedResources})
+  }
 
+  select = (id) => {
+    console.log("selecting!!!")
+    console.log(id) 
+    this.props.updateUserResource('activities', id, this.props.userId)
+    this.setState(prevState => ({selectCount: prevState.selectCount + 1}))
   }
   render () {
     let linkPath; let linkSuffix;
@@ -71,7 +84,7 @@ class Community extends Component {
       linkPath = '/myVMT/rooms/';
       linkSuffix = '/details';
     } else {
-      linkPath = '/myVMT/activities';
+      linkPath = '/myVMT/activities/';
       linkSuffix = '/details';
     }
     return (
@@ -80,6 +93,9 @@ class Community extends Component {
           resource={this.props.match.params.resource}
           linkPath={linkPath}
           linkSuffix={linkSuffix}
+          selecting={this.state.selecting}
+          select={this.select}
+          selectCount={this.state.selectCount}
         />
     )
   }
@@ -93,7 +109,8 @@ const mapStateToProps = store => {
     activitiesArr: store.activities.allIds,
     rooms: store.rooms.byId,
     roomsArr: store.rooms.allIds,
+    userId: store.user._id,
   }
 }
 
-export default connect(mapStateToProps, {getCourses, getActivities, getRooms, })(Community);
+export default connect(mapStateToProps, {getCourses, getActivities, getRooms, updateUserResource})(Community);

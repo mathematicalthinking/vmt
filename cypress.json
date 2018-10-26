@@ -5,5 +5,7 @@
     "NODE_ENV": "test"
   },
   "defaultCommandTimeout": 9000,
-  "chromeWebSecurity": false
+  "chromeWebSecurity": false,
+  "viewportWidth": 1400,
+  "viewportHeight": 860
 }

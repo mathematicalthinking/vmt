@@ -59,5 +59,13 @@ module.exports = {
         resolve(user)}) // should we just try to pass back the info that chnaged?
       .catch(err => reject(err))
     })
+  },
+
+  add: (id, body) => {
+    return new Promise((resolve, reject) => {
+      db.User.findByIdAndUpdate(id, {$addToSet: body})
+      .then(res => resolve(res))
+      .catch(err => reject(err))
+    })
   }
 }
