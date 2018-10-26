@@ -6,6 +6,6 @@
   },
   "defaultCommandTimeout": 9000,
   "chromeWebSecurity": false,
-  "viewportWidth": 1100,
+  "viewportWidth": 1300,
   "viewportHeight": 860
 }
