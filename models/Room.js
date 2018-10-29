@@ -12,7 +12,7 @@ const Room = new mongoose.Schema({
   course: {type: ObjectId, ref: 'Course'},
   creator: {type: ObjectId, ref: 'User'},
   dueDate: {type: Date,},
-  chat: [{type: ObjectId, ref: 'Message'}],
+  chat: {type: [{type: ObjectId, ref: 'Message'}], default: []},
   members: [{
     user: {type: ObjectId, ref: 'User'},
     role: {type: String},

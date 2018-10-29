@@ -42,6 +42,9 @@ sockets.init = server => {
             return callback(null, err)
           }
           socket.to(data.roomId).emit('USER_JOINED', {currentUsers: results[1].currentUsers, message,});
+          let room = {...results[1]}
+          console.log("ROOM: ", room)
+          // room.chat.push(message)
           callback({room: results[1], message, user,}, null)
             // io.in(data.roomId).emit('RECEIVE_MESSAGE', message)
         })

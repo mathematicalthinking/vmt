@@ -13,6 +13,7 @@ class TempWorkspace extends Component {
     user: undefined,
     room: undefined,
     tempUsername: '',
+    errorMessage: '',
     unloading: false,
   }
 
@@ -28,10 +29,13 @@ class TempWorkspace extends Component {
   }
 
   setName = (event) => {
-    this.setState({tempUsername: event.target.value})
+    this.setState({tempUsername: event.target.value, errorMessage: ''});
   }
 
   join = () => {
+    if (this.state.tempUsername.length === 0) {
+      return this.setState({errorMessage: "Please enter a username before joining"})
+    }
     const { id } = this.props.match.params
     if (this.tempUsername === '') return; //@TODO Tell user to enter a name
     let sendData = {
@@ -46,26 +50,18 @@ class TempWorkspace extends Component {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
-      console.log(res.user)
-      console.log(res.room)
+      let room = res.room
+      room.chat.push(res.message)
       this.setState({user: res.user, room: res.room})
     })
 
     this.socket.on('USER_JOINED', data => {
-      console.log("USER JOINED")
       this.updateMembers(data.currentUsers)
     })
 
     this.socket.on('USER_LEFT', data => {
-      console.log("userleft!!")
-      console.log(data)
       this.updateMembers(data.currentUsers)
     })
-
-    this.socket.on('disconnect', data => {
-      console.log("DATA FROM DISCONNECT: ", data)
-    })
-
   }
 
   updateMembers = (newMembers) => {
@@ -78,33 +74,26 @@ class TempWorkspace extends Component {
   componentWillUnmount () {
     this.leaveRoom()
     // window.removeEventListener("beforeunload", this.confirmUnload)
-    window.removeEventListener("unload", this.unload)
+    window.removeEventListener("beforeunload", this.confirmUnload)
   }
 
   leaveRoom = () => {
-    console.log("LEAVING")
     if (this.state.user) {
-      const { room, user } = {...this.state};
-      console.log(this.props.match.params.id)
-      console.log(room._id)
-      const data = {
-        userId: user._id,
-        roomId: this.props.match.params.id,
-        username: user.username,
-        roomName: room.name,
-      }
-      this.socket.emit('LEAVE', data, (res) => {
-        // updateRoom(room._id, {currentUsers: room.currentUsers.filter(u => u._id !== user._id)})
-        
-      })
+      // const { room, user } = {...this.state};
+      // const data = {
+      //   userId: user._id,
+      //   roomId: this.props.match.params.id,
+      //   username: user.username,
+      //   roomName: room.name,
+      // }
+      this.socket.emit('disconnect')
       // this.socket.disconnect(data);
     }
   }
   confirmUnload = (ev) => {
-    console.log('confirming unload')
     this.setState({})
-    // ev.preventDefault();
-    window.onbeforeunload = false
+    ev.preventDefault();
+    // window.onbeforeunload = false
     return ev.returnValue = 'ARe you sure you want to leave';
   }
 
@@ -119,12 +108,11 @@ class TempWorkspace extends Component {
       <Modal show={!this.state.user}>
         Enter a temporary username
         <TextInput change={this.setName} />
+        <div>{this.state.errorMessage}</div>
         <Button click={this.join}>Join</Button>
       </Modal>
     )
   }
 }
-
-
 
 export default TempWorkspace;

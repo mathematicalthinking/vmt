@@ -16,7 +16,7 @@ class Chat extends Component {
   }
 
   render() {
-    const {messages, replayer, change, submit} = this.props;
+    const {messages, replayer, change, submit, value} = this.props;
     let displayMessages = [];
     if (messages) {
       displayMessages = messages.map((message, i) => (
@@ -37,7 +37,7 @@ class Chat extends Component {
         <div className={classes.ChatScroll} id='scrollable'>{displayMessages}</div>
         {!replayer ?
           <div className={classes.ChatInput}>
-            <TextInput autoComplete="off" change={change} type='text' name='message' />
+            <TextInput autoComplete="off" change={change} type='text' name='message' value={value}/>
             <Button m={5} click={submit}>send</Button>
           </div> : null
         }
