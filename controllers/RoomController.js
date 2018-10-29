@@ -90,18 +90,18 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
       .then(room => {
-        if (body.newMember) {
-          room.members.push({role: 'participant', user: body.newMember})
-          db.User.findByIdAndUpdate(body.newMember, {
-            $addToSet: {
-              rooms: room._id,
-              'roomNotifications.access': {
-                notificationType: 'grantedAccess',
-                _id: room._id,
-              }
-            }
-          }, {new: true}).then(user => console.log("NEW USER: ", user))
-        }
+        // if (body.newMember) {
+        //   room.members.push({role: 'participant', user: body.newMember})
+        //   db.User.findByIdAndUpdate(body.newMember, {
+        //     $addToSet: {
+        //       rooms: room._id,
+        //       'roomNotifications.access': {
+        //         notificationType: 'grantedAccess',
+        //         _id: room._id,
+        //       }
+        //     }
+        //   }, {new: true}).then(user => console.log("NEW USER: ", user))
+        // }
         if (body.checkAccess) {
           let { entryCode, userId } = body.checkAccess;
           // @todo SHOULD PROBABLY HASH THIS
@@ -117,17 +117,22 @@ module.exports = {
             }, {new: true})
             .then(user => console.log("USER: AFTER ADDING NTF: ", user))
           } else reject({errorMessage: 'incorrect entry code'})
-        } 
+        } else {
+          db.Room.findByIdAndUpdate(id, body)
+          .then(resolve())
+        }
         // else {
         //   // THIS NEEDS TO CHANGE BELOW WE ALREADY HAVE THE ROOM DON"T NEED TO FIND
         //   db.Room.findByIdAndUpdate(id, body, {new: true})
         //   .then(room => {resolve(body)})
         //   .catch(err => {console.log(err); reject(err)})
         // }
-        room.save()
-        room.populate({path: 'members.user', select: 'username'}, function() {
-          resolve(room)
-        })
+        if (room) {
+          room.save()
+          room.populate({path: 'members.user', select: 'username'}, function() {
+            resolve(room)
+          })
+        }
       })
       .catch(err => reject(err))
     })

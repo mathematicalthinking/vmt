@@ -17,8 +17,6 @@ sockets.init = server => {
           }
           catch(err) {console.log(err)}
         }
-        console.log(data.userId)
-        console.log("data.roomId: ", data.roomId)
         socket.join(data.roomId, async () => {
           // update current users of this room
           const message = {
@@ -43,6 +41,7 @@ sockets.init = server => {
             // io.in(data.roomId).emit('RECEIVE_MESSAGE', message)
         })
       });
+
       socket.on('disconnect', (data, callback) => {
         console.log('disconnected!')
         socket.leave(data.roomId, () => {
@@ -66,6 +65,7 @@ sockets.init = server => {
           .catch(err => console.log(err))
         })
       })
+
       socket.on('SEND_MESSAGE', (data, callback) => {
         const postData = {...data}
         postData.user = postData.user._id;
@@ -80,6 +80,7 @@ sockets.init = server => {
         })
         // broadcast new message
       })
+
       socket.on('SEND_EVENT', (data) => {
         if (typeof data.event !== 'string') {
           data.event = JSON.stringify(data.event)
@@ -87,7 +88,6 @@ sockets.init = server => {
         controllers.rooms.put(data.roomId, {currentState: data.currentState})
         delete data.currentState;
         controllers.events.post(data)
-        console.log("BROADCASTING ", data)
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data)
       })
     });
