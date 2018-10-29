@@ -153,10 +153,10 @@ module.exports = {
   },
 
   // SOCKET METHODS
-  addCurrentUsers: (roomId, userId) => {
+  addCurrentUsers: (roomId, body) => {
     return new Promise((resolve, reject) => {
-      db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentUsers: userId}}, {new: true})
-      .populate({path: 'currentUsers', select: 'username'})
+      db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentUsers: body}}, {new: true})
+      .populate({path: 'currentUsers.user', select: 'username'})
       .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .select('currentUsers events chat currentState tempId')
       .then(room => resolve(room))
@@ -164,10 +164,10 @@ module.exports = {
     })
   },
 
-  removeCurrentUsers: (roomId, userId) => {
+  removeCurrentUsers: (roomId, socketId) => {
     return new Promise ((resolve, reject) => {
-      db.Room.findByIdAndUpdate(roomId, {$pull: {currentUsers: userId}}, {new: true})
-      .populate({path: 'currentUsers', select: 'username'})
+      db.Room.findByIdAndUpdate(roomId, {$pull: {currentUsers: {socket: socketId}}}, {new: true})
+      .populate({path: 'currentUsers.user', select: 'username'})
       .select('currentUsers')
       .then(room => resolve(room))
       .catch(err => reject(err))

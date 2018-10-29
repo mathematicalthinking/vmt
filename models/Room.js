@@ -17,7 +17,7 @@ const Room = new mongoose.Schema({
     user: {type: ObjectId, ref: 'User'},
     role: {type: String},
     _id: false}],
-  currentUsers: {type: [{type: ObjectId, ref: 'User'}], default: []},
+  currentUsers: {type: [{user: {type: ObjectId, ref: 'User'}, socket: {type: String}}], default: []},
   currentState: {type: String},
   ggbFile: {type: String,},
   desmosLink: {type: String,},

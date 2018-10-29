@@ -13,9 +13,17 @@ class TempWorkspace extends Component {
     user: undefined,
     room: undefined,
     tempUsername: '',
+    unloading: false,
+  }
+
+  componentDidMount(){
+    // window.on('beforeunload.confirm', this.confirmUnload)
+    window.addEventListener("beforeunload", this.confirmUnload)
+    // window.onunload = this.onUnload()
   }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log('component did update')
     // if (!prevStat.resourcesCreated this.state.)
   }
 
@@ -38,39 +46,66 @@ class TempWorkspace extends Component {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
+      console.log(res.user)
+      console.log(res.room)
       this.setState({user: res.user, room: res.room})
     })
 
     this.socket.on('USER_JOINED', data => {
+      console.log("USER JOINED")
       this.updateMembers(data.currentUsers)
     })
 
     this.socket.on('USER_LEFT', data => {
+      console.log("userleft!!")
+      console.log(data)
       this.updateMembers(data.currentUsers)
+    })
+
+    this.socket.on('disconnect', data => {
+      console.log("DATA FROM DISCONNECT: ", data)
     })
 
   }
 
   updateMembers = (newMembers) => {
+    console.log('updating members')
     const updatedRoom = {...this.state.room};
     updatedRoom.currentUsers = newMembers;
     this.setState({room: updatedRoom})
   }
 
   componentWillUnmount () {
+    this.leaveRoom()
+    // window.removeEventListener("beforeunload", this.confirmUnload)
+    window.removeEventListener("unload", this.unload)
+  }
+
+  leaveRoom = () => {
+    console.log("LEAVING")
     if (this.state.user) {
       const { room, user } = {...this.state};
+      console.log(this.props.match.params.id)
+      console.log(room._id)
       const data = {
         userId: user._id,
         roomId: this.props.match.params.id,
         username: user.username,
         roomName: room.name,
       }
-      this.socket.disconnect(data);
-      // this.socket.emit('LEAVE', data, (res) => {
-      //   // updateRoom(room._id, {currentUsers: room.currentUsers.filter(u => u._id !== user._id)})
-      // })
+      this.socket.emit('LEAVE', data, (res) => {
+        // updateRoom(room._id, {currentUsers: room.currentUsers.filter(u => u._id !== user._id)})
+        
+      })
+      // this.socket.disconnect(data);
     }
+  }
+  confirmUnload = (ev) => {
+    console.log('confirming unload')
+    this.setState({})
+    // ev.preventDefault();
+    window.onbeforeunload = false
+    return ev.returnValue = 'ARe you sure you want to leave';
   }
 
   render() {

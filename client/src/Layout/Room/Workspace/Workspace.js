@@ -10,7 +10,7 @@ const workspaceLayout = ({graph, chat, replayer, members, activeMember}) => {
         <div className={classes.SidePanel}>
           <div className={classes.Chat}>{chat()}</div>
           <div className={classes.Members}>
-            <CurrentMembers members={members} activeMember={activeMember}/>
+            <CurrentMembers members={members.map(member => member.user)} activeMember={activeMember}/>
           </div>
         </div>
       </div>
