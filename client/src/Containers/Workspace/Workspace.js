@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import io from 'socket.io-client';
 import * as actions from '../../store/actions';
-import WorkspaceLayout from '../../Layout/Room/Workspace/Workspace';
+import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 import DesmosGraph from './DesmosGraph';
 import GgbGraph from './GgbGraph';
 import Chat from './Chat';

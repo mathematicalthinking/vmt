@@ -45,12 +45,14 @@ class Signup extends Component {
   }
 
   render() {
+    console.log(this.props)
+    let containerClass = this.props.temp ? classes.ModalContainer : classes.signupContainer;
     return (
       // after creating a user redirect to login @TODO figure out if this is for creating participants or for signing up on your own
       // the answer will determine where/if we redirect to
       this.props.loggedIn ? <Redirect to='/myVMT/courses'/> :
       <div className={classes.Container}>
-        <div className={classes.SignupContainer}>
+        <div className={containerClass}>
           <h2 className={classes.Title}>Signup</h2>
           <form className={classes.Form}>
             <TextInput change={this.changeHandler} type='text' label='First Name' name='firstName' />
@@ -58,7 +60,7 @@ class Signup extends Component {
             <TextInput change={this.changeHandler} type='text' label='Username' name='username' />
             <TextInput change={this.changeHandler} type='email' label='Email' name='email' />
             <TextInput change={this.changeHandler} type='password' label='Password' name='password' />
-            <div>
+            <div style={{marginTop: 20}}>
               <label>Account Type</label>
               <div className={classes.Radios}>
                 <RadioBtn

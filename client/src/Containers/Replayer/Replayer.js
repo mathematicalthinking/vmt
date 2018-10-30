@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import WorkspaceLayout from '../../Layout/Room/Workspace/Workspace';
+import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 import { connect } from 'react-redux';
 import * as actions from '../../store/actions/';
 import DesmosReplayer from './DesmosReplayer';

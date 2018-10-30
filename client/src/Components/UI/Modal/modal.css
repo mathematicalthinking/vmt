@@ -3,16 +3,21 @@
   blue: blue;
   lightblue: lightblue;
 }
+
+:root {
+  --modal-width: 500px;
+}
 .Modal {
     position: absolute;
-    right: 50%;
-    left: calc(50% - 250px);
-    top: 20%;
+    right: calc(50% - var(--modal-width)/2);
+    left: calc(50% - var(--modal-width)/2);
     display: flex;
     flex-flow: column;
     justify-content: center;
-    width: 500px;
+    width: var(--modal-width);
+    top: 50%;
     min-height: 300px;
+    max-height: 900px;
     text-align: center;
     border: 1px solid #ccc;
     border-radius: 6px;

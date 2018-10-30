@@ -1,8 +1,9 @@
 import React from 'react';
 import classes from './workspace.css';
 // import Aux from '../../../Components/HOC/Auxil';
-import CurrentMembers from '../../../Components/CurrentMembers/CurrentMembers';
-const workspaceLayout = ({graph, chat, replayer, members, activeMember}) => {
+import CurrentMembers from '../../Components/CurrentMembers/CurrentMembers';
+import Button from '../../Components/UI/Button/Button';
+const workspaceLayout = ({graph, chat, replayer, members, activeMember, temp, save}) => {
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container} style={{maxHeight: window.innerHeight - (replayer ? 400 : 300)}}>
@@ -14,6 +15,12 @@ const workspaceLayout = ({graph, chat, replayer, members, activeMember}) => {
           </div>
         </div>
       </div>
+      {temp ? 
+        <div>
+          <Button m={20} click={save}>Save This Workspace</Button>
+        </div> :
+        null
+      }
       {replayer ?
         <div className={classes.Replayer}>
           {replayer()}

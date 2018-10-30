@@ -6,10 +6,11 @@ import * as loading from './loading'
 import { gotCourses, } from './courses';
 
 
-export const gotUser = user => {
+export const gotUser = (user, temp) => {
   return {
     type: actionTypes.GOT_USER,
     user,
+    temp,
   }
 }
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import classes from './summary.css';
-import Button from '../../../Components/UI/Button/Button';
+import classes from './room.css';
+import Button from '../../Components/UI/Button/Button';
 import { withRouter } from 'react-router-dom';
 const summary = ({room, history, loading}) => {
   console.log("rendering summary")

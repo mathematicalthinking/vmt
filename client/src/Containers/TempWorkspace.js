@@ -2,12 +2,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { populateRoom } from '../store/actions'
 import io from 'socket.io-client';
-import WorkspaceLayout from '../Layout/Room/Workspace/Workspace';
+import WorkspaceLayout from '../Layout/Workspace/Workspace';
 import TextInput from '../Components/Form/TextInput/TextInput';
 import GgbGraph from './Workspace/GgbGraph';
 import DesmosGraph from './Workspace/DesmosGraph';
+import Signup from './Signup';
 import Modal from '../Components/UI/Modal/Modal';
 import Button from '../Components/UI/Button/Button';
+import Aux from '../Components/HOC/Auxil';
 import Chat from './Workspace/Chat';
 // import Replayer from ''
 class TempWorkspace extends Component {
@@ -19,14 +21,17 @@ class TempWorkspace extends Component {
     errorMessage: '',
     unloading: false,
     firstEntry: true,
-    graph: null,
+    enteredRoom: false,
+    saving: false,
+    saved: false,
+    graph: null, //desmos or geogebra
   }
 
   componentDidMount(){
     window.addEventListener("beforeunload", this.confirmUnload)
-    console.log('fetching')
-    if (this.props.room.roomType) this.setState({firstEntry: false})
-    this.props.populateRoom(this.props.match.params.id)
+    if (this.props.room.roomType) this.setState({firstEntry: false}) 
+    else this.props.populateRoom(this.props.match.params.id)
+    
   }
 
   componentDidUpdate(prevProps){
@@ -40,7 +45,6 @@ class TempWorkspace extends Component {
   }
 
   join = (graphType) => {
-    console.log(graphType)
     if (this.state.tempUsername.length === 0) {
       return this.setState({errorMessage: "Please enter a username before joining"})
     }
@@ -56,6 +60,7 @@ class TempWorkspace extends Component {
       sendData.roomType = graphType;
       this.setState({graph: graphType})
     }
+    this.setState({enteredRoom: true})
 
     this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
     this.socket.emit('JOIN', sendData, (res, err) => {
@@ -77,7 +82,6 @@ class TempWorkspace extends Component {
   }
 
   updateMembers = (newMembers) => {
-    console.log('updating members')
     const updatedRoom = {...this.state.room};
     updatedRoom.currentUsers = newMembers;
     this.setState({room: updatedRoom})
@@ -90,35 +94,45 @@ class TempWorkspace extends Component {
   }
 
   confirmUnload = (ev) => {
-    this.setState({})
+    if (this.state.saved) return
     ev.preventDefault();
     return ev.returnValue = 'Are you sure you want to leave';
   }
 
+  saveWorkSpace = () => {
+    console.log('saving worksepace')
+    window.removeEventListener("beforeunload", this.confirmUnload)
+    this.setState({saving: true})
+  }
+
   render() {
-    console.log(this.props.room)
     return (
-      this.state.user ?
-      <WorkspaceLayout
-        members = {this.state.room.currentUsers || []}
-        graph = {this.state.graph === 'geogebra' ? 
+      <Aux>
+        {this.state.user ?
+        <WorkspaceLayout
+        temp={true}
+        save={this.saveWorkSpace}
+          members = {this.state.room.currentUsers || []}
+          graph = {this.state.graph === 'geogebra' ? 
           () => <GgbGraph room={this.state.room} socket={this.socket} user={this.state.user}/> :
-          () => <DesmosGraph room={this.state.room} socket={this.socket} user={this.state.user}/>
-        }
-        chat = {() => <Chat roomId={this.state.room._id} messages={this.state.room.chat || []} socket={this.socket} user={this.state.user} />}
-      /> :
-      <Modal show={!this.state.user}>
-        Enter a temporary username
-        <TextInput change={this.setName} />
-        <div>{this.state.errorMessage}</div>
-        { this.state.firstEntry ?
-          <div>
-            <Button m={5} click={() => this.join('desmos')}>Desmos</Button>
-            <Button m={5} click={() => this.join('geogebra')}>GeoGebra</Button>
-          </div> :
-          <Button m={5} click={() => this.join()}>Join</Button>
-        }
-      </Modal>
+            () => <DesmosGraph room={this.state.room} socket={this.socket} user={this.state.user}/>
+          }
+          chat = {() => <Chat roomId={this.state.room._id} messages={this.state.room.chat || []} socket={this.socket} user={this.state.user} />}
+        /> :
+        <Modal show={!this.state.user}>
+          Enter a temporary username
+          <TextInput change={this.setName} />
+          <div>{this.state.errorMessage}</div>
+          { this.state.firstEntry ?
+            <div>
+              <Button m={5} click={() => this.join('desmos')}>Desmos</Button>
+              <Button m={5} click={() => this.join('geogebra')}>GeoGebra</Button>
+            </div> :
+            <Button m={5} click={() => this.join()}>Join</Button>
+          }
+        </Modal>}
+        <Modal show={this.state.saving}><Signup temp user={this.state.user}/></Modal>
+      </Aux>
     )
   }
 }
