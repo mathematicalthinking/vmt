@@ -106,39 +106,45 @@ class TempWorkspace extends Component {
   }
 
   render() {
-    return (
+    return (this.state.user ?
       <Aux>
-        {this.state.user ?
+        <Modal 
+          show={this.state.saving} 
+          closeModal={() => this.setState({saving: false})}
+        >
+          <Signup temp user={this.state.user} room={this.props.room._id} closeModal={() => this.setState({saving: false})}/>
+        </Modal>
         <WorkspaceLayout
-        temp={true}
-        save={this.saveWorkSpace}
+          temp={true}
+          loggedIn={this.props.loggedIn}
+          save={this.saveWorkSpace}
           members = {this.state.room.currentUsers || []}
           graph = {this.state.graph === 'geogebra' ? 
-          () => <GgbGraph room={this.state.room} socket={this.socket} user={this.state.user}/> :
+            () => <GgbGraph room={this.state.room} socket={this.socket} user={this.state.user}/> :
             () => <DesmosGraph room={this.state.room} socket={this.socket} user={this.state.user}/>
           }
           chat = {() => <Chat roomId={this.state.room._id} messages={this.state.room.chat || []} socket={this.socket} user={this.state.user} />}
-        /> :
-        <Modal show={!this.state.user}>
-          Enter a temporary username
-          <TextInput change={this.setName} />
-          <div>{this.state.errorMessage}</div>
-          { this.state.firstEntry ?
-            <div>
-              <Button m={5} click={() => this.join('desmos')}>Desmos</Button>
-              <Button m={5} click={() => this.join('geogebra')}>GeoGebra</Button>
-            </div> :
-            <Button m={5} click={() => this.join()}>Join</Button>
-          }
-        </Modal>}
-        <Modal show={this.state.saving}><Signup temp user={this.state.user}/></Modal>
-      </Aux>
+        />
+      </Aux> :
+      <Modal show={!this.state.user}>
+        Enter a temporary username
+        <TextInput change={this.setName} />
+        <div>{this.state.errorMessage}</div>
+        { this.state.firstEntry ?
+          <div>
+            <Button m={5} click={() => this.join('desmos')}>Desmos</Button>
+            <Button m={5} click={() => this.join('geogebra')}>GeoGebra</Button>
+          </div> :
+          <Button m={5} click={() => this.join()}>Join</Button>
+        }
+      </Modal>   
     )
   }
 }
 
 const mapStateToProps = (store, ownProps) => ({
-  room: store.rooms.byId[ownProps.match.params.id]
+  room: store.rooms.byId[ownProps.match.params.id],
+  loggedIn: store.user.loggedIn
 })
 
 export default connect(mapStateToProps, { populateRoom })(TempWorkspace)

@@ -10,6 +10,7 @@ const bcrypt = require('bcrypt');
 //USER MODEL
 const models = require('../models');
 const User = models.User;
+const Room = models.Room;
 
 // =========================================================================
 // passport session setup ==================================================
@@ -40,21 +41,30 @@ module.exports = passport => {
         if (err)  return next(err);
         if (user) {return next(null, false, {errorMessage: 'That username is already taken.'});}
         else {
-          var newUser = new User();
-          newUser.username = username;
-          newUser.email = req.body.email;
-          newUser.firstName = req.body.firstName;
-          newUser.lastName = req.body.lastName;
-          newUser.password = bcrypt.hashSync(password, bcrypt.genSaltSync(12), null);
-          newUser.accountType = req.body.accountType;
-          console.log("NEW USER: ", newUser)
-          newUser.save(function(err) {
-            if (err) {
-              const keys = Object.keys(err.errors)
-              return next(null, false, {errorMessage: err.errors[keys[0]].message})
-            };
-            return next(null, newUser);
-          });
+          // req.body._id means we're making a temp user a permanent user
+          if (req.body._id) {
+            req.body.password = bcrypt.hashSync(password, bcrypt.genSaltSync(12), null);
+            Promise.all([
+              Room.findByIdAndUpdate(req.body.rooms[0], {tempRoom: false, members: [{user: req.body._id, role: 'facilitator'}]}),
+              User.findByIdAndUpdate(req.body._id, req.body, {new: true})
+            ])
+            .then(res => next(null, res[1]))
+          } else {
+            var newUser = new User();
+            newUser.username = username;
+            newUser.email = req.body.email;
+            newUser.firstName = req.body.firstName;
+            newUser.lastName = req.body.lastName;
+            newUser.password = bcrypt.hashSync(password, bcrypt.genSaltSync(12), null);
+            newUser.accountType = req.body.accountType;
+            newUser.save(function(err) {
+              if (err) {
+                let keys = Object.keys(err.errors)
+                return next(null, false, {errorMessage: err.errors[keys[0]].message})
+              };
+              return next(null, newUser);
+            });
+          }
         }
       });
     });
@@ -72,6 +82,7 @@ module.exports = passport => {
 
       return next(null, user);
     })
+    // because we display their courses first lets just populate them now
     .populate({
       path: 'courses',
       populate: {path: 'members.user', select: 'username'},

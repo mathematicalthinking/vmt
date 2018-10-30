@@ -3,7 +3,8 @@ import classes from './workspace.css';
 // import Aux from '../../../Components/HOC/Auxil';
 import CurrentMembers from '../../Components/CurrentMembers/CurrentMembers';
 import Button from '../../Components/UI/Button/Button';
-const workspaceLayout = ({graph, chat, replayer, members, activeMember, temp, save}) => {
+const workspaceLayout = ({graph, chat, replayer, members, activeMember, temp, save, loggedIn}) => {
+  console.log(loggedIn)
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container} style={{maxHeight: window.innerHeight - (replayer ? 400 : 300)}}>
@@ -15,7 +16,7 @@ const workspaceLayout = ({graph, chat, replayer, members, activeMember, temp, sa
           </div>
         </div>
       </div>
-      {temp ? 
+      {temp && !loggedIn ? 
         <div>
           <Button m={20} click={save}>Save This Workspace</Button>
         </div> :
