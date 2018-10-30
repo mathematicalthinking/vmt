@@ -18,7 +18,7 @@ const workspaceLayout = ({graph, chat, replayer, members, activeMember, temp, sa
       </div>
       {temp && !loggedIn ? 
         <div>
-          <Button m={20} click={save}>Save This Workspace</Button>
+          <Button data-testid='save-temp' m={20} click={save}>Save This Workspace</Button>
         </div> :
         null
       }

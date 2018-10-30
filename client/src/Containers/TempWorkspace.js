@@ -132,8 +132,8 @@ class TempWorkspace extends Component {
         <div>{this.state.errorMessage}</div>
         { this.state.firstEntry ?
           <div>
-            <Button m={5} click={() => this.join('desmos')}>Desmos</Button>
-            <Button m={5} click={() => this.join('geogebra')}>GeoGebra</Button>
+            <Button data-testid='temp-desmos' m={5} click={() => this.join('desmos')}>Desmos</Button>
+            <Button data-testid='temp-geogebra' m={5} click={() => this.join('geogebra')}>GeoGebra</Button>
           </div> :
           <Button m={5} click={() => this.join()}>Join</Button>
         }

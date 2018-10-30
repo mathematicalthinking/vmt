@@ -57,6 +57,7 @@ class Signup extends Component {
 
   render() {
     let containerClass = this.props.temp ? classes.ModalContainer : classes.signupContainer;
+    let initialValue = this.props.user ? this.props.user.username : '';
     return (
       // after creating a user redirect to login @TODO figure out if this is for creating participants or for signing up on your own
       // the answer will determine where/if we redirect to
@@ -67,7 +68,7 @@ class Signup extends Component {
           <form className={classes.Form}>
             <TextInput change={this.changeHandler} type='text' label='First Name' name='firstName' />
             <TextInput change={this.changeHandler} type='text' label='Last Name' name='lastName' />
-            <TextInput change={this.changeHandler} type='text' label='Username' name='username' value={(this.state.username.length > 0) ? this.state.username : this.props.user.username}/>
+            <TextInput change={this.changeHandler} type='text' label='Username' name='username' value={(this.state.username.length > 0) ? this.state.username : initialValue}/>
             <TextInput change={this.changeHandler} type='email' label='Email' name='email' />
             <TextInput change={this.changeHandler} type='password' label='Password' name='password' />
             <div style={{marginTop: 20}}>
@@ -91,7 +92,7 @@ class Signup extends Component {
           <div className={classes.ErrorMsg}>
             <div className={classes.Error}>{this.props.errorMessage}</div>
           </div>
-          <div className={classes.Submit}><Button click={this.signUp}>Signup</Button></div>
+          <div className={classes.Submit}><Button data-testid='submit-signup'click={this.signUp}>Signup</Button></div>
         </div>
       </div>
     )

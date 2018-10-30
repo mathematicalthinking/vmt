@@ -12,10 +12,18 @@ describe('temporary room', function() {
     cy.contains('Explore').click()
     cy.url().should('include', 'explore')
     cy.get('input').type(user.username)
-    cy.get('button').click()
+    cy.getTestElement('temp-geogebra').click()
     // cy.wait(3000)
     cy.get('.ggbtoolbarpanel')
-    cy.url({log: true}).then(res => url = res)
+    // cy.url({log: true}).then(res => url = res)
+  })
+  it('creates an account to save the room', function() {
+    cy.getTestElement('save-temp').click()
+    cy.get('input[name=password]').type('1234')
+    cy.getTestElement('submit-signup').click();
+    cy.getTestElement('nav-My VMT').click()
+    cy.getTestElement('tab').contains('Rooms').click()
+    cy.getTestElement('box-list').should('have.length', 1)
   })
   // it('creates another user and joins the same room', function(){
   //   cy.window().then((win) => {
