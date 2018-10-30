@@ -4,12 +4,16 @@ import { normalize } from '../utils/normalize';
 import API from '../../utils/apiRequests';
 import * as loading from './loading'
 import { gotCourses, } from './courses';
+import { addRoomMember } from './rooms';
 
 
-export const gotUser = user => {
+export const gotUser = (user, temp) => {
+  let loggedIn = true;
+  if (temp) loggedIn = false
   return {
     type: actionTypes.GOT_USER,
     user,
+    loggedIn,
   }
 }
 
@@ -111,8 +115,11 @@ export const clearNotification = (ntfId, userId, resource, listType, ntfType) =>
   }
 }
 
-export const signup = body => {
+export const signup = (body, room) => { // room is optional -- if we're siging up a 
   return dispatch => {
+    if (room) {
+      dispatch(addRoomMember(room, {user:{username: body.username, _id: body._id}, role: 'facilitator'}))
+    }
     dispatch(loading.start());
     auth.signup(body)
     .then(res => {

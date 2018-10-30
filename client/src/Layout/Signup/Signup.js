@@ -17,6 +17,12 @@ class Signup extends Component {
     participantAccount: true,
   }
 
+  componentDidMount(){
+    if (this.props.temp && this.props.user){
+      this.setState({username: this.props.user.username})
+    }
+  }
+
   componentWillUnmount() {
     if (this.props.errorMessage) {
       this.props.clearError();
@@ -41,24 +47,31 @@ class Signup extends Component {
       password: this.state.password,
       accountType,
     }
-    this.props.signup(newUser);
+    if (this.props.temp) {
+      newUser._id = this.props.user._id;
+      newUser.rooms = [this.props.room]
+      this.props.closeModal()
+    }
+    this.props.signup(newUser, this.props.room); // this.props.room will only exist when creating user from tempUser
   }
 
   render() {
+    let containerClass = this.props.temp ? classes.ModalContainer : classes.signupContainer;
+    let initialValue = this.props.user ? this.props.user.username : '';
     return (
       // after creating a user redirect to login @TODO figure out if this is for creating participants or for signing up on your own
       // the answer will determine where/if we redirect to
-      this.props.loggedIn ? <Redirect to='/myVMT/courses'/> :
+      this.props.loggedIn && !this.props.temp ? <Redirect to={'/myVMT/courses'}/> :
       <div className={classes.Container}>
-        <div className={classes.SignupContainer}>
+        <div className={containerClass}>
           <h2 className={classes.Title}>Signup</h2>
           <form className={classes.Form}>
             <TextInput change={this.changeHandler} type='text' label='First Name' name='firstName' />
             <TextInput change={this.changeHandler} type='text' label='Last Name' name='lastName' />
-            <TextInput change={this.changeHandler} type='text' label='Username' name='username' />
+            <TextInput change={this.changeHandler} type='text' label='Username' name='username' value={(this.state.username.length > 0) ? this.state.username : initialValue}/>
             <TextInput change={this.changeHandler} type='email' label='Email' name='email' />
             <TextInput change={this.changeHandler} type='password' label='Password' name='password' />
-            <div>
+            <div style={{marginTop: 20}}>
               <label>Account Type</label>
               <div className={classes.Radios}>
                 <RadioBtn
@@ -79,7 +92,7 @@ class Signup extends Component {
           <div className={classes.ErrorMsg}>
             <div className={classes.Error}>{this.props.errorMessage}</div>
           </div>
-          <div className={classes.Submit}><Button click={this.signUp}>Signup</Button></div>
+          <div className={classes.Submit}><Button data-testid='submit-signup'click={this.signUp}>Signup</Button></div>
         </div>
       </div>
     )

@@ -24,7 +24,7 @@ const reducer = (state = initialState, action) => {
     case actionTypes.GOT_USER:
       return {
         ...state,
-        loggedIn: true,
+        loggedIn: action.loggedIn,
         username: action.user.username,
         firstName: action.user.firstName,
         lastName: action.user.lastName,

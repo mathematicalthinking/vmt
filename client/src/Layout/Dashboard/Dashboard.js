@@ -10,7 +10,7 @@ import Trash from '../../Components/UI/Trash/Trash';
 import Avatar from '../../Components/UI/Avatar/Avatar';
 import Button from '../../Components/UI/Button/Button';
 import CustomLink from '../../Components/Navigation/CustomLink/CustomLink';
-import Summary from '../Room/Summary/Summary';
+import Summary from '../Room/Room';
 import MakeRoomsLayout from './MakeRooms/MakeRooms';
 
 const dashboard = props => {

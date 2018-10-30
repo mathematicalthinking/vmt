@@ -74,7 +74,7 @@ class Chat extends Component {
   render() {
     console.log("MESSAGES: ", this.state.messages)
     return (
-      <ChatLayout messages={this.state.messages} change={this.changeHandler} submit={this.submitMessage} />
+      <ChatLayout messages={this.state.messages} change={this.changeHandler} submit={this.submitMessage} value={this.state.newMessage} />
     )
   }
 }

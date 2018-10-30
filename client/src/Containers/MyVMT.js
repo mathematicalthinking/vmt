@@ -22,7 +22,7 @@ class Profile extends Component {
     // I WONDER IF USING PROMISES LIKE THIS IS BAD?
     // I NEED TO UPDATE STATE IN CHECK MULTIPLE ROLE AND THEN setDisplayResources DEPENDS ON THAT STATE UPDATE
     this.checkMultipleRoles()
-    .then(res => {return this.setDisplayResources()}) 
+    .then(res => this.setDisplayResources()) 
     .then(res => this.updateTabs())
   }
 
@@ -42,7 +42,10 @@ class Profile extends Component {
       .then(res => this.updateTabs())
     }
     if (!loading) {
+      console.log('checking user resources')
       let haveResource = user[resource].every(rsrc => this.props[resource].includes(rsrc))
+      console.log(haveResource)
+      console.log(this.props[resource])
       if (!haveResource) this.fetchData(resource)
     }
     if (prevState.view !== this.state.view) {
@@ -95,6 +98,7 @@ class Profile extends Component {
   }
 
   fetchData = resource => {
+    console.log("SHOULD BE FETCHING")
     this.props[`get${resource}`]()
   }
 

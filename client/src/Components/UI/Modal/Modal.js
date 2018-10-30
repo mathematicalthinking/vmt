@@ -19,8 +19,8 @@ const modal = props => (
     <div
       className={classes.Modal}
       style={{
-        transform: props.show ? 'translateY(0)' : 'translateY(-150vh)',
-        opacity: props.show ? '1' : '0'
+        transform: props.show ? 'translateY(-50%)' : 'translateY(-150vh)',
+        opacity: props.show ? '1' : '0',
       }}
     >
       {props.children ? props.children :

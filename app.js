@@ -21,8 +21,14 @@ const app = express();
 
 console.log("NODE_ENV=",process.env.NODE_ENV)
 // SETUP DATABASE & SESSION
-const mongoURI = (process.env.NODE_ENV === 'dev') ? process.env.MONGO_DEV_URI
-: process.env.MONGO_TEST_URI;
+let mongoURI;
+if (process.env.NODE_ENV === 'dev') {
+  mongoURI = process.env.MONGO_DEV_URI
+} else if (process.env.NODE_ENV === 'production') {
+  mongoURI = process.env.MONGO_PROD_URI
+} else if (process.env.NODE_ENV) {
+  mongoURI = process.env.MONGO_TEST_URI;
+}
 mongoose.connect(mongoURI, (err, res) => {
   if (err){console.log('DB CONNECTION FAILED: '+err)}
   else{console.log('DB CONNECTION SUCCESS')}
@@ -36,7 +42,7 @@ app.use(require('express-session')({
 }))
 
 
-if (process.env.NODE_ENV === 'travistest') {
+if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'client/build')));
 } else {
   app.use(express.static(path.join(__dirname, 'client/public')));
@@ -45,7 +51,7 @@ if (process.env.NODE_ENV === 'travistest') {
 
 
 app.get('/', (req, res) => {
-  if (process.emit.NODE_ENV === 'travistest') {
+  if (process.env.NODE_ENV === 'travistest' || proces.env,NODE_ENV === 'production') {
     res.sendFile(path.join(__dirname, 'client/build/index.html'))
   } else {
     res.sendFile(path.join(__dirname, '/client/public/index.html'));

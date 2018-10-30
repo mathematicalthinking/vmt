@@ -32,10 +32,7 @@ every time a change is made.
 ## Deployment
 This should be changed eventually, but it works for now.
 ```
-$ git checkout heroku
-$ git merge master
-$ cd client && npm run build
-$ cd ..
+$ npm run build
 $ git add .
 $ git commit -m 'built'
 $ git push -f heroku HEAD:master
