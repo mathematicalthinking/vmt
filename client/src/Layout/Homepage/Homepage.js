@@ -27,7 +27,6 @@ class Homepage extends PureComponent {
     this.props.createRoom({
       name: 'temp room',
       tempRoom: true,
-      roomType: 'geogebra',
     })
   }
 

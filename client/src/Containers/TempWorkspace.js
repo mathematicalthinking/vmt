@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { populateRoom } from '../store/actions'
 import io from 'socket.io-client';
 import WorkspaceLayout from '../Layout/Room/Workspace/Workspace';
 import TextInput from '../Components/Form/TextInput/TextInput';
 import GgbGraph from './Workspace/GgbGraph';
+import DesmosGraph from './Workspace/DesmosGraph';
 import Modal from '../Components/UI/Modal/Modal';
 import Button from '../Components/UI/Button/Button';
 import Chat from './Workspace/Chat';
@@ -15,24 +18,29 @@ class TempWorkspace extends Component {
     tempUsername: '',
     errorMessage: '',
     unloading: false,
+    firstEntry: true,
+    graph: null,
   }
 
   componentDidMount(){
-    // window.on('beforeunload.confirm', this.confirmUnload)
     window.addEventListener("beforeunload", this.confirmUnload)
-    // window.onunload = this.onUnload()
+    console.log('fetching')
+    if (this.props.room.roomType) this.setState({firstEntry: false})
+    this.props.populateRoom(this.props.match.params.id)
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    console.log('component did update')
-    // if (!prevStat.resourcesCreated this.state.)
+  componentDidUpdate(prevProps){
+    if (prevProps.room.roomType !== this.props.room.roomType) {
+      this.setState({firstEntry: false})
+    }
   }
 
   setName = (event) => {
     this.setState({tempUsername: event.target.value, errorMessage: ''});
   }
 
-  join = () => {
+  join = (graphType) => {
+    console.log(graphType)
     if (this.state.tempUsername.length === 0) {
       return this.setState({errorMessage: "Please enter a username before joining"})
     }
@@ -43,6 +51,10 @@ class TempWorkspace extends Component {
       tempRoom: true,
       roomName: `temporary room ${id.slice(0, 5)}...`,
       roomId: id,
+    }
+    if (graphType) {
+      sendData.roomType = graphType;
+      this.setState({graph: graphType})
     }
 
     this.socket = io.connect(process.env.REACT_APP_SERVER_URL);
@@ -72,47 +84,47 @@ class TempWorkspace extends Component {
   }
 
   componentWillUnmount () {
-    this.leaveRoom()
+    this.socket.emit('disconnect')
     // window.removeEventListener("beforeunload", this.confirmUnload)
     window.removeEventListener("beforeunload", this.confirmUnload)
   }
 
-  leaveRoom = () => {
-    if (this.state.user) {
-      // const { room, user } = {...this.state};
-      // const data = {
-      //   userId: user._id,
-      //   roomId: this.props.match.params.id,
-      //   username: user.username,
-      //   roomName: room.name,
-      // }
-      this.socket.emit('disconnect')
-      // this.socket.disconnect(data);
-    }
-  }
   confirmUnload = (ev) => {
     this.setState({})
     ev.preventDefault();
-    // window.onbeforeunload = false
-    return ev.returnValue = 'ARe you sure you want to leave';
+    return ev.returnValue = 'Are you sure you want to leave';
   }
 
   render() {
+    console.log(this.props.room)
     return (
       this.state.user ?
       <WorkspaceLayout
         members = {this.state.room.currentUsers || []}
-        graph = {() => <GgbGraph room={this.state.room} socket={this.socket} user={this.state.user} />}
+        graph = {this.state.graph === 'geogebra' ? 
+          () => <GgbGraph room={this.state.room} socket={this.socket} user={this.state.user}/> :
+          () => <DesmosGraph room={this.state.room} socket={this.socket} user={this.state.user}/>
+        }
         chat = {() => <Chat roomId={this.state.room._id} messages={this.state.room.chat || []} socket={this.socket} user={this.state.user} />}
       /> :
       <Modal show={!this.state.user}>
         Enter a temporary username
         <TextInput change={this.setName} />
         <div>{this.state.errorMessage}</div>
-        <Button click={this.join}>Join</Button>
+        { this.state.firstEntry ?
+          <div>
+            <Button m={5} click={() => this.join('desmos')}>Desmos</Button>
+            <Button m={5} click={() => this.join('geogebra')}>GeoGebra</Button>
+          </div> :
+          <Button m={5} click={() => this.join()}>Join</Button>
+        }
       </Modal>
     )
   }
 }
 
-export default TempWorkspace;
+const mapStateToProps = (store, ownProps) => ({
+  room: store.rooms.byId[ownProps.match.params.id]
+})
+
+export default connect(mapStateToProps, { populateRoom })(TempWorkspace)

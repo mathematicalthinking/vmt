@@ -158,7 +158,7 @@ module.exports = {
       db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentUsers: body}}, {new: true})
       .populate({path: 'currentUsers.user', select: 'username'})
       .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
-      .select('currentUsers events chat currentState tempId')
+      .select('currentUsers events chat currentState roomType')
       .then(room => resolve(room))
       .catch(err => reject(err))
     })

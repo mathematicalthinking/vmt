@@ -74,7 +74,7 @@ class DesmosGraph extends Component {
     return (
       <Aux>
         <Script url='https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6' onLoad={this.onScriptLoad} />
-        <div className={classes.Graph} style={{height: window.innerHeight - 300}} id='calculator' ref={this.calculatorRef}></div>
+        <div className={classes.Graph} style={{height: window.innerHeight - 300, width: window.innerWidth * .6}} id='calculator' ref={this.calculatorRef}></div>
         <Modal show={this.state.loading} message='Loading...'/>
       </Aux>
     )
