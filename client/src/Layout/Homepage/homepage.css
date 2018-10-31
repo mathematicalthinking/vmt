@@ -11,6 +11,24 @@
   maxWidth: maxWidth;
 }
 
+.Main {
+  z-index: 100;
+  width: 100%;
+  /* border: 2px solid red; */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+}
+.Top {
+  margin-top: 220px;
+  color: white;
+  font-size: 24px; 
+  text-align: center;
+  transition: .2s;
+}
+
 .Banner {
   position: relative;
   width: 100%;

@@ -38,6 +38,12 @@ class Homepage extends PureComponent {
       <Aux>
         <Background/>
         <div className={classes.Main}>
+          <section className={classes.Top}>
+            <p className={classes.Blurb}>
+              Collaborative spaces for graphing and drawing 
+            </p>
+            <Button m={20}>Explore a Workspace</Button>
+          </section>
           {/* <div className={classes.Parallax}>
             <div className={classes.Banner} >
               <div className={classes.GetStarted}>

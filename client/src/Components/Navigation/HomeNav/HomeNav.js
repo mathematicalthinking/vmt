@@ -8,7 +8,7 @@ const navbar = (props) => {
   return (
     <nav className={classes.Nav}>
       <div className={classes.NavContainer}>
-        <div className={classes.Logo}><Link to='/'>Logo</Link></div>
+        <div className={classes.Logo}><Link to='/'>Virtual Math Teams</Link></div>
         <ul className={classes.NavList}>
           {props.loggedIn ? <NavItem link='/myVMT/courses' name='My VMT' /> :
           <Aux>

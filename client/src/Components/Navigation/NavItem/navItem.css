@@ -6,6 +6,7 @@
   list-style-type: none;
   height: 100%;
   transition: .2s ease-out;
+  position: relative;
   /* border: 1px solid green; */
 }
 
@@ -15,7 +16,7 @@
   letter-spacing: .07em;
 }
 
-.Item:hover {
+/* .Item:hover {
   color: white;
   background-color: #0078EC;
   text-decoration: none;
@@ -24,4 +25,23 @@
 .Link:active{
   color: white;
   background-color: #0078EC;
+} */
+
+.Item:after{
+  content: '';
+  position: absolute;
+  width: 0; height: 2px;
+  display: block;
+  border-radius: 4px;
+  margin-top: 25px;
+  right: 0;
+  background: #ddd;
+  transition: width .2s ease;
+  -webkit-transition: width .2s ease;
+}
+ 
+.Item:hover:after{
+  width: 90%;
+  left: 0;
+  background: #ddd;
 }
