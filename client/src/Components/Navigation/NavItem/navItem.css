@@ -36,12 +36,12 @@
   margin-top: 25px;
   right: 0;
   background: #ddd;
-  transition: width .2s ease;
-  -webkit-transition: width .2s ease;
+  transition: width .2s ease-in;
+  /* -webkit-transition: width .2s; */
 }
  
 .Item:hover:after{
-  width: 90%;
+  width: 100%;
   left: 0;
   background: #ddd;
 }

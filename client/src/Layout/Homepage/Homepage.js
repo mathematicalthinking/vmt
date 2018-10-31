@@ -1,9 +1,11 @@
 import React, { PureComponent } from 'react';
-// import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import classes from './homepage.css';
 import BoxList from '../BoxList/BoxList'
 import Button from '../../Components/UI/Button/Button';
 import Background from '../../Components/Background/Background';
+import GeogebraImg from './Geogebra.png';
+import DesmosImg from './desmos.jpg';
 import Aux from '../../Components/HOC/Auxil';
 // import bannerImage from './Picture-5.jpg';
 // console.log(bannerImage)
@@ -26,6 +28,7 @@ class Homepage extends PureComponent {
 
   
   createRoom = () => {
+    console.log('creating room')
     this.props.createRoom({
       name: 'temp room',
       tempRoom: true,
@@ -40,9 +43,30 @@ class Homepage extends PureComponent {
         <div className={classes.Main}>
           <section className={classes.Top}>
             <p className={classes.Blurb}>
-              Collaborative spaces for graphing and drawing 
+              Collaborative Workspaces for Exploring the World of Math 
             </p>
-            <Button m={20}>Explore a Workspace</Button>
+            <Button theme={'Big'} click={this.createRoom} m={35}>Try out a Workspace</Button>
+          </section>
+          <i className={["fas fa-chevron-down", classes.Down].join(" ")}></i>
+          <section className={classes.Options}>
+            <div className={classes.Geogebra}>
+              <img className={classes.GgbImage} src={GeogebraImg} alt='geogebra' />
+              <div>
+                <p className={classes.LongerBlurb}>GeoGebra is dynamic mathematics software for all levels of education that 
+                  brings together geometry, algebra, spreadsheets, graphing, statistics and 
+                  calculus in one easy-to-use package. GeoGebra is a rapidly expanding 
+                  community of millions of users located in just about every country.
+                </p>
+                <Link to='https://www.geogebra.org'>Learn More</Link>
+              </div>
+            </div>
+            <div className={classes.Desmos}>
+              <img className={classes.DesmosImage} src={DesmosImg} alt='desmos' />
+              <p className={classes.LongerBlurb}>
+                Desmos is a free graphing calculator with a large community of teachers and students actively 
+                building and sharing activities. 
+              </p>
+            </div>
           </section>
           {/* <div className={classes.Parallax}>
             <div className={classes.Banner} >

@@ -22,51 +22,64 @@
 
 }
 .Top {
-  margin-top: 220px;
+  margin-top: 26vh;
   color: white;
   font-size: 24px; 
   text-align: center;
   transition: .2s;
+  height: 74vh;
 }
 
-.Banner {
-  position: relative;
+@keyframes bounce_arrow {
+  0% {bottom: 0px;}
+  70%{ bottom: 0px;}
+  80% {bottom: -20px;}
+  85% {bottom: 10px;}
+  100% {bottom: 0px;}
+}
+  
+.Down {
+  position: absolute;
+  cursor: pointer;
+  bottom: 0;
+  height: 20vh;
+  font-size: 150px;
+  background: -webkit-linear-gradient(#a4deff, blue);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: bounce_arrow 3s infinite;
+}
+
+.Options {
   width: 100%;
-  height: 350px;
-  justify-content: center;
+  height: 100vh;
+}
+
+.Geogebra {
+  margin-top: 61px;
+  display: flex;
   align-items: center;
 }
 
-.Banner::before {
-  content: "";
-  height: 100%;
-  width: 100%;
-  position: absolute;
-  top: 3px;
-  left: 0;
-  filter:blur(5px) brightness(150%) grayscale(20%);
-  background: url('./Picture-5.jpg');
-  background-position: 0% 20%;
-  background-size: cover;
-
+.LongerBlurb {
+  font-size: 20px;
 }
 
-.GetStarted {
-  position: relative;
-  width: 400px;
-  height: 247px;
-  left: calc(50% - 200px);
-  top: calc(50% - 123.5px);
-  padding: 15px;
-  border-radius: 4px;
-  text-align: center;
-  box-shadow: darkShadow;
-  background-color: backgroundGray;
+.GgbImage {
+  height: 300px;
+}
+
+
+.Desmos {
   display: flex;
-  flex-flow: column;
-  justify-content: center;
-  color: blue;
-  filter: grayscale(0);
+  align-items: center;
+  flex-flow: row-reverse;
+}
+
+.DesmosImage {
+  height: 250px;
+  margin: 20px;
+  border-radius: 20px;
 }
 
 .Content {

@@ -32,7 +32,7 @@
   background-image: linear-gradient(to right, #a4deff .5px, transparent 1px), linear-gradient(to bottom, #a4deff .5px, transparent 1px) !important;
   font-family: 'Voces', 'sans-serif';
   z-index: 20;
-  height: 100vh
+  height: 44vh
 }
 .waveWrapper {
   overflow: hidden;
