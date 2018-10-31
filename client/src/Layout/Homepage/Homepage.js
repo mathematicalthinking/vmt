@@ -3,6 +3,8 @@ import React, { PureComponent } from 'react';
 import classes from './homepage.css';
 import BoxList from '../BoxList/BoxList'
 import Button from '../../Components/UI/Button/Button';
+import Background from '../../Components/Background/Background';
+import Aux from '../../Components/HOC/Auxil';
 // import bannerImage from './Picture-5.jpg';
 // console.log(bannerImage)
 class Homepage extends PureComponent {
@@ -33,17 +35,18 @@ class Homepage extends PureComponent {
   render() {
     const list = Object.keys(this.props.activities).map(id => this.props.activities[id]) || []
     return (
-      <div>
+      <Aux>
+        <Background/>
         <div className={classes.Main}>
-          <div className={classes.Parallax}>
+          {/* <div className={classes.Parallax}>
             <div className={classes.Banner} >
               <div className={classes.GetStarted}>
                 <h2>Collaborative math spaces for facilitators and participants</h2>
                 <Button theme="secondary" click={this.createRoom}>Explore</Button>
               </div>
             </div>
-          </div>
-          <div className={classes.Content}>
+          </div> */}
+          {/* <div className={classes.Content}>
             <div className={classes.Features}>
               <div className={classes.Feature}>
                 <div className={classes.FTitle}>Collaborate</div>
@@ -71,9 +74,10 @@ class Homepage extends PureComponent {
               <h2>Top Activities</h2>
               <BoxList list={list}/>
             </div>
-          </div>
+          </div> */}
         </div>
-      </div>
+
+      </Aux>
     )
   }
 }
