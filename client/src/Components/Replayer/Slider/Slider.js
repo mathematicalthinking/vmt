@@ -58,10 +58,12 @@ class Slider extends PureComponent {
   eventMarks = this.props.log.map((entry, i) => {
     let color = entry.synthetic ? 'red' : 'green';
     let percentFromStart = entry.relTime/this.props.duration * 100;
+    console.log(percentFromStart)
     return <EventDesc color={color} offset={percentFromStart} entry={entry} dragging={this.state.dragging}/>
   })
 
   render() {
+    let x = (this.props.progress/100 * (600 - 6)) > 594 ? 594 : (this.props.progress/100 * (600 - 6))
     return (
       <div ref="slider" className={classes.Slider} onClick={this.jumpToPosition}>
         {this.eventMarks}
@@ -71,7 +73,7 @@ class Slider extends PureComponent {
           onStart={this.startDrag}
           onDrag={this.onDrag}
           onStop={this.stopDrag}
-          position={{x: ((this.props.progress/100) * (600 - 6)), y: 0}}
+          position={{x: x, y: 0}}
         >
           <div ref='marker' className={classes.ProgressMarker} ></div>
         </Draggable>

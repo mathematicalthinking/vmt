@@ -15,6 +15,7 @@
 .ProgressMarker {
   border: 3px solid #2f91f2;
   position: absolute;
+  left: -4px;
   height: 12px;
   width: 12px;
   border-radius: 50%;
