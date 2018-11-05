@@ -2,6 +2,8 @@
 @value blue from colors; */
 
 :import('../../colors.css') {
+  gridBlue: gridBlue;
+  darkBlue: darkBlue;
   blue: blue;
   orange: orange;
   gray: backgroundGray;
@@ -37,7 +39,67 @@
   85% {bottom: 10px;}
   100% {bottom: 0px;}
 }
-  
+
+.BackgroundExtension {
+  position: absolute;
+  top: 99%;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  /* overflow-x: hidden; */
+  background-size: 25px 25px;
+  background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
+  z-index: 20;
+  height: 5vh
+}
+
+.Ex2 {
+  position: absolute;
+  top: 99%;
+  bottom: 0;
+  left: 0;
+  width: 7%;
+  background-size: 25px 25px;
+  background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
+  z-index: 20;
+  height: 15vh
+}
+
+.Ex3 {
+  position: absolute;
+  top: 99%;
+  bottom: 0;
+  left: 0;
+  width: 14%;
+  background-size: 50px 50px;
+  background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
+  z-index: 20;
+  height: 8vh
+}
+
+.Ex4 {
+  position: absolute;
+  top: 99%;
+  bottom: 0;
+  left: 0;
+  width: 3%;
+  background-size: 25px 25px;
+  background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
+  z-index: 20;
+  height: 25vh
+}
+
+.Ex5 {
+  position: absolute;
+  top: 109%;
+  bottom: 0;
+  right: 150px;
+  /* width: 14%; */
+  background-size: 50px 50px;
+  background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
+  z-index: 20;
+  height: 8vh
+} 
 .Down {
   position: absolute;
   cursor: pointer;

@@ -1,5 +1,6 @@
 :import('../../../colors.css') {
   darkBlue: darkBlue;
+  blue: blue;
   darkShadow: darkShadow;
   lightShadow: lightShadow;
   navbarHeight: navbarHeight
@@ -14,7 +15,7 @@
   /* border-radius: 3px; */
   /* box-shadow: darkShadow; */
   z-index: 1000;
-  border-top: 2px solid #001144;
+  border-top: 2px solid darkBlue;
   position: fixed;
   color: white;
   background: none;
@@ -23,7 +24,7 @@
 }
 
 .LightNav {
-  color: #052585;
+  color: blue;
   border-bottom: 1px solid #999;
   background: rgb(255, 255, 255);
   box-shadow: lightShadow;

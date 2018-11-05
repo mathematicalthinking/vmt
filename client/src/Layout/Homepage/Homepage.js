@@ -19,7 +19,6 @@ class Homepage extends PureComponent {
     }
     this.node = ReactDOM.findDOMNode(this);
     this.node.scrollTop = this.node.scrollHeight;
-    console.log(this.node.scrollTop)
   }
   
   componentDidUpdate(prevProps) {
@@ -43,7 +42,7 @@ class Homepage extends PureComponent {
   }
 
   scrollToDomRef = () => {
-    window.scroll({top: this.containerRef.current.offsetTop, left: 0, behavior: 'smooth'})
+    window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
 }
 
   
@@ -54,6 +53,12 @@ class Homepage extends PureComponent {
     return (
       <Aux>
         <Background/>
+        <div className={classes.BackgroundExtension}></div>
+        <div className={classes.Ex2}></div>
+        <div className={classes.Ex3}></div>
+        <div className={classes.Ex4}></div>
+        <div className={classes.Ex5}></div>
+        <div className={classes.Ex6}></div>
         <div className={classes.Main}>
           <section className={classes.Top}>
             <p className={classes.Blurb}>

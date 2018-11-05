@@ -1,3 +1,8 @@
+:import('../../colors.css'){
+  gridBlue: gridBlue;
+  darkBlue: darkBlue;
+}
+
 @keyframes move_wave {
   0% {transform: translateX(0) translateZ(0) scaleY(1)}
   50% {transform: translateX(-25%) translateZ(0) scaleY(.65)}
@@ -17,7 +22,7 @@
   right: 0;
   /* overflow-x: hidden; */
   background-size: 25px 25px;
-  background-image: linear-gradient(to right, #a4deff .5px, transparent 1px), linear-gradient(to bottom, #a4deff .5px, transparent 1px) !important;
+  background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
   font-family: 'Voces', 'sans-serif';
   z-index: 20;
   height: 42vh
@@ -37,7 +42,7 @@
   overflow: hidden;
   height: 100%;
   bottom: -1px;
-  background-image: linear-gradient(to top, #d4edfc 1%, #a4deff 15%, #001144 100%);
+  background-image: linear-gradient(to top, #d4edfc 1%, gridBlue 15%, darkBlue 100%);
 }
 .bgTop {
   z-index: 15;
