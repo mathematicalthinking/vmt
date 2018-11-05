@@ -29,9 +29,9 @@ class Homepage extends PureComponent {
       let room = currentRooms.filter(room => !prevRooms.includes(room))
       this.props.history.push(`explore/${room[0]._id}`)
     }
-    if ((prevProps.scrollPosition === 0) && (this.props.scrollPosition > 0)) {
-      this.scrollToDomRef();
-    }
+    // if ((prevProps.scrollPosition === 0) && (this.props.scrollPosition > 0)) {
+    //   this.scrollToDomRef();
+    // }
   }
 
   
