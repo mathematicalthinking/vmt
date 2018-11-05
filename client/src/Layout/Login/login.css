@@ -13,20 +13,20 @@
 }
 
 .LoginContainer {
-  background: gray;
   margin-top: 110px;
   border-radius: 4px;
   padding: 15px;
   width: 66%;
   display: flex;
   flex-flow: column;
-  box-shadow: lightShadow;
   justify-content: center;
   align-items: center;
+  z-index: 300;
+  color: white;
 }
 
 .Title {
-  color: blue;
+  /* color: blue; */
   letter-spacing: .09em;
 }
 
@@ -56,6 +56,7 @@
 
 .Submit {
   margin: 20px 0;
+  /* width: 400px; */
 }
 
 .Loading {

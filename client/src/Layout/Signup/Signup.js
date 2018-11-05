@@ -4,6 +4,8 @@ import TextInput from '../../Components/Form/TextInput/TextInput';
 import Button from '../../Components/UI/Button/Button';
 import classes from './signup.css';
 import RadioBtn from '../../Components/Form/RadioBtn/RadioBtn';
+import Background from '../../Components/Background/Background';
+import Aux from '../../Components/HOC/Auxil';
 
 class Signup extends Component {
   // @TODO Redo Login containers state to match this. cleaner
@@ -56,45 +58,48 @@ class Signup extends Component {
   }
 
   render() {
-    let containerClass = this.props.temp ? classes.ModalContainer : classes.signupContainer;
+    let containerClass = this.props.temp ? classes.ModalContainer : classes.SignupContainer;
     let initialValue = this.props.user ? this.props.user.username : '';
     return (
       // after creating a user redirect to login @TODO figure out if this is for creating participants or for signing up on your own
       // the answer will determine where/if we redirect to
       this.props.loggedIn && !this.props.temp ? <Redirect to={'/myVMT/courses'}/> :
-      <div className={classes.Container}>
-        <div className={containerClass}>
-          <h2 className={classes.Title}>Signup</h2>
-          <form className={classes.Form}>
-            <TextInput change={this.changeHandler} type='text' label='First Name' name='firstName' />
-            <TextInput change={this.changeHandler} type='text' label='Last Name' name='lastName' />
-            <TextInput change={this.changeHandler} type='text' label='Username' name='username' value={(this.state.username.length > 0) ? this.state.username : initialValue}/>
-            <TextInput change={this.changeHandler} type='email' label='Email' name='email' />
-            <TextInput change={this.changeHandler} type='password' label='Password' name='password' />
-            <div style={{marginTop: 20}}>
-              <label>Account Type</label>
-              <div className={classes.Radios}>
-                <RadioBtn
-                  checked={this.state.participantAccount}
-                  check={() => this.setState({participantAccount: true})}>Participant
-                </RadioBtn>
-                <RadioBtn
-                  checked={!this.state.participantAccount}
-                  check={() => this.setState({participantAccount: false})}>facilitator
-                </RadioBtn>
+      <Aux>
+        <Background bottomSpace={-60}/>
+        <div className={classes.Container}>
+          <div className={containerClass}>
+            <h2 className={classes.Title}>Signup</h2>
+            <form className={classes.Form}>
+              <TextInput change={this.changeHandler} type='text' label='First Name' name='firstName' />
+              <TextInput change={this.changeHandler} type='text' label='Last Name' name='lastName' />
+              <TextInput change={this.changeHandler} type='text' label='Username' name='username' value={(this.state.username.length > 0) ? this.state.username : initialValue}/> 
+              <TextInput change={this.changeHandler} type='email' label='Email' name='email' />
+              <TextInput change={this.changeHandler} type='password' label='Password' name='password' />
+              <div style={{marginTop: 20}}>
+                <label>Account Type</label>
+                <div className={classes.Radios}>
+                  <RadioBtn
+                    checked={this.state.participantAccount}
+                    check={() => this.setState({participantAccount: true})}>Participant
+                  </RadioBtn>
+                  <RadioBtn
+                    checked={!this.state.participantAccount}
+                    check={() => this.setState({participantAccount: false})}>facilitator
+                  </RadioBtn>
+                </div>
+                <p>*Note: This just marks your primary account type, you can still be a
+                  participant in some scenarios and a facilitator in others without making separate
+                  accounts.
+                </p>
               </div>
-              <p>*Note: This just marks your primary account type, you can still be a
-                participant in some scenarios and a facilitator in others without making separate
-                accounts.
-              </p>
+            </form>
+            <div className={classes.ErrorMsg}>
+              <div className={classes.Error}>{this.props.errorMessage}</div>
             </div>
-          </form>
-          <div className={classes.ErrorMsg}>
-            <div className={classes.Error}>{this.props.errorMessage}</div>
+            <div className={classes.Submit}><Button theme={"Big"} data-testid='submit-signup'click={this.signUp}>Signup</Button></div>
           </div>
-          <div className={classes.Submit}><Button data-testid='submit-signup'click={this.signUp}>Signup</Button></div>
         </div>
-      </div>
+      </Aux>
     )
   }
 }

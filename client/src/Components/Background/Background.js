@@ -1,11 +1,11 @@
 import React from 'react';
 import Aux from '../HOC/Auxil';
 import classes from './background.css';
-const Background = (props) => {
+const Background = ({bottomSpace}) => {
   return (
     <Aux>
-      <div className={classes.backgroundGraph}></div>
-      <div className={[classes.waveWrapper, classes.waveAnimation].join(" ")}>
+      {bottomSpace > 0 ? <div className={classes.backgroundGraph}></div> : null}
+      <div className={[classes.waveWrapper, classes.waveAnimation].join(" ")} style={{bottom: bottomSpace}}>
           <div className={[classes.waveWrapperInner, classes.bgTop].join(" ")}>
               <div className={[classes.wave, classes.waveTop].join()}></div>
           </div>
