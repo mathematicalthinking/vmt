@@ -4,7 +4,6 @@ import classes from './workspace.css';
 import CurrentMembers from '../../Components/CurrentMembers/CurrentMembers';
 import Button from '../../Components/UI/Button/Button';
 const workspaceLayout = ({graph, chat, replayer, members, activeMember, temp, save, loggedIn}) => {
-  console.log(loggedIn)
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container} style={{maxHeight: window.innerHeight - (replayer ? 400 : 300)}}>

@@ -29,6 +29,13 @@ class GgbReplayer extends Component {
       })
     }
     else if (prevProps.log[prevProps.index]._id !== log[index]._id && !this.state.loading && !log[index].text) {
+      console.log('loading event')
+      console.log(log[index])
+      this.constructEvent(log[index])
+    }
+    else if (!this.state.loading){
+      console.log("STOPPED LOADING")
+      console.log(log[index])
       this.constructEvent(log[index])
     }
   }
@@ -36,9 +43,12 @@ class GgbReplayer extends Component {
   constructEvent(event) {
     switch (event.eventType) {
       case 'ADD':
-        if (event.definition) {
+      if (event.definition && event.definition !== '') {
+          console.log('constructing event')
           this.ggbApplet.evalCommand(`${event.label}:${event.definition}`)
         }
+        console.log('getting here?')
+        console.log(this.ggbApplet)
         this.ggbApplet.evalXML(event.event)
         this.ggbApplet.evalCommand('UpdateConstruction()')
         break;
@@ -58,7 +68,7 @@ class GgbReplayer extends Component {
       "id":"ggbApplet",
       "width": 1300 * .75, // 75% width of container
       "height": GRAPH_HEIGHT,
-      "scaleContainerClass": 'applet_container',
+      "scaleContainerClass": 'applet_container', // this doesn't seem to be working
       "showToolBar": false,
       "showMenuBar": false,
       "showAlgebraInput": true,

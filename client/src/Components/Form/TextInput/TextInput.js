@@ -1,14 +1,16 @@
 import React from 'react';
 import classes from './textInput.css';
+import modalClasses from './modalTextInput.css';
 const TextInput = (props) => {
+  let styles = props.modal ? modalClasses : classes;
   let autoComplete = props.autoComplete || props.type;
   if (props.type === 'password') {autoComplete = 'current-password'}
   return (
-    <div className={classes.Container}>
-      {props.label ? <label className={classes.Label} htmlFor={props.name}>{props.label}</label> : null}
+    <div className={styles.Container}>
+      {props.label ? <label className={styles.Label} htmlFor={props.name}>{props.label}</label> : null}
       <input
         autoComplete={autoComplete}
-        className={classes.Input}
+        className={styles.Input}
         type={props.type}
         id={props.name}
         name={props.name}

@@ -1,0 +1,39 @@
+:import('../../../colors.css'){
+  lightBlue: gridBlue;
+  blue: blue;
+}
+
+.Container {
+  display: flex;
+  flex-flow: column;
+  margin-top: 10px;
+  font-size: 18px;
+  width: 100%;
+}
+
+.Input{
+  /* width: 100%; */
+  padding: 10px;
+  /* border-radius: 4px; */
+  border: 1px solid blue !important;
+  background: none !important;
+  font-size: 35px;
+  caret-color: blue;
+  color: blue;
+}
+
+input:-webkit-autofill {
+  -webkit-text-fill-color: blue !important;
+
+}
+
+input:focus {
+  box-shadow: none !important;
+  border: none !important;
+  border-bottom: 2px solid lightBlue;
+}
+
+.Label {
+  margin-bottom: 10px;
+  text-align: left;
+}

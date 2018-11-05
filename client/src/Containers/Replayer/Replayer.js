@@ -148,6 +148,7 @@ class Replayer extends Component {
   }
 
   render() {
+    console.log("INDEX IN CONTROLS" ,this.state.logIndex)
     const { room } = this.props
     const event = this.log[this.state.logIndex] || {};
     return (
@@ -155,10 +156,6 @@ class Replayer extends Component {
         activeMember = {event.user}
         members = {this.state.currentMembers}
         graph = {room.roomType === 'geogebra' ?
-          // I dont like that these 👇 need to be wrapped in functions could do
-          // props.children but I like naming them. Wait is this dumb? we could just pass
-          // event to workspaceLayout and then import the graphs there...I did kind of like
-          // that a container is importing the containers....I dunno
           () => <GgbReplayer
             log={this.updatedLog}
             index={this.state.logIndex}
@@ -179,7 +176,6 @@ class Replayer extends Component {
             reset={this.reset}
             setCurrentMembers={this.setCurrentMembers}
           />}
-        // chat={() => <div>chat</div>}
         replayer={() =>
           (<ReplayControls
             playing={this.state.playing}

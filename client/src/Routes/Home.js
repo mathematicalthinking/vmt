@@ -28,7 +28,7 @@ class Home extends PureComponent {
         <HomeNav scrollPosition={this.state.scrollPosition} page={this.props.location.pathname}/>
         <div className={classes.Container}>
         <Switch>
-          <Route exact path='/' render={() => <Homepage scrollPosition={this.state.scrollPosition}/>} />
+          <Route exact path='/' render={() => <Homepage scrollPosition={this.state.scrollPosition} {...this.props}/>} />
           <Route path='/community/:resource/:action' component={Community} />
           <Route path='/community/:resource' component={Community} />
           <Route path='/login' component={Login} />

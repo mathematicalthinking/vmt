@@ -35,8 +35,17 @@
   border-radius: 3px;
 }
 
+.Small {
+  background-color: blue;
+  color: white;
+  box-shadow: lightestShadow;
+  transition: .2s;
+}
+
+.Small:hover {
+  box-shadow: lightShadow;
+}
 .Primary {
-  color: blue;
 }
 
 .Secondary {

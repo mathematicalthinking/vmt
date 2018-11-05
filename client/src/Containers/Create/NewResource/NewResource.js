@@ -143,18 +143,20 @@ class NewResource extends Component {
             <form className={classes.Form}>
               <div className={classes.FormSection}>
                 <TextInput
+                  modal
                   name={`${resource}Name`}
                   label={`${displayResource} Name`}
                   change={this.changeHandler}
-                  width='40%'
+                  width='100%'
                 />
                 <TextInput
+                  modal
                   name='description'
                   label='Description'
                   change={this.changeHandler}
-                  width='80%'
+                  width='100%'
                   data-testid={`${resource}-description`}
-                  />
+                />
               </div>
               {(resource === 'activities' || resource === 'rooms') ?
                 <div className={classes.FormSection}>
@@ -168,10 +170,12 @@ class NewResource extends Component {
                       <div><Button>Select a Geogebra File</Button></div>
                     </div> :
                     <TextInput
-                    name='desmosLink'
-                    label='Paste a Desmos workspace'
-                    change={this.changeHandler}
-                    width='80%'/>
+                      modal
+                      name='desmosLink'
+                      label='Paste a Desmos workspace'
+                      change={this.changeHandler}
+                      width='80%'
+                    />
                   }
                 </div>
               : null}
@@ -191,16 +195,16 @@ class NewResource extends Component {
                 </div>
               </div>
               <div className={classes.Submit}>
-                <div className={classes.Button}><Button data-testid={`${resource}-submit`} m={5} click={this.submitForm}>Submit</Button></div>
-                <div className={classes.Button}><Button m={5} click={e => {e.preventDefault(); this.setState({creating: false})}}>Cancel</Button></div>
+                <div className={classes.Button}><Button theme={"Small"} data-testid={`${resource}-submit`} m={5} click={this.submitForm}>Submit</Button></div>
+                <div className={classes.Button}><Button theme={"small"} m={5} click={e => {e.preventDefault(); this.setState({creating: false})}}>Cancel</Button></div>
               </div>
             </form>
           </div>
         </Modal>
-        <div className={classes.Button}><Button m={5} click={this.showModal} data-testid={`create-${displayResource}`}>Create <span className={classes.Plus}><i className="fas fa-plus"></i></span></Button></div>
-        {(resource === 'activities' && courseId && !intro) ? <div className={classes.Button}><Button m={5} click={this.showModal}>Select an existing activity</Button></div> : null}
-        {(resource === 'activities' && !courseId) ? <div className={classes.Button}><Button m={5} click={this.redirectToActivity}>Select an activity from the community</Button></div> : null}
-        {(resource === 'rooms' && !intro) ? <div className={classes.Button}><Button m={5} click={this.showModal}>Create from an Activity</Button></div> : null}
+        <div className={classes.Button}><Button theme={'Small'} click={this.showModal} data-testid={`create-${displayResource}`}>Create <span className={classes.Plus}><i className="fas fa-plus"></i></span></Button></div>
+        {(resource === 'activities' && courseId && !intro) ? <div className={classes.Button}><Button theme={'Small'} click={this.showModal}>Select an existing activity</Button></div> : null}
+        {(resource === 'activities' && !courseId) ? <div className={classes.Button}><Button theme={"Small"} click={this.redirectToActivity}>Select an activity from the community</Button></div> : null}
+        {(resource === 'rooms' && !intro) ? <div className={classes.Button}><Button theme={"Small"} click={this.showModal}>Create from an Activity</Button></div> : null}
       </Aux>      
     )
   }

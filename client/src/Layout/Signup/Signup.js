@@ -65,7 +65,7 @@ class Signup extends Component {
       // the answer will determine where/if we redirect to
       this.props.loggedIn && !this.props.temp ? <Redirect to={'/myVMT/courses'}/> :
       <Aux>
-        <Background bottomSpace={-60}/>
+        {!this.props.temp ? <Background bottomSpace={-60}/> : null}
         <div className={classes.Container}>
           <div className={containerClass}>
             <h2 className={classes.Title}>Signup</h2>

@@ -4,7 +4,7 @@ import classes from './background.css';
 const Background = ({bottomSpace}) => {
   return (
     <Aux>
-      {bottomSpace > 0 ? <div className={classes.backgroundGraph}></div> : null}
+      {bottomSpace > 0 || !bottomSpace ? <div className={classes.backgroundGraph}></div> : null}
       <div className={[classes.waveWrapper, classes.waveAnimation].join(" ")} style={{bottom: bottomSpace}}>
           <div className={[classes.waveWrapperInner, classes.bgTop].join(" ")}>
               <div className={[classes.wave, classes.waveTop].join()}></div>

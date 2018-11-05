@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import classes from './homepage.css';
-import BoxList from '../BoxList/BoxList'
+// import BoxList from '../BoxList/BoxList'
 import Button from '../../Components/UI/Button/Button';
 import Background from '../../Components/Background/Background';
 import GeogebraImg from './Geogebra.png';
@@ -14,6 +14,7 @@ class Homepage extends PureComponent {
 
   containerRef = React.createRef()
   componentDidMount(){
+    console.log(this.props)
     if (Object.keys(this.props.activities).length === 0) {
       this.props.getActivities();
     }

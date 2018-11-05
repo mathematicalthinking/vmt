@@ -36,7 +36,6 @@ class Slider extends PureComponent {
     let percent = (e.clientX - sliderEl.left)/sliderEl.width
     if (percent < 0) percent = 0;
     if (percent > 1) percent = 1;
-    console.log(percent)
     this.props.goToTime(percent)
     this.setState({dragging: false})
   }
@@ -52,14 +51,11 @@ class Slider extends PureComponent {
 
   showEventDetail = (event) => {
     if (!this.state.dragging) {
-      console.log("HELLO?")
-      console.log(event.target)
       event.target.children.style = {display: 'flex'}
     }
   }
 
   eventMarks = this.props.log.map((entry, i) => {
-    console.log(entry)
     let color = entry.synthetic ? 'red' : 'green';
     let percentFromStart = entry.relTime/this.props.duration * 100;
     return <EventDesc color={color} offset={percentFromStart} entry={entry} dragging={this.state.dragging}/>

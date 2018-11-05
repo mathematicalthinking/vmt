@@ -1,11 +1,12 @@
 .Controls {
   display: flex;
   justify-content: flex-start;
+  align-items: flex-start;
   margin-bottom: 14px;
 }
 
 .Search {
   font-size: 20px;
-  flex-grow: 2;
-  margin: 5px 14px 0 0;
+  flex-grow: 1;
+  margin: 0 5px;
 }
