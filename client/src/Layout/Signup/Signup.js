@@ -59,6 +59,7 @@ class Signup extends Component {
 
   render() {
     let containerClass = this.props.temp ? classes.ModalContainer : classes.SignupContainer;
+    
     let initialValue = this.props.user ? this.props.user.username : '';
     return (
       // after creating a user redirect to login @TODO figure out if this is for creating participants or for signing up on your own
@@ -70,11 +71,11 @@ class Signup extends Component {
           <div className={containerClass}>
             <h2 className={classes.Title}>Signup</h2>
             <form className={classes.Form}>
-              <TextInput change={this.changeHandler} type='text' label='First Name' name='firstName' />
-              <TextInput change={this.changeHandler} type='text' label='Last Name' name='lastName' />
-              <TextInput change={this.changeHandler} type='text' label='Username' name='username' value={(this.state.username.length > 0) ? this.state.username : initialValue}/> 
-              <TextInput change={this.changeHandler} type='email' label='Email' name='email' />
-              <TextInput change={this.changeHandler} type='password' label='Password' name='password' />
+              <TextInput light={this.props.temp} change={this.changeHandler} type='text' label='First Name' name='firstName' />
+              <TextInput light={this.props.temp} change={this.changeHandler} type='text' label='Last Name' name='lastName' />
+              <TextInput light={this.props.temp} change={this.changeHandler} type='text' label='Username' name='username' value={(this.state.username.length > 0) ? this.state.username : initialValue}/> 
+              <TextInput light={this.props.temp} change={this.changeHandler} type='email' label='Email' name='email' />
+              <TextInput light={this.props.temp} change={this.changeHandler} type='password' label='Password' name='password' />
               <div style={{marginTop: 20}}>
                 <label>Account Type</label>
                 <div className={classes.Radios}>
