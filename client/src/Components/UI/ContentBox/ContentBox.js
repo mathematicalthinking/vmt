@@ -46,7 +46,7 @@ class ContentBox extends PureComponent{
         onMouseEnter={selecting ? this.hoverOnSelect : null}
         onMouseLeave={selecting ? () => {this.setState({showOverlay: false})} : null}
       >
-        {this.state.showOverlay ? <div className={classes.SelectOverlay} data-testid='overlay'>
+        {this.state.showOverlay ? <div className={classes.SelectOverlay} data-testid={`overlay-${this.props.title}`}>
           <i className={[classes.Plus, "fas fa-plus", animatedClass, selectedClassPlus].join(" ")}></i>
         </div> : null}
         <div className={classes.Icons}><Icons image={this.props.image} lock={this.props.locked} roomType={this.props.roomType}/></div>

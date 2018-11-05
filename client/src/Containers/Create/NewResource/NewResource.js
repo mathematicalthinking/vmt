@@ -143,14 +143,14 @@ class NewResource extends Component {
             <form className={classes.Form}>
               <div className={classes.FormSection}>
                 <TextInput
-                  modal
+                  light
                   name={`${resource}Name`}
                   label={`${displayResource} Name`}
                   change={this.changeHandler}
                   width='100%'
                 />
                 <TextInput
-                  modal
+                  light
                   name='description'
                   label='Description'
                   change={this.changeHandler}
@@ -170,7 +170,7 @@ class NewResource extends Component {
                       <div><Button>Select a Geogebra File</Button></div>
                     </div> :
                     <TextInput
-                      modal
+                      light
                       name='desmosLink'
                       label='Paste a Desmos workspace'
                       change={this.changeHandler}
@@ -181,7 +181,7 @@ class NewResource extends Component {
               : null}
               {(resource === 'rooms') ?
                 <div className={classes.FormSection}>
-                  <TextInput label='Due Date (Optional)' name='dueDate' type='date' date={this.setDate} />
+                  <TextInput light label='Due Date (Optional)' name='dueDate' type='date' date={this.setDate} />
                 </div>
               : null}
               <div className={classes.FormSection}>

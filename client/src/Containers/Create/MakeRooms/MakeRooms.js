@@ -114,14 +114,14 @@ class MakeRooms extends Component  {
       <Aux>
         <div className={classes.Container}>
           <h2>Assign Rooms</h2>
-          <div className={classes.SubContainer}><TextInput label='Due Date' name='dueDate' type='date' change={this.setDate}/></div>
+          <div className={classes.SubContainer}><TextInput light label='Due Date' name='dueDate' type='date' change={this.setDate}/></div>
           <div className={classes.Radios}>
             <RadioBtn name='random' checked={this.state.assignRandom} check={() => this.setState({assignRandom: true})}>Assign Randomly</RadioBtn>
             <RadioBtn name='manual' checked={!this.state.assignRandom} check={() => this.setState({assignRandom: false})}>Assign Manually</RadioBtn>
           </div>
           {this.state.assignRandom ?//
             <div className={classes.SubContainer}>
-              <TextInput label='Number of participants per room' type='number' change={this.setNumber}/>
+              <TextInput light label='Number of participants per room' type='number' change={this.setNumber}/>
             </div> :
             <div className={classes.SubContainer}>
               <div className={classes.ParticipantList}>

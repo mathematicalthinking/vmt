@@ -37,7 +37,7 @@ class Chat extends Component {
         <div className={classes.ChatScroll} id='scrollable'>{displayMessages}</div>
         {!replayer ?
           <div className={classes.ChatInput}>
-            <TextInput autoComplete="off" change={change} type='text' name='message' value={value}/>
+            <TextInput light autoComplete="off" change={change} type='text' name='message' value={value}/>
             <Button theme={'Small'} m={5} click={submit}>send</Button>
           </div> : null
         }
