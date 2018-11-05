@@ -5,22 +5,47 @@
   lightShadow: lightShadow;
 }
 
-.Button {
-  background-color: white;
+.Button { 
+  /* background-color: white; */
   border: none;
   align-self: center;
   padding: 8px;
   border-radius: 3px;
-  border: 1px solid #d3d2d4;
+  /* border: 1px solid #d3d2d4; */
   transition: .2s;
   font-size: inherit;
   letter-spacing: .1em;
   cursor: pointer;
-  box-shadow: lightestShadow;
+  /* box-shadow: lightestShadow; */
 }
 
+.Big {
+  color: white;
+  padding: 25px;
+  background: none;
+  border: 2px solid white;
+  border-radius: 0px;
+  /* box-shadow: 0; */
+}
+
+.Big:hover {
+  box-shadow: lightShadow;
+  background-color: blue;
+  border: 2px solid blue;
+  border-radius: 3px;
+}
+
+.Small {
+  background-color: blue;
+  color: white;
+  box-shadow: lightestShadow;
+  transition: .2s;
+}
+
+.Small:hover {
+  box-shadow: lightShadow;
+}
 .Primary {
-  color: blue;
 }
 
 .Secondary {

@@ -5,17 +5,18 @@
   flex-basis: 100px;
   list-style-type: none;
   height: 100%;
-  transition: .2s ease-out;
+  transition: .2;
+  position: relative;
   /* border: 1px solid green; */
 }
 
 .Link {
   padding: 9px;
-  color: white;
+  /* color: white; */
   letter-spacing: .07em;
 }
 
-.Item:hover {
+/* .Item:hover {
   color: white;
   background-color: #0078EC;
   text-decoration: none;
@@ -24,4 +25,23 @@
 .Link:active{
   color: white;
   background-color: #0078EC;
+} */
+
+.Item:after{
+  content: '';
+  position: absolute;
+  width: 0; height: 2px;
+  display: block;
+  border-radius: 4px;
+  margin-top: 25px;
+  right: 0;
+  background: #ddd;
+  transition: width .2s ease-in;
+  /* -webkit-transition: width .2s; */
+}
+ 
+.Item:hover:after{
+  width: 100%;
+  left: 0;
+  background: #ddd;
 }

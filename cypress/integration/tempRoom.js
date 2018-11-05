@@ -9,7 +9,7 @@ describe('temporary room', function() {
     })
   })
   it('creates a temp user and room', function() {
-    cy.contains('Explore').click()
+    cy.contains('Try out a Workspace').click()
     cy.url().should('include', 'explore')
     cy.get('input').type(user.username)
     cy.getTestElement('temp-geogebra').click()

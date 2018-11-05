@@ -1,17 +1,34 @@
 :import('../../../colors.css') {
+  darkBlue: darkBlue;
   blue: blue;
   darkShadow: darkShadow;
+  lightShadow: lightShadow;
+  navbarHeight: navbarHeight
 }
 
 .Nav {
   display: flex;
   width: 100%;
-  height: 60px;
-  background-color: blue;
+  height: navbarHeight;
+  /* background-image: linear-gradient(to top, #3a5ec9 10%, #001144 100%); */
   justify-content: center;
   /* border-radius: 3px; */
-  box-shadow: darkShadow;
+  /* box-shadow: darkShadow; */
   z-index: 1000;
+  border-top: 2px solid darkBlue;
+  position: fixed;
+  color: white;
+  background: none;
+  box-shadow: none;
+  transition: color 1s, background .5s, box-shadow .5s;
+}
+
+.LightNav {
+  color: blue;
+  border-bottom: 1px solid #999;
+  background: rgb(255, 255, 255);
+  box-shadow: lightShadow;
+
 }
 
 .NavContainer {
@@ -19,6 +36,7 @@
   justify-content: space-between;
   height: 100%;
   width: 1300px;
+  margin: 0 20px;
 }
 
 .NavList{
@@ -30,7 +48,8 @@
 
 .Logo {
   font-size: 30px;
-  color: white;
+  /* color: white; */
   display: flex;
   align-items: center;
+  letter-spacing: .07em;
 }

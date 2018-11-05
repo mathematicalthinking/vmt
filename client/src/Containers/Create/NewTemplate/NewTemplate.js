@@ -84,12 +84,14 @@ class NewTemplate extends Component {
           <h3 className={classes.Title}>Create a New Template</h3>
           <form className={classes.Form}>
             <TextInput
+              light
               name='courseName'
               label='Course Name'
               change={this.changeHandler}
               width='40%'
             />
             <TextInput
+              light
               name='description'
               label='Description'
               change={this.changeHandler}

@@ -47,3 +47,10 @@
 .Avatar {
   margin: 5px;
 }
+
+.BottomBar {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-evenly;
+  width: 90%;
+}

@@ -4,6 +4,7 @@ import Button from '../../Components/UI/Button/Button';
 import Aux from '../../Components/HOC/Auxil'
 import classes from './login.css';
 import Input from '../../Components/Form/TextInput/TextInput';
+import Background from '../../Components/Background/Background';
 class LoginLayout extends PureComponent {
   // / Im not really a fan of how this is setup anymore
   state = {
@@ -74,6 +75,7 @@ class LoginLayout extends PureComponent {
     return (
       this.props.loggedIn ? <Redirect to='/myVMT/courses'/> :
       <div className={classes.Container}>
+        <Background bottomSpace={-60}/>
         <div className={classes.LoginContainer}>
           <h2 className={classes.Title}>Login</h2>
           <form onSubmit={this.loginHandler} className={classes.Form}>
@@ -87,7 +89,7 @@ class LoginLayout extends PureComponent {
                 {/* <img className={classes.Loading} src={Loading} alt='loading' /> */}
               </Aux>
             : null}
-            <div className={classes.Submit}><Button>Login</Button></div>
+            <div className={classes.Submit}><Button theme={"Big"}>Login</Button></div>
           </form>
           {/* <div>or</div> */}
           {/* <GoogleSignIn click={this.googleLogin} /> */}

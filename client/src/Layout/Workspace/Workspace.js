@@ -1,10 +1,13 @@
 import React from 'react';
 import classes from './workspace.css';
+import { withRouter } from 'react-router-dom';
 // import Aux from '../../../Components/HOC/Auxil';
 import CurrentMembers from '../../Components/CurrentMembers/CurrentMembers';
 import Button from '../../Components/UI/Button/Button';
-const workspaceLayout = ({graph, chat, replayer, members, activeMember, temp, save, loggedIn}) => {
-  console.log(loggedIn)
+const workspaceLayout = ({
+  graph, chat, replayer, 
+  members, activeMember, temp, 
+  save, loggedIn, description, history}) => {
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container} style={{maxHeight: window.innerHeight - (replayer ? 400 : 300)}}>
@@ -14,13 +17,16 @@ const workspaceLayout = ({graph, chat, replayer, members, activeMember, temp, sa
           <div className={classes.Members}>
             <CurrentMembers members={members.map(member => member.user)} activeMember={activeMember}/>
           </div>
+          <Button click={() => history.goBack()} theme={'Small'} m={20} data-testid='exit-room'>Exit Room</Button>
         </div>
       </div>
       {temp && !loggedIn ? 
         <div>
-          <Button data-testid='save-temp' m={20} click={save}>Save This Workspace</Button>
+          <Button theme={'Small'} data-testid='save-temp' m={20} click={save}>Save This Workspace</Button>
         </div> :
-        null
+        <div className={classes.BottomBar}>
+          <div className={classes.RoomDescription}>Assignment Description: {description}</div>
+        </div>
       }
       {replayer ?
         <div className={classes.Replayer}>
@@ -30,4 +36,4 @@ const workspaceLayout = ({graph, chat, replayer, members, activeMember, temp, sa
     </div>
   )
 }
-export default workspaceLayout;
+export default withRouter(workspaceLayout);

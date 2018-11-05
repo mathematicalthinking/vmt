@@ -65,6 +65,7 @@ class Workspace extends Component {
           () => <GgbGraph room={room} socket={this.socket} user={user} /> :
           () => <DesmosGraph  room={room} socket={this.socket} user={user} />}
         chat = {() => <Chat roomId={room._id} messages={room.chat || []} socket={this.socket} user={user} />}
+        description={room.description}
       />
     )
   }

@@ -45,7 +45,7 @@ class privateAccess extends Component {
         <p className={classes.Description}>{`You currently don't have access to this ${resource}. If you know this 
           ${resource}'s entry code, you can enter it below`}
         </p>
-        <TextInput type='text' name='entryCode' change={this.updateEntry}/>
+        <TextInput light type='text' name='entryCode' change={this.updateEntry}/>
         <Button m={10} click={this.joinWithCode}>Join</Button>
         <p>{`Otherwise you can ask this ${resource}'s owner for access`}</p>
         <Button m={10} click={this.requestAccess} data-testid='request-access-btn'>Request Access</Button>

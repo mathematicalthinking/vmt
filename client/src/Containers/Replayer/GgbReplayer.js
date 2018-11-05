@@ -31,12 +31,15 @@ class GgbReplayer extends Component {
     else if (prevProps.log[prevProps.index]._id !== log[index]._id && !this.state.loading && !log[index].text) {
       this.constructEvent(log[index])
     }
+    else if (!this.state.loading){
+      this.constructEvent(log[index])
+    }
   }
 
   constructEvent(event) {
     switch (event.eventType) {
       case 'ADD':
-        if (event.definition) {
+      if (event.definition && event.definition !== '') {
           this.ggbApplet.evalCommand(`${event.label}:${event.definition}`)
         }
         this.ggbApplet.evalXML(event.event)
@@ -58,7 +61,7 @@ class GgbReplayer extends Component {
       "id":"ggbApplet",
       "width": 1300 * .75, // 75% width of container
       "height": GRAPH_HEIGHT,
-      "scaleContainerClass": 'applet_container',
+      "scaleContainerClass": 'applet_container', // this doesn't seem to be working
       "showToolBar": false,
       "showMenuBar": false,
       "showAlgebraInput": true,

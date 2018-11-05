@@ -19,9 +19,10 @@ class EventDesc extends Component {
   }
 
   render() {
-    const {entry, offset, color} = this.props;
+    let {entry, offset, color} = this.props;
+    let offS = offset > 99 ? `calc(${offset}% - 4px)` : `${offset}%`
     return (
-      <div style={{backgroundColor: this.state.show ? '#2D91F2' : color, left: `${offset}%`}} className={classes.Event} onPointerEnter={this.mouseEnter} onPointerOut={this.mouseExit}>
+      <div style={{backgroundColor: this.state.show ? '#2D91F2' : color, left: offS}} className={classes.Event} onPointerEnter={this.mouseEnter} onPointerOut={this.mouseExit}>
         <div className={classes.EventDetails} style={{left: `calc(${offset}% - 50px)`, display: `${this.state.show ? 'flex' : 'none'}`}}>{entry.description || entry.text || entry.message}</div>
       </div>
     )

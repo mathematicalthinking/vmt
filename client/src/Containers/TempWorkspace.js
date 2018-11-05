@@ -115,8 +115,8 @@ class TempWorkspace extends Component {
           <Signup temp user={this.state.user} room={this.props.room._id} closeModal={() => this.setState({saving: false})}/>
         </Modal>
         <WorkspaceLayout
-          temp={true}
-          loggedIn={this.props.loggedIn}
+          temp
+          loggedIn={false}
           save={this.saveWorkSpace}
           members = {this.state.room.currentUsers || []}
           graph = {this.state.graph === 'geogebra' ? 
@@ -128,7 +128,7 @@ class TempWorkspace extends Component {
       </Aux> :
       <Modal show={!this.state.user}>
         Enter a temporary username
-        <TextInput change={this.setName} />
+        <TextInput light change={this.setName} />
         <div>{this.state.errorMessage}</div>
         { this.state.firstEntry ?
           <div>

@@ -5,10 +5,16 @@ import { Link } from 'react-router-dom';
 import Aux from '../../HOC/Auxil';
 import classes from './homeNav.css';
 const navbar = (props) => {
+  let styles = classes.Nav;
+  // console.log(props.scrollPosition)
+  if ((props.scrollPosition > .4)) {
+    styles = [classes.Nav, classes.LightNav].join(" ")
+  }
+
   return (
-    <nav className={classes.Nav}>
+    <nav className={styles}>
       <div className={classes.NavContainer}>
-        <div className={classes.Logo}><Link to='/'>Logo</Link></div>
+        <div className={classes.Logo}><Link to='/'>Virtual Math Teams</Link></div>
         <ul className={classes.NavList}>
           {props.loggedIn ? <NavItem link='/myVMT/courses' name='My VMT' /> :
           <Aux>

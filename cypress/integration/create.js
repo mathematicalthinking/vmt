@@ -83,7 +83,7 @@ describe('create each type of resource', function(){
     cy.getTestElement('select-tag').should('exist')
     cy.getTestElement('select-count').contains('0').should('exist')
     cy.getTestElement('content-box-ACTIVITY 1').trigger('mouseover')
-    cy.getTestElement('overlay').click();
+    cy.getTestElement('overlay-ACTIVITY 1').click();
     cy.getTestElement('select-count').contains('1').should('exist')
     cy.contains('My VMT').click()
     cy.getTestElement('tab').contains('Activities').click()

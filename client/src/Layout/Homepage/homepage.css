@@ -2,6 +2,8 @@
 @value blue from colors; */
 
 :import('../../colors.css') {
+  gridBlue: gridBlue;
+  darkBlue: darkBlue;
   blue: blue;
   orange: orange;
   gray: backgroundGray;
@@ -11,44 +13,135 @@
   maxWidth: maxWidth;
 }
 
-.Banner {
-  position: relative;
+.Main {
+  z-index: 100;
   width: 100%;
-  height: 350px;
-  justify-content: center;
+  /* border: 2px solid red; */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+}
+.Top {
+  margin-top: 23vh;
+  color: white;
+  font-size: 24px; 
+  text-align: center;
+  transition: .2s;
+  height: 77vh;
+}
+
+@keyframes bounce_arrow {
+  0% {bottom: 0px;}
+  70%{ bottom: 0px;}
+  80% {bottom: -20px;}
+  85% {bottom: 10px;}
+  100% {bottom: 0px;}
+}
+
+.BackgroundExtension {
+  position: absolute;
+  top: 99%;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  /* overflow-x: hidden; */
+  background-size: 25px 25px;
+  background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
+  z-index: 20;
+  height: 5vh
+}
+
+.Ex2 {
+  position: absolute;
+  top: 99%;
+  bottom: 0;
+  left: 0;
+  width: 7%;
+  background-size: 25px 25px;
+  background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
+  z-index: 20;
+  height: 15vh
+}
+
+.Ex3 {
+  position: absolute;
+  top: 99%;
+  bottom: 0;
+  left: 0;
+  width: 14%;
+  background-size: 50px 50px;
+  background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
+  z-index: 20;
+  height: 8vh
+}
+
+.Ex4 {
+  position: absolute;
+  top: 99%;
+  bottom: 0;
+  left: 0;
+  width: 3%;
+  background-size: 25px 25px;
+  background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
+  z-index: 20;
+  height: 25vh
+}
+
+.Ex5 {
+  position: absolute;
+  top: 109%;
+  bottom: 0;
+  right: 150px;
+  /* width: 14%; */
+  background-size: 50px 50px;
+  background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
+  z-index: 20;
+  height: 8vh
+} 
+.Down {
+  position: absolute;
+  cursor: pointer;
+  bottom: 0;
+  height: 20vh;
+  font-size: 150px;
+  background: -webkit-linear-gradient(#a4deff, blue);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: bounce_arrow 3s infinite;
+}
+
+.Options {
+  width: 100%;
+  height: 100vh;
+}
+
+.Geogebra {
+  margin-top: 61px;
+  display: flex;
   align-items: center;
 }
 
-.Banner::before {
-  content: "";
-  height: 100%;
-  width: 100%;
-  position: absolute;
-  top: 3px;
-  left: 0;
-  filter:blur(5px) brightness(150%) grayscale(20%);
-  background: url('./Picture-5.jpg');
-  background-position: 0% 20%;
-  background-size: cover;
-
+.LongerBlurb {
+  font-size: 20px;
 }
 
-.GetStarted {
-  position: relative;
-  width: 400px;
-  height: 247px;
-  left: calc(50% - 200px);
-  top: calc(50% - 123.5px);
-  padding: 15px;
-  border-radius: 4px;
-  text-align: center;
-  box-shadow: darkShadow;
-  background-color: backgroundGray;
+.GgbImage {
+  height: 300px;
+}
+
+
+.Desmos {
   display: flex;
-  flex-flow: column;
-  justify-content: center;
-  color: blue;
-  filter: grayscale(0);
+  align-items: center;
+  flex-flow: row-reverse;
+}
+
+.DesmosImage {
+  height: 250px;
+  margin: 20px;
+  border-radius: 20px;
 }
 
 .Content {
