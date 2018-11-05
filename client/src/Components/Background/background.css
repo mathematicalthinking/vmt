@@ -1,29 +1,17 @@
 @keyframes move_wave {
-  0% {
-      transform: translateX(0) translateZ(0) scaleY(1)
-  }
-  50% {
-      transform: translateX(-25%) translateZ(0) scaleY(.65)
-  }
-  100% {
-      transform: translateX(-50%) translateZ(0) scaleY(1)
-  }
+  0% {transform: translateX(0) translateZ(0) scaleY(1)}
+  50% {transform: translateX(-25%) translateZ(0) scaleY(.65)}
+  100% {transform: translateX(-50%) translateZ(0) scaleY(1)}
 }
 
 @keyframes move_wave_2 {
-  0% {
-      transform: translateX(0) translateZ(0) scaleY(1)
-  }
-  50% {
-      transform: translateX(-25%) translateZ(0) scaleY(.25)
-  }
-  100% {
-      transform: translateX(-50%) translateZ(0) scaleY(1)
-  }
+  0% {transform: translateX(0) translateZ(0) scaleY(1)}
+  50% {transform: translateX(-25%) translateZ(0) scaleY(.25)}
+  100% {transform: translateX(-50%) translateZ(0) scaleY(1)}
 }
 .backgroundGraph {
   position: absolute;
-  top: 56%;
+  top: 58%;
   bottom: 0;
   left: 0;
   right: 0;
@@ -32,7 +20,7 @@
   background-image: linear-gradient(to right, #a4deff .5px, transparent 1px), linear-gradient(to bottom, #a4deff .5px, transparent 1px) !important;
   font-family: 'Voces', 'sans-serif';
   z-index: 20;
-  height: 44vh
+  height: 42vh
 }
 .waveWrapper {
   overflow: hidden;
@@ -49,7 +37,7 @@
   overflow: hidden;
   height: 100%;
   bottom: -1px;
-  background-image: linear-gradient(to top, #d4edfc 1%, #a4deff 20%, #001144 100%);
+  background-image: linear-gradient(to top, #d4edfc 1%, #a4deff 15%, #001144 100%);
 }
 .bgTop {
   z-index: 15;

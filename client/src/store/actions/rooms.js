@@ -116,7 +116,7 @@ export const createRoom = body => {
       return dispatch(loading.success())
     })
     .catch(err => {
-      dispatch(loading.fail(err))
+      dispatch(loading.fail(err.response.data))
     })
   }
 }

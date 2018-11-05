@@ -5,13 +5,30 @@ import { Homepage, Login, Signup, TempWorkspace, Community } from '../Containers
 import classes from './main.css'
 import Aux from '../Components/HOC/Auxil';
 class Home extends PureComponent {
+
+  state = {
+    scrollPosition: 0
+  }
+
+  componentDidMount(){
+    window.addEventListener('scroll', this.handleScroll)
+  }
+
+  handleScroll = event => {
+    // console.log('handling croll')
+    // // console.log(event)
+    // console.log(event.srcElement.scrollingElement.scrollTop)
+    // // console.log(window)
+    this.setState({scrollPosition: event.srcElement.scrollingElement.scrollTop/window.innerHeight})
+  }
+
   render () {
     return (
       <Aux>
-        <HomeNav />
+        <HomeNav scrollPosition={this.state.scrollPosition}/>
         <div className={classes.Container}>
         <Switch>
-          <Route exact path='/' component={Homepage} />
+          <Route exact path='/' render={() => <Homepage scrollPosition={this.state.scrollPosition}/>} />
           <Route path='/community/:resource/:action' component={Community} />
           <Route path='/community/:resource' component={Community} />
           <Route path='/login' component={Login} />

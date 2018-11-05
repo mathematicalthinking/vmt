@@ -5,14 +5,14 @@
   flex-basis: 100px;
   list-style-type: none;
   height: 100%;
-  transition: .2s ease-out;
+  transition: .2;
   position: relative;
   /* border: 1px solid green; */
 }
 
 .Link {
   padding: 9px;
-  color: white;
+  /* color: white; */
   letter-spacing: .07em;
 }
 

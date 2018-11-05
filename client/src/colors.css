@@ -1,6 +1,7 @@
 :export {
   blue: #2D91F2;
   lightBlue: #75b7f6;
+  darkBlue: #001144;
   teal: #30BDB4;
   backgroundGray: #f9f8f7;
   orange: #FFD549;
@@ -12,5 +13,5 @@
   lightShadow: 0 8px 17px 2px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.2);
   darkShadow: 0 12px 20px 3px rgba(0,0,0,0.34), 0 9px 46px 8px rgba(0,0,0,0.22), 0 11px 15px -7px rgba(0,0,0,0.2);
   maxWidth: 1300px;
-  navbarHeight: 40px;
+  navbarHeight: 60px;
 }

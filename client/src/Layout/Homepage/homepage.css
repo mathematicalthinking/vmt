@@ -22,12 +22,12 @@
 
 }
 .Top {
-  margin-top: 26vh;
+  margin-top: 23vh;
   color: white;
   font-size: 24px; 
   text-align: center;
   transition: .2s;
-  height: 74vh;
+  height: 77vh;
 }
 
 @keyframes bounce_arrow {

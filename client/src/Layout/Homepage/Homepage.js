@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import classes from './homepage.css';
 import BoxList from '../BoxList/BoxList'
@@ -11,12 +12,16 @@ import Aux from '../../Components/HOC/Auxil';
 // console.log(bannerImage)
 class Homepage extends PureComponent {
 
+  containerRef = React.createRef()
   componentDidMount(){
     if (Object.keys(this.props.activities).length === 0) {
       this.props.getActivities();
     }
+    this.node = ReactDOM.findDOMNode(this);
+    this.node.scrollTop = this.node.scrollHeight;
+    console.log(this.node.scrollTop)
   }
-
+  
   componentDidUpdate(prevProps) {
     if (prevProps.rooms !== this.props.rooms) {
       const currentRooms = Object.keys(this.props.rooms).map(id => this.props.rooms[id])
@@ -24,19 +29,28 @@ class Homepage extends PureComponent {
       let room = currentRooms.filter(room => !prevRooms.includes(room))
       this.props.history.push(`explore/${room[0]._id}`)
     }
+    if ((prevProps.scrollPosition === 0) && (this.props.scrollPosition > 0)) {
+      this.scrollToDomRef();
+    }
   }
 
   
   createRoom = () => {
-    console.log('creating room')
     this.props.createRoom({
       name: 'temp room',
       tempRoom: true,
     })
   }
 
+  scrollToDomRef = () => {
+    window.scroll({top: this.containerRef.current.offsetTop, left: 0, behavior: 'smooth'})
+}
+
+  
+
   render() {
-    const list = Object.keys(this.props.activities).map(id => this.props.activities[id]) || []
+    // console.log(this.props.scrollPosition)
+    // const list = Object.keys(this.props.activities).map(id => this.props.activities[id]) || []
     return (
       <Aux>
         <Background/>
@@ -47,8 +61,8 @@ class Homepage extends PureComponent {
             </p>
             <Button theme={'Big'} click={this.createRoom} m={35}>Try out a Workspace</Button>
           </section>
-          <i className={["fas fa-chevron-down", classes.Down].join(" ")}></i>
-          <section className={classes.Options}>
+          <i onClick={this.scrollToDomRef} className={["fas fa-chevron-down", classes.Down].join(" ")}></i>
+          <section className={classes.Options} ref={this.containerRef}>
             <div className={classes.Geogebra}>
               <img className={classes.GgbImage} src={GeogebraImg} alt='geogebra' />
               <div>
