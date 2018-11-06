@@ -22,7 +22,7 @@ class Members extends Component {
     if (notifications.length > 0){
       notifications.forEach(ntf => {
         if (ntf.notificationType === 'newMember') {
-          this.props.clearNotification(ntf._id, user._id, parentResource, 'access',)
+          this.props.clearNotification(ntf._id, user._id, ntf.user._id, parentResource, 'access', ntf.notificationType)
         }
       })
     }

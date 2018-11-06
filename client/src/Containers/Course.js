@@ -40,10 +40,11 @@ class Course extends Component {
     let firstView = false;
     if (accessNotifications.length > 0) {
      accessNotifications.forEach(ntf => {
+       console.log("NTF: ", ntf)
         if (ntf.notificationType === 'grantedAccess' && ntf._id === course._id) {
           // RESOLVE THIS NOTIFICATION
           firstView = true;
-          clearNotification(course._id, user._id, 'courses', 'access') //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
+          clearNotification(course._id, user._id, null, 'courses', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
         }
       })
     }

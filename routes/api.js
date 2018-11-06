@@ -71,6 +71,7 @@ router.put('/:resource/:id/add', (req, res, next) => {
 
 router.put('/:resource/:id/remove', (req, res, next) => {
 	let { resource, id, } = req.params;
+	console.log(resource, id, req.body)
 	let controller = controllers[resource];
 	controller.remove(id, req.body)
 	.then(result => res.json(result))

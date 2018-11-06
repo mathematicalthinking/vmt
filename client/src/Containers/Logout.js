@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { logout } from '../store/actions'
 
 const Logout = props => {
-  console.log('we in here')
   props.logout()
   return (
     <Redirect to="/" />

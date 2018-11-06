@@ -1,7 +1,7 @@
 import {
   updateCourse,
   updateRoom,
-  updateNotifications,
+  removeNotification,
   addUserRooms,
   addRoomMember,
   addUserCourses,
@@ -49,28 +49,28 @@ export const grantAccess = (user, resource, resourceId) => {
   return (dispatch, getState) => {
     dispatch(loading.start())
     let thisUser = getState().user._id;
-    API.removeNotification(resourceId, thisUser, resource, 'access')
+    let singResource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOYING
+    API.removeNotification(resourceId, thisUser, user, singResource, 'access', 'requestAccess')
     .then(res => {
-      let singResource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOYING MAKING IT SINGLUAR
-      dispatch(updateNotifications(resource, res.data.result[`${singResource}Notifications`]))
+      console.log("res1: ", res)
+      dispatch(removeNotification(singResource, 'access', user, resourceId))
       // dispatch(gotUser(res.data))
     })
     .catch(err => console.log(err))
     API.grantAccess(user, resource, resourceId)
     .then(res => {
+      console.log('res 2')
       if (resource === 'rooms') {
-        console.log("UPDATING ROOMS ")
-        console.log("RES: ", res.data)
-        dispatch(updateRoom(resourceId, {members: res.data}))
+        dispatch(updateRoom(resourceId, {members: res.data})) // change to add 
       } else if (resource === 'courses') {
-        dispatch(updateCourse(resourceId, {members: res.data}))
+        dispatch(updateCourse(resourceId, {members: res.data})) // change to add 
       }
-      let { user } = getState()
-      let singResource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOTING \\ WE COULD JUST REANME THE FIELD courseSnotifications?
-      let updatedNotifications = user[`${singResource}Notifications`]
-      updatedNotifications.access = user[`${singResource}Notifications`].access.filter(ntf => {
-        return ntf._id !== resourceId
-      })
+      // let { user } = getState()
+      // let singResource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOTING \\ WE COULD JUST REANME THE FIELD courseSnotifications?
+      // let updatedNotifications = user[`${singResource}Notifications`]
+      // updatedNotifications.access = user[`${singResource}Notifications`].access.filter(ntf => {
+      //   return ntf._id !== resourceId
+      // })
       dispatch(loading.success())
     })
     .catch(err => {console.log(err); dispatch(loading.fail(err))})

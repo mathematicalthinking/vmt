@@ -87,16 +87,25 @@ export const addUserCourseTemplates = newTemplate => {
   }
 }
 
-export const updateNotifications = (resource, updatedNotifications) => {
+export const updateNotifications = (updatedNotifications) => {
+  console.log("updated notifications: ", updatedNotifications)
   return {
     type: actionTypes.UPDATE_NOTIFICATIONS,
     updatedNotifications,
+  }
+}
+
+export const removeNotification = (resource, listType, user, ntfId) => {
+  return {
+    type: actionTypes.REMOVE_NOTIFICATION,
     resource,
+    listType,
+    user,
+    ntfId,
   }
 }
 
 export const updateUserResource = (resource, resourceId, userId) => {
-  console.log('why we no make it here')
   return (dispatch) => {
     API.addUserResource(resource, resourceId, userId)
     .then(res => {
@@ -107,12 +116,15 @@ export const updateUserResource = (resource, resourceId, userId) => {
   }
 }
 
-export const clearNotification = (ntfId, userId, resource, listType, ntfType) => {
+// For clearing notifications after the user has seen it. As opposed to request for access notifications which are cleared
+// when the user explicitly grants access (see actions.access)
+export const clearNotification = (ntfId, userId, requestingUser, resource, listType, ntfType) => {
   return (dispatch) => {
-    API.removeNotification(ntfId, userId, resource, listType, ntfType)
+    let singResource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOYING
+    console.log('removing from backend')
+    API.removeNotification(ntfId, userId, requestingUser, singResource, listType, ntfType)
     .then(res => {
-      let singResource = resource.slice(0, resource.length - 1)
-      dispatch(updateNotifications(singResource, res.data.result[`${singResource}Notifications`]))
+      dispatch(removeNotification(singResource, listType, requestingUser, ntfId))
       // dispatch(gotUser(res.data))
     })
     .catch(err => console.log(err))

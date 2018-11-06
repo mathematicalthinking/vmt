@@ -13,6 +13,7 @@ export {
   removeUserCourse,
   removeUserRooms,
   removeUserActivities, // ARE WE STORING ACTIVITIES ON THE USER OBJECT?
+  removeNotification,
   addUserRooms,
   updateNotifications,
   addUserCourses,

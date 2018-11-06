@@ -21,6 +21,7 @@ input.Input{
   font-size: 35px;
   caret-color: lightBlue;
   color: white;
+  transition: .2s
 }
 
 input:-webkit-autofill {
@@ -30,9 +31,9 @@ input:-webkit-autofill {
 
 input.Input:focus {
   box-shadow: none !important;
-  border: 1px solid red !important;
+  /* border: 1px solid red !important; */
   outline: none !important;
-  border-bottom: 1px solid lightBlue !important;
+  border-bottom: 1px solid blue !important;
 }
 
 .Label {

@@ -38,19 +38,6 @@ module.exports = {
         query = {$addToSet: {'roomNotifications.access': body}}
       }
     }
-    if (body.notificationType === 'newRoom') {
-
-    }
-    if (body.removeNotification) {
-      // if (body.ntfType === 'newMember') {
-        //   query = 
-        // }
-      console.log("EDITING USER: ", body, id)
-      let { resource, listType, ntfId } = body.removeNotification;
-      resource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOYING
-      console.log(resource)
-      query =  {$pull: {[`${resource}Notifications.${listType}`]: {_id: ntfId}}}
-    }
 
     return new Promise((resolve, reject) => {
       if (query) body = query;
@@ -63,8 +50,22 @@ module.exports = {
 
   add: (id, body) => {
     return new Promise((resolve, reject) => {
-      db.User.findByIdAndUpdate(id, {$addToSet: body})
+      db.User.findByIdAndUpdate(id, {$addToSet: body},{new: true})
       .then(res => resolve(res))
+      .catch(err => reject(err))
+    })
+  },
+
+  remove: (id, body) => {
+    console.log('hit remove controller')
+    return new Promise((resolve, reject) => {
+      let key = Object.keys(body)[0].split('.')[0];
+      db.User.findByIdAndUpdate(id, {$pull: body}, {new: true})
+      // .populate(key, 'select', user.username)
+      .then(res =>{
+        console.log({[key]: res[key]})
+        resolve({[key]: res[key]})
+        })
       .catch(err => reject(err))
     })
   }
