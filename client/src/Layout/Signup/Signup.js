@@ -97,7 +97,9 @@ class Signup extends Component {
             <div className={classes.ErrorMsg}>
               <div className={classes.Error}>{this.props.errorMessage}</div>
             </div>
-            <div className={classes.Submit}><Button theme={"Big"} data-testid='submit-signup'click={this.signUp}>Signup</Button></div>
+            <div className={classes.Submit}>
+              <Button theme={this.props.temp ? "Small" : "Big"} data-testid='submit-signup'click={this.signUp}>Signup</Button>
+            </div>
           </div>
         </div>
       </Aux>

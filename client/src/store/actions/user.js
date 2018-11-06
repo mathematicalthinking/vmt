@@ -67,6 +67,10 @@ export const removeUserRooms = roomIdsArr => {
   }
 }
 
+export const logout = () => {
+  return{type: actionTypes.LOGOUT}
+}
+
 // export const updateUserAccessNtfs = (resource, user) => {
 //   if (resource === 'courses') {
 //     return {

@@ -10,3 +10,4 @@ export { default as Activity } from './Activity';
 export { default as Room } from './Room';
 export { default as Access } from './Access';
 export { default as Replayer } from './Replayer/Replayer';
+export { default as Logout } from './Logout';

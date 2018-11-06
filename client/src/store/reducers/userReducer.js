@@ -39,6 +39,10 @@ const reducer = (state = initialState, action) => {
         accountType: action.user.accountType,
         bothRoles: action.user.bothRoles,
       }
+    case actionTypes.LOGOUT: 
+      return {
+        initialState
+      }
     case actionTypes.UPDATE_USER:
       return {
         ...state,
