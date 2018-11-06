@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import classes from './homepage.css';
 // import BoxList from '../BoxList/BoxList'
@@ -18,8 +17,6 @@ class Homepage extends PureComponent {
     if (Object.keys(this.props.activities).length === 0) {
       this.props.getActivities();
     }
-    this.node = ReactDOM.findDOMNode(this);
-    this.node.scrollTop = this.node.scrollHeight;
   }
   
   componentDidUpdate(prevProps) {
@@ -43,6 +40,7 @@ class Homepage extends PureComponent {
   }
 
   scrollToDomRef = () => {
+    console.log("scrolling to dom ref")
     window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
 }
 

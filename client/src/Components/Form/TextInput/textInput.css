@@ -11,7 +11,7 @@
   width: 100%;
 }
 
-.Input{
+input.Input{
   /* width: 100%; */
   padding: 10px;
   /* border-radius: 4px; */
@@ -28,10 +28,11 @@ input:-webkit-autofill {
 
 }
 
-input:focus {
+input.Input:focus {
   box-shadow: none !important;
-  border: none !important;
-  border-bottom: 2px solid lightBlue;
+  border: 1px solid red !important;
+  outline: none !important;
+  border-bottom: 1px solid lightBlue !important;
 }
 
 .Label {

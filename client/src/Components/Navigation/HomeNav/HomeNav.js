@@ -7,7 +7,7 @@ import classes from './homeNav.css';
 const navbar = (props) => {
   let styles = classes.Nav;
   // console.log(props.scrollPosition)
-  if ((props.scrollPosition > .4)) {
+  if ((props.scrollPosition > .4 || props.page.includes('explore'))) {
     styles = [classes.Nav, classes.LightNav].join(" ")
   }
 

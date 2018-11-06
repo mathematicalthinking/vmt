@@ -15,11 +15,13 @@
   /* width: 100%; */
   padding: 10px;
   /* border-radius: 4px; */
-  border: 1px solid blue !important;
+  border: none;
+  border-bottom: 2px solid lightBlue !important;
   background: none !important;
   font-size: 35px;
   caret-color: blue;
   color: blue;
+  transition: .2s;
 }
 
 input:-webkit-autofill {
@@ -30,7 +32,8 @@ input:-webkit-autofill {
 input:focus {
   box-shadow: none !important;
   border: none !important;
-  border-bottom: 2px solid lightBlue;
+  outline: none !important;
+  border-bottom: 2px solid blue !important;
 }
 
 .Label {

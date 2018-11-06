@@ -15,6 +15,7 @@ class Home extends PureComponent {
   }
 
   handleScroll = event => {
+    console.log('handling scroll')
     // console.log('handling croll')
     // // console.log(event)
     // console.log(event.srcElement.scrollingElement.scrollTop)
