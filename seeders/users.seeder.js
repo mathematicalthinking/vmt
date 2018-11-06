@@ -65,6 +65,28 @@ var data = [
   "lastName": "Laforge",
   "password": "$2b$12$YNI6y1M6u4/Y4mAP.E312OYN./uTIJqKGfUREnhNJ8vs8t/4hbAua",
   "accountType": "participant",
+},{
+  "_id": "5be1eba75854270cd0920fb8",
+  "roomNotifications": {
+    "access": [],
+    "newRoom": []
+  },
+  "courseNotifications": {
+    "access": [],
+    "newRoom": []
+  },
+  "courseTemplates": [],
+  "courses": [],
+  "rooms": [],
+  "activities": [],
+  "isAdmin": false,
+  "seenTour": false,
+  "username": "data",
+  "email": "data@example.com",
+  "firstName": "NFN/NMI",
+  "lastName": "data",
+  "password": "$2b$12$Kzr5WEtkOzsCG9LS5fd8G.HVjUk4xp3p/wdzDNB/B5CEWB.oBKEji",
+  "accountType": "participant",
 }
 ];
 

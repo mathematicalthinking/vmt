@@ -2,6 +2,7 @@
 const exec = require('child_process').exec
 const user1 = require('../fixtures/user')
 const user2 = require('../fixtures/user2')
+const user3 = require('../fixtures/user3')
 const course = require('../fixtures/course')
 const room = require('../fixtures/room')
 const activity = require('../fixtures/activity')
@@ -21,20 +22,35 @@ describe('test access requests', function(){
     cy.getTestElement('request-access-btn').click()
     cy.url().should('include', '/confirmation')
   })
+  it("user3 requests access to course 1", function(){
+    cy.login(user3)
+    cy.contains('Community').click()
+    cy.url().should('include', 'community/activities')
+    cy.contains('Courses').click()
+    cy.url().should('include', 'community/courses')
+    cy.getTestElement('content-box-course 1').click()
+    cy.getTestElement('request-access-btn').click()
+    cy.url().should('include', '/confirmation')
+  })
   it("user1 gets a notification and grants access to course 1", function(){
     cy.login(user1)
     cy.url().should('include', 'myVMT/courses')
     // cy.wait(1111)
-    cy.getTestElement('tab-ntf').contains('1').should('exist')
-    cy.getTestElement('content-box-ntf').contains('1').should('exist')
+    cy.getTestElement('tab-ntf').contains('2').should('exist')
+    cy.getTestElement('content-box-ntf').contains('2').should('exist')
     cy.getTestElement('content-box-course 1').click()
     // cy.getTestElement('tab-ntf').contains('1')
     cy.get('#Members').click()
-    cy.getTestElement('join-requests').children().should('have.length', 1) // One div is the request the other is the modal to trash it
-    cy.getTestElement('grant-access').click()
-    cy.getTestElement('tab-ntf').should('not.exist')
+    cy.getTestElement('join-requests').children().should('have.length', 2) // One div is the request the other is the modal to trash it
+    cy.getTestElement('grant-access-g-laforge').click()
+    cy.getTestElement('tab-ntf').contains('1').should('exist')
     cy.getTestElement('members').children().should('have.length', 2)
     cy.contains(user2.username).should('exist')
+    cy.getTestElement('join-requests').children().should('have.length', 1)
+    cy.getTestElement('grant-access-data').click()
+    cy.getTestElement('members').children().should('have.length', 3)
+    cy.getTestElement('join-requests').children().should('not.exist')
+
     // MAKE SURE THE NOTIFICATION IS VISUALLY RESOLVED
   })
   it("user2 gets a notification they have access to course 1", function(){
