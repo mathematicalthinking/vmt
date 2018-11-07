@@ -24,12 +24,12 @@
   transition: .2s;
 }
 
-input:-webkit-autofill {
+.Input:-webkit-autofill {
   -webkit-text-fill-color: blue !important;
 
 }
 
-input:focus {
+.Input:focus {
   box-shadow: none !important;
   border: none !important;
   outline: none !important;

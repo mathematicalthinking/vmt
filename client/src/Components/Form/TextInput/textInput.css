@@ -11,7 +11,7 @@
   width: 100%;
 }
 
-input.Input{
+.Input{
   /* width: 100%; */
   padding: 10px;
   /* border-radius: 4px; */
@@ -24,12 +24,12 @@ input.Input{
   transition: .2s
 }
 
-input:-webkit-autofill {
+.Input:-webkit-autofill {
   -webkit-text-fill-color: blue !important;
 
 }
 
-input.Input:focus {
+.Input:focus {
   box-shadow: none !important;
   /* border: 1px solid red !important; */
   outline: none !important;

@@ -74,7 +74,7 @@ class GgbGraph extends Component {
   }
 
   componentWillUnmount() {
-    if (this.ggbApplet.listeners) {
+    if (this.ggbApplet && this.ggbApplet.listeners) {
       delete window.ggbApplet;
       this.ggbApplet.unregisterAddListener(this.addListener);
       this.ggbApplet.unregisterUpdateListener();

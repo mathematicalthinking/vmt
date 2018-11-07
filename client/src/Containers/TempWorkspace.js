@@ -88,7 +88,9 @@ class TempWorkspace extends Component {
   }
 
   componentWillUnmount () {
-    this.socket.emit('disconnect')
+    if (this.socket) {
+      this.socket.emit('disconnect')
+    }
     // window.removeEventListener("beforeunload", this.confirmUnload)
     window.removeEventListener("beforeunload", this.confirmUnload)
   }

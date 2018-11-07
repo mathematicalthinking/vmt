@@ -48,10 +48,12 @@ class Workspace extends Component {
       username: user.username,
       roomName: room.name,
     }
-    this.socket.emit('LEAVE', data, (res) => {
-      updateRoom(room._id, {currentUsers: room.currentUsers.filter(u => u._id !== user._id)})
-      this.socket.disconnect();
-    })
+    if (this.socket) {
+      this.socket.emit('LEAVE', data, (res) => {
+        updateRoom(room._id, {currentUsers: room.currentUsers.filter(u => u._id !== user._id)})
+        this.socket.disconnect();
+      })
+    }
   }
 
   render() {
