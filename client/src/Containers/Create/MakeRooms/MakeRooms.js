@@ -96,7 +96,6 @@ class MakeRooms extends Component  {
   }
 
   render() {
-    console.log(this.props)
     // @TODO STUDENTLIST SHOULD REFLECT THIS.STATE.REMAINING STUDENTS -- RIGHT NOW THERE IS A
     // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
     let participantList = this.state.remainingParticipants.map((participant, i) => {

@@ -30,8 +30,6 @@ export default {
   },
 
   removeNotification: (ntfId, userId, requestingUser, resource, listType, ntfType) => {
-    console.log(ntfId, userId, requestingUser, resource, listType, ntfType)
-    
     return axios.put(`/api/user/${userId}/remove`, {
       [`${resource}Notifications.${listType}`]: {
         notificationType: ntfType,

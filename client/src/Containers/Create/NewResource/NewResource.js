@@ -98,7 +98,6 @@ class NewResource extends Component {
             newResource.course = this.props.courseId;
             delete newResource.members
           }
-          console.log('bout to creat and activity: image: ', newResource.image)
           this.props.createActivity(newResource);
           break;
         case 'rooms' :

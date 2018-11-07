@@ -108,8 +108,8 @@ var data = [
     "email": "worf@example.com",
     "firstName": "worf",
     "lastName": "son of Mogh",
-    "password": "$2b$12$Kzr5WEtkOzsCG9LS5fd8G.HVjUk4xp3p/wdzDNB/B5CEWB.oBKEji",
-    "accountType": "participant",
+    "password": "$2b$12$jNGkh.0hKAN1BRPUjScjCOE17yO9SkOV6rLdIO6DhAMsHQM28nfJi",
+    "accountType": "facilitator",
   }
 ];
 

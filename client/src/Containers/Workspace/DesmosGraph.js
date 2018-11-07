@@ -27,7 +27,6 @@ class DesmosGraph extends Component {
       API.getDesmos(desmosLink)
       .then(res => {
         this.calculator.setState(res.data.result.state)
-        console.log("CALCULATOR: ", this.calculator)
         // console.
         this.setState({loading: false})
         this.initializeListeners()
@@ -36,7 +35,6 @@ class DesmosGraph extends Component {
       .catch(err => console.log(err))
     }
     else {
-      console.log('no initial state')
       this.initializeListeners()
       this.setState({loading: false})
     }
@@ -52,9 +50,8 @@ class DesmosGraph extends Component {
           user: {_id: this.props.user._id, username: this.props.user.username},
           timestamp: new Date().getTime()
         }
-        console.log(newData.timestamp)
         this.props.socket.emit('SEND_EVENT', newData, res => {
-          console.log(res)
+          
         })
       } else {
         // @TODO CONSIDER DOING THIS AS JUST A PROPERTY OF THIS CLASS AND NOT A PROPERTY
@@ -65,7 +62,6 @@ class DesmosGraph extends Component {
     })
     this.props.socket.on('RECEIVE_EVENT', data => {
       this.setState({receivingEvent: true})
-      console.log(JSON.parse(data.event))
       this.calculator.setState(JSON.parse(data.event))
     })
   }

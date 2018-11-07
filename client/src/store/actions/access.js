@@ -45,21 +45,18 @@ export const requestAccess = (owners, userId, resource, resourceId) => {
 }
 
 export const grantAccess = (user, resource, resourceId) => {
-  console.log(user, resource, resourceId)
   return (dispatch, getState) => {
     dispatch(loading.start())
     let thisUser = getState().user._id;
     let singResource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOYING
     API.removeNotification(resourceId, thisUser, user, singResource, 'access', 'requestAccess')
     .then(res => {
-      console.log("res1: ", res)
       dispatch(removeNotification(singResource, 'access', user, resourceId))
       // dispatch(gotUser(res.data))
     })
     .catch(err => console.log(err))
     API.grantAccess(user, resource, resourceId)
     .then(res => {
-      console.log('res 2')
       if (resource === 'rooms') {
         dispatch(updateRoom(resourceId, {members: res.data})) // change to add 
       } else if (resource === 'courses') {

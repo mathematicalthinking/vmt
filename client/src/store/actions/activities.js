@@ -54,7 +54,6 @@ export const getActivities = params => {
     .then(res => {
       // Normalize res
       const activities = normalize(res.data.results)
-      console.log(activities)
       dispatch(gotActivities(activities))
       dispatch(loading.success())
     })

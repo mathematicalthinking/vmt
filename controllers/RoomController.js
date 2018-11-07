@@ -6,7 +6,6 @@ module.exports = {
       params = {'_id': {$in: params}}
     }
     params.tempRoom = false; // we don't want any temporary rooms
-    console.log(params)
     return new Promise((resolve, reject) => {
       db.Room
       .find(params)
@@ -55,7 +54,6 @@ module.exports = {
 
   add: (id, body) => {
     return new Promise((resolve, reject) => {
-      console.log(body.members)
       // Send a notification to user that they've been granted access to a new course
       db.User.findByIdAndUpdate(body.members.user, {
         $addToSet: {

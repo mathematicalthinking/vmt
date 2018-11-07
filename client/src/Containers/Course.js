@@ -40,7 +40,6 @@ class Course extends Component {
     let firstView = false;
     if (accessNotifications.length > 0) {
      accessNotifications.forEach(ntf => {
-       console.log("NTF: ", ntf)
         if (ntf.notificationType === 'grantedAccess' && ntf._id === course._id) {
           // RESOLVE THIS NOTIFICATION
           firstView = true;

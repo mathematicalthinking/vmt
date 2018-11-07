@@ -104,7 +104,6 @@ class TempWorkspace extends Component {
   }
 
   saveWorkSpace = () => {
-    console.log('saving worksepace')
     window.removeEventListener("beforeunload", this.confirmUnload)
     this.setState({saving: true})
   }

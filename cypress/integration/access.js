@@ -1,11 +1,6 @@
-// const
-const exec = require('child_process').exec
 const user1 = require('../fixtures/user')
 const user2 = require('../fixtures/user2')
 const user3 = require('../fixtures/user3')
-const course = require('../fixtures/course')
-const room = require('../fixtures/room')
-const activity = require('../fixtures/activity')
 
 describe('test access requests', function(){  
   before(function(){
@@ -114,7 +109,7 @@ describe('test access requests', function(){
     cy.getTestElement('tab-ntf').contains('1')
     cy.get('#Members').click()
     cy.getTestElement('join-requests').children().should('have.length', 1)
-    cy.getTestElement('grant-access').click()
+    cy.getTestElement('grant-access-g-laforge').click()
     cy.getTestElement('tab-ntf').should('not.exist')
     cy.getTestElement('members').children().should('have.length', 2)
     cy.contains(user2.username).should('exist')

@@ -43,7 +43,6 @@ class Member extends PureComponent {
 
   render() {
     const { info, owner, grantAccess, notification, resourceName } = this.props;
-    console.log(info)
     return (
       <div>
         <div className={classes.Container}>

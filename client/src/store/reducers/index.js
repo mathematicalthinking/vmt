@@ -42,7 +42,6 @@ export const populateResource = (state, resourceToPop, resourceId, resources) =>
     let populatedResources;
     if (state[resourceToPop].byId[resourceId][resource]) {
       populatedResources = state[resourceToPop].byId[resourceId][resource].filter(id => {
-        console.log(state[resource].byId[id])
         return state[resource].byId[id] || null
       }).map(id => {
         return state[resource].byId[id];

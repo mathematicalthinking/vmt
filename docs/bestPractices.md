@@ -84,9 +84,7 @@ export const createCourse = body => {
     API.post('course', body)
     .then(resp =>{
       dispatch(updateUserCourses(resp.data.result))
-      console.log(body)
       if (body.template) {
-        console.log('we should create a template')
         dispatch(updateUserCourseTemplates({...resp.data.result}))
       }
       return dispatch(createdCourse(resp.data.result))

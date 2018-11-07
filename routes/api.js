@@ -59,8 +59,6 @@ router.post('/:action', (req, res, next) => {
 })
 
 router.put('/:resource/:id/add', (req, res, next) => {
-	console.log("ADDING USER RESOURCE: ")
-	console.log(req.body)
 	let { resource, id, } = req.params;
 	let controller = controllers[resource];
 	if (controller === null) return res.status(400).json(defaultError)
@@ -71,7 +69,6 @@ router.put('/:resource/:id/add', (req, res, next) => {
 
 router.put('/:resource/:id/remove', (req, res, next) => {
 	let { resource, id, } = req.params;
-	console.log(resource, id, req.body)
 	let controller = controllers[resource];
 	controller.remove(id, req.body)
 	.then(result => res.json(result))

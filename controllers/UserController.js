@@ -57,13 +57,11 @@ module.exports = {
   },
 
   remove: (id, body) => {
-    console.log('hit remove controller')
     return new Promise((resolve, reject) => {
       let key = Object.keys(body)[0].split('.')[0];
       db.User.findByIdAndUpdate(id, {$pull: body}, {new: true})
       // .populate(key, 'select', user.username)
       .then(res =>{
-        console.log({[key]: res[key]})
         resolve({[key]: res[key]})
         })
       .catch(err => reject(err))

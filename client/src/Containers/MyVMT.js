@@ -86,7 +86,6 @@ class Profile extends Component {
   }
 
   fetchData = resource => {
-    console.log("SHOULD BE FETCHING")
     this.props[`get${resource}`]()
   }
 

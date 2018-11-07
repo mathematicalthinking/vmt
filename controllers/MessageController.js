@@ -19,7 +19,6 @@ module.exports = {
 
   post: (body) => {
     return new Promise((resolve, reject) => {
-      console.log("COntroller: ",body)
       db.Message.create(body)
       .then(message => resolve(message))
       .catch(err => reject(err))
@@ -28,7 +27,6 @@ module.exports = {
 
   put: (id, body) => {
     return new Promise((resolve, reject) => {
-      console.log('body')
       db.Message.findByIdAndUpdate(id, body)
       .then(message => resolve(message))
       .catch(err => reject(err))

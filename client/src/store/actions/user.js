@@ -39,7 +39,6 @@ export const addUserCourses = newCoursesArr => {
 }
 
 export const addUserActivities = newActivitiesArr => {
-  console.log("DISPATCH ADD_USER_ACIVITIES")
   return {
     type: actionTypes.ADD_USER_ACTIVITIES,
     newActivitiesArr,
@@ -71,15 +70,6 @@ export const logout = () => {
   return{type: actionTypes.LOGOUT}
 }
 
-// export const updateUserAccessNtfs = (resource, user) => {
-//   if (resource === 'courses') {
-//     return {
-//       type: actionTypes.UPDATE_USER_COURSE_ACCESS_NTFS,
-//       user,
-//     }
-//   }
-// }
-
 export const addUserCourseTemplates = newTemplate => {
   return {
     type: actionTypes.ADD_USER_COURSE_TEMPLATES,
@@ -88,7 +78,6 @@ export const addUserCourseTemplates = newTemplate => {
 }
 
 export const updateNotifications = (updatedNotifications) => {
-  console.log("updated notifications: ", updatedNotifications)
   return {
     type: actionTypes.UPDATE_NOTIFICATIONS,
     updatedNotifications,
@@ -109,7 +98,6 @@ export const updateUserResource = (resource, resourceId, userId) => {
   return (dispatch) => {
     API.addUserResource(resource, resourceId, userId)
     .then(res => {
-      console.log('success')
       dispatch(addUserActivities([resourceId]))
     })
     .catch(err => dispatch(loading.fail(err)))
@@ -121,7 +109,6 @@ export const updateUserResource = (resource, resourceId, userId) => {
 export const clearNotification = (ntfId, userId, requestingUser, resource, listType, ntfType) => {
   return (dispatch) => {
     let singResource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOYING
-    console.log('removing from backend')
     API.removeNotification(ntfId, userId, requestingUser, singResource, listType, ntfType)
     .then(res => {
       dispatch(removeNotification(singResource, listType, requestingUser, ntfId))
@@ -161,7 +148,6 @@ export const login = (username, password) => {
         ...res.data,
         courses: courses.allIds,
       }
-      console.log(user)
       dispatch(gotUser(user))
       return dispatch(loading.success());
     })

@@ -22,7 +22,6 @@ class ContentBox extends PureComponent{
     setTimeout(this.setState({selected: true}), 400)
   }
   render() {
-    console.log('CONTENT BOX PROPS: ', this.props)
     let { selecting } = this.props;
     let alignClass = classes.Center;
     let animatedClass = '';

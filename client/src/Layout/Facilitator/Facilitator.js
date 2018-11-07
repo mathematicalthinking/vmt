@@ -5,10 +5,7 @@ import classes from './facilitator.css';
 class FacilitatorInstructions extends Component{
 
   componentDidMount() {
-    // window.addEventListener('scroll', (event) => {
-    //   let scrollTop = this.refs.scroller.offset;
-    //   console.log(scrollTop)
-    // })
+    
   }
 
   

@@ -77,14 +77,6 @@ const reducer = (state = initialState, action) => {
     case actionTypes.REMOVE_USER_ROOMS:
       const rooms = state.rooms.filter(id => !action.roomIdsArr.includes(id))
       return {...state, rooms,}
-
-    // case actionTypes.UPDATE_USER_COURSE_ACCESS_NTFS:
-    //   const courseNtfs = {...state.courseNotifications}
-    //   const updatedCourseNtfs = courseNtfs.access.filter(ntf => ntf.user._id !== action.user)
-    //   return {
-    //     ...state,
-    //     courseNotifications: {...courseNtfs, access: updatedCourseNtfs},
-    //   }
     
     case actionTypes.UPDATE_NOTIFICATIONS:
     return {
@@ -93,7 +85,6 @@ const reducer = (state = initialState, action) => {
     }
 
     case actionTypes.REMOVE_NOTIFICATION: 
-    console.log("ACTION: ", action)
       let updatedNotifications = {...state[`${action.resource}Notifications`]}
       let listNotifications = updatedNotifications[action.listType].filter(ntf => {
         if (ntf.user) {
@@ -102,7 +93,6 @@ const reducer = (state = initialState, action) => {
           } else return true;
         } else return (ntf._id !== action.ntfId)
       })
-      console.log(listNotifications)
       updatedNotifications[action.listType] = listNotifications;
       return {
         ...state,

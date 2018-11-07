@@ -7,13 +7,11 @@ import Background from '../../Components/Background/Background';
 import GeogebraImg from './Geogebra.png';
 import DesmosImg from './desmos.jpg';
 import Aux from '../../Components/HOC/Auxil';
-// import bannerImage from './Picture-5.jpg';
-// console.log(bannerImage)
+
 class Homepage extends PureComponent {
 
   containerRef = React.createRef()
   componentDidMount(){
-    console.log(this.props)
     if (Object.keys(this.props.activities).length === 0) {
       this.props.getActivities();
     }
@@ -37,14 +35,12 @@ class Homepage extends PureComponent {
   }
 
   scrollToDomRef = () => {
-    console.log("scrolling to dom ref")
     window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
 }
 
   
 
   render() {
-    // console.log(this.props.scrollPosition)
     // const list = Object.keys(this.props.activities).map(id => this.props.activities[id]) || []
     return (
       <Aux>
