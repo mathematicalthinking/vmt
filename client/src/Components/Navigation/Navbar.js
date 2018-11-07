@@ -8,6 +8,7 @@ const navbar = (props) => {
     <div className={classes.SubContainer}>
     <div className={classes.Logo}><Link to='/'>Virtual Math Teams</Link></div>
       <ul className={classes.NavList}>
+        <NavItem link='/myVMT/courses' name='My VMT' />
         <NavItem link='/community/activities' name='Community' />
         <NavItem link='/profile' name='Profile' />
         <NavItem link='/logout' name='Logout' />

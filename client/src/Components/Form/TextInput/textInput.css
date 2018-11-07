@@ -21,17 +21,19 @@
   font-size: 35px;
   caret-color: lightBlue;
   color: white;
+  transition: .2s
 }
 
-input:-webkit-autofill {
+.Input:-webkit-autofill {
   -webkit-text-fill-color: blue !important;
 
 }
 
-input:focus {
+.Input:focus {
   box-shadow: none !important;
-  border: none !important;
-  border-bottom: 2px solid lightBlue;
+  /* border: 1px solid red !important; */
+  outline: none !important;
+  border-bottom: 1px solid blue !important;
 }
 
 .Label {

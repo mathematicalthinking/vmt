@@ -39,7 +39,6 @@ export const addUserCourses = newCoursesArr => {
 }
 
 export const addUserActivities = newActivitiesArr => {
-  console.log("DISPATCH ADD_USER_ACIVITIES")
   return {
     type: actionTypes.ADD_USER_ACTIVITIES,
     newActivitiesArr,
@@ -67,14 +66,9 @@ export const removeUserRooms = roomIdsArr => {
   }
 }
 
-// export const updateUserAccessNtfs = (resource, user) => {
-//   if (resource === 'courses') {
-//     return {
-//       type: actionTypes.UPDATE_USER_COURSE_ACCESS_NTFS,
-//       user,
-//     }
-//   }
-// }
+export const logout = () => {
+  return{type: actionTypes.LOGOUT}
+}
 
 export const addUserCourseTemplates = newTemplate => {
   return {
@@ -83,32 +77,41 @@ export const addUserCourseTemplates = newTemplate => {
   }
 }
 
-export const updateNotifications = (resource, updatedNotifications) => {
+export const updateNotifications = (updatedNotifications) => {
   return {
     type: actionTypes.UPDATE_NOTIFICATIONS,
     updatedNotifications,
+  }
+}
+
+export const removeNotification = (resource, listType, user, ntfId) => {
+  return {
+    type: actionTypes.REMOVE_NOTIFICATION,
     resource,
+    listType,
+    user,
+    ntfId,
   }
 }
 
 export const updateUserResource = (resource, resourceId, userId) => {
-  console.log('why we no make it here')
   return (dispatch) => {
     API.addUserResource(resource, resourceId, userId)
     .then(res => {
-      console.log('success')
       dispatch(addUserActivities([resourceId]))
     })
     .catch(err => dispatch(loading.fail(err)))
   }
 }
 
-export const clearNotification = (ntfId, userId, resource, listType, ntfType) => {
+// For clearing notifications after the user has seen it. As opposed to request for access notifications which are cleared
+// when the user explicitly grants access (see actions.access)
+export const clearNotification = (ntfId, userId, requestingUser, resource, listType, ntfType) => {
   return (dispatch) => {
-    API.removeNotification(ntfId, userId, resource, listType, ntfType)
+    let singResource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOYING
+    API.removeNotification(ntfId, userId, requestingUser, singResource, listType, ntfType)
     .then(res => {
-      let singResource = resource.slice(0, resource.length - 1)
-      dispatch(updateNotifications(singResource, res.data.result[`${singResource}Notifications`]))
+      dispatch(removeNotification(singResource, listType, requestingUser, ntfId))
       // dispatch(gotUser(res.data))
     })
     .catch(err => console.log(err))
@@ -145,7 +148,6 @@ export const login = (username, password) => {
         ...res.data,
         courses: courses.allIds,
       }
-      console.log(user)
       dispatch(gotUser(user))
       return dispatch(loading.success());
     })

@@ -59,8 +59,6 @@ router.post('/:action', (req, res, next) => {
 })
 
 router.put('/:resource/:id/add', (req, res, next) => {
-	console.log("ADDING USER RESOURCE: ")
-	console.log(req.body)
 	let { resource, id, } = req.params;
 	let controller = controllers[resource];
 	if (controller === null) return res.status(400).json(defaultError)

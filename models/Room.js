@@ -8,7 +8,7 @@ const Room = new mongoose.Schema({
   name: {type: String, required: true},
   description: {type: String},
   entryCode: {type: String},
-  roomType: {type: String},
+  roomType: {type: String, enum: ['geogebra', 'desmos']},
   course: {type: ObjectId, ref: 'Course'},
   creator: {type: ObjectId, ref: 'User'},
   dueDate: {type: Date,},

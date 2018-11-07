@@ -39,6 +39,10 @@ const reducer = (state = initialState, action) => {
         accountType: action.user.accountType,
         bothRoles: action.user.bothRoles,
       }
+    case actionTypes.LOGOUT: 
+      return {
+        initialState
+      }
     case actionTypes.UPDATE_USER:
       return {
         ...state,
@@ -73,23 +77,27 @@ const reducer = (state = initialState, action) => {
     case actionTypes.REMOVE_USER_ROOMS:
       const rooms = state.rooms.filter(id => !action.roomIdsArr.includes(id))
       return {...state, rooms,}
-
-    case actionTypes.UPDATE_USER_COURSE_ACCESS_NTFS:
-      const courseNtfs = {...state.courseNotifications}
-      const updatedCourseNtfs = courseNtfs.access.filter(ntf => ntf.user._id !== action.user)
-      return {
-        ...state,
-        courseNotifications: {...courseNtfs, access: updatedCourseNtfs},
-      }
     
     case actionTypes.UPDATE_NOTIFICATIONS:
     return {
       ...state,
-      [`${action.resource}Notifications`]: {
-        ...state[`${action.resource}Notifications`],
-        access: [...action.updatedNotifications.access]
-      }
+      ...action.updatedNotifications,
     }
+
+    case actionTypes.REMOVE_NOTIFICATION: 
+      let updatedNotifications = {...state[`${action.resource}Notifications`]}
+      let listNotifications = updatedNotifications[action.listType].filter(ntf => {
+        if (ntf.user) {
+          if ((ntf.user._id === action.user) && (ntf._id === action.ntfId)) {
+            return false;
+          } else return true;
+        } else return (ntf._id !== action.ntfId)
+      })
+      updatedNotifications[action.listType] = listNotifications;
+      return {
+        ...state,
+        [`${action.resource}Notifications`]: updatedNotifications
+      }
 
     case actionTypes.CLEAR_ERROR:
       return {

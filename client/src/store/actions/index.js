@@ -13,10 +13,12 @@ export {
   removeUserCourse,
   removeUserRooms,
   removeUserActivities, // ARE WE STORING ACTIVITIES ON THE USER OBJECT?
+  removeNotification,
   addUserRooms,
   updateNotifications,
   addUserCourses,
   updateUserResource,
+  logout
 } from './user';
 export {
   fail,
@@ -43,6 +45,7 @@ export {
   enterRoomWithCode,
   addRoomMember,
   removeRoomMember,
+  destroyRoom,
 } from './rooms';
 export {
   addCourse,

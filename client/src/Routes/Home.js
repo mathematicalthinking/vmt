@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import HomeNav from '../Components/Navigation/HomeNav/HomeNav';
-import { Homepage, Login, Signup, TempWorkspace, Community } from '../Containers';
+import { Homepage, Login, Signup, TempWorkspace, Community, Logout } from '../Containers';
 import classes from './main.css'
 import Aux from '../Components/HOC/Auxil';
 class Home extends PureComponent {
@@ -15,10 +15,6 @@ class Home extends PureComponent {
   }
 
   handleScroll = event => {
-    // console.log('handling croll')
-    // // console.log(event)
-    // console.log(event.srcElement.scrollingElement.scrollTop)
-    // // console.log(window)
     this.setState({scrollPosition: event.srcElement.scrollingElement.scrollTop/window.innerHeight})
   }
 
@@ -31,6 +27,7 @@ class Home extends PureComponent {
           <Route exact path='/' render={() => <Homepage scrollPosition={this.state.scrollPosition} {...this.props}/>} />
           <Route path='/community/:resource/:action' component={Community} />
           <Route path='/community/:resource' component={Community} />
+          <Route exact path={`/logout`} component={Logout}/>
           <Route path='/login' component={Login} />
           <Route path='/signup' component={Signup} />
           <Route path='/explore/:id' component={TempWorkspace} />

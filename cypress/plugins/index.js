@@ -33,7 +33,6 @@ module.exports = (on, config) => {
     },
     seedDBLogin: () => {
       return new Promise((resolve, reject) => {
-        console.log('is this working?')
         exec('md-seed run users --dropdb', () => resolve('success'))
       })
     },

@@ -8,7 +8,6 @@ import { getUserResources } from '../../store/reducers/';
 class Templates extends Component {
 
   componentDidMount() {
-    console.log(this.props)
     const {userCourseTemplates, userCourseTemplateIds,
       userRoomTemplates, userRoomTemplateIds} = this.props;
     if (!userCourseTemplates && userCourseTemplateIds.length > 0) {

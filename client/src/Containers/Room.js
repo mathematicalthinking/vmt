@@ -92,14 +92,10 @@ class Room extends Component {
     return tabs;
   }
 
-
   render() {
     const { 
-      room, 
-      match, 
-      user, 
-      accessNotifications, 
-      error, 
+      room, match, user,
+      accessNotifications, error, 
       clearError,
     } = this.props;
     const resource = match.params.resource;

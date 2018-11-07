@@ -46,7 +46,6 @@ const reducer = (state = initialState, action) => {
         }
 
     case actionTypes.UPDATE_COURSE:
-      console.log('action.body: ', action.body)
       const key = Object.keys(action.body)[0]
       return {
         ...state,

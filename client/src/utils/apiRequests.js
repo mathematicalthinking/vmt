@@ -29,13 +29,12 @@ export default {
     return Promise.all(promises)
   },
 
-  removeNotification: (ntfId, userId, resource, listType, ntfType) => {
-    return axios.put(`/api/user/${userId}`, {
-      removeNotification: {
-        ntfId,
-        resource,
-        listType,
-        ntfType,
+  removeNotification: (ntfId, userId, requestingUser, resource, listType, ntfType) => {
+    return axios.put(`/api/user/${userId}/remove`, {
+      [`${resource}Notifications.${listType}`]: {
+        notificationType: ntfType,
+        _id: ntfId,
+        user: requestingUser,
       }
     })
   },

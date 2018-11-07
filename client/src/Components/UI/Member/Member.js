@@ -42,7 +42,6 @@ class Member extends PureComponent {
   }
 
   render() {
-    console.log(this.props)
     const { info, owner, grantAccess, notification, resourceName } = this.props;
     return (
       <div>
@@ -50,7 +49,7 @@ class Member extends PureComponent {
           <div className={classes.Avatar}><Avatar username={info.user.username} /></div>
           {notification ? <div className={classes.Notification} data-testid="member-ntf">new member</div>: null}
           <div className={classes.Row}>
-            {grantAccess ? <Button m={5} click={this.props.grantAccess} data-testid='grant-access'>Grant Access</Button> : null}
+            {grantAccess ? <Button m={5} click={this.props.grantAccess} data-testid={`grant-access-${info.user.username}`}>Grant Access</Button> : null}
             {this.state.editing ? 
               <div className={classes.DropDown}>
                 <RoleDropdown selectHandler={this.changeRole} list={[info.role, (info.role === 'participant') ? 'facilitator' : 'participant']}/>  

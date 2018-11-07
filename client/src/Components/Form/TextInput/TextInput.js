@@ -1,6 +1,6 @@
 import React from 'react';
 import classes from './textInput.css';
-import lightClasses from './modalTextInput.css';
+import lightClasses from './lightTextInput.css';
 const TextInput = (props) => {
   let styles = props.light ? lightClasses : classes;
   let autoComplete = props.autoComplete || props.type;

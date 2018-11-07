@@ -3,12 +3,17 @@ import classes from './room.css';
 import Button from '../../Components/UI/Button/Button';
 import { withRouter } from 'react-router-dom';
 const summary = ({room, history, loading}) => {
-  console.log("rendering summary")
-  const clickHandler = () => {
-    console.log('go to workspace')
+  
+  const goToWorkspace = () => {
     history.push(`/myVMT/workspace/${room._id}`);
   }
-  const goToReplayer = () => {history.push(`/myVMT/workspace/${room._id}/replayer`)}
+  const goToReplayer = () => {
+    if (room.events.length > 0) {
+      history.push(`/myVMT/workspace/${room._id}/replayer`)
+    } else {
+      // SOME SORT OF ERROR MESSAGE
+    }
+  }
   return (
     <div className={classes.Container}>
       <div className={classes.Section}>
@@ -25,7 +30,7 @@ const summary = ({room, history, loading}) => {
       {/*  Make sure we have all of the room info before letting the user enter */}
       {loading ? null :
       <div className={classes.Section}>
-        <span className={classes.Button}><Button m={5} click={clickHandler}>Join</Button></span>
+        <span className={classes.Button}><Button m={5} click={goToWorkspace}>Join</Button></span>
         <span className={classes.Button}><Button m={5} click={goToReplayer}>Replayer</Button></span>
       </div>
       }

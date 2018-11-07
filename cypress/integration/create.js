@@ -89,5 +89,19 @@ describe('create each type of resource', function(){
     cy.getTestElement('tab').contains('Activities').click()
     cy.getTestElement('box-list').children().last().contains("ACTIVITY 1").should('exist')
   })
-
+  it("creates rooms from a course's activity", function(){
+    cy.login(user)
+    cy.getTestElement('tab').contains('Courses').click()
+    cy.getTestElement('content-box-course 2').click()
+    cy.getTestElement('content-box-ACTIVITY 2').click()
+    cy.getTestElement('assign').click()
+    cy.get('[type="radio"]').last().check()
+    cy.contains('g-laforge').click()
+    cy.contains('data').click()
+    cy.getTestElement('assign-rooms').click();
+    cy.contains('worf').click()
+    cy.getTestElement('assign-rooms').click();
+    cy.getTestElement('content-box-ACTIVITY 2 (room 1)').should('exist');
+    cy.getTestElement('content-box-ACTIVITY 2 (room 2)').should('exist');
+  })
 })

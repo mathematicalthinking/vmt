@@ -19,7 +19,6 @@ const reducer = (state = initialState, action) => {
     case actionTypes.UPDATE_ROOM:
       let updatedRoom = {...state.byId[action.roomId]}
       let fields = Object.keys(action.body)
-      console.log("FIELDS: ", fields)
       fields.forEach(field => {
         updatedRoom[field] = action.body[field]
       })
@@ -41,6 +40,16 @@ const reducer = (state = initialState, action) => {
         ...state,
         byId: updatedRooms,
         allIds: [action.newRoom._id, ...state.allIds],
+      }
+
+    case actionTypes.DESTROY_ROOM:
+      let updatedObj = {...state.byId}
+      let updatedList = state.allIds.filter(id => id !== action.id)
+      delete updatedObj[action.id]
+      return {
+        ...state,
+        byId: updatedObj,
+        allIds: updatedList
       }
 
 

@@ -44,7 +44,6 @@ class Dropdown extends Component{
     }
     else {
       list = this.props.list.map((item, i)=> {
-        console.log("ITEM: ", item)
         // check if this item is in state.selected
         let colorClass = classes.ListItem;
         const backgroundClass = (i%2 === 0) ? classes.Background1 : classes.Background2;

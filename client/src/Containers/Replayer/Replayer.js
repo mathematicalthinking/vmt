@@ -148,7 +148,6 @@ class Replayer extends Component {
   }
 
   render() {
-    console.log("INDEX IN CONTROLS" ,this.state.logIndex)
     const { room } = this.props
     const event = this.log[this.state.logIndex] || {};
     return (

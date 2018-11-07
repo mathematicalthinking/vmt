@@ -5,6 +5,7 @@ import Button from '../UI/Button/Button';
 import moment from 'moment';
 class Chat extends Component {
 
+  chatEnd = React.createRef()
   componentDidMount() {
     this.scrollToBottom();
   }
@@ -12,9 +13,10 @@ class Chat extends Component {
     this.scrollToBottom();
   }
   scrollToBottom = () => {
-    this.refs.end.scrollIntoView({ behavior: "smooth" });
+    this.chatEnd.current.scrollTop = this.chatEnd.current.scrollHeight;
+    // window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
   }
-
+  
   render() {
     const {messages, replayer, change, submit, value} = this.props;
     let displayMessages = [];
@@ -30,11 +32,11 @@ class Chat extends Component {
         </div>
       ))
       // use this to scroll to the bottom
-      displayMessages.push(<div key='end' ref="end"></div>)
+      // displayMessages.push(<div key='end' ref={this.chatEnd}></div>)
     }
     return (
       <div className={classes.Container}>
-        <div className={classes.ChatScroll} id='scrollable'>{displayMessages}</div>
+        <div className={classes.ChatScroll} ref={this.chatEnd} id='scrollable'>{displayMessages}</div>
         {!replayer ?
           <div className={classes.ChatInput}>
             <TextInput light autoComplete="off" change={change} type='text' name='message' value={value}/>

@@ -18,7 +18,6 @@ class GgbGraph extends Component {
 
     this.socket.on('RECEIVE_EVENT', data => {
       this.setState({receivingData: true}, () => {
-        console.log('receiving data from other client')
         switch (data.eventType) {
           case 'ADD':
             if (data.definition) {
@@ -63,7 +62,6 @@ class GgbGraph extends Component {
       if (window.ggbApplet) {
         if (window.ggbApplet.listeners) {
           this.ggbApplet = window.ggbApplet;
-          console.log("successfully attached ggb")
           this.initializeGgb();
           this.setState({loading: false})
           clearInterval(timer);
@@ -74,7 +72,7 @@ class GgbGraph extends Component {
   }
 
   componentWillUnmount() {
-    if (this.ggbApplet.listeners) {
+    if (this.ggbApplet && this.ggbApplet.listeners) {
       delete window.ggbApplet;
       this.ggbApplet.unregisterAddListener(this.addListener);
       this.ggbApplet.unregisterUpdateListener();
@@ -91,25 +89,13 @@ class GgbGraph extends Component {
       this.ggbApplet.setXML(room.currentState)
     }
     this.addListener = label => {
-      console.log("construction cjamhes")
-      console.log(this.state.receivingData)
       if (!this.state.receivingData) {
-        console.log('construction changed by me')
         const xml = this.ggbApplet.getXML(label)
         const definition = this.ggbApplet.getCommandString(label);
         sendEvent(xml, definition, label, "ADD", "added");
       }
       this.setState({receivingData: false})
     }
-
-    // this.updateListener = throttle(label => {
-    //   console.log('construction updated')
-    //   if (!this.state.receivingData) {
-    //     const xml = this.ggbApplet.getXML(label)
-    //     sendEvent(xml, null, label, "UPDATE", "updated")
-    //   }
-    //   this.setState({receivingData: false})
-    // }, 150)
 
     this.removeListener = label => {
       if (!this.state.receivingData) {
@@ -133,7 +119,6 @@ class GgbGraph extends Component {
         timestamp: new Date().getTime(),
         currentState: this.ggbApplet.getXML(),
       }
-      console.log('sending event')
       this.socket.emit('SEND_EVENT', newData)
     }
     // attach this listeners to the ggbApplet

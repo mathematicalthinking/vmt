@@ -19,21 +19,12 @@ class Profile extends Component {
   }
 
   componentDidMount() {
-    // I WONDER IF USING PROMISES LIKE THIS IS BAD?
-    // I NEED TO UPDATE STATE IN CHECK MULTIPLE ROLE AND THEN setDisplayResources DEPENDS ON THAT STATE UPDATE
     this.checkMultipleRoles()
     .then(res => this.setDisplayResources()) 
     .then(res => this.updateTabs())
   }
 
   componentDidUpdate(prevProps, prevState) {
-    // IF WE JUST CREATED A NEW RESOURCE WE SHOULD CHECK FOR MULTIPLE ROLES AGAIN
-    // const {roomNotifications, courseNotifications } = this.props.user
-    // if (roomNotifications.access.length !== prevProps.user.roomNotifications.access.length
-    // || courseNotifications.access.length !== prevProps.user.courseNotifications.access.length
-    // || )
-    // this.updateTabs()
-    // check that we have the data we need
     const { user, loading } = this.props;
     const { resource } = this.props.match.params;
     if (prevProps[`user${resource}`].length !== this.props[`user${resource}`].length) {
@@ -42,10 +33,7 @@ class Profile extends Component {
       .then(res => this.updateTabs())
     }
     if (!loading) {
-      console.log('checking user resources')
       let haveResource = user[resource].every(rsrc => this.props[resource].includes(rsrc))
-      console.log(haveResource)
-      console.log(this.props[resource])
       if (!haveResource) this.fetchData(resource)
     }
     if (prevState.view !== this.state.view) {
@@ -98,7 +86,6 @@ class Profile extends Component {
   }
 
   fetchData = resource => {
-    console.log("SHOULD BE FETCHING")
     this.props[`get${resource}`]()
   }
 

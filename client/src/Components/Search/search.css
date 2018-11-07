@@ -1,12 +1,16 @@
 :import('../../colors.css'){
   lightestShadow: lightestShadow;
+  blue: blue;
+  lightBlue: lightBlue;
 }
 
 .Search {
   display: flex;
+  align-items: center;
   background: #f9f9f9;
-  border: 2px solid #ddd;
+  /* border: 2px solid #ddd; */
   /* border-radius: 5px; */
+  font-size: inherit;
   height: 100%;
   width: 100%;
   box-shadow: lightestShadow;
@@ -14,22 +18,20 @@
 
 .Input {
   border: none;
+  border-bottom: 1px solid #f9f9f9;
   width: 100%;
   padding: 5px;
   transition: .2s;
   background-color: #f9f9f9;
-  letter-spacing: .08em;
   font-size: inherit;
+  letter-spacing: .08em;
   color: #666;
-  caret-color: #2D91F2;
+  caret-color: lightBlue;
 }
 .Input:focus{
   border: none;
+  border-bottom: 1px solid blue;
   outline-width: 0;
-}
-
-.Input:focus + .Search {
-  border-bottom: 2px solid blue;
 }
 
 .Icon {

@@ -69,8 +69,6 @@ class Community extends Component {
   }
 
   select = (id) => {
-    console.log("selecting!!!")
-    console.log(id) 
     this.props.updateUserResource('activities', id, this.props.userId)
     this.setState(prevState => ({selectCount: prevState.selectCount + 1}))
   }
