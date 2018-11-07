@@ -42,52 +42,75 @@ var data = [
   "password": "$2b$12$xI0a6mVLlVoFYeVsmU2XrOVowVVphu9ORSD9EVHG6lzWMvfP8cgES",
   "accountType": "facilitator",
   "__v": 2
-},
-{
-  "_id": "5bbbbd9a799302265829f5af",
-  "roomNotifications": {
-    "access": [],
-    "newRoom": []
   },
-  "courseNotifications": {
-    "access": [],
-    "newRoom": []
+  {
+    "_id": "5bbbbd9a799302265829f5af",
+    "roomNotifications": {
+      "access": [],
+      "newRoom": []
+    },
+    "courseNotifications": {
+      "access": [],
+      "newRoom": []
+    },
+    "courseTemplates": [],
+    "courses": ["5bbf4e5ec1b6d84cb0a4ded8"],
+    "rooms": ["5ba289c57223b9429888b9b6"],
+    "activities": [],
+    "isAdmin": false,
+    "seenTour": false,
+    "username": "g-laforge",
+    "email": "",
+    "firstName": "Geordi",
+    "lastName": "Laforge",
+    "password": "$2b$12$YNI6y1M6u4/Y4mAP.E312OYN./uTIJqKGfUREnhNJ8vs8t/4hbAua",
+    "accountType": "participant",
+  },{
+    "_id": "5be1eba75854270cd0920fb8",
+    "roomNotifications": {
+      "access": [],
+      "newRoom": []
+    },
+    "courseNotifications": {
+      "access": [],
+      "newRoom": []
+    },
+    "courseTemplates": [],
+    "courses": ["5bbf4e5ec1b6d84cb0a4ded8"],
+    "rooms": [],
+    "activities": [],
+    "isAdmin": false,
+    "seenTour": false,
+    "username": "data",
+    "email": "data@example.com",
+    "firstName": "NFN/NMI",
+    "lastName": "data",
+    "password": "$2b$12$Kzr5WEtkOzsCG9LS5fd8G.HVjUk4xp3p/wdzDNB/B5CEWB.oBKEji",
+    "accountType": "participant",
   },
-  "courseTemplates": [],
-  "courses": ["5bbf4e5ec1b6d84cb0a4ded8"],
-  "rooms": ["5ba289c57223b9429888b9b6"],
-  "activities": [],
-  "isAdmin": false,
-  "seenTour": false,
-  "username": "g-laforge",
-  "email": "",
-  "firstName": "Geordi",
-  "lastName": "Laforge",
-  "password": "$2b$12$YNI6y1M6u4/Y4mAP.E312OYN./uTIJqKGfUREnhNJ8vs8t/4hbAua",
-  "accountType": "participant",
-},{
-  "_id": "5be1eba75854270cd0920fb8",
-  "roomNotifications": {
-    "access": [],
-    "newRoom": []
-  },
-  "courseNotifications": {
-    "access": [],
-    "newRoom": []
-  },
-  "courseTemplates": [],
-  "courses": [],
-  "rooms": [],
-  "activities": [],
-  "isAdmin": false,
-  "seenTour": false,
-  "username": "data",
-  "email": "data@example.com",
-  "firstName": "NFN/NMI",
-  "lastName": "data",
-  "password": "$2b$12$Kzr5WEtkOzsCG9LS5fd8G.HVjUk4xp3p/wdzDNB/B5CEWB.oBKEji",
-  "accountType": "participant",
-}
+  {
+    "_id": "5be1eba75854270cd0920fa9",
+    "roomNotifications": {
+      "access": [],
+      "newRoom": []
+    },
+    "courseNotifications": {
+      "access": [],
+      "newRoom": []
+    },
+    "courseTemplates": [],
+    "courses": ["5bbf4e5ec1b6d84cb0a4ded8"],
+    "rooms": [],
+    "activities": [],
+    "isAdmin": false,
+    "seenTour": false,
+    "username": "worf",
+    "email": "worf@example.com",
+    "firstName": "worf",
+    "lastName": "son of Mogh",
+    "password": "$2b$12$Kzr5WEtkOzsCG9LS5fd8G.HVjUk4xp3p/wdzDNB/B5CEWB.oBKEji",
+    "accountType": "participant",
+  }
 ];
 
 var UsersSeeder = Seeder.extend({

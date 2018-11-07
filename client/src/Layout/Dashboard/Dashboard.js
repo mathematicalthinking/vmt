@@ -30,8 +30,8 @@ const dashboard = props => {
   }
   let image = sidePanelData.image ? <img src={sidePanelData.image} alt='sidePanelImage'/> :  <Avatar size='large'/>
   let { additional } = sidePanelData.details;
-  let additionalDetails = Object.keys(additional).map(detail => (
-    <div className={classes.Detail}>{detail}: <span className={classes.DetailInfo}>{additional[detail]}</span></div>
+  let additionalDetails = Object.keys(additional).map((detail, i) => (
+    <div key={i} className={classes.Detail}>{detail}: <span className={classes.DetailInfo}>{additional[detail]}</span></div>
   ))
   return (
     <section className={classes.Container}>

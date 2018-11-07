@@ -17,7 +17,7 @@ class MakeRoomsLayout extends Component {
           <div>Activity Name: {activity.name}</div>
           <div>Details: {activity.description}</div>
           <div>Type: {activity.roomType}</div>
-          <Button click={() => {this.setState({assigning: true})}}>Assign</Button>
+          <Button click={() => {this.setState({assigning: true})}} data-testid='assign'>Assign</Button>
         </div>
         {this.state.assigning ? <Modal show={true} closeModal={() => {this.setState({assigning: false})}}>
           <MakeRooms
@@ -25,7 +25,7 @@ class MakeRoomsLayout extends Component {
             course={course ? course._id : null}
             userId={this.props.userId}
             close={() => {this.setState({assigning: false})}}
-            participants={course ? course.members.filter(member => member.role === 'Participant') : []}/>
+            participants={course ? course.members.filter(member => member.role === 'participant') : []}/>
         </Modal> : null}
       </Aux>
     )
