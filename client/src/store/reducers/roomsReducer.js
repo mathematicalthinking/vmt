@@ -43,6 +43,16 @@ const reducer = (state = initialState, action) => {
         allIds: [action.newRoom._id, ...state.allIds],
       }
 
+    case actionTypes.DESTROY_ROOM:
+      let updatedObj = {...state.byId}
+      let updatedList = state.allIds.filter(id => id !== action.id)
+      delete updatedObj[action.id]
+      return {
+        ...state,
+        byId: updatedObj,
+        allIds: updatedList
+      }
+
 
     case actionTypes.ADD_ROOM_MEMBER:
       let updatedMembers = [...state.byId[action.roomId].members]

@@ -18,7 +18,7 @@ class Community extends Component {
           <Link to="/community/courses"><Button m={5} active={resource === 'courses'}>Courses</Button></Link>
           <Link to="/community/rooms"><Button m={5} active={resource === 'rooms'}>Rooms</Button></Link>
         </div>
-        <Search _filter={value => this.filterResults(value)} />
+        <div className={classes.Search}><Search _filter={value => this.filterResults(value)} /></div>
         <div className={classes.List}>
           {selecting ? <div className={[classes.SelectCount, selectCountClass].join(" ")}>you have selected <span data-testid='select-count'>{selectCount}</span> activities</div> : null}
           <BoxList

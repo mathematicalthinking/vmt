@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { populateRoom } from '../store/actions'
+import { populateRoom, destroyRoom } from '../store/actions'
 import io from 'socket.io-client';
 import WorkspaceLayout from '../Layout/Workspace/Workspace';
 import TextInput from '../Components/Form/TextInput/TextInput';
@@ -91,6 +91,8 @@ class TempWorkspace extends Component {
     if (this.socket) {
       this.socket.emit('disconnect')
     }
+    // destroy this room from the store
+    this.props.destroyRoom(this.props.match.params.id)
     // window.removeEventListener("beforeunload", this.confirmUnload)
     window.removeEventListener("beforeunload", this.confirmUnload)
   }
@@ -149,4 +151,4 @@ const mapStateToProps = (store, ownProps) => ({
   loggedIn: store.user.loggedIn
 })
 
-export default connect(mapStateToProps, { populateRoom })(TempWorkspace)
+export default connect(mapStateToProps, { populateRoom, destroyRoom })(TempWorkspace)

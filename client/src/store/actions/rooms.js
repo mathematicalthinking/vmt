@@ -12,11 +12,6 @@ export const gotRooms = (rooms) => ({
   allIds: rooms.allIds
 })
 
-// export const gotRoom = room => ({
-//   type: actionTypes.GOT_ROOM,
-//   room,
-// })
-
 export const updateRoom = (roomId, body) => {
   return {
     type: actionTypes.UPDATE_ROOM,
@@ -39,6 +34,13 @@ export const createdRoom = resp => {
   }
 }
 
+export const destroyRoom = id => {
+  return {
+    type: actionTypes.DESTROY_ROOM,
+    id,
+  }
+}
+
 export const removedRoom = id => {
   return {
     type: actionTypes.REMOVE_ROOM,
@@ -53,14 +55,6 @@ export const addRoomMember = (roomId, body) => {
     body,
   }
 }
-
-// export const removeRoomMember = (roomId, userId) => {
-//   return {
-//     type: actionTypes.REMOVE_ROOM_MEMBER,
-//     roomId,
-//     userId,
-//   }
-// }
 
 export const removeRoomMember = (roomId, userId) => {
   return dispatch => {
@@ -106,13 +100,15 @@ export const createRoom = body => {
     .then(res => {
       let result = res.data.result;
       dispatch(createdRoom(result))
-      if (body.course) {
-        dispatch(addCourseRooms(body.course, [result._id]))
+      if (!body.tempRoom) {
+        if (body.course) {
+          dispatch(addCourseRooms(body.course, [result._id]))
+        }
+        if (body.activity) {
+          dispatch(addActivityRooms(body.activity, [result._id]))
+        }
+        dispatch(addUserRooms([result._id]))
       }
-      if (body.activity) {
-        dispatch(addActivityRooms(body.activity, [result._id]))
-      }
-      dispatch(addUserRooms([result._id]))
       return dispatch(loading.success())
     })
     .catch(err => {

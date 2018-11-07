@@ -18,6 +18,11 @@
   border-bottom: none;
 }
 
+.Search {
+  height: 100px;
+  font-size: 70px;
+}
+
 .List {
   margin-top: 20px;
 }

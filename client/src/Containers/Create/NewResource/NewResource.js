@@ -203,7 +203,7 @@ class NewResource extends Component {
         </Modal>
         <div className={classes.Button}><Button theme={'Small'} click={this.showModal} data-testid={`create-${displayResource}`}>Create <span className={classes.Plus}><i className="fas fa-plus"></i></span></Button></div>
         {(resource === 'activities' && courseId && !intro) ? <div className={classes.Button}><Button theme={'Small'} click={this.showModal}>Select an existing activity</Button></div> : null}
-        {(resource === 'activities' && !courseId) ? <div className={classes.Button}><Button theme={"Small"} click={this.redirectToActivity}>Select an activity from the community</Button></div> : null}
+        {(resource === 'activities' && !courseId && !intro) ? <div className={classes.Button}><Button theme={"Small"} click={this.redirectToActivity}>Select an activity from the community</Button></div> : null}
         {(resource === 'rooms' && !intro) ? <div className={classes.Button}><Button theme={"Small"} click={this.showModal}>Create from an Activity</Button></div> : null}
       </Aux>      
     )

@@ -45,6 +45,7 @@ export {
   enterRoomWithCode,
   addRoomMember,
   removeRoomMember,
+  destroyRoom,
 } from './rooms';
 export {
   addCourse,

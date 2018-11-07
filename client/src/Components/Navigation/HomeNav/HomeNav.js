@@ -6,8 +6,7 @@ import Aux from '../../HOC/Auxil';
 import classes from './homeNav.css';
 const navbar = (props) => {
   let styles = classes.Nav;
-  // console.log(props.scrollPosition)
-  if ((props.scrollPosition > .4 || props.page.includes('explore'))) {
+  if (props.scrollPosition > .4 || (props.page !== '/' && props.page !== '/signup' && props.page !== '/login')) {
     styles = [classes.Nav, classes.LightNav].join(" ")
   }
 
@@ -21,6 +20,7 @@ const navbar = (props) => {
             <NavItem link='/login' name='Login' />
             <NavItem link='/signup' name='Signup' />
           </Aux>}
+          <NavItem link='/community/activities' name='Community' />
           <NavItem link='/about' name='About' />
           <NavItem link='/tutorials' name='Tutorials' />
         </ul>

@@ -5,6 +5,8 @@ module.exports = {
     if (params.constructor === Array) {
       params = {'_id': {$in: params}}
     }
+    params.tempRoom = false; // we don't want any temporary rooms
+    console.log(params)
     return new Promise((resolve, reject) => {
       db.Room
       .find(params)

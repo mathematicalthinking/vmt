@@ -6,9 +6,11 @@
 
 .Search {
   display: flex;
+  align-items: center;
   background: #f9f9f9;
   /* border: 2px solid #ddd; */
   /* border-radius: 5px; */
+  font-size: inherit;
   height: 100%;
   width: 100%;
   box-shadow: lightestShadow;
@@ -21,8 +23,8 @@
   padding: 5px;
   transition: .2s;
   background-color: #f9f9f9;
-  letter-spacing: .08em;
   font-size: inherit;
+  letter-spacing: .08em;
   color: #666;
   caret-color: lightBlue;
 }
