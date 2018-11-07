@@ -1,22 +1,19 @@
 // THIS DOESN"T FEEL LIKE ITS IN A VERY LOGICAL PLACE IN THE FILE STRUCUTRE
 
 import React, { Component } from 'react';
-import Button from '../../../Components/UI/Button/Button';
-import Modal from '../../../Components/UI/Modal/Modal';
-import Aux from '../../../Components/HOC/Auxil';
-import MakeRooms from '../../../Containers/Create/MakeRooms/MakeRooms';
+import { Aux, Button, Modal } from '../../../Components';
+import classes from './makeRooms.css'
 class MakeRoomsLayout extends Component {
   state = {
     assigning: false,
   }
   render() {
-    const { activity, course } = this.props
+    const { activity, course, editing, toggleEdit } = this.props
+    console.log(editing)
     return (
       <Aux>
         <div>
-          <div>Activity Name: {activity.name}</div>
-          <div>Details: {activity.description}</div>
-          <div>Type: {activity.roomType}</div>
+          <div><b>Instructions:</b> {activity.instructions ? activity.instructions: <span className={classes.Edit} onClick={toggleEdit}>click here to add instructions</span>} </div>
           <Button click={() => {this.setState({assigning: true})}} data-testid='assign'>Assign</Button>
         </div>
         {this.state.assigning ? <Modal show={true} closeModal={() => {this.setState({assigning: false})}}>

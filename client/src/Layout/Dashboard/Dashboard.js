@@ -14,11 +14,13 @@ import Summary from '../Room/Room';
 import MakeRoomsLayout from './MakeRooms/MakeRooms';
 
 const dashboard = props => {
-  let {contentData, sidePanelData, view, toggleView} = props;
+  let {contentData, sidePanelData, view, 
+    toggleView, toggleEdit, editing,
+  } = props;
   let {resource, parentResource, activity, course, room, user} = contentData;
   let content;
   if (parentResource === 'activities' && resource === 'details') {
-    content = <MakeRoomsLayout activity={activity} course={course} userId={user._id}/>
+    content = <MakeRoomsLayout activity={activity} course={course} userId={user._id} editing={editing} toggleEdit={toggleEdit}/>
   } else if (resource === 'details') {
     content = <Summary room={room} loading={props.loading}/>
   } else {
@@ -48,7 +50,8 @@ const dashboard = props => {
               <div className={classes.spAdditional}>
                 {additionalDetails}
               </div>
-              { sidePanelData.edit ? <CustomLink to={sidePanelData.edit.link}>{sidePanelData.edit.text} <i className="fas fa-edit"></i></CustomLink> : null}
+              { sidePanelData.edit.link ? <CustomLink to={sidePanelData.edit.link}>{sidePanelData.edit.text} <i className="fas fa-edit"></i></CustomLink> : null}
+              { sidePanelData.edit.action ? <div onClick={toggleEdit}>{sidePanelData.edit.text} <i className="fas fa-edit"></i></div>: null}
             </div>
             <div className={classes.ViewOpts}></div>
           </div>

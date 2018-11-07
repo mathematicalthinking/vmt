@@ -1,0 +1,11 @@
+:import('../../../colors.css'){
+  blue: blue;
+}
+.Edit {
+  color: #999;
+  cursor: pointer;
+}
+
+.Edit:hover {
+  color: blue;
+}

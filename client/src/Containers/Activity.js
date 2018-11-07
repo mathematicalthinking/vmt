@@ -11,7 +11,8 @@ class Activity extends Component {
       {name: 'Rooms'},
       {name: 'Settings'},
     ],
-    assigning: false,
+    assigning: false, // this seems to be duplicated in Layout/Dashboard/MakeRooms.js
+    editing: false,
   }
 
   componentDidMount() {
@@ -36,6 +37,12 @@ class Activity extends Component {
     }
   }
 
+  toggleEdit = () => {
+    this.setState(prevState => ({
+      editing: !prevState.editing
+    }))
+  }
+
   render() {
     const resource = this.props.match.params.resource;
     const activity = this.props.populatedActivity
@@ -56,9 +63,10 @@ class Activity extends Component {
         main: activity.name,
         secondary: activity.description,
         additional: {
-          
+          Type: activity.roomType,
         }
-      }
+      },
+      edit: {action: 'edit', text: 'edit activity'}
     }
     
     const crumbs = [{title: 'My VMT', link: '/myVMT/courses'}]
@@ -79,6 +87,8 @@ class Activity extends Component {
         sidePanelData={sidePanelData}
         tabs={this.state.tabs}
         user={this.props.user}
+        toggleEdit={this.toggleEdit}
+        editing={this.state.editing}
       />
     )
   }
