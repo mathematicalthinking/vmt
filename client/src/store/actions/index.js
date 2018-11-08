@@ -79,6 +79,8 @@ export {
   createActivity,
   createdActivityConfirmed,
   removeActivity,
+  updateActivity,
+  updatedActivity,
 } from './activities';
 export {
   joinWithCode,

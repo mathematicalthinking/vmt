@@ -157,6 +157,7 @@ class Course extends Component {
           rooms: course.rooms.length,
         },
       },
+      edit: {}
     }
     // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
     return (

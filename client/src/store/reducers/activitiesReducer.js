@@ -57,7 +57,17 @@ const reducer = (state = initialState, action) => {
         ...state,
         currentActivity: {},
       }
-
+    case actionTypes.UPDATED_ACTIVITY:
+      let updatedActivity = {...state.byId[action.id]};
+      let key = Object.keys(action.body)[0];
+      updatedActivity[key] = action.body[key]
+      return {
+        ...state,
+        byId: {
+          ...state.byId,
+          [action.id]: updatedActivity,
+        }
+      }
     case actionTypes.CREATE_ACTIVITY_CONFIRMED:
       return {
         ...state,

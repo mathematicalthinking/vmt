@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 // import PropTypes from 'prop-types';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
-import * as actions from '../store/actions';
+import { getCourses, getRooms, updateActivity } from '../store/actions';
 import { connect } from 'react-redux';
 import { populateResource } from '../store/reducers';
 class Activity extends Component {
@@ -11,7 +11,7 @@ class Activity extends Component {
       {name: 'Rooms'},
       {name: 'Settings'},
     ],
-    assigning: false, // this seems to be duplicated in Layout/Dashboard/MakeRooms.js
+    // assigning: false, // this seems to be duplicated in Layout/Dashboard/MakeRooms.js
     editing: false,
   }
 
@@ -89,6 +89,7 @@ class Activity extends Component {
         user={this.props.user}
         toggleEdit={this.toggleEdit}
         editing={this.state.editing}
+        update={this.props.updateActivity}
       />
     )
   }
@@ -105,13 +106,5 @@ const mapStateToProps = (store, ownProps ) => {
   }
 }
 
-// connect react functions to redux actions
-const mapDispatchToProps = dispatch => {
-  return {
-    getCourses: (ids) => dispatch(actions.getCourses(ids)),
-    getRooms: (ids) => dispatch(actions.getRooms(ids)),
-    // updateUserCourses: newCourse => dispatch(actions.updateUserCourses(newCourse)),
-  }
-}
 
-export default connect(mapStateToProps, mapDispatchToProps)(Activity);
+export default connect(mapStateToProps, { getCourses, getRooms, updateActivity })(Activity);

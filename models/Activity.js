@@ -15,7 +15,8 @@ const Activity = new mongoose.Schema({
   ggbFile: {type: String},
   desmosLink: {type: String},
   events: [{type: String}],
-  image: {type:String,}
+  image: {type:String,},
+  instructions: {type: String,}
   // template: {type: ObjectId, ref: 'ActivityTemplate'},
 }, {timestamps: true});
 

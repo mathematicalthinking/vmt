@@ -1,26 +1,28 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import classes from './dashboard.css';
-import TabList from '../../Components/Navigation/TabList/TabList';
-import BreadCrumbs from '../../Components/Navigation/BreadCrumbs/BreadCrumbs';
-import DnDTrash from '../../Components/HOC/DnDTrash';
 import Resources from './Resources/Resources';
 import Members from '../../Containers/Members/Members'
-import Trash from '../../Components/UI/Trash/Trash';
-import Avatar from '../../Components/UI/Avatar/Avatar';
-import Button from '../../Components/UI/Button/Button';
 import CustomLink from '../../Components/Navigation/CustomLink/CustomLink';
+import { TabList, BreadCrumbs, DnDTrash, Avatar, Button, Trash } from '../../Components';
 import Summary from '../Room/Room';
-import MakeRoomsLayout from './MakeRooms/MakeRooms';
+import ActivityDetails from './ActivityDetails/ActivityDetails';
 
 const dashboard = props => {
   let {contentData, sidePanelData, view, 
-    toggleView, toggleEdit, editing,
+    toggleView, toggleEdit, editing, update,
   } = props;
   let {resource, parentResource, activity, course, room, user} = contentData;
   let content;
   if (parentResource === 'activities' && resource === 'details') {
-    content = <MakeRoomsLayout activity={activity} course={course} userId={user._id} editing={editing} toggleEdit={toggleEdit}/>
+    content = <ActivityDetails 
+      activity={activity} 
+      course={course} 
+      userId={user._id} 
+      editing={editing} 
+      toggleEdit={toggleEdit}
+      update={update}
+    />
   } else if (resource === 'details') {
     content = <Summary room={room} loading={props.loading}/>
   } else {
@@ -51,7 +53,7 @@ const dashboard = props => {
                 {additionalDetails}
               </div>
               { sidePanelData.edit.link ? <CustomLink to={sidePanelData.edit.link}>{sidePanelData.edit.text} <i className="fas fa-edit"></i></CustomLink> : null}
-              { sidePanelData.edit.action ? <div onClick={toggleEdit}>{sidePanelData.edit.text} <i className="fas fa-edit"></i></div>: null}
+              { sidePanelData.edit.action ? <div  className={classes.Edit} onClick={toggleEdit}>{sidePanelData.edit.text} <i className="fas fa-edit"></i></div>: null}
             </div>
             <div className={classes.ViewOpts}></div>
           </div>

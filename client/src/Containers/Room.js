@@ -119,7 +119,8 @@ class Room extends Component {
           code: room.entryCode,
           type: room.roomType,
         }
-      }
+      },
+      edit: {}
     }
 
     const crumbs = [

@@ -18,6 +18,14 @@ export const addActivity = activity => ({
   activity,
 })
 
+export const updatedActivity = (id, body) => {
+  return {
+    type: actionTypes.UPDATED_ACTIVITY,
+    id,
+    body,
+  }
+}
+
 export const clearCurrentActivity = () => {
   return {
     type: actionTypes.CLEAR_ACTIVITY
@@ -99,11 +107,22 @@ export const removeActivity = activityId => {
       dispatch(activityRemoved(activityId))
       dispatch(loading.success())
     })
+    .catch(err => dispatch(loading.fail(err)))
   }
 }
 
 
-export const UpdateCurrentActivity = body => {}
+export const updateActivity = (id, body) => {
+  return dispatch => {
+    dispatch(updatedActivity(id, body)) // THIS ONE's OPTIMISITC
+    dispatch(loading.start())
+    API.update('activities', id, body)
+    .then(res => {
+      dispatch(loading.success())
+    })
+    .catch(err => loading.fail(err))
+  }
+}
 
 export const createdActivityConfirmed = () => {
   return {
