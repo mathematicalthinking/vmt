@@ -206,7 +206,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    updateRoom: (roomId, body) => dispatch(actions.updateRoom(roomId, body)),
+    updateRoom: (roomId, body) => dispatch(actions.updatedRoom(roomId, body)),
   }
 }
 

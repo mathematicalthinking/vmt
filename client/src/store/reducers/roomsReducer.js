@@ -16,7 +16,7 @@ const reducer = (state = initialState, action) => {
         allIds: action.allIds,
       };
 
-    case actionTypes.UPDATE_ROOM:
+    case actionTypes.UPDATED_ROOM:
       let updatedRoom = {...state.byId[action.roomId]}
       let fields = Object.keys(action.body)
       fields.forEach(field => {

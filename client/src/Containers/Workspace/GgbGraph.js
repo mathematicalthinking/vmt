@@ -80,6 +80,8 @@ class GgbGraph extends Component {
       // this.ggbApplet.unregisterClearListener(this.clearListener);
       // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
     }
+    let canvas = document.querySelector('[aria-label="Graphics View 1"]');
+    this.props.updateRoom(this.props.room._id, {graphImage: canvas.toDataURL().split(',')[1]})
   }
 
   initializeGgb = () => {

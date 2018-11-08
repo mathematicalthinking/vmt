@@ -16,7 +16,8 @@ const Activity = new mongoose.Schema({
   desmosLink: {type: String},
   events: [{type: String}],
   image: {type:String,},
-  instructions: {type: String,}
+  instructions: {type: String,},
+  graphImage: {type: ObjectId, ref: 'Image'}
   // template: {type: ObjectId, ref: 'ActivityTemplate'},
 }, {timestamps: true});
 

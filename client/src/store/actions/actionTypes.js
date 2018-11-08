@@ -52,7 +52,7 @@ export const UPDATED_ACTIVITY = 'UPDATED_ACTIVITY';
 // ROOMS
 export const GET_ROOMS = 'GET_ROOMS';
 export const GOT_ROOMS = 'GOT_ROOMS';
-export const UPDATE_ROOM = 'UPDATE_ROOM';
+export const UPDATED_ROOM = 'UPDATED_ROOM';
 export const CREATED_ROOM = 'CREATED_ROOM';
 export const CREATE_ROOM_CONFIRMED = 'CREATE_ROOM_CONFIRMED';
 export const CLEAR_ROOM = 'CLEAR_ROOM';

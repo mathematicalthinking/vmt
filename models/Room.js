@@ -25,7 +25,8 @@ const Room = new mongoose.Schema({
   isPublic: {type: Boolean, default: false},
   tempRoom: {type: Boolean, default: false},
   image: {type: String,},
-  instructions: {type: String,}
+  instructions: {type: String,},
+  graphImage: {type: ObjectId, ref: 'Image'}
 },
 {timestamps: true});
 
