@@ -12,7 +12,7 @@ class Workspace extends Component {
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
 
   componentDidMount() {
-    const { updateRoom, updatedRoom, room, user} = this.props;
+    const { updatedRoom, room, user} = this.props;
     if (!user) {
     }
     const sendData = {
@@ -21,27 +21,26 @@ class Workspace extends Component {
       username: user.username,
       roomName: room.name,
     }
+    const updatedUsers = [...room.currentUsers, {user: {_id: user._id, username: user.username}}]
+    updatedRoom(room._id, {currentUsers: updatedUsers})
+
     this.socket.emit('JOIN', sendData, (res, err) => {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
-      // WE COULD MAKE TAKE THIS OUT OF THE CALLBACK AND UPDATE IMMEDIATELY
-      // AND THEN NOTIFY THE USER OF AN ERROR ONLY IF SOMETHING GOES WRONG
-      const updatedUsers = [...room.currentUsers, {_id: user._id, username: user.username}]
-      updatedRoom(room._id, {currentUsers: updatedUsers})
     })
 
     this.socket.on('USER_JOINED', data => {
-      updatedRoom(room._id, {currentUsers: data.currentUsers})
+      updatedRoom(room._id, data.currentUsers)
     })
 
     this.socket.on('USER_LEFT', data => {
-      updatedRoom(room._id, {currentUsers: data.currentUsers})
+      updatedRoom(room._id, data.currentUsers)
     })
   }
 
   componentWillUnmount () {
-    const { updateRoom, room, user} = this.props;
+    const { updatedRoom, room, user} = this.props;
     const data = {
       userId: user._id,
       roomId: room._id,
@@ -49,9 +48,9 @@ class Workspace extends Component {
       roomName: room.name,
     }
     if (this.socket) {
-      this.socket.emit('LEAVE', data, (res) => {
-        updateRoom(room._id, {currentUsers: room.currentUsers.filter(u => u._id !== user._id)})
-        this.socket.disconnect();
+      this.socket.emit('disconnect', data, (res) => {
+        updatedRoom(room._id, {currentUsers: room.currentUsers.filter(u => u.user._id !== user._id)})
+        // this.socket.disconnect();
       })
     }
   }

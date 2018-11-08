@@ -9,7 +9,7 @@ export default {
     return axios.post(`/api/${resource}`, body)
   },
 
-  update: (resource, id, body) => {
+  put: (resource, id, body) => {
     return axios.put(`/api/${resource}/${id}`, body)
   },
 

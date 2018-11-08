@@ -8,12 +8,14 @@ sockets.init = server => {
     io.sockets.on('connection', socket => {
       socket.on('JOIN', async (data, callback) => {
         const promises = [];
-        let user = data.user || null;
+        let user;
         if (data.tempRoom) {
           if (data.roomType) controllers.rooms.put(data.roomId, {roomType: data.roomType});
           user = await controllers.user.post({username: data.username,accountType: 'temp',});
           data.userId = user._id;
           user = {_id: user._id, username: data.username,}
+        } else {
+          user = {_id: data.userId, username: data.username}
         }
         user.socketId = socket.id;
         socket.join(data.roomId, async () => {

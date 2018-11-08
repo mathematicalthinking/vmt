@@ -116,7 +116,7 @@ export const updateActivity = (id, body) => {
   return dispatch => {
     dispatch(updatedActivity(id, body)) // THIS ONE's OPTIMISITC
     dispatch(loading.start())
-    API.update('activities', id, body)
+    API.put('activities', id, body)
     .then(res => {
       dispatch(loading.success())
     })

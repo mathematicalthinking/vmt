@@ -29,7 +29,9 @@ module.exports = {
       .populate({path: 'currentUsers', select: 'username'})
       .populate({path: 'course', select: 'name'})
       .populate({path: 'events', select: '-room'})
+      .populate({path: 'graphImage', select: 'imageData'})
       .then(room => {
+        console.log(room)
         resolve(room)
       })
       .catch(err => reject(err))
@@ -85,61 +87,46 @@ module.exports = {
   },
 
 
-
+  // THIS IS A MESS @TODO CLEAN UP 
   put: (id, body) => {
     return new Promise((resolve, reject) => {
-      db.Room.findById(id)
-      .then(room => {
-        // if (body.newMember) {
-        //   room.members.push({role: 'participant', user: body.newMember})
-        //   db.User.findByIdAndUpdate(body.newMember, {
-        //     $addToSet: {
-        //       rooms: room._id,
-        //       'roomNotifications.access': {
-        //         notificationType: 'grantedAccess',
-        //         _id: room._id,
-        //       }
-        //     }
-        //   }, {new: true}).then(user => console.log("NEW USER: ", user))
-        // }
-        if (body.checkAccess) {
-          let { entryCode, userId } = body.checkAccess;
-          // @todo SHOULD PROBABLY HASH THIS
-          if (room.entryCode === entryCode) {
-            room.members.push({user: userId, role: 'participant'})
-            // Send a notification to the room owner
-            db.User.findByIdAndUpdate(room.creator, {
-              $addToSet: {
-                'roomNotifications.access': {
-                  notificationType: 'newMember', _id: room._id, user: userId 
-                }
-              }
-            }, {new: true})
-            .then(user => console.log("USER: AFTER ADDING NTF: ", user))
-          } else reject({errorMessage: 'incorrect entry code'})
-        } else {
-          db.Room.findByIdAndUpdate(id, body)
-          .then(resolve())
-        }
-        // else {
-        //   // THIS NEEDS TO CHANGE BELOW WE ALREADY HAVE THE ROOM DON"T NEED TO FIND
-        //   db.Room.findByIdAndUpdate(id, body, {new: true})
-        //   .then(room => {resolve(body)})
-        //   .catch(err => {console.log(err); reject(err)})
-        // }
-        if (room) {
-          room.save()
-          room.populate({path: 'members.user', select: 'username'}, function() {
-            resolve(room)
+      if (body.graphImage) {
+        db.Room.findById(id).then(room => {
+          db.Image.findByIdAndUpdate(room.graphImage, {imageData: body.graphImage}).then(img => {
+            return resolve();
           })
-        }
-      })
-      .catch(err => reject(err))
+        })
+        .catch(err => {
+          console.log(err)
+          reject(err);
+        })
+      } else {
+        db.Room.findById(id)
+        .then(async room => {
+          if (body.checkAccess) {
+            let { entryCode, userId } = body.checkAccess;
+            // @todo SHOULD PROBABLY HASH THIS
+            if (room.entryCode === entryCode) {
+              room.members.push({user: userId, role: 'participant'})
+              // Send a notification to the room owner
+              db.User.findByIdAndUpdate(room.creator, {
+                $addToSet: {
+                  'roomNotifications.access': {
+                    notificationType: 'newMember', _id: room._id, user: userId 
+                  }
+                }
+              }, {new: true})
+              await room.save()
+              room.populate({path: 'members.user', select: 'username'}, function() {
+                resolve(room)
+              })
+            } else reject({errorMessage: 'incorrect entry code'})
+          }
+        })
+        .catch(err => reject(err))        
+      }
     })
   },
-
-  // addMember
-  // remove member
 
   delete: id => {
     return new Promise((resolve, reject) => {

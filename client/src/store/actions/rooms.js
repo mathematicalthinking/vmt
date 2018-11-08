@@ -58,7 +58,15 @@ export const addRoomMember = (roomId, body) => {
 
 export const updateRoom = (id, body) => {
   return dispatch => {
-    dispatch(updatedRoom(id, body))
+    dispatch(updatedRoom(id, body)) // Optimistically update the UI
+    API.put('rooms', id, body)
+    .then(res => {
+      console.log(res)
+    })
+    .catch(err => {
+      // @TODO IF SOMETHING WENT WRONG NOTIFY THE USER AND UNSO THE OPTIMISTIC UPDATE
+      console.log(err)
+    })
     // API REQUEST
   }
 }

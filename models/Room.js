@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const User = require('./User');
 const Course = require('./Course');
+const Image = require('./Image');
 const Activity = require('./Activity');
 const Room = new mongoose.Schema({
   activity: {type: ObjectId, ref: 'Activity'},
@@ -34,6 +35,7 @@ Room.pre('save', function (next) {
   // ON CREATION UPDATE THE CONNECTED MODELS
   if (this.isNew & !this.tempRoom) {
     let promises = [];
+    promises.push(Image.create({imageData: ''}))
     promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}, accountType: 'facilitator'}))
     if (this.course) {
       promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id},}))
@@ -43,6 +45,7 @@ Room.pre('save', function (next) {
     }
     Promise.all(promises)
     .then(values => {
+      this.graphImage = values[0]._id;
       // values[0].forEach(user => {
       //   console.log('user!: ', user)
       //   user.rooms.push(this._id)

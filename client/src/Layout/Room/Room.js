@@ -29,7 +29,7 @@ const summary = ({room, history, loading}) => {
         <div>
           {/*CONSIDER: COULD REPLACE THESE 0'S WITH LOADING SPINNERS? */}
           <div>Current State: </div>
-          <div><img className={classes.StateImage} src={room.graphImage} alt="current-state"/></div>
+          <div><img className={classes.StateImage} src={room.graphImage.imageData} alt="current-state"/></div>
           <div>Current Members: {room.currentUsers ? room.currentUsers.length : 0}</div>
           <div>Total Events: {room.events ? room.events.length : 0}</div>
           <div>Total Messages: {room.chat ? room.chat.length : 0}</div>
