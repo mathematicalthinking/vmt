@@ -6,14 +6,14 @@
 .Container {
   display: flex;
   flex-flow: column;
-  margin-top: 10px;
-  font-size: 18px;
+  /* margin-top: 10px; */
+  /* font-size: 18px; */
   width: 100%;
+  /* padding: 10px; */
 }
 
 .Input{
-  /* width: 100%; */
-  padding: 10px;
+  width: 100%;
   /* border-radius: 4px; */
   border: none !important;
   border-bottom: 1px solid white !important;

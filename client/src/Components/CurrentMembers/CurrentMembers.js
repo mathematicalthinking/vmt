@@ -8,7 +8,7 @@ class CurrentMembers extends Component {
     console.log(members)
     return (
       <div className={classes.Container}>
-        <h3>Current Members</h3>
+        <h3 className={classes.Title}>Current Members</h3>
         <div className={classes.Left} data-testid='current-members'>
           {members ? members.map(user =>
             <div

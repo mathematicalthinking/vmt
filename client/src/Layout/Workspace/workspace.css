@@ -1,56 +1,163 @@
+:import('../../colors.css'){
+  lightShadow: lightestShadow;
+  background: mainBackground;
+  scrollBackground: darkScroller;
+  hoverBackground: hoverBackground;
+  hoverBackground2: hoverBackground2;
+  darkBorder: darkBorder;
+}
+
+.WorkspaceTabs {
+  height:45px;
+  padding: 0 0 0 0;
+  position: absolute;
+  top: -45px;
+  overflow:visible;
+}
+.Tab {
+  width: 100px;
+  height:45px;
+  overflow:hidden;
+  float:left;
+  margin:0 -15px 0 0;
+  cursor: pointer;
+}
+
+
+.TabBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height:50px;
+  background: #e8e8e8;
+  border-radius: 4px;
+  border:1px solid #ccc;
+  margin:0 10px 0;
+  box-shadow: 0 0 2px  #fff inset;
+  transition: .2s;
+  -webkit-transform: perspective(150px) rotateX(30deg);
+  -moz-transform: perspective(150px) rotateX(30deg);
+}
+
+.Active {
+  z-index:40;
+  width: 200px;
+  position:relative;
+  padding-bottom:1px;
+}
+
+.Tab:hover .TabBox {
+  background-color: hoverBackground;
+}
+
+.Active .TabBox{
+  background-color: hoverBackground2;
+  /* background-image: linear-gradient(top, #ccc , #ddd 3%, rgba(#eee, 0.5)  ); */
+  box-shadow: 0 0 2px 0 #fff inset;
+}
+
+.Active:hover .TabBox {
+  background-color: hoverBackground2;
+}
+
+
 .PageContainer {
-  width: 100%;
-  height: 100%;
-  margin-top: 50px;
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  margin-top: 70px;
   display: flex;
   flex-flow: column;
-  justify-content: space-around;
+  justify-content: flex-start;
   align-items: center;
+  /* border: 1px solid green; */
 }
 
 .Container {
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
+  width: 95vw;
+  height: 90%;
   max-width: 1500px;
+  box-shadow: lightShadow;
+  /* border: 1px solid red; */
 }
 
-.SidePanel {
+.Top {
   display: flex;
-  flex-flow: column;
-  justify-content: space-between;
-  width: 25%;
-  max-height: 100%;
-  box-sizing: border-box;
+  justify-content: center;
+  width: 100%;
+  height: 85%;
+  /* border: 1px solid blue; */
+}
+
+.Bottom {
+  background-color: background;
+  /* color: white; */
+  display: flex;
+  height: 15%;
+}
+
+.Left {
+  width: 77%;
+  height: 100%;
+}
+
+.Right {
+  display: flex;
+  flex-direction: column;
+  width: 23%;
+  height: 100%;
+  background-color: background;
+  /* color: white; */
 }
 
 .Graph {
   /*  IF THIS ^  CHANGES BE SURE TO CHANEG THE WIDTH PARAMETER ON THE GGB GRAPH*/
-  box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.28);
-  border-radius: 3px;
+  /* box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.28); */
+  /* border-radius: 3px; */
 }
+/* .SidePanel {
+  display: flex;
+  flex-flow: column;
+  width: 23%;
+  height: 100%;
+} */
+
+
+
 .Chat {
-  height: 60.53%;
-  border-radius: 3px;
+  height: 60%;
+  /* flex-grow: 2; */
+}
+
+.Members {
+  height: 40%;
 }
 
 .Replayer {
   height: 220px;
-  border-radius: 3px;
 }
 
-.Members {
-  height: 37.46%;
-  border-radius: 3px;
-}
 
 .Avatar {
   margin: 5px;
 }
 
-.BottomBar {
-  margin-top: 20px;
+.SideButton {
+  flex-grow: 1;
+  border: 1px solid #ddd;
+  /* background-color: rgb(99, 83, 83); */
+  /* color: white; */
+  cursor: pointer;
   display: flex;
-  justify-content: space-evenly;
-  width: 90%;
+  align-items: center;
+  justify-content: center;
+  transition: .2s;
+}
+
+
+.SideButton:hover {
+  background: hoverBackground;
+}
+.Exit:hover {
+  background: hoverBackground2;
 }
