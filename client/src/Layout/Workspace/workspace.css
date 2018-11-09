@@ -1,5 +1,5 @@
 :import('../../colors.css'){
-  lightShadow: lightestShadow;
+  lightShadow: lightShadow;
   background: mainBackground;
   scrollBackground: darkScroller;
   hoverBackground: hoverBackground;
@@ -64,7 +64,7 @@
 .PageContainer {
   position: relative;
   width: 100vw;
-  height: 100vh;
+  height: 90vh;
   margin-top: 70px;
   display: flex;
   flex-flow: column;
@@ -75,7 +75,7 @@
 
 .Container {
   width: 95vw;
-  height: 90%;
+  height: 100%;
   max-width: 1500px;
   box-shadow: lightShadow;
   /* border: 1px solid red; */
@@ -140,6 +140,14 @@
 
 .Avatar {
   margin: 5px;
+}
+
+.RoomDescription {
+  padding: 30px;
+}
+
+.InstructionsTitle {
+  border-bottom: 1px solid #ddd;
 }
 
 .SideButton {

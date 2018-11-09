@@ -26,7 +26,10 @@ const workspaceLayout = ({
         </div>
         <div className={classes.Bottom}>
           <div className={classes.Left}>
-          <div className={classes.RoomDescription}>Instructions: {instructions}</div>
+          <div className={classes.RoomDescription}>
+            <h3 className={classes.InstructionsTitle}>Instructions</h3>
+            <div className={classes.Instructions}>{instructions}</div>
+          </div>
             {temp && !loggedIn ? 
               <div>
                 <Button theme={'Small'} data-testid='save-temp' m={20} click={save}>Save This Workspace</Button>
