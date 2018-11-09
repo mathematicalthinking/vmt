@@ -74,9 +74,10 @@ export const updateRoom = (id, body) => {
 export const removeRoomMember = (roomId, userId) => {
   return dispatch => {
     dispatch(loading.start())
-    API.delete('rooms', roomId, userId)
+    API.removeMember('rooms', roomId, userId)
     .then(res => {
-      dispatch(updatedRoom(res.data.result))
+      console.log(res.data)
+      dispatch(updatedRoom(roomId, res.data))
     })
     .catch(err => dispatch(loading.fail(err)))
   }

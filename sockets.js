@@ -45,11 +45,8 @@ sockets.init = server => {
       });
 
       socket.on('disconnecting', () => {
-        console.log('disconnect')
         rooms = Object.keys(socket.rooms).slice(1)
-        console.log(rooms)
         rooms.forEach(async (room) => {
-          console.log('removing member: ', socket.id)
           controllers.rooms.removeCurrentUsers(room, socket.id)
           .then(res => {
             socket.to(room).emit('USER_LEFT', {currentMembers: res.currentMembers, message: 'someone left'})
@@ -58,7 +55,6 @@ sockets.init = server => {
       })
 
       socket.on('disconnect', () => {
-        console.log('are we getting here')
         // let message = {
         //   user: {_id: data.userId, username: 'VMTbot'},
         //   room: data.roomId,

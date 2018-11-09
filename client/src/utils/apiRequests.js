@@ -44,7 +44,7 @@ export default {
   },
 
   removeMember: (resource, resourceId, user) => {
-    return axios.put(`/api/${resource}/${resourceId}/remove`, {members: {user,}})
+    return axios.put(`/api/${resource}/${resourceId}/remove`, {members: {user,} })
   },
 
   addUserResource: (resource, resourceId, userId) => {

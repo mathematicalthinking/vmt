@@ -78,10 +78,16 @@ module.exports = {
   remove: (id, body) => {
     return new Promise((resolve, reject) => {
       // Remove this course from the user's list of courses
+      console.log('body: ', body)
+      // console.log(bod['members.user']._id)
       db.User.findByIdAndUpdate(body.members.user, {$pull: {rooms: id}})
+      console.log('removing room member')
       db.Room.findByIdAndUpdate(id, {$pull: body}, {new: true})
       .populate({path: 'members.user', select: 'username'})
-      .then(res => resolve(res.members))
+      .then(res => {
+        console.log(res)
+        resolve({members: res.members})
+      })
       .catch(err => reject(err))
     })
   },
@@ -109,13 +115,15 @@ module.exports = {
             if (room.entryCode === entryCode) {
               room.members.push({user: userId, role: 'participant'})
               // Send a notification to the room owner
+              console.log('adding notification to: ', room.creator)
               db.User.findByIdAndUpdate(room.creator, {
                 $addToSet: {
                   'roomNotifications.access': {
                     notificationType: 'newMember', _id: room._id, user: userId 
                   }
                 }
-              }, {new: true})
+              }).then(res => console.log('sucess: ', res))
+              .catch(err => console.log(err))
               try { await room.save()}
               catch(err) {console.log(err)}
               room.populate({path: 'members.user', select: 'username'}, function() {
@@ -150,7 +158,6 @@ module.exports = {
       .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .select('currentMembers events chat currentState roomType')
       .then(room => {
-        console.log('adding current user: ', body)
         resolve(room)
       })
       .catch(err => reject(err))
@@ -164,7 +171,6 @@ module.exports = {
       .populate({path: 'currentMembers.user', select: 'username'})
       .select('currentMembers')
       .then(room => {
-        console.log(room) 
         resolve(room)
       })
       .catch(err => reject(err))
