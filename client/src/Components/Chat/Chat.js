@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import TextInput from '../Form/TextInput/TextInput';
+// import TextInput from '../Form/TextInput/TextInput';
 import classes from './chat.css';
-import Button from '../UI/Button/Button';
+// import Button from '../UI/Button/Button';
 import moment from 'moment';
 class Chat extends Component {
 
