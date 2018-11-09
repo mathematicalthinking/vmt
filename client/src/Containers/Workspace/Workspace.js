@@ -23,7 +23,7 @@ class Workspace extends Component {
     }
     const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
     updatedRoom(room._id, {currentMembers: updatedUsers})
-
+    console.log('component mounted')
     this.socket.emit('JOIN', sendData, (res, err) => {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
@@ -43,15 +43,9 @@ class Workspace extends Component {
     const { updatedRoom, room, user} = this.props;
     if (this.socket) {
       this.socket.disconnect()
-      // this.socket.emit('disconnect')
-      console.log(room.currentMembers)
-      console.log(user._id)
-      console.log(room.currentMembers.filter(member => member.user._id !== user._id))
-      updatedRoom(room._id, {currentMembers: room.currentMembers.filter(member => {
-        console.log(member.user._id)
-       return  member.user._id !== user._id})
+      updatedRoom(room._id, {
+        currentMembers: room.currentMembers.filter(member => member.user._id !== user._id)
       })
-      console.log('disconnection')
     }
   }
 
@@ -67,6 +61,7 @@ class Workspace extends Component {
           () => <DesmosGraph  room={room} socket={this.socket} user={user} />}
         chat = {() => <Chat roomId={room._id} messages={room.chat || []} socket={this.socket} user={user} />}
         description={room.description}
+        instructions={room.instructions}
       />
     )
   }

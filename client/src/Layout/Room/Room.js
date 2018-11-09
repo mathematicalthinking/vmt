@@ -26,13 +26,15 @@ const summary = ({room, history, loading}) => {
       }
       </div>
       <div className={classes.Section}>
+        {room.instructions ? <div><b>Instructions: </b>room.instructions</div> : null}
+      </div>
+      <div className={classes.Section}>
         <div>
           {/*CONSIDER: COULD REPLACE THESE 0'S WITH LOADING SPINNERS? */}
-          <div>Current Construction: </div>
-         {room.graphImage.imageData !== '' ? <div><img className={classes.StateImage} src={room.graphImage.imageData} alt="current-state"/></div> : null}
-          <div>Current Members: {room.currentMembers ? room.currentMembers.length : 0}</div>
-          <div>Total Events: {room.events ? room.events.length : 0}</div>
-          <div>Total Messages: {room.chat ? room.chat.length : 0}</div>
+         {room.graphImage && room.graphImage.imageData !== '' ? <div><div><b>Current Construction: </b></div><img className={classes.StateImage} src={room.graphImage.imageData} alt="current-state"/></div> : null}
+          <div><b>Current Members: </b>{room.currentMembers ? room.currentMembers.length : 0}</div>
+          <div><b>Total Events: </b>{room.events ? room.events.length : 0}</div>
+          <div><b>Total Messages: </b>{room.chat ? room.chat.length : 0}</div>
         </div>
       </div>
       <div className={classes.Section}>

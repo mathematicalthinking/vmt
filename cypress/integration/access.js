@@ -125,6 +125,7 @@ describe('test access requests', function(){
     cy.getTestElement('tab').contains('Members').click()
     cy.getTestElement('members').children().should('have.length', 2)
     cy.getTestElement('crumb').contains('My VMT').click()
+    cy.getTestElement('tab-ntf').should('not.exist')
     cy.wait(111)
   })
 

@@ -59,6 +59,7 @@ module.exports = {
   remove: (id, body) => {
     return new Promise((resolve, reject) => {
       let key = Object.keys(body)[0].split('.')[0];
+      console.log(body)
       db.User.findByIdAndUpdate(id, {$pull: body}, {new: true})
       // .populate(key, 'select', user.username)
       .then(res =>{

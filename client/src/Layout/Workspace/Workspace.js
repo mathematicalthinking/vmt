@@ -7,7 +7,7 @@ import Button from '../../Components/UI/Button/Button';
 const workspaceLayout = ({
   graph, chat, replayer, 
   members, activeMember, temp, 
-  save, loggedIn, description, history}) => {
+  save, loggedIn, description, instructions, history}) => {
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container} style={{maxHeight: window.innerHeight - (replayer ? 400 : 300)}}>
@@ -25,7 +25,7 @@ const workspaceLayout = ({
           <Button theme={'Small'} data-testid='save-temp' m={20} click={save}>Save This Workspace</Button>
         </div> :
         <div className={classes.BottomBar}>
-          <div className={classes.RoomDescription}>Assignment Description: {description}</div>
+          <div className={classes.RoomDescription}>Instructions: {instructions}</div>
         </div>
       }
       {replayer ?
