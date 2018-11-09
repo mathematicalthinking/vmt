@@ -43,8 +43,9 @@ class GgbGraph extends Component {
     // NOTE: complete list here: https://wiki.geogebra.org/en/Reference:GeoGebra_App_Parameters
     const parameters = {
       "id":"ggbApplet",
-      "width": window.innerWidth * .60, // 75% width of container
-      "height": window.innerHeight - 300,
+      // "width": , // 75% width of container
+      // "height": "100%",
+      "scaleContainerClasse": "graph",
       "customToolBar": "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
       "showToolBar": true,
       "showMenuBar": true,
@@ -79,6 +80,10 @@ class GgbGraph extends Component {
       this.ggbApplet.unregisterRemoveListener(this.eventListener);
       // this.ggbApplet.unregisterClearListener(this.clearListener);
       // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
+    }
+    if (!this.props.tempRoom) {
+      let canvas = document.querySelector('[aria-label="Graphics View 1"]');
+      this.props.updateRoom(this.props.room._id, {graphImage: {imageData: canvas.toDataURL()}})
     }
   }
 

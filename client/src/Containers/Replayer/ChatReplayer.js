@@ -24,8 +24,8 @@ class Chat extends PureComponent {
             currentMembers.push(entry.user)
           }
           else {
-            currentMembers = currentMembers.filter(user => {
-              return entry.user._id !== user._id}
+            currentMembers = currentMembers.filter(member => {
+              return entry.user._id !== member.user._id}
             )
           }
         }

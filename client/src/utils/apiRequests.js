@@ -9,6 +9,10 @@ export default {
     return axios.post(`/api/${resource}`, body)
   },
 
+  put: (resource, id, body) => {
+    return axios.put(`/api/${resource}/${id}`, body)
+  },
+
   getById: (resource, id) => {
     return axios.get(`/api/${resource}/${id}`)
   },
@@ -40,7 +44,7 @@ export default {
   },
 
   removeMember: (resource, resourceId, user) => {
-    return axios.put(`/api/${resource}/${resourceId}/remove`, {members: {user,}})
+    return axios.put(`/api/${resource}/${resourceId}/remove`, {members: {user,} })
   },
 
   addUserResource: (resource, resourceId, userId) => {

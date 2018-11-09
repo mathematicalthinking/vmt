@@ -1,3 +1,16 @@
+:import('../../colors.css'){
+  lightestShadow: lightestShadow;
+}
+
+.Buttons {
+  height: 50px;
+}
+
 .Button {
   font-size: 1.4em;
+}
+
+.StateImage {
+  box-shadow: lightestShadow;
+  height: 400px;
 }

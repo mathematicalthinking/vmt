@@ -8,12 +8,14 @@ sockets.init = server => {
     io.sockets.on('connection', socket => {
       socket.on('JOIN', async (data, callback) => {
         const promises = [];
-        let user = data.user || null;
+        let user;
         if (data.tempRoom) {
           if (data.roomType) controllers.rooms.put(data.roomId, {roomType: data.roomType});
           user = await controllers.user.post({username: data.username,accountType: 'temp',});
           data.userId = user._id;
           user = {_id: user._id, username: data.username,}
+        } else {
+          user = {_id: data.userId, username: data.username}
         }
         user.socketId = socket.id;
         socket.join(data.roomId, async () => {
@@ -34,7 +36,7 @@ sockets.init = server => {
           catch(err) {
             return callback(null, err)
           }
-          socket.to(data.roomId).emit('USER_JOINED', {currentUsers: results[1].currentUsers, message,});
+          socket.to(data.roomId).emit('USER_JOINED', {currentMembers: results[1].currentMembers, message,});
           let room = {...results[1]}
           // room.chat.push(message)
           callback({room: results[1], message, user,}, null)
@@ -47,7 +49,7 @@ sockets.init = server => {
         rooms.forEach(async (room) => {
           controllers.rooms.removeCurrentUsers(room, socket.id)
           .then(res => {
-            socket.to(room).emit('USER_LEFT', {currentUsers: res.currentUsers, message: 'someone left'})
+            socket.to(room).emit('USER_LEFT', {currentMembers: res.currentMembers, message: 'someone left'})
           })
         })
       })

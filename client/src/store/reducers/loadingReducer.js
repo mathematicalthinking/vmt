@@ -17,11 +17,12 @@ const reducer = (state = initialState, action) => {
       loading: true,
     };
     case actionTypes.FAIL:
+
     return {
       ...state,
       loading: false,
       loginError: true,
-      errorMessage: action.error,
+      errorMessage: action.error.toString(),
     };
     case actionTypes.SUCCESS:
       return {

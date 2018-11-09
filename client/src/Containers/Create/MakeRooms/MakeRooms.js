@@ -39,7 +39,7 @@ class MakeRooms extends Component  {
   }
   
   submit = () => {
-    let { _id, name, description, roomType, desmosLink, ggbFile, image } = this.props.activity;
+    let { _id, name, description, roomType, desmosLink, ggbFile, image, instructions } = this.props.activity;
     let newRoom = {
       activity: _id,
       creator: this.props.userId,
@@ -48,6 +48,7 @@ class MakeRooms extends Component  {
       roomType,
       desmosLink,
       ggbFile,
+      instructions,
       dueDate: this.state.dueDate,
       image,
     }

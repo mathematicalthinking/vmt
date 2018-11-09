@@ -6,7 +6,7 @@ const TextInput = (props) => {
   let autoComplete = props.autoComplete || props.type;
   if (props.type === 'password') {autoComplete = 'current-password'}
   return (
-    <div className={styles.Container}>
+    <div className={styles.Container} style={{width: props.width}}>
       {props.label ? <label className={styles.Label} htmlFor={props.name}>{props.label}</label> : null}
       <input
         autoComplete={autoComplete}
@@ -17,7 +17,7 @@ const TextInput = (props) => {
         placeholder={props.placeholder}
         onChange={props.change}
         value={props.value}
-        style={{width: props.width}}
+        style={{fontSize: props.size}}
         data-testid={props['data-testid'] || null}
       />
     </div>

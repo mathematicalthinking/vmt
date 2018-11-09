@@ -1,5 +1,6 @@
 :import('../../colors.css'){
   lightBlue: lightBlue;
+  blue: blue;
 }
 
 :root {
@@ -109,6 +110,15 @@
   padding: 3px 0; 
   border-top: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
+}
+
+.Edit {
+  color: #999;
+  cursor: pointer;
+}
+
+.Edit:hover {
+  color: blue;
 }
 
 .CreateForParticipant {

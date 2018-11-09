@@ -1,6 +1,10 @@
 :import('../../colors.css'){
   blue: blue;
   gray: backgroundGray;
+  background: mainBackground;
+  scrollBackground: darkScroller;
+  darkBorder: darkBorder;
+  hoverBackground: hoverBackground2;
 }
 .Container {
   display: flex;
@@ -8,14 +12,21 @@
   justify-content: space-between;
   height: 100%;
   width: 100%;
-  border: 1px solid #ddd;
-  border-radius: 2px;
-  background-color: gray;
-  box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.28);
+  border-top: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  background-color: background;
+  /* color: white; */
+  /* box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.28); */
+}
+
+.Title {
+  padding: 20px;
+  border-bottom: 1px solid #ddd;
 }
 
 .ChatScroll {
-  height: 100%;
+  flex-grow: 1;
   width: 100%;
   overflow-y: scroll;
   padding: 10px;
@@ -24,7 +35,7 @@
 .ChatScroll::-webkit-scrollbar {
   width: 0.5em;
   height: 0.09em;
-  background-color: #eee;
+  background-color: scrollBackground;
 }
 
 .ChatScroll::-webkit-scrollbar-thumb {
@@ -33,8 +44,35 @@
 }
 
 .ChatInput {
-  align-self: center;
-  width: 90%
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  border-top: 1px solid #ddd;
+  width: 100%
+}
+
+.Input {
+  padding: 5px;
+  width: 100%;
+  height: 35px;
+  border: none !important;
+  border-bottom: 1px solid blue;
+}
+
+.Send {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #ddd;
+  width: 100%;
+  height: 35px;
+  background: inherit;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.Send:hover {
+  background: hoverBackground;
 }
 
 .Entry {
@@ -50,3 +88,4 @@
   font-size: .8em;
   align-self: flex-end;
 }
+

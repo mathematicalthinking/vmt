@@ -1,6 +1,6 @@
 import {
   updateCourse,
-  updateRoom,
+  updatedRoom,
   removeNotification,
   addUserRooms,
   addRoomMember,
@@ -58,7 +58,7 @@ export const grantAccess = (user, resource, resourceId) => {
     API.grantAccess(user, resource, resourceId)
     .then(res => {
       if (resource === 'rooms') {
-        dispatch(updateRoom(resourceId, {members: res.data})) // change to add 
+        dispatch(updatedRoom(resourceId, {members: res.data})) // change to add 
       } else if (resource === 'courses') {
         dispatch(updateCourse(resourceId, {members: res.data})) // change to add 
       }

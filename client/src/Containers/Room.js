@@ -43,7 +43,8 @@ class Room extends Component {
         if (ntf.notificationType === 'grantedAccess' && ntf._id === room._id) {
            // RESOLVE THIS NOTIFICATION
            firstView = true;
-           clearNotification(room._id, user._id, 'rooms', 'access') //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
+           console.log('first view = true', 'clearing notifications')
+           clearNotification(room._id, user._id, null, 'rooms', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
          }
        })
      }
@@ -51,6 +52,7 @@ class Room extends Component {
       this.checkAccess();
     }
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
+    // console.log(this.props.history)
     populateRoom(room._id)
     // Get Any other notifications
     this.setState({
@@ -119,7 +121,8 @@ class Room extends Component {
           code: room.entryCode,
           type: room.roomType,
         }
-      }
+      },
+      edit: {}
     }
 
     const crumbs = [

@@ -12,9 +12,9 @@ export const gotRooms = (rooms) => ({
   allIds: rooms.allIds
 })
 
-export const updateRoom = (roomId, body) => {
+export const updatedRoom = (roomId, body) => {
   return {
-    type: actionTypes.UPDATE_ROOM,
+    type: actionTypes.UPDATED_ROOM,
     roomId,
     body,
   }
@@ -56,12 +56,28 @@ export const addRoomMember = (roomId, body) => {
   }
 }
 
+export const updateRoom = (id, body) => {
+  return dispatch => {
+    dispatch(updatedRoom(id, body)) // Optimistically update the UI
+    API.put('rooms', id, body)
+    .then(res => {
+      console.log(res)
+    })
+    .catch(err => {
+      // @TODO IF SOMETHING WENT WRONG NOTIFY THE USER AND UNSO THE OPTIMISTIC UPDATE
+      console.log(err)
+    })
+    // API REQUEST
+  }
+}
+
 export const removeRoomMember = (roomId, userId) => {
   return dispatch => {
     dispatch(loading.start())
-    API.delete('rooms', roomId, userId)
+    API.removeMember('rooms', roomId, userId)
     .then(res => {
-      dispatch(updateRoom(res.data.result))
+      console.log(res.data)
+      dispatch(updatedRoom(roomId, res.data))
     })
     .catch(err => dispatch(loading.fail(err)))
   }
@@ -86,7 +102,7 @@ export const populateRoom = id => {
     dispatch(loading.start())
     API.getById('rooms', id)
     .then(res => {
-      dispatch(updateRoom(id, res.data.result))
+      dispatch(updatedRoom(id, res.data.result))
       dispatch(loading.success())
     })
     .catch(err => dispatch(loading.fail(err)))
@@ -122,7 +138,7 @@ export const updateRoomMembers = (roomId, updatedMembers) => {
   return dispatch => {
     API.updateMembers('rooms', roomId, updatedMembers)
     .then(res => {
-      dispatch(updateRoom(roomId, res.data.result))
+      dispatch(updatedRoom(roomId, res.data.result))
     })
     .catch(err => console.log(err))
   }

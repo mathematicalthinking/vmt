@@ -1,13 +1,21 @@
 @value colors: '../../colors.css';
 @value blue from colors;
+:import('../../colors.css'){
+  background: mainBackground;
+  scrollBackground: darkScroller;
+  darkBorder: darkBorder;
+}
 
 .Container {
   display: flex;
   flex-flow: column;
-  align-items: center;
+  /* align-items: center; */
   height: 100%;
-  background-color: #f9f9f9;
-  box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.28);
+  /* color: white; */
+  background-color: inherit;
+  border: 1px solid #ddd;
+  /* box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.28); */
+  overflow-y: hidden;
 }
 
 .Avatar {
@@ -26,7 +34,7 @@
 .Left {
   /* margin-left: 10px; */
   align-self: flex-start;
-  height: 100%;
+  /* height: 100%; */
   width: 100%;
   overflow-y: scroll;
   padding: 10px;
@@ -36,7 +44,7 @@
 .Left::-webkit-scrollbar {
   width: 0.5em;
   height: 0.09em;
-  background-color: #eee;
+  background-color: scrollBackground;
 }
 
 .Left::-webkit-scrollbar-thumb {
@@ -44,9 +52,7 @@
   border-radius: 3px;
 }
 
-h3 {
-  color: #848586;
-  padding: 10px;
-  margin: 5px 0;
-  border-bottom: 1px solid #949596;
+.Title {
+  padding: 20px;
+  border-bottom: 1px solid #ddd;
 }

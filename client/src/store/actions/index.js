@@ -38,6 +38,7 @@ export {
   createdRoomConfirmed,
   populateRoom,
   updateRoom,
+  updatedRoom,
   joinRoom,
   leaveRoom,
   removeRoom,
@@ -79,6 +80,8 @@ export {
   createActivity,
   createdActivityConfirmed,
   removeActivity,
+  updateActivity,
+  updatedActivity,
 } from './activities';
 export {
   joinWithCode,
