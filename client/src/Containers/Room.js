@@ -51,6 +51,7 @@ class Room extends Component {
       this.checkAccess();
     }
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
+    // console.log(this.props.history)
     populateRoom(room._id)
     // Get Any other notifications
     this.setState({

@@ -20,8 +20,7 @@ class ActivityDetails extends Component {
   }
 
   render() {
-    const { activity, course, editing, toggleEdit } = this.props
-    console.log(activity)
+    const { activity, course, editing, toggleEdit } = this.props;
     return (
       <Aux>
         <div>

@@ -73,28 +73,29 @@ class TempWorkspace extends Component {
     })
 
     this.socket.on('USER_JOINED', data => {
-      this.updateMembers(data.currentUsers)
+      this.updateMembers(data.currentMembers)
     })
 
     this.socket.on('USER_LEFT', data => {
-      this.updateMembers(data.currentUsers)
+      this.updateMembers(data.currentMembers)
     })
   }
 
   updateMembers = (newMembers) => {
     const updatedRoom = {...this.state.room};
-    updatedRoom.currentUsers = newMembers;
+    updatedRoom.currentMembers = newMembers;
     this.setState({room: updatedRoom})
   }
 
   componentWillUnmount () {
+    window.removeEventListener("beforeunload", this.confirmUnload)
     if (this.socket) {
-      this.socket.emit('disconnect')
+      this.socket.disconnect()
+      // this.socket.emit('disconnect')
     }
     // destroy this room from the store
     this.props.destroyRoom(this.props.match.params.id)
     // window.removeEventListener("beforeunload", this.confirmUnload)
-    window.removeEventListener("beforeunload", this.confirmUnload)
   }
 
   confirmUnload = (ev) => {
@@ -121,9 +122,9 @@ class TempWorkspace extends Component {
           temp
           loggedIn={false}
           save={this.saveWorkSpace}
-          members = {this.state.room.currentUsers || []}
+          members = {this.state.room.currentMembers || []}
           graph = {this.state.graph === 'geogebra' ? 
-            () => <GgbGraph room={this.state.room} socket={this.socket} user={this.state.user}/> :
+            () => <GgbGraph room={this.state.room} socket={this.socket} user={this.state.user} tempRoom/> :
             () => <DesmosGraph room={this.state.room} socket={this.socket} user={this.state.user}/>
           }
           chat = {() => <Chat roomId={this.state.room._id} messages={this.state.room.chat || []} socket={this.socket} user={this.state.user} />}

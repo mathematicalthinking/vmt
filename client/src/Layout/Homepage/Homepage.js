@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Link } from 'react-router-dom';
 import classes from './homepage.css';
-// import BoxList from '../BoxList/BoxList'
+import BoxList from '../BoxList/BoxList'
 import Button from '../../Components/UI/Button/Button';
 import Background from '../../Components/Background/Background';
 import GeogebraImg from './Geogebra.png';
@@ -38,19 +38,17 @@ class Homepage extends PureComponent {
     window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
 }
 
-  
-
   render() {
-    // const list = Object.keys(this.props.activities).map(id => this.props.activities[id]) || []
+    let list = Object.keys(this.props.activities).map(id => this.props.activities[id]) || []
     return (
       <Aux>
         <Background/>
-        <div className={classes.BackgroundExtension}></div>
-        <div className={classes.Ex2}></div>
+        {/* <div className={classes.BackgroundExtension}></div> */}
+        {/* <div className={classes.Ex2}></div>
         <div className={classes.Ex3}></div>
         <div className={classes.Ex4}></div>
         <div className={classes.Ex5}></div>
-        <div className={classes.Ex6}></div>
+        <div className={classes.Ex6}></div> */}
         <div className={classes.Main}>
           <section className={classes.Top}>
             <p className={classes.Blurb}>
@@ -58,9 +56,11 @@ class Homepage extends PureComponent {
             </p>
             <Button theme={'Big'} click={this.createRoom} m={35}>Try out a Workspace</Button>
           </section>
-          <i onClick={this.scrollToDomRef} className={["fas fa-chevron-down", classes.Down].join(" ")}></i>
+          {/* <i onClick={this.scrollToDomRef} className={["fas fa-chevron-down", classes.Down].join(" ")}></i> */}
           <section className={classes.Options} ref={this.containerRef}>
-            <div className={classes.Geogebra}>
+            <h3 className={classes.Subtitle}>Popular Activities</h3>
+            <BoxList list={list}/>
+            {/* <div className={classes.Geogebra}>
               <img className={classes.GgbImage} src={GeogebraImg} alt='geogebra' />
               <div>
                 <p className={classes.LongerBlurb}>GeoGebra is dynamic mathematics software for all levels of education that 
@@ -77,7 +77,7 @@ class Homepage extends PureComponent {
                 Desmos is a free graphing calculator with a large community of teachers and students actively 
                 building and sharing activities. 
               </p>
-            </div>
+            </div> */}
           </section>
         </div>
       </Aux>

@@ -17,7 +17,7 @@
   z-index: 100;
   width: 100%;
   /* border: 2px solid red; */
-  min-height: 100vh;
+  min-height: 80vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -29,7 +29,7 @@
   font-size: 24px; 
   text-align: center;
   transition: .2s;
-  height: 77vh;
+  height: 42vh;
 }
 
 @keyframes bounce_arrow {
@@ -110,15 +110,26 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: bounce_arrow 3s infinite;
+  /* font-weight:  */
 }
 
 .Options {
-  width: 100%;
+  background-color: #f9f9f9;
+  margin-top: 30px;
+  width: 90%;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.Subtitle {
+  font-size: 2em;
+  margin-bottom: 30px;
 }
 
 .Geogebra {
-  margin-top: 61px;
+  /* margin-top: 61px; */
   display: flex;
   align-items: center;
 }

@@ -21,8 +21,8 @@ class Workspace extends Component {
       username: user.username,
       roomName: room.name,
     }
-    const updatedUsers = [...room.currentUsers, {user: {_id: user._id, username: user.username}}]
-    updatedRoom(room._id, {currentUsers: updatedUsers})
+    const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
+    updatedRoom(room._id, {currentMembers: updatedUsers})
 
     this.socket.emit('JOIN', sendData, (res, err) => {
       if (err) {
@@ -31,27 +31,27 @@ class Workspace extends Component {
     })
 
     this.socket.on('USER_JOINED', data => {
-      updatedRoom(room._id, data.currentUsers)
+      updatedRoom(room._id, {currentMembers: data.currentMembers})
     })
 
     this.socket.on('USER_LEFT', data => {
-      updatedRoom(room._id, data.currentUsers)
+      updatedRoom(room._id, {currentMembers: data.currentMembers})
     })
   }
 
   componentWillUnmount () {
     const { updatedRoom, room, user} = this.props;
-    const data = {
-      userId: user._id,
-      roomId: room._id,
-      username: user.username,
-      roomName: room.name,
-    }
     if (this.socket) {
-      this.socket.emit('disconnect', data, (res) => {
-        updatedRoom(room._id, {currentUsers: room.currentUsers.filter(u => u.user._id !== user._id)})
-        // this.socket.disconnect();
+      this.socket.disconnect()
+      // this.socket.emit('disconnect')
+      console.log(room.currentMembers)
+      console.log(user._id)
+      console.log(room.currentMembers.filter(member => member.user._id !== user._id))
+      updatedRoom(room._id, {currentMembers: room.currentMembers.filter(member => {
+        console.log(member.user._id)
+       return  member.user._id !== user._id})
       })
+      console.log('disconnection')
     }
   }
 
@@ -59,7 +59,7 @@ class Workspace extends Component {
     const { room, user } = this.props;
     return (
       <WorkspaceLayout
-        members = {(room && room.currentUsers) ? room.currentUsers : []}
+        members = {(room && room.currentMembers) ? room.currentMembers : []}
         graph = {room.roomType === 'geogebra' ?
           // I dont like that these need to be wrapped in functions 👇 could do
           // props.children but I like naming them.

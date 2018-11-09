@@ -11,7 +11,7 @@ module.exports = {
       .find(params)
       .sort('-createdAt')
       .populate({path: 'members.user', select: 'username'})
-      .populate({path: 'currentUsers', select: 'username'})
+      .populate({path: 'currentMembers.user', select: 'username'})
       .then(rooms => {
         rooms = rooms.map(room => room.tempRoom ? room : room.summary())
         resolve(rooms)})
@@ -26,12 +26,12 @@ module.exports = {
       .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .populate({path: 'members.user', select: 'username'})
       .populate({path: 'notifications.user', select: 'username'})
-      .populate({path: 'currentUsers', select: 'username'})
+      .populate({path: 'currentMembers.user', select: 'username'})
       .populate({path: 'course', select: 'name'})
       .populate({path: 'events', select: '-room'})
       .populate({path: 'graphImage', select: 'imageData'})
       .then(room => {
-        console.log(room)
+        // console.log(room.graphImage)
         resolve(room)
       })
       .catch(err => reject(err))
@@ -46,7 +46,7 @@ module.exports = {
         }
         room
         .populate({path: 'members.user', select: 'username'})
-        .populate({path: 'currentUsers', select: 'username'}, function(){(resolve(room))}) //Hmm why no support for promise here?
+        .populate({path: 'currentMembers.user', select: 'username'}, function(){(resolve(room))}) //Hmm why no support for promise here?
       })
       .catch(err => {
         console.log(err); reject(err)
@@ -92,7 +92,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       if (body.graphImage) {
         db.Room.findById(id).then(room => {
-          db.Image.findByIdAndUpdate(room.graphImage, {imageData: body.graphImage}).then(img => {
+          db.Image.findByIdAndUpdate(room.graphImage, {imageData: body.graphImage.imageData}).then(img => {
             return resolve();
           })
         })
@@ -116,11 +116,14 @@ module.exports = {
                   }
                 }
               }, {new: true})
-              await room.save()
+              try { await room.save()}
+              catch(err) {console.log(err)}
               room.populate({path: 'members.user', select: 'username'}, function() {
                 resolve(room)
               })
             } else reject({errorMessage: 'incorrect entry code'})
+          } else {
+            db.Room.findByIdAndUpdate(id, body).then(res => resolve()).catch(reject())
           }
         })
         .catch(err => reject(err))        
@@ -142,21 +145,28 @@ module.exports = {
   // SOCKET METHODS
   addCurrentUsers: (roomId, body) => {
     return new Promise((resolve, reject) => {
-      db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentUsers: body}}, {new: true})
-      .populate({path: 'currentUsers.user', select: 'username'})
+      db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentMembers: body}}, {new: true})
+      .populate({path: 'currentMembers.user', select: 'username'})
       .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
-      .select('currentUsers events chat currentState roomType')
-      .then(room => resolve(room))
+      .select('currentMembers events chat currentState roomType')
+      .then(room => {
+        console.log('adding current user: ', body)
+        resolve(room)
+      })
       .catch(err => reject(err))
     })
   },
 
   removeCurrentUsers: (roomId, socketId) => {
     return new Promise ((resolve, reject) => {
-      db.Room.findByIdAndUpdate(roomId, {$pull: {currentUsers: {socket: socketId}}}, {new: true})
-      .populate({path: 'currentUsers.user', select: 'username'})
-      .select('currentUsers')
-      .then(room => resolve(room))
+      console.log('removing currentMember: ', socketId)
+      db.Room.findByIdAndUpdate(roomId, {$pull: {currentMembers: {socket: socketId}}}, {new: true})
+      .populate({path: 'currentMembers.user', select: 'username'})
+      .select('currentMembers')
+      .then(room => {
+        console.log(room) 
+        resolve(room)
+      })
       .catch(err => reject(err))
     })
   },

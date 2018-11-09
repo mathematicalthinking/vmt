@@ -15,7 +15,7 @@ module.exports = {
       .populate({path: 'creator'})
       .populate({path: 'events'})
       .populate({path: 'chat', populate: {path: 'user'}})
-      .populate({path: 'currentUsers'})
+      .populate({path: 'currentMembers'})
       .then(roomTemplate => {
         resolve(roomTemplate)})
       .catch(err => reject(err))

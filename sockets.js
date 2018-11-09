@@ -36,7 +36,7 @@ sockets.init = server => {
           catch(err) {
             return callback(null, err)
           }
-          socket.to(data.roomId).emit('USER_JOINED', {currentUsers: results[1].currentUsers, message,});
+          socket.to(data.roomId).emit('USER_JOINED', {currentMembers: results[1].currentMembers, message,});
           let room = {...results[1]}
           // room.chat.push(message)
           callback({room: results[1], message, user,}, null)
@@ -45,16 +45,20 @@ sockets.init = server => {
       });
 
       socket.on('disconnecting', () => {
+        console.log('disconnect')
         rooms = Object.keys(socket.rooms).slice(1)
+        console.log(rooms)
         rooms.forEach(async (room) => {
+          console.log('removing member: ', socket.id)
           controllers.rooms.removeCurrentUsers(room, socket.id)
           .then(res => {
-            socket.to(room).emit('USER_LEFT', {currentUsers: res.currentUsers, message: 'someone left'})
+            socket.to(room).emit('USER_LEFT', {currentMembers: res.currentMembers, message: 'someone left'})
           })
         })
       })
 
       socket.on('disconnect', () => {
+        console.log('are we getting here')
         // let message = {
         //   user: {_id: data.userId, username: 'VMTbot'},
         //   room: data.roomId,

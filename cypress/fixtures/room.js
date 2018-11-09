@@ -2,7 +2,7 @@ module.exports = {
   "_id": "5b9c18fbb49205412c4df73e",
   "roomType": "geogebra",
   "chat": [],
-  "currentUsers": [],
+  "currentMembers": [],
   "isPublic": false,
   "activity": "5b9c18f7b49205412c4df73c",
   "creator": "5b9c18e7b49205412c4df738",
