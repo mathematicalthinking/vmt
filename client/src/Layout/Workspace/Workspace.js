@@ -10,7 +10,7 @@ const workspaceLayout = ({
   save, loggedIn, description, instructions, history}) => {
   return (
     <div className={classes.PageContainer}>
-      <div className={classes.Container} style={{maxHeight: window.innerHeight - (replayer ? 400 : 300)}}>
+      <div className={classes.Container}>
         <div className={classes.WorkspaceTabs}>
           <div className={[classes.Tab, classes.Active].join(" ")}><div className={classes.TabBox}>Tab 1</div></div>
           <div className={classes.Tab}><div className={classes.TabBox}><i className="fas fa-plus"></i></div></div>

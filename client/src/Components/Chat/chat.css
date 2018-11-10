@@ -12,9 +12,7 @@
   justify-content: space-between;
   height: 100%;
   width: 100%;
-  border-top: 1px solid #ddd;
-  border-right: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
+  border: 1px solid #ddd;
   background-color: background;
   /* color: white; */
   /* box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.28); */
@@ -44,9 +42,9 @@
 }
 
 .ChatInput {
+  height: 35px;
   display: flex;
-  flex-grow: 1;
-  align-items: center;
+  /* align-items: center; */
   border-top: 1px solid #ddd;
   width: 100%
 }
@@ -63,8 +61,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid #ddd;
-  width: 50px;
+  border-left: 1px solid #ddd;
+  width: 45px;
   height: 35px;
   background: inherit;
   cursor: pointer;

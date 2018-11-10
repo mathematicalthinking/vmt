@@ -1,11 +1,15 @@
 :import('../../colors.css'){
-  lightShadow: lightShadow;
+  lightShadow: lightestShadow;
   background: mainBackground;
   scrollBackground: darkScroller;
   hoverBackground: hoverBackground;
   hoverBackground2: hoverBackground2;
   darkBorder: darkBorder;
+<<<<<<< Updated upstream
   
+=======
+  navbarHeight: navbarHeight;
+>>>>>>> Stashed changes
 }
 
 .WorkspaceTabs {
@@ -13,6 +17,7 @@
   padding: 0 0 0 0;
   position: absolute;
   top: -45px;
+  /* left: 0; */
   overflow:visible;
 }
 .Tab {
@@ -63,8 +68,8 @@
 
 
 .PageContainer {
-  width: 100vw;
-  height: calc(100vh -;
+  width: 100%;
+  height: 100vh;
   display: flex;
   flex-flow: column;
   justify-content: flex-start;
@@ -76,7 +81,7 @@
   margin-top: 70px;
   position: relative;
   width: 95vw;
-  height: 100%;
+  height: calc(100% - 90px - navbarHeight);
   max-width: 1500px;
   box-shadow: lightShadow;
   /* border: 1px solid red; */

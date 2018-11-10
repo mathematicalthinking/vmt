@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 // import TextInput from '../Form/TextInput/TextInput';
 import classes from './chat.css';
 // import Button from '../UI/Button/Button';
+import SendIcon from './sendicon';
 import moment from 'moment';
 import SendIcon from './sendicon';
 class Chat extends Component {
