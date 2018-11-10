@@ -4,7 +4,6 @@ import classes from './chat.css';
 // import Button from '../UI/Button/Button';
 import SendIcon from './sendicon';
 import moment from 'moment';
-import SendIcon from './sendicon';
 class Chat extends Component {
 
   chatEnd = React.createRef()
