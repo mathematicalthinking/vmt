@@ -68,7 +68,9 @@ class ReplayerControls extends Component{
     const progress = relTime/duration * 100; // %
     return (
       <div className={classes.Container}>
-        <Log log={log} currentIndex={index} progress={progress} goToIndex={(index) => goToIndex(index)}/>
+        <div className={classes.Log}>
+          <Log log={log} currentIndex={index} progress={progress} goToIndex={(index) => goToIndex(index)}/>
+        </div>
         <div className={classes.ProgressBar}>
           <div className={classes.Time} style={{marginRight: 3}}>{this.originalStartTime || startTime}</div>
           <Slider progress={progress} log={log} duration={duration} playing={playing} goToTime={(percent) => goToTime(percent)}/>

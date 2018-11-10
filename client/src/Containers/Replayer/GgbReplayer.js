@@ -59,9 +59,9 @@ class GgbReplayer extends Component {
   onScriptLoad = () => {
     const parameters = {
       "id":"ggbApplet",
-      "width": 1300 * .75, // 75% width of container
-      "height": GRAPH_HEIGHT,
-      "scaleContainerClass": 'applet_container', // this doesn't seem to be working
+      // "width": 1300 * .75, // 75% width of container
+      // "height": GRAPH_HEIGHT,
+      "scaleContainerClasse": "graph",
       "showToolBar": false,
       "showMenuBar": false,
       "showAlgebraInput": true,

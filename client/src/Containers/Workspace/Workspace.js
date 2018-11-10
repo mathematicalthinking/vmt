@@ -51,6 +51,7 @@ class Workspace extends Component {
 
   render() {
     const { room, user } = this.props;
+    console.log(room.currentMembers)
     return (
       <WorkspaceLayout
         members = {(room && room.currentMembers) ? room.currentMembers : []}
