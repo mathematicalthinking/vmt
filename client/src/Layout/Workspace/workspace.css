@@ -5,6 +5,7 @@
   hoverBackground: hoverBackground;
   hoverBackground2: hoverBackground2;
   darkBorder: darkBorder;
+  
 }
 
 .WorkspaceTabs {
@@ -62,10 +63,8 @@
 
 
 .PageContainer {
-  position: relative;
   width: 100vw;
-  height: 90vh;
-  margin-top: 70px;
+  height: calc(100vh -;
   display: flex;
   flex-flow: column;
   justify-content: flex-start;
@@ -74,6 +73,8 @@
 }
 
 .Container {
+  margin-top: 70px;
+  position: relative;
   width: 95vw;
   height: 100%;
   max-width: 1500px;
