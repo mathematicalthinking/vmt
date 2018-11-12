@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { hri } from 'human-readable-ids';
 import { NewResource, FromActivity } from '../../../Layout';
+import { getUserResources, populateResource }from '../../../store/reducers';
 import Aux from '../../../Components/HOC/Auxil';
 import Button from '../../../Components/UI/Button/Button';
 import classes from '../create.css';
@@ -95,6 +96,7 @@ class NewResourceContainer extends Component {
       displayResource = 'Activity'
     } else { displayResource = resource.charAt(0).toUpperCase() + resource.slice(1, resource.length - 1); }
     // @IDEA ^ while I've never seen this done before...maybe it'd be cleaner to have a file of static content and just import it in so we don't have these long strings all over
+    console.log(this.props.course.activities)
     return (
       <Aux>
         <NewResource 
@@ -105,7 +107,14 @@ class NewResourceContainer extends Component {
           close={() => this.setState({creating: false})}
           submit={this.submitForm}
         />
-        <FromActivity show={this.state.selecting} close={() => this.setState({selecting: false})} course={courseId}/>
+        <FromActivity 
+          resource={resource}
+          show={this.state.selecting} 
+          close={() => this.setState({selecting: false})} 
+          course={courseId}
+          userActivities={this.props.userActivities}  
+          courseActivities={this.props.course.activities}
+        />
         <div className={classes.Button}><Button theme={'Small'} click={this.create} data-testid={`create-${displayResource}`}>Create <span className={classes.Plus}><i className="fas fa-plus"></i></span></Button></div>
         {(resource === 'activities' && courseId && !intro) ? <div className={classes.Button}><Button theme={'Small'} click={this.select}>Select an existing activity</Button></div> : null}
         {(resource === 'activities' && !courseId && !intro) ? <div className={classes.Button}><Button theme={"Small"} click={this.redirectToActivity}>Select an activity from the community</Button></div> : null}
@@ -115,12 +124,14 @@ class NewResourceContainer extends Component {
   }
 }
 
-let mapStateToProps = store => {
+let mapStateToProps = (store, ownProps) => {
   return {
     myRooms: store.user.rooms,
     rooms: store.rooms.rooms,
     userId: store.user._id,
     username: store.user.username,
+    userActivities: getUserResources(store, 'activities') || [],
+    course: populateResource(store, 'courses', ownProps.match.params.course_id, ['activities']),
   }
 }
 

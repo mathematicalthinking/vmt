@@ -6,3 +6,4 @@ export { default as FacilitatorInstructions } from './Facilitator/Facilitator';
 export { default as Confirmation } from './Confirmation/Confirmation';
 export { default as NewResource } from './Create/NewResource';
 export { default as FromActivity } from './Create/FromActivity';
+export { default as BoxList } from './BoxList/BoxList';

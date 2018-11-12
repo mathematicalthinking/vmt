@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Modal, RadioBtn, Button } from '../../Components';
+import { BoxList } from '../index';
 import classes from './create.css'
 class FromActivity extends Component {
 
@@ -10,6 +11,10 @@ class FromActivity extends Component {
   }
   
   render() {
+    let list = []
+    if (this.state.thisCourse) {
+      list = this.props.courseActivities
+    } else if (this.state.ownResources) list = this.props.userActivities;
     return (
       <Modal show={this.props.show} closeModal={this.props.close}>
         <div className={classes.Container}>
@@ -20,14 +25,14 @@ class FromActivity extends Component {
                 <RadioBtn 
                   name='community' 
                   checked={this.state.community} 
-                  check={() => this.setState({community: true, ownResources: false, thisCoursae: false})}
+                  check={() => this.setState({community: true, ownResources: false, thisCourse: false})}
                 >From the Community</RadioBtn>
                 <RadioBtn 
                   name='ownActivities' 
                   checked={this.state.ownResources} 
                   check={() => this.setState({ownResources: true, thisCourse: false, community: false})}
                 >From Your Activities</RadioBtn>
-                {this.props.course ? 
+                {this.props.course && (this.props.resource !== 'activities') ? 
                 <RadioBtn 
                   name='ownActivities' 
                   checked={this.state.thisCourse} 
@@ -36,8 +41,11 @@ class FromActivity extends Component {
               </div>
             </div>
             <div className={classes.Submit}>
-              <Button>Go</Button>
-              <Button click={this.props.close}>Cancel</Button>
+              <Button theme={"Small"} m={10}>Go</Button>
+              <Button click={this.props.close} m={10}>Cancel</Button>
+            </div>
+            <div className={classes.ActivityList}>
+              <BoxList list={list} selecting/>
             </div>
           </div>
         </div>
