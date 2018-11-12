@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classes from '../Workspace/graph.css';
 import Aux from '../../Components/HOC/Auxil';
-import { GRAPH_HEIGHT } from '../../constants'
+// import { GRAPH_HEIGHT } from '../../constants'
 import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
 class GgbReplayer extends Component {
