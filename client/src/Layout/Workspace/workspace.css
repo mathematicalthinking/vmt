@@ -1,10 +1,11 @@
 :import('../../colors.css'){
-  lightShadow: lightShadow;
+  lightShadow: lightestShadow;
   background: mainBackground;
   scrollBackground: darkScroller;
   hoverBackground: hoverBackground;
   hoverBackground2: hoverBackground2;
   darkBorder: darkBorder;
+  navbarHeight: navbarHeight;
 }
 
 .WorkspaceTabs {
@@ -12,6 +13,7 @@
   padding: 0 0 0 0;
   position: absolute;
   top: -45px;
+  /* left: 0; */
   overflow:visible;
 }
 .Tab {
@@ -62,22 +64,25 @@
 
 
 .PageContainer {
-  position: relative;
-  width: 100vw;
-  height: 90vh;
-  margin-top: 70px;
+  width: 100%;
+  height: 100vh;
   display: flex;
   flex-flow: column;
   justify-content: flex-start;
   align-items: center;
+  background-color: #f8f8f9;
+  z-index: 0;
   /* border: 1px solid green; */
 }
 
 .Container {
+  margin-top: 70px;
+  position: relative;
   width: 95vw;
-  height: 100%;
+  height: calc(100% - navbarHeight);
   max-width: 1500px;
   box-shadow: lightShadow;
+  margin-bottom: 50px;
   /* border: 1px solid red; */
 }
 
@@ -85,7 +90,7 @@
   display: flex;
   justify-content: center;
   width: 100%;
-  height: 85%;
+  height: 80%;
   /* border: 1px solid blue; */
 }
 
@@ -93,7 +98,7 @@
   background-color: background;
   /* color: white; */
   display: flex;
-  height: 15%;
+  height: 20%;
 }
 
 .Left {

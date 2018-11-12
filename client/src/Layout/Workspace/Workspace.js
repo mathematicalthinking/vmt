@@ -10,7 +10,7 @@ const workspaceLayout = ({
   save, loggedIn, description, instructions, history}) => {
   return (
     <div className={classes.PageContainer}>
-      <div className={classes.Container} style={{maxHeight: window.innerHeight - (replayer ? 400 : 300)}}>
+      <div className={classes.Container}>
         <div className={classes.WorkspaceTabs}>
           <div className={[classes.Tab, classes.Active].join(" ")}><div className={classes.TabBox}>Tab 1</div></div>
           <div className={classes.Tab}><div className={classes.TabBox}><i className="fas fa-plus"></i></div></div>
@@ -26,26 +26,20 @@ const workspaceLayout = ({
         </div>
         <div className={classes.Bottom}>
           <div className={classes.Left}>
-          <div className={classes.RoomDescription}>
-            <h3 className={classes.InstructionsTitle}>Instructions</h3>
-            <div className={classes.Instructions}>{instructions}</div>
-          </div>
-            {temp && !loggedIn ? 
-              <div>
-                <Button theme={'Small'} data-testid='save-temp' m={20} click={save}>Save This Workspace</Button>
-              </div> :
-              <div className={classes.BottomBar}>
-              </div>
-            }
-            {replayer ?
-              <div className={classes.Replayer}>
-                {replayer()}
-              </div>
-            : null}
-          
+          {replayer ? replayer() : 
+            <div className={classes.RoomDescription}>
+              <h3 className={classes.InstructionsTitle}>Instructions</h3>
+              <div className={classes.Instructions}>{instructions}</div>
+            </div>
+          }
+          {temp && !loggedIn ? 
+            <div>
+              <Button theme={'Small'} data-testid='save-temp' m={20} click={save}>Save This Workspace</Button>
+            </div> : null 
+          }
           </div>
           <div className={classes.Right}>
-            <div className={classes.SideButton}>Take Control</div>
+            {!replayer ? <div className={classes.SideButton}>Take Control</div> : <div className={classes.SideButton}>Make A Comment</div>}
             <div className={[classes.SideButton, classes.Exit].join(" ")} onClick={() => history.goBack()} theme={'Small'} m={20} data-testid='exit-room'>Exit Room</div>
           </div>
         </div>

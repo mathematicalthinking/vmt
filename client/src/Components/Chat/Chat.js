@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 // import TextInput from '../Form/TextInput/TextInput';
 import classes from './chat.css';
 // import Button from '../UI/Button/Button';
+import SendIcon from './sendicon';
 import moment from 'moment';
 class Chat extends Component {
 
@@ -42,7 +43,9 @@ class Chat extends Component {
           <div className={classes.ChatInput}>
             <input className={classes.Input} type = {"text"} onChange={change} value={value}/>
             {/* <TextInput width={"90%"} size={20} light autoComplete="off" change={change} type='text' name='message' value={value}/> */}
-            <div className={classes.Send} onClick={submit}>Send</div>
+            <div className={classes.Send} onClick={submit}>
+              <SendIcon height='24' width='24' viewBox='0 0 24 24'/>
+              </div>
           </div> : null
         }
       </div>

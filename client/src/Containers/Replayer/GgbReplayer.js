@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classes from '../Workspace/graph.css';
 import Aux from '../../Components/HOC/Auxil';
-import { GRAPH_HEIGHT } from '../../constants'
+// import { GRAPH_HEIGHT } from '../../constants'
 import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
 class GgbReplayer extends Component {
@@ -59,14 +59,15 @@ class GgbReplayer extends Component {
   onScriptLoad = () => {
     const parameters = {
       "id":"ggbApplet",
-      "width": 1300 * .75, // 75% width of container
-      "height": GRAPH_HEIGHT,
-      "scaleContainerClass": 'applet_container', // this doesn't seem to be working
+      // "width": 1300 * .75, // 75% width of container
+      // "height": GRAPH_HEIGHT,
+      "scaleContainerClasse": "graph",
       "showToolBar": false,
       "showMenuBar": false,
       "showAlgebraInput": true,
       "language": "en",
       "useBrowserForJS":false,
+      "borderColor": "#ddd",
       "preventFocus":true,
       "appName":"whiteboard"
     };
