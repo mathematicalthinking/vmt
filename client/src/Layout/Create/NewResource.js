@@ -31,7 +31,7 @@ class NewResource extends Component {
         closeModal={close}
         >
           <div className={classes.Container}>
-            <h3 className={classes.Title}>Create a New {displayResource} {this.props.template ? 'Template' : null}</h3>
+            <h3 className={classes.Title}>Create a New {displayResource}</h3>
             <div className={classes.Form}>
               <div className={classes.FormSection}>
                 <TextInput

@@ -36,14 +36,10 @@ class NewResourceContainer extends Component {
   }
 
 
-  showModal = () => {
-    this.setState({creating: true})
-  }
+  create = () => this.setState({creating: true, selecting: false})
+  select = () => this.setState({selecting: true, creating: false})
 
   submitForm = ({name, description, isPublic, dueDate, ggb, ggbFile, desmosLink}) => {
-
-    console.log(name, description, isPublic, dueDate)
-    // return;
     let { resource } = this.props;
     let theme = imageThemes[Math.floor(Math.random()*imageThemes.length)];
     let newResource = {
@@ -109,11 +105,11 @@ class NewResourceContainer extends Component {
           close={() => this.setState({creating: false})}
           submit={this.submitForm}
         />
-        <FromActivity show={this.state.selectingActivity} />
-        <div className={classes.Button}><Button theme={'Small'} click={this.showModal} data-testid={`create-${displayResource}`}>Create <span className={classes.Plus}><i className="fas fa-plus"></i></span></Button></div>
-        {(resource === 'activities' && courseId && !intro) ? <div className={classes.Button}><Button theme={'Small'} click={this.showModal}>Select an existing activity</Button></div> : null}
+        <FromActivity show={this.state.selecting} close={() => this.setState({selecting: false})} course={courseId}/>
+        <div className={classes.Button}><Button theme={'Small'} click={this.create} data-testid={`create-${displayResource}`}>Create <span className={classes.Plus}><i className="fas fa-plus"></i></span></Button></div>
+        {(resource === 'activities' && courseId && !intro) ? <div className={classes.Button}><Button theme={'Small'} click={this.select}>Select an existing activity</Button></div> : null}
         {(resource === 'activities' && !courseId && !intro) ? <div className={classes.Button}><Button theme={"Small"} click={this.redirectToActivity}>Select an activity from the community</Button></div> : null}
-        {(resource === 'rooms' && !intro) ? <div className={classes.Button}><Button theme={"Small"} click={this.showModal}>Create from an Activity</Button></div> : null}
+        {(resource === 'rooms' && !intro) ? <div className={classes.Button}><Button theme={"Small"} click={this.select}>Create from an Activity</Button></div> : null}
       </Aux>      
     )
   }

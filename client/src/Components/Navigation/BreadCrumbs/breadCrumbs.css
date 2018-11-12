@@ -33,8 +33,10 @@
   border-top: none;
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-overflow: ellipsis;
+  /* justify-content: center; */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: '-';
   transition: .2s;
 }
 
