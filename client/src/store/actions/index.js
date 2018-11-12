@@ -47,6 +47,7 @@ export {
   addRoomMember,
   removeRoomMember,
   destroyRoom,
+  createRoomFromActivity,
 } from './rooms';
 export {
   addCourse,

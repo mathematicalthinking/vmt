@@ -56,6 +56,26 @@ export const addRoomMember = (roomId, body) => {
   }
 }
 
+export const createRoomFromActivity = (activityId, userId, dueDate) => {
+  return (dispatch, getState) => {
+    let activity = getState().activities.byId[activityId];
+    let newRoom = {
+      name: `${activity.name} (JST FOR TESTING room)`,
+      activity: activity._id,
+      creator: userId,
+      course: activity.course,
+      description: activity.description,
+      roomType: activity.roomType,
+      desmosLink: activity.desmosLink,
+      ggbFile: activity.ggbFile,
+      instructions: activity.instructions,
+      members: {user: userId, role: 'facilitator'},
+      dueDate: dueDate,
+    }
+    dispatch(createRoom(newRoom))
+  }
+}
+
 export const updateRoom = (id, body) => {
   return dispatch => {
     dispatch(updatedRoom(id, body)) // Optimistically update the UI

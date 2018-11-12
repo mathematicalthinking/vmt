@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Modal, RadioBtn, Button } from '../../Components';
+import { Modal, RadioBtn, Button, TextInput } from '../../Components';
 import { BoxList } from '../index';
 import classes from './create.css'
 class FromActivity extends Component {
@@ -8,6 +8,28 @@ class FromActivity extends Component {
     community: true,
     ownResources: false,
     thisCourse: false,
+    selected: [],
+    dueDate: '',
+  }
+
+  select = id => {
+    console.log(id)
+    let updatedSelected = [...this.state.selected]
+    updatedSelected.push(id)
+    this.setState({selected: updatedSelected})
+  }
+
+  deSelect = id => {
+    let updatedSelected = this.state.selected.filter(current => current !== id)
+    this.setState({selected: updatedSelected})
+  }
+
+  submit = () => {
+    console.log(this.state)
+    this.state.selected.forEach(id => {
+      this.props.create(id, this.props.userId, this.state.dueDate)
+    })
+    this.props.close();
   }
   
   render() {
@@ -40,12 +62,16 @@ class FromActivity extends Component {
                 >From This Course</RadioBtn> : null}
               </div>
             </div>
+            <div className={classes.FormSection}>
+              <TextInput light label='Due Date (Optional)' name='dueDate' type='date' change={event => this.setState({dueDate: event.target.value})} />
+            </div>
             <div className={classes.Submit}>
-              <Button theme={"Small"} m={10}>Go</Button>
+              <Button click={this.submit} theme={"Small"} m={10}>Done</Button>
               <Button click={this.props.close} m={10}>Cancel</Button>
             </div>
+            <div className={classes.Status}>You've selected {this.state.selected.length} activities</div>
             <div className={classes.ActivityList}>
-              <BoxList list={list} selecting/>
+              <BoxList list={list} selecting select={this.select}/>
             </div>
           </div>
         </div>

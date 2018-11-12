@@ -13,6 +13,7 @@ import {
   createActivity, 
   createCourseTemplate,
   updateUser,
+  createRoomFromActivity,
 } from '../../../store/actions/';
 
 const imageThemes = [
@@ -96,7 +97,8 @@ class NewResourceContainer extends Component {
       displayResource = 'Activity'
     } else { displayResource = resource.charAt(0).toUpperCase() + resource.slice(1, resource.length - 1); }
     // @IDEA ^ while I've never seen this done before...maybe it'd be cleaner to have a file of static content and just import it in so we don't have these long strings all over
-    console.log(this.props.course.activities)
+    // console.log(this.props.course.activities)
+    console.log("USERID: ", this.props.userId)
     return (
       <Aux>
         <NewResource 
@@ -113,7 +115,9 @@ class NewResourceContainer extends Component {
           close={() => this.setState({selecting: false})} 
           course={courseId}
           userActivities={this.props.userActivities}  
-          courseActivities={this.props.course.activities}
+          courseActivities={this.props.course ? this.props.course.activities : null}
+          create={this.props.createRoomFromActivity}
+          userId={this.props.userId}
         />
         <div className={classes.Button}><Button theme={'Small'} click={this.create} data-testid={`create-${displayResource}`}>Create <span className={classes.Plus}><i className="fas fa-plus"></i></span></Button></div>
         {(resource === 'activities' && courseId && !intro) ? <div className={classes.Button}><Button theme={'Small'} click={this.select}>Select an existing activity</Button></div> : null}
@@ -127,11 +131,11 @@ class NewResourceContainer extends Component {
 let mapStateToProps = (store, ownProps) => {
   return {
     myRooms: store.user.rooms,
-    rooms: store.rooms.rooms,
+    rooms: store.rooms.rooms, // ????
     userId: store.user._id,
     username: store.user.username,
     userActivities: getUserResources(store, 'activities') || [],
-    course: populateResource(store, 'courses', ownProps.match.params.course_id, ['activities']),
+    course: ownProps.match.params.course_id ? populateResource(store, 'courses', ownProps.match.params.course_id, ['activities']) : null,
   }
 }
 
@@ -141,4 +145,5 @@ export default withRouter(connect(mapStateToProps, {
   createActivity, 
   createCourseTemplate,
   updateUser,
+  createRoomFromActivity,
 })(NewResourceContainer));
