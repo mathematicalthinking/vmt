@@ -67,6 +67,7 @@ class GgbReplayer extends Component {
       "showAlgebraInput": true,
       "language": "en",
       "useBrowserForJS":false,
+      "borderColor": "#ddd",
       "preventFocus":true,
       "appName":"whiteboard"
     };

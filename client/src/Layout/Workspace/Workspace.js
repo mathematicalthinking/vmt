@@ -39,7 +39,7 @@ const workspaceLayout = ({
           }
           </div>
           <div className={classes.Right}>
-            {!replayer ? <div className={classes.SideButton}>Take Control</div> : null}
+            {!replayer ? <div className={classes.SideButton}>Take Control</div> : <div className={classes.SideButton}>Make A Comment</div>}
             <div className={[classes.SideButton, classes.Exit].join(" ")} onClick={() => history.goBack()} theme={'Small'} m={20} data-testid='exit-room'>Exit Room</div>
           </div>
         </div>

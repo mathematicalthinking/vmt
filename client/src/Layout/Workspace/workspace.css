@@ -70,6 +70,8 @@
   flex-flow: column;
   justify-content: flex-start;
   align-items: center;
+  background-color: #f8f8f9;
+  z-index: 0;
   /* border: 1px solid green; */
 }
 

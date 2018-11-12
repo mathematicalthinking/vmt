@@ -52,6 +52,8 @@ class GgbGraph extends Component {
       "showAlgebraInput":true,
       "language": "en",
       "useBrowserForJS":false,
+      "borderColor": "#ddd",
+      "buttonShadows": true,
       "preventFocus":true,
       // "appName":"whiteboard"
     };
