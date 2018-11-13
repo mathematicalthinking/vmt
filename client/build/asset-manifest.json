@@ -1,10 +1,12 @@
 {
-  "main.css": "static/css/main.d9582977.css",
-  "main.css.map": "static/css/main.d9582977.css.map",
-  "main.js": "static/js/main.9a148b95.js",
-  "main.js.map": "static/js/main.9a148b95.js.map",
-  "static\\media\\Picture-5.jpg": "static/media/Picture-5.309d0dce.jpg",
+  "main.css": "static/css/main.eff5a344.css",
+  "main.css.map": "static/css/main.eff5a344.css.map",
+  "main.js": "static/js/main.de36ee0b.js",
+  "main.js.map": "static/js/main.de36ee0b.js.map",
   "static\\media\\Ripple.gif": "static/media/Ripple.8ca328c3.gif",
   "static\\media\\desmos.png": "static/media/desmos.1794e3ca.png",
-  "static\\media\\geogebra.png": "static/media/geogebra.1404047d.png"
+  "static\\media\\geogebra.png": "static/media/geogebra.1404047d.png",
+  "static\\media\\wave-bot.png": "static/media/wave-bot.6cd18bc0.png",
+  "static\\media\\wave-mid.png": "static/media/wave-mid.ba75e0c9.png",
+  "static\\media\\wave-top.png": "static/media/wave-top.05d52988.png"
 }

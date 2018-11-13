@@ -14,7 +14,7 @@ describe('temporary room', function() {
     cy.get('input').type(user.username)
     cy.getTestElement('temp-geogebra').click()
     // cy.wait(3000)
-    cy.get('.ggbtoolbarpanel')
+    cy.get('.ggbtoolbarpanel').should('exist')
     // cy.url({log: true}).then(res => url = res)
   })
   // it('creates an account to save the room', function() {
