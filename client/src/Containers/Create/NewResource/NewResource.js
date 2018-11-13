@@ -101,15 +101,15 @@ class NewResourceContainer extends Component {
     console.log("USERID: ", this.props.userId)
     return (
       <Aux>
-        <NewResource 
+        {this.state.creating ? <NewResource 
           resource={resource} 
           displayResource={displayResource} 
           show={this.state.creating}
           ggb={this.state.ggb}
           close={() => this.setState({creating: false})}
           submit={this.submitForm}
-        />
-        <FromActivity 
+        /> : null}
+        {this.state.selecting ? <FromActivity 
           resource={resource}
           show={this.state.selecting} 
           close={() => this.setState({selecting: false})} 
@@ -118,7 +118,7 @@ class NewResourceContainer extends Component {
           courseActivities={this.props.course ? this.props.course.activities : null}
           create={this.props.createRoomFromActivity}
           userId={this.props.userId}
-        />
+        /> : null}
         <div className={classes.Button}><Button theme={'Small'} click={this.create} data-testid={`create-${displayResource}`}>Create <span className={classes.Plus}><i className="fas fa-plus"></i></span></Button></div>
         {(resource === 'activities' && courseId && !intro) ? <div className={classes.Button}><Button theme={'Small'} click={this.select}>Select an existing activity</Button></div> : null}
         {(resource === 'activities' && !courseId && !intro) ? <div className={classes.Button}><Button theme={"Small"} click={this.redirectToActivity}>Select an activity from the community</Button></div> : null}
