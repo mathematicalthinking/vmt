@@ -34,7 +34,7 @@ const workspaceLayout = ({
           }
           {temp && !loggedIn ? 
             <div>
-              <Button theme={'Small'} data-testid='save-temp' m={20} click={save}>Save This Workspace</Button>
+              <Button theme={'Small'} data-testid='save-temp' style={{zIndex: 1000}} m={20} click={save}>Save This Workspace</Button>
             </div> : null 
           }
           </div>
