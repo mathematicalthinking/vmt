@@ -103,7 +103,7 @@ class LoginLayout extends PureComponent {
               </Aux>
             : null}
           </form>
-          <div className={classes.Submit}><Button theme={"Big"}>Login</Button></div>
+          <div className={classes.Submit}><Button click={this.loginHandler} theme={"Big"}>Login</Button></div>
           {/* <div>or</div> */}
           {/* <GoogleSignIn click={this.googleLogin} /> */}
         </div>

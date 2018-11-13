@@ -19,7 +19,7 @@ describe('temporary room', function() {
   })
   it('creates an account to save the room', function() {
     cy.getTestElement('save-temp').click()
-    cy.get('input[name=password]').type('1234')
+    cy.get('input[name=password]').type('555')
     cy.getTestElement('submit-signup').click();
     cy.getTestElement('nav-My VMT').click()
     cy.getTestElement('tab').contains('Rooms').click()
