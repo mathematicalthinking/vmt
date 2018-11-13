@@ -119,7 +119,6 @@ class GgbGraph extends Component {
         label,
         eventType,
         room: room._id,
-        roomId: room._id,
         event: xml,
         description: `${user.username} ${action} ${xmlObj ? xmlObj.element.$.type : ''} ${label}`,
         user: {_id: user._id, username: user.username},

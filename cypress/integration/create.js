@@ -61,7 +61,7 @@ describe('create each type of resource', function(){
     cy.contains(course.room.name).should('exist')
   })
 
-  it('creates a room from an activity', function(){
+  it('creates a course room from a course activity', function(){
     cy.getTestElement('tab').contains('Activities').click()
     cy.getTestElement(`content-box-${course.activity.name}`).click()
     cy.url('include', '/activities')
@@ -74,7 +74,8 @@ describe('create each type of resource', function(){
     cy.getTestElement(`content-box-${course.activity.name} (room 1)`).should('exist')
   })
 
-  it('adds a community activitiy user1s myVMT', function(){
+  // @TODO MAKE SURE THIS WORKS WITH COURSE ACTIVITIES AND STAND ALONE ACTIVITIES
+  it('adds a community activitity to user1s stand alone activities', function(){
     cy.getTestElement('crumb').contains('My VMT').click()
     cy.getTestElement('tab').contains('Activities').click()
     // cy.getTestElement('box-list').contains("There doesn't appear to be anything here yet").should('exist')
@@ -89,7 +90,8 @@ describe('create each type of resource', function(){
     cy.getTestElement('tab').contains('Activities').click()
     cy.getTestElement('box-list').children().last().contains("ACTIVITY 1").should('exist')
   })
-  it("creates rooms from a course's activity", function(){
+
+  it("creates a course room by assigning a course's activity", function(){
     cy.login(user)
     cy.getTestElement('tab').contains('Courses').click()
     cy.getTestElement('content-box-course 2').click()
@@ -104,4 +106,33 @@ describe('create each type of resource', function(){
     cy.getTestElement('content-box-ACTIVITY 2 (room 1)').should('exist');
     cy.getTestElement('content-box-ACTIVITY 2 (room 2)').should('exist');
   })
+
+  /// FAILS ___ ITS CREATING ROOMS INSTEAD OF COPYING THE ACTIVITY
+  it('selects an existing stand alone activity and adds it to a course')
+    cy.getTestElement('tab').contains('Activities').click()
+    cy.get('button').contains('Select an existing activity').click()
+    cy.get('[type="radio"]').last().check()
+    cy.getTestElement('content-box-activity 1').trigger('mouseover')
+    cy.getTestElement('overlay-activity 1').click()
+    cy.get('button').contains('Done').click()
+  it('creates a standalone room from a standalone activity', function(){
+
+  })
+
+  // PASSES
+  it("creates a course room from a course activity", function(){
+
+  })
+
+  // FAILS
+  it("creates a course room from a standalone activity", function(){
+
+  })
+  it('creates a standalone room from a course activity', function(){
+    cy.getTestElement('crumb').contains('My VMT').click()
+  })
+
+
+
+  it("")
 })

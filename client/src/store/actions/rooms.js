@@ -60,7 +60,7 @@ export const createRoomFromActivity = (activityId, userId, dueDate) => {
   return (dispatch, getState) => {
     let activity = getState().activities.byId[activityId];
     let newRoom = {
-      name: `${activity.name} (JST FOR TESTING room)`,
+      name: `${activity.name} (room)`,
       activity: activity._id,
       creator: userId,
       course: activity.course,

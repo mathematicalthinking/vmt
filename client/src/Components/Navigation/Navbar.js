@@ -10,7 +10,7 @@ const navbar = (props) => {
       <ul className={classes.NavList}>
         <NavItem link='/myVMT/courses' name='My VMT' />
         <NavItem link='/community/activities' name='Community' />
-        <NavItem link='/profile' name='Profile' />
+        {/* <NavItem link='/profile' name='Profile' /> */}
         <NavItem link='/logout' name='Logout' />
       </ul>
     </div>

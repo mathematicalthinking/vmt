@@ -131,7 +131,8 @@ module.exports = {
               })
             } else reject({errorMessage: 'incorrect entry code'})
           } else {
-            db.Room.findByIdAndUpdate(id, body).then(res => resolve()).catch(reject())
+            console.log('saving to db from socket')
+            db.Room.findByIdAndUpdate(id, body).then(res => resolve()).catch(err => reject(err))
           }
         })
         .catch(err => reject(err))        

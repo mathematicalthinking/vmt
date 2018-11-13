@@ -79,13 +79,20 @@ sockets.init = server => {
         // broadcast new message
       })
 
-      socket.on('SEND_EVENT', (data) => {
+      socket.on('SEND_EVENT', async (data) => {
+        // console.log("DATA: ", data)
         if (typeof data.event !== 'string') {
           data.event = JSON.stringify(data.event)
         }
-        controllers.rooms.put(data.roomId, {currentState: data.currentState})
-        delete data.currentState;
-        controllers.events.post(data)
+        try {
+          await controllers.rooms.put(data.room, {currentState: data.currentState})
+        }
+        catch(err) {console.log('err 1: ', err)}
+        delete  data.currentState;
+        try {
+          await controllers.events.post(data)
+        }
+        catch(err) {console.log('err 2: ', err)}
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data)
       })
     });
