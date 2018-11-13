@@ -23,12 +23,14 @@ class Signup extends Component {
     if (this.props.temp && this.props.user){
       this.setState({username: this.props.user.username})
     }
+    window.addEventListener('keypress', this.onKeyPress)
   }
 
   componentWillUnmount() {
     if (this.props.errorMessage) {
       this.props.clearError();
     }
+    window.removeEventListener('keypress', this.onKeyPress)
   }
   // pass to text inputs to update state from user input
   changeHandler = event => {
@@ -37,6 +39,12 @@ class Signup extends Component {
     this.setState(updatedState);
     if (this.props.errorMessage) {
       this.props.clearError();
+    }
+  }
+
+  onKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      this.signUp();
     }
   }
   signUp = () => {
@@ -93,13 +101,13 @@ class Signup extends Component {
                   accounts.
                 </p>
               </div>
+              <div className={classes.ErrorMsg}>
+                <div className={classes.Error}>{this.props.errorMessage}</div>
+              </div>
             </form>
-            <div className={classes.ErrorMsg}>
-              <div className={classes.Error}>{this.props.errorMessage}</div>
-            </div>
-            <div className={classes.Submit}>
-              <Button theme={this.props.temp ? "Small" : "Big"} data-testid='submit-signup'click={this.signUp}>Signup</Button>
-            </div>
+              <div className={classes.Submit}>
+                <Button type="" theme={this.props.temp ? "Small" : "Big"} data-testid='submit-signup'click={this.signUp}>Signup</Button>
+              </div>
           </div>
         </div>
       </Aux>

@@ -32,8 +32,8 @@ class Room extends Component {
     let owner = false;
     let firstView = false;
     if (room.creator === user._id) {
-      updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
-      this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
+      // updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
+      // this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
       owner = true;
       // displayNotifications
       updatedTabs = this.displayNotifications(updatedTabs)

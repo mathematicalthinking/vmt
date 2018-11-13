@@ -11,6 +11,7 @@ const button = props => {
       className={styles} 
       style={{margin: props.m}} 
       onClick={props.click} 
+      type={props.type}
       data-testid={props['data-testid']}
     >
       {props.children}

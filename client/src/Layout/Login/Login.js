@@ -21,11 +21,24 @@ class LoginLayout extends PureComponent {
       }
     }
   }
+
+  componentDidMount() {
+    window.addEventListener('keypress', this.onKeyPress)
+  }
+
   componentWillUnmount() {
     if (this.props.errorMessage) {
       this.props.clearError();
     }
+    window.removeEventListener('keypress', this.onKeyPress)
   }
+
+  onKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      this.loginHandler();
+    }
+  }
+
   // pass to text inputs to update state from user input
   changeHandler = (event) => {
     let updatedControls =  { ...this.state.controls };
@@ -40,8 +53,8 @@ class LoginLayout extends PureComponent {
   }
 
   // submit form
-  loginHandler = event => {
-    event.preventDefault();
+  loginHandler = () => {
+    // event.preventDefault();
     // pass submission off to redux
     this.props.login(
       this.state.controls.username.value,
@@ -89,8 +102,8 @@ class LoginLayout extends PureComponent {
                 {/* <img className={classes.Loading} src={Loading} alt='loading' /> */}
               </Aux>
             : null}
-            <div className={classes.Submit}><Button theme={"Big"}>Login</Button></div>
           </form>
+          <div className={classes.Submit}><Button theme={"Big"}>Login</Button></div>
           {/* <div>or</div> */}
           {/* <GoogleSignIn click={this.googleLogin} /> */}
         </div>

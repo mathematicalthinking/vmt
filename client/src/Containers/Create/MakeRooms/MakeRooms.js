@@ -17,6 +17,20 @@ class MakeRooms extends Component  {
     dueDate: '',
   }
 
+  componentDidMount() {
+    window.addEventListener('keypress', this.onKeyPress)
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keypress', this.onKeyPress)
+  }
+
+  onKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      this.submit()
+    }
+  }
+
   setNumber = event => {
     this.setState({participantsPerRoom: event.target.value})
   }

@@ -13,6 +13,20 @@ class NewResource extends Component {
     isPublic: true,
   }
 
+  componentDidMount() {
+    window.addEventListener('keypress', this.onKeyPress)
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keypress', this.onKeyPress)
+  } 
+
+  onKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      this.submit();
+    }
+  }
+
   changeHandler = event => {
     this.setState({
       [event.target.name]: event.target.value,

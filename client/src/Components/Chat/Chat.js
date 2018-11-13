@@ -7,12 +7,25 @@ import moment from 'moment';
 class Chat extends Component {
 
   chatEnd = React.createRef()
+  
   componentDidMount() {
+    window.addEventListener('keypress', this.onKeyPress)
     this.scrollToBottom();
   }
   componentDidUpdate(prevProps){
     this.scrollToBottom();
   }
+  
+  componentDidUnmount() {
+    window.removeEventListener('keypress', this.onKeyPress)
+  }
+
+  onKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      this.props.submit();
+    }
+  }
+
   scrollToBottom = () => {
     this.chatEnd.current.scrollTop = this.chatEnd.current.scrollHeight;
     // window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})

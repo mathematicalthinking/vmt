@@ -12,8 +12,21 @@ class FromActivity extends Component {
     dueDate: '',
   }
 
+  componentDidMount() {
+    window.addEventListener('keypress', this.onKeyPress)
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keypress', this.onKeyPress)
+  } 
+
+  onKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      this.submit();
+    }
+  }
+
   select = id => {
-    console.log(id)
     let updatedSelected = [...this.state.selected]
     updatedSelected.push(id)
     this.setState({selected: updatedSelected})
@@ -25,7 +38,6 @@ class FromActivity extends Component {
   }
 
   submit = () => {
-    console.log(this.state)
     this.state.selected.forEach(id => {
       this.props.create(id, this.props.userId, this.state.dueDate)
     })
