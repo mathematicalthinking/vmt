@@ -17,14 +17,14 @@ describe('temporary room', function() {
     cy.get('.ggbtoolbarpanel')
     // cy.url({log: true}).then(res => url = res)
   })
-  it('creates an account to save the room', function() {
-    cy.getTestElement('save-temp').click()
-    cy.get('input[name=password]').type('555')
-    cy.getTestElement('submit-signup').click();
-    cy.getTestElement('nav-My VMT').click()
-    cy.getTestElement('tab').contains('Rooms').click()
-    cy.getTestElement('box-list').should('have.length', 1)
-  })
+  // it('creates an account to save the room', function() {
+  //   cy.getTestElement('save-temp').click()
+  //   cy.get('input[name=password]').type('555')
+  //   cy.getTestElement('submit-signup').click();
+  //   cy.getTestElement('nav-My VMT').click()
+  //   cy.getTestElement('tab').contains('Rooms').click()
+  //   cy.getTestElement('box-list').should('have.length', 1)
+  // })
   // it('creates another user and joins the same room', function(){
   //   cy.window().then((win) => {
   //     win.sessionStorage.clear()
