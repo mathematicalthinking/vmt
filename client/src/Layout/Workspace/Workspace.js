@@ -7,7 +7,7 @@ import Button from '../../Components/UI/Button/Button';
 const workspaceLayout = ({
   graph, chat, replayer, 
   members, activeMember, temp, 
-  save, loggedIn, description, instructions, history}) => {
+  save, loggedIn, description, instructions, history, saved}) => {
   console.log(temp, loggedIn)
   return (
     <div className={classes.PageContainer}>
@@ -33,7 +33,7 @@ const workspaceLayout = ({
               <div className={classes.Instructions}>{temp ? "Share the url in the address bar to invite others" : instructions}</div>
             </div>
           }
-          {temp && !loggedIn ? 
+          {temp && !saved ? 
             <div>
               <Button theme={'Small'} data-testid='save-temp' style={{zIndex: 1000}} m={20} click={save}>Save This Workspace</Button>
             </div> : null 

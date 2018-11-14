@@ -3,8 +3,10 @@ import classes from './graph.css';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
-// import throttle from 'lodash/throttle';
+import throttle from 'lodash/throttle';
 import { parseString } from 'xml2js';
+
+const THROTTLE_FIDELITY = 0;
 class GgbGraph extends Component {
 
   state = {
@@ -96,13 +98,11 @@ class GgbGraph extends Component {
       this.ggbApplet.setXML(room.currentState)
     }
     this.addListener = label => {
-      console.log("state: ", this.state.receivingData)
       if (!this.state.receivingData) {
         let xml = this.ggbApplet.getXML(label)
         let definition = this.ggbApplet.getCommandString(label);
         sendEvent(xml, definition, label, "ADD", "added");
       }
-      console.log('setting state rexceiving data =false')
       this.setState({receivingData: false})
     }
 
@@ -113,17 +113,16 @@ class GgbGraph extends Component {
       this.setState({receivingData: false})
     }
 
-    this.updateListener = label => {
+    this.updateListener = throttle(label => {
       if (!this.state.receivingData) {
         let xml = this.ggbApplet.getXML(label)
         sendEvent(xml, null, label, "UPDATE", "updated")
       }
       this.setState({receivingData: false})
       // this.ggbApplet.evalCommand("updateConstruction()")
-    }
+    }, THROTTLE_FIDELITY)
 
     const sendEvent = async (xml, definition, label, eventType, action) => {
-      console.log('sending event')
       let xmlObj;
       if (xml) xmlObj = await parseXML(xml)
       let newData = {

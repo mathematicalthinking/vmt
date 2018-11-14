@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { populateRoom, destroyRoom, updatedRoom } from '../store/actions'
+import { populateRoom, destroyRoom, updatedRoom, updateRoom, addUserRooms } from '../store/actions'
 import io from 'socket.io-client';
 import WorkspaceLayout from '../Layout/Workspace/Workspace';
 import TextInput from '../Components/Form/TextInput/TextInput';
@@ -33,22 +33,12 @@ class TempWorkspace extends Component {
       this.setState({firstEntry: false})
     } 
   }
-  
-  // 
-  // componentDidUpdate(prevProps){
-  //   // IF THERE IS A CREATOR THEN THIS IS NOT THE USER WHO CREATED THE ROOM
-  //   if (prevProps.room !== this.props.room) {
-  //     if (this.props.room.creator) {
 
-  //     }
-  //   }
-  //     this.props.room && this.props.room.creator) {
-  //     this.setState({firstEntry: false})
-      
-  //   } else {
-  //     this.props.populateRoom(this.props.match.params.id)
-  //   }
-  // }
+  componentDidUpdate(prevProps, prevState){
+    if (this.state.saving && this.props.loggedIn) {
+      this.setState({saved: true, saving: false})
+    }
+  }
 
   setName = (event) => {
     this.setState({tempUsername: event.target.value, errorMessage: ''});
@@ -116,8 +106,10 @@ class TempWorkspace extends Component {
       // this.socket.emit('disconnect')
     }
     // destroy this room from the store IF IT HASNT BEEN SAVED
-    this.props.destroyRoom(this.props.match.params.id)
-    // window.removeEventListener("beforeunload", this.confirmUnload)
+    if (!this.state.saved) {
+      this.props.destroyRoom(this.props.match.params.id)
+    }
+    window.removeEventListener("beforeunload", this.confirmUnload)
   }
 
   confirmUnload = (ev) => {
@@ -127,14 +119,16 @@ class TempWorkspace extends Component {
   }
 
   saveWorkSpace = () => {
-    // if (this.props.loggedIn) return this.join();
+    // if (this.props.loggedIn) return this.join()
+    this.props.updateRoom(this.props.match.params.id, {tempRoom: false})
+    if (this.props.loggedIn) this.props.addUserRooms(this.props.match.params.id)
     this.setState({saving: true})
   }
 
   render() {
     return (this.state.user ?
       <Aux>
-        {this.state.saving ? <Modal 
+        {this.state.saving && !this.props.loggedIn ? <Modal 
           show={this.state.saving} 
           closeModal={() => this.setState({saving: false})}
         >
@@ -142,6 +136,7 @@ class TempWorkspace extends Component {
         </Modal> : null}
         <WorkspaceLayout
           temp
+          saved={this.state.saved}
           loggedIn={this.props.loggedIn}
           save={this.saveWorkSpace}
           members = {this.state.room.currentMembers || []}
@@ -176,7 +171,7 @@ const mapStateToProps = (store, ownProps) => ({
   room: store.rooms.byId[ownProps.match.params.id],
   loggedIn: store.user.loggedIn,
   username: store.user.username,
-  userId: store.user.userId,
+  userId: store.user._id,
 })
 
-export default connect(mapStateToProps, { populateRoom, destroyRoom, updatedRoom, })(TempWorkspace)
+export default connect(mapStateToProps, { populateRoom, destroyRoom, updateRoom, updatedRoom, addUserRooms })(TempWorkspace)

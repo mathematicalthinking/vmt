@@ -133,8 +133,9 @@ module.exports = {
               })
             } else reject({errorMessage: 'incorrect entry code'})
           } else {
+            console.log("saving: ", body)
             db.Room.findByIdAndUpdate(id, body, {new: true})
-            .populate('currentMembers.user', 'username')
+            .populate('currentMembers.user, members.user', 'username')
             .populate('chat')
             .then(res => resolve(res)).catch(err =>{
               console.log("ERR: ", err)
