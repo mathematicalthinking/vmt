@@ -43,7 +43,6 @@ class Room extends Component {
         if (ntf.notificationType === 'grantedAccess' && ntf._id === room._id) {
            // RESOLVE THIS NOTIFICATION
            firstView = true;
-           console.log('first view = true', 'clearing notifications')
            clearNotification(room._id, user._id, null, 'rooms', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
          }
        })

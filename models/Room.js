@@ -61,8 +61,9 @@ Room.pre('save', function (next) {
     })
     .catch(err => next(err))
   } else if (!this.isNew) {
-    let field = this.modifiedPaths().forEach(field => {
+    this.modifiedPaths().forEach(field => {
       if (field === 'members') {
+        console.log('updated members path!!!!!!')
         User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
           $addToSet: {rooms: this._id}
         }).then(user => {next()})

@@ -79,14 +79,11 @@ module.exports = {
   remove: (id, body) => {
     return new Promise((resolve, reject) => {
       // Remove this course from the user's list of courses
-      console.log('body: ', body)
       // console.log(bod['members.user']._id)
       db.User.findByIdAndUpdate(body.members.user, {$pull: {rooms: id}})
-      console.log('removing room member')
       db.Room.findByIdAndUpdate(id, {$pull: body}, {new: true})
       .populate({path: 'members.user', select: 'username'})
       .then(res => {
-        console.log(res)
         resolve({members: res.members})
       })
       .catch(err => reject(err))
@@ -96,7 +93,7 @@ module.exports = {
 
   // THIS IS A MESS @TODO CLEAN UP 
   put: (id, body) => {
-    console.log('updating room')
+    // console.log('updating room: ', body)
     return new Promise((resolve, reject) => {
       if (body.graphImage) {
         db.Room.findById(id).then(room => {
@@ -133,7 +130,6 @@ module.exports = {
               })
             } else reject({errorMessage: 'incorrect entry code'})
           } else {
-            console.log("saving: ", body)
             db.Room.findByIdAndUpdate(id, body, {new: true})
             .populate('currentMembers.user members.user', 'username')
             .populate('chat')
@@ -161,9 +157,11 @@ module.exports = {
 
   // SOCKET METHODS
   addCurrentUsers: (roomId, body, members) => {
-    console.log(members)
     return new Promise((resolve, reject) => {
-      db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentMembers: body, members, }}, {new: true})
+      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE 
+      let query = members ? {'$addToSet': {'currentMembers': body, 'members': members}} :
+        {'$addToSet': {'currentMembers': body}}
+      db.Room.findByIdAndUpdate(roomId, query, {new: true})
       .populate({path: 'currentMembers.user', select: 'username'})
       .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .select('currentMembers events chat currentState roomType')
@@ -181,6 +179,7 @@ module.exports = {
       .populate({path: 'currentMembers.user', select: 'username'})
       .select('currentMembers')
       .then(room => {
+        console.log("ROOM AFTER REMOVE: ", room)
         resolve(room)
       })
       .catch(err => reject(err))
