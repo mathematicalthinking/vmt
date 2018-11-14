@@ -3,8 +3,10 @@ import classes from './graph.css';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
-// import throttle from 'lodash/throttle';
+import throttle from 'lodash/throttle';
 import { parseString } from 'xml2js';
+
+const THROTTLE_FIDELITY = 0;
 class GgbGraph extends Component {
 
   state = {
@@ -90,15 +92,15 @@ class GgbGraph extends Component {
   }
 
   initializeGgb = () => {
-    const { user, room } = this.props;
-    const { events } = room;
+    let { user, room } = this.props;
+    let { events } = room;
     if (events.length > 0) {
       this.ggbApplet.setXML(room.currentState)
     }
     this.addListener = label => {
       if (!this.state.receivingData) {
-        const xml = this.ggbApplet.getXML(label)
-        const definition = this.ggbApplet.getCommandString(label);
+        let xml = this.ggbApplet.getXML(label)
+        let definition = this.ggbApplet.getCommandString(label);
         sendEvent(xml, definition, label, "ADD", "added");
       }
       this.setState({receivingData: false})
@@ -111,15 +113,23 @@ class GgbGraph extends Component {
       this.setState({receivingData: false})
     }
 
+    this.updateListener = throttle(label => {
+      if (!this.state.receivingData) {
+        let xml = this.ggbApplet.getXML(label)
+        sendEvent(xml, null, label, "UPDATE", "updated")
+      }
+      this.setState({receivingData: false})
+      // this.ggbApplet.evalCommand("updateConstruction()")
+    }, THROTTLE_FIDELITY)
+
     const sendEvent = async (xml, definition, label, eventType, action) => {
       let xmlObj;
       if (xml) xmlObj = await parseXML(xml)
-      const newData = {
+      let newData = {
         definition,
         label,
         eventType,
         room: room._id,
-        roomId: room._id,
         event: xml,
         description: `${user.username} ${action} ${xmlObj ? xmlObj.element.$.type : ''} ${label}`,
         user: {_id: user._id, username: user.username},

@@ -7,7 +7,7 @@ import Button from '../../Components/UI/Button/Button';
 const workspaceLayout = ({
   graph, chat, replayer, 
   members, activeMember, temp, 
-  save, loggedIn, description, instructions, history}) => {
+  save, loggedIn, description, instructions, history, saved}) => {
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container}>
@@ -29,12 +29,12 @@ const workspaceLayout = ({
           {replayer ? replayer() : 
             <div className={classes.RoomDescription}>
               <h3 className={classes.InstructionsTitle}>Instructions</h3>
-              <div className={classes.Instructions}>{instructions}</div>
+              <div className={classes.Instructions}>{temp ? "Share the url in the address bar to invite others" : instructions}</div>
             </div>
           }
-          {temp && !loggedIn ? 
+          {temp && !saved ? 
             <div>
-              <Button theme={'Small'} data-testid='save-temp' m={20} click={save}>Save This Workspace</Button>
+              <Button theme={'Small'} data-testid='save-temp' style={{zIndex: 1000}} m={20} click={save}>Save This Workspace</Button>
             </div> : null 
           }
           </div>

@@ -1,0 +1,97 @@
+:import('../../colors.css') {
+  yellow: yellow;
+  orange: orange;
+  blue: blue;
+  green: green;
+}
+
+.Container {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  padding-bottom: 20px;
+  /* border-bottom: 2px solid #ddd; */
+}
+
+.Title {
+  padding-bottom: 12px;
+  margin: 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.Form {
+  display: flex;
+  flex-flow: column;
+  align-items: flex-start;
+  width: 95%;
+}
+
+.Selected {
+  margin: 10px;
+  width: 500px !important;
+}
+
+.Dropdown {
+  margin: 10px;
+}
+
+.FormSection {
+  display: flex;
+  flex-flow: column;
+  align-items: flex-start;
+  width: 100%;
+  padding-bottom: 20px;
+  border-bottom: #ddd;
+}
+
+.Import {
+  display: flex;
+  flex-flow: column;
+}
+
+.RadioButtons {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  font-size: 1.4em;
+}
+
+.VerticalButtons {
+  width: 100%;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
+.Checkbox {
+  padding: 12px;
+  font-size: 1.4em;
+}
+
+.Submit {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* .Plus {
+  color: #999;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  transition: .2s;
+} */
+
+.Button {
+  margin: 0 5px;
+  /* color: white; */
+  /* flex-grow: 1; */
+  height: 100%;
+}
+
+.Plus{
+  color: orange;
+  border: 1px solid white;
+  border-radius: 50%;
+  padding: 3px;
+}

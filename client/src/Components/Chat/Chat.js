@@ -5,14 +5,30 @@ import classes from './chat.css';
 import SendIcon from './sendicon';
 import moment from 'moment';
 class Chat extends Component {
-
+  
+  chatInput = React.createRef()
   chatEnd = React.createRef()
+  
   componentDidMount() {
+    window.addEventListener('keypress', this.onKeyPress)
+    if (!this.props.replayer) this.chatInput.current.focus();
     this.scrollToBottom();
   }
   componentDidUpdate(prevProps){
+    console.log('chat updated')
     this.scrollToBottom();
   }
+  
+  componentWillUnmount() {
+    window.removeEventListener('keypress', this.onKeyPress)
+  }
+
+  onKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      this.props.submit();
+    }
+  }
+
   scrollToBottom = () => {
     this.chatEnd.current.scrollTop = this.chatEnd.current.scrollHeight;
     // window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
@@ -41,7 +57,7 @@ class Chat extends Component {
         <div className={classes.ChatScroll} ref={this.chatEnd} id='scrollable'>{displayMessages}</div>
         {!replayer ?
           <div className={classes.ChatInput}>
-            <input className={classes.Input} type = {"text"} onChange={change} value={value}/>
+            <input ref={this.chatInput} className={classes.Input} type = {"text"} onChange={change} value={value}/>
             {/* <TextInput width={"90%"} size={20} light autoComplete="off" change={change} type='text' name='message' value={value}/> */}
             <div className={classes.Send} onClick={submit}>
               <SendIcon height='24' width='24' viewBox='0 0 24 24'/>

@@ -26,7 +26,7 @@ export const getUserResources = (state, resource) => {
     return state.user[resource].reduce((acc, cur) => {
       // Only get resources that are stand alone (i.e. not belonging to a course)
       let popRec = state[resource].byId[cur];
-      if (resource === 'courses' || (resource !== 'courses' && !popRec.course)) {
+      if (resource === 'courses' || (resource !== 'courses' && popRec && !popRec.course)) {
         acc.push(popRec)
       }
       return acc;  

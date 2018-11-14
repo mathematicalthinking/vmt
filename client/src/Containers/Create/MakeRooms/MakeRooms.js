@@ -17,6 +17,20 @@ class MakeRooms extends Component  {
     dueDate: '',
   }
 
+  componentDidMount() {
+    window.addEventListener('keypress', this.onKeyPress)
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keypress', this.onKeyPress)
+  }
+
+  onKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      this.submit()
+    }
+  }
+
   setNumber = event => {
     this.setState({participantsPerRoom: event.target.value})
   }
@@ -38,6 +52,8 @@ class MakeRooms extends Component  {
    // Else add them
   }
   
+  // NOW THAT WE HAVE A CREATEROOMFROMACTIVITY ACTION THINK ABOUT REFACTORING ALL OF THIS
+  // TO UTILIZE THAT FUNCTIONALITY
   submit = () => {
     let { _id, name, description, roomType, desmosLink, ggbFile, image, instructions } = this.props.activity;
     let newRoom = {
@@ -85,7 +101,7 @@ class MakeRooms extends Component  {
       let numRooms = remainingParticipants.length/participantsPerRoom
       for (let i = 0; i < numRooms; i++) {
         let members = remainingParticipants.splice(0, participantsPerRoom)
-        members.push({user: this.props.userId, role: 'Facilitator'})
+        members.push({user: this.props.userId, role: 'facilitator'})
         newRoom.name = `${name} ${this.state.roomsCreated + i + 1}`;
         newRoom.members = members;
         this.props.createRoom(newRoom)

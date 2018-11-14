@@ -47,6 +47,7 @@ export {
   addRoomMember,
   removeRoomMember,
   destroyRoom,
+  createRoomFromActivity,
 } from './rooms';
 export {
   addCourse,
@@ -82,6 +83,7 @@ export {
   removeActivity,
   updateActivity,
   updatedActivity,
+  copyActivity,
 } from './activities';
 export {
   joinWithCode,

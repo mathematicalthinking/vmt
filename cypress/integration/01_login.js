@@ -51,6 +51,6 @@ describe('user signup/login', function() {
     cy.get('input[name=username]').type('incorrect username')
     cy.get('input[name=password]').type(user.password)
     cy.get('button').click()
-    cy.contains('That username does not exist. If you want to create an account go to Register')
+    cy.contains('That username does not exist. If you want to create an account go to Signup')
   })
 })

@@ -38,6 +38,7 @@ module.exports = {
     });
   },
   post: body => {
+    console.log('creating new room')
     return new Promise((resolve, reject) => {
       db.Room.create(body)
       .then(room => {
@@ -95,6 +96,7 @@ module.exports = {
 
   // THIS IS A MESS @TODO CLEAN UP 
   put: (id, body) => {
+    console.log('updating room')
     return new Promise((resolve, reject) => {
       if (body.graphImage) {
         db.Room.findById(id).then(room => {
@@ -115,14 +117,14 @@ module.exports = {
             if (room.entryCode === entryCode) {
               room.members.push({user: userId, role: 'participant'})
               // Send a notification to the room owner
-              console.log('adding notification to: ', room.creator)
               db.User.findByIdAndUpdate(room.creator, {
                 $addToSet: {
                   'roomNotifications.access': {
                     notificationType: 'newMember', _id: room._id, user: userId 
                   }
                 }
-              }).then(res => console.log('sucess: ', res))
+              })
+              .then(res => console.log('sucess: ', res))
               .catch(err => console.log(err))
               try { await room.save()}
               catch(err) {console.log(err)}
@@ -131,7 +133,14 @@ module.exports = {
               })
             } else reject({errorMessage: 'incorrect entry code'})
           } else {
-            db.Room.findByIdAndUpdate(id, body).then(res => resolve()).catch(reject())
+            console.log("saving: ", body)
+            db.Room.findByIdAndUpdate(id, body, {new: true})
+            .populate('currentMembers.user members.user', 'username')
+            .populate('chat')
+            .then(res => resolve(res)).catch(err =>{
+              console.log("ERR: ", err)
+              reject(err)
+            })
           }
         })
         .catch(err => reject(err))        
@@ -151,9 +160,10 @@ module.exports = {
   },
 
   // SOCKET METHODS
-  addCurrentUsers: (roomId, body) => {
+  addCurrentUsers: (roomId, body, members) => {
+    console.log(members)
     return new Promise((resolve, reject) => {
-      db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentMembers: body}}, {new: true})
+      db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentMembers: body, members, }}, {new: true})
       .populate({path: 'currentMembers.user', select: 'username'})
       .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .select('currentMembers events chat currentState roomType')
@@ -167,7 +177,7 @@ module.exports = {
   removeCurrentUsers: (roomId, socketId) => {
     return new Promise ((resolve, reject) => {
       console.log('removing currentMember: ', socketId)
-      db.Room.findByIdAndUpdate(roomId, {$pull: {currentMembers: {socket: socketId}}}, {new: true})
+      db.Room.findByIdAndUpdate(roomId, {$pull: {currentMembers: {socket: socketId}}}) // DONT RETURN THE NEW DOCUMENT WE NEED TO KNOW WHO WAS REMOVED BACK IN THE SOCKET
       .populate({path: 'currentMembers.user', select: 'username'})
       .select('currentMembers')
       .then(room => {

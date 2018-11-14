@@ -25,12 +25,13 @@ class Homepage extends PureComponent {
       this.props.history.push(`explore/${room[0]._id}`)
     }
   }
-
   
   createRoom = () => {
     this.props.createRoom({
       name: 'temp room',
       tempRoom: true,
+      creator: this.props.user._id || null,
+      members: this.props.user._id ? [{user: this.props.user._id, role: 'facilitator'}] : null
     })
   }
 

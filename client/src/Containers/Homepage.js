@@ -6,7 +6,8 @@ import { HomepageLayout } from '../Layout'
 
 const mapStateToProps = store => ({
   activities: store.activities.byId,
-  rooms: store.rooms.byId
+  rooms: store.rooms.byId,
+  user: store.user,
 })
 
 export default connect(mapStateToProps, { getActivities, createRoom,})(HomepageLayout)

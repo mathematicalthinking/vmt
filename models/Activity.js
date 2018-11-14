@@ -7,8 +7,8 @@ const Activity = new mongoose.Schema({
   description: {type: String},
   course: {type: ObjectId, ref: 'Course'},
   courses: {type: [{type: ObjectId, ref: 'Course'}], default: [], _id: false},
-  users: {type: [{type: ObjectId, ref: 'User'}], default: [], _id: false},
-  dueDate: {type: Date,},
+  users: {type: [{type: ObjectId, ref: 'User'}], default: [], _id: false}, // WHAT IS THIS FIELD FOR?
+  dueDate: {type: Date,}, // WHAT IS THIS FIELD FOR?
   roomType: {type: String, default: 'geogebra'},
   creator: {type: ObjectId, ref: 'User'},
   rooms: {type: [{type: ObjectId, ref: 'Room'}], default: [], _id: false},
@@ -17,7 +17,8 @@ const Activity = new mongoose.Schema({
   events: [{type: String}],
   image: {type:String,},
   instructions: {type: String,},
-  graphImage: {type: ObjectId, ref: 'Image'}
+  graphImage: {type: ObjectId, ref: 'Image'},
+  source: {type: ObjectId, ref: 'Activity'} // If this was created from another activity 
   // template: {type: ObjectId, ref: 'ActivityTemplate'},
 }, {timestamps: true});
 
