@@ -118,7 +118,7 @@ class NewTemplate extends Component {
             </div>
             <div className={classes.Submit}>
               <Button click={this.submitForm}>Submit</Button>
-              <Button click={this.closeModal}>Cancel</Button>
+              <Button theme={'SmallCancel'}click={this.closeModal}>Cancel</Button>
             </div>
           </form>
         </div>

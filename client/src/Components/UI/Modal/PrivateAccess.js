@@ -46,9 +46,9 @@ class privateAccess extends Component {
           ${resource}'s entry code, you can enter it below`}
         </p>
         <TextInput light type='text' name='entryCode' change={this.updateEntry}/>
-        <Button m={10} click={this.joinWithCode}>Join</Button>
+        <Button theme={'Small'} m={10} click={this.joinWithCode}>Join</Button>
         <p>{`Otherwise you can ask this ${resource}'s owner for access`}</p>
-        <Button m={10} click={this.requestAccess} data-testid='request-access-btn'>Request Access</Button>
+        <Button theme={'Small'} m={10} click={this.requestAccess} data-testid='request-access-btn'>Request Access</Button>
         <div className={classes.Error} data-testid='entry-code-error'>{this.props.error}</div>
       </Modal>
     )

@@ -3,7 +3,9 @@ import classes from './button.css';
 const button = props => {
   // let styles = [classes.Button]
   let styles = [classes.Button];
+  console.log(props.theme)
   styles.push(classes[props.theme]);
+  if (!props.theme) {styles.push(classes.Small)}
   styles = styles.join(" ")
 
   return (

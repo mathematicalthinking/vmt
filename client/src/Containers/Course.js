@@ -178,7 +178,7 @@ class Course extends Component {
             <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
               <p>Welcome to {course.name}. If this is your first time joining a course,
               we recommend you take a tour. Otherwise you can start exploring this course's features.</p>
-              <Button click={() => this.setState({firstView: false})}>Explore</Button>
+              <Button theme={'Small'} click={() => this.setState({firstView: false})}>Explore</Button>
             </Modal>
           </Aux> :
           course.isPublic ? 
