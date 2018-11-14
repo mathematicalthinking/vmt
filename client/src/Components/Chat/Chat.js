@@ -16,7 +16,7 @@ class Chat extends Component {
     this.scrollToBottom();
   }
   
-  componentDidUnmount() {
+  componentWillUnmount() {
     window.removeEventListener('keypress', this.onKeyPress)
   }
 

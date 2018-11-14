@@ -90,17 +90,19 @@ class GgbGraph extends Component {
   }
 
   initializeGgb = () => {
-    const { user, room } = this.props;
-    const { events } = room;
+    let { user, room } = this.props;
+    let { events } = room;
     if (events.length > 0) {
       this.ggbApplet.setXML(room.currentState)
     }
     this.addListener = label => {
+      console.log("state: ", this.state.receivingData)
       if (!this.state.receivingData) {
-        const xml = this.ggbApplet.getXML(label)
-        const definition = this.ggbApplet.getCommandString(label);
+        let xml = this.ggbApplet.getXML(label)
+        let definition = this.ggbApplet.getCommandString(label);
         sendEvent(xml, definition, label, "ADD", "added");
       }
+      console.log('setting state rexceiving data =false')
       this.setState({receivingData: false})
     }
 
@@ -111,10 +113,20 @@ class GgbGraph extends Component {
       this.setState({receivingData: false})
     }
 
+    this.updateListener = label => {
+      if (!this.state.receivingData) {
+        let xml = this.ggbApplet.getXML(label)
+        sendEvent(xml, null, label, "UPDATE", "updated")
+      }
+      this.setState({receivingData: false})
+      // this.ggbApplet.evalCommand("updateConstruction()")
+    }
+
     const sendEvent = async (xml, definition, label, eventType, action) => {
+      console.log('sending event')
       let xmlObj;
       if (xml) xmlObj = await parseXML(xml)
-      const newData = {
+      let newData = {
         definition,
         label,
         eventType,

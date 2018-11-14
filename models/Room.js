@@ -32,6 +32,7 @@ const Room = new mongoose.Schema({
 {timestamps: true});
 
 Room.pre('save', function (next) {
+  console.log(this)
   // ON CREATION UPDATE THE CONNECTED MODELS
   if (this.isNew & !this.tempRoom) {
     let promises = [];

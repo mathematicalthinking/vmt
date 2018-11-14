@@ -5,7 +5,6 @@ class CurrentMembers extends Component {
 
   render() {
     const { members, activeMember } = this.props;
-    console.log(members)
     return (
       <div className={classes.Container}>
         <h3 className={classes.Title}>Current Members</h3>

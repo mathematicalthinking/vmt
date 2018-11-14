@@ -23,7 +23,6 @@ class Workspace extends Component {
     }
     const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
     updatedRoom(room._id, {currentMembers: updatedUsers})
-    console.log('component mounted')
     this.socket.emit('JOIN', sendData, (res, err) => {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
@@ -51,7 +50,6 @@ class Workspace extends Component {
 
   render() {
     const { room, user } = this.props;
-    console.log(room.currentMembers)
     return (
       <WorkspaceLayout
         members = {(room && room.currentMembers) ? room.currentMembers : []}

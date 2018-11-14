@@ -31,6 +31,8 @@ class Homepage extends PureComponent {
     this.props.createRoom({
       name: 'temp room',
       tempRoom: true,
+      creator: this.props.user._id || null,
+      members: this.props.user._id ? [{user: this.props.user._id, role: 'facilitator'}] : null
     })
   }
 
