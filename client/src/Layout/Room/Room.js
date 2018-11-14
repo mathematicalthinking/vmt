@@ -1,6 +1,6 @@
 import React from 'react';
 import classes from './room.css';
-import { Button, Aux } from '../../Components';
+import { Button } from '../../Components';
 import { withRouter } from 'react-router-dom';
 const summary = ({room, history, loading}) => {
   console.log("ROOM: ", room)
