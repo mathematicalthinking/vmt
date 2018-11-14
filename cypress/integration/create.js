@@ -109,12 +109,14 @@ describe('create each type of resource', function(){
 
   /// FAILS ___ ITS CREATING ROOMS INSTEAD OF COPYING THE ACTIVITY
   it('selects an existing stand alone activity and adds it to a course', function(){
+    cy.getTestElement('crumb').contains('course 2').click()
     cy.getTestElement('tab').contains('Activities').click()
     cy.get('button').contains('Select an existing activity').click()
     cy.get('[type="radio"]').last().check()
-    cy.getTestElement('content-box-activity 1').trigger('mouseover')
-    cy.getTestElement('overlay-activity 1').click()
+    cy.getTestElement('content-box-test activity 1').trigger('mouseover')
+    cy.getTestElement('overlay-test activity 1').click()
     cy.get('button').contains('Done').click()
+    cy.getTestElement('box-list').children().should('have.length', 2)
   })
 
     //   it('creates a standalone room from a standalone activity', function(){

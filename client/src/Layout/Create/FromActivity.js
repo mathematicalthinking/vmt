@@ -39,7 +39,11 @@ class FromActivity extends Component {
 
   submit = () => {
     this.state.selected.forEach(id => {
-      this.props.create(id, this.props.userId, this.state.dueDate)
+      if (this.props.mode === 'create') {
+        this.props.create(id, this.props.userId, this.state.dueDate)
+      } else {
+        this.props.copy(id, this.props.userId, this.props.course)
+      }
     })
     this.props.close();
   }
@@ -74,9 +78,9 @@ class FromActivity extends Component {
                 >From This Course</RadioBtn> : null}
               </div>
             </div>
-            <div className={classes.FormSection}>
+           {this.props.mode === 'create' ? <div className={classes.FormSection}>
               <TextInput light label='Due Date (Optional)' name='dueDate' type='date' change={event => this.setState({dueDate: event.target.value})} />
-            </div>
+            </div> : null}
             <div className={classes.Submit}>
               <Button click={this.submit} theme={"Small"} m={10}>Done</Button>
               <Button click={this.props.close} m={10}>Cancel</Button>

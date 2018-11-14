@@ -96,6 +96,17 @@ export const createActivity = body => {
   }
 }
 
+export const copyActivity = (activityId, userId, courseId) => {
+  return (dispatch, getState) => {
+    let activity = {...getState().activities.byId[activityId]}
+    activity.source = activity._id;
+    delete activity._id;
+    activity.creator = userId;
+    activity.course = courseId;
+    dispatch(createActivity(activity))
+  }
+}
+
 // @TODO MAKE SURE ONLY CREATOR CAN REMOVE
 export const removeActivity = activityId => {
   return dispatch => {

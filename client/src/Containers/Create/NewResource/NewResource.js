@@ -14,6 +14,7 @@ import {
   createCourseTemplate,
   updateUser,
   createRoomFromActivity,
+  copyActivity,
 } from '../../../store/actions/';
 
 const imageThemes = [
@@ -35,11 +36,12 @@ class NewResourceContainer extends Component {
     // rooms: [],
     creating: false,
     selecting: false,
+    mode: '',
   }
 
 
   create = () => this.setState({creating: true, selecting: false})
-  select = () => this.setState({selecting: true, creating: false})
+  select = (mode) => this.setState({selecting: true, creating: false, mode,})
 
   submitForm = ({name, description, isPublic, dueDate, ggb, ggbFile, desmosLink}) => {
     let { resource } = this.props;
@@ -117,12 +119,14 @@ class NewResourceContainer extends Component {
           userActivities={this.props.userActivities}  
           courseActivities={this.props.course ? this.props.course.activities : null}
           create={this.props.createRoomFromActivity}
+          copy={this.props.copyActivity}
+          mode={this.state.mode}
           userId={this.props.userId}
         /> : null}
         <div className={classes.Button}><Button theme={'Small'} click={this.create} data-testid={`create-${displayResource}`}>Create <span className={classes.Plus}><i className="fas fa-plus"></i></span></Button></div>
-        {(resource === 'activities' && courseId && !intro) ? <div className={classes.Button}><Button theme={'Small'} click={this.select}>Select an existing activity</Button></div> : null}
+        {(resource === 'activities' && courseId && !intro) ? <div className={classes.Button}><Button theme={'Small'} click={() => this.select('copy')}>Select an existing activity</Button></div> : null}
         {(resource === 'activities' && !courseId && !intro) ? <div className={classes.Button}><Button theme={"Small"} click={this.redirectToActivity}>Select an activity from the community</Button></div> : null}
-        {(resource === 'rooms' && !intro) ? <div className={classes.Button}><Button theme={"Small"} click={this.select}>Create from an Activity</Button></div> : null}
+        {(resource === 'rooms' && !intro) ? <div className={classes.Button}><Button theme={"Small"} click={() => this.select('create')}>Create from an Activity</Button></div> : null}
       </Aux>      
     )
   }
@@ -146,4 +150,5 @@ export default withRouter(connect(mapStateToProps, {
   createCourseTemplate,
   updateUser,
   createRoomFromActivity,
+  copyActivity,
 })(NewResourceContainer));
