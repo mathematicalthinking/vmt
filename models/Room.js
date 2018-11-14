@@ -18,7 +18,7 @@ const Room = new mongoose.Schema({
     user: {type: ObjectId, ref: 'User'},
     role: {type: String},
     _id: false}],
-  currentMembers: {type: [{user: {type: ObjectId, ref: 'User'}, socket: {type: String}, _id: false}], default: []},
+  currentMembers: {type: [{user: {type: ObjectId, ref: 'User'}, socket: {type: String},  _id: false}], default: []},
   currentState: {type: String},
   ggbFile: {type: String,},
   desmosLink: {type: String,},
@@ -32,7 +32,7 @@ const Room = new mongoose.Schema({
 {timestamps: true});
 
 Room.pre('save', function (next) {
-  console.log(this)
+  // console.log(this)
   // ON CREATION UPDATE THE CONNECTED MODELS
   if (this.isNew & !this.tempRoom) {
     let promises = [];

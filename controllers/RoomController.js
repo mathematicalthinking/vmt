@@ -135,7 +135,7 @@ module.exports = {
           } else {
             console.log("saving: ", body)
             db.Room.findByIdAndUpdate(id, body, {new: true})
-            .populate('currentMembers.user, members.user', 'username')
+            .populate('currentMembers.user members.user', 'username')
             .populate('chat')
             .then(res => resolve(res)).catch(err =>{
               console.log("ERR: ", err)
@@ -177,7 +177,7 @@ module.exports = {
   removeCurrentUsers: (roomId, socketId) => {
     return new Promise ((resolve, reject) => {
       console.log('removing currentMember: ', socketId)
-      db.Room.findByIdAndUpdate(roomId, {$pull: {currentMembers: {socket: socketId}}}, {new: true})
+      db.Room.findByIdAndUpdate(roomId, {$pull: {currentMembers: {socket: socketId}}}) // DONT RETURN THE NEW DOCUMENT WE NEED TO KNOW WHO WAS REMOVED BACK IN THE SOCKET
       .populate({path: 'currentMembers.user', select: 'username'})
       .select('currentMembers')
       .then(room => {

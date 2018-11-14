@@ -35,8 +35,13 @@ class TempWorkspace extends Component {
   }
 
   componentDidUpdate(prevProps, prevState){
+    // An already signed in user has saved the workspace 
     if (this.state.saving && this.props.loggedIn) {
       this.setState({saved: true, saving: false})
+    }
+    // The user has signed in from this page and saved the workspace
+    if (!prevProps.loggedIn && this.props.loggedIn) {
+      this.setState({saved: true})
     }
   }
 
@@ -89,6 +94,11 @@ class TempWorkspace extends Component {
     })
 
     this.socket.on('USER_LEFT', data => {
+      // let updatedChat = [...this.state.room.chat]
+      // updatedChat.push(data.message)
+      // // THE fact that we're setting local state and redux state here (of the same resource) seems bad
+      // this.setState({room: updatedChat})
+      // console.log(updatedChat)
       this.updateMembers(data.currentMembers)
     })
   }
@@ -100,16 +110,15 @@ class TempWorkspace extends Component {
   }
 
   componentWillUnmount () {
-    window.removeEventListener("beforeunload", this.confirmUnload)
     if (this.socket) {
       this.socket.disconnect()
       // this.socket.emit('disconnect')
     }
+    window.removeEventListener("beforeunload", this.confirmUnload)
     // destroy this room from the store IF IT HASNT BEEN SAVED
     if (!this.state.saved) {
       this.props.destroyRoom(this.props.match.params.id)
     }
-    window.removeEventListener("beforeunload", this.confirmUnload)
   }
 
   confirmUnload = (ev) => {
@@ -119,7 +128,6 @@ class TempWorkspace extends Component {
   }
 
   saveWorkSpace = () => {
-    // if (this.props.loggedIn) return this.join()
     this.props.updateRoom(this.props.match.params.id, {tempRoom: false})
     if (this.props.loggedIn) this.props.addUserRooms(this.props.match.params.id)
     this.setState({saving: true})

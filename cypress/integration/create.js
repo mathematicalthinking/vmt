@@ -108,31 +108,33 @@ describe('create each type of resource', function(){
   })
 
   /// FAILS ___ ITS CREATING ROOMS INSTEAD OF COPYING THE ACTIVITY
-  it('selects an existing stand alone activity and adds it to a course')
+  it('selects an existing stand alone activity and adds it to a course', function(){
     cy.getTestElement('tab').contains('Activities').click()
     cy.get('button').contains('Select an existing activity').click()
     cy.get('[type="radio"]').last().check()
     cy.getTestElement('content-box-activity 1').trigger('mouseover')
     cy.getTestElement('overlay-activity 1').click()
     cy.get('button').contains('Done').click()
-  it('creates a standalone room from a standalone activity', function(){
-
   })
 
-  // PASSES
-  it("creates a course room from a course activity", function(){
+    //   it('creates a standalone room from a standalone activity', function(){
 
-  })
+//   })
 
-  // FAILS
-  it("creates a course room from a standalone activity", function(){
+//   // PASSES
+//   it("creates a course room from a course activity", function(){
 
-  })
-  it('creates a standalone room from a course activity', function(){
-    cy.getTestElement('crumb').contains('My VMT').click()
-  })
+//   })
+
+//   // FAILS
+//   it("creates a course room from a standalone activity", function(){
+
+//   })
+//   it('creates a standalone room from a course activity', function(){
+//     cy.getTestElement('crumb').contains('My VMT').click()
+//   })
 
 
 
-  it("")
+//   it("")
 })

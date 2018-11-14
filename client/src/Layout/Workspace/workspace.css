@@ -70,7 +70,7 @@
   flex-flow: column;
   justify-content: flex-start;
   align-items: center;
-  background-color: #f8f8f9;
+  /* background-color: #f8f8f9; */
   z-index: 0;
   /* border: 1px solid green; */
 }
@@ -79,7 +79,7 @@
   margin-top: 70px;
   position: relative;
   width: 95vw;
-  height: 90%;
+  height: 85%;
   max-width: 1500px;
   box-shadow: lightShadow;
   margin-bottom: 50px;
@@ -130,12 +130,12 @@
 
 
 .Chat {
-  height: 60%;
+  height: 75%;
   /* flex-grow: 2; */
 }
 
 .Members {
-  height: 40%;
+  height: 25%;
 }
 
 .Replayer {

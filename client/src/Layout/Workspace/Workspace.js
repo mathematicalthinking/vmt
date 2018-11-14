@@ -8,7 +8,6 @@ const workspaceLayout = ({
   graph, chat, replayer, 
   members, activeMember, temp, 
   save, loggedIn, description, instructions, history, saved}) => {
-  console.log(temp, loggedIn)
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container}>
