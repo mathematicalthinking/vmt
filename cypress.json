@@ -1,6 +1,6 @@
 {
   "projectId": "wvk6mc",
-  "baseUrl": "http://localhost:3000",
+  "baseUrl": "https://vmt.herokuapp.com/",
   "env": {
     "NODE_ENV": "test"
   },

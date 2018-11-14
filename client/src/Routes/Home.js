@@ -1,7 +1,8 @@
 import React, { PureComponent } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import HomeNav from '../Components/Navigation/HomeNav/HomeNav';
-import { Homepage, Login, Signup, TempWorkspace, Community, Logout } from '../Containers';
+import { Homepage, Login, Signup, TempWorkspace, Community, Logout, } from '../Containers';
+import { Confirmation } from '../Layout';
 import classes from './main.css'
 import Aux from '../Components/HOC/Auxil';
 class Home extends PureComponent {
@@ -31,6 +32,7 @@ class Home extends PureComponent {
           <Route path='/login' component={Login} />
           <Route path='/signup' component={Signup} />
           <Route path='/explore/:id' component={TempWorkspace} />
+          <Route path='/confirmation' component={Confirmation} />
         </Switch>
         </div>
         {/* <Route path='/about' component={About} />

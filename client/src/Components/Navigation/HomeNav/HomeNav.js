@@ -6,7 +6,7 @@ import Aux from '../../HOC/Auxil';
 import classes from './homeNav.css';
 const navbar = (props) => {
   let styles = classes.Nav;
-  if (props.scrollPosition > .4 || (props.page !== '/' && props.page !== '/signup' && props.page !== '/login')) {
+  if (props.scrollPosition > .4 || (props.page !== '/' && props.page !== '/signup' && props.page !== '/login' && props.page !== '/confirmation')) {
     styles = [classes.Nav, classes.LightNav].join(" ")
   }
 

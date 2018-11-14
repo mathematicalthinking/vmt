@@ -1,14 +1,17 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import * as actions from '../../store/actions'
+import * as actions from '../../store/actions';
 import { Link } from 'react-router-dom';
-import ContentBox from '../../Components/UI/ContentBox/ContentBox';
+import { Background, Aux, Button } from '../../Components';
+import classes from './confirmation.css';
 const confirmation = props => (
-  <div>
-    <ContentBox title={props.success ? props.successMessage : props.errorMessage}>
-      <Link onClick={props.clear} to='/profile/courses'>Go to your dashboard</Link>
-    </ContentBox>
-  </div>
+  <Aux>
+    <Background />
+    <div className={classes.Main}>
+      <div>{props.success ? props.successMessage : props.errorMessage}</div>
+      <Button theme={"Big"} m={20}><Link onClick={props.clear} to='/myVMT/courses'>Go to your dashboard</Link></Button>
+    </div>
+  </Aux>
 );
 
 const mapStateToProps = state => ({
