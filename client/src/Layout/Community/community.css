@@ -3,6 +3,7 @@
   lightShadow: lightShadow;
   darkShadow: darkShadow;
   backgroundGray: backgroundGray; 
+  navBarHeight: navBarHeight;
 }
 :root{
   --margin-top: 48px;
@@ -28,8 +29,8 @@
 }
 
 .Selecting {
-  position: absolute;
-  top: calc(var(--margin-top) * -1);
+  position: fixed;
+  top: 60px;
   width: 120px;
   text-align: center;
   padding: 4px 10px;

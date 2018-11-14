@@ -165,7 +165,8 @@ class Profile extends Component {
           activities: user.activities.length, 
         }
       },
-      edit: {link: '/profile', text: 'edit profile'}
+      // edit: {link: '/profile', text: 'edit profile'}
+      edit: {}
     }
     return (
       // <Aux>
