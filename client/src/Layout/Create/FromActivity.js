@@ -40,7 +40,7 @@ class FromActivity extends Component {
   submit = () => {
     this.state.selected.forEach(id => {
       if (this.props.mode === 'create') {
-        this.props.create(id, this.props.userId, this.state.dueDate)
+        this.props.create(id, this.props.userId, this.state.dueDate, this.props.course)
       } else {
         this.props.copy(id, this.props.userId, this.props.course)
       }

@@ -56,7 +56,7 @@ export const addRoomMember = (roomId, body) => {
   }
 }
 
-export const createRoomFromActivity = (activityId, userId, dueDate) => {
+export const createRoomFromActivity = (activityId, userId, dueDate, courseId) => {
   return (dispatch, getState) => {
     let activity = getState().activities.byId[activityId];
     let newRoom = {
@@ -72,6 +72,7 @@ export const createRoomFromActivity = (activityId, userId, dueDate) => {
       members: {user: userId, role: 'facilitator'},
       dueDate: dueDate,
     }
+    if (courseId) newRoom.course = courseId;
     dispatch(createRoom(newRoom))
   }
 }
