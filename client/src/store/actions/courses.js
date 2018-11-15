@@ -20,9 +20,9 @@ export const gotCourses = (courses) => {
 }}
 
 // params: course = un-normalized backend model
-export const updateCourse = (id, body) => ({
-  type: actionTypes.UPDATE_COURSE,
-  id,
+export const updatedCourse = (courseId, body) => ({
+  type: actionTypes.UPDATED_COURSE,
+  courseId,
   body,
 })
 
@@ -88,7 +88,7 @@ export const removeCourseMember = (courseId, userId) => {
     dispatch(loading.start())
     API.removeMember('courses', courseId, userId)
     .then(res => {
-      dispatch(updateCourse(courseId, {members: res.data}))
+      dispatch(updatedCourse(courseId, {members: res.data}))
       dispatch(loading.success())
     })
     .catch(err => dispatch(loading.fail(err)))
@@ -100,7 +100,7 @@ export const updateCourseMembers = (courseId, updatedMembers) => {
     dispatch(loading.start())
     API.updateMembers('courses', courseId, updatedMembers)
     .then(res => {
-      dispatch(updateCourse(courseId, {members: res.data.result.members}))
+      dispatch(updatedCourse(courseId, {members: res.data.result.members}))
       dispatch(loading.success())
     })
     .catch(err => dispatch(loading.fail(err)))
@@ -137,14 +137,29 @@ export const getCourses = () => {
   }
 }
 
-export const populateCurrentCourse = id => {
+export const getCourse = id => {
+  console.log('getting course')
   return dispatch => {
     API.getById('courses', id)
     .then(res => {
-      dispatch(updateCourse(res.data.result))})
-    .catch(err => console.log(err))
+      console.log(res)
+      dispatch(updatedCourse(id, res.data.result))
+    })
+    .catch(err => {
+      console.log(err)
+      dispatch(loading.fail(err))
+    })
   }
 }
+
+// export const populateCurrentCourse = id => {
+//   return dispatch => {
+//     API.getById('courses', id)
+//     .then(res => {
+//       dispatch(updateCourse(res.data.result))})
+//     .catch(err => console.log(err))
+//   }
+// }
 
 export const createCourse = body => {
   return dispatch => {

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 // import PropTypes from 'prop-types';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
-import { getCourses, getRooms, updateActivity } from '../store/actions';
+import { getCourses, getRooms, updateActivity, getActivities } from '../store/actions';
 import { connect } from 'react-redux';
 import { populateResource } from '../store/reducers';
 class Activity extends Component {
@@ -16,6 +16,7 @@ class Activity extends Component {
   }
 
   componentDidMount() {
+    this.props.getActivities()
     const { resource } = this.props.match.params;
     if (resource === 'rooms') {
       this.fetchRooms();

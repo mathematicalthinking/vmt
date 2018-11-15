@@ -45,17 +45,18 @@ const reducer = (state = initialState, action) => {
           allIds: updatedIds,
         }
 
-    case actionTypes.UPDATE_COURSE:
-      const key = Object.keys(action.body)[0]
+    case actionTypes.UPDATED_COURSE:
+      let updatedCourse = {...state.byId[action.courseId]}
+      let fields = Object.keys(action.body)
+      fields.forEach(field => {
+        updatedCourse[field] = action.body[field]
+      })
       return {
         ...state,
         byId: {
           ...state.byId,
-          [action.id]: {
-            ...state.byId[action.id], 
-            [key]: action.body[key]
-          }
-        }
+          [action.courseId]: updatedCourse,
+        },
       }
     case actionTypes.ADD_COURSE_ACTIVITIES:
       updatedCourses = { ...state.byId}

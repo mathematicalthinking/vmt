@@ -158,6 +158,24 @@ export const login = (username, password) => {
   }
 }
 
+export const getUser = (id) => {
+  console.log('getting user info')
+  return (dispatch) => {
+    API.getById('user', id)
+    .then(res => {
+      console.log(res)
+      let courses = res.data.courses
+      let user = {
+        ...res.data,
+        courses: courses.allIds,
+      }
+      dispatch(gotUser(user))
+    })
+    .catch(err => console.log(err))
+  
+  }
+}
+
 export const googleLogin = (username, password) => {
   return dispatch => {
     dispatch(loading.start());

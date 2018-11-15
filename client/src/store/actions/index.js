@@ -1,6 +1,7 @@
 export {
   login,
   signup,
+  getUser,
   gotUser,
   updateUser,
   googleLogin,
@@ -52,6 +53,7 @@ export {
 export {
   addCourse,
   getCourses,
+  getCourse,
   gotCourses,
   removeCourse,
   removeCourseRoom,
@@ -61,7 +63,6 @@ export {
   updateCourseRooms,
   updateCourseActivities,
   clearCurrentCourse,
-  populateCurrentCourse,
   updateCourseMembers,
   addCourseMember,
   removeCourseMember,

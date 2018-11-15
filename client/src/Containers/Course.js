@@ -8,6 +8,8 @@ import {
   updateCourseRooms, 
   updateCourseActivities, 
   clearNotification, 
+  getCourse,
+  getUser,
 } from '../store/actions';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 import Aux from '../Components/HOC/Auxil';
@@ -37,6 +39,8 @@ class Course extends Component {
 
   componentDidMount() {
     const { course, user, accessNotifications, clearNotification } = this.props;
+    this.props.getCourse(course._id);
+    this.props.getUser(user._id);
     let firstView = false;
     if (accessNotifications.length > 0) {
      accessNotifications.forEach(ntf => {
@@ -208,4 +212,12 @@ const mapStateToProps = (store, ownProps) => {
 }
 
 
-export default connect(mapStateToProps, {getActivities, getRooms, updateCourseRooms, updateCourseActivities, clearNotification,})(Course);
+export default connect(mapStateToProps, {
+  getActivities, 
+  getRooms, 
+  updateCourseRooms, 
+  updateCourseActivities, 
+  clearNotification,
+  getCourse,
+  getUser,
+})(Course);

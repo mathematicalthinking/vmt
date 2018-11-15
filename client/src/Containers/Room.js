@@ -27,6 +27,8 @@ class Room extends Component {
 
   componentDidMount() {
     const { room, user, populateRoom, accessNotifications, clearNotification } = this.props;
+    // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
+    populateRoom(room._id)
     // CHECK ACCESS
     let updatedTabs = [...this.state.tabs];
     let owner = false;
@@ -50,10 +52,6 @@ class Room extends Component {
     if (room.members) {
       this.checkAccess();
     }
-    // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
-    // console.log(this.props.history)
-    populateRoom(room._id)
-    // Get Any other notifications
     this.setState({
       tabs: updatedTabs,
       owner,

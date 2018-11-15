@@ -13,10 +13,10 @@ module.exports = {
   getById: id => {
     return new Promise((resolve, reject) => {
       db.Course.findById(id)
-      .populate('creator')
+      // .populate('creator')
       .populate('rooms')
-      .populate('members.user')
-      .populate('notifications.user')
+      .populate('members.user', 'username')
+      // .populate('notifications.user')
       .then(course => resolve(course))
       .catch(err => reject(err))
     });

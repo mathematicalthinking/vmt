@@ -64,8 +64,11 @@ class Profile extends Component {
       let isParticipant = false;
       let bothRoles = false;
       let view = 'facilitator';
+      console.log('match.params.resource: ', match.params.resource)
+      console.log(this.props[`user${match.params.recource}`])
       if (this.props[`user${match.params.resource}`]) {
         this.props[`user${match.params.resource}`].forEach(resource => {
+          console.log("RESOURCE: ",resource)
           resource.members.forEach((member) => {
             if (member.user._id === user._id) {
               if (member.role === 'participant') isParticipant = true;

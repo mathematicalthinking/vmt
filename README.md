@@ -29,12 +29,9 @@ To provide the colloaboration infrastructure, this application uses a combinatio
 1. At this point create-react-app will open a browser window for you and refresh it
 every time a change is made.
 
-## Deployment
+## Deployment 
 This should be changed eventually, but it works for now.
 ```
-$ npm run build
-$ git add .
-$ git commit -m 'built'
 $ git push -f heroku HEAD:master
 ```
 ## Git Rebase Workflow
