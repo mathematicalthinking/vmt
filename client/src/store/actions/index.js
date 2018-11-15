@@ -58,6 +58,7 @@ export {
   removeCourse,
   removeCourseRoom,
   updateCourse,
+  updatedCourse,
   createCourse,
   createdCourses,
   updateCourseRooms,

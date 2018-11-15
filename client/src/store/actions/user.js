@@ -141,10 +141,10 @@ export const login = (username, password) => {
     auth.login(username, password)
     .then(res => {
       if (res.data.errorMessage) {return dispatch(loading.fail(res.data.errorMessage))}
-      const courses = normalize(res.data.courses)
+      let courses = normalize(res.data.courses)
       // const activities = normalize(res.data.activities)
       dispatch(gotCourses(courses));
-      const user = {
+      let user = {
         ...res.data,
         courses: courses.allIds,
       }
@@ -161,17 +161,24 @@ export const login = (username, password) => {
 export const getUser = (id) => {
   console.log('getting user info')
   return (dispatch) => {
+    dispatch(loading.start())
     API.getById('user', id)
     .then(res => {
-      console.log(res)
-      let courses = res.data.courses
+      // console.log(res)
+      console.log(res.data.result)
+      let courses = normalize(res.data.result.courses)
       let user = {
-        ...res.data,
+        ...res.data.result,
         courses: courses.allIds,
       }
+      console.log("USER: ", user)
       dispatch(gotUser(user))
+      dispatch(loading.success())
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+      console.log(err)
+      dispatch(loading.fail(err))
+    })
   
   }
 }

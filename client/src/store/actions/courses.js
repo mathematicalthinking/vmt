@@ -140,10 +140,12 @@ export const getCourses = () => {
 export const getCourse = id => {
   console.log('getting course')
   return dispatch => {
+    dispatch(loading.start())
     API.getById('courses', id)
     .then(res => {
       console.log(res)
       dispatch(updatedCourse(id, res.data.result))
+      dispatch(loading.success())
     })
     .catch(err => {
       console.log(err)

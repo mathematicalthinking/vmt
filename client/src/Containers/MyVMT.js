@@ -3,7 +3,12 @@ import DashboardLayout from '../Layout/Dashboard/Dashboard';
 // import Activities from '../Activities/Activities';
 import { getUserResources }from '../store/reducers';
 import { connect } from 'react-redux';
-import * as actions from '../store/actions'
+import {
+  getRooms,
+  getActivities,
+  getCourses,
+  getUser,
+} from '../store/actions'
 
 class Profile extends Component {
   state = {
@@ -19,6 +24,8 @@ class Profile extends Component {
   }
 
   componentDidMount() {
+    this.props.getUser(this.props.user._id) // Update the user to check for notifications/new resources
+    this.fetchData(this.props.match.params.resource)
     this.checkMultipleRoles()
     .then(res => this.setDisplayResources()) 
     .then(res => this.updateTabs())
@@ -27,14 +34,23 @@ class Profile extends Component {
   componentDidUpdate(prevProps, prevState) {
     const { user, loading } = this.props;
     const { resource } = this.props.match.params;
+    // IF a new resource has been added to the user object
     if (prevProps[`user${resource}`].length !== this.props[`user${resource}`].length) {
+      console.log('the user should have a new course ')
+      console.log(this.props[`user${resource}`])
       this.checkMultipleRoles()
       .then(() => this.setDisplayResources())
       .then(res => this.updateTabs())
     }
+    // WHen we've finished loading make sure all the resources on the user object are also populated in the store
     if (!loading) {
+      console.log("FINISHED LOADING: ", this.props[resource])
       let haveResource = user[resource].every(rsrc => this.props[resource].includes(rsrc))
-      if (!haveResource) this.fetchData(resource)
+      console.log(haveResource)
+      if (!haveResource) {
+        console.log('fetching data')
+        this.fetchData(resource)
+      }
     }
     if (prevState.view !== this.state.view) {
       this.setDisplayResources()
@@ -42,6 +58,7 @@ class Profile extends Component {
     }
 
     if (prevProps.match.params.resource !== resource) {
+      this.fetchData(resource)
       this.checkMultipleRoles()
       .then(() => {this.setDisplayResources()})
     }
@@ -64,11 +81,8 @@ class Profile extends Component {
       let isParticipant = false;
       let bothRoles = false;
       let view = 'facilitator';
-      console.log('match.params.resource: ', match.params.resource)
-      console.log(this.props[`user${match.params.recource}`])
       if (this.props[`user${match.params.resource}`]) {
         this.props[`user${match.params.resource}`].forEach(resource => {
-          console.log("RESOURCE: ",resource)
           resource.members.forEach((member) => {
             if (member.user._id === user._id) {
               if (member.role === 'participant') isParticipant = true;
@@ -89,22 +103,25 @@ class Profile extends Component {
   }
 
   fetchData = resource => {
+    console.log(resource)
+    resource = resource.charAt(0).toUpperCase() + resource.slice(1)
     this.props[`get${resource}`]()
   }
 
   updateTabs = () => {
     // const { resource } = this.props.match.params;
-    const { courseNotifications, roomNotifications } = this.props.user; // add room notifications eventually
-    const updatedTabs = [...this.state.tabs]
-    const courseNtfs = courseNotifications.access.filter(ntf => {
-      let found = false;
-      this.state.displayResources.forEach(resource => {
-        if (resource._id === ntf._id) {
-         found = true; 
-        }
-      })
-      return found;
-    })
+    let { courseNotifications, roomNotifications } = this.props.user; // add room notifications eventually
+    let updatedTabs = [...this.state.tabs]
+    // let courseNtfs = courseNotifications.access.filter(ntf => { //WHY ARE WE FILTERING HERE ? WE SHOULD BE FILTERING FOR THEIR ROLE NOT THE RESOURCE ID
+    //   let found = false;
+    //   this.state.displayResources.forEach(resource => {
+    //     if (resource._id === ntf._id) {
+    //      found = true; 
+    //     }
+    //   })
+    //   return found;
+    // })
+    let courseNtfs = courseNotifications.access;
     // console.log(courseNotifications.access)
     updatedTabs[0].notifications = courseNtfs.length === 0 ? '' : courseNtfs.length;
     // if (courseNotifications.newRoom.length > 0){
@@ -121,8 +138,8 @@ class Profile extends Component {
   // Display different content depending on the user's current role
   setDisplayResources = () => {
     return new Promise((resolve => {
-      const { user, match } = this.props;
-      const { resource } = match.params;
+      let { user, match } = this.props;
+      let { resource } = match.params;
       if (match.params.resource === 'activities') {
         this.setState({displayResources: this.props[`user${resource}`]})
         return resolve();
@@ -131,6 +148,7 @@ class Profile extends Component {
       if (this.props[`user${resource}`]) {
         displayResources = this.props[`user${resource}`].filter(rsrc => {
           let included = false
+          console.log("RSRC: ", rsrc)
           rsrc.members.forEach(member => {
             if (member.user._id === user._id && member.role === this.state.view) {
               included = true;
@@ -139,6 +157,7 @@ class Profile extends Component {
           return included;
         })
       }
+      console.log("DISPLAY RESOURCES: ", displayResources)
       this.setState({displayResources, }, () => resolve())
     }))
   }
@@ -202,11 +221,10 @@ const mapStateToProps = store => ({
   activities: store.activities.allIds,
   loading: store.loading.loading,
 })
-const mapDispatchToProps = dispatch => ({
-  getrooms: () => dispatch(actions.getRooms()),
-  getactivities: () => dispatch(actions.getActivities()),
-  getcourses: () => dispatch(actions.getCourses())
-})
 
-
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default connect(mapStateToProps, {
+  getRooms,
+  getActivities,
+  getCourses,
+  getUser,
+})(Profile);
