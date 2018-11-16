@@ -94,7 +94,6 @@ class Room extends Component {
   }
 
   render() {
-    console.log("courseMembers: ", this.props.courseMembers)
     let { 
       room, match, user,
       accessNotifications, error, 

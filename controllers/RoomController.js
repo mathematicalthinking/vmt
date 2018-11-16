@@ -38,7 +38,6 @@ module.exports = {
     });
   },
   post: body => {
-    console.log('creating new room')
     return new Promise((resolve, reject) => {
       db.Room.create(body)
       .then(room => {
@@ -93,11 +92,9 @@ module.exports = {
 
   // THIS IS A MESS @TODO CLEAN UP 
   put: (id, body) => {
-    console.log("BODY: ", body)
     // console.log('updating room: ', body)
     return new Promise((resolve, reject) => {
       if (body.graphImage) {
-        console.log('graphimage,', body)
         db.Room.findById(id).then(room => {
           db.Image.findByIdAndUpdate(room.graphImage, {imageData: body.graphImage.imageData}).then(img => {
             return resolve();
@@ -109,7 +106,6 @@ module.exports = {
         })
       } 
       else if (body.checkAccess) {
-        console.log('checkaccess,', body)
         db.Room.findById(id)
         .then(async room => {
           let { entryCode, userId } = body.checkAccess;
@@ -125,7 +121,7 @@ module.exports = {
                 }
               }
             })
-            .then(res => console.log('sucess: ', res))
+            .then(res => {})
             .catch(err => console.log(err))
             try { await room.save()}
             catch(err) {console.log(err)}
@@ -137,7 +133,6 @@ module.exports = {
         .catch(err => reject(err))
       }
       else if (Object.keys(body)[0] === 'tempRoom') {
-        console.log("CHASNGIN TEMP ROOM STATUS TO: ", body.tempRoom)
         db.Room.findById(id)
         .then(async room => {
           room.tempRoom = body.tempRoom
@@ -191,12 +186,10 @@ module.exports = {
 
   removeCurrentUsers: (roomId, socketId) => {
     return new Promise ((resolve, reject) => {
-      console.log('removing currentMember: ', socketId)
       db.Room.findByIdAndUpdate(roomId, {$pull: {currentMembers: {socket: socketId}}}) // DONT RETURN THE NEW DOCUMENT WE NEED TO KNOW WHO WAS REMOVED BACK IN THE SOCKET
       .populate({path: 'currentMembers.user', select: 'username'})
       .select('currentMembers')
       .then(room => {
-        console.log("ROOM AFTER REMOVE: ", room)
         resolve(room)
       })
       .catch(err => reject(err))
