@@ -75,8 +75,11 @@ class Profile extends Component {
       .then(() => {this.setDisplayResources()})
     }
     // does this EVER HAPPEM?
-    if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length) {
-      this.updateTabs();
+    if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length ||
+    prevProps.user.roomNotifications.access.length !== this.props.user.roomNotifications.access.length) {
+      this.checkMultipleRoles()
+        .then(() => this.setDisplayResources())
+        .then(() => this.updateTabs())
     }
   }
   
