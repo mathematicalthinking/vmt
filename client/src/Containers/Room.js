@@ -79,13 +79,13 @@ class Room extends Component {
   }
 
   enterWithCode = entryCode => {
-    const {room, user} = this.props;
+    let {room, user} = this.props;
     this.props.enterRoomWithCode(room._id, entryCode, user._id, user.username)
   }
 
   displayNotifications = (tabs) => {
-    const { user, room } = this.props;
-    const { roomNotifications } = user;
+    let { user, room } = this.props;
+    let { roomNotifications } = user;
     if (room.creator === user._id) {
       let thisRoomsNtfs = roomNotifications.access.filter(ntf => ntf._id === room._id)
       tabs[1].notifications = thisRoomsNtfs.length > 0 ? thisRoomsNtfs.length: '';
@@ -94,13 +94,14 @@ class Room extends Component {
   }
 
   render() {
-    const { 
+    console.log("courseMembers: ", this.props.courseMembers)
+    let { 
       room, match, user,
       accessNotifications, error, 
-      clearError,
+      clearError, courseMembers,
     } = this.props;
-    const resource = match.params.resource;
-    const contentData = {
+    let resource = match.params.resource;
+    let contentData = {
       resource,
       parentResource: 'rooms',
       parentResourceId: room._id,
@@ -108,15 +109,17 @@ class Room extends Component {
       owner: this.state.owner,
       notifications: accessNotifications.filter(ntf => ntf._id === room._id) || [],
       room,
+      courseMembers,
       user,
     }
-    const sidePanelData = {
+    let sidePanelData = {
       image: room.image,
       title: room.name,
       details: {
         main: room.name,
         secondary: room.description,
         additional: {
+          // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
           ['due date']: moment(room.dueDate).format('ddd, MMM D') || 'no due date set',
           code: room.entryCode,
           type: room.roomType,
@@ -125,7 +128,7 @@ class Room extends Component {
       edit: {}
     }
 
-    const crumbs = [
+    let crumbs = [
       {title: 'My VMT', link: '/myVMT/courses'},
       {title: room.name, link: `/myVMT/rooms/${room._id}/details`}]
       //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
@@ -169,8 +172,10 @@ class Room extends Component {
 }
 
 const mapStateToProps = (store, ownProps) => {
+  let { room_id } = ownProps.match.params;
   return {
-    room: store.rooms.byId[ownProps.match.params.room_id],
+    room: store.rooms.byId[room_id],
+    courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
     user: store.user,
     accessNotifications: store.user.roomNotifications.access,
     loading: store.loading.loading,

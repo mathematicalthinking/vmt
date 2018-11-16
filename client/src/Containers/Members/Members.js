@@ -47,7 +47,7 @@ class Members extends Component {
   }
 
   render(){
-    let { userResources, notifications, owner, parentResource  } = this.props;
+    let { userResources, notifications, owner, parentResource, courseMembers  } = this.props;
     let joinRequests = "There are no current requests";
     if (this.props.owner) {
       joinRequests = notifications.filter(ntf => ntf.notificationType === 'requestAccess').map((ntf, i) => {
@@ -88,6 +88,11 @@ class Members extends Component {
               {joinRequests}
             </div>
             <h3 className={classes.SubHeader}>Add New Participants</h3>
+            {parentResource === 'rooms' && courseMembers ?
+              <div>
+                Add participants from this course
+              </div>: null
+            }
           </div>
         : null }
         <h3 className={classes.SubHeader}>Class List</h3>
