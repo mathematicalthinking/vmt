@@ -136,7 +136,6 @@ class TempWorkspace extends Component {
   }
 
   render() {
-    console.log('rendered temp workspace')
     return (this.state.user ?
       <Aux>
         {this.state.saving && !this.props.loggedIn ? <Modal 
@@ -161,11 +160,7 @@ class TempWorkspace extends Component {
       <Modal show={!this.state.user}>
         {!this.props.loggedIn ? 
           <Aux>
-<<<<<<< HEAD
             <div>Enter a temporary username</div>
-=======
-            <div>Enter a temporary username (!!!making sure this new!!!)</div>
->>>>>>> changes for prod
             <TextInput light change={this.setName} />
             <div>{this.state.errorMessage}</div> 
           </Aux> : null
