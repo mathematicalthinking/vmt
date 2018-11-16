@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import difference from 'lodash/difference';
+import _difference from 'lodash/difference';
 import { populateResource } from '../store/reducers';
 import { 
   getActivities,
@@ -39,8 +39,8 @@ class Course extends Component {
 
   componentDidMount() {
     const { course, user, accessNotifications, clearNotification } = this.props;
-    this.props.getCourse(course._id);
-    this.props.getUser(user._id);
+    this.props.getCourse(course._id); // What information are we getting here
+    this.props.getUser(user._id); 
     let firstView = false;
     if (accessNotifications.length > 0) {
      accessNotifications.forEach(ntf => {
@@ -104,7 +104,8 @@ class Course extends Component {
 
     const { user, course, accessNotifications } = this.props;
     if (course.creator === user._id) {
-      tabs[2].notifications = (accessNotifications.length > 0) ? accessNotifications.length : '';
+      let thisCoursesNtfs = accessNotifications.filter(ntf => ntf._id === course._id);
+      tabs[2].notifications = (thisCoursesNtfs.length > 0) ? thisCoursesNtfs.length : '';
     }
     // if (accessNotifications.llength > 0){
     //   tabs[1].notifications = accessNotifications.llength;
@@ -115,9 +116,9 @@ class Course extends Component {
   checkForFetch = () => {
     const { course, user, match } = this.props;
     const resource = match.params.resource;
-    const needToFetch = difference(user[resource], this.props[resource]).length !== 0;
+    const needToFetch = _difference(user[resource], this.props[resource]).length !== 0;
     if (needToFetch) {
-      // @IDEA We could avoid this formatting if we dont use camel case like in the Profile container
+      // @IDEA We could avoid this formatting if we dont use camel case like in the myVMT container
       let re = resource[0].toUpperCase() + resource.substr(1)
       this.props[`get${re}`](course[resource])
     }
@@ -139,7 +140,7 @@ class Course extends Component {
       parentResource: "courses",
       parentResourceId: course._id,
       userResources: course[resource] || [],
-      notifications:  accessNotifications || [],
+      notifications:  accessNotifications.filter(ntf => ntf._id === course._id) || [],
       userId: user._id, // @TODO <-- get rid of this user user object below
       user: user,
       owner: this.state.owner,

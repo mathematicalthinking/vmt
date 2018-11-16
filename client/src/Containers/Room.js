@@ -86,7 +86,8 @@ class Room extends Component {
     const { user, room } = this.props;
     const { roomNotifications } = user;
     if (room.creator === user._id) {
-      tabs[1].notifications = roomNotifications.access.length > 0 ? roomNotifications.access.length: '';
+      let thisRoomsNtfs = roomNotifications.access.filter(ntf => ntf._id === room._id)
+      tabs[1].notifications = thisRoomsNtfs.length > 0 ? thisRoomsNtfs.length: '';
     } 
     return tabs;
   }
@@ -104,7 +105,7 @@ class Room extends Component {
       parentResourceId: room._id,
       userResources: room[resource],
       owner: this.state.owner,
-      notifications: accessNotifications || [],
+      notifications: accessNotifications.filter(ntf => ntf._id === room._id) || [],
       room,
       user,
     }
