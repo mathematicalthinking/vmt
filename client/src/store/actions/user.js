@@ -94,6 +94,12 @@ export const removeNotification = (resource, listType, user, ntfId) => {
   }
 }
 
+export const toggleJustLoggedIn = () => {
+  return {
+    type: actionTypes.TOGGLE_JUST_LOGGED_IN,
+  }
+}
+
 export const updateUserResource = (resource, resourceId, userId) => {
   return (dispatch) => {
     API.addUserResource(resource, resourceId, userId)
@@ -141,10 +147,10 @@ export const login = (username, password) => {
     auth.login(username, password)
     .then(res => {
       if (res.data.errorMessage) {return dispatch(loading.fail(res.data.errorMessage))}
-      const courses = normalize(res.data.courses)
+      let courses = normalize(res.data.courses)
       // const activities = normalize(res.data.activities)
       dispatch(gotCourses(courses));
-      const user = {
+      let user = {
         ...res.data,
         courses: courses.allIds,
       }
@@ -155,6 +161,27 @@ export const login = (username, password) => {
       console.log(err)
       dispatch(loading.fail(err.response.statusText))
     })
+  }
+}
+
+export const getUser = (id) => {
+  return (dispatch) => {
+    dispatch(loading.start())
+    API.getById('user', id)
+    .then(res => {
+      let courses = normalize(res.data.result.courses)
+      let user = {
+        ...res.data.result,
+        courses: courses.allIds,
+      }
+      dispatch(gotUser(user))
+      dispatch(loading.success())
+    })
+    .catch(err => {
+      console.log(err)
+      dispatch(loading.fail(err))
+    })
+  
   }
 }
 

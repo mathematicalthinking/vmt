@@ -4,6 +4,7 @@ const button = props => {
   // let styles = [classes.Button]
   let styles = [classes.Button];
   styles.push(classes[props.theme]);
+  if (!props.theme) {styles.push(classes.Small)}
   styles = styles.join(" ")
 
   return (

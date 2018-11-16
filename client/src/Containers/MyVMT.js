@@ -3,7 +3,13 @@ import DashboardLayout from '../Layout/Dashboard/Dashboard';
 // import Activities from '../Activities/Activities';
 import { getUserResources }from '../store/reducers';
 import { connect } from 'react-redux';
-import * as actions from '../store/actions'
+import {
+  getRooms,
+  getActivities,
+  getCourses,
+  getUser,
+  toggleJustLoggedIn,
+} from '../store/actions'
 
 class Profile extends Component {
   state = {
@@ -19,32 +25,55 @@ class Profile extends Component {
   }
 
   componentDidMount() {
+    this.fetchData(this.props.match.params.resource)
+    if (!this.props.user.justLoggedIn) {
+      this.props.getUser(this.props.user._id) 
+    }
     this.checkMultipleRoles()
     .then(res => this.setDisplayResources()) 
-    .then(res => this.updateTabs())
+    .then(res => {
+      this.updateTabs()
+      this.props.toggleJustLoggedIn();
+    })
   }
 
   componentDidUpdate(prevProps, prevState) {
     const { user, loading } = this.props;
     const { resource } = this.props.match.params;
+    // 
     if (prevProps[`user${resource}`].length !== this.props[`user${resource}`].length) {
       this.checkMultipleRoles()
       .then(() => this.setDisplayResources())
       .then(res => this.updateTabs())
     }
+    // WHen we've finished loading make sure all the resources on the user object are also populated in the store
     if (!loading) {
       let haveResource = user[resource].every(rsrc => this.props[resource].includes(rsrc))
-      if (!haveResource) this.fetchData(resource)
+      if (!haveResource) {
+        this.fetchData(resource)
+      }
     }
+
+    // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
+    if (!loading) {
+      if (prevProps[resource].length !== this.props[resource].length) {
+        this.checkMultipleRoles()
+        .then(() => this.setDisplayResources())
+        .then(() => this.updateTabs())
+      }
+    }
+
     if (prevState.view !== this.state.view) {
       this.setDisplayResources()
       .then(() => this.updateTabs())
     }
 
     if (prevProps.match.params.resource !== resource) {
+      this.fetchData(resource)
       this.checkMultipleRoles()
       .then(() => {this.setDisplayResources()})
     }
+    // does this EVER HAPPEM?
     if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length) {
       this.updateTabs();
     }
@@ -86,23 +115,24 @@ class Profile extends Component {
   }
 
   fetchData = resource => {
+    resource = resource.charAt(0).toUpperCase() + resource.slice(1)
     this.props[`get${resource}`]()
   }
 
   updateTabs = () => {
     // const { resource } = this.props.match.params;
-    const { courseNotifications, roomNotifications } = this.props.user; // add room notifications eventually
-    const updatedTabs = [...this.state.tabs]
-    const courseNtfs = courseNotifications.access.filter(ntf => {
-      let found = false;
-      this.state.displayResources.forEach(resource => {
-        if (resource._id === ntf._id) {
-         found = true; 
-        }
-      })
-      return found;
-    })
-    // console.log(courseNotifications.access)
+    let { courseNotifications, roomNotifications } = this.props.user; // add room notifications eventually
+    let updatedTabs = [...this.state.tabs]
+    // let courseNtfs = courseNotifications.access.filter(ntf => { //WHY ARE WE FILTERING HERE ? WE SHOULD BE FILTERING FOR THEIR ROLE NOT THE RESOURCE ID
+    //   let found = false;
+    //   this.state.displayResources.forEach(resource => {
+    //     if (resource._id === ntf._id) {
+    //      found = true; 
+    //     }
+    //   })
+    //   return found;
+    // })
+    let courseNtfs = courseNotifications.access;
     updatedTabs[0].notifications = courseNtfs.length === 0 ? '' : courseNtfs.length;
     // if (courseNotifications.newRoom.length > 0){
     //   updatedTabs[0].notifications += courseNotifications.newRoom.length;
@@ -118,8 +148,8 @@ class Profile extends Component {
   // Display different content depending on the user's current role
   setDisplayResources = () => {
     return new Promise((resolve => {
-      const { user, match } = this.props;
-      const { resource } = match.params;
+      let { user, match } = this.props;
+      let { resource } = match.params;
       if (match.params.resource === 'activities') {
         this.setState({displayResources: this.props[`user${resource}`]})
         return resolve();
@@ -165,7 +195,8 @@ class Profile extends Component {
           activities: user.activities.length, 
         }
       },
-      edit: {link: '/profile', text: 'edit profile'}
+      // edit: {link: '/profile', text: 'edit profile'}
+      edit: {}
     }
     return (
       // <Aux>
@@ -198,11 +229,11 @@ const mapStateToProps = store => ({
   activities: store.activities.allIds,
   loading: store.loading.loading,
 })
-const mapDispatchToProps = dispatch => ({
-  getrooms: () => dispatch(actions.getRooms()),
-  getactivities: () => dispatch(actions.getActivities()),
-  getcourses: () => dispatch(actions.getCourses())
-})
 
-
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default connect(mapStateToProps, {
+  getRooms,
+  getActivities,
+  getCourses,
+  getUser,
+  toggleJustLoggedIn,
+})(Profile);

@@ -29,7 +29,7 @@ const workspaceLayout = ({
           {replayer ? replayer() : 
             <div className={classes.RoomDescription}>
               <h3 className={classes.InstructionsTitle}>Instructions</h3>
-              <div className={classes.Instructions}>{temp ? "Share the url in the address bar to invite others" : instructions}</div>
+              <div className={classes.Instructions}>{temp ? `Share this url to invite others: ${window.location}` : instructions}</div>
             </div>
           }
           {temp && !saved ? 

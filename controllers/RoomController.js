@@ -79,14 +79,11 @@ module.exports = {
   remove: (id, body) => {
     return new Promise((resolve, reject) => {
       // Remove this course from the user's list of courses
-      console.log('body: ', body)
       // console.log(bod['members.user']._id)
       db.User.findByIdAndUpdate(body.members.user, {$pull: {rooms: id}})
-      console.log('removing room member')
       db.Room.findByIdAndUpdate(id, {$pull: body}, {new: true})
       .populate({path: 'members.user', select: 'username'})
       .then(res => {
-        console.log(res)
         resolve({members: res.members})
       })
       .catch(err => reject(err))
@@ -96,9 +93,11 @@ module.exports = {
 
   // THIS IS A MESS @TODO CLEAN UP 
   put: (id, body) => {
-    console.log('updating room')
+    console.log("BODY: ", body)
+    // console.log('updating room: ', body)
     return new Promise((resolve, reject) => {
       if (body.graphImage) {
+        console.log('graphimage,', body)
         db.Room.findById(id).then(room => {
           db.Image.findByIdAndUpdate(room.graphImage, {imageData: body.graphImage.imageData}).then(img => {
             return resolve();
@@ -108,42 +107,56 @@ module.exports = {
           console.log(err)
           reject(err);
         })
-      } else {
+      } 
+      else if (body.checkAccess) {
+        console.log('checkaccess,', body)
         db.Room.findById(id)
         .then(async room => {
-          if (body.checkAccess) {
-            let { entryCode, userId } = body.checkAccess;
-            // @todo SHOULD PROBABLY HASH THIS
-            if (room.entryCode === entryCode) {
-              room.members.push({user: userId, role: 'participant'})
-              // Send a notification to the room owner
-              db.User.findByIdAndUpdate(room.creator, {
-                $addToSet: {
-                  'roomNotifications.access': {
-                    notificationType: 'newMember', _id: room._id, user: userId 
-                  }
+          let { entryCode, userId } = body.checkAccess;
+          // @todo SHOULD PROBABLY HASH THIS
+          if (room.entryCode === entryCode) {
+            room.members.push({user: userId, role: 'participant'})
+            // Send a notification to the room owner
+            // THIS NESTED PROMISE IS AN ANTI-PATTERN
+            db.User.findByIdAndUpdate(room.creator, {
+              $addToSet: {
+                'roomNotifications.access': {
+                  notificationType: 'newMember', _id: room._id, user: userId 
                 }
-              })
-              .then(res => console.log('sucess: ', res))
-              .catch(err => console.log(err))
-              try { await room.save()}
-              catch(err) {console.log(err)}
-              room.populate({path: 'members.user', select: 'username'}, function() {
-                resolve(room)
-              })
-            } else reject({errorMessage: 'incorrect entry code'})
-          } else {
-            console.log("saving: ", body)
-            db.Room.findByIdAndUpdate(id, body, {new: true})
-            .populate('currentMembers.user members.user', 'username')
-            .populate('chat')
-            .then(res => resolve(res)).catch(err =>{
-              console.log("ERR: ", err)
-              reject(err)
+              }
             })
-          }
+            .then(res => console.log('sucess: ', res))
+            .catch(err => console.log(err))
+            try { await room.save()}
+            catch(err) {console.log(err)}
+            room.populate({path: 'members.user', select: 'username'}, function() {
+              resolve(room)
+            })
+          } else reject({errorMessage: 'incorrect entry code'})
         })
-        .catch(err => reject(err))        
+        .catch(err => reject(err))
+      }
+      else if (Object.keys(body)[0] === 'tempRoom') {
+        console.log("CHASNGIN TEMP ROOM STATUS TO: ", body.tempRoom)
+        db.Room.findById(id)
+        .then(async room => {
+          room.tempRoom = body.tempRoom
+          try {
+            await room.save()
+            resolve();
+          }
+          catch(err) {reject(err)}
+        })
+      } 
+      else {
+        db.Room.findByIdAndUpdate(id, body, {new: true})
+        .populate('currentMembers.user members.user', 'username')
+        .populate('chat')
+        .then(res => resolve(res)).catch(err =>{
+          console.log("ERR: ", err)
+          reject(err)
+        })
+        .catch(err => reject(err))
       }
     })
   },
@@ -161,9 +174,11 @@ module.exports = {
 
   // SOCKET METHODS
   addCurrentUsers: (roomId, body, members) => {
-    console.log(members)
     return new Promise((resolve, reject) => {
-      db.Room.findByIdAndUpdate(roomId, {$addToSet: {currentMembers: body, members, }}, {new: true})
+      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE 
+      let query = members ? {'$addToSet': {'currentMembers': body, 'members': members}} :
+        {'$addToSet': {'currentMembers': body}}
+      db.Room.findByIdAndUpdate(roomId, query, {new: true})
       .populate({path: 'currentMembers.user', select: 'username'})
       .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .select('currentMembers events chat currentState roomType')
@@ -181,6 +196,7 @@ module.exports = {
       .populate({path: 'currentMembers.user', select: 'username'})
       .select('currentMembers')
       .then(room => {
+        console.log("ROOM AFTER REMOVE: ", room)
         resolve(room)
       })
       .catch(err => reject(err))

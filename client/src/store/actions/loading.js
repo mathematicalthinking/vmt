@@ -8,7 +8,6 @@ export const start = () => {
 
 
 export const success = () => {
-  console.log("LOADING SUCCESS")
   return {
     type: actionTypes.SUCCESS,
   }

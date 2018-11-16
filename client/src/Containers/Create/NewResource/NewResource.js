@@ -100,7 +100,6 @@ class NewResourceContainer extends Component {
     } else { displayResource = resource.charAt(0).toUpperCase() + resource.slice(1, resource.length - 1); }
     // @IDEA ^ while I've never seen this done before...maybe it'd be cleaner to have a file of static content and just import it in so we don't have these long strings all over
     // console.log(this.props.course.activities)
-    console.log("USERID: ", this.props.userId)
     return (
       <Aux>
         {this.state.creating ? <NewResource 

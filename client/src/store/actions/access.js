@@ -1,5 +1,5 @@
 import {
-  updateCourse,
+  updatedCourse,
   updatedRoom,
   removeNotification,
   addUserRooms,
@@ -60,7 +60,7 @@ export const grantAccess = (user, resource, resourceId) => {
       if (resource === 'rooms') {
         dispatch(updatedRoom(resourceId, {members: res.data})) // change to add 
       } else if (resource === 'courses') {
-        dispatch(updateCourse(resourceId, {members: res.data})) // change to add 
+        dispatch(updatedCourse(resourceId, {members: res.data})) // change to add 
       }
       // let { user } = getState()
       // let singResource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOTING \\ WE COULD JUST REANME THE FIELD courseSnotifications?

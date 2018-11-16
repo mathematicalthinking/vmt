@@ -15,7 +15,6 @@ class Chat extends Component {
     this.scrollToBottom();
   }
   componentDidUpdate(prevProps){
-    console.log('chat updated')
     this.scrollToBottom();
   }
   

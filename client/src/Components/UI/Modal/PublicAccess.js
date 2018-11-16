@@ -7,8 +7,8 @@ const publicAccess = props => {
       <p>If you would like to add this course (and all of this course's rooms) to your
         list of courses and rooms, click 'Join'. If you just want to poke around click 'Explore'
       </p>
-      <Button click={props.grantAccess}>Join</Button>
-      <Button click={() => 'clicked'}>Explore</Button>
+      <Button theme={'Small'} click={props.grantAccess}>Join</Button>
+      <Button theme={'Small'} click={() => 'clicked'}>Explore</Button>
     </Modal>
   )
 }

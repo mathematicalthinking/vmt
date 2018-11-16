@@ -42,6 +42,11 @@
   transition: .2s;
 }
 
+
+.SmallCancel {
+  background-color: #ccc;
+  color: #ddd;
+}
 .Small:hover {
   box-shadow: lightShadow;
 }

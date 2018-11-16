@@ -1,6 +1,7 @@
 export {
   login,
   signup,
+  getUser,
   gotUser,
   updateUser,
   googleLogin,
@@ -18,7 +19,8 @@ export {
   updateNotifications,
   addUserCourses,
   updateUserResource,
-  logout
+  logout,
+  toggleJustLoggedIn,
 } from './user';
 export {
   fail,
@@ -52,16 +54,17 @@ export {
 export {
   addCourse,
   getCourses,
+  getCourse,
   gotCourses,
   removeCourse,
   removeCourseRoom,
   updateCourse,
+  updatedCourse,
   createCourse,
   createdCourses,
   updateCourseRooms,
   updateCourseActivities,
   clearCurrentCourse,
-  populateCurrentCourse,
   updateCourseMembers,
   addCourseMember,
   removeCourseMember,

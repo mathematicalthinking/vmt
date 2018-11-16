@@ -9,13 +9,11 @@ sockets.init = server => {
 
       socket.on('JOIN_TEMP', async (data, callback) => {
         socket.join(data.roomId, async () => {
-          console.log('joining temp room')
           let user;
           let promises = [];
           // If the user is NOT logged in, create a temp user
           if (!data.userId) {
             try{ 
-              console.log('creating new user')
               user = await controllers.user.post({username: data.username, accountType: 'temp',});            
             } catch(err) {console.log(err)}
           } else {
@@ -32,7 +30,6 @@ sockets.init = server => {
           // If this is the user in the room, update the blank room created from "Try out a Workspace"
           // We will use the existance if the creator field to check if this is firstEntry on the front end
           if (data.firstEntry) {
-            console.log("FIRST ENTRY")
             promises.push(controllers.rooms.put(data.roomId, {
               roomType: data.roomType,
               name: data.roomName,
@@ -41,7 +38,6 @@ sockets.init = server => {
               creator: user._id,
             }));
           } else {
-            console.log("NOT FIRST ENTRY")
             promises.push(controllers.rooms.addCurrentUsers(data.roomId, 
               {user: user._id, socket: socket.id}, 
               {user: user._id, role: 'participant'}
@@ -79,7 +75,7 @@ sockets.init = server => {
             return callback(null, err)
           }
           socket.to(data.roomId).emit('USER_JOINED', {currentMembers: results[1].currentMembers, message,});
-          let room = {...results[1]}
+          // let room = {...results[1]}
           // room.chat.push(message)
           callback({room: results[1], message, user,}, null)
             // io.in(data.roomId).emit('RECEIVE_MESSAGE', message)
@@ -108,7 +104,7 @@ sockets.init = server => {
           socket.to(rooms[0]).emit('RECEIVE_MESSAGE', message)
           socket.to(rooms[0]).emit('USER_LEFT', {currentMembers,})
         })
-        .catch(err => console.log("ERROROORORO: ",err))
+        .catch(err => console.log("ERR: ",err))
       })
 
       socket.on('disconnect', () => {
@@ -126,12 +122,9 @@ sockets.init = server => {
         .catch(err => {
           callback('fail', err)
         })
-        // broadcast new message
       })
 
       socket.on('SEND_EVENT', async (data) => {
-        // console.log('receving event: ', data)
-        // console.log("DATA: ", data)
         if (typeof data.event !== 'string') {
           data.event = JSON.stringify(data.event)
         }

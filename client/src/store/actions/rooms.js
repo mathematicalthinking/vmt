@@ -82,7 +82,6 @@ export const updateRoom = (id, body) => {
     dispatch(updatedRoom(id, body)) // Optimistically update the UI
     API.put('rooms', id, body)
     .then(res => {
-      console.log(res)
     })
     .catch(err => {
       // @TODO IF SOMETHING WENT WRONG NOTIFY THE USER AND UNSO THE OPTIMISTIC UPDATE
@@ -97,7 +96,6 @@ export const removeRoomMember = (roomId, userId) => {
     dispatch(loading.start())
     API.removeMember('rooms', roomId, userId)
     .then(res => {
-      console.log(res.data)
       dispatch(updatedRoom(roomId, res.data))
     })
     .catch(err => dispatch(loading.fail(err)))
@@ -110,7 +108,7 @@ export const getRooms = params => {
     API.get('rooms', params)
     .then(res => {
       // Normalize res
-      const rooms = normalize(res.data.results)
+      let rooms = normalize(res.data.results)
       dispatch(gotRooms(rooms))
       dispatch(loading.success())
     })

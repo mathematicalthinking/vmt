@@ -101,6 +101,8 @@ export const copyActivity = (activityId, userId, courseId) => {
     let activity = {...getState().activities.byId[activityId]}
     activity.source = activity._id;
     delete activity._id;
+    delete activity.rooms; 
+    delete activity.course;
     activity.creator = userId;
     activity.course = courseId;
     dispatch(createActivity(activity))

@@ -34,21 +34,24 @@ class privateAccess extends Component {
 
   joinWithCode = () => {
     let { resource, resourceId, userId, username, joinWithCode } = this.props;
-    joinWithCode(resource, resourceId, userId, username, this.state.entryCode)
+    joinWithCode(resource, resourceId, userId, username, this.state.entryCode);
   }
 
   render(){
     let { resource } = this.props;
+    let displayResource = 'activity';
+    if (resource === 'rooms') displayResource = 'room';
+    if (resource === 'courses') displayResource = 'course';
     return (
       <Modal show={this.state.show} closeModal={this.closeModal}>
         <div className={classes.Close} onClick={this.closeModal}><i data-testid='close-modal' className="fas fa-times"></i></div>
-        <p className={classes.Description}>{`You currently don't have access to this ${resource}. If you know this 
-          ${resource}'s entry code, you can enter it below`}
+        <p className={classes.Description}>{`You currently don't have access to this ${displayResource}. If you know this 
+          ${displayResource}'s entry code, you can enter it below`}
         </p>
         <TextInput light type='text' name='entryCode' change={this.updateEntry}/>
-        <Button m={10} click={this.joinWithCode}>Join</Button>
+        <Button theme={'Small'} m={10} click={this.joinWithCode}>Join</Button>
         <p>{`Otherwise you can ask this ${resource}'s owner for access`}</p>
-        <Button m={10} click={this.requestAccess} data-testid='request-access-btn'>Request Access</Button>
+        <Button theme={'Small'} m={10} click={this.requestAccess} data-testid='request-access-btn'>Request Access</Button>
         <div className={classes.Error} data-testid='entry-code-error'>{this.props.error}</div>
       </Modal>
     )

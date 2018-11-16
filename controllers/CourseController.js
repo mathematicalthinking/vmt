@@ -13,10 +13,10 @@ module.exports = {
   getById: id => {
     return new Promise((resolve, reject) => {
       db.Course.findById(id)
-      .populate('creator')
+      // .populate('creator')
       .populate('rooms')
-      .populate('members.user')
-      .populate('notifications.user')
+      .populate('members.user', 'username')
+      // .populate('notifications.user')
       .then(course => resolve(course))
       .catch(err => reject(err))
     });
@@ -105,7 +105,7 @@ module.exports = {
             })
             db.User.findByIdAndUpdate(userId, {
               $addToSet: {courses: id,}
-            }).then(res => console.log(id, ", added to ", userId, "'s list of courses"))
+            }).then(res => resolve(res))
           } else reject({errorMessage: 'incorrect entry code'})
         } else {
           for (key in body) {

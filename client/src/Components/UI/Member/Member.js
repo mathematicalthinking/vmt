@@ -49,7 +49,7 @@ class Member extends PureComponent {
           <div className={classes.Avatar}><Avatar username={info.user.username} /></div>
           {notification ? <div className={classes.Notification} data-testid="member-ntf">new member</div>: null}
           <div className={classes.Row}>
-            {grantAccess ? <Button m={5} click={this.props.grantAccess} data-testid={`grant-access-${info.user.username}`}>Grant Access</Button> : null}
+            {grantAccess ? <Button theme={'Small'} m={5} click={this.props.grantAccess} data-testid={`grant-access-${info.user.username}`}>Grant Access</Button> : null}
             {this.state.editing ? 
               <div className={classes.DropDown}>
                 <RoleDropdown selectHandler={this.changeRole} list={[info.role, (info.role === 'participant') ? 'facilitator' : 'participant']}/>  
@@ -64,8 +64,8 @@ class Member extends PureComponent {
           <div>
             <div>Are you sure you want to remove {info.user.username} from this {resourceName}?</div>
             <div>
-              <Button m={5} click={this.trash} data-testid='confirm-trash'>Yes</Button>
-              <Button m={5} click={() => this.setState({trashing: false})}>No</Button>
+              <Button theme={'Small'}m={5} click={this.trash} data-testid='confirm-trash'>Yes</Button>
+              <Button theme={'SmallCancel'}m={5} click={() => this.setState({trashing: false})}>No</Button>
             </div>
           </div>
 

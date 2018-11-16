@@ -17,6 +17,7 @@ const initialState = {
   activities: [],
   seenTour: false,
   bothRoles: false,
+  justLoggedIn: false,
 }
 
 const reducer = (state = initialState, action) => {
@@ -38,6 +39,12 @@ const reducer = (state = initialState, action) => {
         seenTour: action.user.seenTour,
         accountType: action.user.accountType,
         bothRoles: action.user.bothRoles,
+        justLoggedIn: true,
+      }
+    case actionTypes.TOGGLE_JUST_LOGGED_IN: 
+      return {
+        ...state,
+        justLoggedIn: false
       }
     case actionTypes.LOGOUT: 
       return {

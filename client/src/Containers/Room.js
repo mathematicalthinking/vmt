@@ -27,6 +27,8 @@ class Room extends Component {
 
   componentDidMount() {
     const { room, user, populateRoom, accessNotifications, clearNotification } = this.props;
+    // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
+    populateRoom(room._id)
     // CHECK ACCESS
     let updatedTabs = [...this.state.tabs];
     let owner = false;
@@ -43,7 +45,6 @@ class Room extends Component {
         if (ntf.notificationType === 'grantedAccess' && ntf._id === room._id) {
            // RESOLVE THIS NOTIFICATION
            firstView = true;
-           console.log('first view = true', 'clearing notifications')
            clearNotification(room._id, user._id, null, 'rooms', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
          }
        })
@@ -51,10 +52,6 @@ class Room extends Component {
     if (room.members) {
       this.checkAccess();
     }
-    // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
-    // console.log(this.props.history)
-    populateRoom(room._id)
-    // Get Any other notifications
     this.setState({
       tabs: updatedTabs,
       owner,
@@ -89,7 +86,8 @@ class Room extends Component {
     const { user, room } = this.props;
     const { roomNotifications } = user;
     if (room.creator === user._id) {
-      tabs[1].notifications = roomNotifications.access.length > 0 ? roomNotifications.access.length: '';
+      let thisRoomsNtfs = roomNotifications.access.filter(ntf => ntf._id === room._id)
+      tabs[1].notifications = thisRoomsNtfs.length > 0 ? thisRoomsNtfs.length: '';
     } 
     return tabs;
   }
@@ -107,7 +105,7 @@ class Room extends Component {
       parentResourceId: room._id,
       userResources: room[resource],
       owner: this.state.owner,
-      notifications: accessNotifications || [],
+      notifications: accessNotifications.filter(ntf => ntf._id === room._id) || [],
       room,
       user,
     }

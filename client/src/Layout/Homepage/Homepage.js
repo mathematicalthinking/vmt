@@ -27,12 +27,15 @@ class Homepage extends PureComponent {
   }
   
   createRoom = () => {
-    this.props.createRoom({
+    let room = {
       name: 'temp room',
       tempRoom: true,
       creator: this.props.user._id || null,
-      members: this.props.user._id ? [{user: this.props.user._id, role: 'facilitator'}] : null
-    })
+    }
+    if (this.props.user._id) {
+      room.members = [{user: this.props.user._id, role: 'facilitator'}]
+    }
+    this.props.createRoom(room)
   }
 
   scrollToDomRef = () => {
