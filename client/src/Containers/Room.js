@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification} from '../store/actions';
+import moment from 'moment'
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 import Aux from '../Components/HOC/Auxil';
 import Modal from '../Components/UI/Modal/Modal';
@@ -116,6 +117,7 @@ class Room extends Component {
         main: room.name,
         secondary: room.description,
         additional: {
+          ['due date']: moment(room.dueDate).format('ddd, MMM D') || 'no due date set',
           code: room.entryCode,
           type: room.roomType,
         }
