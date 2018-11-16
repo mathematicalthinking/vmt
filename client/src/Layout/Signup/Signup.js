@@ -37,14 +37,14 @@ class Signup extends Component {
     let updatedState = {...this.state};
     updatedState[event.target.name] = event.target.value;
     this.setState(updatedState);
-    if (this.props.errorMessage) {
-      this.props.clearError();
-    }
   }
-
+  
   onKeyPress = (event) => {
     if (event.key === 'Enter') {
       this.signUp();
+    }
+    if (this.props.errorMessage) {
+      this.props.clearError();
     }
   }
   signUp = () => {
