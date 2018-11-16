@@ -3,14 +3,11 @@ import classes from './room.css';
 import { Button } from '../../Components';
 import { withRouter } from 'react-router-dom';
 const summary = ({room, history, loading}) => {
-  console.log("ROOM: ", room)
-  console.log("history: ", history)
   
   const goToWorkspace = () => {
     history.push(`/myVMT/workspace/${room._id}`);
   }
   const goToReplayer = () => {
-    console.log('going to replayer: ', room._id)
     if (room.events.length > 0) {
       history.push(`/myVMT/workspace/${room._id}/replayer`)
     } else {

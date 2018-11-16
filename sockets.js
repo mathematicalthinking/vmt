@@ -104,7 +104,7 @@ sockets.init = server => {
           socket.to(rooms[0]).emit('RECEIVE_MESSAGE', message)
           socket.to(rooms[0]).emit('USER_LEFT', {currentMembers,})
         })
-        .catch(err => console.log("ERROROORORO: ",err))
+        .catch(err => console.log("ERR: ",err))
       })
 
       socket.on('disconnect', () => {
@@ -122,12 +122,9 @@ sockets.init = server => {
         .catch(err => {
           callback('fail', err)
         })
-        // broadcast new message
       })
 
       socket.on('SEND_EVENT', async (data) => {
-        // console.log('receving event: ', data)
-        // console.log("DATA: ", data)
         if (typeof data.event !== 'string') {
           data.event = JSON.stringify(data.event)
         }

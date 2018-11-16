@@ -34,15 +34,14 @@ class privateAccess extends Component {
 
   joinWithCode = () => {
     let { resource, resourceId, userId, username, joinWithCode } = this.props;
-    joinWithCode(resource, resourceId, userId, username, this.state.entryCode)
+    joinWithCode(resource, resourceId, userId, username, this.state.entryCode);
   }
 
   render(){
     let { resource } = this.props;
     let displayResource = 'activity';
     if (resource === 'rooms') displayResource = 'room';
-    if (resource === 'courses') displayResource = 'course'
-    console.log(this.props)
+    if (resource === 'courses') displayResource = 'course';
     return (
       <Modal show={this.state.show} closeModal={this.closeModal}>
         <div className={classes.Close} onClick={this.closeModal}><i data-testid='close-modal' className="fas fa-times"></i></div>

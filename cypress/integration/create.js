@@ -120,23 +120,24 @@ describe('create each type of resource', function(){
   
   it("creates a course room from a course activity", function(){
     cy.getTestElement('tab').contains('Rooms').click()
+    cy.getTestElement('box-list').children().should('have.length', 0)
     cy.get('button').contains('Create from an Activity').click()
     cy.get('[type="radio"]').last().check()    
     cy.getTestElement('content-box-test activity 1').trigger('mouseover')
     cy.getTestElement('overlay-test activity 1').click()
     cy.get('button').contains('Done').click()
-    cy.getTestElement('box-list').children().should('have.length', 3)
+    cy.getTestElement('box-list').children().should('have.length', 1)
     cy.getTestElement('box-list').contains('test activity 1 (room)').should('exist')
   })
   
-  // FAILS
   it("creates a course room from a standalone activity", function(){
+    cy.getTestElement('box-list').children().should('have.length', 1)
     cy.get('button').contains('Create from an Activity').click()
     cy.get('[type="radio"]').eq(1).check()    
     cy.getTestElement('content-box-ACTIVITY 1').trigger('mouseover')
     cy.getTestElement('overlay-ACTIVITY 1').click()
     cy.get('button').contains('Done').click()
-    cy.getTestElement('box-list').children().should('have.length', 4)
+    cy.getTestElement('box-list').children().should('have.length', 2)
     cy.getTestElement('box-list').contains('ACTIVITY 1 (room)').should('exist')
   })
 

@@ -18,8 +18,6 @@ CourseTemplate.post('save', doc => {
     }
     res.courseTemplates.push(doc._id)
     res.save()
-    // .then(res => console.log('all good'))
-    // .catch(err => console.log("ERR: ",err))
   })
 })
 module.exports = mongoose.model('CourseTemplate', CourseTemplate);

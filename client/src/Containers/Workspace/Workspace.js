@@ -45,7 +45,6 @@ class Workspace extends Component {
       updatedRoom(room._id, {
         currentMembers: room.currentMembers.filter(member => member.user._id !== user._id)
       })
-      console.log("CURRENT MEMBERS: LINE 47 WORKSPACE: ", room.currentMembers.filter(member => member.user._id !== user._id))
     }
   }
 

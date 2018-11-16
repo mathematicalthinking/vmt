@@ -165,19 +165,15 @@ export const login = (username, password) => {
 }
 
 export const getUser = (id) => {
-  console.log('getting user info')
   return (dispatch) => {
     dispatch(loading.start())
     API.getById('user', id)
     .then(res => {
-      // console.log(res)
-      console.log(res.data.result)
       let courses = normalize(res.data.result.courses)
       let user = {
         ...res.data.result,
         courses: courses.allIds,
       }
-      console.log("USER: ", user)
       dispatch(gotUser(user))
       dispatch(loading.success())
     })

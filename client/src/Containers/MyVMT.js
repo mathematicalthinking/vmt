@@ -75,7 +75,6 @@ class Profile extends Component {
     }
     // does this EVER HAPPEM?
     if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length) {
-      console.log("notifications changed")
       this.updateTabs();
     }
   }
@@ -134,7 +133,6 @@ class Profile extends Component {
     //   return found;
     // })
     let courseNtfs = courseNotifications.access;
-    // console.log(courseNotifications.access)
     updatedTabs[0].notifications = courseNtfs.length === 0 ? '' : courseNtfs.length;
     // if (courseNotifications.newRoom.length > 0){
     //   updatedTabs[0].notifications += courseNotifications.newRoom.length;
@@ -168,7 +166,6 @@ class Profile extends Component {
           return included;
         })
       }
-      console.log("DISPLAY RESOURCES: ", displayResources)
       this.setState({displayResources, }, () => resolve())
     }))
   }

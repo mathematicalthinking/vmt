@@ -51,14 +51,12 @@ export const grantAccess = (user, resource, resourceId) => {
     let singResource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOYING
     API.removeNotification(resourceId, thisUser, user, singResource, 'access', 'requestAccess')
     .then(res => {
-      console.log("res from rmv ntf access", res)
       dispatch(removeNotification(singResource, 'access', user, resourceId))
       // dispatch(gotUser(res.data))
     })
     .catch(err => console.log(err))
     API.grantAccess(user, resource, resourceId)
     .then(res => {
-      console.log("res from grant access", res)
       if (resource === 'rooms') {
         dispatch(updatedRoom(resourceId, {members: res.data})) // change to add 
       } else if (resource === 'courses') {

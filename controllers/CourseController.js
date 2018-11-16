@@ -105,7 +105,7 @@ module.exports = {
             })
             db.User.findByIdAndUpdate(userId, {
               $addToSet: {courses: id,}
-            }).then(res => console.log(id, ", added to ", userId, "'s list of courses"))
+            }).then(res => resolve(res))
           } else reject({errorMessage: 'incorrect entry code'})
         } else {
           for (key in body) {

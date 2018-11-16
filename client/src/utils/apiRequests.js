@@ -2,7 +2,6 @@ import axios from 'axios';
 
 export default {
   get: (resource, params) => {
-    console.log('getting ', resource)
     return axios.get(`/api/${resource}`, params)
   },
 

@@ -32,7 +32,6 @@ const Room = new mongoose.Schema({
 {timestamps: true});
 
 Room.pre('save', function (next) {
-  console.log("EDITITD: ", this)
   if (this.isNew & !this.tempRoom) {
     let promises = [];
     promises.push(Image.create({imageData: ''}))
@@ -50,7 +49,6 @@ Room.pre('save', function (next) {
     })
     .catch(err => next(err))
   } else if (!this.isNew) {
-    // console.log(this.modifiedPaths())
     this.modifiedPaths().forEach(field => {
       if (field === 'members') { 
         User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
@@ -60,7 +58,6 @@ Room.pre('save', function (next) {
       } else if (field === 'tempRoom') {
         User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}})
         .then(res => {
-          console.log(":RES: ", res)
           next()
         })
         .catch(console.log(err))
@@ -68,7 +65,6 @@ Room.pre('save', function (next) {
     })
   }
   else {
-    console.log('ar we gheying here')
     next()
   }
 });
