@@ -79,7 +79,7 @@ class TempWorkspace extends Component {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
-      let { room, user, message } = res;
+      let { room, message } = res;
       this.props.updatedRoom(room._id, room)
       if (!this.state.firstEntry) res.room.chat.push(message)
       this.setState({user: res.user, room: res.room})
