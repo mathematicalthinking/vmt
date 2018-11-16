@@ -85,10 +85,9 @@ class Profile extends Component {
       this.checkMultipleRoles()
       .then(() => {this.setDisplayResources()})
     }
-    // If the user has new notifications
+    // does this EVER HAPPEM?
     if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length ||
     prevProps.user.roomNotifications.access.length !== this.props.user.roomNotifications.access.length) {
-      console.log('the notifications have changed')
       this.checkMultipleRoles()
         .then(() => this.setDisplayResources())
         .then(() => this.updateTabs())
