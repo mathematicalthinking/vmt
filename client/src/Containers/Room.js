@@ -116,46 +116,46 @@ class Room extends Component {
   }
 
   render() {
+    console.log("courseMembers: ", this.props.courseMembers)
     let { 
-      room, match, user, course,
-      accessNotifications, error,
-      clearError,
+      room, match, user,
+      accessNotifications, error, 
+      clearError, courseMembers,
     } = this.props;
-    if (room && !this.state.guestMode) {
-      let resource = match.params.resource;
-      let contentData = {
-        resource,
-        parentResource: 'rooms',
-        parentResourceId: room._id,
-        userResources: room[resource],
-        owner: this.state.owner,
-        notifications: accessNotifications.filter(ntf => ntf._id === room._id) || [],
-        room,
-        user,
-      }
-      // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
-      let dueDateText = 'Due Date' // the fact that we have to do this make this not worth it
-      let sidePanelData = {
-        image: room.image,
-        title: room.name,
-        details: {
-          main: room.name,
-          secondary: room.description,
-          additional: {
-            [dueDateText]: moment(room.dueDate).format('ddd, MMM D') || 'no due date set',
-            code: room.entryCode,
-            type: room.roomType,
-          }
-        },
-        edit: {}
-      }
+    let resource = match.params.resource;
+    let contentData = {
+      resource,
+      parentResource: 'rooms',
+      parentResourceId: room._id,
+      userResources: room[resource],
+      owner: this.state.owner,
+      notifications: accessNotifications.filter(ntf => ntf._id === room._id) || [],
+      room,
+      courseMembers,
+      user,
+    }
+    let sidePanelData = {
+      image: room.image,
+      title: room.name,
+      details: {
+        main: room.name,
+        secondary: room.description,
+        additional: {
+          // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
+          ['due date']: moment(room.dueDate).format('ddd, MMM D') || 'no due date set',
+          code: room.entryCode,
+          type: room.roomType,
+        }
+      },
+      edit: {}
+    }
 
-      let crumbs = [
-        {title: 'My VMT', link: '/myVMT/courses'},
-        {title: room.name, link: `/myVMT/rooms/${room._id}/details`}]
-        //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
-        // THE REDUX STORE USING THE COURSE ID IN THE URL
-      if (course) {crumbs.splice(1, 0, {title: course.name, link: `/myVMT/courses/${room.course}/activities`})}
+    let crumbs = [
+      {title: 'My VMT', link: '/myVMT/courses'},
+      {title: room.name, link: `/myVMT/rooms/${room._id}/details`}]
+      //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
+      // THE REDUX STORE USING THE COURSE ID IN THE URL
+    if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/myVMT/courses/${room.course._id}/activities`})}
 
       return (
         <Aux>
@@ -175,18 +175,18 @@ class Room extends Component {
             <Button click={() => this.setState({firstView: false})}>Explore</Button>
           </Modal>
         </Aux>
+    // } else return (
+    //   <Access  
+    //     resource='rooms'
+    //     resourceId={match.params.room_id}
+    //     userId={user._id}
+    //     username={user.username}
+    //     owners={room ? room.members.filter(member => member.role === 'facilitator').map(member => member.user) : []}
+    //     error={error}
+    //     clearError={clearError}
+    //   />
+    // )
       )
-    } else return (
-      <Access  
-        resource='rooms'
-        resourceId={match.params.room_id}
-        userId={user._id}
-        username={user.username}
-        owners={room ? room.members.filter(member => member.role === 'facilitator').map(member => member.user) : []}
-        error={error}
-        clearError={clearError}
-      />
-    )
   }
 }
 
