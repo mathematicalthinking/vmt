@@ -31,6 +31,7 @@ class TempWorkspace extends Component {
     // If there is no room by this id ins the user's store, then they're not the first to join
     if (!this.props.room) {
       this.setState({firstEntry: false})
+      this.props.populateRoom(this.props.match.params.id)
     } 
   }
 
