@@ -100,6 +100,7 @@ module.exports = {
 
   // THIS IS A MESS @TODO CLEAN UP 
   put: (id, body) => {
+    // console.log('updating room: ', body)
     return new Promise((resolve, reject) => {
       if (body.graphImage) {
         db.Room.findById(id).then(room => {
