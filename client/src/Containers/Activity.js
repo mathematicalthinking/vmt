@@ -16,7 +16,7 @@ class Activity extends Component {
   }
 
   componentDidMount() {
-    this.props.getActivities()
+    this.props.getActivities() // WHY ARE WE DOING THIS??
     const { resource } = this.props.match.params;
     if (resource === 'rooms') {
       this.fetchRooms();
@@ -108,4 +108,4 @@ const mapStateToProps = (store, ownProps ) => {
 }
 
 
-export default connect(mapStateToProps, { getCourses, getRooms, updateActivity })(Activity);
+export default connect(mapStateToProps, { getCourses, getRooms, updateActivity, getActivities })(Activity);

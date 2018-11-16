@@ -53,6 +53,8 @@ class Profile extends Component {
         this.fetchData(resource)
       }
     }
+
+    // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
     if (!loading) {
       if (prevProps[resource].length !== this.props[resource].length) {
         this.checkMultipleRoles()

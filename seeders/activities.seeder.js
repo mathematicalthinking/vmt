@@ -9,7 +9,7 @@ var data = [
     "events" : [],
     "name" : "ACTIVITY 1",
     "description" : "",
-    "creator" : "5ba289ba7223b9429888b9b4", // NO ONE,
+    "creator" : "5ba289ba7223b9429888b9a1", // NO ONE,
     "image" : "http://tinygraphs.com/isogrids/ACTIVITY 1?theme=daisygarden&numcolors=4&size=220&fmt=svg",
     "desmosLink" : "",
     "createdAt" : "2018-10-25T14:58:45.945Z",
