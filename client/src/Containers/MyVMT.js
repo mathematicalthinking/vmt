@@ -92,8 +92,8 @@ class Profile extends Component {
     if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length ||
     prevProps.user.roomNotifications.access.length !== this.props.user.roomNotifications.access.length) {
       this.checkMultipleRoles()
-        .then(() => this.updateTabs())
         .then(() => this.setDisplayResources())
+        .then(() => this.updateTabs())
     }
   }
   
