@@ -111,6 +111,7 @@ class TempWorkspace extends Component {
   }
 
   componentWillUnmount () {
+    console.log('unmounting')
     if (this.socket) {
       this.socket.disconnect()
       // this.socket.emit('disconnect')
@@ -135,7 +136,6 @@ class TempWorkspace extends Component {
   }
 
   render() {
-    console.log('rendered temp workspace')
     return (this.state.user ?
       <Aux>
         {this.state.saving && !this.props.loggedIn ? <Modal 
@@ -160,7 +160,7 @@ class TempWorkspace extends Component {
       <Modal show={!this.state.user}>
         {!this.props.loggedIn ? 
           <Aux>
-            <div>Enter a temporary username (!!!making sure this new!!!)</div>
+            <div>Enter a temporary username (!!!making sure nOO!!!)</div>
             <TextInput light change={this.setName} />
             <div>{this.state.errorMessage}</div> 
           </Aux> : null
