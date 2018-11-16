@@ -48,6 +48,7 @@ if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'productio
 } else {
   app.use(express.static(path.join(__dirname, 'client/public')));
 }
+<<<<<<< HEAD
 
 
 
@@ -56,6 +57,8 @@ if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'productio
 // } else {
 //   app.use(express.static(path.join(__dirname, 'client/public')));
 // }
+=======
+>>>>>>> changes for prod
 
 
 
