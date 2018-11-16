@@ -31,6 +31,7 @@ class TempWorkspace extends Component {
     // If there is no room by this id ins the user's store, then they're not the first to join
     if (!this.props.room) {
       this.setState({firstEntry: false})
+      console.log("populating room")
       this.props.populateRoom(this.props.match.params.id)
     } 
   }
@@ -135,6 +136,7 @@ class TempWorkspace extends Component {
   }
 
   render() {
+    console.log('rendered temp workspace')
     return (this.state.user ?
       <Aux>
         {this.state.saving && !this.props.loggedIn ? <Modal 
@@ -159,7 +161,11 @@ class TempWorkspace extends Component {
       <Modal show={!this.state.user}>
         {!this.props.loggedIn ? 
           <Aux>
+<<<<<<< HEAD
             <div>Enter a temporary username (!!!making sure new!!!)</div>
+=======
+            <div>Enter a temporary username (just making sure this is new)</div>
+>>>>>>> populate room on newentry to tempworkspace
             <TextInput light change={this.setName} />
             <div>{this.state.errorMessage}</div> 
           </Aux> : null
