@@ -160,7 +160,7 @@ class TempWorkspace extends Component {
       <Modal show={!this.state.user}>
         {!this.props.loggedIn ? 
           <Aux>
-            <div>Enter a temporary username (!!!making sure nOO!!!)</div>
+            <div>Enter a temporary username (!!!making sure new!!!)</div>
             <TextInput light change={this.setName} />
             <div>{this.state.errorMessage}</div> 
           </Aux> : null

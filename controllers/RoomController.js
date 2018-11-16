@@ -57,7 +57,7 @@ module.exports = {
   add: (id, body) => {
     return new Promise((resolve, reject) => {
       // Send a notification to user that they've been granted access to a new course
-      db.User.findByIdAndUpdate(body.members.user, {
+      db.User.findByIdAndUpdate(body.members.user, { //WE SHOULD AWAIT THIS TO MAKE SURE IT GOES THROUGH>???
         $addToSet: {
           rooms: id,
           'roomNotifications.access': {
@@ -66,7 +66,6 @@ module.exports = {
           }
         }
       }, {new: true})
-      .then(res => console.log("RESSS: r", res))
       db.Room.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
       .populate({path: 'members.user', select: 'username'})
       .then(res => {

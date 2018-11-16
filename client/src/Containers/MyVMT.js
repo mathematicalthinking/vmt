@@ -69,6 +69,7 @@ class Profile extends Component {
     }
 
     if (prevProps.match.params.resource !== resource) {
+      this.props.getUser(this.props.user._id) // if wee implement push notifications we can get rid of this
       this.fetchData(resource)
       this.checkMultipleRoles()
       .then(() => {this.setDisplayResources()})
