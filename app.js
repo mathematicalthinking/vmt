@@ -43,16 +43,17 @@ mongoose.connect(mongoURI, (err, res) => {
 
 
 // DO WE NEED THIS?
-if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'client/build')));
-} else {
-  app.use(express.static(path.join(__dirname, 'client/public')));
-}
+// if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production') {
+//   app.use(express.static(path.join(__dirname, 'client/build')));
+// } else {
+//   app.use(express.static(path.join(__dirname, 'client/public')));
+// }
 
 
 
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
   if (process.env.NODE_ENV === 'travistest' || proces.env,NODE_ENV === 'production') {
+    console.log("sending prod version of react")
     res.sendFile(path.join(__dirname, 'client/build/index.html'))
   } else {
     res.sendFile(path.join(__dirname, '/client/public/index.html'));
