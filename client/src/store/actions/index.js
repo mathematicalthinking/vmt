@@ -19,7 +19,8 @@ export {
   updateNotifications,
   addUserCourses,
   updateUserResource,
-  logout
+  logout,
+  toggleJustLoggedIn,
 } from './user';
 export {
   fail,

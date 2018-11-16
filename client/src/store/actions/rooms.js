@@ -110,7 +110,8 @@ export const getRooms = params => {
     API.get('rooms', params)
     .then(res => {
       // Normalize res
-      const rooms = normalize(res.data.results)
+      let rooms = normalize(res.data.results)
+      console.log("RESPONSE ROOM: ",rooms)
       dispatch(gotRooms(rooms))
       dispatch(loading.success())
     })

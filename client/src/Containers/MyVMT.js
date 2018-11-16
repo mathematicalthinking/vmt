@@ -8,6 +8,7 @@ import {
   getActivities,
   getCourses,
   getUser,
+  toggleJustLoggedIn,
 } from '../store/actions'
 
 class Profile extends Component {
@@ -24,34 +25,42 @@ class Profile extends Component {
   }
 
   componentDidMount() {
-    this.props.getUser(this.props.user._id) // Update the user to check for notifications/new resources
     this.fetchData(this.props.match.params.resource)
+    if (!this.props.user.justLoggedIn) {
+      this.props.getUser(this.props.user._id) 
+    }
     this.checkMultipleRoles()
     .then(res => this.setDisplayResources()) 
-    .then(res => this.updateTabs())
+    .then(res => {
+      this.updateTabs()
+      this.props.toggleJustLoggedIn();
+    })
   }
 
   componentDidUpdate(prevProps, prevState) {
     const { user, loading } = this.props;
     const { resource } = this.props.match.params;
-    // IF a new resource has been added to the user object
+    // 
     if (prevProps[`user${resource}`].length !== this.props[`user${resource}`].length) {
-      console.log('the user should have a new course ')
-      console.log(this.props[`user${resource}`])
       this.checkMultipleRoles()
       .then(() => this.setDisplayResources())
       .then(res => this.updateTabs())
     }
     // WHen we've finished loading make sure all the resources on the user object are also populated in the store
     if (!loading) {
-      console.log("FINISHED LOADING: ", this.props[resource])
       let haveResource = user[resource].every(rsrc => this.props[resource].includes(rsrc))
-      console.log(haveResource)
       if (!haveResource) {
-        console.log('fetching data')
         this.fetchData(resource)
       }
     }
+    if (!loading) {
+      if (prevProps[resource].length !== this.props[resource].length) {
+        this.checkMultipleRoles()
+        .then(() => this.setDisplayResources())
+        .then(() => this.updateTabs())
+      }
+    }
+
     if (prevState.view !== this.state.view) {
       this.setDisplayResources()
       .then(() => this.updateTabs())
@@ -62,7 +71,9 @@ class Profile extends Component {
       this.checkMultipleRoles()
       .then(() => {this.setDisplayResources()})
     }
+    // does this EVER HAPPEM?
     if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length) {
+      console.log("notifications changed")
       this.updateTabs();
     }
   }
@@ -103,7 +114,6 @@ class Profile extends Component {
   }
 
   fetchData = resource => {
-    console.log(resource)
     resource = resource.charAt(0).toUpperCase() + resource.slice(1)
     this.props[`get${resource}`]()
   }
@@ -148,7 +158,6 @@ class Profile extends Component {
       if (this.props[`user${resource}`]) {
         displayResources = this.props[`user${resource}`].filter(rsrc => {
           let included = false
-          console.log("RSRC: ", rsrc)
           rsrc.members.forEach(member => {
             if (member.user._id === user._id && member.role === this.state.view) {
               included = true;
@@ -227,4 +236,5 @@ export default connect(mapStateToProps, {
   getActivities,
   getCourses,
   getUser,
+  toggleJustLoggedIn,
 })(Profile);

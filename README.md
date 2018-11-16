@@ -77,7 +77,7 @@ To run the tests restart the server in test mode `npm run test` and then in a ne
 ## Project structure
 ### Frontend (client)
 📁 src
-|
+| 
 -- App.js
 |
 -- 📁 Routes

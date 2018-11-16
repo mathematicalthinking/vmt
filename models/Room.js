@@ -32,8 +32,7 @@ const Room = new mongoose.Schema({
 {timestamps: true});
 
 Room.pre('save', function (next) {
-  // console.log(this)
-  // ON CREATION UPDATE THE CONNECTED MODELS
+  console.log("EDITITD: ", this)
   if (this.isNew & !this.tempRoom) {
     let promises = [];
     promises.push(Image.create({imageData: ''}))
@@ -47,31 +46,29 @@ Room.pre('save', function (next) {
     Promise.all(promises)
     .then(values => {
       this.graphImage = values[0]._id;
-      // values[0].forEach(user => {
-      //   console.log('user!: ', user)
-      //   user.rooms.push(this._id)
-      //   user
-      //   // DONT THINK WE NEED THE CODE BWLOW...THE USER SHOULD ALREADY HAVE
-      //   // THE ACTIVITY AND THE COURSE IN THEIR RESOURCES
-      //   // if (this.course) user.courseNotifications.newRoom.push({notificationType: 'newRoom', _id: this.course})
-      //   // if (this.activity) user.activities.push(this.activity)
-      //   user.save();
-        next()
-      // })
+      next()
     })
     .catch(err => next(err))
   } else if (!this.isNew) {
+    // console.log(this.modifiedPaths())
     this.modifiedPaths().forEach(field => {
-      if (field === 'members') {
-        console.log('updated members path!!!!!!')
+      if (field === 'members') { 
         User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
           $addToSet: {rooms: this._id}
         }).then(user => {next()})
         .catch(err => console.log(err))
+      } else if (field === 'tempRoom') {
+        User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}})
+        .then(res => {
+          console.log(":RES: ", res)
+          next()
+        })
+        .catch(console.log(err))
       }
     })
   }
   else {
+    console.log('ar we gheying here')
     next()
   }
 });

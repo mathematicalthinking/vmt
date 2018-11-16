@@ -94,6 +94,12 @@ export const removeNotification = (resource, listType, user, ntfId) => {
   }
 }
 
+export const toggleJustLoggedIn = () => {
+  return {
+    type: actionTypes.TOGGLE_JUST_LOGGED_IN,
+  }
+}
+
 export const updateUserResource = (resource, resourceId, userId) => {
   return (dispatch) => {
     API.addUserResource(resource, resourceId, userId)

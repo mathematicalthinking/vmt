@@ -17,7 +17,7 @@ require('dotenv').config();
 
 // mongooseLib.Promise = global.Promise || Promise;
 
-if (process.env.NODE_ENV === "production")
+
 module.exports = {
 
   // Export the mongoose lib

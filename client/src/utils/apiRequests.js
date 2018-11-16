@@ -2,6 +2,7 @@ import axios from 'axios';
 
 export default {
   get: (resource, params) => {
+    console.log('getting ', resource)
     return axios.get(`/api/${resource}`, params)
   },
 
@@ -10,7 +11,6 @@ export default {
   },
 
   put: (resource, id, body) => {
-    console.log('PUT REQUEST: ', body)
     return axios.put(`/api/${resource}/${id}`, body)
   },
 
@@ -57,7 +57,6 @@ export default {
   },
 
   updateMembers: (resource, resourceId, updatedMembers) => {
-    console.log('UPDATING MEMBERS: ', updatedMembers)
     return axios.put(`/api/${resource}/${resourceId}`, {members: updatedMembers})
   },
   getDesmos: url => {
