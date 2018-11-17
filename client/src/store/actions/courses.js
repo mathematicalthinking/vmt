@@ -137,6 +137,18 @@ export const getCourses = (params) => {
     .catch(err => console.log(err));
   }
 }
+export const getCoursesIds = ids => {
+  return dispatch => {
+    API.getIds('courses', ids)
+    .then(res => {
+      // Normalize res
+      let rooms = normalize(res.data.results)
+      dispatch(gotCourses(rooms))
+      dispatch(loading.success())
+    })
+    .catch(err => dispatch(loading.fail(err)));
+  }
+}
 
 export const getCourse = id => {
   return dispatch => {

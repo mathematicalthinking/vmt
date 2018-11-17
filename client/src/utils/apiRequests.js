@@ -1,12 +1,39 @@
 import axios from 'axios';
 
+const parseParams = (params) => {
+  const keys = Object.keys(params);
+  let options = '';
+
+  keys.forEach((key) => {
+    const isParamTypeObject = typeof params[key] === 'object';
+    const isParamTypeArray = isParamTypeObject && (params[key].length >= 0);
+
+    if (!isParamTypeObject) {
+      options += `${key}=${params[key]}&`;
+    }
+
+    if (isParamTypeObject && isParamTypeArray) {      
+      params[key].forEach((element) => {
+        options += `${key}=${element}&`;
+      });
+    }
+  });
+
+  return options ? options.slice(0, -1) : options;
+};
+
 export default {
-  get: (resource, data) => {
-    return axios.get(`/api`, {
+  get: (resource, params) => {
+    return axios.get(`/api/${resource}`, {params,})
+  },
+
+  getIds: (resource, ids) => {
+    console.log("DATA: ", ids)
+    return axios.get(`/api/${resource}/ids`, {
       params: {
-        resource,
-        data,
-      }
+        ids,
+      },
+      paramsSerializer: params => parseParams(params)
     })
   },
 

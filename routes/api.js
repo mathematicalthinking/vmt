@@ -13,7 +13,7 @@ router.get('/:resource', (req, res, next) => {
 	if (controller == null){
 		return res.status(400).json(defaultError)
 	}
-	controller.get(req.params.data).then(results => {
+	controller.get(req.query.params).then(results => {
 		res.json({
 	    confirmation: 'success',
 	    results: results
@@ -26,7 +26,30 @@ router.get('/:resource', (req, res, next) => {
 		})
 	})
 })
+
+router.get('/:resource/ids', (req, res, next) => {
+	console.log('getting ids')
+	let resource = req.params.resource;
+	let controller = controllers[resource];
+	if (controller == null){
+		return res.status(400).json(defaultError)
+	}
+	controller.get(req.query.params).then(res => {
+		res.json({
+			confirmation: 'success',
+			results: results
+		})
+	})
+	.catch(err => {
+		res.status(404).json({
+			confirmation: 'fail',
+			errorMessage: err
+		})
+	})
+})
+
 router.get('/:resource/:id', (req, res, next) => {
+	console.log('getting single id')
 	let resource = req.params.resource
 	let id = req.params.id
 	let controller  = controllers[resource]
@@ -47,6 +70,8 @@ router.get('/:resource/:id', (req, res, next) => {
 		})
 	})
 })
+
+
 
 router.post('/:action', (req, res, next) => {
 	let action = req.params.action;

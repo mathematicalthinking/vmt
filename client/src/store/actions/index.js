@@ -33,6 +33,7 @@ export {
 export {
   getRooms,
   gotRooms,
+  getRoomsIds,
   createRoom,
   gotCurrentRoom,
   getCurrentRoom,
@@ -54,6 +55,7 @@ export {
 export {
   addCourse,
   getCourses,
+  getCoursesIds,
   getCourse,
   gotCourses,
   removeCourse,
@@ -78,6 +80,7 @@ export {
 export {
   getActivities,
   gotActivities,
+  getActivitiesIds,
   getCurrentActivity,
   clearCurrentActivity,
   gotCurrentActivity,

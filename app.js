@@ -98,8 +98,9 @@ app.use('/auth', auth);
 app.use('/api', api);
 
 app.get('/*', (req, res) => {
+  // @TODO NOW THIS IS SENDING WITH EVERY API REQUEST
   // if (process.env.NODE_ENV === 'travistest' || proces.env.NODE_ENV === 'production') {
-    console.log("sending prod version of react")
+    // console.log("sending prod version of react")
     res.sendFile(path.join(__dirname, 'client/build/index.html'))
   // } else {
     // res.sendFile(path.join(__dirname, '/client/public/index.html'));
