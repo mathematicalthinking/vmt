@@ -29,6 +29,7 @@ module.exports = {
   },
 
   put: (id, body) => {
+    console.log("UPDATING USER: ",id, body)
     let query;
     if (body.notificationType === 'requestAccess' || body.notificationType === 'grantAccess') {
       if (body.resource === 'courses') {

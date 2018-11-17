@@ -57,6 +57,7 @@ module.exports = {
   add: (id, body) => {
     return new Promise((resolve, reject) => {
       // Send a notification to user that they've been granted access to a new course
+      console.log('adding user to course, ', id, body)
       db.User.findByIdAndUpdate(body.members.user, { //WE SHOULD AWAIT THIS TO MAKE SURE IT GOES THROUGH>???
         $addToSet: {
           rooms: id,
@@ -66,11 +67,17 @@ module.exports = {
           }
         }
       }, {new: true})
-      db.Room.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
-      .populate({path: 'members.user', select: 'username'})
       .then(res => {
-        resolve(res.members)})
-      .catch(err => reject(err))
+        db.Room.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
+        .populate({path: 'members.user', select: 'username'})
+        .then(res => {
+          resolve(res.members)})
+        .catch(err => reject(err))
+      })
+      .catch(err => {
+        console.log(err)
+        reject(err)
+      })
     })
   },
 
