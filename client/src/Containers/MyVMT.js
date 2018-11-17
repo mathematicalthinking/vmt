@@ -58,37 +58,19 @@ class Profile extends Component {
     if (prevProps[resource].length < this.props[resource].length) {
       this.setDisplayResources();
     }
-    // // WHen we've finished loading make sure all the resources on the user object are also populated in the store
-    // if (!loading) {
-    //   let haveResource = user[resource].every(rsrc => this.props[resource].includes(rsrc))
-    //   if (!haveResource) {
-    //     this.fetchData(resource)
-    //   }
-    // }
-
-    // // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
-    // if (!loading) {
-    //   if (prevProps[resource].length !== this.props[resource].length) {
-    //     this.checkMultipleRoles()
-    //     .then(() => this.setDisplayResources())
-    //     .then(() => this.updateTabs())
-    //   }
-    // }
-
+    // If the view (role) has changes
     if (prevState.view !== this.state.view) {
       this.setDisplayResources()
       .then(() => this.updateTabs())
     }
-
-    // IF THE RESOURCE HAS CHANGED
-    // if wee implement push notifications we can get rid of this
+    // If the resource has changes
     if (prevProps.match.params.resource !== resource) {
-      this.props.getUser(this.props.user._id) // if wee implement push notifications we can get rid of this
+      this.props.getUser(this.props.user._id) // if we implement push notifications we can get rid of this
       this.fetchData(resource)
       this.checkMultipleRoles()
       .then(() => {this.setDisplayResources()})
     }
-    // does this EVER HAPPEM?
+    // If the user has new notifications
     if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length ||
     prevProps.user.roomNotifications.access.length !== this.props.user.roomNotifications.access.length) {
       this.checkMultipleRoles()
@@ -132,9 +114,10 @@ class Profile extends Component {
   
   }
 
-  fetchByIds = (resource, ids) => {
-    resource = resource.charAt(0).toUpperCase() + resource.slice(1)
-    this.props[`get${resource}`](ids)
+  fetchData = resource => {
+    let capitalizedResource = resource.charAt(0).toUpperCase() + resource.slice(1)
+    console.log("ids to get: ", this.props[`user${resource}`].map(rsrc => rsrc._id))
+    this.props[`get${capitalizedResource}`](this.props[`user${resource}`].map(rsrc => rsrc._id))
   }
 
   updateTabs = () => {

@@ -2,7 +2,11 @@ const db = require('../models')
 
 module.exports = {
   get: params => {
+    console.log(params)
     return new Promise((resolve, reject) => {
+      if (params.constructor === Array) {
+        params = {'_id': {$in: params}}
+      }
       db.Course.find(params).sort('-createdAt')
       .populate({path: 'members.user', select: 'username'})
       .then(courses => resolve(courses))

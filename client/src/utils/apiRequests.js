@@ -1,8 +1,13 @@
 import axios from 'axios';
 
 export default {
-  get: (resource, params) => {
-    return axios.get(`/api/${resource}`, params)
+  get: (resource, data) => {
+    return axios.get(`/api`, {
+      params: {
+        resource,
+        data,
+      }
+    })
   },
 
   post: (resource, body) => {

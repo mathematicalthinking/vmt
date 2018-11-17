@@ -66,8 +66,10 @@ module.exports = {
           }
         }
       }, {new: true})
-      db.Room.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
-      .populate({path: 'members.user', select: 'username'})
+      .then(res => {
+        return db.Room.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
+        .populate({path: 'members.user', select: 'username'})
+      })
       .then(res => {
         db.Room.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
         .populate({path: 'members.user', select: 'username'})

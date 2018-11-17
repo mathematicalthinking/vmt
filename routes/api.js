@@ -13,7 +13,7 @@ router.get('/:resource', (req, res, next) => {
 	if (controller == null){
 		return res.status(400).json(defaultError)
 	}
-	controller.get(req.query).then(results => {
+	controller.get(req.params.data).then(results => {
 		res.json({
 	    confirmation: 'success',
 	    results: results

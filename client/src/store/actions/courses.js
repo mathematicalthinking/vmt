@@ -125,9 +125,10 @@ export const removeCourse = courseId => {
   }
 }
 
-export const getCourses = () => {
+export const getCourses = (params) => {
   return dispatch => {
-    API.get('courses')
+    console.log(params)
+    API.get('courses', params)
     .then(res => {
       // Normalize data
       const courses = normalize(res.data.results)
