@@ -124,6 +124,8 @@ class Room extends Component {
         courseMembers,
         user,
       }
+      // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
+      let dueDateText = 'Due Date' // the fact that we have to do this make this not worth it
       let sidePanelData = {
         image: room.image,
         title: room.name,
@@ -131,8 +133,7 @@ class Room extends Component {
           main: room.name,
           secondary: room.description,
           additional: {
-            // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
-            ['due date']: moment(room.dueDate).format('ddd, MMM D') || 'no due date set',
+            [dueDateText]: moment(room.dueDate).format('ddd, MMM D') || 'no due date set',
             code: room.entryCode,
             type: room.roomType,
           }
