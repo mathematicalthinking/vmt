@@ -39,7 +39,6 @@ class Course extends Component {
 
   componentDidMount() {
     const { course, user, accessNotifications, clearNotification, match } = this.props;
-    console.log(course)
     if (course) {
       this.props.getCourse(course._id); // What information are we getting here
       this.props.getUser(user._id); 
@@ -149,6 +148,7 @@ class Course extends Component {
 
   render() {
     let { course, user, match, accessNotifications } = this.props;
+    console.log(course)
     if (course && !this.state.guestMode) {
       let resource = match.params.resource;
       let contentData = {

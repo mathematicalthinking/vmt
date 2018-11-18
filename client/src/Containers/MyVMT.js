@@ -26,7 +26,7 @@ class Profile extends Component {
 
   componentDidMount() {
     // this.fetchData(this.props.match.params.resource)
-    if (!this.props.user.justLoggedIn) {
+    // if (!this.props.user.justLoggedIn) {
       this.props.getUser(this.props.user._id) 
     // }
     this.checkMultipleRoles()
