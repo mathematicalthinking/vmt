@@ -31,6 +31,7 @@ class Room extends Component {
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
     // If its in the store check access
     if (room) {
+      populateRoom(match.params.room_id)
       // CHECK ACCESS
       let updatedTabs = [...this.state.tabs];
       let owner = false;
@@ -63,7 +64,7 @@ class Room extends Component {
     }
     // else fetch it 
     else {
-      populateRoom(match.params.room_id)
+      populateRoom(match.params.room_id) // @TODO WE DONT ACTUALLY WANT TO POPULATE IT HERE...THAT GIVES US ALL THE EVENTS..WE JUST WANT TO GET THE MEMBERS SO WE CAN CHECK ACCESS
     }
 
   }
