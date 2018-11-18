@@ -39,6 +39,7 @@ class Course extends Component {
 
   componentDidMount() {
     const { course, user, accessNotifications, clearNotification, match } = this.props;
+    console.log(course)
     if (course) {
       this.props.getCourse(course._id); // What information are we getting here
       this.props.getUser(user._id); 
@@ -61,8 +62,8 @@ class Course extends Component {
         updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
         this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
         owner = true;
+        updatedTabs = this.displayNotifications(updatedTabs);
       }
-      updatedTabs = this.displayNotifications(updatedTabs);
       // Check for notifications that need resolution
       // Get Any other notifications
       this.setState({
@@ -79,8 +80,6 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    //@TODO THIS COULD BE OPTIMIZED IF WE JUST FLAG EACH FUNCITON TO RUN INSTREAD OF POTENTIALLY RUNNING CHECKACCESS EACH TIME
-    // WE COULD TEST BY KEEPING A COUNT IN STATE AND INCREMEMENTING EVERY UPDATE
     if (!prevProps.course && this.props.course) {
       this.checkAccess();
     }
@@ -218,7 +217,7 @@ const mapStateToProps = (store, ownProps) => {
   let course_id = ownProps.match.params.course_id;
   return {
     course: store.courses.byId[course_id] ?
-      populateResource(store, 'courses', course_id, ['activities', 'rooms']) : // THIS IS WHAT NEEDS TO CHANGE..RASTHER THAN POPULATING RESOURE WE JUST POINT TO THE STORE BECAUSE WE ALREADY HAVE THOSE RESOURCES AT OUR DISPOSAL
+      populateResource(store, 'courses', course_id, ['activities', 'rooms']) :
       null,
     activities: store.activities.allIds,
     rooms: store.rooms.allIds,

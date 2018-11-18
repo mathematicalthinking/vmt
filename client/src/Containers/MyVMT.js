@@ -26,11 +26,7 @@ class Profile extends Component {
 
   componentDidMount() {
     // this.fetchData(this.props.match.params.resource)
-<<<<<<< HEAD
-    // if (!this.props.user.justLoggedIn) {
-=======
     if (!this.props.user.justLoggedIn) {
->>>>>>> mygod its working
       this.props.getUser(this.props.user._id) 
     // }
     this.checkMultipleRoles()
@@ -40,44 +36,9 @@ class Profile extends Component {
       this.props.toggleJustLoggedIn();
     })
   }
+}
 
   componentDidUpdate(prevProps, prevState) {
-<<<<<<< HEAD
-    let { user, loading, match } = this.props;
-    let { resource } = match.params;
-    // If the user has a new resource
-    // if (prevProps.user[resource].length !== this.props.user[resource].length) {
-    //   console.log('the user"s resources have changes')
-    //   let idsToFetch = user[resource].filter(id => !this.props[resource].includes(id))
-    //   console.log("IDS TO FETCH: ", idsToFetch)
-    //   if (idsToFetch.length > 0) {
-    //     this.fetchData(resource, idsToFetch)
-    //   }
-    //   // this.checkMultipleRoles()
-    //   // .then(() => this.setDisplayResources())
-    //   // .then(res => this.updateTabs())
-    // }
-    // IF THE USER HAS A RESOURCE THAT HASN'T BEEN POPULATED YET
-    if (!this.props.loading) {
-      if (this.props.user[resource].length > this.props[resource].allIds.length) {
-        console.log('the user has a resource that hasn"t been populated yet')
-        let idsToFetch = user[resource].filter(id => !this.props[resource].allIds.includes(id));
-        console.log('idsTOFetch: ', idsToFetch)
-        this.fetchData(resource, idsToFetch)
-      }
-    }
-
-    // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
-    if (!loading) {
-      if (prevProps[resource].allIds.length !== this.props[resource].allIds.length) {
-        console.log('A new resource has been populated in the store')
-        this.checkMultipleRoles()
-        .then(() => this.setDisplayResources())
-        .then(() => this.updateTabs())
-      }
-    }
-    // If the view (role) has changes
-=======
     const { user, loading } = this.props;
     const { resource } = this.props.match.params;
     // IF THE USER HAS A NEW RESOURCE
@@ -110,19 +71,14 @@ class Profile extends Component {
     //   }
     // }
 
->>>>>>> mygod its working
     if (prevState.view !== this.state.view) {
       console.log(prevState.view, this.state.view)
       console.log('the role has changed')
       this.setDisplayResources()
       .then(() => this.updateTabs())
     }
-<<<<<<< HEAD
-    // If the resource has changes
-=======
 
     // IF THE RESOURCE HAS CHANGED
->>>>>>> mygod its working
     if (prevProps.match.params.resource !== resource) {
       this.props.getUser(this.props.user._id) // if wee implement push notifications we can get rid of this
       // this.fetchData(resource)

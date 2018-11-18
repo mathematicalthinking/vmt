@@ -27,14 +27,10 @@ class Room extends Component {
   ]
 
   componentDidMount() {
-    const { room, user, course, 
-      populateRoom, accessNotifications, 
-      clearNotification, match 
-    } = this.props;
+    const { room, user, populateRoom, accessNotifications, clearNotification, match } = this.props;
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
     // If its in the store check access
     if (room) {
-      populateRoom(match.params.room_id)
       // CHECK ACCESS
       let updatedTabs = [...this.state.tabs];
       let owner = false;
@@ -49,19 +45,12 @@ class Room extends Component {
       if (accessNotifications.length > 0) {
         accessNotifications.forEach(ntf => {
           if (ntf.notificationType === 'grantedAccess' && ntf._id === room._id) {
-            firstView = true;
-            clearNotification(room._id, user._id, null, 'rooms', 'access', ntf.notificationType) 
-          }
-        })
-      }
-      if (course) {
-        user.courseNotifications.access.forEach(ntf => {
-          if (ntf.notificationType === 'assignedRoom' && ntf.room === room._id) {
-            // firstView = true;
-            clearNotification(room._id, user._id, null, 'courses', 'access', ntf.notificationType) 
-          }
-        })
-      }
+             // RESOLVE THIS NOTIFICATION
+             firstView = true;
+             clearNotification(room._id, user._id, null, 'rooms', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
+           }
+         })
+       }
       if (room.members) {
         this.checkAccess();
       }
@@ -74,7 +63,7 @@ class Room extends Component {
     }
     // else fetch it 
     else {
-      populateRoom(match.params.room_id) // @TODO WE DONT ACTUALLY WANT TO POPULATE IT HERE...THAT GIVES US ALL THE EVENTS..WE JUST WANT TO GET THE MEMBERS SO WE CAN CHECK ACCESS
+      populateRoom(match.params.room_id)
     }
 
   }
@@ -121,40 +110,41 @@ class Room extends Component {
       accessNotifications, error, 
       clearError, courseMembers,
     } = this.props;
-    let resource = match.params.resource;
-    let contentData = {
-      resource,
-      parentResource: 'rooms',
-      parentResourceId: room._id,
-      userResources: room[resource],
-      owner: this.state.owner,
-      notifications: accessNotifications.filter(ntf => ntf._id === room._id) || [],
-      room,
-      courseMembers,
-      user,
-    }
-    let sidePanelData = {
-      image: room.image,
-      title: room.name,
-      details: {
-        main: room.name,
-        secondary: room.description,
-        additional: {
-          // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
-          ['due date']: moment(room.dueDate).format('ddd, MMM D') || 'no due date set',
-          code: room.entryCode,
-          type: room.roomType,
-        }
-      },
-      edit: {}
-    }
+    if (room && !this.state.guestMode) {
+      let resource = match.params.resource;
+      let contentData = {
+        resource,
+        parentResource: 'rooms',
+        parentResourceId: room._id,
+        userResources: room[resource],
+        owner: this.state.owner,
+        notifications: accessNotifications.filter(ntf => ntf._id === room._id) || [],
+        room,
+        courseMembers,
+        user,
+      }
+      let sidePanelData = {
+        image: room.image,
+        title: room.name,
+        details: {
+          main: room.name,
+          secondary: room.description,
+          additional: {
+            // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
+            ['due date']: moment(room.dueDate).format('ddd, MMM D') || 'no due date set',
+            code: room.entryCode,
+            type: room.roomType,
+          }
+        },
+        edit: {}
+      }
 
-    let crumbs = [
-      {title: 'My VMT', link: '/myVMT/courses'},
-      {title: room.name, link: `/myVMT/rooms/${room._id}/details`}]
-      //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
-      // THE REDUX STORE USING THE COURSE ID IN THE URL
-    if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/myVMT/courses/${room.course._id}/activities`})}
+      let crumbs = [
+        {title: 'My VMT', link: '/myVMT/courses'},
+        {title: room.name, link: `/myVMT/rooms/${room._id}/details`}]
+        //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
+        // THE REDUX STORE USING THE COURSE ID IN THE URL
+      if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/myVMT/courses/${room.course._id}/activities`})}
 
       return (
         <Aux>
@@ -174,18 +164,18 @@ class Room extends Component {
             <Button click={() => this.setState({firstView: false})}>Explore</Button>
           </Modal>
         </Aux>
-    // } else return (
-    //   <Access  
-    //     resource='rooms'
-    //     resourceId={match.params.room_id}
-    //     userId={user._id}
-    //     username={user.username}
-    //     owners={room ? room.members.filter(member => member.role === 'facilitator').map(member => member.user) : []}
-    //     error={error}
-    //     clearError={clearError}
-    //   />
-    // )
       )
+    } else return (
+      <Access  
+        resource='rooms'
+        resourceId={match.params.room_id}
+        userId={user._id}
+        username={user.username}
+        owners={room ? room.members.filter(member => member.role === 'facilitator').map(member => member.user) : []}
+        error={error}
+        clearError={clearError}
+      />
+    )
   }
 }
 
@@ -193,7 +183,7 @@ const mapStateToProps = (store, ownProps) => {
   let { room_id } = ownProps.match.params;
   return {
     room: store.rooms.byId[room_id],
-    courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
+    // courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
     user: store.user,
     accessNotifications: store.user.roomNotifications.access, // this seems redundant
     loading: store.loading.loading,
