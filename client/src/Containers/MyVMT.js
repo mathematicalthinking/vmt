@@ -38,7 +38,7 @@ class Profile extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { user, loading } = this.props;
+    const { loading } = this.props;
     const { resource } = this.props.match.params;
     // IF THE USER HAS A NEW RESOURCE
     if (prevProps[`user${resource}`].length !== this.props[`user${resource}`].length) {
