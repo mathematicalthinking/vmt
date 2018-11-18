@@ -20,6 +20,7 @@ class Home extends PureComponent {
   }
 
   render () {
+    console.log('rendered home route')
     return (
       <Aux>
         <HomeNav scrollPosition={this.state.scrollPosition} page={this.props.location.pathname}/>

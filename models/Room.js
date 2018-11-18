@@ -35,7 +35,7 @@ Room.pre('save', function (next) {
   if (this.isNew & !this.tempRoom) {
     let promises = [];
     promises.push(Image.create({imageData: ''}))
-    promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}, accountType: 'facilitator'}))
+    promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}}))
     if (this.course) {
       promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id},}))
     }
@@ -60,7 +60,7 @@ Room.pre('save', function (next) {
         .then(res => {
           next()
         })
-        .catch(console.log(err))
+        .catch(err => console.log(err))
       }
     })
   }

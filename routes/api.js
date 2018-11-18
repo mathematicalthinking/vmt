@@ -7,7 +7,6 @@ const defaultError = {
   message:'Invalid resource...check your spelling'
 }
 
-
 router.get('/:resource', (req, res, next) => {
 	let resource = req.params.resource;
 	let controller = controllers[resource];

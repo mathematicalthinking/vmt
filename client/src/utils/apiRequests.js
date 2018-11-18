@@ -52,6 +52,7 @@ export default {
   },
 
   grantAccess: (user, resource, resourceId) => {
+    console.log('granting access: ', user, resource, resourceId)
     return axios.put(`/api/${resource}/${resourceId}/add`, {members: {user, role: 'participant'}})
   },
 

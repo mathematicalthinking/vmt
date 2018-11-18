@@ -25,10 +25,10 @@ class Profile extends Component {
   }
 
   componentDidMount() {
-    this.fetchData(this.props.match.params.resource)
-    if (!this.props.user.justLoggedIn) {
+    // this.fetchData(this.props.match.params.resource)
+    // if (!this.props.user.justLoggedIn) {
       this.props.getUser(this.props.user._id) 
-    }
+    // }
     this.checkMultipleRoles()
     .then(res => this.setDisplayResources()) 
     .then(res => {
@@ -38,44 +38,56 @@ class Profile extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { user, loading } = this.props;
+    const { loading } = this.props;
     const { resource } = this.props.match.params;
-    // 
+    // IF THE USER HAS A NEW RESOURCE
     if (prevProps[`user${resource}`].length !== this.props[`user${resource}`].length) {
       this.checkMultipleRoles()
       .then(() => this.setDisplayResources())
       .then(res => this.updateTabs())
     }
-    // WHen we've finished loading make sure all the resources on the user object are also populated in the store
-    if (!loading) {
-      let haveResource = user[resource].every(rsrc => this.props[resource].includes(rsrc))
-      if (!haveResource) {
-        this.fetchData(resource)
-      }
-    }
 
-    // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
-    if (!loading) {
-      if (prevProps[resource].length !== this.props[resource].length) {
-        this.checkMultipleRoles()
-        .then(() => this.setDisplayResources())
-        .then(() => this.updateTabs())
-      }
-    }
+    if (!loading && this.props[resource].length < this.props.user[resource].length) {
+      console.log('there is a resource on the user list that is not in the store')
+      let idsToFetch = this.props.user[resource].filter(id => !this.props[resource].includes(id))
+      console.log(idsToFetch)
+      this.fetchByIds(resource, idsToFetch)
+    } 
+    // // WHen we've finished loading make sure all the resources on the user object are also populated in the store
+    // if (!loading) {
+    //   let haveResource = user[resource].every(rsrc => this.props[resource].includes(rsrc))
+    //   if (!haveResource) {
+    //     this.fetchData(resource)
+    //   }
+    // }
+
+    // // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
+    // if (!loading) {
+    //   if (prevProps[resource].length !== this.props[resource].length) {
+    //     this.checkMultipleRoles()
+    //     .then(() => this.setDisplayResources())
+    //     .then(() => this.updateTabs())
+    //   }
+    // }
 
     if (prevState.view !== this.state.view) {
       this.setDisplayResources()
       .then(() => this.updateTabs())
     }
 
+    // IF THE RESOURCE HAS CHANGED
     if (prevProps.match.params.resource !== resource) {
-      this.fetchData(resource)
+      this.props.getUser(this.props.user._id) // if wee implement push notifications we can get rid of this
+      // this.fetchData(resource)
       this.checkMultipleRoles()
       .then(() => {this.setDisplayResources()})
     }
     // does this EVER HAPPEM?
-    if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length) {
-      this.updateTabs();
+    if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length ||
+    prevProps.user.roomNotifications.access.length !== this.props.user.roomNotifications.access.length) {
+      this.checkMultipleRoles()
+        .then(() => this.setDisplayResources())
+        .then(() => this.updateTabs())
     }
   }
   
@@ -114,9 +126,9 @@ class Profile extends Component {
   
   }
 
-  fetchData = resource => {
+  fetchByIds = (resource, ids) => {
     resource = resource.charAt(0).toUpperCase() + resource.slice(1)
-    this.props[`get${resource}`]()
+    this.props[`get${resource}`](ids)
   }
 
   updateTabs = () => {

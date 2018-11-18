@@ -14,7 +14,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.Course.findById(id)
       // .populate('creator')
-      .populate('rooms')
+      // .populate('rooms', 'name ')
       .populate('members.user', 'username')
       // .populate('notifications.user')
       .then(course => resolve(course))

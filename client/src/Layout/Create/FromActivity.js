@@ -87,7 +87,7 @@ class FromActivity extends Component {
             </div>
             <div className={classes.Status}>You've selected {this.state.selected.length} activities</div>
             <div className={classes.ActivityList}>
-              <BoxList list={list} selecting select={this.select}/>
+              <BoxList list={list} selecting select={this.select} scrollable maxHeight={300}/>
             </div>
           </div>
         </div>

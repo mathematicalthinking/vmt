@@ -65,7 +65,7 @@ const boxList = props => {
       )
     })
   }
-  return <div className={classes.Container} data-testid='box-list'>{listElems}</div>;
+  return <div className={classes.Container} style={props.scrollable ? {maxHeight: props.maxHeight, overflowY: 'scroll', border: '1px solid #ddd', padding: 10} : null} data-testid='box-list'>{listElems}</div>;
 }
 
 

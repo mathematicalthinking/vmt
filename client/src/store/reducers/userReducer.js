@@ -47,9 +47,7 @@ const reducer = (state = initialState, action) => {
         justLoggedIn: false
       }
     case actionTypes.LOGOUT: 
-      return {
-        initialState
-      }
+      return initialState
     case actionTypes.UPDATE_USER:
       return {
         ...state,
