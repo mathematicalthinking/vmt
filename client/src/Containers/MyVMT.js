@@ -26,7 +26,11 @@ class Profile extends Component {
 
   componentDidMount() {
     // this.fetchData(this.props.match.params.resource)
+<<<<<<< HEAD
     // if (!this.props.user.justLoggedIn) {
+=======
+    if (!this.props.user.justLoggedIn) {
+>>>>>>> mygod its working
       this.props.getUser(this.props.user._id) 
     // }
     this.checkMultipleRoles()
@@ -38,6 +42,7 @@ class Profile extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+<<<<<<< HEAD
     let { user, loading, match } = this.props;
     let { resource } = match.params;
     // If the user has a new resource
@@ -72,16 +77,55 @@ class Profile extends Component {
       }
     }
     // If the view (role) has changes
+=======
+    const { user, loading } = this.props;
+    const { resource } = this.props.match.params;
+    // IF THE USER HAS A NEW RESOURCE
+    if (prevProps[`user${resource}`].length !== this.props[`user${resource}`].length) {
+      this.checkMultipleRoles()
+      .then(() => this.setDisplayResources())
+      .then(res => this.updateTabs())
+    }
+
+    if (!loading && this.props[resource].length < this.props.user[resource].length) {
+      console.log('there is a resource on the user list that is not in the store')
+      let idsToFetch = this.props.user[resource].filter(id => !this.props[resource].includes(id))
+      console.log(idsToFetch)
+      this.fetchByIds(resource, idsToFetch)
+    } 
+    // // WHen we've finished loading make sure all the resources on the user object are also populated in the store
+    // if (!loading) {
+    //   let haveResource = user[resource].every(rsrc => this.props[resource].includes(rsrc))
+    //   if (!haveResource) {
+    //     this.fetchData(resource)
+    //   }
+    // }
+
+    // // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
+    // if (!loading) {
+    //   if (prevProps[resource].length !== this.props[resource].length) {
+    //     this.checkMultipleRoles()
+    //     .then(() => this.setDisplayResources())
+    //     .then(() => this.updateTabs())
+    //   }
+    // }
+
+>>>>>>> mygod its working
     if (prevState.view !== this.state.view) {
       console.log(prevState.view, this.state.view)
       console.log('the role has changed')
       this.setDisplayResources()
       .then(() => this.updateTabs())
     }
+<<<<<<< HEAD
     // If the resource has changes
+=======
+
+    // IF THE RESOURCE HAS CHANGED
+>>>>>>> mygod its working
     if (prevProps.match.params.resource !== resource) {
       this.props.getUser(this.props.user._id) // if wee implement push notifications we can get rid of this
-      this.fetchData(resource)
+      // this.fetchData(resource)
       this.checkMultipleRoles()
       .then(() => {this.setDisplayResources()})
     }
@@ -130,10 +174,9 @@ class Profile extends Component {
   
   }
 
-  fetchData = (resource, ids) => {
-    console.log('fetching the following ids: ', ids)
-    let capitalizedResource = resource.charAt(0).toUpperCase() + resource.slice(1)
-    this.props[`get${capitalizedResource}Ids`](ids)
+  fetchByIds = (resource, ids) => {
+    resource = resource.charAt(0).toUpperCase() + resource.slice(1)
+    this.props[`get${resource}`](ids)
   }
 
   updateTabs = () => {
