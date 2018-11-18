@@ -32,14 +32,14 @@ if (process.env.NODE_ENV === 'dev') {
 mongoose.connect(mongoURI, (err, res) => {
   if (err){console.log('DB CONNECTION FAILED: '+err)}
   else{console.log('DB CONNECTION SUCCESS')}
+  app.use(require('express-session')({
+    secret: 'my-secret',
+    resave: false,
+    saveUninitialized: false,
+    store: new MongoStore({mongooseConnection: mongoose.connection, stringify: false})
+  }))
 });
 
-app.use(require('express-session')({
-  secret: 'my-secret',
-  resave: false,
-  saveUninitialized: false,
-  store: new MongoStore({mongooseConnection: mongoose.connection, stringify: false})
-}))
 
 
 // DO WE NEED THIS?
