@@ -60,7 +60,7 @@ Room.pre('save', function (next) {
         .then(res => {
           next()
         })
-        .catch(console.log(err))
+        .catch(err => console.log(err))
       }
     })
   }

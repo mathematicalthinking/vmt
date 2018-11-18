@@ -38,6 +38,7 @@ module.exports = {
     });
   },
   post: body => {
+    console.log(body)
     return new Promise((resolve, reject) => {
       db.Room.create(body)
       .then(room => {
@@ -98,7 +99,7 @@ module.exports = {
 
   // THIS IS A MESS @TODO CLEAN UP 
   put: (id, body) => {
-    // console.log('updating room: ', body)
+    console.log('updating room: ', body)
     return new Promise((resolve, reject) => {
       if (body.graphImage) {
         db.Room.findById(id).then(room => {
@@ -139,14 +140,20 @@ module.exports = {
         .catch(err => reject(err))
       }
       else if (Object.keys(body)[0] === 'tempRoom') {
+        console.log('updating temproom status')
         db.Room.findById(id)
         .then(async room => {
           room.tempRoom = body.tempRoom
           try {
+            console.log('trying to save')
             await room.save()
+            console.log('success')
             resolve();
           }
-          catch(err) {reject(err)}
+          catch(err) {
+            console.log(err)
+            reject(err)
+          }
         })
       } 
       else {
