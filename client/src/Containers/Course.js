@@ -87,6 +87,7 @@ class Course extends Component {
       this.checkAccess();
     }
     if (prevProps.accessNotifications.length !== this.props.accessNotifications.length) {
+      this.props.getCourse(this.props.match.params.course_id) 
       let updatedTabs = this.displayNotifications([...this.state.tabs])
       this.setState({tabs: updatedTabs})
     }
@@ -114,8 +115,7 @@ class Course extends Component {
   displayNotifications = (tabs) => {
 
     const { user, course, accessNotifications } = this.props;
-    // if (course.creator === user._id) {
-      console.log(accessNotifications)
+    // if (course.creator === user._id
       let memberNtfs = accessNotifications.filter(ntf => (ntf._id === course._id && ntf.notificationType === 'requestAccess' || ntf.notificationType === 'newMember'));
       tabs[2].notifications = memberNtfs.length > 0 ? memberNtfs.length : '';
       let newRoomNtfs = accessNotifications.filter(ntf => (ntf._id === course._id && ntf.notificationType === 'assignedRoom'))
@@ -216,7 +216,7 @@ const mapStateToProps = (store, ownProps) => {
   let course_id = ownProps.match.params.course_id;
   return {
     course: store.courses.byId[course_id] ?
-      populateResource(store, 'courses', course_id, ['activities', 'rooms']) :
+      populateResource(store, 'courses', course_id, ['activities', 'rooms']) : // THIS IS WHAT NEEDS TO CHANGE..RASTHER THAN POPULATING RESOURE WE JUST POINT TO THE STORE BECAUSE WE ALREADY HAVE THOSE RESOURCES AT OUR DISPOSAL
       null,
     activities: store.activities.allIds,
     rooms: store.rooms.allIds,

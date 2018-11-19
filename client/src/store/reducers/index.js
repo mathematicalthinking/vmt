@@ -37,7 +37,6 @@ export const getUserResources = (state, resource) => {
 
 // store, activities, activity_id, rooms
 export const populateResource = (state, resourceToPop, resourceId, resources) => {
-  console.log('populating resource')
   const currentResource = {...state[resourceToPop].byId[resourceId]}
   resources.forEach(resource => {
     let populatedResources;
@@ -50,5 +49,6 @@ export const populateResource = (state, resourceToPop, resourceId, resources) =>
     }
     currentResource[resource] = populatedResources;
   })
+  console.log("current resource ", currentResource)
   return currentResource;
 }
