@@ -11,6 +11,7 @@ import ActivityDetails from './ActivityDetails/ActivityDetails';
 const dashboard = props => {
   let {contentData, sidePanelData, view, 
     toggleView, toggleEdit, editing, update,
+    populateRoom,
   } = props;
   let {resource, parentResource, activity, course, room, user} = contentData;
   let content;
@@ -24,7 +25,7 @@ const dashboard = props => {
       update={update}
     />
   } else if (resource === 'details') {
-    content = <Summary room={room} loading={props.loading}/>
+    content = <Summary room={room} loading={props.loading} populateRoom={populateRoom}/>
   } else {
     content = resource === 'members' 
       ? <Members {...props.contentData}/>

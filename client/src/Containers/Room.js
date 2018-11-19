@@ -33,9 +33,6 @@ class Room extends Component {
     } = this.props;
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
     // If its in the store check access
-    console.log("room mounted")
-    console.log("room: ", room)
-    console.log("course: ", course)
     if (room) {
       populateRoom(match.params.room_id)
       // CHECK ACCESS
@@ -61,7 +58,6 @@ class Room extends Component {
         user.courseNotifications.access.forEach(ntf => {
           if (ntf.notificationType === 'assignedRoom' && ntf.room === room._id) {
             // firstView = true;
-            console.log('clearing notifications')
             clearNotification(room._id, user._id, null, 'courses', 'access', ntf.notificationType) 
           }
         })
@@ -122,7 +118,8 @@ class Room extends Component {
   render() {
     let { 
       room, match, user, course,
-      accessNotifications, error, 
+      accessNotifications, error,
+      populateRoom, 
       clearError,
     } = this.props;
     if (room && !this.state.guestMode) {
@@ -172,6 +169,7 @@ class Room extends Component {
             activeTab={resource}
             loading={this.props.loading}
             activateTab={event => this.setState({activeTab: event.target.id})}
+            populateRoom={populateRoom}
           />
           <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
             <p>Welcome to {room.name}. If this is your first time joining a course,

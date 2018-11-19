@@ -54,8 +54,6 @@ class Workspace extends Component {
       <WorkspaceLayout
         members = {(room && room.currentMembers) ? room.currentMembers : []}
         graph = {room.roomType === 'geogebra' ?
-          // I dont like that these need to be wrapped in functions 👇 could do
-          // props.children but I like naming them.
           () => <GgbGraph room={room} socket={this.socket} user={user} updateRoom={this.props.updateRoom}/> :
           () => <DesmosGraph  room={room} socket={this.socket} user={user} />}
         chat = {() => <Chat roomId={room._id} messages={room.chat || []} socket={this.socket} user={user} />}
