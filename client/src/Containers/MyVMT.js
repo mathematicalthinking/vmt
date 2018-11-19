@@ -42,16 +42,16 @@ class Profile extends Component {
     const { resource } = this.props.match.params;
     // IF THE USER HAS A NEW RESOURCE
     if (prevProps[`user${resource}`].length !== this.props[`user${resource}`].length) {
-      console.log('the user has a new resource')
+      // console.log('the user has a new resource')
       this.checkMultipleRoles()
       .then(() => this.setDisplayResources())
       .then(res => this.updateTabs())
     }
 
     if (!loading && this.props[resource].length < this.props.user[resource].length) {
-      console.log('there is a resource on the user list that is not in the store')
+      // console.log('there is a resource on the user list that is not in the store')
       let idsToFetch = this.props.user[resource].filter(id => !this.props[resource].includes(id))
-      console.log(idsToFetch)
+      // console.log(idsToFetch)
       this.fetchByIds(resource, idsToFetch)
     } 
 
@@ -194,7 +194,6 @@ class Profile extends Component {
 
 
   render() {
-    console.log("RENDER")
     let { user, match } = this.props;
     let resource = match.params.resource;
     let contentData = {

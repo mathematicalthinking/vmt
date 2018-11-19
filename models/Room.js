@@ -36,12 +36,21 @@ Room.pre('save', function (next) {
     let promises = [];
     promises.push(Image.create({imageData: ''}))
     // Add the room to all of the users in this room
-    promises = promises.concat(this.members.map(member => (
-      User.findByIdAndUpdate(member.user, {
-        $addToSet: {rooms: this._id}
-      }, {new: true}))
-    ))
-    console.log(promises)
+    promises = promises.concat(this.members.map(member => {
+      // add a new room notification if they're not the facilitator
+      let query = {$addToSet: {rooms: this._id}}
+      console.log(member.role)
+      if (member.role === 'Participant') {
+        query = {$addToSet: {
+          rooms: this._id, 
+          'roomNotifications.access': {
+            notificationType: 'grantedAccess', _id: this._id}
+          }
+        }
+      }
+      console.log(query)
+      return User.findByIdAndUpdate(member.user, query)
+    }))
     // promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}}))
     if (this.course) {
       promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id},}))
