@@ -93,6 +93,9 @@ class Course extends Component {
     if ((this.state.member || this.state.owner) && !this.props.loading) {
       this.checkForFetch();
     }
+    if (prevProps.match.params.resource !== this.props.match.params.resource) {
+      this.props.getUser(this.props.user._id) 
+    }
   }
 
   requestAccess = () => {

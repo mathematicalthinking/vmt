@@ -35,7 +35,14 @@ Room.pre('save', function (next) {
   if (this.isNew & !this.tempRoom) {
     let promises = [];
     promises.push(Image.create({imageData: ''}))
-    promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}}))
+    // Add the room to all of the users in this room
+    promises = promises.concat(this.members.map(member => (
+      User.findByIdAndUpdate(member.user, {
+        $addToSet: {rooms: this._id}
+      }, {new: true}))
+    ))
+    console.log(promises)
+    // promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}}))
     if (this.course) {
       promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {rooms: this._id},}))
     }
@@ -47,7 +54,7 @@ Room.pre('save', function (next) {
       this.graphImage = values[0]._id;
       next()
     })
-    .catch(err => next(err))
+    .catch(err => next(err)) //@TODO WE NEED ERROR HANDLING HERE
   } else if (!this.isNew) {
     this.modifiedPaths().forEach(field => {
       if (field === 'members') { 
