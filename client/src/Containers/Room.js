@@ -169,7 +169,6 @@ class Room extends Component {
             activeTab={resource}
             loading={this.props.loading}
             activateTab={event => this.setState({activeTab: event.target.id})}
-            populateRoom={populateRoom}
           />
           <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
             <p>Welcome to {room.name}. If this is your first time joining a course,

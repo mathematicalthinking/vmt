@@ -5,8 +5,6 @@ import { withRouter } from 'react-router-dom';
 const summary = ({room, populateRoom, history, loading}) => {
   
   const goToWorkspace = () => {
-    // repopulate room incase things have changed since we got to the details page 
-    populateRoom(room._id)
     history.push(`/myVMT/workspace/${room._id}`);
   }
   const goToReplayer = () => {
