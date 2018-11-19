@@ -20,7 +20,7 @@ class ActivityDetails extends Component {
   }
 
   render() {
-    const { activity, course, editing, toggleEdit } = this.props;
+    const { activity, course, editing, toggleEdit, owner } = this.props;
     return (
       <Aux>
         <div>
@@ -33,9 +33,9 @@ class ActivityDetails extends Component {
                 <div><Button m={10} click={this.props.toggleEdit}>Cancel</Button></div>
               </div>
             </div> :
-            <div><b>Instructions:</b> {activity.instructions ? activity.instructions: <span className={classes.Edit} onClick={toggleEdit}>click here to add instructions</span>} </div>
+            <div><b>Instructions:</b> {activity.instructions || !owner ? activity.instructions: <span className={classes.Edit} onClick={toggleEdit}>click here to add instructions</span>} </div>
           }
-          {!editing ? <Button click={() => {this.setState({assigning: true})}} data-testid='assign'>Assign</Button> : null}
+          {!editing && owner ? <Button click={() => {this.setState({assigning: true})}} data-testid='assign'>Assign</Button> : null}
         </div>
         {this.state.assigning ? <Modal show={true} closeModal={() => {this.setState({assigning: false})}}>
           <MakeRooms

@@ -12,13 +12,14 @@ const dashboard = props => {
   let {contentData, sidePanelData, view, 
     toggleView, toggleEdit, editing, update,
   } = props;
-  let {resource, parentResource, activity, course, room, user} = contentData;
+  let {resource, parentResource, activity, course, room, user, owner} = contentData;
   let content;
   if (parentResource === 'activities' && resource === 'details') {
     content = <ActivityDetails 
       activity={activity} 
       course={course} 
-      userId={user._id} 
+      userId={user._id}
+      owner={owner}
       editing={editing} 
       toggleEdit={toggleEdit}
       update={update}
@@ -50,8 +51,8 @@ const dashboard = props => {
               <div className={classes.spAdditional}>
                 {additionalDetails}
               </div>
-              { sidePanelData.edit.link ? <CustomLink to={sidePanelData.edit.link}>{sidePanelData.edit.text} <i className="fas fa-edit"></i></CustomLink> : null}
-              { sidePanelData.edit.action ? <div  className={classes.Edit} onClick={toggleEdit}>{sidePanelData.edit.text} <i className="fas fa-edit"></i></div>: null}
+              { owner && sidePanelData.edit.link ? <CustomLink to={sidePanelData.edit.link}>{sidePanelData.edit.text} <i className="fas fa-edit"></i></CustomLink> : null}
+              { owner && sidePanelData.edit.action ? <div  className={classes.Edit} onClick={toggleEdit}>{sidePanelData.edit.text} <i className="fas fa-edit"></i></div>: null}
             </div>
             <div className={classes.ViewOpts}></div>
           </div>
