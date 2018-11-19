@@ -19,6 +19,13 @@
   border-bottom: none;
 }
 
+.ResourceOpts {
+  display: flex;
+  width: 300px;
+  justify-content: space-between;
+  margin: 25px 0;
+}
+
 .Search {
   height: 100px;
   font-size: 70px;

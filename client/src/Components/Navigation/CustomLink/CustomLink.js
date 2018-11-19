@@ -1,9 +1,9 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import classes from './customLink.css';
 const CustomLink = (props) => {
   return (
-    <Link to={props.to} className={classes.Link}>{props.children}</Link>
+    <NavLink to={props.to} className={classes.Link} activeStyle={{color: '#999'}}>{props.children}</NavLink>
   )
 }
 

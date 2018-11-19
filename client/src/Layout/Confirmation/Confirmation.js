@@ -9,7 +9,7 @@ const confirmation = props => (
     <Background />
     <div className={classes.Main}>
       <div>{props.success ? props.successMessage : props.errorMessage}</div>
-      <Button theme={"Big"} m={20}><Link onClick={props.clear} to='/myVMT/courses'>Go to your dashboard</Link></Button>
+      <Link onClick={props.clear} to='/myVMT/courses'><Button theme={"Big"} m={20}>Go to your dashboard</Button></Link>
     </div>
   </Aux>
 );
