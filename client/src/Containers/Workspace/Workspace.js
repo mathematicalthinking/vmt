@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import io from 'socket.io-client';
-import { updateRoom, updatedRoom } from '../../store/actions';
+import { updateRoom, updatedRoom, populateRoom } from '../../store/actions';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 import DesmosGraph from './DesmosGraph';
 import GgbGraph from './GgbGraph';
@@ -15,18 +15,23 @@ class Workspace extends Component {
     const { updatedRoom, room, user} = this.props;
     if (!user) {
     }
+
+    
+    // repopulate room incase things have changed since we got to the details page 
+    // this.props.populateRoom(room._id)
     const sendData = {
       userId: user._id,
       roomId: room._id,
       username: user.username,
       roomName: room.name,
     }
-    const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
-    updatedRoom(room._id, {currentMembers: updatedUsers})
+    // const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
     this.socket.emit('JOIN', sendData, (res, err) => {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
+      console.log("res from join: ", res)
+      updatedRoom(room._id, {currentMembers: res.room.currentMembers})
     })
 
     this.socket.on('USER_JOINED', data => {
@@ -36,6 +41,12 @@ class Workspace extends Component {
     this.socket.on('USER_LEFT', data => {
       updatedRoom(room._id, {currentMembers: data.currentMembers})
     })
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.room.currentMembers !== this.props.room.currentMembers) {
+      console.log('current members have changed', this.props.room.currentMembers)
+    }
   }
 
   componentWillUnmount () {
@@ -54,8 +65,6 @@ class Workspace extends Component {
       <WorkspaceLayout
         members = {(room && room.currentMembers) ? room.currentMembers : []}
         graph = {room.roomType === 'geogebra' ?
-          // I dont like that these need to be wrapped in functions 👇 could do
-          // props.children but I like naming them.
           () => <GgbGraph room={room} socket={this.socket} user={user} updateRoom={this.props.updateRoom}/> :
           () => <DesmosGraph  room={room} socket={this.socket} user={user} />}
         chat = {() => <Chat roomId={room._id} messages={room.chat || []} socket={this.socket} user={user} />}
@@ -77,4 +86,4 @@ const mapStateToProps = (state, ownProps) => {
 
 
 
-export default connect(mapStateToProps, {updateRoom, updatedRoom})(Workspace);
+export default connect(mapStateToProps, {updateRoom, updatedRoom, populateRoom,})(Workspace);

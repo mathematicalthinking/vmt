@@ -2,7 +2,7 @@ import React from 'react';
 import classes from './room.css';
 import { Button } from '../../Components';
 import { withRouter } from 'react-router-dom';
-const summary = ({room, history, loading}) => {
+const summary = ({room, populateRoom, history, loading}) => {
   
   const goToWorkspace = () => {
     history.push(`/myVMT/workspace/${room._id}`);

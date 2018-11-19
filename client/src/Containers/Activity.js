@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { populateResource } from '../store/reducers';
 class Activity extends Component {
   state = {
+    owner: false,
     tabs: [
       {name: 'Details'},
       {name: 'Rooms'},
@@ -20,6 +21,10 @@ class Activity extends Component {
     const { resource } = this.props.match.params;
     if (resource === 'rooms') {
       this.fetchRooms();
+    }
+    // Check ability to edit
+    if (this.props.activity.creator === this.props.user._id) {
+      this.setState({owner: true})
     }
   }
 
@@ -56,7 +61,8 @@ class Activity extends Component {
       parentResource: 'activities',
       parentResourceId: activity._id,
       notifications: [],
-      user: this.props.user
+      user: this.props.user,
+      owner: this.state.owner
     }
     const sidePanelData = {
       image: activity.image,
@@ -67,7 +73,7 @@ class Activity extends Component {
           Type: activity.roomType,
         }
       },
-      edit: {action: 'edit', text: 'edit activity'}
+      edit: this.state.owner ? {action: 'edit', text: 'edit activity'} : null,
     }
     
     const crumbs = [{title: 'My VMT', link: '/myVMT/courses'}]
