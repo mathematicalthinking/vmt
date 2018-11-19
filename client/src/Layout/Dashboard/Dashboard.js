@@ -4,7 +4,7 @@ import classes from './dashboard.css';
 import Resources from './Resources/Resources';
 import Members from '../../Containers/Members/Members'
 import CustomLink from '../../Components/Navigation/CustomLink/CustomLink';
-import { TabList, BreadCrumbs, DnDTrash, Avatar, Button, Trash } from '../../Components';
+import { TabList, BreadCrumbs, Avatar, Button,   } from '../../Components';
 import Summary from '../Room/Room';
 import ActivityDetails from './ActivityDetails/ActivityDetails';
 
@@ -26,11 +26,9 @@ const dashboard = props => {
   } else if (resource === 'details') {
     content = <Summary room={room} loading={props.loading}/>
   } else {
-    content = <DnDTrash>
-      {resource === 'members' ? <Members {...props.contentData}/>
-      : <Resources {...props.contentData} /> }
-      <div className={classes.Trash}><Trash /></div>
-    </DnDTrash>
+    content = resource === 'members' 
+      ? <Members {...props.contentData}/>
+      : <Resources {...props.contentData} /> 
   }
   let image = sidePanelData.image ? <img src={sidePanelData.image} alt='sidePanelImage'/> :  <Avatar size='large'/>
   let { additional } = sidePanelData.details;

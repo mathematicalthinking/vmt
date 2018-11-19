@@ -61,8 +61,8 @@ class Course extends Component {
         updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
         this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
         owner = true;
-        updatedTabs = this.displayNotifications(updatedTabs);
       }
+      updatedTabs = this.displayNotifications(updatedTabs);
       // Check for notifications that need resolution
       // Get Any other notifications
       this.setState({
@@ -79,6 +79,8 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    //@TODO THIS COULD BE OPTIMIZED IF WE JUST FLAG EACH FUNCITON TO RUN INSTREAD OF POTENTIALLY RUNNING CHECKACCESS EACH TIME
+    // WE COULD TEST BY KEEPING A COUNT IN STATE AND INCREMEMENTING EVERY UPDATE
     if (!prevProps.course && this.props.course) {
       this.checkAccess();
     }
@@ -87,11 +89,15 @@ class Course extends Component {
       this.checkAccess();
     }
     if (prevProps.accessNotifications.length !== this.props.accessNotifications.length) {
+      this.props.getCourse(this.props.match.params.course_id) 
       let updatedTabs = this.displayNotifications([...this.state.tabs])
       this.setState({tabs: updatedTabs})
     }
     if ((this.state.member || this.state.owner) && !this.props.loading) {
       this.checkForFetch();
+    }
+    if (prevProps.match.params.resource !== this.props.match.params.resource) {
+      this.props.getUser(this.props.user._id) 
     }
   }
 
@@ -110,11 +116,13 @@ class Course extends Component {
 
   displayNotifications = (tabs) => {
 
-    const { user, course, accessNotifications } = this.props;
-    if (course.creator === user._id) {
-      let thisCoursesNtfs = accessNotifications.filter(ntf => ntf._id === course._id);
-      tabs[2].notifications = (thisCoursesNtfs.length > 0) ? thisCoursesNtfs.length : '';
-    }
+    const { course, accessNotifications } = this.props;
+    // if (course.creator === user._id
+      let memberNtfs = accessNotifications.filter(ntf => (ntf._id === course._id && (ntf.notificationType === 'requestAccess' || ntf.notificationType === 'newMember')));
+      tabs[2].notifications = memberNtfs.length > 0 ? memberNtfs.length : '';
+      let newRoomNtfs = accessNotifications.filter(ntf => (ntf._id === course._id && ntf.notificationType === 'assignedRoom'))
+      tabs[1].notifications = newRoomNtfs.length > 0 ? newRoomNtfs.length : '';
+    // }
     // if (accessNotifications.llength > 0){
     //   tabs[1].notifications = accessNotifications.llength;
     // }
@@ -142,7 +150,6 @@ class Course extends Component {
 
   render() {
     let { course, user, match, accessNotifications } = this.props;
-    console.log(course)
     if (course && !this.state.guestMode) {
       let resource = match.params.resource;
       let contentData = {
@@ -211,7 +218,7 @@ const mapStateToProps = (store, ownProps) => {
   let course_id = ownProps.match.params.course_id;
   return {
     course: store.courses.byId[course_id] ?
-      populateResource(store, 'courses', course_id, ['activities', 'rooms']) :
+      populateResource(store, 'courses', course_id, ['activities', 'rooms']) : // THIS IS WHAT NEEDS TO CHANGE..RASTHER THAN POPULATING RESOURE WE JUST POINT TO THE STORE BECAUSE WE ALREADY HAVE THOSE RESOURCES AT OUR DISPOSAL
       null,
     activities: store.activities.allIds,
     rooms: store.rooms.allIds,

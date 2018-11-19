@@ -7,24 +7,26 @@ const User = new mongoose.Schema({
   activities: {type: [{type: ObjectId, ref: 'Activity'}], default: []},
   roomNotifications: {
     access: [{
-      notificationType: String, // grantedAccess || requestAccess || newMember (if user gained access through entry code)
+      notificationType: {type: String, enum: ['grantedAccess', 'requestAccess', 'newMember']}, // grantedAccess || requestAccess || newMember (if user gained access through entry code)
       _id: {type: ObjectId, ref: 'Room'},
       user: {type: ObjectId, ref: 'User'},
     }],
-    newRoom: [{
-      _id: {type: ObjectId, ref: 'Room'}
-    }]
+    // newRoom: [{
+    //   _id: {type: ObjectId, ref: 'Room'}
+    // }]
   },
   courseNotifications: {
     access: [{
-      notificationType: String,
+      notificationType: {type: String, enum: ['grantedAccess', 'requestAccess', 'assignedRoom', 'newMemer']},
       _id: {type: ObjectId, ref: 'Course'},
       user: {type: ObjectId, ref: 'User'},
+      room: {type: ObjectId, ref: 'Room'}
     }],
-    newRoom: [{
-      notificationType: String,
-      _id: {type: ObjectId, ref: 'Course'},
-    }]
+    // newRoom: [{
+    //   notificationType: String,
+    //   _id: {type: ObjectId, ref: 'Course'},
+    //   room: {type: ObjectId, ref: 'Room'}
+    // }]
   },
   firstName: {type: String},
   lastName: {type: String},

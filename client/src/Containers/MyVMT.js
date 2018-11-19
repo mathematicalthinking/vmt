@@ -42,17 +42,22 @@ class Profile extends Component {
     const { resource } = this.props.match.params;
     // IF THE USER HAS A NEW RESOURCE
     if (prevProps[`user${resource}`].length !== this.props[`user${resource}`].length) {
+      // console.log('the user has a new resource')
       this.checkMultipleRoles()
       .then(() => this.setDisplayResources())
       .then(res => this.updateTabs())
     }
 
     if (!loading && this.props[resource].length < this.props.user[resource].length) {
-      console.log('there is a resource on the user list that is not in the store')
+      // console.log('there is a resource on the user list that is not in the store')
       let idsToFetch = this.props.user[resource].filter(id => !this.props[resource].includes(id))
-      console.log(idsToFetch)
+      // console.log(idsToFetch)
       this.fetchByIds(resource, idsToFetch)
     } 
+
+    if (prevProps[resource].length < this.props[resource].length) {
+      this.setDisplayResources();
+    }
     // // WHen we've finished loading make sure all the resources on the user object are also populated in the store
     // if (!loading) {
     //   let haveResource = user[resource].every(rsrc => this.props[resource].includes(rsrc))
@@ -76,8 +81,9 @@ class Profile extends Component {
     }
 
     // IF THE RESOURCE HAS CHANGED
+    // if wee implement push notifications we can get rid of this
     if (prevProps.match.params.resource !== resource) {
-      this.props.getUser(this.props.user._id) // if wee implement push notifications we can get rid of this
+      this.props.getUser(this.props.user._id) 
       // this.fetchData(resource)
       this.checkMultipleRoles()
       .then(() => {this.setDisplayResources()})
@@ -86,8 +92,8 @@ class Profile extends Component {
     if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length ||
     prevProps.user.roomNotifications.access.length !== this.props.user.roomNotifications.access.length) {
       this.checkMultipleRoles()
-        .then(() => this.setDisplayResources())
         .then(() => this.updateTabs())
+        .then(() => this.setDisplayResources())
     }
   }
   
@@ -150,6 +156,7 @@ class Profile extends Component {
     //   updatedTabs[0].notifications += courseNotifications.newRoom.length;
     // }
     if (roomNotifications.access.length > 0){
+      // let roomNotifications = roomNotifications.filter(ntf => ntf._id ===)
       updatedTabs[2].notifications = roomNotifications.access.length;
     }
     this.setState({

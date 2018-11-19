@@ -121,6 +121,7 @@ export const populateRoom = id => {
     dispatch(loading.start())
     API.getById('rooms', id)
     .then(res => {
+      console.log(res)
       dispatch(updatedRoom(id, res.data.result))
       dispatch(loading.success())
     })

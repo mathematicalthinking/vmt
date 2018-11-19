@@ -27,9 +27,15 @@ class Room extends Component {
   ]
 
   componentDidMount() {
-    const { room, user, populateRoom, accessNotifications, clearNotification, match } = this.props;
+    const { room, user, course, 
+      populateRoom, accessNotifications, 
+      clearNotification, match 
+    } = this.props;
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
     // If its in the store check access
+    console.log("room mounted")
+    console.log("room: ", room)
+    console.log("course: ", course)
     if (room) {
       populateRoom(match.params.room_id)
       // CHECK ACCESS
@@ -46,12 +52,20 @@ class Room extends Component {
       if (accessNotifications.length > 0) {
         accessNotifications.forEach(ntf => {
           if (ntf.notificationType === 'grantedAccess' && ntf._id === room._id) {
-             // RESOLVE THIS NOTIFICATION
-             firstView = true;
-             clearNotification(room._id, user._id, null, 'rooms', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
-           }
-         })
-       }
+            firstView = true;
+            clearNotification(room._id, user._id, null, 'rooms', 'access', ntf.notificationType) 
+          }
+        })
+      }
+      if (course) {
+        user.courseNotifications.access.forEach(ntf => {
+          if (ntf.notificationType === 'assignedRoom' && ntf.room === room._id) {
+            // firstView = true;
+            console.log('clearing notifications')
+            clearNotification(room._id, user._id, null, 'courses', 'access', ntf.notificationType) 
+          }
+        })
+      }
       if (room.members) {
         this.checkAccess();
       }
@@ -107,9 +121,9 @@ class Room extends Component {
 
   render() {
     let { 
-      room, match, user,
+      room, match, user, course,
       accessNotifications, error, 
-      clearError, courseMembers,
+      clearError,
     } = this.props;
     if (room && !this.state.guestMode) {
       let resource = match.params.resource;
@@ -121,7 +135,6 @@ class Room extends Component {
         owner: this.state.owner,
         notifications: accessNotifications.filter(ntf => ntf._id === room._id) || [],
         room,
-        courseMembers,
         user,
       }
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
@@ -146,7 +159,7 @@ class Room extends Component {
         {title: room.name, link: `/myVMT/rooms/${room._id}/details`}]
         //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
         // THE REDUX STORE USING THE COURSE ID IN THE URL
-      if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/myVMT/courses/${room.course._id}/activities`})}
+      if (course) {crumbs.splice(1, 0, {title: course.name, link: `/myVMT/courses/${room.course}/activities`})}
 
       return (
         <Aux>
@@ -183,11 +196,17 @@ class Room extends Component {
 
 const mapStateToProps = (store, ownProps) => {
   let { room_id } = ownProps.match.params;
+  let room = store.rooms.byId[room_id];
+  let course;
+  if (room && room.course) {
+    course = store.courses.byId[store.rooms.byId[room_id].course]
+  } 
   return {
-    room: store.rooms.byId[room_id],
+    room,
     // courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
+    course,
     user: store.user,
-    accessNotifications: store.user.roomNotifications.access,
+    accessNotifications: store.user.roomNotifications.access, // this seems redundant
     loading: store.loading.loading,
     error: store.loading.errorMessage,
   }
