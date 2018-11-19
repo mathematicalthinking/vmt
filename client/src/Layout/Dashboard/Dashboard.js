@@ -4,7 +4,7 @@ import classes from './dashboard.css';
 import Resources from './Resources/Resources';
 import Members from '../../Containers/Members/Members'
 import CustomLink from '../../Components/Navigation/CustomLink/CustomLink';
-import { TabList, BreadCrumbs, Avatar, Button, } from '../../Components';
+import { TabList, BreadCrumbs, Avatar, Button,   } from '../../Components';
 import Summary from '../Room/Room';
 import ActivityDetails from './ActivityDetails/ActivityDetails';
 

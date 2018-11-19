@@ -33,6 +33,9 @@ class Room extends Component {
     } = this.props;
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
     // If its in the store check access
+    console.log("room mounted")
+    console.log("room: ", room)
+    console.log("course: ", course)
     if (room) {
       populateRoom(match.params.room_id)
       // CHECK ACCESS
@@ -58,6 +61,7 @@ class Room extends Component {
         user.courseNotifications.access.forEach(ntf => {
           if (ntf.notificationType === 'assignedRoom' && ntf.room === room._id) {
             // firstView = true;
+            console.log('clearing notifications')
             clearNotification(room._id, user._id, null, 'courses', 'access', ntf.notificationType) 
           }
         })
@@ -117,7 +121,7 @@ class Room extends Component {
 
   render() {
     let { 
-      room, match, user,
+      room, match, user, course,
       accessNotifications, error, 
       clearError,
     } = this.props;
@@ -155,7 +159,7 @@ class Room extends Component {
         {title: room.name, link: `/myVMT/rooms/${room._id}/details`}]
         //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
         // THE REDUX STORE USING THE COURSE ID IN THE URL
-      if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/myVMT/courses/${room.course._id}/activities`})}
+      if (room.course) {crumbs.splice(1, 0, {title: course.name, link: `/myVMT/courses/${room.course}/activities`})}
 
       return (
         <Aux>
@@ -195,7 +199,7 @@ const mapStateToProps = (store, ownProps) => {
   let room = store.rooms.byId[room_id];
   let course;
   if (room && room.course) {
-    course = store.courses.byId[store.rooms.byId[room_id].course._id]
+    course = store.courses.byId[store.rooms.byId[room_id].course]
   } 
   return {
     room,

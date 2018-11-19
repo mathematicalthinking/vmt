@@ -49,6 +49,5 @@ export const populateResource = (state, resourceToPop, resourceId, resources) =>
     }
     currentResource[resource] = populatedResources;
   })
-  console.log("current resource ", currentResource)
   return currentResource;
 }
