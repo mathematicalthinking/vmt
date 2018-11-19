@@ -119,7 +119,7 @@ class Room extends Component {
     let { 
       room, match, user,
       accessNotifications, error, 
-      clearError, courseMembers,
+      clearError,
     } = this.props;
     if (room && !this.state.guestMode) {
       let resource = match.params.resource;

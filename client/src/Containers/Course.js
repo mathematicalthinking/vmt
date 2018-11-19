@@ -79,6 +79,8 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    //@TODO THIS COULD BE OPTIMIZED IF WE JUST FLAG EACH FUNCITON TO RUN INSTREAD OF POTENTIALLY RUNNING CHECKACCESS EACH TIME
+    // WE COULD TEST BY KEEPING A COUNT IN STATE AND INCREMEMENTING EVERY UPDATE
     if (!prevProps.course && this.props.course) {
       this.checkAccess();
     }
@@ -114,9 +116,9 @@ class Course extends Component {
 
   displayNotifications = (tabs) => {
 
-    const { user, course, accessNotifications } = this.props;
+    const { course, accessNotifications } = this.props;
     // if (course.creator === user._id
-      let memberNtfs = accessNotifications.filter(ntf => (ntf._id === course._id && ntf.notificationType === 'requestAccess' || ntf.notificationType === 'newMember'));
+      let memberNtfs = accessNotifications.filter(ntf => (ntf._id === course._id && (ntf.notificationType === 'requestAccess' || ntf.notificationType === 'newMember')));
       tabs[2].notifications = memberNtfs.length > 0 ? memberNtfs.length : '';
       let newRoomNtfs = accessNotifications.filter(ntf => (ntf._id === course._id && ntf.notificationType === 'assignedRoom'))
       tabs[1].notifications = newRoomNtfs.length > 0 ? newRoomNtfs.length : '';
