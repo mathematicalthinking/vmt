@@ -27,7 +27,10 @@ class Room extends Component {
   ]
 
   componentDidMount() {
-    const { room, user, populateRoom, accessNotifications, clearNotification, match } = this.props;
+    const { room, user, course, 
+      populateRoom, accessNotifications, 
+      clearNotification, match 
+    } = this.props;
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
     // If its in the store check access
     if (room) {
@@ -46,12 +49,19 @@ class Room extends Component {
       if (accessNotifications.length > 0) {
         accessNotifications.forEach(ntf => {
           if (ntf.notificationType === 'grantedAccess' && ntf._id === room._id) {
-             // RESOLVE THIS NOTIFICATION
-             firstView = true;
-             clearNotification(room._id, user._id, null, 'rooms', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
-           }
-         })
-       }
+            firstView = true;
+            clearNotification(room._id, user._id, null, 'rooms', 'access', ntf.notificationType) 
+          }
+        })
+      }
+      if (course) {
+        user.courseNotifications.access.forEach(ntf => {
+          if (ntf.notificationType === 'assignedRoom' && ntf.room === room._id) {
+            // firstView = true;
+            clearNotification(room._id, user._id, null, 'courses', 'access', ntf.notificationType) 
+          }
+        })
+      }
       if (room.members) {
         this.checkAccess();
       }
@@ -121,7 +131,6 @@ class Room extends Component {
         owner: this.state.owner,
         notifications: accessNotifications.filter(ntf => ntf._id === room._id) || [],
         room,
-        courseMembers,
         user,
       }
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
@@ -183,11 +192,17 @@ class Room extends Component {
 
 const mapStateToProps = (store, ownProps) => {
   let { room_id } = ownProps.match.params;
+  let room = store.rooms.byId[room_id];
+  let course;
+  if (room && room.course) {
+    course = store.courses.byId[store.rooms.byId[room_id].course._id]
+  } 
   return {
-    room: store.rooms.byId[room_id],
+    room,
     // courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
+    course,
     user: store.user,
-    accessNotifications: store.user.roomNotifications.access,
+    accessNotifications: store.user.roomNotifications.access, // this seems redundant
     loading: store.loading.loading,
     error: store.loading.errorMessage,
   }

@@ -34,10 +34,16 @@ export default {
   },
 
   removeNotification: (ntfId, userId, requestingUser, resource, listType, ntfType) => {
+    // this is hacky as fuck it better be gone soon
+    // need to rethink everything about the assignedRoom Notifications
+    let selector = '_id';
+    if (ntfType === 'assignedRoom') {
+      selector = 'room';
+    }
     return axios.put(`/api/user/${userId}/remove`, {
       [`${resource}Notifications.${listType}`]: {
         notificationType: ntfType,
-        _id: ntfId,
+        [selector]: ntfId,
         user: requestingUser,
       }
     })

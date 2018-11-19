@@ -156,6 +156,7 @@ class Profile extends Component {
     //   updatedTabs[0].notifications += courseNotifications.newRoom.length;
     // }
     if (roomNotifications.access.length > 0){
+      // let roomNotifications = roomNotifications.filter(ntf => ntf._id ===)
       updatedTabs[2].notifications = roomNotifications.access.length;
     }
     this.setState({

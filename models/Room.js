@@ -39,16 +39,14 @@ Room.pre('save', function (next) {
     promises = promises.concat(this.members.map(member => {
       // add a new room notification if they're not the facilitator
       let query = {$addToSet: {rooms: this._id}}
-      console.log(member.role)
-      if (member.role === 'Participant') {
+      if (member.role === 'Participant' && this.course) {
         query = {$addToSet: {
           rooms: this._id, 
-          'roomNotifications.access': {
-            notificationType: 'grantedAccess', _id: this._id}
+          'courseNotifications.access': {
+            notificationType: 'assignedRoom', _id: this.course, room: this._id}
           }
         }
       }
-      console.log(query)
       return User.findByIdAndUpdate(member.user, query)
     }))
     // promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}}))

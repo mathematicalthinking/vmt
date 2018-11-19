@@ -31,7 +31,7 @@ module.exports = {
       .populate({path: 'events', select: '-room'})
       .populate({path: 'graphImage', select: 'imageData'})
       .then(room => {
-        // console.log(room.graphImage)
+        console.log(room.course)
         resolve(room)
       })
       .catch(err => reject(err))

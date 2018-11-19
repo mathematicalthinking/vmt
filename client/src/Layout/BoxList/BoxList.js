@@ -12,7 +12,7 @@ const boxList = props => {
       if (props.listType === 'private') {
         if (props.notifications.length > 0) {
           props.notifications.forEach((ntf) => {
-            if (ntf._id === item._id) {
+            if (ntf._id === item._id || ntf.room === item._id) {
               notifications += 1;
             }
           })

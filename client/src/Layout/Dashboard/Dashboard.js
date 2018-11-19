@@ -26,11 +26,9 @@ const dashboard = props => {
   } else if (resource === 'details') {
     content = <Summary room={room} loading={props.loading}/>
   } else {
-    content = <DnDTrash>
-      {resource === 'members' ? <Members {...props.contentData}/>
-      : <Resources {...props.contentData} /> }
-      <div className={classes.Trash}><Trash /></div>
-    </DnDTrash>
+    content = resource === 'members' 
+      ? <Members {...props.contentData}/>
+      : <Resources {...props.contentData} /> 
   }
   let image = sidePanelData.image ? <img src={sidePanelData.image} alt='sidePanelImage'/> :  <Avatar size='large'/>
   let { additional } = sidePanelData.details;
