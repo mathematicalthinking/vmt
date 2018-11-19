@@ -42,7 +42,7 @@ module.exports = {
       db.Room.create(body)
       .then(room => {
         if (body.course) {
-          room.populate({path: 'course', select: 'name'})
+          // room.populate({path: 'course', select: 'name'})
         }
         room
         .populate({path: 'members.user', select: 'username'})
