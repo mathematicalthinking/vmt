@@ -6,7 +6,7 @@ import Script from 'react-load-script';
 import throttle from 'lodash/throttle';
 import { parseString } from 'xml2js';
 
-const THROTTLE_FIDELITY = 0;
+const THROTTLE_FIDELITY = 60;
 class GgbGraph extends Component {
 
   state = {
@@ -114,6 +114,7 @@ class GgbGraph extends Component {
     }
 
     this.updateListener = throttle(label => {
+      console.log('updating')
       if (!this.state.receivingData) {
         let xml = this.ggbApplet.getXML(label)
         sendEvent(xml, null, label, "UPDATE", "updated")
@@ -124,14 +125,16 @@ class GgbGraph extends Component {
 
     const sendEvent = async (xml, definition, label, eventType, action) => {
       let xmlObj;
+      console.log(xml)
       if (xml) xmlObj = await parseXML(xml)
+      console.log(xmlObj)
       let newData = {
         definition,
         label,
         eventType,
         room: room._id,
         event: xml,
-        description: `${user.username} ${action} ${xmlObj ? xmlObj.element.$.type : ''} ${label}`,
+        description: `${user.username} ${action} ${xmlObj && xmlObj.element ? xmlObj.element.$.type : ''} ${label}`,
         user: {_id: user._id, username: user.username},
         timestamp: new Date().getTime(),
         currentState: this.ggbApplet.getXML(),
