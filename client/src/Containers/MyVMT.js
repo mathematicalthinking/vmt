@@ -38,7 +38,7 @@ class Profile extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    let { user, loading, match } = this.props;
+    let { user, match } = this.props;
     let { resource } = match.params;
     // If the user has a new resource
     // if (prevProps.user[resource].length !== this.props.user[resource].length) {
@@ -183,7 +183,7 @@ class Profile extends Component {
               }
             })
             return included;
-          }
+          } else return false;
         })
       }
       // console.log("DISPLAY RESOURCES: ", displayResources)
