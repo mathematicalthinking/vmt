@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 // import Activities from '../Activities/Activities';
-import { getUserResources }from '../store/reducers';
+// import { getUserResources }from '../store/reducers';
 import { connect } from 'react-redux';
 import {
   getRoomsIds,
