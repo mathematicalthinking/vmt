@@ -116,7 +116,6 @@ class Room extends Component {
   }
 
   render() {
-<<<<<<< HEAD
     let { 
       room, match, user, course,
       accessNotifications, error,
@@ -157,48 +156,6 @@ class Room extends Component {
         //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
         // THE REDUX STORE USING THE COURSE ID IN THE URL
       if (course) {crumbs.splice(1, 0, {title: course.name, link: `/myVMT/courses/${room.course}/activities`})}
-=======
-    console.log("courseMembers: ", this.props.courseMembers)
-    let { 
-      room, match, user,
-      accessNotifications, error, 
-      clearError, courseMembers,
-    } = this.props;
-    let resource = match.params.resource;
-    let contentData = {
-      resource,
-      parentResource: 'rooms',
-      parentResourceId: room._id,
-      userResources: room[resource],
-      owner: this.state.owner,
-      notifications: accessNotifications.filter(ntf => ntf._id === room._id) || [],
-      room,
-      courseMembers,
-      user,
-    }
-    let sidePanelData = {
-      image: room.image,
-      title: room.name,
-      details: {
-        main: room.name,
-        secondary: room.description,
-        additional: {
-          // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
-          ['due date']: moment(room.dueDate).format('ddd, MMM D') || 'no due date set',
-          code: room.entryCode,
-          type: room.roomType,
-        }
-      },
-      edit: {}
-    }
-
-    let crumbs = [
-      {title: 'My VMT', link: '/myVMT/courses'},
-      {title: room.name, link: `/myVMT/rooms/${room._id}/details`}]
-      //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
-      // THE REDUX STORE USING THE COURSE ID IN THE URL
-    if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/myVMT/courses/${room.course._id}/activities`})}
->>>>>>> started adding courseMembers to add to rooms
 
       return (
         <Aux>
