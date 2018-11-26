@@ -38,55 +38,56 @@ class Profile extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { loading } = this.props;
-    const { resource } = this.props.match.params;
-    // IF THE USER HAS A NEW RESOURCE
-    if (prevProps[`user${resource}`].length !== this.props[`user${resource}`].length) {
-      this.checkMultipleRoles()
-      .then(() => this.setDisplayResources())
-      .then(res => this.updateTabs())
+    let { user, loading, match } = this.props;
+    let { resource } = match.params;
+    // If the user has a new resource
+    // if (prevProps.user[resource].length !== this.props.user[resource].length) {
+    //   console.log('the user"s resources have changes')
+    //   let idsToFetch = user[resource].filter(id => !this.props[resource].includes(id))
+    //   console.log("IDS TO FETCH: ", idsToFetch)
+    //   if (idsToFetch.length > 0) {
+    //     this.fetchData(resource, idsToFetch)
+    //   }
+    //   // this.checkMultipleRoles()
+    //   // .then(() => this.setDisplayResources())
+    //   // .then(res => this.updateTabs())
+    // }
+    // IF THE USER HAS A RESOURCE THAT HASN'T BEEN POPULATED YET
+    if (!this.props.loading) {
+      if (this.props.user[resource].length > this.props[resource].allIds.length) {
+        console.log('the user has a resource that hasn"t been populated yet')
+        let idsToFetch = user[resource].filter(id => !this.props[resource].allIds.includes(id));
+        console.log('idsTOFetch: ', idsToFetch)
+        this.fetchData(resource, idsToFetch)
+      }
     }
 
-    if (!loading && this.props[resource].length < this.props.user[resource].length) {
-      console.log('there is a resource on the user list that is not in the store')
-      let idsToFetch = this.props.user[resource].filter(id => !this.props[resource].includes(id))
-      console.log(idsToFetch)
-      this.fetchByIds(resource, idsToFetch)
-    } 
-    // // WHen we've finished loading make sure all the resources on the user object are also populated in the store
-    // if (!loading) {
-    //   let haveResource = user[resource].every(rsrc => this.props[resource].includes(rsrc))
-    //   if (!haveResource) {
-    //     this.fetchData(resource)
-    //   }
-    // }
-
-    // // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
-    // if (!loading) {
-    //   if (prevProps[resource].length !== this.props[resource].length) {
-    //     this.checkMultipleRoles()
-    //     .then(() => this.setDisplayResources())
-    //     .then(() => this.updateTabs())
-    //   }
-    // }
-
+    // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
+    if (!loading) {
+      if (prevProps[resource].allIds.length !== this.props[resource].allIds.length) {
+        console.log('A new resource has been populated in the store')
+        this.checkMultipleRoles()
+        .then(() => this.setDisplayResources())
+        .then(() => this.updateTabs())
+      }
+    }
+    // If the view (role) has changes
     if (prevState.view !== this.state.view) {
       console.log(prevState.view, this.state.view)
       console.log('the role has changed')
       this.setDisplayResources()
       .then(() => this.updateTabs())
     }
-
-    // IF THE RESOURCE HAS CHANGED
+    // If the resource has changes
     if (prevProps.match.params.resource !== resource) {
-      this.props.getUser(this.props.user._id) // if wee implement push notifications we can get rid of this
-      // this.fetchData(resource)
+      this.props.getUser(this.props.user._id) // if we implement push notifications we can get rid of this
       this.checkMultipleRoles()
       .then(() => {this.setDisplayResources()})
     }
-    // does this EVER HAPPEM?
+    // If the user has new notifications
     if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length ||
     prevProps.user.roomNotifications.access.length !== this.props.user.roomNotifications.access.length) {
+      console.log('the notifications have changed')
       this.checkMultipleRoles()
         .then(() => this.setDisplayResources())
         .then(() => this.updateTabs())
