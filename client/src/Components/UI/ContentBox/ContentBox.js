@@ -16,11 +16,13 @@ class ContentBox extends PureComponent{
   }
 
   toggleExpand = (event) => {
+    console.log('toggling')
     event.preventDefault();
-    console.log('toggling expand')
-    this.setState(prevState => ({
-      expanded: !prevState.exapnded
-    }))
+    let prevState = this.state.expanded
+    this.setState({
+      expanded: !prevState
+    })
+    console.log(this.state.expanded)
   }
   
   hoverOnSelect = () => {
@@ -34,13 +36,14 @@ class ContentBox extends PureComponent{
     setTimeout(this.setState({selected: true}), 400)
   }
   render() {
+    console.log(this.props)
     let { selecting } = this.props;
-    let alignClass = classes.Center;
+    // let alignClass = classes.Center;
     let animatedClass = '';
     let selectedClass = '';
     let selectedClassPlus = '';
-    if (this.props.align === 'left') alignClass = classes.Left;
-    if (this.props.align === 'right') alignClass = classes.Right;
+    // if (this.props.align === 'left') alignClass = classes.Left;
+    // if (this.props.align === 'right') alignClass = classes.Right;
     if (this.state.selectAnimation) animatedClass = classes.Selecting;
     if (this.state.selected) {
       selectedClassPlus = classes.SelectedPlus;
@@ -54,36 +57,38 @@ class ContentBox extends PureComponent{
         className={[classes.Container, selectedClass].join(" ")} 
         style={{height: this.state.expanded ? 150 : 50}}
       >
-      <div 
-        data-testid={`content-box-${this.props.title}`} 
-        className={classes.SubContainer}
-        onClick={selecting ? this.select : null}
-        onMouseEnter={selecting ? this.hoverOnSelect : null}
-        onMouseLeave={selecting ? () => {this.setState({showOverlay: false})} : null}
-      >
-        {this.state.showOverlay ? 
-          <div className={classes.SelectOverlay} data-testid={`overlay-${this.props.title}`}>
-            <i className={[classes.Plus, "fas fa-plus", animatedClass, selectedClassPlus].join(" ")}></i>
-          </div> 
-        : null}
-        {notifications}
-        <div className={classes.TitleIcons}>
-          <div className={classes.Icons}>
-            <Icons image={this.props.image} lock={this.props.locked} roomType={this.props.roomType}/>
-          </div>
-          <div className={classes.Title} data-testid="">{this.props.title}</div>
-        </div>
-        <div className={[classes.Content, alignClass].join(' ')}>
-          {/* // Maybe separate all of this out ot its own component or revert back passing in this.props.children */}
-          {this.props.details && this.state.expanded ?
-            <div className={classes.Expanded}>
-              <div>{this.props.details.description || ''}</div>
-              {this.props.details.facilitators.length > 0 ? <div>Facilitators: {this.props.details.facilitators.map(facilitator => facilitator)}</div> : null}
-              {this.props.details.entryCode ? <div>Entry Code: {this.props.details.entryCode}</div> : null}
+        <div 
+          data-testid={`content-box-${this.props.title}`} 
+          className={classes.SubContainer}
+          onClick={selecting ? this.select : null}
+          onMouseEnter={selecting ? this.hoverOnSelect : null}
+          onMouseLeave={selecting ? () => {this.setState({showOverlay: false})} : null}
+        >
+          {this.state.showOverlay ? 
+            <div className={classes.SelectOverlay} data-testid={`overlay-${this.props.title}`}>
+              <i className={[classes.Plus, "fas fa-plus", animatedClass, selectedClassPlus].join(" ")}></i>
             </div> 
-          : <div className={classes.Expand}><Expand clickHandler={this.toggleExpand}/></div>}
+          : null }
+            <div className={classes.TopBanner}>
+              <div className={classes.BannerLeft}>
+                <div className={classes.Icons}>
+                  <Icons image={this.props.image} lock={this.props.locked} roomType={this.props.roomType}/>
+                </div>
+                <div className={classes.Title} data-testid="">{this.props.title}</div>
+                {notifications} 
+              </div>
+              <div className={classes.Expand} style={{transform: this.state.expanded ? `rotate(180deg)` : `rotate(0)`}}><Expand clickHandler={this.toggleExpand}/></div>
+            </div>
+          <div className={classes.Content}>
+            {this.props.details && this.state.expanded ?
+              <div className={classes.Expanded}>
+                <div>{this.props.details.description || ''}</div>
+                {this.props.details.facilitators.length > 0 ? <div>Facilitators: {this.props.details.facilitators.map(facilitator => facilitator)}</div> : null}
+                {this.props.details.entryCode ? <div>Entry Code: {this.props.details.entryCode}</div> : null}
+              </div> 
+            : null} 
+          </div>
         </div>
-      </div>
       </Link>
     </Aux>
     )
