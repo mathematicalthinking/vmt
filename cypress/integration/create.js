@@ -88,7 +88,7 @@ describe('create each type of resource', function(){
     cy.getTestElement('select-count').contains('1').should('exist')
     cy.contains('My VMT').click()
     cy.getTestElement('tab').contains('Activities').click()
-    cy.getTestElement('box-list').children().last().contains("ACTIVITY 1").should('exist')
+    cy.getTestElement('box-list').children().first().contains("ACTIVITY 1").should('exist')
   })
 
   it("creates a course room by assigning a course's activity", function(){

@@ -4,9 +4,9 @@ import DashboardLayout from '../Layout/Dashboard/Dashboard';
 // import { getUserResources }from '../store/reducers';
 import { connect } from 'react-redux';
 import {
-  getRoomsIds,
-  getActivitiesIds,
-  getCoursesIds,
+  getRooms,
+  getActivities,
+  getCourses,
   getUser,
   toggleJustLoggedIn,
 } from '../store/actions'
@@ -52,29 +52,27 @@ class Profile extends Component {
     //   // .then(() => this.setDisplayResources())
     //   // .then(res => this.updateTabs())
     // }
-    // IF THE USER HAS A RESOURCE THAT HASN'T BEEN POPULATED YET
+    // IF THE USER HAS A RESOURCE THAT HAS NOT BEEN ADDED TO THE STORE YET WE SHOULD FETCH IT
     if (!this.props.loading) {
       if (this.props.user[resource].length > this.props[resource].allIds.length) {
-        console.log('the user has a resource that hasn"t been populated yet')
+        // console.log('we need to fetch some resources')
         let idsToFetch = user[resource].filter(id => !this.props[resource].allIds.includes(id));
-        console.log('idsTOFetch: ', idsToFetch)
-        this.fetchData(resource, idsToFetch)
+        // console.log(idsToFetch)
+        this.fetchByIds(resource, idsToFetch)
       }
     }
 
     // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
-    if (!loading) {
+    // if (!loading) {
       if (prevProps[resource].allIds.length !== this.props[resource].allIds.length) {
-        console.log('A new resource has been populated in the store')
+        // console.log("this should update after fetch")
         this.checkMultipleRoles()
         .then(() => this.setDisplayResources())
         .then(() => this.updateTabs())
       }
-    }
+    // }
     // If the view (role) has changes
     if (prevState.view !== this.state.view) {
-      console.log(prevState.view, this.state.view)
-      console.log('the role has changed')
       this.setDisplayResources()
       .then(() => this.updateTabs())
     }
@@ -87,7 +85,7 @@ class Profile extends Component {
     // If the user has new notifications
     if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length ||
     prevProps.user.roomNotifications.access.length !== this.props.user.roomNotifications.access.length) {
-      console.log('the notifications have changed')
+      // console.log('the notifications have changed')
       this.checkMultipleRoles()
         .then(() => this.setDisplayResources())
         .then(() => this.updateTabs())
@@ -103,29 +101,30 @@ class Profile extends Component {
       if (match.params.resource === 'activities') {
         this.setState({bothRoles: false, view: 'facilitator'})
         return resolve(); // Activities are for facilitators only
-      }
-    // determine roles
-      let isFacilitator = false;
-      let isParticipant = false;
-      let bothRoles = false;
-      let view = 'facilitator';
-      if (this.props[resource]) {
-        this.props[resource].allIds.forEach(id => {
-          this.props[resource].byId[id].members.forEach((member) => {
-            if (member.user._id === user._id) {
-              if (member.role === 'participant') isParticipant = true;
-              if (member.role === 'facilitator') isFacilitator = true;
-            }
+      } else {
+      // determine roles
+        let isFacilitator = false;
+        let isParticipant = false;
+        let bothRoles = false;
+        let view = 'facilitator';
+        if (this.props[resource]) {
+          this.props[resource].allIds.forEach(id => {
+            this.props[resource].byId[id].members.forEach((member) => {
+              if (member.user._id === user._id) {
+                if (member.role === 'participant') isParticipant = true;
+                if (member.role === 'facilitator') isFacilitator = true;
+              }
+            })
           })
-        })
+        }
+        // @TODO Theres some redundancy here
+        if (isFacilitator && isParticipant) bothRoles = true
+        else view = isFacilitator ? 'facilitator' : 'participant';
+        this.setState({
+          bothRoles,
+          view,
+        }, () => resolve())
       }
-      // @TODO Theres some redundancy here
-      if (isFacilitator && isParticipant) bothRoles = true
-      else view = isFacilitator ? 'facilitator' : 'participant';
-      this.setState({
-        bothRoles,
-        view,
-      }, () => resolve())
     })
   
   }
@@ -168,22 +167,26 @@ class Profile extends Component {
       let { user, match } = this.props;
       let { resource } = match.params;
       if (match.params.resource === 'activities') {
-        this.setState({displayResources: this.props[`user${resource}`]})
-        return resolve();
+        return this.setState({displayResources: this.props[resource].allIds}, () => resolve())
       }
       let displayResources = [];
       if (this.props[resource]) {
+        // console.log('the resource were looking for exists')
         displayResources = this.props[resource].allIds.filter(id => {
           let included = false
-          this.props[resource].byId[id].members.forEach(member => {
-            if (member.user._id === user._id && member.role === this.state.view) {
-              included = true;
-            }
-          })
-          return included;
+          console.log(this.props[resource].byId[id].members)
+          if (this.props[resource].byId[id].members) {
+            this.props[resource].byId[id].members.forEach(member => {
+              if (member.user._id === user._id && member.role === this.state.view) {
+                // console.log('this ', id, ' should be included')
+                included = true;
+              }
+            })
+            return included;
+          }
         })
       }
-      console.log("DISPLAY RESOURCES: ", displayResources)
+      // console.log("DISPLAY RESOURCES: ", displayResources)
       this.setState({displayResources, }, () => resolve())
     }))
   }
@@ -247,9 +250,9 @@ const mapStateToProps = store => ({
 })
 
 export default connect(mapStateToProps, {
-  getRoomsIds,
-  getActivitiesIds,
-  getCoursesIds,
+  getRooms,
+  getActivities,
+  getCourses,
   getUser,
   toggleJustLoggedIn,
 })(Profile);

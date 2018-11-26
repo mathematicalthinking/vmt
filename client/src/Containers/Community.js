@@ -13,24 +13,6 @@ class Community extends Component {
   }
   allResources = [];
 
-  componentDidUpdate(prevProps, prevState) {
-      // if resource changed see if we need to fetch the data
-    const { resource, action } = this.props.match.params;
-    // const resourceList = this.props[`${resource}Arr`].map(id => this.props[resource][id])
-    if (prevProps.match.params.resource !== resource) {
-      console.log('resource changed')
-      this.fetchData(resource);
-    }
-    // if rooms/courses updated from redux
-    // if (prevProps[resource] !== this.props[resource]) {
-    //   this.setState({visibleResources: resourceList})
-    // }
-    if (prevProps.match.params.action !== action) {
-      this.setState({selecting: action === 'selecting'})
-    }
-    // this.allResources = resourceList;
-  }
-
   componentDidMount() {
     let { resource, action } = this.props.match.params;
     // @TODO WHen should we refresh this data. Here we're saying:
@@ -48,18 +30,24 @@ class Community extends Component {
     this.setState({selecting: action})
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    const { resource, action } = this.props.match.params;
+    if (prevProps.match.params.resource !== resource) {
+      this.fetchData(resource);
+    }
+    if (prevProps.match.params.action !== action) {
+      this.setState({selecting: action === 'selecting'})
+    }
+    // this.allResources = resourceList;
+  }
+
   fetchData = resource => {
-    console.log('fetching data')
-    // if (resource === 'courses') this.props.getCourses();
-    // else if (resource === 'rooms') this.props.getRooms();
-    // else this.props.getActivities();
-    // WE DONT WANT TO CLUTTER THE REDUX STORE WITH THIS DATA 
+    console.log('resource', resource)
     API.get(resource)
     .then(res => {
       this.setState({visibleResources: res.data.results})
     })
   }
-
 
   filterResults = value => {
     value = value.toLowerCase();

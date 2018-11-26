@@ -2,10 +2,13 @@ const db = require('../models')
 
 module.exports = {
   get: params => {
-    if (params.constructor === Array) {
+    console.log('getting rooms!')
+    if (params && params.constructor === Array) {
       params = {'_id': {$in: params}}
+    } else {
+      params = params ? params : {} 
+      params.tempRoom = false; // we don't want any temporary rooms
     }
-    params.tempRoom = false; // we don't want any temporary rooms
     return new Promise((resolve, reject) => {
       db.Room
       .find(params)

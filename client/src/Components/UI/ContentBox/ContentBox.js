@@ -16,13 +16,11 @@ class ContentBox extends PureComponent{
   }
 
   toggleExpand = (event) => {
-    console.log('toggling')
     event.preventDefault();
     let prevState = this.state.expanded
     this.setState({
       expanded: !prevState
     })
-    console.log(this.state.expanded)
   }
   
   hoverOnSelect = () => {
@@ -36,7 +34,6 @@ class ContentBox extends PureComponent{
     setTimeout(this.setState({selected: true}), 400)
   }
   render() {
-    console.log(this.props)
     let { selecting } = this.props;
     // let alignClass = classes.Center;
     let animatedClass = '';
