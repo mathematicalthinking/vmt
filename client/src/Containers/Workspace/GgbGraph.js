@@ -13,6 +13,7 @@ class GgbGraph extends Component {
     receivingData: false,
     loadingWorkspace: true,
     loading: true,
+    selectedElement: '',
   }
 
   componentDidMount() {
@@ -117,6 +118,7 @@ class GgbGraph extends Component {
       console.log('updating')
       if (!this.state.receivingData) {
         let xml = this.ggbApplet.getXML(label)
+        console.log(xml)
         sendEvent(xml, null, label, "UPDATE", "updated")
       }
       this.setState({receivingData: false})
@@ -125,9 +127,7 @@ class GgbGraph extends Component {
 
     const sendEvent = async (xml, definition, label, eventType, action) => {
       let xmlObj;
-      console.log(xml)
       if (xml) xmlObj = await parseXML(xml)
-      console.log(xmlObj)
       let newData = {
         definition,
         label,
@@ -144,6 +144,7 @@ class GgbGraph extends Component {
     // attach this listeners to the ggbApplet
     if (this.ggbApplet.listeners.length === 0) {
       this.ggbApplet.registerAddListener(this.addListener);
+      this.ggbApplet.registerClickListener(this.clickListener);
       this.ggbApplet.registerUpdateListener(this.updateListener);
       this.ggbApplet.registerRemoveListener(this.removeListener);
     }
