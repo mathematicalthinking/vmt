@@ -17,16 +17,39 @@ class GgbReplayer extends Component {
     } return false;
   }
 
+  
   componentDidUpdate(prevProps, prevState) {
     const { log, index, skipping } = this.props;
     // REbuild the constrution from scratch up to the current index
     if (!prevProps.skipping && skipping) {
-      this.ggbApplet.reset();
-      log.forEach((entry, i) => {
-        if (i <= this.props.index && entry.event) {
-          this.constructEvent(entry)
+      // console.log(log)
+      // console.log('this index: ', index)
+      // console.log('previous index: ', prevProps.index)
+      // console.log('----------------???--------')
+      if (prevProps.index < this.props.index) {
+        for (let i = prevProps.index + 1; i <= this.props.index; i++) {
+          this.constructEvent(log[i])
         }
-      })
+      } 
+      else {
+        for (let i = prevProps.index; i >= this.props.index + 1; i--) {
+          let syntheticEvent = {...log[i]}
+          if (syntheticEvent.eventType === 'ADD') {
+            syntheticEvent.eventType = 'REMOVE'
+          } 
+          else if (syntheticEvent.eventType === 'REMOVE') {
+            syntheticEvent.eventType = 'ADD'
+          }
+          // console.log(syntheticEvent)
+          this.constructEvent(syntheticEvent)
+        }
+      }
+      // this.ggbApplet.reset();
+      // log.forEach((entry, i) => {
+      //   if (i <= this.props.index && entry.event) {
+      //     this.constructEvent(entry)
+      //   }
+      // })
     }
     else if (prevProps.log[prevProps.index]._id !== log[index]._id && !this.state.loading && !log[index].text) {
       this.constructEvent(log[index])
