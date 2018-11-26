@@ -27,7 +27,7 @@ class Profile extends Component {
   componentDidMount() {
     // this.fetchData(this.props.match.params.resource)
     // if (!this.props.user.justLoggedIn) {
-      this.props.getUser(this.props.user._id) 
+    this.props.getUser(this.props.user._id) 
     // }
     this.checkMultipleRoles()
     .then(res => this.setDisplayResources()) 
@@ -36,7 +36,6 @@ class Profile extends Component {
       this.props.toggleJustLoggedIn();
     })
   }
-}
 
   componentDidUpdate(prevProps, prevState) {
     const { loading } = this.props;
