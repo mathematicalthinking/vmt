@@ -4,7 +4,8 @@ import { fail } from '../../store/actions/loading';
 import { Route, Redirect } from 'react-router-dom';
 
 const privateRoute = ({component: Component, authed, redirectPath, fail, ...rest}) => {
-  if (redirectPath === '/signup' && !authed) {
+  if (redirectPath === '/signup') {
+    console.log('fail')
     fail('You need to be signed in to access this resource')
   }
   return (
