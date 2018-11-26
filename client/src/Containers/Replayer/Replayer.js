@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { updateRoom } from '../../store/actions/';
 import DesmosReplayer from './DesmosReplayer';
 import GgbReplayer from './GgbReplayer';
+import throttle from 'lodash/throttle';
 import ChatReplayer from './ChatReplayer';
 import ReplayControls from '../../Components/Replayer/ReplayerControls';
 import moment from 'moment';
@@ -111,8 +112,8 @@ class Replayer extends Component {
     }, PLAYBACK_FIDELITY)
   }
 
-
-  goToTime = (percent) => {
+  // Takes a % of total progress and goes to the nearest timestamp
+  goToTime = throttle((percent) => {
     let logIndex;
     let timeElapsed = percent  * this.relativeDuration
     if (percent === 1) {
@@ -129,7 +130,7 @@ class Replayer extends Component {
     }
     this.setState({timeElapsed, logIndex, playing: false, changingIndex: true,})
     // setTimeout(() => this.setState({playing:}))
-  }
+  }, 70)
 
   pausePlay = () => {
     this.setState(prevState => ({
