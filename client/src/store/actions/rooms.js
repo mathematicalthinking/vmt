@@ -116,6 +116,19 @@ export const getRooms = params => {
   }
 }
 
+export const getRoomsIds = ids => {
+  return dispatch => {
+    API.getIds('rooms', ids)
+    .then(res => {
+      // Normalize res
+      let rooms = normalize(res.data.results)
+      dispatch(gotRooms(rooms))
+      dispatch(loading.success())
+    })
+    .catch(err => dispatch(loading.fail(err)));
+  }
+}
+
 export const populateRoom = id => {
   return dispatch => {
     dispatch(loading.start())

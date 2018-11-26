@@ -4,9 +4,9 @@ import DashboardLayout from '../Layout/Dashboard/Dashboard';
 import { getUserResources }from '../store/reducers';
 import { connect } from 'react-redux';
 import {
-  getRooms,
-  getActivities,
-  getCourses,
+  getRoomsIds,
+  getActivitiesIds,
+  getCoursesIds,
   getUser,
   toggleJustLoggedIn,
 } from '../store/actions'
@@ -38,69 +38,67 @@ class Profile extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { loading } = this.props;
-    const { resource } = this.props.match.params;
-    // IF THE USER HAS A NEW RESOURCE
-    if (prevProps[`user${resource}`].length !== this.props[`user${resource}`].length) {
-      // console.log('the user has a new resource')
-      this.checkMultipleRoles()
-      .then(() => this.setDisplayResources())
-      .then(res => this.updateTabs())
+    let { user, loading, match } = this.props;
+    let { resource } = match.params;
+    // If the user has a new resource
+    // if (prevProps.user[resource].length !== this.props.user[resource].length) {
+    //   console.log('the user"s resources have changes')
+    //   let idsToFetch = user[resource].filter(id => !this.props[resource].includes(id))
+    //   console.log("IDS TO FETCH: ", idsToFetch)
+    //   if (idsToFetch.length > 0) {
+    //     this.fetchData(resource, idsToFetch)
+    //   }
+    //   // this.checkMultipleRoles()
+    //   // .then(() => this.setDisplayResources())
+    //   // .then(res => this.updateTabs())
+    // }
+    // IF THE USER HAS A RESOURCE THAT HASN'T BEEN POPULATED YET
+    if (!this.props.loading) {
+      if (this.props.user[resource].length > this.props[resource].allIds.length) {
+        console.log('the user has a resource that hasn"t been populated yet')
+        let idsToFetch = user[resource].filter(id => !this.props[resource].allIds.includes(id));
+        console.log('idsTOFetch: ', idsToFetch)
+        this.fetchData(resource, idsToFetch)
+      }
     }
 
-    if (!loading && this.props[resource].length < this.props.user[resource].length) {
-      // console.log('there is a resource on the user list that is not in the store')
-      let idsToFetch = this.props.user[resource].filter(id => !this.props[resource].includes(id))
-      // console.log(idsToFetch)
-      this.fetchByIds(resource, idsToFetch)
-    } 
-
-    if (prevProps[resource].length < this.props[resource].length) {
-      this.setDisplayResources();
+    // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
+    if (!loading) {
+      if (prevProps[resource].allIds.length !== this.props[resource].allIds.length) {
+        console.log('A new resource has been populated in the store')
+        this.checkMultipleRoles()
+        .then(() => this.setDisplayResources())
+        .then(() => this.updateTabs())
+      }
     }
-    // // WHen we've finished loading make sure all the resources on the user object are also populated in the store
-    // if (!loading) {
-    //   let haveResource = user[resource].every(rsrc => this.props[resource].includes(rsrc))
-    //   if (!haveResource) {
-    //     this.fetchData(resource)
-    //   }
-    // }
-
-    // // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
-    // if (!loading) {
-    //   if (prevProps[resource].length !== this.props[resource].length) {
-    //     this.checkMultipleRoles()
-    //     .then(() => this.setDisplayResources())
-    //     .then(() => this.updateTabs())
-    //   }
-    // }
-
+    // If the view (role) has changes
     if (prevState.view !== this.state.view) {
+      console.log(prevState.view, this.state.view)
+      console.log('the role has changed')
       this.setDisplayResources()
       .then(() => this.updateTabs())
     }
-
-    // IF THE RESOURCE HAS CHANGED
-    // if wee implement push notifications we can get rid of this
+    // If the resource has changes
     if (prevProps.match.params.resource !== resource) {
-      this.props.getUser(this.props.user._id) 
-      // this.fetchData(resource)
+      this.props.getUser(this.props.user._id) // if we implement push notifications we can get rid of this
       this.checkMultipleRoles()
       .then(() => {this.setDisplayResources()})
     }
-    // does this EVER HAPPEM?
+    // If the user has new notifications
     if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length ||
     prevProps.user.roomNotifications.access.length !== this.props.user.roomNotifications.access.length) {
+      console.log('the notifications have changed')
       this.checkMultipleRoles()
-        .then(() => this.updateTabs())
         .then(() => this.setDisplayResources())
+        .then(() => this.updateTabs())
     }
   }
   
   // CHekcs if the user has mulitple roles for a single resource (i.e. facilitator and participant)
   // if so we toggle the "view as" buttons to be visible
   checkMultipleRoles = () => {
-    const { match, user, } = this.props;
+    let { match, user, } = this.props;
+    let { resource } = match.params;
     return new Promise(resolve => {
       if (match.params.resource === 'activities') {
         this.setState({bothRoles: false, view: 'facilitator'})
@@ -111,9 +109,9 @@ class Profile extends Component {
       let isParticipant = false;
       let bothRoles = false;
       let view = 'facilitator';
-      if (this.props[`user${match.params.resource}`]) {
-        this.props[`user${match.params.resource}`].forEach(resource => {
-          resource.members.forEach((member) => {
+      if (this.props[resource]) {
+        this.props[resource].allIds.forEach(id => {
+          this.props[resource].byId[id].members.forEach((member) => {
             if (member.user._id === user._id) {
               if (member.role === 'participant') isParticipant = true;
               if (member.role === 'facilitator') isFacilitator = true;
@@ -132,9 +130,10 @@ class Profile extends Component {
   
   }
 
-  fetchByIds = (resource, ids) => {
-    resource = resource.charAt(0).toUpperCase() + resource.slice(1)
-    this.props[`get${resource}`](ids)
+  fetchData = (resource, ids) => {
+    console.log('fetching the following ids: ', ids)
+    let capitalizedResource = resource.charAt(0).toUpperCase() + resource.slice(1)
+    this.props[`get${capitalizedResource}Ids`](ids)
   }
 
   updateTabs = () => {
@@ -174,10 +173,10 @@ class Profile extends Component {
         return resolve();
       }
       let displayResources = [];
-      if (this.props[`user${resource}`]) {
-        displayResources = this.props[`user${resource}`].filter(rsrc => {
+      if (this.props[resource]) {
+        displayResources = this.props[resource].allIds.filter(id => {
           let included = false
-          rsrc.members.forEach(member => {
+          this.props[resource].byId[id].members.forEach(member => {
             if (member.user._id === user._id && member.role === this.state.view) {
               included = true;
             }
@@ -185,6 +184,7 @@ class Profile extends Component {
           return included;
         })
       }
+      console.log("DISPLAY RESOURCES: ", displayResources)
       this.setState({displayResources, }, () => resolve())
     }))
   }
@@ -195,11 +195,12 @@ class Profile extends Component {
 
 
   render() {
+    console.log(this.state.displayResources)
     let { user, match } = this.props;
     let resource = match.params.resource;
     let contentData = {
       resource,
-      userResources: this.state.displayResources,
+      userResources: this.state.displayResources.map(id => this.props[resource].byId[id]) || [],
       notifications: (resource === 'courses') ? user.courseNotifications.access : user.roomNotifications.access,
       user,
     }
@@ -239,20 +240,17 @@ class Profile extends Component {
 // OF CONDITIONAL LOGIC CHECKING THE RESOURCE TYPE AND THEN GRABBING DATA BASED
 // ON ITS VALUE. INSTEAD, WITH THE CURRENT METHOD WE CAN DO LIKE user[resource] or get[resource]
 const mapStateToProps = store => ({
-  usercourses: getUserResources(store, 'courses') || [],
-  userrooms: getUserResources(store, 'rooms') || [],
-  useractivities: getUserResources(store, 'activities') || [],
   user: store.user,
-  rooms: store.rooms.allIds,
-  courses: store.courses.allIds,
-  activities: store.activities.allIds,
+  rooms: store.rooms,
+  courses: store.courses,
+  activities: store.activities,
   loading: store.loading.loading,
 })
 
 export default connect(mapStateToProps, {
-  getRooms,
-  getActivities,
-  getCourses,
+  getRoomsIds,
+  getActivitiesIds,
+  getCoursesIds,
   getUser,
   toggleJustLoggedIn,
 })(Profile);

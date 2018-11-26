@@ -125,15 +125,28 @@ export const removeCourse = courseId => {
   }
 }
 
-export const getCourses = () => {
+export const getCourses = (params) => {
   return dispatch => {
-    API.get('courses')
+    console.log(params)
+    API.get('courses', params)
     .then(res => {
       // Normalize data
       const courses = normalize(res.data.results)
       dispatch(gotCourses(courses))
     })
     .catch(err => console.log(err));
+  }
+}
+export const getCoursesIds = ids => {
+  return dispatch => {
+    API.getIds('courses', ids)
+    .then(res => {
+      // Normalize res
+      let rooms = normalize(res.data.results)
+      dispatch(gotCourses(rooms))
+      dispatch(loading.success())
+    })
+    .catch(err => dispatch(loading.fail(err)));
   }
 }
 

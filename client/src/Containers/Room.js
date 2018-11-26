@@ -192,15 +192,9 @@ class Room extends Component {
 
 const mapStateToProps = (store, ownProps) => {
   let { room_id } = ownProps.match.params;
-  let room = store.rooms.byId[room_id];
-  let course;
-  if (room && room.course) {
-    course = store.courses.byId[store.rooms.byId[room_id].course]
-  } 
   return {
-    room,
-    // courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
-    course,
+    room: store.rooms.byId[room_id],
+    courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
     user: store.user,
     accessNotifications: store.user.roomNotifications.access, // this seems redundant
     loading: store.loading.loading,
