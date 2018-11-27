@@ -18,9 +18,9 @@ class GgbGraph extends Component {
     showControlWarning: false,
     warningPosition: {x: 0, y: 0}
   }
-
+  
   graph = React.createRef()
-
+  
   componentDidMount() {
     this.socket = this.props.socket;
     window.addEventListener("resize", throttle(this.updateDimensions, 700));
@@ -28,33 +28,42 @@ class GgbGraph extends Component {
       this.setState({receivingData: true}, () => {
         switch (data.eventType) {
           case 'ADD':
-            if (data.definition) {
-              this.ggbApplet.evalCommand(`${data.label}:${data.definition}`)
-            }
-            this.ggbApplet.evalXML(data.event)
-            this.ggbApplet.evalCommand('UpdateConstruction()')
-            break;
+          if (data.definition) {
+            this.ggbApplet.evalCommand(`${data.label}:${data.definition}`)
+          }
+          this.ggbApplet.evalXML(data.event)
+          this.ggbApplet.evalCommand('UpdateConstruction()')
+          break;
           case 'REMOVE':
-            this.ggbApplet.deleteObject(data.label)
-            break;
+          this.ggbApplet.deleteObject(data.label)
+          break;
           case 'UPDATE':
-            this.ggbApplet.evalXML(data.event)
-            this.ggbApplet.evalCommand('UpdateConstruction()')
-            break;
+          this.ggbApplet.evalXML(data.event)
+          this.ggbApplet.evalCommand('UpdateConstruction()')
+          break;
           default: break;
         }
       })
     })
   }
 
+  componentDidUpdate(prevProps) {
+    if (!prevProps.inControl && this.props.inControl) {
+      this.ggbApplet.showToolBar('0 39 73 62')
+    }
+    else if (prevProps.inControl && !this.props.inControl) {
+      this.ggbApplet.showToolBar('')
+    }
+  }
+  
   updateDimensions = () => {
     console.log('recaluclating')
     let { clientHeight, clientWidth } = this.graph.current.parentElement;
     window.ggbApplet.setSize(clientWidth, clientHeight);
     // window.ggbApplet.evalCommand('UpdateConstruction()')
-
+    
   }
-
+  
   onScriptLoad = () => {
     // NOTE: complete list here: https://wiki.geogebra.org/en/Reference:GeoGebra_App_Parameters
     const parameters = {
@@ -63,8 +72,8 @@ class GgbGraph extends Component {
       // "height": "100%",
       "scaleContainerClasse": "graph",
       "customToolBar": "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
-      "showToolBar": true,
-      "showMenuBar": true,
+      "showToolBar": false,
+      "showMenuBar": false,
       "showAlgebraInput":true,
       "language": "en",
       "useBrowserForJS":false,
@@ -72,24 +81,13 @@ class GgbGraph extends Component {
       "buttonShadows": true,
       "preventFocus":true,
       // "appName":"whiteboard"
+      "appletOnLoad": this.initializeGgb
     };
-
+    
     const ggbApp = new window.GGBApplet(parameters, '5.0');
     ggbApp.inject('ggb-element')
-    // TRY REPLACING THIS WITH parameters.appletOnLoad(ggbApplet)
-    const timer = setInterval(() => {
-      if (window.ggbApplet) {
-        if (window.ggbApplet.listeners) {
-          this.ggbApplet = window.ggbApplet;
-          this.initializeGgb();
-          this.setState({loading: false})
-          clearInterval(timer);
-
-        }
-      }
-    }, 1000)
   }
-
+  
   componentWillUnmount() {
     if (this.ggbApplet && this.ggbApplet.listeners) {
       delete window.ggbApplet;
@@ -105,8 +103,12 @@ class GgbGraph extends Component {
     }
     window.removeEventListener("resize", this.updateDimensions);
   }
-
+  
   initializeGgb = () => {
+    this.ggbApplet = window.ggbApplet;
+    this.setState({loading: false})
+    this.ggbApplet.setMode(40)
+    this.ggbApplet.setFixed('0', true, false)
     let { user, room } = this.props;
     let { events } = room;
     if (events.length > 0) {
@@ -118,7 +120,7 @@ class GgbGraph extends Component {
         this.showControlWarning({screenX: 500, screenY: 500})
         return this.ggbApplet.undo() 
       }
-
+      
       if (!this.state.receivingData) {
         let xml = this.ggbApplet.getXML(label)
         let definition = this.ggbApplet.getCommandString(label);
@@ -126,7 +128,7 @@ class GgbGraph extends Component {
       }
       this.setState({receivingData: false})
     }
-
+    
     this.removeListener = label => {
       if (!this.props.inControl) {
         return this.ggbApplet.undo() 
@@ -136,11 +138,11 @@ class GgbGraph extends Component {
       }
       this.setState({receivingData: false})
     }
-
+    
     this.updateListener = throttle(label => {
       if (!this.props.inControl) {
         return this.ggbApplet.undo() 
-       }
+      }
       if (!this.state.receivingData) {
         let xml = this.ggbApplet.getXML(label)
         sendEvent(xml, null, label, "UPDATE", "updated")
@@ -148,7 +150,7 @@ class GgbGraph extends Component {
       this.setState({receivingData: false})
       // this.ggbApplet.evalCommand("updateConstruction()")
     }, THROTTLE_FIDELITY)
-
+    
     const sendEvent = async (xml, definition, label, eventType, action) => {
       let xmlObj;
       if (xml) xmlObj = await parseXML(xml)
@@ -171,8 +173,9 @@ class GgbGraph extends Component {
       this.ggbApplet.registerClickListener(this.clickListener);
       this.ggbApplet.registerUpdateListener(this.updateListener);
       this.ggbApplet.registerRemoveListener(this.removeListener);
-    }
 
+    }
+    
     const parseXML = (xml) => {
       return new Promise((resolve, reject) => {
         parseString(xml, (err, result) => {
@@ -195,14 +198,10 @@ class GgbGraph extends Component {
   }
 
   render() {
-    console.log(this.state.showControlWarning)
-    console.log(this.state.warningPosition.x)
-    console.log(this.state.warningPosition.y)
     return (
       <Aux>
         <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} />
         <div className={classes.Graph} id='ggb-element' ref={this.graph}> </div>
-        {!this.props.inControl ? <div className={classes.ControlCover} onClick={this.showControlWarning}></div> : null}
         {this.state.showControlWarning ? <div className={classes.ControlWarning} style={{left: this.state.warningPosition.x, top: this.state.warningPosition.y}}>
           You don't have control!
         </div> : null}

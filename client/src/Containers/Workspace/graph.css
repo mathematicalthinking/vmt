@@ -11,16 +11,6 @@
   /* border: 1px solid #ddd; */
 }
 
-.ControlCover {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: graphHeight;
-  width: graphWidth;
-  z-index: 600;
-  /* background: rgba(100,250,100, 0.5) */
-}
-
 .ControlWarning {
   position: fixed;
   background: #efefef;
@@ -30,4 +20,5 @@
   padding: 10px;
   box-shadow: lightShadow;
   border-radius: 4px;
-}
+} 
+/* ^^ THIS WILL ONLY SHOW UP IF THEY'VE HACKED THE JAVASCRIPT */
