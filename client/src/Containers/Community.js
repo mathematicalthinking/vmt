@@ -42,7 +42,6 @@ class Community extends Component {
   }
 
   fetchData = resource => {
-    console.log('resource', resource)
     API.get(resource)
     .then(res => {
       this.setState({visibleResources: res.data.results})

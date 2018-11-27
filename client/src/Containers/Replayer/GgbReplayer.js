@@ -20,12 +20,8 @@ class GgbReplayer extends Component {
   
   componentDidUpdate(prevProps, prevState) {
     const { log, index, skipping } = this.props;
-    // REbuild the constrution from scratch up to the current index
+    // IF we're skipping it means we might need to reconstruct several evenets, possible in reverse order if the prevIndex is greater than this index.
     if (!prevProps.skipping && skipping) {
-      // console.log(log)
-      // console.log('this index: ', index)
-      // console.log('previous index: ', prevProps.index)
-      // console.log('----------------???--------')
       if (prevProps.index < this.props.index) {
         for (let i = prevProps.index + 1; i <= this.props.index; i++) {
           this.constructEvent(log[i])
@@ -40,16 +36,9 @@ class GgbReplayer extends Component {
           else if (syntheticEvent.eventType === 'REMOVE') {
             syntheticEvent.eventType = 'ADD'
           }
-          // console.log(syntheticEvent)
           this.constructEvent(syntheticEvent)
         }
       }
-      // this.ggbApplet.reset();
-      // log.forEach((entry, i) => {
-      //   if (i <= this.props.index && entry.event) {
-      //     this.constructEvent(entry)
-      //   }
-      // })
     }
     else if (prevProps.log[prevProps.index]._id !== log[index]._id && !this.state.loading && !log[index].text) {
       this.constructEvent(log[index])

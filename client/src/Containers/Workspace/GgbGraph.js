@@ -115,10 +115,8 @@ class GgbGraph extends Component {
     }
 
     this.updateListener = throttle(label => {
-      console.log('updating')
       if (!this.state.receivingData) {
         let xml = this.ggbApplet.getXML(label)
-        console.log(xml)
         sendEvent(xml, null, label, "UPDATE", "updated")
       }
       this.setState({receivingData: false})
