@@ -5,6 +5,7 @@ import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
 import throttle from 'lodash/throttle';
 import { parseString } from 'xml2js';
+// import { eventNames } from 'cluster';
 
 const THROTTLE_FIDELITY = 60;
 class GgbGraph extends Component {
@@ -14,6 +15,8 @@ class GgbGraph extends Component {
     loadingWorkspace: true,
     loading: true,
     selectedElement: '',
+    showControlWarning: false,
+    warningPosition: {x: 0, y: 0}
   }
 
   componentDidMount() {
@@ -157,11 +160,29 @@ class GgbGraph extends Component {
     }
   }
 
+  showControlWarning = (event) => {
+    console.log('setting state')
+    // console.log(event.screenX)
+    this.setState({
+      showControlWarning: true,
+      warningPosition: {x: event.screenX - 100, y: event.screenY - 100}
+    }, () => {
+      setTimeout(() => {this.setState({showControlWarning: false})}, 1000)
+    })
+  }
+
   render() {
+    console.log(this.state.showControlWarning)
+    console.log(this.state.warningPosition.x)
+    console.log(this.state.warningPosition.y)
     return (
       <Aux>
         <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} />
-        <div className={classes.Graph} id='ggb-element'></div>
+        <div className={classes.Graph} id='ggb-element'> </div>
+        {!this.props.inControl ? <div className={classes.ControlCover} onClick={this.showControlWarning}></div> : null}
+        {this.state.showControlWarning ? <div className={classes.ControlWarning} style={{left: this.state.warningPosition.x, top: this.state.warningPosition.y}}>
+          You don't have control!
+        </div> : null}
         <Modal show={this.state.loading} message='Loading...'/>
       </Aux>
     )

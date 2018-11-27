@@ -21,4 +21,6 @@
   bottomShadow: 0 2px 0 2px rgba(0,0,0,0.14), 0 3px 0 -2px rgba(0,0,0,0.12), 0 1px 0 0 rgba(0,0,0,0.2);
   maxWidth: 1300px;
   navbarHeight: 60px;
+  graphHeight: 80%;
+  graphWidth: 77%;
 }

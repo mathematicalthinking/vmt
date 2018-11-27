@@ -1,5 +1,33 @@
+:import('../../colors.css'){
+  graphHeight: graphHeight;
+  graphWidth: graphWidth;
+  lightShadow: lightShadow;
+}
+
 .Graph {
   height: 100%;
   width: 100%;
+  position: relative;
   /* border: 1px solid #ddd; */
+}
+
+.ControlCover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: graphHeight;
+  width: graphWidth;
+  z-index: 600;
+  /* background: rgba(100,250,100, 0.5) */
+}
+
+.ControlWarning {
+  position: fixed;
+  background: #efefef;
+  color: red;
+  transition: .2s;
+  z-index: 601;
+  padding: 10px;
+  box-shadow: lightShadow;
+  border-radius: 4px;
 }

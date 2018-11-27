@@ -54,6 +54,7 @@ class Workspace extends Component {
   }
 
   componentWillUnmount () {
+    // @TODO RELEASE CONTROL HERE
     const { updatedRoom, room, user} = this.props;
     if (this.socket) {
       this.socket.disconnect()
@@ -64,6 +65,7 @@ class Workspace extends Component {
   }
 
   toggleControl = () => {
+    console.log('toggleing control')
     this.setState(prevState => ({
       inControl: !prevState.inControl
     }))
@@ -76,8 +78,8 @@ class Workspace extends Component {
       <WorkspaceLayout
         members = {(room && room.currentMembers) ? room.currentMembers : []}
         graph = {room.roomType === 'geogebra' ?
-          () => <GgbGraph room={room} socket={this.socket} user={user} updateRoom={this.props.updateRoom}/> :
-          () => <DesmosGraph  room={room} socket={this.socket} user={user} />}
+          () => <GgbGraph room={room} socket={this.socket} user={user} updateRoom={this.props.updateRoom} inControl={this.state.inControl}/> :
+          () => <DesmosGraph  room={room} socket={this.socket} user={user} inControl={this.state.inControl}/>}
         chat = {() => <Chat roomId={room._id} messages={room.chat || []} socket={this.socket} user={user} />}
         description={room.description}
         instructions={room.instructions}
