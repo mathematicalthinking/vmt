@@ -76,7 +76,7 @@ class Workspace extends Component {
   
   restartControlTimer = () => {
     clearTimeout(this.controlTimer)
-    this.controlTimer = setTimeout(() => {this.setState({inControl: false})}, 5 * 1000)
+    this.controlTimer = setTimeout(() => {this.setState({inControl: false})}, 60 * 1000)
   }
 
   render() {
