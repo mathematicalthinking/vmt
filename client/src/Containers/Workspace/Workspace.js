@@ -9,6 +9,11 @@ import Chat from './Chat';
 // import Replayer from ''
 class Workspace extends Component {
 
+  state = {
+    inControl: false,
+    someoneElseInControl: false, // ultimately we should save and fetch this from the db 
+  }
+
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
 
   componentDidMount() {
@@ -30,7 +35,6 @@ class Workspace extends Component {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
-      console.log("res from join: ", res)
       updatedRoom(room._id, {currentMembers: res.room.currentMembers})
     })
 
@@ -59,7 +63,14 @@ class Workspace extends Component {
     }
   }
 
+  toggleControl = () => {
+    this.setState(prevState => ({
+      inControl: !prevState.inControl
+    }))
+  }
+
   render() {
+    console.log(this.state.inControl)
     const { room, user } = this.props;
     return (
       <WorkspaceLayout
@@ -70,6 +81,8 @@ class Workspace extends Component {
         chat = {() => <Chat roomId={room._id} messages={room.chat || []} socket={this.socket} user={user} />}
         description={room.description}
         instructions={room.instructions}
+        inControl={this.state.inControl}
+        toggleControl={this.toggleControl}
       />
     )
   }

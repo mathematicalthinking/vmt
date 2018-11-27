@@ -7,7 +7,10 @@ import Button from '../../Components/UI/Button/Button';
 const workspaceLayout = ({
   graph, chat, replayer, 
   members, activeMember, temp, 
-  save, loggedIn, description, instructions, history, saved}) => {
+  save, loggedIn, description, 
+  instructions, history, saved,
+  inControl, toggleControl,
+}) => {
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container}>
@@ -39,7 +42,10 @@ const workspaceLayout = ({
           }
           </div>
           <div className={classes.Right}>
-            {!replayer ? <div className={classes.SideButton}>Take Control</div> : <div className={classes.SideButton}>Make A Comment</div>}
+            {!replayer ? 
+              <div className={classes.SideButton} onClick={toggleControl}>{inControl ? 'Release Control' : 'Take Control'}</div> : 
+              <div className={classes.SideButton}>Make A Comment</div>
+            }
             <div className={[classes.SideButton, classes.Exit].join(" ")} onClick={() => {temp ? history.push('/') : history.goBack()}} theme={'Small'} m={20} data-testid='exit-room'>Exit Room</div>
           </div>
         </div>
