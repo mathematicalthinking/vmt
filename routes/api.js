@@ -28,7 +28,6 @@ router.get('/:resource', (req, res, next) => {
 })
 
 router.get('/:resource/ids', (req, res, next) => {
-	console.log('getting ids')
 	let resource = req.params.resource;
 	let controller = controllers[resource];
 	if (controller == null){
@@ -49,7 +48,6 @@ router.get('/:resource/ids', (req, res, next) => {
 })
 
 router.get('/:resource/:id', (req, res, next) => {
-	console.log('getting single id')
 	let resource = req.params.resource
 	let id = req.params.id
 	let controller  = controllers[resource]

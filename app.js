@@ -48,17 +48,6 @@ if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'productio
 } else {
   app.use(express.static(path.join(__dirname, 'client/public')));
 }
-<<<<<<< HEAD
-
-
-
-// if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production') {
-//   app.use(express.static(path.join(__dirname, 'client/build')));
-// } else {
-//   app.use(express.static(path.join(__dirname, 'client/public')));
-// }
-=======
->>>>>>> changes for prod
 
 
 
@@ -98,7 +87,6 @@ app.use('/auth', auth);
 app.use('/api', api);
 
 app.get('/*', (req, res) => {
-  // @TODO NOW THIS IS SENDING WITH EVERY API REQUEST
   // if (process.env.NODE_ENV === 'travistest' || proces.env.NODE_ENV === 'production') {
     // console.log("sending prod version of react")
     res.sendFile(path.join(__dirname, 'client/build/index.html'))

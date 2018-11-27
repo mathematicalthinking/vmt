@@ -8,7 +8,6 @@ const boxList = props => {
   if (props.list.length > 0) {
     listElems = props.list.map((item, i) => {
       if (item) {
-        console.log("ITEM: ", item)
         let notifications = 0;
         let details = undefined;
         if (props.listType === 'private') {
