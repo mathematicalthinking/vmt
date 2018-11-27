@@ -19,9 +19,11 @@ class GgbGraph extends Component {
     warningPosition: {x: 0, y: 0}
   }
 
+  graph = React.createRef()
+
   componentDidMount() {
     this.socket = this.props.socket;
-
+    window.addEventListener("resize", throttle(this.updateDimensions, 700));
     this.socket.on('RECEIVE_EVENT', data => {
       this.setState({receivingData: true}, () => {
         switch (data.eventType) {
@@ -43,6 +45,14 @@ class GgbGraph extends Component {
         }
       })
     })
+  }
+
+  updateDimensions = () => {
+    console.log('recaluclating')
+    let { clientHeight, clientWidth } = this.graph.current.parentElement;
+    window.ggbApplet.setSize(clientWidth, clientHeight);
+    // window.ggbApplet.evalCommand('UpdateConstruction()')
+
   }
 
   onScriptLoad = () => {
@@ -93,6 +103,7 @@ class GgbGraph extends Component {
       let canvas = document.querySelector('[aria-label="Graphics View 1"]');
       this.props.updateRoom(this.props.room._id, {graphImage: {imageData: canvas.toDataURL()}})
     }
+    window.removeEventListener("resize", this.updateDimensions);
   }
 
   initializeGgb = () => {
@@ -102,6 +113,12 @@ class GgbGraph extends Component {
       this.ggbApplet.setXML(room.currentState)
     }
     this.addListener = label => {
+      // If the user has deleted our control cover div we still need to prevent them from chaning the construction
+      if (!this.props.inControl) {
+        this.showControlWarning({screenX: 500, screenY: 500})
+        return this.ggbApplet.undo() 
+      }
+
       if (!this.state.receivingData) {
         let xml = this.ggbApplet.getXML(label)
         let definition = this.ggbApplet.getCommandString(label);
@@ -111,6 +128,9 @@ class GgbGraph extends Component {
     }
 
     this.removeListener = label => {
+      if (!this.props.inControl) {
+        return this.ggbApplet.undo() 
+      }
       if (!this.state.receivingData) {
         sendEvent(null, null, label, "REMOVE", "removed")
       }
@@ -118,6 +138,9 @@ class GgbGraph extends Component {
     }
 
     this.updateListener = throttle(label => {
+      if (!this.props.inControl) {
+        return this.ggbApplet.undo() 
+       }
       if (!this.state.receivingData) {
         let xml = this.ggbApplet.getXML(label)
         sendEvent(xml, null, label, "UPDATE", "updated")
@@ -178,7 +201,7 @@ class GgbGraph extends Component {
     return (
       <Aux>
         <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} />
-        <div className={classes.Graph} id='ggb-element'> </div>
+        <div className={classes.Graph} id='ggb-element' ref={this.graph}> </div>
         {!this.props.inControl ? <div className={classes.ControlCover} onClick={this.showControlWarning}></div> : null}
         {this.state.showControlWarning ? <div className={classes.ControlWarning} style={{left: this.state.warningPosition.x, top: this.state.warningPosition.y}}>
           You don't have control!
