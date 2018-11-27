@@ -65,10 +65,18 @@ class Workspace extends Component {
   }
 
   toggleControl = () => {
-    console.log('toggleing control')
+    if (!this.state.inControl) {
+      this.restartControlTimer();
+      // @TODO EMIT EVENT TAKING CONTROL
+    }
     this.setState(prevState => ({
       inControl: !prevState.inControl
     }))
+  }
+  
+  restartControlTimer = () => {
+    clearTimeout(this.controlTimer)
+    this.controlTimer = setTimeout(() => {this.setState({inControl: false})}, 5 * 1000)
   }
 
   render() {
@@ -78,8 +86,8 @@ class Workspace extends Component {
       <WorkspaceLayout
         members = {(room && room.currentMembers) ? room.currentMembers : []}
         graph = {room.roomType === 'geogebra' ?
-          () => <GgbGraph room={room} socket={this.socket} user={user} updateRoom={this.props.updateRoom} inControl={this.state.inControl}/> :
-          () => <DesmosGraph  room={room} socket={this.socket} user={user} inControl={this.state.inControl}/>}
+          () => <GgbGraph room={room} socket={this.socket} user={user} updateRoom={this.props.updateRoom} inControl={this.state.inControl} resetControlTimer={this.restartControlTimer}/> :
+          () => <DesmosGraph  room={room} socket={this.socket} user={user} inControl={this.state.inControl} resetControlTimer={this.restartControlTimer}/>}
         chat = {() => <Chat roomId={room._id} messages={room.chat || []} socket={this.socket} user={user} />}
         description={room.description}
         instructions={room.instructions}

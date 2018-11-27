@@ -53,6 +53,7 @@ class GgbGraph extends Component {
     }
     else if (prevProps.inControl && !this.props.inControl) {
       this.ggbApplet.showToolBar('')
+      this.ggbApplet.setMode(40)
     }
   }
   
@@ -116,6 +117,7 @@ class GgbGraph extends Component {
     }
     this.addListener = label => {
       // If the user has deleted our control cover div we still need to prevent them from chaning the construction
+      // @TODO DONT KNOW IF WE NEED THIS ONLY POSSIBLE IF THE USER HAS HACKED THE FRONT END
       if (!this.props.inControl) {
         this.showControlWarning({screenX: 500, screenY: 500})
         return this.ggbApplet.undo() 
@@ -166,6 +168,7 @@ class GgbGraph extends Component {
         currentState: this.ggbApplet.getXML(),
       }
       this.socket.emit('SEND_EVENT', newData)
+      this.props.resetControlTimer()
     }
     // attach this listeners to the ggbApplet
     if (this.ggbApplet.listeners.length === 0) {
@@ -186,6 +189,7 @@ class GgbGraph extends Component {
     }
   }
 
+  // I DONT KNOW IF WE NEED THIS IT ONLY HAPPENS IF THE USER HACKS THIS
   showControlWarning = (event) => {
     console.log('setting state')
     // console.log(event.screenX)
