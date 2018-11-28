@@ -50,6 +50,7 @@ class GgbGraph extends Component {
   componentDidUpdate(prevProps) {
     if (!prevProps.inControl && this.props.inControl) {
       this.ggbApplet.showToolBar('0 39 73 62')
+      this.ggbApplet.setMode(0)
     }
     else if (prevProps.inControl && !this.props.inControl) {
       this.ggbApplet.showToolBar('')

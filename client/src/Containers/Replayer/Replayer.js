@@ -2,11 +2,7 @@ import React, { Component } from 'react';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 import { connect } from 'react-redux';
 import { updateRoom } from '../../store/actions/';
-import DesmosReplayer from './DesmosReplayer';
-import GgbReplayer from './GgbReplayer';
 import throttle from 'lodash/throttle';
-import ChatReplayer from './ChatReplayer';
-import ReplayControls from '../../Components/Replayer/ReplayerControls';
 import moment from 'moment';
 const MAX_WAIT = 10000; // 10 seconds
 const BREAK_DURATION = 2000;
@@ -151,50 +147,28 @@ class Replayer extends Component {
   }
 
   render() {
-    const { room } = this.props
+    const { room, user } = this.props
     const event = this.log[this.state.logIndex] || {};
     return (
       <WorkspaceLayout
-        activeMember = {event.user}
-        members = {this.state.currentMembers}
-        graph = {room.roomType === 'geogebra' ?
-          () => <GgbReplayer
-            log={this.updatedLog}
-            index={this.state.logIndex}
-            skipping={this.state.changingIndex}
-            reset={this.reset} />
-        :
-        () => <DesmosReplayer
-          log={this.updatedLog}
-          index={this.state.logIndex}
-          skipping={this.state.changingIndex}
-          reset={this.reset} />}
-
-        chat = {() =>
-          <ChatReplayer
-            log={this.updatedLog}
-            index={this.state.logIndex}
-            skipping={this.state.changingIndex}
-            reset={this.reset}
-            setCurrentMembers={this.setCurrentMembers}
-          />}
-        replayer={() =>
-          (<ReplayControls
-            playing={this.state.playing}
-            pausePlay={this.pausePlay}
-            duration={this.relativeDuration}
-            startTime={this.state.startTime}
-            absTimeElapsed={this.state.absTimeElapsed}
-            goToTime={this.goToTime}
-            speed={this.state.playbackSpeed}
-            setSpeed={this.setSpeed}
-            relTime={this.state.timeElapsed}
-            index={this.state.logIndex}
-            log={this.updatedLog}
-            endTime={this.endTime}
-           />)
-        }
-      />
+        activeMember={event.user}
+        room={room}
+        user={user}
+        replayer={{
+          playing: this.state.playing,
+          pausePlay: this.pausePlay,
+          duration: this.relativeDuration,
+          startTime: this.state.startTime,
+          absTimeElapsed: this.state.absTimeElapsed,
+          goToTime: this.goToTime,
+          speed: this.state.playbackSpeed,
+          setSpeed: this.setSpeed,
+          relTime: this.state.timeElapsed,
+          index: this.state.logIndex,
+          log: this.updatedLog,
+          endTime: this.endTime,
+          reset: this.reset
+        }}/>
     )
   }
 }

@@ -60,11 +60,6 @@ class ReplayerControls extends Component{
       setSpeed,
     } = this.props;
     const pausePlayButton = playing ? <i className="fas fa-pause"></i> : <i className="fas fa-play"></i>;
-    // const progress = (index / (duration - 1)) * 100
-    // const disableBack = false;
-    // (event.timestamp === startTime);
-    // const disableForward = false;
-    // (event.timestamp === endTime);
     const progress = relTime/duration * 100; // %
     return (
       <div className={classes.Container}>

@@ -44,6 +44,16 @@ class Workspace extends Component {
       updatedRoom(room._id, {currentMembers: data.currentMembers})
     })
 
+    this.socket.on('TOOK_CONTROL', message => {
+      this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
+      this.setState({activeMember: message.user._id, someoneElseInControl: true})
+    })
+
+    this.socket.on('RELEASED_CONTROL', message => {
+      this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
+      this.setState({activeMember: '', someoneElseInControl: false})
+    })
+
     window.addEventListener('beforeunload', this.componentCleanup);
   }
 
@@ -77,7 +87,7 @@ class Workspace extends Component {
       this.socket.emit('TAKE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
         console.log(message)
         this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
-        this.setState({activeMember: this.props.user._id})
+        this.setState({activeMember: this.props.user._id,})
       })
     } else {
       this.socket.emit('RELEASE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
@@ -108,7 +118,7 @@ class Workspace extends Component {
         inControl={this.state.inControl}
         resetControlTimer={this.resetControlTimer}
         toggleControl={this.toggleControl}
-        members = {(room && room.currentMembers) ? room.currentMembers : []}
+        someoneElseInControl={this.state.someoneElseInControl}
         user={user}
       />
     )

@@ -19,6 +19,7 @@ class GgbReplayer extends Component {
 
   
   componentDidUpdate(prevProps, prevState) {
+    console.log(this.props)
     const { log, index, skipping } = this.props;
     // IF we're skipping it means we might need to reconstruct several evenets, possible in reverse order if the prevIndex is greater than this index.
     if (!prevProps.skipping && skipping) {
