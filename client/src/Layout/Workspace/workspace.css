@@ -1,6 +1,7 @@
 :import('../../colors.css'){
   lightShadow: lightestShadow;
   background: mainBackground;
+  lightBlue: lightBlue;
   scrollBackground: darkScroller;
   hoverBackground: hoverBackground;
   hoverBackground2: hoverBackground2;
@@ -175,4 +176,38 @@
 }
 .Exit:hover {
   background: hoverBackground2;
+}
+
+.ReferenceWindow {
+  border-left: 1px solid #ddd;
+  flex-grow: 1;
+}
+
+.Controls {
+  display: flex;
+  background: #f9f9f9;
+}
+
+.MousePointer {
+  font-size: 18px;
+  height:   50px;
+  width: 50px;
+  padding: 14px;
+  border-radius: 50%;
+  background: #e8e8e8;
+  margin: 0 10px;
+  transition: .2s;
+}
+
+.ReferenceControls {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  /* width: 100%; */
+  /* border: 1px solid red; */
+  padding: 2px;
+}
+
+.ReferenceControls:hover .MousePointer {
+  background: lightBlue;
 }

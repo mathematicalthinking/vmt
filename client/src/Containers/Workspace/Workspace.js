@@ -3,9 +3,6 @@ import { connect } from 'react-redux';
 import io from 'socket.io-client';
 import { updateRoom, updatedRoom, populateRoom } from '../../store/actions';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
-import DesmosGraph from './DesmosGraph';
-import GgbGraph from './GgbGraph';
-import Chat from './Chat';
 // import Replayer from ''
 class Workspace extends Component {
 
@@ -65,16 +62,18 @@ class Workspace extends Component {
   }
 
   toggleControl = () => {
+    // If we're taking control 
     if (!this.state.inControl) {
-      this.restartControlTimer();
+      this.resetControlTimer();
       // @TODO EMIT EVENT TAKING CONTROL
+      this.socket.emit('TAKE_CONTROL', {user: this.props.user._id, username: this.props.user.username, room: this.props.room})
     }
     this.setState(prevState => ({
       inControl: !prevState.inControl
     }))
   }
   
-  restartControlTimer = () => {
+  resetControlTimer = () => {
     clearTimeout(this.controlTimer)
     this.controlTimer = setTimeout(() => {this.setState({inControl: false})}, 60 * 1000)
   }
@@ -84,15 +83,14 @@ class Workspace extends Component {
     const { room, user } = this.props;
     return (
       <WorkspaceLayout
-        members = {(room && room.currentMembers) ? room.currentMembers : []}
-        graph = {room.roomType === 'geogebra' ?
-          () => <GgbGraph room={room} socket={this.socket} user={user} updateRoom={this.props.updateRoom} inControl={this.state.inControl} resetControlTimer={this.restartControlTimer}/> :
-          () => <DesmosGraph  room={room} socket={this.socket} user={user} inControl={this.state.inControl} resetControlTimer={this.restartControlTimer}/>}
-        chat = {() => <Chat roomId={room._id} messages={room.chat || []} socket={this.socket} user={user} />}
-        description={room.description}
-        instructions={room.instructions}
+        room={room}
+        socket={this.socket}
+        updateRoom={this.props.updateRoom}
         inControl={this.state.inControl}
+        resetControlTimer={this.resetControlTimer}
         toggleControl={this.toggleControl}
+        members = {(room && room.currentMembers) ? room.currentMembers : []}
+        user={user}
       />
     )
   }

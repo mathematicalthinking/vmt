@@ -1,15 +1,18 @@
 import React from 'react';
 import classes from './workspace.css';
 import { withRouter } from 'react-router-dom';
-// import Aux from '../../../Components/HOC/Auxil';
-import CurrentMembers from '../../Components/CurrentMembers/CurrentMembers';
-import Button from '../../Components/UI/Button/Button';
+import { CurrentMembers, Button }from '../../Components';
+import GgbGraph from '../../Containers/Workspace/GgbGraph';
+import DesmosGraph from '../../Containers/Workspace/DesmosGraph';
+import Chat from '../../Containers/Workspace/Chat';
+
 const workspaceLayout = ({
-  graph, chat, replayer, 
+  room, user, socket,
+  resetControlTimer, inControl, toggleControl, 
+  replayer, 
   members, activeMember, temp, 
-  save, loggedIn, description, 
-  instructions, history, saved,
-  inControl, toggleControl,
+  save,
+  instructions, history, saved, updateRoom,
 }) => {
   return (
     <div className={classes.PageContainer}>
@@ -19,9 +22,14 @@ const workspaceLayout = ({
           <div className={classes.Tab}><div className={classes.TabBox}><i className="fas fa-plus"></i></div></div>
         </div>
         <div className={classes.Top}>
-          <div className={[classes.Graph, classes.Left, "graph"].join(" ")}>{graph()}</div>
+          <div className={[classes.Graph, classes.Left, "graph"].join(" ")}>
+            {room.roomType === 'geogebra' ? 
+              <GgbGraph room={room} socket={socket} user={user} updateRoom={updateRoom} inControl={inControl} resetControlTimer={resetControlTimer}/> :
+              <DesmosGraph  room={room} socket={socket} user={user} inControl={inControl} resetControlTimer={resetControlTimer}/>
+            }
+          </div>
           <div className={classes.Right}>
-            <div className={classes.Chat}>{chat()}</div>
+            <div className={classes.Chat}><Chat roomId={room._id} messages={room.chat || []} socket={socket} user={user} /></div>
             <div className={classes.Members}>
               <CurrentMembers members={members.map(member => member.user)} activeMember={activeMember}/>
             </div>
@@ -42,11 +50,22 @@ const workspaceLayout = ({
           }
           </div>
           <div className={classes.Right}>
-            {!replayer ? 
-              <div className={classes.SideButton} onClick={toggleControl}>{inControl ? 'Release Control' : 'Take Control'}</div> : 
-              <div className={classes.SideButton}>Make A Comment</div>
-            }
-            <div className={[classes.SideButton, classes.Exit].join(" ")} onClick={() => {temp ? history.push('/') : history.goBack()}} theme={'Small'} m={20} data-testid='exit-room'>Exit Room</div>
+            <div className={classes.ReferenceWindow}>
+              {/* <div className={classes.ReferenceControls} onClick={toggleReference}>
+                <i className={["fas", "fa-mouse-pointer", classes.MousePointer].join(" ")}></i>
+                <div>Reference </div>
+              </div> */}
+              <div className={classes.ReferenceDescription}>
+
+              </div>
+            </div>
+            <div className={classes.Controls}>
+              {!replayer ? 
+                <div className={classes.SideButton} onClick={toggleControl}>{inControl ? 'Release Control' : 'Take Control'}</div> : 
+                <div className={classes.SideButton}>Make A Comment</div>
+              }
+              <div className={[classes.SideButton, classes.Exit].join(" ")} onClick={() => {temp ? history.push('/') : history.goBack()}} theme={'Small'} data-testid='exit-room'>Exit Room</div>
+            </div>
           </div>
         </div>
       </div>
