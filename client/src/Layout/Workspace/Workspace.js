@@ -12,7 +12,7 @@ const workspaceLayout = ({
   replayer, 
   members, activeMember, temp, 
   save,
-  instructions, history, saved, updateRoom,
+  instructions, history, saved, updateRoom, updatedRoom,
 }) => {
   return (
     <div className={classes.PageContainer}>
@@ -29,7 +29,7 @@ const workspaceLayout = ({
             }
           </div>
           <div className={classes.Right}>
-            <div className={classes.Chat}><Chat roomId={room._id} messages={room.chat || []} socket={socket} user={user} /></div>
+            <div className={classes.Chat}><Chat roomId={room._id} messages={room.chat || []} socket={socket} user={user} updatedRoom={updatedRoom} /></div>
             <div className={classes.Members}>
               <CurrentMembers members={members.map(member => member.user)} activeMember={activeMember}/>
             </div>

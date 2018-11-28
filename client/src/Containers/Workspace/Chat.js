@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 import ChatLayout from '../../Components/Chat/Chat';
 class Chat extends Component {
   state = {
-    messages: [],
     newMessage: '',
   }
 
@@ -13,27 +12,28 @@ class Chat extends Component {
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Enter'){
         // handle differenct contexts of Enter clicks
-        if (this.state.messages.length > 0){
-          // this.submitMessage(); @TODO we need to check if the chat enry is in focuse with a ref()
+        if (this.state.newMessage.length > 0){
+          this.submitMessage();
+          //  @TODO we need to check if the chat enry is in focuse with a ref()
         }
       }
     })
     // start the chat scrolled to the bottom
     // this.scrollToBottom(); @TODO this function isnt working properly
-    this.setState({
-      messages: this.props.messages
-    })
+    // this.setState({
+    //   messages: this.props.messages
+    // })
     // we dont want the chat to be live on replay
     if (!this.props.replaying) {
       this.props.socket.on('RECEIVE_MESSAGE', data => {
-        let newMessages = [...this.state.messages, data]
-        this.setState({
-          messages: newMessages
-        })
-        // this.props.updateRoom({chat: data})
-        // this.scrollToBottom() @TODO
+        this.props.updatedRoom(this.props.roomId, {chat: [...this.props.messages, data]})
+        // this.scrollToBottom() 
       });
     }
+  }
+
+  componentDidUpdate(prevProps){
+    console.log(prevProps, this.props)
   }
 
   changeHandler = event => {
@@ -59,13 +59,9 @@ class Chat extends Component {
       }
     })
     delete newMessage.room;
-    let updatedMessages = [newMessage]
-    if (this.state.messages) {
-      updatedMessages = [...this.state.messages, newMessage]
-    }
+    this.props.updatedRoom(roomId, {chat: [...this.props.messages, newMessage]})
     // this.scrollToBottom(); @TODO
     this.setState({
-      messages: updatedMessages,
       newMessage: '',
     })
     // this.props.updateRoom({chat: updatedMessages})
@@ -73,7 +69,7 @@ class Chat extends Component {
 
   render() {
     return (
-      <ChatLayout messages={this.state.messages} change={this.changeHandler} submit={this.submitMessage} value={this.state.newMessage} />
+      <ChatLayout messages={this.props.messages} change={this.changeHandler} submit={this.submitMessage} value={this.state.newMessage} />
     )
   }
 }

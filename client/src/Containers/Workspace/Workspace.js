@@ -29,11 +29,10 @@ class Workspace extends Component {
     }
     // const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
     this.socket.emit('JOIN', sendData, (res, err) => {
-      console.log("JOINING!")
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
-      updatedRoom(room._id, {currentMembers: res.room.currentMembers})
+      updatedRoom(room._id, {currentMembers: res.room.currentMembers, chat: [...this.props.room.chat, res.message]})
     })
 
     this.socket.on('USER_JOINED', data => {
@@ -49,19 +48,19 @@ class Workspace extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.room.currentMembers !== this.props.room.currentMembers) {
-      console.log('current members have changed', this.props.room.currentMembers)
+
     }
   }
 
   componentWillUnmount () {
     this.componentCleanup()
-    // @TODO RELEASE CONTROL HERE
     window.removeEventListener('beforeunload', this.componentCleanup);
   }
-
+  
   componentCleanup = () => {
     const { updatedRoom, room, user} = this.props;
     if (this.socket) {
+      // @TODO RELEASE CONTROL
       this.socket.disconnect()
       updatedRoom(room._id, {
         currentMembers: room.currentMembers.filter(member => member.user._id !== user._id)
@@ -88,12 +87,12 @@ class Workspace extends Component {
 
   render() {
     const { room, user } = this.props;
-    console.log(room.currentMembers)
     return (
       <WorkspaceLayout
         room={room}
         socket={this.socket}
         updateRoom={this.props.updateRoom}
+        updatedRoom={this.props.updatedRoom}
         inControl={this.state.inControl}
         resetControlTimer={this.resetControlTimer}
         toggleControl={this.toggleControl}
