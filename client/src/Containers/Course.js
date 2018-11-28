@@ -148,7 +148,6 @@ class Course extends Component {
 
   render() {
     let { course, user, match, accessNotifications } = this.props;
-    console.log(course)
     if (course && !this.state.guestMode) {
       let resource = match.params.resource;
       let contentData = {

@@ -3,11 +3,14 @@ import { connect } from 'react-redux';
 import io from 'socket.io-client';
 import { updateRoom, updatedRoom, populateRoom } from '../../store/actions';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
-import DesmosGraph from './DesmosGraph';
-import GgbGraph from './GgbGraph';
-import Chat from './Chat';
 // import Replayer from ''
 class Workspace extends Component {
+
+  state = {
+    activeMember: '',
+    inControl: false,
+    someoneElseInControl: false, // ultimately we should save and fetch this from the db 
+  }
 
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
 
@@ -30,8 +33,7 @@ class Workspace extends Component {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
-      console.log("res from join: ", res)
-      updatedRoom(room._id, {currentMembers: res.room.currentMembers})
+      updatedRoom(room._id, {currentMembers: res.room.currentMembers, chat: [...this.props.room.chat, res.message]})
     })
 
     this.socket.on('USER_JOINED', data => {
@@ -41,17 +43,35 @@ class Workspace extends Component {
     this.socket.on('USER_LEFT', data => {
       updatedRoom(room._id, {currentMembers: data.currentMembers})
     })
+
+    this.socket.on('TOOK_CONTROL', message => {
+      this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
+      this.setState({activeMember: message.user._id, someoneElseInControl: true})
+    })
+
+    this.socket.on('RELEASED_CONTROL', message => {
+      this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
+      this.setState({activeMember: '', someoneElseInControl: false})
+    })
+
+    window.addEventListener('beforeunload', this.componentCleanup);
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.room.currentMembers !== this.props.room.currentMembers) {
-      console.log('current members have changed', this.props.room.currentMembers)
+
     }
   }
 
   componentWillUnmount () {
+    this.componentCleanup()
+    window.removeEventListener('beforeunload', this.componentCleanup);
+  }
+  
+  componentCleanup = () => {
     const { updatedRoom, room, user} = this.props;
     if (this.socket) {
+      // @TODO RELEASE CONTROL
       this.socket.disconnect()
       updatedRoom(room._id, {
         currentMembers: room.currentMembers.filter(member => member.user._id !== user._id)
@@ -59,17 +79,63 @@ class Workspace extends Component {
     }
   }
 
+  toggleControl = () => {
+    let { user, room } = this.props;
+    // If we're taking control 
+    if (!this.state.inControl && !this.state.someoneElseInControl) {
+      this.resetControlTimer();
+      // @TODO EMIT EVENT TAKING CONTROL
+      this.socket.emit('TAKE_CONTROL', {user: {_id: user._id, username: user.username}, roomId: room._id}, (err, message) => {
+        console.log(message)
+        this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
+        this.setState({activeMember: this.props.user._id, inControl: true})
+      })
+    } else if (this.state.someoneElseInControl) {
+      let newMessage = {
+        text: 'Can I take control?',
+        user: {_id: user._id, username: user.username},
+        room: room._id,
+        timestamp: new Date().getTime()
+      }
+      this.socket.emit('SEND_MESSAGE', newMessage, (err, res) => {
+
+      })
+      this.props.updatedRoom(room._id, {chat: [...room.chat, newMessage]})
+      // this.scrollToBottom(); @TODO
+    }
+    else {
+      this.socket.emit('RELEASE_CONTROL', {user: {_id: user._id, username: user.username}, roomId: room._id}, (err, message) => {
+        this.props.updatedRoom(room._id, {chat: [...this.props.room.chat, message]})
+        this.setState({activeMember: ''})
+      })
+      this.setState({
+        inControl: false,
+        someoneElseInControl: false,
+        activeMember: '',
+      })
+    }
+  }
+  
+  resetControlTimer = () => {
+    clearTimeout(this.controlTimer)
+    this.controlTimer = setTimeout(() => {this.setState({inControl: false})}, 60 * 1000)
+  }
+
   render() {
     const { room, user } = this.props;
+    console.log(room.chat)
     return (
       <WorkspaceLayout
-        members = {(room && room.currentMembers) ? room.currentMembers : []}
-        graph = {room.roomType === 'geogebra' ?
-          () => <GgbGraph room={room} socket={this.socket} user={user} updateRoom={this.props.updateRoom}/> :
-          () => <DesmosGraph  room={room} socket={this.socket} user={user} />}
-        chat = {() => <Chat roomId={room._id} messages={room.chat || []} socket={this.socket} user={user} />}
-        description={room.description}
-        instructions={room.instructions}
+        activeMember={this.state.activeMember}
+        room={room}
+        socket={this.socket}
+        updateRoom={this.props.updateRoom}
+        updatedRoom={this.props.updatedRoom}
+        inControl={this.state.inControl}
+        resetControlTimer={this.resetControlTimer}
+        toggleControl={this.toggleControl}
+        someoneElseInControl={this.state.someoneElseInControl}
+        user={user}
       />
     )
   }

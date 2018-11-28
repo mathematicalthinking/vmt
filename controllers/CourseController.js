@@ -4,10 +4,8 @@ module.exports = {
   get: params => {
     return new Promise((resolve, reject) => {
       if (params && params.constructor === Array) {
-        console.log('params is array')
         params = {'_id': {$in: params}}
       }
-      console.log('getting course')
       db.Course.find(params ? params : {}).sort('-createdAt')
       .populate({path: 'members.user', select: 'username'})
       .then(courses => resolve(courses))

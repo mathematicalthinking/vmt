@@ -2,7 +2,6 @@ const db = require('../models')
 
 module.exports = {
   get: params => {
-    console.log('getting rooms!')
     if (params && params.constructor === Array) {
       params = {'_id': {$in: params}}
     } else {
@@ -34,7 +33,6 @@ module.exports = {
       .populate({path: 'events', select: '-room'})
       .populate({path: 'graphImage', select: 'imageData'})
       .then(room => {
-        console.log(room.course)
         resolve(room)
       })
       .catch(err => reject(err))
