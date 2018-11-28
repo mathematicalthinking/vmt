@@ -29,6 +29,7 @@ class Workspace extends Component {
     }
     // const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
     this.socket.emit('JOIN', sendData, (res, err) => {
+      console.log("JOINING!")
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
@@ -42,6 +43,8 @@ class Workspace extends Component {
     this.socket.on('USER_LEFT', data => {
       updatedRoom(room._id, {currentMembers: data.currentMembers})
     })
+
+    window.addEventListener('beforeunload', this.componentCleanup);
   }
 
   componentDidUpdate(prevProps) {
@@ -51,7 +54,12 @@ class Workspace extends Component {
   }
 
   componentWillUnmount () {
+    this.componentCleanup()
     // @TODO RELEASE CONTROL HERE
+    window.removeEventListener('beforeunload', this.componentCleanup);
+  }
+
+  componentCleanup = () => {
     const { updatedRoom, room, user} = this.props;
     if (this.socket) {
       this.socket.disconnect()
@@ -79,8 +87,8 @@ class Workspace extends Component {
   }
 
   render() {
-    console.log(this.state.inControl)
     const { room, user } = this.props;
+    console.log(room.currentMembers)
     return (
       <WorkspaceLayout
         room={room}
