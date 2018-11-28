@@ -80,24 +80,40 @@ class Workspace extends Component {
   }
 
   toggleControl = () => {
+    let { user, room } = this.props;
     // If we're taking control 
-    if (!this.state.inControl) {
+    if (!this.state.inControl && !this.state.someoneElseInControl) {
       this.resetControlTimer();
       // @TODO EMIT EVENT TAKING CONTROL
-      this.socket.emit('TAKE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
+      this.socket.emit('TAKE_CONTROL', {user: {_id: user._id, username: user.username}, roomId: room._id}, (err, message) => {
         console.log(message)
         this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
-        this.setState({activeMember: this.props.user._id,})
+        this.setState({activeMember: this.props.user._id, inControl: true})
       })
-    } else {
-      this.socket.emit('RELEASE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
-        this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
+    } else if (this.state.someoneElseInControl) {
+      let newMessage = {
+        text: 'Can I take control?',
+        user: {_id: user._id, username: user.username},
+        room: room._id,
+        timestamp: new Date().getTime()
+      }
+      this.socket.emit('SEND_MESSAGE', newMessage, (err, res) => {
+
+      })
+      this.props.updatedRoom(room._id, {chat: [...room.chat, newMessage]})
+      // this.scrollToBottom(); @TODO
+    }
+    else {
+      this.socket.emit('RELEASE_CONTROL', {user: {_id: user._id, username: user.username}, roomId: room._id}, (err, message) => {
+        this.props.updatedRoom(room._id, {chat: [...this.props.room.chat, message]})
         this.setState({activeMember: ''})
       })
+      this.setState({
+        inControl: false,
+        someoneElseInControl: false,
+        activeMember: '',
+      })
     }
-    this.setState(prevState => ({
-      inControl: !prevState.inControl
-    }))
   }
   
   resetControlTimer = () => {

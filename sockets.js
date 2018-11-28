@@ -133,7 +133,7 @@ sockets.init = server => {
           timestamp: new Date().getTime(),
         }
         controllers.messages.post(message)
-        socket.to(data.roomId).emit('TOOK_CONTROL', {message});
+        socket.to(data.roomId).emit('TOOK_CONTROL', message);
         callback(null, message)
       })
 
@@ -146,7 +146,7 @@ sockets.init = server => {
           timestamp: new Date().getTime(),
         }
         controllers.messages.post(message)
-        socket.to(data.roomId).emit('RELEASED_CONTROL', {message});
+        socket.to(data.roomId).emit('RELEASED_CONTROL', message);
         callback(null, message)
       })
 

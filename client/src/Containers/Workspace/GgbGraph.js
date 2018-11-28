@@ -52,7 +52,7 @@ class GgbGraph extends Component {
       this.ggbApplet.showToolBar('0 39 73 62')
       this.ggbApplet.setMode(0)
     }
-    else if (prevProps.inControl && !this.props.inControl) {
+    else if ((prevProps.inControl && !this.props.inControl )|| this.props.someoneElseInControl) {
       this.ggbApplet.showToolBar('')
       this.ggbApplet.setMode(40)
     }
@@ -117,13 +117,6 @@ class GgbGraph extends Component {
       this.ggbApplet.setXML(room.currentState)
     }
     this.addListener = label => {
-      // If the user has deleted our control cover div we still need to prevent them from chaning the construction
-      // @TODO DONT KNOW IF WE NEED THIS ONLY POSSIBLE IF THE USER HAS HACKED THE FRONT END
-      if (!this.props.inControl) {
-        this.showControlWarning({screenX: 500, screenY: 500})
-        return this.ggbApplet.undo() 
-      }
-      
       if (!this.state.receivingData) {
         let xml = this.ggbApplet.getXML(label)
         let definition = this.ggbApplet.getCommandString(label);
@@ -133,28 +126,22 @@ class GgbGraph extends Component {
     }
     
     this.removeListener = label => {
-      if (!this.props.inControl) {
-        return this.ggbApplet.undo() 
-      }
       if (!this.state.receivingData) {
         sendEvent(null, null, label, "REMOVE", "removed")
       }
       this.setState({receivingData: false})
     }
     
-    this.updateListener = throttle(label => {
-      if (!this.props.inControl) {
-        return this.ggbApplet.undo() 
-      }
+    this.updateListener = label => {
       if (!this.state.receivingData) {
         let xml = this.ggbApplet.getXML(label)
         sendEvent(xml, null, label, "UPDATE", "updated")
       }
       this.setState({receivingData: false})
       // this.ggbApplet.evalCommand("updateConstruction()")
-    }, THROTTLE_FIDELITY)
+    }
     
-    const sendEvent = async (xml, definition, label, eventType, action) => {
+    const sendEvent = throttle(async (xml, definition, label, eventType, action) => {
       let xmlObj;
       if (xml) xmlObj = await parseXML(xml)
       let newData = {
@@ -170,7 +157,7 @@ class GgbGraph extends Component {
       }
       this.socket.emit('SEND_EVENT', newData)
       this.props.resetControlTimer()
-    }
+    }, THROTTLE_FIDELITY)
     // attach this listeners to the ggbApplet
     if (this.ggbApplet.listeners.length === 0) {
       this.ggbApplet.registerAddListener(this.addListener);
@@ -187,29 +174,29 @@ class GgbGraph extends Component {
           return resolve(result)
         })
       })
-    }
+    }  
   }
 
   // I DONT KNOW IF WE NEED THIS IT ONLY HAPPENS IF THE USER HACKS THIS
-  showControlWarning = (event) => {
-    console.log('setting state')
-    // console.log(event.screenX)
-    this.setState({
-      showControlWarning: true,
-      warningPosition: {x: event.screenX - 100, y: event.screenY - 100}
-    }, () => {
-      setTimeout(() => {this.setState({showControlWarning: false})}, 1000)
-    })
-  }
+  // showControlWarning = (event) => {
+  //   console.log('setting state')
+  //   // console.log(event.screenX)
+  //   this.setState({
+  //     showControlWarning: true,
+  //     warningPosition: {x: event.screenX - 100, y: event.screenY - 100}
+  //   }, () => {
+  //     setTimeout(() => {this.setState({showControlWarning: false})}, 1000)
+  //   })
+  // }
 
   render() {
     return (
       <Aux>
         <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} />
         <div className={classes.Graph} id='ggb-element' ref={this.graph}> </div>
-        {this.state.showControlWarning ? <div className={classes.ControlWarning} style={{left: this.state.warningPosition.x, top: this.state.warningPosition.y}}>
+        {/* {this.state.showControlWarning ? <div className={classes.ControlWarning} style={{left: this.state.warningPosition.x, top: this.state.warningPosition.y}}>
           You don't have control!
-        </div> : null}
+        </div> : null} */}
         <Modal show={this.state.loading} message='Loading...'/>
       </Aux>
     )
