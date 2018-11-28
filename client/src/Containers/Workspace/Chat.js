@@ -33,7 +33,6 @@ class Chat extends Component {
   }
 
   componentDidUpdate(prevProps){
-    console.log(prevProps, this.props)
   }
 
   changeHandler = event => {

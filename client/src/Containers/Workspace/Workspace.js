@@ -7,6 +7,7 @@ import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 class Workspace extends Component {
 
   state = {
+    activeMember: '',
     inControl: false,
     someoneElseInControl: false, // ultimately we should save and fetch this from the db 
   }
@@ -73,7 +74,16 @@ class Workspace extends Component {
     if (!this.state.inControl) {
       this.resetControlTimer();
       // @TODO EMIT EVENT TAKING CONTROL
-      this.socket.emit('TAKE_CONTROL', {user: this.props.user._id, username: this.props.user.username, room: this.props.room})
+      this.socket.emit('TAKE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
+        console.log(message)
+        this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
+        this.setState({activeMember: this.props.user._id})
+      })
+    } else {
+      this.socket.emit('RELEASE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
+        this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
+        this.setState({activeMember: ''})
+      })
     }
     this.setState(prevState => ({
       inControl: !prevState.inControl
@@ -87,8 +97,10 @@ class Workspace extends Component {
 
   render() {
     const { room, user } = this.props;
+    console.log(room.chat)
     return (
       <WorkspaceLayout
+        activeMember={this.state.activeMember}
         room={room}
         socket={this.socket}
         updateRoom={this.props.updateRoom}
