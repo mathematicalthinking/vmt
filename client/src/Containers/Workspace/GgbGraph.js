@@ -16,7 +16,8 @@ class GgbGraph extends Component {
     loading: true,
     selectedElement: '',
     showControlWarning: false,
-    warningPosition: {x: 0, y: 0}
+    warningPosition: {x: 0, y: 0},
+    referencedElementPosition: {left: null, top: null}
   }
   
   graph = React.createRef()
@@ -71,9 +72,11 @@ class GgbGraph extends Component {
   }
   
   updateDimensions = () => {
-    let { clientHeight, clientWidth } = this.graph.current.parentElement;
-    window.ggbApplet.setSize(clientWidth, clientHeight);
-    // window.ggbApplet.evalCommand('UpdateConstruction()')
+    if (this.graph.current && !this.state.loading) {
+      let { clientHeight, clientWidth } = this.graph.current.parentElement;
+      window.ggbApplet.setSize(clientWidth, clientHeight);
+      // window.ggbApplet.evalCommand('UpdateConstruction()')
+    }
     
   }
   
@@ -154,13 +157,37 @@ class GgbGraph extends Component {
       // this.ggbApplet.evalCommand("updateConstruction()")
     }
 
-    this.clickListener = event => {
-      console.log("CLICKED", this.props.referencing)
+    this.clickListener = async element => {
+      // console.log("CLICKED", this.ggbApplet.getXML())
       if (this.props.referencing) {
         // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
-        let elementType = this.ggbApplet.getObjectType(event);
-        console.log(event, elementType)
-        this.props.addReferenceToChat(event, elementType)
+        let elementType = this.ggbApplet.getObjectType(element);
+        console.log(element, elementType)
+        let elX;
+        let elY;
+        try {
+          elX = this.ggbApplet.getXcoord(element)
+          elY = this.ggbApplet.getYcoord(element)
+        }
+        catch (err) {
+          // get the coords of its children
+        }
+        // Get the element's location relative to the client Window 
+        let ggbCoords = this.graph.current.getBoundingClientRect();
+        let construction = await this.parseXML(this.ggbApplet.getXML())
+        let euclidianView = construction.geogebra.euclidianView[0]
+        let { xZero, yZero, scale, yScale, } = euclidianView.coordSystem[0].$;
+        if (!yScale) yScale = scale;
+        let { width, height } = euclidianView.size[0].$
+        console.log(xZero, yZero, scale, yScale)
+        console.log(elX, elY)
+        let xOffset = (ggbCoords.width - width) + parseInt(xZero) + (elX * scale);
+        let yOffset = (ggbCoords.height - height) + parseInt(yZero) - (elY * yScale)
+        console.log(xOffset)
+        this.setState({
+          referencedElementPosition: {left: xOffset, top: yOffset}
+        })
+        this.props.addReferenceToChat(element, elementType)
       }
     }
     
@@ -209,10 +236,10 @@ class GgbGraph extends Component {
     })
   }
 
-  clickListener = (event) => {
-    console.log(event)
-    console.log(event.target)
-  }
+  // clickListener = (event) => {
+  //   console.log(event)
+  //   console.log(event.target)
+  // }
 
   // I DONT KNOW IF WE NEED THIS IT ONLY HAPPENS IF THE USER HACKS THIS // UPDATE: WE IF WE CAN"T DISABLE THE SIDEBAR
   // showControlWarning = (event) => {
@@ -230,7 +257,9 @@ class GgbGraph extends Component {
     return (
       <Aux>
         <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} />
-        <div className={classes.Graph} id='ggb-element' ref={this.graph}></div>
+        <div className={classes.Graph} id='ggb-element' ref={this.graph}>
+        </div>
+        <div className={classes.ReferenceLine} style={{left: this.state.referencedElementPosition.left, top: this.state.referencedElementPosition.top}}></div>
         {/* {this.state.showControlWarning ? <div className={classes.ControlWarning} style={{left: this.state.warningPosition.x, top: this.state.warningPosition.y}}>
           You don't have control!
         </div> : null} */}
