@@ -52,22 +52,23 @@ class GgbGraph extends Component {
     if (!prevProps.inControl && this.props.inControl) {
       this.ggbApplet.showToolBar('"0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",')
       this.ggbApplet.showMenuBar(true)
-      this.ggbApplet.setMode(0) // Set tool to pointer
+      this.ggbApplet.setMode(0)
+      let allElements = this.ggbApplet.getAllObjectNames()
+      allElements.forEach(element => {
+        this.ggbApplet.setFixed(element, false, true) // Unfix all of the elements
+      })
     }
     else if ((prevProps.inControl && !this.props.inControl )|| this.props.someoneElseInControl) {
       this.ggbApplet.showToolBar(false)
       this.ggbApplet.setMode(40)
     }
     else if (!prevProps.referencing && this.props.referencing) {
-      this.ggbApplet.setMode(0) // Set tool to pointer so the user can select elements 
-      // fix all of the items so the user cannot change the elements
-      let xml = this.parseXML(this.ggbApplet.getXML())
-      .then(xml => {
-        console.log(xml)
-        xml.geogebra.construction[0].element.forEach(element => {
-          this.ggbApplet.setFixed(element.$.label, true, true)
-        })
+      let allElements = this.ggbApplet.getAllObjectNames()
+      allElements.forEach(element => {
+        this.ggbApplet.setFixed(element, true, true) // fix all of the elements
       })
+      this.ggbApplet.setMode(0) // Set tool to pointer so the user can select elements 
+      
     }
     else if (prevProps.referencing && !this.props.referencing) {
       this.ggbApplet.setMode(40)
@@ -123,9 +124,9 @@ class GgbGraph extends Component {
     this.ggbApplet = window.ggbApplet;
     this.setState({loading: false})
     this.ggbApplet.setMode(40) // Sets the tool to zoom
-    // this.ggbApplet.setFixed('0', true, false)
     let { user, room } = this.props;
     let { events } = room;
+    // put the current construction on the graph, disable everything until the user takes control
     if (events.length > 0) {
       this.ggbApplet.setXML(room.currentState)
     }
@@ -147,10 +148,9 @@ class GgbGraph extends Component {
     
     this.updateListener = label => {
       if (!this.props.inControl) {
-        console.log('undoing')
-        return this.ggbApplet.undo() // not working
+        return
       }
-      if (!this.state.receivingData) {
+      else if (!this.state.receivingData) {
         let xml = this.ggbApplet.getXML(label)
         sendEvent(xml, null, label, "UPDATE", "updated")
       }
@@ -160,7 +160,6 @@ class GgbGraph extends Component {
 
     this.clickListener = async event => {
       if (this.props.referencing) {
-        console.log(this.ggbApplet.getXML(event))
         let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
         if (xmlObj.element) {
           // If this element doesn't have coords (like a polygon) get its childrens' coords
@@ -168,8 +167,7 @@ class GgbGraph extends Component {
             let children = await this.parseXML(this.ggbApplet.getAlgorithmXML(event))
             console.log(children.command)
             
-          }  
-         console.log(xmlObj) 
+          }
         }
       }
     }
