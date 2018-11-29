@@ -10,6 +10,7 @@ class Workspace extends Component {
     activeMember: '',
     inControl: false,
     someoneElseInControl: false, // ultimately we should save and fetch this from the db 
+    referencing: false,
   }
 
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
@@ -57,9 +58,16 @@ class Workspace extends Component {
     window.addEventListener('beforeunload', this.componentCleanup);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     if (prevProps.room.currentMembers !== this.props.room.currentMembers) {
 
+    }
+
+    if (prevState.inControl && !this.state.inControl) {
+      this.socket.emit('RELEASE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
+        this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
+        this.setState({activeMember: ''})
+      })
     }
   }
 
@@ -79,16 +87,22 @@ class Workspace extends Component {
     }
   }
 
+  toggleReferencing = () => {
+    this.setState(prevState => ({
+      referencing: !prevState.referencing
+    }))
+  }
+
   toggleControl = () => {
     let { user, room } = this.props;
     // If we're taking control 
     if (!this.state.inControl && !this.state.someoneElseInControl) {
       this.resetControlTimer();
       // @TODO EMIT EVENT TAKING CONTROL
+      this.setState({activeMember: this.props.user._id, inControl: true})
       this.socket.emit('TAKE_CONTROL', {user: {_id: user._id, username: user.username}, roomId: room._id}, (err, message) => {
-        console.log(message)
         this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
-        this.setState({activeMember: this.props.user._id, inControl: true})
+        console.log(message)
       })
     } else if (this.state.someoneElseInControl) {
       let newMessage = {
@@ -104,10 +118,6 @@ class Workspace extends Component {
       // this.scrollToBottom(); @TODO
     }
     else {
-      this.socket.emit('RELEASE_CONTROL', {user: {_id: user._id, username: user.username}, roomId: room._id}, (err, message) => {
-        this.props.updatedRoom(room._id, {chat: [...this.props.room.chat, message]})
-        this.setState({activeMember: ''})
-      })
       this.setState({
         inControl: false,
         someoneElseInControl: false,
@@ -123,11 +133,11 @@ class Workspace extends Component {
 
   render() {
     const { room, user } = this.props;
-    console.log(room.chat)
     return (
       <WorkspaceLayout
         activeMember={this.state.activeMember}
         room={room}
+        user={user}
         socket={this.socket}
         updateRoom={this.props.updateRoom}
         updatedRoom={this.props.updatedRoom}
@@ -135,7 +145,8 @@ class Workspace extends Component {
         resetControlTimer={this.resetControlTimer}
         toggleControl={this.toggleControl}
         someoneElseInControl={this.state.someoneElseInControl}
-        user={user}
+        referencing={this.state.referencing}
+        toggleReferencing={this.toggleReferencing}
       />
     )
   }

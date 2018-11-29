@@ -23,6 +23,7 @@ class GgbGraph extends Component {
   
   componentDidMount() {
     this.socket = this.props.socket;
+    // window.addEventListener('click', this.clickListener)
     window.addEventListener("resize", throttle(this.updateDimensions, 700));
     this.socket.on('RECEIVE_EVENT', data => {
       this.setState({receivingData: true}, () => {
@@ -49,17 +50,31 @@ class GgbGraph extends Component {
 
   componentDidUpdate(prevProps) {
     if (!prevProps.inControl && this.props.inControl) {
-      this.ggbApplet.showToolBar('0 39 73 62')
-      this.ggbApplet.setMode(0)
+      this.ggbApplet.showToolBar('"0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",')
+      this.ggbApplet.showMenuBar(true)
+      this.ggbApplet.setMode(0) // Set tool to pointer
     }
     else if ((prevProps.inControl && !this.props.inControl )|| this.props.someoneElseInControl) {
-      this.ggbApplet.showToolBar('')
+      this.ggbApplet.showToolBar(false)
+      this.ggbApplet.setMode(40)
+    }
+    else if (!prevProps.referencing && this.props.referencing) {
+      this.ggbApplet.setMode(0) // Set tool to pointer so the user can select elements 
+      // fix all of the items so the user cannot change the elements
+      let xml = this.parseXML(this.ggbApplet.getXML())
+      .then(xml => {
+        console.log(xml)
+        xml.geogebra.construction[0].element.forEach(element => {
+          this.ggbApplet.setFixed(element.$.label, true, true)
+        })
+      })
+    }
+    else if (prevProps.referencing && !this.props.referencing) {
       this.ggbApplet.setMode(40)
     }
   }
   
   updateDimensions = () => {
-    console.log('recaluclating')
     let { clientHeight, clientWidth } = this.graph.current.parentElement;
     window.ggbApplet.setSize(clientWidth, clientHeight);
     // window.ggbApplet.evalCommand('UpdateConstruction()')
@@ -70,8 +85,6 @@ class GgbGraph extends Component {
     // NOTE: complete list here: https://wiki.geogebra.org/en/Reference:GeoGebra_App_Parameters
     const parameters = {
       "id":"ggbApplet",
-      // "width": , // 75% width of container
-      // "height": "100%",
       "scaleContainerClasse": "graph",
       "customToolBar": "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
       "showToolBar": false,
@@ -109,8 +122,8 @@ class GgbGraph extends Component {
   initializeGgb = () => {
     this.ggbApplet = window.ggbApplet;
     this.setState({loading: false})
-    this.ggbApplet.setMode(40)
-    this.ggbApplet.setFixed('0', true, false)
+    this.ggbApplet.setMode(40) // Sets the tool to zoom
+    // this.ggbApplet.setFixed('0', true, false)
     let { user, room } = this.props;
     let { events } = room;
     if (events.length > 0) {
@@ -133,6 +146,10 @@ class GgbGraph extends Component {
     }
     
     this.updateListener = label => {
+      if (!this.props.inControl) {
+        console.log('undoing')
+        return this.ggbApplet.undo() // not working
+      }
       if (!this.state.receivingData) {
         let xml = this.ggbApplet.getXML(label)
         sendEvent(xml, null, label, "UPDATE", "updated")
@@ -140,10 +157,26 @@ class GgbGraph extends Component {
       this.setState({receivingData: false})
       // this.ggbApplet.evalCommand("updateConstruction()")
     }
+
+    this.clickListener = async event => {
+      if (this.props.referencing) {
+        console.log(this.ggbApplet.getXML(event))
+        let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
+        if (xmlObj.element) {
+          // If this element doesn't have coords (like a polygon) get its childrens' coords
+          if (!xmlObj.element.coords) {
+            let children = await this.parseXML(this.ggbApplet.getAlgorithmXML(event))
+            console.log(children.command)
+            
+          }  
+         console.log(xmlObj) 
+        }
+      }
+    }
     
-    const sendEvent = throttle(async (xml, definition, label, eventType, action) => {
+    let sendEvent = throttle(async (xml, definition, label, eventType, action) => {
       let xmlObj;
-      if (xml) xmlObj = await parseXML(xml)
+      if (xml) xmlObj = await this.parseXML(xml)
       let newData = {
         definition,
         label,
@@ -154,30 +187,37 @@ class GgbGraph extends Component {
         user: {_id: user._id, username: user.username},
         timestamp: new Date().getTime(),
         currentState: this.ggbApplet.getXML(),
+        mode: this.ggbApplet.getMode(),
       }
       this.socket.emit('SEND_EVENT', newData)
       this.props.resetControlTimer()
     }, THROTTLE_FIDELITY)
+
     // attach this listeners to the ggbApplet
     if (this.ggbApplet.listeners.length === 0) {
       this.ggbApplet.registerAddListener(this.addListener);
       this.ggbApplet.registerClickListener(this.clickListener);
       this.ggbApplet.registerUpdateListener(this.updateListener);
       this.ggbApplet.registerRemoveListener(this.removeListener);
-
     }
     
-    const parseXML = (xml) => {
-      return new Promise((resolve, reject) => {
-        parseString(xml, (err, result) => {
-          if (err) return reject(err)
-          return resolve(result)
-        })
+  }
+  
+  parseXML = (xml) => {
+    return new Promise((resolve, reject) => {
+      parseString(xml, (err, result) => {
+        if (err) return reject(err)
+        return resolve(result)
       })
-    }  
+    })
   }
 
-  // I DONT KNOW IF WE NEED THIS IT ONLY HAPPENS IF THE USER HACKS THIS
+  clickListener = (event) => {
+    console.log(event)
+    console.log(event.target)
+  }
+
+  // I DONT KNOW IF WE NEED THIS IT ONLY HAPPENS IF THE USER HACKS THIS // UPDATE: WE IF WE CAN"T DISABLE THE SIDEBAR
   // showControlWarning = (event) => {
   //   console.log('setting state')
   //   // console.log(event.screenX)

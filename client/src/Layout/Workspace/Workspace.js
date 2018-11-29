@@ -9,12 +9,13 @@ import DesmosReplayer from '../../Containers/Replayer/DesmosReplayer';
 import ChatReplayer from '../../Containers/Replayer/ChatReplayer';
 import Chat from '../../Containers/Workspace/Chat';
 
-const workspaceLayout = ({
+const workspaceLayout = React.memo(({
   room, user, socket,
   resetControlTimer, inControl, toggleControl, 
   replayer, activeMember, temp, 
   save, someoneElseInControl,
   instructions, history, saved, updateRoom, updatedRoom,
+  toggleReferencing, referencing, 
 }) => {
   let controlText = 'Take Control';
   if (inControl) controlText = 'Release Control';
@@ -34,7 +35,7 @@ const workspaceLayout = ({
                 <DesmosReplayer />
               ):   
               (room.roomType === 'geogebra' ? 
-                <GgbGraph room={room} socket={socket} user={user} updateRoom={updateRoom} inControl={inControl} resetControlTimer={resetControlTimer}/> :
+                <GgbGraph room={room} socket={socket} user={user} updateRoom={updateRoom} inControl={inControl} resetControlTimer={resetControlTimer} referencing={referencing}/> :
                 <DesmosGraph  room={room} socket={socket} user={user} inControl={inControl} resetControlTimer={resetControlTimer}/>
               )
             }
@@ -68,11 +69,14 @@ const workspaceLayout = ({
           </div>
           <div className={classes.Right}>
             <div className={classes.ReferenceWindow}>
-              {/* <div className={classes.ReferenceControls} onClick={toggleReference}>
-                <i className={["fas", "fa-mouse-pointer", classes.MousePointer].join(" ")}></i>
-                <div>Reference </div>
-              </div> */}
-              <div className={classes.ReferenceDescription}>
+              {!replayer ? 
+                <div className={classes.ReferenceControls} onClick={toggleReferencing}>
+                  <i className={["fas", "fa-mouse-pointer", classes.MousePointer, referencing ? classes.ReferencingActive : ''].join(" ")}></i>
+                  <div className={classes.ReferenceTool}>Reference</div>
+                  {/* <div className={classes.RefrenceTool}>Perspective</div> */}
+                </div> : null
+              }
+              <div className={classes.LiveLog}>
 
               </div>
             </div>
@@ -88,5 +92,5 @@ const workspaceLayout = ({
       </div>
     </div>
   )
-}
+})
 export default withRouter(workspaceLayout);
