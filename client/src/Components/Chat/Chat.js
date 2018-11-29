@@ -15,7 +15,13 @@ class Chat extends Component {
     this.scrollToBottom();
   }
   componentDidUpdate(prevProps){
-    this.scrollToBottom();
+    
+    if (prevProps.messages.length !== this.props.messages.length) {
+      this.scrollToBottom();
+    }
+    else if (!prevProps.referencing && this.props.referencing) {
+      this.chatInput.current.focus();
+    }
   }
   
   componentWillUnmount() {

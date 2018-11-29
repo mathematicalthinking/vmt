@@ -15,7 +15,8 @@ const workspaceLayout = React.memo(({
   replayer, activeMember, temp, 
   save, someoneElseInControl,
   instructions, history, saved, updateRoom, updatedRoom,
-  toggleReferencing, referencing, 
+  toggleReferencing, referencing, addReferenceToChat,
+  referencedElement,
 }) => {
   let controlText = 'Take Control';
   if (inControl) controlText = 'Release Control';
@@ -35,7 +36,15 @@ const workspaceLayout = React.memo(({
                 <DesmosReplayer />
               ):   
               (room.roomType === 'geogebra' ? 
-                <GgbGraph room={room} socket={socket} user={user} updateRoom={updateRoom} inControl={inControl} resetControlTimer={resetControlTimer} referencing={referencing}/> :
+                <GgbGraph 
+                  room={room} 
+                  socket={socket} 
+                  user={user} 
+                  updateRoom={updateRoom} 
+                  inControl={inControl} 
+                  resetControlTimer={resetControlTimer} 
+                  referencing={referencing}
+                  addReferenceToChat={addReferenceToChat} /> :
                 <DesmosGraph  room={room} socket={socket} user={user} inControl={inControl} resetControlTimer={resetControlTimer}/>
               )
             }
@@ -44,7 +53,7 @@ const workspaceLayout = React.memo(({
             <div className={classes.Chat}>
               {replayer ? 
                 <ChatReplayer roomId={room._id} log={replayer.log} index={replayer.index} skipping={replayer.skipping} reset={replayer.reset} setCurrentMembers={replayer.setCurrentMembers} /> : 
-                <Chat roomId={room._id} messages={room.chat || []} socket={socket} user={user} updatedRoom={updatedRoom} />
+                <Chat roomId={room._id} messages={room.chat || []} socket={socket} user={user} updatedRoom={updatedRoom} referencedElement={referencedElement} />
               }
             </div>
             <div className={classes.Members}>

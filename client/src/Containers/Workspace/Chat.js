@@ -1,10 +1,11 @@
 // Should we store chat data in this component's state or in the
 // redux store?
 import React, { Component } from 'react';
-import ChatLayout from '../../Components/Chat/Chat';
+import { Chat as ChatLayout } from '../../Components';
 class Chat extends Component {
   state = {
     newMessage: '',
+    referencing: false,
   }
 
   componentDidMount() {
@@ -33,6 +34,10 @@ class Chat extends Component {
   }
 
   componentDidUpdate(prevProps){
+    if (prevProps.referencedElement !== this.props.referencedElement) {
+      console.log(this.props.referencedElement)
+      this.setState({newMessage: `⬅️ ${this.state.newMessage}`, referencing: true})
+    }
   }
 
   changeHandler = event => {
@@ -68,7 +73,7 @@ class Chat extends Component {
 
   render() {
     return (
-      <ChatLayout messages={this.props.messages} change={this.changeHandler} submit={this.submitMessage} value={this.state.newMessage} />
+      <ChatLayout messages={this.props.messages} change={this.changeHandler} submit={this.submitMessage} value={this.state.newMessage} referencing={this.state.referencing}/>
     )
   }
 }

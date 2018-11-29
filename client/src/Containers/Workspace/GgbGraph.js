@@ -6,7 +6,7 @@ import Script from 'react-load-script';
 import throttle from 'lodash/throttle';
 import { parseString } from 'xml2js';
 // import { eventNames } from 'cluster';
-
+// THINK ABOUT GETTING RID OF ALL XML PARSING...THERE ARE PROBABLY NATIVE GGB METHODS THAT CAN ACCOMPLISH EVERYTHING WE NEED
 const THROTTLE_FIDELITY = 60;
 class GgbGraph extends Component {
 
@@ -53,20 +53,15 @@ class GgbGraph extends Component {
       this.ggbApplet.showToolBar('"0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",')
       this.ggbApplet.showMenuBar(true)
       this.ggbApplet.setMode(0)
-      let allElements = this.ggbApplet.getAllObjectNames()
-      allElements.forEach(element => {
-        this.ggbApplet.setFixed(element, false, true) // Unfix all of the elements
-      })
+      this.freezeElements(false)
+      
     }
     else if ((prevProps.inControl && !this.props.inControl )|| this.props.someoneElseInControl) {
       this.ggbApplet.showToolBar(false)
       this.ggbApplet.setMode(40)
+      this.freezeElements(true)
     }
     else if (!prevProps.referencing && this.props.referencing) {
-      let allElements = this.ggbApplet.getAllObjectNames()
-      allElements.forEach(element => {
-        this.ggbApplet.setFixed(element, true, true) // fix all of the elements
-      })
       this.ggbApplet.setMode(0) // Set tool to pointer so the user can select elements 
       
     }
@@ -130,6 +125,7 @@ class GgbGraph extends Component {
     if (events.length > 0) {
       this.ggbApplet.setXML(room.currentState)
     }
+
     this.addListener = label => {
       if (!this.state.receivingData) {
         let xml = this.ggbApplet.getXML(label)
@@ -158,17 +154,13 @@ class GgbGraph extends Component {
       // this.ggbApplet.evalCommand("updateConstruction()")
     }
 
-    this.clickListener = async event => {
+    this.clickListener = event => {
+      console.log("CLICKED", this.props.referencing)
       if (this.props.referencing) {
-        let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
-        if (xmlObj.element) {
-          // If this element doesn't have coords (like a polygon) get its childrens' coords
-          if (!xmlObj.element.coords) {
-            let children = await this.parseXML(this.ggbApplet.getAlgorithmXML(event))
-            console.log(children.command)
-            
-          }
-        }
+        // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
+        let elementType = this.ggbApplet.getObjectType(event);
+        console.log(event, elementType)
+        this.props.addReferenceToChat(event, elementType)
       }
     }
     
@@ -210,6 +202,13 @@ class GgbGraph extends Component {
     })
   }
 
+  freezeElements = (freeze) => {
+    let allElements = this.ggbApplet.getAllObjectNames()
+    allElements.forEach(element => {
+      this.ggbApplet.setFixed(element, freeze, true) // Unfix all of the elements
+    })
+  }
+
   clickListener = (event) => {
     console.log(event)
     console.log(event.target)
@@ -231,7 +230,7 @@ class GgbGraph extends Component {
     return (
       <Aux>
         <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} />
-        <div className={classes.Graph} id='ggb-element' ref={this.graph}> </div>
+        <div className={classes.Graph} id='ggb-element' ref={this.graph}></div>
         {/* {this.state.showControlWarning ? <div className={classes.ControlWarning} style={{left: this.state.warningPosition.x, top: this.state.warningPosition.y}}>
           You don't have control!
         </div> : null} */}

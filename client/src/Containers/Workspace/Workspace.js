@@ -11,6 +11,7 @@ class Workspace extends Component {
     inControl: false,
     someoneElseInControl: false, // ultimately we should save and fetch this from the db 
     referencing: false,
+    referencedElement: null,
   }
 
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
@@ -131,6 +132,11 @@ class Workspace extends Component {
     this.controlTimer = setTimeout(() => {this.setState({inControl: false})}, 60 * 1000)
   }
 
+  addReferenceToChat = (element, elementType) => {
+    console.log(element, elementType)
+    this.setState({referencedElement: {element, elementType,}, referencing: false})
+  }
+
   render() {
     const { room, user } = this.props;
     return (
@@ -147,6 +153,8 @@ class Workspace extends Component {
         someoneElseInControl={this.state.someoneElseInControl}
         referencing={this.state.referencing}
         toggleReferencing={this.toggleReferencing}
+        addReferenceToChat={this.addReferenceToChat}
+        referencedElement={this.state.referencedElement}
       />
     )
   }
@@ -159,8 +167,5 @@ const mapStateToProps = (state, ownProps) => {
     loading: state.loading.loading,
   }
 }
-
-
-
 
 export default connect(mapStateToProps, {updateRoom, updatedRoom, populateRoom,})(Workspace);

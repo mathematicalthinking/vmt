@@ -30,3 +30,5 @@ export { default as PublicAccess } from './UI/Modal/PublicAccess';
 export {default as FirstView } from './UI/Modal/FirstView';
 export { default as Trash } from './UI/Trash/Trash';
 export { default as MousePointer } from './UI/Icons/MousePointer';
+export { default as ArrowLeft } from './UI/Icons/ArrowLeft';
+export { default as ArrowDown } from './UI/Icons/ArrowDown';
