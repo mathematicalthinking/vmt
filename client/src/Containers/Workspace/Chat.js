@@ -73,7 +73,15 @@ class Chat extends Component {
 
   render() {
     return (
-      <ChatLayout messages={this.props.messages} change={this.changeHandler} submit={this.submitMessage} value={this.state.newMessage} referencing={this.state.referencing}/>
+      <ChatLayout 
+        messages={this.props.messages} 
+        change={this.changeHandler} 
+        submit={this.submitMessage} 
+        value={this.state.newMessage} 
+        referencing={this.state.referencing}
+        getChatCoords={this.props.getChatCoords}
+        chatCoords={this.props.chatCoords}
+      />
     )
   }
 }

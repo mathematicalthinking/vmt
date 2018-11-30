@@ -16,7 +16,7 @@ const workspaceLayout = React.memo(({
   save, someoneElseInControl,
   instructions, history, saved, updateRoom, updatedRoom,
   toggleReferencing, referencing, addReferenceToChat,
-  referencedElement,
+  referencedElement, getChatCoords, chatCoords,
 }) => {
   let controlText = 'Take Control';
   if (inControl) controlText = 'Release Control';
@@ -53,7 +53,16 @@ const workspaceLayout = React.memo(({
             <div className={classes.Chat}>
               {replayer ? 
                 <ChatReplayer roomId={room._id} log={replayer.log} index={replayer.index} skipping={replayer.skipping} reset={replayer.reset} setCurrentMembers={replayer.setCurrentMembers} /> : 
-                <Chat roomId={room._id} messages={room.chat || []} socket={socket} user={user} updatedRoom={updatedRoom} referencedElement={referencedElement} />
+                <Chat 
+                  roomId={room._id} 
+                  messages={room.chat || []} 
+                  socket={socket} 
+                  user={user} 
+                  updatedRoom={updatedRoom} 
+                  referencedElement={referencedElement} 
+                  getChatCoords={getChatCoords} 
+                  chatCoords={chatCoords}
+                />
               }
             </div>
             <div className={classes.Members}>
@@ -98,6 +107,12 @@ const workspaceLayout = React.memo(({
             </div>
           </div>
         </div>
+        {referencedElement && chatCoords ? 
+        <div className={classes.ReferenceLine}>
+          <svg width="auto" height="auto">
+            <line x1={referencedElement.position.left} y1={referencedElement.position.top} x2={chatCoords.left} y2={chatCoords.top} stroke="#001144"/>
+          </svg> 
+        </div>: null}
       </div>
     </div>
   )

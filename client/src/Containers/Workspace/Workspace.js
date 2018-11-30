@@ -12,6 +12,7 @@ class Workspace extends Component {
     someoneElseInControl: false, // ultimately we should save and fetch this from the db 
     referencing: false,
     referencedElement: null,
+    chatCoords: null,
   }
 
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
@@ -132,12 +133,17 @@ class Workspace extends Component {
     this.controlTimer = setTimeout(() => {this.setState({inControl: false})}, 60 * 1000)
   }
 
-  addReferenceToChat = (element, elementType) => {
-    console.log(element, elementType)
-    this.setState({referencedElement: {element, elementType,}, referencing: false})
+  addReferenceToChat = (element, elementType, referencePosition) => {
+    this.setState({referencedElement: {element, elementType, position: referencePosition}, referencing: false})
+  }
+
+  getChatCoords = (coords) => {
+    console.log("COORDS: ", coords)
+    this.setState({chatCoords: coords})
   }
 
   render() {
+    console.log(this.state)
     const { room, user } = this.props;
     return (
       <WorkspaceLayout
@@ -155,6 +161,8 @@ class Workspace extends Component {
         toggleReferencing={this.toggleReferencing}
         addReferenceToChat={this.addReferenceToChat}
         referencedElement={this.state.referencedElement}
+        getChatCoords={this.getChatCoords}
+        chatCoords={this.state.chatCoords}
       />
     )
   }

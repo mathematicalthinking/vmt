@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 // import TextInput from '../Form/TextInput/TextInput';
 import classes from './chat.css';
 // import Button from '../UI/Button/Button';
+import { Aux } from '../../Components/'
 import SendIcon from './sendicon';
 import moment from 'moment';
 class Chat extends Component {
   
+  chatContainer = React.createRef()
   chatInput = React.createRef()
   chatEnd = React.createRef()
   
@@ -14,12 +16,18 @@ class Chat extends Component {
     if (!this.props.replayer) this.chatInput.current.focus();
     this.scrollToBottom();
   }
+
   componentDidUpdate(prevProps){
-    
     if (prevProps.messages.length !== this.props.messages.length) {
       this.scrollToBottom();
     }
     else if (!prevProps.referencing && this.props.referencing) {
+      let inputCoords = this.chatInput.current.getBoundingClientRect();
+      // let parentCoords = this.chatInput.current.parent.getBoundingClientRect();
+      let parentCoords = this.chatInput.current.offsetParent.getBoundingClientRect()
+      let left = inputCoords.left - parentCoords.left;
+      let top = inputCoords.top - parentCoords.top;
+      this.props.getChatCoords({left, top,})
       this.chatInput.current.focus();
     }
   }
@@ -40,7 +48,7 @@ class Chat extends Component {
   }
   
   render() {
-    const {messages, replayer, change, submit, value} = this.props;
+    const {messages, replayer, change, submit, value, chatCoords} = this.props;
     let displayMessages = [];
     if (messages) {
       displayMessages = messages.map((message, i) => (
@@ -57,19 +65,22 @@ class Chat extends Component {
       // displayMessages.push(<div key='end' ref={this.chatEnd}></div>)
     }
     return (
-      <div className={classes.Container}>
-        <h3 className={classes.Title}>Chat</h3>
-        <div className={classes.ChatScroll} ref={this.chatEnd} id='scrollable'>{displayMessages}</div>
-        {!replayer ?
-          <div className={classes.ChatInput}>
-            <input ref={this.chatInput} className={classes.Input} type = {"text"} onChange={change} value={value}/>
-            {/* <TextInput width={"90%"} size={20} light autoComplete="off" change={change} type='text' name='message' value={value}/> */}
-            <div className={classes.Send} onClick={submit}>
-              <SendIcon height='24' width='24' viewBox='0 0 24 24'/>
-              </div>
-          </div> : null
-        }
-      </div>
+      <Aux>
+        <div className={classes.Container} ref={this.ChatContainer}>
+          <h3 className={classes.Title}>Chat</h3>
+          <div className={classes.ChatScroll} ref={this.chatEnd} id='scrollable'>{displayMessages}</div>
+          {!replayer ?
+            <div className={classes.ChatInput}>
+              <input ref={this.chatInput} className={classes.Input} type = {"text"} onChange={change} value={value}/>
+              {/* <TextInput width={"90%"} size={20} light autoComplete="off" change={change} type='text' name='message' value={value}/> */}
+              <div className={classes.Send} onClick={submit}>
+                <SendIcon height='24' width='24' viewBox='0 0 24 24'/>
+                </div>
+            </div> : null
+          }
+        </div>
+        {chatCoords ? <div className={classes.Point} style={{left: this.props.chatCoords.left, top: this.props.chatCoords.top}}></div> : null}
+      </Aux>
     )
   }
 }

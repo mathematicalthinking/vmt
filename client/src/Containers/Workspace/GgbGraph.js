@@ -60,6 +60,7 @@ class GgbGraph extends Component {
     else if ((prevProps.inControl && !this.props.inControl )|| this.props.someoneElseInControl) {
       this.ggbApplet.showToolBar(false)
       this.ggbApplet.setMode(40)
+      console.log('freezing elements')
       this.freezeElements(true)
     }
     else if (!prevProps.referencing && this.props.referencing) {
@@ -127,6 +128,7 @@ class GgbGraph extends Component {
     // put the current construction on the graph, disable everything until the user takes control
     if (events.length > 0) {
       this.ggbApplet.setXML(room.currentState)
+      this.freezeElements(true)
     }
 
     this.addListener = label => {
@@ -162,7 +164,6 @@ class GgbGraph extends Component {
       if (this.props.referencing) {
         // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
         let elementType = this.ggbApplet.getObjectType(element);
-        console.log(element, elementType)
         let elX;
         let elY;
         try {
@@ -179,15 +180,12 @@ class GgbGraph extends Component {
         let { xZero, yZero, scale, yScale, } = euclidianView.coordSystem[0].$;
         if (!yScale) yScale = scale;
         let { width, height } = euclidianView.size[0].$
-        console.log(xZero, yZero, scale, yScale)
-        console.log(elX, elY)
-        let xOffset = (ggbCoords.width - width) + parseInt(xZero) + (elX * scale);
-        let yOffset = (ggbCoords.height - height) + parseInt(yZero) - (elY * yScale)
-        console.log(xOffset)
+        let xOffset = (ggbCoords.width - width) + parseInt(xZero, 10) + (elX * scale);
+        let yOffset = (ggbCoords.height - height) + parseInt(yZero, 10) - (elY * yScale)
         this.setState({
           referencedElementPosition: {left: xOffset, top: yOffset}
         })
-        this.props.addReferenceToChat(element, elementType)
+        this.props.addReferenceToChat(element, elementType, {left: xOffset, top: yOffset})
       }
     }
     
