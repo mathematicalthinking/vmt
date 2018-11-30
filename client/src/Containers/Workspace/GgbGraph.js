@@ -60,7 +60,6 @@ class GgbGraph extends Component {
     else if ((prevProps.inControl && !this.props.inControl )|| this.props.someoneElseInControl) {
       this.ggbApplet.showToolBar(false)
       this.ggbApplet.setMode(40)
-      console.log('freezing elements')
       this.freezeElements(true)
     }
     else if (!prevProps.referencing && this.props.referencing) {
@@ -72,7 +71,6 @@ class GgbGraph extends Component {
     }
     if (!prevProps.showingReference && this.props.showingReference) {
       // find the coordinates of the point we're referencing
-      console.log("REFEL:", this.props.referenceElement)
       let reference = {...this.props.referenceElement};
       let position = await this.getRelativeCoords(reference.element)
       reference.postion = position;

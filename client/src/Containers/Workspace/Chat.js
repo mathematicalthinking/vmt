@@ -28,7 +28,6 @@ class Chat extends Component {
 
   componentDidUpdate(prevProps, prevState){
     if ((!prevProps.referenceElement && this.props.referenceElement) && this.props.referencing) {
-      console.log('starting a reference')
       this.setState({newMessage: `⬅️ ${this.state.newMessage}`})
     }
     if (prevState.newMessage.includes('⬅') && !this.state.newMessage.includes('⬅️')) {
@@ -81,6 +80,7 @@ class Chat extends Component {
         setChatCoords={this.props.setChatCoords}
         chatCoords={this.props.chatCoords}
         referenceElement={this.props.referenceElement}
+        clearReference={this.props.clearReference}
         showReference={this.props.showReference}
       />
     )

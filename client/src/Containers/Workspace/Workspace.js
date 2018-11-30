@@ -101,7 +101,6 @@ class Workspace extends Component {
       this.setState({activeMember: this.props.user._id, inControl: true})
       this.socket.emit('TAKE_CONTROL', {user: {_id: user._id, username: user.username}, roomId: room._id}, (err, message) => {
         this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
-        console.log(message)
       })
     } else if (this.state.someoneElseInControl) {
       let newMessage = {
@@ -131,7 +130,6 @@ class Workspace extends Component {
   }
 
   startNewReference = () => {
-    console.log('start new reference')
     this.setState({
       referencing: true,
       showingReference: false,
@@ -141,7 +139,6 @@ class Workspace extends Component {
   }
   
   showReference = (referenceElement, chatCoords) => {
-    console.log('show reference')
     this.setState({
       chatCoords,
       referenceElement,
@@ -151,7 +148,6 @@ class Workspace extends Component {
   }
   
   clearReference = () => {
-    console.log('clear reference')
     this.setState({
       referenceElement: null, 
       referenceElementCoords: null, 
@@ -162,7 +158,6 @@ class Workspace extends Component {
   }
 
   setReferenceElAndCoords = (el, coords) => {
-    console.log('set referenceElAndCoords', el, coords)
     if (el) {
       this.setState({
         referenceElement: el,
@@ -177,12 +172,10 @@ class Workspace extends Component {
 
 
   setChatCoords = (coords) => {
-    console.log("set chat coords ", coords)
     this.setState({chatCoords: coords})
   }
 
   render() {
-    console.log('workspace container updated')
     const { room, user } = this.props;
     console.log(this.state)
     return (

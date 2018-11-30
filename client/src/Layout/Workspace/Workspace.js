@@ -22,7 +22,6 @@ const workspaceLayout = React.memo(({
   let controlText = 'Take Control';
   if (inControl) controlText = 'Release Control';
   else if (someoneElseInControl) controlText = 'Request Control';
-  console.log("workspacelayout updated: ", referenceElement)
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container}>
