@@ -20,14 +20,15 @@ class Chat extends Component {
     if (prevProps.messages.length !== this.props.messages.length) {
       this.scrollToBottom();
     }
-    else if ((!prevProps.referencedElement && this.props.referencedElement) && this.props.referencing) {
+    else if (!prevProps.referencing && this.props.referencing) {
       console.log("new REference")
       // let inputCoords = this.chatInput.current.getBoundingClientRect();
       // // let parentCoords = this.chatInput.current.parent.getBoundingClientRect();
       // let parentCoords = this.chatInput.current.offsetParent.getBoundingClientRect()
       // let left = inputCoords.left - parentCoords.left;
       // let top = inputCoords.top - parentCoords.top;
-      this.props.getChatCoords(this.getRelativeCoords(this.chatInput.current))
+      this.props.setChatCoords(this.getRelativeCoords(this.chatInput.current))
+    } else if (!prevProps.referenceElement && this.props.referenceElement && this.props.referencing) {
       this.chatInput.current.focus();
     }
   }

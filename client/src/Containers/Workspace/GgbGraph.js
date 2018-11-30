@@ -17,7 +17,7 @@ class GgbGraph extends Component {
     selectedElement: '',
     showControlWarning: false,
     warningPosition: {x: 0, y: 0},
-    referencedElementPosition: {left: null, top: null}
+    // referencedElementPosition: {left: null, top: null}
   }
   
   graph = React.createRef()
@@ -72,11 +72,17 @@ class GgbGraph extends Component {
     }
     if (!prevProps.showingReference && this.props.showingReference) {
       // find the coordinates of the point we're referencing
-      console.log("REFEL:", this.props.referencedElement)
-      let reference = {...this.props.referencedElement};
+      console.log("REFEL:", this.props.referenceElement)
+      let reference = {...this.props.referenceElement};
       let position = await this.getRelativeCoords(reference.element)
       reference.postion = position;
-      this.props.addReferenceToChat(reference)
+      this.props.setReferenceElAndCoords(null, position)
+    }
+    else if (this.props.showingReference && (prevProps.referenceElement !== this.props.referenceElement)) {
+      let reference = {...this.props.referenceElement};
+      let position = await this.getRelativeCoords(reference.element)
+      reference.postion = position;
+      this.props.setReferenceElAndCoords(null, position)
     }
   }
   
@@ -174,7 +180,7 @@ class GgbGraph extends Component {
         // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
         let elementType = this.ggbApplet.getObjectType(element);
         let position = await this.getRelativeCoords(element)
-        this.props.addReferenceToChat({element, elementType, position,})
+        this.props.setReferenceElAndCoords({element, elementType,}, position)
       }
     }
     

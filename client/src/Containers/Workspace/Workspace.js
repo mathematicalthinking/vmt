@@ -12,7 +12,8 @@ class Workspace extends Component {
     someoneElseInControl: false, // ultimately we should save and fetch this from the db 
     referencing: false,
     showingReference: false,
-    referencedElement: null,
+    referenceElement: null,
+    referenceElementCoords: null,
     chatCoords: null,
   }
 
@@ -90,11 +91,6 @@ class Workspace extends Component {
     }
   }
 
-  toggleReferencing = () => {
-    this.setState(prevState => ({
-      referencing: !prevState.referencing
-    }))
-  }
 
   toggleControl = () => {
     let { user, room } = this.props;
@@ -134,29 +130,54 @@ class Workspace extends Component {
     this.controlTimer = setTimeout(() => {this.setState({inControl: false})}, 60 * 1000)
   }
 
-  // @TODO this name no longer makes sense
-  addReferenceToChat = (referencedElement) => {
-    this.setState({referencedElement,})
+  startNewReference = () => {
+    console.log('start new reference')
+    this.setState({
+      referencing: true,
+      showingReference: false,
+      referenceElement: null,
+      referenceElementCoords: null,
+    })
   }
-
-  clearReference = () => {
-    this.setState({referencedElement: null, chatCoords: null, referencing: false, showingReference: false})
-  }
-
-  showReference = (referencedElement, chatCoords) => {
-    console.log(referencedElement)
+  
+  showReference = (referenceElement, chatCoords) => {
+    console.log('show reference')
     this.setState({
       chatCoords,
-      referencedElement,
+      referenceElement,
       showingReference: true, 
     })
     // get coords of referenced element,
-
-
+  }
+  
+  clearReference = () => {
+    console.log('clear reference')
+    this.setState({
+      referenceElement: null, 
+      referenceElementCoords: null, 
+      chatCoords: null, 
+      referencing: false, 
+      showingReference: false
+    })
   }
 
-  getChatCoords = (coords) => {
-    console.log("COORDS: ", coords)
+  setReferenceElAndCoords = (el, coords) => {
+    console.log('set referenceElAndCoords', el, coords)
+    if (el) {
+      this.setState({
+        referenceElement: el,
+      })
+    }
+    if (coords) {
+      this.setState({
+        referenceElementCoords: coords ,
+      })
+    }
+  }
+
+
+  setChatCoords = (coords) => {
+    console.log("set chat coords ", coords)
     this.setState({chatCoords: coords})
   }
 
@@ -176,15 +197,16 @@ class Workspace extends Component {
         resetControlTimer={this.resetControlTimer}
         toggleControl={this.toggleControl}
         someoneElseInControl={this.state.someoneElseInControl}
+        startNewReference={this.startNewReference}
         referencing={this.state.referencing}
-        toggleReferencing={this.toggleReferencing}
-        addReferenceToChat={this.addReferenceToChat}
-        referencedElement={this.state.referencedElement}
-        getChatCoords={this.getChatCoords}
-        chatCoords={this.state.chatCoords}
-        clearReference={this.clearReference}
         showReference={this.showReference}
         showingReference={this.state.showingReference}
+        clearReference={this.clearReference}
+        referenceElement={this.state.referenceElement}
+        referenceElementCoords={this.state.referenceElementCoords}
+        setReferenceElAndCoords={this.setReferenceElAndCoords}
+        setChatCoords={this.setChatCoords}
+        chatCoords={this.state.chatCoords}
       />
     )
   }

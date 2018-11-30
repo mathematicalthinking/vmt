@@ -27,7 +27,7 @@ class Chat extends Component {
   }
 
   componentDidUpdate(prevProps, prevState){
-    if ((!prevProps.referencedElement && this.props.referencedElement) && this.props.referencing) {
+    if ((!prevProps.referenceElement && this.props.referenceElement) && this.props.referencing) {
       console.log('starting a reference')
       this.setState({newMessage: `⬅️ ${this.state.newMessage}`})
     }
@@ -51,12 +51,8 @@ class Chat extends Component {
       room: roomId,
       timestamp: new Date().getTime()
     }
-    if (this.state.newMessage.includes('⬅')) {
-      let reference = {...this.props.referencedElement}
-      // Get rid of the position, each client will calculate the position in their own browser 
-      // because everyones view will be different
-      delete reference.position;
-      newMessage.reference = reference;
+    if (this.state.newMessage.includes('⬅')) { // WE should probably set a piece of state to track rather than the rpesences of ⬅
+      newMessage.reference = {...this.props.referenceElement}
     }
     this.props.socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
       if (err) {
@@ -82,9 +78,9 @@ class Chat extends Component {
         submit={this.submitMessage} 
         value={this.state.newMessage} 
         referencing={this.props.referencing}
-        getChatCoords={this.props.getChatCoords}
+        setChatCoords={this.props.setChatCoords}
         chatCoords={this.props.chatCoords}
-        referencedElement={this.props.referencedElement}
+        referenceElement={this.props.referenceElement}
         showReference={this.props.showReference}
       />
     )

@@ -15,15 +15,14 @@ const workspaceLayout = React.memo(({
   replayer, activeMember, temp, 
   save, someoneElseInControl,
   instructions, history, saved, updateRoom, updatedRoom,
-  toggleReferencing, referencing, addReferenceToChat,
-  referencedElement, getChatCoords, chatCoords,
+  startNewReference, referencing, setReferenceElAndCoords,
+  referenceElement, setChatCoords, referenceElementCoords, chatCoords,
   clearReference, showReference, showingReference
 }) => {
   let controlText = 'Take Control';
   if (inControl) controlText = 'Release Control';
   else if (someoneElseInControl) controlText = 'Request Control';
-  console.log('workspace layout updated: ', referencedElement)
-  console.log(chatCoords,)
+  console.log("workspacelayout updated: ", referenceElement)
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container}>
@@ -47,9 +46,11 @@ const workspaceLayout = React.memo(({
                   inControl={inControl} 
                   resetControlTimer={resetControlTimer} 
                   referencing={referencing}
-                  referencedElement={referencedElement}
+                  referenceElement={referenceElement}
+                  referenceElementCoords={referenceElementCoords}
+                  setReferenceElAndCoords={setReferenceElAndCoords}
                   showingReference={showingReference}
-                  addReferenceToChat={addReferenceToChat} /> :
+                /> :
                 <DesmosGraph  room={room} socket={socket} user={user} inControl={inControl} resetControlTimer={resetControlTimer}/>
               )
             }
@@ -65,9 +66,10 @@ const workspaceLayout = React.memo(({
                   user={user} 
                   updatedRoom={updatedRoom} 
                   referencing={referencing}
-                  referencedElement={referencedElement} 
-                  getChatCoords={getChatCoords} 
-                  chatCoords={chatCoords}
+                  referenceElement={referenceElement} 
+                  setReferenceElAndCoords={setReferenceElAndCoords}
+                  setChatCoords={setChatCoords} 
+                  // chatCoords={chatCoords}
                   clearReference={clearReference}
                   showReference={showReference}
                 />
@@ -96,7 +98,7 @@ const workspaceLayout = React.memo(({
           <div className={classes.Right}>
             <div className={classes.ReferenceWindow}>
               {!replayer ? 
-                <div className={classes.ReferenceControls} onClick={toggleReferencing}>
+                <div className={classes.ReferenceControls} onClick={referencing ? clearReference : startNewReference}>
                   <i className={["fas", "fa-mouse-pointer", classes.MousePointer, referencing ? classes.ReferencingActive : ''].join(" ")}></i>
                   <div className={classes.ReferenceTool}>Reference</div>
                   {/* <div className={classes.RefrenceTool}>Perspective</div> */}
@@ -115,10 +117,10 @@ const workspaceLayout = React.memo(({
             </div>
           </div>
         </div>
-        {referencedElement && referencedElement.position && chatCoords   ? 
+        {referenceElementCoords && chatCoords   ? 
         <div className={classes.ReferenceLine}>
           <svg width="auto" height="auto" style={{zIndex: 1}}>
-            <line style={{zIndex: 1500}} x1={referencedElement.position.left} y1={referencedElement.position.top} x2={chatCoords.left} y2={chatCoords.top} stroke="#001144" stroke-width="3"/>
+            <line style={{zIndex: 1500}} x1={referenceElementCoords.left} y1={referenceElementCoords.top} x2={chatCoords.left} y2={chatCoords.top} stroke="#001144" strokeWidth="3"/>
           </svg> 
         </div>: null}
       </div>
