@@ -17,10 +17,13 @@ const workspaceLayout = React.memo(({
   instructions, history, saved, updateRoom, updatedRoom,
   toggleReferencing, referencing, addReferenceToChat,
   referencedElement, getChatCoords, chatCoords,
+  clearReference, showReference, showingReference
 }) => {
   let controlText = 'Take Control';
   if (inControl) controlText = 'Release Control';
   else if (someoneElseInControl) controlText = 'Request Control';
+  console.log('workspace layout updated: ', referencedElement)
+  console.log(chatCoords,)
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container}>
@@ -44,6 +47,8 @@ const workspaceLayout = React.memo(({
                   inControl={inControl} 
                   resetControlTimer={resetControlTimer} 
                   referencing={referencing}
+                  referencedElement={referencedElement}
+                  showingReference={showingReference}
                   addReferenceToChat={addReferenceToChat} /> :
                 <DesmosGraph  room={room} socket={socket} user={user} inControl={inControl} resetControlTimer={resetControlTimer}/>
               )
@@ -59,9 +64,12 @@ const workspaceLayout = React.memo(({
                   socket={socket} 
                   user={user} 
                   updatedRoom={updatedRoom} 
+                  referencing={referencing}
                   referencedElement={referencedElement} 
                   getChatCoords={getChatCoords} 
                   chatCoords={chatCoords}
+                  clearReference={clearReference}
+                  showReference={showReference}
                 />
               }
             </div>
@@ -107,10 +115,10 @@ const workspaceLayout = React.memo(({
             </div>
           </div>
         </div>
-        {referencedElement && chatCoords ? 
+        {referencedElement && referencedElement.position && chatCoords   ? 
         <div className={classes.ReferenceLine}>
-          <svg width="auto" height="auto">
-            <line x1={referencedElement.position.left} y1={referencedElement.position.top} x2={chatCoords.left} y2={chatCoords.top} stroke="#001144"/>
+          <svg width="auto" height="auto" style={{zIndex: 1}}>
+            <line style={{zIndex: 1500}} x1={referencedElement.position.left} y1={referencedElement.position.top} x2={chatCoords.left} y2={chatCoords.top} stroke="#001144" stroke-width="3"/>
           </svg> 
         </div>: null}
       </div>

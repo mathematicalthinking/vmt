@@ -5,7 +5,6 @@ import { Chat as ChatLayout } from '../../Components';
 class Chat extends Component {
   state = {
     newMessage: '',
-    referencing: false,
   }
 
   componentDidMount() {
@@ -19,12 +18,6 @@ class Chat extends Component {
         }
       }
     })
-    // start the chat scrolled to the bottom
-    // this.scrollToBottom(); @TODO this function isnt working properly
-    // this.setState({
-    //   messages: this.props.messages
-    // })
-    // we dont want the chat to be live on replay
     if (!this.props.replaying) {
       this.props.socket.on('RECEIVE_MESSAGE', data => {
         this.props.updatedRoom(this.props.roomId, {chat: [...this.props.messages, data]})
@@ -33,10 +26,13 @@ class Chat extends Component {
     }
   }
 
-  componentDidUpdate(prevProps){
-    if (prevProps.referencedElement !== this.props.referencedElement) {
-      console.log(this.props.referencedElement)
-      this.setState({newMessage: `⬅️ ${this.state.newMessage}`, referencing: true})
+  componentDidUpdate(prevProps, prevState){
+    if ((!prevProps.referencedElement && this.props.referencedElement) && this.props.referencing) {
+      console.log('starting a reference')
+      this.setState({newMessage: `⬅️ ${this.state.newMessage}`})
+    }
+    if (prevState.newMessage.includes('⬅') && !this.state.newMessage.includes('⬅️')) {
+      this.props.clearReference()
     }
   }
 
@@ -54,6 +50,13 @@ class Chat extends Component {
       user: {_id: user._id, username: user.username},
       room: roomId,
       timestamp: new Date().getTime()
+    }
+    if (this.state.newMessage.includes('⬅')) {
+      let reference = {...this.props.referencedElement}
+      // Get rid of the position, each client will calculate the position in their own browser 
+      // because everyones view will be different
+      delete reference.position;
+      newMessage.reference = reference;
     }
     this.props.socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
       if (err) {
@@ -78,9 +81,11 @@ class Chat extends Component {
         change={this.changeHandler} 
         submit={this.submitMessage} 
         value={this.state.newMessage} 
-        referencing={this.state.referencing}
+        referencing={this.props.referencing}
         getChatCoords={this.props.getChatCoords}
         chatCoords={this.props.chatCoords}
+        referencedElement={this.props.referencedElement}
+        showReference={this.props.showReference}
       />
     )
   }

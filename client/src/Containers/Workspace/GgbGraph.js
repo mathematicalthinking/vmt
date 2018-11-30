@@ -49,7 +49,7 @@ class GgbGraph extends Component {
     })
   }
 
-  componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps) {
     if (!prevProps.inControl && this.props.inControl) {
       this.ggbApplet.showToolBar('"0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",')
       this.ggbApplet.showMenuBar(true)
@@ -69,6 +69,14 @@ class GgbGraph extends Component {
     }
     else if (prevProps.referencing && !this.props.referencing) {
       this.ggbApplet.setMode(40)
+    }
+    if (!prevProps.showingReference && this.props.showingReference) {
+      // find the coordinates of the point we're referencing
+      console.log("REFEL:", this.props.referencedElement)
+      let reference = {...this.props.referencedElement};
+      let position = await this.getRelativeCoords(reference.element)
+      reference.postion = position;
+      this.props.addReferenceToChat(reference)
     }
   }
   
@@ -159,33 +167,14 @@ class GgbGraph extends Component {
       // this.ggbApplet.evalCommand("updateConstruction()")
     }
 
+    // Used to capture referencing 
     this.clickListener = async element => {
       // console.log("CLICKED", this.ggbApplet.getXML())
       if (this.props.referencing) {
         // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
         let elementType = this.ggbApplet.getObjectType(element);
-        let elX;
-        let elY;
-        try {
-          elX = this.ggbApplet.getXcoord(element)
-          elY = this.ggbApplet.getYcoord(element)
-        }
-        catch (err) {
-          // get the coords of its children
-        }
-        // Get the element's location relative to the client Window 
-        let ggbCoords = this.graph.current.getBoundingClientRect();
-        let construction = await this.parseXML(this.ggbApplet.getXML())
-        let euclidianView = construction.geogebra.euclidianView[0]
-        let { xZero, yZero, scale, yScale, } = euclidianView.coordSystem[0].$;
-        if (!yScale) yScale = scale;
-        let { width, height } = euclidianView.size[0].$
-        let xOffset = (ggbCoords.width - width) + parseInt(xZero, 10) + (elX * scale);
-        let yOffset = (ggbCoords.height - height) + parseInt(yZero, 10) - (elY * yScale)
-        this.setState({
-          referencedElementPosition: {left: xOffset, top: yOffset}
-        })
-        this.props.addReferenceToChat(element, elementType, {left: xOffset, top: yOffset})
+        let position = await this.getRelativeCoords(element)
+        this.props.addReferenceToChat({element, elementType, position,})
       }
     }
     
@@ -234,6 +223,30 @@ class GgbGraph extends Component {
     })
   }
 
+  getRelativeCoords = (element) => {
+    return new Promise(async (resolve, reject) => {
+      let elX;
+      let elY;
+      try {
+        elX = this.ggbApplet.getXcoord(element)
+        elY = this.ggbApplet.getYcoord(element)
+      }
+      catch (err) {
+        // get the coords of its children
+      }
+      // Get the element's location relative to the client Window 
+      let ggbCoords = this.graph.current.getBoundingClientRect();
+      let construction = await this.parseXML(this.ggbApplet.getXML())
+      let euclidianView = construction.geogebra.euclidianView[0]
+      let { xZero, yZero, scale, yScale, } = euclidianView.coordSystem[0].$;
+      if (!yScale) yScale = scale;
+      let { width, height } = euclidianView.size[0].$
+      let xOffset = (ggbCoords.width - width) + parseInt(xZero, 10) + (elX * scale);
+      let yOffset = (ggbCoords.height - height) + parseInt(yZero, 10) - (elY * yScale)
+      resolve({left: xOffset, top: yOffset})
+    })
+  }
+
   // clickListener = (event) => {
   //   console.log(event)
   //   console.log(event.target)
@@ -257,7 +270,7 @@ class GgbGraph extends Component {
         <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} />
         <div className={classes.Graph} id='ggb-element' ref={this.graph}>
         </div>
-        <div className={classes.ReferenceLine} style={{left: this.state.referencedElementPosition.left, top: this.state.referencedElementPosition.top}}></div>
+        {/* <div className={classes.ReferenceLine} style={{left: this.state.referencedElementPosition.left, top: this.state.referencedElementPosition.top}}></div> */}
         {/* {this.state.showControlWarning ? <div className={classes.ControlWarning} style={{left: this.state.warningPosition.x, top: this.state.warningPosition.y}}>
           You don't have control!
         </div> : null} */}

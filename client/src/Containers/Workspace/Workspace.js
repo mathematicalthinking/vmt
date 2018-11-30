@@ -11,6 +11,7 @@ class Workspace extends Component {
     inControl: false,
     someoneElseInControl: false, // ultimately we should save and fetch this from the db 
     referencing: false,
+    showingReference: false,
     referencedElement: null,
     chatCoords: null,
   }
@@ -133,8 +134,25 @@ class Workspace extends Component {
     this.controlTimer = setTimeout(() => {this.setState({inControl: false})}, 60 * 1000)
   }
 
-  addReferenceToChat = (element, elementType, referencePosition) => {
-    this.setState({referencedElement: {element, elementType, position: referencePosition}, referencing: false})
+  // @TODO this name no longer makes sense
+  addReferenceToChat = (referencedElement) => {
+    this.setState({referencedElement,})
+  }
+
+  clearReference = () => {
+    this.setState({referencedElement: null, chatCoords: null, referencing: false, showingReference: false})
+  }
+
+  showReference = (referencedElement, chatCoords) => {
+    console.log(referencedElement)
+    this.setState({
+      chatCoords,
+      referencedElement,
+      showingReference: true, 
+    })
+    // get coords of referenced element,
+
+
   }
 
   getChatCoords = (coords) => {
@@ -143,8 +161,9 @@ class Workspace extends Component {
   }
 
   render() {
-    console.log(this.state)
+    console.log('workspace container updated')
     const { room, user } = this.props;
+    console.log(this.state)
     return (
       <WorkspaceLayout
         activeMember={this.state.activeMember}
@@ -163,6 +182,9 @@ class Workspace extends Component {
         referencedElement={this.state.referencedElement}
         getChatCoords={this.getChatCoords}
         chatCoords={this.state.chatCoords}
+        clearReference={this.clearReference}
+        showReference={this.showReference}
+        showingReference={this.state.showingReference}
       />
     )
   }
