@@ -177,7 +177,6 @@ class Workspace extends Component {
 
   render() {
     const { room, user } = this.props;
-    console.log(this.state)
     return (
       <WorkspaceLayout
         activeMember={this.state.activeMember}

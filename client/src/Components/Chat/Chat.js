@@ -46,8 +46,9 @@ class Chat extends Component {
     // If we're already showing this reference clear the reference
     if (this.props.showReference && this.props.referenceElement && (reference.element === this.props.referenceElement.element)) {
       this.props.clearReference()
+    } else {
+      this.props.showReference(reference, this.getRelativeCoords(event.target))
     }
-    this.props.showReference(reference, this.getRelativeCoords(event.target))
   }
 
   getRelativeCoords = (target) => {
