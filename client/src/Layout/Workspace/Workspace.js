@@ -68,6 +68,7 @@ const workspaceLayout = React.memo(({
                   referenceElement={referenceElement} 
                   setReferenceElAndCoords={setReferenceElAndCoords}
                   setChatCoords={setChatCoords} 
+                  showingReference={showingReference}
                   // chatCoords={chatCoords}
                   clearReference={clearReference}
                   showReference={showReference}

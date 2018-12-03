@@ -20,6 +20,7 @@ class Workspace extends Component {
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
 
   componentDidMount() {
+    window.addEventListener("resize", this.updateReference);
     const { updatedRoom, room, user} = this.props;
     if (!user) {
     }
@@ -78,6 +79,7 @@ class Workspace extends Component {
   componentWillUnmount () {
     this.componentCleanup()
     window.removeEventListener('beforeunload', this.componentCleanup);
+    window.removeEventListener('resize', this.updateReference)
   }
   
   componentCleanup = () => {

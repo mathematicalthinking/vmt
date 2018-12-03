@@ -82,6 +82,7 @@ class Chat extends Component {
         referenceElement={this.props.referenceElement}
         clearReference={this.props.clearReference}
         showReference={this.props.showReference}
+        showingReference={this.props.showingReference}
       />
     )
   }

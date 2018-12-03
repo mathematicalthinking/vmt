@@ -25,7 +25,7 @@ class GgbGraph extends Component {
   componentDidMount() {
     this.socket = this.props.socket;
     // window.addEventListener('click', this.clickListener)
-    window.addEventListener("resize", throttle(this.updateDimensions, 700));
+    window.addEventListener("resize", throttle(this.updateDimensions, 200));
     this.socket.on('RECEIVE_EVENT', data => {
       this.setState({receivingData: true}, () => {
         switch (data.eventType) {
@@ -84,11 +84,16 @@ class GgbGraph extends Component {
     }
   }
   
-  updateDimensions = () => {
+  updateDimensions = async () => {
     if (this.graph.current && !this.state.loading) {
       let { clientHeight, clientWidth } = this.graph.current.parentElement;
       window.ggbApplet.setSize(clientWidth, clientHeight);
       // window.ggbApplet.evalCommand('UpdateConstruction()')
+      if (this.props.showingReference || (this.props.referencing && this.props.referenceElement)) {
+        let { element, elementType } = this.props.referenceElement;
+        let position = await this.getRelativeCoords(element)
+        this.props.setReferenceElAndCoords({element, elementType,}, position)
+      }
     }
     
   }
@@ -97,7 +102,7 @@ class GgbGraph extends Component {
     // NOTE: complete list here: https://wiki.geogebra.org/en/Reference:GeoGebra_App_Parameters
     const parameters = {
       "id":"ggbApplet",
-      "scaleContainerClasse": "graph",
+      // "scaleContainerClasse": "graph",
       "customToolBar": "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
       "showToolBar": false,
       "showMenuBar": false,
@@ -250,23 +255,6 @@ class GgbGraph extends Component {
       resolve({left: xOffset, top: yOffset})
     })
   }
-
-  // clickListener = (event) => {
-  //   console.log(event)
-  //   console.log(event.target)
-  // }
-
-  // I DONT KNOW IF WE NEED THIS IT ONLY HAPPENS IF THE USER HACKS THIS // UPDATE: WE IF WE CAN"T DISABLE THE SIDEBAR
-  // showControlWarning = (event) => {
-  //   console.log('setting state')
-  //   // console.log(event.screenX)
-  //   this.setState({
-  //     showControlWarning: true,
-  //     warningPosition: {x: event.screenX - 100, y: event.screenY - 100}
-  //   }, () => {
-  //     setTimeout(() => {this.setState({showControlWarning: false})}, 1000)
-  //   })
-  // }
 
   render() {
     return (

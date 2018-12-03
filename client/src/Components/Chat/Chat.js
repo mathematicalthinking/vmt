@@ -5,12 +5,17 @@ import classes from './chat.css';
 import SendIcon from './sendicon';
 import moment from 'moment';
 class Chat extends Component {
+
+  state = {
+    chatReferenceElement: null,
+  }
   
   chatContainer = React.createRef()
   chatInput = React.createRef()
   chatEnd = React.createRef()
   
   componentDidMount() {
+    window.addEventListener('resize', this.updateReference)
     window.addEventListener('keypress', this.onKeyPress)
     if (!this.props.replayer) this.chatInput.current.focus();
     this.scrollToBottom();
@@ -29,11 +34,18 @@ class Chat extends Component {
   
   componentWillUnmount() {
     window.removeEventListener('keypress', this.onKeyPress)
+    window.removeEventListener('resize', this.updateReference)
   }
 
   onKeyPress = (event) => {
     if (event.key === 'Enter') {
       this.props.submit();
+    }
+  }
+
+  updateReference = () => {
+    if (this.props.showingReference || this.props.referencing) {
+      this.props.setChatCoords(this.getRelativeCoords(this.state.chatReferenceElement))
     }
   }
 
@@ -52,6 +64,7 @@ class Chat extends Component {
   }
 
   getRelativeCoords = (target) => {
+    this.setState({chatReferenceElement: target})
     let inputCoords = target.getBoundingClientRect();
     let parentCoords = target.offsetParent.getBoundingClientRect()
     let left = inputCoords.left - parentCoords.left;
