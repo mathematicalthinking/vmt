@@ -245,7 +245,7 @@ class GgbGraph extends Component {
       }
       // Get the element's location relative to the client Window 
       let ggbCoords = this.graph.current.getBoundingClientRect();
-      let construction = await this.parseXML(this.ggbApplet.getXML())
+      let construction = await this.parseXML(this.ggbApplet.getXML()) // IS THERE ANY WAY TO DO THIS WITHOUT HAVING TO ASYNC PARSE THE XML...
       let euclidianView = construction.geogebra.euclidianView[0]
       let { xZero, yZero, scale, yScale, } = euclidianView.coordSystem[0].$;
       if (!yScale) yScale = scale;

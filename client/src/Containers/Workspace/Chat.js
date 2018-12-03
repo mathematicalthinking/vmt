@@ -30,9 +30,16 @@ class Chat extends Component {
     if ((!prevProps.referenceElement && this.props.referenceElement) && this.props.referencing) {
       this.setState({newMessage: `⬅️ ${this.state.newMessage}`})
     }
+    if (prevProps.referencing && !this.props.referencing) {
+      console.log('was reffing but now we not')
+      let newMessage = this.state.newMessage.replace(/⬅/g, '')
+      console.log(newMessage)
+      this.setState({newMessage,})
+    }
     if (prevState.newMessage.includes('⬅') && !this.state.newMessage.includes('⬅️')) {
       this.props.clearReference()
     }
+
   }
 
   changeHandler = event => {
@@ -83,6 +90,7 @@ class Chat extends Component {
         clearReference={this.props.clearReference}
         showReference={this.props.showReference}
         showingReference={this.props.showingReference}
+        setReferenceElAndCoords={this.props.setReferenceElAndCoords}
       />
     )
   }

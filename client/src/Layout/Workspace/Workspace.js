@@ -119,8 +119,8 @@ const workspaceLayout = React.memo(({
         </div>
         {referenceElementCoords && chatCoords   ? 
         <div className={classes.ReferenceLine}>
-          <svg width="auto" height="auto" style={{zIndex: 1}}>
-            <line style={{zIndex: 1500}} x1={referenceElementCoords.left} y1={referenceElementCoords.top} x2={chatCoords.left} y2={chatCoords.top} stroke="#001144" strokeWidth="3"/>
+          <svg width="" height="" style={{zIndex: 1}}>
+            <line style={{zIndex: 1500}} x1={referenceElementCoords.left} y1={referenceElementCoords.top} x2={chatCoords.left} y2={chatCoords.top} stroke="#2D91F2" strokeWidth="3"/>
           </svg> 
         </div>: null}
       </div>
