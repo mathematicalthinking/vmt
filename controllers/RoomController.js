@@ -178,7 +178,8 @@ module.exports = {
   addCurrentUsers: (roomId, body, members) => {
     return new Promise((resolve, reject) => {
       // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE 
-      let query = members ? {'$addToSet': {'currentMembers': body, 'members': members}} :
+      let query = members ? 
+        {'$addToSet': {'currentMembers': body, 'members': members}} :
         {'$addToSet': {'currentMembers': body}}
       db.Room.findByIdAndUpdate(roomId, query, {new: true})
       .populate({path: 'currentMembers.user', select: 'username'})

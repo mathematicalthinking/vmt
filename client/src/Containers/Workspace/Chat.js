@@ -27,13 +27,11 @@ class Chat extends Component {
   }
 
   componentDidUpdate(prevProps, prevState){
-    if ((!prevProps.referenceElement && this.props.referenceElement) && this.props.referencing) {
-      this.setState({newMessage: `⬅️ ${this.state.newMessage}`})
+    if (!prevProps.referencing && this.props.referencing) {
+      this.setState({newMessage: `⬅️${this.state.newMessage}`})
     }
-    if (prevProps.referencing && !this.props.referencing) {
-      console.log('was reffing but now we not')
+    else if (prevProps.referencing && !this.props.referencing) {
       let newMessage = this.state.newMessage.replace(/⬅/g, '')
-      console.log(newMessage)
       this.setState({newMessage,})
     }
     if (prevState.newMessage.includes('⬅') && !this.state.newMessage.includes('⬅️')) {
@@ -57,8 +55,9 @@ class Chat extends Component {
       room: roomId,
       timestamp: new Date().getTime()
     }
-    if (this.state.newMessage.includes('⬅')) { // WE should probably set a piece of state to track rather than the rpesences of ⬅
+    if (this.state.newMessage.includes('⬅')) { // WE should probably set a piece of state to track rather than the presences of ⬅
       newMessage.reference = {...this.props.referenceElement}
+      this.props.clearReference()
     }
     this.props.socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
       if (err) {

@@ -69,14 +69,14 @@ class GgbGraph extends Component {
     else if (prevProps.referencing && !this.props.referencing) {
       this.ggbApplet.setMode(40)
     }
-    if (!prevProps.showingReference && this.props.showingReference) {
+    if (!prevProps.showingReference && this.props.showingReference && this.props.referenceElement.elementType !== 'chat_message') {
       // find the coordinates of the point we're referencing
       let reference = {...this.props.referenceElement};
       let position = await this.getRelativeCoords(reference.element)
       reference.postion = position;
       this.props.setReferenceElAndCoords(null, position)
     }
-    else if (this.props.showingReference && (prevProps.referenceElement !== this.props.referenceElement)) {
+    else if (this.props.showingReference && (prevProps.referenceElement !== this.props.referenceElement) && this.props.referenceElement.elementType !== 'chat_message') {
       let reference = {...this.props.referenceElement};
       let position = await this.getRelativeCoords(reference.element)
       reference.postion = position;
@@ -95,7 +95,6 @@ class GgbGraph extends Component {
         this.props.setReferenceElAndCoords({element, elementType,}, position)
       }
     }
-    
   }
   
   onScriptLoad = () => {
