@@ -15,9 +15,10 @@ const workspaceLayout = React.memo(({
   replayer, activeMember, temp, 
   save, someoneElseInControl,
   instructions, history, saved, updateRoom, updatedRoom,
-  startNewReference, referencing, setReferenceElAndCoords,
-  referenceElement, setChatCoords, referenceElementCoords, chatCoords,
-  clearReference, showReference, showingReference
+  startNewReference, showReference, 
+  referencing, showingReference,setToElAndCoords,
+  setFromElAndCoords, referToEl, referToCoords, referFromEl, 
+  referFromCoords, clearReference, 
 }) => {
   let controlText = 'Take Control';
   if (inControl) controlText = 'Release Control';
@@ -45,9 +46,9 @@ const workspaceLayout = React.memo(({
                   inControl={inControl} 
                   resetControlTimer={resetControlTimer} 
                   referencing={referencing}
-                  referenceElement={referenceElement}
-                  referenceElementCoords={referenceElementCoords}
-                  setReferenceElAndCoords={setReferenceElAndCoords}
+                  referToEl={referToEl}
+                  referToCoords={referToCoords}
+                  setToElAndCoords={setToElAndCoords}
                   showingReference={showingReference}
                 /> :
                 <DesmosGraph  room={room} socket={socket} user={user} inControl={inControl} resetControlTimer={resetControlTimer}/>
@@ -65,12 +66,13 @@ const workspaceLayout = React.memo(({
                   user={user} 
                   updatedRoom={updatedRoom} 
                   referencing={referencing}
-                  referenceElement={referenceElement} 
-                  referenceElementCoords={referenceElementCoords}
-                  setReferenceElAndCoords={setReferenceElAndCoords}
-                  setChatCoords={setChatCoords} 
+                  referToEl={referToEl} 
+                  referToCoords={referToCoords}
+                  referFromEl={referFromEl}
+                  referFromCoords={referFromCoords}
+                  setToElAndCoords={setToElAndCoords}
+                  setFromElAndCoords={setFromElAndCoords} 
                   showingReference={showingReference}
-                  // chatCoords={chatCoords}
                   clearReference={clearReference}
                   showReference={showReference}
                 />
@@ -118,10 +120,10 @@ const workspaceLayout = React.memo(({
             </div>
           </div>
         </div>
-        {referenceElementCoords && chatCoords   ? 
+        {referToCoords && referFromCoords   ? 
         <div className={classes.ReferenceLine}>
           <svg height='100%' width='100%' style={{zIndex: 1}}>
-            <line style={{zIndex: 1500}} x1={referenceElementCoords.left} y1={referenceElementCoords.top} x2={chatCoords.left} y2={chatCoords.top} stroke="#2D91F2" strokeWidth="3"/>
+            <line style={{zIndex: 1500}} x1={referToCoords.left} y1={referToCoords.top} x2={referFromCoords.left} y2={referFromCoords.top} stroke="#2D91F2" strokeWidth="3"/>
           </svg> 
         </div>: null}
       </div>

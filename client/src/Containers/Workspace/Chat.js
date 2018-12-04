@@ -55,8 +55,8 @@ class Chat extends Component {
       room: roomId,
       timestamp: new Date().getTime()
     }
-    if (this.state.newMessage.includes('⬅')) { // WE should probably set a piece of state to track rather than the presences of ⬅
-      newMessage.reference = {...this.props.referenceElement}
+    if (this.props.referencing) { 
+      newMessage.reference = {...this.props.referToEl}
       this.props.clearReference()
     }
     this.props.socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
@@ -83,14 +83,15 @@ class Chat extends Component {
         submit={this.submitMessage} 
         value={this.state.newMessage} 
         referencing={this.props.referencing}
-        setChatCoords={this.props.setChatCoords}
-        chatCoords={this.props.chatCoords}
-        referenceElementCoords={this.props.referenceElementCoords}
-        referenceElement={this.props.referenceElement}
+        referToEl={this.props.referToEl} 
+        referToCoords={this.props.referToCoords}
+        referFromEl={this.props.referFromEl}
+        referFromCoords={this.props.referFromCoords}
+        setToElAndCoords={this.props.setToElAndCoords}
+        setFromElAndCoords={this.props.setFromElAndCoords} 
+        showingReference={this.props.showingReference}
         clearReference={this.props.clearReference}
         showReference={this.props.showReference}
-        showingReference={this.props.showingReference}
-        setReferenceElAndCoords={this.props.setReferenceElAndCoords}
       />
     )
   }

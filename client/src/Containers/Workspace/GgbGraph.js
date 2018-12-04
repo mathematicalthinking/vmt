@@ -69,18 +69,17 @@ class GgbGraph extends Component {
     else if (prevProps.referencing && !this.props.referencing) {
       this.ggbApplet.setMode(40)
     }
-    if (!prevProps.showingReference && this.props.showingReference && this.props.referenceElement.elementType !== 'chat_message') {
+    if (!prevProps.showingReference && this.props.showingReference && this.props.referToEl.elementType !== 'chat_message') {
       // find the coordinates of the point we're referencing
-      let reference = {...this.props.referenceElement};
-      let position = await this.getRelativeCoords(reference.element)
-      reference.postion = position;
-      this.props.setReferenceElAndCoords(null, position)
+      let position = await this.getRelativeCoords(this.props.referToEl.element)
+      this.props.setToElAndCoords(null, position)
     }
-    else if (this.props.showingReference && (prevProps.referenceElement !== this.props.referenceElement) && this.props.referenceElement.elementType !== 'chat_message') {
-      let reference = {...this.props.referenceElement};
-      let position = await this.getRelativeCoords(reference.element)
-      reference.postion = position;
-      this.props.setReferenceElAndCoords(null, position)
+    else if (this.props.showingReference && (prevProps.referToEl !== this.props.referToEl) && this.props.referToEl.elementType !== 'chat_message') {
+      console.log('this should fire when we switch from chat ref to point ref')
+      console.log(this.props.referToEl)
+      let position = await this.getRelativeCoords(this.props.referToEl.element)
+      console.log(position)
+      this.props.setToElAndCoords(null, position)
     }
   }
   
@@ -182,7 +181,8 @@ class GgbGraph extends Component {
         // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
         let elementType = this.ggbApplet.getObjectType(element);
         let position = await this.getRelativeCoords(element)
-        this.props.setReferenceElAndCoords({element, elementType,}, position)
+        console.log('position: ', position)
+        this.props.setToElAndCoords({element, elementType,}, position)
       }
     }
     

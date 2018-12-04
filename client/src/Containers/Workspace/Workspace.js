@@ -12,9 +12,10 @@ class Workspace extends Component {
     someoneElseInControl: false, // ultimately we should save and fetch this from the db 
     referencing: false,
     showingReference: false,
-    referenceElement: null,
-    referenceElementCoords: null,
-    chatCoords: null,
+    refereToEl: null,
+    referToCoords: null,
+    referFromEl: null,
+    referFromCoords: null,
   }
 
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
@@ -135,15 +136,16 @@ class Workspace extends Component {
     this.setState({
       referencing: true,
       showingReference: false,
-      referenceElement: null,
-      referenceElementCoords: null,
+      referToEl: null,
+      referToCoords: null,
     })
   }
   
-  showReference = (referenceElement, chatCoords) => {
+  showReference = (referToEl, referToCoords, referFromCoords) => {
     this.setState({
-      chatCoords,
-      referenceElement,
+      referToEl,
+      referToCoords,
+      referFromCoords,
       showingReference: true, 
     })
     // get coords of referenced element,
@@ -151,32 +153,42 @@ class Workspace extends Component {
   
   clearReference = () => {
     this.setState({
-      referenceElement: null, 
-      referenceElementCoords: null, 
-      chatCoords: null, 
+      referToEl: null, 
+      referToCoords: null, 
+      referFromEl: null,
+      referFromCoords: null,
       referencing: false, 
       showingReference: false
     })
   }
 
   // this shouLD BE refereNT 
-  setReferenceElAndCoords = (el, coords) => {
+  setToElAndCoords = (el, coords) => {
     if (el) {
       this.setState({
-        referenceElement: el,
+        referToEl: el,
       })
     }
     if (coords) {
       this.setState({
-        referenceElementCoords: coords ,
+        referToCoords: coords,
       })
     }
   }
 
   // THIS SHOULD BE REFERENCE (NOT CHAT,,,CHAT CAN BE referENT TOO)
   //WE SHOULD ALSO SAVE ELEMENT ID SO WE CAN CALL ITS REF EASILY
-  setChatCoords = (coords) => {
-    this.setState({chatCoords: coords})
+  setFromElAndCoords = (el, coords) => {
+    if (el) {
+      this.setState({
+        referFromEl: el,
+      })
+    }
+    if (coords) {
+      this.setState({
+        referFromCoords: coords,
+      })
+    }
   }
 
   render() {
@@ -198,11 +210,12 @@ class Workspace extends Component {
         showReference={this.showReference}
         showingReference={this.state.showingReference}
         clearReference={this.clearReference}
-        referenceElement={this.state.referenceElement}
-        referenceElementCoords={this.state.referenceElementCoords}
-        setReferenceElAndCoords={this.setReferenceElAndCoords}
-        setChatCoords={this.setChatCoords}
-        chatCoords={this.state.chatCoords}
+        referToEl={this.state.referToEl}
+        referToCoords={this.state.referToCoords}
+        referFromCoords={this.state.referFromCoords}
+        referFromEl={this.state.referFromEl}
+        setToElAndCoords={this.setToElAndCoords}
+        setFromElAndCoords={this.setFromElAndCoords}
       />
     )
   }

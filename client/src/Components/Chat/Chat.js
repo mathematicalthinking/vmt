@@ -7,20 +7,14 @@ import moment from 'moment';
 class Chat extends Component {
   constructor(props){
     super(props);
-    this.state = {
-      // @TODO consider renaming both of these
-      chatReferenceElement: null, // The chat message doing the referencing 
-      referenceElement: null, // The chat message being reffered to (if the the referenceElement is of type chat_message)
-    }
-    
     this.chatContainer = React.createRef()
     this.chatInput = React.createRef()
     this.chatEnd = React.createRef()
 
+    // Create a ref for each chat element so they can be used with the referencing tool
     this.props.messages.forEach((message, i) => {
       this[`message-${i}`] = React.createRef()
     })
-
   }
 
   componentDidMount() {
@@ -35,16 +29,15 @@ class Chat extends Component {
       this.scrollToBottom();
     }
     else if (!prevProps.referencing && this.props.referencing) {
-      this.props.setChatCoords(this.getRelativeCoords(this.chatInput.current))
+      this.props.setFromElAndCoords(this.chatInput.current, this.getRelativeCoords(this.chatInput.current))
     } 
-    else if (!prevProps.referenceElement && this.props.referenceElement && this.props.referencing) {
+    else if (!prevProps.referToEl && this.props.referToEl && this.props.referencing) {
       this.chatInput.current.focus();
     }
-    else if (!prevProps.showingReference && this.props.showingReference && this.props.referenceElement.elementType === 'chat_message') {
+    else if (!prevProps.showingReference && this.props.showingReference && this.props.referToEl.elementType === 'chat_message') {
       // set the coordinates of the refElement to proper ref
-      let refMessage = this[`message-${this.props.referenceElement.element}`].current
-      this.props.setReferenceElAndCoords(null, this.getRelativeCoords(refMessage))
-      this.setState({chatReferenceElement: this[`message-${this.props.referenceElement.element}`].current})
+      let refMessage = this[`message-${this.props.referToEl.element}`].current
+      this.props.setToElAndCoords(null, this.getRelativeCoords(refMessage))
 
     }
     else if (!prevProps.referenceElementCoords && this.props.referenceElementCoords && this.props.referenceElement.elementType === 'chat_message') {
@@ -76,22 +69,31 @@ class Chat extends Component {
 
   showReference = (event, reference) => {
     // If we're already showing this reference clear the reference
-    if (this.props.showReference && this.props.referenceElement && (reference.element === this.props.referenceElement.element)) {
+    if (this.props.showReference && this.props.referToEl && (reference.element === this.props.referToEl.element)) {
       this.props.clearReference()
     } 
     // else if (this.props.referenceElement.elementType === 'chat_message') {
     //   console.log(this.props.referenceElement)
     // }
-    else this.props.showReference(reference, this.getRelativeCoords(event.target))
+
+    else {
+      let fromCoords = this.getRelativeCoords(event.target);
+      let toCoords;
+      if (reference.elementType === 'chat_message') {
+        toCoords  = this.getRelativeCoords(this[`message-${reference.element}`].current)
+
+      }
+      this.props.showReference(reference, toCoords, fromCoords)
+    }
   }
 
   getRelativeCoords = (target) => {
     
-    let inputCoords = target.getBoundingClientRect(); // RENAME THIS ...THIS IS THE CHAT MESSAGE OR CHAT 
+    let messageCoords = target.getBoundingClientRect(); // RENAME THIS ...THIS IS THE CHAT MESSAGE OR CHAT 
     let parentCoords = target.offsetParent.getBoundingClientRect() // HOW EXPENSIVE ARE THESE  ? CAUSE THEY ONLY CHANGE ON RESIZE BUT WE"RE RECULACULATING ON SCROLL
     let containerCoords = this.chatEnd.current.getBoundingClientRect() // we could do this somewhere else 
     let left = containerCoords.left - parentCoords.left
-    let top = inputCoords.top - parentCoords.top;
+    let top = messageCoords.top - parentCoords.top;
     // if (inputCoords.top > containerCoords.bottom) {
     //   // top = containerCoords.bottom;
     // }
@@ -99,26 +101,25 @@ class Chat extends Component {
   }
 
   // If the object being reference is a chat message (and not an element on the graph)
-  setChatReference = (event, id) => {
+  referToMessage = (event, id) => {
     let position = this.getRelativeCoords(event.target);
-    this.props.setReferenceElAndCoords({element: id, elementType: 'chat_message'}, position)
+    this.props.setToElAndCoords({element: id, elementType: 'chat_message'}, position)
   }
 
   scrollHandler = (event) => {
     // INSTEAD OF DOING ALL OF THIS WE COULD JUST SEE HOW THE SCROLL HAS CHANGED AND THEN KNOW HOW TO UPDATE THE DOM LINE?
-        if (this.props.showingReference) {
+    if (this.props.showingReference) {
       // Find and update the position of the referer 
       // this.updateReference()
       if (this.props.referenceElement.elementType === 'chat_message') {
         // Find and update the position of the reference
-        console.log(this.props.referenceElement.element)
-        let elementRef = this[`message-${this.props.referenceElement.element}`].current
-        this.props.setReferenceElAndCoords(null, this.getRelativeCoords(elementRef))
+        let elementRef = this[`message-${this.props.referToEl.element}`].current
+        this.props.setToElAndCoords(null, this.getRelativeCoords(elementRef))
       }
     } 
-    else if (this.props.referencing && this.props.referenceElement.elementType === 'chat_message') {
-      // Find and update the position of the reference
-    }
+    // else if (this.props.referencing && this.props.referenceElement.elementType === 'chat_message') {
+    //   // Find and update the position of the reference
+    // }
   }
   
   render() {
@@ -127,13 +128,14 @@ class Chat extends Component {
     if (messages) {
       displayMessages = messages.map((message, i) => {
         return (
-          <div 
+          <div
+            id={i} 
             key={i}
             ref={this[`message-${i}`]} 
             className={message.autogenerated ? classes.VmtBotEntry : classes.Entry } 
             onClick={
-              message.reference ? (event) => this.showReference(event, message.reference) : 
-              referencing ? (event) => this.setChatReference(event, i) : null 
+              referencing ? (event) => this.referToMessage(event, i) :  
+              message.reference ? (event) => this.showReference(event, message.reference) : null
             }
             style={{cursor: message.reference || this.props.referencing ? 'pointer' : 'auto'}}
           >
