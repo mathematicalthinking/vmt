@@ -15,12 +15,15 @@ class Home extends PureComponent {
     window.addEventListener('scroll', this.handleScroll)
   }
 
+  componentWillUnmount(){
+    window.removeEventListener('scroll', this.handleScroll)
+  }
+
   handleScroll = event => {
     this.setState({scrollPosition: event.srcElement.scrollingElement.scrollTop/window.innerHeight})
   }
 
   render () {
-    console.log('rendered home route')
     return (
       <Aux>
         <HomeNav scrollPosition={this.state.scrollPosition} page={this.props.location.pathname}/>

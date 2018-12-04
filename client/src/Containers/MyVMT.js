@@ -174,7 +174,6 @@ class Profile extends Component {
         // console.log('the resource were looking for exists')
         displayResources = this.props[resource].allIds.filter(id => {
           let included = false
-          console.log(this.props[resource].byId[id].members)
           if (this.props[resource].byId[id].members) {
             this.props[resource].byId[id].members.forEach(member => {
               if (member.user._id === user._id && member.role === this.state.view) {
@@ -197,7 +196,6 @@ class Profile extends Component {
 
 
   render() {
-    console.log(this.state.displayResources)
     let { user, match } = this.props;
     let resource = match.params.resource;
     let contentData = {

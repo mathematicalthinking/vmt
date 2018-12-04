@@ -1,7 +1,7 @@
 // Should we store chat data in this component's state or in the
 // redux store?
 import React, { Component } from 'react';
-import ChatLayout from '../../Components/Chat/Chat';
+import { Chat as ChatLayout } from '../../Components';
 class Chat extends Component {
   state = {
     newMessage: '',
@@ -18,12 +18,6 @@ class Chat extends Component {
         }
       }
     })
-    // start the chat scrolled to the bottom
-    // this.scrollToBottom(); @TODO this function isnt working properly
-    // this.setState({
-    //   messages: this.props.messages
-    // })
-    // we dont want the chat to be live on replay
     if (!this.props.replaying) {
       this.props.socket.on('RECEIVE_MESSAGE', data => {
         this.props.updatedRoom(this.props.roomId, {chat: [...this.props.messages, data]})
@@ -32,7 +26,18 @@ class Chat extends Component {
     }
   }
 
-  componentDidUpdate(prevProps){
+  componentDidUpdate(prevProps, prevState){
+    if (!prevProps.referencing && this.props.referencing) {
+      this.setState({newMessage: `⬅️${this.state.newMessage}`})
+    }
+    else if (prevProps.referencing && !this.props.referencing) {
+      let newMessage = this.state.newMessage.replace(/⬅/g, '')
+      this.setState({newMessage,})
+    }
+    if (prevState.newMessage.includes('⬅') && !this.state.newMessage.includes('⬅️')) {
+      this.props.clearReference()
+    }
+
   }
 
   changeHandler = event => {
@@ -49,6 +54,10 @@ class Chat extends Component {
       user: {_id: user._id, username: user.username},
       room: roomId,
       timestamp: new Date().getTime()
+    }
+    if (this.props.referencing) { 
+      newMessage.reference = {...this.props.referToEl}
+      this.props.clearReference()
     }
     this.props.socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
       if (err) {
@@ -68,7 +77,22 @@ class Chat extends Component {
 
   render() {
     return (
-      <ChatLayout messages={this.props.messages} change={this.changeHandler} submit={this.submitMessage} value={this.state.newMessage} />
+      <ChatLayout 
+        messages={this.props.messages} 
+        change={this.changeHandler} 
+        submit={this.submitMessage} 
+        value={this.state.newMessage} 
+        referencing={this.props.referencing}
+        referToEl={this.props.referToEl} 
+        referToCoords={this.props.referToCoords}
+        referFromEl={this.props.referFromEl}
+        referFromCoords={this.props.referFromCoords}
+        setToElAndCoords={this.props.setToElAndCoords}
+        setFromElAndCoords={this.props.setFromElAndCoords} 
+        showingReference={this.props.showingReference}
+        clearReference={this.props.clearReference}
+        showReference={this.props.showReference}
+      />
     )
   }
 }

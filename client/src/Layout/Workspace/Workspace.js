@@ -9,12 +9,16 @@ import DesmosReplayer from '../../Containers/Replayer/DesmosReplayer';
 import ChatReplayer from '../../Containers/Replayer/ChatReplayer';
 import Chat from '../../Containers/Workspace/Chat';
 
-const workspaceLayout = ({
+const workspaceLayout = React.memo(({
   room, user, socket,
   resetControlTimer, inControl, toggleControl, 
   replayer, activeMember, temp, 
   save, someoneElseInControl,
   instructions, history, saved, updateRoom, updatedRoom,
+  startNewReference, showReference, 
+  referencing, showingReference,setToElAndCoords,
+  setFromElAndCoords, referToEl, referToCoords, referFromEl, 
+  referFromCoords, clearReference, 
 }) => {
   let controlText = 'Take Control';
   if (inControl) controlText = 'Release Control';
@@ -34,7 +38,19 @@ const workspaceLayout = ({
                 <DesmosReplayer />
               ):   
               (room.roomType === 'geogebra' ? 
-                <GgbGraph room={room} socket={socket} user={user} updateRoom={updateRoom} inControl={inControl} resetControlTimer={resetControlTimer}/> :
+                <GgbGraph 
+                  room={room} 
+                  socket={socket} 
+                  user={user} 
+                  updateRoom={updateRoom} 
+                  inControl={inControl} 
+                  resetControlTimer={resetControlTimer} 
+                  referencing={referencing}
+                  referToEl={referToEl}
+                  referToCoords={referToCoords}
+                  setToElAndCoords={setToElAndCoords}
+                  showingReference={showingReference}
+                /> :
                 <DesmosGraph  room={room} socket={socket} user={user} inControl={inControl} resetControlTimer={resetControlTimer}/>
               )
             }
@@ -43,7 +59,23 @@ const workspaceLayout = ({
             <div className={classes.Chat}>
               {replayer ? 
                 <ChatReplayer roomId={room._id} log={replayer.log} index={replayer.index} skipping={replayer.skipping} reset={replayer.reset} setCurrentMembers={replayer.setCurrentMembers} /> : 
-                <Chat roomId={room._id} messages={room.chat || []} socket={socket} user={user} updatedRoom={updatedRoom} />
+                <Chat 
+                  roomId={room._id} 
+                  messages={room.chat || []} 
+                  socket={socket} 
+                  user={user} 
+                  updatedRoom={updatedRoom} 
+                  referencing={referencing}
+                  referToEl={referToEl} 
+                  referToCoords={referToCoords}
+                  referFromEl={referFromEl}
+                  referFromCoords={referFromCoords}
+                  setToElAndCoords={setToElAndCoords}
+                  setFromElAndCoords={setFromElAndCoords} 
+                  showingReference={showingReference}
+                  clearReference={clearReference}
+                  showReference={showReference}
+                />
               }
             </div>
             <div className={classes.Members}>
@@ -68,11 +100,14 @@ const workspaceLayout = ({
           </div>
           <div className={classes.Right}>
             <div className={classes.ReferenceWindow}>
-              {/* <div className={classes.ReferenceControls} onClick={toggleReference}>
-                <i className={["fas", "fa-mouse-pointer", classes.MousePointer].join(" ")}></i>
-                <div>Reference </div>
-              </div> */}
-              <div className={classes.ReferenceDescription}>
+              {!replayer ? 
+                <div className={classes.ReferenceControls} onClick={referencing ? clearReference : startNewReference}>
+                  <i className={["fas", "fa-mouse-pointer", classes.MousePointer, referencing ? classes.ReferencingActive : ''].join(" ")}></i>
+                  <div className={classes.ReferenceTool}>Reference</div>
+                  {/* <div className={classes.RefrenceTool}>Perspective</div> */}
+                </div> : null
+              }
+              <div className={classes.LiveLog}>
 
               </div>
             </div>
@@ -85,8 +120,14 @@ const workspaceLayout = ({
             </div>
           </div>
         </div>
+        {referToCoords && referFromCoords   ? 
+        <div className={classes.ReferenceLine}>
+          <svg height='100%' width='100%' style={{zIndex: 1}}>
+            <line style={{zIndex: 1500}} x1={referToCoords.left} y1={referToCoords.top} x2={referFromCoords.left} y2={referFromCoords.top} stroke="#2D91F2" strokeWidth="3"/>
+          </svg> 
+        </div>: null}
       </div>
     </div>
   )
-}
+})
 export default withRouter(workspaceLayout);

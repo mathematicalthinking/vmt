@@ -10,11 +10,18 @@ class Workspace extends Component {
     activeMember: '',
     inControl: false,
     someoneElseInControl: false, // ultimately we should save and fetch this from the db 
+    referencing: false,
+    showingReference: false,
+    referToEl: null,
+    referToCoords: null,
+    referFromEl: null,
+    referFromCoords: null,
   }
 
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
 
   componentDidMount() {
+    // window.addEventListener("resize", this.updateReference);
     const { updatedRoom, room, user} = this.props;
     if (!user) {
     }
@@ -57,15 +64,23 @@ class Workspace extends Component {
     window.addEventListener('beforeunload', this.componentCleanup);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     if (prevProps.room.currentMembers !== this.props.room.currentMembers) {
 
+    }
+
+    if (prevState.inControl && !this.state.inControl) {
+      this.socket.emit('RELEASE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
+        this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
+        this.setState({activeMember: ''})
+      })
     }
   }
 
   componentWillUnmount () {
     this.componentCleanup()
     window.removeEventListener('beforeunload', this.componentCleanup);
+    window.removeEventListener('resize', this.updateReference)
   }
   
   componentCleanup = () => {
@@ -79,16 +94,16 @@ class Workspace extends Component {
     }
   }
 
+
   toggleControl = () => {
     let { user, room } = this.props;
     // If we're taking control 
     if (!this.state.inControl && !this.state.someoneElseInControl) {
       this.resetControlTimer();
       // @TODO EMIT EVENT TAKING CONTROL
+      this.setState({activeMember: this.props.user._id, inControl: true})
       this.socket.emit('TAKE_CONTROL', {user: {_id: user._id, username: user.username}, roomId: room._id}, (err, message) => {
-        console.log(message)
         this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
-        this.setState({activeMember: this.props.user._id, inControl: true})
       })
     } else if (this.state.someoneElseInControl) {
       let newMessage = {
@@ -104,10 +119,6 @@ class Workspace extends Component {
       // this.scrollToBottom(); @TODO
     }
     else {
-      this.socket.emit('RELEASE_CONTROL', {user: {_id: user._id, username: user.username}, roomId: room._id}, (err, message) => {
-        this.props.updatedRoom(room._id, {chat: [...this.props.room.chat, message]})
-        this.setState({activeMember: ''})
-      })
       this.setState({
         inControl: false,
         someoneElseInControl: false,
@@ -121,13 +132,73 @@ class Workspace extends Component {
     this.controlTimer = setTimeout(() => {this.setState({inControl: false})}, 60 * 1000)
   }
 
+  startNewReference = () => {
+    this.setState({
+      referencing: true,
+      showingReference: false,
+      referToEl: null,
+      referToCoords: null,
+    })
+  }
+  
+  showReference = (referToEl, referToCoords, referFromEl, referFromCoords) => {
+    this.setState({
+      referToEl,
+      referFromEl,
+      referToCoords,
+      referFromCoords,
+      showingReference: true, 
+    })
+    // get coords of referenced element,
+  }
+  
+  clearReference = () => {
+    this.setState({
+      referToEl: null, 
+      referFromEl: null,
+      referToCoords: null, 
+      referFromCoords: null,
+      referencing: false, 
+      showingReference: false
+    })
+  }
+
+  // this shouLD BE refereNT 
+  setToElAndCoords = (el, coords) => {
+    if (el) {
+      this.setState({
+        referToEl: el,
+      })
+    }
+    if (coords) {
+      this.setState({
+        referToCoords: coords,
+      })
+    }
+  }
+
+  // THIS SHOULD BE REFERENCE (NOT CHAT,,,CHAT CAN BE referENT TOO)
+  //WE SHOULD ALSO SAVE ELEMENT ID SO WE CAN CALL ITS REF EASILY
+  setFromElAndCoords = (el, coords) => {
+    if (el) {
+      this.setState({
+        referFromEl: el,
+      })
+    }
+    if (coords) {
+      this.setState({
+        referFromCoords: coords,
+      })
+    }
+  }
+
   render() {
     const { room, user } = this.props;
-    console.log(room.chat)
     return (
       <WorkspaceLayout
         activeMember={this.state.activeMember}
         room={room}
+        user={user}
         socket={this.socket}
         updateRoom={this.props.updateRoom}
         updatedRoom={this.props.updatedRoom}
@@ -135,7 +206,17 @@ class Workspace extends Component {
         resetControlTimer={this.resetControlTimer}
         toggleControl={this.toggleControl}
         someoneElseInControl={this.state.someoneElseInControl}
-        user={user}
+        startNewReference={this.startNewReference}
+        referencing={this.state.referencing}
+        showReference={this.showReference}
+        showingReference={this.state.showingReference}
+        clearReference={this.clearReference}
+        referToEl={this.state.referToEl}
+        referToCoords={this.state.referToCoords}
+        referFromCoords={this.state.referFromCoords}
+        referFromEl={this.state.referFromEl}
+        setToElAndCoords={this.setToElAndCoords}
+        setFromElAndCoords={this.setFromElAndCoords}
       />
     )
   }
@@ -148,8 +229,5 @@ const mapStateToProps = (state, ownProps) => {
     loading: state.loading.loading,
   }
 }
-
-
-
 
 export default connect(mapStateToProps, {updateRoom, updatedRoom, populateRoom,})(Workspace);
