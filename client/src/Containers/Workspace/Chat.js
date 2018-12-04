@@ -85,6 +85,7 @@ class Chat extends Component {
         referencing={this.props.referencing}
         setChatCoords={this.props.setChatCoords}
         chatCoords={this.props.chatCoords}
+        referenceElementCoords={this.props.referenceElementCoords}
         referenceElement={this.props.referenceElement}
         clearReference={this.props.clearReference}
         showReference={this.props.showReference}

@@ -8,7 +8,9 @@ class Chat extends Component {
   constructor(props){
     super(props);
     this.state = {
-      chatReferenceElement: null,
+      // @TODO consider renaming both of these
+      chatReferenceElement: null, // The chat message doing the referencing 
+      referenceElement: null, // The chat message being reffered to (if the the referenceElement is of type chat_message)
     }
     
     this.chatContainer = React.createRef()
@@ -21,9 +23,6 @@ class Chat extends Component {
 
   }
 
-
-
-  
   componentDidMount() {
     window.addEventListener('resize', this.updateReference)
     window.addEventListener('keypress', this.onKeyPress)
@@ -45,6 +44,7 @@ class Chat extends Component {
       // set the coordinates of the refElement to proper ref
       let refMessage = this[`message-${this.props.referenceElement.element}`].current
       this.props.setReferenceElAndCoords(null, this.getRelativeCoords(refMessage))
+      this.setState({chatReferenceElement: this[`message-${this.props.referenceElement.element}`].current})
 
     }
     else if (!prevProps.referenceElementCoords && this.props.referenceElementCoords && this.props.referenceElement.elementType === 'chat_message') {
@@ -86,12 +86,15 @@ class Chat extends Component {
   }
 
   getRelativeCoords = (target) => {
-    this.setState({chatReferenceElement: target})
-    let inputCoords = target.getBoundingClientRect();
-    let parentCoords = target.offsetParent.getBoundingClientRect()
-    let containerCoords = this.chatEnd.current.getBoundingClientRect()
+    
+    let inputCoords = target.getBoundingClientRect(); // RENAME THIS ...THIS IS THE CHAT MESSAGE OR CHAT 
+    let parentCoords = target.offsetParent.getBoundingClientRect() // HOW EXPENSIVE ARE THESE  ? CAUSE THEY ONLY CHANGE ON RESIZE BUT WE"RE RECULACULATING ON SCROLL
+    let containerCoords = this.chatEnd.current.getBoundingClientRect() // we could do this somewhere else 
     let left = containerCoords.left - parentCoords.left
     let top = inputCoords.top - parentCoords.top;
+    // if (inputCoords.top > containerCoords.bottom) {
+    //   // top = containerCoords.bottom;
+    // }
     return ({left, top,})
   }
 
@@ -99,6 +102,23 @@ class Chat extends Component {
   setChatReference = (event, id) => {
     let position = this.getRelativeCoords(event.target);
     this.props.setReferenceElAndCoords({element: id, elementType: 'chat_message'}, position)
+  }
+
+  scrollHandler = (event) => {
+    // INSTEAD OF DOING ALL OF THIS WE COULD JUST SEE HOW THE SCROLL HAS CHANGED AND THEN KNOW HOW TO UPDATE THE DOM LINE?
+        if (this.props.showingReference) {
+      // Find and update the position of the referer 
+      // this.updateReference()
+      if (this.props.referenceElement.elementType === 'chat_message') {
+        // Find and update the position of the reference
+        console.log(this.props.referenceElement.element)
+        let elementRef = this[`message-${this.props.referenceElement.element}`].current
+        this.props.setReferenceElAndCoords(null, this.getRelativeCoords(elementRef))
+      }
+    } 
+    else if (this.props.referencing && this.props.referenceElement.elementType === 'chat_message') {
+      // Find and update the position of the reference
+    }
   }
   
   render() {
@@ -132,7 +152,7 @@ class Chat extends Component {
     return (
       <div className={classes.Container} ref={this.chatContainer}>
         <h3 className={classes.Title}>Chat</h3>
-        <div className={classes.ChatScroll} ref={this.chatEnd} id='scrollable'>{displayMessages}</div>
+        <div className={classes.ChatScroll} ref={this.chatEnd} onScroll={this.scrollHandler} id='scrollable'>{displayMessages}</div>
         {!replayer ?
           <div className={classes.ChatInput}>
             <input ref={this.chatInput} className={classes.Input} type = {"text"} onChange={change} value={value}/>

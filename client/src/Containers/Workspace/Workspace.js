@@ -159,6 +159,7 @@ class Workspace extends Component {
     })
   }
 
+  // this shouLD BE refereNT 
   setReferenceElAndCoords = (el, coords) => {
     if (el) {
       this.setState({
@@ -172,7 +173,8 @@ class Workspace extends Component {
     }
   }
 
-
+  // THIS SHOULD BE REFERENCE (NOT CHAT,,,CHAT CAN BE referENT TOO)
+  //WE SHOULD ALSO SAVE ELEMENT ID SO WE CAN CALL ITS REF EASILY
   setChatCoords = (coords) => {
     this.setState({chatCoords: coords})
   }
