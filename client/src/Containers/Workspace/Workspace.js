@@ -21,7 +21,7 @@ class Workspace extends Component {
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
 
   componentDidMount() {
-    window.addEventListener("resize", this.updateReference);
+    // window.addEventListener("resize", this.updateReference);
     const { updatedRoom, room, user} = this.props;
     if (!user) {
     }

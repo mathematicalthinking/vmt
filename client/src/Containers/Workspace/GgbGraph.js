@@ -25,7 +25,7 @@ class GgbGraph extends Component {
   componentDidMount() {
     this.socket = this.props.socket;
     // window.addEventListener('click', this.clickListener)
-    window.addEventListener("resize", throttle(this.updateDimensions, 200));
+    window.addEventListener("resize", this.updateDimensions);
     this.socket.on('RECEIVE_EVENT', data => {
       this.setState({receivingData: true}, () => {
         switch (data.eventType) {
@@ -75,25 +75,31 @@ class GgbGraph extends Component {
       this.props.setToElAndCoords(null, position)
     }
     else if (this.props.showingReference && (prevProps.referToEl !== this.props.referToEl) && this.props.referToEl.elementType !== 'chat_message') {
-      console.log('this should fire when we switch from chat ref to point ref')
-      console.log(this.props.referToEl)
       let position = await this.getRelativeCoords(this.props.referToEl.element)
-      console.log(position)
       this.props.setToElAndCoords(null, position)
     }
   }
   
-  updateDimensions = async () => {
-    if (this.graph.current && !this.state.loading) {
-      let { clientHeight, clientWidth } = this.graph.current.parentElement;
-      window.ggbApplet.setSize(clientWidth, clientHeight);
-      // window.ggbApplet.evalCommand('UpdateConstruction()')
-      if (this.props.showingReference || (this.props.referencing && this.props.referenceElement)) {
-        let { element, elementType } = this.props.referenceElement;
-        let position = await this.getRelativeCoords(element)
-        this.props.setReferenceElAndCoords({element, elementType,}, position)
-      }
+  updateDimensions = () => {
+    if (this.resizeTimer) {
+      clearTimeout(this.resizeTimer)
     }
+    this.resizeTimer = setTimeout(async () => {
+      if (this.graph.current && !this.state.loading) {
+        let { clientHeight, clientWidth } = this.graph.current.parentElement;
+        window.ggbApplet.setSize(clientWidth, clientHeight);
+        // window.ggbApplet.evalCommand('UpdateConstruction()')
+        if (this.props.showingReference || (this.props.referencing && this.props.referToEl.elmentType !== 'chat_message')) {
+          console.log('repositinong graph point')
+          let { element } = this.props.referToEl;
+          console.log(element)
+          let position = await this.getRelativeCoords(element)
+          console.log('seeting: ', position)
+          this.props.setToElAndCoords(null, position)
+        }
+      }
+      this.resizeTimer = undefined;
+    }, 200)
   }
   
   onScriptLoad = () => {
