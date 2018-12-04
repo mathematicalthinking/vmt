@@ -7,6 +7,12 @@ import moment from 'moment';
 class Chat extends Component {
   constructor(props){
     super(props);
+
+    this.state = {
+      containerCoords: null,
+      chatCoords: null,
+      chatInputCoords: null,
+    }
     this.chatContainer = React.createRef()
     this.chatInput = React.createRef()
     this.chatEnd = React.createRef()
@@ -21,11 +27,18 @@ class Chat extends Component {
     window.addEventListener('resize', this.updateReference)
     window.addEventListener('keypress', this.onKeyPress)
     if (!this.props.replayer) this.chatInput.current.focus();
+    this.setState({
+      containerCoords: this.chatContainer.current.offsetParent.getBoundingClientRect(),
+      chatCoords: this.chatContainer.current.getBoundingClientRect(),
+      chatInputCoords: this.chatInput.current.getBoundingClientRect(),
+    })
     this.scrollToBottom();
   }
 
   componentDidUpdate(prevProps){
     if (prevProps.messages.length !== this.props.messages.length) {
+      // create a ref for the new element
+      this[`message-${this.props.messages.length - 1}`] = React.createRef();
       this.scrollToBottom();
     }
     else if (!prevProps.referencing && this.props.referencing) {
@@ -58,7 +71,13 @@ class Chat extends Component {
 
   updateReference = () => {
     if (this.props.showingReference || this.props.referencing) {
-      this.props.setChatCoords(this.getRelativeCoords(this.state.chatReferenceElement))
+      this.setState({
+        containerCoords: this.chatContainer.current.offsetParent.getBoundingClientRect(),
+        chatCoords: this.chatContainer.current.getBoundingClientRect(),
+        chatInputCoords: this.chatInput.current.getBoundingClientRect(),
+      }, () => {
+        this.props.setToElAndCoords(this.getRelativeCoords(this.props.referToEl))
+      })
     }
   }
 
@@ -83,20 +102,20 @@ class Chat extends Component {
         toCoords  = this.getRelativeCoords(this[`message-${reference.element}`].current)
 
       }
-      this.props.showReference(reference, toCoords, fromCoords)
+      this.props.showReference(reference, toCoords, event.currentTarget.id, fromCoords)
     }
   }
 
   getRelativeCoords = (target) => {
-    
     let messageCoords = target.getBoundingClientRect(); // RENAME THIS ...THIS IS THE CHAT MESSAGE OR CHAT 
-    let parentCoords = target.offsetParent.getBoundingClientRect() // HOW EXPENSIVE ARE THESE  ? CAUSE THEY ONLY CHANGE ON RESIZE BUT WE"RE RECULACULATING ON SCROLL
-    let containerCoords = this.chatEnd.current.getBoundingClientRect() // we could do this somewhere else 
-    let left = containerCoords.left - parentCoords.left
-    let top = messageCoords.top - parentCoords.top;
-    // if (inputCoords.top > containerCoords.bottom) {
-    //   // top = containerCoords.bottom;
-    // }
+    let left = this.state.chatCoords.left - this.state.containerCoords.left
+    let top = messageCoords.top - this.state.containerCoords.top;
+    if (messageCoords.top > this.state.chatInputCoords.bottom) {
+      top = this.state.chatInputCoords.bottom - this.state.containerCoords.top
+    }
+    else if (messageCoords.bottom < this.state.containerCoords.top) {
+      top = this.state.chatCoords.top - this.state.containerCoords.top
+    }
     return ({left, top,})
   }
 
@@ -111,15 +130,17 @@ class Chat extends Component {
     if (this.props.showingReference) {
       // Find and update the position of the referer 
       // this.updateReference()
-      if (this.props.referenceElement.elementType === 'chat_message') {
+      this.props.setFromElAndCoords(null, this.getRelativeCoords(this[`message-${this.props.referFromEl}`].current))
+      if (this.props.referToEl.elementType === 'chat_message') {
         // Find and update the position of the reference
         let elementRef = this[`message-${this.props.referToEl.element}`].current
         this.props.setToElAndCoords(null, this.getRelativeCoords(elementRef))
       }
     } 
-    // else if (this.props.referencing && this.props.referenceElement.elementType === 'chat_message') {
-    //   // Find and update the position of the reference
-    // }
+    else if (this.props.referencing && this.props.referToEl.elementType === 'chat_message') {
+      let elementRef = this[`message-${this.props.referToEl.element}`].current
+      this.props.setToElAndCoords(null, this.getRelativeCoords(elementRef))
+    }
   }
   
   render() {

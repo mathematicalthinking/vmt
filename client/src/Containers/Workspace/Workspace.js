@@ -12,7 +12,7 @@ class Workspace extends Component {
     someoneElseInControl: false, // ultimately we should save and fetch this from the db 
     referencing: false,
     showingReference: false,
-    refereToEl: null,
+    referToEl: null,
     referToCoords: null,
     referFromEl: null,
     referFromCoords: null,
@@ -141,9 +141,10 @@ class Workspace extends Component {
     })
   }
   
-  showReference = (referToEl, referToCoords, referFromCoords) => {
+  showReference = (referToEl, referToCoords, referFromEl, referFromCoords) => {
     this.setState({
       referToEl,
+      referFromEl,
       referToCoords,
       referFromCoords,
       showingReference: true, 
@@ -154,8 +155,8 @@ class Workspace extends Component {
   clearReference = () => {
     this.setState({
       referToEl: null, 
-      referToCoords: null, 
       referFromEl: null,
+      referToCoords: null, 
       referFromCoords: null,
       referencing: false, 
       showingReference: false
