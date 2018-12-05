@@ -23,7 +23,25 @@ class GgbReplayer extends Component {
     const { log, index, changingIndex } = this.props;
     // IF we're skipping it means we might need to reconstruct several evenets, possible in reverse order if the prevIndex is greater than this index.
     if (changingIndex) {
-      this.consolidateEvents(prevProps.index, index)
+      // this.consolidateEvents(prevProps.index, index) THIS MIGHT BE A DEAD END
+      this.ggbApplet.setRepaintingActive(false)
+      if (prevProps.index < this.props.index) {
+        for (let i = prevProps.index; i <= index; i++){
+          this.constructEvent(this.props.log[i])
+        }
+      } else {
+        for (let i = prevProps.index; i >= index + 1; i--) {
+          let syntheticEvent = {...log[i]}
+          if (syntheticEvent.eventType === 'ADD') {
+            syntheticEvent.eventType = 'REMOVE'
+          } 
+          else if (syntheticEvent.eventType === 'REMOVE') {
+            syntheticEvent.eventType = 'ADD'
+          }
+          this.constructEvent(syntheticEvent)
+        }
+      }
+      this.ggbApplet.setRepaintingActive(true)
     }
     else if (prevProps.log[prevProps.index]._id !== log[index]._id && !this.state.loading && !log[index].text) {
       this.constructEvent(log[index])
@@ -80,10 +98,13 @@ class GgbReplayer extends Component {
 
   initializeGgb = () => {
     this.ggbApplet = window.ggbApplet;
-    let xmlContext = this.ggbApplet.getXML()
-    xmlContext = xmlContext.slice(0, xmlContext.length - 27) // THIS IS HACKY BUT ????
-    console.log(xmlContext)
-    this.setState({xmlContext, loading: false,})
+    // let xmlContext = this.ggbApplet.getXML()
+    // xmlContext = xmlContext.slice(0, xmlContext.length - 27) // THIS IS HACKY BUT ????
+    // console.log(xmlContext)
+    this.setState({
+      // xmlContext, 
+      loading: false,
+    })
   }
 
   // This method is for when we're skipping forward or backward and, rather than apply each event 
@@ -102,10 +123,14 @@ class GgbReplayer extends Component {
       }
       return acc;
     }, {})
-      console.log(syntheticLog)
-     let xmlString = Object.keys(syntheticLog).map(event => syntheticLog[event]).join('')
-
-     this.ggbApplet.setXML(this.state.xmlContext + xmlString + '</construction></geogebra>')
+    console.log(syntheticLog)
+    let xmlString = Object.keys(syntheticLog).map(event => syntheticLog[event]).join('')
+    this.ggbApplet.setRepaintingActive(false)
+    for (let i = 0; i < endingIndex; i++){
+      this.constructEvent(this.props.log[i])
+    }
+    this.ggbApplet.setRepaintingActive(true)
+    // this.ggbApplet.setXML(this.state.xmlContext + xmlString + '</construction></geogebra>')
 
 
 

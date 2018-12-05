@@ -168,7 +168,8 @@ class Replayer extends Component {
           index: this.state.logIndex,
           log: this.updatedLog,
           endTime: this.endTime,
-          reset: this.reset
+          reset: this.reset,
+          setCurrentMembers: this.setCurrentMembers
         }}/>
     )
   }

@@ -58,7 +58,13 @@ const workspaceLayout = React.memo(({
           <div className={classes.Right}>
             <div className={classes.Chat}>
               {replayer ? 
-                <ChatReplayer roomId={room._id} log={replayer.log} index={replayer.index} skipping={replayer.skipping} reset={replayer.reset} setCurrentMembers={replayer.setCurrentMembers} /> : 
+                <ChatReplayer 
+                  roomId={room._id} 
+                  log={replayer.log} 
+                  index={replayer.index} 
+                  changingIndex={replayer.changingIndex} 
+                  reset={replayer.reset} 
+                  setCurrentMembers={replayer.setCurrentMembers} /> : 
                 <Chat 
                   roomId={room._id} 
                   messages={room.chat || []} 
