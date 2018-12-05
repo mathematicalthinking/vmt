@@ -34,7 +34,7 @@ const workspaceLayout = React.memo(({
           <div className={[classes.Graph, classes.Left, "graph"].join(" ")}>
             {replayer ? 
               (room.roomType === 'geogebra' ?
-                <GgbReplayer log={replayer.log} index={replayer.index} skipping={replayer.skipping} reset={replayer.reset}/> :
+                <GgbReplayer log={replayer.log} index={replayer.index} changingIndex={replayer.changingIndex} reset={replayer.reset}/> :
                 <DesmosReplayer />
               ):   
               (room.roomType === 'geogebra' ? 
@@ -58,7 +58,13 @@ const workspaceLayout = React.memo(({
           <div className={classes.Right}>
             <div className={classes.Chat}>
               {replayer ? 
-                <ChatReplayer roomId={room._id} log={replayer.log} index={replayer.index} skipping={replayer.skipping} reset={replayer.reset} setCurrentMembers={replayer.setCurrentMembers} /> : 
+                <ChatReplayer 
+                  roomId={room._id} 
+                  log={replayer.log} 
+                  index={replayer.index} 
+                  changingIndex={replayer.changingIndex} 
+                  reset={replayer.reset} 
+                  setCurrentMembers={replayer.setCurrentMembers} /> : 
                 <Chat 
                   roomId={room._id} 
                   messages={room.chat || []} 
@@ -79,7 +85,7 @@ const workspaceLayout = React.memo(({
               }
             </div>
             <div className={classes.Members}>
-              <CurrentMembers members={room.currentMembers.map(member => member.user)} activeMember={activeMember}/>
+              <CurrentMembers members={replayer ? replayer.currentMembers.map(member => member.user) : room.currentMembers.map(member => member.user)} activeMember={activeMember}/>
             </div>
           </div>
         </div>
