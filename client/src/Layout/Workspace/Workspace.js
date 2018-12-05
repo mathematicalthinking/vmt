@@ -34,7 +34,7 @@ const workspaceLayout = React.memo(({
           <div className={[classes.Graph, classes.Left, "graph"].join(" ")}>
             {replayer ? 
               (room.roomType === 'geogebra' ?
-                <GgbReplayer log={replayer.log} index={replayer.index} skipping={replayer.skipping} reset={replayer.reset}/> :
+                <GgbReplayer log={replayer.log} index={replayer.index} changingIndex={replayer.changingIndex} reset={replayer.reset}/> :
                 <DesmosReplayer />
               ):   
               (room.roomType === 'geogebra' ? 

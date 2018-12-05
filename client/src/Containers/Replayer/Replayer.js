@@ -103,7 +103,7 @@ class Replayer extends Component {
       }
       this.setState(prevState => ({
         logIndex, timeElapsed, currentMembers,
-        startTime, absTimeElapsed,
+        startTime, absTimeElapsed, changingIndex: false,
       }))
     }, PLAYBACK_FIDELITY)
   }
@@ -161,6 +161,7 @@ class Replayer extends Component {
           startTime: this.state.startTime,
           absTimeElapsed: this.state.absTimeElapsed,
           goToTime: this.goToTime,
+          changingIndex: this.state.changingIndex,
           speed: this.state.playbackSpeed,
           setSpeed: this.setSpeed,
           relTime: this.state.timeElapsed,
