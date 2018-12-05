@@ -30,7 +30,7 @@ class Chat extends Component {
     this.setState({
       containerCoords: this.chatContainer.current.offsetParent.getBoundingClientRect(),
       chatCoords: this.chatContainer.current.getBoundingClientRect(),
-      chatInputCoords: this.chatInput.current.getBoundingClientRect(),
+      chatInputCoords: this.props.replayer ? null : this.chatInput.current.getBoundingClientRect(),
     })
     this.scrollToBottom();
   }
@@ -165,7 +165,10 @@ class Chat extends Component {
       displayMessages = messages.map((message, i) => {
         let highlightClass = '';
         if (showingReference && this.props.referToEl) {
-          if ((this.props.referToEl.element === i) || (message.reference && (this.props.referToEl.element === message.reference.element))) {
+          //@TODO DOUBLE EQUALS BELOW HERE IS INTENTIONAL. THIS NEEDS TO BE FIXED EVENTUALLY BUT FOR NOW,
+          // WHEN WE MAKE THE INTIAL REFERENCE ELEMENT IS AN INT BUT WHEN WE SAVE IT TO THE DB OR IT COMES ACROSS THE SOCKET 
+          // IT IS A STRING...WE SHOULD JUST PARSE IT TO STRING ON CREATION REFERTOEL.ELEMENT
+          if ((this.props.referToEl.element == i) || (message.reference && (this.props.referToEl.element === message.reference.element))) {
             highlightClass = classes.Highlight
           }
         }

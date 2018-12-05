@@ -90,12 +90,18 @@
   color: #999;
   font-size: .8em;
   align-self: flex-end;
+  font-size: 13px;
+  width: 33%;
+  text-align: left;
 }
 
 .VmtBotEntry {
+  display: flex;
+  flex-flow: column;
   font-size: 13px;
   color: #999;
   /* padding: 1px; */
+  padding: 0px 10px;
   border: 2px solid transparent;
  }
  
