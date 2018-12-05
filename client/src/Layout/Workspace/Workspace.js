@@ -85,7 +85,7 @@ const workspaceLayout = React.memo(({
               }
             </div>
             <div className={classes.Members}>
-              <CurrentMembers members={room.currentMembers.map(member => member.user)} activeMember={activeMember}/>
+              <CurrentMembers members={replayer ? replayer.currentMembers.map(member => member.user) : room.currentMembers.map(member => member.user)} activeMember={activeMember}/>
             </div>
           </div>
         </div>

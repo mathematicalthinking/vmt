@@ -23,7 +23,7 @@ class Chat extends PureComponent {
           if (entry.text.includes('joined')) {
             currentMembers.push({user: entry.user})
           }
-          else {
+          else if (entry.text.includes('left')){
             currentMembers = currentMembers.filter(member => {
               return entry.user._id !== member.user._id}
             )
@@ -31,7 +31,6 @@ class Chat extends PureComponent {
         }
         return i <= index && entry.text;
       })
-      console.log(messages)
       this.setState({messages,})
       reset(); // Reset sets 'skipping' to false in Containers/Replater/Replayer.js
       setCurrentMembers(currentMembers)

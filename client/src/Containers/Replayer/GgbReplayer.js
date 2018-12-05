@@ -98,6 +98,7 @@ class GgbReplayer extends Component {
 
   initializeGgb = () => {
     this.ggbApplet = window.ggbApplet;
+    this.ggbApplet.setMode(40)
     // let xmlContext = this.ggbApplet.getXML()
     // xmlContext = xmlContext.slice(0, xmlContext.length - 27) // THIS IS HACKY BUT ????
     // console.log(xmlContext)

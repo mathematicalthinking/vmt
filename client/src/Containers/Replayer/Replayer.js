@@ -57,6 +57,7 @@ class Replayer extends Component {
       // BE ENTERING
       updatedMembers.push({user: this.log[0].user});
     }
+    console.log('updatedMembers: ', updatedMembers)
     this.setState({
       startTime: moment
         .unix(this.log[0].timestamp / 1000)
@@ -92,7 +93,7 @@ class Replayer extends Component {
           if (nextEvent.text.includes('joined')) {
            currentMembers.push({user: nextEvent.user})
           }
-          else {currentMembers = currentMembers.filter(u => {
+          else if (nextEvent.text.includes('left')) {currentMembers = currentMembers.filter(u => {
             return u.user._id !== nextEvent.user._id
           })}
         }
@@ -139,6 +140,7 @@ class Replayer extends Component {
   }
 
   setCurrentMembers = (currentMembers) => {
+    console.log(currentMembers)
     this.setState({currentMembers,})
   }
 
@@ -169,6 +171,7 @@ class Replayer extends Component {
           log: this.updatedLog,
           endTime: this.endTime,
           reset: this.reset,
+          currentMembers: this.state.currentMembers,
           setCurrentMembers: this.setCurrentMembers
         }}/>
     )
