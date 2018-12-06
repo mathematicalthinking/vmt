@@ -106,7 +106,7 @@ sockets.init = server => {
             }
             let releasedControl = false;
             // parse to string becayse it is an objectId
-            if (res.controlledBy.toString() === socket.user_id) {
+            if (res.controlledBy && res.controlledBy.toString() === socket.user_id) {
               controllers.rooms.put(rooms[0], {controlledBy: null})
               releasedControl = true;
             }    

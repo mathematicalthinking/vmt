@@ -90,11 +90,9 @@ class GgbGraph extends Component {
         window.ggbApplet.setSize(clientWidth, clientHeight);
         // window.ggbApplet.evalCommand('UpdateConstruction()')
         if (this.props.showingReference || (this.props.referencing && this.props.referToEl.elmentType !== 'chat_message')) {
-          console.log('repositinong graph point')
           let { element } = this.props.referToEl;
           console.log(element)
           let position = await this.getRelativeCoords(element)
-          console.log('seeting: ', position)
           this.props.setToElAndCoords(null, position)
         }
       }
