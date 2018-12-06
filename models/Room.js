@@ -27,7 +27,8 @@ const Room = new mongoose.Schema({
   tempRoom: {type: Boolean, default: false},
   image: {type: String,},
   instructions: {type: String,},
-  graphImage: {type: ObjectId, ref: 'Image'}
+  graphImage: {type: ObjectId, ref: 'Image'},
+  controlled: {type: boolean, default: false}
 },
 {timestamps: true});
 
