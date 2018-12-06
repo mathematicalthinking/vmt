@@ -27,8 +27,6 @@ class Chat extends Component {
   }
 
   componentDidUpdate(prevProps, prevState){
-    console.log("COMPONENT UPDATED")
-    console.log(this.props)
     if (!prevProps.referencing && this.props.referencing) {
       this.setState({newMessage: `⬅️${this.state.newMessage}`})
     }
@@ -43,7 +41,6 @@ class Chat extends Component {
     if (!prevProps.referToEl && this.props.referToEl && this.props.referToEl.elementType === 'chat_message') {
       let updatedMessage = this.state.newMessage;
       let newMessage = updatedMessage.replace('⬅', '⬆️')
-      console.log(updatedMessage)
       this.setState({newMessage,})
     }
 
