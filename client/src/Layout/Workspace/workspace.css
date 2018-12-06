@@ -86,6 +86,8 @@
   max-width: 1500px;
   box-shadow: lightShadow;
   margin-bottom: 50px;
+  display: flex;
+  flex-direction: column;
   /* border: 1px solid red; */
 }
 
@@ -94,14 +96,18 @@
   justify-content: center;
   width: 100%;
   height: graphHeight;
+  flex-shrink: 1;
+  flex-grow: 1;
   /* border: 1px solid blue; */
 }
 
 .Bottom {
   background-color: background;
   /* color: white; */
+  flex-shrink: 0;
   display: flex;
-  height: 20%;
+  /* height: 20%; */
+  /* min-height: 160px; */
 }
 
 .Left {
