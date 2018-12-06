@@ -8,8 +8,8 @@ class Workspace extends Component {
 
   state = {
     activeMember: '',
-    inControl: false,
-    someoneElseInControl: false, // ultimately we should save and fetch this from the db 
+    inControl: false, 
+    someoneElseInControl: false,
     referencing: false,
     showingReference: false,
     referToEl: null,
@@ -23,7 +23,9 @@ class Workspace extends Component {
   componentDidMount() {
     // window.addEventListener("resize", this.updateReference);
     const { updatedRoom, room, user} = this.props;
-    if (!user) {
+
+    if (room.controlledBy) {
+      this.setState({someoneElseInControl: true, inControl: false,})
     }
 
     
@@ -46,8 +48,12 @@ class Workspace extends Component {
     this.socket.on('USER_JOINED', data => {
       updatedRoom(room._id, {currentMembers: data.currentMembers})
     })
-
+    
     this.socket.on('USER_LEFT', data => {
+      console.log(data)
+      if (data.releasedControl) {
+        this.setState({someoneElseInControl: false})
+      }
       updatedRoom(room._id, {currentMembers: data.currentMembers})
     })
 
@@ -57,6 +63,7 @@ class Workspace extends Component {
     })
 
     this.socket.on('RELEASED_CONTROL', message => {
+      console.log('released control')
       this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
       this.setState({activeMember: '', someoneElseInControl: false})
     })
@@ -65,6 +72,10 @@ class Workspace extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    // When we first the load room
+    if (prevProps.room.controlledBy !== this.props.room.controlledBy) {
+      this.setState({someoneElseInControl: true, inControl: false})
+    }
     if (prevProps.room.currentMembers !== this.props.room.currentMembers) {
 
     }

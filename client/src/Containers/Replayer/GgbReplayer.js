@@ -12,6 +12,12 @@ class GgbReplayer extends Component {
     xmlContext: '' // xml string representing everything but the events and commands
   }
 
+  graph = React.createRef()
+
+  componentDidMount(){
+    window.addEventListener("resize", this.updateDimensions);
+  }
+
   shouldComponentUpdate(nextProps, nextState) {
     if (this.props.index !== nextProps.index || this.state.loading !== nextState.loading) {
       return true;
@@ -49,6 +55,10 @@ class GgbReplayer extends Component {
     else if (!this.state.loading){
       this.constructEvent(log[index])
     }
+  }
+
+  componentWillUnmount(){
+    window.removeEventListener("resize", this.updateDimensions);
   }
   
   constructEvent(event) {
@@ -186,13 +196,27 @@ class GgbReplayer extends Component {
       })
     })
   }
+
+  updateDimensions = () => {
+    if (this.resizeTimer) {
+      clearTimeout(this.resizeTimer)
+    }
+    this.resizeTimer = setTimeout(() => {
+      if (this.graph.current && !this.state.loading) {
+        let { clientHeight, clientWidth } = this.graph.current.parentElement;
+        window.ggbApplet.setSize(clientWidth, clientHeight);
+        // window.ggbApplet.evalCommand('UpdateConstruction()')
+      }
+      this.resizeTimer = undefined;
+    }, 200)
+  }
   
   render() {
 
     return (
       <Aux>
         <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} />
-        <div className={classes.Graph} id='ggb-element'></div>
+        <div className={classes.Graph} id='ggb-element' ref={this.graph}></div>
         <Modal show={this.state.loading} message='Loading...'/>
       </Aux>
     )

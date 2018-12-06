@@ -109,7 +109,7 @@ class Room extends Component {
     let { 
       room, match, user,
       accessNotifications, error, 
-      clearError, courseMembers,
+      clearError, courseMembers, course
     } = this.props;
     if (room && !this.state.guestMode) {
       let resource = match.params.resource;
@@ -146,7 +146,8 @@ class Room extends Component {
         {title: room.name, link: `/myVMT/rooms/${room._id}/details`}]
         //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
         // THE REDUX STORE USING THE COURSE ID IN THE URL
-      if (room.course) {crumbs.splice(1, 0, {title: room.course.name, link: `/myVMT/courses/${room.course._id}/activities`})}
+        console.log(room.course)
+      if (room.course) {crumbs.splice(1, 0, {title: course.name, link: `/myVMT/courses/${room.course._id}/activities`})}
 
       return (
         <Aux>
@@ -185,6 +186,7 @@ const mapStateToProps = (store, ownProps) => {
   let { room_id } = ownProps.match.params;
   return {
     room: store.rooms.byId[room_id],
+    course: store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course] : null,
     // courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
     user: store.user,
     accessNotifications: store.user.roomNotifications.access, // this seems redundant

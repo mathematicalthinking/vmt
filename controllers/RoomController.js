@@ -153,7 +153,7 @@ module.exports = {
       else {
         db.Room.findByIdAndUpdate(id, body, {new: true})
         .populate('currentMembers.user members.user', 'username')
-        .populate('chat')
+        .populate('chat') // this seems random
         .then(res => resolve(res)).catch(err =>{
           console.log("ERR: ", err)
           reject(err)
@@ -192,11 +192,11 @@ module.exports = {
     })
   },
 
-  removeCurrentUsers: (roomId, socketId) => {
+  removeCurrentUsers: (roomId, userId) => {
     return new Promise ((resolve, reject) => {
-      db.Room.findByIdAndUpdate(roomId, {$pull: {currentMembers: {socket: socketId}}}) // DONT RETURN THE NEW DOCUMENT WE NEED TO KNOW WHO WAS REMOVED BACK IN THE SOCKET
+      db.Room.findByIdAndUpdate(roomId, {$pull: {currentMembers: {user: userId}}}) // DONT RETURN THE NEW DOCUMENT WE NEED TO KNOW WHO WAS REMOVED BACK IN THE SOCKET
       .populate({path: 'currentMembers.user', select: 'username'})
-      .select('currentMembers')
+      .select('currentMembers controlledBy')
       .then(room => {
         resolve(room)
       })

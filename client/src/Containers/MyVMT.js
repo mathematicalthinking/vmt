@@ -166,8 +166,15 @@ class Profile extends Component {
     return new Promise((resolve => {
       let { user, match } = this.props;
       let { resource } = match.params;
+      let myActivities;
       if (match.params.resource === 'activities') {
-        return this.setState({displayResources: this.props[resource].allIds}, () => resolve())
+        myActivities = this.props[resource].allIds.filter(id => {
+          if (this.props[resource].byId.creator === user._id) {
+            return true;
+          }
+          return false;
+        })
+        return this.setState({displayResources: myActivities}, () => resolve())
       }
       let displayResources = [];
       if (this.props[resource]) {
@@ -182,7 +189,8 @@ class Profile extends Component {
               }
             })
             return included;
-          } else return false;
+          } 
+          return false;
         })
       }
       // console.log("DISPLAY RESOURCES: ", displayResources)

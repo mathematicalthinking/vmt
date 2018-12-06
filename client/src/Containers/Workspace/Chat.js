@@ -34,8 +34,14 @@ class Chat extends Component {
       let newMessage = this.state.newMessage.replace(/⬅/g, '')
       this.setState({newMessage,})
     }
-    if (prevState.newMessage.includes('⬅') && !this.state.newMessage.includes('⬅️')) {
-      this.props.clearReference()
+    if ((prevState.newMessage.includes('⬅') && !this.state.newMessage.includes('⬅️') && !this.state.newMessage.includes('⬆️')) || 
+        (prevState.newMessage.includes('⬆️') && !this.state.newMessage.includes('⬆️')) && !this.state.newMessage.includes('⬅')) {
+          this.props.clearReference()
+    }
+    if (!prevProps.referToEl && this.props.referToEl && this.props.referToEl.elementType === 'chat_message') {
+      let updatedMessage = this.state.newMessage;
+      let newMessage = updatedMessage.replace('⬅', '⬆️')
+      this.setState({newMessage,})
     }
 
   }

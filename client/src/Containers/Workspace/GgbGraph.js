@@ -90,11 +90,9 @@ class GgbGraph extends Component {
         window.ggbApplet.setSize(clientWidth, clientHeight);
         // window.ggbApplet.evalCommand('UpdateConstruction()')
         if (this.props.showingReference || (this.props.referencing && this.props.referToEl.elmentType !== 'chat_message')) {
-          console.log('repositinong graph point')
           let { element } = this.props.referToEl;
           console.log(element)
           let position = await this.getRelativeCoords(element)
-          console.log('seeting: ', position)
           this.props.setToElAndCoords(null, position)
         }
       }
@@ -182,13 +180,18 @@ class GgbGraph extends Component {
 
     // Used to capture referencing 
     this.clickListener = async element => {
+      console.log(element)
       // console.log("CLICKED", this.ggbApplet.getXML())
       if (this.props.referencing) {
         // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
         let elementType = this.ggbApplet.getObjectType(element);
-        let position = await this.getRelativeCoords(element)
-        console.log('position: ', position)
-        this.props.setToElAndCoords({element, elementType,}, position)
+        let position;
+        if (elementType !== 'point') {
+          let commandString = this.ggbApplet.getCommandString(element)
+          element = commandString.slice(commandString.indexOf('(') + 1, commandString.indexOf('(') + 2)
+        }
+        position = await this.getRelativeCoords(element)
+        this.props.setToElAndCoords({element, elementType: 'point'}, position)
       }
     }
     

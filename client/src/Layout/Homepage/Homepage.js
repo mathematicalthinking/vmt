@@ -6,18 +6,26 @@ import Button from '../../Components/UI/Button/Button';
 import Background from '../../Components/Background/Background';
 // import GeogebraImg from './Geogebra.png';
 // import DesmosImg from './desmos.jpg';
+import API from '../../utils/apiRequests';
 import Aux from '../../Components/HOC/Auxil';
 
 class Homepage extends PureComponent {
 
+  state = {
+    popularActivities: [],
+  }
+
   containerRef = React.createRef()
   componentDidMount(){
-    if (Object.keys(this.props.activities).length === 0) {
-      this.props.getActivities();
-    }
+    API.get('activities')
+    .then(res => {
+      console.log("got activities: ", res)
+      this.setState({popularActivities: res.data.results})
+    })
   }
   
   componentDidUpdate(prevProps) {
+    // If the user creates a temporary room // redirect them once its been created
     if (Object.keys(prevProps.rooms).length < Object.keys(this.props.rooms).length) {
       const currentRooms = Object.keys(this.props.rooms).map(id => this.props.rooms[id])
       const prevRooms = Object.keys(prevProps.rooms).map(id => prevProps.rooms[id])
@@ -43,7 +51,6 @@ class Homepage extends PureComponent {
 }
 
   render() {
-    let list = Object.keys(this.props.activities).map(id => this.props.activities[id]) || []
     return (
       <Aux>
         <Background/>
@@ -63,7 +70,7 @@ class Homepage extends PureComponent {
           {/* <i onClick={this.scrollToDomRef} className={["fas fa-chevron-down", classes.Down].join(" ")}></i> */}
           <section className={classes.Options} ref={this.containerRef}>
             <h3 className={classes.Subtitle}>Popular Activities</h3>
-            <BoxList list={list}/>
+            <BoxList list={this.state.popularActivities}/>
             {/* <div className={classes.Geogebra}>
               <img className={classes.GgbImage} src={GeogebraImg} alt='geogebra' />
               <div>

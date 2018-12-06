@@ -150,11 +150,22 @@ class Course extends Component {
     let { course, user, match, accessNotifications } = this.props;
     if (course && !this.state.guestMode) {
       let resource = match.params.resource;
+      let myRooms;
+      if (resource === 'rooms') {
+        myRooms = course.rooms.filter(room => {
+          let included = false
+          room.members.forEach(member => {
+            if (member.user._id === user._id) 
+            included = true;
+          })
+          return included;
+        })
+      }
       let contentData = {
         resource,
         parentResource: "courses",
         parentResourceId: course._id,
-        userResources: course[resource] || [],
+        userResources: myRooms || course[resource] || [],
         notifications:  accessNotifications.filter(ntf => ntf._id === course._id) || [],
         userId: user._id, // @TODO <-- get rid of this user user object below
         user: user,
