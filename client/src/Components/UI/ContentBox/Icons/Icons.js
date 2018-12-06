@@ -3,7 +3,15 @@ import ggbIcon from './geogebra.png';
 import dsmIcon from './desmos.png';
 import Aux from '../../../HOC/Auxil';
 const Icons = props => {
-  const lock = props.lock ? <div style={{height: 20}}><i className="fas fa-lock"></i></div> : null; // consider using unlock
+  let lock;
+  console.log(props)
+  if (props.lock && props.listType === 'public') {
+    lock = <div style={{height: 20}}><i className="fas fa-lock"></i></div>
+  }
+  else if (props.lock && props.listType === 'private') {
+    lock = <div style={{height: 20}}><i class="fas fa-unlock-alt"></i></div>
+  }
+
   let roomType
   if ( props.roomType === 'desmos' ) {
     roomType = <img height={20} width={20} src={dsmIcon} alt='dsm'/>

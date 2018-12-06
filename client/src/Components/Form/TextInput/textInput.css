@@ -39,4 +39,9 @@
 .Label {
   margin-bottom: 10px;
   text-align: left;
+  color: inherit;
+}
+
+.Input:focus + .Label{
+  color: blue;
 }

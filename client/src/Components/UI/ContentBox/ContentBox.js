@@ -69,7 +69,7 @@ class ContentBox extends PureComponent{
             <div className={classes.TopBanner}>
               <div className={classes.BannerLeft}>
                 <div className={classes.Icons}>
-                  <Icons image={this.props.image} lock={this.props.locked} roomType={this.props.roomType}/>
+                  <Icons image={this.props.image} lock={this.props.locked} roomType={this.props.roomType} listType={this.props.listType}/>
                 </div>
                 <div className={classes.Title} data-testid="">{this.props.title}</div>
                 {notifications} 
