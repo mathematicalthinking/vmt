@@ -11,21 +11,32 @@ const Message = new mongoose.Schema({
     element: {type: String},
     elementType: {type: String}
   },
-  messageType: {type: String, enum: ['TEXT', 'TOOK_CONTROL', 'RELEASED_CONTROL'], default: 'TEXT'}
+  messageType: {type: String, enum: ['TEXT', 'TOOK_CONTROL', 'RELEASED_CONTROL', 'LEFT_ROOM'], default: 'TEXT'}
 });
 
 // Add this message to the room's chat
 // @TODO for some reason I can't get $push to work
 Message.pre('save', async function() {
-  let controlledBy = '';
   if (this.messageType === 'TOOK_CONTROL') {
-    controlledBy = this.user._id;
+    try {
+      await Room.findByIdAndUpdate(this.room, {controlledBy: this.user._id, $addToSet: {chat: this._id}})
+    }
+    catch(err) {
+      console.log("ERROR: ", err)
+    }
   }
-  try {
-    await Room.findByIdAndUpdate(this.room, {controlledBy, $addToSet: {chat: this._id}})
-  }
-  catch(err) {
-
+  else if (this.messageType === 'LEFT_ROOM') {
+    try {
+      let room = await Room.findById(this.room)
+      if (room.controlledBy === this.user._id) {
+        room.controlledBy = null;
+        room.save()
+      }
+    }
+    catch(err) {
+      console.log(err)
+    }
+    
   }
 })
 module.exports = mongoose.model('Message', Message);

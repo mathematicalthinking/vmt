@@ -196,7 +196,7 @@ module.exports = {
     return new Promise ((resolve, reject) => {
       db.Room.findByIdAndUpdate(roomId, {$pull: {currentMembers: {user: userId}}}) // DONT RETURN THE NEW DOCUMENT WE NEED TO KNOW WHO WAS REMOVED BACK IN THE SOCKET
       .populate({path: 'currentMembers.user', select: 'username'})
-      .select('currentMembers')
+      .select('currentMembers controlledBy')
       .then(room => {
         resolve(room)
       })

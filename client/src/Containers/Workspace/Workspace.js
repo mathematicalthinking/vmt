@@ -50,10 +50,10 @@ class Workspace extends Component {
     })
     
     this.socket.on('USER_LEFT', data => {
+      console.log(data)
       if (data.releasedControl) {
         this.setState({someoneElseInControl: false})
       }
-      console.log(data.message) 
       updatedRoom(room._id, {currentMembers: data.currentMembers})
     })
 
