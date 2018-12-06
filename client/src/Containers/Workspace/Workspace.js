@@ -9,7 +9,7 @@ class Workspace extends Component {
   state = {
     activeMember: '',
     inControl: false,
-    someoneElseInControl: false, // ultimately we should save and fetch this from the db 
+    someoneElseInControl: false,
     referencing: false,
     showingReference: false,
     referToEl: null,
@@ -23,7 +23,9 @@ class Workspace extends Component {
   componentDidMount() {
     // window.addEventListener("resize", this.updateReference);
     const { updatedRoom, room, user} = this.props;
-    if (!user) {
+
+    if (room.controlled) {
+      this.setState({someoneElseInControl: true, inControl: false,})
     }
 
     
@@ -65,6 +67,10 @@ class Workspace extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    // When we first the load room
+    if (prevProps.room.controlled !== this.props.room.controlled) {
+      this.setState({someoneElseInControl: true, inControl: false})
+    }
     if (prevProps.room.currentMembers !== this.props.room.currentMembers) {
 
     }
