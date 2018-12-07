@@ -31,13 +31,12 @@ class Room extends Component {
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
     // If its in the store check access
     if (room) {
-      console.log(room)
       populateRoom(match.params.room_id)
       // CHECK ACCESS
       let updatedTabs = [...this.state.tabs];
       let owner = false;
       let firstView = false;
-      if (room.creator === user._id) {
+      if (room.creator._id === user._id) {
         // updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
         // this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
         owner = true;
@@ -97,10 +96,9 @@ class Room extends Component {
   }
 
   displayNotifications = (tabs) => {
-    let { user, room } = this.props;
-    let { roomNotifications } = user;
-    if (room.creator === user._id) {
-      let thisRoomsNtfs = roomNotifications.access.filter(ntf => ntf._id === room._id)
+    let { user, room, accessNotifications } = this.props;
+    if (room.creator._id === user._id) {
+      let thisRoomsNtfs = accessNotifications.filter(ntf => ntf._id === room._id)
       tabs[1].notifications = thisRoomsNtfs.length > 0 ? thisRoomsNtfs.length: '';
     } 
     return tabs;

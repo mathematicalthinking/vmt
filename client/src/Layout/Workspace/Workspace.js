@@ -10,7 +10,7 @@ import ChatReplayer from '../../Containers/Replayer/ChatReplayer';
 import Chat from '../../Containers/Workspace/Chat';
 
 const workspaceLayout = React.memo(({
-  room, user, socket, currentTab,
+  room, user, socket, currentTab, role,
   resetControlTimer, inControl, toggleControl, 
   replayer, activeMember, temp, 
   save, someoneElseInControl,
@@ -28,7 +28,7 @@ const workspaceLayout = React.memo(({
       <div className={classes.Container}>
         <div className={classes.WorkspaceTabs}>
           <div className={[classes.Tab, classes.Active].join(" ")}><div className={classes.TabBox}>Tab 1</div></div>
-          <div className={classes.Tab}><div className={classes.TabBox}><i className="fas fa-plus"></i></div></div>
+          {role === 'facilitator' ? <div className={classes.Tab}><div className={classes.TabBox}><i className="fas fa-plus"></i></div></div> : null}
         </div>
         <div className={classes.Top}>
           <div className={[classes.Graph, classes.Left, "graph"].join(" ")}>

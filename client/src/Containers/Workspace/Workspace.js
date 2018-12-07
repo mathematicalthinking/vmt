@@ -17,6 +17,7 @@ class Workspace extends Component {
     referFromEl: null,
     referFromCoords: null,
     currentTab: 0,
+    role: 'participant'
   }
 
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
@@ -29,6 +30,8 @@ class Workspace extends Component {
       this.setState({someoneElseInControl: true, inControl: false,})
     }
 
+    let { role } = room.members.filter(member => member.user._id === user._id)[0]
+    if (role === 'facilitator') {this.setState({role: 'facilitator'})}
     
     // repopulate room incase things have changed since we got to the details page 
     // this.props.populateRoom(room._id)
@@ -105,7 +108,6 @@ class Workspace extends Component {
       })
     }
   }
-
 
   toggleControl = () => {
     let { user, room } = this.props;
@@ -211,6 +213,7 @@ class Workspace extends Component {
         activeMember={this.state.activeMember}
         room={room}
         user={user}
+        role={this.state.role}
         currentTab={this.state.currentTab}
         socket={this.socket}
         updateRoom={this.props.updateRoom}
