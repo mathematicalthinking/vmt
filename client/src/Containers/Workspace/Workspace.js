@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import io from 'socket.io-client';
 import { updateRoom, updatedRoom, populateRoom } from '../../store/actions';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
+import { Modal, Aux } from '../../Components';
+import NewTabForm from './NewTabForm'
 // import Replayer from ''
 class Workspace extends Component {
 
@@ -17,7 +19,8 @@ class Workspace extends Component {
     referFromEl: null,
     referFromCoords: null,
     currentTab: 0,
-    role: 'participant'
+    role: 'participant',
+    creatingNewTab: false,
   }
 
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
@@ -107,6 +110,19 @@ class Workspace extends Component {
         currentMembers: room.currentMembers.filter(member => member.user._id !== user._id)
       })
     }
+  }
+
+  createNewTab = () => {
+    console.log('creating new tab')
+    this.setState({creatingNewTab: true})
+  }
+
+  closeModal = () => {
+    this.setState({creatingNewTab: false})
+  }
+
+  submitNewTab = () => {
+
   }
 
   toggleControl = () => {
@@ -209,31 +225,37 @@ class Workspace extends Component {
   render() {
     const { room, user } = this.props;
     return (
-      <WorkspaceLayout
-        activeMember={this.state.activeMember}
-        room={room}
-        user={user}
-        role={this.state.role}
-        currentTab={this.state.currentTab}
-        socket={this.socket}
-        updateRoom={this.props.updateRoom}
-        updatedRoom={this.props.updatedRoom}
-        inControl={this.state.inControl}
-        resetControlTimer={this.resetControlTimer}
-        toggleControl={this.toggleControl}
-        someoneElseInControl={this.state.someoneElseInControl}
-        startNewReference={this.startNewReference}
-        referencing={this.state.referencing}
-        showReference={this.showReference}
-        showingReference={this.state.showingReference}
-        clearReference={this.clearReference}
-        referToEl={this.state.referToEl}
-        referToCoords={this.state.referToCoords}
-        referFromCoords={this.state.referFromCoords}
-        referFromEl={this.state.referFromEl}
-        setToElAndCoords={this.setToElAndCoords}
-        setFromElAndCoords={this.setFromElAndCoords}
-      />
+      <Aux>
+        <WorkspaceLayout
+          activeMember={this.state.activeMember}
+          room={room}
+          user={user}
+          role={this.state.role}
+          currentTab={this.state.currentTab}
+          socket={this.socket}
+          updateRoom={this.props.updateRoom}
+          updatedRoom={this.props.updatedRoom}
+          inControl={this.state.inControl}
+          resetControlTimer={this.resetControlTimer}
+          toggleControl={this.toggleControl}
+          someoneElseInControl={this.state.someoneElseInControl}
+          startNewReference={this.startNewReference}
+          referencing={this.state.referencing}
+          showReference={this.showReference}
+          showingReference={this.state.showingReference}
+          clearReference={this.clearReference}
+          referToEl={this.state.referToEl}
+          referToCoords={this.state.referToCoords}
+          referFromCoords={this.state.referFromCoords}
+          referFromEl={this.state.referFromEl}
+          setToElAndCoords={this.setToElAndCoords}
+          setFromElAndCoords={this.setFromElAndCoords}
+          createNewTab={this.createNewTab}
+        />
+        <Modal show={this.state.creatingNewTab} closeModal={this.closeModal}>
+          <NewTabForm room={room} closeModal={this.closeModal} updatedRoom={this.props.updatedRoom}/>  
+        </Modal>
+      </Aux>
     )
   }
 }

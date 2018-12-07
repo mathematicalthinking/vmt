@@ -19,6 +19,7 @@ module.exports = {
 
   post: (body) => {
     return new Promise((resolve, reject) => {
+      console.log('creating tab')
       db.Tab.create(body)
       .then(tab => resolve(tab))
       .catch(err => reject(err))

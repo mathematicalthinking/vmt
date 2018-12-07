@@ -69,11 +69,10 @@ router.get('/:resource/:id', (req, res, next) => {
 	})
 })
 
-
-
-router.post('/:action', (req, res, next) => {
-	let action = req.params.action;
-	let controller = controllers[action]
+router.post('/:resource', (req, res, next) => {
+	let resource = req.params.resource;
+	let controller = controllers[resource]
+	console.log(resource, req.body)
 	if (controller == null) return res.status(400).json(defaultError);
 	controller.post(req.body)
 	.then(result => res.json({confirmation: 'success', result,}))

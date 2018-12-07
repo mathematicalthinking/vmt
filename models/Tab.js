@@ -8,7 +8,7 @@ const Tab = new mongoose.Schema({
   ggbFile: {type: String}, // ggb base64 file
   desmosLink: {type: String, },
   events: {type: [{type: ObjectId, ref: 'Event', _id: false}], default: []},
-  room: {type: ObjectId, ref: 'Room'},
+  room: {type: ObjectId, ref: 'Room', required: true},
   controlledBy: {type: ObjectId, ref: 'User', default: null}
 });
 

@@ -18,17 +18,27 @@ const workspaceLayout = React.memo(({
   startNewReference, showReference, 
   referencing, showingReference,setToElAndCoords,
   setFromElAndCoords, referToEl, referToCoords, referFromEl, 
-  referFromCoords, clearReference, 
+  referFromCoords, clearReference, createNewTab
 }) => {
   let controlText = 'Take Control';
   if (inControl) controlText = 'Release Control';
   else if (someoneElseInControl) controlText = 'Request Control';
+
+  let tabs = room.tabs.map((tab, i) => {
+    console.log("TAB: ", tab)
+    return (
+    <div onClick={this.changeTab} className={[classes.Tab, currentTab === i ? classes.Active : ''].join(" ")} style={{zIndex: parseInt(room.tabs.length - i)}} >
+      <div style={{zIndex: parseInt(room.tabs.length - i)}} className={classes.TabBox}>{tab.name}</div>
+    </div>
+    )
+  })
+
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container}>
         <div className={classes.WorkspaceTabs}>
-          <div className={[classes.Tab, classes.Active].join(" ")}><div className={classes.TabBox}>Tab 1</div></div>
-          {role === 'facilitator' ? <div className={classes.Tab}><div className={classes.TabBox}><i className="fas fa-plus"></i></div></div> : null}
+          {tabs}
+          {role === 'facilitator' ? <div className={[classes.Tab, classes.NewTab].join(' ')}><div onClick={createNewTab}  className={classes.TabBox}><i className="fas fa-plus"></i></div></div> : null}
         </div>
         <div className={classes.Top}>
           <div className={[classes.Graph, classes.Left, "graph"].join(" ")}>
