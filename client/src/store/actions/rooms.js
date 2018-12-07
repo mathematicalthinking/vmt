@@ -120,7 +120,6 @@ export const getRoomsIds = ids => {
   return dispatch => {
     API.getIds('rooms', ids)
     .then(res => {
-      // Normalize res
       let rooms = normalize(res.data.results)
       dispatch(gotRooms(rooms))
       dispatch(loading.success())
@@ -134,6 +133,7 @@ export const populateRoom = id => {
     dispatch(loading.start())
     API.getById('rooms', id)
     .then(res => {
+      console.log("populatedROOM: ", res)
       dispatch(updatedRoom(id, res.data.result))
       dispatch(loading.success())
     })

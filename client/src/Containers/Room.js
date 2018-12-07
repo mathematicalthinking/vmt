@@ -31,6 +31,7 @@ class Room extends Component {
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
     // If its in the store check access
     if (room) {
+      console.log(room)
       populateRoom(match.params.room_id)
       // CHECK ACCESS
       let updatedTabs = [...this.state.tabs];
@@ -146,7 +147,6 @@ class Room extends Component {
         {title: room.name, link: `/myVMT/rooms/${room._id}/details`}]
         //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
         // THE REDUX STORE USING THE COURSE ID IN THE URL
-        console.log(room.course)
       if (room.course) {crumbs.splice(1, 0, {title: course.name, link: `/myVMT/courses/${room.course._id}/activities`})}
 
       return (

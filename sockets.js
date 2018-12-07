@@ -169,7 +169,7 @@ sockets.init = server => {
           data.event = JSON.stringify(data.event)
         }
         try {
-          await controllers.rooms.put(data.room, {currentState: data.currentState})
+          await controllers.tabs.put(data.tab, {currentState: data.currentState})
         }
         catch(err) {console.log('err 1: ', err)}
         delete  data.currentState;

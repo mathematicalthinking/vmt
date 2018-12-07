@@ -142,11 +142,12 @@ class GgbGraph extends Component {
     this.ggbApplet = window.ggbApplet;
     this.setState({loading: false})
     this.ggbApplet.setMode(40) // Sets the tool to zoom
-    let { user, room } = this.props;
-    let { events } = room;
+    let { user, room, currentTab } = this.props;
+    let { events } = room.tabs[currentTab];
+    console.log('EVENTS: ', events)
     // put the current construction on the graph, disable everything until the user takes control
     if (events.length > 0) {
-      this.ggbApplet.setXML(room.currentState)
+      this.ggbApplet.setXML(room.tabs[currentTab].currentState)
       this.freezeElements(true)
     }
 
@@ -203,6 +204,7 @@ class GgbGraph extends Component {
         label,
         eventType,
         room: room._id,
+        tab: room.tabs[currentTab]._id,
         event: xml,
         description: `${user.username} ${action} ${xmlObj && xmlObj.element ? xmlObj.element.$.type : ''} ${label}`,
         user: {_id: user._id, username: user.username},

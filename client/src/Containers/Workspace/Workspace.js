@@ -16,6 +16,7 @@ class Workspace extends Component {
     referToCoords: null,
     referFromEl: null,
     referFromCoords: null,
+    currentTab: 0,
   }
 
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
@@ -210,6 +211,7 @@ class Workspace extends Component {
         activeMember={this.state.activeMember}
         room={room}
         user={user}
+        currentTab={this.state.currentTab}
         socket={this.socket}
         updateRoom={this.props.updateRoom}
         updatedRoom={this.props.updatedRoom}

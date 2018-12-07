@@ -14,7 +14,13 @@ const Event = new mongoose.Schema({
 });
 
 Event.pre('save', async function() {
+  console.log('saving event ', this)
   // tabs[this.tabIndex].events.push(this._id)
-  await Tab.findByIdAndUpdate(this.tab, {$addToSet: {events: this._id}})
+  try {
+    await Tab.findByIdAndUpdate(this.tab, {$addToSet: {events: this._id}})
+    console.log('success')
+  }
+  catch(err) {console.log(err)}
 })
+
 module.exports = mongoose.model('Event', Event);

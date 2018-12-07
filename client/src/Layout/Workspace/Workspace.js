@@ -10,7 +10,7 @@ import ChatReplayer from '../../Containers/Replayer/ChatReplayer';
 import Chat from '../../Containers/Workspace/Chat';
 
 const workspaceLayout = React.memo(({
-  room, user, socket,
+  room, user, socket, currentTab,
   resetControlTimer, inControl, toggleControl, 
   replayer, activeMember, temp, 
   save, someoneElseInControl,
@@ -33,11 +33,11 @@ const workspaceLayout = React.memo(({
         <div className={classes.Top}>
           <div className={[classes.Graph, classes.Left, "graph"].join(" ")}>
             {replayer ? 
-              (room.roomType === 'geogebra' ?
+              (room.tabs[currentTab].tabType === 'geogebra' ?
                 <GgbReplayer log={replayer.log} index={replayer.index} changingIndex={replayer.changingIndex} reset={replayer.reset}/> :
                 <DesmosReplayer />
               ):   
-              (room.roomType === 'geogebra' ? 
+              (room.tabs[currentTab].tabType === 'geogebra' ? 
                 <GgbGraph 
                   room={room} 
                   socket={socket} 
@@ -50,6 +50,7 @@ const workspaceLayout = React.memo(({
                   referToCoords={referToCoords}
                   setToElAndCoords={setToElAndCoords}
                   showingReference={showingReference}
+                  currentTab={currentTab}
                 /> :
                 <DesmosGraph  room={room} socket={socket} user={user} inControl={inControl} resetControlTimer={resetControlTimer}/>
               )

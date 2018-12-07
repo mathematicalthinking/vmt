@@ -4,7 +4,6 @@ const User = require('./User');
 const Course = require('./Course');
 const Image = require('./Image');
 const Activity = require('./Activity');
-const Tab = require('./Tab');
 const Room = new mongoose.Schema({
   activity: {type: ObjectId, ref: 'Activity'},
   name: {type: String, required: true},
@@ -25,6 +24,7 @@ const Room = new mongoose.Schema({
   tempRoom: {type: Boolean, default: false},
   image: {type: String,},
   graphImage: {type: ObjectId, ref: 'Image'},
+  controlledBy: {type: ObjectId, ref: 'User', defaut: null}
 },
 {timestamps: true});
 

@@ -1,5 +1,7 @@
 const db = require('../models')
 const Room = require('../models/Room')
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Schema.Types.ObjectId;
 module.exports = {
   get: params => {
     if (params && params.constructor === Array) {
@@ -24,14 +26,15 @@ module.exports = {
   getById: id => {
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
-      // .populate({path: 'creator', select: 'username'})
+      .populate({path: 'creator', select: 'username'})
       .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .populate({path: 'members.user', select: 'username'})
       .populate({path: 'currentMembers.user', select: 'username'})
-      // .populate({path: 'course', select: 'name'})
-      .populate({path: 'tabs', populate: 'events'})
+      .populate({path: 'course', select: 'name'})
+      .populate({path: 'tabs', populate: {path: 'events'}})
       .populate({path: 'graphImage', select: 'imageData'})
       .then(room => {
+        console.log("ROOM: ",room)
         resolve(room)
       })
       .catch(err => reject(err))
@@ -52,11 +55,10 @@ module.exports = {
         })
       })
       .then(tab => {
-        createdRoom.tabs.push(tab._id)
-        createdRoom.save()
-        createdRoom
+        db.Room.findByIdAndUpdate(createdRoom._id, {$addToSet: {tabs: tab._id}}, {new: true})
         .populate({path: 'members.user', select: 'username'})
-        .populate({path: 'currentMembers.user', select: 'username'}, function(){(resolve(createdRoom))}) //Hmm why no support for promise here?
+        .populate({path: 'currentMembers.user', select: 'username'})
+        .then(room => resolve(room)) //Hmm why no support for promise here?
       })
       .catch(err => {
         // TRY TO DELETE @TODO ERROR HANDLING HERE IF FAIL DELETE BOTH FROM DB AND RETURN ERROR TO THE USER
