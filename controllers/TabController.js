@@ -19,9 +19,11 @@ module.exports = {
 
   post: (body) => {
     return new Promise((resolve, reject) => {
-      console.log('creating tab')
       db.Tab.create(body)
-      .then(tab => resolve(tab))
+      .then(tab => {
+        return db.Room.findByIdAndUpdate(body.room, {$addToSet: {tabs: tab._id}}, {new: true})
+      })
+      .then(room => resolve(tab))
       .catch(err => reject(err))
     })
   },

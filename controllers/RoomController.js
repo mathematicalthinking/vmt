@@ -34,7 +34,6 @@ module.exports = {
       .populate({path: 'tabs', populate: {path: 'events'}})
       .populate({path: 'graphImage', select: 'imageData'})
       .then(room => {
-        console.log("ROOM: ",room)
         resolve(room)
       })
       .catch(err => reject(err))

@@ -78,6 +78,14 @@ class GgbGraph extends Component {
       let position = await this.getRelativeCoords(this.props.referToEl.element)
       this.props.setToElAndCoords(null, position)
     }
+    else if (prevProps.currentTab !== this.props.currentTab) {
+      if (this.props.room.tabs[this.props.currentTab].events.length > 0) {
+        this.ggbApplet.setXML(this.props.room.tabs[this.props.currentTab].currentState)
+      }
+      else {
+        this.ggbApplet.reset()
+      }
+    }
   }
   
   updateDimensions = () => {

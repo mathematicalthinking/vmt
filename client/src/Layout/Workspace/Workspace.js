@@ -18,20 +18,21 @@ const workspaceLayout = React.memo(({
   startNewReference, showReference, 
   referencing, showingReference,setToElAndCoords,
   setFromElAndCoords, referToEl, referToCoords, referFromEl, 
-  referFromCoords, clearReference, createNewTab
+  referFromCoords, clearReference, createNewTab, changeTab,
 }) => {
   let controlText = 'Take Control';
   if (inControl) controlText = 'Release Control';
   else if (someoneElseInControl) controlText = 'Request Control';
-
-  let tabs = room.tabs.map((tab, i) => {
-    console.log("TAB: ", tab)
-    return (
-    <div onClick={this.changeTab} className={[classes.Tab, currentTab === i ? classes.Active : ''].join(" ")} style={{zIndex: parseInt(room.tabs.length - i)}} >
-      <div style={{zIndex: parseInt(room.tabs.length - i)}} className={classes.TabBox}>{tab.name}</div>
-    </div>
-    )
-  })
+  let tabs = []
+  if (room.tabs[0].name) { // This checkes if tabs have been populated yet...if they haven't they won't have a name field
+    tabs = room.tabs.map((tab, i) => {
+      return (
+      <div onClick={() => changeTab(i)} className={[classes.Tab, currentTab === i ? classes.Active : ''].join(" ")} style={{zIndex: room.tabs.length - i}} >
+        <div style={{zIndex: room.tabs.length - i}} className={classes.TabBox}>{tab.name}</div>
+      </div>
+      )
+    })
+  }
 
   return (
     <div className={classes.PageContainer}>

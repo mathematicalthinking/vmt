@@ -28,6 +28,7 @@ class Workspace extends Component {
   componentDidMount() {
     // window.addEventListener("resize", this.updateReference);
     const { updatedRoom, room, user} = this.props;
+    this.props.populateRoom(room._id)
 
     if (room.controlledBy) {
       this.setState({someoneElseInControl: true, inControl: false,})
@@ -87,6 +88,10 @@ class Workspace extends Component {
 
     }
 
+    if (this.state.currentTab !== prevState.currentTab) {
+      
+    }
+
     if (prevState.inControl && !this.state.inControl) {
       this.socket.emit('RELEASE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
         this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
@@ -123,6 +128,10 @@ class Workspace extends Component {
 
   submitNewTab = () => {
 
+  }
+
+  changeTab = (index) => {
+    this.setState({currentTab: index})
   }
 
   toggleControl = () => {
@@ -226,7 +235,8 @@ class Workspace extends Component {
     const { room, user } = this.props;
     return (
       <Aux>
-        <WorkspaceLayout
+        {/* wait for room to be populated before trying to display it */}
+        {room.tabs[0].name ?<WorkspaceLayout
           activeMember={this.state.activeMember}
           room={room}
           user={user}
@@ -251,7 +261,8 @@ class Workspace extends Component {
           setToElAndCoords={this.setToElAndCoords}
           setFromElAndCoords={this.setFromElAndCoords}
           createNewTab={this.createNewTab}
-        />
+          changeTab={this.changeTab}
+        /> : null}
         <Modal show={this.state.creatingNewTab} closeModal={this.closeModal}>
           <NewTabForm room={room} closeModal={this.closeModal} updatedRoom={this.props.updatedRoom}/>  
         </Modal>
