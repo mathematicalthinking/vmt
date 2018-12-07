@@ -8,8 +8,8 @@ const Room = new mongoose.Schema({
   activity: {type: ObjectId, ref: 'Activity'},
   name: {type: String, required: true},
   description: {type: String},
+  instructions: {type: String},
   entryCode: {type: String},
-  roomType: {type: String, enum: ['geogebra', 'desmos']},
   course: {type: ObjectId, ref: 'Course'},
   creator: {type: ObjectId, ref: 'User'},
   dueDate: {type: Date,},
@@ -19,16 +19,11 @@ const Room = new mongoose.Schema({
     role: {type: String},
     _id: false}],
   currentMembers: {type: [{user: {type: ObjectId, ref: 'User'}, socket: {type: String},  _id: false}], default: []},
-  currentState: {type: String},
-  ggbFile: {type: String,},
-  desmosLink: {type: String,},
-  events: {type: [{type: ObjectId, ref: 'Event', _id: false}], default: []},
+  tabs: {type: [{type: ObjectId, ref: 'Tab'}]},
   isPublic: {type: Boolean, default: false},
   tempRoom: {type: Boolean, default: false},
   image: {type: String,},
-  instructions: {type: String,},
   graphImage: {type: ObjectId, ref: 'Image'},
-  controlledBy: {type: ObjectId, ref: 'User', default: null}
 },
 {timestamps: true});
 

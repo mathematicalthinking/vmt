@@ -1,12 +1,15 @@
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const Tab = new mongoose.Schema({
-  tabName: {type: String},
-  description: {type: String},
-  tabType: {type: String},
-  tabFile: {},
+  name: {type: String},
+  instructions: {type: String},
+  tabType: {type: String, enum: ['geogebra', 'desmos']},
+  currentState: {type: String,},
+  ggbFile: {type: String}, // ggb base64 file
+  desmosLink: {type: String, },
+  events: {type: [{type: ObjectId, ref: 'Event', _id: false}], default: []},
   room: {type: ObjectId, ref: 'Room'},
-  eventsKey: {},
+  controlledBy: {type: ObjectId, ref: 'User', default: null}
 });
 
 module.exports = mongoose.model('Tab', Tab);
