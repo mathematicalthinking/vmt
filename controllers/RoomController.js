@@ -1,5 +1,5 @@
 const db = require('../models')
-
+const Room = require('../models/Room')
 module.exports = {
   get: params => {
     if (params && params.constructor === Array) {
@@ -27,10 +27,9 @@ module.exports = {
       // .populate({path: 'creator', select: 'username'})
       .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .populate({path: 'members.user', select: 'username'})
-      .populate({path: 'notifications.user', select: 'username'})
       .populate({path: 'currentMembers.user', select: 'username'})
       // .populate({path: 'course', select: 'name'})
-      .populate({path: 'events', select: '-room'})
+      .populate({path: 'tabs', populate: 'events'})
       .populate({path: 'graphImage', select: 'imageData'})
       .then(room => {
         resolve(room)
@@ -40,16 +39,27 @@ module.exports = {
   },
   post: body => {
     return new Promise((resolve, reject) => {
+      let createdRoom;
       db.Room.create(body)
       .then(room => {
-        if (body.course) {
-          // room.populate({path: 'course', select: 'name'})
-        }
-        room
+        createdRoom = room;
+        return db.Tab.create({
+          name: 'Tab 1',
+          room: room._id,
+          desmosLink: body.desmosLink,
+          ggbFile: body.ggbFile,
+          tabType: body.roomType,
+        })
+      })
+      .then(tab => {
+        createdRoom.tabs.push(tab._id)
+        createdRoom.save()
+        createdRoom
         .populate({path: 'members.user', select: 'username'})
-        .populate({path: 'currentMembers.user', select: 'username'}, function(){(resolve(room))}) //Hmm why no support for promise here?
+        .populate({path: 'currentMembers.user', select: 'username'}, function(){(resolve(createdRoom))}) //Hmm why no support for promise here?
       })
       .catch(err => {
+        // TRY TO DELETE @TODO ERROR HANDLING HERE IF FAIL DELETE BOTH FROM DB AND RETURN ERROR TO THE USER
         console.log(err); reject(err)
       })
     })

@@ -4,6 +4,7 @@ const User = require('./User');
 const Course = require('./Course');
 const Image = require('./Image');
 const Activity = require('./Activity');
+const Tab = require('./Tab');
 const Room = new mongoose.Schema({
   activity: {type: ObjectId, ref: 'Activity'},
   name: {type: String, required: true},
@@ -28,8 +29,7 @@ const Room = new mongoose.Schema({
 {timestamps: true});
 
 Room.pre('save', function (next) {
-  console.log('presaving')
-  if (this.isNew & !this.tempRoom) {
+  if (this.isNew && !this.tempRoom) {
     let promises = [];
     promises.push(Image.create({imageData: ''}))
     // Add the room to all of the users in this room
@@ -55,7 +55,10 @@ Room.pre('save', function (next) {
     }
     Promise.all(promises)
     .then(values => {
-      this.graphImage = values[0]._id;
+      this.tabs = [values[0]._id]
+      if (values[1]) {
+        this.graphImage = values[1]._id;
+      }
       next()
     })
     .catch(err => next(err)) //@TODO WE NEED ERROR HANDLING HERE
