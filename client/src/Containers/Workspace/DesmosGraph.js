@@ -7,18 +7,25 @@ import API from '../../utils/apiRequests'
 class DesmosGraph extends Component {
 
   state = {
-    loading: true,
+    loading: window.Desmos ? false : true,
     sendingEvent: false,
   }
 
   calculatorRef = React.createRef();
 
+  componentDidMount(){
+    if (window.Desmos) {
+      this.calculator = window.Desmos.GraphingCalculator(this.calculatorRef.current);
+      this.setState({loading: false})  
+    }
+  }
+
   onScriptLoad =  () => {
+    console.log('script loaded')
+    console.log(window.Desmos)
     this.calculator = window.Desmos.GraphingCalculator(this.calculatorRef.current);
     let { room, currentTab }= this.props
     let { tabs } = room;
-    console.log("TABS: ", tabs)
-    console.log('currentTab', tabs[currentTab])
     let {desmosLink, events} = tabs[currentTab]
     if (tabs[currentTab].events && tabs[currentTab].events.length > 0) {
       this.calculator.setState(events[events.length - 1].event)
@@ -42,6 +49,10 @@ class DesmosGraph extends Component {
       this.initializeListeners()
       this.setState({loading: false})
     }
+  }
+
+  componentWillUnmount(){
+    console.log("componentUNMOUNTING")
   }
 
   initializeListeners(){
@@ -71,10 +82,11 @@ class DesmosGraph extends Component {
   }
 
   render() {
+    console.log(window.Desmos)
     return (
       <Aux>
-        <Script url='https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6' onLoad={this.onScriptLoad} />
-        <div className={classes.Graph} style={{height: window.innerHeight - 300, width: window.innerWidth * .6}} id='calculator' ref={this.calculatorRef}></div>
+        {!window.Desmos ? <Script url='https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6' onLoad={this.onScriptLoad} />: null}
+        <div className={classes.Graph} id='calculator' ref={this.calculatorRef}></div>
         <Modal show={this.state.loading} message='Loading...'/>
       </Aux>
     )

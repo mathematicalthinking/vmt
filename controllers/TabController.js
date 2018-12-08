@@ -19,11 +19,15 @@ module.exports = {
 
   post: (body) => {
     return new Promise((resolve, reject) => {
+      let newTab;
       db.Tab.create(body)
       .then(tab => {
-        return db.Room.findByIdAndUpdate(body.room, {$addToSet: {tabs: tab._id}}, {new: true})
+        newTab = tab;
+        return db.Room.findByIdAndUpdate(body.room, {$addToSet: {tabs: tab._id}})
       })
-      .then(room => resolve(tab))
+      .then(room => {
+        resolve(newTab)
+      })
       .catch(err => reject(err))
     })
   },
