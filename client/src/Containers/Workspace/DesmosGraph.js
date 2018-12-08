@@ -15,8 +15,12 @@ class DesmosGraph extends Component {
 
   onScriptLoad =  () => {
     this.calculator = window.Desmos.GraphingCalculator(this.calculatorRef.current);
-    const { events, desmosLink } = this.props.room;
-    if (events.length > 0) {
+    let { room, currentTab }= this.props
+    let { tabs } = room;
+    console.log("TABS: ", tabs)
+    console.log('currentTab', tabs[currentTab])
+    let {desmosLink, events} = tabs[currentTab]
+    if (tabs[currentTab].events && tabs[currentTab].events.length > 0) {
       this.calculator.setState(events[events.length - 1].event)
       this.setState({loading: false})
       this.initializeListeners()

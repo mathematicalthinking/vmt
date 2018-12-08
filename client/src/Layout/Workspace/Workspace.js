@@ -63,7 +63,7 @@ const workspaceLayout = React.memo(({
                   showingReference={showingReference}
                   currentTab={currentTab}
                 /> :
-                <DesmosGraph  room={room} socket={socket} user={user} inControl={inControl} resetControlTimer={resetControlTimer}/>
+                <DesmosGraph  room={room} socket={socket} user={user} inControl={inControl} resetControlTimer={resetControlTimer} currentTab={currentTab}/>
               )
             }
           </div>
