@@ -6,7 +6,7 @@ import Script from 'react-load-script';
 import throttle from 'lodash/throttle';
 import { parseString } from 'xml2js';
 // import { eventNames } from 'cluster';
-// THINK ABOUT GETTING RID OF ALL XML PARSING...THERE ARE PROBABLY NATIVE GGB METHODS THAT CAN ACCOMPLISH EVERYTHING WE NEED
+// THINK ABOUT GETTING RID OF ALL XML PARSING...THERE ARE PROBABLY NATIVE GGB METHODS THAT CAN ACCOMPLISH EVERYTHING WE NEEDd
 const THROTTLE_FIDELITY = 60;
 class GgbGraph extends Component {
 
@@ -17,7 +17,7 @@ class GgbGraph extends Component {
     selectedElement: '',
     showControlWarning: false,
     warningPosition: {x: 0, y: 0},
-    // referencedElementPosition: {left: null, top: null}
+    switchingControl: false,
   }
   
   graph = React.createRef()
@@ -29,26 +29,30 @@ class GgbGraph extends Component {
     this.socket.on('RECEIVE_EVENT', data => {
       this.setState({receivingData: true}, () => {
         let updatedTabs = [...this.props.room.tabs]
-        let updatedTab = {...this.props.room.tabs[this.props.currentTab]}
+        let updatedTab = {...this.props.room.tabs[data.currentTab]}
         updatedTab.currentState = data.currentState;
+        console.log(updatedTab)
         updatedTabs[this.props.currentTab] = updatedTab;
         this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
-        switch (data.eventType) {
-          case 'ADD':
-          if (data.definition) {
-            this.ggbApplet.evalCommand(`${data.label}:${data.definition}`)
+        if (data.currentTab === this.props.currentTab) {
+          console.log("event coming in hapeend on the same tab")
+          switch (data.eventType) {
+            case 'ADD':
+            if (data.definition) {
+              this.ggbApplet.evalCommand(`${data.label}:${data.definition}`)
+            }
+            this.ggbApplet.evalXML(data.event)
+            this.ggbApplet.evalCommand('UpdateConstruction()')
+            break;
+            case 'REMOVE':
+            this.ggbApplet.deleteObject(data.label)
+            break;
+            case 'UPDATE':
+            this.ggbApplet.evalXML(data.event)
+            this.ggbApplet.evalCommand('UpdateConstruction()')
+            break;
+            default: break;
           }
-          this.ggbApplet.evalXML(data.event)
-          this.ggbApplet.evalCommand('UpdateConstruction()')
-          break;
-          case 'REMOVE':
-          this.ggbApplet.deleteObject(data.label)
-          break;
-          case 'UPDATE':
-          this.ggbApplet.evalXML(data.event)
-          this.ggbApplet.evalCommand('UpdateConstruction()')
-          break;
-          default: break;
         }
       })
     })
@@ -56,10 +60,13 @@ class GgbGraph extends Component {
 
   async componentDidUpdate(prevProps) {
     if (!prevProps.inControl && this.props.inControl) {
-      this.ggbApplet.showToolBar('"0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",')
-      this.ggbApplet.showMenuBar(true)
-      this.ggbApplet.setMode(0)
-      this.freezeElements(false)
+      this.setState({switchingControl: true}, () => {
+        this.ggbApplet.showToolBar('"0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",')
+        this.ggbApplet.showMenuBar(true)
+        this.ggbApplet.setMode(0)
+        this.freezeElements(false)
+        setTimeout(this.setState({switchingControl: false}), 0)
+      })
       
     }
     else if ((prevProps.inControl && !this.props.inControl )|| this.props.someoneElseInControl) {
@@ -186,11 +193,12 @@ class GgbGraph extends Component {
   }
   
   updateListener = label => {
-    if (!this.props.inControl) {
+    if (!this.props.inControl || this.props.switchingControl) {
       return
     }
     else if (!this.state.receivingData) {
       let xml = this.ggbApplet.getXML(label)
+      console.log('updated: ', label, xml)
       this.sendEvent(xml, null, label, "UPDATE", "updated")
     }
     this.setState({receivingData: false})
