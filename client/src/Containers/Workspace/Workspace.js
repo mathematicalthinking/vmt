@@ -80,17 +80,7 @@ class Workspace extends Component {
   componentDidUpdate(prevProps, prevState) {
     // When we first the load room
     if (prevProps.room.controlledBy !== this.props.room.controlledBy) {
-      console.log('switching control')
-      console.log(prevProps.room.controlledBy, this.props.room.controlledBy)
-      console.log(typeof this.props.room.controlledBy)
       this.setState({someoneElseInControl: true, inControl: false})
-    }
-    if (prevProps.room.currentMembers !== this.props.room.currentMembers) {
-
-    }
-
-    if (this.state.currentTab !== prevState.currentTab) {
-      
     }
 
     if (prevState.inControl && !this.state.inControl) {

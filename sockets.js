@@ -54,7 +54,6 @@ sockets.init = server => {
 
       socket.on('JOIN', async (data, callback) => {
         socket.user_id = data.userId; // store the user id on the socket so we can tell who comes and who goes
-        console.log(data.userId)
         let promises = [];
         let user = {_id: data.userId, username: data.username}
 

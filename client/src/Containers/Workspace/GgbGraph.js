@@ -84,8 +84,7 @@ class GgbGraph extends Component {
       this.props.setToElAndCoords(null, position)
     }
     else if (prevProps.currentTab !== this.props.currentTab) {
-      // this.props.populateRoom(this.props.room._id);
-      if (this.props.room.tabs[this.props.currentTab].events.length > 0) {
+      if (this.props.room.tabs[this.props.currentTab].currentState !== '') {
         setTimeout(this.ggbApplet.setXML(this.props.room.tabs[this.props.currentTab].currentState), 0)
       }
       else {

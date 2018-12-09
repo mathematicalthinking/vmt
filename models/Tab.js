@@ -13,9 +13,3 @@ const Tab = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Tab', Tab);
-
-Tab.pre('save', function(){
-  if (this.isNew) {
-    console.log(this._id, this.room)
-  }
-})
