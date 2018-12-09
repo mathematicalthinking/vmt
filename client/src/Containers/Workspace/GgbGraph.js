@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classes from './graph.css';
-import Aux from '../../Components/HOC/Auxil';
-import Modal from '../../Components/UI/Modal/Modal';
+import { Aux, Modal } from '../../Components';
+import INITIAL_GGB from './blankGgb';
 import Script from 'react-load-script';
 import throttle from 'lodash/throttle';
 import { parseString } from 'xml2js';
@@ -79,12 +79,14 @@ class GgbGraph extends Component {
       this.props.setToElAndCoords(null, position)
     }
     else if (prevProps.currentTab !== this.props.currentTab) {
+
       if (this.props.room.tabs[this.props.currentTab].events.length > 0) {
         this.ggbApplet.setXML(this.props.room.tabs[this.props.currentTab].currentState)
       }
       else {
-        this.ggbApplet.reset()
+        this.ggbApplet.setXML(INITIAL_GGB)
       }
+      this.registerListeners();
     }
   }
   
@@ -152,87 +154,93 @@ class GgbGraph extends Component {
     this.ggbApplet.setMode(40) // Sets the tool to zoom
     let { user, room, currentTab } = this.props;
     let { events } = room.tabs[currentTab];
-    console.log('EVENTS: ', events)
     // put the current construction on the graph, disable everything until the user takes control
     if (events.length > 0) {
       this.ggbApplet.setXML(room.tabs[currentTab].currentState)
       this.freezeElements(true)
     }
-
-    this.addListener = label => {
-      if (!this.state.receivingData) {
-        let xml = this.ggbApplet.getXML(label)
-        let definition = this.ggbApplet.getCommandString(label);
-        sendEvent(xml, definition, label, "ADD", "added");
-      }
-      this.setState({receivingData: false})
-    }
     
-    this.removeListener = label => {
-      if (!this.state.receivingData) {
-        sendEvent(null, null, label, "REMOVE", "removed")
-      }
-      this.setState({receivingData: false})
-    }
-    
-    this.updateListener = label => {
-      if (!this.props.inControl) {
-        return
-      }
-      else if (!this.state.receivingData) {
-        let xml = this.ggbApplet.getXML(label)
-        sendEvent(xml, null, label, "UPDATE", "updated")
-      }
-      this.setState({receivingData: false})
-      // this.ggbApplet.evalCommand("updateConstruction()")
-    }
-
-    // Used to capture referencing 
-    this.clickListener = async element => {
-      console.log(element)
-      // console.log("CLICKED", this.ggbApplet.getXML())
-      if (this.props.referencing) {
-        // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
-        let elementType = this.ggbApplet.getObjectType(element);
-        let position;
-        if (elementType !== 'point') {
-          let commandString = this.ggbApplet.getCommandString(element)
-          element = commandString.slice(commandString.indexOf('(') + 1, commandString.indexOf('(') + 2)
-        }
-        position = await this.getRelativeCoords(element)
-        this.props.setToElAndCoords({element, elementType: 'point'}, position)
-      }
-    }
-    
-    let sendEvent = throttle(async (xml, definition, label, eventType, action) => {
-      let xmlObj;
-      if (xml) xmlObj = await this.parseXML(xml)
-      let newData = {
-        definition,
-        label,
-        eventType,
-        room: room._id,
-        tab: room.tabs[currentTab]._id,
-        event: xml,
-        description: `${user.username} ${action} ${xmlObj && xmlObj.element ? xmlObj.element.$.type : ''} ${label}`,
-        user: {_id: user._id, username: user.username},
-        timestamp: new Date().getTime(),
-        currentState: this.ggbApplet.getXML(),
-        mode: this.ggbApplet.getMode(),
-      }
-      this.socket.emit('SEND_EVENT', newData)
-      this.props.resetControlTimer()
-    }, THROTTLE_FIDELITY)
-
     // attach this listeners to the ggbApplet
-    if (this.ggbApplet.listeners.length === 0) {
-      this.ggbApplet.registerAddListener(this.addListener);
-      this.ggbApplet.registerClickListener(this.clickListener);
-      this.ggbApplet.registerUpdateListener(this.updateListener);
-      this.ggbApplet.registerRemoveListener(this.removeListener);
-    }
+    this.registerListeners()
     
   }
+
+  addListener = label => {
+    if (!this.state.receivingData) {
+      let xml = this.ggbApplet.getXML(label)
+      let definition = this.ggbApplet.getCommandString(label);
+      this.sendEvent(xml, definition, label, "ADD", "added");
+    }
+    this.setState({receivingData: false})
+  }
+  
+  removeListener = label => {
+    if (!this.state.receivingData) {
+      this.sendEvent(null, null, label, "REMOVE", "removed")
+    }
+    this.setState({receivingData: false})
+  }
+  
+  updateListener = label => {
+    if (!this.props.inControl) {
+      return
+    }
+    else if (!this.state.receivingData) {
+      let xml = this.ggbApplet.getXML(label)
+      this.sendEvent(xml, null, label, "UPDATE", "updated")
+    }
+    this.setState({receivingData: false})
+    // this.ggbApplet.evalCommand("updateConstruction()")
+  }
+
+  // Used to capture referencing 
+  clickListener = async element => {
+    // console.log("CLICKED", this.ggbApplet.getXML())
+    if (this.props.referencing) {
+      // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
+      let elementType = this.ggbApplet.getObjectType(element);
+      let position;
+      if (elementType !== 'point') {
+        let commandString = this.ggbApplet.getCommandString(element)
+        element = commandString.slice(commandString.indexOf('(') + 1, commandString.indexOf('(') + 2)
+      }
+      position = await this.getRelativeCoords(element)
+      this.props.setToElAndCoords({element, elementType: 'point'}, position)
+    }
+  }
+
+  registerListeners() {
+    if (this.ggbApplet.listeners.length === 0) {
+      this.ggbApplet.unregisterAddListener(this.addListener);
+      this.ggbApplet.unregisterUpdateListener(this.updateListener);
+      this.ggbApplet.unregisterRemoveListener(this.eventListener);
+      this.ggbApplet.unregisterClearListener(this.clearListener);
+    }
+    this.ggbApplet.registerAddListener(this.addListener);
+    this.ggbApplet.registerClickListener(this.clickListener);
+    this.ggbApplet.registerUpdateListener(this.updateListener);
+    this.ggbApplet.registerRemoveListener(this.removeListener);
+  }
+
+  sendEvent = throttle(async (xml, definition, label, eventType, action) => {
+    let xmlObj;
+    if (xml) xmlObj = await this.parseXML(xml)
+    let newData = {
+      definition,
+      label,
+      eventType,
+      room: this.props.room._id,
+      tab: this.props.room.tabs[this.props.currentTab]._id,
+      event: xml,
+      description: `${this.props.user.username} ${action} ${xmlObj && xmlObj.element ? xmlObj.element.$.type : ''} ${label}`,
+      user: {_id: this.props.user._id, username: this.props.user.username},
+      timestamp: new Date().getTime(),
+      currentState: this.ggbApplet.getXML(),
+      mode: this.ggbApplet.getMode(),
+    }
+    this.socket.emit('SEND_EVENT', newData)
+    this.props.resetControlTimer()
+  }, THROTTLE_FIDELITY)
   
   parseXML = (xml) => {
     return new Promise((resolve, reject) => {
