@@ -19,6 +19,7 @@ const workspaceLayout = React.memo(({
   referencing, showingReference,setToElAndCoords,
   setFromElAndCoords, referToEl, referToCoords, referFromEl, 
   referFromCoords, clearReference, createNewTab, changeTab,
+  // populateRoom,
 }) => {
   let controlText = 'Take Control';
   if (inControl) controlText = 'Release Control';
@@ -54,6 +55,7 @@ const workspaceLayout = React.memo(({
                   socket={socket} 
                   user={user} 
                   updateRoom={updateRoom} 
+                  updatedRoom={updatedRoom}
                   inControl={inControl} 
                   resetControlTimer={resetControlTimer} 
                   referencing={referencing}
@@ -62,6 +64,7 @@ const workspaceLayout = React.memo(({
                   setToElAndCoords={setToElAndCoords}
                   showingReference={showingReference}
                   currentTab={currentTab}
+                  // populateRoom={populateRoom}
                 /> :
                 <DesmosGraph  room={room} socket={socket} user={user} inControl={inControl} resetControlTimer={resetControlTimer} currentTab={currentTab}/>
               )

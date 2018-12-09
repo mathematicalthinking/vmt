@@ -18,6 +18,7 @@ class NewTabForm extends Component {
   }
 
   submit = () => {
+
     API.post('tabs', {
       name: this.state.name,
       instructions: this.state.instructions,

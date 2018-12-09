@@ -55,9 +55,8 @@ Room.pre('save', function (next) {
     }
     Promise.all(promises)
     .then(values => {
-      this.tabs = [values[0]._id]
-      if (values[1]) {
-        this.graphImage = values[1]._id;
+      if (values[0]) {
+        this.graphImage = values[0]._id;
       }
       next()
     })

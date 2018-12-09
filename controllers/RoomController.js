@@ -54,6 +54,7 @@ module.exports = {
         })
       })
       .then(tab => {
+        console.log('created a tab while making a room')
         db.Room.findByIdAndUpdate(createdRoom._id, {$addToSet: {tabs: tab._id}}, {new: true})
         .populate({path: 'members.user', select: 'username'})
         .populate({path: 'currentMembers.user', select: 'username'})

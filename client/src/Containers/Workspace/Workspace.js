@@ -58,7 +58,6 @@ class Workspace extends Component {
     })
     
     this.socket.on('USER_LEFT', data => {
-      console.log(data)
       if (data.releasedControl) {
         this.setState({someoneElseInControl: false})
       }
@@ -71,7 +70,6 @@ class Workspace extends Component {
     })
 
     this.socket.on('RELEASED_CONTROL', message => {
-      console.log('released control')
       this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
       this.setState({activeMember: '', someoneElseInControl: false})
     })
@@ -82,6 +80,9 @@ class Workspace extends Component {
   componentDidUpdate(prevProps, prevState) {
     // When we first the load room
     if (prevProps.room.controlledBy !== this.props.room.controlledBy) {
+      console.log('switching control')
+      console.log(prevProps.room.controlledBy, this.props.room.controlledBy)
+      console.log(typeof this.props.room.controlledBy)
       this.setState({someoneElseInControl: true, inControl: false})
     }
     if (prevProps.room.currentMembers !== this.props.room.currentMembers) {
@@ -118,7 +119,6 @@ class Workspace extends Component {
   }
 
   createNewTab = () => {
-    console.log('creating new tab')
     this.setState({creatingNewTab: true})
   }
 
@@ -262,6 +262,7 @@ class Workspace extends Component {
           setFromElAndCoords={this.setFromElAndCoords}
           createNewTab={this.createNewTab}
           changeTab={this.changeTab}
+          // populateRoom={this.props.populateRoom}
         /> : null}
         <Modal show={this.state.creatingNewTab} closeModal={this.closeModal}>
           <NewTabForm room={room} closeModal={this.closeModal} updatedRoom={this.props.updatedRoom}/>  

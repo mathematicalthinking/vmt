@@ -28,6 +28,11 @@ class GgbGraph extends Component {
     window.addEventListener("resize", this.updateDimensions);
     this.socket.on('RECEIVE_EVENT', data => {
       this.setState({receivingData: true}, () => {
+        let updatedTabs = [...this.props.room.tabs]
+        let updatedTab = {...this.props.room.tabs[this.props.currentTab]}
+        updatedTab.currentState = data.currentState;
+        updatedTabs[this.props.currentTab] = updatedTab;
+        this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
         switch (data.eventType) {
           case 'ADD':
           if (data.definition) {
@@ -79,12 +84,12 @@ class GgbGraph extends Component {
       this.props.setToElAndCoords(null, position)
     }
     else if (prevProps.currentTab !== this.props.currentTab) {
-
+      // this.props.populateRoom(this.props.room._id);
       if (this.props.room.tabs[this.props.currentTab].events.length > 0) {
-        this.ggbApplet.setXML(this.props.room.tabs[this.props.currentTab].currentState)
+        setTimeout(this.ggbApplet.setXML(this.props.room.tabs[this.props.currentTab].currentState), 0)
       }
       else {
-        this.ggbApplet.setXML(INITIAL_GGB)
+        setTimeout(this.ggbApplet.setXML(INITIAL_GGB), 0)
       }
       this.registerListeners();
     }
@@ -238,6 +243,11 @@ class GgbGraph extends Component {
       currentState: this.ggbApplet.getXML(),
       mode: this.ggbApplet.getMode(),
     }
+    let updatedTabs = [...this.props.room.tabs]
+    let updatedTab = {...this.props.room.tabs[this.props.currentTab]}
+    updatedTab.currentState = newData.currentState;
+    updatedTabs[this.props.currentTab] = updatedTab;
+    this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
     this.socket.emit('SEND_EVENT', newData)
     this.props.resetControlTimer()
   }, THROTTLE_FIDELITY)

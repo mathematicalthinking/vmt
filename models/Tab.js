@@ -4,7 +4,7 @@ const Tab = new mongoose.Schema({
   name: {type: String},
   instructions: {type: String},
   tabType: {type: String, enum: ['geogebra', 'desmos']},
-  currentState: {type: String,},
+  currentState: {type: String, default: ''},
   ggbFile: {type: String}, // ggb base64 file
   desmosLink: {type: String, },
   events: {type: [{type: ObjectId, ref: 'Event', _id: false}], default: []},
@@ -13,3 +13,9 @@ const Tab = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Tab', Tab);
+
+Tab.pre('save', function(){
+  if (this.isNew) {
+    console.log(this._id, this.room)
+  }
+})
