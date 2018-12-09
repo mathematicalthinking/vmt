@@ -96,6 +96,7 @@ const workspaceLayout = React.memo(({
                   showingReference={showingReference}
                   clearReference={clearReference}
                   showReference={showReference}
+                  currentTab={currentTab}
                 />
               }
             </div>

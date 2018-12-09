@@ -63,6 +63,7 @@ class Chat extends Component {
     }
     if (this.props.referencing) { 
       newMessage.reference = {...this.props.referToEl}
+      newMessage.tab = this.props.currentTab
       this.props.clearReference()
     }
     this.props.socket.emit('SEND_MESSAGE', newMessage, (res, err) => {

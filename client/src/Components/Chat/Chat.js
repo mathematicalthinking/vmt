@@ -93,7 +93,7 @@ class Chat extends Component {
     // window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
   }
 
-  showReference = (event, reference) => {
+  showReference = (event, reference, tab) => {
     // If we're already showing this reference clear the reference
     if (this.props.showReference && this.props.referToEl && (reference.element === this.props.referToEl.element)) {
       this.props.clearReference()
@@ -109,7 +109,7 @@ class Chat extends Component {
         toCoords  = this.getRelativeCoords(this[`message-${reference.element}`].current)
 
       }
-      this.props.showReference(reference, toCoords, event.currentTarget.id, fromCoords)
+      this.props.showReference(reference, toCoords, event.currentTarget.id, fromCoords, tab)
     }
   }
 
@@ -185,7 +185,7 @@ class Chat extends Component {
             onClick={
               !replayer ? 
                 referencing ? (event) => this.referToMessage(event, i) :  
-                message.reference ? (event) => this.showReference(event, message.reference) : null
+                message.reference ? (event) => this.showReference(event, message.reference, message.tab) : null
               : this.display_temporary_error 
             }
             style={{cursor: message.reference || this.props.referencing ? 'pointer' : 'auto'}}

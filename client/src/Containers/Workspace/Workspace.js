@@ -121,7 +121,8 @@ class Workspace extends Component {
   }
 
   changeTab = (index) => {
-    this.setState({currentTab: index})
+    this.clearReference()
+    this.setState({currentTab: index,})
   }
 
   toggleControl = () => {
@@ -170,14 +171,19 @@ class Workspace extends Component {
     })
   }
   
-  showReference = (referToEl, referToCoords, referFromEl, referFromCoords) => {
-    this.setState({
-      referToEl,
-      referFromEl,
-      referToCoords,
-      referFromCoords,
-      showingReference: true, 
-    })
+  showReference = (referToEl, referToCoords, referFromEl, referFromCoords, tab) => {
+    if (tab !== this.state.currentTab) {
+      alert('This reference does not belong to this tab') //@TODO HOW SHOULD WE HANDLE THIS?
+    }
+    else {
+      this.setState({
+        referToEl,
+        referFromEl,
+        referToCoords,
+        referFromCoords,
+        showingReference: true, 
+      })
+    }
     // get coords of referenced element,
   }
   
