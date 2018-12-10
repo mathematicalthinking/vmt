@@ -31,7 +31,7 @@ const summary = React.memo(({room, populateRoom, history, loading}) => {
         </div>
       </div>
       <div className={classes.Buttons}>
-        <span className={classes.Button}><Button theme={loading ? 'SmallCancel' : 'Small'} m={5} click={!loading ? goToWorkspace : () => null}>Join</Button></span>
+        <span className={classes.Button}><Button theme={loading ? 'SmallCancel' : 'Small'} m={5} click={!loading ? goToWorkspace : () => null}>Enter</Button></span>
         <span className={classes.Button}><Button theme={(loading) ? 'SmallCancel' : 'Small'} m={5} click={!loading ? goToReplayer : () => null}>Replayer</Button></span>
       </div>
       <div className={classes.Section}>

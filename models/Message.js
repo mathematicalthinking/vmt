@@ -17,26 +17,33 @@ const Message = new mongoose.Schema({
 // Add this message to the room's chat
 // @TODO for some reason I can't get $push to work
 Message.pre('save', async function() {
-  if (this.messageType === 'TOOK_CONTROL') {
-    try {
-      await Room.findByIdAndUpdate(this.room, {controlledBy: this.user._id, $addToSet: {chat: this._id}})
-    }
-    catch(err) {
-      console.log("ERROR: ", err)
-    }
-  }
-  else if (this.messageType === 'LEFT_ROOM') {
-    try {
-      let room = await Room.findById(this.room)
-      if (room.controlledBy === this.user._id) {
-        room.controlledBy = null;
-        room.save()
+  if (this.isNew) {
+    if (this.messageType === 'TOOK_CONTROL') {
+      try {
+        await Room.findByIdAndUpdate(this.room, {controlledBy: this.user._id, $addToSet: {chat: this._id}})
+      }
+      catch(err) {
+        console.log("ERROR: ", err)
       }
     }
-    catch(err) {
-      console.log(err)
+    else if (this.messageType === 'LEFT_ROOM' || this.messageType === 'RELEASED_CONTROL') {
+      try {
+        await Room.findByIdAndUpdate(this.room, {controlledBy: null, $addToSet: {chat: this._id}})
+        
+      }
+      catch(err) {
+        console.log(err)
+      }   
     }
-    
+    else {
+      console.log('adding message ', this._id, ' to chat')
+      try {
+        await Room.findByIdAndUpdate(this.room, {$addToSet: {chat: this._id}})
+      }
+      catch(err) {
+        console.log(err)
+      }
+    }
   }
 })
 module.exports = mongoose.model('Message', Message);
