@@ -27,7 +27,6 @@ class GgbGraph extends Component {
     // window.addEventListener('click', this.clickListener)
     window.addEventListener("resize", this.updateDimensions);
     this.socket.on('RECEIVE_EVENT', data => {
-      console.log("DATA: ", data)
       let updatedTabs = this.props.room.tabs.map(tab => {
         if (tab._id === data.tab) {
           tab.currentState = data.currentState

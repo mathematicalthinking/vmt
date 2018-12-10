@@ -13,7 +13,7 @@ export const gotRooms = (rooms) => ({
 })
 
 export const updatedRoom = (roomId, body) => {
-  console.log('updating room action: ', body)
+  console.log('updating room action: ', roomId, body)
   return {
     type: actionTypes.UPDATED_ROOM,
     roomId,
