@@ -21,6 +21,7 @@ class Workspace extends Component {
     currentTab: 0,
     role: 'participant',
     creatingNewTab: false,
+    activityOnOtherTabs: [],
   }
 
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
@@ -125,13 +126,12 @@ class Workspace extends Component {
       tab: {_id: this.props.room.tabs[index]._id, name: this.props.room.tabs[index].name},
       room: this.props.room._id,
     }
+    this.setState({currentTab: index,})
     this.socket.emit('SWITCH_TAB', data, (res, err) => {
       if (err) {
         return console.log('something went wrong on the socket')
       }
-      console.log(res.message)
       this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, res.message]})
-      // this.setState({currentTab: index,})
     })
   }
 
@@ -237,6 +237,14 @@ class Workspace extends Component {
     }
   }
 
+  addNtfToTabs = (id) => {
+    this.setState({activityOnOtherTabs: [...this.state.activityOnOtherTabs, id]})
+  }
+
+  clearTabNtf = (id) => {
+    this.setState({activityOnOtherTabs: this.state.activityOnOtherTabs.filter(tab => tab !== id)})
+  }
+
   render() {
     const { room, user } = this.props;
     return (
@@ -268,6 +276,8 @@ class Workspace extends Component {
           setFromElAndCoords={this.setFromElAndCoords}
           createNewTab={this.createNewTab}
           changeTab={this.changeTab}
+          addNtfToTabs={this.addNtfToTabs}
+          ntfTabs={this.state.activityOnOtherTabs}
           // populateRoom={this.props.populateRoom}
         /> : null}
         <Modal show={this.state.creatingNewTab} closeModal={this.closeModal}>

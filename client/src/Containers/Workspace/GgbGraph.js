@@ -35,6 +35,7 @@ class GgbGraph extends Component {
       })
       this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
       this.setState({receivingData: true}, () => {
+        // If this happend on the current tab
         if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
           switch (data.eventType) {
             case 'ADD':
@@ -53,6 +54,10 @@ class GgbGraph extends Component {
               break;
             default: break;
           }
+        }
+        // show a notificaiton if its on a different tab
+        else {
+          this.props.addNtfToTabs(data.tab)
         }
       })
     })

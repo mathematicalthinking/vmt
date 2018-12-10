@@ -20,7 +20,6 @@ class Chat extends Component {
     })
     if (!this.props.replaying) {
       this.props.socket.on('RECEIVE_MESSAGE', data => {
-        console.log('data: ', data)
         this.props.updatedRoom(this.props.roomId, {chat: [...this.props.messages, data]})
         // this.scrollToBottom() 
       });
