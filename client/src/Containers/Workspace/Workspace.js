@@ -79,10 +79,8 @@ class Workspace extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log('component updated', prevProps, this.props.room)
     // When we first the load room
     if (prevProps.room.controlledBy !== this.props.room.controlledBy) {
-      console.log('workspace update controlled by')
       this.setState({someoneElseInControl: true, inControl: false})
     }
 
@@ -126,13 +124,14 @@ class Workspace extends Component {
       tab: {_id: this.props.room.tabs[index]._id, name: this.props.room.tabs[index].name},
       room: this.props.room._id,
     }
-    this.setState({currentTab: index,})
     this.socket.emit('SWITCH_TAB', data, (res, err) => {
       if (err) {
         return console.log('something went wrong on the socket')
       }
       this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, res.message]})
     })
+    let updatedTabs = this.state.activityOnOtherTabs.filter(tab => tab !== this.props.room.tabs[index]._id)
+    this.setState({currentTab: index, activityOnOtherTabs: updatedTabs})
   }
 
   toggleControl = () => {
@@ -289,7 +288,6 @@ class Workspace extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  console.log('mapping state to props')
   return {
     room: state.rooms.byId[ownProps.match.params.room_id],
     user: state.user,
