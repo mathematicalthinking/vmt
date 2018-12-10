@@ -180,16 +180,16 @@ class Room extends Component {
   }
 }
 
-const mapStateToProps = (store, ownProps) => {
+const mapStateToProps = (state, ownProps) => {
   let { room_id } = ownProps.match.params;
   return {
-    room: store.rooms.byId[room_id],
-    course: store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course] : null,
+    room: state.rooms.byId[room_id],
+    course: state.rooms.byId[room_id] && state.rooms.byId[room_id].course ? state.courses.byId[state.rooms.byId[room_id].course] : null,
     // courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
-    user: store.user,
-    accessNotifications: store.user.roomNotifications.access, // this seems redundant
-    loading: store.loading.loading,
-    error: store.loading.errorMessage,
+    user: state.user,
+    accessNotifications: state.user.roomNotifications.access, // this seems redundant
+    loading: state.loading.loading,
+    error: state.loading.errorMessage,
   }
 }
 
