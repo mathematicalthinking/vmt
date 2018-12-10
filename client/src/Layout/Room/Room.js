@@ -7,14 +7,11 @@ const summary = React.memo(({room, populateRoom, history, loading}) => {
   const goToWorkspace = () => {
     history.push(`/myVMT/workspace/${room._id}`);
   }
+  
   const goToReplayer = () => {
-    if (room.tabs[0].events.length > 0) {
-      history.push(`/myVMT/workspace/${room._id}/replayer`)
-    } else {
-
-      // SOME SORT OF ERROR MESSAGE
-    }
+    history.push(`/myVMT/workspace/${room._id}/replayer`)
   }
+
   return (
     <div className={classes.Container}>
       {/*  Make sure we have all of the room info before letting the user enter */}

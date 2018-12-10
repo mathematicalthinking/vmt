@@ -24,17 +24,24 @@ class Replayer extends Component {
 
 
   componentDidMount() {
-    this.props.populateRoom(this.props.room._id)
+    console.log('room on mount: ', this.props.room)
+    this.props.populateRoom(this.props.match.params.room_id)
   }
 
 
   componentDidUpdate(prevProps, prevState){
-    if (prevProps.room.tabs[0].events !== this.props.room.tabs[0].events) {
+    if (prevProps.loading && !this.props.loading) {
+      console.log('room on update', this.props.room)
       console.log('weve populated the room');
       console.log(prevProps, this.props)
-      this.log = this.props.room.tabs[0].events
+      this.log = this.props.room.tabs
+        .reduce((acc, tab) => {
+          return acc.concat(tab.events)
+        }, [])
+      this.log = this.log
         .concat(this.props.room.chat)
         .sort((a, b) => a.timestamp - b.timestamp);
+      console.log("THIS.LOG:", this.log)
       this.endTime = moment
         .unix(this.log[this.log.length - 1].timestamp / 1000)
         .format('MM/DD/YYYY h:mm:ss A');
