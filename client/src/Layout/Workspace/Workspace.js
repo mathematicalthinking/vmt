@@ -10,7 +10,7 @@ import ChatReplayer from '../../Containers/Replayer/ChatReplayer';
 import Chat from '../../Containers/Workspace/Chat';
 
 const workspaceLayout = React.memo(({
-  room, user, socket,
+  room, user, socket, currentTab, role,
   resetControlTimer, inControl, toggleControl, 
   replayer, activeMember, temp, 
   save, someoneElseInControl,
@@ -18,31 +18,44 @@ const workspaceLayout = React.memo(({
   startNewReference, showReference, 
   referencing, showingReference,setToElAndCoords,
   setFromElAndCoords, referToEl, referToCoords, referFromEl, 
-  referFromCoords, clearReference, 
+  referFromCoords, clearReference, createNewTab, changeTab,
+  // populateRoom,
 }) => {
   let controlText = 'Take Control';
   if (inControl) controlText = 'Release Control';
   else if (someoneElseInControl) controlText = 'Request Control';
+  let tabs = []
+  if (room.tabs[0].name) { // This checkes if tabs have been populated yet...if they haven't they won't have a name field
+    tabs = room.tabs.map((tab, i) => {
+      return (
+      <div onClick={() => changeTab(i)} className={[classes.Tab, currentTab === i ? classes.Active : ''].join(" ")} style={{zIndex: room.tabs.length - i}} >
+        <div style={{zIndex: room.tabs.length - i}} className={classes.TabBox}>{tab.name}</div>
+      </div>
+      )
+    })
+  }
+
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container}>
         <div className={classes.WorkspaceTabs}>
-          <div className={[classes.Tab, classes.Active].join(" ")}><div className={classes.TabBox}>Tab 1</div></div>
-          <div className={classes.Tab}><div className={classes.TabBox}><i className="fas fa-plus"></i></div></div>
+          {tabs}
+          {role === 'facilitator' ? <div className={[classes.Tab, classes.NewTab].join(' ')}><div onClick={createNewTab}  className={classes.TabBox}><i className="fas fa-plus"></i></div></div> : null}
         </div>
         <div className={classes.Top}>
           <div className={[classes.Graph, classes.Left, "graph"].join(" ")}>
             {replayer ? 
-              (room.roomType === 'geogebra' ?
+              (room.tabs[currentTab].tabType === 'geogebra' ?
                 <GgbReplayer log={replayer.log} index={replayer.index} changingIndex={replayer.changingIndex} reset={replayer.reset}/> :
                 <DesmosReplayer />
               ):   
-              (room.roomType === 'geogebra' ? 
+              (room.tabs[currentTab].tabType === 'geogebra' ? 
                 <GgbGraph 
                   room={room} 
                   socket={socket} 
                   user={user} 
                   updateRoom={updateRoom} 
+                  updatedRoom={updatedRoom}
                   inControl={inControl} 
                   resetControlTimer={resetControlTimer} 
                   referencing={referencing}
@@ -50,8 +63,10 @@ const workspaceLayout = React.memo(({
                   referToCoords={referToCoords}
                   setToElAndCoords={setToElAndCoords}
                   showingReference={showingReference}
+                  currentTab={currentTab}
+                  // populateRoom={populateRoom}
                 /> :
-                <DesmosGraph  room={room} socket={socket} user={user} inControl={inControl} resetControlTimer={resetControlTimer}/>
+                <DesmosGraph  room={room} socket={socket} user={user} inControl={inControl} resetControlTimer={resetControlTimer} currentTab={currentTab}/>
               )
             }
           </div>
@@ -81,6 +96,7 @@ const workspaceLayout = React.memo(({
                   showingReference={showingReference}
                   clearReference={clearReference}
                   showReference={showReference}
+                  currentTab={currentTab}
                 />
               }
             </div>

@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import classes from './graph.css';
-import Aux from '../../Components/HOC/Auxil';
-import Modal from '../../Components/UI/Modal/Modal';
+import { Aux, Modal } from '../../Components';
+import INITIAL_GGB from './blankGgb';
 import Script from 'react-load-script';
 import throttle from 'lodash/throttle';
 import { parseString } from 'xml2js';
 // import { eventNames } from 'cluster';
-// THINK ABOUT GETTING RID OF ALL XML PARSING...THERE ARE PROBABLY NATIVE GGB METHODS THAT CAN ACCOMPLISH EVERYTHING WE NEED
+// THINK ABOUT GETTING RID OF ALL XML PARSING...THERE ARE PROBABLY NATIVE GGB METHODS THAT CAN ACCOMPLISH EVERYTHING WE NEEDd
 const THROTTLE_FIDELITY = 60;
 class GgbGraph extends Component {
 
@@ -17,7 +17,7 @@ class GgbGraph extends Component {
     selectedElement: '',
     showControlWarning: false,
     warningPosition: {x: 0, y: 0},
-    // referencedElementPosition: {left: null, top: null}
+    switchingControl: false,
   }
   
   graph = React.createRef()
@@ -27,23 +27,33 @@ class GgbGraph extends Component {
     // window.addEventListener('click', this.clickListener)
     window.addEventListener("resize", this.updateDimensions);
     this.socket.on('RECEIVE_EVENT', data => {
+      console.log("DATA: ", data)
+      let updatedTabs = this.props.room.tabs.map(tab => {
+        if (tab._id === data.tab) {
+          tab.currentState = data.currentState
+        }
+        return tab;
+      })
+      this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
       this.setState({receivingData: true}, () => {
-        switch (data.eventType) {
-          case 'ADD':
-          if (data.definition) {
-            this.ggbApplet.evalCommand(`${data.label}:${data.definition}`)
+        if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
+          switch (data.eventType) {
+            case 'ADD':
+              if (data.definition) {
+                this.ggbApplet.evalCommand(`${data.label}:${data.definition}`)
+              }
+              this.ggbApplet.evalXML(data.event)
+              this.ggbApplet.evalCommand('UpdateConstruction()')
+              break;
+            case 'REMOVE':
+              this.ggbApplet.deleteObject(data.label)
+              break;
+            case 'UPDATE':
+              this.ggbApplet.evalXML(data.event)
+              this.ggbApplet.evalCommand('UpdateConstruction()')
+              break;
+            default: break;
           }
-          this.ggbApplet.evalXML(data.event)
-          this.ggbApplet.evalCommand('UpdateConstruction()')
-          break;
-          case 'REMOVE':
-          this.ggbApplet.deleteObject(data.label)
-          break;
-          case 'UPDATE':
-          this.ggbApplet.evalXML(data.event)
-          this.ggbApplet.evalCommand('UpdateConstruction()')
-          break;
-          default: break;
         }
       })
     })
@@ -51,10 +61,15 @@ class GgbGraph extends Component {
 
   async componentDidUpdate(prevProps) {
     if (!prevProps.inControl && this.props.inControl) {
-      this.ggbApplet.showToolBar('"0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",')
-      this.ggbApplet.showMenuBar(true)
-      this.ggbApplet.setMode(0)
-      this.freezeElements(false)
+      this.setState({switchingControl: true}, () => {
+        this.ggbApplet.setMode(0)
+        this.ggbApplet.showToolBar('"0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",')
+        this.ggbApplet.showMenuBar(true)
+        this.freezeElements(false)
+        setTimeout(() => {
+          this.setState({switchingControl: false})
+        }, 0)
+      })
       
     }
     else if ((prevProps.inControl && !this.props.inControl )|| this.props.someoneElseInControl) {
@@ -78,6 +93,15 @@ class GgbGraph extends Component {
       let position = await this.getRelativeCoords(this.props.referToEl.element)
       this.props.setToElAndCoords(null, position)
     }
+    else if (prevProps.currentTab !== this.props.currentTab) {
+      if (this.props.room.tabs[this.props.currentTab].currentState !== '') {
+        setTimeout(this.ggbApplet.setXML(this.props.room.tabs[this.props.currentTab].currentState), 0)
+      }
+      else {
+        setTimeout(this.ggbApplet.setXML(INITIAL_GGB), 0)
+      }
+      this.registerListeners();
+    }
   }
   
   updateDimensions = () => {
@@ -91,7 +115,6 @@ class GgbGraph extends Component {
         // window.ggbApplet.evalCommand('UpdateConstruction()')
         if (this.props.showingReference || (this.props.referencing && this.props.referToEl.elmentType !== 'chat_message')) {
           let { element } = this.props.referToEl;
-          console.log(element)
           let position = await this.getRelativeCoords(element)
           this.props.setToElAndCoords(null, position)
         }
@@ -142,87 +165,100 @@ class GgbGraph extends Component {
     this.ggbApplet = window.ggbApplet;
     this.setState({loading: false})
     this.ggbApplet.setMode(40) // Sets the tool to zoom
-    let { user, room } = this.props;
-    let { events } = room;
+    let { user, room, currentTab } = this.props;
+    let { events } = room.tabs[currentTab];
     // put the current construction on the graph, disable everything until the user takes control
     if (events.length > 0) {
-      this.ggbApplet.setXML(room.currentState)
+      this.ggbApplet.setXML(room.tabs[currentTab].currentState)
       this.freezeElements(true)
     }
-
-    this.addListener = label => {
-      if (!this.state.receivingData) {
-        let xml = this.ggbApplet.getXML(label)
-        let definition = this.ggbApplet.getCommandString(label);
-        sendEvent(xml, definition, label, "ADD", "added");
-      }
-      this.setState({receivingData: false})
-    }
     
-    this.removeListener = label => {
-      if (!this.state.receivingData) {
-        sendEvent(null, null, label, "REMOVE", "removed")
-      }
-      this.setState({receivingData: false})
-    }
-    
-    this.updateListener = label => {
-      if (!this.props.inControl) {
-        return
-      }
-      else if (!this.state.receivingData) {
-        let xml = this.ggbApplet.getXML(label)
-        sendEvent(xml, null, label, "UPDATE", "updated")
-      }
-      this.setState({receivingData: false})
-      // this.ggbApplet.evalCommand("updateConstruction()")
-    }
-
-    // Used to capture referencing 
-    this.clickListener = async element => {
-      console.log(element)
-      // console.log("CLICKED", this.ggbApplet.getXML())
-      if (this.props.referencing) {
-        // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
-        let elementType = this.ggbApplet.getObjectType(element);
-        let position;
-        if (elementType !== 'point') {
-          let commandString = this.ggbApplet.getCommandString(element)
-          element = commandString.slice(commandString.indexOf('(') + 1, commandString.indexOf('(') + 2)
-        }
-        position = await this.getRelativeCoords(element)
-        this.props.setToElAndCoords({element, elementType: 'point'}, position)
-      }
-    }
-    
-    let sendEvent = throttle(async (xml, definition, label, eventType, action) => {
-      let xmlObj;
-      if (xml) xmlObj = await this.parseXML(xml)
-      let newData = {
-        definition,
-        label,
-        eventType,
-        room: room._id,
-        event: xml,
-        description: `${user.username} ${action} ${xmlObj && xmlObj.element ? xmlObj.element.$.type : ''} ${label}`,
-        user: {_id: user._id, username: user.username},
-        timestamp: new Date().getTime(),
-        currentState: this.ggbApplet.getXML(),
-        mode: this.ggbApplet.getMode(),
-      }
-      this.socket.emit('SEND_EVENT', newData)
-      this.props.resetControlTimer()
-    }, THROTTLE_FIDELITY)
-
     // attach this listeners to the ggbApplet
-    if (this.ggbApplet.listeners.length === 0) {
-      this.ggbApplet.registerAddListener(this.addListener);
-      this.ggbApplet.registerClickListener(this.clickListener);
-      this.ggbApplet.registerUpdateListener(this.updateListener);
-      this.ggbApplet.registerRemoveListener(this.removeListener);
-    }
+    this.registerListeners()
     
   }
+
+  addListener = label => {
+    if (!this.state.receivingData) {
+      let xml = this.ggbApplet.getXML(label)
+      let definition = this.ggbApplet.getCommandString(label);
+      this.sendEvent(xml, definition, label, "ADD", "added");
+    }
+    this.setState({receivingData: false})
+  }
+  
+  removeListener = label => {
+    if (!this.state.receivingData) {
+      this.sendEvent(null, null, label, "REMOVE", "removed")
+    }
+    this.setState({receivingData: false})
+  }
+  
+  updateListener = label => {
+    if (!this.props.inControl || this.state.switchingControl) {
+      return
+    }
+    else if (!this.state.receivingData) {
+      let xml = this.ggbApplet.getXML(label)
+      this.sendEvent(xml, null, label, "UPDATE", "updated")
+    }
+    this.setState({receivingData: false})
+    // this.ggbApplet.evalCommand("updateConstruction()")
+  }
+
+  // Used to capture referencing 
+  clickListener = async element => {
+    // console.log("CLICKED", this.ggbApplet.getXML())
+    if (this.props.referencing) {
+      // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
+      let elementType = this.ggbApplet.getObjectType(element);
+      let position;
+      if (elementType !== 'point') {
+        let commandString = this.ggbApplet.getCommandString(element)
+        element = commandString.slice(commandString.indexOf('(') + 1, commandString.indexOf('(') + 2)
+      }
+      position = await this.getRelativeCoords(element)
+      this.props.setToElAndCoords({element, elementType: 'point'}, position)
+    }
+  }
+
+  registerListeners() {
+    if (this.ggbApplet.listeners.length === 0) {
+      this.ggbApplet.unregisterAddListener(this.addListener);
+      this.ggbApplet.unregisterUpdateListener(this.updateListener);
+      this.ggbApplet.unregisterRemoveListener(this.eventListener);
+      this.ggbApplet.unregisterClearListener(this.clearListener);
+    }
+    this.ggbApplet.registerAddListener(this.addListener);
+    this.ggbApplet.registerClickListener(this.clickListener);
+    this.ggbApplet.registerUpdateListener(this.updateListener);
+    this.ggbApplet.registerRemoveListener(this.removeListener);
+  }
+
+  sendEvent = throttle(async (xml, definition, label, eventType, action) => {
+    let xmlObj;
+    if (xml) xmlObj = await this.parseXML(xml)
+    let newData = {
+      definition,
+      label,
+      eventType,
+      room: this.props.room._id,
+      tab: this.props.room.tabs[this.props.currentTab]._id,
+      event: xml,
+      description: `${this.props.user.username} ${action} ${xmlObj && xmlObj.element ? xmlObj.element.$.type : ''} ${label}`,
+      user: {_id: this.props.user._id, username: this.props.user.username},
+      timestamp: new Date().getTime(),
+      currentState: this.ggbApplet.getXML(),
+      mode: this.ggbApplet.getMode(),
+    }
+    let updatedTabs = [...this.props.room.tabs]
+    let updatedTab = {...this.props.room.tabs[this.props.currentTab]}
+    updatedTab.currentState = newData.currentState;
+    updatedTabs[this.props.currentTab] = updatedTab;
+    this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
+    this.socket.emit('SEND_EVENT', newData)
+    this.props.resetControlTimer()
+  }, THROTTLE_FIDELITY)
   
   parseXML = (xml) => {
     return new Promise((resolve, reject) => {
@@ -234,9 +270,9 @@ class GgbGraph extends Component {
   }
 
   freezeElements = (freeze) => {
-    let allElements = this.ggbApplet.getAllObjectNames()
-    allElements.forEach(element => {
-      this.ggbApplet.setFixed(element, freeze, true) // Unfix all of the elements
+    let allElements = this.ggbApplet.getAllObjectNames() // WARNING ... THIS METHOD IS DEPRECATED
+    allElements.forEach(element => { // AS THE CONSTRUCTION GETS BIGGER THIS GETS SLOWER...SET_FIXED IS BLOCKING
+      this.ggbApplet.setFixed(element, freeze, true) // Unfix/fix all of the elements
     })
   }
 

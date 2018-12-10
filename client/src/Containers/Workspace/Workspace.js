@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import io from 'socket.io-client';
 import { updateRoom, updatedRoom, populateRoom } from '../../store/actions';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
+import { Modal, Aux } from '../../Components';
+import NewTabForm from './NewTabForm'
 // import Replayer from ''
 class Workspace extends Component {
 
@@ -16,6 +18,9 @@ class Workspace extends Component {
     referToCoords: null,
     referFromEl: null,
     referFromCoords: null,
+    currentTab: 0,
+    role: 'participant',
+    creatingNewTab: false,
   }
 
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
@@ -23,11 +28,14 @@ class Workspace extends Component {
   componentDidMount() {
     // window.addEventListener("resize", this.updateReference);
     const { updatedRoom, room, user} = this.props;
+    this.props.populateRoom(room._id)
 
     if (room.controlledBy) {
       this.setState({someoneElseInControl: true, inControl: false,})
     }
 
+    let { role } = room.members.filter(member => member.user._id === user._id)[0]
+    if (role === 'facilitator') {this.setState({role: 'facilitator'})}
     
     // repopulate room incase things have changed since we got to the details page 
     // this.props.populateRoom(room._id)
@@ -50,7 +58,6 @@ class Workspace extends Component {
     })
     
     this.socket.on('USER_LEFT', data => {
-      console.log(data)
       if (data.releasedControl) {
         this.setState({someoneElseInControl: false})
       }
@@ -63,7 +70,6 @@ class Workspace extends Component {
     })
 
     this.socket.on('RELEASED_CONTROL', message => {
-      console.log('released control')
       this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
       this.setState({activeMember: '', someoneElseInControl: false})
     })
@@ -74,10 +80,8 @@ class Workspace extends Component {
   componentDidUpdate(prevProps, prevState) {
     // When we first the load room
     if (prevProps.room.controlledBy !== this.props.room.controlledBy) {
+      console.log('workspace update controlled by')
       this.setState({someoneElseInControl: true, inControl: false})
-    }
-    if (prevProps.room.currentMembers !== this.props.room.currentMembers) {
-
     }
 
     if (prevState.inControl && !this.state.inControl) {
@@ -105,6 +109,18 @@ class Workspace extends Component {
     }
   }
 
+  createNewTab = () => {
+    this.setState({creatingNewTab: true})
+  }
+
+  closeModal = () => {
+    this.setState({creatingNewTab: false})
+  }
+
+  changeTab = (index) => {
+    this.clearReference()
+    this.setState({currentTab: index,})
+  }
 
   toggleControl = () => {
     let { user, room } = this.props;
@@ -152,14 +168,19 @@ class Workspace extends Component {
     })
   }
   
-  showReference = (referToEl, referToCoords, referFromEl, referFromCoords) => {
-    this.setState({
-      referToEl,
-      referFromEl,
-      referToCoords,
-      referFromCoords,
-      showingReference: true, 
-    })
+  showReference = (referToEl, referToCoords, referFromEl, referFromCoords, tab) => {
+    if (tab !== this.state.currentTab) {
+      alert('This reference does not belong to this tab') //@TODO HOW SHOULD WE HANDLE THIS?
+    }
+    else {
+      this.setState({
+        referToEl,
+        referFromEl,
+        referToCoords,
+        referFromCoords,
+        showingReference: true, 
+      })
+    }
     // get coords of referenced element,
   }
   
@@ -206,29 +227,40 @@ class Workspace extends Component {
   render() {
     const { room, user } = this.props;
     return (
-      <WorkspaceLayout
-        activeMember={this.state.activeMember}
-        room={room}
-        user={user}
-        socket={this.socket}
-        updateRoom={this.props.updateRoom}
-        updatedRoom={this.props.updatedRoom}
-        inControl={this.state.inControl}
-        resetControlTimer={this.resetControlTimer}
-        toggleControl={this.toggleControl}
-        someoneElseInControl={this.state.someoneElseInControl}
-        startNewReference={this.startNewReference}
-        referencing={this.state.referencing}
-        showReference={this.showReference}
-        showingReference={this.state.showingReference}
-        clearReference={this.clearReference}
-        referToEl={this.state.referToEl}
-        referToCoords={this.state.referToCoords}
-        referFromCoords={this.state.referFromCoords}
-        referFromEl={this.state.referFromEl}
-        setToElAndCoords={this.setToElAndCoords}
-        setFromElAndCoords={this.setFromElAndCoords}
-      />
+      <Aux>
+        {/* wait for room to be populated before trying to display it */}
+        {room.tabs[0].name ?<WorkspaceLayout
+          activeMember={this.state.activeMember}
+          room={room}
+          user={user}
+          role={this.state.role}
+          currentTab={this.state.currentTab}
+          socket={this.socket}
+          updateRoom={this.props.updateRoom}
+          updatedRoom={this.props.updatedRoom}
+          inControl={this.state.inControl}
+          resetControlTimer={this.resetControlTimer}
+          toggleControl={this.toggleControl}
+          someoneElseInControl={this.state.someoneElseInControl}
+          startNewReference={this.startNewReference}
+          referencing={this.state.referencing}
+          showReference={this.showReference}
+          showingReference={this.state.showingReference}
+          clearReference={this.clearReference}
+          referToEl={this.state.referToEl}
+          referToCoords={this.state.referToCoords}
+          referFromCoords={this.state.referFromCoords}
+          referFromEl={this.state.referFromEl}
+          setToElAndCoords={this.setToElAndCoords}
+          setFromElAndCoords={this.setFromElAndCoords}
+          createNewTab={this.createNewTab}
+          changeTab={this.changeTab}
+          // populateRoom={this.props.populateRoom}
+        /> : null}
+        <Modal show={this.state.creatingNewTab} closeModal={this.closeModal}>
+          <NewTabForm room={room} closeModal={this.closeModal} updatedRoom={this.props.updatedRoom}/>  
+        </Modal>
+      </Aux>
     )
   }
 }

@@ -31,12 +31,12 @@ class Room extends Component {
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
     // If its in the store check access
     if (room) {
-      populateRoom(match.params.room_id)
+      // populateRoom(match.params.room_id) // @TODO IF we do get rid of this we probably have unnecessary updates in componentDidUpdate
       // CHECK ACCESS
       let updatedTabs = [...this.state.tabs];
       let owner = false;
       let firstView = false;
-      if (room.creator === user._id) {
+      if (room.creator._id === user._id) {
         // updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
         // this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
         owner = true;
@@ -96,10 +96,9 @@ class Room extends Component {
   }
 
   displayNotifications = (tabs) => {
-    let { user, room } = this.props;
-    let { roomNotifications } = user;
-    if (room.creator === user._id) {
-      let thisRoomsNtfs = roomNotifications.access.filter(ntf => ntf._id === room._id)
+    let { user, room, accessNotifications } = this.props;
+    if (room.creator._id === user._id) {
+      let thisRoomsNtfs = accessNotifications.filter(ntf => ntf._id === room._id)
       tabs[1].notifications = thisRoomsNtfs.length > 0 ? thisRoomsNtfs.length: '';
     } 
     return tabs;
@@ -146,7 +145,6 @@ class Room extends Component {
         {title: room.name, link: `/myVMT/rooms/${room._id}/details`}]
         //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
         // THE REDUX STORE USING THE COURSE ID IN THE URL
-        console.log(room.course)
       if (room.course) {crumbs.splice(1, 0, {title: course.name, link: `/myVMT/courses/${room.course._id}/activities`})}
 
       return (

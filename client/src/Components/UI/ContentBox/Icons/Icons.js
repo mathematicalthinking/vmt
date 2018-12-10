@@ -2,14 +2,13 @@ import React from 'react';
 import ggbIcon from './geogebra.png';
 import dsmIcon from './desmos.png';
 import Aux from '../../../HOC/Auxil';
-const Icons = props => {
+const Icons = React.memo(props => {
   let lock;
-  console.log(props)
   if (props.lock && props.listType === 'public') {
     lock = <div style={{height: 20}}><i className="fas fa-lock"></i></div>
   }
   else if (props.lock && props.listType === 'private') {
-    lock = <div style={{height: 20}}><i class="fas fa-unlock-alt"></i></div>
+    lock = <div style={{height: 20}}><i className="fas fa-unlock-alt"></i></div>
   }
 
   let roomType
@@ -25,6 +24,6 @@ const Icons = props => {
       {roomType}
     </Aux>
   )
-}
+})
 
 export default Icons;

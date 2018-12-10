@@ -32,7 +32,6 @@ const boxList = React.memo(props => {
             }, []) : []
           }
         }
-        console.log(props.listType)
         return (
           <div className={classes.ContentBox} key={i}>
             {!props.draggable ? <ContentBox

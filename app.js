@@ -49,11 +49,6 @@ if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'productio
   app.use(express.static(path.join(__dirname, 'client/public')));
 }
 
-
-
-
-
-
 // MIDDLEWARE
 app.use(logger('dev'));
 app.use(bodyParser.json());

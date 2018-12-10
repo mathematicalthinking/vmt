@@ -1,19 +1,26 @@
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
-const Room = require('./Room.js');
+const Tab = require('./Tab.js');
 const Event = new mongoose.Schema({
   user: {type: ObjectId, ref: 'User'},
-  event: {type: String},
-  definition: {type: String},
-  label: {type: String},
+  event: {type: String}, // ggb xml
+  definition: {type: String}, // specific to ggb
+  label: {type: String}, // specific to ggb
   description: {type: String},
-  room: {type: ObjectId, ref: 'Room'},
+  room: {type: ObjectId, ref: 'Room', required: true},
+  tab: {type: ObjectId, ref: 'Tab', required: true},
   eventType: {type: String, enum: ['ADD', 'REMOVE', 'UPDATE']},
   timestamp: {type: Number} //UNIX TIME but in MS
 });
 
 Event.pre('save', async function() {
+  console.log('saving event ', this)
   // tabs[this.tabIndex].events.push(this._id)
-  await Room.findByIdAndUpdate(this.room, {$addToSet: {events: this._id}})
+  try {
+    await Tab.findByIdAndUpdate(this.tab, {$addToSet: {events: this._id}})
+    console.log('success')
+  }
+  catch(err) {console.log(err)}
 })
+
 module.exports = mongoose.model('Event', Event);

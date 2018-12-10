@@ -69,11 +69,9 @@ router.get('/:resource/:id', (req, res, next) => {
 	})
 })
 
-
-
-router.post('/:action', (req, res, next) => {
-	let action = req.params.action;
-	let controller = controllers[action]
+router.post('/:resource', (req, res, next) => {
+	let resource = req.params.resource;
+	let controller = controllers[resource]
 	if (controller == null) return res.status(400).json(defaultError);
 	controller.post(req.body)
 	.then(result => res.json({confirmation: 'success', result,}))
@@ -85,7 +83,10 @@ router.put('/:resource/:id/add', (req, res, next) => {
 	let controller = controllers[resource];
 	if (controller === null) return res.status(400).json(defaultError)
 	controller.add(id, req.body)	
-	.then(result => res.json(result))
+	.then(result => {
+		console.log("RESULT: ", console.log(result))
+		res.json(result)
+	})
 	.catch((err) => res.status(400).json({confirmation: 'fail', message: err})) 
 })
 

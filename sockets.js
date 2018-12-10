@@ -54,7 +54,6 @@ sockets.init = server => {
 
       socket.on('JOIN', async (data, callback) => {
         socket.user_id = data.userId; // store the user id on the socket so we can tell who comes and who goes
-        console.log(data.userId)
         let promises = [];
         let user = {_id: data.userId, username: data.username}
 
@@ -165,16 +164,20 @@ sockets.init = server => {
       })
 
       socket.on('SEND_EVENT', async (data) => {
+        console.log('data: ', data)
         if (typeof data.event !== 'string') {
           data.event = JSON.stringify(data.event)
         }
         try {
-          await controllers.rooms.put(data.room, {currentState: data.currentState})
+          await controllers.tabs.put(data.tab, {currentState: data.currentState})
         }
         catch(err) {console.log('err 1: ', err)}
+        // Don't save current state on the event
+        let currentState = data.currentState;
         delete  data.currentState;
         try {
           await controllers.events.post(data)
+          data.currentState = currentState;
         }
         catch(err) {console.log('err 2: ', err)}
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data)
