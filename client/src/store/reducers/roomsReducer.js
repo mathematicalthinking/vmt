@@ -22,6 +22,7 @@ const reducer = (state = initialState, action) => {
       fields.forEach(field => {
         updatedRoom[field] = action.body[field]
       })
+      console.log('updated ROOM reducer')
       return {
         ...state,
         byId: {

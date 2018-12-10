@@ -80,6 +80,7 @@ class Workspace extends Component {
   componentDidUpdate(prevProps, prevState) {
     // When we first the load room
     if (prevProps.room.controlledBy !== this.props.room.controlledBy) {
+      console.log('workspace update controlled by')
       this.setState({someoneElseInControl: true, inControl: false})
     }
 
@@ -114,10 +115,6 @@ class Workspace extends Component {
 
   closeModal = () => {
     this.setState({creatingNewTab: false})
-  }
-
-  submitNewTab = () => {
-
   }
 
   changeTab = (index) => {

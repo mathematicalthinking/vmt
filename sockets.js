@@ -164,6 +164,7 @@ sockets.init = server => {
       })
 
       socket.on('SEND_EVENT', async (data) => {
+        console.log('data: ', data)
         if (typeof data.event !== 'string') {
           data.event = JSON.stringify(data.event)
         }
@@ -171,9 +172,12 @@ sockets.init = server => {
           await controllers.tabs.put(data.tab, {currentState: data.currentState})
         }
         catch(err) {console.log('err 1: ', err)}
+        // Don't save current state on the event
+        let currentState = data.currentState;
         delete  data.currentState;
         try {
           await controllers.events.post(data)
+          data.currentState = currentState;
         }
         catch(err) {console.log('err 2: ', err)}
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data)
