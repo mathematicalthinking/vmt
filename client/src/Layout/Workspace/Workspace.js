@@ -51,6 +51,7 @@ const workspaceLayout = React.memo(({
                   log={replayer.log} 
                   index={replayer.index} 
                   changingIndex={replayer.changingIndex} 
+                  playing={replayer.playing}
                   reset={replayer.reset} 
                   changeTab={changeTab} 
                   tabs={room.tabs}

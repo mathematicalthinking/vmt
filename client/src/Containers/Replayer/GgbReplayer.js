@@ -32,50 +32,60 @@ class GgbReplayer extends Component {
 
   
   componentDidUpdate(prevProps, prevState) {
-    const { log, index, changingIndex } = this.props;
-    // IF we're skipping it means we might need to reconstruct several evenets, possible in reverse order if the prevIndex is greater than this index.
+    let { log, index, changingIndex } = this.props;
+    // If we've changed tab while playing
     if (prevProps.currentTab !== this.props.currentTab) {
       console.log('COMPDID UPDATE changing currentTab')
       let { currentTab, tabs } = this.props;
       let tabStates = {...this.state.tabStates}
       // stash prev tabs state in cae we come back to it 
-      tabStates[tabs[prevProps.currentTab]._id] = this.ggbApplet.getXML()
+      tabStates[tabs[prevProps.currentTab]._id] = {...tabStates[tabs[prevProps.currentTab]._id], construction: this.ggbApplet.getXML()}
       this.setState({tabStates,})
       // Load up the previously saved state if it exsists 
       if (Object.keys(tabStates).filter(tabId => tabId === tabs[currentTab]._id).length > 0) {
-        this.ggbApplet.setXML(this.state.tabStates[tabs[currentTab]._id])
+        this.ggbApplet.setXML(this.state.tabStates[tabs[currentTab]._id].construction)
       }
       else {
         this.ggbApplet.reset()
       }
     }
-
+    
     else if (changingIndex && this.state.tabStates !== prevState.tabStates) {
       console.log('tab changed while skipping')
     }
-
+    
+    // IF we're skipping it means we might need to reconstruct several evenets, possible in reverse order if the prevIndex is greater than this index.
+    // This is a god damned mess...good luck 
     else if (changingIndex) {
-      console.log('skipping around')
-      // this.consolidateEvents(prevProps.index, index) THIS MIGHT BE A DEAD END
-      
-      // If the events we're going to apply are to a different target
-      console.log(typeof this.props.log[this.props.index].tab, this.props.tabs[this.props.currentTab]._id)
-      console.log(typeof this.props.tabs[this.props.currentTab]._id, this.props.tabs[this.props.currentTab]._id)
+      // If our target tab is different from the one we're on
       if (this.props.log[this.props.index].tab !== this.props.tabs[this.props.currentTab]._id) {
-        console.log('building for a different tab')
-        /// ??? stash the current state>??? ??? FETCH other tabs state?
-        let index;
+        // Save the currentState and index of the current Tab
+        let tabStates = {...this.state.tabStates}
+        // stash prev tabs state so we can come back to it
+        tabStates[this.props.tabs[prevProps.currentTab]._id] = {construction: this.ggbApplet.getXML(), lastIndex: prevProps.index}
+        this.setState({tabStates,})
+        // See if the target tab is stored In tabStates
+        let startIndex;
+        console.log(this.props.index)
+        console.log(log[this.props.index])
+        console.log(log[this.props.index].tab)
+        if (tabStates[log[this.props.index].tab]) {
+          console.log('we have some info stored about this tab')
+          startIndex = tabStates[log[this.props.index].tab].lastIndex;
+        } 
+        else {startIndex = prevProps.index}
+        let tabIndex;
         // find the target tab index
         this.props.tabs.forEach((tab, i) => {
-          console.log(tab)
           if (tab._id === this.props.log[this.props.index].tab){
-            index = i
+            tabIndex = i
           }
         })
         // We've promisified changeTab() so we can ensure we wait for the state to be updated before proceeding
-        this.props.changeTab(index)
+        this.props.changeTab(tabIndex)
         .then(() => {
-          this.applyMultipleEvents(prevProps.index, this.props.index)
+          console.log(startIndex)
+          this.applyMultipleEvents(startIndex, this.props.index)
         })
         .catch(err => console.log('React Broke'))
       }
@@ -100,6 +110,7 @@ class GgbReplayer extends Component {
   }
 
   applyMultipleEvents(startIndex, endIndex) {
+    console.log(startIndex) 
     this.ggbApplet.setRepaintingActive(false) // THIS DOES NOT SEEM TO BE WORKING
     // Forwards through time
     if (startIndex < endIndex) {

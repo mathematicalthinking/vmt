@@ -54,7 +54,7 @@ class Replayer extends Component {
             event.tab = this.props.room.tabs[0]._id
           }
           else {
-            event.tab = src[idx - 1].tab
+            event.tab = this.updatedLog[this.updatedLog.length - 1].tab //Else give it the same tabId as the event before
           }
         }
         this.updatedLog.push(event)
@@ -69,6 +69,7 @@ class Replayer extends Component {
               synthetic: true,
               message: `No activity...skipping ahead to ${moment.unix(src[idx + 1].timestamp/1000).format('MM/DD/YYYY h:mm:ss A')}`,
               relTime: acc += BREAK_DURATION,
+              tab: this.updatedLog[this.updatedLog.length - 1].tab
             })
            return acc += BREAK_DURATION;
           }
