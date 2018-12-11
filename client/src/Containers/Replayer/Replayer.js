@@ -31,20 +31,17 @@ class Replayer extends Component {
 
   componentDidUpdate(prevProps, prevState){
     if (prevProps.loading && !this.props.loading) {
-      console.log('room on update', this.props.room)
-      console.log('weve populated the room');
-      console.log(prevProps, this.props)
       this.log = this.props.room.tabs
-        .reduce((acc, tab) => {
-          return acc.concat(tab.events)
-        }, [])
+      .reduce((acc, tab) => {
+        return acc.concat(tab.events)
+      }, [])
       this.log = this.log
         .concat(this.props.room.chat)
         .sort((a, b) => a.timestamp - b.timestamp);
-      console.log("THIS.LOG:", this.log)
       this.endTime = moment
         .unix(this.log[this.log.length - 1].timestamp / 1000)
         .format('MM/DD/YYYY h:mm:ss A');
+      console.log(this.log)
       this.updatedLog = []
       // displayDuration = this.log.
       this.relativeDuration = this.log.reduce((acc, cur, idx, src) => {
@@ -75,7 +72,6 @@ class Replayer extends Component {
         // BE ENTERING
         updatedMembers.push({user: this.log[0].user});
       }
-      console.log('updatedMembers: ', updatedMembers)
       this.setState({
         startTime: moment
           .unix(this.log[0].timestamp / 1000)
@@ -119,9 +115,18 @@ class Replayer extends Component {
           absTimeElapsed = 0;
         }
       }
+      let currentTab = this.state.currentTab
+      if (nextEvent.tab) {
+        this.props.room.tabs.forEach((tab, i) => {
+          if (tab._id === nextEvent.tab) {
+            currentTab = i;
+          }
+        })
+      }
       this.setState(prevState => ({
         logIndex, timeElapsed, currentMembers,
         startTime, absTimeElapsed, changingIndex: false,
+        currentTab,
       }))
     }, PLAYBACK_FIDELITY)
   }
