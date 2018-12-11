@@ -9,10 +9,12 @@ class GgbReplayer extends Component {
 
   state = {
     loading: true,
-    xmlContext: '' // xml string representing everything but the events and commands
+    xmlContext: '',  // xml string representing everything but the events and commands
+    tabStates: {},
   }
 
   graph = React.createRef()
+  previousState = '';
 
   componentDidMount(){
     window.addEventListener("resize", this.updateDimensions);
@@ -21,63 +23,137 @@ class GgbReplayer extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     if (this.props.index !== nextProps.index || this.state.loading !== nextState.loading) {
       return true;
-    } return false;
+    } 
+    else if (this.props.currentTab !== nextProps.currentTab) {
+      return true;
+    }
+    return false;
   }
 
   
   componentDidUpdate(prevProps, prevState) {
-    const { log, index, changingIndex } = this.props;
-    // IF we're skipping it means we might need to reconstruct several evenets, possible in reverse order if the prevIndex is greater than this index.
-    if (changingIndex) {
-      // this.consolidateEvents(prevProps.index, index) THIS MIGHT BE A DEAD END
-      this.ggbApplet.setRepaintingActive(false)
-      if (prevProps.index < this.props.index) {
-        for (let i = prevProps.index; i <= index; i++){
-          this.constructEvent(this.props.log[i])
-        }
-      } else {
-        for (let i = prevProps.index; i >= index + 1; i--) {
-          let syntheticEvent = {...log[i]}
-          if (syntheticEvent.eventType === 'ADD') {
-            syntheticEvent.eventType = 'REMOVE'
-          } 
-          else if (syntheticEvent.eventType === 'REMOVE') {
-            syntheticEvent.eventType = 'ADD'
-          }
-          this.constructEvent(syntheticEvent)
-        }
+    let { log, index, changingIndex } = this.props;
+    // If we've changed tab while playing
+    if (prevProps.currentTab !== this.props.currentTab) {
+      let { currentTab, tabs } = this.props;
+      let tabStates = {...this.state.tabStates}
+      // stash prev tabs state in cae we come back to it 
+      tabStates[tabs[prevProps.currentTab]._id] = {...tabStates[tabs[prevProps.currentTab]._id], construction: this.ggbApplet.getXML()}
+      this.setState({tabStates,})
+      // Load up the previously saved state if it exsists 
+      if (Object.keys(tabStates).filter(tabId => tabId === tabs[currentTab]._id).length > 0) {
+        this.ggbApplet.setXML(this.state.tabStates[tabs[currentTab]._id].construction)
       }
-      this.ggbApplet.setRepaintingActive(true)
+      else {
+        this.ggbApplet.reset()
+      }
+    }
+    
+    else if (changingIndex && this.state.tabStates !== prevState.tabStates) {
+    }
+    
+    // IF we're skipping it means we might need to reconstruct several evenets, possible in reverse order if the prevIndex is greater than this index.
+    // This is a god damned mess...good luck 
+    else if (changingIndex) {
+      // If our target tab is different from the one we're on
+      if (this.props.log[this.props.index].tab !== this.props.tabs[this.props.currentTab]._id) {
+        // Save the currentState and index of the current Tab
+        let tabStates = {...this.state.tabStates}
+        // stash prev tabs state so we can come back to it
+        tabStates[this.props.tabs[prevProps.currentTab]._id] = {construction: this.ggbApplet.getXML(), lastIndex: prevProps.index}
+        this.setState({tabStates,})
+        // See if the target tab is stored In tabStates
+        let startIndex;
+        if (tabStates[log[this.props.index].tab]) {
+          startIndex = tabStates[log[this.props.index].tab].lastIndex;
+        } 
+        else {startIndex = prevProps.index}
+        let tabIndex;
+        // find the target tab index
+        this.props.tabs.forEach((tab, i) => {
+          if (tab._id === this.props.log[this.props.index].tab){
+            tabIndex = i
+          }
+        })
+        // We've promisified changeTab() so we can ensure we wait for the state to be updated before proceeding
+        this.props.changeTab(tabIndex)
+        .then(() => {
+          this.applyMultipleEvents(startIndex, this.props.index)
+        })
+        .catch(err => console.log('React Broke'))
+      }
+      else {
+        this.applyMultipleEvents(prevProps.index, this.props.index)
+      }
     }
     else if (prevProps.log[prevProps.index]._id !== log[index]._id && !this.state.loading && !log[index].text) {
+      // check if the tab has changed
       this.constructEvent(log[index])
     }
-    else if (!this.state.loading){
-      this.constructEvent(log[index])
-    }
+    // else if (!this.state.loading || this.state.tabStates !== prevState.tabStates){
+    //   console.log('the tabState have changed')
+    //   this.constructEvent(log[index])
+    // }
   }
 
   componentWillUnmount(){
     window.removeEventListener("resize", this.updateDimensions);
   }
+
+  applyMultipleEvents(startIndex, endIndex) {
+    this.ggbApplet.setRepaintingActive(false) // THIS DOES NOT SEEM TO BE WORKING
+    // Forwards through time
+    if (startIndex < endIndex) {
+      for (let i = startIndex; i <= endIndex; i++) {
+        this.constructEvent(this.props.log[i])
+      }
+    } 
+    // backwards through time
+    else {
+      for (let i = startIndex; i > endIndex; i--) {
+        let syntheticEvent = {...this.props.log[i]}
+        if (syntheticEvent.eventType === 'ADD') {
+          syntheticEvent.eventType = 'REMOVE'
+        } 
+        else if (syntheticEvent.eventType === 'REMOVE') {
+          syntheticEvent.eventType = 'ADD'
+        }
+        this.constructEvent(syntheticEvent)
+      }
+    }
+        // for (let i = prevProps.index; i >= index + 1; i--) {
+        //   let syntheticEvent = {...log[i]}
+        //   if (syntheticEvent.eventType === 'ADD') {
+        //     syntheticEvent.eventType = 'REMOVE'
+        //   } 
+        //   else if (syntheticEvent.eventType === 'REMOVE') {
+        //     syntheticEvent.eventType = 'ADD'
+        //   }
+        //   this.constructEvent(syntheticEvent)
+        // }
+      
+      this.ggbApplet.setRepaintingActive(true)
+  }
   
   constructEvent(event) {
-    switch (event.eventType) {
-      case 'ADD':
-      if (event.definition && event.definition !== '') {
-        this.ggbApplet.evalCommand(`${event.label}:${event.definition}`)
+    if (event.tab === this.props.tabs[this.props.currentTab]._id) {
+      switch (event.eventType) {
+        case 'ADD':
+        if (event.definition && event.definition !== '') {
+          this.ggbApplet.evalCommand(`${event.label}:${event.definition}`)
+        }
+        this.ggbApplet.evalXML(event.event)
+        this.ggbApplet.evalCommand('UpdateConstruction()')
+        break;
+        case 'REMOVE':
+        this.ggbApplet.deleteObject(event.label)
+        break;
+        case 'UPDATE':
+        this.ggbApplet.evalXML(event.event)
+        this.ggbApplet.evalCommand('UpdateConstruction()')
+        break;
+        default: break;
       }
-      this.ggbApplet.evalXML(event.event)
-      this.ggbApplet.evalCommand('UpdateConstruction()')
-      break;
-      case 'REMOVE':
-      this.ggbApplet.deleteObject(event.label)
-      break;
-      case 'UPDATE':
-      this.ggbApplet.evalXML(event.event)
-      this.ggbApplet.evalCommand('UpdateConstruction()')
-      break;
-      default: break;
     }
   }
 
@@ -120,10 +196,9 @@ class GgbReplayer extends Component {
 
   // This method is for when we're skipping forward or backward and, rather than apply each event 
   // one at a time to the construction, we instead consolidate all of the evemts into one event 
-  // and apply it once
+  // and apply it once /// IT DOESNT QUITE WORK BECAUSE SOMETIMES WE NEED TO EVALUATE COMMANDS RATHER THAN JUST ADD XML....BUT THERE MIGHT BE A SOLUTION HERE
   consolidateEvents(startingIndex, endingIndex) {
     // consolidate the log up until the startingIndex
-    console.log(this.props.log)
     let syntheticLog = this.props.log.reduce((acc, event, idx) => {
       if (event.label && idx <= endingIndex) {
         if (acc[event.label] && event.eventType === 'REMOVE') {
@@ -134,7 +209,6 @@ class GgbReplayer extends Component {
       }
       return acc;
     }, {})
-    console.log(syntheticLog)
     let xmlString = Object.keys(syntheticLog).map(event => syntheticLog[event]).join('')
     this.ggbApplet.setRepaintingActive(false)
     for (let i = 0; i < endingIndex; i++){
@@ -188,7 +262,6 @@ class GgbReplayer extends Component {
 
   // This is repeated in ggbGraph...I wonder if we should have a separate file of shared functions
   parseXML = (xml) => {
-    console.log(xml)
     return new Promise((resolve, reject) => {
       parseString(xml, (err, result) => {
         if (err) return reject(err)

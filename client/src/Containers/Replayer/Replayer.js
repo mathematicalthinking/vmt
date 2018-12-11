@@ -24,27 +24,38 @@ class Replayer extends Component {
 
 
   componentDidMount() {
-    this.props.populateRoom(this.props.room._id)
+    this.props.populateRoom(this.props.match.params.room_id)
   }
 
 
   componentDidUpdate(prevProps, prevState){
-    if (prevProps.room.tabs[0].events !== this.props.room.tabs[0].events) {
-      console.log('weve populated the room');
-      console.log(prevProps, this.props)
-      this.log = this.props.room.tabs[0].events
+    if (prevProps.loading && !this.props.loading) {
+      this.log = this.props.room.tabs
+        .reduce((acc, tab) => {
+          return acc.concat(tab.events)
+        }, [])
+      this.log = this.log
         .concat(this.props.room.chat)
         .sort((a, b) => a.timestamp - b.timestamp);
       this.endTime = moment
         .unix(this.log[this.log.length - 1].timestamp / 1000)
         .format('MM/DD/YYYY h:mm:ss A');
-      this.updatedLog = []
-      // displayDuration = this.log.
-      this.relativeDuration = this.log.reduce((acc, cur, idx, src) => {
-        // Copy currentEvent
+        this.updatedLog = []
+        // displayDuration = this.log.
+        this.relativeDuration = this.log.reduce((acc, cur, idx, src) => {
+          // Copy currentEvent
         let event = {...cur};
         // Add the relative Time
         event.relTime = acc;
+        // ADD A TAB FOR EVENTS THAT DONT ALREADY HAVE THEM TO MAKE SKIPPING AROUND EASIER
+        if (!event.tab) {
+          if (!src[idx - 1]) { //IF this is the first event give it the starting tab
+            event.tab = this.props.room.tabs[0]._id
+          }
+          else {
+            event.tab = this.updatedLog[this.updatedLog.length - 1].tab //Else give it the same tabId as the event before
+          }
+        }
         this.updatedLog.push(event)
         // calculate the next time
         if (src[idx + 1]) {
@@ -57,6 +68,7 @@ class Replayer extends Component {
               synthetic: true,
               message: `No activity...skipping ahead to ${moment.unix(src[idx + 1].timestamp/1000).format('MM/DD/YYYY h:mm:ss A')}`,
               relTime: acc += BREAK_DURATION,
+              tab: this.updatedLog[this.updatedLog.length - 1].tab
             })
            return acc += BREAK_DURATION;
           }
@@ -68,7 +80,6 @@ class Replayer extends Component {
         // BE ENTERING
         updatedMembers.push({user: this.log[0].user});
       }
-      console.log('updatedMembers: ', updatedMembers)
       this.setState({
         startTime: moment
           .unix(this.log[0].timestamp / 1000)
@@ -112,9 +123,18 @@ class Replayer extends Component {
           absTimeElapsed = 0;
         }
       }
+      let currentTab = this.state.currentTab
+      if (nextEvent.tab) {
+        this.props.room.tabs.forEach((tab, i) => {
+          if (tab._id === nextEvent.tab) {
+            currentTab = i;
+          }
+        })
+      }
       this.setState(prevState => ({
         logIndex, timeElapsed, currentMembers,
         startTime, absTimeElapsed, changingIndex: false,
+        currentTab,
       }))
     }, PLAYBACK_FIDELITY)
   }
@@ -150,12 +170,20 @@ class Replayer extends Component {
   }
 
   setCurrentMembers = (currentMembers) => {
-    console.log(currentMembers)
+
     this.setState({currentMembers,})
   }
 
   setSpeed = speed => {
     this.setState({playbackSpeed: speed})
+  }
+
+  changeTab = index => {
+    return new Promise((resolve, reject) => {
+      this.setState({currentTab: index}, () => {
+        resolve()
+      })
+    })
   }
 
   render() {
@@ -185,6 +213,7 @@ class Replayer extends Component {
             currentMembers: this.state.currentMembers,
             setCurrentMembers: this.setCurrentMembers,
           }}
+          changeTab={this.changeTab}
           currentTab={this.state.currentTab}
         />
       )

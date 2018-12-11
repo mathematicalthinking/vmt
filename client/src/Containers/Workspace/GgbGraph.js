@@ -27,7 +27,6 @@ class GgbGraph extends Component {
     // window.addEventListener('click', this.clickListener)
     window.addEventListener("resize", this.updateDimensions);
     this.socket.on('RECEIVE_EVENT', data => {
-      console.log("DATA: ", data)
       let updatedTabs = this.props.room.tabs.map(tab => {
         if (tab._id === data.tab) {
           tab.currentState = data.currentState
@@ -36,6 +35,7 @@ class GgbGraph extends Component {
       })
       this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
       this.setState({receivingData: true}, () => {
+        // If this happend on the current tab
         if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
           switch (data.eventType) {
             case 'ADD':
@@ -54,6 +54,10 @@ class GgbGraph extends Component {
               break;
             default: break;
           }
+        }
+        // show a notificaiton if its on a different tab
+        else {
+          this.props.addNtfToTabs(data.tab)
         }
       })
     })
@@ -166,9 +170,9 @@ class GgbGraph extends Component {
     this.setState({loading: false})
     this.ggbApplet.setMode(40) // Sets the tool to zoom
     let { user, room, currentTab } = this.props;
-    let { events } = room.tabs[currentTab];
+    let { currentState } = room.tabs[currentTab];
     // put the current construction on the graph, disable everything until the user takes control
-    if (events.length > 0) {
+    if (currentState) {
       this.ggbApplet.setXML(room.tabs[currentTab].currentState)
       this.freezeElements(true)
     }

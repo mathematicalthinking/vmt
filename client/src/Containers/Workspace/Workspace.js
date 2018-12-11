@@ -21,6 +21,7 @@ class Workspace extends Component {
     currentTab: 0,
     role: 'participant',
     creatingNewTab: false,
+    activityOnOtherTabs: [],
   }
 
   socket = io.connect(process.env.REACT_APP_SERVER_URL);
@@ -80,7 +81,6 @@ class Workspace extends Component {
   componentDidUpdate(prevProps, prevState) {
     // When we first the load room
     if (prevProps.room.controlledBy !== this.props.room.controlledBy) {
-      console.log('workspace update controlled by')
       this.setState({someoneElseInControl: true, inControl: false})
     }
 
@@ -119,7 +119,19 @@ class Workspace extends Component {
 
   changeTab = (index) => {
     this.clearReference()
-    this.setState({currentTab: index,})
+    let data = {
+      user: {_id: this.props.user._id, username: this.props.user.username},
+      tab: {_id: this.props.room.tabs[index]._id, name: this.props.room.tabs[index].name},
+      room: this.props.room._id,
+    }
+    this.socket.emit('SWITCH_TAB', data, (res, err) => {
+      if (err) {
+        return console.log('something went wrong on the socket')
+      }
+      this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, res.message]})
+    })
+    let updatedTabs = this.state.activityOnOtherTabs.filter(tab => tab !== this.props.room.tabs[index]._id)
+    this.setState({currentTab: index, activityOnOtherTabs: updatedTabs})
   }
 
   toggleControl = () => {
@@ -224,6 +236,14 @@ class Workspace extends Component {
     }
   }
 
+  addNtfToTabs = (id) => {
+    this.setState({activityOnOtherTabs: [...this.state.activityOnOtherTabs, id]})
+  }
+
+  clearTabNtf = (id) => {
+    this.setState({activityOnOtherTabs: this.state.activityOnOtherTabs.filter(tab => tab !== id)})
+  }
+
   render() {
     const { room, user } = this.props;
     return (
@@ -255,6 +275,8 @@ class Workspace extends Component {
           setFromElAndCoords={this.setFromElAndCoords}
           createNewTab={this.createNewTab}
           changeTab={this.changeTab}
+          addNtfToTabs={this.addNtfToTabs}
+          ntfTabs={this.state.activityOnOtherTabs}
           // populateRoom={this.props.populateRoom}
         /> : null}
         <Modal show={this.state.creatingNewTab} closeModal={this.closeModal}>

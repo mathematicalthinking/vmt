@@ -19,7 +19,7 @@ const workspaceLayout = React.memo(({
   referencing, showingReference,setToElAndCoords,
   setFromElAndCoords, referToEl, referToCoords, referFromEl, 
   referFromCoords, clearReference, createNewTab, changeTab,
-  // populateRoom,
+  addNtfToTabs, ntfTabs,
 }) => {
   let controlText = 'Take Control';
   if (inControl) controlText = 'Release Control';
@@ -30,6 +30,7 @@ const workspaceLayout = React.memo(({
       return (
       <div onClick={() => changeTab(i)} className={[classes.Tab, currentTab === i ? classes.Active : ''].join(" ")} style={{zIndex: room.tabs.length - i}} >
         <div style={{zIndex: room.tabs.length - i}} className={classes.TabBox}>{tab.name}</div>
+       {ntfTabs && ntfTabs.includes(tab._id) ? <div className={classes.TabNotification}><i className="fas fa-exclamation"></i></div> : null}
       </div>
       )
     })
@@ -46,7 +47,16 @@ const workspaceLayout = React.memo(({
           <div className={[classes.Graph, classes.Left, "graph"].join(" ")}>
             {replayer ? 
               (room.tabs[currentTab].tabType === 'geogebra' ?
-                <GgbReplayer log={replayer.log} index={replayer.index} changingIndex={replayer.changingIndex} reset={replayer.reset}/> :
+                <GgbReplayer 
+                  log={replayer.log} 
+                  index={replayer.index} 
+                  changingIndex={replayer.changingIndex} 
+                  playing={replayer.playing}
+                  reset={replayer.reset} 
+                  changeTab={changeTab} 
+                  tabs={room.tabs}
+                  currentTab={currentTab}
+                /> :
                 <DesmosReplayer />
               ):   
               (room.tabs[currentTab].tabType === 'geogebra' ? 
@@ -64,7 +74,7 @@ const workspaceLayout = React.memo(({
                   setToElAndCoords={setToElAndCoords}
                   showingReference={showingReference}
                   currentTab={currentTab}
-                  // populateRoom={populateRoom}
+                  addNtfToTabs={addNtfToTabs}
                 /> :
                 <DesmosGraph  room={room} socket={socket} user={user} inControl={inControl} resetControlTimer={resetControlTimer} currentTab={currentTab}/>
               )

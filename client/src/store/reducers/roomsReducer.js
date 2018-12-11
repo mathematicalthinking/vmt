@@ -17,6 +17,7 @@ const reducer = (state = initialState, action) => {
       };
 
     case actionTypes.UPDATED_ROOM:
+    console.log(action.roomId, action.body)
       let updatedRoom = {...state.byId[action.roomId]}
       let fields = Object.keys(action.body)
       fields.forEach(field => {

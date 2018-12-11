@@ -7,14 +7,11 @@ const summary = React.memo(({room, populateRoom, history, loading}) => {
   const goToWorkspace = () => {
     history.push(`/myVMT/workspace/${room._id}`);
   }
+  
   const goToReplayer = () => {
-    if (room.tabs[0].events.length > 0) {
-      history.push(`/myVMT/workspace/${room._id}/replayer`)
-    } else {
-
-      // SOME SORT OF ERROR MESSAGE
-    }
+    history.push(`/myVMT/workspace/${room._id}/replayer`)
   }
+
   return (
     <div className={classes.Container}>
       {/*  Make sure we have all of the room info before letting the user enter */}
@@ -31,7 +28,7 @@ const summary = React.memo(({room, populateRoom, history, loading}) => {
         </div>
       </div>
       <div className={classes.Buttons}>
-        <span className={classes.Button}><Button theme={loading ? 'SmallCancel' : 'Small'} m={5} click={!loading ? goToWorkspace : () => null}>Join</Button></span>
+        <span className={classes.Button}><Button theme={loading ? 'SmallCancel' : 'Small'} m={5} click={!loading ? goToWorkspace : () => null}>Enter</Button></span>
         <span className={classes.Button}><Button theme={(loading) ? 'SmallCancel' : 'Small'} m={5} click={!loading ? goToReplayer : () => null}>Replayer</Button></span>
       </div>
       <div className={classes.Section}>
