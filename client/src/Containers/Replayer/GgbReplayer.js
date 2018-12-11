@@ -35,7 +35,6 @@ class GgbReplayer extends Component {
     let { log, index, changingIndex } = this.props;
     // If we've changed tab while playing
     if (prevProps.currentTab !== this.props.currentTab) {
-      console.log('COMPDID UPDATE changing currentTab')
       let { currentTab, tabs } = this.props;
       let tabStates = {...this.state.tabStates}
       // stash prev tabs state in cae we come back to it 
@@ -51,7 +50,6 @@ class GgbReplayer extends Component {
     }
     
     else if (changingIndex && this.state.tabStates !== prevState.tabStates) {
-      console.log('tab changed while skipping')
     }
     
     // IF we're skipping it means we might need to reconstruct several evenets, possible in reverse order if the prevIndex is greater than this index.
@@ -66,11 +64,7 @@ class GgbReplayer extends Component {
         this.setState({tabStates,})
         // See if the target tab is stored In tabStates
         let startIndex;
-        console.log(this.props.index)
-        console.log(log[this.props.index])
-        console.log(log[this.props.index].tab)
         if (tabStates[log[this.props.index].tab]) {
-          console.log('we have some info stored about this tab')
           startIndex = tabStates[log[this.props.index].tab].lastIndex;
         } 
         else {startIndex = prevProps.index}
@@ -84,18 +78,15 @@ class GgbReplayer extends Component {
         // We've promisified changeTab() so we can ensure we wait for the state to be updated before proceeding
         this.props.changeTab(tabIndex)
         .then(() => {
-          console.log(startIndex)
           this.applyMultipleEvents(startIndex, this.props.index)
         })
         .catch(err => console.log('React Broke'))
       }
       else {
-        console.log('adding events to same tab')
         this.applyMultipleEvents(prevProps.index, this.props.index)
       }
     }
     else if (prevProps.log[prevProps.index]._id !== log[index]._id && !this.state.loading && !log[index].text) {
-      console.log('the index has changed')
       // check if the tab has changed
       this.constructEvent(log[index])
     }
@@ -110,7 +101,6 @@ class GgbReplayer extends Component {
   }
 
   applyMultipleEvents(startIndex, endIndex) {
-    console.log(startIndex) 
     this.ggbApplet.setRepaintingActive(false) // THIS DOES NOT SEEM TO BE WORKING
     // Forwards through time
     if (startIndex < endIndex) {
@@ -147,7 +137,6 @@ class GgbReplayer extends Component {
   
   constructEvent(event) {
     if (event.tab === this.props.tabs[this.props.currentTab]._id) {
-      console.log('constructing event')
       switch (event.eventType) {
         case 'ADD':
         if (event.definition && event.definition !== '') {
@@ -207,10 +196,9 @@ class GgbReplayer extends Component {
 
   // This method is for when we're skipping forward or backward and, rather than apply each event 
   // one at a time to the construction, we instead consolidate all of the evemts into one event 
-  // and apply it once
+  // and apply it once /// IT DOESNT QUITE WORK BECAUSE SOMETIMES WE NEED TO EVALUATE COMMANDS RATHER THAN JUST ADD XML....BUT THERE MIGHT BE A SOLUTION HERE
   consolidateEvents(startingIndex, endingIndex) {
     // consolidate the log up until the startingIndex
-    console.log(this.props.log)
     let syntheticLog = this.props.log.reduce((acc, event, idx) => {
       if (event.label && idx <= endingIndex) {
         if (acc[event.label] && event.eventType === 'REMOVE') {
@@ -221,7 +209,6 @@ class GgbReplayer extends Component {
       }
       return acc;
     }, {})
-    console.log(syntheticLog)
     let xmlString = Object.keys(syntheticLog).map(event => syntheticLog[event]).join('')
     this.ggbApplet.setRepaintingActive(false)
     for (let i = 0; i < endingIndex; i++){
@@ -275,7 +262,6 @@ class GgbReplayer extends Component {
 
   // This is repeated in ggbGraph...I wonder if we should have a separate file of shared functions
   parseXML = (xml) => {
-    console.log(xml)
     return new Promise((resolve, reject) => {
       parseString(xml, (err, result) => {
         if (err) return reject(err)
