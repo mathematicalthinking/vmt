@@ -34,9 +34,25 @@ class GgbReplayer extends Component {
   componentDidUpdate(prevProps, prevState) {
     const { log, index, changingIndex } = this.props;
     // IF we're skipping it means we might need to reconstruct several evenets, possible in reverse order if the prevIndex is greater than this index.
-    if (changingIndex) {
+    let switchingTab = false;
+    if (prevProps.currentTab !== this.props.currentTab) {
+      switchingTab = true;
+      let { currentTab, tabs } = this.props;
+      let tabStates = {...this.state.tabStates}
+      // stash prev tabs state in cae we come back to it 
+      tabStates[tabs[prevProps.currentTab]._id] = this.ggbApplet.getXML()
+      this.setState({tabStates,})
+      // Load up the previously saved state if it exsists 
+      if (Object.keys(tabStates).filter(tabId => tabId === tabs[currentTab]._id).length > 0) {
+        this.ggbApplet.setXML(this.state.tabStates[tabs[currentTab]._id])
+      }
+      else {
+        this.ggbApplet.reset()
+      }
+    }
+    else if (changingIndex) {
       // this.consolidateEvents(prevProps.index, index) THIS MIGHT BE A DEAD END
-      this.ggbApplet.setRepaintingActive(false)
+      this.ggbApplet.setRepaintingActive(false) // THIS DOES NOT SEEM TO BE WORKING
       if (prevProps.index < this.props.index) {
         for (let i = prevProps.index; i <= index; i++){
           this.constructEvent(this.props.log[i])
@@ -59,18 +75,7 @@ class GgbReplayer extends Component {
       // check if the tab has changed
       this.constructEvent(log[index])
     }
-    else if (prevProps.currentTab !== this.props.currentTab) {
-      let { currentTab, tabs } = this.props;
-      let tabStates = {...this.state.tabStates}
-      // stash prev tabs state in cae we come back to it 
-      tabStates[tabs[prevProps.currentTab]._id] = this.ggbApplet.getXML()
-      this.setState({tabStates,})
-      // Load up the previously saved state if it exsists 
-      if (Object.keys(tabStates).filter(tabId => tabId === tabs[currentTab]._id).length > 0) {
-        this.ggbApplet.setXML(this.state.tabStates[tabs[currentTab]._id])
-      }
-    }
-    else if (!this.state.loading){
+    else if (!this.state.loading || this.state.tabStates !== prevState.tabStates){
       this.constructEvent(log[index])
     }
   }
