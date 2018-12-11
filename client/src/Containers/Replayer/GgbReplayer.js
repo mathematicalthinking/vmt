@@ -34,9 +34,8 @@ class GgbReplayer extends Component {
   componentDidUpdate(prevProps, prevState) {
     const { log, index, changingIndex } = this.props;
     // IF we're skipping it means we might need to reconstruct several evenets, possible in reverse order if the prevIndex is greater than this index.
-    let switchingTab = false;
     if (prevProps.currentTab !== this.props.currentTab) {
-      switchingTab = true;
+      console.log('COMPDID UPDATE changing currentTab')
       let { currentTab, tabs } = this.props;
       let tabStates = {...this.state.tabStates}
       // stash prev tabs state in cae we come back to it 
@@ -50,57 +49,111 @@ class GgbReplayer extends Component {
         this.ggbApplet.reset()
       }
     }
+
+    else if (changingIndex && this.state.tabStates !== prevState.tabStates) {
+      console.log('tab changed while skipping')
+    }
+
     else if (changingIndex) {
+      console.log('skipping around')
       // this.consolidateEvents(prevProps.index, index) THIS MIGHT BE A DEAD END
-      this.ggbApplet.setRepaintingActive(false) // THIS DOES NOT SEEM TO BE WORKING
-      if (prevProps.index < this.props.index) {
-        for (let i = prevProps.index; i <= index; i++){
-          this.constructEvent(this.props.log[i])
-        }
-      } else {
-        for (let i = prevProps.index; i >= index + 1; i--) {
-          let syntheticEvent = {...log[i]}
-          if (syntheticEvent.eventType === 'ADD') {
-            syntheticEvent.eventType = 'REMOVE'
-          } 
-          else if (syntheticEvent.eventType === 'REMOVE') {
-            syntheticEvent.eventType = 'ADD'
+      
+      // If the events we're going to apply are to a different target
+      console.log(typeof this.props.log[this.props.index].tab, this.props.tabs[this.props.currentTab]._id)
+      console.log(typeof this.props.tabs[this.props.currentTab]._id, this.props.tabs[this.props.currentTab]._id)
+      if (this.props.log[this.props.index].tab !== this.props.tabs[this.props.currentTab]._id) {
+        console.log('building for a different tab')
+        /// ??? stash the current state>??? ??? FETCH other tabs state?
+        let index;
+        // find the target tab index
+        this.props.tabs.forEach((tab, i) => {
+          console.log(tab)
+          if (tab._id === this.props.log[this.props.index].tab){
+            index = i
           }
-          this.constructEvent(syntheticEvent)
-        }
+        })
+        // We've promisified changeTab() so we can ensure we wait for the state to be updated before proceeding
+        this.props.changeTab(index)
+        .then(() => {
+          this.applyMultipleEvents(prevProps.index, this.props.index)
+        })
+        .catch(err => console.log('React Broke'))
       }
-      this.ggbApplet.setRepaintingActive(true)
+      else {
+        console.log('adding events to same tab')
+        this.applyMultipleEvents(prevProps.index, this.props.index)
+      }
     }
     else if (prevProps.log[prevProps.index]._id !== log[index]._id && !this.state.loading && !log[index].text) {
+      console.log('the index has changed')
       // check if the tab has changed
       this.constructEvent(log[index])
     }
-    else if (!this.state.loading || this.state.tabStates !== prevState.tabStates){
-      this.constructEvent(log[index])
-    }
+    // else if (!this.state.loading || this.state.tabStates !== prevState.tabStates){
+    //   console.log('the tabState have changed')
+    //   this.constructEvent(log[index])
+    // }
   }
 
   componentWillUnmount(){
     window.removeEventListener("resize", this.updateDimensions);
   }
+
+  applyMultipleEvents(startIndex, endIndex) {
+    this.ggbApplet.setRepaintingActive(false) // THIS DOES NOT SEEM TO BE WORKING
+    // Forwards through time
+    if (startIndex < endIndex) {
+      for (let i = startIndex; i <= endIndex; i++) {
+        this.constructEvent(this.props.log[i])
+      }
+    } 
+    // backwards through time
+    else {
+      for (let i = startIndex; i > endIndex; i--) {
+        let syntheticEvent = {...this.props.log[i]}
+        if (syntheticEvent.eventType === 'ADD') {
+          syntheticEvent.eventType = 'REMOVE'
+        } 
+        else if (syntheticEvent.eventType === 'REMOVE') {
+          syntheticEvent.eventType = 'ADD'
+        }
+        this.constructEvent(syntheticEvent)
+      }
+    }
+        // for (let i = prevProps.index; i >= index + 1; i--) {
+        //   let syntheticEvent = {...log[i]}
+        //   if (syntheticEvent.eventType === 'ADD') {
+        //     syntheticEvent.eventType = 'REMOVE'
+        //   } 
+        //   else if (syntheticEvent.eventType === 'REMOVE') {
+        //     syntheticEvent.eventType = 'ADD'
+        //   }
+        //   this.constructEvent(syntheticEvent)
+        // }
+      
+      this.ggbApplet.setRepaintingActive(true)
+  }
   
   constructEvent(event) {
-    switch (event.eventType) {
-      case 'ADD':
-      if (event.definition && event.definition !== '') {
-        this.ggbApplet.evalCommand(`${event.label}:${event.definition}`)
+    if (event.tab === this.props.tabs[this.props.currentTab]._id) {
+      console.log('constructing event')
+      switch (event.eventType) {
+        case 'ADD':
+        if (event.definition && event.definition !== '') {
+          this.ggbApplet.evalCommand(`${event.label}:${event.definition}`)
+        }
+        this.ggbApplet.evalXML(event.event)
+        this.ggbApplet.evalCommand('UpdateConstruction()')
+        break;
+        case 'REMOVE':
+        this.ggbApplet.deleteObject(event.label)
+        break;
+        case 'UPDATE':
+        this.ggbApplet.evalXML(event.event)
+        this.ggbApplet.evalCommand('UpdateConstruction()')
+        break;
+        default: break;
       }
-      this.ggbApplet.evalXML(event.event)
-      this.ggbApplet.evalCommand('UpdateConstruction()')
-      break;
-      case 'REMOVE':
-      this.ggbApplet.deleteObject(event.label)
-      break;
-      case 'UPDATE':
-      this.ggbApplet.evalXML(event.event)
-      this.ggbApplet.evalCommand('UpdateConstruction()')
-      break;
-      default: break;
     }
   }
 
