@@ -9,10 +9,12 @@ class GgbReplayer extends Component {
 
   state = {
     loading: true,
-    xmlContext: '' // xml string representing everything but the events and commands
+    xmlContext: '',  // xml string representing everything but the events and commands
+    tabStates: {},
   }
 
   graph = React.createRef()
+  previousState = '';
 
   componentDidMount(){
     window.addEventListener("resize", this.updateDimensions);
@@ -21,7 +23,11 @@ class GgbReplayer extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     if (this.props.index !== nextProps.index || this.state.loading !== nextState.loading) {
       return true;
-    } return false;
+    } 
+    else if (this.props.currentTab !== nextProps.currentTab) {
+      return true;
+    }
+    return false;
   }
 
   
@@ -50,7 +56,19 @@ class GgbReplayer extends Component {
       this.ggbApplet.setRepaintingActive(true)
     }
     else if (prevProps.log[prevProps.index]._id !== log[index]._id && !this.state.loading && !log[index].text) {
+      // check if the tab has changed
       this.constructEvent(log[index])
+    }
+    else if (prevProps.currentTab !== this.props.currentTab) {
+      let { currentTab, tabs } = this.props;
+      let tabStates = {...this.state.tabStates}
+      // stash prev tabs state in cae we come back to it 
+      tabStates[tabs[prevProps.currentTab]._id] = this.ggbApplet.getXML()
+      this.setState({tabStates,})
+      // Load up the previously saved state if it exsists 
+      if (Object.keys(tabStates).filter(tabId => tabId === tabs[currentTab]._id).length > 0) {
+        this.ggbApplet.setXML(this.state.tabStates[tabs[currentTab]._id])
+      }
     }
     else if (!this.state.loading){
       this.constructEvent(log[index])

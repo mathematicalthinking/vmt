@@ -53,6 +53,7 @@ const workspaceLayout = React.memo(({
                   changingIndex={replayer.changingIndex} 
                   reset={replayer.reset} 
                   changeTab={changeTab} 
+                  tabs={room.tabs}
                   currentTab={currentTab}
                 /> :
                 <DesmosReplayer />
