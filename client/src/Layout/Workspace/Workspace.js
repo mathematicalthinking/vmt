@@ -30,7 +30,7 @@ const workspaceLayout = React.memo(({
       return (
       <div onClick={() => changeTab(i)} className={[classes.Tab, currentTab === i ? classes.Active : ''].join(" ")} style={{zIndex: room.tabs.length - i}} >
         <div style={{zIndex: room.tabs.length - i}} className={classes.TabBox}>{tab.name}</div>
-       {ntfTabs && ntfTabs.includes(tab._id) ? <div className={classes.TabNotification}><i className="fas fa-exclamation"></i></div> : null}
+        {ntfTabs && ntfTabs.includes(tab._id) ? <div className={classes.TabNotification}><i className="fas fa-exclamation"></i></div> : null}
       </div>
       )
     })
@@ -120,9 +120,15 @@ const workspaceLayout = React.memo(({
           {replayer ? 
             <ReplayerControls {...replayer} /> : 
             <div className={classes.RoomDescription}>
-              <h3 className={classes.InstructionsTitle}>Instructions</h3>
-              <div className={classes.Instructions}>{temp ? `Share this url to invite others: ${window.location}` : room.tabs[currentTab].instructions ? room.tabs[currentTab].instructions : room.instructions}</div>
-              <div className={classes.SetStart}><Button theme={'Small'}>Set Starting Point</Button></div>
+              <h3 className={classes.InstructionsTitle}>{room.tabs[currentTab].name} Instructions</h3>
+              <div className={classes.Instructions}>
+                {role === 'facilitator' ? <i className={["fas fa-edit", classes.EditInstructions].join(' ')}></i> : null} 
+                {temp ? `Share this url to invite others: ${window.location}` : room.tabs[currentTab].instructions ? room.tabs[currentTab].instructions : room.instructions}</div>
+              {role === 'facilitator' ? 
+                <div className={classes.UpdateControls}>
+                  <div className={classes.SetStart}><Button theme={'Small'}>Set Starting Point</Button></div> 
+                </div>
+              : null}
             </div>
           }
           {temp && !saved ? 

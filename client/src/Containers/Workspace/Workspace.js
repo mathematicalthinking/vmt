@@ -22,6 +22,7 @@ class Workspace extends Component {
     role: 'participant',
     creatingNewTab: false,
     activityOnOtherTabs: [],
+    editing: false,
   }
 
   socket = io.connect(process.env.REACT_APP_SERVER_URL);

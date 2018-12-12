@@ -2,6 +2,7 @@
   lightShadow: lightestShadow;
   background: mainBackground;
   lightBlue: lightBlue;
+  blue: blue;
   red: red;
   scrollBackground: darkScroller;
   hoverBackground: hoverBackground;
@@ -198,6 +199,16 @@
 
 .Instructions {
  flex-grow: 2;
+}
+
+.EditInstructions {
+  color: #999;
+  tranistion: .2s;
+  cursor: pointer;
+}
+
+.EditInstructions:hover {
+  color: blue;
 }
 
 .SetStart {
