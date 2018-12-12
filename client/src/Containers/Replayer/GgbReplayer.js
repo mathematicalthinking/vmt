@@ -35,6 +35,7 @@ class GgbReplayer extends Component {
     let { log, index, changingIndex } = this.props;
     // If we've changed tab while playing
     if (prevProps.currentTab !== this.props.currentTab) {
+      console.log('current tab changed')
       let { currentTab, tabs } = this.props;
       let tabStates = {...this.state.tabStates}
       // stash prev tabs state in cae we come back to it 
@@ -49,12 +50,14 @@ class GgbReplayer extends Component {
       }
     }
     
-    else if (changingIndex && this.state.tabStates !== prevState.tabStates) {
+    if (changingIndex && this.state.tabStates !== prevState.tabStates) {
+
     }
     
     // IF we're skipping it means we might need to reconstruct several evenets, possible in reverse order if the prevIndex is greater than this index.
     // This is a god damned mess...good luck 
     else if (changingIndex) {
+      console.log('changing Index...i.e. skipping')
       // If our target tab is different from the one we're on
       if (this.props.log[this.props.index].tab !== this.props.tabs[this.props.currentTab]._id) {
         // Save the currentState and index of the current Tab
@@ -86,7 +89,8 @@ class GgbReplayer extends Component {
         this.applyMultipleEvents(prevProps.index, this.props.index)
       }
     }
-    else if (prevProps.log[prevProps.index]._id !== log[index]._id && !this.state.loading && !log[index].text) {
+    else if (prevProps.log[prevProps.index]._id !== log[index]._id && !this.state.loading && !log[index].text && !log[index].synthetic) {
+      console.log('we switched to a new eventindex while playing')
       // check if the tab has changed
       this.constructEvent(log[index])
     }
