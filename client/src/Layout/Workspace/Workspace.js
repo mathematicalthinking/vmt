@@ -13,8 +13,8 @@ const workspaceLayout = React.memo(({
   room, user, socket, currentTab, role,
   resetControlTimer, inControl, toggleControl, 
   replayer, activeMember, temp, 
-  save, someoneElseInControl,
-  instructions, history, saved, updateRoom, updatedRoom,
+  save, someoneElseInControl, history, 
+  saved, updateRoom, updatedRoom,
   startNewReference, showReference, 
   referencing, showingReference,setToElAndCoords,
   setFromElAndCoords, referToEl, referToCoords, referFromEl, 
@@ -121,7 +121,8 @@ const workspaceLayout = React.memo(({
             <ReplayerControls {...replayer} /> : 
             <div className={classes.RoomDescription}>
               <h3 className={classes.InstructionsTitle}>Instructions</h3>
-              <div className={classes.Instructions}>{temp ? `Share this url to invite others: ${window.location}` : instructions}</div>
+              <div className={classes.Instructions}>{temp ? `Share this url to invite others: ${window.location}` : room.tabs[currentTab].instructions ? room.tabs[currentTab].instructions : room.instructions}</div>
+              <div className={classes.SetStart}><Button theme={'Small'}>Set Starting Point</Button></div>
             </div>
           }
           {temp && !saved ? 

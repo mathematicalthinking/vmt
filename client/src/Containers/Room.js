@@ -1,6 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification} from '../store/actions';
+import { 
+  enterRoomWithCode, 
+  populateRoom, 
+  requestAccess, 
+  clearError, 
+  clearNotification,
+  updateRoom,
+} from '../store/actions';
 import moment from 'moment'
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 import Aux from '../Components/HOC/Auxil';
@@ -37,7 +44,9 @@ class Room extends Component {
       let updatedTabs = [...this.state.tabs];
       let owner = false;
       let firstView = false;
-      if (room.creator._id === user._id) {
+      console.log(room.creator._id)
+      console.log(user._id)
+      if (room.creator === user._id || room.creator._id === user._id) { // WE SHOULD ACTUALLY BE CHECKING THE FACILITATORS NOT THE OWNER
         // updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
         // this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
         owner = true;
@@ -65,7 +74,7 @@ class Room extends Component {
     }
     // else fetch it 
     else {
-      populateRoom(match.params.room_id) // @TODO WE DONT ACTUALLY WANT TO POPULATE IT HERE...THAT GIVES US ALL THE EVENTS..WE JUST WANT TO GET THE MEMBERS SO WE CAN CHECK ACCESS
+      // populateRoom(match.params.room_id) // @TODO WE DONT ACTUALLY WANT TO POPULATE IT HERE...THAT GIVES US ALL THE EVENTS..WE JUST WANT TO GET THE MEMBERS SO WE CAN CHECK ACCESS
     }
 
   }
@@ -113,9 +122,7 @@ class Room extends Component {
   }
 
   update = (roomId, body) => {
-    console.log(roomId)
-    console.log(body)
-
+    this.props.updateRoom(roomId, body)
   }
 
   goToWorkspace = () => {
@@ -224,4 +231,4 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification})(Room);
+export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification, updateRoom})(Room);

@@ -187,11 +187,23 @@
 
 .RoomDescription {
   padding: 30px;
+  display: flex;
+  flex-direction: column;
   height: 160px;
 }
 
 .InstructionsTitle {
   border-bottom: 1px solid #ddd;
+}
+
+.Instructions {
+ flex-grow: 2;
+}
+
+.SetStart {
+  flex-grow: 1;
+  flex-shrink: 1;
+  /* align-self: flex-end; */
 }
 
 
@@ -272,3 +284,4 @@
   z-index: 0;
   pointer-events: none;
 }
+
