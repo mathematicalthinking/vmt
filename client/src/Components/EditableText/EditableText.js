@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Aux, Button } from '../../Components';
 import classes from './editableText.css';
 import { connect } from 'react-redux';
-import { updateRoom, updateActivity, update } from '../../store/actions';
+import { updateRoomTab, updateActivity, updateCourse, updateRoom, } from '../../store/actions';
 class EditableText extends Component {
 
   state = {
@@ -21,14 +21,25 @@ class EditableText extends Component {
   }
 
   toggleEdit = () => {
-    console.log('toggling edit')
     this.setState(prevState => ({
       editing: !prevState.editing   
     }))
   }
 
+  submit = () => {
+    let { 
+      resource, 
+      parentId , 
+      field,
+      id, 
+    } = this.props;
+    if (resource === 'tab') {
+      this.props.updateRoomTab(parentId, id, {[field]: this.state.text})
+    }
+    this.toggleEdit();
+  }
+
   render() {
-    console.log(this.props.type)
     return (
       <Aux>
        { this.state.editing
@@ -39,7 +50,7 @@ class EditableText extends Component {
               : <input className={classes.TextInput} onChange={this.updateText} value={this.state.text}/>
             }
             <div className={classes.EditButtons}>
-              <div><Button m={10} click={this.submitInstructions}>Save</Button></div>
+              <div><Button m={10} click={this.submit}>Save</Button></div>
               <div><Button m={10} click={this.toggleEdit}>Cancel</Button></div>
             </div>
           </div> 
@@ -53,4 +64,4 @@ class EditableText extends Component {
   }
 }
 
-export default EditableText;
+export default connect(null, {updateRoomTab, updateActivity, updateCourse})(EditableText);

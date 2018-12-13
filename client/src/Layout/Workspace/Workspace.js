@@ -121,34 +121,16 @@ const workspaceLayout = React.memo(({
             ? <ReplayerControls {...replayer} />
             : <div className={classes.RoomDescription}>
                 <h3 className={classes.InstructionsTitle}>
-                  <EditableText owner={role === 'facilitator'} inputType={'INPUT'}>
+                  <EditableText owner={role === 'facilitator'} inputType={'INPUT'} resource='tab' id={room.tabs[currentTab]._id}  parentId={room._id} field='name'>
                     {room.tabs[currentTab].name}
                   </EditableText> Instructions
                 </h3>
                 <div>
-                  <EditableText owner={role === 'facilitator'} title={''} inputType={'TEXT_AREA'}>
+                  <EditableText owner={role === 'facilitator'} inputType={'TEXT_AREA'} resource='tab' id={room.tabs[currentTab]._id} parentId={room._id} field='instructions'>
                     {room.tabs[currentTab].instructions || room.instructions}
                   </EditableText>
                 </div>
               </div>
-
-            // <div className={classes.RoomDescription}>
-            //     <h3 className={classes.InstructionsTitle}>
-            //       { editing ?  <TextInput /> : <div>{room.tabs[currentTab].name} Instructions</div>}
-            //     </h3>
-            //   <div className={classes.Instructions}>
-            //     {role === 'facilitator' ? 
-                  
-            //       : null
-            //     } 
-            //     {temp ? `Share this url to invite others: ${window.location}` : room.tabs[currentTab].instructions ? room.tabs[currentTab].instructions : room.instructions}</div>
-            //   {role === 'facilitator' ? 
-            //     <div className={classes.UpdateControls}>
-            //       <div className={classes.SetStart}><Button theme={'Small'}>Set Starting Point</Button></div> 
-            //     </div> 
-            //     : null
-            //   }
-            // </div>
           }
           {temp && !saved ? 
             <div>

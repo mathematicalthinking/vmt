@@ -30,6 +30,30 @@ const reducer = (state = initialState, action) => {
         },
       }
 
+    case actionTypes.UPDATED_ROOM_TAB:
+    console.log('updating room tab')
+      fields = Object.keys(action.body)
+      console.log(fields)
+      let updatedTabs = state.byId[action.roomId].tabs.map(tab => {
+        if (tab._id === action.tabId) {
+          fields.forEach(field => {
+            tab[field] = action.body[field]
+          })        
+        }
+        return tab;
+      })
+      console.log(updatedTabs)
+      return {
+        ...state,
+        byId: {
+          ...state.byId,
+          [action.roomId]: {
+            ...state.byId[action.roomId],
+            tabs: updatedTabs,
+          }
+        }
+      }
+
     // @TODO if we've created a new room alert the user so we can redirect
     // to the room --> do this by updating the sto
 

@@ -21,6 +21,15 @@ export const updatedRoom = (roomId, body) => {
   }
 }
 
+export const updatedRoomTab = (roomId, tabId, body) => {
+  return {
+    type: actionTypes.UPDATED_ROOM_TAB,
+    roomId,
+    tabId,
+    body,
+  }
+}
+
 export const clearCurrentRoom = () => {
   return {
     type: actionTypes.CLEAR_ROOM
@@ -90,6 +99,18 @@ export const updateRoom = (id, body) => {
     })
     // API REQUEST
   }
+}
+
+export const updateRoomTab = (roomId, tabId, body) => {
+  return dispatch => {
+    dispatch(updatedRoomTab(roomId, tabId, body))
+    API.put('tabs', tabId, body)
+    .then(res => {
+
+    })
+    .catch(err => {console.log(err)})
+  }
+
 }
 
 export const removeRoomMember = (roomId, userId) => {
