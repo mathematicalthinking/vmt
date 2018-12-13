@@ -15,6 +15,11 @@ class EditableText extends Component {
   //     text: this.props.children
   //   })
   // }
+  componentDidUpdate(prevProps, prevState){
+    if (prevState === this.state && prevProps.children !== this.props.children) {
+      this.setState({text: this.props.children})
+    }
+  }
 
   updateText = (event) => {
     this.setState({text: event.target.value})
