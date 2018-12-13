@@ -24,9 +24,12 @@ module.exports = {
       .then(tab => {
         console.log("created a tab in controller")
         newTab = tab;
-        return db.Room.findByIdAndUpdate(body.room, {$addToSet: {tabs: tab._id}})
+        if (tab.room) {
+          return db.Room.findByIdAndUpdate(body.room, {$addToSet: {tabs: tab._id}})
+        }
+        return db.Activity.findByIdAndUpdate(body.activity, {$addToSet: {tabs: tab._id}})
       })
-      .then(room => {
+      .then(resource => {
         resolve(newTab)
       })
       .catch(err => reject(err))

@@ -11,7 +11,7 @@ import {
   DesmosReplayer,
   Chat,
   ChatReplayer,
-} from '../../Containers'
+} from '../../Containers';
 
 const workspaceLayout = React.memo(({
   room, user, socket, currentTab, role,

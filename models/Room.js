@@ -61,29 +61,25 @@ Room.pre('save', function (next) {
       next()
     })
     .catch(err => next(err)) //@TODO WE NEED ERROR HANDLING HERE
-  } 
-  else if (!this.isNew) {
+  } else if (!this.isNew) {
     this.modifiedPaths().forEach(field => {
       if (field === 'members') { 
         User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
           $addToSet: {rooms: this._id}
         }).then(user => {next()})
         .catch(err => console.log(err))
-      } 
-      else if (field === 'tempRoom') {
+      } else if (field === 'tempRoom') {
         User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}})
         .then(res => {
           next()
         })
         .catch(err => console.log(err))
-      }
-      else if (field === 'currentMembers') {
+      } else if (field === 'currentMembers') {
         console.log('current members modified what we can do with tha info')
         console.log(this)
       }
     })
-  }
-  else {
+  } else {
     next()
   }
 });

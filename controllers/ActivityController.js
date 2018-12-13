@@ -4,7 +4,7 @@ module.exports = {
   get: (params) => {
     return new Promise((resolve, reject) => {
       db.Activity.find(params).populate('tabs')
-      .then(activities => resolve(activities))
+      .then(activities => {resolve(activities)})
       .catch(err => reject(err));
     });
   },
