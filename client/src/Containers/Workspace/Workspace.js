@@ -245,6 +245,13 @@ class Workspace extends Component {
     this.setState({activityOnOtherTabs: this.state.activityOnOtherTabs.filter(tab => tab !== id)})
   }
 
+  toggleEdit = () => {
+    console.log('toggling edit')
+    this.setState(prevState => ({
+      editing: !prevState.editing
+    }))
+  }
+
   render() {
     const { room, user } = this.props;
     return (
@@ -278,6 +285,8 @@ class Workspace extends Component {
           changeTab={this.changeTab}
           addNtfToTabs={this.addNtfToTabs}
           ntfTabs={this.state.activityOnOtherTabs}
+          toggleEdit={this.toggleEdit}
+          editing={this.state.editing}
           // populateRoom={this.props.populateRoom}
         /> : null}
         <Modal show={this.state.creatingNewTab} closeModal={this.closeModal}>

@@ -1,7 +1,7 @@
 import React from 'react';
 import classes from './workspace.css';
 import { withRouter } from 'react-router-dom';
-import { CurrentMembers, Button, ReplayerControls }from '../../Components';
+import { CurrentMembers, Button, ReplayerControls, TextInput, EditableText }from '../../Components';
 import GgbGraph from '../../Containers/Workspace/GgbGraph';
 import DesmosGraph from '../../Containers/Workspace/DesmosGraph';
 import GgbReplayer from '../../Containers/Replayer/GgbReplayer';
@@ -19,7 +19,7 @@ const workspaceLayout = React.memo(({
   referencing, showingReference,setToElAndCoords,
   setFromElAndCoords, referToEl, referToCoords, referFromEl, 
   referFromCoords, clearReference, createNewTab, changeTab,
-  addNtfToTabs, ntfTabs,
+  addNtfToTabs, ntfTabs, 
 }) => {
   let controlText = 'Take Control';
   if (inControl) controlText = 'Release Control';
@@ -117,19 +117,38 @@ const workspaceLayout = React.memo(({
         </div>
         <div className={classes.Bottom}>
           <div className={classes.Left}>
-          {replayer ? 
-            <ReplayerControls {...replayer} /> : 
-            <div className={classes.RoomDescription}>
-              <h3 className={classes.InstructionsTitle}>{room.tabs[currentTab].name} Instructions</h3>
-              <div className={classes.Instructions}>
-                {role === 'facilitator' ? <i className={["fas fa-edit", classes.EditInstructions].join(' ')}></i> : null} 
-                {temp ? `Share this url to invite others: ${window.location}` : room.tabs[currentTab].instructions ? room.tabs[currentTab].instructions : room.instructions}</div>
-              {role === 'facilitator' ? 
-                <div className={classes.UpdateControls}>
-                  <div className={classes.SetStart}><Button theme={'Small'}>Set Starting Point</Button></div> 
+          {replayer 
+            ? <ReplayerControls {...replayer} />
+            : <div className={classes.RoomDescription}>
+                <h3 className={classes.InstructionsTitle}>
+                  <EditableText owner={role === 'facilitator'} inputType={'INPUT'}>
+                    {room.tabs[currentTab].name}
+                  </EditableText> Instructions
+                </h3>
+                <div>
+                  <EditableText owner={role === 'facilitator'} title={''} inputType={'TEXT_AREA'}>
+                    {room.tabs[currentTab].instructions || room.instructions}
+                  </EditableText>
                 </div>
-              : null}
-            </div>
+              </div>
+
+            // <div className={classes.RoomDescription}>
+            //     <h3 className={classes.InstructionsTitle}>
+            //       { editing ?  <TextInput /> : <div>{room.tabs[currentTab].name} Instructions</div>}
+            //     </h3>
+            //   <div className={classes.Instructions}>
+            //     {role === 'facilitator' ? 
+                  
+            //       : null
+            //     } 
+            //     {temp ? `Share this url to invite others: ${window.location}` : room.tabs[currentTab].instructions ? room.tabs[currentTab].instructions : room.instructions}</div>
+            //   {role === 'facilitator' ? 
+            //     <div className={classes.UpdateControls}>
+            //       <div className={classes.SetStart}><Button theme={'Small'}>Set Starting Point</Button></div> 
+            //     </div> 
+            //     : null
+            //   }
+            // </div>
           }
           {temp && !saved ? 
             <div>
