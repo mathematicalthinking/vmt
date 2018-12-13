@@ -182,6 +182,7 @@ export const createRoom = body => {
     API.post('rooms', body)
     .then(res => {
       let result = res.data.result;
+      console.log("CREATED ROOM: ", result)
       dispatch(createdRoom(result))
       if (!body.tempRoom) {
         if (body.course) {

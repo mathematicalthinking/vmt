@@ -1,6 +1,7 @@
 // THIS DOESN"T FEEL LIKE ITS IN A VERY LOGICAL PLACE IN THE FILE STRUCUTRE
 
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
 import { Aux, Button, Modal } from '../../../Components';
 import MakeRooms from '../../../Containers/Create/MakeRooms/MakeRooms';
 import classes from './activityDetails.css'
@@ -19,11 +20,16 @@ class ActivityDetails extends Component {
     this.props.toggleEdit();
   }
 
+  setStartingPoint = () => {
+    this.props.history.push(`/myVMT/workspace/${this.props.activity._id}/activity`)
+  }
+
   render() {
     const { activity, course, editing, toggleEdit, owner } = this.props;
     return (
       <Aux>
         <div>
+          {/* @TODO REPLACE THIS WITH <EDITABLEtEXT /> COMPONENT */}
           {editing ?
             <div className={classes.Instructions}>
               <b>Instructions: </b>
@@ -35,7 +41,13 @@ class ActivityDetails extends Component {
             </div> :
             <div><b>Instructions:</b> {activity.instructions || !owner ? activity.instructions: <span className={classes.Edit} onClick={toggleEdit}>click here to add instructions</span>} </div>
           }
-          {!editing && owner ? <Button click={() => {this.setState({assigning: true})}} data-testid='assign'>Assign</Button> : null}
+          {!editing && owner 
+            ? <div>
+                <Button m={5} click={this.setStartingPoint}>Set Starting Point</Button>
+                <Button m={5} click={() => {this.setState({assigning: true})}} data-testid='assign'>Assign</Button>
+              </div> 
+            : null
+          }
         </div>
         {this.state.assigning ? <Modal show={true} closeModal={() => {this.setState({assigning: false})}}>
           <MakeRooms
@@ -50,4 +62,4 @@ class ActivityDetails extends Component {
   }
 }
 
-export default ActivityDetails;
+export default withRouter(ActivityDetails);

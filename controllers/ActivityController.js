@@ -24,9 +24,23 @@ module.exports = {
       }
       delete body.template;
       delete body.templateIsPublic;
+      let createdActivity;
       db.Activity.create(body)
       .then(activity => {
-        resolve(activity)})
+        createdActivity = activity;
+        return db.Tab.create({
+          name: 'Tab 1',
+          activity: activity._id,
+          desmosLink: body.desmosLink,
+          ggbFile: body.ggbFile,
+          tabType: body.roomType,
+        })
+      })
+      .then(tab => {
+        return db.Activity.findByIdAndUpdate(createdActivity._id, {$addToSet: {tabs: tab._id}}, {new: true})
+          .populate({path: 'tabs'})
+      })
+      .then(activity => resolve(activity))
       .catch(err => {
         console.log(err)
         reject(err)

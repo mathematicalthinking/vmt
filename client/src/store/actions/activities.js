@@ -85,6 +85,7 @@ export const createActivity = body => {
     dispatch(loading.start())
     API.post('activities', body)
     .then(res => {
+      console.log('created actvityt! ', res)
       let result = res.data.result;
       dispatch(createdActivity(result))
       if (body.course) {
