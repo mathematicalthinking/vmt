@@ -21,7 +21,6 @@ class ActivityDetails extends Component {
   }
 
   setStartingPoint = () => {
-    
     this.props.history.push(`/myVMT/workspace/${this.props.activity._id}/activity`)
   }
 
@@ -44,8 +43,8 @@ class ActivityDetails extends Component {
           }
           {!editing && owner 
             ? <div>
-                <Button m={5} click={this.setStartingPoint}>Set Starting Point</Button>
-                <Button m={5} click={() => {this.setState({assigning: true})}} data-testid='assign'>Assign</Button>
+                <Button m={5} click={this.setStartingPoint}>View Activity</Button>
+                <Button m={5} click={() => {this.setState({assigning: true})}} data-testid='assign'>Assign Activity</Button>
               </div> 
             : null
           }

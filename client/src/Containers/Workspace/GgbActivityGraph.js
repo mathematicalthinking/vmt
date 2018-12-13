@@ -123,7 +123,6 @@ class GgbActivityGraph extends Component{
   }, 500)
 
   registerListeners() {
-    console.log('registering listeners')
     this.ggbApplet.registerAddListener(this.getGgbState);
     this.ggbApplet.registerUpdateListener(this.getGgbState);
     this.ggbApplet.registerRemoveListener(this.getGgbState);

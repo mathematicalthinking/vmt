@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { updatedActivity, setActivityStartingPoint, getCurrentActivity } from '../../store/actions';
-import { Aux, Modal } from '../../Components';
+import { 
+  updatedActivity, 
+  setActivityStartingPoint, 
+  getCurrentActivity,
+  createActivity, 
+} from '../../store/actions';
+import { Aux, Modal, TextInput, Button } from '../../Components';
 import { WorkspaceLayout } from '../../Layout';
 import NewTabForm from './NewTabForm';
 class ActivityWorkspace extends Component {
@@ -9,6 +14,8 @@ class ActivityWorkspace extends Component {
   state = {
     currentTab: 0,
     creatingNewTab: false,
+    addingToMyActivities: false,
+    newName: '',
   }
 
   componentDidMount(){
@@ -34,6 +41,22 @@ class ActivityWorkspace extends Component {
     this.props.setActivityStartingPoint(this.props.activity._id)
   }
 
+  addToMyActivities = () => {
+    // create a new activity that belongs to the current user 
+    this.setState({addingToMyActivities: true})
+  }
+  
+  createNewActivity = () => {
+    let activity = {...this.props.activity}
+    delete activity._id;
+    delete activity.createdAt;
+    delete activity.updatedAt;
+    activity.creator = this.props.user._id
+    activity.name = this.state.newName
+    this.props.createActivity(activity)
+    this.setState({addingToMyActivities: false})
+  }
+
   render() {
     console.log(this.props)
     let role = 'participant'
@@ -54,6 +77,7 @@ class ActivityWorkspace extends Component {
               updatedActivity={this.props.updatedActivity}
               inControl={true}
               activityWorkspace={true}
+              copyActivity={this.addToMyActivities}
               // startNewReference={this.startNewReference}
               // referencing={this.state.referencing}
               // showReference={this.showReference}
@@ -72,6 +96,10 @@ class ActivityWorkspace extends Component {
           <Modal show={this.state.creatingNewTab} closeModal={this.closeModal}>
             <NewTabForm activity={this.props.activity} closeModal={this.closeModal} updatedActivity={this.props.updatedActivity}/>  
           </Modal>
+          <Modal show={this.state.addingToMyActivities} closeModal={() => this.setState({addingToMyActivities: false})}>
+            <TextInput show={this.state.addingToMyActivities} light focus={true} value={this.state.newName} change={(event) => {this.setState({newName: event.target.value})}} label={'New Activity Name'}/>
+            <Button click={this.createNewActivity}>Submit</Button>
+          </Modal>
         </Aux>
         : <div>Loading</div>
     )
@@ -86,4 +114,4 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-export default connect(mapStateToProps, { updatedActivity, setActivityStartingPoint, getCurrentActivity})(ActivityWorkspace);
+export default connect(mapStateToProps, { updatedActivity, setActivityStartingPoint, getCurrentActivity, createActivity})(ActivityWorkspace);
