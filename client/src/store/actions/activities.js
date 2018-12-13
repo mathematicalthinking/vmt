@@ -26,6 +26,21 @@ export const updatedActivity = (id, body) => {
   }
 }
 
+export const setActivityStartingPoint = (id) => {
+  return ((dispatch, getState) => {
+    let tabs = getState().activities.byId[id].tabs.map(tab => {
+      tab.startingPoint = tab.currentState;
+      tab.currentState = tab.currentState;
+      tab.events = [];
+      return tab;
+    })
+    dispatch(updatedActivity(id, {tabs,}))
+    Promise.all(tabs.map(tab => API.put('tabs', tab._id, {events: [], startingPoint: tab.startingPoint, currentState: tab.currentState})))
+    .then(res => console.log('updatedTabs to new starting point'))
+    .catch(err => console.log("ER w THT: ", err))
+  })
+}
+
 export const clearCurrentActivity = () => {
   return {
     type: actionTypes.CLEAR_ACTIVITY

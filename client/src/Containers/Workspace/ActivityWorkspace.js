@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { updatedActivity } from '../../store/actions';
+import { updatedActivity, setActivityStartingPoint } from '../../store/actions';
 import { Aux, Modal } from '../../Components';
 import { WorkspaceLayout } from '../../Layout';
 import NewTabForm from './NewTabForm';
@@ -11,7 +11,7 @@ class ActivityWorkspace extends Component {
     creatingNewTab: false,
   }
 
-  changTab = (index) => {
+  changeTab = (index) => {
     this.setState({currentTab: index})
   }
 
@@ -23,8 +23,12 @@ class ActivityWorkspace extends Component {
     this.setState({creatingNewTab: false})
   }
 
+  setStartingPoint = () => {
+    console.log('set activity starting point')
+    this.props.setActivityStartingPoint(this.props.activity._id)
+  }
+
   render() {
-    console.log(this.props.activity)
     return (
       <Aux>
         <WorkspaceLayout
@@ -68,4 +72,4 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-export default connect(mapStateToProps, { updatedActivity, })(ActivityWorkspace);
+export default connect(mapStateToProps, { updatedActivity, setActivityStartingPoint, })(ActivityWorkspace);

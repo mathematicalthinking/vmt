@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { parseString } from 'xml2js';
 import throttle from 'lodash/throttle';
 import { Aux , Modal} from '../../Components';
+import INITIAL_GGB from './blankGgb';
 import Script from 'react-load-script';
 import classes from './graph.css';
 
@@ -16,6 +17,20 @@ class GgbActivityGraph extends Component{
 
   componentDidMount(){
     window.addEventListener("resize", this.updateDimensions);
+  }
+
+  componentDidUpdate(prevProps){
+    if (prevProps.currentTab !== this.props.currentTab) {
+      console.log('switched tab, ', this.props.currentTab)
+      if (this.props.tabs[this.props.currentTab].currentState !== '') {
+        console.log('')
+        setTimeout(this.ggbApplet.setXML(this.props.tabs[this.props.currentTab].currentState), 0)
+      }
+      else {
+        setTimeout(this.ggbApplet.setXML(INITIAL_GGB), 0)
+      }
+      this.registerListeners();
+    }
   }
 
   componentWillUnmount(){
@@ -89,18 +104,25 @@ class GgbActivityGraph extends Component{
   initializeGgb = () => {
     this.ggbApplet = window.ggbApplet;
     this.setState({loading: false});
+    let { startingPoint } = this.props.tabs[this.props.currentTab];
+    if (startingPoint) {
+      this.ggbApplet.setXML(startingPoint)
+    }
     this.registerListeners();
+    // put the current construction on the graph, disable everything until the user takes control
   }
 
   getGgbState = throttle(() => {
+    console.log('get ggb state')
     let updatedTabs = [...this.props.tabs]
     let updatedTab = {...this.props.tabs[this.props.currentTab]}
     updatedTab.currentState = this.ggbApplet.getXML();
     updatedTabs[this.props.currentTab] = updatedTab;
     this.props.updatedActivity(this.props.activity._id, {tabs: updatedTabs})
-  }, 1000)
+  }, 500)
 
   registerListeners() {
+    console.log('registering listeners')
     this.ggbApplet.registerAddListener(this.getGgbState);
     this.ggbApplet.registerUpdateListener(this.getGgbState);
     this.ggbApplet.registerRemoveListener(this.getGgbState);

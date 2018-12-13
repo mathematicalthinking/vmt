@@ -73,7 +73,7 @@ const reducer = (state = initialState, action) => {
         ...state,
         createdNewActivity: false,
       }
-      default:
+    default:
       return state
   }
 };
