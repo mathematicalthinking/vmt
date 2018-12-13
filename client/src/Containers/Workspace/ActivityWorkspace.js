@@ -9,16 +9,18 @@ class ActivityWorkspace extends Component {
   }
 
   render() {
+    console.log(this.props.activity)
     return (
       <WorkspaceLayout
           // activeMember={this.state.activeMember}
           room={this.props.activity}
           user={this.props.user}
-          role='facilitator'
+          role='facilitator' // oh shit role is taken...its for a11y  stuff
           currentTab={this.state.currentTab}
           updateRoom={this.props.updateRoom}
           updatedRoom={this.props.updatedRoom}
           inControl={true}
+          activityWorkspace={true}
           // startNewReference={this.startNewReference}
           // referencing={this.state.referencing}
           // showReference={this.showReference}
@@ -39,8 +41,9 @@ class ActivityWorkspace extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
+  console.log(ownProps)
   return {
-    activity: state.activities.byId[ownProps.activitiy_id],
+    activity: state.activities.byId[ownProps.match.params.activity_id],
     user: state.user
   }
 }

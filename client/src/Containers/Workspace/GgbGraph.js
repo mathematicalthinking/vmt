@@ -158,10 +158,10 @@ class GgbGraph extends Component {
       // this.ggbApplet.unregisterClearListener(this.clearListener);
       // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
     }
-    if (!this.props.tempRoom) {
-      let canvas = document.querySelector('[aria-label="Graphics View 1"]');
-      this.props.updateRoom(this.props.room._id, {graphImage: {imageData: canvas.toDataURL()}})
-    }
+    // if (!this.props.tempRoom) {
+    //   let canvas = document.querySelector('[aria-label="Graphics View 1"]');
+    //   this.props.updateRoom(this.props.room._id, {graphImage: {imageData: canvas.toDataURL()}})
+    // }
     window.removeEventListener("resize", this.updateDimensions);
   }
   

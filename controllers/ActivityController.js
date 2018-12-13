@@ -3,7 +3,7 @@ const db = require('../models')
 module.exports = {
   get: (params) => {
     return new Promise((resolve, reject) => {
-      db.Activity.find(params)
+      db.Activity.find(params).populate('tabs')
       .then(activities => resolve(activities))
       .catch(err => reject(err));
     });
@@ -11,7 +11,7 @@ module.exports = {
 
   getById: (id) => {
     return new Promise((resolve, reject) => {
-      db.Activity.findById(id)
+      db.Activity.findById(id).populate('tabs')
       .then(activity => resolve(activity))
       .catch(err => reject(err))
     });
@@ -37,10 +37,11 @@ module.exports = {
         })
       })
       .then(tab => {
-        return db.Activity.findByIdAndUpdate(createdActivity._id, {$addToSet: {tabs: tab._id}}, {new: true})
-          .populate({path: 'tabs'})
+        return db.Activity.findByIdAndUpdate(createdActivity._id, {$addToSet: {tabs: tab._id}}, {new: true}).populate({path: 'tabs'})
       })
-      .then(activity => resolve(activity))
+      .then(activity => {
+        resolve(activity)
+      })
       .catch(err => {
         console.log(err)
         reject(err)

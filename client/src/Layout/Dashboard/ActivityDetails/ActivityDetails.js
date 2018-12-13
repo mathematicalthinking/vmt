@@ -21,6 +21,7 @@ class ActivityDetails extends Component {
   }
 
   setStartingPoint = () => {
+    
     this.props.history.push(`/myVMT/workspace/${this.props.activity._id}/activity`)
   }
 
