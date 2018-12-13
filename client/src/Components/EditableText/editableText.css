@@ -1,21 +1,6 @@
 :import('../../colors.css'){
-  lightestShadow: lightestShadow;
   blue: blue;
 }
-
-.Buttons {
-  height: 50px;
-}
-
-.Button {
-  font-size: 1.4em;
-}
-
-.StateImage {
-  box-shadow: lightestShadow;
-  height: 400px;
-}
-
 .Edit {
   color: #999;
   cursor: pointer;
@@ -26,19 +11,33 @@
   color: blue;
 }
 
-.Instructions {
+.EditContainer {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
+.EditLine {
+  display: flex;
+}
+
 .TextArea {
   width: 100%;
-  height: 300px;
-  font-size: 20px;
+  height: 90%;
+  font-size: 19px;
   padding: 5px;
+  resize: none;
 }
 
 .EditButtons {
   display: flex;
+}
+
+.ToggleEdit {
+  color: #999;
+  cursor: pointer;
+}
+
+.ToggleEdit:hover {
+  color: blue;
 }

@@ -1,6 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification} from '../store/actions';
+import { 
+  enterRoomWithCode, 
+  populateRoom, 
+  requestAccess, 
+  clearError, 
+  clearNotification,
+  updateRoom,
+} from '../store/actions';
 import moment from 'moment'
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 import Aux from '../Components/HOC/Auxil';
@@ -19,6 +26,7 @@ class Room extends Component {
       {name: 'Members'},
     ],
     firstView: false,
+    editing: false,
   }
 
   initialTabs = [
@@ -36,7 +44,9 @@ class Room extends Component {
       let updatedTabs = [...this.state.tabs];
       let owner = false;
       let firstView = false;
-      if (room.creator._id === user._id) {
+      console.log(room.creator._id)
+      console.log(user._id)
+      if (room.creator === user._id || room.creator._id === user._id) { // WE SHOULD ACTUALLY BE CHECKING THE FACILITATORS NOT THE OWNER
         // updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
         // this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
         owner = true;
@@ -64,7 +74,7 @@ class Room extends Component {
     }
     // else fetch it 
     else {
-      populateRoom(match.params.room_id) // @TODO WE DONT ACTUALLY WANT TO POPULATE IT HERE...THAT GIVES US ALL THE EVENTS..WE JUST WANT TO GET THE MEMBERS SO WE CAN CHECK ACCESS
+      // populateRoom(match.params.room_id) // @TODO WE DONT ACTUALLY WANT TO POPULATE IT HERE...THAT GIVES US ALL THE EVENTS..WE JUST WANT TO GET THE MEMBERS SO WE CAN CHECK ACCESS
     }
 
   }
@@ -104,6 +114,25 @@ class Room extends Component {
     return tabs;
   }
 
+  toggleEdit = () => {
+    console.log('toggling edit')
+    this.setState(prevState => ({
+      editing: !prevState.editing
+    }))
+  }
+
+  update = (roomId, body) => {
+    this.props.updateRoom(roomId, body)
+  }
+
+  goToWorkspace = () => {
+    this.props.history.push(`/myVMT/workspace/${this.props.room._id}`);
+  }
+  
+  goToReplayer = () => {
+    this.props.history.push(`/myVMT/workspace/${this.props.room._id}/replayer`)
+  }
+
   render() {
     let { 
       room, match, user,
@@ -114,14 +143,14 @@ class Room extends Component {
       let resource = match.params.resource;
       let contentData = {
         resource,
+        room,
+        courseMembers,
+        user,
         parentResource: 'rooms',
         parentResourceId: room._id,
         userResources: room[resource],
         owner: this.state.owner,
         notifications: accessNotifications.filter(ntf => ntf._id === room._id) || [],
-        room,
-        courseMembers,
-        user,
       }
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
       let dueDateText = 'Due Date' // the fact that we have to do this make this not worth it
@@ -137,7 +166,13 @@ class Room extends Component {
             type: room.roomType,
           }
         },
-        edit: {}
+        buttons: () => (
+          <Aux>
+            <span><Button theme={this.props.loading ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToWorkspace : () => null}>Enter</Button></span>
+            <span><Button theme={(this.props.loading) ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToReplayer : () => null}>Replayer</Button></span>
+          </Aux>
+        ),
+        edit: this.state.owner ? {action: 'edit', text: 'edit room'} : null,
       }
 
       let crumbs = [
@@ -157,13 +192,16 @@ class Room extends Component {
             tabs={this.state.tabs}
             activeTab={resource}
             loading={this.props.loading}
+            toggleEdit={this.toggleEdit}
+            update={this.update}
+            editing={this.state.editing}
             activateTab={event => this.setState({activeTab: event.target.id})}
           />
-          <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
+          {this.state.firstView ? <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
             <p>Welcome to {room.name}. If this is your first time joining a course,
             we recommend you take a tour. Otherwise you can start exploring this room's features.</p>
             <Button click={() => this.setState({firstView: false})}>Explore</Button>
-          </Modal>
+          </Modal> : null}
         </Aux>
       )
     } else return (
@@ -193,4 +231,4 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification})(Room);
+export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification, updateRoom})(Room);

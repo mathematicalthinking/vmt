@@ -158,10 +158,10 @@ class GgbGraph extends Component {
       // this.ggbApplet.unregisterClearListener(this.clearListener);
       // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
     }
-    if (!this.props.tempRoom) {
-      let canvas = document.querySelector('[aria-label="Graphics View 1"]');
-      this.props.updateRoom(this.props.room._id, {graphImage: {imageData: canvas.toDataURL()}})
-    }
+    // if (!this.props.tempRoom) {
+    //   let canvas = document.querySelector('[aria-label="Graphics View 1"]');
+    //   this.props.updateRoom(this.props.room._id, {graphImage: {imageData: canvas.toDataURL()}})
+    // }
     window.removeEventListener("resize", this.updateDimensions);
   }
   
@@ -173,7 +173,7 @@ class GgbGraph extends Component {
     let { currentState } = room.tabs[currentTab];
     // put the current construction on the graph, disable everything until the user takes control
     if (currentState) {
-      this.ggbApplet.setXML(room.tabs[currentTab].currentState)
+      this.ggbApplet.setXML(currentState)
       this.freezeElements(true)
     }
     
@@ -255,11 +255,13 @@ class GgbGraph extends Component {
       currentState: this.ggbApplet.getXML(),
       mode: this.ggbApplet.getMode(),
     }
-    let updatedTabs = [...this.props.room.tabs]
-    let updatedTab = {...this.props.room.tabs[this.props.currentTab]}
-    updatedTab.currentState = newData.currentState;
-    updatedTabs[this.props.currentTab] = updatedTab;
-    this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
+    throttle(() => {
+      let updatedTabs = [...this.props.room.tabs]
+      let updatedTab = {...this.props.room.tabs[this.props.currentTab]}
+      updatedTab.currentState = newData.currentState;
+      updatedTabs[this.props.currentTab] = updatedTab;
+      this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
+    }, 1000)
     this.socket.emit('SEND_EVENT', newData)
     this.props.resetControlTimer()
   }, THROTTLE_FIDELITY)

@@ -13,10 +13,18 @@ export const gotRooms = (rooms) => ({
 })
 
 export const updatedRoom = (roomId, body) => {
-  console.log('updating room action: ', roomId, body)
   return {
     type: actionTypes.UPDATED_ROOM,
     roomId,
+    body,
+  }
+}
+
+export const updatedRoomTab = (roomId, tabId, body) => {
+  return {
+    type: actionTypes.UPDATED_ROOM_TAB,
+    roomId,
+    tabId,
     body,
   }
 }
@@ -57,6 +65,20 @@ export const addRoomMember = (roomId, body) => {
   }
 }
 
+export const setRoomStartingPoint = (roomId) => {
+  return ((dispatch, getState) => {
+    let tabs = getState().rooms.byId[roomId].tabs.map(tab => {
+      tab.startingPoint = tab.currentState;
+      tab.events = [];
+      return tab;
+    })
+    dispatch(updatedRoom(roomId, {tabs, chat:[]}))
+    Promise.all(tabs.map(tab => API.put('tabs', tab._id, {events: [], startingPoint: tab.startingPoint})).push(API.put('rooms', roomId, {chat: []})))
+    .then(res => console.log('updatedTabs to new starting point'))
+    .catch(err => console.log("ER w THT: ", err))
+  })
+}
+
 export const createRoomFromActivity = (activityId, userId, dueDate, courseId) => {
   return (dispatch, getState) => {
     let activity = getState().activities.byId[activityId];
@@ -90,6 +112,18 @@ export const updateRoom = (id, body) => {
     })
     // API REQUEST
   }
+}
+
+export const updateRoomTab = (roomId, tabId, body) => {
+  return dispatch => {
+    dispatch(updatedRoomTab(roomId, tabId, body))
+    API.put('tabs', tabId, body)
+    .then(res => {
+
+    })
+    .catch(err => {console.log(err)})
+  }
+
 }
 
 export const removeRoomMember = (roomId, userId) => {
@@ -148,6 +182,7 @@ export const createRoom = body => {
     API.post('rooms', body)
     .then(res => {
       let result = res.data.result;
+      console.log("CREATED ROOM: ", result)
       dispatch(createdRoom(result))
       if (!body.tempRoom) {
         if (body.course) {

@@ -25,7 +25,14 @@ const dashboard = props => {
       update={update}
     />
   } else if (resource === 'details') {
-    content = <Summary room={room} loading={props.loading}/>
+    content = <Summary 
+      room={room} 
+      loading={props.loading} 
+      owner={owner} 
+      toggleEdit={toggleEdit} 
+      update={update} 
+      editing={editing}
+    />
   } else {
     content = resource === 'members' 
       ? <Members {...props.contentData}/>
@@ -53,6 +60,9 @@ const dashboard = props => {
               </div>
               { owner && sidePanelData.edit.link ? <CustomLink to={sidePanelData.edit.link}>{sidePanelData.edit.text} <i className="fas fa-edit"></i></CustomLink> : null}
               { owner && sidePanelData.edit.action ? <div  className={classes.Edit} onClick={toggleEdit}>{sidePanelData.edit.text} <i className="fas fa-edit"></i></div>: null}
+            </div>
+            <div className={classes.spButtons}>
+              {sidePanelData.buttons ? sidePanelData.buttons() : null}
             </div>
             <div className={classes.ViewOpts}></div>
           </div>

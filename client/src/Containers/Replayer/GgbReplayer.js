@@ -18,6 +18,16 @@ class GgbReplayer extends Component {
 
   componentDidMount(){
     window.addEventListener("resize", this.updateDimensions);
+    this.props.tabs.forEach(tab => {
+      if (tab.startingPoint) {
+        this.setState({
+          tabStates: {
+            ...this.state.tabStates,
+            [tab._id]: {construction: tab.startingPoint}
+          }
+        })
+      }
+    })
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -189,6 +199,7 @@ class GgbReplayer extends Component {
   initializeGgb = () => {
     this.ggbApplet = window.ggbApplet;
     this.ggbApplet.setMode(40)
+    this.ggbApplet.setXML(this.props.tabs[0].startingPoint)
     // let xmlContext = this.ggbApplet.getXML()
     // xmlContext = xmlContext.slice(0, xmlContext.length - 27) // THIS IS HACKY BUT ????
     // console.log(xmlContext)

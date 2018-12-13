@@ -2,6 +2,7 @@
   lightShadow: lightestShadow;
   background: mainBackground;
   lightBlue: lightBlue;
+  blue: blue;
   red: red;
   scrollBackground: darkScroller;
   hoverBackground: hoverBackground;
@@ -187,11 +188,33 @@
 
 .RoomDescription {
   padding: 30px;
+  display: flex;
+  flex-direction: column;
   height: 160px;
 }
 
 .InstructionsTitle {
   border-bottom: 1px solid #ddd;
+}
+
+.Instructions {
+ flex-grow: 2;
+}
+
+.EditInstructions {
+  color: #999;
+  tranistion: .2s;
+  cursor: pointer;
+}
+
+.EditInstructions:hover {
+  color: blue;
+}
+
+.SetStart {
+  flex-grow: 1;
+  flex-shrink: 1;
+  /* align-self: flex-end; */
 }
 
 
@@ -272,3 +295,4 @@
   z-index: 0;
   pointer-events: none;
 }
+

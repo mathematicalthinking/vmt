@@ -97,6 +97,7 @@ class Activity extends Component {
         toggleEdit={this.toggleEdit}
         editing={this.state.editing}
         update={this.props.updateActivity}
+        history={this.props.history}
       />
     )
   }

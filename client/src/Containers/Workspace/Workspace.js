@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import io from 'socket.io-client';
-import { updateRoom, updatedRoom, populateRoom } from '../../store/actions';
+import { updateRoom, updatedRoom, populateRoom, setRoomStartingPoint } from '../../store/actions';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 import { Modal, Aux } from '../../Components';
 import NewTabForm from './NewTabForm'
@@ -244,6 +244,11 @@ class Workspace extends Component {
     this.setState({activityOnOtherTabs: this.state.activityOnOtherTabs.filter(tab => tab !== id)})
   }
 
+  setStartingPoint = () => {
+    console.log('update startying point')
+    this.props.setRoomStartingPoint(this.props.room._id)
+  }
+
   render() {
     const { room, user } = this.props;
     return (
@@ -277,6 +282,9 @@ class Workspace extends Component {
           changeTab={this.changeTab}
           addNtfToTabs={this.addNtfToTabs}
           ntfTabs={this.state.activityOnOtherTabs}
+          toggleEdit={this.toggleEdit}
+          editing={this.state.editing}
+          setStartingPoint={this.setStartingPoint}
           // populateRoom={this.props.populateRoom}
         /> : null}
         <Modal show={this.state.creatingNewTab} closeModal={this.closeModal}>
@@ -295,4 +303,4 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-export default connect(mapStateToProps, {updateRoom, updatedRoom, populateRoom,})(Workspace);
+export default connect(mapStateToProps, {updateRoom, updatedRoom, populateRoom, setRoomStartingPoint})(Workspace);

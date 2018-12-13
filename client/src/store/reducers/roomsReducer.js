@@ -17,19 +17,41 @@ const reducer = (state = initialState, action) => {
       };
 
     case actionTypes.UPDATED_ROOM:
-    console.log(action.roomId, action.body)
       let updatedRoom = {...state.byId[action.roomId]}
       let fields = Object.keys(action.body)
       fields.forEach(field => {
         updatedRoom[field] = action.body[field]
       })
-      console.log('updated ROOM reducer')
       return {
         ...state,
         byId: {
           ...state.byId,
           [action.roomId]: updatedRoom,
         },
+      }
+
+    case actionTypes.UPDATED_ROOM_TAB:
+    console.log('updating room tab')
+      fields = Object.keys(action.body)
+      console.log(fields)
+      let updatedTabs = state.byId[action.roomId].tabs.map(tab => {
+        if (tab._id === action.tabId) {
+          fields.forEach(field => {
+            tab[field] = action.body[field]
+          })        
+        }
+        return tab;
+      })
+      console.log(updatedTabs)
+      return {
+        ...state,
+        byId: {
+          ...state.byId,
+          [action.roomId]: {
+            ...state.byId[action.roomId],
+            tabs: updatedTabs,
+          }
+        }
       }
 
     // @TODO if we've created a new room alert the user so we can redirect

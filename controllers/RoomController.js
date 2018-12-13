@@ -39,6 +39,7 @@ module.exports = {
       .catch(err => reject(err))
     });
   },
+  // WHAT I SHOULD ACTUALLY BE DOING HERE IS CREATING new Schemas saving their respective ids within each other and then write to the db once
   post: body => {
     return new Promise((resolve, reject) => {
       let createdRoom;
@@ -55,11 +56,11 @@ module.exports = {
       })
       .then(tab => {
         console.log('created a tab while making a room')
-        db.Room.findByIdAndUpdate(createdRoom._id, {$addToSet: {tabs: tab._id}}, {new: true})
+        return db.Room.findByIdAndUpdate(createdRoom._id, {$addToSet: {tabs: tab._id}}, {new: true})
         .populate({path: 'members.user', select: 'username'})
-        .populate({path: 'currentMembers.user', select: 'username'})
-        .then(room => resolve(room)) //Hmm why no support for promise here?
+        .populate({path: 'currentMembers.user', select: 'username'})  
       })
+      .then(room => resolve(room)) //Hmm why no support for promise here?
       .catch(err => {
         // TRY TO DELETE @TODO ERROR HANDLING HERE IF FAIL DELETE BOTH FROM DB AND RETURN ERROR TO THE USER
         console.log(err); reject(err)

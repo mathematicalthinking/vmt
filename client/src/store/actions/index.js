@@ -51,6 +51,8 @@ export {
   removeRoomMember,
   destroyRoom,
   createRoomFromActivity,
+  updateRoomTab,
+  setRoomStartingPoint,
 } from './rooms';
 export {
   addCourse,
@@ -90,6 +92,7 @@ export {
   updateActivity,
   updatedActivity,
   copyActivity,
+  setActivityStartingPoint,
 } from './activities';
 export {
   joinWithCode,

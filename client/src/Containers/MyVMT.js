@@ -169,7 +169,7 @@ class Profile extends Component {
       let myActivities;
       if (match.params.resource === 'activities') {
         myActivities = this.props[resource].allIds.filter(id => {
-          if (this.props[resource].byId.creator === user._id) {
+          if (this.props[resource].byId[id].creator === user._id) {
             return true;
           }
           return false;
