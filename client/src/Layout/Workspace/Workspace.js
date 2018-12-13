@@ -23,7 +23,8 @@ const workspaceLayout = React.memo(({
   referencing, showingReference,setToElAndCoords,
   setFromElAndCoords, referToEl, referToCoords, referFromEl, 
   referFromCoords, clearReference, createNewTab, changeTab,
-  addNtfToTabs, ntfTabs, setStartingPoint, activityWorkspace
+  addNtfToTabs, ntfTabs, setStartingPoint, activityWorkspace,
+  updatedActivity, activity,
 }) => {
 
   // Set text for taking control button based on current control
@@ -65,7 +66,14 @@ const workspaceLayout = React.memo(({
   } else if (activityWorkspace) {
     if (room.tabs[currentTab].tabType === 'desmos') {
       graph = <DesmosActivityGraph />
-    } else graph = <GgbActivityGraph />
+    } else {
+      graph = <GgbActivityGraph 
+        activity={room} 
+        tabs={room.tabs} 
+        currentTab={currentTab}
+        updatedActivity={updatedActivity}
+      />
+    }
   } else if (room.tabs[currentTab].tabType === 'desmos') {
     graph = <DesmosGraph  room={room} socket={socket} user={user} inControl={inControl} resetControlTimer={resetControlTimer} currentTab={currentTab}/>
   } else {

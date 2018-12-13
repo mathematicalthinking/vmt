@@ -1,4 +1,7 @@
+// Theres a lot of repetiion between this component and the regular Ggb Graph...for example they both resize @TODO how might we utilize HOCs to cut down on repetition
 import React, { Component } from 'react';
+import { parseString } from 'xml2js';
+import throttle from 'lodash/throttle';
 import { Aux , Modal} from '../../Components';
 import Script from 'react-load-script';
 import classes from './graph.css';
@@ -7,6 +10,59 @@ class GgbActivityGraph extends Component{
 
   state = {
     loading: true,
+  }
+
+  graph = React.createRef()
+
+  componentDidMount(){
+    window.addEventListener("resize", this.updateDimensions);
+  }
+
+  componentWillUnmount(){
+    window.removeEventListener("resize", this.updateDimensions);
+  }
+
+  updateDimensions = () => {
+    if (this.resizeTimer) {
+      clearTimeout(this.resizeTimer)
+    }
+    this.resizeTimer = setTimeout(async () => {
+      if (this.graph.current && !this.state.loading) {
+        let { clientHeight, clientWidth } = this.graph.current.parentElement;
+        window.ggbApplet.setSize(clientWidth, clientHeight);
+        // window.ggbApplet.evalCommand('UpdateConstruction()')
+        if (this.props.showingReference || (this.props.referencing && this.props.referToEl.elmentType !== 'chat_message')) {
+          let { element } = this.props.referToEl;
+          let position = await this.getRelativeCoords(element)
+          this.props.setToElAndCoords(null, position)
+        }
+      }
+      this.resizeTimer = undefined;
+    }, 200)
+  }
+
+  getRelativeCoords = (element) => {
+    return new Promise(async (resolve, reject) => {
+      let elX;
+      let elY;
+      try {
+        elX = this.ggbApplet.getXcoord(element)
+        elY = this.ggbApplet.getYcoord(element)
+      }
+      catch (err) {
+        // get the coords of its children
+      }
+      // Get the element's location relative to the client Window 
+      let ggbCoords = this.graph.current.getBoundingClientRect();
+      let construction = await this.parseXML(this.ggbApplet.getXML()) // IS THERE ANY WAY TO DO THIS WITHOUT HAVING TO ASYNC PARSE THE XML...
+      let euclidianView = construction.geogebra.euclidianView[0]
+      let { xZero, yZero, scale, yScale, } = euclidianView.coordSystem[0].$;
+      if (!yScale) yScale = scale;
+      let { width, height } = euclidianView.size[0].$
+      let xOffset = (ggbCoords.width - width) + parseInt(xZero, 10) + (elX * scale);
+      let yOffset = (ggbCoords.height - height) + parseInt(yZero, 10) - (elY * yScale)
+      resolve({left: xOffset, top: yOffset})
+    })
   }
   
   onScriptLoad = () => {
@@ -27,23 +83,43 @@ class GgbActivityGraph extends Component{
     };
     
     const ggbApp = new window.GGBApplet(parameters, '5.0');
-    ggbApp.inject('ggb-element')
+    ggbApp.inject('ggb-element');
   }
   
   initializeGgb = () => {
-    this.setState({loading: false})
+    this.ggbApplet = window.ggbApplet;
+    this.setState({loading: false});
+    this.registerListeners();
+  }
+
+  getGgbState = throttle(() => {
+    let updatedTabs = [...this.props.tabs]
+    let updatedTab = {...this.props.tabs[this.props.currentTab]}
+    updatedTab.currentState = this.ggbApplet.getXML();
+    updatedTabs[this.props.currentTab] = updatedTab;
+    this.props.updatedActivity(this.props.activity._id, {tabs: updatedTabs})
+  }, 1000)
+
+  registerListeners() {
+    this.ggbApplet.registerAddListener(this.getGgbState);
+    this.ggbApplet.registerUpdateListener(this.getGgbState);
+    this.ggbApplet.registerRemoveListener(this.getGgbState);
+  }
+
+  parseXML = (xml) => {
+    return new Promise((resolve, reject) => {
+      parseString(xml, (err, result) => {
+        if (err) return reject(err)
+        return resolve(result)
+      })
+    })
   }
   
   render() {
     return (
       <Aux>
         <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} />
-        <div className={classes.Graph} id='ggb-element' ref={this.graph}>
-        </div>
-        {/* <div className={classes.ReferenceLine} style={{left: this.state.referencedElementPosition.left, top: this.state.referencedElementPosition.top}}></div> */}
-        {/* {this.state.showControlWarning ? <div className={classes.ControlWarning} style={{left: this.state.warningPosition.x, top: this.state.warningPosition.y}}>
-          You don't have control!
-        </div> : null} */}
+        <div className={classes.Graph} id='ggb-element' ref={this.graph}></div>
         <Modal show={this.state.loading} message='Loading...'/>
       </Aux>
     )

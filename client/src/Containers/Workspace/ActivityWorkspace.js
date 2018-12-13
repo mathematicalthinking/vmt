@@ -29,12 +29,12 @@ class ActivityWorkspace extends Component {
       <Aux>
         <WorkspaceLayout
             // activeMember={this.state.activeMember}
-            room={this.props.activity}
+            room={this.props.activity} // THIS IS NO GOOD...WE SHOULD CHANGE THE ROOM ATTR TO RESOURCE THAT CAN ACCEPT EITHER A ROOM OR AN ACTIVITY
             user={this.props.user}
             role='facilitator' // oh shit role is taken...its for a11y  stuff
             currentTab={this.state.currentTab}
-            updateRoom={this.props.updateRoom}
-            updatedRoom={this.props.updatedRoom}
+            // updateRoom={this.props.updateRoom}
+            updatedActivity={this.props.updatedActivity}
             inControl={true}
             activityWorkspace={true}
             // startNewReference={this.startNewReference}
