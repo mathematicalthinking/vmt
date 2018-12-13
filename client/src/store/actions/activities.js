@@ -85,13 +85,16 @@ export const getActivities = params => {
 }
 
 export const getCurrentActivity = id => {
+  console.log('getting activiat')
   return dispatch => {
     dispatch(loading.start())
     API.getById('activities', id)
     .then(res => {
       dispatch(loading.success())
+      console.log(res.data.result)
       dispatch(addActivity(res.data.result))
     })
+    .catch(err => console.log(err))
   }
 }
 

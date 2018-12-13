@@ -72,19 +72,19 @@ class Community extends Component {
       linkPath = '/myVMT/rooms/';
       linkSuffix = '/details';
     } else {
-      linkPath = '/myVMT/activities/';
-      linkSuffix = '/details';
+      linkPath = '/myVMT/workspace/';
+      linkSuffix = '/activity';
     }
     return (
-        <CommunityLayout 
-          visibleResources={this.state.visibleResources} 
-          resource={this.props.match.params.resource}
-          linkPath={linkPath}
-          linkSuffix={linkSuffix}
-          selecting={this.state.selecting}
-          select={this.select}
-          selectCount={this.state.selectCount}
-        />
+      <CommunityLayout 
+        visibleResources={this.state.visibleResources} 
+        resource={this.props.match.params.resource}
+        linkPath={linkPath}
+        linkSuffix={linkSuffix}
+        selecting={this.state.selecting}
+        select={this.select}
+        selectCount={this.state.selectCount}
+      />
     )
   }
 }

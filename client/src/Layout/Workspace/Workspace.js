@@ -24,7 +24,7 @@ const workspaceLayout = React.memo(({
   setFromElAndCoords, referToEl, referToCoords, referFromEl, 
   referFromCoords, clearReference, createNewTab, changeTab,
   addNtfToTabs, ntfTabs, setStartingPoint, activityWorkspace,
-  updatedActivity, activity,
+  updatedActivity, copyActivity,
 }) => {
 
   // Set text for taking control button based on current control
@@ -47,6 +47,8 @@ const workspaceLayout = React.memo(({
   }
   
   // Pick the proper graph based on replayer, tabType, activityWorkspace props
+  //  COULD WE JUST SAVE THSE COMPONENTS ON ATTRS OF THE WORKSPACELAYOUT COMPONENT IN WORKSPACER AND ACTIVITYWORKSPACE AND REPLAYER WORKSPACE ETC
+  // THEN WE COULD AVOID ALL OF THESE CONDITIONALS ??? 
   let graph;
   if (replayer) {
     if (room.tabs[currentTab].tabType === 'desmos') {
@@ -71,7 +73,9 @@ const workspaceLayout = React.memo(({
         activity={room} 
         tabs={room.tabs} 
         currentTab={currentTab}
+        role={role}
         updatedActivity={updatedActivity}
+
       />
     }
   } else if (room.tabs[currentTab].tabType === 'desmos') {
@@ -162,7 +166,7 @@ const workspaceLayout = React.memo(({
                 </div>
                 {role === 'facilitator' 
                   ? <div><Button click={setStartingPoint}>Set starting point</Button></div> 
-                  : null
+                  : <div><Button click={copyActivity}>Add To My Activities</Button></div>
                 }
               </div>
           }

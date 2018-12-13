@@ -29,7 +29,6 @@ class GgbActivityGraph extends Component{
       else {
         setTimeout(this.ggbApplet.setXML(INITIAL_GGB), 0)
       }
-      this.registerListeners();
     }
   }
 
@@ -86,7 +85,7 @@ class GgbActivityGraph extends Component{
       // "scaleContainerClasse": "graph",
       "customToolBar": "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
       "showToolBar": false,
-      "showMenuBar": true,
+      "showMenuBar": this.props.role === 'facilitator',
       "showAlgebraInput":true,
       "language": "en",
       "useBrowserForJS":false,
@@ -108,12 +107,14 @@ class GgbActivityGraph extends Component{
     if (startingPoint) {
       this.ggbApplet.setXML(startingPoint)
     }
-    this.registerListeners();
+    if (this.props.role === 'participant') {
+      this.ggbApplet.setMode(40)
+      this.ggbApplet.freezeElements(true)
+    } else this.registerListeners();
     // put the current construction on the graph, disable everything until the user takes control
   }
 
   getGgbState = throttle(() => {
-    console.log('get ggb state')
     let updatedTabs = [...this.props.tabs]
     let updatedTab = {...this.props.tabs[this.props.currentTab]}
     updatedTab.currentState = this.ggbApplet.getXML();
@@ -134,6 +135,13 @@ class GgbActivityGraph extends Component{
         if (err) return reject(err)
         return resolve(result)
       })
+    })
+  }
+
+  freezeElements = (freeze) => {
+    let allElements = this.ggbApplet.getAllObjectNames() // WARNING ... THIS METHOD IS DEPRECATED
+    allElements.forEach(element => { // AS THE CONSTRUCTION GETS BIGGER THIS GETS SLOWER...SET_FIXED IS BLOCKING
+      this.ggbApplet.setFixed(element, freeze, true) // Unfix/fix all of the elements
     })
   }
   
