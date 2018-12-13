@@ -1,7 +1,7 @@
 import React from 'react';
 import classes from './workspace.css';
 import { withRouter } from 'react-router-dom';
-import { CurrentMembers, Button, ReplayerControls, TextInput, EditableText }from '../../Components';
+import { CurrentMembers, Button, ReplayerControls, EditableText }from '../../Components';
 import GgbGraph from '../../Containers/Workspace/GgbGraph';
 import DesmosGraph from '../../Containers/Workspace/DesmosGraph';
 import GgbReplayer from '../../Containers/Replayer/GgbReplayer';
@@ -19,7 +19,7 @@ const workspaceLayout = React.memo(({
   referencing, showingReference,setToElAndCoords,
   setFromElAndCoords, referToEl, referToCoords, referFromEl, 
   referFromCoords, clearReference, createNewTab, changeTab,
-  addNtfToTabs, ntfTabs, 
+  addNtfToTabs, ntfTabs, setStartingPoint,
 }) => {
   let controlText = 'Take Control';
   if (inControl) controlText = 'Release Control';
@@ -35,7 +35,7 @@ const workspaceLayout = React.memo(({
       )
     })
   }
-
+  console.log("SET POINT :L ", setStartingPoint)
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container}>
@@ -130,6 +130,10 @@ const workspaceLayout = React.memo(({
                     {room.tabs[currentTab].instructions || room.instructions}
                   </EditableText>
                 </div>
+                {role === 'facilitator' 
+                  ? <div><Button click={setStartingPoint}>Set starting point</Button></div> 
+                  : null
+                }
               </div>
           }
           {temp && !saved ? 

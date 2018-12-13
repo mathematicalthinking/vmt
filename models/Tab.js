@@ -9,6 +9,7 @@ const Tab = new mongoose.Schema({
   desmosLink: {type: String, },
   events: {type: [{type: ObjectId, ref: 'Event', _id: false}], default: []},
   room: {type: ObjectId, ref: 'Room', required: true},
+  startingPoint: {type: String, default: null},
   sequenceNo: {type: Number},
   controlledBy: {type: ObjectId, ref: 'User', default: null}
 });
