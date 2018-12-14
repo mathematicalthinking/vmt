@@ -8,7 +8,6 @@
 }
 
 .Container {
-  border: 1px solid red;
   max-width: 1600px;
   margin: 0 auto;
   display: flex;
