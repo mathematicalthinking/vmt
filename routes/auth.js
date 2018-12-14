@@ -19,7 +19,14 @@ router.post('/login', (req, res, next) => {
         res.json(user);
       })
     }
-    return errors.sendError.InvalidCredentialsError(info, res);
+    let msg;
+
+    if (info && info.message) {
+      msg = info.message;
+    } else {
+      msg = info;
+    }
+    return errors.sendError.InvalidCredentialsError(msg, res);
   })(req, res, next);
 });
 
@@ -34,7 +41,14 @@ router.post('/signup', (req, res, next) => {
         res.json(user)
       })
     }
-    return errors.sendError.InvalidCredentialsError(info, res);
+    let msg;
+    if (info && info.message) {
+      msg = info.message;
+    } else {
+      msg = info;
+    }
+
+    return errors.sendError.InvalidCredentialsError(msg, res);
   })(req, res, next);
 });
 
