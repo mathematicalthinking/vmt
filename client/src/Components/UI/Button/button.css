@@ -3,9 +3,10 @@
   orange: orange;
   lightestShadow: lightestShadow;
   lightShadow: lightShadow;
+  newBoxShadow: newBoxShadow;
 }
 
-.Button { 
+.Button {
   /* background-color: white; */
   border: none;
   align-self: center;
@@ -14,22 +15,22 @@
   /* border: 1px solid #d3d2d4; */
   transition: .2s;
   font-size: inherit;
-  letter-spacing: .1em;
+  letter-spacing: .08em;
   cursor: pointer;
   /* box-shadow: lightestShadow; */
 }
 
 .Big {
   color: white;
-  padding: 25px;
+  padding: 20px 30px;
   background: none;
   border: 2px solid white;
-  border-radius: 0px;
+  border-radius: 3px;
   /* box-shadow: 0; */
 }
 
 .Big:hover {
-  box-shadow: lightShadow;
+  box-shadow: newBoxShadow;
   background-color: blue;
   border: 2px solid blue;
   border-radius: 3px;
