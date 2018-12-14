@@ -8,9 +8,9 @@ import Button from '../../../Components/UI/Button/Button';
 import classes from '../create.css';
 import { connect } from 'react-redux';
 import {
-  createCourse, 
-  createRoom, 
-  createActivity, 
+  createCourse,
+  createRoom,
+  createActivity,
   createCourseTemplate,
   updateUser,
   createRoomFromActivity,
@@ -26,7 +26,7 @@ const imageThemes = [
 ]
 
 const shapes = {
-  activities: 'isogrids', 
+  activities: 'isogrids',
   courses: 'labs/isogrids/hexa16',
   rooms: 'spaceinvaders',
 }
@@ -43,7 +43,7 @@ class NewResourceContainer extends Component {
   create = () => this.setState({creating: true, selecting: false})
   select = (mode) => this.setState({selecting: true, creating: false, mode,})
 
-  submitForm = ({name, description, isPublic, dueDate, ggb, ggbFile, desmosLink}) => {
+  submitForm = ({name, description, privacySetting, dueDate, ggb, ggbFile, desmosLink}) => {
     let { resource } = this.props;
     let theme = imageThemes[Math.floor(Math.random()*imageThemes.length)];
     let newResource = {
@@ -51,7 +51,7 @@ class NewResourceContainer extends Component {
       description: description,
       members: [{user: {_id: this.props.userId, username: this.props.username}, role: 'facilitator'}],
       creator: this.props.userId,
-      isPublic: isPublic,
+      privacySetting: privacySetting,
       image: `http://tinygraphs.com/${shapes[resource]}/${name}?theme=${theme}&numcolors=4&size=220&fmt=svg`
     }
     switch (resource) {
@@ -102,20 +102,20 @@ class NewResourceContainer extends Component {
     // console.log(this.props.course.activities)
     return (
       <Aux>
-        {this.state.creating ? <NewResource 
-          resource={resource} 
-          displayResource={displayResource} 
+        {this.state.creating ? <NewResource
+          resource={resource}
+          displayResource={displayResource}
           show={this.state.creating}
           ggb={this.state.ggb}
           close={() => this.setState({creating: false})}
           submit={this.submitForm}
         /> : null}
-        {this.state.selecting ? <FromActivity 
+        {this.state.selecting ? <FromActivity
           resource={resource}
-          show={this.state.selecting} 
-          close={() => this.setState({selecting: false})} 
+          show={this.state.selecting}
+          close={() => this.setState({selecting: false})}
           course={courseId}
-          userActivities={this.props.userActivities}  
+          userActivities={this.props.userActivities}
           courseActivities={this.props.course ? this.props.course.activities : null}
           create={this.props.createRoomFromActivity}
           copy={this.props.copyActivity}
@@ -126,7 +126,7 @@ class NewResourceContainer extends Component {
         {(resource === 'activities' && courseId && !intro) ? <div className={classes.Button}><Button theme={'Small'} click={() => this.select('copy')}>Select an existing activity</Button></div> : null}
         {(resource === 'activities' && !courseId && !intro) ? <div className={classes.Button}><Button theme={"Small"} click={this.redirectToActivity}>Select an activity from the community</Button></div> : null}
         {(resource === 'rooms' && !intro) ? <div className={classes.Button}><Button theme={"Small"} click={() => this.select('create')}>Create from an Activity</Button></div> : null}
-      </Aux>      
+      </Aux>
     )
   }
 }
@@ -143,9 +143,9 @@ let mapStateToProps = (store, ownProps) => {
 }
 
 export default withRouter(connect(mapStateToProps, {
-  createCourse, 
-  createRoom, 
-  createActivity, 
+  createCourse,
+  createRoom,
+  createActivity,
   createCourseTemplate,
   updateUser,
   createRoomFromActivity,

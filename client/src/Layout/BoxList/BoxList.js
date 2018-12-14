@@ -26,7 +26,7 @@ const boxList = React.memo(props => {
         } else {
           details = {
             facilitators: item.members ? item.members.reduce((acc, member) => {
-  
+
               if (member.role === 'facilitator') acc.push(member.user.username);
               return acc;
             }, []) : []
@@ -42,7 +42,7 @@ const boxList = React.memo(props => {
               image={item.image}
               notifications={notifications}
               roomType={item.roomType}
-              locked={!item.isPublic} // @TODO Should it appear locked if the user has access ? I can see reasons for both
+              locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
               details={details}
               listType={props.listType}
               selecting={props.selecting}
@@ -59,7 +59,7 @@ const boxList = React.memo(props => {
               roomType={item.roomType}
               resource={props.resource}
               listType={props.listType}
-              locked={!item.isPublic} // @TODO Should it appear locked if the user has access ? I can see reasons for both
+              locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
               details={details}
             >
             </DragContentBox>

@@ -20,7 +20,7 @@ const Room = new mongoose.Schema({
     _id: false}],
   currentMembers: {type: [{user: {type: ObjectId, ref: 'User'}, socket: {type: String},  _id: false}], default: []},
   tabs: {type: [{type: ObjectId, ref: 'Tab'}]},
-  isPublic: {type: Boolean, default: false},
+  privacySetting: {type: String, enum: ['private', 'public'], default: 'private'},
   tempRoom: {type: Boolean, default: false},
   image: {type: String,},
   graphImage: {type: ObjectId, ref: 'Image'},
@@ -38,7 +38,7 @@ Room.pre('save', function (next) {
       let query = {$addToSet: {rooms: this._id}}
       if (member.role === 'Participant' && this.course) {
         query = {$addToSet: {
-          rooms: this._id, 
+          rooms: this._id,
           'courseNotifications.access': {
             notificationType: 'assignedRoom', _id: this.course, room: this._id}
           }
@@ -63,7 +63,7 @@ Room.pre('save', function (next) {
     .catch(err => next(err)) //@TODO WE NEED ERROR HANDLING HERE
   } else if (!this.isNew) {
     this.modifiedPaths().forEach(field => {
-      if (field === 'members') { 
+      if (field === 'members') {
         User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
           $addToSet: {rooms: this._id}
         }).then(user => {next()})

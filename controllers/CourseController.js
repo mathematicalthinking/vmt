@@ -29,12 +29,12 @@ module.exports = {
     // check if we should make a template from this course
     return new Promise((resolve, reject) => {
       if (body.template) {
-        const {name, description, templateIsPublic, creator} = body;
-        const template = {name, description, isPublic: templateIsPublic, creator,}
+        const {name, description, templatePrivacySetting, creator} = body;
+        const template = {name, description, privacySetting: templatePrivacySetting, creator,}
         db.CourseTemplate.create(template)
         .then(template => {
           body.template = template._id;
-          delete body[templateIsPublic]
+          delete body[templatePrivacySetting]
           db.Course.create(body)
           .then(course => resolve([course, template]))
           .catch(err => reject(err))
@@ -42,7 +42,7 @@ module.exports = {
         })
         .catch(err => {console.log(err); reject(err)})
       } else {
-        delete body.templateIsPublic
+        delete body.templatePrivacySetting
         delete body.template;
         db.Course.create(body)
         .then(course => {
@@ -101,7 +101,7 @@ module.exports = {
               return db.User.findByIdAndUpdate(course.creator, {
                 $addToSet: {
                   'courseNotifications.access': {
-                    notificationType: 'newMember', _id: course._id, user: userId 
+                    notificationType: 'newMember', _id: course._id, user: userId
                   }
                 }
               }, {new: true})

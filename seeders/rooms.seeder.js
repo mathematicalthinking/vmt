@@ -16,7 +16,7 @@ var data = [
     "chat" : [],
     "currentMembers" : [],
     "events" : [],
-    "isPublic" : false,
+    "privacySetting" : "private",
     "name" : "room 1",
     "description" : "hello",
     "members" : [
@@ -40,7 +40,7 @@ var data = [
     "chat" : [],
     "currentMembers" : [],
     "events" : [],
-    "isPublic" : false,
+    "privacySetting" : "private",
     "name" : "request access",
     "description" : "hello",
     "members" : [
@@ -63,7 +63,7 @@ var data = [
     "chat" : [],
     "currentMembers" : [],
     "events" : [],
-    "isPublic" : false,
+    "privacySetting" : "private",
     "name" : "room 2",
     "description" : "hello",
     "entryCode": "hello",
@@ -84,13 +84,13 @@ var data = [
     "__v" : 0
   },
   // For testing incorrect entry code
-  { 
+  {
     "_id" : "5ba289c57223b9429888b9b3",
     "roomType" : "desmos",
     "chat" : [],
     "currentMembers" : [],
     "events" : [],
-    "isPublic" : false,
+    "privacySetting" : "private",
     "name" : "wrong entry code room",
     "description" : "hello",
     "entryCode": "hello",
