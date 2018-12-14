@@ -38,7 +38,7 @@ const workspaceLayout = React.memo(({
   if (room.tabs[0].name) { // This checkes if tabs have been populated yet...if they haven't they won't have a name field
     tabs = room.tabs.map((tab, i) => {
       return (
-      <div onClick={() => changeTab(i)} className={[classes.Tab, currentTab === i ? classes.Active : ''].join(" ")} style={{zIndex: room.tabs.length - i}} >
+      <div key={tab._id} onClick={() => changeTab(i)} className={[classes.Tab, currentTab === i ? classes.Active : ''].join(" ")} style={{zIndex: room.tabs.length - i}} >
         <div style={{zIndex: room.tabs.length - i}} className={classes.TabBox}>{tab.name}</div>
         {ntfTabs && ntfTabs.includes(tab._id) ? <div className={classes.TabNotification}><i className="fas fa-exclamation"></i></div> : null}
       </div>
