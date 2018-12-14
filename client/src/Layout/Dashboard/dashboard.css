@@ -8,15 +8,17 @@
 }
 
 .Container {
+  border: 1px solid red;
+  max-width: 1600px;
+  margin: 0 auto;
   display: flex;
   flex-flow: column;
   align-content: center;
-  width: 80%;
-  height: calc(100vh - 50px);
+  width: 100%;
+  height: calc(100vh - 60px);
   align-self: center;
-  border-top: 1px solid #75b7f6;
-  padding: 0 20px 20px 20px;
-  max-width: 1400px;
+  /* border-top: 1px solid #75b7f6; */
+  padding: 0 40px;
   transition: .2s;
 }
 
@@ -107,7 +109,7 @@
 }
 
 .spAdditional {
-  padding: 3px 0; 
+  padding: 3px 0;
   border-top: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
 }
