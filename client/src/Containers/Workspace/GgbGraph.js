@@ -260,8 +260,9 @@ class GgbGraph extends Component {
       let updatedTab = {...this.props.room.tabs[this.props.currentTab]}
       updatedTab.currentState = newData.currentState;
       updatedTabs[this.props.currentTab] = updatedTab;
+      console.log('updating room')
       this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
-    }, 1000)
+    }, 500)
     this.socket.emit('SEND_EVENT', newData)
     this.props.resetControlTimer()
   }, THROTTLE_FIDELITY)
