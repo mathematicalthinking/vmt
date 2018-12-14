@@ -8,9 +8,9 @@ class NewResource extends Component {
     description: '',
     dueDate: '',
     ggb: false,
-    ggbFile: '', 
+    ggbFile: '',
     desmosLink: '',
-    isPublic: true,
+    privacySetting: 'public',
   }
 
   componentDidMount() {
@@ -19,7 +19,7 @@ class NewResource extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('keypress', this.onKeyPress)
-  } 
+  }
 
   onKeyPress = (event) => {
     if (event.key === 'Enter') {
@@ -92,8 +92,8 @@ class NewResource extends Component {
               : null}
               <div className={classes.FormSection}>
                 <div className={classes.RadioButtons}>
-                  <RadioBtn name='public' checked={this.state.isPublic} check={() => this.setState({isPublic: true})}>Public</RadioBtn>
-                  <RadioBtn name='private' checked={!this.state.isPublic} check={() => this.setState({isPublic: false})}>Private</RadioBtn>
+                  <RadioBtn name='public' checked={this.state.privacySetting === 'public'} check={() => this.setState({privacySetting: 'public'})}>Public</RadioBtn>
+                  <RadioBtn name='private' checked={this.state.privacySetting=== 'private'} check={() => this.setState({privacySetting: 'private'})}>Private</RadioBtn>
                 </div>
                 <div className={classes.PrivacyDesc}>
                   Marking your {resource} as public allows other VMT users to view the activity

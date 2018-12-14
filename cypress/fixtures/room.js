@@ -3,7 +3,7 @@ module.exports = {
   "roomType": "geogebra",
   "chat": [],
   "currentMembers": [],
-  "isPublic": false,
+  "privacySetting": "private",
   "activity": "5b9c18f7b49205412c4df73c",
   "creator": "5b9c18e7b49205412c4df738",
   "course": "5b9c18efb49205412c4df739",

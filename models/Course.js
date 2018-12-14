@@ -7,7 +7,7 @@ const Course = new mongoose.Schema({
   creator: {type: ObjectId, ref: 'User'},
   activities: [{type: ObjectId, ref: 'Activity'}],
   rooms: [{type: ObjectId, ref: 'Room'}],
-  isPublic: {type: Boolean, default: false},
+  privacySetting: {type: String, enum: ['private', 'public'], default: 'private'},
   entryCode: {type: String,},
   members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}, _id: false}],
   image: {type: String,} //URL

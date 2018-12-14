@@ -15,9 +15,9 @@ class NewTemplate extends Component {
     courseName: '',
     description: '',
     // rooms: [],
-    isPublic: false,
+    privacySetting: 'private',
     makeTemplate: false,
-    templateIsPublic: false,
+    templatePrivacySetting: 'private',
     creating: false,
   }
 
@@ -36,9 +36,9 @@ class NewTemplate extends Component {
       // rooms: roomIds,
       creator: this.props.userId,
       members: [{user: this.props.userId, role: 'facilitator'}],
-      isPublic: this.state.isPublic,
+      privacySetting: this.state.privacySetting,
       template: this.state.makeTemplate,
-      templateIsPublic: this.state.templateIsPublic,
+      templatePrivacySetting: this.state.templatePrivacySetting,
     }
     // update backend via redux so we can add this to the global state of courses
     this.props.createCourse(newCourse);
@@ -98,8 +98,8 @@ class NewTemplate extends Component {
               width='80%'
             />
             <div className={classes.RadioButtons}>
-              <RadioBtn name='public' checked={this.state.isPublic} check={() => this.setState({isPublic: true})}>Public</RadioBtn>
-              <RadioBtn name='private' checked={!this.state.isPublic} check={() => this.setState({isPublic: false})}>Private</RadioBtn>
+              <RadioBtn name='public' checked={this.state.privacySetting === 'public'} check={() => this.setState({privacySetting: 'public'})}>Public</RadioBtn>
+              <RadioBtn name='private' checked={!this.state.privacySetting === 'private'} check={() => this.setState({privacySetting: 'private'})}>Private</RadioBtn>
             </div>
             <div className={classes.PrivacyDesc}>
               Marking your course as public allows other VMT users to view the activity
@@ -110,8 +110,8 @@ class NewTemplate extends Component {
                 <Checkbox checked={this.state.makeTemplate} change={() => this.setState(prevState => ({makeTemplate: !prevState.makeTemplate}))}>Create a Template From this Course</Checkbox>
               </div>
               {this.state.makeTemplate ? <div className={classes.RadioButtons}>
-                <RadioBtn name='Tpublic' checked={this.state.templateIsPublic} check={() => this.setState({templateIsPublic: true})}>Public</RadioBtn>
-                <RadioBtn name='Tprivate' checked={!this.state.templateIsPublic} check={() => this.setState({templateIsPublic: false})}>Private</RadioBtn>
+                <RadioBtn name='Tpublic' checked={this.state.templatePrivacySetting === 'public'} check={() => this.setState({templatePrivacySetting: 'public'})}>Public</RadioBtn>
+                <RadioBtn name='Tprivate' checked={!this.state.templatePrivacySetting === 'private'} check={() => this.setState({templatePrivacySetting: 'private'})}>Private</RadioBtn>
               </div> : null}
               Creating a template will copy this course into your template folder. Every room you add to
               this course will also be added to your template (along with the files associated with the room). Course members and activity in the rooms will not be saved to the template. This allow you to resuse this template for multiple groups of participants.

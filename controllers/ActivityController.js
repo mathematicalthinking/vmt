@@ -23,7 +23,7 @@ module.exports = {
 
       }
       delete body.template;
-      delete body.templateIsPublic;
+      delete body.templatePrivacySetting;
       let createdActivity;
       db.Activity.create(body)
       .then(activity => {
