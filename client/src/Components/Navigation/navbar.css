@@ -8,7 +8,6 @@
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  flex-flow: center;
   align-content: center;
   align-items: center;
   width: 100%;

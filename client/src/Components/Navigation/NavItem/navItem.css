@@ -7,10 +7,10 @@
   height: 100%;
   transition: .2;
   position: relative;
-  max-width: 150px;
+  max-width: 125px;
   /* border: 1px solid white; */
   margin: 0 10px;
-  font-weight: 400;
+  font-weight: 300;
 }
 
 .Link {
@@ -46,4 +46,16 @@
   width: 100%;
   left: 0;
   background: white;
+}
+
+@media screen and (max-width: 750px) {
+  .Item {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 550px) {
+  .Item {
+    font-size: 12px;
+  }
 }
