@@ -27,25 +27,25 @@ router.get('/:resource', (req, res, next) => {
 	})
 })
 
-router.get('/:resource/ids', (req, res, next) => {
-	let resource = req.params.resource;
-	let controller = controllers[resource];
-	if (controller == null){
-		return res.status(400).json(defaultError)
-	}
-	controller.get(req.query.params).then(res => {
-		res.json({
-			confirmation: 'success',
-			results: results
-		})
-	})
-	.catch(err => {
-		res.status(404).json({
-			confirmation: 'fail',
-			errorMessage: err
-		})
-	})
-})
+// router.get('/:resource/ids', (req, res, next) => {
+// 	let resource = req.params.resource;
+// 	let controller = controllers[resource];
+// 	if (controller == null){
+// 		return res.status(400).json(defaultError)
+// 	}
+// 	controller.get(req.query.params).then(res => {
+// 		res.json({
+// 			confirmation: 'success',
+// 			results: results
+// 		})
+// 	})
+// 	.catch(err => {
+// 		res.status(404).json({
+// 			confirmation: 'fail',
+// 			errorMessage: err
+// 		})
+// 	})
+// })
 
 router.get('/:resource/:id', (req, res, next) => {
 	let resource = req.params.resource

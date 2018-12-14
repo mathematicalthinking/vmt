@@ -11,7 +11,10 @@ const router = express.Router()
 router.post('/login', (req, res, next) => {
   passport.authenticate('local-login', (err, user, info) => {
     if (user) {
-      return res.json(user)
+      return req.login(user, (err) => {
+        // console.log(res)
+        res.json(user)
+      })
     }
     if (info) {
       // if (info.errorMessage) return res.status(401).send({message: info})
@@ -26,7 +29,12 @@ router.post('/login', (req, res, next) => {
 router.post('/signup', (req, res, next) => {
   passport.authenticate('local-signup', (err, user, info) => {
     if (user) {
-      return res.json(user)
+      return req.login(user, err => {
+        if (err) {
+          return console.log(err)
+        }
+        res.json(user)
+      })
     }
     if (info) {
       // For some reason I couldn't my error message

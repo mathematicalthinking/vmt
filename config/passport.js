@@ -36,6 +36,10 @@ module.exports = passport => {
   passport.use('local-signup', new LocalStrategy({
     passReqToCallback: true,
   },(req, username, password, next) => {
+    // console.log(req.user)
+    // console.log(req.cookies)
+    // console.log(req.body)
+    // console.log(req.headers)
     process.nextTick(() => {
       User.findOne({ 'username':  username, accountType: {$ne: 'temp'}}, (err, user) => {
         if (err)  return next(err);
@@ -71,6 +75,7 @@ module.exports = passport => {
   }));
 
   passport.use('local-login', new LocalStrategy((username, password, next) => {
+    // console.log('LOGGING IN: ', req)
     User.findOne({ 'username':  username, 'accountType':  {$ne: 'temp'}}, (err, user) => {
       if (err) {console.log(err); return next(err);}
       // @TODO we actually want to just provide a link here instead of telling htem where to go
@@ -79,7 +84,7 @@ module.exports = passport => {
         return next(null, false, {errorMessage: 'The password you entered is incorrect'});
       }
       // Manual field population
-
+      // req.login()
       return next(null, user);
     })
     // because we display their courses first lets just populate them now
