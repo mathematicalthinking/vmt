@@ -91,7 +91,7 @@ export const removeCourseMember = (courseId, userId) => {
       dispatch(updatedCourse(courseId, {members: res.data}))
       dispatch(loading.success())
     })
-    .catch(err => dispatch(loading.fail(err)))
+    .catch(err => dispatch(loading.fail(err.response.data.errorMessage)))
   }
 }
 
@@ -103,7 +103,7 @@ export const updateCourseMembers = (courseId, updatedMembers) => {
       dispatch(updatedCourse(courseId, {members: res.data.result.members}))
       dispatch(loading.success())
     })
-    .catch(err => dispatch(loading.fail(err)))
+    .catch(err => dispatch(loading.fail(err.response.data.errorMessage)))
   }
 }
 
@@ -157,7 +157,7 @@ export const getCoursesIds = ids => {
       dispatch(gotCourses(rooms))
       dispatch(loading.success())
     })
-    .catch(err => dispatch(loading.fail(err)));
+    .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
   }
 }
 
@@ -170,7 +170,7 @@ export const getCourse = id => {
       dispatch(loading.success())
     })
     .catch(err => {
-      dispatch(loading.fail(err))
+      dispatch(loading.fail(err.response.data.errorMessage))
     })
   }
 }
