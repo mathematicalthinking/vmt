@@ -36,14 +36,12 @@ module.exports = passport => {
   passport.use('local-signup', new LocalStrategy({
     passReqToCallback: true,
   },(req, username, password, next) => {
-    // console.log(req.user)
-    // console.log(req.cookies)
-    // console.log(req.body)
-    // console.log(req.headers)
     process.nextTick(() => {
       User.findOne({ 'username':  username, accountType: {$ne: 'temp'}}, (err, user) => {
-        if (err)  return next(err);
-        if (user) {return next(null, false, {errorMessage: 'That username is already taken.'});}
+        if (err) {
+          return next(err);
+        }
+        if (user) {return next(null, false, 'That username is already taken.');}
         else {
           // req.body._id means we're making a temp user a permanent user
           if (req.body._id) {
@@ -64,7 +62,7 @@ module.exports = passport => {
             newUser.save(function(err) {
               if (err) {
                 let keys = Object.keys(err.errors)
-                return next(null, false, {errorMessage: err.errors[keys[0]].message})
+                return next(null, false, err.errors[keys[0]].message)
               };
               return next(null, newUser);
             });
@@ -75,16 +73,14 @@ module.exports = passport => {
   }));
 
   passport.use('local-login', new LocalStrategy((username, password, next) => {
-    // console.log('LOGGING IN: ', req)
     User.findOne({ 'username':  username, 'accountType':  {$ne: 'temp'}}, (err, user) => {
-      if (err) {console.log(err); return next(err);}
+      if (err) { return next(err);}
       // @TODO we actually want to just provide a link here instead of telling htem where to go
-      if (!user) return next(null, false, {errorMessage: 'That username does not exist. If you want to create an account go to Signup'});
+      if (!user) return next(null, false, 'That username does not exist. If you want to create an account go to Signup');
       if (!bcrypt.compareSync(password, user.password)) {
-        return next(null, false, {errorMessage: 'The password you entered is incorrect'});
+        return next(null, false, 'The password you entered is incorrect');
       }
       // Manual field population
-      // req.login()
       return next(null, user);
     })
     // because we display their courses first lets just populate them now
