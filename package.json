@@ -24,6 +24,7 @@
     "express": "~4.15.5",
     "express-handlebars": "^3.0.0",
     "express-session": "^1.15.6",
+    "lodash": "^4.17.11",
     "mongoose": "^5.1.5",
     "mongoose-data-seed": "^1.0.6",
     "morgan": "~1.9.0",
