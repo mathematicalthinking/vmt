@@ -28,15 +28,14 @@
   margin-left: 8%;
   align-items: center;
   font-size: 25px;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 .LogoShort {
   height: 100%;
-  margin-left: 8%;
   align-items: center;
   font-size: 25px;
-  font-weight: 300;
+  font-weight: 700;
   display: none;
 }
 
@@ -64,5 +63,15 @@
 @media screen and (min-width: 1300px) {
   .NavContainer {
     border-radius: 0px;
+  }
+}
+
+@media screen and (max-width: 620px) {
+  .LogoShort {
+    display: block;
+    margin-left: 25px;
+  }
+  .Logo {
+    display: none;
   }
 }
