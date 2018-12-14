@@ -3,36 +3,63 @@
   darkShadow: darkShadow;
   navbarHeight: navbarHeight;
 }
+
 .NavContainer {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  flex-flow: center;
+  align-content: center;
+  align-items: center;
   width: 100%;
   height: navbarHeight;
   background-color: blue;
   color: white;
-  justify-content: center;
-  box-shadow: 0 12px 20px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12), 0 11px 15px -7px rgba(0,0,0,0.2);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 }
 
-.SubContainer {
-  width: 1200px;
-  display: flex;
-  justify-content: space-between
+.LogoContainer {
+  order: 1;
+  flex: .25 0 auto;
 }
 
 .Logo {
   height: 100%;
-  margin-left: 15px;
-  display: flex;
+  margin-left: 8%;
   align-items: center;
   font-size: 25px;
+  font-weight: 300;
 }
 
-.NavList{
-  display: flex;
-  justify-content: space-between;
-  min-width: 600px;
-  margin-right: 15px;
+.LogoShort {
+  height: 100%;
+  margin-left: 8%;
+  align-items: center;
+  font-size: 25px;
+  font-weight: 300;
+  display: none;
 }
+
+.NavListContainer {
+  order: 2;
+  flex: .75 0 auto;
+}
+
+.NavListContainer ul {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  flex-flow: center;
+  justify-content: flex-end;
+  align-content: flex-end;
+  align-items: flex-end;
+}
+
+.NavListContainer ul li {
+  flex: .1 0 auto;
+}
+
+
 
 @media screen and (min-width: 1300px) {
   .NavContainer {
