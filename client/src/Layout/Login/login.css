@@ -5,18 +5,16 @@
   lightShadow: lightShadow;
 }
 
-.Container{
-  width: 100%;
-  height: 100%;
+.Container {
   display: flex;
   justify-content: center;
 }
 
 .LoginContainer {
-  margin-top: 110px;
-  border-radius: 4px;
+  margin-top: 10%;
   padding: 15px;
-  width: 66%;
+  width: 100%;
+  max-width: 600px;
   display: flex;
   flex-flow: column;
   justify-content: center;
@@ -27,7 +25,10 @@
 
 .Title {
   /* color: blue; */
-  letter-spacing: .09em;
+  letter-spacing: .07em;
+  margin-bottom: 40px;
+  font-weight: 300;
+  font-size: 32px;
 }
 
 .ErrorMsg {
@@ -38,13 +39,15 @@
   padding: 5px;
   text-align: center;
   width: 100%;
+  margin-bottom: 30px;
+  text-align: left;
 }
 
 .Error {
   position: absolute;
   text-align: center;
   width: 100%;
-  
+
 }
 
 .Form {
