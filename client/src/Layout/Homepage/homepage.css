@@ -23,13 +23,14 @@
   align-items: center;
 
 }
+
 .Top {
-  margin-top: 23vh;
+  margin-top: 15%;
   color: white;
-  font-size: 24px; 
+  font-size: 24px;
   text-align: center;
   transition: .2s;
-  height: 42vh;
+  height: 50vh;
 }
 
 @keyframes bounce_arrow {
@@ -99,7 +100,7 @@
   background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
   z-index: 20;
   height: 8vh
-} 
+}
 .Down {
   position: absolute;
   cursor: pointer;
@@ -115,7 +116,7 @@
 
 .Options {
   /* background-color: #f9f9f9; */
-  margin-top: 30px;
+  margin-top: 80px;
   width: 90%;
   height: 100vh;
   display: flex;
@@ -136,6 +137,12 @@
 
 .LongerBlurb {
   font-size: 20px;
+}
+
+.Blurb {
+  padding: 0 20px;
+  margin-bottom: 20px;
+  font-size: 30px;
 }
 
 .GgbImage {

@@ -7,12 +7,14 @@
   height: 100%;
   transition: .2;
   position: relative;
-  /* border: 1px solid green; */
+  max-width: 125px;
+  /* border: 1px solid white; */
+  margin: 0 10px;
+  font-weight: 300;
 }
 
 .Link {
-  padding: 9px;
-  /* color: white; */
+  color: white;
   letter-spacing: .07em;
 }
 
@@ -35,13 +37,25 @@
   border-radius: 4px;
   margin-top: 25px;
   right: 0;
-  background: #ddd;
+  background: white;
   transition: width .2s ease-in;
   /* -webkit-transition: width .2s; */
 }
- 
+
 .Item:hover:after{
   width: 100%;
   left: 0;
-  background: #ddd;
+  background: white;
+}
+
+@media screen and (max-width: 750px) {
+  .Item {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 550px) {
+  .Item {
+    font-size: 12px;
+  }
 }

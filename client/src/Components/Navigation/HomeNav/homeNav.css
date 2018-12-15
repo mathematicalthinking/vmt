@@ -6,14 +6,12 @@
   navbarHeight: navbarHeight
 }
 
+
 .Nav {
-  display: flex;
   width: 100%;
   height: navbarHeight;
   /* background-image: linear-gradient(to top, #3a5ec9 10%, #001144 100%); */
   justify-content: center;
-  /* border-radius: 3px; */
-  /* box-shadow: darkShadow; */
   z-index: 1000;
   border-top: 2px solid darkBlue;
   position: fixed;
@@ -25,31 +23,77 @@
 
 .LightNav {
   color: blue;
-  border-bottom: 1px solid #999;
+  border-top: 0px;
   background: rgb(255, 255, 255);
-  box-shadow: lightShadow;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
 
+.LightNav li a {
+  color: blue;
 }
 
 .NavContainer {
   display: flex;
-  justify-content: space-between;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-content: center;
+  align-items: center;
+  display: flex;
   height: 100%;
-  width: 1300px;
-  margin: 0 20px;
+  max-width: 1700px;
+  margin: 0 auto;
+  /* border: 1px solid white; */
 }
 
-.NavList{
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  width: 50%;
+.LogoContainer {
+  order: 1;
+  flex: .2 0 auto;
+  /* border: 1px solid yellow; */
 }
 
 .Logo {
   font-size: 30px;
-  /* color: white; */
-  display: flex;
+  height: 100%;
+  margin-left: 8%;
+  /* align-items: center; */
+  font-weight: 400;
+}
+
+.LogoShort {
+  height: 100%;
   align-items: center;
-  letter-spacing: .07em;
+  font-size: 25px;
+  font-weight: 700;
+  display: none;
+}
+
+.NavListContainer {
+  order: 2;
+  flex: .8 0 auto;
+  /* border: 1px solid red; */
+}
+
+.NavListContainer ul {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  flex-flow: center;
+  justify-content: flex-end;
+  align-content: flex-end;
+  align-items: flex-end;
+  padding: 0;
+}
+
+.NavListContainer ul li {
+  flex: .1 0 auto;
+}
+
+@media screen and (max-width: 775px) {
+  .LogoShort {
+    display: block;
+    margin-left: 25px;
+  }
+  .Logo {
+    display: none;
+  }
 }

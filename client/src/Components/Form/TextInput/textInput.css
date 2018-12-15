@@ -21,7 +21,7 @@
   font-size: 35px;
   caret-color: lightBlue;
   color: white;
-  transition: .2s
+  transition: .2s;
 }
 
 .Input:-webkit-autofill {
