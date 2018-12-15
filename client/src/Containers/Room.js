@@ -154,6 +154,16 @@ class Room extends Component {
       }
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
       let dueDateText = 'Due Date' // the fact that we have to do this make this not worth it
+      let ggb = false;
+      let desmos = false;
+      room.tabs.forEach((tab) => {
+        if (tab.tabType === 'geogebra') ggb = true;
+        else if (tab.tabType === 'desmos') desmos = true;
+      })
+      let roomType;
+      if (ggb && desmos) roomType = 'Geogebra/Desmos'
+      else roomType = ggb ? 'Geogebra' : 'Desmos';
+      console.log(room)
       let sidePanelData = {
         image: room.image,
         title: room.name,
@@ -161,18 +171,26 @@ class Room extends Component {
           main: room.name,
           secondary: room.description,
           additional: {
-            [dueDateText]: moment(room.dueDate).format('ddd, MMM D') || 'no due date set',
-            code: room.entryCode,
-            type: room.roomType,
+            [dueDateText]: room.dueDate ? moment(room.dueDate).format('ddd, MMM D') : 'no due date set',
+            type: roomType,
+            privacy: room.privacySetting,
+            facilitators: room.members.reduce((acc, member) => {
+              if (member.role === 'facilitator') acc += `${member.user.username} `
+              return acc;
+            }, '')
           }
         },
-        buttons: () => (
+        buttons: 
           <Aux>
             <span><Button theme={this.props.loading ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToWorkspace : () => null}>Enter</Button></span>
             <span><Button theme={(this.props.loading) ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToReplayer : () => null}>Replayer</Button></span>
           </Aux>
-        ),
+        ,
         edit: this.state.owner ? {action: 'edit', text: 'edit room'} : null,
+      }
+
+      if (this.state.owner) {
+        sidePanelData.details.additional.code = room.entryCode;
       }
 
       let crumbs = [

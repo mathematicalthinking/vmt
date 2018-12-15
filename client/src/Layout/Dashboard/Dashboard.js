@@ -62,7 +62,7 @@ const dashboard = props => {
               { owner && sidePanelData.edit.action ? <div  className={classes.Edit} onClick={toggleEdit}>{sidePanelData.edit.text} <i className="fas fa-edit"></i></div>: null}
             </div>
             <div className={classes.spButtons}>
-              {sidePanelData.buttons ? sidePanelData.buttons() : null}
+              {sidePanelData.buttons || null}
             </div>
             <div className={classes.ViewOpts}></div>
           </div>
