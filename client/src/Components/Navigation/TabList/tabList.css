@@ -43,12 +43,14 @@
 .Notifications {
   position: absolute;
   top: calc(50% - 10px); /** half the parent height - half of this height **/
-  right: 0;
-  margin-left: 10px;
+  right: 2px;
   background-color: red;
   color: white;
   border-radius: 50%;
   width: 20px;
+  text-align: center;
+  vertical-align: center;
+  font-size: .85em;
   height: 20px;
   text-align: center;
   -webkit-text-stroke-width: .01em;
