@@ -9,7 +9,7 @@ import {
   updateRoom,
 } from '../store/actions';
 import moment from 'moment'
-import DashboardLayout from '../Layout/Dashboard/Dashboard';
+import { DashboardLayout, SidePanel, MainContent } from '../Layout/Dashboard/';
 import Aux from '../Components/HOC/Auxil';
 import Modal from '../Components/UI/Modal/Modal';
 import Button from '../Components/UI/Button/Button';
@@ -35,17 +35,15 @@ class Room extends Component {
   ]
 
   componentDidMount() {
-    const { room, user, populateRoom, accessNotifications, clearNotification, match } = this.props;
+    const { room, user, accessNotifications, clearNotification, } = this.props;
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
     // If its in the store check access
     if (room) {
       // populateRoom(match.params.room_id) // @TODO IF we do get rid of this we probably have unnecessary updates in componentDidUpdate
-      // CHECK ACCESS
+      // check access
       let updatedTabs = [...this.state.tabs];
       let owner = false;
       let firstView = false;
-      console.log(room.creator._id)
-      console.log(user._id)
       if (room.creator === user._id || room.creator._id === user._id) { // WE SHOULD ACTUALLY BE CHECKING THE FACILITATORS NOT THE OWNER
         // updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
         // this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
@@ -163,34 +161,19 @@ class Room extends Component {
       let roomType;
       if (ggb && desmos) roomType = 'Geogebra/Desmos'
       else roomType = ggb ? 'Geogebra' : 'Desmos';
-      console.log(room)
-      let sidePanelData = {
-        image: room.image,
-        title: room.name,
-        details: {
-          main: room.name,
-          secondary: room.description,
-          additional: {
-            [dueDateText]: room.dueDate ? moment(room.dueDate).format('ddd, MMM D') : 'no due date set',
-            type: roomType,
-            privacy: room.privacySetting,
-            facilitators: room.members.reduce((acc, member) => {
-              if (member.role === 'facilitator') acc += `${member.user.username} `
-              return acc;
-            }, '')
-          }
-        },
-        buttons: 
-          <Aux>
-            <span><Button theme={this.props.loading ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToWorkspace : () => null}>Enter</Button></span>
-            <span><Button theme={(this.props.loading) ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToReplayer : () => null}>Replayer</Button></span>
-          </Aux>
-        ,
-        edit: this.state.owner ? {action: 'edit', text: 'edit room'} : null,
-      }
 
+      let additionalDetails = {
+        [dueDateText]: room.dueDate ? moment(room.dueDate).format('ddd, MMM D') : 'no due date set',
+        type: roomType,
+        privacy: room.privacySetting,
+        facilitators: room.members.reduce((acc, member) => {
+          if (member.role === 'facilitator') acc += `${member.user.username} `
+          return acc;
+        }, '')
+      }
+      
       if (this.state.owner) {
-        sidePanelData.details.additional.code = room.entryCode;
+        additionalDetails.code = room.entryCode;
       }
 
       let crumbs = [
@@ -203,17 +186,33 @@ class Room extends Component {
       return (
         <Aux>
           <DashboardLayout
-            routingInfo={this.props.match}
-            crumbs={crumbs}
-            contentData={contentData}
-            sidePanelData={sidePanelData}
-            tabs={this.state.tabs}
-            activeTab={resource}
-            loading={this.props.loading}
-            toggleEdit={this.toggleEdit}
-            update={this.update}
-            editing={this.state.editing}
-            activateTab={event => this.setState({activeTab: event.target.id})}
+            sidePanel={
+              <SidePanel 
+                image={room.image} 
+                name={room.name} 
+                onwer={this.state.owner}
+                additionalDetails={additionalDetails}
+                buttons={
+                  <Aux>
+                    <span><Button theme={this.props.loading ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToWorkspace : () => null}>Enter</Button></span>
+                    <span><Button theme={(this.props.loading) ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToReplayer : () => null}>Replayer</Button></span>
+                  </Aux>
+                }
+                edit={this.state.owner ? {action: 'edit', text: 'edit room'} : null}
+              />
+            }
+            // mainContent={<MainContent />}
+            // routingInfo={this.props.match}
+            // crumbs={crumbs}
+            // contentData={contentData}
+            // sidePanelData={sidePanelData}
+            // tabs={this.state.tabs}
+            // activeTab={resource}
+            // loading={this.props.loading}
+            // toggleEdit={this.toggleEdit}
+            // update={this.update}
+            // editing={this.state.editing}
+            // activateTab={event => this.setState({activeTab: event.target.id})}
           />
           {this.state.firstView ? <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
             <p>Welcome to {room.name}. If this is your first time joining a course,

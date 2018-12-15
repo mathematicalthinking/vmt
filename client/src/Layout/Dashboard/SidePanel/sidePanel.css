@@ -1,0 +1,27 @@
+.Details {
+  margin-top: 5px;
+}
+
+.spMain {
+  font-size: 25px;
+  font-weight: 900;
+}
+
+.spSecondary {
+  font-size: 20px;
+  color: #666;
+}
+
+.spAdditional {
+  padding: 3px 0;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+
+.spButtons {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  border-bottom: 1px solid #ddd;
+  border-top: 1px solid #ddd;
+}
