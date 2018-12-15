@@ -40,13 +40,20 @@
 }
 
 .Edit {
+  display: flex;
+  justify-content: space-between;
   color: #999;
   cursor: pointer;
-  padding: 5px 0;
+  padding: 9px 0;
+  height: 45px;
+}
+
+.Edit:first-child {
+  color: inherit;
   transition: .2s;
 }
 
-.Edit:hover {
+.Edit:first-child:hover {
   color: blue;
 }
 

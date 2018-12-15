@@ -17,6 +17,7 @@ import {
   Button, 
   BreadCrumbs, 
   TabList, 
+  EditText,
 } from '../Components';
 import Access from './Access';
 // import PublicAccessModal from '../Components/UI/Modal/PublicAccess'
@@ -32,6 +33,12 @@ class Room extends Component {
     ],
     firstView: false,
     editing: false,
+    dueDate: this.props.room.dueDate,
+    name: this.props.room.name,
+    description: this.props.room.description,
+    code: this.props.room.entryCode,
+    instructions: this.props.room.instructions,
+
   }
 
   initialTabs = [
@@ -118,7 +125,6 @@ class Room extends Component {
   }
 
   toggleEdit = () => {
-    console.log('toggling edit')
     this.setState(prevState => ({
       editing: !prevState.editing
     }))
@@ -156,9 +162,9 @@ class Room extends Component {
       else roomType = ggb ? 'Geogebra' : 'Desmos';
 
       let additionalDetails = {
-        [dueDateText]: room.dueDate ? moment(room.dueDate).format('ddd, MMM D') : 'no due date set',
+        [dueDateText]: <EditText change={this.updateRoomInfo} inputType='date' editing={this.state.editing}>{room.dueDate ? moment(room.dueDate).format('ddd, MMM D') : 'no due date set'}</EditText>,
         type: roomType,
-        privacy: room.privacySetting,
+        privacy: <EditText change={this.updateRoomInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']}>{room.privacySetting}</EditText>,
         facilitators: room.members.reduce((acc, member) => {
           if (member.role === 'facilitator') acc += `${member.user.username} `
           return acc;
@@ -166,7 +172,7 @@ class Room extends Component {
       }
       
       if (this.state.owner) {
-        additionalDetails.code = room.entryCode;
+        additionalDetails.code = <EditText change={this.updateRoomInfo} inputType='text' editing={this.state.editing}>{room.entryCode}</EditText>;
       }
 
       let crumbs = [
@@ -189,6 +195,9 @@ class Room extends Component {
           notifications={accessNotifications.filter(ntf => ntf._id === room._id) || []}
         />
       }
+
+      console.log(this.state.editing)
+
       return (
         <Aux>
           <DashboardLayout
@@ -196,7 +205,7 @@ class Room extends Component {
             sidePanel={
               <SidePanel 
                 image={room.image} 
-                name={room.name} 
+                name={<EditText change={this.updateRoomInfo} inputType='title' editing={this.state.editing}>{this.state.name}</EditText>} 
                 owner={this.state.owner}
                 additionalDetails={additionalDetails}
                 buttons={
@@ -205,7 +214,16 @@ class Room extends Component {
                     <span><Button theme={(this.props.loading) ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToReplayer : () => null}>Replayer</Button></span>
                   </Aux>
                 }
-                editInfo={this.state.owner ? {action: 'edit', text: 'edit room'} : null}
+                editButton={ this.state.owner 
+                  ? <Aux>
+                      <div role='button' style={{color: this.state.editing ? 'blue' : 'gray'}} onClick={this.toggleEdit}>Edit Room <i className="fas fa-edit"></i></div>
+                      {this.state.editing 
+                        ? <div><Button onClick={this.updateRoom} theme='xs'>Save</Button> <Button onCLick={this.cancelEdit} theme='xs'>Cancel</Button></div>
+                        : null
+                      }
+                    </Aux>
+                  : null
+                }
               />
             }
             mainContent={mainContent}

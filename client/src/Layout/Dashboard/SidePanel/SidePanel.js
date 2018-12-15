@@ -3,9 +3,9 @@ import { Button } from '../../../Components/';
 import { Link } from 'react-router-dom';
 import classes from './sidePanel.css';
 const SidePanel = React.memo(({
-  image, title, subTitle,
+  image, name, subTitle,
   additionalDetails, toggleView,
-  toggleEdit, owner, editInfo, editing,
+  toggleEdit, owner, editButton, editing,
   buttons, user, bothRoles, view,
 }) => {
   let details = Object.keys(additionalDetails).map(key => {
@@ -17,12 +17,12 @@ const SidePanel = React.memo(({
   return (
     <div className={classes.Container}>
       <div className={classes.Top}>
-        <img className={classes.Image} src={image} alt={title} />
+        <img className={classes.Image} src={image} alt={name} />
         <div className={classes.Details}>
-          <div className={classes.spMain}>{title}</div>
+          <div className={classes.spMain}>{name}</div>
           <div className={classes.spSecondary}>{subTitle}</div>
           <div className={classes.spAdditional}>{details}</div>
-          { owner ? <div  className={classes.Edit} onClick={toggleEdit}>{editInfo.text} <i className="fas fa-edit"></i></div>: null}
+          <div className={classes.Edit}>{editButton}</div>
         </div>
         <div className={classes.spButtons}>{buttons}</div>
         <div className={classes.ViewOpts}></div>

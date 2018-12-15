@@ -1,0 +1,31 @@
+:import('../../colors.css'){
+  blue: blue;
+}
+
+.NormalText {
+  border: 1px solid transparent;
+  display: inline;
+}
+
+.Common {
+  font-size: inherit;
+  border: 1px solid blue;
+}
+
+.Title {
+  width: 100%;
+}
+
+.Date {
+  display: inline;
+}
+
+.Text {
+  /* width: auto; */
+  display: inline !important;
+}
+
+.Radios {
+  display: flex;
+  justify-content: space-around;
+}
