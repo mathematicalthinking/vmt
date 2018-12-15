@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import moment from 'moment'
 import { connect } from 'react-redux';
 import { 
   enterRoomWithCode, 
@@ -8,11 +9,14 @@ import {
   clearNotification,
   updateRoom,
 } from '../store/actions';
-import moment from 'moment'
-import { DashboardLayout, SidePanel, MainContent } from '../Layout/Dashboard/';
-import Aux from '../Components/HOC/Auxil';
-import Modal from '../Components/UI/Modal/Modal';
-import Button from '../Components/UI/Button/Button';
+import { DashboardLayout, SidePanel, RoomDetails, } from '../Layout/Dashboard/';
+import { 
+  Aux, 
+  Modal, 
+  Button, 
+  BreadCrumbs, 
+  TabList, 
+} from '../Components';
 import Access from './Access';
 // import PublicAccessModal from '../Components/UI/Modal/PublicAccess'
 // import Participants from './Participants/Participants';
@@ -186,11 +190,12 @@ class Room extends Component {
       return (
         <Aux>
           <DashboardLayout
+            breadCrumbs={<BreadCrumbs crumbs={crumbs} />}
             sidePanel={
               <SidePanel 
                 image={room.image} 
                 name={room.name} 
-                onwer={this.state.owner}
+                owner={this.state.owner}
                 additionalDetails={additionalDetails}
                 buttons={
                   <Aux>
@@ -198,10 +203,11 @@ class Room extends Component {
                     <span><Button theme={(this.props.loading) ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToReplayer : () => null}>Replayer</Button></span>
                   </Aux>
                 }
-                edit={this.state.owner ? {action: 'edit', text: 'edit room'} : null}
+                editInfo={this.state.owner ? {action: 'edit', text: 'edit room'} : null}
               />
             }
-            // mainContent={<MainContent />}
+            mainContent={<RoomDetails room={room} owner={this.state.owner}/>}
+            tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
             // routingInfo={this.props.match}
             // crumbs={crumbs}
             // contentData={contentData}

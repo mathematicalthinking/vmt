@@ -17,16 +17,14 @@ const SidePanel = React.memo(({
   return (
     <div className={classes.Container}>
       <div className={classes.Top}>
-        <div className={classes.Image}><img src={image} alt={title} /></div>
+        <img className={classes.Image} src={image} alt={title} />
         <div className={classes.Details}>
           <div className={classes.spMain}>{title}</div>
           <div className={classes.spSecondary}>{subTitle}</div>
           <div className={classes.spAdditional}>{details}</div>
-          { owner && editInfo.action ? <div  className={classes.Edit} onClick={toggleEdit}>{editInfo.text} <i className="fas fa-edit"></i></div>: null}
+          { owner ? <div  className={classes.Edit} onClick={toggleEdit}>{editInfo.text} <i className="fas fa-edit"></i></div>: null}
         </div>
-        <div className={classes.spButtons}>
-          {buttons}
-        </div>
+        <div className={classes.spButtons}>{buttons}</div>
         <div className={classes.ViewOpts}></div>
       </div>
       {owner && bothRoles ? <div className={classes.CreateForParticipant}><Link to='facilitator' data-testid='become-facilitator'>become a facilitator</Link></div> : null}

@@ -1,10 +1,10 @@
 // @TODO THIS SHOULD BE COMBINED WITH ACTIVITY DETAILS IN LAYOUT/DASHBOARD
 
 import React, { Component } from 'react';
-import classes from './room.css';
-import { Button } from '../../Components';
+import classes from './roomDetails.css';
+import { Button } from '../../../Components';
 import { withRouter } from 'react-router-dom';
-class Summary extends Component {
+class RoomDetails extends Component {
 
   state = {
     assigning: false,
@@ -57,4 +57,4 @@ class Summary extends Component {
 }
   
 
-export default withRouter(Summary);
+export default withRouter(RoomDetails);

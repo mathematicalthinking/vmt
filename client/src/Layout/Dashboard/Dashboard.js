@@ -1,15 +1,14 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import classes from './dashboard.css';
 import Resources from './Resources/Resources';
 import Members from '../../Containers/Members/Members'
 import CustomLink from '../../Components/Navigation/CustomLink/CustomLink';
 import { TabList, BreadCrumbs, Avatar, Button,   } from '../../Components';
-import Summary from '../Room/Room';
+import Summary from './MainContent/RoomDetails';
 import ActivityDetails from './ActivityDetails/ActivityDetails';
 
-const dashboard = props => {
-  let {sidePanel, mainContent } = props;
+const dashboard = ({ sidePanel, mainContent, breadCrumbs, tabs }) => {
+  
   // let {resource, parentResource, activity, course, room, user, owner} = contentData;
   let content;
   // if (parentResource === 'activities' && resource === 'details') {
@@ -43,18 +42,12 @@ const dashboard = props => {
   // ))
   return (
     <section className={classes.Container}>
-      <div className={classes.BreadCrumbs}>
-        {/* <BreadCrumbs crumbs={props.crumbs}/> */}
-      </div>
+      <div className={classes.BreadCrumbs}>{breadCrumbs}</div>
       <div className={classes.Main}>
         <div className={classes.SidePanel}>{sidePanel}</div>
         <div className={classes.Content}>
-          <div className={classes.Tabs}>
-            {/* <TabList routingInfo={props.routingInfo} tabs={props.tabs} /> */}
-          </div>
-          <div className={classes.MainContent}>
-            {content}
-          </div>
+          <div className={classes.Tabs}>{tabs}</div>
+          <div className={classes.MainContent}>{mainContent}</div>
         </div>
       </div>
     </section>
