@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import moment from 'moment'
 import { connect } from 'react-redux';
+import { DashboardLayout, SidePanel, RoomDetails, } from '../Layout/Dashboard/';
+import Members from './Members/Members';
 import { 
   enterRoomWithCode, 
   populateRoom, 
@@ -9,7 +11,6 @@ import {
   clearNotification,
   updateRoom,
 } from '../store/actions';
-import { DashboardLayout, SidePanel, RoomDetails, } from '../Layout/Dashboard/';
 import { 
   Aux, 
   Modal, 
@@ -139,21 +140,9 @@ class Room extends Component {
     let { 
       room, match, user,
       accessNotifications, error, 
-      clearError, courseMembers, course
+      clearError, course
     } = this.props;
     if (room && !this.state.guestMode) {
-      let resource = match.params.resource;
-      let contentData = {
-        resource,
-        room,
-        courseMembers,
-        user,
-        parentResource: 'rooms',
-        parentResourceId: room._id,
-        userResources: room[resource],
-        owner: this.state.owner,
-        notifications: accessNotifications.filter(ntf => ntf._id === room._id) || [],
-      }
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
       let dueDateText = 'Due Date' // the fact that we have to do this make this not worth it
       let ggb = false;
@@ -186,7 +175,20 @@ class Room extends Component {
         //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
         // THE REDUX STORE USING THE COURSE ID IN THE URL
       if (room.course) {crumbs.splice(1, 0, {title: course.name, link: `/myVMT/courses/${room.course._id}/activities`})}
-
+      let mainContent;
+      if (this.props.match.params.resource === 'details') {
+        mainContent = <RoomDetails room={room} owner={this.state.owner} notifications={accessNotifications.filter(ntf => ntf._id === room._id) || []}/>
+      } else if (this.props.match.params.resource === 'members') {
+        mainContent = <Members 
+          user={user} 
+          classList={room.members}
+          owner={this.state.owner} 
+          resourceType={'room'}
+          resourceId={room._id} 
+          courseMembers={course ? course.members : null}
+          notifications={accessNotifications.filter(ntf => ntf._id === room._id) || []}
+        />
+      }
       return (
         <Aux>
           <DashboardLayout
@@ -206,19 +208,8 @@ class Room extends Component {
                 editInfo={this.state.owner ? {action: 'edit', text: 'edit room'} : null}
               />
             }
-            mainContent={<RoomDetails room={room} owner={this.state.owner}/>}
+            mainContent={mainContent}
             tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
-            // routingInfo={this.props.match}
-            // crumbs={crumbs}
-            // contentData={contentData}
-            // sidePanelData={sidePanelData}
-            // tabs={this.state.tabs}
-            // activeTab={resource}
-            // loading={this.props.loading}
-            // toggleEdit={this.toggleEdit}
-            // update={this.update}
-            // editing={this.state.editing}
-            // activateTab={event => this.setState({activeTab: event.target.id})}
           />
           {this.state.firstView ? <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
             <p>Welcome to {room.name}. If this is your first time joining a course,
