@@ -20,13 +20,14 @@
   position: relative;
   flex: .2 0 auto;
   max-width: 150px;
+  min-width: 120px;
   padding: 15px 0;
   font-size: 18px;
   text-align: center;
   /* margin: 8px 35px 0 0; */
   /* letter-spacing: .08em; */
   cursor: pointer;
-  border-bottom: 2px solid #fff;
+  border-bottom: 4px solid #fff;
   transition: .2s;
 }
 
