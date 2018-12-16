@@ -54,8 +54,8 @@ class Homepage extends PureComponent {
     return (
       <Aux>
         <Background/>
-        {/* <div className={classes.BackgroundExtension}></div> */}
-        {/* <div className={classes.Ex2}></div>
+        {/* <div className={classes.BackgroundExtension}></div>
+        <div className={classes.Ex2}></div>
         <div className={classes.Ex3}></div>
         <div className={classes.Ex4}></div>
         <div className={classes.Ex5}></div>

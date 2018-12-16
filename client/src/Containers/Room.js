@@ -242,7 +242,7 @@ class Room extends Component {
                 }
                 editButton={ this.state.owner 
                   ? <Aux>
-                      <div role='button' style={{color: this.state.editing ? 'blue' : 'gray'}} onClick={this.toggleEdit}>Edit Room <i className="fas fa-edit"></i></div>
+                      <div role='button' style={{color: this.state.editing ? 'blue' : 'gray'}}  onClick={this.toggleEdit}>Edit Room <i className="fas fa-edit"></i></div>
                       {this.state.editing 
                         ? <div><Button click={this.updateRoom} theme='xs'>Save</Button> <Button click={this.toggleEdit} theme='xs'>Cancel</Button></div>
                         : null
@@ -278,10 +278,10 @@ class Room extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  let { room_id } = ownProps.match.params;
+  let { room_id, course_id } = ownProps.match.params;
   return {
     room: state.rooms.byId[room_id],
-    course: state.rooms.byId[room_id] && state.rooms.byId[room_id].course ? state.courses.byId[state.rooms.byId[room_id].course] : null,
+    course: state.courses.byId[course_id] || null,
     // courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
     user: state.user,
     accessNotifications: state.user.roomNotifications.access, // this seems redundant

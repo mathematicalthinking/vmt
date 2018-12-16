@@ -25,7 +25,7 @@ const SidePanel = React.memo(({
           <div className={classes.spMain}>{name}</div>
           <div className={classes.spSecondary}>{subTitle}</div>
           <div className={classes.spAdditional}>{details}</div>
-          <div className={classes.Edit}>{editButton}</div>
+         {editButton ? <div className={classes.Edit}>{editButton}</div> : null}
         </div>
         <div className={classes.spButtons}>{buttons}</div>
         <div className={classes.ViewOpts}></div>

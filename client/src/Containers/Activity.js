@@ -1,8 +1,16 @@
 import React, { Component } from 'react';
 // import PropTypes from 'prop-types';
-import DashboardLayout from '../Layout/Dashboard/Dashboard';
-import { getCourses, getRooms, updateActivity, getActivities } from '../store/actions';
 import { connect } from 'react-redux';
+import { DashboardLayout, SidePanel, ActivityDetails, } from '../Layout/Dashboard/';
+import { 
+  Aux, 
+  Modal, 
+  Button, 
+  BreadCrumbs, 
+  TabList, 
+  EditText,
+} from '../Components';
+import { getCourses, getRooms, updateActivity, getActivities } from '../store/actions';
 import { populateResource } from '../store/reducers';
 class Activity extends Component {
   state = {
@@ -14,6 +22,10 @@ class Activity extends Component {
     ],
     // assigning: false, // this seems to be duplicated in Layout/Dashboard/MakeRooms.js
     editing: false,
+    name: this.props.activity.name,
+    description: this.props.activity.description,
+    instructions: this.props.activity.instructions,
+    privacySetting: this.props.activity.privacySetting,
   }
 
   componentDidMount() {
@@ -45,14 +57,32 @@ class Activity extends Component {
 
   toggleEdit = () => {
     this.setState(prevState => ({
-      editing: !prevState.editing
+      editing: !prevState.editing,
+      name: this.props.activity.name,
+      privacySetting: this.props.activity.privacySetting,
+      instrucitons: this.props.activity.instructions,
     }))
+  }
+  // options is for radioButton/checkbox inputs
+  updateActivityInfo = (event, option) => {
+    let { value, name } = event.target;
+    this.setState({[name]: option || value})
+  }
+
+  updateActivity= () => {
+    let { updateActivity, activity, } = this.props;
+    let { name, instructions, details, privacySetting, } = this.state
+    let body = {name, details, instructions, privacySetting}
+    updateActivity(activity._id, body)
+    this.setState({
+      editing: false,
+    })
   }
 
   render() {
-    const resource = this.props.match.params.resource;
-    const activity = this.props.populatedActivity
-    const course = this.props.currentCourse;
+    let { activity, course, match } = this.props;
+    let { resource }= match.params;
+    let populatedActivity = this.props.populatedActivity;
     const contentData = {
       resource,
       activity,
@@ -64,16 +94,10 @@ class Activity extends Component {
       user: this.props.user,
       owner: this.state.owner
     }
-    const sidePanelData = {
-      image: activity.image,
-      details: {
-        main: activity.name,
-        secondary: activity.description,
-        additional: {
-          Type: activity.roomType,
-        }
-      },
-      edit: this.state.owner ? {action: 'edit', text: 'edit activity'} : null,
+
+    let additionalDetails = {
+      type: activity.roomType,
+      privacy: <EditText change={this.updateActivityInfo} inputType='radio' editing={this.state.editing} options={['private', 'public']} name="privacySetting">{activity.privacySetting}</EditText>
     }
     
     const crumbs = [{title: 'My VMT', link: '/myVMT/courses'}]
@@ -87,17 +111,45 @@ class Activity extends Component {
     }
     return (
       <DashboardLayout
-        routingInfo={this.props.match}
-        crumbs={crumbs}
-        sidePanelTitle={'side panel'}
-        contentData={contentData}
-        sidePanelData={sidePanelData}
-        tabs={this.state.tabs}
-        user={this.props.user}
-        toggleEdit={this.toggleEdit}
-        editing={this.state.editing}
-        update={this.props.updateActivity}
-        history={this.props.history}
+        breadCrumbs={
+          <BreadCrumbs crumbs={crumbs} />
+        }
+        sidePanel={
+          <SidePanel 
+            image={activity.image}
+            name={<EditText change={this.updateActivityInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>} 
+            subTitle={<EditText change={this.updateActivityInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>} 
+            owner={this.state.owner}
+            additionalDetails={additionalDetails}
+            buttons={
+              <Aux>
+                <span><Button theme={'Small'} m={10} click={this.goToWorkspace}>Enter</Button></span>
+                <span><Button theme={'Small'} m={10} click={this.goToReplayer}>Replayer</Button></span>
+              </Aux>
+            }
+            editButton={ this.state.owner 
+              ? <Aux>
+                  <div role='button' style={{color: this.state.editing ? 'blue' : 'gray'}}  onClick={this.toggleEdit}>Edit Activity <i className="fas fa-edit"></i></div>
+                  {this.state.editing 
+                    ? <div><Button click={this.updateActivity} theme='xs'>Save</Button> <Button click={this.toggleEdit} theme='xs'>Cancel</Button></div>
+                    : null
+                  }
+                </Aux>
+              : null
+            }
+          />
+        }
+        mainContent={
+          <ActivityDetails 
+            activity={this.props.activity}
+            update={this.updateActivityInfo}
+            instructions={this.state.instructions}
+            editing={this.state.editing}
+            owner={this.state.owner}
+            toggleEdit={this.toggleEdit}
+          />
+        }
+        tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
       />
     )
   }
@@ -108,7 +160,7 @@ const mapStateToProps = (store, ownProps ) => {
   return {
     activity: store.activities.byId[activity_id],
     populatedActivity: populateResource(store, 'activities', activity_id, ['rooms']),
-    currentCourse: store.courses.byId[course_id],
+    course: store.courses.byId[course_id],
     userId: store.user._id,
     user: store.user,
   }

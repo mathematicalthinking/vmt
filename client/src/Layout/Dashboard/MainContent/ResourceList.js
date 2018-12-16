@@ -1,7 +1,7 @@
 import React from 'react';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
-import classes from './resources.css';
+import classes from './resourceList.css';
 import Search from '../../../Components/Search/Search';
 // CONSIDER RENAMING TO DASHBOARDCONTENT
 const resources = props => {
