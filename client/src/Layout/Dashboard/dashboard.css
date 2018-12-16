@@ -45,6 +45,7 @@
   width: var(--side-panel-width);
   border-right: 1px solid #ddd;
   letter-spacing: 0.06em;
+  height: 98%;
 }
 
 

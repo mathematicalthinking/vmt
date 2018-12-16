@@ -205,21 +205,6 @@ class Profile extends Component {
   render() {
     let { user, match, } = this.props;
     let resource = match.params.resource;
-    let contentData = {
-      resource,
-      userResources: this.state.displayResources.map(id => this.props[resource].byId[id]) || [],
-      notifications: (resource === 'courses') ? user.courseNotifications.access : user.roomNotifications.access,
-      user,
-    }
-    const sidePanelData = {
-      image: user.profilePic,
-      details: {
-        main: `${user.firstName || ''} ${user.lastName || ''}`,
-        secondary: user.username
-      },
-      // edit: {link: '/profile', text: 'edit profile'}
-      edit: {}
-    }
 
     let additionalDetails = {
       courses: user.courses.length,
@@ -229,13 +214,16 @@ class Profile extends Component {
     return (
       <DashboardLayout
         breadCrumbs={
-        <BreadCrumbs crumbs={[{title: 'My VMT', link: '/myVMT/courses'}]} />}
+          <BreadCrumbs crumbs={[{title: 'My VMT', link: '/myVMT/courses'}]} />
+        }
         sidePanel={
           <SidePanel
             image={user.profilePic}
             name={user.username}
             subTitle={`${user.firstName} ${user.lastName}`}
             additionalDetails={additionalDetails}
+            accountType={user.accountType}
+            bothRoles={this.state.bothRoles}
           />
         }
         mainContent={

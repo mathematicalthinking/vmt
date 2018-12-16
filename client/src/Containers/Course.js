@@ -2,21 +2,27 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import _difference from 'lodash/difference';
 import { populateResource } from '../store/reducers';
+import Members from './Members/Members';
 import { 
   getActivities,
   getRooms, 
   updateCourseRooms, 
   updateCourseActivities, 
+  updateCourse,
   clearNotification, 
   getCourse,
   getUser,
 } from '../store/actions';
-import DashboardLayout from '../Layout/Dashboard/Dashboard';
-import Aux from '../Components/HOC/Auxil';
-import Modal from '../Components/UI/Modal/Modal';
+import { DashboardLayout, SidePanel, ResourceList, } from '../Layout/Dashboard/';
+import { 
+  Aux, 
+  Modal, 
+  Button, 
+  BreadCrumbs, 
+  TabList, 
+  EditText,
+} from '../Components';
 import Access from './Access';
-// import PublicAccessModal from '../Components/UI/Modal/PublicAccess';
-import Button from '../Components/UI/Button/Button';
 
 class Course extends Component {
   state = {
@@ -29,6 +35,11 @@ class Course extends Component {
       {name: 'Members'},
     ],
     firstView: false,
+    editing: false,
+    name: this.props.course.name,
+    description: this.props.course.description,
+    entryCode: this.props.course.entryCode,
+    privacySettings: this.props.course.privacySetting,
   }
   initialTabs = [
     {name: 'Activities'},
@@ -146,6 +157,31 @@ class Course extends Component {
     })
   }
 
+  toggleEdit = () => {
+    this.setState(prevState => ({
+      editing: !prevState.editing,
+      name: this.props.course.name,
+      privacySetting: this.props.course.privacySetting,
+      entryCode: this.props.course.entryCode,
+      instrucitons: this.props.instructions,
+    }))
+  }
+
+  updateCourseInfo = (event, option) => {
+    let { value, name } = event.target;
+    this.setState({[name]: option || value})
+  }
+
+  updateCourse = () => {
+    let { updateCourse, course, } = this.props;
+    let { entryCode, name, details } = this.state
+    let body = { entryCode, name, details, }
+    updateCourse(course._id, body)
+    this.setState({
+      editing: false,
+    })
+  }
+
   render() {
     let { course, user, match, accessNotifications } = this.props;
     if (course && !this.state.guestMode) {
@@ -161,48 +197,90 @@ class Course extends Component {
           return included;
         })
       }
-      let contentData = {
-        resource,
-        parentResource: "courses",
-        parentResourceId: course._id,
-        userResources: myRooms || course[resource] || [],
-        notifications:  accessNotifications.filter(ntf => ntf._id === course._id) || [],
-        userId: user._id, // @TODO <-- get rid of this user user object below
-        user: user,
-        owner: this.state.owner,
+      // let contentData = {
+      //   resource,
+      //   parentResource: "courses",
+      //   parentResourceId: course._id,
+      //   userResources: ,
+      //   notifications:  accessNotifications.filter(ntf => ntf._id === course._id) || [],
+      //   userId: user._id, // @TODO <-- get rid of this user user object below
+      //   user: user,
+      //   owner: this.state.owner,
+      // }
+
+      let mainContent;
+      if (resource === 'rooms' || resource === 'activities') {
+        mainContent =  <ResourceList 
+          userResources={myRooms || course[resource] || []} 
+          notifications={accessNotifications.filter(ntf => ntf._id === course._id) || []}
+          user={user}
+          resource={resource}
+          parentResource="courses"
+          parentResourceId={course._id}
+        />
       }
-      let sidePanelData = {
-        image: course.image,
-        details: {
-          main: course.name,
-          secondary: course.description,
-          additional: {
-            code: course.entryCode,
-            facilitators: course.members.reduce((acc, member) =>{
-              if (member.role === 'facilitator') {
-                acc += member.user.username + " "
-              }
-              return acc;
-            }, ''),
-            acitivities: course.activities.length,
-            rooms: course.rooms.length,
-          },
-        },
-        edit: {}
+      else if (resource === 'members') {
+        mainContent = <Members 
+          user={user} 
+          classList={course.members}
+          owner={this.state.owner} 
+          resourceType={'course'}
+          parentResourceId={course._id} 
+          notifications={accessNotifications.filter(ntf => ntf._id === course._id) || []}
+        />
       }
+
+
+      let additionalDetails = {
+        facilitators: course.members.filter(member => member.role === 'facilitator').length,
+        acitivities: course.activities.length,
+        rooms: course.rooms.length,
+        privacy: <EditText change={this.updateCourseInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name='privacySetting'>{this.state.privacySetting}</EditText>,
+      }
+
+      if (this.state.owner) {
+        additionalDetails.code = <EditText change={this.updateCourseInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText>;
+      }
+      console.log(user.accountType)
+
       // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
       return (
         <Aux>
           <DashboardLayout
-            routingInfo={this.props.match}
-            crumbs={[{title: 'My VMT', link: '/myVMT/courses'}, {title: course.name, link: `/myVMT/courses/${course._id}/activities/`}]}
-            contentData={contentData}
-            tabs={this.state.tabs}
-            sidePanelData={sidePanelData}
-            // user={user}
-            accountType={user.accountType}
-            bothRoles={this.state.bothRoles}
-            view={'facilitator'}
+            breadCrumbs={<BreadCrumbs crumbs={[{title: 'My VMT', link: '/myVMT/courses'}, {title: course.name, link: `/myVMT/courses/${course._id}/activities/`}]}/>}
+            sidePanel={
+              <SidePanel 
+                image={course.image}
+                name={<EditText change={this.updateCourseInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>} 
+                subTitle={<EditText change={this.updateCourseInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>} 
+                owner={this.state.owner}
+                bothRoles={this.state.bothRoles}
+                additionalDetails={additionalDetails}
+                accountType={user.accountType}
+                editButton={ this.state.owner 
+                  ? <Aux>
+                      <div role='button' style={{color: this.state.editing ? 'blue' : 'gray'}} onClick={this.toggleEdit}>Edit Course <i className="fas fa-edit"></i></div>
+                      {this.state.editing 
+                        ? <div><Button click={this.updateCourse} theme='xs'>Save</Button> <Button click={this.toggleEdit} theme='xs'>Cancel</Button></div>
+                        : null
+                      }
+                    </Aux>
+                  : null
+                }
+              />
+            }
+            tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
+            mainContent={mainContent}
+
+            // routingInfo={this.props.match}
+            // 
+            // contentData={contentData}
+            // tabs={this.state.tabs}
+            // sidePanelData={sidePanelData}
+            // // user={user}
+            // accountType={user.accountType}
+            // bothRoles={this.state.bothRoles}
+            // view={'facilitator'}
           />
           <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
             <p>Welcome to {course.name}. If this is your first time joining a course,
@@ -244,6 +322,7 @@ export default connect(mapStateToProps, {
   updateCourseRooms, 
   updateCourseActivities, 
   clearNotification,
+  updateCourse,
   getCourse,
   getUser,
 })(Course);

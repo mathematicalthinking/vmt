@@ -197,7 +197,7 @@ class Room extends Component {
         {title: room.name, link: `/myVMT/rooms/${room._id}/details`}]
         //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
         // THE REDUX STORE USING THE COURSE ID IN THE URL
-      if (room.course) {crumbs.splice(1, 0, {title: course.name, link: `/myVMT/courses/${room.course._id}/activities`})}
+      if (course) {crumbs.splice(1, 0, {title: course.name, link: `/myVMT/courses/${course._id}/activities`})}
       let mainContent;
       if (this.props.match.params.resource === 'details') {
         mainContent = <RoomDetails 
@@ -224,12 +224,14 @@ class Room extends Component {
       return (
         <Aux>
           <DashboardLayout
-            breadCrumbs={<BreadCrumbs crumbs={crumbs} />}
+            breadCrumbs={
+              <BreadCrumbs crumbs={crumbs} />
+            }
             sidePanel={
               <SidePanel 
                 image={room.image}
-                subTitle={<EditText change={this.updateRoomInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>} 
                 name={<EditText change={this.updateRoomInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>} 
+                subTitle={<EditText change={this.updateRoomInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>} 
                 owner={this.state.owner}
                 additionalDetails={additionalDetails}
                 buttons={
@@ -253,7 +255,8 @@ class Room extends Component {
             mainContent={mainContent}
             tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
           />
-          {this.state.firstView ? <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
+          {this.state.firstView 
+            ? <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
             <p>Welcome to {room.name}. If this is your first time joining a course,
             we recommend you take a tour. Otherwise you can start exploring this room's features.</p>
             <Button click={() => this.setState({firstView: false})}>Explore</Button>

@@ -3,12 +3,22 @@
   blue: blue;
 }
 
+.Container {
+  display: flex;
+  height: 95%;
+  flex-flow: column;
+  justify-content: space-between;
+}
+
 .Top {
   display: flex;
   flex-flow: column;
   align-itmes: flext-stare;
   width: 100%;
+}
 
+.Bottom {
+  padding: 20px;
 }
 
 .Details {
