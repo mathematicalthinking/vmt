@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import DashboardLayout from '../Layout/Dashboard/Dashboard';
-// import Activities from '../Activities/Activities';
-// import { getUserResources }from '../store/reducers';
+import { DashboardLayout, SidePanel, BoxList, } from '../Layout/Dashboard/';
+import { TabList, BreadCrumbs, Avatar } from '../Components/';
 import { connect } from 'react-redux';
 import {
   getRooms,
@@ -216,28 +215,31 @@ class Profile extends Component {
       image: user.profilePic,
       details: {
         main: `${user.firstName || ''} ${user.lastName || ''}`,
-        secondary: user.username,
-        additional: {
-          courses: user.courses.length,
-          rooms: user.rooms.length,
-          activities: user.activities.length, 
-        }
+        secondary: user.username
       },
       // edit: {link: '/profile', text: 'edit profile'}
       edit: {}
     }
+
+    let additionalDetails = {
+      courses: user.courses.length,
+      rooms: user.rooms.length,
+      activities: user.activities.length, 
+    }
     return (
       // <Aux>
         <DashboardLayout
-          routingInfo={match}
-          crumbs={[{title: 'My VMT', link: '/myVMT/courses'}]}
-          contentData={contentData}
-          sidePanelData={sidePanelData}
-          tabs={this.state.tabs}
-          accountType={user.accountType}
-          bothRoles={this.state.bothRoles}
-          toggleView={this.toggleView}
-          view={this.state.view}
+          breadCrumbs={<BreadCrumbs crumbs={[{title: 'My VMT', link: '/myVMT/courses'}]} />}
+          sidePanel={
+            <SidePanel
+              image={<Avatar />}
+              name={user.username}
+              subTitle={`${user.firstName} ${user.lastName}`}
+              additionalDetails={additionalDetails}
+             />
+          }
+          mainContent={'Main Content'}
+          tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
         />
       // </Aux>
     )
