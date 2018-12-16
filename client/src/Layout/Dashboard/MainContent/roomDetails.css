@@ -1,4 +1,4 @@
-:import('../../colors.css'){
+:import('../../../colors.css'){
   lightestShadow: lightestShadow;
   blue: blue;
 }
@@ -28,7 +28,6 @@
 
 .Instructions {
   display: flex;
-  flex-direction: column;
   align-items: flex-start;
 }
 

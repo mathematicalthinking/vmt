@@ -29,25 +29,25 @@ class Members extends Component {
   }
 
   removeMember = (info) => {
-    let {parentResource, parentResourceId } = this.props;
-    if (parentResource === 'courses') {
-      this.props.removeCourseMember(parentResourceId, info.user._id);
-    } else this.props.removeRoomMember(parentResourceId, info.user._id);
+    let {resourceId, resourceType } = this.props;
+    if (resourceType === 'course') {
+      this.props.removeCourseMember(resourceId, info.user._id);
+    } else this.props.removeRoomMember(resourceId, info.user._id);
   }
 
   changeRole = (info) => {
-    let { userResources, parentResource, parentResourceId } = this.props;
-    let updatedMembers = userResources.map(member => {
+    let { classList, resourceId, resourceType } = this.props;
+    let updatedMembers = classList.map(member => {
       return (member.user._id === info.user._id) ? {role: info.role, user: info.user._id} :
       {role: member.role, user: member.user._id};
     })
-    if (parentResource === 'courses') {
-      this.props.updateCourseMembers(parentResourceId, updatedMembers);
-    } else this.props.updateRoomMembers(parentResourceId, updatedMembers);
+    if (resourceType === 'course') {
+      this.props.updateCourseMembers(resourceId, updatedMembers);
+    } else this.props.updateRoomMembers(resourceId, updatedMembers);
   }
 
   render(){
-    let { userResources, notifications, owner, parentResource, courseMembers  } = this.props;
+    let { classList, notifications, owner, resourceType, courseMembers  } = this.props;
     let joinRequests = "There are no current requests";
     if (this.props.owner) {
       joinRequests = notifications.filter(ntf => ntf.notificationType === 'requestAccess').map((ntf, i) => {
@@ -60,7 +60,7 @@ class Members extends Component {
         )
       })
     }
-    let classList = userResources.map((member, i) => {
+    let classListComponents = classList.map((member, i) => {
       let notification = notifications.filter(ntf => {
         if (ntf.user && ntf.notificationType === 'newMember') {
           return ntf.user._id === member.user._id
@@ -73,7 +73,7 @@ class Members extends Component {
         removeMember={this.removeMember}
         info={member} 
         key={i}
-        resourceName={parentResource.slice(0, parentResource.length - 1)}
+        resourceName={resourceType}
         notification={notification.length > 0}
         owner
       /> : <Member info={member}  key={i}/>
@@ -88,7 +88,7 @@ class Members extends Component {
               {joinRequests}
             </div>
             <h3 className={classes.SubHeader}>Add New Participants</h3>
-            {parentResource === 'rooms' && courseMembers ?
+            {resourceType === 'room' && courseMembers ?
               <div>
                 Add participants from this course
               </div>: null
@@ -97,11 +97,10 @@ class Members extends Component {
         : null }
         <h3 className={classes.SubHeader}>Class List</h3>
         <div data-testid='members'>
-          {classList}
+          {classListComponents}
         </div>
       </div>
     )
-
   }
 }
 

@@ -125,6 +125,17 @@ export const removeCourse = courseId => {
   }
 }
 
+export const updateCourse = (id, body) => {
+  return dispatch => {
+    dispatch(updatedCourse(id, body))
+    API.put('courses', id, body)
+    .then(res => {
+      console.log(res) 
+    })
+    .catch(err => console.log(err))
+  }
+}
+
 export const getCourses = (params) => {
   return dispatch => {
     console.log(params)

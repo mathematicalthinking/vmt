@@ -2,25 +2,15 @@
 
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import { Aux, Button, Modal } from '../../../Components';
+import { Aux, Button, Modal, EditText } from '../../../Components';
 import MakeRooms from '../../../Containers/Create/MakeRooms/MakeRooms';
 import classes from './activityDetails.css'
 class ActivityDetails extends Component {
   state = {
     assigning: false,
-    instructions: this.props.activity.instructions || ''
   }
 
-  updateInstructions = event => {
-    this.setState({instructions: event.target.value})
-  }
-
-  submitInstructions = () => {
-    this.props.update(this.props.activity._id, {instructions: this.state.instructions})
-    this.props.toggleEdit();
-  }
-
-  setStartingPoint = () => {
+  viewActivity = () => {
     this.props.history.push(`/myVMT/workspace/${this.props.activity._id}/activity`)
   }
 
@@ -30,20 +20,15 @@ class ActivityDetails extends Component {
       <Aux>
         <div>
           {/* @TODO REPLACE THIS WITH <EDITABLEtEXT /> COMPONENT */}
-          {editing ?
             <div className={classes.Instructions}>
-              <b>Instructions: </b>
-              <textarea className={classes.TextArea} onChange={this.updateInstructions} value={this.state.instructions}/>
-              <div className={classes.EditButtons}>
-                <div><Button theme={"Small"} m={10} click={this.submitInstructions}>Save</Button></div>
-                <div><Button m={10} click={this.props.toggleEdit}>Cancel</Button></div>
-              </div>
-            </div> :
-            <div><b>Instructions:</b> {activity.instructions || !owner ? activity.instructions: <span className={classes.Edit} onClick={toggleEdit}>click here to add instructions</span>} </div>
-          }
-          {!editing && owner 
+              <b>Instructions:</b> 
+                <EditText inputType='text-area' name='instructions' change={this.props.update} editing={this.props.editing}>
+                  {this.props.instructions}
+                </EditText>
+            </div>
+          {owner 
             ? <div>
-                <Button m={5} click={this.setStartingPoint}>View Activity</Button>
+                <Button m={5} click={this.viewActivity}>View Activity</Button>
                 <Button m={5} click={() => {this.setState({assigning: true})}} data-testid='assign'>Assign Activity</Button>
               </div> 
             : null

@@ -43,6 +43,16 @@
   transition: .2s;
 }
 
+.xs {
+  padding: 2px;
+  background-color: #999;
+  color: white;
+  transition: .2s;
+}
+
+.xs:hover{
+  background-color: blue;
+}
 
 .SmallCancel {
   background-color: #ccc;

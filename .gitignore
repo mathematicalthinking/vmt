@@ -1,5 +1,6 @@
 /node_modules/
 /concertChatApps/
 /cypress/integration/examples/
+/client/build
 .vscode
 .env

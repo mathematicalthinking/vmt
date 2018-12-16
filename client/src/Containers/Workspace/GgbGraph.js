@@ -255,14 +255,13 @@ class GgbGraph extends Component {
       currentState: this.ggbApplet.getXML(),
       mode: this.ggbApplet.getMode(),
     }
-    throttle(() => {
+    // throttle(() => {
       let updatedTabs = [...this.props.room.tabs]
       let updatedTab = {...this.props.room.tabs[this.props.currentTab]}
       updatedTab.currentState = newData.currentState;
       updatedTabs[this.props.currentTab] = updatedTab;
-      console.log('updating room')
       this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
-    }, 500)
+    // }, 500)
     this.socket.emit('SEND_EVENT', newData)
     this.props.resetControlTimer()
   }, THROTTLE_FIDELITY)

@@ -1,7 +1,7 @@
 import React from 'react';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
-import classes from './resources.css';
+import classes from './resourceList.css';
 import Search from '../../../Components/Search/Search';
 // CONSIDER RENAMING TO DASHBOARDCONTENT
 const resources = props => {
@@ -20,12 +20,16 @@ const resources = props => {
         {/* @TODO don't show create optinos for participants */}
         <div className={classes.Controls}>
           <div className={classes.Search}><Search /></div>
-          {props.parentResource !== 'activities' && props.user.accountType === 'facilitator' ? 
-          <NewResource 
-            resource={props.resource} 
-            courseId={props.parentResource === 'courses'?  
-            props.parentResourceId : null}
-          /> : null}
+          {props.parentResource !== 'activities' && props.user.accountType === 'facilitator' 
+            ? <NewResource 
+                resource={props.resource} 
+                courseId={props.parentResource === 'courses'
+                  ? props.parentResourceId 
+                  : null
+                }
+              /> 
+            : null
+          }
         </div>
         <h2>My {displayResource}</h2>
         <BoxList

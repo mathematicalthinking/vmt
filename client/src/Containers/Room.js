@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
+// import moment from 'moment'
 import { connect } from 'react-redux';
+import { DashboardLayout, SidePanel, RoomDetails, } from '../Layout/Dashboard/';
+import Members from './Members/Members';
 import { 
   enterRoomWithCode, 
   populateRoom, 
@@ -8,11 +11,14 @@ import {
   clearNotification,
   updateRoom,
 } from '../store/actions';
-import moment from 'moment'
-import DashboardLayout from '../Layout/Dashboard/Dashboard';
-import Aux from '../Components/HOC/Auxil';
-import Modal from '../Components/UI/Modal/Modal';
-import Button from '../Components/UI/Button/Button';
+import { 
+  Aux, 
+  Modal, 
+  Button, 
+  BreadCrumbs, 
+  TabList, 
+  EditText,
+} from '../Components';
 import Access from './Access';
 // import PublicAccessModal from '../Components/UI/Modal/PublicAccess'
 // import Participants from './Participants/Participants';
@@ -27,6 +33,13 @@ class Room extends Component {
     ],
     firstView: false,
     editing: false,
+    dueDate: this.props.room.dueDate,
+    name: this.props.room.name,
+    description: this.props.room.description,
+    entryCode: this.props.room.entryCode,
+    instructions: this.props.room.instructions,
+    privacySetting: this.props.room.privacySetting,
+
   }
 
   initialTabs = [
@@ -35,17 +48,15 @@ class Room extends Component {
   ]
 
   componentDidMount() {
-    const { room, user, populateRoom, accessNotifications, clearNotification, match } = this.props;
+    const { room, user, accessNotifications, clearNotification, } = this.props;
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
     // If its in the store check access
     if (room) {
       // populateRoom(match.params.room_id) // @TODO IF we do get rid of this we probably have unnecessary updates in componentDidUpdate
-      // CHECK ACCESS
+      // check access
       let updatedTabs = [...this.state.tabs];
       let owner = false;
       let firstView = false;
-      console.log(room.creator._id)
-      console.log(user._id)
       if (room.creator === user._id || room.creator._id === user._id) { // WE SHOULD ACTUALLY BE CHECKING THE FACILITATORS NOT THE OWNER
         // updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
         // this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
@@ -115,14 +126,29 @@ class Room extends Component {
   }
 
   toggleEdit = () => {
-    console.log('toggling edit')
     this.setState(prevState => ({
-      editing: !prevState.editing
+      editing: !prevState.editing,
+      name: this.props.room.name,
+      dueDate: this.props.room.dueDate,
+      privacySetting: this.props.room.privacySetting,
+      entryCode: this.props.room.entryCode,
+      instrucitons: this.props.room.instructions,
     }))
   }
+  // options is for radioButton/checkbox inputs
+  updateRoomInfo = (event, option) => {
+    let { value, name } = event.target;
+    this.setState({[name]: option || value})
+  }
 
-  update = (roomId, body) => {
-    this.props.updateRoom(roomId, body)
+  updateRoom = () => {
+    let { updateRoom, room, } = this.props;
+    let { dueDate, entryCode, name, instructions, details } = this.state
+    let body = {entryCode, name, dueDate, details, instructions}
+    updateRoom(room._id, body)
+    this.setState({
+      editing: false,
+    })
   }
 
   goToWorkspace = () => {
@@ -137,42 +163,33 @@ class Room extends Component {
     let { 
       room, match, user,
       accessNotifications, error, 
-      clearError, courseMembers, course
+      clearError, course
     } = this.props;
     if (room && !this.state.guestMode) {
-      let resource = match.params.resource;
-      let contentData = {
-        resource,
-        room,
-        courseMembers,
-        user,
-        parentResource: 'rooms',
-        parentResourceId: room._id,
-        userResources: room[resource],
-        owner: this.state.owner,
-        notifications: accessNotifications.filter(ntf => ntf._id === room._id) || [],
-      }
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
       let dueDateText = 'Due Date' // the fact that we have to do this make this not worth it
-      let sidePanelData = {
-        image: room.image,
-        title: room.name,
-        details: {
-          main: room.name,
-          secondary: room.description,
-          additional: {
-            [dueDateText]: moment(room.dueDate).format('ddd, MMM D') || 'no due date set',
-            code: room.entryCode,
-            type: room.roomType,
-          }
-        },
-        buttons: () => (
-          <Aux>
-            <span><Button theme={this.props.loading ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToWorkspace : () => null}>Enter</Button></span>
-            <span><Button theme={(this.props.loading) ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToReplayer : () => null}>Replayer</Button></span>
-          </Aux>
-        ),
-        edit: this.state.owner ? {action: 'edit', text: 'edit room'} : null,
+      let ggb = false;
+      let desmos = false;
+      room.tabs.forEach((tab) => {
+        if (tab.tabType === 'geogebra') ggb = true;
+        else if (tab.tabType === 'desmos') desmos = true;
+      })
+      let roomType;
+      if (ggb && desmos) roomType = 'Geogebra/Desmos'
+      else roomType = ggb ? 'Geogebra' : 'Desmos';
+
+      let additionalDetails = {
+        [dueDateText]: <EditText change={this.updateRoomInfo} inputType='date' editing={this.state.editing} name='dueDate'>{this.state.dueDate || 'no due date set'}</EditText>,
+        type: roomType,
+        privacy: <EditText change={this.updateRoomInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name='privacySetting'>{this.state.privacySetting}</EditText>,
+        facilitators: room.members.reduce((acc, member) => {
+          if (member.role === 'facilitator') acc += `${member.user.username} `
+          return acc;
+        }, '')
+      }
+      
+      if (this.state.owner) {
+        additionalDetails.code = <EditText change={this.updateRoomInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText>;
       }
 
       let crumbs = [
@@ -180,24 +197,66 @@ class Room extends Component {
         {title: room.name, link: `/myVMT/rooms/${room._id}/details`}]
         //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
         // THE REDUX STORE USING THE COURSE ID IN THE URL
-      if (room.course) {crumbs.splice(1, 0, {title: course.name, link: `/myVMT/courses/${room.course._id}/activities`})}
+      if (course) {crumbs.splice(1, 0, {title: course.name, link: `/myVMT/courses/${course._id}/activities`})}
+      let mainContent;
+      if (this.props.match.params.resource === 'details') {
+        mainContent = <RoomDetails 
+          room={room} 
+          owner={this.state.owner} 
+          notifications={accessNotifications.filter(ntf => ntf._id === room._id) || []} 
+          editing={this.state.editing}
+          toggleEdit={this.toggleEdit}
+          updateRoomInfo={this.updateRoomInfo}
+          instructions={this.state.instructions}
+        />
+      } else if (this.props.match.params.resource === 'members') {
+        mainContent = <Members 
+          user={user} 
+          classList={room.members}
+          owner={this.state.owner} 
+          resourceType={'room'}
+          resourceId={room._id} 
+          courseMembers={course ? course.members : null}
+          notifications={accessNotifications.filter(ntf => ntf._id === room._id) || []}
+        />
+      }
 
       return (
         <Aux>
           <DashboardLayout
-            routingInfo={this.props.match}
-            crumbs={crumbs}
-            contentData={contentData}
-            sidePanelData={sidePanelData}
-            tabs={this.state.tabs}
-            activeTab={resource}
-            loading={this.props.loading}
-            toggleEdit={this.toggleEdit}
-            update={this.update}
-            editing={this.state.editing}
-            activateTab={event => this.setState({activeTab: event.target.id})}
+            breadCrumbs={
+              <BreadCrumbs crumbs={crumbs} />
+            }
+            sidePanel={
+              <SidePanel 
+                image={room.image}
+                name={<EditText change={this.updateRoomInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>} 
+                subTitle={<EditText change={this.updateRoomInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>} 
+                owner={this.state.owner}
+                additionalDetails={additionalDetails}
+                buttons={
+                  <Aux>
+                    <span><Button theme={this.props.loading ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToWorkspace : () => null}>Enter</Button></span>
+                    <span><Button theme={(this.props.loading) ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToReplayer : () => null}>Replayer</Button></span>
+                  </Aux>
+                }
+                editButton={ this.state.owner 
+                  ? <Aux>
+                      <div role='button' style={{color: this.state.editing ? 'blue' : 'gray'}}  onClick={this.toggleEdit}>Edit Room <i className="fas fa-edit"></i></div>
+                      {this.state.editing 
+                        ? <div><Button click={this.updateRoom} theme='xs'>Save</Button> <Button click={this.toggleEdit} theme='xs'>Cancel</Button></div>
+                        : null
+                      }
+                    </Aux>
+                  : null
+                }
+              />
+            }
+            mainContent={mainContent}
+            tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
           />
-          {this.state.firstView ? <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
+          {this.state.firstView 
+            ? <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
             <p>Welcome to {room.name}. If this is your first time joining a course,
             we recommend you take a tour. Otherwise you can start exploring this room's features.</p>
             <Button click={() => this.setState({firstView: false})}>Explore</Button>
@@ -219,10 +278,10 @@ class Room extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  let { room_id } = ownProps.match.params;
+  let { room_id, course_id } = ownProps.match.params;
   return {
     room: state.rooms.byId[room_id],
-    course: state.rooms.byId[room_id] && state.rooms.byId[room_id].course ? state.courses.byId[state.rooms.byId[room_id].course] : null,
+    course: state.courses.byId[course_id] || null,
     // courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
     user: state.user,
     accessNotifications: state.user.roomNotifications.access, // this seems redundant

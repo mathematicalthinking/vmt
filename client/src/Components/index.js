@@ -33,3 +33,4 @@ export { default as MousePointer } from './UI/Icons/MousePointer';
 export { default as ArrowLeft } from './UI/Icons/ArrowLeft';
 export { default as ArrowDown } from './UI/Icons/ArrowDown';
 export { default as EditableText } from './EditableText/EditableText';
+export { default as EditText } from './EditableText/EditText';
