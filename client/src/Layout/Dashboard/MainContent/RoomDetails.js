@@ -2,40 +2,18 @@
 
 import React, { Component } from 'react';
 import classes from './roomDetails.css';
-import { Button } from '../../../Components';
+import { EditText } from '../../../Components';
 class RoomDetails extends Component {
 
-  state = {
-    assigning: false,
-    instructions: this.props.room.instructions || ''
-  }
-
-  updateInstructions = event => {
-    this.setState({instructions: event.target.value})
-  }
-
-  submitInstructions = () => {
-    this.props.update(this.props.room._id, {instructions: this.state.instructions})
-    this.props.toggleEdit();
-  }
-
   render(){
-    let { room, owner, editing, toggleEdit } = this.props;
+    let { room, owner, editing, toggleEdit, updateRoomInfo, instructions } = this.props;
+    console.log(editing)
     return (
       <div className={classes.Container}>
         {/*  Make sure we have all of the room info before letting the user enter */}
-        <div className={classes.Section}>
-        {editing ?
-              <div className={classes.Instructions}>
-                <b>Instructions: </b>
-                <textarea className={classes.TextArea} onChange={this.updateInstructions} value={this.state.instructions}/>
-                <div className={classes.EditButtons}>
-                  <div><Button theme={"Small"} m={10} click={this.submitInstructions}>Save</Button></div>
-                  <div><Button m={10} click={this.props.toggleEdit}>Cancel</Button></div>
-                </div>
-              </div> :
-              <div><b>Instructions:</b> {room.instructions || !owner ? room.instructions: <span className={classes.Edit} onClick={toggleEdit}>click here to add instructions</span>} </div>
-            }
+        <div className={classes.Instructions}>
+            <span><b>Instructions: </b> </span>
+            <span><EditText inputType='text-area' name='instructions' editing={editing} change={updateRoomInfo}>{instructions}</EditText></span>
         </div>
         <div className={classes.Section}>
           <div>

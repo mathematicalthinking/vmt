@@ -29,3 +29,10 @@
   display: flex;
   justify-content: space-around;
 }
+
+.TextArea {
+  width: 90%;
+  height: 200px;
+  padding: 5px;
+  font-size: 1.2em;
+}

@@ -200,7 +200,15 @@ class Room extends Component {
       if (room.course) {crumbs.splice(1, 0, {title: course.name, link: `/myVMT/courses/${room.course._id}/activities`})}
       let mainContent;
       if (this.props.match.params.resource === 'details') {
-        mainContent = <RoomDetails room={room} owner={this.state.owner} notifications={accessNotifications.filter(ntf => ntf._id === room._id) || []}/>
+        mainContent = <RoomDetails 
+          room={room} 
+          owner={this.state.owner} 
+          notifications={accessNotifications.filter(ntf => ntf._id === room._id) || []} 
+          editing={this.state.editing}
+          toggleEdit={this.toggleEdit}
+          updateRoomInfo={this.updateRoomInfo}
+          instructions={this.state.instructions}
+        />
       } else if (this.props.match.params.resource === 'members') {
         mainContent = <Members 
           user={user} 
