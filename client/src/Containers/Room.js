@@ -36,8 +36,9 @@ class Room extends Component {
     dueDate: this.props.room.dueDate,
     name: this.props.room.name,
     description: this.props.room.description,
-    code: this.props.room.entryCode,
+    entryCode: this.props.room.entryCode,
     instructions: this.props.room.instructions,
+    privacySetting: this.props.room.privacySetting,
 
   }
 
@@ -129,6 +130,15 @@ class Room extends Component {
       editing: !prevState.editing
     }))
   }
+  // options is for radioButton/checkbox inputs
+  updateRoomInfo = (event, option) => {
+    console.log('updating')
+    let { value, name } = event.target;
+    console.log(name)
+    console.log(value)
+    console.log(option)
+    this.setState({[name]: option || value})
+  }
 
   update = (roomId, body) => {
     this.props.updateRoom(roomId, body)
@@ -162,9 +172,9 @@ class Room extends Component {
       else roomType = ggb ? 'Geogebra' : 'Desmos';
 
       let additionalDetails = {
-        [dueDateText]: <EditText change={this.updateRoomInfo} inputType='date' editing={this.state.editing}>{room.dueDate ? moment(room.dueDate).format('ddd, MMM D') : 'no due date set'}</EditText>,
+        [dueDateText]: <EditText change={this.updateRoomInfo} inputType='date' editing={this.state.editing} name='dueDate'>{this.state.dueDate || 'no due date set'}</EditText>,
         type: roomType,
-        privacy: <EditText change={this.updateRoomInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']}>{room.privacySetting}</EditText>,
+        privacy: <EditText change={this.updateRoomInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name='privacySetting'>{this.state.privacySetting}</EditText>,
         facilitators: room.members.reduce((acc, member) => {
           if (member.role === 'facilitator') acc += `${member.user.username} `
           return acc;
@@ -172,7 +182,7 @@ class Room extends Component {
       }
       
       if (this.state.owner) {
-        additionalDetails.code = <EditText change={this.updateRoomInfo} inputType='text' editing={this.state.editing}>{room.entryCode}</EditText>;
+        additionalDetails.code = <EditText change={this.updateRoomInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText>;
       }
 
       let crumbs = [
@@ -196,8 +206,6 @@ class Room extends Component {
         />
       }
 
-      console.log(this.state.editing)
-
       return (
         <Aux>
           <DashboardLayout
@@ -205,7 +213,7 @@ class Room extends Component {
             sidePanel={
               <SidePanel 
                 image={room.image} 
-                name={<EditText change={this.updateRoomInfo} inputType='title' editing={this.state.editing}>{this.state.name}</EditText>} 
+                name={<EditText change={this.updateRoomInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>} 
                 owner={this.state.owner}
                 additionalDetails={additionalDetails}
                 buttons={
