@@ -227,7 +227,8 @@ class Room extends Component {
             breadCrumbs={<BreadCrumbs crumbs={crumbs} />}
             sidePanel={
               <SidePanel 
-                image={room.image} 
+                image={room.image}
+                subTitle={<EditText change={this.updateRoomInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>} 
                 name={<EditText change={this.updateRoomInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>} 
                 owner={this.state.owner}
                 additionalDetails={additionalDetails}

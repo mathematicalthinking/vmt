@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '../../../Components/';
+import { Button, Avatar } from '../../../Components/';
 import { Link } from 'react-router-dom';
 import classes from './sidePanel.css';
 const SidePanel = React.memo(({
@@ -17,7 +17,10 @@ const SidePanel = React.memo(({
   return (
     <div className={classes.Container}>
       <div className={classes.Top}>
-        <img className={classes.Image} src={image} alt={name} />
+        {image 
+          ? <img className={classes.Image} src={image} alt={name} />
+          : <Avatar className={classes.Image} size='large'/>
+        }
         <div className={classes.Details}>
           <div className={classes.spMain}>{name}</div>
           <div className={classes.spSecondary}>{subTitle}</div>

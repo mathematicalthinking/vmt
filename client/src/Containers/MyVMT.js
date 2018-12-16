@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { DashboardLayout, SidePanel, BoxList, } from '../Layout/Dashboard/';
+import { DashboardLayout, SidePanel, ResourceList,  } from '../Layout/Dashboard/';
 import { TabList, BreadCrumbs, Avatar } from '../Components/';
 import { connect } from 'react-redux';
 import {
@@ -203,7 +203,7 @@ class Profile extends Component {
 
 
   render() {
-    let { user, match } = this.props;
+    let { user, match, } = this.props;
     let resource = match.params.resource;
     let contentData = {
       resource,
@@ -227,21 +227,27 @@ class Profile extends Component {
       activities: user.activities.length, 
     }
     return (
-      // <Aux>
-        <DashboardLayout
-          breadCrumbs={<BreadCrumbs crumbs={[{title: 'My VMT', link: '/myVMT/courses'}]} />}
-          sidePanel={
-            <SidePanel
-              image={<Avatar />}
-              name={user.username}
-              subTitle={`${user.firstName} ${user.lastName}`}
-              additionalDetails={additionalDetails}
-             />
-          }
-          mainContent={'Main Content'}
-          tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
-        />
-      // </Aux>
+      <DashboardLayout
+        breadCrumbs={
+        <BreadCrumbs crumbs={[{title: 'My VMT', link: '/myVMT/courses'}]} />}
+        sidePanel={
+          <SidePanel
+            image={user.profilePic}
+            name={user.username}
+            subTitle={`${user.firstName} ${user.lastName}`}
+            additionalDetails={additionalDetails}
+          />
+        }
+        mainContent={
+          <ResourceList 
+            userResources={this.state.displayResources.map(id => this.props[resource].byId[id]) || []} 
+            notifications={(resource === 'courses') ? user.courseNotifications.access : user.roomNotifications.access}
+            user={user}
+            resource={resource}
+          />
+        }
+        tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs}/>}
+      />
     )
   }
 }
