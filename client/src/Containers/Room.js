@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import moment from 'moment'
+// import moment from 'moment'
 import { connect } from 'react-redux';
 import { DashboardLayout, SidePanel, RoomDetails, } from '../Layout/Dashboard/';
 import Members from './Members/Members';
@@ -127,21 +127,28 @@ class Room extends Component {
 
   toggleEdit = () => {
     this.setState(prevState => ({
-      editing: !prevState.editing
+      editing: !prevState.editing,
+      name: this.props.room.name,
+      dueDate: this.props.room.dueDate,
+      privacySetting: this.props.room.privacySetting,
+      entryCode: this.props.room.entryCode,
+      instrucitons: this.props.room.instructions,
     }))
   }
   // options is for radioButton/checkbox inputs
   updateRoomInfo = (event, option) => {
-    console.log('updating')
     let { value, name } = event.target;
-    console.log(name)
-    console.log(value)
-    console.log(option)
     this.setState({[name]: option || value})
   }
 
-  update = (roomId, body) => {
-    this.props.updateRoom(roomId, body)
+  updateRoom = () => {
+    let { updateRoom, room, } = this.props;
+    let { dueDate, entryCode, name, instructions, details } = this.state
+    let body = {entryCode, name, dueDate, details, instructions}
+    updateRoom(room._id, body)
+    this.setState({
+      editing: false,
+    })
   }
 
   goToWorkspace = () => {
@@ -226,7 +233,7 @@ class Room extends Component {
                   ? <Aux>
                       <div role='button' style={{color: this.state.editing ? 'blue' : 'gray'}} onClick={this.toggleEdit}>Edit Room <i className="fas fa-edit"></i></div>
                       {this.state.editing 
-                        ? <div><Button onClick={this.updateRoom} theme='xs'>Save</Button> <Button onCLick={this.cancelEdit} theme='xs'>Cancel</Button></div>
+                        ? <div><Button click={this.updateRoom} theme='xs'>Save</Button> <Button click={this.toggleEdit} theme='xs'>Cancel</Button></div>
                         : null
                       }
                     </Aux>
