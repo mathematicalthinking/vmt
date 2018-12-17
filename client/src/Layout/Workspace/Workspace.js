@@ -155,12 +155,12 @@ const workspaceLayout = React.memo(({
             ? <ReplayerControls {...replayer} />
             : <div className={classes.RoomDescription}>
                 <h3 className={classes.InstructionsTitle}>
-                  <EditableText owner={role === 'facilitator'} inputType={'INPUT'} resource='tab' id={room.tabs[currentTab]._id}  parentId={room._id} field='name'>
+                  <EditableText owner={role === 'facilitator'} inputType={'INPUT'} resource='tab' parentResource={updatedActivity ? 'activity' : 'room'} id={room.tabs[currentTab]._id}  parentId={room._id} field='name'>
                     {room.tabs[currentTab].name}
                   </EditableText> Instructions
                 </h3>
                 <div>
-                  <EditableText owner={role === 'facilitator'} inputType={'TEXT_AREA'} resource='tab' id={room.tabs[currentTab]._id} parentId={room._id} field='instructions'>
+                  <EditableText owner={role === 'facilitator'} inputType={'TEXT_AREA'} resource='tab' parentResource={updatedActivity ? 'activity' : 'room'} id={room.tabs[currentTab]._id} parentId={room._id} field='instructions'>
                     {room.tabs[currentTab].instructions || room.instructions}
                   </EditableText>
                 </div>

@@ -93,6 +93,7 @@ export {
   updatedActivity,
   copyActivity,
   setActivityStartingPoint,
+  updateActivityTab,
 } from './activities';
 export {
   joinWithCode,
