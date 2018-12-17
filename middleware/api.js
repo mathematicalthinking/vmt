@@ -33,15 +33,25 @@ const canModifyResource = (req, res, next) => {
   let { id, resource } = req.params;
   let user = utils.getUser(req);
 
-  if (_.isEqual(id, user._id)) {
-    // can all users update themselves?
+  console.log(`${user.username} is requesting to update  ${resource} (${id}) with request body: ${req.body}`);
+
+  let modelName = utils.getModelName(resource);
+  if (modelName === 'User') {
+    // users need to be able to request access to another user's room
     return next();
   }
 
-  let model = utils.getModel(resource);
+  let model = models[modelName];
 
-  return models[model].findById(id).populate('members.user', 'members.role').lean().exec()
-      .then((record) => {
+  let schema = utils.getSchema(resource);
+
+  if (utils.schemaHasProperty(schema, 'entryCode')) {
+    // currently users need to be able to make a put request to any room or course for the entry code
+    return next()
+  }
+
+  return model.findById(id).populate('members.user', 'members.role').lean().exec()
+    .then((record) => {
         if (_.isNil(record)) {
           // record requesting to be modified does not exist
           return errors.sendError.NotFoundError(null, res);
@@ -63,8 +73,11 @@ const canModifyResource = (req, res, next) => {
 
         // otherwise return not authorized error
         return errors.sendError.NotAuthorizedError('You do not have permission to modify this resource', res);
-      })
-      .catch(err => { console.log('err', err); errors.sendError.InternalError(null, res)});
+    })
+    .catch(err => {
+      console.error(`Error canModifyResource: ${err}`);
+      return errors.sendError.InternalError(null, res)
+  });
 };
 
 module.exports.validateResource = validateResource;
