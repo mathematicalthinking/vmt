@@ -31,7 +31,7 @@ if (process.env.NODE_ENV === 'dev') {
 }
 mongoose.connect(mongoURI, (err, res) => {
   if (err){console.log('DB CONNECTION FAILED: '+err)}
-  else{console.log('DB CONNECTION SUCCESS')}
+  else{console.log('DB CONNECTION SUCCESS' + mongoURI)}
 });
 
 app.use(require('express-session')({
