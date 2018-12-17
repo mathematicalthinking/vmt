@@ -51,7 +51,7 @@ router.post('/:resource', middleware.validateUser, (req, res, next) => {
 	  .catch(err => errors.sendError.InternalError(null, res))
 })
 
-router.put('/:resource/:id/add', middleware.validateUser, (req, res, next) => {
+router.put('/:resource/:id/add', middleware.validateUser, middleware.canModifyResource, (req, res, next) => {
 	let { resource, id } = req.params;
 	let controller = controllers[resource];
 
@@ -60,7 +60,7 @@ router.put('/:resource/:id/add', middleware.validateUser, (req, res, next) => {
     .catch(err => errors.sendError.InternalError(null, res))
 })
 
-router.put('/:resource/:id/remove', middleware.validateUser, (req, res, next) => {
+router.put('/:resource/:id/remove', middleware.validateUser, middleware.canModifyResource, (req, res, next) => {
 	let { resource, id } = req.params;
 	let controller = controllers[resource];
 
@@ -69,7 +69,7 @@ router.put('/:resource/:id/remove', middleware.validateUser, (req, res, next) =>
     .catch(err => errors.sendError.InternalError(null, res))
 })
 
-router.put('/:resource/:id', middleware.validateUser, (req, res, next) => {
+router.put('/:resource/:id', middleware.validateUser, middleware.canModifyResource, (req, res, next) => {
 	let { resource, id } = req.params;
 	let controller = controllers[resource];
 
