@@ -3,23 +3,23 @@ import { connect } from 'react-redux';
 import _difference from 'lodash/difference';
 import { populateResource } from '../store/reducers';
 import Members from './Members/Members';
-import { 
+import {
   getActivities,
-  getRooms, 
-  updateCourseRooms, 
-  updateCourseActivities, 
+  getRooms,
+  updateCourseRooms,
+  updateCourseActivities,
   updateCourse,
-  clearNotification, 
+  clearNotification,
   getCourse,
   getUser,
 } from '../store/actions';
 import { DashboardLayout, SidePanel, ResourceList, } from '../Layout/Dashboard/';
-import { 
-  Aux, 
-  Modal, 
-  Button, 
-  BreadCrumbs, 
-  TabList, 
+import {
+  Aux,
+  Modal,
+  Button,
+  BreadCrumbs,
+  TabList,
   EditText,
 } from '../Components';
 import Access from './Access';
@@ -52,7 +52,7 @@ class Course extends Component {
     const { course, user, accessNotifications, clearNotification, match } = this.props;
     if (course) {
       this.props.getCourse(course._id); // What information are we getting here
-      this.props.getUser(user._id); 
+      this.props.getUser(user._id);
       let firstView = false;
       if (accessNotifications.length > 0) {
        accessNotifications.forEach(ntf => {
@@ -85,7 +85,7 @@ class Course extends Component {
         this.checkAccess();
       }
     } else {
-      this.props.getCourse(match.params.course_id) 
+      this.props.getCourse(match.params.course_id)
     }
   }
 
@@ -98,7 +98,7 @@ class Course extends Component {
       this.checkAccess();
     }
     if (prevProps.accessNotifications.length !== this.props.accessNotifications.length) {
-      this.props.getCourse(this.props.match.params.course_id) 
+      this.props.getCourse(this.props.match.params.course_id)
       let updatedTabs = this.displayNotifications([...this.state.tabs])
       this.setState({tabs: updatedTabs})
     }
@@ -106,7 +106,7 @@ class Course extends Component {
       this.checkForFetch();
     }
     if (prevProps.match.params.resource !== this.props.match.params.resource) {
-      this.props.getUser(this.props.user._id) 
+      this.props.getUser(this.props.user._id)
     }
   }
 
@@ -191,7 +191,7 @@ class Course extends Component {
         myRooms = course.rooms.filter(room => {
           let included = false
           room.members.forEach(member => {
-            if (member.user._id === user._id) 
+            if (member.user._id === user._id)
             included = true;
           })
           return included;
@@ -210,8 +210,8 @@ class Course extends Component {
 
       let mainContent;
       if (resource === 'rooms' || resource === 'activities') {
-        mainContent =  <ResourceList 
-          userResources={myRooms || course[resource] || []} 
+        mainContent =  <ResourceList
+          userResources={myRooms || course[resource] || []}
           notifications={accessNotifications.filter(ntf => ntf._id === course._id) || []}
           user={user}
           resource={resource}
@@ -220,12 +220,12 @@ class Course extends Component {
         />
       }
       else if (resource === 'members') {
-        mainContent = <Members 
-          user={user} 
+        mainContent = <Members
+          user={user}
           classList={course.members}
-          owner={this.state.owner} 
+          owner={this.state.owner}
           resourceType={'course'}
-          resourceId={course._id} 
+          resourceId={course._id}
           notifications={accessNotifications.filter(ntf => ntf._id === course._id) || []}
         />
       }
@@ -248,19 +248,19 @@ class Course extends Component {
           <DashboardLayout
             breadCrumbs={<BreadCrumbs crumbs={[{title: 'My VMT', link: '/myVMT/courses'}, {title: course.name, link: `/myVMT/courses/${course._id}/activities/`}]}/>}
             sidePanel={
-              <SidePanel 
+              <SidePanel
                 image={course.image}
                 alt={this.state.name}
-                name={<EditText change={this.updateCourseInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>} 
-                subTitle={<EditText change={this.updateCourseInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>} 
+                name={<EditText change={this.updateCourseInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>}
+                subTitle={<EditText change={this.updateCourseInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>}
                 owner={this.state.owner}
                 bothRoles={this.state.bothRoles}
                 additionalDetails={additionalDetails}
                 accountType={user.accountType}
-                editButton={ this.state.owner 
+                editButton={ this.state.owner
                   ? <Aux>
-                      <div role='button' style={{color: this.state.editing ? 'blue' : 'gray'}} onClick={this.toggleEdit}>Edit Course <i className="fas fa-edit"></i></div>
-                      {this.state.editing 
+                      <div role='button' style={{color: this.state.editing ? 'blue' : 'gray'}} onClick={this.toggleEdit}><span>Edit Course <i className="fas fa-edit"></i></span></div>
+                      {this.state.editing
                         ? <div><Button click={this.updateCourse} theme='xs'>Save</Button> <Button click={this.toggleEdit} theme='xs'>Cancel</Button></div>
                         : null
                       }
@@ -273,7 +273,7 @@ class Course extends Component {
             mainContent={mainContent}
 
             // routingInfo={this.props.match}
-            // 
+            //
             // contentData={contentData}
             // tabs={this.state.tabs}
             // sidePanelData={sidePanelData}
@@ -287,17 +287,17 @@ class Course extends Component {
             we recommend you take a tour. Otherwise you can start exploring this course's features.</p>
             <Button theme={'Small'} click={() => this.setState({firstView: false})}>Explore</Button>
           </Modal>
-        </Aux> 
-      )   
+        </Aux>
+      )
     } else return (
-      <Access  
+      <Access
         resource='courses'
         resourceId={match.params.course_id}
         userId={user._id}
         username={user.username}
         owners={course ? course.members.filter(member => member.role === 'facilitator').map(member => member.user) : []}
       />
-    ) 
+    )
   }
 }
 
@@ -317,10 +317,10 @@ const mapStateToProps = (store, ownProps) => {
 
 
 export default connect(mapStateToProps, {
-  getActivities, 
-  getRooms, 
-  updateCourseRooms, 
-  updateCourseActivities, 
+  getActivities,
+  getRooms,
+  updateCourseRooms,
+  updateCourseActivities,
   clearNotification,
   updateCourse,
   getCourse,
