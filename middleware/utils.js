@@ -47,6 +47,10 @@ const getModel = (resource) => {
   return models[resourceToModelMap[resource]];
 };
 
+const getModelName = (resource) => {
+  return resourceToModelMap[resource];
+};
+
 const getSchema = (resource) => {
   let model = getModel(resource);
 
@@ -68,3 +72,4 @@ module.exports.isModifyRequest = isModifyRequest;
 module.exports.schemaHasProperty = schemaHasProperty;
 module.exports.getSchema = getSchema;
 module.exports.getModel = getModel;
+module.exports.getModelName = getModelName;
