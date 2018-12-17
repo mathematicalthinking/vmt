@@ -2,39 +2,40 @@
   lightestShadow: lightestShadow;
   blue: blue;
   lightBlue: lightBlue;
+  darkGrey: darkGrey;
 }
 
 .Search {
   display: flex;
   align-items: center;
-  background: #f9f9f9;
-  /* border: 2px solid #ddd; */
-  /* border-radius: 5px; */
   font-size: inherit;
   height: 100%;
   width: 100%;
-  box-shadow: lightestShadow;
 }
 
 .Input {
-  border: none;
-  border-bottom: 1px solid #f9f9f9;
+  border: 1px solid #999;
+  border-radius: 3px;
   width: 100%;
-  padding: 5px;
+  padding: 10px;
   transition: .2s;
-  background-color: #f9f9f9;
-  font-size: inherit;
+  background-color: white;
+  font-size: 16px;
   letter-spacing: .08em;
   color: #666;
   caret-color: lightBlue;
+  font-family: inherit;
 }
+
 .Input:focus{
   border: none;
-  border-bottom: 1px solid blue;
+  border: 1px solid black;
   outline-width: 0;
 }
 
 .Icon {
   font-size: inherit;
   padding: 5px;
+  margin: 0 20px 0 10px;
+  color: darkGrey;
 }
