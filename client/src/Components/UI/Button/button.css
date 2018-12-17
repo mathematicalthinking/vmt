@@ -26,6 +26,7 @@
   background: none;
   border: 2px solid white;
   border-radius: 3px;
+  font-family: inherit;
   /* box-shadow: 0; */
 }
 
@@ -41,6 +42,8 @@
   color: white;
   box-shadow: lightestShadow;
   transition: .2s;
+  padding: 10px 20px;
+  font-family: inherit;
 }
 
 .xs {
@@ -87,5 +90,5 @@
 
 .Secondary:hover {
   color: white;
-  box-shadow: lightShadow;
+  box-shadow: newBoxShadow;
 }

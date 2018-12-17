@@ -6,6 +6,7 @@
 .Container {
   display: flex;
   height: 95%;
+  border: 1px solid red;
   flex-flow: column;
   justify-content: space-between;
 }

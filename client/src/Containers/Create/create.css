@@ -82,9 +82,8 @@
   height: 100%;
 }
 
-.Plus{
+.Plus {
+  margin-left: 3px;
+  margin-right: -5px;
   color: orange;
-  border: 1px solid white;
-  border-radius: 50%;
-  padding: 3px;
 }
