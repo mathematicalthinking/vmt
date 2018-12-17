@@ -48,10 +48,9 @@ export const grantAccess = (user, resource, resourceId) => {
   return (dispatch, getState) => {
     dispatch(loading.start())
     let thisUser = getState().user._id;
-    let singResource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOYING
-    API.removeNotification(resourceId, thisUser, user, singResource, 'access', 'requestAccess')
+    API.removeNotification(resourceId, thisUser, user, resource, 'access', 'requestAccess')
     .then(res => {
-      dispatch(removeNotification(singResource, 'access', user, resourceId))
+      dispatch(removeNotification(resource, 'access', user, resourceId))
       // dispatch(gotUser(res.data))
     })
     .catch(err => console.log(err))
