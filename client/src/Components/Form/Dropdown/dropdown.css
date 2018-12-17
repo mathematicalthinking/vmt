@@ -1,14 +1,22 @@
+:import('../../../colors.css') {
+  darkGrey: darkGrey;
+}
+
 .Wrapper {
   width: 100%;
   border: 1px solid #bbb;
   border-radius: 3px;
   cursor: pointer;
+  padding: 3px 15px 3px 15px;
   transition: height .2s;
-  margin-bottom: 5px;
+  margin-bottom: 0px;
+  text-align: left;
 }
 
 .Dropdown > div {
-  padding: 8px;
+  background-color: inherit;
+  text-align: left;
+  padding-right: 15px;
 }
 
 .Header {
@@ -17,7 +25,8 @@
   align-items: center;
   /* background-color: #f9f9f9; */
   padding: 2px;
-  color: #2D91F2;
+  color: darkGrey;
+  border: 1px solid red;
 }
 
 .ListItem {

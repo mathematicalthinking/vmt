@@ -1,15 +1,33 @@
+:import('../../../colors.css') {
+  lightestShadow: lightestShadow;
+  blue: blue;
+  red: red;
+  darkGrey: darkGrey;
+}
+
 .Container {
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   width: 100%;
   background-color: white;
   border: 1px solid #ddd;
+  border-radius: 2px;
+  box-shadow: lightestShadow;
+  height: auto;
+  margin-bottom: 20px;
 }
 
 .Avatar {
-  margin: 20px;
+  margin: 10px 20px;
+  margin-top: 15px;
   /* width: 100px; */
+}
+
+.Avatar span {
+  margin-right: 10px;
 }
 
 .Notification {
@@ -21,13 +39,21 @@
 
 .Row {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   justify-content: flex-end;
   align-items: center;
   /* width: 150px; */
 }
 
+.Row button {
+  position: relative;
+  right: -30px;
+}
+
 .Role {
   margin: 20px;
+  color: darkGrey;
 }
 
 .Edit {
@@ -37,16 +63,16 @@
   font-size: 19px;
   color: black;
   transition: .2s;
-}
-
-.Edit:hover {
   color: #888;
 }
 
+.Edit:hover {
+  color: darkGrey;
+}
+
 .Trash {
-  font-size: 23px;
-  color: black;
-  /* padding: 5px;s */
+  font-size: 22px;
+  color: red;
   margin-right: 20px;
   cursor: pointer;
 }
@@ -66,7 +92,7 @@
     margin-right: 5px;
   }
   .Row {
-    
+
     /* width: 100px; */
   }
 }

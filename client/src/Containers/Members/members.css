@@ -1,10 +1,11 @@
 .Container {
   width: 100%;
-  max-width: 800px;
+  max-width: 1000px;
 }
 
 .Notifications {
   width: 100%;
+  margin: 10px 0;
 }
 
 /* .UserRow {
@@ -17,10 +18,14 @@
 
 .Role {
   margin: 20px;
+
 }
 
 .SubHeader {
   padding: 5px;
+  font-size: 20px;
   border-bottom: 1px solid #ddd;
   margin-top: 0;
+  margin-bottom: 10px;
+  /* border: 1px solid orange; */
 }

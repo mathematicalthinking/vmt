@@ -5,16 +5,17 @@
 
 .Container {
   display: flex;
-  height: 95%;
+  height: 98%;
   flex-flow: column;
   justify-content: space-between;
+  font-family: inherit;
 }
 
 .Top {
   display: flex;
   flex-flow: column;
-  align-itmes: flext-stare;
   width: 100%;
+  margin-top: 10px;
 }
 
 .Bottom {
@@ -26,17 +27,20 @@
 }
 
 .spMain {
-  font-size: 25px;
-  font-weight: 900;
+  font-size: 26px;
+  font-weight: 600;
+  margin: 10px 0 5px 0;
 }
 
 .spSecondary {
-  font-size: 20px;
+  font-size: 22px;
   color: #666;
+  margin-bottom: 15px;
+  font-weight: 300;
 }
 
 .spAdditional {
-  padding: 3px 0;
+  padding: 15px 0;
   border-top: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
 }
@@ -45,17 +49,35 @@
   display: flex;
   width: 100%;
   justify-content: center;
-  border-bottom: 1px solid #ddd;
-  border-top: 1px solid #ddd;
+  /* border-bottom: 1px solid #ddd;
+  border-top: 1px solid #ddd; */
 }
 
 .Edit {
-  display: flex;
-  justify-content: space-between;
+  text-align: center;
+  background-color: #eff3f6;
   color: #999;
   cursor: pointer;
-  padding: 9px 0;
-  height: 45px;
+  border: .5px solid #ddd;
+  padding: 12px 0;
+  margin-top: 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.Edit:hover {
+  border: .5px solid rgb(177, 177, 177);
+  background-color: #e4e6e8;
+}
+
+.Edit span {
+  text-align: center;
+}
+
+.Edit span i {
+  position: relative;
+  left: 5px;
+  top: -1px;
 }
 
 .Edit:first-child {
@@ -78,7 +100,8 @@
 }
 
 .Image {
-  align-self: center;
+  display: block;
+  margin: 0 auto;
   border-radius: 7px;
   margin-bottom: 5px;
   box-shadow: lightestShadow;
@@ -91,4 +114,23 @@
 
 .CourseName {
   font-size: 1.2em;
+}
+
+.KeyContainer {
+  margin: 10px 0;
+  padding: 0 2px;
+}
+
+.KeyName {
+  font-weight: 600;
+  text-align: left;
+  text-transform: capitalize;
+  /* border: 1px solid red; */
+}
+
+.KeyValue {
+  font-weight: 400;
+  float: right;
+  color: #666;
+  /* border: 1px solid blue; */
 }

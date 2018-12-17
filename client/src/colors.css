@@ -10,7 +10,10 @@
   mainBackground: rgb(252, 252, 252);
   darkScroller: rgb(189, 189, 189);
   darkBorder: #999;
+  darkGrey: #5e5e5e;
+  lightGrey:#9f9f9f;
   orange: #FFD549;
+  darkOrange: #e36a15;
   yellow: #FFF48E;
   green: #67d375;
   /* red: #ff4e37; */

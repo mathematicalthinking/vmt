@@ -3,20 +3,20 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { DashboardLayout, SidePanel, RoomDetails, } from '../Layout/Dashboard/';
 import Members from './Members/Members';
-import { 
-  enterRoomWithCode, 
-  populateRoom, 
-  requestAccess, 
-  clearError, 
+import {
+  enterRoomWithCode,
+  populateRoom,
+  requestAccess,
+  clearError,
   clearNotification,
   updateRoom,
 } from '../store/actions';
-import { 
-  Aux, 
-  Modal, 
-  Button, 
-  BreadCrumbs, 
-  TabList, 
+import {
+  Aux,
+  Modal,
+  Button,
+  BreadCrumbs,
+  TabList,
   EditText,
 } from '../Components';
 import Access from './Access';
@@ -83,7 +83,7 @@ class Room extends Component {
       })
 
     }
-    // else fetch it 
+    // else fetch it
     else {
       // populateRoom(match.params.room_id) // @TODO WE DONT ACTUALLY WANT TO POPULATE IT HERE...THAT GIVES US ALL THE EVENTS..WE JUST WANT TO GET THE MEMBERS SO WE CAN CHECK ACCESS
     }
@@ -156,16 +156,16 @@ class Room extends Component {
   goToWorkspace = () => {
     this.props.history.push(`/myVMT/workspace/${this.props.room._id}`);
   }
-  
+
   goToReplayer = () => {
     this.props.history.push(`/myVMT/workspace/${this.props.room._id}/replayer`)
   }
 
   render() {
     console.log(this.state.tabs)
-    let { 
+    let {
       room, match, user,
-      accessNotifications, error, 
+      accessNotifications, error,
       clearError, course
     } = this.props;
     if (room && !this.state.guestMode) {
@@ -190,7 +190,7 @@ class Room extends Component {
           return acc;
         }, '')
       }
-      
+
       if (this.state.owner) {
         additionalDetails.code = <EditText change={this.updateRoomInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText>;
       }
@@ -203,22 +203,22 @@ class Room extends Component {
       if (course) {crumbs.splice(1, 0, {title: course.name, link: `/myVMT/courses/${course._id}/activities`})}
       let mainContent;
       if (this.props.match.params.resource === 'details') {
-        mainContent = <RoomDetails 
-          room={room} 
-          owner={this.state.owner} 
-          notifications={accessNotifications.filter(ntf => ntf._id === room._id) || []} 
+        mainContent = <RoomDetails
+          room={room}
+          owner={this.state.owner}
+          notifications={accessNotifications.filter(ntf => ntf._id === room._id) || []}
           editing={this.state.editing}
           toggleEdit={this.toggleEdit}
           updateRoomInfo={this.updateRoomInfo}
           instructions={this.state.instructions}
         />
       } else if (this.props.match.params.resource === 'members') {
-        mainContent = <Members 
-          user={user} 
+        mainContent = <Members
+          user={user}
           classList={room.members}
-          owner={this.state.owner} 
+          owner={this.state.owner}
           resourceType={'room'}
-          resourceId={room._id} 
+          resourceId={room._id}
           courseMembers={course ? course.members : null}
           notifications={accessNotifications.filter(ntf => ntf._id === room._id) || []}
         />
@@ -231,11 +231,11 @@ class Room extends Component {
               <BreadCrumbs crumbs={crumbs} />
             }
             sidePanel={
-              <SidePanel 
+              <SidePanel
                 image={room.image}
                 alt={this.state.name}
-                name={<EditText change={this.updateRoomInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>} 
-                subTitle={<EditText change={this.updateRoomInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>} 
+                name={<EditText change={this.updateRoomInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>}
+                subTitle={<EditText change={this.updateRoomInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>}
                 owner={this.state.owner}
                 additionalDetails={additionalDetails}
                 buttons={
@@ -244,11 +244,11 @@ class Room extends Component {
                     <span><Button theme={(this.props.loading) ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToReplayer : () => null}>Replayer</Button></span>
                   </Aux>
                 }
-                editButton={ this.state.owner 
+                editButton={ this.state.owner
                   ? <Aux>
-                      <div role='button' style={{color: this.state.editing ? 'blue' : 'gray'}}  onClick={this.toggleEdit}>Edit Room <i className="fas fa-edit"></i></div>
-                      {this.state.editing 
-                        ? <div><Button click={this.updateRoom} theme='xs'>Save</Button> <Button click={this.toggleEdit} theme='xs'>Cancel</Button></div>
+                      <div role='button' style={{display: this.state.editing ? 'none' : 'block'}}  onClick={this.toggleEdit}>Edit Room <i className="fas fa-edit"></i></div>
+                      {this.state.editing
+                        ? <div><Button click={this.updateRoom} theme='edit-save'>Save</Button> <Button click={this.toggleEdit} theme='edit'>Cancel</Button></div>
                         : null
                       }
                     </Aux>
@@ -259,7 +259,7 @@ class Room extends Component {
             mainContent={mainContent}
             tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
           />
-          {this.state.firstView 
+          {this.state.firstView
             ? <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
             <p>Welcome to {room.name}. If this is your first time joining a course,
             we recommend you take a tour. Otherwise you can start exploring this room's features.</p>
@@ -268,7 +268,7 @@ class Room extends Component {
         </Aux>
       )
     } else return (
-      <Access  
+      <Access
         resource='rooms'
         resourceId={match.params.room_id}
         userId={user._id}

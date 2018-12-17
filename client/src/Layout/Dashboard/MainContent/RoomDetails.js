@@ -12,7 +12,7 @@ class RoomDetails extends Component {
       <div className={classes.Container}>
         {/*  Make sure we have all of the room info before letting the user enter */}
         <div className={classes.Instructions}>
-            <b>Instructions: </b> 
+            <b>Instructions: </b>
             <EditText inputType='text-area' name='instructions' editing={editing} change={updateRoomInfo}>{instructions}</EditText>
         </div>
         <div className={classes.Section}>
@@ -30,8 +30,8 @@ class RoomDetails extends Component {
       </div>
     )
   }
-  
+
 }
-  
+
 
 export default RoomDetails;

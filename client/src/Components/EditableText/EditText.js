@@ -9,8 +9,12 @@ const EditText = React.memo(({editing, inputType, change, children, options, nam
       case 'radio':
         return input = <div className={classes.Radios}>
           {/* THIS COULD BE MADE DYNAMIC BY STICKING IN AN OPTIONS.FOREACH LOOP */}
-          <span><input type="radio" name={name} checked={children === options[0]} onChange={(event) => {change(event, options[0])}}/> {options[0]} </span>
-          <span><input type="radio" name={name} checked={children === options[1]} onChange={(event) => {change(event, options[1])}}/> {options[1]} </span>
+          <span className={classes.RadioItem}>
+            <input type="radio" name={name} checked={children === options[0]} onChange={(event) => {change(event, options[0])}}/> {options[0]}
+          </span>
+          <span className={classes.RadioItem}>
+            <input type="radio" name={name} checked={children === options[1]} onChange={(event) => {change(event, options[1])}}/> {options[1]}
+          </span>
         </div>
       case 'date':
         return input = <input className={[classes.Common, classes.Date].join(' ')} name={name} type='date' value={children} onChange={change}/>
@@ -21,7 +25,7 @@ const EditText = React.memo(({editing, inputType, change, children, options, nam
     }
   }
   return (
-    editing 
+    editing
       ? input
       : <div className={classes.NormalText}>{children}</div>
   )

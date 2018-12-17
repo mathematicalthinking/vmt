@@ -22,10 +22,8 @@
 }
 
 .BreadCrumbs {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   width: 100%;
-  /* min-width: 1000px; */
-  align-self: flex-start;
 }
 
 .Main {
@@ -33,6 +31,7 @@
   height: 100%;
   flex-grow: 2;
   display: flex;
+  padding: 0 10px;
 }
 
 
@@ -44,7 +43,6 @@
   padding-right: 30px;
   width: var(--side-panel-width);
   border-right: 1px solid #ddd;
-  letter-spacing: 0.06em;
   height: 98%;
 }
 
@@ -57,14 +55,12 @@
 .Content {
   display: flex;
   flex-flow: column;
-  width: calc(100% - var(--side-panel-width))
+  width: calc(100% - var(--side-panel-width));
   /* flex-grow: 3; */
   /* max-width: 850px; */
-  /* border: 2px solid pink; */
 }
 
 .MainContent {
-  /* border: 1px solid blue; */
   padding-top: 30px;
 }
 

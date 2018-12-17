@@ -12,7 +12,9 @@ const tabList = props => {
     return (
       <Link to={updatedUrl} key={tab.name} id={tab.name} className={style} data-testid="tab">
         {tab.name}
-        {tab.notifications ? <div className={classes.Notifications} data-testid="tab-ntf">{tab.notifications}</div> : null}
+        {tab.notifications ? <div className={classes.Notifications} data-testid="tab-ntf">
+          <span className={classes.NotificationCount}>{tab.notifications}</span>
+        </div> : null}
       </Link>
     )
   })

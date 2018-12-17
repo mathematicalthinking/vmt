@@ -1,6 +1,7 @@
 :import('../../../colors.css') {
   blue: blue;
   orange: orange;
+  darkOrange: darkOrange;
   lightestShadow: lightestShadow;
   lightShadow: lightShadow;
   newBoxShadow: newBoxShadow;
@@ -26,6 +27,7 @@
   background: none;
   border: 2px solid white;
   border-radius: 3px;
+  font-family: inherit;
   /* box-shadow: 0; */
 }
 
@@ -41,6 +43,10 @@
   color: white;
   box-shadow: lightestShadow;
   transition: .2s;
+  padding: 10px 20px;
+  font-family: inherit;
+  text-transform: uppercase;
+  font-size: 14px;
 }
 
 .xs {
@@ -48,6 +54,23 @@
   background-color: #999;
   color: white;
   transition: .2s;
+}
+
+.edit {
+  padding: 8px 12px;
+  margin: 0 10px;
+  font-size: 14px;
+  letter-spacing: .02em;
+  background-color: #ccc;
+}
+
+.edit-save {
+  padding: 8px 12px;
+  margin: 0 10px;
+  font-size: 14px;
+  letter-spacing: .02em;
+  background-color: blue;
+  color: white;
 }
 
 .xs:hover{
@@ -61,12 +84,13 @@
 .Small:hover {
   box-shadow: lightShadow;
 }
+
 .Primary {
 }
 
 .Secondary {
   color: white;
-  background-color: orange;
+  background-color: darkOrange;
 }
 
 .Active {
@@ -87,5 +111,5 @@
 
 .Secondary:hover {
   color: white;
-  box-shadow: lightShadow;
+  box-shadow: newBoxShadow;
 }
