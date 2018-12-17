@@ -90,7 +90,7 @@ export default {
   },
 
   grantAccess: (user, resource, resourceId) => {
-    return axios.put(`/api/${resource}/${resourceId}/add`, {members: {user, role: 'participant'}})
+    return axios.put(`/api/${resource}s/${resourceId}/add`, {members: {user, role: 'participant'}})
   },
 
   updateMembers: (resource, resourceId, updatedMembers) => {

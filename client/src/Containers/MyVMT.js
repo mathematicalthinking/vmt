@@ -177,6 +177,7 @@ class Profile extends Component {
       }
       let displayResources = [];
       if (this.props[resource]) {
+        console.log(this.props[resource])
         // console.log('the resource were looking for exists')
         displayResources = this.props[resource].allIds.filter(id => {
           let included = false
@@ -192,6 +193,7 @@ class Profile extends Component {
           return false;
         })
       }
+      console.log(displayResources)
       // console.log("DISPLAY RESOURCES: ", displayResources)
       this.setState({displayResources, }, () => resolve())
     }))
@@ -205,6 +207,7 @@ class Profile extends Component {
   render() {
     let { user, match, } = this.props;
     let resource = match.params.resource;
+    console.log(this.state.displayResources)
 
     let additionalDetails = {
       courses: user.courses.length,

@@ -46,7 +46,7 @@ export const requestAccess = (owners, userId, resource, resourceId) => {
 
 export const grantAccess = (user, resource, resourceId) => {
   return (dispatch, getState) => {
-    dispatch(loading.start())
+    // dispatch(loading.start())
     let thisUser = getState().user._id;
     API.removeNotification(resourceId, thisUser, user, resource, 'access', 'requestAccess')
     .then(res => {
@@ -67,7 +67,7 @@ export const grantAccess = (user, resource, resourceId) => {
       // updatedNotifications.access = user[`${singResource}Notifications`].access.filter(ntf => {
       //   return ntf._id !== resourceId
       // })
-      dispatch(loading.success())
+      // dispatch(loading.success())
     })
     .catch(err => {console.log(err); dispatch(loading.fail(err))})
   }

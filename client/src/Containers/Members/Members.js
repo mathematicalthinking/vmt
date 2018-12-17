@@ -54,7 +54,7 @@ class Members extends Component {
       joinRequests = notifications.filter(ntf => ntf.notificationType === 'requestAccess').map((ntf, i) => {
         return (
           <Member
-            grantAccess={() => {this.props.grantAccess(ntf.user._id, this.props.resourceType, this.props.parentResourceId)}} 
+            grantAccess={() => {this.props.grantAccess(ntf.user._id, this.props.resourceType, this.props.resourceId)}} 
             info={ntf} 
             key={i}
           />
