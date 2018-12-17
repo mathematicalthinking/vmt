@@ -127,6 +127,7 @@ export const createActivity = body => {
 export const updateActivityTab = (activityId, tabId, body) => {
   return dispatch => {
     dispatch(updatedActivityTab(activityId, tabId, body))
+    console.log(tabId, body)
     API.put('tabs', tabId, body)
     .then(res => {
 

@@ -24,7 +24,7 @@ const workspaceLayout = React.memo(({
   setFromElAndCoords, referToEl, referToCoords, referFromEl, 
   referFromCoords, clearReference, createNewTab, changeTab,
   addNtfToTabs, ntfTabs, setStartingPoint, activityWorkspace,
-  updatedActivity, copyActivity,
+  updatedActivity, copyActivity, updateActivityTab,
 }) => {
 
   // Set text for taking control button based on current control
@@ -75,6 +75,7 @@ const workspaceLayout = React.memo(({
         currentTab={currentTab}
         role={role}
         updatedActivity={updatedActivity}
+        updateActivityTab={updateActivityTab}
 
       />
     }

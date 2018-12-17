@@ -74,4 +74,4 @@ class EditableText extends Component {
   }
 }
 
-export default connect(null, {updateRoomTab, updateActivity, updateCourse, updateActivityTab})(EditableText);
+export default connect(null, {updateRoomTab, updateActivity, updateCourse, updateActivityTab,})(EditableText);

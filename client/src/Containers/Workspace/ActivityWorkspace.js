@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { 
   updatedActivity, 
+  updateActivityTab,
   setActivityStartingPoint, 
   getCurrentActivity,
   createActivity, 
@@ -72,6 +73,7 @@ class ActivityWorkspace extends Component {
               currentTab={this.state.currentTab}
               // updateRoom={this.props.updateRoom}
               updatedActivity={this.props.updatedActivity}
+              updateActivityTab={this.props.updateActivityTab}
               inControl={true}
               activityWorkspace={true}
               copyActivity={this.addToMyActivities}
@@ -110,4 +112,4 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-export default connect(mapStateToProps, { updatedActivity, setActivityStartingPoint, getCurrentActivity, createActivity})(ActivityWorkspace);
+export default connect(mapStateToProps, { updatedActivity, setActivityStartingPoint, getCurrentActivity, createActivity, updateActivityTab})(ActivityWorkspace);
