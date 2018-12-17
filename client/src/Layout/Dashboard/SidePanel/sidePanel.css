@@ -5,17 +5,17 @@
 
 .Container {
   display: flex;
-  height: 95%;
-  border: 1px solid red;
+  height: 98%;
   flex-flow: column;
   justify-content: space-between;
+  font-family: inherit;
 }
 
 .Top {
   display: flex;
   flex-flow: column;
-  align-itmes: flext-stare;
   width: 100%;
+  margin-top: 10px;
 }
 
 .Bottom {
@@ -24,30 +24,35 @@
 
 .Details {
   margin-top: 5px;
+
 }
 
 .spMain {
-  font-size: 25px;
-  font-weight: 900;
+  font-size: 26px;
+  font-weight: 600;
+  margin: 10px 0 5px 0;
 }
 
 .spSecondary {
-  font-size: 20px;
+  font-size: 22px;
   color: #666;
+  margin-bottom: 15px;
+  font-weight: 300;
 }
 
 .spAdditional {
-  padding: 3px 0;
+  padding: 15px 0;
   border-top: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
+  line-height: 28px;
 }
 
 .spButtons {
   display: flex;
   width: 100%;
   justify-content: center;
-  border-bottom: 1px solid #ddd;
-  border-top: 1px solid #ddd;
+  /* border-bottom: 1px solid #ddd;
+  border-top: 1px solid #ddd; */
 }
 
 .Edit {
@@ -79,7 +84,8 @@
 }
 
 .Image {
-  align-self: center;
+  display: block;
+  margin: 0 auto;
   border-radius: 7px;
   margin-bottom: 5px;
   box-shadow: lightestShadow;

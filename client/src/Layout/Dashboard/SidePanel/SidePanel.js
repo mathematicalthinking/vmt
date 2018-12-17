@@ -17,7 +17,7 @@ const SidePanel = React.memo(({
   return (
     <Aux>
       <div className={classes.Top}>
-        {image 
+        {image
           ? <img className={classes.Image} src={image} alt={alt} />
           : <Avatar className={classes.Image} size='large'/>
         }
@@ -32,7 +32,7 @@ const SidePanel = React.memo(({
       </div>
       <div className={classes.Bottom}>
         {accountType === 'participant' && !bothRoles ? <div className={classes.CreateForParticipant}><Link to='facilitator' data-testid='become-facilitator'>become a facilitator</Link></div> : null}
-        {bothRoles ? 
+        {bothRoles ?
         <div>
           <div>view as...</div>
           <Button m={5} click={toggleView} active={view === 'facilitator'}>Facilitator</Button>

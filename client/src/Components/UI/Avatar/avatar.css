@@ -6,6 +6,10 @@
   display: flex;
 }
 
+.UserInfo a {
+  margin: 0 auto;
+}
+
 .Avatar {
   background-color:blue;
   color: white;
@@ -16,9 +20,8 @@
 
 .AvatarContainer {
   /* margin-right: 5px; */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
+  margin: 0 auto;
   padding: 2px;
   background: white;
   border-radius: 50%;

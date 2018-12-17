@@ -31,6 +31,7 @@
   height: 100%;
   flex-grow: 2;
   display: flex;
+  padding: 0 10px;
   /* border: 1px solid blue; */
 }
 
@@ -43,7 +44,6 @@
   padding-right: 30px;
   width: var(--side-panel-width);
   border-right: 1px solid #ddd;
-  letter-spacing: 0.06em;
   height: 98%;
 }
 

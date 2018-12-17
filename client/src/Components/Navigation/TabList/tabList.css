@@ -69,7 +69,7 @@
   top: 3px;
 }
 
-@media screen and (max-width: 740px) {
+@media screen and (max-width: 760px) {
   .Tab {
     font-size: 12px;
     min-width: 50px;
