@@ -2,6 +2,7 @@
   orange: orange;
   red: red;
   blue: blue;
+  darkGrey: darkGrey;
 }
 
 .Tabs {
@@ -17,8 +18,8 @@
 .Tab {
   position: relative;
   flex: .2 0 auto;
-  max-width: 150px;
-  min-width: 120px;
+  max-width: 160px;
+  min-width: 140px;
   padding: 15px 0;
   font-size: 16px;
   text-transform: uppercase;
@@ -34,32 +35,38 @@
 }
 
 .Tab:hover {
-  border-bottom: 4px solid #ddd;
-  color: black;
+  border-bottom: 1.5px solid darkGrey;
+  color: darkGrey;
 }
 
 .ActiveTab {
   /* border-bottom: 1px solid #2D91F2; */
   border-bottom: 4px solid blue !important;
-  margin-bottom: 2px;
+  /* margin-bottom: 2px; */
   color: black;
+  font-weight: 600;
 }
 /* @TODO might consider extracting out Notification to its own component */
 .Notifications {
   position: absolute;
-  top: calc(50% - 10px); /** half the parent height - half of this height **/
-  right: 2px;
+  top: calc(50% - 12px); /** half the parent height - half of this height **/
+  right: 4px;
   background-color: red;
   color: white;
   border-radius: 50%;
-  width: 20px;
+  width: 22px;
   text-align: center;
   vertical-align: center;
-  font-size: .85em;
-  height: 20px;
+  font-size: 12px;
+  height: 22px;
   text-align: center;
   -webkit-text-stroke-width: .01em;
   -webkit-text-stroke-color: #333;
+}
+
+.NotificationCount {
+  position: relative;
+  top: 3px;
 }
 
 @media screen and (max-width: 740px) {
