@@ -4,6 +4,9 @@
   flex-wrap: wrap;
   justify-content: flex-start;
   overflow-x: visible;
+  font-weight: 300;
+  margin-top: 10px;
+  font-size: 16px;
 }
 
 /* .Container > div {

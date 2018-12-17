@@ -32,7 +32,6 @@
   flex-grow: 2;
   display: flex;
   padding: 0 10px;
-  /* border: 1px solid blue; */
 }
 
 
@@ -56,14 +55,12 @@
 .Content {
   display: flex;
   flex-flow: column;
-  width: calc(100% - var(--side-panel-width))
+  width: calc(100% - var(--side-panel-width));
   /* flex-grow: 3; */
   /* max-width: 850px; */
-  /* border: 2px solid pink; */
 }
 
 .MainContent {
-  /* border: 1px solid blue; */
   padding-top: 30px;
 }
 

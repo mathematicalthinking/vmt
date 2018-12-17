@@ -3,10 +3,15 @@
   justify-content: flex-start;
   align-items: flex-start;
   margin-bottom: 14px;
+  margin-bottom: 30px;
 }
 
 .Search {
   font-size: 20px;
   flex-grow: 1;
   margin: 0 5px;
+}
+
+.ResourceHeader {
+  margin-bottom: 20px;
 }
