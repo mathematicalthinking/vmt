@@ -114,10 +114,9 @@ export const updateUserResource = (resource, resourceId, userId) => {
 // when the user explicitly grants access (see actions.access)
 export const clearNotification = (ntfId, userId, requestingUser, resource, listType, ntfType) => {
   return (dispatch) => {
-    let singResource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOYING
-    API.removeNotification(ntfId, userId, requestingUser, singResource, listType, ntfType)
+    API.removeNotification(ntfId, userId, requestingUser, resource, listType, ntfType)
     .then(res => {
-      dispatch(removeNotification(singResource, listType, requestingUser, ntfId))
+      dispatch(removeNotification(resource, listType, requestingUser, ntfId))
       // dispatch(gotUser(res.data))
     })
     .catch(err => console.log(err))

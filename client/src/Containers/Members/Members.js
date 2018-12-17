@@ -18,11 +18,12 @@ import Member from '../../Components/UI/Member/Member';
 class Members extends Component {
   
   componentWillUnmount(){
-    const {user, parentResource, notifications } = this.props
+    const {user, resourceType, notifications } = this.props
+    console.log(this.props)
     if (notifications.length > 0){
       notifications.forEach(ntf => {
         if (ntf.notificationType === 'newMember') {
-          this.props.clearNotification(ntf._id, user._id, ntf.user._id, parentResource, 'access', ntf.notificationType)
+          this.props.clearNotification(ntf._id, user._id, ntf.user._id, resourceType, 'access', ntf.notificationType)
         }
       })
     }
