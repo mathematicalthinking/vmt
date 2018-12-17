@@ -33,6 +33,7 @@ export const joinWithCode = (resource, resourceId, userId, username, entryCode, 
 
 export const requestAccess = (owners, userId, resource, resourceId) => {
   return dispatch => {
+    console.log('requesting access ', owners, userId, resource, resourceId)
     dispatch(loading.start());
     API.requestAccess(owners, userId, resource, resourceId)
     .then(res => {

@@ -117,6 +117,7 @@ class Activity extends Component {
       editing={this.state.editing}
       owner={this.state.owner}
       toggleEdit={this.toggleEdit}
+      userId={this.props.user._id}
     />
 
     if (resource === 'rooms' ) {

@@ -273,7 +273,7 @@ class Room extends Component {
         resourceId={match.params.room_id}
         userId={user._id}
         username={user.username}
-        owners={room ? room.members.filter(member => member.role === 'facilitator').map(member => member.user) : []}
+        owners={room ? room.members.filter(member => member.role.toLowerCase() === 'facilitator').map(member => member.user._id) : []}
         error={error}
         clearError={clearError}
       />
