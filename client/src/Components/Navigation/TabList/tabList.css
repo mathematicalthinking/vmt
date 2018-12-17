@@ -12,8 +12,6 @@
   align-items: center;
   display: flex;
   overflow-x: auto;
-  border-bottom: 1px solid #ddd;
-  /* border: 1px solid red; */
 }
 
 .Tab {
@@ -22,22 +20,29 @@
   max-width: 150px;
   min-width: 120px;
   padding: 15px 0;
-  font-size: 18px;
+  font-size: 16px;
+  text-transform: uppercase;
   text-align: center;
+  font-weight: 400px;
   /* margin: 8px 35px 0 0; */
   /* letter-spacing: .08em; */
   cursor: pointer;
-  border-bottom: 4px solid #fff;
+  border-bottom: 1.5px solid #ddd;
+  margin-bottom: 2px;
   transition: .2s;
+  color: #9f9f9f;
 }
 
 .Tab:hover {
   border-bottom: 4px solid #ddd;
+  color: black;
 }
 
 .ActiveTab {
   /* border-bottom: 1px solid #2D91F2; */
   border-bottom: 4px solid blue !important;
+  margin-bottom: 2px;
+  color: black;
 }
 /* @TODO might consider extracting out Notification to its own component */
 .Notifications {
@@ -55,4 +60,11 @@
   text-align: center;
   -webkit-text-stroke-width: .01em;
   -webkit-text-stroke-color: #333;
+}
+
+@media screen and (max-width: 740px) {
+  .Tab {
+    font-size: 12px;
+    min-width: 50px;
+  }
 }

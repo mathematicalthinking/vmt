@@ -1,6 +1,7 @@
 :import('../../colors.css') {
   yellow: yellow;
   orange: orange;
+  darkOrange: darkOrange;
   blue: blue;
   green: green;
 }

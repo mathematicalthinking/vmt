@@ -31,7 +31,7 @@
   height: 100%;
   flex-grow: 2;
   display: flex;
-  border: 1px solid blue;
+  /* border: 1px solid blue; */
 }
 
 
