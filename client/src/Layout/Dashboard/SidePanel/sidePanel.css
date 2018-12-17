@@ -44,7 +44,6 @@
   padding: 15px 0;
   border-top: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
-  line-height: 28px;
 }
 
 .spButtons {
@@ -98,4 +97,22 @@
 
 .CourseName {
   font-size: 1.2em;
+}
+
+.KeyContainer {
+  margin: 10px 0;
+  padding: 0 2px;
+}
+
+.KeyName {
+  font-weight: 600;
+  text-align: left;
+  text-transform: capitalize;
+  /* border: 1px solid red; */
+}
+
+.KeyValue {
+  font-weight: 400;
+  float: right;
+  /* border: 1px solid blue; */
 }

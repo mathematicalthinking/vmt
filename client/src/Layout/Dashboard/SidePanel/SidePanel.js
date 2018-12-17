@@ -10,9 +10,10 @@ const SidePanel = React.memo(({
 }) => {
   let details = Object.keys(additionalDetails).map(key => {
     return (
-      <div key={key}>
-        <b>{key}: </b>{additionalDetails[key]}
-      </div>)
+      <div key={key} className={classes.KeyContainer}>
+        <span className={classes.KeyName}>{key} </span><span className={classes.KeyValue}>{additionalDetails[key]}</span>
+      </div>
+    )
   })
   return (
     <Aux>
