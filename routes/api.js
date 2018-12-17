@@ -12,7 +12,15 @@ router.get('/:resource', (req, res, next) => {
 
   controller.get(req.query.params)
     .then(results => res.json({ results }))
-	  .catch(err => errors.sendError.InternalError(null, res))
+	  .catch(err => {
+			console.error(`Error get ${resource}: ${err}`);
+			let msg = null;
+
+			if (typeof err === 'string') {
+				msg = err;
+			}
+			return errors.sendError.InternalError(msg, res)
+		})
 })
 
 // router.get('/:resource/ids', (req, res, next) => {
@@ -40,7 +48,16 @@ router.get('/:resource/:id', middleware.validateUser, (req, res, next) => {
 	let controller = controllers[resource];
 	controller.getById(id)
 	  .then(result => res.json({ result }))
-	  .catch(err => errors.sendError.InternalError(null, res))
+	  .catch(err => {
+			console.error(`Error get ${resource}/${id}: ${err}`);
+			let msg = null;
+
+			if (typeof err === 'string') {
+				msg = err;
+			}
+
+			return errors.sendError.InternalError(msg, res)
+		})
 })
 
 router.post('/:resource', middleware.validateUser, (req, res, next) => {
@@ -48,7 +65,17 @@ router.post('/:resource', middleware.validateUser, (req, res, next) => {
 
 	controller.post(req.body)
 	  .then(result => res.json({ result }))
-	  .catch(err => errors.sendError.InternalError(null, res))
+	  .catch(err => {
+			console.error(`Error post ${resource}: ${err}`);
+
+			let msg = null;
+
+			if (typeof err === 'string') {
+				msg = err;
+			}
+
+			return errors.sendError.InternalError(msg, res)
+		})
 })
 
 router.put('/:resource/:id/add', middleware.validateUser, middleware.canModifyResource, (req, res, next) => {
@@ -57,7 +84,16 @@ router.put('/:resource/:id/add', middleware.validateUser, middleware.canModifyRe
 
 	controller.add(id, req.body)
     .then(result => res.json({ result }))
-    .catch(err => errors.sendError.InternalError(null, res))
+    .catch(err => {
+			console.error(`Error put ${resource}/${id}/add: ${err}`);
+
+			let msg = null;
+
+			if (typeof err === 'string') {
+				msg = err;
+			}
+			return errors.sendError.InternalError(msg, res)
+		})
 })
 
 router.put('/:resource/:id/remove', middleware.validateUser, middleware.canModifyResource, (req, res, next) => {
@@ -66,7 +102,17 @@ router.put('/:resource/:id/remove', middleware.validateUser, middleware.canModif
 
   controller.remove(id, req.body)
     .then(result => res.json(result))
-    .catch(err => errors.sendError.InternalError(null, res))
+    .catch(err => {
+			console.error(`Error put ${resource}/${id}/remove: ${err}`);
+
+			let msg = null;
+
+			if (typeof err === 'string') {
+				msg = err;
+			}
+
+			return errors.sendError.InternalError(msg, res)
+		})
 })
 
 router.put('/:resource/:id', middleware.validateUser, middleware.canModifyResource, (req, res, next) => {
@@ -75,7 +121,17 @@ router.put('/:resource/:id', middleware.validateUser, middleware.canModifyResour
 
   controller.put(id, req.body)
     .then(result => res.json(result))
-    .catch(err => errors.sendError.InternalError(null, res))
+    .catch(err => {
+			console.error(`Error put ${resource}/${id}: ${err}`);
+
+			let msg = null;
+
+			if (typeof err === 'string') {
+				msg = err;
+			}
+
+			return errors.sendError.InternalError(msg, res)
+		})
 })
 
 router.delete('/:resource/:id', middleware.validateUser, (req, res, next) => {
@@ -84,7 +140,17 @@ router.delete('/:resource/:id', middleware.validateUser, (req, res, next) => {
 
   controller.delete(id)
     .then(result => res.json(result))
-    .catch(err => errors.sendError.InternalError(null, res))
+    .catch(err => {
+			console.error(`Error delete ${resource}/${id}: ${err}`);
+
+			let msg = null;
+
+			if (typeof err === 'string') {
+				msg = err;
+			}
+
+			return errors.sendError.InternalError(msg, res)
+		})
 })
 
 module.exports = router;
