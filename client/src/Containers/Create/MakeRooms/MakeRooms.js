@@ -71,8 +71,8 @@ class MakeRooms extends Component  {
     }
     if (!this.state.assignRandom) {
       // create a room with the selected participants
-      let members = this.state.selectedParticipants.map(participant => ({user: participant, role: 'Participant'}))
-      members.push({user: this.props.userId, role: 'Facilitator'})
+      let members = this.state.selectedParticipants.map(participant => ({user: participant, role: 'participant'}))
+      members.push({user: this.props.userId, role: 'facilitator'})
       newRoom.name = `${name} (room ${this.state.roomsCreated + 1})`;
       newRoom.members = members;
       this.props.createRoom(newRoom)

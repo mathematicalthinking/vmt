@@ -118,6 +118,7 @@ class Activity extends Component {
       owner={this.state.owner}
       toggleEdit={this.toggleEdit}
       userId={this.props.user._id}
+      course={this.props.course}
     />
 
     if (resource === 'rooms' ) {

@@ -134,6 +134,7 @@ const workspaceLayout = React.memo(({
       currentTab={currentTab}
     />
   }
+  console.log(role)
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container}>

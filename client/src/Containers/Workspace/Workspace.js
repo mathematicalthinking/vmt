@@ -248,7 +248,7 @@ class Workspace extends Component {
     console.log('update startying point')
     this.props.setRoomStartingPoint(this.props.room._id)
   }
-
+  
   render() {
     const { room, user } = this.props;
     return (
