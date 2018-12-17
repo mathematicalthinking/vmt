@@ -8,7 +8,7 @@ router.param('resource', middleware.validateResource)
 router.param('id', middleware.validateId);
 
 router.get('/:resource', (req, res, next) => {
-	const controller = controllers[req.params.resource];
+	let controller = controllers[req.params.resource];
 
   controller.get(req.query.params)
     .then(results => res.json({ results }))
@@ -36,16 +36,15 @@ router.get('/:resource', (req, res, next) => {
 // })
 
 router.get('/:resource/:id', middleware.validateUser, (req, res, next) => {
-  const { id, resource } = req.params.id;
-	const controller = controllers[resource];
-
+  let { id, resource } = req.params;
+	let controller = controllers[resource];
 	controller.getById(id)
 	  .then(result => res.json({ result }))
 	  .catch(err => errors.sendError.InternalError(null, res))
 })
 
 router.post('/:resource', middleware.validateUser, (req, res, next) => {
-	const controller = controllers[req.params.resource]
+	let controller = controllers[req.params.resource]
 
 	controller.post(req.body)
 	  .then(result => res.json({ result }))
@@ -53,8 +52,8 @@ router.post('/:resource', middleware.validateUser, (req, res, next) => {
 })
 
 router.put('/:resource/:id/add', middleware.validateUser, (req, res, next) => {
-	const { resource, id } = req.params;
-	const controller = controllers[resource];
+	let { resource, id } = req.params;
+	let controller = controllers[resource];
 
 	controller.add(id, req.body)
     .then(result => res.json({ result }))
@@ -62,8 +61,8 @@ router.put('/:resource/:id/add', middleware.validateUser, (req, res, next) => {
 })
 
 router.put('/:resource/:id/remove', middleware.validateUser, (req, res, next) => {
-	const { resource, id } = req.params;
-	const controller = controllers[resource];
+	let { resource, id } = req.params;
+	let controller = controllers[resource];
 
   controller.remove(id, req.body)
     .then(result => res.json(result))
@@ -71,8 +70,8 @@ router.put('/:resource/:id/remove', middleware.validateUser, (req, res, next) =>
 })
 
 router.put('/:resource/:id', middleware.validateUser, (req, res, next) => {
-	const { resource, id } = req.params;
-	const controller = controllers[resource];
+	let { resource, id } = req.params;
+	let controller = controllers[resource];
 
   controller.put(id, req.body)
     .then(result => res.json(result))
