@@ -1,6 +1,7 @@
 :import('../../colors.css'){
   blue: blue;
 }
+
 .Edit {
   color: #999;
   cursor: pointer;

@@ -1,5 +1,6 @@
 :import('../../colors.css'){
   blue: blue;
+  darkBorder: darkBorder;
 }
 
 .NormalText {
@@ -9,7 +10,10 @@
 
 .Common {
   font-size: inherit;
-  border: 1px solid blue;
+  border: 1px solid darkBorder;
+  border-radius: 3px;
+  width: 100%;
+  padding: 5px;
 }
 
 .Title {
@@ -28,6 +32,10 @@
 .Radios {
   display: flex;
   justify-content: space-around;
+}
+
+.RadioItem {
+  margin-left: 10px;
 }
 
 .TextArea {
