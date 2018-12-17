@@ -33,6 +33,7 @@ export const joinWithCode = (resource, resourceId, userId, username, entryCode, 
 
 export const requestAccess = (owners, userId, resource, resourceId) => {
   return dispatch => {
+    console.log('requesting access ', owners, userId, resource, resourceId)
     dispatch(loading.start());
     API.requestAccess(owners, userId, resource, resourceId)
     .then(res => {
@@ -46,12 +47,11 @@ export const requestAccess = (owners, userId, resource, resourceId) => {
 
 export const grantAccess = (user, resource, resourceId) => {
   return (dispatch, getState) => {
-    dispatch(loading.start())
+    // dispatch(loading.start())
     let thisUser = getState().user._id;
-    let singResource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOYING
-    API.removeNotification(resourceId, thisUser, user, singResource, 'access', 'requestAccess')
+    API.removeNotification(resourceId, thisUser, user, resource, 'access', 'requestAccess')
     .then(res => {
-      dispatch(removeNotification(singResource, 'access', user, resourceId))
+      dispatch(removeNotification(resource, 'access', user, resourceId))
       // dispatch(gotUser(res.data))
     })
     .catch(err => console.log(err))
@@ -68,7 +68,7 @@ export const grantAccess = (user, resource, resourceId) => {
       // updatedNotifications.access = user[`${singResource}Notifications`].access.filter(ntf => {
       //   return ntf._id !== resourceId
       // })
-      dispatch(loading.success())
+      // dispatch(loading.success())
     })
     .catch(err => {console.log(err); dispatch(loading.fail(err))})
   }

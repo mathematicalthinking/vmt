@@ -18,11 +18,11 @@ import Member from '../../Components/UI/Member/Member';
 class Members extends Component {
   
   componentWillUnmount(){
-    const {user, parentResource, notifications } = this.props
+    const {user, resourceType, notifications } = this.props;
     if (notifications.length > 0){
       notifications.forEach(ntf => {
         if (ntf.notificationType === 'newMember') {
-          this.props.clearNotification(ntf._id, user._id, ntf.user._id, parentResource, 'access', ntf.notificationType)
+          this.props.clearNotification(ntf._id, user._id, ntf.user._id, resourceType, 'access', ntf.notificationType)
         }
       })
     }
@@ -53,7 +53,7 @@ class Members extends Component {
       joinRequests = notifications.filter(ntf => ntf.notificationType === 'requestAccess').map((ntf, i) => {
         return (
           <Member
-            grantAccess={() => {this.props.grantAccess(ntf.user._id, this.props.parentResource, this.props.parentResourceId)}} 
+            grantAccess={() => {this.props.grantAccess(ntf.user._id, this.props.resourceType, this.props.resourceId)}} 
             info={ntf} 
             key={i}
           />

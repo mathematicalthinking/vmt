@@ -33,12 +33,12 @@ class Room extends Component {
     ],
     firstView: false,
     editing: false,
-    dueDate: this.props.room.dueDate,
-    name: this.props.room.name,
-    description: this.props.room.description,
-    entryCode: this.props.room.entryCode,
-    instructions: this.props.room.instructions,
-    privacySetting: this.props.room.privacySetting,
+    dueDate: this.props.room ? this.props.room.dueDate : null,
+    name: this.props.room ? this.props.room.name : null,
+    description: this.props.room ? this.props.room.description : null,
+    entryCode: this.props.room ? this.props.room.entryCode : null,
+    instructions: this.props.room ? this.props.room.instructions : null,
+    privacySetting: this.props.room ? this.props.room.privacySetting : null,
 
   }
 
@@ -57,7 +57,7 @@ class Room extends Component {
       let updatedTabs = [...this.state.tabs];
       let owner = false;
       let firstView = false;
-      if (room.creator === user._id || room.creator._id === user._id) { // WE SHOULD ACTUALLY BE CHECKING THE FACILITATORS NOT THE OWNER
+      if (room.members.filter(member => member.role === 'facilitator' && member.user._id === user._id)) { // WE SHOULD ACTUALLY BE CHECKING THE FACILITATORS NOT THE OWNER
         // updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
         // this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
         owner = true;
@@ -69,7 +69,7 @@ class Room extends Component {
           if (ntf.notificationType === 'grantedAccess' && ntf._id === room._id) {
              // RESOLVE THIS NOTIFICATION
              firstView = true;
-             clearNotification(room._id, user._id, null, 'rooms', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
+             clearNotification(room._id, user._id, null, 'room', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
            }
          })
        }
@@ -118,11 +118,13 @@ class Room extends Component {
 
   displayNotifications = (tabs) => {
     let { user, room, accessNotifications } = this.props;
-    if (room.creator._id === user._id) {
+    console.log(this.state.owner)
+    if (room.members.filter(member => member.role === 'facilitator' && member.user._id === user._id)) {
       let thisRoomsNtfs = accessNotifications.filter(ntf => ntf._id === room._id)
+      console.log(this.RoomsNtfs)
       tabs[1].notifications = thisRoomsNtfs.length > 0 ? thisRoomsNtfs.length: '';
-    } 
-    return tabs;
+      return tabs;
+    }
   }
 
   toggleEdit = () => {
@@ -160,6 +162,7 @@ class Room extends Component {
   }
 
   render() {
+    console.log(this.state.tabs)
     let { 
       room, match, user,
       accessNotifications, error, 
@@ -230,6 +233,7 @@ class Room extends Component {
             sidePanel={
               <SidePanel 
                 image={room.image}
+                alt={this.state.name}
                 name={<EditText change={this.updateRoomInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>} 
                 subTitle={<EditText change={this.updateRoomInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>} 
                 owner={this.state.owner}
@@ -269,7 +273,7 @@ class Room extends Component {
         resourceId={match.params.room_id}
         userId={user._id}
         username={user.username}
-        owners={room ? room.members.filter(member => member.role === 'facilitator').map(member => member.user) : []}
+        owners={room ? room.members.filter(member => member.role.toLowerCase() === 'facilitator').map(member => member.user._id) : []}
         error={error}
         clearError={clearError}
       />

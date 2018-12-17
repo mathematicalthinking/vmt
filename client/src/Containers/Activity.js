@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 // import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { DashboardLayout, SidePanel, ActivityDetails, } from '../Layout/Dashboard/';
+import { DashboardLayout, SidePanel, ActivityDetails, ResourceList } from '../Layout/Dashboard/';
 import { 
   Aux, 
   Modal, 
@@ -80,7 +80,7 @@ class Activity extends Component {
   }
 
   render() {
-    let { activity, course, match } = this.props;
+    let { activity, course, match, user } = this.props;
     let { resource }= match.params;
     let populatedActivity = this.props.populatedActivity;
     const contentData = {
@@ -109,6 +109,29 @@ class Activity extends Component {
     } else {
       crumbs.push({title: `${activity.name}`, link: `/myVMT/activities/${activity._id}/details`})
     }
+
+    let mainContent = <ActivityDetails 
+      activity={this.props.activity}
+      update={this.updateActivityInfo}
+      instructions={this.state.instructions}
+      editing={this.state.editing}
+      owner={this.state.owner}
+      toggleEdit={this.toggleEdit}
+      userId={this.props.user._id}
+    />
+
+    if (resource === 'rooms' ) {
+      mainContent = <ResourceList 
+      userResources={activity.rooms.map(roomId => this.props.rooms[roomId])} 
+      notifications={[]}
+      user={user}
+      resource={resource}
+      parentResource={course ? "course" : "activity"}
+      parentResourceId={course ? course._id : activity._id}
+    />
+    }
+    
+
     return (
       <DashboardLayout
         breadCrumbs={
@@ -139,16 +162,7 @@ class Activity extends Component {
             }
           />
         }
-        mainContent={
-          <ActivityDetails 
-            activity={this.props.activity}
-            update={this.updateActivityInfo}
-            instructions={this.state.instructions}
-            editing={this.state.editing}
-            owner={this.state.owner}
-            toggleEdit={this.toggleEdit}
-          />
-        }
+        mainContent={mainContent}
         tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
       />
     )
@@ -161,6 +175,7 @@ const mapStateToProps = (store, ownProps ) => {
     activity: store.activities.byId[activity_id],
     populatedActivity: populateResource(store, 'activities', activity_id, ['rooms']),
     course: store.courses.byId[course_id],
+    rooms: store.rooms.byId,
     userId: store.user._id,
     user: store.user,
   }

@@ -192,6 +192,7 @@ class Profile extends Component {
           return false;
         })
       }
+      console.log(displayResources)
       // console.log("DISPLAY RESOURCES: ", displayResources)
       this.setState({displayResources, }, () => resolve())
     }))

@@ -36,10 +36,10 @@ class Course extends Component {
     ],
     firstView: false,
     editing: false,
-    name: this.props.course.name,
-    description: this.props.course.description,
-    entryCode: this.props.course.entryCode,
-    privacySettings: this.props.course.privacySetting,
+    name: this.props.course ? this.props.course.name: null,
+    description: this.props.course ? this.props.course.description: null,
+    entryCode: this.props.course ? this.props.course.entryCode: null,
+    privacySettings: this.props.course ? this.props.course.privacySetting: null,
   }
   initialTabs = [
     {name: 'Activities'},
@@ -59,7 +59,7 @@ class Course extends Component {
           if (ntf.notificationType === 'grantedAccess' && ntf._id === course._id) {
             // RESOLVE THIS NOTIFICATION
             firstView = true;
-            clearNotification(course._id, user._id, null, 'courses', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
+            clearNotification(course._id, user._id, null, 'course', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
           }
         })
       }
@@ -225,7 +225,7 @@ class Course extends Component {
           classList={course.members}
           owner={this.state.owner} 
           resourceType={'course'}
-          parentResourceId={course._id} 
+          resourceId={course._id} 
           notifications={accessNotifications.filter(ntf => ntf._id === course._id) || []}
         />
       }
@@ -241,7 +241,6 @@ class Course extends Component {
       if (this.state.owner) {
         additionalDetails.code = <EditText change={this.updateCourseInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText>;
       }
-      console.log(user.accountType)
 
       // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
       return (
@@ -251,6 +250,7 @@ class Course extends Component {
             sidePanel={
               <SidePanel 
                 image={course.image}
+                alt={this.state.name}
                 name={<EditText change={this.updateCourseInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>} 
                 subTitle={<EditText change={this.updateCourseInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>} 
                 owner={this.state.owner}

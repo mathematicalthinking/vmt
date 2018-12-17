@@ -3,14 +3,14 @@ import { Button, Avatar, Aux, } from '../../../Components/';
 import { Link } from 'react-router-dom';
 import classes from './sidePanel.css';
 const SidePanel = React.memo(({
-  image, name, subTitle,
+  image, name, subTitle, alt,
   additionalDetails, toggleView,
   toggleEdit, owner, editButton, editing,
   buttons, accountType, bothRoles, view,
 }) => {
   let details = Object.keys(additionalDetails).map(key => {
     return (
-      <div>
+      <div key={key}>
         <b>{key}: </b>{additionalDetails[key]}
       </div>)
   })
@@ -18,7 +18,7 @@ const SidePanel = React.memo(({
     <Aux>
       <div className={classes.Top}>
         {image 
-          ? <img className={classes.Image} src={image} alt={name} />
+          ? <img className={classes.Image} src={image} alt={alt} />
           : <Avatar className={classes.Image} size='large'/>
         }
         <div className={classes.Details}>

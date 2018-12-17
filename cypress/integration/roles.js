@@ -19,17 +19,17 @@ describe('show different views based on role', function(){
     cy.contains(course.name).should('exist')
     cy.get('button').contains('Facilitator').should('be.visible');
   })
-  it('toggles the resources when the user switches view (course)', function(){
-    cy.contains('Participant').click();
-    cy.contains(course.name).should('not.exist')
-    cy.contains('course 2').should('exist')
-    cy.get('#Activities').click()
-    cy.contains('Facilitator').should('not.exist');
-    cy.get('#Rooms').click()
-    cy.contains('Facilitator').should('not.exist');
-    cy.get('#Courses').click()
-    cy.contains('Facilitator').should('exist');
-  })
+  // it('toggles the resources when the user switches view (course)', function(){
+  //   cy.contains('Participant').click();
+  //   cy.contains(course.name).should('not.exist')
+  //   cy.contains('course 2').should('exist')
+  //   cy.get('#Activities').click()
+  //   cy.contains('Facilitator').should('not.exist');
+  //   cy.get('#Rooms').click()
+  //   cy.contains('Facilitator').should('not.exist');
+  //   cy.get('#Courses').click()
+  //   cy.contains('Facilitator').should('exist');
+  // })
   it('does not display the toggle option when a user only a participant (room)', function(){
     cy.get('#Rooms').click()
     cy.getTestElement('content-box-room 2').should('exist')
@@ -42,13 +42,13 @@ describe('show different views based on role', function(){
     cy.contains(room.name).should('exist')
     cy.get('button').contains('Facilitator').should('be.visible');
   })
-  it('toggles the resources when the user switches view (room)', function(){
-    cy.contains('Participant').click();
-    cy.contains(room.name).should('not.exist')
-    cy.contains('room 2').should('exist')
-    cy.get('#Activities').click()
-    cy.contains('Facilitator').should('not.exist');
-    cy.get('#Courses').click()
-    cy.contains('Facilitator').should('exist');
-  })
+  // it('toggles the resources when the user switches view (room)', function(){
+  //   cy.contains('Participant').click();
+  //   cy.contains(room.name).should('not.exist')
+  //   cy.contains('room 2').should('exist')
+  //   cy.get('#Activities').click()
+  //   cy.contains('Facilitator').should('not.exist');
+  //   cy.get('#Courses').click()
+  //   cy.contains('Facilitator').should('exist');
+  // })
 })

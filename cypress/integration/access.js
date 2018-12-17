@@ -90,44 +90,44 @@ describe('test access requests', function(){
     cy.getTestElement('content-box-ntf').should('not.exist')
   })
 
-  // ROOM
-  it('user2 requests access to room', function(){
-    cy.login(user2)
-    cy.contains('Community').click()
-    cy.contains('Rooms').click()
-    cy.wait(0)
-    cy.getTestElement('content-box-request access').click()
-    cy.getTestElement('request-access-btn').click()
-    cy.url().should('include', '/confirmation')
-  })
+  //  // ROOM
+  // it('user2 requests access to room', function(){
+  //   cy.login(user2)
+  //   cy.contains('Community').click()
+  //   cy.contains('Rooms').click()
+  //   cy.wait(0)
+  //   cy.getTestElement('content-box-request access').click()
+  //   cy.getTestElement('request-access-btn').click()
+  //   cy.url().should('include', '/confirmation')
+  // })
 
-  it('user1 grants access to user2 (room)', function(){
-    cy.login(user1)
-    cy.getTestElement('tab-ntf').contains('1').click()
-    cy.getTestElement('content-box-ntf').contains('1')
-    cy.getTestElement('content-box-request access').click()
-    cy.getTestElement('tab-ntf').contains('1')
-    cy.get('#Members').click()
-    cy.getTestElement('join-requests').children().should('have.length', 1)
-    cy.getTestElement('grant-access-g-laforge').click()
-    cy.getTestElement('tab-ntf').should('not.exist')
-    cy.getTestElement('members').children().should('have.length', 2)
-    cy.contains(user2.username).should('exist')
-  })
+  // it('user1 grants access to user2 (room)', function(){
+  //   cy.login(user1)
+  //   cy.getTestElement('tab-ntf').contains('1').click()
+  //   cy.getTestElement('content-box-ntf').contains('1')
+  //   cy.getTestElement('content-box-request access').click()
+  //   cy.getTestElement('tab-ntf').contains('1')
+  //   cy.get('#Members').click()
+  //   cy.getTestElement('join-requests').children().should('have.length', 1)
+  //   cy.getTestElement('grant-access-g-laforge').click()
+  //   cy.getTestElement('tab-ntf').should('not.exist')
+  //   cy.getTestElement('members').children().should('have.length', 2)
+  //   cy.contains(user2.username).should('exist')
+  // })
 
-  it('user2 now has access to room', function(){
-    cy.login(user2)
-    cy.getTestElement('tab-ntf').contains('1').should('exist')
-    cy.getTestElement('tab').contains('Rooms').click();
-    cy.getTestElement('content-box-ntf').contains('1').should('exist')
-    cy.getTestElement('content-box-request access').click()
-    cy.contains('Explore').click();
-    cy.getTestElement('tab').contains('Members').click()
-    cy.getTestElement('members').children().should('have.length', 2)
-    cy.getTestElement('crumb').contains('My VMT').click()
-    cy.getTestElement('tab-ntf').should('not.exist')
-    cy.wait(111)
-  })
+  // it('user2 now has access to room', function(){
+  //   cy.login(user2)
+  //   cy.getTestElement('tab-ntf').contains('1').should('exist')
+  //   cy.getTestElement('tab').contains('Rooms').click();
+  //   cy.getTestElement('content-box-ntf').contains('1').should('exist')
+  //   cy.getTestElement('content-box-request access').click()
+  //   cy.contains('Explore').click();
+  //   cy.getTestElement('tab').contains('Members').click()
+  //   cy.getTestElement('members').children().should('have.length', 2)
+  //   cy.getTestElement('crumb').contains('My VMT').click()
+  //   cy.getTestElement('tab-ntf').should('not.exist')
+  //   cy.wait(111)
+  // })
 
   it('user2 joins a room by entering entry-code', function(){
     cy.login(user2)
