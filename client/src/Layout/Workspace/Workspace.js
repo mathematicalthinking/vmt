@@ -166,7 +166,7 @@ const workspaceLayout = React.memo(({
                 </div>
                 {role === 'facilitator' 
                   ? <div><Button click={setStartingPoint}>Set starting point</Button></div> 
-                  : <div><Button click={copyActivity}>Add To My Activities</Button></div>
+                  : copyActivity ? <div><Button click={copyActivity}>Add To My Activities</Button></div> : null
                 }
               </div>
           }

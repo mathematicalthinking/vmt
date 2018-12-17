@@ -37,7 +37,6 @@ class ActivityWorkspace extends Component {
   }
 
   setStartingPoint = () => {
-    console.log('set activity starting point')
     this.props.setActivityStartingPoint(this.props.activity._id)
   }
 
@@ -58,10 +57,8 @@ class ActivityWorkspace extends Component {
   }
 
   render() {
-    console.log(this.props)
     let role = 'participant'
     if (this.props.user.activities.indexOf(this.props.activity._id) >= 0) {
-      console.log('this user owns this activity')
       role = 'facilitator'
     }
     return (
@@ -107,7 +104,6 @@ class ActivityWorkspace extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  console.log("mapping state to props")
   return {
     activity: state.activities.byId[ownProps.match.params.activity_id],
     user: state.user

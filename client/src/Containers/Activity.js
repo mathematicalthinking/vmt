@@ -144,13 +144,7 @@ class Activity extends Component {
             subTitle={<EditText change={this.updateActivityInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>}
             owner={this.state.owner}
             additionalDetails={additionalDetails}
-            buttons={
-              <Aux>
-                <span><Button theme={'Small'} m={10} click={this.goToWorkspace}>Enter</Button></span>
-                <span><Button theme={'Small'} m={10} click={this.goToReplayer}>Replayer</Button></span>
-              </Aux>
-            }
-            editButton={this.state.owner
+            editButton={ this.state.owner 
               ? <Aux>
                   <div role='button' style={{display: this.state.editing ? 'none' : 'block'}}  onClick={this.toggleEdit}>Edit Activity <i className="fas fa-edit"></i></div>
                   {this.state.editing
