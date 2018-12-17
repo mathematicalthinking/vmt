@@ -114,5 +114,6 @@
 .KeyValue {
   font-weight: 400;
   float: right;
+  color: #666;
   /* border: 1px solid blue; */
 }

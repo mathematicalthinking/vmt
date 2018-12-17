@@ -14,8 +14,8 @@
   background-color:blue;
   color: white;
   border-radius: 50%;
-  -webkit-text-stroke-width: 2px;
-  -webkit-text-stroke-color: #888;
+  /* -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: #888; */
 }
 
 .AvatarContainer {

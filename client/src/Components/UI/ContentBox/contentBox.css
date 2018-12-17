@@ -53,17 +53,16 @@
 }
 
 .Title {
-  font-size: 1.6em;
-  letter-spacing: .06em;
+  font-size: 1.5em;
   margin-right: 10px;
   text-align: center;
   color: blue;
 }
 
 .Expand {
-  color: blue;
+  color: black;
   padding: 5px;
-  background: #ddd;
+  /* background: #ddd; */
   z-index: 300;
   border-radius: 50%;
   display: flex;
@@ -72,7 +71,7 @@
 }
 
 .Expand:hover {
-  background: #aaa;
+  background: #ddd;
 }
 
 .Content {
@@ -80,6 +79,11 @@
   flex-flow: column;
   /* width: 90%; */
   /* color: orange; */
+}
+
+.Expanded {
+  margin-top: 5px;
+  padding: 10px;
 }
 
 
@@ -93,17 +97,26 @@
 }
 
 .Notification {
-  /* position: absolute; */
-  /* top: 18px;
-  left: -10px; */
+  position: relative;
+  top: 2px;
+  left: 5px;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 25px;
+  height: 25px;
+  text-align: center;
   background-color: red;
   color: white;
   text-align: center;
-  -webkit-text-stroke-width: .01em;
-  -webkit-text-stroke-color: #333;
+  vertical-align: center;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+
+
+.NotificationCount {
+  position: relative;
+  top: 3px;
 }
 
 .SelectOverlay {
