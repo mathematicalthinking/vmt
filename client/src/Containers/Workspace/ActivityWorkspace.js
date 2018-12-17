@@ -58,7 +58,7 @@ class ActivityWorkspace extends Component {
 
   render() {
     let role = 'participant'
-    if (this.props.user.activities.indexOf(this.props.activity._id) >= 0) {
+    if (this.props.activity && this.props.user.activities.indexOf(this.props.activity._id) >= 0) {
       role = 'facilitator'
     }
     return (
