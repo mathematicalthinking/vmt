@@ -13,11 +13,13 @@ class LoginLayout extends PureComponent {
         type: 'text',
         placeholder: 'username',
         value: '',
+        label: 'Username',
       },
       password: {
         type: 'password',
         placeholder: 'password',
         value: '',
+        label: 'Password',
       }
     }
   }
@@ -81,7 +83,7 @@ class LoginLayout extends PureComponent {
           placeholder={elem.placeholder}
           value={elem.value}
           change={this.changeHandler}
-          label={elem.placeholder}
+          label={elem.label}
         />
       )
     })
