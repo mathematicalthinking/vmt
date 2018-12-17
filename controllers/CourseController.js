@@ -109,7 +109,7 @@ module.exports = {
             db.User.findByIdAndUpdate(userId, {
               $addToSet: {courses: id,}
             }).then(res => resolve(res))
-          } else reject({errorMessage: 'incorrect entry code'})
+          } else reject('Incorrect Entry Code')
         } else {
           for (key in body) {
             course[key] = body[key]

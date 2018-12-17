@@ -7,7 +7,7 @@ module.exports = {
     if (params && params.constructor === Array) {
       params = {'_id': {$in: params}}
     } else {
-      params = params ? params : {} 
+      params = params ? params : {}
       params.tempRoom = false; // we don't want any temporary rooms
     }
     return new Promise((resolve, reject) => {
@@ -75,11 +75,11 @@ module.exports = {
         if (Array.isArray(tab)) {
           return db.Room.findByIdAndUpdate(createdRoom._id, {$addToSet: {tabs: tab.map(tab => tab._id)}}, {new: true})
           .populate({path: 'members.user', select: 'username'})
-          .populate({path: 'currentMembers.user', select: 'username'})  
+          .populate({path: 'currentMembers.user', select: 'username'})
         } else {
           return db.Room.findByIdAndUpdate(createdRoom._id, {$addToSet: {tabs: tab._id}}, {new: true})
           .populate({path: 'members.user', select: 'username'})
-          .populate({path: 'currentMembers.user', select: 'username'})  
+          .populate({path: 'currentMembers.user', select: 'username'})
         }
       })
       .then(room => resolve(room)) //Hmm why no support for promise here?
@@ -130,7 +130,7 @@ module.exports = {
   },
 
 
-  // THIS IS A MESS @TODO CLEAN UP 
+  // THIS IS A MESS @TODO CLEAN UP
   put: (id, body) => {
     return new Promise((resolve, reject) => {
       if (body.graphImage) {
@@ -143,7 +143,7 @@ module.exports = {
           console.log(err)
           reject(err);
         })
-      } 
+      }
       else if (body.checkAccess) {
         db.Room.findById(id)
         .then(async room => {
@@ -156,7 +156,7 @@ module.exports = {
             db.User.findByIdAndUpdate(room.creator, {
               $addToSet: {
                 'roomNotifications.access': {
-                  notificationType: 'newMember', _id: room._id, user: userId 
+                  notificationType: 'newMember', _id: room._id, user: userId
                 }
               }
             })
@@ -167,7 +167,7 @@ module.exports = {
             room.populate({path: 'members.user', select: 'username'}, function() {
               resolve(room)
             })
-          } else reject({errorMessage: 'incorrect entry code'})
+          } else reject('Incorrect Entry Code')
         })
         .catch(err => reject(err))
       }
@@ -184,7 +184,7 @@ module.exports = {
             reject(err)
           }
         })
-      } 
+      }
       else {
         db.Room.findByIdAndUpdate(id, body, {new: true})
         .populate('currentMembers.user members.user', 'username')
@@ -212,8 +212,8 @@ module.exports = {
   // SOCKET METHODS
   addCurrentUsers: (roomId, body, members) => {
     return new Promise((resolve, reject) => {
-      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE 
-      let query = members ? 
+      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
+      let query = members ?
         {'$addToSet': {'currentMembers': body, 'members': members}} :
         {'$addToSet': {'currentMembers': body}}
       db.Room.findByIdAndUpdate(roomId, query, {new: true})
