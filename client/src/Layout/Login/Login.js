@@ -11,13 +11,13 @@ class LoginLayout extends PureComponent {
     controls: {
       username: {
         type: 'text',
-        placeholder: 'username',
+        placeholder: '',
         value: '',
         label: 'Username',
       },
       password: {
         type: 'password',
-        placeholder: 'password',
+        placeholder: '',
         value: '',
         label: 'Password',
       }
