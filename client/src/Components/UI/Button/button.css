@@ -56,6 +56,23 @@
   transition: .2s;
 }
 
+.edit {
+  padding: 8px 12px;
+  margin: 0 10px;
+  font-size: 14px;
+  letter-spacing: .02em;
+  background-color: #ccc;
+}
+
+.edit-save {
+  padding: 8px 12px;
+  margin: 0 10px;
+  font-size: 14px;
+  letter-spacing: .02em;
+  background-color: blue;
+  color: white;
+}
+
 .xs:hover{
   background-color: blue;
 }

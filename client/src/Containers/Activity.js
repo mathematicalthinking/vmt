@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 // import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { DashboardLayout, SidePanel, ActivityDetails, ResourceList } from '../Layout/Dashboard/';
-import { 
-  Aux, 
-  Modal, 
-  Button, 
-  BreadCrumbs, 
-  TabList, 
+import {
+  Aux,
+  Modal,
+  Button,
+  BreadCrumbs,
+  TabList,
   EditText,
 } from '../Components';
 import { getCourses, getRooms, updateActivity, getActivities } from '../store/actions';
@@ -99,7 +99,7 @@ class Activity extends Component {
       type: activity.roomType,
       privacy: <EditText change={this.updateActivityInfo} inputType='radio' editing={this.state.editing} options={['private', 'public']} name="privacySetting">{activity.privacySetting}</EditText>
     }
-    
+
     const crumbs = [{title: 'My VMT', link: '/myVMT/courses'}]
     if (course) {
       crumbs.push(
@@ -110,7 +110,7 @@ class Activity extends Component {
       crumbs.push({title: `${activity.name}`, link: `/myVMT/activities/${activity._id}/details`})
     }
 
-    let mainContent = <ActivityDetails 
+    let mainContent = <ActivityDetails
       activity={this.props.activity}
       update={this.updateActivityInfo}
       instructions={this.state.instructions}
@@ -121,8 +121,8 @@ class Activity extends Component {
     />
 
     if (resource === 'rooms' ) {
-      mainContent = <ResourceList 
-      userResources={activity.rooms.map(roomId => this.props.rooms[roomId])} 
+      mainContent = <ResourceList
+      userResources={activity.rooms.map(roomId => this.props.rooms[roomId])}
       notifications={[]}
       user={user}
       resource={resource}
@@ -130,7 +130,7 @@ class Activity extends Component {
       parentResourceId={course ? course._id : activity._id}
     />
     }
-    
+
 
     return (
       <DashboardLayout
@@ -138,10 +138,10 @@ class Activity extends Component {
           <BreadCrumbs crumbs={crumbs} />
         }
         sidePanel={
-          <SidePanel 
+          <SidePanel
             image={activity.image}
-            name={<EditText change={this.updateActivityInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>} 
-            subTitle={<EditText change={this.updateActivityInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>} 
+            name={<EditText change={this.updateActivityInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>}
+            subTitle={<EditText change={this.updateActivityInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>}
             owner={this.state.owner}
             additionalDetails={additionalDetails}
             buttons={
@@ -150,11 +150,14 @@ class Activity extends Component {
                 <span><Button theme={'Small'} m={10} click={this.goToReplayer}>Replayer</Button></span>
               </Aux>
             }
-            editButton={ this.state.owner 
+            editButton={this.state.owner
               ? <Aux>
-                  <div role='button' style={{color: this.state.editing ? 'blue' : 'gray'}}  onClick={this.toggleEdit}>Edit Activity <i className="fas fa-edit"></i></div>
-                  {this.state.editing 
-                    ? <div><Button click={this.updateActivity} theme='xs'>Save</Button> <Button click={this.toggleEdit} theme='xs'>Cancel</Button></div>
+                  <div role='button' style={{display: this.state.editing ? 'none' : 'block'}}  onClick={this.toggleEdit}>Edit Activity <i className="fas fa-edit"></i></div>
+                  {this.state.editing
+                    ? <div>
+                      <Button click={this.updateActivity} theme='edit-save'>Save</Button>
+                      <Button click={this.toggleEdit} theme='edit'>Cancel</Button>
+                    </div>
                     : null
                   }
                 </Aux>
