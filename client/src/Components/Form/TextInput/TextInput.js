@@ -7,14 +7,12 @@ class TextInput extends Component {
 
   componentDidMount(){
     if (this.props.focus) {
-      console.log('setting foucs')
       this.textInput.current.focus()
     }
   }
 
   componentDidUpdate(){
     if (this.props.focus) {
-      console.log('setting focus')
       this.textInput.current.focus()
     }
   }

@@ -18,8 +18,7 @@ import Member from '../../Components/UI/Member/Member';
 class Members extends Component {
   
   componentWillUnmount(){
-    const {user, resourceType, notifications } = this.props
-    console.log(this.props)
+    const {user, resourceType, notifications } = this.props;
     if (notifications.length > 0){
       notifications.forEach(ntf => {
         if (ntf.notificationType === 'newMember') {

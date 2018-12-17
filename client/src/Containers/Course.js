@@ -241,7 +241,6 @@ class Course extends Component {
       if (this.state.owner) {
         additionalDetails.code = <EditText change={this.updateCourseInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText>;
       }
-      console.log(user.accountType)
 
       // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
       return (
