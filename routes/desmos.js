@@ -1,6 +1,8 @@
 const axios = require('axios')
 const express = require('express')
 const router = express.Router()
+const errors = require('../middleware/errors')
+
 router.get('/', (req, res, next) => {
 	axios({
     method: 'GET',
@@ -9,17 +11,12 @@ router.get('/', (req, res, next) => {
   })
   .then(result => {
 		res.json({
-	    confirmation: 'success',
 	    result: result.data
 	  })
 	})
 	.catch(err => {
-		res.status(404).json({
-			confirmation: 'fail',
-			errorMessage: err
-		})
+		return errors.sendError.InternalError(null, res);
 	})
 })
-
 
 module.exports = router;
