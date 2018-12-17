@@ -22,10 +22,8 @@
 }
 
 .BreadCrumbs {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   width: 100%;
-  /* min-width: 1000px; */
-  align-self: flex-start;
 }
 
 .Main {
@@ -33,6 +31,7 @@
   height: 100%;
   flex-grow: 2;
   display: flex;
+  /* border: 1px solid blue; */
 }
 
 
