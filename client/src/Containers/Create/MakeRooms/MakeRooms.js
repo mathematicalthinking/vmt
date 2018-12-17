@@ -55,7 +55,7 @@ class MakeRooms extends Component  {
   // NOW THAT WE HAVE A CREATEROOMFROMACTIVITY ACTION THINK ABOUT REFACTORING ALL OF THIS
   // TO UTILIZE THAT FUNCTIONALITY
   submit = () => {
-    let { _id, name, description, roomType, desmosLink, ggbFile, image, instructions } = this.props.activity;
+    let { _id, name, description, roomType, desmosLink, ggbFile, image, instructions, tabs, } = this.props.activity;
     let newRoom = {
       activity: _id,
       creator: this.props.userId,
@@ -67,6 +67,7 @@ class MakeRooms extends Component  {
       instructions,
       dueDate: this.state.dueDate,
       image,
+      tabs,
     }
     if (!this.state.assignRandom) {
       // create a room with the selected participants
@@ -113,7 +114,6 @@ class MakeRooms extends Component  {
   }
 
   render() {
-    console.log(this.props)
     // @TODO STUDENTLIST SHOULD REFLECT THIS.STATE.REMAINING STUDENTS -- RIGHT NOW THERE IS A
     // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
     let participantList = this.state.remainingParticipants.map((participant, i) => {

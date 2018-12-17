@@ -43,22 +43,46 @@ module.exports = {
   post: body => {
     return new Promise((resolve, reject) => {
       let createdRoom;
+      let existingTabs;
+      if (body.tabs) {
+        existingTabs = body.tabs
+      }
+      delete body.tabs
       db.Room.create(body)
       .then(room => {
         createdRoom = room;
-        return db.Tab.create({
-          name: 'Tab 1',
-          room: room._id,
-          desmosLink: body.desmosLink,
-          ggbFile: body.ggbFile,
-          tabType: body.roomType,
-        })
+        if (!body.tabs) {
+          return db.Tab.create({
+            name: 'Tab 1',
+            room: room._id,
+            desmosLink: body.desmosLink,
+            ggbFile: body.ggbFile,
+            tabType: body.roomType,
+          })
+        }
+        else {
+          return Promise.all(existingTabs.map(tab => {
+            delete tab._id;
+            delete tab.activity;
+            delete tab.currentState;
+            tab.room = createdRoom._id;
+            console.log("TAB: ", tab)
+            db.Tab.create(tab)
+          }))
+        }
       })
       .then(tab => {
-        console.log('created a tab while making a room')
-        return db.Room.findByIdAndUpdate(createdRoom._id, {$addToSet: {tabs: tab._id}}, {new: true})
-        .populate({path: 'members.user', select: 'username'})
-        .populate({path: 'currentMembers.user', select: 'username'})  
+        console.log(tab)
+        if (Array.isArray(tab)) {
+          return db.Room.findByIdAndUpdate(createdRoom._id, {$addToSet: {tabs: tab.map(tab => tab._id)}}, {new: true})
+          .populate({path: 'members.user', select: 'username'})
+          .populate({path: 'currentMembers.user', select: 'username'})  
+        } else {
+          console.log('created a tab while making a room')
+          return db.Room.findByIdAndUpdate(createdRoom._id, {$addToSet: {tabs: tab._id}}, {new: true})
+          .populate({path: 'members.user', select: 'username'})
+          .populate({path: 'currentMembers.user', select: 'username'})  
+        }
       })
       .then(room => resolve(room)) //Hmm why no support for promise here?
       .catch(err => {
