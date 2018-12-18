@@ -69,14 +69,17 @@ class Room extends Component {
         console.log('trying to clear notification')
         accessNotifications.forEach(ntf => {
           console.log(ntf.room, room._id)
-          if ((ntf.notificationType === 'grantedAccess' && ntf._id === room._id) || (ntf.notificationType === 'assignedRoom' && ntf.room === room._id)) {
-             // RESOLVE THIS NOTIFICATION
-             console.log("found the right notification")
-             firstView = true;
-             clearNotification(room._id, user._id, null, 'room', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
-           }
-         })
-       }
+          if (ntf.notificationType === 'grantedAccess' && ntf._id === room._id) {
+            // RESOLVE THIS NOTIFICATION
+            console.log("found the right notification")
+            firstView = true;
+            clearNotification(room._id, user._id, null, 'room', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
+          } else if (ntf.notificationType === 'assignedRoom' && ntf.room === room._id) {
+            firstView = true;
+            clearNotification(room.course, user._id, null, 'course', 'access', ntf.notifcationType )
+          }
+        })
+      }
       if (room.members) {
         this.checkAccess();
       }

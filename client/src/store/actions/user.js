@@ -114,6 +114,7 @@ export const updateUserResource = (resource, resourceId, userId) => {
 // For clearing notifications after the user has seen it. As opposed to request for access notifications which are cleared
 // when the user explicitly grants access (see actions.access)
 export const clearNotification = (ntfId, userId, requestingUser, resource, listType, ntfType) => {
+  console.log('clearing notification')
   console.log(ntfId, userId, requestingUser, resource, listType, ntfType)
   return (dispatch) => {
     dispatch(removeNotification(resource, listType, requestingUser, ntfId))
