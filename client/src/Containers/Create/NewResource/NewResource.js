@@ -54,9 +54,11 @@ class NewResourceContainer extends Component {
       privacySetting: privacySetting,
       image: `http://tinygraphs.com/${shapes[resource]}/${name}?theme=${theme}&numcolors=4&size=220&fmt=svg`
     }
+    if (newResource.privacySetting === 'private') {
+      newResource.entryCode = hri.random();
+    }
     switch (resource) {
       case 'courses' :
-        newResource.entryCode = hri.random();
         this.props.createCourse(newResource);
         break;
       case 'activities' :
@@ -70,7 +72,6 @@ class NewResourceContainer extends Component {
         this.props.createActivity(newResource);
         break;
       case 'rooms' :
-        newResource.entryCode = hri.random();
         newResource.ggbFile = ggbFile;
         newResource.desmosLink = desmosLink;
         newResource.dueDate = dueDate;

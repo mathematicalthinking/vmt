@@ -21,13 +21,13 @@ class GgbActivityGraph extends Component{
 
   componentDidUpdate(prevProps){
     if (prevProps.currentTab !== this.props.currentTab) {
-      console.log('switched tab, ', this.props.currentTab)
       if (this.props.tabs[this.props.currentTab].currentState !== '') {
-        console.log('')
         setTimeout(this.ggbApplet.setXML(this.props.tabs[this.props.currentTab].currentState), 0)
+        this.registerListeners()
       }
       else {
         setTimeout(this.ggbApplet.setXML(INITIAL_GGB), 0)
+        this.registerListeners()
       }
     }
   }
@@ -103,9 +103,9 @@ class GgbActivityGraph extends Component{
   initializeGgb = () => {
     this.ggbApplet = window.ggbApplet;
     this.setState({loading: false});
-    let { startingPoint } = this.props.tabs[this.props.currentTab];
-    if (startingPoint) {
-      this.ggbApplet.setXML(startingPoint)
+    let { currentState } = this.props.tabs[this.props.currentTab];
+    if (currentState) {
+      this.ggbApplet.setXML(currentState)
     }
     if (this.props.role === 'participant') {
       this.ggbApplet.setMode(40)
@@ -119,10 +119,12 @@ class GgbActivityGraph extends Component{
     let updatedTab = {...this.props.tabs[this.props.currentTab]}
     updatedTab.currentState = this.ggbApplet.getXML();
     updatedTabs[this.props.currentTab] = updatedTab;
-    this.props.updatedActivity(this.props.activity._id, {tabs: updatedTabs})
+    this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {currentState: updatedTab.currentState})
+    // this.props.updatedActivity(this.props.activity._id, {tabs: updatedTabs})
   }, 500)
 
   registerListeners() {
+    console.log('registering listeners')
     this.ggbApplet.registerAddListener(this.getGgbState);
     this.ggbApplet.registerUpdateListener(this.getGgbState);
     this.ggbApplet.registerRemoveListener(this.getGgbState);

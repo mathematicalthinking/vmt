@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { 
   updatedActivity, 
+  updateActivityTab,
   setActivityStartingPoint, 
   getCurrentActivity,
   createActivity, 
@@ -37,7 +38,6 @@ class ActivityWorkspace extends Component {
   }
 
   setStartingPoint = () => {
-    console.log('set activity starting point')
     this.props.setActivityStartingPoint(this.props.activity._id)
   }
 
@@ -55,13 +55,12 @@ class ActivityWorkspace extends Component {
     activity.name = this.state.newName
     this.props.createActivity(activity)
     this.setState({addingToMyActivities: false})
+    this.props.history.push('/community/activities')
   }
 
   render() {
-    console.log(this.props)
     let role = 'participant'
-    if (this.props.user.activities.indexOf(this.props.activity._id) >= 0) {
-      console.log('this user owns this activity')
+    if (this.props.activity && this.props.user.activities.indexOf(this.props.activity._id) >= 0) {
       role = 'facilitator'
     }
     return (
@@ -75,6 +74,7 @@ class ActivityWorkspace extends Component {
               currentTab={this.state.currentTab}
               // updateRoom={this.props.updateRoom}
               updatedActivity={this.props.updatedActivity}
+              updateActivityTab={this.props.updateActivityTab}
               inControl={true}
               activityWorkspace={true}
               copyActivity={this.addToMyActivities}
@@ -98,7 +98,7 @@ class ActivityWorkspace extends Component {
           </Modal>
           <Modal show={this.state.addingToMyActivities} closeModal={() => this.setState({addingToMyActivities: false})}>
             <TextInput show={this.state.addingToMyActivities} light focus={true} value={this.state.newName} change={(event) => {this.setState({newName: event.target.value})}} label={'New Activity Name'}/>
-            <Button click={this.createNewActivity}>Submit</Button>
+            <Button click={this.createNewActivity}>Copy Activity</Button>
           </Modal>
         </Aux>
         : <div>Loading</div>
@@ -107,11 +107,10 @@ class ActivityWorkspace extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  console.log("mapping state to props")
   return {
     activity: state.activities.byId[ownProps.match.params.activity_id],
     user: state.user
   }
 }
 
-export default connect(mapStateToProps, { updatedActivity, setActivityStartingPoint, getCurrentActivity, createActivity})(ActivityWorkspace);
+export default connect(mapStateToProps, { updatedActivity, setActivityStartingPoint, getCurrentActivity, createActivity, updateActivityTab})(ActivityWorkspace);

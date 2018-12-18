@@ -24,7 +24,7 @@ const workspaceLayout = React.memo(({
   setFromElAndCoords, referToEl, referToCoords, referFromEl, 
   referFromCoords, clearReference, createNewTab, changeTab,
   addNtfToTabs, ntfTabs, setStartingPoint, activityWorkspace,
-  updatedActivity, copyActivity,
+  updatedActivity, copyActivity, updateActivityTab,
 }) => {
 
   // Set text for taking control button based on current control
@@ -75,6 +75,7 @@ const workspaceLayout = React.memo(({
         currentTab={currentTab}
         role={role}
         updatedActivity={updatedActivity}
+        updateActivityTab={updateActivityTab}
 
       />
     }
@@ -133,6 +134,15 @@ const workspaceLayout = React.memo(({
       currentTab={currentTab}
     />
   }
+  console.log(role)
+
+  let bottomButton;
+  if (role === 'facilitator' && !activityWorkspace) {
+      bottomButton = <div><Button click={setStartingPoint}>Set starting point</Button></div> 
+  } else if (role === 'participant' && activityWorkspace) { 
+    bottomButton = <div><Button click={copyActivity}>Add To My Activities</Button></div>
+  }
+
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container}>
@@ -155,19 +165,16 @@ const workspaceLayout = React.memo(({
             ? <ReplayerControls {...replayer} />
             : <div className={classes.RoomDescription}>
                 <h3 className={classes.InstructionsTitle}>
-                  <EditableText owner={role === 'facilitator'} inputType={'INPUT'} resource='tab' id={room.tabs[currentTab]._id}  parentId={room._id} field='name'>
+                  <EditableText owner={role === 'facilitator'} inputType={'INPUT'} resource='tab' parentResource={updatedActivity ? 'activity' : 'room'} id={room.tabs[currentTab]._id}  parentId={room._id} field='name'>
                     {room.tabs[currentTab].name}
                   </EditableText> Instructions
                 </h3>
                 <div>
-                  <EditableText owner={role === 'facilitator'} inputType={'TEXT_AREA'} resource='tab' id={room.tabs[currentTab]._id} parentId={room._id} field='instructions'>
+                  <EditableText owner={role === 'facilitator'} inputType={'TEXT_AREA'} resource='tab' parentResource={updatedActivity ? 'activity' : 'room'} id={room.tabs[currentTab]._id} parentId={room._id} field='instructions'>
                     {room.tabs[currentTab].instructions || room.instructions}
                   </EditableText>
                 </div>
-                {role === 'facilitator' 
-                  ? <div><Button click={setStartingPoint}>Set starting point</Button></div> 
-                  : <div><Button click={copyActivity}>Add To My Activities</Button></div>
-                }
+                {bottomButton}
               </div>
           }
           {temp && !saved ? 

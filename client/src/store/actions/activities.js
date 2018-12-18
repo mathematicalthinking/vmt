@@ -26,6 +26,15 @@ export const updatedActivity = (id, body) => {
   }
 }
 
+export const updatedActivityTab = (activityId, tabId, body) => {
+  return {
+    type: actionTypes.UPDATED_ACTIVITY_TAB,
+    activityId,
+    tabId,
+    body,
+  }
+}
+
 export const setActivityStartingPoint = (id) => {
   return ((dispatch, getState) => {
     let tabs = getState().activities.byId[id].tabs.map(tab => {
@@ -113,6 +122,19 @@ export const createActivity = body => {
       return dispatch(loading.success());
     })
   }
+}
+
+export const updateActivityTab = (activityId, tabId, body) => {
+  return dispatch => {
+    dispatch(updatedActivityTab(activityId, tabId, body))
+    console.log(tabId, body)
+    API.put('tabs', tabId, body)
+    .then(res => {
+
+    })
+    .catch(err => {console.log(err)})
+  }
+
 }
 
 export const copyActivity = (activityId, userId, courseId) => {

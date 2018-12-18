@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Aux, Button } from '../../Components';
 import classes from './editableText.css';
 import { connect } from 'react-redux';
-import { updateRoomTab, updateActivity, updateCourse, updateRoom, } from '../../store/actions';
+import { updateRoomTab, updateActivity, updateCourse, updateActivityTab, } from '../../store/actions';
 class EditableText extends Component {
 
   state = {
@@ -34,12 +34,17 @@ class EditableText extends Component {
   submit = () => {
     let { 
       resource, 
+      parentResource,
       parentId , 
       field,
       id, 
     } = this.props;
-    if (resource === 'tab') {
+    console.log(parentResource)
+    if (parentResource === 'room') {
       this.props.updateRoomTab(parentId, id, {[field]: this.state.text})
+    } else if (parentResource === 'activity') {
+      console.log("updatingActivtiy")
+      this.props.updateActivityTab(parentId, id, {[field]: this.state.text})
     }
     this.toggleEdit();
   }
@@ -69,4 +74,4 @@ class EditableText extends Component {
   }
 }
 
-export default connect(null, {updateRoomTab, updateActivity, updateCourse})(EditableText);
+export default connect(null, {updateRoomTab, updateActivity, updateCourse, updateActivityTab,})(EditableText);

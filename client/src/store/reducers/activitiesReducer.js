@@ -68,6 +68,28 @@ const reducer = (state = initialState, action) => {
           [action.id]: updatedActivity,
         }
       }
+
+      case actionTypes.UPDATED_ACTIVITY_TAB:
+        let fields = Object.keys(action.body)
+        let updatedTabs = state.byId[action.activityId].tabs.map(tab => {
+          if (tab._id === action.tabId) {
+            fields.forEach(field => {
+              tab[field] = action.body[field]
+            })        
+          }
+          return tab;
+        })
+        return {
+          ...state,
+          byId: {
+            ...state.byId,
+            [action.activityId]: {
+              ...state.byId[action.activityId],
+              tabs: updatedTabs,
+            }
+          }
+        }
+
     case actionTypes.CREATE_ACTIVITY_CONFIRMED:
       return {
         ...state,
