@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const models = require('../models');
+const models = require('../../models');
 
 const resourceToModelMap = {
   activities: 'Activity',
@@ -23,6 +23,11 @@ const getResource = (req) => {
 
 const getParamsId = (req) => {
   return _.propertyOf(req)('params.id');
+}
+
+const getModelFromRequest = (req) => {
+  let resource = getResource(req);
+  return getModel(resource);
 }
 
 const isValidMongoId = (value) => {
@@ -73,3 +78,4 @@ module.exports.schemaHasProperty = schemaHasProperty;
 module.exports.getSchema = getSchema;
 module.exports.getModel = getModel;
 module.exports.getModelName = getModelName;
+module.exports.getModelFromRequest = getModelFromRequest
