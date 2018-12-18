@@ -39,6 +39,7 @@ const resources = props => {
           notifications = {props.notifications}
           resource = {props.resource}
           listType = 'private'
+          parentResourec={props.parentResource}
           // draggable
         />
       </div>

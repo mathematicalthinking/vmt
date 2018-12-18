@@ -47,7 +47,6 @@ module.exports = {
       if (body.tabs) {
         existingTabs = Object.assign(body.tabs, [])
       }
-      console.log("BODY ",body)
       delete body.tabs
       db.Room.create(body)
       .then(room => {
@@ -62,7 +61,6 @@ module.exports = {
           })
         }
         else {
-          console.log('EXISTING TABS: ', existingTabs)
           return Promise.all(existingTabs.map(tab => {
             delete tab._id;
             delete tab.activity;
@@ -74,13 +72,11 @@ module.exports = {
         }
       })
       .then(tab => {
-        console.log(tab)
         if (Array.isArray(tab)) {
           return db.Room.findByIdAndUpdate(createdRoom._id, {$addToSet: {tabs: tab.map(tab => tab._id)}}, {new: true})
           .populate({path: 'members.user', select: 'username'})
           .populate({path: 'currentMembers.user', select: 'username'})  
         } else {
-          console.log('created a tab while making a room')
           return db.Room.findByIdAndUpdate(createdRoom._id, {$addToSet: {tabs: tab._id}}, {new: true})
           .populate({path: 'members.user', select: 'username'})
           .populate({path: 'currentMembers.user', select: 'username'})  

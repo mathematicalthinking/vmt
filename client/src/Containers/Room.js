@@ -48,7 +48,8 @@ class Room extends Component {
   ]
 
   componentDidMount() {
-    const { room, user, accessNotifications, clearNotification, } = this.props;
+    const { room, user, clearNotification, } = this.props;
+    let accessNotifications = user.courseNotifications.access.concat(user.roomNotifications.access)
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
     // If its in the store check access
     if (room) {
@@ -65,9 +66,12 @@ class Room extends Component {
         updatedTabs = this.displayNotifications(updatedTabs)
       }
       if (accessNotifications.length > 0) {
+        console.log('trying to clear notification')
         accessNotifications.forEach(ntf => {
-          if (ntf.notificationType === 'grantedAccess' && ntf._id === room._id) {
+          console.log(ntf.room, room._id)
+          if ((ntf.notificationType === 'grantedAccess' && ntf._id === room._id) || (ntf.notificationType === 'assignedRoom' && ntf.room === room._id)) {
              // RESOLVE THIS NOTIFICATION
+             console.log("found the right notification")
              firstView = true;
              clearNotification(room._id, user._id, null, 'room', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
            }
@@ -261,7 +265,7 @@ class Room extends Component {
           />
           {this.state.firstView
             ? <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
-            <p>Welcome to {room.name}. If this is your first time joining a course,
+            <p>Welcome to {room.name}. If this is your first time joining a room,
             we recommend you take a tour. Otherwise you can start exploring this room's features.</p>
             <Button click={() => this.setState({firstView: false})}>Explore</Button>
           </Modal> : null}
