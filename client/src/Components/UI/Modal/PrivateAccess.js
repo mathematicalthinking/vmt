@@ -28,6 +28,7 @@ class privateAccess extends Component {
   
   requestAccess = () => {
     let { resource, owners, resourceId, userId, requestAccess } = this.props;
+    console.log("OWNERS: ", owners)
     requestAccess(owners, userId, resource, resourceId) 
     this.props.history.push('/confirmation')
   }

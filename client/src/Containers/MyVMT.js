@@ -177,11 +177,14 @@ class Profile extends Component {
       }
       let displayResources = [];
       if (this.props[resource]) {
+        console.log(this.state.view)
+        console.log(this.props[resource].allIds)
         // console.log('the resource were looking for exists')
         displayResources = this.props[resource].allIds.filter(id => {
           let included = false
           if (this.props[resource].byId[id].members) {
             this.props[resource].byId[id].members.forEach(member => {
+              console.log(member)
               if (member.user._id === user._id && member.role === this.state.view) {
                 // console.log('this ', id, ' should be included')
                 included = true;
