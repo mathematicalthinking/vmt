@@ -125,10 +125,8 @@ class Room extends Component {
 
   displayNotifications = (tabs) => {
     let { user, room, accessNotifications } = this.props;
-    console.log(this.state.owner)
     if (room.members.filter(member => member.role === 'facilitator' && member.user._id === user._id)) {
       let thisRoomsNtfs = accessNotifications.filter(ntf => ntf._id === room._id)
-      console.log(this.RoomsNtfs)
       tabs[1].notifications = thisRoomsNtfs.length > 0 ? thisRoomsNtfs.length: '';
       return tabs;
     }
