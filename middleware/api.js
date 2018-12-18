@@ -135,7 +135,7 @@ const prunePutBody = (user, recordIdToUpdate, body, modelName, details) => {
     let isUpdatingSelf = _.isEqual(user._id, recordIdToUpdate);
     if (!isUpdatingSelf) {
       // can only
-      return _.pick(copy, 'notificationType', 'resource');
+      return _.pick(copy, 'notificationType', 'resource', 'user');
     }
     delete copy.username;
     delete copy.password;
