@@ -103,9 +103,9 @@ class GgbActivityGraph extends Component{
   initializeGgb = () => {
     this.ggbApplet = window.ggbApplet;
     this.setState({loading: false});
-    let { startingPoint } = this.props.tabs[this.props.currentTab];
-    if (startingPoint) {
-      this.ggbApplet.setXML(startingPoint)
+    let { currentState } = this.props.tabs[this.props.currentTab];
+    if (currentState) {
+      this.ggbApplet.setXML(currentState)
     }
     if (this.props.role === 'participant') {
       this.ggbApplet.setMode(40)

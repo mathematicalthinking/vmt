@@ -55,6 +55,7 @@ class ActivityWorkspace extends Component {
     activity.name = this.state.newName
     this.props.createActivity(activity)
     this.setState({addingToMyActivities: false})
+    this.props.history.push('/community/activities')
   }
 
   render() {
@@ -97,7 +98,7 @@ class ActivityWorkspace extends Component {
           </Modal>
           <Modal show={this.state.addingToMyActivities} closeModal={() => this.setState({addingToMyActivities: false})}>
             <TextInput show={this.state.addingToMyActivities} light focus={true} value={this.state.newName} change={(event) => {this.setState({newName: event.target.value})}} label={'New Activity Name'}/>
-            <Button click={this.createNewActivity}>Submit</Button>
+            <Button click={this.createNewActivity}>Copy Activity</Button>
           </Modal>
         </Aux>
         : <div>Loading</div>

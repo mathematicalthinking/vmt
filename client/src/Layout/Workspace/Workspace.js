@@ -135,6 +135,14 @@ const workspaceLayout = React.memo(({
     />
   }
   console.log(role)
+
+  let bottomButton;
+  if (role === 'facilitator' && !activityWorkspace) {
+      bottomButton = <div><Button click={setStartingPoint}>Set starting point</Button></div> 
+  } else if (role === 'participant' && activityWorkspace) { 
+    bottomButton = <div><Button click={copyActivity}>Add To My Activities</Button></div>
+  }
+
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container}>
@@ -166,10 +174,7 @@ const workspaceLayout = React.memo(({
                     {room.tabs[currentTab].instructions || room.instructions}
                   </EditableText>
                 </div>
-                {role === 'facilitator' 
-                  ? <div><Button click={setStartingPoint}>Set starting point</Button></div> 
-                  : copyActivity ? <div><Button click={copyActivity}>Add To My Activities</Button></div> : null
-                }
+                {bottomButton}
               </div>
           }
           {temp && !saved ? 

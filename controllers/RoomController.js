@@ -45,13 +45,14 @@ module.exports = {
       let createdRoom;
       let existingTabs;
       if (body.tabs) {
-        existingTabs = body.tabs
+        existingTabs = Object.assign(body.tabs, [])
       }
+      console.log("BODY ",body)
       delete body.tabs
       db.Room.create(body)
       .then(room => {
         createdRoom = room;
-        if (!body.tabs) {
+        if (!existingTabs) {
           return db.Tab.create({
             name: 'Tab 1',
             room: room._id,
@@ -61,13 +62,14 @@ module.exports = {
           })
         }
         else {
+          console.log('EXISTING TABS: ', existingTabs)
           return Promise.all(existingTabs.map(tab => {
             delete tab._id;
             delete tab.activity;
-            delete tab.currentState;
+            tab.startingPoint = tab.currentState;
             tab.room = createdRoom._id;
             console.log("TAB: ", tab)
-            db.Tab.create(tab)
+            return db.Tab.create(tab)
           }))
         }
       })
