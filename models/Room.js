@@ -106,6 +106,7 @@ Room.methods.summary = function() {
     activity: this.activity,
     name: this.name,
     description: this.description,
+    privacySetting: this.privacySetting,
     roomType: this.roomType,
     course: this.course,
     creator: this.creator,
