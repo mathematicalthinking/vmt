@@ -90,7 +90,7 @@ class LoginLayout extends PureComponent {
     return (
       this.props.loggedIn ? <Redirect to='/myVMT/courses'/> :
       <div className={classes.Container}>
-        <Background bottomSpace={-60}/>
+        <Background bottomSpace={-60} fixed/>
         <div className={classes.LoginContainer}>
           <h2 className={classes.Title}>Login</h2>
           <form onSubmit={this.loginHandler} className={classes.Form}>

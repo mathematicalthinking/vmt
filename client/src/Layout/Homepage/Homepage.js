@@ -53,7 +53,7 @@ class Homepage extends PureComponent {
   render() {
     return (
       <Aux>
-        <Background/>
+        <Background bottomSpace={window.screen.availHeight < 1000 ? -10 : null}/>
         {/* <div className={classes.BackgroundExtension}></div>
         <div className={classes.Ex2}></div>
         <div className={classes.Ex3}></div>
