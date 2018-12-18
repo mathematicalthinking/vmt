@@ -60,7 +60,7 @@ router.get('/:resource/:id', middleware.validateUser, (req, res, next) => {
 		})
 })
 
-router.post('/:resource', middleware.validateUser, (req, res, next) => {
+router.post('/:resource', middleware.validateUser, middleware.validateNewRecord, (req, res, next) => {
 	let controller = controllers[req.params.resource]
 
 	controller.post(req.body)
@@ -78,7 +78,7 @@ router.post('/:resource', middleware.validateUser, (req, res, next) => {
 		})
 })
 
-router.put('/:resource/:id/add', middleware.validateUser, middleware.canModifyResource, (req, res, next) => {
+router.put('/:resource/:id/add', middleware.validateUser, (req, res, next) => {
 	let { resource, id } = req.params;
 	let controller = controllers[resource];
 
@@ -96,7 +96,7 @@ router.put('/:resource/:id/add', middleware.validateUser, middleware.canModifyRe
 		})
 })
 
-router.put('/:resource/:id/remove', middleware.validateUser, middleware.canModifyResource, (req, res, next) => {
+router.put('/:resource/:id/remove', middleware.validateUser, (req, res, next) => {
 	let { resource, id } = req.params;
 	let controller = controllers[resource];
 
@@ -115,13 +115,28 @@ router.put('/:resource/:id/remove', middleware.validateUser, middleware.canModif
 		})
 })
 
-router.put('/:resource/:id', middleware.validateUser, middleware.canModifyResource, (req, res, next) => {
-	let { resource, id } = req.params;
+router.put('/:resource/:id', middleware.validateUser, (req, res, next) => {
+	let { resource, id } = req.params
 	let controller = controllers[resource];
 
-  controller.put(id, req.body)
-    .then(result => res.json(result))
-    .catch(err => {
+	return middleware.canModifyResource(req)
+	  .then((results) => {
+			let { canModify, doesRecordExist, details } = results;
+
+			if (!doesRecordExist) {
+				return errors.sendError.NotFoundError(null, res);
+			}
+
+			if (!canModify) {
+				return errors.sendError.NotAuthorizedError('You do not have permission to modify this resource', res);
+			}
+			console.log('body before prune', req.body);
+			let prunedBody = middleware.prunePutBody(req.user, id, req.body, details)
+			console.log('body after', prunedBody);
+			return controller.put(id, prunedBody)
+		})
+		.then((result) => res.json(result))
+		.catch((err) => {
 			console.error(`Error put ${resource}/${id}: ${err}`);
 
 			let msg = null;
@@ -131,8 +146,8 @@ router.put('/:resource/:id', middleware.validateUser, middleware.canModifyResour
 			}
 
 			return errors.sendError.InternalError(msg, res)
-		})
-})
+		});
+	})
 
 router.delete('/:resource/:id', middleware.validateUser, (req, res, next) => {
   let { resource, id } = req.params;
