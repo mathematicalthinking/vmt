@@ -105,6 +105,10 @@ class Course extends Component {
     if ((this.state.member || this.state.owner) && !this.props.loading) {
       this.checkForFetch();
     }
+
+    if (!prevState.owner && this.state.owner) {
+      this.displayNotifications(this.state.tabs)
+    }
     if (prevProps.match.params.resource !== this.props.match.params.resource) {
       this.props.getUser(this.props.user._id)
     }
@@ -124,10 +128,10 @@ class Course extends Component {
   }
 
   displayNotifications = (tabs) => {
-    console.log(accessNotifications)
     const { course, accessNotifications } = this.props;
+    console.log(accessNotifications)
     // if (course.creator === user._id
-      if (this.state.onwer) {
+      if (this.state.owner) {
         let memberNtfs = accessNotifications.filter(ntf => (ntf._id === course._id && (ntf.notificationType === 'requestAccess' || ntf.notificationType === 'newMember')));
         tabs[2].notifications = memberNtfs.length > 0 ? memberNtfs.length : '';
       }
@@ -297,7 +301,7 @@ class Course extends Component {
         resourceId={match.params.course_id}
         userId={user._id}
         username={user.username}
-        owners={course ? course.members.filter(member => member.role === 'facilitator').map(member => member.user) : []}
+        owners={course ? course.members.filter(member => member.role === 'facilitator').map(member => member.user._id) : []}
       />
     )
   }

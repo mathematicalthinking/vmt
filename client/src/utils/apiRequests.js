@@ -58,11 +58,16 @@ export default {
   },
 
   requestAccess: (owners, userId, resource, resourceId) => {
-    // @TODO consider making notificationTypes a directory of constants like action types in redux
-    let promises = owners.map(owner => {
-      return axios.put(`/api/user/${owner}`, {notificationType: 'requestAccess', user: userId, resource, _id: resourceId})
-    })
-    return Promise.all(promises)
+    if (Array.isArray(owners)) {
+      // @TODO consider making notificationTypes a directory of constants like action types in redux
+      let promises = owners.map(owner => {
+        return axios.put(`/api/user/${owner}`, {notificationType: 'requestAccess', user: userId, resource, _id: resourceId})
+      })
+      return Promise.all(promises)
+    }
+    else {
+      return axios.put(`/api/user/${owners}`, {notificationType: 'requestAccess', user: userId, resource, _id: resourceId})
+    }
   },
 
   removeNotification: (ntfId, userId, requestingUser, resource, listType, ntfType) => {
