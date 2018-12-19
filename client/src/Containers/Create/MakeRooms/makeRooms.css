@@ -6,13 +6,20 @@
   flex-flow: column;
   width: 100%;
   align-items: center;
-  min-height: 500px;
+  min-height: 410px;
+  padding: 20px;
+}
+
+.Title {
+  font-size: 26px;
+  margin-bottom: 15px;
 }
 
 .Radios {
   display: flex;
   justify-content: space-around;
   width: 100%;
+  margin-top: 30px;
 }
 
 .SubContainer {
@@ -41,6 +48,11 @@
 
 .Participant:hover {
   color: blue;
+}
+
+.Button {
+  position: absolute;
+  bottom: 20px;
 }
 
 .Selected {

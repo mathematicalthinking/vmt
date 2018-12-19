@@ -51,7 +51,7 @@ class MakeRooms extends Component  {
     this.setState({selectedParticipants: updatedParticipants})
    // Else add them
   }
-  
+
   // NOW THAT WE HAVE A CREATEROOMFROMACTIVITY ACTION THINK ABOUT REFACTORING ALL OF THIS
   // TO UTILIZE THAT FUNCTIONALITY
   submit = () => {
@@ -130,7 +130,7 @@ class MakeRooms extends Component  {
     return (
       <Aux>
         <div className={classes.Container}>
-          <h2>Assign Rooms</h2>
+          <h2 className={classes.Title}>Assign Rooms</h2>
           <div className={classes.SubContainer}><TextInput light label='Due Date' name='dueDate' type='date' change={this.setDate}/></div>
           <div className={classes.Radios}>
             <RadioBtn name='random' checked={this.state.assignRandom} check={() => this.setState({assignRandom: true})}>Assign Randomly</RadioBtn>
@@ -146,7 +146,9 @@ class MakeRooms extends Component  {
               </div>
             </div>
           }
-          <Button m={5} click={this.submit} data-testid="assign-rooms">Assign</Button>
+          <div className={classes.Button}>
+            <Button m={5} click={this.submit} data-testid="assign-rooms">Assign</Button>
+          </div>
         </div>
       </Aux>
     )

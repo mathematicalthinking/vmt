@@ -22,10 +22,11 @@
   caret-color: blue;
   color: black;
   transition: .2s;
+  font-family: inherit;
 }
 
 .Input:-webkit-autofill {
-  -webkit-text-fill-color: blue !important;
+  -webkit-text-fill-color: lightBlue !important;
 }
 
 .Input:focus {
@@ -41,3 +42,4 @@
   font-size: 18px;
   color: black;
 }
+

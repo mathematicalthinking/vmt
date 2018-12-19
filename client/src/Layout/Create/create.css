@@ -72,7 +72,21 @@
   width: 100%;
   display: flex;
   flex-flow: column;
-  align-items: center;
+  align-items: flex-start;
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+.VerticalButtons label {
+  margin: 10px 0;
+}
+
+.Status {
+  margin-top: 10px;
+}
+
+.ActivityList {
+  margin: 0 0 20px 0;
 }
 
 .Checkbox {
