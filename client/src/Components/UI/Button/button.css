@@ -49,6 +49,17 @@
   font-size: 14px;
 }
 
+.Cancel {
+  background-color: #999;
+  box-shadow: lightestShadow;
+  transition: .2s;
+  color: white;
+  padding: 10px 20px;
+  font-family: inherit;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
 .xs {
   padding: 2px;
   background-color: #999;
@@ -82,6 +93,10 @@
   color: #ddd;
 }
 .Small:hover {
+  box-shadow: lightShadow;
+}
+
+.Cancel:hover {
   box-shadow: lightShadow;
 }
 

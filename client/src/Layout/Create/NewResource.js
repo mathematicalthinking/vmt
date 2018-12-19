@@ -102,7 +102,7 @@ class NewResource extends Component {
               </div>
               <div className={classes.Submit}>
                 <div className={classes.Button}><Button theme={"Small"} data-testid={`${resource}-submit`} m={5} click={this.submit}>Submit</Button></div>
-                <div className={classes.Button}><Button theme={"small"} m={5} click={close}>Cancel</Button></div>
+                <div className={classes.Button}><Button theme={"Cancel"} m={5} click={close}>Cancel</Button></div>
               </div>
             </div>
           </div>
