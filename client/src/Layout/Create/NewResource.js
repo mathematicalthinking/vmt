@@ -71,16 +71,16 @@ class NewResource extends Component {
                     <RadioBtn name='desmos' checked={!this.state.ggb} check={() => this.setState({ggb: false})}>Desmos</RadioBtn>
                   </div>
                   {this.state.ggb ?
-                    <div>
+                    <div className={classes.Geogebra}>
                       <div>Import a GeoGebra workspace</div>
-                      <div><Button>Select a Geogebra File</Button></div>
+                      <div className={classes.GeogebraButton}><Button>Select a Geogebra File</Button></div>
                     </div> :
                     <TextInput
                       light
                       name='desmosLink'
                       label='Paste a Desmos workspace'
                       change={this.changeHandler}
-                      width='80%'
+                      width='100%'
                     />
                   }
                 </div>

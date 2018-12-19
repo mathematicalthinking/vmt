@@ -14,10 +14,8 @@
 }
 
 .Title {
-  font-size: 24px;
+  font-size: 26px;
   margin-bottom: 15px;
-  margin: 0;
-  /* border-bottom: 1px solid #ddd; */
 }
 
 .Form {
@@ -42,6 +40,15 @@
   align-items: flex-start;
   width: 100%;
   margin-bottom: 20px;
+}
+
+.Geogebra {
+  width: 100%;
+  margin: 10px auto;
+}
+
+.GeogebraButton {
+  margin: 10px auto;
 }
 
 .Import {
