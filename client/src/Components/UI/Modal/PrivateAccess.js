@@ -28,7 +28,7 @@ class privateAccess extends Component {
   
   requestAccess = () => {
     let { resource, owners, resourceId, userId, requestAccess } = this.props;
-    requestAccess(owners, userId, resource, resourceId)
+    requestAccess(owners, userId, resource, resourceId) 
     this.props.history.push('/confirmation')
   }
 
@@ -38,6 +38,7 @@ class privateAccess extends Component {
   }
 
   render(){
+    console.log(this.props.userId)
     let { resource } = this.props;
     let displayResource = 'activity';
     if (resource === 'rooms') displayResource = 'room';

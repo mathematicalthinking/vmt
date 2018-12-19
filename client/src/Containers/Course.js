@@ -72,8 +72,8 @@ class Course extends Component {
         updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
         this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
         owner = true;
-        updatedTabs = this.displayNotifications(updatedTabs);
       }
+      updatedTabs = this.displayNotifications(updatedTabs);
       // Check for notifications that need resolution
       // Get Any other notifications
       this.setState({
@@ -124,11 +124,13 @@ class Course extends Component {
   }
 
   displayNotifications = (tabs) => {
-
+    console.log(accessNotifications)
     const { course, accessNotifications } = this.props;
     // if (course.creator === user._id
-      let memberNtfs = accessNotifications.filter(ntf => (ntf._id === course._id && (ntf.notificationType === 'requestAccess' || ntf.notificationType === 'newMember')));
-      tabs[2].notifications = memberNtfs.length > 0 ? memberNtfs.length : '';
+      if (this.state.onwer) {
+        let memberNtfs = accessNotifications.filter(ntf => (ntf._id === course._id && (ntf.notificationType === 'requestAccess' || ntf.notificationType === 'newMember')));
+        tabs[2].notifications = memberNtfs.length > 0 ? memberNtfs.length : '';
+      }
       let newRoomNtfs = accessNotifications.filter(ntf => (ntf._id === course._id && ntf.notificationType === 'assignedRoom'))
       tabs[1].notifications = newRoomNtfs.length > 0 ? newRoomNtfs.length : '';
     // }
@@ -212,9 +214,9 @@ class Course extends Component {
       if (resource === 'rooms' || resource === 'activities') {
         mainContent =  <ResourceList
           userResources={myRooms || course[resource] || []}
-          notifications={accessNotifications.filter(ntf => ntf._id === course._id) || []}
           user={user}
           resource={resource}
+          notifications={accessNotifications.filter(ntf => ntf._id === course._id)}
           parentResource="courses"
           parentResourceId={course._id}
         />
