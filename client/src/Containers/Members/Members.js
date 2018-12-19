@@ -3,20 +3,20 @@
 // EXTRACT OUT THE LAYOUT PORTION INTO THE LAYYOUT FOLDER
 import React, {Component } from 'react';
 import { connect } from 'react-redux';
-import { 
-  grantAccess, 
-  updateCourseMembers, 
-  updateRoomMembers, 
+import {
+  grantAccess,
+  updateCourseMembers,
+  updateRoomMembers,
   clearNotification,
   removeCourseMember,
-  removeRoomMember, 
+  removeRoomMember,
 } from '../../store/actions'
 import classes from './members.css';
 import Member from '../../Components/UI/Member/Member';
 // import Button from '../../Components/UI/Button/Button';
 
 class Members extends Component {
-  
+
   componentWillUnmount(){
     const {user, resourceType, notifications } = this.props;
     if (notifications.length > 0){
@@ -48,13 +48,13 @@ class Members extends Component {
 
   render(){
     let { classList, notifications, owner, resourceType, courseMembers  } = this.props;
-    let joinRequests = "There are no current requests";
-    if (this.props.owner) {
+    let joinRequests = <p>There are new requests to join</p>;
+    if (this.props.owner && notifications.length >= 1) {
       joinRequests = notifications.filter(ntf => ntf.notificationType === 'requestAccess').map((ntf, i) => {
         return (
           <Member
-            grantAccess={() => {this.props.grantAccess(ntf.user._id, this.props.resourceType, this.props.resourceId)}} 
-            info={ntf} 
+            grantAccess={() => {this.props.grantAccess(ntf.user._id, this.props.resourceType, this.props.resourceId)}}
+            info={ntf}
             key={i}
           />
         )
@@ -67,17 +67,17 @@ class Members extends Component {
         }
         else return false;
       })
-      return owner ? 
-      <Member 
+      return owner ?
+      <Member
         changeRole={this.changeRole}
         removeMember={this.removeMember}
-        info={member} 
+        info={member}
         key={i}
         resourceName={resourceType}
         notification={notification.length > 0}
         owner
       /> : <Member info={member}  key={i}/>
-  
+
     })
     return (
       <div className={classes.Container}>
@@ -106,10 +106,10 @@ class Members extends Component {
 
 
 export default connect(null, {
-  grantAccess, 
-  updateCourseMembers, 
-  updateRoomMembers, 
+  grantAccess,
+  updateCourseMembers,
+  updateRoomMembers,
   clearNotification,
   removeRoomMember,
-  removeCourseMember,  
+  removeCourseMember,
 })(Members);
