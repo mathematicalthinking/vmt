@@ -12,6 +12,7 @@
   navbarHeight: navbarHeight;
   graphHeight: graphHeight;
   graphWidth: graphWidth;
+  lightGrey: lightGrey;
 }
 
 .WorkspaceTabs {
@@ -226,23 +227,28 @@
 }
 
 .RoomDescription {
-  padding: 30px;
+  /* padding: 30px;
   display: flex;
-  flex-direction: column;
-  height: 160px;
+  flex-direction: column; */
+  height: 100%;
+  border: 1px solid red;
 }
 
 .InstructionsTitle {
   border-bottom: 1px solid #ddd;
 }
 
-.Instructions {
+/* .Instructions {
  flex-grow: 2;
+} */
+
+.Expand {
+  border: 1px solid orange;
 }
 
 .EditInstructions {
   color: #999;
-  tranistion: .2s;
+  transition: .2s;
   cursor: pointer;
 }
 
@@ -251,15 +257,16 @@
 }
 
 .SetStart {
-  flex-grow: 1;
-  flex-shrink: 1;
+  /* flex-grow: 1;
+  flex-shrink: 1; */
   /* align-self: flex-end; */
 }
 
 
 .SideButton {
   flex-grow: 1;
-  border: 1px solid #ddd;
+  padding: 10px;
+  /* border: 1px solid #ddd; */
   /* background-color: rgb(99, 83, 83); */
   /* color: white; */
   cursor: pointer;
@@ -267,14 +274,28 @@
   align-items: center;
   justify-content: center;
   transition: .2s;
+  background-color: blue;
+  color: white;
+  /* border: 1px white; */
+  border-radius: 3px 0px 0px 3px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1.12px;
 }
 
 
 .SideButton:hover {
-  background: hoverBackground;
+  background: #47ABFF;
 }
+
+.Exit {
+  color: darkGrey;
+  background-color: #D2D2D2;
+  border-radius: 0px 3px 3px 0px;
+}
+
 .Exit:hover {
-  background: hoverBackground2;
+  background: #DFDFDF;
 }
 
 .ReferenceWindow {
