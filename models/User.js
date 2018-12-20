@@ -5,29 +5,30 @@ const User = new mongoose.Schema({
   courses: {type: [{type: ObjectId, ref: 'Course'}], default: []},
   rooms: {type: [{type: ObjectId, ref: 'Room'}], default: []},
   activities: {type: [{type: ObjectId, ref: 'Activity'}], default: []},
-  roomNotifications: {
-    access: [{
-      notificationType: {type: String, enum: ['grantedAccess', 'requestAccess', 'newMember']}, // grantedAccess || requestAccess || newMember (if user gained access through entry code)
-      _id: {type: ObjectId, ref: 'Room'},
-      user: {type: ObjectId, ref: 'User'},
-    }],
-    // newRoom: [{
-    //   _id: {type: ObjectId, ref: 'Room'}
-    // }]
-  },
-  courseNotifications: {
-    access: [{
-      notificationType: {type: String, enum: ['grantedAccess', 'requestAccess', 'assignedRoom', 'newMemer']},
-      _id: {type: ObjectId, ref: 'Course'},
-      user: {type: ObjectId, ref: 'User'},
-      room: {type: ObjectId, ref: 'Room'}
-    }],
+  // roomNotifications: {
+  //   access: [{
+  //     notificationType: {type: String, enum: ['grantedAccess', 'requestAccess', 'newMember']}, // grantedAccess || requestAccess || newMember (if user gained access through entry code)
+  //     _id: {type: ObjectId, ref: 'Room'},
+  //     user: {type: ObjectId, ref: 'User'},
+  //   }],
+  //   // newRoom: [{
+  //   //   _id: {type: ObjectId, ref: 'Room'}
+  //   // }]
+  // },
+  // courseNotifications: {
+  //   access: [{
+  //     notificationType: {type: String, enum: ['grantedAccess', 'requestAccess', 'assignedRoom', 'newMemer']},
+  //     _id: {type: ObjectId, ref: 'Course'},
+  //     user: {type: ObjectId, ref: 'User'},
+  //     room: {type: ObjectId, ref: 'Room'}
+  //   }],
+  // },
+  notifications: {type: [{type: ObjectId, ref: 'Notification'}], default: []},
     // newRoom: [{
     //   notificationType: String,
     //   _id: {type: ObjectId, ref: 'Course'},
     //   room: {type: ObjectId, ref: 'Room'}
     // }]
-  },
   firstName: {type: String},
   lastName: {type: String},
   username: {type: String, required: true},
