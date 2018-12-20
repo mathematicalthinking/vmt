@@ -2,7 +2,7 @@ import React from 'react';
 import classes from './workspace.css';
 import { withRouter } from 'react-router-dom';
 import { CurrentMembers, Button, ReplayerControls, EditableText }from '../../Components';
-import { 
+import {
   GgbGraph,
   GgbActivityGraph,
   GgbReplayer,
@@ -15,13 +15,13 @@ import {
 
 const workspaceLayout = React.memo(({
   room, user, socket, currentTab, role,
-  resetControlTimer, inControl, toggleControl, 
-  replayer, activeMember, temp, 
-  save, someoneElseInControl, history, 
+  resetControlTimer, inControl, toggleControl,
+  replayer, activeMember, temp,
+  save, someoneElseInControl, history,
   saved, updateRoom, updatedRoom,
-  startNewReference, showReference, 
+  startNewReference, showReference,
   referencing, showingReference,setToElAndCoords,
-  setFromElAndCoords, referToEl, referToCoords, referFromEl, 
+  setFromElAndCoords, referToEl, referToCoords, referFromEl,
   referFromCoords, clearReference, createNewTab, changeTab,
   addNtfToTabs, ntfTabs, setStartingPoint, activityWorkspace,
   updatedActivity, copyActivity, updateActivityTab,
@@ -39,28 +39,28 @@ const workspaceLayout = React.memo(({
     tabs = room.tabs.map((tab, i) => {
       return (
       <div key={tab._id} onClick={() => changeTab(i)} className={[classes.Tab, currentTab === i ? classes.Active : ''].join(" ")} style={{zIndex: room.tabs.length - i}} >
-        <div style={{zIndex: room.tabs.length - i}} className={classes.TabBox}>{tab.name}</div>
+        <div style={{zIndex: room.tabs.length - i}} className={classes.TabBox}><span className={classes.TabName}>{tab.name}</span></div>
         {ntfTabs && ntfTabs.includes(tab._id) ? <div className={classes.TabNotification}><i className="fas fa-exclamation"></i></div> : null}
       </div>
       )
     })
   }
-  
+
   // Pick the proper graph based on replayer, tabType, activityWorkspace props
   //  COULD WE JUST SAVE THSE COMPONENTS ON ATTRS OF THE WORKSPACELAYOUT COMPONENT IN WORKSPACER AND ACTIVITYWORKSPACE AND REPLAYER WORKSPACE ETC
-  // THEN WE COULD AVOID ALL OF THESE CONDITIONALS ??? 
+  // THEN WE COULD AVOID ALL OF THESE CONDITIONALS ???
   let graph;
   if (replayer) {
     if (room.tabs[currentTab].tabType === 'desmos') {
       graph = <DesmosReplayer />
     } else {
-      graph = <GgbReplayer 
-      log={replayer.log} 
-      index={replayer.index} 
-      changingIndex={replayer.changingIndex} 
+      graph = <GgbReplayer
+      log={replayer.log}
+      index={replayer.index}
+      changingIndex={replayer.changingIndex}
       playing={replayer.playing}
-      reset={replayer.reset} 
-      changeTab={changeTab} 
+      reset={replayer.reset}
+      changeTab={changeTab}
       tabs={room.tabs}
       currentTab={currentTab}
     />
@@ -69,9 +69,9 @@ const workspaceLayout = React.memo(({
     if (room.tabs[currentTab].tabType === 'desmos') {
       graph = <DesmosActivityGraph />
     } else {
-      graph = <GgbActivityGraph 
-        activity={room} 
-        tabs={room.tabs} 
+      graph = <GgbActivityGraph
+        activity={room}
+        tabs={room.tabs}
         currentTab={currentTab}
         role={role}
         updatedActivity={updatedActivity}
@@ -85,14 +85,14 @@ const workspaceLayout = React.memo(({
     if (room.tabs[currentTab].tabType === 'desmos') {
       graph = <DesmosGraph  room={room} socket={socket} user={user} inControl={inControl} resetControlTimer={resetControlTimer} currentTab={currentTab}/>
     } else {
-      graph = <GgbGraph 
-        room={room} 
-        socket={socket} 
-        user={user} 
-        updateRoom={updateRoom} 
+      graph = <GgbGraph
+        room={room}
+        socket={socket}
+        user={user}
+        updateRoom={updateRoom}
         updatedRoom={updatedRoom}
-        inControl={inControl} 
-        resetControlTimer={resetControlTimer} 
+        inControl={inControl}
+        resetControlTimer={resetControlTimer}
         referencing={referencing}
         referToEl={referToEl}
         referToCoords={referToCoords}
@@ -106,28 +106,28 @@ const workspaceLayout = React.memo(({
 
   let chat;
   if (replayer) {
-    chat = <ChatReplayer 
-      roomId={room._id} 
-      log={replayer.log} 
-      index={replayer.index} 
-      changingIndex={replayer.changingIndex} 
-      reset={replayer.reset} 
-      setCurrentMembers={replayer.setCurrentMembers} 
-    /> 
+    chat = <ChatReplayer
+      roomId={room._id}
+      log={replayer.log}
+      index={replayer.index}
+      changingIndex={replayer.changingIndex}
+      reset={replayer.reset}
+      setCurrentMembers={replayer.setCurrentMembers}
+    />
   } else if (!activityWorkspace) {
-    chat = <Chat 
-      roomId={room._id} 
-      messages={room.chat || []} 
-      socket={socket} 
-      user={user} 
-      updatedRoom={updatedRoom} 
+    chat = <Chat
+      roomId={room._id}
+      messages={room.chat || []}
+      socket={socket}
+      user={user}
+      updatedRoom={updatedRoom}
       referencing={referencing}
-      referToEl={referToEl} 
+      referToEl={referToEl}
       referToCoords={referToCoords}
       referFromEl={referFromEl}
       referFromCoords={referFromCoords}
       setToElAndCoords={setToElAndCoords}
-      setFromElAndCoords={setFromElAndCoords} 
+      setFromElAndCoords={setFromElAndCoords}
       showingReference={showingReference}
       clearReference={clearReference}
       showReference={showReference}
@@ -138,8 +138,8 @@ const workspaceLayout = React.memo(({
 
   let bottomButton;
   if (role === 'facilitator' && !activityWorkspace) {
-      bottomButton = <div><Button click={setStartingPoint}>Set starting point</Button></div> 
-  } else if (role === 'participant' && activityWorkspace) { 
+      bottomButton = <div><Button click={setStartingPoint}>Set starting point</Button></div>
+  } else if (role === 'participant' && activityWorkspace) {
     bottomButton = <div><Button click={copyActivity}>Add To My Activities</Button></div>
   }
 
@@ -161,7 +161,7 @@ const workspaceLayout = React.memo(({
         </div>
         <div className={classes.Bottom}>
           <div className={classes.Left}>
-          {replayer 
+          {replayer
             ? <ReplayerControls {...replayer} />
             : <div className={classes.RoomDescription}>
                 <h3 className={classes.InstructionsTitle}>
@@ -177,15 +177,15 @@ const workspaceLayout = React.memo(({
                 {bottomButton}
               </div>
           }
-          {temp && !saved ? 
+          {temp && !saved ?
             <div>
               <Button theme={'Small'} data-testid='save-temp' style={{zIndex: 1000}} m={20} click={save}>Save This Workspace</Button>
-            </div> : null 
+            </div> : null
           }
           </div>
           <div className={classes.Right}>
             <div className={classes.ReferenceWindow}>
-              {!replayer ? 
+              {!replayer ?
                 <div className={classes.ReferenceControls} onClick={referencing ? clearReference : startNewReference}>
                   <i className={["fas", "fa-mouse-pointer", classes.MousePointer, referencing ? classes.ReferencingActive : ''].join(" ")}></i>
                   <div className={classes.ReferenceTool}>Reference</div>
@@ -197,19 +197,19 @@ const workspaceLayout = React.memo(({
               </div>
             </div>
             <div className={classes.Controls}>
-              {!replayer ? 
-                <div className={classes.SideButton} onClick={toggleControl}>{controlText}</div> : 
+              {!replayer ?
+                <div className={classes.SideButton} onClick={toggleControl}>{controlText}</div> :
                 <div className={classes.SideButton}>Make A Comment</div>
               }
               <div className={[classes.SideButton, classes.Exit].join(" ")} onClick={() => {temp ? history.push('/') : history.goBack()}} theme={'Small'} data-testid='exit-room'>Exit Room</div>
             </div>
           </div>
         </div>
-        {referToCoords && referFromCoords   ? 
+        {referToCoords && referFromCoords   ?
         <div className={classes.ReferenceLine}>
           <svg height='100%' width='100%' style={{zIndex: 1}}>
             <line style={{zIndex: 1500}} x1={referToCoords.left} y1={referToCoords.top} x2={referFromCoords.left} y2={referFromCoords.top} stroke="#2D91F2" strokeWidth="3"/>
-          </svg> 
+          </svg>
         </div>: null}
       </div>
     </div>
