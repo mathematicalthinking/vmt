@@ -26,10 +26,10 @@ class Profile extends Component {
   componentDidMount() {
     // this.fetchData(this.props.match.params.resource)
     // if (!this.props.user.justLoggedIn) {
-    this.props.getUser(this.props.user._id) 
+    this.props.getUser(this.props.user._id)
     // }
     this.checkMultipleRoles()
-    .then(res => this.setDisplayResources()) 
+    .then(res => this.setDisplayResources())
     .then(res => {
       this.updateTabs()
       this.props.toggleJustLoggedIn();
@@ -90,7 +90,7 @@ class Profile extends Component {
         .then(() => this.updateTabs())
     }
   }
-  
+
   // CHekcs if the user has mulitple roles for a single resource (i.e. facilitator and participant)
   // if so we toggle the "view as" buttons to be visible
   checkMultipleRoles = () => {
@@ -109,7 +109,7 @@ class Profile extends Component {
         if (this.props[resource]) {
           this.props[resource].allIds.forEach(id => {
             this.props[resource].byId[id].members.forEach((member) => {
-              if (member.user._id === user._id) {
+              if (member.user && member.user._id === user._id) {
                 if (member.role === 'participant') isParticipant = true;
                 if (member.role === 'facilitator') isFacilitator = true;
               }
@@ -125,7 +125,7 @@ class Profile extends Component {
         }, () => resolve())
       }
     })
-  
+
   }
 
   fetchByIds = (resource, ids) => {
@@ -141,7 +141,7 @@ class Profile extends Component {
     //   let found = false;
     //   this.state.displayResources.forEach(resource => {
     //     if (resource._id === ntf._id) {
-    //      found = true; 
+    //      found = true;
     //     }
     //   })
     //   return found;
@@ -159,7 +159,7 @@ class Profile extends Component {
       tabs: updatedTabs
     })
   }
-  
+
   // Display different content depending on the user's current role
   setDisplayResources = () => {
     return new Promise((resolve => {
@@ -182,13 +182,13 @@ class Profile extends Component {
           let included = false
           if (this.props[resource].byId[id].members) {
             this.props[resource].byId[id].members.forEach(member => {
-              if (member.user._id === user._id && member.role === this.state.view) {
+              if (member.user && member.user._id === user._id && member.role === this.state.view) {
                 // console.log('this ', id, ' should be included')
                 included = true;
               }
             })
             return included;
-          } 
+          }
           return false;
         })
       }
@@ -210,7 +210,7 @@ class Profile extends Component {
     let additionalDetails = {
       courses: user.courses.length,
       rooms: user.rooms.length,
-      activities: user.activities.length, 
+      activities: user.activities.length,
     }
     return (
       <DashboardLayout
@@ -228,8 +228,8 @@ class Profile extends Component {
           />
         }
         mainContent={
-          <ResourceList 
-            userResources={this.state.displayResources.map(id => this.props[resource].byId[id]) || []} 
+          <ResourceList
+            userResources={this.state.displayResources.map(id => this.props[resource].byId[id]) || []}
             notifications={(resource === 'courses') ? user.courseNotifications.access : user.roomNotifications.access}
             user={user}
             resource={resource}
