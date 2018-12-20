@@ -31,7 +31,7 @@ if (process.env.NODE_ENV === 'dev') {
 }
 mongoose.connect(mongoURI, (err, res) => {
   if (err){console.log('DB CONNECTION FAILED: '+err)}
-  else{console.log('DB CONNECTION SUCCESS')}
+  else{console.log('DB CONNECTION SUCCESS' + mongoURI)}
 });
 
 app.use(require('express-session')({
@@ -106,7 +106,7 @@ app.use(function(err, req, res, next) {
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page
-  res.status(err.status || 500);
+  res.status(500).json({errorMessage: 'Internal Error'})
   // res.render('error');
 });
 

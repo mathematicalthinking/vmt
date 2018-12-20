@@ -142,7 +142,7 @@ export const copyActivity = (activityId, userId, courseId) => {
     let activity = {...getState().activities.byId[activityId]}
     activity.source = activity._id;
     delete activity._id;
-    delete activity.rooms; 
+    delete activity.rooms;
     delete activity.course;
     activity.creator = userId;
     activity.course = courseId;
@@ -161,7 +161,7 @@ export const removeActivity = activityId => {
       dispatch(activityRemoved(activityId))
       dispatch(loading.success())
     })
-    .catch(err => dispatch(loading.fail(err)))
+    .catch(err => dispatch(loading.fail(err.response.data.errorMessage)))
   }
 }
 
@@ -174,7 +174,7 @@ export const updateActivity = (id, body) => {
     .then(res => {
       dispatch(loading.success())
     })
-    .catch(err => loading.fail(err))
+    .catch(err => loading.fail(err.response.data.errorMessage))
   }
 }
 

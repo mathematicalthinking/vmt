@@ -149,7 +149,7 @@ export const getRooms = params => {
       dispatch(gotRooms(rooms))
       dispatch(loading.success())
     })
-    .catch(err => dispatch(loading.fail(err)));
+    .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
   }
 }
 
@@ -161,7 +161,7 @@ export const getRoomsIds = ids => {
       dispatch(gotRooms(rooms))
       dispatch(loading.success())
     })
-    .catch(err => dispatch(loading.fail(err)));
+    .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
   }
 }
 
@@ -174,7 +174,7 @@ export const populateRoom = id => {
       dispatch(updatedRoom(id, res.data.result))
       dispatch(loading.success())
     })
-    .catch(err => dispatch(loading.fail(err)))
+    .catch(err => dispatch(loading.fail(err.response.data.errorMessage)))
   }
 }
 
@@ -198,7 +198,7 @@ export const createRoom = body => {
       return dispatch(loading.success())
     })
     .catch(err => {
-      dispatch(loading.fail(err.response.data))
+      dispatch(loading.fail(err.response.data.errorMessage))
     })
   }
 }

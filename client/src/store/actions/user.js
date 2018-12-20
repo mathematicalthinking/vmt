@@ -126,7 +126,7 @@ export const clearNotification = (ntfId, userId, requestingUser, resource, listT
   }
 }
 
-export const signup = (body, room) => { // room is optional -- if we're siging up a 
+export const signup = (body, room) => { // room is optional -- if we're siging up a
   return dispatch => {
     if (room) {
       dispatch(addRoomMember(room, {user:{username: body.username, _id: body._id}, role: 'facilitator'}))
@@ -139,7 +139,7 @@ export const signup = (body, room) => { // room is optional -- if we're siging u
       dispatch(loading.success());
     })
     .catch(err => {
-      dispatch(loading.fail('something went wrong'))})
+      dispatch(loading.fail(err.response.data.errorMessage))})
   }
 }
 
@@ -160,8 +160,7 @@ export const login = (username, password) => {
       return dispatch(loading.success());
     })
     .catch(err => {
-      console.log(err)
-      dispatch(loading.fail(err.response.statusText))
+      dispatch(loading.fail(err.response.data.errorMessage))
     })
   }
 }
@@ -180,10 +179,9 @@ export const getUser = (id) => {
       dispatch(loading.success())
     })
     .catch(err => {
-      console.log(err)
-      dispatch(loading.fail(err))
+      dispatch(loading.fail(err.response.data.errorMessage))
     })
-  
+
   }
 }
 

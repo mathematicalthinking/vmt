@@ -7,21 +7,26 @@
 const passport = require('passport');
 const express = require('express')
 const router = express.Router()
+const errors = require('../middleware/errors')
 
 router.post('/login', (req, res, next) => {
   passport.authenticate('local-login', (err, user, info) => {
     if (user) {
       return req.login(user, (err) => {
-        // console.log(res)
-        res.json(user)
+        if (err) {
+          return errors.sendError.InternalError(null, res);
+        }
+        res.json(user);
       })
     }
-    if (info) {
-      // if (info.errorMessage) return res.status(401).send({message: info})
-      return res.json(info)
+    let msg;
+
+    if (info && info.message) {
+      msg = info.message;
+    } else {
+      msg = info;
     }
-    res.status(401).send({message: info})
-    // res.json({message: 'success'})
+    return errors.sendError.InvalidCredentialsError(msg, res);
   })(req, res, next);
 });
 
@@ -31,17 +36,19 @@ router.post('/signup', (req, res, next) => {
     if (user) {
       return req.login(user, err => {
         if (err) {
-          return console.log(err)
+          errors.sendError.InternalError(null, res);
         }
         res.json(user)
       })
     }
-    if (info) {
-      // For some reason I couldn't my error message
-      // with a 400 status code
-      return res.json(info)
+    let msg;
+    if (info && info.message) {
+      msg = info.message;
+    } else {
+      msg = info;
     }
-    return res.status(500).end()
+
+    return errors.sendError.InvalidCredentialsError(msg, res);
   })(req, res, next);
 });
 
