@@ -62,11 +62,10 @@ router.get('/:resource/:id', middleware.validateUser, (req, res, next) => {
 
 router.post('/:resource', middleware.validateUser, middleware.validateNewRecord, (req, res, next) => {
 	let controller = controllers[req.params.resource]
-
 	controller.post(req.body)
 	  .then(result => res.json({ result }))
 	  .catch(err => {
-			console.error(`Error post ${resource}: ${err}`);
+			console.error(`Error post ${req.params.resource}: ${err}`);
 
 			let msg = null;
 
@@ -146,6 +145,9 @@ router.put('/:resource/:id', middleware.validateUser, (req, res, next) => {
 	let { resource, id } = req.params
 	let controller = controllers[resource];
 
+	if (resource === 'events') {
+		return errors.sendError.BadMethodError('Events cannot be modified!', res);
+	}
 	return middleware.canModifyResource(req)
 	  .then((results) => {
 			let { canModify, doesRecordExist, details } = results;
@@ -157,9 +159,7 @@ router.put('/:resource/:id', middleware.validateUser, (req, res, next) => {
 			if (!canModify) {
 				return errors.sendError.NotAuthorizedError('You do not have permission to modify this resource', res);
 			}
-			console.log('body before prune', req.body);
 			let prunedBody = middleware.prunePutBody(req.user, id, req.body, details)
-			console.log('body after', prunedBody);
 			return controller.put(id, prunedBody)
 		})
 		.then((result) => res.json(result))
