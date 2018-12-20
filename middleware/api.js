@@ -51,8 +51,7 @@ const canModifyResource = (req) => {
 
   let model = models[modelName];
   let schema = utils.getSchema(resource);
-
-  return model.findById(id).populate('members.user', 'members.role').lean().exec()
+  return model.findById(id).populate('members.user', 'members.role').populate('room', 'creator members').populate('activity', 'creator').lean().exec()
     .then((record) => {
         if (_.isNil(record)) {
           // record requesting to be modified does not exist
@@ -60,18 +59,42 @@ const canModifyResource = (req) => {
           return results;
         }
         // user can modify if creator
-        if (_.isEqual(user._id, record.creator)) {
+        if (_.isEqual(user._id, record.creator)){
           results.canModify = true;
           results.details.isCreator = true;
           return results;
-        } if (_.isArray(record.members)) {
-          let userMemberObj = _.find(record.members, (obj) => {
-            return _.isEqual(obj.user, user._id);
-          });
+        }
 
-          if (_.propertyOf(userMemberObj)('role') === 'facilitator') {
+        if (_.isArray(record.members)) {
+          if (helpers.isUserFacilitatorInRecord(record, user._id)) {
             results.canModify = true;
             results.details.isFacilitator = true;
+            return results;
+          }
+        }
+
+        if (helpers.isNonEmptyObject(record.room)) {
+          let roomCreator = record.room.creator;
+
+          if (_.isEqual(user._id, roomCreator)) {
+            results.canModify = true;
+            results.details.isCreator = true;
+            return results;
+          }
+
+          if (helpers.isUserFacilitatorInRecord(record.room, user._id)) {
+            results.canModify = true;
+            results.details.isFacilitator = true;
+            return results;
+          }
+        }
+
+        if (helpers.isNonEmptyObject(record.activity)) {
+          let activityCreator = record.activity.creator;
+
+          if (_.isEqual(user._id, activityCreator)) {
+            results.canModify = true;
+            results.details.isCreator = true;
             return results;
           }
         }
@@ -87,6 +110,7 @@ const canModifyResource = (req) => {
           results.canModify = true;
           return results;
         }
+        return results;
     })
     .catch(err => {
       console.error(`Error canModifyResource: ${err}`);
@@ -97,11 +121,8 @@ const canModifyResource = (req) => {
 const validateNewRecord = (req, res, next) => {
   let {user, body } = req;
   let { resource } = req.params;
-
   let model = utils.getModel(resource);
-
   let doc = new model(body);
-
   if (!_.hasIn(doc, 'validate')) {
     return errors.sendError.InvalidContentError(null, res);
   }
