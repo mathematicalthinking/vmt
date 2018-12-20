@@ -6,6 +6,7 @@
   darkBorder: darkBorder;
   hoverBackground: hoverBackground2;
 }
+
 .Container {
   display: flex;
   flex-flow: column;
@@ -20,8 +21,19 @@
 }
 
 .Title {
-  padding: 5px;
+  padding: 8px 0 8px 10px;
   border-bottom: 1px solid #ddd;
+  background-color: rgb(245, 245, 245);
+  border-radius: 3px 3px 0 0;
+  color: black;
+  font-size: 17px;
+  letter-spacing: 1.12px;
+}
+
+.Status {
+  position: absolute;
+  right: 5px;
+  top: 6px;
 }
 
 .ChatScroll {
@@ -53,10 +65,16 @@
 .Input {
   padding: 5px;
   width: 100%;
-  height: 35px;
+  height: 30px;
   border: none !important;
-  font-size: 21px;
+  font-size: 14px;
   border-bottom: 1px solid blue;
+}
+
+.Input:focus {
+  outline: none;
+  background-color: rgb(245, 245, 245);
+  border: 1px solid #ddd;
 }
 
 .Send {
@@ -69,6 +87,9 @@
   background: inherit;
   cursor: pointer;
   transition: .2s;
+  background-color: blue;
+  color: white;
+  font-size: 18px;
 }
 
 .Send:hover {
@@ -103,7 +124,7 @@
   padding: 0px 10px;
   border: 2px solid transparent;
  }
- 
+
 .Point {
   z-index: 1500;
   background-color: red;
