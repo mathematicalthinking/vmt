@@ -18,7 +18,7 @@ class FromActivity extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('keypress', this.onKeyPress)
-  } 
+  }
 
   onKeyPress = (event) => {
     if (event.key === 'Enter') {
@@ -47,7 +47,7 @@ class FromActivity extends Component {
     })
     this.props.close();
   }
-  
+
   render() {
     let list = []
     if (this.state.thisCourse) {
@@ -60,20 +60,20 @@ class FromActivity extends Component {
           <div className={classes.Form}>
             <div className={classes.FormSection}>
               <div className={classes.VerticalButtons}>
-                <RadioBtn 
-                  name='community' 
-                  checked={this.state.community} 
+                <RadioBtn
+                  name='community'
+                  checked={this.state.community}
                   check={() => this.setState({community: true, ownResources: false, thisCourse: false})}
                 >From the Community</RadioBtn>
-                <RadioBtn 
-                  name='ownActivities' 
-                  checked={this.state.ownResources} 
+                <RadioBtn
+                  name='ownActivities'
+                  checked={this.state.ownResources}
                   check={() => this.setState({ownResources: true, thisCourse: false, community: false})}
                 >From Your Activities</RadioBtn>
-                {this.props.course && (this.props.resource !== 'activities') ? 
-                <RadioBtn 
-                  name='ownActivities' 
-                  checked={this.state.thisCourse} 
+                {this.props.course && (this.props.resource !== 'activities') ?
+                <RadioBtn
+                  name='ownActivities'
+                  checked={this.state.thisCourse}
                   check={() => this.setState({thisCourse: true, ownResources: false, community: false})}
                 >From This Course</RadioBtn> : null}
               </div>
@@ -81,13 +81,13 @@ class FromActivity extends Component {
            {this.props.mode === 'create' ? <div className={classes.FormSection}>
               <TextInput light label='Due Date (Optional)' name='dueDate' type='date' change={event => this.setState({dueDate: event.target.value})} />
             </div> : null}
+            <div className={classes.Status}>You've selected {this.state.selected.length} activities</div>
+            <div className={classes.ActivityList}>
+              <BoxList list={list} selecting select={this.select} auto maxHeight={300}/>
+            </div>
             <div className={classes.Submit}>
               <Button click={this.submit} theme={"Small"} m={10}>Done</Button>
               <Button click={this.props.close} m={10}>Cancel</Button>
-            </div>
-            <div className={classes.Status}>You've selected {this.state.selected.length} activities</div>
-            <div className={classes.ActivityList}>
-              <BoxList list={list} selecting select={this.select} scrollable maxHeight={300}/>
             </div>
           </div>
         </div>

@@ -8,6 +8,11 @@
   margin: 10px 0;
 }
 
+.Notifications p {
+  font-weight: 300;
+  margin: 10px 0 25px 0;
+}
+
 /* .UserRow {
   display: flex;
   justify-content: space-between;

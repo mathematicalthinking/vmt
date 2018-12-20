@@ -11,32 +11,35 @@
   width: 100%;
 }
 
-.Input{
+.Input {
   /* width: 100%; */
-  padding: 10px;
-  /* border-radius: 4px; */
+  padding: 10px 0;
   border: none;
-  border-bottom: 2px solid lightBlue !important;
+  /* border-radius: 4px; */
+  border-bottom: 2px solid blue !important;
   background: none !important;
-  font-size: 35px;
+  font-size: 20px;
   caret-color: blue;
-  color: blue;
+  color: black;
   transition: .2s;
+  font-family: inherit;
 }
 
 .Input:-webkit-autofill {
-  -webkit-text-fill-color: blue !important;
-
+  -webkit-text-fill-color: lightBlue !important;
 }
 
 .Input:focus {
   box-shadow: none !important;
   border: none !important;
   outline: none !important;
-  border-bottom: 2px solid blue !important;
+  border-bottom: 2px solid lightBlue !important;
 }
 
 .Label {
-  margin-bottom: 10px;
+  margin: 10px 0;
   text-align: left;
+  font-size: 18px;
+  color: black;
 }
+
