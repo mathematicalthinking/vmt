@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { TextInput, RadioBtn, Button } from '../../Components';
+import classes from './graph.css';
 import API from '../../utils/apiRequests';
 class NewTabForm extends Component {
-  
+
   state = {
     name: '',
     instructions: '',
@@ -50,26 +51,27 @@ class NewTabForm extends Component {
 
   render(){
     return (
-      <div>
+      <div className={classes.NewTabModal}>
         <h2>Create A New Tab</h2>
         <TextInput light value={this.state.name} change={this.changeHandler} name='name' label='Name' autofill='none'/>
         <TextInput light value={this.state.instructions} change={this.changeHandler} name='instructions' label='Instructions'/>
-        <div style={{display: 'flex', justifyContent: 'space-around'}}>
+        <div className={classes.RadioGroup}>
           <RadioBtn name='geogebra' checked={this.state.ggb} check={() => this.setState({ggb: true})}>GeoGebra</RadioBtn>
           <RadioBtn name='desmos' checked={!this.state.ggb} check={() => this.setState({ggb: false})}>Desmos</RadioBtn>
         </div>
-        {this.state.ggb ?
-        <div>
-          <div>Import a GeoGebra  (optional)</div>
-          <div><Button>Select a Geogebra File (optional)</Button></div>
-        </div> :
-        <TextInput
-          light
-          name='desmosLink'
-          label='Paste a Desmos workspace'
-          change={this.changeHandler}
-          width='80%'
-        />}
+        <div className={classes.ImportOption}>
+          {this.state.ggb ?
+          <div>
+            <div className={classes.Info}>Import a GeoGebra (optional)</div>
+            <Button>Select a Geogebra File (optional)</Button>
+          </div> :
+          <TextInput
+            light
+            name='desmosLink'
+            label='Paste a Desmos workspace'
+            change={this.changeHandler}
+          />}
+        </div>
         <Button m={10} click={this.submit}>Create</Button>
       </div>
     )

@@ -20,7 +20,7 @@
   padding: 10px;
   box-shadow: lightShadow;
   border-radius: 4px;
-} 
+}
 /* ^^ THIS WILL ONLY SHOW UP IF THEY'VE HACKED THE JAVASCRIPT */
 
 .ReferenceLine {
@@ -29,4 +29,27 @@
   width: 10px;
   background: red;
   z-index: 5000;
+}
+
+.NewTabModal {
+  padding: 20px;
+}
+
+.RadioGroup {
+  margin: 30px 0 20px 0;
+  display: flex;
+  justify-content: space-around;
+  font-size: 18px;
+}
+
+.ImportOption {
+  height: 110px;
+}
+
+.ImportOption input{
+  width: 100%;
+}
+
+.Info {
+  margin: 15px 0;
 }
