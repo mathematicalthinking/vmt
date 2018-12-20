@@ -8,6 +8,7 @@
   hoverBackground: hoverBackground;
   hoverBackground2: hoverBackground2;
   darkBorder: darkBorder;
+  darkGrey: darkGrey;
   navbarHeight: navbarHeight;
   graphHeight: graphHeight;
   graphWidth: graphWidth;
@@ -21,13 +22,14 @@
   /* left: 0; */
   overflow: visible;
 }
+
 .Tab {
   width: fit-content;
   min-width: 80px;
   height: 35px;
   overflow: hidden;
   float:left;
-  margin: 0 -20px 0 0;
+  margin: 0 0 0 0;
   cursor: pointer;
   position: relative;
 }
@@ -56,9 +58,17 @@
 }
 
 
-.NewTab {
-  width: 30px;
-  z-index: 0;
+.NewTab .TabBox {
+  width: 40px;
+  color: darkGrey;
+  font-size: 16px;
+  border: 1px transparent;
+  background-color: transparent;
+}
+
+.NewTab .TabBox i {
+  position: relative;
+  top: -1px;
 }
 
 .TabBox {
@@ -70,8 +80,8 @@
   border: 1px solid #ccc;
   border-width: 1px 1px 0 1px;
   border-radius: 4px 4px 0 0;
-  margin: 0 20px 0 0;
-  box-shadow: 0 0 2px  #fff inset;
+  margin: 0 0 0 0;
+  /* box-shadow: 0 0 2px  #fff inset; */
   transition: .2s;
   font-size: 13px;
   /* -webkit-transform: perspective(150px) rotateX(30deg);
@@ -80,27 +90,36 @@
 
 .TabName {
   padding: 0 15px;
+  max-width: 300px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: darkGrey;
 }
 
 .Active {
   z-index: 40;
   /* position:relative; */
-  padding-bottom:1px;
+  padding-bottom: 1px;
 }
 
 .Tab:hover .TabBox {
-  background-color: hoverBackground;
+  background-color: #f8f8f8;
 }
 
-.Active .TabBox{
-  background-color: hoverBackground2;
+.Active .TabBox {
   background-color: #f8f8f8;
-  /* background-image: linear-gradient(top, #ccc , #ddd 3%, rgba(#eee, 0.5)  ); */
-  box-shadow: 0 0 2px 0 #fff inset;
+  color: black;
+  font-weight: 700;
+  /* box-shadow: 0 0 2px 0 #fff inset; */
+}
+
+.Active .TabBox .TabName {
+  color: black;
 }
 
 .Active:hover .TabBox {
-  background-color: hoverBackground2;
+  background-color: white;
 }
 
 .PageContainer {
