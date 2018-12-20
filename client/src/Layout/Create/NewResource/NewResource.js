@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import classes from './create.css';
-import { Modal, TextInput, Button, RadioBtn} from '../../Components';
+import { Modal, TextInput, Button, RadioBtn} from '../../../Components';
 class NewResource extends Component {
 
   state = {
