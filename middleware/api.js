@@ -30,7 +30,7 @@ const validateUser = (req, res, next) => {
   next();
 };
 
-const canModifyResource = (req, res, next) => {
+const canModifyResource = (req) => {
   let { id, resource } = req.params;
   let user = utils.getUser(req);
 
@@ -41,7 +41,6 @@ const canModifyResource = (req, res, next) => {
       isCreator: false,
       isFacilitator: false,
       modelName: null,
-
     }
   };
 
@@ -59,14 +58,12 @@ const canModifyResource = (req, res, next) => {
           // record requesting to be modified does not exist
           results.doesRecordExist = false;
           return results;
-          // return errors.sendError.NotFoundError(null, res);
         }
-        // if user created record, return next()
+        // user can modify if creator
         if (_.isEqual(user._id, record.creator)) {
           results.canModify = true;
           results.details.isCreator = true;
           return results;
-
         } if (_.isArray(record.members)) {
           let userMemberObj = _.find(record.members, (obj) => {
             return _.isEqual(obj.user, user._id);
@@ -121,22 +118,20 @@ const validateNewRecord = (req, res, next) => {
   })
 };
 
-const prunePutBody = (user, recordIdToUpdate, body, modelName, details) => {
-
+const prunePutBody = (user, recordIdToUpdate, body, details) => {
   if (!helpers.isNonEmptyObject(details)) {
     details = {};
   }
-  let { isCreator, isFacilitator } = details;
+  let { isCreator, isFacilitator, modelName } = details;
 
   let copy = Object.assign({}, body);
-  delete copy._id;
-
   if (modelName === 'User') {
     let isUpdatingSelf = _.isEqual(user._id, recordIdToUpdate);
     if (!isUpdatingSelf) {
-      // can only
-      return _.pick(copy, 'notificationType', 'resource', 'user');
+      // can only modify another user's notifications
+      return _.pick(copy, 'notificationType', 'resource', 'user', '_id', 'courseNotifications.access', 'roomNotifications.access');
     }
+    // username and password uneditable currently
     delete copy.username;
     delete copy.password;
     return copy;
@@ -156,6 +151,7 @@ const prunePutBody = (user, recordIdToUpdate, body, modelName, details) => {
     }
     return copy;
   }
+  // TODO: determine editable fields for other models
   return copy;
 }
 

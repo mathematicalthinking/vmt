@@ -82,28 +82,55 @@ router.put('/:resource/:id/add', middleware.validateUser, (req, res, next) => {
 	let { resource, id } = req.params;
 	let controller = controllers[resource];
 
-	controller.add(id, req.body)
-    .then(result => res.json({ result }))
-    .catch(err => {
-			console.error(`Error put ${resource}/${id}/add: ${err}`);
+	return middleware.canModifyResource(req)
+	  .then((results) => {
+			let { canModify, doesRecordExist, details } = results;
+
+			if (!doesRecordExist) {
+				return errors.sendError.NotFoundError(null, res);
+			}
+
+			if (!canModify) {
+				return errors.sendError.NotAuthorizedError('You do not have permission to modify this resource', res);
+			}
+			let prunedBody = middleware.prunePutBody(req.user, id, req.body, details)
+			return controller.add(id, prunedBody)
+		})
+		.then((result) => res.json(result))
+		.catch((err) => {
+			console.error(`Error put ${resource}/${id}: ${err}`);
 
 			let msg = null;
 
 			if (typeof err === 'string') {
 				msg = err;
 			}
+
 			return errors.sendError.InternalError(msg, res)
-		})
+		});
 })
 
 router.put('/:resource/:id/remove', middleware.validateUser, (req, res, next) => {
 	let { resource, id } = req.params;
 	let controller = controllers[resource];
 
-  controller.remove(id, req.body)
-    .then(result => res.json(result))
-    .catch(err => {
-			console.error(`Error put ${resource}/${id}/remove: ${err}`);
+  return middleware.canModifyResource(req)
+	  .then((results) => {
+			let { canModify, doesRecordExist, details } = results;
+
+			if (!doesRecordExist) {
+				return errors.sendError.NotFoundError(null, res);
+			}
+
+			if (!canModify) {
+				return errors.sendError.NotAuthorizedError('You do not have permission to modify this resource', res);
+			}
+			let prunedBody = middleware.prunePutBody(req.user, id, req.body, details)
+			return controller.remove(id, prunedBody)
+		})
+		.then((result) => res.json(result))
+		.catch((err) => {
+			console.error(`Error put ${resource}/${id}: ${err}`);
 
 			let msg = null;
 
@@ -112,7 +139,7 @@ router.put('/:resource/:id/remove', middleware.validateUser, (req, res, next) =>
 			}
 
 			return errors.sendError.InternalError(msg, res)
-		})
+		});
 })
 
 router.put('/:resource/:id', middleware.validateUser, (req, res, next) => {
@@ -150,7 +177,11 @@ router.put('/:resource/:id', middleware.validateUser, (req, res, next) => {
 	})
 
 router.delete('/:resource/:id', middleware.validateUser, (req, res, next) => {
-  let { resource, id } = req.params;
+	// for now delete not supported
+	// add isTrashed?
+	return errors.sendError.BadMethodError('Sorry, DELETE is not supported for this resource.', res);
+
+	let { resource, id } = req.params;
   let controller = controllers[resource];
 
   controller.delete(id)
