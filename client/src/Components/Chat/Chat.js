@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 // import TextInput from '../Form/TextInput/TextInput';
 import classes from './chat.css';
 // import Button from '../UI/Button/Button';
-import SendIcon from './sendicon';
 import moment from 'moment';
 class Chat extends Component {
   constructor(props){
@@ -12,6 +11,7 @@ class Chat extends Component {
       containerCoords: null,
       chatCoords: null,
       chatInputCoords: null,
+      expanded: true,
     }
     this.chatContainer = React.createRef()
     this.chatInput = React.createRef()
@@ -21,6 +21,13 @@ class Chat extends Component {
     this.props.messages.forEach((message, i) => {
       this[`message-${i}`] = React.createRef()
     })
+  }
+
+  toggleCollapse() {
+    //start counting all unread messages once chat window is collapsed?
+    this.setState({
+      expanded: !this.state.expanded
+    });
   }
 
   componentDidMount() {
@@ -204,22 +211,21 @@ class Chat extends Component {
     }
     return (
       <div className={classes.Container} ref={this.chatContainer}>
-        <h3 className={classes.Title}>Chat
+        <h3 className={classes.Title} onClick={this.toggleCollapse.bind(this)}>Chat
           <div className={classes.Status}>
             <svg height="20" width="20">
               <circle cx="10" cy="15" r="5" fill="#34A505"/>
             </svg>
           </div>
         </h3>
-        <div className={classes.ChatScroll} ref={this.chatEnd} onScroll={this.updateReferencePositions} id='scrollable'>{displayMessages}</div>
+        <div className={(this.state.expanded ? classes.ChatScroll : classes.Collapsed)} ref={this.chatEnd} onScroll={this.updateReferencePositions} id='scrollable'>{displayMessages}</div>
         {!replayer ?
           <div className={classes.ChatInput}>
             <input ref={this.chatInput} className={classes.Input} type = {"text"} onChange={change} value={value}/>
             {/* <TextInput width={"90%"} size={20} light autoComplete="off" change={change} type='text' name='message' value={value}/> */}
             <div className={classes.Send} onClick={submit}>
               <i className={'fab fa-telegram-plane'}></i>
-              {/* <SendIcon height='24' width='24' viewBox='0 0 24 24'/> */}
-              </div>
+            </div>
           </div> : null
         }
       </div>
