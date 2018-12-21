@@ -79,13 +79,7 @@ export default {
     return Promise.all(promises)
   },
 
-  removeNotification: (ntfId, userId, requestingUser, resource, ntfType) => {
-    // this is hacky as fuck it better be gone soon
-    // need to rethink everything about the assignedRoom Notifications
-    // let selector = '_id';
-    // if (ntfType === 'assignedRoom') {
-    //   selector = 'room';
-    // }
+  removeNotification: (ntfId) => {
     return axios.put(`/api/notifications/${ntfId}`,{
       isTrashed: true
     })

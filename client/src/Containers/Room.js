@@ -60,7 +60,7 @@ class Room extends Component {
       let updatedTabs = [...this.state.tabs];
       let owner = false;
       let firstView = false;
-      if (room.members.filter(member => member.role === 'facilitator' && member.user._id === user._id)) { // WE SHOULD ACTUALLY BE CHECKING THE FACILITATORS NOT THE OWNER
+      if (room.members.filter(member => member.role === 'facilitator' && member.user._id === user._id).length > 0) { // WE SHOULD ACTUALLY BE CHECKING THE FACILITATORS NOT THE OWNER
         // updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
         // this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
         owner = true;
@@ -73,10 +73,10 @@ class Room extends Component {
             // RESOLVE THIS NOTIFICATION
             console.log("found the right notification")
             firstView = true;
-            clearNotification(room._id, user._id, null, 'room', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
+            clearNotification(ntf._id); //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
           } else if (ntf.notificationType === 'assignedRoom' && ntf.resourceId === room._id) {
             firstView = true;
-            clearNotification(room.course, user._id, null, 'course', 'access', ntf.notifcationType )
+            clearNotification(ntf._id)
           }
         })
       }
@@ -126,11 +126,11 @@ class Room extends Component {
 
   displayNotifications = (tabs) => {
     let { user, room, notifications } = this.props;
-    if (room.members.filter(member => member.role === 'facilitator' && member.user._id === user._id)) {
+    if (room.members.filter(member => member.role === 'facilitator' && member.user._id === user._id).length > 0) {
       let thisRoomsNtfs = notifications.filter(ntf => ntf.resourceId === room._id)
       tabs[1].notifications = thisRoomsNtfs.length > 0 ? thisRoomsNtfs.length: '';
-      return tabs;
     }
+    return tabs;
   }
 
   toggleEdit = () => {

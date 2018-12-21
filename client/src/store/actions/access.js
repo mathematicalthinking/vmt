@@ -47,10 +47,9 @@ export const requestAccess = (owners, userId, resource, resourceId) => {
 export const grantAccess = (user, resource, resourceId, ntfId, toUserId) => {
   return (dispatch, getState) => {
     // dispatch(loading.start())
-    let thisUser = getState().user._id;
     API.removeNotification(ntfId)
     .then(res => {
-      dispatch(removeNotification(resource, toUserId, resourceId))
+      dispatch(removeNotification(ntfId))
       // dispatch(gotUser(res.data))
     })
     .catch(err => console.log(err))

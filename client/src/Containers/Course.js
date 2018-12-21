@@ -53,7 +53,7 @@ class Course extends Component {
   componentDidMount() {
     const { course, user, notifications, clearNotification, match } = this.props;
     if (course) {
-      this.props.getCourse(course._id); // What information are we getting here
+      // this.props.getCourse(course._id); // What information are we getting here
       this.props.getUser(user._id);
       let firstView = false;
       if (notifications.length > 0) {
@@ -61,7 +61,7 @@ class Course extends Component {
           if (ntf.notificationType === 'grantedAccess' && ntf.resourceId === course._id) {
             // RESOLVE THIS NOTIFICATION
             firstView = true;
-            clearNotification(ntf._id, user._id, null, 'course', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
+            clearNotification(ntf._id) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
           }
         })
       }
@@ -69,13 +69,15 @@ class Course extends Component {
       this.checkForFetch();
       // Check user's permission level -- owner, member, or guest
       let updatedTabs = [...this.state.tabs];
-      let owner = false;
-      if (course.creator === user._id) {
-        updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
-        this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
-        owner = true;
-      }
+      let owner = course.members.filter(member => member.role === 'facilitator' && member.user._id === user._id).length > 0;
+
+      if (owner) {
+      //   updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
+      //   this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
       updatedTabs = this.displayNotifications(updatedTabs);
+    }
+
+
       // Check for notifications that need resolution
       // Get Any other notifications
       this.setState({
@@ -100,16 +102,16 @@ class Course extends Component {
       this.checkAccess();
     }
     if (prevProps.notifications.length !== this.props.notifications.length) {
-      this.props.getCourse(this.props.match.params.course_id)
+      // this.props.getCourse(this.props.match.params.course_id)
       let updatedTabs = this.displayNotifications([...this.state.tabs])
       this.setState({tabs: updatedTabs})
     }
-    if ((this.state.member || this.state.owner) && !this.props.loading) {
-      this.checkForFetch();
-    }
-    if (prevProps.match.params.resource !== this.props.match.params.resource) {
-      this.props.getUser(this.props.user._id)
-    }
+    // if ((this.state.member || this.state.owner) && !this.props.loading) {
+    //   this.checkForFetch();
+    // }
+    // if (prevProps.match.params.resource !== this.props.match.params.resource) {
+    //   this.props.getUser(this.props.user._id)
+    // }
   }
 
   requestAccess = () => {
@@ -127,9 +129,10 @@ class Course extends Component {
 
   displayNotifications = (tabs) => {
     // console.log(notifications)
-    const { course, notifications } = this.props;
+    const { course, notifications, user } = this.props;
     // if (course.creator === user._id
-      if (this.state.onwer) {
+    let isOwner = course.members.filter(member => member.role === 'facilitator' && member.user._id === user._id).length > 0;
+      if (isOwner) {
         let memberNtfs = notifications.filter(ntf => (ntf.resourceId === course._id && (ntf.notificationType === 'requestAccess' || ntf.notificationType === 'newMember')));
         tabs[2].notifications = memberNtfs.length > 0 ? memberNtfs.length : '';
       }

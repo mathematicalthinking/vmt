@@ -56,21 +56,30 @@ module.exports = {
   add: (id, body) => {
     return new Promise((resolve, reject) => {
       // Send a notification to user that they've been granted access to a new course
-      db.User.findByIdAndUpdate(body.members.user, {
-        $addToSet: {
-          courses: id,
-          'courseNotifications.access': {
+
+      let members;
+      let course;
+        db.Course.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
+        .populate({path: 'members.user', select: 'username'})
+        .then((res) => {
+          course = res;
+          return db.User.findByIdAndUpdate(body.members.user, {
+            $addToSet: {
+              courses: id
+            }
+          })
+        })
+        .then(() => {
+          members = course.members;
+          return db.Notification.create({
+            resourceType: 'course',
+            resourceId: id,
+            toUser: body.members.user,
             notificationType: 'grantedAccess',
-            _id: id,
-          }
-        }
-      }, {new: true})
-      .then(res => {})
-      db.Course.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
-      .populate({path: 'members.user', select: 'username'})
-      .then(res => {
-        resolve(res.members)})
-      .catch(err => reject(err))
+          })
+        })
+        .then(() => resolve(members))
+        .catch(err => reject(err))
     })
   },
 
@@ -95,16 +104,24 @@ module.exports = {
           // @todo SHOULD PROBABLY HASH THIS AND MOVE TO AUTH ROUTE
           // When a user gains access with an entry code
           if (course.entryCode === entryCode) {
+            let existingUser = _.find(course.members, (m) => {
+              return m.user === userId;
+            });
+
+            if (existingUser) {
+              throw('You already have been granted access to this course!');
+            }
             course.members.push({user: userId, role: 'participant'})
-            // Send a notification to all teachers of the room
+            // Send a notification to all teachers of the course
             promises = course.members.filter(member => member.role === 'facilitator').map(facilitator => {
-              return db.User.findByIdAndUpdate(course.creator, {
-                $addToSet: {
-                  'courseNotifications.access': {
-                    notificationType: 'newMember', _id: course._id, user: userId
-                  }
-                }
-              }, {new: true})
+              return db.Notification.create({
+                resourceType: 'course',
+                resourceId: course._id,
+                notificationType: 'newMember',
+                toUser: member.user,
+                fromUser: userId,
+
+              });
             })
             db.User.findByIdAndUpdate(userId, {
               $addToSet: {courses: id,}

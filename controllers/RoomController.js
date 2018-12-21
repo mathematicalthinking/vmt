@@ -2,6 +2,8 @@ const db = require('../models')
 const Room = require('../models/Room')
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const _ = require('lodash');
+
 module.exports = {
   get: params => {
     if (params && params.constructor === Array) {
@@ -95,16 +97,25 @@ module.exports = {
       // Send a notification to user that they've been granted access to a new course
 
       let members;
+      let room;
         db.Room.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
         .populate({path: 'members.user', select: 'username'})
-        .then(res => {
-          members = res.members;
+        .then((res) => {
+          room = res;
+          return db.User.findByIdAndUpdate(body.members.user, {
+            $addToSet: {
+              rooms: id
+            }
+          })
+        })
+        .then(() => {
+          members = room.members;
           return db.Notification.create({
             resourceType: 'room',
             resourceId: id,
             toUser: body.members.user,
             notificationType: 'grantedAccess',
-            parentResource: res.course
+            parentResource: room.course
           })
         })
         .then(() => resolve(members))
@@ -142,31 +153,52 @@ module.exports = {
         })
       }
       else if (body.checkAccess) {
+        let roomToPopulate;
+        let fromUser;
         db.Room.findById(id)
-        .then(async room => {
-          let { entryCode, userId } = body.checkAccess;
-          // @todo SHOULD PROBABLY HASH THIS
-          if (room.entryCode === entryCode) {
+          .then((room) => {
+            let { entryCode, userId } = body.checkAccess;
+            fromUser = userId;
+            if (room.entryCode !== entryCode) {
+             throw('Incorrect Entry Code');
+            }
+            // correctCode, update room with user
+            let existingUser = _.find(room.members, (m) => {
+              return m.user === userId;
+            });
+
+            if (existingUser) {
+              throw('You already have been granted access to this room!');
+            }
+
             room.members.push({user: userId, role: 'participant'})
-            // Send a notification to the room owner
-            // THIS NESTED PROMISE IS AN ANTI-PATTERN
-            db.User.findByIdAndUpdate(room.creator, {
-              $addToSet: {
-                'roomNotifications.access': {
-                  notificationType: 'newMember', _id: room._id, user: userId
-                }
-              }
+            return room.save()
+
+          })
+          .then((updatedRoom) => {
+            // create notifications
+            roomToPopulate = updatedRoom
+            let facilitators = updatedRoom.members.filter((m) => {
+              return m.role === 'facilitator';
+            });
+            return Promise.all(facilitators.map((f) => {
+              return db.Notification.create({
+                resourceType: 'room',
+                resourceId: roomToPopulate._id,
+                notificationType: 'newMember',
+                toUser: f.user,
+                fromUser: fromUser,
+                parentResource: roomToPopulate.course
+
+              });
+            }));
+          })
+          .then(() => {
+            roomToPopulate.populate({path: 'members.user', select: 'username'}, function() {
+              resolve(roomToPopulate)
             })
-            .then(res => {})
-            .catch(err => console.log(err))
-            try { await room.save()}
-            catch(err) {console.log(err)}
-            room.populate({path: 'members.user', select: 'username'}, function() {
-              resolve(room)
-            })
-          } else reject('Incorrect Entry Code')
-        })
-        .catch(err => reject(err))
+          })
+          .catch((err) => reject(err))
       }
       else if (Object.keys(body)[0] === 'tempRoom') {
         db.Room.findById(id)
@@ -187,7 +219,6 @@ module.exports = {
         .populate('currentMembers.user members.user', 'username')
         .populate('chat') // this seems random
         .then(res => resolve(res)).catch(err =>{
-          console.log("ERR: ", err)
           reject(err)
         })
         .catch(err => reject(err))

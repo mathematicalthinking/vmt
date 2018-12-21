@@ -86,7 +86,6 @@ class Profile extends Component {
     }
     // If the user has new notifications
     if (Array.isArray(prevProps.user.notifications) && prevProps.user.notifications.length !== this.props.user.notifications.length) {
-      // console.log('the notifications have changed')
       this.checkMultipleRoles()
         .then(() => this.setDisplayResources())
         .then(() => this.updateTabs())
@@ -154,10 +153,9 @@ class Profile extends Component {
     // if (courseNotifications.newRoom.length > 0){
     //   updatedTabs[0].notifications += courseNotifications.newRoom.length;
     // }
-    if (roomNtfs.length > 0){
+
       // let roomNtfs = roomNotifications.filter(ntf => ntf._id ===)
-      updatedTabs[2].notifications = roomNtfs.length;
-    }
+      updatedTabs[2].notifications = roomNtfs.length === 0 ? '' : roomNtfs.length;
     this.setState({
       tabs: updatedTabs
     })

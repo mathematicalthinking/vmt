@@ -130,7 +130,7 @@ export const updateCourse = (id, body) => {
     dispatch(updatedCourse(id, body))
     API.put('courses', id, body)
     .then(res => {
-      console.log(res) 
+      console.log(res)
     })
     .catch(err => console.log(err))
   }
@@ -138,7 +138,6 @@ export const updateCourse = (id, body) => {
 
 export const getCourses = (params) => {
   return dispatch => {
-    console.log(params)
     API.get('courses', params)
     .then(res => {
       // Normalize data
