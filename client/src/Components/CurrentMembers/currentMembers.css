@@ -2,7 +2,8 @@
 @value blue from colors;
 :import('../../colors.css'){
   background: mainBackground;
-  scrollBackground: darkScroller;
+  scrollBackground: scrollBackground;
+  scrollBar: scrollBar;
   darkBorder: darkBorder;
   darkGrey: darkGrey;
 }
@@ -40,7 +41,7 @@
   align-self: flex-start;
   /* height: 100%; */
   width: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
   padding: 10px;
 }
 
@@ -52,8 +53,8 @@
 }
 
 .Left::-webkit-scrollbar-thumb {
-  background-color: blue;
-  border-radius: 3px;
+  background-color: scrollBar;
+  border-radius: 15px;
 }
 
 .Title {
