@@ -151,11 +151,10 @@
   position: relative;
   width: 100%;
   height: 100%;
-  max-width: 1500px;
+  max-width: 1550px;
   margin-bottom: 25px;
   display: flex;
   flex-direction: column;
-  /* border: 1px solid red; */
 }
 
 .Top {
@@ -184,8 +183,7 @@
 }
 
 .Right {
-  /* border: 1px solid red; */
-  margin-left: 15px;
+  margin-left: 20px;
   display: flex;
   flex-direction: column;
   width: 25%;
@@ -237,11 +235,24 @@
   display: flex;
   flex-direction: column; */
   height: 100%;
-  border: 1px solid red;
+  margin-top: 10px;
+  box-shadow: lightShadow;
+  padding: 15px 10px;
+}
+
+.TabNameTitle {
+  /* border: 1px solid red; */
+  margin-bottom: 10px;
+  height: 35px;
+  border-bottom: 1px solid #ddd;
+  padding: 0 5px;
 }
 
 .InstructionsTitle {
-  border-bottom: 1px solid #ddd;
+  margin-bottom: 10px;
+  padding-left: 5px;
+  float: left;
+  margin-right: 10px;
 }
 
 /* .Instructions {
@@ -249,7 +260,6 @@
 } */
 
 .Expand {
-  border: 1px solid orange;
 }
 
 .EditInstructions {
@@ -284,6 +294,7 @@
   text-transform: uppercase;
   letter-spacing: 1.12px;
   box-shadow: lightShadow;
+  text-align: center;
 }
 
 
@@ -302,14 +313,12 @@
 }
 
 .ReferenceWindow {
-  /* flex-grow: 1; */
   height: 100%;
   box-shadow: lightShadow;
 }
 
 .Controls {
   display: flex;
-  background: #f9f9f9;
 }
 
 .MousePointer {
@@ -319,7 +328,7 @@
   padding: 14px 10px 4px 20px;
   border-radius: 50%;
   background: #e8e8e8;
-  margin: 0 10px;
+  margin: 5px 10px;
   transition: .2s;
 }
 
