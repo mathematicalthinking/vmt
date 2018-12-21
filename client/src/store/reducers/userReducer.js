@@ -7,11 +7,7 @@ const initialState = {
   _id: '',
   loggedIn: false,
   courses: [],
-  courseNotifications: {
-    access: [],
-    newRoom: [],
-  },
-  roomNotifications: {},
+  notifications: [],
   rooms: [],
   courseTemplates: [],
   activities: [],
@@ -31,9 +27,10 @@ const reducer = (state = initialState, action) => {
         lastName: action.user.lastName,
         _id: action.user._id,
         courses: action.user.courses,
-        courseNotifications: action.user.courseNotifications,
+        // courseNotifications: action.user.courseNotifications,
         rooms: action.user.rooms,
-        roomNotifications: action.user.roomNotifications,
+        // roomNotifications: action.user.roomNotifications,
+        notifications: action.user.notifications,
         courseTemplates: action.user.courseTemplates,
         activities: action.user.activities,
         seenTour: action.user.seenTour,
@@ -41,12 +38,12 @@ const reducer = (state = initialState, action) => {
         bothRoles: action.user.bothRoles,
         justLoggedIn: true,
       }
-    case actionTypes.TOGGLE_JUST_LOGGED_IN: 
+    case actionTypes.TOGGLE_JUST_LOGGED_IN:
       return {
         ...state,
         justLoggedIn: false
       }
-    case actionTypes.LOGOUT: 
+    case actionTypes.LOGOUT:
       return initialState
     case actionTypes.UPDATE_USER:
       return {
@@ -82,26 +79,27 @@ const reducer = (state = initialState, action) => {
     case actionTypes.REMOVE_USER_ROOMS:
       const rooms = state.rooms.filter(id => !action.roomIdsArr.includes(id))
       return {...state, rooms,}
-    
+
     case actionTypes.UPDATE_NOTIFICATIONS:
     return {
       ...state,
       ...action.updatedNotifications,
     }
 
-    case actionTypes.REMOVE_NOTIFICATION: 
-      let updatedNotifications = {...state[`${action.resource}Notifications`]}
-      let listNotifications = updatedNotifications[action.listType].filter(ntf => {
-        if (ntf.user) {
-          if ((ntf.user._id === action.user) && (ntf._id === action.ntfId)) {
+    case actionTypes.REMOVE_NOTIFICATION:
+      // let updatedNotifications = {...state[`${action.resource}Notifications`]}
+      let updatedNotifications = [...state.notifications];
+      let listNotifications = updatedNotifications.filter(ntf => {
+        if (ntf.toUser) {
+          if ((ntf.toUser === action.user) && (ntf.resourceId === action.ntfId)) {
             return false;
           } else return true;
-        } else return (ntf._id !== action.ntfId)
+        } else return (ntf.resourceId !== action.ntfId)
       })
-      updatedNotifications[action.listType] = listNotifications;
+      updatedNotifications = listNotifications;
       return {
         ...state,
-        [`${action.resource}Notifications`]: updatedNotifications
+        notifications: updatedNotifications
       }
 
     case actionTypes.CLEAR_ERROR:
