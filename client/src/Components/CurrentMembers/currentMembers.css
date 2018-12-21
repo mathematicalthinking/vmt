@@ -22,9 +22,8 @@
 }
 
 .Avatar {
-  margin: 10px;
+  margin: 10px 0;
   transition: .25s;
-  float: left;
 }
 
 .Active {
