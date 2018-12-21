@@ -1,0 +1,41 @@
+:import('../../colors.css') {
+  blue: blue;
+  blueHover: blueHover;
+  gray: backgroundGray;
+  background: mainBackground;
+}
+
+.RoomDescription {
+  /* padding: 30px;
+  display: flex;
+  flex-direction: column; */
+  width: 100%;
+  height: 20%;
+  order: 2;
+  align-self: auto;
+  flex: .2 0 auto;
+  padding: 15px 10px 0px 10px;
+}
+
+.TabNameTitle {
+  height: 35px;
+  border-bottom: 1px solid #ddd;
+  padding: 0 5px;
+  cursor: pointer;
+}
+
+.InstructionsContainer {
+  margin-top: 10px;
+  padding-left: 5px;
+  height: 100%;
+  padding-bottom: 15px;
+}
+
+.Collapsed {
+  display: none;
+}
+
+.InstructionsTitle {
+  float: left;
+  margin-right: 10px;
+}
