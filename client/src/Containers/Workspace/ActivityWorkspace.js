@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { 
-  updatedActivity, 
+import {
+  updatedActivity,
   updateActivityTab,
-  setActivityStartingPoint, 
+  setActivityStartingPoint,
   getCurrentActivity,
-  createActivity, 
+  createActivity,
 } from '../../store/actions';
 import { Aux, Modal, TextInput, Button } from '../../Components';
 import { WorkspaceLayout } from '../../Layout';
@@ -42,10 +42,10 @@ class ActivityWorkspace extends Component {
   }
 
   addToMyActivities = () => {
-    // create a new activity that belongs to the current user 
+    // create a new activity that belongs to the current user
     this.setState({addingToMyActivities: true})
   }
-  
+
   createNewActivity = () => {
     let activity = {...this.props.activity}
     delete activity._id;
@@ -64,7 +64,7 @@ class ActivityWorkspace extends Component {
       role = 'facilitator'
     }
     return (
-      this.props.activity 
+      this.props.activity
         ? <Aux>
           <WorkspaceLayout
               // activeMember={this.state.activeMember}
@@ -94,14 +94,14 @@ class ActivityWorkspace extends Component {
               setStartingPoint={this.setStartingPoint}
           />
           <Modal show={this.state.creatingNewTab} closeModal={this.closeModal}>
-            <NewTabForm activity={this.props.activity} closeModal={this.closeModal} updatedActivity={this.props.updatedActivity}/>  
+            <NewTabForm activity={this.props.activity} closeModal={this.closeModal} updatedActivity={this.props.updatedActivity}/>
           </Modal>
           <Modal show={this.state.addingToMyActivities} closeModal={() => this.setState({addingToMyActivities: false})}>
             <TextInput show={this.state.addingToMyActivities} light focus={true} value={this.state.newName} change={(event) => {this.setState({newName: event.target.value})}} label={'New Activity Name'}/>
             <Button click={this.createNewActivity}>Copy Activity</Button>
           </Modal>
         </Aux>
-        : <div>Loading</div>
+        : <Modal show={this.state.loading} message='Loading...'/>
     )
   }
 }
