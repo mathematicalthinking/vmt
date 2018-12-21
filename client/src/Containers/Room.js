@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-// import moment from 'moment'
+import moment from 'moment'
 import { connect } from 'react-redux';
 import { DashboardLayout, SidePanel, RoomDetails, } from '../Layout/Dashboard/';
 import Members from './Members/Members';
@@ -176,6 +176,12 @@ class Room extends Component {
     if (room && !this.state.guestMode) {
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
       let dueDateText = 'Due Date' // the fact that we have to do this make this not worth it
+      let dueDateValue;
+      if (this.state.dueDate) {
+        dueDateValue = moment(this.state.dueDate).format('L')
+      } else {
+        dueDateValue = 'Not Set'
+      }
       let ggb = false;
       let desmos = false;
       room.tabs.forEach((tab) => {
@@ -187,7 +193,7 @@ class Room extends Component {
       else roomType = ggb ? 'Geogebra' : 'Desmos';
 
       let additionalDetails = {
-        [dueDateText]: <EditText change={this.updateRoomInfo} inputType='date' editing={this.state.editing} name='dueDate'>{this.state.dueDate || 'no due date set'}</EditText>,
+        [dueDateText]: <EditText change={this.updateRoomInfo} inputType='date' editing={this.state.editing} name='dueDate'>{dueDateValue}</EditText>,
         type: roomType,
         privacy: <EditText change={this.updateRoomInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name='privacySetting'>{this.state.privacySetting}</EditText>,
         facilitators: room.members.reduce((acc, member) => {
