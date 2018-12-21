@@ -25,6 +25,9 @@ const reducer = (state = initialState, action) => {
         byId: updatedCourses,
       }
 
+    case actionTypes.LOGOUT:
+      return initialState
+
     case actionTypes.CREATED_COURSE:
       return {
         ...state,

@@ -16,6 +16,9 @@ const reducer = (state = initialState, action) => {
         allIds: action.allIds,
       };
 
+    case actionTypes.LOGOUT:
+      return initialState
+
     case actionTypes.UPDATED_ROOM:
       let updatedRoom = {...state.byId[action.roomId]}
       let fields = Object.keys(action.body)
@@ -36,7 +39,7 @@ const reducer = (state = initialState, action) => {
         if (tab._id === action.tabId) {
           fields.forEach(field => {
             tab[field] = action.body[field]
-          })        
+          })
         }
         return tab;
       })

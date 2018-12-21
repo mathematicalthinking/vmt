@@ -24,7 +24,11 @@ const reducer = (state = initialState, action) => {
       loginError: true,
       errorMessage: action.error.toString(),
     };
-    case actionTypes.SUCCESS:
+
+    case actionTypes.LOGOUT:
+      return initialState
+
+      case actionTypes.SUCCESS:
       return {
         ...state,
         loading: false,
