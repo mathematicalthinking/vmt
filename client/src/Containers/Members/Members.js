@@ -22,7 +22,7 @@ class Members extends Component {
     if (notifications.length > 0){
       notifications.forEach(ntf => {
         if (ntf.notificationType === 'newMember') {
-          this.props.clearNotification(ntf._id, user._id, ntf.user._id, resourceType, 'access', ntf.notificationType)
+          this.props.clearNotification(ntf._id, user._id, ntf.user._id, resourceType, ntf.notificationType)
         }
       })
     }
@@ -53,8 +53,8 @@ class Members extends Component {
       joinRequests = notifications.filter(ntf => ntf.notificationType === 'requestAccess').map((ntf, i) => {
         return (
           <Member
-            grantAccess={() => {this.props.grantAccess(ntf.user._id, this.props.resourceType, this.props.resourceId)}}
-            info={ntf}
+            grantAccess={() => {this.props.grantAccess(ntf.fromUser._id, this.props.resourceType, this.props.resourceId, ntf._id, ntf.toUser)}}
+            info={ntf.fromUser}
             key={i}
           />
         )

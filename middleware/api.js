@@ -99,6 +99,13 @@ const canModifyResource = (req) => {
           }
         }
 
+        if (modelName === 'Notification') {
+          if (_.isEqual(user._id, record.toUser) || _.isEqual(user._id === record.fromUser)) {
+            results.canModify = true;
+            return results;
+          }
+        }
+
         if (modelName === 'User') {
           // users need to be able to request access to another user's room
           results.canModify = true;

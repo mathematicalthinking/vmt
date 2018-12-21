@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import _difference from 'lodash/difference';
 import { populateResource } from '../store/reducers';
 import Members from './Members/Members';
+import * as ntfUtils from '../utils/notifications';
+
 import {
   getActivities,
   getRooms,
@@ -49,17 +51,17 @@ class Course extends Component {
   // SO we can reset the tabs easily
 
   componentDidMount() {
-    const { course, user, accessNotifications, clearNotification, match } = this.props;
+    const { course, user, notifications, clearNotification, match } = this.props;
     if (course) {
       this.props.getCourse(course._id); // What information are we getting here
       this.props.getUser(user._id);
       let firstView = false;
-      if (accessNotifications.length > 0) {
-       accessNotifications.forEach(ntf => {
-          if (ntf.notificationType === 'grantedAccess' && ntf._id === course._id) {
+      if (notifications.length > 0) {
+       notifications.forEach(ntf => {
+          if (ntf.notificationType === 'grantedAccess' && ntf.resourceId === course._id) {
             // RESOLVE THIS NOTIFICATION
             firstView = true;
-            clearNotification(course._id, user._id, null, 'course', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
+            clearNotification(ntf._id, user._id, null, 'course', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
           }
         })
       }
@@ -97,7 +99,7 @@ class Course extends Component {
     if (prevProps.course && prevProps.course.members.length !== this.props.course.members.length) {
       this.checkAccess();
     }
-    if (prevProps.accessNotifications.length !== this.props.accessNotifications.length) {
+    if (prevProps.notifications.length !== this.props.notifications.length) {
       this.props.getCourse(this.props.match.params.course_id)
       let updatedTabs = this.displayNotifications([...this.state.tabs])
       this.setState({tabs: updatedTabs})
@@ -124,18 +126,18 @@ class Course extends Component {
   }
 
   displayNotifications = (tabs) => {
-    console.log(accessNotifications)
-    const { course, accessNotifications } = this.props;
+    // console.log(notifications)
+    const { course, notifications } = this.props;
     // if (course.creator === user._id
       if (this.state.onwer) {
-        let memberNtfs = accessNotifications.filter(ntf => (ntf._id === course._id && (ntf.notificationType === 'requestAccess' || ntf.notificationType === 'newMember')));
+        let memberNtfs = notifications.filter(ntf => (ntf.resourceId === course._id && (ntf.notificationType === 'requestAccess' || ntf.notificationType === 'newMember')));
         tabs[2].notifications = memberNtfs.length > 0 ? memberNtfs.length : '';
       }
-      let newRoomNtfs = accessNotifications.filter(ntf => (ntf._id === course._id && ntf.notificationType === 'assignedRoom'))
+      let newRoomNtfs = notifications.filter(ntf => (ntf.resourceId === course._id && ntf.notificationType === 'assignedRoom'))
       tabs[1].notifications = newRoomNtfs.length > 0 ? newRoomNtfs.length : '';
     // }
-    // if (accessNotifications.llength > 0){
-    //   tabs[1].notifications = accessNotifications.llength;
+    // if (notifications.llength > 0){
+    //   tabs[1].notifications = notifications.llength;
     // }
     return tabs;
   }
@@ -185,7 +187,7 @@ class Course extends Component {
   }
 
   render() {
-    let { course, user, match, accessNotifications } = this.props;
+    let { course, user, match, notifications } = this.props;
     if (course && !this.state.guestMode) {
       let resource = match.params.resource;
       let myRooms;
@@ -204,7 +206,7 @@ class Course extends Component {
       //   parentResource: "courses",
       //   parentResourceId: course._id,
       //   userResources: ,
-      //   notifications:  accessNotifications.filter(ntf => ntf._id === course._id) || [],
+      //   notifications:  notifications.filter(ntf => ntf.resourceId === course._id) || [],
       //   userId: user._id, // @TODO <-- get rid of this user user object below
       //   user: user,
       //   owner: this.state.owner,
@@ -216,7 +218,7 @@ class Course extends Component {
           userResources={myRooms || course[resource] || []}
           user={user}
           resource={resource}
-          notifications={accessNotifications.filter(ntf => ntf._id === course._id)}
+          notifications={notifications.filter(ntf => ntf.resourceId === course._id)}
           parentResource="courses"
           parentResourceId={course._id}
         />
@@ -228,7 +230,7 @@ class Course extends Component {
           owner={this.state.owner}
           resourceType={'course'}
           resourceId={course._id}
-          notifications={accessNotifications.filter(ntf => ntf._id === course._id) || []}
+          notifications={notifications.filter(ntf => ntf.resourceId === course._id) || []}
         />
       }
 
@@ -293,7 +295,7 @@ class Course extends Component {
       )
     } else return (
       <Access
-        resource='courses'
+        resource='course'
         resourceId={match.params.course_id}
         userId={user._id}
         username={user.username}
@@ -312,7 +314,8 @@ const mapStateToProps = (store, ownProps) => {
     activities: store.activities.allIds,
     rooms: store.rooms.allIds,
     user: store.user,
-    accessNotifications: store.user.courseNotifications.access,
+    // notifications: store.user.courseNotifications.access,
+    notifications: ntfUtils.getUserNotifications(store.user, null, 'course'),
     loading: store.loading.loading,
   }
 }

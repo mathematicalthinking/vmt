@@ -22,8 +22,13 @@ Notification.post('save', function(notification) {
     let method = notification.isTrashed ? '$pull' : '$addToSet';
 
     User.findByIdAndUpdate(notification.toUser, {[method]: {
-      notifications: notification
-    }});
+      notifications: notification._id
+    }}, {new: true}, (err, res) => {
+      if (err) {
+        console.log('err', err);
+      }
+    });
   }
 });
+
 module.exports = mongoose.model('Notification', Notification);

@@ -1,4 +1,5 @@
 const db = require('../models')
+const _ = require('lodash');
 
 module.exports = {
   get: (params) => {
@@ -27,8 +28,17 @@ module.exports = {
 
   put: (id, body) => {
     return new Promise((resolve, reject) => {
-      db.Notification.findByIdAndUpdate(id, body)
-      .then(notification => resolve(notification))
+      db.Notification.findById(id).exec()
+      .then(notification => {
+        if (_.isNil(notification)) {
+          return null;
+        }
+        for (let field of Object.keys(body)) {
+            notification[field] = body[field];
+          }
+          resolve(notification.save());
+
+      })
       .catch(err => reject(err))
     })
   }

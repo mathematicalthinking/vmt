@@ -12,7 +12,7 @@ import axios from 'axios';
 //       options += `${key}=${params[key]}&`;
 //     }
 
-//     if (isParamTypeObject && isParamTypeArray) {      
+//     if (isParamTypeObject && isParamTypeArray) {
 //       params[key].forEach((element) => {
 //         options += `${key}=${element}&`;
 //       });
@@ -58,26 +58,36 @@ export default {
   },
 
   requestAccess: (owners, userId, resource, resourceId) => {
+    let resourceType;
+    if (resource === 'courses' || resource === 'course') {
+      resourceType = 'course';
+    }
+    if (resource === 'rooms' || resource === 'room') {
+      resourceType = 'room';
+    }
     // @TODO consider making notificationTypes a directory of constants like action types in redux
     let promises = owners.map(owner => {
-      return axios.put(`/api/user/${owner}`, {notificationType: 'requestAccess', user: userId, resource, _id: resourceId})
+      // return axios.put(`/api/user/${owner}`, {notificationType: 'requestAccess', user: userId, resource, _id: resourceId})
+      return axios.post('api/notifications', {
+        notificationType: 'requestAccess',
+        toUser: owner,
+        fromUser: userId,
+        resourceType: resourceType,
+        resourceId: resourceId
+      })
     })
     return Promise.all(promises)
   },
 
-  removeNotification: (ntfId, userId, requestingUser, resource, listType, ntfType) => {
+  removeNotification: (ntfId, userId, requestingUser, resource, ntfType) => {
     // this is hacky as fuck it better be gone soon
     // need to rethink everything about the assignedRoom Notifications
-    let selector = '_id';
-    if (ntfType === 'assignedRoom') {
-      selector = 'room';
-    }
-    return axios.put(`/api/user/${userId}/remove`, {
-      [`${resource}Notifications.${listType}`]: {
-        notificationType: ntfType,
-        [selector]: ntfId,
-        user: requestingUser,
-      }
+    // let selector = '_id';
+    // if (ntfType === 'assignedRoom') {
+    //   selector = 'room';
+    // }
+    return axios.put(`/api/notifications/${ntfId}`,{
+      isTrashed: true
     })
   },
 

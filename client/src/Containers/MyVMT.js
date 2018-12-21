@@ -10,6 +10,8 @@ import {
   toggleJustLoggedIn,
 } from '../store/actions'
 
+import * as ntfUtils from '../utils/notifications';
+
 class Profile extends Component {
   state = {
     tabs: [
@@ -82,8 +84,7 @@ class Profile extends Component {
       .then(() => {this.setDisplayResources()})
     }
     // If the user has new notifications
-    if (prevProps.user.courseNotifications.access.length !== this.props.user.courseNotifications.access.length ||
-    prevProps.user.roomNotifications.access.length !== this.props.user.roomNotifications.access.length) {
+    if (Array.isArray(prevProps.user.notifications) && prevProps.user.notifications.length !== this.props.user.notifications.length) {
       // console.log('the notifications have changed')
       this.checkMultipleRoles()
         .then(() => this.setDisplayResources())
@@ -135,7 +136,7 @@ class Profile extends Component {
 
   updateTabs = () => {
     // const { resource } = this.props.match.params;
-    let { courseNotifications, roomNotifications } = this.props.user; // add room notifications eventually
+    let { notifications } = this.props.user; // add room notifications eventually
     let updatedTabs = [...this.state.tabs]
     // let courseNtfs = courseNotifications.access.filter(ntf => { //WHY ARE WE FILTERING HERE ? WE SHOULD BE FILTERING FOR THEIR ROLE NOT THE RESOURCE ID
     //   let found = false;
@@ -146,14 +147,15 @@ class Profile extends Component {
     //   })
     //   return found;
     // })
-    let courseNtfs = courseNotifications.access;
+    let courseNtfs = ntfUtils.getUserNotifications(this.props.user, null, 'course');
+    let roomNtfs = ntfUtils.getUserNotifications(this.props.user, null, 'room');
     updatedTabs[0].notifications = courseNtfs.length === 0 ? '' : courseNtfs.length;
     // if (courseNotifications.newRoom.length > 0){
     //   updatedTabs[0].notifications += courseNotifications.newRoom.length;
     // }
-    if (roomNotifications.access.length > 0){
-      // let roomNotifications = roomNotifications.filter(ntf => ntf._id ===)
-      updatedTabs[2].notifications = roomNotifications.access.length;
+    if (roomNtfs.length > 0){
+      // let roomNtfs = roomNotifications.filter(ntf => ntf._id ===)
+      updatedTabs[2].notifications = roomNtfs.length;
     }
     this.setState({
       tabs: updatedTabs
@@ -230,7 +232,7 @@ class Profile extends Component {
         mainContent={
           <ResourceList
             userResources={this.state.displayResources.map(id => this.props[resource].byId[id]) || []}
-            notifications={(resource === 'courses') ? user.courseNotifications.access : user.roomNotifications.access}
+            notifications={(resource === 'courses') ? ntfUtils.getUserNotifications(user, null, 'course') : ntfUtils.getUserNotifications(user, null, 'room')}
             user={user}
             resource={resource}
           />
