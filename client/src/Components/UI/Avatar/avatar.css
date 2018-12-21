@@ -3,7 +3,8 @@
 }
 .UserInfo {
   margin-bottom: 5px;
-  display: flex;
+
+  width: 100%;
 }
 
 .UserInfo a {
@@ -14,20 +15,19 @@
   background-color:blue;
   color: white;
   border-radius: 50%;
-  /* -webkit-text-stroke-width: 2px;
-  -webkit-text-stroke-color: #888; */
+  align-self: flex-start;
 }
 
 .AvatarContainer {
-  /* margin-right: 5px; */
-  display: block;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
   margin: 0 auto;
   padding: 2px;
   background: white;
-  border-radius: 50%;
-  border: 1px solid #999;
+  border: 1px solid pink;
 }
 
 .Username {
-  margin-left: 8px;
+  margin-left: 10px;
 }
