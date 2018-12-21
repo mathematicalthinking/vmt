@@ -216,7 +216,7 @@
 
 .Members {
   box-shadow: lightShadow;
-  height: 22%;
+  /* height: 22%; */
   margin: 10px 0;
   border-radius: 5px;
 }
@@ -250,7 +250,7 @@
 
 .InstructionsContainer {
   padding-left: 5px;
-  max-height: 80px;
+  max-height: 60px;
   height: 100%;
   overflow-y: auto;
 }
