@@ -73,29 +73,36 @@ module.exports = passport => {
   }));
 
   passport.use('local-login', new LocalStrategy((username, password, next) => {
-    User.findOne({ 'username':  username, 'accountType':  {$ne: 'temp'}}, (err, user) => {
-      if (err) { return next(err);}
-      // @TODO we actually want to just provide a link here instead of telling htem where to go
-      if (!user) return next(null, false, 'That username does not exist. If you want to create an account go to Signup');
-      if (!bcrypt.compareSync(password, user.password)) {
-        return next(null, false, 'The password you entered is incorrect');
-      }
-      // Manual field population
-      return next(null, user);
-    })
-    // because we display their courses first lets just populate them now
-    .populate({
+    User.findOne({ 'username':  username, 'accountType':  {$ne: 'temp'}})
+      .populate({
       path: 'courses',
       populate: {path: 'members.user', select: 'username'},
       // options: {sort: {createdAt: -1}},
+      })
+      .populate({
+        path: 'rooms',
+        select: '-currentState',
+        populate: {path: 'members.user', select: 'username'},
+      })
+      .populate('activities')
+      // .populate('rooms', 'notifications.user name description isPublic creator roomType')
+      // .populate('activities', 'name description isPublic creator roomType rooms')
+      // .lean()
+      // .populate('courseTemplates', 'notifications name description isPublic')
+      .exec()
+      .then((user) => {
+        // @TODO we actually want to just provide a link here instead of telling htem where to go
+        if (!user) return next(null, false, 'That username does not exist. If you want to create an account go to Signup');
+        if (!bcrypt.compareSync(password, user.password)) {
+          return next(null, false, 'The password you entered is incorrect');
+        }
+        return next(null, user);
+      })
+      .catch((err) => {
+        return next(err);
+      })
     })
-    // .populate('rooms', 'notifications.user name description isPublic creator roomType')
-    // .populate('activities', 'name description isPublic creator roomType rooms')
-    .populate({path: 'courseNotifications.access.user', select: 'username'})
-    .populate({path: 'roomNotifications.access.user', select: 'username'})
-    // .lean()
-    // .populate('courseTemplates', 'notifications name description isPublic')
-  }));
+  );
 
 
 

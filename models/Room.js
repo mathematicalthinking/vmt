@@ -36,6 +36,7 @@ Room.pre('save', function (next) {
     promises = promises.concat(this.members.map(member => {
       // add a new room notification if they're not the facilitator
       let query = {$addToSet: {rooms: this._id}}
+      //@TODO use notification schema
       if (member.role === 'participant' && this.course) {
         query = {$addToSet: {
           rooms: this._id,

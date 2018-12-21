@@ -12,7 +12,16 @@ module.exports = {
   getById: id => {
     return new Promise((resolve, reject) => {
       db.User.findById(id)
-      .populate('courses')
+      .populate({
+        path: 'courses',
+        populate: {path: 'members.user', select: 'username'},
+      })
+      .populate({
+        path: 'rooms',
+        select: '-currentState',
+        populate: {path: 'members.user', select: 'username'},
+      })
+      .populate('activities')
       .populate({ path: 'notifications', populate: {path: 'fromUser'}})
       .then(user => resolve(user))
       .catch(err => reject(err))

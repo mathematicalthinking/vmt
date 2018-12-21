@@ -3,7 +3,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 const User = require('./User');
 
 const Notification = new mongoose.Schema({
-  notificationType: { type: String, enum: ['grantedAccess', 'requestAccess', 'assignedNewRoom'], required: true },
+  notificationType: { type: String, enum: ['grantedAccess', 'requestAccess', 'assignedNewRoom', 'newMember'], required: true },
   resourceType: {type: String, enum: ['room', 'course'], required: true},
   resourceId: { type: String, validate: { validator: (id) => {
     var idRegex = /^[0-9a-fA-F]{24}$/;

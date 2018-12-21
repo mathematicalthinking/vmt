@@ -4,8 +4,8 @@ import { normalize } from '../utils/normalize';
 import API from '../../utils/apiRequests';
 import * as loading from './loading'
 import { gotCourses, } from './courses';
-import { addRoomMember } from './rooms';
-
+import { addRoomMember, gotRooms } from './rooms';
+import { gotActivities } from './activities';
 
 export const gotUser = (user, temp) => {
   let loggedIn = true;
@@ -150,6 +150,13 @@ export const login = (username, password) => {
       let courses = normalize(res.data.courses)
       // const activities = normalize(res.data.activities)
       dispatch(gotCourses(courses));
+
+      let rooms = normalize(res.data.rooms);
+      dispatch(gotRooms(rooms));
+
+      let activities = normalize(res.data.activities);
+      dispatch(gotActivities(activities));
+
       let user = {
         ...res.data,
         courses: courses.allIds,
@@ -173,6 +180,12 @@ export const getUser = (id) => {
         ...res.data.result,
         courses: courses.allIds,
       }
+      let rooms = normalize(res.data.result.rooms);
+      dispatch(gotRooms(rooms));
+
+      let activities = normalize(res.data.result.activities);
+      dispatch(gotActivities(activities));
+
       dispatch(gotUser(user))
       dispatch(loading.success())
     })

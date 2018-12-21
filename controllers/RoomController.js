@@ -93,25 +93,22 @@ module.exports = {
   add: (id, body) => {
     return new Promise((resolve, reject) => {
       // Send a notification to user that they've been granted access to a new course
-      db.User.findByIdAndUpdate(body.members.user, { //WE SHOULD AWAIT THIS TO MAKE SURE IT GOES THROUGH>???
-        $addToSet: {
-          rooms: id,
-          'roomNotifications.access': {
-            notificationType: 'grantedAccess',
-            _id: id,
-          }
-        }
-      }, {new: true})
-      .then(res => {
+
+      let members;
         db.Room.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
         .populate({path: 'members.user', select: 'username'})
         .then(res => {
-          resolve(res.members)})
+          members = res.members;
+          return db.Notification.create({
+            resourceType: 'room',
+            resourceId: id,
+            toUser: body.members.user,
+            notificationType: 'grantedAccess',
+            parentResource: res.course
+          })
+        })
+        .then(() => resolve(members))
         .catch(err => reject(err))
-      })
-      .catch(err => {
-        reject(err)
-      })
     })
   },
 

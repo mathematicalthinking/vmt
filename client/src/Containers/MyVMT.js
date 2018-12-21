@@ -55,11 +55,12 @@ class Profile extends Component {
     // }
     // IF THE USER HAS A RESOURCE THAT HAS NOT BEEN ADDED TO THE STORE YET WE SHOULD FETCH IT
     if (!this.props.loading) {
-      if (this.props.user[resource].length > this.props[resource].allIds.length) {
+      if (resource !== prevProps.match.params.resource) {
         // console.log('we need to fetch some resources')
-        let idsToFetch = user[resource].filter(id => !this.props[resource].allIds.includes(id));
+        // let idsToFetch = user[resource].filter(id => !this.props[resource].allIds.includes(id));
         // console.log(idsToFetch)
-        this.fetchByIds(resource, idsToFetch)
+        // this.fetchByIds(resource, idsToFetch)
+        this.props.getUser(user._id);
       }
     }
 
