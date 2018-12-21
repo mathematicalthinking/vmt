@@ -217,7 +217,8 @@ class Chat extends Component {
             <input ref={this.chatInput} className={classes.Input} type = {"text"} onChange={change} value={value}/>
             {/* <TextInput width={"90%"} size={20} light autoComplete="off" change={change} type='text' name='message' value={value}/> */}
             <div className={classes.Send} onClick={submit}>
-              <SendIcon height='24' width='24' viewBox='0 0 24 24'/>
+              <i className={'fab fa-telegram-plane'}></i>
+              {/* <SendIcon height='24' width='24' viewBox='0 0 24 24'/> */}
               </div>
           </div> : null
         }

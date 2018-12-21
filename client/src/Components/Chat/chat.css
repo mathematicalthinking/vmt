@@ -1,5 +1,6 @@
 :import('../../colors.css'){
   blue: blue;
+  blueHover: blueHover;
   gray: backgroundGray;
   background: mainBackground;
   scrollBackground: scrollBackground;
@@ -12,10 +13,10 @@
   display: flex;
   flex-flow: column;
   justify-content: space-between;
+  background-color: white;
   height: 100%;
   width: 100%;
-  border: .5px solid #ddd;
-  background-color: background;
+  /* border: .5px solid #ddd; */
   border-radius: 3px;
   /* position: relative; */
   /* color: white; */
@@ -56,45 +57,47 @@
 }
 
 .ChatInput {
-  height: 35px;
+  height: 40px;
   display: flex;
   flex-shrink: 0;
   /* align-items: center; */
-  border-top: 1px solid #ddd;
   width: 100%;
+  background-color: #f8f8f9;
 }
 
 .Input {
-  padding: 5px;
+  padding: 15px 10px;
   width: 100%;
-  height: 30px;
-  border: none !important;
+  height: 40px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
   font-size: 14px;
-  border-bottom: 1px solid blue;
-}
+  font-weight: 400;
+  background-color: rgb(245, 245, 245);
+ }
 
 .Input:focus {
   outline: none;
-  background-color: rgb(245, 245, 245);
-  border: 1px solid #ddd;
+  background-color: rgb(235, 235, 235);
 }
 
 .Send {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-left: 1px solid #ddd;
-  width: 45px;
-  height: 35px;
+  width: 42px;
+  height: 40px;
   background: inherit;
   cursor: pointer;
   transition: .2s;
   background-color: blue;
   color: white;
+  font-size: 18px;
+  border-radius: 0 3px 3px 0;
 }
 
 .Send:hover {
-  background: hoverBackground;
+  background: blueHover;
 }
 
 .Entry {
@@ -112,7 +115,8 @@
   color: #999;
   font-size: .8em;
   align-self: flex-end;
-  font-size: 13px;
+  font-size: 12px;
+  margin: 5px 0;
   text-align: left;
 }
 
