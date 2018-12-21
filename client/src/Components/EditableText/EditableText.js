@@ -27,17 +27,17 @@ class EditableText extends Component {
 
   toggleEdit = () => {
     this.setState(prevState => ({
-      editing: !prevState.editing   
+      editing: !prevState.editing
     }))
   }
 
   submit = () => {
-    let { 
-      resource, 
+    let {
+      resource,
       parentResource,
-      parentId , 
+      parentId ,
       field,
-      id, 
+      id,
     } = this.props;
     console.log(parentResource)
     if (parentResource === 'room') {
@@ -55,19 +55,19 @@ class EditableText extends Component {
        { this.state.editing
           ? <div className={this.props.inputType === 'TEXT_AREA' ? classes.EditContainer : classes.EditLine} >
             <b>{this.props.title}</b>
-            {this.props.inputType === 'TEXT_AREA' 
+            {this.props.inputType === 'TEXT_AREA'
               ? <textarea className={classes.TextArea} onChange={this.updateText} value={this.state.text}/>
               : <input className={classes.TextInput} onChange={this.updateText} value={this.state.text}/>
             }
             <div className={classes.EditButtons}>
-              <div><Button m={10} click={this.submit}>Save</Button></div>
-              <div><Button m={10} click={this.toggleEdit}>Cancel</Button></div>
+              <div><Button m={'0 10px'} click={this.submit}>Save</Button></div>
+              <div><Button m={0} click={this.toggleEdit} theme='SmallCancel'>Cancel</Button></div>
             </div>
-          </div> 
+          </div>
           : <div>
-              {this.props.owner ?  <i onClick={this.toggleEdit} className={["fas fa-edit", classes.ToggleEdit].join(' ')}></i> : null}
               <b>{this.props.title}</b> {this.props.children}
-            </div>  
+              {this.props.owner ?  <i onClick={this.toggleEdit} className={["fas fa-edit", classes.ToggleEdit].join(' ')}></i> : null}
+            </div>
         }
       </Aux>
     )
