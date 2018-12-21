@@ -2,7 +2,8 @@
   blue: blue;
   gray: backgroundGray;
   background: mainBackground;
-  scrollBackground: darkScroller;
+  scrollBackground: scrollBackground;
+  scrollBar: scrollBar;
   darkBorder: darkBorder;
   hoverBackground: hoverBackground2;
 }
@@ -50,8 +51,8 @@
 }
 
 .ChatScroll::-webkit-scrollbar-thumb {
-  background-color: blue;
-  border-radius: 3px;
+  background-color: scrollBar;
+  border-radius: 15px;
 }
 
 .ChatInput {
@@ -60,7 +61,7 @@
   flex-shrink: 0;
   /* align-items: center; */
   border-top: 1px solid #ddd;
-  width: 100%
+  width: 100%;
 }
 
 .Input {
