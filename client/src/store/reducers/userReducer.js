@@ -88,15 +88,10 @@ const reducer = (state = initialState, action) => {
 
     case actionTypes.REMOVE_NOTIFICATION:
       // let updatedNotifications = {...state[`${action.resource}Notifications`]}
-      let updatedNotifications = [...state.notifications];
-      let listNotifications = updatedNotifications.filter(ntf => {
-        if (ntf.toUser) {
-          if ((ntf.toUser === action.user) && (ntf.resourceId === action.ntfId)) {
-            return false;
-          } else return true;
-        } else return (ntf.resourceId !== action.ntfId)
-      })
-      updatedNotifications = listNotifications;
+
+      let updatedNotifications = state.notifications.filter((ntf => {
+        return ntf._id !== action.ntfId;
+      }))
       return {
         ...state,
         notifications: updatedNotifications

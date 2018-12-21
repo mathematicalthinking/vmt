@@ -85,11 +85,9 @@ export const updateNotifications = (updatedNotifications) => {
 }
 
 // user is requesting user?
-export const removeNotification = (resource, user, ntfId) => {
+export const removeNotification = (ntfId) => {
   return {
     type: actionTypes.REMOVE_NOTIFICATION,
-    resource,
-    user,
     ntfId,
   }
 }
@@ -112,9 +110,9 @@ export const updateUserResource = (resource, resourceId, userId) => {
 
 // For clearing notifications after the user has seen it. As opposed to request for access notifications which are cleared
 // when the user explicitly grants access (see actions.access)
-export const clearNotification = (ntfId, userId, requestingUser, resource, ntfType) => {
+export const clearNotification = (ntfId) => {
   return (dispatch) => {
-    dispatch(removeNotification(resource, requestingUser, ntfId))
+    dispatch(removeNotification(ntfId))
     // API.removeNotification(ntfId, userId, requestingUser, resource, ntfType)
     API.put('notifications', ntfId, {isTrashed: true})
     .then(res => {
@@ -175,7 +173,10 @@ export const getUser = (id) => {
     dispatch(loading.start())
     API.getById('user', id)
     .then(res => {
+      console.log('res api', res);
       let courses = normalize(res.data.result.courses)
+      dispatch(gotCourses(courses));
+
       let user = {
         ...res.data.result,
         courses: courses.allIds,
