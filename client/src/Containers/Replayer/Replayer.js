@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
+import Modal from '../../Components/UI/Modal/Modal.js'
 import { connect } from 'react-redux';
 import { updateRoom, populateRoom } from '../../store/actions/';
 import throttle from 'lodash/throttle';
@@ -62,7 +63,7 @@ class Replayer extends Component {
           let diff = src[idx + 1].timestamp - cur.timestamp
           if ( diff < MAX_WAIT) {
             return acc += diff;
-          } 
+          }
           else {
             this.updatedLog.push({
               synthetic: true,
@@ -219,7 +220,7 @@ class Replayer extends Component {
         />
       )
     }
-    else return <div>Loading</div>
+    else return <Modal show={this.state.loading} message='Loading...'/>
   }
 }
 
