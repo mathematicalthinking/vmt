@@ -31,18 +31,25 @@
   color: black;
   font-size: 17px;
   letter-spacing: 1.12px;
+  cursor: pointer;
 }
 
 .Status {
-  position: absolute;
-  right: 5px;
-  top: 4px;
+  float: right;
+  position: relative;
+  right: 8px;
+  top: -2px;
 }
 
 .ChatScroll {
   flex-grow: 2;
   width: 100%;
   overflow-y: scroll;
+  max-height: 400px;
+}
+
+.Collapsed {
+  display: none;
 }
 
 .ChatScroll::-webkit-scrollbar {
@@ -73,7 +80,7 @@
   border-radius: 3px;
   font-size: 13px;
   font-weight: 400;
-  background-color: rgb(245, 245, 245);
+  background-color: white;
  }
 
 .Input:focus {
