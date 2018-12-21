@@ -28,7 +28,7 @@
   align-content: flex-start;
   align-items: flex-start;
   /* border: 1px solid red; */
-  width: 100%;
+  width: graphWidth;
   display: flex;
   z-index: 1;
 }
