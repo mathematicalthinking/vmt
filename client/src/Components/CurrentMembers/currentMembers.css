@@ -4,6 +4,7 @@
   background: mainBackground;
   scrollBackground: darkScroller;
   darkBorder: darkBorder;
+  darkGrey: darkGrey;
 }
 
 .Container {
@@ -13,22 +14,25 @@
   height: 100%;
   /* color: white; */
   background-color: inherit;
-  border: 1px solid #ddd;
+  border: .5px solid #ddd;
   /* box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.28); */
   overflow-y: hidden;
+  border-radius: 3px;
 }
 
 .Avatar {
   margin: 10px;
   transition: .25s;
+  float: left;
 }
 
 .Active {
-  font-size: 25px;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .Passive {
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .Left {
@@ -53,6 +57,20 @@
 }
 
 .Title {
-  padding: 5px;
+  padding: 8px 0 8px 10px;
   border-bottom: 1px solid #ddd;
+  background-color: rgb(245, 245, 245);
+  border-radius: 3px 3px 0 0;
+  color: black;
+  font-size: 17px;
+  letter-spacing: 1.12px;
+  font-weight: 700;
+}
+
+.Count {
+  color: darkGrey;
+  float: right;
+  position: relative;
+  right: 8px;
+  top: 0px;
 }

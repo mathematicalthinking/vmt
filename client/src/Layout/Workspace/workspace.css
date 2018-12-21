@@ -19,7 +19,7 @@
   height: 38px;
   padding: 0 0 0 0;
   position: absolute;
-  top: -33px;
+  top: -34px;
   /* left: 0; */
   overflow: auto;
   flex-direction: row;
@@ -183,13 +183,13 @@
 }
 
 .Right {
+  /* border: 1px solid red; */
   margin-left: 15px;
   display: flex;
   flex-direction: column;
-  width: 23%;
+  width: 25%;
   height: 100%;
   background-color: background;
-  box-shadow: lightShadow;
   border-radius: 5px;
   /* color: white; */
 }
@@ -211,11 +211,14 @@
 
 .Chat {
   height: 75%;
+  box-shadow: lightShadow;
   /* flex-grow: 2; */
 }
 
 .Members {
-  height: 25%;
+  box-shadow: lightShadow;
+  height: 22%;
+  margin: 10px 0;
 }
 
 .Replayer {
@@ -282,6 +285,7 @@
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 1.12px;
+  box-shadow: lightShadow;
 }
 
 
@@ -300,9 +304,9 @@
 }
 
 .ReferenceWindow {
-  border-left: 1px solid #ddd;
-  flex-grow: 1;
-  height: 160px;
+  /* flex-grow: 1; */
+  height: 100%;
+  box-shadow: lightShadow;
 }
 
 .Controls {

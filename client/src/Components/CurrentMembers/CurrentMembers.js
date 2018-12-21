@@ -7,7 +7,12 @@ class CurrentMembers extends Component {
     const { members, activeMember } = this.props;
     return (
       <div className={classes.Container}>
-        <h3 className={classes.Title}>Current Members</h3>
+        <div className={classes.Title}>
+          Current Members
+          <div className={classes.Count}>
+            {members.length}
+          </div>
+        </div>
         <div className={classes.Left} data-testid='current-members'>
           {members ? members.map(user =>
             <div
