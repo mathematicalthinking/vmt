@@ -3,6 +3,7 @@
   background: mainBackground;
   lightBlue: lightBlue;
   blue: blue;
+  blueHover: blueHover;
   red: red;
   scrollBackground: darkScroller;
   hoverBackground: hoverBackground;
@@ -189,7 +190,6 @@
   flex-direction: column;
   width: 25%;
   height: 100%;
-  background-color: background;
   border-radius: 5px;
   /* color: white; */
 }
@@ -212,6 +212,7 @@
 .Chat {
   height: 75%;
   box-shadow: lightShadow;
+  border-radius: 5px;
   /* flex-grow: 2; */
 }
 
@@ -219,6 +220,7 @@
   box-shadow: lightShadow;
   height: 22%;
   margin: 10px 0;
+  border-radius: 5px;
 }
 
 .Replayer {
@@ -270,9 +272,6 @@
 .SideButton {
   flex-grow: 1;
   padding: 10px;
-  /* border: 1px solid #ddd; */
-  /* background-color: rgb(99, 83, 83); */
-  /* color: white; */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -280,7 +279,6 @@
   transition: .2s;
   background-color: blue;
   color: white;
-  /* border: 1px white; */
   border-radius: 3px 0px 0px 3px;
   font-size: 13px;
   text-transform: uppercase;
@@ -290,7 +288,7 @@
 
 
 .SideButton:hover {
-  background: #47ABFF;
+  background: blueHover;
 }
 
 .Exit {
