@@ -2,29 +2,17 @@
   blue: blue;
 }
 
-/* @media screen and (min-width: $screen-xs-min) and (max-width: 460px) {
-  .step-display {
-    height: 30px;
-    .progressbar {
-      li {
-        span {
-          display: none;
-        }
-      }
-    }
-  }
-}
-
-@media screen and (min-width: 461px) and (max-width: 10000px) {
-  .step-display {
-    height: 70px;
-  }
+/* .StepDisplay {
+  display: flex;
+  justify-content: center;
 } */
 
 .progressbar {
-  margin: 0;
+  /* width: 100%; */
   padding: 0;
-  counter-reset: step;
+  display: flex;
+  justify-content: center;
+
 }
 
 .progressbar li {
@@ -39,16 +27,15 @@
   /* font-weight: $main-font-weight; */
 }
 
-.step-display {
+/* .step-display {
   margin: 0 auto;
   margin-bottom: 15px;
   margin-top: 35px;
-}
+} */
 
-.progressbar li:before {
+.progressbar .step:before {
   width: 30px;
   height: 30px;
-  content: counter(step);
   counter-increment: step;
   line-height: 30px;
   border: 2px solid #999;
@@ -60,7 +47,12 @@
   color: white;
 }
 
-.progressbar li:after {
+.step1:before {content: '1';}
+.step2:before {content: '2';}
+.step3:before {content: '3';}
+.step4:before {content: '4';}
+
+.progressbar .step:after {
   width: 100%;
   height: 2px;
   content: '';
@@ -71,20 +63,20 @@
   z-index: -1;
 }
 
-.progressbar li:first-child:after {
+.step:first-child:after {
   content: none;
 }
 
-.progressbar li.active-step {
+.active-step {
   color: blue;
 }
 
-.progressbar li.active-step:before {
+.active-step:before {
   border-color: blue;
   background-color: blue;
 }
 
-.progressbar li.active-step+li:after {
+.active-step .step:after {
   background-color: blue;
   border: 2px solid blue;
 }

@@ -19,7 +19,6 @@ import {
   createRoomFromActivity,
   copyActivity,
 } from '../../../store/actions/';
-import { runInThisContext } from 'vm';
 
 const imageThemes = [
   'frogideas', 'duskfalling',
@@ -39,16 +38,25 @@ class NewResourceContainer extends Component {
   
   state = {
     // rooms: [],
-    creating: false,
-    selecting: false,
-    mode: '',
+    creating: false, // true will open modal and start creation process
+    copying: false, 
     step: 0, // step of the creation process
+    name: '',
+    description: '',
+    activities: '',
+    desmosGraph: '',
+    ggbFile: '',
+    dueDate: '',
+    privacySetting: 'public',
   }
 
   startCreation = () => this.setState({creating: true, selecting: false})
 
-  select = (mode) => this.setState({selecting: true, creating: false, mode,})
-
+  changeHandler = (event) => {
+    this.setState({
+      [event.target.name]: event.target.value,
+    })
+  }
   submitForm = ({name, description, privacySetting, dueDate, ggb, ggbFile, desmosLink}) => {
     let { resource } = this.props;
     let theme = imageThemes[Math.floor(Math.random()*imageThemes.length)];
@@ -98,8 +106,23 @@ class NewResourceContainer extends Component {
     this.props.history.push('/community/activities/selecting')
   }
 
+  nextStep = (direction) => {
+    let copying = true;
+    if (direction === 'new') {
+      copying = false;
+    }
+    this.setState({
+      step: this.state.step + 1,
+      copying,
+    })
+  }
+
   closeModal = () => {
-    this.setState({creating: false,})
+    this.setState({
+      copying: false,
+      step: 0,
+      creating: false,
+    })
   }
 
   render() {
@@ -113,21 +136,26 @@ class NewResourceContainer extends Component {
     if (resource === 'rooms') {
 
     }
-    let steps = [<Step1 resource={displayResource}/>]
+    let stepTitles = ['Enter Details', this.state.copying ? 'Select 1 or More Activities to Copy' : 'Enter Details']
+    let currentStep = <Step1 displayResource={displayResource} changeHandler={this.changeHandler}/>
 
     return (
-      <Aux> {
-        this.state.creating 
-        ? <Modal show={this.state.creating} closeModal={this.closeModal}>
-            <StepDisplay activeStep={this.state.step} />
-            {steps[this.state.step]}
-          </Modal>
-        : <div className={classes.Button}>
-             <Button theme={'Small'} click={this.startCreation} data-testid={`create-${displayResource}`}>
-               Create <span className={classes.Plus}><i className="fas fa-plus"></i></span>
-             </Button>
-          </div>
-      }
+      <Aux> 
+        {this.state.creating 
+          ? <Modal show={this.state.creating} closeModal={this.closeModal}>
+              <div className={classes.Container}>
+                <h2>Create a {displayResource}</h2>
+                {currentStep}
+              </div>
+              <Button click={this.nextStep}>Next</Button>
+            </Modal>
+          : null
+          } 
+        <div className={classes.Button}>
+          <Button theme={'Small'} click={this.startCreation} data-testid={`create-${displayResource}`}>
+            Create <span className={classes.Plus}><i className="fas fa-plus"></i></span>
+          </Button>
+        </div>
       </Aux>
 
       //   {this.state.creating ? <NewResource

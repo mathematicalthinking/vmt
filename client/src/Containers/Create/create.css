@@ -10,7 +10,9 @@
   display: flex;
   flex-flow: column;
   align-items: center;
+  justify-content: space-around;
   padding-bottom: 20px;
+  /* height: 300px; */
   /* border-bottom: 2px solid #ddd; */
 }
 
@@ -75,6 +77,16 @@
   border-radius: 50%;
   transition: .2s;
 } */
+
+.Buttons {
+  margin-top: 10px;
+  /* flex-grow: 1; */
+  display: flex;
+  flex-flow: column;
+  justify-content: space-around;
+}
+
+.Buttons:chil
 
 .Button {
   margin: 0 5px;
