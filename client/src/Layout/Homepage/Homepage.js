@@ -19,7 +19,6 @@ class Homepage extends PureComponent {
   componentDidMount(){
     API.get('activities')
     .then(res => {
-      console.log("got activities: ", res)
       this.setState({popularActivities: res.data.results})
     })
   }

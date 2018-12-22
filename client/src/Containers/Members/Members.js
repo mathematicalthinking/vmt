@@ -48,7 +48,7 @@ class Members extends Component {
 
   render(){
     let { classList, notifications, owner, resourceType, courseMembers  } = this.props;
-    let joinRequests = <p>There are new requests to join</p>;
+    let joinRequests = <p>There are no new requests to join</p>;
     if (this.props.owner && notifications.length >= 1) {
       joinRequests = notifications.filter(ntf => ntf.notificationType === 'requestAccess').map((ntf, i) => {
         return (

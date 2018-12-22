@@ -27,7 +27,7 @@ describe('test access requests', function(){
     cy.getTestElement('request-access-btn').click()
     cy.url().should('include', '/confirmation')
   })
-  it("user1 gets a notification and grants access to course 1", function(){
+  it("user1 gets 2 notifications and grants access to course 1", function(){
     cy.login(user1)
     cy.url().should('include', 'myVMT/courses')
     // cy.wait(1111)
@@ -44,7 +44,7 @@ describe('test access requests', function(){
     cy.getTestElement('join-requests').children().should('have.length', 1)
     cy.getTestElement('grant-access-data').click()
     cy.getTestElement('members').children().should('have.length', 3)
-    cy.getTestElement('join-requests').children().should('not.exist')
+    cy.getTestElement('join-requests').children().contains('There are no new requests to join').should('exist')
 
     // MAKE SURE THE NOTIFICATION IS VISUALLY RESOLVED
   })

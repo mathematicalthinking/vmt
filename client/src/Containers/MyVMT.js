@@ -33,6 +33,8 @@ class Profile extends Component {
     this.checkMultipleRoles()
     .then(res => this.setDisplayResources())
     .then(res => {
+      console.log("updating tabs from component did mount ")
+      console.log (JSON.stringify(this.props.user, null, 2))
       this.updateTabs()
       this.props.toggleJustLoggedIn();
     })
@@ -86,6 +88,7 @@ class Profile extends Component {
     }
     // If the user has new notifications
     if (Array.isArray(prevProps.user.notifications) && prevProps.user.notifications.length !== this.props.user.notifications.length) {
+      console.log('new ntfs calling update tabs from componentDidUpdsate')
       this.checkMultipleRoles()
         .then(() => this.setDisplayResources())
         .then(() => this.updateTabs())
@@ -153,9 +156,9 @@ class Profile extends Component {
     // if (courseNotifications.newRoom.length > 0){
     //   updatedTabs[0].notifications += courseNotifications.newRoom.length;
     // }
-
-      // let roomNtfs = roomNotifications.filter(ntf => ntf._id ===)
-      updatedTabs[2].notifications = roomNtfs.length === 0 ? '' : roomNtfs.length;
+    console.log("first tab", updatedTabs[0])
+    // let roomNtfs = roomNotifications.filter(ntf => ntf._id ===)
+    updatedTabs[2].notifications = roomNtfs.length === 0 ? '' : roomNtfs.length;
     this.setState({
       tabs: updatedTabs
     })
@@ -205,6 +208,7 @@ class Profile extends Component {
 
 
   render() {
+    console.log('tbas: ', this.state.tabs)
     let { user, match, } = this.props;
     let resource = match.params.resource;
 

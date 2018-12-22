@@ -85,6 +85,7 @@ module.exports = passport => {
         populate: {path: 'members.user', select: 'username'},
       })
       .populate('activities')
+      .populate('notifications')
       // .populate('rooms', 'notifications.user name description isPublic creator roomType')
       // .populate('activities', 'name description isPublic creator roomType rooms')
       // .lean()
