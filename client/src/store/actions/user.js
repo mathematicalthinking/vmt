@@ -173,7 +173,6 @@ export const getUser = (id) => {
     dispatch(loading.start())
     API.getById('user', id)
     .then(res => {
-      console.log('res api', res);
       let courses = normalize(res.data.result.courses)
       dispatch(gotCourses(courses));
 
