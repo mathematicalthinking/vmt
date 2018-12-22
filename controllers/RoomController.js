@@ -163,11 +163,7 @@ module.exports = {
              throw('Incorrect Entry Code');
             }
             // correctCode, update room with user
-            let existingUser = _.find(room.members, (m) => {
-              return m.user === userId;
-            });
-
-            if (existingUser) {
+            if (_.find(room.members, member => member.user.toString() === userId)) {
               throw('You already have been granted access to this room!');
             }
 
