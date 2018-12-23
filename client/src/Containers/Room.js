@@ -270,7 +270,7 @@ class Room extends Component {
             ? <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
             <p>Welcome to {room.name}. If this is your first time joining a room,
             we recommend you take a tour. Otherwise you can start exploring this room's features.</p>
-            <Button click={() => this.setState({firstView: false})}>Explore</Button>
+            <Button data-testid='explore-room' click={() => this.setState({firstView: false})}>Explore</Button>
           </Modal> : null}
         </Aux>
       )

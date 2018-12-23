@@ -4,7 +4,7 @@ const radioBtn = props => {
   return (
     <label className={classes.Container}>
       {props.children}
-      <input type='radio' checked={props.checked} name={props.name} onChange={props.check}/>
+      <input data-testid={props['data-testid']} type='radio' checked={props.checked} name={props.name} onChange={props.check}/>
       <span className={classes.Checkmark}></span>
     </label>
   )

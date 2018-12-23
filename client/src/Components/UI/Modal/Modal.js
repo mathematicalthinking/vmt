@@ -23,15 +23,19 @@ const modal = props => (
         opacity: props.show ? '1' : '0',
       }}
     >
-      {props.children ? props.children :
-      <Aux>
-        <div className='loader'>
-          <img src={gif} alt='loading' />
-        </div>
-        <div className={classes.Message}>
-          {props.message}
-        </div>
-      </Aux>
+      {props.children 
+        ? <Aux> 
+            <div data-testid='close-modal' className={classes.Close} onClick={props.closeModal}><i className="fas fa-times"></i></div>
+            {props.children }
+          </Aux>
+        : <Aux>
+            <div className='loader'>
+              <img src={gif} alt='loading' />
+            </div>
+            <div className={classes.Message}>
+              {props.message}
+            </div>
+          </Aux>
       }
     </div>
   </Aux>

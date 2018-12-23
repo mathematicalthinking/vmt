@@ -61,6 +61,37 @@ describe('test access requests', function(){
     // NAVIGATE BACK AND MAKE SURE NOTIFICATIONS HAVE BEEN RESOLVED
   })
 
+  it("user1 assigns user3 to a course room", function(){
+    cy.login(user1)
+    cy.getTestElement('content-box-course 2').click();
+    cy.getTestElement('content-box-ACTIVITY 2').click();
+    cy.getTestElement('assign').click();
+    cy.getTestElement('assign-manually').click();
+    cy.contains('data').click()
+    // cy.contains('worf').click()
+    // cy.contains('g-laforge').click()
+    cy.getTestElement('assign-rooms').click();
+    cy.getTestElement('close-modal').click();
+    cy.getTestElement('tab').contains('Rooms').click();
+    cy.getTestElement('content-box-ACTIVITY 2 (room 1)').should('exist')
+    
+  })
+
+  it("User3 gets a notification they have been assigned to a new course room", function(){
+    cy.login(user3)
+    cy.getTestElement('tab-ntf').contains('1').should('exist')
+    cy.getTestElement('content-box-ntf').contains('1').should('exist')
+    cy.getTestElement('content-box-course 2').click()
+    cy.getTestElement('tab-ntf').contains('1').should('exist')
+    cy.getTestElement('tab-ntf').contains('1').click()
+    cy.getTestElement('content-box-ACTIVITY 2 (room 1)').should('exist')
+    cy.getTestElement('content-box-ntf').contains('1').should('exist')
+    cy.getTestElement('content-box-ACTIVITY 2 (room 1)').click()
+    cy.getTestElement('explore-room').click()
+    cy.getTestElement('crumb').contains('My VMT')
+    cy.getTestElement('tab-ntf').should('not.exist')
+  })
+
   it("user2 enters course with entry-code", function(){
     cy.login(user2)
     cy.contains('Community').click()
@@ -126,7 +157,7 @@ describe('test access requests', function(){
     cy.getTestElement('tab').contains('Members').click()
     cy.getTestElement('members').children().should('have.length', 2)
     cy.getTestElement('crumb').contains('My VMT').click()
-    // cy.getTestElement('tab-ntf').should('not.exist')
+    // cy.getTestElement('tab-ntf').should('not.exist') // we might want to chec
     cy.wait(111)
   })
 

@@ -4,7 +4,6 @@ import includes from 'lodash/propertyOf';
 
 
   export const getUserNotifications = (user, notificationTypes, resourceType, page) => {
-    console.log(notificationTypes, resourceType)
     let notifications = propertyOf(user)('notifications');
     if (!Array.isArray(notifications)) {
       return [];

@@ -117,21 +117,14 @@ module.exports = {
             if (_.find(course.members, member => member.user.toString() === userId)) {
               throw ('You already have been granted access to this course!');
             }
-            console.log('course.members before')
-            // user provided correct code and is not existing member
             course.members.push({ user: userId, role: 'participant' })
-            // Send a notification to all teachers of the course
-            console.log("course.members: ", course.members)
-            console.log("userId: ", userId)
             return course.save();
           })
           .then((updatedCourse) => {
             courseToPopulate = updatedCourse;
-            console.log("updtaedCOURSE: ", updatedCourse)
             return db.User.findByIdAndUpdate(userToAdd, { $addToSet: { courses: updatedCourse._id } }, {new: true });
           })
           .then((user) => {
-            console.log("USER: --- ", user)
             let facilitators = courseToPopulate.members.filter(member => member.role === 'facilitator');
             return Promise.all(facilitators.map((facilitator) => {
               return db.Notification.create({

@@ -135,7 +135,7 @@ class MakeRooms extends Component  {
           <div className={classes.SubContainer}><TextInput light label='Due Date' name='dueDate' type='date' change={this.setDate}/></div>
           <div className={classes.Radios}>
             <RadioBtn name='random' checked={this.state.assignRandom} check={() => this.setState({assignRandom: true})}>Assign Randomly</RadioBtn>
-            <RadioBtn name='manual' checked={!this.state.assignRandom} check={() => this.setState({assignRandom: false})}>Assign Manually</RadioBtn>
+            <RadioBtn data-testid='assign-manually' name='manual' checked={!this.state.assignRandom} check={() => this.setState({assignRandom: false})}>Assign Manually</RadioBtn>
           </div>
           {this.state.assignRandom ?//
             <div className={classes.SubContainer}>
