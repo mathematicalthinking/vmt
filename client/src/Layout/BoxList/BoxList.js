@@ -13,7 +13,7 @@ const boxList = React.memo(props => {
         if (props.listType === 'private') {
           if (props.notifications.length > 0) {
             props.notifications.forEach((ntf) => {
-              if (ntf.resourceId === item._id) {
+              if (ntf.resourceId === item._id || ntf.parentResource === item._id) {
                 notifications += 1;
               }
             })

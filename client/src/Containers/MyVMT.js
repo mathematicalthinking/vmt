@@ -150,8 +150,8 @@ class Profile extends Component {
     //   })
     //   return found;
     // })
-    let courseNtfs = ntfUtils.getUserNotifications(this.props.user, null, 'course');
-    let roomNtfs = ntfUtils.getUserNotifications(this.props.user, null, 'room');
+    let courseNtfs = ntfUtils.getUserNotifications(this.props.user, null, 'course', 'MY_VMT');
+    let roomNtfs = ntfUtils.getUserNotifications(this.props.user, null, 'room', 'MY_VMT');
     updatedTabs[0].notifications = courseNtfs.length === 0 ? '' : courseNtfs.length;
     // if (courseNotifications.newRoom.length > 0){
     //   updatedTabs[0].notifications += courseNotifications.newRoom.length;

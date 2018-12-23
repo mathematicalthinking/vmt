@@ -3,6 +3,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 const User = require('./User');
 const Course = require('./Course');
 const Image = require('./Image');
+const Notification = require('./Notification')
 const Activity = require('./Activity');
 const Room = new mongoose.Schema({
   activity: {type: ObjectId, ref: 'Activity'},
@@ -37,15 +38,18 @@ Room.pre('save', function (next) {
       // add a new room notification if they're not the facilitator
       let query = {$addToSet: {rooms: this._id}}
       //@TODO use notification schema
-      if (member.role === 'participant' && this.course) {
-        query = {$addToSet: {
-          rooms: this._id,
-          'courseNotifications.access': {
-            notificationType: 'assignedRoom', _id: this.course, room: this._id}
-          }
+      let notification;
+      if (member.role === 'participant') {
+        notification = {
+          notificationType: 'assignedNewRoom',
+          resourceType: 'room',
+          resourceId: this._id,
+          parentResource: this.course,
+          fromUser: this.creator, // SHOULD ACTUALLY BE FACILITATOR...BUT HOW DO WE HANDLE MULTIPLE FACILITATORS
+          toUser: member.user,
         }
       }
-      return User.findByIdAndUpdate(member.user, query)
+      return Notification.create(notification)
     }))
     // promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}}))
     if (this.course) {

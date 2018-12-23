@@ -75,8 +75,6 @@ class MakeRooms extends Component  {
       members.push({user: this.props.userId, role: 'facilitator'})
       newRoom.name = `${name} (room ${this.state.roomsCreated + 1})`;
       newRoom.members = members;
-      console.log('CREATING NEW ROOM: ')
-      console.log(newRoom)
       this.props.createRoom(newRoom)
 
       let remainingParticipants = this.state.remainingParticipants.filter(participant => {

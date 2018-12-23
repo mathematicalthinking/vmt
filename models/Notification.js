@@ -20,14 +20,21 @@ const Notification = new mongoose.Schema({
 Notification.post('save', function(notification) {
   if (notification.toUser) {
     let method = notification.isTrashed ? '$pull' : '$addToSet';
-
-    User.findByIdAndUpdate(notification.toUser, {[method]: {
-      notifications: notification._id
-    }}, {new: true}, (err, res) => {
+    // Add a room the users list if they've been assigned
+    let updateQuery = {
+      [method]: {notifications: notification._id}
+    }
+    if (notification.notificationType === 'assignedNewRoom') {
+      updateQuery['$addToSet'] =  {...updateQuery['$addToSet'], rooms: notification.resourceId}
+    }
+    console.log("ADD ROOM QUERY: ", updateQuery)
+    User.findByIdAndUpdate(notification.toUser, updateQuery, {new: true}, (err, res) => {
+      console.log(res)
       if (err) {
         console.log('err', err);
       }
     });
+    
   }
 });
 
