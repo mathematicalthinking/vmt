@@ -3,6 +3,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 const User = require('./User');
 const Course = require('./Course');
 const Image = require('./Image');
+const Notification = require('./Notification')
 const Activity = require('./Activity');
 const Room = new mongoose.Schema({
   activity: {type: ObjectId, ref: 'Activity'},
@@ -36,15 +37,26 @@ Room.pre('save', function (next) {
     promises = promises.concat(this.members.map(member => {
       // add a new room notification if they're not the facilitator
       let query = {$addToSet: {rooms: this._id}}
-      if (member.role === 'participant' && this.course) {
-        query = {$addToSet: {
-          rooms: this._id,
-          'courseNotifications.access': {
-            notificationType: 'assignedRoom', _id: this.course, room: this._id}
-          }
+      //@TODO use notification schema
+      let notification;
+      if (member.role === 'participant') {
+        notification = {
+          notificationType: 'assignedNewRoom',
+          resourceType: 'room',
+          resourceId: this._id,
+          parentResource: this.course,
+          fromUser: this.creator, // SHOULD ACTUALLY BE FACILITATOR...BUT HOW DO WE HANDLE MULTIPLE FACILITATORS
+          toUser: member.user,
         }
+        // Creating a notification of type assignedNewRoom will automatically add this room
+        // to the users room list as part of the pre save hook 
+        return Notification.create(notification)
+      } else {
+        // We only want to create notifications for participants
+        // If we don't create a ntf the user doesnt get the room added to their list in the pre save hook
+        // so we do it here 
+        return User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}})
       }
-      return User.findByIdAndUpdate(member.user, query)
     }))
     // promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}}))
     if (this.course) {

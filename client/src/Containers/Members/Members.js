@@ -18,11 +18,11 @@ import Member from '../../Components/UI/Member/Member';
 class Members extends Component {
 
   componentWillUnmount(){
-    const {user, resourceType, notifications } = this.props;
+    const { notifications } = this.props;
     if (notifications.length > 0){
       notifications.forEach(ntf => {
         if (ntf.notificationType === 'newMember') {
-          this.props.clearNotification(ntf._id, user._id, ntf.user._id, resourceType, 'access', ntf.notificationType)
+          this.props.clearNotification(ntf._id)
         }
       })
     }
@@ -48,13 +48,13 @@ class Members extends Component {
 
   render(){
     let { classList, notifications, owner, resourceType, courseMembers  } = this.props;
-    let joinRequests = <p>There are new requests to join</p>;
+    let joinRequests = <p>There are no new requests to join</p>;
     if (this.props.owner && notifications.length >= 1) {
       joinRequests = notifications.filter(ntf => ntf.notificationType === 'requestAccess').map((ntf, i) => {
         return (
           <Member
-            grantAccess={() => {this.props.grantAccess(ntf.user._id, this.props.resourceType, this.props.resourceId)}}
-            info={ntf}
+            grantAccess={() => {this.props.grantAccess(ntf.fromUser._id, this.props.resourceType, this.props.resourceId, ntf._id, ntf.toUser)}}
+            info={ntf.fromUser}
             key={i}
           />
         )
@@ -62,8 +62,8 @@ class Members extends Component {
     }
     let classListComponents = classList.map((member, i) => {
       let notification = notifications.filter(ntf => {
-        if (ntf.user && ntf.notificationType === 'newMember') {
-          return ntf.user._id === member.user._id
+        if (ntf.fromUser && ntf.notificationType === 'newMember') {
+          return ntf.fromUser._id === member.user._id
         }
         else return false;
       })

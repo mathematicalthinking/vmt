@@ -25,15 +25,22 @@ class privateAccess extends Component {
   componentWillUnmount() {
     if (this.props.error) this.props.clearError();
   }
-  
+
   requestAccess = () => {
     let { resource, owners, resourceId, userId, requestAccess } = this.props;
-    requestAccess(owners, userId, resource, resourceId) 
+    requestAccess(owners, userId, resource, resourceId)
     this.props.history.push('/confirmation')
   }
 
   joinWithCode = () => {
     let { resource, resourceId, userId, username, joinWithCode } = this.props;
+    // put request was being made to /course/:id when it should be /courses/:id
+    if (resource === 'course') {
+      resource = 'courses';
+    }
+    if (resource === 'room') {
+      resource = 'rooms';
+    }
     joinWithCode(resource, resourceId, userId, username, this.state.entryCode);
   }
 
@@ -45,8 +52,7 @@ class privateAccess extends Component {
     if (resource === 'courses') displayResource = 'course';
     return (
       <Modal show={this.state.show} closeModal={this.closeModal}>
-        <div className={classes.Close} onClick={this.closeModal}><i data-testid='close-modal' className="fas fa-times"></i></div>
-        <p className={classes.Description}>{`You currently don't have access to this ${displayResource}. If you know this 
+        <p className={classes.Description}>{`You currently don't have access to this ${displayResource}. If you know this
           ${displayResource}'s entry code, you can enter it below`}
         </p>
         <TextInput light type='text' name='entryCode' change={this.updateEntry}/>

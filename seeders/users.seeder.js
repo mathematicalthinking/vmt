@@ -11,25 +11,18 @@ var User = require('../models/User')
 var data = [
   {
   "_id": "5ba289ba7223b9429888b9b4",
-  "roomNotifications": {
-    "access": [],
-    "newRoom": []
-  },
-  "courseNotifications": {
-    "access": [],
-    "newRoom": []
-  },
+  "notifications": [],
   "courseTemplates": [],
   "courses": [
     // "5bbb82f72539b95500cf526e",  // THESE WILL BE ADDED TO THIS USER WHEN THEY'RE CREATED BECAUSE COURSE AND ROOM HAVE A PRE SAVE HOOK THAT UPDATES THE USERS
-    // "5bbf4e5ec1b6d84cb0a4ded8", 
+    // "5bbf4e5ec1b6d84cb0a4ded8",
     // "5bbb82f72539b95500cf526a",
     // "5bbf4e5ec1b6d84cb0a4ded3",
   ],
   "rooms": [
     // "5ba289c57223b9429888b9b3",
-    // "5ba289c57223b9429888b9b5", 
-    // "5ba289c57223b9429888b9b6", 
+    // "5ba289c57223b9429888b9b5",
+    // "5ba289c57223b9429888b9b6",
     // "5ba289c57223b9429888b9b7",
   ],
   "activities": [],
@@ -45,14 +38,7 @@ var data = [
   },
   {
     "_id": "5bbbbd9a799302265829f5af",
-    "roomNotifications": {
-      "access": [],
-      "newRoom": []
-    },
-    "courseNotifications": {
-      "access": [],
-      "newRoom": []
-    },
+    "notifications": [],
     "courseTemplates": [],
     "courses": ["5bbf4e5ec1b6d84cb0a4ded8"],
     "rooms": ["5ba289c57223b9429888b9b6"],
@@ -67,14 +53,7 @@ var data = [
     "accountType": "participant",
   },{
     "_id": "5be1eba75854270cd0920fb8",
-    "roomNotifications": {
-      "access": [],
-      "newRoom": []
-    },
-    "courseNotifications": {
-      "access": [],
-      "newRoom": []
-    },
+    "notifications": [],
     "courseTemplates": [],
     "courses": ["5bbf4e5ec1b6d84cb0a4ded8"],
     "rooms": [],
@@ -90,14 +69,7 @@ var data = [
   },
   {
     "_id": "5be1eba75854270cd0920fa9",
-    "roomNotifications": {
-      "access": [],
-      "newRoom": []
-    },
-    "courseNotifications": {
-      "access": [],
-      "newRoom": []
-    },
+    "notifications": [],
     "courseTemplates": [],
     "courses": ["5bbf4e5ec1b6d84cb0a4ded8"],
     "rooms": [],

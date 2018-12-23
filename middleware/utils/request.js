@@ -10,7 +10,8 @@ const resourceToModelMap = {
   rooms: 'Room',
   tabs: 'Tab',
   teams: 'Team',
-  user: 'User'
+  user: 'User',
+  notifications: 'Notification'
 };
 
 const getUser = (req) => {

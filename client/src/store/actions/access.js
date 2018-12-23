@@ -28,12 +28,11 @@ export const joinWithCode = (resource, resourceId, userId, username, entryCode, 
       return dispatch(loading.success())
     })
     .catch(err => dispatch(loading.fail('That entry code was incorrect. Try again.')))
-  } 
+  }
 }
 
 export const requestAccess = (owners, userId, resource, resourceId) => {
   return dispatch => {
-    console.log('requesting access ', owners, userId, resource, resourceId)
     dispatch(loading.start());
     API.requestAccess(owners, userId, resource, resourceId)
     .then(res => {
@@ -45,22 +44,21 @@ export const requestAccess = (owners, userId, resource, resourceId) => {
   }
 }
 
-export const grantAccess = (user, resource, resourceId) => {
+export const grantAccess = (user, resource, resourceId, ntfId, toUserId) => {
   return (dispatch, getState) => {
     // dispatch(loading.start())
-    let thisUser = getState().user._id;
-    API.removeNotification(resourceId, thisUser, user, resource, 'access', 'requestAccess')
+    API.removeNotification(ntfId)
     .then(res => {
-      dispatch(removeNotification(resource, 'access', user, resourceId))
+      dispatch(removeNotification(ntfId))
       // dispatch(gotUser(res.data))
     })
     .catch(err => console.log(err))
     API.grantAccess(user, resource, resourceId)
     .then(res => {
-      if (resource === 'rooms') {
-        dispatch(updatedRoom(resourceId, {members: res.data})) // change to add 
-      } else if (resource === 'courses') {
-        dispatch(updatedCourse(resourceId, {members: res.data})) // change to add 
+      if (resource === 'rooms' || resource === 'room') {
+        dispatch(updatedRoom(resourceId, {members: res.data})) // change to add
+      } else if (resource === 'courses' || resource === 'course') {
+        dispatch(updatedCourse(resourceId, {members: res.data})) // change to add
       }
       // let { user } = getState()
       // let singResource = resource.slice(0, resource.length - 1) // <-- THIS IS ANNOTING \\ WE COULD JUST REANME THE FIELD courseSnotifications?

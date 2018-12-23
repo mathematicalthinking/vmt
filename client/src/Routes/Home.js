@@ -12,11 +12,12 @@ class Home extends PureComponent {
   }
 
   componentDidMount(){
-    window.addEventListener('scroll', this.handleScroll)
+    window.addEventListener('scroll', this.handleScroll)  // @TODO while it would be less dry we should move this out of here and into homeNave and Homepage...
+    // having this at the top level causes a complete re-render of the app on every scroll...actually we might just need it on the homeNav
   }
 
   componentWillUnmount(){
-    window.removeEventListener('scroll', this.handleScroll)
+    window.removeEventListener('scroll', this.handleScroll) 
   }
 
   handleScroll = event => {

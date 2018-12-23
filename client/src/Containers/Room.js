@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { DashboardLayout, SidePanel, RoomDetails, } from '../Layout/Dashboard/';
 import Members from './Members/Members';
+import { getUserNotifications } from '../utils/notifications';
 import {
   enterRoomWithCode,
   populateRoom,
@@ -10,6 +11,7 @@ import {
   clearError,
   clearNotification,
   updateRoom,
+  getRooms,
 } from '../store/actions';
 import {
   Aux,
@@ -49,7 +51,7 @@ class Room extends Component {
 
   componentDidMount() {
     const { room, user, clearNotification, } = this.props;
-    let accessNotifications = user.courseNotifications.access.concat(user.roomNotifications.access)
+    let notifications = user.notifications;
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
     // If its in the store check access
     if (room) {
@@ -58,25 +60,22 @@ class Room extends Component {
       let updatedTabs = [...this.state.tabs];
       let owner = false;
       let firstView = false;
-      if (room.members.filter(member => member.role === 'facilitator' && member.user._id === user._id)) { // WE SHOULD ACTUALLY BE CHECKING THE FACILITATORS NOT THE OWNER
+      if (room.members.filter(member => member.role === 'facilitator' && member.user._id === user._id).length > 0) { // WE SHOULD ACTUALLY BE CHECKING THE FACILITATORS NOT THE OWNER
         // updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
         // this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
         owner = true;
         // displayNotifications
         updatedTabs = this.displayNotifications(updatedTabs)
       }
-      if (accessNotifications.length > 0) {
-        console.log('trying to clear notification')
-        accessNotifications.forEach(ntf => {
-          console.log(ntf.room, room._id)
-          if (ntf.notificationType === 'grantedAccess' && ntf._id === room._id) {
+      if (notifications.length > 0) {
+        notifications.forEach(ntf => {
+          if (ntf.notificationType === 'grantedAccess' && ntf.resourceId === room._id) {
             // RESOLVE THIS NOTIFICATION
-            console.log("found the right notification")
             firstView = true;
-            clearNotification(room._id, user._id, null, 'room', 'access', ntf.notificationType) //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
-          } else if (ntf.notificationType === 'assignedRoom' && ntf.room === room._id) {
+            clearNotification(ntf._id); //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
+          } else if (ntf.notificationType === 'assignedNewRoom' && ntf.resourceId === room._id) {
             firstView = true;
-            clearNotification(room.course, user._id, null, 'course', 'access', ntf.notifcationType )
+            clearNotification(ntf._id)
           }
         })
       }
@@ -93,6 +92,7 @@ class Room extends Component {
     // else fetch it
     else {
       // populateRoom(match.params.room_id) // @TODO WE DONT ACTUALLY WANT TO POPULATE IT HERE...THAT GIVES US ALL THE EVENTS..WE JUST WANT TO GET THE MEMBERS SO WE CAN CHECK ACCESS
+      this.fetchRoom();
     }
 
   }
@@ -106,7 +106,7 @@ class Room extends Component {
     if (prevProps.room && prevProps.room.members.length !== this.props.room.members.length) {
       this.checkAccess();
     }
-    if (prevProps.accessNotifications.length !== this.props.accessNotifications.length) {
+    if (prevProps.notifications.length !== this.props.notifications.length) {
       let updatedTabs = this.displayNotifications([...this.state.tabs]);
       this.setState({tabs: updatedTabs})
     }
@@ -124,12 +124,12 @@ class Room extends Component {
   }
 
   displayNotifications = (tabs) => {
-    let { user, room, accessNotifications } = this.props;
-    if (room.members.filter(member => member.role === 'facilitator' && member.user._id === user._id)) {
-      let thisRoomsNtfs = accessNotifications.filter(ntf => ntf._id === room._id)
+    let { user, room, notifications } = this.props;
+    if (room.members.filter(member => member.role === 'facilitator' && member.user._id === user._id).length > 0) {
+      let thisRoomsNtfs = notifications.filter(ntf => ntf.resourceId === room._id)
       tabs[1].notifications = thisRoomsNtfs.length > 0 ? thisRoomsNtfs.length: '';
-      return tabs;
     }
+    return tabs;
   }
 
   toggleEdit = () => {
@@ -166,11 +166,14 @@ class Room extends Component {
     this.props.history.push(`/myVMT/workspace/${this.props.room._id}/replayer`)
   }
 
+  fetchRoom = () => {
+    this.props.getRooms({_id: this.props.match.params.resource_id});
+  }
   render() {
-    console.log(this.state.tabs)
+
     let {
       room, match, user,
-      accessNotifications, error,
+      notifications, error,
       clearError, course
     } = this.props;
     if (room && !this.state.guestMode) {
@@ -211,7 +214,7 @@ class Room extends Component {
         mainContent = <RoomDetails
           room={room}
           owner={this.state.owner}
-          notifications={accessNotifications.filter(ntf => ntf._id === room._id) || []}
+          notifications={notifications.filter(ntf => ntf.resourceId === room._id) || []}
           editing={this.state.editing}
           toggleEdit={this.toggleEdit}
           updateRoomInfo={this.updateRoomInfo}
@@ -225,10 +228,9 @@ class Room extends Component {
           resourceType={'room'}
           resourceId={room._id}
           courseMembers={course ? course.members : null}
-          notifications={accessNotifications.filter(ntf => ntf._id === room._id) || []}
+          notifications={notifications.filter(ntf => ntf.resourceId === room._id) || []}
         />
       }
-
       return (
         <Aux>
           <DashboardLayout
@@ -268,7 +270,7 @@ class Room extends Component {
             ? <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
             <p>Welcome to {room.name}. If this is your first time joining a room,
             we recommend you take a tour. Otherwise you can start exploring this room's features.</p>
-            <Button click={() => this.setState({firstView: false})}>Explore</Button>
+            <Button data-testid='explore-room' click={() => this.setState({firstView: false})}>Explore</Button>
           </Modal> : null}
         </Aux>
       )
@@ -293,10 +295,10 @@ const mapStateToProps = (state, ownProps) => {
     course: state.courses.byId[course_id] || null,
     // courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
     user: state.user,
-    accessNotifications: state.user.roomNotifications.access, // this seems redundant
+    notifications: getUserNotifications(state.user, null, 'room'), // this seems redundant
     loading: state.loading.loading,
     error: state.loading.errorMessage,
   }
 }
 
-export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification, updateRoom})(Room);
+export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification, updateRoom, getRooms})(Room);

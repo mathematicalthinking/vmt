@@ -4,8 +4,8 @@ import { normalize } from '../utils/normalize';
 import API from '../../utils/apiRequests';
 import * as loading from './loading'
 import { gotCourses, } from './courses';
-import { addRoomMember } from './rooms';
-
+import { addRoomMember, gotRooms } from './rooms';
+import { gotActivities } from './activities';
 
 export const gotUser = (user, temp) => {
   let loggedIn = true;
@@ -84,13 +84,10 @@ export const updateNotifications = (updatedNotifications) => {
   }
 }
 
-export const removeNotification = (resource, listType, user, ntfId) => {
-  console.log(resource, listType, user, ntfId)
+// user is requesting user?
+export const removeNotification = (ntfId) => {
   return {
     type: actionTypes.REMOVE_NOTIFICATION,
-    resource,
-    listType,
-    user,
     ntfId,
   }
 }
@@ -113,12 +110,11 @@ export const updateUserResource = (resource, resourceId, userId) => {
 
 // For clearing notifications after the user has seen it. As opposed to request for access notifications which are cleared
 // when the user explicitly grants access (see actions.access)
-export const clearNotification = (ntfId, userId, requestingUser, resource, listType, ntfType) => {
-  console.log('clearing notification')
-  console.log(ntfId, userId, requestingUser, resource, listType, ntfType)
+export const clearNotification = (ntfId) => {
   return (dispatch) => {
-    dispatch(removeNotification(resource, listType, requestingUser, ntfId))
-    API.removeNotification(ntfId, userId, requestingUser, resource, listType, ntfType)
+    dispatch(removeNotification(ntfId))
+    // API.removeNotification(ntfId, userId, requestingUser, resource, ntfType)
+    API.put('notifications', ntfId, {isTrashed: true})
     .then(res => {
       // dispatch(gotUser(res.data))
     })
@@ -152,6 +148,13 @@ export const login = (username, password) => {
       let courses = normalize(res.data.courses)
       // const activities = normalize(res.data.activities)
       dispatch(gotCourses(courses));
+
+      let rooms = normalize(res.data.rooms);
+      dispatch(gotRooms(rooms));
+
+      let activities = normalize(res.data.activities);
+      dispatch(gotActivities(activities));
+
       let user = {
         ...res.data,
         courses: courses.allIds,
@@ -171,10 +174,18 @@ export const getUser = (id) => {
     API.getById('user', id)
     .then(res => {
       let courses = normalize(res.data.result.courses)
+      dispatch(gotCourses(courses));
+
       let user = {
         ...res.data.result,
         courses: courses.allIds,
       }
+      let rooms = normalize(res.data.result.rooms);
+      dispatch(gotRooms(rooms));
+
+      let activities = normalize(res.data.result.activities);
+      dispatch(gotActivities(activities));
+
       dispatch(gotUser(user))
       dispatch(loading.success())
     })

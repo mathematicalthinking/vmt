@@ -8,6 +8,7 @@ const user = require('./UserController');
 const events = require('./eventController');
 const courseTemplate = require('./courseTemplateController');
 const roomTemplate = require('./roomTemplateController');
+const notifications = require('./NotificationController');
 
 module.exports = {
   activities,
@@ -20,4 +21,5 @@ module.exports = {
   teams,
   user,
   events,
+  notifications
 };

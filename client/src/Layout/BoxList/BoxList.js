@@ -6,6 +6,7 @@ import classes from './boxList.css';
 const boxList = React.memo(props => {
   let listElems = "There doesn't appear to be anything here yet";
   if (props.list.length > 0) {
+    console.log(props.notifications)
     listElems = props.list.map((item, i) => {
       if (item) {
         let notifications = 0;
@@ -13,7 +14,7 @@ const boxList = React.memo(props => {
         if (props.listType === 'private') {
           if (props.notifications.length > 0) {
             props.notifications.forEach((ntf) => {
-              if (ntf._id === item._id || ntf.room === item._id) {
+              if (ntf.resourceId === item._id || ntf.parentResource === item._id) {
                 notifications += 1;
               }
             })

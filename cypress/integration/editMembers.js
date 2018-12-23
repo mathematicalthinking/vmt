@@ -25,7 +25,7 @@ describe('Edit Members Roles', function(){
     cy.getTestElement('tab').contains('Members').click();
     cy.getTestElement('avatar-name').contains('worf')
       .parent().parent().parent()
-      .siblings().last().children().last().should($el => {
+      .siblings().last().children().should($el => {
         expect($el).to.include.text('facilitator')
       });
     // .and('include', 'facilitator')

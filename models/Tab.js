@@ -12,7 +12,8 @@ const Tab = new mongoose.Schema({
   activity: {type: ObjectId, ref: 'Activity'},
   startingPoint: {type: String, default: null},
   sequenceNo: {type: Number},
-  controlledBy: {type: ObjectId, ref: 'User', default: null}
+  controlledBy: {type: ObjectId, ref: 'User', default: null},
+  creator: {type: ObjectId, ref: 'User'}
 });
 
 module.exports = mongoose.model('Tab', Tab);

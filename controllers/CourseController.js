@@ -1,4 +1,5 @@
-const db = require('../models')
+const db = require('../models');
+const _ = require('lodash');
 
 module.exports = {
   get: params => {
@@ -56,21 +57,30 @@ module.exports = {
   add: (id, body) => {
     return new Promise((resolve, reject) => {
       // Send a notification to user that they've been granted access to a new course
-      db.User.findByIdAndUpdate(body.members.user, {
-        $addToSet: {
-          courses: id,
-          'courseNotifications.access': {
+
+      let members;
+      let course;
+        db.Course.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
+        .populate({path: 'members.user', select: 'username'})
+        .then((res) => {
+          course = res;
+          return db.User.findByIdAndUpdate(body.members.user, {
+            $addToSet: {
+              courses: id
+            }
+          })
+        })
+        .then(() => {
+          members = course.members;
+          return db.Notification.create({
+            resourceType: 'course',
+            resourceId: id,
+            toUser: body.members.user,
             notificationType: 'grantedAccess',
-            _id: id,
-          }
-        }
-      }, {new: true})
-      .then(res => {})
-      db.Course.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
-      .populate({path: 'members.user', select: 'username'})
-      .then(res => {
-        resolve(res.members)})
-      .catch(err => reject(err))
+          })
+        })
+        .then(() => resolve(members))
+        .catch(err => reject(err))
     })
   },
 
@@ -86,44 +96,74 @@ module.exports = {
   },
 
   put: (id, body) => {
-    let promises = [];
+    let courseToPopulate;
+    let userToAdd;
+
     return new Promise((resolve, reject) => {
-      db.Course.findById(id)
-      .then(course => {
-        if (body.checkAccess) {
-          let { entryCode, userId } = body.checkAccess;
-          // @todo SHOULD PROBABLY HASH THIS AND MOVE TO AUTH ROUTE
-          // When a user gains access with an entry code
-          if (course.entryCode === entryCode) {
-            course.members.push({user: userId, role: 'participant'})
-            // Send a notification to all teachers of the room
-            promises = course.members.filter(member => member.role === 'facilitator').map(facilitator => {
-              return db.User.findByIdAndUpdate(course.creator, {
-                $addToSet: {
-                  'courseNotifications.access': {
-                    notificationType: 'newMember', _id: course._id, user: userId
-                  }
-                }
-              }, {new: true})
-            })
-            db.User.findByIdAndUpdate(userId, {
-              $addToSet: {courses: id,}
-            }).then(res => resolve(res))
-          } else reject('Incorrect Entry Code')
-        } else {
-          for (key in body) {
-            course[key] = body[key]
-          }
-        }
-        Promise.all(promises)
-        .then(res => {
-          course.save().then((c) => {
-            c.populate({path: 'members.user', select: 'username'}, (err, pop) => {resolve(pop)})
+      if (body.checkAccess) {
+        let { entryCode, userId } = body.checkAccess;
+
+        db.Course.findById(id)
+          .then((course) => {
+            // @todo SHOULD PROBABLY HASH THIS AND MOVE TO AUTH ROUTE
+            userToAdd = userId;
+            // throw error if incorrect entry code
+            if (course.entryCode !== entryCode) {
+              throw ('Incorrect Entry Code');
+            }
+
+            // throw error if user is already member of course
+            // member.user is type object, userId is string
+            if (_.find(course.members, member => member.user.toString() === userId)) {
+              throw ('You already have been granted access to this course!');
+            }
+            course.members.push({ user: userId, role: 'participant' })
+            return course.save();
           })
-        })
-      })
-      .catch(err => reject(err))
-    })
+          .then((updatedCourse) => {
+            courseToPopulate = updatedCourse;
+            return db.User.findByIdAndUpdate(userToAdd, { $addToSet: { courses: updatedCourse._id } }, {new: true });
+          })
+          .then((user) => {
+            let facilitators = courseToPopulate.members.filter(member => member.role === 'facilitator');
+            return Promise.all(facilitators.map((facilitator) => {
+              return db.Notification.create({
+                resourceType: 'course',
+                resourceId: courseToPopulate._id,
+                notificationType: 'newMember',
+                toUser: facilitator.user,
+                fromUser: userId,
+
+              });
+            }));
+          })
+          .then(() => {
+            return courseToPopulate.populate({ path: 'members.user', select: 'username' }, (err, pop) => {
+              if (err) {
+                return reject(err);
+              }
+              return resolve(pop);
+            })
+          })
+          .catch((err) => {
+            reject(err);
+          })
+      } else {
+        return db.Course.findById(id)
+          .then((course) => {
+            for (key in body) {
+              course[key] = body[key]
+            }
+            return course.save();
+          })
+          .then((updatedCourse) => {
+            return updatedCourse.populate({ path: 'members.user', select: 'username' }, (err, pop) => { return resolve(pop) })
+          })
+          .catch((err) => {
+            reject(err);
+          });
+        }
+    });
   },
 
   delete: id => {

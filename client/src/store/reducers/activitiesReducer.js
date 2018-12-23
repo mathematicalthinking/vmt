@@ -22,6 +22,8 @@ const reducer = (state = initialState, action) => {
         ...state,
         byId: updatedActivities,
       }
+    case actionTypes.LOGOUT:
+      return initialState
 
     case actionTypes.REMOVE_ACTIVITY:
       const updatedIds = state.allIds.filter(id => id !== action.activityId)
@@ -75,7 +77,7 @@ const reducer = (state = initialState, action) => {
           if (tab._id === action.tabId) {
             fields.forEach(field => {
               tab[field] = action.body[field]
-            })        
+            })
           }
           return tab;
         })
