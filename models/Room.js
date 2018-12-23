@@ -48,8 +48,15 @@ Room.pre('save', function (next) {
           fromUser: this.creator, // SHOULD ACTUALLY BE FACILITATOR...BUT HOW DO WE HANDLE MULTIPLE FACILITATORS
           toUser: member.user,
         }
+        // Creating a notification of type assignedNewRoom will automatically add this room
+        // to the users room list as part of the pre save hook 
+        return Notification.create(notification)
+      } else {
+        // We only want to create notifications for participants
+        // If we don't create a ntf the user doesnt get the room added to their list in the pre save hook
+        // so we do it here 
+        return User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}})
       }
-      return Notification.create(notification)
     }))
     // promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}}))
     if (this.course) {

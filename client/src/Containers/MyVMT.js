@@ -156,7 +156,7 @@ class Profile extends Component {
     // if (courseNotifications.newRoom.length > 0){
     //   updatedTabs[0].notifications += courseNotifications.newRoom.length;
     // }
-    console.log("first tab", updatedTabs[0])
+    console.log("first tab", this.props.user.notifications)
     // let roomNtfs = roomNotifications.filter(ntf => ntf._id ===)
     updatedTabs[2].notifications = roomNtfs.length === 0 ? '' : roomNtfs.length;
     this.setState({

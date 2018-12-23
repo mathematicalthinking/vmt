@@ -24,12 +24,10 @@ Notification.post('save', function(notification) {
     let updateQuery = {
       [method]: {notifications: notification._id}
     }
-    if (notification.notificationType === 'assignedNewRoom') {
-      updateQuery['$addToSet'] =  {...updateQuery['$addToSet'], rooms: notification.resourceId}
+    if (notification.notificationType === 'assignedNewRoom' && method === '$addToSet') {
+      updateQuery['$addToSet'].rooms = notification.resourceId;
     }
-    console.log("ADD ROOM QUERY: ", updateQuery)
     User.findByIdAndUpdate(notification.toUser, updateQuery, {new: true}, (err, res) => {
-      console.log(res)
       if (err) {
         console.log('err', err);
       }
