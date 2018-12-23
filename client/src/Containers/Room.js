@@ -74,7 +74,7 @@ class Room extends Component {
             console.log("found the right notification")
             firstView = true;
             clearNotification(ntf._id); //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
-          } else if (ntf.notificationType === 'assignedRoom' && ntf.resourceId === room._id) {
+          } else if (ntf.notificationType === 'assignedNewRoom' && ntf.resourceId === room._id) {
             firstView = true;
             clearNotification(ntf._id)
           }
