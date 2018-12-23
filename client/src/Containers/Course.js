@@ -71,15 +71,8 @@ class Course extends Component {
       let updatedTabs = [...this.state.tabs];
       let owner = course.members.filter(member => member.role === 'facilitator' && member.user._id === user._id).length > 0;
 
-      if (owner) {
-      //   updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
-      //   this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
       updatedTabs = this.displayNotifications(updatedTabs);
-    }
 
-
-      // Check for notifications that need resolution
-      // Get Any other notifications
       this.setState({
         tabs: updatedTabs,
         owner,
@@ -136,7 +129,8 @@ class Course extends Component {
         let memberNtfs = notifications.filter(ntf => (ntf.resourceId === course._id && (ntf.notificationType === 'requestAccess' || ntf.notificationType === 'newMember')));
         tabs[2].notifications = memberNtfs.length > 0 ? memberNtfs.length : '';
       }
-      let newRoomNtfs = notifications.filter(ntf => (ntf.resourceId === course._id && ntf.notificationType === 'assignedRoom'))
+      console.log(notifications)
+      let newRoomNtfs = notifications.filter(ntf => (ntf.parentResource === course._id && ntf.notificationType === 'assignedNewRoom'))
       tabs[1].notifications = newRoomNtfs.length > 0 ? newRoomNtfs.length : '';
     // }
     // if (notifications.llength > 0){
@@ -221,7 +215,7 @@ class Course extends Component {
           userResources={myRooms || course[resource] || []}
           user={user}
           resource={resource}
-          notifications={notifications.filter(ntf => ntf.resourceId === course._id)}
+          notifications={notifications.filter(ntf => ntf.parentResource === course._id)}
           parentResource="courses"
           parentResourceId={course._id}
         />
@@ -278,7 +272,7 @@ class Course extends Component {
             }
             tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
             mainContent={mainContent}
-
+    
             // routingInfo={this.props.match}
             //
             // contentData={contentData}
