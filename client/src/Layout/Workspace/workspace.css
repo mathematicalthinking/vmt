@@ -214,8 +214,9 @@
 .Chat {
   box-shadow: lightShadow;
   border-radius: 5px;
-  /* flex-grow: 2; */
-  /* height: 75%; */
+  border: 1px solid red;
+  order: 1;
+  align-self: auto;
 }
 
 .Members {
@@ -223,6 +224,9 @@
   /* height: 22%; */
   margin: 10px 0;
   border-radius: 5px;
+  border: 1px solid blue;
+  order: 2;
+  align-self: auto;
 }
 
 .Replayer {
@@ -294,6 +298,9 @@
 .ReferenceWindow {
   /* height: 100%; */
   box-shadow: lightShadow;
+  border: 1px solid pink;
+  order: 3;
+  align-self: auto;
 }
 
 .Controls {
