@@ -154,8 +154,10 @@ class NewResourceContainer extends Component {
                 <h2>Create a {displayResource}</h2>
                 {steps[this.state.step]}
               </div>
-              <Button click={this.nextStep}>Next</Button>
-              { this.state.step > 0 ? <Button click={this.prevStep}>Back</Button> : null }
+              <div className={classes.Row}>
+                { this.state.step > 0 ? <Button click={this.prevStep}>Back</Button> : null }
+                <Button click={this.nextStep}>Next</Button>
+              </div>
             </Modal>
           : null
           } 
