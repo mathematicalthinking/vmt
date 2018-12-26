@@ -1,8 +1,8 @@
 import React from 'react';
 import classes from './radioBtn.css';
-const radioBtn = props => {
+const RadioBtn = props => {
   return (
-    <label className={classes.Container}>
+    <label className={classes.Row}>
       {props.children}
       <input data-testid={props['data-testid']} type='radio' checked={props.checked} name={props.name} onChange={props.check}/>
       <span className={classes.Checkmark}></span>
@@ -10,4 +10,4 @@ const radioBtn = props => {
   )
 }
 
-export default radioBtn;
+export default RadioBtn;

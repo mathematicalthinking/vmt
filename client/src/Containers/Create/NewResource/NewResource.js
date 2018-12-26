@@ -2,12 +2,11 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { hri } from 'human-readable-ids';
 import Step1 from './Step1';
+import Step2 from './Step2';
 import StepDisplay from './StepDisplay';
 import { NewResource, FromActivity } from '../../../Layout';
 import { getUserResources, populateResource }from '../../../store/reducers';
-import { Modal } from '../../../Components/'; 
-import Aux from '../../../Components/HOC/Auxil';
-import Button from '../../../Components/UI/Button/Button';
+import { Modal, Aux, Button, } from '../../../Components/';
 import classes from '../create.css';
 import { connect } from 'react-redux';
 import {
@@ -53,6 +52,7 @@ class NewResourceContainer extends Component {
   startCreation = () => this.setState({creating: true, selecting: false})
 
   changeHandler = (event) => {
+    console.log(event.target.value)
     this.setState({
       [event.target.name]: event.target.value,
     })
@@ -107,6 +107,7 @@ class NewResourceContainer extends Component {
   }
 
   nextStep = (direction) => {
+    console.log('next step: ', direction)
     let copying = true;
     if (direction === 'new') {
       copying = false;
@@ -114,6 +115,12 @@ class NewResourceContainer extends Component {
     this.setState({
       step: this.state.step + 1,
       copying,
+    })
+  }
+
+  prevStep = () => {
+    this.setState({
+      step: this.state.step - 1 || 0,
     })
   }
 
@@ -137,7 +144,7 @@ class NewResourceContainer extends Component {
 
     }
     let stepTitles = ['Enter Details', this.state.copying ? 'Select 1 or More Activities to Copy' : 'Enter Details']
-    let currentStep = <Step1 displayResource={displayResource} changeHandler={this.changeHandler}/>
+    let steps = [<Step1 displayResource={displayResource} changeHandler={this.changeHandler}/>, <Step2 displayResource={displayResource} selectionHandler={this.selectionHandler} />]
 
     return (
       <Aux> 
@@ -145,9 +152,10 @@ class NewResourceContainer extends Component {
           ? <Modal show={this.state.creating} closeModal={this.closeModal}>
               <div className={classes.Container}>
                 <h2>Create a {displayResource}</h2>
-                {currentStep}
+                {steps[this.state.step]}
               </div>
               <Button click={this.nextStep}>Next</Button>
+              { this.state.step > 0 ? <Button click={this.prevStep}>Back</Button> : null }
             </Modal>
           : null
           } 

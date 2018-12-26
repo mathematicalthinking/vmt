@@ -38,6 +38,10 @@
   margin: 10px;
 }
 
+.Row {
+  display: flex;
+}
+
 .FormSection {
   display: flex;
   flex-flow: column;
