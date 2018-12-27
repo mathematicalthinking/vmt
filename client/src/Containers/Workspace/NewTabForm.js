@@ -14,12 +14,27 @@ class NewTabForm extends Component {
 
   changeHandler = (event) => {
     this.setState(
-      {[event.target.name]: event.target.value}
+      {[event.target.name]: event.target.value,
+        errorMessage: null,
+      }
     )
   }
 
+  onKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.submit();
+    }
+  }
+
   submit = () => {
-    console.log(this.props.activity)
+    if (this.state.name.trim().length <= 1) {
+      this.setState({
+        errorMessage: 'Please provide a name for the tab'
+      })
+      return;
+    }
     API.post('tabs', {
       name: this.state.name,
       instructions: this.state.instructions,
@@ -53,8 +68,9 @@ class NewTabForm extends Component {
     return (
       <div className={classes.NewTabModal}>
         <h2>Create A New Tab</h2>
-        <TextInput light value={this.state.name} change={this.changeHandler} name='name' label='Name' autofill='none'/>
-        <TextInput light value={this.state.instructions} change={this.changeHandler} name='instructions' label='Instructions'/>
+        <TextInput light value={this.state.name} change={this.changeHandler} onKeyDown={this.onKeyDown} name='name' label='Name' autofill='none'/>
+          {this.state.errorMessage ? <div className={classes.ErrorMessage}>{this.state.errorMessage}</div> : null}
+        <TextInput light value={this.state.instructions} change={this.changeHandler} onKeyDown={this.onKeyDown} name='instructions' label='Instructions'/>
         <div className={classes.RadioGroup}>
           <RadioBtn name='geogebra' checked={this.state.ggb} check={() => this.setState({ggb: true})}>GeoGebra</RadioBtn>
           <RadioBtn name='desmos' checked={!this.state.ggb} check={() => this.setState({ggb: false})}>Desmos</RadioBtn>
@@ -72,7 +88,7 @@ class NewTabForm extends Component {
             change={this.changeHandler}
           />}
         </div>
-        <Button m={10} click={this.submit}>Create</Button>
+        <Button m={10} onClick={this.submit}>Create</Button>
       </div>
     )
   }

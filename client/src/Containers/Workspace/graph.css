@@ -2,6 +2,7 @@
   graphHeight: graphHeight;
   graphWidth: graphWidth;
   lightShadow: lightShadow;
+  red: red;
 }
 
 .Graph {
@@ -52,4 +53,10 @@
 
 .Info {
   margin: 15px 0;
+}
+
+.ErrorMessage {
+  color: red;
+  margin-top: -9px;
+  margin-bottom: -10px;
 }
