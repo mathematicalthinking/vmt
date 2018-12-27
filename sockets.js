@@ -81,7 +81,7 @@ const socketInit = require('./socketInit');
         })
       });
 
-      socket.on('disconnecting', () => {
+      socket.on('LEAVE_ROOM', (cb) => {
         rooms = Object.keys(socket.rooms).slice(1)
         controllers.rooms.removeCurrentUsers(rooms[0], socket.user_id)
         .then(res => {
@@ -111,9 +111,14 @@ const socketInit = require('./socketInit');
             // socket.to(rooms[0]).emit('RECEIVE_MESSAGE') //@TODO WE SHOLD COMBINE THIS INTO ONE EMIT
             socket.to(rooms[0]).emit('RECEIVE_MESSAGE', message)
             socket.to(rooms[0]).emit('USER_LEFT', {currentMembers, releasedControl,})
-          } else console.log('there was an error')
+            return cb('exited!', null)
+          } else return cb('no room to leave!', null)
         })
-        .catch(err => console.log("ERR: ",err))
+        .catch(err => cb(null, err))
+      })
+
+      socket.on('disconnecting', () => {
+        console.log('socket disconecting', socket.id);
       })
 
       socket.on('disconnect', () => {
