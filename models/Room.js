@@ -25,12 +25,24 @@ const Room = new mongoose.Schema({
   tempRoom: {type: Boolean, default: false},
   image: {type: String,},
   graphImage: {type: ObjectId, ref: 'Image'},
-  controlledBy: {type: ObjectId, ref: 'User', defaut: null}
+  controlledBy: {type: ObjectId, ref: 'User', defaut: null},
+  wasNew: {type: Boolean}
 },
 {timestamps: true});
 
-Room.pre('save', function (next) {
-  if (this.isNew && !this.tempRoom) {
+Room.pre('save', function(next) {
+  if (this.isNew) {
+    console.log('this.isNew', this.isNew);
+    this.wasNew = this.isNew
+  }
+  next();
+})
+
+Room.post('save', function (doc, next) {
+  console.log('this prs', this.wasNew);
+  if (this.wasNew && !this.tempRoom) {
+    this.wasNew = false;
+
     let promises = [];
     promises.push(Image.create({imageData: ''}))
     // Add the room to all of the users in this room
@@ -49,12 +61,12 @@ Room.pre('save', function (next) {
           toUser: member.user,
         }
         // Creating a notification of type assignedNewRoom will automatically add this room
-        // to the users room list as part of the pre save hook 
+        // to the users room list as part of the pre save hook
         return Notification.create(notification)
       } else {
         // We only want to create notifications for participants
         // If we don't create a ntf the user doesnt get the room added to their list in the pre save hook
-        // so we do it here 
+        // so we do it here
         return User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}})
       }
     }))
@@ -73,7 +85,7 @@ Room.pre('save', function (next) {
       next()
     })
     .catch(err => next(err)) //@TODO WE NEED ERROR HANDLING HERE
-  } else if (!this.isNew) {
+  } else if (!this.wasNew) {
     this.modifiedPaths().forEach(field => {
       if (field === 'members') {
         User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
