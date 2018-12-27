@@ -31,18 +31,13 @@ const Room = new mongoose.Schema({
 {timestamps: true});
 
 Room.pre('save', function(next) {
-  if (this.isNew) {
-    console.log('this.isNew', this.isNew);
-    this.wasNew = this.isNew
-  }
+  this.wasNew = this.isNew
   next();
 })
 
 Room.post('save', function (doc, next) {
   console.log('this prs', this.wasNew);
   if (this.wasNew && !this.tempRoom) {
-    this.wasNew = false;
-
     let promises = [];
     promises.push(Image.create({imageData: ''}))
     // Add the room to all of the users in this room
