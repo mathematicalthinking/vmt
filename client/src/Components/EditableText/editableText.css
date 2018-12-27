@@ -37,6 +37,16 @@
   min-width: 250px;
 }
 
+.TextInput {
+  height: 30px;
+  font-size: 14px;
+  border-radius: 3px;
+  border: 1px solid #999;
+  padding: 0 5px;
+  margin-top: -3px;
+  min-width: 250px;
+}
+
 .TextArea {
   width: 100%;
   height: fit-content;

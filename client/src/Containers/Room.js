@@ -180,7 +180,6 @@ class Room extends Component {
     if (room && !this.state.guestMode) {
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
       let dueDateText = 'Due Date' // the fact that we have to do this make this not worth it
-      let dueDateValue = moment(this.state.dueDate).format('L');
       let ggb = false;
       let desmos = false;
       room.tabs.forEach((tab) => {
