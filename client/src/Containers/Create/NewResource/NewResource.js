@@ -49,14 +49,18 @@ class NewResourceContainer extends Component {
     privacySetting: 'public',
   }
 
-  startCreation = () => this.setState({creating: true, selecting: false})
+  startCreation = () => this.setState({creating: true,})
 
   changeHandler = (event) => {
-    console.log(event.target.value)
     this.setState({
       [event.target.name]: event.target.value,
     })
   }
+
+  setCopying = (event) => {
+    this.setState({copying: event.target.name === 'copy'})
+  }
+
   submitForm = ({name, description, privacySetting, dueDate, ggb, ggbFile, desmosLink}) => {
     let { resource } = this.props;
     let theme = imageThemes[Math.floor(Math.random()*imageThemes.length)];
@@ -107,14 +111,8 @@ class NewResourceContainer extends Component {
   }
 
   nextStep = (direction) => {
-    console.log('next step: ', direction)
-    let copying = true;
-    if (direction === 'new') {
-      copying = false;
-    }
     this.setState({
       step: this.state.step + 1,
-      copying,
     })
   }
 
@@ -144,7 +142,10 @@ class NewResourceContainer extends Component {
 
     }
     let stepTitles = ['Enter Details', this.state.copying ? 'Select 1 or More Activities to Copy' : 'Enter Details']
-    let steps = [<Step1 displayResource={displayResource} changeHandler={this.changeHandler}/>, <Step2 displayResource={displayResource} selectionHandler={this.selectionHandler} />]
+    let steps = [
+      <Step1 displayResource={displayResource} changeHandler={this.changeHandler}/>, 
+      <Step2 displayResource={displayResource} check={this.setCopying} copying={this.state.copying}/>
+    ]
 
     return (
       <Aux> 
