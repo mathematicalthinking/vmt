@@ -19,7 +19,6 @@ const EditText = React.memo(({editing, inputType, change, children, options, nam
           </span>
         </div>
       case 'date':
-        console.log('date case and children are', children);
         return input = <input className={[classes.Common, classes.Date].join(' ')} name={name} type='date' value={children} onChange={change}/>
       case 'text-area':
         return input = <textarea className={classes.TextArea} onChange={change} name={name} value={children}/>

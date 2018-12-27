@@ -5,6 +5,7 @@ import { Chat as ChatLayout } from '../../Components';
 class Chat extends Component {
   state = {
     newMessage: '',
+    isConnected: true,
   }
 
   componentDidMount() {
@@ -21,20 +22,20 @@ class Chat extends Component {
     if (!this.props.replaying) {
       this.props.socket.on('RECEIVE_MESSAGE', data => {
         this.props.updatedRoom(this.props.roomId, {chat: [...this.props.messages, data]})
-        // this.scrollToBottom() 
+        // this.scrollToBottom()
       });
     }
   }
 
   componentDidUpdate(prevProps, prevState){
     if (!prevProps.referencing && this.props.referencing) {
-      this.setState({newMessage: `⬅️${this.state.newMessage}`})
+      this.setState({newMessage: `⬅️ ${this.state.newMessage}`})
     }
     else if (prevProps.referencing && !this.props.referencing) {
       let newMessage = this.state.newMessage.replace(/⬅/g, '')
       this.setState({newMessage,})
     }
-    if ((prevState.newMessage.includes('⬅') && !this.state.newMessage.includes('⬅️') && !this.state.newMessage.includes('⬆️')) || 
+    if ((prevState.newMessage.includes('⬅') && !this.state.newMessage.includes('⬅️') && !this.state.newMessage.includes('⬆️')) ||
         (prevState.newMessage.includes('⬆️') && !this.state.newMessage.includes('⬆️')) && !this.state.newMessage.includes('⬅')) {
           this.props.clearReference()
     }
@@ -48,7 +49,8 @@ class Chat extends Component {
 
   changeHandler = event => {
     this.setState({
-      newMessage: event.target.value
+      newMessage: event.target.value,
+      // isConnected: this.props.socket.connected,
     })
   }
 
@@ -61,7 +63,7 @@ class Chat extends Component {
       room: roomId,
       timestamp: new Date().getTime()
     }
-    if (this.props.referencing) { 
+    if (this.props.referencing) {
       newMessage.reference = {...this.props.referToEl}
       newMessage.tab = this.props.currentTab
       this.props.clearReference()
@@ -84,21 +86,22 @@ class Chat extends Component {
 
   render() {
     return (
-      <ChatLayout 
-        messages={this.props.messages} 
-        change={this.changeHandler} 
-        submit={this.submitMessage} 
-        value={this.state.newMessage} 
+      <ChatLayout
+        messages={this.props.messages}
+        change={this.changeHandler}
+        submit={this.submitMessage}
+        value={this.state.newMessage}
         referencing={this.props.referencing}
-        referToEl={this.props.referToEl} 
+        referToEl={this.props.referToEl}
         referToCoords={this.props.referToCoords}
         referFromEl={this.props.referFromEl}
         referFromCoords={this.props.referFromCoords}
         setToElAndCoords={this.props.setToElAndCoords}
-        setFromElAndCoords={this.props.setFromElAndCoords} 
+        setFromElAndCoords={this.props.setFromElAndCoords}
         showingReference={this.props.showingReference}
         clearReference={this.props.clearReference}
         showReference={this.props.showReference}
+        isConnected={this.state.isConnected}
       />
     )
   }

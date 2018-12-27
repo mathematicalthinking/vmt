@@ -214,7 +214,7 @@ class Chat extends Component {
         <h3 className={classes.Title} onClick={this.toggleCollapse.bind(this)}>Chat
           <div className={classes.Status}>
             <svg height="20" width="20">
-              <circle cx="10" cy="15" r="5" fill="#34A505"/>
+              <circle cx="10" cy="15" r="5" fill={this.props.isConnected ? "#34A505" : "#FFD549"}/>
             </svg>
           </div>
         </h3>
