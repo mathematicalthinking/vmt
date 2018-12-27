@@ -77,6 +77,7 @@ class NewResourceContainer extends Component {
     if (newResource.privacySetting === 'private') {
       newResource.entryCode = hri.random();
     }
+    console.log(resource)
     switch (resource) {
       case 'courses' :
         this.props.createCourse(newResource);
@@ -98,11 +99,10 @@ class NewResourceContainer extends Component {
         newResource.dueDate = this.state.dueDate;
         if (this.props.courseId) newResource.course = this.props.courseId;
         newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
-        // this.props.createRoom(newResource);
+        this.props.createRoom(newResource);
         break;
       default: break;
     }
-    console.log(newResource)
     this.setState({creating: false})
     if (this.props.intro) {
       this.props.updateUser({accountType: 'facilitator'})
