@@ -193,10 +193,9 @@
 .Graph {
   position: relative;
   order: 1;
-  align-self: auto;
-  height: 78%;
-  flex: .8 0 auto;
+  flex: 1 0 auto;
   box-shadow: lightShadow;
+  height: auto;
   /*  IF THIS ^  CHANGES BE SURE TO CHANEG THE WIDTH PARAMETER ON THE GGB GRAPH*/
   /* box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.28); */
   /* border-radius: 3px; */
@@ -206,6 +205,7 @@
   background-color: background;
   order: 2;
   display: flex;
+  flex: 0 1 auto;
   margin-top: 10px;
   box-shadow: lightShadow;
 }
@@ -214,22 +214,18 @@
 .Chat {
   box-shadow: lightShadow;
   border-radius: 5px;
-  border: 1px solid red;
   order: 1;
-  align-self: auto;
-  flex-shrink: 1;
+  /* align-self: auto;
+  flex-shrink: 1; */
+  flex: 1 1 auto;
 }
 
 .Members {
   box-shadow: lightShadow;
-  /* height: 22%; */
   margin: 10px 0;
   border-radius: 5px;
-  border: 1px solid blue;
   order: 2;
-  align-self: auto;
-  flex-grow: 0;
-  flex-shrink: 1;
+  flex: 0 1 auto;
 }
 
 .Replayer {
@@ -301,11 +297,11 @@
 .ReferenceWindow {
   /* height: 100%; */
   box-shadow: lightShadow;
-  border: 1px solid pink;
   order: 3;
   align-self: auto;
-  flex-grow: 0;
-  flex-shrink: 1;
+  flex: 0 0 auto;
+  /* flex-grow: 0;
+  flex-shrink: 1; */
 }
 
 .Controls {
