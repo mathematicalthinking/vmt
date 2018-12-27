@@ -19,7 +19,7 @@ class CurrentMembers extends Component {
     return (
       <div className={classes.Container}>
         <div className={classes.Title} onClick={this.toggleCollapse.bind(this)}>
-          Current Members
+          Members Currently in the Room
           <div className={classes.Count}>
             {members.length}
           </div>
