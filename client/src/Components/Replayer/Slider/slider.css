@@ -1,3 +1,9 @@
+:import('../../../colors.css') {
+  blue: blue;
+  darkGrey: darkGrey;
+  lightestShadow: lightestShadow;
+}
+
 .Slider {
   display: flex;
   align-items: center;
@@ -13,11 +19,13 @@
 }
 
 .ProgressMarker {
-  border: 3px solid #2f91f2;
+  border: 3px solid blue;
+  background-color: blue;
   position: absolute;
+  box-shadow: lightestShadow;
   left: -4px;
-  height: 12px;
-  width: 12px;
+  height: 16px;
+  width: 16px;
   border-radius: 50%;
   cursor: pointer;
 }
