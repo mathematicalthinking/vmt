@@ -1,3 +1,9 @@
+:import('../../../colors.css') {
+  blue: blue;
+  darkGrey: darkGrey;
+  lightGrey: lightGrey;
+}
+
 .Log {
   width: 100%;
   background: rgb(50, 51, 58);
@@ -10,6 +16,7 @@
 .Entry {
   height: 100px;
   padding: 10px 30px;
+  font-weight: 300;
   /* border: 1px solid blue; */
 }
 
@@ -22,4 +29,9 @@
 .Log::-webkit-scrollbar-thumb {
   background-color: #2D91F2;
   border-radius: 3px;
+}
+
+.Timestamp {
+  font-weight: 400;
+  color: lightGrey;
 }
