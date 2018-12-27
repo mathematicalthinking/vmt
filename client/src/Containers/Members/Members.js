@@ -61,9 +61,11 @@ class Members extends Component {
       })
     }
     let classListComponents = classList.map((member, i) => {
+      // at least sometimes member is just user object so there is no member.user property
+      let userId = member.user ? member.user._id : member._id;
       let notification = notifications.filter(ntf => {
         if (ntf.fromUser && ntf.notificationType === 'newMember') {
-          return ntf.fromUser._id === member.user._id
+          return ntf.fromUser._id === userId
         }
         else return false;
       })

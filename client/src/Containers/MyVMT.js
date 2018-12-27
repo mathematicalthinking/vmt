@@ -33,8 +33,6 @@ class Profile extends Component {
     this.checkMultipleRoles()
     .then(res => this.setDisplayResources())
     .then(res => {
-      console.log("updating tabs from component did mount ")
-      console.log (JSON.stringify(this.props.user, null, 2))
       this.updateTabs()
       this.props.toggleJustLoggedIn();
     })
@@ -69,7 +67,6 @@ class Profile extends Component {
     // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
     // if (!loading) {
       if (prevProps[resource].allIds.length !== this.props[resource].allIds.length) {
-        // console.log("this should update after fetch")
         this.checkMultipleRoles()
         .then(() => this.setDisplayResources())
         .then(() => this.updateTabs())
@@ -88,7 +85,6 @@ class Profile extends Component {
     }
     // If the user has new notifications
     if (Array.isArray(prevProps.user.notifications) && prevProps.user.notifications.length !== this.props.user.notifications.length) {
-      console.log('new ntfs calling update tabs from componentDidUpdsate')
       this.checkMultipleRoles()
         .then(() => this.setDisplayResources())
         .then(() => this.updateTabs())
@@ -156,7 +152,6 @@ class Profile extends Component {
     // if (courseNotifications.newRoom.length > 0){
     //   updatedTabs[0].notifications += courseNotifications.newRoom.length;
     // }
-    console.log("first tab", this.props.user.notifications)
     // let roomNtfs = roomNotifications.filter(ntf => ntf._id ===)
     updatedTabs[2].notifications = roomNtfs.length === 0 ? '' : roomNtfs.length;
     this.setState({
@@ -181,13 +176,11 @@ class Profile extends Component {
       }
       let displayResources = [];
       if (this.props[resource]) {
-        // console.log('the resource were looking for exists')
         displayResources = this.props[resource].allIds.filter(id => {
           let included = false
           if (this.props[resource].byId[id].members) {
             this.props[resource].byId[id].members.forEach(member => {
               if (member.user && member.user._id === user._id && member.role === this.state.view) {
-                // console.log('this ', id, ' should be included')
                 included = true;
               }
             })
@@ -196,8 +189,6 @@ class Profile extends Component {
           return false;
         })
       }
-      console.log(displayResources)
-      // console.log("DISPLAY RESOURCES: ", displayResources)
       this.setState({displayResources, }, () => resolve())
     }))
   }
@@ -208,7 +199,6 @@ class Profile extends Component {
 
 
   render() {
-    console.log('tbas: ', this.state.tabs)
     let { user, match, } = this.props;
     let resource = match.params.resource;
 

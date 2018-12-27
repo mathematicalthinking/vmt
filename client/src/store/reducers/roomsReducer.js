@@ -10,10 +10,16 @@ const reducer = (state = initialState, action) => {
 
     case actionTypes.GOT_ROOMS:
       let updatedRooms = merge({...state.byId}, action.byId)
+      let updatedIds;
+      if (action.isNewRoom) {
+        updatedIds = [...state.allIds, ...action.allIds]
+      } else {
+        updatedIds = action.allIds
+      }
       return {
         ...state,
         byId: updatedRooms,
-        allIds: action.allIds,
+        allIds: updatedIds
       };
 
     case actionTypes.LOGOUT:

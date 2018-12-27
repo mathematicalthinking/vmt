@@ -16,7 +16,7 @@ export {
   removeUserActivities, // ARE WE STORING ACTIVITIES ON THE USER OBJECT?
   removeNotification,
   addUserRooms,
-  updateNotifications,
+  addNotification,
   addUserCourses,
   updateUserResource,
   logout,
@@ -56,6 +56,7 @@ export {
 } from './rooms';
 export {
   addCourse,
+  addCourseRooms,
   getCourses,
   getCoursesIds,
   getCourse,

@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import io from 'socket.io-client';
 import { updateRoom, updatedRoom, populateRoom, setRoomStartingPoint } from '../../store/actions';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 import { Modal, Aux } from '../../Components';
 import NewTabForm from './NewTabForm'
+import socket from '../../utils/sockets';
 // import Replayer from ''
 class Workspace extends Component {
 
   state = {
     activeMember: '',
-    inControl: false, 
+    inControl: false,
     someoneElseInControl: false,
     referencing: false,
     showingReference: false,
@@ -24,8 +24,6 @@ class Workspace extends Component {
     activityOnOtherTabs: [],
   }
 
-  socket = io.connect(process.env.REACT_APP_SERVER_URL);
-
   componentDidMount() {
     // window.addEventListener("resize", this.updateReference);
     const { updatedRoom, room, user} = this.props;
@@ -37,8 +35,8 @@ class Workspace extends Component {
 
     let { role } = room.members.filter(member => member.user._id === user._id)[0]
     if (role === 'facilitator') {this.setState({role: 'facilitator'})}
-    
-    // repopulate room incase things have changed since we got to the details page 
+
+    // repopulate room incase things have changed since we got to the details page
     // this.props.populateRoom(room._id)
     const sendData = {
       userId: user._id,
@@ -47,30 +45,30 @@ class Workspace extends Component {
       roomName: room.name,
     }
     // const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
-    this.socket.emit('JOIN', sendData, (res, err) => {
+    socket.emit('JOIN', sendData, (res, err) => {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
       updatedRoom(room._id, {currentMembers: res.room.currentMembers, chat: [...this.props.room.chat, res.message]})
     })
 
-    this.socket.on('USER_JOINED', data => {
+    socket.on('USER_JOINED', data => {
       updatedRoom(room._id, {currentMembers: data.currentMembers})
     })
-    
-    this.socket.on('USER_LEFT', data => {
+
+    socket.on('USER_LEFT', data => {
       if (data.releasedControl) {
         this.setState({someoneElseInControl: false})
       }
       updatedRoom(room._id, {currentMembers: data.currentMembers})
     })
 
-    this.socket.on('TOOK_CONTROL', message => {
+    socket.on('TOOK_CONTROL', message => {
       this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
       this.setState({activeMember: message.user._id, someoneElseInControl: true})
     })
 
-    this.socket.on('RELEASED_CONTROL', message => {
+    socket.on('RELEASED_CONTROL', message => {
       this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
       this.setState({activeMember: '', someoneElseInControl: false})
     })
@@ -85,7 +83,7 @@ class Workspace extends Component {
     }
 
     if (prevState.inControl && !this.state.inControl) {
-      this.socket.emit('RELEASE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
+      socket.emit('RELEASE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
         this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
         this.setState({activeMember: ''})
       })
@@ -97,15 +95,23 @@ class Workspace extends Component {
     window.removeEventListener('beforeunload', this.componentCleanup);
     window.removeEventListener('resize', this.updateReference)
   }
-  
+
   componentCleanup = () => {
     const { updatedRoom, room, user} = this.props;
-    if (this.socket) {
+    if (socket) {
       // @TODO RELEASE CONTROL
-      this.socket.disconnect()
-      updatedRoom(room._id, {
-        currentMembers: room.currentMembers.filter(member => member.user._id !== user._id)
+      socket.emit('LEAVE_ROOM', (res, err) => {
+        if (err) {
+          console.log('error leaving room', err);
+        }
+        console.log('left room: ', res);
+        updatedRoom(room._id, {
+          currentMembers: room.currentMembers.filter(member => member.user._id !== user._id)
+        })
       })
+
+      // socket.disconnect()
+
     }
   }
 
@@ -124,7 +130,7 @@ class Workspace extends Component {
       tab: {_id: this.props.room.tabs[index]._id, name: this.props.room.tabs[index].name},
       room: this.props.room._id,
     }
-    this.socket.emit('SWITCH_TAB', data, (res, err) => {
+    socket.emit('SWITCH_TAB', data, (res, err) => {
       if (err) {
         return console.log('something went wrong on the socket')
       }
@@ -136,12 +142,12 @@ class Workspace extends Component {
 
   toggleControl = () => {
     let { user, room } = this.props;
-    // If we're taking control 
+    // If we're taking control
     if (!this.state.inControl && !this.state.someoneElseInControl) {
       this.resetControlTimer();
       // @TODO EMIT EVENT TAKING CONTROL
       this.setState({activeMember: this.props.user._id, inControl: true})
-      this.socket.emit('TAKE_CONTROL', {user: {_id: user._id, username: user.username}, roomId: room._id}, (err, message) => {
+      socket.emit('TAKE_CONTROL', {user: {_id: user._id, username: user.username}, roomId: room._id}, (err, message) => {
         this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
       })
     } else if (this.state.someoneElseInControl) {
@@ -151,7 +157,7 @@ class Workspace extends Component {
         room: room._id,
         timestamp: new Date().getTime()
       }
-      this.socket.emit('SEND_MESSAGE', newMessage, (err, res) => {
+      socket.emit('SEND_MESSAGE', newMessage, (err, res) => {
 
       })
       this.props.updatedRoom(room._id, {chat: [...room.chat, newMessage]})
@@ -165,7 +171,7 @@ class Workspace extends Component {
       })
     }
   }
-  
+
   resetControlTimer = () => {
     clearTimeout(this.controlTimer)
     this.controlTimer = setTimeout(() => {this.setState({inControl: false})}, 60 * 1000)
@@ -179,7 +185,7 @@ class Workspace extends Component {
       referToCoords: null,
     })
   }
-  
+
   showReference = (referToEl, referToCoords, referFromEl, referFromCoords, tab) => {
     if (tab !== this.state.currentTab) {
       alert('This reference does not belong to this tab') //@TODO HOW SHOULD WE HANDLE THIS?
@@ -190,24 +196,24 @@ class Workspace extends Component {
         referFromEl,
         referToCoords,
         referFromCoords,
-        showingReference: true, 
+        showingReference: true,
       })
     }
     // get coords of referenced element,
   }
-  
+
   clearReference = () => {
     this.setState({
-      referToEl: null, 
+      referToEl: null,
       referFromEl: null,
-      referToCoords: null, 
+      referToCoords: null,
       referFromCoords: null,
-      referencing: false, 
+      referencing: false,
       showingReference: false
     })
   }
 
-  // this shouLD BE refereNT 
+  // this shouLD BE refereNT
   setToElAndCoords = (el, coords) => {
     if (el) {
       this.setState({
@@ -248,7 +254,7 @@ class Workspace extends Component {
     console.log('update startying point')
     this.props.setRoomStartingPoint(this.props.room._id)
   }
-  
+
   render() {
     const { room, user } = this.props;
     return (
@@ -260,7 +266,7 @@ class Workspace extends Component {
           user={user}
           role={this.state.role}
           currentTab={this.state.currentTab}
-          socket={this.socket}
+          socket={socket}
           updateRoom={this.props.updateRoom}
           updatedRoom={this.props.updatedRoom}
           inControl={this.state.inControl}
@@ -288,7 +294,7 @@ class Workspace extends Component {
           // populateRoom={this.props.populateRoom}
         /> : null}
         <Modal show={this.state.creatingNewTab} closeModal={this.closeModal}>
-          <NewTabForm room={room} closeModal={this.closeModal} updatedRoom={this.props.updatedRoom}/>  
+          <NewTabForm room={room} closeModal={this.closeModal} updatedRoom={this.props.updatedRoom}/>
         </Modal>
       </Aux>
     )
