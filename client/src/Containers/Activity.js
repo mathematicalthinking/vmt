@@ -98,7 +98,7 @@ class Activity extends Component {
 
     let additionalDetails = {
       type: activity.roomType,
-      privacy: <EditText change={this.updateActivityInfo} inputType='radio' editing={this.state.editing} options={['private', 'public']} name="privacySetting">{activity.privacySetting}</EditText>
+      privacy: <EditText change={this.updateActivityInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name="privacySetting">{this.state.privacySetting}</EditText>
     }
 
     const crumbs = [{title: 'My VMT', link: '/myVMT/courses'}]
