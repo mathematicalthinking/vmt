@@ -6,10 +6,11 @@ import { addCourseRooms, removeCourseRooms } from './courses';
 import { addActivityRooms, } from './activities';
 import * as loading from './loading'
 
-export const gotRooms = (rooms) => ({
+export const gotRooms = (rooms, isNewRoom) => ({
   type: actionTypes.GOT_ROOMS,
   byId: rooms.byId,
-  allIds: rooms.allIds
+  allIds: rooms.allIds,
+  isNewRoom,
 })
 
 export const updatedRoom = (roomId, body) => {
