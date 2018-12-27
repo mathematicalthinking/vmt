@@ -3,6 +3,7 @@
   orange: orange;
   blue: blue;
   green: green;
+  red: red;
 }
 
 .Container {
@@ -120,4 +121,11 @@
   border: 1px solid white;
   border-radius: 50%;
   padding: 3px;
+}
+
+.ErrorMessage {
+  color: red;
+  text-align: center;
+  margin-top: 5px;
+  margin-bottom: -24px;
 }

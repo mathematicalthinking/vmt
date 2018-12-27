@@ -32,9 +32,9 @@
 
 .Close {
   position: absolute;
-  right: 10px;
-  top: 5px;
-  font-size: 30px;
+  right: 6px;
+  top: 10px;
+  font-size: 20px;
   color: #666;
   cursor: pointer;
   transition: .2s;
