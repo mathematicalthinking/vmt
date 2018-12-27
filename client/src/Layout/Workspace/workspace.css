@@ -217,6 +217,7 @@
   border: 1px solid red;
   order: 1;
   align-self: auto;
+  flex-shrink: 1;
 }
 
 .Members {
@@ -227,6 +228,8 @@
   border: 1px solid blue;
   order: 2;
   align-self: auto;
+  flex-grow: 0;
+  flex-shrink: 1;
 }
 
 .Replayer {
@@ -301,6 +304,8 @@
   border: 1px solid pink;
   order: 3;
   align-self: auto;
+  flex-grow: 0;
+  flex-shrink: 1;
 }
 
 .Controls {
