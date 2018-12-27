@@ -1,9 +1,39 @@
-.Clocks {
+:import('../../../colors.css') {
+  blue: blue;
+  darkGrey: darkGrey;
+}
+
+.ClockContainer {
   display: flex;
-  flex-flow: column;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-content: center;
   align-items: center;
-  width: 800px;
   letter-spacing: .1em;
+  width: 100%;
+  text-align: center;
+  padding: 0 5px;
+}
+
+.StartTime {
+  order: 1;
+  font-weight: 700;
+  font-size: 1.1em;
+  flex: 1 1 auto;
+}
+
+.CenterTime {
+  order: 2;
+  flex: 1 1 auto;
+  color: darkGrey;
+  font-size: .9em;
+}
+
+.EndTime {
+  order: 3;
+  font-weight: 700;
+  flex: 1 1 auto;
+  font-size: 1.1em;
 }
 
 .AbsClocks {
@@ -13,6 +43,7 @@
 }
 
 .RelTime {
+  order: 1;
   margin-top: -30px;
 }
 
