@@ -29,7 +29,8 @@ class NewTabForm extends Component {
   }
 
   submit = () => {
-    if (this.state.name.trim().length <= 1) {
+    let updatedName = this.state.name;
+    if (updatedName.trim().length <= 1) {
       this.setState({
         errorMessage: 'Please provide a name for the tab'
       })
@@ -88,7 +89,7 @@ class NewTabForm extends Component {
             change={this.changeHandler}
           />}
         </div>
-        <Button m={10} onClick={this.submit}>Create</Button>
+        <Button m={10} click={this.submit}>Create</Button>
       </div>
     )
   }
