@@ -20,15 +20,20 @@
 
 .EditLine {
   display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  position: relative;
+  top: 3px;
 }
 
 .TextInput {
+  order: 1;
   height: 30px;
   font-size: 14px;
   border-radius: 3px;
   border: 1px solid #999;
   padding: 0 5px;
-  margin-top: -3px;
+  margin-top: -8px;
   min-width: 250px;
 }
 
@@ -43,9 +48,10 @@
 }
 
 .EditButtons {
+  order: 2;
   display: flex;
-  height: 25px;
-  margin-top: -3px;
+  height: 22px;
+  margin-top: -8px;
 }
 
 .EditButtons button {

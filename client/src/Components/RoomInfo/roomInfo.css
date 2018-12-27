@@ -6,13 +6,13 @@
 }
 
 .RoomDescription {
-  /* padding: 30px;
+  /* padding: 30px; */
   display: flex;
-  flex-direction: column; */
+  flex-direction: column;
   width: 100%;
   height: 20%;
   order: 2;
-  align-self: auto;
+  align-self: center;
   flex: .2 0 auto;
   padding: 15px 10px 0px 10px;
 }
@@ -49,6 +49,7 @@
 
 .Collapsed {
   display: none;
+  border: none;
 }
 
 .InstructionsTitle {
