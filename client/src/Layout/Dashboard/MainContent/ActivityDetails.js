@@ -21,16 +21,16 @@ class ActivityDetails extends Component {
         <div>
           {/* @TODO REPLACE THIS WITH <EDITABLEtEXT /> COMPONENT */}
             <div className={classes.Instructions}>
-              <b>Instructions:</b> 
+              <p className={classes.InstructionsHeader}>Instructions:</p>
                 <EditText inputType='text-area' name='instructions' change={this.props.update} editing={this.props.editing}>
                   {this.props.instructions}
                 </EditText>
             </div>
-          {owner 
+          {owner
             ? <div>
                 <Button m={5} click={this.viewActivity}>View Activity</Button>
                 <Button m={5} click={() => {this.setState({assigning: true})}} data-testid='assign'>Assign Activity</Button>
-              </div> 
+              </div>
             : null
           }
         </div>

@@ -1,6 +1,7 @@
 :import('../../../colors.css') {
   lightestShadow: lightestShadow;
   blue: blue;
+  darkGrey: darkGrey;
 }
 
 .Container {
@@ -56,7 +57,7 @@
 .Edit {
   text-align: center;
   background-color: #eff3f6;
-  color: #999;
+  color: darkGrey;
   cursor: pointer;
   border: .5px solid #ddd;
   padding: 12px 0;
