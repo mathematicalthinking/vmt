@@ -1,7 +1,9 @@
 import React from 'react';
 import classes from './editText.css';
+import moment from 'moment';
 const EditText = React.memo(({editing, inputType, change, children, options, name}) => {
   let input;
+  let plainText;
   if (editing) {
     switch (inputType) {
       case 'title':
@@ -17,6 +19,7 @@ const EditText = React.memo(({editing, inputType, change, children, options, nam
           </span>
         </div>
       case 'date':
+        console.log('date case and children are', children);
         return input = <input className={[classes.Common, classes.Date].join(' ')} name={name} type='date' value={children} onChange={change}/>
       case 'text-area':
         return input = <textarea className={classes.TextArea} onChange={change} name={name} value={children}/>
@@ -24,10 +27,20 @@ const EditText = React.memo(({editing, inputType, change, children, options, nam
         return input = <input className={[classes.Common, classes.Text].join(' ')} name={name} type='text' value={children} onChange={change}/>
     }
   }
+  else {
+    if (inputType === 'date') {
+      if (children) {
+        children = moment(children).format('L');
+      } else {
+        children = 'No Set'
+      }
+    }
+    plainText = <div className={classes.NormalText}>{children}</div>;
+  }
   return (
     editing
       ? input
-      : <div className={classes.NormalText}>{children}</div>
+      : plainText
   )
 })
 
