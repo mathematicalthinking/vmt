@@ -1,0 +1,19 @@
+.List {
+  width: 100%;
+  border: 1px solid #ddd;
+  height: 100px;
+  overflow-y: scroll;
+}
+
+.ListItem {
+  background: #f9f9f9;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  width: 100%;
+  height: 30px;
+}
+
+.Odd {
+  background: #999;
+}

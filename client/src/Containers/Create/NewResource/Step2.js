@@ -5,7 +5,7 @@ const Step2 = React.memo((props) => {
   let content;
   if (props.copying) {
     // display list
-    content = <SelectionList list='activities' />
+    content = <SelectionList list='activities' selectItem={props.addActivity}/>
   } else content = <div>
     <TextInput
       light

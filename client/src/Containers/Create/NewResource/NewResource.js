@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { hri } from 'human-readable-ids';
 import Step1 from './Step1';
 import Step2 from './Step2';
+import Step3 from './Step3';
 import StepDisplay from './StepDisplay';
 import { NewResource, FromActivity } from '../../../Layout';
 import { getUserResources, populateResource }from '../../../store/reducers';
@@ -39,13 +40,14 @@ class NewResourceContainer extends Component {
     // rooms: [],
     creating: false, // true will open modal and start creation process
     copying: false, 
+    ggb: true,
     step: 0, // step of the creation process
     name: '',
     description: '',
-    activities: '',
     desmosGraph: '',
     ggbFile: '',
     dueDate: '',
+    activities: [],
     privacySetting: 'public',
   }
 
@@ -61,16 +63,16 @@ class NewResourceContainer extends Component {
     this.setState({copying: event.target.name === 'copy'})
   }
 
-  submitForm = ({name, description, privacySetting, dueDate, ggb, ggbFile, desmosLink}) => {
+  submitForm = () => {
     let { resource } = this.props;
     let theme = imageThemes[Math.floor(Math.random()*imageThemes.length)];
     let newResource = {
-      name: name,
-      description: description,
-      members: [{user: {_id: this.props.userId, username: this.props.username}, role: 'facilitator'}],
+      name: this.state.name,
+      description: this.state.description,
       creator: this.props.userId,
-      privacySetting: privacySetting,
-      image: `http://tinygraphs.com/${shapes[resource]}/${name}?theme=${theme}&numcolors=4&size=220&fmt=svg`
+      privacySetting: this.state.privacySetting,
+      activities: this.state.activities,
+      image: `http://tinygraphs.com/${shapes[resource]}/${this.state.name}?theme=${theme}&numcolors=4&size=220&fmt=svg`
     }
     if (newResource.privacySetting === 'private') {
       newResource.entryCode = hri.random();
@@ -80,9 +82,9 @@ class NewResourceContainer extends Component {
         this.props.createCourse(newResource);
         break;
       case 'activities' :
-        newResource.ggbFile = ggbFile;
-        newResource.desmosLink = desmosLink;
-        newResource.roomType = ggb ? 'geogebra' : 'desmos';
+        newResource.ggbFile = this.state.ggbFile;
+        newResource.desmosLink = this.state.desmosLink;
+        newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
         if (this.props.courseId) {
           newResource.course = this.props.courseId;
           delete newResource.members
@@ -90,15 +92,17 @@ class NewResourceContainer extends Component {
         this.props.createActivity(newResource);
         break;
       case 'rooms' :
-        newResource.ggbFile = ggbFile;
-        newResource.desmosLink = desmosLink;
-        newResource.dueDate = dueDate;
+        newResource.ggbFile = this.state.ggbFile;
+        newResource.desmosLink = this.state.desmosLink;
+        newResource.members = [{user: {_id: this.props.userId, username: this.props.username}, role: 'facilitator'}];
+        newResource.dueDate = this.state.dueDate;
         if (this.props.courseId) newResource.course = this.props.courseId;
-        newResource.roomType = ggb ? 'geogebra' : 'desmos';
-        this.props.createRoom(newResource);
+        newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
+        // this.props.createRoom(newResource);
         break;
       default: break;
     }
+    console.log(newResource)
     this.setState({creating: false})
     if (this.props.intro) {
       this.props.updateUser({accountType: 'facilitator'})
@@ -110,18 +114,31 @@ class NewResourceContainer extends Component {
     this.props.history.push('/community/activities/selecting')
   }
 
+  addActivity = (event, id) => {
+    let updatedActivities;
+    if (this.state.activities.indexOf(id) >= 0) {
+      updatedActivities = this.state.activities.filter(acId => acId !== id); 
+    } else {
+      updatedActivities = [...this.state.activities, id]
+    }
+    this.setState({activities: updatedActivities})
+  }
+  
+  setPrivacy = (privacySetting) => {
+    this.setState({privacySetting,})
+  }
   nextStep = (direction) => {
     this.setState({
       step: this.state.step + 1,
     })
   }
-
+  
   prevStep = () => {
     this.setState({
       step: this.state.step - 1 || 0,
     })
   }
-
+  
   closeModal = () => {
     this.setState({
       copying: false,
@@ -144,7 +161,8 @@ class NewResourceContainer extends Component {
     let stepTitles = ['Enter Details', this.state.copying ? 'Select 1 or More Activities to Copy' : 'Enter Details']
     let steps = [
       <Step1 displayResource={displayResource} changeHandler={this.changeHandler}/>, 
-      <Step2 displayResource={displayResource} check={this.setCopying} copying={this.state.copying}/>
+      <Step2 displayResource={displayResource} check={this.setCopying} copying={this.state.copying} addActivity={this.addActivity}/>,
+      <Step3 displayResource={displayResource} check={this.setPrivacy} privacySetting={this.state.privacySetting} />
     ]
 
     return (
@@ -157,7 +175,7 @@ class NewResourceContainer extends Component {
               </div>
               <div className={classes.Row}>
                 { this.state.step > 0 ? <Button click={this.prevStep}>Back</Button> : null }
-                <Button click={this.nextStep}>Next</Button>
+                { this.state.step < 2 ? <Button click={this.nextStep}>Next</Button> : <Button data-testId='create' click={this.submitForm}>Create</Button> }
               </div>
             </Modal>
           : null

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Checkbox from '../Checkbox/Checkbox';
 import classes from './selectionList.css';
 import API from '../../../utils/apiRequests';
 class SelectionList extends Component {
@@ -16,11 +17,13 @@ class SelectionList extends Component {
   }
   
   render() {
-    let list = this.state.list.map((activity) => {
-      return <li key={activity._id}>{activity.name}</li>
+    let list = this.state.list.map((activity, i) => {
+      return <li className={[classes.ListItem, i%2 ? classes.Odd : null].join(' ')}key={activity._id}>
+        <Checkbox change={(event) => {this.props.selectItem(event, activity._id)}}>{activity.name}</Checkbox>
+      </li>
     })
     return (
-      <ul>{list}</ul>
+      <ul className={classes.List}>{list}</ul>
     )
   }
 }
