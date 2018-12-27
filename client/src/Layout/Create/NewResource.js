@@ -35,7 +35,8 @@ class NewResource extends Component {
   }
 
   submit = () => {
-    if (this.state.name.trim() <= 1) {
+    let updatedName = this.state.name;
+    if (updatedName.trim() <= 1) {
       this.setState({
         errorMessage: 'Please provide a name'
       })
