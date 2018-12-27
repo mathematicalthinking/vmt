@@ -108,35 +108,35 @@ module.exports = passport => {
 
 
   //GOOGLE STRATEGY
-  passport.use(new GoogleStrategy({
-    clientID: process.env.CLIENT_ID,
-    clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/auth/google/callback"
-  }, (accessToken, refreshToken, profile, done) => {
-    User.findOne({
-      googleId: profile.id
-    }, (err, user) => {
-      if (err) {
-        return done(err);
-      }
-      if (user) {
-        return done(null, user);
-      }
+  // passport.use(new GoogleStrategy({
+  //   clientID: process.env.CLIENT_ID,
+  //   clientSecret: process.env.CLIENT_SECRET,
+  //   callbackURL: "http://localhost:3000/auth/google/callback"
+  // }, (accessToken, refreshToken, profile, done) => {
+  //   User.findOne({
+  //     googleId: profile.id
+  //   }, (err, user) => {
+  //     if (err) {
+  //       return done(err);
+  //     }
+  //     if (user) {
+  //       return done(null, user);
+  //     }
 
-      const newUser = new User({
-        googleId: profile.id,
-        name: profile.name.givenName + " " + profile.name.familyName,
-        username: profile.emails[0].value,
-        email: profile.emails[0].value,
-        isAuthorized: true
-      });
-      newUser.save((err) => {
-        if (err) {
-          return done(err);
-        }
-        return done(null, newUser);
-      });
-    });
+  //     const newUser = new User({
+  //       googleId: profile.id,
+  //       name: profile.name.givenName + " " + profile.name.familyName,
+  //       username: profile.emails[0].value,
+  //       email: profile.emails[0].value,
+  //       isAuthorized: true
+  //     });
+  //     newUser.save((err) => {
+  //       if (err) {
+  //         return done(err);
+  //       }
+  //       return done(null, newUser);
+  //     });
+  //   });
 
-  }));
+  // }));
 };
