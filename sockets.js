@@ -1,20 +1,19 @@
 const controllers = require('./controllers')
+const _ = require('lodash');
+const socketInit = require('./socketInit');
 
-const sockets = {};
-sockets.init = server => {
-
-    const io = require('socket.io')(server, {wsEngine: 'ws'});
-
+    // const io = require('socket.io')(server, {wsEngine: 'ws'});
+  module.exports = function () {
+    const io = socketInit.io;
     io.sockets.on('connection', socket => {
-
       socket.on('JOIN_TEMP', async (data, callback) => {
         socket.join(data.roomId, async () => {
           let user;
           let promises = [];
           // If the user is NOT logged in, create a temp user
           if (!data.userId) {
-            try{ 
-              user = await controllers.user.post({username: data.username, accountType: 'temp',});            
+            try{
+              user = await controllers.user.post({username: data.username, accountType: 'temp',});
             } catch(err) {console.log(err)}
           } else {
             user = {_id: data.userId, username: data.username}
@@ -38,8 +37,8 @@ sockets.init = server => {
               creator: user._id,
             }));
           } else {
-            promises.push(controllers.rooms.addCurrentUsers(data.roomId, 
-              {user: user._id, socket: socket.id}, 
+            promises.push(controllers.rooms.addCurrentUsers(data.roomId,
+              {user: user._id, socket: socket.id},
               {user: user._id, role: 'participant'}
             )) //)
           }
@@ -87,7 +86,7 @@ sockets.init = server => {
         controllers.rooms.removeCurrentUsers(rooms[0], socket.user_id)
         .then(res => {
           let removedMember = {};
-          if (res.currentMembers) {
+          if (res && res.currentMembers) {
             let currentMembers = res.currentMembers.filter(member => {
               if (socket.user_id === member.user._id.toString()) {
                 removedMember = member;
@@ -107,7 +106,7 @@ sockets.init = server => {
             if (res.controlledBy && res.controlledBy.toString() === socket.user_id) {
               controllers.rooms.put(rooms[0], {controlledBy: null})
               releasedControl = true;
-            }    
+            }
             controllers.messages.post(message)
             // socket.to(rooms[0]).emit('RECEIVE_MESSAGE') //@TODO WE SHOLD COMBINE THIS INTO ONE EMIT
             socket.to(rooms[0]).emit('RECEIVE_MESSAGE', message)
@@ -118,6 +117,24 @@ sockets.init = server => {
       })
 
       socket.on('disconnect', () => {
+
+      })
+
+      socket.on('CHECK_SOCKET', (data, cb) => {
+        let { _id, socketId } = data;
+
+        if (!_id) {
+          return;
+        }
+        if (socketId !== socket.id) {
+          controllers.user.put(_id, {socketId: socket.id})
+          .then(() => {
+            cb('User socketId updated', null);
+          })
+          .catch(err => cb(null, err));
+        } else {
+          cb('User socket up to date', null);
+        }
 
       })
 
@@ -201,6 +218,5 @@ sockets.init = server => {
       })
     });
 
-}
+  }
 
-module.exports = sockets;
