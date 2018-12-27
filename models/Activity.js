@@ -10,6 +10,7 @@ const Activity = new mongoose.Schema({
   users: {type: [{type: ObjectId, ref: 'User'}], default: [], _id: false}, // WHAT IS THIS FIELD FOR? maybe people who can edit???
   dueDate: {type: Date,},
   roomType: {type: String, default: 'geogebra'},
+  privacySetting: {type: String, enum: ['private', 'public'], default: 'private'},
   creator: {type: ObjectId, ref: 'User'},
   rooms: {type: [{type: ObjectId, ref: 'Room'}], default: [], _id: false},
   ggbFile: {type: String},
@@ -18,8 +19,8 @@ const Activity = new mongoose.Schema({
   image: {type:String,},
   instructions: {type: String,},
   graphImage: {type: ObjectId, ref: 'Image'},
-  tabs: {type: [{type: ObjectId, ref: 'Tab'}], default: [], _id: false}, 
-  source: {type: ObjectId, ref: 'Activity'} // If this was created from another activity 
+  tabs: {type: [{type: ObjectId, ref: 'Tab'}], default: [], _id: false},
+  source: {type: ObjectId, ref: 'Activity'} // If this was created from another activity
   // template: {type: ObjectId, ref: 'ActivityTemplate'},
 }, {timestamps: true});
 
