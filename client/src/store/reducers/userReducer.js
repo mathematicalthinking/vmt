@@ -80,10 +80,12 @@ const reducer = (state = initialState, action) => {
       const rooms = state.rooms.filter(id => !action.roomIdsArr.includes(id))
       return {...state, rooms,}
 
-    case actionTypes.UPDATE_NOTIFICATIONS:
+    case actionTypes.ADD_NOTIFICATION:
+
+    let newNotifications = [...state.notifications, action.ntf]
     return {
       ...state,
-      ...action.updatedNotifications,
+      notifications: newNotifications,
     }
 
     case actionTypes.REMOVE_NOTIFICATION:

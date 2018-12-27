@@ -77,10 +77,10 @@ export const addUserCourseTemplates = newTemplate => {
   }
 }
 
-export const updateNotifications = (updatedNotifications) => {
+export const addNotification = (ntf) => {
   return {
-    type: actionTypes.UPDATE_NOTIFICATIONS,
-    updatedNotifications,
+    type: actionTypes.ADD_NOTIFICATION,
+    ntf,
   }
 }
 
