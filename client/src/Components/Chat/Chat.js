@@ -210,7 +210,7 @@ class Chat extends Component {
       // displayMessages.push(<div key='end' ref={this.chatEnd}></div>)
     }
     return (
-      <div className={classes.Container} ref={this.chatContainer}>
+      <div className={(this.state.expanded ? classes.Container : classes.CollapsedContainer)} ref={this.chatContainer}>
         <h3 className={classes.Title} onClick={this.toggleCollapse.bind(this)}>Chat
           <div className={classes.Status}>
             <svg height="20" width="20">
