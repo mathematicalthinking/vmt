@@ -74,9 +74,9 @@ class ReplayerControls extends Component{
         <Clock startTime={startTime} playing={playing} duration={duration} relTime={relTime} absTimeElapsed={absTimeElapsed}/>
         <div className={[classes.Controls, glb.FlexRow].join(' ')}>
           <button disabled={index === 0} onClick={this.first} className={classes.Button}><i className="fas fa-fast-backward"></i></button>
-          <button disabled={index === 0} onClick={this.back} className={classes.Button}><i className="fas fa-backward"></i></button>
-          <button onClick={pausePlay} className={classes.Button}>{pausePlayButton}</button>
-          <button disabled={index === log.length - 1} onClick={this.next} className={classes.Button}><i className="fas fa-forward"></i></button>
+          <button disabled={index === 0} onClick={this.back} className={[classes.Button, classes.SideButton].join(" ")}><i className="fas fa-backward"></i></button>
+          <button className={[classes.Button, classes.CenterButton].join(" ")} onClick={pausePlay}>{pausePlayButton}</button>
+          <button disabled={index === log.length - 1} onClick={this.next} className={[classes.Button, classes.SideButton].join(" ")}><i className="fas fa-forward"></i></button>
           <button disabled={index === log.length - 1} onClick={this.last} className={classes.Button}><i className="fas fa-fast-forward"></i></button>
         </div>
         <div className={classes.Settings}>

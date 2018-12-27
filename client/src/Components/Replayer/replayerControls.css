@@ -1,15 +1,23 @@
+:import('../../colors.css') {
+  blue: blue;
+  darkGrey: darkGrey;
+  lightGrey: lightGrey;
+}
+
 .Container {
   display: flex;
   flex-flow: column;
   align-items: center;
   height: 100%;
   width: 100%;
-  background: #f9f9f9;
+  background: white;
+  padding-bottom: 5px;
 }
 
 .Log {
   width: 100%;
   height: 57px;
+  margin-bottom: 5px;
 }
 
 .ProgressBar {
@@ -19,9 +27,9 @@
 }
 
 .Controls {
-  margin: 10px 0;
+  margin: 15px 0 10px 0;
   justify-content: center;
-  /* flex-grow: 1; */
+  padding-top: 8px;
 }
 
 .Button {
@@ -31,15 +39,61 @@
   padding: 2px;
   height: 20px;
   width: 70px;
-  font-size: .7em;
+  font-size: .8em;
+  color: lightGrey;
+  background: none;
+  border: none;
 }
 
+.Button:focus {
+  outline: none;
+}
+
+.CenterButton {
+  color: rgb(60, 60, 60);
+  /* color: blue; */
+  font-size: 1.5em;
+  margin-top: -5px;
+}
+
+.SideButton {
+  color: darkGrey;
+  font-size: 1em;
+}
+
+.Settings {
+  margin: 10px 0 5px 0;
+}
+
+.Inactive {
+  margin: 0 5px;
+  font-size: .9em;
+  color: darkGrey;
+  background: none;
+  border: none;
+  width: 45px;
+}
+
+.Inactive:focus {
+  outline: none;
+}
 
 .Active {
-  background: #6CCB3E;
+  color: black;
+  margin: 0 5px;
+  font-size: 1.1em;
+  background: none;
+  border: none;
+  font-weight: 700;
+  width: 45px;
+}
+
+.Active:focus {
+  outline: none;
 }
 
 .Time {
-  font-size: .8em;
+  font-size: .9em;
+  color: darkGrey;
   padding: 10px;
 }
