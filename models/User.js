@@ -43,6 +43,7 @@ const User = new mongoose.Schema({
   password: {type: String, required: function() {return this.accountType !== 'temp'}},
   isAdmin: {type: Boolean, default: false},
   seenTour: {type: Boolean, default: false},
+  socketId: { type: String }
 }, {timestamps: true});
 
 module.exports = mongoose.model('User', User);
