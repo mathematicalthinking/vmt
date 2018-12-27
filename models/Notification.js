@@ -29,7 +29,7 @@ function updateUser(userId, query) {
   });
 }
 
-function buildEmitData(notification, next) {
+function buildEmitData(notification) {
   // Requiring room at the top of file was causing problems
   const Room = require('./Room');
   const Course = require('./Course');
@@ -69,7 +69,7 @@ function buildEmitData(notification, next) {
   });
 }
 // update toUser with notification
-Notification.post('save', function(notification) {
+Notification.post('save', function(notification, next) {
   if (notification.toUser) {
     let ntfType = notification.notificationType;
 
