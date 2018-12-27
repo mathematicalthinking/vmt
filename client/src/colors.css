@@ -1,6 +1,7 @@
 :export {
   gridBlue: #a4deff;
   blue: #2D91F2;
+  blueHover: #47ABFF;
   lightBlue: #75b7f6;
   darkBlue: #001144;
   teal: #30BDB4;
@@ -18,6 +19,8 @@
   green: #67d375;
   /* red: #ff4e37; */
   red: #ff5555;
+  scrollBar: rgb(189, 189, 189);
+  scrollBackground: rgb(235, 235, 235);
   lightestShadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2);
   newBoxShadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   lightShadow: 0 8px 17px 2px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.2);

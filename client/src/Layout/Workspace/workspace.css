@@ -3,30 +3,71 @@
   background: mainBackground;
   lightBlue: lightBlue;
   blue: blue;
+  blueHover: blueHover;
   red: red;
   scrollBackground: darkScroller;
   hoverBackground: hoverBackground;
   hoverBackground2: hoverBackground2;
   darkBorder: darkBorder;
+  darkGrey: darkGrey;
   navbarHeight: navbarHeight;
   graphHeight: graphHeight;
   graphWidth: graphWidth;
+  lightGrey: lightGrey;
+}
+
+.PageContainer {
+  width: 100%;
+  height: calc(100vh - navbarHeight);
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: #f8f8f9;
+  z-index: 0;
+  padding: 0 20px;
+}
+
+.Container {
+  margin-top: 50px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 1550px;
+  margin-bottom: 25px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-content: stretch;
+  align-items: stretch;
 }
 
 .WorkspaceTabs {
-  height: 45px;
+  height: 38px;
   padding: 0 0 0 0;
   position: absolute;
-  top: -45px;
+  top: -34px;
   /* left: 0; */
-  overflow:visible;
+  overflow: auto;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-content: flex-start;
+  align-items: flex-start;
+  /* border: 1px solid red; */
+  width: graphWidth;
+  display: flex;
+  z-index: 1;
 }
+
 .Tab {
-  width: 200px;
-  height:45px;
-  overflow:hidden;
-  float:left;
-  margin: 0 -15px 0 0;
+  width: fit-content;
+  align-self: flex-start;
+  height: 35px;
+  overflow: hidden;
+  float: left;
+  margin: 0 0 0 0;
   cursor: pointer;
   position: relative;
 }
@@ -52,129 +93,139 @@
   20% {transform: rotateY(180deg); }
   80% {transoform: rotateY(180deg); }
   100% {transform: rotateY(360deg); }
-} 
-
-
-.NewTab {
-  width: 100px;
-  z-index: 0;
 }
+
+
+.NewTab .TabBox {
+  width: fit-content;
+  padding: 0 10px;
+  color: darkGrey;
+  font-size: 16px;
+  border: 1px transparent;
+  background-color: transparent;
+  margin-right: 20px;
+}
+
+.NewTab .TabBox i {
+  position: relative;
+  top: -1px;
+}
+
 .TabBox {
   display: flex;
   align-items: center;
   justify-content: center;
-  height:50px;
+  height: 35px;
   background: #e8e8e8;
-  border-radius: 4px;
-  border:1px solid #ccc;
-  margin:0 10px 0;
-  box-shadow: 0 0 2px  #fff inset;
+  border: 1px solid #ccc;
+  border-width: 1px 1px 0 1px;
+  border-radius: 4px 4px 0 0;
+  margin: 0 0 0 0;
+  /* box-shadow: 0 0 2px  #fff inset; */
   transition: .2s;
-  -webkit-transform: perspective(150px) rotateX(30deg);
-  -moz-transform: perspective(150px) rotateX(30deg);
+  font-size: 13px;
+  /* -webkit-transform: perspective(150px) rotateX(30deg);
+  -moz-transform: perspective(150px) rotateX(30deg); */
+}
+
+.TabName {
+  padding: 0 15px;
+  max-width: 300px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: darkGrey;
 }
 
 .Active {
-  z-index:40;
+  z-index: 40;
   /* position:relative; */
-  padding-bottom:1px;
+  padding-bottom: 1px;
 }
 
 .Tab:hover .TabBox {
-  background-color: hoverBackground;
+  background-color: #f8f8f8;
 }
 
-.Active .TabBox{
-  background-color: hoverBackground2;
-  /* background-image: linear-gradient(top, #ccc , #ddd 3%, rgba(#eee, 0.5)  ); */
-  box-shadow: 0 0 2px 0 #fff inset;
+.Active .TabBox {
+  background-color: #f8f8f8;
+  color: black;
+  /* box-shadow: 0 0 2px 0 #fff inset; */
+}
+
+.Active .TabBox .TabName {
+  color: black;
 }
 
 .Active:hover .TabBox {
-  background-color: hoverBackground2;
-}
-
-.PageContainer {
-  width: 100%;
-  height: calc(100vh - navbarHeight);
-  display: flex;
-  flex-flow: column;
-  justify-content: flex-start;
-  align-items: center;
-  /* background-color: #f8f8f9; */
-  z-index: 0;
-  /* border: 1px solid green; */
-}
-
-.Container {
-  margin-top: 70px;
-  position: relative;
-  width: 95vw;
-  height: 85%;
-  max-width: 1500px;
-  box-shadow: lightShadow;
-  margin-bottom: 50px;
-  display: flex;
-  flex-direction: column;
-  /* border: 1px solid red; */
-}
-
-.Top {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  height: graphHeight;
-  flex-shrink: 1;
-  /* flex-grow: 1; */
-  /* border: 1px solid blue; */
-}
-
-.Bottom {
-  background-color: background;
-  /* color: white; */
-  flex-shrink: 0;
-  flex-grow: 2;
-  display: flex;
-  /* height: 20%; */
-  /* min-height: 160px; */
+  background-color: white;
 }
 
 .Left {
-  width: graphWidth;
-  height: 100%;
+  /* width: graphWidth; */
+  order: 1;
+  align-self: auto;
+  flex: .75 0 auto;
+  width: 75%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-content: stretch;
+  align-items: stretch;
 }
 
 .Right {
+  order: 2;
+  align-self: auto;
+  flex: .25 0 auto;
+  margin-left: 20px;
+  width: 25%;
   display: flex;
   flex-direction: column;
-  width: 23%;
-  height: 100%;
-  background-color: background;
-  /* color: white; */
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-content: stretch;
+  align-items: stretch;
 }
+
 
 .Graph {
   position: relative;
+  order: 1;
+  flex: 1 0 auto;
+  box-shadow: lightShadow;
+  height: auto;
   /*  IF THIS ^  CHANGES BE SURE TO CHANEG THE WIDTH PARAMETER ON THE GGB GRAPH*/
   /* box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.28); */
   /* border-radius: 3px; */
 }
-/* .SidePanel {
-  display: flex;
-  flex-flow: column;
-  width: 23%;
-  height: 100%;
-} */
 
+.Bottom {
+  background-color: background;
+  order: 2;
+  display: flex;
+  flex: 0 1 auto;
+  margin-top: 10px;
+  box-shadow: lightShadow;
+}
 
 
 .Chat {
-  height: 75%;
-  /* flex-grow: 2; */
+  box-shadow: lightShadow;
+  border-radius: 5px;
+  order: 1;
+  /* align-self: auto;
+  flex-shrink: 1; */
+  flex: 1 1 auto;
 }
 
 .Members {
-  height: 25%;
+  box-shadow: lightShadow;
+  margin: 10px 0;
+  border-radius: 5px;
+  order: 2;
+  flex: 0 1 auto;
 }
 
 .Replayer {
@@ -186,24 +237,16 @@
   margin: 5px;
 }
 
-.RoomDescription {
-  padding: 30px;
-  display: flex;
-  flex-direction: column;
-  height: 160px;
-}
-
-.InstructionsTitle {
-  border-bottom: 1px solid #ddd;
-}
-
-.Instructions {
+/* .Instructions {
  flex-grow: 2;
+} */
+
+.Expand {
 }
 
 .EditInstructions {
   color: #999;
-  tranistion: .2s;
+  transition: .2s;
   cursor: pointer;
 }
 
@@ -212,41 +255,57 @@
 }
 
 .SetStart {
-  flex-grow: 1;
-  flex-shrink: 1;
+  /* flex-grow: 1;
+  flex-shrink: 1; */
   /* align-self: flex-end; */
 }
 
 
 .SideButton {
   flex-grow: 1;
-  border: 1px solid #ddd;
-  /* background-color: rgb(99, 83, 83); */
-  /* color: white; */
+  padding: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: .2s;
+  background-color: blue;
+  color: white;
+  border-radius: 3px 0px 0px 3px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1.12px;
+  box-shadow: lightShadow;
+  text-align: center;
 }
 
 
 .SideButton:hover {
-  background: hoverBackground;
+  background: blueHover;
 }
+
+.Exit {
+  color: darkGrey;
+  background-color: #D2D2D2;
+  border-radius: 0px 3px 3px 0px;
+}
+
 .Exit:hover {
-  background: hoverBackground2;
+  background: #DFDFDF;
 }
 
 .ReferenceWindow {
-  border-left: 1px solid #ddd;
-  flex-grow: 1;
-  height: 160px;
+  /* height: 100%; */
+  box-shadow: lightShadow;
+  order: 3;
+  align-self: auto;
+  flex: 0 0 auto;
+  /* flex-grow: 0;
+  flex-shrink: 1; */
 }
 
 .Controls {
   display: flex;
-  background: #f9f9f9;
 }
 
 .MousePointer {
@@ -256,7 +315,7 @@
   padding: 14px 10px 4px 20px;
   border-radius: 50%;
   background: #e8e8e8;
-  margin: 0 10px;
+  margin: 5px 10px;
   transition: .2s;
 }
 
@@ -295,4 +354,3 @@
   z-index: 0;
   pointer-events: none;
 }
-

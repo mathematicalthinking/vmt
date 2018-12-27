@@ -19,13 +19,10 @@ class Clock extends PureComponent {
   render() {
     const absTime = moment(this.props.startTime).add(this.props.absTimeElapsed, 'ms').format('MM/DD/YYYY h:mm:ss A')
     return (
-      <div className={classes.Clocks}>
-        <div className={classes.AbsClocks}>
-          <div className={classes.AbsTime}>{msToTime(this.props.relTime)}</div>
-          <div className={classes.AbsTime}>{msToTime(this.props.duration - this.props.relTime)}</div>
-        </div>
-        <div className={classes.RelTime}>{absTime}</div>
-
+      <div className={classes.ClockContainer}>
+        <div className={classes.StartTime}>{msToTime(this.props.relTime)}</div>
+        <div className={classes.CenterTime}>{absTime}</div>
+        <div className={classes.EndTime}>{msToTime(this.props.duration - this.props.relTime)}</div>
       </div>
     )
   }

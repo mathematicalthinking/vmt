@@ -59,8 +59,9 @@ class Activity extends Component {
     this.setState(prevState => ({
       editing: !prevState.editing,
       name: this.props.activity.name,
+      description: this.props.activity.description,
       privacySetting: this.props.activity.privacySetting,
-      instrucitons: this.props.activity.instructions,
+      instructions: this.props.activity.instructions,
     }))
   }
   // options is for radioButton/checkbox inputs
@@ -69,10 +70,10 @@ class Activity extends Component {
     this.setState({[name]: option || value})
   }
 
-  updateActivity= () => {
+  updateActivity = () => {
     let { updateActivity, activity, } = this.props;
-    let { name, instructions, details, privacySetting, } = this.state
-    let body = {name, details, instructions, privacySetting}
+    let { name, instructions, details, privacySetting, description} = this.state
+    let body = {name, details, instructions, privacySetting, description}
     updateActivity(activity._id, body)
     this.setState({
       editing: false,
@@ -97,7 +98,7 @@ class Activity extends Component {
 
     let additionalDetails = {
       type: activity.roomType,
-      privacy: <EditText change={this.updateActivityInfo} inputType='radio' editing={this.state.editing} options={['private', 'public']} name="privacySetting">{activity.privacySetting}</EditText>
+      privacy: <EditText change={this.updateActivityInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name="privacySetting">{this.state.privacySetting}</EditText>
     }
 
     const crumbs = [{title: 'My VMT', link: '/myVMT/courses'}]
@@ -145,7 +146,7 @@ class Activity extends Component {
             subTitle={<EditText change={this.updateActivityInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>}
             owner={this.state.owner}
             additionalDetails={additionalDetails}
-            editButton={ this.state.owner 
+            editButton={ this.state.owner
               ? <Aux>
                   <div role='button' style={{display: this.state.editing ? 'none' : 'block'}}  onClick={this.toggleEdit}>Edit Activity <i className="fas fa-edit"></i></div>
                   {this.state.editing

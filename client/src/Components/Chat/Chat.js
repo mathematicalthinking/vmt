@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 // import TextInput from '../Form/TextInput/TextInput';
 import classes from './chat.css';
 // import Button from '../UI/Button/Button';
-import SendIcon from './sendicon';
 import moment from 'moment';
 class Chat extends Component {
   constructor(props){
@@ -12,6 +11,7 @@ class Chat extends Component {
       containerCoords: null,
       chatCoords: null,
       chatInputCoords: null,
+      expanded: true,
     }
     this.chatContainer = React.createRef()
     this.chatInput = React.createRef()
@@ -21,6 +21,13 @@ class Chat extends Component {
     this.props.messages.forEach((message, i) => {
       this[`message-${i}`] = React.createRef()
     })
+  }
+
+  toggleCollapse() {
+    //start counting all unread messages once chat window is collapsed?
+    this.setState({
+      expanded: !this.state.expanded
+    });
   }
 
   componentDidMount() {
@@ -43,7 +50,7 @@ class Chat extends Component {
     }
     else if (!prevProps.referencing && this.props.referencing) {
       this.props.setFromElAndCoords(this.chatInput.current, this.getRelativeCoords(this.chatInput.current))
-    } 
+    }
     else if (!prevProps.referToEl && this.props.referToEl && this.props.referencing) {
       this.chatInput.current.focus();
     }
@@ -57,7 +64,7 @@ class Chat extends Component {
 
     }
   }
-  
+
   componentWillUnmount() {
     window.removeEventListener('keypress', this.onKeyPress)
     window.removeEventListener('resize', this.updateOnResize)
@@ -87,7 +94,7 @@ class Chat extends Component {
       this.resizeTimer = undefined;
     }, 200)
   }
-  
+
   scrollToBottom = () => {
     this.chatEnd.current.scrollTop = this.chatEnd.current.scrollHeight;
     // window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
@@ -97,7 +104,7 @@ class Chat extends Component {
     // If we're already showing this reference clear the reference
     if (this.props.showReference && this.props.referToEl && (reference.element === this.props.referToEl.element)) {
       this.props.clearReference()
-    } 
+    }
     // else if (this.props.referenceElement.elementType === 'chat_message') {
     //   console.log(this.props.referenceElement)
     // }
@@ -114,7 +121,7 @@ class Chat extends Component {
   }
 
   getRelativeCoords = (target) => {
-    let messageCoords = target.getBoundingClientRect(); // RENAME THIS ...THIS IS THE CHAT MESSAGE OR CHAT 
+    let messageCoords = target.getBoundingClientRect(); // RENAME THIS ...THIS IS THE CHAT MESSAGE OR CHAT
     let left = this.state.chatCoords.left - this.state.containerCoords.left
     let top = messageCoords.top - this.state.containerCoords.top;
     if (messageCoords.top > this.state.chatInputCoords.bottom) {
@@ -133,13 +140,13 @@ class Chat extends Component {
   }
 
   scrollHandler = (event) => {
-   
+
   }
 
   updateReferencePositions = () => {
      // INSTEAD OF DOING ALL OF THIS WE COULD JUST SEE HOW THE SCROLL HAS CHANGED AND THEN KNOW HOW TO UPDATE THE DOM LINE?
      if (this.props.showingReference) {
-      // Find and update the position of the referer 
+      // Find and update the position of the referer
       // this.updateReference()
       this.props.setFromElAndCoords(null, this.getRelativeCoords(this[`message-${this.props.referFromEl}`].current))
       if (this.props.referToEl.elementType === 'chat_message') {
@@ -147,7 +154,7 @@ class Chat extends Component {
         let elementRef = this[`message-${this.props.referToEl.element}`].current
         this.props.setToElAndCoords(null, this.getRelativeCoords(elementRef))
       }
-    } 
+    }
     else if (this.props.referencing && this.props.referToEl.elementType === 'chat_message') {
       let elementRef = this[`message-${this.props.referToEl.element}`].current
       this.props.setToElAndCoords(null, this.getRelativeCoords(elementRef))
@@ -157,11 +164,11 @@ class Chat extends Component {
   display_temporary_error = () => {
     alert('showing references is not available in the replayer yet')
   }
-  
+
   render() {
     let {
-      messages, replayer, change, 
-      submit, value, referencing, 
+      messages, replayer, change,
+      submit, value, referencing,
       showingReference,
     } = this.props;
     let displayMessages = [];
@@ -170,7 +177,7 @@ class Chat extends Component {
         let highlightClass = '';
         if (showingReference && this.props.referToEl) {
           //@TODO DOUBLE EQUALS BELOW HERE IS INTENTIONAL. THIS NEEDS TO BE FIXED EVENTUALLY BUT FOR NOW,
-          // WHEN WE MAKE THE INTIAL REFERENCE ELEMENT IS AN INT BUT WHEN WE SAVE IT TO THE DB OR IT COMES ACROSS THE SOCKET 
+          // WHEN WE MAKE THE INTIAL REFERENCE ELEMENT IS AN INT BUT WHEN WE SAVE IT TO THE DB OR IT COMES ACROSS THE SOCKET
           // IT IS A STRING...WE SHOULD JUST PARSE IT TO STRING ON CREATION REFERTOEL.ELEMENT
           if ((this.props.referToEl.element == i) || (message.reference && (this.props.referToEl.element === message.reference.element))) {
             highlightClass = classes.Highlight
@@ -178,15 +185,15 @@ class Chat extends Component {
         }
         return (
           <div
-            id={i} 
+            id={i}
             key={i}
-            ref={this[`message-${i}`]} 
-            className={[message.autogenerated ? classes.VmtBotEntry : classes.Entry, highlightClass].join(" ")} 
+            ref={this[`message-${i}`]}
+            className={[message.autogenerated ? classes.VmtBotEntry : classes.Entry, highlightClass].join(" ")}
             onClick={
-              !replayer ? 
-                referencing ? (event) => this.referToMessage(event, i) :  
+              !replayer ?
+                referencing ? (event) => this.referToMessage(event, i) :
                 message.reference ? (event) => this.showReference(event, message.reference, message.tab) : null
-              : this.display_temporary_error 
+              : this.display_temporary_error
             }
             style={{cursor: message.reference || this.props.referencing ? 'pointer' : 'auto'}}
           >
@@ -203,16 +210,22 @@ class Chat extends Component {
       // displayMessages.push(<div key='end' ref={this.chatEnd}></div>)
     }
     return (
-      <div className={classes.Container} ref={this.chatContainer}>
-        <h3 className={classes.Title}>Chat</h3>
-        <div className={classes.ChatScroll} ref={this.chatEnd} onScroll={this.updateReferencePositions} id='scrollable'>{displayMessages}</div>
+      <div className={(this.state.expanded ? classes.Container : classes.CollapsedContainer)} ref={this.chatContainer}>
+        <h3 className={classes.Title} onClick={this.toggleCollapse.bind(this)}>Chat
+          <div className={classes.Status}>
+            <svg height="20" width="20">
+              <circle cx="10" cy="15" r="5" fill={this.props.isConnected ? "#34A505" : "#FFD549"}/>
+            </svg>
+          </div>
+        </h3>
+        <div className={(this.state.expanded ? classes.ChatScroll : classes.Collapsed)} ref={this.chatEnd} onScroll={this.updateReferencePositions} id='scrollable'>{displayMessages}</div>
         {!replayer ?
           <div className={classes.ChatInput}>
             <input ref={this.chatInput} className={classes.Input} type = {"text"} onChange={change} value={value}/>
             {/* <TextInput width={"90%"} size={20} light autoComplete="off" change={change} type='text' name='message' value={value}/> */}
             <div className={classes.Send} onClick={submit}>
-              <SendIcon height='24' width='24' viewBox='0 0 24 24'/>
-              </div>
+              <i className={'fab fa-telegram-plane'}></i>
+            </div>
           </div> : null
         }
       </div>

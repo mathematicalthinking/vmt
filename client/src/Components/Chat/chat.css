@@ -1,33 +1,62 @@
 :import('../../colors.css'){
   blue: blue;
+  blueHover: blueHover;
   gray: backgroundGray;
   background: mainBackground;
-  scrollBackground: darkScroller;
+  scrollBackground: scrollBackground;
+  scrollBar: scrollBar;
   darkBorder: darkBorder;
   hoverBackground: hoverBackground2;
+  lightShadow: lightestShadow;
 }
+
 .Container {
   display: flex;
   flex-flow: column;
-  justify-content: space-between;
+  background-color: white;
   height: 100%;
   width: 100%;
-  border: 1px solid #ddd;
-  background-color: background;
+  /* border: .5px solid #ddd; */
+  border-radius: 3px;
+  box-shadow: lightShadow;
   /* position: relative; */
   /* color: white; */
   /* box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.28); */
 }
 
 .Title {
-  padding: 5px;
+  padding: 8px 0 8px 10px;
   border-bottom: 1px solid #ddd;
+  background-color: rgb(245, 245, 245);
+  border-radius: 3px 3px 0 0;
+  color: black;
+  font-size: 17px;
+  letter-spacing: 1.12px;
+  cursor: pointer;
+}
+
+.Status {
+  float: right;
+  position: relative;
+  right: 8px;
+  top: -2px;
 }
 
 .ChatScroll {
-  flex-grow: 2;
+  flex-grow: 0;
   width: 100%;
   overflow-y: scroll;
+  flex: 0 1 100%;
+}
+
+.Collapsed {
+  display: none;
+}
+
+.CollapsedContainer {
+  height: 75px;
+  border-radius: 3px;
+  box-shadow: lightShadow;
 }
 
 .ChatScroll::-webkit-scrollbar {
@@ -37,50 +66,61 @@
 }
 
 .ChatScroll::-webkit-scrollbar-thumb {
-  background-color: blue;
-  border-radius: 3px;
+  background-color: scrollBar;
+  border-radius: 15px;
 }
 
 .ChatInput {
-  height: 35px;
+  height: 40px;
   display: flex;
   flex-shrink: 0;
-  /* align-items: center; */
-  border-top: 1px solid #ddd;
-  width: 100%
+  align-items: flex-end;
+  width: 100%;
+  background-color: #f8f8f9;
 }
 
 .Input {
-  padding: 5px;
+  padding: 15px 10px;
   width: 100%;
-  height: 35px;
-  border: none !important;
-  font-size: 21px;
-  border-bottom: 1px solid blue;
+  height: 40px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 400;
+  background-color: white;
+ }
+
+.Input:focus {
+  outline: none;
+  background-color: rgb(250, 250, 250);
 }
 
 .Send {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-left: 1px solid #ddd;
-  width: 45px;
-  height: 35px;
+  width: 42px;
+  height: 40px;
   background: inherit;
   cursor: pointer;
   transition: .2s;
+  background-color: blue;
+  color: white;
+  font-size: 18px;
+  border-radius: 0 3px 3px 0;
 }
 
 .Send:hover {
-  background: hoverBackground;
+  background: blueHover;
 }
 
 .Entry {
   display: flex;
   flex-flow: column;
   width: 100%;
-  border: 2px solid transparent;
+  border: 4px solid transparent;
   padding: 0px 10px;
+  font-size: 15px;
   /* width: 90%; */
   /* border: 1px solid red; */
 }
@@ -90,7 +130,8 @@
   color: #999;
   font-size: .8em;
   align-self: flex-end;
-  font-size: 13px;
+  font-size: 12px;
+  margin: 5px 0;
   text-align: left;
 }
 
@@ -103,7 +144,7 @@
   padding: 0px 10px;
   border: 2px solid transparent;
  }
- 
+
 .Point {
   z-index: 1500;
   background-color: red;

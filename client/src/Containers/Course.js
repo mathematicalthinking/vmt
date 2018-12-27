@@ -41,7 +41,7 @@ class Course extends Component {
     name: this.props.course ? this.props.course.name: null,
     description: this.props.course ? this.props.course.description: null,
     entryCode: this.props.course ? this.props.course.entryCode: null,
-    privacySettings: this.props.course ? this.props.course.privacySetting: null,
+    privacySetting: this.props.course ? this.props.course.privacySetting: null,
   }
   initialTabs = [
     {name: 'Activities'},
@@ -60,7 +60,7 @@ class Course extends Component {
        notifications.forEach(ntf => {
           if (ntf.notificationType === 'grantedAccess' && ntf.resourceId === course._id) {
             firstView = true;
-            clearNotification(ntf._id) 
+            clearNotification(ntf._id)
           }
         })
       }
@@ -163,7 +163,7 @@ class Course extends Component {
       name: this.props.course.name,
       privacySetting: this.props.course.privacySetting,
       entryCode: this.props.course.entryCode,
-      instrucitons: this.props.instructions,
+      instructions: this.props.instructions,
     }))
   }
 
@@ -174,8 +174,8 @@ class Course extends Component {
 
   updateCourse = () => {
     let { updateCourse, course, } = this.props;
-    let { entryCode, name, details } = this.state
-    let body = { entryCode, name, details, }
+    let { entryCode, name, details, description, privacySetting } = this.state
+    let body = { entryCode, name, details, description, privacySetting }
     updateCourse(course._id, body)
     this.setState({
       editing: false,
@@ -271,7 +271,7 @@ class Course extends Component {
             }
             tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
             mainContent={mainContent}
-    
+
             // routingInfo={this.props.match}
             //
             // contentData={contentData}

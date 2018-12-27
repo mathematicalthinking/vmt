@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-// import moment from 'moment'
+import moment from 'moment'
 import { connect } from 'react-redux';
 import { DashboardLayout, SidePanel, RoomDetails, } from '../Layout/Dashboard/';
 import Members from './Members/Members';
@@ -139,7 +139,8 @@ class Room extends Component {
       dueDate: this.props.room.dueDate,
       privacySetting: this.props.room.privacySetting,
       entryCode: this.props.room.entryCode,
-      instrucitons: this.props.room.instructions,
+      description: this.props.room.description,
+      instructions: this.props.room.instructions,
     }))
   }
   // options is for radioButton/checkbox inputs
@@ -150,8 +151,8 @@ class Room extends Component {
 
   updateRoom = () => {
     let { updateRoom, room, } = this.props;
-    let { dueDate, entryCode, name, instructions, details } = this.state
-    let body = {entryCode, name, dueDate, details, instructions}
+    let { dueDate, entryCode, name, instructions, details, description, privacySetting } = this.state
+    let body = {entryCode, name, dueDate, details, instructions, description, privacySetting }
     updateRoom(room._id, body)
     this.setState({
       editing: false,
@@ -190,7 +191,7 @@ class Room extends Component {
       else roomType = ggb ? 'Geogebra' : 'Desmos';
 
       let additionalDetails = {
-        [dueDateText]: <EditText change={this.updateRoomInfo} inputType='date' editing={this.state.editing} name='dueDate'>{this.state.dueDate || 'no due date set'}</EditText>,
+        [dueDateText]: <EditText change={this.updateRoomInfo} inputType='date' editing={this.state.editing} name='dueDate'>{this.state.dueDate}</EditText>,
         type: roomType,
         privacy: <EditText change={this.updateRoomInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name='privacySetting'>{this.state.privacySetting}</EditText>,
         facilitators: room.members.reduce((acc, member) => {

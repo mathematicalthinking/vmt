@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import classes from './textInput.css';
 import lightClasses from './lightTextInput.css';
 class TextInput extends Component {
-  
+
   textInput = React.createRef();
 
   componentDidMount(){
@@ -32,6 +32,7 @@ class TextInput extends Component {
           name={this.props.name}
           placeholder={this.props.placeholder}
           onChange={this.props.change}
+          onKeyDown={this.props.onKeyDown}
           value={this.props.value}
           style={{fontSize: this.props.size}}
           data-testid={this.props['data-testid'] || null}

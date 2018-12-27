@@ -1,4 +1,4 @@
-:import('../../../colors.css'){ 
+:import('../../../colors.css'){
   red: red;
   blue: blue;
   lightblue: lightblue;
@@ -32,9 +32,9 @@
 
 .Close {
   position: absolute;
-  right: 10px;
-  top: 5px;
-  font-size: 30px;
+  right: 6px;
+  top: 10px;
+  font-size: 20px;
   color: #666;
   cursor: pointer;
   transition: .2s;
@@ -60,8 +60,7 @@
 
 .Message {
   color: blue;
-  border: 1px solid #ddd;
-  border-radius: 3px;
+  font-size: 22px;
 }
 
 .Error {

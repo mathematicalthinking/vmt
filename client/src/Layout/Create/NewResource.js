@@ -30,10 +30,18 @@ class NewResource extends Component {
   changeHandler = event => {
     this.setState({
       [event.target.name]: event.target.value,
+      errorMessage: null,
     })
   }
 
   submit = () => {
+    let updatedName = this.state.name;
+    if (updatedName.trim().length <= 1) {
+      this.setState({
+        errorMessage: 'Please provide a name'
+      })
+      return;
+    }
     this.props.submit({...this.state})
   }
 
@@ -53,13 +61,16 @@ class NewResource extends Component {
                   name={`name`}
                   label={`${displayResource} Name`}
                   change={this.changeHandler}
+                  onKeyPress={this.onKeyPress}
                   width='100%'
                 />
+                {this.state.errorMessage ? <div className={classes.ErrorMessage}>{this.state.errorMessage}</div> : null}
                 <TextInput
                   light
                   name='description'
                   label='Description'
                   change={this.changeHandler}
+                  onKeyPress={this.onKeyPress}
                   width='100%'
                   data-testid={`${resource}-description`}
                 />

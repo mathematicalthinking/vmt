@@ -2,7 +2,7 @@ const INITIAL_XML = `
 <?xml version="1.0" encoding="utf-8"?>
 <geogebra format="5.0" version="5.0.514.0" app="classic" platform="w" id="73A0DC1E-E9EE-4FA9-8111-F486CFFAD679"  xsi:noNamespaceSchemaLocation="http://www.geogebra.org/ggb.xsd" xmlns="" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
 <gui>
-	<window width="1153" height="638" />
+	<window width="100%" height="100%" />
 	<perspectives>
 <perspective id="tmp">
 	<panes>

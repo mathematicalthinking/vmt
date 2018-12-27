@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { TextInput, RadioBtn, Button } from '../../Components';
+import classes from './graph.css';
 import API from '../../utils/apiRequests';
 class NewTabForm extends Component {
-  
+
   state = {
     name: '',
     instructions: '',
@@ -13,12 +14,28 @@ class NewTabForm extends Component {
 
   changeHandler = (event) => {
     this.setState(
-      {[event.target.name]: event.target.value}
+      {[event.target.name]: event.target.value,
+        errorMessage: null,
+      }
     )
   }
 
+  onKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.submit();
+    }
+  }
+
   submit = () => {
-    console.log(this.props.activity)
+    let updatedName = this.state.name;
+    if (updatedName.trim().length <= 1) {
+      this.setState({
+        errorMessage: 'Please provide a name for the tab'
+      })
+      return;
+    }
     API.post('tabs', {
       name: this.state.name,
       instructions: this.state.instructions,
@@ -50,26 +67,28 @@ class NewTabForm extends Component {
 
   render(){
     return (
-      <div>
+      <div className={classes.NewTabModal}>
         <h2>Create A New Tab</h2>
-        <TextInput light value={this.state.name} change={this.changeHandler} name='name' label='Name' autofill='none'/>
-        <TextInput light value={this.state.instructions} change={this.changeHandler} name='instructions' label='Instructions'/>
-        <div style={{display: 'flex', justifyContent: 'space-around'}}>
+        <TextInput light value={this.state.name} change={this.changeHandler} onKeyDown={this.onKeyDown} name='name' label='Name' autofill='none'/>
+          {this.state.errorMessage ? <div className={classes.ErrorMessage}>{this.state.errorMessage}</div> : null}
+        <TextInput light value={this.state.instructions} change={this.changeHandler} onKeyDown={this.onKeyDown} name='instructions' label='Instructions'/>
+        <div className={classes.RadioGroup}>
           <RadioBtn name='geogebra' checked={this.state.ggb} check={() => this.setState({ggb: true})}>GeoGebra</RadioBtn>
           <RadioBtn name='desmos' checked={!this.state.ggb} check={() => this.setState({ggb: false})}>Desmos</RadioBtn>
         </div>
-        {this.state.ggb ?
-        <div>
-          <div>Import a GeoGebra  (optional)</div>
-          <div><Button>Select a Geogebra File (optional)</Button></div>
-        </div> :
-        <TextInput
-          light
-          name='desmosLink'
-          label='Paste a Desmos workspace'
-          change={this.changeHandler}
-          width='80%'
-        />}
+        <div className={classes.ImportOption}>
+          {this.state.ggb ?
+          <div>
+            <div className={classes.Info}>Import a GeoGebra (optional)</div>
+            <Button>Select a Geogebra File (optional)</Button>
+          </div> :
+          <TextInput
+            light
+            name='desmosLink'
+            label='Paste a Desmos workspace'
+            change={this.changeHandler}
+          />}
+        </div>
         <Button m={10} click={this.submit}>Create</Button>
       </div>
     )

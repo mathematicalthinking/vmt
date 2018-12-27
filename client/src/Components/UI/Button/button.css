@@ -2,6 +2,7 @@
   blue: blue;
   orange: orange;
   darkOrange: darkOrange;
+  darkGrey: darkGrey;
   lightestShadow: lightestShadow;
   lightShadow: lightShadow;
   newBoxShadow: newBoxShadow;
@@ -90,8 +91,17 @@
 
 .SmallCancel {
   background-color: #ccc;
-  color: #ddd;
+  color: darkGrey;
+  text-transform: uppercase;
+  font-weight: 700;
+  box-shadow: lightestShadow;
 }
+
+.SmallCancel:hover {
+  box-shadow: lightShadow;
+
+}
+
 .Small:hover {
   box-shadow: lightShadow;
 }
