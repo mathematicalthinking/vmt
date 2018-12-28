@@ -168,8 +168,8 @@ class NewResourceContainer extends Component {
     let { resource, intro, courseId } = this.props;
     let displayResource;
     if (resource === 'activities') {
-      displayResource = 'Activity'
-    } else { displayResource = resource.charAt(0).toUpperCase() + resource.slice(1, resource.length - 1); }
+      displayResource = 'activity'
+    } else { displayResource = resource.slice(0, resource.length - 1); }
 
     let steps = [
       <Step1 displayResource={displayResource} name={this.state.name} description={this.state.description} changeHandler={this.changeHandler}/>, 
@@ -192,19 +192,19 @@ class NewResourceContainer extends Component {
     let buttons;
     if (this.state.step === 0 ) {
       if (resource === 'courses') {
-       buttons = <Button click={this.nextStep}>Next</Button>  
+       buttons = <Button click={this.nextStep}>next</Button>  
       }else {
         buttons = <div className={classes.Row}>
-          <Button disabled={this.state.name.length === 0} click={() => {this.nextStep('copy')}}m={5}>Copy existing Activities</Button>
-          <Button disabled={this.state.name.length === 0} click={() => {this.nextStep('new')}} m={5}>Create a New {displayResource}</Button>
+          <Button disabled={this.state.name.length === 0} click={() => {this.nextStep('copy')}}m={5}>copy existing activities</Button>
+          <Button disabled={this.state.name.length === 0} click={() => {this.nextStep('new')}} m={5}>create a new {displayResource}</Button>
         </div>
       }
     } else if (this.state.step === steps.length - 1) {
       buttons = <div className={classes.Row}>
-        <Button data-testId='create' click={this.submitForm}>Create</Button>
+        <Button data-testId='create' click={this.submitForm}>create</Button>
       </div>
     } else {
-      buttons = <Button click={this.nextStep}>Next</Button>
+      buttons = <Button click={this.nextStep}>next</Button>
     }
 
     return (
