@@ -4,6 +4,7 @@ import { hri } from 'human-readable-ids';
 import Step1 from './Step1';
 import Step2 from './Step2';
 import Step3 from './Step3';
+import DueDate from './DueDate'
 import StepDisplay from './StepDisplay';
 import { NewResource, FromActivity } from '../../../Layout';
 import { getUserResources, populateResource }from '../../../store/reducers';
@@ -71,7 +72,7 @@ class NewResourceContainer extends Component {
       description: this.state.description,
       creator: this.props.userId,
       privacySetting: this.state.privacySetting,
-      activities: this.state.activities,
+      activities: this.state.activities.length > 0 ? this.state.activities : null,
       image: `http://tinygraphs.com/${shapes[resource]}/${this.state.name}?theme=${theme}&numcolors=4&size=220&fmt=svg`
     }
     if (newResource.privacySetting === 'private') {
@@ -124,6 +125,9 @@ class NewResourceContainer extends Component {
     this.setState({activities: updatedActivities})
   }
   
+  setDueDate = dueDate => {
+    this.setState({dueDate,})
+  }
   setPrivacy = (privacySetting) => {
     this.setState({privacySetting,})
   }
@@ -164,6 +168,10 @@ class NewResourceContainer extends Component {
       <Step2 displayResource={displayResource} check={this.setCopying} copying={this.state.copying} addActivity={this.addActivity}/>,
       <Step3 displayResource={displayResource} check={this.setPrivacy} privacySetting={this.state.privacySetting} />
     ]
+
+    if (resource === 'rooms') {
+      steps.splice(2, 0, <DueDate dueDate={this.state.dueDate} selectDate={this.setDueDate} />)
+    }
 
     return (
       <Aux> 

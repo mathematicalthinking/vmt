@@ -84,6 +84,11 @@
   transition: .2s;
 } */
 
+.DateContainer {
+  height: 300px;
+
+}
+
 .Buttons {
   margin-top: 10px;
   /* flex-grow: 1; */
