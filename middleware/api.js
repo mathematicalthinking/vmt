@@ -131,6 +131,7 @@ const validateNewRecord = (req, res, next) => {
   let model = utils.getModel(resource);
   let doc = new model(body);
   if (!_.hasIn(doc, 'validate')) {
+    console.log("INVALID CONTENT ERROR")
     return errors.sendError.InvalidContentError(null, res);
   }
 

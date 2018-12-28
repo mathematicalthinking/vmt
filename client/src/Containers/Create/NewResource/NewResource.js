@@ -36,22 +36,24 @@ const shapes = {
   rooms: 'spaceinvaders',
 }
 
+const initialState = {
+  // rooms: [],
+  creating: false, // true will open modal and start creation process
+  copying: false, 
+  ggb: true,
+  step: 0, // step of the creation process
+  name: '',
+  description: '',
+  desmosGraph: '',
+  ggbFile: '',
+  dueDate: '',
+  activities: [],
+  privacySetting: 'public',
+}
+
 class NewResourceContainer extends Component {
   
-  state = {
-    // rooms: [],
-    creating: false, // true will open modal and start creation process
-    copying: false, 
-    ggb: true,
-    step: 0, // step of the creation process
-    name: '',
-    description: '',
-    desmosGraph: '',
-    ggbFile: '',
-    dueDate: '',
-    activities: [],
-    privacySetting: 'public',
-  }
+  state = {...initialState}
 
   startCreation = () => this.setState({creating: true,})
 
@@ -75,6 +77,10 @@ class NewResourceContainer extends Component {
       creator: this.props.userId,
       privacySetting: this.state.privacySetting,
       activities: this.state.activities.length > 0 ? this.state.activities : null,
+      ggbFile: this.state.ggbFile,
+      desmosLink: this.state.desmosLink,
+      course: this.props.courseId,
+      roomType: this.state.ggb ? 'geogebra' : 'desmos',
       image: `http://tinygraphs.com/${shapes[resource]}/${this.state.name}?theme=${theme}&numcolors=4&size=220&fmt=svg`
     }
     if (newResource.privacySetting === 'private') {
@@ -85,27 +91,17 @@ class NewResourceContainer extends Component {
         this.props.createCourse(newResource);
         break;
       case 'activities' :
-        newResource.ggbFile = this.state.ggbFile;
-        newResource.desmosLink = this.state.desmosLink;
-        newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
-        if (this.props.courseId) {
-          newResource.course = this.props.courseId;
-          delete newResource.members
-        }
         this.props.createActivity(newResource);
         break;
       case 'rooms' :
-        newResource.ggbFile = this.state.ggbFile;
-        newResource.desmosLink = this.state.desmosLink;
+        console.log('creating room')
         newResource.members = [{user: {_id: this.props.userId, username: this.props.username}, role: 'facilitator'}];
         newResource.dueDate = this.state.dueDate;
-        if (this.props.courseId) newResource.course = this.props.courseId;
-        newResource.roomType = this.state.ggb ? 'geogebra' : 'desmos';
         this.props.createRoom(newResource);
         break;
       default: break;
     }
-    this.setState({creating: false})
+    this.setState({...initialState})
     if (this.props.intro) {
       this.props.updateUser({accountType: 'facilitator'})
       this.props.history.push(`/myVMT/${resource}`)

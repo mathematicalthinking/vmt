@@ -32,14 +32,12 @@ const Room = new mongoose.Schema({
 
 Room.pre('save', function(next) {
   if (this.isNew) {
-    console.log('this.isNew', this.isNew);
     this.wasNew = this.isNew
   }
   next();
 })
 
 Room.post('save', function (doc, next) {
-  console.log('this prs', this.wasNew);
   if (this.wasNew && !this.tempRoom) {
     this.wasNew = false;
 
@@ -84,7 +82,7 @@ Room.post('save', function (doc, next) {
       }
       next()
     })
-    .catch(err => next(err)) //@TODO WE NEED ERROR HANDLING HERE
+    .catch(err => {console.log("ERROR: ", err); next(err)}) //@TODO WE NEED ERROR HANDLING HERE
   } else if (!this.wasNew) {
     this.modifiedPaths().forEach(field => {
       if (field === 'members') {

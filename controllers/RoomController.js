@@ -43,7 +43,6 @@ module.exports = {
   },
   // WHAT I SHOULD ACTUALLY BE DOING HERE IS CREATING new Schemas saving their respective ids within each other and then write to the db once
   post: body => {
-    console.log(body)
     return new Promise(async (resolve, reject) => {
       let createdRoom;
       let existingTabs;
@@ -51,7 +50,7 @@ module.exports = {
         existingTabs = Object.assign(body.tabs, [])
       } else if (body.activities) {
         try {
-          let activities = await db.Activity.find({'_id': {$in: [body.activities]}}).populate('tabs')
+          let activities = await db.Activity.find({'_id': {$in: body.activities}}).populate('tabs')
           existingTabs = activities.reduce((acc, activity) => (
             acc.concat(activity.tabs)
           ), [])

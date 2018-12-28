@@ -11,9 +11,8 @@ const Step2New = props => {
       <div>
       {props.ggb 
         ? <div className={classes.Geogebra}>
-          <div>Import a GeoGebra Workspace</div>
-          <div className={classes.GeogebraButton}><Button>Select a Geogebra File</Button></div>
-        </div> 
+            <div className={classes.GeogebraButton}><Button>Select a Geogebra File</Button></div>
+          </div> 
         : <TextInput
             light
             name='desmosLink'
