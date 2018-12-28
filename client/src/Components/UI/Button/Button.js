@@ -5,6 +5,7 @@ const button = props => {
   let styles = [classes.Button];
   styles.push(classes[props.theme]);
   if (!props.theme) {styles.push(classes.Small)}
+  if (props.disabled) {styles.push(classes.Disabled)}
   styles = styles.join(" ")
 
   return (
@@ -14,6 +15,7 @@ const button = props => {
       onClick={props.click} 
       type={props.type}
       data-testid={props['data-testid']}
+      disabled={props.disabled}
     >
       {props.children}
     </button>

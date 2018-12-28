@@ -1,7 +1,7 @@
 .List {
   width: 100%;
   border: 1px solid #ddd;
-  height: 100px;
+  height: 100%;
   overflow-y: scroll;
 }
 

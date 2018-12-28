@@ -56,6 +56,7 @@ class NewResourceContainer extends Component {
   startCreation = () => this.setState({creating: true,})
 
   changeHandler = (event) => {
+    console.log(event.target.value)
     this.setState({
       [event.target.name]: event.target.value,
     })
@@ -171,24 +172,24 @@ class NewResourceContainer extends Component {
     } else { displayResource = resource.charAt(0).toUpperCase() + resource.slice(1, resource.length - 1); }
 
     let steps = [
-      <Step1 displayResource={displayResource} changeHandler={this.changeHandler}/>, 
+      <Step1 displayResource={displayResource} name={this.state.name} description={this.state.description} changeHandler={this.changeHandler}/>, 
       this.state.copying 
         ? <Step2Copy displayResource={displayResource} addActivity={this.addActivity}/>
         : <Step2New setGgb={this.setGgb} ggb={this.state.ggb}/>,
       <Step3 displayResource={displayResource} check={this.setPrivacy} privacySetting={this.state.privacySetting} />
     ]
-
-    let stepDisplays = steps.map((step) => <div className={classes.Step}></div>);
-
     if (resource === 'rooms') {
       steps.splice(2, 0, <DueDate dueDate={this.state.dueDate} selectDate={this.setDueDate} />)
     }
+    
+    let stepDisplays = steps.map((step, i) => <div className={[classes.Step, i <= this.state.step ? classes.CompletedStep : null].join(' ')}></div>);
+
 
     let buttons;
     if (this.state.step === 0 ) {
       buttons = <div className={classes.Row}>
-        <Button click={() => {this.nextStep('copy')}}m={5}>Copy existing Activities</Button>
-        <Button click={() => {this.nextStep('new')}} m={5}>Create a New {displayResource}</Button>
+        <Button disabled={this.state.name.length === 0} click={() => {this.nextStep('copy')}}m={5}>Copy existing Activities</Button>
+        <Button disabled={this.state.name.length === 0} click={() => {this.nextStep('new')}} m={5}>Create a New {displayResource}</Button>
       </div>
     } else if (this.state.step === steps.length - 1) {
       buttons = <div className={classes.Row}>
@@ -208,7 +209,7 @@ class NewResourceContainer extends Component {
                 {steps[this.state.step]}
               </div>
               {buttons}
-              <div className={classes.stepDisplay}>
+              <div className={classes.StepDisplayContainer}>
                 {stepDisplays}
               </div>
             </Modal>

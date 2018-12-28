@@ -3,7 +3,7 @@ import { RadioBtn } from '../../../Components/';
 import classes from '../create.css';
 const Step3 = (props) => {
   return (
-    <div>
+    <div className={classes.Step3}>
       <div className={classes.RadioButtons}>
         <RadioBtn name='public' checked={props.privacySetting === 'public'} check={() => props.check('public')}>Public</RadioBtn>
         <RadioBtn name='private' checked={props.privacySetting === 'private'} check={() => props.check('private')}>Private</RadioBtn>

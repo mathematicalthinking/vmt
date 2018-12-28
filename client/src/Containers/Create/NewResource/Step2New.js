@@ -3,7 +3,7 @@ import { RadioBtn, TextInput, Button } from '../../../Components/';
 import classes from '../create.css';
 const Step2New = props => {
   return (
-    <div>
+    <div className={classes.Step3}>
       <div className={classes.RadioButtons}>
         <RadioBtn name='geogebra' checked={props.ggb} check={props.setGgb}>GeoGebra</RadioBtn>
         <RadioBtn name='desmos' checked={!props.ggb} check={props.setGgb}>Desmos</RadioBtn>
@@ -20,8 +20,8 @@ const Step2New = props => {
             label='Paste a Desmos workspace'
             change={this.changeHandler}
             width='100%'
-          />
-        }
+            />
+          }
       </div>
     </div>
   )
