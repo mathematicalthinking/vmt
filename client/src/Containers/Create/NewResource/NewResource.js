@@ -87,6 +87,12 @@ class NewResourceContainer extends Component {
     }
     switch (resource) {
       case 'courses' :
+        delete newResource.activities;
+        delete newResource.ggbFile;
+        delete newResource.desmosLink;
+        delete newResource.course;
+        delete newResource.roomType;
+        newResource.members = [{user: {_id: this.props.userId, username: this.props.username}, role: 'facilitator'}];
         this.props.createCourse(newResource);
         break;
       case 'activities' :
@@ -175,16 +181,24 @@ class NewResourceContainer extends Component {
     if (resource === 'rooms') {
       steps.splice(2, 0, <DueDate dueDate={this.state.dueDate} selectDate={this.setDueDate} />)
     }
+
+    if (resource === 'courses') {
+      steps.splice(1, 1)
+    }
     
     let stepDisplays = steps.map((step, i) => <div className={[classes.Step, i <= this.state.step ? classes.CompletedStep : null].join(' ')}></div>);
 
 
     let buttons;
     if (this.state.step === 0 ) {
-      buttons = <div className={classes.Row}>
-        <Button disabled={this.state.name.length === 0} click={() => {this.nextStep('copy')}}m={5}>Copy existing Activities</Button>
-        <Button disabled={this.state.name.length === 0} click={() => {this.nextStep('new')}} m={5}>Create a New {displayResource}</Button>
-      </div>
+      if (resource === 'courses') {
+       buttons = <Button click={this.nextStep}>Next</Button>  
+      }else {
+        buttons = <div className={classes.Row}>
+          <Button disabled={this.state.name.length === 0} click={() => {this.nextStep('copy')}}m={5}>Copy existing Activities</Button>
+          <Button disabled={this.state.name.length === 0} click={() => {this.nextStep('new')}} m={5}>Create a New {displayResource}</Button>
+        </div>
+      }
     } else if (this.state.step === steps.length - 1) {
       buttons = <div className={classes.Row}>
         <Button data-testId='create' click={this.submitForm}>Create</Button>

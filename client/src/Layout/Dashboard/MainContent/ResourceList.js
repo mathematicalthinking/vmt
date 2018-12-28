@@ -15,21 +15,28 @@ const resources = props => {
       linkPath = `/myVMT/${props.parentResource}/${props.parentResourceId}/${props.resource}/`
       linkSuffix = '/details'
     }
+
+    let create;
+    // if (props.resource === 'courses' && props.user.accountType === 'facilitator') {
+    //   create = <NewCourse />
+    // }
+    if (props.parentResource !== 'activities' && props.user.accountType === 'facilitator') {// THIS SHOULD ACTUALLY CHANGE DEPENDING ON states CURRENT ROLE ?? MAYBE  
+      create = <NewResource
+      resource={props.resource}
+      courseId={props.parentResource === 'courses'
+        ? props.parentResourceId
+        : null
+      }
+    />
+    } 
+
+    console.log(props.userResources)
     return (
       <div>
         {/* @TODO don't show create optinos for participants */}
         <div className={classes.Controls}>
           <div className={classes.Search}><Search /></div>
-          {props.parentResource !== 'activities' && props.user.accountType === 'facilitator'
-            ? <NewResource
-                resource={props.resource}
-                courseId={props.parentResource === 'courses'
-                  ? props.parentResourceId
-                  : null
-                }
-              />
-            : null
-          }
+          {create}
         </div>
         <h2 className={classes.ResourceHeader}>My {displayResource}</h2>
         <BoxList
