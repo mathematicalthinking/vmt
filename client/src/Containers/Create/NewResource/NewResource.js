@@ -58,7 +58,6 @@ class NewResourceContainer extends Component {
   startCreation = () => this.setState({creating: true,})
 
   changeHandler = (event) => {
-    console.log(event.target.value)
     this.setState({
       [event.target.name]: event.target.value,
     })
@@ -94,7 +93,6 @@ class NewResourceContainer extends Component {
         this.props.createActivity(newResource);
         break;
       case 'rooms' :
-        console.log('creating room')
         newResource.members = [{user: {_id: this.props.userId, username: this.props.username}, role: 'facilitator'}];
         newResource.dueDate = this.state.dueDate;
         this.props.createRoom(newResource);

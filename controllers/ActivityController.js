@@ -18,17 +18,14 @@ module.exports = {
   },
 
   post: (body) => {
-    console.log("BODY: ", body)
     return new Promise(async (resolve, reject) => {
       let existingTabs;
       if (body.activities) {
         try {
-          let activities = await db.Activity.find({'_id': {$in: [body.activities]}}).populate('tabs')
+          let activities = await db.Activity.find({'_id': {$in: body.activities}}).populate('tabs')
           existingTabs = activities.reduce((acc, activity) => {
-            console.log("A.T: ", activity.tabs)
             return acc.concat(activity.tabs)
           }, [])
-          console.log("A: ", activities)
         }
         catch(err) {reject(err)}
       }
@@ -45,29 +42,21 @@ module.exports = {
             tabType: body.roomType,
           })
         } else {
-          console.log("EXISTING TABS: ", existingTabs)
           return Promise.all(existingTabs.map(tab => {
-            let newTab = {...tab}
-            delete newTab._id;
-            newTab.activity = activity._id;
-            return db.Tab.create(newTab)
+            delete tab._id
+            tab.activity = activity._id;
+            tab.startingPoint = tab.currentState;
+            return db.Tab.create(tab)
           }))
         }
       })
       .then(tab => {
-        console.log("TABS: ", tab)
-        return db.Activity.findByIdAndUpdate(createdActivity._id, {
-          $addToSet: {tabs: Array.isArray(tab) ? {$each: tab.map(t => t._id)} : tab._id}
-        }, {new: true}).populate({path: 'tabs'})
-      })
-      .then(activity => {
-        console.log("ACTIVITY: ", activity)
-        resolve(activity)
-      })
-      .catch(err => {
-        console.log(err)
-        reject(err)
-      })
+        if (Array.isArray(tab)) {
+          return db.Activity.findByIdAndUpdate(createdActivity._id, {$addToSet: {tabs: tab.map(tab => tab._id)}}, {new: true})
+        }
+        return db.Activity.findByIdAndUpdate(createdActivity._id, {$addToSet: {tabs: tab._id}}, {new: true})})
+      .then(activity => {resolve(activity)})
+      .catch(err => {reject(err)})
     })
   },
 
