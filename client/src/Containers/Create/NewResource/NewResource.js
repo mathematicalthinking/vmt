@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { hri } from 'human-readable-ids';
 import Step1 from './Step1';
-import Step2 from './Step2';
+import Step2Copy from './Step2Copy';
+import Step2New from './Step2New'
 import Step3 from './Step3';
 import DueDate from './DueDate'
 import StepDisplay from './StepDisplay';
@@ -78,7 +79,6 @@ class NewResourceContainer extends Component {
     if (newResource.privacySetting === 'private') {
       newResource.entryCode = hri.random();
     }
-    console.log(resource)
     switch (resource) {
       case 'courses' :
         this.props.createCourse(newResource);
@@ -124,6 +124,10 @@ class NewResourceContainer extends Component {
     }
     this.setState({activities: updatedActivities})
   }
+
+  setGgb = (event) => {
+    this.setState({ggb: event.target.name === 'geogebra'})
+  }
   
   setDueDate = dueDate => {
     this.setState({dueDate,})
@@ -132,8 +136,15 @@ class NewResourceContainer extends Component {
     this.setState({privacySetting,})
   }
   nextStep = (direction) => {
+    let copying = this.state.copying;
+    if (this.state.step === 0) {
+      if (direction === 'copy') {
+        copying = true;
+      }
+    }
     this.setState({
       step: this.state.step + 1,
+      copying: copying,
     })
   }
   
@@ -159,31 +170,46 @@ class NewResourceContainer extends Component {
       displayResource = 'Activity'
     } else { displayResource = resource.charAt(0).toUpperCase() + resource.slice(1, resource.length - 1); }
 
-    if (resource === 'rooms') {
-
-    }
-    let stepTitles = ['Enter Details', this.state.copying ? 'Select 1 or More Activities to Copy' : 'Enter Details']
     let steps = [
       <Step1 displayResource={displayResource} changeHandler={this.changeHandler}/>, 
-      <Step2 displayResource={displayResource} check={this.setCopying} copying={this.state.copying} addActivity={this.addActivity}/>,
+      this.state.copying 
+        ? <Step2Copy displayResource={displayResource} addActivity={this.addActivity}/>
+        : <Step2New setGgb={this.setGgb} ggb={this.state.ggb}/>,
       <Step3 displayResource={displayResource} check={this.setPrivacy} privacySetting={this.state.privacySetting} />
     ]
 
+    let stepDisplays = steps.map((step) => <div className={classes.Step}></div>);
+
     if (resource === 'rooms') {
       steps.splice(2, 0, <DueDate dueDate={this.state.dueDate} selectDate={this.setDueDate} />)
+    }
+
+    let buttons;
+    if (this.state.step === 0 ) {
+      buttons = <div className={classes.Row}>
+        <Button click={() => {this.nextStep('copy')}}m={5}>Copy existing Activities</Button>
+        <Button click={() => {this.nextStep('new')}} m={5}>Create a New {displayResource}</Button>
+      </div>
+    } else if (this.state.step === steps.length - 1) {
+      buttons = <div className={classes.Row}>
+        <Button data-testId='create' click={this.submitForm}>Create</Button>
+      </div>
+    } else {
+      buttons = <Button click={this.nextStep}>Next</Button>
     }
 
     return (
       <Aux> 
         {this.state.creating 
           ? <Modal show={this.state.creating} closeModal={this.closeModal}>
+              {this.state.step > 0 ? <i onClick={() => this.setState({step: this.state.step - 1})} className={["fas", "fa-arrow-left", classes.BackIcon].join(' ')}></i> : null}
               <div className={classes.Container}>
-                <h2>Create a {displayResource}</h2>
+                <h2 className={classes.ModalTitle}>Create {resource === 'activities' ? 'an' : 'a'} {displayResource}</h2>
                 {steps[this.state.step]}
               </div>
-              <div className={classes.Row}>
-                { this.state.step > 0 ? <Button click={this.prevStep}>Back</Button> : null }
-                { this.state.step < 2 ? <Button click={this.nextStep}>Next</Button> : <Button data-testId='create' click={this.submitForm}>Create</Button> }
+              {buttons}
+              <div className={classes.stepDisplay}>
+                {stepDisplays}
               </div>
             </Modal>
           : null

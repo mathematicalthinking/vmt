@@ -16,9 +16,10 @@
   /* border-bottom: 2px solid #ddd; */
 }
 
-.Title {
+.ModalTitle {
+  font-size: 20px;
   padding-bottom: 12px;
-  margin: 0;
+  margin-bottom: 10px;
   border-bottom: 1px solid #ddd;
 }
 
@@ -85,8 +86,11 @@
 } */
 
 .DateContainer {
-  height: 300px;
-
+  height: 320px;
+  width: 100%;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
 }
 
 .Buttons {
@@ -110,4 +114,25 @@
   margin-left: 3px;
   margin-right: -5px;
   color: orange;
+}
+
+.BackIcon {
+  position: absolute;
+  left: 15px;
+  top: 15px;
+  font-size: 18px;
+  color: #666;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.BackIcon:hover {
+  color: black;
+}
+
+.Step {
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  background: #666;
 }

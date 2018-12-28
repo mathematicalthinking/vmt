@@ -14,7 +14,7 @@ class DueDate extends Component {
     return (
       <div className={classes.DateContainer}>
         <h3>Select a Due Date (optional)</h3>
-        <DatePicker ref={this.datePicker} selected={this.props.dueDate} onChange={this.props.selectDate}/>
+        <DatePicker startOpen autoFocus selected={this.props.dueDate} onChange={this.props.selectDate} popperPlacement='center' shouldCloseOnSelect={false}/>
       </div>
     )
 
