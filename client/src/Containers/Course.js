@@ -60,7 +60,6 @@ class Course extends Component {
        notifications.forEach(ntf => {
           if (ntf.notificationType === 'grantedAccess' && ntf.resourceId === course._id) {
             firstView = true;
-            console.log('clearing ', ntf._id)
             this.props.clearNotification(ntf._id)
           }
         })
