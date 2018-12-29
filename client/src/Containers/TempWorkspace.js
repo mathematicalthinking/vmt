@@ -44,9 +44,8 @@ class TempWorkspace extends Component {
     if (!prevProps.loggedIn && this.props.loggedIn) {
       this.setState({saved: true})
     }
-    if (!prevProps.room && this.props.room) {
-      console.log('the room was fetched')
-    }
+    // if (!prevProps.room && this.props.room) {
+    // }
   }
 
   setName = (event) => {
@@ -110,7 +109,6 @@ class TempWorkspace extends Component {
   }
 
   componentWillUnmount () {
-    console.log('unmounting')
     if (this.socket) {
       this.socket.disconnect()
       // this.socket.emit('disconnect')

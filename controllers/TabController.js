@@ -22,7 +22,6 @@ module.exports = {
       let newTab;
       db.Tab.create(body)
       .then(tab => {
-        console.log("created a tab in controller")
         newTab = tab;
         if (tab.room) {
           return db.Room.findByIdAndUpdate(body.room, {$addToSet: {tabs: tab._id}})

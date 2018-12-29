@@ -104,7 +104,6 @@ class Workspace extends Component {
         if (err) {
           console.log('error leaving room', err);
         }
-        console.log('left room: ', res);
         updatedRoom(room._id, {
           currentMembers: room.currentMembers.filter(member => member.user._id !== user._id)
         })
@@ -251,7 +250,6 @@ class Workspace extends Component {
   }
 
   setStartingPoint = () => {
-    console.log('update startying point')
     this.props.setRoomStartingPoint(this.props.room._id)
   }
 

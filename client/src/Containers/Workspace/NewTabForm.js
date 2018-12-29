@@ -45,7 +45,6 @@ class NewTabForm extends Component {
       activity: this.props.activity ? this.props.activity._id : null,
     })
     .then(res => {
-      console.log(res)
       let tabs;
       if (this.props.room) {
         tabs = [...this.props.room.tabs];
@@ -60,7 +59,6 @@ class NewTabForm extends Component {
       this.props.closeModal();
     })
     .catch(err => {
-      console.log('there was an error: ', err)
       // DISPLAY THIS ERROR MESSAGE: @TODO
     })
   }

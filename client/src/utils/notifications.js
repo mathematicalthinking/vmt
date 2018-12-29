@@ -26,7 +26,6 @@ import includes from 'lodash/propertyOf';
     if (resourceType === 'course' || resourceType === 'room') {
       return notifications.filter((notification) => {
         if (notification.parentResource) {
-          console.log('parentResourceeeee: ', notification.parentResource)
           return resourceType === 'course';
         }
         return notification.resourceType === resourceType;

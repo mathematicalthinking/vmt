@@ -138,3 +138,8 @@
   color: white;
   box-shadow: newBoxShadow;
 }
+
+.Disabled {
+  color: #333;
+  background: #999;
+}

@@ -1,6 +1,6 @@
 import React from 'react';
 import classes from './radioBtn.css';
-const radioBtn = props => {
+const RadioBtn = props => {
   return (
     <label className={classes.Container}>
       {props.children}
@@ -10,4 +10,4 @@ const radioBtn = props => {
   )
 }
 
-export default radioBtn;
+export default RadioBtn;

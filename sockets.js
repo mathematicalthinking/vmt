@@ -118,7 +118,7 @@ const socketInit = require('./socketInit');
       })
 
       socket.on('disconnecting', () => {
-        console.log('socket disconecting', socket.id);
+        // console.log('socket disconecting', socket.id);
       })
 
       socket.on('disconnect', () => {

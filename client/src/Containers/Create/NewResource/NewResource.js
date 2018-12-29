@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { hri } from 'human-readable-ids';
+import Step1 from './Step1';
+import Step2Copy from './Step2Copy';
+import Step2New from './Step2New'
+import Step3 from './Step3';
+import DueDate from './DueDate'
+import StepDisplay from './StepDisplay';
 import { NewResource, FromActivity } from '../../../Layout';
 import { getUserResources, populateResource }from '../../../store/reducers';
-import Aux from '../../../Components/HOC/Auxil';
-import Button from '../../../Components/UI/Button/Button';
+import { Modal, Aux, Button, } from '../../../Components/';
 import classes from '../create.css';
 import { connect } from 'react-redux';
 import {
@@ -31,57 +36,76 @@ const shapes = {
   rooms: 'spaceinvaders',
 }
 
+const initialState = {
+  // rooms: [],
+  creating: false, // true will open modal and start creation process
+  copying: false, 
+  ggb: true,
+  step: 0, // step of the creation process
+  name: '',
+  description: '',
+  desmosGraph: '',
+  ggbFile: '',
+  dueDate: '',
+  activities: [],
+  privacySetting: 'public',
+}
+
 class NewResourceContainer extends Component {
-  state = {
-    // rooms: [],
-    creating: false,
-    selecting: false,
-    mode: '',
+  
+  state = {...initialState}
+
+  startCreation = () => this.setState({creating: true,})
+
+  changeHandler = (event) => {
+    this.setState({
+      [event.target.name]: event.target.value,
+    })
   }
 
+  setCopying = (event) => {
+    this.setState({copying: event.target.name === 'copy'})
+  }
 
-  create = () => this.setState({creating: true, selecting: false})
-  select = (mode) => this.setState({selecting: true, creating: false, mode,})
-
-  submitForm = ({name, description, privacySetting, dueDate, ggb, ggbFile, desmosLink}) => {
+  submitForm = () => {
     let { resource } = this.props;
     let theme = imageThemes[Math.floor(Math.random()*imageThemes.length)];
     let newResource = {
-      name: name,
-      description: description,
-      members: [{user: {_id: this.props.userId, username: this.props.username}, role: 'facilitator'}],
+      name: this.state.name,
+      description: this.state.description,
       creator: this.props.userId,
-      privacySetting: privacySetting,
-      image: `http://tinygraphs.com/${shapes[resource]}/${name}?theme=${theme}&numcolors=4&size=220&fmt=svg`
+      privacySetting: this.state.privacySetting,
+      activities: this.state.activities.length > 0 ? this.state.activities : null,
+      ggbFile: this.state.ggbFile,
+      desmosLink: this.state.desmosLink,
+      course: this.props.courseId,
+      roomType: this.state.ggb ? 'geogebra' : 'desmos',
+      image: `http://tinygraphs.com/${shapes[resource]}/${this.state.name}?theme=${theme}&numcolors=4&size=220&fmt=svg`
     }
     if (newResource.privacySetting === 'private') {
       newResource.entryCode = hri.random();
     }
     switch (resource) {
       case 'courses' :
+        delete newResource.activities;
+        delete newResource.ggbFile;
+        delete newResource.desmosLink;
+        delete newResource.course;
+        delete newResource.roomType;
+        newResource.members = [{user: {_id: this.props.userId, username: this.props.username}, role: 'facilitator'}];
         this.props.createCourse(newResource);
         break;
       case 'activities' :
-        newResource.ggbFile = ggbFile;
-        newResource.desmosLink = desmosLink;
-        newResource.roomType = ggb ? 'geogebra' : 'desmos';
-        if (this.props.courseId) {
-          newResource.course = this.props.courseId;
-          delete newResource.members
-        }
         this.props.createActivity(newResource);
         break;
       case 'rooms' :
-        newResource.ggbFile = ggbFile;
-        newResource.desmosLink = desmosLink;
-        newResource.dueDate = dueDate;
-        if (this.props.courseId) newResource.course = this.props.courseId;
-        newResource.roomType = ggb ? 'geogebra' : 'desmos';
+        newResource.members = [{user: {_id: this.props.userId, username: this.props.username}, role: 'facilitator'}];
+        newResource.dueDate = this.state.dueDate;
         this.props.createRoom(newResource);
         break;
       default: break;
     }
-    this.setState({creating: false})
+    this.setState({...initialState})
     if (this.props.intro) {
       this.props.updateUser({accountType: 'facilitator'})
       this.props.history.push(`/myVMT/${resource}`)
@@ -92,42 +116,134 @@ class NewResourceContainer extends Component {
     this.props.history.push('/community/activities/selecting')
   }
 
+  addActivity = (event, id) => {
+    let updatedActivities;
+    if (this.state.activities.indexOf(id) >= 0) {
+      updatedActivities = this.state.activities.filter(acId => acId !== id); 
+    } else {
+      updatedActivities = [...this.state.activities, id]
+    }
+    this.setState({activities: updatedActivities})
+  }
+
+  setGgb = (event) => {
+    this.setState({ggb: event.target.name === 'geogebra'})
+  }
+  
+  setDueDate = dueDate => {
+    this.setState({dueDate,})
+  }
+  setPrivacy = (privacySetting) => {
+    this.setState({privacySetting,})
+  }
+  nextStep = (direction) => {
+    let copying = this.state.copying;
+    if (this.state.step === 0) {
+      if (direction === 'copy') {
+        copying = true;
+      }
+    }
+    this.setState({
+      step: this.state.step + 1,
+      copying: copying,
+    })
+  }
+  
+  prevStep = () => {
+    this.setState({
+      step: this.state.step - 1 || 0,
+    })
+  }
+  
+  closeModal = () => {
+    this.setState({
+      copying: false,
+      step: 0,
+      creating: false,
+    })
+  }
+
   render() {
-    // INTRO = TRUE IF WE'VE NAVIGATED FROM THE 'BECOME A FACILITATOR PAGE'
+    // Intro = true if and only if we've navigated from the "Become a Facilitator" page
     let { resource, intro, courseId } = this.props;
     let displayResource;
     if (resource === 'activities') {
-      displayResource = 'Activity'
-    } else { displayResource = resource.charAt(0).toUpperCase() + resource.slice(1, resource.length - 1); }
-    // @IDEA ^ while I've never seen this done before...maybe it'd be cleaner to have a file of static content and just import it in so we don't have these long strings all over
-    // console.log(this.props.course.activities)
+      displayResource = 'activity'
+    } else { displayResource = resource.slice(0, resource.length - 1); }
+
+    let steps = [
+      <Step1 displayResource={displayResource} name={this.state.name} description={this.state.description} changeHandler={this.changeHandler}/>, 
+      this.state.copying 
+        ? <Step2Copy displayResource={displayResource} addActivity={this.addActivity}/>
+        : <Step2New setGgb={this.setGgb} ggb={this.state.ggb}/>,
+      <Step3 displayResource={displayResource} check={this.setPrivacy} privacySetting={this.state.privacySetting} />
+    ]
+    if (resource === 'rooms') {
+      steps.splice(2, 0, <DueDate dueDate={this.state.dueDate} selectDate={this.setDueDate} />)
+    }
+
+    if (resource === 'courses') {
+      steps.splice(1, 1)
+    }
+    
+    let stepDisplays = steps.map((step, i) => <div className={[classes.Step, i <= this.state.step ? classes.CompletedStep : null].join(' ')}></div>);
+
+
+    let buttons;
+    if (this.state.step === 0 ) {
+      if (resource === 'courses') {
+       buttons = <Button click={this.nextStep}>next</Button>  
+      }else {
+        buttons = <div className={classes.Row}>
+          <Button disabled={this.state.name.length === 0} click={() => {this.nextStep('copy')}}m={5}>copy existing activities</Button>
+          <Button disabled={this.state.name.length === 0} click={() => {this.nextStep('new')}} m={5}>create a new {displayResource}</Button>
+        </div>
+      }
+    } else if (this.state.step === steps.length - 1) {
+      buttons = <div className={classes.Row}>
+        <Button data-testId='create' click={this.submitForm}>create</Button>
+      </div>
+    } else {
+      buttons = <Button click={this.nextStep}>next</Button>
+    }
+
     return (
-      <Aux>
-        {this.state.creating ? <NewResource
-          resource={resource}
-          displayResource={displayResource}
-          show={this.state.creating}
-          ggb={this.state.ggb}
-          close={() => this.setState({creating: false})}
-          submit={this.submitForm}
-        /> : null}
-        {this.state.selecting ? <FromActivity
-          resource={resource}
-          show={this.state.selecting}
-          close={() => this.setState({selecting: false})}
-          course={courseId}
-          userActivities={this.props.userActivities}
-          courseActivities={this.props.course ? this.props.course.activities : null}
-          create={this.props.createRoomFromActivity}
-          copy={this.props.copyActivity}
-          mode={this.state.mode}
-          userId={this.props.userId}
-        /> : null}
-        <div className={classes.Button}><Button theme={'Small'} click={this.create} data-testid={`create-${displayResource}`}>Create <span className={classes.Plus}><i className="fas fa-plus"></i></span></Button></div>
-        {(resource === 'activities' && courseId && !intro) ? <div className={classes.Button}><Button theme={'Small'} click={() => this.select('copy')}>Select an existing activity</Button></div> : null}
-        {(resource === 'activities' && !courseId && !intro) ? <div className={classes.Button}><Button theme={"Small"} click={this.redirectToActivity}>Select an activity from the community</Button></div> : null}
-        {(resource === 'rooms' && !intro) ? <div className={classes.Button}><Button theme={"Small"} click={() => this.select('create')}>Create from an Activity</Button></div> : null}
+      <Aux> 
+        {this.state.creating 
+          ? <Modal show={this.state.creating} closeModal={this.closeModal}>
+              {this.state.step > 0 ? <i onClick={() => this.setState({step: this.state.step - 1})} className={["fas", "fa-arrow-left", classes.BackIcon].join(' ')}></i> : null}
+              <div className={classes.Container}>
+                <h2 className={classes.ModalTitle}>Create {resource === 'activities' ? 'an' : 'a'} {displayResource}</h2>
+                {steps[this.state.step]}
+              </div>
+              {buttons}
+              <div className={classes.StepDisplayContainer}>
+                {stepDisplays}
+              </div>
+            </Modal>
+          : null
+          } 
+        <div className={classes.Button}>
+          <Button theme={'Small'} click={this.startCreation} data-testid={`create-${displayResource}`}>
+            Create <span className={classes.Plus}><i className="fas fa-plus"></i></span>
+          </Button>
+        </div>
       </Aux>
+
+      //   {this.state.creating ? <NewResource
+      //     step={this.state.step}
+      //     resource={resource}
+      //     displayResource={displayResource}
+      //     show={this.state.creating}
+      //     ggb={this.state.ggb}
+      //     close={() => this.setState({creating: false})}
+      //     submit={this.submitForm}
+      //   /> : null}
+      //   <div className={classes.Button}>
+      //     <Button theme={'Small'} click={this.create} data-testid={`create-${displayResource}`}>
+      //       Create <span className={classes.Plus}><i className="fas fa-plus"></i></span>
+      //     </Button>
+      //   </div>
     )
   }
 }

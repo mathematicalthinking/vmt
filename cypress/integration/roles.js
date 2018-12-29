@@ -12,10 +12,10 @@ describe('show different views based on role', function(){
   })
   it('displays the toggle after the participant creates a COURSE (becoming a facilitator)', function(){
     cy.getTestElement('become-facilitator').click()
-    cy.getTestElement('create-Course').click()
+    cy.getTestElement('create-course').click()
     cy.get('input[name=name]').type(course.name)
-    cy.getTestElement('courses-description').type('whatever')
-    cy.getTestElement('courses-submit').contains('Submit').click()
+    cy.get('button').contains('next').click()
+    cy.get('button').contains('create').click()
     cy.contains(course.name).should('exist')
     cy.get('button').contains('Facilitator').should('be.visible');
   })
@@ -35,10 +35,13 @@ describe('show different views based on role', function(){
     cy.getTestElement('content-box-room 2').should('exist')
   })
   it('displays the toggle after the participant creates a ROOM (becoming a facilitator)', function(){
-    cy.getTestElement('create-Room').click()
+    cy.getTestElement('create-room').click()
     cy.get('input[name=name]').type('{selectall} {backspace}').type(room.name)
     cy.get('input[name=description]').type('{selectall} {backspace}').type(room.description)
-    cy.get('button').contains('Submit').click()
+    cy.get('button').contains('create a new room').click()
+    cy.get('button').contains('next').click()
+    cy.get('button').contains('next').click()
+    cy.get('button').contains('create').click()
     cy.contains(room.name).should('exist')
     cy.get('button').contains('Facilitator').should('be.visible');
   })

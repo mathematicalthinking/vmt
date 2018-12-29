@@ -45,7 +45,6 @@ class privateAccess extends Component {
   }
 
   render(){
-    console.log(this.props.userId)
     let { resource } = this.props;
     let displayResource = 'activity';
     if (resource === 'rooms') displayResource = 'room';

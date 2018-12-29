@@ -45,7 +45,7 @@ export const setActivityStartingPoint = (id) => {
     })
     dispatch(updatedActivity(id, {tabs,}))
     Promise.all(tabs.map(tab => API.put('tabs', tab._id, {events: [], startingPoint: tab.startingPoint, currentState: tab.currentState})))
-    .then(res => console.log('updatedTabs to new starting point'))
+    .then(res => {return})
     .catch(err => console.log("ER w THT: ", err))
   })
 }
@@ -94,13 +94,11 @@ export const getActivities = params => {
 }
 
 export const getCurrentActivity = id => {
-  console.log('getting activiat')
   return dispatch => {
     dispatch(loading.start())
     API.getById('activities', id)
     .then(res => {
       dispatch(loading.success())
-      console.log(res.data.result)
       dispatch(addActivity(res.data.result))
     })
     .catch(err => console.log(err))
@@ -112,7 +110,6 @@ export const createActivity = body => {
     dispatch(loading.start())
     API.post('activities', body)
     .then(res => {
-      console.log('created actvityt! ', res)
       let result = res.data.result;
       dispatch(createdActivity(result))
       if (body.course) {
@@ -127,7 +124,6 @@ export const createActivity = body => {
 export const updateActivityTab = (activityId, tabId, body) => {
   return dispatch => {
     dispatch(updatedActivityTab(activityId, tabId, body))
-    console.log(tabId, body)
     API.put('tabs', tabId, body)
     .then(res => {
 

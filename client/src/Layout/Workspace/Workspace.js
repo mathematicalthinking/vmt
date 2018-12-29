@@ -134,7 +134,6 @@ const workspaceLayout = React.memo(({
       currentTab={currentTab}
     />
   }
-  console.log(role)
 
   let bottomButton;
   if (role === 'facilitator' && !activityWorkspace) {

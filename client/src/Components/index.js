@@ -35,3 +35,4 @@ export { default as ArrowLeft } from './UI/Icons/ArrowLeft';
 export { default as ArrowDown } from './UI/Icons/ArrowDown';
 export { default as EditableText } from './EditableText/EditableText';
 export { default as EditText } from './EditableText/EditText';
+export { default as SelectionList } from './Form/SelectionList/SelectionList';

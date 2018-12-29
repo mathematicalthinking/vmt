@@ -81,7 +81,6 @@ class Replayer extends Component {
         // BE ENTERING
         updatedMembers.push({user: this.log[0].user});
       }
-      console.log(this.updatedLog)
       this.setState({
         startTime: moment
           .unix(this.log[0].timestamp / 1000)

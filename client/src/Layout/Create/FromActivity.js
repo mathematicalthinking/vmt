@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Modal, RadioBtn, Button, TextInput } from '../../Components';
 import { BoxList } from '../index';
-import classes from './create.css'
+import classes from './NewResource/create.css'
 class FromActivity extends Component {
 
   state = {

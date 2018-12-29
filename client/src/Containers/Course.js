@@ -51,21 +51,21 @@ class Course extends Component {
   // SO we can reset the tabs easily
 
   componentDidMount() {
-    const { course, user, notifications, clearNotification, match } = this.props;
+    const { course, user, notifications, match } = this.props;
     if (course) {
       // this.props.getCourse(course._id); // What information are we getting here
-      this.props.getUser(user._id);
+      // this.props.getUser(user._id);
       let firstView = false;
       if (notifications.length > 0) {
        notifications.forEach(ntf => {
           if (ntf.notificationType === 'grantedAccess' && ntf.resourceId === course._id) {
             firstView = true;
-            clearNotification(ntf._id)
+            this.props.clearNotification(ntf._id)
           }
         })
       }
       // check if we need to fetch data
-      this.checkForFetch();
+      // this.checkForFetch();
       // Check user's permission level -- owner, member, or guest
       let updatedTabs = [...this.state.tabs];
       let owner = course.members.filter(member => member.role === 'facilitator' && member.user._id === user._id).length > 0;
@@ -128,7 +128,6 @@ class Course extends Component {
         let memberNtfs = notifications.filter(ntf => (ntf.resourceId === course._id && (ntf.notificationType === 'requestAccess' || ntf.notificationType === 'newMember')));
         tabs[2].notifications = memberNtfs.length > 0 ? memberNtfs.length : '';
       }
-      console.log(notifications)
       let newRoomNtfs = notifications.filter(ntf => (ntf.parentResource === course._id && ntf.notificationType === 'assignedNewRoom'))
       tabs[1].notifications = newRoomNtfs.length > 0 ? newRoomNtfs.length : '';
     // }
@@ -138,16 +137,16 @@ class Course extends Component {
     return tabs;
   }
 
-  checkForFetch = () => {
-    const { course, user, match } = this.props;
-    const resource = match.params.resource;
-    const needToFetch = _difference(user[resource], this.props[resource]).length !== 0;
-    if (needToFetch) {
-      // @IDEA We could avoid this formatting if we dont use camel case like in the myVMT container
-      let re = resource[0].toUpperCase() + resource.substr(1)
-      this.props[`get${re}`](course[resource])
-    }
-  }
+  // checkForFetch = () => {
+  //   const { course, user, match } = this.props;
+  //   const resource = match.params.resource;
+  //   const needToFetch = _difference(user[resource], this.props[resource]).length !== 0;
+  //   if (needToFetch) {
+  //     // @IDEA We could avoid this formatting if we dont use camel case like in the myVMT container
+  //     let re = resource[0].toUpperCase() + resource.substr(1)
+  //     this.props[`get${re}`](course[resource])
+  //   }
+  // }
 
   checkAccess = () => {
     this.props.course.members.forEach(member => {
@@ -180,6 +179,13 @@ class Course extends Component {
     this.setState({
       editing: false,
     })
+  }
+
+  clearFirstViewNtf = () => {
+    this.setState({firstView: false})
+    // Find the notifcation that corresponds to this course 
+    // let ntfId = this.props.user.notifications.filter(ntf => ntf.resourceId === this.props.match.params.course_id)
+    // this.props.clearNotification(ntfId)
   }
 
   render() {
@@ -285,7 +291,7 @@ class Course extends Component {
           <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
             <p>Welcome to {course.name}. If this is your first time joining a course,
             we recommend you take a tour. Otherwise you can start exploring this course's features.</p>
-            <Button theme={'Small'} click={() => this.setState({firstView: false})}>Explore</Button>
+            <Button theme={'Small'} click={this.clearFirstViewNtf}>Explore</Button>
           </Modal>
         </Aux>
       )

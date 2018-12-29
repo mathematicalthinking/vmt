@@ -28,7 +28,7 @@ class Profile extends Component {
   componentDidMount() {
     // this.fetchData(this.props.match.params.resource)
     // if (!this.props.user.justLoggedIn) {
-    this.props.getUser(this.props.user._id)
+    // this.props.getUser(this.props.user._id)
     // }
     this.checkMultipleRoles()
     .then(res => this.setDisplayResources())
@@ -54,15 +54,15 @@ class Profile extends Component {
     //   // .then(res => this.updateTabs())
     // }
     // IF THE USER HAS A RESOURCE THAT HAS NOT BEEN ADDED TO THE STORE YET WE SHOULD FETCH IT
-    if (!this.props.loading) {
-      if (resource !== prevProps.match.params.resource) {
-        // console.log('we need to fetch some resources')
-        // let idsToFetch = user[resource].filter(id => !this.props[resource].allIds.includes(id));
-        // console.log(idsToFetch)
-        // this.fetchByIds(resource, idsToFetch)
-        this.props.getUser(user._id);
-      }
-    }
+    // if (!this.props.loading) {
+    //   if (resource !== prevProps.match.params.resource) {
+    //     // console.log('we need to fetch some resources')
+    //     // let idsToFetch = user[resource].filter(id => !this.props[resource].allIds.includes(id));
+    //     // console.log(idsToFetch)
+    //     // this.fetchByIds(resource, idsToFetch)
+    //     this.props.getUser(user._id);
+    //   }
+    // }
 
     // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
     // if (!loading) {
@@ -79,7 +79,7 @@ class Profile extends Component {
     }
     // If the resource has changes
     if (prevProps.match.params.resource !== resource) {
-      this.props.getUser(this.props.user._id) // if we implement push notifications we can get rid of this
+      // this.props.getUser(this.props.user._id) // if we implement push notifications we can get rid of this
       this.checkMultipleRoles()
       .then(() => {this.setDisplayResources()})
     }
@@ -189,6 +189,7 @@ class Profile extends Component {
           return false;
         })
       }
+      // console.log("DISPLAY RESOURCES: ", displayResources)
       this.setState({displayResources, }, () => resolve())
     }))
   }
