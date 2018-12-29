@@ -39,11 +39,9 @@ class EditableText extends Component {
       field,
       id,
     } = this.props;
-    console.log(parentResource)
     if (parentResource === 'room') {
       this.props.updateRoomTab(parentId, id, {[field]: this.state.text})
     } else if (parentResource === 'activity') {
-      console.log("updatingActivtiy")
       this.props.updateActivityTab(parentId, id, {[field]: this.state.text})
     }
     this.toggleEdit();

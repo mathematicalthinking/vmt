@@ -68,13 +68,11 @@ export const addRoomMember = (roomId, body) => {
 
 export const setRoomStartingPoint = (roomId) => {
   return ((dispatch, getState) => {
-    console.log(getState().rooms.byId[roomId].tabs)
     let tabs = getState().rooms.byId[roomId].tabs.map(tab => {
       tab.startingPoint = tab.currentState;
       tab.events = [];
       return tab;
     })
-    console.log("TABS: ", tabs)
     dispatch(updatedRoom(roomId, {tabs, chat:[]}))
     Promise.all(tabs.map(tab => API.put('tabs', tab._id, {events: [], startingPoint: tab.startingPoint})).concat([API.put('rooms', roomId, {chat: []})]))
     .then(res => console.log('updatedTabs to new starting point'))
@@ -185,7 +183,6 @@ export const populateRoom = id => {
     dispatch(loading.start())
     API.getById('rooms', id)
     .then(res => {
-      console.log("populatedROOM: ", res)
       dispatch(updatedRoom(id, res.data.result))
       dispatch(loading.success())
     })
@@ -199,7 +196,6 @@ export const createRoom = body => {
     API.post('rooms', body)
     .then(res => {
       let result = res.data.result;
-      console.log("CREATED ROOM: ", result)
       dispatch(createdRoom(result))
       if (!body.tempRoom) {
         if (body.course) {

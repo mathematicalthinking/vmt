@@ -36,7 +36,6 @@ Message.pre('save', async function() {
       }   
     }
     else {
-      console.log('adding message ', this._id, ' to chat')
       try {
         await Room.findByIdAndUpdate(this.room, {$addToSet: {chat: this._id}})
       }

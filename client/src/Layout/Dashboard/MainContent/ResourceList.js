@@ -30,7 +30,6 @@ const resources = props => {
     />
     } 
 
-    console.log(props.userResources)
     return (
       <div>
         {/* @TODO don't show create optinos for participants */}

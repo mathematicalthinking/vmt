@@ -7,7 +7,6 @@ class RoomDetails extends Component {
 
   render(){
     let { room, owner, editing, toggleEdit, updateRoomInfo, instructions } = this.props;
-    console.log(editing)
     return (
       <div className={classes.Container}>
         {/*  Make sure we have all of the room info before letting the user enter */}

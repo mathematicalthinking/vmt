@@ -21,8 +21,6 @@ class DesmosGraph extends Component {
   }
 
   onScriptLoad =  () => {
-    console.log('script loaded')
-    console.log(window.Desmos)
     this.calculator = window.Desmos.GraphingCalculator(this.calculatorRef.current);
     let { room, currentTab }= this.props
     let { tabs } = room;
@@ -51,9 +49,9 @@ class DesmosGraph extends Component {
     }
   }
 
-  componentWillUnmount(){
-    console.log("componentUNMOUNTING")
-  }
+  // componentWillUnmount(){
+  //   console.log("componentUNMOUNTING")
+  // }
 
   initializeListeners(){
     // INITIALIZE EVENT LISTENER
@@ -82,7 +80,6 @@ class DesmosGraph extends Component {
   }
 
   render() {
-    console.log(window.Desmos)
     return (
       <Aux>
         {!window.Desmos ? <Script url='https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6' onLoad={this.onScriptLoad} />: null}

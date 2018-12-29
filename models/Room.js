@@ -97,8 +97,8 @@ Room.post('save', function (doc, next) {
         })
         .catch(err => console.log(err))
       } else if (field === 'currentMembers') {
-        console.log('current members modified what we can do with tha info...how do we tell WHO was added')
-        console.log(this)
+        // console.log('current members modified what we can do with tha info...how do we tell WHO was added')
+        // console.log(this)
       }
     })
   } else {

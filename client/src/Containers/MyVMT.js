@@ -26,7 +26,6 @@ class Profile extends Component {
   }
 
   componentDidMount() {
-    console.log("MOUNTED: ", this.props.user)
     // this.fetchData(this.props.match.params.resource)
     // if (!this.props.user.justLoggedIn) {
     // this.props.getUser(this.props.user._id)
@@ -86,7 +85,6 @@ class Profile extends Component {
     }
     // If the user has new notifications
     if (Array.isArray(prevProps.user.notifications) && prevProps.user.notifications.length !== this.props.user.notifications.length) {
-      console.log("WE SHOULD GET IN HERE WHEN THE USER NOTIFICATIONS CHANGE")
       this.checkMultipleRoles()
         .then(() => this.setDisplayResources())
         .then(() => this.updateTabs())
