@@ -67,6 +67,7 @@ class Profile extends Component {
     // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
     // if (!loading) {
       if (prevProps[resource].allIds.length !== this.props[resource].allIds.length) {
+        console.log('we should have got a new resource')
         this.checkMultipleRoles()
         .then(() => this.setDisplayResources())
         .then(() => this.updateTabs())

@@ -59,7 +59,7 @@ Room.post('save', function (doc, next) {
           toUser: member.user,
         }
         // Creating a notification of type assignedNewRoom will automatically add this room
-        // to the users room list as part of the pre save hook
+        // to the users room list as part of the pre save hook')
         return Notification.create(notification)
       } else {
         // We only want to create notifications for participants

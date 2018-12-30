@@ -195,6 +195,7 @@ export const createRoom = body => {
     dispatch(loading.start())
     API.post('rooms', body)
     .then(res => {
+      console.log(res)
       let result = res.data.result;
       dispatch(createdRoom(result))
       if (!body.tempRoom) {
