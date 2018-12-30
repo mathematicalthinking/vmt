@@ -22,7 +22,7 @@ const reducer = (state = initialState, action) => {
       ...state,
       loading: false,
       loginError: true,
-      errorMessage: action.error.toString(),
+      errorMessage: action.error,
     };
 
     case actionTypes.LOGOUT:
@@ -38,6 +38,7 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         accessSuccess: true,
+        loading: false,
         successMessage: 'Your request has been sent'
       }
     case actionTypes.CLEAR_ERROR:

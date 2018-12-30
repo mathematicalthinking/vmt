@@ -8,7 +8,7 @@ const Step1 = React.memo((props) => {
     <TextInput
       light
       name={`name`}
-      label={`${props.displayResource} Name`}
+      label={`${props.displayResource} name`}
       change={props.changeHandler}
       value={props.name}
       width='100%'
@@ -16,7 +16,7 @@ const Step1 = React.memo((props) => {
     <TextInput
       light
       name='description'
-      label='Description'
+      label='description'
       change={props.changeHandler}
       value={props.description}
       width='100%'
