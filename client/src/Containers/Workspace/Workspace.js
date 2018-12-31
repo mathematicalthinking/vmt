@@ -29,7 +29,7 @@ class Workspace extends Component {
     if (!socket.connected) {
       this.props.updateUser({connected: false})
     } else {
-      this.initiailizeListeners()
+      this.initializeListeners()
     }
 
     window.addEventListener('beforeunload', this.componentCleanup);
@@ -50,6 +50,8 @@ class Workspace extends Component {
 
     if (!prevProps.user.connected && this.props.user.connected) {
       this.initializeListeners();
+    } else if (!this.props.user.connect && this.state.inControl) {
+      this.toggleControl();
     }
   }
 
@@ -108,7 +110,6 @@ class Workspace extends Component {
     })
 
     socket.on('USER_JOINED', data => {
-      console.log("USER JOINED: ", data)
       updatedRoom(room._id, {currentMembers: data.currentMembers, chat: [...this.props.room.chat, data.message]})
     })
 
@@ -164,6 +165,8 @@ class Workspace extends Component {
     let { user, room } = this.props;
     // If we're taking control
     if (!user.connected) {
+      this.setState({activeMember: '', inControl: false, someoneElseInControl: false})
+      this.props.updatedRoom(room._id, {controlledBy: ''})
       return alert('You have disconnected from the server. Check your internet connection and try refreshing the page')
     }
     if (!this.state.inControl && !this.state.someoneElseInControl) {
@@ -187,6 +190,7 @@ class Workspace extends Component {
       // this.scrollToBottom(); @TODO
     }
     else {
+      this.props.updatedRoom(room._id, {controlledBy: ''})
       this.setState({
         inControl: false,
         someoneElseInControl: false,

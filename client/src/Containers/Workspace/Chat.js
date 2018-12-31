@@ -58,6 +58,9 @@ class Chat extends Component {
 
   submitMessage = () => {
     const { roomId, user } = this.props;
+    if (!user.connected) {
+      return alert('you have disconnected from the server. Check your internet connect and try refreshing the page')
+    }
     if (this.state.newMessage.length === 0) return;
     const newMessage = {
       text: this.state.newMessage,

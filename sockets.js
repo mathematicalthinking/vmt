@@ -67,11 +67,10 @@ const socketInit = require('./socketInit');
             timestamp: new Date().getTime(),
           }
           promises.push(controllers.messages.post(message))
-          promises.push(controllers.rooms.addCurrentUsers(data.roomId, {user: data.userId, socket: socket.id})) //
+          promises.push(controllers.rooms.addCurrentUsers(data.roomId, {user: data.userId})) //
           let results;
           try {
             results = await Promise.all(promises)
-            console.log('emiting user joined')
             socket.to(data.roomId).emit('USER_JOINED', {currentMembers: results[1].currentMembers, message,});
             callback({room: results[1], message, user,}, null)
           }
@@ -86,6 +85,7 @@ const socketInit = require('./socketInit');
         rooms = Object.keys(socket.rooms).slice(1)
         controllers.rooms.removeCurrentUsers(rooms[0], socket.user_id)
         .then(res => {
+          console.log("ROOM : ", res)
           let removedMember = {};
           if (res && res.currentMembers) {
             let currentMembers = res.currentMembers.filter(member => {
@@ -120,6 +120,7 @@ const socketInit = require('./socketInit');
 
       socket.on('disconnecting', () => {
         // console.log('socket disconecting', socket.id);
+        // CHECK IF THIS USER IS CONTROL OF ANY ROOM...IF THEY ARE REMOVE CONTROL @TODO
       })
 
       socket.on('disconnect', () => {

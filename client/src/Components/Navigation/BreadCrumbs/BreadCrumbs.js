@@ -13,7 +13,7 @@ const breadCrumbs = ({crumbs, notifications}) => {
       } else return  !link.includes(ntf.resourceId)
     }).length
   }
-  console.log("NTF: ", ntf)
+  console.log("NTF: d", ntf)
 
   let crumbElements = crumbs.map((crumb, i) => {
     let style = classes.Crumb;

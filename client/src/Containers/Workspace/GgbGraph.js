@@ -78,6 +78,7 @@ class GgbGraph extends Component {
 
     }
     else if ((prevProps.inControl && !this.props.inControl )|| this.props.someoneElseInControl) {
+      console.log('GAVE UP CONTROL')
       this.ggbApplet.showToolBar(false)
       this.ggbApplet.setMode(40)
       this.freezeElements(true)

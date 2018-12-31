@@ -236,19 +236,20 @@ module.exports = {
 
   // SOCKET METHODS
   addCurrentUsers: (roomId, body, members) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
       let query = members ?
         {'$addToSet': {'currentMembers': body, 'members': members}} :
         {'$addToSet': {'currentMembers': body}}
-      db.Room.findByIdAndUpdate(roomId, query, {new: true})
+      db.Room.findByIdAndUpdate(roomId, query)
       .populate({path: 'currentMembers.user', select: 'username'})
       .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .select('currentMembers events chat currentState roomType')
       .then(room => {
+        console.log(room.currentMembers)
         resolve(room)
       })
-      .catch(err => reject(err))
+      .catch((err) =>  reject(err))
     })
   },
 

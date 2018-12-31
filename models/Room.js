@@ -19,7 +19,7 @@ const Room = new mongoose.Schema({
     user: {type: ObjectId, ref: 'User'},
     role: {type: String},
     _id: false}],
-  currentMembers: {type: [{user: {type: ObjectId, ref: 'User'}, socket: {type: String},  _id: false}], default: []},
+  currentMembers: {type: [{user: {type: ObjectId, ref: 'User',}, _id: false}], default: []},
   tabs: {type: [{type: ObjectId, ref: 'Tab'}]},
   privacySetting: {type: String, enum: ['private', 'public'], default: 'private'},
   tempRoom: {type: Boolean, default: false},
