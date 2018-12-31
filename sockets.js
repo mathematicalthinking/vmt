@@ -71,6 +71,7 @@ const socketInit = require('./socketInit');
           let results;
           try {
             results = await Promise.all(promises)
+            console.log('emiting user joined')
             socket.to(data.roomId).emit('USER_JOINED', {currentMembers: results[1].currentMembers, message,});
             callback({room: results[1], message, user,}, null)
           }

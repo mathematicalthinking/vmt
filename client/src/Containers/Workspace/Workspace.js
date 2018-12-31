@@ -25,6 +25,7 @@ class Workspace extends Component {
   }
 
   componentDidMount() {
+    socket.removeAllListeners(['USER_JOINED', 'USER_LEFT', 'TOOK_CONTROL', 'RELEASED_CONTROL'])
     // window.addEventListener("resize", this.updateReference);
     const { updatedRoom, room, user} = this.props;
     this.props.populateRoom(room._id)
@@ -53,7 +54,8 @@ class Workspace extends Component {
     })
 
     socket.on('USER_JOINED', data => {
-      updatedRoom(room._id, {currentMembers: data.currentMembers})
+      console.log("USER JOINED: ", data)
+      updatedRoom(room._id, {currentMembers: data.currentMembers, chat: [...this.props.room.chat, data.message]})
     })
 
     socket.on('USER_LEFT', data => {
@@ -94,6 +96,7 @@ class Workspace extends Component {
     this.componentCleanup()
     window.removeEventListener('beforeunload', this.componentCleanup);
     window.removeEventListener('resize', this.updateReference)
+    socket.removeAllListeners();
   }
 
   componentCleanup = () => {
