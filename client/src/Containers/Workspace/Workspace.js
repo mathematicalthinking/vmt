@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { updateRoom, updatedRoom, populateRoom, setRoomStartingPoint } from '../../store/actions';
+import { updateRoom, updatedRoom, populateRoom, setRoomStartingPoint, updateUser } from '../../store/actions';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 import { Modal, Aux } from '../../Components';
 import NewTabForm from './NewTabForm'
@@ -25,6 +25,60 @@ class Workspace extends Component {
   }
 
   componentDidMount() {
+    console.log("SOCKET CONNECTED: ", socket.connected)
+    if (!socket.connected) {
+      this.props.updateUser({connected: false})
+    } else {
+      this.initiailizeListeners()
+    }
+
+    window.addEventListener('beforeunload', this.componentCleanup);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // When we first the load room
+    if (prevProps.room.controlledBy !== this.props.room.controlledBy) {
+      this.setState({someoneElseInControl: true, inControl: false})
+    }
+
+    if (prevState.inControl && !this.state.inControl) {
+      socket.emit('RELEASE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
+        this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
+        this.setState({activeMember: ''})
+      })
+    }
+
+    if (!prevProps.user.connected && this.props.user.connected) {
+      this.initializeListeners();
+    }
+  }
+
+  componentWillUnmount () {
+    this.componentCleanup()
+    window.removeEventListener('beforeunload', this.componentCleanup);
+    window.removeEventListener('resize', this.updateReference)
+    socket.removeAllListeners();
+  }
+
+  componentCleanup = () => {
+    const { updatedRoom, room, user} = this.props;
+    if (socket) {
+      // @TODO RELEASE CONTROL
+      socket.emit('LEAVE_ROOM', (res, err) => {
+        if (err) {
+          console.log('error leaving room', err);
+        }
+        updatedRoom(room._id, {
+          currentMembers: room.currentMembers.filter(member => member.user._id !== user._id)
+        })
+      })
+
+      // socket.disconnect()
+
+    }
+  }
+
+  initializeListeners = () => {
     socket.removeAllListeners(['USER_JOINED', 'USER_LEFT', 'TOOK_CONTROL', 'RELEASED_CONTROL'])
     // window.addEventListener("resize", this.updateReference);
     const { updatedRoom, room, user} = this.props;
@@ -75,46 +129,10 @@ class Workspace extends Component {
       this.setState({activeMember: '', someoneElseInControl: false})
     })
 
-    window.addEventListener('beforeunload', this.componentCleanup);
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    // When we first the load room
-    if (prevProps.room.controlledBy !== this.props.room.controlledBy) {
-      this.setState({someoneElseInControl: true, inControl: false})
-    }
-
-    if (prevState.inControl && !this.state.inControl) {
-      socket.emit('RELEASE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
-        this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
-        this.setState({activeMember: ''})
-      })
-    }
-  }
-
-  componentWillUnmount () {
-    this.componentCleanup()
-    window.removeEventListener('beforeunload', this.componentCleanup);
-    window.removeEventListener('resize', this.updateReference)
-    socket.removeAllListeners();
-  }
-
-  componentCleanup = () => {
-    const { updatedRoom, room, user} = this.props;
-    if (socket) {
-      // @TODO RELEASE CONTROL
-      socket.emit('LEAVE_ROOM', (res, err) => {
-        if (err) {
-          console.log('error leaving room', err);
-        }
-        updatedRoom(room._id, {
-          currentMembers: room.currentMembers.filter(member => member.user._id !== user._id)
-        })
-      })
-
-      // socket.disconnect()
-
-    }
+    socket.on('disconnect', data => {
+      console.log("I DISCONNECTED FROM THE SOCKET")
+      this.props.updateUser({connected: false})
+    })
   }
 
   createNewTab = () => {
@@ -145,6 +163,9 @@ class Workspace extends Component {
   toggleControl = () => {
     let { user, room } = this.props;
     // If we're taking control
+    if (!user.connected) {
+      return alert('You have disconnected from the server. Check your internet connection and try refreshing the page')
+    }
     if (!this.state.inControl && !this.state.someoneElseInControl) {
       this.resetControlTimer();
       // @TODO EMIT EVENT TAKING CONTROL
@@ -310,4 +331,4 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-export default connect(mapStateToProps, {updateRoom, updatedRoom, populateRoom, setRoomStartingPoint})(Workspace);
+export default connect(mapStateToProps, {updateUser, updateRoom, updatedRoom, populateRoom, setRoomStartingPoint})(Workspace);

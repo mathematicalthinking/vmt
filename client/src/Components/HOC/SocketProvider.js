@@ -86,6 +86,12 @@ class SocketProvider extends Component {
       console.log('socket disconnected')
       this.props.updateUser({connected: false})
     })
+
+    socket.on('reconnect', (attemptNumber) => {
+      console.log('reconnected after ', attemptNumber, ' attempts')
+      // MAYBE FETCH THE USER TO GET MISSING NOTIFICATIONS AND THE LIKE
+      this.props.updateUser({connected: true})
+    })
   }
 
   componentWillUnmount() {

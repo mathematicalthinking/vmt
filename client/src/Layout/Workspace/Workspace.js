@@ -87,7 +87,7 @@ const workspaceLayout = React.memo(({
     } else {
       graph = <GgbGraph
         room={room}
-        socket={socket}
+        // socket={socket}
         user={user}
         updateRoom={updateRoom}
         updatedRoom={updatedRoom}
@@ -118,7 +118,7 @@ const workspaceLayout = React.memo(({
     chat = <Chat
       roomId={room._id}
       messages={room.chat || []}
-      socket={socket}
+      // socket={socket}
       user={user}
       updatedRoom={updatedRoom}
       referencing={referencing}
