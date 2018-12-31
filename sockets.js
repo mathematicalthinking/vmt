@@ -131,14 +131,15 @@ const socketInit = require('./socketInit');
         if (!_id) {
           return;
         }
-        if (socketId !== socket.id) {
+        console.log('socket id: ', socketId, socket.id)
+        if (socketId !== socket.id) { // @TODO I DONT THINK WE NEED TO SEND socketID OR DO THIS CHECK NOW THAT WE RE CONNECTING WITH SOCKETPROVIDER
           controllers.user.put(_id, {socketId: socket.id})
           .then(() => {
             cb('User socketId updated', null);
           })
           .catch(err => cb(null, err));
         } else {
-          cb('User socket up to date', null);
+          cb(`User socket up to date ${socket.id}`, null);
         }
 
       })

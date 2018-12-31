@@ -21,8 +21,9 @@ class SocketProvider extends Component {
 
   componentDidUpdate(prevProps) {
     console.log("component did update")
-    if (prevProps.user.loggedIn && this.props.user.loggedIn) {
+    if (!prevProps.user.loggedIn && this.props.user.loggedIn) {
       console.log('user obj changed')
+      socket.removeAllListeners()
       this.initializeListeners();
     }
   }
@@ -33,10 +34,10 @@ class SocketProvider extends Component {
     socket.emit('CHECK_SOCKET', {socketId, _id }, (res, err) => {
       if (err) {
         //something went wrong updatnig user socket
-        // console.log('err updating user socketId', err);
+        console.log('err updating user socketId', err);
         // HOW SHOULD WE HANDLE THIS @TODO
       }
-      // console.log('checked socket', res);
+      console.log('checked socket', res);
     })
 
 

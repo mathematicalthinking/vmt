@@ -10,7 +10,8 @@ const navbar = (props) => {
     styles = [classes.Nav, classes.LightNav].join(" ")
   }
   let ntf = false;
-  if (props.user.notifications.length > 0) {
+  console.log("HOMENAV: ", props.user, props.user.notifications)
+  if (props.user && props.user.notifications && props.user.notifications.length > 0) {
     ntf = true;
   }
 
