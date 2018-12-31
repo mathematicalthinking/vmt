@@ -6,7 +6,7 @@ import { logout } from '../store/actions'
 const Logout = props => {
   props.logout()
   return (
-    <Redirect to="/" />
+    <Redirect to="/myVMT/courses" />
   )
 }
 
