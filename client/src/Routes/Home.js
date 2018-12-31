@@ -5,6 +5,7 @@ import { Homepage, Login, Signup, TempWorkspace, Community, Logout, } from '../C
 import { Confirmation } from '../Layout';
 import classes from './main.css'
 import Aux from '../Components/HOC/Auxil';
+import { connect } from 'react-redux';
 class Home extends PureComponent {
 
   state = {
@@ -17,7 +18,7 @@ class Home extends PureComponent {
   }
 
   componentWillUnmount(){
-    window.removeEventListener('scroll', this.handleScroll) 
+    window.removeEventListener('scroll', this.handleScroll)
   }
 
   handleScroll = event => {
@@ -27,7 +28,7 @@ class Home extends PureComponent {
   render () {
     return (
       <Aux>
-        <HomeNav scrollPosition={this.state.scrollPosition} page={this.props.location.pathname}/>
+        <HomeNav scrollPosition={this.state.scrollPosition} page={this.props.location.pathname} user={this.props.user}/>
         <div className={classes.Container}>
         <Switch>
           <Route exact path='/' render={() => <Homepage scrollPosition={this.state.scrollPosition} {...this.props}/>} />
@@ -49,4 +50,4 @@ class Home extends PureComponent {
   }
 }
 
-export default Home;
+export default connect((state) => ({user: state.user}), null)(Home);

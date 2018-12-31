@@ -23,7 +23,7 @@ class MyVmt extends Component {
     let { path } = this.props.match;
     return (
       <Aux>
-        <Navbar/>
+        <Navbar user={this.props.user}/>
           <Switch>
             <PrivateRoute exact path={`${path}/facilitator`} authed={this.props.loggedIn} component={FacilitatorInstructions} />
             <PrivateRoute exact path={`${path}/:resource`} authed={this.props.loggedIn} component={MyVMT}/>
