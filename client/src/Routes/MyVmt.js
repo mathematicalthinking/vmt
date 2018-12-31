@@ -14,62 +14,10 @@ import { Confirmation, FacilitatorInstructions }from '../Layout';
 import Aux from '../Components/HOC/Auxil';
 import { connect } from 'react-redux';
 import { Route, Switch, } from 'react-router-dom';
-import { addNotification, addUserCourses, addUserRooms, gotCourses, gotRooms, addCourseRooms, addRoomMember, addCourseMember } from '../store/actions';
-import socket from '../utils/sockets';
-import { normalize } from '../store/utils/normalize';
-import { capitalize } from 'lodash'
+
+
 
 class MyVmt extends Component {
-
-  componentDidMount() {
-
-    let { socketId, _id } = this.props.user;
-
-      socket.emit('CHECK_SOCKET', {socketId, _id }, (res, err) => {
-        if (err) {
-          //something went wrong updatnig user socket
-          // console.log('err updating user socketId', err);
-          // HOW SHOULD WE HANDLE THIS @TODO
-        }
-        // console.log('checked socket', res);
-      })
-
-
-    socket.on('NEW_NOTIFICATION', data => {
-      let { notification, course, room } = data;
-      let type = notification.notificationType;
-      let resource = notification.resourceType;
-
-      this.props.addNotification(notification)
-
-      if (type === 'newMember') {
-        // add new member to room
-        let actionName = `add${capitalize(resource)}Member`;
-        this.props[actionName](notification.resourceId, notification.fromUser);
-      }
-      if (course) {
-        let normalizedCourse = normalize([course])
-        this.props.gotCourses(normalizedCourse);
-
-        this.props.addUserCourses([course._id])
-      }
-
-      if (room) {
-        let normalizedRoom = normalize([data.room])
-
-        this.props.gotRooms(normalizedRoom, true)
-        this.props.addUserRooms([data.room])
-        if (data.room.course) {
-          this.props.addCourseRooms(data.room.course, [data.room._id])
-
-        }
-      }
-    })
-  }
-
-  componentWillUnmount() {
-    socket.removeAllListeners()
-  }
 
   render() {
     let { path } = this.props.match;
@@ -109,9 +57,9 @@ class MyVmt extends Component {
   }
 };
 // Provide login status to all private routes
-const mapStateToProps = store => ({
-  loggedIn: store.user.loggedIn,
-  user: store.user
+const mapStateToProps = state => ({
+  loggedIn: state.user.loggedIn,
+  user: state.user
 })
 
-export default connect(mapStateToProps, {addNotification, addUserCourses, addUserRooms, gotCourses, gotRooms, addCourseRooms, addRoomMember, addCourseMember})(MyVmt)
+export default connect(mapStateToProps, null)(MyVmt)
