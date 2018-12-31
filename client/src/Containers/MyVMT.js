@@ -212,7 +212,7 @@ class Profile extends Component {
     return (
       <DashboardLayout
         breadCrumbs={
-          <BreadCrumbs crumbs={[{title: 'My VMT', link: '/myVMT/courses'}]} />
+          <BreadCrumbs crumbs={[{title: 'My VMT', link: '/myVMT/courses'}]} notifications={user.notifications} />
         }
         sidePanel={
           <SidePanel

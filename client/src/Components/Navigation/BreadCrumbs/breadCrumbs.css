@@ -3,6 +3,7 @@
   lightBlue: lightBlue;
   yellow: yellow;
   teal: teal;
+  red: red;
   lightShadow: lightShadow;
   backgroundGray: backgroundGray;
   lightGrey: lightGrey;
@@ -34,6 +35,7 @@
 }
 
 .Crumb {
+  position: relative;
   color: lightGrey;
   flex: .25 0 auto;
   padding: 0 20px;
@@ -58,4 +60,15 @@
   color: black;
   font-weight: 600;
   /* border: 2px solid yellow; */
+}
+
+.Ntf {
+  background-color: red;
+  font-size: .68em;
+  color: white;
+  border-radius: 50px;
+  padding: 2px;
+  position: absolute;
+  top: 0px;
+  right: 6px;
 }

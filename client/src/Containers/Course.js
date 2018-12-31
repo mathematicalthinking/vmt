@@ -183,7 +183,7 @@ class Course extends Component {
 
   clearFirstViewNtf = () => {
     this.setState({firstView: false})
-    // Find the notifcation that corresponds to this course 
+    // Find the notifcation that corresponds to this course
     // let ntfId = this.props.user.notifications.filter(ntf => ntf.resourceId === this.props.match.params.course_id)
     // this.props.clearNotification(ntfId)
   }
@@ -252,7 +252,10 @@ class Course extends Component {
       return (
         <Aux>
           <DashboardLayout
-            breadCrumbs={<BreadCrumbs crumbs={[{title: 'My VMT', link: '/myVMT/courses'}, {title: course.name, link: `/myVMT/courses/${course._id}/activities/`}]}/>}
+            breadCrumbs={<BreadCrumbs
+              crumbs={[{title: 'My VMT', link: '/myVMT/courses'}, {title: course.name, link: `/myVMT/courses/${course._id}/activities/`}]}
+              notifications={user.notifications}
+            />}
             sidePanel={
               <SidePanel
                 image={course.image}

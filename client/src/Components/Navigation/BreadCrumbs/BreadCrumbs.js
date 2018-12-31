@@ -2,11 +2,17 @@ import React from 'react';
 import classes from './breadCrumbs.css';
 import glb from '../../../global.css';
 import { Link } from 'react-router-dom';
-const breadCrumbs = props => {
-  let crumbs = props.crumbs.map((crumb, i) => {
+const breadCrumbs = ({crumbs, notifications}) => {
+  let ntf;
+  if (crumbs.length > 1 && notifications.length > 0) {
+    let link = crumbs[crumbs.length - 1].link
+    ntf = notifications.filter(ntf => !link.includes(ntf.resourceId)).length
+  }
+
+  let crumbElements = crumbs.map((crumb, i) => {
     let style = classes.Crumb;
     let seperatorStyle = classes.Seperator
-    if (i === props.crumbs.length - 1) {
+    if (i === crumbs.length - 1) {
       style = [classes.Crumb, classes.Active].join(' ');
       seperatorStyle = [classes.Seperator, classes.Hidden].join(' ');
     }
@@ -14,6 +20,7 @@ const breadCrumbs = props => {
       <Link  key={i} className={[glb.Link, classes.CrumbContainer].join(' ')} to={crumb.link} style={{zIndex: i}}>
         <div className={style} data-testid="crumb">
           {crumb.title}
+          {(crumb.title === 'My VMT' && ntf > 0) ? <div className={classes.Ntf}>{ntf}</div> : null }
         </div>
         <div className={seperatorStyle}> <i className={"fas fa-caret-right"}></i> </div>
       </Link>
@@ -21,7 +28,7 @@ const breadCrumbs = props => {
   })
   return (
     <div className={classes.BreadcrumbContainer}>
-      {crumbs}
+      {crumbElements}
     </div>
   )
 }
