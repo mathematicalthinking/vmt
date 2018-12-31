@@ -267,7 +267,7 @@ class Workspace extends Component {
           user={user}
           role={this.state.role}
           currentTab={this.state.currentTab}
-          socket={socket}
+          // socket={socket}
           updateRoom={this.props.updateRoom}
           updatedRoom={this.props.updatedRoom}
           inControl={this.state.inControl}

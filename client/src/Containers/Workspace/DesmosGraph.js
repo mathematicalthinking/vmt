@@ -3,6 +3,7 @@ import classes from './graph.css';
 import Aux from '../../Components/HOC/Auxil';
 import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
+import socket from '../../utils/sockets';
 import API from '../../utils/apiRequests'
 class DesmosGraph extends Component {
 
@@ -16,7 +17,7 @@ class DesmosGraph extends Component {
   componentDidMount(){
     if (window.Desmos) {
       this.calculator = window.Desmos.GraphingCalculator(this.calculatorRef.current);
-      this.setState({loading: false})  
+      this.setState({loading: false})
     }
   }
 
@@ -63,8 +64,8 @@ class DesmosGraph extends Component {
           user: {_id: this.props.user._id, username: this.props.user.username},
           timestamp: new Date().getTime()
         }
-        this.props.socket.emit('SEND_EVENT', newData, res => {
-          
+        socket.emit('SEND_EVENT', newData, res => {
+
         })
       } else {
         // @TODO CONSIDER DOING THIS AS JUST A PROPERTY OF THIS CLASS AND NOT A PROPERTY
@@ -73,7 +74,7 @@ class DesmosGraph extends Component {
       }
       // this.socket.emit('SEND_EVENT', event)
     })
-    this.props.socket.on('RECEIVE_EVENT', data => {
+    socket.on('RECEIVE_EVENT', data => {
       this.setState({receivingEvent: true})
       this.calculator.setState(JSON.parse(data.event))
     })

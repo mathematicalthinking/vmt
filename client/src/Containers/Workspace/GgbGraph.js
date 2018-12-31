@@ -4,6 +4,7 @@ import { Aux, Modal } from '../../Components';
 import INITIAL_GGB from './blankGgb';
 import Script from 'react-load-script';
 import throttle from 'lodash/throttle';
+import socket from '../../utils/sockets';
 import { parseString } from 'xml2js';
 // import { eventNames } from 'cluster';
 // THINK ABOUT GETTING RID OF ALL XML PARSING...THERE ARE PROBABLY NATIVE GGB METHODS THAT CAN ACCOMPLISH EVERYTHING WE NEEDd
@@ -19,14 +20,14 @@ class GgbGraph extends Component {
     warningPosition: {x: 0, y: 0},
     switchingControl: false,
   }
-  
+
   graph = React.createRef()
-  
+
   componentDidMount() {
-    this.socket = this.props.socket;
     // window.addEventListener('click', this.clickListener)
     window.addEventListener("resize", this.updateDimensions);
-    this.socket.on('RECEIVE_EVENT', data => {
+    socket.removeAllListeners(['RECEIVE_EVENT', ])
+    socket.on('RECEIVE_EVENT', data => {
       let updatedTabs = this.props.room.tabs.map(tab => {
         if (tab._id === data.tab) {
           tab.currentState = data.currentState
@@ -74,7 +75,7 @@ class GgbGraph extends Component {
           this.setState({switchingControl: false})
         }, 0)
       })
-      
+
     }
     else if ((prevProps.inControl && !this.props.inControl )|| this.props.someoneElseInControl) {
       this.ggbApplet.showToolBar(false)
@@ -82,8 +83,8 @@ class GgbGraph extends Component {
       this.freezeElements(true)
     }
     else if (!prevProps.referencing && this.props.referencing) {
-      this.ggbApplet.setMode(0) // Set tool to pointer so the user can select elements 
-      
+      this.ggbApplet.setMode(0) // Set tool to pointer so the user can select elements
+
     }
     else if (prevProps.referencing && !this.props.referencing) {
       this.ggbApplet.setMode(40)
@@ -107,7 +108,7 @@ class GgbGraph extends Component {
       this.registerListeners();
     }
   }
-  
+
   updateDimensions = () => {
     if (this.resizeTimer) {
       clearTimeout(this.resizeTimer)
@@ -126,7 +127,7 @@ class GgbGraph extends Component {
       this.resizeTimer = undefined;
     }, 200)
   }
-  
+
   onScriptLoad = () => {
     // NOTE: complete list here: https://wiki.geogebra.org/en/Reference:GeoGebra_App_Parameters
     const parameters = {
@@ -144,11 +145,11 @@ class GgbGraph extends Component {
       // "appName":"whiteboard"
       "appletOnLoad": this.initializeGgb
     };
-    
+
     const ggbApp = new window.GGBApplet(parameters, '5.0');
     ggbApp.inject('ggb-element')
   }
-  
+
   componentWillUnmount() {
     if (this.ggbApplet && this.ggbApplet.listeners) {
       delete window.ggbApplet;
@@ -164,7 +165,7 @@ class GgbGraph extends Component {
     // }
     window.removeEventListener("resize", this.updateDimensions);
   }
-  
+
   initializeGgb = () => {
     this.ggbApplet = window.ggbApplet;
     this.setState({loading: false})
@@ -176,10 +177,10 @@ class GgbGraph extends Component {
       this.ggbApplet.setXML(currentState)
       this.freezeElements(true)
     }
-    
+
     // attach this listeners to the ggbApplet
     this.registerListeners()
-    
+
   }
 
   addListener = label => {
@@ -190,14 +191,14 @@ class GgbGraph extends Component {
     }
     this.setState({receivingData: false})
   }
-  
+
   removeListener = label => {
     if (!this.state.receivingData) {
       this.sendEvent(null, null, label, "REMOVE", "removed")
     }
     this.setState({receivingData: false})
   }
-  
+
   updateListener = label => {
     if (!this.props.inControl || this.state.switchingControl) {
       return
@@ -210,7 +211,7 @@ class GgbGraph extends Component {
     // this.ggbApplet.evalCommand("updateConstruction()")
   }
 
-  // Used to capture referencing 
+  // Used to capture referencing
   clickListener = async element => {
     // console.log("CLICKED", this.ggbApplet.getXML())
     if (this.props.referencing) {
@@ -262,10 +263,10 @@ class GgbGraph extends Component {
       updatedTabs[this.props.currentTab] = updatedTab;
       this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
     // }, 500)
-    this.socket.emit('SEND_EVENT', newData)
+    socket.emit('SEND_EVENT', newData)
     this.props.resetControlTimer()
   }, THROTTLE_FIDELITY)
-  
+
   parseXML = (xml) => {
     return new Promise((resolve, reject) => {
       parseString(xml, (err, result) => {
@@ -293,7 +294,7 @@ class GgbGraph extends Component {
       catch (err) {
         // get the coords of its children
       }
-      // Get the element's location relative to the client Window 
+      // Get the element's location relative to the client Window
       let ggbCoords = this.graph.current.getBoundingClientRect();
       let construction = await this.parseXML(this.ggbApplet.getXML()) // IS THERE ANY WAY TO DO THIS WITHOUT HAVING TO ASYNC PARSE THE XML...
       let euclidianView = construction.geogebra.euclidianView[0]

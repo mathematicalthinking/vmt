@@ -3,7 +3,17 @@ import socket from '../../utils/sockets';
 import { normalize } from '../../store/utils/normalize';
 import { connect } from 'react-redux';
 import { capitalize } from 'lodash';
-import { addNotification, addUserCourses, addUserRooms, gotCourses, gotRooms, addCourseRooms, addRoomMember, addCourseMember } from '../../store/actions';
+import {
+  addNotification,
+  addUserCourses,
+  addUserRooms,
+  gotCourses,
+  gotRooms,
+  addCourseRooms,
+  addRoomMember,
+  addCourseMember,
+  updateUser
+} from '../../store/actions';
 
 class SocketProvider extends Component {
 
@@ -20,23 +30,23 @@ class SocketProvider extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log("component did update")
     if (!prevProps.user.loggedIn && this.props.user.loggedIn) {
-      console.log('user obj changed')
       socket.removeAllListeners()
       this.initializeListeners();
     }
   }
 
   initializeListeners() {
+
     let { socketId, _id } = this.props.user;
-    console.log("SOCKET: ", socketId)
     socket.emit('CHECK_SOCKET', {socketId, _id }, (res, err) => {
       if (err) {
         //something went wrong updatnig user socket
         console.log('err updating user socketId', err);
         // HOW SHOULD WE HANDLE THIS @TODO
+        return
       }
+      this.props.updateUser({connected: true})
       console.log('checked socket', res);
     })
 
@@ -71,6 +81,11 @@ class SocketProvider extends Component {
         }
       }
     })
+
+    socket.on('disconnect', () => {
+      console.log('socket disconnected')
+      this.props.updateUser({connected: false})
+    })
   }
 
   componentWillUnmount() {
@@ -95,4 +110,5 @@ export default connect(mapStateToProps, {
   addCourseRooms,
   addRoomMember,
   addCourseMember,
+  updateUser,
 })(SocketProvider);

@@ -14,6 +14,7 @@ const initialState = {
   seenTour: false,
   bothRoles: false,
   justLoggedIn: false,
+  connected: false, // connected over the socket
 }
 
 const reducer = (state = initialState, action) => {
