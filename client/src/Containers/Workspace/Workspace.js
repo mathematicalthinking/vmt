@@ -99,17 +99,13 @@ class Workspace extends Component {
     }
     // const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
     socket.emit('JOIN', sendData, (res, err) => {
-      console.log('i joined')
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
-      console.log(res.room.currentMembers)
       updatedRoom(room._id, {currentMembers: res.room.currentMembers, chat: [...this.props.room.chat, res.message]})
     })
 
     socket.on('USER_JOINED', data => {
-      console.log(data.currentMembers)
-      console.log('client on: user joined')
       updatedRoom(room._id, {currentMembers: data.currentMembers, chat: [...this.props.room.chat, data.message]})
     })
 

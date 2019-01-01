@@ -165,7 +165,6 @@ class Profile extends Component {
     return new Promise((resolve => {
       let { user, match } = this.props;
       let { resource } = match.params;
-      console.log('resource: ', resource)
       let myActivities;
       if (match.params.resource === 'activities') {
         myActivities = this.props[resource].allIds.filter(id => {
@@ -178,11 +177,9 @@ class Profile extends Component {
       }
       let displayResources = [];
       if (this.props[resource]) {
-        console.log('set display resources')
         displayResources = this.props[resource].allIds.filter(id => {
           let included = false
           if (this.props[resource].byId[id].members) {
-            console.log(this.props[resource].byId[id].members)
             this.props[resource].byId[id].members.forEach(member => {
               if (member.user && member.user._id === user._id && member.role === this.state.view) {
                 included = true;
@@ -193,8 +190,6 @@ class Profile extends Component {
           return false;
         })
       }
-      console.log("DISPLAY RESOURCES: ", displayResources)
-      console.log(this.props.rooms)
       this.setState({displayResources, }, () => resolve())
     }))
   }
