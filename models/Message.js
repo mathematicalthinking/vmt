@@ -18,6 +18,7 @@ const Message = new mongoose.Schema({
 // @TODO for some reason I can't get $push to work
 Message.pre('save', async function() {
   if (this.isNew) {
+  // @TODO CHANGIN controlledBY HERE IS TERRRRIBLLE!!!!! THIS SHOULD ALL BE DONE SOMEWHERE ELSE WHERE ITS LESS OF A SIDE EFFECT
     if (this.messageType === 'TOOK_CONTROL') {
       try {
         await Room.findByIdAndUpdate(this.room, {controlledBy: this.user._id, $addToSet: {chat: this._id}})
@@ -28,12 +29,12 @@ Message.pre('save', async function() {
     }
     else if (this.messageType === 'LEFT_ROOM' || this.messageType === 'RELEASED_CONTROL') {
       try {
-        await Room.findByIdAndUpdate(this.room, {controlledBy: null, $addToSet: {chat: this._id}})
-        
+        await Room.findByIdAndUpdate(this.room, {$addToSet: {chat: this._id}})
+
       }
       catch(err) {
         console.log(err)
-      }   
+      }
     }
     else {
       try {

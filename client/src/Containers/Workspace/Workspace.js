@@ -10,7 +10,7 @@ class Workspace extends Component {
 
   state = {
     activeMember: '',
-    inControl: false,
+    inControl: false, // @TODO WE ARE DUPLICATING THIS FROM THE STORE...SINGLE SOURCE OF TRUTH!
     someoneElseInControl: false,
     referencing: false,
     showingReference: false,
@@ -26,11 +26,8 @@ class Workspace extends Component {
 
   componentDidMount() {
     console.log("SOCKET CONNECTED: ", socket.connected)
-    if (!socket.connected) {
-      this.props.updateUser({connected: false})
-    } else {
-      this.initializeListeners()
-    }
+    this.props.updateUser({connected: socket.connected});
+    this.initializeListeners();
 
     window.addEventListener('beforeunload', this.componentCleanup);
   }
@@ -50,7 +47,7 @@ class Workspace extends Component {
 
     if (!prevProps.user.connected && this.props.user.connected) {
       this.initializeListeners();
-    } else if (!this.props.user.connect && this.state.inControl) {
+    } else if (!this.props.user.connected && this.state.inControl) {
       this.toggleControl();
     }
   }
@@ -192,7 +189,7 @@ class Workspace extends Component {
     else {
       this.props.updatedRoom(room._id, {controlledBy: ''})
       this.setState({
-        inControl: false,
+        inControl: true,
         someoneElseInControl: false,
         activeMember: '',
       })

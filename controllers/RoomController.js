@@ -20,7 +20,7 @@ module.exports = {
       .populate({path: 'members.user', select: 'username'})
       .populate({path: 'currentMembers.user', select: 'username'})
       .then(rooms => {
-        rooms = rooms.map(room => room.tempRoom ? room : room.summary())
+        // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
         resolve(rooms)})
       .catch(err => reject(err));
     });
