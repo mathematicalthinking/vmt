@@ -2,7 +2,7 @@ const db = require('../models')
 const Tab = db.Tab;
 const Room = db.Room;
 const mongoose = require('mongoose');
-const ObjectId = mongoose.Schema.Types.ObjectId;
+const ObjectId = mongoose.Types.ObjectId;
 const _ = require('lodash');
 
 module.exports = {
@@ -32,7 +32,7 @@ module.exports = {
       .populate({path: 'creator', select: 'username'})
       .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .populate({path: 'members.user', select: 'username'})
-      .populate({path: 'currentMembers.user', select: 'username'})
+      .populate({path: 'currentMembers', select: 'username'})
       .populate({path: 'course', select: 'name'})
       .populate({path: 'tabs', populate: {path: 'events'}})
       .populate({path: 'graphImage', select: 'imageData'})
@@ -235,18 +235,18 @@ module.exports = {
   },
 
   // SOCKET METHODS
-  addCurrentUsers: (roomId, body, members) => {
+  addCurrentUsers: (roomId, newCurrentUserId, members) => {
     return new Promise(async (resolve, reject) => {
+      console.log(newCurrentUserId)
       // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
       let query = members ?
-        {'$addToSet': {'currentMembers': body, 'members': members}} :
-        {'$addToSet': {'currentMembers': body}}
+        {'$addToSet': {'currentMembers': newCurrentUserId, 'members': members}} :
+        {'$addToSet': {'currentMembers': ObjectId(newCurrentUserId)}}
       db.Room.findByIdAndUpdate(roomId, query)
-      .populate({path: 'currentMembers.user', select: 'username'})
-      .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
-      .select('currentMembers events chat currentState roomType')
+      .populate({path: 'currentMembers', select: 'username'})
+      .select('currentMembers')
       .then(room => {
-        console.log(room.currentMembers)
+        console.log("CURRENT MEMBERS: ", room.currentMembers)
         resolve(room)
       })
       .catch((err) =>  reject(err))

@@ -2,13 +2,11 @@ import React, { Component } from 'react';
 import classes from './currentMembers.css';
 import Avatar from '../UI/Avatar/Avatar';
 class CurrentMembers extends Component {
-  constructor() {
-    super();
-    this.state = {
-      expanded: true
-    }
+  state = {
+    expanded: true
   }
-   toggleCollapse() {
+
+  toggleCollapse = () => {
     this.setState({
       expanded: !this.state.expanded
     });
@@ -16,9 +14,10 @@ class CurrentMembers extends Component {
 
   render() {
     const { members, activeMember } = this.props;
+    console.log("<E<BERS: ", members)
     return (
       <div className={classes.Container}>
-        <div className={classes.Title} onClick={this.toggleCollapse.bind(this)}>
+        <div className={classes.Title} onClick={this.toggleCollapse}>
           Members Currently in the Room
           <div className={classes.Count}>
             {members.length}

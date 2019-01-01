@@ -82,6 +82,7 @@ module.exports = passport => {
       .populate({
         path: 'rooms',
         select: '-currentState',
+        // populate: {path: 'currentMembers.user', select: 'username'},
         populate: {path: 'members.user', select: 'username'},
       })
       .populate('activities')
@@ -92,6 +93,7 @@ module.exports = passport => {
       // .populate('courseTemplates', 'notifications name description isPublic')
       .exec()
       .then((user) => {
+        console.log(user.rooms)
         // @TODO we actually want to just provide a link here instead of telling htem where to go
         if (!user) return next(null, false, 'That username does not exist. If you want to create an account go to Signup');
         if (!bcrypt.compareSync(password, user.password)) {

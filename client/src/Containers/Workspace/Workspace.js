@@ -25,7 +25,6 @@ class Workspace extends Component {
   }
 
   componentDidMount() {
-    console.log("SOCKET CONNECTED: ", socket.connected)
     this.props.updateUser({connected: socket.connected});
     this.initializeListeners();
 
@@ -46,7 +45,7 @@ class Workspace extends Component {
     }
 
     if (!prevProps.user.connected && this.props.user.connected) {
-      this.initializeListeners();
+      // this.initializeListeners();
     } else if (!this.props.user.connected && this.state.inControl) {
       this.toggleControl();
     }
@@ -68,7 +67,7 @@ class Workspace extends Component {
           console.log('error leaving room', err);
         }
         updatedRoom(room._id, {
-          currentMembers: room.currentMembers.filter(member => member.user._id !== user._id)
+          currentMembers: room.currentMembers.filter(member => member._id !== user._id)
         })
       })
 
@@ -77,8 +76,8 @@ class Workspace extends Component {
     }
   }
 
-  initializeListeners = () => {
-    socket.removeAllListeners(['USER_JOINED', 'USER_LEFT', 'TOOK_CONTROL', 'RELEASED_CONTROL'])
+  initializeListeners(){
+    socket.removeAllListeners(['USER_JOINED', 'USER_LEFT', 'TOOK_CONTROL', 'RELEASED_CONTROL', 'initializeListeners'])
     // window.addEventListener("resize", this.updateReference);
     const { updatedRoom, room, user} = this.props;
     this.props.populateRoom(room._id)
@@ -100,21 +99,26 @@ class Workspace extends Component {
     }
     // const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
     socket.emit('JOIN', sendData, (res, err) => {
+      console.log('i joined')
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
+      console.log(res.room.currentMembers)
       updatedRoom(room._id, {currentMembers: res.room.currentMembers, chat: [...this.props.room.chat, res.message]})
     })
 
     socket.on('USER_JOINED', data => {
+      console.log(data.currentMembers)
+      console.log('client on: user joined')
       updatedRoom(room._id, {currentMembers: data.currentMembers, chat: [...this.props.room.chat, data.message]})
     })
 
     socket.on('USER_LEFT', data => {
+      console.log('client on: user left')
       if (data.releasedControl) {
         this.setState({someoneElseInControl: false})
       }
-      updatedRoom(room._id, {currentMembers: data.currentMembers})
+      updatedRoom(room._id, {currentMembers: data.currentMembers, chat: [...this.props.room.chat, data.message]})
     })
 
     socket.on('TOOK_CONTROL', message => {

@@ -166,7 +166,7 @@ const workspaceLayout = React.memo(({
         <div className={classes.Right}>
           {chat}
           <div className={classes.Members}>
-             {room.members ? <CurrentMembers members={replayer ? replayer.currentMembers.map(member => member.user) : room.currentMembers.map(member => member.user)} activeMember={activeMember}/> : null}
+             {room.members ? <CurrentMembers members={replayer ? replayer.currentMembers : room.currentMembers} activeMember={activeMember}/> : null}
           </div>
           <div className={classes.ReferenceWindow}>
             {!replayer ?

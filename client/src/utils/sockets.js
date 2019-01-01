@@ -1,5 +1,8 @@
 import io from 'socket.io-client';
 
+console.log('connecting')
 
-  export default io.connect(process.env.REACT_APP_SERVER_URL);
+const socket = io.connect(process.env.REACT_APP_SERVER_URL);
+socket.removeAllListeners()
+export default socket;
 

@@ -158,6 +158,8 @@ export const login = (username, password) => {
       let user = {
         ...res.data,
         courses: courses.allIds,
+        rooms: rooms.allIds,
+        activities: activities.allIds,
       }
       dispatch(gotUser(user))
       return dispatch(loading.success());
