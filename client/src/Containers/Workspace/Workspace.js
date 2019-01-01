@@ -55,7 +55,6 @@ class Workspace extends Component {
     this.componentCleanup()
     window.removeEventListener('beforeunload', this.componentCleanup);
     window.removeEventListener('resize', this.updateReference)
-    socket.removeAllListeners();
   }
 
   componentCleanup = () => {
@@ -78,6 +77,7 @@ class Workspace extends Component {
 
   initializeListeners(){
     socket.removeAllListeners(['USER_JOINED', 'USER_LEFT', 'TOOK_CONTROL', 'RELEASED_CONTROL', 'initializeListeners'])
+    console.log(socket._callbacks)
     // window.addEventListener("resize", this.updateReference);
     const { updatedRoom, room, user} = this.props;
     this.props.populateRoom(room._id)

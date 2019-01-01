@@ -7,13 +7,11 @@ const breadCrumbs = ({crumbs, notifications}) => {
   if (crumbs.length > 1 && notifications.length > 0) {
     let link = crumbs[crumbs.length - 1].link
     ntf = notifications.filter(ntf => {
-      console.log(link.includes(ntf.parentResource))
       if (ntf.parentResource) {
         return !link.includes(ntf.parentResource)
       } else return  !link.includes(ntf.resourceId)
     }).length
   }
-  console.log("NTF: d", ntf)
 
   let crumbElements = crumbs.map((crumb, i) => {
     let style = classes.Crumb;

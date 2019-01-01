@@ -9,6 +9,7 @@ import {
   addUserRooms,
   gotCourses,
   gotRooms,
+  getUser,
   addCourseRooms,
   addRoomMember,
   addCourseMember,
@@ -16,9 +17,15 @@ import {
 } from '../../store/actions';
 
 class SocketProvider extends Component {
-
+  state = {
+    initializedCount: 0
+  }
   componentDidMount() {
-    if (this.props.user) {
+    console.log(socket.listeners())
+    if (this.props.user.loggedIn) {
+      // console.log(socket._callbacks)
+      socket.removeAllListeners()
+      // console.log(socket._callbacks)
       this.initializeListeners();
     }
   }
@@ -31,13 +38,18 @@ class SocketProvider extends Component {
 
   componentDidUpdate(prevProps) {
     if (!prevProps.user.loggedIn && this.props.user.loggedIn) {
+      // console.log(socket._callbacks)
+console.log("LISTENERS: ", socket.listeners)
       socket.removeAllListeners()
+      console.log("LISTENERS: ", socket.listeners)
+      console.log(socket._callbacks)
       this.initializeListeners();
     }
   }
 
   initializeListeners() {
-
+    console.log(this.state.initializedCount)
+    this.setState({initializedCount: this.state.initializedCount + 1})
     let { socketId, _id } = this.props.user;
     socket.emit('CHECK_SOCKET', {socketId, _id }, (res, err) => {
       if (err) {
@@ -90,11 +102,13 @@ class SocketProvider extends Component {
     socket.on('reconnect', (attemptNumber) => {
       console.log('reconnected after ', attemptNumber, ' attempts')
       // MAYBE FETCH THE USER TO GET MISSING NOTIFICATIONS AND THE LIKE
+      this.props.getUser(this.props.user._id)
       this.props.updateUser({connected: true})
     })
   }
 
   componentWillUnmount() {
+    console.log('socket provider unmounted')
     socket.removeAllListeners()
   }
 
@@ -110,6 +124,7 @@ const mapStateToProps = state => {
 export default connect(mapStateToProps, {
   addNotification,
   addUserCourses,
+  getUser,
   addUserRooms,
   gotCourses,
   gotRooms,
