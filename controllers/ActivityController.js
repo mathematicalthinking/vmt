@@ -81,9 +81,12 @@ module.exports = {
         db.Activity.findByIdAndUpdate(id, body, {new: true})
         .then(activity => {
           updatedActivity = activity;
-          let userIds = activity.members.map(member => member.user);
-          // Delete this activitiy from any courses
-          return db.User.update({_id: {$in: userIds}}, {$pull: {activities: activity._id}}, {multi: true})
+          // @TODO HOW SHOULD WE CLEAN THIS UP ? SHOULD ROOMS CREATED FROM IT HAVE THEIR ACTIVITY FIELD SET TO NULL
+          if (activity.course) {
+            return db.Course.findByIdAndUpdate(activity.course, {$pull: {activities: activity._id}})
+          } else resolve(updatedActivity)
+          // let userIds = activity.members.map(member => member.user);
+          // // Delete this activitiy from any courses
         })
         .then(() => {
           resolve(updatedActivity)

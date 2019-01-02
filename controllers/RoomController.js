@@ -235,7 +235,11 @@ module.exports = {
           updatedRoom = room;
           let userIds = room.members.map(member => member.user);
           // delete this room from any courses
-          return db.User.update({_id: {$in: userIds}}, {$pull: {rooms: room._id}}, {multi: true})
+          let promises = [db.User.update({_id: {$in: userIds}}, {$pull: {rooms: room._id}}, {multi: true})];
+          if (room.course) {
+            promises.push(db.Course.findByIdAndUpdate(room.course, {$pull: {rooms: room._id}}))
+          }
+          return Promise.all(promises)
         })
         .then(() => {
           resolve(updatedRoom)
