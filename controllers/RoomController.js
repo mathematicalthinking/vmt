@@ -227,11 +227,27 @@ module.exports = {
           }
         })
       }
+      else if (body.isTrashed) {
+        let updatedRoom
+        db.Room.findByIdAndUpdate(id, body, {new: true})
+        .then(room => {
+          updatedRoom = room;
+          let userIds = room.members.map(member => member.user);
+          return db.User.update({_id: {$in: userIds}}, {$pull: {rooms: room._id}}, {multi: true})
+        })
+        .then(() => {
+          resolve(updatedRoom)
+        })
+        .catch(err => reject(err))
+      }
       else {
         db.Room.findByIdAndUpdate(id, body, {new: true})
         .populate('currentMembers.user members.user', 'username')
         .populate('chat') // this seems random
-        .then(res => resolve(res)).catch(err =>{
+        .then(res => resolve(res)).catch(err => {
+          if (body.isTrashed) {
+            res
+          }
           reject(err)
         })
         .catch(err => reject(err))

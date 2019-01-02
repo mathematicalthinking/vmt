@@ -111,9 +111,11 @@ export const createRoomFromActivity = (activityId, userId, dueDate, courseId) =>
 
 export const updateRoom = (id, body) => {
   return dispatch => {
+    console.log("DISPATCHING")
     dispatch(updatedRoom(id, body)) // Optimistically update the UI
     API.put('rooms', id, body)
     .then(res => {
+      console.log("RES:::", res)
     })
     .catch(err => {
       // @TODO IF SOMETHING WENT WRONG NOTIFY THE USER AND UNSO THE OPTIMISTIC UPDATE
