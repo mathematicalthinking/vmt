@@ -194,8 +194,14 @@ class Profile extends Component {
     }))
   }
 
-  toggleView = (event, data) => {
-    this.setState({view: event.target.innerHTML.toLowerCase()})
+  toggleView = () => {
+    let validViews = ['facilitator', 'participant'];
+    if (!this.state.bothRoles || (validViews.indexOf(this.state.view) === -1)) {
+      return;
+    }
+    let newView = this.state.view === 'facilitator' ? 'participant' : 'facilitator';
+
+    this.setState({view: newView})
   }
 
 
@@ -221,6 +227,8 @@ class Profile extends Component {
             additionalDetails={additionalDetails}
             accountType={user.accountType}
             bothRoles={this.state.bothRoles}
+            toggleView={this.toggleView}
+            view={this.state.view}
           />
         }
         mainContent={

@@ -9,10 +9,10 @@ const button = props => {
   styles = styles.join(" ")
 
   return (
-    <button 
-      className={styles} 
-      style={{margin: props.m}} 
-      onClick={props.click} 
+    <button
+      className={styles}
+      style={{margin: props.m}}
+      onClick={props.click}
       type={props.type}
       data-testid={props['data-testid']}
       disabled={props.disabled}
