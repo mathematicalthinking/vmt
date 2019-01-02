@@ -10,7 +10,8 @@ const Event = new mongoose.Schema({
   room: {type: ObjectId, ref: 'Room', required: true},
   tab: {type: ObjectId, ref: 'Tab', required: true},
   eventType: {type: String, enum: ['ADD', 'REMOVE', 'UPDATE']},
-  timestamp: {type: Number} //UNIX TIME but in MS
+  timestamp: {type: Number}, //UNIX TIME but in MS
+  isTrashed: { type: Boolean, default: false },
 });
 
 Event.pre('save', async function() {

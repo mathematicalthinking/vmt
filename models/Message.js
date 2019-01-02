@@ -11,7 +11,8 @@ const Message = new mongoose.Schema({
     element: {type: String},
     elementType: {type: String}
   },
-  messageType: {type: String, enum: ['TEXT', 'TOOK_CONTROL', 'RELEASED_CONTROL', 'LEFT_ROOM', 'SWITCH_TAB', 'JOINED_ROOM'], default: 'TEXT'}
+  messageType: {type: String, enum: ['TEXT', 'TOOK_CONTROL', 'RELEASED_CONTROL', 'LEFT_ROOM', 'SWITCH_TAB', 'JOINED_ROOM'], default: 'TEXT'},
+  isTrashed: { type: Boolean, default: false },
 });
 
 // Add this message to the room's chat

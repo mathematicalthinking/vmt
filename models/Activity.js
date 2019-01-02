@@ -20,8 +20,9 @@ const Activity = new mongoose.Schema({
   instructions: {type: String,},
   graphImage: {type: ObjectId, ref: 'Image'},
   tabs: {type: [{type: ObjectId, ref: 'Tab'}], default: [], _id: false},
-  source: {type: ObjectId, ref: 'Activity'} // If this was created from another activity
+  source: {type: ObjectId, ref: 'Activity'}, // If this was created from another activity
   // template: {type: ObjectId, ref: 'ActivityTemplate'},
+  isTrashed: { type: Boolean, default: false },
 }, {timestamps: true});
 
 // STOP CHANGING THIS FUNCTION BELOW TO AN ARROW FUNCTION!!!
