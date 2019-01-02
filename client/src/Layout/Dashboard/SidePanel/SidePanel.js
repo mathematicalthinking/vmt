@@ -18,14 +18,6 @@ const SidePanel = React.memo(({
     )
   })
 
-  let toggleText;
-  if (view === 'facilitator') {
-    toggleText = 'Participant';
-  } else if (view === 'participant') {
-    toggleText = 'Facilitator';
-  }
-
-  let toggleButton = <Button m={5} click={toggleView}>{toggleText}</Button>
   return (
     <Aux>
       <div className={classes.Top}>
@@ -45,10 +37,8 @@ const SidePanel = React.memo(({
       <div className={classes.Bottom}>
         {accountType === 'participant' && !bothRoles ? <div className={classes.CreateForParticipant}><Link to='facilitator' data-testid='become-facilitator'>become a facilitator</Link></div> : null}
         {bothRoles ?
-        <div>
-          <div>Currently viewing as {capitalize(view)}</div>
-          <div>Toggle to: </div>
-          {toggleButton}
+        <div className={classes.ToggleView}>
+          <span>View: {capitalize(view)}<i onClick={toggleView} className={["fas fa-sync", classes.Icon].join(' ')}></i></span>
         </div> : null }
       </div>
     </Aux>
