@@ -122,7 +122,6 @@ class Workspace extends Component {
     })
 
     socket.on('TOOK_CONTROL', message => {
-      console.log("TOOK CONMTROL", message)
       this.props.addChatMessage(this.props.room._id, message)
       this.props.updatedRoom(room._id, {controlledBy: message.user._id})
     })
