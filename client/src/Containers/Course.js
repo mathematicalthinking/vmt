@@ -23,6 +23,7 @@ import {
   BreadCrumbs,
   TabList,
   EditText,
+  TrashModal,
 } from '../Components';
 import Access from './Access';
 
@@ -42,6 +43,7 @@ class Course extends Component {
     description: this.props.course ? this.props.course.description: null,
     entryCode: this.props.course ? this.props.course.entryCode: null,
     privacySetting: this.props.course ? this.props.course.privacySetting: null,
+    trashing: false,
   }
   initialTabs = [
     {name: 'Activities'},
@@ -86,6 +88,9 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    if (!this.props.course) {
+      return;
+    }
     if (!prevProps.course && this.props.course) {
       this.checkAccess();
     }
@@ -188,6 +193,10 @@ class Course extends Component {
     // this.props.clearNotification(ntfId)
   }
 
+  trashCourse = () => {
+    this.setState({trashing: true})
+  }
+
   render() {
     let { course, user, match, notifications } = this.props;
     if (course && !this.state.guestMode) {
@@ -270,7 +279,11 @@ class Course extends Component {
                   ? <Aux>
                       <div role='button' style={{display: this.state.editing ? 'none' : 'block'}} onClick={this.toggleEdit}><span>Edit Course <i className="fas fa-edit"></i></span></div>
                       {this.state.editing
-                        ? <div><Button click={this.updateCourse} theme='edit-save'>Save</Button> <Button click={this.toggleEdit} theme='edit'>Cancel</Button></div>
+                        ? <div>
+                            <Button click={this.updateCourse} theme='edit-save'>Save</Button>
+                            <Button click={this.trashCourse} theme='Danger'><i className="fas fa-trash-alt"></i></Button>
+                            <Button click={this.toggleEdit} theme='edit'>Cancel</Button>
+                          </div>
                         : null
                       }
                     </Aux>
@@ -296,6 +309,17 @@ class Course extends Component {
             we recommend you take a tour. Otherwise you can start exploring this course's features.</p>
             <Button theme={'Small'} click={this.clearFirstViewNtf}>Explore</Button>
           </Modal>
+          {this.state.trashing
+            ? <TrashModal
+              resource='course'
+              resourceId={course._id}
+              update={this.props.updateCourse}
+              show={this.state.trashing}
+              closeModal={() => {this.setState({trashing: false})}}
+              history={this.props.history}
+              />
+            : null
+          }
         </Aux>
       )
     } else return (

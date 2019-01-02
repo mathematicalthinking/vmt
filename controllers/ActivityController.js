@@ -76,9 +76,24 @@ module.exports = {
 
   put: (id, body) => {
     return new Promise((resolve, reject) => {
-      db.Activity.findByIdAndUpdate(id, body)
-      .then(activity => resolve(activity))
-      .catch(err => reject(err))
+      if (body.isTrashed) {
+        let updatedActivity
+        db.Activity.findByIdAndUpdate(id, body, {new: true})
+        .then(activity => {
+          updatedActivity = activity;
+          let userIds = activity.members.map(member => member.user);
+          // Delete this activitiy from any courses
+          return db.User.update({_id: {$in: userIds}}, {$pull: {activities: activity._id}}, {multi: true})
+        })
+        .then(() => {
+          resolve(updatedActivity)
+        })
+        .catch(err => reject(err))
+      } else {
+        db.Activity.findByIdAndUpdate(id, body)
+        .then(activity => resolve(activity))
+        .catch(err => reject(err))
+      }
     })
   },
 

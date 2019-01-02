@@ -148,6 +148,18 @@ module.exports = {
           .catch((err) => {
             reject(err);
           })
+      } else if (body.isTrashed) {
+        let updatedCourse;
+        db.Course.findByIdAndUpdate(id, body, {new: true})
+        .then(course => {
+          updatedCourse = course;
+          let userIds = course.members.map(member => member.user);
+          return db.User.update({_id: {$in: userIds}}, {$pull: {courses: course._id}}, {multi: true})
+        })
+        .then(() => {
+          resolve(updatedCourse)
+        })
+        .catch(err => reject(err))
       } else {
         return db.Course.findById(id)
           .then((course) => {

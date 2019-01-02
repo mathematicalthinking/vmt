@@ -9,6 +9,7 @@ import {
   BreadCrumbs,
   TabList,
   EditText,
+  TrashModal,
 } from '../Components';
 import { getCourses, getRooms, updateActivity, getActivities } from '../store/actions';
 import { populateResource } from '../store/reducers';
@@ -41,6 +42,9 @@ class Activity extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    if (!this.props.course) {
+      return;
+    }
     const prevResource = prevProps.match.params.resource;
     const { resource } = this.props.match.params;
     if (prevResource !== resource && resource === 'rooms') {
@@ -78,6 +82,10 @@ class Activity extends Component {
     this.setState({
       editing: false,
     })
+  }
+
+  trashActivity = () => {
+    this.setState({trashing: true});
   }
 
   render() {
@@ -135,35 +143,49 @@ class Activity extends Component {
 
 
     return (
-      <DashboardLayout
-        breadCrumbs={
-          <BreadCrumbs crumbs={crumbs} notifications={user.notifications} />
-        }
-        sidePanel={
-          <SidePanel
-            image={activity.image}
-            name={<EditText change={this.updateActivityInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>}
-            subTitle={<EditText change={this.updateActivityInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>}
-            owner={this.state.owner}
-            additionalDetails={additionalDetails}
-            editButton={ this.state.owner
-              ? <Aux>
-                  <div role='button' style={{display: this.state.editing ? 'none' : 'block'}}  onClick={this.toggleEdit}>Edit Activity <i className="fas fa-edit"></i></div>
-                  {this.state.editing
-                    ? <div>
-                      <Button click={this.updateActivity} theme='edit-save'>Save</Button>
-                      <Button click={this.toggleEdit} theme='edit'>Cancel</Button>
-                    </div>
-                    : null
-                  }
-                </Aux>
-              : null
-            }
-          />
-        }
-        mainContent={mainContent}
-        tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
-      />
+      <Aux>
+        <DashboardLayout
+          breadCrumbs={
+            <BreadCrumbs crumbs={crumbs} notifications={user.notifications} />
+          }
+          sidePanel={
+            <SidePanel
+              image={activity.image}
+              name={<EditText change={this.updateActivityInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>}
+              subTitle={<EditText change={this.updateActivityInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>}
+              owner={this.state.owner}
+              additionalDetails={additionalDetails}
+              editButton={ this.state.owner
+                ? <Aux>
+                    <div role='button' style={{display: this.state.editing ? 'none' : 'block'}}  onClick={this.toggleEdit}>Edit Activity <i className="fas fa-edit"></i></div>
+                    {this.state.editing
+                      ? <div>
+                        <Button click={this.updateActivity} theme='edit-save'>Save</Button>
+                        <Button click={this.trashActivity} theme='Danger'><i className="fas fa-trash-alt"></i></Button>
+                        <Button click={this.toggleEdit} theme='edit'>Cancel</Button>
+                      </div>
+                      : null
+                    }
+                  </Aux>
+                : null
+              }
+            />
+          }
+          mainContent={mainContent}
+          tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
+        />
+         {this.state.trashing
+            ? <TrashModal
+              resource='activity'
+              resourceId={activity._id}
+              update={this.props.updateActivity}
+              show={this.state.trashing}
+              closeModal={() => {this.setState({trashing: false})}}
+              history={this.props.history}
+              />
+            : null
+          }
+      </Aux>
     )
   }
 }

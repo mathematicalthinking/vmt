@@ -107,27 +107,32 @@ export const updateCourseMembers = (courseId, updatedMembers) => {
   }
 }
 
-export const removeCourse = courseId => {
-  return dispatch => {
-    dispatch(loading.start())
-    API.remove('courses', courseId)
-    .then(res => {
-      // remove course from user
-      dispatch(removeUserCourse(courseId))
-        // remove courseRooms from user
-        dispatch(removeUserRooms)
-        // remove courseActivities from user
-        // remove courseRooms
-        // remove courseActivities
-      dispatch(courseRemoved(courseId))
-      return dispatch(loading.success())
-    })
-  }
-}
+// export const removeCourse = courseId => {
+//   return dispatch => {
+//     dispatch(loading.start())
+//     API.remove('courses', courseId)
+//     .then(res => {
+//       // remove course from user
+//       dispatch(removeUserCourse(courseId))
+//         // remove courseRooms from user
+//         dispatch(removeUserRooms)
+//         // remove courseActivities from user
+//         // remove courseRooms
+//         // remove courseActivities
+//       dispatch(courseRemoved(courseId))
+//       return dispatch(loading.success())
+//     })
+//   }
+// }
 
 export const updateCourse = (id, body) => {
   return dispatch => {
-    dispatch(updatedCourse(id, body))
+    if (body.isTrashed) {
+      dispatch(removeUserCourse(id))
+      dispatch(courseRemoved(id))
+    } else {
+      dispatch(updatedCourse(id, body))
+    }
     API.put('courses', id, body)
     .then(res => {
       console.log(res)

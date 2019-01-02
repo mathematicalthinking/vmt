@@ -234,6 +234,7 @@ module.exports = {
         .then(room => {
           updatedRoom = room;
           let userIds = room.members.map(member => member.user);
+          // delete this room from any courses
           return db.User.update({_id: {$in: userIds}}, {$pull: {rooms: room._id}}, {multi: true})
         })
         .then(() => {

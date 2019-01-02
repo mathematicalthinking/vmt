@@ -164,7 +164,12 @@ export const removeActivity = activityId => {
 
 export const updateActivity = (id, body) => {
   return dispatch => {
-    dispatch(updatedActivity(id, body)) // THIS ONE's OPTIMISITC
+    if (body.isTrashed) {
+      dispatch(removeUserActivities([id]))
+      dispatch(activityRemoved(id))
+    } else {
+      dispatch(updatedActivity(id, body)) // THIS ONE's OPTIMISITC
+    }
     dispatch(loading.start())
     API.put('activities', id, body)
     .then(res => {
