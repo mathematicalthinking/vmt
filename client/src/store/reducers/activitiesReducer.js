@@ -23,7 +23,7 @@ const reducer = (state = initialState, action) => {
         byId: updatedActivities,
       }
     case actionTypes.LOGOUT:
-      return initialState
+      return {initialState}
 
     case actionTypes.REMOVE_ACTIVITY:
       const updatedIds = state.allIds.filter(id => id !== action.activityId)

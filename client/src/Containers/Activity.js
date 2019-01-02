@@ -90,103 +90,106 @@ class Activity extends Component {
 
   render() {
     let { activity, course, match, user } = this.props;
-    let { resource }= match.params;
-    let populatedActivity = this.props.populatedActivity;
-    const contentData = {
-      resource,
-      activity,
-      course,
-      userResources: activity[resource] || [],
-      parentResource: 'activities',
-      parentResourceId: activity._id,
-      notifications: [],
-      user: this.props.user,
-      owner: this.state.owner
-    }
+    if (activity) {
 
-    let additionalDetails = {
-      type: activity.roomType,
-      privacy: <EditText change={this.updateActivityInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name="privacySetting">{this.state.privacySetting}</EditText>
-    }
+      let { resource }= match.params;
+      let populatedActivity = this.props.populatedActivity;
+      // const contentData = {
+      //   resource,
+      //   activity,
+      //   course,
+      //   userResources: activity[resource] || [],
+      //   parentResource: 'activities',
+      //   parentResourceId: activity._id,
+      //   notifications: [],
+      //   user: this.props.user,
+      //   owner: this.state.owner
+      // }
 
-    const crumbs = [{title: 'My VMT', link: '/myVMT/courses'}]
-    if (course) {
-      crumbs.push(
-        {title: `${course.name}`, link: `${crumbs[0].link}/${course._id}/activities`},
-        {title: `${activity.name}`, link: `${crumbs[0].link}/${course._id}/activities/${activity._id}/details`},
-      )
-    } else {
-      crumbs.push({title: `${activity.name}`, link: `/myVMT/activities/${activity._id}/details`})
-    }
+      let additionalDetails = {
+        type: activity.roomType,
+        privacy: <EditText change={this.updateActivityInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name="privacySetting">{this.state.privacySetting}</EditText>
+      }
 
-    let mainContent = <ActivityDetails
-      activity={this.props.activity}
-      update={this.updateActivityInfo}
-      instructions={this.state.instructions}
-      editing={this.state.editing}
-      owner={this.state.owner}
-      toggleEdit={this.toggleEdit}
-      userId={this.props.user._id}
-      course={this.props.course}
-    />
+      const crumbs = [{title: 'My VMT', link: '/myVMT/courses'}]
+      if (course) {
+        crumbs.push(
+          {title: `${course.name}`, link: `${crumbs[0].link}/${course._id}/activities`},
+          {title: `${activity.name}`, link: `${crumbs[0].link}/${course._id}/activities/${activity._id}/details`},
+        )
+      } else {
+        crumbs.push({title: `${activity.name}`, link: `/myVMT/activities/${activity._id}/details`})
+      }
 
-    if (resource === 'rooms' ) {
-      mainContent = <ResourceList
-      userResources={activity.rooms.map(roomId => this.props.rooms[roomId])}
-      notifications={[]}
-      user={user}
-      resource={resource}
-      parentResource={course ? "course" : "activity"}
-      parentResourceId={course ? course._id : activity._id}
-    />
-    }
+      let mainContent = <ActivityDetails
+        activity={this.props.activity}
+        update={this.updateActivityInfo}
+        instructions={this.state.instructions}
+        editing={this.state.editing}
+        owner={this.state.owner}
+        toggleEdit={this.toggleEdit}
+        userId={this.props.user._id}
+        course={this.props.course}
+      />
+
+      if (resource === 'rooms' ) {
+        mainContent = <ResourceList
+        userResources={activity.rooms.map(roomId => this.props.rooms[roomId])}
+        notifications={[]}
+        user={user}
+        resource={resource}
+        parentResource={course ? "course" : "activity"}
+        parentResourceId={course ? course._id : activity._id}
+      />
+      }
 
 
-    return (
-      <Aux>
-        <DashboardLayout
-          breadCrumbs={
-            <BreadCrumbs crumbs={crumbs} notifications={user.notifications} />
-          }
-          sidePanel={
-            <SidePanel
-              image={activity.image}
-              name={<EditText change={this.updateActivityInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>}
-              subTitle={<EditText change={this.updateActivityInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>}
-              owner={this.state.owner}
-              additionalDetails={additionalDetails}
-              editButton={ this.state.owner
-                ? <Aux>
-                    <div role='button' style={{display: this.state.editing ? 'none' : 'block'}}  onClick={this.toggleEdit}>Edit Activity <i className="fas fa-edit"></i></div>
-                    {this.state.editing
-                      ? <div>
-                        <Button click={this.updateActivity} theme='edit-save'>Save</Button>
-                        <Button click={this.trashActivity} theme='Danger'><i className="fas fa-trash-alt"></i></Button>
-                        <Button click={this.toggleEdit} theme='edit'>Cancel</Button>
-                      </div>
-                      : null
-                    }
-                  </Aux>
-                : null
-              }
-            />
-          }
-          mainContent={mainContent}
-          tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
-        />
-         {this.state.trashing
-            ? <TrashModal
-              resource='activity'
-              resourceId={activity._id}
-              update={this.props.updateActivity}
-              show={this.state.trashing}
-              closeModal={() => {this.setState({trashing: false})}}
-              history={this.props.history}
+      return (
+        <Aux>
+          <DashboardLayout
+            breadCrumbs={
+              <BreadCrumbs crumbs={crumbs} notifications={user.notifications} />
+            }
+            sidePanel={
+              <SidePanel
+                image={activity.image}
+                name={<EditText change={this.updateActivityInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>}
+                subTitle={<EditText change={this.updateActivityInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>}
+                owner={this.state.owner}
+                additionalDetails={additionalDetails}
+                editButton={ this.state.owner
+                  ? <Aux>
+                      <div role='button' style={{display: this.state.editing ? 'none' : 'block'}}  onClick={this.toggleEdit}>Edit Activity <i className="fas fa-edit"></i></div>
+                      {this.state.editing
+                        ? <div>
+                          <Button click={this.updateActivity} theme='edit-save'>Save</Button>
+                          <Button click={this.trashActivity} theme='Danger'><i className="fas fa-trash-alt"></i></Button>
+                          <Button click={this.toggleEdit} theme='edit'>Cancel</Button>
+                        </div>
+                        : null
+                      }
+                    </Aux>
+                  : null
+                }
               />
-            : null
-          }
-      </Aux>
-    )
+            }
+            mainContent={mainContent}
+            tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
+          />
+           {this.state.trashing
+              ? <TrashModal
+                resource='activity'
+                resourceId={activity._id}
+                update={this.props.updateActivity}
+                show={this.state.trashing}
+                closeModal={() => {this.setState({trashing: false})}}
+                history={this.props.history}
+                />
+              : null
+            }
+        </Aux>
+      )
+    } else return null;
   }
 }
 
@@ -194,7 +197,7 @@ const mapStateToProps = (store, ownProps ) => {
   const { activity_id, course_id } = ownProps.match.params;
   return {
     activity: store.activities.byId[activity_id],
-    populatedActivity: populateResource(store, 'activities', activity_id, ['rooms']),
+    populatedActivity: store.activities.byId[activity_id] ? populateResource(store, 'activities', activity_id, ['rooms']) : {},
     course: store.courses.byId[course_id],
     rooms: store.rooms.byId,
     userId: store.user._id,
