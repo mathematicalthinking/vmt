@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { updateRoom, updatedRoom, populateRoom, setRoomStartingPoint, updateUser } from '../../store/actions';
+import { updateRoom, updatedRoom, populateRoom, setRoomStartingPoint, updateUser, addChatMessage } from '../../store/actions';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 import { Modal, Aux } from '../../Components';
 import NewTabForm from './NewTabForm'
@@ -10,8 +10,8 @@ class Workspace extends Component {
 
   state = {
     activeMember: '',
-    inControl: false, // @TODO WE ARE DUPLICATING THIS FROM THE STORE...SINGLE SOURCE OF TRUTH!
-    someoneElseInControl: false,
+    // inControl: false, // @TODO WE ARE DUPLICATING THIS FROM THE STORE...SINGLE SOURCE OF TRUTH!
+    // someoneElseInControl: false,
     referencing: false,
     showingReference: false,
     referToEl: null,
@@ -27,6 +27,7 @@ class Workspace extends Component {
   componentDidMount() {
     this.props.updateUser({connected: socket.connected});
     this.initializeListeners();
+    this.props.populateRoom(this.props.room._id)
 
     window.addEventListener('beforeunload', this.componentCleanup);
   }
@@ -79,8 +80,7 @@ class Workspace extends Component {
     socket.removeAllListeners(['USER_JOINED', 'USER_LEFT', 'TOOK_CONTROL', 'RELEASED_CONTROL', 'initializeListeners'])
     console.log(socket._callbacks)
     // window.addEventListener("resize", this.updateReference);
-    const { updatedRoom, room, user} = this.props;
-    this.props.populateRoom(room._id)
+    const { room, user} = this.props;
 
     if (room.controlledBy) {
       this.setState({someoneElseInControl: true, inControl: false,})
@@ -102,33 +102,38 @@ class Workspace extends Component {
       if (err) {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
-      updatedRoom(room._id, {currentMembers: res.room.currentMembers, chat: [...this.props.room.chat, res.message]})
+      this.props.updatedRoom(room._id, {currentMembers: res.room.currentMembers})
+      this.props.addChatMessage(room._id, res.message)
     })
 
     socket.on('USER_JOINED', data => {
-      updatedRoom(room._id, {currentMembers: data.currentMembers, chat: [...this.props.room.chat, data.message]})
+      this.props.updatedRoom(room._id, {currentMembers: data.currentMembers})
+      this.props.addChatMessage(room._id, data.message)
     })
 
     socket.on('USER_LEFT', data => {
-      console.log('client on: user left')
       if (data.releasedControl) {
-        this.setState({someoneElseInControl: false})
+        this.props.updatedRoom(room._id, {controlledBy: null})
       }
-      updatedRoom(room._id, {currentMembers: data.currentMembers, chat: [...this.props.room.chat, data.message]})
+      let updatedChat = [...this.props.room.chat]
+      updatedChat.push(data.message)
+      this.props.updatedRoom(room._id, {currentMembers: data.currentMembers})
+      this.props.addChatMessage(room._id, data.message)
     })
 
     socket.on('TOOK_CONTROL', message => {
-      this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
-      this.setState({activeMember: message.user._id, someoneElseInControl: true})
+      console.log("TOOK CONMTROL", message)
+      this.props.addChatMessage(this.props.room._id, message)
+      this.props.updatedRoom(room._id, {controlledBy: message.user._id})
     })
 
     socket.on('RELEASED_CONTROL', message => {
-      this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
+      this.props.addChatMessage(this.props.room._id, message)
+      this.props.updatedRoom(room._id, {controlledBy: null})
       this.setState({activeMember: '', someoneElseInControl: false})
     })
 
     socket.on('disconnect', data => {
-      console.log("I DISCONNECTED FROM THE SOCKET")
       this.props.updateUser({connected: false})
     })
   }
@@ -158,47 +163,74 @@ class Workspace extends Component {
     this.setState({currentTab: index, activityOnOtherTabs: updatedTabs})
   }
 
+  takeControl = () => {
+
+  }
+
+  releaseControl = () => {
+
+  }
+
+  requestControl = () => {
+
+  }
+
   toggleControl = () => {
-    let { user, room } = this.props;
-    // If we're taking control
+    let { room, user, } = this.props;
+
     if (!user.connected) {
-      this.setState({activeMember: '', inControl: false, someoneElseInControl: false})
-      this.props.updatedRoom(room._id, {controlledBy: ''})
       return alert('You have disconnected from the server. Check your internet connection and try refreshing the page')
     }
-    if (!this.state.inControl && !this.state.someoneElseInControl) {
-      this.resetControlTimer();
-      // @TODO EMIT EVENT TAKING CONTROL
-      this.setState({activeMember: this.props.user._id, inControl: true})
-      socket.emit('TAKE_CONTROL', {user: {_id: user._id, username: user.username}, roomId: room._id}, (err, message) => {
-        this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
+
+    if (room.controlledBy === user._id) { // Releasing control
+      let message = {
+        user: {_id: user._id, username: 'VMTBot'},
+        room: room._id,
+        text: `${user.username} released control`,
+        autogenerated: true,
+        messageType: 'RELEASED_CONTROL',
+        timestamp: new Date().getTime(),
+      }
+      this.props.updatedRoom(room._id, {controlledBy: null})
+      this.props.addChatMessage(room._id, message)
+      socket.emit('RELEASE_CONTROL', message, (err, res) => {
+        if (err) console.log(err)
       })
-    } else if (this.state.someoneElseInControl) {
-      let newMessage = {
+      clearTimeout(this.controlTimer)
+    }
+
+    // If room is controlled by someone else
+    else if (room.controlledBy) {
+      let message = {
         text: 'Can I take control?',
         user: {_id: user._id, username: user.username},
         room: room._id,
         timestamp: new Date().getTime()
       }
-      socket.emit('SEND_MESSAGE', newMessage, (err, res) => {
-
+      socket.emit('SEND_MESSAGE', message, (err, res) => {
+        this.props.addChatMessage(room._id, message)
       })
-      this.props.updatedRoom(room._id, {chat: [...room.chat, newMessage]})
-      // this.scrollToBottom(); @TODO
-    }
-    else {
-      this.props.updatedRoom(room._id, {controlledBy: ''})
-      this.setState({
-        inControl: true,
-        someoneElseInControl: false,
-        activeMember: '',
+    } else { // We're taking control
+      this.resetControlTimer();
+      let message = {
+        user: {_id: user._id, username: 'VMTBot'},
+        room: room._id,
+        text: `${user.username} took control`,
+        messageType: 'TOOK_CONTROL',
+        autogenerated: true,
+        timestamp: new Date().getTime(),
+      }
+      this.props.updatedRoom(room._id, {controlledBy: user._id})
+      this.props.addChatMessage(room._id, message)
+      socket.emit('TAKE_CONTROL', message, (err, message) => {
+          // this.scrollToBottom(); @TODO
       })
     }
   }
 
   resetControlTimer = () => {
     clearTimeout(this.controlTimer)
-    this.controlTimer = setTimeout(() => {this.setState({inControl: false})}, 60 * 1000)
+    this.controlTimer = setTimeout(() => {this.props.updatedRoom(this.props.room._id, {controlledBy: null})}, 60 * 1000)
   }
 
   startNewReference = () => {
@@ -284,7 +316,7 @@ class Workspace extends Component {
       <Aux>
         {/* wait for room to be populated before trying to display it */}
         {room.tabs[0].name ?<WorkspaceLayout
-          activeMember={this.state.activeMember}
+          activeMember={room.controlledBy}
           room={room}
           user={user}
           role={this.state.role}
@@ -292,10 +324,10 @@ class Workspace extends Component {
           // socket={socket}
           updateRoom={this.props.updateRoom}
           updatedRoom={this.props.updatedRoom}
-          inControl={this.state.inControl}
+          // inControl={this.state.inControl}
           resetControlTimer={this.resetControlTimer}
           toggleControl={this.toggleControl}
-          someoneElseInControl={this.state.someoneElseInControl}
+          // someoneElseInControl={this.state.someoneElseInControl}
           startNewReference={this.startNewReference}
           referencing={this.state.referencing}
           showReference={this.showReference}
@@ -332,4 +364,4 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-export default connect(mapStateToProps, {updateUser, updateRoom, updatedRoom, populateRoom, setRoomStartingPoint})(Workspace);
+export default connect(mapStateToProps, {updateUser, updateRoom, updatedRoom, populateRoom, setRoomStartingPoint, addChatMessage})(Workspace);

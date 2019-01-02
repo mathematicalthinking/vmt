@@ -6,7 +6,6 @@ import { Chat as ChatLayout } from '../../Components';
 class Chat extends Component {
   state = {
     newMessage: '',
-    isConnected: true,
   }
 
   componentDidMount() {

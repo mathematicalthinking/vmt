@@ -37,8 +37,8 @@ describe('user signup/login', function() {
     cy.get('input[name=email]').type(user.email)
     cy.get('input[name=password]').type(user.password)
     cy.get('button').click()
-    cy.contains('That username is already taken.').should('exist')
-  }) 
+    cy.contains('That username is already taken.' || 'Unauthorized').should('exist')
+  })
   it('fails to login with wrong password', function(){
     cy.contains('Login').click()
     cy.get('input[name=username]').type(user.username)
@@ -51,6 +51,6 @@ describe('user signup/login', function() {
     cy.get('input[name=username]').type('incorrect username')
     cy.get('input[name=password]').type(user.password)
     cy.get('button').click()
-    cy.contains('That username does not exist. If you want to create an account go to Signup')
+    cy.contains('Unauthorized').should('exist')
   })
 })

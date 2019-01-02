@@ -53,6 +53,7 @@ export {
   createRoomFromActivity,
   updateRoomTab,
   setRoomStartingPoint,
+  addChatMessage,
 } from './rooms';
 export {
   addCourse,

@@ -66,6 +66,14 @@ export const addRoomMember = (roomId, body) => {
   }
 }
 
+export const addChatMessage = (roomId, message) => {
+  return {
+    type: actionTypes.ADD_CHAT_MESSAGE,
+    roomId,
+    message,
+  }
+}
+
 export const setRoomStartingPoint = (roomId) => {
   return ((dispatch, getState) => {
     let tabs = getState().rooms.byId[roomId].tabs.map(tab => {

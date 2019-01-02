@@ -242,7 +242,7 @@ module.exports = {
       let query = members ?
         {'$addToSet': {'currentMembers': newCurrentUserId, 'members': members}} :
         {'$addToSet': {'currentMembers': ObjectId(newCurrentUserId)}}
-      db.Room.findByIdAndUpdate(roomId, query)
+      db.Room.findByIdAndUpdate(roomId, query, {new: true})
       .populate({path: 'currentMembers', select: 'username'})
       .select('currentMembers')
       .then(room => {
@@ -255,7 +255,7 @@ module.exports = {
 
   removeCurrentUsers: (roomId, userId) => {
     return new Promise ((resolve, reject) => {
-      db.Room.findByIdAndUpdate(roomId, {$pull: {currentMembers: {user: userId}}}) // DONT RETURN THE NEW DOCUMENT WE NEED TO KNOW WHO WAS REMOVED BACK IN THE SOCKET
+      db.Room.findByIdAndUpdate(roomId, {$pull: {currentMembers: userId}}) // dont return new! we need the original list to filter back in sockets.js
       .populate({path: 'currentMembers', select: 'username'})
       .select('currentMembers controlledBy')
       .then(room => {

@@ -29,8 +29,8 @@ const workspaceLayout = React.memo(({
 
   // Set text for taking control button based on current control
   let controlText = 'Take Control';
-  if (inControl) controlText = 'Release Control';
-  else if (someoneElseInControl) controlText = 'Request Control';
+  if (activeMember === user._id) controlText = 'Release Control';
+  else if (activeMember) controlText = 'Request Control';
 
 
   // Setup tabs
