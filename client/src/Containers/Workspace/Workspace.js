@@ -162,18 +162,6 @@ class Workspace extends Component {
     this.setState({currentTab: index, activityOnOtherTabs: updatedTabs})
   }
 
-  takeControl = () => {
-
-  }
-
-  releaseControl = () => {
-
-  }
-
-  requestControl = () => {
-
-  }
-
   toggleControl = () => {
     let { room, user, } = this.props;
 
@@ -229,7 +217,10 @@ class Workspace extends Component {
 
   resetControlTimer = () => {
     clearTimeout(this.controlTimer)
-    this.controlTimer = setTimeout(() => {this.props.updatedRoom(this.props.room._id, {controlledBy: null})}, 60 * 1000)
+    this.controlTimer = setTimeout(() => {
+      this.toggleControl()
+      // this.props.updatedRoom(this.props.room._id, {controlledBy: null})
+    }, 60 * 1000)
   }
 
   startNewReference = () => {
