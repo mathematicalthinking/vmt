@@ -163,6 +163,7 @@ export const getRooms = params => {
 export const getRoom = id => {
   return dispatch => {
     dispatch(loading.start())
+    console.log("ID: ", id)
     API.getById('rooms', id)
     .then(res => {
       dispatch(updatedRoom(id, res.data.result))

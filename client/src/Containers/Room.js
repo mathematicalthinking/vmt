@@ -11,7 +11,7 @@ import {
   clearError,
   clearNotification,
   updateRoom,
-  getRooms,
+  getRoom,
 } from '../store/actions';
 import {
   Aux,
@@ -168,7 +168,9 @@ class Room extends Component {
   }
 
   fetchRoom = () => {
-    this.props.getRooms({_id: this.props.match.params.resource_id});
+    console.log('fethcing room')
+    console.log(this.props.match.params)
+    this.props.getRoom(this.props.match.params.room_id);
   }
   render() {
 
@@ -302,4 +304,4 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification, updateRoom, getRooms})(Room);
+export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification, updateRoom, getRoom})(Room);

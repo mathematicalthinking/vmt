@@ -32,6 +32,7 @@ export {
 } from './loading';
 export {
   getRooms,
+  getRoom,
   gotRooms,
   getRoomsIds,
   createRoom,

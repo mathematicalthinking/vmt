@@ -1,5 +1,6 @@
 import * as actionTypes from '../actions/actionTypes';
 import merge from 'lodash/merge';
+import union from 'lodash/union';
 const initialState = {
   byId: {},
   allIds: [],
@@ -12,7 +13,8 @@ const reducer = (state = initialState, action) => {
       let updatedRooms = merge({...state.byId}, action.byId)
       let updatedIds;
       if (action.isNewRoom) {
-        updatedIds = [...state.allIds, ...action.allIds]
+        updatedIds = union([...state.allIds], [...action.allIds])
+        console.log("updatedIds: ", updatedIds)
       } else {
         updatedIds = action.allIds
       }
