@@ -6,13 +6,6 @@ const button = props => {
   styles.push(classes[props.theme]);
   if (!props.theme) {styles.push(classes.Small)}
   if (props.disabled) {styles.push(classes.Disabled)}
-  if (props.activeToggle !== undefined) {
-    if (props.activeToggle !== true) {
-      styles.push(classes.Cancel)
-    }
-  }
-
-
   styles = styles.join(" ")
 
   return (
