@@ -137,7 +137,7 @@ class Activity extends Component {
     return (
       <DashboardLayout
         breadCrumbs={
-          <BreadCrumbs crumbs={crumbs} />
+          <BreadCrumbs crumbs={crumbs} notifications={user.notifications} />
         }
         sidePanel={
           <SidePanel

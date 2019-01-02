@@ -67,6 +67,7 @@ class Profile extends Component {
     // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
     // if (!loading) {
       if (prevProps[resource].allIds.length !== this.props[resource].allIds.length) {
+        console.log('we should have got a new resource')
         this.checkMultipleRoles()
         .then(() => this.setDisplayResources())
         .then(() => this.updateTabs())
@@ -189,7 +190,6 @@ class Profile extends Component {
           return false;
         })
       }
-      // console.log("DISPLAY RESOURCES: ", displayResources)
       this.setState({displayResources, }, () => resolve())
     }))
   }
@@ -211,7 +211,7 @@ class Profile extends Component {
     return (
       <DashboardLayout
         breadCrumbs={
-          <BreadCrumbs crumbs={[{title: 'My VMT', link: '/myVMT/courses'}]} />
+          <BreadCrumbs crumbs={[{title: 'My VMT', link: '/myVMT/courses'}]} notifications={user.notifications} />
         }
         sidePanel={
           <SidePanel

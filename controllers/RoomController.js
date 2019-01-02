@@ -1,7 +1,8 @@
 const db = require('../models')
-const Room = require('../models/Room')
+const Tab = db.Tab;
+const Room = db.Room;
 const mongoose = require('mongoose');
-const ObjectId = mongoose.Schema.Types.ObjectId;
+const ObjectId = mongoose.Types.ObjectId;
 const _ = require('lodash');
 
 module.exports = {
@@ -19,7 +20,7 @@ module.exports = {
       .populate({path: 'members.user', select: 'username'})
       .populate({path: 'currentMembers.user', select: 'username'})
       .then(rooms => {
-        rooms = rooms.map(room => room.tempRoom ? room : room.summary())
+        // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
         resolve(rooms)})
       .catch(err => reject(err));
     });
@@ -31,7 +32,7 @@ module.exports = {
       .populate({path: 'creator', select: 'username'})
       .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
       .populate({path: 'members.user', select: 'username'})
-      .populate({path: 'currentMembers.user', select: 'username'})
+      .populate({path: 'currentMembers', select: 'username'})
       .populate({path: 'course', select: 'name'})
       .populate({path: 'tabs', populate: {path: 'events'}})
       .populate({path: 'graphImage', select: 'imageData'})
@@ -44,7 +45,7 @@ module.exports = {
   // WHAT I SHOULD ACTUALLY BE DOING HERE IS CREATING new Schemas saving their respective ids within each other and then write to the db once
   post: body => {
     return new Promise(async (resolve, reject) => {
-      let createdRoom;
+      // Prepare the tabs if they exist
       let existingTabs;
       if (body.tabs) {
         existingTabs = Object.assign(body.tabs, [])
@@ -53,49 +54,42 @@ module.exports = {
           let activities = await db.Activity.find({'_id': {$in: body.activities}}).populate('tabs')
           existingTabs = activities.reduce((acc, activity) => (
             acc.concat(activity.tabs)
-          ), [])
-        }
+            ), [])
+          }
         catch(err) {reject(err)}
       }
-      delete body.tabs
-      db.Room.create(body)
-      .then(room => {
-        createdRoom = room;
-        if (!existingTabs) {
-          return db.Tab.create({
-            name: 'Tab 1',
-            room: room._id,
-            desmosLink: body.desmosLink,
-            ggbFile: body.ggbFile,
-            tabType: body.roomType,
-          })
-        }
-        else {
-          return Promise.all(existingTabs.map(tab => {
-            delete tab._id;
-            delete tab.activity;
-            tab.startingPoint = tab.currentState;
-            tab.room = createdRoom._id;
-            return db.Tab.create(tab)
-          }))
-        }
-      })
-      .then(tab => {
-        if (Array.isArray(tab)) {
-          return db.Room.findByIdAndUpdate(createdRoom._id, {$addToSet: {tabs: tab.map(tab => tab._id)}}, {new: true})
-          .populate({path: 'members.user', select: 'username'})
-          .populate({path: 'currentMembers.user', select: 'username'})
-        } else {
-          return db.Room.findByIdAndUpdate(createdRoom._id, {$addToSet: {tabs: tab._id}}, {new: true})
-          .populate({path: 'members.user', select: 'username'})
-          .populate({path: 'currentMembers.user', select: 'username'})
-        }
-      })
-      .then(room => resolve(room)) //Hmm why no support for promise here?
-      .catch(err => {
-        // TRY TO DELETE @TODO ERROR HANDLING HERE IF FAIL DELETE BOTH FROM DB AND RETURN ERROR TO THE USER
-        console.log(err); reject(err)
-      })
+      let tabModels;
+      delete body.tabs;
+      delete body.roomType;
+      delete body.ggbFile;
+      let room = new Room(body)
+      if (existingTabs) {
+        tabModels = existingTabs.map(tab => {
+          delete tab._id;
+          delete tab.activity;
+          tab.startingPoint = tab.currentState;
+          tab.room = room._id;
+          return new Tab(tab)
+        })
+      } else {
+        tabModels = [new Tab({
+          name: 'Tab 1',
+          room: room._id,
+          desmosLink: body.desmosLink,
+          ggbFile: body.ggbFile,
+          tabType: body.roomType,
+        })]
+      }
+      // console.log('tab models: ', tabModels)
+      room.tabs = tabModels.map(tab => tab._id);
+      try {
+        await tabModels.forEach(tab => tab.save()) // These could run in parallel I suppose but then we'd have to edit one if ther ewas a failuer with the other
+        await room.save()
+        room.populate({path: 'members.user', select: 'username'}, (err, room) => {
+          if (err) reject(err);
+          resolve(room)
+        })
+      } catch (err) {reject(err)}
     })
   },
 
@@ -241,27 +235,28 @@ module.exports = {
   },
 
   // SOCKET METHODS
-  addCurrentUsers: (roomId, body, members) => {
-    return new Promise((resolve, reject) => {
+  addCurrentUsers: (roomId, newCurrentUserId, members) => {
+    return new Promise(async (resolve, reject) => {
+      console.log(newCurrentUserId)
       // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
       let query = members ?
-        {'$addToSet': {'currentMembers': body, 'members': members}} :
-        {'$addToSet': {'currentMembers': body}}
+        {'$addToSet': {'currentMembers': newCurrentUserId, 'members': members}} :
+        {'$addToSet': {'currentMembers': ObjectId(newCurrentUserId)}}
       db.Room.findByIdAndUpdate(roomId, query, {new: true})
-      .populate({path: 'currentMembers.user', select: 'username'})
-      .populate({path: 'chat', populate: {path: 'user', select: 'username'}, select: '-room'})
-      .select('currentMembers events chat currentState roomType')
+      .populate({path: 'currentMembers', select: 'username'})
+      .select('currentMembers')
       .then(room => {
+        console.log("CURRENT MEMBERS: ", room.currentMembers)
         resolve(room)
       })
-      .catch(err => reject(err))
+      .catch((err) =>  reject(err))
     })
   },
 
   removeCurrentUsers: (roomId, userId) => {
     return new Promise ((resolve, reject) => {
-      db.Room.findByIdAndUpdate(roomId, {$pull: {currentMembers: {user: userId}}}) // DONT RETURN THE NEW DOCUMENT WE NEED TO KNOW WHO WAS REMOVED BACK IN THE SOCKET
-      .populate({path: 'currentMembers.user', select: 'username'})
+      db.Room.findByIdAndUpdate(roomId, {$pull: {currentMembers: userId}}) // dont return new! we need the original list to filter back in sockets.js
+      .populate({path: 'currentMembers', select: 'username'})
       .select('currentMembers controlledBy')
       .then(room => {
         resolve(room)

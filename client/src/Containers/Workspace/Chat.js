@@ -1,11 +1,11 @@
 // Should we store chat data in this component's state or in the
 // redux store?
 import React, { Component } from 'react';
+import socket from '../../utils/sockets';
 import { Chat as ChatLayout } from '../../Components';
 class Chat extends Component {
   state = {
     newMessage: '',
-    isConnected: true,
   }
 
   componentDidMount() {
@@ -20,7 +20,8 @@ class Chat extends Component {
       }
     })
     if (!this.props.replaying) {
-      this.props.socket.on('RECEIVE_MESSAGE', data => {
+      socket.removeAllListeners('RECEIVE_MESSAGE')
+      socket.on('RECEIVE_MESSAGE', data => {
         this.props.updatedRoom(this.props.roomId, {chat: [...this.props.messages, data]})
         // this.scrollToBottom()
       });
@@ -50,12 +51,15 @@ class Chat extends Component {
   changeHandler = event => {
     this.setState({
       newMessage: event.target.value,
-      // isConnected: this.props.socket.connected,
+      // isConnected: socket.connected,
     })
   }
 
   submitMessage = () => {
     const { roomId, user } = this.props;
+    if (!user.connected) {
+      return alert('you have disconnected from the server. Check your internet connect and try refreshing the page')
+    }
     if (this.state.newMessage.length === 0) return;
     const newMessage = {
       text: this.state.newMessage,
@@ -68,7 +72,7 @@ class Chat extends Component {
       newMessage.tab = this.props.currentTab
       this.props.clearReference()
     }
-    this.props.socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
+    socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
       if (err) {
         console.log(err);
         return;
@@ -101,7 +105,7 @@ class Chat extends Component {
         showingReference={this.props.showingReference}
         clearReference={this.props.clearReference}
         showReference={this.props.showReference}
-        isConnected={this.state.isConnected}
+        isConnected={this.props.user.connected}
       />
     )
   }

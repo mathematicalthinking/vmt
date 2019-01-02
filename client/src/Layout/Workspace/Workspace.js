@@ -29,8 +29,8 @@ const workspaceLayout = React.memo(({
 
   // Set text for taking control button based on current control
   let controlText = 'Take Control';
-  if (inControl) controlText = 'Release Control';
-  else if (someoneElseInControl) controlText = 'Request Control';
+  if (activeMember === user._id) controlText = 'Release Control';
+  else if (activeMember) controlText = 'Request Control';
 
 
   // Setup tabs
@@ -87,7 +87,7 @@ const workspaceLayout = React.memo(({
     } else {
       graph = <GgbGraph
         room={room}
-        socket={socket}
+        // socket={socket}
         user={user}
         updateRoom={updateRoom}
         updatedRoom={updatedRoom}
@@ -118,7 +118,7 @@ const workspaceLayout = React.memo(({
     chat = <Chat
       roomId={room._id}
       messages={room.chat || []}
-      socket={socket}
+      // socket={socket}
       user={user}
       updatedRoom={updatedRoom}
       referencing={referencing}
@@ -166,7 +166,7 @@ const workspaceLayout = React.memo(({
         <div className={classes.Right}>
           {chat}
           <div className={classes.Members}>
-             {room.members ? <CurrentMembers members={replayer ? replayer.currentMembers.map(member => member.user) : room.currentMembers.map(member => member.user)} activeMember={activeMember}/> : null}
+             {room.members ? <CurrentMembers members={replayer ? replayer.currentMembers : room.currentMembers} activeMember={activeMember}/> : null}
           </div>
           <div className={classes.ReferenceWindow}>
             {!replayer ?

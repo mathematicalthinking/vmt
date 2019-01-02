@@ -48,6 +48,16 @@
   background: white;
 }
 
+.Ntf {
+  position: absolute;
+  right: 2px;
+  top: 2.5px;
+  color: red;
+  z-index: 1;
+  height: 12px;
+  width: 12px;
+}
+
 @media screen and (max-width: 750px) {
   .Item {
     font-size: 14px;

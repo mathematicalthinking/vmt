@@ -19,7 +19,7 @@ const Room = new mongoose.Schema({
     user: {type: ObjectId, ref: 'User'},
     role: {type: String},
     _id: false}],
-  currentMembers: {type: [{user: {type: ObjectId, ref: 'User'}, socket: {type: String},  _id: false}], default: []},
+  currentMembers: {type: [{type: ObjectId, ref: 'User'}], default: []},
   tabs: {type: [{type: ObjectId, ref: 'Tab'}]},
   privacySetting: {type: String, enum: ['private', 'public'], default: 'private'},
   tempRoom: {type: Boolean, default: false},
@@ -59,7 +59,7 @@ Room.post('save', function (doc, next) {
           toUser: member.user,
         }
         // Creating a notification of type assignedNewRoom will automatically add this room
-        // to the users room list as part of the pre save hook
+        // to the users room list as part of the pre save hook')
         return Notification.create(notification)
       } else {
         // We only want to create notifications for participants

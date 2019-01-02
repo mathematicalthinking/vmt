@@ -28,6 +28,7 @@ const reducer = (state = initialState, action) => {
     case actionTypes.UPDATED_ROOM:
       let updatedRoom = {...state.byId[action.roomId]}
       let fields = Object.keys(action.body)
+      console.log('ACTION.NODY: ', action.body)
       fields.forEach(field => {
         updatedRoom[field] = action.body[field]
       })
@@ -81,6 +82,18 @@ const reducer = (state = initialState, action) => {
         byId: updatedObj,
         allIds: updatedList
       }
+
+    case actionTypes.ADD_CHAT_MESSAGE:
+    return {
+      ...state,
+      byId: {
+        ...state.byId,
+        [action.roomId]: {
+          ...state.byId[action.roomId],
+          chat: [...state.byId[action.roomId].chat, action.message]
+        }
+      },
+    }
 
 
     case actionTypes.ADD_ROOM_MEMBER:

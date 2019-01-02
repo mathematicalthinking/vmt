@@ -66,6 +66,14 @@ export const addRoomMember = (roomId, body) => {
   }
 }
 
+export const addChatMessage = (roomId, message) => {
+  return {
+    type: actionTypes.ADD_CHAT_MESSAGE,
+    roomId,
+    message,
+  }
+}
+
 export const setRoomStartingPoint = (roomId) => {
   return ((dispatch, getState) => {
     let tabs = getState().rooms.byId[roomId].tabs.map(tab => {
@@ -195,6 +203,7 @@ export const createRoom = body => {
     dispatch(loading.start())
     API.post('rooms', body)
     .then(res => {
+      console.log(res)
       let result = res.data.result;
       dispatch(createdRoom(result))
       if (!body.tempRoom) {

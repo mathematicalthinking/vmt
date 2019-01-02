@@ -9,6 +9,11 @@ const navbar = (props) => {
   if (props.scrollPosition > .3 || (props.page !== '/' && props.page !== '/signup' && props.page !== '/login' && props.page !== '/confirmation')) {
     styles = [classes.Nav, classes.LightNav].join(" ")
   }
+  let ntf = false;
+  console.log("HOMENAV: ", props.user, props.user.notifications)
+  if (props.user && props.user.notifications && props.user.notifications.length > 0) {
+    ntf = true;
+  }
 
   return (
     <nav className={styles}>
@@ -19,7 +24,7 @@ const navbar = (props) => {
         </div>
         <div className={classes.NavListContainer}>
           <ul className={classes.NavList}>
-          {props.loggedIn ? <NavItem link='/myVMT/courses' name='My VMT' /> :
+          {props.loggedIn ? <NavItem link='/myVMT/courses' name='My VMT' ntf={ntf} /> :
             <Aux>
               <NavItem link='/login' name='Login' />
               <NavItem link='/signup' name='Signup' />
@@ -27,6 +32,7 @@ const navbar = (props) => {
             <NavItem link='/community/activities' name='Community' />
             <NavItem link='/about' name='About' />
             <NavItem link='/tutorials' name='Tutorials' />
+            {props.loggedIn ? <NavItem link='/logout' name='Logout'/> : null }
           </ul>
         </div>
       </div>

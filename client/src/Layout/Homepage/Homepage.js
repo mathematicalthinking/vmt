@@ -22,17 +22,19 @@ class Homepage extends PureComponent {
       this.setState({popularActivities: res.data.results})
     })
   }
-  
+
   componentDidUpdate(prevProps) {
     // If the user creates a temporary room // redirect them once its been created
     if (Object.keys(prevProps.rooms).length < Object.keys(this.props.rooms).length) {
       const currentRooms = Object.keys(this.props.rooms).map(id => this.props.rooms[id])
       const prevRooms = Object.keys(prevProps.rooms).map(id => prevProps.rooms[id])
       let room = currentRooms.filter(room => !prevRooms.includes(room))
-      this.props.history.push(`explore/${room[0]._id}`)
+      if (room[0]._id && this.props.rooms[room[0]._id].tempRoom) { // THIS IS HACKY
+        this.props.history.push(`explore/${room[0]._id}`)
+      }
     }
   }
-  
+
   createRoom = () => {
     let room = {
       name: 'temp room',
@@ -62,7 +64,7 @@ class Homepage extends PureComponent {
         <div className={classes.Main}>
           <section className={classes.Top}>
             <p className={classes.Blurb}>
-              Collaborative Workspaces for Exploring the World of Math 
+              Collaborative Workspaces for Exploring the World of Math
             </p>
             <Button theme={'Big'} click={this.createRoom} m={35}>Try out a Workspace</Button>
           </section>
@@ -73,9 +75,9 @@ class Homepage extends PureComponent {
             {/* <div className={classes.Geogebra}>
               <img className={classes.GgbImage} src={GeogebraImg} alt='geogebra' />
               <div>
-                <p className={classes.LongerBlurb}>GeoGebra is dynamic mathematics software for all levels of education that 
-                  brings together geometry, algebra, spreadsheets, graphing, statistics and 
-                  calculus in one easy-to-use package. GeoGebra is a rapidly expanding 
+                <p className={classes.LongerBlurb}>GeoGebra is dynamic mathematics software for all levels of education that
+                  brings together geometry, algebra, spreadsheets, graphing, statistics and
+                  calculus in one easy-to-use package. GeoGebra is a rapidly expanding
                   community of millions of users located in just about every country.
                 </p>
                 <Link to='https://www.geogebra.org'>Learn More</Link>
@@ -84,8 +86,8 @@ class Homepage extends PureComponent {
             <div className={classes.Desmos}>
               <img className={classes.DesmosImage} src={DesmosImg} alt='desmos' />
               <p className={classes.LongerBlurb}>
-                Desmos is a free graphing calculator with a large community of teachers and students actively 
-                building and sharing activities. 
+                Desmos is a free graphing calculator with a large community of teachers and students actively
+                building and sharing activities.
               </p>
             </div> */}
           </section>

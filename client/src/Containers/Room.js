@@ -236,7 +236,7 @@ class Room extends Component {
         <Aux>
           <DashboardLayout
             breadCrumbs={
-              <BreadCrumbs crumbs={crumbs} />
+              <BreadCrumbs crumbs={crumbs} notifications={user.notifications} />
             }
             sidePanel={
               <SidePanel
