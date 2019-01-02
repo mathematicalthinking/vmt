@@ -20,6 +20,7 @@ import {
   BreadCrumbs,
   TabList,
   EditText,
+  TrashModal,
 } from '../Components';
 import Access from './Access';
 // import PublicAccessModal from '../Components/UI/Modal/PublicAccess'
@@ -41,6 +42,7 @@ class Room extends Component {
     entryCode: this.props.room ? this.props.room.entryCode : null,
     instructions: this.props.room ? this.props.room.instructions : null,
     privacySetting: this.props.room ? this.props.room.privacySetting : null,
+    trashing: false,
 
   }
 
@@ -168,9 +170,11 @@ class Room extends Component {
   }
 
   fetchRoom = () => {
-    console.log('fethcing room')
-    console.log(this.props.match.params)
     this.props.getRoom(this.props.match.params.room_id);
+  }
+
+  trashRoom = () => {
+    this.setState({trashing: true})
   }
   render() {
 
@@ -258,7 +262,11 @@ class Room extends Component {
                   ? <Aux>
                       <div role='button' style={{display: this.state.editing ? 'none' : 'block'}}  onClick={this.toggleEdit}>Edit Room <i className="fas fa-edit"></i></div>
                       {this.state.editing
-                        ? <div><Button click={this.updateRoom} theme='edit-save'>Save</Button> <Button click={this.toggleEdit} theme='edit'>Cancel</Button></div>
+                        ? <div>
+                            <Button click={this.updateRoom} theme='edit-save'>Save</Button>
+                            <Button click={this.trashRoom} theme='Danger'><i className="fas fa-trash-alt"></i></Button>
+                            <Button click={this.toggleEdit} theme='edit'>Cancel</Button>
+                          </div>
                         : null
                       }
                     </Aux>
@@ -275,6 +283,10 @@ class Room extends Component {
             we recommend you take a tour. Otherwise you can start exploring this room's features.</p>
             <Button data-testid='explore-room' click={() => this.setState({firstView: false})}>Explore</Button>
           </Modal> : null}
+          {this.state.trashing
+            ? <TrashModal resource='room' resourceId={room._id} update={this.props.updateRoom} show={this.state.trashing} closeModal={() => {this.setState({trashing: false})}}/>
+            : null
+          }
         </Aux>
       )
     } else return (
