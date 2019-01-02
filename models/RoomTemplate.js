@@ -6,8 +6,10 @@ const RoomTemplate = new mongoose.Schema({
   description: {type: String},
   roomType: {type: String, default: 'geogebra'},
   creator: {type: ObjectId, ref: 'User'},
-  privacySetting: {type: String, enum: ['private', 'public'], default: 'private'}},
-  {timestamps: true});
+  privacySetting: {type: String, enum: ['private', 'public'], default: 'private'},
+  isTrashed: { type: Boolean, default: false },
+},
+{timestamps: true});
 
 RoomTemplate.post('save', doc => {
   User.findById(doc.creator, (err, res) => {

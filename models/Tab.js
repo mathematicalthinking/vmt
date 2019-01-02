@@ -13,7 +13,8 @@ const Tab = new mongoose.Schema({
   startingPoint: {type: String, default: null},
   sequenceNo: {type: Number},
   controlledBy: {type: ObjectId, ref: 'User', default: null},
-  creator: {type: ObjectId, ref: 'User'}
+  creator: {type: ObjectId, ref: 'User'},
+  isTrashed: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model('Tab', Tab);

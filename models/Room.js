@@ -26,7 +26,8 @@ const Room = new mongoose.Schema({
   image: {type: String,},
   graphImage: {type: ObjectId, ref: 'Image'},
   controlledBy: {type: ObjectId, ref: 'User', defaut: null},
-  wasNew: {type: Boolean}
+  wasNew: {type: Boolean},
+  isTrashed: { type: Boolean, default: false },
 },
 {timestamps: true});
 

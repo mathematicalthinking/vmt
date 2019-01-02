@@ -10,7 +10,8 @@ const Course = new mongoose.Schema({
   privacySetting: {type: String, enum: ['private', 'public'], default: 'private'},
   entryCode: {type: String,},
   members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}, _id: false}],
-  image: {type: String,} //URL
+  image: {type: String,}, //URL
+  isTrashed: { type: Boolean, default: false },
 },{timestamps: true});
 
 // Not using arrow function so we can have access to THIS docuemnt
