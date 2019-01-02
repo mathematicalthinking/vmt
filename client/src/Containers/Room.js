@@ -100,12 +100,15 @@ class Room extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    if (!this.props.room) {
+      return;
+    }
     // If we just fetched the room now check access
     if (!prevProps.room && this.props.room) {
       this.checkAccess();
     }
     // THESE ARE SUSCEPTIBLE TO ERRORS BECAUSE YOU COULD GAIN AND LOSE TWO DIFFERENT NTFS IN A SINGLE UPDATE POTENTIALLY? ACTUALLY COULD YOU?
-    if (prevProps.room && prevProps.room.members.length !== this.props.room.members.length) {
+    if (prevProps.room && this.props.room && prevProps.room.members.length !== this.props.room.members.length) {
       this.checkAccess();
     }
     if (prevProps.notifications.length !== this.props.notifications.length) {
@@ -177,7 +180,7 @@ class Room extends Component {
     this.setState({trashing: true})
   }
   render() {
-
+    console.log(this.props)
     let {
       room, match, user,
       notifications, error,
@@ -278,13 +281,20 @@ class Room extends Component {
             tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
           />
           {this.state.firstView
-            ? <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
+            ? <Modal show={this.state.firstView} close={() => this.setState({firstView: false })} history={this.props.history}>
             <p>Welcome to {room.name}. If this is your first time joining a room,
             we recommend you take a tour. Otherwise you can start exploring this room's features.</p>
             <Button data-testid='explore-room' click={() => this.setState({firstView: false})}>Explore</Button>
           </Modal> : null}
           {this.state.trashing
-            ? <TrashModal resource='room' resourceId={room._id} update={this.props.updateRoom} show={this.state.trashing} closeModal={() => {this.setState({trashing: false})}}/>
+            ? <TrashModal
+              resource='room'
+              resourceId={room._id}
+              update={this.props.updateRoom}
+              show={this.state.trashing}
+              closeModal={() => {this.setState({trashing: false})}}
+              history={this.props.history}
+              />
             : null
           }
         </Aux>

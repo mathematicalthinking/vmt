@@ -112,7 +112,12 @@ export const createRoomFromActivity = (activityId, userId, dueDate, courseId) =>
 export const updateRoom = (id, body) => {
   return dispatch => {
     console.log("DISPATCHING")
-    dispatch(updatedRoom(id, body)) // Optimistically update the UI
+    if (body.isTrashed) {
+      dispatch(removeUserRooms([id]))
+      dispatch(destroyRoom(id))
+    } else {
+      dispatch(updatedRoom(id, body)) // Optimistically update the UI
+    }
     API.put('rooms', id, body)
     .then(res => {
       console.log("RES:::", res)

@@ -6,6 +6,7 @@ class TrashModal extends Component {
 
 
   trashResource = () => {
+    this.props.history.goBack()
     this.props.update(this.props.resourceId, {isTrashed: true})
     this.props.closeModal()
   }

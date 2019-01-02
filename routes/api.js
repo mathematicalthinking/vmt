@@ -12,7 +12,7 @@ router.param('id', middleware.validateId);
 
 router.get('/:resource', (req, res, next) => {
 	let controller = controllers[req.params.resource];
-
+	req.query.params.isTrashed = false;
   controller.get(req.query.params)
     .then(results => res.json({ results }))
 	  .catch(err => {
