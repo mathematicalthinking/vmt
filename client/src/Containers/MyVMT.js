@@ -221,6 +221,8 @@ class Profile extends Component {
             additionalDetails={additionalDetails}
             accountType={user.accountType}
             bothRoles={this.state.bothRoles}
+            toggleView={this.toggleView}
+            view={this.state.view}
           />
         }
         mainContent={

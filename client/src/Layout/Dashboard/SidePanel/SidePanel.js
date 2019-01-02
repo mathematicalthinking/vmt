@@ -2,6 +2,8 @@ import React from 'react';
 import { Button, Avatar, Aux, } from '../../../Components/';
 import { Link } from 'react-router-dom';
 import classes from './sidePanel.css';
+import capitalize from 'lodash/capitalize';
+
 const SidePanel = React.memo(({
   image, name, subTitle, alt,
   additionalDetails, toggleView,
@@ -15,6 +17,15 @@ const SidePanel = React.memo(({
       </div>
     )
   })
+
+  let toggleText;
+  if (view === 'facilitator') {
+    toggleText = 'Participant';
+  } else if (view === 'participant') {
+    toggleText = 'Facilitator';
+  }
+
+  let toggleButton = <Button m={5} click={toggleView}>{toggleText}</Button>
   return (
     <Aux>
       <div className={classes.Top}>
@@ -35,9 +46,9 @@ const SidePanel = React.memo(({
         {accountType === 'participant' && !bothRoles ? <div className={classes.CreateForParticipant}><Link to='facilitator' data-testid='become-facilitator'>become a facilitator</Link></div> : null}
         {bothRoles ?
         <div>
-          <div>view as...</div>
-          <Button m={5} click={toggleView} active={view === 'facilitator'}>Facilitator</Button>
-          <Button m={5} click={toggleView} active={view === 'participant'}>Participant</Button>
+          <div>Currently viewing as {capitalize(view)}</div>
+          <div>Toggle to: </div>
+          {toggleButton}
         </div> : null }
       </div>
     </Aux>

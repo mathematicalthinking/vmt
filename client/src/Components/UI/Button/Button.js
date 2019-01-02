@@ -6,13 +6,20 @@ const button = props => {
   styles.push(classes[props.theme]);
   if (!props.theme) {styles.push(classes.Small)}
   if (props.disabled) {styles.push(classes.Disabled)}
+  if (props.activeToggle !== undefined) {
+    if (props.activeToggle !== true) {
+      styles.push(classes.Cancel)
+    }
+  }
+
+
   styles = styles.join(" ")
 
   return (
-    <button 
-      className={styles} 
-      style={{margin: props.m}} 
-      onClick={props.click} 
+    <button
+      className={styles}
+      style={{margin: props.m}}
+      onClick={props.click}
       type={props.type}
       data-testid={props['data-testid']}
       disabled={props.disabled}
