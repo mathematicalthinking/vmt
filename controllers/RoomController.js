@@ -61,9 +61,13 @@ module.exports = {
       let tabModels;
       delete body.tabs;
       delete body.roomType;
+      let ggbFiles;
 
-      let ggbFiles = [...body.ggbFiles];
-      delete body.ggbFiles;
+      if (Array.isArray(body.ggbFiles)) {
+        ggbFiles = [...body.ggbFiles];
+        delete body.ggbFiles;
+      }
+
 
       let room = new Room(body)
       if (existingTabs) {
