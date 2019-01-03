@@ -95,8 +95,8 @@ describe('test access requests', function(){
   it("user2 enters course with entry-code", function(){
     cy.login(user2)
     cy.contains('Community').click()
-    cy.contains('Courses').click()
     cy.wait(1000)
+    cy.contains('Courses').click()
     cy.url().should('include', 'community/courses')
     cy.getTestElement('content-box-entry-code course').click()
     cy.get('#entryCode').type('{selectall} {backspace}').type('entry-code-10')
@@ -128,8 +128,8 @@ describe('test access requests', function(){
   it('user2 requests access to room', function(){
     cy.login(user2)
     cy.contains('Community').click()
-    cy.contains('Rooms').click()
     cy.wait(500)
+    cy.contains('Rooms').click()
     cy.getTestElement('content-box-request access').click()
     cy.getTestElement('request-access-btn').click()
     cy.url().should('include', '/confirmation')
