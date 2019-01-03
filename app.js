@@ -23,9 +23,11 @@ console.log("NODE_ENV=",process.env.NODE_ENV)
 // SETUP DATABASE & SESSION
 let mongoURI;
 if (process.env.NODE_ENV === 'dev') {
-  mongoURI = process.env.MONGO_DEV_URL
+  mongoURI = process.env.MONGO_DEV_URI;
 } else if (process.env.NODE_ENV === 'production') {
-  mongoURI = process.env.MONGO_PROD_URI
+  mongoURI = process.env.MONGO_PROD_URI;
+} else if (process.env.NODE_ENV === 'staging') {
+  mongoURI = process.env.MONGO_STAGING_URI;
 } else if (process.env.NODE_ENV) {
   mongoURI = process.env.MONGO_TEST_URI;
 }

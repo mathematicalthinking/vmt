@@ -171,6 +171,7 @@ module.exports = {
         })
       }
       else if (body.checkAccess) {
+        console.log('check access')
         let roomToPopulate;
         let fromUser;
         db.Room.findById(id)
@@ -187,7 +188,6 @@ module.exports = {
 
             room.members.push({user: userId, role: 'participant'})
             return room.save()
-
           })
           .then((updatedRoom) => {
             // create notifications
@@ -196,6 +196,7 @@ module.exports = {
               return m.role === 'facilitator';
             });
             return Promise.all(facilitators.map((f) => {
+              console.log('creating notification for facilitator')
               return db.Notification.create({
                 resourceType: 'room',
                 resourceId: roomToPopulate._id,
@@ -212,7 +213,9 @@ module.exports = {
               resolve(roomToPopulate)
             })
           })
-          .catch((err) => reject(err))
+          .catch((err) => {
+            reject(err)
+          })
       }
       else if (Object.keys(body)[0] === 'tempRoom') {
         db.Room.findById(id)

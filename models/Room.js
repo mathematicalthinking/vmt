@@ -38,8 +38,8 @@ Room.pre('save', function(next) {
   } else {
     this.modifiedPaths().forEach(field => {
       if (field === 'members') {
-        User.findByIdAndUpdate(doc.members[this.members.length - 1].user, {
-          $addToSet: {rooms: doc._id}
+        User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
+          $addToSet: {rooms: this._id}
         }).then(user => {next()})
         .catch(err => console.log(err))
       } else if (field === 'tempRoom') {

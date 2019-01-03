@@ -94,6 +94,7 @@ Notification.post('save', function(notification) {
           return buildEmitData(notification)
           .then((data) => {
             if (data) {
+              console.log('emiting notification')
               return socket.emit('NEW_NOTIFICATION', data);
             }
           })
