@@ -77,11 +77,14 @@ module.exports = {
   put: (id, body) => {
     return new Promise((resolve, reject) => {
       if (body.isTrashed) {
-        let updatedActivity
-        db.Activity.findByIdAndUpdate(id, body, {new: true})
-        .then(activity => {
-          updatedActivity = activity;
-          // @TODO HOW SHOULD WE CLEAN THIS UP ? SHOULD ROOMS CREATED FROM IT HAVE THEIR ACTIVITY FIELD SET TO NULL
+        let updatedActivity;
+        db.Activity.findById(id)
+        .then(async activity => {
+          activity.isTrashed = true;
+          try {
+            updatedActivity = await activity.save()
+          } catch(err) {reject(err)}
+
           if (activity.course) {
             return db.Course.findByIdAndUpdate(activity.course, {$pull: {activities: activity._id}})
           } else resolve(updatedActivity)

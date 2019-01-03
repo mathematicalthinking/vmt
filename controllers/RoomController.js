@@ -229,12 +229,13 @@ module.exports = {
         })
       }
       else if (body.isTrashed) {
-        let updatedRoom
+        let updatedRoom;
         db.Room.findById(id)
         .then(async room => {
           room.isTrashed = true;
-          updatedRoom = await room.save()
-          console.log(updatedRoom)
+          try {
+            updatedRoom = await room.save()
+          } catch(err) {reject(err)}
           // let userIds = room.members.map(member => member.user);
           // // delete this room from any courses
           // let promises = [db.User.update({_id: {$in: userIds}}, {$pull: {rooms: room._id}}, {multi: true})];

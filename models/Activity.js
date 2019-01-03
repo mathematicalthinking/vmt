@@ -27,15 +27,24 @@ const Activity = new mongoose.Schema({
 
 // STOP CHANGING THIS FUNCTION BELOW TO AN ARROW FUNCTION!!!
 // WE NEED 'THIS' TO REFER TO THE FUNCTIONS CONTEXT
-Activity.pre('save', async function() {
+Activity.pre('save', async function(next) {
   const promises = []
   if (this.isNew) {
     promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {activities: this._id}, accountType: 'facilitator'}))
     if (this.course) {
       promises.push(Course.findByIdAndUpdate(this.course, {$addToSet: {activities: this._id}}))
     }
+  } else {
+    this.modifiedPaths().forEach(field => {
+      if (field === 'isTrashed') {
+        promises.push(User.findByIdAndUpdate(this.creator, {$pull: {activities: this._id}}))
+      }
+    })
   }
-  await Promise.all(promises)
+  try {
+    let results = await Promise.all(promises)
+    next()
+  } catch(err) {console.log(err)}
 })
 
 Activity.pre('remove', async function() {
