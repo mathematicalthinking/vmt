@@ -9,10 +9,10 @@ const Step2New = props => {
         <RadioBtn name='desmos' checked={!props.ggb} check={props.setGgb}>Desmos</RadioBtn>
       </div>
       <div>
-      {props.ggb 
+      {props.ggb
         ? <div className={classes.Geogebra}>
-            <div className={classes.GeogebraButton}><Button>Select a Geogebra File</Button></div>
-          </div> 
+        <input type="file" multiple={true} name='ggbFile' accept='.ggb' onChange={props.setGgbFile}/>
+          </div>
         : <TextInput
             light
             name='desmosLink'

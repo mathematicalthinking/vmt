@@ -61,7 +61,10 @@ module.exports = {
       let tabModels;
       delete body.tabs;
       delete body.roomType;
-      delete body.ggbFile;
+
+      let ggbFiles = [...body.ggbFiles];
+      delete body.ggbFiles;
+
       let room = new Room(body)
       if (existingTabs) {
         tabModels = existingTabs.map(tab => {
@@ -72,15 +75,24 @@ module.exports = {
           return new Tab(tab)
         })
       } else {
-        tabModels = [new Tab({
-          name: 'Tab 1',
-          room: room._id,
-          desmosLink: body.desmosLink,
-          ggbFile: body.ggbFile,
-          tabType: body.roomType,
-        })]
+        if (Array.isArray(ggbFiles) && ggbFiles.length > 0) {
+          tabModels = ggbFiles.map((file, index) => {
+            return new Tab({
+              name: `Tab ${index + 1}`,
+              room: room._id,
+              ggbFile: file,
+              tabType: body.roomType,
+            })
+          })
+        } else {
+          tabModels = [new Tab({
+            name: 'Tab 1',
+            room: room._id,
+            desmosLink: body.desmosLink,
+            tabType: body.roomType,
+          })]
+        }
       }
-      // console.log('tab models: ', tabModels)
       room.tabs = tabModels.map(tab => tab._id);
       try {
         await tabModels.forEach(tab => tab.save()) // These could run in parallel I suppose but then we'd have to edit one if ther ewas a failuer with the other

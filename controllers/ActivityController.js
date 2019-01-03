@@ -30,17 +30,31 @@ module.exports = {
         catch(err) {reject(err)}
       }
       let createdActivity;
+      let ggbFiles = [...body.ggbFiles];
+      delete body.ggbFiles;
+
       db.Activity.create(body)
       .then(activity => {
         createdActivity = activity;
+
         if (!existingTabs) {
-          return db.Tab.create({
-            name: 'Tab 1',
-            activity: activity._id,
-            desmosLink: body.desmosLink,
-            ggbFile: body.ggbFile,
-            tabType: body.roomType,
-          })
+          if (Array.isArray(ggbFiles) && ggbFiles.length > 0) {
+            return Promise.all(ggbFiles.map((file, index) => {
+              return db.Tab.create({
+                name: `Tab ${index + 1}`,
+                activity: activity._id,
+                ggbFile: file,
+                tabType: body.roomType,
+              })
+            }))
+          } else {
+            return db.Tab.create({
+              name: 'Tab 1',
+              activity: activity._id,
+              desmosLink: body.desmosLink,
+              tabType: body.roomType,
+            })
+          }
         } else {
           return Promise.all(existingTabs.map(tab => {
             delete tab._id
