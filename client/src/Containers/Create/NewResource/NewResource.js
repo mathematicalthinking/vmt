@@ -22,6 +22,7 @@ import {
   copyActivity,
 } from '../../../store/actions/';
 import API from '../../../utils/apiRequests';
+import propertyOf from 'lodash/propertyOf';
 
 const imageThemes = [
   'frogideas', 'duskfalling',
@@ -71,7 +72,11 @@ class NewResourceContainer extends Component {
   uploadGgbFiles = () => {
     let files = this.state.ggbFiles;
     if (typeof files !== 'object' || files.length < 1)  {
-      return Promise.resolve([]);
+      return Promise.resolve({
+        data: {
+          result: []
+        }
+      });
     }
     let formData = new FormData();
 
@@ -101,7 +106,7 @@ class NewResourceContainer extends Component {
     }
     return this.uploadGgbFiles()
       .then((results) => {
-        if (results.data.result) {
+        if (results && results.data) {
           newResource.ggbFiles = results.data.result;
         }
         switch (resource) {
