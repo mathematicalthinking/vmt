@@ -102,5 +102,8 @@ export default {
   },
   getDesmos: url => {
     return axios.get(`/desmos?url=${url}`)
+  },
+  uploadGgbFiles: formData => {
+    return axios.post(`/api/upload/ggb`, formData)
   }
 }

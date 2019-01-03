@@ -65,7 +65,10 @@ class GgbGraph extends Component {
   }
 
   async componentDidUpdate(prevProps) {
-    if (!prevProps.inControl && this.props.inControl) {
+    let wasInControl = prevProps.room.controlledBy === this.props.user._id;
+    let isInControl = this.props.room.controlledBy === this.props.user._id;
+    let isSomeoneElseInControl = this.props.room.controlledBy && !isInControl;
+    if (!wasInControl && isInControl) {
       this.setState({switchingControl: true}, () => {
         this.ggbApplet.setMode(0)
         this.ggbApplet.showToolBar('"0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",')
@@ -77,8 +80,7 @@ class GgbGraph extends Component {
       })
 
     }
-    else if ((prevProps.inControl && !this.props.inControl )|| this.props.someoneElseInControl) {
-      console.log('GAVE UP CONTROL')
+    else if ((wasInControl && !isInControl )|| isSomeoneElseInControl) {
       this.ggbApplet.showToolBar(false)
       this.ggbApplet.setMode(40)
       this.freezeElements(true)
@@ -100,13 +102,32 @@ class GgbGraph extends Component {
       this.props.setToElAndCoords(null, position)
     }
     else if (prevProps.currentTab !== this.props.currentTab) {
-      if (this.props.room.tabs[this.props.currentTab].currentState !== '') {
-        setTimeout(this.ggbApplet.setXML(this.props.room.tabs[this.props.currentTab].currentState), 0)
+      let { currentState, startingPoint, ggbFile } = this.props.room.tabs[this.props.currentTab];
+
+      if (currentState) {
+        this.ggbApplet.setXML(currentState)
+        this.registerListeners();
+
+      } else if (startingPoint) {
+        this.ggbApplet.setXML(startingPoint)
+        this.registerListeners();
+
+      } else if (ggbFile) {
+        this.ggbApplet.setBase64(ggbFile, () => {
+        this.ggbApplet.showToolBar(true)
+        let updatedTabs = [...this.props.room.tabs]
+        let updatedTab = {...this.props.room.tabs[this.props.currentTab]}
+        updatedTab.currentState = this.ggbApplet.getXML();
+        updatedTabs[this.props.currentTab] = updatedTab;
+
+        this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
+
+       })
       }
       else {
-        setTimeout(this.ggbApplet.setXML(INITIAL_GGB), 0)
+        this.ggbApplet.setXML(INITIAL_GGB)
+        this.registerListeners();
       }
-      this.registerListeners();
     }
   }
 
@@ -172,16 +193,18 @@ class GgbGraph extends Component {
     this.setState({loading: false})
     this.ggbApplet.setMode(40) // Sets the tool to zoom
     let { user, room, currentTab } = this.props;
-    let { currentState } = room.tabs[currentTab];
+    let { currentState, startingPoint, ggbFile } = room.tabs[currentTab];
     // put the current construction on the graph, disable everything until the user takes control
     if (currentState) {
       this.ggbApplet.setXML(currentState)
-      this.freezeElements(true)
+    } else if (startingPoint) {
+      this.ggbApplet.setXML(startingPoint)
+    } else if (ggbFile) {
+      this.ggbApplet.setBase64(ggbFile);
     }
-
     // attach this listeners to the ggbApplet
+    this.freezeElements(true)
     this.registerListeners()
-
   }
 
   addListener = label => {
@@ -201,7 +224,8 @@ class GgbGraph extends Component {
   }
 
   updateListener = label => {
-    if (!this.props.inControl || this.state.switchingControl) {
+    let isInControl = this.props.room.controlledBy === this.props.user._id;
+    if (!isInControl || this.state.switchingControl) {
       return
     }
     else if (!this.state.receivingData) {
