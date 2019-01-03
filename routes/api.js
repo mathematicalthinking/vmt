@@ -3,6 +3,9 @@ const router = express.Router()
 const controllers = require('../controllers')
 const middleware = require('../middleware/api');
 const errors = require('../middleware/errors');
+const multer = require('multer');
+const multerMw = require('../middleware/multer');
+const _ = require('lodash');
 
 router.param('resource', middleware.validateResource)
 router.param('id', middleware.validateId);
@@ -59,6 +62,27 @@ router.get('/:resource/:id', middleware.validateUser, (req, res, next) => {
 			return errors.sendError.InternalError(msg, res)
 		})
 })
+
+const ggbUpload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: multerMw.ggbFileFilter,
+});
+
+router.post('/upload/ggb', middleware.validateUser, ggbUpload.array('ggbFiles', 10), (req, res, next) => {
+	let bufferFiles = req.files;
+
+	if (!Array.isArray(bufferFiles)) {
+		return res.json({result: []});
+	}
+	let base64Files = bufferFiles.map((fileObj) => {
+		let buffer = fileObj.buffer;
+		if (buffer) {
+			return buffer.toString('base64');
+		}
+	});
+	let compacted = _.compact(base64Files);
+	return res.json({result: compacted});
+});
 
 router.post('/:resource', middleware.validateUser, middleware.validateNewRecord, (req, res, next) => {
 	let controller = controllers[req.params.resource]
