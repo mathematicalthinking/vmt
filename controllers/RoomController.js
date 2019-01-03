@@ -171,7 +171,6 @@ module.exports = {
         })
       }
       else if (body.checkAccess) {
-        console.log('check access')
         let roomToPopulate;
         let fromUser;
         db.Room.findById(id)
@@ -196,7 +195,6 @@ module.exports = {
               return m.role === 'facilitator';
             });
             return Promise.all(facilitators.map((f) => {
-              console.log('creating notification for facilitator')
               return db.Notification.create({
                 resourceType: 'room',
                 resourceId: roomToPopulate._id,
@@ -280,7 +278,6 @@ module.exports = {
   // SOCKET METHODS
   addCurrentUsers: (roomId, newCurrentUserId, members) => {
     return new Promise(async (resolve, reject) => {
-      console.log(newCurrentUserId)
       // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
       let query = members ?
         {'$addToSet': {'currentMembers': newCurrentUserId, 'members': members}} :
@@ -289,7 +286,6 @@ module.exports = {
       .populate({path: 'currentMembers', select: 'username'})
       .select('currentMembers')
       .then(room => {
-        console.log("CURRENT MEMBERS: ", room.currentMembers)
         resolve(room)
       })
       .catch((err) =>  reject(err))

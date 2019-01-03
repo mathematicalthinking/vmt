@@ -14,7 +14,6 @@ const reducer = (state = initialState, action) => {
       let updatedIds;
       if (action.isNewRoom) {
         updatedIds = union([...state.allIds], [...action.allIds])
-        console.log("updatedIds: ", updatedIds)
       } else {
         updatedIds = action.allIds
       }
@@ -30,7 +29,6 @@ const reducer = (state = initialState, action) => {
     case actionTypes.UPDATED_ROOM:
       let updatedRoom = {...state.byId[action.roomId]}
       let fields = Object.keys(action.body)
-      console.log('ACTION.NODY: ', action.body)
       fields.forEach(field => {
         updatedRoom[field] = action.body[field]
       })

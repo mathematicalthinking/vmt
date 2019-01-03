@@ -78,7 +78,6 @@ class Workspace extends Component {
 
   initializeListeners(){
     socket.removeAllListeners(['USER_JOINED', 'USER_LEFT', 'TOOK_CONTROL', 'RELEASED_CONTROL', 'initializeListeners'])
-    console.log(socket._callbacks)
     // window.addEventListener("resize", this.updateReference);
     const { room, user} = this.props;
 

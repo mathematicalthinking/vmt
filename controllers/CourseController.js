@@ -156,7 +156,6 @@ module.exports = {
           let userIds = course.members.map(member => member.user);
           let promises = [db.User.update({_id: {$in: userIds}}, {$pull: {courses: course._id}}, {multi: true})]
           if (body.trashChildren) {
-            console.log('trashing children')
             promises.push(course.rooms.map(room => (
               db.Room.findById(room).then(room => {room.isTrashed = true; room.save()})
             )))

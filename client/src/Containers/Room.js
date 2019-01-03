@@ -180,7 +180,6 @@ class Room extends Component {
     this.setState({trashing: true})
   }
   render() {
-    console.log(this.props)
     let {
       room, match, user,
       notifications, error,

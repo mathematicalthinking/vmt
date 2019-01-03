@@ -21,7 +21,6 @@ class SocketProvider extends Component {
     initializedCount: 0
   }
   componentDidMount() {
-    console.log(socket.listeners())
     if (this.props.user.loggedIn) {
       // console.log(socket._callbacks)
       socket.removeAllListeners()
@@ -38,33 +37,25 @@ class SocketProvider extends Component {
 
   componentDidUpdate(prevProps) {
     if (!prevProps.user.loggedIn && this.props.user.loggedIn) {
-      // console.log(socket._callbacks)
-console.log("LISTENERS: ", socket.listeners)
       socket.removeAllListeners()
-      console.log("LISTENERS: ", socket.listeners)
-      console.log(socket._callbacks)
       this.initializeListeners();
     }
   }
 
   initializeListeners() {
-    console.log(this.state.initializedCount)
     this.setState({initializedCount: this.state.initializedCount + 1})
     let { socketId, _id } = this.props.user;
     socket.emit('CHECK_SOCKET', {socketId, _id }, (res, err) => {
       if (err) {
         //something went wrong updatnig user socket
-        console.log('err updating user socketId', err);
         // HOW SHOULD WE HANDLE THIS @TODO
         return
       }
       this.props.updateUser({connected: true})
-      console.log('checked socket', res);
     })
 
 
     socket.on('NEW_NOTIFICATION', data => {
-      console.log('new ntf')
       let { notification, course, room } = data;
       let type = notification.notificationType;
       let resource = notification.resourceType;
@@ -108,7 +99,6 @@ console.log("LISTENERS: ", socket.listeners)
   }
 
   componentWillUnmount() {
-    console.log('socket provider unmounted')
     socket.removeAllListeners()
   }
 
