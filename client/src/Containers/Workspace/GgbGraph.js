@@ -100,13 +100,32 @@ class GgbGraph extends Component {
       this.props.setToElAndCoords(null, position)
     }
     else if (prevProps.currentTab !== this.props.currentTab) {
-      if (this.props.room.tabs[this.props.currentTab].currentState !== '') {
-        setTimeout(this.ggbApplet.setXML(this.props.room.tabs[this.props.currentTab].currentState), 0)
+      let { currentState, startingPoint, ggbFile } = this.props.room.tabs[this.props.currentTab];
+
+      if (currentState) {
+        this.ggbApplet.setXML(currentState)
+        this.registerListeners();
+
+      } else if (startingPoint) {
+        this.ggbApplet.setXML(startingPoint)
+        this.registerListeners();
+
+      } else if (ggbFile) {
+       this.ggbApplet.setBase64(ggbFile, () => {
+        this.ggbApplet.showToolBar(true)
+        let updatedTabs = [...this.props.room.tabs]
+        let updatedTab = {...this.props.room.tabs[this.props.currentTab]}
+        updatedTab.currentState = this.ggbApplet.getXML();
+        updatedTabs[this.props.currentTab] = updatedTab;
+
+        this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
+
+       })
       }
       else {
-        setTimeout(this.ggbApplet.setXML(INITIAL_GGB), 0)
+        this.ggbApplet.setXML(INITIAL_GGB)
+        this.registerListeners();
       }
-      this.registerListeners();
     }
   }
 
@@ -172,16 +191,18 @@ class GgbGraph extends Component {
     this.setState({loading: false})
     this.ggbApplet.setMode(40) // Sets the tool to zoom
     let { user, room, currentTab } = this.props;
-    let { currentState } = room.tabs[currentTab];
+    let { currentState, startingPoint, ggbFile } = room.tabs[currentTab];
     // put the current construction on the graph, disable everything until the user takes control
     if (currentState) {
       this.ggbApplet.setXML(currentState)
-      this.freezeElements(true)
+    } else if (startingPoint) {
+      this.ggbApplet.setXML(startingPoint)
+    } else if (ggbFile) {
+      this.ggbApplet.setBase64(ggbFile);
     }
-
     // attach this listeners to the ggbApplet
+    this.freezeElements(true)
     this.registerListeners()
-
   }
 
   addListener = label => {

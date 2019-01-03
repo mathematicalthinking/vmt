@@ -19,14 +19,23 @@ class GgbActivityGraph extends Component{
     window.addEventListener("resize", this.updateDimensions);
   }
 
-  componentDidUpdate(prevProps){
+  componentDidUpdate(prevProps, prevState){
     if (prevProps.currentTab !== this.props.currentTab) {
-      if (this.props.tabs[this.props.currentTab].currentState !== '') {
-        setTimeout(this.ggbApplet.setXML(this.props.tabs[this.props.currentTab].currentState), 0)
-        this.registerListeners()
+      let { currentState, startingPoint, ggbFile } = this.props.tabs[this.props.currentTab];
+      if (currentState) {
+        this.ggbApplet.setXML(currentState)
+        this.registerListeners();
+      } else if (startingPoint) {
+       this.ggbApplet.setXML(startingPoint)
+       this.registerListeners();
+      } else if (ggbFile) {
+       this.ggbApplet.setBase64(ggbFile, () => {
+       this.ggbApplet.showToolBar(true)
+        this.getGgbState()
+       })
       }
       else {
-        setTimeout(this.ggbApplet.setXML(INITIAL_GGB), 0)
+        this.ggbApplet.setXML(INITIAL_GGB)
         this.registerListeners()
       }
     }
@@ -66,7 +75,7 @@ class GgbActivityGraph extends Component{
       catch (err) {
         // get the coords of its children
       }
-      // Get the element's location relative to the client Window 
+      // Get the element's location relative to the client Window
       let ggbCoords = this.graph.current.getBoundingClientRect();
       let construction = await this.parseXML(this.ggbApplet.getXML()) // IS THERE ANY WAY TO DO THIS WITHOUT HAVING TO ASYNC PARSE THE XML...
       let euclidianView = construction.geogebra.euclidianView[0]
@@ -78,13 +87,13 @@ class GgbActivityGraph extends Component{
       resolve({left: xOffset, top: yOffset})
     })
   }
-  
+
   onScriptLoad = () => {
     const parameters = {
       "id":"ggbApplet",
       // "scaleContainerClasse": "graph",
       "customToolBar": "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
-      "showToolBar": false,
+      "showToolBar": true,
       "showMenuBar": this.props.role === 'facilitator',
       "showAlgebraInput":true,
       "language": "en",
@@ -95,22 +104,29 @@ class GgbActivityGraph extends Component{
       // "appName":"whiteboard"
       "appletOnLoad": this.initializeGgb
     };
-    
+
     const ggbApp = new window.GGBApplet(parameters, '5.0');
     ggbApp.inject('ggb-element');
   }
-  
+
   initializeGgb = () => {
     this.ggbApplet = window.ggbApplet;
     this.setState({loading: false});
-    let { currentState } = this.props.tabs[this.props.currentTab];
+    let { currentState, startingPoint, ggbFile } = this.props.tabs[this.props.currentTab];
     if (currentState) {
       this.ggbApplet.setXML(currentState)
+    } else if (startingPoint) {
+      this.ggbApplet.setXML(startingPoint)
+    } else if (ggbFile) {
+      this.ggbApplet.setBase64(ggbFile);
     }
     if (this.props.role === 'participant') {
       this.ggbApplet.setMode(40)
-      this.ggbApplet.freezeElements(true)
-    } else this.registerListeners();
+      this.freezeElements(true)
+    } else {
+      this.freezeElements(true)
+      this.registerListeners();
+    }
     // put the current construction on the graph, disable everything until the user takes control
   }
 
@@ -144,7 +160,7 @@ class GgbActivityGraph extends Component{
       this.ggbApplet.setFixed(element, freeze, true) // Unfix/fix all of the elements
     })
   }
-  
+
   render() {
     return (
       <Aux>
