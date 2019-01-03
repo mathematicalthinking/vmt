@@ -154,7 +154,11 @@ module.exports = {
         .then(course => {
           updatedCourse = course;
           let userIds = course.members.map(member => member.user);
-          return db.User.update({_id: {$in: userIds}}, {$pull: {courses: course._id}}, {multi: true})
+          let promises = [db.User.update({_id: {$in: userIds}}, {$pull: {courses: course._id}}, {multi: true})]
+          if (body.trashChildren) {
+            promises.push(course.rooms.map(room => db.Room.update({})))
+          }
+          return Promise.all(promises)
         })
         .then(() => {
           resolve(updatedCourse)

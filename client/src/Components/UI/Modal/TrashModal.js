@@ -6,17 +6,27 @@ class TrashModal extends Component {
 
 
   trashResource = () => {
-    this.props.history.goBack()
+    this.props.history.push('/myVMT/courses');
     this.props.update(this.props.resourceId, {isTrashed: true})
+    this.props.closeModal()
+  }
+
+  trashResourceAndChildren = () => {
+    this.props.history.push('/myVMT/courses');
+    this.props.update(this.props.resourceId, {isTrashed: true, trashChildren: true})
     this.props.closeModal()
   }
 
   render() {
     return (
       <Modal show={this.props.show} closeModal={this.props.closeModal}>
-        <div>{`Are you sure you want to delete this ${this.props.resource}`}</div>
+        <div>{`Are you sure you want to delete this ${this.props.resource}`}?</div>
         <div className={classes.Row}>
-          <Button m={10} theme='Danger' click={this.trashResource}>Yes</Button>
+          <Button m={10} theme='Danger' click={this.trashResource}><i className="fas fa-trash-alt"></i> delete this {this.props.resource}</Button>
+          {this.props.resource === 'course'
+            ? <Button m={10} theme='Danger' click={this.trashResourceAndChildren}><i className="fas fa-trash-alt"></i> delete this course and all of its resources</Button>
+            : null
+          }
           <Button m={10} theme='Cancel' click={this.props.closeModal}>Cancel</Button>
         </div>
       </Modal>

@@ -26,7 +26,7 @@ const Room = new mongoose.Schema({
   image: {type: String,},
   graphImage: {type: ObjectId, ref: 'Image'},
   controlledBy: {type: ObjectId, ref: 'User', defaut: null},
-  wasNew: {type: Boolean},
+  // wasNew: {type: Boolean},
   isTrashed: { type: Boolean, default: false },
 },
 {timestamps: true});
@@ -39,6 +39,8 @@ Room.pre('save', function(next) {
 })
 
 Room.post('save', function (doc, next) {
+  console.log('p-s hook')
+  console.log(this.wasNew)
   if (this.wasNew && !this.tempRoom) {
     this.wasNew = false;
 
@@ -85,7 +87,9 @@ Room.post('save', function (doc, next) {
     })
     .catch(err => {console.log("ERROR: ", err); next(err)}) //@TODO WE NEED ERROR HANDLING HERE
   } else if (!this.wasNew) {
+    console.log('not new')
     this.modifiedPaths().forEach(field => {
+      console.log('field: ', field)
       if (field === 'members') {
         User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
           $addToSet: {rooms: this._id}
@@ -100,27 +104,19 @@ Room.post('save', function (doc, next) {
       } else if (field === 'currentMembers') {
         // console.log('current members modified what we can do with tha info...how do we tell WHO was added')
         // console.log(this)
+      } else if (field === 'isTrashed') {
+        console.log("post save hooks room = trashed")
+        let users = this.members.map(member => member.user)
+        console.log("USERS" , users )
+        User.update({_id: {$in: users}}, {$pull: {rooms: this._id}})
+        .then(() => next())
+        .catch(err => console.log(err))
       }
     })
   } else {
     next()
   }
 });
-
-Room.pre('remove', async function() {
-  const promises = []
-  if (this.course) {
-    promises.push(Course.findByIdAndUpdate(this.course, {$pull: {rooms: this._id}}))
-  }
-  promises.push(User.update({_id: {$in: this.members.map(member => member.user)}}, {
-    $pull: {
-      rooms: this._id,
-      'roomNotifications.access': {_id: this._id},
-      'roomNotications.newRoom': {_id: this._id}
-    }
-  }, {multi: true}))
-  await Promise.all(promises)
-})
 
 Room.methods.summary = function() {
   // @TODO ONLY RETURN THE ENTRY CODE IF THE CLIENT IS THE OWNER

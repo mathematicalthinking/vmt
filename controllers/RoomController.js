@@ -230,16 +230,16 @@ module.exports = {
       }
       else if (body.isTrashed) {
         let updatedRoom
-        db.Room.findByIdAndUpdate(id, body, {new: true})
-        .then(room => {
-          updatedRoom = room;
-          let userIds = room.members.map(member => member.user);
-          // delete this room from any courses
-          let promises = [db.User.update({_id: {$in: userIds}}, {$pull: {rooms: room._id}}, {multi: true})];
+        db.Room.findById(id)
+        .then(async room => {
+          room.isTrashed = true;
+          updatedRoom = await room.save()
+          // let userIds = room.members.map(member => member.user);
+          // // delete this room from any courses
+          // let promises = [db.User.update({_id: {$in: userIds}}, {$pull: {rooms: room._id}}, {multi: true})];
           if (room.course) {
-            promises.push(db.Course.findByIdAndUpdate(room.course, {$pull: {rooms: room._id}}))
-          }
-          return Promise.all(promises)
+            return db.Course.findByIdAndUpdate(room.course, {$pull: {rooms: room._id}})
+          } else (resolve(updatedRoom))
         })
         .then(() => {
           resolve(updatedRoom)
