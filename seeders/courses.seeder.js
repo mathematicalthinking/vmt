@@ -67,7 +67,8 @@ var data = [
     "creator": "5ba289ba7223b9429888b9b4", // jl-picard
     // "createdAt" : "2018-10-15T13:57:01.351Z",
     "__v": 0
-  },  {
+  },
+  {
     "_id": "5bbf4e5ec1b6d84cb0a4ded3",
     "activities": [],
     "rooms": [],
@@ -84,7 +85,48 @@ var data = [
     "creator": "5ba289ba7223b9429888b9b4", // jl-picard,
     // "createdAt" : "2018-10-16T13:57:01.351Z",
     "__v": 0
-  }
+  },
+  {
+
+    "_id" : "5c2e58db684f328cbca1d995",
+    "activities" : ["5c2e58e9684f328cbca1d99b"],
+    "rooms" : ["5c2e58e4684f328cbca1d99f"],
+    "privacySetting" : "public",
+    "isTrashed" : false,
+    "name" : "Deanna's course 1",
+    "description" : "",
+    "creator" : "5be1eba75854270cd0920faa",
+    "image" : "http://tinygraphs.com/labs/isogrids/hexa16/course 1?theme=duskfalling&numcolors=4&size=220&fmt=svg",
+    "members" : [
+        {
+            "user" : "5be1eba75854270cd0920faa",
+            "role" : "facilitator"
+        }
+    ],
+    "createdAt" : "2019-01-03T18:47:55.075Z",
+    "updatedAt" : "2019-01-03T18:48:13.112Z",
+    "__v" : 0
+  },
+  {
+  "_id" : "5c2e58db684f328cbca1d999",
+  "activities" : ["5c2e58e9684f328cbca1d99c"],
+  "rooms" : ["5c2e58e4684f328cbca1d99e"],
+  "privacySetting" : "public",
+  "isTrashed" : true,
+  "name" : "Deanna's course 2",
+  "description" : "",
+  "creator" : "5be1eba75854270cd0920faa",
+  "image" : "http://tinygraphs.com/labs/isogrids/hexa16/course 1?theme=duskfalling&numcolors=4&size=220&fmt=svg",
+  "members" : [
+      {
+          "user" : "5be1eba75854270cd0920faa",
+          "role" : "facilitator"
+      }
+  ],
+  "createdAt" : "2019-01-03T18:47:55.075Z",
+  "updatedAt" : "2019-01-03T18:48:13.112Z",
+  "__v" : 0
+}
 ];
 
 var CoursesSeeder = Seeder.extend({

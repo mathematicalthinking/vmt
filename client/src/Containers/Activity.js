@@ -159,11 +159,11 @@ class Activity extends Component {
                 additionalDetails={additionalDetails}
                 editButton={ this.state.owner
                   ? <Aux>
-                      <div role='button' style={{display: this.state.editing ? 'none' : 'block'}}  onClick={this.toggleEdit}>Edit Activity <i className="fas fa-edit"></i></div>
+                      <div role='button' style={{display: this.state.editing ? 'none' : 'block'}} data-testid='edit-activity'  onClick={this.toggleEdit}>Edit Activity <i className="fas fa-edit"></i></div>
                       {this.state.editing
                         ? <div>
                           <Button click={this.updateActivity} theme='edit-save'>Save</Button>
-                          <Button click={this.trashActivity} theme='Danger'><i className="fas fa-trash-alt"></i></Button>
+                          <Button data-testid='trash-activity' click={this.trashActivity} theme='Danger'><i className="fas fa-trash-alt"></i></Button>
                           <Button click={this.toggleEdit} theme='edit'>Cancel</Button>
                         </div>
                         : null

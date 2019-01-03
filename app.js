@@ -23,7 +23,7 @@ console.log("NODE_ENV=",process.env.NODE_ENV)
 // SETUP DATABASE & SESSION
 let mongoURI;
 if (process.env.NODE_ENV === 'dev') {
-  mongoURI = process.env.MONGO_DEV_URI
+  mongoURI = process.env.MONGO_DEV_URL
 } else if (process.env.NODE_ENV === 'production') {
   mongoURI = process.env.MONGO_PROD_URI
 } else if (process.env.NODE_ENV) {

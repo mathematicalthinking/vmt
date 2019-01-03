@@ -277,11 +277,11 @@ class Course extends Component {
                 accountType={user.accountType}
                 editButton={ this.state.owner
                   ? <Aux>
-                      <div role='button' style={{display: this.state.editing ? 'none' : 'block'}} onClick={this.toggleEdit}><span>Edit Course <i className="fas fa-edit"></i></span></div>
+                      <div role='button' style={{display: this.state.editing ? 'none' : 'block'}} data-testid='edit-course' onClick={this.toggleEdit}><span>Edit Course <i className="fas fa-edit"></i></span></div>
                       {this.state.editing
                         ? <div>
                             <Button click={this.updateCourse} theme='edit-save'>Save</Button>
-                            <Button click={this.trashCourse} theme='Danger'><i className="fas fa-trash-alt"></i></Button>
+                            <Button click={this.trashCourse} data-testid='trash-course' theme='Danger'><i className="fas fa-trash-alt"></i></Button>
                             <Button click={this.toggleEdit} theme='edit'>Cancel</Button>
                           </div>
                         : null
