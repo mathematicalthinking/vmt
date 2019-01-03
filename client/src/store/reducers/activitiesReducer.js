@@ -25,10 +25,13 @@ const reducer = (state = initialState, action) => {
     case actionTypes.LOGOUT:
       return initialState;
 
-    case actionTypes.REMOVE_ACTIVITY:
-      const updatedIds = state.allIds.filter(id => id !== action.activityId)
+    case actionTypes.REMOVE_ACTIVITIES:
+      const updatedIds = state.allIds.filter(id => !action.activityIds.includes(id))
       const updatedById = {...state.byId}
-      delete updatedById[action.activityId]
+      console.log(action.activityIds)
+      action.activityIds.forEach(id => {
+        delete updatedById[id]
+      })
       return {
         ...state,
         byId: updatedById,

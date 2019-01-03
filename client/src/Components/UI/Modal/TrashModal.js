@@ -12,7 +12,12 @@ class TrashModal extends Component {
   }
 
   trashResourceAndChildren = () => {
-    this.props.history.push('/myVMT/courses');
+    let hash = {
+      course: 'courses',
+      room: 'rooms',
+      activity: 'activities'
+    }
+    this.props.history.push(`/myVMT/${hash[this.props.resource]}`);
     this.props.update(this.props.resourceId, {isTrashed: true, trashChildren: true})
     this.props.closeModal()
   }

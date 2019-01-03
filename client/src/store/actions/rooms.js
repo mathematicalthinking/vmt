@@ -44,10 +44,10 @@ export const createdRoom = resp => {
   }
 }
 
-export const destroyRoom = id => {
+export const roomsRemoved = roomIds => {
   return {
-    type: actionTypes.DESTROY_ROOM,
-    id,
+    type: actionTypes.REMOVE_ROOMS,
+    roomIds,
   }
 }
 
@@ -114,7 +114,7 @@ export const updateRoom = (id, body) => {
     console.log("DISPATCHING")
     if (body.isTrashed) {
       dispatch(removeUserRooms([id]))
-      dispatch(destroyRoom(id))
+      dispatch(roomsRemoved([id]))
     } else {
       dispatch(updatedRoom(id, body)) // Optimistically update the UI
     }

@@ -1,10 +1,13 @@
 import * as actionTypes from './actionTypes';
 import {
   addUserCourses,
-  addUserCourseTemplates,
+  // addUserCourseTemplates,
   removeUserCourse,
   removeUserRooms,
-} from './user';
+  removeUserActivities,
+  activitiesRemoved,
+  roomsRemoved,
+} from './index';
 import { createdCourseTemplate } from './courseTemplates';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
@@ -126,8 +129,15 @@ export const updateCourseMembers = (courseId, updatedMembers) => {
 // }
 
 export const updateCourse = (id, body) => {
-  return dispatch => {
+  return (dispatch, getState) => {
     if (body.isTrashed) {
+      if (body.trashChildren) {
+        let { activities, rooms } = getState().courses.byId[id];
+        dispatch(removeUserActivities(activities))
+        dispatch(activitiesRemoved(activities))
+        dispatch(removeUserRooms(rooms))
+        dispatch(roomsRemoved(rooms))
+      }
       dispatch(removeUserCourse(id))
       dispatch(courseRemoved(id))
     } else {
@@ -194,7 +204,7 @@ export const createCourse = body => {
     API.post('courses', body)
     .then(res =>{
       if (body.template) {
-        dispatch(addUserCourseTemplates(res.data.result[1]._id))
+        // dispatch(addUserCourseTemplates(res.data.result[1]._id))
         // BUG THE ORDER HERE MATTERS. IF WE UPDATE USERCOURSES BEFORE COURSES THE getUserResource SELECTOR WILL FAIL
         // AND CAUSE THE COURSES COMPONENT TO ERROR
         dispatch(createdCourse(res.data.result[0]))
