@@ -34,13 +34,34 @@ const Room = new mongoose.Schema({
 Room.pre('save', function(next) {
   if (this.isNew) {
     this.wasNew = this.isNew
+    next();
+  } else {
+    this.modifiedPaths().forEach(field => {
+      if (field === 'members') {
+        User.findByIdAndUpdate(doc.members[this.members.length - 1].user, {
+          $addToSet: {rooms: doc._id}
+        }).then(user => {next()})
+        .catch(err => console.log(err))
+      } else if (field === 'tempRoom') {
+        User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}})
+        .then(res => {
+          next()
+        })
+        .catch(err => console.log(err))
+      } else if (field === 'currentMembers') {
+        // console.log('current members modified what we can do with tha info...how do we tell WHO was added')
+        // console.log(this)
+      } else if (field === 'isTrashed') {
+        let users = this.members.map(member => member.user)
+        User.update({_id: {$in: users}}, {$pull: {rooms: this._id}})
+        .then(() => next())
+        .catch(err => console.log(err))
+      }
+    })
   }
-  next();
 })
 
 Room.post('save', function (doc, next) {
-  console.log('p-s hook')
-  console.log(this.wasNew)
   if (this.wasNew && !this.tempRoom) {
     this.wasNew = false;
 
@@ -86,33 +107,6 @@ Room.post('save', function (doc, next) {
       next()
     })
     .catch(err => {console.log("ERROR: ", err); next(err)}) //@TODO WE NEED ERROR HANDLING HERE
-  } else if (!this.wasNew) {
-    console.log('not new')
-    this.modifiedPaths().forEach(field => {
-      console.log('field: ', field)
-      if (field === 'members') {
-        User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
-          $addToSet: {rooms: this._id}
-        }).then(user => {next()})
-        .catch(err => console.log(err))
-      } else if (field === 'tempRoom') {
-        User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}})
-        .then(res => {
-          next()
-        })
-        .catch(err => console.log(err))
-      } else if (field === 'currentMembers') {
-        // console.log('current members modified what we can do with tha info...how do we tell WHO was added')
-        // console.log(this)
-      } else if (field === 'isTrashed') {
-        console.log("post save hooks room = trashed")
-        let users = this.members.map(member => member.user)
-        console.log("USERS" , users )
-        User.update({_id: {$in: users}}, {$pull: {rooms: this._id}})
-        .then(() => next())
-        .catch(err => console.log(err))
-      }
-    })
   } else {
     next()
   }
