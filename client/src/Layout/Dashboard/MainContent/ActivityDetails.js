@@ -28,7 +28,7 @@ class ActivityDetails extends Component {
             </div>
           {owner
             ? <div>
-                <Button m={5} click={this.viewActivity}>View Activity</Button>
+                <Button m={5} click={this.viewActivity}>View/Edit Activity</Button>
                 <Button m={5} click={() => {this.setState({assigning: true})}} data-testid='assign'>Assign Activity</Button>
               </div>
             : null

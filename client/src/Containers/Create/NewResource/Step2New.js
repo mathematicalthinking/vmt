@@ -11,17 +11,23 @@ const Step2New = props => {
       <div>
       {props.ggb
         ? <div className={classes.Geogebra}>
-        <input type="file" multiple={true} name='ggbFile' accept='.ggb' onChange={props.setGgbFile}/>
+            <input type="file" id='file' multiple={true} name='ggbFile' accept='.ggb' onChange={props.setGgbFile}>
+            </input>
+            {/* <label for='file'>
+              <i className={["fas fa-file-upload", classes.UploadIcon].join(' ')}></i>
+              <p>click "Choose Files" or drag and drop files here.</p>
+            </label> */}
           </div>
         : <TextInput
-            light
-            name='desmosLink'
-            label='Paste a Desmos workspace'
-            change={this.changeHandler}
-            width='100%'
-            />
-          }
+        light
+        name='desmosLink'
+        label='Paste a Desmos workspace'
+        change={this.changeHandler}
+        width='100%'
+        />
+      }
       </div>
+      <p>(optional, click next if you wish to skip this step)</p>
     </div>
   )
 }
