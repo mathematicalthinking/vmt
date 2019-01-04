@@ -20,6 +20,7 @@
   /* border: .5px solid #ddd; */
   border-radius: 3px;
   box-shadow: lightShadow;
+  border: 1px solid orchid;
   /* position: relative; */
   /* color: white; */
   /* box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.28); */
@@ -66,6 +67,7 @@
   flex-grow: 0;
   width: 100%;
   overflow-y: scroll;
+  /* max-height: 100%; */
   flex: 0 1 100%;
 }
 

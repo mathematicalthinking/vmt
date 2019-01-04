@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { updateRoom, updatedRoom, populateRoom, setRoomStartingPoint, updateUser, addChatMessage } from '../../store/actions';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
-import { Modal, Aux } from '../../Components';
+import { GgbGraph, DesmosGraph, Chat } from './';
+import { Modal, Aux, CurrentMembers } from '../../Components';
 import NewTabForm from './NewTabForm'
 import socket from '../../utils/sockets';
 // import Replayer from ''
@@ -302,42 +303,61 @@ class Workspace extends Component {
 
   render() {
     const { room, user } = this.props;
+
+    let Graph;
+    let Bottom;
+    let currentMembers = <CurrentMembers members={room.currentMembers} activeMember={room.controlledBy} />
+    let tabs = []
+    // if (room.tabs[0].name) { // This checkes if tabs have been populated yet...if they haven't they won't have a name field
+    //   tabs = room.tabs.map((tab, i) => {
+    //     return (
+    //     <div key={tab._id} onClick={() => this.changeTab(i)} className={[classes.Tab, currentTab === i ? classes.Active : ''].join(" ")} style={{zIndex: room.tabs.length - i}} >
+    //       <div style={{zIndex: room.tabs.length - i}} className={classes.TabBox}><span className={classes.TabName}>{tab.name}</span></div>
+    //       {ntfTabs && ntfTabs.includes(tab._id) ? <div className={classes.TabNotification}><i className="fas fa-exclamation"></i></div> : null}
+    //     </div>
+    //     )
+    //   })
+    // }
+    // {role === 'facilitator' ? <div className={[classes.Tab, classes.NewTab].join(' ')}><div onClick={createNewTab}    className={classes.TabBox}><i className="fas fa-plus"></i></div></div> : null}
+    let chat = <Chat
+      roomId={room._id}
+      messages={room.chat || []}
+      // socket={socket}
+      user={user}
+      updatedRoom={this.props.updatedRoom}
+      referencing={this.state.referencing}
+      referToEl={this.state.referToEl}
+      referToCoords={this.state.referToCoords}
+      referFromEl={this.state.referFromEl}
+      referFromCoords={this.state.referFromCoords}
+      setToElAndCoords={this.setToElAndCoords}
+      setFromElAndCoords={this.setFromElAndCoords}
+      showingReference={this.state.showingReference}
+      clearReference={this.clearReference}
+      showReference={this.showReference}
+      currentTab={this.state.currentTab}
+    />
+
+    if (room.tabs[this.state.currentTab].tabType === 'desmos') {
+      Graph = <DesmosGraph room={room} user={user} resetControlTimer={this.resetControlTimer} currentTab={this.state.currentTab}/>
+    } else Graph = <GgbGraph room={room} user={user} updateRoom={this.props.updateRoom} resetControlTimer={this.state.resetControlTimer} currentTab={this.state.currentTab}/>
+
+    console.log(Graph, chat, tabs)
     return (
       <Aux>
-        {/* wait for room to be populated before trying to display it */}
-        {room.tabs[0].name ?<WorkspaceLayout
-          activeMember={room.controlledBy}
-          room={room}
-          user={user}
-          role={this.state.role}
-          currentTab={this.state.currentTab}
-          // socket={socket}
-          updateRoom={this.props.updateRoom}
-          updatedRoom={this.props.updatedRoom}
-          // inControl={this.state.inControl}
-          resetControlTimer={this.resetControlTimer}
-          toggleControl={this.toggleControl}
-          // someoneElseInControl={this.state.someoneElseInControl}
-          startNewReference={this.startNewReference}
-          referencing={this.state.referencing}
-          showReference={this.showReference}
-          showingReference={this.state.showingReference}
-          clearReference={this.clearReference}
-          referToEl={this.state.referToEl}
-          referToCoords={this.state.referToCoords}
-          referFromCoords={this.state.referFromCoords}
-          referFromEl={this.state.referFromEl}
-          setToElAndCoords={this.setToElAndCoords}
-          setFromElAndCoords={this.setFromElAndCoords}
-          createNewTab={this.createNewTab}
-          changeTab={this.changeTab}
-          addNtfToTabs={this.addNtfToTabs}
-          ntfTabs={this.state.activityOnOtherTabs}
-          toggleEdit={this.toggleEdit}
-          editing={this.state.editing}
-          setStartingPoint={this.setStartingPoint}
-          // populateRoom={this.props.populateRoom}
-        /> : null}
+        {room.tabs[0].name
+          ? <WorkspaceLayout
+              graph={Graph}
+              room={room}
+              user={user}
+              chat={chat}
+              tabs={tabs}
+              bottomRight={<div>bottom right</div>}
+              bottomLeft={<div>bottomLeft</div>}
+              currentMembers={currentMembers}
+            />
+          : null
+        }
         <Modal show={this.state.creatingNewTab} closeModal={this.closeModal}>
           <NewTabForm room={room} closeModal={this.closeModal} updatedRoom={this.props.updatedRoom}/>
         </Modal>
