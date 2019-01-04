@@ -65,7 +65,8 @@ class SocketProvider extends Component {
       if (type === 'newMember') {
         // add new member to room
         let actionName = `add${capitalize(resource)}Member`;
-        this.props[actionName](notification.resourceId, notification.fromUser);
+        let { _id, username } = notification.fromUser
+        this.props[actionName](notification.resourceId, {user: {_id, username,}, role: 'participant'});
       }
       if (course) {
         let normalizedCourse = normalize([course])

@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import Button from '../../../Components/UI/Button/Button';
-import TextInput from '../../../Components/Form/TextInput/TextInput';
-import Aux from '../../../Components/HOC/Auxil';
-import RadioBtn from '../../../Components/Form/RadioBtn/RadioBtn';
+import { Button, TextInput, Checkbox, Aux, RadioBtn } from '../../../Components';
 import classes from './makeRooms.css';
 import { createRoom } from '../../../store/actions';
 class MakeRooms extends Component  {
@@ -39,8 +36,8 @@ class MakeRooms extends Component  {
     this.setState({dueDate: event.target.value})
   }
 
-  selectParticipant = (event, data) => {
-    let newParticipant = event.target.id;
+  selectParticipant = (event, userId) => {
+    let newParticipant = userId;
     let updatedParticipants = [...this.state.selectedParticipants];
     // if user is in list, remove them.
     if (updatedParticipants.includes(newParticipant)) {
@@ -120,13 +117,25 @@ class MakeRooms extends Component  {
     let participantList = this.state.remainingParticipants.map((participant, i) => {
       let rowClass = (i%2 === 0) ? [classes.EvenParticipant, classes.Participant].join(' ') : classes.Participant;
       rowClass = this.state.selectedParticipants.includes(participant.user._id) ? [rowClass, classes.Selected].join(' ') : rowClass;
+      // console.log(participant.user._id)
       return (
-        <div
-          className={rowClass}
-          key={i}
-          id={participant.user._id}
-          onClick={this.selectParticipant}
-        >{i+1}. {participant.user.username}</div>)
+        <div className={rowClass} key={participant.user._id} id={participant.user._id}>
+          <Checkbox
+            label={`${i+1}. ${participant.user.username}`}
+            change={this.selectParticipant}
+            dataId={participant.user._id}
+            checked = {this.state.selectedParticipants.indexOf(participant.user._id) > -1}
+          >
+          {`${i+1}. ${participant.user.username}`}
+          </Checkbox>
+        </div>
+        // <div
+        //   className={rowClass}
+        //   key={participant.user_id}
+        //   id={participant.user._id}
+        //   onClick={this.selectParticipant}
+        // >{i+1}. {participant.user.username}</div>
+        )
     })
     return (
       <Aux>

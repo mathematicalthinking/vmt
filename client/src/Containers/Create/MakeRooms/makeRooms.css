@@ -33,7 +33,7 @@
   display: flex;
   flex-flow: column;
   align-items: flex-start;
-  max-height: 300px;
+  max-height: 100px;
   overflow-y: scroll;
   width: 100%;
 }
@@ -43,11 +43,10 @@
   padding: 7px;
   width: 100%;
   text-align: left;
-  cursor: pointer;
 }
 
 .Participant:hover {
-  color: blue;
+  color: #999;
 }
 
 .Button {
@@ -56,7 +55,7 @@
 }
 
 .Selected {
-  color: #999;
+  color: blue;
 }
 
 .EvenParticipant {
