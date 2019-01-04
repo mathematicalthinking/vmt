@@ -36,10 +36,8 @@ class MakeRooms extends Component  {
     this.setState({dueDate: event.target.value})
   }
 
-  selectParticipant = (event, data) => {
-    console.log('checked')
-    let newParticipant = event.target.id;
-    console.log(event.target)
+  selectParticipant = (event, userId) => {
+    let newParticipant = userId;
     let updatedParticipants = [...this.state.selectedParticipants];
     // if user is in list, remove them.
     if (updatedParticipants.includes(newParticipant)) {
@@ -119,13 +117,13 @@ class MakeRooms extends Component  {
     let participantList = this.state.remainingParticipants.map((participant, i) => {
       let rowClass = (i%2 === 0) ? [classes.EvenParticipant, classes.Participant].join(' ') : classes.Participant;
       rowClass = this.state.selectedParticipants.includes(participant.user._id) ? [rowClass, classes.Selected].join(' ') : rowClass;
-      console.log(this.state.selectedParticipants.indexOf(participant.user._id) > -1)
+      // console.log(participant.user._id)
       return (
-        <div className={rowClass} key={participant.user._id} onClick={this.selectParticipant} id={participant.user._id}>
+        <div className={rowClass} key={participant.user._id} id={participant.user._id}>
           <Checkbox
             label={`${i+1}. ${participant.user.username}`}
             change={this.selectParticipant}
-            id={participant.user._id}
+            dataId={participant.user._id}
             checked = {this.state.selectedParticipants.indexOf(participant.user._id) > -1}
           >
           {`${i+1}. ${participant.user.username}`}
