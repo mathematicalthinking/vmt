@@ -23,6 +23,10 @@ class Workspace extends Component {
     role: 'participant',
     creatingNewTab: false,
     activityOnOtherTabs: [],
+    chatExpanded: true,
+    membersExpanded: true,
+    instructionsExpanded: true,
+
   }
 
   componentDidMount() {
@@ -301,12 +305,18 @@ class Workspace extends Component {
     this.props.setRoomStartingPoint(this.props.room._id)
   }
 
+  toggleExpansion = (element) => {
+    this.setState(prevState => ({
+      [`${element}Expanded`]: !prevState[`${element}Expanded`]
+    }))
+  }
+
   render() {
     const { room, user } = this.props;
 
     let Graph;
     let Bottom;
-    let currentMembers = <CurrentMembers members={room.currentMembers} activeMember={room.controlledBy} />
+    let currentMembers = <CurrentMembers members={room.currentMembers} activeMember={room.controlledBy} expanded={this.state.membersExpanded} toggleExpansion={this.toggleExpansion}/>
     let tabs = []
     // if (room.tabs[0].name) { // This checkes if tabs have been populated yet...if they haven't they won't have a name field
     //   tabs = room.tabs.map((tab, i) => {
@@ -336,6 +346,8 @@ class Workspace extends Component {
       clearReference={this.clearReference}
       showReference={this.showReference}
       currentTab={this.state.currentTab}
+      expanded={this.state.chatExpanded}
+      toggleExpansion={this.toggleExpansion}
     />
 
     if (room.tabs[this.state.currentTab].tabType === 'desmos') {
@@ -355,6 +367,9 @@ class Workspace extends Component {
               bottomRight={<div>bottom right</div>}
               bottomLeft={<div>bottomLeft</div>}
               currentMembers={currentMembers}
+              chatExpanded={this.state.chatExpanded}
+              membersExpanded={this.state.membersExpanded}
+              instructionsExpanded={this.state.instructionsExpanded}
             />
           : null
         }

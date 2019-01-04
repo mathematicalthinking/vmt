@@ -38,8 +38,9 @@ const WorkspaceLayout = React.memo((props) => {
           </div>
         </div>
         <div className={classes.Right}>
-          <div className={classes.Chat} style={{height: '70%'}}>{chat}</div>
+          <div className={classes.Chat} style={{height: props.chatExpanded ? '63%' : 'auto'}}>{chat}</div>
           <div className={classes.Members}>{currentMembers}</div>
+          <div className={classes.BottomRight}>Bottom right</div>
         </div>
           {/* <div></div>{bottomRight} */}
       </div>

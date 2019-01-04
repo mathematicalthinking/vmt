@@ -2,14 +2,12 @@ import React, { Component } from 'react';
 import classes from './currentMembers.css';
 import Avatar from '../UI/Avatar/Avatar';
 class CurrentMembers extends Component {
-  state = {
-    expanded: true
-  }
+  // state = {
+  //   expanded: true
+  // }
 
   toggleCollapse = () => {
-    this.setState({
-      expanded: !this.state.expanded
-    });
+    this.props.toggleCollaps('members')
   }
 
   render() {
@@ -22,7 +20,7 @@ class CurrentMembers extends Component {
             {members.length}
           </div>
         </div>
-        <div className={(this.state.expanded ? classes.Expanded : classes.Collapsed)} data-testid='current-members'>
+        <div className={(this.props.expanded ? classes.Expanded : classes.Collapsed)} data-testid='current-members'>
           {members ? members.map(user =>
             <div
               className={[classes.Avatar, (user._id === activeMember ? classes.Active : classes.Passive)].join(" ")}

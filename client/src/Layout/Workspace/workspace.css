@@ -240,7 +240,13 @@
   margin: 10px 0;
   /* border-radius: 5px; */
   order: 2;
-  flex: .25 1 auto;
+  flex: 0 1 auto;
+}
+
+.BottomRight {
+  order: 3;
+  flex: 0 1 auto;
+  border: 1px solid brown;
 }
 
 .Replayer {
