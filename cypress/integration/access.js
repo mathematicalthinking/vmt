@@ -10,6 +10,7 @@ describe('test access requests', function(){
   // COURSE
   it("user2 requests access to course 1", function(){
     cy.contains('Community').click()
+    cy.wait(1000)
     cy.url().should('include', 'community/activities')
     cy.contains('Courses').click()
     cy.url().should('include', 'community/courses')
@@ -20,6 +21,7 @@ describe('test access requests', function(){
   it("user3 requests access to course 1", function(){
     cy.login(user3)
     cy.contains('Community').click()
+    cy.wait(1000)
     cy.url().should('include', 'community/activities')
     cy.contains('Courses').click()
     cy.url().should('include', 'community/courses')
@@ -166,10 +168,10 @@ describe('test access requests', function(){
   it('user2 joins a room by entering entry-code', function(){
     cy.login(user2)
     cy.contains('Community').click()
+    cy.wait(500)
     cy.url().should('include', 'community/activities')
     cy.contains('Rooms').click()
     cy.url().should('include', 'community/rooms')
-    cy.wait(500)
     cy.getTestElement('content-box-room 1').click()
     cy.get('#entryCode').type('{selectall} {backspace}').type('rare-shrimp-45')
     cy.contains('Join').click()
@@ -197,6 +199,7 @@ describe('test access requests', function(){
   it('user fails to join with wrong entry code (room)', function(){
     cy.login(user2)
     cy.contains('Community').click()
+    cy.wait(1000)
     cy.url().should('include', 'community/activities')
     cy.contains('Rooms').click()
     cy.url().should('include', 'community/rooms')
