@@ -44,10 +44,10 @@ export const createdRoom = resp => {
   }
 }
 
-export const destroyRoom = id => {
+export const roomsRemoved = roomIds => {
   return {
-    type: actionTypes.DESTROY_ROOM,
-    id,
+    type: actionTypes.REMOVE_ROOMS,
+    roomIds,
   }
 }
 
@@ -111,7 +111,12 @@ export const createRoomFromActivity = (activityId, userId, dueDate, courseId) =>
 
 export const updateRoom = (id, body) => {
   return dispatch => {
-    dispatch(updatedRoom(id, body)) // Optimistically update the UI
+    if (body.isTrashed) {
+      dispatch(removeUserRooms([id]))
+      dispatch(roomsRemoved([id]))
+    } else {
+      dispatch(updatedRoom(id, body)) // Optimistically update the UI
+    }
     API.put('rooms', id, body)
     .then(res => {
     })
@@ -163,6 +168,7 @@ export const getRooms = params => {
 export const getRoom = id => {
   return dispatch => {
     dispatch(loading.start())
+    console.log("ID: ", id)
     API.getById('rooms', id)
     .then(res => {
       dispatch(updatedRoom(id, res.data.result))

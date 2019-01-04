@@ -72,10 +72,10 @@ export const addActivityRooms = (activityId, roomIdsArr) => {
     }
 }
 
-export const activityRemoved = (activityId) => {
+export const activitiesRemoved = (activityIds) => {
   return {
-    type: actionTypes.REMOVE_ACTIVITY,
-    activityId,
+    type: actionTypes.REMOVE_ACTIVITIES,
+    activityIds,
   }
 }
 
@@ -154,7 +154,7 @@ export const removeActivity = activityId => {
     .then(res => {
       dispatch(removeUserActivities([activityId]))
       dispatch(removeCourseActivities(res.data.result.course, [activityId]))
-      dispatch(activityRemoved(activityId))
+      dispatch(activitiesRemoved([activityId]))
       dispatch(loading.success())
     })
     .catch(err => dispatch(loading.fail(err.response.data.errorMessage)))
@@ -164,7 +164,12 @@ export const removeActivity = activityId => {
 
 export const updateActivity = (id, body) => {
   return dispatch => {
-    dispatch(updatedActivity(id, body)) // THIS ONE's OPTIMISITC
+    if (body.isTrashed) {
+      dispatch(removeUserActivities([id]))
+      dispatch(activitiesRemoved([id]))
+    } else {
+      dispatch(updatedActivity(id, body)) // THIS ONE's OPTIMISITC
+    }
     dispatch(loading.start())
     API.put('activities', id, body)
     .then(res => {

@@ -82,6 +82,22 @@ var data = [
     "lastName": "son of Mogh",
     "password": "$2b$12$jNGkh.0hKAN1BRPUjScjCOE17yO9SkOV6rLdIO6DhAMsHQM28nfJi",
     "accountType": "facilitator",
+  },
+  {
+    "_id": "5be1eba75854270cd0920faa",
+    "notifications": [],
+    "courseTemplates": [],
+    "courses": ["5c2e58db684f328cbca1d995", "5c2e58db684f328cbca1d999"],
+    "rooms": ["5c2e58e4684f328cbca1d997", "5c2e58e4684f328cbca1d99f", "5c2e58e4684f328cbca1d99e"],
+    "activities": ["5c2e58e9684f328cbca1d99b", "5c2e58e9684f328cbca1d99c", "5c2e58e9684f328cbca1d99a"],
+    "isAdmin": false,
+    "seenTour": false,
+    "username": "D-troi",
+    "email": "worf@example.com",
+    "firstName": "Deanna",
+    "lastName": "Troi",
+    "password": "$2b$12$PltCtaDCtpD.WakNZ8GUmOfX7kcisuA.PbGLM6HKGAdrkhuIQMzAy",
+    "accountType": "facilitator",
   }
 ];
 

@@ -11,7 +11,7 @@ import {
   clearError,
   clearNotification,
   updateRoom,
-  getRooms,
+  getRoom,
 } from '../store/actions';
 import {
   Aux,
@@ -20,6 +20,7 @@ import {
   BreadCrumbs,
   TabList,
   EditText,
+  TrashModal,
 } from '../Components';
 import Access from './Access';
 // import PublicAccessModal from '../Components/UI/Modal/PublicAccess'
@@ -41,6 +42,7 @@ class Room extends Component {
     entryCode: this.props.room ? this.props.room.entryCode : null,
     instructions: this.props.room ? this.props.room.instructions : null,
     privacySetting: this.props.room ? this.props.room.privacySetting : null,
+    trashing: false,
 
   }
 
@@ -98,12 +100,15 @@ class Room extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    if (!this.props.room) {
+      return;
+    }
     // If we just fetched the room now check access
     if (!prevProps.room && this.props.room) {
       this.checkAccess();
     }
     // THESE ARE SUSCEPTIBLE TO ERRORS BECAUSE YOU COULD GAIN AND LOSE TWO DIFFERENT NTFS IN A SINGLE UPDATE POTENTIALLY? ACTUALLY COULD YOU?
-    if (prevProps.room && prevProps.room.members.length !== this.props.room.members.length) {
+    if (prevProps.room && this.props.room && prevProps.room.members.length !== this.props.room.members.length) {
       this.checkAccess();
     }
     if (prevProps.notifications.length !== this.props.notifications.length) {
@@ -168,10 +173,13 @@ class Room extends Component {
   }
 
   fetchRoom = () => {
-    this.props.getRooms({_id: this.props.match.params.resource_id});
+    this.props.getRoom(this.props.match.params.room_id);
+  }
+
+  trashRoom = () => {
+    this.setState({trashing: true})
   }
   render() {
-
     let {
       room, match, user,
       notifications, error,
@@ -254,9 +262,13 @@ class Room extends Component {
                 }
                 editButton={ this.state.owner
                   ? <Aux>
-                      <div role='button' style={{display: this.state.editing ? 'none' : 'block'}}  onClick={this.toggleEdit}>Edit Room <i className="fas fa-edit"></i></div>
+                      <div role='button' style={{display: this.state.editing ? 'none' : 'block'}} data-testid="edit-room" onClick={this.toggleEdit}>Edit Room <i className="fas fa-edit"></i></div>
                       {this.state.editing
-                        ? <div><Button click={this.updateRoom} theme='edit-save'>Save</Button> <Button click={this.toggleEdit} theme='edit'>Cancel</Button></div>
+                        ? <div>
+                            <Button click={this.updateRoom} theme='edit-save'>Save</Button>
+                            <Button click={this.trashRoom} data-testid='trash-room' theme='Danger'><i className="fas fa-trash-alt"></i></Button>
+                            <Button click={this.toggleEdit} theme='edit'>Cancel</Button>
+                          </div>
                         : null
                       }
                     </Aux>
@@ -268,11 +280,22 @@ class Room extends Component {
             tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
           />
           {this.state.firstView
-            ? <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
+            ? <Modal show={this.state.firstView} close={() => this.setState({firstView: false })} history={this.props.history}>
             <p>Welcome to {room.name}. If this is your first time joining a room,
             we recommend you take a tour. Otherwise you can start exploring this room's features.</p>
             <Button data-testid='explore-room' click={() => this.setState({firstView: false})}>Explore</Button>
           </Modal> : null}
+          {this.state.trashing
+            ? <TrashModal
+              resource='room'
+              resourceId={room._id}
+              update={this.props.updateRoom}
+              show={this.state.trashing}
+              closeModal={() => {this.setState({trashing: false})}}
+              history={this.props.history}
+              />
+            : null
+          }
         </Aux>
       )
     } else return (
@@ -302,4 +325,4 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification, updateRoom, getRooms})(Room);
+export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification, updateRoom, getRoom})(Room);

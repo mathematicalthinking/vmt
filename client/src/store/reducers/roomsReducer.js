@@ -1,5 +1,6 @@
 import * as actionTypes from '../actions/actionTypes';
 import merge from 'lodash/merge';
+import union from 'lodash/union';
 const initialState = {
   byId: {},
   allIds: [],
@@ -12,7 +13,7 @@ const reducer = (state = initialState, action) => {
       let updatedRooms = merge({...state.byId}, action.byId)
       let updatedIds;
       if (action.isNewRoom) {
-        updatedIds = [...state.allIds, ...action.allIds]
+        updatedIds = union([...state.allIds], [...action.allIds])
       } else {
         updatedIds = action.allIds
       }
@@ -28,7 +29,6 @@ const reducer = (state = initialState, action) => {
     case actionTypes.UPDATED_ROOM:
       let updatedRoom = {...state.byId[action.roomId]}
       let fields = Object.keys(action.body)
-      console.log('ACTION.NODY: ', action.body)
       fields.forEach(field => {
         updatedRoom[field] = action.body[field]
       })
@@ -124,15 +124,18 @@ const reducer = (state = initialState, action) => {
         },
       }
 
-    case actionTypes.REMOVE_ROOM:
-      updatedRooms = {...state.byId}
-      delete updatedRooms[action.id]
-      let updatedRoomIds = state.allIds.filter(id => id !== action.id)
+    case actionTypes.REMOVE_ROOMS:
+      updatedIds = state.allIds.filter(id => !action.roomIds.includes(id))
+      let updatedById = {...state.byId}
+      action.roomIds.forEach(id => {
+        delete updatedById[id]
+      })
       return {
         ...state,
-        byId: updatedRooms,
-        allIds: updatedRoomIds,
+        byId: updatedById,
+        allIds: updatedIds,
       }
+
 
     case actionTypes.CREATE_ROOM_CONFIRMED:
       return {

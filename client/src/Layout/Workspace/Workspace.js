@@ -15,9 +15,9 @@ import {
 
 const workspaceLayout = React.memo(({
   room, user, socket, currentTab, role,
-  resetControlTimer, inControl, toggleControl,
+  resetControlTimer, toggleControl,
   replayer, activeMember, temp,
-  save, someoneElseInControl, history,
+  save, history,
   saved, updateRoom, updatedRoom,
   startNewReference, showReference,
   referencing, showingReference,setToElAndCoords,
@@ -29,7 +29,11 @@ const workspaceLayout = React.memo(({
 
   // Set text for taking control button based on current control
   let controlText = 'Take Control';
-  if (activeMember === user._id) controlText = 'Release Control';
+  let inControl = false;
+  if (activeMember === user._id) {
+    controlText = 'Release Control';
+    inControl = true;
+  }
   else if (activeMember) controlText = 'Request Control';
 
 

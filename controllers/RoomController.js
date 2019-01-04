@@ -37,6 +37,7 @@ module.exports = {
       .populate({path: 'tabs', populate: {path: 'events'}})
       .populate({path: 'graphImage', select: 'imageData'})
       .then(room => {
+
         resolve(room)
       })
       .catch(err => reject(err))
@@ -186,7 +187,6 @@ module.exports = {
 
             room.members.push({user: userId, role: 'participant'})
             return room.save()
-
           })
           .then((updatedRoom) => {
             // create notifications
@@ -211,7 +211,9 @@ module.exports = {
               resolve(roomToPopulate)
             })
           })
-          .catch((err) => reject(err))
+          .catch((err) => {
+            reject(err)
+          })
       }
       else if (Object.keys(body)[0] === 'tempRoom') {
         db.Room.findById(id)
@@ -227,11 +229,34 @@ module.exports = {
           }
         })
       }
+      else if (body.isTrashed) {
+        let updatedRoom;
+        db.Room.findById(id)
+        .then(async room => {
+          room.isTrashed = true;
+          try {
+            updatedRoom = await room.save()
+          } catch(err) {reject(err)}
+          // let userIds = room.members.map(member => member.user);
+          // // delete this room from any courses
+          // let promises = [db.User.update({_id: {$in: userIds}}, {$pull: {rooms: room._id}}, {multi: true})];
+          if (room.course) {
+            return db.Course.findByIdAndUpdate(room.course, {$pull: {rooms: room._id}})
+          } else (resolve(updatedRoom))
+        })
+        .then(() => {
+          resolve(updatedRoom)
+        })
+        .catch(err => reject(err))
+      }
       else {
         db.Room.findByIdAndUpdate(id, body, {new: true})
         .populate('currentMembers.user members.user', 'username')
         .populate('chat') // this seems random
-        .then(res => resolve(res)).catch(err =>{
+        .then(res => resolve(res)).catch(err => {
+          if (body.isTrashed) {
+            res
+          }
           reject(err)
         })
         .catch(err => reject(err))
@@ -253,7 +278,6 @@ module.exports = {
   // SOCKET METHODS
   addCurrentUsers: (roomId, newCurrentUserId, members) => {
     return new Promise(async (resolve, reject) => {
-      console.log(newCurrentUserId)
       // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
       let query = members ?
         {'$addToSet': {'currentMembers': newCurrentUserId, 'members': members}} :
@@ -262,7 +286,6 @@ module.exports = {
       .populate({path: 'currentMembers', select: 'username'})
       .select('currentMembers')
       .then(room => {
-        console.log("CURRENT MEMBERS: ", room.currentMembers)
         resolve(room)
       })
       .catch((err) =>  reject(err))

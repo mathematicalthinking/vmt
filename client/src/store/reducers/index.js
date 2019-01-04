@@ -20,16 +20,16 @@ const rootReducer = combineReducers({
 
 export default rootReducer;
 
-// Selector functions (prepare Data for the UI) 
+// Selector functions (prepare Data for the UI)
 export const getUserResources = (state, resource) => {
-  if (state[resource].allIds.length > 0) {
+  if (state[resource].allIds && state[resource].allIds.length > 0) {
     return state.user[resource].reduce((acc, cur) => {
       // Only get resources that are stand alone (i.e. not belonging to a course)
       let popRec = state[resource].byId[cur];
       if (resource === 'courses' || (resource !== 'courses' && popRec && !popRec.course)) {
         acc.push(popRec)
       }
-      return acc;  
+      return acc;
     }, [])
   }
   return undefined;

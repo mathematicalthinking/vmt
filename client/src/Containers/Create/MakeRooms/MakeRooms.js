@@ -55,7 +55,6 @@ class MakeRooms extends Component  {
   // NOW THAT WE HAVE A CREATEROOMFROMACTIVITY ACTION THINK ABOUT REFACTORING ALL OF THIS
   // TO UTILIZE THAT FUNCTIONALITY
   submit = () => {
-    console.log('submitted')
     let { _id, name, description, roomType, desmosLink, ggbFile, image, instructions, tabs, } = this.props.activity;
     let newRoom = {
       activity: _id,
@@ -76,7 +75,6 @@ class MakeRooms extends Component  {
       members.push({user: this.props.userId, role: 'facilitator'})
       newRoom.name = `${name} (room ${this.state.roomsCreated + 1})`;
       newRoom.members = members;
-      console.log("NEW ROOM: ", newRoom)
       this.props.createRoom(newRoom)
 
       let remainingParticipants = this.state.remainingParticipants.filter(participant => {

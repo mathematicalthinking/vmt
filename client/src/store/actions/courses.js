@@ -1,10 +1,13 @@
 import * as actionTypes from './actionTypes';
 import {
   addUserCourses,
-  addUserCourseTemplates,
+  // addUserCourseTemplates,
   removeUserCourse,
   removeUserRooms,
-} from './user';
+  removeUserActivities,
+  activitiesRemoved,
+  roomsRemoved,
+} from './index';
 import { createdCourseTemplate } from './courseTemplates';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
@@ -107,27 +110,39 @@ export const updateCourseMembers = (courseId, updatedMembers) => {
   }
 }
 
-export const removeCourse = courseId => {
-  return dispatch => {
-    dispatch(loading.start())
-    API.remove('courses', courseId)
-    .then(res => {
-      // remove course from user
-      dispatch(removeUserCourse(courseId))
-        // remove courseRooms from user
-        dispatch(removeUserRooms)
-        // remove courseActivities from user
-        // remove courseRooms
-        // remove courseActivities
-      dispatch(courseRemoved(courseId))
-      return dispatch(loading.success())
-    })
-  }
-}
+// export const removeCourse = courseId => {
+//   return dispatch => {
+//     dispatch(loading.start())
+//     API.remove('courses', courseId)
+//     .then(res => {
+//       // remove course from user
+//       dispatch(removeUserCourse(courseId))
+//         // remove courseRooms from user
+//         dispatch(removeUserRooms)
+//         // remove courseActivities from user
+//         // remove courseRooms
+//         // remove courseActivities
+//       dispatch(courseRemoved(courseId))
+//       return dispatch(loading.success())
+//     })
+//   }
+// }
 
 export const updateCourse = (id, body) => {
-  return dispatch => {
-    dispatch(updatedCourse(id, body))
+  return (dispatch, getState) => {
+    if (body.isTrashed) {
+      if (body.trashChildren) {
+        let { activities, rooms } = getState().courses.byId[id];
+        dispatch(removeUserActivities(activities))
+        dispatch(activitiesRemoved(activities))
+        dispatch(removeUserRooms(rooms))
+        dispatch(roomsRemoved(rooms))
+      }
+      dispatch(removeUserCourse(id))
+      dispatch(courseRemoved(id))
+    } else {
+      dispatch(updatedCourse(id, body))
+    }
     API.put('courses', id, body)
     .then(res => {
       console.log(res)
@@ -189,7 +204,7 @@ export const createCourse = body => {
     API.post('courses', body)
     .then(res =>{
       if (body.template) {
-        dispatch(addUserCourseTemplates(res.data.result[1]._id))
+        // dispatch(addUserCourseTemplates(res.data.result[1]._id))
         // BUG THE ORDER HERE MATTERS. IF WE UPDATE USERCOURSES BEFORE COURSES THE getUserResource SELECTOR WILL FAIL
         // AND CAUSE THE COURSES COMPONENT TO ERROR
         dispatch(createdCourse(res.data.result[0]))

@@ -2,6 +2,7 @@
   blue: blue;
   orange: orange;
   darkOrange: darkOrange;
+  red: red;
   darkGrey: darkGrey;
   lightestShadow: lightestShadow;
   lightShadow: lightShadow;
@@ -142,4 +143,9 @@
 .Disabled {
   color: #333;
   background: #999;
+}
+
+.Danger {
+  color: white;
+  background: red;
 }

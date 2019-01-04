@@ -78,7 +78,6 @@ class Workspace extends Component {
 
   initializeListeners(){
     socket.removeAllListeners(['USER_JOINED', 'USER_LEFT', 'TOOK_CONTROL', 'RELEASED_CONTROL', 'initializeListeners'])
-    console.log(socket._callbacks)
     // window.addEventListener("resize", this.updateReference);
     const { room, user} = this.props;
 
@@ -122,7 +121,6 @@ class Workspace extends Component {
     })
 
     socket.on('TOOK_CONTROL', message => {
-      console.log("TOOK CONMTROL", message)
       this.props.addChatMessage(this.props.room._id, message)
       this.props.updatedRoom(room._id, {controlledBy: message.user._id})
     })
@@ -161,18 +159,6 @@ class Workspace extends Component {
     })
     let updatedTabs = this.state.activityOnOtherTabs.filter(tab => tab !== this.props.room.tabs[index]._id)
     this.setState({currentTab: index, activityOnOtherTabs: updatedTabs})
-  }
-
-  takeControl = () => {
-
-  }
-
-  releaseControl = () => {
-
-  }
-
-  requestControl = () => {
-
   }
 
   toggleControl = () => {
@@ -230,7 +216,10 @@ class Workspace extends Component {
 
   resetControlTimer = () => {
     clearTimeout(this.controlTimer)
-    this.controlTimer = setTimeout(() => {this.props.updatedRoom(this.props.room._id, {controlledBy: null})}, 60 * 1000)
+    this.controlTimer = setTimeout(() => {
+      this.toggleControl()
+      // this.props.updatedRoom(this.props.room._id, {controlledBy: null})
+    }, 60 * 1000)
   }
 
   startNewReference = () => {

@@ -26,7 +26,7 @@ const Room = new mongoose.Schema({
   image: {type: String,},
   graphImage: {type: ObjectId, ref: 'Image'},
   controlledBy: {type: ObjectId, ref: 'User', defaut: null},
-  wasNew: {type: Boolean},
+  // wasNew: {type: Boolean},
   isTrashed: { type: Boolean, default: false },
 },
 {timestamps: true});
@@ -34,8 +34,31 @@ const Room = new mongoose.Schema({
 Room.pre('save', function(next) {
   if (this.isNew) {
     this.wasNew = this.isNew
+    next();
+  } else {
+    this.modifiedPaths().forEach(field => {
+      if (field === 'members') {
+        User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
+          $addToSet: {rooms: this._id}
+        }).then(user => {next()})
+        .catch(err => console.log(err))
+      } else if (field === 'tempRoom') {
+        User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}})
+        .then(res => {
+          next()
+        })
+        .catch(err => console.log(err))
+      } else if (field === 'currentMembers') {
+        // console.log('current members modified what we can do with tha info...how do we tell WHO was added')
+        // console.log(this)
+      } else if (field === 'isTrashed') {
+        let users = this.members.map(member => member.user)
+        User.update({_id: {$in: users}}, {$pull: {rooms: this._id}})
+        .then(() => next())
+        .catch(err => console.log(err))
+      }
+    })
   }
-  next();
 })
 
 Room.post('save', function (doc, next) {
@@ -84,43 +107,10 @@ Room.post('save', function (doc, next) {
       next()
     })
     .catch(err => {console.log("ERROR: ", err); next(err)}) //@TODO WE NEED ERROR HANDLING HERE
-  } else if (!this.wasNew) {
-    this.modifiedPaths().forEach(field => {
-      if (field === 'members') {
-        User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
-          $addToSet: {rooms: this._id}
-        }).then(user => {next()})
-        .catch(err => console.log(err))
-      } else if (field === 'tempRoom') {
-        User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}})
-        .then(res => {
-          next()
-        })
-        .catch(err => console.log(err))
-      } else if (field === 'currentMembers') {
-        // console.log('current members modified what we can do with tha info...how do we tell WHO was added')
-        // console.log(this)
-      }
-    })
   } else {
     next()
   }
 });
-
-Room.pre('remove', async function() {
-  const promises = []
-  if (this.course) {
-    promises.push(Course.findByIdAndUpdate(this.course, {$pull: {rooms: this._id}}))
-  }
-  promises.push(User.update({_id: {$in: this.members.map(member => member.user)}}, {
-    $pull: {
-      rooms: this._id,
-      'roomNotifications.access': {_id: this._id},
-      'roomNotications.newRoom': {_id: this._id}
-    }
-  }, {multi: true}))
-  await Promise.all(promises)
-})
 
 Room.methods.summary = function() {
   // @TODO ONLY RETURN THE ENTRY CODE IF THE CLIENT IS THE OWNER

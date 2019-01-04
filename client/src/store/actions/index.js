@@ -32,6 +32,7 @@ export {
 } from './loading';
 export {
   getRooms,
+  getRoom,
   gotRooms,
   getRoomsIds,
   createRoom,
@@ -49,6 +50,7 @@ export {
   enterRoomWithCode,
   addRoomMember,
   removeRoomMember,
+  roomsRemoved,
   destroyRoom,
   createRoomFromActivity,
   updateRoomTab,
@@ -91,6 +93,7 @@ export {
   createActivity,
   createdActivityConfirmed,
   removeActivity,
+  activitiesRemoved,
   updateActivity,
   updatedActivity,
   copyActivity,

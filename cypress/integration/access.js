@@ -2,7 +2,7 @@ const user1 = require('../fixtures/user')
 const user2 = require('../fixtures/user2')
 const user3 = require('../fixtures/user3')
 
-describe('test access requests', function(){  
+describe('test access requests', function(){
   before(function(){
     cy.task('seedDB').then(() => cy.login(user2))
   })
@@ -10,6 +10,7 @@ describe('test access requests', function(){
   // COURSE
   it("user2 requests access to course 1", function(){
     cy.contains('Community').click()
+    cy.wait(1000)
     cy.url().should('include', 'community/activities')
     cy.contains('Courses').click()
     cy.url().should('include', 'community/courses')
@@ -20,6 +21,7 @@ describe('test access requests', function(){
   it("user3 requests access to course 1", function(){
     cy.login(user3)
     cy.contains('Community').click()
+    cy.wait(1000)
     cy.url().should('include', 'community/activities')
     cy.contains('Courses').click()
     cy.url().should('include', 'community/courses')
@@ -74,7 +76,7 @@ describe('test access requests', function(){
     cy.getTestElement('close-modal').click();
     cy.getTestElement('tab').contains('Rooms').click();
     cy.getTestElement('content-box-ACTIVITY 2 (room 1)').should('exist')
-    
+
   })
 
   it("User3 gets a notification they have been assigned to a new course room", function(){
@@ -95,7 +97,9 @@ describe('test access requests', function(){
   it("user2 enters course with entry-code", function(){
     cy.login(user2)
     cy.contains('Community').click()
+    cy.wait(1000)
     cy.contains('Courses').click()
+    cy.url().should('include', 'community/courses')
     cy.getTestElement('content-box-entry-code course').click()
     cy.get('#entryCode').type('{selectall} {backspace}').type('entry-code-10')
     cy.contains('Join').click()
@@ -126,8 +130,8 @@ describe('test access requests', function(){
   it('user2 requests access to room', function(){
     cy.login(user2)
     cy.contains('Community').click()
+    cy.wait(500)
     cy.contains('Rooms').click()
-    cy.wait(0)
     cy.getTestElement('content-box-request access').click()
     cy.getTestElement('request-access-btn').click()
     cy.url().should('include', '/confirmation')
@@ -158,12 +162,13 @@ describe('test access requests', function(){
     cy.getTestElement('members').children().should('have.length', 2)
     cy.getTestElement('crumb').contains('My VMT').click()
     // cy.getTestElement('tab-ntf').should('not.exist') // we might want to chec
-    cy.wait(111)
+
   })
 
   it('user2 joins a room by entering entry-code', function(){
     cy.login(user2)
     cy.contains('Community').click()
+    cy.wait(500)
     cy.url().should('include', 'community/activities')
     cy.contains('Rooms').click()
     cy.url().should('include', 'community/rooms')
@@ -194,6 +199,7 @@ describe('test access requests', function(){
   it('user fails to join with wrong entry code (room)', function(){
     cy.login(user2)
     cy.contains('Community').click()
+    cy.wait(1000)
     cy.url().should('include', 'community/activities')
     cy.contains('Rooms').click()
     cy.url().should('include', 'community/rooms')

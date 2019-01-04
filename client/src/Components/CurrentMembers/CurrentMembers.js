@@ -14,7 +14,6 @@ class CurrentMembers extends Component {
 
   render() {
     const { members, activeMember } = this.props;
-    console.log("<E<BERS: ", members)
     return (
       <div className={classes.Container}>
         <div className={classes.Title} onClick={this.toggleCollapse}>

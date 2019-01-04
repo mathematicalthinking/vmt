@@ -11,7 +11,7 @@ const Course = new mongoose.Schema({
   entryCode: {type: String,},
   members: [{user: {type: ObjectId, ref: 'User'}, role: {type: String}, _id: false}],
   image: {type: String,}, //URL
-  isTrashed: { type: Boolean, default: false },
+  isTrashed: {type: Boolean, default: false},
 },{timestamps: true});
 
 // Not using arrow function so we can have access to THIS docuemnt

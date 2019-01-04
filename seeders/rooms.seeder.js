@@ -106,6 +106,81 @@ var data = [
     "updatedAt" : "2018-09-19T17:39:55.337Z",
     "__v" : 0
   },
+  {
+    "_id" : "5c2e58e4684f328cbca1d997",
+    "chat" : [],
+    "currentMembers" : [],
+    "tabs" : [
+        "5c2e58e4684f328cbca1d998"
+    ],
+    "privacySetting" : "public",
+    "tempRoom" : false,
+    "isTrashed" : true,
+    "name" : "Deanna's stand alone room",
+    "description" : "",
+    "creator" : "5be1eba75854270cd0920faa",
+    "image" : "http://tinygraphs.com/spaceinvaders/gfggfg?theme=daisygarden&numcolors=4&size=220&fmt=svg",
+    "members" : [
+        {
+            "user" : "5be1eba75854270cd0920faa",
+            "role" : "facilitator"
+        }
+    ],
+    "dueDate" : null,
+    "createdAt" : "2019-01-03T18:48:04.573Z",
+    "updatedAt" : "2019-01-03T18:48:13.123Z",
+    "__v" : 0
+  },
+  {
+    "_id" : "5c2e58e4684f328cbca1d99f",
+    "chat" : [],
+    "currentMembers" : [],
+    "tabs" : [
+        "5c2e58e4684f328cbca1d998"
+    ],
+    "privacySetting" : "public",
+    "tempRoom" : false,
+    "isTrashed" : true,
+    "name" : "Deanna's course 1 room",
+    "description" : "",
+    "creator" : "5be1eba75854270cd0920faa",
+    "image" : "http://tinygraphs.com/spaceinvaders/gfggfg?theme=daisygarden&numcolors=4&size=220&fmt=svg",
+    "members" : [
+        {
+            "user" : "5be1eba75854270cd0920faa",
+            "role" : "facilitator"
+        }
+    ],
+    "dueDate" : null,
+    "createdAt" : "2019-01-03T18:48:04.573Z",
+    "updatedAt" : "2019-01-03T18:48:13.123Z",
+    "__v" : 0
+  },
+  {
+    "_id" : "5c2e58e4684f328cbca1d99e",
+    "chat" : [],
+    "currentMembers" : [],
+    "tabs" : [
+        "5c2e58e4684f328cbca1d998"
+    ],
+    "privacySetting" : "public",
+    "tempRoom" : false,
+    "isTrashed" : true,
+    "name" : "Deanna's course 2 room",
+    "description" : "",
+    "creator" : "5be1eba75854270cd0920faa",
+    "image" : "http://tinygraphs.com/spaceinvaders/gfggfg?theme=daisygarden&numcolors=4&size=220&fmt=svg",
+    "members" : [
+        {
+            "user" : "5be1eba75854270cd0920faa",
+            "role" : "facilitator"
+        }
+    ],
+    "dueDate" : null,
+    "createdAt" : "2019-01-03T18:48:04.573Z",
+    "updatedAt" : "2019-01-03T18:48:13.123Z",
+    "__v" : 0
+  },
 ];
 
 var RoomsSeeder = Seeder.extend({
