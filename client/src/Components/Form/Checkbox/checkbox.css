@@ -1,5 +1,10 @@
+.checkbox{
+    cursor: pointer;
+}
+
 .checkbox input[type="checkbox"] {
     opacity: 0;
+    cursor: pointer;
 }
 
 .checkbox label {
@@ -8,6 +13,7 @@
 
     /*16px width of fake checkbox + 6px distance between fake checkbox and text*/
     padding-left: 22px;
+    cursor: pointer;
 }
 
 .checkbox label::before,

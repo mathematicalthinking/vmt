@@ -4,7 +4,7 @@ const checkbox = props => {
   return (
     <div className={classes.checkbox}>
       <input data-testid={`${props.children}-checkbox`} type="checkbox" id={props.children} onChange={props.change} checked={props.checked}/>
-      <label htmlFor={props.children}>{props.children}</label>
+      <label id={props.id} htmlFor={props.children}>{props.children}</label>
     </div>
   )
 }
