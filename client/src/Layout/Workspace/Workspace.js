@@ -22,7 +22,12 @@ const WorkspaceLayout = React.memo((props) => {
   // } else if (role === 'participant' && activityWorkspace) {
   //   bottomButton = <div><Button click={copyActivity}>Add To My Activities</Button></div>
   // }
-
+  let membersHeight = 'auto';
+  let chatHeight = '63%';
+  if (props.membersExpanded && !props.chatExpanded) {
+    membersHeight = '33%';
+    chatHeight = 'auto';
+  }
   return (
     <div className={classes.PageContainer}>
       <div className={classes.Container}>
@@ -38,8 +43,8 @@ const WorkspaceLayout = React.memo((props) => {
           </div>
         </div>
         <div className={classes.Right}>
-          <div className={classes.Chat} style={{height: props.chatExpanded ? '63%' : 'auto'}}>{chat}</div>
-          <div className={classes.Members}>{currentMembers}</div>
+          <div className={classes.Chat} style={{height: chatHeight}}>{chat}</div>
+          <div className={classes.Members} style={{height: membersHeight}}>{currentMembers}</div>
           <div className={classes.BottomRight}>Bottom right</div>
         </div>
           {/* <div></div>{bottomRight} */}

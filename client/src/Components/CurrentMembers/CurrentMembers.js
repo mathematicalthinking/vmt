@@ -6,15 +6,15 @@ class CurrentMembers extends Component {
   //   expanded: true
   // }
 
-  toggleCollapse = () => {
-    this.props.toggleCollaps('members')
+  toggleExpansion = () => {
+    this.props.toggleExpansion('members')
   }
 
   render() {
     const { members, activeMember } = this.props;
     return (
       <div className={classes.Container}>
-        <div className={classes.Title} onClick={this.toggleCollapse}>
+        <div className={classes.Title} onClick={this.toggleExpansion}>
           Members Currently in the Room
           <div className={classes.Count}>
             {members.length}
