@@ -66,12 +66,12 @@ class Homepage extends PureComponent {
             <p className={classes.Blurb}>
               Collaborative Workspaces for Exploring the World of Math
             </p>
-            <Button theme={'Big'} click={this.createRoom} m={35}>Try out a Workspace</Button>
+            {/* <Button theme={'Big'} click={this.createRoom} m={35}>Try out a Workspace</Button> */}
           </section>
           {/* <i onClick={this.scrollToDomRef} className={["fas fa-chevron-down", classes.Down].join(" ")}></i> */}
           <section className={classes.Options} ref={this.containerRef}>
-            <h3 className={classes.Subtitle}>Popular Activities</h3>
-            <BoxList list={this.state.popularActivities}/>
+            {/* <h3 className={classes.Subtitle}>Popular Activities</h3>
+            <BoxList list={this.state.popularActivities}/> */}
             {/* <div className={classes.Geogebra}>
               <img className={classes.GgbImage} src={GeogebraImg} alt='geogebra' />
               <div>
