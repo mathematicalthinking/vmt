@@ -6,8 +6,6 @@ import Step2Copy from './Step2Copy';
 import Step2New from './Step2New'
 import Step3 from './Step3';
 import DueDate from './DueDate'
-import StepDisplay from './StepDisplay';
-import { NewResource, FromActivity } from '../../../Layout';
 import { getUserResources, populateResource }from '../../../store/reducers';
 import { Modal, Aux, Button, } from '../../../Components/';
 import classes from '../create.css';
@@ -22,7 +20,7 @@ import {
   copyActivity,
 } from '../../../store/actions/';
 import API from '../../../utils/apiRequests';
-import propertyOf from 'lodash/propertyOf';
+// import propertyOf from 'lodash/propertyOf';
 
 const imageThemes = [
   'frogideas', 'duskfalling',

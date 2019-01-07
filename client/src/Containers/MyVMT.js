@@ -26,6 +26,7 @@ class Profile extends Component {
   }
 
   componentDidMount() {
+    throw new Error('testing error')
     // this.fetchData(this.props.match.params.resource)
     // if (!this.props.user.justLoggedIn) {
     // this.props.getUser(this.props.user._id)

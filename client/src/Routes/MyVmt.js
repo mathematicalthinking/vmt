@@ -14,6 +14,7 @@ import { Confirmation, FacilitatorInstructions }from '../Layout';
 import Aux from '../Components/HOC/Auxil';
 import { connect } from 'react-redux';
 import { Route, Switch, } from 'react-router-dom';
+import ErrorBoundary from '../ErrorBoundary';
 
 
 
@@ -22,7 +23,7 @@ class MyVmt extends Component {
   render() {
     let { path } = this.props.match;
     return (
-      <Aux>
+      <ErrorBoundary dispatchFail={this.props.fail}>
         <Navbar user={this.props.user}/>
           <Switch>
             <PrivateRoute exact path={`${path}/facilitator`} authed={this.props.loggedIn} component={FacilitatorInstructions} />
@@ -41,7 +42,7 @@ class MyVmt extends Component {
               // ^ @TODO 404 page
             }}/>
           </Switch>
-      </Aux>
+      </ErrorBoundary>
     )
   }
 };

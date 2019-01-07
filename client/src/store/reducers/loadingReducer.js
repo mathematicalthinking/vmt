@@ -7,6 +7,7 @@ const initialState = {
   loginSuccess: false,
   accessSuccess: false,
   successMessage: '',
+  // frontEndError: false,
 }
 
 const reducer = (state = initialState, action) => {
@@ -51,6 +52,12 @@ const reducer = (state = initialState, action) => {
         ...state,
         initialState
       }
+    // case actionTypes.FRONT_END_ERROR:
+    //   return
+    //     ...state,
+    //     errorMessage: action.errorMessage,
+    //     frontEndError: action.
+
     default: return {...state};
   }
 }

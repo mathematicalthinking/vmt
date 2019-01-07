@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { DashboardLayout, SidePanel, ActivityDetails, ResourceList } from '../Layout/Dashboard/';
 import {
   Aux,
-  Modal,
+  // Modal,
   Button,
   BreadCrumbs,
   TabList,
