@@ -52,12 +52,12 @@ class Activity extends Component {
     }
   }
 
-  fetchRooms() {
-    const { activity, populatedActivity } = this.props;
-    if (activity.rooms.length !== populatedActivity.rooms.length) {
-      this.props.getRooms(activity.rooms)
-    }
-  }
+  // fetchRooms() {
+  //   const { activity, populatedActivity } = this.props;
+  //   if (activity.rooms.length !== populatedActivity.rooms.length) {
+  //     this.props.getRooms(activity.rooms)
+  //   }
+  // }
 
   toggleEdit = () => {
     this.setState(prevState => ({
