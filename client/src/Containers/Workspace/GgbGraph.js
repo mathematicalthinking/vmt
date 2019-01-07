@@ -71,12 +71,13 @@ class GgbGraph extends Component {
     if (!wasInControl && isInControl) {
       this.setState({switchingControl: true}, () => {
         this.ggbApplet.setMode(0)
-        this.ggbApplet.showToolBar('"0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",')
+        // im not really sure what this does we seem to get the same menu whether we specify all these numbers or not...but it was breaking the hamburger menu to do so
+        // this.ggbApplet.showToolBar("0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6")
         this.ggbApplet.showMenuBar(true)
         this.freezeElements(false)
-        setTimeout(() => {
+        // setTimeout(() => {
           this.setState({switchingControl: false})
-        }, 0)
+        // }, 0)
       })
 
     }
@@ -192,7 +193,7 @@ class GgbGraph extends Component {
     this.ggbApplet = window.ggbApplet;
     this.setState({loading: false})
     this.ggbApplet.setMode(40) // Sets the tool to zoom
-    let { user, room, currentTab } = this.props;
+    let { room, currentTab } = this.props;
     let { currentState, startingPoint, ggbFile } = room.tabs[currentTab];
     // put the current construction on the graph, disable everything until the user takes control
     if (currentState) {
@@ -200,6 +201,7 @@ class GgbGraph extends Component {
     } else if (startingPoint) {
       this.ggbApplet.setXML(startingPoint)
     } else if (ggbFile) {
+      console.log('setting ggbFile')
       this.ggbApplet.setBase64(ggbFile);
     }
     // attach this listeners to the ggbApplet
@@ -289,6 +291,7 @@ class GgbGraph extends Component {
       this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
     // }, 500)
     socket.emit('SEND_EVENT', newData)
+
     this.props.resetControlTimer()
   }, THROTTLE_FIDELITY)
 

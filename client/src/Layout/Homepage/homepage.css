@@ -6,6 +6,8 @@
   darkBlue: darkBlue;
   blue: blue;
   orange: orange;
+  red: red;
+  lightRed: lightRed;
   gray: backgroundGray;
   backgroundGray: backgroundGray;
   darkShadow: darkShadow;
@@ -207,4 +209,12 @@
   max-width: maxWidth;
   width: 100%;
   margin-bottom: 20px;
+}
+
+.Error {
+  color: red;
+  background-color: lightRed;
+  padding: 4px;
+  border: 1px solid red;
+  z-index: 1000;
 }

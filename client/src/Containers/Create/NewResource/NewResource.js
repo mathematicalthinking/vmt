@@ -6,8 +6,6 @@ import Step2Copy from './Step2Copy';
 import Step2New from './Step2New'
 import Step3 from './Step3';
 import DueDate from './DueDate'
-import StepDisplay from './StepDisplay';
-import { NewResource, FromActivity } from '../../../Layout';
 import { getUserResources, populateResource }from '../../../store/reducers';
 import { Modal, Aux, Button, } from '../../../Components/';
 import classes from '../create.css';
@@ -22,7 +20,7 @@ import {
   copyActivity,
 } from '../../../store/actions/';
 import API from '../../../utils/apiRequests';
-import propertyOf from 'lodash/propertyOf';
+// import propertyOf from 'lodash/propertyOf';
 
 const imageThemes = [
   'frogideas', 'duskfalling',
@@ -196,7 +194,7 @@ class NewResourceContainer extends Component {
 
   render() {
     // Intro = true if and only if we've navigated from the "Become a Facilitator" page
-    let { resource, intro, courseId } = this.props;
+    let { resource } = this.props;
     let displayResource;
     if (resource === 'activities') {
       displayResource = 'activity'

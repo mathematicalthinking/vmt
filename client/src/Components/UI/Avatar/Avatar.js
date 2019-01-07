@@ -1,6 +1,6 @@
 import React from 'react';
 import classes from './avatar.css';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 const avatar = props => {
   let fontSize = 15;
   let padding = 7;
@@ -11,18 +11,18 @@ const avatar = props => {
     padding = 28;
     fontSize = 80;
     border = '3px solid white'
-  } 
+  }
   return (
-    
+
     <div className={classes.UserInfo}>
-      <Link to='/profile'>
+      {/* <Link to='/#'> eventually a link to their profile page*/}
         <span className={props.size === 'large' ? classes.AvatarContainer : null}>
           <i className={["fas fa-user", classes.Avatar].join(' ')} style={{fontSize, padding, border,}}></i>
         </span>
         <span data-testid='avatar-name' className={classes.Username}>{props.username}</span>
-      </Link>
+      {/* </Link> */}
     </div>
-    
+
   )
 }
 

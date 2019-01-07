@@ -1,7 +1,12 @@
 import React from 'react';
 import classes from './workspace.css';
 import { withRouter } from 'react-router-dom';
-import { CurrentMembers, Button, ReplayerControls, EditableText, RoomInfo }from '../../Components';
+import {
+  CurrentMembers,
+  Button,
+  ReplayerControls,
+  // EditableText,
+  RoomInfo }from '../../Components';
 import {
   GgbGraph,
   GgbActivityGraph,
@@ -139,12 +144,12 @@ const workspaceLayout = React.memo(({
     />
   }
 
-  let bottomButton;
-  if (role === 'facilitator' && !activityWorkspace) {
-      bottomButton = <div><Button click={setStartingPoint}>Set starting point</Button></div>
-  } else if (role === 'participant' && activityWorkspace) {
-    bottomButton = <div><Button click={copyActivity}>Add To My Activities</Button></div>
-  }
+  // let bottomButton;
+  // if (role === 'facilitator' && !activityWorkspace) {
+  //     bottomButton = <div><Button click={setStartingPoint}>Set starting point</Button></div>
+  // } else if (role === 'participant' && activityWorkspace) {
+  //   bottomButton = <div><Button click={copyActivity}>Add To My Activities</Button></div>
+  // }
 
   return (
     <div className={classes.PageContainer}>
@@ -173,12 +178,14 @@ const workspaceLayout = React.memo(({
              {room.members ? <CurrentMembers members={replayer ? replayer.currentMembers : room.currentMembers} activeMember={activeMember}/> : null}
           </div>
           <div className={classes.ReferenceWindow}>
-            {!replayer ?
-              <div className={classes.ReferenceControls} onClick={referencing ? clearReference : startNewReference}>
-                <i className={["fas", "fa-mouse-pointer", classes.MousePointer, referencing ? classes.ReferencingActive : ''].join(" ")}></i>
-                <div className={classes.ReferenceTool}>Reference</div>
-                {/* <div className={classes.RefrenceTool}>Perspective</div> */}
-              </div> : null
+            {!replayer
+              // ? <div className={classes.ReferenceControls} onClick={referencing ? clearReference : startNewReference}>
+              //     <i className={["fas", "fa-mouse-pointer", classes.MousePointer, referencing ? classes.ReferencingActive : ''].join(" ")}></i>
+              //     <div className={classes.ReferenceTool}>Reference</div>
+              //     {/* <div className={classes.RefrenceTool}>Perspective</div> */}
+              //   </div>
+              ? null
+              : null
             }
             <div className={classes.Controls}>
               {!replayer ?

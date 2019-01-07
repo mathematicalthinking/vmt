@@ -33,24 +33,24 @@ class GgbReplayer extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     if (this.props.index !== nextProps.index || this.state.loading !== nextState.loading) {
       return true;
-    } 
+    }
     else if (this.props.currentTab !== nextProps.currentTab) {
       return true;
     }
     return false;
   }
 
-  
+
   componentDidUpdate(prevProps, prevState) {
     let { log, index, changingIndex } = this.props;
     // If we've changed tab while playing
     if (prevProps.currentTab !== this.props.currentTab) {
       let { currentTab, tabs } = this.props;
       let tabStates = {...this.state.tabStates}
-      // stash prev tabs state in cae we come back to it 
+      // stash prev tabs state in cae we come back to it
       tabStates[tabs[prevProps.currentTab]._id] = {...tabStates[tabs[prevProps.currentTab]._id], construction: this.ggbApplet.getXML()}
       this.setState({tabStates,})
-      // Load up the previously saved state if it exsists 
+      // Load up the previously saved state if it exsists
       if (Object.keys(tabStates).filter(tabId => tabId === tabs[currentTab]._id).length > 0) {
         this.ggbApplet.setXML(this.state.tabStates[tabs[currentTab]._id].construction)
       }
@@ -58,13 +58,13 @@ class GgbReplayer extends Component {
         this.ggbApplet.reset()
       }
     }
-    
+
     if (changingIndex && this.state.tabStates !== prevState.tabStates) {
 
     }
-    
+
     // IF we're skipping it means we might need to reconstruct several evenets, possible in reverse order if the prevIndex is greater than this index.
-    // This is a god damned mess...good luck 
+    // This is a god damned mess...good luck
     else if (changingIndex) {
       // If our target tab is different from the one we're on
       if (this.props.log[this.props.index].tab !== this.props.tabs[this.props.currentTab]._id) {
@@ -77,7 +77,7 @@ class GgbReplayer extends Component {
         let startIndex;
         if (tabStates[log[this.props.index].tab]) {
           startIndex = tabStates[log[this.props.index].tab].lastIndex;
-        } 
+        }
         else {startIndex = prevProps.index}
         let tabIndex;
         // find the target tab index
@@ -118,14 +118,14 @@ class GgbReplayer extends Component {
       for (let i = startIndex; i <= endIndex; i++) {
         this.constructEvent(this.props.log[i])
       }
-    } 
+    }
     // backwards through time
     else {
       for (let i = startIndex; i > endIndex; i--) {
         let syntheticEvent = {...this.props.log[i]}
         if (syntheticEvent.eventType === 'ADD') {
           syntheticEvent.eventType = 'REMOVE'
-        } 
+        }
         else if (syntheticEvent.eventType === 'REMOVE') {
           syntheticEvent.eventType = 'ADD'
         }
@@ -136,16 +136,16 @@ class GgbReplayer extends Component {
         //   let syntheticEvent = {...log[i]}
         //   if (syntheticEvent.eventType === 'ADD') {
         //     syntheticEvent.eventType = 'REMOVE'
-        //   } 
+        //   }
         //   else if (syntheticEvent.eventType === 'REMOVE') {
         //     syntheticEvent.eventType = 'ADD'
         //   }
         //   this.constructEvent(syntheticEvent)
         // }
-      
+
       this.ggbApplet.setRepaintingActive(true)
   }
-  
+
   constructEvent(event) {
     if (event.tab === this.props.tabs[this.props.currentTab]._id) {
       switch (event.eventType) {
@@ -172,7 +172,7 @@ class GgbReplayer extends Component {
 
   }
 
-  
+
   onScriptLoad = () => {
     const parameters = {
       "id":"ggbApplet",
@@ -194,34 +194,46 @@ class GgbReplayer extends Component {
   }
 
   initializeGgb = () => {
+    console.log('this,.props: ', this.props);
     this.ggbApplet = window.ggbApplet;
     this.ggbApplet.setMode(40)
-    this.ggbApplet.setXML(this.props.tabs[0].startingPoint)
+    let { tabs, currentTab } = this.props;
+    let { currentState, startingPoint, ggbFile } = tabs[currentTab];
+    // put the current construction on the graph, disable everything until the user takes control
+    if (startingPoint) {
+      this.ggbApplet.setXML(startingPoint)
+    } else if (ggbFile) {
+      console.log('setting ggbFile')
+      this.ggbApplet.setBase64(ggbFile);
+    }
+    if (this.props.tabs[0].startingPoint) {
+      this.ggbApplet.setXML(this.props.tabs[0].startingPoint)
+    }
     // let xmlContext = this.ggbApplet.getXML()
     // xmlContext = xmlContext.slice(0, xmlContext.length - 27) // THIS IS HACKY BUT ????
     // console.log(xmlContext)
     this.setState({
-      // xmlContext, 
+      // xmlContext,
       loading: false,
     })
   }
 
-  // This method is for when we're skipping forward or backward and, rather than apply each event 
-  // one at a time to the construction, we instead consolidate all of the evemts into one event 
+  // This method is for when we're skipping forward or backward and, rather than apply each event
+  // one at a time to the construction, we instead consolidate all of the evemts into one event
   // and apply it once /// IT DOESNT QUITE WORK BECAUSE SOMETIMES WE NEED TO EVALUATE COMMANDS RATHER THAN JUST ADD XML....BUT THERE MIGHT BE A SOLUTION HERE
   consolidateEvents(startingIndex, endingIndex) {
     // consolidate the log up until the startingIndex
-    let syntheticLog = this.props.log.reduce((acc, event, idx) => {
-      if (event.label && idx <= endingIndex) {
-        if (acc[event.label] && event.eventType === 'REMOVE') {
-          delete acc[event]
-        } else {
-          acc[event.label] = event.event
-        }
-      }
-      return acc;
-    }, {})
-    let xmlString = Object.keys(syntheticLog).map(event => syntheticLog[event]).join('')
+    // let syntheticLog = this.props.log.reduce((acc, event, idx) => {
+    //   if (event.label && idx <= endingIndex) {
+    //     if (acc[event.label] && event.eventType === 'REMOVE') {
+    //       delete acc[event]
+    //     } else {
+    //       acc[event.label] = event.event
+    //     }
+    //   }
+    //   return acc;
+    // }, {})
+    // let xmlString = Object.keys(syntheticLog).map(event => syntheticLog[event]).join('')
     this.ggbApplet.setRepaintingActive(false)
     for (let i = 0; i < endingIndex; i++){
       this.constructEvent(this.props.log[i])
@@ -248,7 +260,7 @@ class GgbReplayer extends Component {
     //   for (let i = startingIndex + 1; i <= endingIndex; i++) {
     //     // If no label then its not a ggb event
     //     if (log[i].label) {
-    //       // If we're removing an event we had previosuly added in this string of events then get rid of it 
+    //       // If we're removing an event we had previosuly added in this string of events then get rid of it
     //       if (log[i].eventType === 'REMOVE' && syntheticLog[log[i].label]) {
     //         delete syntheticLog[log[i].label]
     //       }
@@ -295,7 +307,7 @@ class GgbReplayer extends Component {
       this.resizeTimer = undefined;
     }, 200)
   }
-  
+
   render() {
 
     return (

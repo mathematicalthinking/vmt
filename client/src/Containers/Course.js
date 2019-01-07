@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import _difference from 'lodash/difference';
+// import _difference from 'lodash/difference';
 import { populateResource } from '../store/reducers';
 import Members from './Members/Members';
 import * as ntfUtils from '../utils/notifications';

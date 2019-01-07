@@ -1,5 +1,4 @@
 import React from 'react';
-import Aux from '../HOC/Auxil';
 import classes from './background.css';
 const Background = ({bottomSpace, fixed}) => {
   return (
@@ -15,7 +14,7 @@ const Background = ({bottomSpace, fixed}) => {
           <div className={[classes.waveWrapperInner, classes.bgBottom].join(" ")}>
               <div className={[classes.wave, classes.waveBottom].join(" ")}></div>
           </div>
-      </div>   
+      </div>
     </div>
 
   )

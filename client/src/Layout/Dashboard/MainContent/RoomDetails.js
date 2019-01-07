@@ -6,7 +6,7 @@ import { EditText } from '../../../Components';
 class RoomDetails extends Component {
 
   render(){
-    let { room, owner, editing, toggleEdit, updateRoomInfo, instructions } = this.props;
+    let { room, editing, updateRoomInfo, instructions } = this.props;
     return (
       <div className={classes.Container}>
         {/*  Make sure we have all of the room info before letting the user enter */}

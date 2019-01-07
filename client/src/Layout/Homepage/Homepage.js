@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 // import { Link } from 'react-router-dom';
 import classes from './homepage.css';
-import BoxList from '../BoxList/BoxList'
-import Button from '../../Components/UI/Button/Button';
+// import BoxList from '../BoxList/BoxList'
+// import Button from '../../Components/UI/Button/Button';
 import Background from '../../Components/Background/Background';
 // import GeogebraImg from './Geogebra.png';
 // import DesmosImg from './desmos.jpg';
@@ -13,10 +13,16 @@ class Homepage extends PureComponent {
 
   state = {
     popularActivities: [],
+    error: null,
   }
 
   containerRef = React.createRef()
   componentDidMount(){
+    if (this.props.location.state && this.props.location.state.error) {
+      console.log('error: ', this.props.location.state.error)
+      this.setState({error: this.props.location.state.error})
+      this.timer = setTimeout(() => {console.log("clearing error: "); this.setState({error: null})} , 2000)
+    }
     API.get('activities')
     .then(res => {
       this.setState({popularActivities: res.data.results})
@@ -35,6 +41,12 @@ class Homepage extends PureComponent {
     }
   }
 
+  componentWillUnmount() {
+    if (this.timer) {
+      clearTimeout(this.timer)
+    }
+  }
+
   createRoom = () => {
     let room = {
       name: 'temp room',
@@ -49,7 +61,7 @@ class Homepage extends PureComponent {
 
   scrollToDomRef = () => {
     window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
-}
+  }
 
   render() {
     return (
@@ -63,15 +75,16 @@ class Homepage extends PureComponent {
         <div className={classes.Ex6}></div> */}
         <div className={classes.Main}>
           <section className={classes.Top}>
+            {this.state.error ? <div className={classes.Error}>{this.state.error}</div> : null}
             <p className={classes.Blurb}>
               Collaborative Workspaces for Exploring the World of Math
             </p>
-            <Button theme={'Big'} click={this.createRoom} m={35}>Try out a Workspace</Button>
+            {/* <Button theme={'Big'} click={this.createRoom} m={35}>Try out a Workspace</Button> */}
           </section>
           {/* <i onClick={this.scrollToDomRef} className={["fas fa-chevron-down", classes.Down].join(" ")}></i> */}
           <section className={classes.Options} ref={this.containerRef}>
-            <h3 className={classes.Subtitle}>Popular Activities</h3>
-            <BoxList list={this.state.popularActivities}/>
+            {/* <h3 className={classes.Subtitle}>Popular Activities</h3>
+            <BoxList list={this.state.popularActivities}/> */}
             {/* <div className={classes.Geogebra}>
               <img className={classes.GgbImage} src={GeogebraImg} alt='geogebra' />
               <div>

@@ -15,11 +15,16 @@ class ActivityDetails extends Component {
   }
 
   render() {
-    const { activity, course, editing, toggleEdit, owner } = this.props;
+    const {
+      activity,
+      course,
+      // editing,
+      // toggleEdit,
+      owner
+    } = this.props;
     return (
       <Aux>
         <div>
-          {/* @TODO REPLACE THIS WITH <EDITABLEtEXT /> COMPONENT */}
             <div className={classes.Instructions}>
               <p className={classes.InstructionsHeader}>Instructions:</p>
                 <EditText inputType='text-area' name='instructions' change={this.props.update} editing={this.props.editing}>
