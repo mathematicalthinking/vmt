@@ -70,7 +70,6 @@ class GgbGraph extends Component {
     let isInControl = this.props.room.controlledBy === this.props.user._id;
     let isSomeoneElseInControl = this.props.room.controlledBy && !isInControl;
     if (!wasInControl && isInControl) {
-      console.log('im in control now')
       this.setState({switchingControl: true}, () => {
         if (this.ggbApplet) {
           this.ggbApplet.setMode(0)
@@ -276,8 +275,7 @@ class GgbGraph extends Component {
 
   sendEvent = throttle(async (xml, definition, label, eventType, action) => {
     if (!this.props.user.connected) {
-      console.log("WE NEED TO UNDO THE LAST EVENT")
-      this.ggbApplet.undo()
+      this.ggbApplet.undo() // We should never reach this block because control should be prevented if user is not connected
       return;
     }
     let xmlObj;

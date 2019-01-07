@@ -28,8 +28,6 @@ class Workspace extends Component {
     this.props.updateUser({connected: socket.connected});
     this.initializeListeners();
     this.props.populateRoom(this.props.room._id)
-    setTimeout(() => {socket.disconnect()}, 20000)
-    // setTimeout(() => {socket.connect('/')}, 25000)
     window.addEventListener('beforeunload', this.componentCleanup);
   }
 
@@ -47,7 +45,6 @@ class Workspace extends Component {
     }
 
     if (!this.props.user.connected && this.props.room.controlledBy === this.props.user._id) {
-      console.log('lost connection while in control')
       let auto = true
       this.toggleControl(null, auto); // auto = true
     }
