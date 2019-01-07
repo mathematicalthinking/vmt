@@ -1,7 +1,7 @@
 const user1 = require('../fixtures/user')
 const user4 = require('../fixtures/user4')
 
-describe('Edit Members Roles', function(){  
+describe('Edit Members Roles', function(){
   before(function(){
     cy.task('seedDB').then(() => cy.login(user1))
   })
@@ -24,7 +24,7 @@ describe('Edit Members Roles', function(){
     cy.getTestElement('content-box-course 2').click();
     cy.getTestElement('tab').contains('Members').click();
     cy.getTestElement('avatar-name').contains('worf')
-      .parent().parent().parent()
+      .parent().parent()
       .siblings().last().children().should($el => {
         expect($el).to.include.text('facilitator')
       });

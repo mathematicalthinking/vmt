@@ -194,9 +194,21 @@ class GgbReplayer extends Component {
   }
 
   initializeGgb = () => {
+    console.log('this,.props: ', this.props);
     this.ggbApplet = window.ggbApplet;
     this.ggbApplet.setMode(40)
-    this.ggbApplet.setXML(this.props.tabs[0].startingPoint)
+    let { tabs, currentTab } = this.props;
+    let { currentState, startingPoint, ggbFile } = tabs[currentTab];
+    // put the current construction on the graph, disable everything until the user takes control
+    if (startingPoint) {
+      this.ggbApplet.setXML(startingPoint)
+    } else if (ggbFile) {
+      console.log('setting ggbFile')
+      this.ggbApplet.setBase64(ggbFile);
+    }
+    if (this.props.tabs[0].startingPoint) {
+      this.ggbApplet.setXML(this.props.tabs[0].startingPoint)
+    }
     // let xmlContext = this.ggbApplet.getXML()
     // xmlContext = xmlContext.slice(0, xmlContext.length - 27) // THIS IS HACKY BUT ????
     // console.log(xmlContext)
