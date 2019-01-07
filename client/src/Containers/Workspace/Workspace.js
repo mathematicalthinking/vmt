@@ -28,7 +28,6 @@ class Workspace extends Component {
     this.props.updateUser({connected: socket.connected});
     this.initializeListeners();
     this.props.populateRoom(this.props.room._id)
-
     window.addEventListener('beforeunload', this.componentCleanup);
   }
 
@@ -45,10 +44,9 @@ class Workspace extends Component {
       })
     }
 
-    if (!prevProps.user.connected && this.props.user.connected) {
-      // this.initializeListeners();
-    } else if (!this.props.user.connected && this.state.inControl) {
-      this.toggleControl();
+    if (!this.props.user.connected && this.props.room.controlledBy === this.props.user._id) {
+      let auto = true
+      this.toggleControl(null, auto); // auto = true
     }
   }
 
@@ -161,11 +159,11 @@ class Workspace extends Component {
     this.setState({currentTab: index, activityOnOtherTabs: updatedTabs})
   }
 
-  toggleControl = () => {
+  toggleControl = (event, auto) => {
     let { room, user, } = this.props;
 
-    if (!user.connected) {
-      return alert('You have disconnected from the server. Check your internet connection and try refreshing the page')
+    if (!user.connected && !auto) { // i.e. if the user clicked the button manually instead of controll being toggled programatically
+      return alert('You have disconnected from the server. Check your internet connection and try refreshing the page');
     }
 
     if (room.controlledBy === user._id) { // Releasing control
@@ -212,6 +210,9 @@ class Workspace extends Component {
           // this.scrollToBottom(); @TODO
       })
     }
+    if (!user.connected) {
+      setTimeout(() => alert('You have disconnected from the server. Check your internet connection and try refreshing the page'), 0) // Let all of the state updates finish and then show an alert
+    }
   }
 
   resetControlTimer = () => {
@@ -219,7 +220,7 @@ class Workspace extends Component {
     this.controlTimer = setTimeout(() => {
       this.toggleControl()
       // this.props.updatedRoom(this.props.room._id, {controlledBy: null})
-    }, 3 * 1000)
+    }, 60 * 1000)
   }
 
   startNewReference = () => {
