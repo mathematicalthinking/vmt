@@ -33,7 +33,6 @@ class EditableText extends Component {
 
   submit = () => {
     let {
-      resource,
       parentResource,
       parentId ,
       field,

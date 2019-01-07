@@ -4,6 +4,7 @@ import classes from './chat.css';
 // import Button from '../UI/Button/Button';
 import moment from 'moment';
 class Chat extends Component {
+  // We need this construcotr, stop deleting it...look @ line21
   constructor(props){
     super(props);
 
@@ -176,10 +177,7 @@ class Chat extends Component {
       displayMessages = messages.map((message, i) => {
         let highlightClass = '';
         if (showingReference && this.props.referToEl) {
-          //@TODO DOUBLE EQUALS BELOW HERE IS INTENTIONAL. THIS NEEDS TO BE FIXED EVENTUALLY BUT FOR NOW,
-          // WHEN WE MAKE THE INTIAL REFERENCE ELEMENT IS AN INT BUT WHEN WE SAVE IT TO THE DB OR IT COMES ACROSS THE SOCKET
-          // IT IS A STRING...WE SHOULD JUST PARSE IT TO STRING ON CREATION REFERTOEL.ELEMENT
-          if ((this.props.referToEl.element == i) || (message.reference && (this.props.referToEl.element === message.reference.element))) {
+          if ((parseInt(this.props.referToEl.element, 10) === i) || (message.reference && (this.props.referToEl.element === message.reference.element))) {
             highlightClass = classes.Highlight
           }
         }

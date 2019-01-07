@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import { DashboardLayout, SidePanel, ResourceList,  } from '../Layout/Dashboard/';
-import { TabList, BreadCrumbs, Avatar } from '../Components/';
+import {
+  TabList,
+  BreadCrumbs,
+  // Avatar,
+} from '../Components/';
 import { connect } from 'react-redux';
 import {
   getRooms,
@@ -26,7 +30,6 @@ class Profile extends Component {
   }
 
   componentDidMount() {
-    throw new Error('testing error')
     // this.fetchData(this.props.match.params.resource)
     // if (!this.props.user.justLoggedIn) {
     // this.props.getUser(this.props.user._id)
@@ -40,39 +43,15 @@ class Profile extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    let { user, match } = this.props;
+    let { match } = this.props;
     let { resource } = match.params;
-    // If the user has a new resource
-    // if (prevProps.user[resource].length !== this.props.user[resource].length) {
-    //   console.log('the user"s resources have changes')
-    //   let idsToFetch = user[resource].filter(id => !this.props[resource].includes(id))
-    //   console.log("IDS TO FETCH: ", idsToFetch)
-    //   if (idsToFetch.length > 0) {
-    //     this.fetchData(resource, idsToFetch)
-    //   }
-    //   // this.checkMultipleRoles()
-    //   // .then(() => this.setDisplayResources())
-    //   // .then(res => this.updateTabs())
-    // }
-    // IF THE USER HAS A RESOURCE THAT HAS NOT BEEN ADDED TO THE STORE YET WE SHOULD FETCH IT
-    // if (!this.props.loading) {
-    //   if (resource !== prevProps.match.params.resource) {
-    //     // console.log('we need to fetch some resources')
-    //     // let idsToFetch = user[resource].filter(id => !this.props[resource].allIds.includes(id));
-    //     // console.log(idsToFetch)
-    //     // this.fetchByIds(resource, idsToFetch)
-    //     this.props.getUser(user._id);
-    //   }
-    // }
 
-    // @TODO CONFIRM THIS IS DUPLICATE COE OF THE FIRST IF CONDITION HERE...THE USER LIST OF COURSES SHOULD NEVER CHANGE INDEPENDENT OF THE STORES LIST OF COURSES E.G.
-    // if (!loading) {
-      if (prevProps[resource].allIds.length !== this.props[resource].allIds.length) {
-        this.checkMultipleRoles()
-        .then(() => this.setDisplayResources())
-        .then(() => this.updateTabs())
-      }
-    // }
+    if (prevProps[resource].allIds.length !== this.props[resource].allIds.length) {
+      this.checkMultipleRoles()
+      .then(() => this.setDisplayResources())
+      .then(() => this.updateTabs())
+    }
+
     // If the view (role) has changes
     if (prevState.view !== this.state.view) {
       this.setDisplayResources()
@@ -92,7 +71,7 @@ class Profile extends Component {
     }
   }
 
-  // CHekcs if the user has mulitple roles for a single resource (i.e. facilitator and participant)
+  // Checks if the user has mulitple roles for a single resource (i.e. facilitator and participant)
   // if so we toggle the "view as" buttons to be visible
   checkMultipleRoles = () => {
     let { match, user, } = this.props;
@@ -136,7 +115,7 @@ class Profile extends Component {
 
   updateTabs = () => {
     // const { resource } = this.props.match.params;
-    let { notifications } = this.props.user; // add room notifications eventually
+    // let { notifications } = this.props.user; // add room notifications eventually
     let updatedTabs = [...this.state.tabs]
     // let courseNtfs = courseNotifications.access.filter(ntf => { //WHY ARE WE FILTERING HERE ? WE SHOULD BE FILTERING FOR THEIR ROLE NOT THE RESOURCE ID
     //   let found = false;

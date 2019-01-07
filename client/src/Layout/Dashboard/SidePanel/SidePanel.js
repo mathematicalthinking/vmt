@@ -1,5 +1,9 @@
 import React from 'react';
-import { Button, Avatar, Aux, } from '../../../Components/';
+import {
+  // Button,
+  Avatar,
+  Aux,
+} from '../../../Components/';
 import { Link } from 'react-router-dom';
 import classes from './sidePanel.css';
 import capitalize from 'lodash/capitalize';

@@ -30,10 +30,10 @@ class Activity extends Component {
   }
 
   componentDidMount() {
-    this.props.getActivities() // WHY ARE WE DOING THIS??
+    // this.props.getActivities() // WHY ARE WE DOING THIS??
     const { resource } = this.props.match.params;
     if (resource === 'rooms') {
-      this.fetchRooms();
+      // this.fetchRooms();
     }
     // Check ability to edit
     if (this.props.activity.creator === this.props.user._id) {
@@ -48,7 +48,7 @@ class Activity extends Component {
     const prevResource = prevProps.match.params.resource;
     const { resource } = this.props.match.params;
     if (prevResource !== resource && resource === 'rooms') {
-      this.fetchRooms()
+      // this.fetchRooms()
     }
   }
 
@@ -93,19 +93,6 @@ class Activity extends Component {
     if (activity) {
 
       let { resource }= match.params;
-      let populatedActivity = this.props.populatedActivity;
-      // const contentData = {
-      //   resource,
-      //   activity,
-      //   course,
-      //   userResources: activity[resource] || [],
-      //   parentResource: 'activities',
-      //   parentResourceId: activity._id,
-      //   notifications: [],
-      //   user: this.props.user,
-      //   owner: this.state.owner
-      // }
-
       let additionalDetails = {
         type: activity.roomType,
         privacy: <EditText change={this.updateActivityInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name="privacySetting">{this.state.privacySetting}</EditText>

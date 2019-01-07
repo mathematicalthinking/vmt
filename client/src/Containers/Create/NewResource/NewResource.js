@@ -194,7 +194,7 @@ class NewResourceContainer extends Component {
 
   render() {
     // Intro = true if and only if we've navigated from the "Become a Facilitator" page
-    let { resource, intro, courseId } = this.props;
+    let { resource } = this.props;
     let displayResource;
     if (resource === 'activities') {
       displayResource = 'activity'

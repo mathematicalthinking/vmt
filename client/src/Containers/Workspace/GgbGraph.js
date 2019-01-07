@@ -193,7 +193,7 @@ class GgbGraph extends Component {
     this.ggbApplet = window.ggbApplet;
     this.setState({loading: false})
     this.ggbApplet.setMode(40) // Sets the tool to zoom
-    let { user, room, currentTab } = this.props;
+    let { room, currentTab } = this.props;
     let { currentState, startingPoint, ggbFile } = room.tabs[currentTab];
     // put the current construction on the graph, disable everything until the user takes control
     if (currentState) {

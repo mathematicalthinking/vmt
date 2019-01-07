@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import moment from 'moment'
+// import moment from 'moment'
 import { connect } from 'react-redux';
 import { DashboardLayout, SidePanel, RoomDetails, } from '../Layout/Dashboard/';
 import Members from './Members/Members';

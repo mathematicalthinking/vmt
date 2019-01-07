@@ -11,7 +11,7 @@ import {
 } from '../Containers';
 import PrivateRoute from '../Components/HOC/PrivateRoute';
 import { Confirmation, FacilitatorInstructions }from '../Layout';
-import Aux from '../Components/HOC/Auxil';
+// import Aux from '../Components/HOC/Auxil';
 import { connect } from 'react-redux';
 import { Route, Switch, } from 'react-router-dom';
 import ErrorBoundary from '../ErrorBoundary';
