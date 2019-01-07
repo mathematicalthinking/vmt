@@ -173,12 +173,14 @@ const workspaceLayout = React.memo(({
              {room.members ? <CurrentMembers members={replayer ? replayer.currentMembers : room.currentMembers} activeMember={activeMember}/> : null}
           </div>
           <div className={classes.ReferenceWindow}>
-            {!replayer ?
-              <div className={classes.ReferenceControls} onClick={referencing ? clearReference : startNewReference}>
-                <i className={["fas", "fa-mouse-pointer", classes.MousePointer, referencing ? classes.ReferencingActive : ''].join(" ")}></i>
-                <div className={classes.ReferenceTool}>Reference</div>
-                {/* <div className={classes.RefrenceTool}>Perspective</div> */}
-              </div> : null
+            {!replayer
+              // ? <div className={classes.ReferenceControls} onClick={referencing ? clearReference : startNewReference}>
+              //     <i className={["fas", "fa-mouse-pointer", classes.MousePointer, referencing ? classes.ReferencingActive : ''].join(" ")}></i>
+              //     <div className={classes.ReferenceTool}>Reference</div>
+              //     {/* <div className={classes.RefrenceTool}>Perspective</div> */}
+              //   </div>
+              ? null
+              : null
             }
             <div className={classes.Controls}>
               {!replayer ?

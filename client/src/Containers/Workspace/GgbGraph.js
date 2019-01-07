@@ -290,6 +290,7 @@ class GgbGraph extends Component {
       this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
     // }, 500)
     socket.emit('SEND_EVENT', newData)
+
     this.props.resetControlTimer()
   }, THROTTLE_FIDELITY)
 

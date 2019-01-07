@@ -219,7 +219,7 @@ class Workspace extends Component {
     this.controlTimer = setTimeout(() => {
       this.toggleControl()
       // this.props.updatedRoom(this.props.room._id, {controlledBy: null})
-    }, 60 * 1000)
+    }, 3 * 1000)
   }
 
   startNewReference = () => {
