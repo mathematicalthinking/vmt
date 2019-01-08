@@ -86,8 +86,8 @@ app.use('/desmos', desmos);
 app.use('/auth', auth);
 app.use('/api', api);
 
-app.get('*', (req, res) => {
-  if (process.env.NODE_ENV === 'travistest' || proces.env.NODE_ENV === 'production') {
+app.get('/*', (req, res) => {
+  if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production') {
     res.sendFile(path.join(__dirname, '/client/build/index.html'))
   } else {
     res.sendFile(path.join(__dirname, '/client/public/index.html'));
