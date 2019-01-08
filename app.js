@@ -88,7 +88,7 @@ app.use('/api', api);
 
 app.get('*', (req, res) => {
   if (process.env.NODE_ENV === 'travistest' || proces.env.NODE_ENV === 'production') {
-    res.sendFile(path.join(__dirname, 'client/build/index.html'))
+    res.sendFile(path.join(__dirname, '/client/build/index.html'))
   } else {
     res.sendFile(path.join(__dirname, '/client/public/index.html'));
   }
