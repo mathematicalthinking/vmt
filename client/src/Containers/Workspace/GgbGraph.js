@@ -119,7 +119,9 @@ class GgbGraph extends Component {
 
       } else if (ggbFile) {
         this.ggbApplet.setBase64(ggbFile, () => {
-        this.ggbApplet.showToolBar(true)
+        if (this.isInControl) {
+          this.ggbApplet.showToolBar(true)
+        } else { this.ggbApplet.showToolBar(false)}
         let updatedTabs = [...this.props.room.tabs]
         let updatedTab = {...this.props.room.tabs[this.props.currentTab]}
         updatedTab.currentState = this.ggbApplet.getXML();

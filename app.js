@@ -1,4 +1,4 @@
-// REQUIRE MODULES
+  // REQUIRE MODULES
 const express = require('express');
 const path = require('path');
 const favicon = require('serve-favicon');
@@ -49,9 +49,9 @@ app.use(require('express-session')({
 
 // DO WE NEED THIS?
 if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'client/build')));
+  app.use(express.static(path.join(__dirname, '/client/build')));
 } else {
-  app.use(express.static(path.join(__dirname, 'client/public')));
+  app.use(express.static(path.join(__dirname, '/client/public')));
 }
 
 // MIDDLEWARE
@@ -87,8 +87,8 @@ app.use('/auth', auth);
 app.use('/api', api);
 
 app.get('/*', (req, res) => {
-  if (process.env.NODE_ENV === 'travistest' || proces.env.NODE_ENV === 'production') {
-    res.sendFile(path.join(__dirname, 'client/build/index.html'))
+  if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production') {
+    res.sendFile(path.join(__dirname, '/client/build/index.html'))
   } else {
     res.sendFile(path.join(__dirname, '/client/public/index.html'));
   }
