@@ -1,4 +1,4 @@
-// REQUIRE MODULES
+  // REQUIRE MODULES
 const express = require('express');
 const path = require('path');
 const favicon = require('serve-favicon');
@@ -86,7 +86,7 @@ app.use('/desmos', desmos);
 app.use('/auth', auth);
 app.use('/api', api);
 
-app.get('/*', (req, res) => {
+app.get('*', (req, res) => {
   if (process.env.NODE_ENV === 'travistest' || proces.env.NODE_ENV === 'production') {
     res.sendFile(path.join(__dirname, 'client/build/index.html'))
   } else {
