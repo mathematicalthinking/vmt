@@ -49,9 +49,9 @@ app.use(require('express-session')({
 
 // DO WE NEED THIS?
 if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'client/build')));
+  app.use(express.static(path.join(__dirname, '/client/build')));
 } else {
-  app.use(express.static(path.join(__dirname, 'client/public')));
+  app.use(express.static(path.join(__dirname, '/client/public')));
 }
 
 // MIDDLEWARE
