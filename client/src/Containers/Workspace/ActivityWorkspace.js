@@ -20,7 +20,7 @@ class ActivityWorkspace extends Component {
   }
 
   componentDidMount(){
-    if (!this.props.activity) {
+    if (!this.props.activity ||  !this.props.activity.tabs[0].name) {
       this.props.getCurrentActivity(this.props.match.params.activity_id)
     }
   }

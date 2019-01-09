@@ -38,6 +38,9 @@ class GgbActivityGraph extends Component{
         this.ggbApplet.setXML(INITIAL_GGB)
         this.registerListeners()
       }
+      // Waiting for the tabs to populate if they haven;t akready
+    } else if ((prevProps.tabs !== this.props.tabs) && this.props.tabs[0].name && !this.state.loading) {
+      this.initializeGgb()
     }
   }
 
