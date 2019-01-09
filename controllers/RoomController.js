@@ -71,6 +71,7 @@ module.exports = {
 
 
       let room = new Room(body)
+      // console.log("ROOM:", room)
       if (existingTabs) {
         tabModels = existingTabs.map(tab => {
           delete tab._id;
