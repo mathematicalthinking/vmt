@@ -19,7 +19,7 @@ class ActivityWorkspace extends Component {
     newName: '',
   }
 
-  componentDidMount(){
+  componentDidMount() {
     if (!this.props.activity ||  !this.props.activity.tabs[0].name) {
       this.props.getCurrentActivity(this.props.match.params.activity_id)
     }
@@ -113,4 +113,4 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-export default connect(mapStateToProps, { updatedActivity, setActivityStartingPoint, getCurrentActivity, createActivity, updateActivityTab})(ActivityWorkspace);
+export default connect(mapStateToProps, { updatedActivity, setActivityStartingPoint, getCurrentActivity, createActivity, updateActivityTab })(ActivityWorkspace);

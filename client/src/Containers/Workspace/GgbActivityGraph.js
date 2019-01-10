@@ -39,7 +39,8 @@ class GgbActivityGraph extends Component{
         this.registerListeners()
       }
       // Waiting for the tabs to populate if they haven;t akready
-    } else if ((prevProps.tabs !== this.props.tabs) && this.props.tabs[0].name && !this.state.loading) {
+    } else if (!prevProps.tabs[0].name && this.props.tabs[0].name && !this.state.loading) {
+      console.log('initilziainxg ')
       this.initializeGgb()
     }
   }
@@ -113,6 +114,7 @@ class GgbActivityGraph extends Component{
   }
 
   initializeGgb = () => {
+    console.log(this.props.user, this.props.activity.creator)
     this.ggbApplet = window.ggbApplet;
     this.setState({loading: false});
     let { currentState, startingPoint, ggbFile } = this.props.tabs[this.props.currentTab];
@@ -123,16 +125,19 @@ class GgbActivityGraph extends Component{
     } else if (ggbFile) {
       this.ggbApplet.setBase64(ggbFile);
     }
-    if (this.props.role === 'participant') {
+    if (this.props.user._id === this.props.activity.creator) {
+      this.ggbApplet.setMode(0)
+      // this.freezeElements(true)
+    } else {
       this.ggbApplet.setMode(40)
       this.freezeElements(true)
-    } else {
-      this.freezeElements(true)
-      this.registerListeners();
     }
+    this.registerListeners();
     // put the current construction on the graph, disable everything until the user takes control
   }
 
+  // Save new state to the redux store on each modification to the construction
+  // When the user leaves the room we'll update the backend (that way we only do it once)
   getGgbState = throttle(() => {
     let updatedTabs = [...this.props.tabs]
     let updatedTab = {...this.props.tabs[this.props.currentTab]}
@@ -140,7 +145,7 @@ class GgbActivityGraph extends Component{
     updatedTabs[this.props.currentTab] = updatedTab;
     this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {currentState: updatedTab.currentState})
     // this.props.updatedActivity(this.props.activity._id, {tabs: updatedTabs})
-  }, 500)
+  }, 1000)
 
   registerListeners() {
     this.ggbApplet.registerAddListener(this.getGgbState);

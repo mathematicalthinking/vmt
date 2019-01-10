@@ -61,3 +61,8 @@
 .EvenParticipant {
   background-color: #ddd;
 }
+
+.Error {
+  color: red;
+  height: 20px;
+}
