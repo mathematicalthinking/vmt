@@ -29,16 +29,18 @@ class GgbActivityGraph extends Component{
        this.ggbApplet.setXML(startingPoint)
        this.registerListeners();
       } else if (ggbFile) {
-       this.ggbApplet.setBase64(ggbFile, () => {
-       this.ggbApplet.showToolBar(true)
-        this.getGgbState()
+        this.ggbApplet.setBase64(ggbFile, () => {
+          this.getGgbState()
+            if (this.props.user._id === this.props.activity.creator) {
+              this.freezeElements(false)
+            }
        })
       }
       else {
         this.ggbApplet.setXML(INITIAL_GGB)
         this.registerListeners()
       }
-      // Waiting for the tabs to populate if they haven;t akready
+      // Waiting for the tabs to populate if they haven't akready
     } else if (!prevProps.tabs[0].name && this.props.tabs[0].name && !this.state.loading) {
       console.log('initilziainxg ')
       this.initializeGgb()
@@ -114,7 +116,6 @@ class GgbActivityGraph extends Component{
   }
 
   initializeGgb = () => {
-    console.log(this.props.user, this.props.activity.creator)
     this.ggbApplet = window.ggbApplet;
     this.setState({loading: false});
     let { currentState, startingPoint, ggbFile } = this.props.tabs[this.props.currentTab];
@@ -126,10 +127,9 @@ class GgbActivityGraph extends Component{
       this.ggbApplet.setBase64(ggbFile);
     }
     if (this.props.user._id === this.props.activity.creator) {
-      this.ggbApplet.setMode(0)
+      this.freezeElements(false)
       // this.freezeElements(true)
     } else {
-      this.ggbApplet.setMode(40)
       this.freezeElements(true)
     }
     this.registerListeners();
@@ -167,6 +167,9 @@ class GgbActivityGraph extends Component{
     allElements.forEach(element => { // AS THE CONSTRUCTION GETS BIGGER THIS GETS SLOWER...SET_FIXED IS BLOCKING
       this.ggbApplet.setFixed(element, freeze, true) // Unfix/fix all of the elements
     })
+    this.ggbApplet.enableRightClick(!freeze)
+    this.ggbApplet.showToolBar(!freeze)
+    this.ggbApplet.setMode(freeze ? 40 : 0)
   }
 
   render() {
