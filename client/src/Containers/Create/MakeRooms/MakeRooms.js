@@ -16,7 +16,6 @@ class MakeRooms extends Component  {
   }
 
   componentDidMount() {
-    console.log(this.state.remainingParticipants)
     window.addEventListener('keypress', this.onKeyPress)
   }
 
@@ -93,8 +92,6 @@ class MakeRooms extends Component  {
       }
     }
     else {
-      console.log(typeof parseInt(this.state.participantsPerRoom, 10))
-      console.log(isNaN(parseInt(this.state.paricipantsPerRoom, 10)))
       if (parseInt(this.state.participantsPerRoom, 10) <= 0 || isNaN(parseInt(this.state.participantsPerRoom, 10)) ) {
         return this.setState({error: 'Please enter the number of participants per room'})
       }
