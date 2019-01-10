@@ -21,7 +21,10 @@ module.exports = {
         select: '-currentState',
         populate: {path: 'members.user', select: 'username'},
       })
-      .populate('activities')
+      .populate({
+        path: 'activities',
+        populate: {path: 'tabs'}
+      })
       .populate({ path: 'notifications', populate: {path: 'fromUser'}})
       .then(user => resolve(user))
       .catch(err => reject(err))

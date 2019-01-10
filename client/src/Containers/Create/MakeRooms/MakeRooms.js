@@ -15,6 +15,7 @@ class MakeRooms extends Component  {
   }
 
   componentDidMount() {
+    console.log(this.state.remainingParticipants)
     window.addEventListener('keypress', this.onKeyPress)
   }
 
@@ -52,6 +53,7 @@ class MakeRooms extends Component  {
   // NOW THAT WE HAVE A CREATEROOMFROMACTIVITY ACTION THINK ABOUT REFACTORING ALL OF THIS
   // TO UTILIZE THAT FUNCTIONALITY
   submit = () => {
+    console.log(this.state.assignRandom)
     let { _id, name, description, roomType, desmosLink, ggbFile, image, instructions, tabs, } = this.props.activity;
     let newRoom = {
       activity: _id,
@@ -94,15 +96,22 @@ class MakeRooms extends Component  {
       // @TODO IF THIS.STATE.REMAININGSTUDENTS !== THIS.PROPS.STUDENTS THEN WE KNOW
       // THEY ALREADY STARTED ADDING SOME MANUALLY AND NOW ARE TRYING TO ADD THE REST
       // RANDOMLY. WE SHOULD WARN AGAINST THIS
-      let { remainingParticipants, participantsPerRoom } = {...this.state}
+      let { remainingParticipants, participantsPerRoom } = this.state
       // @TODO THIS COULD PROBABLY BE OPTIMIZED
       remainingParticipants = shuffle(remainingParticipants)
+      console.log(remainingParticipants, participantsPerRoom)
       let numRooms = remainingParticipants.length/participantsPerRoom
       for (let i = 0; i < numRooms; i++) {
-        let members = remainingParticipants.splice(0, participantsPerRoom)
+        let members = remainingParticipants
+          .splice(0, participantsPerRoom)
+          .map(participant => ({
+            user: participant.user._id,
+            role: 'participant'
+          }))
         members.push({user: this.props.userId, role: 'facilitator'})
         newRoom.name = `${name} ${this.state.roomsCreated + i + 1}`;
         newRoom.members = members;
+        console.log("newRoom: ", newRoom)
         this.props.createRoom(newRoom)
       }
       this.props.close();
