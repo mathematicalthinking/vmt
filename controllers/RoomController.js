@@ -43,8 +43,8 @@ module.exports = {
       .catch(err => reject(err))
     });
   },
-  // WHAT I SHOULD ACTUALLY BE DOING HERE IS CREATING new Schemas saving their respective ids within each other and then write to the db once
   post: body => {
+    console.log('post')
     return new Promise(async (resolve, reject) => {
       // Prepare the tabs if they exist
       let existingTabs;
@@ -73,6 +73,7 @@ module.exports = {
       let room = new Room(body)
       // console.log("ROOM:", room)
       if (existingTabs) {
+        console.log('existing tabs')
         tabModels = existingTabs.map(tab => {
           delete tab._id;
           delete tab.activity;
@@ -100,9 +101,12 @@ module.exports = {
         }
       }
       room.tabs = tabModels.map(tab => tab._id);
+      console.log('saved tabs to room')
       try {
         await tabModels.forEach(tab => tab.save()) // These could run in parallel I suppose but then we'd have to edit one if ther ewas a failuer with the other
+        console.log('saved tab models')
         await room.save()
+        console.log('saved room')
         room.populate({path: 'members.user', select: 'username'}, (err, room) => {
           if (err) reject(err);
           resolve(room)

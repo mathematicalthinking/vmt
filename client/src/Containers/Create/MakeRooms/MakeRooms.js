@@ -12,9 +12,11 @@ class MakeRooms extends Component  {
     roomsCreated: 0,
     remainingParticipants: this.props.participants,
     dueDate: '',
+    error: null,
   }
 
   componentDidMount() {
+    console.log(this.state.remainingParticipants)
     window.addEventListener('keypress', this.onKeyPress)
   }
 
@@ -29,7 +31,7 @@ class MakeRooms extends Component  {
   }
 
   setNumber = event => {
-    this.setState({participantsPerRoom: event.target.value})
+    this.setState({participantsPerRoom: event.target.value.trim(), error: null})
   }
 
   setDate = event => {
@@ -91,20 +93,33 @@ class MakeRooms extends Component  {
       }
     }
     else {
+      console.log(typeof parseInt(this.state.participantsPerRoom, 10))
+      console.log(isNaN(parseInt(this.state.paricipantsPerRoom, 10)))
+      if (parseInt(this.state.participantsPerRoom, 10) <= 0 || isNaN(parseInt(this.state.participantsPerRoom, 10)) ) {
+        return this.setState({error: 'Please enter the number of participants per room'})
+      }
       // @TODO IF THIS.STATE.REMAININGSTUDENTS !== THIS.PROPS.STUDENTS THEN WE KNOW
       // THEY ALREADY STARTED ADDING SOME MANUALLY AND NOW ARE TRYING TO ADD THE REST
       // RANDOMLY. WE SHOULD WARN AGAINST THIS
-      let { remainingParticipants, participantsPerRoom } = {...this.state}
+      let { remainingParticipants, participantsPerRoom } = this.state
       // @TODO THIS COULD PROBABLY BE OPTIMIZED
       remainingParticipants = shuffle(remainingParticipants)
       let numRooms = remainingParticipants.length/participantsPerRoom
+      let roomsToCreate = [];
       for (let i = 0; i < numRooms; i++) {
-        let members = remainingParticipants.splice(0, participantsPerRoom)
+        let currentRoom = {...newRoom}
+        let members = remainingParticipants
+          .splice(0, participantsPerRoom)
+          .map(participant => ({
+            user: participant.user._id,
+            role: 'participant'
+          }))
         members.push({user: this.props.userId, role: 'facilitator'})
-        newRoom.name = `${name} ${this.state.roomsCreated + i + 1}`;
-        newRoom.members = members;
-        this.props.createRoom(newRoom)
+        currentRoom.name = `${name} (room ${i + 1})`;
+        currentRoom.members = members;
+        roomsToCreate.push(currentRoom)
       }
+      roomsToCreate.forEach(room => this.props.createRoom(room))
       this.props.close();
       let { url } = this.props.match;
       this.props.history.push(`${url.slice(0, url.length - 7)}rooms`)
@@ -146,11 +161,12 @@ class MakeRooms extends Component  {
             <RadioBtn name='random' checked={this.state.assignRandom} check={() => this.setState({assignRandom: true})}>Assign Randomly</RadioBtn>
             <RadioBtn data-testid='assign-manually' name='manual' checked={!this.state.assignRandom} check={() => this.setState({assignRandom: false})}>Assign Manually</RadioBtn>
           </div>
-          {this.state.assignRandom ?//
-            <div className={classes.SubContainer}>
+          {this.state.assignRandom
+            ? <div className={classes.SubContainer}>
+              <div className={classes.Error}>{this.state.error || ''}</div>
               <TextInput light label='Number of participants per room' type='number' change={this.setNumber}/>
-            </div> :
-            <div className={classes.SubContainer}>
+            </div>
+            : <div className={classes.SubContainer}>
               <div className={classes.ParticipantList}>
                 {participantList}
               </div>
@@ -172,7 +188,8 @@ const mapDispatchToProps = dispatch => ({
 
 // @TODO CONSIDER DOING THIS DIFFERENTLY
 const shuffle = (array) => {
-  let currentIndex = array.length, temporaryValue, randomIndex;
+  let arrayCopy = [...array]
+  let currentIndex = arrayCopy.length, temporaryValue, randomIndex;
 
   // While there remain elements to shuffle...
   while (0 !== currentIndex) {
@@ -183,11 +200,11 @@ const shuffle = (array) => {
 
     // And swap it with the current element.
     temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
+    arrayCopy[currentIndex] = array[randomIndex];
+    arrayCopy[randomIndex] = temporaryValue;
   }
 
-  return array;
+  return arrayCopy;
 }
 
 export default withRouter(connect(null, mapDispatchToProps)(MakeRooms));

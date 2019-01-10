@@ -8,6 +8,7 @@ class NewTabForm extends Component {
     name: '',
     instructions: '',
     tabType: '',
+    ggbFile: '',
     desmosLink: '',
     ggb: true,
   }
@@ -36,15 +37,24 @@ class NewTabForm extends Component {
       })
       return;
     }
-    API.post('tabs', {
+    let newTab = {
       name: this.state.name,
       instructions: this.state.instructions,
       tabType: this.state.ggb ? 'geogebra' : 'desmos',
       desmosLink: this.state.desmosLink,
       room: this.props.room ? this.props.room._id : null,
       activity: this.props.activity ? this.props.activity._id : null,
+    }
+    this.uploadGgbFile()
+    .then(results => {
+      if (results && results.data) {
+        newTab.ggbFile = results.data.result;
+      }
+      console.log(results)
+      return API.post('tabs', newTab)
     })
     .then(res => {
+      console.log(res)
       let tabs;
       if (this.props.room) {
         tabs = [...this.props.room.tabs];
@@ -63,6 +73,29 @@ class NewTabForm extends Component {
     })
   }
 
+  uploadGgbFile = () => {
+    let files = this.state.ggbFile;
+    if (typeof files !== 'object' || files.length < 1)  {
+      return Promise.resolve({
+        data: {
+          result: []
+        }
+      });
+    }
+    let formData = new FormData();
+
+    for (let f of files) {
+      formData.append('ggbFiles', f);
+    }
+    return API.uploadGgbFiles(formData)
+  }
+
+  setGgbFile = event => {
+    this.setState({
+      ggbFile: event.target.files
+    })
+  }
+
   render(){
     return (
       <div className={classes.NewTabModal}>
@@ -78,7 +111,8 @@ class NewTabForm extends Component {
           {this.state.ggb ?
           <div>
             <div className={classes.Info}>Import a GeoGebra (optional)</div>
-            <Button>Select a Geogebra File (optional)</Button>
+            <input type="file" id='file' multiple={false} name='ggbFile' accept='.ggb' onChange={this.setGgbFile}>
+            </input>
           </div> :
           <TextInput
             light

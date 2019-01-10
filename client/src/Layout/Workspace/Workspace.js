@@ -81,6 +81,7 @@ const workspaceLayout = React.memo(({
       graph = <GgbActivityGraph
         activity={room}
         tabs={room.tabs}
+        user={user}
         currentTab={currentTab}
         role={role}
         updatedActivity={updatedActivity}

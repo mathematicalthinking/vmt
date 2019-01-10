@@ -66,9 +66,10 @@ module.exports = {
       })
       .then(tab => {
         if (Array.isArray(tab)) {
-          return db.Activity.findByIdAndUpdate(createdActivity._id, {$addToSet: {tabs: tab.map(tab => tab._id)}}, {new: true})
+          return db.Activity.findByIdAndUpdate(createdActivity._id, {$addToSet: {tabs: tab.map(tab => tab._id)}}, {new: true}).populate('tabs');
         }
-        return db.Activity.findByIdAndUpdate(createdActivity._id, {$addToSet: {tabs: tab._id}}, {new: true})})
+        return db.Activity.findByIdAndUpdate(createdActivity._id, {$addToSet: {tabs: tab._id}}, {new: true}).populate('tabs')
+      })
       .then(activity => {resolve(activity)})
       .catch(err => {reject(err)})
     })

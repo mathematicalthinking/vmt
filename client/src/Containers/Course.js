@@ -304,7 +304,7 @@ class Course extends Component {
             // bothRoles={this.state.bothRoles}
             // view={'facilitator'}
           />
-          <Modal show={this.state.firstView} close={() => this.setState({firstView: false })}>
+          <Modal show={this.state.firstView} closeModal={this.clearFirstViewNtf}>
             <p>Welcome to {course.name}. If this is your first time joining a course,
             we recommend you take a tour. Otherwise you can start exploring this course's features.</p>
             <Button theme={'Small'} click={this.clearFirstViewNtf}>Explore</Button>

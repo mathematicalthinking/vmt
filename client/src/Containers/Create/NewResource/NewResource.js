@@ -67,6 +67,8 @@ class NewResourceContainer extends Component {
     this.setState({copying: event.target.name === 'copy'})
   }
 
+  // @TODO move this somewhere it can be shared with Containsers/Workspace/NewTabForm
+  // maybe it makes sense to move newTabForm Here because its creating something
   uploadGgbFiles = () => {
     let files = this.state.ggbFiles;
     if (typeof files !== 'object' || files.length < 1)  {

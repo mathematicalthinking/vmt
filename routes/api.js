@@ -86,6 +86,7 @@ router.post('/upload/ggb', middleware.validateUser, ggbUpload.array('ggbFiles', 
 
 router.post('/:resource', middleware.validateUser, middleware.validateNewRecord, (req, res, next) => {
 	let controller = controllers[req.params.resource]
+	console.log('post route')
 	controller.post(req.body)
 	  .then(result => res.json({ result }))
 	  .catch(err => {
