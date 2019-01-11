@@ -21,25 +21,29 @@ class GgbActivityGraph extends Component{
 
   componentDidUpdate(prevProps, prevState){
     if (prevProps.currentTab !== this.props.currentTab) {
-      let { currentState, startingPoint, ggbFile } = this.props.tabs[this.props.currentTab];
-      if (currentState) {
-        this.ggbApplet.setXML(currentState)
-        this.registerListeners();
-      } else if (startingPoint) {
-       this.ggbApplet.setXML(startingPoint)
-       this.registerListeners();
-      } else if (ggbFile) {
-        this.ggbApplet.setBase64(ggbFile, () => {
-          this.getGgbState()
-            if (this.props.user._id === this.props.activity.creator) {
-              this.freezeElements(false)
-            }
-       })
-      }
-      else {
-        this.ggbApplet.setXML(INITIAL_GGB)
-        this.registerListeners()
-      }
+      // by wrapping this in a setimteout of 0 I'm attempting to delay all of the event blocking geogebra operations
+      // until after any UI updates////can't quite tell if it working...when switching tab the tab animation should be smoothe
+      setTimeout(() => {
+        let { currentState, startingPoint, ggbFile } = this.props.tabs[this.props.currentTab];
+        if (currentState) {
+          this.ggbApplet.setXML(currentState)
+          this.registerListeners();
+        } else if (startingPoint) {
+         this.ggbApplet.setXML(startingPoint)
+         this.registerListeners();
+        } else if (ggbFile) {
+          this.ggbApplet.setBase64(ggbFile, () => {
+            this.getGgbState()
+              if (this.props.user._id === this.props.activity.creator) {
+                this.freezeElements(false)
+              }
+         })
+        }
+        else {
+          this.ggbApplet.setXML(INITIAL_GGB)
+          this.registerListeners()
+        }
+      }, 0)
       // Waiting for the tabs to populate if they haven't akready
     } else if (!prevProps.tabs[0].name && this.props.tabs[0].name && !this.state.loading) {
       console.log('initilziainxg ')
@@ -167,6 +171,7 @@ class GgbActivityGraph extends Component{
     allElements.forEach(element => { // AS THE CONSTRUCTION GETS BIGGER THIS GETS SLOWER...SET_FIXED IS BLOCKING
       this.ggbApplet.setFixed(element, freeze, true) // Unfix/fix all of the elements
     })
+
     this.ggbApplet.enableRightClick(!freeze)
     this.ggbApplet.showToolBar(!freeze)
     this.ggbApplet.setMode(freeze ? 40 : 0)
