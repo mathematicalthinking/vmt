@@ -46,7 +46,6 @@ class GgbActivityGraph extends Component{
       }, 0)
       // Waiting for the tabs to populate if they haven't akready
     } else if (!prevProps.tabs[0].name && this.props.tabs[0].name && !this.state.loading) {
-      console.log('initilziainxg ')
       this.initializeGgb()
     }
   }
@@ -143,12 +142,17 @@ class GgbActivityGraph extends Component{
   // Save new state to the redux store on each modification to the construction
   // When the user leaves the room we'll update the backend (that way we only do it once)
   getGgbState = throttle(() => {
-    let updatedTabs = [...this.props.tabs]
-    let updatedTab = {...this.props.tabs[this.props.currentTab]}
-    updatedTab.currentState = this.ggbApplet.getXML();
-    updatedTabs[this.props.currentTab] = updatedTab;
-    this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {currentState: updatedTab.currentState})
-    // this.props.updatedActivity(this.props.activity._id, {tabs: updatedTabs})
+    if (this.props.role === 'facilitator') {
+      let updatedTabs = [...this.props.tabs]
+      let updatedTab = {...this.props.tabs[this.props.currentTab]}
+      updatedTab.currentState = this.ggbApplet.getXML();
+      updatedTabs[this.props.currentTab] = updatedTab;
+      this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {currentState: updatedTab.currentState})
+      // this.props.updatedActivity(this.props.activity._id, {tabs: updatedTabs})
+    }
+    else {
+      alert("You cannot edit this activity because you are not the owner. If you want to make changes, copy it to your list of activities first.")
+    }
   }, 1000)
 
   registerListeners() {
