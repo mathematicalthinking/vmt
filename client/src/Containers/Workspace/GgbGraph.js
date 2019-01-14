@@ -220,7 +220,6 @@ class GgbGraph extends Component {
       let definition = this.ggbApplet.getCommandString(label);
       this.sendEvent(xml, definition, label, "ADD", "added");
     }
-    this.ggbApplet.setUndoPoint()
     this.setState({receivingData: false})
   }
 
@@ -228,7 +227,6 @@ class GgbGraph extends Component {
     if (!this.state.receivingData) {
       this.sendEvent(null, null, label, "REMOVE", "removed")
     }
-    this.ggbApplet.setUndoPoint()
     this.setState({receivingData: false})
   }
 
@@ -241,7 +239,6 @@ class GgbGraph extends Component {
       let xml = this.ggbApplet.getXML(label)
       this.sendEvent(xml, null, label, "UPDATE", "updated")
     }
-    this.ggbApplet.setUndoPoint()
     this.setState({receivingData: false})
     // this.ggbApplet.evalCommand("updateConstruction()")
   }
@@ -276,8 +273,22 @@ class GgbGraph extends Component {
   }
 
   sendEvent = throttle(async (xml, definition, label, eventType, action) => {
-    if (!this.props.user.connected) {
-      this.ggbApplet.undo() // We should never reach this block because control should be prevented if user is not connected
+    if (!this.props.user.connected || !this.isInControl) {
+      // @TODO HAVING TROUBLE GETTING ACTIONS TO UNDO
+      alert("You are not in control. The update you just made will not be saved. Please refresh the page")
+      // console.log('attempting to undo')
+      // console.log(xml, action, label, definition, eventType)
+      // console.log(this.ggbApplet.getLayer(label))
+      // switch (eventType) {
+      //   case 'REMOVE':
+      //     if (definition) this.ggbApplet.evalCommand(`${label}:${definition}`);
+      //     if (xml) this.ggbApplet.evalXML(xml);
+      //     this.ggbApplet.evalCommand('UpdateConstruction()');
+      //     break;
+      //   default:
+      //     break;
+      // }
+      this.ggbApplet.undo()
       return;
     }
     let xmlObj;

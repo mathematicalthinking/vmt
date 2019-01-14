@@ -1,4 +1,5 @@
-# VMT React
+# Virtual Math Teams (VMT) [![Build Status](https://travis-ci.org/mathematicalthinking/encompass.svg?branch=master)](https://travis-ci.org/mathematicalthinking/encompass) [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+
 Virtual Math Teams (VMT) provides a collaboration infrastructure for visual math and geometry tools, such as Geogebra and Desmos. To provide this infrastructure, this version uses React.js and Redux.js, express and sockets.io.  see 'Installation' below.
 
 ## License
@@ -29,7 +30,7 @@ To provide the colloaboration infrastructure, this application uses a combinatio
 1. At this point create-react-app will open a browser window for you and refresh it
 every time a change is made.
 
-## Deployment 
+## Deployment
 This should be changed eventually, but it works for now.
 ```
 $ git push -f heroku HEAD:master
@@ -77,7 +78,7 @@ To run the tests restart the server in test mode `npm run test` and then in a ne
 ## Project structure
 ### Frontend (client)
 📁 src
-| 
+|
 -- App.js
 |
 -- 📁 Routes
