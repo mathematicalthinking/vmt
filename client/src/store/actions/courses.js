@@ -130,24 +130,35 @@ export const updateCourseMembers = (courseId, updatedMembers) => {
 
 export const updateCourse = (id, body) => {
   return (dispatch, getState) => {
+    let course = {...getState().courses.byId[id]};
     if (body.isTrashed) {
       if (body.trashChildren) {
-        let { activities, rooms } = getState().courses.byId[id];
-        dispatch(removeUserActivities(activities))
-        dispatch(activitiesRemoved(activities))
-        dispatch(removeUserRooms(rooms))
-        dispatch(roomsRemoved(rooms))
+        let { activities, rooms } = course;
+        dispatch(removeUserActivities(activities));
+        dispatch(activitiesRemoved(activities));
+        dispatch(removeUserRooms(rooms));
+        dispatch(roomsRemoved(rooms));
       }
-      dispatch(removeUserCourse(id))
-      dispatch(courseRemoved(id))
+      dispatch(removeUserCourse(id));
+      dispatch(courseRemoved(id));
     } else {
-      dispatch(updatedCourse(id, body))
+      dispatch(updatedCourse(id, body));
     }
     API.put('courses', id, body)
     .then(res => {
       console.log(res)
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+      let prevCourse = {};
+      Object.keys(body).forEach(key => {
+        prevCourse[key] = course[key]
+      })
+      dispatch(updatedCourse(id, prevCourse));
+      // dispatch(loading.fail('Something went wrong'));
+      // Undo updates because something went wrong with the server/connection
+
+      console.log(err)
+    })
   }
 }
 

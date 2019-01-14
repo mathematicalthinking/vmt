@@ -88,9 +88,11 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log(this.props.course.description)
     if (!this.props.course) {
       return;
     }
+    // If we've just fetched the course?
     if (!prevProps.course && this.props.course) {
       this.checkAccess();
     }
@@ -102,6 +104,17 @@ class Course extends Component {
       // this.props.getCourse(this.props.match.params.course_id)
       let updatedTabs = this.displayNotifications([...this.state.tabs])
       this.setState({tabs: updatedTabs})
+    }
+    // if the course has been updated by redux
+    // This will happen when an update request is unsuccessful. When a user updates the course we are changing this components state
+    // and updating the UI immediately, if the request fails we need to undo that state/ui change
+    if (prevProps.course !== this.props.course) {
+      this.setState({
+        name: this.props.course.name,
+        description: this.props.course.description,
+        entryCode: this.props.course.entryCode,
+        privacySetting: this.props.course.privacySetting,
+      })
     }
     // if ((this.state.member || this.state.owner) && !this.props.loading) {
     //   this.checkForFetch();
