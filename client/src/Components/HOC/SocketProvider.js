@@ -94,7 +94,7 @@ class SocketProvider extends Component {
     socket.on('reconnect', (attemptNumber) => {
       console.log('reconnected after ', attemptNumber, ' attempts')
       // MAYBE FETCH THE USER TO GET MISSING NOTIFICATIONS AND THE LIKE
-      this.props.getUser(this.props.user._id)
+      this.props.getUser(this.props.user._id);
       this.props.updateUser({connected: true})
     })
   }

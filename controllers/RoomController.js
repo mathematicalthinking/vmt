@@ -44,7 +44,6 @@ module.exports = {
     });
   },
   post: body => {
-    console.log('post')
     return new Promise(async (resolve, reject) => {
       // Prepare the tabs if they exist
       let existingTabs;
@@ -73,13 +72,16 @@ module.exports = {
       let room = new Room(body)
       // console.log("ROOM:", room)
       if (existingTabs) {
-        console.log('existing tabs')
         tabModels = existingTabs.map(tab => {
-          delete tab._id;
-          delete tab.activity;
-          tab.startingPoint = tab.currentState;
-          tab.room = room._id;
-          return new Tab(tab)
+          let newTab = new Tab({
+            name: tab.name,
+            room: room._id,
+            ggbFile: tab.ggbFile,
+            currentState: tab.currentState,
+            startingPoint: tab.startingPoint,
+            tabType: tab.tabType,
+          });
+          return newTab;
         })
       } else {
         if (Array.isArray(ggbFiles) && ggbFiles.length > 0) {
@@ -101,10 +103,8 @@ module.exports = {
         }
       }
       room.tabs = tabModels.map(tab => tab._id);
-      console.log('saved tabs to room')
       try {
         await tabModels.forEach(tab => tab.save()) // These could run in parallel I suppose but then we'd have to edit one if ther ewas a failuer with the other
-        console.log('saved tab models')
         await room.save()
         console.log('saved room')
         room.populate({path: 'members.user', select: 'username'}, (err, room) => {
