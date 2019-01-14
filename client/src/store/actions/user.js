@@ -178,16 +178,18 @@ export const getUser = (id) => {
       let courses = normalize(res.data.result.courses)
       dispatch(gotCourses(courses));
 
-      let user = {
-        ...res.data.result,
-        courses: courses.allIds,
-      }
       let rooms = normalize(res.data.result.rooms);
       dispatch(gotRooms(rooms));
 
       let activities = normalize(res.data.result.activities);
       dispatch(gotActivities(activities));
 
+      let user = {
+        ...res.data.result,
+        courses: courses.allIds,
+        activities: activities.allIds,
+        rooms: rooms.allIds,
+      }
       dispatch(gotUser(user))
       dispatch(loading.success())
     })

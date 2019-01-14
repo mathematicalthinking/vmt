@@ -18,8 +18,10 @@ module.exports = {
   },
 
   post: (body) => {
+    console.log(body)
     return new Promise(async (resolve, reject) => {
       let existingTabs;
+      // This indicates we're copying 1 or more activities
       if (body.activities) {
         try {
           let activities = await db.Activity.find({'_id': {$in: body.activities}}).populate('tabs')
@@ -30,13 +32,15 @@ module.exports = {
         catch(err) {reject(err)}
       }
       let createdActivity;
-      let ggbFiles = [...body.ggbFiles];
+      let ggbFiles;
+      if (body.ggbFiles) {
+        ggbFiles = [...body.ggbFiles];
+      }
       delete body.ggbFiles;
-
+      delete body.activities
       db.Activity.create(body)
       .then(activity => {
         createdActivity = activity;
-
         if (!existingTabs) {
           if (Array.isArray(ggbFiles) && ggbFiles.length > 0) {
             return Promise.all(ggbFiles.map((file, index) => {
@@ -57,10 +61,15 @@ module.exports = {
           }
         } else {
           return Promise.all(existingTabs.map(tab => {
-            delete tab._id
-            tab.activity = activity._id;
-            tab.startingPoint = tab.currentState;
-            return db.Tab.create(tab)
+            let newTab = new db.Tab({
+              name: tab.name,
+              activity: activity._id,
+              ggbFile: tab.ggbFile,
+              currentState: tab.currentState,
+              startingPoint: tab.startingPoint,
+              tabType: tab.tabType,
+            })
+            return newTab.save()
           }))
         }
       })
