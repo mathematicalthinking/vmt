@@ -12,6 +12,7 @@ import {
   updateCourseActivities,
   updateCourse,
   clearNotification,
+  clearLoadingInfo,
   getCourse,
   getUser,
 } from '../store/actions';
@@ -24,6 +25,8 @@ import {
   TabList,
   EditText,
   TrashModal,
+  Error,
+  ErrorToast,
 } from '../Components';
 import Access from './Access';
 
@@ -44,6 +47,8 @@ class Course extends Component {
     entryCode: this.props.course ? this.props.course.entryCode: null,
     privacySetting: this.props.course ? this.props.course.privacySetting: null,
     trashing: false,
+    error: false,
+    errorMessage: null,
   }
   initialTabs = [
     {name: 'Activities'},
@@ -88,7 +93,6 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log(this.props.course.description)
     if (!this.props.course) {
       return;
     }
@@ -108,12 +112,18 @@ class Course extends Component {
     // if the course has been updated by redux
     // This will happen when an update request is unsuccessful. When a user updates the course we are changing this components state
     // and updating the UI immediately, if the request fails we need to undo that state/ui change
-    if (prevProps.course !== this.props.course) {
+    if (prevProps.loading.updateResource === null && this.props.loading.updateResource === 'course') {
+      setTimeout(() => {
+        this.props.clearLoadingInfo()
+        this.setState({error: false, errorMessage: null})
+      }, 2000)
       this.setState({
         name: this.props.course.name,
         description: this.props.course.description,
         entryCode: this.props.course.entryCode,
         privacySetting: this.props.course.privacySetting,
+        error: true,
+        errorMessage: 'Something went wrong, try again'
       })
     }
     // if ((this.state.member || this.state.owner) && !this.props.loading) {
@@ -263,11 +273,11 @@ class Course extends Component {
         facilitators: course.members.filter(member => member.role === 'facilitator').length,
         acitivities: course.activities.length,
         rooms: course.rooms.length,
-        privacy: <EditText change={this.updateCourseInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name='privacySetting'>{this.state.privacySetting}</EditText>,
+        privacy: <Error error={this.state.error}><EditText change={this.updateCourseInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name='privacySetting'>{this.state.privacySetting}</EditText></Error>,
       }
 
       if (this.state.owner) {
-        additionalDetails.code = <EditText change={this.updateCourseInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText>;
+        additionalDetails.code =  <Error error={this.state.error}><EditText change={this.updateCourseInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText></Error>;
       }
 
       // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
@@ -282,8 +292,8 @@ class Course extends Component {
               <SidePanel
                 image={course.image}
                 alt={this.state.name}
-                name={<EditText change={this.updateCourseInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>}
-                subTitle={<EditText change={this.updateCourseInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>}
+                name={<Error error={this.state.error}><EditText change={this.updateCourseInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText></Error>}
+                subTitle={<Error error={this.state.error}><EditText change={this.updateCourseInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText></Error>}
                 owner={this.state.owner}
                 bothRoles={this.state.bothRoles}
                 additionalDetails={additionalDetails}
@@ -333,6 +343,7 @@ class Course extends Component {
               />
             : null
           }
+          {this.state.errorMessage ? <ErrorToast>{this.state.errorMessage}</ErrorToast> : null}
         </Aux>
       )
     } else return (
@@ -358,7 +369,7 @@ const mapStateToProps = (store, ownProps) => {
     user: store.user,
     // notifications: store.user.courseNotifications.access,
     notifications: ntfUtils.getUserNotifications(store.user, null, 'course'),
-    loading: store.loading.loading,
+    loading: store.loading,
   }
 }
 
@@ -372,4 +383,5 @@ export default connect(mapStateToProps, {
   updateCourse,
   getCourse,
   getUser,
+  clearLoadingInfo,
 })(Course);

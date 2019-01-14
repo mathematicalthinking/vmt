@@ -150,11 +150,12 @@ export const updateCourse = (id, body) => {
     })
     .catch(err => {
       let prevCourse = {};
-      Object.keys(body).forEach(key => {
+      let keys = Object.keys(body)
+      keys.forEach(key => {
         prevCourse[key] = course[key]
       })
       dispatch(updatedCourse(id, prevCourse));
-      // dispatch(loading.fail('Something went wrong'));
+      dispatch(loading.updateFail('course', keys));
       // Undo updates because something went wrong with the server/connection
 
       console.log(err)
