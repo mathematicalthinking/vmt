@@ -21,7 +21,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  clear: () => dispatch(actions.clear())
+  clear: () => dispatch(actions.clearLoadingInfo())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(confirmation);

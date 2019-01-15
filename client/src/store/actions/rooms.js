@@ -4,6 +4,7 @@ import { normalize } from '../utils/normalize';
 import { addUserRooms, removeUserRooms } from './user';
 import { addCourseRooms, removeCourseRooms } from './courses';
 import { addActivityRooms, } from './activities';
+import { clearLoadingInfo, } from './loading'
 import * as loading from './loading'
 
 export const gotRooms = (rooms, isNewRoom) => ({
@@ -110,7 +111,8 @@ export const createRoomFromActivity = (activityId, userId, dueDate, courseId) =>
 }
 
 export const updateRoom = (id, body) => {
-  return dispatch => {
+  return (dispatch, getState) => {
+    let room = {...getState().rooms.byId[id]}
     if (body.isTrashed) {
       dispatch(removeUserRooms([id]))
       dispatch(roomsRemoved([id]))
@@ -121,8 +123,21 @@ export const updateRoom = (id, body) => {
     .then(res => {
     })
     .catch(err => {
-      // @TODO IF SOMETHING WENT WRONG NOTIFY THE USER AND UNSO THE OPTIMISTIC UPDATE
-      console.log(err)
+      if (body.isTrashed) {
+        dispatch(addUserRooms([id]))
+        dispatch(createdRoom(room))
+      }
+      let prevRoom = {};
+      let keys = Object.keys(body);
+      keys.forEach(key => {
+        prevRoom[key] = room[key]
+      })
+
+      dispatch(updatedRoom(id, prevRoom))
+      dispatch(loading.updateFail('room', keys))
+      setTimeout(() => {
+        dispatch(clearLoadingInfo())
+      }, 2000)
     })
     // API REQUEST
   }
@@ -168,7 +183,6 @@ export const getRooms = params => {
 export const getRoom = id => {
   return dispatch => {
     dispatch(loading.start())
-    console.log("ID: ", id)
     API.getById('rooms', id)
     .then(res => {
       dispatch(updatedRoom(id, res.data.result))

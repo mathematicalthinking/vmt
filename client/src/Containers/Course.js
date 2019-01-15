@@ -24,6 +24,7 @@ import {
   TabList,
   EditText,
   TrashModal,
+  Error,
 } from '../Components';
 import Access from './Access';
 
@@ -91,6 +92,7 @@ class Course extends Component {
     if (!this.props.course) {
       return;
     }
+    // If we've just fetched the course?
     if (!prevProps.course && this.props.course) {
       this.checkAccess();
     }
@@ -102,6 +104,18 @@ class Course extends Component {
       // this.props.getCourse(this.props.match.params.course_id)
       let updatedTabs = this.displayNotifications([...this.state.tabs])
       this.setState({tabs: updatedTabs})
+    }
+    // if the course has been updated by redux
+    // This will happen when an update request is unsuccessful. When a user updates the course we are changing this components state
+    // and updating the UI immediately, if the request fails we need to undo that state/ui change
+    if (prevProps.loading.updateResource === null && this.props.loading.updateResource === 'course') {
+
+      this.setState({
+        name: this.props.course.name,
+        description: this.props.course.description,
+        entryCode: this.props.course.entryCode,
+        privacySetting: this.props.course.privacySetting,
+      })
     }
     // if ((this.state.member || this.state.owner) && !this.props.loading) {
     //   this.checkForFetch();
@@ -180,6 +194,12 @@ class Course extends Component {
     let { updateCourse, course, } = this.props;
     let { entryCode, name, details, description, privacySetting } = this.state
     let body = { entryCode, name, details, description, privacySetting }
+    // only send the fields that have changed
+    Object.keys(body).forEach(key => {
+      if (body[key] === course[key]) {
+        delete body[key]
+      }
+    })
     updateCourse(course._id, body)
     this.setState({
       editing: false,
@@ -244,17 +264,18 @@ class Course extends Component {
           notifications={notifications.filter(ntf => ntf.resourceId === course._id) || []}
         />
       }
-
+      // Updatekeys = the keys that we failed to update
+      let { updateFail, updateKeys } = this.props.loading;
 
       let additionalDetails = {
         facilitators: course.members.filter(member => member.role === 'facilitator').length,
         acitivities: course.activities.length,
         rooms: course.rooms.length,
-        privacy: <EditText change={this.updateCourseInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name='privacySetting'>{this.state.privacySetting}</EditText>,
+        privacy: <Error error={updateFail && updateKeys.indexOf('privacySetting') > -1}><EditText change={this.updateCourseInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name='privacySetting'>{this.state.privacySetting}</EditText></Error>,
       }
 
       if (this.state.owner) {
-        additionalDetails.code = <EditText change={this.updateCourseInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText>;
+        additionalDetails.code =  <Error error={updateFail && updateKeys.indexOf('entryCode') > -1}><EditText change={this.updateCourseInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText></Error>;
       }
 
       // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
@@ -269,8 +290,8 @@ class Course extends Component {
               <SidePanel
                 image={course.image}
                 alt={this.state.name}
-                name={<EditText change={this.updateCourseInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>}
-                subTitle={<EditText change={this.updateCourseInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>}
+                name={<Error error={updateFail && updateKeys.indexOf('name') > -1}><EditText change={this.updateCourseInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText></Error>}
+                subTitle={<Error error={updateFail && updateKeys.indexOf('description') > -1}><EditText change={this.updateCourseInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText></Error>}
                 owner={this.state.owner}
                 bothRoles={this.state.bothRoles}
                 additionalDetails={additionalDetails}
@@ -279,8 +300,9 @@ class Course extends Component {
                   ? <Aux>
                       <div role='button' style={{display: this.state.editing ? 'none' : 'block'}} data-testid='edit-course' onClick={this.toggleEdit}><span>Edit Course <i className="fas fa-edit"></i></span></div>
                       {this.state.editing
+                      // @TODO this should be a resuable component
                         ? <div>
-                            <Button click={this.updateCourse} theme='edit-save'>Save</Button>
+                            <Button click={this.updateCourse} data-testid='save-course' theme='edit-save'>Save</Button>
                             <Button click={this.trashCourse} data-testid='trash-course' theme='Danger'><i className="fas fa-trash-alt"></i></Button>
                             <Button click={this.toggleEdit} theme='edit'>Cancel</Button>
                           </div>
@@ -320,6 +342,7 @@ class Course extends Component {
               />
             : null
           }
+
         </Aux>
       )
     } else return (
@@ -345,7 +368,7 @@ const mapStateToProps = (store, ownProps) => {
     user: store.user,
     // notifications: store.user.courseNotifications.access,
     notifications: ntfUtils.getUserNotifications(store.user, null, 'course'),
-    loading: store.loading.loading,
+    loading: store.loading,
   }
 }
 

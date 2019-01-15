@@ -32,8 +32,16 @@ export const clearError = () => {
   }
 }
 
-export const clear = () => {
+export const clearLoadingInfo = () => {
   return {
-    type: actionTypes.CLEAR,
+    type: actionTypes.CLEAR_ALL,
+  }
+}
+
+export const updateFail = (resource, keys) => {
+  return {
+    type: actionTypes.UPDATE_FAIL,
+    resource,
+    keys,
   }
 }

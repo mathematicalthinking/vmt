@@ -25,7 +25,7 @@ export {
 export {
   fail,
   start,
-  clear,
+  clearLoadingInfo,
   success,
   clearError,
   accessSuccess,

@@ -1,0 +1,32 @@
+:import('../../colors.css') {
+  blue: blue;
+  orange: orange;
+  darkOrange: darkOrange;
+  red: red;
+  lightRed: lightRed;
+  lightestShadow: lightestShadow;
+  lightShadow: lightShadow;
+  newBoxShadow: newBoxShadow;
+}
+
+.Container {
+  position: fixed;
+  bottom: -100px;
+  opacity: 0;
+  left: 50px;
+  background: lightRed;
+  color: red;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid red;
+}
+
+
+.example-appear {
+  opacity: 0.01;
+}
+
+.example-appear.example-appear-active {
+  opacity: 1;
+  transition: opacity .5s ease-in;
+}

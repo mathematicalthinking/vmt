@@ -2,9 +2,9 @@
 
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import { Aux, Button, Modal, EditText } from '../../../Components';
+import { Aux, Button, Modal, EditText, Error } from '../../../Components';
 import MakeRooms from '../../../Containers/Create/MakeRooms/MakeRooms';
-import classes from './activityDetails.css'
+import classes from './activityDetails.css';
 class ActivityDetails extends Component {
   state = {
     assigning: false,
@@ -20,16 +20,17 @@ class ActivityDetails extends Component {
       course,
       // editing,
       // toggleEdit,
-      owner
+      owner,
+      loading
     } = this.props;
     return (
       <Aux>
         <div>
             <div className={classes.Instructions}>
               <p className={classes.InstructionsHeader}>Instructions:</p>
-                <EditText inputType='text-area' name='instructions' change={this.props.update} editing={this.props.editing}>
+                <Error error={loading.updateFail && loading.updateKeys.indexOf('instructions') > -1}><EditText inputType='text-area' name='instructions' change={this.props.update} editing={this.props.editing}>
                   {this.props.instructions}
-                </EditText>
+                </EditText></Error>
             </div>
           {owner
             ? <div>

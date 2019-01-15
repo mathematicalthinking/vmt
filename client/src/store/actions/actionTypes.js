@@ -21,7 +21,8 @@ export const SUCCESS = 'SUCCESS';
 export const FAIL = 'FAIL';
 export const ACCESS_SUCCESS = 'ACCESS_SUCCESS';
 export const CLEAR_ERROR = 'CLEAR_ERROR';
-export const CLEAR = 'CLEAR';
+export const CLEAR_ALL = 'CLEAR_ALL';
+export const UPDATE_FAIL = 'UPDATE_FAIL';
 
 // COURSES
 export const GOT_COURSES = 'GOT_COURSES';

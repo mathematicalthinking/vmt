@@ -48,7 +48,7 @@ module.exports = {
       // Prepare the tabs if they exist
       let existingTabs;
       if (body.tabs) {
-        existingTabs = Object.assign(body.tabs, [])
+        existingTabs = Object.assign([], body.tabs)
       } else if (body.activities) {
         try {
           let activities = await db.Activity.find({'_id': {$in: body.activities}}).populate('tabs')

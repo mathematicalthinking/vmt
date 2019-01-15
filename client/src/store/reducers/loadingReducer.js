@@ -7,6 +7,10 @@ const initialState = {
   loginSuccess: false,
   accessSuccess: false,
   successMessage: '',
+  updateFail: false,
+  updateResource: null,
+  globalErrorMessage: null,
+  updateKeys: [],
   // frontEndError: false,
 }
 
@@ -47,10 +51,15 @@ const reducer = (state = initialState, action) => {
         ...state,
         errorMessage: '',
       }
-    case actionTypes.CLEAR:
+    case actionTypes.CLEAR_ALL:
+      return initialState;
+    case actionTypes.UPDATE_FAIL:
       return {
         ...state,
-        initialState
+        updateFail: true,
+        updateResource: action.resource,
+        updateKeys: action.keys,
+        globalErrorMessage: "The last update failed, please try again"
       }
     // case actionTypes.FRONT_END_ERROR:
     //   return
