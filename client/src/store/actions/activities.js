@@ -3,6 +3,7 @@ import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
 import { addUserActivities, removeUserActivities } from './user';
 // import { createdActivityTemplate } from './activityTemplates';
+import { clearLoadingInfo } from './loading';
 import { addCourseActivities, removeCourseActivities } from './courses';
 
 import * as loading from './loading';
@@ -152,10 +153,10 @@ export const removeActivity = activityId => {
     dispatch(loading.start())
     API.remove('activities', activityId)
     .then(res => {
-      dispatch(removeUserActivities([activityId]))
-      dispatch(removeCourseActivities(res.data.result.course, [activityId]))
-      dispatch(activitiesRemoved([activityId]))
-      dispatch(loading.success())
+      dispatch(removeUserActivities([activityId]));
+      dispatch(removeCourseActivities(res.data.result.course, [activityId]));
+      dispatch(activitiesRemoved([activityId]));
+      dispatch(loading.success());
     })
     .catch(err => dispatch(loading.fail(err.response.data.errorMessage)))
   }
@@ -164,12 +165,12 @@ export const removeActivity = activityId => {
 
 export const updateActivity = (id, body) => {
   return (dispatch, getState) => {
-    let activity = {...getState().activities.byId[id]}
+    let activity = {...getState().activities.byId[id]};
     if (body.isTrashed) {
-      dispatch(removeUserActivities([id]))
-      dispatch(activitiesRemoved([id]))
+      dispatch(removeUserActivities([id]));
+      dispatch(activitiesRemoved([id]));
     } else {
-      dispatch(updatedActivity(id, body)) // THIS ONE's OPTIMISITC
+      dispatch(updatedActivity(id, body)); // THIS ONE's OPTIMISITC
     }
     // dispatch(loading.start())
     API.put('activities', id, body)
@@ -178,13 +179,25 @@ export const updateActivity = (id, body) => {
       return;
     })
     .catch(err => {
-      let prevActivity = {};
+      // Undo changes
       let keys = Object.keys(body);
-      keys.forEach(key => {
-        prevActivity[key] = activity[key];
-      })
-      dispatch(updatedActivity(id, prevActivity));
+      if (body.isTrashed) {
+        dispatch(createdActivity(activity));
+        if (activity.course) {
+          dispatch(addCourseActivities(activity.course, [activity._id]));
+        }
+        dispatch(addUserActivities([activity._id]));
+      } else {
+        let prevActivity = {};
+        keys.forEach(key => {
+          prevActivity[key] = activity[key];
+        })
+        dispatch(updatedActivity(id, prevActivity));
+      }
       dispatch(loading.updateFail('activity', keys));
+      setTimeout(() => {
+        dispatch(clearLoadingInfo());
+      }, 2000)
     })
   }
 }
