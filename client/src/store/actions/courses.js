@@ -146,19 +146,17 @@ export const updateCourse = (id, body) => {
     }
     API.put('courses', id, body)
     .then(res => {
-      console.log(res)
+      return;
     })
     .catch(err => {
+      // Undo updates because something went wrong with the server/connection
       let prevCourse = {};
-      let keys = Object.keys(body)
+      let keys = Object.keys(body);
       keys.forEach(key => {
-        prevCourse[key] = course[key]
+        prevCourse[key] = course[key];
       })
       dispatch(updatedCourse(id, prevCourse));
       dispatch(loading.updateFail('course', keys));
-      // Undo updates because something went wrong with the server/connection
-
-      console.log(err)
     })
   }
 }

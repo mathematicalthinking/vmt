@@ -110,7 +110,8 @@ export const createRoomFromActivity = (activityId, userId, dueDate, courseId) =>
 }
 
 export const updateRoom = (id, body) => {
-  return dispatch => {
+  return (dispatch, getState) => {
+    let room = {...getState().rooms.byId[id]}
     if (body.isTrashed) {
       dispatch(removeUserRooms([id]))
       dispatch(roomsRemoved([id]))
@@ -121,8 +122,14 @@ export const updateRoom = (id, body) => {
     .then(res => {
     })
     .catch(err => {
-      // @TODO IF SOMETHING WENT WRONG NOTIFY THE USER AND UNSO THE OPTIMISTIC UPDATE
-      console.log(err)
+      let prevRoom = {};
+      let keys = Object.keys(body);
+      keys.forEach(key => {
+        prevRoom[key] = room[key]
+      })
+      dispatch(updatedRoom(id, prevRoom))
+      dispatch(loading.updateFail('room', keys))
+
     })
     // API REQUEST
   }

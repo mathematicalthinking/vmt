@@ -2,17 +2,18 @@
 
 import React, { Component } from 'react';
 import classes from './roomDetails.css';
-import { EditText } from '../../../Components';
+import { EditText, Error } from '../../../Components';// @TODO consider combining Error and Edit Text into one component
 class RoomDetails extends Component {
 
   render(){
-    let { room, editing, updateRoomInfo, instructions } = this.props;
+    let { room, editing, updateRoomInfo, instructions, loading } = this.props;
+    let { updateFail, updateKeys } = loading
     return (
       <div className={classes.Container}>
         {/*  Make sure we have all of the room info before letting the user enter */}
         <div className={classes.Instructions}>
             <b>Instructions: </b>
-            <EditText inputType='text-area' name='instructions' editing={editing} change={updateRoomInfo}>{instructions}</EditText>
+            <Error error={updateFail && updateKeys.indexOf('instructions') > -1}><EditText inputType='text-area' name='instructions' editing={editing} change={updateRoomInfo}>{instructions}</EditText></Error>
         </div>
         <div className={classes.Section}>
           <div>

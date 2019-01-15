@@ -12,6 +12,7 @@ import {
   clearNotification,
   updateRoom,
   getRoom,
+  clearLoadingInfo,
 } from '../store/actions';
 import {
   Aux,
@@ -21,6 +22,7 @@ import {
   TabList,
   EditText,
   TrashModal,
+  Error,
 } from '../Components';
 import Access from './Access';
 // import PublicAccessModal from '../Components/UI/Modal/PublicAccess'
@@ -115,6 +117,19 @@ class Room extends Component {
       let updatedTabs = this.displayNotifications([...this.state.tabs]);
       this.setState({tabs: updatedTabs})
     }
+    if (prevProps.loading.updateResource === null && this.props.loading.updateResource === 'room') {
+      setTimeout(() => {
+        this.props.clearLoadingInfo()
+      }, 2000)
+      this.setState({
+        name: this.props.room.name,
+        description: this.props.room.description,
+        entryCode: this.props.room.entryCode,
+        privacySetting: this.props.room.privacySetting,
+        instructions: this.props.room.instructions,
+        dueDate: this.props.room.dueDate,
+      })
+    }
   }
 
   checkAccess () {
@@ -158,6 +173,12 @@ class Room extends Component {
     let { updateRoom, room, } = this.props;
     let { dueDate, entryCode, name, instructions, details, description, privacySetting } = this.state
     let body = {entryCode, name, dueDate, details, instructions, description, privacySetting }
+    // only send the fields that have changed
+    Object.keys(body).forEach(key => {
+      if (body[key] === room[key]) {
+        delete body[key]
+      }
+    })
     updateRoom(room._id, body)
     this.setState({
       editing: false,
@@ -198,10 +219,12 @@ class Room extends Component {
       if (ggb && desmos) roomType = 'Geogebra/Desmos'
       else roomType = ggb ? 'Geogebra' : 'Desmos';
 
+      let { updateFail, updateKeys } = this.props.loading;
+
       let additionalDetails = {
-        [dueDateText]: <EditText change={this.updateRoomInfo} inputType='date' editing={this.state.editing} name='dueDate'>{this.state.dueDate}</EditText>,
+        [dueDateText]: <Error error={updateFail && updateKeys.indexOf('dueFate') > -1}><EditText change={this.updateRoomInfo} inputType='date' editing={this.state.editing} name='dueDate'>{this.state.dueDate}</EditText></Error>,
         type: roomType,
-        privacy: <EditText change={this.updateRoomInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name='privacySetting'>{this.state.privacySetting}</EditText>,
+        privacy: <Error error={updateFail && updateKeys.indexOf('privacySetting') > -1}><EditText change={this.updateRoomInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name='privacySetting'>{this.state.privacySetting}</EditText></Error>,
         facilitators: room.members.reduce((acc, member) => {
           if (member.role === 'facilitator') acc += `${member.user.username} `
           return acc;
@@ -209,7 +232,7 @@ class Room extends Component {
       }
 
       if (this.state.owner) {
-        additionalDetails.code = <EditText change={this.updateRoomInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText>;
+        additionalDetails.code = <Error error={updateFail && updateKeys.indexOf('entryCode') > -1}><EditText change={this.updateRoomInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText></Error>;
       }
 
       let crumbs = [
@@ -228,6 +251,7 @@ class Room extends Component {
           toggleEdit={this.toggleEdit}
           updateRoomInfo={this.updateRoomInfo}
           instructions={this.state.instructions}
+          loading={this.props.loading}
         />
       } else if (this.props.match.params.resource === 'members') {
         mainContent = <Members
@@ -250,8 +274,8 @@ class Room extends Component {
               <SidePanel
                 image={room.image}
                 alt={this.state.name}
-                name={<EditText change={this.updateRoomInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText>}
-                subTitle={<EditText change={this.updateRoomInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText>}
+                name={<Error error={updateFail && updateKeys.indexOf('name') > -1}><EditText change={this.updateRoomInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText></Error>}
+                subTitle={<Error error={updateFail && updateKeys.indexOf('description') > -1}><EditText change={this.updateRoomInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText></Error>}
                 owner={this.state.owner}
                 additionalDetails={additionalDetails}
                 buttons={
@@ -320,9 +344,17 @@ const mapStateToProps = (state, ownProps) => {
     // courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
     user: state.user,
     notifications: getUserNotifications(state.user, null, 'room'), // this seems redundant
-    loading: state.loading.loading,
-    error: state.loading.errorMessage,
+    loading: state.loading,
   }
 }
 
-export default connect(mapStateToProps, {enterRoomWithCode, populateRoom, requestAccess, clearError, clearNotification, updateRoom, getRoom})(Room);
+export default connect(mapStateToProps, {
+  enterRoomWithCode,
+  populateRoom,
+  requestAccess,
+  clearError,
+  clearNotification,
+  updateRoom,
+  getRoom,
+  clearLoadingInfo
+})(Room);

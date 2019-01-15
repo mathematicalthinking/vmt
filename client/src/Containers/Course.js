@@ -26,7 +26,6 @@ import {
   EditText,
   TrashModal,
   Error,
-  ErrorToast,
 } from '../Components';
 import Access from './Access';
 
@@ -47,8 +46,6 @@ class Course extends Component {
     entryCode: this.props.course ? this.props.course.entryCode: null,
     privacySetting: this.props.course ? this.props.course.privacySetting: null,
     trashing: false,
-    error: false,
-    errorMessage: null,
   }
   initialTabs = [
     {name: 'Activities'},
@@ -115,15 +112,12 @@ class Course extends Component {
     if (prevProps.loading.updateResource === null && this.props.loading.updateResource === 'course') {
       setTimeout(() => {
         this.props.clearLoadingInfo()
-        this.setState({error: false, errorMessage: null})
       }, 2000)
       this.setState({
         name: this.props.course.name,
         description: this.props.course.description,
         entryCode: this.props.course.entryCode,
         privacySetting: this.props.course.privacySetting,
-        error: true,
-        errorMessage: 'Something went wrong, try again'
       })
     }
     // if ((this.state.member || this.state.owner) && !this.props.loading) {
@@ -203,12 +197,12 @@ class Course extends Component {
     let { updateCourse, course, } = this.props;
     let { entryCode, name, details, description, privacySetting } = this.state
     let body = { entryCode, name, details, description, privacySetting }
+    // only send the fields that have changed
     Object.keys(body).forEach(key => {
       if (body[key] === course[key]) {
         delete body[key]
       }
     })
-    console.log("BODY: ", body)
     updateCourse(course._id, body)
     this.setState({
       editing: false,
@@ -273,19 +267,19 @@ class Course extends Component {
           notifications={notifications.filter(ntf => ntf.resourceId === course._id) || []}
         />
       }
-
-      let { updateKeys } = this.props.loading
+      // Updatekeys = the keys that we failed to update
+      let { updateFail, updateKeys } = this.props.loading
       console.log(updateKeys)
 
       let additionalDetails = {
         facilitators: course.members.filter(member => member.role === 'facilitator').length,
         acitivities: course.activities.length,
         rooms: course.rooms.length,
-        privacy: <Error error={this.state.error && updateKeys.indexOf('privacySetting') > -1}><EditText change={this.updateCourseInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name='privacySetting'>{this.state.privacySetting}</EditText></Error>,
+        privacy: <Error error={updateFail && updateKeys.indexOf('privacySetting') > -1}><EditText change={this.updateCourseInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name='privacySetting'>{this.state.privacySetting}</EditText></Error>,
       }
 
       if (this.state.owner) {
-        additionalDetails.code =  <Error error={this.state.error && updateKeys.indexOf('entryCode') > -1}><EditText change={this.updateCourseInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText></Error>;
+        additionalDetails.code =  <Error error={updateFail && updateKeys.indexOf('entryCode') > -1}><EditText change={this.updateCourseInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText></Error>;
       }
 
       // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
@@ -300,8 +294,8 @@ class Course extends Component {
               <SidePanel
                 image={course.image}
                 alt={this.state.name}
-                name={<Error error={this.state.error && updateKeys.indexOf('name') > -1}><EditText change={this.updateCourseInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText></Error>}
-                subTitle={<Error error={this.state.error && updateKeys.indexOf('description') > -1}><EditText change={this.updateCourseInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText></Error>}
+                name={<Error error={updateFail && updateKeys.indexOf('name') > -1}><EditText change={this.updateCourseInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText></Error>}
+                subTitle={<Error error={updateFail && updateKeys.indexOf('description') > -1}><EditText change={this.updateCourseInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText></Error>}
                 owner={this.state.owner}
                 bothRoles={this.state.bothRoles}
                 additionalDetails={additionalDetails}
