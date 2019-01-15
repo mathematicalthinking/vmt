@@ -268,8 +268,7 @@ class Course extends Component {
         />
       }
       // Updatekeys = the keys that we failed to update
-      let { updateFail, updateKeys } = this.props.loading
-      console.log(updateKeys)
+      let { updateFail, updateKeys } = this.props.loading;
 
       let additionalDetails = {
         facilitators: course.members.filter(member => member.role === 'facilitator').length,

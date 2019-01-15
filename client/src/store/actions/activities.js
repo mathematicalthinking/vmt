@@ -163,19 +163,29 @@ export const removeActivity = activityId => {
 
 
 export const updateActivity = (id, body) => {
-  return dispatch => {
+  return (dispatch, getState) => {
+    let activity = {...getState().activities.byId[id]}
     if (body.isTrashed) {
       dispatch(removeUserActivities([id]))
       dispatch(activitiesRemoved([id]))
     } else {
       dispatch(updatedActivity(id, body)) // THIS ONE's OPTIMISITC
     }
-    dispatch(loading.start())
+    // dispatch(loading.start())
     API.put('activities', id, body)
     .then(res => {
-      dispatch(loading.success())
+      // dispatch(loading.success())
+      return;
     })
-    .catch(err => loading.fail(err.response.data.errorMessage))
+    .catch(err => {
+      let prevActivity = {};
+      let keys = Object.keys(body);
+      keys.forEach(key => {
+        prevActivity[key] = activity[key];
+      })
+      dispatch(updatedActivity(id, prevActivity));
+      dispatch(loading.updateFail('activity', keys));
+    })
   }
 }
 
