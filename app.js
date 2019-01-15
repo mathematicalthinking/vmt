@@ -16,6 +16,7 @@ const configure = require('./config/passport');
 const api = require('./routes/api');
 const auth = require('./routes/auth');
 const desmos = require('./routes/desmos');
+const test = require('./routes/test');
 
 const app = express();
 
@@ -85,6 +86,7 @@ app.use(passport.session());
 app.use('/desmos', desmos);
 app.use('/auth', auth);
 app.use('/api', api);
+app.use('/test', test);
 
 app.get('/*', (req, res) => {
   if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production') {

@@ -40,6 +40,10 @@ module.exports = (on, config) => {
       return new Promise((resolve, reject) => {
         exec('md-seed run users courses rooms activities --dropdb', () => resolve('success'))
       })
-    }
-  })
-}
+    },
+    // disconnect : () => {
+    //   return new Promise((resolve, reject) => {
+    //     exec('taskkill /f /im node.exe')
+    //   })
+    // }
+  })}

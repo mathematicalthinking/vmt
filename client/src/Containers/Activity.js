@@ -166,7 +166,7 @@ class Activity extends Component {
                       <div role='button' style={{display: this.state.editing ? 'none' : 'block'}} data-testid='edit-activity'  onClick={this.toggleEdit}>Edit Activity <i className="fas fa-edit"></i></div>
                       {this.state.editing
                         ? <div>
-                          <Button click={this.updateActivity} theme='edit-save'>Save</Button>
+                          <Button click={this.updateActivity} data-testid='save-activity' theme='edit-save'>Save</Button>
                           <Button data-testid='trash-activity' click={this.trashActivity} theme='Danger'><i className="fas fa-trash-alt"></i></Button>
                           <Button click={this.toggleEdit} theme='edit'>Cancel</Button>
                         </div>

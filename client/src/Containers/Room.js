@@ -289,7 +289,7 @@ class Room extends Component {
                       <div role='button' style={{display: this.state.editing ? 'none' : 'block'}} data-testid="edit-room" onClick={this.toggleEdit}>Edit Room <i className="fas fa-edit"></i></div>
                       {this.state.editing
                         ? <div>
-                            <Button click={this.updateRoom} theme='edit-save'>Save</Button>
+                            <Button click={this.updateRoom} data-testid='save-room' theme='edit-save'>Save</Button>
                             <Button click={this.trashRoom} data-testid='trash-room' theme='Danger'><i className="fas fa-trash-alt"></i></Button>
                             <Button click={this.toggleEdit} theme='edit'>Cancel</Button>
                           </div>
