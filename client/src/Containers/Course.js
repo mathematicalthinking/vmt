@@ -203,6 +203,12 @@ class Course extends Component {
     let { updateCourse, course, } = this.props;
     let { entryCode, name, details, description, privacySetting } = this.state
     let body = { entryCode, name, details, description, privacySetting }
+    Object.keys(body).forEach(key => {
+      if (body[key] === course[key]) {
+        delete body[key]
+      }
+    })
+    console.log("BODY: ", body)
     updateCourse(course._id, body)
     this.setState({
       editing: false,
@@ -268,16 +274,18 @@ class Course extends Component {
         />
       }
 
+      let { updateKeys } = this.props.loading
+      console.log(updateKeys)
 
       let additionalDetails = {
         facilitators: course.members.filter(member => member.role === 'facilitator').length,
         acitivities: course.activities.length,
         rooms: course.rooms.length,
-        privacy: <Error error={this.state.error}><EditText change={this.updateCourseInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name='privacySetting'>{this.state.privacySetting}</EditText></Error>,
+        privacy: <Error error={this.state.error && updateKeys.indexOf('privacySetting') > -1}><EditText change={this.updateCourseInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name='privacySetting'>{this.state.privacySetting}</EditText></Error>,
       }
 
       if (this.state.owner) {
-        additionalDetails.code =  <Error error={this.state.error}><EditText change={this.updateCourseInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText></Error>;
+        additionalDetails.code =  <Error error={this.state.error && updateKeys.indexOf('entryCode') > -1}><EditText change={this.updateCourseInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText></Error>;
       }
 
       // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
@@ -292,8 +300,8 @@ class Course extends Component {
               <SidePanel
                 image={course.image}
                 alt={this.state.name}
-                name={<Error error={this.state.error}><EditText change={this.updateCourseInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText></Error>}
-                subTitle={<Error error={this.state.error}><EditText change={this.updateCourseInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText></Error>}
+                name={<Error error={this.state.error && updateKeys.indexOf('name') > -1}><EditText change={this.updateCourseInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText></Error>}
+                subTitle={<Error error={this.state.error && updateKeys.indexOf('description') > -1}><EditText change={this.updateCourseInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText></Error>}
                 owner={this.state.owner}
                 bothRoles={this.state.bothRoles}
                 additionalDetails={additionalDetails}
@@ -343,7 +351,7 @@ class Course extends Component {
               />
             : null
           }
-          {this.state.errorMessage ? <ErrorToast>{this.state.errorMessage}</ErrorToast> : null}
+
         </Aux>
       )
     } else return (

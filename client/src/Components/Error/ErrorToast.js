@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactCSSTRansitionGroup from 'react-addons-css-transition-group';
 import classes from './errorToast.css';
 class ErrorToast extends Component {
   state = {
@@ -19,10 +20,17 @@ class ErrorToast extends Component {
 
   render() {
     return (
-
-      <div className={classes.Container} style={this.state.style}>
-        {this.props.children}
-      </div>
+      // @TODO TRANSITION GROUP IS NOT WORKING AS IS
+      <ReactCSSTRansitionGroup
+        transitionName="example"
+        transitionAppear={true}
+        transitionAppearTimeout={1000}
+        transitionEnterTimeout={500}
+        transitionLeaveTimeout={1000}>
+          <div key={'error'} className={classes.Container} style={this.state.style}>
+            {this.props.children}
+          </div>
+      </ReactCSSTRansitionGroup>
     )
   }
 }

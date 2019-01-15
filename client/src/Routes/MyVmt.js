@@ -9,7 +9,7 @@ import {
   Replayer,
   ActivityWorkspace
 } from '../Containers';
-import PrivateRoute from '../Components/HOC/PrivateRoute';
+import { PrivateRoute, ErrorToast } from '../Components';
 import { Confirmation, FacilitatorInstructions }from '../Layout';
 // import Aux from '../Components/HOC/Auxil';
 import { connect } from 'react-redux';
@@ -42,6 +42,7 @@ class MyVmt extends Component {
               // ^ @TODO 404 page
             }}/>
           </Switch>
+          {this.props.globalErrorMessage ? <ErrorToast>{this.props.globalErrorMessage}</ErrorToast> : null}
       </ErrorBoundary>
     )
   }
@@ -49,7 +50,8 @@ class MyVmt extends Component {
 // Provide login status to all private routes
 const mapStateToProps = state => ({
   loggedIn: state.user.loggedIn,
-  user: state.user
+  user: state.user,
+  globalErrorMessage: state.loading.globalErrorMessage,
 })
 
 export default connect(mapStateToProps, null)(MyVmt)

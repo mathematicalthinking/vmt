@@ -9,7 +9,8 @@ const initialState = {
   successMessage: '',
   updateFail: false,
   updateResource: null,
-  updateKeys: null,
+  globalErrorMessage: null,
+  updateKeys: [],
   // frontEndError: false,
 }
 
@@ -57,7 +58,8 @@ const reducer = (state = initialState, action) => {
         ...state,
         updateFail: true,
         updateResource: action.resource,
-        updateKeys: action.keys
+        updateKeys: action.keys,
+        globalErrorMessage: "The last update failed, please try again"
       }
     // case actionTypes.FRONT_END_ERROR:
     //   return

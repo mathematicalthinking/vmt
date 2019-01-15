@@ -19,5 +19,14 @@
   padding: 10px;
   border-radius: 4px;
   border: 1px solid red;
-  transition: .2s;
+}
+
+
+.example-appear {
+  opacity: 0.01;
+}
+
+.example-appear.example-appear-active {
+  opacity: 1;
+  transition: opacity .5s ease-in;
 }
