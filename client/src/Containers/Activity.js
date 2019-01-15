@@ -203,6 +203,7 @@ const mapStateToProps = (state, ownProps ) => {
     activity: state.activities.byId[activity_id],
     populatedActivity: state.activities.byId[activity_id] ? populateResource(state, 'activities', activity_id, ['rooms']) : {},
     course: state.courses.byId[course_id],
+    rooms: state.rooms.byId,
     userId: state.user._id,
     user: state.user,
     loading: state.loading,
