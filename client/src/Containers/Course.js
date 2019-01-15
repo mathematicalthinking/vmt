@@ -12,7 +12,6 @@ import {
   updateCourseActivities,
   updateCourse,
   clearNotification,
-  clearLoadingInfo,
   getCourse,
   getUser,
 } from '../store/actions';
@@ -110,9 +109,7 @@ class Course extends Component {
     // This will happen when an update request is unsuccessful. When a user updates the course we are changing this components state
     // and updating the UI immediately, if the request fails we need to undo that state/ui change
     if (prevProps.loading.updateResource === null && this.props.loading.updateResource === 'course') {
-      setTimeout(() => {
-        this.props.clearLoadingInfo()
-      }, 2000)
+
       this.setState({
         name: this.props.course.name,
         description: this.props.course.description,
@@ -384,5 +381,4 @@ export default connect(mapStateToProps, {
   updateCourse,
   getCourse,
   getUser,
-  clearLoadingInfo,
 })(Course);

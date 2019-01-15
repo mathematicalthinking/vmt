@@ -7,6 +7,7 @@ import {
   removeUserActivities,
   activitiesRemoved,
   roomsRemoved,
+  clearLoadingInfo,
 } from './index';
 import { createdCourseTemplate } from './courseTemplates';
 import API from '../../utils/apiRequests';
@@ -132,13 +133,6 @@ export const updateCourse = (id, body) => {
   return (dispatch, getState) => {
     let course = {...getState().courses.byId[id]};
     if (body.isTrashed) {
-      if (body.trashChildren) {
-        let { activities, rooms } = course;
-        dispatch(removeUserActivities(activities));
-        dispatch(activitiesRemoved(activities));
-        dispatch(removeUserRooms(rooms));
-        dispatch(roomsRemoved(rooms));
-      }
       dispatch(removeUserCourse(id));
       dispatch(courseRemoved(id));
     } else {
@@ -146,17 +140,33 @@ export const updateCourse = (id, body) => {
     }
     API.put('courses', id, body)
     .then(res => {
+      if (body.trashChildren) {
+        let { activities, rooms } = course;
+        dispatch(removeUserActivities(activities));
+        dispatch(activitiesRemoved(activities));
+        dispatch(removeUserRooms(rooms));
+        dispatch(roomsRemoved(rooms));
+      }
       return;
     })
     .catch(err => {
       // Undo updates because something went wrong with the server/connection
+
       let prevCourse = {};
       let keys = Object.keys(body);
       keys.forEach(key => {
         prevCourse[key] = course[key];
       })
+
+      if (body.isTrashed) {
+        dispatch(createdCourse(course))
+        dispatch(addUserCourses(id))
+      }
       dispatch(updatedCourse(id, prevCourse));
       dispatch(loading.updateFail('course', keys));
+      setTimeout(() => {
+        dispatch(clearLoadingInfo())
+      }, 2000)
     })
   }
 }
@@ -218,7 +228,7 @@ export const createCourse = body => {
         // BUG THE ORDER HERE MATTERS. IF WE UPDATE USERCOURSES BEFORE COURSES THE getUserResource SELECTOR WILL FAIL
         // AND CAUSE THE COURSES COMPONENT TO ERROR
         dispatch(createdCourse(res.data.result[0]))
-        dispatch(createdCourseTemplate(res.data.result[1]))
+        // dispatch(createdCourseTemplate(res.data.result[1]))
         // NB If we're creating a template we're going to get back two results in an array (the course that was created & then template that was created)
         return dispatch(addUserCourses(res.data.result[0]._id))
       }

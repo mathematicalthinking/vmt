@@ -12,7 +12,7 @@ import {
   TrashModal,
   Error,
 } from '../Components';
-import { getCourses, getRooms, updateActivity, getActivities, clearLoadingInfo} from '../store/actions';
+import { getCourses, getRooms, updateActivity, getActivities, } from '../store/actions';
 import { populateResource } from '../store/reducers';
 class Activity extends Component {
   state = {
@@ -52,9 +52,6 @@ class Activity extends Component {
       // this.fetchRooms()
     }
     if (prevProps.loading.updateResource === null && this.props.loading.updateResource === 'activity') {
-      setTimeout(() => {
-        this.props.clearLoadingInfo()
-      }, 2000)
       this.setState({
         name: this.props.activity.name,
         description: this.props.activity.description,
@@ -213,4 +210,4 @@ const mapStateToProps = (state, ownProps ) => {
 }
 
 
-export default connect(mapStateToProps, { getCourses, getRooms, updateActivity, getActivities, clearLoadingInfo })(Activity);
+export default connect(mapStateToProps, { getCourses, getRooms, updateActivity, getActivities, })(Activity);
