@@ -236,6 +236,9 @@ export const createCourse = body => {
       dispatch(addUserCourses([res.data.result._id]))
       dispatch(loading.success())
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+      dispatch(loading.fail())
+      console.log(err)
+    })
   }
 }
