@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { updateRoom, updatedRoom, populateRoom, setRoomStartingPoint, updateUser, addChatMessage } from '../../store/actions';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
-import { GgbGraph, DesmosGraph, Chat } from './';
+import { GgbGraph, DesmosGraph, Chat, Tabs } from './';
 import { Modal, Aux, CurrentMembers } from '../../Components';
 import NewTabForm from './NewTabForm'
 import socket from '../../utils/sockets';
@@ -317,17 +317,17 @@ class Workspace extends Component {
     let Graph;
     let Bottom;
     let currentMembers = <CurrentMembers members={room.currentMembers} activeMember={room.controlledBy} expanded={this.state.membersExpanded} toggleExpansion={this.toggleExpansion}/>
-    let tabs = []
-    // if (room.tabs[0].name) { // This checkes if tabs have been populated yet...if they haven't they won't have a name field
-    //   tabs = room.tabs.map((tab, i) => {
-    //     return (
-    //     <div key={tab._id} onClick={() => this.changeTab(i)} className={[classes.Tab, currentTab === i ? classes.Active : ''].join(" ")} style={{zIndex: room.tabs.length - i}} >
-    //       <div style={{zIndex: room.tabs.length - i}} className={classes.TabBox}><span className={classes.TabName}>{tab.name}</span></div>
-    //       {ntfTabs && ntfTabs.includes(tab._id) ? <div className={classes.TabNotification}><i className="fas fa-exclamation"></i></div> : null}
-    //     </div>
-    //     )
-    //   })
-    // }
+    let tabs;
+    if (room.tabs[0].name) { // This che
+        tabs = <Tabs
+          tabs={room.tabs}
+          ntfTabs={this.state.activityOnOtherTabs}
+          currentTab={this.state.currentTab}
+          role={this.state.role}
+          changeTab={this.changeTab}
+          createNewTab={this.createNewTab}
+           />
+    }
     // {role === 'facilitator' ? <div className={[classes.Tab, classes.NewTab].join(' ')}><div onClick={createNewTab}    className={classes.TabBox}><i className="fas fa-plus"></i></div></div> : null}
     let chat = <Chat
       roomId={room._id}

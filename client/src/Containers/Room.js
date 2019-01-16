@@ -280,8 +280,8 @@ class Room extends Component {
                 additionalDetails={additionalDetails}
                 buttons={
                   <Aux>
-                    <span><Button theme={this.props.loading ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToWorkspace : () => null}>Enter</Button></span>
-                    <span><Button theme={this.props.loading ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading ? this.goToReplayer : () => null}>Replayer</Button></span>
+                    <span><Button theme={this.props.loading.loading ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading.loading ? this.goToWorkspace : () => null}>Enter</Button></span>
+                    <span><Button theme={this.props.loading.loading ? 'SmallCancel' : 'Small'} m={10} click={!this.props.loading.loading ? this.goToReplayer : () => null}>Replayer</Button></span>
                   </Aux>
                 }
                 editButton={ this.state.owner
