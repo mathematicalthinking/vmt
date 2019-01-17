@@ -124,7 +124,7 @@ class TempWorkspace extends Component {
     return ev.returnValue = 'Are you sure you want to leave';
   }
 
-  saveWorkSpace = () => {
+  saveWorkspace = () => {
     this.props.updateRoom(this.props.match.params.id, {tempRoom: false})
     if (this.props.loggedIn) this.props.addUserRooms(this.props.match.params.id)
     this.setState({saving: true})
@@ -135,7 +135,7 @@ class TempWorkspace extends Component {
       <Workspace
         {...this.props}
         temp
-        saveWorkspace = {this.saveWorkspace}
+        save = {this.saveWorkspace}
 
       /> :
       <Modal show={!this.state.user}>

@@ -371,7 +371,7 @@ class Workspace extends Component {
               user={user}
               chat={chat}
               tabs={tabs}
-              bottomRight={<Tools inControl={control} goBack={this.goBack} toggleControl={this.toggleControl}/>}
+              bottomRight={<Tools inControl={control} goBack={this.goBack} toggleControl={this.toggleControl} save={this.props.temp ? this.props.save : null}/>}
               bottomLeft={<RoomInfo role={this.state.role} updateRoom={this.props.updateRoom} room={room} currentTab={this.state.currentTab}/>}
               currentMembers={currentMembers}
               chatExpanded={this.state.chatExpanded}
