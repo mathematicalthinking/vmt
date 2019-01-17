@@ -131,8 +131,8 @@
   /* height: auto; */
   align-self: auto;
   /* max-height: 75%; */
-  flex-shrink: 1;
-  flex: 0 1 auto;
+  /* flex-shrink: 1; */
+  flex: 0 1 0;
 }
 
 .Members {
@@ -140,7 +140,7 @@
   margin: 10px 0;
   /* border-radius: 5px; */
   order: 2;
-  flex: 0 1 auto;
+  flex: 0 1 0;
 }
 
 .BottomRight {

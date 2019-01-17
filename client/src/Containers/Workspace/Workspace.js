@@ -354,7 +354,6 @@ class Workspace extends Component {
       Graph = <DesmosGraph room={room} user={user} resetControlTimer={this.resetControlTimer} currentTab={this.state.currentTab}/>
     } else Graph = <GgbGraph room={room} user={user} updateRoom={this.props.updateRoom} resetControlTimer={this.state.resetControlTimer} currentTab={this.state.currentTab}/>
 
-    console.log(Graph, chat, tabs)
     return (
       <Aux>
         {room.tabs[0].name
@@ -364,7 +363,7 @@ class Workspace extends Component {
               user={user}
               chat={chat}
               tabs={tabs}
-              bottomRight={<div>bottom right</div>}
+              bottomRight={<div></div>}
               bottomLeft={<div>bottomLeft</div>}
               currentMembers={currentMembers}
               chatExpanded={this.state.chatExpanded}

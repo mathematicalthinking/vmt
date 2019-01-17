@@ -24,9 +24,13 @@ const WorkspaceLayout = React.memo((props) => {
   // }
   let membersHeight = 'auto';
   let chatHeight = '63%';
+  let flexB = '0';
   if (props.membersExpanded && !props.chatExpanded) {
     membersHeight = '33%';
     chatHeight = 'auto';
+  }
+  if (typeof InstallTrigger !== 'undefined' && props.chatExpanded) {// If this is Firefox
+    flexB = 'auto';
   }
   return (
     <div className={classes.PageContainer}>
@@ -43,7 +47,7 @@ const WorkspaceLayout = React.memo((props) => {
           </div>
         </div>
         <div className={classes.Right}>
-          <div className={classes.Chat} style={{height: chatHeight}}>{chat}</div>
+          <div className={classes.Chat} style={{height: chatHeight, flexBasis: flexB}}>{chat}</div>
           <div className={classes.Members} style={{height: membersHeight}}>{currentMembers}</div>
           <div className={classes.BottomRight}>Bottom right</div>
         </div>
