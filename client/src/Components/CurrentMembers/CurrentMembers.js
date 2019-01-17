@@ -15,7 +15,7 @@ class CurrentMembers extends Component {
     return (
       <div className={classes.Container}>
         <div className={classes.Title} onClick={this.toggleExpansion}>
-          Currently in this Room
+          Currently in this room
           <div className={classes.Count}>
             {members.length}
           </div>

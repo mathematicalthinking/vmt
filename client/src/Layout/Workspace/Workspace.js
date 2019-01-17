@@ -2,7 +2,8 @@ import React from 'react';
 import classes from './workspace.css';
 
 const WorkspaceLayout = React.memo((props) => {
-  let { room, user, graph, chat, tabs, bottomRight, bottomLeft, currentMembers } = props;
+  let { room, user, graph, chat, tabs, bottomRight, bottomLeft, currentMembers,
+  referFromCoords, referToCoords } = props;
   // Set text for taking control button based on current control
   let controlText = 'Take Control';
   let inControl = false;
@@ -22,10 +23,13 @@ const WorkspaceLayout = React.memo((props) => {
   // }
   let membersHeight = 'auto';
   let chatHeight = '63%';
+  let bottomRightHeight = 'auto';
   let flexB = '0';
-  if (props.membersExpanded && !props.chatExpanded) {
-    membersHeight = '33%';
+  if (!props.chatExpanded) {
     chatHeight = 'auto';
+    if (props.membersExpanded) {
+      membersHeight = '33%';
+    }
   }
   // This is annoying but the flexx basis behavior is not consistant across browsers and it is messing up how
   // the right panel elements collapse and expand

@@ -26,6 +26,7 @@ class Workspace extends Component {
     chatExpanded: true,
     membersExpanded: true,
     instructionsExpanded: true,
+    toolsExpanded: true,
 
   }
 
@@ -311,9 +312,13 @@ class Workspace extends Component {
     }))
   }
 
+  goBack = () => {this.props.history.goBack()}
+
   render() {
     const { room, user } = this.props;
-
+    let control = "OTHER";
+    if (room.controlledBy === user._id) control = "ME";
+    else if (!room.controlledBy) control = "NONE";
     let Graph;
     let Bottom;
     let currentMembers = <CurrentMembers members={room.currentMembers} activeMember={room.controlledBy} expanded={this.state.membersExpanded} toggleExpansion={this.toggleExpansion}/>
@@ -363,12 +368,16 @@ class Workspace extends Component {
               user={user}
               chat={chat}
               tabs={tabs}
-              bottomRight={<Tools />}
+              bottomRight={<Tools inControl={control} goBack={this.goBack} toggleControl={this.toggleControl}/>}
               bottomLeft={<div>bottomLeft</div>}
               currentMembers={currentMembers}
               chatExpanded={this.state.chatExpanded}
               membersExpanded={this.state.membersExpanded}
               instructionsExpanded={this.state.instructionsExpanded}
+              toolsExpanded={this.state.toolsExpanded}
+              referToCoords={this.state.referToCoords}
+              referFromCoords={this.state.referFromCoords}
+
             />
           : null
         }

@@ -1,9 +1,13 @@
 /* We should have made a component that chat currentMembers and this can
 all share. we are repeating styles in each of those copmnents  */
-
+:import('../../colors.css'){
+  blue: blue;
+  blueHover: blueHover;
+}
 .Container {
   display: flex;
   flex-flow: column;
+  justify-content: space-between;
   background-color: white;
   height: 100%;
   width: 100%;
@@ -19,7 +23,6 @@ all share. we are repeating styles in each of those copmnents  */
   color: black;
   font-size: 17px;
   letter-spacing: 1.12px;
-  cursor: pointer;
 }
 
 
@@ -97,4 +100,37 @@ all share. we are repeating styles in each of those copmnents  */
 
 .ReferenceControls:hover .ReferenceTool {
   border-bottom: 1px solid #999;
+}
+
+.SideButton {
+  flex-grow: 1;
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: .2s;
+  background-color: blue;
+  color: white;
+  border-radius: 3px 0px 0px 3px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1.12px;
+  box-shadow: lightShadow;
+  text-align: center;
+}
+
+
+.SideButton:hover {
+  background: blueHover;
+}
+
+.Exit {
+  color: darkGrey;
+  background-color: #D2D2D2;
+  border-radius: 0px 3px 3px 0px;
+}
+
+.Exit:hover {
+  background: #DFDFDF;
 }

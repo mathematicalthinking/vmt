@@ -26,6 +26,7 @@
   background-color: #f8f8f9;
   z-index: 0;
   padding: 0 20px;
+  overflow-y: hidden;
 }
 
 .Container {
@@ -89,7 +90,7 @@
   align-self: auto;
   flex: 0 0 auto;
   margin-left: 20px;
-  /* width: 25%; */
+  width: 20%;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -144,8 +145,9 @@
 }
 
 .BottomRight {
+  box-shadow: lightShadow;
   order: 3;
-  flex: 0 1 auto;
+  flex: 1 0 auto;
   /* border: 1px solid brown; */
 }
 
@@ -156,13 +158,6 @@
 
 .Avatar {
   margin: 5px;
-}
-
-/* .Instructions {
- flex-grow: 2;
-} */
-
-.Expand {
 }
 
 .EditInstructions {
@@ -181,90 +176,6 @@
   /* align-self: flex-end; */
 }
 
-
-.SideButton {
-  flex-grow: 1;
-  padding: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: .2s;
-  background-color: blue;
-  color: white;
-  border-radius: 3px 0px 0px 3px;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 1.12px;
-  box-shadow: lightShadow;
-  text-align: center;
-}
-
-
-.SideButton:hover {
-  background: blueHover;
-}
-
-.Exit {
-  color: darkGrey;
-  background-color: #D2D2D2;
-  border-radius: 0px 3px 3px 0px;
-}
-
-.Exit:hover {
-  background: #DFDFDF;
-}
-
-.ReferenceWindow {
-  /* height: 100%; */
-  box-shadow: lightShadow;
-  order: 3;
-  align-self: auto;
-  flex: 0 0 auto;
-  /* flex-grow: 0;
-  flex-shrink: 1; */
-}
-
-.Controls {
-  display: flex;
-}
-
-.MousePointer {
-  font-size: 18px;
-  height:   50px;
-  width: 50px;
-  padding: 14px 10px 4px 20px;
-  border-radius: 50%;
-  background: #e8e8e8;
-  margin: 5px 10px;
-  transition: .2s;
-}
-
-.ReferenceControls {
-  display: flex;
-  cursor: pointer;
-  align-items: center;
-  /* width: 100%; */
-  border-bottom: 1px solid #ddd;
-  padding: 4px;
-}
-
-.ReferenceTool {
-  border-bottom: 1px solid #f9f9f9;
-  transition: .2s;
-}
-
-.ReferencingActive {
-  background: lightBlue;
-}
-
-/* .ReferenceControls:hover .MousePointer {
-  background: lightBlue;
-} */
-
-.ReferenceControls:hover .ReferenceTool {
-  border-bottom: 1px solid #999;
-}
 
 .ReferenceLine {
   position: absolute;
