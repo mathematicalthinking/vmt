@@ -1,7 +1,5 @@
 import React from 'react';
 import classes from './workspace.css';
-import { withRouter } from 'react-router-dom';
-import { CurrentMembers, Button, ReplayerControls, EditableText, RoomInfo }from '../../Components';
 
 const WorkspaceLayout = React.memo((props) => {
   let { room, user, graph, chat, tabs, bottomRight, bottomLeft, currentMembers } = props;
@@ -29,6 +27,8 @@ const WorkspaceLayout = React.memo((props) => {
     membersHeight = '33%';
     chatHeight = 'auto';
   }
+  // This is annoying but the flexx basis behavior is not consistant across browsers and it is messing up how
+  // the right panel elements collapse and expand
   if (typeof InstallTrigger !== 'undefined' && props.chatExpanded) {// If this is Firefox
     flexB = 'auto';
   }
@@ -49,10 +49,17 @@ const WorkspaceLayout = React.memo((props) => {
         <div className={classes.Right}>
           <div className={classes.Chat} style={{height: chatHeight, flexBasis: flexB}}>{chat}</div>
           <div className={classes.Members} style={{height: membersHeight}}>{currentMembers}</div>
-          <div className={classes.BottomRight}>Bottom right</div>
+          <div className={classes.BottomRight}>{bottomRight}</div>
         </div>
           {/* <div></div>{bottomRight} */}
       </div>
+      {referToCoords && referFromCoords   ?
+        <div className={classes.ReferenceLine}>
+          <svg height='100%' width='100%' style={{zIndex: 1}}>
+            <line style={{zIndex: 1500}} x1={referToCoords.left} y1={referToCoords.top} x2={referFromCoords.left} y2={referFromCoords.top} stroke="#2D91F2" strokeWidth="3"/>
+          </svg>
+        </div>: null
+      }
     </div>
   )
 })

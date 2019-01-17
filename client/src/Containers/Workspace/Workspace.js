@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { updateRoom, updatedRoom, populateRoom, setRoomStartingPoint, updateUser, addChatMessage } from '../../store/actions';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
-import { GgbGraph, DesmosGraph, Chat, Tabs } from './';
+import { GgbGraph, DesmosGraph, Chat, Tabs, Tools } from './';
 import { Modal, Aux, CurrentMembers } from '../../Components';
 import NewTabForm from './NewTabForm'
 import socket from '../../utils/sockets';
@@ -363,7 +363,7 @@ class Workspace extends Component {
               user={user}
               chat={chat}
               tabs={tabs}
-              bottomRight={<div></div>}
+              bottomRight={<Tools />}
               bottomLeft={<div>bottomLeft</div>}
               currentMembers={currentMembers}
               chatExpanded={this.state.chatExpanded}
