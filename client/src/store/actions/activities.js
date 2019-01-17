@@ -90,7 +90,10 @@ export const getActivities = params => {
       dispatch(gotActivities(activities))
       dispatch(loading.success())
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      dispatch(loading.fail())
+      console.log(err)
+    });
   }
 }
 
@@ -102,7 +105,10 @@ export const getCurrentActivity = id => {
       dispatch(loading.success())
       dispatch(addActivity(res.data.result))
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+      dispatch(loading.fail())
+      console.log(err)
+    })
   }
 }
 
@@ -118,6 +124,9 @@ export const createActivity = body => {
       }
       dispatch(addUserActivities([result._id]))
       return dispatch(loading.success());
+    })
+    .catch(err => {
+      dispatch(loading.fail())
     })
   }
 }

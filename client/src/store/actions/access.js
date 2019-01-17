@@ -37,7 +37,7 @@ export const requestAccess = (owners, userId, resource, resourceId) => {
     dispatch(loading.start());
     API.requestAccess(owners, userId, resource, resourceId)
     .then(res => {
-      dispatch(loading.start())
+      dispatch(loading.success())
       return dispatch(loading.accessSuccess())
     })
     .catch(err => {

@@ -106,6 +106,8 @@ class Chat extends Component {
         clearReference={this.props.clearReference}
         showReference={this.props.showReference}
         isConnected={this.props.user.connected}
+        expanded={this.props.expanded}
+        toggleExpansion={this.props.toggleExpansion}
       />
     )
   }

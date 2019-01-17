@@ -17,12 +17,8 @@
   background-color: white;
   height: 100%;
   width: 100%;
-  /* border: .5px solid #ddd; */
   border-radius: 3px;
   box-shadow: lightShadow;
-  /* position: relative; */
-  /* color: white; */
-  /* box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.28); */
 }
 
 .Title {
@@ -40,7 +36,6 @@
   float: right;
   display: flex;
   align-items: center;
-  /* border: 1px solid red; */
   position: relative;
   right: 8px;
   top: -2px;
@@ -66,6 +61,7 @@
   flex-grow: 0;
   width: 100%;
   overflow-y: scroll;
+  /* max-height: 100%; */
   flex: 0 1 100%;
 }
 

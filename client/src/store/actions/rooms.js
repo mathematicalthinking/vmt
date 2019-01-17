@@ -250,7 +250,10 @@ export const updateRoomMembers = (roomId, updatedMembers) => {
     .then(res => {
       dispatch(updatedRoom(roomId, res.data.result))
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+      // dispatch(loading.fail())s
+      console.log(err)
+    })
   }
 }
 
@@ -265,6 +268,10 @@ export const removeRoom = roomId => {
       }
       dispatch(removedRoom(roomId))
       dispatch(loading.success())
+    })
+    .catch(err => {
+      dispatch(loading.fail())
+      console.log(err)
     })
   }
 }

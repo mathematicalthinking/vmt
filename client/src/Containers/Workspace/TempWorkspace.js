@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { populateRoom, destroyRoom, updatedRoom, updateRoom, addUserRooms } from '../store/actions'
+import { populateRoom, destroyRoom, updatedRoom, updateRoom, addUserRooms } from '../../store/actions'
 import io from 'socket.io-client';
-import WorkspaceLayout from '../Layout/Workspace/Workspace';
-import TextInput from '../Components/Form/TextInput/TextInput';
-import GgbGraph from './Workspace/GgbGraph';
-import DesmosGraph from './Workspace/DesmosGraph';
-import Signup from './Signup';
-import Modal from '../Components/UI/Modal/Modal';
-import Button from '../Components/UI/Button/Button';
-import Aux from '../Components/HOC/Auxil';
-import Chat from './Workspace/Chat';
+import WorkspaceLayout from '../../Layout/Workspace/Workspace';
+import TextInput from '../../Components/Form/TextInput/TextInput';
+import GgbGraph from './GgbGraph';
+import DesmosGraph from './DesmosGraph';
+import Signup from '../Signup';
+import Modal from '../../Components/UI/Modal/Modal';
+import Button from '../../Components/UI/Button/Button';
+import Aux from '../../Components/HOC/Auxil';
+import Chat from './Chat';
 // import Replayer from ''
 class TempWorkspace extends Component {
 
@@ -32,11 +32,11 @@ class TempWorkspace extends Component {
     if (!this.props.room) {
       this.setState({firstEntry: false})
       this.props.populateRoom(this.props.match.params.id)
-    } 
+    }
   }
 
   componentDidUpdate(prevProps, prevState){
-    // An already signed in user has saved the workspace 
+    // An already signed in user has saved the workspace
     if (this.state.saving && this.props.loggedIn) {
       this.setState({saved: true, saving: false})
     }
@@ -52,15 +52,15 @@ class TempWorkspace extends Component {
     this.setState({tempUsername: event.target.value, errorMessage: ''});
   }
 
-  join = (graphType) => {
+  joinRoom = (graphType) => {
     // Set username
     let username;
     if (this.props.loggedIn) {
       username = this.props.username;
-    } 
+    }
     else if (!this.state.tempUsername) {
       return this.setState({errorMessage: "Please enter a username before joining"})
-    } 
+    }
     else {
       username = this.state.tempUsername;
     }
@@ -135,8 +135,8 @@ class TempWorkspace extends Component {
   render() {
     return (this.state.user ?
       <Aux>
-        {this.state.saving && !this.props.loggedIn ? <Modal 
-          show={this.state.saving} 
+        {this.state.saving && !this.props.loggedIn ? <Modal
+          show={this.state.saving}
           closeModal={() => this.setState({saving: false})}
         >
           <Signup temp user={this.state.user} room={this.props.room._id} closeModal={() => this.setState({saving: false})}/>
@@ -147,7 +147,7 @@ class TempWorkspace extends Component {
           loggedIn={this.props.loggedIn}
           save={this.saveWorkSpace}
           members = {this.state.room.currentMembers || []}
-          graph = {this.props.room.roomType === 'geogebra' ? 
+          graph = {this.props.room.roomType === 'geogebra' ?
             () => <GgbGraph room={this.state.room} socket={this.socket} user={this.state.user} tempRoom/> :
             () => <DesmosGraph room={this.state.room} socket={this.socket} user={this.state.user}/>
           }
@@ -155,21 +155,21 @@ class TempWorkspace extends Component {
         />
       </Aux> :
       <Modal show={!this.state.user}>
-        {!this.props.loggedIn ? 
+        {!this.props.loggedIn ?
           <Aux>
             <div>Enter a temporary username (!!!making sure new!!!)</div>
             <TextInput light change={this.setName} />
-            <div>{this.state.errorMessage}</div> 
+            <div>{this.state.errorMessage}</div>
           </Aux> : null
         }
         { this.state.firstEntry ?
           <div>
-            <Button data-testid='temp-desmos' m={5} click={() => this.join('desmos')}>Desmos</Button>
-            <Button data-testid='temp-geogebra' m={5} click={() => this.join('geogebra')}>GeoGebra</Button>
+            <Button data-testid='temp-desmos' m={5} click={() => this.joinRoom('desmos')}>Desmos</Button>
+            <Button data-testid='temp-geogebra' m={5} click={() => this.joinRoom('geogebra')}>GeoGebra</Button>
           </div> :
           <Button m={5} click={() => this.join()}>Join</Button>
         }
-      </Modal>   
+      </Modal>
     )
   }
 }

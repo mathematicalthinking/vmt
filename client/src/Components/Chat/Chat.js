@@ -12,23 +12,25 @@ class Chat extends Component {
       containerCoords: null,
       chatCoords: null,
       chatInputCoords: null,
-      expanded: true,
+      // expanded: true,
     }
     this.chatContainer = React.createRef()
     this.chatInput = React.createRef()
     this.chatEnd = React.createRef()
 
     // Create a ref for each chat element so they can be used with the referencing tool
+    // This is why we needed to have a constructor function
     this.props.messages.forEach((message, i) => {
       this[`message-${i}`] = React.createRef()
     })
   }
 
-  toggleCollapse() {
+  toggleExpansion = () => {
+    this.props.toggleExpansion('chat')
     //start counting all unread messages once chat window is collapsed?
-    this.setState({
-      expanded: !this.state.expanded
-    });
+    // this.setState({
+    //   expanded: !this.state.expanded
+    // });
   }
 
   componentDidMount() {
@@ -208,8 +210,8 @@ class Chat extends Component {
       // displayMessages.push(<div key='end' ref={this.chatEnd}></div>)
     }
     return (
-      <div className={(this.state.expanded ? classes.Container : classes.CollapsedContainer)} ref={this.chatContainer}>
-        <h3 className={classes.Title} onClick={this.toggleCollapse.bind(this)}>Chat
+      <div className={this.props.expanded ? classes.Container : classes.CollapsedContainer} ref={this.chatContainer}>
+        <h3 className={classes.Title} onClick={this.toggleExpansion}>Chat
           <div className={classes.Status}>
             <svg className={classes.StatusCircle} height="11" width="11">
               <circle cx="5" cy="5" r="5" fill={this.props.isConnected ? "#34A505" : "#ff5555"}/>
@@ -217,10 +219,10 @@ class Chat extends Component {
             <div className={classes.StatusText}>{this.props.isConnected ? '' : 'disconnected!'}</div>
           </div>
         </h3>
-        <div className={(this.state.expanded ? classes.ChatScroll : classes.Collapsed)} ref={this.chatEnd} onScroll={this.updateReferencePositions} id='scrollable'>{displayMessages}</div>
+        <div className={this.props.expanded ? classes.ChatScroll : classes.Collapsed} ref={this.chatEnd} onScroll={this.updateReferencePositions} id='scrollable'>{displayMessages}</div>
         {!replayer ?
           <div className={classes.ChatInput}>
-            <input ref={this.chatInput} className={classes.Input} type = {"text"} onChange={change} value={value}/>
+            <input ref={this.chatInput} className={classes.Input} type={"text"} onChange={change} value={value}/>
             {/* <TextInput width={"90%"} size={20} light autoComplete="off" change={change} type='text' name='message' value={value}/> */}
             <div className={classes.Send} onClick={submit}>
               <i className={'fab fa-telegram-plane'}></i>

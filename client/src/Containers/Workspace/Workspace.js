@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { updateRoom, updatedRoom, populateRoom, setRoomStartingPoint, updateUser, addChatMessage } from '../../store/actions';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
-import { Modal, Aux } from '../../Components';
+import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from './';
+import { Modal, Aux, CurrentMembers, } from '../../Components';
 import NewTabForm from './NewTabForm'
 import socket from '../../utils/sockets';
 // import Replayer from ''
@@ -22,6 +23,11 @@ class Workspace extends Component {
     role: 'participant',
     creatingNewTab: false,
     activityOnOtherTabs: [],
+    chatExpanded: true,
+    membersExpanded: true,
+    instructionsExpanded: true,
+    toolsExpanded: true,
+
   }
 
   componentDidMount() {
@@ -300,44 +306,81 @@ class Workspace extends Component {
     this.props.setRoomStartingPoint(this.props.room._id)
   }
 
+  toggleExpansion = (element) => {
+    this.setState(prevState => ({
+      [`${element}Expanded`]: !prevState[`${element}Expanded`]
+    }))
+  }
+
+  goBack = () => {this.props.history.goBack()}
+
   render() {
     const { room, user } = this.props;
+    let control = "OTHER";
+    if (room.controlledBy === user._id) control = "ME";
+    else if (!room.controlledBy) control = "NONE";
+    let Graph;
+    let Bottom;
+    let currentMembers = <CurrentMembers members={room.currentMembers} activeMember={room.controlledBy} expanded={this.state.membersExpanded} toggleExpansion={this.toggleExpansion}/>
+    let tabs;
+    if (room.tabs[0].name) { // This che
+        tabs = <Tabs
+          tabs={room.tabs}
+          ntfTabs={this.state.activityOnOtherTabs}
+          currentTab={this.state.currentTab}
+          role={this.state.role}
+          changeTab={this.changeTab}
+          createNewTab={this.createNewTab}
+           />
+    }
+    // {role === 'facilitator' ? <div className={[classes.Tab, classes.NewTab].join(' ')}><div onClick={createNewTab}    className={classes.TabBox}><i className="fas fa-plus"></i></div></div> : null}
+    let chat = <Chat
+      roomId={room._id}
+      messages={room.chat || []}
+      // socket={socket}
+      user={user}
+      updatedRoom={this.props.updatedRoom}
+      referencing={this.state.referencing}
+      referToEl={this.state.referToEl}
+      referToCoords={this.state.referToCoords}
+      referFromEl={this.state.referFromEl}
+      referFromCoords={this.state.referFromCoords}
+      setToElAndCoords={this.setToElAndCoords}
+      setFromElAndCoords={this.setFromElAndCoords}
+      showingReference={this.state.showingReference}
+      clearReference={this.clearReference}
+      showReference={this.showReference}
+      currentTab={this.state.currentTab}
+      expanded={this.state.chatExpanded}
+      toggleExpansion={this.toggleExpansion}
+    />
+
+    if (room.tabs[this.state.currentTab].tabType === 'desmos') {
+      Graph = <DesmosGraph room={room} user={user} resetControlTimer={this.resetControlTimer} currentTab={this.state.currentTab}/>
+    } else Graph = <GgbGraph room={room} user={user} updateRoom={this.props.updateRoom} resetControlTimer={this.state.resetControlTimer} currentTab={this.state.currentTab}/>
+
     return (
       <Aux>
-        {/* wait for room to be populated before trying to display it */}
-        {room.tabs[0].name ?<WorkspaceLayout
-          activeMember={room.controlledBy}
-          room={room}
-          user={user}
-          role={this.state.role}
-          currentTab={this.state.currentTab}
-          // socket={socket}
-          updateRoom={this.props.updateRoom}
-          updatedRoom={this.props.updatedRoom}
-          // inControl={this.state.inControl}
-          resetControlTimer={this.resetControlTimer}
-          toggleControl={this.toggleControl}
-          // someoneElseInControl={this.state.someoneElseInControl}
-          startNewReference={this.startNewReference}
-          referencing={this.state.referencing}
-          showReference={this.showReference}
-          showingReference={this.state.showingReference}
-          clearReference={this.clearReference}
-          referToEl={this.state.referToEl}
-          referToCoords={this.state.referToCoords}
-          referFromCoords={this.state.referFromCoords}
-          referFromEl={this.state.referFromEl}
-          setToElAndCoords={this.setToElAndCoords}
-          setFromElAndCoords={this.setFromElAndCoords}
-          createNewTab={this.createNewTab}
-          changeTab={this.changeTab}
-          addNtfToTabs={this.addNtfToTabs}
-          ntfTabs={this.state.activityOnOtherTabs}
-          toggleEdit={this.toggleEdit}
-          editing={this.state.editing}
-          setStartingPoint={this.setStartingPoint}
-          // populateRoom={this.props.populateRoom}
-        /> : null}
+        {room.tabs[0].name
+          ? <WorkspaceLayout
+              graph={Graph}
+              room={room}
+              user={user}
+              chat={chat}
+              tabs={tabs}
+              bottomRight={<Tools inControl={control} goBack={this.goBack} toggleControl={this.toggleControl}/>}
+              bottomLeft={<RoomInfo role={this.state.role} updateRoom={this.props.updateRoom} room={room} currentTab={this.state.currentTab}/>}
+              currentMembers={currentMembers}
+              chatExpanded={this.state.chatExpanded}
+              membersExpanded={this.state.membersExpanded}
+              instructionsExpanded={this.state.instructionsExpanded}
+              toolsExpanded={this.state.toolsExpanded}
+              referToCoords={this.state.referToCoords}
+              referFromCoords={this.state.referFromCoords}
+
+            />
+          : null
+        }
         <Modal show={this.state.creatingNewTab} closeModal={this.closeModal}>
           <NewTabForm room={room} closeModal={this.closeModal} updatedRoom={this.props.updatedRoom}/>
         </Modal>
