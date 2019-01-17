@@ -1,7 +1,6 @@
 export { default as Background } from './Background/Background';
 export { default as Chat } from './Chat/Chat';
 export { default as CurrentMembers } from './CurrentMembers/CurrentMembers';
-export { default as RoomInfo } from './RoomInfo/RoomInfo';
 export { default as Checkbox } from './Form/Checkbox/Checkbox';
 export { default as Dropdown } from './Form/Dropdown/Dropdown';
 export { default as RoleDropdown } from './Form/Dropdown/RoleDropdown';

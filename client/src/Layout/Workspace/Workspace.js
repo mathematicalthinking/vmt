@@ -23,7 +23,6 @@ const WorkspaceLayout = React.memo((props) => {
   // }
   let membersHeight = 'auto';
   let chatHeight = '63%';
-  let bottomRightHeight = 'auto';
   let flexB = '0';
   if (!props.chatExpanded) {
     chatHeight = 'auto';
@@ -47,7 +46,7 @@ const WorkspaceLayout = React.memo((props) => {
             </div>
           </div>
           <div className={classes.Bottom}>
-            {/* {bottomLeft} */}
+            {bottomLeft}
           </div>
         </div>
         <div className={classes.Right}>
@@ -55,7 +54,6 @@ const WorkspaceLayout = React.memo((props) => {
           <div className={classes.Members} style={{height: membersHeight}}>{currentMembers}</div>
           <div className={classes.BottomRight}>{bottomRight}</div>
         </div>
-          {/* <div></div>{bottomRight} */}
       </div>
       {referToCoords && referFromCoords   ?
         <div className={classes.ReferenceLine}>

@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { updateRoom, updatedRoom, populateRoom, setRoomStartingPoint, updateUser, addChatMessage } from '../../store/actions';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
-import { GgbGraph, DesmosGraph, Chat, Tabs, Tools } from './';
-import { Modal, Aux, CurrentMembers } from '../../Components';
+import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from './';
+import { Modal, Aux, CurrentMembers, } from '../../Components';
 import NewTabForm from './NewTabForm'
 import socket from '../../utils/sockets';
 // import Replayer from ''
@@ -369,7 +369,7 @@ class Workspace extends Component {
               chat={chat}
               tabs={tabs}
               bottomRight={<Tools inControl={control} goBack={this.goBack} toggleControl={this.toggleControl}/>}
-              bottomLeft={<div>bottomLeft</div>}
+              bottomLeft={<RoomInfo role={this.state.role} updateRoom={this.props.updateRoom} room={room} currentTab={this.state.currentTab}/>}
               currentMembers={currentMembers}
               chatExpanded={this.state.chatExpanded}
               membersExpanded={this.state.membersExpanded}

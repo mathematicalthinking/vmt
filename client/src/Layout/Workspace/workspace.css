@@ -118,7 +118,8 @@
   background-color: background;
   order: 2;
   display: flex;
-  flex: 0 1 auto;
+  align-content: flex-start;
+  flex: 1 1 auto;
   margin-top: 10px;
   box-shadow: lightShadow;
 }
