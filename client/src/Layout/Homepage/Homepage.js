@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 // import { Link } from 'react-router-dom';
 import classes from './homepage.css';
 // import BoxList from '../BoxList/BoxList'
-// import Button from '../../Components/UI/Button/Button';
+import Button from '../../Components/UI/Button/Button';
 import Background from '../../Components/Background/Background';
 // import GeogebraImg from './Geogebra.png';
 // import DesmosImg from './desmos.jpg';
@@ -48,6 +48,7 @@ class Homepage extends PureComponent {
   }
 
   createRoom = () => {
+    console.log('creating room')
     let room = {
       name: 'temp room',
       tempRoom: true,
@@ -79,7 +80,7 @@ class Homepage extends PureComponent {
             <p className={classes.Blurb}>
               Collaborative Workspaces for Exploring the World of Math
             </p>
-            {/* <Button theme={'Big'} click={this.createRoom} m={35}>Try out a Workspace</Button> */}
+            <Button theme={'Big'} click={this.createRoom} m={35}>Try out a Workspace</Button>
           </section>
           {/* <i onClick={this.scrollToDomRef} className={["fas fa-chevron-down", classes.Down].join(" ")}></i> */}
           <section className={classes.Options} ref={this.containerRef}>

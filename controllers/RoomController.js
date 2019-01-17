@@ -70,7 +70,6 @@ module.exports = {
 
 
       let room = new Room(body)
-      // console.log("ROOM:", room)
       if (existingTabs) {
         tabModels = existingTabs.map(tab => {
           let newTab = new Tab({
@@ -98,11 +97,12 @@ module.exports = {
             name: 'Tab 1',
             room: room._id,
             desmosLink: body.desmosLink,
-            tabType: body.roomType,
+            tabType: body.roomType || 'geogebra',
           })]
         }
       }
       room.tabs = tabModels.map(tab => tab._id);
+      console.log("ROOM:", room)
       try {
         await tabModels.forEach(tab => tab.save()) // These could run in parallel I suppose but then we'd have to edit one if ther ewas a failuer with the other
         await room.save()

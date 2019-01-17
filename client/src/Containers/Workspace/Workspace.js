@@ -89,8 +89,6 @@ class Workspace extends Component {
       this.setState({someoneElseInControl: true, inControl: false,})
     }
 
-    let { role } = room.members.filter(member => member.user._id === user._id)[0]
-    if (role === 'facilitator') {this.setState({role: 'facilitator'})}
 
     // repopulate room incase things have changed since we got to the details page
     // this.props.populateRoom(room._id)
@@ -101,13 +99,18 @@ class Workspace extends Component {
       roomName: room.name,
     }
     // const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
-    socket.emit('JOIN', sendData, (res, err) => {
-      if (err) {
-        console.log(err) // HOW SHOULD WE HANDLE THIS
-      }
-      this.props.updatedRoom(room._id, {currentMembers: res.room.currentMembers})
-      this.props.addChatMessage(room._id, res.message)
-    })
+    if (!this.props.temp) {
+      let { role } = room.members.filter(member => member.user._id === user._id)[0]
+      if (role === 'facilitator') {this.setState({role: 'facilitator'})}
+      console.log('should"t be seering this')
+      socket.emit('JOIN', sendData, (res, err) => {
+        if (err) {
+          console.log(err) // HOW SHOULD WE HANDLE THIS
+        }
+        this.props.updatedRoom(room._id, {currentMembers: res.room.currentMembers})
+        this.props.addChatMessage(room._id, res.message)
+      })
+    }
 
     socket.on('USER_JOINED', data => {
       this.props.updatedRoom(room._id, {currentMembers: data.currentMembers})
@@ -391,7 +394,7 @@ class Workspace extends Component {
 
 const mapStateToProps = (state, ownProps) => {
   return {
-    room: state.rooms.byId[ownProps.match.params.room_id],
+    room: state.rooms.byId[ownProps.match.params.room_id] || ownProps.room, // with temp workspace we already have the room
     user: state.user,
     loading: state.loading.loading,
   }

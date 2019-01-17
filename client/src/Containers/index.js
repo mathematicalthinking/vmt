@@ -20,3 +20,4 @@ export { default as GgbReplayer } from './Replayer/GgbReplayer';
 export { default as DesmosReplayer } from './Replayer/DesmosReplayer';
 export { default as ChatReplayer } from './Replayer/ChatReplayer';
 export { default as Members } from './Members/Members';
+export { default as TempWorkspace } from './Workspace/TempWorkspace';
