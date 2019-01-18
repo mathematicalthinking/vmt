@@ -65,13 +65,11 @@ class GgbGraph extends Component {
   }
 
   async componentDidUpdate(prevProps) {
-    console.log('ggb graph updated', this.props.room.controlledBy)
     if (!this.ggbApplet) return;
     let wasInControl = prevProps.room.controlledBy === this.props.user._id;
     let isInControl = this.props.room.controlledBy === this.props.user._id;
     let isSomeoneElseInControl = this.props.room.controlledBy && !isInControl;
     if (!wasInControl && isInControl) {
-      console.log('was not in control but now am')
       this.setState({switchingControl: true}, () => {
         if (this.ggbApplet) {
           this.ggbApplet.setMode(0)
