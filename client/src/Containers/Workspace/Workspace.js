@@ -33,7 +33,9 @@ class Workspace extends Component {
   componentDidMount() {
     this.props.updateUser({connected: socket.connected});
     this.initializeListeners();
-    this.props.populateRoom(this.props.room._id)
+    if (!this.props.temp) {
+      this.props.populateRoom(this.props.room._id);
+    }
     window.addEventListener('beforeunload', this.componentCleanup);
   }
 

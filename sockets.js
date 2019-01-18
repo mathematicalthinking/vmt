@@ -9,6 +9,7 @@ module.exports = function () {
     // console.log(socket.getEventNames())
 
     socket.on('JOIN_TEMP', async (data, callback) => {
+      console.log('joining temp!')
       socket.join(data.roomId, async () => {
         let user;
         let promises = [];
@@ -20,7 +21,7 @@ module.exports = function () {
         } else {
           user = {_id: data.userId, username: data.username}
         }
-        console.log("USER: ", user)
+        console.log("USEX: ", user)
         const message = {
           user: {_id: user._id, username: 'VMTbot'},
           room: data.roomId,
@@ -32,6 +33,7 @@ module.exports = function () {
         // If this is the user in the room, update the blank room created from "Try out a Workspace"
         // We will use the existance if the creator field to check if this is firstEntry on the front end
         if (data.firstEntry) {
+          promises.push(controllers.tabs.put(data.tabId, {tabType: data.roomType}))
           console.log('first entry')
           promises.push(controllers.rooms.put(data.roomId, {
             roomType: data.roomType,
@@ -40,7 +42,6 @@ module.exports = function () {
             currentMembers: [user._id],
             creator: user._id,
           }));
-          promises.push(controllers.tabs.put(data.tabId, {tabType: data.roomType}))
         } else {
           console.log('adding current users')
           promises.push(controllers.rooms.addCurrentUsers(data.roomId, user._id)) //)
@@ -48,8 +49,9 @@ module.exports = function () {
         let results;
         try {
           results = await Promise.all(promises)
-          socket.to(data.roomId).emit('USER_JOINED', {currentMembers: results[1].currentMembers, message,});
-          callback({room: results[1], message, user,}, null)
+          console.log("ROMM: ", results[2])
+          socket.to(data.roomId).emit('USER_JOINED', {currentMembers: results[2].currentMembers, message,});
+          callback({room: results[2], message, user,}, null)
         } catch(err) {console.log(err)}
       })
     })

@@ -206,10 +206,10 @@ export const getRoomsIds = ids => {
   }
 }
 
-export const populateRoom = id => {
+export const populateRoom = (id, temp) => {
   return dispatch => {
     dispatch(loading.start())
-    API.getById('rooms', id)
+    API.getById('rooms', id, temp)
     .then(res => {
       dispatch(updatedRoom(id, res.data.result))
       dispatch(loading.success())

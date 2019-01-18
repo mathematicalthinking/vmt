@@ -21,23 +21,30 @@ class TempWorkspace extends Component {
   }
 
   componentDidMount(){
+    console.log('temp workspace mounted')
     window.addEventListener("beforeunload", this.confirmUnload)
     // If there is no room by this id ins the user's store, then they're not the first to join
+    console.log('there is no this.props.room')
+    let temp = true;
+    this.props.populateRoom(this.props.match.params.id, temp)
+    console.log('fetching temp room by id')
     if (!this.props.room) {
       this.setState({firstEntry: false})
-      this.props.populateRoom(this.props.match.params.id)
     }
   }
 
-  componentDidUpdate(prevProps, prevState){
+    componentDidUpdate(prevProps, prevState){
     // An already signed in user has saved the workspace
-    if (this.state.saving && this.props.loggedIn) {
+    if (this.state.saving && !prevProps.loggedIn && this.props.loggedIn) {
       this.setState({saved: true, saving: false})
     }
     // The user has signed in from this page and saved the workspace
     if (!prevProps.loggedIn && this.props.loggedIn) {
       this.setState({saved: true,})
 
+    }
+    if (prevProps.room !== this.props.room) {
+      console.log("ROOOOOM: ", this.props.room )
     }
     // if (!prevProps.room && this.props.room) {
     // }
@@ -77,7 +84,7 @@ class TempWorkspace extends Component {
         console.log(err) // HOW SHOULD WE HANDLE THIS
       }
       let { room, message } = res;
-      this.props.updatedRoom(room._id, room)
+      this.props.updatedRoom(room._id, {currentMembers: room.currentMembers, members: room.members})
       if (!this.state.firstEntry) res.room.chat.push(message)
       this.setState({user: res.user, room: res.room})
     })
