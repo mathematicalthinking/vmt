@@ -65,11 +65,13 @@ class GgbGraph extends Component {
   }
 
   async componentDidUpdate(prevProps) {
+    console.log('ggb graph updated', this.props.room.controlledBy)
     if (!this.ggbApplet) return;
     let wasInControl = prevProps.room.controlledBy === this.props.user._id;
     let isInControl = this.props.room.controlledBy === this.props.user._id;
     let isSomeoneElseInControl = this.props.room.controlledBy && !isInControl;
     if (!wasInControl && isInControl) {
+      console.log('was not in control but now am')
       this.setState({switchingControl: true}, () => {
         if (this.ggbApplet) {
           this.ggbApplet.setMode(0)
@@ -79,16 +81,18 @@ class GgbGraph extends Component {
           this.freezeElements(false)
         }
         // setTimeout(() => {
-          this.setState({switchingControl: false})
+          this.setState({switchingControl: false,})
         // }, 0)
       })
 
     }
     else if ((wasInControl && !isInControl )|| isSomeoneElseInControl) {
+      console.log('WAS in control but now NOT')
       this.ggbApplet.showToolBar(false)
       this.ggbApplet.showMenuBar(false)
       this.ggbApplet.setMode(40)
       this.freezeElements(true)
+      // this.setState({inControl: false})
     }
     else if (!prevProps.referencing && this.props.referencing) {
       this.ggbApplet.setMode(0) // Set tool to pointer so the user can select elements
@@ -132,6 +136,7 @@ class GgbGraph extends Component {
        })
       }
       else {
+        console.log('catrchALl')
         this.ggbApplet.setXML(INITIAL_GGB)
         this.registerListeners();
       }
@@ -273,7 +278,7 @@ class GgbGraph extends Component {
   }
 
   sendEvent = throttle(async (xml, definition, label, eventType, action) => {
-    if (!this.props.user.connected || !this.isInControl) {
+    if (!this.props.user.connected || this.props.room.controlledBy !== this.props.user._id) {
       // @TODO HAVING TROUBLE GETTING ACTIONS TO UNDO
       alert("You are not in control. The update you just made will not be saved. Please refresh the page")
       // console.log('attempting to undo')

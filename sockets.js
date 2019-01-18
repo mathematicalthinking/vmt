@@ -34,24 +34,23 @@ module.exports = function () {
         // We will use the existance if the creator field to check if this is firstEntry on the front end
         if (data.firstEntry) {
           promises.push(controllers.tabs.put(data.tabId, {tabType: data.roomType}))
-          console.log('first entry')
-          promises.push(controllers.rooms.put(data.roomId, {
-            roomType: data.roomType,
-            name: data.roomName,
-            members: [{user: user._id, role: 'facilitator'}],
-            currentMembers: [user._id],
-            creator: user._id,
-          }));
-        } else {
-          console.log('adding current users')
-          promises.push(controllers.rooms.addCurrentUsers(data.roomId, user._id)) //)
+          // console.log('first entry')
+          // promises.push(controllers.rooms.put(data.roomId, {
+          //   roomType: data.roomType,
+          //   name: data.roomName,
+          //   members: [{user: user._id, role: 'facilitator'}],
+          //   currentMembers: [user._id],
+          //   creator: user._id,
+          // }));
         }
+        console.log('adding current users')
+        promises.push(controllers.rooms.addCurrentUsers(data.roomId, user._id))
         let results;
         try {
           results = await Promise.all(promises)
-          console.log("ROMM: ", results[2])
-          socket.to(data.roomId).emit('USER_JOINED', {currentMembers: results[2].currentMembers, message,});
-          callback({room: results[2], message, user,}, null)
+          console.log("ROMM: ", results[results.length - 1])
+          socket.to(data.roomId).emit('USER_JOINED', {currentMembers: results[results.length - 1].currentMembers, message,});
+          callback({room: results[results.length - 1], message, user,}, null)
         } catch(err) {console.log(err)}
       })
     })
@@ -77,6 +76,7 @@ module.exports = function () {
         let results;
         try {
           results = await Promise.all(promises)
+          console.log("RES1: ",results[1])
           socket.to(data.roomId).emit('USER_JOINED', {currentMembers: results[1].currentMembers, message,});
           callback({room: results[1], message, user,}, null)
         }
@@ -191,6 +191,7 @@ module.exports = function () {
       catch(err) {
         console.log("ERROR TAKING CONTROL: ",err)
       }
+      console.log('TOOK CONTROL')
       socket.to(data.room).emit('TOOK_CONTROL', data);
       callback(null, data)
     })

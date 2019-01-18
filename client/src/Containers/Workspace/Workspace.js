@@ -40,12 +40,16 @@ class Workspace extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    // let { user } = this.props;
+    console.log('workspace updating')
     // When we first the load room
-    if (prevProps.room.controlledBy !== this.props.room.controlledBy) {
-      this.setState({someoneElseInControl: true, inControl: false})
-    }
+    // if (prevProps.room.controlledBy === null && this.props.room.controlledBy !==  null && this.) {
+    //   console.log('someonelse in controll')
+    //   this.setState({someoneElseInControl: true, inControl: false})
+    // }
 
-    if (prevState.inControl && !this.state.inControl) {
+    if (prevProps.room.controlledBy === this.props.user._id && this.props.room.controlledBy === null) {
+      console.log('releasing control')
       socket.emit('RELEASE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
         this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
         this.setState({activeMember: ''})
@@ -130,6 +134,7 @@ class Workspace extends Component {
     })
 
     socket.on('TOOK_CONTROL', message => {
+      console.log('someone took control', message.user._id)
       this.props.addChatMessage(this.props.room._id, message)
       this.props.updatedRoom(room._id, {controlledBy: message.user._id})
     })
@@ -361,8 +366,17 @@ class Workspace extends Component {
     />
 
     if (room.tabs[this.state.currentTab].tabType === 'desmos') {
-      Graph = <DesmosGraph room={room} user={user} resetControlTimer={this.resetControlTimer} currentTab={this.state.currentTab}/>
-    } else Graph = <GgbGraph room={room} user={user} updateRoom={this.props.updateRoom} resetControlTimer={this.state.resetControlTimer} currentTab={this.state.currentTab}/>
+      Graph = <DesmosGraph room={room} user={user} resetControlTimer={this.resetControlTimer} currentTab={this.state.currentTab}/>;
+    } else {
+      Graph = <GgbGraph
+                room={room}
+                user={user}
+                updateRoom={this.props.updateRoom}
+                updatedRoom={this.props.updatedRoom}
+                resetControlTimer={this.resetControlTimer}
+                currentTab={this.state.currentTab}
+              />
+    }
 
     return (
       <Aux>

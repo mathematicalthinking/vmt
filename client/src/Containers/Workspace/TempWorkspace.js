@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { populateRoom, removedRoom, updatedRoom, updateRoom, addUserRooms } from '../../store/actions'
+import { populateRoom, removedRoom, updatedRoom, updateRoom, addUserRooms, addChatMessage } from '../../store/actions'
 import Workspace from './Workspace';
 import { Aux, TextInput, Modal, Button } from '../../Components/'
 import Signup from '../Signup';
@@ -85,6 +85,7 @@ class TempWorkspace extends Component {
       }
       let { room, message } = res;
       this.props.updatedRoom(room._id, {currentMembers: room.currentMembers, members: room.members})
+      this.props.addChatMessage(room._id, res.message)
       if (!this.state.firstEntry) res.room.chat.push(message)
       this.setState({user: res.user, room: res.room})
     })
@@ -156,4 +157,4 @@ const mapStateToProps = (store, ownProps) => ({
   userId: store.user._id,
 })
 
-export default connect(mapStateToProps, { populateRoom, removedRoom, updateRoom, updatedRoom, addUserRooms })(TempWorkspace)
+export default connect(mapStateToProps, { populateRoom, removedRoom, updateRoom, updatedRoom, addUserRooms, addChatMessage })(TempWorkspace)
