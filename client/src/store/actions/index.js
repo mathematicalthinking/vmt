@@ -51,7 +51,7 @@ export {
   addRoomMember,
   removeRoomMember,
   roomsRemoved,
-  destroyRoom,
+  removedRoom,
   createRoomFromActivity,
   updateRoomTab,
   setRoomStartingPoint,

@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
-import TextInput from '../../Components/Form/TextInput/TextInput';
-import Button from '../../Components/UI/Button/Button';
+import { TextInput, Button, RadioBtn, Background, Aux, } from '../../Components/';
 import classes from './signup.css';
-import RadioBtn from '../../Components/Form/RadioBtn/RadioBtn';
-import Background from '../../Components/Background/Background';
-import Aux from '../../Components/HOC/Auxil';
 
 class Signup extends Component {
   // @TODO Redo Login containers state to match this. cleaner
@@ -19,18 +15,24 @@ class Signup extends Component {
     participantAccount: true,
   }
 
-  componentDidMount(){
+  componentDidMount() {
     if (this.props.temp && this.props.user){
-      this.setState({username: this.props.user.username})
+      this.setState({username: this.props.user.username});
     }
-    window.addEventListener('keypress', this.onKeyPress)
+    window.addEventListener('keypress', this.onKeyPress);
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.tempRoom && !prevProps.loggedIn && this.props.loggedIn) {
+      this.props.closeModal()
+    }
   }
 
   componentWillUnmount() {
     if (this.props.errorMessage) {
       this.props.clearError();
     }
-    window.removeEventListener('keypress', this.onKeyPress)
+    window.removeEventListener('keypress', this.onKeyPress);
   }
   // pass to text inputs to update state from user input
   changeHandler = event => {
@@ -60,7 +62,6 @@ class Signup extends Component {
     if (this.props.temp) {
       newUser._id = this.props.user._id;
       newUser.rooms = [this.props.room]
-      this.props.closeModal()
     }
     this.props.signup(newUser, this.props.room); // this.props.room will only exist when creating user from tempUser
   }
