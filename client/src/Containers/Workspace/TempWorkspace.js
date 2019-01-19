@@ -78,15 +78,18 @@ class TempWorkspace extends Component {
       roomType: graphType, // this wil be undefined if its not the first user in the room
       firstEntry: this.state.firstEntry
     }
+    console.log('trying to emit socket ', sendData)
     // this.setState({enteredRoom: true, graph: graphType})
     socket.emit('JOIN_TEMP', sendData, (res, err) => {
+      console.log('anything???')
       if (err) {
-        console.log(err) // HOW SHOULD WE HANDLE THIS
+        console.log('error ', err) // HOW SHOULD WE HANDLE THIS
       }
       let { room, message } = res;
+      console.log("EROOM: ", room)
       this.props.updatedRoom(room._id, {currentMembers: room.currentMembers, members: room.members})
       this.props.addChatMessage(room._id, res.message)
-      if (!this.state.firstEntry) res.room.chat.push(message)
+      // if (!this.state.firstEntry) res.room.chat.push(message)
       this.setState({user: res.user, room: res.room})
     })
   }
@@ -142,7 +145,7 @@ class TempWorkspace extends Component {
                 <Button data-testid='temp-desmos' m={5} click={() => this.joinRoom('desmos')}>Desmos</Button>
                 <Button data-testid='temp-geogebra' m={5} click={() => this.joinRoom('geogebra')}>GeoGebra</Button>
               </div> :
-              <Button m={5} click={this.joinRoom}>Join</Button>
+              <Button m={5} click={() => {this.joinRoom()}}>Join</Button>
             }
           </Modal>
 

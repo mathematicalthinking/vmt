@@ -224,6 +224,7 @@ class Workspace extends Component {
       this.props.addChatMessage(room._id, message)
       socket.emit('TAKE_CONTROL', message, (err, message) => {
           // this.scrollToBottom(); @TODO
+          // IF ERROR WE NEED TO UNDO CONTROL
       })
     }
     if (!user.connected) {
