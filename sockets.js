@@ -9,7 +9,6 @@ module.exports = function () {
     // console.log(socket.getEventNames())
 
     socket.on('JOIN_TEMP', async (data, callback) => {
-      console.log('joining temp!')
       socket.join(data.roomId, async () => {
         let user;
         let promises = [];
@@ -21,6 +20,8 @@ module.exports = function () {
         } else {
           user = {_id: data.userId, username: data.username}
         }
+        socket.user_id = user._id; // store the user id on the socket so we can tell who comes and who goes
+        socket.username = user.username
         const message = {
           user: {_id: user._id, username: 'VMTbot'},
           room: data.roomId,
@@ -42,12 +43,10 @@ module.exports = function () {
           //   creator: user._id,
           // }));
         }
-        console.log('adding current users', data.roomId, user._id)
         promises.push(controllers.rooms.addCurrentUsers(data.roomId, user._id))
         let results;
         try {
           results = await Promise.all(promises)
-          console.log("ROMM: ", results[results.length - 1])
           socket.to(data.roomId).emit('USER_JOINED', {currentMembers: results[results.length - 1].currentMembers, message,});
           callback({room: results[results.length - 1], message, user,}, null)
         } catch(err) {console.log(err)}
@@ -75,7 +74,6 @@ module.exports = function () {
         let results;
         try {
           results = await Promise.all(promises)
-          console.log("RES1: ",results[1])
           socket.to(data.roomId).emit('USER_JOINED', {currentMembers: results[1].currentMembers, message,});
           callback({room: results[1], message, user,}, null)
         }
@@ -93,7 +91,7 @@ module.exports = function () {
         let removedMember = {};
         if (res && res.currentMembers) {
           let currentMembers = res.currentMembers.filter(member => {
-            if (socket.user_id === member._id.toString()) {
+            if (socket.user_id.toString() === member._id.toString()) {
               removedMember = member;
               return false;
             } return true;
