@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { populateRoom, removedRoom, updatedRoom, updateRoom, addUserRooms, addChatMessage } from '../../store/actions'
 import Workspace from './Workspace';
-import { Aux, TextInput, Modal, Button } from '../../Components/'
+import { Aux, TextInput, Modal, Button } from '../../Components/';
 import Signup from '../Signup';
 import socket from '../../utils/sockets';
 // import Replayer from ''
@@ -21,14 +21,12 @@ class TempWorkspace extends Component {
   }
 
   componentDidMount(){
-    console.log('temp workspace mounted')
     window.addEventListener("beforeunload", this.confirmUnload)
-    // If there is no room by this id ins the user's store, then they're not the first to join
-    console.log('there is no this.props.room')
     let temp = true;
     this.props.populateRoom(this.props.match.params.id, temp)
-    console.log('fetching temp room by id')
-    if (!this.props.room) {
+    // If there is no room by this id ins the user's store, then they're not the first to join
+    // The user creating this room will it have in their store. A user who just drops the link in their url bar will not have it in the store
+    if (!this.props.room || this.props.room.currentMembers.length > 0) {
       this.setState({firstEntry: false})
     }
   }
@@ -43,9 +41,9 @@ class TempWorkspace extends Component {
       this.setState({saved: true,})
 
     }
-    if (prevProps.room !== this.props.room) {
-      console.log("ROOOOOM: ", this.props.room )
-    }
+    // if (prevProps.room !== this.props.room) {
+    //   console.log("ROOOOOM: ", this.props.room )
+    // }
     // if (!prevProps.room && this.props.room) {
     // }
   }
@@ -78,19 +76,17 @@ class TempWorkspace extends Component {
       roomType: graphType, // this wil be undefined if its not the first user in the room
       firstEntry: this.state.firstEntry
     }
-    console.log('trying to emit socket ', sendData)
     // this.setState({enteredRoom: true, graph: graphType})
     socket.emit('JOIN_TEMP', sendData, (res, err) => {
-      console.log('anything???')
       if (err) {
         console.log('error ', err) // HOW SHOULD WE HANDLE THIS
       }
-      let { room, message } = res;
-      console.log("EROOM: ", room)
+      let { room, message, user } = res;
       this.props.updatedRoom(room._id, {currentMembers: room.currentMembers, members: room.members})
-      this.props.addChatMessage(room._id, res.message)
+      this.props.addChatMessage(room._id, message)
       // if (!this.state.firstEntry) res.room.chat.push(message)
-      this.setState({user: res.user, room: res.room})
+      user.connected = socket.connected;
+      this.setState({user: user, room: room})
     })
   }
 
@@ -128,6 +124,7 @@ class TempWorkspace extends Component {
             <Workspace
               {...this.props}
               temp
+              user={this.state.user}
               save = {!this.state.saved ? this.saveWorkspace : null}
             />
           </Aux>

@@ -222,13 +222,15 @@ class Workspace extends Component {
         timestamp: new Date().getTime(),
       }
       this.props.addChatMessage(room._id, message)
+      console.log('taking control: ', message)
       socket.emit('TAKE_CONTROL', message, (err, message) => {
           // this.scrollToBottom(); @TODO
           // IF ERROR WE NEED TO UNDO CONTROL
       })
     }
     if (!user.connected) {
-      setTimeout(() => alert('You have disconnected from the server. Check your internet connection and try refreshing the page'), 0) // Let all of the state updates finish and then show an alert
+      // Let all of the state updates finish and then show an alert
+      setTimeout(() => alert('You have disconnected from the server. Check your internet connection and try refreshing the page'), 0)
     }
   }
 
@@ -412,7 +414,7 @@ class Workspace extends Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     room: state.rooms.byId[ownProps.match.params.room_id] || ownProps.room, // with temp workspace we already have the room
-    user: state.user,
+    user: state.user._id ? state.user : ownProps.user, // with tempWorkspace we won't have a user in the store
     loading: state.loading.loading,
   }
 }

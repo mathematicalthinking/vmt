@@ -182,6 +182,7 @@ module.exports = function () {
     })
 
     socket.on('TAKE_CONTROL', async (data, callback) => {
+      console.log("USER TAKING CONTROL: ", data.user._id)
       try {
         await Promise.all([controllers.messages.post(data), controllers.rooms.put(data.room, {controlledBy: data.user._id})])
       }
