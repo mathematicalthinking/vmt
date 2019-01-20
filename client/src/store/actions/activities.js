@@ -136,6 +136,7 @@ export const updateActivityTab = (activityId, tabId, body) => {
     dispatch(updatedActivityTab(activityId, tabId, body))
     API.put('tabs', tabId, body)
     .then(res => {
+
     })
     .catch(err => {console.log(err)})
   }
