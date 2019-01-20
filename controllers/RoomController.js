@@ -284,10 +284,11 @@ module.exports = {
       // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
       let query = members ?
         {'$addToSet': {'currentMembers': newCurrentUserId, 'members': members}} :
-        {'$addToSet': {'currentMembers': ObjectId(newCurrentUserId)}}
+        {'$addToSet': {'currentMembers': newCurrentUserId}}
       db.Room.findByIdAndUpdate(roomId, query, {new: true})
       .populate({path: 'currentMembers', select: 'username'})
-      .select('currentMembers')
+      .populate({path: 'members', select: 'username'})
+      .select('currentMembers members')
       .then(room => {
         resolve(room)
       })

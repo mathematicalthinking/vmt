@@ -4,7 +4,7 @@ import { normalize } from '../utils/normalize';
 import API from '../../utils/apiRequests';
 import * as loading from './loading'
 import { gotCourses, } from './courses';
-import { addRoomMember, gotRooms } from './rooms';
+import { addRoomMember, updateRoomMembers, gotRooms } from './rooms';
 import { gotActivities } from './activities';
 
 export const gotUser = (user, temp) => {
@@ -122,10 +122,10 @@ export const clearNotification = (ntfId) => {
   }
 }
 
-export const signup = (body, room) => { // room is optional -- if we're siging up a
-  return dispatch => {
+export const signup = (body, room) => { // room is optional -- if we're siging up someone in a temp room
+  return (dispatch, getState) => {
     if (room) {
-      dispatch(addRoomMember(room, {user:{username: body.username, _id: body._id}, role: 'facilitator'}))
+      // dispatch(updateRoomMembers(room, {user:{username: body.username, _id: body._id}, role: 'facilitator'}))
     }
     dispatch(loading.start());
     auth.signup(body)

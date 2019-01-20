@@ -97,7 +97,7 @@ const reducer = (state = initialState, action) => {
 
 
     case actionTypes.ADD_ROOM_MEMBER:
-      let updatedMembers = [...state.byId[action.roomId].members]
+      let updatedMembers = [...state.byId[action.roomId].members] || [];
       updatedMembers.push(action.body);
       return {
         ...state,

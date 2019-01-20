@@ -16,9 +16,10 @@ const Room = new mongoose.Schema({
   dueDate: {type: Date,},
   chat: {type: [{type: ObjectId, ref: 'Message'}], default: []},
   members: [{
+    // _id: false,
     user: {type: ObjectId, ref: 'User'},
     role: {type: String},
-    _id: false}],
+  }],
   currentMembers: {type: [{type: ObjectId, ref: 'User'}], default: []},
   tabs: {type: [{type: ObjectId, ref: 'Tab'}]},
   privacySetting: {type: String, enum: ['private', 'public'], default: 'private'},

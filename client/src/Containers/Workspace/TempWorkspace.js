@@ -77,11 +77,13 @@ class TempWorkspace extends Component {
       firstEntry: this.state.firstEntry
     }
     // this.setState({enteredRoom: true, graph: graphType})
+    console.log("EMITTING")
     socket.emit('JOIN_TEMP', sendData, (res, err) => {
       if (err) {
         console.log('error ', err) // HOW SHOULD WE HANDLE THIS
       }
       let { room, message, user } = res;
+      console.log("ROOM: ", room)
       this.props.updatedRoom(room._id, {currentMembers: room.currentMembers, members: room.members})
       this.props.addChatMessage(room._id, message)
       // if (!this.state.firstEntry) res.room.chat.push(message)

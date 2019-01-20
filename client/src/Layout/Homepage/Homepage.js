@@ -47,7 +47,6 @@ class Homepage extends PureComponent {
   }
 
   createRoom = () => {
-    console.log('creating room')
     let room = {
       name: 'temp room',
       tempRoom: true,

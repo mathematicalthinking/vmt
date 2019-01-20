@@ -1,6 +1,7 @@
 const controllers = require('./controllers')
 const _ = require('lodash');
 const socketInit = require('./socketInit');
+const ObjectId = require('mongoose').Types.ObjectId
 
 // const io = require('socket.io')(server, {wsEngine: 'ws'});
 module.exports = function () {
@@ -43,7 +44,7 @@ module.exports = function () {
           //   creator: user._id,
           // }));
         }
-        promises.push(controllers.rooms.addCurrentUsers(data.roomId, user._id))
+        promises.push(controllers.rooms.addCurrentUsers(data.roomId, ObjectId(user._id), {user: ObjectId(user._id), role: data.firstEntry ? 'facilitator' : 'participant'}))
         let results;
         try {
           results = await Promise.all(promises)
