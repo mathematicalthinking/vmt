@@ -287,7 +287,7 @@ module.exports = {
         {'$addToSet': {'currentMembers': newCurrentUserId}}
       db.Room.findByIdAndUpdate(roomId, query, {new: true})
       .populate({path: 'currentMembers', select: 'username'})
-      .populate({path: 'members', select: 'username'})
+      .populate({path: 'members.user', select: 'username'})
       .select('currentMembers members')
       .then(room => {
         resolve(room)

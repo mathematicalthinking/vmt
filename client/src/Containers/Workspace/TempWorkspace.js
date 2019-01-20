@@ -107,7 +107,7 @@ class TempWorkspace extends Component {
   }
 
   saveWorkspace = () => {
-    this.props.updateRoom(this.props.match.params.id, {tempRoom: false})
+    this.props.updateRoom(this.props.match.params.id, {tempRoom: false, creator: this.state.user._id})
     if (this.props.loggedIn) this.props.addUserRooms(this.props.match.params.id)
     this.setState({saving: true})
   }
