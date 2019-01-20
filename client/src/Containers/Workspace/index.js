@@ -6,3 +6,4 @@ export { default as Chat } from './Chat';
 export { default as Tabs } from './Tabs';
 export { default as Tools } from './Tools';
 export { default as RoomInfo } from './RoomInfo';
+export { default as Workspace } from './Workspace';

@@ -136,7 +136,7 @@ export const updateActivityTab = (activityId, tabId, body) => {
     dispatch(updatedActivityTab(activityId, tabId, body))
     API.put('tabs', tabId, body)
     .then(res => {
-      console.log('updated tab to backend')
+
     })
     .catch(err => {console.log(err)})
   }

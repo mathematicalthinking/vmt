@@ -18,7 +18,6 @@ function addIsTrashed() {
 }
 
 addIsTrashed().then(() => {
-  console.log('done!');
   mongoose.connection.close();
 })
 .catch((err) => {

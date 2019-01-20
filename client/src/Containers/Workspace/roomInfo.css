@@ -1,5 +1,6 @@
 :import('../../colors.css') {
   blue: blue;
+  green: green;
   blueHover: blueHover;
   gray: backgroundGray;
   background: mainBackground;
@@ -54,4 +55,23 @@
 .InstructionsTitle {
   float: left;
   margin-right: 10px;
+}
+
+.CopyIcon {
+  color: #999;
+  cursor: pointer;
+  margin-left: 3px;
+  transition: .2s;
+}
+
+.CopyIcon:hover {
+  color: blueHover;
+}
+
+.CopiedContainer {position: relative;}
+
+.Copied {
+  position: absolute;
+  transition: .2s;
+  color: green;
 }

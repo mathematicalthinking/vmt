@@ -26,7 +26,7 @@
   background-color: #f8f8f9;
   z-index: 0;
   padding: 0 20px;
-  overflow-y: hidden;
+  /* overflow-y: hidden; */
 }
 
 .Container {
@@ -149,6 +149,8 @@
   box-shadow: lightShadow;
   order: 3;
   flex: 1 0 auto;
+  display: flex;
+  /* position: relative; */
   /* border: 1px solid brown; */
 }
 

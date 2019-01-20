@@ -50,11 +50,9 @@ class NewTabForm extends Component {
       if (results && results.data) {
         newTab.ggbFile = results.data.result;
       }
-      console.log(results)
       return API.post('tabs', newTab)
     })
     .then(res => {
-      console.log(res)
       let tabs;
       if (this.props.room) {
         tabs = [...this.props.room.tabs];

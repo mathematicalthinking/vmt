@@ -45,7 +45,10 @@ export default {
     return axios.put(`/api/${resource}/${id}`, body)
   },
 
-  getById: (resource, id) => {
+  getById: (resource, id, temp) => {
+    if (temp) {
+      return axios.get(`/api/${resource}/${id}/tempRoom`)
+    }
     return axios.get(`/api/${resource}/${id}`)
   },
 

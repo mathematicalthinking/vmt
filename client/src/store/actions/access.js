@@ -21,7 +21,6 @@ export const joinWithCode = (resource, resourceId, userId, username, entryCode, 
         }))
       } else if (resource === 'courses') {
         dispatch(addUserCourses([resourceId]))
-        console.log('adding course member: ', userId, username)
         dispatch(addCourseMember(resourceId, {
           role: 'participant', user: {_id: userId, username: username}
         }))

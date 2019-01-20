@@ -11,7 +11,6 @@ class ErrorBoundary extends Component {
   componentDidCatch(error, info) {
     // You can also log the error to an error reporting service
     // logErrorToMyService(error, info);
-    console.log('caught!')
     // this.props.fail('Uh oh! Something went wrong!')
     // this.props.history.push('/')
   }

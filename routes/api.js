@@ -63,6 +63,26 @@ router.get('/:resource/:id', middleware.validateUser, (req, res, next) => {
 		})
 })
 
+
+// Bypass the middlewre for now on a temp room...eventually we should probably change the URL
+// from the rooms id to some sort of secret entry code.
+router.get('/:resource/:id/:tempRoom', (req, res, next) => {
+	let { id, resource } = req.params;
+	let controller = controllers[resource];
+	controller.getById(id)
+	  .then(result => res.json({ result }))
+	  .catch(err => {
+			console.error(`Error get ${resource}/${id}: ${err}`);
+			let msg = null;
+
+			if (typeof err === 'string') {
+				msg = err;
+			}
+
+			return errors.sendError.InternalError(msg, res)
+		})
+})
+
 const ggbUpload = multer({
   storage: multer.memoryStorage(),
   fileFilter: multerMw.ggbFileFilter,
@@ -86,7 +106,6 @@ router.post('/upload/ggb', middleware.validateUser, ggbUpload.array('ggbFiles', 
 
 router.post('/:resource', middleware.validateUser, middleware.validateNewRecord, (req, res, next) => {
 	let controller = controllers[req.params.resource]
-	console.log('post route')
 	controller.post(req.body)
 	  .then(result => res.json({ result }))
 	  .catch(err => {

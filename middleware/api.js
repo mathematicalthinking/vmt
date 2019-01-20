@@ -22,8 +22,10 @@ const validateId = (req, res, next) => {
 };
 
 const validateUser = (req, res, next) => {
+  if (req.body.tempRoom) { // temp rooms do not require a validated user
+    return next()
+  }
   const user = utils.getUser(req);
-
   if (_.isNil(user)) {
     return errors.sendError.InvalidCredentialsError(null, res);
   }

@@ -79,7 +79,7 @@ class GgbGraph extends Component {
           this.freezeElements(false)
         }
         // setTimeout(() => {
-          this.setState({switchingControl: false})
+          this.setState({switchingControl: false,})
         // }, 0)
       })
 
@@ -89,6 +89,7 @@ class GgbGraph extends Component {
       this.ggbApplet.showMenuBar(false)
       this.ggbApplet.setMode(40)
       this.freezeElements(true)
+      // this.setState({inControl: false})
     }
     else if (!prevProps.referencing && this.props.referencing) {
       this.ggbApplet.setMode(0) // Set tool to pointer so the user can select elements
@@ -273,7 +274,7 @@ class GgbGraph extends Component {
   }
 
   sendEvent = throttle(async (xml, definition, label, eventType, action) => {
-    if (!this.props.user.connected || !this.isInControl) {
+    if (!this.props.user.connected || this.props.room.controlledBy !== this.props.user._id) {
       // @TODO HAVING TROUBLE GETTING ACTIONS TO UNDO
       alert("You are not in control. The update you just made will not be saved. Please refresh the page")
       // console.log('attempting to undo')

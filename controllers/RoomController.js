@@ -70,7 +70,6 @@ module.exports = {
 
 
       let room = new Room(body)
-      // console.log("ROOM:", room)
       if (existingTabs) {
         tabModels = existingTabs.map(tab => {
           let newTab = new Tab({
@@ -98,7 +97,7 @@ module.exports = {
             name: 'Tab 1',
             room: room._id,
             desmosLink: body.desmosLink,
-            tabType: body.roomType,
+            tabType: body.roomType || 'geogebra',
           })]
         }
       }
@@ -106,7 +105,6 @@ module.exports = {
       try {
         await tabModels.forEach(tab => tab.save()) // These could run in parallel I suppose but then we'd have to edit one if ther ewas a failuer with the other
         await room.save()
-        console.log('saved room')
         room.populate({path: 'members.user', select: 'username'}, (err, room) => {
           if (err) reject(err);
           resolve(room)
@@ -286,10 +284,11 @@ module.exports = {
       // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
       let query = members ?
         {'$addToSet': {'currentMembers': newCurrentUserId, 'members': members}} :
-        {'$addToSet': {'currentMembers': ObjectId(newCurrentUserId)}}
+        {'$addToSet': {'currentMembers': newCurrentUserId}}
       db.Room.findByIdAndUpdate(roomId, query, {new: true})
       .populate({path: 'currentMembers', select: 'username'})
-      .select('currentMembers')
+      .populate({path: 'members.user', select: 'username'})
+      .select('currentMembers members')
       .then(room => {
         resolve(room)
       })
