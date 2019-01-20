@@ -102,11 +102,9 @@ module.exports = {
         }
       }
       room.tabs = tabModels.map(tab => tab._id);
-      console.log("ROOM:", room)
       try {
         await tabModels.forEach(tab => tab.save()) // These could run in parallel I suppose but then we'd have to edit one if ther ewas a failuer with the other
         await room.save()
-        console.log('saved room')
         room.populate({path: 'members.user', select: 'username'}, (err, room) => {
           if (err) reject(err);
           resolve(room)

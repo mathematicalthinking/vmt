@@ -115,7 +115,6 @@ class Activity extends Component {
 
       const crumbs = [{title: 'My VMT', link: '/myVMT/courses'}]
       if (course) {
-        console.log('course: ', course, typeof course)
         crumbs.push(
           {title: `${course.name}`, link: `${crumbs[0].link}/${course._id}/activities`},
           {title: `${activity.name}`, link: `${crumbs[0].link}/${course._id}/activities/${activity._id}/details`},

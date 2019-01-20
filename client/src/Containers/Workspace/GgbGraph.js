@@ -85,7 +85,6 @@ class GgbGraph extends Component {
 
     }
     else if ((wasInControl && !isInControl )|| isSomeoneElseInControl) {
-      console.log('WAS in control but now NOT')
       this.ggbApplet.showToolBar(false)
       this.ggbApplet.showMenuBar(false)
       this.ggbApplet.setMode(40)
@@ -134,7 +133,6 @@ class GgbGraph extends Component {
        })
       }
       else {
-        console.log('catrchALl')
         this.ggbApplet.setXML(INITIAL_GGB)
         this.registerListeners();
       }

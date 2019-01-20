@@ -8,8 +8,6 @@ const Tabs = React.memo(({
   changeTab,
   createNewTab,
 }) => {
-  console.log(tabs)
-  console.log(currentTab)
   let tabEls = tabs.map((tab, i) => (
     <div key={tab._id} onClick={() => changeTab(i)} className={[classes.Tab, currentTab === i ? classes.Active : ''].join(" ")} style={{zIndex: tabs.length - i}} >
       <div style={{zIndex: tabs.length - i}} className={classes.TabBox}><span className={classes.TabName}>{tab.name}</span></div>

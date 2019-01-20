@@ -194,7 +194,6 @@ class GgbReplayer extends Component {
   }
 
   initializeGgb = () => {
-    console.log('this,.props: ', this.props);
     this.ggbApplet = window.ggbApplet;
     this.ggbApplet.setMode(40)
     let { tabs, currentTab } = this.props;
@@ -203,7 +202,6 @@ class GgbReplayer extends Component {
     if (startingPoint) {
       this.ggbApplet.setXML(startingPoint)
     } else if (ggbFile) {
-      console.log('setting ggbFile')
       this.ggbApplet.setBase64(ggbFile);
     }
     if (this.props.tabs[0].startingPoint) {

@@ -107,7 +107,6 @@ class Workspace extends Component {
     if (!this.props.temp) {
       let { role } = room.members.filter(member => member.user._id === user._id)[0]
       if (role === 'facilitator') {this.setState({role: 'facilitator'})}
-      console.log('should"t be seering this')
       socket.emit('JOIN', sendData, (res, err) => {
         if (err) {
           console.log(err) // HOW SHOULD WE HANDLE THIS
@@ -220,7 +219,6 @@ class Workspace extends Component {
         timestamp: new Date().getTime(),
       }
       this.props.addChatMessage(room._id, message)
-      console.log('taking control: ', message)
       socket.emit('TAKE_CONTROL', message, (err, message) => {
           // this.scrollToBottom(); @TODO
           // IF ERROR WE NEED TO UNDO CONTROL

@@ -84,7 +84,7 @@ export const setRoomStartingPoint = (roomId) => {
     })
     dispatch(updatedRoom(roomId, {tabs, chat:[]}))
     Promise.all(tabs.map(tab => API.put('tabs', tab._id, {events: [], startingPoint: tab.startingPoint})).concat([API.put('rooms', roomId, {chat: []})]))
-    .then(res => console.log('updatedTabs to new starting point'))
+    .then(res => {})
     .catch(err => console.log("ER w THT: ", err))
   })
 }
@@ -223,7 +223,6 @@ export const createRoom = body => {
     dispatch(loading.start())
     API.post('rooms', body)
     .then(res => {
-      console.log(res)
       let result = res.data.result;
       dispatch(createdRoom(result))
       if (!body.tempRoom) {

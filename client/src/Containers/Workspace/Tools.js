@@ -8,7 +8,6 @@ const Tools = React.memo((props) => {
   } else if (props.inControl === 'NONE') {
     controlText = 'Take Control';
   }
-  console.log(props.save)
   return (
     <div className={classes.Container}>
       <h3 className={classes.Title}>Tools</h3>

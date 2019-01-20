@@ -18,7 +18,6 @@ module.exports = {
   },
 
   post: (body) => {
-    console.log(body)
     return new Promise(async (resolve, reject) => {
       let existingTabs;
       // This indicates we're copying 1 or more activities

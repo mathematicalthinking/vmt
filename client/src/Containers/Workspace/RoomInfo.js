@@ -25,7 +25,6 @@ class RoomInfo extends Component {
 
   render() {
     const { role, updatedActivity, room, currentTab } = this.props;
-    console.log("WINDOW LCOATION: ", window.location)
     return (
     <div className={classes.RoomDescription}>
       <div className={classes.TabNameTitle} >

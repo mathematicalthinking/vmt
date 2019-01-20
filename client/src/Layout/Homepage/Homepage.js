@@ -19,7 +19,6 @@ class Homepage extends PureComponent {
   containerRef = React.createRef()
   componentDidMount(){
     if (this.props.location.state && this.props.location.state.error) {
-      console.log('error: ', this.props.location.state.error)
       this.setState({error: this.props.location.state.error})
       this.timer = setTimeout(() => {console.log("clearing error: "); this.setState({error: null})} , 2000)
     }
