@@ -41,7 +41,6 @@ class Workspace extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     // let { user } = this.props;
-    console.log('workspace updating')
     // When we first the load room
     // if (prevProps.room.controlledBy === null && this.props.room.controlledBy !==  null && this.) {
     //   console.log('someonelse in controll')
@@ -134,7 +133,6 @@ class Workspace extends Component {
     })
 
     socket.on('TOOK_CONTROL', message => {
-      console.log('someone took control', message.user._id)
       this.props.addChatMessage(this.props.room._id, message)
       this.props.updatedRoom(room._id, {controlledBy: message.user._id})
     })
@@ -333,7 +331,6 @@ class Workspace extends Component {
     if (room.controlledBy === user._id) control = "ME";
     else if (!room.controlledBy) control = "NONE";
     let Graph;
-    let Bottom;
     let currentMembers = <CurrentMembers members={room.currentMembers} activeMember={room.controlledBy} expanded={this.state.membersExpanded} toggleExpansion={this.toggleExpansion}/>
     let tabs;
     if (room.tabs[0].name) { // This che
@@ -391,7 +388,7 @@ class Workspace extends Component {
               chat={chat}
               tabs={tabs}
               bottomRight={<Tools inControl={control} goBack={this.goBack} toggleControl={this.toggleControl} save={this.props.save ? this.props.save : null}/>}
-              bottomLeft={<RoomInfo role={this.state.role} updateRoom={this.props.updateRoom} room={room} currentTab={this.state.currentTab}/>}
+              bottomLeft={<RoomInfo temp={this.props.temp} role={this.state.role} updateRoom={this.props.updateRoom} room={room} currentTab={this.state.currentTab}/>}
               currentMembers={currentMembers}
               chatExpanded={this.state.chatExpanded}
               membersExpanded={this.state.membersExpanded}
