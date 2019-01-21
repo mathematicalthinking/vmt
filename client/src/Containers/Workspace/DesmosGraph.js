@@ -16,14 +16,12 @@ class DesmosGraph extends Component {
   calculatorRef = React.createRef();
 
   componentDidMount() {
-    console.log(window.Desmos)
     if (window.Desmos) {
       let { room, currentTab } = this.props;
       let { tabs } = room;
       this.calculator = window.Desmos.GraphingCalculator(this.calculatorRef.current);
       this.setState({loading: false})
       if (tabs[currentTab].currentState) {
-        console.log('setting currentState')
         this.calculator.setState(tabs[currentTab].currentState)
         this.initializeListeners()
       } else if (tabs[currentTab].desmosLink) {
@@ -73,7 +71,6 @@ class DesmosGraph extends Component {
     if (tabs[currentTab].currentState) {
       this.calculator.setState(tabs[currentTab].currentState)
       this.setState({loading: false})
-      console.log('calling initialize from mount')
       this.initializeListeners()
     } else if (desmosLink) {
       // @TODO This will require some major reconfiguration / But what we shoould do is
@@ -100,12 +97,9 @@ class DesmosGraph extends Component {
   // }
 
   initializeListeners(){
-    console.log("lsiteners initilazied")
     // INITIALIZE EVENT LISTENER
     this.calculator.observeEvent('change', () => {
-      console.log('construction changed')
       if (!this.state.receivingEvent) {
-        console.log(this.props.room.controlledBy !== this.props.user._id)
         if (!this.props.user.connected || this.props.room.controlledBy !== this.props.user._id) {
           this.calculator.undo();
           return alert("You are not in control. The update you just made will not be saved. Please refresh the page")
@@ -121,9 +115,7 @@ class DesmosGraph extends Component {
         let updatedTabs = [...this.props.room.tabs];
         updatedTabs[this.props.currentTab].currentState = newData.currentState;
         this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
-        console.log('sending event')
         socket.emit('SEND_EVENT', newData, res => {
-          console.log('event sent')
           this.props.resetControlTimer()
         })
       } else {
@@ -135,7 +127,6 @@ class DesmosGraph extends Component {
     })
     socket.removeAllListeners('RECEIVE_EVENT')
     socket.on('RECEIVE_EVENT', data => {
-      console.log('event received')
       let updatedTabs = [...this.props.room.tabs];
       updatedTabs[this.props.currentTab].currentState = data.currentState;
       this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
