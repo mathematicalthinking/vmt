@@ -5,6 +5,7 @@ import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
 import socket from '../../utils/sockets';
 import API from '../../utils/apiRequests'
+import { toggleJustLoggedIn } from '../../store/actions';
 class DesmosGraph extends Component {
 
   state = {
@@ -14,10 +15,43 @@ class DesmosGraph extends Component {
 
   calculatorRef = React.createRef();
 
-  componentDidMount(){
+  componentDidMount() {
+    console.log('did mount')
     if (window.Desmos) {
+      let { room, currentTab } = this.props;
+      let { tabs } = room;
+      console.log('already have a window.desmos')
       this.calculator = window.Desmos.GraphingCalculator(this.calculatorRef.current);
       this.setState({loading: false})
+      if (tabs[currentTab].currentState) {
+        this.calculator.setState(tabs[currentTab].currentState)
+      } else if (tabs[currentTab].desmosLink) {
+        API.getDesmos(tabs[currentTab].desmosLink)
+        .then(res => {
+          this.calculator.setState(res.data.result.state)
+          this.initializeListeners()
+
+        })
+        .catch(err => console.log(err))
+      }
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.currentTab !== this.props.currentTab) {
+      let { room, currentTab } = this.props;
+      let { tabs } = room;
+      if (tabs[currentTab].currentState) {
+        this.calculator.setState(tabs[currentTab].currentState)
+      } else if (tabs[currentTab].desmosLink) {
+        API.getDesmos(tabs[currentTab].desmosLink)
+        .then(res => {
+          this.calculator.setState(res.data.result.state)
+          this.initializeListeners()
+
+        })
+        .catch(err => console.log(err))
+      }
     }
   }
 
