@@ -91,7 +91,6 @@ module.exports = {
             })
           })
         } else {
-          console.log('desmos link: ', body.desmosLink)
           tabModels = [new Tab({
             name: 'Tab 1',
             room: room._id,

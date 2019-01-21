@@ -58,8 +58,6 @@ class NewResourceContainer extends Component {
   startCreation = () => this.setState({creating: true,})
 
   changeHandler = (event) => {
-    console.log(event.target.name)
-    console.log(event.target.value)
     this.setState({
       [event.target.name]: event.target.value,
     })
@@ -127,7 +125,6 @@ class NewResourceContainer extends Component {
           case 'rooms' :
             newResource.members = [{user: {_id: this.props.userId, username: this.props.username}, role: 'facilitator'}];
             newResource.dueDate = this.state.dueDate;
-            console.log("NEW RESOURCE: ", newResource)
             this.props.createRoom(newResource);
             break;
           default: break;
@@ -155,7 +152,6 @@ class NewResourceContainer extends Component {
   }
 
   setGgb = (event) => {
-    console.log(event.target.name)
     this.setState({ggb: event.target.name === 'geogebra'})
   }
 

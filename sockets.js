@@ -202,13 +202,11 @@ module.exports = function () {
     })
 
     socket.on('SEND_EVENT', async (data) => {
-      console.log('event received')
       if (typeof data.event !== 'string') {
         data.event = JSON.stringify(data.event)
       }
       try {
         await controllers.tabs.put(data.tab, {currentState: data.currentState})
-        console.log(data.currentState)
       }
       catch(err) {console.log('err 1: ', err)}
       // Don't save current state on the event

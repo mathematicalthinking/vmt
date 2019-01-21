@@ -5,7 +5,7 @@ import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
 import socket from '../../utils/sockets';
 import API from '../../utils/apiRequests'
-import { toggleJustLoggedIn } from '../../store/actions';
+// import { updatedRoom } from '../../store/actions';
 class DesmosGraph extends Component {
 
   state = {
@@ -16,14 +16,13 @@ class DesmosGraph extends Component {
   calculatorRef = React.createRef();
 
   componentDidMount() {
-    console.log('did mount')
     if (window.Desmos) {
       let { room, currentTab } = this.props;
       let { tabs } = room;
-      console.log('already have a window.desmos')
       this.calculator = window.Desmos.GraphingCalculator(this.calculatorRef.current);
       this.setState({loading: false})
       if (tabs[currentTab].currentState) {
+        console.log('setting currentState')
         this.calculator.setState(tabs[currentTab].currentState)
       } else if (tabs[currentTab].desmosLink) {
         API.getDesmos(tabs[currentTab].desmosLink)
@@ -91,7 +90,6 @@ class DesmosGraph extends Component {
   initializeListeners(){
     // INITIALIZE EVENT LISTENER
     this.calculator.observeEvent('change', () => {
-      console.log("THERE WAS ACHANGE!")
       if (!this.state.receivingEvent) {
         const newData = {
           room: this.props.room._id,
@@ -101,9 +99,10 @@ class DesmosGraph extends Component {
           user: {_id: this.props.user._id, username: this.props.user.username},
           timestamp: new Date().getTime()
         }
-        console.log(typeof newData.event)
+        let updatedTabs = [...this.props.room.tabs];
+        updatedTabs[this.props.currentTab].currentState = newData.currentState;
+        this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
         socket.emit('SEND_EVENT', newData, res => {
-
         })
       } else {
         // @TODO CONSIDER DOING THIS AS JUST A PROPERTY OF THIS CLASS AND NOT A PROPERTY
@@ -114,7 +113,7 @@ class DesmosGraph extends Component {
     })
     socket.on('RECEIVE_EVENT', data => {
       this.setState({receivingEvent: true})
-      this.calculator.setState(JSON.parse(data.event))
+      this.calculator.setState(data.currentState)
     })
   }
 
