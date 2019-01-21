@@ -73,6 +73,7 @@ module.exports = {
             name: tab.name,
             room: room._id,
             ggbFile: tab.ggbFile,
+            desmosLink: body.desmosLink,
             currentState: tab.currentState,
             startingPoint: tab.startingPoint,
             tabType: tab.tabType,
@@ -90,6 +91,7 @@ module.exports = {
             })
           })
         } else {
+          console.log('desmos link: ', body.desmosLink)
           tabModels = [new Tab({
             name: 'Tab 1',
             room: room._id,

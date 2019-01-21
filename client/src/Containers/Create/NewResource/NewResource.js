@@ -44,7 +44,7 @@ const initialState = {
   step: 0, // step of the creation process
   name: '',
   description: '',
-  desmosGraph: '',
+  desmosLink: '',
   ggbFile: '',
   dueDate: '',
   activities: [],
@@ -58,6 +58,8 @@ class NewResourceContainer extends Component {
   startCreation = () => this.setState({creating: true,})
 
   changeHandler = (event) => {
+    console.log(event.target.name)
+    console.log(event.target.value)
     this.setState({
       [event.target.name]: event.target.value,
     })
@@ -125,6 +127,7 @@ class NewResourceContainer extends Component {
           case 'rooms' :
             newResource.members = [{user: {_id: this.props.userId, username: this.props.username}, role: 'facilitator'}];
             newResource.dueDate = this.state.dueDate;
+            console.log("NEW RESOURCE: ", newResource)
             this.props.createRoom(newResource);
             break;
           default: break;
@@ -207,7 +210,7 @@ class NewResourceContainer extends Component {
       <Step1 displayResource={displayResource} name={this.state.name} description={this.state.description} changeHandler={this.changeHandler}/>,
       this.state.copying
         ? <Step2Copy displayResource={displayResource} addActivity={this.addActivity}/>
-        : <Step2New setGgb={this.setGgb} ggb={this.state.ggb} setGgbFile={this.setGgbFile}/>,
+        : <Step2New setGgb={this.setGgb} ggb={this.state.ggb} setGgbFile={this.setGgbFile} changeHandler={this.changeHandler} desmosLink={this.state.desmosLink}/>,
       <Step3 displayResource={displayResource} check={this.setPrivacy} privacySetting={this.state.privacySetting} />
     ]
     if (resource === 'rooms') {
