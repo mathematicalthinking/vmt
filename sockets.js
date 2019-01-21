@@ -217,6 +217,7 @@ module.exports = function () {
         data.currentState = currentState;
       }
       catch(err) {console.log('err 2: ', err)}
+      console.log('emitting event')
       socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data)
     })
 
