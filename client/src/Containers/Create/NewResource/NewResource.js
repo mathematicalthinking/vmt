@@ -45,7 +45,7 @@ const initialState = {
   name: '',
   description: '',
   desmosLink: '',
-  ggbFile: '',
+  ggbFiles: '',
   dueDate: '',
   activities: [],
   privacySetting: 'public',
