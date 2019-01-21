@@ -36,15 +36,11 @@ module.exports = {
       .populate({path: 'course', select: 'name'})
       .populate({path: 'tabs', populate: {path: 'events'}})
       .populate({path: 'graphImage', select: 'imageData'})
-      .then(room => {
-
-        resolve(room)
-      })
+      .then(room => {resolve(room)})
       .catch(err => reject(err))
     });
   },
   post: body => {
-    console.log(body)
     return new Promise(async (resolve, reject) => {
       // Prepare the tabs if they exist
       let existingTabs;
@@ -94,7 +90,6 @@ module.exports = {
             })
           })
         } else {
-          console.log('making a new tab: ', body.roomType)
           tabModels = [new Tab({
             name: 'Tab 1',
             room: room._id,
@@ -103,7 +98,6 @@ module.exports = {
           })]
         }
       }
-      console.log("TAB MODELS: ", tabModels)
       room.tabs = tabModels.map(tab => tab._id);
       try {
         await tabModels.forEach(tab => tab.save()) // These could run in parallel I suppose but then we'd have to edit one if ther ewas a failuer with the other

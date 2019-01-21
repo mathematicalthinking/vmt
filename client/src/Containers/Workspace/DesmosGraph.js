@@ -26,8 +26,8 @@ class DesmosGraph extends Component {
     let { room, currentTab }= this.props
     let { tabs } = room;
     let {desmosLink, events} = tabs[currentTab]
-    if (tabs[currentTab].events && tabs[currentTab].events.length > 0) {
-      this.calculator.setState(events[events.length - 1].event)
+    if (tabs[currentTab].currentState) {
+      this.calculator.setState(tabs[currentTab].currentState)
       this.setState({loading: false})
       this.initializeListeners()
     } else if (desmosLink) {
@@ -57,13 +57,17 @@ class DesmosGraph extends Component {
   initializeListeners(){
     // INITIALIZE EVENT LISTENER
     this.calculator.observeEvent('change', () => {
+      console.log("THERE WAS ACHANGE!")
       if (!this.state.receivingEvent) {
         const newData = {
           room: this.props.room._id,
-          event: this.calculator.getState(),
+          tab: this.props.room.tabs[this.props.currentTab]._id,
+          event: JSON.stringify(this.calculator.getState()),
+          currentState: JSON.stringify(this.calculator.getState()),
           user: {_id: this.props.user._id, username: this.props.user.username},
           timestamp: new Date().getTime()
         }
+        console.log(typeof newData.event)
         socket.emit('SEND_EVENT', newData, res => {
 
         })
