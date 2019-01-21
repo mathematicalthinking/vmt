@@ -28,6 +28,24 @@ class NewTabForm extends Component {
       this.submit();
     }
   }
+    // @TODO move this somewhere it can be shared with Containsers/Workspace/NewTabForm
+  // maybe it makes sense to move newTabForm Here because its creating something
+  uploadGgbFiles = () => {
+    let files = this.state.ggbFile;
+    if (typeof files !== 'object' || files.length < 1)  {
+      return Promise.resolve({
+        data: {
+          result: []
+        }
+      });
+    }
+    let formData = new FormData();
+
+    for (let f of files) {
+      formData.append('ggbFiles', f);
+    }
+    return API.uploadGgbFiles(formData)
+  }
 
   submit = () => {
     let updatedName = this.state.name;
@@ -45,10 +63,10 @@ class NewTabForm extends Component {
       room: this.props.room ? this.props.room._id : null,
       activity: this.props.activity ? this.props.activity._id : null,
     }
-    this.uploadGgbFile()
+    this.uploadGgbFiles()
     .then(results => {
       if (results && results.data) {
-        newTab.ggbFile = results.data.result;
+        newTab.ggbFile = results.data.result[0];
       }
       return API.post('tabs', newTab)
     })
@@ -69,23 +87,6 @@ class NewTabForm extends Component {
     .catch(err => {
       // DISPLAY THIS ERROR MESSAGE: @TODO
     })
-  }
-
-  uploadGgbFile = () => {
-    let files = this.state.ggbFile;
-    if (typeof files !== 'object' || files.length < 1)  {
-      return Promise.resolve({
-        data: {
-          result: []
-        }
-      });
-    }
-    let formData = new FormData();
-
-    for (let f of files) {
-      formData.append('ggbFiles', f);
-    }
-    return API.uploadGgbFiles(formData)
   }
 
   setGgbFile = event => {
