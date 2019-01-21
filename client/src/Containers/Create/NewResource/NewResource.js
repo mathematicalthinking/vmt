@@ -152,6 +152,7 @@ class NewResourceContainer extends Component {
   }
 
   setGgb = (event) => {
+    console.log(event.target.name)
     this.setState({ggb: event.target.name === 'geogebra'})
   }
 
