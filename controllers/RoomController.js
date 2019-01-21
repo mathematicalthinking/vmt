@@ -36,10 +36,7 @@ module.exports = {
       .populate({path: 'course', select: 'name'})
       .populate({path: 'tabs', populate: {path: 'events'}})
       .populate({path: 'graphImage', select: 'imageData'})
-      .then(room => {
-
-        resolve(room)
-      })
+      .then(room => {resolve(room)})
       .catch(err => reject(err))
     });
   },
@@ -60,7 +57,7 @@ module.exports = {
       }
       let tabModels;
       delete body.tabs;
-      delete body.roomType;
+      // delete body.roomType;
       let ggbFiles;
 
       if (Array.isArray(body.ggbFiles)) {
@@ -76,6 +73,7 @@ module.exports = {
             name: tab.name,
             room: room._id,
             ggbFile: tab.ggbFile,
+            desmosLink: body.desmosLink,
             currentState: tab.currentState,
             startingPoint: tab.startingPoint,
             tabType: tab.tabType,

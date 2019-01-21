@@ -16,7 +16,7 @@ const configure = require('./config/passport');
 const api = require('./routes/api');
 const auth = require('./routes/auth');
 const desmos = require('./routes/desmos');
-const test = require('./routes/test');
+// const test = require('./routes/test');
 
 const app = express();
 
@@ -51,8 +51,6 @@ app.use(require('express-session')({
 // DO WE NEED THIS?
 if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '/client/build')));
-} else {
-  app.use(express.static(path.join(__dirname, '/client/public')));
 }
 
 // MIDDLEWARE
@@ -86,13 +84,11 @@ app.use(passport.session());
 app.use('/desmos', desmos);
 app.use('/auth', auth);
 app.use('/api', api);
-app.use('/test', test);
+// app.use('/test', test);
 
 app.get('/*', (req, res) => {
   if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production') {
     res.sendFile(path.join(__dirname, '/client/build/index.html'))
-  } else {
-    res.sendFile(path.join(__dirname, '/client/public/index.html'));
   }
 });
 // catch 404 and forward to error handler

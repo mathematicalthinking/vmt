@@ -44,7 +44,7 @@ const initialState = {
   step: 0, // step of the creation process
   name: '',
   description: '',
-  desmosGraph: '',
+  desmosLink: '',
   ggbFile: '',
   dueDate: '',
   activities: [],
@@ -206,7 +206,7 @@ class NewResourceContainer extends Component {
       <Step1 displayResource={displayResource} name={this.state.name} description={this.state.description} changeHandler={this.changeHandler}/>,
       this.state.copying
         ? <Step2Copy displayResource={displayResource} addActivity={this.addActivity}/>
-        : <Step2New setGgb={this.setGgb} ggb={this.state.ggb} setGgbFile={this.setGgbFile}/>,
+        : <Step2New setGgb={this.setGgb} ggb={this.state.ggb} setGgbFile={this.setGgbFile} changeHandler={this.changeHandler} desmosLink={this.state.desmosLink}/>,
       <Step3 displayResource={displayResource} check={this.setPrivacy} privacySetting={this.state.privacySetting} />
     ]
     if (resource === 'rooms') {

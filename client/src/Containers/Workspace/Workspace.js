@@ -364,7 +364,13 @@ class Workspace extends Component {
     />
 
     if (room.tabs[this.state.currentTab].tabType === 'desmos') {
-      Graph = <DesmosGraph room={room} user={user} resetControlTimer={this.resetControlTimer} currentTab={this.state.currentTab}/>;
+      Graph = <DesmosGraph
+                room={room}
+                user={user}
+                resetControlTimer={this.resetControlTimer}
+                currentTab={this.state.currentTab}
+                updatedRoom={this.props.updatedRoom}
+              />;
     } else {
       Graph = <GgbGraph
                 room={room}

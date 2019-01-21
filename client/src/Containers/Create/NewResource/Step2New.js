@@ -19,12 +19,13 @@ const Step2New = props => {
             </label> */}
           </div>
         : <TextInput
-        light
-        name='desmosLink'
-        label='Paste a Desmos workspace'
-        change={this.changeHandler}
-        width='100%'
-        />
+            light
+            name='desmosLink'
+            label='Paste a Desmos workspace'
+            value={props.desmosLink}
+            change={props.changeHandler}
+            width='100%'
+          />
       }
       </div>
       <p>(optional, click next if you wish to skip this step)</p>

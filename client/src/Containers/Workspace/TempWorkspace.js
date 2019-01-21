@@ -77,13 +77,11 @@ class TempWorkspace extends Component {
       firstEntry: this.state.firstEntry
     }
     // this.setState({enteredRoom: true, graph: graphType})
-    console.log("EMITTING")
     socket.emit('JOIN_TEMP', sendData, (res, err) => {
       if (err) {
         console.log('error ', err) // HOW SHOULD WE HANDLE THIS
       }
       let { room, message, user } = res;
-      console.log("ROOM: ", room)
       this.props.updatedRoom(room._id, {currentMembers: room.currentMembers, members: room.members})
       this.props.addChatMessage(room._id, message)
       // if (!this.state.firstEntry) res.room.chat.push(message)
@@ -112,6 +110,10 @@ class TempWorkspace extends Component {
     this.setState({saving: true})
   }
 
+  goBack = () => {
+    this.props.history.goBack()
+  }
+
   render() {
     return (this.state.user
          ? <Aux>
@@ -130,7 +132,7 @@ class TempWorkspace extends Component {
               save = {!this.state.saved ? this.saveWorkspace : null}
             />
           </Aux>
-        : <Modal show={!this.state.user}>
+        : <Modal show={!this.state.user} closeModal={this.goBack}>
             {!this.props.loggedIn ?
               <Aux>
                 <div>Enter a temporary username</div>
