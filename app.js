@@ -49,7 +49,7 @@ app.use(require('express-session')({
 
 
 // DO WE NEED THIS?
-if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') {
   app.use(express.static(path.join(__dirname, '/client/build')));
 }
 

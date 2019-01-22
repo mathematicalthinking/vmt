@@ -31,10 +31,8 @@ To provide the colloaboration infrastructure, this application uses a combinatio
 every time a change is made.
 
 ## Deployment
-This should be changed eventually, but it works for now.
-```
-$ git push -f heroku HEAD:master
-```
+To deploy this project to staging or production go to the root level directory and run
+`$ ./deploy.sh <username> <environment>` where enviornment = production || staging
 ## Git Rebase Workflow
 
 1. `git checkout master`
