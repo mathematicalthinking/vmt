@@ -1,0 +1,15 @@
+#!/bin/bash
+echo -e "\e[1;33m Script running on server..\e[0;30m"
+pwd
+cd ../../web/mathematicalthinking/vmt
+if [ -d "./staging-old" ]; then
+  echo -e "\e[1;33m removing old staging \e[0;30m"
+  rm -rf ./staging-old
+fi
+mv staging staging-old
+mv /tmp/VMT-STAGING.zip ./staging
+cd staging
+echo -e "\e[1;33m unzipping staging...\e[0;30m"
+unzip VMT-STAGING.zip
+npm install --only=production
+echo -e "\e[1;32m Staging successfully deployed"

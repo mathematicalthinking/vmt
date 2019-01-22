@@ -4,3 +4,5 @@
 /client/build
 .vscode
 .env
+/production/
+/staging/
