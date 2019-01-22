@@ -370,6 +370,8 @@ class Workspace extends Component {
                 resetControlTimer={this.resetControlTimer}
                 currentTab={this.state.currentTab}
                 updatedRoom={this.props.updatedRoom}
+                addNtfToTabs={this.addNtfToTabs}
+
               />;
     } else {
       Graph = <GgbGraph
@@ -379,6 +381,8 @@ class Workspace extends Component {
                 updatedRoom={this.props.updatedRoom}
                 resetControlTimer={this.resetControlTimer}
                 currentTab={this.state.currentTab}
+                addNtfToTabs={this.addNtfToTabs}
+
               />
     }
 

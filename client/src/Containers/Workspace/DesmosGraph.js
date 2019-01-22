@@ -118,24 +118,30 @@ class DesmosGraph extends Component {
         socket.emit('SEND_EVENT', newData, res => {
           this.props.resetControlTimer()
         })
-      } else {
-        // @TODO CONSIDER DOING THIS AS JUST A PROPERTY OF THIS CLASS AND NOT A PROPERTY
-        // OF STATE ... WE DON"T REALLY NEED RE_RENDERS HERE
-        this.setState({receivingEvent: false})
       }
-      // this.socket.emit('SEND_EVENT', event)
+      this.setState({receivingEvent: false})
     })
     socket.removeAllListeners('RECEIVE_EVENT')
     socket.on('RECEIVE_EVENT', data => {
-      let updatedTabs = [...this.props.room.tabs];
-      updatedTabs[this.props.currentTab].currentState = data.currentState;
-      this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
-      this.setState({receivingEvent: true}, () => {
-        this.calculator.setState(data.currentState)
+      console.log('DATA: ', data)
+      console.log('CURRENT TAB: ', this.props.currentTab)
+      let updatedTabs = this.props.room.tabs.map(tab => {
+        if (tab._id === data.tab) {
+          tab.currentState = data.currentState
+        }
+        return tab;
       })
-    })
+      this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
+      this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
 
-    this.setState({receivingEvent: false})
+      if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
+        this.setState({receivingEvent: true}, () => {
+          this.calculator.setState(data.currentState)
+        })
+      } else {
+        this.props.addNtfToTabs(data.tab)
+      }
+    })
   }
 
   render() {
