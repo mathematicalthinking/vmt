@@ -1,9 +1,13 @@
 import io from 'socket.io-client';
 
-
-const socket = io.connect(process.env.REACT_APP_SERVER_URL);
-console.log("server URL: ", process.env.REACT_APP_SERVER_URL);
+let url = 'http://localhost:3001'
+if (process.env.NODE_ENV === 'production') {
+  url = process.env.REACT_APP_SERVER_URL_PRODUCTION
+} else if (process.env.NODE_ENV === 'staging') {
+  url = process.env.REACT_APP_SERVER_URL_STAGING;
+}
+console.log('server URL: ', url)
+const socket = io.connect(url);
 socket.removeAllListeners()
-console.log(socket.connected)
 export default socket;
 

@@ -6,7 +6,7 @@
     "start": "node ./bin/www",
     "build": "cd client && npm run build",
     "test": "SET \"NODE_ENV=test\" && nodemon",
-    "prodTes": "SET \"NODE_ENV=travistest\" && node ./bin/www",
+    "prodTest": "SET \"NODE_ENV=production\" && node ./bin/www",
     "cypress": "./node_modules/.bin/cypress open",
     "heroku-postbuild": "cd client && npm install && npm run build"
   },
