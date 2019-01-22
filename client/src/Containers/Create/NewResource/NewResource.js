@@ -181,7 +181,9 @@ class NewResourceContainer extends Component {
   }
 
   prevStep = () => {
+    console.log('this.state.step === ', this.state.step)
     this.setState({
+      copying:  this.state.step === 1 ? false: this.state.copying,
       step: this.state.step - 1 || 0,
     })
   }
@@ -242,7 +244,7 @@ class NewResourceContainer extends Component {
       <Aux>
         {this.state.creating
           ? <Modal show={this.state.creating} closeModal={this.closeModal}>
-              {this.state.step > 0 ? <i onClick={() => this.setState({step: this.state.step - 1})} className={["fas", "fa-arrow-left", classes.BackIcon].join(' ')}></i> : null}
+              {this.state.step > 0 ? <i onClick={this.prevStep} className={["fas", "fa-arrow-left", classes.BackIcon].join(' ')}></i> : null}
               <div className={classes.Container}>
                 <h2 className={classes.ModalTitle}>Create {resource === 'activities' ? 'an' : 'a'} {displayResource}</h2>
                 {steps[this.state.step]}
