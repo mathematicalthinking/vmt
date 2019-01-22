@@ -35,14 +35,13 @@ module.exports = function () {
         // We will use the existance if the creator field to check if this is firstEntry on the front end
         if (data.firstEntry) {
           promises.push(controllers.tabs.put(data.tabId, {tabType: data.roomType}))
-          // console.log('first entry')
-          // promises.push(controllers.rooms.put(data.roomId, {
-          //   roomType: data.roomType,
-          //   name: data.roomName,
-          //   members: [{user: user._id, role: 'facilitator'}],
-          //   currentMembers: [user._id],
-          //   creator: user._id,
-          // }));
+          promises.push(controllers.rooms.put(data.roomId, {
+            roomType: data.roomType,
+            name: data.roomName,
+            members: [{user: user._id, role: 'facilitator'}],
+            currentMembers: [user._id],
+            creator: user._id,
+          }));
         }
         promises.push(controllers.rooms.addCurrentUsers(data.roomId, ObjectId(user._id), {user: ObjectId(user._id), role: data.firstEntry ? 'facilitator' : 'participant'}))
         let results;

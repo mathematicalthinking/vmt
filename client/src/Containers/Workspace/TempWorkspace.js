@@ -76,13 +76,17 @@ class TempWorkspace extends Component {
       roomType: graphType, // this wil be undefined if its not the first user in the room
       firstEntry: this.state.firstEntry
     }
+    let updatedTabs = [...this.props.room.tabs]
+    if (graphType === 'desmos' && this.state.firstEntry) {
+      updatedTabs[0].tabType = 'desmos';
+    }
     // this.setState({enteredRoom: true, graph: graphType})
     socket.emit('JOIN_TEMP', sendData, (res, err) => {
       if (err) {
         console.log('error ', err) // HOW SHOULD WE HANDLE THIS
       }
       let { room, message, user } = res;
-      this.props.updatedRoom(room._id, {currentMembers: room.currentMembers, members: room.members})
+      this.props.updatedRoom(room._id, {currentMembers: room.currentMembers, members: room.members, tabs: updatedTabs})
       this.props.addChatMessage(room._id, message)
       // if (!this.state.firstEntry) res.room.chat.push(message)
       user.connected = socket.connected;
@@ -94,7 +98,7 @@ class TempWorkspace extends Component {
     window.removeEventListener("beforeunload", this.confirmUnload)
     // destroy this room from the store IF IT HASNT BEEN SAVED
     if (!this.state.saved) {
-      this.props.removedRoom(this.props.match.params.id)
+      // this.props.removedRoom(this.props.match.params.id)
     }
   }
 
