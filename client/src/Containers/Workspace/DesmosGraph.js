@@ -123,8 +123,6 @@ class DesmosGraph extends Component {
     })
     socket.removeAllListeners('RECEIVE_EVENT')
     socket.on('RECEIVE_EVENT', data => {
-      console.log('DATA: ', data)
-      console.log('CURRENT TAB: ', this.props.currentTab)
       let updatedTabs = this.props.room.tabs.map(tab => {
         if (tab._id === data.tab) {
           tab.currentState = data.currentState

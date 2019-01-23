@@ -20,6 +20,7 @@
   font-weight: 700;
   font-size: 1.1em;
   flex: 1 1 auto;
+  margin-top: 2px;
 }
 
 .CenterTime {
@@ -33,6 +34,7 @@
   order: 3;
   font-weight: 700;
   flex: 1 1 auto;
+  margin-top: 2px;
   font-size: 1.1em;
 }
 

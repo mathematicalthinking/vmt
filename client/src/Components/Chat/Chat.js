@@ -212,12 +212,15 @@ class Chat extends Component {
     return (
       <div className={this.props.expanded ? classes.Container : classes.CollapsedContainer} ref={this.chatContainer}>
         <h3 className={classes.Title} onClick={this.toggleExpansion}>Chat
-          <div className={classes.Status}>
-            <svg className={classes.StatusCircle} height="11" width="11">
-              <circle cx="5" cy="5" r="5" fill={this.props.isConnected ? "#34A505" : "#ff5555"}/>
-            </svg>
-            <div className={classes.StatusText}>{this.props.isConnected ? '' : 'disconnected!'}</div>
-          </div>
+          {!this.props.replayer
+            ? <div className={classes.Status}>
+                <svg className={classes.StatusCircle} height="11" width="11">
+                  <circle cx="5" cy="5" r="5" fill={this.props.isConnected ? "#34A505" : "#ff5555"}/>
+                </svg>
+                <div className={classes.StatusText}>{this.props.isConnected ? '' : 'disconnected!'}</div>
+              </div>
+            : null
+          }
         </h3>
         <div className={this.props.expanded ? classes.ChatScroll : classes.Collapsed} ref={this.chatEnd} onScroll={this.updateReferencePositions} id='scrollable'>{displayMessages}</div>
         {!replayer ?

@@ -8,7 +8,7 @@
   display: flex;
   flex-flow: column;
   align-items: center;
-  height: 100%;
+  height: inherit;
   width: 100%;
   background: white;
   padding-bottom: 5px;
@@ -27,7 +27,7 @@
 }
 
 .Controls {
-  margin: 15px 0 10px 0;
+  margin: 10px 0 10px 0;
   justify-content: center;
   padding-top: 8px;
 }

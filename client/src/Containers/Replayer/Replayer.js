@@ -238,6 +238,17 @@ class Replayer extends Component {
         tabs={this.props.room.tabs}
         currentTab={this.state.currentTab}
       />
+    } else {
+      graph = <DesmosReplayer
+        log={this.updatedLog}
+        index={this.state.logIndex}
+        changingIndex={this.state.changingIndex}
+        playing={this.state.playing}
+        reset={this.reset}
+        changeTab={this.changeTab}
+        tabs={this.props.room.tabs}
+        currentTab={this.state.currentTab}
+      />
     }
     if (!this.state.loading) {
       const { room, user } = this.props
@@ -247,12 +258,15 @@ class Replayer extends Component {
           graph={graph}
           room={room}
           user={user}
+          chat={chat}
           tabs={<Tabs tabs={room.tabs} changeTabs={this.changeTab}/>}
           currentMembers={<CurrentMembers members={this.state.currentMembers} expanded={true} activeMember={event.user}/>}
           bottomLeft={replayer}
-          current
           activeMember={event.user}
           replayerControls={replayer}
+          membersExpanded
+          chatExpanded
+          instructionsExpanded
         />
       )
     }
