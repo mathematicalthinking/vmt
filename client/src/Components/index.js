@@ -16,7 +16,6 @@ export { default as HomeNav } from './Navigation/HomeNav/HomeNav';
 export { default as NavItem } from './Navigation/NavItem/NavItem';
 export { default as TabList } from './Navigation/TabList/TabList';
 export { default as Navbar } from './Navigation/Navbar';
-export { default as ReplayerControls } from './Replayer/ReplayerControls';
 export { default as Search } from './Search/Search';
 export { default as Avatar } from './UI/Avatar/Avatar';
 export { default as Backdrop } from './UI/Backdrop/Backdrop';

@@ -3,7 +3,7 @@ import classes from './replayerControls.css';
 import glb from '../../global.css';
 // import ProgressMarker from './ProgressMarker';
 import Clock from './Clock/Clock';
-import Slider from './Slider/Slider';
+import Slider from '../../Components/Replayer/Slider/Slider';
 import Log from './Log/Log';
 
 class ReplayerControls extends Component{
