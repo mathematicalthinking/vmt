@@ -39,7 +39,7 @@ const WorkspaceLayout = React.memo((props) => {
     <div className={classes.PageContainer}>
       <div className={classes.Container}>
         <div className={classes.Left}>
-          <div className={[classes.Top].join(' ')}>
+          <div className={[classes.Top, 'graph'].join(' ')}>
             <div className={classes.WorkspaceTabs}>{tabs}</div>
             {!replayer
               ? <div className={[classes.Graph, "graph"].join(" ")}> {/**  "graph" class here is so geogebra applet will scale to container**/}

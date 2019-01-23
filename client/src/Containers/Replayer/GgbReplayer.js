@@ -16,8 +16,31 @@ class GgbReplayer extends Component {
   graph = React.createRef()
   previousState = '';
 
+  parameters = {
+    "id":`ggbApplet${this.props.tabId}`,
+    "width": 1300 * .75, // 75% width of container
+    "height": GRAPH_HEIGHT,
+    // "scaleContainerClass": "graph",
+    "showToolBar": false,
+    "showMenuBar": false,
+    "showAlgebraInput": true,
+    "language": "en",
+    "useBrowserForJS":false,
+    "borderColor": "#ddd",
+    "preventFocus":true,
+    "appletOnLoad": this.initializeGgb,
+    "appName":"whiteboard"
+  };
+
   componentDidMount(){
     window.addEventListener("resize", this.updateDimensions);
+    if (window.GGBApplet) {
+      console.log('already exists')
+      console.log(this.props.tabId)
+      this[`ggbApp${this.props.tabId}`] = new window.GGBApplet(this.parameters, '6.0');
+      this[`ggbApp${this.props.tabId}`].inject(`ggb-element${this.props.tabId}`)
+    }
+    this.setState({loading: false})
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -174,27 +197,16 @@ class GgbReplayer extends Component {
 
     console.log('script loaded')
     console.log(this.props.tabId)
-    const parameters = {
-      "id":"ggbApplet",
-      "width": 1300 * .75, // 75% width of container
-      "height": GRAPH_HEIGHT,
-      // "scaleContainerClass": "graph",
-      "showToolBar": false,
-      "showMenuBar": false,
-      "showAlgebraInput": true,
-      "language": "en",
-      "useBrowserForJS":false,
-      "borderColor": "#ddd",
-      "preventFocus":true,
-      "appletOnLoad": this.initializeGgb,
-      "appName":"whiteboard"
-    };
-    const ggbApp = new window.GGBApplet(parameters, '6.0');
-    ggbApp.inject(`ggb-element${this.props.tabId}`)
+
+    this[`ggbApp${this.props.tabId}`] = new window.GGBApplet(this.parameters, '6.0');
+    this[`ggbApp${this.props.tabId}`].inject(`ggb-element${this.props.tabId}`)
   }
 
   initializeGgb = () => {
-    this.ggbApplet = window.ggbApplet;
+    console.log('here alright')
+    console.log(this[`ggbApp${this.props.tabId}`])
+    this.ggbApplet = this[`ggbApp${this.props.tabId}`];
+    console.log('but not here')
     // this.ggbApplet.setMode(0)
     let { tab } = this.props;
     let { startingPoint, ggbFile } = tab;
@@ -207,6 +219,7 @@ class GgbReplayer extends Component {
     // let xmlContext = this.ggbApplet.getXML()
     // xmlContext = xmlContext.slice(0, xmlContext.length - 27) // THIS IS HACKY BUT ????
     // console.log(xmlContext)
+    console.log("ARE WE MAKING IT HERE???")
     this.setState({
       // xmlContext,
       loading: false,
@@ -296,7 +309,7 @@ class GgbReplayer extends Component {
     this.resizeTimer = setTimeout(() => {
       if (this.graph.current && !this.state.loading) {
         let { clientHeight, clientWidth } = this.graph.current.parentElement;
-        window.ggbApplet.setSize(clientWidth, clientHeight);
+        window[`ggbApplet${this.props.tabId}`].setSize(clientWidth, clientHeight);
         // window.ggbApplet.evalCommand('UpdateConstruction()')
       }
       this.resizeTimer = undefined;
@@ -304,10 +317,10 @@ class GgbReplayer extends Component {
   }
 
   render() {
-
+    console.log(window.GGBApplet)
     return (
       <Aux>
-        <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} />
+        {!window.GGBApplet ? <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} /> : null}
         <div className={classes.Graph} id={`ggb-element${this.props.tabId}`} ref={this.graph}></div>
         <Modal show={this.state.loading} message='Loading...'/>
       </Aux>

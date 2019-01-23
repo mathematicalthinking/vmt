@@ -266,7 +266,7 @@ class Replayer extends Component {
           reset={this.reset}
           changeTab={this.changeTab}
           tab={tab}
-          tabId={this.state.currentTab}
+          tabId={i}
           inView={this.state.currentTab === i}
         />
       } else {
