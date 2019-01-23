@@ -3,6 +3,14 @@ import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 import Modal from '../../Components/UI/Modal/Modal.js'
 import { connect } from 'react-redux';
 import { updateRoom, populateRoom } from '../../store/actions/';
+import {
+  ReplayerControls,
+  DesmosReplayer,
+  GgbReplayer,
+  ChatReplayer,
+} from './index';
+import { CurrentMembers } from '../../Components';
+import { Tabs } from '../Workspace';
 import throttle from 'lodash/throttle';
 import moment from 'moment';
 const MAX_WAIT = 10000; // 10 seconds
@@ -189,35 +197,62 @@ class Replayer extends Component {
     })
   }
 
+
   render() {
+    let replayer = <ReplayerControls
+      playing={this.state.playing}
+      pausePlay={this.pausePlay}
+      duration={this.relativeDuration}
+      startTime={this.state.startTime}
+      absTimeElapsed={this.state.absTimeElapsed}
+      goToTime={this.goToTime}
+      changingIndex={this.state.changingIndex}
+      speed={this.state.playbackSpeed}
+      setSpeed={this.setSpeed}
+      relTime={this.state.timeElapsed}
+      index={this.state.logIndex}
+      log={this.updatedLog}
+      endTime={this.endTime}
+      reset={this.reset}
+      currentMembers={this.state.currentMembers}
+      setCurrentMembers={this.setCurrentMembers}
+    />
+
+    let chat = <ChatReplayer
+      roomId={this.props.room._id}
+      log={this.updatedLog}
+      index={this.state.logIndex}
+      changingIndex={this.state.changingIndex}
+      reset={this.reset}
+      setCurrentMembers={this.setCurrentMembers}
+    />
+    let graph;
+    if (this.props.room.tabs[this.state.currentTab].tabType === 'geogebra') {
+      graph = <GgbReplayer
+        log={this.updatedLog}
+        index={this.state.logIndex}
+        changingIndex={this.state.changingIndex}
+        playing={this.state.playing}
+        reset={this.reset}
+        changeTab={this.changeTab}
+        tabs={this.props.room.tabs}
+        currentTab={this.state.currentTab}
+      />
+    }
     if (!this.state.loading) {
       const { room, user } = this.props
       const event = this.log[this.state.logIndex] || {};
       return (
         <WorkspaceLayout
-          activeMember={event.user}
+          graph={graph}
           room={room}
           user={user}
-          replayer={{
-            playing: this.state.playing,
-            pausePlay: this.pausePlay,
-            duration: this.relativeDuration,
-            startTime: this.state.startTime,
-            absTimeElapsed: this.state.absTimeElapsed,
-            goToTime: this.goToTime,
-            changingIndex: this.state.changingIndex,
-            speed: this.state.playbackSpeed,
-            setSpeed: this.setSpeed,
-            relTime: this.state.timeElapsed,
-            index: this.state.logIndex,
-            log: this.updatedLog,
-            endTime: this.endTime,
-            reset: this.reset,
-            currentMembers: this.state.currentMembers,
-            setCurrentMembers: this.setCurrentMembers,
-          }}
-          changeTab={this.changeTab}
-          currentTab={this.state.currentTab}
+          tabs={<Tabs tabs={room.tabs} changeTabs={this.changeTab}/>}
+          currentMembers={<CurrentMembers members={this.state.currentMembers} expanded={true} activeMember={event.user}/>}
+          bottomLeft={replayer}
+          current
+          activeMember={event.user}
+          replayerControls={replayer}
         />
       )
     }
