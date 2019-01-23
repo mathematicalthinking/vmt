@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classes from '../Workspace/graph.css';
 import Aux from '../../Components/HOC/Auxil';
-// import { GRAPH_HEIGHT } from '../../constants'
+import { GRAPH_HEIGHT } from '../../constants'
 import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
 import { parseString } from 'xml2js';
@@ -20,17 +20,21 @@ class GgbReplayer extends Component {
     window.addEventListener("resize", this.updateDimensions);
   }
 
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   // if (this.props.index !== nextProps.index || this.state.loading !== nextState.loading) {
-  //   //   return true;
-  //   // }
-  //   // else if (this.props.currentTab !== nextProps.currentTab) {
-  //   //   return true;
-  //   // }
-  //   // return false;
-  // }
-  componentDidUpdate(){
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextProps.inView
+    // if (this.props.index !== nextProps.index || this.state.loading !== nextState.loading) {
+    //   return true;
+    // }
+    // else if (this.props.currentTab !== nextProps.currentTab) {
+    //   return true;
+    // }
+    // return false;
+  }
+  componentDidUpdate(prevProps){
     // console.log('ggb update')
+    if (!prevProps.inView && this.props.inView) {
+      // this.updateDimensions();
+    }
   }
 
 
@@ -174,7 +178,7 @@ class GgbReplayer extends Component {
       "id":"ggbApplet",
       "width": 1300 * .75, // 75% width of container
       "height": GRAPH_HEIGHT,
-      "scaleContainerClass": "graph",
+      // "scaleContainerClass": "graph",
       "showToolBar": false,
       "showMenuBar": false,
       "showAlgebraInput": true,

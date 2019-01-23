@@ -39,17 +39,16 @@ const WorkspaceLayout = React.memo((props) => {
     <div className={classes.PageContainer}>
       <div className={classes.Container}>
         <div className={classes.Left}>
-          <div className={classes.Top}>
+          <div className={[classes.Top].join(' ')}>
             <div className={classes.WorkspaceTabs}>{tabs}</div>
             {!replayer
               ? <div className={[classes.Graph, "graph"].join(" ")}> {/**  "graph" class here is so geogebra applet will scale to container**/}
                   {graph}
                 </div>
               : graphs.map((graph, i) => {
-                console.log
                 return (<div
                     key={i}
-                    className={[classes.Graph, `graph`].join(" ")}
+                    className={[classes.Graph].join(" ")}
                     style={{display: currentTab === i ? 'flex' : 'none'}}
                   > {/**  "graph" class here is so geogebra applet will scale to container**/}
                     {graph}
