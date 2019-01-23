@@ -3,7 +3,7 @@ import classes from './workspace.css';
 
 const WorkspaceLayout = React.memo((props) => {
   let { room, user, graph, chat, tabs, bottomRight, bottomLeft, currentMembers,
-  referFromCoords, referToCoords } = props;
+  referFromCoords, referToCoords, graphs, replayer, currentTab } = props;
   // Set text for taking control button based on current control
   let controlText = 'Take Control';
   let inControl = false;
@@ -41,9 +41,22 @@ const WorkspaceLayout = React.memo((props) => {
         <div className={classes.Left}>
           <div className={classes.Top}>
             <div className={classes.WorkspaceTabs}>{tabs}</div>
-            <div className={[classes.Graph, "graph"].join(" ")}> {/**  "graph" class here is so geogebra applet will scale to container**/}
-              {graph}
-            </div>
+            {!replayer
+              ? <div className={[classes.Graph, "graph"].join(" ")}> {/**  "graph" class here is so geogebra applet will scale to container**/}
+                  {graph}
+                </div>
+              : graphs.map((graph, i) => {
+                console.log(i, currentTab)
+                return (<div
+                    key={i}
+                    className={[classes.Graph, `graph${i}`].join(" ")}
+                    style={{display: currentTab === i ? 'flex' : 'none'}}
+                  > {/**  "graph" class here is so geogebra applet will scale to container**/}
+                    {graph}
+                  </div>
+                )
+              })
+            }
           </div>
           <div className={classes.Bottom}>
             {bottomLeft}

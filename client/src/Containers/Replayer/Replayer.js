@@ -29,6 +29,7 @@ class Replayer extends Component {
     startTime: '',
     loading: true,
     currentTab: 0,
+    multipleTabTypes: false,
   }
 
 
@@ -40,9 +41,16 @@ class Replayer extends Component {
 
 
   componentDidUpdate(prevProps, prevState){
+    let { log } = this.props;
+    let ggbTabFound = false;
+    let desTabFound = false;
     if (prevProps.loading && !this.props.loading) {
       this.log = this.props.room.tabs
         .reduce((acc, tab) => {
+          // check for multiple tab types
+          if (tab.tabType === 'geogebra') ggbTabFound = true;
+          else desTabFound = true;
+          // combine events
           return acc.concat(tab.events)
         }, [])
       this.log = this.log
@@ -104,6 +112,26 @@ class Replayer extends Component {
       this.playing();
     }
     else if (!this.state.playing && this.interval){clearInterval(this.interval)}
+
+    if (this.props.changingIndex && log[this.props.index].tab !== this.props.tabs[this.props.currentTab]._id) {
+      let tabStates = {...this.state.tabState}
+      tabStates[this.props.tabs[prevProps.currentTab]._id] = {construction: this.calculator.getState(), lastIndex: prevProps.index}
+      this.setState({tabStates,})
+      let startIndex;
+        if (tabStates[log[this.props.index].tab]) {
+          startIndex = tabStates[log[this.props.index].tab].lastIndex;
+        }
+        else {startIndex = prevProps.index}
+        let tabIndex;
+        // find the target tab index
+        this.props.tabs.forEach((tab, i) => {
+          if (tab._id === this.props.log[this.props.index].tab){
+            tabIndex = i
+          }
+        })
+        // We've promisified changeTab() so we can ensure we wait for the state to be updated before proceeding
+        this.props.changeTab(tabIndex)
+    }
   }
 
   playing = () => {
@@ -199,6 +227,7 @@ class Replayer extends Component {
 
 
   render() {
+    console.log('rendering ', this.state.currentTab)
     let replayer = <ReplayerControls
       playing={this.state.playing}
       pausePlay={this.pausePlay}
@@ -227,43 +256,49 @@ class Replayer extends Component {
       setCurrentMembers={this.setCurrentMembers}
     />
     let graph;
-    if (this.props.room.tabs[this.state.currentTab].tabType === 'geogebra') {
-      graph = <GgbReplayer
-        log={this.updatedLog}
-        index={this.state.logIndex}
-        changingIndex={this.state.changingIndex}
-        playing={this.state.playing}
-        reset={this.reset}
-        changeTab={this.changeTab}
-        tabs={this.props.room.tabs}
-        currentTab={this.state.currentTab}
-      />
-    } else {
-      graph = <DesmosReplayer
-        log={this.updatedLog}
-        index={this.state.logIndex}
-        changingIndex={this.state.changingIndex}
-        playing={this.state.playing}
-        reset={this.reset}
-        changeTab={this.changeTab}
-        tabs={this.props.room.tabs}
-        currentTab={this.state.currentTab}
-      />
-    }
+    let graphs = this.props.room.tabs.map((tab, i) => {
+      if (this.props.room.tabs[this.state.currentTab].tabType === 'geogebra') {
+        console.log('graph should be ggb')
+        return <GgbReplayer
+          log={this.updatedLog}
+          index={this.state.logIndex}
+          changingIndex={this.state.changingIndex}
+          playing={this.state.playing}
+          reset={this.reset}
+          changeTab={this.changeTab}
+          tabs={this.props.room.tabs}
+          currentTab={this.state.currentTab}
+        />
+      } else {
+        return <DesmosReplayer
+          log={this.updatedLog}
+          index={this.state.logIndex}
+          changingIndex={this.state.changingIndex}
+          playing={this.state.playing}
+          reset={this.reset}
+          changeTab={this.changeTab}
+          tab={tab}
+          inView={this.state.currentTab === i}
+        />
+      }
+    })
     if (!this.state.loading) {
+      console.log('current tab', this.state.currentTab)
       const { room, user } = this.props
       const event = this.log[this.state.logIndex] || {};
       return (
         <WorkspaceLayout
-          graph={graph}
+          graphs={graphs}
           room={room}
           user={user}
           chat={chat}
-          tabs={<Tabs tabs={room.tabs} changeTabs={this.changeTab}/>}
+          tabs={<Tabs tabs={room.tabs} changeTabs={this.changeTab} currentTab={this.state.currentTab} />}
           currentMembers={<CurrentMembers members={this.state.currentMembers} expanded={true} activeMember={event.user}/>}
           bottomLeft={replayer}
           activeMember={event.user}
           replayerControls={replayer}
+          currentTab={this.state.currentTab}
+          replayer
           membersExpanded
           chatExpanded
           instructionsExpanded

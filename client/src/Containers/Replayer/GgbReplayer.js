@@ -87,7 +87,7 @@ class GgbReplayer extends Component {
           }
         })
         // We've promisified changeTab() so we can ensure we wait for the state to be updated before proceeding
-        this.props.changeTab(tabIndex)
+        // this.props.changeTab(tabIndex)
         .then(() => {
           this.applyMultipleEvents(startIndex, this.props.index)
         })
