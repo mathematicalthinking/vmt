@@ -152,6 +152,7 @@ class Replayer extends Component {
         if (nextEvent.tab) {
           this.props.room.tabs.forEach((tab, i) => {
             if (tab._id === nextEvent.tab) {
+              console.log('changing current tab')
               currentTab = i;
             }
           })
@@ -227,7 +228,7 @@ class Replayer extends Component {
 
 
   render() {
-    console.log('rendering ', this.state.currentTab)
+    console.log('replayer updated')
     let replayer = <ReplayerControls
       playing={this.state.playing}
       pausePlay={this.pausePlay}
@@ -255,10 +256,8 @@ class Replayer extends Component {
       reset={this.reset}
       setCurrentMembers={this.setCurrentMembers}
     />
-    let graph;
     let graphs = this.props.room.tabs.map((tab, i) => {
-      if (this.props.room.tabs[this.state.currentTab].tabType === 'geogebra') {
-        console.log('graph should be ggb')
+      if (tab.tabType === 'geogebra') {
         return <GgbReplayer
           log={this.updatedLog}
           index={this.state.logIndex}
@@ -266,8 +265,9 @@ class Replayer extends Component {
           playing={this.state.playing}
           reset={this.reset}
           changeTab={this.changeTab}
-          tabs={this.props.room.tabs}
-          currentTab={this.state.currentTab}
+          tab={tab}
+          tabId={this.state.currentTab}
+          inView={this.state.currentTab === i}
         />
       } else {
         return <DesmosReplayer
@@ -283,7 +283,6 @@ class Replayer extends Component {
       }
     })
     if (!this.state.loading) {
-      console.log('current tab', this.state.currentTab)
       const { room, user } = this.props
       const event = this.log[this.state.logIndex] || {};
       return (

@@ -32,6 +32,9 @@ class DesmosReplayer extends Component {
   //     this.calculator.setState(this.props.event.event)
   //   }
   // }
+  componentDidUpdate(){
+  }
+
 
   onScriptLoad = () => {
     console.log('script loaded')
