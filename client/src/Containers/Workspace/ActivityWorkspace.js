@@ -8,6 +8,7 @@ import {
   createActivity,
 } from '../../store/actions';
 import { Aux, Modal, TextInput, Button } from '../../Components';
+import { DesmosActivityGraph, GgbActivityGraph, } from './index';
 import { WorkspaceLayout } from '../../Layout';
 import NewTabForm from './NewTabForm';
 class ActivityWorkspace extends Component {
@@ -59,9 +60,16 @@ class ActivityWorkspace extends Component {
   }
 
   render() {
+    let { activity, user } = this.props;
     let role = 'participant'
-    if (this.props.activity && this.props.user.activities.indexOf(this.props.activity._id) >= 0) {
+    if (activity && user.activities.indexOf(this.props.activity._id) >= 0) {
       role = 'facilitator'
+    }
+    let graph;
+    if (this.props.activity.tabs[this.state.currentTab].tabType === 'desmos') {
+      graph = <DesmosActivityGraph />
+    } else {
+      graph = <GgbActivityGraph />
     }
     return (
       this.props.activity

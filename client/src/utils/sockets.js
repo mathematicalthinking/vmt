@@ -6,7 +6,6 @@ if (process.env.NODE_ENV === 'production') {
 } else if (process.env.NODE_ENV === 'staging') {
   url = process.env.REACT_APP_SERVER_URL_STAGING;
 }
-console.log('server URL: ', url)
 const socket = io.connect(url);
 socket.removeAllListeners()
 export default socket;

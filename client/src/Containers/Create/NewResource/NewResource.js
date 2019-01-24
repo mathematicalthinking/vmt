@@ -181,7 +181,6 @@ class NewResourceContainer extends Component {
   }
 
   prevStep = () => {
-    console.log('this.state.step === ', this.state.step)
     this.setState({
       copying:  this.state.step === 1 ? false: this.state.copying,
       step: this.state.step - 1 || 0,

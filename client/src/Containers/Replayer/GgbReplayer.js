@@ -129,7 +129,6 @@ class GgbReplayer extends Component {
 
 
   onScriptLoad = () => {
-    console.log('script loaded')
 
     let parameters = {
       "id":`ggbApplet${this.props.tabId}A`, // THE 'A' here is because ggb doesn't like us ending Id name with a number
@@ -249,14 +248,9 @@ class GgbReplayer extends Component {
   }
 
   updateDimensions = () => {
-    console.log('updateDimensions')
     // this.resizeTimer = setTimeout(() => {
       if (this.graph.current) {
         let { clientHeight, clientWidth } = this.graph.current.parentElement;
-        console.log(this.graph.current.parentElement)
-        console.log(clientHeight)
-        console.log(clientWidth)
-        console.log(window[`ggbApplet${this.props.tabId}A`])
         window[`ggbApplet${this.props.tabId}A`].setSize(clientWidth, clientHeight);
         // window.ggbApplet.evalCommand('UpdateConstruction()')
       }
