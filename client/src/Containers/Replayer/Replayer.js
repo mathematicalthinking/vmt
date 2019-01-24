@@ -118,19 +118,19 @@ class Replayer extends Component {
       tabStates[this.props.tabs[prevProps.currentTab]._id] = {construction: this.calculator.getState(), lastIndex: prevProps.index}
       this.setState({tabStates,})
       let startIndex;
-        if (tabStates[log[this.props.index].tab]) {
-          startIndex = tabStates[log[this.props.index].tab].lastIndex;
+      if (tabStates[log[this.props.index].tab]) {
+        startIndex = tabStates[log[this.props.index].tab].lastIndex;
+      }
+      else {startIndex = prevProps.index}
+      let tabIndex;
+      // find the target tab index
+      this.props.tabs.forEach((tab, i) => {
+        if (tab._id === this.props.log[this.props.index].tab){
+          tabIndex = i
         }
-        else {startIndex = prevProps.index}
-        let tabIndex;
-        // find the target tab index
-        this.props.tabs.forEach((tab, i) => {
-          if (tab._id === this.props.log[this.props.index].tab){
-            tabIndex = i
-          }
-        })
-        // We've promisified changeTab() so we can ensure we wait for the state to be updated before proceeding
-        this.props.changeTab(tabIndex)
+      })
+      // We've promisified changeTab() so we can ensure we wait for the state to be updated before proceeding
+      this.props.changeTab(tabIndex)
     }
   }
 

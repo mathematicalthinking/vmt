@@ -48,7 +48,6 @@ class GgbReplayer extends Component {
     }
     if (this.props.inView) {
       if (changingIndex && prevProps.index !== index) {
-        console.log('changing index')
         this.applyMultipleEvents(prevProps.index, index)
       }
       if (prevProps.index !== index && !this.state.loading && log[index].event) {
@@ -105,7 +104,6 @@ class GgbReplayer extends Component {
   }
 
   constructEvent(event) {
-    console.log('constructing event: ', event)
     switch (event.eventType) {
       case 'ADD':
       if (event.definition && event.definition !== '') {
@@ -131,10 +129,12 @@ class GgbReplayer extends Component {
 
 
   onScriptLoad = () => {
+    console.log('script loaded')
+
     let parameters = {
-      "id":`ggbApplet${this.props.tabId}`,
-      "width": 1300 * .75, // 75% width of container
-      "height": GRAPH_HEIGHT,
+      "id":`ggbApplet${this.props.tabId}A`, // THE 'A' here is because ggb doesn't like us ending Id name with a number
+      // "width": 1300 * .75, // 75% width of container
+      // "height": GRAPH_HEIGHT,
       // "scaleContainerClass": "graph",
       "showToolBar": false,
       "showMenuBar": false,
@@ -147,13 +147,12 @@ class GgbReplayer extends Component {
       "appName":"whiteboard"
     };
     const ggbApp = new window.GGBApplet(parameters, '5.0');
-    ggbApp.inject(`ggb-element${this.props.tabId}`);
-    console.log('script loaded')
+    ggbApp.inject(`ggb-element${this.props.tabId}A`);
   }
 
   initializeGgb = () => {
-    console.log('ggb Initialized')
-    this.ggbApplet = window[`ggbApplet${this.props.tabId}`];
+    console.log('ggb Initialized!!!!')
+    this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
     this.ggbApplet.setMode(40)
     let { tab } = this.props;
     let { startingPoint, ggbFile } = tab;
@@ -250,24 +249,26 @@ class GgbReplayer extends Component {
   }
 
   updateDimensions = () => {
-    if (this.resizeTimer) {
-      clearTimeout(this.resizeTimer)
-    }
-    this.resizeTimer = setTimeout(() => {
-      if (this.graph.current && !this.state.loading) {
+    console.log('updateDimensions')
+    // this.resizeTimer = setTimeout(() => {
+      if (this.graph.current) {
         let { clientHeight, clientWidth } = this.graph.current.parentElement;
-        window[`ggbApplet${this.props.tabId}`].setSize(clientWidth, clientHeight);
+        console.log(this.graph.current.parentElement)
+        console.log(clientHeight)
+        console.log(clientWidth)
+        console.log(window[`ggbApplet${this.props.tabId}A`])
+        window[`ggbApplet${this.props.tabId}A`].setSize(clientWidth, clientHeight);
         // window.ggbApplet.evalCommand('UpdateConstruction()')
       }
-      this.resizeTimer = undefined;
-    }, 200)
+      // this.resizeTimer = undefined;
+    // }, 200)
   }
 
   render() {
     return (
       <Aux>
-        <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} />}
-        <div className={classes.Graph} id={`ggb-element${this.props.tabId}`} ref={this.graph}></div>
+        <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} />
+        <div className={classes.Graph} id={`ggb-element${this.props.tabId}A`} ref={this.graph}></div>
         <Modal show={this.state.loading} message='Loading...'/>
       </Aux>
     )
