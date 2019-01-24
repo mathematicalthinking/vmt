@@ -7,14 +7,29 @@ import API from '../../utils/apiRequests';
 class DesmosReplayer extends Component {
 
   state = {
-    loading: true,
+    loading: window.Desmos ? false : true,
     tabStates: {}
   }
 
   calculatorRef = React.createRef();
 
   componentDidMount() {
-    console.log('desmos mounted')
+    if (window.Desmos) {
+      console.log('desmos already exists')
+      let { log, currentTab, inView, index, tab } = this.props;
+      console.log(log)
+      this.calculator = window.Desmos.GraphingCalculator(this.calculatorRef.current);
+      this.setState({loading: false})
+      if (inView && tab.desmosLink) {
+        API.getDesmos(tab.desmosLink)
+        .then(res => {
+          this.calculator.setState(res.data.result.state)
+          this.initializeListeners()
+
+        })
+        .catch(err => console.log(err))
+      }
+    }
   }
 
   // shouldComponentUpdate(nextProps) {
@@ -25,10 +40,17 @@ class DesmosReplayer extends Component {
   //   } else return false;
   // }
 
+  componentWillUnmount() {
+    if (this.calculator) {
+      this.calculator.unobserveEvent('change');
+      this.calculator.destroy();
+    }
+  }
+
   componentDidUpdate(prevProps) {
     if (this.props.inView) {
       if (prevProps.index !== this.props.index && this.props.log[this.props.index].event) {
-        this.calculator.setState(this.props.log[this.props.index].event)
+        this.calculator.setState(this.props.log[this.props.index].event);
       }
     }
   }
@@ -63,7 +85,7 @@ class DesmosReplayer extends Component {
   render() {
     return (
       <Aux>
-        <Script url='https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6' onLoad={this.onScriptLoad} />
+        {!window.Desmos ? <Script url='https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6' onLoad={this.onScriptLoad} /> : null}
         <div style={{height: GRAPH_HEIGHT, width: "100%"}} id='calculator' ref={this.calculatorRef}></div>
         <Modal show={this.state.loading} message='Loading...'/>
       </Aux>

@@ -98,8 +98,10 @@ class DesmosGraph extends Component {
 
   initializeListeners(){
     // INITIALIZE EVENT LISTENER
-    this.calculator.observeEvent('change', () => {
-      // console.log('event observed')
+    this.calculator.observeEvent('change', (event) => {
+      console.log('event observed')
+      console.log(event)
+      console.log(this.calculator.getExpressions())
       if (!this.state.receivingEvent) {
         if (!this.props.user.connected || this.props.room.controlledBy !== this.props.user._id) {
           this.calculator.undo();
