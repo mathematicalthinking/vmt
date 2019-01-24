@@ -182,7 +182,7 @@ class Replayer extends Component {
   goToTime = throttle((percent) => {
     let logIndex;
     let timeElapsed = percent  * this.relativeDuration
-    if (percent === 1) {
+    if (percent === 1) { // I.e. if 100% then go to the last event
       logIndex = this.updatedLog.length - 1;
       timeElapsed = this.relativeDuration
     }
@@ -194,7 +194,19 @@ class Replayer extends Component {
         } return false;
       })
     }
-    this.setState({timeElapsed, logIndex, playing: false, changingIndex: true,})
+    let currentTab = this.state.currentTab;
+    this.props.room.tabs.forEach((tab, i) => {
+      if (tab._id === this.updatedLog[logIndex].tab) {
+        currentTab = i;
+      }
+    })
+    this.setState({
+      timeElapsed,
+      logIndex,
+      currentTab,
+      playing: false,
+      changingIndex: true,
+    })
     // setTimeout(() => this.setState({playing:}))
   }, 70)
 

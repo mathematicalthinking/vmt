@@ -18,7 +18,7 @@ class GgbReplayer extends Component {
 
 
   componentDidMount(){
-    // window.addEventListener("resize", this.updateDimensions);
+    window.addEventListener("resize", this.updateDimensions);
     // if (window.GGBApplet) {
     //   console.log('already exists')
     //   console.log(this.props.tabId)
@@ -47,38 +47,10 @@ class GgbReplayer extends Component {
       this.updateDimensions();
     }
     if (this.props.inView) {
-      // if (changingIndex) {
-      //   // If our target tab is different from the one we're on
-      //   if (this.props.log[this.props.index].tab !== this.props.tabs[this.props.currentTab]._id) {
-      //     // Save the currentState and index of the current Tab
-      //     let tabStates = {...this.state.tabStates}
-      //     // stash prev tabs state so we can come back to it
-      //     tabStates[this.props.tabs[prevProps.currentTab]._id] = {construction: this.ggbApplet.getXML(), lastIndex: prevProps.index}
-      //     this.setState({tabStates,})
-      //     // See if the target tab is stored In tabStates
-      //     let startIndex;
-      //     if (tabStates[log[this.props.index].tab]) {
-      //       startIndex = tabStates[log[this.props.index].tab].lastIndex;
-      //     }
-      //     else {startIndex = prevProps.index}
-      //     let tabIndex;
-      //     // find the target tab index
-      //     this.props.tabs.forEach((tab, i) => {
-      //       if (tab._id === this.props.log[this.props.index].tab){
-      //         tabIndex = i
-      //       }
-      //     })
-      //     // We've promisified changeTab() so we can ensure we wait for the state to be updated before proceeding
-      //     // this.props.changeTab(tabIndex)
-      //     .then(() => {
-      //       this.applyMultipleEvents(startIndex, this.props.index)
-      //     })
-      //     .catch(err => console.log('React Broke'))
-      //   }
-      //   else {
-      //     this.applyMultipleEvents(prevProps.index, this.props.index)
-      //   }
-      // }
+      if (changingIndex && prevProps.index !== index) {
+        console.log('changing index')
+        this.applyMultipleEvents(prevProps.index, index)
+      }
       if (prevProps.index !== index && !this.state.loading && log[index].event) {
         // check if the tab has changed
         this.constructEvent(log[index])
@@ -194,6 +166,7 @@ class GgbReplayer extends Component {
     // let xmlContext = this.ggbApplet.getXML()
     // xmlContext = xmlContext.slice(0, xmlContext.length - 27) // THIS IS HACKY BUT ????
     // console.log(xmlContext)
+    this.updateDimensions()
     this.setState({
       // xmlContext,
       loading: false,
