@@ -26,8 +26,10 @@ class DesmosReplayer extends Component {
   // }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.index !== this.props.index && this.props.log[this.props.index].event) {
-      this.calculator.setState(this.props.log[this.props.index].event)
+    if (this.props.inView) {
+      if (prevProps.index !== this.props.index && this.props.log[this.props.index].event) {
+        this.calculator.setState(this.props.log[this.props.index].event)
+      }
     }
   }
 
@@ -52,7 +54,6 @@ class DesmosReplayer extends Component {
       })
       .catch(err => console.log(err))
     } else {
-      console.log('setting blank')
      this.calculator.setBlank();
      this.setState({loading: false});
     }
