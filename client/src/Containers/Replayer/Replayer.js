@@ -152,7 +152,6 @@ class Replayer extends Component {
         if (nextEvent.tab) {
           this.props.room.tabs.forEach((tab, i) => {
             if (tab._id === nextEvent.tab) {
-              console.log('changing current tab')
               currentTab = i;
             }
           })
@@ -228,7 +227,6 @@ class Replayer extends Component {
 
 
   render() {
-    console.log('replayer updated')
     let replayer = <ReplayerControls
       playing={this.state.playing}
       pausePlay={this.pausePlay}

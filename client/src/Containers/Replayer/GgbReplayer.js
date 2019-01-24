@@ -56,7 +56,8 @@ class GgbReplayer extends Component {
   componentDidUpdate(prevProps){
     // console.log('ggb update')
     if (!prevProps.inView && this.props.inView) {
-      // this.updateDimensions();
+      console.log('resizing')
+      this.updateDimensions();
     }
   }
 
@@ -194,20 +195,13 @@ class GgbReplayer extends Component {
 
 
   onScriptLoad = () => {
-
-    console.log('script loaded')
-    console.log(this.props.tabId)
-
     this[`ggbApp${this.props.tabId}`] = new window.GGBApplet(this.parameters, '6.0');
-    this[`ggbApp${this.props.tabId}`].inject(`ggb-element${this.props.tabId}`)
+    this[`ggbApp${this.props.tabId}`].inject(`ggb-element${this.props.tabId}`);
   }
 
   initializeGgb = () => {
-    console.log('here alright')
-    console.log(this[`ggbApp${this.props.tabId}`])
     this.ggbApplet = this[`ggbApp${this.props.tabId}`];
-    console.log('but not here')
-    // this.ggbApplet.setMode(0)
+    this.ggbApplet.setMode(40)
     let { tab } = this.props;
     let { startingPoint, ggbFile } = tab;
     // put the current construction on the graph, disable everything until the user takes control
@@ -219,7 +213,6 @@ class GgbReplayer extends Component {
     // let xmlContext = this.ggbApplet.getXML()
     // xmlContext = xmlContext.slice(0, xmlContext.length - 27) // THIS IS HACKY BUT ????
     // console.log(xmlContext)
-    console.log("ARE WE MAKING IT HERE???")
     this.setState({
       // xmlContext,
       loading: false,

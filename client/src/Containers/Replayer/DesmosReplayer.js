@@ -17,30 +17,23 @@ class DesmosReplayer extends Component {
     console.log('desmos mounted')
   }
 
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   if (this.props.index !== nextProps.index || this.state.loading !== nextState.loading) {
+  // shouldComponentUpdate(nextProps) {
+  //   if (this.props.inView && this.props.index !== nextProps.index) {
   //     return true;
-  //   }
-  //   else if (this.props.currentTab !== nextProps.currentTab) {
+  //   } else if (this.props.loading && !nextProps.loading) {
   //     return true;
-  //   }
-  //   return false;
+  //   } else return false;
   // }
 
-  // componentDidUpdate(prevProps) {
-  //   if (prevProps.event._id !== this.props.event._id && !this.state.loading && !this.props.event.text) {
-  //     this.calculator.setState(this.props.event.event)
-  //   }
-  // }
-  componentDidUpdate(){
+  componentDidUpdate(prevProps) {
+    if (prevProps.index !== this.props.index && this.props.log[this.props.index].event) {
+      this.calculator.setState(this.props.log[this.props.index].event)
+    }
   }
 
-
   onScriptLoad = () => {
-    console.log('script loaded')
     this.calculator = window.Desmos.GraphingCalculator(this.calculatorRef.current);
     let { tab } = this.props;
-    console.log('starting point ', tab.startingPoint)
     if (tab.startingPoint) {
       this.setState({
         tabStates: {
@@ -51,17 +44,17 @@ class DesmosReplayer extends Component {
     } else if (tab.desmosLink) {
       API.getDesmos(tab.desmosLink)
       .then(res => {
-        this.calculator.setState(res.data.result.state)
+        this.calculator.setState(res.data.result.state);
         // console.
-        this.setState({loading: false})
-        this.initializeListeners()
+        this.setState({loading: false});
+        this.initializeListeners();
 
       })
       .catch(err => console.log(err))
     } else {
       console.log('setting blank')
-     this.calculator.setBlank()
-     this.setState({loading: false})
+     this.calculator.setBlank();
+     this.setState({loading: false});
     }
   }
 
