@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classes from '../Workspace/graph.css';
 import Aux from '../../Components/HOC/Auxil';
-// import { GRAPH_HEIGHT } from '../../constants'
+// import { GRAPH_HEIGHT } from '../../constants';
 import Modal from '../../Components/UI/Modal/Modal';
 import Script from 'react-load-script';
 import { parseString } from 'xml2js';
@@ -9,97 +9,54 @@ class GgbReplayer extends Component {
 
   state = {
     loading: true,
-    xmlContext: '',  // xml string representing everything but the events and commands
-    tabStates: {},
+    xmlContext: '',
   }
 
   graph = React.createRef()
   previousState = '';
 
+
+
   componentDidMount(){
     window.addEventListener("resize", this.updateDimensions);
-    this.props.tabs.forEach(tab => {
-      if (tab.startingPoint) {
-        this.setState({
-          tabStates: {
-            ...this.state.tabStates,
-            [tab._id]: {construction: tab.startingPoint}
-          }
-        })
-      }
-    })
+    // if (window.GGBApplet) {
+    //   console.log('already exists')
+    //   console.log(this.props.tabId)
+    //   this[`ggbApplet${this.props.tabId}`] = new window.GGBApplet(this.parameters, '5.0');
+    //   this[`ggbApplet${this.props.tabId}`].inject(`ggb-element${this.props.tabId}`)
+    //   this.initializeGgb();
+    // }
+    // this.setState({loading: false})
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    if (this.props.index !== nextProps.index || this.state.loading !== nextState.loading) {
-      return true;
-    }
-    else if (this.props.currentTab !== nextProps.currentTab) {
-      return true;
-    }
-    return false;
+    return nextProps.inView
+    // if (this.props.index !== nextProps.index || this.state.loading !== nextState.loading) {
+    //   return true;
+    // }
+    // else if (this.props.currentTab !== nextProps.currentTab) {
+    //   return true;
+    // }
+    // return false;
   }
 
 
   componentDidUpdate(prevProps, prevState) {
     let { log, index, changingIndex } = this.props;
-    // If we've changed tab while playing
-    if (prevProps.currentTab !== this.props.currentTab) {
-      let { currentTab, tabs } = this.props;
-      let tabStates = {...this.state.tabStates}
-      // stash prev tabs state in cae we come back to it
-      tabStates[tabs[prevProps.currentTab]._id] = {...tabStates[tabs[prevProps.currentTab]._id], construction: this.ggbApplet.getXML()}
-      this.setState({tabStates,})
-      // Load up the previously saved state if it exsists
-      if (Object.keys(tabStates).filter(tabId => tabId === tabs[currentTab]._id).length > 0) {
-        this.ggbApplet.setXML(this.state.tabStates[tabs[currentTab]._id].construction)
-      }
-      else {
-        this.ggbApplet.reset()
-      }
+    if (!prevProps.inView && this.props.inView) {
+      this.updateDimensions();
     }
-
-    if (changingIndex && this.state.tabStates !== prevState.tabStates) {
-
-    }
+    if (this.props.inView) {
+      if (changingIndex && prevProps.index !== index) {
+        this.applyMultipleEvents(prevProps.index, index)
+      }
+      if (prevProps.index !== index && !this.state.loading && log[index].event) {
+        // check if the tab has changed
+        this.constructEvent(log[index])
+      }
 
     // IF we're skipping it means we might need to reconstruct several evenets, possible in reverse order if the prevIndex is greater than this index.
     // This is a god damned mess...good luck
-    else if (changingIndex) {
-      // If our target tab is different from the one we're on
-      if (this.props.log[this.props.index].tab !== this.props.tabs[this.props.currentTab]._id) {
-        // Save the currentState and index of the current Tab
-        let tabStates = {...this.state.tabStates}
-        // stash prev tabs state so we can come back to it
-        tabStates[this.props.tabs[prevProps.currentTab]._id] = {construction: this.ggbApplet.getXML(), lastIndex: prevProps.index}
-        this.setState({tabStates,})
-        // See if the target tab is stored In tabStates
-        let startIndex;
-        if (tabStates[log[this.props.index].tab]) {
-          startIndex = tabStates[log[this.props.index].tab].lastIndex;
-        }
-        else {startIndex = prevProps.index}
-        let tabIndex;
-        // find the target tab index
-        this.props.tabs.forEach((tab, i) => {
-          if (tab._id === this.props.log[this.props.index].tab){
-            tabIndex = i
-          }
-        })
-        // We've promisified changeTab() so we can ensure we wait for the state to be updated before proceeding
-        this.props.changeTab(tabIndex)
-        .then(() => {
-          this.applyMultipleEvents(startIndex, this.props.index)
-        })
-        .catch(err => console.log('React Broke'))
-      }
-      else {
-        this.applyMultipleEvents(prevProps.index, this.props.index)
-      }
-    }
-    else if (prevProps.log[prevProps.index]._id !== log[index]._id && !this.state.loading && !log[index].text && !log[index].synthetic) {
-      // check if the tab has changed
-      this.constructEvent(log[index])
     }
     // else if (!this.state.loading || this.state.tabStates !== prevState.tabStates){
     //   console.log('the tabState have changed')
@@ -147,24 +104,22 @@ class GgbReplayer extends Component {
   }
 
   constructEvent(event) {
-    if (event.tab === this.props.tabs[this.props.currentTab]._id) {
-      switch (event.eventType) {
-        case 'ADD':
-        if (event.definition && event.definition !== '') {
-          this.ggbApplet.evalCommand(`${event.label}:${event.definition}`)
-        }
-        this.ggbApplet.evalXML(event.event)
-        this.ggbApplet.evalCommand('UpdateConstruction()')
-        break;
-        case 'REMOVE':
-        this.ggbApplet.deleteObject(event.label)
-        break;
-        case 'UPDATE':
-        this.ggbApplet.evalXML(event.event)
-        this.ggbApplet.evalCommand('UpdateConstruction()')
-        break;
-        default: break;
+    switch (event.eventType) {
+      case 'ADD':
+      if (event.definition && event.definition !== '') {
+        this.ggbApplet.evalCommand(`${event.label}:${event.definition}`)
       }
+      this.ggbApplet.evalXML(event.event)
+      this.ggbApplet.evalCommand('UpdateConstruction()')
+      break;
+      case 'REMOVE':
+      this.ggbApplet.deleteObject(event.label)
+      break;
+      case 'UPDATE':
+      this.ggbApplet.evalXML(event.event)
+      this.ggbApplet.evalCommand('UpdateConstruction()')
+      break;
+      default: break;
     }
   }
 
@@ -174,11 +129,12 @@ class GgbReplayer extends Component {
 
 
   onScriptLoad = () => {
-    const parameters = {
-      "id":"ggbApplet",
+
+    let parameters = {
+      "id":`ggbApplet${this.props.tabId}A`, // THE 'A' here is because ggb doesn't like us ending Id name with a number
       // "width": 1300 * .75, // 75% width of container
       // "height": GRAPH_HEIGHT,
-      "scaleContainerClasse": "graph",
+      // "scaleContainerClass": "graph",
       "showToolBar": false,
       "showMenuBar": false,
       "showAlgebraInput": true,
@@ -190,30 +146,29 @@ class GgbReplayer extends Component {
       "appName":"whiteboard"
     };
     const ggbApp = new window.GGBApplet(parameters, '5.0');
-    ggbApp.inject('ggb-element')
+    ggbApp.inject(`ggb-element${this.props.tabId}A`);
   }
 
   initializeGgb = () => {
-    this.ggbApplet = window.ggbApplet;
+    console.log('ggb Initialized!!!!')
+    this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
     this.ggbApplet.setMode(40)
-    let { tabs, currentTab } = this.props;
-    let { currentState, startingPoint, ggbFile } = tabs[currentTab];
+    let { tab } = this.props;
+    let { startingPoint, ggbFile } = tab;
     // put the current construction on the graph, disable everything until the user takes control
     if (startingPoint) {
       this.ggbApplet.setXML(startingPoint)
     } else if (ggbFile) {
       this.ggbApplet.setBase64(ggbFile);
     }
-    if (this.props.tabs[0].startingPoint) {
-      this.ggbApplet.setXML(this.props.tabs[0].startingPoint)
-    }
     // let xmlContext = this.ggbApplet.getXML()
     // xmlContext = xmlContext.slice(0, xmlContext.length - 27) // THIS IS HACKY BUT ????
     // console.log(xmlContext)
+    this.updateDimensions()
     this.setState({
       // xmlContext,
       loading: false,
-    })
+    }, () => console.log('success'))
   }
 
   // This method is for when we're skipping forward or backward and, rather than apply each event
@@ -293,25 +248,21 @@ class GgbReplayer extends Component {
   }
 
   updateDimensions = () => {
-    if (this.resizeTimer) {
-      clearTimeout(this.resizeTimer)
-    }
-    this.resizeTimer = setTimeout(() => {
-      if (this.graph.current && !this.state.loading) {
+    // this.resizeTimer = setTimeout(() => {
+      if (this.graph.current) {
         let { clientHeight, clientWidth } = this.graph.current.parentElement;
-        window.ggbApplet.setSize(clientWidth, clientHeight);
+        window[`ggbApplet${this.props.tabId}A`].setSize(clientWidth, clientHeight);
         // window.ggbApplet.evalCommand('UpdateConstruction()')
       }
-      this.resizeTimer = undefined;
-    }, 200)
+      // this.resizeTimer = undefined;
+    // }, 200)
   }
 
   render() {
-
     return (
       <Aux>
         <Script url='https://cdn.geogebra.org/apps/deployggb.js' onLoad={this.onScriptLoad} />
-        <div className={classes.Graph} id='ggb-element' ref={this.graph}></div>
+        <div className={classes.Graph} id={`ggb-element${this.props.tabId}A`} ref={this.graph}></div>
         <Modal show={this.state.loading} message='Loading...'/>
       </Aux>
     )

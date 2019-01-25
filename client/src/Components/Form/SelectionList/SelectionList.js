@@ -8,14 +8,14 @@ class SelectionList extends Component {
     list: []
   }
   componentDidMount() {
-    if (this.props.list === 'activities') {  
+    if (this.props.list === 'activities') {
       API.get('activities')
       .then(res => {
         this.setState({list: res.data.results})
       })
     }
   }
-  
+
   render() {
     let list = this.state.list.map((activity, i) => {
       return <li className={[classes.ListItem, i%2 ? classes.Odd : null].join(' ')}key={activity._id}>
@@ -23,7 +23,7 @@ class SelectionList extends Component {
       </li>
     })
     return (
-      <ul className={classes.List}>{list}</ul>
+      <ul className={classes.List}>{list.length > 0 ? list : <div className={classes.ErrorText}>There doesn't appear to be anything here yet...</div>}</ul>
     )
   }
 }

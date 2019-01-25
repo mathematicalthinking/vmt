@@ -67,7 +67,7 @@ class DesmosGraph extends Component {
     }
     let { room, currentTab } = this.props
     let { tabs } = room;
-    let {desmosLink, events} = tabs[currentTab]
+    let { desmosLink } = tabs[currentTab]
     if (tabs[currentTab].currentState) {
       this.calculator.setState(tabs[currentTab].currentState)
       this.setState({loading: false})
@@ -98,7 +98,7 @@ class DesmosGraph extends Component {
 
   initializeListeners(){
     // INITIALIZE EVENT LISTENER
-    this.calculator.observeEvent('change', () => {
+    this.calculator.observeEvent('change', (event) => {
       if (!this.state.receivingEvent) {
         if (!this.props.user.connected || this.props.room.controlledBy !== this.props.user._id) {
           this.calculator.undo();
@@ -114,6 +114,7 @@ class DesmosGraph extends Component {
         }
         let updatedTabs = [...this.props.room.tabs];
         updatedTabs[this.props.currentTab].currentState = newData.currentState;
+        // console.log('sending event')
         this.props.updatedRoom(this.props.room._id, {tabs: updatedTabs})
         socket.emit('SEND_EVENT', newData, res => {
           this.props.resetControlTimer()
@@ -123,8 +124,6 @@ class DesmosGraph extends Component {
     })
     socket.removeAllListeners('RECEIVE_EVENT')
     socket.on('RECEIVE_EVENT', data => {
-      console.log('DATA: ', data)
-      console.log('CURRENT TAB: ', this.props.currentTab)
       let updatedTabs = this.props.room.tabs.map(tab => {
         if (tab._id === data.tab) {
           tab.currentState = data.currentState

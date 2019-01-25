@@ -2,16 +2,16 @@ import React from 'react';
 import classes from './workspace.css';
 
 const WorkspaceLayout = React.memo((props) => {
-  let { room, user, graph, chat, tabs, bottomRight, bottomLeft, currentMembers,
-  referFromCoords, referToCoords } = props;
+  let { graph, chat, tabs, bottomRight, bottomLeft, currentMembers,
+  referFromCoords, referToCoords, graphs, replayer, currentTab } = props;
   // Set text for taking control button based on current control
-  let controlText = 'Take Control';
-  let inControl = false;
-  if (room.controlledBy === user._id) {
-    controlText = 'Release Control';
-    inControl = true;
-  }
-  else if (room.controlledBy) controlText = 'Request Control';
+  // let controlText = 'Take Control';
+  // let inControl = false;
+  // if (room.controlledBy === user._id) {
+  //   controlText = 'Release Control';
+  //   inControl = true;
+  // }
+  // else if (room.controlledBy) controlText = 'Request Control';
 
 
 
@@ -39,11 +39,23 @@ const WorkspaceLayout = React.memo((props) => {
     <div className={classes.PageContainer}>
       <div className={classes.Container}>
         <div className={classes.Left}>
-          <div className={classes.Top}>
+          <div className={[classes.Top, 'graph'].join(' ')}>
             <div className={classes.WorkspaceTabs}>{tabs}</div>
-            <div className={[classes.Graph, "graph"].join(" ")}> {/**  "graph" class here is so geogebra applet will scale to container**/}
-              {graph}
-            </div>
+            {!replayer
+              ? <div className={[classes.Graph, "graph"].join(" ")}> {/**  "graph" class here is so geogebra applet will scale to container**/}
+                  {graph}
+                </div>
+              : graphs.map((graph, i) => {
+                return (<div
+                    key={i}
+                    className={[classes.Graph].join(" ")}
+                    style={{display: currentTab === i ? 'flex' : 'none'}}
+                  > {/**  "graph" class here is so geogebra applet will scale to container**/}
+                    {graph}
+                  </div>
+                )
+              })
+            }
           </div>
           <div className={classes.Bottom}>
             {bottomLeft}

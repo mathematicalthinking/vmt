@@ -17,3 +17,10 @@
 .Odd {
   background: #999;
 }
+
+.ErrorText {
+  margin-top: 20px;
+  align-self: center;
+  font-style: italic;
+  color: #777;
+}
