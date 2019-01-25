@@ -2,16 +2,16 @@ import React from 'react';
 import classes from './workspace.css';
 
 const WorkspaceLayout = React.memo((props) => {
-  let { room, user, graph, chat, tabs, bottomRight, bottomLeft, currentMembers,
+  let { graph, chat, tabs, bottomRight, bottomLeft, currentMembers,
   referFromCoords, referToCoords, graphs, replayer, currentTab } = props;
   // Set text for taking control button based on current control
-  let controlText = 'Take Control';
-  let inControl = false;
-  if (room.controlledBy === user._id) {
-    controlText = 'Release Control';
-    inControl = true;
-  }
-  else if (room.controlledBy) controlText = 'Request Control';
+  // let controlText = 'Take Control';
+  // let inControl = false;
+  // if (room.controlledBy === user._id) {
+  //   controlText = 'Release Control';
+  //   inControl = true;
+  // }
+  // else if (room.controlledBy) controlText = 'Request Control';
 
 
 

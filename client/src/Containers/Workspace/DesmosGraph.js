@@ -67,7 +67,7 @@ class DesmosGraph extends Component {
     }
     let { room, currentTab } = this.props
     let { tabs } = room;
-    let {desmosLink, events} = tabs[currentTab]
+    let { desmosLink } = tabs[currentTab]
     if (tabs[currentTab].currentState) {
       this.calculator.setState(tabs[currentTab].currentState)
       this.setState({loading: false})

@@ -75,6 +75,7 @@ class ActivityWorkspace extends Component {
       this.props.activity
         ? <Aux>
           <WorkspaceLayout
+              graph={graph}
               // activeMember={this.state.activeMember}
               room={this.props.activity} // THIS IS NO GOOD...WE SHOULD CHANGE THE ROOM ATTR TO RESOURCE THAT CAN ACCEPT EITHER A ROOM OR AN ACTIVITY
               user={this.props.user}

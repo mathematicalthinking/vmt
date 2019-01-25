@@ -42,14 +42,9 @@ class Replayer extends Component {
 
   componentDidUpdate(prevProps, prevState){
     let { log } = this.props;
-    let ggbTabFound = false;
-    let desTabFound = false;
     if (prevProps.loading && !this.props.loading) {
       this.log = this.props.room.tabs
         .reduce((acc, tab) => {
-          // check for multiple tab types
-          if (tab.tabType === 'geogebra') ggbTabFound = true;
-          else desTabFound = true;
           // combine events
           return acc.concat(tab.events)
         }, [])
@@ -117,11 +112,11 @@ class Replayer extends Component {
       let tabStates = {...this.state.tabState}
       tabStates[this.props.tabs[prevProps.currentTab]._id] = {construction: this.calculator.getState(), lastIndex: prevProps.index}
       this.setState({tabStates,})
-      let startIndex;
-      if (tabStates[log[this.props.index].tab]) {
-        startIndex = tabStates[log[this.props.index].tab].lastIndex;
-      }
-      else {startIndex = prevProps.index}
+      // let startIndex;
+      // if (tabStates[log[this.props.index].tab]) {
+      //   startIndex = tabStates[log[this.props.index].tab].lastIndex;
+      // }
+      // else {startIndex = prevProps.index}
       let tabIndex;
       // find the target tab index
       this.props.tabs.forEach((tab, i) => {

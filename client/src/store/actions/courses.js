@@ -9,7 +9,6 @@ import {
   roomsRemoved,
   clearLoadingInfo,
 } from './index';
-import { createdCourseTemplate } from './courseTemplates';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils/normalize';
 import * as loading from './loading';
