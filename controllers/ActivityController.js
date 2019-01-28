@@ -21,7 +21,7 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
       let existingTabs;
       // This indicates we're copying 1 or more activities
-      if (body.activities) {
+      if (body.activities) { // We should save these "SOURCE" activities on the new acitivty so we know where they cam from
         try {
           let activities = await db.Activity.find({'_id': {$in: body.activities}}).populate('tabs')
           existingTabs = activities.reduce((acc, activity) => {
@@ -37,6 +37,7 @@ module.exports = {
       }
       delete body.ggbFiles;
       delete body.activities
+      delete body.tabs
       db.Activity.create(body)
       .then(activity => {
         createdActivity = activity;

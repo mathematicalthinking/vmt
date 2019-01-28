@@ -391,7 +391,7 @@ class Workspace extends Component {
         {room.tabs[0].name
           ? <WorkspaceLayout
               graph={Graph}
-              room={room}
+              roomName={room.name}
               user={user}
               chat={chat}
               tabs={tabs}

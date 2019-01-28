@@ -7,3 +7,4 @@ export { default as Tabs } from './Tabs';
 export { default as Tools } from './Tools';
 export { default as RoomInfo } from './RoomInfo';
 export { default as Workspace } from './Workspace';
+export { default as ActivityTools } from './ActivityTools';
