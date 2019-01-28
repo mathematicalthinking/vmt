@@ -12,6 +12,7 @@ class CurrentMembers extends Component {
 
   render() {
     const { members, activeMember } = this.props;
+    console.log("MEMBERS: ", members)
     return (
       <div className={classes.Container}>
         <div className={classes.Title} onClick={this.toggleExpansion}>
@@ -32,5 +33,6 @@ class CurrentMembers extends Component {
     )
   }
 }
+
 
 export default CurrentMembers;

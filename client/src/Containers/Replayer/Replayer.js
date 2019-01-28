@@ -94,6 +94,7 @@ class Replayer extends Component {
         // BE ENTERING
         updatedMembers.push({user: this.log[0].user});
       }
+      console.log('updated members: ', updatedMembers)
       this.setState({
         startTime: moment
           .unix(this.log[0].timestamp / 1000)
@@ -297,7 +298,7 @@ class Replayer extends Component {
           user={user}
           chat={chat}
           tabs={<Tabs tabs={room.tabs} changeTabs={this.changeTab} currentTab={this.state.currentTab} />}
-          currentMembers={<CurrentMembers members={this.state.currentMembers} expanded={true} activeMember={event.user}/>}
+          currentMembers={<CurrentMembers members={this.state.currentMembers.map(member => member.user)} expanded={true} activeMember={event.user}/>}
           bottomLeft={replayer}
           activeMember={event.user}
           replayerControls={replayer}
