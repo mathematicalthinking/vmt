@@ -37,8 +37,8 @@ const WorkspaceLayout = React.memo((props) => {
   }
   return (
     <div className={classes.PageContainer}>
-      <h2 className={classes.Title}>{roomName}</h2>
       <div className={classes.Container}>
+        <h2 className={classes.Title}>{roomName}</h2>
         <div className={classes.Left}>
           <div className={[classes.Top, 'graph'].join(' ')}>
             <div className={classes.WorkspaceTabs}>{tabs}</div>

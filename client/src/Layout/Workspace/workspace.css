@@ -29,18 +29,6 @@
   /* overflow-y: hidden; */
 }
 
-.Title {
-  margin-top: 10px;
-  align-self: flex-end;
-  padding: 5px;
-  border-radius: 15px;
-  background: #d5d5d5;
-  font-size: 20px;
-  letter-spacing: .08em;
-  position: absolute;
-  text-transform: capitalize;
-  color: darkGrey;
-}
 
 .Container {
   margin-top: 50px;
@@ -56,6 +44,21 @@
   /* align-content: stretch;
   align-items: stretch; */
   /* border: 1px solid red; */
+}
+
+.Title {
+  margin-top: 10px;
+  align-self: flex-end;
+  padding: 5px;
+  border-radius: 15px;
+  background: #d5d5d5;
+  font-size: 20px;
+  letter-spacing: .08em;
+  position: absolute;
+  right: 10px;
+  top: -50px;
+  text-transform: capitalize;
+  color: darkGrey;
 }
 
 .Top {

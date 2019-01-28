@@ -8,7 +8,13 @@ import {
   createActivity,
 } from '../../store/actions';
 import { Aux, Modal, TextInput, Button } from '../../Components';
-import { DesmosActivityGraph, GgbActivityGraph, } from './index';
+import {
+  DesmosActivityGraph,
+  GgbActivityGraph,
+  Tabs,
+  RoomInfo,
+  ActivityTools
+} from './index';
 import { WorkspaceLayout } from '../../Layout';
 import NewTabForm from './NewTabForm';
 class ActivityWorkspace extends Component {
@@ -59,6 +65,10 @@ class ActivityWorkspace extends Component {
     this.props.history.push('/community/activities')
   }
 
+  goBack = () => {
+    this.props.history.goBack()
+  }
+
   render() {
     let { activity, user } = this.props;
     let role = 'participant'
@@ -66,38 +76,49 @@ class ActivityWorkspace extends Component {
       role = 'facilitator'
     }
     let graph;
-    if (this.props.activity.tabs[this.state.currentTab].tabType === 'desmos') {
-      graph = <DesmosActivityGraph />
-    } else {
-      graph = <GgbActivityGraph />
-    }
+    let tabs;
+
+    if (activity && activity.tabs[0].name) { // This che
+      if (this.props.activity.tabs[this.state.currentTab].tabType === 'desmos') {
+        graph = <DesmosActivityGraph />
+      } else {
+        graph = <GgbActivityGraph
+                  tabs={activity.tabs}
+                  currentTab={this.state.currentTab}
+                  role={role}
+                  user={user}
+                  activity={activity}
+                  updateActivityTab={this.props.updateActivityTab}
+                />
+      }
+      tabs = <Tabs
+              tabs={activity.tabs}
+              currentTab={this.state.currentTab}
+              role={role}
+              changeTab={this.changeTab}
+              createNewTab={this.createNewTab}
+            />
+  }
+
     return (
       this.props.activity
         ? <Aux>
           <WorkspaceLayout
               graph={graph}
+              tabs={tabs}
               // activeMember={this.state.activeMember}
-              room={this.props.activity} // THIS IS NO GOOD...WE SHOULD CHANGE THE ROOM ATTR TO RESOURCE THAT CAN ACCEPT EITHER A ROOM OR AN ACTIVITY
+              roomName={activity.name} // THIS IS NO GOOD...WE SHOULD CHANGE THE ROOM ATTR TO RESOURCE THAT CAN ACCEPT EITHER A ROOM OR AN ACTIVITY
               user={this.props.user}
               role={role} // oh shit role is taken...its for a11y  stuff
               currentTab={this.state.currentTab}
               // updateRoom={this.props.updateRoom}
+              bottomRight={<ActivityTools owner={role === 'facilitator'} goBack={this.goBack} copy={this.addToMyActivities}/>}
+              bottomLeft={<RoomInfo temp={this.props.temp} role={role} updateRoom={this.props.updateRoom} room={activity} currentTab={this.state.currentTab}/>}
               updatedActivity={this.props.updatedActivity}
               updateActivityTab={this.props.updateActivityTab}
-              inControl={true}
-              activityWorkspace={true}
               copyActivity={this.addToMyActivities}
-              // startNewReference={this.startNewReference}
-              // referencing={this.state.referencing}
-              // showReference={this.showReference}
-              // showingReference={this.state.showingReference}
-              // clearReference={this.clearReference}
-              // referToEl={this.state.referToEl}
-              // referToCoords={this.state.referToCoords}
-              // referFromCoords={this.state.referFromCoords}
-              // referFromEl={this.state.referFromEl}
-              // setToElAndCoords={this.setToElAndCoords}
-              // setFromElAndCoords={this.setFromElAndCoords}
+              inControl
+              activity
               createNewTab={this.createNewTab}
               changeTab={this.changeTab}
               setStartingPoint={this.setStartingPoint}
