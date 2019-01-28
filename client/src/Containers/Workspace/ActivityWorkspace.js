@@ -55,14 +55,19 @@ class ActivityWorkspace extends Component {
 
   createNewActivity = () => {
     let activity = {...this.props.activity}
+    activity.activities = [activity._id]
     delete activity._id;
     delete activity.createdAt;
     delete activity.updatedAt;
+    delete activity.course;
+    delete activity.courses;
     activity.creator = this.props.user._id
     activity.name = this.state.newName
+    activity.tabs = activity.tabs.map(tab => tab._id);
+    console.log(activity.tabs)
     this.props.createActivity(activity)
     this.setState({addingToMyActivities: false})
-    this.props.history.push('/community/activities')
+    this.props.history.push('/myVMT/activities')
   }
 
   goBack = () => {
