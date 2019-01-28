@@ -10,7 +10,7 @@ import {
   ChatReplayer,
 } from './index';
 import { CurrentMembers } from '../../Components';
-import { Tabs } from '../Workspace';
+import { Tabs, Tools } from '../Workspace';
 import throttle from 'lodash/throttle';
 import moment from 'moment';
 const MAX_WAIT = 10000; // 10 seconds
@@ -233,6 +233,8 @@ class Replayer extends Component {
     })
   }
 
+  goBack = () => {this.props.history.goBack()}
+
 
   render() {
     let replayer = <ReplayerControls
@@ -294,7 +296,6 @@ class Replayer extends Component {
       return (
         <WorkspaceLayout
           graphs={graphs}
-          room={room}
           user={user}
           chat={chat}
           tabs={<Tabs tabs={room.tabs} changeTabs={this.changeTab} currentTab={this.state.currentTab} />}
@@ -303,6 +304,8 @@ class Replayer extends Component {
           activeMember={event.user}
           replayerControls={replayer}
           currentTab={this.state.currentTab}
+          roomName={`${room.name} Replayer`}
+          bottomRight={<Tools goBack={this.goBack} replayer />}
           replayer
           membersExpanded
           chatExpanded

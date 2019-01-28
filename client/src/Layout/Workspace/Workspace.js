@@ -3,7 +3,7 @@ import classes from './workspace.css';
 
 const WorkspaceLayout = React.memo((props) => {
   let { graph, chat, tabs, bottomRight, bottomLeft, currentMembers,
-  referFromCoords, referToCoords, graphs, replayer, currentTab } = props;
+  referFromCoords, referToCoords, graphs, replayer, currentTab, roomName } = props;
   // Set text for taking control button based on current control
   // let controlText = 'Take Control';
   // let inControl = false;
@@ -37,6 +37,7 @@ const WorkspaceLayout = React.memo((props) => {
   }
   return (
     <div className={classes.PageContainer}>
+      <h2 className={classes.Title}>{roomName}</h2>
       <div className={classes.Container}>
         <div className={classes.Left}>
           <div className={[classes.Top, 'graph'].join(' ')}>
