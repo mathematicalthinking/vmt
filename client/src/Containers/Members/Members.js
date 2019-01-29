@@ -10,19 +10,28 @@ import {
   clearNotification,
   removeCourseMember,
   removeRoomMember,
-} from '../../store/actions'
+} from '../../store/actions';
+import { getAllUsersInStore } from '../../store/reducers/';
+import {
+  Member,
+  Search,
+  Dropdown,
+} from '../../Components';
+import SearchResults from './SearchResults';
 import classes from './members.css';
-import Member from '../../Components/UI/Member/Member';
-// import Button from '../../Components/UI/Button/Button';
 
 class Members extends Component {
+
+  state = {
+    searchedUsers: this.props.allUsers || [],
+  }
 
   componentWillUnmount(){
     const { notifications } = this.props;
     if (notifications.length > 0){
       notifications.forEach(ntf => {
         if (ntf.notificationType === 'newMember') {
-          this.props.clearNotification(ntf._id)
+          this.props.clearNotification(ntf._id);
         }
       })
     }
@@ -47,6 +56,9 @@ class Members extends Component {
   }
 
   render(){
+    console.log("THIS>PROPS> ", this.props)
+    let searchedUsersArr = [...this.state.searchedUsers.usernames]
+
     let { classList, notifications, owner, resourceType, courseMembers  } = this.props;
     let joinRequests = <p>There are no new requests to join</p>;
     if (this.props.owner && notifications.length >= 1) {
@@ -90,6 +102,8 @@ class Members extends Component {
               {joinRequests}
             </div>
             <h3 className={classes.SubHeader}>Add New Participants</h3>
+            <Search />
+            <SearchResults usersSearched={searchedUsersArr}/>
             {resourceType === 'room' && courseMembers ?
               <div>
                 Add participants from this course
@@ -106,8 +120,12 @@ class Members extends Component {
   }
 }
 
+const mapStateToProps = (state, ownProps) => {
+  let usersToExclude = ownProps.classList.map(member => member.user._id);
+  return {allUsers: getAllUsersInStore(state, usersToExclude),}
+};
 
-export default connect(null, {
+export default connect(mapStateToProps, {
   grantAccess,
   updateCourseMembers,
   updateRoomMembers,

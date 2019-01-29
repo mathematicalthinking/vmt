@@ -220,6 +220,10 @@ router.put('/:resource/:id', middleware.validateUser, (req, res, next) => {
 		});
 	})
 
+	router.get('/search/:resource/:text', (req, res, next) => {
+		res.json({success: 'success'})
+	})
+
 router.delete('/:resource/:id', middleware.validateUser, (req, res, next) => {
 	// for now delete not supported
 	// add isTrashed?

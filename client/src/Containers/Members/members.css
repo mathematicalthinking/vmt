@@ -34,3 +34,16 @@
   margin-bottom: 10px;
   /* border: 1px solid orange; */
 }
+
+.SearchResults {
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  background: white;
+  padding: 10px;
+
+}
+
+.SearchResItem {
+  display: flex;
+  justify-content: space-between;
+}
