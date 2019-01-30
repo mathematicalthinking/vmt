@@ -44,7 +44,7 @@ function buildEmitData(notification, next) {
       }
       emitData.notification = ntf;
 
-      if (type === 'grantedAccess' || type === 'assignedNewRoom') {
+      if (type === 'grantedAccess' || type === 'assignedNewRoom' || type === 'invitation') {
         if (resource === 'course') {
           Course.findById(notification.resourceId).populate({path: 'members.user', select: 'username'}).exec((err, course) => {
             if (err) {

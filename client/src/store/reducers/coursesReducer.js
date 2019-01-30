@@ -1,5 +1,6 @@
 import * as actionTypes from '../actions/actionTypes';
 import merge from 'lodash/merge';
+import union from 'lodash/union';
 const initialState = {
   byId: {},
   allIds: [],
@@ -10,10 +11,11 @@ const reducer = (state = initialState, action) => {
     case actionTypes.GOT_COURSES:
     // @TODO WHAT ARE YOU DOING? WE DONT NEED MERGE
       let updatedCourses = merge({...state.byId}, action.byId);
+      let updatedIds = union([...state.allIds], [...action.allIds]);
       return {
         ...state,
         byId: updatedCourses,
-        allIds: action.allIds,
+        allIds: updatedIds,
       }
 
     case actionTypes.ADD_COURSE:
@@ -39,7 +41,7 @@ const reducer = (state = initialState, action) => {
       }
 
     case actionTypes.REMOVE_COURSE:
-      let updatedIds = state.allIds.filter(id => id !== action.courseId)
+      updatedIds = state.allIds.filter(id => id !== action.courseId)
       let updatedById = {...state.byId}
       delete updatedById[action.courseId]
         return {

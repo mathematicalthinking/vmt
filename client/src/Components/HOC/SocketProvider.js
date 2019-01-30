@@ -56,6 +56,7 @@ class SocketProvider extends Component {
 
 
     socket.on('NEW_NOTIFICATION', data => {
+      console.log("DATA: ", data)
       let { notification, course, room } = data;
       let type = notification.notificationType;
       let resource = notification.resourceType;

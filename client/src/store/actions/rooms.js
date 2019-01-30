@@ -243,10 +243,15 @@ export const createRoom = body => {
 }
 
 export const inviteToRoom = (roomId, toUserId, toUserUsername) => {
-  console.log(toUserUsername)
   return dispatch => {
     dispatch(addRoomMember(roomId, {user: {_id: toUserId, username: toUserUsername}, role: 'participant'}))
     API.grantAccess(toUserId, 'room', roomId, 'invitation')
+    .then(res => {
+
+    })
+    .catch(err => {
+      console.log(err)
+    })
   }
 }
 

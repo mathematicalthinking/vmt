@@ -40,6 +40,7 @@ module.exports = {
       .catch(err => reject(err))
     });
   },
+
   post: body => {
     return new Promise(async (resolve, reject) => {
       // Prepare the tabs if they exist
