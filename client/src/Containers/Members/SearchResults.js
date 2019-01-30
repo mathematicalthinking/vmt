@@ -1,13 +1,13 @@
 import React from 'react';
 import { Avatar, Button } from '../../Components/';
 import classes from './members.css';
-export default function SearchResults({usersSearched, addUser}) {
+export default function SearchResults({usersSearched, inviteMember}) {
   return (
     <ul className={classes.SearchResults}>
       {usersSearched.map(user => {
         return <li className={classes.SearchResItem}>
-          <Avatar username={user}/>
-          <Button click={addUser}>Add</Button>
+          <Avatar username={user.username}/>
+          <Button click={() => {inviteMember(user._id)}}>Add</Button>
         </li>
       })}
     </ul>

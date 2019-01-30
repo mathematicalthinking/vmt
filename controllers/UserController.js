@@ -9,6 +9,15 @@ module.exports = {
     });
   },
 
+  search: regex => {
+    return new Promise((resolve, reject) => {
+      db.User.find({$or: [{email: regex}, {username: regex}]})
+      .select('username email')
+      .then(user => {resolve(user)})
+      .catch(err => reject(err))
+    })
+  },
+
   getById: id => {
     return new Promise((resolve, reject) => {
       db.User.findById(id)

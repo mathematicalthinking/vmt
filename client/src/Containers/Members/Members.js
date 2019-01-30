@@ -1,8 +1,8 @@
-// @IDEA CONSIDER RENAMING THIS COMPONENT TO MEMBERS
 // ALSO CONSIDER MOVING GRANTACCESS() FROM COURSE CONTAINER TO HERE
 // EXTRACT OUT THE LAYOUT PORTION INTO THE LAYYOUT FOLDER
 import React, {Component } from 'react';
 import { connect } from 'react-redux';
+import API from '../../utils/apiRequests';
 import {
   grantAccess,
   updateCourseMembers,
@@ -15,7 +15,6 @@ import { getAllUsersInStore } from '../../store/reducers/';
 import {
   Member,
   Search,
-  Dropdown,
 } from '../../Components';
 import SearchResults from './SearchResults';
 import classes from './members.css';
@@ -23,7 +22,8 @@ import classes from './members.css';
 class Members extends Component {
 
   state = {
-    searchedUsers: this.props.allUsers || [],
+    searchText: '',
+    searchResults: this.props.searchedUsers || [],
   }
 
   componentWillUnmount(){
@@ -34,6 +34,16 @@ class Members extends Component {
           this.props.clearNotification(ntf._id);
         }
       })
+    }
+  }
+
+  addMember = (id) => {
+    let {resourceId, resourceType, classList } = this.props;
+    let updatedMembers = [...classList, {user: id, role: 'participant'}]
+    if (resourceType === 'course') {
+      this.props.updateCourseMembers(resourceId, updatedMembers);
+    } else {
+      this.props.updateRoomMembers(resourceId, updatedMembers);
     }
   }
 
@@ -55,9 +65,18 @@ class Members extends Component {
     } else this.props.updateRoomMembers(resourceId, updatedMembers);
   }
 
+  search = (text) => {
+    console.log(text)
+    API.search('user', text)
+    .then(res => {
+      console.log(res)
+    })
+    .catch(err => {
+      console.log('err: ', err)
+    })
+  }
+
   render(){
-    console.log("THIS>PROPS> ", this.props)
-    let searchedUsersArr = [...this.state.searchedUsers.usernames]
 
     let { classList, notifications, owner, resourceType, courseMembers  } = this.props;
     let joinRequests = <p>There are no new requests to join</p>;
@@ -102,8 +121,8 @@ class Members extends Component {
               {joinRequests}
             </div>
             <h3 className={classes.SubHeader}>Add New Participants</h3>
-            <Search />
-            <SearchResults usersSearched={searchedUsersArr}/>
+            <Search _search={this.search} placeholder="search by username or email address"/>
+            {this.state.searchResults.length > 0 ? <SearchResults usersSearched={this.state.searchResults} inviteMember={this.inviteMember}/> : null}
             {resourceType === 'room' && courseMembers ?
               <div>
                 Add participants from this course
@@ -122,7 +141,15 @@ class Members extends Component {
 
 const mapStateToProps = (state, ownProps) => {
   let usersToExclude = ownProps.classList.map(member => member.user._id);
-  return {allUsers: getAllUsersInStore(state, usersToExclude),}
+  let allUsers = getAllUsersInStore(state, usersToExclude);
+  let userIds = [...allUsers.userIds];
+  let usernames = [...allUsers.usernames];
+  console.log(userIds)
+  console.log(usernames)
+  console.log(userIds.map((id, i) => ({_id: id, username: usernames[i]})))
+  return {
+    searchedUsers: userIds.map((id, i) => ({_id: id, username: usernames[i]}))
+  }
 };
 
 export default connect(mapStateToProps, {

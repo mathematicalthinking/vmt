@@ -14,10 +14,11 @@ export default {
   //     paramsSerializer: params => parseParams(params)
   //   })
   // },
+  search: (resource, text) => {
+    return axios.get(`/api/search/${resource}/${text}`)
+  },
 
   post: (resource, body) => {
-    console.log(resource)
-    console.log(body)
     return axios.post(`/api/${resource}`, body)
   },
 
@@ -74,6 +75,10 @@ export default {
 
   addUserResource: (resource, resourceId, userId) => {
     return axios.put(`/api/user/${userId}/add`, {[resource]: resourceId})
+  },
+
+  inviteUser: () => {
+
   },
 
   grantAccess: (user, resource, resourceId) => {
