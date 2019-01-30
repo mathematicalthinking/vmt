@@ -46,6 +46,9 @@ class Members extends Component {
     } else {
       this.props.inviteToRoom(resourceId, id, username);
     }
+    // Remove the invited member from the search results
+    let updatedResults = this.state.searchResults.filter(user => user._id !== id);
+    this.setState({searchResults: updatedResults})
   }
 
   removeMember = (info) => {
@@ -67,7 +70,6 @@ class Members extends Component {
   }
 
   search = (text) => {
-    console.log(this.props.classList)
     if (text.length > 0) {
       API.search('user', text, this.props.classList.map(member => member.user._id))
       .then(res => {
@@ -118,6 +120,7 @@ class Members extends Component {
       /> : <Member info={member}  key={i}/>
 
     })
+    console.log(this.state.searchResults)
     return (
       <div className={classes.Container}>
         {owner ?
@@ -149,8 +152,8 @@ const mapStateToProps = (state, ownProps) => {
   // STart the search results populated with people already in the store
   let usersToExclude = ownProps.classList.map(member => member.user._id);
   let allUsers = getAllUsersInStore(state, usersToExclude);
-  let userIds = [...allUsers.userIds];
-  let usernames = [...allUsers.usernames];
+  let userIds = [...allUsers.userIds].slice(0, 5);
+  let usernames = [...allUsers.usernames].slice(0, 5);
   return {
     searchedUsers: userIds.map((id, i) => ({_id: id, username: usernames[i]})),
   }
