@@ -26,12 +26,11 @@ router.get('/:resource', (req, res, next) => {
 		})
 	})
 
-	router.get('/search/:resource/:text', (req, res, next) => {
+	router.get('/search/:resource/:text/:exclude', (req, res, next) => {
 		let controller = controllers[req.params.resource];
 		let text = req.params.text.replace(/\s+/g, "");
 		let regex = new RegExp(text, 'i');
-		console.log(regex)
-		controller.search(regex)
+		controller.search(regex, req.params.exclude)
 		.then(results => {
 			res.json({ results })
 		})

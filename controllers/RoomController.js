@@ -117,7 +117,10 @@ module.exports = {
 
       let members;
       let room;
-        db.Room.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
+      let ntfType = body.ntfType;
+      delete body.ntfType;
+      console.log(ntfType)
+      db.Room.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
         .populate({path: 'members.user', select: 'username'})
         .then((res) => {
           room = res;
@@ -133,7 +136,7 @@ module.exports = {
             resourceType: 'room',
             resourceId: id,
             toUser: body.members.user,
-            notificationType: body.ntfType,
+            notificationType: ntfType,
             parentResource: room.course
           })
         })

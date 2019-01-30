@@ -14,8 +14,9 @@ export default {
   //     paramsSerializer: params => parseParams(params)
   //   })
   // },
-  search: (resource, text) => {
-    return axios.get(`/api/search/${resource}/${text}`)
+  search: (resource, text, exclude) => {
+    console.log(exclude)
+    return axios.get(`/api/search/${resource}/${text}/${exclude}`)
   },
 
   post: (resource, body) => {
@@ -81,8 +82,8 @@ export default {
 
   },
 
-  grantAccess: (user, resource, resourceId) => {
-    return axios.put(`/api/${resource}s/${resourceId}/add`, {members: {user, role: 'participant'}})
+  grantAccess: (user, resource, resourceId, ntfType) => {
+    return axios.put(`/api/${resource}s/${resourceId}/add`, {members: {user, role: 'participant'}, ntfType,})
   },
 
   updateMembers: (resource, resourceId, updatedMembers) => {

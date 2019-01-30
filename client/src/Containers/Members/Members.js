@@ -67,8 +67,9 @@ class Members extends Component {
   }
 
   search = (text) => {
+    console.log(this.props.classList)
     if (text.length > 0) {
-      API.search('user', text)
+      API.search('user', text, this.props.classList.map(member => member.user._id))
       .then(res => {
         let searchResults = res.data.results;
         this.setState({ searchResults, })
