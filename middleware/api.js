@@ -53,14 +53,13 @@ const canModifyResource = (req) => {
 
   let model = models[modelName];
   // If a user is trying to remove themself they do not have to be facilitator
-  if (_.isEqual(user._id.toString(), req.body.members.user) && remove) {
+  if (req.body.members && _.isEqual(user._id.toString(), req.body.members.user) && remove) {
     results.canModify = true;
     return Promise.resolve(results); // Promisfy because the middleware caller is expecing a promise
 
   }
   return model.findById(id).populate('members.user', 'members.role').populate('room', 'creator members').populate('activity', 'creator').lean().exec()
     .then((record) => {
-      console.log(record)
         if (_.isNil(record)) {
           // record requesting to be modified does not exist
           results.doesRecordExist = false;
@@ -184,7 +183,12 @@ const prunePutBody = (user, recordIdToUpdate, body, details) => {
 
   if (modelName === 'Course') {
     if (!isCreator && !isFacilitator) {
-      return _.pick(copy, ['checkAccess', 'members']);
+      // If the user is trying to remove themself, let them
+      if (body.members.user === user._id.toString()) {
+        return _.pick(copy, 'members');
+
+      }
+      return _.pick(copy, 'checkAccess')
     }
     return copy;
   }

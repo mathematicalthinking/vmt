@@ -87,12 +87,15 @@ export const courseRemoved = (courseId) => {
 }
 
 export const removeCourseMember = (courseId, userId) => {
-  console.log('userId: ', userId)
-  return dispatch => {
+  return (dispatch, getState) => {
     dispatch(loading.start())
+    // If removing ourself
+    if (userId === getState().user._id) {
+    }
     API.removeMember('courses', courseId, userId)
     .then(res => {
       dispatch(updatedCourse(courseId, {members: res.data}))
+      dispatch(removeUserCourse(courseId))
       dispatch(loading.success())
     })
     .catch(err => dispatch(loading.fail(err.response.data.errorMessage)))

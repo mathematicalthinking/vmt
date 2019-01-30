@@ -166,13 +166,11 @@ router.put('/:resource/:id/add', middleware.validateUser, (req, res, next) => {
 })
 
 router.put('/:resource/:id/remove', middleware.validateUser, (req, res, next) => {
-	console.log("WE RE IN THIS ROUTE RIGHT???")
 	let { resource, id } = req.params;
 	let controller = controllers[resource];
 	req.params.remove = true; // Add remove to the params so we can allow users to modify their own status in  a resource (not just the resource owners) i.e. I should be able to remove myself from a course even if I'm not an owner of that course
   return middleware.canModifyResource(req)
 	  .then((results) => {
-			console.log(results)
 			let { canModify, doesRecordExist, details } = results;
 			if (!doesRecordExist) {
 				return errors.sendError.NotFoundError(null, res);
@@ -181,10 +179,8 @@ router.put('/:resource/:id/remove', middleware.validateUser, (req, res, next) =>
 			if (!canModify) {
 				return errors.sendError.NotAuthorizedError('You do not have permission to modify this resource', res);
 			}
-			console.log("MADE IT TO HERE")
-			let prunedBody = middleware.prunePutBody(req.user, id, req.body, details)
-			console.log("PRUNED BODY: ", prunedBody)
-			return controller.remove(id, prunedBody)
+			let prunedBody = middleware.prunePutBody(req.user, id, req.body, details);
+			return controller.remove(id, prunedBody);
 		})
 		.then((result) => res.json(result))
 		.catch((err) => {

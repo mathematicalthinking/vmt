@@ -97,6 +97,11 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log(prevProps.course, this.props.course)
+    // The user has removed themself from this course and thus its no longer in the store
+    if (prevProps.user.courses.indexOf(this.props.course._id) > -1 && this.props.user.courses.indexOf(this.props.course._id) === -1) {
+      return this.props.history.push('/myVMT/courses');
+    }
     if (!this.props.course) {
       return;
     }
@@ -230,9 +235,9 @@ class Course extends Component {
   }
 
   removeMeFromCourse = () => {
-    console.log(this.props.user._id)
+    // This will cause compnentDidUpdate to fire. There we will check if the user still belongs to this course,
+    // if they don;t, we'll redirect to myVMT
     this.props.removeCourseMember(this.props.course._id, this.props.user._id);
-    this.props.history.goBack();
   }
 
   render() {
