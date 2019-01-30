@@ -5,7 +5,7 @@ const sockets = require('../socketInit');
 const _ = require('lodash');
 
 const Notification = new mongoose.Schema({
-  notificationType: { type: String, enum: ['grantedAccess', 'requestAccess', 'assignedNewRoom', 'newMember'], required: true },
+  notificationType: { type: String, enum: ['grantedAccess', 'requestAccess', 'assignedNewRoom', 'newMember', 'invitation'], required: true },
   resourceType: {type: String, enum: ['room', 'course'], required: true},
   resourceId: { type: String, validate: { validator: (id) => {
     var idRegex = /^[0-9a-fA-F]{24}$/;

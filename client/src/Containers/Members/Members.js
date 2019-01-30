@@ -7,6 +7,8 @@ import {
   grantAccess,
   updateCourseMembers,
   updateRoomMembers,
+  inviteToCourse,
+  inviteToRoom,
   clearNotification,
   removeCourseMember,
   removeRoomMember,
@@ -37,13 +39,12 @@ class Members extends Component {
     }
   }
 
-  addMember = (id) => {
-    let { resourceId, resourceType, classList } = this.props;
-    let updatedMembers = [...classList, {user: id, role: 'participant'}]
+  inviteMember  = (id, username) => {
+    let { resourceId, resourceType, } = this.props;
     if (resourceType === 'course') {
-      this.props.updateCourseMembers(resourceId, updatedMembers);
+      this.props.inviteToCourse(resourceId, id, username);
     } else {
-      this.props.updateRoomMembers(resourceId, updatedMembers);
+      this.props.inviteToRoom(resourceId, id, username);
     }
   }
 
@@ -144,15 +145,13 @@ class Members extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
+  // STart the search results populated with people already in the store
   let usersToExclude = ownProps.classList.map(member => member.user._id);
   let allUsers = getAllUsersInStore(state, usersToExclude);
   let userIds = [...allUsers.userIds];
   let usernames = [...allUsers.usernames];
-  console.log(userIds)
-  console.log(usernames)
-  console.log(userIds.map((id, i) => ({_id: id, username: usernames[i]})))
   return {
-    searchedUsers: userIds.map((id, i) => ({_id: id, username: usernames[i]}))
+    searchedUsers: userIds.map((id, i) => ({_id: id, username: usernames[i]})),
   }
 };
 
@@ -160,6 +159,8 @@ export default connect(mapStateToProps, {
   grantAccess,
   updateCourseMembers,
   updateRoomMembers,
+  inviteToCourse,
+  inviteToRoom,
   clearNotification,
   removeRoomMember,
   removeCourseMember,

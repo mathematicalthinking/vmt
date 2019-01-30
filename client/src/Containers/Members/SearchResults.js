@@ -5,10 +5,10 @@ export default function SearchResults({usersSearched, inviteMember}) {
   return (
     <ul className={classes.SearchResults}>
       {usersSearched.map(user => {
-        return <li className={classes.SearchResItem}>
-          <div className={classes.FlexRow}><Avatar username={user.username}/> <span className={classes.Email}>{user.email}</span></div>
-          <Button click={() => {inviteMember(user._id)}}>Add</Button>
-        </li>
+        return <li className={classes.SearchResItem} key={user._id}>
+                <div className={classes.FlexRow}><Avatar username={user.username}/> <span className={classes.Email}>{user.email}</span></div>
+                <Button click={() => {inviteMember(user._id, user.username)}}>Add</Button>
+              </li>
       })}
     </ul>
   )

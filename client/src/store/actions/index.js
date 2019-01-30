@@ -56,6 +56,7 @@ export {
   updateRoomTab,
   setRoomStartingPoint,
   addChatMessage,
+  inviteToRoom,
 } from './rooms';
 export {
   addCourse,
@@ -76,6 +77,7 @@ export {
   updateCourseMembers,
   addCourseMember,
   removeCourseMember,
+  inviteToCourse
 } from './courses';
 export {
   getCourseTemplates,

@@ -111,7 +111,7 @@ module.exports = {
     })
   },
 
-  add: (id, body) => {
+  add: (id, body,) => {
     return new Promise((resolve, reject) => {
       // Send a notification to user that they've been granted access to a new course
 
@@ -133,7 +133,7 @@ module.exports = {
             resourceType: 'room',
             resourceId: id,
             toUser: body.members.user,
-            notificationType: 'grantedAccess',
+            notificationType: body.ntfType,
             parentResource: room.course
           })
         })

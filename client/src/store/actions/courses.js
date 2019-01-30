@@ -181,18 +181,18 @@ export const getCourses = (params) => {
     .catch(err => console.log(err));
   }
 }
-export const getCoursesIds = ids => {
-  return dispatch => {
-    API.getIds('courses', ids)
-    .then(res => {
-      // Normalize res
-      let rooms = normalize(res.data.results)
-      dispatch(gotCourses(rooms))
-      dispatch(loading.success())
-    })
-    .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
-  }
-}
+// export const getCoursesIds = ids => {
+//   return dispatch => {
+//     API.getIds('courses', ids)
+//     .then(res => {
+//       // Normalize res
+//       let rooms = normalize(res.data.results)
+//       dispatch(gotCourses(rooms))
+//       dispatch(loading.success())
+//     })
+//     .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
+//   }
+// }
 
 export const getCourse = id => {
   return dispatch => {
@@ -206,6 +206,10 @@ export const getCourse = id => {
       dispatch(loading.fail(err.response.data.errorMessage))
     })
   }
+}
+
+export const inviteToCourse = (courseId, toUser, fromUser) => {
+
 }
 
 // export const populateCurrentCourse = id => {

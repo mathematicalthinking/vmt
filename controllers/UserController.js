@@ -12,6 +12,7 @@ module.exports = {
   search: regex => {
     return new Promise((resolve, reject) => {
       db.User.find({$or: [{email: regex}, {username: regex}]})
+      .limit(5)
       .select('username email')
       .then(user => {resolve(user)})
       .catch(err => reject(err))

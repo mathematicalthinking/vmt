@@ -14,7 +14,7 @@
 }
 
 .Input {
-  border: 1px solid #999;
+  border: 1px solid #ddd;
   border-radius: 3px;
   width: 100%;
   padding: 10px;
@@ -29,7 +29,7 @@
 
 .Input:focus{
   border: none;
-  border: 1px solid black;
+  border: 1px solid blue;
   outline-width: 0;
 }
 

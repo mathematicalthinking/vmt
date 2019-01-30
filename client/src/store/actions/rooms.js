@@ -194,17 +194,17 @@ export const getRoom = id => {
   }
 }
 
-export const getRoomsIds = ids => {
-  return dispatch => {
-    API.getIds('rooms', ids)
-    .then(res => {
-      let rooms = normalize(res.data.results)
-      dispatch(gotRooms(rooms))
-      dispatch(loading.success())
-    })
-    .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
-  }
-}
+// export const getRoomsIds = ids => {
+//   return dispatch => {
+//     API.getIds('rooms', ids)
+//     .then(res => {
+//       let rooms = normalize(res.data.results)
+//       dispatch(gotRooms(rooms))
+//       dispatch(loading.success())
+//     })
+//     .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
+//   }
+// }
 
 export const populateRoom = (id, temp) => {
   return dispatch => {
@@ -239,6 +239,14 @@ export const createRoom = body => {
     .catch(err => {
       dispatch(loading.fail(err.response.data.errorMessage))
     })
+  }
+}
+
+export const inviteToRoom = (roomId, toUserId, toUserUsername) => {
+  console.log(toUserUsername)
+  return dispatch => {
+    dispatch(addRoomMember(roomId, {user: {_id: toUserId, username: toUserUsername}, role: 'participant'}))
+    // API.grantAccess('room', roomId, toUserId, 'invitation')
   }
 }
 
