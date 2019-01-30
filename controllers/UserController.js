@@ -10,15 +10,12 @@ module.exports = {
   },
 
   search: (regex, exclude) => {
-    console.log(typeof exclude)
     let idsToExclude;
     if (exclude.indexOf(',') !== -1) {
       idsToExclude = exclude.split(',').map(id => ObjectId(id));
     } else { // Its just a single value
       idsToExclude = [ObjectId(exclude)]
     }
-    console.log(idsToExclude)
-    console.log({$or: [{email: regex}, {username: regex}], _id: {$nin: idsToExclude}})
     return new Promise((resolve, reject) => {
       db.User.find({$or: [{email: regex}, {username: regex}], _id: {$nin: idsToExclude}})
       .limit(5)

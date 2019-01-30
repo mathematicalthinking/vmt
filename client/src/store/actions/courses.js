@@ -208,9 +208,14 @@ export const getCourse = id => {
   }
 }
 
-export const inviteToCourse = (courseId, toUser, fromUser) => {
-
+export const inviteToCourse = (courseId, toUserId, toUserUsername) => {
+  console.log(toUserUsername)
+  return dispatch => {
+    dispatch(addCourseMember(courseId, {user: {_id: toUserId, username: toUserUsername}, role: 'participant'}))
+    API.grantAccess(toUserId, 'course', courseId, 'invitation')
+  }
 }
+
 
 // export const populateCurrentCourse = id => {
 //   return dispatch => {
