@@ -87,6 +87,7 @@ module.exports = {
   },
 
   remove: (id, body) => {
+    console.log("REMOVING : ", body)
     return new Promise((resolve, reject) => {
       // Remove this course from the user's list of courses
       db.User.findByIdAndUpdate(body.members.user, {$pull: {courses: id}})

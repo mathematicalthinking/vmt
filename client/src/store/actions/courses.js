@@ -87,6 +87,7 @@ export const courseRemoved = (courseId) => {
 }
 
 export const removeCourseMember = (courseId, userId) => {
+  console.log('userId: ', userId)
   return dispatch => {
     dispatch(loading.start())
     API.removeMember('courses', courseId, userId)

@@ -71,6 +71,8 @@ export default {
   },
 
   removeMember: (resource, resourceId, user) => {
+    console.log("REMOVING MEMBER FROM API REQUESTS")
+    console.log(resource, resourceId, user)
     return axios.put(`/api/${resource}/${resourceId}/remove`, {members: {user,} })
   },
 

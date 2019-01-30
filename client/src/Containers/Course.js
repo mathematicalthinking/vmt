@@ -10,6 +10,7 @@ import {
   getRooms,
   updateCourseRooms,
   updateCourseActivities,
+  removeCourseMember,
   updateCourse,
   clearNotification,
   getCourse,
@@ -40,6 +41,7 @@ class Course extends Component {
     ],
     firstView: false,
     editing: false,
+    invited: false,
     name: this.props.course ? this.props.course.name: null,
     description: this.props.course ? this.props.course.description: null,
     entryCode: this.props.course ? this.props.course.entryCode: null,
@@ -59,10 +61,15 @@ class Course extends Component {
       // this.props.getCourse(course._id); // What information are we getting here
       // this.props.getUser(user._id);
       let firstView = false;
+      let invited = false;
       if (notifications.length > 0) {
        notifications.forEach(ntf => {
-          if (ntf.notificationType === 'grantedAccess' && ntf.resourceId === course._id) {
-            firstView = true;
+          if (ntf.resourceId === course._id) {
+            if (ntf.notificationType === 'grantedAccess') {
+              firstView = true;
+            } else if (ntf.notificationType === 'invitation') {
+              invited = true;
+            }
             this.props.clearNotification(ntf._id)
           }
         })
@@ -79,6 +86,7 @@ class Course extends Component {
         tabs: updatedTabs,
         owner,
         firstView,
+        invited,
       })
       if (course.members) {
         this.checkAccess();
@@ -207,14 +215,24 @@ class Course extends Component {
   }
 
   clearFirstViewNtf = () => {
-    this.setState({firstView: false})
+    this.setState({firstView: false});
     // Find the notifcation that corresponds to this course
     // let ntfId = this.props.user.notifications.filter(ntf => ntf.resourceId === this.props.match.params.course_id)
     // this.props.clearNotification(ntfId)
   }
 
+  clearInviteNtf = () => {
+    this.setState({invited: false});
+  }
+
   trashCourse = () => {
-    this.setState({trashing: true})
+    this.setState({trashing: true});
+  }
+
+  removeMeFromCourse = () => {
+    console.log(this.props.user._id)
+    this.props.removeCourseMember(this.props.course._id, this.props.user._id);
+    this.props.history.goBack();
   }
 
   render() {
@@ -315,21 +333,16 @@ class Course extends Component {
             }
             tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
             mainContent={mainContent}
-
-            // routingInfo={this.props.match}
-            //
-            // contentData={contentData}
-            // tabs={this.state.tabs}
-            // sidePanelData={sidePanelData}
-            // // user={user}
-            // accountType={user.accountType}
-            // bothRoles={this.state.bothRoles}
-            // view={'facilitator'}
           />
           <Modal show={this.state.firstView} closeModal={this.clearFirstViewNtf}>
             <p>Welcome to {course.name}. If this is your first time joining a course,
             we recommend you take a tour. Otherwise you can start exploring this course's features.</p>
             <Button theme={'Small'} click={this.clearFirstViewNtf}>Explore</Button>
+          </Modal>
+          <Modal show={this.state.invited} closeModal={this.clearInviteNtf}>
+            <p>You have been invited to {course.name}. If you think you've been added to this course in error you can click "leave" and you will be removed.</p>
+            <Button theme={'Small'} click={this.clearFirstViewNtf}>Join</Button>
+            <Button theme={'Small'} click={this.removeMeFromCourse}>Leave</Button>
           </Modal>
           {this.state.trashing
             ? <TrashModal
@@ -379,6 +392,7 @@ export default connect(mapStateToProps, {
   updateCourseRooms,
   updateCourseActivities,
   clearNotification,
+  removeCourseMember,
   updateCourse,
   getCourse,
   getUser,

@@ -120,7 +120,6 @@ class Members extends Component {
       /> : <Member info={member}  key={i}/>
 
     })
-    console.log(this.state.searchResults)
     return (
       <div className={classes.Container}>
         {owner ?
