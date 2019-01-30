@@ -6,7 +6,7 @@ export default function SearchResults({usersSearched, inviteMember}) {
     <ul className={classes.SearchResults}>
       {usersSearched.map(user => {
         return <li className={classes.SearchResItem}>
-          <Avatar username={user.username}/>
+          <div className={classes.FlexRow}><Avatar username={user.username}/> <span className={classes.Email}>{user.email}</span></div>
           <Button click={() => {inviteMember(user._id)}}>Add</Button>
         </li>
       })}

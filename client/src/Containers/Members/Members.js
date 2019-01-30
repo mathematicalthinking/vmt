@@ -38,7 +38,7 @@ class Members extends Component {
   }
 
   addMember = (id) => {
-    let {resourceId, resourceType, classList } = this.props;
+    let { resourceId, resourceType, classList } = this.props;
     let updatedMembers = [...classList, {user: id, role: 'participant'}]
     if (resourceType === 'course') {
       this.props.updateCourseMembers(resourceId, updatedMembers);
@@ -66,14 +66,18 @@ class Members extends Component {
   }
 
   search = (text) => {
-    console.log(text)
-    API.search('user', text)
-    .then(res => {
-      console.log(res)
-    })
-    .catch(err => {
-      console.log('err: ', err)
-    })
+    if (text.length > 0) {
+      API.search('user', text)
+      .then(res => {
+        let searchResults = res.data.results;
+        this.setState({ searchResults, })
+      })
+      .catch(err => {
+        console.log('err: ', err)
+      })
+    } else {
+      this.setState({searchResults: []})
+    }
   }
 
   render(){
