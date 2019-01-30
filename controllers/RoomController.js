@@ -147,6 +147,7 @@ module.exports = {
   },
 
   remove: (id, body) => {
+    console.log("ID AND BODY", id, body)
     return new Promise((resolve, reject) => {
       // Remove this course from the user's list of courses
       // console.log(bod['members.user']._id)
@@ -154,7 +155,7 @@ module.exports = {
       db.Room.findByIdAndUpdate(id, {$pull: body}, {new: true})
       .populate({path: 'members.user', select: 'username'})
       .then(res => {
-        resolve({members: res.members})
+        resolve(res.members)
       })
       .catch(err => reject(err))
     })

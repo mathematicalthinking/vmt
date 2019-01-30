@@ -176,6 +176,9 @@ const prunePutBody = (user, recordIdToUpdate, body, details) => {
   if (modelName === 'Room') {
     if (!isCreator && !isFacilitator) {
       // graphImage? tempRoom?
+      if (body.members.user === user._id.toString()) {
+        return _.pick(copy, 'members');
+      }
       return _.pick(copy, ['graphImage','checkAccess', 'tempRoom']);
     }
     return copy;

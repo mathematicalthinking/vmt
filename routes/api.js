@@ -180,6 +180,7 @@ router.put('/:resource/:id/remove', middleware.validateUser, (req, res, next) =>
 				return errors.sendError.NotAuthorizedError('You do not have permission to modify this resource', res);
 			}
 			let prunedBody = middleware.prunePutBody(req.user, id, req.body, details);
+			console.log("validation success!")
 			return controller.remove(id, prunedBody);
 		})
 		.then((result) => res.json(result))

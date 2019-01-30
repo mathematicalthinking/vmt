@@ -12,6 +12,7 @@ import {
   clearNotification,
   updateRoom,
   getRoom,
+  removeRoomMember,
   clearLoadingInfo,
 } from '../store/actions';
 import {
@@ -38,6 +39,7 @@ class Room extends Component {
     ],
     firstView: false,
     editing: false,
+    invited: false,
     dueDate: this.props.room ? this.props.room.dueDate : null,
     name: this.props.room ? this.props.room.name : null,
     description: this.props.room ? this.props.room.description : null,
@@ -64,6 +66,7 @@ class Room extends Component {
       let updatedTabs = [...this.state.tabs];
       let owner = false;
       let firstView = false;
+      let invited = false;
       if (room.members.filter(member => member.role === 'facilitator' && member.user._id === user._id).length > 0) { // WE SHOULD ACTUALLY BE CHECKING THE FACILITATORS NOT THE OWNER
         // updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
         // this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
@@ -73,13 +76,13 @@ class Room extends Component {
       }
       if (notifications.length > 0) {
         notifications.forEach(ntf => {
-          if (ntf.notificationType === 'grantedAccess' && ntf.resourceId === room._id) {
-            // RESOLVE THIS NOTIFICATION
-            firstView = true;
+          if (ntf.resourceId === room._id) {
+            if (ntf.notificationType === 'grantedAccess' || ntf.notificationType === 'assignedNewRoom') {
+              firstView = true;
+            } else if (ntf.notificationType === 'invitation') {
+              invited = true;
+            }
             clearNotification(ntf._id); //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
-          } else if (ntf.notificationType === 'assignedNewRoom' && ntf.resourceId === room._id) {
-            firstView = true;
-            clearNotification(ntf._id)
           }
         })
       }
@@ -90,6 +93,7 @@ class Room extends Component {
         tabs: updatedTabs,
         owner,
         firstView,
+        invited,
       })
 
     }
@@ -102,6 +106,9 @@ class Room extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    if (prevProps.user.rooms.indexOf(this.props.room._id) > -1 && this.props.user.rooms.indexOf(this.props.room._id) === -1) {
+      return this.props.history.push('/myVMT/rooms');
+    }
     if (!this.props.room) {
       return;
     }
@@ -200,6 +207,18 @@ class Room extends Component {
   trashRoom = () => {
     this.setState({trashing: true})
   }
+
+  clearFirstViewModal = () => {
+    this.setState({ firstView: false, invited: false,})
+  }
+
+  removeMeFromRoom = () => {
+    // This will cause compnentDidUpdate to fire. There we will check if the user still belongs to this course,
+    // if they don;t, we'll redirect to myVMT
+    this.props.removeRoomMember(this.props.room._id, this.props.user._id);
+  }
+
+
   render() {
     let {
       room, match, user,
@@ -304,11 +323,16 @@ class Room extends Component {
             tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
           />
           {this.state.firstView
-            ? <Modal show={this.state.firstView} close={() => this.setState({firstView: false })} history={this.props.history}>
+            ? <Modal show={this.state.firstView} close={this.clearFirstViewModal} history={this.props.history}>
             <p>Welcome to {room.name}. If this is your first time joining a room,
             we recommend you take a tour. Otherwise you can start exploring this room's features.</p>
             <Button data-testid='explore-room' click={() => this.setState({firstView: false})}>Explore</Button>
           </Modal> : null}
+          <Modal show={this.state.invited} closeModal={this.clearFirstViewModal}>
+            <p>You have been invited to {room.name}. If you think you've been added to this course in error you can click "leave" and you will be removed.</p>
+            <Button theme={'Small'} click={this.clearFirstViewModal}>Join</Button>
+            <Button theme={'Small'} click={this.removeMeFromRoom}>Leave</Button>
+          </Modal>
           {this.state.trashing
             ? <TrashModal
               resource='room'
@@ -356,5 +380,6 @@ export default connect(mapStateToProps, {
   clearNotification,
   updateRoom,
   getRoom,
+  removeRoomMember,
   clearLoadingInfo
 })(Room);

@@ -156,11 +156,15 @@ export const updateRoomTab = (roomId, tabId, body) => {
 }
 
 export const removeRoomMember = (roomId, userId) => {
-  return dispatch => {
-    dispatch(loading.start())
+  return (dispatch, getState) => {
+    dispatch(loading.start());
     API.removeMember('rooms', roomId, userId)
     .then(res => {
-      dispatch(updatedRoom(roomId, res.data))
+      dispatch(updatedRoom(roomId, {members: res.data}))
+      if (userId === getState().user._id) {
+        dispatch(removeUserRooms([roomId]));
+      }
+      dispatch(loading.success());
     })
     .catch(err => dispatch(loading.fail(err)))
   }

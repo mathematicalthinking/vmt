@@ -97,7 +97,6 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log(prevProps.course, this.props.course)
     // The user has removed themself from this course and thus its no longer in the store
     if (prevProps.user.courses.indexOf(this.props.course._id) > -1 && this.props.user.courses.indexOf(this.props.course._id) === -1) {
       return this.props.history.push('/myVMT/courses');
@@ -220,15 +219,12 @@ class Course extends Component {
   }
 
   clearFirstViewNtf = () => {
-    this.setState({firstView: false});
+    this.setState({firstView: false, invited: false});
     // Find the notifcation that corresponds to this course
     // let ntfId = this.props.user.notifications.filter(ntf => ntf.resourceId === this.props.match.params.course_id)
     // this.props.clearNotification(ntfId)
   }
 
-  clearInviteNtf = () => {
-    this.setState({invited: false});
-  }
 
   trashCourse = () => {
     this.setState({trashing: true});
@@ -344,7 +340,7 @@ class Course extends Component {
             we recommend you take a tour. Otherwise you can start exploring this course's features.</p>
             <Button theme={'Small'} click={this.clearFirstViewNtf}>Explore</Button>
           </Modal>
-          <Modal show={this.state.invited} closeModal={this.clearInviteNtf}>
+          <Modal show={this.state.invited} closeModal={this.clearFirstViewNtf}>
             <p>You have been invited to {course.name}. If you think you've been added to this course in error you can click "leave" and you will be removed.</p>
             <Button theme={'Small'} click={this.clearFirstViewNtf}>Join</Button>
             <Button theme={'Small'} click={this.removeMeFromCourse}>Leave</Button>
