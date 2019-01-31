@@ -153,7 +153,7 @@ router.put('/:resource/:id/add', middleware.validateUser, (req, res, next) => {
 		})
 		.then((result) => res.json(result))
 		.catch((err) => {
-			console.error(`Error put ${resource}/${id}: ${err}`);
+			console.error(`Error put/add ${resource}/${id}: ${err}`);
 
 			let msg = null;
 
@@ -170,22 +170,21 @@ router.put('/:resource/:id/remove', middleware.validateUser, (req, res, next) =>
 	let controller = controllers[resource];
 	req.params.remove = true; // Add remove to the params so we can allow users to modify their own status in  a resource (not just the resource owners) i.e. I should be able to remove myself from a course even if I'm not an owner of that course
   return middleware.canModifyResource(req)
-	  .then((results) => {
-			let { canModify, doesRecordExist, details } = results;
-			if (!doesRecordExist) {
-				return errors.sendError.NotFoundError(null, res);
+	.then((results) => {
+		let { canModify, doesRecordExist, details } = results;
+		if (!doesRecordExist) {
+			return errors.sendError.NotFoundError(null, res);
 			}
 
 			if (!canModify) {
 				return errors.sendError.NotAuthorizedError('You do not have permission to modify this resource', res);
 			}
 			let prunedBody = middleware.prunePutBody(req.user, id, req.body, details);
-			console.log("validation success!")
 			return controller.remove(id, prunedBody);
 		})
 		.then((result) => res.json(result))
 		.catch((err) => {
-			console.error(`Error put ${resource}/${id}: ${err}`);
+			console.error(`Error put/remove ${resource}/${id}: ${err}`);
 
 			let msg = null;
 
@@ -195,16 +194,16 @@ router.put('/:resource/:id/remove', middleware.validateUser, (req, res, next) =>
 
 			return errors.sendError.InternalError(msg, res)
 		});
-})
+	})
 
-router.put('/:resource/:id', middleware.validateUser, (req, res, next) => {
-	let { resource, id } = req.params
-	let controller = controllers[resource];
+	router.put('/:resource/:id', middleware.validateUser, (req, res, next) => {
+		let { resource, id } = req.params
+		let controller = controllers[resource];
 
-	if (resource === 'events') {
-		return errors.sendError.BadMethodError('Events cannot be modified!', res);
-	}
-	return middleware.canModifyResource(req)
+		if (resource === 'events') {
+			return errors.sendError.BadMethodError('Events cannot be modified!', res);
+		}
+		return middleware.canModifyResource(req)
 	  .then((results) => {
 			let { canModify, doesRecordExist, details } = results;
 

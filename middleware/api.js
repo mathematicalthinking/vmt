@@ -52,8 +52,9 @@ const canModifyResource = (req) => {
   results.details.modelName = modelName;
 
   let model = models[modelName];
+  let schema = utils.getSchema(resource);
   // If a user is trying to remove themself they do not have to be facilitator
-  if (req.body.members && _.isEqual(user._id.toString(), req.body.members.user) && remove) {
+  if (remove && req.body.members && _.isEqual(user._id.toString(), req.body.members.user)) {
     results.canModify = true;
     return Promise.resolve(results); // Promisfy because the middleware caller is expecing a promise
 
@@ -125,6 +126,7 @@ const canModifyResource = (req) => {
           results.canModify = true;
           return results;
         }
+        // console.log('returning result, ', results)
         return results;
     })
     .catch(err => {
@@ -176,7 +178,7 @@ const prunePutBody = (user, recordIdToUpdate, body, details) => {
   if (modelName === 'Room') {
     if (!isCreator && !isFacilitator) {
       // graphImage? tempRoom?
-      if (body.members.user === user._id.toString()) {
+      if (body.members && body.members.user === user._id.toString()) {
         return _.pick(copy, 'members');
       }
       return _.pick(copy, ['graphImage','checkAccess', 'tempRoom']);
@@ -187,7 +189,7 @@ const prunePutBody = (user, recordIdToUpdate, body, details) => {
   if (modelName === 'Course') {
     if (!isCreator && !isFacilitator) {
       // If the user is trying to remove themself, let them
-      if (body.members.user === user._id.toString()) {
+      if (body.members && body.members.user === user._id.toString()) {
         return _.pick(copy, 'members');
 
       }

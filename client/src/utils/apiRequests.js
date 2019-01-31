@@ -38,6 +38,7 @@ export default {
   },
 
   enterWithCode: (resource, resourceId, userId, entryCode) => {
+    console.log('enter with code: ', resource, resourceId, userId, entryCode)
     return axios.put(`/api/${resource}/${resourceId}`, {checkAccess: {userId, entryCode,}})
   },
 
@@ -70,7 +71,6 @@ export default {
   },
 
   removeMember: (resource, resourceId, user) => {
-    console.log(resource, resourceId, user);
     return axios.put(`/api/${resource}/${resourceId}/remove`, {members: {user,} })
   },
 
