@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export default {
   get: (resource, params) => {
-    return axios.get(`/api/${resource}`, params ? {params,} : {})
+    return axios.get(`/api/${resource}`, params ? {params,} : {});
   },
 
   // getIds: (resource, ids) => {
@@ -15,30 +15,29 @@ export default {
   //   })
   // },
   search: (resource, text, exclude) => {
-    return axios.get(`/api/search/${resource}/${text}/${exclude}`)
+    return axios.get(`/api/search/${resource}`, {query: {text, exclude,}});
   },
 
   post: (resource, body) => {
-    return axios.post(`/api/${resource}`, body)
+    return axios.post(`/api/${resource}`, body);
   },
 
   put: (resource, id, body) => {
-    return axios.put(`/api/${resource}/${id}`, body)
+    return axios.put(`/api/${resource}/${id}`, body);
   },
 
   getById: (resource, id, temp) => {
     if (temp) {
       return axios.get(`/api/${resource}/${id}/tempRoom`)
     }
-    return axios.get(`/api/${resource}/${id}`)
+    return axios.get(`/api/${resource}/${id}`);
   },
 
   remove: (resource, id) => {
-    return axios.delete(`/api/${resource}/${id}`)
+    return axios.delete(`/api/${resource}/${id}`);
   },
 
   enterWithCode: (resource, resourceId, userId, entryCode) => {
-    console.log('enter with code: ', resource, resourceId, userId, entryCode)
     return axios.put(`/api/${resource}/${resourceId}`, {checkAccess: {userId, entryCode,}})
   },
 

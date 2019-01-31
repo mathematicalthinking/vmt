@@ -48,7 +48,6 @@ app.use(require('express-session')({
 }))
 
 
-}
 
 // MIDDLEWARE
 app.use(logger('dev'));
@@ -63,25 +62,25 @@ app.use(cookieParser());
   //     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3001');
   //     // Request methods you wish to allow
   //     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-//     // Request headers you wish to allow
-//     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-//     // Set to true if you need the website to include cookies in the requests sent
-//     // to the API (e.g. in case you use sessions)
-//     res.setHeader('Access-Control-Allow-Credentials', true);
-//     // Pass to next layer of middleware
-//     next();
-// });
+  //     // Request headers you wish to allow
+  //     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+  //     // Set to true if you need the website to include cookies in the requests sent
+  //     // to the API (e.g. in case you use sessions)
+  //     res.setHeader('Access-Control-Allow-Credentials', true);
+  //     // Pass to next layer of middleware
+  //     next();
+  // });
 
-// PASSPORT
-configure(passport); // SETUP STRATEGIES ./middleware/passport
-app.use(passport.initialize());
-app.use(passport.session());
+  // PASSPORT
+  configure(passport); // SETUP STRATEGIES ./middleware/passport
+  app.use(passport.initialize());
+  app.use(passport.session());
 
-// CONNECT ROUTES
-app.use('/desmos', desmos);
-app.use('/auth', auth);
-app.use('/api', api);
-// app.use('/test', test);
+  // CONNECT ROUTES
+  app.use('/desmos', desmos);
+  app.use('/auth', auth);
+  app.use('/api', api);
+  // app.use('/test', test);
 if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') {
   app.use(express.static(path.join(__dirname, '/client/build')));
 }
