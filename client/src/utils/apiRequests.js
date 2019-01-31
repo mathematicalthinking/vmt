@@ -15,7 +15,7 @@ export default {
   //   })
   // },
   search: (resource, text, exclude) => {
-    return axios.get(`/api/search/${resource}`, {query: {text, exclude,}});
+    return axios.get(`/api/search/${resource}`, {params: {text, exclude,}});
   },
 
   post: (resource, body) => {
