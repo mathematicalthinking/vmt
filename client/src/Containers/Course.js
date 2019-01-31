@@ -67,10 +67,11 @@ class Course extends Component {
           if (ntf.resourceId === course._id) {
             if (ntf.notificationType === 'grantedAccess') {
               firstView = true;
+              this.props.clearNotification(ntf._id);
             } else if (ntf.notificationType === 'invitation') {
               invited = true;
+              this.props.clearNotification(ntf._id);
             }
-            this.props.clearNotification(ntf._id)
           }
         })
       }
@@ -98,11 +99,11 @@ class Course extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     // The user has removed themself from this course and thus its no longer in the store
-    if (prevProps.user.courses.indexOf(this.props.course._id) > -1 && this.props.user.courses.indexOf(this.props.course._id) === -1) {
-      return this.props.history.push('/myVMT/courses');
-    }
     if (!this.props.course) {
       return;
+    }
+    if (prevProps.user.courses.indexOf(this.props.course._id) > -1 && this.props.user.courses.indexOf(this.props.course._id) === -1) {
+      return this.props.history.push('/myVMT/courses');
     }
     // If we've just fetched the course?
     if (!prevProps.course && this.props.course) {

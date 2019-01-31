@@ -79,10 +79,11 @@ class Room extends Component {
           if (ntf.resourceId === room._id) {
             if (ntf.notificationType === 'grantedAccess' || ntf.notificationType === 'assignedNewRoom') {
               firstView = true;
+              clearNotification(ntf._id);
             } else if (ntf.notificationType === 'invitation') {
               invited = true;
+              clearNotification(ntf._id);
             }
-            clearNotification(ntf._id); //CONSIDER DOING THIS AND MATCHING ONE IN ROOM.js IN REDUX ACTION
           }
         })
       }
@@ -106,11 +107,11 @@ class Room extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.user.rooms.indexOf(this.props.room._id) > -1 && this.props.user.rooms.indexOf(this.props.room._id) === -1) {
-      return this.props.history.push('/myVMT/rooms');
-    }
     if (!this.props.room) {
       return;
+    }
+    if (prevProps.user.rooms.indexOf(this.props.room._id) > -1 && this.props.user.rooms.indexOf(this.props.room._id) === -1) {
+      return this.props.history.push('/myVMT/rooms');
     }
     // If we just fetched the room now check access
     if (!prevProps.room && this.props.room) {
