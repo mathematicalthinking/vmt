@@ -5,14 +5,20 @@ class CurrentMembers extends Component {
   // state = {
   //   expanded: true
   // }
+  shouldComponentUpdate(nextProps) {
+    if (nextProps.members !== this.props.members || nextProps.activeMember !== this.props.activeMember) {
+      return true;
+    }
+    return false;
+  }
 
   toggleExpansion = () => {
     this.props.toggleExpansion('members')
   }
 
   render() {
+    console.log('members')
     const { members, activeMember } = this.props;
-    console.log("MEMBERS: ", members)
     return (
       <div className={classes.Container}>
         <div className={classes.Title} onClick={this.toggleExpansion}>
