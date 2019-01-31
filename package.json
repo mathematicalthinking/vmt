@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "build": "cd client && npm run build",
+    "build-staging": "cd client && node scripts/build.js staging",
+    "build-production": "cd client && node scripts/build.js production",
     "test": "SET \"NODE_ENV=test\" && nodemon",
     "prodTest": "SET \"NODE_ENV=production\" && node ./bin/www",
     "cypress": "./node_modules/.bin/cypress open",
