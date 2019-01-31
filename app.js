@@ -82,14 +82,14 @@ app.use(cookieParser());
   app.use('/api', api);
   // app.use('/test', test);
   if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') {
-    app.use('/*', express.static(path.join(__dirname, '/client/build')));
+    app.use(express.static(path.join(__dirname, '/client/build')));
   }
 
-// app.get('/*', (req, res) => {
-//   if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production') {
-//       res.sendFile(path.join(__dirname, '/client/build/index.html'))
-//   }
-// });
+  app.get('/*', (req, res) => {
+    if (process.env.NODE_ENV === 'travistest' || process.env.NODE_ENV === 'production') {
+        res.sendFile(path.join(__dirname, '/client/build/index.html'))
+    }
+  });
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
