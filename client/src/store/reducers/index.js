@@ -51,3 +51,25 @@ export const populateResource = (state, resourceToPop, resourceId, resources) =>
   })
   return currentResource;
 }
+
+export const getAllUsersInStore = (state, usersToExclude) => {
+  let userIds = new Set();
+  let usernames = new Set();
+  state.courses.allIds.forEach(id => {
+    state.courses.byId[id].members.forEach(member => {
+      if (usersToExclude.indexOf(member.user._id) === -1) {
+        userIds.add(member.user._id);
+        usernames.add(member.user.username);
+      }
+    })
+  })
+  state.rooms.allIds.forEach(id => {
+    state.rooms.byId[id].members.forEach(member => {
+      if (usersToExclude.indexOf(member.user._id) === -1) {
+        userIds.add(member.user._id);
+        usernames.add(member.user.username);
+      }
+    })
+  })
+  return {userIds, usernames,};
+}

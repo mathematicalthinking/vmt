@@ -156,11 +156,15 @@ export const updateRoomTab = (roomId, tabId, body) => {
 }
 
 export const removeRoomMember = (roomId, userId) => {
-  return dispatch => {
-    dispatch(loading.start())
+  return (dispatch, getState) => {
+    dispatch(loading.start());
     API.removeMember('rooms', roomId, userId)
     .then(res => {
-      dispatch(updatedRoom(roomId, res.data))
+      dispatch(updatedRoom(roomId, {members: res.data}))
+      if (userId === getState().user._id) {
+        dispatch(removeUserRooms([roomId]));
+      }
+      dispatch(loading.success());
     })
     .catch(err => dispatch(loading.fail(err)))
   }
@@ -194,17 +198,17 @@ export const getRoom = id => {
   }
 }
 
-export const getRoomsIds = ids => {
-  return dispatch => {
-    API.getIds('rooms', ids)
-    .then(res => {
-      let rooms = normalize(res.data.results)
-      dispatch(gotRooms(rooms))
-      dispatch(loading.success())
-    })
-    .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
-  }
-}
+// export const getRoomsIds = ids => {
+//   return dispatch => {
+//     API.getIds('rooms', ids)
+//     .then(res => {
+//       let rooms = normalize(res.data.results)
+//       dispatch(gotRooms(rooms))
+//       dispatch(loading.success())
+//     })
+//     .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
+//   }
+// }
 
 export const populateRoom = (id, temp) => {
   return dispatch => {
@@ -238,6 +242,19 @@ export const createRoom = body => {
     })
     .catch(err => {
       dispatch(loading.fail(err.response.data.errorMessage))
+    })
+  }
+}
+
+export const inviteToRoom = (roomId, toUserId, toUserUsername) => {
+  return dispatch => {
+    dispatch(addRoomMember(roomId, {user: {_id: toUserId, username: toUserUsername}, role: 'participant'}))
+    API.grantAccess(toUserId, 'room', roomId, 'invitation')
+    .then(res => {
+
+    })
+    .catch(err => {
+      console.log(err)
     })
   }
 }

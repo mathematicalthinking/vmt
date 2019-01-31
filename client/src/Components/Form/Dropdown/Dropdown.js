@@ -1,13 +1,13 @@
 //PROPS: title,  list, selectHandler(listOfSelectedItems)
-// @TODO THINK ABOUT COMBINING THIS CODE WITH ROLEDROPDOWN ... WE'RE REPEATING 
-// A BUNCH OF CODE BUT SOMETIMES I FEEL LIKE THATS BETTER THAN ALL THESE COMPLEX 
+// @TODO THINK ABOUT COMBINING THIS CODE WITH ROLEDROPDOWN ... WE'RE REPEATING
+// A BUNCH OF CODE BUT SOMETIMES I FEEL LIKE THATS BETTER THAN ALL THESE COMPLEX
 // CONDITIONALS DETERMINNING WHAT KIND OF ITEMS THE DROP DOWN SHOULD
 import React, { Component } from 'react';
 import classes from './dropdown.css'
 import onClickOutside from 'react-onclickoutside'
 class Dropdown extends Component{
   state = {
-    listOpen: false,
+    listOpen: this.props.open,
     selected: [],
   }
 
@@ -50,7 +50,7 @@ class Dropdown extends Component{
         const className = [colorClass, backgroundClass].join(" ")
         return (
           <div
-            key={i}            
+            key={i}
             onClick={event => this.select(item)}
             className={className}
           >{item}</div>

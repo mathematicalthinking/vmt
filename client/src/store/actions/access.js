@@ -54,7 +54,7 @@ export const grantAccess = (user, resource, resourceId, ntfId, toUserId) => {
       // dispatch(gotUser(res.data))
     })
     .catch(err => console.log(err))
-    API.grantAccess(user, resource, resourceId)
+    API.grantAccess(user, resource, resourceId, 'grantedAccess')
     .then(res => {
       if (resource === 'rooms' || resource === 'room') {
         dispatch(updatedRoom(resourceId, {members: res.data})) // change to add

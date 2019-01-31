@@ -40,6 +40,7 @@ module.exports = {
       .catch(err => reject(err))
     });
   },
+
   post: body => {
     return new Promise(async (resolve, reject) => {
       // Prepare the tabs if they exist
@@ -111,13 +112,16 @@ module.exports = {
     })
   },
 
-  add: (id, body) => {
+  add: (id, body,) => {
     return new Promise((resolve, reject) => {
       // Send a notification to user that they've been granted access to a new course
 
       let members;
       let room;
-        db.Room.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
+      let ntfType = body.ntfType;
+      delete body.ntfType;
+      console.log(ntfType)
+      db.Room.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
         .populate({path: 'members.user', select: 'username'})
         .then((res) => {
           room = res;
@@ -133,7 +137,7 @@ module.exports = {
             resourceType: 'room',
             resourceId: id,
             toUser: body.members.user,
-            notificationType: 'grantedAccess',
+            notificationType: ntfType,
             parentResource: room.course
           })
         })
@@ -143,6 +147,7 @@ module.exports = {
   },
 
   remove: (id, body) => {
+    console.log("ID AND BODY", id, body)
     return new Promise((resolve, reject) => {
       // Remove this course from the user's list of courses
       // console.log(bod['members.user']._id)
@@ -150,7 +155,7 @@ module.exports = {
       db.Room.findByIdAndUpdate(id, {$pull: body}, {new: true})
       .populate({path: 'members.user', select: 'username'})
       .then(res => {
-        resolve({members: res.members})
+        resolve(res.members)
       })
       .catch(err => reject(err))
     })

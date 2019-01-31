@@ -13,7 +13,7 @@ const reducer = (state = initialState, action) => {
       let updatedRooms = merge({...state.byId}, action.byId)
       let updatedIds;
       if (action.isNewRoom) {
-        updatedIds = union([...state.allIds], [...action.allIds])
+        updatedIds = union([...state.allIds], [...action.allIds]);
       } else {
         updatedIds = action.allIds
       }

@@ -87,12 +87,16 @@ export const courseRemoved = (courseId) => {
 }
 
 export const removeCourseMember = (courseId, userId) => {
-  return dispatch => {
-    dispatch(loading.start())
+  return (dispatch, getState) => {
+    dispatch(loading.start());
     API.removeMember('courses', courseId, userId)
     .then(res => {
       dispatch(updatedCourse(courseId, {members: res.data}))
-      dispatch(loading.success())
+      // If removing self
+      if (userId === getState().user._id) {
+        dispatch(removeUserCourse(courseId));
+      }
+      dispatch(loading.success());
     })
     .catch(err => dispatch(loading.fail(err.response.data.errorMessage)))
   }
@@ -181,18 +185,18 @@ export const getCourses = (params) => {
     .catch(err => console.log(err));
   }
 }
-export const getCoursesIds = ids => {
-  return dispatch => {
-    API.getIds('courses', ids)
-    .then(res => {
-      // Normalize res
-      let rooms = normalize(res.data.results)
-      dispatch(gotCourses(rooms))
-      dispatch(loading.success())
-    })
-    .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
-  }
-}
+// export const getCoursesIds = ids => {
+//   return dispatch => {
+//     API.getIds('courses', ids)
+//     .then(res => {
+//       // Normalize res
+//       let rooms = normalize(res.data.results)
+//       dispatch(gotCourses(rooms))
+//       dispatch(loading.success())
+//     })
+//     .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
+//   }
+// }
 
 export const getCourse = id => {
   return dispatch => {
@@ -207,6 +211,15 @@ export const getCourse = id => {
     })
   }
 }
+
+export const inviteToCourse = (courseId, toUserId, toUserUsername) => {
+  console.log(toUserUsername)
+  return dispatch => {
+    dispatch(addCourseMember(courseId, {user: {_id: toUserId, username: toUserUsername}, role: 'participant'}))
+    API.grantAccess(toUserId, 'course', courseId, 'invitation')
+  }
+}
+
 
 // export const populateCurrentCourse = id => {
 //   return dispatch => {

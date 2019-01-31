@@ -1,5 +1,5 @@
 const db = require('../models')
-
+const ObjectId = require('mongoose').Types.ObjectId;
 module.exports = {
   get: params => {
     return new Promise((resolve, reject) => {
@@ -7,6 +7,22 @@ module.exports = {
       .then(users => resolve(users))
       .catch(err => reject(err));
     });
+  },
+
+  search: (regex, exclude) => {
+    let idsToExclude;
+    if (exclude.indexOf(',') !== -1) {
+      idsToExclude = exclude.split(',').map(id => ObjectId(id));
+    } else { // Its just a single value
+      idsToExclude = [ObjectId(exclude)]
+    }
+    return new Promise((resolve, reject) => {
+      db.User.find({$or: [{email: regex}, {username: regex}], _id: {$nin: idsToExclude}})
+      .limit(5)
+      .select('username email')
+      .then(users => {resolve(users)})
+      .catch(err => reject(err))
+    })
   },
 
   getById: id => {

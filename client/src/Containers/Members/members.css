@@ -34,3 +34,28 @@
   margin-bottom: 10px;
   /* border: 1px solid orange; */
 }
+
+.SearchResults {
+  margin-top: 10px;
+  background: white;
+
+}
+
+.SearchResItem {
+  padding: 5px;
+  display: flex;
+  border: 1px solid #ddd;
+  justify-content: space-between;
+}
+
+.FlexRow {
+  display: flex;
+  align-items: baseline;
+}
+
+.Email {
+  font-style: italic;
+  color: #999;
+  font-size: 13px;
+  margin-left: 3px;
+}

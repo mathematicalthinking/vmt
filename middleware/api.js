@@ -33,7 +33,7 @@ const validateUser = (req, res, next) => {
 };
 
 const canModifyResource = (req) => {
-  let { id, resource } = req.params;
+  let { id, resource, remove } = req.params;
   let user = utils.getUser(req);
 
   let results = {
@@ -53,6 +53,12 @@ const canModifyResource = (req) => {
 
   let model = models[modelName];
   let schema = utils.getSchema(resource);
+  // If a user is trying to remove themself they do not have to be facilitator
+  if (remove && req.body.members && _.isEqual(user._id.toString(), req.body.members.user)) {
+    results.canModify = true;
+    return Promise.resolve(results); // Promisfy because the middleware caller is expecing a promise
+
+  }
   return model.findById(id).populate('members.user', 'members.role').populate('room', 'creator members').populate('activity', 'creator').lean().exec()
     .then((record) => {
         if (_.isNil(record)) {
@@ -66,6 +72,7 @@ const canModifyResource = (req) => {
           results.details.isCreator = true;
           return results;
         }
+
 
         if (_.isArray(record.members)) {
           if (helpers.isUserFacilitatorInRecord(record, user._id)) {
@@ -119,6 +126,7 @@ const canModifyResource = (req) => {
           results.canModify = true;
           return results;
         }
+        // console.log('returning result, ', results)
         return results;
     })
     .catch(err => {
@@ -154,7 +162,6 @@ const prunePutBody = (user, recordIdToUpdate, body, details) => {
     details = {};
   }
   let { isCreator, isFacilitator, modelName } = details;
-
   let copy = Object.assign({}, body);
   if (modelName === 'User') {
     let isUpdatingSelf = _.isEqual(user._id, recordIdToUpdate);
@@ -171,6 +178,9 @@ const prunePutBody = (user, recordIdToUpdate, body, details) => {
   if (modelName === 'Room') {
     if (!isCreator && !isFacilitator) {
       // graphImage? tempRoom?
+      if (body.members && body.members.user === user._id.toString()) {
+        return _.pick(copy, 'members');
+      }
       return _.pick(copy, ['graphImage','checkAccess', 'tempRoom']);
     }
     return copy;
@@ -178,7 +188,12 @@ const prunePutBody = (user, recordIdToUpdate, body, details) => {
 
   if (modelName === 'Course') {
     if (!isCreator && !isFacilitator) {
-      return _.pick(copy, 'checkAccess');
+      // If the user is trying to remove themself, let them
+      if (body.members && body.members.user === user._id.toString()) {
+        return _.pick(copy, 'members');
+
+      }
+      return _.pick(copy, 'checkAccess')
     }
     return copy;
   }

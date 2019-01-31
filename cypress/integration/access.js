@@ -1,6 +1,8 @@
-const user1 = require('../fixtures/user')
-const user2 = require('../fixtures/user2')
-const user3 = require('../fixtures/user3')
+const user1 = require('../fixtures/user');
+const user2 = require('../fixtures/user2');
+const user3 = require('../fixtures/user3');
+const user4 = require('../fixtures/user4');
+const user6 = require('../fixtures/user6');
 
 describe('test access requests', function(){
   before(function(){
@@ -194,6 +196,44 @@ describe('test access requests', function(){
   it('should resolve the notification after user 1 has seen it', function(){
     cy.getTestElement('tab').contains('Details').click()
     cy.getTestElement('tab-ntf').should('not.exist')
+  })
+
+  it('Picard invites Beverly to join a course', function(){
+    cy.login(user1);
+    cy.getTestElement('content-box-course 1').click();
+    cy.getTestElement('tab').contains('Members').click();
+    cy.getTestElement('member-search').click().type('Bc');
+    cy.getTestElement('invite-member-bcrush').click();
+    cy.getTestElement('member-bcrush').should('exist');
+
+  })
+
+  it('Picard invites Beverly to join a room', function(){
+    cy.getTestElement('crumb').contains('My VMT').click();
+    cy.getTestElement('tab').contains('Rooms').click();
+    cy.getTestElement('content-box-room 1').click();
+    cy.getTestElement('tab').contains('Members').click();
+    cy.getTestElement('member-search').click().type('Bc');
+    cy.getTestElement('invite-member-bcrush').click();
+    cy.getTestElement('member-bcrush').should('exist');
+  })
+
+  it('Beverly gets a notification shes been added to a course', function(){
+    cy.login(user6);
+    cy.getTestElement('tab-ntf').contains('1').should('exist');
+    cy.getTestElement('content-box-ntf').contains('1');
+    cy.getTestElement('content-box-course 1').click();
+    cy.getTestElement('join').click();
+
+  })
+
+  it('Beverly gets a notification shes been added to a room', function(){
+    cy.getTestElement('crumb').contains('My VMT').click();
+    cy.getTestElement('tab').contains('Rooms').click();
+    cy.getTestElement('content-box-ntf').contains('1');
+    cy.getTestElement('content-box-room 1').click();
+    cy.getTestElement('leave').click();
+    cy.getTestElement('content-box-room 1').should('not.exist');
   })
 
   it('user fails to join with wrong entry code (room)', function(){

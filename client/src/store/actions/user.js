@@ -84,7 +84,7 @@ export const addNotification = (ntf) => {
   }
 }
 
-// user is requesting user?
+// user is requesting user? // @TODO rename this CLEARED
 export const removeNotification = (ntfId) => {
   return {
     type: actionTypes.REMOVE_NOTIFICATION,

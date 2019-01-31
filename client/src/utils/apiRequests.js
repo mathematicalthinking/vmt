@@ -14,10 +14,11 @@ export default {
   //     paramsSerializer: params => parseParams(params)
   //   })
   // },
+  search: (resource, text, exclude) => {
+    return axios.get(`/api/search/${resource}/${text}/${exclude}`)
+  },
 
   post: (resource, body) => {
-    console.log(resource)
-    console.log(body)
     return axios.post(`/api/${resource}`, body)
   },
 
@@ -37,6 +38,7 @@ export default {
   },
 
   enterWithCode: (resource, resourceId, userId, entryCode) => {
+    console.log('enter with code: ', resource, resourceId, userId, entryCode)
     return axios.put(`/api/${resource}/${resourceId}`, {checkAccess: {userId, entryCode,}})
   },
 
@@ -76,8 +78,12 @@ export default {
     return axios.put(`/api/user/${userId}/add`, {[resource]: resourceId})
   },
 
-  grantAccess: (user, resource, resourceId) => {
-    return axios.put(`/api/${resource}s/${resourceId}/add`, {members: {user, role: 'participant'}})
+  inviteUser: () => {
+
+  },
+
+  grantAccess: (user, resource, resourceId, ntfType) => {
+    return axios.put(`/api/${resource}s/${resourceId}/add`, {members: {user, role: 'participant'}, ntfType,})
   },
 
   updateMembers: (resource, resourceId, updatedMembers) => {

@@ -60,7 +60,9 @@ module.exports = {
 
       let members;
       let course;
-        db.Course.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
+      let ntfType = body.ntfType;
+      delete body.ntfType;
+      db.Course.findByIdAndUpdate(id, {$addToSet: body}, {new: true})
         .populate({path: 'members.user', select: 'username'})
         .then((res) => {
           course = res;
@@ -76,7 +78,7 @@ module.exports = {
             resourceType: 'course',
             resourceId: id,
             toUser: body.members.user,
-            notificationType: 'grantedAccess',
+            notificationType: ntfType,
           })
         })
         .then(() => resolve(members))
