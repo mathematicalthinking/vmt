@@ -35,28 +35,14 @@ router.get('/:resource', (req, res, next) => {
 			res.json({ results })
 		})
 		.catch(err => {
-			console.log(err)
+			console.error(`Error search ${resource}: ${err}`);
+			let msg = null;
+			if (typeof err === 'string') {
+				msg = err;
+			}
+			return errors.sendError.InternalError(msg, res)
 		})
 	})
-// router.get('/:resource/ids', (req, res, next) => {
-// 	let resource = req.params.resource;
-// 	let controller = controllers[resource];
-// 	if (controller == null){
-// 		return res.status(400).json(defaultError)
-// 	}
-// 	controller.get(req.query.params).then(res => {
-// 		res.json({
-// 			confirmation: 'success',
-// 			results: results
-// 		})
-// 	})
-// 	.catch(err => {
-// 		res.status(404).json({
-// 			confirmation: 'fail',
-// 			errorMessage: err
-// 		})
-// 	})
-// })
 
 router.get('/:resource/:id', middleware.validateUser, (req, res, next) => {
   let { id, resource } = req.params;
