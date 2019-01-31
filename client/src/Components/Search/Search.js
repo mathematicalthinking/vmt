@@ -7,7 +7,7 @@ class Search extends Component {
   render() {
     return (
       <div className={classes.Search}>
-        <input className={classes.Input} type="text" placeholder={this.props.placeholder}
+        <input data-testid={this.props['data-testid']}className={classes.Input} type="text" placeholder={this.props.placeholder}
           onChange={event => this.props._search(event.target.value.trim())}
 
         />

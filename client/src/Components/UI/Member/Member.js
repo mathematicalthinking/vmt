@@ -1,3 +1,5 @@
+// @TODO Consider moving this Containers/Members
+
 import React, { PureComponent } from 'react';
 import classes from './member.css';
 import Avatar from '../Avatar/Avatar';
@@ -46,7 +48,7 @@ class Member extends PureComponent {
     const { info, owner, grantAccess, notification, resourceName } = this.props;
     let username = info.user ? info.user.username : info.username;
     return (
-      <div>
+      <div data-testid={`member-${username}`}>
         <div className={classes.Container}>
           <div className={classes.Avatar}><Avatar username={username} /></div>
           {notification ? <div className={classes.Notification} data-testid="member-ntf">new member</div>: null}

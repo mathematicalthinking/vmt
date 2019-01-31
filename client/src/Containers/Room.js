@@ -331,8 +331,10 @@ class Room extends Component {
           </Modal> : null}
           <Modal show={this.state.invited} closeModal={this.clearFirstViewModal}>
             <p>You have been invited to {room.name}. If you think you've been added to this course in error you can click "leave" and you will be removed.</p>
-            <Button theme={'Small'} click={this.clearFirstViewModal}>Join</Button>
-            <Button theme={'Small'} click={this.removeMeFromRoom}>Leave</Button>
+            <div style={{display: 'flex', justifyContent: 'space-around'}}>
+              <Button data-testid='join' theme={'Small'} click={this.clearFirstViewModal}>Join</Button>
+              <Button data-testid='leave' theme={'Small'} click={this.removeMeFromRoom}>Leave</Button>
+            </div>
           </Modal>
           {this.state.trashing
             ? <TrashModal

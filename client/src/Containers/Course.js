@@ -343,8 +343,10 @@ class Course extends Component {
           </Modal>
           <Modal show={this.state.invited} closeModal={this.clearFirstViewNtf}>
             <p>You have been invited to {course.name}. If you think you've been added to this course in error you can click "leave" and you will be removed.</p>
-            <Button theme={'Small'} click={this.clearFirstViewNtf}>Join</Button>
-            <Button theme={'Small'} click={this.removeMeFromCourse}>Leave</Button>
+            <div style={{display: 'flex', justifyContent: 'space-around'}}>
+              <Button data-testid='join' theme={'Small'} click={this.clearFirstViewNtf}>Join</Button>
+              <Button data-testid='leave' theme={'Small'} click={this.removeMeFromCourse}>Leave</Button>
+             </div>
           </Modal>
           {this.state.trashing
             ? <TrashModal

@@ -98,7 +98,25 @@ var data = [
     "lastName": "Troi",
     "password": "$2b$12$PltCtaDCtpD.WakNZ8GUmOfX7kcisuA.PbGLM6HKGAdrkhuIQMzAy",
     "accountType": "facilitator",
-  }
+  },
+  {
+    "_id" : "5c531f091748c7196496a556",
+    "courseTemplates" : [],
+    "courses" : [],
+    "rooms" : [],
+    "activities" : [],
+    "notifications" : [],
+    "bothRoles" : false,
+    "isAdmin" : false,
+    "seenTour" : false,
+    "isTrashed" : false,
+    "username" : "bcrush",
+    "email" : "bcrush@gmail.com",
+    "firstName" : "Beverly",
+    "lastName" : "Crusher",
+    "password" : "$2b$12$Ptcu.r3bhFyE/mrtxAbqO.jGVm7MsoNQLv5XmSC/hXSt.oWPHdXha",
+    "accountType" : "participant",
+}
 ];
 
 var UsersSeeder = Seeder.extend({

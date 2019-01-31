@@ -129,7 +129,7 @@ class Members extends Component {
               {joinRequests}
             </div>
             <h3 className={classes.SubHeader}>Add New Participants</h3>
-            <Search _search={this.search} placeholder="search by username or email address"/>
+            <Search data-testid="member-search" _search={this.search} placeholder="search by username or email address"/>
             {this.state.searchResults.length > 0 ? <SearchResults usersSearched={this.state.searchResults} inviteMember={this.inviteMember}/> : null}
             {resourceType === 'room' && courseMembers ?
               <div>
