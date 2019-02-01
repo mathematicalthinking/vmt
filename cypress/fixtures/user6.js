@@ -1,4 +1,4 @@
 module.exports = {
-  "username": "bcrush",
-  "password": "CherylHoward",
-}
+  username: "bcrush",
+  password: "CherylHoward"
+};

@@ -1,10 +1,10 @@
-import * as actionTypes from '../actions/actionTypes';
+import * as actionTypes from "../actions/actionTypes";
 
 const initialState = {
-  firstName: '',
-  lastName: '',
-  username: '',
-  _id: '',
+  firstName: "",
+  lastName: "",
+  username: "",
+  _id: "",
   loggedIn: false,
   courses: [],
   notifications: [],
@@ -14,8 +14,8 @@ const initialState = {
   seenTour: false,
   bothRoles: false,
   justLoggedIn: false,
-  connected: false, // connected over the socket
-}
+  connected: false // connected over the socket
+};
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
@@ -37,77 +37,78 @@ const reducer = (state = initialState, action) => {
         seenTour: action.user.seenTour,
         accountType: action.user.accountType,
         bothRoles: action.user.bothRoles,
-        justLoggedIn: true,
-      }
+        justLoggedIn: true
+      };
     case actionTypes.TOGGLE_JUST_LOGGED_IN:
       return {
         ...state,
         justLoggedIn: false
-      }
+      };
     case actionTypes.LOGOUT:
-      return initialState
+      return initialState;
     case actionTypes.UPDATE_USER:
       return {
         ...state,
         ...action.body
-      }
+      };
     case actionTypes.ADD_USER_COURSES:
       return {
         ...state,
         courses: state.courses.concat(...action.newCoursesArr)
-      }
+      };
 
     case actionTypes.ADD_USER_ACTIVITIES:
       return {
         ...state,
         activities: state.activities.concat(action.newActivitiesArr)
-      }
+      };
 
     case actionTypes.ADD_USER_ROOMS:
       return {
         ...state,
         rooms: state.rooms.concat(action.newRoomsArr)
-      }
+      };
 
     case actionTypes.REMOVE_USER_COURSE:
-      const courses = state.courses.filter(id => id !== action.courseId)
-      return {...state, courses, }
+      const courses = state.courses.filter(id => id !== action.courseId);
+      return { ...state, courses };
 
     case actionTypes.REMOVE_USER_ACTIVITIES:
-      const activities = state.activities.filter(id => !action.activityIdsArr.includes(id))
-      return {...state, activities,}
+      const activities = state.activities.filter(
+        id => !action.activityIdsArr.includes(id)
+      );
+      return { ...state, activities };
 
     case actionTypes.REMOVE_USER_ROOMS:
-      const rooms = state.rooms.filter(id => !action.roomIdsArr.includes(id))
-      return {...state, rooms,}
+      const rooms = state.rooms.filter(id => !action.roomIdsArr.includes(id));
+      return { ...state, rooms };
 
     case actionTypes.ADD_NOTIFICATION:
-
-    let newNotifications = [...state.notifications, action.ntf]
-    return {
-      ...state,
-      notifications: newNotifications,
-    }
+      let newNotifications = [...state.notifications, action.ntf];
+      return {
+        ...state,
+        notifications: newNotifications
+      };
 
     case actionTypes.REMOVE_NOTIFICATION:
       // let updatedNotifications = {...state[`${action.resource}Notifications`]}
 
-      let updatedNotifications = state.notifications.filter((ntf => {
+      let updatedNotifications = state.notifications.filter(ntf => {
         return ntf._id !== action.ntfId;
-      }))
+      });
       return {
         ...state,
         notifications: updatedNotifications
-      }
+      };
 
     case actionTypes.CLEAR_ERROR:
       return {
         ...state,
-        loginError: '',
-      }
+        loginError: ""
+      };
 
     default:
-      return state
+      return state;
   }
 };
 

@@ -1,37 +1,37 @@
 module.exports.sendError = {
-  InternalError: function (err, res) {
+  InternalError: function(err, res) {
     res.status(500).json({
-      "errorMessage": err || "Internal Error",
+      errorMessage: err || "Internal Error"
     });
   },
-  NotFoundError: function (err, res) {
+  NotFoundError: function(err, res) {
     res.status(404).json({
-      "errorMessage": err || "Not Found",
+      errorMessage: err || "Not Found"
     });
   },
-  BadMethodError: function (err, res) {
+  BadMethodError: function(err, res) {
     res.status(405).json({
-      "errorMessage": err || "Bad Method",
+      errorMessage: err || "Bad Method"
     });
   },
-  NotAuthorizedError: function (err, res) {
+  NotAuthorizedError: function(err, res) {
     res.status(403).json({
-      "errorMessage": err || "Not Authorized",
+      errorMessage: err || "Not Authorized"
     });
   },
-  InvalidCredentialsError: function (err, res) {
+  InvalidCredentialsError: function(err, res) {
     res.status(401).json({
-      "errorMessage": err || "Unauthorized",
+      errorMessage: err || "Unauthorized"
     });
   },
-  InvalidArgumentError: function (err, res) {
+  InvalidArgumentError: function(err, res) {
     res.status(409).json({
-      "errorMessage": err || "Invalid Argument",
+      errorMessage: err || "Invalid Argument"
     });
   },
-  InvalidContentError: function (err, res) {
+  InvalidContentError: function(err, res) {
     res.status(400).json({
-      "errorMessage": err || "Invalid Content",
+      errorMessage: err || "Invalid Content"
     });
-  },
+  }
 };

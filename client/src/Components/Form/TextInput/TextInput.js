@@ -1,28 +1,29 @@
-import React, { Component } from 'react';
-import classes from './textInput.css';
-import lightClasses from './lightTextInput.css';
+import React, { Component } from "react";
+import classes from "./textInput.css";
+import lightClasses from "./lightTextInput.css";
 class TextInput extends Component {
-
   textInput = React.createRef();
 
-  componentDidMount(){
+  componentDidMount() {
     if (this.props.focus) {
-      this.textInput.current.focus()
+      this.textInput.current.focus();
     }
   }
 
-  componentDidUpdate(){
+  componentDidUpdate() {
     if (this.props.focus) {
-      this.textInput.current.focus()
+      this.textInput.current.focus();
     }
   }
 
   render() {
     let styles = this.props.light ? lightClasses : classes;
     let autoComplete = this.props.autoComplete || this.props.type;
-    if (this.props.type === 'password') {autoComplete = 'current-password'}
+    if (this.props.type === "password") {
+      autoComplete = "current-password";
+    }
     return (
-      <div className={styles.Container} style={{width: this.props.width}}>
+      <div className={styles.Container} style={{ width: this.props.width }}>
         <input
           ref={this.textInput}
           autoComplete={autoComplete}
@@ -34,13 +35,17 @@ class TextInput extends Component {
           onChange={this.props.change}
           onKeyDown={this.props.onKeyDown}
           value={this.props.value}
-          style={{fontSize: this.props.size}}
-          data-testid={this.props['data-testid'] || null}
-          />
-          {this.props.label ? <label className={styles.Label} htmlFor={this.props.name}>{this.props.label}</label> : null}
+          style={{ fontSize: this.props.size }}
+          data-testid={this.props["data-testid"] || null}
+        />
+        {this.props.label ? (
+          <label className={styles.Label} htmlFor={this.props.name}>
+            {this.props.label}
+          </label>
+        ) : null}
       </div>
-    )
+    );
   }
 }
 
-export default TextInput
+export default TextInput;

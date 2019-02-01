@@ -1,14 +1,9 @@
-import React, { Component } from 'react';
-import { Modal } from '../../Components';
+import React, { Component } from "react";
+import { Modal } from "../../Components";
 class FromActivity extends Component {
-  
   render() {
-    return (
-      <Modal show={this.props.show}>
-        
-      </Modal>
-    )
+    return <Modal show={this.props.show} />;
   }
 }
 
-export default FromActivity
+export default FromActivity;

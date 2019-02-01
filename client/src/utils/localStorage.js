@@ -1,13 +1,12 @@
 export const loadState = () => {
   // Need try/catch here because this could fail if browser has disabled local storage
   try {
-    const serializedState = localStorage.getItem('state');
+    const serializedState = localStorage.getItem("state");
     if (serializedState === null) {
       return undefined;
     }
     return JSON.parse(serializedState);
-  }
-  catch (err) {
+  } catch (err) {
     return undefined;
   }
 };
@@ -15,9 +14,8 @@ export const loadState = () => {
 export const saveState = state => {
   try {
     const serializedState = JSON.stringify(state);
-    localStorage.setItem('state', serializedState)
-  }
-  catch (err) {
+    localStorage.setItem("state", serializedState);
+  } catch (err) {
     // Ignore write errors
   }
-}
+};

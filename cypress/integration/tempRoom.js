@@ -28,7 +28,7 @@
 //     cy.window().then((win) => {
 //       win.sessionStorage.clear()
 //       cy.visit('/')
-//       cy.visit(url) 
+//       cy.visit(url)
 //       cy.get('input').type('geordi')
 //       cy.get('.button__Button__3QQYz').click()
 //       cy.get('.ggbtoolbarpanel')

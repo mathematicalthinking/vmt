@@ -1,16 +1,16 @@
-import React, { Component } from 'react';
-import ContentBox from './ContentBox';
-import { DragSource } from 'react-dnd';
+import React, { Component } from "react";
+import ContentBox from "./ContentBox";
+import { DragSource } from "react-dnd";
 import {
   removeCourse,
   removeActivity,
-  removeRoom,
+  removeRoom
   // removeMember,
-} from '../../../store/actions';
-import { connect } from 'react-redux';
+} from "../../../store/actions";
+import { connect } from "react-redux";
 const ItemTypes = {
-  CARD: 'card'
-}
+  CARD: "card"
+};
 
 const cardSource = {
   beginDrag(props) {
@@ -18,31 +18,35 @@ const cardSource = {
       cardId: props.id
     };
   },
-  endDrag(props, monitor){
+  endDrag(props, monitor) {
     if (monitor.getDropResult()) {
       props.remove[props.resource](props.id);
     }
   }
-}
+};
 
 const collect = (connect, monitor) => {
   return {
-  connectDragSource: connect.dragSource(),
-  isDragging: monitor.isDragging(),
-}}
+    connectDragSource: connect.dragSource(),
+    isDragging: monitor.isDragging()
+  };
+};
 
 const mapDispatchToProps = dispatch => {
   return {
     remove: {
-      courses: (id) => dispatch(removeCourse(id)),
-      activities: (id) => dispatch(removeActivity(id)),
-      rooms: (id) => dispatch(removeRoom(id)),
+      courses: id => dispatch(removeCourse(id)),
+      activities: id => dispatch(removeActivity(id)),
+      rooms: id => dispatch(removeRoom(id))
       // member: (id, courseId) => dispatch(removeMember(id, courseId))
     }
-  }
-}
+  };
+};
 
-@connect(null, mapDispatchToProps)
+@connect(
+  null,
+  mapDispatchToProps
+)
 @DragSource(ItemTypes.CARD, cardSource, collect)
 class DragBox extends Component {
   render() {
@@ -50,11 +54,11 @@ class DragBox extends Component {
     return connectDragSource(
       <div
         onClick={this.toggleCollapse}
-        style={{opacity: isDragging ? 0.5 : 1}}
+        style={{ opacity: isDragging ? 0.5 : 1 }}
       >
-        <ContentBox {...this.props}  />
+        <ContentBox {...this.props} />
       </div>
-    )
+    );
   }
 }
 

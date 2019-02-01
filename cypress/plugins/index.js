@@ -10,40 +10,42 @@
 
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
-const models = require('../../models');
-const room = require ('../fixtures/room');
-const exec = require('child_process').exec
-const mongoose = require('mongoose');
+const models = require("../../models");
+const room = require("../fixtures/room");
+const exec = require("child_process").exec;
+const mongoose = require("mongoose");
 const data = [
   {
-    model: 'Room',
-    documents: [
-      room
-    ]
+    model: "Room",
+    documents: [room]
   }
-]
+];
 
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
-  on('task', {
+  on("task", {
     clearDB: () => {
-      return mongoose.connect('mongodb://localhost/vmt-test')
-      .then(() => mongoose.connection.db.dropDatabase())
+      return mongoose
+        .connect("mongodb://localhost/vmt-test")
+        .then(() => mongoose.connection.db.dropDatabase());
     },
     seedDBLogin: () => {
       return new Promise((resolve, reject) => {
-        exec('md-seed run users --dropdb', () => resolve('success'))
-      })
+        exec("md-seed run users --dropdb", () => resolve("success"));
+      });
     },
     seedDB: () => {
       return new Promise((resolve, reject) => {
-        exec('md-seed run users courses rooms activities --dropdb', () => resolve('success'))
-      })
-    },
+        exec("md-seed run users courses rooms activities --dropdb", () =>
+          resolve("success")
+        );
+      });
+    }
     // disconnect : () => {
     //   return new Promise((resolve, reject) => {
     //     exec('taskkill /f /im node.exe')
     //   })
     // }
-  })}
+  });
+};

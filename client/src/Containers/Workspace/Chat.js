@@ -1,92 +1,106 @@
 // Should we store chat data in this component's state or in the
 // redux store?
-import React, { Component } from 'react';
-import socket from '../../utils/sockets';
-import { Chat as ChatLayout } from '../../Components';
+import React, { Component } from "react";
+import socket from "../../utils/sockets";
+import { Chat as ChatLayout } from "../../Components";
 class Chat extends Component {
   state = {
-    newMessage: '',
-  }
+    newMessage: ""
+  };
 
   componentDidMount() {
     // event handler for enter key presses
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter'){
+    document.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
         // handle differenct contexts of Enter clicks
-        if (this.state.newMessage.length > 0){
+        if (this.state.newMessage.length > 0) {
           this.submitMessage();
           //  @TODO we need to check if the chat enry is in focuse with a ref()
         }
       }
-    })
+    });
     if (!this.props.replaying) {
-      socket.removeAllListeners('RECEIVE_MESSAGE')
-      socket.on('RECEIVE_MESSAGE', data => {
-        this.props.updatedRoom(this.props.roomId, {chat: [...this.props.messages, data]})
+      socket.removeAllListeners("RECEIVE_MESSAGE");
+      socket.on("RECEIVE_MESSAGE", data => {
+        this.props.updatedRoom(this.props.roomId, {
+          chat: [...this.props.messages, data]
+        });
         // this.scrollToBottom()
       });
     }
   }
 
-  componentDidUpdate(prevProps, prevState){
+  componentDidUpdate(prevProps, prevState) {
     if (!prevProps.referencing && this.props.referencing) {
-      this.setState({newMessage: `⬅️ ${this.state.newMessage}`})
+      this.setState({ newMessage: `⬅️ ${this.state.newMessage}` });
+    } else if (prevProps.referencing && !this.props.referencing) {
+      let newMessage = this.state.newMessage.replace(/⬅/g, "");
+      this.setState({ newMessage });
     }
-    else if (prevProps.referencing && !this.props.referencing) {
-      let newMessage = this.state.newMessage.replace(/⬅/g, '')
-      this.setState({newMessage,})
+    if (
+      (prevState.newMessage.includes("⬅") &&
+        !this.state.newMessage.includes("⬅️") &&
+        !this.state.newMessage.includes("⬆️")) ||
+      (prevState.newMessage.includes("⬆️") &&
+        !this.state.newMessage.includes("⬆️") &&
+        !this.state.newMessage.includes("⬅"))
+    ) {
+      this.props.clearReference();
     }
-    if (((prevState.newMessage.includes('⬅') && !this.state.newMessage.includes('⬅️')) && !this.state.newMessage.includes('⬆️')) ||
-        ((prevState.newMessage.includes('⬆️') && !this.state.newMessage.includes('⬆️')) && !this.state.newMessage.includes('⬅'))) {
-          this.props.clearReference()
-    }
-    if (!prevProps.referToEl && this.props.referToEl && this.props.referToEl.elementType === 'chat_message') {
+    if (
+      !prevProps.referToEl &&
+      this.props.referToEl &&
+      this.props.referToEl.elementType === "chat_message"
+    ) {
       let updatedMessage = this.state.newMessage;
-      let newMessage = updatedMessage.replace('⬅', '⬆️')
-      this.setState({newMessage,})
+      let newMessage = updatedMessage.replace("⬅", "⬆️");
+      this.setState({ newMessage });
     }
-
   }
 
   changeHandler = event => {
     this.setState({
-      newMessage: event.target.value,
+      newMessage: event.target.value
       // isConnected: socket.connected,
-    })
-  }
+    });
+  };
 
   submitMessage = () => {
     const { roomId, user } = this.props;
     if (!user.connected) {
-      return alert('you have disconnected from the server. Check your internet connect and try refreshing the page')
+      return alert(
+        "you have disconnected from the server. Check your internet connect and try refreshing the page"
+      );
     }
     if (this.state.newMessage.length === 0) return;
     const newMessage = {
       text: this.state.newMessage,
-      user: {_id: user._id, username: user.username},
+      user: { _id: user._id, username: user.username },
       room: roomId,
       timestamp: new Date().getTime()
-    }
+    };
     if (this.props.referencing) {
-      newMessage.reference = {...this.props.referToEl}
-      newMessage.tab = this.props.currentTab
-      this.props.clearReference()
+      newMessage.reference = { ...this.props.referToEl };
+      newMessage.tab = this.props.currentTab;
+      this.props.clearReference();
     }
-    socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
+    socket.emit("SEND_MESSAGE", newMessage, (res, err) => {
       if (err) {
         console.log(err);
         return;
         // IF THERES AN ERROR WE NEED TO UNDO THE SETSTATE BELOW
       }
-    })
+    });
     delete newMessage.room;
-    this.props.updatedRoom(roomId, {chat: [...this.props.messages, newMessage]})
+    this.props.updatedRoom(roomId, {
+      chat: [...this.props.messages, newMessage]
+    });
     // this.scrollToBottom(); @TODO
     this.setState({
-      newMessage: '',
-    })
+      newMessage: ""
+    });
     // this.props.updateRoom({chat: updatedMessages})
-  }
+  };
 
   render() {
     return (
@@ -109,7 +123,7 @@ class Chat extends Component {
         expanded={this.props.expanded}
         toggleExpansion={this.props.toggleExpansion}
       />
-    )
+    );
   }
 }
 

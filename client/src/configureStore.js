@@ -1,9 +1,9 @@
-import { createStore, applyMiddleware, compose } from 'redux';
+import { createStore, applyMiddleware, compose } from "redux";
 
-import throttle from 'lodash/throttle';
-import rootReducer from './store/reducers'
-import thunk from 'redux-thunk';
-import { loadState, saveState } from './utils/localStorage';
+import throttle from "lodash/throttle";
+import rootReducer from "./store/reducers";
+import thunk from "redux-thunk";
+import { loadState, saveState } from "./utils/localStorage";
 
 const configureStore = () => {
   const logger = store => {
@@ -11,10 +11,11 @@ const configureStore = () => {
       return action => {
         const result = next(action);
         return result;
-      }
-    }
+      };
+    };
   };
-  const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+  const composeEnhancers =
+    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
   const persistedState = loadState();
   const store = createStore(
@@ -23,11 +24,13 @@ const configureStore = () => {
     composeEnhancers(applyMiddleware(logger, thunk))
   );
 
-  store.subscribe(throttle(() => {
-    saveState(store.getState())
-  }, 1000));
+  store.subscribe(
+    throttle(() => {
+      saveState(store.getState());
+    }, 1000)
+  );
 
-  return store
-}
+  return store;
+};
 
 export default configureStore;

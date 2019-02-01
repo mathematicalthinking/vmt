@@ -1,10 +1,10 @@
-import React, { PureComponent } from 'react';
-import Member from './Member';
-import { DragSource } from 'react-dnd';
-import { connect } from 'react-redux';
+import React, { PureComponent } from "react";
+import Member from "./Member";
+import { DragSource } from "react-dnd";
+import { connect } from "react-redux";
 const ItemTypes = {
-  CARD: 'card'
-}
+  CARD: "card"
+};
 
 const cardSource = {
   beginDrag(props) {
@@ -12,30 +12,34 @@ const cardSource = {
       cardId: props.id
     };
   },
-  endDrag(props, monitor){
+  endDrag(props, monitor) {
     if (monitor.getDropResult()) {
       props.remove[props.resource](props.id);
     }
   }
-}
+};
 
 const collect = (connect, monitor) => {
   return {
-  connectDragSource: connect.dragSource(),
-  isDragging: monitor.isDragging(),
-}}
+    connectDragSource: connect.dragSource(),
+    isDragging: monitor.isDragging()
+  };
+};
 
 const mapDispatchToProps = dispatch => {
   return {
     removeMemberFrom: {
       room: () => {},
-      course: () => {},
+      course: () => {}
       // member: (id, courseId) => dispatch(removeMember(id, courseId))
     }
-  }
-}
+  };
+};
 
-@connect(null, mapDispatchToProps)
+@connect(
+  null,
+  mapDispatchToProps
+)
 @DragSource(ItemTypes.CARD, cardSource, collect)
 class DragBox extends PureComponent {
   render() {
@@ -43,11 +47,11 @@ class DragBox extends PureComponent {
     return connectDragSource(
       <div
         onClick={this.toggleCollapse}
-        style={{opacity: isDragging ? 0.5 : 1}} // @TODO ADD A CUSTOM DRAG LAYER HERE SO ITS NOT AS WIDE AND CAN BE EASILY PLACED IN THE TRASHCAN
+        style={{ opacity: isDragging ? 0.5 : 1 }} // @TODO ADD A CUSTOM DRAG LAYER HERE SO ITS NOT AS WIDE AND CAN BE EASILY PLACED IN THE TRASHCAN
       >
         <Member {...this.props} owner={true} />
       </div>
-    )
+    );
   }
 }
 
