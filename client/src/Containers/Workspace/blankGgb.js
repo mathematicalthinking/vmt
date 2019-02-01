@@ -57,6 +57,6 @@ const INITIAL_XML = `
 <scripting blocked="false" disabled="false"/>
 <construction title="" author="" date="">
 </construction>
-</geogebra>`
+</geogebra>`;
 
 export default INITIAL_XML;

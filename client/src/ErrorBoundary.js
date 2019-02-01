@@ -1,8 +1,7 @@
-import React, { Component } from 'react';
-import { Redirect } from 'react-router';
+import React, { Component } from "react";
+import { Redirect } from "react-router";
 class ErrorBoundary extends Component {
-
-  state = { hasError: false, };
+  state = { hasError: false };
 
   static getDerivedStateFromError(error) {
     return { hasError: true };
@@ -15,13 +14,18 @@ class ErrorBoundary extends Component {
     // this.props.history.push('/')
   }
 
-  render(){
-    return (
-      this.state.hasError
-      ? <Redirect to={{pathname: "/", state: {error: 'Sorry, something went wrong! Please try again.'}}} />
+  render() {
+    return this.state.hasError ? (
+      <Redirect
+        to={{
+          pathname: "/",
+          state: { error: "Sorry, something went wrong! Please try again." }
+        }}
+      />
+    ) : (
       // ? <div>gheleelo</div>
-      : this.props.children
-    )
+      this.props.children
+    );
   }
 }
 

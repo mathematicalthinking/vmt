@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React, { Component } from "react";
+import { connect } from "react-redux";
 // import _difference from 'lodash/difference';
-import { populateResource } from '../store/reducers';
-import Members from './Members/Members';
-import * as ntfUtils from '../utils/notifications';
+import { populateResource } from "../store/reducers";
+import Members from "./Members/Members";
+import * as ntfUtils from "../utils/notifications";
 
 import {
   getActivities,
@@ -14,9 +14,9 @@ import {
   updateCourse,
   clearNotification,
   getCourse,
-  getUser,
-} from '../store/actions';
-import { DashboardLayout, SidePanel, ResourceList, } from '../Layout/Dashboard/';
+  getUser
+} from "../store/actions";
+import { DashboardLayout, SidePanel, ResourceList } from "../Layout/Dashboard/";
 import {
   Aux,
   Modal,
@@ -25,34 +25,30 @@ import {
   TabList,
   EditText,
   TrashModal,
-  Error,
-} from '../Components';
-import Access from './Access';
+  Error
+} from "../Components";
+import Access from "./Access";
 
 class Course extends Component {
   state = {
     owner: false,
     member: false,
     guestMode: true,
-    tabs: [
-      {name: 'Activities'},
-      {name: 'Rooms'},
-      {name: 'Members'},
-    ],
+    tabs: [{ name: "Activities" }, { name: "Rooms" }, { name: "Members" }],
     firstView: false,
     editing: false,
     invited: false,
-    name: this.props.course ? this.props.course.name: null,
-    description: this.props.course ? this.props.course.description: null,
-    entryCode: this.props.course ? this.props.course.entryCode: null,
-    privacySetting: this.props.course ? this.props.course.privacySetting: null,
-    trashing: false,
-  }
+    name: this.props.course ? this.props.course.name : null,
+    description: this.props.course ? this.props.course.description : null,
+    entryCode: this.props.course ? this.props.course.entryCode : null,
+    privacySetting: this.props.course ? this.props.course.privacySetting : null,
+    trashing: false
+  };
   initialTabs = [
-    {name: 'Activities'},
-    {name: 'Rooms'},
-    {name: 'Members'},
-  ]
+    { name: "Activities" },
+    { name: "Rooms" },
+    { name: "Members" }
+  ];
   // SO we can reset the tabs easily
 
   componentDidMount() {
@@ -63,23 +59,27 @@ class Course extends Component {
       let firstView = false;
       let invited = false;
       if (notifications.length > 0) {
-       notifications.forEach(ntf => {
+        notifications.forEach(ntf => {
           if (ntf.resourceId === course._id) {
-            if (ntf.notificationType === 'grantedAccess') {
+            if (ntf.notificationType === "grantedAccess") {
               firstView = true;
               this.props.clearNotification(ntf._id);
-            } else if (ntf.notificationType === 'invitation') {
+            } else if (ntf.notificationType === "invitation") {
               invited = true;
               this.props.clearNotification(ntf._id);
             }
           }
-        })
+        });
       }
       // check if we need to fetch data
       // this.checkForFetch();
       // Check user's permission level -- owner, member, or guest
       let updatedTabs = [...this.state.tabs];
-      let owner = course.members.filter(member => member.role === 'facilitator' && member.user._id === user._id).length > 0;
+      let owner =
+        course.members.filter(
+          member =>
+            member.role === "facilitator" && member.user._id === user._id
+        ).length > 0;
 
       updatedTabs = this.displayNotifications(updatedTabs);
 
@@ -87,13 +87,13 @@ class Course extends Component {
         tabs: updatedTabs,
         owner,
         firstView,
-        invited,
-      })
+        invited
+      });
       if (course.members) {
         this.checkAccess();
       }
     } else {
-      this.props.getCourse(match.params.course_id)
+      this.props.getCourse(match.params.course_id);
     }
   }
 
@@ -102,33 +102,41 @@ class Course extends Component {
     if (!this.props.course) {
       return;
     }
-    if (prevProps.user.courses.indexOf(this.props.course._id) > -1 && this.props.user.courses.indexOf(this.props.course._id) === -1) {
-      return this.props.history.push('/myVMT/courses');
+    if (
+      prevProps.user.courses.indexOf(this.props.course._id) > -1 &&
+      this.props.user.courses.indexOf(this.props.course._id) === -1
+    ) {
+      return this.props.history.push("/myVMT/courses");
     }
     // If we've just fetched the course?
     if (!prevProps.course && this.props.course) {
       this.checkAccess();
     }
 
-    if (prevProps.course && prevProps.course.members.length !== this.props.course.members.length) {
+    if (
+      prevProps.course &&
+      prevProps.course.members.length !== this.props.course.members.length
+    ) {
       this.checkAccess();
     }
     if (prevProps.notifications.length !== this.props.notifications.length) {
       // this.props.getCourse(this.props.match.params.course_id)
-      let updatedTabs = this.displayNotifications([...this.state.tabs])
-      this.setState({tabs: updatedTabs})
+      let updatedTabs = this.displayNotifications([...this.state.tabs]);
+      this.setState({ tabs: updatedTabs });
     }
     // if the course has been updated by redux
     // This will happen when an update request is unsuccessful. When a user updates the course we are changing this components state
     // and updating the UI immediately, if the request fails we need to undo that state/ui change
-    if (prevProps.loading.updateResource === null && this.props.loading.updateResource === 'course') {
-
+    if (
+      prevProps.loading.updateResource === null &&
+      this.props.loading.updateResource === "course"
+    ) {
       this.setState({
         name: this.props.course.name,
         description: this.props.course.description,
         entryCode: this.props.course.entryCode,
-        privacySetting: this.props.course.privacySetting,
-      })
+        privacySetting: this.props.course.privacySetting
+      });
     }
     // if ((this.state.member || this.state.owner) && !this.props.loading) {
     //   this.checkForFetch();
@@ -139,35 +147,49 @@ class Course extends Component {
   }
 
   requestAccess = () => {
-    const {course, user} = this.props;
+    const { course, user } = this.props;
     // HEY? WHY DO WE NEED COURSE.CREATOR RIGHT HERE
-    this.props.requestAccess(course.creator, user._id, 'courses', course._id)
-    this.props.history.push('/confirmation')
-  }
+    this.props.requestAccess(course.creator, user._id, "courses", course._id);
+    this.props.history.push("/confirmation");
+  };
 
   requestPublicAccess = () => {
     this.props.grantAccess(
-      {_id: this.props.user._id, username: this.props.user.username}, 'courses', this.props.course._id
-    )
-  }
+      { _id: this.props.user._id, username: this.props.user.username },
+      "courses",
+      this.props.course._id
+    );
+  };
 
-  displayNotifications = (tabs) => {
+  displayNotifications = tabs => {
     // console.log(notifications)
     const { course, notifications, user } = this.props;
     // if (course.creator === user._id
-    let isOwner = course.members.filter(member => member.role === 'facilitator' && member.user._id === user._id).length > 0;
-      if (isOwner) {
-        let memberNtfs = notifications.filter(ntf => (ntf.resourceId === course._id && (ntf.notificationType === 'requestAccess' || ntf.notificationType === 'newMember')));
-        tabs[2].notifications = memberNtfs.length > 0 ? memberNtfs.length : '';
-      }
-      let newRoomNtfs = notifications.filter(ntf => (ntf.parentResource === course._id && ntf.notificationType === 'assignedNewRoom'))
-      tabs[1].notifications = newRoomNtfs.length > 0 ? newRoomNtfs.length : '';
+    let isOwner =
+      course.members.filter(
+        member => member.role === "facilitator" && member.user._id === user._id
+      ).length > 0;
+    if (isOwner) {
+      let memberNtfs = notifications.filter(
+        ntf =>
+          ntf.resourceId === course._id &&
+          (ntf.notificationType === "requestAccess" ||
+            ntf.notificationType === "newMember")
+      );
+      tabs[2].notifications = memberNtfs.length > 0 ? memberNtfs.length : "";
+    }
+    let newRoomNtfs = notifications.filter(
+      ntf =>
+        ntf.parentResource === course._id &&
+        ntf.notificationType === "assignedNewRoom"
+    );
+    tabs[1].notifications = newRoomNtfs.length > 0 ? newRoomNtfs.length : "";
     // }
     // if (notifications.llength > 0){
     //   tabs[1].notifications = notifications.llength;
     // }
     return tabs;
-  }
+  };
 
   // checkForFetch = () => {
   //   const { course, user, match } = this.props;
@@ -182,11 +204,11 @@ class Course extends Component {
 
   checkAccess = () => {
     this.props.course.members.forEach(member => {
-       if (member.user._id === this.props.user._id) {
-         this.setState({member: true, guestMode: false})
-       }
-    })
-  }
+      if (member.user._id === this.props.user._id) {
+        this.setState({ member: true, guestMode: false });
+      }
+    });
+  };
 
   toggleEdit = () => {
     this.setState(prevState => ({
@@ -194,63 +216,61 @@ class Course extends Component {
       name: this.props.course.name,
       privacySetting: this.props.course.privacySetting,
       entryCode: this.props.course.entryCode,
-      instructions: this.props.instructions,
-    }))
-  }
+      instructions: this.props.instructions
+    }));
+  };
 
   updateCourseInfo = (event, option) => {
     let { value, name } = event.target;
-    this.setState({[name]: option || value})
-  }
+    this.setState({ [name]: option || value });
+  };
 
   updateCourse = () => {
-    let { updateCourse, course, } = this.props;
-    let { entryCode, name, details, description, privacySetting } = this.state
-    let body = { entryCode, name, details, description, privacySetting }
+    let { updateCourse, course } = this.props;
+    let { entryCode, name, details, description, privacySetting } = this.state;
+    let body = { entryCode, name, details, description, privacySetting };
     // only send the fields that have changed
     Object.keys(body).forEach(key => {
       if (body[key] === course[key]) {
-        delete body[key]
+        delete body[key];
       }
-    })
-    updateCourse(course._id, body)
+    });
+    updateCourse(course._id, body);
     this.setState({
-      editing: false,
-    })
-  }
+      editing: false
+    });
+  };
 
   clearFirstViewNtf = () => {
-    this.setState({firstView: false, invited: false});
+    this.setState({ firstView: false, invited: false });
     // Find the notifcation that corresponds to this course
     // let ntfId = this.props.user.notifications.filter(ntf => ntf.resourceId === this.props.match.params.course_id)
     // this.props.clearNotification(ntfId)
-  }
-
+  };
 
   trashCourse = () => {
-    this.setState({trashing: true});
-  }
+    this.setState({ trashing: true });
+  };
 
   removeMeFromCourse = () => {
     // This will cause compnentDidUpdate to fire. There we will check if the user still belongs to this course,
     // if they don;t, we'll redirect to myVMT
     this.props.removeCourseMember(this.props.course._id, this.props.user._id);
-  }
+  };
 
   render() {
     let { course, user, match, notifications } = this.props;
     if (course && !this.state.guestMode) {
       let resource = match.params.resource;
       let myRooms;
-      if (resource === 'rooms') {
+      if (resource === "rooms") {
         myRooms = course.rooms.filter(room => {
-          let included = false
+          let included = false;
           room.members.forEach(member => {
-            if (member.user._id === user._id)
-            included = true;
-          })
+            if (member.user._id === user._id) included = true;
+          });
           return included;
-        })
+        });
       }
       // let contentData = {
       //   resource,
@@ -264,140 +284,266 @@ class Course extends Component {
       // }
 
       let mainContent;
-      if (resource === 'rooms' || resource === 'activities') {
-        mainContent =  <ResourceList
-          userResources={myRooms || course[resource] || []}
-          user={user}
-          resource={resource}
-          notifications={notifications.filter(ntf => ntf.parentResource === course._id)}
-          parentResource="courses"
-          parentResourceId={course._id}
-        />
-      }
-      else if (resource === 'members') {
-        mainContent = <Members
-          user={user}
-          classList={course.members}
-          owner={this.state.owner}
-          resourceType={'course'}
-          resourceId={course._id}
-          notifications={notifications.filter(ntf => ntf.resourceId === course._id) || []}
-        />
+      if (resource === "rooms" || resource === "activities") {
+        mainContent = (
+          <ResourceList
+            userResources={myRooms || course[resource] || []}
+            user={user}
+            resource={resource}
+            notifications={notifications.filter(
+              ntf => ntf.parentResource === course._id
+            )}
+            parentResource="courses"
+            parentResourceId={course._id}
+          />
+        );
+      } else if (resource === "members") {
+        mainContent = (
+          <Members
+            user={user}
+            classList={course.members}
+            owner={this.state.owner}
+            resourceType={"course"}
+            resourceId={course._id}
+            notifications={
+              notifications.filter(ntf => ntf.resourceId === course._id) || []
+            }
+          />
+        );
       }
       // Updatekeys = the keys that we failed to update
       let { updateFail, updateKeys } = this.props.loading;
 
       let additionalDetails = {
-        facilitators: course.members.filter(member => member.role === 'facilitator').length,
+        facilitators: course.members.filter(
+          member => member.role === "facilitator"
+        ).length,
         acitivities: course.activities.length,
         rooms: course.rooms.length,
-        privacy: <Error error={updateFail && updateKeys.indexOf('privacySetting') > -1}><EditText change={this.updateCourseInfo} inputType='radio' editing={this.state.editing} options={['public', 'private']} name='privacySetting'>{this.state.privacySetting}</EditText></Error>,
-      }
+        privacy: (
+          <Error
+            error={updateFail && updateKeys.indexOf("privacySetting") > -1}
+          >
+            <EditText
+              change={this.updateCourseInfo}
+              inputType="radio"
+              editing={this.state.editing}
+              options={["public", "private"]}
+              name="privacySetting"
+            >
+              {this.state.privacySetting}
+            </EditText>
+          </Error>
+        )
+      };
 
       if (this.state.owner) {
-        additionalDetails.code =  <Error error={updateFail && updateKeys.indexOf('entryCode') > -1}><EditText change={this.updateCourseInfo} inputType='text' name='entryCode' editing={this.state.editing}>{this.state.entryCode}</EditText></Error>;
+        additionalDetails.code = (
+          <Error error={updateFail && updateKeys.indexOf("entryCode") > -1}>
+            <EditText
+              change={this.updateCourseInfo}
+              inputType="text"
+              name="entryCode"
+              editing={this.state.editing}
+            >
+              {this.state.entryCode}
+            </EditText>
+          </Error>
+        );
       }
 
       // @TODO MAYBE MOVE THESE MODAL INSTANCES OUTTA HERE TO COMPONENTS/UI
       return (
         <Aux>
           <DashboardLayout
-            breadCrumbs={<BreadCrumbs
-              crumbs={[{title: 'My VMT', link: '/myVMT/courses'}, {title: course.name, link: `/myVMT/courses/${course._id}/activities/`}]}
-              notifications={user.notifications}
-            />}
+            breadCrumbs={
+              <BreadCrumbs
+                crumbs={[
+                  { title: "My VMT", link: "/myVMT/courses" },
+                  {
+                    title: course.name,
+                    link: `/myVMT/courses/${course._id}/activities/`
+                  }
+                ]}
+                notifications={user.notifications}
+              />
+            }
             sidePanel={
               <SidePanel
                 image={course.image}
                 alt={this.state.name}
-                name={<Error error={updateFail && updateKeys.indexOf('name') > -1}><EditText change={this.updateCourseInfo} inputType='title' name='name' editing={this.state.editing}>{this.state.name}</EditText></Error>}
-                subTitle={<Error error={updateFail && updateKeys.indexOf('description') > -1}><EditText change={this.updateCourseInfo} inputType='text' name='description' editing={this.state.editing}>{this.state.description}</EditText></Error>}
+                name={
+                  <Error error={updateFail && updateKeys.indexOf("name") > -1}>
+                    <EditText
+                      change={this.updateCourseInfo}
+                      inputType="title"
+                      name="name"
+                      editing={this.state.editing}
+                    >
+                      {this.state.name}
+                    </EditText>
+                  </Error>
+                }
+                subTitle={
+                  <Error
+                    error={updateFail && updateKeys.indexOf("description") > -1}
+                  >
+                    <EditText
+                      change={this.updateCourseInfo}
+                      inputType="text"
+                      name="description"
+                      editing={this.state.editing}
+                    >
+                      {this.state.description}
+                    </EditText>
+                  </Error>
+                }
                 owner={this.state.owner}
                 bothRoles={this.state.bothRoles}
                 additionalDetails={additionalDetails}
                 accountType={user.accountType}
-                editButton={ this.state.owner
-                  ? <Aux>
-                      <div role='button' style={{display: this.state.editing ? 'none' : 'block'}} data-testid='edit-course' onClick={this.toggleEdit}><span>Edit Course <i className="fas fa-edit"></i></span></div>
-                      {this.state.editing
-                      // @TODO this should be a resuable component
-                        ? <div>
-                            <Button click={this.updateCourse} data-testid='save-course' theme='edit-save'>Save</Button>
-                            <Button click={this.trashCourse} data-testid='trash-course' theme='Danger'><i className="fas fa-trash-alt"></i></Button>
-                            <Button click={this.toggleEdit} theme='edit'>Cancel</Button>
-                          </div>
-                        : null
-                      }
+                editButton={
+                  this.state.owner ? (
+                    <Aux>
+                      <div
+                        role="button"
+                        style={{
+                          display: this.state.editing ? "none" : "block"
+                        }}
+                        data-testid="edit-course"
+                        onClick={this.toggleEdit}
+                      >
+                        <span>
+                          Edit Course <i className="fas fa-edit" />
+                        </span>
+                      </div>
+                      {this.state.editing ? (
+                        // @TODO this should be a resuable component
+                        <div>
+                          <Button
+                            click={this.updateCourse}
+                            data-testid="save-course"
+                            theme="edit-save"
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            click={this.trashCourse}
+                            data-testid="trash-course"
+                            theme="Danger"
+                          >
+                            <i className="fas fa-trash-alt" />
+                          </Button>
+                          <Button click={this.toggleEdit} theme="edit">
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : null}
                     </Aux>
-                  : null
+                  ) : null
                 }
               />
             }
-            tabs={<TabList routingInfo={this.props.match} tabs={this.state.tabs} />}
+            tabs={
+              <TabList routingInfo={this.props.match} tabs={this.state.tabs} />
+            }
             mainContent={mainContent}
           />
-          <Modal show={this.state.firstView} closeModal={this.clearFirstViewNtf}>
-            <p>Welcome to {course.name}. If this is your first time joining a course,
-            we recommend you take a tour. Otherwise you can start exploring this course's features.</p>
-            <Button theme={'Small'} click={this.clearFirstViewNtf}>Explore</Button>
+          <Modal
+            show={this.state.firstView}
+            closeModal={this.clearFirstViewNtf}
+          >
+            <p>
+              Welcome to {course.name}. If this is your first time joining a
+              course, we recommend you take a tour. Otherwise you can start
+              exploring this course's features.
+            </p>
+            <Button theme={"Small"} click={this.clearFirstViewNtf}>
+              Explore
+            </Button>
           </Modal>
           <Modal show={this.state.invited} closeModal={this.clearFirstViewNtf}>
-            <p>You have been invited to {course.name}. If you think you've been added to this course in error you can click "leave" and you will be removed.</p>
-            <div style={{display: 'flex', justifyContent: 'space-around'}}>
-              <Button data-testid='join' theme={'Small'} click={this.clearFirstViewNtf}>Join</Button>
-              <Button data-testid='leave' theme={'Small'} click={this.removeMeFromCourse}>Leave</Button>
-             </div>
+            <p>
+              You have been invited to {course.name}. If you think you've been
+              added to this course in error you can click "leave" and you will
+              be removed.
+            </p>
+            <div style={{ display: "flex", justifyContent: "space-around" }}>
+              <Button
+                data-testid="join"
+                theme={"Small"}
+                click={this.clearFirstViewNtf}
+              >
+                Join
+              </Button>
+              <Button
+                data-testid="leave"
+                theme={"Small"}
+                click={this.removeMeFromCourse}
+              >
+                Leave
+              </Button>
+            </div>
           </Modal>
-          {this.state.trashing
-            ? <TrashModal
-              resource='course'
+          {this.state.trashing ? (
+            <TrashModal
+              resource="course"
               resourceId={course._id}
               update={this.props.updateCourse}
               show={this.state.trashing}
-              closeModal={() => {this.setState({trashing: false})}}
+              closeModal={() => {
+                this.setState({ trashing: false });
+              }}
               history={this.props.history}
-              />
-            : null
-          }
-
+            />
+          ) : null}
         </Aux>
-      )
-    } else return (
-      <Access
-        resource='course'
-        resourceId={match.params.course_id}
-        userId={user._id}
-        username={user.username}
-        owners={course ? course.members.filter(member => member.role === 'facilitator').map(member => member.user) : []}
-      />
-    )
+      );
+    } else
+      return (
+        <Access
+          resource="course"
+          resourceId={match.params.course_id}
+          userId={user._id}
+          username={user.username}
+          owners={
+            course
+              ? course.members
+                  .filter(member => member.role === "facilitator")
+                  .map(member => member.user)
+              : []
+          }
+        />
+      );
   }
 }
 
 const mapStateToProps = (store, ownProps) => {
   let course_id = ownProps.match.params.course_id;
   return {
-    course: store.courses.byId[course_id] ?
-      populateResource(store, 'courses', course_id, ['activities', 'rooms']) :
-      null,
+    course: store.courses.byId[course_id]
+      ? populateResource(store, "courses", course_id, ["activities", "rooms"])
+      : null,
     activities: store.activities.allIds,
     rooms: store.rooms.allIds,
     user: store.user,
     // notifications: store.user.courseNotifications.access,
-    notifications: ntfUtils.getUserNotifications(store.user, null, 'course'),
-    loading: store.loading,
+    notifications: ntfUtils.getUserNotifications(store.user, null, "course"),
+    loading: store.loading
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  {
+    getActivities,
+    getRooms,
+    updateCourseRooms,
+    updateCourseActivities,
+    clearNotification,
+    removeCourseMember,
+    updateCourse,
+    getCourse,
+    getUser
   }
-}
-
-
-export default connect(mapStateToProps, {
-  getActivities,
-  getRooms,
-  updateCourseRooms,
-  updateCourseActivities,
-  clearNotification,
-  removeCourseMember,
-  updateCourse,
-  getCourse,
-  getUser,
-})(Course);
+)(Course);

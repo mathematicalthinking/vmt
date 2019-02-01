@@ -1,1 +1,1 @@
-export const GRAPH_HEIGHT = window.innerHeight - 400
+export const GRAPH_HEIGHT = window.innerHeight - 400;
