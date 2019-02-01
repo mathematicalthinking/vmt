@@ -6,16 +6,16 @@ services:
 install:
   - npm install
   - npm --prefix ./client install ./client
-  - npm run build
+  - npm run build-production
 cache:
- directories:
+  directories:
     - ~/.npm
     - ~/.cache
 before_script:
   - node ./bin/www &
 script:
   - cypress run --record --key b6a27be0-bdd5-4a35-99de-8d1d331e2e74
-deploy: 
+deploy:
   provider: heroku
   api_key:
     secure: "c2be49b0-a329-40d8-95e4-1597669ca5a3"
