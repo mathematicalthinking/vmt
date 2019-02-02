@@ -87,7 +87,14 @@ class ActivityWorkspace extends Component {
       if (
         this.props.activity.tabs[this.state.currentTab].tabType === "desmos"
       ) {
-        graph = <DesmosActivityGraph />;
+        graph = (
+          <DesmosActivityGraph
+            activity={activity}
+            role={role}
+            currentTab={this.state.currentTab}
+            updateActivityTab={this.props.updateActivityTab}
+          />
+        );
       } else {
         graph = (
           <GgbActivityGraph
