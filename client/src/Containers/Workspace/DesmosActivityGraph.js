@@ -32,6 +32,8 @@ class DesmosActivityGraph extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    let { activity, currentTab } = this.props;
+    let { tabs } = activity;
     if (prevProps.currentTab !== this.props.currentTab) {
       if (this.props.role === "facilitator") {
         let updatedTabs = [...prevProps.activity.tabs];
@@ -40,6 +42,9 @@ class DesmosActivityGraph extends Component {
           ...this.calculator.getState()
         });
         updatedTabs[this.props.currentTab] = updatedTab;
+        this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {
+          currentState: updatedTab.currentState
+        });
       }
       this.calculator.setState(
         this.props.activity.tabs[this.props.currentTab].currentState
@@ -56,6 +61,9 @@ class DesmosActivityGraph extends Component {
         ...this.calculator.getState()
       });
       updatedTabs[this.props.currentTab] = updatedTab;
+      this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {
+        currentState: updatedTab.currentState
+      });
     }
     this.calculator.unobserveEvent("change");
     this.calculator.destroy();
