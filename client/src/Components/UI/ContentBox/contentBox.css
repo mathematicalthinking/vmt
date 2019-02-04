@@ -1,4 +1,4 @@
-:import('../../../colors.css') {
+:import("../../../colors.css") {
   blue: blue;
   red: red;
   green: green;
@@ -16,9 +16,10 @@
   /* align-items: center; */
   /* background-color: ; */
   padding: 5px;
+  background: white;
   border: 1px solid #d8d9da;
   box-shadow: lightestShadow;
-  transition: all .2s;
+  transition: all 0.2s;
   cursor: pointer;
 }
 
@@ -67,7 +68,7 @@
   border-radius: 50%;
   display: flex;
   align-items: center;
-  transition: .2s;
+  transition: 0.2s;
 }
 
 .Expand:hover {
@@ -85,7 +86,6 @@
   margin-top: 5px;
   padding: 10px;
 }
-
 
 .Icons {
   display: flex;
@@ -112,8 +112,6 @@
   font-weight: 400;
 }
 
-
-
 .NotificationCount {
   position: relative;
   top: 3px;
@@ -138,9 +136,9 @@
 
 .Plus {
   color: black;
-  opacity: .6;
+  opacity: 0.6;
   margin-top: 0;
-  transition: .4s ease-in-out;
+  transition: 0.4s ease-in-out;
 }
 
 .Selecting {
