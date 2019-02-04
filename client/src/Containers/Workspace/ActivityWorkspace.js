@@ -178,9 +178,7 @@ class ActivityWorkspace extends Component {
           <Button click={this.createNewActivity}>Copy Activity</Button>
         </Modal>
       </Aux>
-    ) : (
-      <Modal show={this.state.loading} message="Loading..." />
-    );
+    ) : null;
   }
 }
 
