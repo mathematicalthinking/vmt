@@ -25,6 +25,7 @@ To provide the colloaboration infrastructure, this application uses a combinatio
 1. `$ npm install`
 1. `$ cd client && npm install`
    cd back up to root...
+1. cp .enx.example .env
 1. `$ npm run start-dev` This will start the react development server on port 3000 and the express server on 3001
 
 ## Deployment
