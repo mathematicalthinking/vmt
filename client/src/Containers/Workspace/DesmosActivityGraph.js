@@ -12,9 +12,7 @@ class DesmosActivityGraph extends Component {
   calculatorRef = React.createRef();
 
   componentDidMount() {
-    console.log("MOUNTED");
     if (window.Desmos) {
-      console.log("alreadt have desmos");
       let { activity, currentTab } = this.props;
       let { tabs } = activity;
       this.calculator = window.Desmos.GraphingCalculator(
@@ -43,7 +41,6 @@ class DesmosActivityGraph extends Component {
         });
         updatedTabs[this.props.currentTab] = updatedTab;
       }
-      console.log("tab switched");
       this.calculator.setState(
         this.props.activity.tabs[this.props.currentTab].currentState
       );

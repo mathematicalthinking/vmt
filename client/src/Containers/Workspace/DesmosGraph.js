@@ -121,7 +121,6 @@ class DesmosGraph extends Component {
         };
         let updatedTabs = [...this.props.room.tabs];
         updatedTabs[this.props.currentTab].currentState = newData.currentState;
-        // console.log('sending event')
         this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
         socket.emit("SEND_EVENT", newData, res => {
           this.props.resetControlTimer();
