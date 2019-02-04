@@ -3,21 +3,16 @@ import classes from "./graph.css";
 import Aux from "../../Components/HOC/Auxil";
 import Modal from "../../Components/UI/Modal/Modal";
 import Script from "react-load-script";
-import socket from "../../utils/sockets";
 import API from "../../utils/apiRequests";
 // import { updatedRoom } from '../../store/actions';
 class DesmosActivityGraph extends Component {
   state = {
-    loading: window.Desmos ? false : true,
-    receivingEvent: false
+    loading: window.Desmos ? false : true
   };
-
   calculatorRef = React.createRef();
 
   componentDidMount() {
-    console.log("MOUNTED");
     if (window.Desmos) {
-      console.log("alreadt have desmos");
       let { activity, currentTab } = this.props;
       let { tabs } = activity;
       this.calculator = window.Desmos.GraphingCalculator(
@@ -30,102 +25,71 @@ class DesmosActivityGraph extends Component {
         API.getDesmos(tabs[currentTab].desmosLink)
           .then(res => {
             this.calculator.setState(res.data.result.state);
-            // this.initializeListeners();
           })
           .catch(err => console.log(err));
       }
-      this.initializeListeners();
     }
-  }
-
-  shouldComponentUpdate(nextProps) {
-    if (nextProps.currentTab !== this.props.currentTab) {
-      return true;
-    } else return false;
-  }
-
-  componentWillUnmount() {
-    this.calculator.unobserveEvent("change");
-    this.calculator.destroy();
   }
 
   componentDidUpdate(prevProps) {
-    console.log(prevProps, this.props);
-    console.log("UPDATED");
-    if (prevProps.currentTab !== this.props.currentTab) {
-      console.log("setting state");
-      this.setState({ receivingEvent: true }, () => {
-        let { room, currentTab } = this.props;
-        let { tabs } = room;
-        if (tabs[currentTab].currentState) {
-          this.calculator.setState(tabs[currentTab].currentState);
-        } else if (tabs[currentTab].desmosLink) {
-          API.getDesmos(tabs[currentTab].desmosLink)
-            .then(res => {
-              this.calculator.setState(res.data.result.state);
-              this.initializeListeners();
-            })
-            .catch(err => console.log(err));
-        }
-      });
-    }
-  }
-
-  onScriptLoad = () => {
-    console.log("script loaded");
-    if (!this.calculator) {
-      this.calculator = window.Desmos.GraphingCalculator(
-        this.calculatorRef.current
-      );
-    }
     let { activity, currentTab } = this.props;
     let { tabs } = activity;
-    let { desmosLink } = tabs[currentTab];
-    if (tabs[currentTab].currentState) {
-      this.calculator.setState(tabs[currentTab].currentState);
-      this.setState({ loading: false });
-      this.initializeListeners();
-    } else if (desmosLink) {
-      // @TODO This will require some major reconfiguration / But what we shoould do is
-      // when the user creates this room get teh state from the link and then just save it
-      // as as event on this model.
-      API.getDesmos(desmosLink)
-        .then(res => {
-          this.calculator.setState(res.data.result.state);
-          // console.
-          this.setState({ loading: false });
-          this.initializeListeners();
-        })
-        .catch(err => console.log(err));
-    } else {
-      this.initializeListeners();
-      this.setState({ loading: false });
-    }
-  };
-
-  // componentWillUnmount(){
-  //   console.log("componentUNMOUNTING")
-  // }
-
-  initializeListeners = () => {
-    console.log("listeners");
-    // INITIALIZE EVENT LISTENER
-    this.calculator.observeEvent("change", event => {
-      console.log("EVENT: ", event);
+    if (prevProps.currentTab !== this.props.currentTab) {
       if (this.props.role === "facilitator") {
-        console.log("updating calc state");
-        let updatedTabs = [...this.props.activity.tabs];
-        let updatedTab = updatedTabs[this.props.currentTab];
-        updatedTab.currentState = this.calculator.getState();
+        let updatedTabs = [...prevProps.activity.tabs];
+        let updatedTab = updatedTabs[prevProps.currentTab];
         updatedTab.currentState = JSON.stringify({
-          ...updatedTab.currentState
+          ...this.calculator.getState()
         });
         updatedTabs[this.props.currentTab] = updatedTab;
         this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {
           currentState: updatedTab.currentState
         });
       }
-    });
+      this.calculator.setState(
+        this.props.activity.tabs[this.props.currentTab].currentState
+      );
+    }
+  }
+
+  componentWillUnmount() {
+    // save on unmount
+    if (this.props.role === "facilitator") {
+      let updatedTabs = [...this.props.activity.tabs];
+      let updatedTab = updatedTabs[this.props.currentTab];
+      updatedTab.currentState = JSON.stringify({
+        ...this.calculator.getState()
+      });
+      updatedTabs[this.props.currentTab] = updatedTab;
+      this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {
+        currentState: updatedTab.currentState
+      });
+    }
+    this.calculator.unobserveEvent("change");
+    this.calculator.destroy();
+  }
+
+  onScriptLoad = () => {
+    this.calculator = window.Desmos.GraphingCalculator(
+      this.calculatorRef.current
+    );
+    let { activity, currentTab } = this.props;
+    let { tabs } = activity;
+    let { desmosLink } = tabs[currentTab];
+    if (tabs[currentTab].currentState) {
+      this.calculator.setState(tabs[currentTab].currentState);
+      this.setState({ loading: false });
+    } else if (desmosLink) {
+      API.getDesmos(desmosLink)
+        .then(res => {
+          this.calculator.setState(res.data.result.state);
+          this.setState({ loading: false });
+          // this.initializeListeners();
+        })
+        .catch(err => console.log(err));
+    } else {
+      this.setState({ loading: false });
+    }
   };
 
   render() {
