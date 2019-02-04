@@ -1,4 +1,4 @@
-# Virtual Math Teams (VMT) [![Build Status](https://travis-ci.org/mathematicalthinking/encompass.svg?branch=master)](https://travis-ci.org/mathematicalthinking/encompass) [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+# Virtual Math Teams (VMT) [![Build Status](https://travis-ci.org/mathematicalthinking/vmt.svg?branch=master)](https://travis-ci.org/mathematicalthinking/vmt) [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 Virtual Math Teams (VMT) provides a collaboration infrastructure for visual math and geometry tools, such as Geogebra and Desmos. To provide this infrastructure, this version uses React.js and Redux.js, express and sockets.io. see 'Installation' below.
 
