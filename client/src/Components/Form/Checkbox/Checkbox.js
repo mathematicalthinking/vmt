@@ -7,7 +7,7 @@ const checkbox = props => {
         data-testid={`${props.children}-checkbox`}
         type="checkbox"
         id={props.children}
-        userId={props.dataId}
+        userid={props.dataId}
         onChange={event => {
           props.change(event, props.dataId);
         }}

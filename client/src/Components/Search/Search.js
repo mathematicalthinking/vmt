@@ -1,15 +1,20 @@
 import React, { Component } from "react";
 import classes from "./search.css";
 class Search extends Component {
+  constructor(props) {
+    super(props);
+    this.searchRef = React.createRef();
+  }
   componentDidMount() {
-    // this.searchRef.focus();
+    this.searchRef.current.focus();
   }
   render() {
     return (
-      <div className={classes.Search}>
+      <div className={[classes.Search].join(" ")}>
         <input
+          ref={this.searchRef}
           data-testid={this.props["data-testid"]}
-          className={classes.Input}
+          className={[classes.Input, classes[this.props.theme]].join(" ")}
           type="text"
           placeholder={this.props.placeholder}
           onChange={event => this.props._search(event.target.value.trim())}

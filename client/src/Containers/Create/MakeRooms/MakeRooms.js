@@ -78,7 +78,6 @@ class MakeRooms extends Component {
     } else {
       updatedParticipants.push(newParticipant);
     }
-    console.log("selected participants: ,", updatedParticipants);
     this.setState({ selectedParticipants: updatedParticipants });
     // Else add them
   };
@@ -229,7 +228,6 @@ class MakeRooms extends Component {
       }
     }
     let stepDisplays = [];
-    console.log(this.state.step);
     for (let i = 0; i < 2; i++) {
       stepDisplays.push(
         <div
@@ -242,7 +240,6 @@ class MakeRooms extends Component {
       );
     }
 
-    console.log(CurrentStep);
     return (
       <Modal show={true} closeModal={this.props.close}>
         <Aux>

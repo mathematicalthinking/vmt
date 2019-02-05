@@ -32,8 +32,6 @@ class Step2 extends Component {
       prevProps.selectedParticipants.length >
       this.props.selectedParticipants.length
     ) {
-      console.log(this.props.selectedParticipants);
-      console.log(this.state.selectedParticipants);
       let updatedSelected = this.state.selectedParticipants.filter(user => {
         return this.props.selectedParticipants.find(
           userId => user._id === userId
@@ -65,8 +63,6 @@ class Step2 extends Component {
 
   render() {
     let { selectedParticipants, select, submit, done } = this.props;
-    console.log(selectedParticipants);
-    console.log(this.state.selectedParticipants);
     let uniqueIds = [];
     let list = this.state.selectedParticipants
       .map(member => ({ user: member }))
@@ -85,6 +81,7 @@ class Step2 extends Component {
         <h2 className={classes.Title}>Assign To Rooms</h2>
         <div className={classes.SubContainer}>
           <Search
+            theme={"Dark"}
             data-testid="member-search"
             _search={this.search}
             placeholder="search by username or email address"
@@ -97,12 +94,10 @@ class Step2 extends Component {
             select={select}
           />
         </div>
-        <div className={classes.Button}>
+        <div className={classes.Buttons}>
           <Button m={5} click={submit} data-testid="assign-rooms">
             assign
           </Button>
-        </div>
-        <div className={classes.Button}>
           <Button m={5} click={done} data-testid="complete-assign">
             done
           </Button>
