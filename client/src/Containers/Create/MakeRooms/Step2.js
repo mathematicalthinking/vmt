@@ -37,7 +37,6 @@ class Step2 extends Component {
           userId => user._id === userId
         );
       });
-      console.log(updatedSelected);
       this.setState({ selectedParticipants: updatedSelected });
     }
   }
@@ -97,9 +96,6 @@ class Step2 extends Component {
         <div className={classes.Buttons}>
           <Button m={5} click={submit} data-testid="assign-rooms">
             assign
-          </Button>
-          <Button m={5} click={done} data-testid="complete-assign">
-            done
           </Button>
         </div>
       </div>

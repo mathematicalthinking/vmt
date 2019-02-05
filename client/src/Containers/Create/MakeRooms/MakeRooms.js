@@ -9,7 +9,7 @@ import { createRoom } from "../../../store/actions";
 
 class MakeRooms extends Component {
   state = {
-    assignRandom: true,
+    assignRandom: false,
     participantsPerRoom: 0,
     selectedParticipants: [],
     roomsCreated: 0,
@@ -118,8 +118,9 @@ class MakeRooms extends Component {
       members.push({ user: this.props.userId, role: "facilitator" });
       newRoom.name = `${name} (room ${this.state.roomsCreated + 1})`;
       newRoom.members = members;
+      console.log(members);
       this.props.createRoom(newRoom);
-
+      console.log("created room");
       let remainingParticipants = this.state.remainingParticipants.filter(
         participant => {
           if (this.state.selectedParticipants.includes(participant.user._id)) {
