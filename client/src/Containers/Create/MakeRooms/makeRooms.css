@@ -6,7 +6,8 @@
   flex-flow: column;
   width: 100%;
   align-items: center;
-  min-height: 410px;
+  justify-content: flex-start;
+  height: 410px;
   padding: 20px;
 }
 
@@ -50,7 +51,6 @@
 }
 
 .Button {
-  position: absolute;
   bottom: 20px;
 }
 

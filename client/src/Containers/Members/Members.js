@@ -68,6 +68,7 @@ class Members extends Component {
     } else this.props.updateRoomMembers(resourceId, updatedMembers);
   };
 
+  // Consider finding a way to NOT duplicate this in MakeRooms
   search = text => {
     if (text.length > 0) {
       API.search(

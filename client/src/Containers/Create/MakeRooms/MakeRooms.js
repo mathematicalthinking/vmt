@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
-import { Checkbox, Aux } from "../../../Components";
-import { Step1, Step1Course, Step2 } from "./index";
+import { Checkbox, Aux, Modal } from "../../../Components";
+import { Step1, Step2Course, Step2, ParticipantList } from "./index";
 import classes from "./makeRooms.css";
 import createClasses from "../create.css";
 import { createRoom } from "../../../store/actions";
+
 class MakeRooms extends Component {
   state = {
     assignRandom: true,
@@ -28,7 +29,11 @@ class MakeRooms extends Component {
 
   onKeyPress = event => {
     if (event.key === "Enter") {
-      this.submit();
+      if (this.state.step < 1) {
+        this.nextStep();
+      } else {
+        this.submit();
+      }
     }
   };
 
@@ -173,94 +178,82 @@ class MakeRooms extends Component {
     let { activity } = this.props;
     // @TODO STUDENTLIST SHOULD REFLECT THIS.STATE.REMAINING STUDENTS -- RIGHT NOW THERE IS A
     // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
-    let participantList = this.state.remainingParticipants.map(
-      (participant, i) => {
-        let rowClass =
-          i % 2 === 0
-            ? [classes.EvenParticipant, classes.Participant].join(" ")
-            : classes.Participant;
-        rowClass = this.state.selectedParticipants.includes(
-          participant.user._id
-        )
-          ? [rowClass, classes.Selected].join(" ")
-          : rowClass;
-        return (
-          <div
-            className={rowClass}
-            key={participant.user._id}
-            id={participant.user._id}
-          >
-            <Checkbox
-              label={`${i + 1}. ${participant.user.username}`}
-              change={this.selectParticipant}
-              dataId={participant.user._id}
-              checked={
-                this.state.selectedParticipants.indexOf(participant.user._id) >
-                -1
-              }
-            >
-              {`${i + 1}. ${participant.user.username}`}
-            </Checkbox>
-          </div>
-          // <div
-          //   className={rowClass}
-          //   key={participant.user_id}
-          //   id={participant.user._id}
-          //   onClick={this.selectParticipant}
-          // >{i+1}. {participant.user.username}</div>
-        );
-      }
-    );
+    let participantList;
+    if (activity.course) {
+      participantList = (
+        <ParticipantList list={this.state.remainingParticipants} />
+      );
+    } else {
+      participantList = [];
+    }
+
     let CurrentStep = (
       <Step1
-        activity={activity}
-        participantList={participantList}
+        dueDate={this.state.dueDate}
+        setDate={this.setDate}
         nextStep={this.nextStep}
       />
     );
-    if (this.state.step === 1)
-      CurrentStep = (
-        <Step2 dueDate={this.state.dueDate} setDate={this.setDate} />
-      );
-    else if (activity.course) {
-      CurrentStep = (
-        <Step1Course
-          activity={activity}
-          participantList={participantList}
-          nextStep={this.nextStep}
-          setRandom={this.setRandom}
-          setManual={this.setManual}
-          participantsPerRoom={this.state.participantsPerRoom}
-          setParticipantNumber={this.setParticipantNumber}
-          assignRandom={this.state.assignRandom}
-          error={this.state.error}
-        />
-      );
+
+    if (this.state.step === 1) {
+      console.log("shouldnt be in here");
+      if (activity.course) {
+        CurrentStep = (
+          <Step2Course
+            activity={activity}
+            participantList={participantList}
+            submit={this.submit}
+            setRandom={this.setRandom}
+            setManual={this.setManual}
+            participantsPerRoom={this.state.participantsPerRoom}
+            setParticipantNumber={this.setParticipantNumber}
+            assignRandom={this.state.assignRandom}
+            error={this.state.error}
+          />
+        );
+      } else {
+        CurrentStep = (
+          <Step2
+            activity={activity}
+            participantList={participantList}
+            userId={this.props.userId}
+            submit={this.submit}
+          />
+        );
+      }
     }
     let stepDisplays = [];
+    console.log(this.state.step);
     for (let i = 0; i < 2; i++) {
       stepDisplays.push(
         <div
+          key={`step-${i}`}
           className={[
-            classes.Step,
-            i <= this.state.step ? classes.CompletedStep : null
+            createClasses.Step,
+            i <= this.state.step ? createClasses.CompletedStep : null
           ].join(" ")}
         />
       );
     }
+
+    console.log(CurrentStep);
     return (
-      <Aux>
-        {this.state.step > 0 ? (
-          <i
-            onClick={this.prevStep}
-            className={["fas", "fa-arrow-left", createClasses.BackIcon].join(
-              " "
-            )}
-          />
-        ) : null}
-        {CurrentStep}
-        <div className={createClasses.StepDisplayContainer}>{stepDisplays}</div>
-      </Aux>
+      <Modal show={true} closeModal={this.props.close}>
+        <Aux>
+          {this.state.step > 0 ? (
+            <i
+              onClick={this.prevStep}
+              className={["fas", "fa-arrow-left", createClasses.BackIcon].join(
+                " "
+              )}
+            />
+          ) : null}
+          {CurrentStep}
+          <div className={createClasses.StepDisplayContainer}>
+            {stepDisplays}
+          </div>
+        </Aux>
+      </Modal>
     );
   }
 }
