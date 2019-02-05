@@ -78,6 +78,7 @@ class MakeRooms extends Component {
     } else {
       updatedParticipants.push(newParticipant);
     }
+    console.log("selected participants: ,", updatedParticipants);
     this.setState({ selectedParticipants: updatedParticipants });
     // Else add them
   };
@@ -200,7 +201,6 @@ class MakeRooms extends Component {
     );
 
     if (this.state.step === 1) {
-      console.log("shouldnt be in here");
       if (activity.course) {
         CurrentStep = (
           <Step2Course
