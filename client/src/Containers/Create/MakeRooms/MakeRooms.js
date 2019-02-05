@@ -181,7 +181,11 @@ class MakeRooms extends Component {
     let participantList;
     if (activity.course) {
       participantList = (
-        <ParticipantList list={this.state.remainingParticipants} />
+        <ParticipantList
+          list={this.state.remainingParticipants}
+          selectedParticipants={this.state.selectedParticipants}
+          select={this.selectParticipant}
+        />
       );
     } else {
       participantList = [];
@@ -218,6 +222,8 @@ class MakeRooms extends Component {
             participantList={participantList}
             userId={this.props.userId}
             submit={this.submit}
+            select={this.selectParticipant}
+            selectedParticipants={this.state.selectedParticipants}
           />
         );
       }

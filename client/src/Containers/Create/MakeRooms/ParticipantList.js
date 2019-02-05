@@ -3,12 +3,13 @@ import classes from "./makeRooms.css";
 import { Checkbox } from "../../../Components";
 class ParticipantList extends Component {
   render() {
-    return this.props.list.map((participant, i) => {
+    let { list, selectedParticipants, select } = this.props;
+    return list.map((participant, i) => {
       let rowClass =
         i % 2 === 0
           ? [classes.EvenParticipant, classes.Participant].join(" ")
           : classes.Participant;
-      rowClass = this.state.selectedParticipants.includes(participant.user._id)
+      rowClass = selectedParticipants.includes(participant.user._id)
         ? [rowClass, classes.Selected].join(" ")
         : rowClass;
       return (
@@ -19,11 +20,9 @@ class ParticipantList extends Component {
         >
           <Checkbox
             label={`${i + 1}. ${participant.user.username}`}
-            change={this.selectParticipant}
+            change={select}
             dataId={participant.user._id}
-            checked={
-              this.state.selectedParticipants.indexOf(participant.user._id) > -1
-            }
+            checked={selectedParticipants.indexOf(participant.user._id) > -1}
           >
             {`${i + 1}. ${participant.user.username}`}
           </Checkbox>
