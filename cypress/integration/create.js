@@ -10,6 +10,7 @@ describe("create each type of resource", function() {
     });
     // cy.visit('/myVMT/courses')
   });
+
   it("creates a course", function() {
     cy.getTestElement("create-course").click();
     cy.get("input[name=name]").type(course.name);
@@ -188,18 +189,26 @@ describe("create each type of resource", function() {
     cy.contains(course.room.name).should("exist");
   });
 
-  // it('creates a course room from a course activity', function(){
-  //   cy.getTestElement('tab').contains('Activities').click()
-  //   cy.getTestElement(`content-box-${course.activity.name}`).click()
-  //   cy.url('include', '/activities')
-  //   cy.url('include', '/details')
-  //   cy.contains('Assign').click()
-  //   cy.get('input[name=dueDate]').type(course.room.dueDate)
-  //   cy.get('input[name=manual]').check()
-  //   cy.getTestElement('assign-rooms').click()
-  //   cy.getTestElement('tab').contains('Rooms').click()
-  //   cy.getTestElement(`content-box-${course.activity.name} (room 1)`).should('exist')
-  // })
+  // it("creates a course room from a course activity", function() {
+  //   cy.getTestElement("content-box-course 1").click();
+  //   cy.getTestElement("tab")
+  //     .contains("Activities")
+  //     .click();
+  //   cy.getTestElement(`content-box-ACTIVITY 2`).click();
+  //   cy.url("include", "/activities");
+  //   cy.url("include", "/details");
+  //   cy.contains("Assign").click();
+  //   cy.getTestElement("next-step-assign");
+  //   cy.get("input[name=dueDate]").type(course.room.dueDate);
+  //   cy.get("input[name=manual]").check();
+  //   cy.getTestElement("assign-rooms").click();
+  //   cy.getTestElement("tab")
+  //     .contains("Rooms")
+  //     .click();
+  //   cy.getTestElement(`content-box-${course.activity.name} (room 1)`).should(
+  //     "exist"
+  //   );
+  // });
 
   // @TODO MAKE SURE THIS WORKS WITH COURSE ACTIVITIES AND STAND ALONE ACTIVITIES
   // it('adds a community activitity to user1s stand alone activities', function(){

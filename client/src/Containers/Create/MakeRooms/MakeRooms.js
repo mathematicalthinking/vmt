@@ -176,11 +176,11 @@ class MakeRooms extends Component {
   };
 
   render() {
-    let { activity } = this.props;
+    let { activity, course } = this.props;
     // @TODO STUDENTLIST SHOULD REFLECT THIS.STATE.REMAINING STUDENTS -- RIGHT NOW THERE IS A
     // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
     let participantList;
-    if (activity.course) {
+    if (course) {
       participantList = (
         <ParticipantList
           list={this.state.remainingParticipants}
@@ -201,7 +201,8 @@ class MakeRooms extends Component {
     );
 
     if (this.state.step === 1) {
-      if (activity.course) {
+      console.log("activitCOURSE", course);
+      if (course) {
         CurrentStep = (
           <Step2Course
             activity={activity}

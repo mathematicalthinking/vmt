@@ -2,6 +2,7 @@ const user1 = require("../fixtures/user");
 const user2 = require("../fixtures/user2");
 const user3 = require("../fixtures/user3");
 const user4 = require("../fixtures/user4");
+const user5 = require("../fixtures/user5");
 const user6 = require("../fixtures/user6");
 
 describe("test access requests", function() {
@@ -87,6 +88,7 @@ describe("test access requests", function() {
     cy.getTestElement("content-box-course 2").click();
     cy.getTestElement("content-box-ACTIVITY 2").click();
     cy.getTestElement("assign").click();
+    cy.getTestElement("next-step-assign").click();
     cy.getTestElement("assign-manually").click();
     cy.contains("data").click();
     // cy.contains('worf').click()
@@ -121,6 +123,50 @@ describe("test access requests", function() {
     cy.getTestElement("content-box-ACTIVITY 2 (room 1)").click();
     cy.getTestElement("explore-room").click();
     cy.getTestElement("crumb").contains("My VMT");
+    cy.getTestElement("tab-ntf").should("not.exist");
+  });
+
+  it("user2 assigns user 5 to a stand alone room", function() {
+    cy.login(user1);
+    cy.getTestElement("tab")
+      .contains("Activities")
+      .click();
+    cy.getTestElement("content-box-stand-alone-activity").click();
+    cy.getTestElement("assign").click();
+    cy.getTestElement("next-step-assign").click();
+    cy.getTestElement("member-search")
+      .click()
+      .type("D");
+    cy.contains("D-troi").click();
+    cy.getTestElement("assign-rooms").click();
+    cy.getTestElement("tab")
+      .contains("Rooms")
+      .click();
+    cy.getTestElement("content-box-stand-alone-activity (room 1)").should(
+      "exist"
+    );
+  });
+
+  it("d-troi should have a new room notification", function() {
+    cy.login(user5);
+    cy.getTestElement("tab-ntf")
+      .contains("1")
+      .should("exist");
+    cy.getTestElement("tab")
+      .contains("Rooms")
+      .click();
+    cy.get(".fa-sync").click(); // toggle view to paricticpant
+    cy.getTestElement("content-box-stand-alone-activity (room 1)").should(
+      "exist"
+    );
+    cy.getTestElement("content-box-ntf")
+      .contains("1")
+      .should("exist");
+    cy.getTestElement("content-box-stand-alone-activity (room 1)").click();
+    cy.getTestElement("explore-room").click();
+    cy.getTestElement("crumb")
+      .contains("My VMT")
+      .click();
     cy.getTestElement("tab-ntf").should("not.exist");
   });
 

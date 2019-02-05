@@ -25,7 +25,9 @@ var data = [
       // "5ba289c57223b9429888b9b6",
       // "5ba289c57223b9429888b9b7",
     ],
-    activities: [],
+    activities: [
+      // 5bd1da254b2d4b2a6c45cf8a
+    ],
     isAdmin: false,
     seenTour: false,
     username: "jl-picard",
