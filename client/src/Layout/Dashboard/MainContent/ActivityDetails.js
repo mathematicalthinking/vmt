@@ -64,28 +64,19 @@ class ActivityDetails extends Component {
           ) : null}
         </div>
         {this.state.assigning ? (
-          <Modal
-            show={true}
-            closeModal={() => {
+          <MakeRooms
+            activity={activity}
+            course={course ? course._id : null}
+            userId={this.props.userId}
+            close={() => {
               this.setState({ assigning: false });
             }}
-          >
-            <MakeRooms
-              activity={activity}
-              course={course ? course._id : null}
-              userId={this.props.userId}
-              close={() => {
-                this.setState({ assigning: false });
-              }}
-              participants={
-                course
-                  ? course.members.filter(
-                      member => member.role === "participant"
-                    )
-                  : []
-              }
-            />
-          </Modal>
+            participants={
+              course
+                ? course.members.filter(member => member.role === "participant")
+                : []
+            }
+          />
         ) : null}
       </Aux>
     );
