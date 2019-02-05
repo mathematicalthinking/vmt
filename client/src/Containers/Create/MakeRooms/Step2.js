@@ -12,27 +12,35 @@ class Step2 extends Component {
 
   componentDidUpdate(prevProps) {
     // Add users to the selected list so we can persist them after we start a new a search
+    // Perhpas this would be a good time to deriveStateFromProps since...that's what we're doing
     if (
       prevProps.selectedParticipants.length <
       this.props.selectedParticipants.length
     ) {
-      console.log(this.props.selectedParticipants);
-      console.log(this.state.searchResults);
       let selectedUser = this.state.searchResults.filter(user =>
         this.props.selectedParticipants.find(
           userId => user._id.toString() === userId
         )
       );
-
-      let updatedSearchResults = this.state.searchResults.filter(
-        user => user._id !== selectedUser[0]._id
-      );
       this.setState({
         selectedParticipants: this.state.selectedParticipants.concat(
           selectedUser
-        ),
-        searchResults: updatedSearchResults
+        )
       });
+      // REmove users who have been de-selected
+    } else if (
+      prevProps.selectedParticipants.length >
+      this.props.selectedParticipants.length
+    ) {
+      console.log(this.props.selectedParticipants);
+      console.log(this.state.selectedParticipants);
+      let updatedSelected = this.state.selectedParticipants.filter(user => {
+        return this.props.selectedParticipants.find(
+          userId => user._id === userId
+        );
+      });
+      console.log(updatedSelected);
+      this.setState({ selectedParticipants: updatedSelected });
     }
   }
 
@@ -41,9 +49,7 @@ class Step2 extends Component {
       API.search(
         "user",
         text,
-        [this.props.userId].concat(
-          this.props.selectedParticipants.map(member => member._id) // Exclude myself and already selected members from th search
-        )
+        [this.props.userId].concat(this.props.selectedParticipants) // Exclude myself and already selected members from th search
       )
         .then(res => {
           let searchResults = res.data.results;
@@ -61,6 +67,19 @@ class Step2 extends Component {
     let { selectedParticipants, select, submit, done } = this.props;
     console.log(selectedParticipants);
     console.log(this.state.selectedParticipants);
+    let uniqueIds = [];
+    let list = this.state.selectedParticipants
+      .map(member => ({ user: member }))
+      .concat(this.state.searchResults.map(member => ({ user: member })))
+      .filter(member => {
+        if (uniqueIds.find(id => id === member.user._id)) {
+          return false;
+        } else {
+          uniqueIds.push(member.user._id);
+          return true;
+        }
+      });
+
     return (
       <div className={classes.Container}>
         <h2 className={classes.Title}>Assign To Rooms</h2>
@@ -73,11 +92,7 @@ class Step2 extends Component {
         </div>
         <div className={classes.ParticipantList}>
           <ParticipantList
-            list={this.state.selectedParticipants
-              .map(member => ({ user: member }))
-              .concat(
-                this.state.searchResults.map(member => ({ user: member }))
-              )}
+            list={list}
             selectedParticipants={selectedParticipants}
             select={select}
           />
