@@ -5,7 +5,7 @@ import Step1 from "./Step1";
 import Step2Copy from "./Step2Copy";
 import Step2New from "./Step2New";
 import Step3 from "./Step3";
-import DueDate from "./DueDate";
+import DueDate from "../DueDate";
 import { getUserResources, populateResource } from "../../../store/reducers";
 import { Modal, Aux, Button } from "../../../Components/";
 import classes from "../create.css";

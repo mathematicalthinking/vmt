@@ -1,14 +1,10 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
-import {
-  Button,
-  TextInput,
-  Checkbox,
-  Aux,
-  RadioBtn
-} from "../../../Components";
+import { Checkbox, Aux } from "../../../Components";
+import { Step1, Step1Course, Step2 } from "./index";
 import classes from "./makeRooms.css";
+import createClasses from "../create.css";
 import { createRoom } from "../../../store/actions";
 class MakeRooms extends Component {
   state = {
@@ -18,7 +14,8 @@ class MakeRooms extends Component {
     roomsCreated: 0,
     remainingParticipants: this.props.participants,
     dueDate: "",
-    error: null
+    error: null,
+    step: 0
   };
 
   componentDidMount() {
@@ -35,6 +32,13 @@ class MakeRooms extends Component {
     }
   };
 
+  setRandom = () => this.setState({ assignRandom: true });
+
+  setManual = () => this.setState({ assignRandom: false });
+
+  setParticipantNumber = event =>
+    this.setState({ participantsPerRoom: event.target.value });
+
   setNumber = event => {
     this.setState({
       participantsPerRoom: event.target.value.trim(),
@@ -44,6 +48,18 @@ class MakeRooms extends Component {
 
   setDate = event => {
     this.setState({ dueDate: event.target.value });
+  };
+
+  nextStep = () => {
+    this.setState(prevState => ({
+      step: prevState.step + 1
+    }));
+  };
+
+  prevStep = () => {
+    this.setState(prevState => ({
+      step: prevState.step - 1
+    }));
   };
 
   selectParticipant = (event, userId) => {
@@ -154,6 +170,7 @@ class MakeRooms extends Component {
   };
 
   render() {
+    let { activity } = this.props;
     // @TODO STUDENTLIST SHOULD REFLECT THIS.STATE.REMAINING STUDENTS -- RIGHT NOW THERE IS A
     // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
     let participantList = this.state.remainingParticipants.map(
@@ -167,7 +184,6 @@ class MakeRooms extends Component {
         )
           ? [rowClass, classes.Selected].join(" ")
           : rowClass;
-        // console.log(participant.user._id)
         return (
           <div
             className={rowClass}
@@ -195,57 +211,55 @@ class MakeRooms extends Component {
         );
       }
     );
+    let CurrentStep = (
+      <Step1
+        activity={activity}
+        participantList={participantList}
+        nextStep={this.nextStep}
+      />
+    );
+    if (this.state.step === 1)
+      CurrentStep = (
+        <Step2 dueDate={this.state.dueDate} setDate={this.setDate} />
+      );
+    else if (activity.course) {
+      CurrentStep = (
+        <Step1Course
+          activity={activity}
+          participantList={participantList}
+          nextStep={this.nextStep}
+          setRandom={this.setRandom}
+          setManual={this.setManual}
+          participantsPerRoom={this.state.participantsPerRoom}
+          setParticipantNumber={this.setParticipantNumber}
+          assignRandom={this.state.assignRandom}
+          error={this.state.error}
+        />
+      );
+    }
+    let stepDisplays = [];
+    for (let i = 0; i < 2; i++) {
+      stepDisplays.push(
+        <div
+          className={[
+            classes.Step,
+            i <= this.state.step ? classes.CompletedStep : null
+          ].join(" ")}
+        />
+      );
+    }
     return (
       <Aux>
-        <div className={classes.Container}>
-          <h2 className={classes.Title}>Assign Rooms</h2>
-          <div className={classes.SubContainer}>
-            <TextInput
-              light
-              label="Due Date"
-              name="dueDate"
-              type="date"
-              change={this.setDate}
-            />
-          </div>
-          <div className={classes.Radios}>
-            <RadioBtn
-              name="random"
-              checked={this.state.assignRandom}
-              check={() => this.setState({ assignRandom: true })}
-            >
-              Assign Randomly
-            </RadioBtn>
-            <RadioBtn
-              data-testid="assign-manually"
-              name="manual"
-              checked={!this.state.assignRandom}
-              check={() => this.setState({ assignRandom: false })}
-            >
-              Assign Manually
-            </RadioBtn>
-          </div>
-          {this.state.assignRandom ? (
-            <div className={classes.SubContainer}>
-              <div className={classes.Error}>{this.state.error || ""}</div>
-              <TextInput
-                light
-                label="Number of participants per room"
-                type="number"
-                change={this.setNumber}
-              />
-            </div>
-          ) : (
-            <div className={classes.SubContainer}>
-              <div className={classes.ParticipantList}>{participantList}</div>
-            </div>
-          )}
-          <div className={classes.Button}>
-            <Button m={5} click={this.submit} data-testid="assign-rooms">
-              Assign
-            </Button>
-          </div>
-        </div>
+        {this.state.step > 0 ? (
+          <i
+            onClick={this.prevStep}
+            className={["fas", "fa-arrow-left", createClasses.BackIcon].join(
+              " "
+            )}
+          />
+        ) : null}
+        {CurrentStep}
+        <div className={createClasses.StepDisplayContainer}>{stepDisplays}</div>
       </Aux>
     );
   }
