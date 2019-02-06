@@ -2,7 +2,9 @@ import React from "react";
 import classes from "./about.css";
 import example1 from "./example1.gif";
 import example2 from "./example2.gif";
-import { Background, Aux, DemoBrowser } from "../../Components";
+import example3 from "./example3.gif";
+import example4 from "./example4.gif";
+import { Aux, DemoBrowser } from "../../Components";
 const About = () => {
   return (
     <Aux>
@@ -58,7 +60,7 @@ const About = () => {
         </div>
         <div className={classes.Content}>
           <DemoBrowser>
-            <img src={example1} alt="example-1" />
+            <img src={example3} alt="example-3" />
           </DemoBrowser>
           <p className={classes.Description}>
             ...Or anyone can start collaborating immediately simply by inviting
@@ -72,7 +74,7 @@ const About = () => {
             collaborative thought processes.
           </p>
           <DemoBrowser>
-            <img src={example1} alt="example-1" />
+            <img src={example4} alt="example-4" />
           </DemoBrowser>
         </div>
       </div>
