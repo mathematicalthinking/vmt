@@ -11,7 +11,8 @@ const navbar = props => {
     (props.page !== "/" &&
       props.page !== "/signup" &&
       props.page !== "/login" &&
-      props.page !== "/confirmation")
+      props.page !== "/confirmation" &&
+      props.page !== "/about")
   ) {
     styles = [classes.Nav, classes.LightNav].join(" ");
   }

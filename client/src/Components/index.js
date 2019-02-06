@@ -37,4 +37,5 @@ export { default as SelectionList } from "./Form/SelectionList/SelectionList";
 export { default as TrashModal } from "./UI/Modal/TrashModal";
 export { default as Error } from "./HOC/Error";
 export { default as ErrorToast } from "./Error/ErrorToast";
-export { default as Searcg } from "./Search/Search";
+// export { default as Search } from "./Search/Search";
+export { default as DemoBrowser } from "./DemoBrowser/DemoBrowser";

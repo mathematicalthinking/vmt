@@ -1,0 +1,67 @@
+:import("../../colors.css") {
+  navBarHeight: navBarHeight;
+  lightBlue: lightBlue;
+  darkBlue: darkBlue;
+  gridBlue: gridBlue;
+  lightShadow: lightShadow;
+}
+
+.Container {
+  margin-top: navBarHeight;
+  padding-top: 90px;
+  z-index: 1000;
+  width: 90%;
+  align-self: center;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  transition: 0.2s;
+  /* background-image: linear-gradient(
+    to top,
+    #d4edfc 1%,
+    gridBlue 15%,
+    darkBlue 100%
+  ); */
+}
+
+.BackgroundContainer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+}
+
+.Background {
+  position: absolute;
+  width: 100%;
+  /* overflow: hidden; */
+  height: 100%;
+  bottom: -1px;
+  background-image: linear-gradient(
+    to top,
+    #d4edfc 1%,
+    gridBlue 15%,
+    darkBlue 100%
+  );
+}
+
+.Tagline {
+  color: rgb(206, 238, 248);
+  /* color: white; */
+  font-size: 40px;
+  width: 700px;
+  text-align: center;
+  /* z-index: 1000; */
+}
+
+.Content {
+  display: flex;
+}
+
+@media screen and (max-height: 650px) {
+  .Container {
+    padding-top: 60px;
+  }
+}

@@ -8,3 +8,4 @@ export { default as NewResource } from "./Create/NewResource/NewResource";
 export { default as FromActivity } from "./Create/FromActivity";
 export { default as BoxList } from "./BoxList/BoxList";
 export { default as WorkspaceLayout } from "./Workspace/Workspace";
+export { default as About } from "./About/About";
