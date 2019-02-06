@@ -12,6 +12,7 @@ const avatar = props => {
     fontSize = 80;
     border = "3px solid white";
   }
+  console.log(props.size);
   return (
     <div className={classes.UserInfo}>
       {/* <Link to='/#'> eventually a link to their profile page*/}
@@ -20,6 +21,12 @@ const avatar = props => {
           className={["fas fa-user", classes.Avatar].join(" ")}
           style={{ fontSize, padding, border }}
         />
+        {props.size === "large" ? (
+          <div className={classes.AvatarOverlay}>
+            <i className={["fas fa-upload", classes.CameraIcon].join(" ")} />
+            <i className={["fas fa-camera", classes.CameraIcon].join(" ")} />
+          </div>
+        ) : null}
       </span>
       <span data-testid="avatar-name" className={classes.Username}>
         {props.username}

@@ -1,5 +1,6 @@
-:import('../../../colors.css') {
+:import("../../../colors.css") {
   blue: blue;
+  lightestShadow: lightestShadow;
 }
 .UserInfo {
   margin-bottom: 5px;
@@ -12,19 +13,48 @@
 }
 
 .Avatar {
-  background-color:blue;
+  background-color: blue;
   color: white;
   border-radius: 50%;
-  align-self: flex-start;
+  /* align-self: flex-start; */
 }
 
 .AvatarContainer {
+  position: relative;
   display: flex;
-  flex-direction: row;
   justify-content: center;
+  align-items: center;
   margin: 0 auto;
   padding: 2px;
+  height: 175px;
   background: white;
+  border-radius: 3px;
+  box-shadow: lightestShadow;
+}
+
+.AvatarOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: #353535;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: 0.2s;
+}
+
+.CameraIcon {
+  font-size: 35px;
+  margin: 15px;
+  color: white;
+}
+.AvatarContainer:hover .AvatarOverlay {
+  opacity: 0.5;
+  z-index: 2;
+  cursor: pointer;
 }
 
 .Username {
