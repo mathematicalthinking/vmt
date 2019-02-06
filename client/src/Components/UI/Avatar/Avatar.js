@@ -20,6 +20,12 @@ const avatar = props => {
           className={["fas fa-user", classes.Avatar].join(" ")}
           style={{ fontSize, padding, border }}
         />
+        {props.size === "large" ? (
+          <div className={classes.AvatarOverlay}>
+            <i className={["fas fa-upload", classes.CameraIcon].join(" ")} />
+            <i className={["fas fa-camera", classes.CameraIcon].join(" ")} />
+          </div>
+        ) : null}
       </span>
       <span data-testid="avatar-name" className={classes.Username}>
         {props.username}

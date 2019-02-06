@@ -1,4 +1,4 @@
-:import('../../colors.css'){
+:import("../../colors.css") {
   lightBlue: lightBlue;
   blue: blue;
 }
@@ -18,7 +18,7 @@
   align-self: center;
   /* border-top: 1px solid #75b7f6; */
   padding: 0 40px;
-  transition: .2s;
+  transition: 0.2s;
 }
 
 .BreadCrumbs {
@@ -31,9 +31,10 @@
   height: 100%;
   flex-grow: 2;
   display: flex;
+  flex-flow: row;
   padding: 0 10px;
+  transition: 0.2s;
 }
-
 
 .SidePanel {
   display: flex;
@@ -44,13 +45,12 @@
   width: var(--side-panel-width);
   border-right: 1px solid #ddd;
   height: 98%;
+  transition: 0.2s;
 }
-
 
 .Tabs {
   /* border: 1px solid orange; */
 }
-
 
 .Content {
   display: flex;
@@ -64,7 +64,6 @@
   padding-top: 30px;
 }
 
-
 .Trash {
   position: absolute;
   bottom: 30px;
@@ -73,7 +72,6 @@
 }
 
 .CreateContainer {
-
 }
 
 .CreateForParticipant:hover {
@@ -82,6 +80,41 @@
 
 @media screen and (max-width: 1100px) {
   .Container {
-    align-self: flex-start
+    align-self: flex-start;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .SidePanel {
+    margin-right: 10px;
+    padding-right: 10px;
+    width: calc(var(--side-panel-width) * 0.75);
+  }
+
+  .Container {
+    padding: 0 10px;
+  }
+
+  .Content {
+    width: calc(100% - var(--side-panel-width) * 0.75);
+    /* flex-grow: 3; */
+    /* max-width: 850px; */
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .SidePanel {
+    height: auto;
+  }
+  .Main {
+    flex-flow: column;
+  }
+
+  .Content {
+    width: 100%;
+  }
+
+  .SidePanel {
+    width: 100%;
   }
 }

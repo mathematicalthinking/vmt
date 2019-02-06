@@ -24,7 +24,14 @@ const boxList = React.memo(props => {
           details = {
             entryCode: item.entryCode,
             description: item.description,
-            facilitators: []
+            facilitators: item.members
+              ? item.members
+                  .filter(member => member.role === "facilitator")
+                  .map(
+                    (member, i, arr) =>
+                      `${member.user.username}${i < arr.length - 1 ? ", " : ""}`
+                  )
+              : []
           };
         } else {
           details = {
@@ -37,6 +44,7 @@ const boxList = React.memo(props => {
               : []
           };
         }
+        console.log(props);
         return (
           <div className={classes.ContentBox} key={i}>
             {!props.draggable ? (
