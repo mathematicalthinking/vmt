@@ -1,16 +1,19 @@
-:import('../../colors.css'){
+:import("../../colors.css") {
   green: green;
   lightShadow: lightShadow;
   darkShadow: darkShadow;
-  backgroundGray: backgroundGray; 
+  backgroundGray: backgroundGray;
   navBarHeight: navBarHeight;
 }
-:root{
+:root {
   --margin-top: 48px;
 }
 .Container {
   margin-top: var(--margin-top);
   position: relative;
+  width: 80%;
+  max-width: 1100px;
+  align-self: center;
 }
 
 .Title {
@@ -52,7 +55,7 @@
   padding: 6px;
   border: 1px solid #ccc;
   border-radius: 2px;
-  transition: .2s ease-in-out;
+  transition: 0.2s ease-in-out;
 }
 
 .SelectCountNone {

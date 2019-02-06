@@ -9,7 +9,7 @@ import {
   Logout,
   TempWorkspace
 } from "../Containers";
-import { Confirmation } from "../Layout";
+import { Confirmation, About } from "../Layout";
 import classes from "./main.css";
 import Aux from "../Components/HOC/Auxil";
 import { connect } from "react-redux";
@@ -54,7 +54,8 @@ class Home extends PureComponent {
                 />
               )}
             />
-            <Route path="/community/:resource/:action" component={Community} />
+            {/* <Route path="/community/:resource/:action" component={Community} /> */}
+            <Route path="/about" component={About} />
             <Route path="/community/:resource" component={Community} />
             <Route exact path={`/logout`} component={Logout} />
             <Route path="/login" component={Login} />

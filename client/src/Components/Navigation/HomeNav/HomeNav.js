@@ -7,11 +7,11 @@ import classes from "./homeNav.css";
 const navbar = props => {
   let styles = classes.Nav;
   if (
-    props.scrollPosition > 0.3 ||
-    (props.page !== "/" &&
-      props.page !== "/signup" &&
-      props.page !== "/login" &&
-      props.page !== "/confirmation")
+    props.page !== "/" &&
+    props.page !== "/signup" &&
+    props.page !== "/login" &&
+    props.page !== "/confirmation" &&
+    props.page !== "/about"
   ) {
     styles = [classes.Nav, classes.LightNav].join(" ");
   }
