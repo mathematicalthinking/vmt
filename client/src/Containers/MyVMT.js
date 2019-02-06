@@ -206,6 +206,7 @@ class Profile extends Component {
   };
 
   render() {
+    console.log(this.state.displayResources);
     let { user, match } = this.props;
     let resource = match.params.resource;
 

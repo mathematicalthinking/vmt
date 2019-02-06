@@ -12,7 +12,6 @@ const avatar = props => {
     fontSize = 80;
     border = "3px solid white";
   }
-  console.log(props.size);
   return (
     <div className={classes.UserInfo}>
       {/* <Link to='/#'> eventually a link to their profile page*/}

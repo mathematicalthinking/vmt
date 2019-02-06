@@ -143,6 +143,11 @@
   margin-left: 5px;
 }
 
+@media screen and (max-width: 900px) {
+  .Image {
+    width: 175px;
+  }
+}
 @media screen and (max-width: 400px) {
   .spAdditional {
     display: none;
