@@ -3,7 +3,8 @@
 }
 
 .DemoBrowser {
-  height: 400px;
+  height: 350px;
+  heigh: auto;
   width: 600px;
   border-radius: 4px;
   background: #f9f9f9;

@@ -16,6 +16,8 @@
   flex-flow: column;
   align-items: center;
   transition: 0.2s;
+  color: white;
+  z-index: 1;
   /* background-image: linear-gradient(
     to top,
     #d4edfc 1%,
@@ -25,16 +27,15 @@
 }
 
 .BackgroundContainer {
-  position: fixed;
+  position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 100%;
 }
 
 .Background {
-  position: absolute;
+  position: fixed;
   width: 100%;
   /* overflow: hidden; */
   height: 100%;
@@ -56,8 +57,35 @@
   /* z-index: 1000; */
 }
 
+.Image {
+  width: 100%;
+  height: calc(100% - 30px);
+}
+
 .Content {
+  margin-top: 150px;
   display: flex;
+  justify-content: space-around;
+  align-items: center;
+  font-size: 20px;
+  width: 100%;
+}
+
+.Description {
+  margin: 0 40px;
+  max-width: 500px;
+}
+
+.Link {
+  text-decoration: underline;
+  transition: 0.2s;
+}
+
+.Link:hover {
+  color: rgb(206, 238, 248);
+}
+.Content:last-child {
+  margin-bottom: 100px;
 }
 
 @media screen and (max-height: 650px) {
