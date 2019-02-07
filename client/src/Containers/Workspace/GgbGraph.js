@@ -80,6 +80,11 @@ class GgbGraph extends Component {
         }
         // setTimeout(() => {
         this.setState({ switchingControl: false });
+        var elements = document.getElementsByClassName("rightButtonPanel");
+        console.log(elements[0].lastChild);
+        elements[0].lastChild.addEventListener("click", () => {
+          console.log("CLICKED");
+        });
         // }, 0)
       });
     } else if ((wasInControl && !isInControl) || isSomeoneElseInControl) {
@@ -240,6 +245,7 @@ class GgbGraph extends Component {
   };
 
   updateListener = label => {
+    console.log("UPDATE: ", label);
     let isInControl = this.props.room.controlledBy === this.props.user._id;
     if (!isInControl || this.state.switchingControl) {
       return;
@@ -253,6 +259,7 @@ class GgbGraph extends Component {
 
   // Used to capture referencing
   clickListener = async element => {
+    console.log("CLICK, ", element);
     // console.log("CLICKED", this.ggbApplet.getXML())
     if (this.props.referencing) {
       // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
