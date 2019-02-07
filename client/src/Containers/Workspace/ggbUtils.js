@@ -1,5 +1,12 @@
 // https://wiki.geogebra.org/en/SetPerspective_Command
 const perspectiveMap = {
+  Algebra: "A",
+  "Probability Calculator": "B",
+  CAS: "C",
+  "Graphics 2": "D",
+  Graphics: "G",
+  "Construction Protocol": "L",
+  Spreadsheet: "S",
   "3D Graphics": "T"
 };
 export const initPerspectiveListener = (document, perspectiveChanged) => {

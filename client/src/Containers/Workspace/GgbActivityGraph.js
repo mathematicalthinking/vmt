@@ -4,6 +4,7 @@ import { parseString } from "xml2js";
 import throttle from "lodash/throttle";
 import { Aux, Modal } from "../../Components";
 import INITIAL_GGB from "./blankGgb";
+import { initPerspectiveListener } from "./ggbUtils.js";
 import Script from "react-load-script";
 import classes from "./graph.css";
 
@@ -23,9 +24,13 @@ class GgbActivityGraph extends Component {
       // by wrapping this in a setimteout of 0 I'm attempting to delay all of the event blocking geogebra operations
       // until after any UI updates////can't quite tell if it working...when switching tab the tab animation should be smoothe
       setTimeout(() => {
-        let { currentState, startingPoint, ggbFile } = this.props.tabs[
-          this.props.currentTab
-        ];
+        let {
+          currentState,
+          startingPoint,
+          ggbFile,
+          perspective
+        } = this.props.tabs[this.props.currentTab];
+        if (perspective) this.ggbApplet.setPerspective(perspective);
         if (currentState) {
           this.ggbApplet.setXML(currentState);
           this.registerListeners();
@@ -57,6 +62,13 @@ class GgbActivityGraph extends Component {
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions);
   }
+
+  perspectiveChanged = newPerspective => {
+    let updatedTab = { ...this.props.tabs[this.props.currentTab] };
+    this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {
+      perspective: newPerspective
+    });
+  };
 
   updateDimensions = () => {
     if (this.resizeTimer) {
@@ -128,6 +140,7 @@ class GgbActivityGraph extends Component {
   };
 
   initializeGgb = () => {
+    initPerspectiveListener(document, this.perspectiveChanged);
     this.ggbApplet = window.ggbApplet;
     this.setState({ loading: false });
     let { currentState, startingPoint, ggbFile } = this.props.tabs[

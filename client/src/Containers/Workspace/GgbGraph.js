@@ -120,10 +120,13 @@ class GgbGraph extends Component {
       let position = await this.getRelativeCoords(this.props.referToEl.element);
       this.props.setToElAndCoords(null, position);
     } else if (prevProps.currentTab !== this.props.currentTab) {
-      let { currentState, startingPoint, ggbFile } = this.props.room.tabs[
-        this.props.currentTab
-      ];
-
+      let {
+        currentState,
+        startingPoint,
+        ggbFile,
+        perspective
+      } = this.props.room.tabs[this.props.currentTab];
+      if (perspective) this.ggbApplett.setPerspective(perspective);
       if (currentState) {
         this.ggbApplet.setXML(currentState);
         this.registerListeners();
@@ -224,7 +227,6 @@ class GgbGraph extends Component {
       currentTab
     ];
     // put the current construction on the graph, disable everything until the user takes control
-    console.log("perspective, ", perspective);
     if (perspective) this.ggbApplet.setPerspective(perspective);
     if (currentState) {
       console.log("we have currentState");
