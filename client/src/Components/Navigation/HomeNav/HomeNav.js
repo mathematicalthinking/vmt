@@ -6,12 +6,14 @@ import Aux from "../../HOC/Auxil";
 import classes from "./homeNav.css";
 const navbar = props => {
   let styles = classes.Nav;
-  if (
-    props.page !== "/" &&
-    props.page !== "/signup" &&
-    props.page !== "/login" &&
-    props.page !== "/confirmation" &&
-    props.page !== "/about"
+  if (props.page === "/about") {
+    styles = [classes.Nav, classes.GradientNav].join(" ");
+  } else if (
+    (props.scrollPosition > 0.3 && props.page === "/") ||
+    (props.page !== "/" &&
+      props.page !== "/signup" &&
+      props.page !== "/login" &&
+      props.page !== "/confirmation")
   ) {
     styles = [classes.Nav, classes.LightNav].join(" ");
   }
@@ -23,6 +25,7 @@ const navbar = props => {
   ) {
     ntf = true;
   }
+  console.log(styles);
 
   return (
     <nav className={styles}>
