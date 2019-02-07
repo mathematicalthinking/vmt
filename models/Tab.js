@@ -7,6 +7,11 @@ const Tab = new mongoose.Schema({
   currentState: { type: String, default: "" },
   ggbFile: { type: String }, // ggb base64 file
   desmosLink: { type: String },
+  perspective: {
+    type: String,
+    enum: ["A", "B", "C", "D", "G", "L", "S", "T"],
+    default: "A"
+  },
   events: { type: [{ type: ObjectId, ref: "Event", _id: false }], default: [] },
   room: { type: ObjectId, ref: "Room" },
   activity: { type: ObjectId, ref: "Activity" },

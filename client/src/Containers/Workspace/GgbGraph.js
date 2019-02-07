@@ -220,8 +220,12 @@ class GgbGraph extends Component {
     this.setState({ loading: false });
     this.ggbApplet.setMode(40); // Sets the tool to zoom
     let { room, currentTab } = this.props;
-    let { currentState, startingPoint, ggbFile } = room.tabs[currentTab];
+    let { currentState, startingPoint, ggbFile, perspective } = room.tabs[
+      currentTab
+    ];
     // put the current construction on the graph, disable everything until the user takes control
+    console.log("perspective, ", perspective);
+    if (perspective) this.ggbApplet.setPerspective(perspective);
     if (currentState) {
       console.log("we have currentState");
       this.ggbApplet.setXML(currentState);

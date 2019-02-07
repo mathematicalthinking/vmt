@@ -242,9 +242,12 @@ module.exports = function() {
         data.event = JSON.stringify(data.event);
       }
       try {
-        await controllers.tabs.put(data.tab, {
-          currentState: data.currentState
-        });
+        let updateQuery = { currentState: data.currentState };
+        if (data.eventType === "CHANGE_PERSPECTIVE") {
+          console.log("adding perspective to quert: ", data.event);
+          updateQuery.perspective = data.event;
+        }
+        await controllers.tabs.put(data.tab, updateQuery);
       } catch (err) {
         console.log("err 1: ", err);
       }
