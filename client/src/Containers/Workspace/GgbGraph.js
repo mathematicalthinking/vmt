@@ -6,6 +6,7 @@ import Script from "react-load-script";
 import throttle from "lodash/throttle";
 import socket from "../../utils/sockets";
 import { parseString } from "xml2js";
+import { initPerspectiveListener } from "./ggbUtils";
 // import { eventNames } from 'cluster';
 // THINK ABOUT GETTING RID OF ALL XML PARSING...THERE ARE PROBABLY NATIVE GGB METHODS THAT CAN ACCOMPLISH EVERYTHING WE NEEDd
 const THROTTLE_FIDELITY = 60;
@@ -80,12 +81,7 @@ class GgbGraph extends Component {
         }
         // setTimeout(() => {
         this.setState({ switchingControl: false });
-        var elements = document.getElementsByClassName("rightButtonPanel");
-        console.log(elements[0].lastChild);
-        elements[0].lastChild.addEventListener("click", () => {
-          console.log("CLICKED");
-        });
-        // }, 0)
+        initPerspectiveListener(document, this.perspectiveChanged);
       });
     } else if ((wasInControl && !isInControl) || isSomeoneElseInControl) {
       this.ggbApplet.showToolBar(false);
@@ -275,6 +271,13 @@ class GgbGraph extends Component {
       position = await this.getRelativeCoords(element);
       this.props.setToElAndCoords({ element, elementType: "point" }, position);
     }
+  };
+
+  perspectiveChanged = () => {
+    setTimeout(() => {
+      let newPerspective = this.ggbApplet.getPerspectiveXML();
+      console.log(newPerspective);
+    }, 0);
   };
 
   registerListeners() {
