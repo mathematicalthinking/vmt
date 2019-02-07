@@ -28,6 +28,7 @@ class GgbGraph extends Component {
     window.addEventListener("resize", this.updateDimensions);
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
+      console.log("received EVENT!");
       let updatedTabs = this.props.room.tabs.map(tab => {
         if (tab._id === data.tab) {
           tab.currentState = data.currentState;
@@ -53,6 +54,14 @@ class GgbGraph extends Component {
               this.ggbApplet.evalXML(data.event);
               this.ggbApplet.evalCommand("UpdateConstruction()");
               break;
+            case "CHANGE_PERSPECTIVE":
+              console.log("CHANGIN PERSPECTIVE");
+              console.log(data.event);
+              this.ggbApplet.setPerspective(data.event);
+              this.ggbApplet.showAlgebraInput(true);
+              // this.ggbApplet.evalXML(data.event);
+              // this.ggbApplet.evalCommand("UpdateConstruction()");
+              break;
             default:
               break;
           }
@@ -77,10 +86,11 @@ class GgbGraph extends Component {
           // im not really sure what this does we seem to get the same menu whether we specify all these numbers or not...but it was breaking the hamburger menu to do so
           // this.ggbApplet.showToolBar("0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6")
           this.ggbApplet.showMenuBar(true);
-          this.freezeElements(false);
         }
         // setTimeout(() => {
-        this.setState({ switchingControl: false });
+        this.setState({ switchingControl: false }, () => {
+          this.freezeElements(false);
+        });
         initPerspectiveListener(document, this.perspectiveChanged);
       });
     } else if ((wasInControl && !isInControl) || isSomeoneElseInControl) {
@@ -169,8 +179,8 @@ class GgbGraph extends Component {
     const parameters = {
       id: "ggbApplet",
       // "scaleContainerClasse": "graph",
-      customToolBar:
-        "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
+      // customToolBar:
+      //   "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
       showToolBar:
         this.props.room.controlledBy === this.props.user._id ? true : false,
       showMenuBar:
@@ -181,7 +191,7 @@ class GgbGraph extends Component {
       borderColor: "#ddd",
       buttonShadows: true,
       preventFocus: true,
-      // "appName":"whiteboard"
+      appName: "3D Graphics",
       appletOnLoad: this.initializeGgb
     };
 
@@ -213,6 +223,7 @@ class GgbGraph extends Component {
     let { currentState, startingPoint, ggbFile } = room.tabs[currentTab];
     // put the current construction on the graph, disable everything until the user takes control
     if (currentState) {
+      console.log("we have currentState");
       this.ggbApplet.setXML(currentState);
     } else if (startingPoint) {
       this.ggbApplet.setXML(startingPoint);
@@ -272,12 +283,9 @@ class GgbGraph extends Component {
       this.props.setToElAndCoords({ element, elementType: "point" }, position);
     }
   };
-
-  perspectiveChanged = () => {
-    setTimeout(() => {
-      let newPerspective = this.ggbApplet.getPerspectiveXML();
-      console.log(newPerspective);
-    }, 0);
+  // This function can only fire when someone is in control. So if the perspective changes emit that to everyone.
+  perspectiveChanged = newPerspectiveCode => {
+    this.sendEvent(newPerspectiveCode, null, null, "CHANGE_PERSPECTIVE", null);
   };
 
   registerListeners() {
@@ -302,23 +310,12 @@ class GgbGraph extends Component {
       alert(
         "You are not in control. The update you just made will not be saved. Please refresh the page"
       );
-      // console.log('attempting to undo')
-      // console.log(xml, action, label, definition, eventType)
-      // console.log(this.ggbApplet.getLayer(label))
-      // switch (eventType) {
-      //   case 'REMOVE':
-      //     if (definition) this.ggbApplet.evalCommand(`${label}:${definition}`);
-      //     if (xml) this.ggbApplet.evalXML(xml);
-      //     this.ggbApplet.evalCommand('UpdateConstruction()');
-      //     break;
-      //   default:
-      //     break;
-      // }
       this.ggbApplet.undo();
       return;
     }
     let xmlObj;
-    if (xml) xmlObj = await this.parseXML(xml);
+    if (xml && eventType !== "CHANGE_PERSPECTIVE")
+      xmlObj = await this.parseXML(xml); // @TODO We should do this parsing on the backend yeah? we only need this for to build the description which we only need in the replayer anyway
     let newData = {
       definition,
       label,
@@ -331,7 +328,7 @@ class GgbGraph extends Component {
       } ${label}`,
       user: { _id: this.props.user._id, username: this.props.user.username },
       timestamp: new Date().getTime(),
-      currentState: this.ggbApplet.getXML(),
+      currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
       mode: this.ggbApplet.getMode()
     };
     // throttle(() => {
@@ -356,11 +353,11 @@ class GgbGraph extends Component {
   };
 
   freezeElements = freeze => {
-    let allElements = this.ggbApplet.getAllObjectNames(); // WARNING ... THIS METHOD IS DEPRECATED
-    allElements.forEach(element => {
-      // AS THE CONSTRUCTION GETS BIGGER THIS GETS SLOWER...SET_FIXED IS BLOCKING
-      this.ggbApplet.setFixed(element, freeze, true); // Unfix/fix all of the elements
-    });
+    // let allElements = this.ggbApplet.getAllObjectNames(); // WARNING ... THIS METHOD IS DEPRECATED
+    // allElements.forEach(element => {
+    //   // AS THE CONSTRUCTION GETS BIGGER THIS GETS SLOWER...SET_FIXED IS BLOCKING
+    //   this.ggbApplet.setFixed(element, freeze, true); // Unfix/fix all of the elements
+    // });
   };
 
   getRelativeCoords = element => {

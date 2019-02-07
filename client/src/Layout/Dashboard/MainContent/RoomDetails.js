@@ -28,7 +28,7 @@ class RoomDetails extends Component {
             {/*CONSIDER: COULD REPLACE THESE 0'S WITH LOADING SPINNERS? */}
             {/* {room.graphImage && room.graphImage.imageData !== '' ? <div><div><b>Current Construction: </b></div><img className={classes.StateImage} src={room.graphImage.imageData} alt="current-state"/></div> : null} */}
             <div>
-              <b>Current Members: </b>
+              <b>In the room now: </b>
               {room.currentMembers ? room.currentMembers.length : 0}
             </div>
             <div>

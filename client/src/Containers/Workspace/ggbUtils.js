@@ -1,3 +1,7 @@
+// https://wiki.geogebra.org/en/SetPerspective_Command
+const perspectiveMap = {
+  "3D Graphics": "T"
+};
 export const initPerspectiveListener = (document, perspectiveChanged) => {
   var elements = document.getElementsByClassName("rightButtonPanel");
   elements[0].lastChild.addEventListener("click", function() {
@@ -8,7 +12,8 @@ export const initPerspectiveListener = (document, perspectiveChanged) => {
         item.addEventListener("click", function() {
           for (let perspective of item.nextSibling.firstChild.children) {
             perspective.addEventListener("click", () => {
-              perspectiveChanged();
+              console.log(perspective.textContent);
+              perspectiveChanged(perspectiveMap[perspective.textContent]);
             });
           }
         });
