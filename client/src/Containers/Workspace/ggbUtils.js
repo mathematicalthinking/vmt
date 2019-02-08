@@ -13,46 +13,76 @@ const perspectiveMap = {
 export const initPerspectiveListener = (
   document,
   currentPerspective,
-  perspectiveChanged
+  perspectiveChanged,
+  store
 ) => {
+  console.log("reinitiazlizing!");
+  // console.log("SOTTT: ", store)
   var elements = document.getElementsByClassName("rightButtonPanel");
-  elements[0].lastChild.addEventListener("click", function() {
+  elements[0].lastChild.removeEventListener("click", menuClickListener);
+  elements[0].lastChild.addEventListener("click", menuClickListener);
+
+  // let item;
+  function menuClickListener() {
+    console.log("menu clicked");
     var menuItems = document.getElementsByClassName("gwt-StackPanelItem");
     for (let item of menuItems) {
       if (item.lastChild.innerHTML.includes("Perspectives")) {
-        item.addEventListener("click", function() {
-          for (let perspective of item.nextSibling.firstChild.children) {
-            perspective.addEventListener("click", () => {
-              perspectiveChanged(perspectiveMap[perspective.textContent]);
-            });
-          }
-        });
+        item.removeEventListener("click", perspectiveClickListener);
+        item.addEventListener("click", perspectiveClickListener);
       } else if (item.lastChild.innerHTML.includes("View")) {
-        item.addEventListener("click", function() {
-          for (let view of item.nextSibling.firstChild.children) {
-            if (Object.keys(perspectiveMap).indexOf(view.textContent) > -1) {
-              view.addEventListener("click", () => {
-                let newPerspective;
-                let viewCode = view.textContent;
-                console.log("CURRENT PER: ", currentPerspective);
-                if (currentPerspective.indexOf(perspectiveMap[viewCode]) > -1) {
-                  console.log("removing");
-                  // remove from perspective string if the currentPerspective already has it
-                  let regex = new RegExp(perspectiveMap[viewCode], "g");
-                  newPerspective = currentPerspective.replace(regex, "");
-                } else {
-                  console.log("adding new perspective");
-                  newPerspective = `${currentPerspective}${
-                    perspectiveMap[viewCode]
-                  }`;
-                }
-                console.log("NEW: ", newPerspective);
-                perspectiveChanged(newPerspective);
-              });
-            }
-          }
-        });
+        item.removeEventListener("click", viewClickListener);
+        item.addEventListener("click", viewClickListener);
       }
     }
-  });
+
+    function perspectiveClickListener() {
+      console.log("perspective clicked");
+      let perspective;
+      for (perspective of this.nextSibling.firstChild.children) {
+        perspective.removeEventListener("click", cb);
+        perspective.addEventListener("click", cb);
+      }
+
+      function cb() {
+        perspectiveChanged(perspectiveMap[perspective.textContent]);
+      }
+    }
+
+    function viewClickListener() {
+      console.log("view clicked");
+      let viewItem;
+      // console.log(item);
+      console.log(this);
+      for (viewItem of this.nextSibling.firstChild.children) {
+        console.log(viewItem);
+        if (Object.keys(perspectiveMap).indexOf(viewItem.textContent) > -1) {
+          viewItem.removeEventListener("click", viewItemClickListener);
+          viewItem.addEventListener("click", viewItemClickListener);
+        }
+      }
+
+      function viewItemClickListener() {
+        console.log("viewItem clicked");
+        let newPerspective;
+        let viewCode = this.textContent;
+        console.log("View code: ", viewCode);
+        console.log(this);
+        let checkbox = this.firstChild.firstChild.firstChild.firstChild
+          .firstChild.firstChild;
+        console.log(checkbox);
+        // we're actually checking if it IS CHECKED...this click will switch it checked
+        if (!checkbox.checked) {
+          console.log("CHECKED!");
+          console.log("currentPerspective");
+          newPerspective = `${currentPerspective}${perspectiveMap[viewCode]}`;
+        } else {
+          let regex = new RegExp(perspectiveMap[viewCode], "g");
+          newPerspective = currentPerspective.replace(regex, "");
+        }
+        console.log("NEW: ", newPerspective);
+        perspectiveChanged(newPerspective);
+      }
+    }
+  }
 };

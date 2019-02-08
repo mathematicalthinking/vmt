@@ -7,6 +7,7 @@ import INITIAL_GGB from "./blankGgb";
 import { initPerspectiveListener } from "./ggbUtils.js";
 import Script from "react-load-script";
 import classes from "./graph.css";
+import { store } from "../../App";
 
 class GgbActivityGraph extends Component {
   state = {
@@ -65,6 +66,7 @@ class GgbActivityGraph extends Component {
   }
 
   perspectiveChanged = newPerspective => {
+    console.log("perspective change recorded");
     let updatedTab = { ...this.props.tabs[this.props.currentTab] };
     this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {
       perspective: newPerspective
@@ -151,7 +153,12 @@ class GgbActivityGraph extends Component {
     ];
     console.log("perspective on init: ", perspective);
     if (perspective) this.ggbApplet.setPerspective(perspective);
-    initPerspectiveListener(document, perspective, this.perspectiveChanged);
+    initPerspectiveListener(
+      document,
+      perspective,
+      this.perspectiveChanged,
+      store
+    );
     if (currentState) {
       this.ggbApplet.setXML(currentState);
     } else if (startingPoint) {
