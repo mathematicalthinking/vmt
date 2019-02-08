@@ -91,7 +91,11 @@ class GgbGraph extends Component {
         this.setState({ switchingControl: false }, () => {
           this.freezeElements(false);
         });
-        initPerspectiveListener(document, this.perspectiveChanged);
+        initPerspectiveListener(
+          document,
+          this.props.room.tabs[this.props.currentTab].perspective,
+          this.perspectiveChanged
+        );
       });
     } else if ((wasInControl && !isInControl) || isSomeoneElseInControl) {
       this.ggbApplet.showToolBar(false);

@@ -9,8 +9,7 @@ const Tab = new mongoose.Schema({
   desmosLink: { type: String },
   perspective: {
     type: String,
-    enum: ["A", "B", "C", "D", "G", "L", "S", "T"],
-    default: "A"
+    default: "AG" //https://wiki.geogebra.org/en/SetPerspective_Command
   },
   events: { type: [{ type: ObjectId, ref: "Event", _id: false }], default: [] },
   room: { type: ObjectId, ref: "Room" },

@@ -30,6 +30,7 @@ class GgbActivityGraph extends Component {
           ggbFile,
           perspective
         } = this.props.tabs[this.props.currentTab];
+        console.log("perspective: ", perspective);
         if (perspective) this.ggbApplet.setPerspective(perspective);
         if (currentState) {
           this.ggbApplet.setXML(currentState);
@@ -140,12 +141,13 @@ class GgbActivityGraph extends Component {
   };
 
   initializeGgb = () => {
-    initPerspectiveListener(document, this.perspectiveChanged);
     this.ggbApplet = window.ggbApplet;
     this.setState({ loading: false });
-    let { currentState, startingPoint, ggbFile } = this.props.tabs[
+    let { currentState, startingPoint, ggbFile, perspective } = this.props.tabs[
       this.props.currentTab
     ];
+    if (perspective) this.ggbApplet.setPerspective(perspective);
+    initPerspectiveListener(document, perspective, this.perspectiveChanged);
     if (currentState) {
       this.ggbApplet.setXML(currentState);
     } else if (startingPoint) {
