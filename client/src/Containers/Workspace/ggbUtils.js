@@ -5,6 +5,7 @@ const perspectiveMap = {
   CAS: "C",
   "Graphics 2": "D",
   Graphics: "G",
+  Geometry: "G",
   "Construction Protocol": "L",
   Spreadsheet: "S",
   "3D Graphics": "T"

@@ -10,6 +10,7 @@ import { initPerspectiveListener } from "./ggbUtils";
 // import { eventNames } from 'cluster';
 // THINK ABOUT GETTING RID OF ALL XML PARSING...THERE ARE PROBABLY NATIVE GGB METHODS THAT CAN ACCOMPLISH EVERYTHING WE NEEDd
 const THROTTLE_FIDELITY = 60;
+let counter = 0;
 class GgbGraph extends Component {
   state = {
     receivingData: false,
@@ -130,7 +131,13 @@ class GgbGraph extends Component {
         ggbFile,
         perspective
       } = this.props.room.tabs[this.props.currentTab];
-      if (perspective) this.ggbApplett.setPerspective(perspective);
+      console.log(
+        "perspective for tab ",
+        this.props.currentTab,
+        " = ",
+        perspective
+      );
+      // initPerspectiveListener(document, perspective, this.changePerspective);
       if (currentState) {
         this.ggbApplet.setXML(currentState);
         this.registerListeners();
@@ -154,6 +161,9 @@ class GgbGraph extends Component {
       } else {
         this.ggbApplet.setXML(INITIAL_GGB);
         this.registerListeners();
+      }
+      if (perspective) {
+        this.ggbApplet.setPerspective(perspective);
       }
     }
   }
