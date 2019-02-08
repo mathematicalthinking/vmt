@@ -9,7 +9,14 @@ const Tab = new mongoose.Schema({
   desmosLink: { type: String },
   perspective: {
     type: String,
-    default: "AG" //https://wiki.geogebra.org/en/SetPerspective_Command
+    default: "AD", //https://wiki.geogebra.org/en/SetPerspective_Command
+    validate: {
+      validator: function(v) {
+        let regex = /[ABCDGLST]/g;
+        return regex.test(v);
+      },
+      message: props => `${props.value} is not a valide perspective`
+    }
   },
   events: { type: [{ type: ObjectId, ref: "Event", _id: false }], default: [] },
   room: { type: ObjectId, ref: "Room" },

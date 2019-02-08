@@ -69,6 +69,9 @@ class GgbActivityGraph extends Component {
     this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {
       perspective: newPerspective
     });
+
+    // REinitialize listener with new perspective
+    initPerspectiveListener(document, newPerspective, this.perspectiveChanged);
   };
 
   updateDimensions = () => {
@@ -146,6 +149,7 @@ class GgbActivityGraph extends Component {
     let { currentState, startingPoint, ggbFile, perspective } = this.props.tabs[
       this.props.currentTab
     ];
+    console.log("perspective on init: ", perspective);
     if (perspective) this.ggbApplet.setPerspective(perspective);
     initPerspectiveListener(document, perspective, this.perspectiveChanged);
     if (currentState) {

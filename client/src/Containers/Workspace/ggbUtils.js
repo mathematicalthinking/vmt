@@ -32,13 +32,22 @@ export const initPerspectiveListener = (
           for (let view of item.nextSibling.firstChild.children) {
             if (Object.keys(perspectiveMap).indexOf(view.textContent) > -1) {
               view.addEventListener("click", () => {
-                console.log(view.textContent);
-                console.log(
-                  `${currentPerspective}${perspectiveMap[view.textContent]}`
-                );
-                perspectiveChanged(
-                  `${currentPerspective}${perspectiveMap[view.textContent]}`
-                );
+                let newPerspective;
+                let viewCode = view.textContent;
+                console.log("CURRENT PER: ", currentPerspective);
+                if (currentPerspective.indexOf(perspectiveMap[viewCode]) > -1) {
+                  console.log("removing");
+                  // remove from perspective string if the currentPerspective already has it
+                  let regex = new RegExp(perspectiveMap[viewCode], "g");
+                  newPerspective = currentPerspective.replace(regex, "");
+                } else {
+                  console.log("adding new perspective");
+                  newPerspective = `${currentPerspective}${
+                    perspectiveMap[viewCode]
+                  }`;
+                }
+                console.log("NEW: ", newPerspective);
+                perspectiveChanged(newPerspective);
               });
             }
           }
