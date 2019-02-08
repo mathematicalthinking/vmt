@@ -232,6 +232,7 @@ class GgbGraph extends Component {
     ];
     // put the current construction on the graph, disable everything until the user takes control
     if (perspective) this.ggbApplet.setPerspective(perspective);
+    initPerspectiveListener(document, perspective, this.perspectiveChanged);
     if (currentState) {
       console.log("we have currentState");
       this.ggbApplet.setXML(currentState);
@@ -296,6 +297,12 @@ class GgbGraph extends Component {
   // This function can only fire when someone is in control. So if the perspective changes emit that to everyone.
   perspectiveChanged = newPerspectiveCode => {
     this.sendEvent(newPerspectiveCode, null, null, "CHANGE_PERSPECTIVE", null);
+    // REinitialize listener with new perspective
+    initPerspectiveListener(
+      document,
+      newPerspectiveCode,
+      this.perspectiveChanged
+    );
   };
 
   registerListeners() {
@@ -324,8 +331,9 @@ class GgbGraph extends Component {
       return;
     }
     let xmlObj;
-    if (xml && eventType !== "CHANGE_PERSPECTIVE")
+    if (xml && eventType !== "CHANGE_PERSPECTIVE") {
       xmlObj = await this.parseXML(xml); // @TODO We should do this parsing on the backend yeah? we only need this for to build the description which we only need in the replayer anyway
+    }
     let newData = {
       definition,
       label,
@@ -344,6 +352,9 @@ class GgbGraph extends Component {
     // throttle(() => {
     let updatedTabs = [...this.props.room.tabs];
     let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
+    if (eventType === "CHANGE_PERSPECTIVE") {
+      updatedTab.perspective = xml;
+    }
     updatedTab.currentState = newData.currentState;
     updatedTabs[this.props.currentTab] = updatedTab;
     this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });

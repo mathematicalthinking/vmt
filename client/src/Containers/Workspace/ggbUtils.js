@@ -13,10 +13,8 @@ const perspectiveMap = {
 export const initPerspectiveListener = (
   document,
   currentPerspective,
-  perspectiveChanged,
-  store
+  perspectiveChanged
 ) => {
-  console.log("reinitiazlizing!");
   // console.log("SOTTT: ", store)
   var elements = document.getElementsByClassName("rightButtonPanel");
   elements[0].lastChild.removeEventListener("click", menuClickListener);
@@ -24,7 +22,6 @@ export const initPerspectiveListener = (
 
   // let item;
   function menuClickListener() {
-    console.log("menu clicked");
     var menuItems = document.getElementsByClassName("gwt-StackPanelItem");
     for (let item of menuItems) {
       if (item.lastChild.innerHTML.includes("Perspectives")) {
@@ -37,7 +34,6 @@ export const initPerspectiveListener = (
     }
 
     function perspectiveClickListener() {
-      console.log("perspective clicked");
       let perspective;
       for (perspective of this.nextSibling.firstChild.children) {
         perspective.removeEventListener("click", cb);
@@ -45,7 +41,7 @@ export const initPerspectiveListener = (
       }
 
       function cb() {
-        perspectiveChanged(perspectiveMap[perspective.textContent]);
+        perspectiveChanged(`A${perspectiveMap[this.textContent]}`);
       }
     }
 
@@ -58,10 +54,7 @@ export const initPerspectiveListener = (
       }
 
       function viewItemClickListener() {
-        console.log("viewItem clicked");
-        let newPerspective;
         let viewCode = this.textContent;
-        console.log("View code: ", viewCode);
         // N.B. setTimeout 0 so the checkbox can update before we look at its value
         // you might think we could just check the opposite of its value (if its checked that means we're unchecking it)
         // however, at least one box always needs to be checked so clicking the sole checked box does not actually toggle
@@ -69,14 +62,11 @@ export const initPerspectiveListener = (
         setTimeout(() => {
           let checkbox = this.firstChild.firstChild.firstChild.firstChild
             .firstChild.firstChild;
-          console.log(checkbox);
           if (checkbox.checked) {
-            console.log("CHECKED!");
             currentPerspective = `${currentPerspective}${
               perspectiveMap[viewCode]
             }`;
           } else {
-            let regex = new RegExp(perspectiveMap[viewCode], "g");
             currentPerspective = currentPerspective.replace(
               perspectiveMap[viewCode],
               ""

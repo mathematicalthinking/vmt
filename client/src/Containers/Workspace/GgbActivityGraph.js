@@ -7,7 +7,6 @@ import INITIAL_GGB from "./blankGgb";
 import { initPerspectiveListener } from "./ggbUtils.js";
 import Script from "react-load-script";
 import classes from "./graph.css";
-import { store } from "../../App";
 
 class GgbActivityGraph extends Component {
   state = {
@@ -31,8 +30,8 @@ class GgbActivityGraph extends Component {
           ggbFile,
           perspective
         } = this.props.tabs[this.props.currentTab];
-        console.log("perspective: ", perspective);
         if (perspective) this.ggbApplet.setPerspective(perspective);
+        initPerspectiveListener(document, perspective, this.perspectiveChanged);
         if (currentState) {
           this.ggbApplet.setXML(currentState);
           this.registerListeners();
@@ -65,15 +64,19 @@ class GgbActivityGraph extends Component {
     window.removeEventListener("resize", this.updateDimensions);
   }
 
-  perspectiveChanged = newPerspective => {
+  perspectiveChanged = newPerspectiveCode => {
     console.log("perspective change recorded");
     let updatedTab = { ...this.props.tabs[this.props.currentTab] };
     this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {
-      perspective: newPerspective
+      perspective: newPerspectiveCode
     });
 
     // REinitialize listener with new perspective
-    initPerspectiveListener(document, newPerspective, this.perspectiveChanged);
+    initPerspectiveListener(
+      document,
+      newPerspectiveCode,
+      this.perspectiveChanged
+    );
   };
 
   updateDimensions = () => {
@@ -151,14 +154,8 @@ class GgbActivityGraph extends Component {
     let { currentState, startingPoint, ggbFile, perspective } = this.props.tabs[
       this.props.currentTab
     ];
-    console.log("perspective on init: ", perspective);
     if (perspective) this.ggbApplet.setPerspective(perspective);
-    initPerspectiveListener(
-      document,
-      perspective,
-      this.perspectiveChanged,
-      store
-    );
+    initPerspectiveListener(document, perspective, this.perspectiveChanged);
     if (currentState) {
       this.ggbApplet.setXML(currentState);
     } else if (startingPoint) {
@@ -179,6 +176,7 @@ class GgbActivityGraph extends Component {
   // Save new state to the redux store on each modification to the construction
   // When the user leaves the room we'll update the backend (that way we only do it once)
   getGgbState = throttle(() => {
+    console.log("ggbstte updated");
     if (this.props.role === "facilitator") {
       let updatedTabs = [...this.props.tabs];
       let updatedTab = { ...this.props.tabs[this.props.currentTab] };
@@ -199,6 +197,7 @@ class GgbActivityGraph extends Component {
     this.ggbApplet.registerAddListener(this.getGgbState);
     this.ggbApplet.registerUpdateListener(this.getGgbState);
     this.ggbApplet.registerRemoveListener(this.getGgbState);
+    this.ggbAPpler.registerClickListener(this.getGgbState);
   }
 
   parseXML = xml => {
