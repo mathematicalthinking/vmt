@@ -9,7 +9,10 @@ const Event = new mongoose.Schema({
   description: { type: String },
   room: { type: ObjectId, ref: "Room", required: true },
   tab: { type: ObjectId, ref: "Tab", required: true },
-  eventType: { type: String, enum: ["ADD", "REMOVE", "UPDATE"] },
+  eventType: {
+    type: String,
+    enum: ["ADD", "REMOVE", "UPDATE", "CHANGE_PERSPECTIVE"]
+  },
   timestamp: { type: Number }, //UNIX TIME but in MS
   isTrashed: { type: Boolean, default: false }
 });

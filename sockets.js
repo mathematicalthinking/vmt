@@ -61,12 +61,10 @@ module.exports = function() {
         let results;
         try {
           results = await Promise.all(promises);
-          socket
-            .to(data.roomId)
-            .emit("USER_JOINED", {
-              currentMembers: results[results.length - 1].currentMembers,
-              message
-            });
+          socket.to(data.roomId).emit("USER_JOINED", {
+            currentMembers: results[results.length - 1].currentMembers,
+            message
+          });
           callback({ room: results[results.length - 1], message, user }, null);
         } catch (err) {
           console.log(err);
@@ -97,12 +95,10 @@ module.exports = function() {
         let results;
         try {
           results = await Promise.all(promises);
-          socket
-            .to(data.roomId)
-            .emit("USER_JOINED", {
-              currentMembers: results[1].currentMembers,
-              message
-            });
+          socket.to(data.roomId).emit("USER_JOINED", {
+            currentMembers: results[1].currentMembers,
+            message
+          });
           callback({ room: results[1], message, user }, null);
         } catch (err) {
           console.log("ERROR: ", err);
@@ -246,9 +242,11 @@ module.exports = function() {
         data.event = JSON.stringify(data.event);
       }
       try {
-        await controllers.tabs.put(data.tab, {
-          currentState: data.currentState
-        });
+        let updateQuery = { currentState: data.currentState };
+        if (data.eventType === "CHANGE_PERSPECTIVE") {
+          updateQuery.perspective = data.event;
+        }
+        await controllers.tabs.put(data.tab, updateQuery);
       } catch (err) {
         console.log("err 1: ", err);
       }

@@ -63,7 +63,6 @@ class ActivityWorkspace extends Component {
     activity.creator = this.props.user._id;
     activity.name = this.state.newName;
     activity.tabs = activity.tabs.map(tab => tab._id);
-    console.log(activity.tabs);
     this.props.createActivity(activity);
     this.setState({ addingToMyActivities: false });
     this.props.history.push("/myVMT/activities");

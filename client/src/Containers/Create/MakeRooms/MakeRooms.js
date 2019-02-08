@@ -118,9 +118,7 @@ class MakeRooms extends Component {
       members.push({ user: this.props.userId, role: "facilitator" });
       newRoom.name = `${name} (room ${this.state.roomsCreated + 1})`;
       newRoom.members = members;
-      console.log(members);
       this.props.createRoom(newRoom);
-      console.log("created room");
       let remainingParticipants = this.state.remainingParticipants.filter(
         participant => {
           if (this.state.selectedParticipants.includes(participant.user._id)) {
@@ -201,7 +199,6 @@ class MakeRooms extends Component {
     );
 
     if (this.state.step === 1) {
-      console.log("activitCOURSE", course);
       if (course) {
         CurrentStep = (
           <Step2Course

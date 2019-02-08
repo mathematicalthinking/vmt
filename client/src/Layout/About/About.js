@@ -51,8 +51,8 @@ const About = () => {
         </div>
         <div className={classes.Content}>
           <p className={classes.Description}>
-            Teachers can manage their entire curriculum by creating courses and
-            resusable activities...
+            Teachers can manage their classrooms and curriculum by creating
+            courses and resusable activities...
           </p>
           <DemoBrowser>
             <img className={classes.Image} src={example2} alt="example-2" />

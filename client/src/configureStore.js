@@ -4,7 +4,6 @@ import throttle from "lodash/throttle";
 import rootReducer from "./store/reducers";
 import thunk from "redux-thunk";
 import { loadState, saveState } from "./utils/localStorage";
-
 const configureStore = () => {
   const logger = store => {
     return next => {

@@ -7,7 +7,8 @@ import { Provider } from "react-redux";
 
 import configureStore from "./configureStore";
 
-const store = configureStore();
+export const store = configureStore();
+console.log("STRRR: ", store);
 
 const App = props => (
   <Provider store={store}>

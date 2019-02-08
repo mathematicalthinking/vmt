@@ -6,9 +6,11 @@ import Script from "react-load-script";
 import throttle from "lodash/throttle";
 import socket from "../../utils/sockets";
 import { parseString } from "xml2js";
+import { initPerspectiveListener } from "./ggbUtils";
 // import { eventNames } from 'cluster';
 // THINK ABOUT GETTING RID OF ALL XML PARSING...THERE ARE PROBABLY NATIVE GGB METHODS THAT CAN ACCOMPLISH EVERYTHING WE NEEDd
 const THROTTLE_FIDELITY = 60;
+let counter = 0;
 class GgbGraph extends Component {
   state = {
     receivingData: false,
@@ -27,6 +29,7 @@ class GgbGraph extends Component {
     window.addEventListener("resize", this.updateDimensions);
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
+      console.log("received EVENT!");
       let updatedTabs = this.props.room.tabs.map(tab => {
         if (tab._id === data.tab) {
           tab.currentState = data.currentState;
@@ -52,6 +55,14 @@ class GgbGraph extends Component {
               this.ggbApplet.evalXML(data.event);
               this.ggbApplet.evalCommand("UpdateConstruction()");
               break;
+            case "CHANGE_PERSPECTIVE":
+              console.log("CHANGIN PERSPECTIVE");
+              console.log(data.event);
+              this.ggbApplet.setPerspective(data.event);
+              this.ggbApplet.showAlgebraInput(true);
+              // this.ggbApplet.evalXML(data.event);
+              // this.ggbApplet.evalCommand("UpdateConstruction()");
+              break;
             default:
               break;
           }
@@ -76,11 +87,16 @@ class GgbGraph extends Component {
           // im not really sure what this does we seem to get the same menu whether we specify all these numbers or not...but it was breaking the hamburger menu to do so
           // this.ggbApplet.showToolBar("0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6")
           this.ggbApplet.showMenuBar(true);
-          this.freezeElements(false);
         }
         // setTimeout(() => {
-        this.setState({ switchingControl: false });
-        // }, 0)
+        this.setState({ switchingControl: false }, () => {
+          this.freezeElements(false);
+        });
+        initPerspectiveListener(
+          document,
+          this.props.room.tabs[this.props.currentTab].perspective,
+          this.perspectiveChanged
+        );
       });
     } else if ((wasInControl && !isInControl) || isSomeoneElseInControl) {
       this.ggbApplet.showToolBar(false);
@@ -109,10 +125,19 @@ class GgbGraph extends Component {
       let position = await this.getRelativeCoords(this.props.referToEl.element);
       this.props.setToElAndCoords(null, position);
     } else if (prevProps.currentTab !== this.props.currentTab) {
-      let { currentState, startingPoint, ggbFile } = this.props.room.tabs[
-        this.props.currentTab
-      ];
-
+      let {
+        currentState,
+        startingPoint,
+        ggbFile,
+        perspective
+      } = this.props.room.tabs[this.props.currentTab];
+      console.log(
+        "perspective for tab ",
+        this.props.currentTab,
+        " = ",
+        perspective
+      );
+      // initPerspectiveListener(document, perspective, this.changePerspective);
       if (currentState) {
         this.ggbApplet.setXML(currentState);
         this.registerListeners();
@@ -136,6 +161,9 @@ class GgbGraph extends Component {
       } else {
         this.ggbApplet.setXML(INITIAL_GGB);
         this.registerListeners();
+      }
+      if (perspective) {
+        this.ggbApplet.setPerspective(perspective);
       }
     }
   }
@@ -168,8 +196,8 @@ class GgbGraph extends Component {
     const parameters = {
       id: "ggbApplet",
       // "scaleContainerClasse": "graph",
-      customToolBar:
-        "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
+      // customToolBar:
+      //   "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
       showToolBar:
         this.props.room.controlledBy === this.props.user._id ? true : false,
       showMenuBar:
@@ -180,7 +208,7 @@ class GgbGraph extends Component {
       borderColor: "#ddd",
       buttonShadows: true,
       preventFocus: true,
-      // "appName":"whiteboard"
+      appName: "3D Graphics",
       appletOnLoad: this.initializeGgb
     };
 
@@ -209,9 +237,14 @@ class GgbGraph extends Component {
     this.setState({ loading: false });
     this.ggbApplet.setMode(40); // Sets the tool to zoom
     let { room, currentTab } = this.props;
-    let { currentState, startingPoint, ggbFile } = room.tabs[currentTab];
+    let { currentState, startingPoint, ggbFile, perspective } = room.tabs[
+      currentTab
+    ];
     // put the current construction on the graph, disable everything until the user takes control
+    if (perspective) this.ggbApplet.setPerspective(perspective);
+    initPerspectiveListener(document, perspective, this.perspectiveChanged);
     if (currentState) {
+      console.log("we have currentState");
       this.ggbApplet.setXML(currentState);
     } else if (startingPoint) {
       this.ggbApplet.setXML(startingPoint);
@@ -240,6 +273,7 @@ class GgbGraph extends Component {
   };
 
   updateListener = label => {
+    console.log("UPDATE: ", label);
     let isInControl = this.props.room.controlledBy === this.props.user._id;
     if (!isInControl || this.state.switchingControl) {
       return;
@@ -253,6 +287,7 @@ class GgbGraph extends Component {
 
   // Used to capture referencing
   clickListener = async element => {
+    console.log("CLICK, ", element);
     // console.log("CLICKED", this.ggbApplet.getXML())
     if (this.props.referencing) {
       // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
@@ -268,6 +303,16 @@ class GgbGraph extends Component {
       position = await this.getRelativeCoords(element);
       this.props.setToElAndCoords({ element, elementType: "point" }, position);
     }
+  };
+  // This function can only fire when someone is in control. So if the perspective changes emit that to everyone.
+  perspectiveChanged = newPerspectiveCode => {
+    this.sendEvent(newPerspectiveCode, null, null, "CHANGE_PERSPECTIVE", null);
+    // REinitialize listener with new perspective
+    initPerspectiveListener(
+      document,
+      newPerspectiveCode,
+      this.perspectiveChanged
+    );
   };
 
   registerListeners() {
@@ -292,23 +337,13 @@ class GgbGraph extends Component {
       alert(
         "You are not in control. The update you just made will not be saved. Please refresh the page"
       );
-      // console.log('attempting to undo')
-      // console.log(xml, action, label, definition, eventType)
-      // console.log(this.ggbApplet.getLayer(label))
-      // switch (eventType) {
-      //   case 'REMOVE':
-      //     if (definition) this.ggbApplet.evalCommand(`${label}:${definition}`);
-      //     if (xml) this.ggbApplet.evalXML(xml);
-      //     this.ggbApplet.evalCommand('UpdateConstruction()');
-      //     break;
-      //   default:
-      //     break;
-      // }
       this.ggbApplet.undo();
       return;
     }
     let xmlObj;
-    if (xml) xmlObj = await this.parseXML(xml);
+    if (xml && eventType !== "CHANGE_PERSPECTIVE") {
+      xmlObj = await this.parseXML(xml); // @TODO We should do this parsing on the backend yeah? we only need this for to build the description which we only need in the replayer anyway
+    }
     let newData = {
       definition,
       label,
@@ -321,12 +356,15 @@ class GgbGraph extends Component {
       } ${label}`,
       user: { _id: this.props.user._id, username: this.props.user.username },
       timestamp: new Date().getTime(),
-      currentState: this.ggbApplet.getXML(),
+      currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
       mode: this.ggbApplet.getMode()
     };
     // throttle(() => {
     let updatedTabs = [...this.props.room.tabs];
     let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
+    if (eventType === "CHANGE_PERSPECTIVE") {
+      updatedTab.perspective = xml;
+    }
     updatedTab.currentState = newData.currentState;
     updatedTabs[this.props.currentTab] = updatedTab;
     this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
@@ -346,11 +384,11 @@ class GgbGraph extends Component {
   };
 
   freezeElements = freeze => {
-    let allElements = this.ggbApplet.getAllObjectNames(); // WARNING ... THIS METHOD IS DEPRECATED
-    allElements.forEach(element => {
-      // AS THE CONSTRUCTION GETS BIGGER THIS GETS SLOWER...SET_FIXED IS BLOCKING
-      this.ggbApplet.setFixed(element, freeze, true); // Unfix/fix all of the elements
-    });
+    // let allElements = this.ggbApplet.getAllObjectNames(); // WARNING ... THIS METHOD IS DEPRECATED
+    // allElements.forEach(element => {
+    //   // AS THE CONSTRUCTION GETS BIGGER THIS GETS SLOWER...SET_FIXED IS BLOCKING
+    //   this.ggbApplet.setFixed(element, freeze, true); // Unfix/fix all of the elements
+    // });
   };
 
   getRelativeCoords = element => {

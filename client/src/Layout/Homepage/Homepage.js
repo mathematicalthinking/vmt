@@ -20,7 +20,6 @@ class Homepage extends PureComponent {
     if (this.props.location.state && this.props.location.state.error) {
       this.setState({ error: this.props.location.state.error });
       this.timer = setTimeout(() => {
-        console.log("clearing error: ");
         this.setState({ error: null });
       }, 2000);
     }

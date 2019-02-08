@@ -4,6 +4,7 @@ import { parseString } from "xml2js";
 import throttle from "lodash/throttle";
 import { Aux, Modal } from "../../Components";
 import INITIAL_GGB from "./blankGgb";
+import { initPerspectiveListener } from "./ggbUtils.js";
 import Script from "react-load-script";
 import classes from "./graph.css";
 
@@ -23,9 +24,14 @@ class GgbActivityGraph extends Component {
       // by wrapping this in a setimteout of 0 I'm attempting to delay all of the event blocking geogebra operations
       // until after any UI updates////can't quite tell if it working...when switching tab the tab animation should be smoothe
       setTimeout(() => {
-        let { currentState, startingPoint, ggbFile } = this.props.tabs[
-          this.props.currentTab
-        ];
+        let {
+          currentState,
+          startingPoint,
+          ggbFile,
+          perspective
+        } = this.props.tabs[this.props.currentTab];
+        if (perspective) this.ggbApplet.setPerspective(perspective);
+        initPerspectiveListener(document, perspective, this.perspectiveChanged);
         if (currentState) {
           this.ggbApplet.setXML(currentState);
           this.registerListeners();
@@ -57,6 +63,20 @@ class GgbActivityGraph extends Component {
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions);
   }
+
+  perspectiveChanged = newPerspectiveCode => {
+    let updatedTab = { ...this.props.tabs[this.props.currentTab] };
+    this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {
+      perspective: newPerspectiveCode
+    });
+
+    // REinitialize listener with new perspective
+    initPerspectiveListener(
+      document,
+      newPerspectiveCode,
+      this.perspectiveChanged
+    );
+  };
 
   updateDimensions = () => {
     if (this.resizeTimer) {
@@ -109,8 +129,8 @@ class GgbActivityGraph extends Component {
     const parameters = {
       id: "ggbApplet",
       // "scaleContainerClasse": "graph",
-      customToolBar:
-        "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
+      // customToolBar:
+      // "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
       showToolBar: this.props.role === "facilitator",
       showMenuBar: this.props.role === "facilitator",
       showAlgebraInput: true,
@@ -130,9 +150,11 @@ class GgbActivityGraph extends Component {
   initializeGgb = () => {
     this.ggbApplet = window.ggbApplet;
     this.setState({ loading: false });
-    let { currentState, startingPoint, ggbFile } = this.props.tabs[
+    let { currentState, startingPoint, ggbFile, perspective } = this.props.tabs[
       this.props.currentTab
     ];
+    if (perspective) this.ggbApplet.setPerspective(perspective);
+    initPerspectiveListener(document, perspective, this.perspectiveChanged);
     if (currentState) {
       this.ggbApplet.setXML(currentState);
     } else if (startingPoint) {
@@ -173,6 +195,7 @@ class GgbActivityGraph extends Component {
     this.ggbApplet.registerAddListener(this.getGgbState);
     this.ggbApplet.registerUpdateListener(this.getGgbState);
     this.ggbApplet.registerRemoveListener(this.getGgbState);
+    this.ggbAPpler.registerClickListener(this.getGgbState);
   }
 
   parseXML = xml => {
