@@ -50,12 +50,7 @@ export const initPerspectiveListener = (
     }
 
     function viewClickListener() {
-      console.log("view clicked");
-      let viewItem;
-      // console.log(item);
-      console.log(this);
-      for (viewItem of this.nextSibling.firstChild.children) {
-        console.log(viewItem);
+      for (let viewItem of this.nextSibling.firstChild.children) {
         if (Object.keys(perspectiveMap).indexOf(viewItem.textContent) > -1) {
           viewItem.removeEventListener("click", viewItemClickListener);
           viewItem.addEventListener("click", viewItemClickListener);
@@ -67,21 +62,31 @@ export const initPerspectiveListener = (
         let newPerspective;
         let viewCode = this.textContent;
         console.log("View code: ", viewCode);
-        console.log(this);
-        let checkbox = this.firstChild.firstChild.firstChild.firstChild
-          .firstChild.firstChild;
-        console.log(checkbox);
-        // we're actually checking if it IS CHECKED...this click will switch it checked
-        if (!checkbox.checked) {
-          console.log("CHECKED!");
-          console.log("currentPerspective");
-          newPerspective = `${currentPerspective}${perspectiveMap[viewCode]}`;
-        } else {
-          let regex = new RegExp(perspectiveMap[viewCode], "g");
-          newPerspective = currentPerspective.replace(regex, "");
-        }
-        console.log("NEW: ", newPerspective);
-        perspectiveChanged(newPerspective);
+        // N.B. setTimeout 0 so the checkbox can update before we look at its value
+        // you might think we could just check the opposite of its value (if its checked that means we're unchecking it)
+        // however, at least one box always needs to be checked so clicking the sole checked box does not actually toggle
+        // its value
+        setTimeout(() => {
+          let checkbox = this.firstChild.firstChild.firstChild.firstChild
+            .firstChild.firstChild;
+          console.log(checkbox);
+          if (checkbox.checked) {
+            console.log("CHECKED!");
+            currentPerspective = `${currentPerspective}${
+              perspectiveMap[viewCode]
+            }`;
+          } else {
+            let regex = new RegExp(perspectiveMap[viewCode], "g");
+            currentPerspective = currentPerspective.replace(
+              perspectiveMap[viewCode],
+              ""
+            );
+          }
+          currentPerspective = currentPerspective.split("").sort();
+          currentPerspective = [...new Set(currentPerspective)].join("");
+          console.log(currentPerspective);
+          perspectiveChanged(currentPerspective); // SOrt so the algebra window is on the right
+        }, 0);
       }
     }
   }
