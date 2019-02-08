@@ -146,7 +146,6 @@ class GgbReplayer extends Component {
   };
 
   initializeGgb = () => {
-    console.log("ggb Initialized!!!!");
     this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
     this.ggbApplet.setMode(40);
     let { tab } = this.props;

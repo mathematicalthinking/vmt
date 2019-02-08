@@ -75,7 +75,6 @@ export const initPerspectiveListener = (
           }
           currentPerspective = currentPerspective.split("").sort();
           currentPerspective = [...new Set(currentPerspective)].join("");
-          console.log(currentPerspective);
           perspectiveChanged(currentPerspective); // SOrt so the algebra window is on the right
         }, 0);
       }

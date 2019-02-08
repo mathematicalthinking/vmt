@@ -65,7 +65,6 @@ class GgbActivityGraph extends Component {
   }
 
   perspectiveChanged = newPerspectiveCode => {
-    console.log("perspective change recorded");
     let updatedTab = { ...this.props.tabs[this.props.currentTab] };
     this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {
       perspective: newPerspectiveCode
@@ -176,7 +175,6 @@ class GgbActivityGraph extends Component {
   // Save new state to the redux store on each modification to the construction
   // When the user leaves the room we'll update the backend (that way we only do it once)
   getGgbState = throttle(() => {
-    console.log("ggbstte updated");
     if (this.props.role === "facilitator") {
       let updatedTabs = [...this.props.tabs];
       let updatedTab = { ...this.props.tabs[this.props.currentTab] };

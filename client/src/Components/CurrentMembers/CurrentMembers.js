@@ -20,7 +20,6 @@ class CurrentMembers extends Component {
   };
 
   render() {
-    console.log("members");
     const { members, activeMember } = this.props;
     return (
       <div className={classes.Container}>

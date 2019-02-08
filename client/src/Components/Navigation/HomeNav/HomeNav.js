@@ -25,7 +25,6 @@ const navbar = props => {
   ) {
     ntf = true;
   }
-  console.log(styles);
 
   return (
     <nav className={styles}>

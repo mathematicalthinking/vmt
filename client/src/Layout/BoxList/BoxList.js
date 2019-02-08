@@ -44,7 +44,6 @@ const boxList = React.memo(props => {
               : []
           };
         }
-        console.log(props);
         return (
           <div className={classes.ContentBox} key={i}>
             {!props.draggable ? (

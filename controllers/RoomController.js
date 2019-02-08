@@ -136,7 +136,6 @@ module.exports = {
       let room;
       let ntfType = body.ntfType;
       delete body.ntfType;
-      console.log(ntfType);
       db.Room.findByIdAndUpdate(id, { $addToSet: body }, { new: true })
         .populate({ path: "members.user", select: "username" })
         .then(res => {
@@ -163,7 +162,6 @@ module.exports = {
   },
 
   remove: (id, body) => {
-    console.log("ID AND BODY", id, body);
     return new Promise((resolve, reject) => {
       // Remove this course from the user's list of courses
       // console.log(bod['members.user']._id)

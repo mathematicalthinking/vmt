@@ -11,7 +11,6 @@ class Step1Course extends Component {
       setManual,
       error
     } = this.props;
-    console.log(setManual);
     return (
       <div className={classes.Container}>
         <h2 className={classes.Title}>Assign To Rooms</h2>
