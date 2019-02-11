@@ -379,7 +379,9 @@ class Room extends Component {
           />
         );
       } else if (this.props.match.params.resource === "settings") {
-        mainContent = <RoomSettings />;
+        mainContent = (
+          <RoomSettings owner={this.state.owner} settings={room.settings} />
+        );
       }
       return (
         <Aux>
