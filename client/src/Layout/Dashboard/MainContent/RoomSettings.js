@@ -10,53 +10,61 @@ class RoomSettings extends Component {
     updatedSettings.participantsCanCreateTabs = !settings.participantsCanCreateTabs;
     this.props.updateRoom(roomId, { settings: updatedSettings });
   };
+
+  togglePerspective = event => {
+    let { roomId, settings } = this.props;
+
+    let updatedSettings = { ...settings };
+    updatedSettings.participantsCanChangePerspective = !settings.participantsCanChangePerspective;
+    this.props.updateRoom(roomId, { settings: updatedSettings });
+  };
   render() {
     let { settings, owner } = this.props;
     console.log("room settings ", settings);
-    return (
+    return owner ? (
       <div>
-        {owner ? (
-          <div>
-            <h2>Participants can create new Tabs</h2>
-            <RadioBtn
-              name="createTabs"
-              check={this.toggleCreateTabs}
-              checked={settings.participantsCanCreateTabs === true}
-            >
-              Yes
-            </RadioBtn>
-            <RadioBtn
-              name="createTabs"
-              check={this.toggleCreateTabs}
-              checked={settings.participantsCanCreateTabs === false}
-            >
-              No
-            </RadioBtn>
-            <h2>Participants can change the perspective (Geogebra)</h2>
-            <RadioBtn
-              name="yes"
-              checked={settings.participantsCanChangePerspective === true}
-            >
-              Yes
-            </RadioBtn>
-            <RadioBtn
-              name="No"
-              checked={settings.participantsCanChangePerspective === false}
-            >
-              No
-            </RadioBtn>
-            <h2>Control Specificity</h2>
-            <RadioBtn name="yes" checked={settings.controlByRoom === false}>
-              Room
-            </RadioBtn>
-            <RadioBtn name="No" checked={settings.controlByTab === true}>
-              Tab
-            </RadioBtn>
-          </div>
-        ) : (
-          <div>NOT OWNER</div>
-        )}
+        <h2 className={classes.Heading}>Participants can create new Tabs</h2>
+        <RadioBtn
+          name="createTabs"
+          check={this.toggleCreateTabs}
+          checked={settings.participantsCanCreateTabs === true}
+        >
+          Yes
+        </RadioBtn>
+        <RadioBtn
+          name="createTabs"
+          check={this.toggleCreateTabs}
+          checked={settings.participantsCanCreateTabs === false}
+        >
+          No
+        </RadioBtn>
+        <h2 className={classes.Heading}>
+          Participants can change the perspective (Geogebra)
+        </h2>
+        <RadioBtn
+          name="changePerspective"
+          checked={settings.participantsCanChangePerspective === true}
+          check={this.togglePerspective}
+        >
+          Yes
+        </RadioBtn>
+        <RadioBtn
+          name="changePerspective"
+          checked={settings.participantsCanChangePerspective === false}
+          check={this.togglePerspective}
+        >
+          No
+        </RadioBtn>
+        <h2 className={classes.Heading}>Control Specificity</h2>
+        <RadioBtn name="yes" checked={settings.controlByRoom === false}>
+          Room
+        </RadioBtn>
+        <RadioBtn name="No" checked={settings.controlByTab === true}>
+          Tab
+        </RadioBtn>
       </div>
+    ) : (
+      <div>NOT OWNER</div>
     );
   }
 }
