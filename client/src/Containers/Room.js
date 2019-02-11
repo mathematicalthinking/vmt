@@ -1,7 +1,12 @@
 import React, { Component } from "react";
 // import moment from 'moment'
 import { connect } from "react-redux";
-import { DashboardLayout, SidePanel, RoomDetails } from "../Layout/Dashboard/";
+import {
+  DashboardLayout,
+  SidePanel,
+  RoomDetails,
+  RoomSettings
+} from "../Layout/Dashboard/";
 import Members from "./Members/Members";
 import { getUserNotifications } from "../utils/notifications";
 import {
@@ -33,7 +38,7 @@ class Room extends Component {
     owner: false,
     member: false,
     guestMode: true,
-    tabs: [{ name: "Details" }, { name: "Members" }],
+    tabs: [{ name: "Details" }, { name: "Members" }, { name: "Settings" }],
     firstView: false,
     editing: false,
     invited: false,
@@ -373,6 +378,8 @@ class Room extends Component {
             }
           />
         );
+      } else if (this.props.match.params.resource === "settings") {
+        mainContent = <RoomSettings />;
       }
       return (
         <Aux>
