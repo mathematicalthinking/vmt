@@ -19,6 +19,7 @@ const Message = new mongoose.Schema({
       "RELEASED_CONTROL",
       "LEFT_ROOM",
       "SWITCH_TAB",
+      "NEW_TAB",
       "JOINED_ROOM"
     ],
     default: "TEXT"

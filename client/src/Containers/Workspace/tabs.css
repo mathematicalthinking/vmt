@@ -1,3 +1,8 @@
+:import("../../colors.css") {
+  orange: orange;
+  red: red;
+}
+
 .Tab {
   width: fit-content;
   align-self: flex-start;
@@ -19,19 +24,26 @@
   text-align: center;
   border-radius: 50%;
   color: white;
-  transition: .2s;
+  transition: 0.2s;
   animation: bounce 4s infinite;
   overflow: visible;
   z-index: 2000 !important;
 }
 
 @keyframes bounce {
-  0% {transform: rotateY(0deg); }
-  20% {transform: rotateY(180deg); }
-  80% {transoform: rotateY(180deg); }
-  100% {transform: rotateY(360deg); }
+  0% {
+    transform: rotateY(0deg);
+  }
+  20% {
+    transform: rotateY(180deg);
+  }
+  80% {
+    transoform: rotateY(180deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
 }
-
 
 .NewTab .TabBox {
   width: fit-content;
@@ -59,7 +71,7 @@
   border-radius: 4px 4px 0 0;
   margin: 0 0 0 0;
   /* box-shadow: 0 0 2px  #fff inset; */
-  transition: .2s;
+  transition: 0.2s;
   font-size: 13px;
   /* -webkit-transform: perspective(150px) rotateX(30deg);
   -moz-transform: perspective(150px) rotateX(30deg); */
@@ -96,4 +108,9 @@
 
 .Active:hover .TabBox {
   background-color: #f8f8f8;
+}
+
+.NewTab:hover .TabBox {
+  color: orange;
+  background-color: transparent;
 }

@@ -18,8 +18,10 @@ export const initPerspectiveListener = (
 ) => {
   // console.log("SOTTT: ", store)
   var elements = document.getElementsByClassName("rightButtonPanel");
-  elements[0].lastChild.removeEventListener("click", menuClickListener);
-  elements[0].lastChild.addEventListener("click", menuClickListener);
+  if (elements && elements[0]) {
+    elements[0].lastChild.removeEventListener("click", menuClickListener);
+    elements[0].lastChild.addEventListener("click", menuClickListener);
+  }
 
   // let item;
   function menuClickListener() {
