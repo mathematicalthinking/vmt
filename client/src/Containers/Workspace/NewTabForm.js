@@ -74,6 +74,12 @@ class NewTabForm extends Component {
           tabs = [...this.props.room.tabs];
           tabs.push(res.data.result);
           this.props.updatedRoom(this.props.room._id, { tabs });
+          newTab.creator = {
+            username: this.props.user.username,
+            _id: this.props.user._id
+          };
+          newTab.message = `${newTab.creator.username} created a new tab`;
+          this.props.sendEvent(newTab);
         } else {
           tabs = [...this.props.activity.tabs];
           tabs.push(res.data.result);

@@ -268,6 +268,13 @@ class Workspace extends Component {
     }
   };
 
+  emitNewTab = tabInfo => {
+    console.log(tabInfo);
+    // socket.emit("NEW_TAB", tabInfo, (err, res) => {
+    //   this.props.addChatMessage(this.props.room._id, tabInfo.message);
+    // });
+  };
+
   resetControlTimer = () => {
     clearTimeout(this.controlTimer);
     this.controlTimer = setTimeout(() => {
@@ -489,8 +496,10 @@ class Workspace extends Component {
         <Modal show={this.state.creatingNewTab} closeModal={this.closeModal}>
           <NewTabForm
             room={room}
+            user={user}
             closeModal={this.closeModal}
             updatedRoom={this.props.updatedRoom}
+            sendEvent={this.emitNewTab}
           />
         </Modal>
       </Aux>
