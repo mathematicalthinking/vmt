@@ -162,6 +162,15 @@ class Workspace extends Component {
       this.setState({ activeMember: "", someoneElseInControl: false });
     });
 
+    socket.on("CREATED_TAB", data => {
+      this.props.addChatMessage(this.props.room._id, data.message);
+      delete data.message;
+      delete data.creator;
+      let tabs = [...this.props.room.tabs];
+      tabs.push(data);
+      this.props.updatedRoom(this.props.room._id, { tabs });
+    });
+
     socket.on("disconnect", data => {
       this.props.updateUser({ connected: false });
     });
@@ -270,9 +279,9 @@ class Workspace extends Component {
 
   emitNewTab = tabInfo => {
     console.log(tabInfo);
-    // socket.emit("NEW_TAB", tabInfo, (err, res) => {
-    //   this.props.addChatMessage(this.props.room._id, tabInfo.message);
-    // });
+    socket.emit("NEW_TAB", tabInfo, (err, res) => {
+      this.props.addChatMessage(this.props.room._id, tabInfo.message);
+    });
   };
 
   resetControlTimer = () => {

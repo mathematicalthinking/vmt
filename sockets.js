@@ -225,6 +225,7 @@ module.exports = function() {
         ]);
       } catch (err) {
         console.log("ERROR TAKING CONTROL: ", err);
+        callback(err, null);
       }
       socket.to(data.room).emit("TOOK_CONTROL", data);
       callback(null, data);
@@ -275,11 +276,21 @@ module.exports = function() {
         .post(message)
         .then(res => {
           socket.broadcast.to(data.room).emit("RECEIVE_MESSAGE", message);
-          callback({ message }, null);
+          callback(null, "sucess");
         })
         .catch(err => {
-          callback("fail", err);
+          callback(err, null);
         });
+    });
+
+    socket.on("NEW_TAB", (data, callback) => {
+      controllers.messages
+        .post(data.message)
+        .then(res => {
+          socket.broadcast.to(data.message.room).emit("CREATED_TAB", data);
+          callback("success");
+        })
+        .catch(err => callback("fail", err));
     });
   });
 };

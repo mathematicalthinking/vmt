@@ -28,7 +28,6 @@ class GgbGraph extends Component {
     window.addEventListener("resize", this.updateDimensions);
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
-      console.log("received EVENT!");
       let updatedTabs = this.props.room.tabs.map(tab => {
         if (tab._id === data.tab) {
           tab.currentState = data.currentState;
@@ -55,8 +54,6 @@ class GgbGraph extends Component {
               this.ggbApplet.evalCommand("UpdateConstruction()");
               break;
             case "CHANGE_PERSPECTIVE":
-              console.log("CHANGIN PERSPECTIVE");
-              console.log(data.event);
               this.ggbApplet.setPerspective(data.event);
               this.ggbApplet.showAlgebraInput(true);
               // this.ggbApplet.evalXML(data.event);
@@ -130,12 +127,6 @@ class GgbGraph extends Component {
         ggbFile,
         perspective
       } = this.props.room.tabs[this.props.currentTab];
-      console.log(
-        "perspective for tab ",
-        this.props.currentTab,
-        " = ",
-        perspective
-      );
       // initPerspectiveListener(document, perspective, this.changePerspective);
       if (currentState) {
         this.ggbApplet.setXML(currentState);
@@ -242,9 +233,7 @@ class GgbGraph extends Component {
     // put the current construction on the graph, disable everything until the user takes control
     if (perspective) this.ggbApplet.setPerspective(perspective);
     initPerspectiveListener(document, perspective, this.perspectiveChanged);
-    console.log("current state: ", currentState);
     if (currentState) {
-      console.log("we have currentState");
       this.ggbApplet.setXML(currentState);
     } else if (startingPoint) {
       this.ggbApplet.setXML(startingPoint);
@@ -273,7 +262,6 @@ class GgbGraph extends Component {
   };
 
   updateListener = label => {
-    console.log("UPDATE: ", label);
     let isInControl = this.props.room.controlledBy === this.props.user._id;
     if (!isInControl || this.state.switchingControl) {
       return;
@@ -287,7 +275,6 @@ class GgbGraph extends Component {
 
   // Used to capture referencing
   clickListener = async element => {
-    console.log("CLICK, ", element);
     // console.log("CLICKED", this.ggbApplet.getXML())
     if (this.props.referencing) {
       // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
