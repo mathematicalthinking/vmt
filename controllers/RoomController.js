@@ -262,19 +262,42 @@ module.exports = {
             } catch (err) {
               reject(err);
             }
-            // let userIds = room.members.map(member => member.user);
-            // // delete this room from any courses
-            // let promises = [db.User.update({_id: {$in: userIds}}, {$pull: {rooms: room._id}}, {multi: true})];
-            if (room.course) {
-              return db.Course.findByIdAndUpdate(room.course, {
-                $pull: { rooms: room._id }
-              });
-            } else resolve(updatedRoom);
+            let userIds = room.members.map(member => member.user);
+            // Delete any notifications associated with this room
+            return db.Notification.find({ resourceId: id }).then(ntfs => {
+              let ntfIds = ntfs.map(ntf => ntf._id);
+              let promises = [
+                db.User.update(
+                  { _id: { $in: userIds } },
+                  {
+                    $pull: {
+                      rooms: id,
+                      notifications: { $in: ntfIds }
+                    }
+                  },
+                  { multi: true }
+                )
+              ];
+              promises.push(
+                db.Notification.deleteMany({ _id: { $in: ntfIds } })
+              );
+              // delete this room from any courses
+              if (room.course) {
+                promises.push(
+                  db.Course.findByIdAndUpdate(room.course, {
+                    $pull: { rooms: id }
+                  })
+                );
+              }
+              return Promise.all(promises);
+            });
           })
-          .then(() => {
+          .then(promiseResults => {
             resolve(updatedRoom);
           })
-          .catch(err => reject(err));
+          .catch(err => {
+            reject(err);
+          });
       } else {
         db.Room.findByIdAndUpdate(id, body, { new: true })
           .populate("currentMembers.user members.user", "username")

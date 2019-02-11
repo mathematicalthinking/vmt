@@ -184,33 +184,45 @@ module.exports = {
           .then(course => {
             updatedCourse = course;
             let userIds = course.members.map(member => member.user);
-            let promises = [
-              db.User.update(
-                { _id: { $in: userIds } },
-                { $pull: { courses: course._id } },
-                { multi: true }
-              )
-            ];
-            if (body.trashChildren) {
-              promises.push(
-                course.rooms.map(room =>
-                  db.Room.findById(room).then(room => {
-                    room.isTrashed = true;
-                    room.save();
-                  })
+            // Delete any notifications associated with this course
+            return db.Notification.find({ resourceId: id }).then(ntfs => {
+              let ntfIds = ntfs.map(ntf => ntf._id);
+              let promises = [
+                db.User.update(
+                  { _id: { $in: userIds } },
+                  {
+                    $pull: {
+                      courses: course._id,
+                      notifications: { $in: ntfIds }
+                    }
+                  },
+                  { multi: true }
                 )
-              );
+              ];
               promises.push(
-                course.activities.map(activity =>
-                  db.Activity.findById(activity).then(activity => {
-                    activity.isTrashed = true;
-                    activity.save();
-                  })
-                )
+                db.Notification.deleteMany({ _id: { $in: ntfIds } })
               );
-              // promises.push()
-            }
-            return Promise.all(promises);
+              if (body.trashChildren) {
+                promises.push(
+                  course.rooms.map(room =>
+                    db.Room.findById(room).then(room => {
+                      room.isTrashed = true;
+                      room.save();
+                    })
+                  )
+                );
+                promises.push(
+                  course.activities.map(activity =>
+                    db.Activity.findById(activity).then(activity => {
+                      activity.isTrashed = true;
+                      activity.save();
+                    })
+                  )
+                );
+                // promises.push()
+              }
+              return Promise.all(promises);
+            });
           })
           .then(() => {
             resolve(updatedCourse);
