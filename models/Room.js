@@ -32,6 +32,10 @@ const Room = new mongoose.Schema(
     },
     tempRoom: { type: Boolean, default: false },
     image: { type: String },
+    settings: {
+      participantsCanCreateTabs: { type: Boolean, default: false },
+      participantsCanChangePerspective: { type: Boolean, default: false }
+    },
     graphImage: { type: ObjectId, ref: "Image" },
     controlledBy: { type: ObjectId, ref: "User", default: null },
     // wasNew: {type: Boolean},
