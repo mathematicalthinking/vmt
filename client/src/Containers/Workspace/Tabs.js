@@ -1,6 +1,15 @@
 import React from "react";
 import classes from "./tabs.css";
-const Tabs = ({ tabs, currentTab, ntfTabs, role, changeTab, createNewTab }) => {
+const Tabs = ({
+  tabs,
+  currentTab,
+  ntfTabs,
+  role,
+  changeTab,
+  createNewTab,
+  participantCanCreate
+}) => {
+  console.log(participantCanCreate);
   let tabEls = tabs.map((tab, i) => (
     <div
       key={tab._id}
@@ -23,7 +32,7 @@ const Tabs = ({ tabs, currentTab, ntfTabs, role, changeTab, createNewTab }) => {
   return (
     <div className={classes.WorkspaceTabs}>
       {tabEls}
-      {role === "facilitator" ? (
+      {role === "facilitator" || participantCanCreate ? (
         <div className={[classes.Tab, classes.NewTab].join(" ")}>
           <div onClick={createNewTab} className={classes.TabBox}>
             <i className="fas fa-plus" />

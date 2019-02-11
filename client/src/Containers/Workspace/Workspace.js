@@ -409,6 +409,7 @@ class Workspace extends Component {
       // This che
       tabs = (
         <Tabs
+          participantCanCreate={room.settings.participantsCanCreateTabs}
           tabs={room.tabs}
           ntfTabs={this.state.activityOnOtherTabs}
           currentTab={this.state.currentTab}
