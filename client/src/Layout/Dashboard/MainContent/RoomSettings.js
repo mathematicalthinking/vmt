@@ -64,7 +64,14 @@ class RoomSettings extends Component {
         </RadioBtn>
       </div>
     ) : (
-      <div>NOT OWNER</div>
+      <div>
+        <h2 className={classes.Heading}>Participants can create new Tabs</h2>
+        <div>{settings.participantsCanCreateTabs ? "Yes" : "No"}</div>
+        <h2 className={classes.Heading}>
+          Participants can change the Perspective (GeoGebra)
+        </h2>
+        <div>{settings.participantsCanChangePerspective ? "Yes" : "No"}</div>
+      </div>
     );
   }
 }
