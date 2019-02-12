@@ -73,6 +73,7 @@ class GgbGraph extends Component {
 
   async componentDidUpdate(prevProps) {
     if (!this.ggbApplet) return;
+    let { room, role } = this.props;
     let wasInControl = prevProps.room.controlledBy === this.props.user._id;
     let isInControl = this.props.room.controlledBy === this.props.user._id;
     let isSomeoneElseInControl = this.props.room.controlledBy && !isInControl;
@@ -88,11 +89,17 @@ class GgbGraph extends Component {
         this.setState({ switchingControl: false }, () => {
           this.freezeElements(false);
         });
-        initPerspectiveListener(
-          document,
-          this.props.room.tabs[this.props.currentTab].perspective,
-          this.perspectiveChanged
-        );
+        console.log(room.settings.participantsCanChangePerspective);
+        if (
+          room.settings.participantsCanChangePerspective ||
+          role === "facilitator"
+        ) {
+          initPerspectiveListener(
+            document,
+            this.props.room.tabs[this.props.currentTab].perspective,
+            this.perspectiveChanged
+          );
+        }
       });
     } else if ((wasInControl && !isInControl) || isSomeoneElseInControl) {
       this.ggbApplet.showToolBar(false);
@@ -232,7 +239,9 @@ class GgbGraph extends Component {
     ];
     // put the current construction on the graph, disable everything until the user takes control
     if (perspective) this.ggbApplet.setPerspective(perspective);
-    initPerspectiveListener(document, perspective, this.perspectiveChanged);
+    if (room.settings.participantsCanChangePerspective) {
+      initPerspectiveListener(document, perspective, this.perspectiveChanged);
+    }
     if (currentState) {
       this.ggbApplet.setXML(currentState);
     } else if (startingPoint) {

@@ -177,7 +177,12 @@ class Workspace extends Component {
   }
 
   createNewTab = () => {
-    this.setState({ creatingNewTab: true });
+    if (
+      this.state.role === "facilitator" ||
+      this.props.room.settings.participantsCanCreateTabs
+    ) {
+      this.setState({ creatingNewTab: true });
+    }
   };
 
   closeModal = () => {
@@ -409,6 +414,7 @@ class Workspace extends Component {
       // This che
       tabs = (
         <Tabs
+          participantCanCreate={room.settings.participantsCanCreateTabs}
           tabs={room.tabs}
           ntfTabs={this.state.activityOnOtherTabs}
           currentTab={this.state.currentTab}
@@ -458,6 +464,7 @@ class Workspace extends Component {
         <GgbGraph
           room={room}
           user={user}
+          role={this.state.role}
           updateRoom={this.props.updateRoom}
           updatedRoom={this.props.updatedRoom}
           resetControlTimer={this.resetControlTimer}
