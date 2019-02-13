@@ -1,10 +1,15 @@
 import React from "react";
 import NavItem from "./NavItem/NavItem";
 import classes from "./navbar.css";
-import { Link } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 const navbar = props => {
+  console.log("nav props: ", props);
+  let styles = classes.NavContainer;
+  if (props.location.pathname.indexOf("workspace") > -1) {
+    styles = classes.WorkspaceNav;
+  }
   return (
-    <nav className={classes.NavContainer}>
+    <nav className={styles}>
       <div className={classes.LogoContainer}>
         <div className={classes.Logo}>
           {" "}
@@ -27,4 +32,4 @@ const navbar = props => {
   );
 };
 
-export default navbar;
+export default withRouter(navbar);

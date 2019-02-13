@@ -419,11 +419,16 @@ class Course extends Component {
                       </div>
                       {this.state.editing ? (
                         // @TODO this should be a resuable component
-                        <div>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-around"
+                          }}
+                        >
                           <Button
                             click={this.updateCourse}
                             data-testid="save-course"
-                            theme="edit-save"
+                            theme="Small"
                           >
                             Save
                           </Button>
@@ -434,7 +439,7 @@ class Course extends Component {
                           >
                             <i className="fas fa-trash-alt" />
                           </Button>
-                          <Button click={this.toggleEdit} theme="edit">
+                          <Button click={this.toggleEdit} theme="Cancel">
                             Cancel
                           </Button>
                         </div>

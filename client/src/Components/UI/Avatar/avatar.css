@@ -4,8 +4,9 @@
 }
 .UserInfo {
   margin-bottom: 5px;
-
-  width: 100%;
+  height: 222px;
+  width: 222px;
+  align-self: center;
 }
 
 .UserInfo a {
@@ -26,7 +27,7 @@
   align-items: center;
   margin: 0 auto;
   padding: 2px;
-  height: 175px;
+  height: inherit;
   background: white;
   border-radius: 3px;
   box-shadow: lightestShadow;
