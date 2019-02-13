@@ -1,5 +1,7 @@
-:import('../../../colors.css') {
+:import("../../../colors.css") {
+  darkOrange: darkOrange;
   orange: orange;
+  yellow: yellow;
   red: red;
   blue: blue;
   darkGrey: darkGrey;
@@ -17,7 +19,7 @@
 
 .Tab {
   position: relative;
-  flex: .2 0 auto;
+  flex: 0.2 0 auto;
   max-width: 160px;
   min-width: 140px;
   padding: 15px 0;
@@ -31,21 +33,25 @@
   cursor: pointer;
   border-bottom: 1.5px solid #ddd;
   margin-bottom: 2px;
-  transition: .2s;
-  color: #9f9f9f;
+  transition: 0.2s;
+  color: darkGrey;
 }
 
 .Tab:hover {
-  border-bottom: 1.5px solid darkGrey;
+  border-bottom: 4px solid lightGrey;
   color: darkGrey;
 }
 
 .ActiveTab {
   /* border-bottom: 1px solid #2D91F2; */
-  border-bottom: 4px solid blue !important;
+  border-bottom: 4px solid orange;
   /* margin-bottom: 2px; */
   color: black;
   font-weight: 600;
+}
+
+.ActiveTab:hover {
+  border-bottom: 4px solid orange;
 }
 /* @TODO might consider extracting out Notification to its own component */
 .Notifications {

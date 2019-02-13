@@ -1,12 +1,14 @@
 :import("../../../colors.css") {
   darkBorder: darkBorder;
   lightGrey: lightGrey;
+  darkGrey: darkGrey;
 }
 
 .Heading {
   font-size: 20px;
   padding-bottom: 2px;
-  border-bottom: 1px solid lightGrey;
+  border-bottom: 1px solid #ddd;
+  color: darkGrey;
   display: inline-block;
   margin-bottom: 10px;
 }

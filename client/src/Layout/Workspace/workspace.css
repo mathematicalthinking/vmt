@@ -26,18 +26,6 @@
   flex-flow: column;
   justify-content: flex-start;
   align-items: center;
-  background-image: linear-gradient(
-    to top,
-    #d4edfc 1%,
-    gridBlue 20%,
-    rgb(56, 56, 124) 100%
-  );
-  background-image: linear-gradient(
-    to top,
-    #d4edfc 1%,
-    gridBlue 15%,
-    darkBlue 100%
-  );
   z-index: 0;
   padding: 0 20px;
   /* overflow-y: hidden; */
@@ -67,8 +55,8 @@
   bottom: 0;
   background-image: linear-gradient(
     to top,
-    #d4edfc 1%,
-    gridBlue 20%,
+    #d4edfc 10%,
+    gridBlue 70%,
     rgb(56, 56, 124) 100%
   );
   z-index: -100;
