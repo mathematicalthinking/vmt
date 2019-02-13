@@ -36,17 +36,16 @@
   border: 2px solid white;
   border-radius: 3px;
   font-family: inherit;
+  box-shadow: none;
   transition: 0.2s;
   /* box-shadow: 0; */
 }
 
 .Big:hover {
-  box-shadow: newBoxShadow;
-  background-color: blue;
-  border: none;
-  padding: 21px 31px;
+  box-shadow: lightShadow;
+  border: 2px solid lightBlue;
+  border-bottom: 2px solid blue;
   background-image: linear-gradient(-180deg, lightBlue, blue 90%);
-  border-radius: 3px;
 }
 
 .Big:active {
@@ -57,13 +56,17 @@
 .Small {
   composes: Button;
   background-color: blue;
-  background-image: linear-gradient(-180deg, lightBlue, blue 90%);
+  background-image: linear-gradient(-180deg, #91c4ff, #2a85e0 100%);
   color: white;
-  transition: 0.2s;
   padding: 10px 20px;
   font-family: inherit;
   text-transform: uppercase;
   font-size: 14px;
+  transition: 0.2s;
+}
+
+.Small:hover {
+  background-image: linear-gradient(-180deg, #8dbbf8, #2a85e0 100%);
 }
 
 .Small:active {
@@ -115,11 +118,10 @@
 
 .Cancel {
   composes: Button;
-  background-image: linear-gradient(-180deg, rgb(228, 216, 216), lightGrey 90%);
-  color: darkGrey;
+  background-image: linear-gradient(-180deg, #ddcfcf, lightGrey 90%);
+  color: white;
   text-transform: uppercase;
   font-weight: 700;
-  box-shadow: lightestShadow;
 }
 
 .SmallCancel:hover {
@@ -132,6 +134,11 @@
 
 .Cancel:hover {
   /* box-shadow: lightShadow; */
+  background-image: linear-gradient(-180deg, #cfc2c2, lightGrey 90%);
+}
+
+.Cancel:active {
+  background: #999;
 }
 
 .Primary {
