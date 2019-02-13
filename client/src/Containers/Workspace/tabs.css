@@ -53,11 +53,13 @@
   border: 1px transparent;
   background-color: transparent;
   margin-right: 20px;
+  z-index: -1;
 }
 
 .NewTab .TabBox i {
   position: relative;
   top: -1px;
+  box-shadow: none;
 }
 
 .TabBox {
@@ -72,6 +74,7 @@
   margin: 0 0 0 0;
   /* box-shadow: 0 0 2px  #fff inset; */
   transition: 0.2s;
+  z-index: -1;
   font-size: 13px;
   /* -webkit-transform: perspective(150px) rotateX(30deg);
   -moz-transform: perspective(150px) rotateX(30deg); */

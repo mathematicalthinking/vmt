@@ -1,4 +1,4 @@
-:import('../../colors.css') {
+:import("../../colors.css") {
   blue: blue;
   darkShadow: darkShadow;
   navbarHeight: navbarHeight;
@@ -14,12 +14,19 @@
   height: navbarHeight;
   background-color: blue;
   color: white;
+  z-index: 100;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.WorkspaceNav {
+  composes: NavContainer;
+  box-shadow: none;
+  background: transparent;
 }
 
 .LogoContainer {
   order: 1;
-  flex: .25 0 auto;
+  flex: 0.25 0 auto;
 }
 
 .Logo {
@@ -40,7 +47,7 @@
 
 .NavListContainer {
   order: 2;
-  flex: .75 0 auto;
+  flex: 0.75 0 auto;
 }
 
 .NavListContainer ul {
@@ -54,10 +61,8 @@
 }
 
 .NavListContainer ul li {
-  flex: .1 0 auto;
+  flex: 0.1 0 auto;
 }
-
-
 
 @media screen and (min-width: 1300px) {
   .NavContainer {

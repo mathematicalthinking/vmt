@@ -1,8 +1,11 @@
-:import('../../colors.css'){
+:import("../../colors.css") {
   lightShadow: lightestShadow;
+  darkShadow: darkShadow;
   background: mainBackground;
   lightBlue: lightBlue;
   blue: blue;
+  gridBlue: gridBlue;
+  darkBlue: darkBlue;
   blueHover: blueHover;
   red: red;
   scrollBackground: darkScroller;
@@ -18,17 +21,27 @@
 
 .PageContainer {
   width: 100%;
-  height: calc(100vh - navbarHeight);
+  height: 100vh;
   display: flex;
   flex-flow: column;
   justify-content: flex-start;
   align-items: center;
-  background-color: #f8f8f9;
+  background-image: linear-gradient(
+    to top,
+    #d4edfc 1%,
+    gridBlue 20%,
+    rgb(56, 56, 124) 100%
+  );
+  background-image: linear-gradient(
+    to top,
+    #d4edfc 1%,
+    gridBlue 15%,
+    darkBlue 100%
+  );
   z-index: 0;
   padding: 0 20px;
   /* overflow-y: hidden; */
 }
-
 
 .Container {
   margin-top: 50px;
@@ -46,19 +59,30 @@
   /* border: 1px solid red; */
 }
 
+.Background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(
+    to top,
+    #d4edfc 1%,
+    gridBlue 20%,
+    rgb(56, 56, 124) 100%
+  );
+  z-index: -100;
+}
+
 .Title {
-  margin-top: 10px;
-  align-self: flex-end;
-  padding: 5px;
-  border-radius: 15px;
-  background: #d5d5d5;
+  color: white;
+  margin-top: -8px;
   font-size: 20px;
-  letter-spacing: .08em;
-  position: absolute;
-  right: 10px;
-  top: -50px;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+  text-align: center;
   text-transform: capitalize;
-  color: darkGrey;
+  /* color: ; */
 }
 
 .Top {
@@ -117,12 +141,12 @@
   align-items: stretch; */
 }
 
-
 .Graph {
   position: relative;
   order: 1;
   flex: 1 0 auto;
-  box-shadow: lightShadow;
+  box-shadow: 0px -4px 30px 4px rgb(67, 77, 104),
+    2px 4px 4px 1px rgb(76, 102, 172);
   height: 100%;
   /* width: 100%; */
   /*  IF THIS ^  CHANGES BE SURE TO CHANEG THE WIDTH PARAMETER ON THE GGB GRAPH*/
@@ -138,23 +162,23 @@
   flex: 1 1 auto;
   margin-top: 10px;
   box-shadow: lightShadow;
+  box-shadow: 0px -1px 15px 2px rgb(148, 162, 200),
+    2px 4px 4px 1px rgb(126, 135, 158);
 }
-
 
 .Chat {
   box-shadow: lightShadow;
-  /* border-radius: 5px; */
+  box-shadow: 0px -1px 30px 2px rgb(67, 77, 104),
+    2px 4px 4px 1px rgb(76, 102, 172);
   order: 1;
-  /* height: 75%; */
-  /* height: auto; */
   align-self: auto;
-  /* max-height: 75%; */
-  /* flex-shrink: 1; */
   flex: 0 1 0;
 }
 
 .Members {
   box-shadow: lightShadow;
+  box-shadow: 0px -1px 15px 2px rgb(148, 162, 200),
+    2px 4px 4px 1px rgb(126, 135, 158);
   margin: 10px 0;
   /* border-radius: 5px; */
   order: 2;
@@ -163,6 +187,8 @@
 
 .BottomRight {
   box-shadow: lightShadow;
+  box-shadow: 0px -1px 15px 2px rgb(148, 162, 200),
+    2px 4px 4px 1px rgb(126, 135, 158);
   order: 3;
   flex: 1 0 auto;
   display: flex;
@@ -174,14 +200,13 @@
   height: 220px;
 }
 
-
 .Avatar {
   margin: 5px;
 }
 
 .EditInstructions {
   color: #999;
-  transition: .2s;
+  transition: 0.2s;
   cursor: pointer;
 }
 
@@ -194,7 +219,6 @@
   flex-shrink: 1; */
   /* align-self: flex-end; */
 }
-
 
 .ReferenceLine {
   position: absolute;
