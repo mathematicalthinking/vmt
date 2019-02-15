@@ -26,9 +26,10 @@ module.exports = {
       .skip(parseInt(skip))
       .limit(20)
       .populate("creator", "username")
-      .then(courses => {
-        // console.log(courses);
-        return courses;
+      .then(activities => {
+        console.log(activities[0]);
+        // console.log(activities);
+        return activities;
       });
   },
 
