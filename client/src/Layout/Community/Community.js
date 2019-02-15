@@ -24,30 +24,26 @@ class Community extends Component {
             Selecting
           </div>
         ) : null}
-        <h3 className={classes.Title}>
-          Search for activities or ask to join rooms and courses
-        </h3>
-        <div className={classes.ResourceOpts}>
-          <div>
-            <CustomLink to="/community/activities">Activities</CustomLink>
+        <div className={classes.Header}>
+          <h3 className={classes.Title}>
+            Search for activities or ask to join rooms and courses
+          </h3>
+          <div className={classes.ResourceOpts}>
+            <div>
+              <CustomLink to="/community/activities">Activities</CustomLink>
+            </div>
+            <div>
+              <CustomLink to="/community/courses">Courses</CustomLink>
+            </div>
+            <div>
+              <CustomLink to="/community/rooms">Rooms</CustomLink>
+            </div>
           </div>
-          <div>
-            <CustomLink to="/community/courses">Courses</CustomLink>
+          <div className={classes.Search}>
+            <Search _filter={value => this.filterResults(value)} />
           </div>
-          <div>
-            <CustomLink to="/community/rooms">Rooms</CustomLink>
-          </div>
-        </div>
-        <div className={classes.Search}>
-          <Search _filter={value => this.filterResults(value)} />
         </div>
         <div className={classes.List}>
-          {selecting ? (
-            <div className={[classes.SelectCount, selectCountClass].join(" ")}>
-              you have selected{" "}
-              <span data-testid="select-count">{selectCount}</span> activities
-            </div>
-          ) : null}
           <BoxList
             list={visibleResources}
             resource={resource}

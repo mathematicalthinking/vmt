@@ -9,7 +9,8 @@ class Community extends Component {
     visibleResources: [],
     resource: "",
     selecting: this.props.match.params.action === "selecting",
-    selectCount: 0
+    selectCount: 0,
+    skip: 0
   };
   allResources = [];
 
@@ -44,7 +45,7 @@ class Community extends Component {
   }
 
   fetchData = resource => {
-    API.get(resource).then(res => {
+    API.search(resource, this.state.criteria, this.state.skip).then(res => {
       this.setState({ visibleResources: res.data.results });
     });
   };
