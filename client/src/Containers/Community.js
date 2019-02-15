@@ -8,8 +8,6 @@ class Community extends Component {
   state = {
     visibleResources: [],
     resource: "",
-    selecting: this.props.match.params.action === "selecting",
-    selectCount: 0,
     skip: 0
   };
   allResources = [];
@@ -45,9 +43,12 @@ class Community extends Component {
   }
 
   fetchData = resource => {
-    API.search(resource, this.state.criteria, this.state.skip).then(res => {
-      this.setState({ visibleResources: res.data.results });
-    });
+    API.searchPaginated(resource, this.state.criteria, this.state.skip).then(
+      res => {
+        console.log(res);
+        this.setState({ visibleResources: res.data.results });
+      }
+    );
   };
 
   filterResults = value => {
@@ -61,10 +62,6 @@ class Community extends Component {
     this.setState({ visibleResources: updatedResources });
   };
 
-  select = id => {
-    this.props.updateUserResource("activities", id, this.props.userId);
-    this.setState(prevState => ({ selectCount: prevState.selectCount + 1 }));
-  };
   render() {
     let linkPath;
     let linkSuffix;
@@ -85,9 +82,6 @@ class Community extends Component {
         resource={this.props.match.params.resource}
         linkPath={linkPath}
         linkSuffix={linkSuffix}
-        selecting={this.state.selecting}
-        select={this.select}
-        selectCount={this.state.selectCount}
       />
     );
   }

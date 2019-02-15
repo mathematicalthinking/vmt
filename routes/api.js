@@ -46,6 +46,12 @@ router.get("/search/:resource", (req, res, next) => {
     });
 });
 
+router.get("/searchPaginated/:resource", (req, res, next) => {
+  let controller = controllers[req.params.resource];
+  console.log(req.query.critera);
+  console.log(req.query.skip);
+});
+
 router.get("/:resource/:id", middleware.validateUser, (req, res, next) => {
   let { id, resource } = req.params;
   let controller = controllers[resource];

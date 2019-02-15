@@ -58,8 +58,6 @@ const boxList = React.memo(props => {
                 locked={item.privacySetting === "private"} // @TODO Should it appear locked if the user has access ? I can see reasons for both
                 details={details}
                 listType={props.listType}
-                selecting={props.selecting}
-                select={props.select}
               >
                 {item.description}
               </ContentBox>

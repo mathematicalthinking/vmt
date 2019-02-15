@@ -11,19 +11,10 @@ class Community extends Component {
       visibleResources,
       linkPath,
       linkSuffix,
-      selecting,
-      selectCount,
       select
     } = this.props;
-    let selectCountClass =
-      selectCount === 0 ? classes.SelectCountNone : classes.SelectCountPos;
     return (
       <div className={classes.Container}>
-        {selecting ? (
-          <div className={classes.Selecting} data-testid="select-tag">
-            Selecting
-          </div>
-        ) : null}
         <div className={classes.Header}>
           <h3 className={classes.Title}>
             Search for activities or ask to join rooms and courses
@@ -50,7 +41,6 @@ class Community extends Component {
             linkPath={linkPath}
             linkSuffix={linkSuffix}
             listType="public"
-            selecting={selecting}
             select={select}
           />
         </div>
