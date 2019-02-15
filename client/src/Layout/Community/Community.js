@@ -31,7 +31,7 @@ class Community extends Component {
             </div>
           </div>
           <div className={classes.Search}>
-            <Search _filter={value => this.filterResults(value)} />
+            <Search _search={value => this.props.setCriteria(value)} />
           </div>
         </div>
         <div className={classes.List}>

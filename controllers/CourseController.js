@@ -27,6 +27,18 @@ module.exports = {
     });
   },
 
+  searchPaginated: (criteria, skip) => {
+    console.log(criteria);
+    console.log(skip);
+    return db.Course.find({ name: criteria })
+      .skip(parseInt(skip))
+      .limit(30)
+      .then(courses => {
+        console.log(courses);
+        return courses;
+      });
+  },
+
   post: body => {
     // check if we should make a template from this course
     return new Promise((resolve, reject) => {

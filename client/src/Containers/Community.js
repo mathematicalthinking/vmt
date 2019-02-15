@@ -8,7 +8,8 @@ class Community extends Component {
   state = {
     visibleResources: [],
     resource: "",
-    skip: 0
+    skip: 0,
+    criteria: "course 1"
   };
   allResources = [];
 
@@ -32,23 +33,28 @@ class Community extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { resource, action } = this.props.match.params;
+    const { resource } = this.props.match.params;
     if (prevProps.match.params.resource !== resource) {
       this.fetchData(resource);
     }
-    if (prevProps.match.params.action !== action) {
-      this.setState({ selecting: action === "selecting" });
+    if (prevState.criteria !== this.state.criteria) {
+      this.fetchData(resource);
     }
-    // this.allResources = resourceList;
   }
 
   fetchData = resource => {
+    console.log(this.state.criteria);
     API.searchPaginated(resource, this.state.criteria, this.state.skip).then(
       res => {
         console.log(res);
         this.setState({ visibleResources: res.data.results });
       }
     );
+  };
+
+  setCriteria = text => {
+    console.log(text);
+    this.setState({ criteria: text });
   };
 
   filterResults = value => {
@@ -82,6 +88,7 @@ class Community extends Component {
         resource={this.props.match.params.resource}
         linkPath={linkPath}
         linkSuffix={linkSuffix}
+        setCriteria={this.setCriteria}
       />
     );
   }
