@@ -3,18 +3,18 @@ import { connect } from "react-redux";
 import { updateUserResource } from "../store/actions/";
 import { CommunityLayout } from "../Layout";
 import API from "../utils/apiRequests";
-
+const SKIP_VALUE = 20;
 class Community extends Component {
   state = {
     visibleResources: [],
-    resource: "",
     skip: 0,
-    criteria: "course 1"
+    criteria: "",
+    moreAvailable: true
   };
   allResources = [];
 
   componentDidMount() {
-    let { resource, action } = this.props.match.params;
+    let { resource } = this.props.match.params;
     // @TODO WHen should we refresh this data. Here we're saying:
     // if there aren't fift result then we've probably only loaded the users
     // own courses. This is assuming that the database will have more than 50 courses and rooms
@@ -29,32 +29,45 @@ class Community extends Component {
     this.setState({ visibleResources: resourceList });
     this.allResources = resourceList;
     // }
-    this.setState({ selecting: action });
   }
 
   componentDidUpdate(prevProps, prevState) {
     const { resource } = this.props.match.params;
     if (prevProps.match.params.resource !== resource) {
+      this.setState({ skip: 0, criteria: "", moreAvailable: true }, () =>
+        this.fetchData(resource)
+      );
+    } else if (prevState.criteria !== this.state.criteria) {
       this.fetchData(resource);
-    }
-    if (prevState.criteria !== this.state.criteria) {
-      this.fetchData(resource);
+    } else if (prevState.skip !== this.state.skip) {
+      let concat = true;
+      this.fetchData(resource, concat);
     }
   }
-
-  fetchData = resource => {
-    console.log(this.state.criteria);
-    API.searchPaginated(resource, this.state.criteria, this.state.skip).then(
-      res => {
-        console.log(res);
-        this.setState({ visibleResources: res.data.results });
-      }
-    );
+  // concat tells us whether we should concat to existing results or overwrite
+  fetchData = (resource, concat) => {
+    let { criteria, skip } = this.state;
+    API.searchPaginated(resource, criteria, skip).then(res => {
+      if (res.data.results.length < SKIP_VALUE) {
+        this.setState({ moreAvailable: false });
+      } else if (concat) {
+        this.setState(prevState => ({
+          visibleResources: [...prevState.visibleResources].concat(
+            res.data.results
+          )
+        }));
+      } else this.setState({ visibleResources: res.data.results });
+    });
   };
 
-  setCriteria = text => {
-    console.log(text);
-    this.setState({ criteria: text });
+  setCriteria = criteria => {
+    this.setState({ criteria, skip: 0, moreAvailable: true });
+  };
+
+  setSkip = () => {
+    this.setState(prevState => ({
+      skip: prevState.skip + SKIP_VALUE
+    }));
   };
 
   filterResults = value => {
@@ -88,7 +101,9 @@ class Community extends Component {
         resource={this.props.match.params.resource}
         linkPath={linkPath}
         linkSuffix={linkSuffix}
+        setSkip={this.setSkip}
         setCriteria={this.setCriteria}
+        moreAvailable={this.state.moreAvailable}
       />
     );
   }

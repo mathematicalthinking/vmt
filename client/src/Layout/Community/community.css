@@ -45,34 +45,10 @@
 
 .List {
   margin-top: 300px;
+  display: flex;
+  flex-flow: column;
 }
 
-.Selecting {
-  position: fixed;
-  top: 60px;
-  width: 120px;
-  text-align: center;
-  padding: 4px 10px;
-  z-index: 1100;
-  box-shadow: lightShadow;
-  border-radius: 0 0 9px 9px;
-  background: green;
-  color: white;
-}
-
-.SelectCount {
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  transition: 0.2s ease-in-out;
-}
-
-.SelectCountNone {
-  background: backgroundGray;
-  color: red;
-}
-
-.SelectCountPos {
-  background: green;
-  color: white;
+.LoadMore {
+  align-self: center;
 }

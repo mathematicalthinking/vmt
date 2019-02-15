@@ -28,13 +28,11 @@ module.exports = {
   },
 
   searchPaginated: (criteria, skip) => {
-    console.log(criteria);
-    console.log(skip);
-    return db.Course.find({ name: criteria })
+    return db.Course.find(criteria ? { name: criteria } : {})
       .skip(parseInt(skip))
-      .limit(30)
+      .limit(20)
       .then(courses => {
-        console.log(courses);
+        // console.log(courses);
         return courses;
       });
   },

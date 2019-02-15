@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 // import { CustomLink } from 'react-router-dom';
 import BoxList from "../BoxList/BoxList";
-import { Search, CustomLink } from "../../Components/";
+import { Search, CustomLink, Button } from "../../Components/";
 // import Button from '../../Components/UI/Button/Button';
 import classes from "./community.css";
 class Community extends Component {
@@ -43,6 +43,15 @@ class Community extends Component {
             listType="public"
             select={select}
           />
+          <div className={classes.LoadMore}>
+            <Button
+              m={20}
+              disabled={!this.props.moreAvailable}
+              click={this.props.setSkip}
+            >
+              load more results
+            </Button>
+          </div>
         </div>
       </div>
     );

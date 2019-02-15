@@ -21,6 +21,16 @@ module.exports = {
     });
   },
 
+  searchPaginated: (criteria, skip) => {
+    return db.Activity.find(criteria ? { name: criteria } : {})
+      .skip(parseInt(skip))
+      .limit(20)
+      .then(courses => {
+        // console.log(courses);
+        return courses;
+      });
+  },
+
   post: body => {
     return new Promise(async (resolve, reject) => {
       let existingTabs;

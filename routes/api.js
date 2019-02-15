@@ -49,8 +49,10 @@ router.get("/search/:resource", (req, res, next) => {
 router.get("/searchPaginated/:resource", (req, res, next) => {
   let controller = controllers[req.params.resource];
   let { criteria, skip } = req.query;
-  let text = req.query.criteria.replace(/\s+/g, "");
-  let regex = new RegExp(text, "i");
+  let regex;
+  if (criteria) {
+    regex = new RegExp(criteria, "i");
+  }
   controller
     .searchPaginated(regex, skip)
     .then(results => {

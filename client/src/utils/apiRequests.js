@@ -19,9 +19,9 @@ export default {
   },
 
   searchPaginated: (resource, criteria, skip) => {
-    console.log(criteria, skip);
+    console.log(criteria == true, skip);
     return axios.get(`/api/searchPaginated/${resource}`, {
-      params: { criteria, skip }
+      params: criteria ? { criteria, skip } : { skip }
     });
   },
 
