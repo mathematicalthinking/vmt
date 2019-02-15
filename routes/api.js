@@ -46,6 +46,28 @@ router.get("/search/:resource", (req, res, next) => {
     });
 });
 
+router.get("/searchPaginated/:resource", (req, res, next) => {
+  let controller = controllers[req.params.resource];
+  let { criteria, skip } = req.query;
+  let regex;
+  if (criteria) {
+    regex = new RegExp(criteria, "i");
+  }
+  controller
+    .searchPaginated(regex, skip)
+    .then(results => {
+      res.json({ results });
+    })
+    .catch(err => {
+      console.error(`Error search paginated${resource}: ${err}`);
+      let msg = null;
+      if (typeof err === "string") {
+        msg = err;
+      }
+      errors.sendError.InternalError(msg, res);
+    });
+});
+
 router.get("/:resource/:id", middleware.validateUser, (req, res, next) => {
   let { id, resource } = req.params;
   let controller = controllers[resource];

@@ -18,6 +18,13 @@ export default {
     return axios.get(`/api/search/${resource}`, { params: { text, exclude } });
   },
 
+  searchPaginated: (resource, criteria, skip) => {
+    console.log(criteria == true, skip);
+    return axios.get(`/api/searchPaginated/${resource}`, {
+      params: criteria ? { criteria, skip } : { skip }
+    });
+  },
+
   post: (resource, body) => {
     return axios.post(`/api/${resource}`, body);
   },

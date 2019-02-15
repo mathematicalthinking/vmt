@@ -27,6 +27,17 @@ module.exports = {
     });
   },
 
+  searchPaginated: (criteria, skip) => {
+    return db.Course.find(criteria ? { name: criteria } : {})
+      .skip(parseInt(skip))
+      .limit(20)
+      .populate("members.user", "username")
+      .then(courses => {
+        // console.log(courses);
+        return courses;
+      });
+  },
+
   post: body => {
     // check if we should make a template from this course
     return new Promise((resolve, reject) => {

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 // import { CustomLink } from 'react-router-dom';
 import BoxList from "../BoxList/BoxList";
-import { Search, CustomLink } from "../../Components/";
+import { Search, CustomLink, Button } from "../../Components/";
 // import Button from '../../Components/UI/Button/Button';
 import classes from "./community.css";
 class Community extends Component {
@@ -11,52 +11,53 @@ class Community extends Component {
       visibleResources,
       linkPath,
       linkSuffix,
-      selecting,
-      selectCount,
       select
     } = this.props;
-    let selectCountClass =
-      selectCount === 0 ? classes.SelectCountNone : classes.SelectCountPos;
     return (
       <div className={classes.Container}>
-        {selecting ? (
-          <div className={classes.Selecting} data-testid="select-tag">
-            Selecting
+        <div className={classes.Header}>
+          <h3 className={classes.Title}>
+            Search for activities or ask to join rooms and courses
+          </h3>
+          <div className={classes.ResourceOpts}>
+            <div>
+              <CustomLink to="/community/activities">Activities</CustomLink>
+            </div>
+            <div>
+              <CustomLink to="/community/courses">Courses</CustomLink>
+            </div>
+            <div>
+              <CustomLink to="/community/rooms">Rooms</CustomLink>
+            </div>
           </div>
-        ) : null}
-        <h3 className={classes.Title}>
-          Search for activities or ask to join rooms and courses
-        </h3>
-        <div className={classes.ResourceOpts}>
-          <div>
-            <CustomLink to="/community/activities">Activities</CustomLink>
+          <div className={classes.Search}>
+            <Search
+              _search={value => this.props.setCriteria(value)}
+              placeholder={"Search..."}
+            />
           </div>
-          <div>
-            <CustomLink to="/community/courses">Courses</CustomLink>
+          <div className={classes.Filter}>
+            <i className={["fas fa-sliders-h", classes.FilterIcon].join(" ")} />
           </div>
-          <div>
-            <CustomLink to="/community/rooms">Rooms</CustomLink>
-          </div>
-        </div>
-        <div className={classes.Search}>
-          <Search _filter={value => this.filterResults(value)} />
         </div>
         <div className={classes.List}>
-          {selecting ? (
-            <div className={[classes.SelectCount, selectCountClass].join(" ")}>
-              you have selected{" "}
-              <span data-testid="select-count">{selectCount}</span> activities
-            </div>
-          ) : null}
           <BoxList
             list={visibleResources}
             resource={resource}
             linkPath={linkPath}
             linkSuffix={linkSuffix}
             listType="public"
-            selecting={selecting}
             select={select}
           />
+          <div className={classes.LoadMore}>
+            <Button
+              m={20}
+              disabled={!this.props.moreAvailable}
+              click={this.props.setSkip}
+            >
+              load more results
+            </Button>
+          </div>
         </div>
       </div>
     );

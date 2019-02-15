@@ -47,6 +47,20 @@ module.exports = {
     });
   },
 
+  searchPaginated: (criteria, skip) => {
+    return db.Room.find(
+      criteria ? { name: criteria, tempRoom: false } : { tempRoom: false }
+    )
+      .skip(parseInt(skip))
+      .limit(20)
+      .sort("-createdAt")
+      .populate({ path: "members.user", select: "username" })
+      .then(courses => {
+        // console.log(courses);
+        return courses;
+      });
+  },
+
   post: body => {
     return new Promise(async (resolve, reject) => {
       // Prepare the tabs if they exist

@@ -9,11 +9,20 @@
   --margin-top: 48px;
 }
 .Container {
-  margin-top: var(--margin-top);
   position: relative;
   width: 80%;
   max-width: 1100px;
   align-self: center;
+}
+
+.Header {
+  padding-top: var(--margin-top);
+  position: fixed;
+  width: 80%;
+  max-width: 1100px;
+  z-index: 500;
+  background: #f8f8f8;
+  box-shadow: 10px 10px 10px 2px #f8f8f8, -10px 0 10px 2px #f8f8f8;
 }
 
 .Title {
@@ -26,44 +35,25 @@
   display: flex;
   width: 300px;
   justify-content: space-between;
-  margin: 25px 0;
+  margin-top: 25px;
 }
 
 .Search {
-  height: 100px;
+  height: 90px;
   font-size: 70px;
 }
 
+.Filter {
+  font-size: 50px;
+  color: #5e5e5e;
+}
+
 .List {
-  margin-top: 20px;
+  margin-top: 300px;
+  display: flex;
+  flex-flow: column;
 }
 
-.Selecting {
-  position: fixed;
-  top: 60px;
-  width: 120px;
-  text-align: center;
-  padding: 4px 10px;
-  z-index: 1100;
-  box-shadow: lightShadow;
-  border-radius: 0 0 9px 9px;
-  background: green;
-  color: white;
-}
-
-.SelectCount {
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  transition: 0.2s ease-in-out;
-}
-
-.SelectCountNone {
-  background: backgroundGray;
-  color: red;
-}
-
-.SelectCountPos {
-  background: green;
-  color: white;
+.LoadMore {
+  align-self: center;
 }

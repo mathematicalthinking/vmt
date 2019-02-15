@@ -21,6 +21,17 @@ module.exports = {
     });
   },
 
+  searchPaginated: (criteria, skip) => {
+    return db.Activity.find(criteria ? { name: criteria } : {})
+      .skip(parseInt(skip))
+      .limit(20)
+      .populate("creator", "username")
+      .then(activities => {
+        // console.log(activities);
+        return activities;
+      });
+  },
+
   post: body => {
     return new Promise(async (resolve, reject) => {
       let existingTabs;
