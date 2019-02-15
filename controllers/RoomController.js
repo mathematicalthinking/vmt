@@ -48,9 +48,12 @@ module.exports = {
   },
 
   searchPaginated: (criteria, skip) => {
-    return db.Room.find(criteria ? { name: criteria } : {})
+    return db.Room.find(
+      criteria ? { name: criteria, tempRoom: false } : { tempRoom: false }
+    )
       .skip(parseInt(skip))
       .limit(20)
+      .sort("-createdAt")
       .populate({ path: "members.user", select: "username" })
       .then(courses => {
         // console.log(courses);

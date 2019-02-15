@@ -31,7 +31,13 @@ class Community extends Component {
             </div>
           </div>
           <div className={classes.Search}>
-            <Search _search={value => this.props.setCriteria(value)} />
+            <Search
+              _search={value => this.props.setCriteria(value)}
+              placeholder={"Search..."}
+            />
+          </div>
+          <div className={classes.Filter}>
+            <i className={["fas fa-sliders-h", classes.FilterIcon].join(" ")} />
           </div>
         </div>
         <div className={classes.List}>

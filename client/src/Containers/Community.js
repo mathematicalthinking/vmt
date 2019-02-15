@@ -49,7 +49,18 @@ class Community extends Component {
     let { criteria, skip } = this.state;
     API.searchPaginated(resource, criteria, skip).then(res => {
       if (res.data.results.length < SKIP_VALUE) {
-        this.setState({ moreAvailable: false });
+        if (concat) {
+          this.setState(prevState => ({
+            visibleResources: [...prevState.visibleResources].concat(
+              res.data.results
+            )
+          }));
+        } else {
+          this.setState({
+            moreAvailable: false,
+            visibleResources: res.data.results
+          });
+        }
       } else if (concat) {
         this.setState(prevState => ({
           visibleResources: [...prevState.visibleResources].concat(

@@ -25,6 +25,7 @@ module.exports = {
     return db.Activity.find(criteria ? { name: criteria } : {})
       .skip(parseInt(skip))
       .limit(20)
+      .populate("creator", "username")
       .then(courses => {
         // console.log(courses);
         return courses;

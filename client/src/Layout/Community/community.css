@@ -22,7 +22,7 @@
   max-width: 1100px;
   z-index: 500;
   background: #f8f8f8;
-  box-shadow: 0 10px 10px 2px #f8f8f8;
+  box-shadow: 10px 10px 10px 2px #f8f8f8, -10px 0 10px 2px #f8f8f8;
 }
 
 .Title {
@@ -35,12 +35,17 @@
   display: flex;
   width: 300px;
   justify-content: space-between;
-  margin: 25px 0;
+  margin-top: 25px;
 }
 
 .Search {
-  height: 100px;
+  height: 90px;
   font-size: 70px;
+}
+
+.Filter {
+  font-size: 50px;
+  color: #5e5e5e;
 }
 
 .List {

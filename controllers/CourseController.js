@@ -31,6 +31,7 @@ module.exports = {
     return db.Course.find(criteria ? { name: criteria } : {})
       .skip(parseInt(skip))
       .limit(20)
+      .populate("members.user", "username")
       .then(courses => {
         // console.log(courses);
         return courses;
