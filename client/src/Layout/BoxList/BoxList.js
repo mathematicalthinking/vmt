@@ -4,10 +4,10 @@ import DragContentBox from "../../Components/UI/ContentBox/DragContentBox";
 
 import classes from "./boxList.css";
 const boxList = React.memo(props => {
-  console.log(props.list);
   let listElems = "There doesn't appear to be anything here yet";
   if (props.list.length > 0) {
     listElems = props.list.map((item, i) => {
+      console.log(item);
       if (item) {
         let notifications = 0;
         let details = undefined;
@@ -34,16 +34,15 @@ const boxList = React.memo(props => {
                   )
               : []
           };
-        } else {
+        } else if (item.members) {
           details = {
-            facilitators: item.members
-              ? item.members.reduce((acc, member) => {
-                  if (member.role === "facilitator")
-                    acc.push(member.user.username);
-                  return acc;
-                }, [])
-              : [item.creator.username]
+            facilitators: item.members.reduce((acc, member) => {
+              if (member.role === "facilitator") acc.push(member.user.username);
+              return acc;
+            }, [])
           };
+        } else if (item.creator) {
+          details = { creator: item.creator.username };
         }
         return (
           <div className={classes.ContentBox} key={i}>

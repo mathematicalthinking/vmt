@@ -27,7 +27,6 @@ module.exports = {
       .limit(20)
       .populate("creator", "username")
       .then(activities => {
-        console.log(activities[0]);
         // console.log(activities);
         return activities;
       });
