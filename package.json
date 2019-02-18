@@ -8,7 +8,7 @@
     "client": "cd client && npm run start",
     "build-staging": "cd client && node scripts/build.js staging",
     "build-production": "cd client && node scripts/build.js production",
-    "test": "SET \"NODE_ENV=test\" && concurrently \"node ./bin/www\" \"npm run client\" \"npm run cypress\"",
+    "test": "SET \"NODE_ENV=test\" && concurrently \"node ./bin/www\" \"npm run client\" \"npx cypress run --browser electron\"",
     "prodTest": "SET \"NODE_ENV=production\" && node ./bin/www",
     "cypress": "./node_modules/.bin/cypress open",
     "prettier-watch": "onchange '**/*.js' -- prettier --write {{changed}}",

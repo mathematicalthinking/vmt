@@ -222,6 +222,7 @@ describe("test access requests", function() {
     cy.contains("Community").click();
     cy.wait(500);
     cy.contains("Rooms").click();
+    cy.wait(500);
     cy.getTestElement("content-box-request access").click();
     cy.getTestElement("request-access-btn").click();
     cy.url().should("include", "/confirmation");

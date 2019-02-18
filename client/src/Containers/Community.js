@@ -58,13 +58,14 @@ class Community extends Component {
   fetchData = (resource, concat) => {
     let { criteria, skip, filters } = this.state;
     API.searchPaginated(resource, criteria, skip, filters).then(res => {
-      console.log(res);
+      console.log(res.data.results.length, SKIP_VALUE);
       if (res.data.results.length < SKIP_VALUE) {
         if (concat) {
           this.setState(prevState => ({
             visibleResources: [...prevState.visibleResources].concat(
               res.data.results
-            )
+            ),
+            moreAvailable: false
           }));
         } else {
           this.setState({
@@ -105,10 +106,10 @@ class Community extends Component {
       if (this.props.match.params.resource === "courses") {
         updatedFilters.roomType = null;
       }
-      this.setState({ filters: updatedFilters }, () => {
-        setTimeout(this.fetchData(this.props.match.params.resource, false), 0);
-      });
     }
+    this.setState({ filters: updatedFilters }, () => {
+      setTimeout(this.fetchData(this.props.match.params.resource, false), 0);
+    });
   };
 
   render() {
