@@ -2,7 +2,7 @@
 
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
-import { Aux, Button, Modal, EditText, Error } from "../../../Components";
+import { Aux, Button, EditText, Error } from "../../../Components";
 import MakeRooms from "../../../Containers/Create/MakeRooms/MakeRooms";
 import classes from "./activityDetails.css";
 class ActivityDetails extends Component {

@@ -7,7 +7,6 @@ class Step1Course extends Component {
       participantList,
       assignRandom,
       setRandom,
-      submit,
       setManual,
       error
     } = this.props;

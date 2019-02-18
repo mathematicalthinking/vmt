@@ -1,9 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
-import { Checkbox, Aux, Modal } from "../../../Components";
+import { Aux, Modal } from "../../../Components";
 import { Step1, Step2Course, Step2, ParticipantList } from "./index";
-import classes from "./makeRooms.css";
 import createClasses from "../create.css";
 import { createRoom } from "../../../store/actions";
 
