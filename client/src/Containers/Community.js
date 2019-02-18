@@ -9,7 +9,8 @@ class Community extends Component {
     visibleResources: [],
     skip: 0,
     criteria: "",
-    moreAvailable: true
+    moreAvailable: true,
+    filters: []
   };
   allResources = [];
 
@@ -81,15 +82,30 @@ class Community extends Component {
     }));
   };
 
-  filterResults = value => {
-    value = value.toLowerCase();
-    const updatedResources = this.allResources.filter(resource => {
-      return (
-        resource.name.toLowerCase().includes(value) ||
-        resource.description.toLowerCase().includes(value)
-      );
-    });
-    this.setState({ visibleResources: updatedResources });
+  toggleFilter = (filter, clearAll) => {
+    if (clearAll) {
+      return this.setState({ filters: [] });
+    }
+    if (this.state.filters.indexOf(filter) > -1) {
+      this.setState(prevState => ({
+        filters: prevState.filters.filter(
+          existingFilter => existingFilter !== filter
+        )
+      }));
+    } else {
+      let updatedFilters = [...this.state.filters];
+      updatedFilters.push(filter);
+      if (filter === "Public") {
+        updatedFilters = updatedFilters.filter(filter => filter !== "Private");
+      } else if (filter === "Private") {
+        updatedFilters = updatedFilters.filter(filter => filter !== "Public");
+      } else if (filter === "Geogebra") {
+        updatedFilters = updatedFilters.filter(filter => filter !== "Desmos");
+      } else if (filter === "Desmos") {
+        updatedFilters = updatedFilters.filter(filter => filter !== "Private");
+      }
+      this.setState({ filters: updatedFilters });
+    }
   };
 
   render() {
@@ -115,6 +131,8 @@ class Community extends Component {
         setSkip={this.setSkip}
         setCriteria={this.setCriteria}
         moreAvailable={this.state.moreAvailable}
+        filters={this.state.filters}
+        toggleFilter={this.toggleFilter}
       />
     );
   }

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 // import { CustomLink } from 'react-router-dom';
 import BoxList from "../BoxList/BoxList";
-import { Search, CustomLink, Button } from "../../Components/";
+import { Search, CustomLink, Button, RadioBtn } from "../../Components/";
 // import Button from '../../Components/UI/Button/Button';
 import classes from "./community.css";
 class Community extends Component {
@@ -11,8 +11,11 @@ class Community extends Component {
       visibleResources,
       linkPath,
       linkSuffix,
-      select
+      filters,
+      toggleFilter
     } = this.props;
+
+    console.log("FILTERS ", filters);
     return (
       <div className={classes.Container}>
         <div className={classes.Header}>
@@ -38,6 +41,41 @@ class Community extends Component {
           </div>
           <div className={classes.Filter}>
             <i className={["fas fa-sliders-h", classes.FilterIcon].join(" ")} />
+            <div className={classes.FilterGroup}>
+              <RadioBtn
+                check={() => toggleFilter("Public")}
+                checked={filters.indexOf("Public") > -1}
+                name={"Public"}
+              >
+                Public
+              </RadioBtn>
+              <RadioBtn
+                check={() => toggleFilter("Private")}
+                checked={filters.indexOf("Private") > -1}
+                name={"Private"}
+              >
+                Private
+              </RadioBtn>
+            </div>
+            <div className={classes.FilterGroup}>
+              <RadioBtn
+                check={() => toggleFilter("Geogebra")}
+                checked={filters.indexOf("Geogebra") > -1}
+                name={"Geogebra"}
+              >
+                GeoGebra
+              </RadioBtn>
+              <RadioBtn
+                check={() => toggleFilter("Desmos")}
+                checked={filters.indexOf("Desmos") > -1}
+                name={"Desmos"}
+              >
+                Desmos
+              </RadioBtn>
+            </div>
+            <div className={classes.FilterGroup}>
+              <Button>clear all filters</Button>
+            </div>
           </div>
         </div>
         <div className={classes.List}>
@@ -47,7 +85,6 @@ class Community extends Component {
             linkPath={linkPath}
             linkSuffix={linkSuffix}
             listType="public"
-            select={select}
           />
           <div className={classes.LoadMore}>
             <Button
