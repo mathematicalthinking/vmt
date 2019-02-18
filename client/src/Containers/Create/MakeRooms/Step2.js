@@ -61,7 +61,7 @@ class Step2 extends Component {
   };
 
   render() {
-    let { selectedParticipants, select, submit, done } = this.props;
+    let { selectedParticipants, select, submit } = this.props;
     let uniqueIds = [];
     let list = this.state.selectedParticipants
       .map(member => ({ user: member }))

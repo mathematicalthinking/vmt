@@ -21,13 +21,14 @@ module.exports = {
     });
   },
 
-  searchPaginated: (criteria, skip) => {
-    return db.Activity.find(criteria ? { name: criteria } : {})
+  searchPaginated: (criteria, skip, filters) => {
+    return db.Activity.find(
+      criteria ? { ...filters, name: criteria || "" } : { ...filters }
+    )
       .skip(parseInt(skip))
       .limit(20)
       .populate("creator", "username")
       .then(activities => {
-        // console.log(activities);
         return activities;
       });
   },

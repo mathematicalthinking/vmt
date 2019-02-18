@@ -18,11 +18,15 @@ export default {
     return axios.get(`/api/search/${resource}`, { params: { text, exclude } });
   },
 
-  searchPaginated: (resource, criteria, skip) => {
-    console.log(criteria == true, skip);
-    return axios.get(`/api/searchPaginated/${resource}`, {
-      params: criteria ? { criteria, skip } : { skip }
-    });
+  searchPaginated: (resource, criteria, skip, filters) => {
+    console.log("RESOURCE: ", resource);
+    let { privacySetting, roomType } = filters;
+    console.log(privacySetting, roomType);
+    let params = criteria ? { criteria, skip } : { skip };
+    if (privacySetting !== null) params.privacySetting = privacySetting;
+    if (roomType !== null) params.roomType = roomType;
+    console.log(params);
+    return axios.get(`/api/searchPaginated/${resource}`, { params });
   },
 
   post: (resource, body) => {

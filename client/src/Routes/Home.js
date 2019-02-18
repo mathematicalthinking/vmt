@@ -38,7 +38,7 @@ class Home extends PureComponent {
     return (
       <Aux>
         <HomeNav
-          scrollPosition={this.state.scrollPosition}
+          // scrollPosition={this.state.scrollPosition}
           page={this.props.location.pathname}
           user={this.props.user}
         />
@@ -49,7 +49,7 @@ class Home extends PureComponent {
               path="/"
               render={() => (
                 <Homepage
-                  scrollPosition={this.state.scrollPosition}
+                  // scrollPosition={this.state.scrollPosition}
                   {...this.props}
                 />
               )}

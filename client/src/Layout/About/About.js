@@ -30,7 +30,7 @@ const About = () => {
             <a
               className={classes.Link}
               href="https://www.geogebra.org/"
-              rel="noopener"
+              rel="noopener noreferrer"
               target="_blank"
             >
               GeoGebra
@@ -39,7 +39,7 @@ const About = () => {
             <a
               className={classes.Link}
               href="https://www.desmos.com/"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               target="_blank"
             >
               Desmos

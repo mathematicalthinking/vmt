@@ -85,10 +85,10 @@ const WorkspaceLayout = React.memo(props => {
           >
             {chat}
           </div>
+          <div className={classes.BottomRight}>{bottomRight}</div>
           <div className={classes.Members} style={{ height: membersHeight }}>
             {currentMembers}
           </div>
-          <div className={classes.BottomRight}>{bottomRight}</div>
         </div>
       </div>
       {referToCoords && referFromCoords ? (

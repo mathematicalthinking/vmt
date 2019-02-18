@@ -47,17 +47,31 @@ module.exports = {
     });
   },
 
-  searchPaginated: (criteria, skip) => {
-    return db.Room.find(
-      criteria ? { name: criteria, tempRoom: false } : { tempRoom: false }
-    )
+  searchPaginated: (criteria, skip, filters) => {
+    let params = { tempRoom: false };
+    if (filters.privacySetting) params.privacySetting = filters.privacySetting;
+    if (criteria) params.name = criteria;
+    return db.Room.find(params)
       .skip(parseInt(skip))
       .limit(20)
       .sort("-createdAt")
       .populate({ path: "members.user", select: "username" })
-      .then(courses => {
-        // console.log(courses);
-        return courses;
+      .populate({ path: "tabs", select: "tabType" })
+      .select("name members description tabs privacySetting")
+      .then(rooms => {
+        if (filters.roomType) {
+          return rooms.filter(room => {
+            return (
+              room.tabs.filter(tab => {
+                return tab.tabType === filters.roomType;
+              }).length > 0
+            );
+          });
+        }
+        return rooms;
+      })
+      .catch(err => {
+        Promise.reject(err);
       });
   },
 

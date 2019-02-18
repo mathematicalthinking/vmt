@@ -44,8 +44,17 @@
 }
 
 .Filter {
+  display: flex;
+  align-items: center;
+}
+
+.FilterIcon {
   font-size: 50px;
   color: #5e5e5e;
+}
+
+.FilterGroup {
+  margin-left: 26px;
 }
 
 .List {

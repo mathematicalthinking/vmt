@@ -9,7 +9,11 @@ class Community extends Component {
     visibleResources: [],
     skip: 0,
     criteria: "",
-    moreAvailable: true
+    moreAvailable: true,
+    filters: {
+      privacySetting: null,
+      roomType: null
+    }
   };
   allResources = [];
 
@@ -34,8 +38,14 @@ class Community extends Component {
   componentDidUpdate(prevProps, prevState) {
     const { resource } = this.props.match.params;
     if (prevProps.match.params.resource !== resource) {
-      this.setState({ skip: 0, criteria: "", moreAvailable: true }, () =>
-        this.fetchData(resource)
+      this.setState(
+        {
+          skip: 0,
+          criteria: "",
+          moreAvailable: true,
+          filters: { privactSetting: null, roomType: null }
+        },
+        () => this.fetchData(resource)
       );
     } else if (prevState.criteria !== this.state.criteria) {
       this.fetchData(resource);
@@ -46,14 +56,16 @@ class Community extends Component {
   }
   // concat tells us whether we should concat to existing results or overwrite
   fetchData = (resource, concat) => {
-    let { criteria, skip } = this.state;
-    API.searchPaginated(resource, criteria, skip).then(res => {
+    let { criteria, skip, filters } = this.state;
+    API.searchPaginated(resource, criteria, skip, filters).then(res => {
+      console.log(res.data.results.length, SKIP_VALUE);
       if (res.data.results.length < SKIP_VALUE) {
         if (concat) {
           this.setState(prevState => ({
             visibleResources: [...prevState.visibleResources].concat(
               res.data.results
-            )
+            ),
+            moreAvailable: false
           }));
         } else {
           this.setState({
@@ -81,15 +93,23 @@ class Community extends Component {
     }));
   };
 
-  filterResults = value => {
-    value = value.toLowerCase();
-    const updatedResources = this.allResources.filter(resource => {
-      return (
-        resource.name.toLowerCase().includes(value) ||
-        resource.description.toLowerCase().includes(value)
-      );
+  toggleFilter = (filter, clearAll) => {
+    let updatedFilters = { ...this.state.filters };
+    if (clearAll) {
+      updatedFilters = { privacySetting: null, roomType: null };
+    } else {
+      if (filter === "public" || filter === "private") {
+        updatedFilters.privacySetting = filter;
+      } else if (filter === "desmos" || filter === "geogebra") {
+        updatedFilters.roomType = filter;
+      }
+      if (this.props.match.params.resource === "courses") {
+        updatedFilters.roomType = null;
+      }
+    }
+    this.setState({ filters: updatedFilters }, () => {
+      setTimeout(this.fetchData(this.props.match.params.resource, false), 0);
     });
-    this.setState({ visibleResources: updatedResources });
   };
 
   render() {
@@ -115,6 +135,8 @@ class Community extends Component {
         setSkip={this.setSkip}
         setCriteria={this.setCriteria}
         moreAvailable={this.state.moreAvailable}
+        filters={this.state.filters}
+        toggleFilter={this.toggleFilter}
       />
     );
   }

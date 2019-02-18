@@ -32,8 +32,6 @@ class DesmosActivityGraph extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    let { activity, currentTab } = this.props;
-    let { tabs } = activity;
     if (prevProps.currentTab !== this.props.currentTab) {
       if (this.props.role === "facilitator") {
         let updatedTabs = [...prevProps.activity.tabs];

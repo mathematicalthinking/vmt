@@ -32,18 +32,6 @@ class ContentBox extends PureComponent {
     setTimeout(this.setState({ selected: true }), 400);
   };
   render() {
-    let { selecting } = this.props;
-    // let alignClass = classes.Center;
-    let animatedClass = "";
-    let selectedClass = "";
-    let selectedClassPlus = "";
-    // if (this.props.align === 'left') alignClass = classes.Left;
-    // if (this.props.align === 'right') alignClass = classes.Right;
-    if (this.state.selectAnimation) animatedClass = classes.Selecting;
-    if (this.state.selected) {
-      selectedClassPlus = classes.SelectedPlus;
-      selectedClass = classes.Selected;
-    }
     const notifications =
       this.props.notifications > 0 ? (
         <div className={classes.Notification} data-testid="content-box-ntf">
@@ -55,14 +43,13 @@ class ContentBox extends PureComponent {
     return (
       <Aux>
         <Link
-          to={selecting ? "#" : this.props.link}
-          className={[classes.Container, selectedClass].join(" ")}
+          to={this.props.link}
+          className={classes.Container}
           style={{ height: this.state.expanded ? 150 : 50 }}
         >
           <div
             data-testid={`content-box-${this.props.title}`}
             className={classes.SubContainer}
-            onClick={selecting ? this.select : null}
           >
             <div className={classes.TopBanner}>
               <div className={classes.BannerLeft}>

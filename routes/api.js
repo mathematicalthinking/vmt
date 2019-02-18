@@ -48,13 +48,16 @@ router.get("/search/:resource", (req, res, next) => {
 
 router.get("/searchPaginated/:resource", (req, res, next) => {
   let controller = controllers[req.params.resource];
-  let { criteria, skip } = req.query;
+  let { criteria, skip, privacySetting, roomType } = req.query;
   let regex;
   if (criteria) {
     regex = new RegExp(criteria, "i");
   }
+  let filters = {};
+  if (privacySetting) filters.privacySetting = privacySetting;
+  if (roomType) filters.roomType = roomType;
   controller
-    .searchPaginated(regex, skip)
+    .searchPaginated(regex, skip, filters)
     .then(results => {
       res.json({ results });
     })

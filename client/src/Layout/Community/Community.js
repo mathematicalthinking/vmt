@@ -1,18 +1,26 @@
 import React, { Component } from "react";
 // import { CustomLink } from 'react-router-dom';
 import BoxList from "../BoxList/BoxList";
-import { Search, CustomLink, Button } from "../../Components/";
+import { Search, CustomLink, Button, RadioBtn } from "../../Components/";
 // import Button from '../../Components/UI/Button/Button';
 import classes from "./community.css";
 class Community extends Component {
+  shouldComponentUpdate(nextProps) {
+    if (nextProps === this.props) {
+      return false;
+    } else return true;
+  }
   render() {
     const {
       resource,
       visibleResources,
       linkPath,
       linkSuffix,
-      select
+      filters,
+      toggleFilter
     } = this.props;
+
+    console.log("FILTERS ", filters);
     return (
       <div className={classes.Container}>
         <div className={classes.Header}>
@@ -38,6 +46,45 @@ class Community extends Component {
           </div>
           <div className={classes.Filter}>
             <i className={["fas fa-sliders-h", classes.FilterIcon].join(" ")} />
+            <div className={classes.FilterGroup}>
+              <RadioBtn
+                check={() => toggleFilter("public")}
+                checked={filters.privacySetting === "public"}
+                name={"Public"}
+              >
+                Public
+              </RadioBtn>
+              <RadioBtn
+                check={() => toggleFilter("private")}
+                checked={filters.privacySetting === "private"}
+                name={"Private"}
+              >
+                Private
+              </RadioBtn>
+            </div>
+            {resource !== "courses" ? (
+              <div className={classes.FilterGroup}>
+                <RadioBtn
+                  check={() => toggleFilter("geogebra")}
+                  checked={filters.roomType === "geogebra"}
+                  name={"Geogebra"}
+                >
+                  GeoGebra
+                </RadioBtn>
+                <RadioBtn
+                  check={() => toggleFilter("desmos")}
+                  checked={filters.roomType === "desmos"}
+                  name={"Desmos"}
+                >
+                  Desmos
+                </RadioBtn>
+              </div>
+            ) : null}
+            <div className={classes.FilterGroup}>
+              <Button click={() => toggleFilter(null, true)}>
+                clear all filters
+              </Button>
+            </div>
           </div>
         </div>
         <div className={classes.List}>
@@ -47,7 +94,6 @@ class Community extends Component {
             linkPath={linkPath}
             linkSuffix={linkSuffix}
             listType="public"
-            select={select}
           />
           <div className={classes.LoadMore}>
             <Button
