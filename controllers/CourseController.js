@@ -27,8 +27,10 @@ module.exports = {
     });
   },
 
-  searchPaginated: (criteria, skip) => {
-    return db.Course.find(criteria ? { name: criteria } : {})
+  searchPaginated: (criteria, skip, filters) => {
+    return db.Course.find(
+      criteria ? { ...filters, name: criteria } : { ...filters }
+    )
       .skip(parseInt(skip))
       .limit(20)
       .populate("members.user", "username")

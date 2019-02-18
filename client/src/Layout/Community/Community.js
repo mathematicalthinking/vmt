@@ -62,22 +62,24 @@ class Community extends Component {
                 Private
               </RadioBtn>
             </div>
-            <div className={classes.FilterGroup}>
-              <RadioBtn
-                check={() => toggleFilter("geogebra")}
-                checked={filters.roomType === "geogebra"}
-                name={"Geogebra"}
-              >
-                GeoGebra
-              </RadioBtn>
-              <RadioBtn
-                check={() => toggleFilter("desmos")}
-                checked={filters.roomType === "desmos"}
-                name={"Desmos"}
-              >
-                Desmos
-              </RadioBtn>
-            </div>
+            {resource !== "courses" ? (
+              <div className={classes.FilterGroup}>
+                <RadioBtn
+                  check={() => toggleFilter("geogebra")}
+                  checked={filters.roomType === "geogebra"}
+                  name={"Geogebra"}
+                >
+                  GeoGebra
+                </RadioBtn>
+                <RadioBtn
+                  check={() => toggleFilter("desmos")}
+                  checked={filters.roomType === "desmos"}
+                  name={"Desmos"}
+                >
+                  Desmos
+                </RadioBtn>
+              </div>
+            ) : null}
             <div className={classes.FilterGroup}>
               <Button click={() => toggleFilter(null, true)}>
                 clear all filters

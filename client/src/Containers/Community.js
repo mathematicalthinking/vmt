@@ -38,8 +38,14 @@ class Community extends Component {
   componentDidUpdate(prevProps, prevState) {
     const { resource } = this.props.match.params;
     if (prevProps.match.params.resource !== resource) {
-      this.setState({ skip: 0, criteria: "", moreAvailable: true }, () =>
-        this.fetchData(resource)
+      this.setState(
+        {
+          skip: 0,
+          criteria: "",
+          moreAvailable: true,
+          filters: { privactSetting: null, roomType: null }
+        },
+        () => this.fetchData(resource)
       );
     } else if (prevState.criteria !== this.state.criteria) {
       this.fetchData(resource);
@@ -87,16 +93,17 @@ class Community extends Component {
   };
 
   toggleFilter = (filter, clearAll) => {
+    let updatedFilters = { ...this.state.filters };
     if (clearAll) {
-      return this.setState({
-        filters: { privactSetting: null, roomType: null }
-      });
+      updatedFilters = { privacySetting: null, roomType: null };
     } else {
-      let updatedFilters = { ...this.state.filters };
       if (filter === "public" || filter === "private") {
         updatedFilters.privacySetting = filter;
       } else if (filter === "desmos" || filter === "geogebra") {
         updatedFilters.roomType = filter;
+      }
+      if (this.props.match.params.resource === "courses") {
+        updatedFilters.roomType = null;
       }
       this.setState({ filters: updatedFilters }, () => {
         setTimeout(this.fetchData(this.props.match.params.resource, false), 0);
