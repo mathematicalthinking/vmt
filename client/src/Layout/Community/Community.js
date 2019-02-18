@@ -5,6 +5,11 @@ import { Search, CustomLink, Button, RadioBtn } from "../../Components/";
 // import Button from '../../Components/UI/Button/Button';
 import classes from "./community.css";
 class Community extends Component {
+  shouldComponentUpdate(nextProps) {
+    if (nextProps === this.props) {
+      return false;
+    } else return true;
+  }
   render() {
     const {
       resource,
@@ -43,15 +48,15 @@ class Community extends Component {
             <i className={["fas fa-sliders-h", classes.FilterIcon].join(" ")} />
             <div className={classes.FilterGroup}>
               <RadioBtn
-                check={() => toggleFilter("Public")}
-                checked={filters.indexOf("Public") > -1}
+                check={() => toggleFilter("public")}
+                checked={filters.privacySetting === "public"}
                 name={"Public"}
               >
                 Public
               </RadioBtn>
               <RadioBtn
-                check={() => toggleFilter("Private")}
-                checked={filters.indexOf("Private") > -1}
+                check={() => toggleFilter("private")}
+                checked={filters.privacySetting === "private"}
                 name={"Private"}
               >
                 Private
@@ -59,22 +64,24 @@ class Community extends Component {
             </div>
             <div className={classes.FilterGroup}>
               <RadioBtn
-                check={() => toggleFilter("Geogebra")}
-                checked={filters.indexOf("Geogebra") > -1}
+                check={() => toggleFilter("geogebra")}
+                checked={filters.roomType === "geogebra"}
                 name={"Geogebra"}
               >
                 GeoGebra
               </RadioBtn>
               <RadioBtn
-                check={() => toggleFilter("Desmos")}
-                checked={filters.indexOf("Desmos") > -1}
+                check={() => toggleFilter("desmos")}
+                checked={filters.roomType === "desmos"}
                 name={"Desmos"}
               >
                 Desmos
               </RadioBtn>
             </div>
             <div className={classes.FilterGroup}>
-              <Button>clear all filters</Button>
+              <Button click={() => toggleFilter(null, true)}>
+                clear all filters
+              </Button>
             </div>
           </div>
         </div>

@@ -21,8 +21,9 @@ module.exports = {
     });
   },
 
-  searchPaginated: (criteria, skip) => {
-    return db.Activity.find(criteria ? { name: criteria } : {})
+  searchPaginated: (criteria, skip, filters) => {
+    console.log(filters);
+    return db.Activity.find(criteria ? { ...filters, name: criteria } : {})
       .skip(parseInt(skip))
       .limit(20)
       .populate("creator", "username")

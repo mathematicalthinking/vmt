@@ -10,7 +10,10 @@ class Community extends Component {
     skip: 0,
     criteria: "",
     moreAvailable: true,
-    filters: []
+    filters: {
+      privacySetting: "",
+      roomType: ""
+    }
   };
   allResources = [];
 
@@ -47,8 +50,9 @@ class Community extends Component {
   }
   // concat tells us whether we should concat to existing results or overwrite
   fetchData = (resource, concat) => {
-    let { criteria, skip } = this.state;
-    API.searchPaginated(resource, criteria, skip).then(res => {
+    let { criteria, skip, filters } = this.state;
+    API.searchPaginated(resource, criteria, skip, filters).then(res => {
+      console.log(res);
       if (res.data.results.length < SKIP_VALUE) {
         if (concat) {
           this.setState(prevState => ({
@@ -84,27 +88,17 @@ class Community extends Component {
 
   toggleFilter = (filter, clearAll) => {
     if (clearAll) {
-      return this.setState({ filters: [] });
-    }
-    if (this.state.filters.indexOf(filter) > -1) {
-      this.setState(prevState => ({
-        filters: prevState.filters.filter(
-          existingFilter => existingFilter !== filter
-        )
-      }));
+      return this.setState({ filters: { privactSetting: "", roomType: "" } });
     } else {
-      let updatedFilters = [...this.state.filters];
-      updatedFilters.push(filter);
-      if (filter === "Public") {
-        updatedFilters = updatedFilters.filter(filter => filter !== "Private");
-      } else if (filter === "Private") {
-        updatedFilters = updatedFilters.filter(filter => filter !== "Public");
-      } else if (filter === "Geogebra") {
-        updatedFilters = updatedFilters.filter(filter => filter !== "Desmos");
-      } else if (filter === "Desmos") {
-        updatedFilters = updatedFilters.filter(filter => filter !== "Private");
+      let updatedFilters = { ...this.state.filters };
+      if (filter === "public" || filter === "private") {
+        updatedFilters.privacySetting = filter;
+      } else if (filter === "desmos" || filter === "geogebra") {
+        updatedFilters.roomType = filter;
       }
-      this.setState({ filters: updatedFilters });
+      this.setState({ filters: updatedFilters }, () => {
+        setTimeout(this.fetchData(this.props.match.params.resource, false), 0);
+      });
     }
   };
 
