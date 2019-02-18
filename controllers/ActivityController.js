@@ -22,13 +22,15 @@ module.exports = {
   },
 
   searchPaginated: (criteria, skip, filters) => {
-    console.log(filters);
-    return db.Activity.find(criteria ? { ...filters, name: criteria } : {})
+    console.log({ ...filters, name: criteria });
+    return db.Activity.find(
+      criteria ? { ...filters, name: criteria || "" } : { ...filters }
+    )
       .skip(parseInt(skip))
       .limit(20)
       .populate("creator", "username")
       .then(activities => {
-        // console.log(activities);
+        console.log(activities);
         return activities;
       });
   },

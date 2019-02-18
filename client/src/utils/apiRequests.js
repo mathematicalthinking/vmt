@@ -21,9 +21,11 @@ export default {
   searchPaginated: (resource, criteria, skip, filters) => {
     console.log("RESOURCE: ", resource);
     let { privacySetting, roomType } = filters;
+    console.log(privacySetting, roomType);
     let params = criteria ? { criteria, skip } : { skip };
-    if (privacySetting) params.privacySetting = privacySetting;
-    if (roomType) params.roomType = roomType;
+    if (privacySetting !== null) params.privacySetting = privacySetting;
+    if (roomType !== null) params.roomType = roomType;
+    console.log(params);
     return axios.get(`/api/searchPaginated/${resource}`, { params });
   },
 

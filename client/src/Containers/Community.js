@@ -11,8 +11,8 @@ class Community extends Component {
     criteria: "",
     moreAvailable: true,
     filters: {
-      privacySetting: "",
-      roomType: ""
+      privacySetting: null,
+      roomType: null
     }
   };
   allResources = [];
@@ -88,7 +88,9 @@ class Community extends Component {
 
   toggleFilter = (filter, clearAll) => {
     if (clearAll) {
-      return this.setState({ filters: { privactSetting: "", roomType: "" } });
+      return this.setState({
+        filters: { privactSetting: null, roomType: null }
+      });
     } else {
       let updatedFilters = { ...this.state.filters };
       if (filter === "public" || filter === "private") {
