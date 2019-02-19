@@ -21,7 +21,7 @@ To provide the colloaboration infrastructure, this application uses a combinatio
 
 ## Setup for local Development
 
-1. Fork this repo ([instructions](https://github.com/mathematicalthinking/vmt/blob/master/docs/gitForkRepo.md))
+1. Fork this repo ([instructions](https://github.com/mathematicalthinking/vmt/blob/master/docs/gitForkRepo.md)) and cd into it (`$ cd vmt`)
 1. `$ npm install`
 1. `$ cd client && npm install`
    cd back up to root...
