@@ -23,6 +23,12 @@ class GgbGraph extends Component {
 
   graph = React.createRef();
 
+  // For batching events
+  eventQueue = [];
+  firstLabel;
+  pointCounter = 1;
+  noOfPoints;
+
   componentDidMount() {
     // window.addEventListener('click', this.clickListener)
     window.addEventListener("resize", this.updateDimensions);
@@ -60,7 +66,7 @@ class GgbGraph extends Component {
               // this.ggbApplet.evalCommand("UpdateConstruction()");
               break;
             case "BATCH":
-              this.recursiveUpdate(data.event);
+              this.recursiveUpdate(data.event, data.noOfPoints);
               break;
             default:
               break;
@@ -74,18 +80,14 @@ class GgbGraph extends Component {
     });
   }
 
-  recursiveUpdate(arr) {
+  recursiveUpdate(arr, noOfPoints) {
+    console.log(noOfPoints);
+    console.log(arr.splice(0, noOfPoints).join(""));
     if (arr.length > 0) {
-      this.ggbApplet.evalXML(arr.slice(0, 6).join(""));
-      arr.shift();
-      arr.shift();
-      arr.shift();
-      arr.shift();
-      arr.shift();
-      arr.shift();
+      this.ggbApplet.evalXML(arr.splice(0, noOfPoints).join(""));
       this.ggbApplet.evalCommand("UpdateConstruction()");
       setTimeout(() => {
-        this.recursiveUpdate(arr);
+        this.recursiveUpdate(arr, noOfPoints);
       }, 0);
     } else {
       return;
@@ -345,26 +347,20 @@ class GgbGraph extends Component {
     this.ggbApplet.registerRemoveListener(this.removeListener);
   }
 
-  eventQueue = [];
   sendEvent = (xml, definition, label, eventType, action) => {
-    console.log(xml);
-    let newData = {
-      definition,
-      label,
-      eventType,
-      action,
-      room: this.props.room._id,
-      tab: this.props.room.tabs[this.props.currentTab]._id,
-      event: xml,
-      user: { _id: this.props.user._id, username: this.props.user.username },
-      timestamp: new Date().getTime(),
-      currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
-      mode: this.ggbApplet.getMode()
-    };
-    console.log("an event has been fired");
+    if (!this.firstLabel) {
+      console.log("no first label");
+      this.firstLabel = label;
+      // console.log(this.firstLabel);
+    }
     if (this.timer) {
-      console.log("batching");
-      this.eventQueue.push(newData.event);
+      if (label !== this.firstLabel) {
+        this.pointCounter++;
+        // console.log("incrementing point counter");
+      } else if (label === this.firstLabel && !this.noOfPoints) {
+        this.noOfPoints = this.pointCounter;
+      }
+      this.eventQueue.push(xml);
       clearTimeout(this.timer);
     }
     this.timer = setTimeout(() => {
@@ -380,24 +376,41 @@ class GgbGraph extends Component {
         this.ggbApplet.undo();
         return;
       }
+      let newData = {
+        definition,
+        label,
+        eventType,
+        action,
+        room: this.props.room._id,
+        tab: this.props.room.tabs[this.props.currentTab]._id,
+        event: xml,
+        user: { _id: this.props.user._id, username: this.props.user.username },
+        timestamp: new Date().getTime(),
+        currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
+        mode: this.ggbApplet.getMode()
+      };
       // throttle(() => {
-      // let updatedTabs = [...this.props.room.tabs];
-      // let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
-      // if (eventType === "CHANGE_PERSPECTIVE") {
-      //   updatedTab.perspective = xml;
-      // }
-      // updatedTab.currentState = newData.currentState;
-      // updatedTabs[this.props.currentTab] = updatedTab;
-      // this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-      // }, 500)
+      let updatedTabs = [...this.props.room.tabs];
+      let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
+      if (eventType === "CHANGE_PERSPECTIVE") {
+        updatedTab.perspective = xml;
+      }
+      updatedTab.currentState = newData.currentState;
+      updatedTabs[this.props.currentTab] = updatedTab;
+      this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
       if (this.eventQueue.length > 0) {
         newData.event = this.eventQueue;
         newData.eventType = "BATCH";
-        console.log("sending batch");
-        console.log(this.eventQueue);
-        socket.emit("SEND_EVENT", newData);
+        newData.noOfPoints = this.noOfPoints;
       }
+      this.firstLabel = null;
+      this.pointCounter = 1;
+      this.noOfPoints = null;
       this.eventQueue = [];
+      this.timer = null;
+      console.log(this.firstLabel);
+      socket.emit("SEND_EVENT", newData);
+      // reset tracking variables
       // this.props.resetControlTimer();
     }, 110);
   };
