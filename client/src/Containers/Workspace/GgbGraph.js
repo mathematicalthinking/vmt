@@ -5,7 +5,7 @@ import INITIAL_GGB from "./blankGgb";
 import Script from "react-load-script";
 import throttle from "lodash/throttle";
 import socket from "../../utils/sockets";
-import { parseString } from "xml2js";
+
 import { initPerspectiveListener } from "./ggbUtils";
 // import { eventNames } from 'cluster';
 // THINK ABOUT GETTING RID OF ALL XML PARSING...THERE ARE PROBABLY NATIVE GGB METHODS THAT CAN ACCOMPLISH EVERYTHING WE NEEDd
@@ -89,7 +89,6 @@ class GgbGraph extends Component {
         this.setState({ switchingControl: false }, () => {
           this.freezeElements(false);
         });
-        console.log(room.settings.participantsCanChangePerspective);
         if (
           room.settings.participantsCanChangePerspective ||
           role === "facilitator"
@@ -324,63 +323,44 @@ class GgbGraph extends Component {
     this.ggbApplet.registerRemoveListener(this.removeListener);
   }
 
-  sendEvent = throttle(
-    async (xml, definition, label, eventType, action) => {
-      if (
-        !this.props.user.connected ||
-        this.props.room.controlledBy !== this.props.user._id
-      ) {
-        // @TODO HAVING TROUBLE GETTING ACTIONS TO UNDO
-        alert(
-          "You are not in control. The update you just made will not be saved. Please refresh the page"
-        );
-        this.ggbApplet.undo();
-        return;
-      }
-      let xmlObj;
-      if (xml && eventType !== "CHANGE_PERSPECTIVE") {
-        xmlObj = await this.parseXML(xml); // @TODO We should do this parsing on the backend yeah? we only need this for to build the description which we only need in the replayer anyway
-      }
-      let newData = {
-        definition,
-        label,
-        eventType,
-        room: this.props.room._id,
-        tab: this.props.room.tabs[this.props.currentTab]._id,
-        event: xml,
-        description: `${this.props.user.username} ${action} ${
-          xmlObj && xmlObj.element ? xmlObj.element.$.type : ""
-        } ${label}`,
-        user: { _id: this.props.user._id, username: this.props.user.username },
-        timestamp: new Date().getTime(),
-        currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
-        mode: this.ggbApplet.getMode()
-      };
-      // throttle(() => {
-      let updatedTabs = [...this.props.room.tabs];
-      let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
-      if (eventType === "CHANGE_PERSPECTIVE") {
-        updatedTab.perspective = xml;
-      }
-      updatedTab.currentState = newData.currentState;
-      updatedTabs[this.props.currentTab] = updatedTab;
-      this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-      // }, 500)
-      socket.emit("SEND_EVENT", newData);
+  sendEvent = (xml, definition, label, eventType, action) => {
+    if (
+      !this.props.user.connected ||
+      this.props.room.controlledBy !== this.props.user._id
+    ) {
+      // @TODO HAVING TROUBLE GETTING ACTIONS TO UNDO
+      alert(
+        "You are not in control. The update you just made will not be saved. Please refresh the page"
+      );
+      this.ggbApplet.undo();
+      return;
+    }
+    let newData = {
+      definition,
+      label,
+      eventType,
+      action,
+      room: this.props.room._id,
+      tab: this.props.room.tabs[this.props.currentTab]._id,
+      event: xml,
+      user: { _id: this.props.user._id, username: this.props.user.username },
+      timestamp: new Date().getTime(),
+      currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
+      mode: this.ggbApplet.getMode()
+    };
+    // throttle(() => {
+    let updatedTabs = [...this.props.room.tabs];
+    let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
+    if (eventType === "CHANGE_PERSPECTIVE") {
+      updatedTab.perspective = xml;
+    }
+    updatedTab.currentState = newData.currentState;
+    updatedTabs[this.props.currentTab] = updatedTab;
+    this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
+    // }, 500)
+    socket.emit("SEND_EVENT", newData);
 
-      this.props.resetControlTimer();
-    },
-    THROTTLE_FIDELITY,
-    { trailing: true }
-  );
-
-  parseXML = xml => {
-    return new Promise((resolve, reject) => {
-      parseString(xml, (err, result) => {
-        if (err) return reject(err);
-        return resolve(result);
-      });
-    });
+    this.props.resetControlTimer();
   };
 
   freezeElements = freeze => {
