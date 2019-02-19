@@ -240,6 +240,7 @@ module.exports = function() {
     });
 
     socket.on("SEND_EVENT", async data => {
+      socket.broadcast.to(data.room).emit("RECEIVE_EVENT", data);
       let xmlObj = "";
       if (data.xml && data.eventType !== "CHANGE_PERSPECTIVE") {
         xmlObj = await parseXML(xml); // @TODO We should do this parsing on the backend yeah? we only need this for to build the description which we only need in the replayer anyway
@@ -268,7 +269,6 @@ module.exports = function() {
       } catch (err) {
         console.log("err 2: ", err);
       }
-      socket.broadcast.to(data.room).emit("RECEIVE_EVENT", data);
     });
 
     socket.on("SWITCH_TAB", (data, callback) => {
