@@ -28,7 +28,7 @@ To provide the colloaboration infrastructure, this application uses a combinatio
 1. `$ cp .env.example .env`
 1. Make sure you have mongodb installed. [instructions here](https://docs.mongodb.com/manual/installation/)
 1. From anywhere on your computer run `$ mongod` then cd back to the vmt/ and...
-1. `$ npm run dev` This will start the react development server on port 3000 and the express server on 3001. N.B. this command utilizes nodemon. Make sure you have nodemon installed globally with `npm i -g nodemon`
+1. `$ npm run dev` This will start the react development server on port 3000 and the express server on 3001 **N.B., you'll need to have nodemon and concurrently installed** these are included in the dev dependencies but you may need to install them globally. `$ npm i -g nodemon concurrently`
 1. We utilize [prettier](https://prettier.io/) for formatting.
 
 ## Deployment
