@@ -22,83 +22,73 @@ class GgbGraph extends Component {
   };
 
   graph = React.createRef();
-  eventQueue = [];
-  prevTime;
+
   componentDidMount() {
     // window.addEventListener('click', this.clickListener)
     window.addEventListener("resize", this.updateDimensions);
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
-      if (this.prevTime) {
-        console.log(new Date().getTime() - this.prevTime);
-      }
-      this.prevTime = new Date().getTime();
+      // let updatedTabs = this.props.room.tabs.map(tab => {
+      //   if (tab._id === data.tab) {
+      //     tab.currentState = data.currentState;
+      //   }
+      //   return tab;
+      // });
+      // this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
       this.setState({ receivingData: true }, () => {
-        if (this.timer) {
-          // add event to queue
-          this.eventQueue.push(data.event);
-          clearTimeout(this.timer);
+        // If this happend on the current tab
+        if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
+          switch (data.eventType) {
+            case "ADD":
+              if (data.definition) {
+                this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
+              }
+              this.ggbApplet.evalXML(data.event);
+              this.ggbApplet.evalCommand("UpdateConstruction()");
+              break;
+            case "REMOVE":
+              this.ggbApplet.deleteObject(data.label);
+              break;
+            case "UPDATE":
+              this.ggbApplet.evalXML(data.event);
+              this.ggbApplet.evalCommand("UpdateConstruction()");
+              break;
+            case "CHANGE_PERSPECTIVE":
+              this.ggbApplet.setPerspective(data.event);
+              this.ggbApplet.showAlgebraInput(true);
+              // this.ggbApplet.evalXML(data.event);
+              // this.ggbApplet.evalCommand("UpdateConstruction()");
+              break;
+            case "BATCH":
+              this.recursiveUpdate(data.event);
+              break;
+            default:
+              break;
+          }
         }
-        this.timer = setTimeout(() => {
-          // If this happend on the current tab
-          if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
-            switch (data.eventType) {
-              case "ADD":
-                if (data.definition) {
-                  this.ggbApplet.evalCommand(
-                    `${data.label}:${data.definition}`
-                  );
-                }
-                this.ggbApplet.evalXML(data.event);
-                this.ggbApplet.evalCommand("UpdateConstruction()");
-                break;
-              case "REMOVE":
-                this.ggbApplet.deleteObject(data.label);
-                break;
-              case "UPDATE":
-                if (this.eventQueue.length > 0) {
-                  console.log(this.eventQueue);
-                  this.recursiveUpdate(this.eventQueue);
-                } else {
-                  this.ggbApplet.evalXML(data.event);
-                  this.ggbApplet.evalCommand("UpdateConstruction()");
-                }
-                break;
-              case "CHANGE_PERSPECTIVE":
-                this.ggbApplet.setPerspective(data.event);
-                this.ggbApplet.showAlgebraInput(true);
-                // this.ggbApplet.evalXML(data.event);
-                // this.ggbApplet.evalCommand("UpdateConstruction()");
-                break;
-              default:
-                break;
-            }
-          } else {
-            this.props.addNtfToTabs(data.tab);
-          }
-        }, 110);
         // show a notificaiton if its on a different tab
-        let updatedTabs = this.props.room.tabs.map(tab => {
-          if (tab._id === data.tab) {
-            tab.currentState = data.currentState;
-          }
-          return tab;
-        });
-        this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
+        else {
+          this.props.addNtfToTabs(data.tab);
+        }
       });
     });
   }
 
   recursiveUpdate(arr) {
-    if (arr.length === 0) {
-      return;
-    } else {
+    if (arr.length > 0) {
+      this.ggbApplet.evalXML(arr.slice(0, 6).join(""));
+      arr.shift();
+      arr.shift();
+      arr.shift();
+      arr.shift();
+      arr.shift();
+      arr.shift();
+      this.ggbApplet.evalCommand("UpdateConstruction()");
       setTimeout(() => {
-        let event = arr.shift();
-        this.ggbApplet.evalXML(event);
-        // this.ggbApplet.evalCommand("UpdateConstruction()");
         this.recursiveUpdate(arr);
-      }, 10);
+      }, 0);
+    } else {
+      return;
     }
   }
 
@@ -314,6 +304,7 @@ class GgbGraph extends Component {
 
   // Used to capture referencing
   clickListener = async element => {
+    console.log(element);
     // console.log("CLICKED", this.ggbApplet.getXML())
     if (this.props.referencing) {
       // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
@@ -354,18 +345,9 @@ class GgbGraph extends Component {
     this.ggbApplet.registerRemoveListener(this.removeListener);
   }
 
+  eventQueue = [];
   sendEvent = (xml, definition, label, eventType, action) => {
-    if (
-      !this.props.user.connected ||
-      this.props.room.controlledBy !== this.props.user._id
-    ) {
-      // @TODO HAVING TROUBLE GETTING ACTIONS TO UNDO
-      alert(
-        "You are not in control. The update you just made will not be saved. Please refresh the page"
-      );
-      this.ggbApplet.undo();
-      return;
-    }
+    console.log(xml);
     let newData = {
       definition,
       label,
@@ -379,18 +361,45 @@ class GgbGraph extends Component {
       currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
       mode: this.ggbApplet.getMode()
     };
-    // throttle(() => {
-    let updatedTabs = [...this.props.room.tabs];
-    let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
-    if (eventType === "CHANGE_PERSPECTIVE") {
-      updatedTab.perspective = xml;
+    console.log("an event has been fired");
+    if (this.timer) {
+      console.log("batching");
+      this.eventQueue.push(newData.event);
+      clearTimeout(this.timer);
     }
-    // }, 500)
-    updatedTab.currentState = newData.currentState;
-    updatedTabs[this.props.currentTab] = updatedTab;
-    this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-    this.props.resetControlTimer();
-    socket.emit("SEND_EVENT", newData);
+    this.timer = setTimeout(() => {
+      console.log("udpating stopped");
+      if (
+        !this.props.user.connected ||
+        this.props.room.controlledBy !== this.props.user._id
+      ) {
+        // @TODO HAVING TROUBLE GETTING ACTIONS TO UNDO
+        alert(
+          "You are not in control. The update you just made will not be saved. Please refresh the page"
+        );
+        this.ggbApplet.undo();
+        return;
+      }
+      // throttle(() => {
+      // let updatedTabs = [...this.props.room.tabs];
+      // let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
+      // if (eventType === "CHANGE_PERSPECTIVE") {
+      //   updatedTab.perspective = xml;
+      // }
+      // updatedTab.currentState = newData.currentState;
+      // updatedTabs[this.props.currentTab] = updatedTab;
+      // this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
+      // }, 500)
+      if (this.eventQueue.length > 0) {
+        newData.event = this.eventQueue;
+        newData.eventType = "BATCH";
+        console.log("sending batch");
+        console.log(this.eventQueue);
+        socket.emit("SEND_EVENT", newData);
+      }
+      this.eventQueue = [];
+      // this.props.resetControlTimer();
+    }, 110);
   };
 
   freezeElements = freeze => {
