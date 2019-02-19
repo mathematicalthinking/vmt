@@ -3,7 +3,7 @@
   lightShadow: lightShadow;
   darkShadow: darkShadow;
   backgroundGray: backgroundGray;
-  navBarHeight: navBarHeight;
+  navbarHeight: navbarHeight;
 }
 :root {
   --margin-top: 48px;
@@ -16,11 +16,12 @@
 }
 
 .Header {
-  padding-top: var(--margin-top);
+  padding-top: 50px;
   position: fixed;
   width: 80%;
   max-width: 1100px;
-  z-index: 500;
+  z-index: 320;
+  color: #444;
   background: #f8f8f8;
   box-shadow: 10px 10px 10px 2px #f8f8f8, -10px 0 10px 2px #f8f8f8;
 }

@@ -7,7 +7,7 @@ const navbar = props => {
   let styles = classes.NavContainer;
   if (props.location.pathname.indexOf("workspace") > -1) {
     styles = classes.WorkspaceNav;
-  }
+  } else if (props.fixed) styles = classes.Fixed;
   return (
     <nav className={styles}>
       <div className={classes.LogoContainer}>

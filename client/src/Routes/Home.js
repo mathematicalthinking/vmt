@@ -1,6 +1,6 @@
 import React, { PureComponent } from "react";
 import { Route, Switch } from "react-router-dom";
-import HomeNav from "../Components/Navigation/HomeNav/HomeNav";
+import { HomeNav, Navbar } from "../Components/";
 import {
   Homepage,
   Login,
@@ -37,11 +37,15 @@ class Home extends PureComponent {
   render() {
     return (
       <Aux>
-        <HomeNav
-          // scrollPosition={this.state.scrollPosition}
-          page={this.props.location.pathname}
-          user={this.props.user}
-        />
+        {this.props.location.pathname.indexOf("community") > -1 ? (
+          <Navbar fixed />
+        ) : (
+          <HomeNav
+            // scrollPosition={this.state.scrollPosition}
+            page={this.props.location.pathname}
+            user={this.props.user}
+          />
+        )}
         <div className={classes.Container}>
           <Switch>
             <Route
@@ -49,7 +53,7 @@ class Home extends PureComponent {
               path="/"
               render={() => (
                 <Homepage
-                  // scrollPosition={this.state.scrollPosition}
+                  scrollPosition={this.state.scrollPosition}
                   {...this.props}
                 />
               )}
