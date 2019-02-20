@@ -398,6 +398,7 @@ class Room extends Component {
               <SidePanel
                 image={room.image}
                 alt={this.state.name}
+                editing={this.state.editing}
                 name={
                   <Error error={updateFail && updateKeys.indexOf("name") > -1}>
                     <EditText
@@ -474,11 +475,17 @@ class Room extends Component {
                         Edit Room <i className="fas fa-edit" />
                       </div>
                       {this.state.editing ? (
-                        <div>
+                        // @TODO this should be a resuable component
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-around"
+                          }}
+                        >
                           <Button
                             click={this.updateRoom}
                             data-testid="save-room"
-                            theme="edit-save"
+                            theme="Small"
                           >
                             Save
                           </Button>
@@ -489,7 +496,7 @@ class Room extends Component {
                           >
                             <i className="fas fa-trash-alt" />
                           </Button>
-                          <Button click={this.toggleEdit} theme="edit">
+                          <Button click={this.toggleEdit} theme="Cancel">
                             Cancel
                           </Button>
                         </div>

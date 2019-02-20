@@ -200,6 +200,7 @@ class Activity extends Component {
             sidePanel={
               <SidePanel
                 image={activity.image}
+                editing={this.state.editing}
                 name={
                   <Error error={updateFail && updateKeys.indexOf("name")}>
                     <EditText
@@ -242,22 +243,28 @@ class Activity extends Component {
                         Edit Activity <i className="fas fa-edit" />
                       </div>
                       {this.state.editing ? (
-                        <div>
+                        // @TODO this should be a resuable component
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-around"
+                          }}
+                        >
                           <Button
                             click={this.updateActivity}
-                            data-testid="save-activity"
+                            data-testid="save-course"
                             theme="Small"
                           >
                             Save
                           </Button>
                           <Button
-                            data-testid="trash-activity"
                             click={this.trashActivity}
-                            theme="Cancel"
+                            data-testid="trash-course"
+                            theme="Danger"
                           >
                             <i className="fas fa-trash-alt" />
                           </Button>
-                          <Button click={this.toggleEdit} theme="edit">
+                          <Button click={this.toggleEdit} theme="Cancel">
                             Cancel
                           </Button>
                         </div>
