@@ -30,14 +30,15 @@
     "express-session": "^1.15.6",
     "lodash": "^4.17.11",
     "mongoose": "^5.1.5",
-    "morgan": "~1.9.0",
     "mongoose-data-seed": "^1.0.6",
+    "morgan": "~1.9.0",
     "multer": "^1.4.1",
     "passport": "^0.4.0",
     "passport-google-oauth": "^1.0.0",
     "passport-local": "^1.0.0",
     "serve-favicon": "~2.4.5",
-    "socket.io": "^2.1.1"
+    "socket.io": "^2.1.1",
+    "xml2js": "^0.4.19"
   },
   "devDependencies": {
     "concurrently": "^4.1.0",

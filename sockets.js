@@ -1,5 +1,6 @@
 const controllers = require("./controllers");
 const _ = require("lodash");
+const parseString = require("xml2js").parseString;
 const socketInit = require("./socketInit");
 const ObjectId = require("mongoose").Types.ObjectId;
 
@@ -239,6 +240,14 @@ module.exports = function() {
     });
 
     socket.on("SEND_EVENT", async data => {
+      socket.broadcast.to(data.room).emit("RECEIVE_EVENT", data);
+      let xmlObj = "";
+      if (data.xml && data.eventType !== "CHANGE_PERSPECTIVE") {
+        xmlObj = await parseXML(xml); // @TODO We should do this parsing on the backend yeah? we only need this for to build the description which we only need in the replayer anyway
+      }
+      data.description = `${data.user.username} ${data.action} ${
+        xmlObj && xmlObj.element ? xmlObj.element.$.type : ""
+      } ${data.label}`;
       if (typeof data.event !== "string") {
         data.event = JSON.stringify(data.event);
       }
@@ -260,7 +269,6 @@ module.exports = function() {
       } catch (err) {
         console.log("err 2: ", err);
       }
-      socket.broadcast.to(data.room).emit("RECEIVE_EVENT", data);
     });
 
     socket.on("SWITCH_TAB", (data, callback) => {
@@ -291,6 +299,15 @@ module.exports = function() {
           callback("success");
         })
         .catch(err => callback("fail", err));
+    });
+  });
+};
+
+const parseXML = xml => {
+  return new Promise((resolve, reject) => {
+    parseString(xml, (err, result) => {
+      if (err) return reject(err);
+      return resolve(result);
     });
   });
 };

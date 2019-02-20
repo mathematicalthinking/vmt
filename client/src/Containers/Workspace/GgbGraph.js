@@ -5,11 +5,17 @@ import INITIAL_GGB from "./blankGgb";
 import Script from "react-load-script";
 import throttle from "lodash/throttle";
 import socket from "../../utils/sockets";
-import { parseString } from "xml2js";
+
 import { initPerspectiveListener } from "./ggbUtils";
 // import { eventNames } from 'cluster';
 // THINK ABOUT GETTING RID OF ALL XML PARSING...THERE ARE PROBABLY NATIVE GGB METHODS THAT CAN ACCOMPLISH EVERYTHING WE NEEDd
 const THROTTLE_FIDELITY = 60;
+/**
+ * @props:
+ *  room,
+ *  updateRoom()
+ */
+
 class GgbGraph extends Component {
   state = {
     receivingData: false,
@@ -22,6 +28,12 @@ class GgbGraph extends Component {
   };
 
   graph = React.createRef();
+
+  // For batching events
+  eventQueue = [];
+  firstLabel;
+  pointCounter = 1;
+  noOfPoints;
 
   componentDidMount() {
     // window.addEventListener('click', this.clickListener)
@@ -59,6 +71,15 @@ class GgbGraph extends Component {
               // this.ggbApplet.evalXML(data.event);
               // this.ggbApplet.evalCommand("UpdateConstruction()");
               break;
+            case "BATCH_UPDATE":
+              this.recursiveUpdate(data.event, data.noOfPoints);
+              break;
+            case "BATCH_ADD":
+              if (data.definition) {
+                this.recursiveUpdate(data.event, 1, true);
+              }
+
+              break;
             default:
               break;
           }
@@ -69,6 +90,35 @@ class GgbGraph extends Component {
         }
       });
     });
+  }
+
+  /**
+   * @method recursiveUpdate
+   * @description takes an array of events and updates the construction in batches
+   * used to make drag updates and multipoint shape creation more efficient. See ./docs/Geogebra
+   * @param  {Array} events - array of ggb xml events
+   * @param  {Number} noOfPoints - the batch size, i.e., number of points in the shape
+   * @param  {Boolean} adding - true if BATCH_ADD false if BATCH_UPDATE
+   */
+  recursiveUpdate(events, noOfPoints, adding) {
+    if (events.length > 0) {
+      if (adding) {
+        for (let i = 0; i < events.length; i++) {
+          this.ggbApplet.evalCommand(events[i]);
+        }
+      } else {
+        this.ggbApplet.evalXML(
+          events.splice(0, noOfPoints).join("") ||
+            events.splice(0, events.length).join("")
+        );
+        this.ggbApplet.evalCommand("UpdateConstruction()");
+        setTimeout(() => {
+          this.recursiveUpdate(events, noOfPoints);
+        }, 10);
+      }
+    } else {
+      return;
+    }
   }
 
   async componentDidUpdate(prevProps) {
@@ -89,7 +139,6 @@ class GgbGraph extends Component {
         this.setState({ switchingControl: false }, () => {
           this.freezeElements(false);
         });
-        console.log(room.settings.participantsCanChangePerspective);
         if (
           room.settings.participantsCanChangePerspective ||
           role === "facilitator"
@@ -195,10 +244,8 @@ class GgbGraph extends Component {
       // "scaleContainerClasse": "graph",
       // customToolBar:
       //   "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
-      showToolBar:
-        this.props.room.controlledBy === this.props.user._id ? true : false,
-      showMenuBar:
-        this.props.room.controlledBy === this.props.user._id ? true : false,
+      showToolBar: false,
+      showMenuBar: false,
       showAlgebraInput: true,
       language: "en",
       useBrowserForJS: false,
@@ -300,6 +347,7 @@ class GgbGraph extends Component {
       this.props.setToElAndCoords({ element, elementType: "point" }, position);
     }
   };
+
   // This function can only fire when someone is in control. So if the perspective changes emit that to everyone.
   perspectiveChanged = newPerspectiveCode => {
     this.sendEvent(newPerspectiveCode, null, null, "CHANGE_PERSPECTIVE", null);
@@ -323,9 +371,31 @@ class GgbGraph extends Component {
     this.ggbApplet.registerUpdateListener(this.updateListener);
     this.ggbApplet.registerRemoveListener(this.removeListener);
   }
+  /**
+   * @method sendEvnet
+   * @description emits the geogebra event over the socket. Creates a buffer for multi-part events
+   * @param  {String} xml - ggb generated xml of the even
+   * @param  {String} definition - ggb multipoint definition (e.g. "Polygon(D, E, F, G)")
+   * @param  {String} label - ggb label. ggbApplet.evalXML(label) yields xml representation of this label
+   * @param  {String} eventType - ["ADD", "REMOVE", "UPDATE", "CHANGE_PERSPECTIVE", "NEW_TAB", "BATCH"] see ./models/event
+   * @param  {String} action - ggb action ["addedd", "removed", "clicked", "updated"]
+   */
 
-  sendEvent = throttle(
-    async (xml, definition, label, eventType, action) => {
+  sendEvent = (xml, definition, label, eventType, action) => {
+    if (!this.firstLabel) {
+      this.firstLabel = label;
+    }
+    if (this.timer) {
+      if (label !== this.firstLabel && action === "updated") {
+        this.pointCounter++;
+      } else if (label === this.firstLabel && !this.noOfPoints) {
+        this.noOfPoints = this.pointCounter;
+      }
+      clearTimeout(this.timer);
+    }
+    this.eventQueue.push(action === "updated" ? xml : `${label}:${definition}`);
+    this.timer = setTimeout(() => {
+      console.log("udpating stopped");
       if (
         !this.props.user.connected ||
         this.props.room.controlledBy !== this.props.user._id
@@ -337,20 +407,14 @@ class GgbGraph extends Component {
         this.ggbApplet.undo();
         return;
       }
-      let xmlObj;
-      if (xml && eventType !== "CHANGE_PERSPECTIVE") {
-        xmlObj = await this.parseXML(xml); // @TODO We should do this parsing on the backend yeah? we only need this for to build the description which we only need in the replayer anyway
-      }
       let newData = {
         definition,
         label,
         eventType,
+        action,
         room: this.props.room._id,
         tab: this.props.room.tabs[this.props.currentTab]._id,
         event: xml,
-        description: `${this.props.user.username} ${action} ${
-          xmlObj && xmlObj.element ? xmlObj.element.$.type : ""
-        } ${label}`,
         user: { _id: this.props.user._id, username: this.props.user.username },
         timestamp: new Date().getTime(),
         currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
@@ -365,23 +429,29 @@ class GgbGraph extends Component {
       updatedTab.currentState = newData.currentState;
       updatedTabs[this.props.currentTab] = updatedTab;
       this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-      // }, 500)
+      if (this.eventQueue.length > 1) {
+        newData.event = this.eventQueue;
+        newData.eventType = action === "updated" ? "BATCH_UPDATE" : "BATCH_ADD";
+        newData.noOfPoints = this.noOfPoints;
+      }
+      this.firstLabel = null;
+      this.pointCounter = 1;
+      this.noOfPoints = null;
+      this.eventQueue = [];
+      this.timer = null;
       socket.emit("SEND_EVENT", newData);
-
-      this.props.resetControlTimer();
-    },
-    THROTTLE_FIDELITY,
-    { trailing: true }
-  );
-
-  parseXML = xml => {
-    return new Promise((resolve, reject) => {
-      parseString(xml, (err, result) => {
-        if (err) return reject(err);
-        return resolve(result);
-      });
-    });
+      // reset tracking variables
+      // this.props.resetControlTimer();
+    }, 110);
   };
+
+  /**
+   * @method freezeElements
+   * @description toggle whether the construction can be manipulated.
+   *
+   * @todo we need to find a way to do this all at once. setFixed() is blocking and this effects the repainting of the screen when the user takes or releases control
+   * @param  {Boolean} freeze - true = freeze, false = unfreeze
+   */
 
   freezeElements = freeze => {
     // let allElements = this.ggbApplet.getAllObjectNames(); // WARNING ... THIS METHOD IS DEPRECATED
@@ -390,6 +460,11 @@ class GgbGraph extends Component {
     //   this.ggbApplet.setFixed(element, freeze, true); // Unfix/fix all of the elements
     // });
   };
+
+  /**
+   * @method getRelativeCoords - converts x,y coordinates of ggb point and converts them to the pizel location on the screen
+   * @param  {String} element - ggb defined Label. MUST be a point
+   */
 
   getRelativeCoords = element => {
     return new Promise(async (resolve, reject) => {
