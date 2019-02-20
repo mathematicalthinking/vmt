@@ -167,17 +167,17 @@
   box-shadow: lightShadow;
   box-shadow: 0px -1px 15px 2px rgb(148, 162, 200),
     2px 4px 4px 1px rgb(126, 135, 158);
-  margin: 10px 0;
   /* border-radius: 5px; */
-  order: 2;
+  order: 3;
   flex: 0 1 0;
 }
 
-.BottomRight {
+.Tools {
   box-shadow: lightShadow;
   box-shadow: 0px -1px 15px 2px rgb(148, 162, 200),
     2px 4px 4px 1px rgb(126, 135, 158);
-  order: 3;
+  order: 2;
+  margin: 10px 0;
   flex: 1 0 auto;
   display: flex;
   /* position: relative; */
