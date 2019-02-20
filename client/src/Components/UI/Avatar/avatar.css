@@ -4,13 +4,16 @@
 }
 .UserInfo {
   margin-bottom: 5px;
-  height: 222px;
-  width: 222px;
-  align-self: center;
 }
 
 .UserInfo a {
   margin: 0 auto;
+}
+
+.BigAvatar {
+  align-self: center;
+  height: 222px;
+  width: 222px;
 }
 
 .Avatar {

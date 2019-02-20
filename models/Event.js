@@ -11,7 +11,15 @@ const Event = new mongoose.Schema({
   tab: { type: ObjectId, ref: "Tab", required: true },
   eventType: {
     type: String,
-    enum: ["ADD", "REMOVE", "UPDATE", "CHANGE_PERSPECTIVE", "NEW_TAB", "BATCH"]
+    enum: [
+      "ADD",
+      "REMOVE",
+      "UPDATE",
+      "CHANGE_PERSPECTIVE",
+      "NEW_TAB",
+      "BATCH_UPDATE",
+      "BATCH_ADD"
+    ]
   },
   timestamp: { type: Number }, //UNIX TIME but in MS
   isTrashed: { type: Boolean, default: false }

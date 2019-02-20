@@ -71,8 +71,14 @@ class GgbGraph extends Component {
               // this.ggbApplet.evalXML(data.event);
               // this.ggbApplet.evalCommand("UpdateConstruction()");
               break;
-            case "BATCH":
+            case "BATCH_UPDATE":
               this.recursiveUpdate(data.event, data.noOfPoints);
+              break;
+            case "BATCH_ADD":
+              if (data.definition) {
+                this.recursiveUpdate(data.event, 1, true);
+              }
+
               break;
             default:
               break;
@@ -92,18 +98,26 @@ class GgbGraph extends Component {
    * used to make drag updates and multipoint shape creation more efficient. See ./docs/Geogebra
    * @param  {Array} events - array of ggb xml events
    * @param  {Number} noOfPoints - the batch size, i.e., number of points in the shape
+   * @param  {Boolean} adding - true if BATCH_ADD false if BATCH_UPDATE
    */
-  recursiveUpdate(events, noOfPoints) {
+  recursiveUpdate(events, noOfPoints, adding) {
     if (events.length > 0) {
-      this.ggbApplet.evalXML(
-        events.splice(0, noOfPoints).join("") ||
-          events.splice(0, events.length).join("")
-      );
-      this.ggbApplet.evalCommand("UpdateConstruction()");
-      setTimeout(() => {
-        this.recursiveUpdate(events, noOfPoints);
-      }, 0);
+      console.log("event length ", events.length);
+      if (adding) {
+        for (let i = 0; i < events.length; i++) {
+          this.ggbApplet.evalCommand(events[i]);
+        }
+      } else {
+        this.ggbApplet.evalXML(
+          events.splice(0, noOfPoints).join("") || events.join("")
+        );
+        this.ggbApplet.evalCommand("UpdateConstruction()");
+        setTimeout(() => {
+          this.recursiveUpdate(events, noOfPoints);
+        }, 10);
+      }
     } else {
+      console.log("leftover events: ", events);
       return;
     }
   }
@@ -318,7 +332,6 @@ class GgbGraph extends Component {
 
   // Used to capture referencing
   clickListener = async element => {
-    console.log(element);
     // console.log("CLICKED", this.ggbApplet.getXML())
     if (this.props.referencing) {
       // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
@@ -361,33 +374,27 @@ class GgbGraph extends Component {
   }
   /**
    * @method sendEvnet
-   * @description emits the geogebra event over the socket.
-   *
-   * creates a buffer multip=part events like drags and shape creation
-   * @todo still working on this
-   *
+   * @description emits the geogebra event over the socket. Creates a buffer for multi-part events
    * @param  {String} xml - ggb generated xml of the even
    * @param  {String} definition - ggb multipoint definition (e.g. "Polygon(D, E, F, G)")
    * @param  {String} label - ggb label. ggbApplet.evalXML(label) yields xml representation of this label
    * @param  {String} eventType - ["ADD", "REMOVE", "UPDATE", "CHANGE_PERSPECTIVE", "NEW_TAB", "BATCH"] see ./models/event
-   * @param  {String} action - ggb action ["Add", "Remove", "Click", "Update"]
+   * @param  {String} action - ggb action ["addedd", "removed", "clicked", "updated"]
    */
 
   sendEvent = (xml, definition, label, eventType, action) => {
     if (!this.firstLabel) {
       this.firstLabel = label;
-      // console.log(this.firstLabel);
     }
     if (this.timer) {
-      if (label !== this.firstLabel) {
+      if (label !== this.firstLabel && action === "updated") {
         this.pointCounter++;
-        // console.log("incrementing point counter");
       } else if (label === this.firstLabel && !this.noOfPoints) {
         this.noOfPoints = this.pointCounter;
       }
-      this.eventQueue.push(xml);
       clearTimeout(this.timer);
     }
+    this.eventQueue.push(action === "updated" ? xml : `${label}:${definition}`);
     this.timer = setTimeout(() => {
       console.log("udpating stopped");
       if (
@@ -423,9 +430,9 @@ class GgbGraph extends Component {
       updatedTab.currentState = newData.currentState;
       updatedTabs[this.props.currentTab] = updatedTab;
       this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-      if (this.eventQueue.length > 0) {
+      if (this.eventQueue.length > 1) {
         newData.event = this.eventQueue;
-        newData.eventType = "BATCH";
+        newData.eventType = action === "updated" ? "BATCH_UPDATE" : "BATCH_ADD";
         newData.noOfPoints = this.noOfPoints;
       }
       this.firstLabel = null;
@@ -433,7 +440,6 @@ class GgbGraph extends Component {
       this.noOfPoints = null;
       this.eventQueue = [];
       this.timer = null;
-      console.log(this.firstLabel);
       socket.emit("SEND_EVENT", newData);
       // reset tracking variables
       // this.props.resetControlTimer();
@@ -449,11 +455,11 @@ class GgbGraph extends Component {
    */
 
   freezeElements = freeze => {
-    let allElements = this.ggbApplet.getAllObjectNames(); // WARNING ... THIS METHOD IS DEPRECATED
-    allElements.forEach(element => {
-      // AS THE CONSTRUCTION GETS BIGGER THIS GETS SLOWER...SET_FIXED IS BLOCKING
-      this.ggbApplet.setFixed(element, freeze, true); // Unfix/fix all of the elements
-    });
+    // let allElements = this.ggbApplet.getAllObjectNames(); // WARNING ... THIS METHOD IS DEPRECATED
+    // allElements.forEach(element => {
+    //   // AS THE CONSTRUCTION GETS BIGGER THIS GETS SLOWER...SET_FIXED IS BLOCKING
+    //   this.ggbApplet.setFixed(element, freeze, true); // Unfix/fix all of the elements
+    // });
   };
 
   /**
