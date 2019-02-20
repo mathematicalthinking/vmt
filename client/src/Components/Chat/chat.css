@@ -1,4 +1,4 @@
-:import('../../colors.css'){
+:import("../../colors.css") {
   blue: blue;
   blueHover: blueHover;
   gray: backgroundGray;
@@ -101,11 +101,11 @@
   width: 100%;
   height: 40px;
   border: 1px solid #ddd;
-  border-radius: 0 0 3px 3px;
+  border-radius: 0 0 0 3px;
   font-size: 13px;
   font-weight: 400;
   background-color: white;
- }
+}
 
 .Input:focus {
   outline: none;
@@ -120,11 +120,11 @@
   height: 40px;
   background: inherit;
   cursor: pointer;
-  transition: .2s;
+  transition: 0.2s;
   background-color: blue;
   color: white;
   font-size: 18px;
-  border-radius: 0 0 3px 0;
+  border-radius: 0 0 2px 0;
 }
 
 .Send:hover {
@@ -145,7 +145,7 @@
 .Timestamp {
   font-style: italic;
   color: #999;
-  font-size: .8em;
+  font-size: 0.8em;
   align-self: flex-end;
   font-size: 12px;
   margin: 5px 0;
@@ -160,7 +160,7 @@
   /* padding: 1px; */
   padding: 0px 10px;
   border: 2px solid transparent;
- }
+}
 
 .Point {
   z-index: 1500;

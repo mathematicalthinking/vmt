@@ -372,6 +372,7 @@ class Course extends Component {
               <SidePanel
                 image={course.image}
                 alt={this.state.name}
+                editing={this.state.editing}
                 name={
                   <Error error={updateFail && updateKeys.indexOf("name") > -1}>
                     <EditText

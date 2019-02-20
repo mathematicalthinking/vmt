@@ -33,7 +33,7 @@ const SidePanel = React.memo(
         </div>
       );
     });
-
+    console.log(editing);
     return (
       <Aux>
         <div className={classes.Top}>
@@ -47,7 +47,9 @@ const SidePanel = React.memo(
             <div className={classes.spSecondary}>{subTitle}</div>
             <div className={classes.spAdditional}>{details}</div>
             {editButton ? (
-              <div className={classes.Edit}>{editButton}</div>
+              <div className={editing ? classes.EditActive : classes.Edit}>
+                {editButton}
+              </div>
             ) : null}
           </div>
           <div className={classes.spButtons}>{buttons}</div>
