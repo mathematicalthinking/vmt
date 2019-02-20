@@ -252,14 +252,14 @@ class Activity extends Component {
                         >
                           <Button
                             click={this.updateActivity}
-                            data-testid="save-course"
+                            data-testid="save-activity"
                             theme="Small"
                           >
                             Save
                           </Button>
                           <Button
                             click={this.trashActivity}
-                            data-testid="trash-course"
+                            data-testid="trash-activity"
                             theme="Danger"
                           >
                             <i className="fas fa-trash-alt" />
