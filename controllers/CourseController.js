@@ -262,16 +262,16 @@ module.exports = {
           });
       }
     });
-  },
-
-  delete: id => {
-    return new Promise((resolve, reject) => {
-      db.Course.findById(id)
-        .then(course => {
-          course.remove();
-          resolve(course);
-        })
-        .catch(err => reject(err));
-    });
   }
+
+  // delete: id => {
+  //   return new Promise((resolve, reject) => {
+  //     db.Course.findById(id)
+  //       .then(course => {
+  //         course.remove();
+  //         resolve(course);
+  //       })
+  //       .catch(err => reject(err));
+  //   });
+  // }
 };

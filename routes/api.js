@@ -277,31 +277,31 @@ router.put("/:resource/:id", middleware.validateUser, (req, res, next) => {
     });
 });
 
-router.delete("/:resource/:id", middleware.validateUser, (req, res, next) => {
-  // for now delete not supported
-  // add isTrashed?
-  return errors.sendError.BadMethodError(
-    "Sorry, DELETE is not supported for this resource.",
-    res
-  );
+// router.delete("/:resource/:id", middleware.validateUser, (req, res, next) => {
+//   // for now delete not supported
+//   // add isTrashed?
+//   return errors.sendError.BadMethodError(
+//     "Sorry, DELETE is not supported for this resource.",
+//     res
+//   );
 
-  let { resource, id } = req.params;
-  let controller = controllers[resource];
+//   let { resource, id } = req.params;
+//   let controller = controllers[resource];
 
-  controller
-    .delete(id)
-    .then(result => res.json(result))
-    .catch(err => {
-      console.error(`Error delete ${resource}/${id}: ${err}`);
+//   controller
+//     .delete(id)
+//     .then(result => res.json(result))
+//     .catch(err => {
+//       console.error(`Error delete ${resource}/${id}: ${err}`);
 
-      let msg = null;
+//       let msg = null;
 
-      if (typeof err === "string") {
-        msg = err;
-      }
+//       if (typeof err === "string") {
+//         msg = err;
+//       }
 
-      return errors.sendError.InternalError(msg, res);
-    });
-});
+//       return errors.sendError.InternalError(msg, res);
+//     });
+// });
 
 module.exports = router;
