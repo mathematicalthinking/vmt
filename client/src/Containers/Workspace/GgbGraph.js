@@ -102,14 +102,14 @@ class GgbGraph extends Component {
    */
   recursiveUpdate(events, noOfPoints, adding) {
     if (events.length > 0) {
-      console.log("event length ", events.length);
       if (adding) {
         for (let i = 0; i < events.length; i++) {
           this.ggbApplet.evalCommand(events[i]);
         }
       } else {
         this.ggbApplet.evalXML(
-          events.splice(0, noOfPoints).join("") || events.join("")
+          events.splice(0, noOfPoints).join("") ||
+            events.splice(0, events.length).join("")
         );
         this.ggbApplet.evalCommand("UpdateConstruction()");
         setTimeout(() => {
@@ -117,7 +117,6 @@ class GgbGraph extends Component {
         }, 10);
       }
     } else {
-      console.log("leftover events: ", events);
       return;
     }
   }
