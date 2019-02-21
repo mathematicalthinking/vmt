@@ -156,7 +156,7 @@ class GgbReplayer extends Component {
 
   initializeGgb = () => {
     this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
-    // this.ggbApplet.setMode(40);
+    this.ggbApplet.setMode(40);
     let { tab } = this.props;
     let { startingPoint, ggbFile } = tab;
     // put the current construction on the graph, disable everything until the user takes control
