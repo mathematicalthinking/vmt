@@ -69,7 +69,7 @@ class GgbReplayer extends Component {
   }
 
   applyMultipleEvents(startIndex, endIndex) {
-    this.ggbApplet.setRepaintingActive(false); // THIS DOES NOT SEEM TO BE WORKING
+    // this.ggbApplet.setRepaintingActive(false); // THIS DOES NOT SEEM TO BE WORKING
     // Forwards through time
     if (startIndex < endIndex) {
       for (let i = startIndex; i <= endIndex; i++) {
@@ -99,24 +99,33 @@ class GgbReplayer extends Component {
     //   this.constructEvent(syntheticEvent)
     // }
 
-    this.ggbApplet.setRepaintingActive(true);
+    // this.ggbApplet.setRepaintingActive(true);
   }
 
-  constructEvent(event) {
-    switch (event.eventType) {
+  constructEvent(data) {
+    switch (data.eventType) {
       case "ADD":
-        if (event.definition && event.definition !== "") {
-          this.ggbApplet.evalCommand(`${event.label}:${event.definition}`);
+        console.log(typeof data.event);
+        if (data.definition) {
+          console.log("evauluating command");
+          this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
         }
-        this.ggbApplet.evalXML(event.event);
+        console.log(data.event);
+        this.ggbApplet.evalXML(data.event);
         this.ggbApplet.evalCommand("UpdateConstruction()");
         break;
       case "REMOVE":
-        this.ggbApplet.deleteObject(event.label);
+        this.ggbApplet.deleteObject(data.label);
         break;
       case "UPDATE":
-        this.ggbApplet.evalXML(event.event);
+        this.ggbApplet.evalXML(data.event);
         this.ggbApplet.evalCommand("UpdateConstruction()");
+        break;
+      case "BATCH_ADD":
+        if (data.definition) {
+          console.log(data.definition);
+          // this.recursiveUpdate(event, 1, true);
+        }
         break;
       default:
         break;
@@ -135,11 +144,11 @@ class GgbReplayer extends Component {
       showMenuBar: false,
       showAlgebraInput: true,
       language: "en",
-      useBrowserForJS: false,
+      useBrowserForJS: true,
       borderColor: "#ddd",
       preventFocus: true,
       appletOnLoad: this.initializeGgb,
-      appName: "whiteboard"
+      appName: "3D Graphics"
     };
     const ggbApp = new window.GGBApplet(parameters, "5.0");
     ggbApp.inject(`ggb-element${this.props.tabId}A`);
@@ -147,7 +156,7 @@ class GgbReplayer extends Component {
 
   initializeGgb = () => {
     this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
-    this.ggbApplet.setMode(40);
+    // this.ggbApplet.setMode(40);
     let { tab } = this.props;
     let { startingPoint, ggbFile } = tab;
     // put the current construction on the graph, disable everything until the user takes control
@@ -185,13 +194,12 @@ class GgbReplayer extends Component {
     //   return acc;
     // }, {})
     // let xmlString = Object.keys(syntheticLog).map(event => syntheticLog[event]).join('')
-    this.ggbApplet.setRepaintingActive(false);
-    for (let i = 0; i < endingIndex; i++) {
-      this.constructEvent(this.props.log[i]);
-    }
-    this.ggbApplet.setRepaintingActive(true);
+    // this.ggbApplet.setRepaintingActive(false);
+    // for (let i = 0; i < endingIndex; i++) {
+    //   this.constructEvent(this.props.log[i]);
+    // }
+    // this.ggbApplet.setRepaintingActive(true);
     // this.ggbApplet.setXML(this.state.xmlContext + xmlString + '</construction></geogebra>')
-
     // console.log(syntheticLog)
     // this.parseXML(this.ggbApplet.getXML())
     // .then(parsedXML => {
@@ -216,7 +224,6 @@ class GgbReplayer extends Component {
     //       // Else we are removing a point that had been added before the skipFromPoint
     //       // Because we're going to update the construction all at once
     //       else {
-
     //       }
     //       syntheticLog[log[i].label] = log[i]
     //     }
@@ -229,7 +236,6 @@ class GgbReplayer extends Component {
     //   console.log(syntheticLogArr)
     // }
     // else {
-
     // }
   }
 
