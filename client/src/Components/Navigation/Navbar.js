@@ -3,7 +3,6 @@ import NavItem from "./NavItem/NavItem";
 import classes from "./navbar.css";
 import { Link, withRouter } from "react-router-dom";
 const navbar = props => {
-  console.log("nav props: ", props);
   let styles = classes.NavContainer;
   if (props.location.pathname.indexOf("workspace") > -1) {
     styles = classes.WorkspaceNav;

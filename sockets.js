@@ -185,23 +185,17 @@ module.exports = function() {
       console.log("socket disconnect");
     });
 
-    socket.on("CHECK_SOCKET", (data, cb) => {
-      let { _id, socketId } = data;
-
-      if (!_id) {
+    socket.on("SYNC_SOCKET", (data, cb) => {
+      let { userId, socketId } = data;
+      if (!userId) {
         return;
       }
-      if (socketId !== socket.id) {
-        // @TODO I DONT THINK WE NEED TO SEND socketID OR DO THIS CHECK NOW THAT WE RE CONNECTING WITH SOCKETPROVIDER
-        controllers.user
-          .put(_id, { socketId: socket.id })
-          .then(() => {
-            cb("User socketId updated", null);
-          })
-          .catch(err => cb(null, err));
-      } else {
-        cb(`User socket up to date ${socket.id}`, null);
-      }
+      controllers.user
+        .put(userId, { socketId: socketId })
+        .then(user => {
+          cb("User socketId updated", null);
+        })
+        .catch(err => cb(null, err));
     });
 
     socket.on("SEND_MESSAGE", (data, callback) => {

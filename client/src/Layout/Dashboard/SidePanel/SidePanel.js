@@ -33,7 +33,6 @@ const SidePanel = React.memo(
         </div>
       );
     });
-    console.log(editing);
     return (
       <Aux>
         <div className={classes.Top}>

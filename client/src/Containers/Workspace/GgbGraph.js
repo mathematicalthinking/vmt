@@ -49,12 +49,16 @@ class GgbGraph extends Component {
       this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
       this.setState({ receivingData: true }, () => {
         // If this happend on the current tab
+        console.log(data);
         if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
           switch (data.eventType) {
             case "ADD":
+              console.log(typeof data.event);
               if (data.definition) {
+                console.log("evauluating command");
                 this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
               }
+              console.log(data.event);
               this.ggbApplet.evalXML(data.event);
               this.ggbApplet.evalCommand("UpdateConstruction()");
               break;
@@ -78,7 +82,6 @@ class GgbGraph extends Component {
               if (data.definition) {
                 this.recursiveUpdate(data.event, 1, true);
               }
-
               break;
             default:
               break;
@@ -252,8 +255,8 @@ class GgbGraph extends Component {
       borderColor: "#ddd",
       buttonShadows: true,
       preventFocus: true,
-      appName: "3D Graphics",
-      appletOnLoad: this.initializeGgb
+      appletOnLoad: this.initializeGgb,
+      appName: "3D Graphics"
     };
 
     const ggbApp = new window.GGBApplet(parameters, "5.0");
@@ -382,6 +385,7 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action) => {
+    console.log(definition);
     if (!this.firstLabel) {
       this.firstLabel = label;
     }

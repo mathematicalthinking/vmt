@@ -8,5 +8,4 @@ if (process.env.NODE_ENV === "production") {
 }
 console.log("SOCKET URL: ", url);
 const socket = io.connect(url);
-socket.removeAllListeners();
 export default socket;

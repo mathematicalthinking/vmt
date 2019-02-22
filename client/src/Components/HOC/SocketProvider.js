@@ -23,9 +23,19 @@ class SocketProvider extends Component {
   componentDidMount() {
     if (this.props.user.loggedIn) {
       // console.log(socket._callbacks)
-      socket.removeAllListeners();
-      // console.log(socket._callbacks)
-      this.initializeListeners();
+      socket.on("connect", () => {
+        let userId = this.props.user._id;
+        let socketId = socket.id;
+        socket.emit("SYNC_SOCKET", { socketId, userId }, (res, err) => {
+          if (err) {
+            //something went wrong updatnig user socket
+            // HOW SHOULD WE HANDLE THIS @TODO
+            return;
+          }
+          this.props.updateUser({ connected: true });
+        });
+        this.initializeListeners();
+      });
     }
   }
 
@@ -37,23 +47,22 @@ class SocketProvider extends Component {
 
   componentDidUpdate(prevProps) {
     if (!prevProps.user.loggedIn && this.props.user.loggedIn) {
-      socket.removeAllListeners();
+      let userId = this.props.user._id;
+      let socketId = socket.id;
+      socket.emit("SYNC_SOCKET", { socketId, userId }, (res, err) => {
+        if (err) {
+          this.props.updateUser({ connected: false });
+          return;
+        }
+        this.props.updateUser({ connected: true });
+      });
+      // socket.removeAllListeners();
       this.initializeListeners();
     }
   }
 
   initializeListeners() {
-    this.setState({ initializedCount: this.state.initializedCount + 1 });
-    let { socketId, _id } = this.props.user;
-    socket.emit("CHECK_SOCKET", { socketId, _id }, (res, err) => {
-      if (err) {
-        //something went wrong updatnig user socket
-        // HOW SHOULD WE HANDLE THIS @TODO
-        return;
-      }
-      this.props.updateUser({ connected: true });
-    });
-
+    socket.removeAllListeners();
     socket.on("NEW_NOTIFICATION", data => {
       let { notification, course, room } = data;
       let type = notification.notificationType;
@@ -93,6 +102,15 @@ class SocketProvider extends Component {
     });
 
     socket.on("reconnect", attemptNumber => {
+      let userId = this.props.user._id;
+      let socketId = socket.id;
+      socket.emit("SYNC_SOCKET", { socketId, userId }, (res, err) => {
+        if (err) {
+          //something went wrong updatnig user socket
+          // HOW SHOULD WE HANDLE THIS @TODO
+          return;
+        }
+      });
       // console.log('reconnected after ', attemptNumber, ' attempts')
       // MAYBE FETCH THE USER TO GET MISSING NOTIFICATIONS AND THE LIKE
       this.props.getUser(this.props.user._id);
