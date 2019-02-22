@@ -85,6 +85,9 @@
   z-index: 17;
   opacity: 0.4;
 }
+.waveAnimation{
+  composes: waveAnimation;
+}
 .wave {
   position: absolute;
   left: 0;

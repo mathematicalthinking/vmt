@@ -9,10 +9,13 @@ const Background = ({ bottomSpace, fixed }) => {
           style={bottomSpace ? { top: `${0.07 * bottomSpace}vh` } : null}
         />
       ) : null}
-      <div
-        className={[classes.waveWrapper, classes.waveAnimation].join(" ")}
-        style={{ bottom: bottomSpace }}
-      >
+      <div className={classes.waveWrapper}
+            style = {{bottom: bottomSpace}} >
+
+       <div className = { classes.waveAnimation}
+            style = {{bottom:bottomSpace}}>
+
+       
         <div className={[classes.waveWrapperInner, classes.bgTop].join(" ")}>
           <div className={[classes.wave, classes.waveTop].join()} />
         </div>
@@ -22,6 +25,7 @@ const Background = ({ bottomSpace, fixed }) => {
         <div className={[classes.waveWrapperInner, classes.bgBottom].join(" ")}>
           <div className={[classes.wave, classes.waveBottom].join(" ")} />
         </div>
+      </div>
       </div>
     </div>
   );
