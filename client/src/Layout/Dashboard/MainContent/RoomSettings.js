@@ -4,8 +4,6 @@ import { RadioBtn } from "../../../Components/";
 class RoomSettings extends Component {
   toggleCreateTabs = event => {
     let { roomId, settings } = this.props;
-    console.log(event);
-    console.log("setting toggled");
     let updatedSettings = { ...settings };
     updatedSettings.participantsCanCreateTabs = !settings.participantsCanCreateTabs;
     this.props.updateRoom(roomId, { settings: updatedSettings });

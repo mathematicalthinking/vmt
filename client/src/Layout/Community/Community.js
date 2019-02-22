@@ -20,7 +20,6 @@ class Community extends Component {
       toggleFilter
     } = this.props;
 
-    console.log("FILTERS ", filters);
     return (
       <div className={classes.Container}>
         <div className={classes.Header}>

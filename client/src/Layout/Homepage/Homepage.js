@@ -91,7 +91,7 @@ class Homepage extends PureComponent {
               <div className={classes.Error}>{this.state.error}</div>
             ) : null}
             <p className={classes.Blurb}>
-              Collaborative Workspaces for Exploring the World of Math. NEW
+              Collaborative Workspaces for Exploring the World of Math. NEWEST
               CONTENT!
             </p>
             <Button theme={"Big"} click={this.createRoom} m={35}>

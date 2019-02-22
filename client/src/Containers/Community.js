@@ -58,7 +58,6 @@ class Community extends Component {
   fetchData = (resource, concat) => {
     let { criteria, skip, filters } = this.state;
     API.searchPaginated(resource, criteria, skip, filters).then(res => {
-      console.log(res.data.results.length, SKIP_VALUE);
       if (res.data.results.length < SKIP_VALUE) {
         if (concat) {
           this.setState(prevState => ({
