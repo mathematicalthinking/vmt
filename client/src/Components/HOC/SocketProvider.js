@@ -18,14 +18,20 @@ import {
 
 class SocketProvider extends Component {
   state = {
-    initializedCount: 0
+    initializedCount: 0,
+    socketId: socket.id
   };
   componentDidMount() {
+    console.log(this.state.socketId);
     if (this.props.user.loggedIn) {
+      console.log(socket._callbacks);
       // console.log(socket._callbacks)
-      socket.removeAllListeners();
-      // console.log(socket._callbacks)
-      this.initializeListeners();
+      socket.on("connect", () => {
+        console.log("will this ever fire");
+        console.log(socket.id);
+        this.setState({ socketId: socket.id });
+        this.initializeListeners();
+      });
     }
   }
 
@@ -37,12 +43,13 @@ class SocketProvider extends Component {
 
   componentDidUpdate(prevProps) {
     if (!prevProps.user.loggedIn && this.props.user.loggedIn) {
-      socket.removeAllListeners();
+      // socket.removeAllListeners();
       this.initializeListeners();
     }
   }
 
   initializeListeners() {
+    socket.removeAllListeners();
     this.setState({ initializedCount: this.state.initializedCount + 1 });
     let { socketId, _id } = this.props.user;
     socket.emit("CHECK_SOCKET", { socketId, _id }, (res, err) => {
@@ -93,6 +100,15 @@ class SocketProvider extends Component {
     });
 
     socket.on("reconnect", attemptNumber => {
+      socket.emit("CHECK_SOCKET", { socketId, _id }, (res, err) => {
+        if (err) {
+          //something went wrong updatnig user socket
+          // HOW SHOULD WE HANDLE THIS @TODO
+          return;
+        }
+        console.log(socketId, _id);
+      });
+      console.log("socketID after recoonect = ", socket.id);
       // console.log('reconnected after ', attemptNumber, ' attempts')
       // MAYBE FETCH THE USER TO GET MISSING NOTIFICATIONS AND THE LIKE
       this.props.getUser(this.props.user._id);

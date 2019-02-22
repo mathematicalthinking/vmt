@@ -9,7 +9,7 @@ This guide will be organized into N parts. Part 1 details the project structure.
 
 ### Overview
 
-This application is built with Node/Express/MongoDb on tha backend and React/Redux on the front end. All Frontend or client-side code resides in the client directory. The rest of the root level directory is devoted to the server.
+This application is built with Node/Express/MongoDb on tha backend and React/Redux on the front end. All Frontend or client-side code resides in the client directory. The rest of the root irectory is devoted to the server.
 
 ### Backend
 
@@ -18,7 +18,7 @@ middleware. You shouldn't need to touch this file at all unless adding new route
 
 #### 📁 Routes
 
-The routes direcotry is broken down into two main routes **auth** and **api** (you'll notice there is also a desmos route, this is just used for getting the graph data of a desmos link and should not need to be altered).
+The routes directory is broken down into two main routes **auth** and **api** (you'll notice there is also a desmos route, this is just used for getting the graph data of a desmos link and should not need to be altered).
 
 2. **API**
    There is a single API routing file for the entire application. Every route takes a param called `/:resource` which tells the route which controller to use. e.g.
