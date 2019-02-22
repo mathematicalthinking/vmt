@@ -19,7 +19,6 @@ class Tabs extends Component {
       createNewTab,
       participantCanCreate
     } = this.props;
-    console.log(participantCanCreate);
     let tabEls = tabs.map((tab, i) => (
       <div
         key={tab._id}

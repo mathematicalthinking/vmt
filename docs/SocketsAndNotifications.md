@@ -14,12 +14,14 @@ For a full list of socket events see
 
 On the client side we follow a similar approach to make the `socket` object accessible from anywhere in the app. In `./src/utils/sockets.js` For the initilization we just determine the url of the server based on `NODE_ENV` and then export the result of `io.connect(URL)` i.e. the socket object.
 
-WHERE SHOULD WE SET UP THE LISTENERS...THEY NEED TO BE ABLE TO DISPATCH ACTIONS TO THE REDUX STORE...We could do this from outside of the react app ?? however I think it makes more sense to do it from within for consistency if nothing else.
-
-### Using socket.id to send notifications
+In App.js you'll see that the entire App is wrapped in `<SocketProvider>` While this isn't a true higher order component (because it does not inject props into its children) we need a place to communicate with the redux store when notifications come in or our socket status changes. We could technically do this outside of the React component tree, but for consistency I think it makes sense to follow the update pattern used in the rest of the app.
 
 ### Keeping `socket.id` and `user._id` in sync
+
+When a user arrives at VMT a socket connection is immediately established (in `src/utils/sockets.js`). In `src/components/HOC/SocketProvider` we check if the user is logged in, and if they are, we emit a "SYNC_SOCKET" event and establish our socket listeners. "SYNC_SOCKET" takes the userId and the socketId and sends them to the backend where the socketId can be stored on the user model. Every time the socket connects, reconnects, or the user logs in, we emit "SYNC_SOCKET". Thus, if a notification comes in, we can check the user it is for, and if they have a socketId, we emit the notification to that socketId so they receive the notification immediately.
 
 ## Notifications
 
 Notifications are used to alert users about membership in rooms in courses. For example, when user A requests access to a room. The owner of that room (user B) will get a notification describing that request. If they grant access to user A they will get a notification saying they've been add to the room.
+
+### Using socket.id to send notifications
