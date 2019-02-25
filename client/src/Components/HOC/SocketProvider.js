@@ -22,16 +22,19 @@ class SocketProvider extends Component {
   };
   componentDidMount() {
     if (this.props.user.loggedIn) {
+      this.props.getUser(this.props.user._id);
       // console.log(socket._callbacks)
       socket.on("connect", () => {
         let userId = this.props.user._id;
         let socketId = socket.id;
+        console.log("synching socket");
         socket.emit("SYNC_SOCKET", { socketId, userId }, (res, err) => {
           if (err) {
             //something went wrong updatnig user socket
             // HOW SHOULD WE HANDLE THIS @TODO
             return;
           }
+          console.log(res);
           this.props.updateUser({ connected: true });
         });
         this.initializeListeners();
