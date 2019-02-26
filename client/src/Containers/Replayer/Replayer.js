@@ -260,7 +260,6 @@ class Replayer extends Component {
   };
 
   render() {
-    console.log(this.state.logIndex);
     let replayer = (
       <ReplayerControls
         playing={this.state.playing}

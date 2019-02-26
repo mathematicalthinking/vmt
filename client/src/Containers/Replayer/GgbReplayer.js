@@ -26,28 +26,24 @@ class GgbReplayer extends Component {
     // this.setState({loading: false})
   }
 
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   return nextProps.inView;
-  //   // if (this.props.index !== nextProps.index || this.state.loading !== nextState.loading) {
-  //   //   return true;
-  //   // }
-  //   // else if (this.props.currentTab !== nextProps.currentTab) {
-  //   //   return true;
-  //   // }
-  //   // return false;
-  // }
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.state.loading && !nextState.loading) {
+      return true;
+    } else if (this.props.inView) {
+      return this.props.index !== nextProps.index;
+    } else return false;
+  }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log(prevProps.index, this.props.index);
     let { log, index, changingIndex } = this.props;
     if (!prevProps.inView && this.props.inView) {
       this.updateDimensions();
     }
     if (this.props.inView) {
       if (changingIndex && prevProps.index !== index) {
+        console.log("applying multuple events");
         this.applyMultipleEvents(prevProps.index, index);
-      }
-      if (
+      } else if (
         prevProps.index !== index &&
         !this.state.loading &&
         (log[index].event || log[index].eventArray)
@@ -70,12 +66,14 @@ class GgbReplayer extends Component {
   }
 
   applyMultipleEvents(startIndex, endIndex) {
+    console.log("start: ", startIndex, " end: ", endIndex);
+    let skipping = true;
     console.log("applying multiple events");
     // this.ggbApplet.setRepaintingActive(false); // THIS DOES NOT SEEM TO BE WORKING
     // Forwards through time
     if (startIndex < endIndex) {
-      for (let i = startIndex + 1; i < endIndex; i++) {
-        this.constructEvent(this.props.log[i]);
+      for (let i = startIndex; i <= endIndex; i++) {
+        this.constructEvent(this.props.log[i], false, skipping);
       }
     }
     // backwards through time
@@ -90,7 +88,7 @@ class GgbReplayer extends Component {
           syntheticEvent.eventType = "BATCH_REMOVE";
         }
         let backwards = true;
-        this.constructEvent(syntheticEvent, backwards);
+        this.constructEvent(syntheticEvent, backwards, skipping);
       }
     }
     // for (let i = prevProps.index; i >= index + 1; i--) {
@@ -107,8 +105,8 @@ class GgbReplayer extends Component {
     // this.ggbApplet.setRepaintingActive(true);
   }
 
-  constructEvent(data, backwards) {
-    console.log("constructing event: ", data);
+  constructEvent(data, backwards, skipping) {
+    console.log("skipping: ", skipping);
     switch (data.eventType) {
       case "ADD":
         if (data.definition) {
@@ -131,7 +129,8 @@ class GgbReplayer extends Component {
           [...data.eventArray],
           data.batchSize,
           false,
-          backwards
+          backwards,
+          skipping
         );
         break;
       case "BATCH_ADD":
@@ -156,27 +155,37 @@ class GgbReplayer extends Component {
    * @param  {Number} noOfPoints - the batch size, i.e., number of points in the shape
    * @param  {Boolean} adding - true if BATCH_ADD false if BATCH_UPDATE
    * @param  {Boolean} backwards - true if skipping back in timeline
+   * @param {Boolean} Skipping - true if the user is dragging
+   *
    */
-  recursiveUpdate(events, noOfPoints, adding, backwards) {
-    console.log(noOfPoints);
+  recursiveUpdate(events, noOfPoints, adding, backwards, skipping) {
     if (events.length > 0) {
       if (adding) {
         for (let i = 0; i < events.length; i++) {
-          console.log("BATCH ADDING: ", events[i]);
           this.ggbApplet.evalCommand(events[i]);
         }
       } else {
         if (backwards) {
           events.reverse();
         }
-        this.ggbApplet.evalXML(
-          events.splice(0, noOfPoints).join("") ||
-            events.splice(0, events.length).join("")
-        );
-        this.ggbApplet.evalCommand("UpdateConstruction()");
-        setTimeout(() => {
-          this.recursiveUpdate(events, noOfPoints);
-        }, 10);
+        if (skipping) {
+          // console.log(events, noOfPoints, adding, backwards, skipping);
+          console.log(events.slice(events.length - noOfPoints, events.length));
+          this.ggbApplet.evalXML(
+            events.slice(events.length - noOfPoints, events.length)
+          );
+          return this.ggbApplet.evalCommand("UpdateConstruction()");
+        } else {
+          console.log("should not be here");
+          this.ggbApplet.evalXML(
+            events.splice(0, noOfPoints).join("") ||
+              events.splice(0, events.length).join("")
+          );
+          this.ggbApplet.evalCommand("UpdateConstruction()");
+          setTimeout(() => {
+            this.recursiveUpdate(events, noOfPoints, null);
+          }, 10);
+        }
       }
     } else {
       return;
