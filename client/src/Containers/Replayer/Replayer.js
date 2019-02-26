@@ -195,7 +195,8 @@ class Replayer extends Component {
   };
 
   // Takes a % of total progress and goes to the nearest timestamp
-  goToTime = throttle(percent => {
+  goToTime = percent => {
+    console.log(this.state.logIndex);
     let logIndex;
     let timeElapsed = percent * this.relativeDuration;
     if (percent === 1) {
@@ -217,6 +218,7 @@ class Replayer extends Component {
         currentTab = i;
       }
     });
+    console.log(logIndex);
     this.setState({
       timeElapsed,
       logIndex,
@@ -225,7 +227,7 @@ class Replayer extends Component {
       changingIndex: true
     });
     // setTimeout(() => this.setState({playing:}))
-  }, 70);
+  };
 
   pausePlay = () => {
     this.setState(prevState => ({
@@ -258,6 +260,7 @@ class Replayer extends Component {
   };
 
   render() {
+    console.log(this.state.logIndex);
     let replayer = (
       <ReplayerControls
         playing={this.state.playing}

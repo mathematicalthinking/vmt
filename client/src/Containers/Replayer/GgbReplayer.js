@@ -38,6 +38,7 @@ class GgbReplayer extends Component {
   // }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log(prevProps.index, this.props.index);
     let { log, index, changingIndex } = this.props;
     if (!prevProps.inView && this.props.inView) {
       this.updateDimensions();
@@ -73,7 +74,7 @@ class GgbReplayer extends Component {
     // this.ggbApplet.setRepaintingActive(false); // THIS DOES NOT SEEM TO BE WORKING
     // Forwards through time
     if (startIndex < endIndex) {
-      for (let i = startIndex; i <= endIndex; i++) {
+      for (let i = startIndex + 1; i < endIndex; i++) {
         this.constructEvent(this.props.log[i]);
       }
     }
@@ -85,8 +86,11 @@ class GgbReplayer extends Component {
           syntheticEvent.eventType = "REMOVE";
         } else if (syntheticEvent.eventType === "REMOVE") {
           syntheticEvent.eventType = "ADD";
+        } else if (syntheticEvent.eventType === "BATCH_ADD") {
+          syntheticEvent.eventType = "BATCH_REMOVE";
         }
-        this.constructEvent(syntheticEvent);
+        let backwards = true;
+        this.constructEvent(syntheticEvent, backwards);
       }
     }
     // for (let i = prevProps.index; i >= index + 1; i--) {
@@ -103,8 +107,8 @@ class GgbReplayer extends Component {
     // this.ggbApplet.setRepaintingActive(true);
   }
 
-  constructEvent(data) {
-    console.log("constructing event");
+  constructEvent(data, backwards) {
+    console.log("constructing event: ", data);
     switch (data.eventType) {
       case "ADD":
         if (data.definition) {
@@ -123,11 +127,21 @@ class GgbReplayer extends Component {
         break;
       case "BATCH_UPDATE":
         console.log("batchupdating");
-        this.recursiveUpdate(data.eventArray, data.batchSize);
+        this.recursiveUpdate(
+          [...data.eventArray],
+          data.batchSize,
+          false,
+          backwards
+        );
         break;
       case "BATCH_ADD":
-        this.recursiveUpdate(data.eventArray, 1, true);
-        // }
+        this.recursiveUpdate([...data.eventArray], 1, true);
+        break;
+      // }
+      case "BATCH_REMOVE":
+        data.eventArray.forEach(event =>
+          this.ggbApplet.deleteObject(event.slice(0, event.indexOf(":")))
+        );
         break;
       default:
         break;
@@ -138,12 +152,12 @@ class GgbReplayer extends Component {
    * @method recursiveUpdate
    * @description takes an array of events and updates the construction in batches
    * used to make drag updates and multipoint shape creation more efficient. See ./docs/Geogebra
-   * Note that this is copy-pasted in GgbGraph for now, consider abstracting
    * @param  {Array} events - array of ggb xml events
    * @param  {Number} noOfPoints - the batch size, i.e., number of points in the shape
    * @param  {Boolean} adding - true if BATCH_ADD false if BATCH_UPDATE
+   * @param  {Boolean} backwards - true if skipping back in timeline
    */
-  recursiveUpdate(events, noOfPoints, adding) {
+  recursiveUpdate(events, noOfPoints, adding, backwards) {
     console.log(noOfPoints);
     if (events.length > 0) {
       if (adding) {
@@ -152,6 +166,9 @@ class GgbReplayer extends Component {
           this.ggbApplet.evalCommand(events[i]);
         }
       } else {
+        if (backwards) {
+          events.reverse();
+        }
         this.ggbApplet.evalXML(
           events.splice(0, noOfPoints).join("") ||
             events.splice(0, events.length).join("")
