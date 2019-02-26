@@ -50,6 +50,7 @@ class GgbGraph extends Component {
       this.setState({ receivingData: true }, () => {
         // If this happend on the current tab
         if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
+          // @TODO consider abstracting out...resued in the GgbReplayer
           switch (data.eventType) {
             case "ADD":
               if (data.definition) {
@@ -76,6 +77,8 @@ class GgbGraph extends Component {
               break;
             case "BATCH_ADD":
               if (data.definition) {
+                console.log(data);
+                console.log(typeof data.event);
                 this.recursiveUpdate(data.event, 1, true);
               }
               break;
@@ -95,6 +98,7 @@ class GgbGraph extends Component {
    * @method recursiveUpdate
    * @description takes an array of events and updates the construction in batches
    * used to make drag updates and multipoint shape creation more efficient. See ./docs/Geogebra
+   * Note that this is copy-pasted in GgbReplayer for now, consider abstracting
    * @param  {Array} events - array of ggb xml events
    * @param  {Number} noOfPoints - the batch size, i.e., number of points in the shape
    * @param  {Boolean} adding - true if BATCH_ADD false if BATCH_UPDATE

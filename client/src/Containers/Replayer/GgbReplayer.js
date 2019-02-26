@@ -49,7 +49,7 @@ class GgbReplayer extends Component {
       if (
         prevProps.index !== index &&
         !this.state.loading &&
-        log[index].event
+        (log[index].event || log[index].eventArray)
       ) {
         // check if the tab has changed
         this.constructEvent(log[index]);
@@ -104,7 +104,7 @@ class GgbReplayer extends Component {
   }
 
   constructEvent(data) {
-    console.log("constructing event: ", data);
+    console.log("constructing event");
     switch (data.eventType) {
       case "ADD":
         if (data.definition) {
@@ -121,14 +121,48 @@ class GgbReplayer extends Component {
         this.ggbApplet.evalXML(data.event);
         this.ggbApplet.evalCommand("UpdateConstruction()");
         break;
+      case "BATCH_UPDATE":
+        console.log("batchupdating");
+        this.recursiveUpdate(data.eventArray, data.batchSize);
+        break;
       case "BATCH_ADD":
-        if (data.definition) {
-          console.log(data.definition);
-          // this.recursiveUpdate(event, 1, true);
-        }
+        this.recursiveUpdate(data.eventArray, 1, true);
+        // }
         break;
       default:
         break;
+    }
+  }
+
+  /**
+   * @method recursiveUpdate
+   * @description takes an array of events and updates the construction in batches
+   * used to make drag updates and multipoint shape creation more efficient. See ./docs/Geogebra
+   * Note that this is copy-pasted in GgbGraph for now, consider abstracting
+   * @param  {Array} events - array of ggb xml events
+   * @param  {Number} noOfPoints - the batch size, i.e., number of points in the shape
+   * @param  {Boolean} adding - true if BATCH_ADD false if BATCH_UPDATE
+   */
+  recursiveUpdate(events, noOfPoints, adding) {
+    console.log(noOfPoints);
+    if (events.length > 0) {
+      if (adding) {
+        for (let i = 0; i < events.length; i++) {
+          console.log("BATCH ADDING: ", events[i]);
+          this.ggbApplet.evalCommand(events[i]);
+        }
+      } else {
+        this.ggbApplet.evalXML(
+          events.splice(0, noOfPoints).join("") ||
+            events.splice(0, events.length).join("")
+        );
+        this.ggbApplet.evalCommand("UpdateConstruction()");
+        setTimeout(() => {
+          this.recursiveUpdate(events, noOfPoints);
+        }, 10);
+      }
+    } else {
+      return;
     }
   }
 
@@ -140,8 +174,8 @@ class GgbReplayer extends Component {
       // "width": 1300 * .75, // 75% width of container
       // "height": GRAPH_HEIGHT,
       // "scaleContainerClass": "graph",
-      showToolBar: true,
-      showMenuBar: true,
+      showToolBar: false,
+      showMenuBar: false,
       showAlgebraInput: true,
       language: "en",
       useBrowserForJS: true,

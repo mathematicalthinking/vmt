@@ -39,7 +39,10 @@ class Replayer extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     let { log } = this.props;
+    // Once we've fetched the room, build a log of all the events by combining all of the events from each tab
+    // in chornological order
     if (prevProps.loading && !this.props.loading) {
+      /** @todo refacotring to a for loop */
       this.log = this.props.room.tabs.reduce((acc, tab) => {
         // combine events
         return acc.concat(tab.events);
@@ -51,7 +54,7 @@ class Replayer extends Component {
         .unix(this.log[this.log.length - 1].timestamp / 1000)
         .format("MM/DD/YYYY h:mm:ss A");
       this.updatedLog = [];
-      // displayDuration = this.log.
+      /** @todo refacotring to a for loop */
       this.relativeDuration = this.log.reduce((acc, cur, idx, src) => {
         // Copy currentEvent
         let event = { ...cur };
@@ -59,6 +62,7 @@ class Replayer extends Component {
         event.relTime = acc;
         // ADD A TAB FOR EVENTS THAT DONT ALREADY HAVE THEM TO MAKE SKIPPING AROUND EASIER
         if (!event.tab) {
+          // when would we ever have an event without a tab ID ? // is this so it works with old data before we had tabs?
           if (!src[idx - 1]) {
             //IF this is the first event give it the starting tab
             event.tab = this.props.room.tabs[0]._id;
@@ -138,6 +142,7 @@ class Replayer extends Component {
   }
 
   playing = () => {
+    console.log(this.updatedLog);
     this.interval = setInterval(() => {
       let timeElapsed = this.state.timeElapsed;
       let logIndex = this.state.logIndex;
