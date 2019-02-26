@@ -204,7 +204,7 @@ class GgbGraph extends Component {
           this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
         });
       } else {
-        this.ggbApplet.setXML(INITIAL_GGB);
+        // this.ggbApplet.setXML(INITIAL_GGB);
         this.registerListeners();
       }
       if (perspective) {

@@ -26,16 +26,16 @@ class GgbReplayer extends Component {
     // this.setState({loading: false})
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return nextProps.inView;
-    // if (this.props.index !== nextProps.index || this.state.loading !== nextState.loading) {
-    //   return true;
-    // }
-    // else if (this.props.currentTab !== nextProps.currentTab) {
-    //   return true;
-    // }
-    // return false;
-  }
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   return nextProps.inView;
+  //   // if (this.props.index !== nextProps.index || this.state.loading !== nextState.loading) {
+  //   //   return true;
+  //   // }
+  //   // else if (this.props.currentTab !== nextProps.currentTab) {
+  //   //   return true;
+  //   // }
+  //   // return false;
+  // }
 
   componentDidUpdate(prevProps, prevState) {
     let { log, index, changingIndex } = this.props;
@@ -69,6 +69,7 @@ class GgbReplayer extends Component {
   }
 
   applyMultipleEvents(startIndex, endIndex) {
+    console.log("applying multiple events");
     // this.ggbApplet.setRepaintingActive(false); // THIS DOES NOT SEEM TO BE WORKING
     // Forwards through time
     if (startIndex < endIndex) {
@@ -103,14 +104,13 @@ class GgbReplayer extends Component {
   }
 
   constructEvent(data) {
+    console.log("constructing event: ", data);
     switch (data.eventType) {
       case "ADD":
-        console.log(typeof data.event);
         if (data.definition) {
-          console.log("evauluating command");
+          console.log("definitino: ", data.definition);
           this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
         }
-        console.log(data.event);
         this.ggbApplet.evalXML(data.event);
         this.ggbApplet.evalCommand("UpdateConstruction()");
         break;
@@ -140,8 +140,8 @@ class GgbReplayer extends Component {
       // "width": 1300 * .75, // 75% width of container
       // "height": GRAPH_HEIGHT,
       // "scaleContainerClass": "graph",
-      showToolBar: false,
-      showMenuBar: false,
+      showToolBar: true,
+      showMenuBar: true,
       showAlgebraInput: true,
       language: "en",
       useBrowserForJS: true,
@@ -156,26 +156,17 @@ class GgbReplayer extends Component {
 
   initializeGgb = () => {
     this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
-    this.ggbApplet.setMode(40);
+    this.setState({ loading: false });
+    this.ggbApplet.setMode(40); // Sets the tool to zoom
     let { tab } = this.props;
-    let { startingPoint, ggbFile } = tab;
+    let { currentState, startingPoint, ggbFile, perspective } = tab;
     // put the current construction on the graph, disable everything until the user takes control
+    if (perspective) this.ggbApplet.setPerspective(perspective);
     if (startingPoint) {
-      this.ggbApplet.setXML(startingPoint);
+      this.ggbApplet.setXML(currentState);
     } else if (ggbFile) {
       this.ggbApplet.setBase64(ggbFile);
     }
-    // let xmlContext = this.ggbApplet.getXML()
-    // xmlContext = xmlContext.slice(0, xmlContext.length - 27) // THIS IS HACKY BUT ????
-    // console.log(xmlContext)
-    this.updateDimensions();
-    this.setState(
-      {
-        // xmlContext,
-        loading: false
-      },
-      () => console.log("success")
-    );
   };
 
   // This method is for when we're skipping forward or backward and, rather than apply each event
