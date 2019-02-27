@@ -73,12 +73,12 @@ class GgbGraph extends Component {
               // this.ggbApplet.evalCommand("UpdateConstruction()");
               break;
             case "BATCH_UPDATE":
-              this.recursiveUpdate(data.event, data.noOfPoints);
+              this.ggbApplet.evalXML(data.event);
+              this.ggbApplet.evalCommand("UpdateConstruction()");
+              // this.recursiveUpdate(data.event, data.noOfPoints);
               break;
             case "BATCH_ADD":
               if (data.definition) {
-                console.log(data);
-                console.log(typeof data.event);
                 this.recursiveUpdate(data.event, 1, true);
               }
               break;
@@ -304,6 +304,35 @@ class GgbGraph extends Component {
     this.registerListeners();
   };
 
+  // Used to listen for dragging of shapes
+  clientListener = event => {
+    let updatingOn;
+    switch (event[0]) {
+      case "movingGeos":
+        // console.log("movingGeos", event);
+        // do nothing until movedGeos event is received
+        updatingOn = false;
+        break;
+
+      case "movedGeos":
+        // console.log("movedGeos", event);
+
+        let xml = "";
+        for (var i = 1; i < event.length; i++) {
+          xml += this.ggbApplet.getXML(event[i]);
+        }
+
+        console.log("batch send, ", event);
+        // ***send XML here***
+        this.sendEvent(xml, null, null, "BATCH_UPDATE", "moved");
+        // reenable update events
+        updatingOn = true;
+        break;
+      default:
+        break;
+    }
+  };
+
   addListener = label => {
     if (!this.state.receivingData) {
       let xml = this.ggbApplet.getXML(label);
@@ -362,18 +391,19 @@ class GgbGraph extends Component {
     );
   };
 
-  registerListeners() {
-    if (this.ggbApplet.listeners.length > 0) {
-      this.ggbApplet.unregisterAddListener(this.addListener);
-      this.ggbApplet.unregisterUpdateListener(this.updateListener);
-      this.ggbApplet.unregisterRemoveListener(this.eventListener);
-      this.ggbApplet.unregisterClearListener(this.clearListener);
-    }
+  registerListeners = () => {
+    this.ggbApplet.registerClientListener(this.clientListener);
+    // if (this.ggbApplet.listeners.length > 0) {
+    //   this.ggbApplet.unregisterAddListener(this.addListener);
+    //   this.ggbApplet.unregisterUpdateListener(this.updateListener);
+    //   this.ggbApplet.unregisterRemoveListener(this.eventListener);
+    //   this.ggbApplet.unregisterClearListener(this.clearListener);
+    // }
     this.ggbApplet.registerAddListener(this.addListener);
-    this.ggbApplet.registerClickListener(this.clickListener);
+    // this.ggbApplet.registerClickListener(this.clickListener);
     this.ggbApplet.registerUpdateListener(this.updateListener);
     this.ggbApplet.registerRemoveListener(this.removeListener);
-  }
+  };
   /**
    * @method sendEvnet
    * @description emits the geogebra event over the socket. Creates a buffer for multi-part events
@@ -385,66 +415,71 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action) => {
-    if (!this.firstLabel) {
-      this.firstLabel = label;
+    // if (!this.firstLabel) {
+    //   this.firstLabel = label;
+    // }
+    // if (this.timer) {
+    //   if (label !== this.firstLabel && action === "updated") {
+    //     this.pointCounter++;
+    //   } else if (label === this.firstLabel && !this.noOfPoints) {
+    //     this.noOfPoints = this.pointCounter;
+    //   }
+    //   clearTimeout(this.timer);
+    // }
+
+    // this.eventQueue.push(action === "updated" ? xml : `${label}:${definition}`);
+    if (
+      !this.props.user.connected ||
+      this.props.room.controlledBy !== this.props.user._id
+    ) {
+      // @TODO HAVING TROUBLE GETTING ACTIONS TO UNDO
+      alert(
+        "You are not in control. The update you just made will not be saved. Please refresh the page"
+      );
+      this.ggbApplet.undo();
+      return;
     }
-    if (this.timer) {
-      if (label !== this.firstLabel && action === "updated") {
-        this.pointCounter++;
-      } else if (label === this.firstLabel && !this.noOfPoints) {
-        this.noOfPoints = this.pointCounter;
-      }
-      clearTimeout(this.timer);
+
+    let newData = {
+      definition,
+      label,
+      eventType,
+      action,
+      room: this.props.room._id,
+      tab: this.props.room.tabs[this.props.currentTab]._id,
+      event: xml,
+      user: { _id: this.props.user._id, username: this.props.user.username },
+      timestamp: new Date().getTime(),
+      currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
+      mode: this.ggbApplet.getMode()
+    };
+
+    let updatedTabs = [...this.props.room.tabs];
+    let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
+
+    if (eventType === "CHANGE_PERSPECTIVE") {
+      updatedTab.perspective = xml;
     }
-    this.eventQueue.push(action === "updated" ? xml : `${label}:${definition}`);
-    this.timer = setTimeout(() => {
-      if (
-        !this.props.user.connected ||
-        this.props.room.controlledBy !== this.props.user._id
-      ) {
-        // @TODO HAVING TROUBLE GETTING ACTIONS TO UNDO
-        alert(
-          "You are not in control. The update you just made will not be saved. Please refresh the page"
-        );
-        this.ggbApplet.undo();
-        return;
-      }
-      let newData = {
-        definition,
-        label,
-        eventType,
-        action,
-        room: this.props.room._id,
-        tab: this.props.room.tabs[this.props.currentTab]._id,
-        event: xml,
-        user: { _id: this.props.user._id, username: this.props.user.username },
-        timestamp: new Date().getTime(),
-        currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
-        mode: this.ggbApplet.getMode()
-      };
-      // throttle(() => {
-      let updatedTabs = [...this.props.room.tabs];
-      let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
-      if (eventType === "CHANGE_PERSPECTIVE") {
-        updatedTab.perspective = xml;
-      }
-      updatedTab.currentState = newData.currentState;
-      updatedTabs[this.props.currentTab] = updatedTab;
-      this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-      if (this.eventQueue.length > 1) {
-        newData.event = this.eventQueue;
-        newData.eventType = action === "updated" ? "BATCH_UPDATE" : "BATCH_ADD";
-        newData.noOfPoints = this.noOfPoints;
-      }
-      this.firstLabel = null;
-      this.pointCounter = 1;
-      this.noOfPoints = null;
-      this.eventQueue = [];
-      this.timer = null;
-      socket.emit("SEND_EVENT", newData);
-      // reset tracking variables
-      // this.props.resetControlTimer();
-    }, 110);
+
+    updatedTab.currentState = newData.currentState;
+    updatedTabs[this.props.currentTab] = updatedTab;
+    this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
+
+    if (this.eventQueue.length > 1) {
+      newData.event = this.eventQueue;
+      newData.eventType = action === "updated" ? "BATCH_UPDATE" : "BATCH_ADD";
+      newData.noOfPoints = this.noOfPoints;
+    }
+
+    this.firstLabel = null;
+    this.pointCounter = 1;
+    this.noOfPoints = null;
+    this.eventQueue = [];
+    this.timer = null;
+
+    socket.emit("SEND_EVENT", newData);
+    // reset tracking variables
+    // this.props.resetControlTimer();
   };
 
   /**
