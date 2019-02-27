@@ -34,6 +34,7 @@ class GgbGraph extends Component {
   firstLabel;
   pointCounter = 1;
   noOfPoints;
+  updatingOn = true;
 
   componentDidMount() {
     // window.addEventListener('click', this.clickListener)
@@ -95,41 +96,18 @@ class GgbGraph extends Component {
   }
 
   /**
-   * @method recursiveUpdate
-   * @description takes an array of events and updates the construction in batches
-   * used to make drag updates and multipoint shape creation more efficient. See ./docs/Geogebra
-   * Note that this is copy-pasted in GgbReplayer for now, consider abstracting
-   * @param  {Array} events - array of ggb xml events
-   * @param  {Number} noOfPoints - the batch size, i.e., number of points in the shape
-   * @param  {Boolean} adding - true if BATCH_ADD false if BATCH_UPDATE
+   * @method componentDidUpdate
+   * @description - determines what should happen when props update
+   * and initializes socket event listeners
+   * @param  {Object} prevProps - previous props before update
    */
-  recursiveUpdate(events, noOfPoints, adding) {
-    if (events.length > 0) {
-      if (adding) {
-        for (let i = 0; i < events.length; i++) {
-          this.ggbApplet.evalCommand(events[i]);
-        }
-      } else {
-        this.ggbApplet.evalXML(
-          events.splice(0, noOfPoints).join("") ||
-            events.splice(0, events.length).join("")
-        );
-        this.ggbApplet.evalCommand("UpdateConstruction()");
-        setTimeout(() => {
-          this.recursiveUpdate(events, noOfPoints);
-        }, 10);
-      }
-    } else {
-      return;
-    }
-  }
-
   async componentDidUpdate(prevProps) {
     if (!this.ggbApplet) return;
     let { room, role } = this.props;
     let wasInControl = prevProps.room.controlledBy === this.props.user._id;
     let isInControl = this.props.room.controlledBy === this.props.user._id;
     let isSomeoneElseInControl = this.props.room.controlledBy && !isInControl;
+
     if (!wasInControl && isInControl) {
       this.setState({ switchingControl: true }, () => {
         if (this.ggbApplet) {
@@ -306,28 +284,25 @@ class GgbGraph extends Component {
 
   // Used to listen for dragging of shapes
   clientListener = event => {
-    let updatingOn;
     switch (event[0]) {
       case "movingGeos":
-        // console.log("movingGeos", event);
-        // do nothing until movedGeos event is received
-        updatingOn = false;
+        this.updatingOn = false; // turn of updating so the updateListener does not send events
         break;
 
       case "movedGeos":
-        // console.log("movedGeos", event);
+        this.updatingOn = false;
 
+        // combine xml into one event
         let xml = "";
+
         for (var i = 1; i < event.length; i++) {
           xml += this.ggbApplet.getXML(event[i]);
         }
 
-        console.log("batch send, ", event);
-        // ***send XML here***
-        this.sendEvent(xml, null, null, "BATCH_UPDATE", "moved");
-        // reenable update events
-        updatingOn = true;
+        this.sendEvent(xml, null, null, "UPDATE", "moved");
+        this.updatingOn = true;
         break;
+
       default:
         break;
     }
@@ -350,18 +325,21 @@ class GgbGraph extends Component {
   };
 
   updateListener = label => {
+    let independent = this.ggbApplet.isIndependent(label);
+    let moveable = this.ggbApplet.isMoveable(label);
     let isInControl = this.props.room.controlledBy === this.props.user._id;
-    if (!isInControl || this.state.switchingControl) {
+
+    if ((!independent && !moveable) || !this.updatingOn || !isInControl) {
       return;
     } else if (!this.state.receivingData) {
       let xml = this.ggbApplet.getXML(label);
       this.sendEvent(xml, null, label, "UPDATE", "updated");
     }
+
     this.setState({ receivingData: false });
-    // this.ggbApplet.evalCommand("updateConstruction()")
   };
 
-  // Used to capture referencing
+  // Used to capture object when referencing
   clickListener = async element => {
     // console.log("CLICKED", this.ggbApplet.getXML())
     if (this.props.referencing) {
@@ -415,26 +393,12 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action) => {
-    // if (!this.firstLabel) {
-    //   this.firstLabel = label;
-    // }
-    // if (this.timer) {
-    //   if (label !== this.firstLabel && action === "updated") {
-    //     this.pointCounter++;
-    //   } else if (label === this.firstLabel && !this.noOfPoints) {
-    //     this.noOfPoints = this.pointCounter;
-    //   }
-    //   clearTimeout(this.timer);
-    // }
-
-    // this.eventQueue.push(action === "updated" ? xml : `${label}:${definition}`);
     if (
       !this.props.user.connected ||
       this.props.room.controlledBy !== this.props.user._id
     ) {
-      // @TODO HAVING TROUBLE GETTING ACTIONS TO UNDO
       alert(
-        "You are not in control. The update you just made will not be saved. Please refresh the page"
+        "You are not in control. The update you just made will not be saved"
       );
       this.ggbApplet.undo();
       return;
@@ -478,8 +442,6 @@ class GgbGraph extends Component {
     this.timer = null;
 
     socket.emit("SEND_EVENT", newData);
-    // reset tracking variables
-    // this.props.resetControlTimer();
   };
 
   /**
