@@ -110,11 +110,15 @@ class GgbGraph extends Component {
 
     if (!wasInControl && isInControl) {
       this.setState({ switchingControl: true }, () => {
+        console.log("SWITRHICNG CONTROL???");
         if (this.ggbApplet) {
-          this.ggbApplet.setMode(0);
+          // this.ggbApplet.setMode(0);
           // im not really sure what this does we seem to get the same menu whether we specify all these numbers or not...but it was breaking the hamburger menu to do so
           // this.ggbApplet.showToolBar("0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6")
-          this.ggbApplet.showMenuBar(true);
+          // this.ggbApplet.showMenuBar(triue);
+          console.log("showing tool bar");
+          // this.ggbApplet.showToolBar(true);
+          // this.ggbApplet.showMenuBar(true);
         }
         // setTimeout(() => {
         this.setState({ switchingControl: false }, () => {
@@ -132,10 +136,11 @@ class GgbGraph extends Component {
         }
       });
     } else if ((wasInControl && !isInControl) || isSomeoneElseInControl) {
+      console.log("ceding control");
       this.ggbApplet.showToolBar(false);
       this.ggbApplet.showMenuBar(false);
-      this.ggbApplet.setMode(40);
-      this.freezeElements(true);
+      // this.ggbApplet.setMode(40);
+      // this.freezeElements(true);
       // this.setState({inControl: false})
     } else if (!prevProps.referencing && this.props.referencing) {
       this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements
@@ -173,11 +178,6 @@ class GgbGraph extends Component {
         this.registerListeners();
       } else if (ggbFile) {
         this.ggbApplet.setBase64(ggbFile, () => {
-          if (this.isInControl) {
-            this.ggbApplet.showToolBar(true);
-          } else {
-            this.ggbApplet.showToolBar(false);
-          }
           let updatedTabs = [...this.props.room.tabs];
           let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
           updatedTab.currentState = this.ggbApplet.getXML();
@@ -189,9 +189,9 @@ class GgbGraph extends Component {
         // this.ggbApplet.setXML(INITIAL_GGB);
         this.registerListeners();
       }
-      if (perspective) {
-        this.ggbApplet.setPerspective(perspective);
-      }
+      // if (perspective) {
+      //   this.ggbApplet.setPerspective(perspective);
+      // }
     }
   }
 
@@ -223,9 +223,9 @@ class GgbGraph extends Component {
     const parameters = {
       id: "ggbApplet",
       // "scaleContainerClasse": "graph",
-      // customToolBar:
-      //   "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
-      showToolBar: false,
+      customToolBar:
+        "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
+      showToolBar: true,
       showMenuBar: false,
       showAlgebraInput: true,
       language: "en",
@@ -233,11 +233,12 @@ class GgbGraph extends Component {
       borderColor: "#ddd",
       buttonShadows: true,
       preventFocus: true,
+      showLogging: false,
       appletOnLoad: this.initializeGgb,
-      appName: "3D Graphics"
+      appName: "geometry"
     };
 
-    const ggbApp = new window.GGBApplet(parameters, "5.0");
+    const ggbApp = new window.GGBApplet(parameters, "6.0");
     ggbApp.inject("ggb-element");
   };
 
@@ -247,7 +248,8 @@ class GgbGraph extends Component {
       this.ggbApplet.unregisterAddListener(this.addListener);
       this.ggbApplet.unregisterUpdateListener();
       this.ggbApplet.unregisterRemoveListener(this.eventListener);
-      // this.ggbApplet.unregisterClearListener(this.clearListener);
+      this.ggbApplet.unregisterClearListener(this.clearListener);
+      this.ggbApplet.unregisterClientListener(this.clientListener);
       // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
     }
     // if (!this.props.tempRoom) {
@@ -266,17 +268,17 @@ class GgbGraph extends Component {
       currentTab
     ];
     // put the current construction on the graph, disable everything until the user takes control
-    if (perspective) this.ggbApplet.setPerspective(perspective);
+    // if (perspective) this.ggbApplet.setPerspective(perspective);
     if (room.settings.participantsCanChangePerspective) {
       initPerspectiveListener(document, perspective, this.perspectiveChanged);
     }
-    if (currentState) {
-      this.ggbApplet.setXML(currentState);
-    } else if (startingPoint) {
-      this.ggbApplet.setXML(startingPoint);
-    } else if (ggbFile) {
-      this.ggbApplet.setBase64(ggbFile);
-    }
+    // if (currentState) {
+    //   this.ggbApplet.setXML(currentState);
+    // } else if (startingPoint) {
+    //   this.ggbApplet.setXML(startingPoint);
+    // } else if (ggbFile) {
+    //   this.ggbApplet.setBase64(ggbFile);
+    // }
     // attach this listeners to the ggbApplet
     this.freezeElements(true);
     this.registerListeners();
@@ -284,6 +286,7 @@ class GgbGraph extends Component {
 
   // Used to listen for dragging of shapes
   clientListener = event => {
+    console.log("client listener: ", event);
     switch (event[0]) {
       case "movingGeos":
         this.updatingOn = false; // turn of updating so the updateListener does not send events
@@ -309,6 +312,8 @@ class GgbGraph extends Component {
   };
 
   addListener = label => {
+    console.log("added");
+    console.log(label);
     if (!this.state.receivingData) {
       let xml = this.ggbApplet.getXML(label);
       let definition = this.ggbApplet.getCommandString(label);
@@ -325,6 +330,7 @@ class GgbGraph extends Component {
   };
 
   updateListener = label => {
+    console.log("updated");
     let independent = this.ggbApplet.isIndependent(label);
     let moveable = this.ggbApplet.isMoveable(label);
     let isInControl = this.props.room.controlledBy === this.props.user._id;
@@ -370,15 +376,16 @@ class GgbGraph extends Component {
   };
 
   registerListeners = () => {
+    if (this.ggbApplet.listeners.length > 0) {
+      this.ggbApplet.unregisterAddListener(this.addListener);
+      this.ggbApplet.unregisterUpdateListener(this.updateListener);
+      this.ggbApplet.unregisterRemoveListener(this.eventListener);
+      this.ggbApplet.unregisterClearListener(this.clearListener);
+      this.ggbApplet.unregisterClientListener(this.clientListener);
+    }
     this.ggbApplet.registerClientListener(this.clientListener);
-    // if (this.ggbApplet.listeners.length > 0) {
-    //   this.ggbApplet.unregisterAddListener(this.addListener);
-    //   this.ggbApplet.unregisterUpdateListener(this.updateListener);
-    //   this.ggbApplet.unregisterRemoveListener(this.eventListener);
-    //   this.ggbApplet.unregisterClearListener(this.clearListener);
-    // }
     this.ggbApplet.registerAddListener(this.addListener);
-    // this.ggbApplet.registerClickListener(this.clickListener);
+    this.ggbApplet.registerClickListener(this.clickListener);
     this.ggbApplet.registerUpdateListener(this.updateListener);
     this.ggbApplet.registerRemoveListener(this.removeListener);
   };

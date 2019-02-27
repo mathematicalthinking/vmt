@@ -1,0 +1,49 @@
+:import("../../../colors.css") {
+  lightestShadow: lightestShadow;
+}
+
+p {
+  margin-bottom: 6px;
+}
+
+.Container {
+  display: flex;
+  flex-flow: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.Opt {
+  display: flex;
+  flex-flow: column;
+  margin: 6px;
+  margin-top: 0;
+}
+
+.GgbIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+  height: 120px;
+  width: 120px;
+  /* background-image: linear-gradient(-180deg, #e4e4e4, lightGrey 90%); */
+  background: linear-gradient(top, #c4bec4, #8e8f90);
+  border-radius: 3px;
+  box-shadow: lightestShadow;
+}
+
+.GgbIcon:hover {
+  cursor: pointer;
+  background: linear-gradient(top, #d3d0d3, #b2b3b4);
+}
+
+.GgbIcon:active {
+}
+
+.GgbIcon > img {
+  height: 80%;
+}
+
+.OptText {
+}

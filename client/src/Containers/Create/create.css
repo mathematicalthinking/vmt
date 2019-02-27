@@ -1,4 +1,4 @@
-:import('../../colors.css') {
+:import("../../colors.css") {
   yellow: yellow;
   orange: orange;
   darkOrange: darkOrange;
@@ -130,20 +130,18 @@
   font-size: 18px;
   color: #666;
   cursor: pointer;
-  transition: .2s;
+  transition: 0.2s;
 }
 
 .BackIcon:hover {
   color: black;
 }
 
-
 .StepDisplayContainer {
   display: flex;
   width: 100%;
   justify-content: center;
 }
-
 
 .Step {
   height: 10px;
