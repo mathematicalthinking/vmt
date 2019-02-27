@@ -242,8 +242,10 @@ module.exports = function() {
       data.description = `${data.user.username} ${data.action} ${
         xmlObj && xmlObj.element ? xmlObj.element.$.type : ""
       } ${data.label}`;
-      if (typeof data.event !== "string") {
-        data.event = JSON.stringify(data.event);
+      if (Array.isArray(data.event)) {
+        data.eventArray = data.event;
+        data.batchSize = data.noOfPoints;
+        delete data.event;
       }
       try {
         let updateQuery = { currentState: data.currentState };
