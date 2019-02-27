@@ -235,7 +235,7 @@ class GgbGraph extends Component {
       preventFocus: true,
       showLogging: false,
       appletOnLoad: this.initializeGgb,
-      appName: "geometry"
+      appName: this.props.room.tabs[0].appName || "classic"
     };
 
     const ggbApp = new window.GGBApplet(parameters, "6.0");

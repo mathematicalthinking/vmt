@@ -16,7 +16,7 @@ import {
   ActivityTools
 } from "./index";
 import { WorkspaceLayout } from "../../Layout";
-import NewTabForm from "./NewTabForm";
+import NewTabForm from "../Create/NewTabForm";
 class ActivityWorkspace extends Component {
   state = {
     currentTab: 0,

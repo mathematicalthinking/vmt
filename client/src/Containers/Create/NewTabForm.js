@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import { TextInput, RadioBtn, Button } from "../../Components";
-import classes from "./graph.css";
+import RoomOpts from "./NewResource/RoomOpts";
+// import classes from "./graph.css";
 import API from "../../utils/apiRequests";
+let classes = {};
 class NewTabForm extends Component {
   state = {
     name: "",
@@ -9,7 +11,8 @@ class NewTabForm extends Component {
     tabType: "",
     ggbFile: "",
     desmosLink: "",
-    ggb: true
+    ggb: true,
+    appName: ""
   };
 
   changeHandler = event => {
@@ -58,6 +61,7 @@ class NewTabForm extends Component {
       instructions: this.state.instructions,
       tabType: this.state.ggb ? "geogebra" : "desmos",
       desmosLink: this.state.desmosLink,
+      appName: this.state.appName,
       room: this.props.room ? this.props.room._id : null,
       activity: this.props.activity ? this.props.activity._id : null
     };
@@ -157,6 +161,7 @@ class NewTabForm extends Component {
                 accept=".ggb"
                 onChange={this.setGgbFile}
               />
+              <RoomOpts ggb={true} />
             </div>
           ) : (
             <TextInput
