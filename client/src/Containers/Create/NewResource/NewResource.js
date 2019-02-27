@@ -265,7 +265,11 @@ class NewResourceContainer extends Component {
       steps.splice(
         2,
         0,
-        <RoomOpts ggb={this.state.ggb} setGgbApp={this.setGgbApp} />
+        <RoomOpts
+          ggb={this.state.ggb}
+          setGgbApp={this.setGgbApp}
+          appName={this.state.appName}
+        />
       );
     }
 

@@ -1,5 +1,6 @@
 :import("../../../colors.css") {
   lightestShadow: lightestShadow;
+  lightBlue: lightBlue;
 }
 
 p {
@@ -33,9 +34,17 @@ p {
   box-shadow: lightestShadow;
 }
 
+.Selected {
+  composes: GgbIcon;
+  background: lightBlue;
+}
+
 .GgbIcon:hover {
   cursor: pointer;
   background: linear-gradient(top, #d3d0d3, #b2b3b4);
+}
+.Selected:hover {
+  background: lightBlue;
 }
 
 .GgbIcon:active {

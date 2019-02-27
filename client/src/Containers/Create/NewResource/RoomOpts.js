@@ -26,7 +26,13 @@ class RoomOpts extends Component {
                   this.props.setGgbApp(opt.appName);
                 }}
               >
-                <div className={classes.GgbIcon}>
+                <div
+                  className={
+                    this.props.appName === opt.appName
+                      ? classes.Selected
+                      : classes.GgbIcon
+                  }
+                >
                   <img src={opt.img} alt="classic" />
                 </div>
                 <h3 className={classes.OptText}>{opt.name}</h3>
