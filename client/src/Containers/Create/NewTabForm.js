@@ -149,29 +149,17 @@ class NewTabForm extends Component {
             Desmos
           </RadioBtn>
         </div>
-        <div className={classes.ImportOption}>
-          {this.state.ggb ? (
-            <div>
-              <div className={classes.Info}>Import a GeoGebra (optional)</div>
-              <input
-                type="file"
-                id="file"
-                multiple={false}
-                name="ggbFile"
-                accept=".ggb"
-                onChange={this.setGgbFile}
-              />
-              <RoomOpts ggb={true} />
-            </div>
-          ) : (
-            <TextInput
-              light
-              name="desmosLink"
-              label="Paste a Desmos workspace"
-              change={this.changeHandler}
-            />
-          )}
-        </div>
+        <RoomOpts
+          tab
+          ggb={this.state.ggb}
+          setGgbFile={this.setGgbFile}
+          setGgbAppName={appName => this.setState({ ggbAppName: appName })}
+          desmosLink={this.state.desmosLink}
+          setDesmosLink={event =>
+            this.setState({ desmosLink: event.target.value })
+          }
+          appName={this.state.appName}
+        />
         <Button m={10} click={this.submit}>
           Create
         </Button>

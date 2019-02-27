@@ -245,9 +245,7 @@ class NewResourceContainer extends Component {
         <Step2New
           setGgb={this.setGgb}
           ggb={this.state.ggb}
-          setGgbFile={this.setGgbFile}
           changeHandler={this.changeHandler}
-          desmosLink={this.state.desmosLink}
         />
       ),
       <Step3
@@ -267,7 +265,10 @@ class NewResourceContainer extends Component {
         0,
         <RoomOpts
           ggb={this.state.ggb}
+          setGgbFile={this.setGgbFile}
           setGgbApp={this.setGgbApp}
+          desmosLink={this.state.desmosLink}
+          setDesmosLink={this.changeHandler}
           appName={this.state.appName}
         />
       );

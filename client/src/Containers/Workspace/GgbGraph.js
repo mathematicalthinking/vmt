@@ -234,6 +234,7 @@ class GgbGraph extends Component {
       buttonShadows: true,
       preventFocus: true,
       showLogging: false,
+      setErrorDialogsActive: false,
       appletOnLoad: this.initializeGgb,
       appName: this.props.room.tabs[0].appName || "classic"
     };
@@ -272,13 +273,13 @@ class GgbGraph extends Component {
     if (room.settings.participantsCanChangePerspective) {
       initPerspectiveListener(document, perspective, this.perspectiveChanged);
     }
-    // if (currentState) {
-    //   this.ggbApplet.setXML(currentState);
-    // } else if (startingPoint) {
-    //   this.ggbApplet.setXML(startingPoint);
-    // } else if (ggbFile) {
-    //   this.ggbApplet.setBase64(ggbFile);
-    // }
+    if (currentState) {
+      this.ggbApplet.setXML(currentState);
+    } else if (startingPoint) {
+      this.ggbApplet.setXML(startingPoint);
+    } else if (ggbFile) {
+      this.ggbApplet.setBase64(ggbFile);
+    }
     // attach this listeners to the ggbApplet
     this.freezeElements(true);
     this.registerListeners();

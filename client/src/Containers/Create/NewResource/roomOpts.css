@@ -26,8 +26,8 @@ p {
   align-items: center;
   justify-content: center;
   margin-bottom: 2px;
-  height: 120px;
-  width: 120px;
+  height: 100px;
+  width: 100px;
   /* background-image: linear-gradient(-180deg, #e4e4e4, lightGrey 90%); */
   background: linear-gradient(top, #c4bec4, #8e8f90);
   border-radius: 3px;
