@@ -41,7 +41,6 @@ class GgbReplayer extends Component {
     }
     if (this.props.inView) {
       if (changingIndex && prevProps.index !== index) {
-        console.log("applying multuple events");
         this.applyMultipleEvents(prevProps.index, index);
       } else if (
         prevProps.index !== index &&
@@ -66,9 +65,7 @@ class GgbReplayer extends Component {
   }
 
   applyMultipleEvents(startIndex, endIndex) {
-    console.log("start: ", startIndex, " end: ", endIndex);
     let skipping = true;
-    console.log("applying multiple events");
     // this.ggbApplet.setRepaintingActive(false); // THIS DOES NOT SEEM TO BE WORKING
     // Forwards through time
     if (startIndex < endIndex) {
@@ -106,11 +103,9 @@ class GgbReplayer extends Component {
   }
 
   constructEvent(data, backwards, skipping) {
-    console.log("skipping: ", skipping);
     switch (data.eventType) {
       case "ADD":
         if (data.definition) {
-          console.log("definitino: ", data.definition);
           this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
         }
         this.ggbApplet.evalXML(data.event);
@@ -124,7 +119,6 @@ class GgbReplayer extends Component {
         this.ggbApplet.evalCommand("UpdateConstruction()");
         break;
       case "BATCH_UPDATE":
-        console.log("batchupdating");
         this.recursiveUpdate(
           [...data.eventArray],
           data.batchSize,
@@ -169,14 +163,11 @@ class GgbReplayer extends Component {
           events.reverse();
         }
         if (skipping) {
-          // console.log(events, noOfPoints, adding, backwards, skipping);
-          console.log(events.slice(events.length - noOfPoints, events.length));
           this.ggbApplet.evalXML(
             events.slice(events.length - noOfPoints, events.length)
           );
           return this.ggbApplet.evalCommand("UpdateConstruction()");
         } else {
-          console.log("should not be here");
           this.ggbApplet.evalXML(
             events.splice(0, noOfPoints).join("") ||
               events.splice(0, events.length).join("")

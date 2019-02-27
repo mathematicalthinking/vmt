@@ -142,7 +142,6 @@ class Replayer extends Component {
   }
 
   playing = () => {
-    console.log(this.updatedLog);
     this.interval = setInterval(() => {
       let timeElapsed = this.state.timeElapsed;
       let logIndex = this.state.logIndex;
@@ -196,7 +195,6 @@ class Replayer extends Component {
 
   // Takes a % of total progress and goes to the nearest timestamp
   goToTime = percent => {
-    console.log(this.state.logIndex);
     let logIndex;
     let timeElapsed = percent * this.relativeDuration;
     if (percent === 1) {
@@ -218,7 +216,6 @@ class Replayer extends Component {
         currentTab = i;
       }
     });
-    console.log(logIndex);
     this.setState({
       timeElapsed,
       logIndex,
