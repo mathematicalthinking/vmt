@@ -135,15 +135,14 @@ class GgbGraph extends Component {
           );
         }
       });
-    } else if ((wasInControl && !isInControl) || isSomeoneElseInControl) {
+    } else if (
+      (wasInControl && !isInControl) ||
+      (wasInControl && isSomeoneElseInControl)
+    ) {
       console.log("ceding control");
-      this.ggbApplet.showToolBar(false);
-      this.ggbApplet.showMenuBar(false);
-      // this.ggbApplet.setMode(40);
-      // this.freezeElements(true);
-      // this.setState({inControl: false})
+      this.setState({ inControl: false });
     } else if (!prevProps.referencing && this.props.referencing) {
-      this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements
+      this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
     } else if (prevProps.referencing && !this.props.referencing) {
       this.ggbApplet.setMode(40);
     }
@@ -226,7 +225,7 @@ class GgbGraph extends Component {
       customToolBar:
         "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
       showToolBar: true,
-      showMenuBar: false,
+      showMenuBar: true,
       showAlgebraInput: true,
       language: "en",
       useBrowserForJS: false,
@@ -285,6 +284,21 @@ class GgbGraph extends Component {
     this.registerListeners();
   };
 
+  userCanEdit = () => {
+    if (
+      (!this.props.user.connected ||
+        this.props.room.controlledBy !== this.props.user._id) &&
+      !this.state.recievingData &&
+      !this.state.loading
+    ) {
+      // Switch the user back to the pointer so they can't update the construction
+      this.ggbApplet.setMode(40);
+      return alert(
+        `You are not in control. Click "Take Control" before making changes`
+      );
+    } else return true;
+  };
+
   /**
    * @method clientListener
    * @description client listener ffires everytime anything in the geogebra construction is touched
@@ -294,26 +308,28 @@ class GgbGraph extends Component {
     console.log(event);
     switch (event[0]) {
       case "setMode":
-        console.log("set the mode");
         if (event[2] === "40") {
           return;
           // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
           // Then don't send this to the other users/=.
-        } else if (
-          (!this.props.user.connected ||
-            this.props.room.controlledBy !== this.props.user._id) &&
-          !this.state.recievingData &&
-          !this.state.loading
-        ) {
-          // Switch the user back to the pointer so they can't update the construction
-          this.ggbApplet.setMode(40);
-          return alert(
-            `You are not in control. Click "Take Control" before making changes`
-          );
+        } else {
+          this.userCanEdit();
         }
-
+        break;
+      case "undo":
+        if (this.userCanEdit()) {
+          return;
+        } else {
+          console.log('redoing')
+          this.ggbApplet.redo();
+        }
         break;
       case "select":
+        break;
+      case "openMenu":
+        break;
+      case "perspectiveChange":
+        break;
       case "movingGeos":
         this.updatingOn = false; // turn of updating so the updateListener does not send events
         break;
