@@ -16,7 +16,7 @@ class RoomOpts extends Component {
   render() {
     if (this.props.ggb) {
       return (
-        <Aux>
+        <div className={classes.RoomOpts}>
           <p>Select a GeoGebra App</p>
           <div className={classes.Container}>
             {ggbOpts.map(opt => (
@@ -55,7 +55,7 @@ class RoomOpts extends Component {
           {!this.props.tab ? (
             <p>(optional, click next if you wish to skip this step)</p>
           ) : null}
-        </Aux>
+        </div>
       );
     } else
       return (

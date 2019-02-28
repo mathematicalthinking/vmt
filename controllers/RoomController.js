@@ -18,7 +18,9 @@ module.exports = {
         .sort("-createdAt")
         .populate({ path: "members.user", select: "username" })
         .populate({ path: "currentMembers.user", select: "username" })
+        .populate({ path: "tabs", select: "name tabType" })
         .then(rooms => {
+          console.log(rooms);
           // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
           resolve(rooms);
         })

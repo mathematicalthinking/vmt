@@ -1,9 +1,8 @@
 import React, { Component } from "react";
 import { TextInput, RadioBtn, Button } from "../../Components";
 import RoomOpts from "./NewResource/RoomOpts";
-// import classes from "./graph.css";
+import classes from "./newTabForm.css";
 import API from "../../utils/apiRequests";
-let classes = {};
 class NewTabForm extends Component {
   state = {
     name: "",

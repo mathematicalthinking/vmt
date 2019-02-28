@@ -277,6 +277,7 @@ class Room extends Component {
       let ggb = false;
       let desmos = false;
       room.tabs.forEach(tab => {
+        console.log(tab.tabType);
         if (tab.tabType === "geogebra") ggb = true;
         else if (tab.tabType === "desmos") desmos = true;
       });

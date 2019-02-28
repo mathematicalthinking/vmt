@@ -285,10 +285,35 @@ class GgbGraph extends Component {
     this.registerListeners();
   };
 
-  // Used to listen for dragging of shapes
+  /**
+   * @method clientListener
+   * @description client listener ffires everytime anything in the geogebra construction is touched
+   * @param  {Array} event - Ggb array [eventType (e.g. setMode),  ]
+   */
   clientListener = event => {
-    console.log("client listener: ", event);
+    console.log(event);
     switch (event[0]) {
+      case "setMode":
+        console.log("set the mode");
+        if (event[2] === "40") {
+          return;
+          // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
+          // Then don't send this to the other users/=.
+        } else if (
+          (!this.props.user.connected ||
+            this.props.room.controlledBy !== this.props.user._id) &&
+          !this.state.recievingData &&
+          !this.state.loading
+        ) {
+          // Switch the user back to the pointer so they can't update the construction
+          this.ggbApplet.setMode(40);
+          return alert(
+            `You are not in control. Click "Take Control" before making changes`
+          );
+        }
+
+        break;
+      case "select":
       case "movingGeos":
         this.updatingOn = false; // turn of updating so the updateListener does not send events
         break;
@@ -313,8 +338,6 @@ class GgbGraph extends Component {
   };
 
   addListener = label => {
-    console.log("added");
-    console.log(label);
     if (!this.state.receivingData) {
       let xml = this.ggbApplet.getXML(label);
       let definition = this.ggbApplet.getCommandString(label);
@@ -405,10 +428,10 @@ class GgbGraph extends Component {
       !this.props.user.connected ||
       this.props.room.controlledBy !== this.props.user._id
     ) {
+      this.ggbApplet.undo();
       alert(
         "You are not in control. The update you just made will not be saved"
       );
-      this.ggbApplet.undo();
       return;
     }
 
