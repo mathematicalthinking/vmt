@@ -35,6 +35,7 @@ class GgbGraph extends Component {
   pointCounter = 1;
   noOfPoints;
   updatingOn = true;
+  resetting = false; // used to reset the construction when something is done by a user not in control.
 
   componentDidMount() {
     // window.addEventListener('click', this.clickListener)
@@ -285,43 +286,54 @@ class GgbGraph extends Component {
   };
 
   userCanEdit = () => {
+    if (this.resetting) {
+      return true;
+    }
     if (
       (!this.props.user.connected ||
         this.props.room.controlledBy !== this.props.user._id) &&
-      !this.state.recievingData &&
-      !this.state.loading
+      !this.state.recievingData
     ) {
-      // Switch the user back to the pointer so they can't update the construction
-      this.ggbApplet.setMode(40);
-      return alert(
-        `You are not in control. Click "Take Control" before making changes`
-      );
+      return false;
     } else return true;
   };
-
+  showAlert() {
+    alert(`You are not in control. Click "Take Control" before making changes`);
+  }
   /**
    * @method clientListener
    * @description client listener ffires everytime anything in the geogebra construction is touched
    * @param  {Array} event - Ggb array [eventType (e.g. setMode),  ]
    */
   clientListener = event => {
-    console.log(event);
     switch (event[0]) {
       case "setMode":
-        if (event[2] === "40") {
-          return;
-          // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
-          // Then don't send this to the other users/=.
-        } else {
-          this.userCanEdit();
-        }
+        // if (event[2] === "40" || this.userCanEdit()) {
+        //   return;
+        //   // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
+        //   // Then don't send this to the other users/=.
+        // } else {
+        //   this.ggbApplet.setMode(40);
+        // }
         break;
       case "undo":
-        if (this.userCanEdit()) {
+        if (this.resetting || this.userCanEdit()) {
+          this.resetting = false;
           return;
         } else {
-          console.log('redoing')
+          this.showAlert();
+          this.resetting = true;
           this.ggbApplet.redo();
+        }
+        break;
+      case "redo":
+        if (this.resetting || this.userCanEdit()) {
+          this.resetting = false;
+          return;
+        } else {
+          this.showAlert();
+          this.resetting = true;
+          this.ggbApplet.undo();
         }
         break;
       case "select":
@@ -370,7 +382,6 @@ class GgbGraph extends Component {
   };
 
   updateListener = label => {
-    console.log("updated");
     let independent = this.ggbApplet.isIndependent(label);
     let moveable = this.ggbApplet.isMoveable(label);
     let isInControl = this.props.room.controlledBy === this.props.user._id;
@@ -404,17 +415,6 @@ class GgbGraph extends Component {
     }
   };
 
-  // This function can only fire when someone is in control. So if the perspective changes emit that to everyone.
-  perspectiveChanged = newPerspectiveCode => {
-    this.sendEvent(newPerspectiveCode, null, null, "CHANGE_PERSPECTIVE", null);
-    // REinitialize listener with new perspective
-    initPerspectiveListener(
-      document,
-      newPerspectiveCode,
-      this.perspectiveChanged
-    );
-  };
-
   registerListeners = () => {
     if (this.ggbApplet.listeners.length > 0) {
       this.ggbApplet.unregisterAddListener(this.addListener);
@@ -440,16 +440,16 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action) => {
-    if (
-      !this.props.user.connected ||
-      this.props.room.controlledBy !== this.props.user._id
-    ) {
-      this.ggbApplet.undo();
-      alert(
-        "You are not in control. The update you just made will not be saved"
-      );
-      return;
-    }
+    // if (
+    //   !this.props.user.connected ||
+    //   this.props.room.controlledBy !== this.props.user._id
+    // ) {
+    //   this.ggbApplet.undo();
+    //   alert(
+    //     "You are not in control. The update you just made will not be saved"
+    //   );
+    //   return;
+    // }
 
     let newData = {
       definition,
