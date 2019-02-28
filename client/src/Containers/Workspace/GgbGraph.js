@@ -36,6 +36,7 @@ class GgbGraph extends Component {
   noOfPoints;
   updatingOn = true;
   resetting = false; // used to reset the construction when something is done by a user not in control.
+  editorState = null; // In the algebra input window,
 
   componentDidMount() {
     // window.addEventListener('click', this.clickListener)
@@ -110,18 +111,8 @@ class GgbGraph extends Component {
     let isSomeoneElseInControl = this.props.room.controlledBy && !isInControl;
 
     if (!wasInControl && isInControl) {
+      // what the hell am I doing here???????
       this.setState({ switchingControl: true }, () => {
-        console.log("SWITRHICNG CONTROL???");
-        if (this.ggbApplet) {
-          // this.ggbApplet.setMode(0);
-          // im not really sure what this does we seem to get the same menu whether we specify all these numbers or not...but it was breaking the hamburger menu to do so
-          // this.ggbApplet.showToolBar("0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6")
-          // this.ggbApplet.showMenuBar(triue);
-          console.log("showing tool bar");
-          // this.ggbApplet.showToolBar(true);
-          // this.ggbApplet.showMenuBar(true);
-        }
-        // setTimeout(() => {
         this.setState({ switchingControl: false }, () => {
           this.freezeElements(false);
         });
@@ -140,7 +131,6 @@ class GgbGraph extends Component {
       (wasInControl && !isInControl) ||
       (wasInControl && isSomeoneElseInControl)
     ) {
-      console.log("ceding control");
       this.setState({ inControl: false });
     } else if (!prevProps.referencing && this.props.referencing) {
       this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
@@ -297,6 +287,7 @@ class GgbGraph extends Component {
       return false;
     } else return true;
   };
+
   showAlert() {
     alert(`You are not in control. Click "Take Control" before making changes`);
   }
@@ -306,15 +297,16 @@ class GgbGraph extends Component {
    * @param  {Array} event - Ggb array [eventType (e.g. setMode),  ]
    */
   clientListener = event => {
+    console.log(event);
     switch (event[0]) {
       case "setMode":
-        // if (event[2] === "40" || this.userCanEdit()) {
-        //   return;
-        //   // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
-        //   // Then don't send this to the other users/=.
-        // } else {
-        //   this.ggbApplet.setMode(40);
-        // }
+        if (event[2] === "40" || this.userCanEdit()) {
+          return;
+          // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
+          // Then don't send this to the other users/=.
+        } else {
+          this.ggbApplet.setMode(40);
+        }
         break;
       case "undo":
         if (this.resetting || this.userCanEdit()) {
@@ -342,10 +334,26 @@ class GgbGraph extends Component {
         break;
       case "perspectiveChange":
         break;
+      case "updateStyle":
+        break;
+      case "editorStart":
+        // this.ggbApplet.evalCommand("editorStop()");
+        // save the state of what's being edited BEFORE they edit it. This way,
+        // if they're not in control and cannot edit, we can reset to this state
+        this.editorState = this.ggbApplet.getEditorState();
+        break;
+      case "editorKeyTyped":
+        if (this.userCanEdit()) {
+          return;
+        } else {
+          // If they weren't allowed to tupe here undo to the previous state
+          this.ggbApplet.setEditorState(this.editorState);
+          // this.showAlert();
+        }
+        break;
       case "movingGeos":
         this.updatingOn = false; // turn of updating so the updateListener does not send events
         break;
-
       case "movedGeos":
         this.updatingOn = false;
 
@@ -499,6 +507,7 @@ class GgbGraph extends Component {
    * @param  {Boolean} freeze - true = freeze, false = unfreeze
    */
 
+  // THIS IS BLOCKING and when the construction is significantly crowded its v noticeable
   freezeElements = freeze => {
     // let allElements = this.ggbApplet.getAllObjectNames(); // WARNING ... THIS METHOD IS DEPRECATED
     // allElements.forEach(element => {
