@@ -1,24 +1,12 @@
 import React, { Component } from "react";
 import classes from "./graph.css";
 import { Aux, Modal } from "../../Components";
-import INITIAL_GGB from "./blankGgb";
 import Script from "react-load-script";
-import throttle from "lodash/throttle";
 import socket from "../../utils/sockets";
 
 import { initPerspectiveListener } from "./ggbUtils";
-// import { eventNames } from 'cluster';
-// THINK ABOUT GETTING RID OF ALL XML PARSING...THERE ARE PROBABLY NATIVE GGB METHODS THAT CAN ACCOMPLISH EVERYTHING WE NEEDd
-const THROTTLE_FIDELITY = 60;
-/**
- * @props:
- *  room,
- *  updateRoom()
- */
-
 class GgbGraph extends Component {
   state = {
-    receivingData: false,
     loadingWorkspace: true,
     loading: true,
     selectedElement: "",
@@ -29,14 +17,15 @@ class GgbGraph extends Component {
 
   graph = React.createRef();
 
-  // For batching events
-  eventQueue = [];
-  firstLabel;
-  pointCounter = 1;
-  noOfPoints;
   updatingOn = true;
   resetting = false; // used to reset the construction when something is done by a user not in control.
   editorState = null; // In the algebra input window,
+  receivingData = false;
+
+  /**
+   * @method componentDidMount
+   * @description add socket listeners, window resize listner
+   */
 
   componentDidMount() {
     // window.addEventListener('click', this.clickListener)
@@ -50,50 +39,49 @@ class GgbGraph extends Component {
         return tab;
       });
       this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-      this.setState({ receivingData: true }, () => {
-        // If this happend on the current tab
-        if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
-          // @TODO consider abstracting out...resued in the GgbReplayer
-          switch (data.eventType) {
-            case "ADD":
-              if (data.definition) {
-                this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
-              }
-              this.ggbApplet.evalXML(data.event);
-              this.ggbApplet.evalCommand("UpdateConstruction()");
-              break;
-            case "REMOVE":
-              this.ggbApplet.deleteObject(data.label);
-              break;
-            case "UPDATE":
-              this.ggbApplet.evalXML(data.event);
-              this.ggbApplet.evalCommand("UpdateConstruction()");
-              break;
-            case "CHANGE_PERSPECTIVE":
-              this.ggbApplet.setPerspective(data.event);
-              this.ggbApplet.showAlgebraInput(true);
-              // this.ggbApplet.evalXML(data.event);
-              // this.ggbApplet.evalCommand("UpdateConstruction()");
-              break;
-            case "BATCH_UPDATE":
-              this.ggbApplet.evalXML(data.event);
-              this.ggbApplet.evalCommand("UpdateConstruction()");
-              // this.recursiveUpdate(data.event, data.noOfPoints);
-              break;
-            case "BATCH_ADD":
-              if (data.definition) {
-                this.recursiveUpdate(data.event, 1, true);
-              }
-              break;
-            default:
-              break;
-          }
+      this.receivingData = true;
+      // If this happend on the current tab
+      if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
+        // @TODO consider abstracting out...resued in the GgbReplayer
+        switch (data.eventType) {
+          case "ADD":
+            if (data.definition) {
+              this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
+            }
+            this.ggbApplet.evalXML(data.event);
+            this.ggbApplet.evalCommand("UpdateConstruction()");
+            break;
+          case "REMOVE":
+            this.ggbApplet.deleteObject(data.label);
+            break;
+          case "UPDATE":
+            this.ggbApplet.evalXML(data.event);
+            this.ggbApplet.evalCommand("UpdateConstruction()");
+            break;
+          case "CHANGE_PERSPECTIVE":
+            this.ggbApplet.setPerspective(data.event);
+            this.ggbApplet.showAlgebraInput(true);
+            // this.ggbApplet.evalXML(data.event);
+            // this.ggbApplet.evalCommand("UpdateConstruction()");
+            break;
+          case "BATCH_UPDATE":
+            this.ggbApplet.evalXML(data.event);
+            this.ggbApplet.evalCommand("UpdateConstruction()");
+            // this.recursiveUpdate(data.event, data.noOfPoints);
+            break;
+          case "BATCH_ADD":
+            if (data.definition) {
+              this.recursiveUpdate(data.event, 1, true);
+            }
+            break;
+          default:
+            break;
         }
-        // show a notificaiton if its on a different tab
-        else {
-          this.props.addNtfToTabs(data.tab);
-        }
-      });
+      }
+      // show a notificaiton if its on a different tab
+      else {
+        this.props.addNtfToTabs(data.tab);
+      }
     });
   }
 
@@ -105,36 +93,18 @@ class GgbGraph extends Component {
    */
   async componentDidUpdate(prevProps) {
     if (!this.ggbApplet) return;
-    let { room, role } = this.props;
-    let wasInControl = prevProps.room.controlledBy === this.props.user._id;
-    let isInControl = this.props.room.controlledBy === this.props.user._id;
-    let isSomeoneElseInControl = this.props.room.controlledBy && !isInControl;
 
-    if (!wasInControl && isInControl) {
-      // what the hell am I doing here???????
-      this.setState({ switchingControl: true }, () => {
-        this.setState({ switchingControl: false }, () => {
-          this.freezeElements(false);
-        });
-        if (
-          room.settings.participantsCanChangePerspective ||
-          role === "facilitator"
-        ) {
-          initPerspectiveListener(
-            document,
-            this.props.room.tabs[this.props.currentTab].perspective,
-            this.perspectiveChanged
-          );
-        }
-      });
-    } else if (
-      (wasInControl && !isInControl) ||
-      (wasInControl && isSomeoneElseInControl)
-    ) {
-      this.setState({ inControl: false });
-    } else if (!prevProps.referencing && this.props.referencing) {
+    // Referencing
+    if (!prevProps.referencing && this.props.referencing) {
       this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
     } else if (prevProps.referencing && !this.props.referencing) {
+      this.ggbApplet.setMode(40);
+    }
+
+    console.log(this.props);
+    if (this.props.room.controlledBy === this.props.user._id) {
+      this.ggbApplet.setMode(0);
+    } else {
       this.ggbApplet.setMode(40);
     }
     if (
@@ -186,26 +156,22 @@ class GgbGraph extends Component {
   }
 
   updateDimensions = () => {
-    if (this.resizeTimer) {
-      clearTimeout(this.resizeTimer);
-    }
-    this.resizeTimer = setTimeout(async () => {
-      if (this.graph.current && !this.state.loading) {
-        let { clientHeight, clientWidth } = this.graph.current.parentElement;
-        window.ggbApplet.setSize(clientWidth, clientHeight);
-        // window.ggbApplet.evalCommand('UpdateConstruction()')
-        if (
-          this.props.showingReference ||
-          (this.props.referencing &&
-            this.props.referToEl.elmentType !== "chat_message")
-        ) {
-          let { element } = this.props.referToEl;
-          let position = await this.getRelativeCoords(element);
-          this.props.setToElAndCoords(null, position);
-        }
+    if (this.graph.current && !this.state.loading) {
+      let { clientHeight, clientWidth } = this.graph.current.parentElement;
+      window.ggbApplet.setSize(clientWidth, clientHeight);
+      // window.ggbApplet.evalCommand('UpdateConstruction()')
+      if (
+        this.props.showingReference ||
+        (this.props.referencing &&
+          this.props.referToEl.elmentType !== "chat_message")
+      ) {
+        let { element } = this.props.referToEl;
+        // let position = await this.getRelativeCoords(element);
+        // this.props.setToElAndCoords(null, position);
+
+        // @TODO SET A CANCELABLE TIMER TO SHOW THE REFERENCE AFTER RESIZING IS DONE
       }
-      this.resizeTimer = undefined;
-    }, 200);
+    }
   };
 
   onScriptLoad = () => {
@@ -235,7 +201,7 @@ class GgbGraph extends Component {
 
   componentWillUnmount() {
     if (this.ggbApplet && this.ggbApplet.listeners) {
-      delete window.ggbApplet;
+      // delete window.ggbApplet;
       this.ggbApplet.unregisterAddListener(this.addListener);
       this.ggbApplet.unregisterUpdateListener();
       this.ggbApplet.unregisterRemoveListener(this.eventListener);
@@ -249,6 +215,10 @@ class GgbGraph extends Component {
     // }
     window.removeEventListener("resize", this.updateDimensions);
   }
+  /**
+   * @method initializeGgb
+   * @description
+   */
 
   initializeGgb = () => {
     this.ggbApplet = window.ggbApplet;
@@ -270,11 +240,15 @@ class GgbGraph extends Component {
     } else if (ggbFile) {
       this.ggbApplet.setBase64(ggbFile);
     }
-    // attach this listeners to the ggbApplet
-    this.freezeElements(true);
     this.registerListeners();
   };
 
+  /**
+   * @method userCanEdit
+   * @description - checks if the user is in control and connected to the socket
+   *  if they are in control and connected then they can edit
+   * @return {Boolean} - can the user edit?
+   */
   userCanEdit = () => {
     if (this.resetting) {
       return true;
@@ -293,8 +267,10 @@ class GgbGraph extends Component {
   }
   /**
    * @method clientListener
-   * @description client listener ffires everytime anything in the geogebra construction is touched
-   * @param  {Array} event - Ggb array [eventType (e.g. setMode),  ]
+   * @description client listener fires everytime anything in the geogebra construction is touched
+   * we use it to listen for user interaction, and either allow that action and send it over the socket
+   * if they're in control, or prevent/undo it if they're not.
+   * @param  {Array} event - Ggb array [eventType (e.g. setMode),  String, String]
    */
   clientListener = event => {
     console.log(event);
@@ -305,6 +281,7 @@ class GgbGraph extends Component {
           // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
           // Then don't send this to the other users/=.
         } else {
+          if (event[2] !== "0") this.showAlert();
           this.ggbApplet.setMode(40);
         }
         break;
@@ -348,7 +325,7 @@ class GgbGraph extends Component {
         } else {
           // If they weren't allowed to tupe here undo to the previous state
           this.ggbApplet.setEditorState(this.editorState);
-          // this.showAlert();
+          this.showAlert();
         }
         break;
       case "movingGeos":
@@ -373,38 +350,90 @@ class GgbGraph extends Component {
     }
   };
 
+  /**
+   * @method addListener
+   * @description listener for add events. First checks if this event was initiated
+   * by the current user or by a socket event. If Initiated by a socket event we let the update happen,
+   * If this was a user initiated event we first check if the user is able to make
+   * this addition and calls sendEvent() if they can. Else it undoes their change.
+   * @param  {String} label - label of the point, segment, shape etc added
+   */
+
   addListener = label => {
-    if (!this.state.receivingData) {
+    if (this.receivingData) {
+      return (this.receivingData = false);
+    }
+    if (this.resetting) {
+      this.resetting = false;
+      return;
+    }
+    if (!this.userCanEdit()) {
+      this.resetting = true;
+      this.ggbApplet.deleteObject(label);
+      setTimeout(() => this.showAlert(), 0);
+      return;
+    }
+    if (!this.receivingData) {
       let xml = this.ggbApplet.getXML(label);
       let definition = this.ggbApplet.getCommandString(label);
       this.sendEvent(xml, definition, label, "ADD", "added");
     }
-    this.setState({ receivingData: false });
   };
+
+  /**
+   * @method removeListener
+   * @description See add (but for removing)
+   */
 
   removeListener = label => {
-    if (!this.state.receivingData) {
+    if (this.receivingData) {
+      return (this.receivingData = false);
+    }
+    if (this.resetting) {
+      this.resetting = false;
+      return;
+    }
+    if (!this.userCanEdit()) {
+      this.showAlert();
+      let { room, currentTab } = this.props;
+      this.ggbApplet.setXML(room.tabs[currentTab].currentState);
+      // Reregister the listeners because setXML clears everything
+      this.registerListeners();
+      return;
+    }
+    if (!this.receivingData) {
       this.sendEvent(null, null, label, "REMOVE", "removed");
     }
-    this.setState({ receivingData: false });
   };
 
+  /**
+   * @method removeListener
+   * @description See add (but for updating), we don't check if the user can edit
+   * because they would have first had to change their tool (or mode) which we only
+   * allow if they're already in control
+   */
+
   updateListener = label => {
+    if (this.receivingData) {
+      return (this.receivingData = false);
+    }
     let independent = this.ggbApplet.isIndependent(label);
     let moveable = this.ggbApplet.isMoveable(label);
     let isInControl = this.props.room.controlledBy === this.props.user._id;
 
     if ((!independent && !moveable) || !this.updatingOn || !isInControl) {
       return;
-    } else if (!this.state.receivingData) {
+    } else if (!this.receivingData) {
       let xml = this.ggbApplet.getXML(label);
       this.sendEvent(xml, null, label, "UPDATE", "updated");
     }
-
-    this.setState({ receivingData: false });
   };
 
-  // Used to capture object when referencing
+  /**
+   * @param  {String} element - ggb label for what has been clicked
+   * @description used to get reference positions
+   */
+
   clickListener = async element => {
     // console.log("CLICKED", this.ggbApplet.getXML())
     if (this.props.referencing) {
@@ -423,6 +452,10 @@ class GgbGraph extends Component {
     }
   };
 
+  /**
+   * @method registerListers - register the even listeners with geogebra
+   */
+
   registerListeners = () => {
     if (this.ggbApplet.listeners.length > 0) {
       this.ggbApplet.unregisterAddListener(this.addListener);
@@ -437,9 +470,10 @@ class GgbGraph extends Component {
     this.ggbApplet.registerUpdateListener(this.updateListener);
     this.ggbApplet.registerRemoveListener(this.removeListener);
   };
+
   /**
    * @method sendEvnet
-   * @description emits the geogebra event over the socket. Creates a buffer for multi-part events
+   * @description emits the geogebra event over the socket and updates the room in the redux store
    * @param  {String} xml - ggb generated xml of the even
    * @param  {String} definition - ggb multipoint definition (e.g. "Polygon(D, E, F, G)")
    * @param  {String} label - ggb label. ggbApplet.evalXML(label) yields xml representation of this label
@@ -448,17 +482,6 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action) => {
-    // if (
-    //   !this.props.user.connected ||
-    //   this.props.room.controlledBy !== this.props.user._id
-    // ) {
-    //   this.ggbApplet.undo();
-    //   alert(
-    //     "You are not in control. The update you just made will not be saved"
-    //   );
-    //   return;
-    // }
-
     let newData = {
       definition,
       label,
@@ -468,7 +491,7 @@ class GgbGraph extends Component {
       tab: this.props.room.tabs[this.props.currentTab]._id,
       event: xml,
       user: { _id: this.props.user._id, username: this.props.user.username },
-      timestamp: new Date().getTime(),
+      timestamp: new Date().getTime(), // how expensive is this? Should we do it on the backend
       currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
       mode: this.ggbApplet.getMode()
     };
@@ -484,41 +507,13 @@ class GgbGraph extends Component {
     updatedTabs[this.props.currentTab] = updatedTab;
     this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
 
-    if (this.eventQueue.length > 1) {
-      newData.event = this.eventQueue;
-      newData.eventType = action === "updated" ? "BATCH_UPDATE" : "BATCH_ADD";
-      newData.noOfPoints = this.noOfPoints;
-    }
-
-    this.firstLabel = null;
-    this.pointCounter = 1;
-    this.noOfPoints = null;
-    this.eventQueue = [];
-    this.timer = null;
-
     socket.emit("SEND_EVENT", newData);
-  };
-
-  /**
-   * @method freezeElements
-   * @description toggle whether the construction can be manipulated.
-   *
-   * @todo we need to find a way to do this all at once. setFixed() is blocking and this effects the repainting of the screen when the user takes or releases control
-   * @param  {Boolean} freeze - true = freeze, false = unfreeze
-   */
-
-  // THIS IS BLOCKING and when the construction is significantly crowded its v noticeable
-  freezeElements = freeze => {
-    // let allElements = this.ggbApplet.getAllObjectNames(); // WARNING ... THIS METHOD IS DEPRECATED
-    // allElements.forEach(element => {
-    //   // AS THE CONSTRUCTION GETS BIGGER THIS GETS SLOWER...SET_FIXED IS BLOCKING
-    //   this.ggbApplet.setFixed(element, freeze, true); // Unfix/fix all of the elements
-    // });
   };
 
   /**
    * @method getRelativeCoords - converts x,y coordinates of ggb point and converts them to the pizel location on the screen
    * @param  {String} element - ggb defined Label. MUST be a point
+   * @return {Promise Object} - because parseXML is async
    */
 
   getRelativeCoords = element => {
