@@ -7,12 +7,10 @@ import socket from "../../utils/sockets";
 import { initPerspectiveListener } from "./ggbUtils";
 class GgbGraph extends Component {
   state = {
-    loadingWorkspace: true,
     loading: true,
     selectedElement: "",
     showControlWarning: false,
-    warningPosition: { x: 0, y: 0 },
-    switchingControl: false
+    warningPosition: { x: 0, y: 0 }
   };
 
   graph = React.createRef();
@@ -32,14 +30,16 @@ class GgbGraph extends Component {
     window.addEventListener("resize", this.updateDimensions);
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
+      this.receivingData = true;
+      console("receiving event");
       let updatedTabs = this.props.room.tabs.map(tab => {
         if (tab._id === data.tab) {
           tab.currentState = data.currentState;
         }
         return tab;
       });
+      // update the redux store
       this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-      this.receivingData = true;
       // If this happend on the current tab
       if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
         // @TODO consider abstracting out...resued in the GgbReplayer
@@ -64,16 +64,6 @@ class GgbGraph extends Component {
             // this.ggbApplet.evalXML(data.event);
             // this.ggbApplet.evalCommand("UpdateConstruction()");
             break;
-          case "BATCH_UPDATE":
-            this.ggbApplet.evalXML(data.event);
-            this.ggbApplet.evalCommand("UpdateConstruction()");
-            // this.recursiveUpdate(data.event, data.noOfPoints);
-            break;
-          case "BATCH_ADD":
-            if (data.definition) {
-              this.recursiveUpdate(data.event, 1, true);
-            }
-            break;
           default:
             break;
         }
@@ -91,8 +81,21 @@ class GgbGraph extends Component {
    * and initializes socket event listeners
    * @param  {Object} prevProps - previous props before update
    */
+
   async componentDidUpdate(prevProps) {
     if (!this.ggbApplet) return;
+
+    // Control
+    let { room, role } = this.props;
+    let wasInControl = prevProps.room.controlledBy === this.props.user._id;
+    let isInControl = this.props.room.controlledBy === this.props.user._id;
+    let isSomeoneElseInControl = this.props.room.controlledBy && !isInControl;
+
+    if (!wasInControl && isInControl) {
+      this.ggbApplet.setMode(0);
+    } else if (wasInControl && !isInControl) {
+      this.ggbApplet.setMode(40);
+    }
 
     // Referencing
     if (!prevProps.referencing && this.props.referencing) {
@@ -101,12 +104,6 @@ class GgbGraph extends Component {
       this.ggbApplet.setMode(40);
     }
 
-    console.log(this.props);
-    if (this.props.room.controlledBy === this.props.user._id) {
-      this.ggbApplet.setMode(0);
-    } else {
-      this.ggbApplet.setMode(40);
-    }
     if (
       !prevProps.showingReference &&
       this.props.showingReference &&
@@ -174,13 +171,16 @@ class GgbGraph extends Component {
     }
   };
 
+  /**
+   * @method onScriptLoad
+   * @description defines parameters for the Ggb app.
+   * complete list here: https://wiki.geogebra.org/en/Reference:GeoGebra_App_Parameters
+   */
+
   onScriptLoad = () => {
-    // NOTE: complete list here: https://wiki.geogebra.org/en/Reference:GeoGebra_App_Parameters
     const parameters = {
       id: "ggbApplet",
-      // "scaleContainerClasse": "graph",
-      customToolBar:
-        "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
+      // scaleContainerClass: "graph",
       showToolBar: true,
       showMenuBar: true,
       showAlgebraInput: true,
@@ -190,7 +190,7 @@ class GgbGraph extends Component {
       buttonShadows: true,
       preventFocus: true,
       showLogging: false,
-      setErrorDialogsActive: false,
+      errorDialogsActive: false,
       appletOnLoad: this.initializeGgb,
       appName: this.props.room.tabs[0].appName || "classic"
     };
@@ -273,14 +273,19 @@ class GgbGraph extends Component {
    * @param  {Array} event - Ggb array [eventType (e.g. setMode),  String, String]
    */
   clientListener = event => {
-    console.log(event);
+    if (this.receivingData) {
+      this.receivingData = false;
+      return;
+    }
     switch (event[0]) {
       case "setMode":
         if (event[2] === "40" || this.userCanEdit()) {
+          console.log("shoul;d be in h ere");
           return;
           // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
           // Then don't send this to the other users/=.
         } else {
+          console.log("should NOT be here");
           if (event[2] !== "0") this.showAlert();
           this.ggbApplet.setMode(40);
         }
@@ -360,8 +365,10 @@ class GgbGraph extends Component {
    */
 
   addListener = label => {
+    console.log("addListener");
     if (this.receivingData) {
-      return (this.receivingData = false);
+      this.receivingData = false;
+      return;
     }
     if (this.resetting) {
       this.resetting = false;
@@ -386,8 +393,10 @@ class GgbGraph extends Component {
    */
 
   removeListener = label => {
+    console.log("removeListener");
     if (this.receivingData) {
-      return (this.receivingData = false);
+      this.receivingData = false;
+      return;
     }
     if (this.resetting) {
       this.resetting = false;
@@ -414,8 +423,10 @@ class GgbGraph extends Component {
    */
 
   updateListener = label => {
+    console.log("updateListener");
     if (this.receivingData) {
-      return (this.receivingData = false);
+      this.receivingData = false;
+      return;
     }
     let independent = this.ggbApplet.isIndependent(label);
     let moveable = this.ggbApplet.isMoveable(label);
