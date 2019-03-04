@@ -10,6 +10,7 @@ class GgbGraph extends Component {
     loading: true,
     selectedElement: "",
     showControlWarning: false,
+    receivingData: false,
     warningPosition: { x: 0, y: 0 }
   };
 
@@ -30,48 +31,50 @@ class GgbGraph extends Component {
     window.addEventListener("resize", this.updateDimensions);
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
-      this.receivingData = true;
-      console("receiving event");
-      let updatedTabs = this.props.room.tabs.map(tab => {
-        if (tab._id === data.tab) {
-          tab.currentState = data.currentState;
+      this.setState({ receivingData: true }, () => {
+        console.log("receiving event");
+        let updatedTabs = this.props.room.tabs.map(tab => {
+          if (tab._id === data.tab) {
+            tab.currentState = data.currentState;
+          }
+          return tab;
+        });
+        // update the redux store
+        this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
+        // If this happend on the current tab
+        if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
+          // @TODO consider abstracting out...resued in the GgbReplayer
+          console.log("");
+          switch (data.eventType) {
+            case "ADD":
+              if (data.definition) {
+                this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
+              }
+              this.ggbApplet.evalXML(data.event);
+              this.ggbApplet.evalCommand("UpdateConstruction()");
+              break;
+            case "REMOVE":
+              this.ggbApplet.deleteObject(data.label);
+              break;
+            case "UPDATE":
+              this.ggbApplet.evalXML(data.event);
+              this.ggbApplet.evalCommand("UpdateConstruction()");
+              break;
+            case "CHANGE_PERSPECTIVE":
+              this.ggbApplet.setPerspective(data.event);
+              this.ggbApplet.showAlgebraInput(true);
+              // this.ggbApplet.evalXML(data.event);
+              // this.ggbApplet.evalCommand("UpdateConstruction()");
+              break;
+            default:
+              break;
+          }
         }
-        return tab;
+        // show a notificaiton if its on a different tab
+        else {
+          this.props.addNtfToTabs(data.tab);
+        }
       });
-      // update the redux store
-      this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-      // If this happend on the current tab
-      if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
-        // @TODO consider abstracting out...resued in the GgbReplayer
-        switch (data.eventType) {
-          case "ADD":
-            if (data.definition) {
-              this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
-            }
-            this.ggbApplet.evalXML(data.event);
-            this.ggbApplet.evalCommand("UpdateConstruction()");
-            break;
-          case "REMOVE":
-            this.ggbApplet.deleteObject(data.label);
-            break;
-          case "UPDATE":
-            this.ggbApplet.evalXML(data.event);
-            this.ggbApplet.evalCommand("UpdateConstruction()");
-            break;
-          case "CHANGE_PERSPECTIVE":
-            this.ggbApplet.setPerspective(data.event);
-            this.ggbApplet.showAlgebraInput(true);
-            // this.ggbApplet.evalXML(data.event);
-            // this.ggbApplet.evalCommand("UpdateConstruction()");
-            break;
-          default:
-            break;
-        }
-      }
-      // show a notificaiton if its on a different tab
-      else {
-        this.props.addNtfToTabs(data.tab);
-      }
     });
   }
 
@@ -83,6 +86,7 @@ class GgbGraph extends Component {
    */
 
   async componentDidUpdate(prevProps) {
+    console.log("component updated");
     if (!this.ggbApplet) return;
 
     // Control
@@ -273,9 +277,10 @@ class GgbGraph extends Component {
    * @param  {Array} event - Ggb array [eventType (e.g. setMode),  String, String]
    */
   clientListener = event => {
-    if (this.receivingData) {
-      this.receivingData = false;
-      return;
+    console.log("client Listener");
+    console.log(this.state.receivingData);
+    if (this.state.receivingData) {
+      return this.setState({ receivingData: false });
     }
     switch (event[0]) {
       case "setMode":
@@ -366,8 +371,9 @@ class GgbGraph extends Component {
 
   addListener = label => {
     console.log("addListener");
-    if (this.receivingData) {
-      this.receivingData = false;
+    console.log(this.state.receivingData);
+    if (this.state.receivingData) {
+      this.setState({ receivingData: false });
       return;
     }
     if (this.resetting) {
@@ -380,7 +386,7 @@ class GgbGraph extends Component {
       setTimeout(() => this.showAlert(), 0);
       return;
     }
-    if (!this.receivingData) {
+    if (!this.state.receivingData) {
       let xml = this.ggbApplet.getXML(label);
       let definition = this.ggbApplet.getCommandString(label);
       this.sendEvent(xml, definition, label, "ADD", "added");
@@ -394,8 +400,9 @@ class GgbGraph extends Component {
 
   removeListener = label => {
     console.log("removeListener");
-    if (this.receivingData) {
-      this.receivingData = false;
+    console.log(this.state.receivingData);
+    if (this.state.receivingData) {
+      this.setState({ receivingData: false });
       return;
     }
     if (this.resetting) {
@@ -410,7 +417,7 @@ class GgbGraph extends Component {
       this.registerListeners();
       return;
     }
-    if (!this.receivingData) {
+    if (!this.state.receivingData) {
       this.sendEvent(null, null, label, "REMOVE", "removed");
     }
   };
@@ -424,8 +431,9 @@ class GgbGraph extends Component {
 
   updateListener = label => {
     console.log("updateListener");
-    if (this.receivingData) {
-      this.receivingData = false;
+    console.log(this.state.receivingData);
+    if (this.state.receivingData) {
+      this.setState({ receivingData: false });
       return;
     }
     let independent = this.ggbApplet.isIndependent(label);
@@ -434,7 +442,7 @@ class GgbGraph extends Component {
 
     if ((!independent && !moveable) || !this.updatingOn || !isInControl) {
       return;
-    } else if (!this.receivingData) {
+    } else if (!this.state.receivingData) {
       let xml = this.ggbApplet.getXML(label);
       this.sendEvent(xml, null, label, "UPDATE", "updated");
     }
@@ -464,7 +472,10 @@ class GgbGraph extends Component {
   };
 
   /**
-   * @method registerListers - register the even listeners with geogebra
+   * @method registerListene
+   *
+   * \
+   *  rs - register the even listeners with geogebra
    */
 
   registerListeners = () => {
