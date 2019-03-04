@@ -33,6 +33,7 @@ class GgbGraph extends Component {
     socket.on("RECEIVE_EVENT", data => {
       this.setState({ receivingData: true }, () => {
         console.log("receiving event");
+        console.log(data);
         let updatedTabs = this.props.room.tabs.map(tab => {
           if (tab._id === data.tab) {
             tab.currentState = data.currentState;
@@ -278,19 +279,17 @@ class GgbGraph extends Component {
    */
   clientListener = event => {
     console.log("client Listener");
-    console.log(this.state.receivingData);
+    console.log(event);
     if (this.state.receivingData) {
       return this.setState({ receivingData: false });
     }
     switch (event[0]) {
       case "setMode":
         if (event[2] === "40" || this.userCanEdit()) {
-          console.log("shoul;d be in h ere");
           return;
           // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
           // Then don't send this to the other users/=.
         } else {
-          console.log("should NOT be here");
           if (event[2] !== "0") this.showAlert();
           this.ggbApplet.setMode(40);
         }
@@ -431,7 +430,7 @@ class GgbGraph extends Component {
 
   updateListener = label => {
     console.log("updateListener");
-    console.log(this.state.receivingData);
+    console.log(this.updatingOn);
     if (this.state.receivingData) {
       this.setState({ receivingData: false });
       return;
@@ -440,7 +439,12 @@ class GgbGraph extends Component {
     let moveable = this.ggbApplet.isMoveable(label);
     let isInControl = this.props.room.controlledBy === this.props.user._id;
 
-    if ((!independent && !moveable) || !this.updatingOn || !isInControl) {
+    if (
+      (!independent && !moveable) ||
+      !this.updatingOn ||
+      !this.userCanEdit()
+    ) {
+      console.log("doing nothing");
       return;
     } else if (!this.state.receivingData) {
       let xml = this.ggbApplet.getXML(label);
