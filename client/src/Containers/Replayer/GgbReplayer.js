@@ -57,6 +57,7 @@ class GgbReplayer extends Component {
 
   // We should periodically save the entire state so if we skip to the very end we don't have to apply each event one at a time
   applyMultipleEvents(startIndex, endIndex) {
+    console.log("applying multiple events");
     if (startIndex < endIndex) {
       // this.ggbApplet.setXML(this.props.log[endIndex].currentState);
       for (let i = startIndex; i <= endIndex; i++) {
@@ -90,9 +91,7 @@ class GgbReplayer extends Component {
           syntheticEvent.eventType = "BATCH_REMOVE";
         } else if (syntheticEvent.eventType === "BATCH_UPDATE") {
           let { eventArray, batchSize } = { ...syntheticEvent };
-          syntheticEvent.eventArray = eventArray
-            .reverse()
-            .slice(eventArray.length - batchSize, eventArray.length);
+          syntheticEvent.eventArray = eventArray.slice(0, batchSize);
         }
         this.constructEvent(syntheticEvent);
       }
