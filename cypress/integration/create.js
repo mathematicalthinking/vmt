@@ -46,6 +46,9 @@ describe("create each type of resource", function() {
       .contains("next")
       .click();
     cy.get("button")
+      .contains("next")
+      .click();
+    cy.get("button")
       .contains("create")
       .click();
     cy.contains(room.name).should("exist");
@@ -92,6 +95,9 @@ describe("create each type of resource", function() {
       .contains("copy existing activities")
       .click();
     cy.getTestElement("ACTIVITY 2-checkbox").click();
+    cy.get("button")
+      .contains("next")
+      .click();
     cy.get("button")
       .contains("next")
       .click();
@@ -176,6 +182,9 @@ describe("create each type of resource", function() {
       .type(course.room.description);
     cy.get("button")
       .contains("create a new room")
+      .click();
+    cy.get("button")
+      .contains("next")
       .click();
     cy.get("button")
       .contains("next")
