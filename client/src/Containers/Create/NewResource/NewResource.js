@@ -299,31 +299,35 @@ class NewResourceContainer extends Component {
         buttons = <Button click={this.nextStep}>next</Button>;
       } else {
         buttons = (
-          <div className={classes.Row}>
-            <Button
-              disabled={this.state.name.length === 0}
-              click={() => {
-                this.nextStep("copy");
-              }}
-              m={5}
-            >
-              copy existing activities
-            </Button>
-            <Button
-              disabled={this.state.name.length === 0}
-              click={() => {
-                this.nextStep("new");
-              }}
-              m={5}
-            >
-              create a new {displayResource}
-            </Button>
-          </div>
+          <Aux>
+            <div className={classes.ModalButton}>
+              <Button
+                disabled={this.state.name.length === 0}
+                click={() => {
+                  this.nextStep("new");
+                }}
+                m={5}
+              >
+                create a new {displayResource}
+              </Button>
+            </div>
+            <div className={classes.ModalButton}>
+              <Button
+                disabled={this.state.name.length === 0}
+                click={() => {
+                  this.nextStep("copy");
+                }}
+                m={5}
+              >
+                copy existing activities
+              </Button>
+            </div>
+          </Aux>
         );
       }
     } else if (this.state.step === steps.length - 1) {
       buttons = (
-        <div className={classes.Row}>
+        <div className={classes.ModalButton}>
           <Button data-testId="create" click={this.submitForm}>
             create
           </Button>
@@ -336,7 +340,11 @@ class NewResourceContainer extends Component {
     return (
       <Aux>
         {this.state.creating ? (
-          <Modal show={this.state.creating} closeModal={this.closeModal}>
+          <Modal
+            height={470}
+            show={this.state.creating}
+            closeModal={this.closeModal}
+          >
             {this.state.step > 0 ? (
               <i
                 onClick={this.prevStep}
@@ -348,9 +356,11 @@ class NewResourceContainer extends Component {
                 Create {resource === "activities" ? "an" : "a"}{" "}
                 {displayResource}
               </h2>
-              {steps[this.state.step]}
+              <div className={classes.MainModalContent}>
+                {steps[this.state.step]}
+              </div>
+              <div className={classes.Row}>{buttons}</div>
             </div>
-            {buttons}
             <div className={classes.StepDisplayContainer}>{stepDisplays}</div>
           </Modal>
         ) : null}

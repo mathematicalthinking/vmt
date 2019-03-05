@@ -1,9 +1,9 @@
 import React from "react";
-import { RadioBtn } from "../../../Components/";
+import { RadioBtn, Aux } from "../../../Components/";
 import classes from "../create.css";
 const Step2New = props => {
   return (
-    <div className={classes.Step3}>
+    <Aux>
       <p style={{ marginBottom: 10 }}>Select a worksapce type</p>
       <div className={classes.RadioButtons}>
         <RadioBtn name="geogebra" checked={props.ggb} check={props.setGgb}>
@@ -13,7 +13,7 @@ const Step2New = props => {
           Desmos
         </RadioBtn>
       </div>
-    </div>
+    </Aux>
   );
 };
 

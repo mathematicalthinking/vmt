@@ -141,7 +141,7 @@ class Activity extends Component {
         )
       };
 
-      const crumbs = [{ title: "My VMT", link: "/myVMT/courses" }];
+      const crumbs = [{ title: "My VMT", link: "/myVMT/activities" }];
       if (course) {
         crumbs.push(
           {

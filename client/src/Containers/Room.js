@@ -277,7 +277,6 @@ class Room extends Component {
       let ggb = false;
       let desmos = false;
       room.tabs.forEach(tab => {
-        console.log(tab.tabType);
         if (tab.tabType === "geogebra") ggb = true;
         else if (tab.tabType === "desmos") desmos = true;
       });
@@ -338,7 +337,7 @@ class Room extends Component {
       }
 
       let crumbs = [
-        { title: "My VMT", link: "/myVMT/courses" },
+        { title: "My VMT", link: "/myVMT/rooms" },
         { title: room.name, link: `/myVMT/rooms/${room._id}/details` }
       ];
       //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM

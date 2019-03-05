@@ -11,11 +11,12 @@
   display: flex;
   flex-flow: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   padding-bottom: 20px;
-  height: 370px;
+  height: 100%;
   width: 100%;
-  /* border-bottom: 2px solid #ddd; */
+  text-transform: uppercase;
+  color: #666;
 }
 
 .ModalTitle {
@@ -41,10 +42,24 @@
   margin: 10px;
 }
 
+.MainModalContent {
+  display: flex;
+  flex-flow: column;
+  width: 100%;
+  flex-grow: 1;
+  text-transform: none;
+}
+
 .Row {
   display: flex;
   justify-content: space-around;
+  align-items: stretch;
   width: 100%;
+}
+
+.ModalButton {
+  flex-grow: 0;
+  width: 50%;
 }
 
 .FormSection {
@@ -61,18 +76,19 @@
   flex-flow: column;
 }
 
-.Step3 {
-  margin-top: 10px;
-  width: 100%;
-}
-
 .RadioButtons {
   display: flex;
   justify-content: space-around;
+  align-self: center;
   width: 100%;
+  flex-grow: 1;
+  align-items: center;
   font-size: 1.4em;
 }
 
+.PrivacyDesc {
+  flex-grow: 2;
+}
 .Checkbox {
   padding: 12px;
   font-size: 1.4em;

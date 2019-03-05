@@ -9,9 +9,11 @@ class Step1 extends Component {
     return (
       <div className={classes.Container}>
         <DueDate dueDate={dueDate} selectDate={setDueDate} />
-        <Button m={5} click={nextStep} data-testid="next-step-assign">
-          Next
-        </Button>
+        <div className={classes.ModalButton}>
+          <Button m={5} click={nextStep} data-testid="next-step-assign">
+            Next
+          </Button>
+        </div>
       </div>
     );
   }
