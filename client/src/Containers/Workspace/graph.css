@@ -1,4 +1,4 @@
-:import('../../colors.css'){
+:import("../../colors.css") {
   graphHeight: graphHeight;
   graphWidth: graphWidth;
   lightShadow: lightShadow;
@@ -16,7 +16,7 @@
   position: fixed;
   background: #efefef;
   color: red;
-  transition: .2s;
+  transition: 0.2s;
   z-index: 601;
   padding: 10px;
   box-shadow: lightShadow;
@@ -32,31 +32,14 @@
   z-index: 5000;
 }
 
-.NewTabModal {
-  padding: 20px;
-}
-
-.RadioGroup {
-  margin: 30px 0 20px 0;
-  display: flex;
-  justify-content: space-around;
-  font-size: 18px;
-}
-
 .ImportOption {
   height: 110px;
 }
 
-.ImportOption input{
+.ImportOption input {
   width: 100%;
 }
 
 .Info {
   margin: 15px 0;
-}
-
-.ErrorMessage {
-  color: red;
-  margin-top: -9px;
-  margin-bottom: -10px;
 }

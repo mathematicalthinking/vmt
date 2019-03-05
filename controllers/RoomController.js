@@ -18,7 +18,9 @@ module.exports = {
         .sort("-createdAt")
         .populate({ path: "members.user", select: "username" })
         .populate({ path: "currentMembers.user", select: "username" })
+        .populate({ path: "tabs", select: "name tabType" })
         .then(rooms => {
+          console.log(rooms);
           // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
           resolve(rooms);
         })
@@ -75,6 +77,10 @@ module.exports = {
       });
   },
 
+  /**
+   * @method post - creates a room (and tabs if necessary)
+   * @param  {body} - fields for creating new room and tabs
+   */
   post: body => {
     return new Promise(async (resolve, reject) => {
       // Prepare the tabs if they exist
@@ -114,7 +120,8 @@ module.exports = {
             desmosLink: body.desmosLink,
             currentState: tab.currentState,
             startingPoint: tab.startingPoint,
-            tabType: tab.tabType
+            tabType: tab.tabType,
+            appName: tab.appName
           });
           return newTab;
         });
@@ -125,7 +132,8 @@ module.exports = {
               name: `Tab ${index + 1}`,
               room: room._id,
               ggbFile: file,
-              tabType: body.roomType
+              tabType: body.roomType,
+              appName: body.appName
             });
           });
         } else {
@@ -134,7 +142,8 @@ module.exports = {
               name: "Tab 1",
               room: room._id,
               desmosLink: body.desmosLink,
-              tabType: body.roomType || "geogebra"
+              tabType: body.roomType || "geogebra",
+              appName: body.appName
             })
           ];
         }

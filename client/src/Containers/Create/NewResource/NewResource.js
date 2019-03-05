@@ -6,6 +6,7 @@ import Step2Copy from "./Step2Copy";
 import Step2New from "./Step2New";
 import Step3 from "./Step3";
 import DueDate from "../DueDate";
+import RoomOpts from "./RoomOpts";
 import { getUserResources, populateResource } from "../../../store/reducers";
 import { Modal, Aux, Button } from "../../../Components/";
 import classes from "../create.css";
@@ -50,6 +51,7 @@ const initialState = {
   description: "",
   desmosLink: "",
   ggbFiles: "",
+  appName: "",
   dueDate: "",
   activities: [],
   privacySetting: "public"
@@ -140,6 +142,8 @@ class NewResourceContainer extends Component {
             }
           ];
           newResource.dueDate = this.state.dueDate;
+          newResource.appName = this.state.appName;
+          console.log(newResource);
           this.props.createRoom(newResource);
           break;
         default:
@@ -175,6 +179,10 @@ class NewResourceContainer extends Component {
     this.setState({
       ggbFiles: event.target.files
     });
+  };
+
+  setGgbApp = appName => {
+    this.setState({ appName });
   };
 
   setDueDate = dueDate => {
@@ -237,9 +245,7 @@ class NewResourceContainer extends Component {
         <Step2New
           setGgb={this.setGgb}
           ggb={this.state.ggb}
-          setGgbFile={this.setGgbFile}
           changeHandler={this.changeHandler}
-          desmosLink={this.state.desmosLink}
         />
       ),
       <Step3
@@ -253,6 +259,24 @@ class NewResourceContainer extends Component {
         2,
         0,
         <DueDate dueDate={this.state.dueDate} selectDate={this.setDueDate} />
+      );
+    }
+
+    if (
+      !this.state.copying &&
+      (resource === "rooms" || resource === "activities")
+    ) {
+      steps.splice(
+        2,
+        0,
+        <RoomOpts
+          ggb={this.state.ggb}
+          setGgbFile={this.setGgbFile}
+          setGgbApp={this.setGgbApp}
+          desmosLink={this.state.desmosLink}
+          setDesmosLink={this.changeHandler}
+          appName={this.state.appName}
+        />
       );
     }
 

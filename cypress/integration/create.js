@@ -46,6 +46,9 @@ describe("create each type of resource", function() {
       .contains("next")
       .click();
     cy.get("button")
+      .contains("next")
+      .click();
+    cy.get("button")
       .contains("create")
       .click();
     cy.contains(room.name).should("exist");
@@ -67,6 +70,9 @@ describe("create each type of resource", function() {
       .type(activity.description);
     cy.get("button")
       .contains("create a new activity")
+      .click();
+    cy.get("button")
+      .contains("next")
       .click();
     cy.get("button")
       .contains("next")
@@ -154,6 +160,9 @@ describe("create each type of resource", function() {
       .contains("next")
       .click();
     cy.get("button")
+      .contains("next")
+      .click();
+    cy.get("button")
       .contains("create")
       .click();
     cy.contains(course.activity.name).should("exist");
@@ -176,6 +185,9 @@ describe("create each type of resource", function() {
       .type(course.room.description);
     cy.get("button")
       .contains("create a new room")
+      .click();
+    cy.get("button")
+      .contains("next")
       .click();
     cy.get("button")
       .contains("next")

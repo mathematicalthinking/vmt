@@ -11,7 +11,7 @@ import {
 import WorkspaceLayout from "../../Layout/Workspace/Workspace";
 import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from "./";
 import { Modal, Aux, CurrentMembers } from "../../Components";
-import NewTabForm from "./NewTabForm";
+import NewTabForm from "../Create/NewTabForm";
 import socket from "../../utils/sockets";
 // import Replayer from ''
 class Workspace extends Component {
@@ -89,8 +89,6 @@ class Workspace extends Component {
           )
         });
       });
-
-      // socket.disconnect()
     }
   };
 

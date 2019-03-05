@@ -1,0 +1,16 @@
+.NewTabModal {
+  padding: 20px;
+}
+
+.ErrorMessage {
+  color: red;
+  margin-top: -9px;
+  margin-bottom: -10px;
+}
+
+.RadioGroup {
+  margin: 30px 0 20px 0;
+  display: flex;
+  justify-content: space-around;
+  font-size: 18px;
+}

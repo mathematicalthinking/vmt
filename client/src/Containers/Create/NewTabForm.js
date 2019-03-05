@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { TextInput, RadioBtn, Button } from "../../Components";
-import classes from "./graph.css";
+import RoomOpts from "./NewResource/RoomOpts";
+import classes from "./newTabForm.css";
 import API from "../../utils/apiRequests";
 class NewTabForm extends Component {
   state = {
@@ -9,7 +10,8 @@ class NewTabForm extends Component {
     tabType: "",
     ggbFile: "",
     desmosLink: "",
-    ggb: true
+    ggb: true,
+    appName: ""
   };
 
   changeHandler = event => {
@@ -58,6 +60,7 @@ class NewTabForm extends Component {
       instructions: this.state.instructions,
       tabType: this.state.ggb ? "geogebra" : "desmos",
       desmosLink: this.state.desmosLink,
+      appName: this.state.appName,
       room: this.props.room ? this.props.room._id : null,
       activity: this.props.activity ? this.props.activity._id : null
     };
@@ -145,28 +148,17 @@ class NewTabForm extends Component {
             Desmos
           </RadioBtn>
         </div>
-        <div className={classes.ImportOption}>
-          {this.state.ggb ? (
-            <div>
-              <div className={classes.Info}>Import a GeoGebra (optional)</div>
-              <input
-                type="file"
-                id="file"
-                multiple={false}
-                name="ggbFile"
-                accept=".ggb"
-                onChange={this.setGgbFile}
-              />
-            </div>
-          ) : (
-            <TextInput
-              light
-              name="desmosLink"
-              label="Paste a Desmos workspace"
-              change={this.changeHandler}
-            />
-          )}
-        </div>
+        <RoomOpts
+          tab
+          ggb={this.state.ggb}
+          setGgbFile={this.setGgbFile}
+          setGgbAppName={appName => this.setState({ ggbAppName: appName })}
+          desmosLink={this.state.desmosLink}
+          setDesmosLink={event =>
+            this.setState({ desmosLink: event.target.value })
+          }
+          appName={this.state.appName}
+        />
         <Button m={10} click={this.submit}>
           Create
         </Button>

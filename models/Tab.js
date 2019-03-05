@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const Tab = new mongoose.Schema({
   name: { type: String },
+  appName: { type: String, enum: ["3d", "graphing", "classic", "geometry"] }, // Only for GeoGebra Rooms
   instructions: { type: String },
   tabType: { type: String, enum: ["geogebra", "desmos"] },
   currentState: { type: String, default: "" },

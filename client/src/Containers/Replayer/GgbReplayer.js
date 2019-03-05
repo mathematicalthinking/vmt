@@ -4,7 +4,6 @@ import Aux from "../../Components/HOC/Auxil";
 // import { GRAPH_HEIGHT } from '../../constants';
 import Modal from "../../Components/UI/Modal/Modal";
 import Script from "react-load-script";
-import { parseString } from "xml2js";
 class GgbReplayer extends Component {
   state = {
     loading: true,
@@ -55,10 +54,34 @@ class GgbReplayer extends Component {
     window.removeEventListener("resize", this.updateDimensions);
   }
 
+  // We should periodically save the entire state so if we skip to the very end we don't have to apply each event one at a time
+
+  /**
+   * @method applyMultipleEvents
+   * @description Takes two indices from the log and applies (or un-applies if going backwards thru time) all
+   * @param  {} startIndex
+   * @param  {} endIndex
+   */
+
   applyMultipleEvents(startIndex, endIndex) {
     if (startIndex < endIndex) {
+      // this.ggbApplet.setXML(this.props.log[endIndex].currentState);
       for (let i = startIndex; i <= endIndex; i++) {
-        this.constructEvent(this.props.log[i]);
+        if (
+          this.props.log[i].eventArray &&
+          this.props.log[i].eventArray.length > 0
+        ) {
+          let syntheticEvent = { ...this.props.log[i] };
+          let { eventArray, batchSize } = syntheticEvent;
+          if (!batchSize) batchSize = eventArray.length;
+          syntheticEvent.eventArray = eventArray.slice(
+            eventArray.length - batchSize,
+            eventArray.length
+          );
+          this.constructEvent(syntheticEvent);
+        } else {
+          this.constructEvent(this.props.log[i]);
+        }
       }
     }
 
@@ -72,6 +95,9 @@ class GgbReplayer extends Component {
           syntheticEvent.eventType = "ADD";
         } else if (syntheticEvent.eventType === "BATCH_ADD") {
           syntheticEvent.eventType = "BATCH_REMOVE";
+        } else if (syntheticEvent.eventType === "BATCH_UPDATE") {
+          let { eventArray, batchSize } = { ...syntheticEvent };
+          syntheticEvent.eventArray = eventArray.slice(0, batchSize);
         }
         this.constructEvent(syntheticEvent);
       }
@@ -94,13 +120,52 @@ class GgbReplayer extends Component {
         this.ggbApplet.evalXML(data.event);
         this.ggbApplet.evalCommand("UpdateConstruction()");
         break;
-      case "BATCH_REMOVE":
-        data.eventArray.forEach(event =>
-          this.ggbApplet.deleteObject(event.slice(0, event.indexOf(":")))
-        );
+      case "CHANGE_PERSPECTIVE":
+        this.ggbApplet.setPerspective(data.event);
+        this.ggbApplet.showAlgebraInput(true);
+        // this.ggbApplet.evalXML(data.event);
+        // this.ggbApplet.evalCommand("UpdateConstruction()");
+        break;
+      case "BATCH_UPDATE":
+        this.recursiveUpdate([...data.eventArray], data.batchSize);
+        break;
+      case "BATCH_ADD":
+        if (data.definition) {
+          this.recursiveUpdate([...data.eventArray], 1, true);
+        }
         break;
       default:
         break;
+    }
+  }
+
+  /**
+   * @method recursiveUpdate
+   * @description takes an array of events and updates the construction in batches
+   * used to make drag updates and multipoint shape creation more efficient. See ./docs/Geogebra
+   * Note that this is copy-pasted in GgbReplayer for now, consider abstracting
+   * @param  {Array} events - array of ggb xml events
+   * @param  {Number} batchSize - the batch size, i.e., number of points in the shape
+   * @param  {Boolean} adding - true if BATCH_ADD false if BATCH_UPDATE
+   */
+  recursiveUpdate(events, batchSize, adding) {
+    if (events && events.length > 0) {
+      if (adding) {
+        for (let i = 0; i < events.length; i++) {
+          this.ggbApplet.evalCommand(events[i]);
+        }
+      } else {
+        this.ggbApplet.evalXML(
+          events.splice(0, batchSize * 2).join("") ||
+            events.splice(0, events.length).join("")
+        );
+        this.ggbApplet.evalCommand("UpdateConstruction()");
+        setTimeout(() => {
+          this.recursiveUpdate(events, batchSize);
+        }, 10);
+      }
+    } else {
+      return;
     }
   }
 
@@ -118,7 +183,7 @@ class GgbReplayer extends Component {
       borderColor: "#ddd",
       preventFocus: true,
       appletOnLoad: this.initializeGgb,
-      appName: "3D Graphics"
+      appName: this.props.tab.appName
     };
     const ggbApp = new window.GGBApplet(parameters, "5.0");
     ggbApp.inject(`ggb-element${this.props.tabId}A`);
@@ -129,9 +194,9 @@ class GgbReplayer extends Component {
     this.setState({ loading: false });
     this.ggbApplet.setMode(40); // Sets the tool to zoom
     let { tab } = this.props;
-    let { currentState, startingPoint, ggbFile, perspective } = tab;
+    let { currentState, startingPoint, ggbFile } = tab;
     // put the current construction on the graph, disable everything until the user takes control
-    if (perspective) this.ggbApplet.setPerspective(perspective);
+    // if (perspective) this.ggbApplet.setPerspective(perspective);
     if (startingPoint) {
       this.ggbApplet.setXML(currentState);
     } else if (ggbFile) {
