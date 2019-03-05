@@ -1,7 +1,7 @@
 /* @value colors: '../../colors.css'
 @value blue from colors; */
 
-:import('../../colors.css') {
+:import("../../colors.css") {
   gridBlue: gridBlue;
   darkBlue: darkBlue;
   blue: blue;
@@ -23,7 +23,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-
 }
 
 .Top {
@@ -31,16 +30,30 @@
   color: white;
   font-size: 24px;
   text-align: center;
-  transition: .2s;
+  transition: 0.2s;
   height: 50vh;
 }
 
 @keyframes bounce_arrow {
-  0% {bottom: 0px;}
-  70%{ bottom: 0px;}
-  80% {bottom: -20px;}
-  85% {bottom: 10px;}
-  100% {bottom: 0px;}
+  0% {
+    bottom: 0px;
+  }
+  70% {
+    bottom: 0px;
+  }
+  80% {
+    bottom: -20px;
+  }
+  85% {
+    bottom: 10px;
+  }
+  100% {
+    bottom: 0px;
+  }
+}
+
+.WorkspaceButton {
+  height: 70px;
 }
 
 .BackgroundExtension {
@@ -51,9 +64,10 @@
   right: 0;
   /* overflow-x: hidden; */
   background-size: 25px 25px;
-  background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
+  background-image: linear-gradient(to right, gridBlue 0.5px, transparent 1px),
+    linear-gradient(to bottom, gridBlue 0.5px, transparent 1px) !important;
   z-index: 20;
-  height: 5vh
+  height: 5vh;
 }
 
 .Ex2 {
@@ -63,9 +77,10 @@
   left: 0;
   width: 7%;
   background-size: 25px 25px;
-  background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
+  background-image: linear-gradient(to right, gridBlue 0.5px, transparent 1px),
+    linear-gradient(to bottom, gridBlue 0.5px, transparent 1px) !important;
   z-index: 20;
-  height: 15vh
+  height: 15vh;
 }
 
 .Ex3 {
@@ -75,9 +90,10 @@
   left: 0;
   width: 14%;
   background-size: 50px 50px;
-  background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
+  background-image: linear-gradient(to right, gridBlue 0.5px, transparent 1px),
+    linear-gradient(to bottom, gridBlue 0.5px, transparent 1px) !important;
   z-index: 20;
-  height: 8vh
+  height: 8vh;
 }
 
 .Ex4 {
@@ -87,9 +103,10 @@
   left: 0;
   width: 3%;
   background-size: 25px 25px;
-  background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
+  background-image: linear-gradient(to right, gridBlue 0.5px, transparent 1px),
+    linear-gradient(to bottom, gridBlue 0.5px, transparent 1px) !important;
   z-index: 20;
-  height: 25vh
+  height: 25vh;
 }
 
 .Ex5 {
@@ -99,9 +116,10 @@
   right: 150px;
   /* width: 14%; */
   background-size: 50px 50px;
-  background-image: linear-gradient(to right, gridBlue .5px, transparent 1px), linear-gradient(to bottom, gridBlue .5px, transparent 1px) !important;
+  background-image: linear-gradient(to right, gridBlue 0.5px, transparent 1px),
+    linear-gradient(to bottom, gridBlue 0.5px, transparent 1px) !important;
   z-index: 20;
-  height: 8vh
+  height: 8vh;
 }
 .Down {
   position: absolute;
@@ -150,7 +168,6 @@
 .GgbImage {
   height: 300px;
 }
-
 
 .Desmos {
   display: flex;
