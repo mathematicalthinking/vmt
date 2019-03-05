@@ -76,6 +76,9 @@ describe("show different views based on role", function() {
       .contains("next")
       .click();
     cy.get("button")
+      .contains("next")
+      .click();
+    cy.get("button")
       .contains("create")
       .click();
     cy.contains(room.name).should("exist");

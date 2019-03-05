@@ -260,6 +260,12 @@ class NewResourceContainer extends Component {
         0,
         <DueDate dueDate={this.state.dueDate} selectDate={this.setDueDate} />
       );
+    }
+
+    if (
+      !this.state.copying &&
+      (resource === "rooms" || resource === "activities")
+    ) {
       steps.splice(
         2,
         0,
