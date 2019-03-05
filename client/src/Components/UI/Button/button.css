@@ -20,6 +20,7 @@
   padding: 8px;
   border-radius: 3px;
   /* border: 1px solid #d3d2d4; */
+  height: 100%;
   transition: 0.2s;
   font-size: inherit;
   letter-spacing: 0.08em;
@@ -174,9 +175,14 @@
 }
 
 .Disabled {
-  composes: Button;
+  composes: Small;
   color: #333;
-  background: #999;
+  cursor: not-allowed;
+  background: linear-gradient(to top, #b9b0b0, lightGrey 90%);
+}
+
+.Disabled:hover {
+  background: linear-gradient(to top, #b9b0b0, lightGrey 90%);
 }
 
 .Danger {

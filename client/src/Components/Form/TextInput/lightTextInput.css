@@ -1,4 +1,4 @@
-:import('../../../colors.css'){
+:import("../../../colors.css") {
   lightBlue: gridBlue;
   blue: blue;
 }
@@ -20,8 +20,8 @@
   background: none !important;
   font-size: 20px;
   caret-color: blue;
-  color: black;
-  transition: .2s;
+  color: #222;
+  transition: 0.2s;
   font-family: inherit;
 }
 
@@ -39,7 +39,7 @@
 .Label {
   margin: 10px 0;
   text-align: left;
-  font-size: 18px;
-  color: black;
+  font-size: 15px;
+  text-transform: uppercase;
+  color: #666;
 }
-
