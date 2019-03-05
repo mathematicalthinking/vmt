@@ -27,7 +27,7 @@ class GgbGraph extends Component {
 
   /**
    * @method componentDidMount
-   * @description add socket listeners, window resize listner
+   * @description add socket listeners, window resize listener
    */
 
   componentDidMount() {
@@ -35,7 +35,6 @@ class GgbGraph extends Component {
     window.addEventListener("resize", this.updateDimensions);
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
-      console.log(data);
       this.setState({ receivingData: true }, () => {
         // console.log("receiving event");
         // console.log(data);
@@ -69,11 +68,8 @@ class GgbGraph extends Component {
             case "CHANGE_PERSPECTIVE":
               this.ggbApplet.setPerspective(data.event);
               this.ggbApplet.showAlgebraInput(true);
-              // this.ggbApplet.evalXML(data.event);
-              // this.ggbApplet.evalCommand("UpdateConstruction()");
               break;
             case "BATCH_UPDATE":
-              console.log("batch updating");
               this.batchUpdating = true;
               this.recursiveUpdate(data.event, data.noOfPoints);
               break;
@@ -108,10 +104,8 @@ class GgbGraph extends Component {
     if (!this.ggbApplet) return;
 
     // Control
-    let { room, role } = this.props;
     let wasInControl = prevProps.room.controlledBy === this.props.user._id;
     let isInControl = this.props.room.controlledBy === this.props.user._id;
-    let isSomeoneElseInControl = this.props.room.controlledBy && !isInControl;
 
     if (!wasInControl && isInControl) {
       this.ggbApplet.setMode(0);
@@ -142,12 +136,9 @@ class GgbGraph extends Component {
       let position = await this.getRelativeCoords(this.props.referToEl.element);
       this.props.setToElAndCoords(null, position);
     } else if (prevProps.currentTab !== this.props.currentTab) {
-      let {
-        currentState,
-        startingPoint,
-        ggbFile,
-        perspective
-      } = this.props.room.tabs[this.props.currentTab];
+      let { currentState, startingPoint, ggbFile } = this.props.room.tabs[
+        this.props.currentTab
+      ];
       // initPerspectiveListener(document, perspective, this.changePerspective);
       if (currentState) {
         this.ggbApplet.setXML(currentState);
@@ -206,7 +197,7 @@ class GgbGraph extends Component {
     }
   }
 
-  updateDimensions = () => {
+  updateDimensions = async () => {
     if (this.graph.current && !this.state.loading) {
       let { clientHeight, clientWidth } = this.graph.current.parentElement;
       window.ggbApplet.setSize(clientWidth, clientHeight);
@@ -217,8 +208,8 @@ class GgbGraph extends Component {
           this.props.referToEl.elmentType !== "chat_message")
       ) {
         let { element } = this.props.referToEl;
-        // let position = await this.getRelativeCoords(element);
-        // this.props.setToElAndCoords(null, position);
+        let position = await this.getRelativeCoords(element);
+        this.props.setToElAndCoords(null, position);
 
         // @TODO SET A CANCELABLE TIMER TO SHOW THE REFERENCE AFTER RESIZING IS DONE
       }
@@ -328,7 +319,6 @@ class GgbGraph extends Component {
    */
   clientListener = event => {
     // console.log("client Listener");
-    // console.log(event);
     if (this.state.receivingData) {
       return this.setState({ receivingData: false });
     }
@@ -366,6 +356,7 @@ class GgbGraph extends Component {
       case "select":
         break;
       case "openMenu":
+        console.log("close menu!");
         break;
       case "perspectiveChange":
         break;
@@ -387,20 +378,20 @@ class GgbGraph extends Component {
         }
         break;
       case "movingGeos":
-        this.updatingOn = false; // turn of updating so the updateListener does not send events
+        // this.updatingOn = false; // turn of updating so the updateListener does not send events
         break;
       case "movedGeos":
-        this.updatingOn = false;
+        // this.updatingOn = false;
 
-        // combine xml into one event
-        let xml = "";
+        // // combine xml into one event
+        // let xml = "";
 
-        for (var i = 1; i < event.length; i++) {
-          xml += this.ggbApplet.getXML(event[i]);
-        }
+        // for (var i = 1; i < event.length; i++) {
+        //   xml += this.ggbApplet.getXML(event[i]);
+        // }
 
-        // this.sendEvent(xml, null, null, "UPDATE", "moved");
-        this.updatingOn = true;
+        // // this.sendEvent(xml, null, null, "UPDATE", "moved");
+        // this.updatingOn = true;
         break;
 
       default:
@@ -418,7 +409,6 @@ class GgbGraph extends Component {
    */
 
   addListener = label => {
-    console.log("add ", label);
     if (this.state.receivingData) {
       this.setState({ receivingData: false });
       return;
@@ -480,9 +470,9 @@ class GgbGraph extends Component {
       this.setState({ receivingData: false });
       return;
     }
-    let independent = this.ggbApplet.isIndependent(label);
-    let moveable = this.ggbApplet.isMoveable(label);
-    let isInControl = this.props.room.controlledBy === this.props.user._id;
+    // let independent = this.ggbApplet.isIndependent(label);
+    // let moveable = this.ggbApplet.isMoveable(label);
+    // let isInControl = this.props.room.controlledBy === this.props.user._id;
     if (!this.state.receivingData) {
       let xml = this.ggbApplet.getXML(label);
       this.sendEvent(xml, null, label, "UPDATE", "updated");
@@ -545,7 +535,6 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action) => {
-    console.log(eventType, label);
     if (!this.firstLabel) {
       this.firstLabel = label;
     }

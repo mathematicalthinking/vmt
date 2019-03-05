@@ -11,7 +11,7 @@ import {
 } from "./index";
 import { CurrentMembers } from "../../Components";
 import { Tabs, Tools } from "../Workspace";
-import throttle from "lodash/throttle";
+// import throttle from "lodash/throttle";
 import moment from "moment";
 const MAX_WAIT = 10000; // 10 seconds
 const BREAK_DURATION = 2000;

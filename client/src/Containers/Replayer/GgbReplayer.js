@@ -4,7 +4,6 @@ import Aux from "../../Components/HOC/Auxil";
 // import { GRAPH_HEIGHT } from '../../constants';
 import Modal from "../../Components/UI/Modal/Modal";
 import Script from "react-load-script";
-import { parseString } from "xml2js";
 class GgbReplayer extends Component {
   state = {
     loading: true,
@@ -56,8 +55,15 @@ class GgbReplayer extends Component {
   }
 
   // We should periodically save the entire state so if we skip to the very end we don't have to apply each event one at a time
+
+  /**
+   * @method applyMultipleEvents
+   * @description Takes two indices from the log and applies (or un-applies if going backwards thru time) all
+   * @param  {} startIndex
+   * @param  {} endIndex
+   */
+
   applyMultipleEvents(startIndex, endIndex) {
-    console.log("applying multiple events");
     if (startIndex < endIndex) {
       // this.ggbApplet.setXML(this.props.log[endIndex].currentState);
       for (let i = startIndex; i <= endIndex; i++) {
@@ -124,7 +130,6 @@ class GgbReplayer extends Component {
         this.recursiveUpdate([...data.eventArray], data.batchSize);
         break;
       case "BATCH_ADD":
-        console.log(data);
         if (data.definition) {
           this.recursiveUpdate([...data.eventArray], 1, true);
         }
@@ -144,8 +149,6 @@ class GgbReplayer extends Component {
    * @param  {Boolean} adding - true if BATCH_ADD false if BATCH_UPDATE
    */
   recursiveUpdate(events, batchSize, adding) {
-    console.log("recursive update: ", events.length);
-    console.log(batchSize);
     if (events && events.length > 0) {
       if (adding) {
         for (let i = 0; i < events.length; i++) {
@@ -153,7 +156,7 @@ class GgbReplayer extends Component {
         }
       } else {
         this.ggbApplet.evalXML(
-          events.splice(0, batchSize).join("") ||
+          events.splice(0, batchSize * 2).join("") ||
             events.splice(0, events.length).join("")
         );
         this.ggbApplet.evalCommand("UpdateConstruction()");
@@ -191,7 +194,7 @@ class GgbReplayer extends Component {
     this.setState({ loading: false });
     this.ggbApplet.setMode(40); // Sets the tool to zoom
     let { tab } = this.props;
-    let { currentState, startingPoint, ggbFile, perspective } = tab;
+    let { currentState, startingPoint, ggbFile } = tab;
     // put the current construction on the graph, disable everything until the user takes control
     // if (perspective) this.ggbApplet.setPerspective(perspective);
     if (startingPoint) {

@@ -1,5 +1,5 @@
 import React from "react";
-import { RadioBtn, TextInput } from "../../../Components/";
+import { RadioBtn } from "../../../Components/";
 import classes from "../create.css";
 const Step2New = props => {
   return (
