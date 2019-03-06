@@ -19,11 +19,12 @@ class GgbGraph extends Component {
   firstLabel;
   pointCounter = 1;
   noOfPoints;
-  updatingOn = true;
+  updatingOn = false;
   resetting = false; // used to reset the construction when something is done by a user not in control.
   editorState = null; // In the algebra input window,
   receivingData = false;
   batchUpdating = false;
+  movingGeos = false;
   socketQueue = [];
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
   /**
@@ -32,12 +33,11 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
-    // window.addEventListener('click', this.clickListener)
     window.addEventListener("resize", this.updateDimensions);
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
-      console.log("event received");
-      console.log("already receiving data: ", this.state.receivingData);
+      // console.log("event received");
+      // console.log("already receiving data: ", this.state.receivingData);
       if (this.state.receivingData) {
         this.socketQueue.push(data);
         return;
@@ -47,14 +47,14 @@ class GgbGraph extends Component {
       this.setState({ receivingData: true }, () => {
         // console.log("receiving event");
         // console.log(data);
-        let updatedTabs = this.props.room.tabs.map(tab => {
-          if (tab._id === data.tab) {
-            tab.currentState = data.currentState;
-          }
-          return tab;
-        });
+        // let updatedTabs = this.props.room.tabs.map(tab => {
+        //   if (tab._id === data.tab) {
+        //     tab.currentState = data.currentState;
+        //   }
+        //   return tab;
+        // });
         // update the redux store
-        this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
+        // this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs }); @todo do this elsewhere
         // If this happend on the current tab
         if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
           // @TODO consider abstracting out...resued in the GgbReplayer
@@ -79,10 +79,12 @@ class GgbGraph extends Component {
               this.ggbApplet.showAlgebraInput(true);
               break;
             case "BATCH_UPDATE":
+              this.updatingOn = true;
               this.batchUpdating = true;
               this.recursiveUpdate(data.event, data.noOfPoints);
               break;
             case "BATCH_ADD":
+              this.updatingOn = true;
               if (data.definition) {
                 // console.log(data);
                 // console.log(typeof data.event);
@@ -187,13 +189,19 @@ class GgbGraph extends Component {
    */
 
   recursiveUpdate(events, batchSize, adding) {
+    // console.log(events.length);
     if (events.length > 0) {
       if (adding) {
         for (let i = 0; i < events.length; i++) {
           this.ggbApplet.evalCommand(events[i]);
         }
+        this.updatingOn = false;
+        this.setState({ receivingData: false });
+        return;
       } else {
-        events.splice(0, batchSize); // skip some events if the eventArray is sufficiently long
+        // console.log(this.socketQueue.length);
+        // console.log("skipping ", Math.round(this.socketQueue.length / 10));
+        events.splice(0, batchSize); // skip some events if the socketQueue is sufficiently long
         this.ggbApplet.evalXML(
           events.splice(0, batchSize).join("") ||
             events.splice(0, events.length).join("")
@@ -205,10 +213,11 @@ class GgbGraph extends Component {
       }
     } else if (this.socketQueue.length > 0) {
       let nextEvent = this.socketQueue.shift();
-      console.log(nextEvent);
+      // console.log(nextEvent);
       this.recursiveUpdate(nextEvent.event, nextEvent.noOfPoints, false);
     } else {
-      console.log("NO QUEUE", this.socketQueue);
+      // console.log("NO QUEUE", this.socketQueue);
+      this.updatingOn = false;
       this.setState({ receivingData: false });
     }
   }
@@ -312,7 +321,7 @@ class GgbGraph extends Component {
    */
 
   userCanEdit = () => {
-    if (this.resetting) {
+    if (this.resetting || this.updatingOn) {
       return true;
     }
     if (
@@ -338,8 +347,8 @@ class GgbGraph extends Component {
 
   clientListener = event => {
     // console.log("client Listener");
-    if (this.state.receivingData) {
-      // return this.setState({ receivingData: false });
+    if (this.state.receivingData && !this.updatingOn) {
+      return this.setState({ receivingData: false });
     }
     switch (event[0]) {
       case "setMode":
@@ -396,22 +405,24 @@ class GgbGraph extends Component {
           this.showAlert();
         }
         break;
-      case "movingGeos":
-        // this.updatingOn = false; // turn of updating so the updateListener does not send events
-        break;
-      case "movedGeos":
-        // this.updatingOn = false;
+      // case "movingGeos":
+      //   this.movingGeos = true; // turn of updating so the updateListener does not send events
+      //   break;
+      // case "movedGeos":
+      //   this.movingGeos = true;
 
-        // // combine xml into one event
-        // let xml = "";
-
-        // for (var i = 1; i < event.length; i++) {
-        //   xml += this.ggbApplet.getXML(event[i]);
-        // }
-
-        // // this.sendEvent(xml, null, null, "UPDATE", "moved");
-        // this.updatingOn = true;
-        break;
+      //   // combine xml into one event
+      //   let xml = "";
+      //   let label = "";
+      //   console.log("event: ", event);
+      //   for (var i = 1; i < event.length; i++) {
+      //     xml += this.ggbApplet.getXML(event[i]);
+      //     label += event[i];
+      //   }
+      //   console.log(label);
+      //   this.sendEventBuffer(xml, null, label, "UPDATE", "moved");
+      //   this.movingGeos = false;
+      //   break;
 
       default:
         break;
@@ -428,8 +439,8 @@ class GgbGraph extends Component {
    */
 
   addListener = label => {
-    if (this.state.receivingData) {
-      // this.setState({ receivingData: false });
+    if (this.state.receivingData && !this.updatingOn) {
+      this.setState({ receivingData: false });
       return;
     }
     if (this.resetting) {
@@ -455,8 +466,8 @@ class GgbGraph extends Component {
    */
 
   removeListener = label => {
-    if (this.state.receivingData) {
-      // this.setState({ receivingData: false });
+    if (this.state.receivingData && !this.updatingOn) {
+      this.setState({ receivingData: false });
       return;
     }
     if (this.resetting) {
@@ -485,8 +496,8 @@ class GgbGraph extends Component {
 
   updateListener = label => {
     if (this.batchUpdating) return;
-    if (this.state.receivingData) {
-      // this.setState({ receivingData: false });
+    if (this.state.receivingData && !this.updatingOn) {
+      this.setState({ receivingData: false });
       return;
     }
     // let independent = this.ggbApplet.isIndependent(label);
@@ -554,8 +565,8 @@ class GgbGraph extends Component {
    */
 
   sendEventBuffer = (xml, definition, label, eventType, action) => {
-    console.log("time: ", this.time);
-    console.log("timer: ", this.timer);
+    // console.log("time: ", this.time);
+    // console.log("timer: ", this.timer);
     let sendEventFromTimer = true;
     // Don't send if the user isn't allowed to make changes
     if (
@@ -610,7 +621,8 @@ class GgbGraph extends Component {
         this.pointCounter = 1;
       }
     } else {
-      console.log("resetting this.time");
+      // console.log("resetting this.time");
+
       this.time = Date.now();
     }
     if (sendEventFromTimer) {
@@ -649,26 +661,27 @@ class GgbGraph extends Component {
       tab: this.props.room.tabs[this.props.currentTab]._id,
       event: xml,
       user: { _id: this.props.user._id, username: this.props.user.username },
-      batchSize: this.noOfPoints,
-      timestamp: new Date().getTime(),
-      currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
-      mode: this.ggbApplet.getMode()
+      batchSize: this.noOfPoints
+      // timestamp: new Date().getTime(),
+      // currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
+      // mode: this.ggbApplet.getMode()
     };
     // throttle(() => {
-    let updatedTabs = [...this.props.room.tabs];
-    let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
-    if (eventType === "CHANGE_PERSPECTIVE") {
-      updatedTab.perspective = xml;
-    }
-    updatedTab.currentState = newData.currentState;
-    updatedTabs[this.props.currentTab] = updatedTab;
-    this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
+    // let updatedTabs = [...this.props.room.tabs];+
+    // let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
+    // if (eventType === "CHANGE_PERSPECTIVE") {
+    //   updatedTab.perspective = xml;
+    // }
+    // updatedTab.currentState = newData.currentState;
+    // updatedTabs[this.props.currentTab] = updatedTab;
+    // this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
     if (eventQueue && eventQueue.length > 1) {
       newData.event = this.eventQueue;
       newData.eventType = action === "updated" ? "BATCH_UPDATE" : "BATCH_ADD";
       newData.noOfPoints = this.noOfPoints;
     }
-    console.log("socket");
+    // console.log("socket");
+    console.log("sending event");
     socket.emit("SEND_EVENT", newData);
     this.timer = null;
     // reset tracking variables
