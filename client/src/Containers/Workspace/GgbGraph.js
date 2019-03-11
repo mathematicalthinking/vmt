@@ -17,9 +17,6 @@ class GgbGraph extends Component {
   graph = React.createRef();
   eventQueue = [];
   firstLabel;
-  pointCounter = 1;
-  noOfPoints;
-  updatingOn = false;
   resetting = false; // used to reset the construction when something is done by a user not in control.
   editorState = null; // In the algebra input window,
   receivingData = false;
@@ -36,6 +33,7 @@ class GgbGraph extends Component {
     window.addEventListener("resize", this.updateDimensions);
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
+      console.log(this.state.receivingData);
       // console.log("event received");
       // console.log("already receiving data: ", this.state.receivingData);
       if (this.state.receivingData) {
@@ -80,16 +78,16 @@ class GgbGraph extends Component {
               this.ggbApplet.showAlgebraInput(true);
               break;
             case "BATCH_UPDATE":
-              this.updatingOn = true;
+              // this.updatingOn = true;
               this.batchUpdating = true;
               this.recursiveUpdate(data.event, data.noOfPoints);
               break;
             case "BATCH_ADD":
-              this.updatingOn = true;
+              this.batchUpdating = true;
               if (data.definition) {
                 // console.log(data);
                 // console.log(typeof data.event);
-                this.recursiveUpdate(data.event, 1, true);
+                this.recursiveUpdate(data.event, true);
               }
               break;
             default:
@@ -189,10 +187,9 @@ class GgbGraph extends Component {
    * @param  {Boolean} adding - true if BATCH_ADD false if BATCH_UPDATE
    */
 
-  recursiveUpdate(events, batchSize, adding) {
-    batchSize = 1;
+  recursiveUpdate(events, adding) {
     // console.log(events.length);
-    if (events.length > 0) {
+    if (events.length > 0 && Array.isArray(events)) {
       if (adding) {
         for (let i = 0; i < events.length; i++) {
           this.ggbApplet.evalCommand(events[i]);
@@ -201,25 +198,33 @@ class GgbGraph extends Component {
         this.setState({ receivingData: false });
         return;
       } else {
-        // console.log(this.socketQueue.length);
-        // console.log("skipping ", Math.round(this.socketQueue.length / 10));
-        events.splice(0, batchSize); // skip some events if the socketQueue is sufficiently long
-        this.ggbApplet.evalXML(
-          events.splice(0, batchSize).join("") ||
-            events.splice(0, events.length).join("")
-        );
+        // If the socket queue is getting long skip some events to speed it up
+        if (this.socketQueue.length > 1 && events.length > 2) {
+          console.log("socketqueue.length ", this.socketQueue.length);
+          if (Array.isArray(events)) {
+            // this should probably never happen...we should only have arrays in here
+            events.shift();
+          }
+        }
+        console.log("events.length = ", events.length);
+        if (Array.isArray(events)) {
+          this.ggbApplet.evalXML(events.shift());
+        } else {
+          this.ggbApplet.evalXML(events);
+        }
         this.ggbApplet.evalCommand("UpdateConstruction()");
         setTimeout(() => {
-          this.recursiveUpdate(events, batchSize);
+          console.log("events.length: ", events.length);
+          this.recursiveUpdate(events);
         }, 10);
       }
     } else if (this.socketQueue.length > 0) {
       let nextEvent = this.socketQueue.shift();
-      // console.log(nextEvent);
-      this.recursiveUpdate(nextEvent.event, nextEvent.noOfPoints, false);
+      console.log("Moving to next element in SOCKET QUEUEE: ", nextEvent);
+      this.recursiveUpdate(nextEvent.event, false);
     } else {
-      // console.log("NO QUEUE", this.socketQueue);
-      this.updatingOn = false;
+      console.log("NO QUEUE", this.socketQueue);
+      this.batchUpdating = false;
       this.setState({ receivingData: false });
     }
   }
@@ -421,7 +426,7 @@ class GgbGraph extends Component {
         }
         label = event[i];
         this.sendEventBuffer(xml, null, label, "UPDATE", "updated");
-        this.movingGeos = false;
+        // this.movingGeos = false;
         break;
 
       default:
@@ -566,8 +571,6 @@ class GgbGraph extends Component {
    */
 
   sendEventBuffer = (xml, definition, label, eventType, action) => {
-    // console.log("time: ", this.time);
-    // console.log("timer: ", this.timer);
     let sendEventFromTimer = true;
     // Don't send if the user is not allowed to make changes
     if (
@@ -581,13 +584,6 @@ class GgbGraph extends Component {
       return;
     }
 
-    // Keep track of labels coming in for eventQueue
-    // this will help us determine the batchSize/noOfPoints if the label
-    // coming in is the same as the first label the pointCounter will = our batch size
-    // if (!this.firstLabel) {
-    //   this.firstLabel = label;
-    // }
-
     // Add event to eventQueue in case there are multiple events to send.
     this.eventQueue.push(action === "updated" ? xml : `${label}:${definition}`);
 
@@ -599,26 +595,14 @@ class GgbGraph extends Component {
       // we'll combine all of those events into one and then send them after 2 seconds,
       // if the user is still dragging we build up a new queue. This way, if they drag for several seconds,
       // there is not a several second delay before the other users in the room see the event
-      // if (label !== this.firstLabel && action === "updated") {
-      //   this.pointCounter++;
-      // } else if (label === this.firstLabel && !this.noOfPoints) {
-      //   this.noOfPoints = this.pointCounter;
-      // }
-      if (
-        this.time &&
-        Date.now() - this.time > 1500
-        // label === this.firstLabel
-      ) {
+      if (this.time && Date.now() - this.time > 1500) {
         this.sendEvent(xml, definition, label, eventType, action, [
           ...this.eventQueue
         ]);
         sendEventFromTimer = false;
         this.eventQueue = [];
-        this.firstLabel = null;
         this.time = null;
         this.timer = null;
-        this.noOfPoints = null;
-        this.pointCounter = 1;
       }
     } else {
       // console.log("resetting this.time");
@@ -631,11 +615,8 @@ class GgbGraph extends Component {
           ...this.eventQueue
         ]);
         this.eventQueue = [];
-        this.firstLabel = null;
         this.time = null;
         this.timer = null;
-        this.pointCounter = 1;
-        this.noOfPoints = null;
       }, 110);
     }
   };
@@ -659,8 +640,7 @@ class GgbGraph extends Component {
       room: this.props.room._id,
       tab: this.props.room.tabs[this.props.currentTab]._id,
       event: xml,
-      user: { _id: this.props.user._id, username: this.props.user.username },
-      batchSize: this.noOfPoints
+      user: { _id: this.props.user._id, username: this.props.user.username }
       // timestamp: new Date().getTime(),
       // currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
       // mode: this.ggbApplet.getMode()
@@ -677,15 +657,11 @@ class GgbGraph extends Component {
     if (eventQueue && eventQueue.length > 1) {
       newData.event = this.eventQueue;
       newData.eventType = action === "updated" ? "BATCH_UPDATE" : "BATCH_ADD";
-      newData.noOfPoints = this.noOfPoints;
     }
-    // console.log("socket");
-    console.log("sending event");
-    console.log(newData);
+    console.log("sending evenr: ", newData);
     socket.emit("SEND_EVENT", newData);
     this.timer = null;
-    // reset tracking variables
-    // this.props.resetControlTimer();
+    this.props.resetControlTimer();
   };
 
   /**

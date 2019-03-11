@@ -22,7 +22,6 @@ const Event = new mongoose.Schema({
       "BATCH_ADD"
     ]
   },
-  batchSize: { type: Number },
   timestamp: { type: Number }, //UNIX TIME but in MS
   isTrashed: { type: Boolean, default: false }
 });
