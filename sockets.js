@@ -261,6 +261,7 @@ module.exports = function() {
       // let currentState = data.currentState;
       // delete data.currentState;
       try {
+        data.timestamp = new Date().getTime();
         await controllers.events.post(data);
         // data.currentState = currentState;
       } catch (err) {

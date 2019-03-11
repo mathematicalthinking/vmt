@@ -28,8 +28,7 @@ class TempWorkspace extends Component {
 
   componentDidMount() {
     window.addEventListener("beforeunload", this.confirmUnload);
-    let temp = true;
-    this.props.populateRoom(this.props.match.params.id, temp);
+    this.props.populateRoom(this.props.match.params.id, { temp: true });
     // If there is no room by this id ins the user's store, then they're not the first to join
     // The user creating this room will it have in their store. A user who just drops the link in their url bar will not have it in the store
     if (!this.props.room || this.props.room.currentMembers.length > 0) {

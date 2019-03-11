@@ -11,7 +11,6 @@ import Members from "./Members/Members";
 import { getUserNotifications } from "../utils/notifications";
 import {
   enterRoomWithCode,
-  populateRoom,
   requestAccess,
   clearError,
   clearNotification,
@@ -59,7 +58,6 @@ class Room extends Component {
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
     // If its in the store check access
     if (room) {
-      // populateRoom(match.params.room_id) // @TODO IF we do get rid of this we probably have unnecessary updates in componentDidUpdate
       // check access
       let updatedTabs = [...this.state.tabs];
       let owner = false;
@@ -106,7 +104,6 @@ class Room extends Component {
     }
     // else fetch it
     else {
-      // populateRoom(match.params.room_id) // @TODO WE DONT ACTUALLY WANT TO POPULATE IT HERE...THAT GIVES US ALL THE EVENTS..WE JUST WANT TO GET THE MEMBERS SO WE CAN CHECK ACCESS
       this.fetchRoom();
     }
   }
@@ -607,7 +604,6 @@ export default connect(
   mapStateToProps,
   {
     enterRoomWithCode,
-    populateRoom,
     requestAccess,
     clearError,
     clearNotification,

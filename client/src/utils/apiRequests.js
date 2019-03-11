@@ -5,15 +5,6 @@ export default {
     return axios.get(`/api/${resource}`, params ? { params } : {});
   },
 
-  // getIds: (resource, ids) => {
-  //   console.log("DATA: ", ids)
-  //   return axios.get(`/api/${resource}/ids`, {
-  //     params: {
-  //       ids,
-  //     },
-  //     paramsSerializer: params => parseParams(params)
-  //   })
-  // },
   search: (resource, text, exclude) => {
     return axios.get(`/api/search/${resource}`, { params: { text, exclude } });
   },
@@ -34,9 +25,12 @@ export default {
     return axios.put(`/api/${resource}/${id}`, body);
   },
 
-  getById: (resource, id, temp) => {
+  getById: (resource, id, temp, events) => {
+    console.log("EVENTS: ", events);
     if (temp) {
       return axios.get(`/api/${resource}/${id}/tempRoom`);
+    } else if (events) {
+      return axios.get(`/api/${resource}/${id}`);
     }
     return axios.get(`/api/${resource}/${id}`);
   },

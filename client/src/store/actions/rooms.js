@@ -222,10 +222,23 @@ export const getRoom = id => {
 //   }
 // }
 
-export const populateRoom = (id, temp) => {
+/**
+ * @function populdateRoom - redux middleware for fetching rooms
+ * @param  {String} id room id
+ * @param  {Object} Opts - temp (Boolean), events (Boolean) determies whether the rooms events are sent back with the response
+ *
+ */
+
+export const populateRoom = (id, opts) => {
   return dispatch => {
     dispatch(loading.start());
-    API.getById("rooms", id, temp)
+    let temp;
+    let events;
+    if (opts) {
+      temp = opts.temp;
+      events = opts.events;
+    }
+    API.getById("rooms", id, temp, events)
       .then(res => {
         dispatch(updatedRoom(id, res.data.result));
         dispatch(loading.success());
