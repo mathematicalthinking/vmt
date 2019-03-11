@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import throttle from "lodash/throttle";
 import classes from "./graph.css";
 import { Aux, Modal } from "../../Components";
 import Script from "react-load-script";
@@ -34,9 +35,6 @@ class GgbGraph extends Component {
     window.addEventListener("resize", this.updateDimensions);
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
-      console.log(this.state.receivingData);
-      // console.log("event received");
-      // console.log("already receiving data: ", this.state.receivingData);
       if (this.state.receivingData) {
         this.socketQueue.push(data);
         return;
@@ -44,9 +42,6 @@ class GgbGraph extends Component {
         // return;
       }
       this.setState({ receivingData: true }, () => {
-        console.log("receivinged event: ", data);
-        // console.log("receiving event");
-        // console.log(data);
         // let updatedTabs = this.props.room.tabs.map(tab => {
         //   if (tab._id === data.tab) {
         //     tab.currentState = data.currentState;
@@ -201,13 +196,11 @@ class GgbGraph extends Component {
       } else {
         // If the socket queue is getting long skip some events to speed it up
         if (this.socketQueue.length > 1 && events.length > 2) {
-          console.log("socketqueue.length ", this.socketQueue.length);
           if (Array.isArray(events)) {
             // this should probably never happen...we should only have arrays in here
             events.shift();
           }
         }
-        console.log("events.length = ", events.length);
         if (Array.isArray(events)) {
           this.ggbApplet.evalXML(events.shift());
         } else {
@@ -215,16 +208,13 @@ class GgbGraph extends Component {
         }
         this.ggbApplet.evalCommand("UpdateConstruction()");
         setTimeout(() => {
-          console.log("events.length: ", events.length);
           this.recursiveUpdate(events);
         }, 10);
       }
     } else if (this.socketQueue.length > 0) {
       let nextEvent = this.socketQueue.shift();
-      console.log("Moving to next element in SOCKET QUEUEE: ", nextEvent);
       this.recursiveUpdate(nextEvent.event, false);
     } else {
-      console.log("NO QUEUE", this.socketQueue);
       this.batchUpdating = false;
       this.setState({ receivingData: false });
     }
@@ -390,8 +380,6 @@ class GgbGraph extends Component {
         }
         break;
       case "select":
-        console.log(event);
-        console.log(this.ggbApplet.getObjectType(event[1]));
         if (this.ggbApplet.getObjectType(event[1]) === "point") {
           this.pointSelected = event[1];
         } else {
@@ -425,7 +413,6 @@ class GgbGraph extends Component {
         break;
       case "movedGeos":
         this.movingGeos = true;
-        console.log(event);
         // combine xml into one event
         let xml = "";
         let label = "";
@@ -528,9 +515,7 @@ class GgbGraph extends Component {
    */
 
   clickListener = async element => {
-    // console.log("CLICKED", this.ggbApplet.getXML())
     if (this.props.referencing) {
-      // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
       let elementType = this.ggbApplet.getObjectType(element);
       let position;
       if (elementType !== "point") {
@@ -613,8 +598,6 @@ class GgbGraph extends Component {
         this.timer = null;
       }
     } else {
-      // console.log("resetting this.time");
-
       this.time = Date.now();
     }
     if (sendEventFromTimer) {
@@ -653,23 +636,26 @@ class GgbGraph extends Component {
       // currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
       // mode: this.ggbApplet.getMode()
     };
-    // throttle(() => {
-    // let updatedTabs = [...this.props.room.tabs];+
-    // let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
-    // if (eventType === "CHANGE_PERSPECTIVE") {
-    //   updatedTab.perspective = xml;
-    // }
-    // updatedTab.currentState = newData.currentState;
-    // updatedTabs[this.props.currentTab] = updatedTab;
-    // this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
     if (eventQueue && eventQueue.length > 1) {
       newData.event = this.eventQueue;
       newData.eventType = action === "updated" ? "BATCH_UPDATE" : "BATCH_ADD";
     }
-    console.log("sending evenr: ", newData);
     socket.emit("SEND_EVENT", newData);
+    this.updateConstructionState();
     this.timer = null;
     this.props.resetControlTimer();
+  };
+
+  updateConstructionState = () => {
+    console.log("updating construction state");
+    // throttle(() => {
+    let currentState = this.ggbApplet.getXML();
+    console.log(typeof currentState);
+    let tabId = this.props.room.tabs[this.props.currentTab]._id;
+    this.props.updateRoomTab(this.props.room._id, tabId, {
+      // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
+      currentState
+    });
   };
 
   /**
@@ -705,6 +691,7 @@ class GgbGraph extends Component {
   render() {
     return (
       <Aux>
+        <Modal show={this.state.loading} message="Loading..." />
         <Script
           url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.onScriptLoad}
@@ -714,7 +701,6 @@ class GgbGraph extends Component {
         {/* {this.state.showControlWarning ? <div className={classes.ControlWarning} style={{left: this.state.warningPosition.x, top: this.state.warningPosition.y}}>
           You don't have control!
         </div> : null} */}
-        <Modal show={this.state.loading} message="Loading..." />
       </Aux>
     );
   }

@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import {
   updateRoom,
   updatedRoom,
+  updateRoomTab,
   populateRoom,
   setRoomStartingPoint,
   updateUser,
@@ -464,6 +465,7 @@ class Workspace extends Component {
           user={user}
           role={this.state.role}
           updateRoom={this.props.updateRoom}
+          updateRoomTab={this.props.updateRoomTab}
           updatedRoom={this.props.updatedRoom}
           resetControlTimer={this.resetControlTimer}
           currentTab={this.state.currentTab}
@@ -535,6 +537,7 @@ export default connect(
     updateUser,
     updateRoom,
     updatedRoom,
+    updateRoomTab,
     populateRoom,
     setRoomStartingPoint,
     addChatMessage
