@@ -651,7 +651,7 @@ class GgbGraph extends Component {
   };
 
   updateConstructionState = () => {
-    console.log("updating construction state");
+    // console.log("updating construction state");
     let currentState = this.ggbApplet.getXML();
     let tabId = this.props.room.tabs[this.props.currentTab]._id;
     this.props.updateRoomTab(this.props.room._id, tabId, {
