@@ -45,6 +45,7 @@ class GgbGraph extends Component {
         // return;
       }
       this.setState({ receivingData: true }, () => {
+        console.log("receivinged event: ", data);
         // console.log("receiving event");
         // console.log(data);
         // let updatedTabs = this.props.room.tabs.map(tab => {
@@ -189,6 +190,7 @@ class GgbGraph extends Component {
    */
 
   recursiveUpdate(events, batchSize, adding) {
+    batchSize = 1;
     // console.log(events.length);
     if (events.length > 0) {
       if (adding) {
@@ -405,24 +407,22 @@ class GgbGraph extends Component {
           this.showAlert();
         }
         break;
-      // case "movingGeos":
-      //   this.movingGeos = true; // turn of updating so the updateListener does not send events
-      //   break;
-      // case "movedGeos":
-      //   this.movingGeos = true;
-
-      //   // combine xml into one event
-      //   let xml = "";
-      //   let label = "";
-      //   console.log("event: ", event);
-      //   for (var i = 1; i < event.length; i++) {
-      //     xml += this.ggbApplet.getXML(event[i]);
-      //     label += event[i];
-      //   }
-      //   console.log(label);
-      //   this.sendEventBuffer(xml, null, label, "UPDATE", "moved");
-      //   this.movingGeos = false;
-      //   break;
+      case "movingGeos":
+        this.movingGeos = true; // turn of updating so the updateListener does not send events
+        break;
+      case "movedGeos":
+        this.movingGeos = true;
+        console.log(event);
+        // combine xml into one event
+        let xml = "";
+        let label = "";
+        for (var i = 1; i < event.length; i++) {
+          xml += this.ggbApplet.getXML(event[i]);
+        }
+        label = event[i];
+        this.sendEventBuffer(xml, null, label, "UPDATE", "updated");
+        this.movingGeos = false;
+        break;
 
       default:
         break;
@@ -495,7 +495,7 @@ class GgbGraph extends Component {
    */
 
   updateListener = label => {
-    if (this.batchUpdating) return;
+    if (this.batchUpdating || this.movingGeos) return;
     if (this.state.receivingData && !this.updatingOn) {
       this.setState({ receivingData: false });
       return;
@@ -533,9 +533,7 @@ class GgbGraph extends Component {
   };
 
   /**
-   * @method registerListene
-   *
-   * \
+   * @method registerListens
    *  rs - register the even listeners with geogebra
    */
 
@@ -556,7 +554,10 @@ class GgbGraph extends Component {
 
   /**
    * @method sendEvnetBuffer
-   * @description ---
+   * @description --- creates a buffer for sending events across the websocket.
+   *  Because dragging a shape or point causes the update handler to fire every 10 to 20 ms, the
+   *  constant sending of events across the network starts to slow things down. Instead of sending each
+   *  event as it comes in we concatanate them into one event and then send them all roughly once every 1500 ms.
    * @param  {String} xml - ggb generated xml of the even
    * @param  {String} definition - ggb multipoint definition (e.g. "Polygon(D, E, F, G)")
    * @param  {String} label - ggb label. ggbApplet.evalXML(label) yields xml representation of this label
@@ -568,7 +569,7 @@ class GgbGraph extends Component {
     // console.log("time: ", this.time);
     // console.log("timer: ", this.timer);
     let sendEventFromTimer = true;
-    // Don't send if the user isn't allowed to make changes
+    // Don't send if the user is not allowed to make changes
     if (
       !this.props.user.connected ||
       this.props.room.controlledBy !== this.props.user._id
@@ -583,9 +584,9 @@ class GgbGraph extends Component {
     // Keep track of labels coming in for eventQueue
     // this will help us determine the batchSize/noOfPoints if the label
     // coming in is the same as the first label the pointCounter will = our batch size
-    if (!this.firstLabel) {
-      this.firstLabel = label;
-    }
+    // if (!this.firstLabel) {
+    //   this.firstLabel = label;
+    // }
 
     // Add event to eventQueue in case there are multiple events to send.
     this.eventQueue.push(action === "updated" ? xml : `${label}:${definition}`);
@@ -598,17 +599,16 @@ class GgbGraph extends Component {
       // we'll combine all of those events into one and then send them after 2 seconds,
       // if the user is still dragging we build up a new queue. This way, if they drag for several seconds,
       // there is not a several second delay before the other users in the room see the event
-      if (label !== this.firstLabel && action === "updated") {
-        this.pointCounter++;
-      } else if (label === this.firstLabel && !this.noOfPoints) {
-        this.noOfPoints = this.pointCounter;
-      }
+      // if (label !== this.firstLabel && action === "updated") {
+      //   this.pointCounter++;
+      // } else if (label === this.firstLabel && !this.noOfPoints) {
+      //   this.noOfPoints = this.pointCounter;
+      // }
       if (
         this.time &&
-        Date.now() - this.time > 1500 &&
-        label === this.firstLabel
+        Date.now() - this.time > 1500
+        // label === this.firstLabel
       ) {
-        console.log("sending event because 1500 seconds have passed");
         this.sendEvent(xml, definition, label, eventType, action, [
           ...this.eventQueue
         ]);
@@ -627,7 +627,6 @@ class GgbGraph extends Component {
     }
     if (sendEventFromTimer) {
       this.timer = setTimeout(() => {
-        console.log("sending event from timer");
         this.sendEvent(xml, definition, label, eventType, action, [
           ...this.eventQueue
         ]);
@@ -682,6 +681,7 @@ class GgbGraph extends Component {
     }
     // console.log("socket");
     console.log("sending event");
+    console.log(newData);
     socket.emit("SEND_EVENT", newData);
     this.timer = null;
     // reset tracking variables
