@@ -640,17 +640,19 @@ class GgbGraph extends Component {
       newData.event = this.eventQueue;
       newData.eventType = action === "updated" ? "BATCH_UPDATE" : "BATCH_ADD";
     }
+    if (this.updatingTab) {
+      clearTimeout(this.updatingTab);
+      this.updatingTab = null;
+    }
     socket.emit("SEND_EVENT", newData);
-    this.updateConstructionState();
+    this.updatingTab = setTimeout(this.updateConstructionState, 3000);
     this.timer = null;
     this.props.resetControlTimer();
   };
 
   updateConstructionState = () => {
     console.log("updating construction state");
-    // throttle(() => {
     let currentState = this.ggbApplet.getXML();
-    console.log(typeof currentState);
     let tabId = this.props.room.tabs[this.props.currentTab]._id;
     this.props.updateRoomTab(this.props.room._id, tabId, {
       // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
