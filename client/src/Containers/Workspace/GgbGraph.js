@@ -22,6 +22,7 @@ class GgbGraph extends Component {
   receivingData = false;
   batchUpdating = false;
   movingGeos = false;
+  pointSelected = null;
   socketQueue = [];
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
   /**
@@ -389,6 +390,13 @@ class GgbGraph extends Component {
         }
         break;
       case "select":
+        console.log(event);
+        console.log(this.ggbApplet.getObjectType(event[1]));
+        if (this.ggbApplet.getObjectType(event[1]) === "point") {
+          this.pointSelected = event[1];
+        } else {
+          this.pointSelected = null;
+        }
         break;
       case "openMenu":
         console.log("close menu!");
@@ -508,7 +516,7 @@ class GgbGraph extends Component {
     // let independent = this.ggbApplet.isIndependent(label);
     // let moveable = this.ggbApplet.isMoveable(label);
     // let isInControl = this.props.room.controlledBy === this.props.user._id;
-    if (!this.state.receivingData) {
+    if (!this.state.receivingData && label === this.pointSelected) {
       let xml = this.ggbApplet.getXML(label);
       this.sendEventBuffer(xml, null, label, "UPDATE", "updated");
     }
