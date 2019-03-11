@@ -40,7 +40,7 @@ module.exports = {
         .populate({ path: "members.user", select: "username" })
         .populate({ path: "currentMembers", select: "username" })
         .populate({ path: "course", select: "name" })
-        .populate({ path: "tabs", populate: { path: "events" } })
+        .populate({ path: "tabs", select: "-events" })
         .populate({ path: "graphImage", select: "imageData" })
         .then(room => {
           resolve(room);

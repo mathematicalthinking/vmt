@@ -244,24 +244,25 @@ module.exports = function() {
       } ${data.label}`;
       if (Array.isArray(data.event)) {
         data.eventArray = data.event;
-        data.batchSize = data.noOfPoints;
         delete data.event;
       }
-      try {
-        let updateQuery = { currentState: data.currentState };
-        if (data.eventType === "CHANGE_PERSPECTIVE") {
-          updateQuery.perspective = data.event;
-        }
-        await controllers.tabs.put(data.tab, updateQuery);
-      } catch (err) {
-        console.log("err 1: ", err);
-      }
-      // Don't save current state on the event
-      let currentState = data.currentState;
-      delete data.currentState;
+
+      // THIS SHOULD GO ELSEWEHERE
+      // try {
+      //   let updateQuery = { currentState: data.currentState };
+      //   if (data.eventType === "CHANGE_PERSPECTIVE") {
+      //     updateQuery.perspective = data.event;
+      //   }
+      //   await controllers.tabs.put(data.tab, updateQuery);
+      // } catch (err) {
+      //   console.log("err 1: ", err);
+      // }
+      // // Don't save current state on the event
+      // let currentState = data.currentState;
+      // delete data.currentState;
       try {
         await controllers.events.post(data);
-        data.currentState = currentState;
+        // data.currentState = currentState;
       } catch (err) {
         console.log("err 2: ", err);
       }

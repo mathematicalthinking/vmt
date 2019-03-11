@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import throttle from "lodash/throttle";
 import classes from "./graph.css";
 import { Aux, Modal } from "../../Components";
 import Script from "react-load-script";
@@ -17,35 +18,38 @@ class GgbGraph extends Component {
   graph = React.createRef();
   eventQueue = [];
   firstLabel;
-  pointCounter = 1;
-  noOfPoints;
-  updatingOn = true;
   resetting = false; // used to reset the construction when something is done by a user not in control.
   editorState = null; // In the algebra input window,
   receivingData = false;
   batchUpdating = false;
-
+  movingGeos = false;
+  pointSelected = null;
+  socketQueue = [];
+  time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
   /**
    * @method componentDidMount
    * @description add socket listeners, window resize listener
    */
 
   componentDidMount() {
-    // window.addEventListener('click', this.clickListener)
     window.addEventListener("resize", this.updateDimensions);
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
+      if (this.state.receivingData) {
+        this.socketQueue.push(data);
+        return;
+        // we're already processing the previous event.
+        // return;
+      }
       this.setState({ receivingData: true }, () => {
-        // console.log("receiving event");
-        // console.log(data);
-        let updatedTabs = this.props.room.tabs.map(tab => {
-          if (tab._id === data.tab) {
-            tab.currentState = data.currentState;
-          }
-          return tab;
-        });
+        // let updatedTabs = this.props.room.tabs.map(tab => {
+        //   if (tab._id === data.tab) {
+        //     tab.currentState = data.currentState;
+        //   }
+        //   return tab;
+        // });
         // update the redux store
-        this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
+        // this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs }); @todo do this elsewhere
         // If this happend on the current tab
         if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
           // @TODO consider abstracting out...resued in the GgbReplayer
@@ -70,14 +74,16 @@ class GgbGraph extends Component {
               this.ggbApplet.showAlgebraInput(true);
               break;
             case "BATCH_UPDATE":
+              // this.updatingOn = true;
               this.batchUpdating = true;
               this.recursiveUpdate(data.event, data.noOfPoints);
               break;
             case "BATCH_ADD":
+              this.batchUpdating = true;
               if (data.definition) {
                 // console.log(data);
                 // console.log(typeof data.event);
-                this.recursiveUpdate(data.event, 1, true);
+                this.recursiveUpdate(data.event, true);
               }
               break;
             default:
@@ -169,31 +175,48 @@ class GgbGraph extends Component {
    * @method recursiveUpdate
    * @description takes an array of events and updates the construction in batches
    * used to make drag updates and multipoint shape creation more efficient. See ./docs/Geogebra
-   * Note that this is copy-pasted in GgbReplayer for now, consider abstracting
+   * Note that this is copy-pasted in GgbReplayer for now, consider abstracting.
+   * When we've reached the bottom of the recursive chain we check if any events came in while
+   * making these changes. (See the socket listener if(this.state.receviingData))
    * @param  {Array} events - array of ggb xml events
-   * @param  {Number} noOfPoints - the batch size, i.e., number of points in the shape
+   * @param  {Number} batchSize - the batch size, i.e., number of points in the shape
    * @param  {Boolean} adding - true if BATCH_ADD false if BATCH_UPDATE
    */
 
-  recursiveUpdate(events, noOfPoints, adding) {
-    if (events.length > 0) {
+  recursiveUpdate(events, adding) {
+    // console.log(events.length);
+    if (events.length > 0 && Array.isArray(events)) {
       if (adding) {
         for (let i = 0; i < events.length; i++) {
           this.ggbApplet.evalCommand(events[i]);
         }
+        this.updatingOn = false;
+        this.setState({ receivingData: false });
+        return;
       } else {
-        this.ggbApplet.evalXML(
-          events.splice(0, noOfPoints).join("") ||
-            events.splice(0, events.length).join("")
-        );
+        // If the socket queue is getting long skip some events to speed it up
+        if (this.socketQueue.length > 1 && events.length > 2) {
+          if (Array.isArray(events)) {
+            // this should probably never happen...we should only have arrays in here
+            events.shift();
+          }
+        }
+        if (Array.isArray(events)) {
+          this.ggbApplet.evalXML(events.shift());
+        } else {
+          this.ggbApplet.evalXML(events);
+        }
         this.ggbApplet.evalCommand("UpdateConstruction()");
         setTimeout(() => {
-          this.recursiveUpdate(events, noOfPoints);
+          this.recursiveUpdate(events);
         }, 10);
       }
+    } else if (this.socketQueue.length > 0) {
+      let nextEvent = this.socketQueue.shift();
+      this.recursiveUpdate(nextEvent.event, false);
     } else {
+      this.batchUpdating = false;
       this.setState({ receivingData: false });
-      return;
     }
   }
 
@@ -294,8 +317,9 @@ class GgbGraph extends Component {
    *  if they are in control and connected then they can edit
    * @return {Boolean} - can the user edit?
    */
+
   userCanEdit = () => {
-    if (this.resetting) {
+    if (this.resetting || this.updatingOn) {
       return true;
     }
     if (
@@ -310,6 +334,7 @@ class GgbGraph extends Component {
   showAlert() {
     alert(`You are not in control. Click "Take Control" before making changes`);
   }
+
   /**
    * @method clientListener
    * @description client listener fires everytime anything in the geogebra construction is touched
@@ -317,9 +342,10 @@ class GgbGraph extends Component {
    * if they're in control, or prevent/undo it if they're not.
    * @param  {Array} event - Ggb array [eventType (e.g. setMode),  String, String]
    */
+
   clientListener = event => {
     // console.log("client Listener");
-    if (this.state.receivingData) {
+    if (this.state.receivingData && !this.updatingOn) {
       return this.setState({ receivingData: false });
     }
     switch (event[0]) {
@@ -354,6 +380,11 @@ class GgbGraph extends Component {
         }
         break;
       case "select":
+        if (this.ggbApplet.getObjectType(event[1]) === "point") {
+          this.pointSelected = event[1];
+        } else {
+          this.pointSelected = null;
+        }
         break;
       case "openMenu":
         console.log("close menu!");
@@ -378,20 +409,19 @@ class GgbGraph extends Component {
         }
         break;
       case "movingGeos":
-        // this.updatingOn = false; // turn of updating so the updateListener does not send events
+        this.movingGeos = true; // turn of updating so the updateListener does not send events
         break;
       case "movedGeos":
-        // this.updatingOn = false;
-
-        // // combine xml into one event
-        // let xml = "";
-
-        // for (var i = 1; i < event.length; i++) {
-        //   xml += this.ggbApplet.getXML(event[i]);
-        // }
-
-        // // this.sendEvent(xml, null, null, "UPDATE", "moved");
-        // this.updatingOn = true;
+        this.movingGeos = true;
+        // combine xml into one event
+        let xml = "";
+        let label = "";
+        for (var i = 1; i < event.length; i++) {
+          xml += this.ggbApplet.getXML(event[i]);
+        }
+        label = event[i];
+        this.sendEventBuffer(xml, null, label, "UPDATE", "updated");
+        // this.movingGeos = false;
         break;
 
       default:
@@ -409,7 +439,7 @@ class GgbGraph extends Component {
    */
 
   addListener = label => {
-    if (this.state.receivingData) {
+    if (this.state.receivingData && !this.updatingOn) {
       this.setState({ receivingData: false });
       return;
     }
@@ -426,7 +456,7 @@ class GgbGraph extends Component {
     if (!this.state.receivingData) {
       let xml = this.ggbApplet.getXML(label);
       let definition = this.ggbApplet.getCommandString(label);
-      this.sendEvent(xml, definition, label, "ADD", "added");
+      this.sendEventBuffer(xml, definition, label, "ADD", "added");
     }
   };
 
@@ -436,7 +466,7 @@ class GgbGraph extends Component {
    */
 
   removeListener = label => {
-    if (this.state.receivingData) {
+    if (this.state.receivingData && !this.updatingOn) {
       this.setState({ receivingData: false });
       return;
     }
@@ -453,7 +483,7 @@ class GgbGraph extends Component {
       return;
     }
     if (!this.state.receivingData) {
-      this.sendEvent(null, null, label, "REMOVE", "removed");
+      this.sendEventBuffer(null, null, label, "REMOVE", "removed");
     }
   };
 
@@ -465,17 +495,17 @@ class GgbGraph extends Component {
    */
 
   updateListener = label => {
-    if (this.batchUpdating) return;
-    if (this.state.receivingData) {
+    if (this.batchUpdating || this.movingGeos) return;
+    if (this.state.receivingData && !this.updatingOn) {
       this.setState({ receivingData: false });
       return;
     }
     // let independent = this.ggbApplet.isIndependent(label);
     // let moveable = this.ggbApplet.isMoveable(label);
     // let isInControl = this.props.room.controlledBy === this.props.user._id;
-    if (!this.state.receivingData) {
+    if (!this.state.receivingData && label === this.pointSelected) {
       let xml = this.ggbApplet.getXML(label);
-      this.sendEvent(xml, null, label, "UPDATE", "updated");
+      this.sendEventBuffer(xml, null, label, "UPDATE", "updated");
     }
   };
 
@@ -485,9 +515,7 @@ class GgbGraph extends Component {
    */
 
   clickListener = async element => {
-    // console.log("CLICKED", this.ggbApplet.getXML())
     if (this.props.referencing) {
-      // let xmlObj = await this.parseXML(this.ggbApplet.getXML(event));
       let elementType = this.ggbApplet.getObjectType(element);
       let position;
       if (elementType !== "point") {
@@ -503,9 +531,7 @@ class GgbGraph extends Component {
   };
 
   /**
-   * @method registerListene
-   *
-   * \
+   * @method registerListens
    *  rs - register the even listeners with geogebra
    */
 
@@ -525,6 +551,68 @@ class GgbGraph extends Component {
   };
 
   /**
+   * @method sendEvnetBuffer
+   * @description --- creates a buffer for sending events across the websocket.
+   *  Because dragging a shape or point causes the update handler to fire every 10 to 20 ms, the
+   *  constant sending of events across the network starts to slow things down. Instead of sending each
+   *  event as it comes in we concatanate them into one event and then send them all roughly once every 1500 ms.
+   * @param  {String} xml - ggb generated xml of the even
+   * @param  {String} definition - ggb multipoint definition (e.g. "Polygon(D, E, F, G)")
+   * @param  {String} label - ggb label. ggbApplet.evalXML(label) yields xml representation of this label
+   * @param  {String} eventType - ["ADD", "REMOVE", "UPDATE", "CHANGE_PERSPECTIVE", "NEW_TAB", "BATCH"] see ./models/event
+   * @param  {String} action - ggb action ["addedd", "removed", "clicked", "updated"]
+   */
+
+  sendEventBuffer = (xml, definition, label, eventType, action) => {
+    let sendEventFromTimer = true;
+    // Don't send if the user is not allowed to make changes
+    if (
+      !this.props.user.connected ||
+      this.props.room.controlledBy !== this.props.user._id
+    ) {
+      alert(
+        "You are not in control. The update you just made will not be saved. Please refresh the page"
+      );
+      this.ggbApplet.undo();
+      return;
+    }
+
+    // Add event to eventQueue in case there are multiple events to send.
+    this.eventQueue.push(action === "updated" ? xml : `${label}:${definition}`);
+
+    if (this.timer) {
+      // cancel the last sendEvent function
+      clearTimeout(this.timer);
+      this.timer = null;
+      // Don't build up the queue for more than 2 seconds. If A user starts dragging,
+      // we'll combine all of those events into one and then send them after 2 seconds,
+      // if the user is still dragging we build up a new queue. This way, if they drag for several seconds,
+      // there is not a several second delay before the other users in the room see the event
+      if (this.time && Date.now() - this.time > 1500) {
+        this.sendEvent(xml, definition, label, eventType, action, [
+          ...this.eventQueue
+        ]);
+        sendEventFromTimer = false;
+        this.eventQueue = [];
+        this.time = null;
+        this.timer = null;
+      }
+    } else {
+      this.time = Date.now();
+    }
+    if (sendEventFromTimer) {
+      this.timer = setTimeout(() => {
+        this.sendEvent(xml, definition, label, eventType, action, [
+          ...this.eventQueue
+        ]);
+        this.eventQueue = [];
+        this.time = null;
+        this.timer = null;
+      }, 110);
+    }
+  };
+
+  /**
    * @method sendEvnet
    * @description emits the geogebra event over the socket and updates the room in the redux store
    * @param  {String} xml - ggb generated xml of the even
@@ -534,68 +622,42 @@ class GgbGraph extends Component {
    * @param  {String} action - ggb action ["addedd", "removed", "clicked", "updated"]
    */
 
-  sendEvent = (xml, definition, label, eventType, action) => {
-    if (!this.firstLabel) {
-      this.firstLabel = label;
+  sendEvent = (xml, definition, label, eventType, action, eventQueue) => {
+    let newData = {
+      definition,
+      label,
+      eventType,
+      action,
+      room: this.props.room._id,
+      tab: this.props.room.tabs[this.props.currentTab]._id,
+      event: xml,
+      user: { _id: this.props.user._id, username: this.props.user.username }
+      // timestamp: new Date().getTime(),
+      // currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
+      // mode: this.ggbApplet.getMode()
+    };
+    if (eventQueue && eventQueue.length > 1) {
+      newData.event = this.eventQueue;
+      newData.eventType = action === "updated" ? "BATCH_UPDATE" : "BATCH_ADD";
     }
-    if (this.timer) {
-      if (label !== this.firstLabel && action === "updated") {
-        this.pointCounter++;
-      } else if (label === this.firstLabel && !this.noOfPoints) {
-        this.noOfPoints = this.pointCounter;
-      }
-      clearTimeout(this.timer);
+    if (this.updatingTab) {
+      clearTimeout(this.updatingTab);
+      this.updatingTab = null;
     }
-    if (
-      !this.props.user.connected ||
-      this.props.room.controlledBy !== this.props.user._id
-    ) {
-      // @TODO HAVING TROUBLE GETTING ACTIONS TO UNDO
-      alert(
-        "You are not in control. The update you just made will not be saved. Please refresh the page"
-      );
-      this.ggbApplet.undo();
-      return;
-    }
-    this.eventQueue.push(action === "updated" ? xml : `${label}:${definition}`);
-    this.timer = setTimeout(() => {
-      let newData = {
-        definition,
-        label,
-        eventType,
-        action,
-        room: this.props.room._id,
-        tab: this.props.room.tabs[this.props.currentTab]._id,
-        event: xml,
-        user: { _id: this.props.user._id, username: this.props.user.username },
-        batchSize: this.noOfPoints,
-        timestamp: new Date().getTime(),
-        currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
-        mode: this.ggbApplet.getMode()
-      };
-      // throttle(() => {
-      let updatedTabs = [...this.props.room.tabs];
-      let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
-      if (eventType === "CHANGE_PERSPECTIVE") {
-        updatedTab.perspective = xml;
-      }
-      updatedTab.currentState = newData.currentState;
-      updatedTabs[this.props.currentTab] = updatedTab;
-      this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-      if (this.eventQueue.length > 1) {
-        newData.event = this.eventQueue;
-        newData.eventType = action === "updated" ? "BATCH_UPDATE" : "BATCH_ADD";
-        newData.noOfPoints = this.noOfPoints;
-      }
-      this.firstLabel = null;
-      this.pointCounter = 1;
-      this.noOfPoints = null;
-      this.eventQueue = [];
-      this.timer = null;
-      socket.emit("SEND_EVENT", newData);
-      // reset tracking variables
-      // this.props.resetControlTimer();
-    }, 110);
+    socket.emit("SEND_EVENT", newData);
+    this.updatingTab = setTimeout(this.updateConstructionState, 3000);
+    this.timer = null;
+    this.props.resetControlTimer();
+  };
+
+  updateConstructionState = () => {
+    // console.log("updating construction state");
+    let currentState = this.ggbApplet.getXML();
+    let tabId = this.props.room.tabs[this.props.currentTab]._id;
+    this.props.updateRoomTab(this.props.room._id, tabId, {
+      // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
+      currentState
+    });
   };
 
   /**
@@ -631,6 +693,7 @@ class GgbGraph extends Component {
   render() {
     return (
       <Aux>
+        <Modal show={this.state.loading} message="Loading..." />
         <Script
           url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.onScriptLoad}
@@ -640,7 +703,6 @@ class GgbGraph extends Component {
         {/* {this.state.showControlWarning ? <div className={classes.ControlWarning} style={{left: this.state.warningPosition.x, top: this.state.warningPosition.y}}>
           You don't have control!
         </div> : null} */}
-        <Modal show={this.state.loading} message="Loading..." />
       </Aux>
     );
   }
