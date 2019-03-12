@@ -70,7 +70,6 @@ class DesmosGraph extends Component {
     let { room, currentTab } = this.props;
     let { tabs } = room;
     let { desmosLink, currentState } = tabs[currentTab];
-    console("curentState: ", currentState);
     if (currentState) {
       this.calculator.setState(currentState);
       this.setState({ loading: false });

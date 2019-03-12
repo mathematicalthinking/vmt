@@ -100,16 +100,21 @@ module.exports = passport => {
       User.findOne({ username: username, accountType: { $ne: "temp" } })
         .populate({
           path: "courses",
-          populate: { path: "members.user", select: "username" }
-          // options: {sort: {createdAt: -1}},
+          populate: { path: "members.user", select: "username" },
+          options: { sort: { createdAt: -1 } }
         })
         .populate({
           path: "rooms",
           select: "-currentState",
           // populate: {path: 'currentMembers.user', select: 'username'},
-          populate: { path: "members.user", select: "username" }
+          populate: { path: "members.user", select: "username" },
+          options: { sort: { createdAt: -1 } }
         })
-        .populate({ path: "activities", populate: { path: "tabs" } })
+        .populate({
+          path: "activities",
+          populate: { path: "tabs" },
+          options: { sort: { createdAt: -1 } }
+        })
         .populate({
           path: "notifications",
           populate: { path: "fromUser", select: "username" }
