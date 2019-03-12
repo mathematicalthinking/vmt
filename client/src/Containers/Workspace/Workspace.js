@@ -154,8 +154,8 @@ class Workspace extends Component {
 
     socket.on("TOOK_CONTROL", message => {
       this.props.addChatMessage(this.props.room._id, message);
-      this.setState({ awarenessDesc: message.text, awarenessIcon: "USER" });
       this.props.updatedRoom(room._id, { controlledBy: message.user._id });
+      this.setState({ awarenessDesc: message.text, awarenessIcon: "USER" });
     });
 
     socket.on("RELEASED_CONTROL", message => {
@@ -482,8 +482,8 @@ class Workspace extends Component {
           resetControlTimer={this.resetControlTimer}
           currentTab={this.state.currentTab}
           addNtfToTabs={this.addNtfToTabs}
-          updateAwarenessDesc={awarenessDesc => {
-            this.setState({ awarenessDesc });
+          updateAwarenessDesc={(awarenessDesc, awarenessIcon) => {
+            this.setState({ awarenessDesc, awarenessIcon });
           }}
         />
       );

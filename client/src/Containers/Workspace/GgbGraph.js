@@ -112,7 +112,7 @@ class GgbGraph extends Component {
     // Control
     let wasInControl = prevProps.room.controlledBy === this.props.user._id;
     let isInControl = this.props.room.controlledBy === this.props.user._id;
-
+    console.log(isInControl);
     if (!wasInControl && isInControl) {
       this.ggbApplet.setMode(0);
     } else if (wasInControl && !isInControl) {
@@ -344,6 +344,7 @@ class GgbGraph extends Component {
    */
 
   clientListener = event => {
+    console.log(event);
     // console.log("client Listener");
     if (this.state.receivingData && !this.updatingOn) {
       return this.setState({ receivingData: false });
@@ -351,6 +352,9 @@ class GgbGraph extends Component {
     switch (event[0]) {
       case "setMode":
         if (event[2] === "40" || this.userCanEdit()) {
+          console.log(event);
+          // @todo consider refacotring this so event Type is first and we can avoid all of these null values
+          this.sendEvent(null, null, event[2], "AWARENESS", "selected");
           return;
           // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
           // Then don't send this to the other users/=.
@@ -380,6 +384,7 @@ class GgbGraph extends Component {
         }
         break;
       case "select":
+        console.log("event: ", event);
         if (this.ggbApplet.getObjectType(event[1]) === "point") {
           this.pointSelected = event[1];
         } else {

@@ -1,10 +1,7 @@
 import React from "react";
 import { Avatar } from "../../../Components";
 import classes from "./tools.css";
-
-const iconMap = {
-  USER: <Avatar />
-};
+import icons from "./GgbIcons/";
 
 const Awareness = props => {
   let { awarenessDesc, awarenessIcon } = props;
@@ -13,7 +10,12 @@ const Awareness = props => {
     <div className={classes.ReferenceControls}>
       <i className="far fa-eye" />
       <div className={classes.AwarenessDesc}>
-        <div className={classes.AwarenessIcon}>{iconMap[awarenessIcon]}</div>
+        <img
+          className={classes.AwarenessIcon}
+          src={icons[30]}
+          height={25}
+          alt={awarenessIcon}
+        />
         {awarenessDesc}
       </div>
     </div>

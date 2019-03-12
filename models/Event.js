@@ -20,7 +20,8 @@ const Event = new mongoose.Schema({
       "CHANGE_PERSPECTIVE",
       "NEW_TAB",
       "BATCH_UPDATE",
-      "BATCH_ADD"
+      "BATCH_ADD",
+      "AWARENESS"
     ]
   },
   timestamp: { type: Number, required: true }, //UNIX TIME but in MS
