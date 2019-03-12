@@ -631,8 +631,8 @@ class GgbGraph extends Component {
       room: this.props.room._id,
       tab: this.props.room.tabs[this.props.currentTab]._id,
       event: xml,
-      user: { _id: this.props.user._id, username: this.props.user.username }
-      // timestamp: new Date().getTime(),
+      user: { _id: this.props.user._id, username: this.props.user.username },
+      timestamp: new Date().getTime()
       // currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
       // mode: this.ggbApplet.getMode()
     };

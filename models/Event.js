@@ -22,7 +22,7 @@ const Event = new mongoose.Schema({
       "BATCH_ADD"
     ]
   },
-  timestamp: { type: Number, required: true, default: Date.now() }, //UNIX TIME but in MS
+  timestamp: { type: Number, required: true }, //UNIX TIME but in MS
   isTrashed: { type: Boolean, default: false }
 });
 

@@ -47,7 +47,8 @@ module.exports = {
           if (params.events) {
             room.populate("tabs.events", (err, popRoom) => {
               if (err) reject(err);
-              console.log("POPROOM: ", popRoom);
+              // console.log("tabs: ", popRoom.tabs);
+              console.log(popRoom.tabs[0].events);
               resolve(popRoom);
             });
           } else {

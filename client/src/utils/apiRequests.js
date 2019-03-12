@@ -30,7 +30,7 @@ export default {
     if (temp) {
       return axios.get(`/api/${resource}/${id}/tempRoom`);
     } else if (events) {
-      return axios.get(`/api/${resource}/${id}`);
+      return axios.get(`/api/${resource}/${id}`, { params: { events } });
     }
     return axios.get(`/api/${resource}/${id}`);
   },

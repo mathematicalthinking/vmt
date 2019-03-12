@@ -74,6 +74,7 @@ router.get("/searchPaginated/:resource", (req, res, next) => {
 router.get("/:resource/:id", middleware.validateUser, (req, res, next) => {
   let { id, resource } = req.params;
   let controller = controllers[resource];
+  console.log("in here: ", req.query);
   controller
     .getById(id, req.query)
     .then(result => res.json({ result }))
