@@ -36,9 +36,7 @@
   float: right;
   display: flex;
   align-items: center;
-  position: relative;
-  right: 8px;
-  top: -2px;
+  margin-right: 4px;
 }
 
 .StatusText {
@@ -50,11 +48,26 @@
   /*  ^ // HACKY! */
 }
 
-.StatusCircle {
-  /* padding: 5px; */
-  /* border : 1px solid green; */
-  /* display: flex;
-  align-items: center; */
+.Connected {
+  color: #34a505;
+}
+
+.Disconnected {
+  color: red;
+}
+
+.Settings {
+  padding-left: 3px;
+  color: #666;
+}
+
+.Settings:hover {
+  color: #222;
+  transition: 0.2s;
+}
+
+.Hover {
+  float: right;
 }
 
 .ChatScroll {

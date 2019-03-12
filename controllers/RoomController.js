@@ -29,7 +29,6 @@ module.exports = {
   },
 
   getById: (id, params) => {
-    console.log(params);
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
         .populate({ path: "creator", select: "username" })
@@ -47,8 +46,6 @@ module.exports = {
           if (params.events) {
             room.populate("tabs.events", (err, popRoom) => {
               if (err) reject(err);
-              // console.log("tabs: ", popRoom.tabs);
-              console.log(popRoom.tabs[0].events);
               resolve(popRoom);
             });
           } else {
