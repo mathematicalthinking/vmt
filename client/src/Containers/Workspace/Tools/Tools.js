@@ -10,6 +10,7 @@ const Tools = React.memo(props => {
   } else if (inControl === "NONE") {
     controlText = "Take Control";
   }
+  console.log(awarenessIcon);
   return (
     <div className={classes.Container}>
       <h3 className={classes.Title}>Tools</h3>
@@ -18,7 +19,7 @@ const Tools = React.memo(props => {
           <div className={classes.ReferenceWindow}>
             <Awareness
               awarenessDesc={awarenessDesc}
-              awarnessIcon={awarenessIcon}
+              awarenessIcon={awarenessIcon}
             />
             <div
               className={classes.ReferenceControls}

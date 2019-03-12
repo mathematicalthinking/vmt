@@ -52,6 +52,9 @@ all share. we are repeating styles in each of those copmnents  */
 }
 
 .AwarenessDesc {
+  display: flex;
+  align-items: center;
+  height: 100%;
   margin-left: 10px;
 }
 
