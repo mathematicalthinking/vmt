@@ -20,6 +20,8 @@ class Workspace extends Component {
     activeMember: "",
     // inControl: false, // @TODO WE ARE DUPLICATING THIS FROM THE STORE...SINGLE SOURCE OF TRUTH!
     // someoneElseInControl: false,
+    awarenessDesc: "no one is in control",
+    awarenessIcon: null,
     referencing: false,
     showingReference: false,
     referToEl: null,
@@ -152,13 +154,19 @@ class Workspace extends Component {
 
     socket.on("TOOK_CONTROL", message => {
       this.props.addChatMessage(this.props.room._id, message);
+      this.setState({ awarenessDesc: message.text, awarenessIcon: "USER" });
       this.props.updatedRoom(room._id, { controlledBy: message.user._id });
     });
 
     socket.on("RELEASED_CONTROL", message => {
       this.props.addChatMessage(this.props.room._id, message);
       this.props.updatedRoom(room._id, { controlledBy: null });
-      this.setState({ activeMember: "", someoneElseInControl: false });
+      this.setState({
+        activeMember: "",
+        someoneElseInControl: false,
+        awarenessDesc: message.text,
+        awarenessIcon: "USER"
+      });
     });
 
     socket.on("CREATED_TAB", data => {
@@ -234,6 +242,7 @@ class Workspace extends Component {
       };
       this.props.updatedRoom(room._id, { controlledBy: null });
       this.props.addChatMessage(room._id, message);
+      this.setState({ awarenessDesc: message.text, awarenessIcon: "USER" });
       socket.emit("RELEASE_CONTROL", message, (err, res) => {
         if (err) console.log(err);
       });
@@ -264,6 +273,7 @@ class Workspace extends Component {
         timestamp: new Date().getTime()
       };
       this.props.addChatMessage(room._id, message);
+      this.setState({ awarenessDesc: message.text, awarenessIcon: "USER" });
       socket.emit("TAKE_CONTROL", message, (err, message) => {
         // this.scrollToBottom(); @TODO
         // IF ERROR WE NEED TO UNDO CONTROL
@@ -471,6 +481,9 @@ class Workspace extends Component {
           resetControlTimer={this.resetControlTimer}
           currentTab={this.state.currentTab}
           addNtfToTabs={this.addNtfToTabs}
+          updateAwarenessDesc={awarenessDesc => {
+            this.setState({ awarenessDesc });
+          }}
         />
       );
     }
@@ -489,6 +502,8 @@ class Workspace extends Component {
                 inControl={control}
                 goBack={this.goBack}
                 toggleControl={this.toggleControl}
+                awarenessDesc={this.state.awarenessDesc}
+                awarenessIcon={this.state.awarenessIcon}
                 save={this.props.save ? this.props.save : null}
               />
             }

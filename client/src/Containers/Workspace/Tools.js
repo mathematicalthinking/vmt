@@ -2,21 +2,23 @@ import React from "react";
 import classes from "./tools.css";
 
 const Tools = React.memo(props => {
+  let { inControl, awarenessDesc } = props;
   let controlText = "Request Control";
-  if (props.inControl === "ME") {
+  if (inControl === "ME") {
     controlText = "Release Control";
-  } else if (props.inControl === "NONE") {
+  } else if (inControl === "NONE") {
     controlText = "Take Control";
   }
   return (
     <div className={classes.Container}>
       <h3 className={classes.Title}>Tools</h3>
-      <div
-        className={true ? classes.Expanded : classes.Collapsed}
-        data-testid="current-members"
-      >
+      <div className={true ? classes.Expanded : classes.Collapsed}>
         {!props.replayer ? (
           <div className={classes.ReferenceWindow}>
+            <div className={classes.ReferenceControls}>
+              <i className="far fa-eye" />
+              <div className={classes.AwarenessDesc}>{awarenessDesc}</div>
+            </div>
             <div
               className={classes.ReferenceControls}
               onClick={
@@ -60,10 +62,10 @@ const Tools = React.memo(props => {
             </div>
           ) : null}
           <div
-            className={[classes.SideButton, classes.Exit].join(" ")}
+            className={classes.Exit}
             role="button"
             onClick={props.goBack}
-            theme={"Small"}
+            // theme={"Small"}
             data-testid="exit-room"
           >
             Exit Room

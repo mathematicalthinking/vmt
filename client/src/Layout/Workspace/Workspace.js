@@ -6,7 +6,7 @@ const WorkspaceLayout = React.memo(props => {
     graph,
     chat,
     tabs,
-    bottomRight,
+    bottomRight, // rename to tools
     bottomLeft,
     currentMembers,
     referFromCoords,
@@ -32,7 +32,7 @@ const WorkspaceLayout = React.memo(props => {
   //   bottomButton = <div><Button click={copyActivity}>Add To My Activities</Button></div>
   // }
   let membersHeight = "auto";
-  let chatHeight = "63%";
+  let chatHeight = "43%";
   let flexB = "0";
   if (!props.chatExpanded) {
     chatHeight = "auto";

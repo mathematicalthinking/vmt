@@ -91,12 +91,12 @@ class Homepage extends PureComponent {
               <div className={classes.Error}>{this.state.error}</div>
             ) : null}
             <p className={classes.Blurb}>
-              {/* Collaborative Workspaces for Exploring the World of Math */}
+              Collaborative Workspaces for Exploring the World of Math
             </p>
             <div className={classes.WorkspaceButton}>
-            <Button theme={"Big"} click={this.createRoom} m={35}>
-              Try out a Workspace
-            </Button>
+              <Button theme={"Big"} click={this.createRoom} m={35}>
+                Try out a Workspace
+              </Button>
             </div>
           </section>
           {/* <i onClick={this.scrollToDomRef} className={["fas fa-chevron-down", classes.Down].join(" ")}></i> */}
