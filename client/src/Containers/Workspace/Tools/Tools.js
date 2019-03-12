@@ -1,8 +1,9 @@
 import React from "react";
+import Awareness from "./Awareness";
 import classes from "./tools.css";
 
 const Tools = React.memo(props => {
-  let { inControl, awarenessDesc } = props;
+  let { inControl, awarenessDesc, awarenessIcon } = props;
   let controlText = "Request Control";
   if (inControl === "ME") {
     controlText = "Release Control";
@@ -15,10 +16,10 @@ const Tools = React.memo(props => {
       <div className={true ? classes.Expanded : classes.Collapsed}>
         {!props.replayer ? (
           <div className={classes.ReferenceWindow}>
-            <div className={classes.ReferenceControls}>
-              <i className="far fa-eye" />
-              <div className={classes.AwarenessDesc}>{awarenessDesc}</div>
-            </div>
+            <Awareness
+              awarenessDesc={awarenessDesc}
+              awarnessIcon={awarenessIcon}
+            />
             <div
               className={classes.ReferenceControls}
               onClick={
