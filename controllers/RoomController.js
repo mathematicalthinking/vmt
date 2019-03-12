@@ -28,7 +28,7 @@ module.exports = {
     });
   },
 
-  getById: id => {
+  getById: (id, params) => {
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
         .populate({ path: "creator", select: "username" })
@@ -40,10 +40,17 @@ module.exports = {
         .populate({ path: "members.user", select: "username" })
         .populate({ path: "currentMembers", select: "username" })
         .populate({ path: "course", select: "name" })
-        .populate({ path: "tabs", select: "-events" })
+        .populate({ path: "tabs" })
         .populate({ path: "graphImage", select: "imageData" })
         .then(room => {
-          resolve(room);
+          if (params.events) {
+            room.populate("tabs.events", (err, popRoom) => {
+              if (err) reject(err);
+              resolve(popRoom);
+            });
+          } else {
+            resolve(room);
+          }
         })
         .catch(err => reject(err));
     });

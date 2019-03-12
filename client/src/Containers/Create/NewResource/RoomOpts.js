@@ -21,6 +21,7 @@ class RoomOpts extends Component {
           <div className={classes.Container}>
             {ggbOpts.map(opt => (
               <div
+                key={opt.appName}
                 className={classes.Opt}
                 onClick={() => {
                   this.props.setGgbApp(opt.appName);

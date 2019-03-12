@@ -51,7 +51,7 @@ const initialState = {
   description: "",
   desmosLink: "",
   ggbFiles: "",
-  appName: "",
+  appName: "classic",
   dueDate: "",
   activities: [],
   privacySetting: "public"
@@ -142,7 +142,9 @@ class NewResourceContainer extends Component {
             }
           ];
           newResource.dueDate = this.state.dueDate;
-          newResource.appName = this.state.appName;
+          if (this.state.ggb) {
+            newResource.appName = this.state.appName;
+          }
           console.log(newResource);
           this.props.createRoom(newResource);
           break;

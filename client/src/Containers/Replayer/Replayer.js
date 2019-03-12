@@ -34,7 +34,7 @@ class Replayer extends Component {
   componentDidMount() {
     // @TODO We should never populate the tabs events before getting here
     // we dont need them for the regular room activity only for playback
-    this.props.populateRoom(this.props.match.params.room_id);
+    this.props.populateRoom(this.props.match.params.room_id, { events: true });
   }
 
   componentDidUpdate(prevProps, prevState) {

@@ -69,15 +69,13 @@ class GgbReplayer extends Component {
       for (let i = startIndex; i <= endIndex; i++) {
         if (
           this.props.log[i].eventArray &&
-          this.props.log[i].eventArray.length > 0
+          this.props.log[i].eventArray.length > 0 &&
+          this.props.log[i].eventType === "BATCH_UPDATE"
         ) {
           let syntheticEvent = { ...this.props.log[i] };
-          let { eventArray, batchSize } = syntheticEvent;
-          if (!batchSize) batchSize = eventArray.length;
-          syntheticEvent.eventArray = eventArray.slice(
-            eventArray.length - batchSize,
-            eventArray.length
-          );
+          let { eventArray } = syntheticEvent;
+          syntheticEvent.event = eventArray.pop();
+          syntheticEvent.eventType = "UPDATE";
           this.constructEvent(syntheticEvent);
         } else {
           this.constructEvent(this.props.log[i]);
@@ -96,8 +94,9 @@ class GgbReplayer extends Component {
         } else if (syntheticEvent.eventType === "BATCH_ADD") {
           syntheticEvent.eventType = "BATCH_REMOVE";
         } else if (syntheticEvent.eventType === "BATCH_UPDATE") {
-          let { eventArray, batchSize } = { ...syntheticEvent };
-          syntheticEvent.eventArray = eventArray.slice(0, batchSize);
+          let { eventArray } = { ...syntheticEvent };
+          syntheticEvent.event = eventArray.shift();
+          syntheticEvent.eventType = "UPDATE";
         }
         this.constructEvent(syntheticEvent);
       }
@@ -127,11 +126,13 @@ class GgbReplayer extends Component {
         // this.ggbApplet.evalCommand("UpdateConstruction()");
         break;
       case "BATCH_UPDATE":
-        this.recursiveUpdate([...data.eventArray], data.batchSize);
+        // make a copy because we're going to mutate the array so we
+        // know when to stop the recursive process
+        this.recursiveUpdate([...data.eventArray], false);
         break;
       case "BATCH_ADD":
         if (data.definition) {
-          this.recursiveUpdate([...data.eventArray], 1, true);
+          this.recursiveUpdate([...data.eventArray], true);
         }
         break;
       default:
@@ -148,20 +149,22 @@ class GgbReplayer extends Component {
    * @param  {Number} batchSize - the batch size, i.e., number of points in the shape
    * @param  {Boolean} adding - true if BATCH_ADD false if BATCH_UPDATE
    */
-  recursiveUpdate(events, batchSize, adding) {
+
+  recursiveUpdate(events, adding) {
     if (events && events.length > 0) {
       if (adding) {
         for (let i = 0; i < events.length; i++) {
           this.ggbApplet.evalCommand(events[i]);
         }
       } else {
-        this.ggbApplet.evalXML(
-          events.splice(0, batchSize * 2).join("") ||
-            events.splice(0, events.length).join("")
-        );
+        // @todo skip more events depending on playback speed.
+        if (events.length > 10) {
+          events.splice(0, 2);
+        }
+        this.ggbApplet.evalXML(events.shift());
         this.ggbApplet.evalCommand("UpdateConstruction()");
         setTimeout(() => {
-          this.recursiveUpdate(events, batchSize);
+          this.recursiveUpdate(events, false);
         }, 10);
       }
     } else {
@@ -181,6 +184,7 @@ class GgbReplayer extends Component {
       language: "en",
       useBrowserForJS: true,
       borderColor: "#ddd",
+      errorDialogsActive: false,
       preventFocus: true,
       appletOnLoad: this.initializeGgb,
       appName: this.props.tab.appName

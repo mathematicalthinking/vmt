@@ -13,7 +13,7 @@ const EditText = React.memo(
               data-testid={`edit-${name}`}
               className={[classes.Common, classes.Title].join(" ")}
               type="text"
-              value={children}
+              value={children || ""}
               onChange={change}
               name={name}
             />
@@ -55,7 +55,7 @@ const EditText = React.memo(
               className={[classes.Common, classes.Date].join(" ")}
               name={name}
               type="date"
-              value={children}
+              value={children || ""}
               onChange={change}
             />
           ));
@@ -66,7 +66,7 @@ const EditText = React.memo(
               className={classes.TextArea}
               onChange={change}
               name={name}
-              value={children}
+              value={children || ""}
             />
           ));
         default:
@@ -76,7 +76,7 @@ const EditText = React.memo(
               className={[classes.Common, classes.Text].join(" ")}
               name={name}
               type="text"
-              value={children}
+              value={children || ""}
               onChange={change}
             />
           ));

@@ -8,6 +8,7 @@ const Event = new mongoose.Schema({
   definition: { type: String }, // specific to ggb
   label: { type: String }, // specific to ggb
   description: { type: String }, // e,g, "Michael added point A"
+  currentState: { type: String }, // DESMOS ONLY...@todo some validation for this
   room: { type: ObjectId, ref: "Room", required: true },
   tab: { type: ObjectId, ref: "Tab", required: true },
   eventType: {
@@ -22,7 +23,7 @@ const Event = new mongoose.Schema({
       "BATCH_ADD"
     ]
   },
-  timestamp: { type: Number }, //UNIX TIME but in MS
+  timestamp: { type: Number, required: true }, //UNIX TIME but in MS
   isTrashed: { type: Boolean, default: false }
 });
 

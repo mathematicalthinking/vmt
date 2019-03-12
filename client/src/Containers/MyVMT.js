@@ -173,6 +173,7 @@ class Profile extends Component {
       }
       let displayResources = [];
       if (this.props[resource]) {
+        console.log("setting display resources");
         displayResources = this.props[resource].allIds.filter(id => {
           let included = false;
           if (this.props[resource].byId[id].members) {
@@ -237,9 +238,11 @@ class Profile extends Component {
         mainContent={
           <ResourceList
             userResources={
-              this.state.displayResources.map(
-                id => this.props[resource].byId[id]
-              ) || []
+              this.state.displayResources
+                .map(id => this.props[resource].byId[id])
+                .sort(function(a, b) {
+                  return new Date(b.createdAt) - new Date(a.createdAt);
+                }) || []
             }
             notifications={
               resource === "courses"
