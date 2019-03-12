@@ -96,7 +96,7 @@ class DesmosReplayer extends Component {
           />
         ) : null}
         <div
-          style={{ height: GRAPH_HEIGHT, width: "100%" }}
+          style={{ height: "100%", width: "100%" }}
           id="calculator"
           ref={this.calculatorRef}
         />

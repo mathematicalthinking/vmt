@@ -455,6 +455,7 @@ class Workspace extends Component {
           resetControlTimer={this.resetControlTimer}
           currentTab={this.state.currentTab}
           updatedRoom={this.props.updatedRoom}
+          updateRoomTab={this.props.updateRoomTab}
           addNtfToTabs={this.addNtfToTabs}
         />
       );

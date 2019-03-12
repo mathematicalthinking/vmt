@@ -18,6 +18,7 @@ class DesmosGraph extends Component {
     if (window.Desmos) {
       let { room, currentTab } = this.props;
       let { tabs } = room;
+      console.log(room);
       this.calculator = window.Desmos.GraphingCalculator(
         this.calculatorRef.current
       );
@@ -68,9 +69,10 @@ class DesmosGraph extends Component {
     }
     let { room, currentTab } = this.props;
     let { tabs } = room;
-    let { desmosLink } = tabs[currentTab];
-    if (tabs[currentTab].currentState) {
-      this.calculator.setState(tabs[currentTab].currentState);
+    let { desmosLink, currentState } = tabs[currentTab];
+    console("curentState: ", currentState);
+    if (currentState) {
+      this.calculator.setState(currentState);
       this.setState({ loading: false });
       this.initializeListeners();
     } else if (desmosLink) {
@@ -108,22 +110,25 @@ class DesmosGraph extends Component {
             "You are not in control. The update you just made will not be saved. Please refresh the page"
           );
         }
+        let currentState = JSON.stringify(this.calculator.getState());
         const newData = {
           room: this.props.room._id,
           tab: this.props.room.tabs[this.props.currentTab]._id,
-          event: JSON.stringify(this.calculator.getState()),
-          currentState: JSON.stringify(this.calculator.getState()),
+          event: currentState,
           user: {
             _id: this.props.user._id,
             username: this.props.user.username
           },
           timestamp: new Date().getTime()
         };
-        let updatedTabs = [...this.props.room.tabs];
-        updatedTabs[this.props.currentTab].currentState = newData.currentState;
-        this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
+        let tabId = this.props.room.tabs[this.props.currentTab]._id;
         socket.emit("SEND_EVENT", newData, res => {
           this.props.resetControlTimer();
+        });
+        console.log("updating tab: ", tabId, " with ", currentState);
+        this.props.updateRoomTab(this.props.room._id, tabId, {
+          // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
+          currentState
         });
       }
       this.setState({ receivingEvent: false });
