@@ -4,6 +4,7 @@ import classes from "./graph.css";
 import { Aux, Modal } from "../../Components";
 import Script from "react-load-script";
 import socket from "../../utils/sockets";
+import ggbTools from "./Tools/GgbIcons/";
 
 import { initPerspectiveListener } from "./ggbUtils";
 class GgbGraph extends Component {
@@ -621,7 +622,7 @@ class GgbGraph extends Component {
 
   /**
    * @method sendEvnet
-   * @description emits the geogebra event over the socket and updates the room in the redux store
+   * @description emits the geogebra event over the socket and updates the room in the redux store.
    * @param  {String} xml - ggb generated xml of the even
    * @param  {String} definition - ggb multipoint definition (e.g. "Polygon(D, E, F, G)")
    * @param  {String} label - ggb label. ggbApplet.evalXML(label) yields xml representation of this label
@@ -633,7 +634,7 @@ class GgbGraph extends Component {
     if (eventType === "AWARENESS") {
       if (action === "mode") {
         this.props.updateAwarenessDesc(
-          `${this.props.user.username} selected `,
+          `${this.props.user.username} selected the`,
           label
         );
       }

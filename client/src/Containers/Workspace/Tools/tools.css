@@ -59,9 +59,14 @@ all share. we are repeating styles in each of those copmnents  */
 }
 
 .AwarenessIcon {
-  margin-left: 10px;
+  position: relative;
+  overflow: visible;
+  margin: 2px;
 }
 
+.AwarenessIcon:hover .ToolTip {
+  display: flex;
+}
 .Save {
   margin-top: 10px;
 }
