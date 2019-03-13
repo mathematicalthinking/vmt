@@ -20,6 +20,7 @@ const Room = new mongoose.Schema(
       {
         // _id: false,
         user: { type: ObjectId, ref: "User" },
+        color: { type: String, default: "#f4eafc" },
         role: { type: String }
       }
     ],
@@ -51,15 +52,16 @@ Room.pre("save", function(next) {
     next();
   } else if (this.modifiedPaths().length > 0) {
     this.modifiedPaths().forEach(field => {
-      if (field === "members") {
-        User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
-          $addToSet: { rooms: this._id }
-        })
-          .then(user => {
-            next();
-          })
-          .catch(err => console.log(err));
-      } else if (field === "tempRoom") {
+      // if (field === "members") {
+      //   User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
+      //     $addToSet: { rooms: this._id }
+      //   })
+      //     .then(user => {
+      //       next();
+      //     })
+      //     .catch(err => console.log(err));
+      // } else
+      if (field === "tempRoom") {
         User.findByIdAndUpdate(this.creator, { $addToSet: { rooms: this._id } })
           .then(res => {
             next();
