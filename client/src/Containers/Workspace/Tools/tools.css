@@ -55,6 +55,10 @@ all share. we are repeating styles in each of those copmnents  */
   display: flex;
   align-items: center;
   height: 100%;
+  margin: 0 10px;
+}
+
+.AwarenessIcon {
   margin-left: 10px;
 }
 

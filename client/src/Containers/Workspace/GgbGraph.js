@@ -351,10 +351,12 @@ class GgbGraph extends Component {
     }
     switch (event[0]) {
       case "setMode":
-        if (event[2] === "40" || this.userCanEdit()) {
+        if (event[2] === "40") {
+          return;
+        } else if (this.userCanEdit()) {
           console.log(event);
           // @todo consider refacotring this so event Type is first and we can avoid all of these null values
-          this.sendEvent(null, null, event[2], "AWARENESS", "selected");
+          this.sendEvent(null, null, event[2], "AWARENESS", "mode");
           return;
           // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
           // Then don't send this to the other users/=.
@@ -628,6 +630,15 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action, eventQueue) => {
+    if (eventType === "AWARENESS") {
+      if (action === "mode") {
+        this.props.updateAwarenessDesc(
+          `${this.props.user.username} selected `,
+          label
+        );
+      }
+      return;
+    }
     let newData = {
       definition,
       label,

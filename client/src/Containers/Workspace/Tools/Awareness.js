@@ -10,13 +10,13 @@ const Awareness = props => {
     <div className={classes.ReferenceControls}>
       <i className="far fa-eye" />
       <div className={classes.AwarenessDesc}>
+        {awarenessDesc}
         <img
           className={classes.AwarenessIcon}
-          src={icons[30]}
-          height={25}
+          src={icons[awarenessIcon]}
+          height={40}
           alt={awarenessIcon}
         />
-        {awarenessDesc}
       </div>
     </div>
   );
