@@ -18,7 +18,7 @@ const avatar = props => {
       <span className={props.size === "large" ? classes.AvatarContainer : null}>
         <i
           className={["fas fa-user", classes.Avatar].join(" ")}
-          style={{ fontSize, padding, border }}
+          style={{ fontSize, padding, border, backgroundColor: props.color }}
         />
         {props.size === "large" ? (
           <div className={classes.AvatarOverlay}>

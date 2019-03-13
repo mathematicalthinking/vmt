@@ -50,7 +50,7 @@ class Member extends PureComponent {
       <div data-testid={`member-${username}`}>
         <div className={classes.Container}>
           <div className={classes.Avatar}>
-            <Avatar username={username} />
+            <Avatar username={username} color={info.color} />
           </div>
           {notification ? (
             <div className={classes.Notification} data-testid="member-ntf">

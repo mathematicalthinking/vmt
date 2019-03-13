@@ -245,9 +245,10 @@ module.exports = {
         let roomToPopulate;
         let fromUser;
         db.Room.findById(id)
-          .then(room => {
+          .then(async room => {
             let { entryCode, userId } = body.checkAccess;
             fromUser = userId;
+            // @todo we should encrypt this
             if (room.entryCode !== entryCode) {
               throw "Incorrect Entry Code";
             }
@@ -258,7 +259,20 @@ module.exports = {
               throw "You have already been granted access to this room!";
             }
             // Add this member to the room
-            room.members.push({ user: userId, role: "participant" });
+            room.members.push({
+              user: userId,
+              role: "participant",
+              color: colorMap[room.members.length]
+            });
+            try {
+              await db.User.findByIdAndUpdate(fromUser, {
+                $addToSet: {
+                  rooms: id
+                }
+              });
+            } catch (err) {
+              throw err;
+            }
             return room.save();
           })
           .then(updatedRoom => {

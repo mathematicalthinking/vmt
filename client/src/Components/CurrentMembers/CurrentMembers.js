@@ -7,7 +7,7 @@ class CurrentMembers extends Component {
   // }
   shouldComponentUpdate(nextProps) {
     if (
-      nextProps.members !== this.props.members ||
+      nextProps.currentMembers !== this.props.currentMembers ||
       nextProps.activeMember !== this.props.activeMember
     ) {
       return true;
@@ -20,29 +20,39 @@ class CurrentMembers extends Component {
   };
 
   render() {
-    const { members, activeMember } = this.props;
+    const { currentMembers, members, activeMember } = this.props;
+    console.log(members);
+    console.log(currentMembers);
     return (
       <div className={classes.Container}>
         <div className={classes.Title} onClick={this.toggleExpansion}>
           Currently in this room
-          <div className={classes.Count}>{members.length}</div>
+          <div className={classes.Count}>{currentMembers.length}</div>
         </div>
         <div
           className={this.props.expanded ? classes.Expanded : classes.Collapsed}
           data-testid="current-members"
         >
           {members
-            ? members.map(user => (
-                <div
-                  className={[
-                    classes.Avatar,
-                    user._id === activeMember ? classes.Active : classes.Passive
-                  ].join(" ")}
-                  key={user.username}
-                >
-                  <Avatar username={user.username} />
-                </div>
-              ))
+            ? currentMembers.map(user => {
+                // get the users color
+                let color = members.filter(
+                  member => member.user._id === user._id
+                )[0].color;
+                return (
+                  <div
+                    className={[
+                      classes.Avatar,
+                      user._id === activeMember
+                        ? classes.Active
+                        : classes.Passive
+                    ].join(" ")}
+                    key={user.username}
+                  >
+                    <Avatar username={user.username} color={color} />
+                  </div>
+                );
+              })
             : null}
         </div>
       </div>

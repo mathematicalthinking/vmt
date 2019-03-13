@@ -413,7 +413,8 @@ class Workspace extends Component {
     let Graph;
     let currentMembers = (
       <CurrentMembers
-        members={room.currentMembers}
+        members={room.members}
+        currentMembers={room.currentMembers}
         activeMember={room.controlledBy}
         expanded={this.state.membersExpanded}
         toggleExpansion={this.toggleExpansion}
