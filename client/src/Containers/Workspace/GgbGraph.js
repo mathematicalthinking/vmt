@@ -395,7 +395,9 @@ class GgbGraph extends Component {
         }
         break;
       case "openMenu":
-        console.log("close menu!");
+        if (!this.userCanEdit()) {
+          this.showAlert();
+        }
         break;
       case "perspectiveChange":
         break;

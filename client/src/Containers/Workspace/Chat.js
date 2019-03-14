@@ -66,7 +66,7 @@ class Chat extends Component {
   };
 
   submitMessage = () => {
-    const { roomId, user } = this.props;
+    const { roomId, user, myColor } = this.props;
     if (!user.connected) {
       return alert(
         "you have disconnected from the server. Check your internet connect and try refreshing the page"
@@ -77,6 +77,7 @@ class Chat extends Component {
       text: this.state.newMessage,
       user: { _id: user._id, username: user.username },
       room: roomId,
+      color: myColor,
       timestamp: new Date().getTime()
     };
     if (this.props.referencing) {

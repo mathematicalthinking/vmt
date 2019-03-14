@@ -25,11 +25,11 @@ const Message = new mongoose.Schema({
     ],
     default: "TEXT"
   },
+  color: { type: String, required: true },
   isTrashed: { type: Boolean, default: false }
 });
 
 // Add this message to the room's chat
-// @TODO for some reason I can't get $push to work
 Message.pre("save", async function() {
   if (this.isNew) {
     // @TODO CHANGIN controlledBY HERE IS TERRRRIBLLE!!!!! THIS SHOULD ALL BE DONE SOMEWHERE ELSE WHERE ITS LESS OF A SIDE EFFECT
