@@ -21,8 +21,6 @@ class CurrentMembers extends Component {
 
   render() {
     const { currentMembers, members, activeMember } = this.props;
-    console.log(members);
-    console.log(currentMembers);
     return (
       <div className={classes.Container}>
         <div className={classes.Title} onClick={this.toggleExpansion}>

@@ -33,7 +33,6 @@ all share. we are repeating styles in each of those copmnents  */
   flex-direction: column;
   justify-content: space-between;
   width: 100%;
-  overflow-y: auto;
   padding: 5px 10px;
   height: 100%;
 }

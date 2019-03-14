@@ -9,7 +9,7 @@ const ToolTip = props => {
   return (
     <span
       className={classes.ToolTipText}
-      // style={{ visibility: props.visible ? "visible" : "hidden" }}
+      style={{ visibility: props.visible ? "visible" : "hidden" }}
     >
       {props.children}
     </span>
