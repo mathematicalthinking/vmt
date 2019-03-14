@@ -22,6 +22,7 @@ class Workspace extends Component {
     // someoneElseInControl: false,
     awarenessDesc: "no one is in control",
     awarenessIcon: null,
+    lastEvent: null,
     referencing: false,
     showingReference: false,
     referToEl: null,

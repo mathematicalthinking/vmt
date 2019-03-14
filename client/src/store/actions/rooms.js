@@ -240,7 +240,19 @@ export const populateRoom = (id, opts) => {
     }
     API.getById("rooms", id, temp, events)
       .then(res => {
-        dispatch(updatedRoom(id, res.data.result));
+        // creae a log combining events and chat messages
+        let room = res.data.result;
+        let allEvents = [];
+        console.log(room.tabs);
+        room.tabs.forEach(tab => {
+          allEvents = allEvents.concat(tab.events);
+        });
+        allEvents = allEvents
+          .concat(room.chat)
+          .sort((a, b) => a.timestamp - b.timestamp);
+        room.log = allEvents;
+        console.log("all events: ", allEvents);
+        dispatch(updatedRoom(id, room));
         dispatch(loading.success());
       })
       .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
