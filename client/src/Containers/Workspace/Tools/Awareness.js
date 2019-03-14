@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Avatar, ToolTip } from "../../../Components";
+import { Avatar, ToolTip, Aux } from "../../../Components";
 import classes from "./tools.css";
 import ggbTools from "./GgbIcons/";
 
@@ -9,36 +9,33 @@ class Awareness extends Component {
   };
   render() {
     let { awarenessDesc, awarenessIcon } = this.props;
+    console.log("tools: ", awarenessDesc, awarenessIcon);
     // If the awareness is of a tool being selected
-    let awareness;
-    if (ggbTools[awarenessIcon]) {
-      awareness = (
-        <div className={classes.AwarenessDesc}>
-          {awarenessDesc}
-          <a
-            className={classes.AwarenessIcon}
-            href={ggbTools[awarenessIcon].link}
-            onMouseOver={() => this.setState({ showToolTip: true })}
-            onMouseOut={() => this.setState({ showToolTip: false })}
-          >
-            <img
-              src={ggbTools[awarenessIcon].image}
-              height={40}
-              href={ggbTools[awarenessIcon].link}
-              alt={awarenessIcon}
-            />
-            <ToolTip visible={this.state.showToolTip}>
-              {ggbTools[awarenessIcon].name.toLowerCase().replace("_", " ")}
-            </ToolTip>
-          </a>
-          tool
-        </div>
-      );
-    }
+
     return (
-      <div className={classes.ReferenceControls}>
-        <i className="far fa-eye" />
-        {awareness}
+      <div className={classes.AwarenessDesc}>
+        {awarenessDesc}
+        <a
+          className={classes.AwarenessIcon}
+          onMouseOver={() => this.setState({ showToolTip: true })}
+          onMouseOut={() => this.setState({ showToolTip: false })}
+        >
+          {awarenessIcon ? (
+            <Aux>
+              <img
+                src={ggbTools[awarenessIcon].image}
+                height={40}
+                href={ggbTools[awarenessIcon].link}
+                alt={awarenessIcon}
+              />
+
+              <ToolTip visible={this.state.showToolTip}>
+                {ggbTools[awarenessIcon].name.toLowerCase().replace("_", " ")}
+              </ToolTip>
+            </Aux>
+          ) : null}
+        </a>
+        tool
       </div>
     );
   }

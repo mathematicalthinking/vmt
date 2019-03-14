@@ -345,8 +345,8 @@ class GgbGraph extends Component {
    */
 
   clientListener = event => {
-    console.log(event);
     // console.log("client Listener");
+    console.log("event: ", event);
     if (this.state.receivingData && !this.updatingOn) {
       return this.setState({ receivingData: false });
     }
@@ -355,9 +355,8 @@ class GgbGraph extends Component {
         if (event[2] === "40") {
           return;
         } else if (this.userCanEdit()) {
-          console.log(event);
           // @todo consider refacotring this so event Type is first and we can avoid all of these null values
-          this.sendEvent(null, null, event[2], "AWARENESS", "mode");
+          this.sendEvent(null, null, event[2], "SELECT", "mode");
           return;
           // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
           // Then don't send this to the other users/=.
@@ -369,6 +368,7 @@ class GgbGraph extends Component {
       case "undo":
         if (this.resetting || this.userCanEdit()) {
           this.resetting = false;
+
           return;
         } else {
           this.showAlert();
@@ -387,12 +387,13 @@ class GgbGraph extends Component {
         }
         break;
       case "select":
-        console.log("event: ", event);
-        if (this.ggbApplet.getObjectType(event[1]) === "point") {
+        let selection = this.ggbApplet.getObjectType(event[1]);
+        if (selection === "point") {
           this.pointSelected = event[1];
         } else {
           this.pointSelected = null;
         }
+        this.sendEvent(null, selection, event[1], "SELECT", "ggbObj");
         break;
       case "openMenu":
         if (!this.userCanEdit()) {
@@ -633,11 +634,16 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action, eventQueue) => {
-    if (eventType === "AWARENESS") {
+    if (eventType === "SELECT") {
       if (action === "mode") {
         this.props.updateAwarenessDesc(
           `${this.props.user.username} selected the`,
           label
+        );
+      } else if (action === "ggbObj") {
+        this.props.updateAwarenessDesc(
+          `${this.props.user.username} selected ${definition} ${label}`,
+          // label
         );
       }
       return;

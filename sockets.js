@@ -110,9 +110,6 @@ module.exports = function() {
     });
 
     socket.on("LEAVE_ROOM", (color, cb) => {
-      console.log("LEAVING ROOM");
-      console.log(color);
-      console.log(typeof cb);
       room = Object.keys(socket.rooms).pop();
       controllers.rooms
         .removeCurrentUsers(room, socket.user_id)

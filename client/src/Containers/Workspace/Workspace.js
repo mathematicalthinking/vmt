@@ -253,7 +253,7 @@ class Workspace extends Component {
       };
       this.props.updatedRoom(room._id, { controlledBy: null });
       this.props.addChatMessage(room._id, message);
-      this.setState({ awarenessDesc: message.text, awarenessIcon: "USER" });
+      this.setState({ awarenessDesc: message.text, awarenessIcon: null });
       socket.emit("RELEASE_CONTROL", message, (err, res) => {
         if (err) console.log(err);
       });
@@ -288,7 +288,12 @@ class Workspace extends Component {
       this.props.addChatMessage(room._id, message);
       socket.emit("TAKE_CONTROL", message, (err, message) => {
         // this.scrollToBottom(); @TODO
-        this.setState({ awarenessDesc: message.text, awarenessIcon: null });
+        this.setState(
+          { awarenessDesc: message.text, awarenessIcon: null },
+          () => {
+            console.log(this.state.awarenessDesc);
+          }
+        );
         // IF ERROR WE NEED TO UNDO CONTROL
       });
     }

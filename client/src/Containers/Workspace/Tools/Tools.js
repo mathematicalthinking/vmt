@@ -17,10 +17,12 @@ const Tools = React.memo(props => {
       <div className={true ? classes.Expanded : classes.Collapsed}>
         {!props.replayer ? (
           <div className={classes.ReferenceWindow}>
-            <Awareness
-              awarenessDesc={awarenessDesc}
-              awarenessIcon={awarenessIcon}
-            />
+            <div className={classes.ReferenceControls}>
+              <Awareness
+                awarenessDesc={awarenessDesc}
+                awarenessIcon={awarenessIcon}
+              />
+            </div>
             <div
               className={classes.ReferenceControls}
               onClick={
