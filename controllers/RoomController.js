@@ -31,6 +31,7 @@ module.exports = {
   },
 
   getById: (id, params) => {
+    console.log(params);
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
         .populate({ path: "creator", select: "username" })

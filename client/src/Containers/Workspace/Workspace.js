@@ -43,7 +43,7 @@ class Workspace extends Component {
     let { room, user } = this.props;
     this.props.updateUser({ connected: socket.connected });
     if (!this.props.temp) {
-      this.props.populateRoom(room._id);
+      this.props.populateRoom(room._id, { events: true });
       if (room.members) {
         let myColor = room.members.filter(
           member => member.user._id === user._id
@@ -494,7 +494,7 @@ class Workspace extends Component {
         <GgbGraph
           room={room}
           user={user}
-          color={this.state.myColor}
+          myColor={this.state.myColor}
           role={this.state.role}
           updateRoom={this.props.updateRoom}
           updateRoomTab={this.props.updateRoomTab}

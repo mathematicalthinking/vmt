@@ -387,13 +387,15 @@ class GgbGraph extends Component {
         }
         break;
       case "select":
-        let selection = this.ggbApplet.getObjectType(event[1]);
-        if (selection === "point") {
-          this.pointSelected = event[1];
-        } else {
-          this.pointSelected = null;
+        if (this.ggbApplet.getMode() === "0") {
+          let selection = this.ggbApplet.getObjectType(event[1]);
+          if (selection === "point") {
+            this.pointSelected = event[1];
+          } else {
+            this.pointSelected = null;
+          }
+          this.sendEvent(null, selection, event[1], "SELECT", "ggbObj");
         }
-        this.sendEvent(null, selection, event[1], "SELECT", "ggbObj");
         break;
       case "openMenu":
         if (!this.userCanEdit()) {
@@ -634,6 +636,7 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action, eventQueue) => {
+    console.log(this.props.myColor);
     if (eventType === "SELECT") {
       if (action === "mode") {
         this.props.updateAwarenessDesc(
@@ -642,7 +645,7 @@ class GgbGraph extends Component {
         );
       } else if (action === "ggbObj") {
         this.props.updateAwarenessDesc(
-          `${this.props.user.username} selected ${definition} ${label}`,
+          `${this.props.user.username} selected ${definition} ${label}`
           // label
         );
       }
@@ -656,6 +659,7 @@ class GgbGraph extends Component {
       room: this.props.room._id,
       tab: this.props.room.tabs[this.props.currentTab]._id,
       event: xml,
+      color: this.props.myColor,
       user: { _id: this.props.user._id, username: this.props.user.username },
       timestamp: new Date().getTime()
       // currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
