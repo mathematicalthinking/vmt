@@ -20,7 +20,7 @@ const Room = new mongoose.Schema(
       {
         // _id: false,
         user: { type: ObjectId, ref: "User" },
-        color: { type: String, default: "#f4eafc" },
+        color: { type: String, default: "#f26247" },
         role: { type: String }
       }
     ],

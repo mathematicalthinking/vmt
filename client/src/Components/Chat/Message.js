@@ -8,7 +8,6 @@ const Message = React.forwardRef((props, ref) => {
     highlightClass = classes.Highlight;
   }
   if (message) {
-    console.log(message);
     return (
       <div
         id={message._id}

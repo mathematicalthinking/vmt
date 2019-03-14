@@ -4,7 +4,7 @@ import classes from "./avatar.css";
 const avatar = props => {
   let fontSize = 15;
   let padding = 7;
-  let border = "none";
+  let border = "1px solid black";
   if (props.size === "small") fontSize = 10;
   else if (props.size === "medium") fontSize = 25;
   else if (props.size === "large") {

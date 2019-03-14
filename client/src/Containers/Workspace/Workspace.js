@@ -91,7 +91,8 @@ class Workspace extends Component {
     const { updatedRoom, room, user } = this.props;
     if (socket) {
       // @TODO RELEASE CONTROL
-      socket.emit("LEAVE_ROOM", (res, err) => {
+      let color = this.state.myColor;
+      socket.emit("LEAVE_ROOM", color, (res, err) => {
         if (err) {
           console.log("error leaving room", err);
         }
