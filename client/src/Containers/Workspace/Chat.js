@@ -104,8 +104,10 @@ class Chat extends Component {
   };
 
   render() {
+    console.log(this.props.log);
     return (
       <ChatLayout
+        log={this.props.log}
         messages={this.props.messages}
         change={this.changeHandler}
         submit={this.submitMessage}

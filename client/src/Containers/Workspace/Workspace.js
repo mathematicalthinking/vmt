@@ -458,6 +458,7 @@ class Workspace extends Component {
       <Chat
         roomId={room._id}
         messages={room.chat || []}
+        log={room.log}
         // socket={socket}
         myColor={this.state.myColor}
         user={user}

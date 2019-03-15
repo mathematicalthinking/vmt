@@ -7,7 +7,7 @@ import classes from "./chat.css";
 // import Button from '../UI/Button/Button';
 import moment from "moment";
 class Chat extends Component {
-  // We need this construcotr, stop deleting it...look @ line21
+  // We need this construcotr, stop deleting it...look @ line29
   constructor(props) {
     super(props);
 
@@ -208,6 +208,7 @@ class Chat extends Component {
   render() {
     let {
       messages,
+      log,
       replayer,
       change,
       submit,
@@ -215,9 +216,10 @@ class Chat extends Component {
       referencing,
       showingReference
     } = this.props;
+    console.log(log);
     let displayMessages = [];
-    if (messages) {
-      displayMessages = messages.map((message, i) => {
+    if (log) {
+      displayMessages = log.map((message, i) => {
         let highlighted = false;
         if (showingReference && this.props.referToEl) {
           if (
@@ -228,25 +230,33 @@ class Chat extends Component {
             highlighted = true;
           }
         }
-        return (
-          <Message
-            message={message}
-            key={message._id} // ?? no message._id ??
-            ref={this[`message-${message._id}`]}
-            click={() => {
-              return !replayer
-                ? referencing
-                  ? event => this.referToMessage(event, i)
-                  : message.reference
-                  ? event =>
-                      this.showReference(event, message.reference, message.tab)
-                  : null
-                : this.display_temporary_error;
-            }}
-            highlighted={highlighted}
-            referencing={this.props.referencing}
-          />
-        );
+        if (message.messageType) {
+          return (
+            <Message
+              message={message}
+              key={message._id} // ?? no message._id ??
+              ref={this[`message-${message._id}`]}
+              click={() => {
+                return !replayer
+                  ? referencing
+                    ? event => this.referToMessage(event, i)
+                    : message.reference
+                    ? event =>
+                        this.showReference(
+                          event,
+                          message.reference,
+                          message.tab
+                        )
+                    : null
+                  : this.display_temporary_error;
+              }}
+              highlighted={highlighted}
+              referencing={this.props.referencing}
+            />
+          );
+        } else {
+          return <Event event={message} key={message._id} />;
+        }
       });
       // use this to scroll to the bottom
       // displayMessages.push(<div key='end' ref={this.chatEnd}></div>)

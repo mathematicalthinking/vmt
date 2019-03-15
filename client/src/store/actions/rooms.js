@@ -251,7 +251,7 @@ export const populateRoom = (id, opts) => {
           .concat(room.chat)
           .sort((a, b) => a.timestamp - b.timestamp);
         room.log = allEvents;
-        console.log("all events: ", allEvents);
+        // consider deleting tab.events and room.chat here since we have all of the information in the log now
         dispatch(updatedRoom(id, room));
         dispatch(loading.success());
       })

@@ -4,7 +4,7 @@ class Event extends Component {
   state = {};
 
   render() {
-    return <div>Event</div>;
+    return <div>{this.props.event.description}</div>;
   }
 }
 
