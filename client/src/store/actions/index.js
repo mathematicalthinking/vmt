@@ -55,7 +55,7 @@ export {
   createRoomFromActivity,
   updateRoomTab,
   setRoomStartingPoint,
-  addChatMessage,
+  addToLog,
   inviteToRoom
 } from "./rooms";
 export {

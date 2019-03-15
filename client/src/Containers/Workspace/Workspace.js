@@ -7,7 +7,7 @@ import {
   populateRoom,
   setRoomStartingPoint,
   updateUser,
-  addChatMessage
+  addToLog
 } from "../../store/actions";
 import WorkspaceLayout from "../../Layout/Workspace/Workspace";
 import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from "./";
@@ -143,13 +143,13 @@ class Workspace extends Component {
         this.props.updatedRoom(room._id, {
           currentMembers: res.room.currentMembers
         });
-        this.props.addChatMessage(room._id, res.message);
+        this.props.addToLog(room._id, res.message);
       });
     }
 
     socket.on("USER_JOINED", data => {
       this.props.updatedRoom(room._id, { currentMembers: data.currentMembers });
-      this.props.addChatMessage(room._id, data.message);
+      this.props.addToLog(room._id, data.message);
     });
 
     socket.on("USER_LEFT", data => {
@@ -159,17 +159,17 @@ class Workspace extends Component {
       let updatedChat = [...this.props.room.chat];
       updatedChat.push(data.message);
       this.props.updatedRoom(room._id, { currentMembers: data.currentMembers });
-      this.props.addChatMessage(room._id, data.message);
+      this.props.addToLog(room._id, data.message);
     });
 
     socket.on("TOOK_CONTROL", message => {
-      this.props.addChatMessage(this.props.room._id, message);
+      this.props.addToLog(this.props.room._id, message);
       this.props.updatedRoom(room._id, { controlledBy: message.user._id });
       this.setState({ awarenessDesc: message.text, awarenessIcon: "USER" });
     });
 
     socket.on("RELEASED_CONTROL", message => {
-      this.props.addChatMessage(this.props.room._id, message);
+      this.props.addToLog(this.props.room._id, message);
       this.props.updatedRoom(room._id, { controlledBy: null });
       this.setState({
         activeMember: "",
@@ -180,7 +180,7 @@ class Workspace extends Component {
     });
 
     socket.on("CREATED_TAB", data => {
-      this.props.addChatMessage(this.props.room._id, data.message);
+      this.props.addToLog(this.props.room._id, data.message);
       delete data.message;
       delete data.creator;
       let tabs = [...this.props.room.tabs];
@@ -253,7 +253,7 @@ class Workspace extends Component {
         timestamp: new Date().getTime()
       };
       this.props.updatedRoom(room._id, { controlledBy: null });
-      this.props.addChatMessage(room._id, message);
+      this.props.addToLog(room._id, message);
       this.setState({ awarenessDesc: message.text, awarenessIcon: null });
       socket.emit("RELEASE_CONTROL", message, (err, res) => {
         if (err) console.log(err);
@@ -271,7 +271,7 @@ class Workspace extends Component {
         timestamp: new Date().getTime()
       };
       socket.emit("SEND_MESSAGE", message, (err, res) => {
-        this.props.addChatMessage(room._id, message);
+        this.props.addToLog(room._id, message);
       });
     } else {
       // We're taking control
@@ -286,7 +286,7 @@ class Workspace extends Component {
         color: this.state.myColor,
         timestamp: new Date().getTime()
       };
-      this.props.addChatMessage(room._id, message);
+      this.props.addToLog(room._id, message);
       socket.emit("TAKE_CONTROL", message, (err, message) => {
         // this.scrollToBottom(); @TODO
         this.setState(
@@ -313,7 +313,7 @@ class Workspace extends Component {
   emitNewTab = tabInfo => {
     console.log(tabInfo);
     socket.emit("NEW_TAB", tabInfo, (err, res) => {
-      this.props.addChatMessage(this.props.room._id, tabInfo.message);
+      this.props.addToLog(this.props.room._id, tabInfo.message);
     });
   };
 
@@ -459,10 +459,11 @@ class Workspace extends Component {
         roomId={room._id}
         messages={room.chat || []}
         log={room.log}
+        addToLog={this.props.addToLog}
         // socket={socket}
         myColor={this.state.myColor}
         user={user}
-        updatedRoom={this.props.updatedRoom}
+        // updatedRoom={this.props.updatedRoom}
         referencing={this.state.referencing}
         referToEl={this.state.referToEl}
         referToCoords={this.state.referToCoords}
@@ -579,6 +580,6 @@ export default connect(
     updateRoomTab,
     populateRoom,
     setRoomStartingPoint,
-    addChatMessage
+    addToLog
   }
 )(Workspace);

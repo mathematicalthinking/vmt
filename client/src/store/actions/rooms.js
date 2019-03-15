@@ -67,9 +67,15 @@ export const addRoomMember = (roomId, body) => {
   };
 };
 
-export const addChatMessage = (roomId, message) => {
+/**
+ * @function addToLog
+ * @param  {String} roomId
+ * @param  {Object} message - as Message or Event
+ */
+
+export const addToLog = (roomId, message) => {
   return {
-    type: actionTypes.ADD_CHAT_MESSAGE,
+    type: actionTypes.ADD_TO_LOG,
     roomId,
     message
   };
