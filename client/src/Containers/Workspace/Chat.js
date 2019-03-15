@@ -22,9 +22,7 @@ class Chat extends Component {
     if (!this.props.replaying) {
       socket.removeAllListeners("RECEIVE_MESSAGE");
       socket.on("RECEIVE_MESSAGE", data => {
-        this.props.updatedRoom(this.props.roomId, {
-          chat: [...this.props.messages, data]
-        });
+        this.props.addToLog(this.props.roomId, data);
         // this.scrollToBottom()
       });
     }
@@ -78,6 +76,7 @@ class Chat extends Component {
       user: { _id: user._id, username: user.username },
       room: roomId,
       color: myColor,
+      messageType: "TEXT",
       timestamp: new Date().getTime()
     };
     if (this.props.referencing) {
@@ -93,9 +92,7 @@ class Chat extends Component {
       }
     });
     delete newMessage.room;
-    this.props.updatedRoom(roomId, {
-      chat: [...this.props.messages, newMessage]
-    });
+    this.props.addToLog(roomId, newMessage);
     // this.scrollToBottom(); @TODO
     this.setState({
       newMessage: ""

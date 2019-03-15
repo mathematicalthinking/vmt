@@ -25,8 +25,8 @@ class Chat extends Component {
 
     // Create a ref for each chat element so they can be used with the referencing tool
     // This is why we needed to have a constructor function
-    this.props.messages.forEach((message, i) => {
-      this[`message-${i}`] = React.createRef();
+    this.props.log.forEach(message => {
+      this[`message-${message._id}`] = React.createRef();
     });
   }
 
@@ -53,9 +53,10 @@ class Chat extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.messages.length !== this.props.messages.length) {
+    let { log } = this.props;
+    if (prevProps.log.length !== log.length) {
       // create a ref for the new element
-      this[`message-${this.props.messages.length - 1}`] = React.createRef();
+      this[`message-${log[log.length - 1]._id}`] = React.createRef();
       this.scrollToBottom();
     } else if (!prevProps.referencing && this.props.referencing) {
       this.props.setFromElAndCoords(
@@ -118,6 +119,7 @@ class Chat extends Component {
   };
 
   scrollToBottom = () => {
+    console.log("scrolling to bottom?");
     this.chatEnd.current.scrollTop = this.chatEnd.current.scrollHeight;
     // window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
   };
@@ -207,7 +209,7 @@ class Chat extends Component {
 
   render() {
     let {
-      messages,
+      // messages,
       log,
       replayer,
       change,
@@ -216,7 +218,7 @@ class Chat extends Component {
       referencing,
       showingReference
     } = this.props;
-    console.log(log);
+    console.log("LOG HERE NEW MESSAGE: ", log);
     let displayMessages = [];
     if (log) {
       displayMessages = log.map((message, i) => {
