@@ -669,6 +669,7 @@ class GgbGraph extends Component {
       newData.event = this.eventQueue;
       newData.eventType = action === "updated" ? "BATCH_UPDATE" : "BATCH_ADD";
     }
+    this.props.addToLog(this.props.room._id, newData);
     if (this.updatingTab) {
       clearTimeout(this.updatingTab);
       this.updatingTab = null;
@@ -680,10 +681,11 @@ class GgbGraph extends Component {
   };
 
   updateConstructionState = () => {
+    let { room } = this.props;
     // console.log("updating construction state");
     let currentState = this.ggbApplet.getXML();
-    let tabId = this.props.room.tabs[this.props.currentTab]._id;
-    this.props.updateRoomTab(this.props.room._id, tabId, {
+    let tabId = room.tabs[this.props.currentTab]._id;
+    this.props.updateRoomTab(room._id, tabId, {
       // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
       currentState
     });

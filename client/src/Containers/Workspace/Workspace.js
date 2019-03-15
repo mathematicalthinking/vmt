@@ -499,6 +499,7 @@ class Workspace extends Component {
           user={user}
           myColor={this.state.myColor}
           role={this.state.role}
+          addToLog={this.props.addToLog}
           updateRoom={this.props.updateRoom}
           updateRoomTab={this.props.updateRoomTab}
           updatedRoom={this.props.updatedRoom}

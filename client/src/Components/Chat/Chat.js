@@ -119,7 +119,6 @@ class Chat extends Component {
   };
 
   scrollToBottom = () => {
-    console.log("scrolling to bottom?");
     this.chatEnd.current.scrollTop = this.chatEnd.current.scrollHeight;
     // window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
   };
@@ -218,7 +217,7 @@ class Chat extends Component {
       referencing,
       showingReference
     } = this.props;
-    console.log("LOG HERE NEW MESSAGE: ", log);
+    console.log(log);
     let displayMessages = [];
     if (log) {
       displayMessages = log.map((message, i) => {
