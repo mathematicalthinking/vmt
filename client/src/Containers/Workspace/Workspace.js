@@ -80,7 +80,6 @@ class Workspace extends Component {
   }
 
   componentWillUnmount() {
-    console.log(JSON.stringify(socket._callbacks, null, 2));
     this.componentCleanup();
     window.removeEventListener("beforeunload", this.componentCleanup);
     window.removeEventListener("resize", this.updateReference);
@@ -110,7 +109,6 @@ class Workspace extends Component {
     socket.removeAllListeners("USER_LEFT");
     socket.removeAllListeners("RELEASED_CONTROL");
     socket.removeAllListeners("TOOK_CONTROL");
-    console.log(JSON.stringify(socket._callbacks, null, 2));
     // window.addEventListener("resize", this.updateReference);
     const { room, user } = this.props;
 
@@ -184,11 +182,6 @@ class Workspace extends Component {
       tabs.push(data);
       this.props.updatedRoom(this.props.room._id, { tabs });
     });
-
-    // socket.on("disconnect", data => {
-    //   this.props.updateUser({ connected: false });
-    // });
-    console.log("HOW BOUT NOW: ", JSON.stringify(socket._callbacks, null, 2));
   }
 
   createNewTab = () => {

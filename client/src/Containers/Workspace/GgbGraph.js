@@ -27,7 +27,7 @@ class GgbGraph extends Component {
   movingGeos = false;
   pointSelected = null;
   socketQueue = [];
-  previousEvent = null; // Hack...MODE events are firing multiple times. for now, check if previousEvent matches currentEvnet to preventDuplicates eventually figure out how to debounce/throttle
+  previousEvent = null; // Prevent repeat events from firing (for example if they keep selecting the same tool)
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
   /**
    * @method componentDidMount
@@ -53,7 +53,6 @@ class GgbGraph extends Component {
         // return;
       }
       this.setState({ receivingData: true }, () => {
-        console.log("what the hell is going on");
         // let updatedTabs = this.props.room.tabs.map(tab => {
         //   if (tab._id === data.tab) {
         //     tab.currentState = data.currentState;
@@ -61,9 +60,9 @@ class GgbGraph extends Component {
         //   return tab;
         // });
         // update the redux store
+
         // this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs }); @todo do this elsewhere
         // If this happend on the current tab
-        console.log(this.props.room.tabs[this.props.currentTab]._id);
         if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
           // @TODO consider abstracting out...resued in the GgbReplayer
           switch (data.eventType) {
@@ -73,7 +72,6 @@ class GgbGraph extends Component {
               }
               this.ggbApplet.evalXML(data.event);
               this.ggbApplet.evalCommand("UpdateConstruction()");
-              console.log("UPDATING CONSTRUCTION!!!");
               break;
             case "REMOVE":
               this.ggbApplet.deleteObject(data.label);
@@ -120,9 +118,13 @@ class GgbGraph extends Component {
    */
 
   async componentDidUpdate(prevProps) {
-    console.log("updated: ", this.props.room.controlledBy);
     // console.log("component updated");
     if (!this.ggbApplet) return;
+
+    // new evnet
+    if (prevProps.room.log.length < this.props.room.log.length) {
+      this.previousEvent = this.props.room.log[this.props.room.log.length - 1];
+    }
 
     // Control
     let wasInControl = prevProps.room.controlledBy === this.props.user._id;
@@ -360,17 +362,21 @@ class GgbGraph extends Component {
 
   clientListener = event => {
     // console.log("client Listener");
-    console.log("event: ", event);
     if (this.state.receivingData) {
       return this.setState({ receivingData: false });
     }
     switch (event[0]) {
       case "setMode":
-        // There may be a bug within Ggb that causes setMode to fire twice
-        // //
-        if (event[2] === "40") {
+        // ignore this event if its the same as the last one or the user is selecting
+        // zoom tool
+        if (
+          event[2] === "40" ||
+          (this.previousEvent.action === "mode" &&
+            this.previousEvent.label === event[2])
+        ) {
           return;
         } else if (this.userCanEdit()) {
+          // throttled because of a bug in Geogebra that causes this to fire twice
           this.throttledSendEvent(null, null, event[2], "SELECT", "mode");
           return;
           // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
@@ -410,7 +416,6 @@ class GgbGraph extends Component {
           } else {
             this.pointSelected = null;
           }
-          console.log("sending selection");
           this.sendEvent(null, selection, event[1], "SELECT", "ggbObj");
         }
         break;
@@ -566,9 +571,7 @@ class GgbGraph extends Component {
    */
 
   registerListeners = () => {
-    console.log("registering liseners");
     if (this.ggbApplet.listeners.length > 0) {
-      console.log("unregistering listeners");
       return;
       // this.ggbApplet.unregisterAddListener(this.addListener);
       // this.ggbApplet.unregisterUpdateListener(this.updateListener);
@@ -657,7 +660,6 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action, eventQueue) => {
-    console.log("sending event: ", definition);
     let { room, user, myColor, currentTab } = this.props;
     // get object type
     let description = `${user.username}`;
