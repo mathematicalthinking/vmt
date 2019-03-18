@@ -80,6 +80,15 @@ class Workspace extends Component {
   }
 
   componentWillUnmount() {
+    socket.removeAllListeners([
+      "USER_JOINED",
+      "USER_LEFT",
+      "TOOK_CONTROL",
+      "RELEASED_CONTROL",
+      "CREATED_TAB",
+      "disconnect"
+    ]);
+    console.log(JSON.stringify(socket._callbacks, null, 2));
     this.componentCleanup();
     window.removeEventListener("beforeunload", this.componentCleanup);
     window.removeEventListener("resize", this.updateReference);
@@ -104,14 +113,11 @@ class Workspace extends Component {
   };
 
   initializeListeners() {
-    socket.removeAllListeners([
-      "USER_JOINED",
-      "USER_LEFT",
-      "TOOK_CONTROL",
-      "RELEASED_CONTROL",
-      "CREATED_TAB",
-      "disconnect"
-    ]);
+    socket.removeAllListeners("USER_JOINED");
+    socket.removeAllListeners("CREATED_TAB");
+    socket.removeAllListeners("USER_LEFT");
+    socket.removeAllListeners("RELEASED_CONTROL");
+    socket.removeAllListeners("TOOK_CONTROL");
     console.log(JSON.stringify(socket._callbacks, null, 2));
     // window.addEventListener("resize", this.updateReference);
     const { room, user } = this.props;
@@ -187,9 +193,9 @@ class Workspace extends Component {
       this.props.updatedRoom(this.props.room._id, { tabs });
     });
 
-    socket.on("disconnect", data => {
-      this.props.updateUser({ connected: false });
-    });
+    // socket.on("disconnect", data => {
+    //   this.props.updateUser({ connected: false });
+    // });
     console.log("HOW BOUT NOW: ", JSON.stringify(socket._callbacks, null, 2));
   }
 
