@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import throttle from "lodash/throttle";
+import debounce from "lodash/debounce";
 import classes from "./graph.css";
 import { Aux, Modal } from "../../Components";
 import Script from "react-load-script";
@@ -113,7 +114,6 @@ class GgbGraph extends Component {
     // Control
     let wasInControl = prevProps.room.controlledBy === this.props.user._id;
     let isInControl = this.props.room.controlledBy === this.props.user._id;
-    console.log(isInControl);
     if (!wasInControl && isInControl) {
       this.ggbApplet.setMode(0);
     } else if (wasInControl && !isInControl) {
@@ -344,6 +344,11 @@ class GgbGraph extends Component {
    * @param  {Array} event - Ggb array [eventType (e.g. setMode),  String, String]
    */
 
+  // throttledSendEvent = throttle(this.sendEvent, 200, {
+  //   leading: true,
+  //   trailing: false
+  // });
+
   clientListener = event => {
     // console.log("client Listener");
     console.log("event: ", event);
@@ -355,7 +360,6 @@ class GgbGraph extends Component {
         if (event[2] === "40") {
           return;
         } else if (this.userCanEdit()) {
-          // @todo consider refacotring this so event Type is first and we can avoid all of these null values
           this.sendEvent(null, null, event[2], "SELECT", "mode");
           return;
           // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
@@ -637,34 +641,11 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action, eventQueue) => {
+    console.log("sending event");
     let { room, user, myColor, currentTab } = this.props;
     // get object type
-    let description = `${user.username} ${action}`;
-    console.log(
-      "sendingEvent: ",
-      xml,
-      definition,
-      label,
-      eventType,
-      action,
-      eventQueue
-    );
-    console.log(this.props.myColor);
-    if (eventType === "SELECT") {
-      if (action === "mode") {
-        // @TODO EVENTUALL GET RID OF ALL OF THIS WE WILL JUST UPDATE IT WITH THE LAST EVENT IN THE LOG
-        this.props.updateAwarenessDesc(
-          `${this.props.user.username} selected the`,
-          label
-        );
-      } else if (action === "ggbObj") {
-        this.props.updateAwarenessDesc(
-          `${this.props.user.username} selected ${definition} ${label}`
-          // label
-        );
-      }
-      return;
-    }
+    let description = `${user.username}`;
+
     let newData = {
       definition,
       label,
@@ -679,19 +660,33 @@ class GgbGraph extends Component {
       // currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
       // mode: this.ggbApplet.getMode()
     };
+
+    // Consider separating out function to build desctiption
     if (eventQueue && eventQueue.length > 1) {
       newData.event = this.eventQueue;
       if (action === "updated") {
         newData.eventType = "BATCH_UPDATE";
+        let objType = this.ggbApplet.getObjectType(label);
+        newData.description = description + ` dragged ${objType} ${label}`;
       } else {
         newData.eventType = "BATCH_ADD";
         // parse the element label from the first element in eventQuere...it is always the most encompassing elemennt
         let newLabel = eventQueue[0].slice(0, eventQueue[0].indexOf(":"));
         let objType = this.ggbApplet.getObjectType(newLabel);
-        newData.description = description + ` ${objType} ${newLabel}`;
+        newData.description = description + ` ${action} ${objType} ${newLabel}`;
+      }
+    } else {
+      if (action === "mode") {
+        newData.description =
+          description +
+          ` selected the ${ggbTools[label].name.toLowerCase()} tool`;
+      } else if (action === "added") {
+        let objType = this.ggbApplet.getObjectType(label);
+        newData.description = description + ` ${objType} ${label}`;
       }
     }
     this.props.addToLog(this.props.room._id, newData);
+
     if (this.updatingTab) {
       clearTimeout(this.updatingTab);
       this.updatingTab = null;

@@ -241,13 +241,13 @@ module.exports = function() {
       if (data.xml && data.eventType !== "CHANGE_PERSPECTIVE") {
         xmlObj = await parseXML(xml); // @TODO We should do this parsing on the backend yeah? we only need this for to build the description which we only need in the replayer anyway
       }
-      data.description = `${data.user.username} ${data.action} ${
-        xmlObj && xmlObj.element ? xmlObj.element.$.type : ""
-      } ${data.label}`;
-      if (Array.isArray(data.event)) {
-        data.eventArray = data.event;
-        delete data.event;
-      }
+      // data.description = `${data.user.username} ${data.action} ${
+      //   xmlObj && xmlObj.element ? xmlObj.element.$.type : ""
+      // } ${data.label}`;
+      // if (Array.isArray(data.event)) {
+      //   data.eventArray = data.event;
+      //   delete data.event;
+      // }
 
       // THIS SHOULD GO ELSEWEHERE
       // try {

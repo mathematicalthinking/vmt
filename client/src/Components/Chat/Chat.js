@@ -217,7 +217,6 @@ class Chat extends Component {
       referencing,
       showingReference
     } = this.props;
-    console.log(log);
     let displayMessages = [];
     if (log) {
       displayMessages = log.map((message, i) => {
