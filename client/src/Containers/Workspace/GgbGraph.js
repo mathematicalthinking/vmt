@@ -613,6 +613,7 @@ class GgbGraph extends Component {
     } else {
       this.time = Date.now();
     }
+
     if (sendEventFromTimer) {
       this.timer = setTimeout(() => {
         this.sendEvent(xml, definition, label, eventType, action, [
@@ -636,9 +637,22 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action, eventQueue) => {
+    let { room, user, myColor, currentTab } = this.props;
+    // get object type
+    let description = `${user.username} ${action}`;
+    console.log(
+      "sendingEvent: ",
+      xml,
+      definition,
+      label,
+      eventType,
+      action,
+      eventQueue
+    );
     console.log(this.props.myColor);
     if (eventType === "SELECT") {
       if (action === "mode") {
+        // @TODO EVENTUALL GET RID OF ALL OF THIS WE WILL JUST UPDATE IT WITH THE LAST EVENT IN THE LOG
         this.props.updateAwarenessDesc(
           `${this.props.user.username} selected the`,
           label
@@ -656,18 +670,26 @@ class GgbGraph extends Component {
       label,
       eventType,
       action,
-      room: this.props.room._id,
-      tab: this.props.room.tabs[this.props.currentTab]._id,
+      room: room._id,
+      tab: room.tabs[currentTab]._id,
       event: xml,
-      color: this.props.myColor,
-      user: { _id: this.props.user._id, username: this.props.user.username },
+      color: myColor,
+      user: { _id: user._id, username: user.username },
       timestamp: new Date().getTime()
       // currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
       // mode: this.ggbApplet.getMode()
     };
     if (eventQueue && eventQueue.length > 1) {
       newData.event = this.eventQueue;
-      newData.eventType = action === "updated" ? "BATCH_UPDATE" : "BATCH_ADD";
+      if (action === "updated") {
+        newData.eventType = "BATCH_UPDATE";
+      } else {
+        newData.eventType = "BATCH_ADD";
+        // parse the element label from the first element in eventQuere...it is always the most encompassing elemennt
+        let newLabel = eventQueue[0].slice(0, eventQueue[0].indexOf(":"));
+        let objType = this.ggbApplet.getObjectType(newLabel);
+        newData.description = description + ` ${objType} ${newLabel}`;
+      }
     }
     this.props.addToLog(this.props.room._id, newData);
     if (this.updatingTab) {
