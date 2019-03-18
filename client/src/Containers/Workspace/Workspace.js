@@ -80,14 +80,6 @@ class Workspace extends Component {
   }
 
   componentWillUnmount() {
-    socket.removeAllListeners([
-      "USER_JOINED",
-      "USER_LEFT",
-      "TOOK_CONTROL",
-      "RELEASED_CONTROL",
-      "CREATED_TAB",
-      "disconnect"
-    ]);
     console.log(JSON.stringify(socket._callbacks, null, 2));
     this.componentCleanup();
     window.removeEventListener("beforeunload", this.componentCleanup);

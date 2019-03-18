@@ -35,8 +35,12 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
+    // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
+    this.throttledSendEvent = throttle(this.sendEvent, 500, {
+      leading: true,
+      trailing: false
+    });
     window.addEventListener("resize", this.updateDimensions);
-    console.log(socket.listeners);
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
       this.props.addToLog(this.props.room._id, data);
@@ -116,6 +120,7 @@ class GgbGraph extends Component {
    */
 
   async componentDidUpdate(prevProps) {
+    console.log("updated: ", this.props.room.controlledBy);
     // console.log("component updated");
     if (!this.ggbApplet) return;
 
@@ -355,16 +360,18 @@ class GgbGraph extends Component {
 
   clientListener = event => {
     // console.log("client Listener");
-    // console.log("event: ", event);
+    console.log("event: ", event);
     if (this.state.receivingData) {
       return this.setState({ receivingData: false });
     }
     switch (event[0]) {
       case "setMode":
+        // There may be a bug within Ggb that causes setMode to fire twice
+        // //
         if (event[2] === "40") {
           return;
         } else if (this.userCanEdit()) {
-          this.sendEvent(null, null, event[2], "SELECT", "mode");
+          this.throttledSendEvent(null, null, event[2], "SELECT", "mode");
           return;
           // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
           // Then don't send this to the other users/=.
@@ -372,6 +379,7 @@ class GgbGraph extends Component {
           if (event[2] !== "0") this.showAlert();
           this.ggbApplet.setMode(40);
         }
+        this.setState({ receivingData: false });
         break;
       case "undo":
         if (this.resetting || this.userCanEdit()) {
