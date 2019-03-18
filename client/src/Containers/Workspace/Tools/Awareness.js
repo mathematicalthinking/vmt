@@ -11,7 +11,7 @@ class Awareness extends Component {
     let { lastEvent } = this.props;
     // console.log("tools: ", awarenessDesc, awarenessIcon);
     // If the awareness is of a tool being selected
-    console.log(lastEvent);
+
     return (
       <div className={classes.AwarenessDesc}>
         {lastEvent.description}
