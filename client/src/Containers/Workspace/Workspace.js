@@ -109,8 +109,10 @@ class Workspace extends Component {
       "USER_LEFT",
       "TOOK_CONTROL",
       "RELEASED_CONTROL",
-      "initializeListeners"
+      "CREATED_TAB",
+      "disconnect"
     ]);
+    console.log(JSON.stringify(socket._callbacks, null, 2));
     // window.addEventListener("resize", this.updateReference);
     const { room, user } = this.props;
 
@@ -188,6 +190,7 @@ class Workspace extends Component {
     socket.on("disconnect", data => {
       this.props.updateUser({ connected: false });
     });
+    console.log("HOW BOUT NOW: ", JSON.stringify(socket._callbacks, null, 2));
   }
 
   createNewTab = () => {

@@ -36,6 +36,7 @@ class GgbGraph extends Component {
 
   componentDidMount() {
     window.addEventListener("resize", this.updateDimensions);
+    console.log(socket.listeners);
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
       this.props.addToLog(this.props.room._id, data);
@@ -156,10 +157,10 @@ class GgbGraph extends Component {
       // initPerspectiveListener(document, perspective, this.changePerspective);
       if (currentState) {
         this.ggbApplet.setXML(currentState);
-        this.registerListeners();
+        // this.registerListeners();
       } else if (startingPoint) {
         this.ggbApplet.setXML(startingPoint);
-        this.registerListeners();
+        // this.registerListeners();
       } else if (ggbFile) {
         this.ggbApplet.setBase64(ggbFile, () => {
           let updatedTabs = [...this.props.room.tabs];
@@ -171,8 +172,8 @@ class GgbGraph extends Component {
         });
       } else {
         // this.ggbApplet.setXML(INITIAL_GGB);
-        this.registerListeners();
       }
+
       // if (perspective) {
       //   this.ggbApplet.setPerspective(perspective);
       // }
@@ -285,6 +286,7 @@ class GgbGraph extends Component {
       this.ggbApplet.unregisterClientListener(this.clientListener);
       // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
     }
+    socket.removeAllListeners("RECEIVE_EVENT");
     // if (!this.props.tempRoom) {
     //   let canvas = document.querySelector('[aria-label="Graphics View 1"]');
     //   this.props.updateRoom(this.props.room._id, {graphImage: {imageData: canvas.toDataURL()}})
@@ -459,7 +461,6 @@ class GgbGraph extends Component {
    */
 
   addListener = label => {
-    console.log("added: ", label);
     if (this.state.receivingData && !this.updatingOn) {
       this.setState({ receivingData: false });
       return;
@@ -557,12 +558,15 @@ class GgbGraph extends Component {
    */
 
   registerListeners = () => {
+    console.log("registering liseners");
     if (this.ggbApplet.listeners.length > 0) {
-      this.ggbApplet.unregisterAddListener(this.addListener);
-      this.ggbApplet.unregisterUpdateListener(this.updateListener);
-      this.ggbApplet.unregisterRemoveListener(this.eventListener);
-      this.ggbApplet.unregisterClearListener(this.clearListener);
-      this.ggbApplet.unregisterClientListener(this.clientListener);
+      console.log("unregistering listeners");
+      return;
+      // this.ggbApplet.unregisterAddListener(this.addListener);
+      // this.ggbApplet.unregisterUpdateListener(this.updateListener);
+      // this.ggbApplet.unregisterRemoveListener(this.eventListener);
+      // this.ggbApplet.unregisterClearListener(this.clearListener);
+      // this.ggbApplet.unregisterClientListener(this.clientListener);
     }
     this.ggbApplet.registerClientListener(this.clientListener);
     this.ggbApplet.registerAddListener(this.addListener);
