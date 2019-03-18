@@ -38,6 +38,9 @@ class GgbGraph extends Component {
     window.addEventListener("resize", this.updateDimensions);
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
+      this.props.addToLog(this.props.room._id, data);
+      console.log("receviing event: ", data);
+      console.log("receiving data: ", this.state.receivingData);
       if (this.state.receivingData) {
         this.socketQueue.push(data);
         return;
@@ -45,6 +48,7 @@ class GgbGraph extends Component {
         // return;
       }
       this.setState({ receivingData: true }, () => {
+        console.log("what the hell is going on");
         // let updatedTabs = this.props.room.tabs.map(tab => {
         //   if (tab._id === data.tab) {
         //     tab.currentState = data.currentState;
@@ -54,17 +58,17 @@ class GgbGraph extends Component {
         // update the redux store
         // this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs }); @todo do this elsewhere
         // If this happend on the current tab
+        console.log(this.props.room.tabs[this.props.currentTab]._id);
         if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
           // @TODO consider abstracting out...resued in the GgbReplayer
-          console.log("receviing event: ", data);
-
           switch (data.eventType) {
             case "ADD":
-              if (data.definition) {
+              if (data.definition && data.definition.length > 0) {
                 this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
               }
               this.ggbApplet.evalXML(data.event);
               this.ggbApplet.evalCommand("UpdateConstruction()");
+              console.log("UPDATING CONSTRUCTION!!!");
               break;
             case "REMOVE":
               this.ggbApplet.deleteObject(data.label);
@@ -91,6 +95,7 @@ class GgbGraph extends Component {
               }
               break;
             default:
+              this.setState({ receivingData: false });
               break;
           }
         }
@@ -346,15 +351,10 @@ class GgbGraph extends Component {
    * @param  {Array} event - Ggb array [eventType (e.g. setMode),  String, String]
    */
 
-  // throttledSendEvent = throttle(this.sendEvent, 200, {
-  //   leading: true,
-  //   trailing: false
-  // });
-
   clientListener = event => {
     // console.log("client Listener");
-    console.log("event: ", event);
-    if (this.state.receivingData && !this.updatingOn) {
+    // console.log("event: ", event);
+    if (this.state.receivingData) {
       return this.setState({ receivingData: false });
     }
     switch (event[0]) {
@@ -400,6 +400,7 @@ class GgbGraph extends Component {
           } else {
             this.pointSelected = null;
           }
+          console.log("sending selection");
           this.sendEvent(null, selection, event[1], "SELECT", "ggbObj");
         }
         break;
@@ -458,6 +459,7 @@ class GgbGraph extends Component {
    */
 
   addListener = label => {
+    console.log("added: ", label);
     if (this.state.receivingData && !this.updatingOn) {
       this.setState({ receivingData: false });
       return;
@@ -643,7 +645,7 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action, eventQueue) => {
-    console.log("sending event");
+    console.log("sending event: ", definition);
     let { room, user, myColor, currentTab } = this.props;
     // get object type
     let description = `${user.username}`;
