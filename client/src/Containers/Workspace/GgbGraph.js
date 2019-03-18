@@ -56,7 +56,8 @@ class GgbGraph extends Component {
         // If this happend on the current tab
         if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
           // @TODO consider abstracting out...resued in the GgbReplayer
-          // console.log("");
+          console.log("receviing event: ", data);
+
           switch (data.eventType) {
             case "ADD":
               if (data.definition) {

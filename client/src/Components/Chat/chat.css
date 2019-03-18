@@ -75,9 +75,9 @@
   display: flex;
   flex-flow: wrap;
   width: 100%;
-  /* position: relative; */
+  position: relative;
   overflow-y: scroll;
-  overflow-anchor: none;
+  overflow-x: hidden;
   /* max-height: 100%; */
   /* flex: 0 1 100%; */
 }

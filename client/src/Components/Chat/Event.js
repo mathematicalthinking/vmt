@@ -5,7 +5,6 @@ class Event extends Component {
   state = {};
   render() {
     let { color, description } = this.props.event;
-    console.log(this.props.event);
     return (
       <ToolTip text={description}>
         <div className={classes.Event} style={{ background: color }} />
