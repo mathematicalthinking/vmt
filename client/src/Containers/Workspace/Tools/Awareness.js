@@ -8,34 +8,33 @@ class Awareness extends Component {
     showToolTip: false
   };
   render() {
-    let { awarenessDesc, awarenessIcon } = this.props;
-    console.log("tools: ", awarenessDesc, awarenessIcon);
+    let { lastEvent } = this.props;
+    // console.log("tools: ", awarenessDesc, awarenessIcon);
     // If the awareness is of a tool being selected
-
+    console.log(lastEvent);
     return (
       <div className={classes.AwarenessDesc}>
-        {awarenessDesc}
+        {lastEvent.description}
         <a
           className={classes.AwarenessIcon}
           onMouseOver={() => this.setState({ showToolTip: true })}
           onMouseOut={() => this.setState({ showToolTip: false })}
         >
-          {awarenessIcon ? (
+          {lastEvent.action === "mode" ? (
             <Aux>
               <img
-                src={ggbTools[awarenessIcon].image}
+                src={ggbTools[lastEvent.label].image}
                 height={40}
-                href={ggbTools[awarenessIcon].link}
-                alt={awarenessIcon}
+                href={ggbTools[lastEvent.label].link}
+                alt={"tool_icon"}
               />
 
               <ToolTip visible={this.state.showToolTip}>
-                {ggbTools[awarenessIcon].name.toLowerCase().replace("_", " ")}
+                {ggbTools[lastEvent.label].name.toLowerCase().replace("_", " ")}
               </ToolTip>
             </Aux>
           ) : null}
         </a>
-        tool
       </div>
     );
   }

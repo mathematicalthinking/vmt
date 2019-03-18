@@ -27,6 +27,7 @@ class GgbGraph extends Component {
   movingGeos = false;
   pointSelected = null;
   socketQueue = [];
+  previousEvent = null; // Hack...MODE events are firing multiple times. for now, check if previousEvent matches currentEvnet to preventDuplicates eventually figure out how to debounce/throttle
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
   /**
    * @method componentDidMount

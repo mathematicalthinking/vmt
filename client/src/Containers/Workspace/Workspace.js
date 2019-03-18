@@ -20,9 +20,6 @@ class Workspace extends Component {
     activeMember: "",
     // inControl: false, // @TODO WE ARE DUPLICATING THIS FROM THE STORE...SINGLE SOURCE OF TRUTH!
     // someoneElseInControl: false,
-    awarenessDesc: "no one is in control",
-    awarenessIcon: null,
-    lastEvent: null,
     referencing: false,
     showingReference: false,
     referToEl: null,
@@ -527,8 +524,7 @@ class Workspace extends Component {
                 inControl={control}
                 goBack={this.goBack}
                 toggleControl={this.toggleControl}
-                awarenessDesc={this.state.awarenessDesc}
-                awarenessIcon={this.state.awarenessIcon}
+                lastEvent={room.log[room.log.length - 1]}
                 save={this.props.save ? this.props.save : null}
               />
             }

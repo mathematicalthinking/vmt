@@ -3,7 +3,7 @@ import Awareness from "./Awareness";
 import classes from "./tools.css";
 
 const Tools = React.memo(props => {
-  let { inControl, awarenessDesc, awarenessIcon } = props;
+  let { inControl, lastEvent, awarenessIcon } = props;
   let controlText = "Request Control";
   if (inControl === "ME") {
     controlText = "Release Control";
@@ -18,10 +18,7 @@ const Tools = React.memo(props => {
         {!props.replayer ? (
           <div className={classes.ReferenceWindow}>
             <div className={classes.ReferenceControls}>
-              <Awareness
-                awarenessDesc={awarenessDesc}
-                awarenessIcon={awarenessIcon}
-              />
+              <Awareness lastEvent={lastEvent} />
             </div>
             <div
               className={classes.ReferenceControls}
