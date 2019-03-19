@@ -44,8 +44,6 @@ class GgbGraph extends Component {
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
       this.props.addToLog(this.props.room._id, data);
-      console.log("receviing event: ", data);
-      console.log("receiving data: ", this.state.receivingData);
       if (this.state.receivingData) {
         this.socketQueue.push(data);
         return;
@@ -361,7 +359,6 @@ class GgbGraph extends Component {
    */
 
   clientListener = event => {
-    console.log(event);
     // console.log("client Listener");
     if (this.state.receivingData) {
       return this.setState({ receivingData: false });
@@ -615,7 +612,6 @@ class GgbGraph extends Component {
       this.ggbApplet.undo();
       return;
     }
-    console.log("ACTION: ", action);
     // Add event to eventQueue in case there are multiple events to send.
     this.eventQueue.push(action === "updated" ? xml : `${label}:${definition}`);
 
@@ -650,7 +646,6 @@ class GgbGraph extends Component {
           eventType = "ADD";
           this.sendEvent(xml, definition, label, eventType, action);
         } else {
-          console.log(this.eventQueue);
           this.sendEvent(xml, definition, label, eventType, action, [
             ...this.eventQueue
           ]);
@@ -708,10 +703,10 @@ class GgbGraph extends Component {
       clearTimeout(this.updatingTab);
       this.updatingTab = null;
     }
-    console.log("sending event: ", newData);
     socket.emit("SEND_EVENT", newData);
     this.updatingTab = setTimeout(this.updateConstructionState, 3000);
     this.timer = null;
+    this.movingGeos = false;
     this.props.resetControlTimer();
   };
   /**

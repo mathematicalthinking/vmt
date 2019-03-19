@@ -280,12 +280,12 @@ class Workspace extends Component {
       this.props.addToLog(room._id, message);
       socket.emit("TAKE_CONTROL", message, (err, message) => {
         // this.scrollToBottom(); @TODO
-        this.setState(
-          { awarenessDesc: message.text, awarenessIcon: null },
-          () => {
-            console.log(this.state.awarenessDesc);
-          }
-        );
+        // this.setState(
+        //   { awarenessDesc: message.text, awarenessIcon: null },
+        //   () => {
+        //     console.log(this.state.awarenessDesc);
+        //   }
+        // );
         // IF ERROR WE NEED TO UNDO CONTROL
       });
     }
@@ -302,7 +302,6 @@ class Workspace extends Component {
   };
 
   emitNewTab = tabInfo => {
-    console.log(tabInfo);
     socket.emit("NEW_TAB", tabInfo, (err, res) => {
       this.props.addToLog(this.props.room._id, tabInfo.message);
     });
@@ -312,7 +311,6 @@ class Workspace extends Component {
     clearTimeout(this.controlTimer);
     this.controlTimer = setTimeout(() => {
       this.toggleControl();
-      // this.props.updatedRoom(this.props.room._id, {controlledBy: null})
     }, 60 * 1000);
   };
 
@@ -416,6 +414,7 @@ class Workspace extends Component {
 
   render() {
     const { room, user } = this.props;
+    console.log(room.log);
     let control = "OTHER";
     if (room.controlledBy === user._id) control = "ME";
     else if (!room.controlledBy) control = "NONE";
