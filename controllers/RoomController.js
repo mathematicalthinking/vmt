@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 const _ = require("lodash");
 
+const colorMap = require("../constants/colorMap.js");
+
 module.exports = {
   get: params => {
     if (params && params.constructor === Array) {
@@ -20,7 +22,6 @@ module.exports = {
         .populate({ path: "currentMembers.user", select: "username" })
         .populate({ path: "tabs", select: "name tabType" })
         .then(rooms => {
-          console.log(rooms);
           // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
           resolve(rooms);
         })
@@ -172,26 +173,32 @@ module.exports = {
     });
   },
 
+  //Used for when a facilitator adds a new member. This is poorly organized and documents
+  // but the put method is for when a user grants themself access or requests access.
   add: (id, body) => {
     return new Promise((resolve, reject) => {
-      // Send a notification to user that they've been granted access to a new course
-
-      let members;
       let room;
-      let ntfType = body.ntfType;
+      let newMembers;
+      let { ntfType, members } = body;
+      let { user, role } = members;
       delete body.ntfType;
-      db.Room.findByIdAndUpdate(id, { $addToSet: body }, { new: true })
+      body.members.color = db.Room.findById(id)
         .populate({ path: "members.user", select: "username" })
         .then(res => {
           room = res;
-          return db.User.findByIdAndUpdate(body.members.user, {
+          let userColor = colorMap[room.members.length];
+          room.members.push({ user, role, color: userColor });
+          newMembers = room.members;
+          return room.save();
+        })
+        .then(savedRoom => {
+          return db.User.findByIdAndUpdate(user, {
             $addToSet: {
               rooms: id
             }
           });
         })
-        .then(() => {
-          members = room.members;
+        .then(user => {
           return db.Notification.create({
             resourceType: "room",
             resourceId: id,
@@ -200,16 +207,14 @@ module.exports = {
             parentResource: room.course
           });
         })
-        .then(() => resolve(members))
+        .then(() => resolve(newMembers))
         .catch(err => reject(err));
     });
   },
 
   remove: (id, body) => {
     return new Promise((resolve, reject) => {
-      // Remove this course from the user's list of courses
-      // console.log(bod['members.user']._id)
-      db.User.findByIdAndUpdate(body.members.user, { $pull: { rooms: id } });
+      db.User.findByIdAndUpdate(body.members.user, { $pull: { rooms: id } }); // @todo there is no error handling for this
       db.Room.findByIdAndUpdate(id, { $pull: body }, { new: true })
         .populate({ path: "members.user", select: "username" })
         .then(res => {
@@ -239,9 +244,10 @@ module.exports = {
         let roomToPopulate;
         let fromUser;
         db.Room.findById(id)
-          .then(room => {
+          .then(async room => {
             let { entryCode, userId } = body.checkAccess;
             fromUser = userId;
+            // @todo we should encrypt this
             if (room.entryCode !== entryCode) {
               throw "Incorrect Entry Code";
             }
@@ -249,10 +255,23 @@ module.exports = {
             if (
               _.find(room.members, member => member.user.toString() === userId)
             ) {
-              throw "You already have been granted access to this room!";
+              throw "You have already been granted access to this room!";
             }
-
-            room.members.push({ user: userId, role: "participant" });
+            // Add this member to the room
+            room.members.push({
+              user: userId,
+              role: "participant",
+              color: colorMap[room.members.length]
+            });
+            try {
+              await db.User.findByIdAndUpdate(fromUser, {
+                $addToSet: {
+                  rooms: id
+                }
+              });
+            } catch (err) {
+              throw err;
+            }
             return room.save();
           })
           .then(updatedRoom => {

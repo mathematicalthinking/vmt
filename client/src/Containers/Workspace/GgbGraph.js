@@ -4,6 +4,7 @@ import classes from "./graph.css";
 import { Aux, Modal } from "../../Components";
 import Script from "react-load-script";
 import socket from "../../utils/sockets";
+import ggbTools from "./Tools/GgbIcons/";
 
 import { initPerspectiveListener } from "./ggbUtils";
 class GgbGraph extends Component {
@@ -24,7 +25,9 @@ class GgbGraph extends Component {
   batchUpdating = false;
   movingGeos = false;
   pointSelected = null;
+  shapeSelected = null;
   socketQueue = [];
+  previousEvent = null; // Prevent repeat events from firing (for example if they keep selecting the same tool)
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
   /**
    * @method componentDidMount
@@ -32,9 +35,15 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
+    // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
+    this.throttledSendEvent = throttle(this.sendEvent, 500, {
+      leading: true,
+      trailing: false
+    });
     window.addEventListener("resize", this.updateDimensions);
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
+      this.props.addToLog(this.props.room._id, data);
       if (this.state.receivingData) {
         this.socketQueue.push(data);
         return;
@@ -49,14 +58,14 @@ class GgbGraph extends Component {
         //   return tab;
         // });
         // update the redux store
+
         // this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs }); @todo do this elsewhere
         // If this happend on the current tab
         if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
           // @TODO consider abstracting out...resued in the GgbReplayer
-          // console.log("");
           switch (data.eventType) {
             case "ADD":
-              if (data.definition) {
+              if (data.definition && data.definition.length > 0) {
                 this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
               }
               this.ggbApplet.evalXML(data.event);
@@ -87,6 +96,7 @@ class GgbGraph extends Component {
               }
               break;
             default:
+              this.setState({ receivingData: false });
               break;
           }
         }
@@ -109,10 +119,14 @@ class GgbGraph extends Component {
     // console.log("component updated");
     if (!this.ggbApplet) return;
 
+    // new evnet
+    if (prevProps.room.log.length < this.props.room.log.length) {
+      this.previousEvent = this.props.room.log[this.props.room.log.length - 1];
+    }
+
     // Control
     let wasInControl = prevProps.room.controlledBy === this.props.user._id;
     let isInControl = this.props.room.controlledBy === this.props.user._id;
-
     if (!wasInControl && isInControl) {
       this.ggbApplet.setMode(0);
     } else if (wasInControl && !isInControl) {
@@ -148,10 +162,10 @@ class GgbGraph extends Component {
       // initPerspectiveListener(document, perspective, this.changePerspective);
       if (currentState) {
         this.ggbApplet.setXML(currentState);
-        this.registerListeners();
+        // this.registerListeners();
       } else if (startingPoint) {
         this.ggbApplet.setXML(startingPoint);
-        this.registerListeners();
+        // this.registerListeners();
       } else if (ggbFile) {
         this.ggbApplet.setBase64(ggbFile, () => {
           let updatedTabs = [...this.props.room.tabs];
@@ -163,8 +177,8 @@ class GgbGraph extends Component {
         });
       } else {
         // this.ggbApplet.setXML(INITIAL_GGB);
-        this.registerListeners();
       }
+
       // if (perspective) {
       //   this.ggbApplet.setPerspective(perspective);
       // }
@@ -277,6 +291,7 @@ class GgbGraph extends Component {
       this.ggbApplet.unregisterClientListener(this.clientListener);
       // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
     }
+    socket.removeAllListeners("RECEIVE_EVENT");
     // if (!this.props.tempRoom) {
     //   let canvas = document.querySelector('[aria-label="Graphics View 1"]');
     //   this.props.updateRoom(this.props.room._id, {graphImage: {imageData: canvas.toDataURL()}})
@@ -345,12 +360,22 @@ class GgbGraph extends Component {
 
   clientListener = event => {
     // console.log("client Listener");
-    if (this.state.receivingData && !this.updatingOn) {
+    if (this.state.receivingData) {
       return this.setState({ receivingData: false });
     }
     switch (event[0]) {
       case "setMode":
-        if (event[2] === "40" || this.userCanEdit()) {
+        // ignore this event if its the same as the last one or the user is selecting
+        // zoom tool
+        if (
+          event[2] === "40" ||
+          (this.previousEvent.action === "mode" &&
+            this.previousEvent.label === event[2])
+        ) {
+          return;
+        } else if (this.userCanEdit()) {
+          // throttled because of a bug in Geogebra that causes this to fire twice
+          this.throttledSendEvent(null, null, event[2], "SELECT", "mode");
           return;
           // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
           // Then don't send this to the other users/=.
@@ -358,10 +383,12 @@ class GgbGraph extends Component {
           if (event[2] !== "0") this.showAlert();
           this.ggbApplet.setMode(40);
         }
+        this.setState({ receivingData: false });
         break;
       case "undo":
         if (this.resetting || this.userCanEdit()) {
           this.resetting = false;
+
           return;
         } else {
           this.showAlert();
@@ -380,14 +407,22 @@ class GgbGraph extends Component {
         }
         break;
       case "select":
-        if (this.ggbApplet.getObjectType(event[1]) === "point") {
-          this.pointSelected = event[1];
-        } else {
-          this.pointSelected = null;
+        if (this.ggbApplet.getMode() === 0) {
+          let selection = this.ggbApplet.getObjectType(event[1]);
+          if (selection === "point") {
+            this.pointSelected = event[1];
+            this.shapeSelected = null;
+          } else {
+            this.shapeSelected = event[1];
+            this.pointSelected = null;
+          }
+          this.sendEvent(null, selection, event[1], "SELECT", "ggbObj");
         }
         break;
       case "openMenu":
-        console.log("close menu!");
+        if (!this.userCanEdit()) {
+          this.showAlert();
+        }
         break;
       case "perspectiveChange":
         break;
@@ -537,11 +572,12 @@ class GgbGraph extends Component {
 
   registerListeners = () => {
     if (this.ggbApplet.listeners.length > 0) {
-      this.ggbApplet.unregisterAddListener(this.addListener);
-      this.ggbApplet.unregisterUpdateListener(this.updateListener);
-      this.ggbApplet.unregisterRemoveListener(this.eventListener);
-      this.ggbApplet.unregisterClearListener(this.clearListener);
-      this.ggbApplet.unregisterClientListener(this.clientListener);
+      return;
+      // this.ggbApplet.unregisterAddListener(this.addListener);
+      // this.ggbApplet.unregisterUpdateListener(this.updateListener);
+      // this.ggbApplet.unregisterRemoveListener(this.eventListener);
+      // this.ggbApplet.unregisterClearListener(this.clearListener);
+      // this.ggbApplet.unregisterClientListener(this.clientListener);
     }
     this.ggbApplet.registerClientListener(this.clientListener);
     this.ggbApplet.registerAddListener(this.addListener);
@@ -576,7 +612,6 @@ class GgbGraph extends Component {
       this.ggbApplet.undo();
       return;
     }
-
     // Add event to eventQueue in case there are multiple events to send.
     this.eventQueue.push(action === "updated" ? xml : `${label}:${definition}`);
 
@@ -589,6 +624,7 @@ class GgbGraph extends Component {
       // if the user is still dragging we build up a new queue. This way, if they drag for several seconds,
       // there is not a several second delay before the other users in the room see the event
       if (this.time && Date.now() - this.time > 1500) {
+        eventType = eventType === "UPDATE" ? "BATCH_UPDATE" : "BATCH_ADD";
         this.sendEvent(xml, definition, label, eventType, action, [
           ...this.eventQueue
         ]);
@@ -600,11 +636,20 @@ class GgbGraph extends Component {
     } else {
       this.time = Date.now();
     }
+
     if (sendEventFromTimer) {
       this.timer = setTimeout(() => {
-        this.sendEvent(xml, definition, label, eventType, action, [
-          ...this.eventQueue
-        ]);
+        eventType = eventType === "UPDATE" ? "BATCH_UPDATE" : "BATCH_ADD";
+        // Because all ADD events pass thru this buffer, if the eventQueue just has one event in it
+        // the event is actually just an "ADD" not a batch add
+        if (this.eventQueue.length === 1) {
+          eventType = "ADD";
+          this.sendEvent(xml, definition, label, eventType, action);
+        } else {
+          this.sendEvent(xml, definition, label, eventType, action, [
+            ...this.eventQueue
+          ]);
+        }
         this.eventQueue = [];
         this.time = null;
         this.timer = null;
@@ -614,7 +659,7 @@ class GgbGraph extends Component {
 
   /**
    * @method sendEvnet
-   * @description emits the geogebra event over the socket and updates the room in the redux store
+   * @description emits the geogebra event over the socket and updates the room in the redux store.
    * @param  {String} xml - ggb generated xml of the even
    * @param  {String} definition - ggb multipoint definition (e.g. "Polygon(D, E, F, G)")
    * @param  {String} label - ggb label. ggbApplet.evalXML(label) yields xml representation of this label
@@ -623,23 +668,37 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action, eventQueue) => {
+    let { room, user, myColor, currentTab } = this.props;
+
     let newData = {
       definition,
       label,
       eventType,
       action,
-      room: this.props.room._id,
-      tab: this.props.room.tabs[this.props.currentTab]._id,
+      room: room._id,
+      tab: room.tabs[currentTab]._id,
       event: xml,
-      user: { _id: this.props.user._id, username: this.props.user.username },
+      color: myColor,
+      user: { _id: user._id, username: user.username },
       timestamp: new Date().getTime()
       // currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
       // mode: this.ggbApplet.getMode()
     };
-    if (eventQueue && eventQueue.length > 1) {
-      newData.event = this.eventQueue;
-      newData.eventType = action === "updated" ? "BATCH_UPDATE" : "BATCH_ADD";
+
+    newData.description = this.buildDescription(
+      definition,
+      label,
+      eventType,
+      action,
+      eventQueue
+    );
+
+    if (eventQueue && eventQueue.length > 0) {
+      newData.event = eventQueue;
     }
+
+    this.props.addToLog(this.props.room._id, newData);
+
     if (this.updatingTab) {
       clearTimeout(this.updatingTab);
       this.updatingTab = null;
@@ -647,14 +706,52 @@ class GgbGraph extends Component {
     socket.emit("SEND_EVENT", newData);
     this.updatingTab = setTimeout(this.updateConstructionState, 3000);
     this.timer = null;
+    this.movingGeos = false;
     this.props.resetControlTimer();
+  };
+  /**
+   * @method buildDescription - takes information passed to send event and builds
+   *  a description of the event that occured
+   * @param  {String} definition
+   * @param  {String} label
+   * @param  {String} eventType
+   * @param  {String} action
+   * @param  {Array} eventQueue
+   *
+   * @return {String} description
+   */
+  buildDescription = (definition, label, eventType, action, eventQueue) => {
+    let description = `${this.props.user.username}`;
+    let objType = this.ggbApplet.getObjectType(label);
+    if (action === "updated") {
+      if (this.shapeSelected && eventType === "BATCH_UPDATE") {
+        objType = this.ggbApplet.getObjectType(this.shapeSelected);
+        label = this.shapeSelected;
+      }
+      description = description + ` dragged ${objType} ${label}`;
+    } else if (eventType === "BATCH_ADD") {
+      // parse the element label from the first element in eventQuere...it is always the most encompassing elemennt
+      let newLabel = eventQueue[0].slice(0, eventQueue[0].indexOf(":"));
+      let objType = this.ggbApplet.getObjectType(newLabel);
+      description = description + ` ${action} ${objType} ${newLabel}`;
+    } else if (action === "mode") {
+      description =
+        description +
+        ` selected the ${ggbTools[label].name.toLowerCase()} tool`;
+    } else if (eventType === "SELECT") {
+      description = description + ` selected ${objType} ${label}`;
+    } else if (action === "added") {
+      description = description + ` ${action} ${objType} ${label}`;
+    }
+    return description;
   };
 
   updateConstructionState = () => {
+    let { room } = this.props;
     // console.log("updating construction state");
     let currentState = this.ggbApplet.getXML();
-    let tabId = this.props.room.tabs[this.props.currentTab]._id;
-    this.props.updateRoomTab(this.props.room._id, tabId, {
+    let tabId = room.tabs[this.props.currentTab]._id;
+    this.props.updateRoomTab(room._id, tabId, {
       // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
       currentState
     });

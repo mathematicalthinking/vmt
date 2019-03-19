@@ -26,7 +26,6 @@ export default {
   },
 
   getById: (resource, id, temp, events) => {
-    console.log("EVENTS: ", events);
     if (temp) {
       return axios.get(`/api/${resource}/${id}/tempRoom`);
     } else if (events) {

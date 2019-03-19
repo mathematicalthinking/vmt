@@ -1,6 +1,6 @@
 /* We should have made a component that chat currentMembers and this can
 all share. we are repeating styles in each of those copmnents  */
-:import('../../colors.css'){
+:import("../../../colors.css") {
   blue: blue;
   blueHover: blueHover;
 }
@@ -27,14 +27,12 @@ all share. we are repeating styles in each of those copmnents  */
   letter-spacing: 1.12px;
 }
 
-
 .Expanded {
   align-self: flex-start;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   width: 100%;
-  overflow-y: auto;
   padding: 5px 10px;
   height: 100%;
 }
@@ -52,6 +50,22 @@ all share. we are repeating styles in each of those copmnents  */
   flex-shrink: 1; */
 }
 
+.AwarenessDesc {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  margin: 0 10px;
+}
+
+.AwarenessIcon {
+  position: relative;
+  overflow: visible;
+  margin: 2px;
+}
+
+.AwarenessIcon:hover .ToolTip {
+  display: flex;
+}
 .Save {
   margin-top: 10px;
 }
@@ -63,13 +77,13 @@ all share. we are repeating styles in each of those copmnents  */
 
 .MousePointer {
   font-size: 18px;
-  height:   50px;
+  height: 50px;
   width: 50px;
   padding: 14px 10px 4px 20px;
   border-radius: 50%;
   background: #e8e8e8;
   margin: 5px 10px;
-  transition: .2s;
+  transition: 0.2s;
 }
 
 .ReferenceControls {
@@ -77,13 +91,14 @@ all share. we are repeating styles in each of those copmnents  */
   cursor: pointer;
   align-items: center;
   /* width: 100%; */
+  height: 60px;
   border-bottom: 1px solid #ddd;
   padding: 4px;
 }
 
 .ReferenceTool {
   border-bottom: 1px solid #f9f9f9;
-  transition: .2s;
+  transition: 0.2s;
 }
 
 .ReferencingActive {
@@ -105,7 +120,7 @@ all share. we are repeating styles in each of those copmnents  */
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: .2s;
+  transition: 0.2s;
   background-color: blue;
   color: white;
   border-radius: 3px 0px 0px 3px;
@@ -116,17 +131,17 @@ all share. we are repeating styles in each of those copmnents  */
   text-align: center;
 }
 
-
 .SideButton:hover {
   background: blueHover;
 }
 
 .Exit {
-  color: darkGrey;
-  background-color: #D2D2D2;
+  composes: SideButton;
+  color: #666;
+  background-color: #d2d2d2;
   border-radius: 0px 3px 3px 0px;
 }
 
 .Exit:hover {
-  background: #DFDFDF;
+  background: #dfdfdf;
 }

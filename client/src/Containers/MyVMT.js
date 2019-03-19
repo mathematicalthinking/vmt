@@ -173,7 +173,6 @@ class Profile extends Component {
       }
       let displayResources = [];
       if (this.props[resource]) {
-        console.log("setting display resources");
         displayResources = this.props[resource].allIds.filter(id => {
           let included = false;
           if (this.props[resource].byId[id].members) {

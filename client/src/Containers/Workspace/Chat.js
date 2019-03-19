@@ -22,9 +22,7 @@ class Chat extends Component {
     if (!this.props.replaying) {
       socket.removeAllListeners("RECEIVE_MESSAGE");
       socket.on("RECEIVE_MESSAGE", data => {
-        this.props.updatedRoom(this.props.roomId, {
-          chat: [...this.props.messages, data]
-        });
+        this.props.addToLog(this.props.roomId, data);
         // this.scrollToBottom()
       });
     }
@@ -66,7 +64,7 @@ class Chat extends Component {
   };
 
   submitMessage = () => {
-    const { roomId, user } = this.props;
+    const { roomId, user, myColor } = this.props;
     if (!user.connected) {
       return alert(
         "you have disconnected from the server. Check your internet connect and try refreshing the page"
@@ -77,6 +75,8 @@ class Chat extends Component {
       text: this.state.newMessage,
       user: { _id: user._id, username: user.username },
       room: roomId,
+      color: myColor,
+      messageType: "TEXT",
       timestamp: new Date().getTime()
     };
     if (this.props.referencing) {
@@ -92,9 +92,7 @@ class Chat extends Component {
       }
     });
     delete newMessage.room;
-    this.props.updatedRoom(roomId, {
-      chat: [...this.props.messages, newMessage]
-    });
+    this.props.addToLog(roomId, newMessage);
     // this.scrollToBottom(); @TODO
     this.setState({
       newMessage: ""
@@ -105,6 +103,7 @@ class Chat extends Component {
   render() {
     return (
       <ChatLayout
+        log={this.props.log}
         messages={this.props.messages}
         change={this.changeHandler}
         submit={this.submitMessage}

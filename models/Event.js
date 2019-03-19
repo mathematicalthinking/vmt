@@ -20,9 +20,11 @@ const Event = new mongoose.Schema({
       "CHANGE_PERSPECTIVE",
       "NEW_TAB",
       "BATCH_UPDATE",
-      "BATCH_ADD"
+      "BATCH_ADD",
+      "SELECT"
     ]
   },
+  color: { type: String, required: true },
   timestamp: { type: Number, required: true }, //UNIX TIME but in MS
   isTrashed: { type: Boolean, default: false }
 });

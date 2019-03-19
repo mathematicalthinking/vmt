@@ -6,7 +6,7 @@ import {
   updatedRoom,
   updateRoom,
   addUserRooms,
-  addChatMessage
+  addToLog
 } from "../../store/actions";
 import Workspace from "./Workspace";
 import { Aux, TextInput, Modal, Button } from "../../Components/";
@@ -95,7 +95,7 @@ class TempWorkspace extends Component {
         members: room.members,
         tabs: updatedTabs
       });
-      this.props.addChatMessage(room._id, message);
+      this.props.addToLog(room._id, message);
       // if (!this.state.firstEntry) res.room.chat.push(message)
       user.connected = socket.connected;
       this.setState({ user: user, room: room });
@@ -210,6 +210,6 @@ export default connect(
     updateRoom,
     updatedRoom,
     addUserRooms,
-    addChatMessage
+    addToLog
   }
 )(TempWorkspace);

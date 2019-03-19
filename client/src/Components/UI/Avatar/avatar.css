@@ -3,7 +3,9 @@
   lightestShadow: lightestShadow;
 }
 .UserInfo {
-  margin-bottom: 5px;
+  /* margin-bottom: 5px; */
+  display: flex;
+  align-items: center;
 }
 
 .UserInfo a {
@@ -20,6 +22,9 @@
   background-color: blue;
   color: white;
   border-radius: 50%;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
+  /* border: 3px solid black; */
   /* align-self: flex-start; */
 }
 

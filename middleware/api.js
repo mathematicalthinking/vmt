@@ -57,7 +57,6 @@ const canModifyResource = req => {
 
   let modelName = utils.getModelName(resource);
   results.details.modelName = modelName;
-
   let model = models[modelName];
   let schema = utils.getSchema(resource);
   // If a user is trying to remove themself they do not have to be facilitator
@@ -77,6 +76,7 @@ const canModifyResource = req => {
     .lean()
     .exec()
     .then(record => {
+      // console.log(model);
       if (_.isNil(record)) {
         // record requesting to be modified does not exist
         results.doesRecordExist = false;
@@ -130,6 +130,13 @@ const canModifyResource = req => {
         ) {
           results.canModify = true;
           return results;
+        }
+      }
+
+      if (modelName === "Tab") {
+        if (_.isArray(record.room.members)) {
+          let role = helpers.getUserRoleInRecord(record.room, user._id);
+          if (role) results.canModify = true;
         }
       }
 

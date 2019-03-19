@@ -39,3 +39,4 @@ export { default as Error } from "./HOC/Error";
 export { default as ErrorToast } from "./Error/ErrorToast";
 // export { default as Search } from "./Search/Search";
 export { default as DemoBrowser } from "./DemoBrowser/DemoBrowser";
+export { default as ToolTip } from "./ToolTip/ToolTip";

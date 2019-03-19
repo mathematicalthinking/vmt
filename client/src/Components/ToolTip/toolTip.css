@@ -1,0 +1,36 @@
+.Container {
+  position: relative;
+}
+
+.ToolTipText {
+  /* visibility: visible; */
+  width: 150px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 10000;
+  bottom: 225%;
+  left: 50%;
+  opacity: 0.8;
+  /* height: 29px; */
+  transition: 0.2s;
+  margin-left: -75px;
+}
+
+.ToolTipText::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+/* .ToolTipText:hover {
+  height: 150px;
+} */

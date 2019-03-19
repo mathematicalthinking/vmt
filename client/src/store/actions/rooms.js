@@ -67,9 +67,15 @@ export const addRoomMember = (roomId, body) => {
   };
 };
 
-export const addChatMessage = (roomId, message) => {
+/**
+ * @function addToLog
+ * @param  {String} roomId
+ * @param  {Object} message - as Message or Event
+ */
+
+export const addToLog = (roomId, message) => {
   return {
-    type: actionTypes.ADD_CHAT_MESSAGE,
+    type: actionTypes.ADD_TO_LOG,
     roomId,
     message
   };
@@ -240,7 +246,18 @@ export const populateRoom = (id, opts) => {
     }
     API.getById("rooms", id, temp, events)
       .then(res => {
-        dispatch(updatedRoom(id, res.data.result));
+        // creae a log combining events and chat messages
+        let room = res.data.result;
+        let allEvents = [];
+        room.tabs.forEach(tab => {
+          allEvents = allEvents.concat(tab.events);
+        });
+        allEvents = allEvents
+          .concat(room.chat)
+          .sort((a, b) => a.timestamp - b.timestamp);
+        room.log = allEvents;
+        // consider deleting tab.events and room.chat here since we have all of the information in the log now
+        dispatch(updatedRoom(id, room));
         dispatch(loading.success());
       })
       .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));

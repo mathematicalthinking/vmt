@@ -87,7 +87,6 @@
   position: absolute;
   top: -34px;
   /* left: 0; */
-  overflow: auto;
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: flex-start;

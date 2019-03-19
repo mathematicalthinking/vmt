@@ -7,7 +7,7 @@ import {
   populateRoom,
   setRoomStartingPoint,
   updateUser,
-  addChatMessage
+  addToLog
 } from "../../store/actions";
 import WorkspaceLayout from "../../Layout/Workspace/Workspace";
 import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from "./";
@@ -33,14 +33,23 @@ class Workspace extends Component {
     chatExpanded: true,
     membersExpanded: true,
     instructionsExpanded: true,
-    toolsExpanded: true
+    toolsExpanded: true,
+    myColor: null
   };
 
   componentDidMount() {
+    let { room, user } = this.props;
     this.props.updateUser({ connected: socket.connected });
-    this.initializeListeners();
     if (!this.props.temp) {
-      this.props.populateRoom(this.props.room._id);
+      this.props.populateRoom(room._id, { events: true });
+      if (room.members) {
+        let myColor = room.members.filter(
+          member => member.user._id === user._id
+        )[0].color;
+        this.setState({ myColor }, () => this.initializeListeners());
+      }
+    } else {
+      this.initializeListeners();
     }
     window.addEventListener("beforeunload", this.componentCleanup);
   }
@@ -66,7 +75,7 @@ class Workspace extends Component {
       this.props.room.controlledBy === this.props.user._id
     ) {
       let auto = true;
-      this.toggleControl(null, auto); // auto = true
+      this.toggleControl(null, auto);
     }
   }
 
@@ -80,7 +89,8 @@ class Workspace extends Component {
     const { updatedRoom, room, user } = this.props;
     if (socket) {
       // @TODO RELEASE CONTROL
-      socket.emit("LEAVE_ROOM", (res, err) => {
+      let color = this.state.myColor;
+      socket.emit("LEAVE_ROOM", color, (res, err) => {
         if (err) {
           console.log("error leaving room", err);
         }
@@ -94,13 +104,11 @@ class Workspace extends Component {
   };
 
   initializeListeners() {
-    socket.removeAllListeners([
-      "USER_JOINED",
-      "USER_LEFT",
-      "TOOK_CONTROL",
-      "RELEASED_CONTROL",
-      "initializeListeners"
-    ]);
+    socket.removeAllListeners("USER_JOINED");
+    socket.removeAllListeners("CREATED_TAB");
+    socket.removeAllListeners("USER_LEFT");
+    socket.removeAllListeners("RELEASED_CONTROL");
+    socket.removeAllListeners("TOOK_CONTROL");
     // window.addEventListener("resize", this.updateReference);
     const { room, user } = this.props;
 
@@ -108,13 +116,12 @@ class Workspace extends Component {
       this.setState({ someoneElseInControl: true, inControl: false });
     }
 
-    // repopulate room incase things have changed since we got to the details page
-    // this.props.populateRoom(room._id)
     const sendData = {
       userId: user._id,
       roomId: room._id,
       username: user.username,
-      roomName: room.name
+      roomName: room.name,
+      color: this.state.myColor
     };
     // const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
     if (!this.props.temp) {
@@ -131,13 +138,13 @@ class Workspace extends Component {
         this.props.updatedRoom(room._id, {
           currentMembers: res.room.currentMembers
         });
-        this.props.addChatMessage(room._id, res.message);
+        this.props.addToLog(room._id, res.message);
       });
     }
 
     socket.on("USER_JOINED", data => {
       this.props.updatedRoom(room._id, { currentMembers: data.currentMembers });
-      this.props.addChatMessage(room._id, data.message);
+      this.props.addToLog(room._id, data.message);
     });
 
     socket.on("USER_LEFT", data => {
@@ -147,31 +154,33 @@ class Workspace extends Component {
       let updatedChat = [...this.props.room.chat];
       updatedChat.push(data.message);
       this.props.updatedRoom(room._id, { currentMembers: data.currentMembers });
-      this.props.addChatMessage(room._id, data.message);
+      this.props.addToLog(room._id, data.message);
     });
 
     socket.on("TOOK_CONTROL", message => {
-      this.props.addChatMessage(this.props.room._id, message);
+      this.props.addToLog(this.props.room._id, message);
       this.props.updatedRoom(room._id, { controlledBy: message.user._id });
+      this.setState({ awarenessDesc: message.text, awarenessIcon: "USER" });
     });
 
     socket.on("RELEASED_CONTROL", message => {
-      this.props.addChatMessage(this.props.room._id, message);
+      this.props.addToLog(this.props.room._id, message);
       this.props.updatedRoom(room._id, { controlledBy: null });
-      this.setState({ activeMember: "", someoneElseInControl: false });
+      this.setState({
+        activeMember: "",
+        someoneElseInControl: false,
+        awarenessDesc: message.text,
+        awarenessIcon: "USER"
+      });
     });
 
     socket.on("CREATED_TAB", data => {
-      this.props.addChatMessage(this.props.room._id, data.message);
+      this.props.addToLog(this.props.room._id, data.message);
       delete data.message;
       delete data.creator;
       let tabs = [...this.props.room.tabs];
       tabs.push(data);
       this.props.updatedRoom(this.props.room._id, { tabs });
-    });
-
-    socket.on("disconnect", data => {
-      this.props.updateUser({ connected: false });
     });
   }
 
@@ -196,7 +205,8 @@ class Workspace extends Component {
         _id: this.props.room.tabs[index]._id,
         name: this.props.room.tabs[index].name
       },
-      room: this.props.room._id
+      room: this.props.room._id,
+      color: this.state.myColor
     };
     socket.emit("SWITCH_TAB", data, (res, err) => {
       if (err) {
@@ -230,10 +240,12 @@ class Workspace extends Component {
         text: `${user.username} released control`,
         autogenerated: true,
         messageType: "RELEASED_CONTROL",
+        color: this.state.myColor,
         timestamp: new Date().getTime()
       };
       this.props.updatedRoom(room._id, { controlledBy: null });
-      this.props.addChatMessage(room._id, message);
+      this.props.addToLog(room._id, message);
+      this.setState({ awarenessDesc: message.text, awarenessIcon: null });
       socket.emit("RELEASE_CONTROL", message, (err, res) => {
         if (err) console.log(err);
       });
@@ -246,10 +258,11 @@ class Workspace extends Component {
         text: "Can I take control?",
         user: { _id: user._id, username: user.username },
         room: room._id,
+        color: this.state.myColor,
         timestamp: new Date().getTime()
       };
       socket.emit("SEND_MESSAGE", message, (err, res) => {
-        this.props.addChatMessage(room._id, message);
+        this.props.addToLog(room._id, message);
       });
     } else {
       // We're taking control
@@ -261,11 +274,18 @@ class Workspace extends Component {
         text: `${user.username} took control`,
         messageType: "TOOK_CONTROL",
         autogenerated: true,
+        color: this.state.myColor,
         timestamp: new Date().getTime()
       };
-      this.props.addChatMessage(room._id, message);
+      this.props.addToLog(room._id, message);
       socket.emit("TAKE_CONTROL", message, (err, message) => {
         // this.scrollToBottom(); @TODO
+        // this.setState(
+        //   { awarenessDesc: message.text, awarenessIcon: null },
+        //   () => {
+        //     console.log(this.state.awarenessDesc);
+        //   }
+        // );
         // IF ERROR WE NEED TO UNDO CONTROL
       });
     }
@@ -282,9 +302,8 @@ class Workspace extends Component {
   };
 
   emitNewTab = tabInfo => {
-    console.log(tabInfo);
     socket.emit("NEW_TAB", tabInfo, (err, res) => {
-      this.props.addChatMessage(this.props.room._id, tabInfo.message);
+      this.props.addToLog(this.props.room._id, tabInfo.message);
     });
   };
 
@@ -292,7 +311,6 @@ class Workspace extends Component {
     clearTimeout(this.controlTimer);
     this.controlTimer = setTimeout(() => {
       this.toggleControl();
-      // this.props.updatedRoom(this.props.room._id, {controlledBy: null})
     }, 60 * 1000);
   };
 
@@ -402,7 +420,8 @@ class Workspace extends Component {
     let Graph;
     let currentMembers = (
       <CurrentMembers
-        members={room.currentMembers}
+        members={room.members}
+        currentMembers={room.currentMembers}
         activeMember={room.controlledBy}
         expanded={this.state.membersExpanded}
         toggleExpansion={this.toggleExpansion}
@@ -428,9 +447,12 @@ class Workspace extends Component {
       <Chat
         roomId={room._id}
         messages={room.chat || []}
+        log={room.log}
+        addToLog={this.props.addToLog}
         // socket={socket}
+        myColor={this.state.myColor}
         user={user}
-        updatedRoom={this.props.updatedRoom}
+        // updatedRoom={this.props.updatedRoom}
         referencing={this.state.referencing}
         referToEl={this.state.referToEl}
         referToCoords={this.state.referToCoords}
@@ -464,13 +486,18 @@ class Workspace extends Component {
         <GgbGraph
           room={room}
           user={user}
+          myColor={this.state.myColor}
           role={this.state.role}
+          addToLog={this.props.addToLog}
           updateRoom={this.props.updateRoom}
           updateRoomTab={this.props.updateRoomTab}
           updatedRoom={this.props.updatedRoom}
           resetControlTimer={this.resetControlTimer}
           currentTab={this.state.currentTab}
           addNtfToTabs={this.addNtfToTabs}
+          updateAwarenessDesc={(awarenessDesc, awarenessIcon) => {
+            this.setState({ awarenessDesc, awarenessIcon });
+          }}
         />
       );
     }
@@ -489,6 +516,7 @@ class Workspace extends Component {
                 inControl={control}
                 goBack={this.goBack}
                 toggleControl={this.toggleControl}
+                lastEvent={room.log[room.log.length - 1]}
                 save={this.props.save ? this.props.save : null}
               />
             }
@@ -541,6 +569,6 @@ export default connect(
     updateRoomTab,
     populateRoom,
     setRoomStartingPoint,
-    addChatMessage
+    addToLog
   }
 )(Workspace);

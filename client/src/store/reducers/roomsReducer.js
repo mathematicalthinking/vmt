@@ -82,14 +82,16 @@ const reducer = (state = initialState, action) => {
         allIds: updatedList
       };
 
-    case actionTypes.ADD_CHAT_MESSAGE:
+    case actionTypes.ADD_TO_LOG:
       return {
         ...state,
         byId: {
           ...state.byId,
           [action.roomId]: {
             ...state.byId[action.roomId],
-            chat: [...state.byId[action.roomId].chat, action.message]
+            log: state.byId[action.roomId].log
+              ? [...state.byId[action.roomId].log, action.message]
+              : [action.message]
           }
         }
       };
