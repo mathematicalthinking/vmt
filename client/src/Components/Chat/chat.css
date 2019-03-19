@@ -74,12 +74,13 @@
   flex-grow: 0;
   display: flex;
   flex-flow: wrap;
+  padding: 0 10px;
   width: 100%;
   position: relative;
   overflow-y: scroll;
   overflow-x: hidden;
   /* max-height: 100%; */
-  /* flex: 0 1 100%; */
+  flex: 0 1 100%;
 }
 
 .Collapsed {
@@ -153,7 +154,6 @@
   flex-flow: column;
   width: 100%;
   border: 4px solid transparent;
-  padding: 0px 10px;
   font-size: 15px;
   /* width: 90%; */
   /* border: 1px solid red; */
@@ -176,7 +176,6 @@
   width: 100%;
   color: #999;
   /* padding: 1px; */
-  padding: 0px 10px;
   border: 2px solid transparent;
 }
 
@@ -199,7 +198,14 @@
 
 .Event {
   display: flex;
-  height: 15px;
-  width: 15px;
-  margin: 1px;
+  height: 7px;
+  width: 7px;
+  /* margin: 1px; */
+  padding-bottom: 7px;
+  margin-top: 0px;
+  transition: 0.2s;
+}
+
+.Event:hover {
+  margin-top: -3px;
 }

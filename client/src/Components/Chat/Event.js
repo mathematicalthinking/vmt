@@ -4,9 +4,9 @@ import ToolTip from "../ToolTip/ToolTip";
 class Event extends Component {
   state = {};
   render() {
-    let { color, description, key } = this.props.event;
+    let { color, description, id } = this.props.event;
     return (
-      <ToolTip text={description} key={key}>
+      <ToolTip text={description}>
         <div className={classes.Event} style={{ background: color }} />
       </ToolTip>
     );

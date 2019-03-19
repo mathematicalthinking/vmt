@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import throttle from "lodash/throttle";
-import debounce from "lodash/debounce";
 import classes from "./graph.css";
 import { Aux, Modal } from "../../Components";
 import Script from "react-load-script";
@@ -26,6 +25,7 @@ class GgbGraph extends Component {
   batchUpdating = false;
   movingGeos = false;
   pointSelected = null;
+  shapeSelected = null;
   socketQueue = [];
   previousEvent = null; // Prevent repeat events from firing (for example if they keep selecting the same tool)
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
@@ -361,6 +361,7 @@ class GgbGraph extends Component {
    */
 
   clientListener = event => {
+    console.log(event);
     // console.log("client Listener");
     if (this.state.receivingData) {
       return this.setState({ receivingData: false });
@@ -409,11 +410,12 @@ class GgbGraph extends Component {
         }
         break;
       case "select":
-        if (this.ggbApplet.getMode() === "0") {
+        if (this.ggbApplet.getMode() === 0) {
           let selection = this.ggbApplet.getObjectType(event[1]);
           if (selection === "point") {
             this.pointSelected = event[1];
           } else {
+            console.log(selection);
             this.pointSelected = null;
           }
           this.sendEvent(null, selection, event[1], "SELECT", "ggbObj");
@@ -625,6 +627,7 @@ class GgbGraph extends Component {
       // if the user is still dragging we build up a new queue. This way, if they drag for several seconds,
       // there is not a several second delay before the other users in the room see the event
       if (this.time && Date.now() - this.time > 1500) {
+        eventType = eventType === "UPDATE" ? "BATCH_UPDATE" : "BATCH_ADD";
         this.sendEvent(xml, definition, label, eventType, action, [
           ...this.eventQueue
         ]);
@@ -639,6 +642,10 @@ class GgbGraph extends Component {
 
     if (sendEventFromTimer) {
       this.timer = setTimeout(() => {
+        eventType = eventType === "UPDATE" ? "BATCH_UPDATE" : "BATCH_ADD";
+        // Because all ADD events pass thru this buffer, if the eventQueue just has one event in it
+        // the event is actually just an "ADD" not a batch add
+        eventType = this.eventQueue.length === 1 ? "ADD" : eventType;
         this.sendEvent(xml, definition, label, eventType, action, [
           ...this.eventQueue
         ]);
@@ -661,8 +668,6 @@ class GgbGraph extends Component {
 
   sendEvent = (xml, definition, label, eventType, action, eventQueue) => {
     let { room, user, myColor, currentTab } = this.props;
-    // get object type
-    let description = `${user.username}`;
 
     let newData = {
       definition,
@@ -679,30 +684,14 @@ class GgbGraph extends Component {
       // mode: this.ggbApplet.getMode()
     };
 
-    // Consider separating out function to build desctiption
-    if (eventQueue && eventQueue.length > 1) {
-      newData.event = this.eventQueue;
-      if (action === "updated") {
-        newData.eventType = "BATCH_UPDATE";
-        let objType = this.ggbApplet.getObjectType(label);
-        newData.description = description + ` dragged ${objType} ${label}`;
-      } else {
-        newData.eventType = "BATCH_ADD";
-        // parse the element label from the first element in eventQuere...it is always the most encompassing elemennt
-        let newLabel = eventQueue[0].slice(0, eventQueue[0].indexOf(":"));
-        let objType = this.ggbApplet.getObjectType(newLabel);
-        newData.description = description + ` ${action} ${objType} ${newLabel}`;
-      }
-    } else {
-      if (action === "mode") {
-        newData.description =
-          description +
-          ` selected the ${ggbTools[label].name.toLowerCase()} tool`;
-      } else if (action === "added") {
-        let objType = this.ggbApplet.getObjectType(label);
-        newData.description = description + ` ${objType} ${label}`;
-      }
-    }
+    let description = this.buildDescription(
+      definition,
+      label,
+      eventType,
+      action,
+      eventQueue
+    );
+    newData.description = description;
     this.props.addToLog(this.props.room._id, newData);
 
     if (this.updatingTab) {
@@ -713,6 +702,43 @@ class GgbGraph extends Component {
     this.updatingTab = setTimeout(this.updateConstructionState, 3000);
     this.timer = null;
     this.props.resetControlTimer();
+  };
+  /**
+   * @method buildDescription - takes information passed to send event and builds
+   *  a description of the event that occured
+   * @param  {String} definition
+   * @param  {String} label
+   * @param  {String} eventType
+   * @param  {String} action
+   * @param  {Array} eventQueue
+   *
+   * @return {String} description
+   */
+  buildDescription = (definition, label, eventType, action, eventQueue) => {
+    console.log(definition);
+    console.log(label);
+    console.log(eventType);
+    console.log(action);
+    console.log(eventQueue);
+    let description = `${this.props.user.username}`;
+    if (action === "updated") {
+      let objType = this.ggbApplet.getObjectType(label);
+      description = description + ` dragged ${objType} ${label}`;
+    } else if (eventType === "BATCH_ADD") {
+      // parse the element label from the first element in eventQuere...it is always the most encompassing elemennt
+      let newLabel = eventQueue[0].slice(0, eventQueue[0].indexOf(":"));
+      let objType = this.ggbApplet.getObjectType(newLabel);
+      description = description + ` ${action} ${objType} ${newLabel}`;
+    } else if (action === "mode") {
+      description =
+        description +
+        ` selected the ${ggbTools[label].name.toLowerCase()} tool`;
+    } else if (eventType === "SELECT") {
+    } else if (action === "added") {
+      let objType = this.ggbApplet.getObjectType(label);
+      description = description + ` ${action} ${objType} ${label}`;
+    }
+    return description;
   };
 
   updateConstructionState = () => {
