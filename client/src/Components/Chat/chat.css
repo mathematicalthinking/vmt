@@ -200,7 +200,7 @@
   display: flex;
   height: 7px;
   width: 7px;
-  /* margin: 1px; */
+  margin: 1px;
   padding-bottom: 7px;
   margin-top: 0px;
   transition: 0.2s;

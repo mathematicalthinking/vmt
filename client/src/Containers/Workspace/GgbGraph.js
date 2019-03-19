@@ -414,8 +414,9 @@ class GgbGraph extends Component {
           let selection = this.ggbApplet.getObjectType(event[1]);
           if (selection === "point") {
             this.pointSelected = event[1];
+            this.shapeSelected = null;
           } else {
-            console.log(selection);
+            this.shapeSelected = event[1];
             this.pointSelected = null;
           }
           this.sendEvent(null, selection, event[1], "SELECT", "ggbObj");
@@ -646,6 +647,7 @@ class GgbGraph extends Component {
         // Because all ADD events pass thru this buffer, if the eventQueue just has one event in it
         // the event is actually just an "ADD" not a batch add
         eventType = this.eventQueue.length === 1 ? "ADD" : eventType;
+        console.log(this.eventQueue);
         this.sendEvent(xml, definition, label, eventType, action, [
           ...this.eventQueue
         ]);
@@ -698,6 +700,7 @@ class GgbGraph extends Component {
       clearTimeout(this.updatingTab);
       this.updatingTab = null;
     }
+    console.log("sending event: ", newData);
     socket.emit("SEND_EVENT", newData);
     this.updatingTab = setTimeout(this.updateConstructionState, 3000);
     this.timer = null;
@@ -715,14 +718,13 @@ class GgbGraph extends Component {
    * @return {String} description
    */
   buildDescription = (definition, label, eventType, action, eventQueue) => {
-    console.log(definition);
-    console.log(label);
-    console.log(eventType);
-    console.log(action);
-    console.log(eventQueue);
     let description = `${this.props.user.username}`;
+    let objType = this.ggbApplet.getObjectType(label);
     if (action === "updated") {
-      let objType = this.ggbApplet.getObjectType(label);
+      if (this.shapeSelected && eventType === "BATCH_UPDATE") {
+        objType = this.ggbApplet.getObjectType(this.shapeSelected);
+        label = this.shapeSelected;
+      }
       description = description + ` dragged ${objType} ${label}`;
     } else if (eventType === "BATCH_ADD") {
       // parse the element label from the first element in eventQuere...it is always the most encompassing elemennt
@@ -734,8 +736,8 @@ class GgbGraph extends Component {
         description +
         ` selected the ${ggbTools[label].name.toLowerCase()} tool`;
     } else if (eventType === "SELECT") {
+      description = description + ` selected ${objType} ${label}`;
     } else if (action === "added") {
-      let objType = this.ggbApplet.getObjectType(label);
       description = description + ` ${action} ${objType} ${label}`;
     }
     return description;
