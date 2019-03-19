@@ -615,7 +615,7 @@ class GgbGraph extends Component {
       this.ggbApplet.undo();
       return;
     }
-
+    console.log("ACTION: ", action);
     // Add event to eventQueue in case there are multiple events to send.
     this.eventQueue.push(action === "updated" ? xml : `${label}:${definition}`);
 
@@ -646,11 +646,15 @@ class GgbGraph extends Component {
         eventType = eventType === "UPDATE" ? "BATCH_UPDATE" : "BATCH_ADD";
         // Because all ADD events pass thru this buffer, if the eventQueue just has one event in it
         // the event is actually just an "ADD" not a batch add
-        eventType = this.eventQueue.length === 1 ? "ADD" : eventType;
-        console.log(this.eventQueue);
-        this.sendEvent(xml, definition, label, eventType, action, [
-          ...this.eventQueue
-        ]);
+        if (this.eventQueue.length === 1) {
+          eventType = "ADD";
+          this.sendEvent(xml, definition, label, eventType, action);
+        } else {
+          console.log(this.eventQueue);
+          this.sendEvent(xml, definition, label, eventType, action, [
+            ...this.eventQueue
+          ]);
+        }
         this.eventQueue = [];
         this.time = null;
         this.timer = null;
@@ -686,14 +690,18 @@ class GgbGraph extends Component {
       // mode: this.ggbApplet.getMode()
     };
 
-    let description = this.buildDescription(
+    newData.description = this.buildDescription(
       definition,
       label,
       eventType,
       action,
       eventQueue
     );
-    newData.description = description;
+
+    if (eventQueue && eventQueue.length > 0) {
+      newData.event = eventQueue;
+    }
+
     this.props.addToLog(this.props.room._id, newData);
 
     if (this.updatingTab) {
