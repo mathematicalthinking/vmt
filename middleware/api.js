@@ -57,7 +57,6 @@ const canModifyResource = req => {
 
   let modelName = utils.getModelName(resource);
   results.details.modelName = modelName;
-  console.log(modelName);
   let model = models[modelName];
   let schema = utils.getSchema(resource);
   // If a user is trying to remove themself they do not have to be facilitator

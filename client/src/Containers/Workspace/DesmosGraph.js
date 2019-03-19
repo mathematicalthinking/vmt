@@ -18,7 +18,6 @@ class DesmosGraph extends Component {
     if (window.Desmos) {
       let { room, currentTab } = this.props;
       let { tabs } = room;
-      console.log(room);
       this.calculator = window.Desmos.GraphingCalculator(
         this.calculatorRef.current
       );
@@ -124,7 +123,6 @@ class DesmosGraph extends Component {
         socket.emit("SEND_EVENT", newData, res => {
           this.props.resetControlTimer();
         });
-        console.log("updating tab: ", tabId, " with ", currentState);
         this.props.updateRoomTab(this.props.room._id, tabId, {
           // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
           currentState

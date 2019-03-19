@@ -414,7 +414,6 @@ class Workspace extends Component {
 
   render() {
     const { room, user } = this.props;
-    console.log(room.log);
     let control = "OTHER";
     if (room.controlledBy === user._id) control = "ME";
     else if (!room.controlledBy) control = "NONE";

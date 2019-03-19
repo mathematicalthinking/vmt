@@ -145,7 +145,6 @@ class NewResourceContainer extends Component {
           if (this.state.ggb) {
             newResource.appName = this.state.appName;
           }
-          console.log(newResource);
           this.props.createRoom(newResource);
           break;
         default:

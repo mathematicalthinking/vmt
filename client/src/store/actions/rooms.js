@@ -249,7 +249,6 @@ export const populateRoom = (id, opts) => {
         // creae a log combining events and chat messages
         let room = res.data.result;
         let allEvents = [];
-        console.log(room.tabs);
         room.tabs.forEach(tab => {
           allEvents = allEvents.concat(tab.events);
         });

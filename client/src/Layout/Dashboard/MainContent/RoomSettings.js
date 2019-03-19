@@ -18,7 +18,6 @@ class RoomSettings extends Component {
   };
   render() {
     let { settings, owner } = this.props;
-    console.log("room settings ", settings);
     return owner ? (
       <div>
         <h2 className={classes.Heading}>Participants can create new Tabs</h2>

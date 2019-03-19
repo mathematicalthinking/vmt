@@ -22,7 +22,6 @@ module.exports = {
         .populate({ path: "currentMembers.user", select: "username" })
         .populate({ path: "tabs", select: "name tabType" })
         .then(rooms => {
-          console.log(rooms);
           // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
           resolve(rooms);
         })
@@ -31,7 +30,6 @@ module.exports = {
   },
 
   getById: (id, params) => {
-    console.log(params);
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
         .populate({ path: "creator", select: "username" })
