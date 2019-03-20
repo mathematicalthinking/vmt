@@ -23,6 +23,7 @@ export const updatedRoom = (roomId, body) => {
 };
 
 export const updatedRoomTab = (roomId, tabId, body) => {
+  console.log("UPDRMTB: ", body);
   return {
     type: actionTypes.UPDATED_ROOM_TAB,
     roomId,
