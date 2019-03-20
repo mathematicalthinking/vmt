@@ -1,13 +1,15 @@
 import React, { Component } from "react";
 import classes from "./tabs.css";
 class Tabs extends Component {
-  shouldComponentUpdate(nextProps) {
-    if (nextProps.currentTab !== this.props.currentTab) {
-      return true;
-    } else if (nextProps.tabs.length !== this.props.tabs.length) {
-      return true;
-    } else return false;
-  }
+  // shouldComponentUpdate(nextProps) {
+  //   if (nextProps.currentTab !== this.props.currentTab) {
+  //     return true;
+  //   } else if (nextProps.tabs.length !== this.props.tabs.length) {
+  //     return true;
+  //   } else if (nextProps.ntfTabs.length !== this.props.ntfTabs.length) {
+  //     return true;
+  //   } else return false;
+  // }
 
   render() {
     let {

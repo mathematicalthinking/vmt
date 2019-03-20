@@ -236,6 +236,7 @@ module.exports = function() {
     });
 
     socket.on("SEND_EVENT", async data => {
+      console.log(data.tab);
       socket.broadcast.to(data.room).emit("RECEIVE_EVENT", data);
       let xmlObj = "";
       if (data.xml && data.eventType !== "CHANGE_PERSPECTIVE") {

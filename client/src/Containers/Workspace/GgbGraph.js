@@ -35,6 +35,7 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
+    let { room, currentTab } = this.props;
     // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
     this.throttledSendEvent = throttle(this.sendEvent, 500, {
       leading: true,
@@ -43,7 +44,7 @@ class GgbGraph extends Component {
     window.addEventListener("resize", this.updateDimensions);
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
-      this.props.addToLog(this.props.room._id, data);
+      this.props.addToLog(room._id, data);
       if (this.state.receivingData) {
         this.socketQueue.push(data);
         return;
@@ -51,17 +52,21 @@ class GgbGraph extends Component {
         // return;
       }
       this.setState({ receivingData: true }, () => {
-        // let updatedTabs = this.props.room.tabs.map(tab => {
-        //   if (tab._id === data.tab) {
-        //     tab.currentState = data.currentState;
-        //   }
-        //   return tab;
-        // });
+        let updatedTabs = room.tabs.map(tab => {
+          if (tab._id === data.tab) {
+            tab.currentState = data.currentState;
+          }
+          return tab;
+        });
         // update the redux store
 
-        // this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs }); @todo do this elsewhere
+        this.props.updatedRoom(room._id, { tabs: updatedTabs });
+        // @todo do this elsewhere
         // If this happend on the current tab
-        if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
+        console.log(data.tab);
+        console.log(currentTab);
+        console.log(room.tabs[currentTab]._id);
+        if (room.tabs[currentTab]._id === data.tab) {
           // @TODO consider abstracting out...resued in the GgbReplayer
           switch (data.eventType) {
             case "ADD":
@@ -102,6 +107,7 @@ class GgbGraph extends Component {
         }
         // show a notificaiton if its on a different tab
         else {
+          console.log("adding ntf to other tab");
           this.props.addNtfToTabs(data.tab);
         }
       });
@@ -156,16 +162,15 @@ class GgbGraph extends Component {
       let position = await this.getRelativeCoords(this.props.referToEl.element);
       this.props.setToElAndCoords(null, position);
     } else if (prevProps.currentTab !== this.props.currentTab) {
+      console.log("IM swtichting tgabs");
       let { currentState, startingPoint, ggbFile } = this.props.room.tabs[
         this.props.currentTab
       ];
-      // initPerspectiveListener(document, perspective, this.changePerspective);
+      console.log("CURRENT STSTWE: ", currentState);
       if (currentState) {
         this.ggbApplet.setXML(currentState);
-        // this.registerListeners();
       } else if (startingPoint) {
         this.ggbApplet.setXML(startingPoint);
-        // this.registerListeners();
       } else if (ggbFile) {
         this.ggbApplet.setBase64(ggbFile, () => {
           let updatedTabs = [...this.props.room.tabs];
@@ -178,6 +183,7 @@ class GgbGraph extends Component {
       } else {
         // this.ggbApplet.setXML(INITIAL_GGB);
       }
+      this.registerListeners(); // this.ggbApplet.setXML() erases listeners
 
       // if (perspective) {
       //   this.ggbApplet.setPerspective(perspective);
@@ -572,12 +578,12 @@ class GgbGraph extends Component {
 
   registerListeners = () => {
     if (this.ggbApplet.listeners.length > 0) {
-      return;
-      // this.ggbApplet.unregisterAddListener(this.addListener);
-      // this.ggbApplet.unregisterUpdateListener(this.updateListener);
-      // this.ggbApplet.unregisterRemoveListener(this.eventListener);
-      // this.ggbApplet.unregisterClearListener(this.clearListener);
-      // this.ggbApplet.unregisterClientListener(this.clientListener);
+      // return;
+      this.ggbApplet.unregisterAddListener(this.addListener);
+      this.ggbApplet.unregisterUpdateListener(this.updateListener);
+      this.ggbApplet.unregisterRemoveListener(this.eventListener);
+      this.ggbApplet.unregisterClearListener(this.clearListener);
+      this.ggbApplet.unregisterClientListener(this.clientListener);
     }
     this.ggbApplet.registerClientListener(this.clientListener);
     this.ggbApplet.registerAddListener(this.addListener);
@@ -703,6 +709,7 @@ class GgbGraph extends Component {
       clearTimeout(this.updatingTab);
       this.updatingTab = null;
     }
+    console.log("sending event: ", newData);
     socket.emit("SEND_EVENT", newData);
     this.updatingTab = setTimeout(this.updateConstructionState, 3000);
     this.timer = null;

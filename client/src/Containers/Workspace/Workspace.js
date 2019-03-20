@@ -388,6 +388,7 @@ class Workspace extends Component {
   };
 
   addNtfToTabs = id => {
+    console.log("adding ntf");
     this.setState({
       activityOnOtherTabs: [...this.state.activityOnOtherTabs, id]
     });
