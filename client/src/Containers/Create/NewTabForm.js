@@ -152,7 +152,7 @@ class NewTabForm extends Component {
           tab
           ggb={this.state.ggb}
           setGgbFile={this.setGgbFile}
-          setGgbAppName={appName => this.setState({ ggbAppName: appName })}
+          setGgbApp={appName => this.setState({ appName })}
           desmosLink={this.state.desmosLink}
           setDesmosLink={event =>
             this.setState({ desmosLink: event.target.value })
