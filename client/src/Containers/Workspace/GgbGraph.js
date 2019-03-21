@@ -35,8 +35,7 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
-    let { room, currentTab, tabId } = this.props;
-    console.log("MOUNTED: ", currentTab, tabId);
+    let { room, tabId } = this.props;
     // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
     this.throttledSendEvent = throttle(this.sendEvent, 500, {
       leading: true,
@@ -45,75 +44,75 @@ class GgbGraph extends Component {
     window.addEventListener("resize", this.updateDimensions);
     // socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
-      console.log("currentTab: ", this.props.currentTab);
-      if (this.props.tabId === this.props.currentTab) {
+      // If this event is for this tab add it to the log
+      if (data.tab === room.tabs[tabId]._id) {
         this.props.addToLog(room._id, data);
-      } // show a notificaiton if its on a different tab
-      else {
-        console.log("adding ntf to other tab");
-        this.props.addNtfToTabs(data.tab);
-        // this.updateConstructionState();
-      }
-      if (this.state.receivingData) {
-        // we're already processing the previous event.
-        this.socketQueue.push(data);
-        return;
-      }
-      this.setState({ receivingData: true }, () => {
-        // let updatedTabs = room.tabs.map(tab => {
-        //   if (tab._id === data.tab) {
-        //     tab.currentState = data.currentState;
-        //   }
-        //   return tab;
-        // });
-        // update the redux store
-
-        if (room.tabs[tabId]._id === data.tab) {
-          // @TODO consider abstracting out...resued in the GgbReplayer
-          switch (data.eventType) {
-            case "ADD":
-              if (data.definition && data.definition.length > 0) {
-                this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
-              }
-              this.ggbApplet.evalXML(data.event);
-              this.ggbApplet.evalCommand("UpdateConstruction()");
-              break;
-            case "REMOVE":
-              this.ggbApplet.deleteObject(data.label);
-              break;
-            case "UPDATE":
-              this.ggbApplet.evalXML(data.event);
-              this.ggbApplet.evalCommand("UpdateConstruction()");
-              break;
-            case "CHANGE_PERSPECTIVE":
-              this.ggbApplet.setPerspective(data.event);
-              this.ggbApplet.showAlgebraInput(true);
-              break;
-            case "BATCH_UPDATE":
-              // this.updatingOn = true;
-              this.batchUpdating = true;
-              this.recursiveUpdate(data.event, data.noOfPoints);
-              break;
-            case "BATCH_ADD":
-              this.batchUpdating = true;
-              if (data.definition) {
-                // console.log(data);
-                // console.log(typeof data.event);
-                this.recursiveUpdate(data.event, true);
-              }
-              break;
-            default:
-              this.setState({ receivingData: false });
-              break;
-          }
+        // If the event is for this tab but this tab is not in view,
+        // add a notification to this tab
+        if (this.props.currentTab !== this.props.tabId) {
+          this.props.addNtfToTabs(room.tabs[this.props.tabId]._id);
         }
-      });
+        if (this.state.receivingData) {
+          console.log("pushing to socketQueue");
+          // we're already processing the previous event.
+          this.socketQueue.push(data);
+          return;
+        }
+
+        // this.updateConstructionState();
+        this.setState({ receivingData: true }, () => {
+          if (room.tabs[tabId]._id === data.tab) {
+            // @TODO consider abstracting out...resued in the GgbReplayer
+            switch (data.eventType) {
+              case "ADD":
+                if (data.definition && data.definition.length > 0) {
+                  this.ggbApplet.evalCommand(
+                    `${data.label}:${data.definition}`
+                  );
+                }
+                this.ggbApplet.evalXML(data.event);
+                this.ggbApplet.evalCommand("UpdateConstruction()");
+                break;
+              case "REMOVE":
+                this.ggbApplet.deleteObject(data.label);
+                break;
+              case "UPDATE":
+                this.ggbApplet.evalXML(data.event);
+                this.ggbApplet.evalCommand("UpdateConstruction()");
+                break;
+              case "CHANGE_PERSPECTIVE":
+                this.ggbApplet.setPerspective(data.event);
+                this.ggbApplet.showAlgebraInput(true);
+                break;
+              case "BATCH_UPDATE":
+                // this.updatingOn = true;
+                this.batchUpdating = true;
+                this.recursiveUpdate(data.event, data.noOfPoints);
+                break;
+              case "BATCH_ADD":
+                this.batchUpdating = true;
+                if (data.definition) {
+                  // console.log(data);
+                  // console.log(typeof data.event);
+                  this.recursiveUpdate(data.event, true);
+                }
+                break;
+              default:
+                this.setState({ receivingData: false });
+                break;
+            }
+          }
+        });
+      }
     });
   }
 
-  // shouldComponentUpdate() {
-  // return this.props.tabId === this.props.currentTab;
-  // }
+  shouldComponentUpdate(nextProps) {
+    return (
+      this.props.tabId === this.props.currentTab ||
+      nextProps.tabId === nextProps.currentTab
+    );
+  }
 
   /**
    * @method componentDidUpdate
@@ -379,7 +378,6 @@ class GgbGraph extends Component {
    */
 
   clientListener = event => {
-    console.log("client: ", event);
     // console.log("client Listener");
     if (this.state.receivingData) {
       return this.setState({ receivingData: false });
