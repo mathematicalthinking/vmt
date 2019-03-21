@@ -302,7 +302,6 @@ class Workspace extends Component {
   };
 
   emitNewTab = tabInfo => {
-    console.log("emitting new trab");
     tabInfo.message.color = this.state.myColor;
     socket.emit("NEW_TAB", tabInfo, (err, res) => {
       this.props.addToLog(this.props.room._id, tabInfo.message);

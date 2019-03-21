@@ -35,7 +35,7 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
-    let { room, tabId } = this.props;
+    console.log(this.props.tabId);
     // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
     this.throttledSendEvent = throttle(this.sendEvent, 500, {
       leading: true,
@@ -44,6 +44,10 @@ class GgbGraph extends Component {
     window.addEventListener("resize", this.updateDimensions);
     // socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
+      let { room, tabId } = this.props;
+      console.log("event received by ", this.props.tabId);
+      console.log(data.tab);
+      console.log(room.tabs[tabId]._id);
       // If this event is for this tab add it to the log
       if (data.tab === room.tabs[tabId]._id) {
         this.props.addToLog(room._id, data);
@@ -53,7 +57,6 @@ class GgbGraph extends Component {
           this.props.addNtfToTabs(room.tabs[this.props.tabId]._id);
         }
         if (this.state.receivingData) {
-          console.log("pushing to socketQueue");
           // we're already processing the previous event.
           this.socketQueue.push(data);
           return;
