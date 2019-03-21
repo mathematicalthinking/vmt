@@ -43,28 +43,31 @@ class GgbGraph extends Component {
       trailing: false
     });
     window.addEventListener("resize", this.updateDimensions);
-    socket.removeAllListeners("RECEIVE_EVENT");
+    // socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
-      this.props.addToLog(room._id, data);
+      console.log("currentTab: ", this.props.currentTab);
+      if (this.props.tabId === this.props.currentTab) {
+        this.props.addToLog(room._id, data);
+      } // show a notificaiton if its on a different tab
+      else {
+        console.log("adding ntf to other tab");
+        this.props.addNtfToTabs(data.tab);
+        // this.updateConstructionState();
+      }
       if (this.state.receivingData) {
         // we're already processing the previous event.
         this.socketQueue.push(data);
         return;
       }
       this.setState({ receivingData: true }, () => {
-        let updatedTabs = room.tabs.map(tab => {
-          if (tab._id === data.tab) {
-            tab.currentState = data.currentState;
-          }
-          return tab;
-        });
+        // let updatedTabs = room.tabs.map(tab => {
+        //   if (tab._id === data.tab) {
+        //     tab.currentState = data.currentState;
+        //   }
+        //   return tab;
+        // });
         // update the redux store
 
-        // @todo do this elsewhere
-        // If this happend on the current tab
-        console.log(data.tab);
-        console.log(currentTab);
-        console.log(room.tabs[currentTab]._id);
         if (room.tabs[tabId]._id === data.tab) {
           // @TODO consider abstracting out...resued in the GgbReplayer
           switch (data.eventType) {
@@ -104,15 +107,13 @@ class GgbGraph extends Component {
               break;
           }
         }
-        // show a notificaiton if its on a different tab
-        else {
-          console.log("adding ntf to other tab");
-          this.props.addNtfToTabs(data.tab);
-          this.updateConstructionState();
-        }
       });
     });
   }
+
+  // shouldComponentUpdate() {
+  // return this.props.tabId === this.props.currentTab;
+  // }
 
   /**
    * @method componentDidUpdate
@@ -122,92 +123,83 @@ class GgbGraph extends Component {
    */
 
   async componentDidUpdate(prevProps) {
-    console.log("THIS COMPONENT DID UPDATE ", this.props.tabId);
-    console.log(prevProps, this.props);
-    // console.log("component updated");
-    if (!this.ggbApplet) return;
+    if (this.props.currentTab === this.props.tabId) {
+      // console.log("component updated");
+      if (!this.ggbApplet) return;
 
-    if (
-      prevProps.currentTab !== this.props.currentTab &&
-      this.props.currentTab === this.props.tabId
-    ) {
-      console.log("IM swtichting tgabs");
-      this.updateDimensions();
-    }
-
-    // new evnet
-    if (prevProps.room.log.length < this.props.room.log.length) {
-      this.previousEvent = this.props.room.log[this.props.room.log.length - 1];
-    }
-
-    // Control
-    let wasInControl = prevProps.room.controlledBy === this.props.user._id;
-    let isInControl = this.props.room.controlledBy === this.props.user._id;
-    if (!wasInControl && isInControl) {
-      this.ggbApplet.setMode(0);
-    } else if (wasInControl && !isInControl) {
-      this.ggbApplet.setMode(40);
-    }
-
-    // Referencing
-    if (!prevProps.referencing && this.props.referencing) {
-      this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
-    } else if (prevProps.referencing && !this.props.referencing) {
-      this.ggbApplet.setMode(40);
-    }
-
-    if (
-      !prevProps.showingReference &&
-      this.props.showingReference &&
-      this.props.referToEl.elementType !== "chat_message"
-    ) {
-      // find the coordinates of the point we're referencing
-      let position = await this.getRelativeCoords(this.props.referToEl.element);
-      this.props.setToElAndCoords(null, position);
-    } else if (
-      this.props.showingReference &&
-      prevProps.referToEl !== this.props.referToEl &&
-      this.props.referToEl.elementType !== "chat_message"
-    ) {
-      let position = await this.getRelativeCoords(this.props.referToEl.element);
-      this.props.setToElAndCoords(null, position);
-    }
-    console.log(
-      "ARE THESE EQUAL: ",
-      prevProps.currentTab !== this.props.currentTab
-    );
-    // switching tab
-    if (
-      prevProps.currentTab !== this.props.currentTab &&
-      this.props.currentTab === this.props.tabId
-    ) {
-      console.log("IM swtichting tgabs");
-      this.updateDimensions();
-      let { currentState, startingPoint, ggbFile } = this.props.room.tabs[
-        this.props.currentTab
-      ];
-      console.log("CURRENT STSTWE: ", currentState);
-      if (currentState) {
-        this.ggbApplet.setXML(currentState);
-      } else if (startingPoint) {
-        this.ggbApplet.setXML(startingPoint);
-      } else if (ggbFile) {
-        this.ggbApplet.setBase64(ggbFile, () => {
-          let updatedTabs = [...this.props.room.tabs];
-          let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
-          updatedTab.currentState = this.ggbApplet.getXML();
-          updatedTabs[this.props.currentTab] = updatedTab;
-
-          this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-        });
-      } else {
-        // this.ggbApplet.setXML(INITIAL_GGB);
+      // new evnet
+      if (prevProps.room.log.length < this.props.room.log.length) {
+        this.previousEvent = this.props.room.log[
+          this.props.room.log.length - 1
+        ];
       }
-      this.registerListeners(); // this.ggbApplet.setXML() erases listeners
 
-      // if (perspective) {
-      //   this.ggbApplet.setPerspective(perspective);
-      // }
+      // Control
+      let wasInControl = prevProps.room.controlledBy === this.props.user._id;
+      let isInControl = this.props.room.controlledBy === this.props.user._id;
+      if (!wasInControl && isInControl) {
+        this.ggbApplet.setMode(0);
+      } else if (wasInControl && !isInControl) {
+        this.ggbApplet.setMode(40);
+      }
+
+      // Referencing
+      if (!prevProps.referencing && this.props.referencing) {
+        this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
+      } else if (prevProps.referencing && !this.props.referencing) {
+        this.ggbApplet.setMode(40);
+      }
+
+      if (
+        !prevProps.showingReference &&
+        this.props.showingReference &&
+        this.props.referToEl.elementType !== "chat_message"
+      ) {
+        // find the coordinates of the point we're referencing
+        let position = await this.getRelativeCoords(
+          this.props.referToEl.element
+        );
+        this.props.setToElAndCoords(null, position);
+      } else if (
+        this.props.showingReference &&
+        prevProps.referToEl !== this.props.referToEl &&
+        this.props.referToEl.elementType !== "chat_message"
+      ) {
+        let position = await this.getRelativeCoords(
+          this.props.referToEl.element
+        );
+        this.props.setToElAndCoords(null, position);
+      }
+      // switching tab
+      if (prevProps.currentTab !== this.props.currentTab) {
+        // console.log("IM swtichting tgabs");
+        this.updateDimensions();
+        // let { currentState, startingPoint, ggbFile } = this.props.room.tabs[
+        //   this.props.currentTab
+        // ];
+        // // console.log("CURRENT STSTWE: ", currentState);
+        // if (currentState) {
+        //   this.ggbApplet.setXML(currentState);
+        // } else if (startingPoint) {
+        //   this.ggbApplet.setXML(startingPoint);
+        // } else if (ggbFile) {
+        //   this.ggbApplet.setBase64(ggbFile, () => {
+        //     let updatedTabs = [...this.props.room.tabs];
+        //     let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
+        //     updatedTab.currentState = this.ggbApplet.getXML();
+        //     updatedTabs[this.props.currentTab] = updatedTab;
+
+        //     this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
+        //   });
+        // } else {
+        //   // this.ggbApplet.setXML(INITIAL_GGB);
+        // }
+        // this.registerListeners(); // this.ggbApplet.setXML() erases listeners
+
+        // // if (perspective) {
+        // //   this.ggbApplet.setPerspective(perspective);
+        // // }
+      }
     }
   }
 
@@ -305,7 +297,6 @@ class GgbGraph extends Component {
    */
 
   onScriptLoad = () => {
-    console.log("script loaded!");
     const parameters = {
       id: `ggbApplet${this.props.tabId}A`,
       // scaleContainerClass: "graph",
@@ -388,6 +379,7 @@ class GgbGraph extends Component {
    */
 
   clientListener = event => {
+    console.log("client: ", event);
     // console.log("client Listener");
     if (this.state.receivingData) {
       return this.setState({ receivingData: false });
@@ -732,7 +724,6 @@ class GgbGraph extends Component {
       clearTimeout(this.updatingTab);
       this.updatingTab = null;
     }
-    console.log("sending event: ", newData);
     socket.emit("SEND_EVENT", newData);
     this.updatingTab = setTimeout(this.updateConstructionState, 3000);
     this.timer = null;
@@ -777,7 +768,6 @@ class GgbGraph extends Component {
   };
 
   updateConstructionState = () => {
-    console.log("updating room tab");
     let { room } = this.props;
     // console.log("updating construction state");
     let currentState = this.ggbApplet.getXML();
@@ -819,7 +809,6 @@ class GgbGraph extends Component {
   };
 
   render() {
-    console.log("rendering graph!");
     return (
       <Aux>
         <Modal show={this.state.loading} message="Loading..." />
