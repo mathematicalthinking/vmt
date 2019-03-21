@@ -29,13 +29,13 @@ class GgbGraph extends Component {
   socketQueue = [];
   previousEvent = null; // Prevent repeat events from firing (for example if they keep selecting the same tool)
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
+  TEST_TIME = null;
   /**
    * @method componentDidMount
    * @description add socket listeners, window resize listener
    */
 
   componentDidMount() {
-    console.log(this.props.tabId);
     // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
     this.throttledSendEvent = throttle(this.sendEvent, 500, {
       leading: true,
@@ -45,9 +45,6 @@ class GgbGraph extends Component {
     // socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
       let { room, tabId } = this.props;
-      console.log("event received by ", this.props.tabId);
-      console.log(data.tab);
-      console.log(room.tabs[tabId]._id);
       // If this event is for this tab add it to the log
       if (data.tab === room.tabs[tabId]._id) {
         this.props.addToLog(room._id, data);
@@ -299,6 +296,7 @@ class GgbGraph extends Component {
    */
 
   onScriptLoad = () => {
+    console.log("script loaded ", this.props.tabId);
     const parameters = {
       id: `ggbApplet${this.props.tabId}A`,
       // scaleContainerClass: "graph",
@@ -313,11 +311,23 @@ class GgbGraph extends Component {
       showLogging: false,
       errorDialogsActive: false,
       appletOnLoad: this.initializeGgb,
-      appName: this.props.room.tabs[0].appName || "classic"
+      appName: this.props.room.tabs[this.props.tabId].appName || "classic"
     };
 
     const ggbApp = new window.GGBApplet(parameters, "6.0");
-    ggbApp.inject(`ggb-element${this.props.tabId}A`);
+    console.log("injecting ", this.props.tabId);
+    let loadingTimer;
+    if (this.props.currentTab === this.props.tabId) {
+      ggbApp.inject(`ggb-element${this.props.tabId}A`);
+    } else {
+      loadingTimer = setInterval(() => {
+        console.log("is first loaded ? ", this.props.isFirstTabLoaded);
+        if (this.props.isFirstTabLoaded) {
+          ggbApp.inject(`ggb-element${this.props.tabId}A`);
+          clearInterval(loadingTimer);
+        }
+      }, 500);
+    }
   };
 
   /**
@@ -326,8 +336,8 @@ class GgbGraph extends Component {
    */
 
   initializeGgb = () => {
+    console.log("initializing GGB ", this.props.tabId);
     this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
-    this.setState({ loading: false });
     this.ggbApplet.setMode(40); // Sets the tool to zoom
     let { room, currentTab, tabId } = this.props;
     let { currentState, startingPoint, ggbFile, perspective } = room.tabs[
@@ -335,9 +345,6 @@ class GgbGraph extends Component {
     ];
     // put the current construction on the graph, disable everything until the user takes control
     // if (perspective) this.ggbApplet.setPerspective(perspective);
-    if (room.settings.participantsCanChangePerspective) {
-      initPerspectiveListener(document, perspective, this.perspectiveChanged);
-    }
     if (currentState) {
       this.ggbApplet.setXML(currentState);
     } else if (startingPoint) {
@@ -346,6 +353,10 @@ class GgbGraph extends Component {
       this.ggbApplet.setBase64(ggbFile);
     }
     this.registerListeners();
+    this.setState({ loading: false });
+    this.props.setFirstTabLoaded();
+    console.log("Initialized");
+    console.log(Date.now() - this.TEST_TIME);
   };
 
   /**
@@ -812,13 +823,16 @@ class GgbGraph extends Component {
   render() {
     return (
       <Aux>
-        <Modal show={this.state.loading} message="Loading..." />
+        {this.props.currentTab === this.props.tabId ? (
+          <Modal show={this.state.loading} message="Loading..." />
+        ) : null}
         <Script
           url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.onScriptLoad}
         />
         <div
           className={classes.Graph}
+          style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0 }}
           id={`ggb-element${this.props.tabId}A`}
           ref={this.graph}
         />

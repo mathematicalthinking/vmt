@@ -236,33 +236,11 @@ module.exports = function() {
     });
 
     socket.on("SEND_EVENT", async data => {
-      console.log(data.tab);
       socket.broadcast.to(data.room).emit("RECEIVE_EVENT", data);
       let xmlObj = "";
       if (data.xml && data.eventType !== "CHANGE_PERSPECTIVE") {
         xmlObj = await parseXML(xml); // @TODO We should do this parsing on the backend yeah? we only need this for to build the description which we only need in the replayer anyway
       }
-      // data.description = `${data.user.username} ${data.action} ${
-      //   xmlObj && xmlObj.element ? xmlObj.element.$.type : ""
-      // } ${data.label}`;
-      // if (Array.isArray(data.event)) {
-      //   data.eventArray = data.event;
-      //   delete data.event;
-      // }
-
-      // THIS SHOULD GO ELSEWEHERE
-      // try {
-      //   let updateQuery = { currentState: data.currentState };
-      //   if (data.eventType === "CHANGE_PERSPECTIVE") {
-      //     updateQuery.perspective = data.event;
-      //   }
-      //   await controllers.tabs.put(data.tab, updateQuery);
-      // } catch (err) {
-      //   console.log("err 1: ", err);
-      // }
-      // // Don't save current state on the event
-      // let currentState = data.currentState;
-      // delete data.currentState;
       try {
         await controllers.events.post(data);
         // data.currentState = currentState;

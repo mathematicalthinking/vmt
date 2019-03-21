@@ -24,7 +24,7 @@ class Workspace extends Component {
     referToCoords: null,
     referFromEl: null,
     referFromCoords: null,
-    currentTab: 0,
+    currentTab: 1,
     role: "participant",
     creatingNewTab: false,
     activityOnOtherTabs: [],
@@ -32,6 +32,7 @@ class Workspace extends Component {
     membersExpanded: true,
     instructionsExpanded: true,
     toolsExpanded: true,
+    isFirstTabLoaded: false,
     myColor: null
   };
 
@@ -386,7 +387,6 @@ class Workspace extends Component {
   };
 
   addNtfToTabs = id => {
-    console.log("adding ntf");
     this.setState({
       activityOnOtherTabs: [...this.state.activityOnOtherTabs, id]
     });
@@ -498,6 +498,10 @@ class Workspace extends Component {
             currentTab={this.state.currentTab}
             tabId={i}
             addNtfToTabs={this.addNtfToTabs}
+            isFirstTabLoaded={this.state.isFirstTabLoaded}
+            setFirstTabLoaded={() => {
+              this.setState({ isFirstTabLoaded: true });
+            }}
           />
         );
       }
