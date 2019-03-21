@@ -35,7 +35,8 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
-    let { room, currentTab } = this.props;
+    let { room, currentTab, tabId } = this.props;
+    console.log("MOUNTED: ", currentTab, tabId);
     // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
     this.throttledSendEvent = throttle(this.sendEvent, 500, {
       leading: true,
@@ -64,7 +65,7 @@ class GgbGraph extends Component {
         console.log(data.tab);
         console.log(currentTab);
         console.log(room.tabs[currentTab]._id);
-        if (room.tabs[currentTab]._id === data.tab) {
+        if (room.tabs[tabId]._id === data.tab) {
           // @TODO consider abstracting out...resued in the GgbReplayer
           switch (data.eventType) {
             case "ADD":
@@ -117,12 +118,22 @@ class GgbGraph extends Component {
    * @method componentDidUpdate
    * @description - determines what should happen when props update
    * and initializes socket event listeners
-   * @param  {Object} prevProps - previous props before update
+   * @param  {Object} prevProps - props before update
    */
 
   async componentDidUpdate(prevProps) {
+    console.log("THIS COMPONENT DID UPDATE ", this.props.tabId);
+    console.log(prevProps, this.props);
     // console.log("component updated");
     if (!this.ggbApplet) return;
+
+    if (
+      prevProps.currentTab !== this.props.currentTab &&
+      this.props.currentTab === this.props.tabId
+    ) {
+      console.log("IM swtichting tgabs");
+      this.updateDimensions();
+    }
 
     // new evnet
     if (prevProps.room.log.length < this.props.room.log.length) {
@@ -160,8 +171,18 @@ class GgbGraph extends Component {
     ) {
       let position = await this.getRelativeCoords(this.props.referToEl.element);
       this.props.setToElAndCoords(null, position);
-    } else if (prevProps.currentTab !== this.props.currentTab) {
+    }
+    console.log(
+      "ARE THESE EQUAL: ",
+      prevProps.currentTab !== this.props.currentTab
+    );
+    // switching tab
+    if (
+      prevProps.currentTab !== this.props.currentTab &&
+      this.props.currentTab === this.props.tabId
+    ) {
       console.log("IM swtichting tgabs");
+      this.updateDimensions();
       let { currentState, startingPoint, ggbFile } = this.props.room.tabs[
         this.props.currentTab
       ];
@@ -188,6 +209,24 @@ class GgbGraph extends Component {
       //   this.ggbApplet.setPerspective(perspective);
       // }
     }
+  }
+
+  componentWillUnmount() {
+    if (this.ggbApplet && this.ggbApplet.listeners) {
+      // delete window.ggbApplet;
+      this.ggbApplet.unregisterAddListener(this.addListener);
+      this.ggbApplet.unregisterUpdateListener();
+      this.ggbApplet.unregisterRemoveListener(this.eventListener);
+      this.ggbApplet.unregisterClearListener(this.clearListener);
+      this.ggbApplet.unregisterClientListener(this.clientListener);
+      // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
+    }
+    socket.removeAllListeners("RECEIVE_EVENT");
+    // if (!this.props.tempRoom) {
+    //   let canvas = document.querySelector('[aria-label="Graphics View 1"]');
+    //   this.props.updateRoom(this.props.room._id, {graphImage: {imageData: canvas.toDataURL()}})
+    // }
+    window.removeEventListener("resize", this.updateDimensions);
   }
 
   /**
@@ -240,9 +279,10 @@ class GgbGraph extends Component {
   }
 
   updateDimensions = async () => {
+    console.log("setting dimensions");
     if (this.graph.current && !this.state.loading) {
       let { clientHeight, clientWidth } = this.graph.current.parentElement;
-      window.ggbApplet.setSize(clientWidth, clientHeight);
+      this.ggbApplet.setSize(clientWidth, clientHeight);
       // window.ggbApplet.evalCommand('UpdateConstruction()')
       if (
         this.props.showingReference ||
@@ -265,8 +305,9 @@ class GgbGraph extends Component {
    */
 
   onScriptLoad = () => {
+    console.log("script loaded!");
     const parameters = {
-      id: "ggbApplet",
+      id: `ggbApplet${this.props.tabId}A`,
       // scaleContainerClass: "graph",
       showToolBar: true,
       showMenuBar: true,
@@ -283,33 +324,16 @@ class GgbGraph extends Component {
     };
 
     const ggbApp = new window.GGBApplet(parameters, "6.0");
-    ggbApp.inject("ggb-element");
+    ggbApp.inject(`ggb-element${this.props.tabId}A`);
   };
 
-  componentWillUnmount() {
-    if (this.ggbApplet && this.ggbApplet.listeners) {
-      // delete window.ggbApplet;
-      this.ggbApplet.unregisterAddListener(this.addListener);
-      this.ggbApplet.unregisterUpdateListener();
-      this.ggbApplet.unregisterRemoveListener(this.eventListener);
-      this.ggbApplet.unregisterClearListener(this.clearListener);
-      this.ggbApplet.unregisterClientListener(this.clientListener);
-      // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
-    }
-    socket.removeAllListeners("RECEIVE_EVENT");
-    // if (!this.props.tempRoom) {
-    //   let canvas = document.querySelector('[aria-label="Graphics View 1"]');
-    //   this.props.updateRoom(this.props.room._id, {graphImage: {imageData: canvas.toDataURL()}})
-    // }
-    window.removeEventListener("resize", this.updateDimensions);
-  }
   /**
    * @method initializeGgb
    * @description
    */
 
   initializeGgb = () => {
-    this.ggbApplet = window.ggbApplet;
+    this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
     this.setState({ loading: false });
     this.ggbApplet.setMode(40); // Sets the tool to zoom
     let { room, currentTab } = this.props;
@@ -795,6 +819,7 @@ class GgbGraph extends Component {
   };
 
   render() {
+    console.log("rendering graph!");
     return (
       <Aux>
         <Modal show={this.state.loading} message="Loading..." />
@@ -802,7 +827,11 @@ class GgbGraph extends Component {
           url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.onScriptLoad}
         />
-        <div className={classes.Graph} id="ggb-element" ref={this.graph} />
+        <div
+          className={classes.Graph}
+          id={`ggb-element${this.props.tabId}A`}
+          ref={this.graph}
+        />
         {/* <div className={classes.ReferenceLine} style={{left: this.state.referencedElementPosition.left, top: this.state.referencedElementPosition.top}}></div> */}
         {/* {this.state.showControlWarning ? <div className={classes.ControlWarning} style={{left: this.state.warningPosition.x, top: this.state.warningPosition.y}}>
           You don't have control!

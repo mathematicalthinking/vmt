@@ -470,45 +470,44 @@ class Workspace extends Component {
         toggleExpansion={this.toggleExpansion}
       />
     );
-
-    if (room.tabs[this.state.currentTab].tabType === "desmos") {
-      Graph = (
-        <DesmosGraph
-          room={room}
-          user={user}
-          resetControlTimer={this.resetControlTimer}
-          currentTab={this.state.currentTab}
-          updatedRoom={this.props.updatedRoom}
-          updateRoomTab={this.props.updateRoomTab}
-          addNtfToTabs={this.addNtfToTabs}
-        />
-      );
-    } else {
-      Graph = (
-        <GgbGraph
-          room={room}
-          user={user}
-          myColor={this.state.myColor}
-          role={this.state.role}
-          addToLog={this.props.addToLog}
-          updateRoom={this.props.updateRoom}
-          updateRoomTab={this.props.updateRoomTab}
-          updatedRoom={this.props.updatedRoom}
-          resetControlTimer={this.resetControlTimer}
-          currentTab={this.state.currentTab}
-          addNtfToTabs={this.addNtfToTabs}
-          updateAwarenessDesc={(awarenessDesc, awarenessIcon) => {
-            this.setState({ awarenessDesc, awarenessIcon });
-          }}
-        />
-      );
-    }
+    let graphs = room.tabs.map((tab, i) => {
+      if (tab.tabType === "desmos") {
+        return (
+          <DesmosGraph
+            room={room}
+            user={user}
+            resetControlTimer={this.resetControlTimer}
+            currentTab={this.state.currentTab}
+            updatedRoom={this.props.updatedRoom}
+            updateRoomTab={this.props.updateRoomTab}
+            addNtfToTabs={this.addNtfToTabs}
+          />
+        );
+      } else {
+        return (
+          <GgbGraph
+            room={room}
+            user={user}
+            myColor={this.state.myColor}
+            role={this.state.role}
+            addToLog={this.props.addToLog}
+            updateRoom={this.props.updateRoom}
+            updateRoomTab={this.props.updateRoomTab}
+            updatedRoom={this.props.updatedRoom}
+            resetControlTimer={this.resetControlTimer}
+            currentTab={this.state.currentTab}
+            tabId={i}
+            addNtfToTabs={this.addNtfToTabs}
+          />
+        );
+      }
+    });
 
     return (
       <Aux>
         {room.tabs[0].name ? (
           <WorkspaceLayout
-            graph={Graph}
+            graphs={graphs}
             roomName={room.name}
             user={user}
             chat={chat}
@@ -532,6 +531,7 @@ class Workspace extends Component {
               />
             }
             currentMembers={currentMembers}
+            currentTab={this.state.currentTab}
             chatExpanded={this.state.chatExpanded}
             membersExpanded={this.state.membersExpanded}
             instructionsExpanded={this.state.instructionsExpanded}

@@ -53,27 +53,28 @@ const WorkspaceLayout = React.memo(props => {
         <div className={classes.Left}>
           <div className={[classes.Top, "graph"].join(" ")}>
             <div className={classes.WorkspaceTabs}>{tabs}</div>
-            {!replayer ? (
-              <div className={[classes.Graph, "graph"].join(" ")}>
-                {" "}
-                {/**  "graph" class here is so geogebra applet will scale to container**/}
-                {graph}
-              </div>
-            ) : (
-              graphs.map((graph, i) => {
-                return (
-                  <div
-                    key={i}
-                    className={[classes.Graph].join(" ")}
-                    style={{ display: currentTab === i ? "flex" : "none" }}
-                  >
-                    {" "}
-                    {/**  "graph" class here is so geogebra applet will scale to container**/}
-                    {graph}
-                  </div>
-                );
-              })
-            )}
+            {//   !replayer ? (
+            //   <div className={[classes.Graph, "graph"].join(" ")}>
+            //     {" "}
+            //     {/**  "graph" class here is so geogebra applet will scale to container**/}
+            //     {graph}
+            //   </div>
+            // ) : (
+
+            graphs.map((graph, i) => {
+              return (
+                <div
+                  key={i}
+                  className={[classes.Graph].join(" ")}
+                  style={{ display: currentTab === i ? "flex" : "none" }}
+                >
+                  {/**  "graph" class here is so geogebra applet will scale to container**/}
+                  {graph}
+                </div>
+              );
+            })
+            // )
+            }
           </div>
           <div className={classes.Bottom}>{bottomLeft}</div>
         </div>
