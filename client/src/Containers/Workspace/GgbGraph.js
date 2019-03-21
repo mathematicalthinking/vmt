@@ -46,10 +46,9 @@ class GgbGraph extends Component {
     socket.on("RECEIVE_EVENT", data => {
       this.props.addToLog(room._id, data);
       if (this.state.receivingData) {
+        // we're already processing the previous event.
         this.socketQueue.push(data);
         return;
-        // we're already processing the previous event.
-        // return;
       }
       this.setState({ receivingData: true }, () => {
         let updatedTabs = room.tabs.map(tab => {
@@ -60,7 +59,6 @@ class GgbGraph extends Component {
         });
         // update the redux store
 
-        this.props.updatedRoom(room._id, { tabs: updatedTabs });
         // @todo do this elsewhere
         // If this happend on the current tab
         console.log(data.tab);
@@ -109,6 +107,7 @@ class GgbGraph extends Component {
         else {
           console.log("adding ntf to other tab");
           this.props.addNtfToTabs(data.tab);
+          this.updateConstructionState();
         }
       });
     });

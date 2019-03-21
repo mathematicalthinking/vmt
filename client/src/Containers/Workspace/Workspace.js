@@ -18,8 +18,6 @@ import socket from "../../utils/sockets";
 class Workspace extends Component {
   state = {
     activeMember: "",
-    // inControl: false, // @TODO WE ARE DUPLICATING THIS FROM THE STORE...SINGLE SOURCE OF TRUTH!
-    // someoneElseInControl: false,
     referencing: false,
     showingReference: false,
     referToEl: null,
