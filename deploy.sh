@@ -9,7 +9,7 @@ if [ -d "./$2" ]; then
   rm -rf ./$2
 fi
 mkdir ./$2
-cp -r ./bin ./config ./controllers ./middleware ./models ./routes ./staging
+cp -r ./bin ./config ./controllers ./middleware ./models ./routes ./staging ./constants
 cp app.js package.json socketInit.js sockets.js .env ./$2
 cd $2
 mkdir client
