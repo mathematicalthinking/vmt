@@ -93,8 +93,8 @@ const reducer = (state = initialState, action) => {
           [action.roomId]: {
             ...state.byId[action.roomId],
             log: state.byId[action.roomId].log
-              ? [...state.byId[action.roomId].log, action.message]
-              : [action.message]
+              ? [...state.byId[action.roomId].log, action.entry]
+              : [action.entry]
           }
         }
       };
