@@ -24,7 +24,7 @@ class Workspace extends Component {
     referToCoords: null,
     referFromEl: null,
     referFromCoords: null,
-    currentTab: 1,
+    currentTab: 0,
     role: "participant",
     creatingNewTab: false,
     activityOnOtherTabs: [],
