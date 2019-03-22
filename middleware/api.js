@@ -48,11 +48,10 @@ const canModifyResource = req => {
   };
 
   console.log(
-    `${
-      user.username
-    } is requesting to update  ${resource} (${id}) with request body: ${
-      req.body
-    }`
+    `${user.username}
+    is requesting to update ${resource} (${id}) with request body:
+    ${req.body}
+    `
   );
 
   let modelName = utils.getModelName(resource);

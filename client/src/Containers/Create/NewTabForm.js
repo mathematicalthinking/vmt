@@ -11,7 +11,7 @@ class NewTabForm extends Component {
     ggbFile: "",
     desmosLink: "",
     ggb: true,
-    appName: ""
+    appName: "classic"
   };
 
   changeHandler = event => {
@@ -88,6 +88,7 @@ class NewTabForm extends Component {
             messageType: "NEW_TAB",
             timestamp: new Date().getTime()
           };
+          newTab._id = res.data.result._id;
           this.props.sendEvent(newTab);
         } else {
           tabs = [...this.props.activity.tabs];
@@ -152,7 +153,7 @@ class NewTabForm extends Component {
           tab
           ggb={this.state.ggb}
           setGgbFile={this.setGgbFile}
-          setGgbAppName={appName => this.setState({ ggbAppName: appName })}
+          setGgbApp={appName => this.setState({ appName })}
           desmosLink={this.state.desmosLink}
           setDesmosLink={event =>
             this.setState({ desmosLink: event.target.value })

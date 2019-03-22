@@ -51,29 +51,41 @@ const WorkspaceLayout = React.memo(props => {
       <div className={classes.Background} />
       <div className={classes.Container}>
         <div className={classes.Left}>
-          <div className={[classes.Top, "graph"].join(" ")}>
+          <div
+            className={[classes.Top, "graph"].join(" ")}
+            style={{ position: "relative" }}
+          >
             <div className={classes.WorkspaceTabs}>{tabs}</div>
-            {!replayer ? (
-              <div className={[classes.Graph, "graph"].join(" ")}>
-                {" "}
-                {/**  "graph" class here is so geogebra applet will scale to container**/}
-                {graph}
-              </div>
-            ) : (
-              graphs.map((graph, i) => {
-                return (
-                  <div
-                    key={i}
-                    className={[classes.Graph].join(" ")}
-                    style={{ display: currentTab === i ? "flex" : "none" }}
-                  >
-                    {" "}
-                    {/**  "graph" class here is so geogebra applet will scale to container**/}
-                    {graph}
-                  </div>
-                );
-              })
-            )}
+            {//   !replayer ? (
+            //   <div className={[classes.Graph, "graph"].join(" ")}>
+            //     {" "}
+            //     {/**  "graph" class here is so geogebra applet will scale to container**/}
+            //     {graph}
+            //   </div>
+            // ) : (
+
+            graphs.map((graph, i) => {
+              return (
+                <div
+                  key={i}
+                  className={[classes.Graph].join(" ")}
+                  style={{
+                    zIndex: currentTab === i ? 100 : 0,
+                    display: "flex",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    right: 0
+                  }}
+                >
+                  {/**  "graph" class here is so geogebra applet will scale to container**/}
+                  {graph}
+                </div>
+              );
+            })
+            // )
+            }
           </div>
           <div className={classes.Bottom}>{bottomLeft}</div>
         </div>

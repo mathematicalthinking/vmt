@@ -29,6 +29,7 @@ class GgbGraph extends Component {
   socketQueue = [];
   previousEvent = null; // Prevent repeat events from firing (for example if they keep selecting the same tool)
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
+  TEST_TIME = null;
   /**
    * @method componentDidMount
    * @description add socket listeners, window resize listener
@@ -41,148 +42,182 @@ class GgbGraph extends Component {
       trailing: false
     });
     window.addEventListener("resize", this.updateDimensions);
-    socket.removeAllListeners("RECEIVE_EVENT");
+    // socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
-      this.props.addToLog(this.props.room._id, data);
-      if (this.state.receivingData) {
-        this.socketQueue.push(data);
-        return;
-        // we're already processing the previous event.
-        // return;
-      }
-      this.setState({ receivingData: true }, () => {
-        // let updatedTabs = this.props.room.tabs.map(tab => {
-        //   if (tab._id === data.tab) {
-        //     tab.currentState = data.currentState;
-        //   }
-        //   return tab;
-        // });
-        // update the redux store
+      let { room, tabId } = this.props;
+      // If this event is for this tab add it to the log
+      if (data.tab === room.tabs[tabId]._id) {
+        this.props.addToLog(room._id, data);
+        // If the event is for this tab but this tab is not in view,
+        // add a notification to this tab
+        if (this.props.currentTab !== this.props.tabId) {
+          this.props.addNtfToTabs(room.tabs[this.props.tabId]._id);
+        }
+        if (this.state.receivingData) {
+          // we're already processing the previous event.
+          this.socketQueue.push(data);
+          return;
+        }
 
-        // this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs }); @todo do this elsewhere
-        // If this happend on the current tab
-        if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
-          // @TODO consider abstracting out...resued in the GgbReplayer
-          switch (data.eventType) {
-            case "ADD":
-              if (data.definition && data.definition.length > 0) {
-                this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
-              }
-              this.ggbApplet.evalXML(data.event);
-              this.ggbApplet.evalCommand("UpdateConstruction()");
-              break;
-            case "REMOVE":
-              this.ggbApplet.deleteObject(data.label);
-              break;
-            case "UPDATE":
-              this.ggbApplet.evalXML(data.event);
-              this.ggbApplet.evalCommand("UpdateConstruction()");
-              break;
-            case "CHANGE_PERSPECTIVE":
-              this.ggbApplet.setPerspective(data.event);
-              this.ggbApplet.showAlgebraInput(true);
-              break;
-            case "BATCH_UPDATE":
-              // this.updatingOn = true;
-              this.batchUpdating = true;
-              this.recursiveUpdate(data.event, data.noOfPoints);
-              break;
-            case "BATCH_ADD":
-              this.batchUpdating = true;
-              if (data.definition) {
-                // console.log(data);
-                // console.log(typeof data.event);
-                this.recursiveUpdate(data.event, true);
-              }
-              break;
-            default:
-              this.setState({ receivingData: false });
-              break;
+        // this.updateConstructionState();
+        this.setState({ receivingData: true }, () => {
+          if (room.tabs[tabId]._id === data.tab) {
+            // @TODO consider abstracting out...resued in the GgbReplayer
+            switch (data.eventType) {
+              case "ADD":
+                if (data.definition && data.definition.length > 0) {
+                  this.ggbApplet.evalCommand(
+                    `${data.label}:${data.definition}`
+                  );
+                }
+                this.ggbApplet.evalXML(data.event);
+                this.ggbApplet.evalCommand("UpdateConstruction()");
+                break;
+              case "REMOVE":
+                this.ggbApplet.deleteObject(data.label);
+                break;
+              case "UPDATE":
+                this.ggbApplet.evalXML(data.event);
+                this.ggbApplet.evalCommand("UpdateConstruction()");
+                break;
+              case "CHANGE_PERSPECTIVE":
+                this.ggbApplet.setPerspective(data.event);
+                this.ggbApplet.showAlgebraInput(true);
+                break;
+              case "BATCH_UPDATE":
+                // this.updatingOn = true;
+                this.batchUpdating = true;
+                this.recursiveUpdate(data.event, data.noOfPoints);
+                break;
+              case "BATCH_ADD":
+                this.batchUpdating = true;
+                if (data.definition) {
+                  // console.log(data);
+                  // console.log(typeof data.event);
+                  this.recursiveUpdate(data.event, true);
+                }
+                break;
+              default:
+                this.setState({ receivingData: false });
+                break;
+            }
           }
-        }
-        // show a notificaiton if its on a different tab
-        else {
-          this.props.addNtfToTabs(data.tab);
-        }
-      });
+        });
+      }
     });
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return (
+      this.props.tabId === this.props.currentTab ||
+      nextProps.tabId === nextProps.currentTab
+    );
   }
 
   /**
    * @method componentDidUpdate
    * @description - determines what should happen when props update
    * and initializes socket event listeners
-   * @param  {Object} prevProps - previous props before update
+   * @param  {Object} prevProps - props before update
    */
 
   async componentDidUpdate(prevProps) {
-    // console.log("component updated");
-    if (!this.ggbApplet) return;
+    if (this.props.currentTab === this.props.tabId) {
+      // console.log("component updated");
+      if (!this.ggbApplet) return;
 
-    // new evnet
-    if (prevProps.room.log.length < this.props.room.log.length) {
-      this.previousEvent = this.props.room.log[this.props.room.log.length - 1];
-    }
-
-    // Control
-    let wasInControl = prevProps.room.controlledBy === this.props.user._id;
-    let isInControl = this.props.room.controlledBy === this.props.user._id;
-    if (!wasInControl && isInControl) {
-      this.ggbApplet.setMode(0);
-    } else if (wasInControl && !isInControl) {
-      this.ggbApplet.setMode(40);
-    }
-
-    // Referencing
-    if (!prevProps.referencing && this.props.referencing) {
-      this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
-    } else if (prevProps.referencing && !this.props.referencing) {
-      this.ggbApplet.setMode(40);
-    }
-
-    if (
-      !prevProps.showingReference &&
-      this.props.showingReference &&
-      this.props.referToEl.elementType !== "chat_message"
-    ) {
-      // find the coordinates of the point we're referencing
-      let position = await this.getRelativeCoords(this.props.referToEl.element);
-      this.props.setToElAndCoords(null, position);
-    } else if (
-      this.props.showingReference &&
-      prevProps.referToEl !== this.props.referToEl &&
-      this.props.referToEl.elementType !== "chat_message"
-    ) {
-      let position = await this.getRelativeCoords(this.props.referToEl.element);
-      this.props.setToElAndCoords(null, position);
-    } else if (prevProps.currentTab !== this.props.currentTab) {
-      let { currentState, startingPoint, ggbFile } = this.props.room.tabs[
-        this.props.currentTab
-      ];
-      // initPerspectiveListener(document, perspective, this.changePerspective);
-      if (currentState) {
-        this.ggbApplet.setXML(currentState);
-        // this.registerListeners();
-      } else if (startingPoint) {
-        this.ggbApplet.setXML(startingPoint);
-        // this.registerListeners();
-      } else if (ggbFile) {
-        this.ggbApplet.setBase64(ggbFile, () => {
-          let updatedTabs = [...this.props.room.tabs];
-          let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
-          updatedTab.currentState = this.ggbApplet.getXML();
-          updatedTabs[this.props.currentTab] = updatedTab;
-
-          this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-        });
-      } else {
-        // this.ggbApplet.setXML(INITIAL_GGB);
+      // new evnet
+      if (prevProps.room.log.length < this.props.room.log.length) {
+        this.previousEvent = this.props.room.log[
+          this.props.room.log.length - 1
+        ];
       }
 
-      // if (perspective) {
-      //   this.ggbApplet.setPerspective(perspective);
-      // }
+      // Control
+      let wasInControl = prevProps.room.controlledBy === this.props.user._id;
+      let isInControl = this.props.room.controlledBy === this.props.user._id;
+      if (!wasInControl && isInControl) {
+        this.ggbApplet.setMode(0);
+      } else if (wasInControl && !isInControl) {
+        this.ggbApplet.setMode(40);
+      }
+
+      // Referencing
+      if (!prevProps.referencing && this.props.referencing) {
+        this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
+      } else if (prevProps.referencing && !this.props.referencing) {
+        this.ggbApplet.setMode(40);
+      }
+
+      if (
+        !prevProps.showingReference &&
+        this.props.showingReference &&
+        this.props.referToEl.elementType !== "chat_message"
+      ) {
+        // find the coordinates of the point we're referencing
+        let position = await this.getRelativeCoords(
+          this.props.referToEl.element
+        );
+        this.props.setToElAndCoords(null, position);
+      } else if (
+        this.props.showingReference &&
+        prevProps.referToEl !== this.props.referToEl &&
+        this.props.referToEl.elementType !== "chat_message"
+      ) {
+        let position = await this.getRelativeCoords(
+          this.props.referToEl.element
+        );
+        this.props.setToElAndCoords(null, position);
+      }
+      // switching tab
+      if (prevProps.currentTab !== this.props.currentTab) {
+        // console.log("IM swtichting tgabs");
+        this.updateDimensions();
+        // let { currentState, startingPoint, ggbFile } = this.props.room.tabs[
+        //   this.props.currentTab
+        // ];
+        // // console.log("CURRENT STSTWE: ", currentState);
+        // if (currentState) {
+        //   this.ggbApplet.setXML(currentState);
+        // } else if (startingPoint) {
+        //   this.ggbApplet.setXML(startingPoint);
+        // } else if (ggbFile) {
+        //   this.ggbApplet.setBase64(ggbFile, () => {
+        //     let updatedTabs = [...this.props.room.tabs];
+        //     let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
+        //     updatedTab.currentState = this.ggbApplet.getXML();
+        //     updatedTabs[this.props.currentTab] = updatedTab;
+
+        //     this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
+        //   });
+        // } else {
+        //   // this.ggbApplet.setXML(INITIAL_GGB);
+        // }
+        // this.registerListeners(); // this.ggbApplet.setXML() erases listeners
+
+        // // if (perspective) {
+        // //   this.ggbApplet.setPerspective(perspective);
+        // // }
+      }
     }
+  }
+
+  componentWillUnmount() {
+    if (this.ggbApplet && this.ggbApplet.listeners) {
+      // delete window.ggbApplet;
+      this.ggbApplet.unregisterAddListener(this.addListener);
+      this.ggbApplet.unregisterUpdateListener();
+      this.ggbApplet.unregisterRemoveListener(this.eventListener);
+      this.ggbApplet.unregisterClearListener(this.clearListener);
+      this.ggbApplet.unregisterClientListener(this.clientListener);
+      // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
+    }
+    socket.removeAllListeners("RECEIVE_EVENT");
+    // if (!this.props.tempRoom) {
+    //   let canvas = document.querySelector('[aria-label="Graphics View 1"]');
+    //   this.props.updateRoom(this.props.room._id, {graphImage: {imageData: canvas.toDataURL()}})
+    // }
+    window.removeEventListener("resize", this.updateDimensions);
   }
 
   /**
@@ -235,9 +270,10 @@ class GgbGraph extends Component {
   }
 
   updateDimensions = async () => {
+    console.log("setting dimensions");
     if (this.graph.current && !this.state.loading) {
       let { clientHeight, clientWidth } = this.graph.current.parentElement;
-      window.ggbApplet.setSize(clientWidth, clientHeight);
+      this.ggbApplet.setSize(clientWidth, clientHeight);
       // window.ggbApplet.evalCommand('UpdateConstruction()')
       if (
         this.props.showingReference ||
@@ -260,8 +296,9 @@ class GgbGraph extends Component {
    */
 
   onScriptLoad = () => {
+    console.log("script loaded ", this.props.tabId);
     const parameters = {
-      id: "ggbApplet",
+      id: `ggbApplet${this.props.tabId}A`,
       // scaleContainerClass: "graph",
       showToolBar: true,
       showMenuBar: true,
@@ -274,48 +311,40 @@ class GgbGraph extends Component {
       showLogging: false,
       errorDialogsActive: false,
       appletOnLoad: this.initializeGgb,
-      appName: this.props.room.tabs[0].appName || "classic"
+      appName: this.props.room.tabs[this.props.tabId].appName || "classic"
     };
 
     const ggbApp = new window.GGBApplet(parameters, "6.0");
-    ggbApp.inject("ggb-element");
+    console.log("injecting ", this.props.tabId);
+    let loadingTimer;
+    if (this.props.currentTab === this.props.tabId) {
+      ggbApp.inject(`ggb-element${this.props.tabId}A`);
+    } else {
+      loadingTimer = setInterval(() => {
+        console.log("is first loaded ? ", this.props.isFirstTabLoaded);
+        if (this.props.isFirstTabLoaded) {
+          ggbApp.inject(`ggb-element${this.props.tabId}A`);
+          clearInterval(loadingTimer);
+        }
+      }, 500);
+    }
   };
 
-  componentWillUnmount() {
-    if (this.ggbApplet && this.ggbApplet.listeners) {
-      // delete window.ggbApplet;
-      this.ggbApplet.unregisterAddListener(this.addListener);
-      this.ggbApplet.unregisterUpdateListener();
-      this.ggbApplet.unregisterRemoveListener(this.eventListener);
-      this.ggbApplet.unregisterClearListener(this.clearListener);
-      this.ggbApplet.unregisterClientListener(this.clientListener);
-      // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
-    }
-    socket.removeAllListeners("RECEIVE_EVENT");
-    // if (!this.props.tempRoom) {
-    //   let canvas = document.querySelector('[aria-label="Graphics View 1"]');
-    //   this.props.updateRoom(this.props.room._id, {graphImage: {imageData: canvas.toDataURL()}})
-    // }
-    window.removeEventListener("resize", this.updateDimensions);
-  }
   /**
    * @method initializeGgb
    * @description
    */
 
   initializeGgb = () => {
-    this.ggbApplet = window.ggbApplet;
-    this.setState({ loading: false });
+    console.log("initializing GGB ", this.props.tabId);
+    this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
     this.ggbApplet.setMode(40); // Sets the tool to zoom
-    let { room, currentTab } = this.props;
+    let { room, currentTab, tabId } = this.props;
     let { currentState, startingPoint, ggbFile, perspective } = room.tabs[
-      currentTab
+      tabId
     ];
     // put the current construction on the graph, disable everything until the user takes control
     // if (perspective) this.ggbApplet.setPerspective(perspective);
-    if (room.settings.participantsCanChangePerspective) {
-      initPerspectiveListener(document, perspective, this.perspectiveChanged);
-    }
     if (currentState) {
       this.ggbApplet.setXML(currentState);
     } else if (startingPoint) {
@@ -324,6 +353,10 @@ class GgbGraph extends Component {
       this.ggbApplet.setBase64(ggbFile);
     }
     this.registerListeners();
+    this.setState({ loading: false });
+    this.props.setFirstTabLoaded();
+    console.log("Initialized");
+    console.log(Date.now() - this.TEST_TIME);
   };
 
   /**
@@ -572,12 +605,12 @@ class GgbGraph extends Component {
 
   registerListeners = () => {
     if (this.ggbApplet.listeners.length > 0) {
-      return;
-      // this.ggbApplet.unregisterAddListener(this.addListener);
-      // this.ggbApplet.unregisterUpdateListener(this.updateListener);
-      // this.ggbApplet.unregisterRemoveListener(this.eventListener);
-      // this.ggbApplet.unregisterClearListener(this.clearListener);
-      // this.ggbApplet.unregisterClientListener(this.clientListener);
+      // return;
+      this.ggbApplet.unregisterAddListener(this.addListener);
+      this.ggbApplet.unregisterUpdateListener(this.updateListener);
+      this.ggbApplet.unregisterRemoveListener(this.eventListener);
+      this.ggbApplet.unregisterClearListener(this.clearListener);
+      this.ggbApplet.unregisterClientListener(this.clientListener);
     }
     this.ggbApplet.registerClientListener(this.clientListener);
     this.ggbApplet.registerAddListener(this.addListener);
@@ -790,12 +823,19 @@ class GgbGraph extends Component {
   render() {
     return (
       <Aux>
-        <Modal show={this.state.loading} message="Loading..." />
+        {this.props.currentTab === this.props.tabId ? (
+          <Modal show={this.state.loading} message="Loading..." />
+        ) : null}
         <Script
           url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.onScriptLoad}
         />
-        <div className={classes.Graph} id="ggb-element" ref={this.graph} />
+        <div
+          className={classes.Graph}
+          style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0 }}
+          id={`ggb-element${this.props.tabId}A`}
+          ref={this.graph}
+        />
         {/* <div className={classes.ReferenceLine} style={{left: this.state.referencedElementPosition.left, top: this.state.referencedElementPosition.top}}></div> */}
         {/* {this.state.showControlWarning ? <div className={classes.ControlWarning} style={{left: this.state.warningPosition.x, top: this.state.warningPosition.y}}>
           You don't have control!
