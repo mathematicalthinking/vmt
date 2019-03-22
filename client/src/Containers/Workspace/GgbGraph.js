@@ -203,6 +203,7 @@ class GgbGraph extends Component {
   }
 
   componentWillUnmount() {
+    this.updateConstructionState()
     if (this.ggbApplet && this.ggbApplet.listeners) {
       // delete window.ggbApplet;
       this.ggbApplet.unregisterAddListener(this.addListener);
