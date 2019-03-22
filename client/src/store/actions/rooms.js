@@ -77,7 +77,7 @@ export const addToLog = (roomId, entry) => {
   return (dispatch, getState) => {
     let log = getState().rooms.byId[roomId].log;
     let lastEvent = log[log.length - 1];
-    if (entry.description === lastEvent.description) {
+    if (entry.description && entry.description === lastEvent.description) {
       return;
     }
     return dispatch(addUniqueToLog(roomId, entry));
@@ -225,18 +225,6 @@ export const getRoom = id => {
       });
   };
 };
-
-// export const getRoomsIds = ids => {
-//   return dispatch => {
-//     API.getIds('rooms', ids)
-//     .then(res => {
-//       let rooms = normalize(res.data.results)
-//       dispatch(gotRooms(rooms))
-//       dispatch(loading.success())
-//     })
-//     .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
-//   }
-// }
 
 /**
  * @function populdateRoom - redux middleware for fetching rooms

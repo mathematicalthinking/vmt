@@ -257,11 +257,13 @@ class Workspace extends Component {
     else if (room.controlledBy) {
       let message = {
         text: "Can I take control?",
+        messageType: "TEXT",
         user: { _id: user._id, username: user.username },
         room: room._id,
         color: this.state.myColor,
         timestamp: new Date().getTime()
       };
+      console.log("emitting message: ", message);
       socket.emit("SEND_MESSAGE", message, (err, res) => {
         this.props.addToLog(room._id, message);
       });
