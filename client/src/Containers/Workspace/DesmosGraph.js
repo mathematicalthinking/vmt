@@ -8,7 +8,6 @@ import API from "../../utils/apiRequests";
 // import { updatedRoom } from '../../store/actions';
 class DesmosGraph extends Component {
   state = {
-    loading: window.Desmos ? false : true,
     receivingEvent: false
   };
 
@@ -72,7 +71,6 @@ class DesmosGraph extends Component {
 
     if (currentState) {
       this.calculator.setState(currentState);
-      this.setState({ loading: false });
       this.initializeListeners();
     } else if (desmosLink) {
       // @TODO This will require some major reconfiguration / But what we shoould do is
@@ -82,13 +80,11 @@ class DesmosGraph extends Component {
         .then(res => {
           this.calculator.setState(res.data.result.state);
           // console.
-          this.setState({ loading: false });
           this.initializeListeners();
         })
         .catch(err => console.log(err));
     } else {
       this.initializeListeners();
-      this.setState({ loading: false });
     }
   };
 
@@ -98,8 +94,8 @@ class DesmosGraph extends Component {
 
   initializeListeners() {
     // INITIALIZE EVENT LISTENER
+    let { room, tabId, user } = this.props;
     this.calculator.observeEvent("change", event => {
-      let { room, tabId, user } = this.props;
       if (!this.state.receivingEvent) {
         if (!user.connected || room.controlledBy !== user._id) {
           this.calculator.undo();
@@ -131,16 +127,15 @@ class DesmosGraph extends Component {
     });
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
-      let updatedTabs = this.props.room.tabs.map(tab => {
-        if (tab._id === data.tab) {
-          tab.currentState = data.currentState;
-        }
-        return tab;
-      });
-      this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-      this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-
-      if (this.props.room.tabs[this.props.currentTab]._id === data.tab) {
+      if (data.tab === room.tabs[tabId]._id) {
+        let updatedTabs = this.props.room.tabs.map(tab => {
+          if (tab._id === data.tab) {
+            tab.currentState = data.currentState;
+          }
+          return tab;
+        });
+        this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
+        this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
         this.setState({ receivingEvent: true }, () => {
           this.calculator.setState(data.currentState);
         });
@@ -164,7 +159,6 @@ class DesmosGraph extends Component {
           id="calculator"
           ref={this.calculatorRef}
         />
-        <Modal show={this.state.loading} message="Loading..." />
       </Aux>
     );
   }

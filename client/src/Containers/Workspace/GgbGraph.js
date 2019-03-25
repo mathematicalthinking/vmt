@@ -1,15 +1,13 @@
 import React, { Component } from "react";
 import throttle from "lodash/throttle";
 import classes from "./graph.css";
-import { Aux, Modal } from "../../Components";
+import { Aux } from "../../Components";
 import Script from "react-load-script";
 import socket from "../../utils/sockets";
 import ggbTools from "./Tools/GgbIcons/";
 
-import { initPerspectiveListener } from "./ggbUtils";
 class GgbGraph extends Component {
   state = {
-    loading: true,
     selectedElement: "",
     showControlWarning: false,
     receivingData: false,
@@ -276,7 +274,7 @@ class GgbGraph extends Component {
   }
 
   updateDimensions = async () => {
-    if (this.graph.current && !this.state.loading) {
+    if (this.graph.current) {
       let { clientHeight, clientWidth } = this.graph.current.parentElement;
       this.ggbApplet.setSize(clientWidth, clientHeight);
       this.ggbApplet.recalculateEnvironments();
@@ -354,7 +352,7 @@ class GgbGraph extends Component {
       this.ggbApplet.setBase64(ggbFile);
     }
     this.registerListeners();
-    this.setState({ loading: false });
+    console.log("his.props.setFirstTabLoaded");
     this.props.setFirstTabLoaded();
   };
 
@@ -825,9 +823,6 @@ class GgbGraph extends Component {
   render() {
     return (
       <Aux>
-        {this.props.currentTab === this.props.tabId ? (
-          <Modal show={this.state.loading} message="Loading..." />
-        ) : null}
         <Script
           url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.onScriptLoad}

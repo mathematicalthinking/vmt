@@ -12,6 +12,7 @@ import {
 import WorkspaceLayout from "../../Layout/Workspace/Workspace";
 import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from "./";
 import { Modal, Aux, CurrentMembers } from "../../Components";
+import Loading from "./Loading";
 import NewTabForm from "../Create/NewTabForm";
 import socket from "../../utils/sockets";
 // import Replayer from ''
@@ -481,7 +482,6 @@ class Workspace extends Component {
       />
     );
     let graphs = room.tabs.map((tab, i) => {
-      console.log("tab:type ", tab.tabType);
       if (tab.tabType === "desmos") {
         return (
           <DesmosGraph
@@ -493,6 +493,8 @@ class Workspace extends Component {
             updatedRoom={this.props.updatedRoom}
             updateRoomTab={this.props.updateRoomTab}
             addNtfToTabs={this.addNtfToTabs}
+            isFirstTabLoaded={this.state.isFirstTabLoaded}
+            setFirstTabloaded={() => this.setState({ isFirstTabLoaded: true })}
           />
         );
       } else {
@@ -518,9 +520,9 @@ class Workspace extends Component {
         );
       }
     });
-
     return (
       <Aux>
+        {!this.state.isFirstTabLoaded ? <Loading /> : null}
         {room.tabs[0].name ? (
           <WorkspaceLayout
             graphs={graphs}
@@ -528,6 +530,7 @@ class Workspace extends Component {
             user={user}
             chat={chat}
             tabs={tabs}
+            isFirstTabLoaded={this.state.isFirstTabLoaded}
             bottomRight={
               <Tools
                 inControl={control}

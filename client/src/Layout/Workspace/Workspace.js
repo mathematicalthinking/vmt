@@ -14,7 +14,8 @@ const WorkspaceLayout = React.memo(props => {
     graphs,
     replayer,
     currentTab,
-    roomName
+    roomName,
+    isFirstTabLoaded
   } = props;
   // Set text for taking control button based on current control
   // let controlText = 'Take Control';
@@ -41,13 +42,16 @@ const WorkspaceLayout = React.memo(props => {
     }
   }
   // This is annoying but the flexx basis behavior is not consistant across browsers and it is messing up how
-  // the right panel elements collapse and expand
+  // the right panel elements collapse and expand....there's gotta be a better way to do this
   if (typeof InstallTrigger !== "undefined" && props.chatExpanded) {
     // If this is Firefox
     flexB = "auto";
   }
   return (
-    <div className={classes.PageContainer}>
+    <div
+      className={classes.PageContainer}
+      style={{ visibility: isFirstTabLoaded ? "visible" : "hidden" }}
+    >
       <div className={classes.Background} />
       <div className={classes.Container}>
         <div className={classes.Left}>
