@@ -5,7 +5,7 @@ const Loading = () => {
   return (
     <div className={classes.Loading}>
       <div className={classes.Graph}>
-        <img src={sine} alt="...loading" />
+        <img src={sine} height={20} width={150} alt="...loading" />
       </div>
       <div className={classes.Message}>Preparing your room...</div>
     </div>

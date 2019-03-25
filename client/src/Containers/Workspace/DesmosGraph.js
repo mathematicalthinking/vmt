@@ -36,8 +36,10 @@ class DesmosGraph extends Component {
   }
 
   componentWillUnmount() {
-    this.calculator.unobserveEvent("change");
-    this.calculator.destroy();
+    if (this.caluclator) {
+      this.calculator.unobserveEvent("change");
+      this.calculator.destroy();
+    }
   }
 
   componentDidUpdate(prevProps) {
