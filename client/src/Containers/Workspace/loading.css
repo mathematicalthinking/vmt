@@ -1,6 +1,26 @@
 .Loading {
-  height: 100vh;
-  width: 100vw;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid red;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: #f8f8f8;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.Graph {
+  height: 200px;
+  width: 200px;
+  /* overflow-x: hidden; */
+  border: 2px solid inset #f8f8f8;
+  background-size: 22px 22px;
+  z-index: 5000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: linear-gradient(to right, black 0.5px, transparent 1px),
+    linear-gradient(to bottom, black 0.5px, transparent 1px) !important;
 }
