@@ -16,17 +16,17 @@ class DesmosGraph extends Component {
 
   componentDidMount() {
     if (window.Desmos) {
-      let { room, currentTab } = this.props;
+      let { room, tabId } = this.props;
       let { tabs } = room;
       this.calculator = window.Desmos.GraphingCalculator(
         this.calculatorRef.current
       );
+      this.initializeListeners();
       this.setState({ loading: false });
-      if (tabs[currentTab].currentState) {
-        this.calculator.setState(tabs[currentTab].currentState);
-        this.initializeListeners();
-      } else if (tabs[currentTab].desmosLink) {
-        API.getDesmos(tabs[currentTab].desmosLink)
+      if (tabs[tabId].currentState) {
+        this.calculator.setState(tabs[tabId].currentState);
+      } else if (tabs[tabId].desmosLink) {
+        API.getDesmos(tabs[tabId].desmosLink)
           .then(res => {
             this.calculator.setState(res.data.result.state);
             this.initializeListeners();
@@ -42,22 +42,22 @@ class DesmosGraph extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.currentTab !== this.props.currentTab) {
-      this.setState({ receivingEvent: true }, () => {
-        let { room, currentTab } = this.props;
-        let { tabs } = room;
-        if (tabs[currentTab].currentState) {
-          this.calculator.setState(tabs[currentTab].currentState);
-        } else if (tabs[currentTab].desmosLink) {
-          API.getDesmos(tabs[currentTab].desmosLink)
-            .then(res => {
-              this.calculator.setState(res.data.result.state);
-              this.initializeListeners();
-            })
-            .catch(err => console.log(err));
-        }
-      });
-    }
+    // if (prevProps.currentTab !== this.props.currentTab) {
+    //   this.setState({ receivingEvent: true }, () => {
+    //     let { room, currentTab } = this.props;
+    //     let { tabs } = room;
+    //     if (tabs[currentTab].currentState) {
+    //       this.calculator.setState(tabs[currentTab].currentState);
+    //     } else if (tabs[currentTab].desmosLink) {
+    //       API.getDesmos(tabs[currentTab].desmosLink)
+    //         .then(res => {
+    //           this.calculator.setState(res.data.result.state);
+    //           this.initializeListeners();
+    //         })
+    //         .catch(err => console.log(err));
+    //     }
+    //   });
+    // }
   }
 
   onScriptLoad = () => {
@@ -66,9 +66,10 @@ class DesmosGraph extends Component {
         this.calculatorRef.current
       );
     }
-    let { room, currentTab } = this.props;
+    let { room, tabId } = this.props;
     let { tabs } = room;
-    let { desmosLink, currentState } = tabs[currentTab];
+    let { desmosLink, currentState } = tabs[tabId];
+
     if (currentState) {
       this.calculator.setState(currentState);
       this.setState({ loading: false });
@@ -98,11 +99,9 @@ class DesmosGraph extends Component {
   initializeListeners() {
     // INITIALIZE EVENT LISTENER
     this.calculator.observeEvent("change", event => {
+      let { room, tabId, user } = this.props;
       if (!this.state.receivingEvent) {
-        if (
-          !this.props.user.connected ||
-          this.props.room.controlledBy !== this.props.user._id
-        ) {
+        if (!user.connected || room.controlledBy !== user._id) {
           this.calculator.undo();
           return alert(
             "You are not in control. The update you just made will not be saved. Please refresh the page"
@@ -110,20 +109,20 @@ class DesmosGraph extends Component {
         }
         let currentState = JSON.stringify(this.calculator.getState());
         const newData = {
-          room: this.props.room._id,
-          tab: this.props.room.tabs[this.props.currentTab]._id,
+          room: room._id,
+          tab: room.tabs[tabId]._id,
           event: currentState,
           user: {
-            _id: this.props.user._id,
-            username: this.props.user.username
+            _id: user._id,
+            username: user.username
           },
           timestamp: new Date().getTime()
         };
-        let tabId = this.props.room.tabs[this.props.currentTab]._id;
+        let id = room.tabs[tabId]._id;
         socket.emit("SEND_EVENT", newData, res => {
           this.props.resetControlTimer();
         });
-        this.props.updateRoomTab(this.props.room._id, tabId, {
+        this.props.updateRoomTab(room._id, id, {
           // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
           currentState
         });

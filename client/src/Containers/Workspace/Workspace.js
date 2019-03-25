@@ -481,6 +481,7 @@ class Workspace extends Component {
       />
     );
     let graphs = room.tabs.map((tab, i) => {
+      console.log("tab:type ", tab.tabType);
       if (tab.tabType === "desmos") {
         return (
           <DesmosGraph
@@ -488,6 +489,7 @@ class Workspace extends Component {
             user={user}
             resetControlTimer={this.resetControlTimer}
             currentTab={this.state.currentTab}
+            tabId={i}
             updatedRoom={this.props.updatedRoom}
             updateRoomTab={this.props.updateRoomTab}
             addNtfToTabs={this.addNtfToTabs}
