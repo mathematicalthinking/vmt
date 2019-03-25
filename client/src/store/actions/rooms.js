@@ -75,12 +75,15 @@ export const addRoomMember = (roomId, body) => {
 
 export const addToLog = (roomId, entry) => {
   return (dispatch, getState) => {
-    let log = getState().rooms.byId[roomId].log;
-    let lastEvent = log[log.length - 1];
-    if (entry.description && entry.description === lastEvent.description) {
-      return;
+    if (getState().rooms.byId[roomId]) {
+      let log = getState().rooms.byId[roomId].log;
+      let lastEvent = log[log.length - 1];
+      if (entry.description && entry.description === lastEvent.description) {
+        return;
+      }
+      return dispatch(addUniqueToLog(roomId, entry));
     }
-    return dispatch(addUniqueToLog(roomId, entry));
+    return;
   };
 };
 

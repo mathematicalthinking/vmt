@@ -203,7 +203,13 @@ class GgbGraph extends Component {
   }
 
   componentWillUnmount() {
-    this.updateConstructionState()
+    this.updateConstructionState();
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+    if (this.loadingTimer) {
+      clearInterval(this.loadingTimer);
+    }
     if (this.ggbApplet && this.ggbApplet.listeners) {
       // delete window.ggbApplet;
       this.ggbApplet.unregisterAddListener(this.addListener);
@@ -275,6 +281,7 @@ class GgbGraph extends Component {
     if (this.graph.current && !this.state.loading) {
       let { clientHeight, clientWidth } = this.graph.current.parentElement;
       this.ggbApplet.setSize(clientWidth, clientHeight);
+      this.ggbApplet.recalculateEnvironments();
       // window.ggbApplet.evalCommand('UpdateConstruction()')
       if (
         this.props.showingReference ||
@@ -317,15 +324,14 @@ class GgbGraph extends Component {
 
     const ggbApp = new window.GGBApplet(parameters, "6.0");
     console.log("injecting ", this.props.tabId);
-    let loadingTimer;
     if (this.props.currentTab === this.props.tabId) {
       ggbApp.inject(`ggb-element${this.props.tabId}A`);
     } else {
-      loadingTimer = setInterval(() => {
+      this.loadingTimer = setInterval(() => {
         console.log("is first loaded ? ", this.props.isFirstTabLoaded);
         if (this.props.isFirstTabLoaded) {
           ggbApp.inject(`ggb-element${this.props.tabId}A`);
-          clearInterval(loadingTimer);
+          clearInterval(this.loadingTimer);
         }
       }, 500);
     }
@@ -783,12 +789,15 @@ class GgbGraph extends Component {
   updateConstructionState = () => {
     let { room } = this.props;
     // console.log("updating construction state");
-    let currentState = this.ggbApplet.getXML();
-    let tabId = room.tabs[this.props.currentTab]._id;
-    this.props.updateRoomTab(room._id, tabId, {
-      // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
-      currentState
-    });
+    if (this.ggbApplet) {
+      // when this method is called by componentDidUnmount we sometimes may not have access to ggbApplet depending on HOW the component was unmounted
+      let currentState = this.ggbApplet.getXML();
+      let tabId = room.tabs[this.props.currentTab]._id;
+      this.props.updateRoomTab(room._id, tabId, {
+        // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
+        currentState
+      });
+    }
   };
 
   /**
