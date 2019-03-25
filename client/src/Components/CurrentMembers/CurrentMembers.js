@@ -34,22 +34,24 @@ class CurrentMembers extends Component {
           {members
             ? currentMembers.map(user => {
                 // get the users color
-                let color = members.filter(
+                let member = members.filter(
                   member => member.user._id === user._id
-                )[0].color;
-                return (
-                  <div
-                    className={[
-                      classes.Avatar,
-                      user._id === activeMember
-                        ? classes.Active
-                        : classes.Passive
-                    ].join(" ")}
-                    key={user.username}
-                  >
-                    <Avatar username={user.username} color={color} />
-                  </div>
-                );
+                )[0];
+                if (member) {
+                  return (
+                    <div
+                      className={[
+                        classes.Avatar,
+                        user._id === activeMember
+                          ? classes.Active
+                          : classes.Passive
+                      ].join(" ")}
+                      key={user.username}
+                    >
+                      <Avatar username={user.username} color={member.color} />
+                    </div>
+                  );
+                } else return null;
               })
             : null}
         </div>

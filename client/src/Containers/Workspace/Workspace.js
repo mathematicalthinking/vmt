@@ -38,6 +38,7 @@ class Workspace extends Component {
 
   componentDidMount() {
     let { room, user } = this.props;
+
     this.props.updateUser({ connected: socket.connected });
     if (!this.props.temp) {
       this.props.populateRoom(room._id, { events: true });
@@ -45,7 +46,11 @@ class Workspace extends Component {
         let myColor = room.members.filter(
           member => member.user._id === user._id
         )[0].color;
-        this.setState({ myColor }, () => this.initializeListeners());
+        this.setState({ myColor }, () => {
+          if (this.props.room.log) {
+            this.initializeListeners();
+          }
+        });
       }
     } else {
       this.initializeListeners();
@@ -68,6 +73,10 @@ class Workspace extends Component {
     //     // this.setState({activeMember: ''})
     //   })
     // }
+
+    if (!prevProps.room.log && this.props.room.log) {
+      this.initializeListeners();
+    }
 
     if (
       !this.props.user.connected &&
@@ -263,7 +272,6 @@ class Workspace extends Component {
         color: this.state.myColor,
         timestamp: new Date().getTime()
       };
-      console.log("emitting message: ", message);
       socket.emit("SEND_MESSAGE", message, (err, res) => {
         this.props.addToLog(room._id, message);
       });

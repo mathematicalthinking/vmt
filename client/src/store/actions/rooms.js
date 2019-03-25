@@ -75,15 +75,16 @@ export const addRoomMember = (roomId, body) => {
 
 export const addToLog = (roomId, entry) => {
   return (dispatch, getState) => {
-    if (getState().rooms.byId[roomId]) {
+    if (getState().rooms.byId[roomId].log) {
       let log = getState().rooms.byId[roomId].log;
       let lastEvent = log[log.length - 1];
       if (entry.description && entry.description === lastEvent.description) {
         return;
       }
       return dispatch(addUniqueToLog(roomId, entry));
+    } else {
+      // return dispatch(addUniqueToLog(roomId, entry));
     }
-    return;
   };
 };
 
@@ -258,7 +259,9 @@ export const populateRoom = (id, opts) => {
           .sort((a, b) => a.timestamp - b.timestamp)
           .filter((entry, i, arr) => {
             if (arr[i - 1]) {
-              return entry.description !== arr[i - 1].description;
+              if (entry.description) {
+                return entry.description !== arr[i - 1].description;
+              } else return true;
             }
             return true;
           });

@@ -83,9 +83,6 @@ const reducer = (state = initialState, action) => {
       };
 
     case actionTypes.ADD_TO_LOG:
-      // if (action.message === )
-      // DONT ADD DUPLICATES TO LOG..ALSO ADD THIS LOGIC WHEN BUILDING LOG!!! @TODO
-
       return {
         ...state,
         byId: {

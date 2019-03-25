@@ -29,7 +29,6 @@ class GgbGraph extends Component {
   socketQueue = [];
   previousEvent = null; // Prevent repeat events from firing (for example if they keep selecting the same tool)
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
-  TEST_TIME = null;
   /**
    * @method componentDidMount
    * @description add socket listeners, window resize listener
@@ -277,7 +276,6 @@ class GgbGraph extends Component {
   }
 
   updateDimensions = async () => {
-    console.log("setting dimensions");
     if (this.graph.current && !this.state.loading) {
       let { clientHeight, clientWidth } = this.graph.current.parentElement;
       this.ggbApplet.setSize(clientWidth, clientHeight);
@@ -304,7 +302,6 @@ class GgbGraph extends Component {
    */
 
   onScriptLoad = () => {
-    console.log("script loaded ", this.props.tabId);
     const parameters = {
       id: `ggbApplet${this.props.tabId}A`,
       // scaleContainerClass: "graph",
@@ -323,12 +320,10 @@ class GgbGraph extends Component {
     };
 
     const ggbApp = new window.GGBApplet(parameters, "6.0");
-    console.log("injecting ", this.props.tabId);
     if (this.props.currentTab === this.props.tabId) {
       ggbApp.inject(`ggb-element${this.props.tabId}A`);
     } else {
       this.loadingTimer = setInterval(() => {
-        console.log("is first loaded ? ", this.props.isFirstTabLoaded);
         if (this.props.isFirstTabLoaded) {
           ggbApp.inject(`ggb-element${this.props.tabId}A`);
           clearInterval(this.loadingTimer);
@@ -343,7 +338,6 @@ class GgbGraph extends Component {
    */
 
   initializeGgb = () => {
-    console.log("initializing GGB ", this.props.tabId);
     this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
     this.ggbApplet.setMode(40); // Sets the tool to zoom
     let { room, currentTab, tabId } = this.props;
@@ -362,8 +356,6 @@ class GgbGraph extends Component {
     this.registerListeners();
     this.setState({ loading: false });
     this.props.setFirstTabLoaded();
-    console.log("Initialized");
-    console.log(Date.now() - this.TEST_TIME);
   };
 
   /**
