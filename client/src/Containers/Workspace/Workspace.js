@@ -11,8 +11,7 @@ import {
 } from "../../store/actions";
 import WorkspaceLayout from "../../Layout/Workspace/Workspace";
 import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from "./";
-import { Modal, Aux, CurrentMembers } from "../../Components";
-import Loading from "./Loading";
+import { Modal, Aux, CurrentMembers, Loading } from "../../Components";
 import NewTabForm from "../Create/NewTabForm";
 import socket from "../../utils/sockets";
 // import Replayer from ''

@@ -6,7 +6,6 @@ import Modal from "../../Components/UI/Modal/Modal";
 import Script from "react-load-script";
 class GgbReplayer extends Component {
   state = {
-    loading: true,
     xmlContext: ""
   };
 
@@ -16,13 +15,11 @@ class GgbReplayer extends Component {
     window.addEventListener("resize", this.updateDimensions);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    if (this.state.loading && !nextState.loading) {
-      return true;
-    } else if (this.props.inView) {
-      return this.props.index !== nextProps.index;
-    } else return false;
-  }
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   if (this.props.inView) {
+  //     return this.props.index !== nextProps.index;
+  //   } else return false;
+  // }
 
   componentDidUpdate(prevProps, prevState) {
     let { log, index, changingIndex } = this.props;
@@ -34,7 +31,6 @@ class GgbReplayer extends Component {
         this.applyMultipleEvents(prevProps.index, index);
       } else if (
         prevProps.index !== index &&
-        !this.state.loading &&
         (log[index].event || log[index].eventArray)
       ) {
         // check if the tab has changed
@@ -195,7 +191,6 @@ class GgbReplayer extends Component {
 
   initializeGgb = () => {
     this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
-    this.setState({ loading: false });
     this.ggbApplet.setMode(40); // Sets the tool to zoom
     let { tab } = this.props;
     let { currentState, startingPoint, ggbFile } = tab;
@@ -206,6 +201,7 @@ class GgbReplayer extends Component {
     } else if (ggbFile) {
       this.ggbApplet.setBase64(ggbFile);
     }
+    this.props.setTabLoaded(this.props.tab._id);
   };
 
   updateDimensions = () => {
@@ -231,7 +227,6 @@ class GgbReplayer extends Component {
           id={`ggb-element${this.props.tabId}A`}
           ref={this.graph}
         />
-        <Modal show={this.state.loading} message="Loading..." />
       </Aux>
     );
   }

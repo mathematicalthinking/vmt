@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import WorkspaceLayout from "../../Layout/Workspace/Workspace";
 import Modal from "../../Components/UI/Modal/Modal.js";
 import { connect } from "react-redux";
@@ -9,7 +9,8 @@ import {
   GgbReplayer,
   ChatReplayer
 } from "./index";
-import { CurrentMembers } from "../../Components";
+import { CurrentMembers, Loading } from "../../Components";
+
 import { Tabs, Tools } from "../Workspace";
 // import throttle from "lodash/throttle";
 import moment from "moment";
@@ -25,11 +26,14 @@ class Replayer extends Component {
     absTimeElapsed: 0,
     changingIndex: false,
     currentMembers: [],
+    allTabsLoaded: false,
     startTime: "",
     loading: true,
     currentTab: 0,
     multipleTabTypes: false
   };
+  tabsLoaded = 0;
+  updatedLog = [];
 
   componentDidMount() {
     // @TODO We should never populate the tabs events before getting here
@@ -38,22 +42,13 @@ class Replayer extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    let { log } = this.props;
     // Once we've fetched the room, build a log of all the events by combining all of the events from each tab
     // in chornological order
     if (prevProps.loading && !this.props.loading) {
-      /** @todo refacotring to a for loop */
-      this.log = this.props.room.tabs.reduce((acc, tab) => {
-        // combine events
-        return acc.concat(tab.events);
-      }, []);
-      this.log = this.log
-        .concat(this.props.room.chat)
-        .sort((a, b) => a.timestamp - b.timestamp);
+      this.log = this.props.room.log;
       this.endTime = moment
         .unix(this.log[this.log.length - 1].timestamp / 1000)
         .format("MM/DD/YYYY h:mm:ss A");
-      this.updatedLog = [];
       /** @todo refacotring to a for loop */
       this.relativeDuration = this.log.reduce((acc, cur, idx, src) => {
         // Copy currentEvent
@@ -116,7 +111,8 @@ class Replayer extends Component {
 
     if (
       this.props.changingIndex &&
-      log[this.props.index].tab !== this.props.tabs[this.props.currentTab]._id
+      this.log[this.props.index].tab !==
+        this.props.tabs[this.props.currentTab]._id
     ) {
       let tabStates = { ...this.state.tabState };
       tabStates[this.props.tabs[prevProps.currentTab]._id] = {
@@ -191,6 +187,14 @@ class Replayer extends Component {
         currentTab
       }));
     }, PLAYBACK_FIDELITY);
+  };
+
+  setTabLoaded = id => {
+    this.tabsLoaded++;
+    console.log("tabs loaded: ", this.tabsLoaded, " id ", id);
+    if (this.tabsLoaded === this.props.room.tabs.length) {
+      this.setState({ allTabsLoaded: true });
+    }
   };
 
   // Takes a % of total progress and goes to the nearest timestamp
@@ -281,7 +285,7 @@ class Replayer extends Component {
     let chat = (
       <ChatReplayer
         roomId={this.props.room._id}
-        log={this.updatedLog}
+        log={this.updatedLog || []}
         index={this.state.logIndex}
         changingIndex={this.state.changingIndex}
         reset={this.reset}
@@ -298,6 +302,8 @@ class Replayer extends Component {
             playing={this.state.playing}
             reset={this.reset}
             changeTab={this.changeTab}
+            currentTab={this.state.currentTab}
+            setTabLoaded={this.setTabLoaded}
             tab={tab}
             tabId={i}
             inView={this.state.currentTab === i}
@@ -312,20 +318,22 @@ class Replayer extends Component {
             playing={this.state.playing}
             reset={this.reset}
             changeTab={this.changeTab}
+            currentTab={this.state.currentTab}
+            setTabLoaded={this.setTabLoaded}
             tab={tab}
             inView={this.state.currentTab === i}
           />
         );
       }
     });
-    if (!this.state.loading) {
-      const { room, user } = this.props;
-      const event = this.log[this.state.logIndex] || {};
-      return (
+    const { room, user } = this.props;
+    const event = this.updatedLog[this.state.logIndex] || {};
+    return (
+      <Fragment>
         <WorkspaceLayout
           graphs={graphs}
           user={user}
-          chat={chat}
+          // chat={chat}
           tabs={
             <Tabs
               tabs={room.tabs}
@@ -333,13 +341,13 @@ class Replayer extends Component {
               currentTab={this.state.currentTab}
             />
           }
-          currentMembers={
-            <CurrentMembers
-              members={this.state.currentMembers.map(member => member.user)}
-              expanded={true}
-              activeMember={event.user}
-            />
-          }
+          // currentMembers={
+          //   <CurrentMembers
+          //     members={this.state.currentMembers.map(member => member.user)}
+          //     expanded={true}
+          //     activeMember={event.user}
+          //   />
+          // }
           bottomLeft={replayer}
           activeMember={event.user}
           replayerControls={replayer}
@@ -347,12 +355,16 @@ class Replayer extends Component {
           roomName={`${room.name} Replayer`}
           bottomRight={<Tools goBack={this.goBack} replayer />}
           replayer
+          isFirstTabLoaded={this.state.allTabsLoaded}
           membersExpanded
           chatExpanded
           instructionsExpanded
         />
-      );
-    } else return <Modal show={this.state.loading} message="Loading..." />;
+        {!this.state.allTabsLoaded ? (
+          <Loading message="Preparing the replayer..." />
+        ) : null}
+      </Fragment>
+    );
   }
 }
 
