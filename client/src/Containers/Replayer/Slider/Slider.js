@@ -1,11 +1,11 @@
-import React, { PureComponent } from "react";
+import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import Draggable from "react-draggable";
 import classes from "./slider.css";
 // import Aux from '../../HOC/Auxil';
 import EventDesc from "./EventDesc/EventDesc";
 
-class Slider extends PureComponent {
+class Slider extends Component {
   state = {
     dragging: false
   };
@@ -57,20 +57,19 @@ class Slider extends PureComponent {
     }
   };
 
-  eventMarks = this.props.log.map((entry, i) => {
-    let color = entry.synthetic ? "red" : "green";
-    let percentFromStart = (entry.relTime / this.props.duration) * 100;
-    return (
-      <EventDesc
-        color={color}
-        offset={percentFromStart}
-        entry={entry}
-        dragging={this.state.dragging}
-      />
-    );
-  });
-
   render() {
+    let eventMarks = this.props.log.map((entry, i) => {
+      let color = entry.synthetic ? "red" : entry.color;
+      let percentFromStart = (entry.relTime / this.props.duration) * 100;
+      return (
+        <EventDesc
+          color={color}
+          offset={percentFromStart}
+          entry={entry}
+          dragging={this.state.dragging}
+        />
+      );
+    });
     let x =
       (this.props.progress / 100) * (600 - 6) > 594
         ? 594
@@ -81,7 +80,7 @@ class Slider extends PureComponent {
         className={classes.Slider}
         onClick={this.jumpToPosition}
       >
-        {this.eventMarks}
+        {eventMarks}
         <Draggable
           axis="x"
           bounds="parent"
