@@ -56,7 +56,6 @@ class DesmosReplayer extends Component {
   }
 
   onScriptLoad = () => {
-    console.log("desmos script loaded");
     this.calculator = window.Desmos.GraphingCalculator(
       this.calculatorRef.current
     );

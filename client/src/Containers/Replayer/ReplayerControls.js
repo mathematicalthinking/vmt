@@ -32,7 +32,7 @@ class ReplayerControls extends Component {
     const percent = log[index - 1].relTime / duration;
     goToTime(percent);
   };
-  // THIS SEEMS UNNECESSARY BUT IF WE DO THIS IN RENDER IT REDFINES THE FUNCTION EACH RENDER
+
   first = () => {
     this.props.goToTime(0);
   };

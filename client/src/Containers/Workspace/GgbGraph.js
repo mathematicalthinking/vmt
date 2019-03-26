@@ -84,14 +84,15 @@ class GgbGraph extends Component {
               case "BATCH_UPDATE":
                 // this.updatingOn = true;
                 this.batchUpdating = true;
-                this.recursiveUpdate(data.event, data.noOfPoints);
+                this.recursiveUpdate(data.eventArray, data.noOfPoints);
                 break;
               case "BATCH_ADD":
+                console.log("batch add: ", data);
                 this.batchUpdating = true;
                 if (data.definition) {
                   // console.log(data);
                   // console.log(typeof data.event);
-                  this.recursiveUpdate(data.event, true);
+                  this.recursiveUpdate(data.eventArray, true);
                 }
                 break;
               default:
@@ -724,7 +725,7 @@ class GgbGraph extends Component {
     );
 
     if (eventQueue && eventQueue.length > 0) {
-      newData.event = eventQueue;
+      newData.eventArray = eventQueue;
     }
 
     this.props.addToLog(this.props.room._id, newData);

@@ -100,6 +100,7 @@ class GgbReplayer extends Component {
   }
 
   constructEvent(data) {
+    console.log("data: ", data);
     switch (data.eventType) {
       case "ADD":
         if (data.definition) {
@@ -128,7 +129,8 @@ class GgbReplayer extends Component {
         break;
       case "BATCH_ADD":
         if (data.definition) {
-          this.recursiveUpdate([...data.eventArray], true);
+          // this.ggbApplet.evalCommand(data.event);
+          this.recursiveUpdate(data.eventArray, true);
         }
         break;
       default:
@@ -169,6 +171,7 @@ class GgbReplayer extends Component {
   }
 
   onScriptLoad = () => {
+    console.log("SCRIPT LOADED");
     let parameters = {
       id: `ggbApplet${this.props.tabId}A`, // THE 'A' here is because ggb doesn't like us ending Id name with a number
       // "width": 1300 * .75, // 75% width of container
@@ -190,7 +193,9 @@ class GgbReplayer extends Component {
   };
 
   initializeGgb = () => {
+    console.log("Initiailized");
     this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
+    this.props.setTabLoaded(this.props.tab._id);
     this.ggbApplet.setMode(40); // Sets the tool to zoom
     let { tab } = this.props;
     let { currentState, startingPoint, ggbFile } = tab;
@@ -201,7 +206,6 @@ class GgbReplayer extends Component {
     } else if (ggbFile) {
       this.ggbApplet.setBase64(ggbFile);
     }
-    this.props.setTabLoaded(this.props.tab._id);
   };
 
   updateDimensions = () => {
