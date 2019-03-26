@@ -144,6 +144,7 @@ class Workspace extends Component {
         if (err) {
           console.log(err); // HOW SHOULD WE HANDLE THIS
         }
+        console.log(res);
         this.props.updatedRoom(room._id, {
           currentMembers: res.room.currentMembers
         });

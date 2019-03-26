@@ -37,7 +37,7 @@ module.exports = (on, config) => {
     },
     seedDB: () => {
       return new Promise((resolve, reject) => {
-        exec("md-seed run users courses rooms activities --dropdb", () =>
+        exec("md-seed run users courses rooms activities tabs --dropdb", () =>
           resolve("success")
         );
       });
