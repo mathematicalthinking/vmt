@@ -27,15 +27,12 @@ class Chat extends PureComponent {
             });
           }
         }
-        return i <= index && entry.text;
+        return i <= index && entry;
       });
       this.setState({ messages });
       reset(); // Reset sets 'skipping' to false in Containers/Replater/Replayer.js
       setCurrentMembers(currentMembers);
-    } else if (
-      log[index].text &&
-      prevProps.log[prevProps.index]._id !== log[index]._id
-    ) {
+    } else if (prevProps.log[prevProps.index]._id !== log[index]._id) {
       this.setState(prevState => ({
         messages: [...prevState.messages, log[index]]
       }));
@@ -43,6 +40,7 @@ class Chat extends PureComponent {
   }
 
   render() {
+    console.log(this.state.messages);
     return <ChatLayout log={this.state.messages} replayer expanded={true} />;
   }
 }
