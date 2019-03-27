@@ -17,12 +17,12 @@
   padding-bottom: 5px;
   height: auto;
   max-height: 300px;
-  transition: max-height 0.5s ease-in, opacity 0.3s ease-in-out;
+  transition: 0.7s ease-in;
   transition-delay: 5000;
 }
 .HiddenContainer {
   composes: Container;
-  opacity: 0.2;
+  /* opacity: 0.2; */
   max-height: 0;
 }
 /* .Backdrop {

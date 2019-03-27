@@ -7,20 +7,36 @@ import EventDesc from "./EventDesc/EventDesc";
 
 class Slider extends Component {
   state = {
-    dragging: false
+    dragging: false,
+    sliderWidth: 0
   };
 
-  componentDidMount() {}
+  slider = React.createRef();
+
+  componentDidMount() {
+    this.getSliderWidth();
+    window.addEventListener("resize", this.getSliderWidth);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.getSliderWidth);
+  }
+
+  getSliderWidth = () => {
+    console.log(this.slider.current.getBoundingClientRect().width);
+    this.setState({
+      sliderWidth: this.slider.current.getBoundingClientRect().width
+    });
+  };
 
   jumpToPosition = event => {
     // if (this.state.dragging) {
     //   event.preventDefault();
     // }
     if (!this.state.dragging) {
-      const sliderEl = ReactDOM.findDOMNode(
-        this.refs.slider
-      ).getBoundingClientRect();
-      const percent = (event.clientX - sliderEl.left) / sliderEl.width; // As a fraction
+      let sliderEl = this.slider.current.getBoundingClientRect();
+      let percent = (event.clientX - sliderEl.left) / sliderEl.width; // As a fraction
+      console.log("PERCENT: ", percent);
       this.props.goToTime(percent);
     }
   };
@@ -30,9 +46,7 @@ class Slider extends Component {
   };
 
   onDrag = (e, d) => {
-    const sliderEl = ReactDOM.findDOMNode(
-      this.refs.slider
-    ).getBoundingClientRect();
+    let sliderEl = this.slider.current.getBoundingClientRect();
     let percent = (e.clientX - sliderEl.left) / sliderEl.width;
     if (percent < 0) percent = 0;
     if (percent > 1) percent = 1;
@@ -41,9 +55,7 @@ class Slider extends Component {
   };
 
   stopDrag = (e, d) => {
-    const sliderEl = ReactDOM.findDOMNode(
-      this.refs.slider
-    ).getBoundingClientRect();
+    let sliderEl = this.slider.current.getBoundingClientRect();
     let percent = (e.clientX - sliderEl.left) / sliderEl.width;
     if (percent < 0) percent = 0;
     if (percent > 1) percent = 1;
@@ -71,12 +83,13 @@ class Slider extends Component {
       );
     });
     let x =
-      (this.props.progress / 100) * (600 - 6) > 594
+      (this.props.progress / 100) * (this.state.sliderWidth - 6) >
+      this.state.sliderWidth - 6
         ? 594
-        : (this.props.progress / 100) * (600 - 6);
+        : (this.props.progress / 100) * (this.state.sliderWidth - 6);
     return (
       <div
-        ref="slider"
+        ref={this.slider}
         className={classes.Slider}
         onClick={this.jumpToPosition}
       >
