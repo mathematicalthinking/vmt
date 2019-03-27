@@ -40,7 +40,6 @@ class Chat extends PureComponent {
   }
 
   render() {
-    console.log(this.state.messages);
     return <ChatLayout log={this.state.messages} replayer expanded={true} />;
   }
 }

@@ -340,13 +340,18 @@ class Replayer extends Component {
               currentTab={this.state.currentTab}
             />
           }
-          // currentMembers={
-          //   <CurrentMembers
-          //     members={this.state.currentMembers.map(member => member.user)}
-          //     expanded={true}
-          //     activeMember={event.user}
-          //   />
-          // }
+          currentMembers={
+            this.state.currentMembers.length > 0 ? (
+              <CurrentMembers
+                currentMembers={this.state.currentMembers.map(
+                  member => member.user
+                )}
+                members={room.members}
+                expanded={true}
+                activeMember={event.user}
+              />
+            ) : null
+          }
           bottomLeft={replayer}
           activeMember={event.user}
           replayerControls={replayer}
