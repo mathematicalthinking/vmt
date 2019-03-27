@@ -23,7 +23,6 @@ class Slider extends Component {
   }
 
   getSliderWidth = () => {
-    console.log(this.slider.current.getBoundingClientRect().width);
     this.setState({
       sliderWidth: this.slider.current.getBoundingClientRect().width
     });
@@ -85,7 +84,7 @@ class Slider extends Component {
     let x =
       (this.props.progress / 100) * (this.state.sliderWidth - 6) >
       this.state.sliderWidth - 6
-        ? 594
+        ? this.state.sliderWidth - 6
         : (this.props.progress / 100) * (this.state.sliderWidth - 6);
     return (
       <div

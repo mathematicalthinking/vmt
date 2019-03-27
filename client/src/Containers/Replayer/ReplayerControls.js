@@ -5,7 +5,7 @@ import glb from "../../global.css";
 import Clock from "./Clock/Clock";
 import Slider from "./Slider/Slider";
 import Log from "./Log/Log";
-
+import Settings from "./Settings/Settings";
 class ReplayerControls extends Component {
   state = {
     showControls: true,
@@ -96,7 +96,6 @@ class ReplayerControls extends Component {
     );
 
     const progress = (relTime / duration) * 100; // %
-    console.log(relTime);
     return (
       <div
         className={
@@ -153,47 +152,20 @@ class ReplayerControls extends Component {
             >
               <i className="fas fa-fast-forward" />
             </button>
+            <Clock
+              startTime={startTime}
+              playing={playing}
+              duration={duration}
+              relTime={relTime}
+              changingIndex={changingIndex}
+              // absTimeElapsed={absTimeElapsed}
+            />
           </div>
-          <Clock
-            startTime={startTime}
-            playing={playing}
-            duration={duration}
-            relTime={relTime}
-            changingIndex={changingIndex}
-            // absTimeElapsed={absTimeElapsed}
+          <Settings
+            setSpeed={setSpeed}
+            speed={speed}
+            hideSettings={!this.state.showControls}
           />
-          <div className={classes.Settings}>
-            <div className={classes.SpeedSettingsContainer}>
-              <div className={classes.SpeedSettings}>
-                <button
-                  className={speed === 1 ? classes.Active : classes.Inactive}
-                  onClick={() => setSpeed(1)}
-                >
-                  1x
-                </button>
-                <button
-                  className={speed === 2 ? classes.Active : classes.Inactive}
-                  onClick={() => setSpeed(2)}
-                >
-                  2x
-                </button>
-                <button
-                  className={speed === 5 ? classes.Active : classes.Inactive}
-                  onClick={() => setSpeed(5)}
-                >
-                  5x
-                </button>
-                <button
-                  className={speed === 10 ? classes.Active : classes.Inactive}
-                  onClick={() => setSpeed(10)}
-                >
-                  10x
-                </button>
-                <i className="fas fa-cog" />
-              </div>
-              <i className="far fa-expand" />
-            </div>
-          </div>
         </div>
         <div className={classes.Backdrop} />
       </div>

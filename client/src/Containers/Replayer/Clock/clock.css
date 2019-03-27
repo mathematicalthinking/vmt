@@ -15,25 +15,21 @@
 }
 
 .StartTime {
-  order: 1;
   font-weight: 700;
   font-size: 1.1em;
   flex: 1 1 auto;
-  margin-top: 2px;
 }
 
-.CenterTime {
+/* .CenterTime {
   order: 2;
   flex: 1 1 auto;
   color: darkGrey;
   font-size: 0.9em;
-}
+} */
 
 .EndTime {
-  order: 3;
   font-weight: 700;
   flex: 1 1 auto;
-  margin-top: 2px;
   font-size: 1.1em;
 }
 

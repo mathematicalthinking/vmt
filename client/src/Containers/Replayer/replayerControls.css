@@ -49,6 +49,7 @@
 
 .Controls {
   display: flex;
+  justify-content: space-between;
   margin: 10px 0;
   width: 100%;
   padding-top: 8px;
@@ -60,7 +61,7 @@
 
 .PlayControls {
   display: flex;
-  margin: 0 20px;
+  margin: 0 30px;
 }
 .Button {
   display: flex;
@@ -90,57 +91,6 @@
   color: darkGrey;
   font-size: 1em;
 }
-
-.Settings {
-  margin: 10px 0 5px 20px;
-  position: relative;
-}
-
-.Settings:hover .SpeedSettings {
-  display: flex;
-}
-
-.SpeedSettings {
-  position: absolute;
-  bottom: 20px;
-  border: 1px solid white;
-  border-radius: 4px;
-  width: 100px;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  flex-direction: column;
-  display: none;
-}
-
-.Inactive {
-  margin: 5px;
-  font-size: 0.9em;
-  background: none;
-  border: none;
-  color: #dedede;
-  width: 45px;
-  transition: 0.2s;
-  cursor: pointer;
-}
-
-.Inactive:hover {
-  color: #efefef;
-}
-
-.Inactive:focus {
-  outline: none;
-}
-
-.Active {
-  composes: Inactive;
-  color: white;
-  font-weight: 700;
-}
-
-.Active:focus {
-  outline: none;
-}
-
 .Time {
   font-size: 0.9em;
   color: darkGrey;

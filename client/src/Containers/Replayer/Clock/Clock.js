@@ -33,12 +33,10 @@ class Clock extends Component {
 
     return (
       <div className={classes.ClockContainer}>
-        <div className={classes.StartTime}>
-          {msToTime(this.props.relTime)} /<br />
-        </div>
+        <div className={classes.StartTime}>{msToTime(this.props.relTime)}</div>
+        <div className={classes.Seperator}>/</div>
         {/* <div className={classes.CenterTime}>{absTime}</div> */}
         <div className={classes.EndTime}>
-          {" "}
           {msToTime(this.props.duration - this.props.relTime)}
         </div>
       </div>
