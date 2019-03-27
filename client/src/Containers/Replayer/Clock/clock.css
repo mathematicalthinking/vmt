@@ -1,4 +1,4 @@
-:import('../../../colors.css') {
+:import("../../../colors.css") {
   blue: blue;
   darkGrey: darkGrey;
 }
@@ -9,32 +9,27 @@
   flex-wrap: nowrap;
   align-content: center;
   align-items: center;
-  letter-spacing: .1em;
-  width: 100%;
+  letter-spacing: 0.1em;
   text-align: center;
   padding: 0 5px;
 }
 
 .StartTime {
-  order: 1;
   font-weight: 700;
   font-size: 1.1em;
   flex: 1 1 auto;
-  margin-top: 2px;
 }
 
-.CenterTime {
+/* .CenterTime {
   order: 2;
   flex: 1 1 auto;
   color: darkGrey;
-  font-size: .9em;
-}
+  font-size: 0.9em;
+} */
 
 .EndTime {
-  order: 3;
   font-weight: 700;
   flex: 1 1 auto;
-  margin-top: 2px;
   font-size: 1.1em;
 }
 
@@ -50,5 +45,4 @@
 }
 
 .AbsTime {
-
 }

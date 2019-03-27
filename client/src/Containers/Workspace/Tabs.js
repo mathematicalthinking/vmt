@@ -23,7 +23,7 @@ class Tabs extends Component {
     } = this.props;
     let tabEls = tabs.map((tab, i) => (
       <div
-        key={tab._id}
+        key={tab._id || i}
         onClick={() => changeTab(i)}
         className={[classes.Tab, currentTab === i ? classes.Active : ""].join(
           " "

@@ -1,26 +1,40 @@
-import React, { PureComponent } from "react";
+import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import Draggable from "react-draggable";
 import classes from "./slider.css";
 // import Aux from '../../HOC/Auxil';
 import EventDesc from "./EventDesc/EventDesc";
 
-class Slider extends PureComponent {
+class Slider extends Component {
   state = {
-    dragging: false
+    dragging: false,
+    sliderWidth: 0
   };
 
-  componentDidMount() {}
+  slider = React.createRef();
+
+  componentDidMount() {
+    this.getSliderWidth();
+    window.addEventListener("resize", this.getSliderWidth);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.getSliderWidth);
+  }
+
+  getSliderWidth = () => {
+    this.setState({
+      sliderWidth: this.slider.current.getBoundingClientRect().width
+    });
+  };
 
   jumpToPosition = event => {
     // if (this.state.dragging) {
     //   event.preventDefault();
     // }
     if (!this.state.dragging) {
-      const sliderEl = ReactDOM.findDOMNode(
-        this.refs.slider
-      ).getBoundingClientRect();
-      const percent = (event.clientX - sliderEl.left) / sliderEl.width; // As a fraction
+      let sliderEl = this.slider.current.getBoundingClientRect();
+      let percent = (event.clientX - sliderEl.left) / sliderEl.width; // As a fraction
       this.props.goToTime(percent);
     }
   };
@@ -30,9 +44,7 @@ class Slider extends PureComponent {
   };
 
   onDrag = (e, d) => {
-    const sliderEl = ReactDOM.findDOMNode(
-      this.refs.slider
-    ).getBoundingClientRect();
+    let sliderEl = this.slider.current.getBoundingClientRect();
     let percent = (e.clientX - sliderEl.left) / sliderEl.width;
     if (percent < 0) percent = 0;
     if (percent > 1) percent = 1;
@@ -41,9 +53,7 @@ class Slider extends PureComponent {
   };
 
   stopDrag = (e, d) => {
-    const sliderEl = ReactDOM.findDOMNode(
-      this.refs.slider
-    ).getBoundingClientRect();
+    let sliderEl = this.slider.current.getBoundingClientRect();
     let percent = (e.clientX - sliderEl.left) / sliderEl.width;
     if (percent < 0) percent = 0;
     if (percent > 1) percent = 1;
@@ -57,31 +67,31 @@ class Slider extends PureComponent {
     }
   };
 
-  eventMarks = this.props.log.map((entry, i) => {
-    let color = entry.synthetic ? "red" : "green";
-    let percentFromStart = (entry.relTime / this.props.duration) * 100;
-    return (
-      <EventDesc
-        color={color}
-        offset={percentFromStart}
-        entry={entry}
-        dragging={this.state.dragging}
-      />
-    );
-  });
-
   render() {
+    let eventMarks = this.props.log.map((entry, i) => {
+      let color = entry.synthetic ? "red" : entry.color;
+      let percentFromStart = (entry.relTime / this.props.duration) * 100;
+      return (
+        <EventDesc
+          color={color}
+          offset={percentFromStart}
+          entry={entry}
+          dragging={this.state.dragging}
+        />
+      );
+    });
     let x =
-      (this.props.progress / 100) * (600 - 6) > 594
-        ? 594
-        : (this.props.progress / 100) * (600 - 6);
+      (this.props.progress / 100) * (this.state.sliderWidth - 6) >
+      this.state.sliderWidth - 6
+        ? this.state.sliderWidth - 6
+        : (this.props.progress / 100) * (this.state.sliderWidth - 6);
     return (
       <div
-        ref="slider"
+        ref={this.slider}
         className={classes.Slider}
         onClick={this.jumpToPosition}
       >
-        {this.eventMarks}
+        {eventMarks}
         <Draggable
           axis="x"
           bounds="parent"

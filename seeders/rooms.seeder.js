@@ -12,27 +12,31 @@ var data = [
   // For joining with an entry-code
   {
     _id: "5ba289c57223b9429888b9b5",
-    roomType: "desmos",
+    roomType: "ggb",
     chat: [],
     currentMembers: [],
-    events: [],
+    tabs: ["5c98e1169b093c0c9812b2f2"],
     privacySetting: "private",
     name: "room 1",
     description: "hello",
     members: [
       {
         user: "5ba289ba7223b9429888b9b4", //jl-picard
-        role: "facilitator"
+        role: "facilitator",
+        color: "#f26247"
       }
     ],
     creator: "5ba289ba7223b9429888b9b4",
     entryCode: "rare-shrimp-45",
     desmosLink: "https://www.desmos.com/calculator/krixwfwu1u",
     dueDate: null,
+    image:
+      "http://tinygraphs.com/spaceinvaders/room 1?theme=berrypie&numcolors=4&size=220&fmt=svg",
     createdAt: "2018-09-19T17:39:17.490Z",
     updatedAt: "2018-09-19T17:39:55.337Z",
     __v: 0
   },
+
   // For requesting access
   {
     _id: "5ba289c57223b9429888b9b7",

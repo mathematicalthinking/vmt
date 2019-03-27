@@ -83,9 +83,6 @@ const reducer = (state = initialState, action) => {
       };
 
     case actionTypes.ADD_TO_LOG:
-      // if (action.message === )
-      // DONT ADD DUPLICATES TO LOG..ALSO ADD THIS LOGIC WHEN BUILDING LOG!!! @TODO
-
       return {
         ...state,
         byId: {
@@ -93,8 +90,8 @@ const reducer = (state = initialState, action) => {
           [action.roomId]: {
             ...state.byId[action.roomId],
             log: state.byId[action.roomId].log
-              ? [...state.byId[action.roomId].log, action.message]
-              : [action.message]
+              ? [...state.byId[action.roomId].log, action.entry]
+              : [action.entry]
           }
         }
       };

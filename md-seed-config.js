@@ -6,12 +6,13 @@
  * md-seed g users - this is how you create an individual seed file
  */
 
-var mongoose = require("mongoose");
+const mongoose = require("mongoose");
 
-var Users = require("./seeders/users.seeder");
-var Activities = require("./seeders/activities.seeder");
-var Courses = require("./seeders/courses.seeder");
-var Rooms = require("./seeders/rooms.seeder");
+const Users = require("./seeders/users.seeder");
+const Activities = require("./seeders/activities.seeder");
+const Courses = require("./seeders/courses.seeder");
+const Rooms = require("./seeders/rooms.seeder");
+const Tabs = require("./seeders/tabs.seeder");
 
 require("dotenv").config();
 
@@ -32,6 +33,7 @@ module.exports = {
   seedersList: {
     Users,
     Activities,
+    Tabs,
     Rooms,
     Courses
   }

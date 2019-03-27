@@ -1,0 +1,25 @@
+.Loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: #f8f8f8;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.Graph {
+  height: 100px;
+  width: 100px;
+  /* overflow-x: hidden; */
+  border: 2px solid inset #f8f8f8;
+  background-size: 11px 11px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: linear-gradient(to right, black 0.35px, transparent 1px),
+    linear-gradient(to bottom, black 0.35px, transparent 1px) !important;
+}

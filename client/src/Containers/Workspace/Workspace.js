@@ -11,7 +11,7 @@ import {
 } from "../../store/actions";
 import WorkspaceLayout from "../../Layout/Workspace/Workspace";
 import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from "./";
-import { Modal, Aux, CurrentMembers } from "../../Components";
+import { Modal, Aux, CurrentMembers, Loading } from "../../Components";
 import NewTabForm from "../Create/NewTabForm";
 import socket from "../../utils/sockets";
 // import Replayer from ''
@@ -38,6 +38,7 @@ class Workspace extends Component {
 
   componentDidMount() {
     let { room, user } = this.props;
+
     this.props.updateUser({ connected: socket.connected });
     if (!this.props.temp) {
       this.props.populateRoom(room._id, { events: true });
@@ -45,7 +46,11 @@ class Workspace extends Component {
         let myColor = room.members.filter(
           member => member.user._id === user._id
         )[0].color;
-        this.setState({ myColor }, () => this.initializeListeners());
+        this.setState({ myColor }, () => {
+          if (this.props.room.log) {
+            this.initializeListeners();
+          }
+        });
       }
     } else {
       this.initializeListeners();
@@ -68,6 +73,10 @@ class Workspace extends Component {
     //     // this.setState({activeMember: ''})
     //   })
     // }
+
+    if (!prevProps.room.log && this.props.room.log) {
+      this.initializeListeners();
+    }
 
     if (
       !this.props.user.connected &&
@@ -134,6 +143,7 @@ class Workspace extends Component {
         if (err) {
           console.log(err); // HOW SHOULD WE HANDLE THIS
         }
+        console.log(res);
         this.props.updatedRoom(room._id, {
           currentMembers: res.room.currentMembers
         });
@@ -257,6 +267,7 @@ class Workspace extends Component {
     else if (room.controlledBy) {
       let message = {
         text: "Can I take control?",
+        messageType: "TEXT",
         user: { _id: user._id, username: user.username },
         room: room._id,
         color: this.state.myColor,
@@ -478,9 +489,12 @@ class Workspace extends Component {
             user={user}
             resetControlTimer={this.resetControlTimer}
             currentTab={this.state.currentTab}
+            tabId={i}
             updatedRoom={this.props.updatedRoom}
             updateRoomTab={this.props.updateRoomTab}
             addNtfToTabs={this.addNtfToTabs}
+            isFirstTabLoaded={this.state.isFirstTabLoaded}
+            setFirstTabloaded={() => this.setState({ isFirstTabLoaded: true })}
           />
         );
       } else {
@@ -506,9 +520,11 @@ class Workspace extends Component {
         );
       }
     });
-
     return (
       <Aux>
+        {!this.state.isFirstTabLoaded ? (
+          <Loading message="Preparing your room..." />
+        ) : null}
         {room.tabs[0].name ? (
           <WorkspaceLayout
             graphs={graphs}
@@ -516,6 +532,7 @@ class Workspace extends Component {
             user={user}
             chat={chat}
             tabs={tabs}
+            loaded={this.state.isFirstTabLoaded}
             bottomRight={
               <Tools
                 inControl={control}

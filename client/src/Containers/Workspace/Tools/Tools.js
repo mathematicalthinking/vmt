@@ -3,22 +3,25 @@ import Awareness from "./Awareness";
 import classes from "./tools.css";
 
 const Tools = React.memo(props => {
-  let { inControl, lastEvent, awarenessIcon } = props;
-  let controlText = "Request Control";
-  if (inControl === "ME") {
-    controlText = "Release Control";
-  } else if (inControl === "NONE") {
-    controlText = "Take Control";
+  let { inControl, lastEvent, replayer, save } = props;
+  let controlText;
+  if (!replayer) {
+    controlText = "Request Control";
+    if (inControl === "ME") {
+      controlText = "Release Control";
+    } else if (inControl === "NONE") {
+      controlText = "Take Control";
+    }
   }
   return (
     <div className={classes.Container}>
       <h3 className={classes.Title}>Tools</h3>
       <div className={true ? classes.Expanded : classes.Collapsed}>
-        {!props.replayer ? (
-          <div className={classes.ReferenceWindow}>
-            <div className={classes.ReferenceControls}>
-              <Awareness lastEvent={lastEvent} />
-            </div>
+        <div className={classes.ReferenceWindow}>
+          <div className={classes.ReferenceControls}>
+            <Awareness lastEvent={lastEvent} />
+          </div>
+          {!replayer ? (
             <div
               className={classes.ReferenceControls}
               onClick={
@@ -38,8 +41,8 @@ const Tools = React.memo(props => {
               <div className={classes.ReferenceTool}>Reference</div>
               {/* <div className={classes.RefrenceTool}>Perspective</div> */}
             </div>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
         {props.save ? (
           <div className={classes.Save}>
             <div
@@ -52,7 +55,7 @@ const Tools = React.memo(props => {
           </div>
         ) : null}
         <div className={classes.Controls}>
-          {!props.replayer ? (
+          {!replayer ? (
             <div
               className={classes.SideButton}
               role="button"
@@ -68,7 +71,7 @@ const Tools = React.memo(props => {
             // theme={"Small"}
             data-testid="exit-room"
           >
-            Exit Room
+            Exit {replayer ? "Replayer" : "Room"}
           </div>
         </div>
       </div>

@@ -1,15 +1,13 @@
 import React, { Component } from "react";
 import throttle from "lodash/throttle";
 import classes from "./graph.css";
-import { Aux, Modal } from "../../Components";
+import { Aux } from "../../Components";
 import Script from "react-load-script";
 import socket from "../../utils/sockets";
 import ggbTools from "./Tools/GgbIcons/";
 
-import { initPerspectiveListener } from "./ggbUtils";
 class GgbGraph extends Component {
   state = {
-    loading: true,
     selectedElement: "",
     showControlWarning: false,
     receivingData: false,
@@ -29,7 +27,6 @@ class GgbGraph extends Component {
   socketQueue = [];
   previousEvent = null; // Prevent repeat events from firing (for example if they keep selecting the same tool)
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
-  TEST_TIME = null;
   /**
    * @method componentDidMount
    * @description add socket listeners, window resize listener
@@ -87,14 +84,14 @@ class GgbGraph extends Component {
               case "BATCH_UPDATE":
                 // this.updatingOn = true;
                 this.batchUpdating = true;
-                this.recursiveUpdate(data.event, data.noOfPoints);
+                this.recursiveUpdate(data.eventArray, data.noOfPoints);
                 break;
               case "BATCH_ADD":
                 this.batchUpdating = true;
                 if (data.definition) {
                   // console.log(data);
                   // console.log(typeof data.event);
-                  this.recursiveUpdate(data.event, true);
+                  this.recursiveUpdate(data.eventArray, true);
                 }
                 break;
               default:
@@ -203,6 +200,13 @@ class GgbGraph extends Component {
   }
 
   componentWillUnmount() {
+    this.updateConstructionState();
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+    if (this.loadingTimer) {
+      clearInterval(this.loadingTimer);
+    }
     if (this.ggbApplet && this.ggbApplet.listeners) {
       // delete window.ggbApplet;
       this.ggbApplet.unregisterAddListener(this.addListener);
@@ -270,10 +274,10 @@ class GgbGraph extends Component {
   }
 
   updateDimensions = async () => {
-    console.log("setting dimensions");
-    if (this.graph.current && !this.state.loading) {
+    if (this.graph.current) {
       let { clientHeight, clientWidth } = this.graph.current.parentElement;
       this.ggbApplet.setSize(clientWidth, clientHeight);
+      this.ggbApplet.recalculateEnvironments();
       // window.ggbApplet.evalCommand('UpdateConstruction()')
       if (
         this.props.showingReference ||
@@ -296,7 +300,6 @@ class GgbGraph extends Component {
    */
 
   onScriptLoad = () => {
-    console.log("script loaded ", this.props.tabId);
     const parameters = {
       id: `ggbApplet${this.props.tabId}A`,
       // scaleContainerClass: "graph",
@@ -315,16 +318,13 @@ class GgbGraph extends Component {
     };
 
     const ggbApp = new window.GGBApplet(parameters, "6.0");
-    console.log("injecting ", this.props.tabId);
-    let loadingTimer;
     if (this.props.currentTab === this.props.tabId) {
       ggbApp.inject(`ggb-element${this.props.tabId}A`);
     } else {
-      loadingTimer = setInterval(() => {
-        console.log("is first loaded ? ", this.props.isFirstTabLoaded);
+      this.loadingTimer = setInterval(() => {
         if (this.props.isFirstTabLoaded) {
           ggbApp.inject(`ggb-element${this.props.tabId}A`);
-          clearInterval(loadingTimer);
+          clearInterval(this.loadingTimer);
         }
       }, 500);
     }
@@ -336,7 +336,6 @@ class GgbGraph extends Component {
    */
 
   initializeGgb = () => {
-    console.log("initializing GGB ", this.props.tabId);
     this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
     this.ggbApplet.setMode(40); // Sets the tool to zoom
     let { room, currentTab, tabId } = this.props;
@@ -353,10 +352,7 @@ class GgbGraph extends Component {
       this.ggbApplet.setBase64(ggbFile);
     }
     this.registerListeners();
-    this.setState({ loading: false });
     this.props.setFirstTabLoaded();
-    console.log("Initialized");
-    console.log(Date.now() - this.TEST_TIME);
   };
 
   /**
@@ -727,7 +723,7 @@ class GgbGraph extends Component {
     );
 
     if (eventQueue && eventQueue.length > 0) {
-      newData.event = eventQueue;
+      newData.eventArray = eventQueue;
     }
 
     this.props.addToLog(this.props.room._id, newData);
@@ -782,12 +778,15 @@ class GgbGraph extends Component {
   updateConstructionState = () => {
     let { room } = this.props;
     // console.log("updating construction state");
-    let currentState = this.ggbApplet.getXML();
-    let tabId = room.tabs[this.props.currentTab]._id;
-    this.props.updateRoomTab(room._id, tabId, {
-      // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
-      currentState
-    });
+    if (this.ggbApplet) {
+      // when this method is called by componentDidUnmount we sometimes may not have access to ggbApplet depending on HOW the component was unmounted
+      let currentState = this.ggbApplet.getXML();
+      let tabId = room.tabs[this.props.currentTab]._id;
+      this.props.updateRoomTab(room._id, tabId, {
+        // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
+        currentState
+      });
+    }
   };
 
   /**
@@ -823,9 +822,6 @@ class GgbGraph extends Component {
   render() {
     return (
       <Aux>
-        {this.props.currentTab === this.props.tabId ? (
-          <Modal show={this.state.loading} message="Loading..." />
-        ) : null}
         <Script
           url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.onScriptLoad}

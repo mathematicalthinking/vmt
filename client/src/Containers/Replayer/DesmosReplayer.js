@@ -6,7 +6,6 @@ import Modal from "../../Components/UI/Modal/Modal";
 import API from "../../utils/apiRequests";
 class DesmosReplayer extends Component {
   state = {
-    loading: window.Desmos ? false : true,
     tabStates: {}
   };
 
@@ -14,16 +13,16 @@ class DesmosReplayer extends Component {
 
   componentDidMount() {
     if (window.Desmos) {
+      console.log("already loaded");
       let { inView, tab } = this.props;
       this.calculator = window.Desmos.GraphingCalculator(
         this.calculatorRef.current
       );
-      this.setState({ loading: false });
       if (inView && tab.desmosLink) {
         API.getDesmos(tab.desmosLink)
           .then(res => {
             this.calculator.setState(res.data.result.state);
-            this.initializeListeners();
+            this.props.setTabLoaded(tab._id);
           })
           .catch(err => console.log(err));
       }
@@ -62,27 +61,18 @@ class DesmosReplayer extends Component {
     );
     let { tab } = this.props;
     if (tab.startingPoint) {
-      this.setState(
-        {
-          tabStates: {
-            ...this.state.tabStates,
-            [tab._id]: { construction: tab.startingPoint }
-          }
-        },
-        () => this.setState({ loading: false })
-      );
+      this.calculator.setState(tab.startingPoint);
     } else if (tab.desmosLink) {
       API.getDesmos(tab.desmosLink)
         .then(res => {
           this.calculator.setState(res.data.result.state);
           // console.
-          this.setState({ loading: false });
-          this.initializeListeners();
+          this.props.setTabLoaded(tab._id);
         })
         .catch(err => console.log(err));
     } else {
       this.calculator.setBlank();
-      this.setState({ loading: false });
+      this.props.setTabLoaded(tab._id);
     }
   };
 
@@ -100,7 +90,6 @@ class DesmosReplayer extends Component {
           id="calculator"
           ref={this.calculatorRef}
         />
-        <Modal show={this.state.loading} message="Loading..." />
       </Aux>
     );
   }

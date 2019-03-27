@@ -7,6 +7,7 @@ const Event = new mongoose.Schema({
   eventArray: [{ type: String }], // array of ffb events
   definition: { type: String }, // specific to ggb
   label: { type: String }, // specific to ggb
+  action: { type: String }, // additional information about the action
   description: { type: String }, // e,g, "Michael added point A"
   currentState: { type: String }, // DESMOS ONLY...@todo some validation for this
   room: { type: ObjectId, ref: "Room", required: true },

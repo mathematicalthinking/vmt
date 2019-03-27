@@ -20,7 +20,7 @@
 
 .ToolTipText::after {
   content: "";
-  position: absolute;
+  position: fixed;
   top: 100%;
   left: 50%;
   margin-left: -5px;

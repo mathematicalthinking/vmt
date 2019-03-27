@@ -207,5 +207,5 @@
 }
 
 .Event:hover {
-  margin-top: -3px;
+  background: blue !important;
 }

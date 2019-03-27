@@ -18,6 +18,7 @@ import {
   getRoom,
   removeRoomMember,
   clearLoadingInfo
+  // populateRoom
 } from "../store/actions";
 import {
   Aux,
@@ -54,6 +55,7 @@ class Room extends Component {
 
   componentDidMount() {
     const { room, user, clearNotification } = this.props;
+    // this.props.populateRoom(room._id, { events: t rue });
     let notifications = user.notifications;
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
     // If its in the store check access
@@ -437,6 +439,7 @@ class Room extends Component {
                             ? this.goToWorkspace
                             : () => null
                         }
+                        data-testid={"Enter"}
                       >
                         Enter
                       </Button>
@@ -452,6 +455,7 @@ class Room extends Component {
                             ? this.goToReplayer
                             : () => null
                         }
+                        data-testid={"Replayer"}
                       >
                         Replayer
                       </Button>
@@ -611,5 +615,6 @@ export default connect(
     getRoom,
     removeRoomMember,
     clearLoadingInfo
+    // populateRoom
   }
 )(Room);

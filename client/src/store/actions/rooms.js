@@ -73,14 +73,28 @@ export const addRoomMember = (roomId, body) => {
  * @param  {Object} message - as Message or Event
  */
 
-export const addToLog = (roomId, message) => {
-  return {
-    type: actionTypes.ADD_TO_LOG,
-    roomId,
-    message
+export const addToLog = (roomId, entry) => {
+  return (dispatch, getState) => {
+    if (getState().rooms.byId[roomId].log) {
+      let log = getState().rooms.byId[roomId].log;
+      let lastEvent = log[log.length - 1];
+      if (entry.description && entry.description === lastEvent.description) {
+        return;
+      }
+      return dispatch(addUniqueToLog(roomId, entry));
+    } else {
+      // return dispatch(addUniqueToLog(roomId, entry));
+    }
   };
 };
 
+export const addUniqueToLog = (roomId, entry) => {
+  return {
+    type: actionTypes.ADD_TO_LOG,
+    roomId,
+    entry
+  };
+};
 export const setRoomStartingPoint = roomId => {
   return (dispatch, getState) => {
     let tabs = getState().rooms.byId[roomId].tabs.map(tab => {
@@ -216,18 +230,6 @@ export const getRoom = id => {
   };
 };
 
-// export const getRoomsIds = ids => {
-//   return dispatch => {
-//     API.getIds('rooms', ids)
-//     .then(res => {
-//       let rooms = normalize(res.data.results)
-//       dispatch(gotRooms(rooms))
-//       dispatch(loading.success())
-//     })
-//     .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
-//   }
-// }
-
 /**
  * @function populdateRoom - redux middleware for fetching rooms
  * @param  {String} id room id
@@ -254,7 +256,15 @@ export const populateRoom = (id, opts) => {
         });
         allEvents = allEvents
           .concat(room.chat)
-          .sort((a, b) => a.timestamp - b.timestamp);
+          .sort((a, b) => a.timestamp - b.timestamp)
+          .filter((entry, i, arr) => {
+            if (arr[i - 1]) {
+              if (entry.description) {
+                return entry.description !== arr[i - 1].description;
+              } else return true;
+            }
+            return true;
+          });
         room.log = allEvents;
         // consider deleting tab.events and room.chat here since we have all of the information in the log now
         dispatch(updatedRoom(id, room));

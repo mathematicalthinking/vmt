@@ -295,6 +295,7 @@ class Chat extends Component {
             className={
               this.props.expanded ? classes.ChatScroll : classes.Collapsed
             }
+            data-testid="chat"
             ref={this.chatEnd}
             onScroll={this.updateReferencePositions}
             id="scrollable"

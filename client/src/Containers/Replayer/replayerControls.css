@@ -1,4 +1,4 @@
-:import('../../colors.css') {
+:import("../../colors.css") {
   blue: blue;
   darkGrey: darkGrey;
   lightGrey: lightGrey;
@@ -8,11 +8,31 @@
   display: flex;
   flex-flow: column;
   align-items: center;
+  align-self: center;
   height: inherit;
   width: 100%;
-  background: white;
+  /* overflow-x: hidden; */
+  background: linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+  /* box-shadow: 0 -10px 20px 5px rgba(0, 0, 0, 0.4); */
   padding-bottom: 5px;
+  height: auto;
+  max-height: 300px;
+  transition: 0.7s ease-in;
+  transition-delay: 5000;
 }
+.HiddenContainer {
+  composes: Container;
+  /* opacity: 0.2; */
+  max-height: 0;
+}
+/* .Backdrop {
+  position: absolute;
+  top: -10px;
+  left: 5px;
+  right: 5px;
+  bottom: 0;
+  z-index: 50;
+} */
 
 .Log {
   width: 100%;
@@ -21,79 +41,58 @@
 }
 
 .ProgressBar {
+  margin-top: 26px;
   display: flex;
   justify-content: center;
   width: 100%;
 }
 
 .Controls {
-  margin: 10px 0 10px 0;
-  justify-content: center;
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  width: 100%;
   padding-top: 8px;
+  font-size: 1.1em;
+  z-index: 200;
+  color: #aaa;
+  align-items: center;
 }
 
+.PlayControls {
+  display: flex;
+  margin: 0 30px;
+}
 .Button {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2px;
-  height: 20px;
-  width: 70px;
-  font-size: .8em;
-  color: lightGrey;
+  height: 30px;
+  margin: 2px;
+  border: 1px solid #bbb;
+  border-radius: 3px;
+  width: 30px;
+  font-size: 0.8em;
+  color: #aaa;
   background: none;
-  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.Button:hover {
+  color: blue;
 }
 
 .Button:focus {
   outline: none;
 }
-
-.CenterButton {
-  color: rgb(60, 60, 60);
-  /* color: blue; */
-  font-size: 1.5em;
-  margin-top: -5px;
-}
-
 .SideButton {
   color: darkGrey;
   font-size: 1em;
 }
-
-.Settings {
-  margin: 10px 0 5px 0;
-}
-
-.Inactive {
-  margin: 0 5px;
-  font-size: .9em;
-  color: darkGrey;
-  background: none;
-  border: none;
-  width: 45px;
-}
-
-.Inactive:focus {
-  outline: none;
-}
-
-.Active {
-  color: black;
-  margin: 0 5px;
-  font-size: 1.1em;
-  background: none;
-  border: none;
-  font-weight: 700;
-  width: 45px;
-}
-
-.Active:focus {
-  outline: none;
-}
-
 .Time {
-  font-size: .9em;
+  font-size: 0.9em;
   color: darkGrey;
   padding: 10px;
 }

@@ -1,4 +1,4 @@
-:import('../../../colors.css') {
+:import("../../../colors.css") {
   blue: blue;
   darkGrey: darkGrey;
   lightestShadow: lightestShadow;
@@ -9,13 +9,14 @@
   align-items: center;
   position: relative;
   /* flex-grow: 1; */
-  height: 10px;
-  width: 600px;
-  background-color: #f9f9f9;
+  height: 4px;
+  width: 95%;
+  background-color: #666;
   border: 1px solid #bbb;
   border-style: inset;
   border-radius: 15px;
   align-self: center;
+  overflow-y: visible;
 }
 
 .ProgressMarker {

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import WorkspaceLayout from "../../Layout/Workspace/Workspace";
 import Modal from "../../Components/UI/Modal/Modal.js";
 import { connect } from "react-redux";
@@ -9,7 +9,8 @@ import {
   GgbReplayer,
   ChatReplayer
 } from "./index";
-import { CurrentMembers } from "../../Components";
+import { CurrentMembers, Loading } from "../../Components";
+
 import { Tabs, Tools } from "../Workspace";
 // import throttle from "lodash/throttle";
 import moment from "moment";
@@ -25,11 +26,15 @@ class Replayer extends Component {
     absTimeElapsed: 0,
     changingIndex: false,
     currentMembers: [],
+    allTabsLoaded: false,
     startTime: "",
     loading: true,
     currentTab: 0,
-    multipleTabTypes: false
+    multipleTabTypes: false,
+    isFullscreen: false
   };
+  tabsLoaded = 0;
+  updatedLog = [];
 
   componentDidMount() {
     // @TODO We should never populate the tabs events before getting here
@@ -38,22 +43,13 @@ class Replayer extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    let { log } = this.props;
     // Once we've fetched the room, build a log of all the events by combining all of the events from each tab
     // in chornological order
     if (prevProps.loading && !this.props.loading) {
-      /** @todo refacotring to a for loop */
-      this.log = this.props.room.tabs.reduce((acc, tab) => {
-        // combine events
-        return acc.concat(tab.events);
-      }, []);
-      this.log = this.log
-        .concat(this.props.room.chat)
-        .sort((a, b) => a.timestamp - b.timestamp);
+      this.log = this.props.room.log;
       this.endTime = moment
         .unix(this.log[this.log.length - 1].timestamp / 1000)
         .format("MM/DD/YYYY h:mm:ss A");
-      this.updatedLog = [];
       /** @todo refacotring to a for loop */
       this.relativeDuration = this.log.reduce((acc, cur, idx, src) => {
         // Copy currentEvent
@@ -79,7 +75,7 @@ class Replayer extends Component {
           } else {
             this.updatedLog.push({
               synthetic: true,
-              message: `No activity...skipping ahead to ${moment
+              message: `No activity ... skipping ahead to ${moment
                 .unix(src[idx + 1].timestamp / 1000)
                 .format("MM/DD/YYYY h:mm:ss A")}`,
               relTime: (acc += BREAK_DURATION),
@@ -116,7 +112,8 @@ class Replayer extends Component {
 
     if (
       this.props.changingIndex &&
-      log[this.props.index].tab !== this.props.tabs[this.props.currentTab]._id
+      this.log[this.props.index].tab !==
+        this.props.tabs[this.props.currentTab]._id
     ) {
       let tabStates = { ...this.state.tabState };
       tabStates[this.props.tabs[prevProps.currentTab]._id] = {
@@ -193,6 +190,13 @@ class Replayer extends Component {
     }, PLAYBACK_FIDELITY);
   };
 
+  setTabLoaded = id => {
+    this.tabsLoaded++;
+    if (this.tabsLoaded === this.props.room.tabs.length) {
+      this.setState({ allTabsLoaded: true });
+    }
+  };
+
   // Takes a % of total progress and goes to the nearest timestamp
   goToTime = percent => {
     let logIndex;
@@ -256,6 +260,11 @@ class Replayer extends Component {
     this.props.history.goBack();
   };
 
+  toggleFullscreen = () =>
+    this.setState(prevState => ({
+      isFullscreen: !prevState.isFullscreen
+    }));
+
   render() {
     let replayer = (
       <ReplayerControls
@@ -275,6 +284,8 @@ class Replayer extends Component {
         reset={this.reset}
         currentMembers={this.state.currentMembers}
         setCurrentMembers={this.setCurrentMembers}
+        toggleFullscreen={this.toggleFullscreen}
+        isFullscreen={this.state.isFullscreen}
       />
     );
 
@@ -298,8 +309,11 @@ class Replayer extends Component {
             playing={this.state.playing}
             reset={this.reset}
             changeTab={this.changeTab}
+            currentTab={this.state.currentTab}
+            setTabLoaded={this.setTabLoaded}
             tab={tab}
             tabId={i}
+            isFullscreen={this.state.isFullscreen}
             inView={this.state.currentTab === i}
           />
         );
@@ -312,20 +326,22 @@ class Replayer extends Component {
             playing={this.state.playing}
             reset={this.reset}
             changeTab={this.changeTab}
+            currentTab={this.state.currentTab}
+            setTabLoaded={this.setTabLoaded}
             tab={tab}
             inView={this.state.currentTab === i}
           />
         );
       }
     });
-    if (!this.state.loading) {
-      const { room, user } = this.props;
-      const event = this.log[this.state.logIndex] || {};
-      return (
+    const { room, user } = this.props;
+    const event = this.updatedLog[this.state.logIndex] || {};
+    return (
+      <Fragment>
         <WorkspaceLayout
           graphs={graphs}
           user={user}
-          chat={chat}
+          chat={this.updatedLog.length > 0 ? chat : null}
           tabs={
             <Tabs
               tabs={room.tabs}
@@ -334,25 +350,42 @@ class Replayer extends Component {
             />
           }
           currentMembers={
-            <CurrentMembers
-              members={this.state.currentMembers.map(member => member.user)}
-              expanded={true}
-              activeMember={event.user}
-            />
+            this.state.currentMembers.length > 0 ? (
+              <CurrentMembers
+                currentMembers={this.state.currentMembers.map(
+                  member => member.user
+                )}
+                members={room.members}
+                expanded={true}
+                activeMember={event.user}
+              />
+            ) : null
           }
           bottomLeft={replayer}
           activeMember={event.user}
           replayerControls={replayer}
           currentTab={this.state.currentTab}
           roomName={`${room.name} Replayer`}
-          bottomRight={<Tools goBack={this.goBack} replayer />}
+          bottomRight={
+            <Tools
+              goBack={this.goBack}
+              toggleControl={this.toggleControl}
+              lastEvent={this.updatedLog[this.state.logIndex]}
+              replayer
+            />
+          }
           replayer
+          loaded={this.state.allTabsLoaded}
+          isFullscreen={this.state.isFullscreen}
           membersExpanded
           chatExpanded
           instructionsExpanded
         />
-      );
-    } else return <Modal show={this.state.loading} message="Loading..." />;
+        {!this.state.allTabsLoaded && this.updatedLog.length > 0 ? (
+          <Loading message="Preparing the replayer..." />
+        ) : null}
+      </Fragment>
+    );
   }
 }
 

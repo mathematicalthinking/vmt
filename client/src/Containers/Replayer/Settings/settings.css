@@ -1,0 +1,87 @@
+:import("../../../colors.css") {
+  blue: blue;
+}
+.Container {
+  display: flex;
+  align-items: center;
+  margin: 0 30px;
+  font-size: 1.3em;
+}
+.Fullscreen {
+  cursor: pointer;
+}
+
+.Fullscreen:hover {
+  color: blue;
+}
+.SettingsContainer {
+  composes: Fullscreen;
+  margin-right: 20px;
+  padding: 10px;
+  position: relative;
+}
+
+.Settings {
+  position: absolute;
+  align-items: center;
+  bottom: 40px;
+  right: -45px;
+  width: 100px;
+  border: 1px solid white;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.7);
+  flex-direction: column;
+  display: flex;
+}
+
+.Setting {
+  color: #ddd;
+  font-size: 0.7em;
+  padding: 5px;
+}
+
+.Setting:hover {
+  color: white;
+}
+.SpeedSetting {
+  composes: Setting;
+}
+
+.Inactive {
+  margin: 5px;
+  /* font-size: 0.9em; */
+  background: none;
+  border: none;
+  color: #dedede;
+  width: 45px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+.Inactive:hover {
+  color: #efefef;
+}
+
+.Inactive:focus {
+  outline: none;
+}
+
+.Active {
+  composes: Inactive;
+  color: white;
+  font-weight: 700;
+}
+
+.Active:focus {
+  outline: none;
+}
+
+.Back {
+  color: #dedede;
+  align-self: center;
+  transition: 0.2s;
+}
+
+.Back:hover {
+  color: white;
+}
