@@ -357,7 +357,14 @@ class Replayer extends Component {
           replayerControls={replayer}
           currentTab={this.state.currentTab}
           roomName={`${room.name} Replayer`}
-          bottomRight={<Tools goBack={this.goBack} replayer />}
+          bottomRight={
+            <Tools
+              goBack={this.goBack}
+              toggleControl={this.toggleControl}
+              lastEvent={this.updatedLog[this.state.logIndex]}
+              replayer
+            />
+          }
           replayer
           loaded={this.state.allTabsLoaded}
           membersExpanded
