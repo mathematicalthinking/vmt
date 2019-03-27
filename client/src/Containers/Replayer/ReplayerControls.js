@@ -61,8 +61,9 @@ class ReplayerControls extends Component {
     if (this.hideControlsTimer) {
       clearTimeout(this.hideControlsTimer);
     }
-    this.setState({ showControls: true });
-
+    if (!this.state.showControls) {
+      this.setState({ showControls: true });
+    }
     if (!this.state.mouseOverControls) {
       this.hideControlsTimer = setTimeout(
         () => this.setState({ showControls: false }),
@@ -81,6 +82,7 @@ class ReplayerControls extends Component {
       endTime,
       log,
       index,
+      changingIndex,
       goToIndex,
       goToTime,
       absTimeElapsed,
@@ -94,6 +96,7 @@ class ReplayerControls extends Component {
     );
 
     const progress = (relTime / duration) * 100; // %
+    console.log(relTime);
     return (
       <div
         className={
@@ -156,7 +159,8 @@ class ReplayerControls extends Component {
             playing={playing}
             duration={duration}
             relTime={relTime}
-            absTimeElapsed={absTimeElapsed}
+            changingIndex={changingIndex}
+            // absTimeElapsed={absTimeElapsed}
           />
           <div className={classes.Settings}>
             <div className={classes.SpeedSettingsContainer}>
