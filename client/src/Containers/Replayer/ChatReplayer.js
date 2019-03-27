@@ -31,7 +31,15 @@ class Chat extends PureComponent {
       });
       this.setState({ messages });
       reset(); // Reset sets 'skipping' to false in Containers/Replater/Replayer.js
-      setCurrentMembers(currentMembers);
+      const map = new Map();
+      const uniqueMembers = [];
+      for (let member of currentMembers) {
+        if (!map.has(member.user._id)) {
+          map.set(member.user._id, true);
+          uniqueMembers.push(member);
+        }
+      }
+      setCurrentMembers(uniqueMembers);
     } else if (prevProps.log[prevProps.index]._id !== log[index]._id) {
       this.setState(prevState => ({
         messages: [...prevState.messages, log[index]]
