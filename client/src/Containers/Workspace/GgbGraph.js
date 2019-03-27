@@ -352,7 +352,6 @@ class GgbGraph extends Component {
       this.ggbApplet.setBase64(ggbFile);
     }
     this.registerListeners();
-    console.log("his.props.setFirstTabLoaded");
     this.props.setFirstTabLoaded();
   };
 

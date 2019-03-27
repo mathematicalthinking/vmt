@@ -20,13 +20,17 @@ const msToTime = duration => {
 class Clock extends Component {
   shouldComponentUpdate(nextProps) {
     // Only update the clock when whole seconds have passed
-    if (nextProps.relTime % 1000 === 0 || nextProps.changingIndex) {
+    if (
+      (nextProps.relTime % 1000 === 0 &&
+        nextProps.relTime !== this.props.relTime) ||
+      nextProps.changingIndex ||
+      (!this.props.startTime && nextProps.startTime)
+    ) {
       return true;
     }
     return false;
   }
   render() {
-    console.log("CLOCK UPDATEd");
     // const absTime = moment(this.props.startTime)
     //   .add(this.props.absTimeElapsed, "ms")
     //   .format("MM/DD/YYYY h:mm:ss A");

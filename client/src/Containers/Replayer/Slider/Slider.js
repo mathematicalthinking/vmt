@@ -35,7 +35,6 @@ class Slider extends Component {
     if (!this.state.dragging) {
       let sliderEl = this.slider.current.getBoundingClientRect();
       let percent = (event.clientX - sliderEl.left) / sliderEl.width; // As a fraction
-      console.log("PERCENT: ", percent);
       this.props.goToTime(percent);
     }
   };

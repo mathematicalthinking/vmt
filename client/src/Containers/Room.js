@@ -55,7 +55,6 @@ class Room extends Component {
 
   componentDidMount() {
     const { room, user, clearNotification } = this.props;
-    console.log(room)
     // this.props.populateRoom(room._id, { events: t rue });
     let notifications = user.notifications;
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA

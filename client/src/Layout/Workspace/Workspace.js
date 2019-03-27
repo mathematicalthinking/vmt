@@ -8,10 +8,7 @@ class WorkspaceLayout extends Component {
     if (this.props.isFullscreen && !prevProps.isFullscreen) {
       this.Graph.current.requestFullscreen();
     } else if (!this.props.isFullscreen && prevProps.isFullscreen) {
-      document.exitFullscreen().then(res => {
-        console.log(res);
-        console.log("fullscreen has been turned off");
-      });
+      document.exitFullscreen();
     }
   }
 
