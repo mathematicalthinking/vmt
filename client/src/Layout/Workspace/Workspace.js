@@ -15,7 +15,7 @@ const WorkspaceLayout = React.memo(props => {
     replayer,
     currentTab,
     roomName,
-    isFirstTabLoaded
+    loaded
   } = props;
   // Set text for taking control button based on current control
   // let controlText = 'Take Control';
@@ -50,29 +50,24 @@ const WorkspaceLayout = React.memo(props => {
   return (
     <div
       className={classes.PageContainer}
-      style={{ visibility: isFirstTabLoaded ? "visible" : "hidden" }}
+      style={{ visibility: loaded ? "visible" : "hidden" }}
     >
       <div className={classes.Background} />
       <div className={classes.Container}>
         <div className={classes.Left}>
           <div
-            className={[classes.Top, "graph"].join(" ")}
-            style={{ position: "relative" }}
+            className={[
+              replayer ? classes.ReplayerTop : classes.Top,
+              "graph"
+            ].join(" ")}
+            style={{ position: "relative", overflow: "hidden" }}
           >
             <div className={classes.WorkspaceTabs}>{tabs}</div>
-            {//   !replayer ? (
-            //   <div className={[classes.Graph, "graph"].join(" ")}>
-            //     {" "}
-            //     {/**  "graph" class here is so geogebra applet will scale to container**/}
-            //     {graph}
-            //   </div>
-            // ) : (
-
-            graphs.map((graph, i) => {
+            {graphs.map((graph, i) => {
               return (
                 <div
                   key={i}
-                  className={[classes.Graph].join(" ")}
+                  className={replayer ? classes.ReplayerGraph : classes.Graph}
                   style={{
                     zIndex: currentTab === i ? 100 : 0,
                     display: "flex",
@@ -87,11 +82,14 @@ const WorkspaceLayout = React.memo(props => {
                   {graph}
                 </div>
               );
-            })
-            // )
-            }
+            })}
+            {replayer ? (
+              <div className={classes.ReplayerBottom}>{bottomLeft}</div>
+            ) : null}
           </div>
-          <div className={classes.Bottom}>{bottomLeft}</div>
+          {!replayer ? (
+            <div className={classes.Bottom}>{bottomLeft}</div>
+          ) : null}
         </div>
         <div className={classes.Right}>
           <h2 className={classes.Title}>{roomName}</h2>

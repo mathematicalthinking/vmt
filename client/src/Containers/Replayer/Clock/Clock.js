@@ -10,20 +10,26 @@ const msToTime = duration => {
   hours = hours < 10 ? "0" + hours : hours;
   minutes = minutes < 10 ? "0" + minutes : minutes;
   seconds = seconds < 10 ? "0" + seconds : seconds;
+  if (hours === "00") {
+    return minutes + ":" + seconds;
+  }
   return hours + ":" + minutes + ":" + seconds;
   // + ms + "0";
 };
 
 class Clock extends PureComponent {
   render() {
-    const absTime = moment(this.props.startTime)
-      .add(this.props.absTimeElapsed, "ms")
-      .format("MM/DD/YYYY h:mm:ss A");
+    // const absTime = moment(this.props.startTime)
+    //   .add(this.props.absTimeElapsed, "ms")
+    //   .format("MM/DD/YYYY h:mm:ss A");
     return (
       <div className={classes.ClockContainer}>
-        <div className={classes.StartTime}>{msToTime(this.props.relTime)}</div>
-        <div className={classes.CenterTime}>{absTime}</div>
+        <div className={classes.StartTime}>
+          {msToTime(this.props.relTime)} /<br></br>
+        </div>
+        {/* <div className={classes.CenterTime}>{absTime}</div> */}
         <div className={classes.EndTime}>
+          {" "}
           {msToTime(this.props.duration - this.props.relTime)}
         </div>
       </div>

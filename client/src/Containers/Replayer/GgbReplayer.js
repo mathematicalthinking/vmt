@@ -100,7 +100,6 @@ class GgbReplayer extends Component {
   }
 
   constructEvent(data) {
-    console.log("data: ", data);
     switch (data.eventType) {
       case "ADD":
         if (data.definition) {
@@ -171,7 +170,6 @@ class GgbReplayer extends Component {
   }
 
   onScriptLoad = () => {
-    console.log("SCRIPT LOADED");
     let parameters = {
       id: `ggbApplet${this.props.tabId}A`, // THE 'A' here is because ggb doesn't like us ending Id name with a number
       // "width": 1300 * .75, // 75% width of container
@@ -193,7 +191,6 @@ class GgbReplayer extends Component {
   };
 
   initializeGgb = () => {
-    console.log("Initiailized");
     this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
     this.props.setTabLoaded(this.props.tab._id);
     this.ggbApplet.setMode(40); // Sets the tool to zoom

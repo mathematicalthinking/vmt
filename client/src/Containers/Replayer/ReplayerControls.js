@@ -7,6 +7,15 @@ import Slider from "./Slider/Slider";
 import Log from "./Log/Log";
 
 class ReplayerControls extends Component {
+  state = {
+    showControls: true,
+    mouseOverControls: false
+  };
+
+  componentDidMount() {
+    window.addEventListener("mousemove", this.showControls);
+  }
+
   componentDidUpdate(prevProps) {
     if (prevProps.playing !== this.props.playing) {
       if (this.props.playing) {
@@ -14,6 +23,13 @@ class ReplayerControls extends Component {
     }
     if (prevProps.startTime !== this.props.startTime) {
       this.originalStartTime = this.props.startTime;
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("mousemove", this.showControls);
+    if (this.hideControlsTimer) {
+      clearTimeout(this.hideControlsTimer);
     }
   }
 
@@ -41,6 +57,20 @@ class ReplayerControls extends Component {
     this.props.goToTime(1);
   };
 
+  showControls = () => {
+    if (this.hideControlsTimer) {
+      clearTimeout(this.hideControlsTimer);
+    }
+    this.setState({ showControls: true });
+
+    if (!this.state.mouseOverControls) {
+      this.hideControlsTimer = setTimeout(
+        () => this.setState({ showControls: false }),
+        1500
+      );
+    }
+  };
+
   render() {
     const {
       playing,
@@ -62,21 +92,20 @@ class ReplayerControls extends Component {
     ) : (
       <i className="fas fa-play" />
     );
+
     const progress = (relTime / duration) * 100; // %
     return (
-      <div className={classes.Container}>
-        <div className={classes.Log}>
-          <Log
-            log={log}
-            currentIndex={index}
-            progress={progress}
-            goToIndex={index => goToIndex(index)}
-          />
-        </div>
+      <div
+        className={
+          this.state.showControls ? classes.Container : classes.HiddenContainer
+        }
+        onMouseEnter={() => this.setState({ mouseOverControls: true })}
+        onMouseLeave={() => this.setState({ mouseOverControls: false })}
+      >
         <div className={classes.ProgressBar}>
-          <div className={classes.Time} style={{ marginRight: 3 }}>
-            {this.originalStartTime || startTime}
-          </div>
+          {/* <div className={classes.Time} style={{ marginRight: 3 }}>
+              {this.originalStartTime || startTime}
+            </div> */}
           <Slider
             progress={progress}
             log={log}
@@ -84,79 +113,82 @@ class ReplayerControls extends Component {
             playing={playing}
             goToTime={percent => goToTime(percent)}
           />
-          <div className={classes.Time} style={{ marginLeft: 3 }}>
-            {endTime}
+          {/* <div className={classes.Time} style={{ marginLeft: 3 }}>
+              {endTime}
+            </div> */}
+        </div>
+        <div className={classes.Controls}>
+          <div className={classes.PlayControls}>
+            <button
+              disabled={index === 0}
+              onClick={this.back}
+              className={classes.Button}
+            >
+              <i className="fas fa-fast-backward" />
+            </button>
+            <button
+              disabled={index === 0}
+              onClick={this.back}
+              className={classes.Button}
+            >
+              <i className="fas fa-backward" />
+            </button>
+            <button className={classes.Button} onClick={pausePlay}>
+              {pausePlayButton}
+            </button>
+            <button
+              disabled={index === log.length - 1}
+              onClick={this.next}
+              className={classes.Button}
+            >
+              <i className="fas fa-forward" />
+            </button>
+            <button
+              disabled={index === log.length - 1}
+              onClick={this.next}
+              className={classes.Button}
+            >
+              <i className="fas fa-fast-forward" />
+            </button>
+          </div>
+          <Clock
+            startTime={startTime}
+            playing={playing}
+            duration={duration}
+            relTime={relTime}
+            absTimeElapsed={absTimeElapsed}
+          />
+          <div className={classes.Settings}>
+            <div className={classes.SpeedSettings}>
+              <button
+                className={speed === 1 ? classes.Active : classes.Inactive}
+                onClick={() => setSpeed(1)}
+              >
+                1x
+              </button>
+              <button
+                className={speed === 2 ? classes.Active : classes.Inactive}
+                onClick={() => setSpeed(2)}
+              >
+                2x
+              </button>
+              <button
+                className={speed === 5 ? classes.Active : classes.Inactive}
+                onClick={() => setSpeed(5)}
+              >
+                5x
+              </button>
+              <button
+                className={speed === 10 ? classes.Active : classes.Inactive}
+                onClick={() => setSpeed(10)}
+              >
+                10x
+              </button>
+            </div>
+            <i className="fas fa-cog" />
           </div>
         </div>
-        <Clock
-          startTime={startTime}
-          playing={playing}
-          duration={duration}
-          relTime={relTime}
-          absTimeElapsed={absTimeElapsed}
-        />
-        <div className={[classes.Controls, glb.FlexRow].join(" ")}>
-          <button
-            disabled={index === 0}
-            onClick={this.first}
-            className={classes.Button}
-          >
-            <i className="fas fa-fast-backward" />
-          </button>
-          <button
-            disabled={index === 0}
-            onClick={this.back}
-            className={[classes.Button, classes.SideButton].join(" ")}
-          >
-            <i className="fas fa-backward" />
-          </button>
-          <button
-            className={[classes.Button, classes.CenterButton].join(" ")}
-            onClick={pausePlay}
-          >
-            {pausePlayButton}
-          </button>
-          <button
-            disabled={index === log.length - 1}
-            onClick={this.next}
-            className={[classes.Button, classes.SideButton].join(" ")}
-          >
-            <i className="fas fa-forward" />
-          </button>
-          <button
-            disabled={index === log.length - 1}
-            onClick={this.last}
-            className={classes.Button}
-          >
-            <i className="fas fa-fast-forward" />
-          </button>
-        </div>
-        <div className={classes.Settings}>
-          <button
-            className={speed === 1 ? classes.Active : classes.Inactive}
-            onClick={() => setSpeed(1)}
-          >
-            1x
-          </button>
-          <button
-            className={speed === 2 ? classes.Active : classes.Inactive}
-            onClick={() => setSpeed(2)}
-          >
-            2x
-          </button>
-          <button
-            className={speed === 5 ? classes.Active : classes.Inactive}
-            onClick={() => setSpeed(5)}
-          >
-            5x
-          </button>
-          <button
-            className={speed === 10 ? classes.Active : classes.Inactive}
-            onClick={() => setSpeed(10)}
-          >
-            10x
-          </button>
-        </div>
+        <div className={classes.Backdrop} />
       </div>
     );
   }

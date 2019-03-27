@@ -81,6 +81,11 @@
   /* border: 1px solid purple; */
 }
 
+.ReplayerTop {
+  composes: Top;
+  height: 100%;
+}
+
 .WorkspaceTabs {
   height: 38px;
   padding: 0 0 0 0;
@@ -112,6 +117,11 @@
   align-items: stretch;
 }
 
+.ReplayerLeft {
+  composes: Left;
+  border: 1px solid red;
+}
+
 .Right {
   order: 2;
   align-self: auto;
@@ -140,6 +150,12 @@
   /* border-radius: 3px; */
 }
 
+.ReplayerGraph {
+  composes: Graph;
+  position: relative;
+  z-indes: 400;
+}
+
 .Bottom {
   background-color: background;
   order: 2;
@@ -150,6 +166,16 @@
   box-shadow: lightShadow;
   box-shadow: 0px -1px 15px 2px rgb(148, 162, 200),
     2px 4px 4px 1px rgb(126, 135, 158);
+}
+
+.ReplayerBottom {
+  box-shadow: none;
+  composes: Bottom;
+  z-index: 500;
+  bottom: 0;
+  width: 100%;
+  background: transparent;
+  position: absolute;
 }
 
 .Chat {

@@ -1,8 +1,8 @@
 .Event {
   box-sizing: content-box;
   position: absolute;
-  width: 4px;
-  height: 100%;
+  width: 5px;
+  height: 400%;
   cursor: pointer;
 }
 

@@ -530,7 +530,7 @@ class Workspace extends Component {
             user={user}
             chat={chat}
             tabs={tabs}
-            isFirstTabLoaded={this.state.isFirstTabLoaded}
+            loaded={this.state.isFirstTabLoaded}
             bottomRight={
               <Tools
                 inControl={control}

@@ -87,7 +87,6 @@ class GgbGraph extends Component {
                 this.recursiveUpdate(data.eventArray, data.noOfPoints);
                 break;
               case "BATCH_ADD":
-                console.log("batch add: ", data);
                 this.batchUpdating = true;
                 if (data.definition) {
                   // console.log(data);

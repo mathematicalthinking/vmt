@@ -191,7 +191,6 @@ class Replayer extends Component {
 
   setTabLoaded = id => {
     this.tabsLoaded++;
-    console.log("tabs loaded: ", this.tabsLoaded, " id ", id);
     if (this.tabsLoaded === this.props.room.tabs.length) {
       this.setState({ allTabsLoaded: true });
     }
@@ -355,7 +354,7 @@ class Replayer extends Component {
           roomName={`${room.name} Replayer`}
           bottomRight={<Tools goBack={this.goBack} replayer />}
           replayer
-          isFirstTabLoaded={this.state.allTabsLoaded}
+          loaded={this.state.allTabsLoaded}
           membersExpanded
           chatExpanded
           instructionsExpanded
