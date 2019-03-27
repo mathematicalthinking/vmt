@@ -284,7 +284,7 @@ class Replayer extends Component {
     let chat = (
       <ChatReplayer
         roomId={this.props.room._id}
-        log={this.updatedLog || []}
+        log={this.updatedLog}
         index={this.state.logIndex}
         changingIndex={this.state.changingIndex}
         reset={this.reset}
@@ -332,7 +332,7 @@ class Replayer extends Component {
         <WorkspaceLayout
           graphs={graphs}
           user={user}
-          // chat={chat}
+          chat={this.updatedLog.length > 0 ? chat : null}
           tabs={
             <Tabs
               tabs={room.tabs}
@@ -359,7 +359,7 @@ class Replayer extends Component {
           chatExpanded
           instructionsExpanded
         />
-        {!this.state.allTabsLoaded ? (
+        {!this.state.allTabsLoaded && this.updatedLog.length > 0 ? (
           <Loading message="Preparing the replayer..." />
         ) : null}
       </Fragment>
