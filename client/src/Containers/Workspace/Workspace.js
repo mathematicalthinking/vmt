@@ -522,7 +522,9 @@ class Workspace extends Component {
     });
     return (
       <Aux>
-        {!this.state.isFirstTabLoaded ? <Loading /> : null}
+        {!this.state.isFirstTabLoaded ? (
+          <Loading message="Preparing your room..." />
+        ) : null}
         {room.tabs[0].name ? (
           <WorkspaceLayout
             graphs={graphs}

@@ -9,11 +9,10 @@ class Awareness extends Component {
   };
   render() {
     let { lastEvent } = this.props;
-    console.log("LAST EVENT: ", lastEvent);
     if (lastEvent) {
       return (
         <div className={classes.AwarenessDesc}>
-          {lastEvent.description || lastEvent.text}
+          {lastEvent.description || lastEvent.text || lastEvent.message}
           <a
             className={classes.AwarenessIcon}
             onMouseOver={() => this.setState({ showToolTip: true })}

@@ -8,11 +8,12 @@
 
 .EventDetails {
   position: absolute;
-  top: -60px;
-  background-color: white;
+  top: -50px;
+  background-color: rgba(0, 0, 0, 0.7);
   width: 155px;
   padding: 10px;
   max-height: 50px;
+  color: white;
   overflow: hidden;
   border-radius: 4px;
   /* width: 100px; */

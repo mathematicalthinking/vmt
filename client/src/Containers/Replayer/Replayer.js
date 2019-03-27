@@ -75,7 +75,7 @@ class Replayer extends Component {
           } else {
             this.updatedLog.push({
               synthetic: true,
-              message: `No activity...skipping ahead to ${moment
+              message: `No activity ... skipping ahead to ${moment
                 .unix(src[idx + 1].timestamp / 1000)
                 .format("MM/DD/YYYY h:mm:ss A")}`,
               relTime: (acc += BREAK_DURATION),
@@ -313,6 +313,7 @@ class Replayer extends Component {
             setTabLoaded={this.setTabLoaded}
             tab={tab}
             tabId={i}
+            isFullscreen={this.state.isFullscreen}
             inView={this.state.currentTab === i}
           />
         );
