@@ -37,8 +37,7 @@ class Settings extends PureComponent {
   };
 
   render() {
-    let { speed } = this.props;
-
+    let { speed, isFullscreen } = this.props;
     let displaySettings = (
       <Fragment>
         <div
@@ -46,7 +45,7 @@ class Settings extends PureComponent {
           id="speed"
           onClick={this.setCurrentSetting}
         >
-          Speed
+          Speed: {speed}x
         </div>
       </Fragment>
     );
@@ -95,7 +94,17 @@ class Settings extends PureComponent {
           ) : null}
           <i className="fas fa-cog" onClick={this.toggleSettings} />
         </div>
-        <i className={["fas fa-expand", classes.FullScreen].join(" ")} />
+        {!isFullscreen ? (
+          <i
+            className={["fas fa-expand", classes.Fullscreen].join(" ")}
+            onClick={this.props.toggleFullscreen}
+          />
+        ) : (
+          <i
+            className={["fas fa-compress", classes.Fullscreen].join(" ")}
+            onClick={this.props.toggleFullscreen}
+          />
+        )}
       </div>
     );
   }

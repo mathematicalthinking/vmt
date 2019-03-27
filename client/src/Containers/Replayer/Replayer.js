@@ -30,7 +30,8 @@ class Replayer extends Component {
     startTime: "",
     loading: true,
     currentTab: 0,
-    multipleTabTypes: false
+    multipleTabTypes: false,
+    isFullscreen: false
   };
   tabsLoaded = 0;
   updatedLog = [];
@@ -259,6 +260,11 @@ class Replayer extends Component {
     this.props.history.goBack();
   };
 
+  toggleFullscreen = () =>
+    this.setState(prevState => ({
+      isFullscreen: !prevState.isFullscreen
+    }));
+
   render() {
     let replayer = (
       <ReplayerControls
@@ -278,6 +284,8 @@ class Replayer extends Component {
         reset={this.reset}
         currentMembers={this.state.currentMembers}
         setCurrentMembers={this.setCurrentMembers}
+        toggleFullscreen={this.toggleFullscreen}
+        isFullscreen={this.state.isFullscreen}
       />
     );
 
@@ -367,6 +375,7 @@ class Replayer extends Component {
           }
           replayer
           loaded={this.state.allTabsLoaded}
+          isFullscreen={this.state.isFullscreen}
           membersExpanded
           chatExpanded
           instructionsExpanded

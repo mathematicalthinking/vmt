@@ -7,15 +7,15 @@
   margin: 0 30px;
   font-size: 1.3em;
 }
-.FullScreen {
+.Fullscreen {
   cursor: pointer;
 }
 
-.FullScreen:hover {
+.Fullscreen:hover {
   color: blue;
 }
 .SettingsContainer {
-  composes: FullScreen;
+  composes: Fullscreen;
   margin-right: 20px;
   padding: 10px;
   position: relative;
@@ -23,8 +23,10 @@
 
 .Settings {
   position: absolute;
+  align-items: center;
   bottom: 40px;
-  /* right: -65px; */
+  right: -45px;
+  width: 100px;
   border: 1px solid white;
   border-radius: 4px;
   background: rgba(0, 0, 0, 0.7);

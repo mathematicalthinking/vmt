@@ -79,7 +79,8 @@ class ReplayerControls extends Component {
       duration, //ms
       pausePlay,
       relTime,
-      endTime,
+      isFullscreen,
+      toggleFullscreen,
       log,
       index,
       changingIndex,
@@ -165,6 +166,8 @@ class ReplayerControls extends Component {
             setSpeed={setSpeed}
             speed={speed}
             hideSettings={!this.state.showControls}
+            isFullscreen={isFullscreen}
+            toggleFullscreen={toggleFullscreen}
           />
         </div>
         <div className={classes.Backdrop} />

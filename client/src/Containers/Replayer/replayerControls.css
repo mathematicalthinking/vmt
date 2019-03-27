@@ -12,7 +12,7 @@
   height: inherit;
   width: 100%;
   /* overflow-x: hidden; */
-  background: linear-gradient(to top, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 0));
+  background: linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
   /* box-shadow: 0 -10px 20px 5px rgba(0, 0, 0, 0.4); */
   padding-bottom: 5px;
   height: auto;
