@@ -3,7 +3,8 @@ console.log();
 // Do this as the first thing so that any code reading it knows the right env.
 process.env.BABEL_ENV = "production";
 process.env.NODE_ENV = process.argv[2];
-
+let ENCOMPASS = process.argv[3] === "encompass";
+console.log("ENCOMPASS: ", ENCOMPASS);
 // Makes the script crash on unhandled rejections instead of silently
 // ignoring them. In the future, promise rejections that are not handled will
 // terminate the Node.js process with a non-zero exit code.
@@ -19,6 +20,7 @@ const chalk = require("chalk");
 const fs = require("fs-extra");
 const webpack = require("webpack");
 const config = require("../config/webpack.config.prod");
+const encompassConfig = require("../config/webpack.config.encompassProd");
 const paths = require("../config/paths");
 const checkRequiredFiles = require("react-dev-utils/checkRequiredFiles");
 const formatWebpackMessages = require("react-dev-utils/formatWebpackMessages");
@@ -42,13 +44,13 @@ if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
 
 // First, read the current file sizes in build directory.
 // This lets us display how much they changed later.
-measureFileSizesBeforeBuild(paths.appBuild)
+measureFileSizesBeforeBuild(ENCOMPASS ? paths.encompassBuild : paths.appBuild)
   .then(previousFileSizes => {
     // Remove all content but keep the directory so that
     // if you're in it, you don't end up in Trash
-    fs.emptyDirSync(paths.appBuild);
+    fs.emptyDirSync(ENCOMPASS ? paths.encompassBuild : paths.appBuild);
     // Merge with the public folder
-    copyPublicFolder();
+    if (!ENCOMPASS) copyPublicFolder();
     // Start the webpack build
     return build(previousFileSizes);
   })
@@ -75,7 +77,7 @@ measureFileSizesBeforeBuild(paths.appBuild)
       printFileSizesAfterBuild(
         stats,
         previousFileSizes,
-        paths.appBuild,
+        ENCOMPASS ? paths.encompassBuild : paths.appBuild,
         WARN_AFTER_BUNDLE_GZIP_SIZE,
         WARN_AFTER_CHUNK_GZIP_SIZE
       );
@@ -84,7 +86,10 @@ measureFileSizesBeforeBuild(paths.appBuild)
       const appPackage = require(paths.appPackageJson);
       const publicUrl = paths.publicUrl;
       const publicPath = config.output.publicPath;
-      const buildFolder = path.relative(process.cwd(), paths.appBuild);
+      const buildFolder = path.relative(
+        process.cwd(),
+        ENCOMPASS ? paths.encompassBuild : paths.appBuild
+      );
       printHostingInstructions(
         appPackage,
         publicUrl,
@@ -104,7 +109,7 @@ measureFileSizesBeforeBuild(paths.appBuild)
 function build(previousFileSizes) {
   console.log("Creating an optimized production build...");
 
-  let compiler = webpack(config);
+  let compiler = webpack(ENCOMPASS ? encompassConfig : config);
   return new Promise((resolve, reject) => {
     compiler.run((err, stats) => {
       if (err) {

@@ -1,8 +1,7 @@
 import React, { Component, Fragment } from "react";
 import WorkspaceLayout from "../../Layout/Workspace/Workspace";
-import Modal from "../../Components/UI/Modal/Modal.js";
 import { connect } from "react-redux";
-import { updateRoom, populateRoom } from "../../store/actions/";
+import { populateRoom } from "../../store/actions/";
 import {
   ReplayerControls,
   DesmosReplayer,
@@ -14,6 +13,7 @@ import { CurrentMembers, Loading } from "../../Components";
 import { Tabs, Tools } from "../Workspace";
 // import throttle from "lodash/throttle";
 import moment from "moment";
+
 const MAX_WAIT = 10000; // 10 seconds
 const BREAK_DURATION = 2000;
 const PLAYBACK_FIDELITY = 100;
@@ -39,7 +39,11 @@ class Replayer extends Component {
   componentDidMount() {
     // @TODO We should never populate the tabs events before getting here
     // we dont need them for the regular room activity only for playback
-    this.props.populateRoom(this.props.match.params.room_id, { events: true });
+    if (!this.props.encompass) {
+      this.props.populateRoom(this.props.match.params.room_id, {
+        events: true
+      });
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -407,5 +411,5 @@ const mapStateToProps = (state, ownProps) => {
 
 export default connect(
   mapStateToProps,
-  { updateRoom, populateRoom }
+  { populateRoom }
 )(Replayer);

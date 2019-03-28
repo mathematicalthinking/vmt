@@ -87,6 +87,10 @@ app.use("/desmos", desmos);
 app.use("/auth", auth);
 app.use("/api", api);
 // app.use('/test', test);
+console.log("ENCOMPASS: ", process.env.ENCOMPASS);
+if (process.env.ENCOMPASS) {
+  app.use(express.static(path.join(__dirname, "/client/encompassBuild")));
+}
 if (
   process.env.NODE_ENV === "travistest" ||
   process.env.NODE_ENV === "production" ||
@@ -96,6 +100,9 @@ if (
 }
 
 app.get("/*", (req, res) => {
+  if (process.env.ENCOMPASS) {
+    res.sendFile(path.join(__dirname, "/client/encompassBuild/index.html"));
+  }
   if (
     process.env.NODE_ENV === "travistest" ||
     process.env.NODE_ENV === "production" ||
