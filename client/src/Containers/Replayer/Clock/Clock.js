@@ -18,14 +18,17 @@ const msToTime = duration => {
 };
 
 class Clock extends Component {
+  prevUpdateTime = 0; // Used to optimize updates...only update when a full second has passed
   shouldComponentUpdate(nextProps) {
+    console.log(nextProps);
     // Only update the clock when whole seconds have passed
     if (
-      (nextProps.relTime % 1000 === 0 &&
+      (nextProps.relTime - this.prevUpdateTime > 1000 &&
         nextProps.relTime !== this.props.relTime) ||
       nextProps.changingIndex ||
       (!this.props.startTime && nextProps.startTime)
     ) {
+      this.prevUpdateTime = nextProps.relTime;
       return true;
     }
     return false;

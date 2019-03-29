@@ -124,7 +124,7 @@ class ReplayerControls extends Component {
           <div className={classes.PlayControls}>
             <button
               disabled={index === 0}
-              onClick={this.back}
+              onClick={this.first}
               className={classes.Button}
             >
               <i className="fas fa-fast-backward" />
@@ -148,7 +148,7 @@ class ReplayerControls extends Component {
             </button>
             <button
               disabled={index === log.length - 1}
-              onClick={this.next}
+              onClick={this.last}
               className={classes.Button}
             >
               <i className="fas fa-fast-forward" />

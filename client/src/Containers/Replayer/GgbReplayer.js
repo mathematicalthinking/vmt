@@ -40,6 +40,9 @@ class GgbReplayer extends Component {
       // IF we're skipping it means we might need to reconstruct several evenets, possible in reverse order if the prevIndex is greater than this index.
       // This is a god damned mess...good luck
     }
+    if (prevProps.isFullscreen && !this.props.isFullscreen) {
+      this.updateDimensions();
+    }
     // else if (!this.state.loading || this.state.tabStates !== prevState.tabStates){
     //   console.log('the tabState have changed')
     //   this.constructEvent(log[index])

@@ -260,10 +260,18 @@ class Replayer extends Component {
     this.props.history.goBack();
   };
 
-  toggleFullscreen = () =>
-    this.setState(prevState => ({
-      isFullscreen: !prevState.isFullscreen
-    }));
+  toggleFullscreen = () => {
+    if (this.state.isFullscreen) {
+      document.exitFullscreen().then(() => {
+        // After exiting fullscreen resize ggb Graph
+        this.setState({ isFullscreen: false });
+      });
+    } else {
+      this.setState({
+        isFullscreen: true
+      });
+    }
+  };
 
   render() {
     let replayer = (
