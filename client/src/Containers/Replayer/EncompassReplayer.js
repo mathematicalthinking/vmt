@@ -400,6 +400,14 @@ class EncompassReplayer extends Component {
   };
 
   componentDidMount() {
+    console.log(window.location.hash);
+    window.addEventListener(
+      "hashchange",
+      function() {
+        console.log("url changed!", window.location.hash);
+      },
+      false
+    );
     // MAKE API TO GET ROOM
     // Build a log
     API.getById("rooms", "5c9b8fcbd0b60d458861808f", false, true).then(res => {
