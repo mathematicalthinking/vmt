@@ -7,6 +7,9 @@
 const passport = require("passport");
 const express = require("express");
 const router = express.Router();
+const bcrypt = require("bcrypt");
+const crypto = require("crypto");
+const User = require("../models/User");
 const errors = require("../middleware/errors");
 
 router.post("/login", (req, res, next) => {
@@ -52,7 +55,34 @@ router.post("/signup", (req, res, next) => {
 });
 
 /** Authentication for Encompass users who want to import rooms into the Encompass account **/
-router.post("/enc", (req, res, next) => {});
+router.post("/enc", (req, res, next) => {
+  let { username, password } = req.body;
+  // console.log(req.body);
+  console.log(username, password);
+  User.findOne({ username })
+    .then(user => {
+      console.log("found user");
+      if (!bcrypt.compareSync(password, user.password)) {
+        // ATTACH A TOKEN TO THE REQ OBJ ??? OR THE RES ??
+        return errors.sendError.InvalidCredentialsError(msg, res);
+        // SEND RESPONSE
+      } else {
+        let userSummary = {};
+        userSummary.username = user.username;
+        userSummary._id = user._id;
+        crypto.randomBytes(20, (err, buff) => {
+          if (err) return errors.sendError.InternalError(err, res);
+
+          userSummary.token = buff.toString("hex");
+          return res.json({ user: userSummary });
+        });
+      }
+    })
+    .catch(err => {
+      console.log("ERROR ", err);
+      return errors.sendError.InternalError(err, res);
+    });
+});
 
 router.get("/googleAuth", (req, res, next) => {
   passport.authenticate("google", {
