@@ -8,14 +8,20 @@ const _ = require("lodash");
 router.get("/search", (req, res, next) => {
   let { username, resourceName } = req.query;
   controllers.user
-    .getUserResources({ username, resources: ["acitivities", "rooms"] })
-    .then(({ activities, rooms, err }) => {
+    .getUserResources(username, {
+      resources: "acitivities rooms",
+      resourceName
+    })
+    .then(({ activities, rooms }, err) => {
       if (err) {
         return errors.sendError.InternalError(err, res);
       }
       res.json({ activities, rooms });
     })
-    .catch(err => errors.sendError.InternalError(err, res));
+    .catch(err => {
+      console.log(err);
+      errors.sendError.InternalError(err, res);
+    });
 });
 
 router.get("/replayer", (req, res, next) => {

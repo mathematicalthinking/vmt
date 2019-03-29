@@ -51,6 +51,9 @@ router.post("/signup", (req, res, next) => {
   })(req, res, next);
 });
 
+/** Authentication for Encompass users who want to import rooms into the Encompass account **/
+router.post("/enc", (req, res, next) => {});
+
 router.get("/googleAuth", (req, res, next) => {
   passport.authenticate("google", {
     scope: [

@@ -46,6 +46,33 @@ module.exports = {
         .catch(err => reject(err));
     });
   },
+  /**
+   * @param  {String} username
+   * @param {String} resourceName
+   * @param {String} recourses
+   */
+  getUserResources: (username, { resources, resourceName }) => {
+    return db.User.findOne({ username }, { select: resources })
+      .populate({
+        path: resources,
+        select: "name members intructions image",
+        populate: {
+          path: "members.user",
+          select: "username"
+        }
+      })
+      .then(result => {
+        let filteredResults = {};
+        resources.split(" ").forEach(resource => {
+          if (result[resource]) {
+            filteredResults[resource] = result[resource].filter(
+              rec => rec.name === resourceName
+            );
+          }
+        });
+        return filteredResults;
+      });
+  },
 
   post: body => {
     return new Promise((resolve, reject) => {
