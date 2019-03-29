@@ -64,9 +64,11 @@ module.exports = {
       .then(result => {
         let filteredResults = {};
         resources.split(" ").forEach(resource => {
+          resourceName = resourceName.replace(/\s+/g, "");
+          let regex = new RegExp(text, "i");
           if (result[resource]) {
-            filteredResults[resource] = result[resource].filter(
-              rec => rec.name === resourceName
+            filteredResults[resource] = result[resource].filter(rec =>
+              rec.name.match(regex)
             );
           }
         });
