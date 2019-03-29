@@ -51,8 +51,8 @@ module.exports = {
    * @param {String} resourceName
    * @param {String} recourses
    */
-  getUserResources: (username, { resources, resourceName }) => {
-    return db.User.findOne({ username }, { select: resources })
+  getUserResources: (username, token, { resources, resourceName }) => {
+    return db.User.findOne({ username, token }, { select: resources })
       .populate({
         path: resources,
         select: "name members intructions image",
@@ -64,12 +64,12 @@ module.exports = {
       .then(result => {
         let filteredResults = {};
         resources.split(" ").forEach(resource => {
-          resourceName = resourceName.replace(/\s+/g, "");
-          let regex = new RegExp(text, "i");
+          // resourceName = resourceName.replace(/\s+/g, "");
+          let regex = new RegExp(resourceName, "i");
           if (result[resource]) {
-            filteredResults[resource] = result[resource].filter(rec =>
-              rec.name.match(regex)
-            );
+            filteredResults[resource] = result[resource].filter(rec => {
+              return rec.name.match(regex);
+            });
           }
         });
         return filteredResults;

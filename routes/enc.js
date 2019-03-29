@@ -1,17 +1,19 @@
 const express = require("express");
-const router = express.Router();
+const fs = require("fs");
+const _ = require("lodash");
 const controllers = require("../controllers");
 const path = require("path");
 const errors = require("../middleware/errors");
-const fs = require("fs");
-const _ = require("lodash");
+const router = express.Router();
 
 router.get("/search", (req, res, next) => {
   let { username, resourceName } = req.query;
+  let token = req.headers.authorization;
+  console.log("TOKEN: ", token);
   controllers.user
-    .getUserResources(username, {
-      resources: "acitivities rooms",
-      resourceName
+    .getUserResources(username, token, {
+      resourceName,
+      resources: "activities rooms"
     })
     .then(({ activities, rooms }, err) => {
       if (err) {
@@ -43,5 +45,13 @@ router.get("/replayer/:asset", (req, res, next) => {
     }
   );
 });
+
+function encompassAuthentication(req, res, next) {
+  User.findOne({ token: req.headers.Authorization })
+    .then(res => {})
+    .catch(err => {
+      return errors.sendError.NotAuthorizedError(err, res);
+    });
+}
 
 module.exports = router;
