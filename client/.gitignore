@@ -9,6 +9,7 @@
 /OGsrc
 # production
 ./build
+./encompassBuild
 
 # misc
 .DS_Store

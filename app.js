@@ -16,6 +16,7 @@ const configure = require("./config/passport");
 const api = require("./routes/api");
 const auth = require("./routes/auth");
 const desmos = require("./routes/desmos");
+const enc = require("./routes/enc");
 // const test = require('./routes/test');
 
 const app = express();
@@ -86,8 +87,8 @@ app.use(passport.session());
 app.use("/desmos", desmos);
 app.use("/auth", auth);
 app.use("/api", api);
-// app.use('/test', test);
-console.log("ENCOMPASS: ", process.env.ENCOMPASS);
+app.use("/enc", enc);
+
 if (process.env.ENCOMPASS) {
   app.use(express.static(path.join(__dirname, "/client/encompassBuild")));
 }
