@@ -3,15 +3,16 @@ import ReactDOM from "react-dom";
 import API from "../../utils/apiRequests";
 
 import WorkspaceLayout from "../../Layout/Workspace/Workspace";
-import {
-  ReplayerControls,
-  DesmosReplayer,
-  GgbReplayer,
-  ChatReplayer
-} from "./index";
-import { CurrentMembers, Loading } from "../../Components";
+import ReplayerControls from "ReplayerControls";
+import DesmosReplayer from "./DesmosReplayer";
+import GgbReplayer from "./GgbReplayer";
+import ChatReplayer from "./ChatReplayer";
 
-import { Tabs, Tools } from "../Workspace";
+import CurrentMembers from "../../Components/CurrentMembers/CurrentMembers";
+import Loading from "../../Components/Loading/Loading";
+
+import Tabs from "../Workspace/Tabs";
+import Tools from "../Workspace/Tools/Tools";
 // import throttle from "lodash/throttle";
 import moment from "moment";
 

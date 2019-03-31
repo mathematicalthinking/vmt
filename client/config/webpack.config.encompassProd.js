@@ -16,6 +16,7 @@ const getClientEnvironment = require("./env");
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
 const publicPath = paths.servedPath;
+console.log("PUBLIX PATRH: ", publicPath);
 // Some apps do not use client-side routing with pushState.
 // For these, "homepage" can be set to "." to enable relative asset paths.
 const shouldUseRelativeAssetPaths = publicPath === "./";
@@ -37,7 +38,7 @@ console.log(env.stringified["process.env"].NODE_ENV);
 
 // Note: defined here because it will be used more than once.
 const cssFilename = "static/css/[name].[contenthash:8].css";
-
+console.log(paths.appReplayer);
 // ExtractTextPlugin expects the build output to be flat.
 // (See https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/27)
 // However, our output is structured with css, js and media folders.
@@ -57,7 +58,7 @@ module.exports = {
   // You can exclude the *.map files from the build during deployment.
   devtool: shouldUseSourceMap ? "source-map" : false,
   // In production, we only want to load the polyfills and the app code.
-  entry: [require.resolve("./polyfills"), paths.appReplayer],
+  entry: "./src/Containers/TestingWebpack.js",
   output: {
     // The build folder.
     path: paths.encompassBuild,
@@ -65,12 +66,12 @@ module.exports = {
     // There will be one main bundle, and one file per asynchronous chunk.
     // We don't currently advertise code splitting but Webpack supports it.
     filename: "static/js/[name].[chunkhash:8].js",
-    chunkFilename: "static/js/[name].[chunkhash:8].chunk.js",
+    chunkFilename: "static/js/[name].[chunkhash:8].chunk.js"
     // We inferred the "public path" (such as / or /my-project) from homepage.
-    publicPath: publicPath,
+    // publicPath: publicPath
     // Point sourcemap entries to original disk location (format as URL on Windows)
-    devtoolModuleFilenameTemplate: info =>
-      path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, "/")
+    // devtoolModuleFilenameTemplate: info =>
+    //   path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, "/")
   },
   resolve: {
     // This allows you to set a fallback for where Webpack should look for modules.
@@ -233,6 +234,7 @@ module.exports = {
       }
     ]
   },
+  watch: false,
   plugins: [
     // Makes some environment variables available in index.html.
     // The public URL is available as %PUBLIC_URL% in index.html, e.g.:

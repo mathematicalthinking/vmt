@@ -1,10 +1,7 @@
 import React, { Component } from "react";
 import classes from "./replayerControls.css";
-import glb from "../../global.css";
-// import ProgressMarker from './ProgressMarker';
 import Clock from "./Clock/Clock";
 import Slider from "./Slider/Slider";
-import Log from "./Log/Log";
 import Settings from "./Settings/Settings";
 class ReplayerControls extends Component {
   state = {

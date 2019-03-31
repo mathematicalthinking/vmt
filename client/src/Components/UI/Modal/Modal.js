@@ -5,13 +5,12 @@
 // message: String (if no children display loading icon with custom message)
 //
 
-import React from "react";
+import React, { Fragment } from "react";
 import gif from "./Ripple.gif";
-import Aux from "../../HOC/Auxil";
 import Backdrop from "../Backdrop/Backdrop";
 import classes from "./modal.css";
 const modal = props => (
-  <Aux>
+  <Fragment>
     <Backdrop show={props.show} clicked={props.closeModal} />
     <div
       className={classes.Modal}
@@ -22,7 +21,7 @@ const modal = props => (
       }}
     >
       {props.children ? (
-        <Aux>
+        <Fragment>
           <div
             data-testid="close-modal"
             className={classes.Close}
@@ -31,17 +30,17 @@ const modal = props => (
             <i className="fas fa-times" />
           </div>
           {props.children}
-        </Aux>
+        </Fragment>
       ) : (
-        <Aux>
+        <Fragment>
           <div className="loader">
             <img src={gif} alt="loading" />
           </div>
           <div className={classes.Message}>{props.message}</div>
-        </Aux>
+        </Fragment>
       )}
     </div>
-  </Aux>
+  </Fragment>
 );
 
 export default modal;
