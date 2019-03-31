@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from "react";
 import ReactDOM from "react-dom";
+import classes from "./EncompassReplayer.css";
 import API from "../../utils/apiRequests";
 
 import WorkspaceLayout from "../../Layout/Workspace/Workspace";
-import ReplayerControls from "ReplayerControls";
+import ReplayerControls from "./ReplayerControls";
 import DesmosReplayer from "./DesmosReplayer";
 import GgbReplayer from "./GgbReplayer";
 import ChatReplayer from "./ChatReplayer";
@@ -434,8 +435,13 @@ class EncompassReplayer extends Component {
   }
 
   render() {
+    console.log("rending replayer");
     if (this.state.room) {
-      return <Replayer room={this.state.room} encompass />;
+      return (
+        <div className={classes.EncompassReplayer}>
+          <Replayer room={this.state.room} encompass />
+        </div>
+      );
     } else {
       return <div>Fetching room</div>;
     }
