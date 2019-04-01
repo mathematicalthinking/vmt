@@ -59,8 +59,11 @@ router.post("/enc", (req, res, next) => {
   let { username, password } = req.body;
   User.findOne({ username })
     .then(user => {
+      if (!user) {
+        return res.json({errorMessage: 'Incorrect username'});
+      }
       if (!bcrypt.compareSync(password, user.password)) {
-        return errors.sendError.InvalidCredentialsError(msg, res);
+        return res.json({errorMessage: 'Incorrect password'});
       } else {
         let userSummary = {};
         userSummary.username = user.username;
@@ -69,6 +72,7 @@ router.post("/enc", (req, res, next) => {
           if (err) return errors.sendError.InternalError(err, res);
           userSummary.token = buff.toString("hex");
           user.token = userSummary.token;
+          user.tokenExpiryDate = Date.now() + 3600000; // 1 Day
           user.save();
           return res.json({ user: userSummary });
         });

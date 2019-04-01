@@ -11,15 +11,15 @@ router.get("/search", (req, res, next) => {
   let token = req.headers.authorization;
   console.log("TOKEN: ", token);
   controllers.user
-    .getUserResources(username, token, {
+    .getUserResources(token, {
       resourceName,
       resources: "activities rooms"
     })
-    .then(({ activities, rooms }, err) => {
+    .then(({ activities, rooms, isInvalidToken }, err) => {
       if (err) {
         return errors.sendError.InternalError(err, res);
       }
-      res.json({ activities, rooms });
+      res.json({ activities, rooms, isInvalidToken });
     })
     .catch(err => {
       console.log(err);

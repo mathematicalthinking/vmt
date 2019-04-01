@@ -60,7 +60,8 @@ const User = new mongoose.Schema(
     isAdmin: { type: Boolean, default: false },
     seenTour: { type: Boolean, default: false },
     socketId: { type: String },
-    token: { type: String }, // For Authentication Encompass users
+    token: { type: String }, // For Authentication Encompass users,
+    tokenExpiryDate: { type: Date }, // // For Authentication Encompass users
     isTrashed: { type: Boolean, default: false }
   },
   { timestamps: true }

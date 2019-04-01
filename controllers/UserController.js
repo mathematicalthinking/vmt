@@ -51,8 +51,8 @@ module.exports = {
    * @param {String} resourceName
    * @param {String} recourses
    */
-  getUserResources: (username, token, { resources, resourceName }) => {
-    return db.User.findOne({ username, token }, { select: resources })
+  getUserResources: (token, { resources, resourceName }) => {
+    return db.User.findOne({ token, tokenExpiryDate: {$gt: Date.now()} }, { select: resources })
       .populate({
         path: resources,
         select: "name members intructions image",
@@ -63,6 +63,10 @@ module.exports = {
       })
       .then(result => {
         let filteredResults = {};
+        if (!result) {
+          filteredResults.isInvalidToken = true;
+          return filteredResults;
+        }
         resources.split(" ").forEach(resource => {
           // resourceName = resourceName.replace(/\s+/g, "");
           let regex = new RegExp(resourceName, "i");
