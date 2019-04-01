@@ -16,7 +16,6 @@ const getClientEnvironment = require("./env");
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
 const publicPath = paths.servedPath;
-console.log("PUBLIX PATRH: ", publicPath);
 // Some apps do not use client-side routing with pushState.
 // For these, "homepage" can be set to "." to enable relative asset paths.
 const shouldUseRelativeAssetPaths = publicPath === "./";
@@ -35,10 +34,9 @@ console.log(env.stringified["process.env"].NODE_ENV);
 // if (env.stringified['process.env'].NODE_ENV !== '"production"' || env.stringified['process.env'].NODE_ENV !== '"staging"') {
 //   throw new Error('Production builds must have NODE_ENV = production or staging');
 // }
-
+console.log(process.env);
 // Note: defined here because it will be used more than once.
 const cssFilename = "static/css/[name].[contenthash:8].css";
-console.log(paths.appReplayer);
 // ExtractTextPlugin expects the build output to be flat.
 // (See https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/27)
 // However, our output is structured with css, js and media folders.

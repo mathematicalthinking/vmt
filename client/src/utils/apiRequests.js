@@ -2,12 +2,13 @@ import axios from "axios";
 
 let baseURL;
 
-if (process.env.ENCOMPASS) {
+console.log("ENCOMPASS: ,", process.env.REACT_APP_ENCOMPASS);
+if (process.env.REACT_APP_ENCOMPASS) {
   if (process.env.NODE_ENV === "production") {
     baseURL = process.env.REACT_APP_ENCOMPASS_URL_PRODUCTION;
   } else if (process.env.NODE_ENV === "staging") {
     baseURL = process.env.REACT_APP_ENCOMPASS_URL_STAGING;
-  } else if (process.env.NODE_ENV === "dev") {
+  } else if (process.env.NODE_ENV === "dev" || process.env.NODE_ENV) {
     baseURL = process.env.REACT_APP_ENCOMPASS_URL_DEV;
   }
 } else {

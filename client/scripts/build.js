@@ -5,9 +5,16 @@ process.env.NODE_ENV = process.argv[2];
 if (process.argv[2] === "staging") {
   process.env.NODE_ENV = "production";
   process.env.STAGING = true;
+} else if (process.argv[2] === "test") {
+  process.env.NODE_ENV = "production";
+  process.env.TEST = true;
 }
 let ENCOMPASS = process.argv[3] === "encompass";
-console.log("ENCOMPASS: ", ENCOMPASS === true);
+if (ENCOMPASS) {
+  console.log("building for encompass");
+  process.env.REACT_APP_ENCOMPASS = true;
+}
+
 console.log("NODE_ENV: ", process.env.NODE_ENV);
 // Makes the script crash on unhandled rejections instead of silently
 // ignoring them. In the future, promise rejections that are not handled will
