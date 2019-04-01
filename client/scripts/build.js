@@ -2,8 +2,13 @@
 // Do this as the first thing so that any code reading it knows the right env.
 process.env.BABEL_ENV = "production";
 process.env.NODE_ENV = process.argv[2];
+if (process.argv[2] === "staging") {
+  process.env.NODE_ENV = "production";
+  process.env.STAGING = true;
+}
 let ENCOMPASS = process.argv[3] === "encompass";
-console.log("ENCOMPASS: ", ENCOMPASS);
+console.log("ENCOMPASS: ", ENCOMPASS === true);
+console.log("NODE_ENV: ", process.env.NODE_ENV);
 // Makes the script crash on unhandled rejections instead of silently
 // ignoring them. In the future, promise rejections that are not handled will
 // terminate the Node.js process with a non-zero exit code.

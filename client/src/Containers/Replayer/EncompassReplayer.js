@@ -426,7 +426,7 @@ class EncompassReplayer extends Component {
   };
 
   fetchRoom = roomId => {
-    API.getById("rooms", roomId, false, true)
+    API.getById("rooms", roomId, false, true, true)
       .then(res => {
         let room = res.data.result;
         let allEvents = [];

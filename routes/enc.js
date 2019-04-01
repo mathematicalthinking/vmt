@@ -7,9 +7,8 @@ const errors = require("../middleware/errors");
 const router = express.Router();
 
 router.get("/search", (req, res, next) => {
-  let { username, resourceName } = req.query;
+  let { resourceName } = req.query;
   let token = req.headers.authorization;
-  console.log("TOKEN: ", token);
   controllers.user
     .getUserResources(token, {
       resourceName,

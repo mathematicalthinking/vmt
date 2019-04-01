@@ -1,8 +1,28 @@
 import axios from "axios";
 
-const api = axios.create({
-  baseURL: "http://localhost:3001"
-});
+let baseURL;
+
+if (process.env.ENCOMPASS) {
+  if (process.env.NODE_ENV === "production") {
+    baseURL = process.env.REACT_APP_ENCOMPASS_URL_PRODUCTION;
+  } else if (process.env.NODE_ENV === "staging") {
+    baseURL = process.env.REACT_APP_ENCOMPASS_URL_STAGING;
+  } else if (process.env.NODE_ENV === "dev") {
+    baseURL = process.env.REACT_APP_ENCOMPASS_URL_DEV;
+  }
+} else {
+  if (process.env.NODE_ENV === "production") {
+    baseURL = process.env.REACT_APP_SERVER_URL_PRODUCTION;
+  } else if (process.env.NODE_ENV === "staging") {
+    baseURL = process.env.REACT_APP_SERVER_URL_STAGING;
+  } else if (process.env.NODE_ENV === "dev") {
+    baseURL = process.env.REACT_APP_SERVER_URL_DEV;
+  }
+}
+
+const api = axios.create({ baseURL });
+
+console.log("base url: ", baseURL);
 
 export default {
   get: (resource, params) => {
@@ -29,7 +49,7 @@ export default {
     return api.put(`/api/${resource}/${id}`, body);
   },
 
-  getById: (resource, id, temp, events) => {
+  getById: (resource, id, temp, events, encompass) => {
     if (temp) {
       return api.get(`/api/${resource}/${id}/tempRoom`);
     } else if (events) {
