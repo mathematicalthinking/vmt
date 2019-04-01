@@ -398,51 +398,61 @@ class Replayer extends Component {
 
 class EncompassReplayer extends Component {
   state = {
-    room: null
+    roomId: null
   };
 
   componentDidMount() {
-    console.log(window.location.hash);
-    window.addEventListener(
-      "hashchange",
-      function() {
-        console.log("url changed!", window.location.hash);
-        console.log('vmt roomid', window.vmtRoomId);
-        this.setState({
-          roomId: window.vmtRoomId
-        })
-      },
-      false
-    );
+    window.addEventListener("hashchange", this.setRoomId, false);
     // MAKE API TO GET ROOM
     // Build a log
-    API.getById("rooms", "5ca21fed60fa6e519981ca6d", false, true).then(res => {
-      let room = res.data.result;
-      let allEvents = [];
-      room.tabs.forEach(tab => {
-        allEvents = allEvents.concat(tab.events);
-      });
-      allEvents = allEvents
-        .concat(room.chat)
-        .sort((a, b) => a.timestamp - b.timestamp)
-        .filter((entry, i, arr) => {
-          if (arr[i - 1]) {
-            if (entry.description) {
-              return entry.description !== arr[i - 1].description;
-            } else return true;
-          }
-          return true;
-        });
-      room.log = allEvents;
-      this.setState({ room });
-    })
-    .catch((err) => {
-      console.log('error ger room', err);
-    })
+    // this.fetchRoom(this.state.roomId)
   }
 
+  componentDidUpdate(prevState) {
+    if (prevState.roomId !== this.state.roomId) {
+      this.fetchRoom(this.state.roomId);
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("hashchange", this.setRoomId);
+  }
+
+  setRoomId = event => {
+    console.log(event);
+    this.setState({
+      roomId: window.vmtRoomId
+    });
+  };
+
+  fetchRoom = roomId => {
+    API.getById("rooms", roomId, false, true)
+      .then(res => {
+        let room = res.data.result;
+        let allEvents = [];
+        room.tabs.forEach(tab => {
+          allEvents = allEvents.concat(tab.events);
+        });
+        allEvents = allEvents
+          .concat(room.chat)
+          .sort((a, b) => a.timestamp - b.timestamp)
+          .filter((entry, i, arr) => {
+            if (arr[i - 1]) {
+              if (entry.description) {
+                return entry.description !== arr[i - 1].description;
+              } else return true;
+            }
+            return true;
+          });
+        room.log = allEvents;
+        this.setState({ room });
+      })
+      .catch(err => {
+        console.log("error ger room", err);
+      });
+  };
+
   render() {
-    console.log("rending replayer");
     if (this.state.room) {
       return (
         <div className={classes.EncompassReplayer}>
