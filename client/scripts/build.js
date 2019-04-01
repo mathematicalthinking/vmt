@@ -40,7 +40,7 @@ const WARN_AFTER_CHUNK_GZIP_SIZE = 1024 * 1024;
 if (
   !checkRequiredFiles([
     paths.appHtml,
-    ENCOMPASS ? paths.appIndexJs : paths.appReplayer
+    !ENCOMPASS ? paths.appIndexJs : paths.appReplayer
   ])
 ) {
   process.exit(1);
