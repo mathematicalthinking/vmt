@@ -27,7 +27,7 @@ console.log("ENCOMPASS: ", process.env.ENCOMPASS);
 let mongoURI;
 if (process.env.NODE_ENV === "dev") {
   mongoURI = process.env.MONGO_DEV_URI;
-} else if (provess.env.TRAVIS) {
+} else if (process.env.TRAVIS) {
   mongoURI = process.env.MONGO_TEST_URI;
 } else if (process.env.NODE_ENV === "production") {
   mongoURI = process.env.MONGO_PROD_URI;
