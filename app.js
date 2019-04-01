@@ -22,6 +22,7 @@ const enc = require("./routes/enc");
 const app = express();
 
 console.log("NODE_ENV=", process.env.NODE_ENV);
+console.log("ENCOMPASS: ", process.env.ENCOMPASS);
 // SETUP DATABASE & SESSION
 let mongoURI;
 if (process.env.NODE_ENV === "dev") {
@@ -91,8 +92,7 @@ app.use("/enc", enc);
 
 if (process.env.ENCOMPASS) {
   app.use(express.static(path.join(__dirname, "/client/encompassBuild")));
-}
-if (
+} else if (
   process.env.NODE_ENV === "travistest" ||
   process.env.NODE_ENV === "production" ||
   process.env.NODE_ENV === "staging"
@@ -103,8 +103,7 @@ if (
 app.get("/*", (req, res) => {
   if (process.env.ENCOMPASS) {
     res.sendFile(path.join(__dirname, "/client/encompassBuild/index.html"));
-  }
-  if (
+  } else if (
     process.env.NODE_ENV === "travistest" ||
     process.env.NODE_ENV === "production" ||
     process.env.NODE_ENV === "staging"

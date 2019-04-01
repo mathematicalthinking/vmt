@@ -2,28 +2,24 @@ import axios from "axios";
 
 let baseURL;
 
-console.log("ENCOMPASS: ,", process.env.REACT_APP_ENCOMPASS);
 if (process.env.REACT_APP_ENCOMPASS) {
-  if (process.env.NODE_ENV === "production") {
-    baseURL = process.env.REACT_APP_ENCOMPASS_URL_PRODUCTION;
-  } else if (process.env.NODE_ENV === "staging") {
+  baseURL = process.env.REACT_APP_ENCOMPASS_URL_PRODUCTION;
+  if (process.env.REACT_APP_STAGING) {
     baseURL = process.env.REACT_APP_ENCOMPASS_URL_STAGING;
-  } else if (process.env.NODE_ENV === "dev" || process.env.NODE_ENV) {
+  } else if (process.env.REACT_APP_DEV) {
     baseURL = process.env.REACT_APP_ENCOMPASS_URL_DEV;
   }
 } else {
-  if (process.env.NODE_ENV === "production") {
-    baseURL = process.env.REACT_APP_SERVER_URL_PRODUCTION;
-  } else if (process.env.NODE_ENV === "staging") {
+  baseURL = process.env.REACT_APP_SERVER_URL_PRODUCTION;
+  if (process.env.REACT_APP_STAGING) {
     baseURL = process.env.REACT_APP_SERVER_URL_STAGING;
-  } else if (process.env.NODE_ENV === "dev") {
+  } else if (process.env.REACT_APP_DEV) {
     baseURL = process.env.REACT_APP_SERVER_URL_DEV;
   }
 }
 
+console.log(baseURL);
 const api = axios.create({ baseURL });
-
-console.log("base url: ", baseURL);
 
 export default {
   get: (resource, params) => {

@@ -30,11 +30,9 @@ const env = getClientEnvironment(publicUrl);
 
 // Assert this just to be safe.
 // Development builds of React are slow and not intended for production.
-console.log(env.stringified["process.env"].NODE_ENV);
 // if (env.stringified['process.env'].NODE_ENV !== '"production"' || env.stringified['process.env'].NODE_ENV !== '"staging"') {
 //   throw new Error('Production builds must have NODE_ENV = production or staging');
 // }
-console.log(process.env);
 // Note: defined here because it will be used more than once.
 const cssFilename = "static/css/[name].[contenthash:8].css";
 // ExtractTextPlugin expects the build output to be flat.

@@ -1,17 +1,23 @@
 "use strict";
 // Do this as the first thing so that any code reading it knows the right env.
+
 process.env.BABEL_ENV = "production";
-process.env.NODE_ENV = process.argv[2];
+process.env.NODE_ENV = "production";
+
+// We need to the NODE_ENV to = production no matter the actual enviornment (staging/production)
+// so set another process.env var so that we can determine the correct server URL from within the react_app
+
 if (process.argv[2] === "staging") {
-  process.env.NODE_ENV = "production";
-  process.env.STAGING = true;
+  process.env.REACT_APP_STAGING = true;
 } else if (process.argv[2] === "test") {
-  process.env.NODE_ENV = "production";
-  process.env.TEST = true;
+  process.env.REACT_APP_TEST = true;
+} else if (process.argv[2] === "dev") {
+  process.env.REACT_APP_DEV = true;
 }
-let ENCOMPASS = process.argv[3] === "encompass";
-if (ENCOMPASS) {
+let ENCOMPASS = false;
+if (process.argv[3] === "encompass") {
   console.log("building for encompass");
+  ENCOMPASS = true;
   process.env.REACT_APP_ENCOMPASS = true;
 }
 
@@ -123,8 +129,9 @@ measureFileSizesBeforeBuild(ENCOMPASS ? paths.encompassBuild : paths.appBuild)
 // Create the production build and print the deployment instructions.
 function build(previousFileSizes) {
   console.log("Creating an optimized production build...");
-
+  console.log("ECOMPASS: ", ENCOMPASS);
   let compiler = webpack(ENCOMPASS ? encompassConfig : config);
+  console.log(compiler.outputPath);
   return new Promise((resolve, reject) => {
     compiler.run((err, stats) => {
       if (err) {
