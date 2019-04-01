@@ -27,8 +27,24 @@ const validateUser = (req, res, next) => {
     return next();
   }
   const user = utils.getUser(req);
+
   if (_.isNil(user)) {
-    return errors.sendError.InvalidCredentialsError(null, res);
+    let { authorization } = req.headers;
+    console.log(authorization);
+    if (authorization) {
+      models.User.find({ token: authorization })
+        .then(user => {
+          userId = user._id;
+          if (user[req.params.resource].includes(req.params.id)) {
+            next();
+          } else {
+            errors.sendError.NotAuthorizedError(err, null);
+          }
+        })
+        .catch(err => errors.sendError.NotAuthorizedError(err, null));
+    } else {
+      return errors.sendError.InvalidCredentialsError(null, res);
+    }
   }
   next();
 };
