@@ -407,12 +407,16 @@ class EncompassReplayer extends Component {
       "hashchange",
       function() {
         console.log("url changed!", window.location.hash);
+        console.log('vmt roomid', window.vmtRoomId);
+        this.setState({
+          roomId: window.vmtRoomId
+        })
       },
       false
     );
     // MAKE API TO GET ROOM
     // Build a log
-    API.getById("rooms", "5c9b8fcbd0b60d458861808f", false, true).then(res => {
+    API.getById("rooms", "5ca21fed60fa6e519981ca6d", false, true).then(res => {
       let room = res.data.result;
       let allEvents = [];
       room.tabs.forEach(tab => {
@@ -431,7 +435,10 @@ class EncompassReplayer extends Component {
         });
       room.log = allEvents;
       this.setState({ room });
-    });
+    })
+    .catch((err) => {
+      console.log('error ger room', err);
+    })
   }
 
   render() {
