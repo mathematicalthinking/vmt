@@ -25,13 +25,16 @@ console.log("NODE_ENV=", process.env.NODE_ENV);
 console.log("ENCOMPASS: ", process.env.ENCOMPASS);
 // SETUP DATABASE & SESSION
 let mongoURI;
-if (process.env.NODE_ENV === "dev" || process.env.TRAVIS) {
+if (process.env.NODE_ENV === "dev") {
   mongoURI = process.env.MONGO_DEV_URI;
+} else if (provess.env.TRAVIS) {
+  mongoURI = process.env.MONGO_TEST_URI;
 } else if (process.env.NODE_ENV === "production") {
   mongoURI = process.env.MONGO_PROD_URI;
 } else if (process.env.NODE_ENV === "staging") {
   mongoURI = process.env.MONGO_STAGING_URI;
 }
+
 mongoose.connect(mongoURI, (err, res) => {
   if (err) {
     console.log("DB CONNECTION FAILED: " + err);
