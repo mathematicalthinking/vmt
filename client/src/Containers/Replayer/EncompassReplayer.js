@@ -24,14 +24,18 @@ class EncompassReplayer extends Component {
   };
 
   componentDidMount() {
+    let currentUrl = window.location.hash;
+    let roomId = this.getRoomIdFromUrl(currentUrl);
+    this.setState({roomId});
+
     window.addEventListener("hashchange", this.setRoomId, false);
     // MAKE API TO GET ROOM
     // Build a log
     // this.fetchRoom(this.state.roomId)
   }
 
-  componentDidUpdate(prevState) {
-    if (prevState.roomId !== this.state.roomId) {
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.roomId && prevState.roomId !== this.state.roomId) {
       this.fetchRoom(this.state.roomId);
     }
   }
@@ -41,9 +45,9 @@ class EncompassReplayer extends Component {
   }
 
   setRoomId = event => {
-    this.setState({
-      roomId: window.vmtRoomId
-    });
+    let newUrl = event.newURL;
+    let roomId = this.getRoomIdFromUrl(newUrl);
+    this.setState({roomId});
   };
 
   fetchRoom = roomId => {
@@ -71,6 +75,21 @@ class EncompassReplayer extends Component {
       .catch(err => {
         console.log("error ger room", err);
       });
+  };
+
+  getRoomIdFromUrl = url => {
+    if (typeof url !== 'string') {
+      return null;
+    }
+
+    let target = 'vmtRoomId=';
+    let targetIx = url.indexOf(target);
+    let roomId;
+
+    if (targetIx !== -1) {
+      roomId = url.slice(targetIx + target.length);
+    }
+    return roomId || null;
   };
 
   render() {
