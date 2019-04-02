@@ -1,8 +1,5 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import classes from "../Workspace/graph.css";
-import Aux from "../../Components/HOC/Auxil";
-// import { GRAPH_HEIGHT } from '../../constants';
-import Modal from "../../Components/UI/Modal/Modal";
 import Script from "react-load-script";
 class GgbReplayer extends Component {
   state = {
@@ -221,7 +218,7 @@ class GgbReplayer extends Component {
 
   render() {
     return (
-      <Aux>
+      <Fragment>
         <Script
           url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.onScriptLoad}
@@ -231,7 +228,7 @@ class GgbReplayer extends Component {
           id={`ggb-element${this.props.tabId}A`}
           ref={this.graph}
         />
-      </Aux>
+      </Fragment>
     );
   }
 }

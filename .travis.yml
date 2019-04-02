@@ -6,7 +6,7 @@ services:
 install:
   - npm install
   - npm --prefix ./client install ./client
-  - npm run build-production
+  - npm run build-production-test
 cache:
   directories:
     - ~/.npm

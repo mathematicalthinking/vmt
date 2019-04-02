@@ -16,22 +16,29 @@ const configure = require("./config/passport");
 const api = require("./routes/api");
 const auth = require("./routes/auth");
 const desmos = require("./routes/desmos");
+const enc = require("./routes/enc");
 // const test = require('./routes/test');
 
 const app = express();
 
 console.log("NODE_ENV=", process.env.NODE_ENV);
+console.log("ENCOMPASS: ", process.env.ENCOMPASS);
 // SETUP DATABASE & SESSION
 let mongoURI;
 if (process.env.NODE_ENV === "dev") {
   mongoURI = process.env.MONGO_DEV_URI;
+} else if (process.env.TRAVIS) {
+  mongoURI = process.env.MONGO_TEST_URI;
 } else if (process.env.NODE_ENV === "production") {
   mongoURI = process.env.MONGO_PROD_URI;
 } else if (process.env.NODE_ENV === "staging") {
   mongoURI = process.env.MONGO_STAGING_URI;
-} else if (process.env.NODE_ENV) {
+} else if (process.env.NODE_ENV === "test") {
   mongoURI = process.env.MONGO_TEST_URI;
 }
+
+console.log("mongoURI ", mongoURI);
+
 mongoose.connect(mongoURI, (err, res) => {
   if (err) {
     console.log("DB CONNECTION FAILED: " + err);
@@ -86,8 +93,11 @@ app.use(passport.session());
 app.use("/desmos", desmos);
 app.use("/auth", auth);
 app.use("/api", api);
-// app.use('/test', test);
-if (
+app.use("/enc", enc);
+
+if (process.env.ENCOMPASS) {
+  app.use(express.static(path.join(__dirname, "/client/encompassBuild")));
+} else if (
   process.env.NODE_ENV === "travistest" ||
   process.env.NODE_ENV === "production" ||
   process.env.NODE_ENV === "staging"
@@ -96,7 +106,9 @@ if (
 }
 
 app.get("/*", (req, res) => {
-  if (
+  if (process.env.ENCOMPASS) {
+    res.sendFile(path.join(__dirname, "/client/encompassBuild/index.html"));
+  } else if (
     process.env.NODE_ENV === "travistest" ||
     process.env.NODE_ENV === "production" ||
     process.env.NODE_ENV === "staging"

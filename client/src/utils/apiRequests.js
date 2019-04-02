@@ -1,12 +1,38 @@
 import axios from "axios";
 
+let baseURL;
+console.log(process.env.NODE_ENV);
+
+if (process.env.REACT_APP_ENCOMPASS) {
+  baseURL = process.env.REACT_APP_ENCOMPASS_URL_PRODUCTION;
+  if (process.env.REACT_APP_STAGING) {
+    baseURL = process.env.REACT_APP_ENCOMPASS_URL_STAGING;
+  } else if (process.env.REACT_APP_DEV) {
+    baseURL = process.env.REACT_APP_ENCOMPASS_URL_DEV;
+  }
+} else {
+  baseURL = process.env.REACT_APP_SERVER_URL_PRODUCTION;
+  if (process.env.REACT_APP_STAGING) {
+    baseURL = process.env.REACT_APP_SERVER_URL_STAGING;
+  } else if (
+    process.env.REACT_APP_DEV ||
+    process.env.NODE_ENV === "development" ||
+    process.env.REACT_APP_TEST
+  ) {
+    baseURL = process.env.REACT_APP_SERVER_URL_DEV;
+  }
+}
+
+console.log(baseURL);
+const api = axios.create({ baseURL });
+
 export default {
   get: (resource, params) => {
-    return axios.get(`/api/${resource}`, params ? { params } : {});
+    return api.get(`/api/${resource}`, params ? { params } : {});
   },
 
   search: (resource, text, exclude) => {
-    return axios.get(`/api/search/${resource}`, { params: { text, exclude } });
+    return api.get(`/api/search/${resource}`, { params: { text, exclude } });
   },
 
   searchPaginated: (resource, criteria, skip, filters) => {
@@ -14,32 +40,32 @@ export default {
     let params = criteria ? { criteria, skip } : { skip };
     if (privacySetting !== null) params.privacySetting = privacySetting;
     if (roomType !== null) params.roomType = roomType;
-    return axios.get(`/api/searchPaginated/${resource}`, { params });
+    return api.get(`/api/searchPaginated/${resource}`, { params });
   },
 
   post: (resource, body) => {
-    return axios.post(`/api/${resource}`, body);
+    return api.post(`/api/${resource}`, body);
   },
 
   put: (resource, id, body) => {
-    return axios.put(`/api/${resource}/${id}`, body);
+    return api.put(`/api/${resource}/${id}`, body);
   },
 
-  getById: (resource, id, temp, events) => {
+  getById: (resource, id, temp, events, encompass) => {
     if (temp) {
-      return axios.get(`/api/${resource}/${id}/tempRoom`);
+      return api.get(`/api/${resource}/${id}/tempRoom`);
     } else if (events) {
-      return axios.get(`/api/${resource}/${id}`, { params: { events } });
+      return api.get(`/api/${resource}/${id}`, { params: { events } });
     }
-    return axios.get(`/api/${resource}/${id}`);
+    return api.get(`/api/${resource}/${id}`);
   },
 
   remove: (resource, id) => {
-    return axios.delete(`/api/${resource}/${id}`);
+    return api.delete(`/api/${resource}/${id}`);
   },
 
   enterWithCode: (resource, resourceId, userId, entryCode) => {
-    return axios.put(`/api/${resource}/${resourceId}`, {
+    return api.put(`/api/${resource}/${resourceId}`, {
       checkAccess: { userId, entryCode }
     });
   },
@@ -55,7 +81,7 @@ export default {
     // @TODO consider making notificationTypes a directory of constants like action types in redux
     let promises = owners.map(owner => {
       // return axios.put(`/api/user/${owner}`, {notificationType: 'requestAccess', user: userId, resource, _id: resourceId})
-      return axios.post("api/notifications", {
+      return api.post("api/notifications", {
         notificationType: "requestAccess",
         toUser: owner,
         fromUser: userId,
@@ -67,39 +93,39 @@ export default {
   },
 
   removeNotification: ntfId => {
-    return axios.put(`/api/notifications/${ntfId}`, {
+    return api.put(`/api/notifications/${ntfId}`, {
       isTrashed: true
     });
   },
 
   removeMember: (resource, resourceId, user) => {
-    return axios.put(`/api/${resource}/${resourceId}/remove`, {
+    return api.put(`/api/${resource}/${resourceId}/remove`, {
       members: { user }
     });
   },
 
   addUserResource: (resource, resourceId, userId) => {
-    return axios.put(`/api/user/${userId}/add`, { [resource]: resourceId });
+    return api.put(`/api/user/${userId}/add`, { [resource]: resourceId });
   },
 
   inviteUser: () => {},
 
   grantAccess: (user, resource, resourceId, ntfType) => {
-    return axios.put(`/api/${resource}s/${resourceId}/add`, {
+    return api.put(`/api/${resource}s/${resourceId}/add`, {
       members: { user, role: "participant" },
       ntfType
     });
   },
 
   updateMembers: (resource, resourceId, updatedMembers) => {
-    return axios.put(`/api/${resource}/${resourceId}`, {
+    return api.put(`/api/${resource}/${resourceId}`, {
       members: updatedMembers
     });
   },
   getDesmos: url => {
-    return axios.get(`/desmos?url=${url}`);
+    return api.get(`/desmos?url=${url}`);
   },
   uploadGgbFiles: formData => {
-    return axios.post(`/api/upload/ggb`, formData);
+    return api.post(`/api/upload/ggb`, formData);
   }
 };

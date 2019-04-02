@@ -1,5 +1,5 @@
-# Virtual Math Teams (VMT) [![Build Status](https://travis-ci.org/mathematicalthinking/vmt.svg?branch=master)](https://travis-ci.org/mathematicalthinking/vmt) [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+# Virtual Math Teams (VMT) [![Build Status](https://travis-ci.org/mathematicalthinking/vmt.svg?branch=master)](https://travis-ci.org/mathematicalthinking/vmt) [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+
 Virtual Math Teams (VMT) provides a collaboration infrastructure for visual math and geometry tools, such as Geogebra and Desmos. To provide this infrastructure, this version uses React.js and Redux.js, express and sockets.io. see 'Installation' below.
 
 ## License
@@ -38,7 +38,7 @@ To deploy this project to staging or production go to the root level directory a
 
 This can only be done by the core contributors.
 
-## Git Rebase Workflow
+## Contributions and Git Rebase Workflow
 
 1. `git checkout master`
 1. `git pull --rebase upstream master`

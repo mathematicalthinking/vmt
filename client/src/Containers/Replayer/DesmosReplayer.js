@@ -1,8 +1,5 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import Script from "react-load-script";
-import { GRAPH_HEIGHT } from "../../constants";
-import Aux from "../../Components/HOC/Auxil";
-import Modal from "../../Components/UI/Modal/Modal";
 import API from "../../utils/apiRequests";
 class DesmosReplayer extends Component {
   state = {
@@ -78,7 +75,7 @@ class DesmosReplayer extends Component {
 
   render() {
     return (
-      <Aux>
+      <Fragment>
         {!window.Desmos ? (
           <Script
             url="https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"
@@ -90,7 +87,7 @@ class DesmosReplayer extends Component {
           id="calculator"
           ref={this.calculatorRef}
         />
-      </Aux>
+      </Fragment>
     );
   }
 }

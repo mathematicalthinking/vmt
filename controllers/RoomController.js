@@ -41,17 +41,10 @@ module.exports = {
         .populate({ path: "members.user", select: "username" })
         .populate({ path: "currentMembers", select: "username" })
         .populate({ path: "course", select: "name" })
-        .populate({ path: "tabs" })
+        .populate({ path: "tabs", populate: { path: params.events ? 'events': ''} })
         .populate({ path: "graphImage", select: "imageData" })
         .then(room => {
-          if (params.events) {
-            room.populate("tabs.events", (err, popRoom) => {
-              if (err) reject(err);
-              resolve(popRoom);
-            });
-          } else {
-            resolve(room);
-          }
+          resolve(room);
         })
         .catch(err => reject(err));
     });

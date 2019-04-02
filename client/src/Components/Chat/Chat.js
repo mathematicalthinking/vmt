@@ -1,11 +1,10 @@
-import React, { Component } from "react";
-import { Aux, Modal } from "../../Components";
+import React, { Component, Fragment } from "react";
+import Modal from "../../Components/UI/Modal/Modal";
 import Message from "./Message";
 import Event from "./Event";
 // import TextInput from '../Form/TextInput/TextInput';
 import classes from "./chat.css";
 // import Button from '../UI/Button/Button';
-import moment from "moment";
 class Chat extends Component {
   // We need this construcotr, stop deleting it...look @ line29
   constructor(props) {
@@ -262,7 +261,7 @@ class Chat extends Component {
       // displayMessages.push(<div key='end' ref={this.chatEnd}></div>)
     }
     return (
-      <Aux>
+      <Fragment>
         <div
           className={
             this.props.expanded ? classes.Container : classes.CollapsedContainer
@@ -326,7 +325,7 @@ class Chat extends Component {
             Settings
           </Modal>
         ) : null}
-      </Aux>
+      </Fragment>
     );
   }
 }

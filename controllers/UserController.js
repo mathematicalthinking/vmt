@@ -46,6 +46,42 @@ module.exports = {
         .catch(err => reject(err));
     });
   },
+  /**
+   * @param  {String} username
+   * @param {String} resourceName
+   * @param {String} recourses
+   */
+  getUserResources: (token, { resources, resourceName }) => {
+    return db.User.findOne(
+      { token, tokenExpiryDate: { $gt: Date.now() } },
+      { select: resources }
+    )
+      .populate({
+        path: resources,
+        select: "name members intructions image",
+        populate: {
+          path: "members.user",
+          select: "username"
+        }
+      })
+      .then(result => {
+        let filteredResults = {};
+        if (!result) {
+          filteredResults.isInvalidToken = true;
+          return filteredResults;
+        }
+        resources.split(" ").forEach(resource => {
+          // resourceName = resourceName.replace(/\s+/g, "");
+          let regex = new RegExp(resourceName, "i");
+          if (result[resource]) {
+            filteredResults[resource] = result[resource].filter(rec => {
+              return rec.name.match(regex);
+            });
+          }
+        });
+        return filteredResults;
+      });
+  },
 
   post: body => {
     return new Promise((resolve, reject) => {
