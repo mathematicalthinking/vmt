@@ -1,6 +1,7 @@
 import axios from "axios";
 
 let baseURL;
+console.log(process.env.NODE_ENV);
 
 if (process.env.REACT_APP_ENCOMPASS) {
   baseURL = process.env.REACT_APP_ENCOMPASS_URL_PRODUCTION;
@@ -13,7 +14,11 @@ if (process.env.REACT_APP_ENCOMPASS) {
   baseURL = process.env.REACT_APP_SERVER_URL_PRODUCTION;
   if (process.env.REACT_APP_STAGING) {
     baseURL = process.env.REACT_APP_SERVER_URL_STAGING;
-  } else if (process.env.REACT_APP_DEV) {
+  } else if (
+    process.env.REACT_APP_DEV ||
+    process.env.NODE_ENV === "development" ||
+    process.env.REACT_APP_TEST
+  ) {
     baseURL = process.env.REACT_APP_SERVER_URL_DEV;
   }
 }

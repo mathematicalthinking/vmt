@@ -16,7 +16,6 @@ if (process.argv[2] === "staging") {
 }
 let ENCOMPASS = false;
 if (process.argv[3] === "encompass") {
-  console.log("building for encompass");
   ENCOMPASS = true;
   process.env.REACT_APP_ENCOMPASS = true;
 }
