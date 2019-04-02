@@ -33,7 +33,11 @@ if (process.env.NODE_ENV === "dev") {
   mongoURI = process.env.MONGO_PROD_URI;
 } else if (process.env.NODE_ENV === "staging") {
   mongoURI = process.env.MONGO_STAGING_URI;
+} else if (process.env.NODE_ENV === "test") {
+  mongoURI = process.env.MONGO_TEST_URI;
 }
+
+console.log("mongoURI ", mongoURI);
 
 mongoose.connect(mongoURI, (err, res) => {
   if (err) {

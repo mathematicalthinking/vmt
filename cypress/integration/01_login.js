@@ -6,8 +6,8 @@ describe("user signup/login", function() {
   });
   beforeEach(function() {
     cy.window().then(win => {
-      cy.visit("/");
       win.sessionStorage.clear();
+      cy.visit("/");
     });
   });
   it("signs up a new user", function() {
