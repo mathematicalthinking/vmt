@@ -62,6 +62,13 @@ module.exports = {
         populate: {
           path: "members.user",
           select: "username"
+        },
+        populate: {
+          path: "rooms",
+          populate: {
+            path: "members.user",
+            select: "username"
+          }
         }
       })
       .then(result => {
