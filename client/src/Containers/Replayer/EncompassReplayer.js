@@ -26,7 +26,7 @@ class EncompassReplayer extends Component {
   componentDidMount() {
     let currentUrl = window.location.hash;
     let roomId = this.getRoomIdFromUrl(currentUrl);
-    this.setState({roomId});
+    this.setState({ roomId });
 
     window.addEventListener("hashchange", this.setRoomId, false);
     // MAKE API TO GET ROOM
@@ -47,7 +47,7 @@ class EncompassReplayer extends Component {
   setRoomId = event => {
     let newUrl = event.newURL;
     let roomId = this.getRoomIdFromUrl(newUrl);
-    this.setState({roomId});
+    this.setState({ roomId });
   };
 
   fetchRoom = roomId => {
@@ -78,11 +78,11 @@ class EncompassReplayer extends Component {
   };
 
   getRoomIdFromUrl = url => {
-    if (typeof url !== 'string') {
+    if (typeof url !== "string") {
       return null;
     }
 
-    let target = 'vmtRoomId=';
+    let target = "vmtRoomId=";
     let targetIx = url.indexOf(target);
     let roomId;
 
@@ -94,6 +94,7 @@ class EncompassReplayer extends Component {
 
   render() {
     if (this.state.room) {
+      console.log(this.state.room);
       return (
         <div className={classes.EncompassReplayer}>
           <SharedReplayer room={this.state.room} encompass />
