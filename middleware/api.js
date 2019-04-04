@@ -4,6 +4,7 @@ const _ = require("lodash");
 const errors = require("../middleware/errors");
 const helpers = require("../middleware/utils/helpers");
 const models = require("../models");
+const bcrypt = require("bcrypt");
 
 const validateResource = (req, res, next) => {
   const resource = utils.getResource(req);
@@ -21,6 +22,19 @@ const validateId = (req, res, next) => {
   next();
 };
 
+const getEncSecret = () => {
+  let nodeEnv = process.env.NODE_ENV;
+
+  if (nodeEnv === "production") {
+    return process.env.ENC_SECRET_PROD;
+  }
+
+  if (nodeEnv === "staging") {
+    return process.env.ENC_SECRET_STAGING;
+  }
+  return process.env.ENC_SECRET_DEV;
+};
+
 const validateUser = (req, res, next) => {
   let { resource, id } = req.params;
 
@@ -30,37 +44,34 @@ const validateUser = (req, res, next) => {
     return next();
   }
   const user = utils.getUser(req);
-  if (_.isNil(user)) {
-    if (resource === "tabs") {
-      models.Tabs.findById(id)
-        .populate({ path: "room", select: "tempRoom" })
-        // .select("tempRoom")
-        .then(tab => {
-          if (tab.room.tempRoom) {
-            return next();
-          }
-          errors.sendError.NotAuthorizedError(err, null);
-        })
-        .catch(err => {});
-    }
-    let { authorization } = req.headers;
-    if (authorization) {
-      models.User.find({ token: authorization })
-        .then(user => {
-          userId = user._id;
-          if (user[req.params.resource].includes(req.params.id)) {
-            next();
-          } else {
-            errors.sendError.NotAuthorizedError(err, null);
-          }
-        })
-        .catch(err => errors.sendError.NotAuthorizedError(err, null));
-    } else {
-      return errors.sendError.InvalidCredentialsError(null, res);
-    }
-  } else {
-    next();
+
+  if (user) {
+    return next();
   }
+  // currently enc only needs access to /room/:id
+  const allowedResources = {
+    rooms: true
+  };
+
+  let requestedResource = utils.getResource(req);
+  let authorization = req.headers.authorization;
+
+  if (!allowedResources[requestedResource] || !authorization) {
+    return errors.sendError.NotAuthorizedError(null, res);
+  }
+
+  let secret = getEncSecret();
+
+  bcrypt.compare(secret, authorization, function(err, isValid) {
+    if (err) {
+      console.log("error bcrypt compare", err);
+      return errors.sendError.InternalError(null, res);
+    }
+    if (isValid) {
+      return next();
+    }
+    return errors.sendError.NotAuthorizedError(null, res);
+  });
 };
 
 const canModifyResource = req => {
