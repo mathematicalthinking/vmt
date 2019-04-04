@@ -407,6 +407,7 @@ class SharedReplayer extends Component {
           membersExpanded
           chatExpanded
           instructionsExpanded
+          encompass={this.props.encompass}
         />
         {!this.state.allTabsLoaded && this.updatedLog.length > 0 ? (
           <Loading message="Preparing the replayer..." />
