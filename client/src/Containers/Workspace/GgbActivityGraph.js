@@ -158,19 +158,19 @@ class GgbActivityGraph extends Component {
       this.props.tabId
     ];
     console.log(ggbFile);
-    // if (perspective) this.ggbApplet.setPerspective(perspective);
     // initPerspectiveListener(document, perspective, this.perspectiveChanged);
     if (currentState) {
       this.ggbApplet.setXML(currentState);
+      console.log("setting from current state");
     } else if (startingPoint) {
       this.ggbApplet.setXML(startingPoint);
+      console.log("setting from starting point");
     } else if (ggbFile) {
-      console.log("setting base 64");
-      // this.ggbApplet.setBase64(ggbFile);
-      // setTimeout(() => {
-      //   this.setFile();
-      // }, 6000);
-      console.log("set");
+      console.log("setting file");
+      this.ggbApplet.setBase64(ggbFile);
+    } else if (perspective) {
+      console.log("setting perspective");
+      this.ggbApplet.setPerspective(perspective);
     }
     if (this.props.user._id === this.props.activity.creator) {
       this.freezeElements(false);
@@ -231,7 +231,9 @@ class GgbActivityGraph extends Component {
 
   setFile = () => {
     console.log("setting fil!!!e");
-    this.ggbApplet.setBase64(this.props.tabs[this.props.tabId].ggbFile);
+    this.ggbApplet.setBase64(this.props.tabs[this.props.tabId].ggbFile, () => {
+      console.log("set file callback");
+    });
   };
 
   render() {
@@ -253,7 +255,6 @@ class GgbActivityGraph extends Component {
         >
           Set file
         </button>
-        <Modal show={this.state.loading} message="Loading..." />
       </Aux>
     );
   }
