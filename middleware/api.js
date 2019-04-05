@@ -44,7 +44,6 @@ const validateUser = (req, res, next) => {
     return next();
   }
   const user = utils.getUser(req);
-
   if (user) {
     return next();
   }
@@ -54,14 +53,15 @@ const validateUser = (req, res, next) => {
   };
 
   let requestedResource = utils.getResource(req);
+  console.log("rtequested resource", requestedResource);
   let authorization = req.headers.authorization;
-
+  console.log("authorization: ", authorization);
   if (!allowedResources[requestedResource] || !authorization) {
     return errors.sendError.NotAuthorizedError(null, res);
   }
 
   let secret = getEncSecret();
-
+  console.log("secret: ", secret);
   bcrypt.compare(secret, authorization, function(err, isValid) {
     if (err) {
       console.log("error bcrypt compare", err);

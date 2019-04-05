@@ -5,15 +5,20 @@ if [ -d "./client/build" ]; then
   rm -rf ./client/build
 fi
 npm run build-$2
+if [ -d "./client/encompassBuild" ]; then
+  rm -rf ./client/encompassBuild
+fi
+npm run build-encompass-replayer-$2
 if [ -d "./$2" ]; then
   rm -rf ./$2
 fi
 mkdir ./$2
-cp -r ./bin ./config ./controllers ./middleware ./models ./routes ./constants ./staging
+cp -r ./bin ./config ./controllers ./middleware ./models ./routes ./constants ./client/encompassBuild ./staging
 cp app.js package.json socketInit.js sockets.js .env ./$2
 cd $2
 mkdir client
 cp -r ../client/build/ ./client/
+
 echo -e "\e[1;33m Zipping...\e[0m"
 [[ $2 == staging ]] && zip -r VMT-STAGING.zip . || zip VMT-PRODUCTION.zip ./*
 echo -e "\e[1;33m Copying zipped directory...\e[0m"
