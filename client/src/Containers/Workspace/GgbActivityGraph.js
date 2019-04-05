@@ -126,7 +126,7 @@ class GgbActivityGraph extends Component {
   };
 
   onScriptLoad = () => {
-    console.log(this.props);
+    console.log("script loaded");
     const parameters = {
       id: `ggb-element${this.props.tabId}A`,
       // "scaleContainerClasse": "graph",
@@ -139,30 +139,38 @@ class GgbActivityGraph extends Component {
       useBrowserForJS: false,
       borderColor: "#ddd",
       buttonShadows: true,
+      errorDialogsActive: false,
       preventFocus: true,
-      appName: "classic",
+      appName: this.props.tabs[this.props.tabId].appName || "classic",
+      // filename: this.props.tabs[this.props.tabId].ggbFile || null,
       appletOnLoad: this.initializeGgb
     };
-
+    console.log("injecxting");
     const ggbApp = new window.GGBApplet(parameters, "6.0");
     ggbApp.inject(`ggb-element${this.props.tabId}A`);
   };
 
   initializeGgb = () => {
-    console.log("initializing");
+    console.log("initialized");
     this.ggbApplet = window.ggbApplet;
     this.setState({ loading: false });
     let { currentState, startingPoint, ggbFile, perspective } = this.props.tabs[
-      this.props.currentTab
+      this.props.tabId
     ];
-    if (perspective) this.ggbApplet.setPerspective(perspective);
-    initPerspectiveListener(document, perspective, this.perspectiveChanged);
+    console.log(ggbFile);
+    // if (perspective) this.ggbApplet.setPerspective(perspective);
+    // initPerspectiveListener(document, perspective, this.perspectiveChanged);
     if (currentState) {
       this.ggbApplet.setXML(currentState);
     } else if (startingPoint) {
       this.ggbApplet.setXML(startingPoint);
     } else if (ggbFile) {
-      this.ggbApplet.setBase64(ggbFile);
+      console.log("setting base 64");
+      // this.ggbApplet.setBase64(ggbFile);
+      // setTimeout(() => {
+      //   this.setFile();
+      // }, 6000);
+      console.log("set");
     }
     if (this.props.user._id === this.props.activity.creator) {
       this.freezeElements(false);
@@ -221,6 +229,11 @@ class GgbActivityGraph extends Component {
     this.ggbApplet.setMode(freeze ? 40 : 0);
   };
 
+  setFile = () => {
+    console.log("setting fil!!!e");
+    this.ggbApplet.setBase64(this.props.tabs[this.props.tabId].ggbFile);
+  };
+
   render() {
     return (
       <Aux>
@@ -234,6 +247,12 @@ class GgbActivityGraph extends Component {
           id={`ggb-element${this.props.tabId}A`}
           ref={this.graph}
         />
+        <button
+          style={{ position: "fixed", top: 100, left: 300, zIndex: 1000 }}
+          onClick={this.setFile}
+        >
+          Set file
+        </button>
         <Modal show={this.state.loading} message="Loading..." />
       </Aux>
     );
