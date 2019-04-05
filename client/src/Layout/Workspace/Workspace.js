@@ -12,7 +12,6 @@ class WorkspaceLayout extends Component {
 
   render() {
     let {
-      graph,
       chat,
       tabs,
       bottomRight, // rename to tools
@@ -27,6 +26,7 @@ class WorkspaceLayout extends Component {
       loaded,
       isFullscreen
     } = this.props;
+    console.log("HELLO!!! ", graphs);
     // Set text for taking control button based on current control
     // let controlText = 'Take Control';
     // let inControl = false;

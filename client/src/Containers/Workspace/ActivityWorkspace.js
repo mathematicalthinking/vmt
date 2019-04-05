@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import {
   updatedActivity,
@@ -75,6 +75,7 @@ class ActivityWorkspace extends Component {
   render() {
     let { activity, user } = this.props;
     let role = "participant";
+    let graphs;
     if (activity && user.activities.indexOf(this.props.activity._id) >= 0) {
       role = "facilitator";
     }
@@ -82,30 +83,29 @@ class ActivityWorkspace extends Component {
     let tabs;
 
     if (activity && activity.tabs[0].name) {
-      // This che
-      if (
-        this.props.activity.tabs[this.state.currentTab].tabType === "desmos"
-      ) {
-        graph = (
-          <DesmosActivityGraph
-            activity={activity}
-            role={role}
-            currentTab={this.state.currentTab}
-            updateActivityTab={this.props.updateActivityTab}
-          />
-        );
-      } else {
-        graph = (
-          <GgbActivityGraph
-            tabs={activity.tabs}
-            currentTab={this.state.currentTab}
-            role={role}
-            user={user}
-            activity={activity}
-            updateActivityTab={this.props.updateActivityTab}
-          />
-        );
-      }
+      graphs = activity.tabs.map((tab, i) => {
+        if (tab.tabType === "desmos") {
+          return (
+            <DesmosActivityGraph
+              activity={activity}
+              role={role}
+              currentTab={this.state.currentTab}
+              updateActivityTab={this.props.updateActivityTab}
+            />
+          );
+        } else {
+          return (
+            <GgbActivityGraph
+              tabs={activity.tabs}
+              currentTab={this.state.currentTab}
+              role={role}
+              user={user}
+              activity={activity}
+              updateActivityTab={this.props.updateActivityTab}
+            />
+          );
+        }
+      });
       tabs = (
         <Tabs
           tabs={activity.tabs}
@@ -117,10 +117,10 @@ class ActivityWorkspace extends Component {
       );
     }
 
-    return this.props.activity ? (
-      <Aux>
+    return this.props.activity.tabs[0].name ? (
+      <Fragment>
         <WorkspaceLayout
-          graph={graph}
+          graphs={graphs}
           tabs={tabs}
           // activeMember={this.state.activeMember}
           roomName={activity.name} // THIS IS NO GOOD...WE SHOULD CHANGE THE ROOM ATTR TO RESOURCE THAT CAN ACCEPT EITHER A ROOM OR AN ACTIVITY
@@ -176,7 +176,7 @@ class ActivityWorkspace extends Component {
           />
           <Button click={this.createNewActivity}>Copy Activity</Button>
         </Modal>
-      </Aux>
+      </Fragment>
     ) : null;
   }
 }

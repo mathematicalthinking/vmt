@@ -430,7 +430,6 @@ class Workspace extends Component {
     let control = "OTHER";
     if (room.controlledBy === user._id) control = "ME";
     else if (!room.controlledBy) control = "NONE";
-    let Graph;
     let currentMembers = (
       <CurrentMembers
         members={room.members}
