@@ -24,6 +24,7 @@ class WorkspaceLayout extends Component {
       currentTab,
       roomName,
       loaded,
+      activity,
       isFullscreen
     } = this.props;
     console.log("HELLO!!! ", graphs);
@@ -60,7 +61,7 @@ class WorkspaceLayout extends Component {
     return (
       <div
         className={classes.PageContainer}
-        style={{ visibility: loaded ? "visible" : "hidden" }}
+        style={{ visibility: loaded || activity ? "visible" : "hidden" }}
       >
         <div className={classes.Background} />
         <div className={classes.Container}>

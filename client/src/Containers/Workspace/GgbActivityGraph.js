@@ -126,8 +126,9 @@ class GgbActivityGraph extends Component {
   };
 
   onScriptLoad = () => {
+    console.log(this.props);
     const parameters = {
-      id: "ggbApplet",
+      id: `ggb-element${this.props.tabId}A`,
       // "scaleContainerClasse": "graph",
       // customToolBar:
       // "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
@@ -139,15 +140,16 @@ class GgbActivityGraph extends Component {
       borderColor: "#ddd",
       buttonShadows: true,
       preventFocus: true,
-      // "appName":"whiteboard"
+      appName: "classic",
       appletOnLoad: this.initializeGgb
     };
 
-    const ggbApp = new window.GGBApplet(parameters, "5.0");
-    ggbApp.inject("ggb-element");
+    const ggbApp = new window.GGBApplet(parameters, "6.0");
+    ggbApp.inject(`ggb-element${this.props.tabId}A`);
   };
 
   initializeGgb = () => {
+    console.log("initializing");
     this.ggbApplet = window.ggbApplet;
     this.setState({ loading: false });
     let { currentState, startingPoint, ggbFile, perspective } = this.props.tabs[
@@ -226,7 +228,12 @@ class GgbActivityGraph extends Component {
           url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.onScriptLoad}
         />
-        <div className={classes.Graph} id="ggb-element" ref={this.graph} />
+        <div
+          className={classes.Graph}
+          style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0 }}
+          id={`ggb-element${this.props.tabId}A`}
+          ref={this.graph}
+        />
         <Modal show={this.state.loading} message="Loading..." />
       </Aux>
     );

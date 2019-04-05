@@ -7,7 +7,7 @@ import {
   getCurrentActivity,
   createActivity
 } from "../../store/actions";
-import { Aux, Modal, TextInput, Button } from "../../Components";
+import { Modal, TextInput, Button } from "../../Components";
 import {
   DesmosActivityGraph,
   GgbActivityGraph,
@@ -76,12 +76,10 @@ class ActivityWorkspace extends Component {
     let { activity, user } = this.props;
     let role = "participant";
     let graphs;
+    let tabs;
     if (activity && user.activities.indexOf(this.props.activity._id) >= 0) {
       role = "facilitator";
     }
-    let graph;
-    let tabs;
-
     if (activity && activity.tabs[0].name) {
       graphs = activity.tabs.map((tab, i) => {
         if (tab.tabType === "desmos") {
@@ -89,6 +87,7 @@ class ActivityWorkspace extends Component {
             <DesmosActivityGraph
               activity={activity}
               role={role}
+              tabId={i}
               currentTab={this.state.currentTab}
               updateActivityTab={this.props.updateActivityTab}
             />
@@ -100,6 +99,7 @@ class ActivityWorkspace extends Component {
               currentTab={this.state.currentTab}
               role={role}
               user={user}
+              tabId={i}
               activity={activity}
               updateActivityTab={this.props.updateActivityTab}
             />
