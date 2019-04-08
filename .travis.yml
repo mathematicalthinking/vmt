@@ -12,6 +12,6 @@ cache:
     - ~/.npm
     - ~/.cache
 before_script:
-  - node ./bin/www &
+  - node ./bin/www --silent &
 script:
-  - cypress run --browser electron --record --key b6a27be0-bdd5-4a35-99de-8d1d331e2e74
+  - npm run cypress:run
