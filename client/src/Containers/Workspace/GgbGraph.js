@@ -322,6 +322,8 @@ class GgbGraph extends Component {
     if (this.props.currentTab === this.props.tabId) {
       ggbApp.inject(`ggb-element${this.props.tabId}A`);
     } else {
+      // wait to inject other tabs if they're not in focus
+      // i.e. prioritze loading of the current tab
       this.loadingTimer = setInterval(() => {
         if (this.props.isFirstTabLoaded) {
           ggbApp.inject(`ggb-element${this.props.tabId}A`);

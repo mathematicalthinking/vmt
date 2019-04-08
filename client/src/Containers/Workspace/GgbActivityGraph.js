@@ -14,7 +14,7 @@ class GgbActivityGraph extends Component {
   };
 
   graph = React.createRef();
-
+  isFileLoaded = false;
   componentDidMount() {
     window.addEventListener("resize", this.updateDimensions);
   }
@@ -70,12 +70,12 @@ class GgbActivityGraph extends Component {
       perspective: newPerspectiveCode
     });
 
-    // REinitialize listener with new perspective
-    initPerspectiveListener(
-      document,
-      newPerspectiveCode,
-      this.perspectiveChanged
-    );
+    // // REinitialize listener with new perspective
+    // initPerspectiveListener(
+    //   document,
+    //   newPerspectiveCode,
+    //   this.perspectiveChanged
+    // );
   };
 
   updateDimensions = () => {
@@ -141,35 +141,31 @@ class GgbActivityGraph extends Component {
       buttonShadows: true,
       errorDialogsActive: false,
       preventFocus: true,
-      appName: this.props.tabs[this.props.tabId].appName || "classic",
       // filename: this.props.tabs[this.props.tabId].ggbFile || null,
-      appletOnLoad: this.initializeGgb
+      appletOnLoad: this.initializeGgb,
+      appName: this.props.tabs[this.props.tabId].appName || "classic"
     };
-    console.log("injecxting");
     const ggbApp = new window.GGBApplet(parameters, "6.0");
     ggbApp.inject(`ggb-element${this.props.tabId}A`);
   };
 
   initializeGgb = () => {
-    console.log("initialized");
     this.ggbApplet = window.ggbApplet;
     this.setState({ loading: false });
     let { currentState, startingPoint, ggbFile, perspective } = this.props.tabs[
       this.props.tabId
     ];
-    console.log(ggbFile);
     // initPerspectiveListener(document, perspective, this.perspectiveChanged);
     if (currentState) {
       this.ggbApplet.setXML(currentState);
-      console.log("setting from current state");
     } else if (startingPoint) {
       this.ggbApplet.setXML(startingPoint);
-      console.log("setting from starting point");
-    } else if (ggbFile) {
-      console.log("setting file");
-      this.ggbApplet.setBase64(ggbFile);
+    } else if (ggbFile && !this.isFileLoaded) {
+      this.isFileLoaded = true;
+      setTimeout(() => {
+        this.ggbApplet.setBase64(ggbFile);
+      }, 0);
     } else if (perspective) {
-      console.log("setting perspective");
       this.ggbApplet.setPerspective(perspective);
     }
     if (this.props.user._id === this.props.activity.creator) {
@@ -229,13 +225,6 @@ class GgbActivityGraph extends Component {
     this.ggbApplet.setMode(freeze ? 40 : 0);
   };
 
-  setFile = () => {
-    console.log("setting fil!!!e");
-    this.ggbApplet.setBase64(this.props.tabs[this.props.tabId].ggbFile, () => {
-      console.log("set file callback");
-    });
-  };
-
   render() {
     return (
       <Aux>
@@ -249,12 +238,6 @@ class GgbActivityGraph extends Component {
           id={`ggb-element${this.props.tabId}A`}
           ref={this.graph}
         />
-        <button
-          style={{ position: "fixed", top: 100, left: 300, zIndex: 1000 }}
-          onClick={this.setFile}
-        >
-          Set file
-        </button>
       </Aux>
     );
   }
