@@ -14,6 +14,19 @@ import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from "./";
 import { Modal, Aux, CurrentMembers, Loading } from "../../Components";
 import NewTabForm from "../Create/NewTabForm";
 import socket from "../../utils/sockets";
+
+const COLOR_MAP = {
+  0: "#f26247",
+  1: "#FFA200",
+  2: "#71d0f0",
+  3: "#84FE71",
+  5: "#E655FF",
+  6: "#19aa91",
+  8: "#398dee",
+  7: "#ff8d82",
+  8: "#6F6FFF",
+  9: "#FF2A50"
+};
 // import Replayer from ''
 class Workspace extends Component {
   state = {
@@ -53,6 +66,7 @@ class Workspace extends Component {
         });
       }
     } else {
+      this.setState({ myColor: COLOR_MAP[room.members.length - 1] });
       this.initializeListeners();
     }
     window.addEventListener("beforeunload", this.componentCleanup);
@@ -75,6 +89,7 @@ class Workspace extends Component {
     // }
 
     if (!prevProps.room.log && this.props.room.log) {
+      console.log("initializing listeners");
       this.initializeListeners();
     }
 
@@ -454,6 +469,7 @@ class Workspace extends Component {
         />
       );
     }
+    console.log(room.log);
     // {role === 'facilitator' ? <div className={[classes.Tab, classes.NewTab].join(' ')}><div onClick={createNewTab}    className={classes.TabBox}><i className="fas fa-plus"></i></div></div> : null}
     let chat = (
       <Chat
