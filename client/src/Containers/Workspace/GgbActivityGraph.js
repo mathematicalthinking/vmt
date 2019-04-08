@@ -178,27 +178,17 @@ class GgbActivityGraph extends Component {
   };
 
   initializeGgb = () => {
-    console.log(this.props.currentTab);
-    console.log("initializing");
-    console.log(this.isFileLoaded);
     this.ggbApplet = window.ggbApplet;
     // this.setState({ loading: false });
     let { currentState, startingPoint, ggbFile, perspective } = this.props.tabs[
       this.props.tabId
     ];
     //
-    console.log("current state", currentState);
-    console.log("starting point ", startingPoint);
-    console.log("ggbfile", ggbFile);
-    console.log("perspective: ", perspective);
     if (currentState) {
-      console.log("currentState!");
       this.ggbApplet.setXML(currentState);
     } else if (startingPoint) {
-      console.log("startyingpoint");
       this.ggbApplet.setXML(startingPoint);
     } else if (ggbFile && !this.isFileLoaded) {
-      console.log("ggbFile");
       this.isFileLoaded = true;
       this.ggbApplet.setBase64(ggbFile);
     }
