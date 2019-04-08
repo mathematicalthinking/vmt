@@ -339,7 +339,6 @@ class GgbGraph extends Component {
    */
 
   initializeGgb = () => {
-    console.log("initializing ggb");
     this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
     this.ggbApplet.setMode(40); // Sets the tool to zoom
     let { room, tabId } = this.props;
@@ -352,10 +351,7 @@ class GgbGraph extends Component {
       this.ggbApplet.setXML(startingPoint);
     } else if (ggbFile && !this.isFileSet) {
       this.isFileSet = true;
-      console.log("setting file");
-      this.ggbApplet.setBase64(ggbFile, () => {
-        console.log("done loading file");
-      });
+      this.ggbApplet.setBase64(ggbFile);
     }
     this.registerListeners();
     this.props.setFirstTabLoaded();
@@ -565,6 +561,7 @@ class GgbGraph extends Component {
    */
 
   updateListener = label => {
+    console.log("updated!");
     if (this.batchUpdating || this.movingGeos) return;
     if (this.state.receivingData && !this.updatingOn) {
       this.setState({ receivingData: false });

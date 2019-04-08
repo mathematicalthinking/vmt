@@ -22,6 +22,7 @@ class ActivityWorkspace extends Component {
     currentTab: 0,
     creatingNewTab: false,
     addingToMyActivities: false,
+    isFirstTabLoaded: false,
     newName: ""
   };
 
@@ -68,6 +69,10 @@ class ActivityWorkspace extends Component {
     this.props.history.push("/myVMT/activities");
   };
 
+  setFirstTabLoaded = () => {
+    this.setState({ isFirstTabLoaded: true });
+  };
+
   goBack = () => {
     this.props.history.goBack();
   };
@@ -90,6 +95,8 @@ class ActivityWorkspace extends Component {
               tabId={i}
               currentTab={this.state.currentTab}
               updateActivityTab={this.props.updateActivityTab}
+              setFirstTabLoaded={this.setFirstTabLoaded}
+              isFirstTabLoaded={this.state.isFirstTabLoaded}
             />
           );
         } else {
@@ -102,6 +109,8 @@ class ActivityWorkspace extends Component {
               tabId={i}
               activity={activity}
               updateActivityTab={this.props.updateActivityTab}
+              setFirstTabLoaded={this.setFirstTabLoaded}
+              isFirstTabLoaded={this.state.isFirstTabLoaded}
             />
           );
         }
