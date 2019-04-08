@@ -57,6 +57,7 @@
   font-size: 1.5em;
   margin-right: 10px;
   text-align: center;
+  vertical-align: middle;
   color: blue;
 }
 
@@ -89,9 +90,9 @@
 
 .Icons {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
   align-items: center;
-  width: 70px;
+  width: 90px;
   margin-right: 10px;
   color: #666;
 }

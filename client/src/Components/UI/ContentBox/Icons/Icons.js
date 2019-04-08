@@ -1,36 +1,48 @@
-import React from "react";
+import React, { Fragment } from "react";
 import ggbIcon from "./geogebra.png";
 import dsmIcon from "./desmos.png";
-import Aux from "../../../HOC/Auxil";
+import ToolTip from "../../../ToolTip/ToolTip";
+import classes from "./icons.css";
+
 const Icons = React.memo(props => {
   let lock;
   console.log("icons props: ", props);
   if (props.lock && props.listType === "public") {
     lock = (
-      <div style={{ height: 20 }}>
-        <i className="fas fa-lock" />
-      </div>
+      <ToolTip text="private...you don't have access" delay={600}>
+        <i className={["fas fa-lock", classes.Locked].join(" ")} />
+      </ToolTip>
     );
   } else if (props.lock && props.listType === "private") {
     lock = (
-      <div style={{ height: 20 }}>
-        <i className="fas fa-unlock-alt" />
-      </div>
+      <ToolTip text="private...you have access" delay={600}>
+        <i className={["fas fa-unlock-alt", classes.Unlocked].join(" ")} />
+      </ToolTip>
+    );
+  } else {
+    lock = (
+      <ToolTip text="public" delay={600}>
+        <i className={["fas fa-globe-americas", classes.Globe].join(" ")} />
+      </ToolTip>
     );
   }
 
   let roomType;
   if (props.roomType === "desmos") {
-    roomType = <img height={20} width={20} src={dsmIcon} alt="dsm" />;
+    roomType = <img width={25} src={dsmIcon} alt="dsm" />;
   } else if (props.roomType === "geogebra") {
-    roomType = <img height={20} width={20} src={ggbIcon} alt="ggb" />;
+    roomType = <img width={25} src={ggbIcon} alt="ggb" />;
   }
   return (
-    <Aux>
-      {lock}
-      <img src={props.image} height={20} width={20} alt={""} />
-      {roomType}
-    </Aux>
+    <Fragment>
+      <div className={classes.Icon}>
+        <img src={props.image} width={25} alt={""} />
+      </div>
+      <div className={classes.Icon}>{lock}</div>
+      <ToolTip text={props.roomType} delay={600}>
+        <div className={classes.Icon}>{roomType}</div>
+      </ToolTip>
+    </Fragment>
   );
 });
 

@@ -45,7 +45,7 @@ class ContentBox extends PureComponent {
                     image={this.props.image}
                     lock={this.props.locked}
                     roomType={this.props.roomType}
-                    listType={this.props.listType}
+                    listType={this.props.listType} // private means the list is displayed in myVMT public means its displayed on /community
                   />
                 </div>
                 <div className={classes.Title} data-testid="">
