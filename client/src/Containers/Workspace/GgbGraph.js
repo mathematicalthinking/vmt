@@ -24,6 +24,7 @@ class GgbGraph extends Component {
   movingGeos = false;
   pointSelected = null;
   shapeSelected = null;
+  isFileSet = false; // calling ggb.setBase64 triggers this.initializeGgb(), because we set base 64 inside initializeGgb we use this instance var to track whether we've already set the file. When the ggb tries to load the file twice it breaks everything
   socketQueue = [];
   previousEvent = null; // Prevent repeat events from firing (for example if they keep selecting the same tool)
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
@@ -336,20 +337,23 @@ class GgbGraph extends Component {
    */
 
   initializeGgb = () => {
+    console.log("initializing ggb");
     this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
     this.ggbApplet.setMode(40); // Sets the tool to zoom
-    let { room, currentTab, tabId } = this.props;
-    let { currentState, startingPoint, ggbFile, perspective } = room.tabs[
-      tabId
-    ];
+    let { room, tabId } = this.props;
+    let { currentState, startingPoint, ggbFile } = room.tabs[tabId];
     // put the current construction on the graph, disable everything until the user takes control
     // if (perspective) this.ggbApplet.setPerspective(perspective);
     if (currentState) {
       this.ggbApplet.setXML(currentState);
     } else if (startingPoint) {
       this.ggbApplet.setXML(startingPoint);
-    } else if (ggbFile) {
-      this.ggbApplet.setBase64(ggbFile);
+    } else if (ggbFile && !this.isFileSet) {
+      this.isFileSet = true;
+      console.log("setting file");
+      this.ggbApplet.setBase64(ggbFile, () => {
+        console.log("done loading file");
+      });
     }
     this.registerListeners();
     this.props.setFirstTabLoaded();
@@ -616,7 +620,7 @@ class GgbGraph extends Component {
   };
 
   /**
-   * @method sendEvnetBuffer
+   * @method sendEventBuffer
    * @description --- creates a buffer for sending events across the websocket.
    *  Because dragging a shape or point causes the update handler to fire every 10 to 20 ms, the
    *  constant sending of events across the network starts to slow things down. Instead of sending each
