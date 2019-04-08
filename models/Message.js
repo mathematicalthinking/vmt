@@ -25,7 +25,7 @@ const Message = new mongoose.Schema({
     ],
     default: "TEXT"
   },
-  color: { type: String, required: true },
+  color: { type: String, default: "#333" },
   isTrashed: { type: Boolean, default: false }
 });
 

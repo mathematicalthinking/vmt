@@ -10,7 +10,6 @@ class DesmosReplayer extends Component {
 
   componentDidMount() {
     if (window.Desmos) {
-      console.log("already loaded");
       let { inView, tab } = this.props;
       this.calculator = window.Desmos.GraphingCalculator(
         this.calculatorRef.current
