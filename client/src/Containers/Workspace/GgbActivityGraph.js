@@ -3,65 +3,84 @@ import React, { Component } from "react";
 import { parseString } from "xml2js";
 import throttle from "lodash/throttle";
 import { Aux, Modal } from "../../Components";
-import INITIAL_GGB from "./blankGgb";
-import { initPerspectiveListener } from "./ggbUtils.js";
 import Script from "react-load-script";
 import classes from "./graph.css";
 
 class GgbActivityGraph extends Component {
   state = {
-    loading: true
+    // loading: true
   };
 
   graph = React.createRef();
-
+  isFileLoaded = false;
   componentDidMount() {
     window.addEventListener("resize", this.updateDimensions);
+    // if (window.ggbApplet) {
+    //   this.initializeGgb();
+    // }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.currentTab !== this.props.currentTab) {
-      // by wrapping this in a setimteout of 0 I'm attempting to delay all of the event blocking geogebra operations
-      // until after any UI updates////can't quite tell if it working...when switching tab the tab animation should be smoothe
-      setTimeout(() => {
-        let {
-          currentState,
-          startingPoint,
-          ggbFile,
-          perspective
-        } = this.props.tabs[this.props.currentTab];
-        if (perspective) this.ggbApplet.setPerspective(perspective);
-        initPerspectiveListener(document, perspective, this.perspectiveChanged);
-        if (currentState) {
-          this.ggbApplet.setXML(currentState);
-          this.registerListeners();
-        } else if (startingPoint) {
-          this.ggbApplet.setXML(startingPoint);
-          this.registerListeners();
-        } else if (ggbFile) {
-          this.ggbApplet.setBase64(ggbFile, () => {
-            this.getGgbState();
-            if (this.props.user._id === this.props.activity.creator) {
-              this.freezeElements(false);
-            }
-          });
-        } else {
-          this.ggbApplet.setXML(INITIAL_GGB);
-          this.registerListeners();
-        }
-      }, 0);
-      // Waiting for the tabs to populate if they haven't akready
-    } else if (
-      !prevProps.tabs[0].name &&
-      this.props.tabs[0].name &&
-      !this.state.loading
-    ) {
-      this.initializeGgb();
-    }
+    // if (prevProps.currentTab !== this.props.currentTab) {
+    //   // by wrapping this in a setimteout of 0 I'm attempting to delay all of the event blocking geogebra operations
+    //   // until after any UI updates////can't quite tell if it working...when switching tab the tab animation should be smoothe
+    //   setTimeout(() => {
+    //     let {
+    //       currentState,
+    //       startingPoint,
+    //       ggbFile,
+    //       perspective
+    //     } = this.props.tabs[this.props.currentTab];
+    //     if (perspective) this.ggbApplet.setPerspective(perspective);
+    //     initPerspectiveListener(document, perspective, this.perspectiveChanged);
+    //     if (currentState) {
+    //       this.ggbApplet.setXML(currentState);
+    //       this.registerListeners();
+    //     } else if (startingPoint) {
+    //       this.ggbApplet.setXML(startingPoint);
+    //       this.registerListeners();
+    //     } else if (ggbFile) {
+    //       this.ggbApplet.setBase64(ggbFile, () => {
+    //         this.getGgbState();
+    //         if (this.props.user._id === this.props.activity.creator) {
+    //           this.freezeElements(false);
+    //         }
+    //       });
+    //     } else {
+    //       // this.ggbApplet.setXML(INITIAL_GGB);
+    //       this.registerListeners();
+    //     }
+    //   }, 0);
+    //   // Waiting for the tabs to populate if they haven't akready
+    // } else if (!prevProps.tabs[0].name && this.props.tabs[0].name) {
+    //   this.initializeGgb();
+    // }
   }
+
+  // shouldComponentUpdate(nextProps) {
+  //   return (
+  //     this.props.tabId === this.props.currentTab ||
+  //     nextProps.tabId === nextProps.currentTab
+  //   );
+  // }
 
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions);
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+    if (this.loadingTimer) {
+      clearInterval(this.loadingTimer);
+    }
+    if (this.ggbApplet && this.ggbApplet.listeners) {
+      // delete window.ggbApplet;
+      this.ggbApplet.unregisterAddListener(this.addListener);
+      this.ggbApplet.unregisterUpdateListener();
+      this.ggbApplet.unregisterRemoveListener(this.eventListener);
+      this.ggbApplet.unregisterClearListener(this.clearListener);
+      this.ggbApplet.unregisterClientListener(this.clientListener);
+    }
+    delete window.ggbApplet;
   }
 
   perspectiveChanged = newPerspectiveCode => {
@@ -70,12 +89,12 @@ class GgbActivityGraph extends Component {
       perspective: newPerspectiveCode
     });
 
-    // REinitialize listener with new perspective
-    initPerspectiveListener(
-      document,
-      newPerspectiveCode,
-      this.perspectiveChanged
-    );
+    // // REinitialize listener with new perspective
+    // initPerspectiveListener(
+    //   document,
+    //   newPerspectiveCode,
+    //   this.perspectiveChanged
+    // );
   };
 
   updateDimensions = () => {
@@ -126,8 +145,9 @@ class GgbActivityGraph extends Component {
   };
 
   onScriptLoad = () => {
+    console.log("script loaded");
     const parameters = {
-      id: "ggbApplet",
+      id: `ggb-element${this.props.tabId}A`,
       // "scaleContainerClasse": "graph",
       // customToolBar:
       // "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
@@ -138,30 +158,44 @@ class GgbActivityGraph extends Component {
       useBrowserForJS: false,
       borderColor: "#ddd",
       buttonShadows: true,
+      errorDialogsActive: false,
       preventFocus: true,
-      // "appName":"whiteboard"
-      appletOnLoad: this.initializeGgb
+      // filename: this.props.tabs[this.props.tabId].ggbFile || null,
+      appletOnLoad: this.initializeGgb,
+      appName: this.props.tabs[this.props.tabId].appName || "classic"
     };
-
-    const ggbApp = new window.GGBApplet(parameters, "5.0");
-    ggbApp.inject("ggb-element");
+    const ggbApp = new window.GGBApplet(parameters, "6.0");
+    if (this.props.currentTab === this.props.tabId) {
+      ggbApp.inject(`ggb-element${this.props.tabId}A`);
+    } else {
+      this.loadingTimer = setInterval(() => {
+        if (this.props.isFirstTabLoaded) {
+          ggbApp.inject(`ggb-element${this.props.tabId}A`);
+          clearInterval(this.loadingTimer);
+        }
+      }, 500);
+    }
   };
 
   initializeGgb = () => {
     this.ggbApplet = window.ggbApplet;
-    this.setState({ loading: false });
+    // this.setState({ loading: false });
     let { currentState, startingPoint, ggbFile, perspective } = this.props.tabs[
-      this.props.currentTab
+      this.props.tabId
     ];
-    if (perspective) this.ggbApplet.setPerspective(perspective);
-    initPerspectiveListener(document, perspective, this.perspectiveChanged);
+    //
     if (currentState) {
       this.ggbApplet.setXML(currentState);
     } else if (startingPoint) {
       this.ggbApplet.setXML(startingPoint);
-    } else if (ggbFile) {
+    } else if (ggbFile && !this.isFileLoaded) {
+      this.isFileLoaded = true;
       this.ggbApplet.setBase64(ggbFile);
     }
+    //  else if (perspective) {
+    //   console.log("[erspecitve");
+    //   this.ggbApplet.setPerspective(perspective);
+    // }
     if (this.props.user._id === this.props.activity.creator) {
       this.freezeElements(false);
       // this.freezeElements(true)
@@ -169,6 +203,7 @@ class GgbActivityGraph extends Component {
       this.freezeElements(true);
     }
     this.registerListeners();
+    this.props.setFirstTabLoaded();
     // put the current construction on the graph, disable everything until the user takes control
   };
 
@@ -226,8 +261,12 @@ class GgbActivityGraph extends Component {
           url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.onScriptLoad}
         />
-        <div className={classes.Graph} id="ggb-element" ref={this.graph} />
-        <Modal show={this.state.loading} message="Loading..." />
+        <div
+          className={classes.Graph}
+          style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0 }}
+          id={`ggb-element${this.props.tabId}A`}
+          ref={this.graph}
+        />
       </Aux>
     );
   }

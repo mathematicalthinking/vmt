@@ -12,7 +12,6 @@ class WorkspaceLayout extends Component {
 
   render() {
     let {
-      graph,
       chat,
       tabs,
       bottomRight, // rename to tools
@@ -25,8 +24,10 @@ class WorkspaceLayout extends Component {
       currentTab,
       roomName,
       loaded,
+      activity,
       isFullscreen
     } = this.props;
+    console.log("HELLO!!! ", graphs);
     // Set text for taking control button based on current control
     // let controlText = 'Take Control';
     // let inControl = false;
@@ -60,7 +61,7 @@ class WorkspaceLayout extends Component {
     return (
       <div
         className={classes.PageContainer}
-        style={{ visibility: loaded ? "visible" : "hidden" }}
+        style={{ visibility: loaded || activity ? "visible" : "hidden" }}
       >
         <div className={classes.Background} />
         <div className={classes.Container}>

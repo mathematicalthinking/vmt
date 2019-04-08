@@ -27,10 +27,9 @@ const validateUser = (req, res, next) => {
     return next();
   }
   const user = utils.getUser(req);
-
+  console.log("user: ", user);
   if (_.isNil(user)) {
     let { authorization } = req.headers;
-    console.log(authorization);
     if (authorization) {
       models.User.find({ token: authorization })
         .then(user => {
