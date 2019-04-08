@@ -4,6 +4,7 @@ node_js:
 services:
   - mongodb
 install:
+  - npm ci
   - npm install
   - npm --prefix ./client install ./client
   - npm run build-production-test
@@ -12,6 +13,9 @@ cache:
     - ~/.npm
     - ~/.cache
 before_script:
-  - node ./bin/www --silent &
+  ## we use the '&' ampersand which tells
+  ## travis to run this process in the background
+  ## else it would block execution and hang travis
+  - node ./bin/www &
 script:
   - npm run cypress:run
