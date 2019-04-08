@@ -15,8 +15,8 @@ import socket from "../../utils/sockets";
 // import Replayer from ''
 class TempWorkspace extends Component {
   state = {
-    room: undefined,
-    user: undefined,
+    room: null,
+    user: null,
     tempUsername: null,
     errorMessage: "",
     unloading: false,
