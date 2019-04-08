@@ -53,7 +53,7 @@ export default {
 
   getById: (resource, id, temp, events, encompass) => {
     if (temp) {
-      return api.get(`/api/${resource}/${id}/tempRoom`);
+      return api.get(`/api/${resource}/${id}/tempRoom`, { params: { events } });
     } else if (events) {
       return api.get(`/api/${resource}/${id}`, { params: { events } });
     }

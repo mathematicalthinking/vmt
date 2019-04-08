@@ -95,7 +95,7 @@ router.get("/:resource/:id/:tempRoom", (req, res, next) => {
   let { id, resource } = req.params;
   let controller = controllers[resource];
   controller
-    .getById(id)
+    .getById(id, req.query)
     .then(result => res.json({ result }))
     .catch(err => {
       console.error(`Error get ${resource}/${id}: ${err}`);

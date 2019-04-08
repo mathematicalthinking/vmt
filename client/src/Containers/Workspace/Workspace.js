@@ -519,6 +519,7 @@ class Workspace extends Component {
         );
       }
     });
+    console.log("workspace props: ", this.props);
     return (
       <Aux>
         {!this.state.isFirstTabLoaded ? (

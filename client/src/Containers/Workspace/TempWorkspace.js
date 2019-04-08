@@ -28,7 +28,10 @@ class TempWorkspace extends Component {
 
   componentDidMount() {
     window.addEventListener("beforeunload", this.confirmUnload);
-    this.props.populateRoom(this.props.match.params.id, { temp: true });
+    this.props.populateRoom(this.props.match.params.id, {
+      temp: true,
+      events: !this.state.fistEntry
+    });
     // If there is no room by this id ins the user's store, then they're not the first to join
     // The user creating this room will it have in their store. A user who just drops the link in their url bar will not have it in the store
     if (!this.props.room || this.props.room.currentMembers.length > 0) {
@@ -70,12 +73,15 @@ class TempWorkspace extends Component {
     }
 
     const { id } = this.props.match.params;
+    console.log("propsROOM: ", this.props.room);
+    console.log("stateROOM: ", this.state.room);
     let sendData = {
       username: username,
       userId: this.props.userId, // this will be undefined if they're not logged in
       tempRoom: true,
       roomName: `temporary room ${id.slice(0, 5)}...`,
       roomId: id,
+      color: this.props.room.members[0],
       tabId: this.props.room.tabs[0]._id,
       roomType: graphType, // this wil be undefined if its not the first user in the room
       firstEntry: this.state.firstEntry

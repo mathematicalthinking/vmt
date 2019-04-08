@@ -9,7 +9,7 @@ process.env.NODE_ENV = "production";
 
 if (process.argv[2] === "staging") {
   process.env.REACT_APP_STAGING = true;
-} else if (process.argv[2] === "test") {
+} else if (process.argv[2] === "test" || process.argv[2] === "travistest") {
   process.env.REACT_APP_TEST = true;
 } else if (process.argv[2] === "dev") {
   process.env.REACT_APP_DEV = true;
