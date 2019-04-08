@@ -728,14 +728,12 @@ class GgbGraph extends Component {
     if (eventQueue && eventQueue.length > 0) {
       newData.eventArray = eventQueue;
     }
-    console.log("adding to log");
     this.props.addToLog(this.props.room._id, newData);
 
     if (this.updatingTab) {
       clearTimeout(this.updatingTab);
       this.updatingTab = null;
     }
-    console.log("SENDING EVENT: ", newData);
     socket.emit("SEND_EVENT", newData);
     this.updatingTab = setTimeout(this.updateConstructionState, 3000);
     this.timer = null;

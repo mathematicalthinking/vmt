@@ -4,6 +4,7 @@ import dsmIcon from "./desmos.png";
 import Aux from "../../../HOC/Auxil";
 const Icons = React.memo(props => {
   let lock;
+  console.log("icons props: ", props);
   if (props.lock && props.listType === "public") {
     lock = (
       <div style={{ height: 20 }}>

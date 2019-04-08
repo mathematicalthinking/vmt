@@ -7,9 +7,6 @@ import Expand from "./expand.js";
 
 class ContentBox extends PureComponent {
   state = {
-    showOverlay: false,
-    selectAnimation: false,
-    selected: false,
     expanded: false
   };
 
@@ -21,16 +18,6 @@ class ContentBox extends PureComponent {
     });
   };
 
-  hoverOnSelect = () => {
-    this.setState({ showOverlay: true });
-  };
-
-  select = () => {
-    if (this.state.selected) return;
-    this.setState({ selectAnimation: true });
-    this.props.select(this.props.id);
-    setTimeout(this.setState({ selected: true }), 400);
-  };
   render() {
     const notifications =
       this.props.notifications > 0 ? (

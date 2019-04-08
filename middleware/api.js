@@ -22,30 +22,45 @@ const validateId = (req, res, next) => {
 };
 
 const validateUser = (req, res, next) => {
-  if (req.body.tempRoom) {
-    // temp rooms do not require a validated user
-    return next();
-  }
-  const user = utils.getUser(req);
-  console.log("user: ", user);
-  if (_.isNil(user)) {
-    let { authorization } = req.headers;
-    if (authorization) {
-      models.User.find({ token: authorization })
-        .then(user => {
-          userId = user._id;
-          if (user[req.params.resource].includes(req.params.id)) {
-            next();
-          } else {
-            errors.sendError.NotAuthorizedError(err, null);
-          }
-        })
-        .catch(err => errors.sendError.NotAuthorizedError(err, null));
-    } else {
-      return errors.sendError.InvalidCredentialsError(null, res);
+  console.log(Object.keys(req.body));
+  console.log(req.params);
+  let { resource, id } = req.params;
+  if (resource === "tabs") {
+    console.log("id: ", id);
+    models.Tabs.findById(id)
+      .populate({ path: "room", select: "tempRoom" })
+      // .select("tempRoom")
+      .then(res => {
+        console.log("TEMP ROOM: ", res);
+      })
+      .catch(err => console.log(err));
+  } else {
+    if (req.body.tempRoom) {
+      // @todo we need to CHECK this resource is a tempRoom, not take this req's word for it.
+      // temp rooms do not require a validated user
+      return next();
     }
+    const user = utils.getUser(req);
+    console.log("user: ", user);
+    if (_.isNil(user)) {
+      let { authorization } = req.headers;
+      if (authorization) {
+        models.User.find({ token: authorization })
+          .then(user => {
+            userId = user._id;
+            if (user[req.params.resource].includes(req.params.id)) {
+              next();
+            } else {
+              errors.sendError.NotAuthorizedError(err, null);
+            }
+          })
+          .catch(err => errors.sendError.NotAuthorizedError(err, null));
+      } else {
+        return errors.sendError.InvalidCredentialsError(null, res);
+      }
+    }
+    next();
   }
-  next();
 };
 
 const canModifyResource = req => {

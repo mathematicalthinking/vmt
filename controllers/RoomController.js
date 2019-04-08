@@ -16,7 +16,6 @@ module.exports = {
       params.tempRoom = false; // we don't want any temporary rooms
     }
     return new Promise((resolve, reject) => {
-      console.log("no we in here");
       db.Room.find(params)
         .sort("-createdAt")
         .populate({ path: "members.user", select: "username" })
@@ -32,7 +31,6 @@ module.exports = {
 
   getById: (id, params) => {
     return new Promise((resolve, reject) => {
-      console.log("we in here: ", params);
       db.Room.findById(id)
         .populate({ path: "creator", select: "username" })
         .populate({
@@ -65,7 +63,7 @@ module.exports = {
       .sort("-createdAt")
       .populate({ path: "members.user", select: "username" })
       .populate({ path: "tabs", select: "tabType" })
-      .select("name members description tabs privacySetting")
+      .select("name members description tabs privacySetting image")
       .then(rooms => {
         if (filters.roomType) {
           return rooms.filter(room => {

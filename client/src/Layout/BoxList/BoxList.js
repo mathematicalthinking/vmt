@@ -4,6 +4,7 @@ import DragContentBox from "../../Components/UI/ContentBox/DragContentBox";
 
 import classes from "./boxList.css";
 const boxList = React.memo(props => {
+  console.log("boxlist props: ", props);
   let listElems = "There doesn't appear to be anything here yet";
   if (props.list.length > 0) {
     listElems = props.list.map((item, i) => {
