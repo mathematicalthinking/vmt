@@ -1,5 +1,5 @@
 import * as actionTypes from "./actionTypes";
-import auth from "../../utils/auth";
+import AUTH from "../../utils/auth";
 import { normalize } from "../utils/normalize";
 import API from "../../utils/apiRequests";
 import * as loading from "./loading";
@@ -66,8 +66,18 @@ export const removeUserRooms = roomIdsArr => {
   };
 };
 
-export const logout = () => {
+export const loggedOut = () => {
   return { type: actionTypes.LOGOUT };
+};
+
+export const logout = () => {
+  return dispatch => {
+    AUTH.logout()
+      .then(res => {
+        dispatch(loggedOut());
+      })
+      .catch(err => dispatch(loading.fail(err)));
+  };
 };
 
 export const addUserCourseTemplates = newTemplate => {
@@ -129,8 +139,7 @@ export const signup = (body, room) => {
       // dispatch(updateRoomMembers(room, {user:{username: body.username, _id: body._id}, role: 'facilitator'}))
     }
     dispatch(loading.start());
-    auth
-      .signup(body)
+    AUTH.signup(body)
       .then(res => {
         if (res.data.errorMessage)
           return dispatch(loading.fail(res.data.errorMessage));
@@ -146,8 +155,7 @@ export const signup = (body, room) => {
 export const login = (username, password) => {
   return (dispatch, getState) => {
     dispatch(loading.start());
-    auth
-      .login(username, password)
+    AUTH.login(username, password)
       .then(res => {
         if (res.data.errorMessage) {
           return dispatch(loading.fail(res.data.errorMessage));
@@ -209,8 +217,7 @@ export const getUser = id => {
 export const googleLogin = (username, password) => {
   return dispatch => {
     dispatch(loading.start());
-    auth
-      .googleLogin(username, password)
+    AUTH.googleLogin(username, password)
       .then(res => {
         dispatch(loading.success(res));
       })

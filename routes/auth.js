@@ -60,10 +60,10 @@ router.post("/enc", (req, res, next) => {
   User.findOne({ username })
     .then(user => {
       if (!user) {
-        return res.json({errorMessage: 'Incorrect username'});
+        return res.json({ errorMessage: "Incorrect username" });
       }
       if (!bcrypt.compareSync(password, user.password)) {
-        return res.json({errorMessage: 'Incorrect password'});
+        return res.json({ errorMessage: "Incorrect password" });
       } else {
         let userSummary = {};
         userSummary.username = user.username;
@@ -82,6 +82,15 @@ router.post("/enc", (req, res, next) => {
       console.log("ERROR ", err);
       return errors.sendError.InternalError(err, res);
     });
+});
+
+router.post("/logout", (req, res, next) => {
+  try {
+    req.logout();
+    res.json({ result: "success" });
+  } catch (err) {
+    res.status(500);
+  }
 });
 
 router.get("/googleAuth", (req, res, next) => {
