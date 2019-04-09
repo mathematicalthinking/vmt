@@ -7,7 +7,7 @@ import {
   getCurrentActivity,
   createActivity
 } from "../../store/actions";
-import { Modal, TextInput, Button } from "../../Components";
+import { Modal, TextInput, Button, Loading } from "../../Components";
 import {
   DesmosActivityGraph,
   GgbActivityGraph,
@@ -125,43 +125,49 @@ class ActivityWorkspace extends Component {
         />
       );
     }
-
-    return this.props.activity.tabs[0].name ? (
+    console.log("first tab is loaded: ", this.state.isFirstTabLoaded);
+    console.log(this.props.activity);
+    return (
       <Fragment>
-        <WorkspaceLayout
-          graphs={graphs}
-          tabs={tabs}
-          // activeMember={this.state.activeMember}
-          roomName={activity.name} // THIS IS NO GOOD...WE SHOULD CHANGE THE ROOM ATTR TO RESOURCE THAT CAN ACCEPT EITHER A ROOM OR AN ACTIVITY
-          user={this.props.user}
-          role={role} // oh shit role is taken...its for a11y  stuff
-          currentTab={this.state.currentTab}
-          // updateRoom={this.props.updateRoom}
-          bottomRight={
-            <ActivityTools
-              owner={role === "facilitator"}
-              goBack={this.goBack}
-              copy={this.addToMyActivities}
-            />
-          }
-          bottomLeft={
-            <RoomInfo
-              temp={this.props.temp}
-              role={role}
-              updateRoom={this.props.updateRoom}
-              room={activity}
-              currentTab={this.state.currentTab}
-            />
-          }
-          updatedActivity={this.props.updatedActivity}
-          updateActivityTab={this.props.updateActivityTab}
-          copyActivity={this.addToMyActivities}
-          inControl
-          activity
-          createNewTab={this.createNewTab}
-          changeTab={this.changeTab}
-          setStartingPoint={this.setStartingPoint}
-        />
+        {!this.state.isFirstTabLoaded ? (
+          <Loading message="Preparing your activity..." />
+        ) : null}
+        {this.props.activity && this.props.activity.tabs[0].name ? (
+          <WorkspaceLayout
+            graphs={graphs}
+            tabs={tabs}
+            // activeMember={this.state.activeMember}
+            roomName={activity.name} // THIS IS NO GOOD...WE SHOULD CHANGE THE ROOM ATTR TO RESOURCE THAT CAN ACCEPT EITHER A ROOM OR AN ACTIVITY
+            user={this.props.user}
+            role={role} // oh shit role is taken...its for a11y  stuff
+            currentTab={this.state.currentTab}
+            // updateRoom={this.props.updateRoom}
+            bottomRight={
+              <ActivityTools
+                owner={role === "facilitator"}
+                goBack={this.goBack}
+                copy={this.addToMyActivities}
+              />
+            }
+            bottomLeft={
+              <RoomInfo
+                temp={this.props.temp}
+                role={role}
+                updateRoom={this.props.updateRoom}
+                room={activity}
+                currentTab={this.state.currentTab}
+              />
+            }
+            updatedActivity={this.props.updatedActivity}
+            updateActivityTab={this.props.updateActivityTab}
+            copyActivity={this.addToMyActivities}
+            inControl
+            activity
+            createNewTab={this.createNewTab}
+            changeTab={this.changeTab}
+            setStartingPoint={this.setStartingPoint}
+          />
+        ) : null}
         <Modal show={this.state.creatingNewTab} closeModal={this.closeModal}>
           <NewTabForm
             activity={this.props.activity}
@@ -186,7 +192,7 @@ class ActivityWorkspace extends Component {
           <Button click={this.createNewActivity}>Copy Activity</Button>
         </Modal>
       </Fragment>
-    ) : null;
+    );
   }
 }
 

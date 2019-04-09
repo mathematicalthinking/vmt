@@ -111,7 +111,9 @@ class WorkspaceLayout extends Component {
             >
               {chat}
             </div>
-            <div className={classes.Tools}>{bottomRight}</div>
+            <div className={activity ? classes.ActivityTools : classes.Tools}>
+              {bottomRight}
+            </div>
             <div className={classes.Members} style={{ height: membersHeight }}>
               {currentMembers}
             </div>

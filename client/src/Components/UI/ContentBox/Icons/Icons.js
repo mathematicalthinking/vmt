@@ -6,7 +6,6 @@ import classes from "./icons.css";
 
 const Icons = React.memo(props => {
   let lock;
-  console.log("icons props: ", props);
   if (props.lock && props.listType === "public") {
     lock = (
       <ToolTip text="private" delay={600}>

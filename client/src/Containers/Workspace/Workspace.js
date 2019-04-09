@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import {
   updateRoom,
@@ -536,7 +536,7 @@ class Workspace extends Component {
       }
     });
     return (
-      <Aux>
+      <Fragment>
         {!this.state.isFirstTabLoaded ? (
           <Loading message="Preparing your room..." />
         ) : null}
@@ -585,7 +585,7 @@ class Workspace extends Component {
             sendEvent={this.emitNewTab}
           />
         </Modal>
-      </Aux>
+      </Fragment>
     );
   }
 }

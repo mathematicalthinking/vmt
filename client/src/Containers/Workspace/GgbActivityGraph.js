@@ -203,6 +203,7 @@ class GgbActivityGraph extends Component {
       this.freezeElements(true);
     }
     this.registerListeners();
+    console.log("first tab loaded");
     this.props.setFirstTabLoaded();
     // put the current construction on the graph, disable everything until the user takes control
   };

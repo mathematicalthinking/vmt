@@ -73,8 +73,6 @@ class TempWorkspace extends Component {
     }
 
     const { id } = this.props.match.params;
-    console.log("propsROOM: ", this.props.room);
-    console.log("stateROOM: ", this.state.room);
     let sendData = {
       username: username,
       userId: this.props.userId, // this will be undefined if they're not logged in

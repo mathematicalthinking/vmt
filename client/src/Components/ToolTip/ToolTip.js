@@ -16,7 +16,6 @@ class ToolTip extends Component {
   }
   setVisible = () => {
     if (this.props.delay) {
-      console.log("delay...setting timer by ", this.props.delay);
       this.timer = setTimeout(() => {
         let {
           top,
