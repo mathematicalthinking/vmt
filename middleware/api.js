@@ -22,16 +22,14 @@ const validateId = (req, res, next) => {
 };
 
 const validateUser = (req, res, next) => {
-  console.log(Object.keys(req.body));
-  console.log(req.params);
   let { resource, id } = req.params;
   if (resource === "tabs") {
-    console.log("id: ", id);
     models.Tabs.findById(id)
       .populate({ path: "room", select: "tempRoom" })
       // .select("tempRoom")
       .then(res => {
         console.log("TEMP ROOM: ", res);
+        next();
       })
       .catch(err => console.log(err));
   } else {
@@ -41,7 +39,6 @@ const validateUser = (req, res, next) => {
       return next();
     }
     const user = utils.getUser(req);
-    console.log("user: ", user);
     if (_.isNil(user)) {
       let { authorization } = req.headers;
       if (authorization) {
@@ -64,6 +61,7 @@ const validateUser = (req, res, next) => {
 };
 
 const canModifyResource = req => {
+  console.log("can modify");
   let { id, resource, remove } = req.params;
   let user = utils.getUser(req);
 

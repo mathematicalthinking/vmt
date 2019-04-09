@@ -509,7 +509,7 @@ class Workspace extends Component {
             updateRoomTab={this.props.updateRoomTab}
             addNtfToTabs={this.addNtfToTabs}
             isFirstTabLoaded={this.state.isFirstTabLoaded}
-            setFirstTabloaded={() => this.setState({ isFirstTabLoaded: true })}
+            setFirstTabLoaded={() => this.setState({ isFirstTabLoaded: true })}
           />
         );
       } else {
