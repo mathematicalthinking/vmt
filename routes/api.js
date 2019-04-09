@@ -239,12 +239,14 @@ router.put(
 );
 
 router.put("/:resource/:id", middleware.validateUser, (req, res, next) => {
+  console.log("updating tabs?");
   let { resource, id } = req.params;
   let controller = controllers[resource];
 
   if (resource === "events") {
     return errors.sendError.BadMethodError("Events cannot be modified!", res);
   }
+  console.log("updating ", resource);
   return middleware
     .canModifyResource(req)
     .then(results => {

@@ -100,9 +100,13 @@ class DesmosGraph extends Component {
 
   initializeListeners() {
     // INITIALIZE EVENT LISTENER
-    let { room, tabId, user } = this.props;
     this.calculator.observeEvent("change", event => {
+      let { room, tabId, user } = this.props;
       if (!this.state.receivingEvent) {
+        console.log(room.controlledBy);
+        console.log(user._id);
+        console.log(typeof room.controlledBy);
+        console.log(typeof user._id);
         if (!user.connected || room.controlledBy !== user._id) {
           this.calculator.undo();
           return alert(
@@ -133,6 +137,7 @@ class DesmosGraph extends Component {
     });
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
+      let { room, tabId } = this.props;
       if (data.tab === room.tabs[tabId]._id) {
         let updatedTabs = this.props.room.tabs.map(tab => {
           if (tab._id === data.tab) {
@@ -152,6 +157,7 @@ class DesmosGraph extends Component {
   }
 
   render() {
+    console.log(this.props);
     return (
       <Aux>
         {!window.Desmos ? (
