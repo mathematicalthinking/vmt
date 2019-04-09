@@ -64,7 +64,7 @@ class RoomOpts extends Component {
           <TextInput
             light
             name="desmosLink"
-            label="Paste a Desmos workspace"
+            label="Paste a Desmos workspace (optional)"
             value={this.props.desmosLink}
             change={this.props.setDesmosLink}
             width="100%"

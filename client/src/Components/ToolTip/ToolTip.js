@@ -50,7 +50,7 @@ class ToolTip extends Component {
         {this.state.visible ? (
           <div
             className={classes.ToolTipText}
-            style={{ top: this.state.y, left: this.state.x, height: 47 }}
+            style={{ top: this.state.y, left: this.state.x }}
           >
             {this.props.text}
           </div>

@@ -9,13 +9,13 @@ const Icons = React.memo(props => {
   console.log("icons props: ", props);
   if (props.lock && props.listType === "public") {
     lock = (
-      <ToolTip text="private...you don't have access" delay={600}>
+      <ToolTip text="private" delay={600}>
         <i className={["fas fa-lock", classes.Locked].join(" ")} />
       </ToolTip>
     );
   } else if (props.lock && props.listType === "private") {
     lock = (
-      <ToolTip text="private...you have access" delay={600}>
+      <ToolTip text="private" delay={600}>
         <i className={["fas fa-unlock-alt", classes.Unlocked].join(" ")} />
       </ToolTip>
     );
