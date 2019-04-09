@@ -14,7 +14,6 @@ class DesmosGraph extends Component {
   calculatorRef = React.createRef();
 
   componentDidMount() {
-    console.log("desmos graph mounted");
     if (window.Desmos) {
       let { room, tabId } = this.props;
       let { tabs } = room;
@@ -64,7 +63,6 @@ class DesmosGraph extends Component {
   }
 
   onScriptLoad = () => {
-    console.log("script laoded???");
     if (!this.calculator) {
       this.calculator = window.Desmos.GraphingCalculator(
         this.calculatorRef.current
@@ -103,10 +101,6 @@ class DesmosGraph extends Component {
     this.calculator.observeEvent("change", event => {
       let { room, tabId, user } = this.props;
       if (!this.state.receivingEvent) {
-        console.log(room.controlledBy);
-        console.log(user._id);
-        console.log(typeof room.controlledBy);
-        console.log(typeof user._id);
         if (!user.connected || room.controlledBy !== user._id) {
           this.calculator.undo();
           return alert(
@@ -157,7 +151,6 @@ class DesmosGraph extends Component {
   }
 
   render() {
-    console.log(this.props);
     return (
       <Aux>
         {!window.Desmos ? (

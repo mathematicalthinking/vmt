@@ -16,7 +16,6 @@ export const initPerspectiveListener = (
   currentPerspective,
   perspectiveChanged
 ) => {
-  // console.log("SOTTT: ", store)
   var elements = document.getElementsByClassName("rightButtonPanel");
   if (elements && elements[0]) {
     elements[0].lastChild.removeEventListener("click", menuClickListener);

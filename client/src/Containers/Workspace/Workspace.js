@@ -89,7 +89,6 @@ class Workspace extends Component {
     // }
 
     if (!prevProps.room.log && this.props.room.log) {
-      console.log("initializing listeners");
       this.initializeListeners();
     }
 
@@ -158,7 +157,6 @@ class Workspace extends Component {
         if (err) {
           console.log(err); // HOW SHOULD WE HANDLE THIS
         }
-        console.log(res);
         this.props.updatedRoom(room._id, {
           currentMembers: res.room.currentMembers
         });

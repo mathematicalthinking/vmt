@@ -145,7 +145,6 @@ class GgbActivityGraph extends Component {
   };
 
   onScriptLoad = () => {
-    console.log("script loaded");
     const parameters = {
       id: `ggb-element${this.props.tabId}A`,
       // "scaleContainerClasse": "graph",
@@ -203,7 +202,6 @@ class GgbActivityGraph extends Component {
       this.freezeElements(true);
     }
     this.registerListeners();
-    console.log("first tab loaded");
     this.props.setFirstTabLoaded();
     // put the current construction on the graph, disable everything until the user takes control
   };

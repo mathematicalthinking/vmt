@@ -5,10 +5,8 @@ import { Link } from "react-router-dom";
 import Aux from "../../HOC/Auxil";
 import classes from "./homeNav.css";
 const navbar = props => {
-  console.log(props.page);
   let styles = classes.Nav;
   if (props.page === "/about") {
-    console.log("page = about");
     styles = classes.FixedGradientNav;
   } else if (props.page.includes("/explore") > 0) {
     styles = classes.GradientNav;

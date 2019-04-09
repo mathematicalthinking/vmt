@@ -125,8 +125,6 @@ class ActivityWorkspace extends Component {
         />
       );
     }
-    console.log("first tab is loaded: ", this.state.isFirstTabLoaded);
-    console.log(this.props.activity);
     return (
       <Fragment>
         {!this.state.isFirstTabLoaded ? (

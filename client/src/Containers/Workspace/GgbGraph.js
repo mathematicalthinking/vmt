@@ -561,7 +561,6 @@ class GgbGraph extends Component {
    */
 
   updateListener = label => {
-    console.log("updated!");
     if (this.batchUpdating || this.movingGeos) return;
     if (this.state.receivingData && !this.updatingOn) {
       this.setState({ receivingData: false });
