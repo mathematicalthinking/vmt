@@ -159,6 +159,7 @@ router.post(
 );
 
 router.put("/:resource/:id/add", middleware.validateUser, (req, res, next) => {
+  console.log("HELLO?");
   let { resource, id } = req.params;
   let controller = controllers[resource];
 
@@ -198,6 +199,7 @@ router.put(
   "/:resource/:id/remove",
   middleware.validateUser,
   (req, res, next) => {
+    console.log("HI");
     let { resource, id } = req.params;
     let controller = controllers[resource];
     req.params.remove = true; // Add remove to the params so we can allow users to modify their own status in  a resource (not just the resource owners) i.e. I should be able to remove myself from a course even if I'm not an owner of that course

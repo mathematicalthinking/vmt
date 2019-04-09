@@ -23,39 +23,42 @@ const validateId = (req, res, next) => {
 
 const validateUser = (req, res, next) => {
   let { resource, id } = req.params;
-  if (resource === "tabs") {
-    models.Tabs.findById(id)
-      .populate({ path: "room", select: "tempRoom" })
-      // .select("tempRoom")
-      .then(res => {
-        console.log("TEMP ROOM: ", res);
-        next();
-      })
-      .catch(err => console.log(err));
+
+  if (req.body.tempRoom) {
+    // @todo we need to CHECK this resource is a tempRoom, not take this req's word for it.
+    // temp rooms do not require a validated user
+    return next();
+  }
+  const user = utils.getUser(req);
+  if (_.isNil(user)) {
+    if (resource === "tabs") {
+      models.Tabs.findById(id)
+        .populate({ path: "room", select: "tempRoom" })
+        // .select("tempRoom")
+        .then(tab => {
+          if (tab.room.tempRoom) {
+            return next();
+          }
+          errors.sendError.NotAuthorizedError(err, null);
+        })
+        .catch(err => {});
+    }
+    let { authorization } = req.headers;
+    if (authorization) {
+      models.User.find({ token: authorization })
+        .then(user => {
+          userId = user._id;
+          if (user[req.params.resource].includes(req.params.id)) {
+            next();
+          } else {
+            errors.sendError.NotAuthorizedError(err, null);
+          }
+        })
+        .catch(err => errors.sendError.NotAuthorizedError(err, null));
+    } else {
+      return errors.sendError.InvalidCredentialsError(null, res);
+    }
   } else {
-    if (req.body.tempRoom) {
-      // @todo we need to CHECK this resource is a tempRoom, not take this req's word for it.
-      // temp rooms do not require a validated user
-      return next();
-    }
-    const user = utils.getUser(req);
-    if (_.isNil(user)) {
-      let { authorization } = req.headers;
-      if (authorization) {
-        models.User.find({ token: authorization })
-          .then(user => {
-            userId = user._id;
-            if (user[req.params.resource].includes(req.params.id)) {
-              next();
-            } else {
-              errors.sendError.NotAuthorizedError(err, null);
-            }
-          })
-          .catch(err => errors.sendError.NotAuthorizedError(err, null));
-      } else {
-        return errors.sendError.InvalidCredentialsError(null, res);
-      }
-    }
     next();
   }
 };
