@@ -1,6 +1,7 @@
 import React, { Fragment } from "react";
 import ggbIcon from "./geogebra.png";
 import dsmIcon from "./desmos.png";
+import bothIcon from "./desmosandgeogebra.png";
 import ToolTip from "../../../ToolTip/ToolTip";
 import classes from "./icons.css";
 
@@ -30,14 +31,14 @@ const Icons = React.memo(props => {
   let desImageAndToolTip = (
     <ToolTip text={"Desmos"} delay={600}>
       <div className={classes.Icon}>
-        <img width={25} src={dsmIcon} alt="dsm" />;
+        <img width={25} src={dsmIcon} alt="dsm" />
       </div>
     </ToolTip>
   );
   let ggbImageAndToolTip = (
     <ToolTip text={"Geogebra"} delay={600}>
       <div className={classes.Icon}>
-        <img width={25} src={ggbIcon} alt="ggb" />
+        <img width={28} src={ggbIcon} alt="ggb" />
       </div>
     </ToolTip>
   );
@@ -50,18 +51,18 @@ const Icons = React.memo(props => {
     });
     if (des && ggb) {
       roomType = (
-        <Fragment>
-          {desImageAndToolTip}
-          {ggbImageAndToolTip}
-        </Fragment>
+        <ToolTip text={"Geogebra/Desmos"} delay={600}>
+          <div className={classes.Icon}>
+            <img width={25} src={bothIcon} alt="ggb" />
+          </div>
+        </ToolTip>
       );
     } else if (des) {
       roomType = desImageAndToolTip;
     } else {
       roomType = ggbImageAndToolTip;
     }
-  }
-  if (props.roomType === "desmos") {
+  } else if (props.roomType === "desmos") {
     roomType = desImageAndToolTip;
   } else if (props.roomType === "geogebra") {
     roomType = ggbImageAndToolTip;

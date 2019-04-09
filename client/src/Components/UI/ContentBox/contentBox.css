@@ -40,7 +40,7 @@
 
 .BannerLeft {
   display: flex;
-  align-items: center;
+  align-items: space-between;
 }
 
 .TitleIcons {
@@ -90,9 +90,9 @@
 
 .Icons {
   display: flex;
-  justify-content: space-between;
+  width: 95px;
+  flex-justify-content: space-between;
   align-items: center;
-  width: 90px;
   margin-right: 10px;
   color: #666;
 }
