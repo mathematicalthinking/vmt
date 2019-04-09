@@ -27,7 +27,6 @@ class WorkspaceLayout extends Component {
       activity,
       isFullscreen
     } = this.props;
-    console.log("HELLO!!! ", graphs);
     // Set text for taking control button based on current control
     // let controlText = 'Take Control';
     // let inControl = false;

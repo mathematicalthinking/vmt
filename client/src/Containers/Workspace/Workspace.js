@@ -469,7 +469,6 @@ class Workspace extends Component {
         />
       );
     }
-    console.log(room.log);
     // {role === 'facilitator' ? <div className={[classes.Tab, classes.NewTab].join(' ')}><div onClick={createNewTab}    className={classes.TabBox}><i className="fas fa-plus"></i></div></div> : null}
     let chat = (
       <Chat

@@ -44,7 +44,7 @@
   box-shadow: 0px 5px 20px 15px #0e2257;
 }
 
-.FixedGraidentNav {
+.FixedGradientNav {
   composes: GradientNav;
   position: fixed;
 }

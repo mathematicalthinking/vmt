@@ -1,5 +1,6 @@
 import React from "react";
 import classes from "./tools.css";
+import { Link } from "react-router-dom";
 
 const ActivityTools = React.memo(props => {
   return (
@@ -12,7 +13,23 @@ const ActivityTools = React.memo(props => {
         {props.owner ? (
           <div>
             <p>
-              Some brief instructions about what the activity owner can do here
+              As the owner of this activity you can make changes to initial
+              construction.
+            </p>
+            <p>
+              Once you are ready to collaborate on this activity you can click
+              "Exit Activity" and then select "Assign Activity". You can then
+              decide who you want to collaborate with.
+            </p>
+            <p>
+              When you click "Assign" this activity will be copied to a room
+              where you can begin collaborating.
+            </p>
+            <p>
+              For more information click{" "}
+              <Link className={classes.Link} to="/about">
+                here
+              </Link>
             </p>
             <div className={classes.Save}>
               <div
@@ -54,7 +71,7 @@ const ActivityTools = React.memo(props => {
             theme={"Small"}
             data-testid="exit-room"
           >
-            Exit Room
+            Exit Activity
           </div>
         </div>
       </div>

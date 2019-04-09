@@ -27,10 +27,44 @@ const Icons = React.memo(props => {
   }
 
   let roomType;
+  let desImageAndToolTip = (
+    <ToolTip text={"Desmos"} delay={600}>
+      <div className={classes.Icon}>
+        <img width={25} src={dsmIcon} alt="dsm" />;
+      </div>
+    </ToolTip>
+  );
+  let ggbImageAndToolTip = (
+    <ToolTip text={"Geogebra"} delay={600}>
+      <div className={classes.Icon}>
+        <img width={25} src={ggbIcon} alt="ggb" />
+      </div>
+    </ToolTip>
+  );
+  if (Array.isArray(props.roomType)) {
+    let des = false;
+    let ggb = false;
+    props.roomType.forEach(rmType => {
+      if (rmType === "desmos") des = true;
+      else ggb = true;
+    });
+    if (des && ggb) {
+      roomType = (
+        <Fragment>
+          {desImageAndToolTip}
+          {ggbImageAndToolTip}
+        </Fragment>
+      );
+    } else if (des) {
+      roomType = desImageAndToolTip;
+    } else {
+      roomType = ggbImageAndToolTip;
+    }
+  }
   if (props.roomType === "desmos") {
-    roomType = <img width={25} src={dsmIcon} alt="dsm" />;
+    roomType = desImageAndToolTip;
   } else if (props.roomType === "geogebra") {
-    roomType = <img width={25} src={ggbIcon} alt="ggb" />;
+    roomType = ggbImageAndToolTip;
   }
   return (
     <Fragment>
@@ -38,9 +72,7 @@ const Icons = React.memo(props => {
         <img src={props.image} width={25} alt={""} />
       </div>
       <div className={classes.Icon}>{lock}</div>
-      <ToolTip text={props.roomType} delay={600}>
-        <div className={classes.Icon}>{roomType}</div>
-      </ToolTip>
+      {roomType}
     </Fragment>
   );
 });

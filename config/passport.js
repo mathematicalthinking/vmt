@@ -108,11 +108,12 @@ module.exports = passport => {
           select: "-currentState",
           // populate: {path: 'currentMembers.user', select: 'username'},
           populate: { path: "members.user", select: "username" },
+          populate: { path: "tabs", select: "name tabType" },
           options: { sort: { createdAt: -1 } }
         })
         .populate({
           path: "activities",
-          populate: { path: "tabs" },
+          populate: { path: "tabs", select: "name tabType" },
           options: { sort: { createdAt: -1 } }
         })
         .populate({

@@ -8,6 +8,7 @@ const navbar = props => {
   console.log(props.page);
   let styles = classes.Nav;
   if (props.page === "/about") {
+    console.log("page = about");
     styles = classes.FixedGradientNav;
   } else if (props.page.includes("/explore") > 0) {
     styles = classes.GradientNav;
