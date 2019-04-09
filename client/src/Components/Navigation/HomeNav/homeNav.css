@@ -22,6 +22,7 @@
 }
 
 .LightNav {
+  composes: Nav;
   color: blue;
   border-top: 0px;
   background: rgb(255, 255, 255);
@@ -36,8 +37,16 @@
   /* this important tag only overrides the background: none in .Nav */
   /* background-image: linear-gradient(to top, blue %, darkBlue 100%) !important;
    */
+  composes: Nav;
+  position: relative;
+  height: 60px;
   background: linear-gradient(to bottom, #001144, #0e2257);
   box-shadow: 0px 5px 20px 15px #0e2257;
+}
+
+.FixedGraidentNav {
+  composes: GradientNav;
+  position: fixed;
 }
 
 .NavContainer {

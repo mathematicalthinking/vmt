@@ -5,9 +5,12 @@ import { Link } from "react-router-dom";
 import Aux from "../../HOC/Auxil";
 import classes from "./homeNav.css";
 const navbar = props => {
+  console.log(props.page);
   let styles = classes.Nav;
   if (props.page === "/about") {
-    styles = [classes.Nav, classes.GradientNav].join(" ");
+    styles = classes.FixedGradientNav;
+  } else if (props.page.includes("/explore") > 0) {
+    styles = classes.GradientNav;
   } else if (
     (props.scrollPosition > 0.3 && props.page === "/") ||
     (props.page !== "/" &&
@@ -15,7 +18,7 @@ const navbar = props => {
       props.page !== "/login" &&
       props.page !== "/confirmation")
   ) {
-    styles = [classes.Nav, classes.LightNav].join(" ");
+    styles = classes.LightNav;
   }
   let ntf = false;
   if (
