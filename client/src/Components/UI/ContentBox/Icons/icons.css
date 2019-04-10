@@ -1,0 +1,30 @@
+:import("../../../../colors.css") {
+  blue: blue;
+  red: red;
+  green: green;
+}
+
+.Icon {
+  flex: 1;
+  /* border: 1px solid red; */
+  /* margin-right: 4px; */
+  display: flex;
+  align-items: center;
+  height: 25px;
+  /* width: 35px; */
+}
+
+.Globe {
+  color: blue;
+  font-size: 25px;
+}
+
+.Locked {
+  color: red;
+  font-size: 20px;
+}
+
+.Unlocked {
+  color: green;
+  font-size: 20px;
+}

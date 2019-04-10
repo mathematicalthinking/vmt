@@ -40,7 +40,7 @@
 
 .BannerLeft {
   display: flex;
-  align-items: center;
+  align-items: space-between;
 }
 
 .TitleIcons {
@@ -57,6 +57,7 @@
   font-size: 1.5em;
   margin-right: 10px;
   text-align: center;
+  vertical-align: middle;
   color: blue;
 }
 
@@ -89,9 +90,9 @@
 
 .Icons {
   display: flex;
-  justify-content: space-evenly;
+  width: 95px;
+  flex-justify-content: space-between;
   align-items: center;
-  width: 70px;
   margin-right: 10px;
   color: #666;
 }
@@ -115,42 +116,4 @@
 .NotificationCount {
   position: relative;
   top: 3px;
-}
-
-.SelectOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(200, 200, 200, 0.7);
-  font-size: 40px;
-  /* width: 100%;
-  height: 100%; */
-  /* background: #ddd; */
-  /* opacity: .7; */
-}
-
-.Plus {
-  color: black;
-  opacity: 0.6;
-  margin-top: 0;
-  transition: 0.4s ease-in-out;
-}
-
-.Selecting {
-  color: green;
-  opacity: 1;
-  margin-top: -250px;
-}
-
-.Selected {
-  background-color: rgba(200, 200, 200, 0.7);
-}
-
-.SelectedPlus {
-  opacity: 0;
 }

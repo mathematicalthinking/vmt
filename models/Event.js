@@ -25,7 +25,7 @@ const Event = new mongoose.Schema({
       "SELECT"
     ]
   },
-  color: { type: String, required: true },
+  color: { type: String },
   timestamp: { type: Number, required: true }, //UNIX TIME but in MS
   isTrashed: { type: Boolean, default: false }
 });

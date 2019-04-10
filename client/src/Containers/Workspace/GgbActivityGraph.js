@@ -145,7 +145,6 @@ class GgbActivityGraph extends Component {
   };
 
   onScriptLoad = () => {
-    console.log("script loaded");
     const parameters = {
       id: `ggb-element${this.props.tabId}A`,
       // "scaleContainerClasse": "graph",

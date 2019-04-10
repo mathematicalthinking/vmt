@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import classes from "./graph.css";
 import Aux from "../../Components/HOC/Auxil";
-import Modal from "../../Components/UI/Modal/Modal";
 import Script from "react-load-script";
 import API from "../../utils/apiRequests";
 // import { updatedRoom } from '../../store/actions';
@@ -28,6 +27,7 @@ class DesmosActivityGraph extends Component {
           })
           .catch(err => console.log(err));
       }
+      this.props.setFirstTabLoaded();
     }
   }
 
@@ -88,6 +88,7 @@ class DesmosActivityGraph extends Component {
     } else {
       this.setState({ loading: false });
     }
+    this.props.setFirstTabLoaded();
   };
 
   render() {
@@ -104,7 +105,6 @@ class DesmosActivityGraph extends Component {
           id="calculator"
           ref={this.calculatorRef}
         />
-        <Modal show={this.state.loading} message="Loading..." />
       </Aux>
     );
   }

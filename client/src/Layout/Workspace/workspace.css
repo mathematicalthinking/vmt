@@ -209,6 +209,11 @@
   /* border: 1px solid brown; */
 }
 
+.AcitvityTools {
+  composes: Tools;
+  flex: 0 0 auto;
+}
+
 .Replayer {
   height: 220px;
 }

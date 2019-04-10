@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import {
   updateRoom,
@@ -14,6 +14,19 @@ import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from "./";
 import { Modal, Aux, CurrentMembers, Loading } from "../../Components";
 import NewTabForm from "../Create/NewTabForm";
 import socket from "../../utils/sockets";
+
+const COLOR_MAP = {
+  0: "#f26247",
+  1: "#FFA200",
+  2: "#71d0f0",
+  3: "#84FE71",
+  5: "#E655FF",
+  6: "#19aa91",
+  8: "#398dee",
+  7: "#ff8d82",
+  8: "#6F6FFF",
+  9: "#FF2A50"
+};
 // import Replayer from ''
 class Workspace extends Component {
   state = {
@@ -53,6 +66,7 @@ class Workspace extends Component {
         });
       }
     } else {
+      this.setState({ myColor: COLOR_MAP[room.members.length - 1] });
       this.initializeListeners();
     }
     window.addEventListener("beforeunload", this.componentCleanup);
@@ -143,7 +157,6 @@ class Workspace extends Component {
         if (err) {
           console.log(err); // HOW SHOULD WE HANDLE THIS
         }
-        console.log(res);
         this.props.updatedRoom(room._id, {
           currentMembers: res.room.currentMembers
         });
@@ -493,7 +506,7 @@ class Workspace extends Component {
             updateRoomTab={this.props.updateRoomTab}
             addNtfToTabs={this.addNtfToTabs}
             isFirstTabLoaded={this.state.isFirstTabLoaded}
-            setFirstTabloaded={() => this.setState({ isFirstTabLoaded: true })}
+            setFirstTabLoaded={() => this.setState({ isFirstTabLoaded: true })}
           />
         );
       } else {
@@ -520,7 +533,7 @@ class Workspace extends Component {
       }
     });
     return (
-      <Aux>
+      <Fragment>
         {!this.state.isFirstTabLoaded ? (
           <Loading message="Preparing your room..." />
         ) : null}
@@ -569,7 +582,7 @@ class Workspace extends Component {
             sendEvent={this.emitNewTab}
           />
         </Modal>
-      </Aux>
+      </Fragment>
     );
   }
 }

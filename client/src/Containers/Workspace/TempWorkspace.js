@@ -15,8 +15,8 @@ import socket from "../../utils/sockets";
 // import Replayer from ''
 class TempWorkspace extends Component {
   state = {
-    room: undefined,
-    user: undefined,
+    room: null,
+    user: null,
     tempUsername: null,
     errorMessage: "",
     unloading: false,
@@ -28,7 +28,10 @@ class TempWorkspace extends Component {
 
   componentDidMount() {
     window.addEventListener("beforeunload", this.confirmUnload);
-    this.props.populateRoom(this.props.match.params.id, { temp: true });
+    this.props.populateRoom(this.props.match.params.id, {
+      temp: true,
+      events: !this.state.fistEntry
+    });
     // If there is no room by this id ins the user's store, then they're not the first to join
     // The user creating this room will it have in their store. A user who just drops the link in their url bar will not have it in the store
     if (!this.props.room || this.props.room.currentMembers.length > 0) {
@@ -76,6 +79,7 @@ class TempWorkspace extends Component {
       tempRoom: true,
       roomName: `temporary room ${id.slice(0, 5)}...`,
       roomId: id,
+      color: this.props.room.members[0],
       tabId: this.props.room.tabs[0]._id,
       roomType: graphType, // this wil be undefined if its not the first user in the room
       firstEntry: this.state.firstEntry

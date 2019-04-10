@@ -561,7 +561,6 @@ class GgbGraph extends Component {
    */
 
   updateListener = label => {
-    console.log("updated!");
     if (this.batchUpdating || this.movingGeos) return;
     if (this.state.receivingData && !this.updatingOn) {
       this.setState({ receivingData: false });
@@ -728,7 +727,6 @@ class GgbGraph extends Component {
     if (eventQueue && eventQueue.length > 0) {
       newData.eventArray = eventQueue;
     }
-
     this.props.addToLog(this.props.room._id, newData);
 
     if (this.updatingTab) {

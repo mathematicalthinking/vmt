@@ -41,7 +41,10 @@ module.exports = {
         .populate({ path: "members.user", select: "username" })
         .populate({ path: "currentMembers", select: "username" })
         .populate({ path: "course", select: "name" })
-        .populate({ path: "tabs", populate: { path: params.events ? 'events': ''} })
+        .populate({
+          path: "tabs",
+          populate: { path: params.events ? "events" : "" }
+        })
         .populate({ path: "graphImage", select: "imageData" })
         .then(room => {
           resolve(room);
@@ -60,7 +63,7 @@ module.exports = {
       .sort("-createdAt")
       .populate({ path: "members.user", select: "username" })
       .populate({ path: "tabs", select: "tabType" })
-      .select("name members description tabs privacySetting")
+      .select("name members description tabs privacySetting image")
       .then(rooms => {
         if (filters.roomType) {
           return rooms.filter(room => {

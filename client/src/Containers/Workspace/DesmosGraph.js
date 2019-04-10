@@ -32,6 +32,7 @@ class DesmosGraph extends Component {
           })
           .catch(err => console.log(err));
       }
+      this.props.setFirstTabLoaded();
     }
   }
 
@@ -88,6 +89,7 @@ class DesmosGraph extends Component {
     } else {
       this.initializeListeners();
     }
+    this.props.setFirstTabLoaded();
   };
 
   // componentWillUnmount(){
@@ -96,8 +98,8 @@ class DesmosGraph extends Component {
 
   initializeListeners() {
     // INITIALIZE EVENT LISTENER
-    let { room, tabId, user } = this.props;
     this.calculator.observeEvent("change", event => {
+      let { room, tabId, user } = this.props;
       if (!this.state.receivingEvent) {
         if (!user.connected || room.controlledBy !== user._id) {
           this.calculator.undo();
@@ -129,6 +131,7 @@ class DesmosGraph extends Component {
     });
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
+      let { room, tabId } = this.props;
       if (data.tab === room.tabs[tabId]._id) {
         let updatedTabs = this.props.room.tabs.map(tab => {
           if (tab._id === data.tab) {

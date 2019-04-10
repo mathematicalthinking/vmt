@@ -109,7 +109,7 @@
 } */
 
 .DateContainer {
-  height: 320px;
+  height: 300px;
   width: 100%;
   display: flex;
   flex-flow: column;

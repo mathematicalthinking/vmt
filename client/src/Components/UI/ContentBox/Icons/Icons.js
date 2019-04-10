@@ -1,35 +1,80 @@
-import React from "react";
+import React, { Fragment } from "react";
 import ggbIcon from "./geogebra.png";
 import dsmIcon from "./desmos.png";
-import Aux from "../../../HOC/Auxil";
+import bothIcon from "./desmosandgeogebra.png";
+import ToolTip from "../../../ToolTip/ToolTip";
+import classes from "./icons.css";
+
 const Icons = React.memo(props => {
   let lock;
   if (props.lock && props.listType === "public") {
     lock = (
-      <div style={{ height: 20 }}>
-        <i className="fas fa-lock" />
-      </div>
+      <ToolTip text="private" delay={600}>
+        <i className={["fas fa-lock", classes.Locked].join(" ")} />
+      </ToolTip>
     );
   } else if (props.lock && props.listType === "private") {
     lock = (
-      <div style={{ height: 20 }}>
-        <i className="fas fa-unlock-alt" />
-      </div>
+      <ToolTip text="private" delay={600}>
+        <i className={["fas fa-unlock-alt", classes.Unlocked].join(" ")} />
+      </ToolTip>
+    );
+  } else {
+    lock = (
+      <ToolTip text="public" delay={600}>
+        <i className={["fas fa-globe-americas", classes.Globe].join(" ")} />
+      </ToolTip>
     );
   }
 
   let roomType;
-  if (props.roomType === "desmos") {
-    roomType = <img height={20} width={20} src={dsmIcon} alt="dsm" />;
+  let desImageAndToolTip = (
+    <ToolTip text={"Desmos"} delay={600}>
+      <div className={classes.Icon}>
+        <img width={25} src={dsmIcon} alt="dsm" />
+      </div>
+    </ToolTip>
+  );
+  let ggbImageAndToolTip = (
+    <ToolTip text={"Geogebra"} delay={600}>
+      <div className={classes.Icon}>
+        <img width={28} src={ggbIcon} alt="ggb" />
+      </div>
+    </ToolTip>
+  );
+  if (Array.isArray(props.roomType)) {
+    let des = false;
+    let ggb = false;
+    props.roomType.forEach(rmType => {
+      if (rmType === "desmos") des = true;
+      else ggb = true;
+    });
+    if (des && ggb) {
+      roomType = (
+        <ToolTip text={"Geogebra/Desmos"} delay={600}>
+          <div className={classes.Icon}>
+            <img width={25} src={bothIcon} alt="ggb" />
+          </div>
+        </ToolTip>
+      );
+    } else if (des) {
+      roomType = desImageAndToolTip;
+    } else {
+      roomType = ggbImageAndToolTip;
+    }
+  } else if (props.roomType === "desmos") {
+    roomType = desImageAndToolTip;
   } else if (props.roomType === "geogebra") {
-    roomType = <img height={20} width={20} src={ggbIcon} alt="ggb" />;
+    roomType = ggbImageAndToolTip;
   }
   return (
-    <Aux>
-      {lock}
-      <img src={props.image} height={20} width={20} alt={""} />
+    <Fragment>
+      <div className={classes.Icon}>
+        <img src={props.image} width={25} alt={""} />
+      </div>
+      <div className={classes.Icon}>{lock}</div>
       {roomType}
-    </Aux>
+    </Fragment>
   );
 });
 

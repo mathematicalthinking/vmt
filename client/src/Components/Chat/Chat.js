@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import Modal from "../../Components/UI/Modal/Modal";
+import { Modal } from "../../Components/";
 import Message from "./Message";
 import Event from "./Event";
 // import TextInput from '../Form/TextInput/TextInput';

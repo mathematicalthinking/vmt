@@ -22,13 +22,27 @@ const validateId = (req, res, next) => {
 };
 
 const validateUser = (req, res, next) => {
+  let { resource, id } = req.params;
+
   if (req.body.tempRoom) {
+    // @todo we need to CHECK this resource is a tempRoom, not take this req's word for it.
     // temp rooms do not require a validated user
     return next();
   }
   const user = utils.getUser(req);
-  console.log("user: ", user);
   if (_.isNil(user)) {
+    if (resource === "tabs") {
+      models.Tabs.findById(id)
+        .populate({ path: "room", select: "tempRoom" })
+        // .select("tempRoom")
+        .then(tab => {
+          if (tab.room.tempRoom) {
+            return next();
+          }
+          errors.sendError.NotAuthorizedError(err, null);
+        })
+        .catch(err => {});
+    }
     let { authorization } = req.headers;
     if (authorization) {
       models.User.find({ token: authorization })
@@ -44,8 +58,9 @@ const validateUser = (req, res, next) => {
     } else {
       return errors.sendError.InvalidCredentialsError(null, res);
     }
+  } else {
+    next();
   }
-  next();
 };
 
 const canModifyResource = req => {
@@ -180,7 +195,6 @@ const validateNewRecord = (req, res, next) => {
   let model = utils.getModel(resource);
   let doc = new model(body);
   if (!_.hasIn(doc, "validate")) {
-    console.log("INVALID CONTENT ERROR");
     return errors.sendError.InvalidContentError(null, res);
   }
 

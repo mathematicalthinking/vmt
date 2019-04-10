@@ -7,6 +7,8 @@ describe("user signup/login", function() {
   beforeEach(function() {
     cy.window().then(win => {
       win.sessionStorage.clear();
+      win.localStorage.clear();
+      // cy.contains("Logout").click()
       cy.visit("/");
     });
   });

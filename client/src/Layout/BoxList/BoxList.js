@@ -53,7 +53,11 @@ const boxList = React.memo(props => {
                 id={item._id}
                 image={item.image}
                 notifications={notifications}
-                roomType={item.roomType}
+                roomType={
+                  item.roomType || item.tabs
+                    ? item.tabs.map(tab => tab.tabType)
+                    : null
+                }
                 locked={item.privacySetting === "private"} // @TODO Should it appear locked if the user has access ? I can see reasons for both
                 details={details}
                 listType={props.listType}

@@ -104,7 +104,7 @@ class NewResource extends Component {
                   <TextInput
                     light
                     name="desmosLink"
-                    label="Paste a Desmos workspace"
+                    label="Paste a Desmos workspace (optional)"
                     change={this.changeHandler}
                     width="100%"
                   />

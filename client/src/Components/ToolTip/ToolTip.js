@@ -9,11 +9,34 @@ class ToolTip extends Component {
 
   toolTipSource = React.createRef(); // I.e. the element hovered
 
+  componentWillUnmount() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  }
   setVisible = () => {
-    let { top, x, width } = this.toolTipSource.current.getBoundingClientRect();
-    this.setState({ x: x + width / 2, y: top - 55, visible: true });
+    if (this.props.delay) {
+      this.timer = setTimeout(() => {
+        let {
+          top,
+          x,
+          width
+        } = this.toolTipSource.current.getBoundingClientRect();
+        this.setState({ x: x + width / 2, y: top - 55, visible: true });
+      }, this.props.delay);
+    } else {
+      let {
+        top,
+        x,
+        width
+      } = this.toolTipSource.current.getBoundingClientRect();
+      this.setState({ x: x + width / 2, y: top - 55, visible: true });
+    }
   };
-  setHidden = () => this.setState({ visible: false });
+  setHidden = () => {
+    if (this.timer) clearTimeout(this.timer);
+    this.setState({ visible: false });
+  };
 
   render() {
     return (
@@ -26,7 +49,7 @@ class ToolTip extends Component {
         {this.state.visible ? (
           <div
             className={classes.ToolTipText}
-            style={{ top: this.state.y, left: this.state.x, height: 47 }}
+            style={{ top: this.state.y, left: this.state.x }}
           >
             {this.props.text}
           </div>

@@ -41,7 +41,6 @@ class EncompassReplayer extends Component {
   }
 
   setRoomId = event => {
-    console.log(event);
     this.setState({
       roomId: window.vmtRoomId
     });
