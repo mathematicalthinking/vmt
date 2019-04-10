@@ -78,13 +78,13 @@ class Members extends Component {
       )
         .then(res => {
           let searchResults = res.data.results;
-          this.setState({ searchResults });
+          this.setState({ searchResults, searchText: text });
         })
         .catch(err => {
           console.log("err: ", err);
         });
     } else {
-      this.setState({ searchResults: [] });
+      this.setState({ searchResults: [], searchText: text });
     }
   };
 
@@ -148,6 +148,8 @@ class Members extends Component {
             <div className={classes.Notifications} data-testid="join-requests">
               {joinRequests}
             </div>
+            <h3 className={classes.SubHeader}>Class List</h3>
+            <div data-testid="members">{classListComponents}</div>
             <h3 className={classes.SubHeader}>Add New Participants</h3>
             <Search
               data-testid="member-search"
@@ -156,6 +158,7 @@ class Members extends Component {
             />
             {this.state.searchResults.length > 0 ? (
               <SearchResults
+                searchText={this.state.searchText}
                 usersSearched={this.state.searchResults}
                 inviteMember={this.inviteMember}
               />
@@ -165,8 +168,6 @@ class Members extends Component {
             ) : null}
           </div>
         ) : null}
-        <h3 className={classes.SubHeader}>Class List</h3>
-        <div data-testid="members">{classListComponents}</div>
       </div>
     );
   }
