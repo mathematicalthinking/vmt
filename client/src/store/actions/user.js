@@ -5,6 +5,7 @@ import API from "../../utils/apiRequests";
 import * as loading from "./loading";
 import { gotCourses } from "./courses";
 import { gotRooms } from "./rooms";
+import socket from "../../utils/sockets";
 import { gotActivities } from "./activities";
 
 export const gotUser = (user, temp) => {
@@ -71,6 +72,7 @@ export const loggedOut = () => {
 };
 
 export const logout = () => {
+  socket.disconnect();
   return dispatch => {
     AUTH.logout()
       .then(res => {

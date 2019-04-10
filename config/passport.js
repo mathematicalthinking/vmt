@@ -97,7 +97,7 @@ module.exports = passport => {
   passport.use(
     "local-login",
     new LocalStrategy((username, password, next) => {
-      User.findOne({ username: username, accountType: { $ne: "temp" } })
+      User.findOne({ username, accountType: { $ne: "temp" } })
         .populate({
           path: "courses",
           populate: { path: "members.user", select: "username" },
@@ -105,10 +105,11 @@ module.exports = passport => {
         })
         .populate({
           path: "rooms",
+          // match: { "rooms.0": "$exists" },
           select: "-currentState",
-          // populate: {path: 'currentMembers.user', select: 'username'},
-          populate: { path: "members.user", select: "username" },
+          // populate: { path: "currentMembers.user", select: "username" },
           populate: { path: "tabs", select: "name tabType" },
+          populate: { path: "members.user", select: "username" },
           options: { sort: { createdAt: -1 } }
         })
         .populate({
@@ -120,12 +121,12 @@ module.exports = passport => {
           path: "notifications",
           populate: { path: "fromUser", select: "username" }
         })
-        // .populate('rooms', 'notifications.user name description isPublic creator roomType')
-        // .populate('activities', 'name description isPublic creator roomType rooms')
-        // .lean()
-        // .populate('courseTemplates', 'notifications name description isPublic')
         .exec()
         .then(user => {
+          // if (user.rooms.length > 0) {
+          //   user.rooms.populate({ path: "members.user", select: "username" });
+          // }
+          // console.log("USER ON LOGIN: ", user.rooms[0].members);
           // @TODO we actually want to just provide a link here instead of telling htem where to go
           if (!user)
             return next(
@@ -139,6 +140,7 @@ module.exports = passport => {
           return next(null, user);
         })
         .catch(err => {
+          console.log("ERRORRRR: ", err);
           return next(err);
         });
     })

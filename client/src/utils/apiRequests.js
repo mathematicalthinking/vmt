@@ -23,7 +23,7 @@ if (process.env.REACT_APP_ENCOMPASS) {
   }
 }
 
-console.log(baseURL);
+console.log("server url: ", baseURL);
 const api = axios.create({ baseURL });
 
 export default {

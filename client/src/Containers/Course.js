@@ -80,7 +80,6 @@ class Course extends Component {
           member =>
             member.role === "facilitator" && member.user._id === user._id
         ).length > 0;
-      console.log("geting notifications");
       updatedTabs = this.displayNotifications(updatedTabs);
 
       this.setState({
@@ -162,7 +161,6 @@ class Course extends Component {
   };
 
   displayNotifications = tabs => {
-    console.log("displaying notificatrions");
     // console.log(notifications)
     const { course, notifications, user } = this.props;
     // if (course.creator === user._id
@@ -179,7 +177,6 @@ class Course extends Component {
       );
       tabs[2].notifications = memberNtfs.length > 0 ? memberNtfs.length : "";
     }
-    console.log(notifications);
     let newRoomNtfs = notifications.filter(
       ntf =>
         ntf.parentResource === course._id &&
@@ -289,6 +286,7 @@ class Course extends Component {
 
       let mainContent;
       if (resource === "rooms" || resource === "activities") {
+        console.log(myRooms);
         mainContent = (
           <ResourceList
             userResources={myRooms || course[resource] || []}

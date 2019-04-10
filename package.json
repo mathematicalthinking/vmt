@@ -12,7 +12,7 @@
     "build-encompass-replayer-dev": "cd client && node scripts/build.js dev encompass",
     "build-encompass-replayer-staging": "cd client && node scripts/build.js staging encompass",
     "build-encompass-replayer-prod": "cd client && node scripts/build.js production encompass",
-    "test": "SET \"NODE_ENV=test\" && concurrently \"node ./bin/www\" \"npm run client\" \"npm run cypress\"",
+    "test": "SET \"NODE_ENV=test\" && concurrently \"nodemon \" \"npm run client\" \"npm run cypress\"",
     "prodTest": "SET \"NODE_ENV=production\" && node ./bin/www",
     "testEncompass": "SET \"NODE_ENV=production\" && SET \"ENCOMPASS=true\" && node ./bin/www",
     "cypress": "./node_modules/.bin/cypress open",
