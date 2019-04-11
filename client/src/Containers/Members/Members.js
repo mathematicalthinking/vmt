@@ -1,6 +1,6 @@
 // ALSO CONSIDER MOVING GRANTACCESS() FROM COURSE CONTAINER TO HERE
 // EXTRACT OUT THE LAYOUT PORTION INTO THE LAYYOUT FOLDER
-import React, { PureComponent } from "react";
+import React, { PureComponent, Fragment } from "react";
 import { connect } from "react-redux";
 import API from "../../utils/apiRequests";
 import {
@@ -164,32 +164,41 @@ class Members extends PureComponent {
     });
     return (
       <div className={classes.Container}>
-        {owner ? (
-          <div>
-            <h3 className={classes.SubHeader}>New Requests to Join</h3>
-            <div className={classes.Notifications} data-testid="join-requests">
-              {joinRequests}
-            </div>
-            <h3 className={classes.SubHeader}>Class List</h3>
-            <div data-testid="members">{classListComponents}</div>
-            <h3 className={classes.SubHeader}>Add New Participants</h3>
-            <Search
-              data-testid="member-search"
-              _search={this.search}
-              placeholder="search by username or email address"
-            />
-            {this.state.searchResults.length > 0 ? (
-              <SearchResults
-                searchText={this.state.searchText}
-                usersSearched={this.state.searchResults}
-                inviteMember={this.inviteMember}
+        <div>
+          {owner ? (
+            <Fragment>
+              <h3 className={classes.SubHeader}>New Requests to Join</h3>
+              <div
+                className={classes.Notifications}
+                data-testid="join-requests"
+              >
+                {joinRequests}
+              </div>
+            </Fragment>
+          ) : null}
+          <h3 className={classes.SubHeader}>Class List</h3>
+          <div data-testid="members">{classListComponents}</div>
+          {owner ? (
+            <Fragment>
+              <h3 className={classes.SubHeader}>Add New Participants</h3>
+              <Search
+                data-testid="member-search"
+                _search={this.search}
+                placeholder="search by username or email address"
               />
-            ) : null}
-            {resourceType === "room" && courseMembers ? (
-              <div>Add participants from this course</div>
-            ) : null}
-          </div>
-        ) : null}
+              {this.state.searchResults.length > 0 ? (
+                <SearchResults
+                  searchText={this.state.searchText}
+                  usersSearched={this.state.searchResults}
+                  inviteMember={this.inviteMember}
+                />
+              ) : null}
+              {resourceType === "room" && courseMembers ? (
+                <div>Add participants from this course</div>
+              ) : null}
+            </Fragment>
+          ) : null}
+        </div>
       </div>
     );
   }
