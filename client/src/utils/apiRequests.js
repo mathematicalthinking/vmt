@@ -110,9 +110,12 @@ export default {
 
   inviteUser: () => {},
 
-  grantAccess: (user, resource, resourceId, ntfType) => {
+  grantAccess: (user, resource, resourceId, ntfType, options) => {
     return api.put(`/api/${resource}s/${resourceId}/add`, {
-      members: { user, role: "participant" },
+      members: {
+        user,
+        role: options && options.guest ? "guest" : "participant"
+      },
       ntfType
     });
   },

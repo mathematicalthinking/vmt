@@ -371,6 +371,7 @@ class Room extends Component {
             owner={this.state.owner}
             resourceType={"room"}
             resourceId={room._id}
+            parentResource={course._id}
             courseMembers={course ? course.members : null}
             notifications={
               notifications.filter(ntf => ntf.resourceId === room._id) || []

@@ -17,7 +17,7 @@ const Course = new mongoose.Schema(
     members: [
       {
         user: { type: ObjectId, ref: "User" },
-        role: { type: String },
+        role: { type: String, enum: ["facilitator", "participant", "guest"] },
         _id: false
       }
     ],

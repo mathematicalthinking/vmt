@@ -1,6 +1,6 @@
 // ALSO CONSIDER MOVING GRANTACCESS() FROM COURSE CONTAINER TO HERE
 // EXTRACT OUT THE LAYOUT PORTION INTO THE LAYYOUT FOLDER
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import { connect } from "react-redux";
 import API from "../../utils/apiRequests";
 import {
@@ -18,12 +18,13 @@ import { Member, Search } from "../../Components";
 import SearchResults from "./SearchResults";
 import classes from "./members.css";
 
-class Members extends Component {
+class Members extends PureComponent {
   state = {
     searchText: "",
     searchResults: this.props.searchedUsers || []
   };
 
+  renderCount = 0;
   componentWillUnmount() {
     const { notifications } = this.props;
     if (notifications.length > 0) {
@@ -36,11 +37,28 @@ class Members extends Component {
   }
 
   inviteMember = (id, username) => {
-    let { resourceId, resourceType } = this.props;
+    console.log("inviting member");
+    let {
+      resourceId,
+      resourceType,
+      parentResource,
+      courseMembers
+    } = this.props;
     if (resourceType === "course") {
       this.props.inviteToCourse(resourceId, id, username);
     } else {
-      this.props.inviteToRoom(resourceId, id, username);
+      // If this is a course room check the member being added to the room already belongs to the course
+      if (courseMembers) {
+        let inCourse = courseMembers.filter(
+          member => member.user._id === id
+        )[0];
+        if (!inCourse) {
+          this.props.inviteToCourse(parentResource, id, username, {
+            guest: true
+          });
+        }
+        this.props.inviteToRoom(resourceId, id, username);
+      }
     }
     // Remove the invited member from the search results
     let updatedResults = this.state.searchResults.filter(
@@ -89,6 +107,8 @@ class Members extends Component {
   };
 
   render() {
+    console.log("MEMBERS PROPS: ", this.props);
+    console.log((this.renderCount += 1));
     let {
       classList,
       notifications,
