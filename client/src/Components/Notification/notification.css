@@ -1,0 +1,7 @@
+:import("../../colors.css") {
+  red: red;
+}
+
+.Bell {
+  color: red;
+}

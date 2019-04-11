@@ -42,18 +42,16 @@ const resources = props => {
 
   let facilitatorList = [];
   let participantList = [];
-  if (props.bothRoles) {
-    /** consider storing a field like myRole on the actual resource in the store...we could compute this when its added to the store and then never again
-     * I feel like we are checking roles...which requires looping through the resources members each time.
-     */
-    props.userResources.forEach(resource => {
-      if (resource.myRole === "facilitator") {
-        facilitatorList.push(resource);
-      } else {
-        participantList.push(resource);
-      }
-    });
-  }
+  /** consider storing a field like myRole on the actual resource in the store...we could compute this when its added to the store and then never again
+   * I feel like we are checking roles...which requires looping through the resources members each time.
+   */
+  props.userResources.forEach(resource => {
+    if (resource.myRole === "facilitator") {
+      facilitatorList.push(resource);
+    } else {
+      participantList.push(resource);
+    }
+  });
 
   return (
     <div>
@@ -64,7 +62,7 @@ const resources = props => {
         </div>
         {create}
       </div>
-      {props.bothRoles ? (
+      {facilitatorList.length > 0 && participantList.length > 0 ? (
         <div className={classes.Row}>
           <div className={classes.Col}>
             <h2 className={classes.ResourceHeader}>
@@ -99,7 +97,7 @@ const resources = props => {
         </div>
       ) : (
         <Fragment>
-          <h2 className={classes.ResourceHeader}>{displayResource}</h2>
+          <h2 className={classes.ResourceHeader}>My {displayResource}</h2>
           <BoxList
             list={props.userResources}
             linkPath={linkPath}
