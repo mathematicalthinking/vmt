@@ -5,7 +5,6 @@ import API from "../../utils/apiRequests";
 import * as loading from "./loading";
 import { gotCourses } from "./courses";
 import { gotRooms } from "./rooms";
-import socket from "../../utils/sockets";
 import { gotActivities } from "./activities";
 
 export const gotUser = (user, temp) => {
@@ -72,9 +71,15 @@ export const loggedOut = () => {
 };
 
 export const logout = () => {
-  socket.disconnect();
-  return dispatch => {
-    AUTH.logout()
+  // N.B., We are not disconnecting the user from the websocket
+  // becasue they need to be connected if they go into a temporary room
+  // But we don't want them to continue to receive notifications for the previously
+  // logged in user, so we need to do disassociate their socketId and userId
+  // send their userId to the logout function and clear the socketId on the user model
+  // on the backend
+  return (dispatch, getState) => {
+    let userId = getState().user._id;
+    AUTH.logout(userId)
       .then(res => {
         dispatch(loggedOut());
       })

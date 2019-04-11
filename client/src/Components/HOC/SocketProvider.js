@@ -24,6 +24,7 @@ class SocketProvider extends Component {
     if (this.props.user.loggedIn) {
       this.props.getUser(this.props.user._id);
       socket.on("connect", () => {
+        console.log("connected!: ", socket.id);
         // @TODO consider doing this on the backend...we're trgin to make sure the socketId stored on the user obj in the db is fresh.
         // Why dont we just, every time a socket connects on the backend, grab the user obj and go update their socketId
         let userId = this.props.user._id;
@@ -50,6 +51,8 @@ class SocketProvider extends Component {
 
   componentDidUpdate(prevProps) {
     if (!prevProps.user.loggedIn && this.props.user.loggedIn) {
+      console.log("logging backIN!");
+      console.log(socket.connected, socket.id);
       let userId = this.props.user._id;
       let socketId = socket.id;
       socket.emit("SYNC_SOCKET", { socketId, userId }, (res, err) => {
