@@ -167,16 +167,23 @@ export const login = (username, password) => {
         if (res.data.errorMessage) {
           return dispatch(loading.fail(res.data.errorMessage));
         }
-        let coursesWithRoles = res.data.courses.map(course =>
-          addUserRoleToResource(course, res.data._id)
-        );
-        console.log(coursesWithRoles);
-        let courses = normalize(coursesWithRoles);
-        // const activities = normalize(res.data.activities)
-        dispatch(gotCourses(courses));
-
-        let rooms = normalize(res.data.rooms);
-        dispatch(gotRooms(rooms));
+        let courses;
+        let rooms;
+        if (res.data.courses.length > 0) {
+          let coursesWithRoles = res.data.courses.map(course =>
+            addUserRoleToResource(course, res.data._id)
+          );
+          courses = normalize(coursesWithRoles);
+          // const activities = normalize(res.data.activities)
+          dispatch(gotCourses(courses));
+        }
+        if (res.data.rooms.length > 0) {
+          let roomsWithRoles = res.data.rooms.map(room =>
+            addUserRoleToResource(room, res.data._id)
+          );
+          rooms = normalize(roomsWithRoles);
+          dispatch(gotRooms(rooms));
+        }
 
         let activities = normalize(res.data.activities);
         dispatch(gotActivities(activities));

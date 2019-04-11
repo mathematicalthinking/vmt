@@ -47,15 +47,11 @@ const resources = props => {
      * I feel like we are checking roles...which requires looping through the resources members each time.
      */
     props.userResources.forEach(resource => {
-      resource.members.forEach(member => {
-        if (member.user && member.user._id === props.user._id) {
-          if (member.role === "participant" || member.role === "guest") {
-            participantList.push(resource);
-          } else {
-            facilitatorList.push(resource);
-          }
-        }
-      });
+      if (resource.myRole === "facilitator") {
+        facilitatorList.push(resource);
+      } else {
+        participantList.push(resource);
+      }
     });
   }
 
