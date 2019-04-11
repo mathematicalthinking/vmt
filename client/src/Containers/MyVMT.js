@@ -89,10 +89,12 @@ class Profile extends Component {
         let bothRoles = false;
         let view = "facilitator";
         if (this.props[resource]) {
+          console.log(this.props[resource]);
           this.props[resource].allIds.forEach(id => {
             this.props[resource].byId[id].members.forEach(member => {
               if (member.user && member.user._id === user._id) {
-                if (member.role === "participant") isParticipant = true;
+                if (member.role === "participant" || member.role === "guest")
+                  isParticipant = true;
                 if (member.role === "facilitator") isFacilitator = true;
               }
             });
@@ -214,6 +216,7 @@ class Profile extends Component {
       rooms: user.rooms.length,
       activities: user.activities.length
     };
+    console.log(this.state.bothRoles);
     return (
       <DashboardLayout
         breadCrumbs={
@@ -249,6 +252,7 @@ class Profile extends Component {
                 : ntfUtils.getUserNotifications(user, null, "room")
             }
             user={user}
+            bothRoles={this.state.bothRoles}
             resource={resource}
           />
         }
