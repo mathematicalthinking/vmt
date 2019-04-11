@@ -53,6 +53,7 @@ export const removeUserActivities = activityIdsArr => {
 };
 
 export const addUserRooms = newRoomsArr => {
+  console.log("newroomsarr: ", newRoomsArr);
   return {
     type: actionTypes.ADD_USER_ROOMS,
     newRoomsArr

@@ -179,8 +179,8 @@ class Profile extends Component {
             this.props[resource].byId[id].members.forEach(member => {
               if (
                 member.user &&
-                member.user._id === user._id &&
-                member.role === this.state.view
+                member.user._id === user._id
+                // && member.role === this.state.view
               ) {
                 included = true;
               }

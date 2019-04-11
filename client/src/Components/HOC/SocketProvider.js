@@ -51,8 +51,6 @@ class SocketProvider extends Component {
 
   componentDidUpdate(prevProps) {
     if (!prevProps.user.loggedIn && this.props.user.loggedIn) {
-      console.log("logging backIN!");
-      console.log(socket.connected, socket.id);
       let userId = this.props.user._id;
       let socketId = socket.id;
       socket.emit("SYNC_SOCKET", { socketId, userId }, (res, err) => {
@@ -70,6 +68,7 @@ class SocketProvider extends Component {
   initializeListeners() {
     socket.removeAllListeners();
     socket.on("NEW_NOTIFICATION", data => {
+      console.log(data);
       let { notification, course, room } = data;
       let type = notification.notificationType;
       let resource = notification.resourceType;
@@ -87,18 +86,20 @@ class SocketProvider extends Component {
       }
       if (course) {
         let normalizedCourse = normalize([course]);
+        console.log("normalized course");
+        console.log(normalizedCourse);
         this.props.gotCourses(normalizedCourse);
 
         this.props.addUserCourses([course._id]);
       }
 
       if (room) {
-        let normalizedRoom = normalize([data.room]);
+        let normalizedRoom = normalize([room]);
 
         this.props.gotRooms(normalizedRoom, true);
-        this.props.addUserRooms([data.room]);
-        if (data.room.course) {
-          this.props.addCourseRooms(data.room.course, [data.room._id]);
+        this.props.addUserRooms([room._id]);
+        if (room.course) {
+          this.props.addCourseRooms(room.course, [room._id]);
         }
       }
     });

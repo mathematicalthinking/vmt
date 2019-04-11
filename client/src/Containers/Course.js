@@ -286,7 +286,6 @@ class Course extends Component {
 
       let mainContent;
       if (resource === "rooms" || resource === "activities") {
-        console.log(myRooms);
         mainContent = (
           <ResourceList
             userResources={myRooms || course[resource] || []}

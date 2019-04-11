@@ -86,9 +86,13 @@ const reducer = (state = initialState, action) => {
 
     case actionTypes.ADD_COURSE_ROOMS:
       updatedCourses = { ...state.byId };
+      // ONly add unique ids, dont add dups
+      let roomIds = action.roomIdsArr.filter(
+        roomId => updatedCourses[action.courseId].rooms.indexOf(roomId) <= 0
+      );
       updatedCourses[action.courseId].rooms = updatedCourses[
         action.courseId
-      ].rooms.concat(action.roomIdsArr);
+      ].rooms.concat(roomIds);
       return {
         ...state,
         byId: updatedCourses

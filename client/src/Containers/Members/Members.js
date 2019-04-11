@@ -57,6 +57,8 @@ class Members extends PureComponent {
             guest: true
           });
         }
+        this.props.inviteToRoom(resourceId, id, username, {});
+      } else {
         this.props.inviteToRoom(resourceId, id, username);
       }
     }
