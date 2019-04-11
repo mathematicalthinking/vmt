@@ -21,7 +21,9 @@ const Room = new mongoose.Schema(
         // _id: false,
         user: { type: ObjectId, ref: "User" },
         color: { type: String, default: "#f26247" },
-        role: { type: String }
+        role: { type: String 
+        
+        }
       }
     ],
     currentMembers: { type: [{ type: ObjectId, ref: "User" }], default: [] },

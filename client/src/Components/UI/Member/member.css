@@ -1,4 +1,4 @@
-:import('../../../colors.css') {
+:import("../../../colors.css") {
   lightestShadow: lightestShadow;
   blue: blue;
   red: red;
@@ -16,7 +16,7 @@
   border: 1px solid #ddd;
   border-radius: 2px;
   box-shadow: lightestShadow;
-  height: auto;
+  height: 60px;
   margin-bottom: 10px;
 }
 
@@ -62,7 +62,7 @@
   cursor: pointer;
   font-size: 19px;
   color: black;
-  transition: .2s;
+  transition: 0.2s;
   color: #888;
 }
 
@@ -82,17 +82,16 @@
 }
 
 .DropDown {
-  /* width: 100px; */
   margin-right: 20px;
 }
 
 @media screen and (max-width: 800px) {
-  .Trash, .Edit {
+  .Trash,
+  .Edit {
     /* justify-content: flex-start; */
     margin-right: 5px;
   }
   .Row {
-
     /* width: 100px; */
   }
 }

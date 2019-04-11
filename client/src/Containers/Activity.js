@@ -141,20 +141,23 @@ class Activity extends Component {
         )
       };
 
-      const crumbs = [{ title: "My VMT", link: "/myVMT/activities" }];
+      let crumbs = [{ title: "My VMT", link: "/myVMT/activities" }];
       if (course) {
-        crumbs.push(
+        console.log("COURSE!");
+        console.log(crumbs[0].link);
+        crumbs = [
+          { title: "My VMT", link: "/myVMT/courses" },
           {
             title: `${course.name}`,
-            link: `${crumbs[0].link}/${course._id}/activities`
+            link: `/myVMT/courses/${course._id}/activities`
           },
           {
             title: `${activity.name}`,
-            link: `${crumbs[0].link}/${course._id}/activities/${
+            link: `/myVMT/courses/${course._id}/activities/${
               activity._id
             }/details`
           }
-        );
+        ];
       } else {
         crumbs.push({
           title: `${activity.name}`,
