@@ -1,6 +1,6 @@
 import * as actionTypes from "./actionTypes";
 import AUTH from "../../utils/auth";
-import { normalize } from "../utils/normalize";
+import { normalize, addUserRoleToResource } from "../utils/normalize";
 import API from "../../utils/apiRequests";
 import * as loading from "./loading";
 import { gotCourses } from "./courses";
@@ -53,7 +53,6 @@ export const removeUserActivities = activityIdsArr => {
 };
 
 export const addUserRooms = newRoomsArr => {
-  console.log("newroomsarr: ", newRoomsArr);
   return {
     type: actionTypes.ADD_USER_ROOMS,
     newRoomsArr
@@ -168,7 +167,11 @@ export const login = (username, password) => {
         if (res.data.errorMessage) {
           return dispatch(loading.fail(res.data.errorMessage));
         }
-        let courses = normalize(res.data.courses);
+        let coursesWithRoles = res.data.courses.map(course =>
+          addUserRoleToResource(course, res.data._id)
+        );
+        console.log(coursesWithRoles);
+        let courses = normalize(coursesWithRoles);
         // const activities = normalize(res.data.activities)
         dispatch(gotCourses(courses));
 
