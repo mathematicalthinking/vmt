@@ -5,6 +5,9 @@ const Course = require("./Course");
 const Image = require("./Image");
 const Notification = require("./Notification");
 const Activity = require("./Activity");
+
+const colorMap = require("../constants/colorMap.js");
+
 const Room = new mongoose.Schema(
   {
     activity: { type: ObjectId, ref: "Activity" },
@@ -20,10 +23,11 @@ const Room = new mongoose.Schema(
       {
         // _id: false,
         user: { type: ObjectId, ref: "User" },
-        color: { type: String, default: "#f26247" },
-        role: { type: String 
-        
-        }
+        color: {
+          type: String,
+          default: colorMap[0]
+        },
+        role: { type: String }
       }
     ],
     currentMembers: { type: [{ type: ObjectId, ref: "User" }], default: [] },

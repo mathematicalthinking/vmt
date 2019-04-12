@@ -181,6 +181,7 @@ export const login = (username, password) => {
           let roomsWithRoles = res.data.rooms.map(room =>
             addUserRoleToResource(room, res.data._id)
           );
+          console.log("ROOMS WITH ROLES: ", roomsWithRoles);
           rooms = normalize(roomsWithRoles);
           dispatch(gotRooms(rooms));
         }
@@ -190,14 +191,15 @@ export const login = (username, password) => {
 
         let user = {
           ...res.data,
-          courses: courses.allIds,
-          rooms: rooms.allIds,
-          activities: activities.allIds
+          courses: courses ? courses.allIds : [],
+          rooms: rooms ? rooms.allIds : [],
+          activities: activities ? activities.allIds : []
         };
         dispatch(gotUser(user));
         return dispatch(loading.success());
       })
       .catch(err => {
+        console.log(err);
         dispatch(loading.fail(err.response.data.errorMessage));
       });
   };

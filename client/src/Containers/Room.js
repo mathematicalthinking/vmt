@@ -35,7 +35,6 @@ import Access from "./Access";
 // import Participants from './Participants/Participants';
 class Room extends Component {
   state = {
-    owner: false,
     member: false,
     guestMode: true,
     tabs: [{ name: "Details" }, { name: "Members" }, { name: "Settings" }],
@@ -65,17 +64,8 @@ class Room extends Component {
       let owner = false;
       let firstView = false;
       let invited = false;
-      if (
-        room.members.filter(
-          member =>
-            member.role === "facilitator" && member.user._id === user._id
-        ).length > 0
-      ) {
-        // WE SHOULD ACTUALLY BE CHECKING THE FACILITATORS NOT THE OWNER
-        // updatedTabs = updatedTabs.concat([{name: 'Grades'}, {name: 'Insights'}]);
-        // this.initialTabs.concat([{name: 'Grades'}, {name: 'Insights'}])
-        owner = true;
-        // displayNotifications
+      console.log("my trole: ", room.myRole);
+      if (room.myRole === "facilitator") {
         updatedTabs = this.displayNotifications(updatedTabs);
       }
       if (notifications.length > 0) {
@@ -352,7 +342,7 @@ class Room extends Component {
         mainContent = (
           <RoomDetails
             room={room}
-            owner={this.state.owner}
+            owner={room.myRole === "facilitator"}
             notifications={
               notifications.filter(ntf => ntf.resourceId === room._id) || []
             }
@@ -368,10 +358,10 @@ class Room extends Component {
           <Members
             user={user}
             classList={room.members}
-            owner={this.state.owner}
+            owner={room.myRole === "facilitator"}
             resourceType={"room"}
             resourceId={room._id}
-            parentResource={course._id}
+            parentResource={course ? course._id : null}
             courseMembers={course ? course.members : null}
             notifications={
               notifications.filter(ntf => ntf.resourceId === room._id) || []

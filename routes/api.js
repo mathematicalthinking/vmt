@@ -141,6 +141,7 @@ router.post(
   middleware.validateNewRecord,
   (req, res, next) => {
     let controller = controllers[req.params.resource];
+    console.log(req.body);
     controller
       .post(req.body)
       .then(result => res.json({ result }))

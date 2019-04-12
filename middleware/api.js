@@ -6,10 +6,12 @@ const helpers = require("../middleware/utils/helpers");
 const models = require("../models");
 
 const validateResource = (req, res, next) => {
+  console.log(typeof req.body.members);
   const resource = utils.getResource(req);
   if (_.isNil(controllers[resource])) {
     return errors.sendError.InvalidContentError("Invalid Resource", res);
   }
+  console.log("good!");
   next();
 };
 
@@ -59,6 +61,7 @@ const validateUser = (req, res, next) => {
       return errors.sendError.InvalidCredentialsError(null, res);
     }
   } else {
+    console.log("GOOD!");
     next();
   }
 };
@@ -197,14 +200,14 @@ const validateNewRecord = (req, res, next) => {
   if (!_.hasIn(doc, "validate")) {
     return errors.sendError.InvalidContentError(null, res);
   }
-
+  console.log("validating");
   doc.validate(err => {
     if (err) {
       console.log("validation err", err);
 
       return errors.sendError.InvalidContentError(null, res);
     }
-
+    console.log("validated!");
     next();
   });
 };

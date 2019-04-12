@@ -5,7 +5,7 @@ const user4 = require("../fixtures/user4");
 const user5 = require("../fixtures/user5");
 const user6 = require("../fixtures/user6");
 
-describe("test access requests", function() {
+describe("test notifications and access to resources", function() {
   before(function() {
     cy.task("seedDB").then(() => cy.login(user2));
   });
@@ -155,7 +155,6 @@ describe("test access requests", function() {
     cy.getTestElement("tab")
       .contains("Rooms")
       .click();
-    cy.get(".fa-sync").click(); // toggle view to paricticpant
     cy.getTestElement("content-box-stand-alone-activity (room 1)").should(
       "exist"
     );

@@ -2,7 +2,7 @@ const user2 = require("../fixtures/user2");
 const course = require("../fixtures/course");
 const room = require("../fixtures/room");
 
-describe("show different views based on role", function() {
+xdescribe("show different views based on role", function() {
   before(function() {
     cy.task("seedDB").then(() => {
       cy.login(user2);

@@ -22,7 +22,10 @@ class ContentBox extends PureComponent {
   render() {
     const notifications =
       this.props.notifications > 0 ? (
-        <Notification count={this.props.notifications} />
+        <Notification
+          count={this.props.notifications}
+          dataTestId={"content-box-ntf"}
+        />
       ) : null;
     return (
       <Aux>
