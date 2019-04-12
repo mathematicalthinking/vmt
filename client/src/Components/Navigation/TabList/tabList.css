@@ -42,12 +42,6 @@
   color: darkGrey;
 }
 
-.Tab:hover .Notifications {
-  top: calc(
-    50% - 11px
-  ); /** maybe not the best way to do this  try commenting this out and then hover on a tab with a notification and watch the notification jump because the height decreases as the border takes up more room on the hover...it does fix this problem**/
-}
-
 .ActiveTab {
   /* border-bottom: 1px solid #2D91F2; */
   border-bottom: 4px solid orange;
@@ -63,22 +57,8 @@
 .Notifications {
   transition: 0.2s;
   position: absolute;
-  top: calc(50% - 12px); /** half the parent height - half of this height **/
-  right: 4px;
-  background-color: red;
-  color: white;
-  border-radius: 50%;
-  width: 22px;
-  text-align: center;
-  vertical-align: center;
-  font-size: 12px;
-  height: 22px;
-  text-align: center;
-  font-weight: 400;
-}
-
-.ActiveTab .Notifications {
-  top: calc(50% - 11px);
+  top: 5px;
+  right: 0px;
 }
 
 .NotificationCount {

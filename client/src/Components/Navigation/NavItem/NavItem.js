@@ -1,6 +1,7 @@
 import React from "react";
 // import classes from './navItem.css';
 import { Link } from "react-router-dom";
+import Notification from "../../Notification/Notification";
 import classes from "./navItem.css";
 const navItem = props => {
   return (
@@ -8,9 +9,7 @@ const navItem = props => {
       <Link className={classes.Link} to={props.link}>
         {props.name}
       </Link>
-      {props.ntf ? (
-        <i className={["fas fa-exclamation-circle", classes.Ntf].join(" ")} />
-      ) : null}
+      {props.ntf ? <Notification size={"small"} /> : null}
     </li>
   );
 };
