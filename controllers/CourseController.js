@@ -115,9 +115,21 @@ module.exports = {
   remove: (id, body) => {
     return new Promise((resolve, reject) => {
       // Remove this course from the user's list of courses
-      db.User.findByIdAndUpdate(body.members.user, { $pull: { courses: id } });
-      db.Course.findByIdAndUpdate(id, { $pull: body }, { new: true })
-        .populate({ path: "members.user", select: "username" })
+      // @TODO remove any notifictions associated with this resource
+      return db.User.findByIdAndUpdate(
+        body.members.user,
+        {
+          $pull: { courses: id }
+        },
+        { new: true }
+      )
+        .then(user => {
+          return db.Course.findByIdAndUpdate(
+            id,
+            { $pull: body },
+            { new: true }
+          ).populate({ path: "members.user", select: "username" });
+        })
         .then(res => resolve(res.members))
         .catch(err => reject(err));
     });

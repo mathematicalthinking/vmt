@@ -201,7 +201,7 @@ router.put(
   (req, res, next) => {
     let { resource, id } = req.params;
     let controller = controllers[resource];
-    req.params.remove = true; // Add remove to the params so we can allow users to modify their own status in  a resource (not just the resource owners) i.e. I should be able to remove myself from a course even if I'm not an owner of that course
+    req.params.remove = true; // Add remove to the params so we can allow users to modify their own status in  a resource (not just the resource owners) i.e. I should be able to remove myself from a course even if I'm not an owner of that course // THIS SHOULD BE DONE DIFFERENTLY CHECK req.USER and compare to member being removed
     return middleware
       .canModifyResource(req)
       .then(results => {

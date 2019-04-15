@@ -115,8 +115,7 @@ class Course extends Component {
     if (prevProps.notifications.length !== this.props.notifications.length) {
       console.log("notificaitons changes");
       // this.props.getCourse(this.props.match.params.course_id)
-      let updatedTabs = this.displayNotifications();
-      this.setState({ tabs: updatedTabs });
+      this.displayNotifications();
     }
     // if the course has been updated by redux
     // This will happen when an update request is unsuccessful. When a user updates the course we are changing this components state
@@ -255,7 +254,6 @@ class Course extends Component {
 
   render() {
     let { course, user, match, notifications } = this.props;
-    console.log("notifications in render: ", notifications);
     if (course && !this.state.guestMode) {
       let resource = match.params.resource;
       let myRooms;
