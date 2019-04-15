@@ -246,6 +246,7 @@ export const createCourse = body => {
           // dispatch(addUserCourseTemplates(res.data.result[1]._id))
           // BUG THE ORDER HERE MATTERS. IF WE UPDATE USERCOURSES BEFORE COURSES THE getUserResource SELECTOR WILL FAIL
           // AND CAUSE THE COURSES COMPONENT TO ERROR
+          res.data.results[0].myRole = "facilitator";
           dispatch(createdCourse(res.data.result[0]));
           // dispatch(createdCourseTemplate(res.data.result[1]))
           // NB If we're creating a template we're going to get back two results in an array (the course that was created & then template that was created)

@@ -14,14 +14,17 @@ import {
   removeRoomMember
 } from "../../store/actions";
 import { getAllUsersInStore } from "../../store/reducers/";
-import { Member, Search } from "../../Components";
+import { Member, Search, Modal, Button } from "../../Components";
 import SearchResults from "./SearchResults";
 import classes from "./members.css";
 
 class Members extends PureComponent {
   state = {
     searchText: "",
-    searchResults: this.props.searchedUsers || []
+    searchResults: this.props.searchedUsers || [],
+    confirmingInvitation: false,
+    userId: null,
+    username: null
   };
 
   renderCount = 0;
@@ -37,13 +40,8 @@ class Members extends PureComponent {
   }
 
   inviteMember = (id, username) => {
-    console.log("inviting member");
-    let {
-      resourceId,
-      resourceType,
-      parentResource,
-      courseMembers
-    } = this.props;
+    let confirmingInvitation = false;
+    let { resourceId, resourceType, courseMembers } = this.props;
     if (resourceType === "course") {
       this.props.inviteToCourse(resourceId, id, username);
     } else {
@@ -53,11 +51,10 @@ class Members extends PureComponent {
           member => member.user._id === id
         )[0];
         if (!inCourse) {
-          this.props.inviteToCourse(parentResource, id, username, {
-            guest: true
-          });
+          confirmingInvitation = true;
+        } else {
+          this.props.inviteToRoom(resourceId, id, username, {});
         }
-        this.props.inviteToRoom(resourceId, id, username, {});
       } else {
         this.props.inviteToRoom(resourceId, id, username);
       }
@@ -66,7 +63,26 @@ class Members extends PureComponent {
     let updatedResults = this.state.searchResults.filter(
       user => user._id !== id
     );
-    this.setState({ searchResults: updatedResults });
+    this.setState({
+      confirmingInvitation,
+      searchResults: updatedResults,
+      username: confirmingInvitation ? username : null,
+      userId: confirmingInvitation ? id : null
+    });
+  };
+
+  confirmInvitation = () => {
+    let { parentResource, resourceId } = this.props;
+    let { userId, username } = this.state;
+    this.props.inviteToCourse(parentResource, userId, username, {
+      guest: true
+    });
+    this.props.inviteToRoom(resourceId, userId, username, {});
+    this.setState({
+      confirmingInvitation: false,
+      username: null,
+      userId: null
+    });
   };
 
   removeMember = info => {
@@ -162,8 +178,34 @@ class Members extends PureComponent {
         <Member info={member} key={i} />
       );
     });
+    console.log("this.state.confirming", this.state.confirmingInvitation);
     return (
       <div className={classes.Container}>
+        {
+          <Modal
+            show={this.state.confirmingInvitation}
+            closeModal={() => this.setState({ confirmingInvitation: false })}
+          >
+            <div>
+              {this.state.username} is not in this course...you can still add
+              them to this room and they will be added to the course as a guest
+            </div>
+            <div>
+              <Button m={5} click={this.confirmInvitation}>
+                Add To Room
+              </Button>
+              <Button
+                theme={"Cancel"}
+                m={5}
+                click={() => {
+                  this.setState({ confirmingInvitation: false });
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </Modal>
+        }
         <div>
           {owner ? (
             <Fragment>
