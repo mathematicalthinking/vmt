@@ -31,7 +31,6 @@ import Access from "./Access";
 
 class Course extends Component {
   state = {
-    owner: false,
     member: false,
     guestMode: true,
     tabs: [{ name: "Activities" }, { name: "Rooms" }, { name: "Members" }],
@@ -74,20 +73,13 @@ class Course extends Component {
       // check if we need to fetch data
       // this.checkForFetch();
       // Check user's permission level -- owner, member, or guest
-      let updatedTabs = [...this.state.tabs];
-      let owner =
-        course.members.filter(
-          member =>
-            member.role === "facilitator" && member.user._id === user._id
-        ).length > 0;
-      updatedTabs = this.displayNotifications(updatedTabs);
-
-      this.setState({
-        tabs: updatedTabs,
-        owner,
-        firstView,
-        invited
-      });
+      this.setState(
+        {
+          firstView,
+          invited
+        },
+        () => this.displayNotifications()
+      );
       if (course.members) {
         this.checkAccess();
       }
@@ -101,6 +93,7 @@ class Course extends Component {
     if (!this.props.course) {
       return;
     }
+    // If the user has been removed from this course go back to myVMT
     if (
       prevProps.user.courses.indexOf(this.props.course._id) > -1 &&
       this.props.user.courses.indexOf(this.props.course._id) === -1
@@ -110,6 +103,7 @@ class Course extends Component {
     // If we've just fetched the course?
     if (!prevProps.course && this.props.course) {
       this.checkAccess();
+      this.displayNotifications();
     }
 
     if (
@@ -119,8 +113,9 @@ class Course extends Component {
       this.checkAccess();
     }
     if (prevProps.notifications.length !== this.props.notifications.length) {
+      console.log("notificaitons changes");
       // this.props.getCourse(this.props.match.params.course_id)
-      let updatedTabs = this.displayNotifications([...this.state.tabs]);
+      let updatedTabs = this.displayNotifications();
       this.setState({ tabs: updatedTabs });
     }
     // if the course has been updated by redux
@@ -160,22 +155,20 @@ class Course extends Component {
     );
   };
 
-  displayNotifications = tabs => {
+  displayNotifications = () => {
     // console.log(notifications)
-    const { course, notifications, user } = this.props;
+    let updatedTabs = [...this.state.tabs];
+    const { course, notifications } = this.props;
     // if (course.creator === user._id
-    let isOwner =
-      course.members.filter(
-        member => member.role === "facilitator" && member.user._id === user._id
-      ).length > 0;
-    if (isOwner) {
+    if (course.myRole === "facilitator") {
       let memberNtfs = notifications.filter(
         ntf =>
           ntf.resourceId === course._id &&
           (ntf.notificationType === "requestAccess" ||
             ntf.notificationType === "newMember")
       );
-      tabs[2].notifications = memberNtfs.length > 0 ? memberNtfs.length : "";
+      updatedTabs[2].notifications =
+        memberNtfs.length > 0 ? memberNtfs.length : "";
     }
     let newRoomNtfs = notifications.filter(
       ntf =>
@@ -183,13 +176,14 @@ class Course extends Component {
         (ntf.notificationType === "assignedNewRoom" ||
           ntf.notificationType === "invitation")
     );
-    tabs[1].notifications = newRoomNtfs.length > 0 ? newRoomNtfs.length : "";
+    updatedTabs[1].notifications =
+      newRoomNtfs.length > 0 ? newRoomNtfs.length : "";
     // }
     // if (notifications.llength > 0){
     //   tabs[1].notifications = notifications.llength;
     // }
-    console.log("tabs: ", tabs);
-    return tabs;
+    console.log("tabs: ", updatedTabs);
+    this.setState({ tabs: updatedTabs });
   };
 
   // checkForFetch = () => {
@@ -261,6 +255,7 @@ class Course extends Component {
 
   render() {
     let { course, user, match, notifications } = this.props;
+    console.log("notifications in render: ", notifications);
     if (course && !this.state.guestMode) {
       let resource = match.params.resource;
       let myRooms;
@@ -303,7 +298,7 @@ class Course extends Component {
           <Members
             user={user}
             classList={course.members}
-            owner={this.state.owner}
+            owner={course.myRole === "facilitator"}
             resourceType={"course"}
             resourceId={course._id}
             notifications={
@@ -338,7 +333,7 @@ class Course extends Component {
         )
       };
 
-      if (this.state.owner) {
+      if (course.myRole === "facilitator") {
         additionalDetails.code = (
           <Error error={updateFail && updateKeys.indexOf("entryCode") > -1}>
             <EditText
@@ -400,12 +395,12 @@ class Course extends Component {
                     </EditText>
                   </Error>
                 }
-                owner={this.state.owner}
+                owner={course.myRole === "facilitator"}
                 bothRoles={this.state.bothRoles}
                 additionalDetails={additionalDetails}
                 accountType={user.accountType}
                 editButton={
-                  this.state.owner ? (
+                  course.myRole === "facilitator" ? (
                     <Aux>
                       <div
                         role="button"

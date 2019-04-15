@@ -378,6 +378,7 @@ class Room extends Component {
           />
         );
       }
+      console.log("MY ROLE: ", room.myRole);
       return (
         <Aux>
           <DashboardLayout
@@ -415,7 +416,7 @@ class Room extends Component {
                     </EditText>
                   </Error>
                 }
-                owner={this.state.owner}
+                owner={room.myRole === "facilitator"}
                 additionalDetails={additionalDetails}
                 buttons={
                   <Aux>
@@ -454,7 +455,7 @@ class Room extends Component {
                   </Aux>
                 }
                 editButton={
-                  this.state.owner ? (
+                  room.myRole === "facilitator" ? (
                     <Aux>
                       <div
                         role="button"
