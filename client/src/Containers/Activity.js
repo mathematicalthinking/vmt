@@ -143,8 +143,6 @@ class Activity extends Component {
 
       let crumbs = [{ title: "My VMT", link: "/myVMT/activities" }];
       if (course) {
-        console.log("COURSE!");
-        console.log(crumbs[0].link);
         crumbs = [
           { title: "My VMT", link: "/myVMT/courses" },
           {

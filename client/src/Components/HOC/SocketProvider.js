@@ -68,7 +68,6 @@ class SocketProvider extends Component {
   initializeListeners() {
     socket.removeAllListeners();
     socket.on("NEW_NOTIFICATION", data => {
-      console.log(data);
       let { notification, course, room } = data;
       let type = notification.notificationType;
       let resource = notification.resourceType;
@@ -86,8 +85,6 @@ class SocketProvider extends Component {
       }
       if (course) {
         let normalizedCourse = normalize([course]);
-        console.log("normalized course");
-        console.log(normalizedCourse);
         this.props.gotCourses(normalizedCourse);
 
         this.props.addUserCourses([course._id]);

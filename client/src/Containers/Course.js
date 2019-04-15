@@ -113,7 +113,6 @@ class Course extends Component {
       this.checkAccess();
     }
     if (prevProps.notifications.length !== this.props.notifications.length) {
-      console.log("notificaitons changes");
       // this.props.getCourse(this.props.match.params.course_id)
       this.displayNotifications();
     }
@@ -181,7 +180,6 @@ class Course extends Component {
     // if (notifications.llength > 0){
     //   tabs[1].notifications = notifications.llength;
     // }
-    console.log("tabs: ", updatedTabs);
     this.setState({ tabs: updatedTabs });
   };
 

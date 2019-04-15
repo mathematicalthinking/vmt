@@ -277,7 +277,7 @@ class Room extends Component {
 
       let additionalDetails = {
         [dueDateText]: (
-          <Error error={updateFail && updateKeys.indexOf("dueFate") > -1}>
+          <Error error={updateFail && updateKeys.indexOf("dueDate") > -1}>
             <EditText
               change={this.updateRoomInfo}
               inputType="date"
@@ -310,7 +310,7 @@ class Room extends Component {
         }, "")
       };
 
-      if (this.state.owner) {
+      if (room.myRole === "facilitator") {
         additionalDetails.code = (
           <Error error={updateFail && updateKeys.indexOf("entryCode") > -1}>
             <EditText

@@ -85,7 +85,6 @@ router.post("/enc", (req, res, next) => {
 });
 
 router.post("/logout/:userId", (req, res, next) => {
-  console.log(req.params);
   User.findByIdAndUpdate(req.params.userId, { socketId: null })
     .lean()
     .then(() => {
