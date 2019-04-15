@@ -21,6 +21,9 @@
   box-shadow: lightestShadow;
   transition: all 0.2s;
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .SubContainer {

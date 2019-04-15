@@ -4,6 +4,7 @@ import classes from "./contentBox.css";
 import Icons from "./Icons/Icons";
 import Aux from "../../HOC/Auxil";
 import Expand from "./expand.js";
+import Notification from "../../Notification/Notification";
 
 class ContentBox extends PureComponent {
   state = {
@@ -21,11 +22,10 @@ class ContentBox extends PureComponent {
   render() {
     const notifications =
       this.props.notifications > 0 ? (
-        <div className={classes.Notification} data-testid="content-box-ntf">
-          <span className={classes.NotificationCount}>
-            {this.props.notifications}
-          </span>
-        </div>
+        <Notification
+          count={this.props.notifications}
+          dataTestId={"content-box-ntf"}
+        />
       ) : null;
     return (
       <Aux>

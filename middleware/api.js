@@ -197,14 +197,12 @@ const validateNewRecord = (req, res, next) => {
   if (!_.hasIn(doc, "validate")) {
     return errors.sendError.InvalidContentError(null, res);
   }
-
   doc.validate(err => {
     if (err) {
       console.log("validation err", err);
 
       return errors.sendError.InvalidContentError(null, res);
     }
-
     next();
   });
 };

@@ -212,16 +212,19 @@ export const getCourse = id => {
   };
 };
 
-export const inviteToCourse = (courseId, toUserId, toUserUsername) => {
+export const inviteToCourse = (courseId, toUserId, toUserUsername, options) => {
   console.log(toUserUsername);
+  console.log("GHELLO INVITING");
   return dispatch => {
     dispatch(
       addCourseMember(courseId, {
         user: { _id: toUserId, username: toUserUsername },
-        role: "participant"
+        role: options && options.guest ? "guest" : "participant"
       })
     );
-    API.grantAccess(toUserId, "course", courseId, "invitation");
+    API.grantAccess(toUserId, "course", courseId, "invitation", options)
+      .then(res => {})
+      .catch(err => console.log(err));
   };
 };
 

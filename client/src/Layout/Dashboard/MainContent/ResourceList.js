@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import BoxList from "../../BoxList/BoxList";
 import NewResource from "../../../Containers/Create/NewResource/NewResource";
 import classes from "./resourceList.css";
@@ -40,6 +40,19 @@ const resources = props => {
     );
   }
 
+  let facilitatorList = [];
+  let participantList = [];
+  /** consider storing a field like myRole on the actual resource in the store...we could compute this when its added to the store and then never again
+   * I feel like we are checking roles...which requires looping through the resources members each time.
+   */
+  props.userResources.forEach(resource => {
+    if (resource.myRole === "facilitator") {
+      facilitatorList.push(resource);
+    } else {
+      participantList.push(resource);
+    }
+  });
+
   return (
     <div>
       {/* @TODO don't show create optinos for participants */}
@@ -49,17 +62,54 @@ const resources = props => {
         </div>
         {create}
       </div>
-      <h2 className={classes.ResourceHeader}>My {displayResource}</h2>
-      <BoxList
-        list={props.userResources}
-        linkPath={linkPath}
-        linkSuffix={linkSuffix}
-        notifications={props.notifications}
-        resource={props.resource}
-        listType="private"
-        parentResourec={props.parentResource}
-        // draggable
-      />
+      {facilitatorList.length > 0 && participantList.length > 0 ? (
+        <div className={classes.Row}>
+          <div className={classes.Col}>
+            <h2 className={classes.ResourceHeader}>
+              {displayResource} I Manage
+            </h2>
+            <BoxList
+              list={facilitatorList}
+              linkPath={linkPath}
+              linkSuffix={linkSuffix}
+              notifications={props.notifications}
+              resource={props.resource}
+              listType="private"
+              parentResourec={props.parentResource}
+              // draggable
+            />
+          </div>
+          <div className={classes.Col}>
+            <h2 className={classes.ResourceHeader}>
+              {displayResource} I'm a member of
+            </h2>
+            <BoxList
+              list={participantList}
+              linkPath={linkPath}
+              linkSuffix={linkSuffix}
+              notifications={props.notifications}
+              resource={props.resource}
+              listType="private"
+              parentResourec={props.parentResource}
+              // draggable
+            />
+          </div>
+        </div>
+      ) : (
+        <Fragment>
+          <h2 className={classes.ResourceHeader}>My {displayResource}</h2>
+          <BoxList
+            list={props.userResources}
+            linkPath={linkPath}
+            linkSuffix={linkSuffix}
+            notifications={props.notifications}
+            resource={props.resource}
+            listType="private"
+            parentResourec={props.parentResource}
+            // draggable
+          />
+        </Fragment>
+      )}
     </div>
   );
 };

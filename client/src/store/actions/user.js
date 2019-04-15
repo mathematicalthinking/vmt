@@ -1,11 +1,10 @@
 import * as actionTypes from "./actionTypes";
 import AUTH from "../../utils/auth";
-import { normalize } from "../utils/normalize";
+import { normalize, addUserRoleToResource } from "../utils/normalize";
 import API from "../../utils/apiRequests";
 import * as loading from "./loading";
 import { gotCourses } from "./courses";
 import { gotRooms } from "./rooms";
-import socket from "../../utils/sockets";
 import { gotActivities } from "./activities";
 
 export const gotUser = (user, temp) => {
@@ -72,9 +71,15 @@ export const loggedOut = () => {
 };
 
 export const logout = () => {
-  socket.disconnect();
-  return dispatch => {
-    AUTH.logout()
+  // N.B., We are not disconnecting the user from the websocket
+  // becasue they need to be connected if they go into a temporary room
+  // But we don't want them to continue to receive notifications for the previously
+  // logged in user, so we need to do disassociate their socketId and userId
+  // send their userId to the logout function and clear the socketId on the user model
+  // on the backend
+  return (dispatch, getState) => {
+    let userId = getState().user._id;
+    AUTH.logout(userId)
       .then(res => {
         dispatch(loggedOut());
       })
@@ -162,26 +167,39 @@ export const login = (username, password) => {
         if (res.data.errorMessage) {
           return dispatch(loading.fail(res.data.errorMessage));
         }
-        let courses = normalize(res.data.courses);
-        // const activities = normalize(res.data.activities)
-        dispatch(gotCourses(courses));
-
-        let rooms = normalize(res.data.rooms);
-        dispatch(gotRooms(rooms));
+        let courses;
+        let rooms;
+        if (res.data.courses.length > 0) {
+          let coursesWithRoles = res.data.courses.map(course =>
+            addUserRoleToResource(course, res.data._id)
+          );
+          courses = normalize(coursesWithRoles);
+          // const activities = normalize(res.data.activities)
+          dispatch(gotCourses(courses));
+        }
+        if (res.data.rooms.length > 0) {
+          let roomsWithRoles = res.data.rooms.map(room =>
+            addUserRoleToResource(room, res.data._id)
+          );
+          console.log("ROOMS WITH ROLES: ", roomsWithRoles);
+          rooms = normalize(roomsWithRoles);
+          dispatch(gotRooms(rooms));
+        }
 
         let activities = normalize(res.data.activities);
         dispatch(gotActivities(activities));
 
         let user = {
           ...res.data,
-          courses: courses.allIds,
-          rooms: rooms.allIds,
-          activities: activities.allIds
+          courses: courses ? courses.allIds : [],
+          rooms: rooms ? rooms.allIds : [],
+          activities: activities ? activities.allIds : []
         };
         dispatch(gotUser(user));
         return dispatch(loading.success());
       })
       .catch(err => {
+        console.log(err);
         dispatch(loading.fail(err.response.data.errorMessage));
       });
   };

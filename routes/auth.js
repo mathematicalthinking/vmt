@@ -84,13 +84,18 @@ router.post("/enc", (req, res, next) => {
     });
 });
 
-router.post("/logout", (req, res, next) => {
-  try {
-    req.logout();
-    res.json({ result: "success" });
-  } catch (err) {
-    res.status(500);
-  }
+router.post("/logout/:userId", (req, res, next) => {
+  User.findByIdAndUpdate(req.params.userId, { socketId: null })
+    .lean()
+    .then(() => {
+      try {
+        req.logout();
+        res.json({ result: "success" });
+      } catch (err) {
+        return errors.sendError.InternalError(err, res);
+      }
+    })
+    .catch(err => errors.sendError.InternalError(err, res));
 });
 
 router.get("/googleAuth", (req, res, next) => {

@@ -55,19 +55,10 @@
 }
 /* @TODO might consider extracting out Notification to its own component */
 .Notifications {
+  transition: 0.2s;
   position: absolute;
-  top: calc(50% - 12px); /** half the parent height - half of this height **/
-  right: 4px;
-  background-color: red;
-  color: white;
-  border-radius: 50%;
-  width: 22px;
-  text-align: center;
-  vertical-align: center;
-  font-size: 12px;
-  height: 22px;
-  text-align: center;
-  font-weight: 400;
+  top: 5px;
+  right: 0px;
 }
 
 .NotificationCount {

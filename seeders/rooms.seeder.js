@@ -115,7 +115,7 @@ var data = [
     chat: [],
     currentMembers: [],
     tabs: ["5c2e58e4684f328cbca1d998"],
-    privacySetting: "public",
+    privacySetting: "private",
     tempRoom: false,
     isTrashed: true,
     name: "Deanna's stand alone room",
@@ -153,6 +153,7 @@ var data = [
         role: "facilitator"
       }
     ],
+    entryCode: "testEntrycode",
     dueDate: null,
     createdAt: "2019-01-03T18:48:04.573Z",
     updatedAt: "2019-01-03T18:48:13.123Z",

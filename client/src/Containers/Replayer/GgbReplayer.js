@@ -7,7 +7,7 @@ class GgbReplayer extends Component {
   };
 
   graph = React.createRef();
-
+  isFileSet = false; // calling ggb.setBase64 triggers this.initializeGgb(), because we set base 64 inside initializeGgb we use this instance var to track whether we've already set the file. When the ggb tries to load the file twice it breaks everything
   componentDidMount() {
     window.addEventListener("resize", this.updateDimensions);
   }
@@ -195,12 +195,13 @@ class GgbReplayer extends Component {
     this.props.setTabLoaded(this.props.tab._id);
     this.ggbApplet.setMode(40); // Sets the tool to zoom
     let { tab } = this.props;
-    let { currentState, startingPoint, ggbFile } = tab;
+    let { startingPoint, ggbFile } = tab;
     // put the current construction on the graph, disable everything until the user takes control
     // if (perspective) this.ggbApplet.setPerspective(perspective);
     if (startingPoint) {
-      this.ggbApplet.setXML(currentState);
-    } else if (ggbFile) {
+      this.ggbApplet.setXML(startingPoint);
+    } else if (ggbFile && !this.isFileSet) {
+      this.isFileSet = true;
       this.ggbApplet.setBase64(ggbFile);
     }
   };

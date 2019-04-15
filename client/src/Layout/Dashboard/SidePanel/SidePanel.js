@@ -62,17 +62,6 @@ const SidePanel = React.memo(
               </Link>
             </div>
           ) : null}
-          {bothRoles ? (
-            <div className={classes.ToggleView}>
-              <span>
-                View: {capitalize(view)}
-                <i
-                  onClick={toggleView}
-                  className={["fas fa-sync", classes.Icon].join(" ")}
-                />
-              </span>
-            </div>
-          ) : null}
         </div>
       </Aux>
     );

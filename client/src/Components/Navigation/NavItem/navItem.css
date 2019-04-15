@@ -1,11 +1,11 @@
 .Item {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   flex-basis: 100px;
   list-style-type: none;
   height: 100%;
-  transition: .2;
+  transition: 0.2;
   position: relative;
   max-width: 125px;
   /* border: 1px solid white; */
@@ -15,7 +15,7 @@
 
 .Link {
   color: white;
-  letter-spacing: .07em;
+  letter-spacing: 0.07em;
 }
 
 /* .Item:hover {
@@ -29,20 +29,21 @@
   background-color: #0078EC;
 } */
 
-.Item:after{
-  content: '';
+.Item:after {
+  content: "";
   position: absolute;
-  width: 0; height: 2px;
+  width: 0;
+  height: 2px;
   display: block;
   border-radius: 4px;
-  margin-top: 25px;
+  margin-top: 10px;
   right: 0;
   background: white;
-  transition: width .2s ease-in;
+  transition: width 0.2s ease-in;
   /* -webkit-transition: width .2s; */
 }
 
-.Item:hover:after{
+.Item:hover:after {
   width: 100%;
   left: 0;
   background: white;

@@ -1,6 +1,6 @@
 // ALSO CONSIDER MOVING GRANTACCESS() FROM COURSE CONTAINER TO HERE
 // EXTRACT OUT THE LAYOUT PORTION INTO THE LAYYOUT FOLDER
-import React, { Component } from "react";
+import React, { PureComponent, Fragment } from "react";
 import { connect } from "react-redux";
 import API from "../../utils/apiRequests";
 import {
@@ -18,12 +18,13 @@ import { Member, Search } from "../../Components";
 import SearchResults from "./SearchResults";
 import classes from "./members.css";
 
-class Members extends Component {
+class Members extends PureComponent {
   state = {
     searchText: "",
     searchResults: this.props.searchedUsers || []
   };
 
+  renderCount = 0;
   componentWillUnmount() {
     const { notifications } = this.props;
     if (notifications.length > 0) {
@@ -36,11 +37,30 @@ class Members extends Component {
   }
 
   inviteMember = (id, username) => {
-    let { resourceId, resourceType } = this.props;
+    console.log("inviting member");
+    let {
+      resourceId,
+      resourceType,
+      parentResource,
+      courseMembers
+    } = this.props;
     if (resourceType === "course") {
       this.props.inviteToCourse(resourceId, id, username);
     } else {
-      this.props.inviteToRoom(resourceId, id, username);
+      // If this is a course room check the member being added to the room already belongs to the course
+      if (courseMembers) {
+        let inCourse = courseMembers.filter(
+          member => member.user._id === id
+        )[0];
+        if (!inCourse) {
+          this.props.inviteToCourse(parentResource, id, username, {
+            guest: true
+          });
+        }
+        this.props.inviteToRoom(resourceId, id, username, {});
+      } else {
+        this.props.inviteToRoom(resourceId, id, username);
+      }
     }
     // Remove the invited member from the search results
     let updatedResults = this.state.searchResults.filter(
@@ -78,17 +98,19 @@ class Members extends Component {
       )
         .then(res => {
           let searchResults = res.data.results;
-          this.setState({ searchResults });
+          this.setState({ searchResults, searchText: text });
         })
         .catch(err => {
           console.log("err: ", err);
         });
     } else {
-      this.setState({ searchResults: [] });
+      this.setState({ searchResults: [], searchText: text });
     }
   };
 
   render() {
+    console.log("MEMBERS PROPS: ", this.props);
+    console.log((this.renderCount += 1));
     let {
       classList,
       notifications,
@@ -142,31 +164,41 @@ class Members extends Component {
     });
     return (
       <div className={classes.Container}>
-        {owner ? (
-          <div>
-            <h3 className={classes.SubHeader}>New Requests to Join</h3>
-            <div className={classes.Notifications} data-testid="join-requests">
-              {joinRequests}
-            </div>
-            <h3 className={classes.SubHeader}>Add New Participants</h3>
-            <Search
-              data-testid="member-search"
-              _search={this.search}
-              placeholder="search by username or email address"
-            />
-            {this.state.searchResults.length > 0 ? (
-              <SearchResults
-                usersSearched={this.state.searchResults}
-                inviteMember={this.inviteMember}
+        <div>
+          {owner ? (
+            <Fragment>
+              <h3 className={classes.SubHeader}>New Requests to Join</h3>
+              <div
+                className={classes.Notifications}
+                data-testid="join-requests"
+              >
+                {joinRequests}
+              </div>
+            </Fragment>
+          ) : null}
+          <h3 className={classes.SubHeader}>Class List</h3>
+          <div data-testid="members">{classListComponents}</div>
+          {owner ? (
+            <Fragment>
+              <h3 className={classes.SubHeader}>Add New Participants</h3>
+              <Search
+                data-testid="member-search"
+                _search={this.search}
+                placeholder="search by username or email address"
               />
-            ) : null}
-            {resourceType === "room" && courseMembers ? (
-              <div>Add participants from this course</div>
-            ) : null}
-          </div>
-        ) : null}
-        <h3 className={classes.SubHeader}>Class List</h3>
-        <div data-testid="members">{classListComponents}</div>
+              {this.state.searchResults.length > 0 ? (
+                <SearchResults
+                  searchText={this.state.searchText}
+                  usersSearched={this.state.searchResults}
+                  inviteMember={this.inviteMember}
+                />
+              ) : null}
+              {resourceType === "room" && courseMembers ? (
+                <div>Add participants from this course</div>
+              ) : null}
+            </Fragment>
+          ) : null}
+        </div>
       </div>
     );
   }

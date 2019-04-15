@@ -280,6 +280,7 @@ export const createRoom = body => {
     API.post("rooms", body)
       .then(res => {
         let result = res.data.result;
+        result.myRole = "facilitator";
         dispatch(createdRoom(result));
         if (!body.tempRoom) {
           if (body.course) {

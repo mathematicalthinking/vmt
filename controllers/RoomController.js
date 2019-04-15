@@ -87,6 +87,7 @@ module.exports = {
    */
   post: body => {
     return new Promise(async (resolve, reject) => {
+      console.log(body);
       // Prepare the tabs if they exist
       let existingTabs;
       if (body.tabs) {
@@ -164,6 +165,7 @@ module.exports = {
           }
         );
       } catch (err) {
+        console.log(body);
         reject(err);
       }
     });
@@ -178,16 +180,28 @@ module.exports = {
       let { ntfType, members } = body;
       let { user, role } = members;
       delete body.ntfType;
-      body.members.color = db.Room.findById(id)
-        .populate({ path: "members.user", select: "username" })
+      db.Room.findById(id)
+        // .populate({ path: "members.user", select: "username" })
         .then(res => {
           room = res;
-          let userColor = colorMap[room.members.length];
-          room.members.push({ user, role, color: userColor });
-          newMembers = room.members;
+          console.log(room.members.length);
+          let color = colorMap[room.members.length];
+          console.log(color);
+          room.members.push({ user, role, color });
           return room.save();
         })
         .then(savedRoom => {
+          return savedRoom.populate(
+            {
+              path: "members.user",
+              select: "username"
+            },
+            () => {} // !! This is strange, but if we don't provide a callback here the population does not work
+          );
+        })
+        .then(populatedRoom => {
+          newMembers = populatedRoom.members;
+          console.log("Popped members: ", populatedRoom.members);
           return db.User.findByIdAndUpdate(user, {
             $addToSet: {
               rooms: id

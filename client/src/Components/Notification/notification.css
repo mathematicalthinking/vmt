@@ -1,0 +1,29 @@
+:import("../../colors.css") {
+  red: red;
+}
+
+.Container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.Bell {
+  color: red;
+  /* color: white; */
+  /* width: 32px; */
+  text-align: center;
+  vertical-align: center;
+  font-size: 32px;
+  /* height: 32px; */
+  text-align: center;
+  font-weight: 400;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Count {
+  color: red;
+  font-size: 15px;
+}

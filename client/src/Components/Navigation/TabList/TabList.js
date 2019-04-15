@@ -1,5 +1,6 @@
 import React from "react";
 import classes from "./tabList.css";
+import Notification from "../../Notification/Notification";
 import { Link } from "react-router-dom";
 const tabList = props => {
   const { params, url } = props.routingInfo;
@@ -20,9 +21,10 @@ const tabList = props => {
         {tab.name}
         {tab.notifications ? (
           <div className={classes.Notifications} data-testid="tab-ntf">
-            <span className={classes.NotificationCount}>
+            {/* <span className={classes.NotificationCount}>
               {tab.notifications}
-            </span>
+            </span> */}
+            <Notification count={tab.notifications} />
           </div>
         ) : null}
       </Link>
