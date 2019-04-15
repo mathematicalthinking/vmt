@@ -184,7 +184,9 @@ module.exports = {
         // .populate({ path: "members.user", select: "username" })
         .then(res => {
           room = res;
+          console.log(room.members.length);
           let color = colorMap[room.members.length];
+          console.log(color);
           room.members.push({ user, role, color });
           return room.save();
         })
@@ -194,7 +196,7 @@ module.exports = {
               path: "members.user",
               select: "username"
             },
-            popped => console.log("pp", popped)
+            () => {} // !! This is strange, but if we don't provide a callback here the population does not work
           );
         })
         .then(populatedRoom => {

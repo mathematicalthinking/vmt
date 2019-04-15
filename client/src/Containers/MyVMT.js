@@ -223,7 +223,7 @@ class Profile extends Component {
         mainContent={
           <ResourceList
             userResources={
-              this.props[resource].allIds
+              this.props.user[resource]
                 .map(id => this.props[resource].byId[id])
                 .sort(function(a, b) {
                   return new Date(b.createdAt) - new Date(a.createdAt);
