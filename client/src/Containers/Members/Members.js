@@ -156,9 +156,19 @@ class Members extends PureComponent {
           );
         });
     }
-    let classListComponents = classList.map((member, i) => {
-      // at least sometimes member is just user object so there is no member.user property
+    let filteredClassList = [];
+    let guestList = [];
+    classList.forEach(member => {
+      if (member.role === "guest") {
+        guestList.push(member);
+      } else {
+        filteredClassList.push(member);
+      }
+    });
+    let classListComponents = filteredClassList.map((member, i) => {
+      // at least sometimes member is just user object so there is no member.user property /// <-- well thats not good, how did that happen? this hsould be consistant
       let userId = member.user ? member.user._id : member._id;
+      // checking for notification...newMember type indicates this user has added themself by entering the entryCode
       let notification = notifications.filter(ntf => {
         if (ntf.fromUser && ntf.notificationType === "newMember") {
           return ntf.fromUser._id === userId;
@@ -178,7 +188,21 @@ class Members extends PureComponent {
         <Member info={member} key={i} />
       );
     });
-    console.log("this.state.confirming", this.state.confirmingInvitation);
+
+    let guestListComponents = guestList.map((member, i) => {
+      return owner ? (
+        <Member
+          changeRole={this.changeRole}
+          removeMember={this.removeMember}
+          info={member}
+          key={i}
+          resourceName={resourceType}
+          owner
+        />
+      ) : (
+        <Member info={member} key={i} />
+      );
+    });
     return (
       <div className={classes.Container}>
         {
@@ -220,6 +244,8 @@ class Members extends PureComponent {
           ) : null}
           <h3 className={classes.SubHeader}>Class List</h3>
           <div data-testid="members">{classListComponents}</div>
+          <h3 className={classes.SubHeader}>Guest List</h3>
+          <div data-testid="members">{guestListComponents}</div>
           {owner ? (
             <Fragment>
               <h3 className={classes.SubHeader}>Add New Participants</h3>
