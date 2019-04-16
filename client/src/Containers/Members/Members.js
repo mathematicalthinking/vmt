@@ -125,8 +125,6 @@ class Members extends PureComponent {
   };
 
   render() {
-    console.log("MEMBERS PROPS: ", this.props);
-    console.log((this.renderCount += 1));
     let {
       classList,
       notifications,
@@ -158,7 +156,9 @@ class Members extends PureComponent {
     }
     let filteredClassList = [];
     let guestList = [];
+    // console.log("Class list: ", classList);
     classList.forEach(member => {
+      // console.log(member);
       if (member.role === "guest") {
         guestList.push(member);
       } else {
