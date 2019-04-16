@@ -4,7 +4,8 @@ import React, { PureComponent } from "react";
 import ChatLayout from "../../Components/Chat/Chat";
 class Chat extends PureComponent {
   state = {
-    messages: []
+    messages: [],
+    isWaitingForUpdatedLog: false
   };
 
   componentDidMount() {
@@ -15,6 +16,21 @@ class Chat extends PureComponent {
 
   componentDidUpdate(prevProps) {
     const { log, index, reset, changingIndex, setCurrentMembers } = this.props;
+
+    let didLogChange = prevProps.log !== this.props.log;
+    let didIndexChange = index !== prevProps.index;
+    let didRoomChange = this.props.roomId !== prevProps.roomId;
+
+    if (didRoomChange) {
+      this.setState({ isWaitingForUpdatedLog: true });
+    }
+
+    if (didLogChange) {
+      return this.setState({
+        messages: [this.props.log[0]],
+        isWaitingForUpdatedLog: false
+      });
+    }
     if (changingIndex) {
       let currentMembers = [];
       const messages = log.filter((entry, i) => {
@@ -40,7 +56,7 @@ class Chat extends PureComponent {
         }
       }
       setCurrentMembers(uniqueMembers);
-    } else if (prevProps.log[prevProps.index]._id !== log[index]._id) {
+    } else if (didIndexChange && !this.state.isWaitingForUpdatedLog) {
       this.setState(prevState => ({
         messages: [...prevState.messages, log[index]]
       }));
