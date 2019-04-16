@@ -69,7 +69,7 @@ class Workspace extends Component {
       this.setState({ myColor: COLOR_MAP[room.members.length - 1] });
       this.initializeListeners();
     }
-    window.addEventListener("beforeunload", this.componentCleanup);
+    // window.addEventListener("beforeunload", this.componentCleanup);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -101,29 +101,29 @@ class Workspace extends Component {
     }
   }
 
-  componentWillUnmount() {
-    this.componentCleanup();
-    window.removeEventListener("beforeunload", this.componentCleanup);
-    window.removeEventListener("resize", this.updateReference);
-  }
+  // componentWillUnmount() {
+  //   this.componentCleanup();
+  //   window.removeEventListener("beforeunload", this.componentCleanup);
+  //   window.removeEventListener("resize", this.updateReference);
+  // }
 
-  componentCleanup = () => {
-    const { updatedRoom, room, user } = this.props;
-    if (socket) {
-      // @TODO RELEASE CONTROL
-      let color = this.state.myColor;
-      socket.emit("LEAVE_ROOM", color, (res, err) => {
-        if (err) {
-          console.log("error leaving room", err);
-        }
-        updatedRoom(room._id, {
-          currentMembers: room.currentMembers.filter(
-            member => member._id !== user._id
-          )
-        });
-      });
-    }
-  };
+  // componentCleanup = () => {
+  //   const { updatedRoom, room, user } = this.props;
+  //   if (socket) {
+  //     // @TODO RELEASE CONTROL
+  //     let color = this.state.myColor;
+  //     socket.emit("LEAVE_ROOM", color, (res, err) => {
+  //       if (err) {
+  //         console.log("error leaving room", err);
+  //       }
+  //       updatedRoom(room._id, {
+  //         currentMembers: room.currentMembers.filter(
+  //           member => member._id !== user._id
+  //         )
+  //       });
+  //     });
+  //   }
+  // };
 
   initializeListeners() {
     socket.removeAllListeners("USER_JOINED");

@@ -63,6 +63,7 @@ class DesmosGraph extends Component {
   }
 
   onScriptLoad = () => {
+    this.initializing = true;
     if (!this.calculator) {
       this.calculator = window.Desmos.GraphingCalculator(
         this.calculatorRef.current
@@ -71,7 +72,6 @@ class DesmosGraph extends Component {
     let { room, tabId } = this.props;
     let { tabs } = room;
     let { desmosLink, currentState } = tabs[tabId];
-
     if (currentState) {
       this.calculator.setState(currentState);
       this.initializeListeners();
@@ -90,6 +90,7 @@ class DesmosGraph extends Component {
       this.initializeListeners();
     }
     this.props.setFirstTabLoaded();
+    this.initializing = false;
   };
 
   // componentWillUnmount(){
@@ -99,6 +100,7 @@ class DesmosGraph extends Component {
   initializeListeners() {
     // INITIALIZE EVENT LISTENER
     this.calculator.observeEvent("change", event => {
+      if (this.initializing) return;
       let { room, tabId, user } = this.props;
       if (!this.state.receivingEvent) {
         if (!user.connected || room.controlledBy !== user._id) {
@@ -122,15 +124,16 @@ class DesmosGraph extends Component {
         socket.emit("SEND_EVENT", newData, res => {
           this.props.resetControlTimer();
         });
-        this.props.updateRoomTab(room._id, id, {
-          // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
-          currentState
-        });
+        // this.props.updateRoomTab(room._id, id, {
+        //   // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
+        //   currentState
+        // });
       }
       this.setState({ receivingEvent: false });
     });
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
+      console.log("receiving evnet: ", data);
       let { room, tabId } = this.props;
       if (data.tab === room.tabs[tabId]._id) {
         let updatedTabs = this.props.room.tabs.map(tab => {
@@ -142,7 +145,7 @@ class DesmosGraph extends Component {
         this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
         this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
         this.setState({ receivingEvent: true }, () => {
-          this.calculator.setState(data.currentState);
+          this.calculator.setState(data.event);
         });
       } else {
         this.props.addNtfToTabs(data.tab);
