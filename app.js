@@ -104,6 +104,7 @@ if (process.env.ENCOMPASS) {
 }
 
 app.get("/*", (req, res) => {
+  console.log("request made: ", req.user);
   if (process.env.ENCOMPASS) {
     res.sendFile(path.join(__dirname, "/client/encompassBuild/index.html"));
   } else if (
