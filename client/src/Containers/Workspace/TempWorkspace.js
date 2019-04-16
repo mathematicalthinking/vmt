@@ -37,6 +37,12 @@ class TempWorkspace extends Component {
     if (!this.props.room || this.props.room.currentMembers.length > 0) {
       this.setState({ firstEntry: false });
     }
+    socket.on("USER_JOINED_TEMP", data => {
+      let { id } = this.props.match.params;
+      let { currentMembers, members } = data;
+      this.props.updatedRoom(id, { currentMembers, members });
+      this.props.addToLog(id, data.message);
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -77,7 +83,7 @@ class TempWorkspace extends Component {
       username: username,
       userId: this.props.userId, // this will be undefined if they're not logged in
       tempRoom: true,
-      roomName: `temporary room ${id.slice(0, 5)}...`,
+      roomName: `temporary room ${id.slice(id.length - 5, id.length - 1)}...`,
       roomId: id,
       color: this.props.room.members[0],
       tabId: this.props.room.tabs[0]._id,

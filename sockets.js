@@ -7,6 +7,14 @@ const ObjectId = require("mongoose").Types.ObjectId;
 // const io = require('socket.io')(server, {wsEngine: 'ws'});
 module.exports = function() {
   const io = socketInit.io;
+
+  // io.use((socket, next) => {
+  // console.log("in the middle ware");
+  // console.log(socket.request.user);
+  // @TODO Authentication
+  // look here https://stackoverflow.com/questions/13095418/how-to-use-passport-with-express-and-socket-io
+  // });
+
   io.sockets.on("connection", socket => {
     // console.log(socket.getEventNames())
 
@@ -28,7 +36,6 @@ module.exports = function() {
           user = { _id: data.userId, username: data.username };
         }
         socket.user_id = user._id; // store the user id on the socket so we can tell who comes and who goes
-        console.log("SOCKET.user_id", socket.user_id);
         socket.username = user.username;
         const message = {
           user: { _id: user._id, username: "VMTbot" },
@@ -49,8 +56,8 @@ module.exports = function() {
             controllers.rooms.put(data.roomId, {
               roomType: data.roomType,
               name: data.roomName,
-              members: [{ user: user._id, role: "facilitator" }],
-              currentMembers: [user._id],
+              // members: [{ user: user._id, role: "facilitator" }],
+              // currentMembers: [user._id],
               creator: user._id
             })
           );
@@ -64,8 +71,10 @@ module.exports = function() {
         let results;
         try {
           results = await Promise.all(promises);
-          socket.to(data.roomId).emit("USER_JOINED", {
+          console.log(results[results.length - 1]);
+          socket.to(data.roomId).emit("USER_JOINED_TEMP", {
             currentMembers: results[results.length - 1].currentMembers,
+            members: results[results.length - 1].members,
             message
           });
           callback({ room: results[results.length - 1], message, user }, null);
