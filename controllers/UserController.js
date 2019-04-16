@@ -57,8 +57,8 @@ module.exports = {
       { select: resources }
     )
       .populate({
-        path: resources,
-        select: "name members intructions image",
+        path: "activities",
+        select: "name members intructions image rooms",
         populate: {
           path: "members.user",
           select: "username"
@@ -69,6 +69,14 @@ module.exports = {
             path: "members.user",
             select: "username"
           }
+        }
+      })
+      .populate({
+        path: "rooms",
+        select: "name members image instructions ",
+        populate: {
+          path: "members.user",
+          select: "username"
         }
       })
       .then(result => {
