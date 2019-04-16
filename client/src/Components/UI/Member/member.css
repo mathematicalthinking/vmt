@@ -16,7 +16,8 @@
   border: 1px solid #ddd;
   border-radius: 2px;
   box-shadow: lightestShadow;
-  height: 60px;
+  height: 64px;
+  max-height: 64px;
   margin-bottom: 10px;
 }
 

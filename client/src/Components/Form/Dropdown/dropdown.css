@@ -1,4 +1,4 @@
-:import('../../../colors.css') {
+:import("../../../colors.css") {
   darkGrey: darkGrey;
 }
 
@@ -8,7 +8,7 @@
   border-radius: 3px;
   cursor: pointer;
   padding: 3px 15px 3px 15px;
-  transition: height .2s;
+  transition: height 0.2s;
   margin-bottom: 0px;
   text-align: left;
 }
@@ -38,10 +38,10 @@
   cursor: not-allowed;
 }
 .ListItemSelected {
-  color: #2D91F2;
+  color: #2d91f2;
 }
 .ListItem:hover {
-  color: #2D91F2;
+  color: #2d91f2;
 }
 
 .Background1 {
@@ -56,13 +56,13 @@
   flex-flow: column;
   height: 100%;
   /* max-height: 400px; */
-  transition: height .2s;
+  transition: height 0.2s;
   overflow-y: scroll;
 }
 
 .Close {
   height: 0px;
-  transition: height .2s;
+  transition: height 0.2s;
 }
 
 .Dropdown {
