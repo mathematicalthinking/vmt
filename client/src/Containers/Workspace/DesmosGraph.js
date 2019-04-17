@@ -20,6 +20,7 @@ class DesmosGraph extends Component {
   calculatorRef = React.createRef();
 
   componentDidMount() {
+    window.addEventListener("keydown", this.allowKeypressCheck);
     // If we have multiple desmos tabs we'll already have a Desmos object attached to the window
     // and thus we dont need to load the desmos script. Eventually abstract out the commonalities
     // between didMount and onScriptLoad into its own function to make it more DRY...but not till
@@ -49,12 +50,19 @@ class DesmosGraph extends Component {
     }
   }
 
+  allowKeypressCheck = event => {
+    if (this.state.showControlWarning) {
+      event.preventDefault();
+    }
+  };
+
   componentWillUnmount() {
     delete window.Demsmos;
     if (this.caluclator) {
       this.calculator.unobserveEvent("change");
       this.calculator.destroy();
     }
+    window.removeEventListener("keydown", this.allowKeypressCheck);
   }
 
   componentDidUpdate(prevProps) {
@@ -131,14 +139,14 @@ class DesmosGraph extends Component {
       let currentState = this.calculator.getState();
       if (!this.state.receivingEvent) {
         let statesAreEqual = this.areDesmosStatesEqual(currentState);
+        console.log("states are equal: ", statesAreEqual);
         if (statesAreEqual) return;
         // we only want to listen for changes to the expressions. i.e. we want to ignore zoom-in-out changes
         if (!user.connected || room.controlledBy !== user._id) {
           this.undoing = true;
-
-          return this.setState({ showControlWarning: true }, () => {
-            // this.calculator.undo();
-          });
+          document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
+          // we have the global keypress listener to prevent typing if controlWarning is being shown
+          return this.setState({ showControlWarning: true });
         }
         let currentStateString = JSON.stringify(currentState);
         // console.log(this.calculator.getState());
@@ -243,24 +251,42 @@ class DesmosGraph extends Component {
   }
 
   render() {
+    console.log("control: ", this.props.inControl);
     return (
       <Fragment>
+        <span id="focus" ref={this.focus} />
         <Modal
           show={this.state.showControlWarning}
           closeModal={() => this.setState({ showControlWarning: false })}
         >
           <div>
-            AHH! You can't make updates when you're not in control click "Take
+            You can't make updates when you're not in control click "Take
             Control" first.
           </div>
-          <Button
-            click={() => {
-              this.calculator.undo();
-              this.setState({ showControlWarning: false });
-            }}
-          >
-            Take Control
-          </Button>
+          <div>
+            <Button
+              m={5}
+              click={() => {
+                this.calculator.undo();
+                this.props.toggleControl();
+                this.setState({ showControlWarning: false });
+              }}
+            >
+              {this.props.inControl === "NONE"
+                ? "Take Control"
+                : "Request Control"}
+            </Button>
+            <Button
+              theme="Cancel"
+              m={5}
+              click={() => {
+                this.calculator.undo();
+                this.setState({ showControlWarning: false });
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
         </Modal>
         {!window.Desmos ? (
           <Script
