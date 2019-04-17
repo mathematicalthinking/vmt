@@ -87,7 +87,6 @@ module.exports = {
    */
   post: body => {
     return new Promise(async (resolve, reject) => {
-      console.log(body);
       // Prepare the tabs if they exist
       let existingTabs;
       if (body.tabs) {
@@ -165,7 +164,6 @@ module.exports = {
           }
         );
       } catch (err) {
-        console.log(body);
         reject(err);
       }
     });
@@ -184,9 +182,7 @@ module.exports = {
         // .populate({ path: "members.user", select: "username" })
         .then(res => {
           room = res;
-          console.log(room.members.length);
           let color = colorMap[room.members.length];
-          console.log(color);
           room.members.push({ user, role, color });
           return room.save();
         })
@@ -201,7 +197,6 @@ module.exports = {
         })
         .then(populatedRoom => {
           newMembers = populatedRoom.members;
-          console.log("Popped members: ", populatedRoom.members);
           return db.User.findByIdAndUpdate(user, {
             $addToSet: {
               rooms: id

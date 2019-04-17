@@ -27,7 +27,7 @@ const Room = new mongoose.Schema(
           type: String,
           default: colorMap[0]
         },
-        role: { type: String }
+        role: { type: String, enum: ["participant", "facilitator", "guest"] }
       }
     ],
     currentMembers: { type: [{ type: ObjectId, ref: "User" }], default: [] },

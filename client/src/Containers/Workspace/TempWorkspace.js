@@ -27,7 +27,7 @@ class TempWorkspace extends Component {
   };
 
   componentDidMount() {
-    window.addEventListener("beforeunload", this.confirmUnload);
+    // window.addEventListener("beforeunload", this.confirmUnload);
     this.props.populateRoom(this.props.match.params.id, {
       temp: true,
       events: !this.state.fistEntry
@@ -37,6 +37,12 @@ class TempWorkspace extends Component {
     if (!this.props.room || this.props.room.currentMembers.length > 0) {
       this.setState({ firstEntry: false });
     }
+    socket.on("USER_JOINED_TEMP", data => {
+      let { id } = this.props.match.params;
+      let { currentMembers, members } = data;
+      this.props.updatedRoom(id, { currentMembers, members });
+      this.props.addToLog(id, data.message);
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -77,7 +83,7 @@ class TempWorkspace extends Component {
       username: username,
       userId: this.props.userId, // this will be undefined if they're not logged in
       tempRoom: true,
-      roomName: `temporary room ${id.slice(0, 5)}...`,
+      roomName: `temporary room ${id.slice(id.length - 5, id.length - 1)}...`,
       roomId: id,
       color: this.props.room.members[0],
       tabId: this.props.room.tabs[0]._id,
@@ -100,25 +106,25 @@ class TempWorkspace extends Component {
         tabs: updatedTabs
       });
       this.props.addToLog(room._id, message);
-      // if (!this.state.firstEntry) res.room.chat.push(message)
+      // if (!this.state.firstEntry) res.room.chat.push(message);
       user.connected = socket.connected;
       this.setState({ user: user, room: room });
     });
   };
 
-  componentWillUnmount() {
-    window.removeEventListener("beforeunload", this.confirmUnload);
-    // destroy this room from the store IF IT HASNT BEEN SAVED
-    if (!this.state.saved) {
-      // this.props.removedRoom(this.props.match.params.id)
-    }
-  }
+  // componentWillUnmount() {
+  //   window.removeEventListener("beforeunload", this.confirmUnload);
+  //   // destroy this room from the store IF IT HASNT BEEN SAVED
+  //   if (!this.state.saved) {
+  //     // this.props.removedRoom(this.props.match.params.id)
+  //   }
+  // }
 
-  confirmUnload = ev => {
-    if (this.state.saved) return;
-    ev.preventDefault();
-    return (ev.returnValue = "Are you sure you want to leave");
-  };
+  // confirmUnload = ev => {
+  //   if (this.state.saved) return;
+  //   ev.preventDefault();
+  //   return (ev.returnValue = "Are you sure you want to leave");
+  // };
 
   saveWorkspace = () => {
     this.props.updateRoom(this.props.match.params.id, {
@@ -153,6 +159,7 @@ class TempWorkspace extends Component {
         <Workspace
           {...this.props}
           temp
+          firstEntry={this.state.firstEntry}
           user={this.state.user}
           save={!this.state.saved ? this.saveWorkspace : null}
         />

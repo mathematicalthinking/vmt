@@ -31,29 +31,25 @@ class CurrentMembers extends Component {
           className={this.props.expanded ? classes.Expanded : classes.Collapsed}
           data-testid="current-members"
         >
-          {members
-            ? currentMembers.map(user => {
-                // get the users color
-                let member = members.filter(
-                  member => member.user._id === user._id
-                )[0];
-                if (member) {
-                  return (
-                    <div
-                      className={[
-                        classes.Avatar,
-                        user._id === activeMember
-                          ? classes.Active
-                          : classes.Passive
-                      ].join(" ")}
-                      key={user.username}
-                    >
-                      <Avatar username={user.username} color={member.color} />
-                    </div>
-                  );
-                } else return null;
-              })
-            : null}
+          {currentMembers.map(user => {
+            // get the users color
+            let member = members.filter(
+              member => member.user._id === user._id
+            )[0];
+            if (member) {
+              return (
+                <div
+                  className={[
+                    classes.Avatar,
+                    user._id === activeMember ? classes.Active : classes.Passive
+                  ].join(" ")}
+                  key={user.username}
+                >
+                  <Avatar username={user.username} color={member.color} />
+                </div>
+              );
+            } else return null;
+          })}
         </div>
       </div>
     );

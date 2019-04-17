@@ -199,7 +199,6 @@ class Profile extends Component {
       rooms: user.rooms.length,
       activities: user.activities.length
     };
-    console.log(this.state.bothRoles);
     return (
       <DashboardLayout
         breadCrumbs={

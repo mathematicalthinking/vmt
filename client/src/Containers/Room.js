@@ -64,7 +64,6 @@ class Room extends Component {
       let owner = false;
       let firstView = false;
       let invited = false;
-      console.log("my trole: ", room.myRole);
       if (room.myRole === "facilitator") {
         updatedTabs = this.displayNotifications(updatedTabs);
       }
@@ -378,7 +377,6 @@ class Room extends Component {
           />
         );
       }
-      console.log("MY ROLE: ", room.myRole);
       return (
         <Aux>
           <DashboardLayout

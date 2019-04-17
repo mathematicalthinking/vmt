@@ -47,7 +47,7 @@ class Member extends PureComponent {
     const { info, owner, grantAccess, notification, resourceName } = this.props;
     let username = info.user ? info.user.username : info.username;
     return (
-      <div data-testid={`member-${username}`}>
+      <div data-testid={`member-${username}`} class>
         <div className={classes.Container}>
           <div className={classes.Avatar}>
             <Avatar username={username} color={info.color} />
@@ -72,10 +72,15 @@ class Member extends PureComponent {
               <div className={classes.DropDown}>
                 <RoleDropdown
                   selectHandler={this.changeRole}
-                  list={[
-                    info.role,
-                    info.role === "participant" ? "facilitator" : "participant"
-                  ]}
+                  // not just hardcoding the options because we want the users current role to show up first in the lsit
+                  list={["facilitator", "participant", "guest"].sort(function(
+                    a,
+                    b
+                  ) {
+                    if (a === info.role) {
+                      return -1;
+                    } else return 1;
+                  })}
                 />
               </div>
             ) : (

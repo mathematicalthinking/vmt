@@ -181,7 +181,6 @@ export const login = (username, password) => {
           let roomsWithRoles = res.data.rooms.map(room =>
             addUserRoleToResource(room, res.data._id)
           );
-          console.log("ROOMS WITH ROLES: ", roomsWithRoles);
           rooms = normalize(roomsWithRoles);
           dispatch(gotRooms(rooms));
         }

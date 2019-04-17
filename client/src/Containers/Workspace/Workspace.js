@@ -69,7 +69,7 @@ class Workspace extends Component {
       this.setState({ myColor: COLOR_MAP[room.members.length - 1] });
       this.initializeListeners();
     }
-    window.addEventListener("beforeunload", this.componentCleanup);
+    // window.addEventListener("beforeunload", this.componentCleanup);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -100,30 +100,6 @@ class Workspace extends Component {
       this.toggleControl(null, auto);
     }
   }
-
-  componentWillUnmount() {
-    this.componentCleanup();
-    window.removeEventListener("beforeunload", this.componentCleanup);
-    window.removeEventListener("resize", this.updateReference);
-  }
-
-  componentCleanup = () => {
-    const { updatedRoom, room, user } = this.props;
-    if (socket) {
-      // @TODO RELEASE CONTROL
-      let color = this.state.myColor;
-      socket.emit("LEAVE_ROOM", color, (res, err) => {
-        if (err) {
-          console.log("error leaving room", err);
-        }
-        updatedRoom(room._id, {
-          currentMembers: room.currentMembers.filter(
-            member => member._id !== user._id
-          )
-        });
-      });
-    }
-  };
 
   initializeListeners() {
     socket.removeAllListeners("USER_JOINED");
@@ -502,6 +478,8 @@ class Workspace extends Component {
             resetControlTimer={this.resetControlTimer}
             currentTab={this.state.currentTab}
             tabId={i}
+            inControl={control}
+            toggleControl={this.toggleControl}
             updatedRoom={this.props.updatedRoom}
             updateRoomTab={this.props.updateRoomTab}
             addNtfToTabs={this.addNtfToTabs}
@@ -552,6 +530,7 @@ class Workspace extends Component {
                 toggleControl={this.toggleControl}
                 lastEvent={room.log[room.log.length - 1]}
                 save={this.props.save ? this.props.save : null}
+                // TEMP ROOM NEEDS TO KNOW IF ITS BEEN SAVED...pass that along as props
               />
             }
             bottomLeft={
