@@ -101,30 +101,6 @@ class Workspace extends Component {
     }
   }
 
-  // componentWillUnmount() {
-  //   this.componentCleanup();
-  //   window.removeEventListener("beforeunload", this.componentCleanup);
-  //   window.removeEventListener("resize", this.updateReference);
-  // }
-
-  // componentCleanup = () => {
-  //   const { updatedRoom, room, user } = this.props;
-  //   if (socket) {
-  //     // @TODO RELEASE CONTROL
-  //     let color = this.state.myColor;
-  //     socket.emit("LEAVE_ROOM", color, (res, err) => {
-  //       if (err) {
-  //         console.log("error leaving room", err);
-  //       }
-  //       updatedRoom(room._id, {
-  //         currentMembers: room.currentMembers.filter(
-  //           member => member._id !== user._id
-  //         )
-  //       });
-  //     });
-  //   }
-  // };
-
   initializeListeners() {
     socket.removeAllListeners("USER_JOINED");
     socket.removeAllListeners("CREATED_TAB");
@@ -502,6 +478,8 @@ class Workspace extends Component {
             resetControlTimer={this.resetControlTimer}
             currentTab={this.state.currentTab}
             tabId={i}
+            inControl={control}
+            toggleControl={this.toggleControl}
             updatedRoom={this.props.updatedRoom}
             updateRoomTab={this.props.updateRoomTab}
             addNtfToTabs={this.addNtfToTabs}
