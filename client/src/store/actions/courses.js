@@ -213,8 +213,6 @@ export const getCourse = id => {
 };
 
 export const inviteToCourse = (courseId, toUserId, toUserUsername, options) => {
-  console.log(toUserUsername);
-  console.log("GHELLO INVITING");
   return dispatch => {
     dispatch(
       addCourseMember(courseId, {
