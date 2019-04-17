@@ -126,11 +126,9 @@ module.exports = function() {
     });
 
     socket.on("disconnecting", () => {
-      console.log("user disconnecting");
-      console.log(socket.rooms);
       // if they're in a room we need to remove them
       let room = Object.keys(socket.rooms).pop(); // they can only be in one room so just grab the last one
-      if (room) {
+      if (room && ObjectId.isValid(room)) {
         leaveRoom();
       }
     });
