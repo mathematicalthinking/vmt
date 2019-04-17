@@ -28,7 +28,6 @@ class SearchResults extends Component {
       </div>
     );
     let { usersSearched, inviteMember, searchText } = this.props;
-    console.log(searchText.length > 0, searchText);
     if (searchText.length > 0 || this.state.areResultsExpanded) {
       return (
         <ul className={classes.SearchResults}>

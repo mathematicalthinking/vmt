@@ -10,7 +10,6 @@ export const normalize = resources => {
 };
 
 export const addUserRoleToResource = (resource, userId) => {
-  console.log("adding user roles to reosource");
   if (resource.members) {
     resource.members.forEach(member => {
       if (member.user._id === userId) resource.myRole = member.role;

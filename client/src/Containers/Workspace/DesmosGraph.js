@@ -139,7 +139,6 @@ class DesmosGraph extends Component {
       let currentState = this.calculator.getState();
       if (!this.state.receivingEvent) {
         let statesAreEqual = this.areDesmosStatesEqual(currentState);
-        console.log("states are equal: ", statesAreEqual);
         if (statesAreEqual) return;
         // we only want to listen for changes to the expressions. i.e. we want to ignore zoom-in-out changes
         if (!user.connected || room.controlledBy !== user._id) {
@@ -251,7 +250,6 @@ class DesmosGraph extends Component {
   }
 
   render() {
-    console.log("control: ", this.props.inControl);
     return (
       <Fragment>
         <span id="focus" ref={this.focus} />

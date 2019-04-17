@@ -164,7 +164,6 @@ module.exports = {
           }
         );
       } catch (err) {
-        console.log(body);
         reject(err);
       }
     });
