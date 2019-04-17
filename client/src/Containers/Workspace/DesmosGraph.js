@@ -10,6 +10,8 @@ class DesmosGraph extends Component {
   state = {
     receivingEvent: false
   };
+  expressionList = [];
+  graph = {};
 
   calculatorRef = React.createRef();
 
@@ -37,6 +39,7 @@ class DesmosGraph extends Component {
   }
 
   componentWillUnmount() {
+    delete window.Demsmos;
     if (this.caluclator) {
       this.calculator.unobserveEvent("change");
       this.calculator.destroy();
@@ -87,33 +90,38 @@ class DesmosGraph extends Component {
         })
         .catch(err => console.log(err));
     } else {
+      let desmosState = this.calculator.getState();
+      this.expressionList = desmosState.expressions.list;
+      this.graph = desmosState.graph;
       this.initializeListeners();
     }
     this.props.setFirstTabLoaded();
     this.initializing = false;
   };
 
-  // componentWillUnmount(){
-  //   console.log("componentUNMOUNTING")
-  // }
-
   initializeListeners() {
     // INITIALIZE EVENT LISTENER
     this.calculator.observeEvent("change", event => {
+      // console.log("initializing ", this.initializing);
       if (this.initializing) return;
       let { room, tabId, user } = this.props;
       if (!this.state.receivingEvent) {
+        let currentState = this.calculator.getState();
+        let statesAreEqual = this.areDesmosStatesEqual(currentState);
+        console.log("states are equal", statesAreEqual);
+        // we only want to listen for changes to the expressions. i.e. we want to ignore zoom-in-out changes
         if (!user.connected || room.controlledBy !== user._id) {
-          this.calculator.undo();
-          return alert(
-            "You are not in control. The update you just made will not be saved. Please refresh the page"
-          );
+          // this.calculator.undo();
+          // return alert(
+          //   "You are not in control. The update you just made will not be saved. Please refresh the page"
+          // );
         }
-        let currentState = JSON.stringify(this.calculator.getState());
+        let currentStateString = JSON.stringify(currentState);
+        // console.log(this.calculator.getState());
         const newData = {
           room: room._id,
           tab: room.tabs[tabId]._id,
-          event: currentState,
+          event: currentStateString,
           user: {
             _id: user._id,
             username: user.username
@@ -121,6 +129,9 @@ class DesmosGraph extends Component {
           timestamp: new Date().getTime()
         };
         let id = room.tabs[tabId]._id;
+        // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
+        this.expressionList = currentState.expressions.list;
+        this.graph = currentState.graph;
         socket.emit("SEND_EVENT", newData, res => {
           this.props.resetControlTimer();
         });
@@ -151,6 +162,67 @@ class DesmosGraph extends Component {
         this.props.addNtfToTabs(data.tab);
       }
     });
+  }
+  /**
+   * @method areDesmosStatesEqual
+   * @param  {Object} newState - desmos state object return from desmos.getState
+   * @return {Boolean} statesAreEqual
+   * @description - compares the previous desmos state (stored as in instance variable) with the newState argument
+   * It ignores changes to graph.viewport because we want users who are not in control to still be able to zoom in and out
+   */
+
+  areDesmosStatesEqual(newState) {
+    console.log(newState);
+    console.log(this.expressionList);
+    if (newState.expressions.list.length !== this.expressionList.length) {
+      console.log("expression lists are different length");
+      return false;
+    }
+    let currentGraphProps = Object.getOwnPropertyNames(newState.graph);
+    let prevGraphProps = Object.getOwnPropertyNames(this.graph);
+
+    if (currentGraphProps.length !== prevGraphProps.length) {
+      console.log("graph props have diff length");
+      return false;
+    }
+    // I'm okay with this O = a*b because a SHOULD never be longer than 100 and b never more than 4
+    for (let i = 0; i < this.expressionList.length; i++) {
+      let currentExpressionProps = Object.getOwnPropertyNames(
+        newState.expressions.list[i]
+      );
+      let prevExpressionsProps = Object.getOwnPropertyNames(
+        this.expressionList[i]
+      );
+      if (currentExpressionProps.length !== prevExpressionsProps.length) {
+        console.log("expression");
+        return false;
+      }
+      for (let x = 0; x < currentExpressionProps.length; x++) {
+        let propName = currentExpressionProps[x];
+        if (
+          newState.expressions.list[i][propName] !==
+          this.expressionList[i][propName]
+        ) {
+          console.log("expressions have diff content");
+          return false;
+        }
+      }
+    }
+
+    for (let i = 0; i < currentGraphProps.length; i++) {
+      let propName = currentGraphProps[i];
+      // ignore changes to viewport property
+      if (
+        propName !== "viewport" &&
+        newState[propName] !== this.graph[propName]
+      ) {
+        console.log("viewport has different props");
+        return false;
+      }
+    }
+    // If we made it this far, objects
+    // are considered equivalent
+    return true;
   }
 
   render() {
