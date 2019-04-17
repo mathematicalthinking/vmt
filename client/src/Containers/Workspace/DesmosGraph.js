@@ -5,6 +5,7 @@ import Button from "../../Components/UI/Button/Button";
 import Script from "react-load-script";
 import socket from "../../utils/sockets";
 import API from "../../utils/apiRequests";
+import debounce from "lodash/debounce";
 // import { updatedRoom } from '../../store/actions';
 class DesmosGraph extends Component {
   state = {
@@ -33,6 +34,7 @@ class DesmosGraph extends Component {
       );
       this.initializeListeners();
       this.setState({ loading: false });
+      console.log("desmos already exists: ", tabs[tabId]);
       if (tabs[tabId].currentState) {
         this.calculator.setState(tabs[tabId].currentState);
       } else if (tabs[tabId].desmosLink) {
@@ -57,7 +59,6 @@ class DesmosGraph extends Component {
   };
 
   componentWillUnmount() {
-    delete window.Demsmos;
     if (this.caluclator) {
       this.calculator.unobserveEvent("change");
       this.calculator.destroy();
@@ -94,6 +95,8 @@ class DesmosGraph extends Component {
     let { room, tabId } = this.props;
     let { tabs } = room;
     let { desmosLink, currentState } = tabs[tabId];
+    console.log("CURRENT STATE: ", currentState);
+    console.log("TAB: ", tabs[tabId]);
     if (currentState) {
       try {
         this.calculator.setState(currentState);
@@ -159,15 +162,13 @@ class DesmosGraph extends Component {
           },
           timestamp: new Date().getTime()
         };
-        // let id = room.tabs[tabId]._id;
         // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
-        socket.emit("SEND_EVENT", newData, res => {
-          this.props.resetControlTimer();
-        });
-        // this.props.updateRoomTab(room._id, id, {
-        //   // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
-        //   currentState
-        // });
+        socket.emit("SEND_EVENT", newData, res => {});
+        this.props.resetControlTimer();
+        // if (this.debouncedUpdate) {
+        //   this.debouncedUpdate.cancel();
+        // }
+        this.debouncedUpdate();
       }
       this.expressionList = currentState.expressions.list;
       this.graph = currentState.graph;
@@ -193,6 +194,19 @@ class DesmosGraph extends Component {
       }
     });
   }
+
+  debouncedUpdate = debounce(
+    () => {
+      let { room, tabId } = this.props;
+      let currentStateString = JSON.stringify(this.calculator.getState());
+      this.props.updateRoomTab(room._id, room.tabs[tabId]._id, {
+        currentState: currentStateString
+      });
+    },
+    // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
+    2000,
+    { trailing: true, leading: false }
+  ); // we;re creating multuple versions!!! need to define this elsewhere
   /**
    * @method areDesmosStatesEqual
    * @param  {Object} newState - desmos state object return from desmos.getState
