@@ -1,21 +1,29 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import classes from "./graph.css";
-import Aux from "../../Components/HOC/Auxil";
 import Modal from "../../Components/UI/Modal/Modal";
+import Button from "../../Components/UI/Button/Button";
 import Script from "react-load-script";
 import socket from "../../utils/sockets";
 import API from "../../utils/apiRequests";
 // import { updatedRoom } from '../../store/actions';
 class DesmosGraph extends Component {
   state = {
-    receivingEvent: false
+    receivingEvent: false, // @TODO experiment with moving this out of state with the other instance vars
+    showControlWarning: false
   };
+  // Because DESMOS controls its own state we're keeping much of our "state" outside of the actual react.this.state
+  // this is because we don't want to trigger rerenders...desmos does this. Yeah, yeah. yeah...this is not the react way,
+  // but we're limited by Desmos and ggb
   expressionList = [];
   graph = {};
-
+  undoing = false;
   calculatorRef = React.createRef();
 
   componentDidMount() {
+    // If we have multiple desmos tabs we'll already have a Desmos object attached to the window
+    // and thus we dont need to load the desmos script. Eventually abstract out the commonalities
+    // between didMount and onScriptLoad into its own function to make it more DRY...but not till
+    // this component is more stable
     if (window.Desmos) {
       let { room, tabId } = this.props;
       let { tabs } = room;
@@ -35,6 +43,9 @@ class DesmosGraph extends Component {
           .catch(err => console.log(err));
       }
       this.props.setFirstTabLoaded();
+      let desmosState = this.calculator.getState();
+      this.expressionList = desmosState.expressions.list;
+      this.graph = desmosState.graph;
     }
   }
 
@@ -76,25 +87,33 @@ class DesmosGraph extends Component {
     let { tabs } = room;
     let { desmosLink, currentState } = tabs[tabId];
     if (currentState) {
-      this.calculator.setState(currentState);
-      this.initializeListeners();
+      try {
+        this.calculator.setState(currentState);
+        this.initializeListeners();
+      } catch (err) {
+        alert("the state of this room has been corrupted :(");
+      }
     } else if (desmosLink) {
       // @TODO This will require some major reconfiguration / But what we shoould do is
       // when the user creates this room get teh state from the link and then just save it
       // as as event on this model.
       API.getDesmos(desmosLink)
         .then(res => {
-          this.calculator.setState(res.data.result.state);
+          try {
+            this.calculator.setState(res.data.result.state);
+          } catch (err) {
+            alert("the state of this room has been corrupted :(");
+          }
           // console.
           this.initializeListeners();
         })
         .catch(err => console.log(err));
     } else {
-      let desmosState = this.calculator.getState();
-      this.expressionList = desmosState.expressions.list;
-      this.graph = desmosState.graph;
       this.initializeListeners();
     }
+    let desmosState = this.calculator.getState();
+    this.expressionList = desmosState.expressions.list;
+    this.graph = desmosState.graph;
     this.props.setFirstTabLoaded();
     this.initializing = false;
   };
@@ -104,17 +123,22 @@ class DesmosGraph extends Component {
     this.calculator.observeEvent("change", event => {
       // console.log("initializing ", this.initializing);
       if (this.initializing) return;
+      if (this.undoing) {
+        this.undoing = false;
+        return;
+      }
       let { room, tabId, user } = this.props;
+      let currentState = this.calculator.getState();
       if (!this.state.receivingEvent) {
-        let currentState = this.calculator.getState();
         let statesAreEqual = this.areDesmosStatesEqual(currentState);
-        console.log("states are equal", statesAreEqual);
+        if (statesAreEqual) return;
         // we only want to listen for changes to the expressions. i.e. we want to ignore zoom-in-out changes
         if (!user.connected || room.controlledBy !== user._id) {
-          // this.calculator.undo();
-          // return alert(
-          //   "You are not in control. The update you just made will not be saved. Please refresh the page"
-          // );
+          this.undoing = true;
+
+          return this.setState({ showControlWarning: true }, () => {
+            // this.calculator.undo();
+          });
         }
         let currentStateString = JSON.stringify(currentState);
         // console.log(this.calculator.getState());
@@ -128,10 +152,8 @@ class DesmosGraph extends Component {
           },
           timestamp: new Date().getTime()
         };
-        let id = room.tabs[tabId]._id;
+        // let id = room.tabs[tabId]._id;
         // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
-        this.expressionList = currentState.expressions.list;
-        this.graph = currentState.graph;
         socket.emit("SEND_EVENT", newData, res => {
           this.props.resetControlTimer();
         });
@@ -140,11 +162,12 @@ class DesmosGraph extends Component {
         //   currentState
         // });
       }
+      this.expressionList = currentState.expressions.list;
+      this.graph = currentState.graph;
       this.setState({ receivingEvent: false });
     });
     socket.removeAllListeners("RECEIVE_EVENT");
     socket.on("RECEIVE_EVENT", data => {
-      console.log("receiving evnet: ", data);
       let { room, tabId } = this.props;
       if (data.tab === room.tabs[tabId]._id) {
         let updatedTabs = this.props.room.tabs.map(tab => {
@@ -172,20 +195,17 @@ class DesmosGraph extends Component {
    */
 
   areDesmosStatesEqual(newState) {
-    console.log(newState);
-    console.log(this.expressionList);
     if (newState.expressions.list.length !== this.expressionList.length) {
-      console.log("expression lists are different length");
       return false;
     }
     let currentGraphProps = Object.getOwnPropertyNames(newState.graph);
     let prevGraphProps = Object.getOwnPropertyNames(this.graph);
 
     if (currentGraphProps.length !== prevGraphProps.length) {
-      console.log("graph props have diff length");
       return false;
     }
-    // I'm okay with this O = a*b because a SHOULD never be longer than 100 and b never more than 4
+    // I'm okay with this O(a*b) because a SHOULD never be longer than 100 (and is usually closer to 10) and b never more than 4
+    // If these assumptions change in the future we may need to refactor
     for (let i = 0; i < this.expressionList.length; i++) {
       let currentExpressionProps = Object.getOwnPropertyNames(
         newState.expressions.list[i]
@@ -194,7 +214,6 @@ class DesmosGraph extends Component {
         this.expressionList[i]
       );
       if (currentExpressionProps.length !== prevExpressionsProps.length) {
-        console.log("expression");
         return false;
       }
       for (let x = 0; x < currentExpressionProps.length; x++) {
@@ -203,7 +222,6 @@ class DesmosGraph extends Component {
           newState.expressions.list[i][propName] !==
           this.expressionList[i][propName]
         ) {
-          console.log("expressions have diff content");
           return false;
         }
       }
@@ -216,7 +234,6 @@ class DesmosGraph extends Component {
         propName !== "viewport" &&
         newState[propName] !== this.graph[propName]
       ) {
-        console.log("viewport has different props");
         return false;
       }
     }
@@ -227,7 +244,24 @@ class DesmosGraph extends Component {
 
   render() {
     return (
-      <Aux>
+      <Fragment>
+        <Modal
+          show={this.state.showControlWarning}
+          closeModal={() => this.setState({ showControlWarning: false })}
+        >
+          <div>
+            AHH! You can't make updates when you're not in control click "Take
+            Control" first.
+          </div>
+          <Button
+            click={() => {
+              this.calculator.undo();
+              this.setState({ showControlWarning: false });
+            }}
+          >
+            Take Control
+          </Button>
+        </Modal>
         {!window.Desmos ? (
           <Script
             url="https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"
@@ -239,7 +273,7 @@ class DesmosGraph extends Component {
           id="calculator"
           ref={this.calculatorRef}
         />
-      </Aux>
+      </Fragment>
     );
   }
 }
