@@ -8,12 +8,13 @@ const ObjectId = require("mongoose").Types.ObjectId;
 module.exports = function() {
   const io = socketInit.io;
 
-  // io.use((socket, next) => {
-  // console.log("in the middle ware");
-  // console.log(socket.request.user);
-  // @TODO Authentication
-  // look here https://stackoverflow.com/questions/13095418/how-to-use-passport-with-express-and-socket-io
-  // });
+  io.use((socket, next) => {
+    next();
+    // console.log("in the middle ware");
+    // console.log(socket.request);
+    // @TODO Authentication
+    // look here https://stackoverflow.com/questions/13095418/how-to-use-passport-with-express-and-socket-io
+  });
 
   io.sockets.on("connection", socket => {
     // console.log(socket.getEventNames())
@@ -221,6 +222,7 @@ module.exports = function() {
         })
         .catch(err => callback("fail", err));
     });
+
     const leaveRoom = function(color, cb) {
       room = Object.keys(socket.rooms).pop();
       controllers.rooms
@@ -259,12 +261,16 @@ module.exports = function() {
               .to(room)
               .emit("USER_LEFT", { currentMembers, releasedControl, message });
             // delete socket.rooms;
+            // This function can be invoked by the LEAVE_ROOM handler or by disconnecting...in the case of disconnecting
+            // there is no callback because
             if (cb) {
               return cb("exited!", null);
             }
           }
         })
-        .catch(err => cb(null, err));
+        .catch(err => {
+          if (cb) cb(null, err);
+        });
     };
   });
 };

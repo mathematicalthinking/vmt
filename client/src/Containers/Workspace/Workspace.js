@@ -552,6 +552,7 @@ class Workspace extends Component {
                 toggleControl={this.toggleControl}
                 lastEvent={room.log[room.log.length - 1]}
                 save={this.props.save ? this.props.save : null}
+                // TEMP ROOM NEEDS TO KNOW IF ITS BEEN SAVED...pass that along as props
               />
             }
             bottomLeft={
