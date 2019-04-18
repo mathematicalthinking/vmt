@@ -7,8 +7,15 @@ class Awareness extends Component {
   state = {
     showToolTip: false
   };
+
+  shouldComponentUpdate(nextProps) {
+    if (nextProps.lastEvent.messageType === "TEXT") {
+      return false;
+    } else return true;
+  }
   render() {
     let { lastEvent } = this.props;
+    console.log("LAST EVENT: ", lastEvent);
     if (lastEvent) {
       return (
         <div className={classes.AwarenessDesc}>
