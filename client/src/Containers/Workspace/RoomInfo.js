@@ -10,14 +10,25 @@ class RoomInfo extends Component {
     expanded: true,
     copied: false
   };
+
   toggleCollapse = () => {
     this.setState({
       expanded: !this.state.expanded
     });
   };
 
+  componentWillUnmount() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  }
+
   copy = () => {
-    this.setState({ copied: true });
+    this.setState({ copied: true }, () => {
+      this.timer = setTimeout(() => {
+        this.setState({ copied: false });
+      }, 5000);
+    });
   };
 
   render() {

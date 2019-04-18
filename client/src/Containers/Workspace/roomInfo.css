@@ -58,10 +58,21 @@
   font-weight: 700;
 }
 
+.CopiedContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
 .CopyRow {
   display: flex;
   margin-left: 6px;
   cursor: pointer;
+  background: #eee;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  padding: 3px;
   transition: 0.2s;
 }
 
