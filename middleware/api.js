@@ -8,6 +8,7 @@ const bcrypt = require("bcrypt");
 
 const validateResource = (req, res, next) => {
   const resource = utils.getResource(req);
+  console.log("validating resource: ", resource);
   if (_.isNil(controllers[resource])) {
     return errors.sendError.InvalidContentError("Invalid Resource", res);
   }
@@ -201,6 +202,7 @@ const canModifyResource = req => {
 };
 
 const validateNewRecord = (req, res, next) => {
+  console.log("validating new record");
   let { user, body } = req;
   let { resource } = req.params;
   let model = utils.getModel(resource);

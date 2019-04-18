@@ -71,6 +71,7 @@ app.use(cookieParser());
 // Add headers to bypass CORS issues -->
 // @TODO remove before going to production
 app.use(function(req, res, next) {
+  console.log("Setting headers to bypass CORS");
   // Website you wish to allow to connect
   res.setHeader("Access-Control-Allow-Origin", "*");
   // Request methods you wish to allow
@@ -87,6 +88,7 @@ app.use(function(req, res, next) {
   // to the API (e.g. in case you use sessions)
   res.setHeader("Access-Control-Allow-Credentials", true);
   // Pass to next layer of middleware
+  console.log("Success");
   next();
 });
 

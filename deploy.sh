@@ -8,7 +8,7 @@ npm run build-$2
 if [ -d "./client/encompassBuild" ]; then
   rm -rf ./client/encompassBuild
 fi
-npm run build-encompass-replayer-$2
+npm run build-enc-$2
 if [ -d "./$2" ]; then
   rm -rf ./$2
 fi
@@ -17,7 +17,7 @@ cp -r ./bin ./config ./controllers ./middleware ./models ./routes ./constants ./
 cp app.js package.json socketInit.js sockets.js .env ./$2
 cd $2
 mkdir client
-cp -r ../client/build/ ./client/
+cp -r ../client/build/ ./client/encompassBuild ./client/
 
 echo -e "\e[1;33m Zipping...\e[0m"
 [[ $2 == staging ]] && zip -r VMT-STAGING.zip . || zip VMT-PRODUCTION.zip ./*
