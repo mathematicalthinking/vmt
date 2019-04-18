@@ -1,7 +1,8 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import classes from "./roomInfo.css";
 import { EditableText } from "../../Components";
 import { CopyToClipboard } from "react-copy-to-clipboard";
+import ToolTip from "../../Components/ToolTip/ToolTip";
 import Expand from "../../Components/UI/ContentBox/expand";
 
 class RoomInfo extends Component {
@@ -16,11 +17,7 @@ class RoomInfo extends Component {
   };
 
   copy = () => {
-    this.setState({ copied: true }, () => {
-      setTimeout(() => {
-        this.setState({ copied: false });
-      }, 1000);
-    });
+    this.setState({ copied: true });
   };
 
   render() {
@@ -57,37 +54,62 @@ class RoomInfo extends Component {
           }
         >
           <h4 className={classes.InstructionsTitle}>Instructions: </h4>
-          <EditableText
-            owner={role === "facilitator"}
-            inputType={"TEXT_AREA"}
-            resource="tab"
-            parentResource={updatedActivity ? "activity" : "room"}
-            id={room.tabs[currentTab]._id}
-            parentId={room._id}
-            field="instructions"
-          >
-            {this.props.temp ? (
-              <span className={classes.CopiedContainer}>
-                Share this link to invite others
-                {this.state.copied ? (
-                  <p className={classes.Copied}> copied! </p>
-                ) : null}
-                <CopyToClipboard onCopy={this.copy} text={window.location.href}>
-                  <i className={["fas fa-copy", classes.CopyIcon].join(" ")}>
-                    {" "}
-                    {window.location.href}
-                  </i>
-                </CopyToClipboard>
-              </span>
-            ) : (
-              room.tabs[currentTab].instructions || room.instructions
-            )}
-          </EditableText>
-          {this.state.copied ? "copied!" : null}
+          {this.props.temp ? (
+            <span className={classes.CopiedContainer}>
+              Share this link to invite others{" "}
+              <CopyToClipboard onCopy={this.copy} text={window.location.href}>
+                <div className={classes.CopyRow}>
+                  <ToolTip
+                    text={
+                      this.state.copied
+                        ? "copied"
+                        : "click this link to copy it to your clipboard"
+                    }
+                    color={this.state.copied ? "Green" : null}
+                  >
+                    <span className={classes.LinkContainer}>
+                      {window.location.href}
+                    </span>
+                  </ToolTip>
+                  <i className={["fas fa-copy", classes.CopyIcon].join(" ")} />
+                </div>
+              </CopyToClipboard>
+            </span>
+          ) : (
+            <EditableText
+              owner={role === "facilitator"}
+              inputType={"TEXT_AREA"}
+              resource="tab"
+              parentResource={updatedActivity ? "activity" : "room"}
+              id={room.tabs[currentTab]._id}
+              parentId={room._id}
+              field="instructions"
+            >
+              {room.tabs[currentTab].instructions || room.instructions}
+            </EditableText>
+          )}
         </div>
       </div>
     );
   }
 }
+
+/* <span>
+<CopyToClipboard
+
+>
+<span>
+
+  <span>
+    <ToolTip text="click this link to copy it to your clipboard">
+      {window.location.href}
+    </ToolTip>
+  </span>
+</span>
+</CopyToClipboard>
+
+</span> */
+
+// </span>
 
 export default RoomInfo;
