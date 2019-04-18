@@ -105,6 +105,7 @@ class TempWorkspace extends Component {
         members: room.members,
         tabs: updatedTabs
       });
+      console.log("message: ", message);
       this.props.addToLog(room._id, message);
       // if (!this.state.firstEntry) res.room.chat.push(message);
       user.connected = socket.connected;
