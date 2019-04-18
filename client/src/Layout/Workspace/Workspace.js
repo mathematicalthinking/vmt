@@ -25,7 +25,8 @@ class WorkspaceLayout extends Component {
       roomName,
       loaded,
       activity,
-      isFullscreen
+      isFullscreen,
+      encompass
     } = this.props;
     // Set text for taking control button based on current control
     // let controlText = 'Take Control';
@@ -62,7 +63,7 @@ class WorkspaceLayout extends Component {
         className={classes.PageContainer}
         style={{ visibility: loaded || activity ? "visible" : "hidden" }}
       >
-        <div className={classes.Background} />
+        {!encompass ? <div className={classes.Background} /> : null}
         <div className={classes.Container}>
           <div className={classes.Left}>
             <div className={classes.WorkspaceTabs}>{tabs}</div>

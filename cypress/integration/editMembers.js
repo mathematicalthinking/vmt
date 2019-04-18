@@ -19,7 +19,7 @@ describe("Edit Members Roles", function() {
 
     cy.getTestElement("dropdown").click();
     cy.getTestElement("dropdown-item")
-      .last()
+      .eq(1)
       .click();
     cy.getTestElement("dropdown").should("not.be.visible");
     cy.getTestElement("trash-member").should("not.be.visible");

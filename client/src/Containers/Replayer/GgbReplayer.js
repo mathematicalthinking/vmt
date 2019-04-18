@@ -44,6 +44,9 @@ class GgbReplayer extends Component {
     //   console.log('the tabState have changed')
     //   this.constructEvent(log[index])
     // }
+    if (this.ggbApplet && prevProps.log !== this.props.log) {
+      this.onScriptLoad();
+    }
   }
 
   componentWillUnmount() {
