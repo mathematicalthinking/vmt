@@ -1,5 +1,10 @@
+:import("../../colors.css") {
+  green: green;
+}
+
 .Container {
   position: relative;
+  /* transition: 0.2s; */
 }
 
 .ToolTipText {
@@ -34,6 +39,11 @@
   opacity: 1;
   bottom: -16px;
   left: 14px;
+}
+
+.Green {
+  composes: ToolTipText;
+  color: green;
 }
 
 /* .ToolTipText:hover {

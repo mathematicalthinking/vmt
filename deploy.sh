@@ -13,11 +13,11 @@ if [ -d "./$2" ]; then
   rm -rf ./$2
 fi
 mkdir ./$2
-cp -r ./bin ./config ./controllers ./middleware ./models ./routes ./constants ./client/encompassBuild ./staging
+cp -r ./bin ./config ./controllers ./middleware ./models ./routes ./constants ./staging
 cp app.js package.json socketInit.js sockets.js .env ./$2
 cd $2
 mkdir client
-cp -r ../client/build/ ./client/encompassBuild ./client/
+cp -r ../client/build/ ../client/encompassBuild/ ./client/
 
 echo -e "\e[1;33m Zipping...\e[0m"
 [[ $2 == staging ]] && zip -r VMT-STAGING.zip . || zip VMT-PRODUCTION.zip ./*

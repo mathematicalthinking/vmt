@@ -1,23 +1,24 @@
-import React from "react";
-import { connect } from "react-redux";
-import NavItem from "../NavItem/NavItem";
-import { Link } from "react-router-dom";
-import Aux from "../../HOC/Auxil";
-import classes from "./homeNav.css";
+import React from 'react';
+import { connect } from 'react-redux';
+import NavItem from '../NavItem/NavItem';
+import { Link } from 'react-router-dom';
+import Aux from '../../HOC/Auxil';
+import classes from './homeNav.css';
 const navbar = props => {
   let styles = classes.Nav;
-  if (props.page === "/about") {
+  if (props.page === '/about') {
     styles = classes.FixedGradientNav;
-  } else if (props.page.includes("/explore") > 0) {
-    styles = classes.GradientNav;
   } else if (
-    (props.scrollPosition > 0.3 && props.page === "/") ||
-    (props.page !== "/" &&
-      props.page !== "/signup" &&
-      props.page !== "/login" &&
-      props.page !== "/confirmation")
+    (props.scrollPosition > 0.3 && props.page === '/') ||
+    (props.page !== '/' &&
+      props.page !== '/signup' &&
+      props.page !== '/login' &&
+      props.page !== '/confirmation')
   ) {
     styles = classes.LightNav;
+  }
+  if (props.page.indexOf('explore') > -1) {
+    styles = classes.TempWorkspaceNav;
   }
   let ntf = false;
   if (
@@ -36,7 +37,7 @@ const navbar = props => {
             <Link to="/">Virtual Math Teams</Link>
           </div>
           <div className={classes.LogoShort}>
-            {" "}
+            {' '}
             <Link to="/">VMT</Link>
           </div>
         </div>
@@ -62,7 +63,7 @@ const navbar = props => {
 };
 
 const mapStateToProps = store => ({
-  loggedIn: store.user.loggedIn
+  loggedIn: store.user.loggedIn,
 });
 
 export default connect(

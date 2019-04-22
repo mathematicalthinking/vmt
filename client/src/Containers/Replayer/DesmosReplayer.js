@@ -1,27 +1,32 @@
-import React, { Component, Fragment } from "react";
-import Script from "react-load-script";
-import API from "../../utils/apiRequests";
+import React, { Component, Fragment } from 'react';
+import Script from 'react-load-script';
+import API from '../../utils/apiRequests';
 class DesmosReplayer extends Component {
   state = {
-    tabStates: {}
+    tabStates: {},
   };
 
   calculatorRef = React.createRef();
 
   componentDidMount() {
+    console.log('desmos?? ', window.Desmos);
     if (window.Desmos) {
-      let { inView, tab } = this.props;
-      this.calculator = window.Desmos.GraphingCalculator(
-        this.calculatorRef.current
-      );
-      if (inView && tab.desmosLink) {
-        API.getDesmos(tab.desmosLink)
-          .then(res => {
-            this.calculator.setState(res.data.result.state);
-            this.props.setTabLoaded(tab._id);
-          })
-          .catch(err => console.log(err));
-      }
+      console.log('desmos already exists');
+      this.onScriptLoad();
+      // let { inView, tab } = this.props;
+      // this.calculator = window.Desmos.GraphingCalculator(
+      //   this.calculatorRef.current
+      // );
+      // if (inView && tab.desmosLink) {
+      //   API.getDesmos(tab.desmosLink)
+      //     .then(res => {
+      //       this.calculator.setState(res.data.result.state);
+      //       this.props.setTabLoaded(tab._id);
+      //     })
+      //     .catch(err => console.log(err));
+      // } else {
+      //   this.props.setTabLoaded(tab._id);
+      // }
     }
   }
 
@@ -35,7 +40,7 @@ class DesmosReplayer extends Component {
 
   componentWillUnmount() {
     if (this.calculator) {
-      this.calculator.unobserveEvent("change");
+      this.calculator.unobserveEvent('change');
       this.calculator.destroy();
     }
   }
@@ -58,6 +63,7 @@ class DesmosReplayer extends Component {
     let { tab } = this.props;
     if (tab.startingPoint) {
       this.calculator.setState(tab.startingPoint);
+      this.props.setTabLoaded(tab._id);
     } else if (tab.desmosLink) {
       API.getDesmos(tab.desmosLink)
         .then(res => {
@@ -82,7 +88,7 @@ class DesmosReplayer extends Component {
           />
         ) : null}
         <div
-          style={{ height: "100%", width: "100%" }}
+          style={{ height: '100%', width: '100%' }}
           id="calculator"
           ref={this.calculatorRef}
         />

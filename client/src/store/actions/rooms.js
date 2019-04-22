@@ -177,10 +177,13 @@ export const updateRoom = (id, body) => {
 };
 
 export const updateRoomTab = (roomId, tabId, body) => {
+  console.log("updating room tab!");
   return dispatch => {
     dispatch(updatedRoomTab(roomId, tabId, body));
     API.put("tabs", tabId, body)
-      .then(res => {})
+      .then(res => {
+        console.log("success");
+      })
       .catch(err => {
         console.log(err);
       });

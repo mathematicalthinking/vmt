@@ -1,4 +1,4 @@
-:import("../../colors.css") {
+:import('../../colors.css') {
   lightShadow: lightestShadow;
   darkShadow: darkShadow;
   background: mainBackground;
@@ -20,6 +20,7 @@
 }
 
 .PageContainer {
+  margin-top: 30px;
   width: 100%;
   height: 100vh;
   display: flex;
@@ -32,7 +33,6 @@
 }
 
 .Container {
-  margin-top: 50px;
   position: relative;
   width: 100%;
   height: 100%;

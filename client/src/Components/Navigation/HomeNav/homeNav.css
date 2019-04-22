@@ -1,4 +1,4 @@
-:import("../../../colors.css") {
+:import('../../../colors.css') {
   darkBlue: darkBlue;
   blue: blue;
   darkShadow: darkShadow;
@@ -27,6 +27,11 @@
   border-top: 0px;
   background: rgb(255, 255, 255);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.TempWorkspaceNav {
+  composes: Nav;
+  position: relative;
 }
 
 .LightNav li a {
