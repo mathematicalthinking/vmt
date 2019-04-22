@@ -38,7 +38,6 @@ module.exports = function() {
         }
         socket.user_id = user._id; // store the user id on the socket so we can tell who comes and who goes
         socket.username = user.username;
-        console.log('data.color: ', data.color);
         const message = {
           user: { _id: user._id, username: 'VMTbot' },
           room: data.roomId,
@@ -75,7 +74,6 @@ module.exports = function() {
         let results;
         try {
           results = await Promise.all(promises);
-          console.log(results[results.length - 1]);
           socket.to(data.roomId).emit('USER_JOINED_TEMP', {
             currentMembers: results[results.length - 1].currentMembers,
             members: results[results.length - 1].members,
