@@ -1,43 +1,44 @@
-import React, { PureComponent } from "react";
-import { Route, Switch } from "react-router-dom";
-import { HomeNav, Navbar } from "../Components/";
+import React, { PureComponent } from 'react';
+import { Route, Switch } from 'react-router-dom';
+import { HomeNav, Navbar } from '../Components/';
 import {
   Homepage,
   Login,
   Signup,
   Community,
   Logout,
-  TempWorkspace
-} from "../Containers";
-import { Confirmation, About } from "../Layout";
-import classes from "./main.css";
-import Aux from "../Components/HOC/Auxil";
-import { connect } from "react-redux";
+  TempWorkspace,
+} from '../Containers';
+import { Confirmation, About } from '../Layout';
+import classes from './main.css';
+import Aux from '../Components/HOC/Auxil';
+import { connect } from 'react-redux';
 class Home extends PureComponent {
   state = {
-    scrollPosition: 0
+    scrollPosition: 0,
   };
 
   componentDidMount() {
-    window.addEventListener("scroll", this.handleScroll); // @TODO while it would be less dry we should move this out of here and into homeNave and Homepage...
+    window.addEventListener('scroll', this.handleScroll); // @TODO while it would be less dry we should move this out of here and into homeNave and Homepage...
     // having this at the top level causes a complete re-render of the app on every scroll...actually we might just need it on the homeNav
   }
 
   componentWillUnmount() {
-    window.removeEventListener("scroll", this.handleScroll);
+    window.removeEventListener('scroll', this.handleScroll);
   }
 
   handleScroll = event => {
     this.setState({
       scrollPosition:
-        event.srcElement.scrollingElement.scrollTop / window.innerHeight
+        event.srcElement.scrollingElement.scrollTop / window.innerHeight,
     });
   };
 
   render() {
+    console.log(this.props.location.pathname);
     return (
       <Aux>
-        {this.props.location.pathname.indexOf("community") > -1 ? (
+        {this.props.location.pathname.indexOf('community') > -1 ? (
           <Navbar fixed />
         ) : (
           <HomeNav

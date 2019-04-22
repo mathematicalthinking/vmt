@@ -1,21 +1,21 @@
-import React from "react";
-import NavItem from "./NavItem/NavItem";
-import classes from "./navbar.css";
-import { Link, withRouter } from "react-router-dom";
+import React from 'react';
+import NavItem from './NavItem/NavItem';
+import classes from './navbar.css';
+import { Link, withRouter } from 'react-router-dom';
 const navbar = props => {
   let styles = classes.NavContainer;
-  if (props.location.pathname.indexOf("workspace") > -1) {
+  if (props.location.pathname.indexOf('workspace') > -1) {
     styles = classes.WorkspaceNav;
   } else if (props.fixed) styles = classes.Fixed;
   return (
     <nav className={styles}>
       <div className={classes.LogoContainer}>
         <div className={classes.Logo}>
-          {" "}
+          {' '}
           <Link to="/">Virtual Math Teams</Link>
         </div>
         <div className={classes.LogoShort}>
-          {" "}
+          {' '}
           <Link to="/">VMT</Link>
         </div>
       </div>
