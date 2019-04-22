@@ -18,7 +18,7 @@ const navbar = props => {
     styles = classes.LightNav;
   }
   if (props.page.indexOf('explore') > -1) {
-    styles = classes.Nav;
+    styles = classes.TempWorkspaceNav;
   }
   let ntf = false;
   if (

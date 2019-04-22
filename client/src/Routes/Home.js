@@ -47,7 +47,13 @@ class Home extends PureComponent {
             user={this.props.user}
           />
         )}
-        <div className={classes.Container}>
+        <div
+          className={classes.Container}
+          style={{
+            marginTop:
+              this.props.location.pathname.indexOf('explore') > -1 ? 0 : 50,
+          }}
+        >
           <Switch>
             <Route
               exact

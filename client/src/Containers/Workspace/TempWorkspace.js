@@ -1,43 +1,44 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import {
   populateRoom,
   removedRoom,
   updatedRoom,
   updateRoom,
   addUserRooms,
-  addToLog
-} from "../../store/actions";
-import Workspace from "./Workspace";
-import { Aux, TextInput, Modal, Button } from "../../Components/";
-import Signup from "../Signup";
-import socket from "../../utils/sockets";
+  addToLog,
+} from '../../store/actions';
+import Workspace from './Workspace';
+import { Aux, TextInput, Modal, Button } from '../../Components/';
+import Signup from '../Signup';
+import socket from '../../utils/sockets';
+import COLOR_MAP from '../../utils/colorMap';
 // import Replayer from ''
 class TempWorkspace extends Component {
   state = {
     room: null,
     user: null,
     tempUsername: null,
-    errorMessage: "",
+    errorMessage: '',
     unloading: false,
     firstEntry: true,
     enteredRoom: false,
     saving: false,
-    saved: false
+    saved: false,
   };
 
   componentDidMount() {
     // window.addEventListener("beforeunload", this.confirmUnload);
     this.props.populateRoom(this.props.match.params.id, {
       temp: true,
-      events: !this.state.fistEntry
+      events: !this.state.fistEntry,
     });
     // If there is no room by this id ins the user's store, then they're not the first to join
     // The user creating this room will it have in their store. A user who just drops the link in their url bar will not have it in the store
     if (!this.props.room || this.props.room.currentMembers.length > 0) {
       this.setState({ firstEntry: false });
     }
-    socket.on("USER_JOINED_TEMP", data => {
+    socket.on('USER_JOINED_TEMP', data => {
       let { id } = this.props.match.params;
       let { currentMembers, members } = data;
       this.props.updatedRoom(id, { currentMembers, members });
@@ -62,7 +63,7 @@ class TempWorkspace extends Component {
   }
 
   setName = event => {
-    this.setState({ tempUsername: event.target.value, errorMessage: "" });
+    this.setState({ tempUsername: event.target.value, errorMessage: '' });
   };
 
   joinRoom = graphType => {
@@ -72,7 +73,7 @@ class TempWorkspace extends Component {
       username = this.props.username;
     } else if (!this.state.tempUsername) {
       return this.setState({
-        errorMessage: "Please enter a username before joining"
+        errorMessage: 'Please enter a username before joining',
       });
     } else {
       username = this.state.tempUsername;
@@ -85,27 +86,28 @@ class TempWorkspace extends Component {
       tempRoom: true,
       roomName: `temporary room ${id.slice(id.length - 5, id.length - 1)}...`,
       roomId: id,
-      color: this.props.room.members[0],
+      color: COLOR_MAP[this.props.room.members.length || 0],
       tabId: this.props.room.tabs[0]._id,
       roomType: graphType, // this wil be undefined if its not the first user in the room
-      firstEntry: this.state.firstEntry
+      firstEntry: this.state.firstEntry,
     };
+    console.log('joining temp: ', sendData.color);
     let updatedTabs = [...this.props.room.tabs];
-    if (graphType === "desmos" && this.state.firstEntry) {
-      updatedTabs[0].tabType = "desmos";
+    if (graphType === 'desmos' && this.state.firstEntry) {
+      updatedTabs[0].tabType = 'desmos';
     }
     // this.setState({enteredRoom: true, graph: graphType})
-    socket.emit("JOIN_TEMP", sendData, (res, err) => {
+    socket.emit('JOIN_TEMP', sendData, (res, err) => {
       if (err) {
-        console.log("error ", err); // HOW SHOULD WE HANDLE THIS
+        console.log('error ', err); // HOW SHOULD WE HANDLE THIS
       }
       let { room, message, user } = res;
       this.props.updatedRoom(room._id, {
         currentMembers: room.currentMembers,
         members: room.members,
-        tabs: updatedTabs
+        tabs: updatedTabs,
       });
-      console.log("message: ", message);
+      console.log('message: ', message);
       this.props.addToLog(room._id, message);
       // if (!this.state.firstEntry) res.room.chat.push(message);
       user.connected = socket.connected;
@@ -130,7 +132,7 @@ class TempWorkspace extends Component {
   saveWorkspace = () => {
     this.props.updateRoom(this.props.match.params.id, {
       tempRoom: false,
-      creator: this.state.user._id
+      creator: this.state.user._id,
     });
     if (this.props.loggedIn)
       this.props.addUserRooms(this.props.match.params.id);
@@ -180,14 +182,14 @@ class TempWorkspace extends Component {
             <Button
               data-testid="temp-desmos"
               m={5}
-              click={() => this.joinRoom("desmos")}
+              click={() => this.joinRoom('desmos')}
             >
               Desmos
             </Button>
             <Button
               data-testid="temp-geogebra"
               m={5}
-              click={() => this.joinRoom("geogebra")}
+              click={() => this.joinRoom('geogebra')}
             >
               GeoGebra
             </Button>
@@ -211,7 +213,7 @@ const mapStateToProps = (store, ownProps) => ({
   room: store.rooms.byId[ownProps.match.params.id],
   loggedIn: store.user.loggedIn,
   username: store.user.username,
-  userId: store.user._id
+  userId: store.user._id,
 });
 
 export default connect(
@@ -222,6 +224,6 @@ export default connect(
     updateRoom,
     updatedRoom,
     addUserRooms,
-    addToLog
+    addToLog,
   }
 )(TempWorkspace);

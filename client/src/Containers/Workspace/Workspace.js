@@ -1,5 +1,5 @@
-import React, { Component, Fragment } from "react";
-import { connect } from "react-redux";
+import React, { Component, Fragment } from 'react';
+import { connect } from 'react-redux';
 import {
   updateRoom,
   updatedRoom,
@@ -7,30 +7,19 @@ import {
   populateRoom,
   setRoomStartingPoint,
   updateUser,
-  addToLog
-} from "../../store/actions";
-import WorkspaceLayout from "../../Layout/Workspace/Workspace";
-import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from "./";
-import { Modal, Aux, CurrentMembers, Loading } from "../../Components";
-import NewTabForm from "../Create/NewTabForm";
-import socket from "../../utils/sockets";
+  addToLog,
+} from '../../store/actions';
+import WorkspaceLayout from '../../Layout/Workspace/Workspace';
+import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from './';
+import { Modal, Aux, CurrentMembers, Loading } from '../../Components';
+import NewTabForm from '../Create/NewTabForm';
+import socket from '../../utils/sockets';
+import COLOR_MAP from '../../utils/colorMap';
 
-const COLOR_MAP = {
-  0: "#f26247",
-  1: "#FFA200",
-  2: "#71d0f0",
-  3: "#84FE71",
-  5: "#E655FF",
-  6: "#19aa91",
-  8: "#398dee",
-  7: "#ff8d82",
-  8: "#6F6FFF",
-  9: "#FF2A50"
-};
 // import Replayer from ''
 class Workspace extends Component {
   state = {
-    activeMember: "",
+    activeMember: '',
     referencing: false,
     showingReference: false,
     referToEl: null,
@@ -38,7 +27,7 @@ class Workspace extends Component {
     referFromEl: null,
     referFromCoords: null,
     currentTab: 0,
-    role: "participant",
+    role: 'participant',
     creatingNewTab: false,
     activityOnOtherTabs: [],
     chatExpanded: true,
@@ -46,7 +35,7 @@ class Workspace extends Component {
     instructionsExpanded: true,
     toolsExpanded: true,
     isFirstTabLoaded: false,
-    myColor: null
+    myColor: null,
   };
 
   componentDidMount() {
@@ -102,11 +91,11 @@ class Workspace extends Component {
   }
 
   initializeListeners() {
-    socket.removeAllListeners("USER_JOINED");
-    socket.removeAllListeners("CREATED_TAB");
-    socket.removeAllListeners("USER_LEFT");
-    socket.removeAllListeners("RELEASED_CONTROL");
-    socket.removeAllListeners("TOOK_CONTROL");
+    socket.removeAllListeners('USER_JOINED');
+    socket.removeAllListeners('CREATED_TAB');
+    socket.removeAllListeners('USER_LEFT');
+    socket.removeAllListeners('RELEASED_CONTROL');
+    socket.removeAllListeners('TOOK_CONTROL');
     // window.addEventListener("resize", this.updateReference);
     const { room, user } = this.props;
 
@@ -119,33 +108,33 @@ class Workspace extends Component {
       roomId: room._id,
       username: user.username,
       roomName: room.name,
-      color: this.state.myColor
+      color: this.state.myColor,
     };
     // const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
     if (!this.props.temp) {
       let { role } = room.members.filter(
         member => member.user._id === user._id
       )[0];
-      if (role === "facilitator") {
-        this.setState({ role: "facilitator" });
+      if (role === 'facilitator') {
+        this.setState({ role: 'facilitator' });
       }
-      socket.emit("JOIN", sendData, (res, err) => {
+      socket.emit('JOIN', sendData, (res, err) => {
         if (err) {
           console.log(err); // HOW SHOULD WE HANDLE THIS
         }
         this.props.updatedRoom(room._id, {
-          currentMembers: res.room.currentMembers
+          currentMembers: res.room.currentMembers,
         });
         this.props.addToLog(room._id, res.message);
       });
     }
 
-    socket.on("USER_JOINED", data => {
+    socket.on('USER_JOINED', data => {
       this.props.updatedRoom(room._id, { currentMembers: data.currentMembers });
       this.props.addToLog(room._id, data.message);
     });
 
-    socket.on("USER_LEFT", data => {
+    socket.on('USER_LEFT', data => {
       if (data.releasedControl) {
         this.props.updatedRoom(room._id, { controlledBy: null });
       }
@@ -155,24 +144,24 @@ class Workspace extends Component {
       this.props.addToLog(room._id, data.message);
     });
 
-    socket.on("TOOK_CONTROL", message => {
+    socket.on('TOOK_CONTROL', message => {
       this.props.addToLog(this.props.room._id, message);
       this.props.updatedRoom(room._id, { controlledBy: message.user._id });
-      this.setState({ awarenessDesc: message.text, awarenessIcon: "USER" });
+      this.setState({ awarenessDesc: message.text, awarenessIcon: 'USER' });
     });
 
-    socket.on("RELEASED_CONTROL", message => {
+    socket.on('RELEASED_CONTROL', message => {
       this.props.addToLog(this.props.room._id, message);
       this.props.updatedRoom(room._id, { controlledBy: null });
       this.setState({
-        activeMember: "",
+        activeMember: '',
         someoneElseInControl: false,
         awarenessDesc: message.text,
-        awarenessIcon: "USER"
+        awarenessIcon: 'USER',
       });
     });
 
-    socket.on("CREATED_TAB", data => {
+    socket.on('CREATED_TAB', data => {
       this.props.addToLog(this.props.room._id, data.message);
       delete data.message;
       delete data.creator;
@@ -184,7 +173,7 @@ class Workspace extends Component {
 
   createNewTab = () => {
     if (
-      this.state.role === "facilitator" ||
+      this.state.role === 'facilitator' ||
       this.props.room.settings.participantsCanCreateTabs
     ) {
       this.setState({ creatingNewTab: true });
@@ -199,17 +188,17 @@ class Workspace extends Component {
     let { room, user } = this.props;
     this.clearReference();
     let data = {
-      user: { _id: user._id, username: "VMTBot" },
+      user: { _id: user._id, username: 'VMTBot' },
       text: `${user.username} swtiched to ${room.tabs[index].name}`,
       autogenerated: true,
       room: room._id,
-      messageType: "SWITCH_TAB",
+      messageType: 'SWITCH_TAB',
       color: this.state.myColor,
-      timestamp: new Date().getTime()
+      timestamp: new Date().getTime(),
     };
-    socket.emit("SWITCH_TAB", data, (res, err) => {
+    socket.emit('SWITCH_TAB', data, (res, err) => {
       if (err) {
-        return console.log("something went wrong on the socket:", err);
+        return console.log('something went wrong on the socket:', err);
       }
       // this.props.updatedRoom(this.props.room._id, {
       //   chat: [...this.props.room.chat, res.message]
@@ -228,25 +217,25 @@ class Workspace extends Component {
     if (!user.connected && !auto) {
       // i.e. if the user clicked the button manually instead of controll being toggled programatically
       return alert(
-        "You have disconnected from the server. Check your internet connection and try refreshing the page"
+        'You have disconnected from the server. Check your internet connection and try refreshing the page'
       );
     }
 
     if (room.controlledBy === user._id) {
       // Releasing control
       let message = {
-        user: { _id: user._id, username: "VMTBot" },
+        user: { _id: user._id, username: 'VMTBot' },
         room: room._id,
         text: `${user.username} released control`,
         autogenerated: true,
-        messageType: "RELEASED_CONTROL",
+        messageType: 'RELEASED_CONTROL',
         color: this.state.myColor,
-        timestamp: new Date().getTime()
+        timestamp: new Date().getTime(),
       };
       this.props.updatedRoom(room._id, { controlledBy: null });
       this.props.addToLog(room._id, message);
       this.setState({ awarenessDesc: message.text, awarenessIcon: null });
-      socket.emit("RELEASE_CONTROL", message, (err, res) => {
+      socket.emit('RELEASE_CONTROL', message, (err, res) => {
         if (err) console.log(err);
       });
       clearTimeout(this.controlTimer);
@@ -255,14 +244,14 @@ class Workspace extends Component {
     // If room is controlled by someone else
     else if (room.controlledBy) {
       let message = {
-        text: "Can I take control?",
-        messageType: "TEXT",
+        text: 'Can I take control?',
+        messageType: 'TEXT',
         user: { _id: user._id, username: user.username },
         room: room._id,
         color: this.state.myColor,
-        timestamp: new Date().getTime()
+        timestamp: new Date().getTime(),
       };
-      socket.emit("SEND_MESSAGE", message, (err, res) => {
+      socket.emit('SEND_MESSAGE', message, (err, res) => {
         this.props.addToLog(room._id, message);
       });
     } else {
@@ -270,16 +259,16 @@ class Workspace extends Component {
       this.props.updatedRoom(room._id, { controlledBy: user._id });
       this.resetControlTimer();
       let message = {
-        user: { _id: user._id, username: "VMTBot" },
+        user: { _id: user._id, username: 'VMTBot' },
         room: room._id,
         text: `${user.username} took control`,
-        messageType: "TOOK_CONTROL",
+        messageType: 'TOOK_CONTROL',
         autogenerated: true,
         color: this.state.myColor,
-        timestamp: new Date().getTime()
+        timestamp: new Date().getTime(),
       };
       this.props.addToLog(room._id, message);
-      socket.emit("TAKE_CONTROL", message, (err, message) => {
+      socket.emit('TAKE_CONTROL', message, (err, message) => {
         // this.scrollToBottom(); @TODO
         // this.setState(
         //   { awarenessDesc: message.text, awarenessIcon: null },
@@ -295,7 +284,7 @@ class Workspace extends Component {
       setTimeout(
         () =>
           alert(
-            "You have disconnected from the server. Check your internet connection and try refreshing the page"
+            'You have disconnected from the server. Check your internet connection and try refreshing the page'
           ),
         0
       );
@@ -304,7 +293,7 @@ class Workspace extends Component {
 
   emitNewTab = tabInfo => {
     tabInfo.message.color = this.state.myColor;
-    socket.emit("NEW_TAB", tabInfo, (err, res) => {
+    socket.emit('NEW_TAB', tabInfo, (err, res) => {
       this.props.addToLog(this.props.room._id, tabInfo.message);
     });
   };
@@ -321,7 +310,7 @@ class Workspace extends Component {
       referencing: true,
       showingReference: false,
       referToEl: null,
-      referToCoords: null
+      referToCoords: null,
     });
   };
 
@@ -333,14 +322,14 @@ class Workspace extends Component {
     tab
   ) => {
     if (tab !== this.state.currentTab) {
-      alert("This reference does not belong to this tab"); //@TODO HOW SHOULD WE HANDLE THIS?
+      alert('This reference does not belong to this tab'); //@TODO HOW SHOULD WE HANDLE THIS?
     } else {
       this.setState({
         referToEl,
         referFromEl,
         referToCoords,
         referFromCoords,
-        showingReference: true
+        showingReference: true,
       });
     }
     // get coords of referenced element,
@@ -353,7 +342,7 @@ class Workspace extends Component {
       referToCoords: null,
       referFromCoords: null,
       referencing: false,
-      showingReference: false
+      showingReference: false,
     });
   };
 
@@ -361,12 +350,12 @@ class Workspace extends Component {
   setToElAndCoords = (el, coords) => {
     if (el) {
       this.setState({
-        referToEl: el
+        referToEl: el,
       });
     }
     if (coords) {
       this.setState({
-        referToCoords: coords
+        referToCoords: coords,
       });
     }
   };
@@ -376,19 +365,19 @@ class Workspace extends Component {
   setFromElAndCoords = (el, coords) => {
     if (el) {
       this.setState({
-        referFromEl: el
+        referFromEl: el,
       });
     }
     if (coords) {
       this.setState({
-        referFromCoords: coords
+        referFromCoords: coords,
       });
     }
   };
 
   addNtfToTabs = id => {
     this.setState({
-      activityOnOtherTabs: [...this.state.activityOnOtherTabs, id]
+      activityOnOtherTabs: [...this.state.activityOnOtherTabs, id],
     });
   };
 
@@ -396,7 +385,7 @@ class Workspace extends Component {
     this.setState({
       activityOnOtherTabs: this.state.activityOnOtherTabs.filter(
         tab => tab !== id
-      )
+      ),
     });
   };
 
@@ -406,7 +395,7 @@ class Workspace extends Component {
 
   toggleExpansion = element => {
     this.setState(prevState => ({
-      [`${element}Expanded`]: !prevState[`${element}Expanded`]
+      [`${element}Expanded`]: !prevState[`${element}Expanded`],
     }));
   };
 
@@ -416,9 +405,10 @@ class Workspace extends Component {
 
   render() {
     const { room, user } = this.props;
-    let control = "OTHER";
-    if (room.controlledBy === user._id) control = "ME";
-    else if (!room.controlledBy) control = "NONE";
+    console.log(room);
+    let control = 'OTHER';
+    if (room.controlledBy === user._id) control = 'ME';
+    else if (!room.controlledBy) control = 'NONE';
     let currentMembers = (
       <CurrentMembers
         members={room.members}
@@ -470,7 +460,7 @@ class Workspace extends Component {
       />
     );
     let graphs = room.tabs.map((tab, i) => {
-      if (tab.tabType === "desmos") {
+      if (tab.tabType === 'desmos') {
         return (
           <DesmosGraph
             room={room}
@@ -570,7 +560,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     room: state.rooms.byId[ownProps.match.params.room_id] || ownProps.room, // with temp workspace we already have the room
     user: state.user._id ? state.user : ownProps.user, // with tempWorkspace we won't have a user in the store
-    loading: state.loading.loading
+    loading: state.loading.loading,
   };
 };
 
@@ -583,6 +573,6 @@ export default connect(
     updateRoomTab,
     populateRoom,
     setRoomStartingPoint,
-    addToLog
+    addToLog,
   }
 )(Workspace);
