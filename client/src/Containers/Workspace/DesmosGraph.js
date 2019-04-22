@@ -34,7 +34,6 @@ class DesmosGraph extends Component {
       );
       this.initializeListeners();
       this.setState({ loading: false });
-      console.log('desmos already exists: ', tabs[tabId]);
       if (tabs[tabId].currentState) {
         this.calculator.setState(tabs[tabId].currentState);
       } else if (tabs[tabId].desmosLink) {
