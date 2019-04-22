@@ -469,6 +469,7 @@ class Workspace extends Component {
             currentTab={this.state.currentTab}
             tabId={i}
             inControl={control}
+            myColor={this.state.myColor}
             toggleControl={this.toggleControl}
             updatedRoom={this.props.updatedRoom}
             updateRoomTab={this.props.updateRoomTab}

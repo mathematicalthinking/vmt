@@ -1,16 +1,16 @@
-import React, { Component, Fragment } from "react";
-import classes from "./graph.css";
-import Modal from "../../Components/UI/Modal/Modal";
-import Button from "../../Components/UI/Button/Button";
-import Script from "react-load-script";
-import socket from "../../utils/sockets";
-import API from "../../utils/apiRequests";
-import debounce from "lodash/debounce";
+import React, { Component, Fragment } from 'react';
+import classes from './graph.css';
+import Modal from '../../Components/UI/Modal/Modal';
+import Button from '../../Components/UI/Button/Button';
+import Script from 'react-load-script';
+import socket from '../../utils/sockets';
+import API from '../../utils/apiRequests';
+import debounce from 'lodash/debounce';
 // import { updatedRoom } from '../../store/actions';
 class DesmosGraph extends Component {
   state = {
     receivingEvent: false, // @TODO experiment with moving this out of state with the other instance vars
-    showControlWarning: false
+    showControlWarning: false,
   };
   // Because DESMOS controls its own state we're keeping much of our "state" outside of the actual react.this.state
   // this is because we don't want to trigger rerenders...desmos does this. Yeah, yeah. yeah...this is not the react way,
@@ -21,7 +21,7 @@ class DesmosGraph extends Component {
   calculatorRef = React.createRef();
 
   componentDidMount() {
-    window.addEventListener("keydown", this.allowKeypressCheck);
+    window.addEventListener('keydown', this.allowKeypressCheck);
     // If we have multiple desmos tabs we'll already have a Desmos object attached to the window
     // and thus we dont need to load the desmos script. Eventually abstract out the commonalities
     // between didMount and onScriptLoad into its own function to make it more DRY...but not till
@@ -34,7 +34,7 @@ class DesmosGraph extends Component {
       );
       this.initializeListeners();
       this.setState({ loading: false });
-      console.log("desmos already exists: ", tabs[tabId]);
+      console.log('desmos already exists: ', tabs[tabId]);
       if (tabs[tabId].currentState) {
         this.calculator.setState(tabs[tabId].currentState);
       } else if (tabs[tabId].desmosLink) {
@@ -60,10 +60,10 @@ class DesmosGraph extends Component {
 
   componentWillUnmount() {
     if (this.caluclator) {
-      this.calculator.unobserveEvent("change");
+      this.calculator.unobserveEvent('change');
       this.calculator.destroy();
     }
-    window.removeEventListener("keydown", this.allowKeypressCheck);
+    window.removeEventListener('keydown', this.allowKeypressCheck);
   }
 
   componentDidUpdate(prevProps) {
@@ -95,14 +95,14 @@ class DesmosGraph extends Component {
     let { room, tabId } = this.props;
     let { tabs } = room;
     let { desmosLink, currentState } = tabs[tabId];
-    console.log("CURRENT STATE: ", currentState);
-    console.log("TAB: ", tabs[tabId]);
+    console.log('CURRENT STATE: ', currentState);
+    console.log('TAB: ', tabs[tabId]);
     if (currentState) {
       try {
         this.calculator.setState(currentState);
         this.initializeListeners();
       } catch (err) {
-        alert("the state of this room has been corrupted :(");
+        alert('the state of this room has been corrupted :(');
       }
     } else if (desmosLink) {
       // @TODO This will require some major reconfiguration / But what we shoould do is
@@ -113,7 +113,7 @@ class DesmosGraph extends Component {
           try {
             this.calculator.setState(res.data.result.state);
           } catch (err) {
-            alert("the state of this room has been corrupted :(");
+            alert('the state of this room has been corrupted :(');
           }
           // console.
           this.initializeListeners();
@@ -131,7 +131,7 @@ class DesmosGraph extends Component {
 
   initializeListeners() {
     // INITIALIZE EVENT LISTENER
-    this.calculator.observeEvent("change", event => {
+    this.calculator.observeEvent('change', event => {
       // console.log("initializing ", this.initializing);
       if (this.initializing) return;
       if (this.undoing) {
@@ -156,14 +156,15 @@ class DesmosGraph extends Component {
           room: room._id,
           tab: room.tabs[tabId]._id,
           event: currentStateString,
+          color: this.props.myColor,
           user: {
             _id: user._id,
-            username: user.username
+            username: user.username,
           },
-          timestamp: new Date().getTime()
+          timestamp: new Date().getTime(),
         };
         // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
-        socket.emit("SEND_EVENT", newData, res => {});
+        socket.emit('SEND_EVENT', newData, res => {});
         this.props.resetControlTimer();
         // if (this.debouncedUpdate) {
         //   this.debouncedUpdate.cancel();
@@ -174,8 +175,8 @@ class DesmosGraph extends Component {
       this.graph = currentState.graph;
       this.setState({ receivingEvent: false });
     });
-    socket.removeAllListeners("RECEIVE_EVENT");
-    socket.on("RECEIVE_EVENT", data => {
+    socket.removeAllListeners('RECEIVE_EVENT');
+    socket.on('RECEIVE_EVENT', data => {
       let { room, tabId } = this.props;
       if (data.tab === room.tabs[tabId]._id) {
         let updatedTabs = this.props.room.tabs.map(tab => {
@@ -200,7 +201,7 @@ class DesmosGraph extends Component {
       let { room, tabId } = this.props;
       let currentStateString = JSON.stringify(this.calculator.getState());
       this.props.updateRoomTab(room._id, room.tabs[tabId]._id, {
-        currentState: currentStateString
+        currentState: currentStateString,
       });
     },
     // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
@@ -252,7 +253,7 @@ class DesmosGraph extends Component {
       let propName = currentGraphProps[i];
       // ignore changes to viewport property
       if (
-        propName !== "viewport" &&
+        propName !== 'viewport' &&
         newState[propName] !== this.graph[propName]
       ) {
         return false;
@@ -284,9 +285,9 @@ class DesmosGraph extends Component {
                 this.setState({ showControlWarning: false });
               }}
             >
-              {this.props.inControl === "NONE"
-                ? "Take Control"
-                : "Request Control"}
+              {this.props.inControl === 'NONE'
+                ? 'Take Control'
+                : 'Request Control'}
             </Button>
             <Button
               theme="Cancel"
