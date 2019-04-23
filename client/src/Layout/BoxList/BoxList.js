@@ -1,8 +1,8 @@
-import React from "react";
-import ContentBox from "../../Components/UI/ContentBox/ContentBox";
-import DragContentBox from "../../Components/UI/ContentBox/DragContentBox";
+import React from 'react';
+import ContentBox from '../../Components/UI/ContentBox/ContentBox';
+import DragContentBox from '../../Components/UI/ContentBox/DragContentBox';
 
-import classes from "./boxList.css";
+import classes from './boxList.css';
 const boxList = React.memo(props => {
   let listElems = "There doesn't appear to be anything here yet";
   if (props.list.length > 0) {
@@ -10,7 +10,7 @@ const boxList = React.memo(props => {
       if (item) {
         let notifications = 0;
         let details = undefined;
-        if (props.listType === "private") {
+        if (props.listType === 'private') {
           if (props.notifications.length > 0) {
             props.notifications.forEach(ntf => {
               if (
@@ -26,23 +26,24 @@ const boxList = React.memo(props => {
             description: item.description,
             facilitators: item.members
               ? item.members
-                  .filter(member => member.role === "facilitator")
+                  .filter(member => member.role === 'facilitator')
                   .map(
                     (member, i, arr) =>
-                      `${member.user.username}${i < arr.length - 1 ? ", " : ""}`
+                      `${member.user.username}${i < arr.length - 1 ? ', ' : ''}`
                   )
-              : []
+              : [],
           };
         } else if (item.members) {
           details = {
             facilitators: item.members.reduce((acc, member) => {
-              if (member.role === "facilitator") acc.push(member.user.username);
+              if (member.role === 'facilitator') acc.push(member.user.username);
               return acc;
-            }, [])
+            }, []),
           };
         } else if (item.creator) {
           details = { creator: item.creator.username };
         }
+        console.log(item.tabs);
         return (
           <div className={classes.ContentBox} key={i}>
             {!props.draggable ? (
@@ -58,7 +59,7 @@ const boxList = React.memo(props => {
                     ? item.tabs.map(tab => tab.tabType)
                     : null
                 }
-                locked={item.privacySetting === "private"} // @TODO Should it appear locked if the user has access ? I can see reasons for both
+                locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
                 details={details}
                 listType={props.listType}
               >
@@ -74,7 +75,7 @@ const boxList = React.memo(props => {
                 roomType={item.roomType}
                 resource={props.resource}
                 listType={props.listType}
-                locked={item.privacySetting === "private"} // @TODO Should it appear locked if the user has access ? I can see reasons for both
+                locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
                 details={details}
               />
             )}
@@ -90,9 +91,9 @@ const boxList = React.memo(props => {
         props.scrollable
           ? {
               maxHeight: props.maxHeight,
-              overflowY: "scroll",
-              border: "1px solid #ddd",
-              padding: 10
+              overflowY: 'scroll',
+              border: '1px solid #ddd',
+              padding: 10,
             }
           : null
       }

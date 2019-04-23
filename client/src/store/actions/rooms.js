@@ -1,24 +1,24 @@
-import * as actionTypes from "./actionTypes";
-import API from "../../utils/apiRequests";
-import { normalize } from "../utils/normalize";
-import { addUserRooms, removeUserRooms } from "./user";
-import { addCourseRooms, removeCourseRooms } from "./courses";
-import { addActivityRooms } from "./activities";
-import { clearLoadingInfo } from "./loading";
-import * as loading from "./loading";
+import * as actionTypes from './actionTypes';
+import API from '../../utils/apiRequests';
+import { normalize, buildLog } from '../utils';
+import { addUserRooms, removeUserRooms } from './user';
+import { addCourseRooms, removeCourseRooms } from './courses';
+import { addActivityRooms } from './activities';
+import { clearLoadingInfo } from './loading';
+import * as loading from './loading';
 
 export const gotRooms = (rooms, isNewRoom) => ({
   type: actionTypes.GOT_ROOMS,
   byId: rooms.byId,
   allIds: rooms.allIds,
-  isNewRoom
+  isNewRoom,
 });
 
 export const updatedRoom = (roomId, body) => {
   return {
     type: actionTypes.UPDATED_ROOM,
     roomId,
-    body
+    body,
   };
 };
 
@@ -27,13 +27,13 @@ export const updatedRoomTab = (roomId, tabId, body) => {
     type: actionTypes.UPDATED_ROOM_TAB,
     roomId,
     tabId,
-    body
+    body,
   };
 };
 
 export const clearCurrentRoom = () => {
   return {
-    type: actionTypes.CLEAR_ROOM
+    type: actionTypes.CLEAR_ROOM,
   };
 };
 
@@ -41,21 +41,21 @@ export const createdRoom = resp => {
   const newRoom = resp;
   return {
     type: actionTypes.CREATED_ROOM,
-    newRoom
+    newRoom,
   };
 };
 
 export const roomsRemoved = roomIds => {
   return {
     type: actionTypes.REMOVE_ROOMS,
-    roomIds
+    roomIds,
   };
 };
 
 export const removedRoom = id => {
   return {
     type: actionTypes.REMOVE_ROOM,
-    id
+    id,
   };
 };
 
@@ -63,7 +63,7 @@ export const addRoomMember = (roomId, body) => {
   return {
     type: actionTypes.ADD_ROOM_MEMBER,
     roomId,
-    body
+    body,
   };
 };
 
@@ -92,7 +92,7 @@ export const addUniqueToLog = (roomId, entry) => {
   return {
     type: actionTypes.ADD_TO_LOG,
     roomId,
-    entry
+    entry,
   };
 };
 export const setRoomStartingPoint = roomId => {
@@ -106,15 +106,15 @@ export const setRoomStartingPoint = roomId => {
     Promise.all(
       tabs
         .map(tab =>
-          API.put("tabs", tab._id, {
+          API.put('tabs', tab._id, {
             events: [],
-            startingPoint: tab.startingPoint
+            startingPoint: tab.startingPoint,
           })
         )
-        .concat([API.put("rooms", roomId, { chat: [] })])
+        .concat([API.put('rooms', roomId, { chat: [] })])
     )
       .then(res => {})
-      .catch(err => console.log("ER w THT: ", err));
+      .catch(err => console.log('ER w THT: ', err));
   };
 };
 
@@ -136,8 +136,8 @@ export const createRoomFromActivity = (
       desmosLink: activity.desmosLink,
       ggbFile: activity.ggbFile,
       instructions: activity.instructions,
-      members: { user: userId, role: "facilitator" },
-      dueDate: dueDate
+      members: { user: userId, role: 'facilitator' },
+      dueDate: dueDate,
     };
     if (courseId) newRoom.course = courseId;
     dispatch(createRoom(newRoom));
@@ -153,7 +153,7 @@ export const updateRoom = (id, body) => {
     } else {
       dispatch(updatedRoom(id, body)); // Optimistically update the UI
     }
-    API.put("rooms", id, body)
+    API.put('rooms', id, body)
       .then(res => {})
       .catch(err => {
         if (body.isTrashed) {
@@ -167,7 +167,7 @@ export const updateRoom = (id, body) => {
         });
 
         dispatch(updatedRoom(id, prevRoom));
-        dispatch(loading.updateFail("room", keys));
+        dispatch(loading.updateFail('room', keys));
         setTimeout(() => {
           dispatch(clearLoadingInfo());
         }, 2000);
@@ -177,12 +177,12 @@ export const updateRoom = (id, body) => {
 };
 
 export const updateRoomTab = (roomId, tabId, body) => {
-  console.log("updating room tab!");
+  console.log('updating room tab!');
   return dispatch => {
     dispatch(updatedRoomTab(roomId, tabId, body));
-    API.put("tabs", tabId, body)
+    API.put('tabs', tabId, body)
       .then(res => {
-        console.log("success");
+        console.log('success');
       })
       .catch(err => {
         console.log(err);
@@ -193,7 +193,7 @@ export const updateRoomTab = (roomId, tabId, body) => {
 export const removeRoomMember = (roomId, userId) => {
   return (dispatch, getState) => {
     dispatch(loading.start());
-    API.removeMember("rooms", roomId, userId)
+    API.removeMember('rooms', roomId, userId)
       .then(res => {
         dispatch(updatedRoom(roomId, { members: res.data }));
         if (userId === getState().user._id) {
@@ -208,7 +208,7 @@ export const removeRoomMember = (roomId, userId) => {
 export const getRooms = params => {
   return dispatch => {
     dispatch(loading.start());
-    API.get("rooms", params)
+    API.get('rooms', params)
       .then(res => {
         // Normalize res
         let rooms = normalize(res.data.results);
@@ -222,7 +222,7 @@ export const getRooms = params => {
 export const getRoom = id => {
   return dispatch => {
     dispatch(loading.start());
-    API.getById("rooms", id)
+    API.getById('rooms', id)
       .then(res => {
         dispatch(updatedRoom(id, res.data.result));
         dispatch(loading.success());
@@ -245,30 +245,16 @@ export const populateRoom = (id, opts) => {
     dispatch(loading.start());
     let temp;
     let events;
+    // Why are you doing this?? just pass the whole opts obj
     if (opts) {
       temp = opts.temp;
       events = opts.events;
     }
-    API.getById("rooms", id, temp, events)
+    API.getById('rooms', id, temp, events)
       .then(res => {
         // creae a log combining events and chat messages
         let room = res.data.result;
-        let allEvents = [];
-        room.tabs.forEach(tab => {
-          allEvents = allEvents.concat(tab.events);
-        });
-        allEvents = allEvents
-          .concat(room.chat)
-          .sort((a, b) => a.timestamp - b.timestamp)
-          .filter((entry, i, arr) => {
-            if (arr[i - 1]) {
-              if (entry.description) {
-                return entry.description !== arr[i - 1].description;
-              } else return true;
-            }
-            return true;
-          });
-        room.log = allEvents;
+        room.log = buildLog(room.tabs, room.chat);
         // consider deleting tab.events and room.chat here since we have all of the information in the log now
         dispatch(updatedRoom(id, room));
         dispatch(loading.success());
@@ -280,10 +266,10 @@ export const populateRoom = (id, opts) => {
 export const createRoom = body => {
   return dispatch => {
     dispatch(loading.start());
-    API.post("rooms", body)
+    API.post('rooms', body)
       .then(res => {
         let result = res.data.result;
-        result.myRole = "facilitator";
+        result.myRole = 'facilitator';
         dispatch(createdRoom(result));
         if (!body.tempRoom) {
           if (body.course) {
@@ -307,10 +293,10 @@ export const inviteToRoom = (roomId, toUserId, toUserUsername) => {
     dispatch(
       addRoomMember(roomId, {
         user: { _id: toUserId, username: toUserUsername },
-        role: "participant"
+        role: 'participant',
       })
     );
-    API.grantAccess(toUserId, "room", roomId, "invitation")
+    API.grantAccess(toUserId, 'room', roomId, 'invitation')
       .then(res => {})
       .catch(err => {
         console.log(err);
@@ -320,7 +306,7 @@ export const inviteToRoom = (roomId, toUserId, toUserUsername) => {
 
 export const updateRoomMembers = (roomId, updatedMembers) => {
   return dispatch => {
-    API.updateMembers("rooms", roomId, updatedMembers)
+    API.updateMembers('rooms', roomId, updatedMembers)
       .then(res => {
         dispatch(updatedRoom(roomId, res.data.result));
       })
@@ -334,7 +320,7 @@ export const updateRoomMembers = (roomId, updatedMembers) => {
 export const removeRoom = roomId => {
   return dispatch => {
     dispatch(loading.start());
-    API.remove("rooms", roomId)
+    API.remove('rooms', roomId)
       .then(res => {
         dispatch(removeUserRooms([roomId]));
         if (res.data.result.course) {
@@ -352,6 +338,6 @@ export const removeRoom = roomId => {
 
 export const createdRoomConfirmed = () => {
   return {
-    type: actionTypes.CREATE_ROOM_CONFIRMED
+    type: actionTypes.CREATE_ROOM_CONFIRMED,
   };
 };

@@ -1,4 +1,4 @@
-import * as actionTypes from "./actionTypes";
+import * as actionTypes from './actionTypes';
 import {
   addUserCourses,
   // addUserCourseTemplates,
@@ -7,18 +7,18 @@ import {
   removeUserActivities,
   activitiesRemoved,
   roomsRemoved,
-  clearLoadingInfo
-} from "./index";
-import API from "../../utils/apiRequests";
-import { normalize } from "../utils/normalize";
-import * as loading from "./loading";
+  clearLoadingInfo,
+} from './index';
+import API from '../../utils/apiRequests';
+import { normalize } from '../utils';
+import * as loading from './loading';
 
 //@TODO HAVE MORE ACTIONS HERE FOR TRACKING STATUS OF REQUEST i.e. pending erro success
 export const gotCourses = courses => {
   return {
     type: actionTypes.GOT_COURSES,
     byId: courses.byId,
-    allIds: courses.allIds
+    allIds: courses.allIds,
   };
 };
 
@@ -26,24 +26,24 @@ export const gotCourses = courses => {
 export const updatedCourse = (courseId, body) => ({
   type: actionTypes.UPDATED_COURSE,
   courseId,
-  body
+  body,
 });
 
 export const addCourseActivities = (courseId, activityIdsArr) => ({
   type: actionTypes.ADD_COURSE_ACTIVITIES,
   courseId,
-  activityIdsArr
+  activityIdsArr,
 });
 
 //@TODO REMOVE THIS
 export const clearCurrentCourse = () => ({
-  type: actionTypes.CLEAR_COURSE
+  type: actionTypes.CLEAR_COURSE,
 });
 
 export const createdCourse = resp => {
   return {
     type: actionTypes.CREATED_COURSE,
-    course: resp
+    course: resp,
   };
 };
 
@@ -51,7 +51,7 @@ export const addCourseRooms = (courseId, roomIdsArr) => {
   return {
     type: actionTypes.ADD_COURSE_ROOMS,
     courseId,
-    roomIdsArr
+    roomIdsArr,
   };
 };
 
@@ -59,7 +59,7 @@ export const addCourseMember = (courseId, newMember) => {
   return {
     type: actionTypes.ADD_COURSE_MEMBER,
     courseId,
-    newMember
+    newMember,
   };
 };
 
@@ -67,7 +67,7 @@ export const removeCourseActivities = (courseId, activityIdsArr) => {
   return {
     type: actionTypes.REMOVE_COURSE_ACTIVITIES,
     courseId,
-    activityIdsArr
+    activityIdsArr,
   };
 };
 
@@ -75,21 +75,21 @@ export const removeCourseRooms = (courseId, roomIdsArr) => {
   return {
     type: actionTypes.REMOVE_COURSE_ROOMS,
     courseId,
-    roomIdsArr
+    roomIdsArr,
   };
 };
 
 export const courseRemoved = courseId => {
   return {
     type: actionTypes.REMOVE_COURSE,
-    courseId
+    courseId,
   };
 };
 
 export const removeCourseMember = (courseId, userId) => {
   return (dispatch, getState) => {
     dispatch(loading.start());
-    API.removeMember("courses", courseId, userId)
+    API.removeMember('courses', courseId, userId)
       .then(res => {
         dispatch(updatedCourse(courseId, { members: res.data }));
         // If removing self
@@ -105,7 +105,7 @@ export const removeCourseMember = (courseId, userId) => {
 export const updateCourseMembers = (courseId, updatedMembers) => {
   return dispatch => {
     dispatch(loading.start());
-    API.updateMembers("courses", courseId, updatedMembers)
+    API.updateMembers('courses', courseId, updatedMembers)
       .then(res => {
         dispatch(updatedCourse(courseId, { members: res.data.result.members }));
         dispatch(loading.success());
@@ -141,7 +141,7 @@ export const updateCourse = (id, body) => {
     } else {
       dispatch(updatedCourse(id, body));
     }
-    API.put("courses", id, body)
+    API.put('courses', id, body)
       .then(res => {
         if (body.trashChildren) {
           let { activities, rooms } = course;
@@ -166,7 +166,7 @@ export const updateCourse = (id, body) => {
           dispatch(addUserCourses(id));
         }
         dispatch(updatedCourse(id, prevCourse));
-        dispatch(loading.updateFail("course", keys));
+        dispatch(loading.updateFail('course', keys));
         setTimeout(() => {
           dispatch(clearLoadingInfo());
         }, 2000);
@@ -176,7 +176,7 @@ export const updateCourse = (id, body) => {
 
 export const getCourses = params => {
   return dispatch => {
-    API.get("courses", params)
+    API.get('courses', params)
       .then(res => {
         // Normalize data
         const courses = normalize(res.data.results);
@@ -201,7 +201,7 @@ export const getCourses = params => {
 export const getCourse = id => {
   return dispatch => {
     dispatch(loading.start());
-    API.getById("courses", id)
+    API.getById('courses', id)
       .then(res => {
         dispatch(updatedCourse(id, res.data.result));
         dispatch(loading.success());
@@ -217,10 +217,10 @@ export const inviteToCourse = (courseId, toUserId, toUserUsername, options) => {
     dispatch(
       addCourseMember(courseId, {
         user: { _id: toUserId, username: toUserUsername },
-        role: options && options.guest ? "guest" : "participant"
+        role: options && options.guest ? 'guest' : 'participant',
       })
     );
-    API.grantAccess(toUserId, "course", courseId, "invitation", options)
+    API.grantAccess(toUserId, 'course', courseId, 'invitation', options)
       .then(res => {})
       .catch(err => console.log(err));
   };
@@ -238,13 +238,13 @@ export const inviteToCourse = (courseId, toUserId, toUserUsername, options) => {
 export const createCourse = body => {
   return dispatch => {
     dispatch(loading.start());
-    API.post("courses", body)
+    API.post('courses', body)
       .then(res => {
         if (body.template) {
           // dispatch(addUserCourseTemplates(res.data.result[1]._id))
           // BUG THE ORDER HERE MATTERS. IF WE UPDATE USERCOURSES BEFORE COURSES THE getUserResource SELECTOR WILL FAIL
           // AND CAUSE THE COURSES COMPONENT TO ERROR
-          res.data.results[0].myRole = "facilitator";
+          res.data.results[0].myRole = 'facilitator';
           dispatch(createdCourse(res.data.result[0]));
           // dispatch(createdCourseTemplate(res.data.result[1]))
           // NB If we're creating a template we're going to get back two results in an array (the course that was created & then template that was created)

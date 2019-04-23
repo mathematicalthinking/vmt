@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import socket from '../../utils/sockets';
-import { normalize } from '../../store/utils/normalize';
+import { normalize } from '../../store/utils';
 import { connect } from 'react-redux';
 import { capitalize } from 'lodash';
 import {

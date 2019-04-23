@@ -1,29 +1,29 @@
-import * as actionTypes from "./actionTypes";
-import API from "../../utils/apiRequests";
-import { normalize } from "../utils/normalize";
-import { addUserActivities, removeUserActivities } from "./user";
+import * as actionTypes from './actionTypes';
+import API from '../../utils/apiRequests';
+import { normalize } from '../utils';
+import { addUserActivities, removeUserActivities } from './user';
 // import { createdActivityTemplate } from './activityTemplates';
-import { clearLoadingInfo } from "./loading";
-import { addCourseActivities, removeCourseActivities } from "./courses";
+import { clearLoadingInfo } from './loading';
+import { addCourseActivities, removeCourseActivities } from './courses';
 
-import * as loading from "./loading";
+import * as loading from './loading';
 
 export const gotActivities = activities => ({
   type: actionTypes.GOT_ACTIVITIES,
   byId: activities.byId,
-  allIds: activities.allIds
+  allIds: activities.allIds,
 });
 
 export const addActivity = activity => ({
   type: actionTypes.ADD_ACTIVITY,
-  activity
+  activity,
 });
 
 export const updatedActivity = (id, body) => {
   return {
     type: actionTypes.UPDATED_ACTIVITY,
     id,
-    body
+    body,
   };
 };
 
@@ -32,7 +32,7 @@ export const updatedActivityTab = (activityId, tabId, body) => {
     type: actionTypes.UPDATED_ACTIVITY_TAB,
     activityId,
     tabId,
-    body
+    body,
   };
 };
 
@@ -47,23 +47,23 @@ export const setActivityStartingPoint = id => {
     dispatch(updatedActivity(id, { tabs }));
     Promise.all(
       tabs.map(tab =>
-        API.put("tabs", tab._id, {
+        API.put('tabs', tab._id, {
           events: [],
           startingPoint: tab.startingPoint,
-          currentState: tab.currentState
+          currentState: tab.currentState,
         })
       )
     )
       .then(res => {
         return;
       })
-      .catch(err => console.log("ER w THT: ", err));
+      .catch(err => console.log('ER w THT: ', err));
   };
 };
 
 export const clearCurrentActivity = () => {
   return {
-    type: actionTypes.CLEAR_ACTIVITY
+    type: actionTypes.CLEAR_ACTIVITY,
   };
 };
 
@@ -71,7 +71,7 @@ export const createdActivity = resp => {
   const newActivity = resp;
   return {
     type: actionTypes.CREATED_ACTIVITY,
-    newActivity
+    newActivity,
   };
 };
 
@@ -79,21 +79,21 @@ export const addActivityRooms = (activityId, roomIdsArr) => {
   return {
     type: actionTypes.ADD_ACTIVITY_ROOMS,
     activityId,
-    roomIdsArr
+    roomIdsArr,
   };
 };
 
 export const activitiesRemoved = activityIds => {
   return {
     type: actionTypes.REMOVE_ACTIVITIES,
-    activityIds
+    activityIds,
   };
 };
 
 export const getActivities = params => {
   return dispatch => {
     dispatch(loading.start());
-    API.get("activities", params)
+    API.get('activities', params)
       .then(res => {
         // Normalize res
         const activities = normalize(res.data.results);
@@ -110,7 +110,7 @@ export const getActivities = params => {
 export const getCurrentActivity = id => {
   return dispatch => {
     dispatch(loading.start());
-    API.getById("activities", id)
+    API.getById('activities', id)
       .then(res => {
         dispatch(loading.success());
         dispatch(addActivity(res.data.result));
@@ -125,7 +125,7 @@ export const getCurrentActivity = id => {
 export const createActivity = body => {
   return dispatch => {
     dispatch(loading.start());
-    API.post("activities", body)
+    API.post('activities', body)
       .then(res => {
         let result = res.data.result;
         dispatch(createdActivity(result));
@@ -144,7 +144,7 @@ export const createActivity = body => {
 export const updateActivityTab = (activityId, tabId, body) => {
   return dispatch => {
     dispatch(updatedActivityTab(activityId, tabId, body));
-    API.put("tabs", tabId, body)
+    API.put('tabs', tabId, body)
       .then(res => {})
       .catch(err => {
         console.log(err);
@@ -169,7 +169,7 @@ export const copyActivity = (activityId, userId, courseId) => {
 export const removeActivity = activityId => {
   return dispatch => {
     dispatch(loading.start());
-    API.remove("activities", activityId)
+    API.remove('activities', activityId)
       .then(res => {
         dispatch(removeUserActivities([activityId]));
         dispatch(removeCourseActivities(res.data.result.course, [activityId]));
@@ -190,7 +190,7 @@ export const updateActivity = (id, body) => {
       dispatch(updatedActivity(id, body)); // THIS ONE's OPTIMISITC
     }
     // dispatch(loading.start())
-    API.put("activities", id, body)
+    API.put('activities', id, body)
       .then(res => {
         // dispatch(loading.success())
         return;
@@ -211,7 +211,7 @@ export const updateActivity = (id, body) => {
           });
           dispatch(updatedActivity(id, prevActivity));
         }
-        dispatch(loading.updateFail("activity", keys));
+        dispatch(loading.updateFail('activity', keys));
         setTimeout(() => {
           dispatch(clearLoadingInfo());
         }, 2000);
@@ -221,6 +221,6 @@ export const updateActivity = (id, body) => {
 
 export const createdActivityConfirmed = () => {
   return {
-    type: actionTypes.CREATE_ACTIVITY_CONFIRMED
+    type: actionTypes.CREATE_ACTIVITY_CONFIRMED,
   };
 };

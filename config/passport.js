@@ -1,14 +1,14 @@
 //REQUIRE MODULES
-const passport = require("passport");
-const flash = require("connect-flash");
-const LocalStrategy = require("passport-local").Strategy;
-const GoogleStrategy = require("passport-google-oauth").OAuth2Strategy;
+const passport = require('passport');
+const flash = require('connect-flash');
+const LocalStrategy = require('passport-local').Strategy;
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
 //PASSWORD ENCRYPTION
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcrypt');
 
 //USER MODEL
-const models = require("../models");
+const models = require('../models');
 const User = models.User;
 const Room = models.Room;
 
@@ -34,21 +34,21 @@ module.exports = passport => {
   });
 
   passport.use(
-    "local-signup",
+    'local-signup',
     new LocalStrategy(
       {
-        passReqToCallback: true
+        passReqToCallback: true,
       },
       (req, username, password, next) => {
         process.nextTick(() => {
           User.findOne(
-            { username: username, accountType: { $ne: "temp" } },
+            { username: username, accountType: { $ne: 'temp' } },
             (err, user) => {
               if (err) {
                 return next(err);
               }
               if (user) {
-                return next(null, false, "That username is already taken.");
+                return next(null, false, 'That username is already taken.');
               } else {
                 // req.body._id means we're making a temp user a permanent user
                 if (req.body._id) {
@@ -60,11 +60,11 @@ module.exports = passport => {
                   Promise.all([
                     Room.findByIdAndUpdate(req.body.rooms[0], {
                       tempRoom: false,
-                      members: [{ user: req.body._id, role: "facilitator" }]
+                      members: [{ user: req.body._id, role: 'facilitator' }],
                     }),
                     User.findByIdAndUpdate(req.body._id, req.body, {
-                      new: true
-                    })
+                      new: true,
+                    }),
                   ]).then(res => next(null, res[1]));
                 } else {
                   var newUser = new User();
@@ -95,34 +95,36 @@ module.exports = passport => {
   );
 
   passport.use(
-    "local-login",
+    'local-login',
     new LocalStrategy((username, password, next) => {
-      User.findOne({ username, accountType: { $ne: "temp" } })
+      User.findOne({ username, accountType: { $ne: 'temp' } })
         .populate({
-          path: "courses",
-          populate: { path: "members.user", select: "username" },
-          options: { sort: { createdAt: -1 } }
+          path: 'courses',
+          populate: { path: 'members.user', select: 'username' },
+          options: { sort: { createdAt: -1 } },
         })
         .populate({
-          path: "rooms",
+          path: 'rooms',
           // match: { "rooms.0": "$exists" },
-          select: "-currentState",
+          select: '-currentState',
           // populate: { path: "currentMembers.user", select: "username" },
-          populate: { path: "tabs", select: "name tabType" },
-          populate: { path: "members.user", select: "username" },
-          options: { sort: { createdAt: -1 } }
+          populate: { path: 'tabs' },
+          populate: { path: 'members.user', select: 'username' },
+          options: { sort: { createdAt: -1 } },
         })
         .populate({
-          path: "activities",
-          populate: { path: "tabs", select: "name tabType" },
-          options: { sort: { createdAt: -1 } }
+          path: 'activities',
+          populate: { path: 'tabs', select: 'name tabType' },
+          options: { sort: { createdAt: -1 } },
         })
         .populate({
-          path: "notifications",
-          populate: { path: "fromUser", select: "username" }
+          path: 'notifications',
+          populate: { path: 'fromUser', select: 'username' },
         })
-        .exec()
+        // .exec()
         .then(user => {
+          console.log('TAB ON LOGIN: ', user.rooms[0].tabs);
+          console.log('MEMBERS: ', user.rooms[0].members);
           // if (user.rooms.length > 0) {
           //   user.rooms.populate({ path: "members.user", select: "username" });
           // }
@@ -132,15 +134,15 @@ module.exports = passport => {
             return next(
               null,
               false,
-              "That username does not exist. If you want to create an account go to Signup"
+              'That username does not exist. If you want to create an account go to Signup'
             );
           if (!bcrypt.compareSync(password, user.password)) {
-            return next(null, false, "The password you entered is incorrect");
+            return next(null, false, 'The password you entered is incorrect');
           }
           return next(null, user);
         })
         .catch(err => {
-          console.log("ERRORRRR: ", err);
+          console.log('ERRORRRR: ', err);
           return next(err);
         });
     })

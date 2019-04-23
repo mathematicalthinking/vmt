@@ -1,21 +1,21 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 // import { Avatar, ToolTip, Aux } from "../../../Components";
-import classes from "./tools.css";
-import ggbTools from "./GgbIcons/";
+import classes from './tools.css';
+import ggbTools from './GgbIcons/';
 
 class Awareness extends Component {
   state = {
-    showToolTip: false
+    showToolTip: false,
   };
 
   shouldComponentUpdate(nextProps) {
-    if (nextProps.lastEvent.messageType === "TEXT") {
+    if (nextProps.lastEvent && nextProps.lastEvent.messageType === 'TEXT') {
       return false;
     } else return true;
   }
   render() {
     let { lastEvent } = this.props;
-    console.log("LAST EVENT: ", lastEvent);
+    console.log('LAST EVENT: ', lastEvent);
     if (lastEvent) {
       return (
         <div className={classes.AwarenessDesc}>
@@ -25,7 +25,7 @@ class Awareness extends Component {
             onMouseOver={() => this.setState({ showToolTip: true })}
             onMouseOut={() => this.setState({ showToolTip: false })}
           >
-            {lastEvent.action === "mode" ? (
+            {lastEvent.action === 'mode' ? (
               // <ToolTip
               //   visible={this.state.showToolTip}
               //   text={ggbTools[lastEvent.label].name
@@ -36,7 +36,7 @@ class Awareness extends Component {
                 src={ggbTools[lastEvent.label].image}
                 height={40}
                 href={ggbTools[lastEvent.label].link}
-                alt={"tool_icon"}
+                alt={'tool_icon'}
               />
             ) : // </ToolTip>
             null}

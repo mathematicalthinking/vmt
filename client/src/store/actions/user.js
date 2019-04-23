@@ -1,11 +1,11 @@
-import * as actionTypes from "./actionTypes";
-import AUTH from "../../utils/auth";
-import { normalize, addUserRoleToResource } from "../utils/normalize";
-import API from "../../utils/apiRequests";
-import * as loading from "./loading";
-import { gotCourses } from "./courses";
-import { gotRooms } from "./rooms";
-import { gotActivities } from "./activities";
+import * as actionTypes from './actionTypes';
+import AUTH from '../../utils/auth';
+import { normalize, addUserRoleToResource } from '../utils';
+import API from '../../utils/apiRequests';
+import * as loading from './loading';
+import { gotCourses } from './courses';
+import { gotRooms } from './rooms';
+import { gotActivities } from './activities';
 
 export const gotUser = (user, temp) => {
   let loggedIn = true;
@@ -13,56 +13,56 @@ export const gotUser = (user, temp) => {
   return {
     type: actionTypes.GOT_USER,
     user,
-    loggedIn
+    loggedIn,
   };
 };
 
 export const updateUser = body => {
   return {
     type: actionTypes.UPDATE_USER,
-    body
+    body,
   };
 };
 
 export const removeUserCourse = courseId => {
   return {
     type: actionTypes.REMOVE_USER_COURSE,
-    courseId
+    courseId,
   };
 };
 
 export const addUserCourses = newCoursesArr => {
   return {
     type: actionTypes.ADD_USER_COURSES,
-    newCoursesArr
+    newCoursesArr,
   };
 };
 
 export const addUserActivities = newActivitiesArr => {
   return {
     type: actionTypes.ADD_USER_ACTIVITIES,
-    newActivitiesArr
+    newActivitiesArr,
   };
 };
 
 export const removeUserActivities = activityIdsArr => {
   return {
     type: actionTypes.REMOVE_USER_ACTIVITIES,
-    activityIdsArr
+    activityIdsArr,
   };
 };
 
 export const addUserRooms = newRoomsArr => {
   return {
     type: actionTypes.ADD_USER_ROOMS,
-    newRoomsArr
+    newRoomsArr,
   };
 };
 
 export const removeUserRooms = roomIdsArr => {
   return {
     type: actionTypes.REMOVE_USER_ROOMS,
-    roomIdsArr
+    roomIdsArr,
   };
 };
 
@@ -90,14 +90,14 @@ export const logout = () => {
 export const addUserCourseTemplates = newTemplate => {
   return {
     type: actionTypes.ADD_USER_COURSE_TEMPLATES,
-    newTemplate
+    newTemplate,
   };
 };
 
 export const addNotification = ntf => {
   return {
     type: actionTypes.ADD_NOTIFICATION,
-    ntf
+    ntf,
   };
 };
 
@@ -105,13 +105,13 @@ export const addNotification = ntf => {
 export const removeNotification = ntfId => {
   return {
     type: actionTypes.REMOVE_NOTIFICATION,
-    ntfId
+    ntfId,
   };
 };
 
 export const toggleJustLoggedIn = () => {
   return {
-    type: actionTypes.TOGGLE_JUST_LOGGED_IN
+    type: actionTypes.TOGGLE_JUST_LOGGED_IN,
   };
 };
 
@@ -131,7 +131,7 @@ export const clearNotification = ntfId => {
   return dispatch => {
     dispatch(removeNotification(ntfId));
     // API.removeNotification(ntfId, userId, requestingUser, resource, ntfType)
-    API.put("notifications", ntfId, { isTrashed: true })
+    API.put('notifications', ntfId, { isTrashed: true })
       .then(res => {
         // dispatch(gotUser(res.data))
       })
@@ -192,7 +192,7 @@ export const login = (username, password) => {
           ...res.data,
           courses: courses ? courses.allIds : [],
           rooms: rooms ? rooms.allIds : [],
-          activities: activities ? activities.allIds : []
+          activities: activities ? activities.allIds : [],
         };
         dispatch(gotUser(user));
         return dispatch(loading.success());
@@ -207,7 +207,7 @@ export const login = (username, password) => {
 export const getUser = id => {
   return dispatch => {
     dispatch(loading.start());
-    API.getById("user", id)
+    API.getById('user', id)
       .then(res => {
         let courses = normalize(res.data.result.courses);
         dispatch(gotCourses(courses));
@@ -222,7 +222,7 @@ export const getUser = id => {
           ...res.data.result,
           courses: courses.allIds,
           activities: activities.allIds,
-          rooms: rooms.allIds
+          rooms: rooms.allIds,
         };
         dispatch(gotUser(user));
         dispatch(loading.success());
