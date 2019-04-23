@@ -1,29 +1,18 @@
-import axios from "axios";
+import axios from 'axios';
 
-let baseURL;
-console.log(process.env.NODE_ENV);
-
-if (process.env.REACT_APP_ENCOMPASS) {
-  baseURL = process.env.REACT_APP_ENCOMPASS_URL_PRODUCTION;
-  if (process.env.REACT_APP_STAGING) {
-    baseURL = process.env.REACT_APP_ENCOMPASS_URL_STAGING;
-  } else if (process.env.REACT_APP_DEV) {
-    baseURL = process.env.REACT_APP_ENCOMPASS_URL_DEV;
-  }
-} else {
-  baseURL = process.env.REACT_APP_SERVER_URL_PRODUCTION;
-  if (process.env.REACT_APP_STAGING) {
-    baseURL = process.env.REACT_APP_SERVER_URL_STAGING;
-  } else if (
-    process.env.REACT_APP_DEV ||
-    process.env.NODE_ENV === "development" ||
-    process.env.REACT_APP_TEST
-  ) {
-    baseURL = process.env.REACT_APP_SERVER_URL_DEV;
-  }
+let baseURL = process.env.REACT_APP_SERVER_URL_PRODUCTION;
+if (process.env.REACT_APP_STAGING) {
+  baseURL = process.env.REACT_APP_SERVER_URL_STAGING;
+} else if (
+  process.env.REACT_APP_DEV ||
+  process.env.NODE_ENV === 'development' ||
+  process.env.NODE_ENV === 'test' ||
+  process.env.REACT_APP_TEST
+) {
+  baseURL = process.env.REACT_APP_SERVER_URL_DEV;
 }
 
-console.log("server url: ", baseURL);
+console.log('server url: ', baseURL);
 const api = axios.create({ baseURL });
 
 export default {
@@ -73,27 +62,27 @@ export default {
 
   enterWithCode: (resource, resourceId, userId, entryCode) => {
     return api.put(`/api/${resource}/${resourceId}`, {
-      checkAccess: { userId, entryCode }
+      checkAccess: { userId, entryCode },
     });
   },
 
   requestAccess: (owners, userId, resource, resourceId) => {
     let resourceType;
-    if (resource === "courses" || resource === "course") {
-      resourceType = "course";
+    if (resource === 'courses' || resource === 'course') {
+      resourceType = 'course';
     }
-    if (resource === "rooms" || resource === "room") {
-      resourceType = "room";
+    if (resource === 'rooms' || resource === 'room') {
+      resourceType = 'room';
     }
     // @TODO consider making notificationTypes a directory of constants like action types in redux
     let promises = owners.map(owner => {
       // return axios.put(`/api/user/${owner}`, {notificationType: 'requestAccess', user: userId, resource, _id: resourceId})
-      return api.post("api/notifications", {
-        notificationType: "requestAccess",
+      return api.post('api/notifications', {
+        notificationType: 'requestAccess',
         toUser: owner,
         fromUser: userId,
         resourceType: resourceType,
-        resourceId: resourceId
+        resourceId: resourceId,
       });
     });
     return Promise.all(promises);
@@ -101,13 +90,13 @@ export default {
 
   removeNotification: ntfId => {
     return api.put(`/api/notifications/${ntfId}`, {
-      isTrashed: true
+      isTrashed: true,
     });
   },
 
   removeMember: (resource, resourceId, user) => {
     return api.put(`/api/${resource}/${resourceId}/remove`, {
-      members: { user }
+      members: { user },
     });
   },
 
@@ -121,15 +110,15 @@ export default {
     return api.put(`/api/${resource}s/${resourceId}/add`, {
       members: {
         user,
-        role: options && options.guest ? "guest" : "participant"
+        role: options && options.guest ? 'guest' : 'participant',
       },
-      ntfType
+      ntfType,
     });
   },
 
   updateMembers: (resource, resourceId, updatedMembers) => {
     return api.put(`/api/${resource}/${resourceId}`, {
-      members: updatedMembers
+      members: updatedMembers,
     });
   },
   getDesmos: url => {
@@ -137,5 +126,5 @@ export default {
   },
   uploadGgbFiles: formData => {
     return api.post(`/api/upload/ggb`, formData);
-  }
+  },
 };
