@@ -122,7 +122,7 @@ module.exports = passport => {
         })
         // .exec()
         .then(user => {
-          console.log('TABs ON LOGIN: ', user.rooms[0].members[0].user);
+          // console.log('TABs ON LOGIN: ', user.rooms[0].members[0]);
           // console.log('MEMBERS: ', user.rooms[0].members);
           // if (user.rooms.length > 0) {
           //   user.rooms.populate({ path: "members.user", select: "username" });
