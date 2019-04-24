@@ -5,7 +5,7 @@ import { Aux } from '../../Components';
 import Script from 'react-load-script';
 import socket from '../../utils/sockets';
 import ggbTools from './Tools/GgbIcons/';
-
+import { parseString } from 'xml2js';
 class GgbGraph extends Component {
   state = {
     selectedElement: '',
@@ -139,9 +139,8 @@ class GgbGraph extends Component {
       } else if (wasInControl && !isInControl) {
         this.ggbApplet.setMode(40);
       }
-
-      // Referencing
       if (!prevProps.referencing && this.props.referencing) {
+        console.log('referencing now');
         this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
       } else if (prevProps.referencing && !this.props.referencing) {
         this.ggbApplet.setMode(40);
@@ -400,6 +399,7 @@ class GgbGraph extends Component {
         // zoom tool
         if (
           event[2] === '40' ||
+          this.props.referencing ||
           (this.previousEvent.action === 'mode' &&
             this.previousEvent.label === event[2])
         ) {
@@ -581,8 +581,11 @@ class GgbGraph extends Component {
    */
 
   clickListener = async element => {
+    console.log('HELLO!~');
     if (this.props.referencing) {
+      console.log('we are referencing');
       let elementType = this.ggbApplet.getObjectType(element);
+      console.log(elementType);
       let position;
       if (elementType !== 'point') {
         let commandString = this.ggbApplet.getCommandString(element);
@@ -592,6 +595,8 @@ class GgbGraph extends Component {
         );
       }
       position = await this.getRelativeCoords(element);
+      console.log(position);
+      console.log('he we are');
       this.props.setToElAndCoords({ element, elementType: 'point' }, position);
     }
   };
@@ -817,6 +822,15 @@ class GgbGraph extends Component {
       let yOffset =
         ggbCoords.height - height + parseInt(yZero, 10) - elY * yScale;
       resolve({ left: xOffset, top: yOffset });
+    });
+  };
+
+  parseXML = xml => {
+    return new Promise((resolve, reject) => {
+      parseString(xml, (err, result) => {
+        if (err) return reject(err);
+        return resolve(result);
+      });
     });
   };
 

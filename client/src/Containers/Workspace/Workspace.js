@@ -503,10 +503,11 @@ class Workspace extends Component {
             resetControlTimer={this.resetControlTimer}
             currentTab={this.state.currentTab}
             tabId={i}
-            referToEl={this.state.referToEl}
             addNtfToTabs={this.addNtfToTabs}
             isFirstTabLoaded={this.state.isFirstTabLoaded}
+            referToEl={this.state.referToEl}
             showingReference={this.state.showingReference}
+            referencing={this.state.referencing}
             setToElAndCoords={this.setToElAndCoords}
             setFirstTabLoaded={() => {
               this.setState({ isFirstTabLoaded: true });

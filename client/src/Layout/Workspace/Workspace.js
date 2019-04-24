@@ -121,7 +121,7 @@ class WorkspaceLayout extends Component {
           </div>
           {referToCoords && referFromCoords ? (
             <div className={classes.ReferenceLine}>
-              <svg height="100%" width="100%" style={{ zIndex: 1 }}>
+              <svg height="100%" width="100%" style={{ zIndex: 2500 }}>
                 <line
                   style={{ zIndex: 2500 }}
                   x1={referToCoords.left}
@@ -133,11 +133,7 @@ class WorkspaceLayout extends Component {
                 />
               </svg>
             </div>
-          ) : (
-            <div style={{ zIndex: 25000, position: 'fixed', fontSize: 100 }}>
-              NO REFERENCE SET
-            </div>
-          )}
+          ) : null}
         </div>
       </div>
     );

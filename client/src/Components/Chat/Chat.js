@@ -197,6 +197,7 @@ class Chat extends Component {
       }
     } else if (
       this.props.referencing &&
+      this.props.referToEl &&
       this.props.referToEl.elementType === 'chat_message'
     ) {
       let elementRef = this[`message-${this.props.referToEl.element}`].current;
