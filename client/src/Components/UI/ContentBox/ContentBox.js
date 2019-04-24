@@ -27,7 +27,6 @@ class ContentBox extends PureComponent {
           dataTestId={'content-box-ntf'}
         />
       ) : null;
-    console.log(this.props.roomType);
     return (
       <Aux>
         <Link

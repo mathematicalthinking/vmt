@@ -9,9 +9,7 @@ class DesmosReplayer extends Component {
   calculatorRef = React.createRef();
 
   componentDidMount() {
-    console.log('desmos?? ', window.Desmos);
     if (window.Desmos) {
-      console.log('desmos already exists');
       this.onScriptLoad();
       // let { inView, tab } = this.props;
       // this.calculator = window.Desmos.GraphingCalculator(

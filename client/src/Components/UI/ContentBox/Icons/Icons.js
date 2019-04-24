@@ -67,7 +67,6 @@ const Icons = React.memo(props => {
   } else if (props.roomType === 'geogebra') {
     roomType = ggbImageAndToolTip;
   }
-  console.log(props.roomType);
   return (
     <Fragment>
       <div className={classes.Icon}>

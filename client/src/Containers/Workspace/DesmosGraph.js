@@ -21,19 +21,21 @@ class DesmosGraph extends Component {
   calculatorRef = React.createRef();
 
   componentDidMount() {
+    console.log(this.state);
+    console.log(this.props);
     window.addEventListener('keydown', this.allowKeypressCheck);
     // If we have multiple desmos tabs we'll already have a Desmos object attached to the window
     // and thus we dont need to load the desmos script. Eventually abstract out the commonalities
     // between didMount and onScriptLoad into its own function to make it more DRY...but not till
     // this component is more stable
     if (window.Desmos) {
+      this.initializing = true;
       let { room, tabId } = this.props;
       let { tabs } = room;
       this.calculator = window.Desmos.GraphingCalculator(
         this.calculatorRef.current
       );
       this.initializeListeners();
-      this.setState({ loading: false });
       if (tabs[tabId].currentState) {
         this.calculator.setState(tabs[tabId].currentState);
       } else if (tabs[tabId].desmosLink) {
@@ -48,6 +50,7 @@ class DesmosGraph extends Component {
       let desmosState = this.calculator.getState();
       this.expressionList = desmosState.expressions.list;
       this.graph = desmosState.graph;
+      this.initializing = false;
     }
   }
 
@@ -94,8 +97,6 @@ class DesmosGraph extends Component {
     let { room, tabId } = this.props;
     let { tabs } = room;
     let { desmosLink, currentState } = tabs[tabId];
-    console.log('CURRENT STATE: ', currentState);
-    console.log('TAB: ', tabs[tabId]);
     if (currentState) {
       try {
         this.calculator.setState(currentState);
@@ -139,6 +140,7 @@ class DesmosGraph extends Component {
       }
       let { room, tabId, user } = this.props;
       let currentState = this.calculator.getState();
+      console.log('currnet state changed ', currentState);
       if (!this.state.receivingEvent) {
         let statesAreEqual = this.areDesmosStatesEqual(currentState);
         if (statesAreEqual) return;
@@ -147,6 +149,7 @@ class DesmosGraph extends Component {
           this.undoing = true;
           document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
           // we have the global keypress listener to prevent typing if controlWarning is being shown
+          console.log('setting control warning to true after obersving change');
           return this.setState({ showControlWarning: true });
         }
         let currentStateString = JSON.stringify(currentState);
