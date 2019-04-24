@@ -138,6 +138,7 @@ class Chat extends Component {
       let fromCoords = this.getRelativeCoords(event.target);
       let toCoords;
       if (reference.elementType === 'chat_message') {
+        console.log('we in here');
         toCoords = this.getRelativeCoords(
           this[`message-${reference.element}`].current
         );
@@ -154,11 +155,12 @@ class Chat extends Component {
 
   getRelativeCoords = target => {
     let messageCoords = target.getBoundingClientRect(); // RENAME THIS ...THIS IS THE CHAT MESSAGE OR CHAT
-    console.log(messageCoords);
-    let left = this.state.chatCoords.left - this.state.containerCoords.left;
+    let left =
+      this.state.chatCoords.left - this.state.containerCoords.left + 10; // + 10 to account for margin
     let top = messageCoords.top - this.state.containerCoords.top;
     if (messageCoords.top > this.state.chatInputCoords.bottom) {
-      top = this.state.chatInputCoords.bottom - this.state.containerCoords.top;
+      top =
+        this.state.chatInputCoords.bottom - this.state.containerCoords.top - 10;
     } else if (messageCoords.bottom < this.state.containerCoords.top) {
       top = this.state.chatCoords.top - this.state.containerCoords.top;
     }
@@ -167,9 +169,7 @@ class Chat extends Component {
 
   // If the object being reference is a chat message (and not an element on the graph)
   referToMessage = (event, id) => {
-    console.log(event.target);
     let position = this.getRelativeCoords(event.target);
-    console.log('position: ', position);
     this.props.setToElAndCoords(
       { element: id, elementType: 'chat_message' },
       position
@@ -212,11 +212,9 @@ class Chat extends Component {
     let { replayer, referencing } = this.props;
     if (!replayer) {
       if (referencing) {
-        console.log('refering to message, were certainly in here');
         this.referToMessage(event, message._id);
       } else if (message.reference)
-        return event =>
-          this.showReference(event, message.reference, message.tab);
+        this.showReference(event, message.reference, message.tab);
     } else {
       this.display_temporary_error();
     }
@@ -243,7 +241,6 @@ class Chat extends Component {
             (message.reference &&
               this.props.referToEl.element === message.reference.element)
           ) {
-            console.log('message ', message._id, ' is highlighted');
             highlighted = true;
           }
         }

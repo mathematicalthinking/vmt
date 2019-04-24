@@ -328,7 +328,11 @@ class Workspace extends Component {
     referFromCoords,
     tab
   ) => {
-    if (tab !== this.state.currentTab) {
+    console.log(referToEl);
+    if (
+      tab !== this.state.currentTab &&
+      referToEl.elementType !== 'chat_message'
+    ) {
       alert('This reference does not belong to this tab'); //@TODO HOW SHOULD WE HANDLE THIS?
     } else {
       this.setState({
@@ -499,6 +503,7 @@ class Workspace extends Component {
             resetControlTimer={this.resetControlTimer}
             currentTab={this.state.currentTab}
             tabId={i}
+            referToEl={this.state.referToEl}
             addNtfToTabs={this.addNtfToTabs}
             isFirstTabLoaded={this.state.isFirstTabLoaded}
             showingReference={this.state.showingReference}
