@@ -1,14 +1,14 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 // import moment from 'moment'
-import { connect } from "react-redux";
+import { connect } from 'react-redux';
 import {
   DashboardLayout,
   SidePanel,
   RoomDetails,
-  RoomSettings
-} from "../Layout/Dashboard/";
-import Members from "./Members/Members";
-import { getUserNotifications } from "../utils/notifications";
+  RoomSettings,
+} from '../Layout/Dashboard/';
+import Members from './Members/Members';
+import { getUserNotifications } from '../utils/notifications';
 import {
   enterRoomWithCode,
   requestAccess,
@@ -17,9 +17,9 @@ import {
   updateRoom,
   getRoom,
   removeRoomMember,
-  clearLoadingInfo
+  clearLoadingInfo,
   // populateRoom
-} from "../store/actions";
+} from '../store/actions';
 import {
   Aux,
   Modal,
@@ -28,16 +28,16 @@ import {
   TabList,
   EditText,
   TrashModal,
-  Error
-} from "../Components";
-import Access from "./Access";
+  Error,
+} from '../Components';
+import Access from './Access';
 // import PublicAccessModal from '../Components/UI/Modal/PublicAccess'
 // import Participants from './Participants/Participants';
 class Room extends Component {
   state = {
     member: false,
     guestMode: true,
-    tabs: [{ name: "Details" }, { name: "Members" }, { name: "Settings" }],
+    tabs: [{ name: 'Details' }, { name: 'Members' }, { name: 'Settings' }],
     firstView: false,
     editing: false,
     invited: false,
@@ -47,10 +47,10 @@ class Room extends Component {
     entryCode: this.props.room ? this.props.room.entryCode : null,
     instructions: this.props.room ? this.props.room.instructions : null,
     privacySetting: this.props.room ? this.props.room.privacySetting : null,
-    trashing: false
+    trashing: false,
   };
 
-  initialTabs = [{ name: "Details" }, { name: "Members" }];
+  initialTabs = [{ name: 'Details' }, { name: 'Members' }];
 
   componentDidMount() {
     const { room, user, clearNotification } = this.props;
@@ -64,19 +64,19 @@ class Room extends Component {
       let owner = false;
       let firstView = false;
       let invited = false;
-      if (room.myRole === "facilitator") {
+      if (room.myRole === 'facilitator') {
         updatedTabs = this.displayNotifications(updatedTabs);
       }
       if (notifications.length > 0) {
         notifications.forEach(ntf => {
           if (ntf.resourceId === room._id) {
             if (
-              ntf.notificationType === "grantedAccess" ||
-              ntf.notificationType === "assignedNewRoom"
+              ntf.notificationType === 'grantedAccess' ||
+              ntf.notificationType === 'assignedNewRoom'
             ) {
               firstView = true;
               clearNotification(ntf._id);
-            } else if (ntf.notificationType === "invitation") {
+            } else if (ntf.notificationType === 'invitation') {
               invited = true;
               clearNotification(ntf._id);
             }
@@ -90,11 +90,12 @@ class Room extends Component {
         tabs: updatedTabs,
         owner,
         firstView,
-        invited
+        invited,
       });
     }
     // else fetch it
     else {
+      console.log('we dont have the room so we fetchin it');
       this.fetchRoom();
     }
   }
@@ -107,7 +108,7 @@ class Room extends Component {
       prevProps.user.rooms.indexOf(this.props.room._id) > -1 &&
       this.props.user.rooms.indexOf(this.props.room._id) === -1
     ) {
-      return this.props.history.push("/myVMT/rooms");
+      return this.props.history.push('/myVMT/rooms');
     }
     // If we just fetched the room now check access
     if (!prevProps.room && this.props.room) {
@@ -127,7 +128,7 @@ class Room extends Component {
     }
     if (
       prevProps.loading.updateResource === null &&
-      this.props.loading.updateResource === "room"
+      this.props.loading.updateResource === 'room'
     ) {
       setTimeout(() => {
         this.props.clearLoadingInfo();
@@ -138,7 +139,7 @@ class Room extends Component {
         entryCode: this.props.room.entryCode,
         privacySetting: this.props.room.privacySetting,
         instructions: this.props.room.instructions,
-        dueDate: this.props.room.dueDate
+        dueDate: this.props.room.dueDate,
       });
     }
   }
@@ -162,14 +163,14 @@ class Room extends Component {
     let { user, room, notifications } = this.props;
     if (
       room.members.filter(
-        member => member.role === "facilitator" && member.user._id === user._id
+        member => member.role === 'facilitator' && member.user._id === user._id
       ).length > 0
     ) {
       let thisRoomsNtfs = notifications.filter(
         ntf => ntf.resourceId === room._id
       );
       tabs[1].notifications =
-        thisRoomsNtfs.length > 0 ? thisRoomsNtfs.length : "";
+        thisRoomsNtfs.length > 0 ? thisRoomsNtfs.length : '';
     }
     return tabs;
   };
@@ -182,7 +183,7 @@ class Room extends Component {
       privacySetting: this.props.room.privacySetting,
       entryCode: this.props.room.entryCode,
       description: this.props.room.description,
-      instructions: this.props.room.instructions
+      instructions: this.props.room.instructions,
     }));
   };
   // options is for radioButton/checkbox inputs
@@ -200,7 +201,7 @@ class Room extends Component {
       instructions,
       details,
       description,
-      privacySetting
+      privacySetting,
     } = this.state;
     let body = {
       entryCode,
@@ -209,7 +210,7 @@ class Room extends Component {
       details,
       instructions,
       description,
-      privacySetting
+      privacySetting,
     };
     // only send the fields that have changed
     Object.keys(body).forEach(key => {
@@ -219,7 +220,7 @@ class Room extends Component {
     });
     updateRoom(room._id, body);
     this.setState({
-      editing: false
+      editing: false,
     });
   };
 
@@ -257,26 +258,26 @@ class Room extends Component {
       notifications,
       error,
       clearError,
-      course
+      course,
     } = this.props;
     if (room && !this.state.guestMode) {
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
-      let dueDateText = "Due Date"; // the fact that we have to do this make this not worth it
+      let dueDateText = 'Due Date'; // the fact that we have to do this make this not worth it
       let ggb = false;
       let desmos = false;
       room.tabs.forEach(tab => {
-        if (tab.tabType === "geogebra") ggb = true;
-        else if (tab.tabType === "desmos") desmos = true;
+        if (tab.tabType === 'geogebra') ggb = true;
+        else if (tab.tabType === 'desmos') desmos = true;
       });
       let roomType;
-      if (ggb && desmos) roomType = "Geogebra/Desmos";
-      else roomType = ggb ? "Geogebra" : "Desmos";
+      if (ggb && desmos) roomType = 'Geogebra/Desmos';
+      else roomType = ggb ? 'Geogebra' : 'Desmos';
 
       let { updateFail, updateKeys } = this.props.loading;
 
       let additionalDetails = {
         [dueDateText]: (
-          <Error error={updateFail && updateKeys.indexOf("dueDate") > -1}>
+          <Error error={updateFail && updateKeys.indexOf('dueDate') > -1}>
             <EditText
               change={this.updateRoomInfo}
               inputType="date"
@@ -290,13 +291,13 @@ class Room extends Component {
         type: roomType,
         privacy: (
           <Error
-            error={updateFail && updateKeys.indexOf("privacySetting") > -1}
+            error={updateFail && updateKeys.indexOf('privacySetting') > -1}
           >
             <EditText
               change={this.updateRoomInfo}
               inputType="radio"
               editing={this.state.editing}
-              options={["public", "private"]}
+              options={['public', 'private']}
               name="privacySetting"
             >
               {this.state.privacySetting}
@@ -304,14 +305,14 @@ class Room extends Component {
           </Error>
         ),
         facilitators: room.members.reduce((acc, member) => {
-          if (member.role === "facilitator") acc += `${member.user.username} `;
+          if (member.role === 'facilitator') acc += `${member.user.username} `;
           return acc;
-        }, "")
+        }, ''),
       };
 
-      if (room.myRole === "facilitator") {
+      if (room.myRole === 'facilitator') {
         additionalDetails.code = (
-          <Error error={updateFail && updateKeys.indexOf("entryCode") > -1}>
+          <Error error={updateFail && updateKeys.indexOf('entryCode') > -1}>
             <EditText
               change={this.updateRoomInfo}
               inputType="text"
@@ -325,23 +326,23 @@ class Room extends Component {
       }
 
       let crumbs = [
-        { title: "My VMT", link: "/myVMT/rooms" },
-        { title: room.name, link: `/myVMT/rooms/${room._id}/details` }
+        { title: 'My VMT', link: '/myVMT/rooms' },
+        { title: room.name, link: `/myVMT/rooms/${room._id}/details` },
       ];
       //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
       // THE REDUX STORE USING THE COURSE ID IN THE URL
       if (course) {
         crumbs.splice(1, 0, {
           title: course.name,
-          link: `/myVMT/courses/${course._id}/activities`
+          link: `/myVMT/courses/${course._id}/activities`,
         });
       }
       let mainContent;
-      if (this.props.match.params.resource === "details") {
+      if (this.props.match.params.resource === 'details') {
         mainContent = (
           <RoomDetails
             room={room}
-            owner={room.myRole === "facilitator"}
+            owner={room.myRole === 'facilitator'}
             notifications={
               notifications.filter(ntf => ntf.resourceId === room._id) || []
             }
@@ -352,13 +353,13 @@ class Room extends Component {
             loading={this.props.loading}
           />
         );
-      } else if (this.props.match.params.resource === "members") {
+      } else if (this.props.match.params.resource === 'members') {
         mainContent = (
           <Members
             user={user}
             classList={room.members}
-            owner={room.myRole === "facilitator"}
-            resourceType={"room"}
+            owner={room.myRole === 'facilitator'}
+            resourceType={'room'}
             resourceId={room._id}
             parentResource={course ? course._id : null}
             courseMembers={course ? course.members : null}
@@ -367,7 +368,7 @@ class Room extends Component {
             }
           />
         );
-      } else if (this.props.match.params.resource === "settings") {
+      } else if (this.props.match.params.resource === 'settings') {
         mainContent = (
           <RoomSettings
             owner={this.state.owner}
@@ -389,7 +390,7 @@ class Room extends Component {
                 alt={this.state.name}
                 editing={this.state.editing}
                 name={
-                  <Error error={updateFail && updateKeys.indexOf("name") > -1}>
+                  <Error error={updateFail && updateKeys.indexOf('name') > -1}>
                     <EditText
                       change={this.updateRoomInfo}
                       inputType="title"
@@ -402,7 +403,7 @@ class Room extends Component {
                 }
                 subTitle={
                   <Error
-                    error={updateFail && updateKeys.indexOf("description") > -1}
+                    error={updateFail && updateKeys.indexOf('description') > -1}
                   >
                     <EditText
                       change={this.updateRoomInfo}
@@ -414,14 +415,14 @@ class Room extends Component {
                     </EditText>
                   </Error>
                 }
-                owner={room.myRole === "facilitator"}
+                owner={room.myRole === 'facilitator'}
                 additionalDetails={additionalDetails}
                 buttons={
                   <Aux>
                     <span>
                       <Button
                         theme={
-                          this.props.loading.loading ? "SmallCancel" : "Small"
+                          this.props.loading.loading ? 'SmallCancel' : 'Small'
                         }
                         m={10}
                         click={
@@ -429,7 +430,7 @@ class Room extends Component {
                             ? this.goToWorkspace
                             : () => null
                         }
-                        data-testid={"Enter"}
+                        data-testid={'Enter'}
                       >
                         Enter
                       </Button>
@@ -437,7 +438,7 @@ class Room extends Component {
                     <span>
                       <Button
                         theme={
-                          this.props.loading.loading ? "SmallCancel" : "Small"
+                          this.props.loading.loading ? 'SmallCancel' : 'Small'
                         }
                         m={10}
                         click={
@@ -445,7 +446,7 @@ class Room extends Component {
                             ? this.goToReplayer
                             : () => null
                         }
-                        data-testid={"Replayer"}
+                        data-testid={'Replayer'}
                       >
                         Replayer
                       </Button>
@@ -453,12 +454,12 @@ class Room extends Component {
                   </Aux>
                 }
                 editButton={
-                  room.myRole === "facilitator" ? (
+                  room.myRole === 'facilitator' ? (
                     <Aux>
                       <div
                         role="button"
                         style={{
-                          display: this.state.editing ? "none" : "block"
+                          display: this.state.editing ? 'none' : 'block',
                         }}
                         data-testid="edit-room"
                         onClick={this.toggleEdit}
@@ -469,8 +470,8 @@ class Room extends Component {
                         // @TODO this should be a resuable component
                         <div
                           style={{
-                            display: "flex",
-                            justifyContent: "space-around"
+                            display: 'flex',
+                            justifyContent: 'space-around',
                           }}
                         >
                           <Button
@@ -530,17 +531,17 @@ class Room extends Component {
               added to this course in error you can click "leave" and you will
               be removed.
             </p>
-            <div style={{ display: "flex", justifyContent: "space-around" }}>
+            <div style={{ display: 'flex', justifyContent: 'space-around' }}>
               <Button
                 data-testid="join"
-                theme={"Small"}
+                theme={'Small'}
                 click={this.clearFirstViewModal}
               >
                 Join
               </Button>
               <Button
                 data-testid="leave"
-                theme={"Small"}
+                theme={'Small'}
                 click={this.removeMeFromRoom}
               >
                 Leave
@@ -571,7 +572,7 @@ class Room extends Component {
           owners={
             room
               ? room.members
-                  .filter(member => member.role.toLowerCase() === "facilitator")
+                  .filter(member => member.role.toLowerCase() === 'facilitator')
                   .map(member => member.user._id)
               : []
           }
@@ -589,8 +590,8 @@ const mapStateToProps = (state, ownProps) => {
     course: state.courses.byId[course_id] || null,
     // courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
     user: state.user,
-    notifications: getUserNotifications(state.user, null, "room"), // this seems redundant
-    loading: state.loading
+    notifications: getUserNotifications(state.user, null, 'room'), // this seems redundant
+    loading: state.loading,
   };
 };
 
@@ -604,7 +605,7 @@ export default connect(
     updateRoom,
     getRoom,
     removeRoomMember,
-    clearLoadingInfo
+    clearLoadingInfo,
     // populateRoom
   }
 )(Room);

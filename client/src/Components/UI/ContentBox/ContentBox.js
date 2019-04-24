@@ -1,21 +1,21 @@
-import React, { PureComponent } from "react";
-import { Link } from "react-router-dom";
-import classes from "./contentBox.css";
-import Icons from "./Icons/Icons";
-import Aux from "../../HOC/Auxil";
-import Expand from "./expand.js";
-import Notification from "../../Notification/Notification";
+import React, { PureComponent } from 'react';
+import { Link } from 'react-router-dom';
+import classes from './contentBox.css';
+import Icons from './Icons/Icons';
+import Aux from '../../HOC/Auxil';
+import Expand from './expand.js';
+import Notification from '../../Notification/Notification';
 
 class ContentBox extends PureComponent {
   state = {
-    expanded: false
+    expanded: false,
   };
 
   toggleExpand = event => {
     event.preventDefault();
     let prevState = this.state.expanded;
     this.setState({
-      expanded: !prevState
+      expanded: !prevState,
     });
   };
 
@@ -24,7 +24,7 @@ class ContentBox extends PureComponent {
       this.props.notifications > 0 ? (
         <Notification
           count={this.props.notifications}
-          dataTestId={"content-box-ntf"}
+          dataTestId={'content-box-ntf'}
         />
       ) : null;
     return (
@@ -58,7 +58,7 @@ class ContentBox extends PureComponent {
                 style={{
                   transform: this.state.expanded
                     ? `rotate(180deg)`
-                    : `rotate(0)`
+                    : `rotate(0)`,
                 }}
               >
                 <Expand clickHandler={this.toggleExpand} />
@@ -67,10 +67,10 @@ class ContentBox extends PureComponent {
             <div className={classes.Content}>
               {this.props.details && this.state.expanded ? (
                 <div className={classes.Expanded}>
-                  <div>{this.props.details.description || ""}</div>
+                  <div>{this.props.details.description || ''}</div>
                   {this.props.details.facilitators.length > 0 ? (
                     <div>
-                      Facilitators:{" "}
+                      Facilitators:{' '}
                       {this.props.details.facilitators.map(
                         facilitator => facilitator
                       )}

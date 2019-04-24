@@ -5,10 +5,11 @@ import {
   addUserRooms,
   addRoomMember,
   addUserCourses,
-  addCourseMember
-} from "./index";
-import * as loading from "./loading";
-import API from "../../utils/apiRequests";
+  addCourseMember,
+} from './index';
+import * as loading from './loading';
+import { buildLog } from '../utils';
+import API from '../../utils/apiRequests';
 
 export const joinWithCode = (
   resource,
@@ -18,30 +19,38 @@ export const joinWithCode = (
   entryCode
 ) => {
   return dispatch => {
+    console.log('entering with code');
     API.enterWithCode(resource, resourceId, userId, entryCode)
       .then(res => {
-        if (resource === "rooms") {
+        console.log('ENtRY WIH CODE success!: ', res);
+        if (resource === 'rooms') {
           dispatch(addUserRooms([resourceId]));
+          // let room = res.data.result;
+          // room.log = buildLog(room.tabs, room.chat);
+          // console.log(room.log);
+          // dispatch(updatedRoom(room._id, room.tabs));
           dispatch(
-            addRoomMember(resourceId, {
-              role: "participant",
-              user: { _id: userId, username: username }
-            })
+            addRoomMember(
+              resourceId,
+              res.data.members[res.data.members.length - 1]
+            )
           );
-        } else if (resource === "courses") {
+        } else if (resource === 'courses') {
           dispatch(addUserCourses([resourceId]));
           dispatch(
             addCourseMember(resourceId, {
-              role: "participant",
-              user: { _id: userId, username: username }
+              role: 'participant',
+              user: { _id: userId, username: username },
             })
           );
         }
+
         return dispatch(loading.success());
       })
-      .catch(err =>
-        dispatch(loading.fail("That entry code was incorrect. Try again."))
-      );
+      .catch(err => {
+        console.log(err);
+        dispatch(loading.fail('That entry code was incorrect. Try again.'));
+      });
   };
 };
 
@@ -69,12 +78,12 @@ export const grantAccess = (user, resource, resourceId, ntfId, toUserId) => {
         // dispatch(gotUser(res.data))
       })
       .catch(err => console.log(err));
-    API.grantAccess(user, resource, resourceId, "grantedAccess")
+    API.grantAccess(user, resource, resourceId, 'grantedAccess')
       .then(res => {
-        console.log("res", res);
-        if (resource === "rooms" || resource === "room") {
+        console.log('res', res);
+        if (resource === 'rooms' || resource === 'room') {
           dispatch(updatedRoom(resourceId, { members: res.data })); // change to add
-        } else if (resource === "courses" || resource === "course") {
+        } else if (resource === 'courses' || resource === 'course') {
           dispatch(updatedCourse(resourceId, { members: res.data })); // change to add
         }
         // let { user } = getState()

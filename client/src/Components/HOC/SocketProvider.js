@@ -1,8 +1,8 @@
-import { Component } from "react";
-import socket from "../../utils/sockets";
-import { normalize } from "../../store/utils/normalize";
-import { connect } from "react-redux";
-import { capitalize } from "lodash";
+import { Component } from 'react';
+import socket from '../../utils/sockets';
+import { normalize } from '../../store/utils';
+import { connect } from 'react-redux';
+import { capitalize } from 'lodash';
 import {
   addNotification,
   addUserCourses,
@@ -13,22 +13,24 @@ import {
   addCourseRooms,
   addRoomMember,
   addCourseMember,
-  updateUser
-} from "../../store/actions";
+  updateUser,
+  clearError,
+} from '../../store/actions';
 
 class SocketProvider extends Component {
   state = {
-    initializedCount: 0
+    initializedCount: 0,
   };
   componentDidMount() {
     if (this.props.user.loggedIn) {
+      this.props.clearError(); // get rid of any lingering errors in the store from their last session
       this.props.getUser(this.props.user._id);
-      socket.on("connect", () => {
+      socket.on('connect', () => {
         // @TODO consider doing this on the backend...we're trgin to make sure the socketId stored on the user obj in the db is fresh.
         // Why dont we just, every time a socket connects on the backend, grab the user obj and go update their socketId
         let userId = this.props.user._id;
         let socketId = socket.id;
-        socket.emit("SYNC_SOCKET", { socketId, userId }, (res, err) => {
+        socket.emit('SYNC_SOCKET', { socketId, userId }, (res, err) => {
           if (err) {
             //something went wrong updatnig user socket
             // THIS MEANS WE WONT GET NOTIFICATIONS
@@ -50,9 +52,10 @@ class SocketProvider extends Component {
 
   componentDidUpdate(prevProps) {
     if (!prevProps.user.loggedIn && this.props.user.loggedIn) {
+      this.props.clearError();
       let userId = this.props.user._id;
       let socketId = socket.id;
-      socket.emit("SYNC_SOCKET", { socketId, userId }, (res, err) => {
+      socket.emit('SYNC_SOCKET', { socketId, userId }, (res, err) => {
         if (err) {
           this.props.updateUser({ connected: false });
           return;
@@ -66,20 +69,20 @@ class SocketProvider extends Component {
 
   initializeListeners() {
     socket.removeAllListeners();
-    socket.on("NEW_NOTIFICATION", data => {
+    socket.on('NEW_NOTIFICATION', data => {
       let { notification, course, room } = data;
       let type = notification.notificationType;
       let resource = notification.resourceType;
 
       this.props.addNotification(notification);
 
-      if (type === "newMember") {
+      if (type === 'newMember') {
         // add new member to room
         let actionName = `add${capitalize(resource)}Member`;
         let { _id, username } = notification.fromUser;
         this.props[actionName](notification.resourceId, {
           user: { _id, username },
-          role: "participant"
+          role: 'participant',
         });
       }
       if (course) {
@@ -100,14 +103,14 @@ class SocketProvider extends Component {
       }
     });
 
-    socket.on("disconnect", () => {
+    socket.on('disconnect', () => {
       this.props.updateUser({ connected: false });
     });
 
-    socket.on("reconnect", attemptNumber => {
+    socket.on('reconnect', attemptNumber => {
       let userId = this.props.user._id;
       let socketId = socket.id;
-      socket.emit("SYNC_SOCKET", { socketId, userId }, (res, err) => {
+      socket.emit('SYNC_SOCKET', { socketId, userId }, (res, err) => {
         if (err) {
           //something went wrong updatnig user socket
           // HOW SHOULD WE HANDLE THIS @TODO
@@ -146,6 +149,7 @@ export default connect(
     addCourseRooms,
     addRoomMember,
     addCourseMember,
-    updateUser
+    updateUser,
+    clearError,
   }
 )(SocketProvider);

@@ -299,8 +299,15 @@ class Workspace extends Component {
   };
 
   resetControlTimer = () => {
+    this.time = Date.now();
+    console.log('resetting controltime @ ', this.time);
     clearTimeout(this.controlTimer);
     this.controlTimer = setTimeout(() => {
+      console.log(
+        'togglingControl from timer after ',
+        (Date.now() - this.time) / 1000,
+        ' SECONDS'
+      );
       this.toggleControl();
     }, 60 * 1000);
   };
@@ -405,7 +412,6 @@ class Workspace extends Component {
 
   render() {
     const { room, user } = this.props;
-    console.log(room);
     let control = 'OTHER';
     if (room.controlledBy === user._id) control = 'ME';
     else if (!room.controlledBy) control = 'NONE';
@@ -438,7 +444,7 @@ class Workspace extends Component {
       <Chat
         roomId={room._id}
         messages={room.chat || []}
-        log={room.log}
+        log={room.log || []}
         addToLog={this.props.addToLog}
         // socket={socket}
         myColor={this.state.myColor}
@@ -519,7 +525,7 @@ class Workspace extends Component {
                 inControl={control}
                 goBack={this.goBack}
                 toggleControl={this.toggleControl}
-                lastEvent={room.log[room.log.length - 1]}
+                lastEvent={room.log ? room.log[room.log.length - 1] : {}}
                 save={this.props.save ? this.props.save : null}
                 // TEMP ROOM NEEDS TO KNOW IF ITS BEEN SAVED...pass that along as props
               />

@@ -40,7 +40,6 @@ class SharedReplayer extends Component {
     // @TODO We should never populate the tabs events before getting here
     // we dont need them for the regular room activity only for playback
     if (!this.props.encompass) {
-      console.log('populating room');
       this.props.populateRoom(this.props.match.params.room_id, {
         events: true,
       });
@@ -212,7 +211,6 @@ class SharedReplayer extends Component {
 
   setTabLoaded = id => {
     this.tabsLoaded++;
-    console.log('TAB LOADED: ', this.tabsLoaded);
     if (this.tabsLoaded === this.props.room.tabs.length) {
       this.setState({ allTabsLoaded: true });
     }
