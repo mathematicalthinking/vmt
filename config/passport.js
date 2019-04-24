@@ -108,13 +108,12 @@ module.exports = passport => {
           // match: { "rooms.0": "$exists" },
           select: '-currentState',
           // populate: { path: "currentMembers.user", select: "username" },
-          populate: { path: 'tabs' },
-          populate: { path: 'members.user', select: 'username' },
+          populate: { path: 'tabs members.user', select: 'username tabType' },
           options: { sort: { createdAt: -1 } },
         })
         .populate({
           path: 'activities',
-          populate: { path: 'tabs', select: 'name tabType' },
+          populate: { path: 'tabs', select: 'tabType' },
           options: { sort: { createdAt: -1 } },
         })
         .populate({
@@ -123,8 +122,8 @@ module.exports = passport => {
         })
         // .exec()
         .then(user => {
-          console.log('TAB ON LOGIN: ', user.rooms[0].tabs);
-          console.log('MEMBERS: ', user.rooms[0].members);
+          console.log('TABs ON LOGIN: ', user.rooms[0].members[0].user);
+          // console.log('MEMBERS: ', user.rooms[0].members);
           // if (user.rooms.length > 0) {
           //   user.rooms.populate({ path: "members.user", select: "username" });
           // }
