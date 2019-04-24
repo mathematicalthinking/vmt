@@ -30,10 +30,10 @@ export const joinWithCode = (
           // console.log(room.log);
           // dispatch(updatedRoom(room._id, room.tabs));
           dispatch(
-            addRoomMember(resourceId, {
-              role: 'participant',
-              user: { _id: userId, username: username },
-            })
+            addRoomMember(
+              resourceId,
+              res.data.members[res.data.members.length - 1]
+            )
           );
         } else if (resource === 'courses') {
           dispatch(addUserCourses([resourceId]));
