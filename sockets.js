@@ -158,7 +158,9 @@ module.exports = function() {
         .post(postData)
         .then(res => {
           console.log(res);
-          socket.broadcast.to(data.room).emit('RECEIVE_MESSAGE', res);
+          socket.broadcast
+            .to(data.room)
+            .emit('RECEIVE_MESSAGE', { ...data, _id: res._id });
           callback(res, null);
         })
         .catch(err => {
