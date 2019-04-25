@@ -157,7 +157,6 @@ module.exports = function() {
       controllers.messages
         .post(postData)
         .then(res => {
-          console.log(res);
           socket.broadcast
             .to(data.room)
             .emit('RECEIVE_MESSAGE', { ...data, _id: res._id });

@@ -825,7 +825,7 @@ class GgbGraph extends Component {
       let xOffset = ggbCoords.width - width + parseInt(xZero, 10) + elX * scale;
       let yOffset =
         ggbCoords.height - height + parseInt(yZero, 10) - elY * yScale;
-      resolve({ left: xOffset, top: yOffset });
+      resolve({ left: xOffset, top: yOffset + 36 });
     });
   };
 
@@ -847,7 +847,14 @@ class GgbGraph extends Component {
         />
         <div
           className={classes.Graph}
-          style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            border: '1px solid red',
+          }}
           id={`ggb-element${this.props.tabId}A`}
           ref={this.graph}
         />

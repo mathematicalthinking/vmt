@@ -90,6 +90,12 @@ class Workspace extends Component {
     }
   }
 
+  componentWillUnmount() {
+    socket.emit('LEAVE_ROOM', this.state.myColor, res => {
+      console.log('sucess: ', res);
+    });
+  }
+
   initializeListeners() {
     socket.removeAllListeners('USER_JOINED');
     socket.removeAllListeners('CREATED_TAB');
