@@ -110,8 +110,7 @@ module.exports = function() {
         let results;
         try {
           results = await Promise.all(promises);
-          console.log('CURRENT MEMBERS SHOULD BE POPULATED');
-          console.log(results[1].currentMembers);
+          console.log('POPPED ROOM: ', results[1]);
           socket.to(data.roomId).emit('USER_JOINED', {
             currentMembers: results[1].currentMembers,
             message,

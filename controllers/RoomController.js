@@ -401,11 +401,18 @@ module.exports = {
         ? { $addToSet: { currentMembers: newCurrentUserId, members: members } }
         : { $addToSet: { currentMembers: newCurrentUserId } };
       db.Room.findByIdAndUpdate(roomId, query, { new: true })
-        .populate({ path: 'currentMembers', select: 'username' })
         // .populate({ path: 'members.user', select: 'username' })
         .select('currentMembers members')
         .then(room => {
-          resolve(room);
+          room.populate(
+            { path: 'currentMembers members.user', select: 'username' },
+            (err, poppedRoom) => {
+              if (err) {
+                reject(err);
+              }
+              resolve(poppedRoom);
+            }
+          );
         })
         .catch(err => reject(err));
     });
