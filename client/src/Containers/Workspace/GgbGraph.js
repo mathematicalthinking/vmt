@@ -131,18 +131,20 @@ class GgbGraph extends Component {
         ];
       }
 
+      if (!prevProps.referencing && this.props.referencing) {
+        console.log('referencing now');
+        this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
+      } else if (prevProps.referencing && !this.props.referencing) {
+        console.log('setting mode to 40');
+        this.ggbApplet.setMode(40);
+      }
       // Control
       let wasInControl = prevProps.room.controlledBy === this.props.user._id;
       let isInControl = this.props.room.controlledBy === this.props.user._id;
       if (!wasInControl && isInControl) {
         this.ggbApplet.setMode(0);
       } else if (wasInControl && !isInControl) {
-        this.ggbApplet.setMode(40);
-      }
-      if (!prevProps.referencing && this.props.referencing) {
-        console.log('referencing now');
-        this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
-      } else if (prevProps.referencing && !this.props.referencing) {
+        console.log('setting mode to 40');
         this.ggbApplet.setMode(40);
       }
 
@@ -399,10 +401,11 @@ class GgbGraph extends Component {
         // zoom tool or the user is referencing and only using the pointer tool
         if (
           event[2] === '40' ||
-          (this.props.referencing && event[2] === 0) ||
+          (this.props.referencing && event[2] === '0') ||
           (this.previousEvent.action === 'mode' &&
             this.previousEvent.label === event[2])
         ) {
+          console.log('we should be in here ', event[2]);
           return;
         } else if (this.userCanEdit()) {
           // throttled because of a bug in Geogebra that causes this to fire twice
