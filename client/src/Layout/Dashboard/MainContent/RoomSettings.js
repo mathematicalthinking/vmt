@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import classes from "./roomSettings.css";
-import { RadioBtn } from "../../../Components/";
+import React, { Component } from 'react';
+import classes from './roomSettings.css';
+import { RadioBtn } from '../../../Components/';
 class RoomSettings extends Component {
   toggleCreateTabs = event => {
     let { roomId, settings } = this.props;
@@ -36,7 +36,7 @@ class RoomSettings extends Component {
           No
         </RadioBtn>
         <h2 className={classes.Heading}>
-          Participants can change the perspective (Geogebra)
+          Participants can change the perspective (GeoGebra)
         </h2>
         <RadioBtn
           name="changePerspective"
@@ -63,11 +63,11 @@ class RoomSettings extends Component {
     ) : (
       <div>
         <h2 className={classes.Heading}>Participants can create new Tabs</h2>
-        <div>{settings.participantsCanCreateTabs ? "Yes" : "No"}</div>
+        <div>{settings.participantsCanCreateTabs ? 'Yes' : 'No'}</div>
         <h2 className={classes.Heading}>
           Participants can change the Perspective (GeoGebra)
         </h2>
-        <div>{settings.participantsCanChangePerspective ? "Yes" : "No"}</div>
+        <div>{settings.participantsCanChangePerspective ? 'Yes' : 'No'}</div>
       </div>
     );
   }

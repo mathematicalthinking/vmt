@@ -1,9 +1,9 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 // import { CustomLink } from 'react-router-dom';
-import BoxList from "../BoxList/BoxList";
-import { Search, CustomLink, Button, RadioBtn } from "../../Components/";
+import BoxList from '../BoxList/BoxList';
+import { Search, CustomLink, Button, RadioBtn } from '../../Components/';
 // import Button from '../../Components/UI/Button/Button';
-import classes from "./community.css";
+import classes from './community.css';
 class Community extends Component {
   shouldComponentUpdate(nextProps) {
     if (nextProps === this.props) {
@@ -17,7 +17,7 @@ class Community extends Component {
       linkPath,
       linkSuffix,
       filters,
-      toggleFilter
+      toggleFilter,
     } = this.props;
 
     return (
@@ -40,40 +40,40 @@ class Community extends Component {
           <div className={classes.Search}>
             <Search
               _search={value => this.props.setCriteria(value)}
-              placeholder={"Search..."}
+              placeholder={'Search...'}
             />
           </div>
           <div className={classes.Filter}>
-            <i className={["fas fa-sliders-h", classes.FilterIcon].join(" ")} />
+            <i className={['fas fa-sliders-h', classes.FilterIcon].join(' ')} />
             <div className={classes.FilterGroup}>
               <RadioBtn
-                check={() => toggleFilter("public")}
-                checked={filters.privacySetting === "public"}
-                name={"Public"}
+                check={() => toggleFilter('public')}
+                checked={filters.privacySetting === 'public'}
+                name={'Public'}
               >
                 Public
               </RadioBtn>
               <RadioBtn
-                check={() => toggleFilter("private")}
-                checked={filters.privacySetting === "private"}
-                name={"Private"}
+                check={() => toggleFilter('private')}
+                checked={filters.privacySetting === 'private'}
+                name={'Private'}
               >
                 Private
               </RadioBtn>
             </div>
-            {resource !== "courses" ? (
+            {resource !== 'courses' ? (
               <div className={classes.FilterGroup}>
                 <RadioBtn
-                  check={() => toggleFilter("geogebra")}
-                  checked={filters.roomType === "geogebra"}
-                  name={"Geogebra"}
+                  check={() => toggleFilter('geogebra')}
+                  checked={filters.roomType === 'geogebra'}
+                  name={'GeoGebra'}
                 >
                   GeoGebra
                 </RadioBtn>
                 <RadioBtn
-                  check={() => toggleFilter("desmos")}
-                  checked={filters.roomType === "desmos"}
-                  name={"Desmos"}
+                  check={() => toggleFilter('desmos')}
+                  checked={filters.roomType === 'desmos'}
+                  name={'Desmos'}
                 >
                   Desmos
                 </RadioBtn>

@@ -1,27 +1,27 @@
-import React, { Component } from "react";
-import classes from "./create.css";
-import { Modal, TextInput, Button, RadioBtn } from "../../../Components";
+import React, { Component } from 'react';
+import classes from './create.css';
+import { Modal, TextInput, Button, RadioBtn } from '../../../Components';
 class NewResource extends Component {
   state = {
-    name: "",
-    description: "",
-    dueDate: "",
+    name: '',
+    description: '',
+    dueDate: '',
     ggb: false,
-    ggbFile: "",
-    desmosLink: "",
-    privacySetting: "public"
+    ggbFile: '',
+    desmosLink: '',
+    privacySetting: 'public',
   };
 
   componentDidMount() {
-    window.addEventListener("keypress", this.onKeyPress);
+    window.addEventListener('keypress', this.onKeyPress);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("keypress", this.onKeyPress);
+    window.removeEventListener('keypress', this.onKeyPress);
   }
 
   onKeyPress = event => {
-    if (event.key === "Enter") {
+    if (event.key === 'Enter') {
       this.submit();
     }
   };
@@ -29,7 +29,7 @@ class NewResource extends Component {
   changeHandler = event => {
     this.setState({
       [event.target.name]: event.target.value,
-      errorMessage: null
+      errorMessage: null,
     });
   };
 
@@ -37,7 +37,7 @@ class NewResource extends Component {
     let updatedName = this.state.name;
     if (updatedName.trim().length <= 1) {
       this.setState({
-        errorMessage: "Please provide a name"
+        errorMessage: 'Please provide a name',
       });
       return;
     }
@@ -75,7 +75,7 @@ class NewResource extends Component {
                 data-testid={`${resource}-description`}
               />
             </div>
-            {resource === "activities" || resource === "rooms" ? (
+            {resource === 'activities' || resource === 'rooms' ? (
               <div className={classes.FormSection}>
                 <div className={classes.RadioButtons}>
                   <RadioBtn
@@ -97,7 +97,7 @@ class NewResource extends Component {
                   <div className={classes.Geogebra}>
                     <div>Import a GeoGebra workspace</div>
                     <div className={classes.GeogebraButton}>
-                      <Button>Select a Geogebra File</Button>
+                      <Button>Select a GeoGebra File</Button>
                     </div>
                   </div>
                 ) : (
@@ -111,7 +111,7 @@ class NewResource extends Component {
                 )}
               </div>
             ) : null}
-            {resource === "rooms" ? (
+            {resource === 'rooms' ? (
               <div className={classes.FormSection}>
                 <TextInput
                   light
@@ -126,15 +126,15 @@ class NewResource extends Component {
               <div className={classes.RadioButtons}>
                 <RadioBtn
                   name="public"
-                  checked={this.state.privacySetting === "public"}
-                  check={() => this.setState({ privacySetting: "public" })}
+                  checked={this.state.privacySetting === 'public'}
+                  check={() => this.setState({ privacySetting: 'public' })}
                 >
                   Public
                 </RadioBtn>
                 <RadioBtn
                   name="private"
-                  checked={this.state.privacySetting === "private"}
-                  check={() => this.setState({ privacySetting: "private" })}
+                  checked={this.state.privacySetting === 'private'}
+                  check={() => this.setState({ privacySetting: 'private' })}
                 >
                   Private
                 </RadioBtn>
@@ -148,7 +148,7 @@ class NewResource extends Component {
             <div className={classes.Submit}>
               <div className={classes.Button}>
                 <Button
-                  theme={"Small"}
+                  theme={'Small'}
                   data-testid={`${resource}-submit`}
                   m={5}
                   click={this.submit}
@@ -157,7 +157,7 @@ class NewResource extends Component {
                 </Button>
               </div>
               <div className={classes.Button}>
-                <Button theme={"Cancel"} m={5} click={close}>
+                <Button theme={'Cancel'} m={5} click={close}>
                   Cancel
                 </Button>
               </div>

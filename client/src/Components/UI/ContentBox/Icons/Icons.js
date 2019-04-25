@@ -36,7 +36,7 @@ const Icons = React.memo(props => {
     </ToolTip>
   );
   let ggbImageAndToolTip = (
-    <ToolTip text={'Geogebra'} delay={600}>
+    <ToolTip text={'GeoGebra'} delay={600}>
       <div className={classes.Icon}>
         <img width={28} src={ggbIcon} alt="ggb" />
       </div>
@@ -51,7 +51,7 @@ const Icons = React.memo(props => {
     });
     if (des && ggb) {
       roomType = (
-        <ToolTip text={'Geogebra/Desmos'} delay={600}>
+        <ToolTip text={'GeoGebra/Desmos'} delay={600}>
           <div className={classes.Icon}>
             <img width={25} src={bothIcon} alt="ggb" />
           </div>
