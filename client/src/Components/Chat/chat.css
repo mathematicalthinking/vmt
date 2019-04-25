@@ -1,4 +1,4 @@
-:import("../../colors.css") {
+:import('../../colors.css') {
   blue: blue;
   blueHover: blueHover;
   gray: backgroundGray;
@@ -27,6 +27,7 @@
   background-color: rgb(245, 245, 245);
   border-radius: 3px 3px 0 0;
   color: black;
+  z-index: 300;
   font-size: 17px;
   letter-spacing: 1.12px;
   cursor: pointer;
@@ -108,6 +109,7 @@
   height: 40px;
   display: flex;
   flex-shrink: 0;
+  z-index: 300;
   align-items: flex-end;
   width: 100%;
   background-color: #f8f8f9;
@@ -153,10 +155,9 @@
   display: flex;
   flex-flow: column;
   width: 100%;
-  border: 4px solid transparent;
   font-size: 15px;
   /* width: 90%; */
-  /* border: 1px solid red; */
+  border: 2px solid transparent;
 }
 
 .Timestamp {

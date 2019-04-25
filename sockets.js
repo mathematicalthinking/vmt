@@ -157,8 +157,9 @@ module.exports = function() {
       controllers.messages
         .post(postData)
         .then(res => {
-          socket.broadcast.to(data.room).emit('RECEIVE_MESSAGE', data);
-          callback('success', null);
+          console.log(res);
+          socket.broadcast.to(data.room).emit('RECEIVE_MESSAGE', res);
+          callback(res, null);
         })
         .catch(err => {
           callback('fail', err);

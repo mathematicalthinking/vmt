@@ -328,7 +328,11 @@ class Workspace extends Component {
     referFromCoords,
     tab
   ) => {
-    if (tab !== this.state.currentTab) {
+    console.log(referToEl);
+    if (
+      tab !== this.state.currentTab &&
+      referToEl.elementType !== 'chat_message'
+    ) {
       alert('This reference does not belong to this tab'); //@TODO HOW SHOULD WE HANDLE THIS?
     } else {
       this.setState({
@@ -413,6 +417,7 @@ class Workspace extends Component {
   render() {
     const { room, user } = this.props;
     let control = 'OTHER';
+    console.log(this.state.referFromCoords, this.state.referToCoords);
     if (room.controlledBy === user._id) control = 'ME';
     else if (!room.controlledBy) control = 'NONE';
     let currentMembers = (
@@ -500,6 +505,10 @@ class Workspace extends Component {
             tabId={i}
             addNtfToTabs={this.addNtfToTabs}
             isFirstTabLoaded={this.state.isFirstTabLoaded}
+            referToEl={this.state.referToEl}
+            showingReference={this.state.showingReference}
+            referencing={this.state.referencing}
+            setToElAndCoords={this.setToElAndCoords}
             setFirstTabLoaded={() => {
               this.setState({ isFirstTabLoaded: true });
             }}
@@ -527,6 +536,9 @@ class Workspace extends Component {
                 toggleControl={this.toggleControl}
                 lastEvent={room.log ? room.log[room.log.length - 1] : {}}
                 save={this.props.save ? this.props.save : null}
+                referencing={this.state.referencing}
+                startNewReference={this.startNewReference}
+                clearReference={this.clearReference}
                 // TEMP ROOM NEEDS TO KNOW IF ITS BEEN SAVED...pass that along as props
               />
             }
