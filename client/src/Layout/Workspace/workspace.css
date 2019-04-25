@@ -117,6 +117,7 @@
   flex: 1 0 auto;
   /* width: 75%; */
   display: flex;
+  width: 80%;
   flex-direction: column;
   flex-wrap: nowrap;
   justify-content: flex-start;
