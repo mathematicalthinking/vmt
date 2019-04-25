@@ -67,7 +67,10 @@ class WorkspaceLayout extends Component {
         {!encompass ? <div className={classes.Background} /> : null}
         <div className={classes.Container}>
           <div className={classes.Left}>
-            <div className={classes.WorkspaceTabs}>{tabs}</div>
+            <div className={classes.TabsAndTitle}>
+              <div className={classes.WorkspaceTabs}>{tabs}</div>
+              <h2 className={classes.Title}>{roomName}</h2>
+            </div>
             <div
               ref={this.Graph}
               className={[
@@ -105,7 +108,6 @@ class WorkspaceLayout extends Component {
             ) : null}
           </div>
           <div className={classes.Right}>
-            <h2 className={classes.Title}>{roomName}</h2>
             <div
               className={classes.Chat}
               style={{ height: chatHeight, flexBasis: flexB }}

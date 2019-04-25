@@ -1,4 +1,4 @@
-:import("../../colors.css") {
+:import('../../colors.css') {
   orange: orange;
   red: red;
 }
@@ -16,7 +16,7 @@
 
 .TabNotification {
   position: absolute;
-  right: 13px;
+  right: 9px;
   top: 0px;
   background: red;
   height: 25px;
