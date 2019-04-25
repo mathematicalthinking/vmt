@@ -19,7 +19,7 @@ module.exports = {
       db.Room.find(params)
         .sort('-createdAt')
         .populate({ path: 'members.user', select: 'username' })
-        .populate({ path: 'currentMembers.user', select: 'username' })
+        .populate({ path: 'currentMembers', select: 'username' })
         .populate({ path: 'tabs', select: 'name tabType' })
         .then(rooms => {
           // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
@@ -39,7 +39,7 @@ module.exports = {
           select: '-room',
         })
         .populate({ path: 'members.user', select: 'username' })
-        .populate({ path: 'currentMembers', select: 'username' })
+        .populate({ path: 'currentMembers.user', select: 'username' })
         .populate({ path: 'course', select: 'name' })
         .populate({
           path: 'tabs',
@@ -401,11 +401,18 @@ module.exports = {
         ? { $addToSet: { currentMembers: newCurrentUserId, members: members } }
         : { $addToSet: { currentMembers: newCurrentUserId } };
       db.Room.findByIdAndUpdate(roomId, query, { new: true })
-        .populate({ path: 'currentMembers', select: 'username' })
-        .populate({ path: 'members.user', select: 'username' })
+        // .populate({ path: 'members.user', select: 'username' })
         .select('currentMembers members')
         .then(room => {
-          resolve(room);
+          room.populate(
+            { path: 'currentMembers members.user', select: 'username' },
+            (err, poppedRoom) => {
+              if (err) {
+                reject(err);
+              }
+              resolve(poppedRoom);
+            }
+          );
         })
         .catch(err => reject(err));
     });
