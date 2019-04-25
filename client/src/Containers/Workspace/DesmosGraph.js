@@ -21,8 +21,6 @@ class DesmosGraph extends Component {
   calculatorRef = React.createRef();
 
   componentDidMount() {
-    console.log(this.state);
-    console.log(this.props);
     window.addEventListener('keydown', this.allowKeypressCheck);
     // If we have multiple desmos tabs we'll already have a Desmos object attached to the window
     // and thus we dont need to load the desmos script. Eventually abstract out the commonalities
@@ -140,7 +138,6 @@ class DesmosGraph extends Component {
       }
       let { room, tabId, user } = this.props;
       let currentState = this.calculator.getState();
-      console.log('currnet state changed ', currentState);
       if (!this.state.receivingEvent) {
         let statesAreEqual = this.areDesmosStatesEqual(currentState);
         if (statesAreEqual) return;
@@ -149,7 +146,6 @@ class DesmosGraph extends Component {
           this.undoing = true;
           document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
           // we have the global keypress listener to prevent typing if controlWarning is being shown
-          console.log('setting control warning to true after obersving change');
           return this.setState({ showControlWarning: true });
         }
         let currentStateString = JSON.stringify(currentState);

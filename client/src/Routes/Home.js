@@ -35,7 +35,6 @@ class Home extends PureComponent {
   };
 
   render() {
-    console.log(this.props.location.pathname);
     return (
       <Aux>
         {this.props.location.pathname.indexOf('community') > -1 ? (

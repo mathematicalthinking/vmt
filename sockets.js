@@ -157,8 +157,9 @@ module.exports = function() {
       controllers.messages
         .post(postData)
         .then(res => {
-          console.log(res);
-          socket.broadcast.to(data.room).emit('RECEIVE_MESSAGE', res);
+          socket.broadcast
+            .to(data.room)
+            .emit('RECEIVE_MESSAGE', { ...data, _id: res._id });
           callback(res, null);
         })
         .catch(err => {
@@ -228,7 +229,6 @@ module.exports = function() {
       controllers.rooms
         .removeCurrentUsers(room, socket.user_id)
         .then(res => {
-          console.log('USE LEFT: ', res.currentMembers);
           let removedMember = {};
           if (res && res.currentMembers) {
             let currentMembers = res.currentMembers.filter(member => {

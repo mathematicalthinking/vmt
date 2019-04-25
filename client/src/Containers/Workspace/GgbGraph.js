@@ -132,10 +132,8 @@ class GgbGraph extends Component {
       }
 
       if (!prevProps.referencing && this.props.referencing) {
-        console.log('referencing now');
         this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
       } else if (prevProps.referencing && !this.props.referencing) {
-        console.log('setting mode to 40');
         this.ggbApplet.setMode(40);
       }
       // Control
@@ -144,7 +142,6 @@ class GgbGraph extends Component {
       if (!wasInControl && isInControl) {
         this.ggbApplet.setMode(0);
       } else if (wasInControl && !isInControl) {
-        console.log('setting mode to 40');
         this.ggbApplet.setMode(40);
       }
 
@@ -405,7 +402,6 @@ class GgbGraph extends Component {
           (this.previousEvent.action === 'mode' &&
             this.previousEvent.label === event[2])
         ) {
-          console.log('we should be in here ', event[2]);
           return;
         } else if (this.userCanEdit()) {
           // throttled because of a bug in Geogebra that causes this to fire twice
@@ -587,9 +583,7 @@ class GgbGraph extends Component {
    */
 
   clickListener = async element => {
-    console.log('HELLO!~');
     if (this.props.referencing) {
-      console.log('we are referencing');
       let elementType = this.ggbApplet.getObjectType(element);
       let position;
       if (elementType !== 'point') {
@@ -825,7 +819,8 @@ class GgbGraph extends Component {
       let xOffset = ggbCoords.width - width + parseInt(xZero, 10) + elX * scale;
       let yOffset =
         ggbCoords.height - height + parseInt(yZero, 10) - elY * yScale;
-      resolve({ left: xOffset, top: yOffset });
+      // this + 36 here is a hack...
+      resolve({ left: xOffset, top: yOffset + 36 });
     });
   };
 
@@ -847,7 +842,13 @@ class GgbGraph extends Component {
         />
         <div
           className={classes.Graph}
-          style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+          }}
           id={`ggb-element${this.props.tabId}A`}
           ref={this.graph}
         />

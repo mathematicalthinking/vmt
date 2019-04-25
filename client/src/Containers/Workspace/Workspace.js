@@ -11,7 +11,7 @@ import {
 } from '../../store/actions';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from './';
-import { Modal, Aux, CurrentMembers, Loading } from '../../Components';
+import { Modal, CurrentMembers, Loading } from '../../Components';
 import NewTabForm from '../Create/NewTabForm';
 import socket from '../../utils/sockets';
 import COLOR_MAP from '../../utils/colorMap';
@@ -88,6 +88,10 @@ class Workspace extends Component {
       let auto = true;
       this.toggleControl(null, auto);
     }
+  }
+
+  componentWillUnmount() {
+    socket.emit('LEAVE_ROOM', this.state.myColor, res => {});
   }
 
   initializeListeners() {
@@ -300,14 +304,8 @@ class Workspace extends Component {
 
   resetControlTimer = () => {
     this.time = Date.now();
-    console.log('resetting controltime @ ', this.time);
     clearTimeout(this.controlTimer);
     this.controlTimer = setTimeout(() => {
-      console.log(
-        'togglingControl from timer after ',
-        (Date.now() - this.time) / 1000,
-        ' SECONDS'
-      );
       this.toggleControl();
     }, 60 * 1000);
   };
@@ -328,7 +326,6 @@ class Workspace extends Component {
     referFromCoords,
     tab
   ) => {
-    console.log(referToEl);
     if (
       tab !== this.state.currentTab &&
       referToEl.elementType !== 'chat_message'
@@ -417,7 +414,6 @@ class Workspace extends Component {
   render() {
     const { room, user } = this.props;
     let control = 'OTHER';
-    console.log(this.state.referFromCoords, this.state.referToCoords);
     if (room.controlledBy === user._id) control = 'ME';
     else if (!room.controlledBy) control = 'NONE';
     let currentMembers = (

@@ -43,7 +43,6 @@ const boxList = React.memo(props => {
         } else if (item.creator) {
           details = { creator: item.creator.username };
         }
-        console.log(item.tabs);
         return (
           <div className={classes.ContentBox} key={i}>
             {!props.draggable ? (

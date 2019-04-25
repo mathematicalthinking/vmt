@@ -95,7 +95,6 @@ class Room extends Component {
     }
     // else fetch it
     else {
-      console.log('we dont have the room so we fetchin it');
       this.fetchRoom();
     }
   }
