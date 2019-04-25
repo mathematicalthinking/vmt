@@ -229,7 +229,6 @@ module.exports = function() {
       controllers.rooms
         .removeCurrentUsers(room, socket.user_id)
         .then(res => {
-          console.log('USE LEFT: ', res.currentMembers);
           let removedMember = {};
           if (res && res.currentMembers) {
             let currentMembers = res.currentMembers.filter(member => {

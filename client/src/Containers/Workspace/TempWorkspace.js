@@ -91,7 +91,6 @@ class TempWorkspace extends Component {
       roomType: graphType, // this wil be undefined if its not the first user in the room
       firstEntry: this.state.firstEntry,
     };
-    console.log('joining temp: ', sendData.color);
     let updatedTabs = [...this.props.room.tabs];
     if (graphType === 'desmos' && this.state.firstEntry) {
       updatedTabs[0].tabType = 'desmos';
@@ -107,7 +106,6 @@ class TempWorkspace extends Component {
         members: room.members,
         tabs: updatedTabs,
       });
-      console.log('message: ', message);
       this.props.addToLog(room._id, message);
       // if (!this.state.firstEntry) res.room.chat.push(message);
       user.connected = socket.connected;

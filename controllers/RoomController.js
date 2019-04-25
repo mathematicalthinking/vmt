@@ -262,8 +262,6 @@ module.exports = {
             ) {
               throw 'You have already been granted access to this room!';
             }
-            console.log('room members length: ', room.members.length);
-            console.log('color: ', colorMap[room.members.length]);
             // Add this member to the room
             room.members.push({
               user: userId,

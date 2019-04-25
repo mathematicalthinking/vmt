@@ -54,9 +54,6 @@ class Chat extends Component {
   componentDidUpdate(prevProps) {
     let { log } = this.props;
     if (prevProps.log.length !== log.length) {
-      console.log('creating ref for new message');
-      console.log(log[log.length - 1]);
-      console.log(log[log.length - 2]);
       // create a ref for the new element
       this[`message-${log[log.length - 1]._id}`] = React.createRef();
       this.scrollToBottom();
@@ -126,7 +123,6 @@ class Chat extends Component {
   };
 
   showReference = (event, reference) => {
-    console.log('TAB: ', reference.tab);
     // If we're already showing this reference clear the reference
     if (
       this.props.showReference &&
@@ -142,7 +138,6 @@ class Chat extends Component {
       let fromCoords = this.getRelativeCoords(event.target);
       let toCoords;
       if (reference.elementType === 'chat_message') {
-        console.log('we in here');
         toCoords = this.getRelativeCoords(
           this[`message-${reference.element}`].current
         );
@@ -185,7 +180,6 @@ class Chat extends Component {
   updateReferencePositions = () => {
     // INSTEAD OF DOING ALL OF THIS WE COULD JUST SEE HOW THE SCROLL HAS CHANGED AND THEN KNOW HOW TO UPDATE THE DOM LINE?
     if (this.props.showingReference) {
-      console.log(this.props.referFromEl);
       // Find and update the position of the referer
       // this.updateReference()
       this.props.setFromElAndCoords(
@@ -215,7 +209,6 @@ class Chat extends Component {
   };
 
   messageClickHandler = (event, message) => {
-    console.log('message.tab ', message.tab);
     let { replayer, referencing } = this.props;
     if (!replayer) {
       if (referencing) {

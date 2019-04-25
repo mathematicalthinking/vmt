@@ -19,10 +19,8 @@ export const joinWithCode = (
   entryCode
 ) => {
   return dispatch => {
-    console.log('entering with code');
     API.enterWithCode(resource, resourceId, userId, entryCode)
       .then(res => {
-        console.log('ENtRY WIH CODE success!: ', res);
         if (resource === 'rooms') {
           dispatch(addUserRooms([resourceId]));
           // let room = res.data.result;
@@ -69,7 +67,6 @@ export const requestAccess = (owners, userId, resource, resourceId) => {
 };
 
 export const grantAccess = (user, resource, resourceId, ntfId, toUserId) => {
-  console.log(user);
   return (dispatch, getState) => {
     // dispatch(loading.start())
     API.removeNotification(ntfId)
@@ -80,7 +77,6 @@ export const grantAccess = (user, resource, resourceId, ntfId, toUserId) => {
       .catch(err => console.log(err));
     API.grantAccess(user, resource, resourceId, 'grantedAccess')
       .then(res => {
-        console.log('res', res);
         if (resource === 'rooms' || resource === 'room') {
           dispatch(updatedRoom(resourceId, { members: res.data })); // change to add
         } else if (resource === 'courses' || resource === 'course') {
