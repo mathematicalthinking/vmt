@@ -396,10 +396,10 @@ class GgbGraph extends Component {
     switch (event[0]) {
       case 'setMode':
         // ignore this event if its the same as the last one or the user is selecting
-        // zoom tool
+        // zoom tool or the user is referencing and only using the pointer tool
         if (
           event[2] === '40' ||
-          this.props.referencing ||
+          (this.props.referencing && event[2] === 0) ||
           (this.previousEvent.action === 'mode' &&
             this.previousEvent.label === event[2])
         ) {
@@ -438,6 +438,9 @@ class GgbGraph extends Component {
         }
         break;
       case 'select':
+        if (this.props.referencing) {
+          return;
+        }
         if (this.ggbApplet.getMode() === 0) {
           let selection = this.ggbApplet.getObjectType(event[1]);
           if (selection === 'point') {
@@ -585,7 +588,6 @@ class GgbGraph extends Component {
     if (this.props.referencing) {
       console.log('we are referencing');
       let elementType = this.ggbApplet.getObjectType(element);
-      console.log(elementType);
       let position;
       if (elementType !== 'point') {
         let commandString = this.ggbApplet.getCommandString(element);
@@ -595,8 +597,6 @@ class GgbGraph extends Component {
         );
       }
       position = await this.getRelativeCoords(element);
-      console.log(position);
-      console.log('he we are');
       this.props.setToElAndCoords({ element, elementType: 'point' }, position);
     }
   };
@@ -704,6 +704,7 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action, eventQueue) => {
+    console.log('sending event', definition, label, eventType, action);
     let { room, user, myColor, currentTab } = this.props;
 
     let newData = {

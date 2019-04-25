@@ -122,7 +122,8 @@ class Chat extends Component {
     // window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
   };
 
-  showReference = (event, reference, tab) => {
+  showReference = (event, reference) => {
+    console.log('TAB: ', reference.tab);
     // If we're already showing this reference clear the reference
     if (
       this.props.showReference &&
@@ -148,7 +149,7 @@ class Chat extends Component {
         toCoords,
         event.currentTarget.id,
         fromCoords,
-        tab
+        reference.tab
       );
     }
   };
@@ -181,6 +182,7 @@ class Chat extends Component {
   updateReferencePositions = () => {
     // INSTEAD OF DOING ALL OF THIS WE COULD JUST SEE HOW THE SCROLL HAS CHANGED AND THEN KNOW HOW TO UPDATE THE DOM LINE?
     if (this.props.showingReference) {
+      console.log(this.props.referFromEl);
       // Find and update the position of the referer
       // this.updateReference()
       this.props.setFromElAndCoords(
@@ -210,12 +212,13 @@ class Chat extends Component {
   };
 
   messageClickHandler = (event, message) => {
+    console.log('message.tab ', message.tab);
     let { replayer, referencing } = this.props;
     if (!replayer) {
       if (referencing) {
         this.referToMessage(event, message._id);
       } else if (message.reference)
-        this.showReference(event, message.reference, message.tab);
+        this.showReference(event, message.reference);
     } else {
       this.display_temporary_error();
     }
@@ -239,6 +242,7 @@ class Chat extends Component {
         if (this.props.referToEl) {
           if (
             this.props.referToEl.element === message._id ||
+            message.tab ||
             (message.reference &&
               this.props.referToEl.element === message.reference.element)
           ) {
