@@ -19,7 +19,7 @@ module.exports = {
       db.Room.find(params)
         .sort('-createdAt')
         .populate({ path: 'members.user', select: 'username' })
-        .populate({ path: 'currentMembers.user', select: 'username' })
+        .populate({ path: 'currentMembers', select: 'username' })
         .populate({ path: 'tabs', select: 'name tabType' })
         .then(rooms => {
           // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
@@ -39,7 +39,7 @@ module.exports = {
           select: '-room',
         })
         .populate({ path: 'members.user', select: 'username' })
-        .populate({ path: 'currentMembers', select: 'username' })
+        .populate({ path: 'currentMembers.user', select: 'username' })
         .populate({ path: 'course', select: 'name' })
         .populate({
           path: 'tabs',

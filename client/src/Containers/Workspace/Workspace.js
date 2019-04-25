@@ -126,6 +126,8 @@ class Workspace extends Component {
         if (err) {
           console.log(err); // HOW SHOULD WE HANDLE THIS
         }
+        console.log('i joined: ', res.room.currentMembers);
+        console.log(res);
         this.props.updatedRoom(room._id, {
           currentMembers: res.room.currentMembers,
         });
@@ -134,6 +136,7 @@ class Workspace extends Component {
     }
 
     socket.on('USER_JOINED', data => {
+      console.log('data.currentMembers: ', data.currentMembers);
       this.props.updatedRoom(room._id, { currentMembers: data.currentMembers });
       this.props.addToLog(room._id, data.message);
     });
