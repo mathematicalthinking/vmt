@@ -4,9 +4,18 @@ import classes from './navbar.css';
 import { Link, withRouter } from 'react-router-dom';
 const navbar = props => {
   let styles = classes.NavContainer;
+  let ntf = false;
   if (props.location.pathname.indexOf('workspace') > -1) {
     styles = classes.WorkspaceNav;
+    if (
+      props.user &&
+      props.user.notifications &&
+      props.user.notifications.length > 0
+    ) {
+      ntf = true;
+    }
   } else if (props.fixed) styles = classes.Fixed;
+
   return (
     <nav className={styles}>
       <div className={classes.LogoContainer}>
@@ -21,7 +30,7 @@ const navbar = props => {
       </div>
       <div className={classes.NavListContainer}>
         <ul className={classes.NavList}>
-          <NavItem link="/myVMT/courses" name="My VMT" />
+          <NavItem link="/myVMT/courses" name="My VMT" ntf={ntf} />
           <NavItem link="/community/activities" name="Community" />
           {/* <NavItem link='/profile' name='Profile' /> */}
           <NavItem link="/logout" name="Logout" />
