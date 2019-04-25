@@ -134,6 +134,8 @@
   align-self: auto;
   flex: 0 0 auto;
   margin-left: 10px;
+  /* height of tab should save this as a var so we just have to update it in one place */
+  margin-top: 35px;
   width: 20%;
   display: flex;
   flex-direction: column;
@@ -201,7 +203,7 @@
     2px 4px 4px 1px rgb(126, 135, 158);
   /* border-radius: 5px; */
   order: 3;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
 }
 
 .Tools {
