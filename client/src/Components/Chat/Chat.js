@@ -54,6 +54,9 @@ class Chat extends Component {
   componentDidUpdate(prevProps) {
     let { log } = this.props;
     if (prevProps.log.length !== log.length) {
+      console.log('creating ref for new message');
+      console.log(log[log.length - 1]);
+      console.log(log[log.length - 2]);
       // create a ref for the new element
       this[`message-${log[log.length - 1]._id}`] = React.createRef();
       this.scrollToBottom();

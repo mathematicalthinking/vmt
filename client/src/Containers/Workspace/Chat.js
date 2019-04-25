@@ -92,9 +92,9 @@ class Chat extends Component {
         return;
         // IF THERES AN ERROR WE NEED TO UNDO THE SETSTATE BELOW
       }
+      this.props.addToLog(roomId, { ...newMessage, _id: res._id });
     });
     delete newMessage.room;
-    this.props.addToLog(roomId, newMessage);
     // this.scrollToBottom(); @TODO
     this.setState({
       newMessage: '',
