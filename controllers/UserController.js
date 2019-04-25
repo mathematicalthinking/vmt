@@ -1,5 +1,5 @@
-const db = require("../models");
-const ObjectId = require("mongoose").Types.ObjectId;
+const db = require('../models');
+const ObjectId = require('mongoose').Types.ObjectId;
 module.exports = {
   get: params => {
     return new Promise((resolve, reject) => {
@@ -14,10 +14,10 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.User.find({
         $or: [{ email: regex }, { username: regex }],
-        _id: { $nin: idsToExclude }
+        _id: { $nin: idsToExclude },
       })
         .limit(5)
-        .select("username email")
+        .select('username email')
         .then(users => {
           resolve(users);
         })
@@ -29,19 +29,19 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.User.findById(id)
         .populate({
-          path: "courses",
-          populate: { path: "members.user", select: "username" }
+          path: 'courses',
+          populate: { path: 'members.user', select: 'username' },
         })
         .populate({
-          path: "rooms",
-          select: "-currentState",
-          populate: { path: "members.user", select: "username" }
+          path: 'rooms',
+          select: '-currentState',
+          populate: { path: 'tabs members.user', select: 'username tabType' },
         })
         .populate({
-          path: "activities",
-          populate: { path: "tabs" }
+          path: 'activities',
+          populate: { path: 'tabs' },
         })
-        .populate({ path: "notifications", populate: { path: "fromUser" } })
+        .populate({ path: 'notifications', populate: { path: 'fromUser' } })
         .then(user => resolve(user))
         .catch(err => reject(err));
     });
@@ -57,27 +57,27 @@ module.exports = {
       { select: resources }
     )
       .populate({
-        path: "activities",
-        select: "name members intructions image rooms",
+        path: 'activities',
+        select: 'name members intructions image rooms',
         populate: {
-          path: "members.user",
-          select: "username"
+          path: 'members.user',
+          select: 'username',
         },
         populate: {
-          path: "rooms",
+          path: 'rooms',
           populate: {
-            path: "members.user",
-            select: "username"
-          }
-        }
+            path: 'members.user',
+            select: 'username',
+          },
+        },
       })
       .populate({
-        path: "rooms",
-        select: "name members image instructions ",
+        path: 'rooms',
+        select: 'name members image instructions ',
         populate: {
-          path: "members.user",
-          select: "username"
-        }
+          path: 'members.user',
+          select: 'username',
+        },
       })
       .then(result => {
         let filteredResults = {};
@@ -85,9 +85,9 @@ module.exports = {
           filteredResults.isInvalidToken = true;
           return filteredResults;
         }
-        resources.split(" ").forEach(resource => {
+        resources.split(' ').forEach(resource => {
           // resourceName = resourceName.replace(/\s+/g, "");
-          let regex = new RegExp(resourceName, "i");
+          let regex = new RegExp(resourceName, 'i');
           if (result[resource]) {
             filteredResults[resource] = result[resource].filter(rec => {
               return rec.name.match(regex);
@@ -138,7 +138,7 @@ module.exports = {
 
   remove: (id, body) => {
     return new Promise((resolve, reject) => {
-      let key = Object.keys(body)[0].split(".")[0];
+      let key = Object.keys(body)[0].split('.')[0];
       db.User.findByIdAndUpdate(id, { $pull: body }, { new: true })
         // .populate(key, 'select', user.username)
         .then(res => {
@@ -146,5 +146,5 @@ module.exports = {
         })
         .catch(err => reject(err));
     });
-  }
+  },
 };

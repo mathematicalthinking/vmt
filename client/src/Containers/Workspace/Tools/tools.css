@@ -1,6 +1,6 @@
 /* We should have made a component that chat currentMembers and this can
 all share. we are repeating styles in each of those copmnents  */
-:import("../../../colors.css") {
+:import('../../../colors.css') {
   blue: blue;
   blueHover: blueHover;
 }
@@ -61,6 +61,7 @@ all share. we are repeating styles in each of those copmnents  */
 .AwarenessDesc {
   display: flex;
   align-items: center;
+  min-height: 48px;
   height: 100%;
   margin: 0 10px;
 }

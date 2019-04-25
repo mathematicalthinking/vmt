@@ -270,8 +270,8 @@ class Room extends Component {
         else if (tab.tabType === 'desmos') desmos = true;
       });
       let roomType;
-      if (ggb && desmos) roomType = 'Geogebra/Desmos';
-      else roomType = ggb ? 'Geogebra' : 'Desmos';
+      if (ggb && desmos) roomType = 'GeoGebra/Desmos';
+      else roomType = ggb ? 'GeoGebra' : 'Desmos';
 
       let { updateFail, updateKeys } = this.props.loading;
 
