@@ -1,16 +1,16 @@
-import React, { Component } from "react";
-import { withRouter } from "react-router-dom";
-import { hri } from "human-readable-ids";
-import Step1 from "./Step1";
-import Step2Copy from "./Step2Copy";
-import Step2New from "./Step2New";
-import Step3 from "./Step3";
-import DueDate from "../DueDate";
-import RoomOpts from "./RoomOpts";
-import { getUserResources, populateResource } from "../../../store/reducers";
-import { Modal, Aux, Button } from "../../../Components/";
-import classes from "../create.css";
-import { connect } from "react-redux";
+import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
+import { hri } from 'human-readable-ids';
+import Step1 from './Step1';
+import Step2Copy from './Step2Copy';
+import Step2New from './Step2New';
+import Step3 from './Step3';
+import DueDate from '../DueDate';
+import RoomOpts from './RoomOpts';
+import { getUserResources, populateResource } from '../../../store/reducers';
+import { Modal, Aux, Button } from '../../../Components/';
+import classes from '../create.css';
+import { connect } from 'react-redux';
 import {
   createCourse,
   createRoom,
@@ -18,27 +18,27 @@ import {
   createCourseTemplate,
   updateUser,
   createRoomFromActivity,
-  copyActivity
-} from "../../../store/actions/";
-import API from "../../../utils/apiRequests";
+  copyActivity,
+} from '../../../store/actions/';
+import API from '../../../utils/apiRequests';
 // import propertyOf from 'lodash/propertyOf';
 
 const imageThemes = [
-  "frogideas",
-  "duskfalling",
-  "sugarsweets",
-  "heatwave",
-  "daisygarden",
-  "seascape",
-  "summerwarmth",
-  "bythepool",
-  "berrypie"
+  'frogideas',
+  'duskfalling',
+  'sugarsweets',
+  'heatwave',
+  'daisygarden',
+  'seascape',
+  'summerwarmth',
+  'bythepool',
+  'berrypie',
 ];
 
 const shapes = {
-  activities: "isogrids",
-  courses: "labs/isogrids/hexa16",
-  rooms: "spaceinvaders"
+  activities: 'isogrids',
+  courses: 'labs/isogrids/hexa16',
+  rooms: 'spaceinvaders',
 };
 
 const initialState = {
@@ -47,14 +47,14 @@ const initialState = {
   copying: false,
   ggb: true,
   step: 0, // step of the creation process
-  name: "",
-  description: "",
-  desmosLink: "",
-  ggbFiles: "",
-  appName: "classic",
-  dueDate: "",
+  name: '',
+  description: '',
+  desmosLink: '',
+  ggbFiles: '',
+  appName: 'classic',
+  dueDate: '',
   activities: [],
-  privacySetting: "public"
+  privacySetting: 'public',
 };
 
 class NewResourceContainer extends Component {
@@ -64,29 +64,29 @@ class NewResourceContainer extends Component {
 
   changeHandler = event => {
     this.setState({
-      [event.target.name]: event.target.value
+      [event.target.name]: event.target.value,
     });
   };
 
   setCopying = event => {
-    this.setState({ copying: event.target.name === "copy" });
+    this.setState({ copying: event.target.name === 'copy' });
   };
 
   // @TODO move this somewhere it can be shared with Containsers/Workspace/NewTabForm
   // maybe it makes sense to move newTabForm Here because its creating something
   uploadGgbFiles = () => {
     let files = this.state.ggbFiles;
-    if (typeof files !== "object" || files.length < 1) {
+    if (typeof files !== 'object' || files.length < 1) {
       return Promise.resolve({
         data: {
-          result: []
-        }
+          result: [],
+        },
       });
     }
     let formData = new FormData();
 
     for (let f of files) {
-      formData.append("ggbFiles", f);
+      formData.append('ggbFiles', f);
     }
     return API.uploadGgbFiles(formData);
   };
@@ -104,20 +104,21 @@ class NewResourceContainer extends Component {
         this.state.activities.length > 0 ? this.state.activities : null,
       desmosLink: this.state.desmosLink,
       course: this.props.courseId,
-      roomType: this.state.ggb ? "geogebra" : "desmos",
+      roomType: this.state.ggb ? 'geogebra' : 'desmos',
       image: `http://tinygraphs.com/${shapes[resource]}/${
         this.state.name
-      }?theme=${theme}&numcolors=4&size=220&fmt=svg`
+      }?theme=${theme}&numcolors=4&size=220&fmt=svg`,
     };
-    if (newResource.privacySetting === "private") {
+    if (newResource.privacySetting === 'private') {
       newResource.entryCode = hri.random();
     }
     return this.uploadGgbFiles().then(results => {
+      console.log(results.data.result);
       if (results && results.data) {
         newResource.ggbFiles = results.data.result;
       }
       switch (resource) {
-        case "courses":
+        case 'courses':
           delete newResource.activities;
           delete newResource.ggbFiles;
           delete newResource.desmosLink;
@@ -126,25 +127,26 @@ class NewResourceContainer extends Component {
           newResource.members = [
             {
               user: { _id: this.props.userId, username: this.props.username },
-              role: "facilitator"
-            }
+              role: 'facilitator',
+            },
           ];
           this.props.createCourse(newResource);
           break;
-        case "activities":
+        case 'activities':
           this.props.createActivity(newResource);
           break;
-        case "rooms":
+        case 'rooms':
           newResource.members = [
             {
               user: { _id: this.props.userId, username: this.props.username },
-              role: "facilitator"
-            }
+              role: 'facilitator',
+            },
           ];
           newResource.dueDate = this.state.dueDate;
           if (this.state.ggb) {
             newResource.appName = this.state.appName;
           }
+          console.log('new resource: ', newResource);
           this.props.createRoom(newResource);
           break;
         default:
@@ -152,14 +154,14 @@ class NewResourceContainer extends Component {
       }
       this.setState({ ...initialState });
       if (this.props.intro) {
-        this.props.updateUser({ accountType: "facilitator" });
+        this.props.updateUser({ accountType: 'facilitator' });
         this.props.history.push(`/myVMT/${resource}`);
       }
     });
   };
 
   redirectToActivity = () => {
-    this.props.history.push("/community/activities/selecting");
+    this.props.history.push('/community/activities/selecting');
   };
 
   addActivity = (event, id) => {
@@ -173,12 +175,12 @@ class NewResourceContainer extends Component {
   };
 
   setGgb = event => {
-    this.setState({ ggb: event.target.name === "geogebra" });
+    this.setState({ ggb: event.target.name === 'geogebra' });
   };
 
   setGgbFile = event => {
     this.setState({
-      ggbFiles: event.target.files
+      ggbFiles: event.target.files,
     });
   };
 
@@ -195,20 +197,20 @@ class NewResourceContainer extends Component {
   nextStep = direction => {
     let copying = this.state.copying;
     if (this.state.step === 0) {
-      if (direction === "copy") {
+      if (direction === 'copy') {
         copying = true;
       }
     }
     this.setState({
       step: this.state.step + 1,
-      copying: copying
+      copying: copying,
     });
   };
 
   prevStep = () => {
     this.setState({
       copying: this.state.step === 1 ? false : this.state.copying,
-      step: this.state.step - 1 || 0
+      step: this.state.step - 1 || 0,
     });
   };
 
@@ -216,7 +218,7 @@ class NewResourceContainer extends Component {
     this.setState({
       copying: false,
       step: 0,
-      creating: false
+      creating: false,
     });
   };
 
@@ -224,8 +226,8 @@ class NewResourceContainer extends Component {
     // Intro = true if and only if we've navigated from the "Become a Facilitator" page
     let { resource } = this.props;
     let displayResource;
-    if (resource === "activities") {
-      displayResource = "activity";
+    if (resource === 'activities') {
+      displayResource = 'activity';
     } else {
       displayResource = resource.slice(0, resource.length - 1);
     }
@@ -253,9 +255,9 @@ class NewResourceContainer extends Component {
         displayResource={displayResource}
         check={this.setPrivacy}
         privacySetting={this.state.privacySetting}
-      />
+      />,
     ];
-    if (resource === "rooms") {
+    if (resource === 'rooms') {
       steps.splice(
         2,
         0,
@@ -265,7 +267,7 @@ class NewResourceContainer extends Component {
 
     if (
       !this.state.copying &&
-      (resource === "rooms" || resource === "activities")
+      (resource === 'rooms' || resource === 'activities')
     ) {
       steps.splice(
         2,
@@ -281,7 +283,7 @@ class NewResourceContainer extends Component {
       );
     }
 
-    if (resource === "courses") {
+    if (resource === 'courses') {
       steps.splice(1, 1);
     }
 
@@ -289,14 +291,14 @@ class NewResourceContainer extends Component {
       <div
         className={[
           classes.Step,
-          i <= this.state.step ? classes.CompletedStep : null
-        ].join(" ")}
+          i <= this.state.step ? classes.CompletedStep : null,
+        ].join(' ')}
       />
     ));
 
     let buttons;
     if (this.state.step === 0) {
-      if (resource === "courses") {
+      if (resource === 'courses') {
         buttons = <Button click={this.nextStep}>next</Button>;
       } else {
         buttons = (
@@ -305,7 +307,7 @@ class NewResourceContainer extends Component {
               <Button
                 disabled={this.state.name.length === 0}
                 click={() => {
-                  this.nextStep("new");
+                  this.nextStep('new');
                 }}
                 m={5}
               >
@@ -316,7 +318,7 @@ class NewResourceContainer extends Component {
               <Button
                 disabled={this.state.name.length === 0}
                 click={() => {
-                  this.nextStep("copy");
+                  this.nextStep('copy');
                 }}
                 m={5}
               >
@@ -349,12 +351,12 @@ class NewResourceContainer extends Component {
             {this.state.step > 0 ? (
               <i
                 onClick={this.prevStep}
-                className={["fas", "fa-arrow-left", classes.BackIcon].join(" ")}
+                className={['fas', 'fa-arrow-left', classes.BackIcon].join(' ')}
               />
             ) : null}
             <div className={classes.Container}>
               <h2 className={classes.ModalTitle}>
-                Create {resource === "activities" ? "an" : "a"}{" "}
+                Create {resource === 'activities' ? 'an' : 'a'}{' '}
                 {displayResource}
               </h2>
               <div className={classes.MainModalContent}>
@@ -367,11 +369,11 @@ class NewResourceContainer extends Component {
         ) : null}
         <div className={classes.Button}>
           <Button
-            theme={"Small"}
+            theme={'Small'}
             click={this.startCreation}
             data-testid={`create-${displayResource}`}
           >
-            Create{" "}
+            Create{' '}
             <span className={classes.Plus}>
               <i className="fas fa-plus" />
             </span>
@@ -403,12 +405,12 @@ let mapStateToProps = (store, ownProps) => {
     rooms: store.rooms.rooms, // ????
     userId: store.user._id,
     username: store.user.username,
-    userActivities: getUserResources(store, "activities") || [],
+    userActivities: getUserResources(store, 'activities') || [],
     course: ownProps.match.params.course_id
-      ? populateResource(store, "courses", ownProps.match.params.course_id, [
-          "activities"
+      ? populateResource(store, 'courses', ownProps.match.params.course_id, [
+          'activities',
         ])
-      : null
+      : null,
   };
 };
 
@@ -422,7 +424,7 @@ export default withRouter(
       createCourseTemplate,
       updateUser,
       createRoomFromActivity,
-      copyActivity
+      copyActivity,
     }
   )(NewResourceContainer)
 );

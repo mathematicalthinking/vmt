@@ -1,12 +1,12 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 // import PropTypes from 'prop-types';
-import { connect } from "react-redux";
+import { connect } from 'react-redux';
 import {
   DashboardLayout,
   SidePanel,
   ActivityDetails,
-  ResourceList
-} from "../Layout/Dashboard/";
+  ResourceList,
+} from '../Layout/Dashboard/';
 import {
   Aux,
   // Modal,
@@ -15,31 +15,31 @@ import {
   TabList,
   EditText,
   TrashModal,
-  Error
-} from "../Components";
+  Error,
+} from '../Components';
 import {
   getCourses,
   getRooms,
   updateActivity,
-  getActivities
-} from "../store/actions";
-import { populateResource } from "../store/reducers";
+  getActivities,
+} from '../store/actions';
+import { populateResource } from '../store/reducers';
 class Activity extends Component {
   state = {
     owner: false,
-    tabs: [{ name: "Details" }, { name: "Rooms" }, { name: "Settings" }],
+    tabs: [{ name: 'Details' }, { name: 'Rooms' }, { name: 'Settings' }],
     // assigning: false, // this seems to be duplicated in Layout/Dashboard/MakeRooms.js
     editing: false,
     name: this.props.activity.name,
     description: this.props.activity.description,
     instructions: this.props.activity.instructions,
-    privacySetting: this.props.activity.privacySetting
+    privacySetting: this.props.activity.privacySetting,
   };
 
   componentDidMount() {
     // this.props.getActivities() // WHY ARE WE DOING THIS??
     const { resource } = this.props.match.params;
-    if (resource === "rooms") {
+    if (resource === 'rooms') {
       // this.fetchRooms();
     }
     // Check ability to edit
@@ -54,18 +54,18 @@ class Activity extends Component {
     }
     const prevResource = prevProps.match.params.resource;
     const { resource } = this.props.match.params;
-    if (prevResource !== resource && resource === "rooms") {
+    if (prevResource !== resource && resource === 'rooms') {
       // this.fetchRooms()
     }
     if (
       prevProps.loading.updateResource === null &&
-      this.props.loading.updateResource === "activity"
+      this.props.loading.updateResource === 'activity'
     ) {
       this.setState({
         name: this.props.activity.name,
         description: this.props.activity.description,
         privacySetting: this.props.activity.privacySetting,
-        instructions: this.props.activity.instructions
+        instructions: this.props.activity.instructions,
       });
     }
   }
@@ -83,7 +83,7 @@ class Activity extends Component {
       name: this.props.activity.name,
       description: this.props.activity.description,
       privacySetting: this.props.activity.privacySetting,
-      instructions: this.props.activity.instructions
+      instructions: this.props.activity.instructions,
     }));
   };
   // options is for radioButton/checkbox inputs
@@ -99,7 +99,7 @@ class Activity extends Component {
       instructions,
       details,
       privacySetting,
-      description
+      description,
     } = this.state;
     let body = { name, details, instructions, privacySetting, description };
     Object.keys(body).forEach(key => {
@@ -109,7 +109,7 @@ class Activity extends Component {
     });
     updateActivity(activity._id, body);
     this.setState({
-      editing: false
+      editing: false,
     });
   };
 
@@ -126,40 +126,40 @@ class Activity extends Component {
         type: activity.roomType,
         privacy: (
           <Error
-            error={updateFail && updateKeys.indexOf("privacySetting") > -1}
+            error={updateFail && updateKeys.indexOf('privacySetting') > -1}
           >
             <EditText
               change={this.updateActivityInfo}
               inputType="radio"
               editing={this.state.editing}
-              options={["public", "private"]}
+              options={['public', 'private']}
               name="privacySetting"
             >
               {this.state.privacySetting}
             </EditText>
           </Error>
-        )
+        ),
       };
 
-      let crumbs = [{ title: "My VMT", link: "/myVMT/activities" }];
+      let crumbs = [{ title: 'My VMT', link: '/myVMT/activities' }];
       if (course) {
         crumbs = [
-          { title: "My VMT", link: "/myVMT/courses" },
+          { title: 'My VMT', link: '/myVMT/courses' },
           {
             title: `${course.name}`,
-            link: `/myVMT/courses/${course._id}/activities`
+            link: `/myVMT/courses/${course._id}/activities`,
           },
           {
             title: `${activity.name}`,
             link: `/myVMT/courses/${course._id}/activities/${
               activity._id
-            }/details`
-          }
+            }/details`,
+          },
         ];
       } else {
         crumbs.push({
           title: `${activity.name}`,
-          link: `/myVMT/activities/${activity._id}/details`
+          link: `/myVMT/activities/${activity._id}/details`,
         });
       }
 
@@ -177,7 +177,7 @@ class Activity extends Component {
         />
       );
 
-      if (resource === "rooms") {
+      if (resource === 'rooms') {
         mainContent = (
           <ResourceList
             userResources={activity.rooms.map(
@@ -186,7 +186,7 @@ class Activity extends Component {
             notifications={[]}
             user={user}
             resource={resource}
-            parentResource={course ? "course" : "activity"}
+            parentResource={course ? 'course' : 'activity'}
             parentResourceId={course ? course._id : activity._id}
           />
         );
@@ -203,7 +203,7 @@ class Activity extends Component {
                 image={activity.image}
                 editing={this.state.editing}
                 name={
-                  <Error error={updateFail && updateKeys.indexOf("name")}>
+                  <Error error={updateFail && updateKeys.indexOf('name')}>
                     <EditText
                       change={this.updateActivityInfo}
                       inputType="title"
@@ -216,7 +216,7 @@ class Activity extends Component {
                 }
                 subTitle={
                   <Error
-                    error={updateFail && updateKeys.indexOf("description")}
+                    error={updateFail && updateKeys.indexOf('description')}
                   >
                     <EditText
                       change={this.updateActivityInfo}
@@ -236,7 +236,7 @@ class Activity extends Component {
                       <div
                         role="button"
                         style={{
-                          display: this.state.editing ? "none" : "block"
+                          display: this.state.editing ? 'none' : 'block',
                         }}
                         data-testid="edit-activity"
                         onClick={this.toggleEdit}
@@ -247,8 +247,8 @@ class Activity extends Component {
                         // @TODO this should be a resuable component
                         <div
                           style={{
-                            display: "flex",
-                            justifyContent: "space-around"
+                            display: 'flex',
+                            justifyContent: 'space-around',
                           }}
                         >
                           <Button
@@ -303,13 +303,13 @@ const mapStateToProps = (state, ownProps) => {
   return {
     activity: state.activities.byId[activity_id],
     populatedActivity: state.activities.byId[activity_id]
-      ? populateResource(state, "activities", activity_id, ["rooms"])
+      ? populateResource(state, 'activities', activity_id, ['rooms'])
       : {},
     course: state.courses.byId[course_id],
     rooms: state.rooms.byId,
     userId: state.user._id,
     user: state.user,
-    loading: state.loading
+    loading: state.loading,
   };
 };
 

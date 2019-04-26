@@ -1,9 +1,10 @@
-:import('../../colors.css'){
+:import('../../colors.css') {
   blue: blue;
   darkBorder: darkBorder;
 }
 
 .NormalText {
+  word-break: break-word;
   border: 1px solid transparent;
   display: inline;
 }

@@ -1,16 +1,16 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const controllers = require("../controllers");
-const middleware = require("../middleware/api");
-const errors = require("../middleware/errors");
-const multer = require("multer");
-const multerMw = require("../middleware/multer");
-const _ = require("lodash");
+const controllers = require('../controllers');
+const middleware = require('../middleware/api');
+const errors = require('../middleware/errors');
+const multer = require('multer');
+const multerMw = require('../middleware/multer');
+const _ = require('lodash');
 
-router.param("resource", middleware.validateResource);
-router.param("id", middleware.validateId);
+router.param('resource', middleware.validateResource);
+router.param('id', middleware.validateId);
 
-router.get("/:resource", (req, res, next) => {
+router.get('/:resource', (req, res, next) => {
   let controller = controllers[req.params.resource];
   req.query.isTrashed = false;
   controller
@@ -20,17 +20,17 @@ router.get("/:resource", (req, res, next) => {
       console.error(`Error get ${resource}: ${err}`);
       let msg = null;
 
-      if (typeof err === "string") {
+      if (typeof err === 'string') {
         msg = err;
       }
       return errors.sendError.InternalError(msg, res);
     });
 });
 
-router.get("/search/:resource", (req, res, next) => {
+router.get('/search/:resource', (req, res, next) => {
   let controller = controllers[req.params.resource];
-  let text = req.query.text.replace(/\s+/g, "");
-  let regex = new RegExp(text, "i");
+  let text = req.query.text.replace(/\s+/g, '');
+  let regex = new RegExp(text, 'i');
   controller
     .search(regex, req.query.exclude)
     .then(results => {
@@ -39,19 +39,19 @@ router.get("/search/:resource", (req, res, next) => {
     .catch(err => {
       console.error(`Error search ${resource}: ${err}`);
       let msg = null;
-      if (typeof err === "string") {
+      if (typeof err === 'string') {
         msg = err;
       }
       return errors.sendError.InternalError(msg, res);
     });
 });
 
-router.get("/searchPaginated/:resource", (req, res, next) => {
+router.get('/searchPaginated/:resource', (req, res, next) => {
   let controller = controllers[req.params.resource];
   let { criteria, skip, privacySetting, roomType } = req.query;
   let regex;
   if (criteria) {
-    regex = new RegExp(criteria, "i");
+    regex = new RegExp(criteria, 'i');
   }
   let filters = {};
   if (privacySetting) filters.privacySetting = privacySetting;
@@ -64,14 +64,14 @@ router.get("/searchPaginated/:resource", (req, res, next) => {
     .catch(err => {
       console.error(`Error search paginated${resource}: ${err}`);
       let msg = null;
-      if (typeof err === "string") {
+      if (typeof err === 'string') {
         msg = err;
       }
       errors.sendError.InternalError(msg, res);
     });
 });
 
-router.get("/:resource/:id", middleware.validateUser, (req, res, next) => {
+router.get('/:resource/:id', middleware.validateUser, (req, res, next) => {
   let { id, resource } = req.params;
   let controller = controllers[resource];
   controller
@@ -81,7 +81,7 @@ router.get("/:resource/:id", middleware.validateUser, (req, res, next) => {
       console.error(`Error get ${resource}/${id}: ${err}`);
       let msg = null;
 
-      if (typeof err === "string") {
+      if (typeof err === 'string') {
         msg = err;
       }
 
@@ -91,7 +91,7 @@ router.get("/:resource/:id", middleware.validateUser, (req, res, next) => {
 
 // Bypass the middlewre for now on a temp room...eventually we should probably change the URL
 // from the rooms id to some sort of secret entry code.
-router.get("/:resource/:id/:tempRoom", (req, res, next) => {
+router.get('/:resource/:id/:tempRoom', (req, res, next) => {
   let { id, resource } = req.params;
   let controller = controllers[resource];
   controller
@@ -101,7 +101,7 @@ router.get("/:resource/:id/:tempRoom", (req, res, next) => {
       console.error(`Error get ${resource}/${id}: ${err}`);
       let msg = null;
 
-      if (typeof err === "string") {
+      if (typeof err === 'string') {
         msg = err;
       }
 
@@ -111,13 +111,13 @@ router.get("/:resource/:id/:tempRoom", (req, res, next) => {
 
 const ggbUpload = multer({
   storage: multer.memoryStorage(),
-  fileFilter: multerMw.ggbFileFilter
+  fileFilter: multerMw.ggbFileFilter,
 });
 
 router.post(
-  "/upload/ggb",
+  '/upload/ggb',
   middleware.validateUser,
-  ggbUpload.array("ggbFiles", 10),
+  ggbUpload.array('ggbFiles', 10),
   (req, res, next) => {
     let bufferFiles = req.files;
 
@@ -127,7 +127,7 @@ router.post(
     let base64Files = bufferFiles.map(fileObj => {
       let buffer = fileObj.buffer;
       if (buffer) {
-        return buffer.toString("base64");
+        return buffer.toString('base64');
       }
     });
     let compacted = _.compact(base64Files);
@@ -136,7 +136,7 @@ router.post(
 );
 
 router.post(
-  "/:resource",
+  '/:resource',
   middleware.validateUser,
   middleware.validateNewRecord,
   (req, res, next) => {
@@ -149,7 +149,7 @@ router.post(
 
         let msg = null;
 
-        if (typeof err === "string") {
+        if (typeof err === 'string') {
           msg = err;
         }
 
@@ -158,7 +158,7 @@ router.post(
   }
 );
 
-router.put("/:resource/:id/add", middleware.validateUser, (req, res, next) => {
+router.put('/:resource/:id/add', middleware.validateUser, (req, res, next) => {
   let { resource, id } = req.params;
   let controller = controllers[resource];
 
@@ -173,7 +173,7 @@ router.put("/:resource/:id/add", middleware.validateUser, (req, res, next) => {
 
       if (!canModify) {
         return errors.sendError.NotAuthorizedError(
-          "You do not have permission to modify this resource",
+          'You do not have permission to modify this resource',
           res
         );
       }
@@ -186,7 +186,7 @@ router.put("/:resource/:id/add", middleware.validateUser, (req, res, next) => {
 
       let msg = null;
 
-      if (typeof err === "string") {
+      if (typeof err === 'string') {
         msg = err;
       }
 
@@ -195,7 +195,7 @@ router.put("/:resource/:id/add", middleware.validateUser, (req, res, next) => {
 });
 
 router.put(
-  "/:resource/:id/remove",
+  '/:resource/:id/remove',
   middleware.validateUser,
   (req, res, next) => {
     let { resource, id } = req.params;
@@ -211,7 +211,7 @@ router.put(
 
         if (!canModify) {
           return errors.sendError.NotAuthorizedError(
-            "You do not have permission to modify this resource",
+            'You do not have permission to modify this resource',
             res
           );
         }
@@ -229,7 +229,7 @@ router.put(
 
         let msg = null;
 
-        if (typeof err === "string") {
+        if (typeof err === 'string') {
           msg = err;
         }
 
@@ -238,12 +238,12 @@ router.put(
   }
 );
 
-router.put("/:resource/:id", middleware.validateUser, (req, res, next) => {
+router.put('/:resource/:id', middleware.validateUser, (req, res, next) => {
   let { resource, id } = req.params;
   let controller = controllers[resource];
 
-  if (resource === "events") {
-    return errors.sendError.BadMethodError("Events cannot be modified!", res);
+  if (resource === 'events') {
+    return errors.sendError.BadMethodError('Events cannot be modified!', res);
   }
   return middleware
     .canModifyResource(req)
@@ -256,7 +256,7 @@ router.put("/:resource/:id", middleware.validateUser, (req, res, next) => {
 
       if (!canModify) {
         return errors.sendError.NotAuthorizedError(
-          "You do not have permission to modify this resource",
+          'You do not have permission to modify this resource',
           res
         );
       }
@@ -269,7 +269,7 @@ router.put("/:resource/:id", middleware.validateUser, (req, res, next) => {
 
       let msg = null;
 
-      if (typeof err === "string") {
+      if (typeof err === 'string') {
         msg = err;
       }
 

@@ -54,9 +54,7 @@ const validateUser = (req, res, next) => {
   };
 
   let requestedResource = utils.getResource(req);
-  console.log('rtequested resource', requestedResource);
   let authorization = req.headers.authorization;
-  console.log('authorization: ', authorization);
   if (!allowedResources[requestedResource] || !authorization) {
     return errors.sendError.NotAuthorizedError(null, res);
   }
@@ -69,6 +67,7 @@ const validateUser = (req, res, next) => {
       return errors.sendError.InternalError(null, res);
     }
     if (isValid) {
+      console.log('validated user');
       return next();
     }
     return errors.sendError.NotAuthorizedError(null, res);

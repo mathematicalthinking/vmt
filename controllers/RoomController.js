@@ -86,6 +86,7 @@ module.exports = {
    * @param  {body} - fields for creating new room and tabs
    */
   post: body => {
+    console.log('am i making it here');
     return new Promise(async (resolve, reject) => {
       // Prepare the tabs if they exist
       let existingTabs;
@@ -113,7 +114,7 @@ module.exports = {
         ggbFiles = [...body.ggbFiles];
         delete body.ggbFiles;
       }
-
+      console.log('ggbFiles: ', ggbFiles);
       let room = new Room(body);
       if (existingTabs) {
         tabModels = existingTabs.map(tab => {
@@ -131,7 +132,9 @@ module.exports = {
         });
       } else {
         if (Array.isArray(ggbFiles) && ggbFiles.length > 0) {
+          console.log('creating tab models from ggbFile');
           tabModels = ggbFiles.map((file, index) => {
+            console.log(file);
             return new Tab({
               name: `Tab ${index + 1}`,
               room: room._id,
