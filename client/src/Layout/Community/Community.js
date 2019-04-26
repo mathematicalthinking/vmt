@@ -1,7 +1,13 @@
 import React, { Component } from 'react';
 // import { CustomLink } from 'react-router-dom';
 import BoxList from '../BoxList/BoxList';
-import { Search, CustomLink, Button, RadioBtn } from '../../Components/';
+import {
+  Search,
+  CustomLink,
+  Button,
+  RadioBtn,
+  BreadCrumbs,
+} from '../../Components/';
 // import Button from '../../Components/UI/Button/Button';
 import classes from './community.css';
 class Community extends Component {
@@ -22,6 +28,9 @@ class Community extends Component {
 
     return (
       <div className={classes.Container}>
+        <BreadCrumbs
+          crumbs={[{ link: '/community/rooms', title: 'Community' }]}
+        />
         <div className={classes.Header}>
           <h3 className={classes.Title}>
             Search for activities or ask to join rooms and courses
