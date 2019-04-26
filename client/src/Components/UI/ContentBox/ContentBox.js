@@ -20,6 +20,7 @@ class ContentBox extends PureComponent {
   };
 
   render() {
+    console.log(this.props);
     const notifications =
       this.props.notifications > 0 ? (
         <Notification
@@ -68,7 +69,8 @@ class ContentBox extends PureComponent {
               {this.props.details && this.state.expanded ? (
                 <div className={classes.Expanded}>
                   <div>{this.props.details.description || ''}</div>
-                  {this.props.details.facilitators.length > 0 ? (
+                  {this.props.details.facilitators &&
+                  this.props.details.facilitators.length > 0 ? (
                     <div>
                       Facilitators:{' '}
                       {this.props.details.facilitators.map(
@@ -76,9 +78,14 @@ class ContentBox extends PureComponent {
                       )}
                     </div>
                   ) : null}
+                  {this.props.details.creator
+                    ? `Creator: ${this.props.details.creator}`
+                    : null}
                   {this.props.details.entryCode ? (
                     <div>Entry Code: {this.props.details.entryCode}</div>
-                  ) : null}
+                  ) : (
+                    this.props.resource
+                  )}
                 </div>
               ) : null}
             </div>

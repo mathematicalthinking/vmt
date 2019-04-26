@@ -29,7 +29,9 @@ module.exports = {
 
   searchPaginated: (criteria, skip, filters) => {
     return db.Course.find(
-      criteria ? { ...filters, name: criteria } : { ...filters }
+      criteria
+        ? { ...filters, name: criteria, isTrashed: false }
+        : { ...filters, isTrashed: false }
     )
       .skip(parseInt(skip))
       .limit(20)

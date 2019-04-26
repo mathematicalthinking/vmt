@@ -1,10 +1,10 @@
-const db = require("../models");
+const db = require('../models');
 
 module.exports = {
   get: params => {
     return new Promise((resolve, reject) => {
       db.Activity.find(params)
-        .populate("tabs")
+        .populate('tabs')
         .then(activities => {
           resolve(activities);
         })
@@ -15,7 +15,7 @@ module.exports = {
   getById: id => {
     return new Promise((resolve, reject) => {
       db.Activity.findById(id)
-        .populate("tabs")
+        .populate('tabs')
         .then(activity => resolve(activity))
         .catch(err => reject(err));
     });
@@ -23,11 +23,13 @@ module.exports = {
 
   searchPaginated: (criteria, skip, filters) => {
     return db.Activity.find(
-      criteria ? { ...filters, name: criteria || "" } : { ...filters }
+      criteria
+        ? { ...filters, name: criteria || '', isTrashed: false }
+        : { ...filters, isTrashed: false }
     )
       .skip(parseInt(skip))
       .limit(20)
-      .populate("creator", "username")
+      .populate('creator', 'username')
       .then(activities => {
         return activities;
       });
@@ -41,8 +43,8 @@ module.exports = {
         // We should save these "SOURCE" activities on the new acitivty so we know where they cam from
         try {
           let activities = await db.Activity.find({
-            _id: { $in: body.activities }
-          }).populate("tabs");
+            _id: { $in: body.activities },
+          }).populate('tabs');
           existingTabs = activities.reduce((acc, activity) => {
             return acc.concat(activity.tabs);
           }, []);
@@ -69,16 +71,16 @@ module.exports = {
                     name: `Tab ${index + 1}`,
                     activity: activity._id,
                     ggbFile: file,
-                    tabType: body.roomType
+                    tabType: body.roomType,
                   });
                 })
               );
             } else {
               return db.Tab.create({
-                name: "Tab 1",
+                name: 'Tab 1',
                 activity: activity._id,
                 desmosLink: body.desmosLink,
-                tabType: body.roomType
+                tabType: body.roomType,
               });
             }
           } else {
@@ -90,7 +92,7 @@ module.exports = {
                   ggbFile: tab.ggbFile,
                   currentState: tab.currentState,
                   startingPoint: tab.startingPoint,
-                  tabType: tab.tabType
+                  tabType: tab.tabType,
                 });
                 return newTab.save();
               })
@@ -103,13 +105,13 @@ module.exports = {
               createdActivity._id,
               { $addToSet: { tabs: tab.map(tab => tab._id) } },
               { new: true }
-            ).populate("tabs");
+            ).populate('tabs');
           }
           return db.Activity.findByIdAndUpdate(
             createdActivity._id,
             { $addToSet: { tabs: tab._id } },
             { new: true }
-          ).populate("tabs");
+          ).populate('tabs');
         })
         .then(activity => {
           resolve(activity);
@@ -135,7 +137,7 @@ module.exports = {
 
             if (activity.course) {
               return db.Course.findByIdAndUpdate(activity.course, {
-                $pull: { activities: activity._id }
+                $pull: { activities: activity._id },
               });
             } else resolve(updatedActivity);
             // let userIds = activity.members.map(member => member.user);
@@ -162,5 +164,5 @@ module.exports = {
         })
         .catch(err => reject(err));
     });
-  }
+  },
 };
