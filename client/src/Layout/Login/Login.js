@@ -1,42 +1,42 @@
-import React, { PureComponent } from "react";
-import { Redirect } from "react-router-dom";
-import Button from "../../Components/UI/Button/Button";
-import Aux from "../../Components/HOC/Auxil";
-import classes from "./login.css";
-import Input from "../../Components/Form/TextInput/TextInput";
-import Background from "../../Components/Background/Background";
+import React, { PureComponent } from 'react';
+import { Redirect } from 'react-router-dom';
+import Button from '../../Components/UI/Button/Button';
+import Aux from '../../Components/HOC/Auxil';
+import classes from './login.css';
+import Input from '../../Components/Form/TextInput/TextInput';
+import Background from '../../Components/Background/Background';
 class LoginLayout extends PureComponent {
   // / Im not really a fan of how this is setup anymore
   state = {
     controls: {
       username: {
-        type: "text",
-        placeholder: "",
-        value: "",
-        label: "Username"
+        type: 'text',
+        placeholder: '',
+        value: '',
+        label: 'Username',
       },
       password: {
-        type: "password",
-        placeholder: "",
-        value: "",
-        label: "Password"
-      }
-    }
+        type: 'password',
+        placeholder: '',
+        value: '',
+        label: 'Password',
+      },
+    },
   };
 
   componentDidMount() {
-    window.addEventListener("keypress", this.onKeyPress);
+    window.addEventListener('keypress', this.onKeyPress);
   }
 
   componentWillUnmount() {
     if (this.props.errorMessage) {
       this.props.clearError();
     }
-    window.removeEventListener("keypress", this.onKeyPress);
+    window.removeEventListener('keypress', this.onKeyPress);
   }
 
   onKeyPress = event => {
-    if (event.key === "Enter") {
+    if (event.key === 'Enter') {
       this.loginHandler();
     }
   };
@@ -46,7 +46,7 @@ class LoginLayout extends PureComponent {
     let updatedControls = { ...this.state.controls };
     updatedControls[event.target.name].value = event.target.value;
     this.setState({
-      controls: updatedControls
+      controls: updatedControls,
     });
     // if there's an error message from a previous request clear it.
     if (this.props.errorMessage) {
@@ -87,7 +87,7 @@ class LoginLayout extends PureComponent {
       );
     });
     return this.props.loggedIn ? (
-      <Redirect to="/myVMT/courses" />
+      <Redirect to="/myVMT/rooms" />
     ) : (
       <div className={classes.Container}>
         <Background bottomSpace={-60} fixed />
@@ -106,7 +106,7 @@ class LoginLayout extends PureComponent {
             ) : null}
           </form>
           <div className={classes.Submit}>
-            <Button click={this.loginHandler} theme={"Big"}>
+            <Button click={this.loginHandler} theme={'Big'}>
               Login
             </Button>
           </div>

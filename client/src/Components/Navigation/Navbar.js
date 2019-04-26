@@ -30,8 +30,8 @@ const navbar = props => {
       </div>
       <div className={classes.NavListContainer}>
         <ul className={classes.NavList}>
-          <NavItem link="/myVMT/courses" name="My VMT" ntf={ntf} />
-          <NavItem link="/community/activities" name="Community" />
+          <NavItem link="/myVMT/rooms" name="My VMT" ntf={ntf} />
+          <NavItem link="/community/rooms" name="Community" />
           {/* <NavItem link='/profile' name='Profile' /> */}
           <NavItem link="/logout" name="Logout" />
         </ul>

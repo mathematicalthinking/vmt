@@ -28,13 +28,13 @@ class Community extends Component {
           </h3>
           <div className={classes.ResourceOpts}>
             <div>
+              <CustomLink to="/community/rooms">Rooms</CustomLink>
+            </div>
+            <div>
               <CustomLink to="/community/activities">Activities</CustomLink>
             </div>
             <div>
               <CustomLink to="/community/courses">Courses</CustomLink>
-            </div>
-            <div>
-              <CustomLink to="/community/rooms">Rooms</CustomLink>
             </div>
           </div>
           <div className={classes.Search}>
