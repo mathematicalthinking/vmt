@@ -28,10 +28,10 @@ class Community extends Component {
 
     return (
       <div className={classes.Container}>
-        <BreadCrumbs
-          crumbs={[{ link: '/community/rooms', title: 'Community' }]}
-        />
         <div className={classes.Header}>
+          <BreadCrumbs
+            crumbs={[{ link: '/community/rooms', title: 'Community' }]}
+          />
           <h3 className={classes.Title}>
             Search for activities or ask to join rooms and courses
           </h3>
