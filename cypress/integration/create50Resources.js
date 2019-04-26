@@ -6,7 +6,7 @@ const arr = [];
 
 xdescribe('create each type of resource', function() {
   before(function() {
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 150; i++) {
       arr.push(i);
     }
     cy.task('seedDB').then(() => {
