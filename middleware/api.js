@@ -37,6 +37,7 @@ const getEncSecret = () => {
 };
 
 const validateUser = (req, res, next) => {
+  console.log('validating user');
   let { resource, id } = req.params;
 
   if (req.body.tempRoom) {
@@ -69,6 +70,7 @@ const validateUser = (req, res, next) => {
       return errors.sendError.InternalError(null, res);
     }
     if (isValid) {
+      console.log('validated user');
       return next();
     }
     return errors.sendError.NotAuthorizedError(null, res);
