@@ -54,7 +54,7 @@ module.exports = {
   },
 
   searchPaginated: (criteria, skip, filters) => {
-    let params = { tempRoom: false };
+    let params = { tempRoom: false, isTrashed: false };
     if (filters.privacySetting) params.privacySetting = filters.privacySetting;
     if (criteria) params.name = criteria;
     return db.Room.find(params)
@@ -157,7 +157,7 @@ module.exports = {
         await tabModels.forEach(tab => tab.save()); // These could run in parallel I suppose but then we'd have to edit one if ther ewas a failuer with the other
         await room.save();
         room.populate(
-          { path: 'members.user', select: 'username' },
+          { path: 'members.user tabs', select: 'username tabType' },
           (err, room) => {
             if (err) reject(err);
             resolve(room);
