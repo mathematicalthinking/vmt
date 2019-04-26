@@ -203,7 +203,7 @@ class Profile extends Component {
       <DashboardLayout
         breadCrumbs={
           <BreadCrumbs
-            crumbs={[{ title: 'My VMT', link: '/myVMT/courses' }]}
+            crumbs={[{ title: 'My VMT', link: '/myVMT/rooms' }]}
             notifications={user.notifications}
           />
         }
