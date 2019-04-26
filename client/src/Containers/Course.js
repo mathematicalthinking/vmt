@@ -500,6 +500,7 @@ class Course extends Component {
     } else
       return (
         <Access
+          closeModal={() => this.props.history.goBack()}
           resource="courses"
           resourceId={match.params.course_id}
           userId={user._id}

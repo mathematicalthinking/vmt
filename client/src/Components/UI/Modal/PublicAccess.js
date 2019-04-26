@@ -2,10 +2,17 @@ import React from 'react';
 import Modal from './Modal';
 import Button from '../Button/Button';
 import classes from './modal.css';
-const publicAccess = ({ resource, resourceId, userId, joinWithCode }) => {
+const publicAccess = ({
+  resource,
+  resourceId,
+  userId,
+  joinWithCode,
+  closeModal,
+}) => {
   let displayResource = resource.slice(0, resource.length - 1);
+  console.log(closeModal);
   return (
-    <Modal show={true}>
+    <Modal show={true} closeModal={closeModal}>
       <p>
         If you would like to add this {displayResource} to your list of
         resources, click 'Join'.
