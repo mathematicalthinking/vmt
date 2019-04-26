@@ -564,6 +564,7 @@ class Room extends Component {
     } else
       return (
         <Access
+          closeModal={() => this.props.history.goBack()}
           resource="rooms"
           resourceId={match.params.room_id}
           userId={user._id}
