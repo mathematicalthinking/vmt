@@ -37,7 +37,6 @@ const getEncSecret = () => {
 };
 
 const validateUser = (req, res, next) => {
-  console.log('validating user');
   let { resource, id } = req.params;
 
   if (req.body.tempRoom) {
@@ -55,9 +54,7 @@ const validateUser = (req, res, next) => {
   };
 
   let requestedResource = utils.getResource(req);
-  console.log('rtequested resource', requestedResource);
   let authorization = req.headers.authorization;
-  console.log('authorization: ', authorization);
   if (!allowedResources[requestedResource] || !authorization) {
     return errors.sendError.NotAuthorizedError(null, res);
   }

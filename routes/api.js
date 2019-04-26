@@ -119,7 +119,6 @@ router.post(
   middleware.validateUser,
   ggbUpload.array('ggbFiles', 10),
   (req, res, next) => {
-    console.log('made it through the middleware');
     let bufferFiles = req.files;
 
     if (!Array.isArray(bufferFiles)) {
@@ -141,7 +140,6 @@ router.post(
   middleware.validateUser,
   middleware.validateNewRecord,
   (req, res, next) => {
-    console.log('making it here');
     let controller = controllers[req.params.resource];
     controller
       .post(req.body)

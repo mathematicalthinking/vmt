@@ -112,7 +112,6 @@ if (process.env.ENCOMPASS) {
 }
 
 app.get('/*', (req, res) => {
-  console.log('request made: ', req.user);
   if (process.env.ENCOMPASS) {
     res.sendFile(path.join(__dirname, '/client/encompassBuild/index.html'));
   } else if (
@@ -136,7 +135,7 @@ app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
-  console.log(err);
+  console.log('ERROR: ', err);
   // render the error page
   res.status(500).json({ errorMessage: 'Internal Error' });
   // res.render('error');
