@@ -1,4 +1,4 @@
-:import('../../../colors.css'){
+:import('../../../colors.css') {
   red: red;
   blue: blue;
   lightblue: lightblue;
@@ -9,25 +9,26 @@
 }
 
 .Modal {
-    position: absolute;
-    right: calc(50% - var(--modal-width)/2);
-    left: calc(50% - var(--modal-width)/2);
-    display: flex;
-    flex-flow: column;
-    justify-content: center;
-    width: var(--modal-width);
-    top: 50%;
-    min-height: 300px;
-    max-height: 900px;
-    text-align: center;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12), 0 11px 15px -7px rgba(0,0,0,0.2);
-    background-color: white;
-    padding: 16px;
-    z-index: 1500;
-    overflow: scroll;
-    transition: all 0.3s ease-out;
+  position: absolute;
+  right: calc(50% - var(--modal-width) / 2);
+  left: calc(50% - var(--modal-width) / 2);
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  width: var(--modal-width);
+  top: 50%;
+  min-height: 300px;
+  max-height: 900px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.14),
+    0 9px 46px 8px rgba(0, 0, 0, 0.12), 0 11px 15px -7px rgba(0, 0, 0, 0.2);
+  background-color: white;
+  padding: 16px;
+  z-index: 1500;
+  overflow: scroll;
+  transition: all 0.3s ease-out;
 }
 
 .Close {
@@ -37,7 +38,7 @@
   font-size: 20px;
   color: #666;
   cursor: pointer;
-  transition: .2s;
+  transition: 0.2s;
 }
 
 .Close:hover {
@@ -69,16 +70,21 @@
   height: 24px;
 }
 
+.Row {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
 @media (max-width: 600px) {
   .Modal {
-      width: 400px;
-      left: calc(50% - 200px);
+    width: 400px;
+    left: calc(50% - 200px);
   }
 }
 
 @media (max-width: 400px) {
   .Modal {
-      width: 380px;
-      left: calc(50% - 160px);
+    width: 380px;
+    left: calc(50% - 160px);
   }
 }

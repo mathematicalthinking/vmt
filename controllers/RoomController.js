@@ -54,7 +54,7 @@ module.exports = {
   },
 
   searchPaginated: (criteria, skip, filters) => {
-    let params = { tempRoom: false };
+    let params = { tempRoom: false, isTrashed: false };
     if (filters.privacySetting) params.privacySetting = filters.privacySetting;
     if (criteria) params.name = criteria;
     return db.Room.find(params)
@@ -157,7 +157,7 @@ module.exports = {
         await tabModels.forEach(tab => tab.save()); // These could run in parallel I suppose but then we'd have to edit one if ther ewas a failuer with the other
         await room.save();
         room.populate(
-          { path: 'members.user', select: 'username' },
+          { path: 'members.user tabs', select: 'username tabType' },
           (err, room) => {
             if (err) reject(err);
             resolve(room);
@@ -253,7 +253,10 @@ module.exports = {
             let { entryCode, userId } = body.checkAccess;
             fromUser = userId;
             // @todo we should encrypt this
-            if (room.entryCode !== entryCode) {
+            if (
+              room.entryCode !== entryCode &&
+              room.privacySetting === 'private'
+            ) {
               throw 'Incorrect Entry Code';
             }
             // correctCode, update room with user
@@ -280,11 +283,13 @@ module.exports = {
             return room.save();
           })
           .then(updatedRoom => {
+            console.log('making new ntf for room facilitators');
             // create notifications
             roomToPopulate = updatedRoom;
             let facilitators = updatedRoom.members.filter(m => {
               return m.role === 'facilitator';
             });
+            console.log('facilitators: ', facilitators);
             return Promise.all(
               facilitators.map(f => {
                 return db.Notification.create({

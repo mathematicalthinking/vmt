@@ -44,14 +44,14 @@ const navbar = props => {
         <div className={classes.NavListContainer}>
           <ul className={classes.NavList}>
             {props.loggedIn ? (
-              <NavItem link="/myVMT/courses" name="My VMT" ntf={ntf} />
+              <NavItem link="/myVMT/rooms" name="My VMT" ntf={ntf} />
             ) : (
               <Aux>
                 <NavItem link="/login" name="Login" />
                 <NavItem link="/signup" name="Signup" />
               </Aux>
             )}
-            <NavItem link="/community/activities" name="Community" />
+            <NavItem link="/community/rooms" name="Community" />
             <NavItem link="/about" name="About" />
             <NavItem link="/tutorials" name="Tutorials" />
             {props.loggedIn ? <NavItem link="/logout" name="Logout" /> : null}

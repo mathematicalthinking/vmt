@@ -1,27 +1,27 @@
-import React, { Component } from "react";
-import { DashboardLayout, SidePanel, ResourceList } from "../Layout/Dashboard/";
+import React, { Component } from 'react';
+import { DashboardLayout, SidePanel, ResourceList } from '../Layout/Dashboard/';
 import {
   TabList,
-  BreadCrumbs
+  BreadCrumbs,
   // Avatar,
-} from "../Components/";
-import { connect } from "react-redux";
+} from '../Components/';
+import { connect } from 'react-redux';
 import {
   getRooms,
   getActivities,
   getCourses,
   getUser,
-  toggleJustLoggedIn
-} from "../store/actions";
+  toggleJustLoggedIn,
+} from '../store/actions';
 
-import * as ntfUtils from "../utils/notifications";
+import * as ntfUtils from '../utils/notifications';
 
 class Profile extends Component {
   state = {
-    tabs: [{ name: "Courses" }, { name: "Activities" }, { name: "Rooms" }],
+    tabs: [{ name: 'Rooms' }, { name: 'Courses' }, { name: 'Activities' }],
     touring: false,
     displayResources: [],
-    view: "facilitator"
+    view: 'facilitator',
   };
 
   componentDidMount() {
@@ -118,24 +118,24 @@ class Profile extends Component {
     let courseNtfs = ntfUtils.getUserNotifications(
       this.props.user,
       null,
-      "course",
-      "MY_VMT"
+      'course',
+      'MY_VMT'
     );
     let roomNtfs = ntfUtils.getUserNotifications(
       this.props.user,
       null,
-      "room",
-      "MY_VMT"
+      'room',
+      'MY_VMT'
     );
-    updatedTabs[0].notifications =
-      courseNtfs.length === 0 ? "" : courseNtfs.length;
+    updatedTabs[1].notifications =
+      courseNtfs.length === 0 ? '' : courseNtfs.length;
     // if (courseNotifications.newRoom.length > 0){
     //   updatedTabs[0].notifications += courseNotifications.newRoom.length;
     // }
     // let roomNtfs = roomNotifications.filter(ntf => ntf._id ===)
-    updatedTabs[2].notifications = roomNtfs.length === 0 ? "" : roomNtfs.length;
+    updatedTabs[0].notifications = roomNtfs.length === 0 ? '' : roomNtfs.length;
     this.setState({
-      tabs: updatedTabs
+      tabs: updatedTabs,
     });
   };
 
@@ -180,12 +180,12 @@ class Profile extends Component {
   // };
 
   toggleView = () => {
-    let validViews = ["facilitator", "participant"];
+    let validViews = ['facilitator', 'participant'];
     if (!this.state.bothRoles || validViews.indexOf(this.state.view) === -1) {
       return;
     }
     let newView =
-      this.state.view === "facilitator" ? "participant" : "facilitator";
+      this.state.view === 'facilitator' ? 'participant' : 'facilitator';
 
     this.setState({ view: newView });
   };
@@ -197,13 +197,13 @@ class Profile extends Component {
     let additionalDetails = {
       courses: user.courses.length,
       rooms: user.rooms.length,
-      activities: user.activities.length
+      activities: user.activities.length,
     };
     return (
       <DashboardLayout
         breadCrumbs={
           <BreadCrumbs
-            crumbs={[{ title: "My VMT", link: "/myVMT/courses" }]}
+            crumbs={[{ title: 'My VMT', link: '/myVMT/courses' }]}
             notifications={user.notifications}
           />
         }
@@ -229,9 +229,9 @@ class Profile extends Component {
                 }) || []
             }
             notifications={
-              resource === "courses"
-                ? ntfUtils.getUserNotifications(user, null, "course")
-                : ntfUtils.getUserNotifications(user, null, "room")
+              resource === 'courses'
+                ? ntfUtils.getUserNotifications(user, null, 'course')
+                : ntfUtils.getUserNotifications(user, null, 'room')
             }
             user={user}
             resource={resource}
@@ -251,7 +251,7 @@ const mapStateToProps = store => ({
   rooms: store.rooms,
   courses: store.courses,
   activities: store.activities,
-  loading: store.loading.loading
+  loading: store.loading.loading,
 });
 
 export default connect(
@@ -261,6 +261,6 @@ export default connect(
     getActivities,
     getCourses,
     getUser,
-    toggleJustLoggedIn
+    toggleJustLoggedIn,
   }
 )(Profile);

@@ -1,29 +1,30 @@
-import React, { Component } from "react";
-import Modal from "./Modal";
-import classes from "./modal.css";
-import Button from "../Button/Button";
+import React, { Component } from 'react';
+import Modal from './Modal';
+import classes from './modal.css';
+import Button from '../Button/Button';
+const hash = {
+  course: 'courses',
+  room: 'rooms',
+  activity: 'activities',
+};
 class TrashModal extends Component {
   trashResource = () => {
-    this.props.history.push("/myVMT/courses");
+    this.props.history.push(`/myVMT/${hash[this.props.resource]}`);
     this.props.update(this.props.resourceId, { isTrashed: true });
     this.props.closeModal();
   };
 
   trashResourceAndChildren = () => {
-    let hash = {
-      course: "courses",
-      room: "rooms",
-      activity: "activities"
-    };
-    this.props.history.push(`/myVMT/${hash[this.props.resource]}`);
     this.props.update(this.props.resourceId, {
       isTrashed: true,
-      trashChildren: true
+      trashChildren: true,
     });
     this.props.closeModal();
+    this.props.history.push(`/myVMT/${hash[this.props.resource]}`);
   };
 
   render() {
+    console.log(this.props.resource);
     return (
       <Modal show={this.props.show} closeModal={this.props.closeModal}>
         <div>
@@ -38,7 +39,7 @@ class TrashModal extends Component {
           >
             <i className="fas fa-trash-alt" /> delete this {this.props.resource}
           </Button>
-          {this.props.resource === "course" ? (
+          {this.props.resource === 'course' ? (
             <Button
               m={10}
               theme="Danger"
