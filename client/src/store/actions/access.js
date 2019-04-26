@@ -69,12 +69,14 @@ export const requestAccess = (owners, userId, resource, resourceId) => {
 export const grantAccess = (user, resource, resourceId, ntfId, toUserId) => {
   return (dispatch, getState) => {
     // dispatch(loading.start())
-    API.removeNotification(ntfId)
-      .then(res => {
-        dispatch(removeNotification(ntfId));
-        // dispatch(gotUser(res.data))
-      })
-      .catch(err => console.log(err));
+    if (ntfId) {
+      API.removeNotification(ntfId)
+        .then(res => {
+          dispatch(removeNotification(ntfId));
+          // dispatch(gotUser(res.data))
+        })
+        .catch(err => console.log(err));
+    }
     API.grantAccess(user, resource, resourceId, 'grantedAccess')
       .then(res => {
         if (resource === 'rooms' || resource === 'room') {

@@ -253,7 +253,10 @@ module.exports = {
             let { entryCode, userId } = body.checkAccess;
             fromUser = userId;
             // @todo we should encrypt this
-            if (room.entryCode !== entryCode) {
+            if (
+              room.entryCode !== entryCode &&
+              room.privacySetting === 'private'
+            ) {
               throw 'Incorrect Entry Code';
             }
             // correctCode, update room with user
@@ -280,11 +283,13 @@ module.exports = {
             return room.save();
           })
           .then(updatedRoom => {
+            console.log('making new ntf for room facilitators');
             // create notifications
             roomToPopulate = updatedRoom;
             let facilitators = updatedRoom.members.filter(m => {
               return m.role === 'facilitator';
             });
+            console.log('facilitators: ', facilitators);
             return Promise.all(
               facilitators.map(f => {
                 return db.Notification.create({
