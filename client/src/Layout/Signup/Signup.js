@@ -1,31 +1,31 @@
-import React, { Component } from "react";
-import { Redirect } from "react-router-dom";
+import React, { Component } from 'react';
+import { Redirect } from 'react-router-dom';
 import {
   TextInput,
   Button,
   RadioBtn,
   Background,
-  Aux
-} from "../../Components/";
-import classes from "./signup.css";
+  Aux,
+} from '../../Components/';
+import classes from './signup.css';
 
 class Signup extends Component {
   // @TODO Redo Login containers state to match this. cleaner
   // @TODO dispatch an action to clear error message when user starts typing again
   state = {
-    firstName: "",
-    lastName: "",
-    username: "",
-    email: "",
-    password: "",
-    participantAccount: true
+    firstName: '',
+    lastName: '',
+    username: '',
+    email: '',
+    password: '',
+    participantAccount: true,
   };
 
   componentDidMount() {
     if (this.props.temp && this.props.user) {
       this.setState({ username: this.props.user.username });
     }
-    window.addEventListener("keypress", this.onKeyPress);
+    window.addEventListener('keypress', this.onKeyPress);
   }
 
   componentDidUpdate(prevProps) {
@@ -38,7 +38,7 @@ class Signup extends Component {
     if (this.props.errorMessage) {
       this.props.clearError();
     }
-    window.removeEventListener("keypress", this.onKeyPress);
+    window.removeEventListener('keypress', this.onKeyPress);
   }
   // pass to text inputs to update state from user input
   changeHandler = event => {
@@ -48,7 +48,7 @@ class Signup extends Component {
   };
 
   onKeyPress = event => {
-    if (event.key === "Enter") {
+    if (event.key === 'Enter') {
       this.signUp();
     }
     if (this.props.errorMessage) {
@@ -57,15 +57,15 @@ class Signup extends Component {
   };
   signUp = () => {
     const accountType = this.state.participantAccount
-      ? "participant"
-      : "facilitator";
+      ? 'participant'
+      : 'facilitator';
     const newUser = {
       firstName: this.state.firstName,
       lastName: this.state.lastName,
       username: this.state.username,
       email: this.state.email,
       password: this.state.password,
-      accountType
+      accountType,
     };
     if (this.props.temp) {
       newUser._id = this.props.user._id;
@@ -79,12 +79,12 @@ class Signup extends Component {
       ? classes.ModalContainer
       : classes.SignupContainer;
 
-    let initialValue = this.props.user ? this.props.user.username : "";
+    let initialValue = this.props.user ? this.props.user.username : '';
     return (
       // after creating a user redirect to login @TODO figure out if this is for creating participants or for signing up on your own
       // the answer will determine where/if we redirect to
       this.props.loggedIn && !this.props.temp ? (
-        <Redirect to={"/myVMT/courses"} />
+        <Redirect to={'/myVMT/rooms'} />
       ) : (
         <Aux>
           {!this.props.temp ? <Background bottomSpace={-40} fixed /> : null}
@@ -165,7 +165,7 @@ class Signup extends Component {
               <div className={classes.Submit}>
                 <Button
                   type=""
-                  theme={this.props.temp ? "Small" : "Big"}
+                  theme={this.props.temp ? 'Small' : 'Big'}
                   data-testid="submit-signup"
                   click={this.signUp}
                 >

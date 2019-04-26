@@ -1,204 +1,207 @@
-const user = require("../fixtures/user");
-const course = require("../fixtures/course");
-const room = require("../fixtures/room");
-const activity = require("../fixtures/activity");
+const user = require('../fixtures/user');
+const course = require('../fixtures/course');
+const room = require('../fixtures/room');
+const activity = require('../fixtures/activity');
 
-describe("create each type of resource", function() {
+describe('create each type of resource', function() {
   before(function() {
-    cy.task("seedDB").then(() => {
+    cy.task('seedDB').then(() => {
       cy.login(user);
     });
     // cy.visit('/myVMT/courses')
   });
 
-  it("creates a course", function() {
-    cy.getTestElement("create-course").click();
-    cy.get("input[name=name]").type(course.name);
-    cy.get("input[name=description]").type(course.description);
-    cy.get("button")
-      .contains("next")
+  it('creates a course', function() {
+    cy.getTestElement('tab')
+      .contains('Courses')
       .click();
-    cy.get("button")
-      .contains("create")
+    cy.getTestElement('create-course').click();
+    cy.get('input[name=name]').type(course.name);
+    cy.get('input[name=description]').type(course.description);
+    cy.get('button')
+      .contains('next')
       .click();
-    cy.contains(course.name).should("exist");
+    cy.get('button')
+      .contains('create')
+      .click();
+    cy.contains(course.name).should('exist');
   });
 
-  it("creates a new room", function() {
+  it('creates a new room', function() {
     // cy.get('button').click()
-    cy.getTestElement("tab")
-      .contains("Rooms")
+    cy.getTestElement('tab')
+      .contains('Rooms')
       .click();
-    cy.getTestElement("create-room").click();
-    cy.get("input[name=name]")
-      .type("{selectall} {backspace}")
+    cy.getTestElement('create-room').click();
+    cy.get('input[name=name]')
+      .type('{selectall} {backspace}')
       .type(room.name);
-    cy.get("input[name=description]")
-      .type("{selectall} {backspace}")
+    cy.get('input[name=description]')
+      .type('{selectall} {backspace}')
       .type(room.description);
-    cy.get("button")
-      .contains("create a new room")
+    cy.get('button')
+      .contains('create a new room')
       .click();
-    cy.get("button")
-      .contains("next")
+    cy.get('button')
+      .contains('next')
       .click();
-    cy.get("button")
-      .contains("next")
+    cy.get('button')
+      .contains('next')
       .click();
-    cy.get("button")
-      .contains("next")
+    cy.get('button')
+      .contains('next')
       .click();
-    cy.get("button")
-      .contains("create")
+    cy.get('button')
+      .contains('create')
       .click();
-    cy.contains(room.name).should("exist");
+    cy.contains(room.name).should('exist');
   });
 
-  it("creates an activity", function() {
-    cy.getTestElement("tab")
-      .contains("Activities")
+  it('creates an activity', function() {
+    cy.getTestElement('tab')
+      .contains('Activities')
       .click();
-    cy.url().should("include", "/myVMT/activities");
-    cy.get("button")
-      .contains("Create")
+    cy.url().should('include', '/myVMT/activities');
+    cy.get('button')
+      .contains('Create')
       .click();
-    cy.get("input[name=name]")
-      .type("{selectall} {backspace}")
+    cy.get('input[name=name]')
+      .type('{selectall} {backspace}')
       .type(activity.name);
-    cy.get("input[name=description]")
-      .type("{selectall} {backspace}")
+    cy.get('input[name=description]')
+      .type('{selectall} {backspace}')
       .type(activity.description);
-    cy.get("button")
-      .contains("create a new activity")
+    cy.get('button')
+      .contains('create a new activity')
       .click();
-    cy.get("button")
-      .contains("next")
+    cy.get('button')
+      .contains('next')
       .click();
-    cy.get("button")
-      .contains("next")
+    cy.get('button')
+      .contains('next')
       .click();
-    cy.get("button")
-      .contains("create")
+    cy.get('button')
+      .contains('create')
       .click();
-    cy.contains(activity.name).should("exist");
+    cy.contains(activity.name).should('exist');
   });
 
-  it("creates a room from an activity", function() {
-    cy.getTestElement("tab")
-      .contains("Rooms")
+  it('creates a room from an activity', function() {
+    cy.getTestElement('tab')
+      .contains('Rooms')
       .click();
-    cy.getTestElement("create-room").click();
-    cy.get("input[name=name]")
-      .type("{selectall} {backspace}")
-      .type("room from activity");
-    cy.get("input[name=description]")
-      .type("{selectall} {backspace}")
+    cy.getTestElement('create-room').click();
+    cy.get('input[name=name]')
+      .type('{selectall} {backspace}')
+      .type('room from activity');
+    cy.get('input[name=description]')
+      .type('{selectall} {backspace}')
       .type(room.description);
-    cy.get("button")
-      .contains("copy existing activities")
+    cy.get('button')
+      .contains('copy existing activities')
       .click();
-    cy.getTestElement("ACTIVITY 2-checkbox").click();
-    cy.get("button")
-      .contains("next")
+    cy.getTestElement('ACTIVITY 2-checkbox').click();
+    cy.get('button')
+      .contains('next')
       .click();
-    cy.get("button")
-      .contains("next")
+    cy.get('button')
+      .contains('next')
       .click();
-    cy.get("button")
-      .contains("create")
+    cy.get('button')
+      .contains('create')
       .click();
-    cy.contains("room from activity").should("exist");
+    cy.contains('room from activity').should('exist');
   });
 
-  it("creates an activity from an existing activity", function() {
-    cy.getTestElement("tab")
-      .contains("Activities")
+  it('creates an activity from an existing activity', function() {
+    cy.getTestElement('tab')
+      .contains('Activities')
       .click();
-    cy.getTestElement("create-activity").click();
-    cy.get("input[name=name]")
-      .type("{selectall} {backspace}")
-      .type("activity from existing activity");
-    cy.get("input[name=description]")
-      .type("{selectall} {backspace}")
+    cy.getTestElement('create-activity').click();
+    cy.get('input[name=name]')
+      .type('{selectall} {backspace}')
+      .type('activity from existing activity');
+    cy.get('input[name=description]')
+      .type('{selectall} {backspace}')
       .type(room.description);
-    cy.get("button")
-      .contains("copy existing activities")
+    cy.get('button')
+      .contains('copy existing activities')
       .click();
-    cy.getTestElement("ACTIVITY 2-checkbox").click();
-    cy.get("button")
-      .contains("next")
+    cy.getTestElement('ACTIVITY 2-checkbox').click();
+    cy.get('button')
+      .contains('next')
       .click();
-    cy.get("button")
-      .contains("create")
+    cy.get('button')
+      .contains('create')
       .click();
-    cy.contains("activity from existing activity").should("exist");
+    cy.contains('activity from existing activity').should('exist');
   });
 
-  it("creates a course activity", function() {
-    cy.getTestElement("tab")
-      .contains("Courses")
+  it('creates a course activity', function() {
+    cy.getTestElement('tab')
+      .contains('Courses')
       .click();
-    cy.getTestElement("content-box-course 1").click();
-    cy.url().should("include", "/myVMT/courses");
-    cy.url().should("include", "/activities");
-    cy.getTestElement("tab")
-      .contains("Activities")
+    cy.getTestElement('content-box-course 1').click();
+    cy.url().should('include', '/myVMT/courses');
+    cy.url().should('include', '/activities');
+    cy.getTestElement('tab')
+      .contains('Activities')
       .click();
-    cy.get("button")
-      .contains("Create")
+    cy.get('button')
+      .contains('Create')
       .click();
-    cy.get("input[name=name]")
-      .type("{selectall} {backspace}")
+    cy.get('input[name=name]')
+      .type('{selectall} {backspace}')
       .type(course.activity.name);
-    cy.get("input[name=description]")
-      .type("{selectall} {backspace}")
+    cy.get('input[name=description]')
+      .type('{selectall} {backspace}')
       .type(course.activity.description);
-    cy.get("button")
-      .contains("create a new activity")
+    cy.get('button')
+      .contains('create a new activity')
       .click();
-    cy.get("button")
-      .contains("next")
+    cy.get('button')
+      .contains('next')
       .click();
-    cy.get("button")
-      .contains("next")
+    cy.get('button')
+      .contains('next')
       .click();
-    cy.get("button")
-      .contains("create")
+    cy.get('button')
+      .contains('create')
       .click();
-    cy.contains(course.activity.name).should("exist");
+    cy.contains(course.activity.name).should('exist');
   });
 
-  it("creates a course room", function() {
-    cy.getTestElement("tab")
-      .contains("Rooms")
+  it('creates a course room', function() {
+    cy.getTestElement('tab')
+      .contains('Rooms')
       .click();
-    cy.url().should("include", "/myVMT/courses");
-    cy.url().should("include", "/rooms");
-    cy.get("button")
-      .contains("Create")
+    cy.url().should('include', '/myVMT/courses');
+    cy.url().should('include', '/rooms');
+    cy.get('button')
+      .contains('Create')
       .click();
-    cy.get("input[name=name]")
-      .type("{selectall} {backspace}")
+    cy.get('input[name=name]')
+      .type('{selectall} {backspace}')
       .type(course.room.name);
-    cy.get("input[name=description]")
-      .type("{selectall} {backspace}")
+    cy.get('input[name=description]')
+      .type('{selectall} {backspace}')
       .type(course.room.description);
-    cy.get("button")
-      .contains("create a new room")
+    cy.get('button')
+      .contains('create a new room')
       .click();
-    cy.get("button")
-      .contains("next")
+    cy.get('button')
+      .contains('next')
       .click();
-    cy.get("button")
-      .contains("next")
+    cy.get('button')
+      .contains('next')
       .click();
-    cy.get("button")
-      .contains("next")
+    cy.get('button')
+      .contains('next')
       .click();
-    cy.get("button")
-      .contains("create")
+    cy.get('button')
+      .contains('create')
       .click();
-    cy.contains(course.room.name).should("exist");
+    cy.contains(course.room.name).should('exist');
   });
 
   // it("creates a course room from a course activity", function() {
