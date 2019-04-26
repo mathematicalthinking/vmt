@@ -1,5 +1,5 @@
-const db = require("../models");
-const _ = require("lodash");
+const db = require('../models');
+const _ = require('lodash');
 
 module.exports = {
   get: params => {
@@ -8,8 +8,8 @@ module.exports = {
         params = { _id: { $in: params } };
       }
       db.Course.find(params ? params : {})
-        .sort("-createdAt")
-        .populate({ path: "members.user", select: "username" })
+        .sort('-createdAt')
+        .populate({ path: 'members.user', select: 'username' })
         .then(courses => resolve(courses))
         .catch(err => reject(err));
     });
@@ -20,7 +20,7 @@ module.exports = {
       db.Course.findById(id)
         // .populate('creator')
         // .populate('rooms', 'name ')
-        .populate("members.user", "username")
+        .populate('members.user', 'username')
         // .populate('notifications.user')
         .then(course => resolve(course))
         .catch(err => reject(err));
@@ -33,7 +33,7 @@ module.exports = {
     )
       .skip(parseInt(skip))
       .limit(20)
-      .populate("members.user", "username")
+      .populate('members.user', 'username')
       .then(courses => {
         // console.log(courses);
         return courses;
@@ -49,7 +49,7 @@ module.exports = {
           name,
           description,
           privacySetting: templatePrivacySetting,
-          creator
+          creator,
         };
         db.CourseTemplate.create(template)
           .then(template => {
@@ -68,7 +68,7 @@ module.exports = {
         delete body.template;
         db.Course.create(body)
           .then(course => {
-            course.populate({ path: "members.user", select: "username" }, () =>
+            course.populate({ path: 'members.user', select: 'username' }, () =>
               resolve(course)
             );
           })
@@ -89,22 +89,22 @@ module.exports = {
       let ntfType = body.ntfType;
       delete body.ntfType;
       db.Course.findByIdAndUpdate(id, { $addToSet: body }, { new: true })
-        .populate({ path: "members.user", select: "username" })
+        .populate({ path: 'members.user', select: 'username' })
         .then(res => {
           course = res;
           return db.User.findByIdAndUpdate(body.members.user, {
             $addToSet: {
-              courses: id
-            }
+              courses: id,
+            },
           });
         })
         .then(() => {
           members = course.members;
           return db.Notification.create({
-            resourceType: "course",
+            resourceType: 'course',
             resourceId: id,
             toUser: body.members.user,
-            notificationType: ntfType
+            notificationType: ntfType,
           });
         })
         .then(() => resolve(members))
@@ -119,7 +119,7 @@ module.exports = {
       return db.User.findByIdAndUpdate(
         body.members.user,
         {
-          $pull: { courses: id }
+          $pull: { courses: id },
         },
         { new: true }
       )
@@ -128,7 +128,7 @@ module.exports = {
             id,
             { $pull: body },
             { new: true }
-          ).populate({ path: "members.user", select: "username" });
+          ).populate({ path: 'members.user', select: 'username' });
         })
         .then(res => resolve(res.members))
         .catch(err => reject(err));
@@ -148,8 +148,11 @@ module.exports = {
             // @todo SHOULD PROBABLY HASH THIS AND MOVE TO AUTH ROUTE
             userToAdd = userId;
             // throw error if incorrect entry code
-            if (course.entryCode !== entryCode) {
-              throw "Incorrect Entry Code";
+            if (
+              course.entryCode !== entryCode &&
+              course.privacySetting === 'private'
+            ) {
+              throw 'Incorrect Entry Code';
             }
 
             // throw error if user is already member of course
@@ -160,9 +163,9 @@ module.exports = {
                 member => member.user.toString() === userId
               )
             ) {
-              throw "You already have been granted access to this course!";
+              throw 'You already have been granted access to this course!';
             }
-            course.members.push({ user: userId, role: "participant" });
+            course.members.push({ user: userId, role: 'participant' });
             return course.save();
           })
           .then(updatedCourse => {
@@ -175,23 +178,23 @@ module.exports = {
           })
           .then(user => {
             let facilitators = courseToPopulate.members.filter(
-              member => member.role === "facilitator"
+              member => member.role === 'facilitator'
             );
             return Promise.all(
               facilitators.map(facilitator => {
                 return db.Notification.create({
-                  resourceType: "course",
+                  resourceType: 'course',
                   resourceId: courseToPopulate._id,
-                  notificationType: "newMember",
+                  notificationType: 'newMember',
                   toUser: facilitator.user,
-                  fromUser: userId
+                  fromUser: userId,
                 });
               })
             );
           })
           .then(() => {
             return courseToPopulate.populate(
-              { path: "members.user", select: "username" },
+              { path: 'members.user', select: 'username' },
               (err, pop) => {
                 if (err) {
                   return reject(err);
@@ -218,11 +221,11 @@ module.exports = {
                   {
                     $pull: {
                       courses: course._id,
-                      notifications: { $in: ntfIds }
-                    }
+                      notifications: { $in: ntfIds },
+                    },
                   },
                   { multi: true }
-                )
+                ),
               ];
               promises.push(
                 db.Notification.deleteMany({ _id: { $in: ntfIds } })
@@ -263,7 +266,7 @@ module.exports = {
           })
           .then(updatedCourse => {
             return updatedCourse.populate(
-              { path: "members.user", select: "username" },
+              { path: 'members.user', select: 'username' },
               (err, pop) => {
                 return resolve(pop);
               }
@@ -274,7 +277,7 @@ module.exports = {
           });
       }
     });
-  }
+  },
 
   // delete: id => {
   //   return new Promise((resolve, reject) => {
