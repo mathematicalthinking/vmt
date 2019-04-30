@@ -1,6 +1,8 @@
 import React from 'react';
 import NavItem from './NavItem/NavItem';
+import DropdownNavItem from './DropdownNavItem';
 import classes from './navbar.css';
+import Avatar from '../UI/Avatar/Avatar';
 import { Link, withRouter } from 'react-router-dom';
 const navbar = props => {
   let styles = classes.NavContainer;
@@ -33,7 +35,13 @@ const navbar = props => {
           <NavItem link="/myVMT/rooms" name="My VMT" ntf={ntf} />
           <NavItem link="/community/rooms" name="Community" />
           {/* <NavItem link='/profile' name='Profile' /> */}
-          <NavItem link="/logout" name="Logout" />
+          <DropdownNavItem
+            name={<Avatar username={props.user.username} />}
+            list={[
+              { name: 'Profile', link: '/profile' },
+              { name: 'Logout', link: '/logout' },
+            ]}
+          />
         </ul>
       </div>
     </nav>

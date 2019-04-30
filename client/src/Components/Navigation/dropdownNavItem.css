@@ -1,0 +1,59 @@
+:import('../../colors.css') {
+  blue: blue;
+  lightShadow: lightShadow;
+}
+
+.Container {
+  position: relative;
+  margin: 0 10px;
+  /* border: 1px solid red; */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.DropdownContent {
+  display: none;
+  position: absolute;
+  top: 56px;
+  left: 0;
+  right: 0;
+  /* border: 1px solid red; */
+
+  z-index: 1000;
+  box-shadow: lightShadow;
+  background: blue;
+  color: white;
+  border: 1px solid #ddd;
+  flex-flow: column;
+  transition: 0.2s;
+}
+
+.DropdownItem {
+  margin: 4px 0;
+}
+/* .Header:hover {
+  color: red;
+} */
+
+.Container:hover .DropdownContent {
+  display: flex;
+  animation: showDropdown 0.2s;
+}
+
+.DropdownItem:hover {
+}
+
+@keyframes showDropdown {
+  /* style rules */
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
