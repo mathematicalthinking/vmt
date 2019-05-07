@@ -138,6 +138,7 @@ module.exports = passport => {
           if (!bcrypt.compareSync(password, user.password)) {
             return next(null, false, 'The password you entered is incorrect');
           }
+          console.log('USER: ', user);
           return next(null, user);
         })
         .catch(err => {

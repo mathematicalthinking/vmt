@@ -77,7 +77,6 @@ const validateUser = (req, res, next) => {
 const canModifyResource = req => {
   let { id, resource, remove } = req.params;
   let user = utils.getUser(req);
-
   let results = {
     canModify: false,
     doesRecordExist: true,
@@ -85,6 +84,7 @@ const canModifyResource = req => {
       isCreator: false,
       isFacilitator: false,
       modelName: null,
+      isAdmin: false,
     },
   };
 
@@ -95,6 +95,12 @@ const canModifyResource = req => {
     `
   );
 
+  if (user.isAdmin) {
+    results.canModify = true;
+    results.details.isAdmin = true;
+    console.log(`${user.username} is operating as ADMIN`);
+    return results;
+  }
   let modelName = utils.getModelName(resource);
   results.details.modelName = modelName;
   let model = models[modelName];

@@ -1,13 +1,13 @@
-import React, { Component } from "react";
-import { withRouter } from "react-router-dom";
-import Modal from "./Modal";
-import classes from "./modal.css";
-import TextInput from "../../Form/TextInput/TextInput";
-import Button from "../Button/Button";
+import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
+import Modal from './Modal';
+import classes from './modal.css';
+import TextInput from '../../Form/TextInput/TextInput';
+import Button from '../Button/Button';
 class privateAccess extends Component {
   state = {
-    entryCode: "",
-    show: true
+    entryCode: '',
+    show: true,
   };
 
   updateEntry = event => {
@@ -28,26 +28,26 @@ class privateAccess extends Component {
   requestAccess = () => {
     let { resource, owners, resourceId, userId, requestAccess } = this.props;
     requestAccess(owners, userId, resource, resourceId);
-    this.props.history.push("/confirmation");
+    this.props.history.push('/confirmation');
   };
 
   joinWithCode = () => {
     let { resource, resourceId, userId, username, joinWithCode } = this.props;
     // put request was being made to /course/:id when it should be /courses/:id
-    if (resource === "course") {
-      resource = "courses";
+    if (resource === 'course') {
+      resource = 'courses';
     }
-    if (resource === "room") {
-      resource = "rooms";
+    if (resource === 'room') {
+      resource = 'rooms';
     }
     joinWithCode(resource, resourceId, userId, username, this.state.entryCode);
   };
 
   render() {
-    let { resource } = this.props;
-    let displayResource = "activity";
-    if (resource === "rooms") displayResource = "room";
-    if (resource === "courses") displayResource = "course";
+    let { resource, user } = this.props;
+    let displayResource = 'activity';
+    if (resource === 'rooms') displayResource = 'room';
+    if (resource === 'courses') displayResource = 'course';
     return (
       <Modal show={this.state.show} closeModal={this.closeModal}>
         <p className={classes.Description}>
@@ -60,18 +60,19 @@ class privateAccess extends Component {
           name="entryCode"
           change={this.updateEntry}
         />
-        <Button theme={"Small"} m={10} click={this.joinWithCode}>
+        <Button theme={'Small'} m={10} click={this.joinWithCode}>
           Join
         </Button>
         <p>{`Otherwise you can ask this ${resource}'s owner for access`}</p>
         <Button
-          theme={"Small"}
+          theme={'Small'}
           m={10}
           click={this.requestAccess}
           data-testid="request-access-btn"
         >
           Request Access
         </Button>
+        {user.isAdmin ? <Button>View as Admin</Button> : null}
         <div className={classes.Error} data-testid="entry-code-error">
           {this.props.error}
         </div>

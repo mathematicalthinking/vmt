@@ -1,10 +1,10 @@
-import * as actionTypes from "../actions/actionTypes";
+import * as actionTypes from '../actions/actionTypes';
 
 const initialState = {
-  firstName: "",
-  lastName: "",
-  username: "",
-  _id: "",
+  firstName: '',
+  lastName: '',
+  username: '',
+  _id: '',
   loggedIn: false,
   courses: [],
   notifications: [],
@@ -14,7 +14,8 @@ const initialState = {
   seenTour: false,
   bothRoles: false,
   justLoggedIn: false,
-  connected: false // connected over the socket
+  isAdmin: false,
+  connected: false, // connected over the socket
 };
 
 const reducer = (state = initialState, action) => {
@@ -37,36 +38,37 @@ const reducer = (state = initialState, action) => {
         seenTour: action.user.seenTour,
         accountType: action.user.accountType,
         bothRoles: action.user.bothRoles,
-        justLoggedIn: true
+        isAdmin: action.user.isAdmin,
+        justLoggedIn: true,
       };
     case actionTypes.TOGGLE_JUST_LOGGED_IN:
       return {
         ...state,
-        justLoggedIn: false
+        justLoggedIn: false,
       };
     case actionTypes.LOGOUT:
       return initialState;
     case actionTypes.UPDATE_USER:
       return {
         ...state,
-        ...action.body
+        ...action.body,
       };
     case actionTypes.ADD_USER_COURSES:
       return {
         ...state,
-        courses: state.courses.concat(...action.newCoursesArr)
+        courses: state.courses.concat(...action.newCoursesArr),
       };
 
     case actionTypes.ADD_USER_ACTIVITIES:
       return {
         ...state,
-        activities: state.activities.concat(action.newActivitiesArr)
+        activities: state.activities.concat(action.newActivitiesArr),
       };
 
     case actionTypes.ADD_USER_ROOMS:
       return {
         ...state,
-        rooms: state.rooms.concat(action.newRoomsArr)
+        rooms: state.rooms.concat(action.newRoomsArr),
       };
 
     case actionTypes.REMOVE_USER_COURSE:
@@ -87,7 +89,7 @@ const reducer = (state = initialState, action) => {
       let newNotifications = [...state.notifications, action.ntf];
       return {
         ...state,
-        notifications: newNotifications
+        notifications: newNotifications,
       };
 
     case actionTypes.REMOVE_NOTIFICATION:
@@ -98,13 +100,13 @@ const reducer = (state = initialState, action) => {
       });
       return {
         ...state,
-        notifications: updatedNotifications
+        notifications: updatedNotifications,
       };
 
     case actionTypes.CLEAR_ERROR:
       return {
         ...state,
-        loginError: ""
+        loginError: '',
       };
 
     default:

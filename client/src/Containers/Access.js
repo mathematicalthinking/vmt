@@ -19,6 +19,7 @@ class Access extends Component {
 }
 
 const mapStateToProps = (store, ownProps) => ({
+  user: store.user,
   error: store.loading.errorMessage,
 });
 
