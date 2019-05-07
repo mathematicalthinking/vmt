@@ -20,16 +20,16 @@ export {
   addUserCourses,
   updateUserResource,
   logout,
-  toggleJustLoggedIn
-} from "./user";
+  toggleJustLoggedIn,
+} from './user';
 export {
   fail,
   start,
   clearLoadingInfo,
   success,
   clearError,
-  accessSuccess
-} from "./loading";
+  accessSuccess,
+} from './loading';
 export {
   getRooms,
   getRoom,
@@ -56,8 +56,8 @@ export {
   updateRoomTab,
   setRoomStartingPoint,
   addToLog,
-  inviteToRoom
-} from "./rooms";
+  inviteToRoom,
+} from './rooms';
 export {
   addCourse,
   addCourseRooms,
@@ -77,14 +77,14 @@ export {
   updateCourseMembers,
   addCourseMember,
   removeCourseMember,
-  inviteToCourse
-} from "./courses";
+  inviteToCourse,
+} from './courses';
 export {
   getCourseTemplates,
   gotCourseTemplates,
   createCourseTemplate,
-  createdCourseTemplate
-} from "./courseTemplates";
+  createdCourseTemplate,
+} from './courseTemplates';
 export {
   getActivities,
   gotActivities,
@@ -101,6 +101,6 @@ export {
   copyActivity,
   setActivityStartingPoint,
   updateActivityTab,
-  updatedActivityTab
-} from "./activities";
-export { joinWithCode, requestAccess, grantAccess } from "./access";
+  updatedActivityTab,
+} from './activities';
+export { joinWithCode, requestAccess, grantAccess } from './access';

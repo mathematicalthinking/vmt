@@ -73,9 +73,10 @@ router.get('/searchPaginated/:resource', (req, res, next) => {
 
 // returns a record with all of its info populated including sensitive information about record members etc.
 router.get(
-  'populated/:resource/:id',
+  '/:resource/:id/populated',
   middleware.validateRecordAccess,
   (req, res, next) => {
+    console.log('getting populated!');
     let { id, resource } = req.params;
     let controller = controllers[resource];
     controller
@@ -96,6 +97,7 @@ router.get(
 
 // returns a record WITHOUT sensitive information
 router.get('/:resource/:id', middleware.validateUser, (req, res, next) => {
+  console.log('getting unpopulated');
   let { id, resource } = req.params;
   let controller = controllers[resource];
   controller

@@ -5,6 +5,7 @@ import {
   grantAccess,
   clearError,
   joinWithCode,
+  populateRoom,
 } from '../store/actions';
 import PrivateAccessModal from '../Components/UI/Modal/PrivateAccess';
 import PublicAccessModal from '../Components/UI/Modal/PublicAccess';

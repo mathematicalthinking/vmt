@@ -72,7 +72,9 @@ class privateAccess extends Component {
         >
           Request Access
         </Button>
-        {user.isAdmin ? <Button>View as Admin</Button> : null}
+        {user.isAdmin ? (
+          <Button click={this.props.setAdmin}>View as Admin</Button>
+        ) : null}
         <div className={classes.Error} data-testid="entry-code-error">
           {this.props.error}
         </div>

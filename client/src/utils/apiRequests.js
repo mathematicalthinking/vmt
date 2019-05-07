@@ -60,22 +60,22 @@ export default {
   getPopulatedById: (resource, id, temp, events, encompass) => {
     console.log('getting populated');
     if (temp) {
-      return api.get(`/api/populated/${resource}/${id}/tempRoom`, {
+      return api.get(`/api/${resource}/${id}/tempRoom`, {
         params: { events },
       });
     }
 
     if (encompass) {
-      return api.get(`/api/populated/vmt/${resource}/${id}`);
+      return api.get(`/api/vmt/${resource}/${id}`);
     }
 
     if (events) {
-      return api.get(`/api/populated/${resource}/${id}`, {
+      return api.get(`/api/${resource}/${id}/populated`, {
         params: { events },
       });
     }
 
-    return api.get(`/api/populated/${resource}/${id}`);
+    return api.get(`/api/${resource}/${id}/populated`);
   },
 
   remove: (resource, id) => {
