@@ -74,6 +74,40 @@ const validateUser = (req, res, next) => {
   });
 };
 
+const validateRecordAccess = (req, res, next) => {
+  if (req.user.isAdmin) {
+    return next();
+  }
+
+  let { id, resource } = req.params;
+  let modelName = utils.getModelName(resource);
+  let model = models[modelName];
+  let schema = utils.getSchema(resource);
+
+  return model
+    .findById(id)
+    .populate('members.user', 'members.role') // for rooms and courses
+    .lean()
+    .exec()
+    .then(record => {
+      if (record.members) {
+        let role = helpers.getUserRoleInRecord(record, user._id);
+        if (role) return next();
+      }
+      if (record.privacySetting === 'public') {
+        return next();
+      }
+      if (_isEqual(user._id, record.creator)) {
+        return next();
+      }
+      return errors.sendError.NotAuthorizedError(null, res);
+    })
+    .catch(err => {
+      console.error(`Error canModifyResource: ${err}`);
+      reject(err);
+    });
+};
+
 const canModifyResource = req => {
   let { id, resource, remove } = req.params;
   let user = utils.getUser(req);

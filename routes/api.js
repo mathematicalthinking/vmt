@@ -71,6 +71,26 @@ router.get('/searchPaginated/:resource', (req, res, next) => {
     });
 });
 
+router.get(
+  'populated/:resource/:id',
+  middleware.validateRecordAccess,
+  (req, res, next) => {
+    controller
+      .getPopulatedById(id, req.query)
+      .then(result => res.json({ result }))
+      .catch(err => {
+        console.error(`Error get populated ${resource}/${id}: ${err}`);
+        let msg = null;
+
+        if (typeof err === 'string') {
+          msg = err;
+        }
+
+        return errors.sendError.InternalError(msg, res);
+      });
+  }
+);
+
 router.get('/:resource/:id', middleware.validateUser, (req, res, next) => {
   let { id, resource } = req.params;
   let controller = controllers[resource];
