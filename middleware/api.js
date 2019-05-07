@@ -82,7 +82,6 @@ const validateRecordAccess = (req, res, next) => {
   let { id, resource } = req.params;
   let modelName = utils.getModelName(resource);
   let model = models[modelName];
-  let schema = utils.getSchema(resource);
 
   return model
     .findById(id)
@@ -320,3 +319,4 @@ module.exports.validateUser = validateUser;
 module.exports.canModifyResource = canModifyResource;
 module.exports.validateNewRecord = validateNewRecord;
 module.exports.prunePutBody = prunePutBody;
+module.exports.validateRecordAccess = validateRecordAccess;

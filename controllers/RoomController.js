@@ -33,24 +33,47 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
         .populate({ path: 'creator', select: 'username' })
-        .populate({
-          path: 'chat',
-          populate: { path: 'user', select: 'username' },
-          select: '-room',
-        })
-        .populate({ path: 'members.user', select: 'username' })
-        .populate({ path: 'currentMembers.user', select: 'username' })
+        // .populate({
+        //   path: 'chat',
+        //   populate: { path: 'user', select: 'username' },
+        //   select: '-room',
+        // })
+        // .populate({ path: 'members.user', select: 'username' })
+        // .populate({ path: 'currentMembers.user', select: 'username' })
         .populate({ path: 'course', select: 'name' })
-        .populate({
-          path: 'tabs',
-          populate: { path: params.events ? 'events' : '' },
-        })
+        // .populate({
+        //   path: 'tabs',
+        //   populate: { path: params.events ? 'events' : '' },
+        // })
         .populate({ path: 'graphImage', select: 'imageData' })
+        .select('name creator members course graphImage privacySetting _id')
         .then(room => {
           resolve(room);
         })
         .catch(err => reject(err));
     });
+  },
+
+  getPopulatedById: (id, params) => {
+    return db.Room.findById(id)
+      .populate({ path: 'creator', select: 'username' })
+      .populate({
+        path: 'chat',
+        populate: { path: 'user', select: 'username' },
+        select: '-room',
+      })
+      .populate({ path: 'members.user', select: 'username' })
+      .populate({ path: 'currentMembers.user', select: 'username' })
+      .populate({ path: 'course', select: 'name' })
+      .populate({
+        path: 'tabs',
+        populate: { path: params.events ? 'events' : '' },
+      })
+      .populate({ path: 'graphImage', select: 'imageData' })
+      .then(room => {
+        resolve(room);
+      })
+      .catch(err => reject(err));
   },
 
   searchPaginated: (criteria, skip, filters) => {

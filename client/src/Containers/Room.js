@@ -92,9 +92,7 @@ class Room extends Component {
         firstView,
         invited,
       });
-    }
-    // else fetch it
-    else {
+    } else {
       this.fetchRoom();
     }
   }

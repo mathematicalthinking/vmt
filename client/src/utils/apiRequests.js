@@ -41,6 +41,7 @@ export default {
   },
 
   getById: (resource, id, temp, events, encompass) => {
+    console.log('getting unpopulated');
     if (temp) {
       return api.get(`/api/${resource}/${id}/tempRoom`, { params: { events } });
     }
@@ -54,6 +55,27 @@ export default {
     }
 
     return api.get(`/api/${resource}/${id}`);
+  },
+
+  getPopulatedById: (resource, id, temp, events, encompass) => {
+    console.log('getting populated');
+    if (temp) {
+      return api.get(`/api/populated/${resource}/${id}/tempRoom`, {
+        params: { events },
+      });
+    }
+
+    if (encompass) {
+      return api.get(`/api/populated/vmt/${resource}/${id}`);
+    }
+
+    if (events) {
+      return api.get(`/api/populated/${resource}/${id}`, {
+        params: { events },
+      });
+    }
+
+    return api.get(`/api/populated/${resource}/${id}`);
   },
 
   remove: (resource, id) => {

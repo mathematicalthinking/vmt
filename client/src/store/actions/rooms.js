@@ -247,7 +247,7 @@ export const populateRoom = (id, opts) => {
       temp = opts.temp;
       events = opts.events;
     }
-    API.getById('rooms', id, temp, events)
+    API.getPopulatedById('rooms', id, temp, events)
       .then(res => {
         // creae a log combining events and chat messages
         let room = res.data.result;
