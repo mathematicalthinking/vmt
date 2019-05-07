@@ -34,7 +34,7 @@ class Activity extends Component {
     description: this.props.activity.description,
     instructions: this.props.activity.instructions,
     privacySetting: this.props.activity.privacySetting,
-    isAdmin: false,
+    // isAdmin: false,
   };
 
   componentDidMount() {
@@ -232,7 +232,7 @@ class Activity extends Component {
                 owner={this.state.owner}
                 additionalDetails={additionalDetails}
                 editButton={
-                  this.state.owner ? (
+                  this.state.owner || this.props.user.isAdmin ? (
                     <Aux>
                       <div
                         role="button"
