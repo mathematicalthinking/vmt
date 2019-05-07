@@ -34,6 +34,7 @@ class Activity extends Component {
     description: this.props.activity.description,
     instructions: this.props.activity.instructions,
     privacySetting: this.props.activity.privacySetting,
+    isAdmin: false,
   };
 
   componentDidMount() {

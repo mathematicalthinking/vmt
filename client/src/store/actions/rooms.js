@@ -310,7 +310,7 @@ export const updateRoomMembers = (roomId, updatedMembers) => {
   return dispatch => {
     API.updateMembers('rooms', roomId, updatedMembers)
       .then(res => {
-        dispatch(updatedRoom(roomId, res.data.result));
+        dispatch(updatedRoom(roomId, res.data));
       })
       .catch(err => {
         // dispatch(loading.fail())s
