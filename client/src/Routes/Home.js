@@ -38,7 +38,7 @@ class Home extends PureComponent {
     return (
       <Aux>
         {this.props.location.pathname.indexOf('community') > -1 ? (
-          <Navbar fixed />
+          <Navbar fixed user={this.props.user} />
         ) : (
           <HomeNav
             // scrollPosition={this.state.scrollPosition}

@@ -65,12 +65,12 @@
   flex-flow: center;
   justify-content: flex-end;
   align-items: center;
-  margin-right: 22px;
+  margin-right: 60px;
 }
 
-.NavListContainer ul li {
+/* .NavListContainer ul li {
   flex: 0.1 0 auto;
-}
+} */
 
 @media screen and (min-width: 1300px) {
   .NavContainer {

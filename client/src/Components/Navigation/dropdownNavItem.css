@@ -27,6 +27,7 @@
   background: blue;
   color: white;
   border: 1px solid #ddd;
+  width: 100px;
   flex-flow: column;
   transition: 0.2s;
 }

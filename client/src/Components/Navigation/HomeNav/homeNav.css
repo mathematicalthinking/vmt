@@ -34,9 +34,9 @@
   position: relative;
 }
 
-.LightNav li a {
+/* .LightNav li a {
   color: blue;
-}
+} */
 
 .GradientNav {
   /* this important tag only overrides the background: none in .Nav */
@@ -89,25 +89,31 @@
 }
 
 .NavListContainer {
+  height: 100%;
+  align-items: center;
+
   order: 2;
   flex: 0.8 0 auto;
   /* border: 1px solid red; */
 }
 
 .NavListContainer ul {
+  height: 100%;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   flex-flow: center;
   justify-content: flex-end;
-  align-content: flex-end;
-  align-items: flex-end;
+  align-items: center;
   padding: 0;
 }
 
-.NavListContainer ul li {
+/* .NavListContainer ul li {
+  display: flex;
+  align-items: center;
+  height: 100%;
   flex: 0.1 0 auto;
-}
+} */
 
 @media screen and (max-width: 775px) {
   .LogoShort {

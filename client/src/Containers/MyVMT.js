@@ -16,7 +16,7 @@ import {
 
 import * as ntfUtils from '../utils/notifications';
 
-class Profile extends Component {
+class MyVMT extends Component {
   state = {
     tabs: [{ name: 'Rooms' }, { name: 'Courses' }, { name: 'Activities' }],
     touring: false,
@@ -263,4 +263,4 @@ export default connect(
     getUser,
     toggleJustLoggedIn,
   }
-)(Profile);
+)(MyVMT);
