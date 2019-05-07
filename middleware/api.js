@@ -111,6 +111,7 @@ const validateRecordAccess = (req, res, next) => {
 const canModifyResource = req => {
   let { id, resource, remove } = req.params;
   let user = utils.getUser(req);
+  // Admins can do anything
   let results = {
     canModify: false,
     doesRecordExist: true,
@@ -156,6 +157,10 @@ const canModifyResource = req => {
     .lean()
     .exec()
     .then(record => {
+      if (user.isAdmin) {
+        results.canModify = true;
+        return results;
+      }
       // console.log(model);
       if (_.isNil(record)) {
         // record requesting to be modified does not exist

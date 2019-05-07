@@ -462,7 +462,7 @@ class Room extends Component {
                   </Aux>
                 }
                 editButton={
-                  room.myRole === 'facilitator' ? (
+                  room.myRole === 'facilitator' || this.state.isAdmin ? (
                     <Aux>
                       <div
                         role="button"
