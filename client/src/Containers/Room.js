@@ -366,7 +366,7 @@ class Room extends Component {
           <Members
             user={user}
             classList={room.members}
-            owner={room.myRole === 'facilitator'}
+            owner={room.myRole === 'facilitator' || this.state.isAdmin}
             resourceType={'room'}
             resourceId={room._id}
             parentResource={course ? course._id : null}

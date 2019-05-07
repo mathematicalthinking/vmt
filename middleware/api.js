@@ -269,6 +269,7 @@ const validateNewRecord = (req, res, next) => {
 };
 
 const prunePutBody = (user, recordIdToUpdate, body, details) => {
+  if (user.isAdmin) return body;
   if (!helpers.isNonEmptyObject(details)) {
     details = {};
   }

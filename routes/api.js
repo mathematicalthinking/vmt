@@ -286,6 +286,7 @@ router.put('/:resource/:id', middleware.validateUser, (req, res, next) => {
           res
         );
       }
+      console.log('req.body: ', req.body);
       let prunedBody = middleware.prunePutBody(req.user, id, req.body, details);
       return controller.put(id, prunedBody);
     })
