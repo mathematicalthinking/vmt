@@ -4,7 +4,7 @@ import NavItem from './NavItem/NavItem';
 import { Link } from 'react-router-dom';
 export default props => {
   return (
-    <li className={classes.Container}>
+    <li className={classes.Container} data-testid={props['data-testid']}>
       <div className={classes.Header}>{props.name}</div>
       <div className={classes.DropdownContent}>
         {props.list.map(item => {

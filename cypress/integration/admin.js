@@ -71,4 +71,17 @@ describe('test notifications and access to resources', function() {
     cy.contains('Activities').click();
     cy.getTestElement('content-box-ACTIVITY 2').should('not.exist');
   });
+
+  it('Q makes picard an admin', function() {
+    cy.getTestElement('nav-Profile').click({ force: true });
+    cy.url().should('include', 'profile');
+    cy.getTestElement('admin-list')
+      .children()
+      .should('have.length', 1);
+    cy.getTestElement('member-search').type('picard');
+    cy.getTestElement('invite-member-jl-picard').click();
+    cy.getTestElement('admin-list')
+      .children()
+      .should('have.length', 2);
+  });
 });
