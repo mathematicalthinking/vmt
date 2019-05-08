@@ -42,6 +42,7 @@ class Course extends Component {
     entryCode: this.props.course ? this.props.course.entryCode : null,
     privacySetting: this.props.course ? this.props.course.privacySetting : null,
     trashing: false,
+    isAdmin: false,
   };
   initialTabs = [
     { name: 'Activities' },
@@ -294,7 +295,7 @@ class Course extends Component {
           <Members
             user={user}
             classList={course.members}
-            owner={course.myRole === 'facilitator'}
+            owner={course.myRole === 'facilitator' || this.state.isAdmin}
             resourceType={'course'}
             resourceId={course._id}
             notifications={
@@ -396,7 +397,7 @@ class Course extends Component {
                 additionalDetails={additionalDetails}
                 accountType={user.accountType}
                 editButton={
-                  course.myRole === 'facilitator' ? (
+                  course.myRole === 'facilitator' || this.state.isAdmin ? (
                     <Aux>
                       <div
                         role="button"
@@ -513,6 +514,7 @@ class Course extends Component {
                   .map(member => member.user)
               : []
           }
+          setAdmin={() => this.setState({ isAdmin: true, guestMode: false })}
         />
       );
   }

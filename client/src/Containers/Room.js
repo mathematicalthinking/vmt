@@ -16,6 +16,7 @@ import {
   clearNotification,
   updateRoom,
   getRoom,
+  populateRoom,
   removeRoomMember,
   clearLoadingInfo,
   // populateRoom
@@ -48,6 +49,7 @@ class Room extends Component {
     instructions: this.props.room ? this.props.room.instructions : null,
     privacySetting: this.props.room ? this.props.room.privacySetting : null,
     trashing: false,
+    isAdmin: false,
   };
 
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
@@ -92,9 +94,7 @@ class Room extends Component {
         firstView,
         invited,
       });
-    }
-    // else fetch it
-    else {
+    } else {
       this.fetchRoom();
     }
   }
@@ -113,23 +113,28 @@ class Room extends Component {
     if (!prevProps.room && this.props.room) {
       this.checkAccess();
     }
-    // THESE ARE SUSCEPTIBLE TO ERRORS BECAUSE YOU COULD GAIN AND LOSE TWO DIFFERENT NTFS IN A SINGLE UPDATE POTENTIALLY? ACTUALLY COULD YOU?
     if (
       prevProps.room &&
       this.props.room &&
       prevProps.room.members.length !== this.props.room.members.length
     ) {
+      console.log('checking access a new member has been added!');
       this.checkAccess();
     }
+    // THESE ARE SUSCEPTIBLE TO ERRORS BECAUSE YOU COULD GAIN AND LOSE TWO DIFFERENT NTFS IN A SINGLE UPDATE POTENTIALLY? ACTUALLY COULD YOU?
     if (prevProps.notifications.length !== this.props.notifications.length) {
       let updatedTabs = this.displayNotifications([...this.state.tabs]);
       this.setState({ tabs: updatedTabs });
+    }
+    if (!prevState.isAdmin && this.state.isAdmin) {
+      this.props.populateRoom(this.props.room._id);
     }
     if (
       prevProps.loading.updateResource === null &&
       this.props.loading.updateResource === 'room'
     ) {
       setTimeout(() => {
+        // @TODO need to clean this up in cwum
         this.props.clearLoadingInfo();
       }, 2000);
       this.setState({
@@ -149,6 +154,10 @@ class Room extends Component {
         member => member.user._id === this.props.user._id
       )
     ) {
+      // if the room hasnt been populated yet...populate it
+      if (!this.props.room.tabs) {
+        this.props.populateRoom(this.props.room._id);
+      }
       this.setState({ member: true, guestMode: false });
     }
   }
@@ -259,7 +268,7 @@ class Room extends Component {
       clearError,
       course,
     } = this.props;
-    if (room && !this.state.guestMode) {
+    if (room && room.tabs && !this.state.guestMode) {
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
       let dueDateText = 'Due Date'; // the fact that we have to do this make this not worth it
       let ggb = false;
@@ -357,7 +366,7 @@ class Room extends Component {
           <Members
             user={user}
             classList={room.members}
-            owner={room.myRole === 'facilitator'}
+            owner={room.myRole === 'facilitator' || this.state.isAdmin}
             resourceType={'room'}
             resourceId={room._id}
             parentResource={course ? course._id : null}
@@ -453,7 +462,7 @@ class Room extends Component {
                   </Aux>
                 }
                 editButton={
-                  room.myRole === 'facilitator' ? (
+                  room.myRole === 'facilitator' || this.state.isAdmin ? (
                     <Aux>
                       <div
                         role="button"
@@ -579,6 +588,9 @@ class Room extends Component {
           }
           error={error}
           clearError={clearError}
+          setAdmin={() => {
+            this.setState({ isAdmin: true, guestMode: false });
+          }}
         />
       );
   }
@@ -607,6 +619,6 @@ export default connect(
     getRoom,
     removeRoomMember,
     clearLoadingInfo,
-    // populateRoom
+    populateRoom,
   }
 )(Room);

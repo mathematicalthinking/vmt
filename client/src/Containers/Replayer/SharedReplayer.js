@@ -37,6 +37,7 @@ class SharedReplayer extends Component {
   tabsLoaded = 0;
 
   componentDidMount() {
+    console.log('mounted!!!!!');
     // @TODO We should never populate the tabs events before getting here
     // we dont need them for the regular room activity only for playback
     if (!this.props.encompass) {
@@ -49,6 +50,7 @@ class SharedReplayer extends Component {
   }
 
   buildLog = () => {
+    console.log('build log!!!!');
     this.log = this.props.room.log;
     this.updatedLog = [];
     this.tabsLoaded = 0;

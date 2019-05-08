@@ -74,10 +74,44 @@ const validateUser = (req, res, next) => {
   });
 };
 
+const validateRecordAccess = (req, res, next) => {
+  if (req.user.isAdmin) {
+    return next();
+  }
+
+  let { id, resource } = req.params;
+  let modelName = utils.getModelName(resource);
+  let model = models[modelName];
+  return (
+    model
+      .findById(id)
+      // .populate('members.user', 'username') // for rooms and courses
+      .lean()
+      .exec()
+      .then(record => {
+        if (record.members) {
+          let role = helpers.getUserRoleInRecord(record, req.user._id);
+          if (role) return next();
+        }
+        if (record.privacySetting === 'public') {
+          return next();
+        }
+        if (_.isEqual(req.user._id, record.creator)) {
+          return next();
+        }
+        return errors.sendError.NotAuthorizedError(null, res);
+      })
+      .catch(err => {
+        console.error(`Error canModifyResource: ${err}`);
+        reject(err);
+      })
+  );
+};
+
 const canModifyResource = req => {
   let { id, resource, remove } = req.params;
   let user = utils.getUser(req);
-
+  // Admins can do anything
   let results = {
     canModify: false,
     doesRecordExist: true,
@@ -85,6 +119,7 @@ const canModifyResource = req => {
       isCreator: false,
       isFacilitator: false,
       modelName: null,
+      isAdmin: false,
     },
   };
 
@@ -95,6 +130,12 @@ const canModifyResource = req => {
     `
   );
 
+  // if (user.isAdmin) {
+  //   results.canModify = true;
+  //   results.details.isAdmin = true;
+  //   console.log(`${user.username} is operating as ADMIN`);
+  //   return results;
+  // }
   let modelName = utils.getModelName(resource);
   results.details.modelName = modelName;
   let model = models[modelName];
@@ -116,6 +157,10 @@ const canModifyResource = req => {
     .lean()
     .exec()
     .then(record => {
+      if (user.isAdmin) {
+        results.canModify = true;
+        return results;
+      }
       // console.log(model);
       if (_.isNil(record)) {
         // record requesting to be modified does not exist
@@ -224,6 +269,7 @@ const validateNewRecord = (req, res, next) => {
 };
 
 const prunePutBody = (user, recordIdToUpdate, body, details) => {
+  if (user.isAdmin) return body;
   if (!helpers.isNonEmptyObject(details)) {
     details = {};
   }
@@ -280,3 +326,4 @@ module.exports.validateUser = validateUser;
 module.exports.canModifyResource = canModifyResource;
 module.exports.validateNewRecord = validateNewRecord;
 module.exports.prunePutBody = prunePutBody;
+module.exports.validateRecordAccess = validateRecordAccess;

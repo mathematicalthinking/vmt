@@ -1,7 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import NavItem from '../NavItem/NavItem';
 import { Link } from 'react-router-dom';
+import NavItem from '../NavItem/NavItem';
+import Avatar from '../../../Components/UI/Avatar/Avatar';
+import DropdownNavItem from '../DropdownNavItem';
 import Aux from '../../HOC/Auxil';
 import classes from './homeNav.css';
 const navbar = props => {
@@ -54,7 +56,15 @@ const navbar = props => {
             <NavItem link="/community/rooms" name="Community" />
             <NavItem link="/about" name="About" />
             <NavItem link="/tutorials" name="Tutorials" />
-            {props.loggedIn ? <NavItem link="/logout" name="Logout" /> : null}
+            {props.loggedIn ? (
+              <DropdownNavItem
+                name={<Avatar username={props.user.username} />}
+                list={[
+                  { name: 'Profile', link: '/profile' },
+                  { name: 'Logout', link: '/logout' },
+                ]}
+              />
+            ) : null}
           </ul>
         </div>
       </div>

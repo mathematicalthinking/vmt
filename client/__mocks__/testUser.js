@@ -1,0 +1,22 @@
+export default {
+  firstName: '',
+  lastName: '',
+  username: 'michael',
+  _id: '5cbe19d9160ac2135c1242e1',
+  loggedIn: true,
+  courses: [],
+  notifications: [],
+  rooms: [
+    '5cbe19d5160ac2135c1242df',
+    '5cbe1b9c8ee3fc0a20726fcd',
+    '5cbe1ed60371436ef0060c69',
+  ],
+  courseTemplates: [],
+  activities: [],
+  seenTour: false,
+  bothRoles: false,
+  justLoggedIn: true,
+  connected: true,
+  accountType: 'facilitator',
+  loginError: '',
+};

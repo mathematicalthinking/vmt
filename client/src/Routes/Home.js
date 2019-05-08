@@ -8,6 +8,7 @@ import {
   Community,
   Logout,
   TempWorkspace,
+  Profile,
 } from '../Containers';
 import { Confirmation, About } from '../Layout';
 import classes from './main.css';
@@ -37,8 +38,9 @@ class Home extends PureComponent {
   render() {
     return (
       <Aux>
-        {this.props.location.pathname.indexOf('community') > -1 ? (
-          <Navbar fixed />
+        {this.props.location.pathname.indexOf('community') > -1 ||
+        this.props.location.pathname.indexOf('profile') > -1 ? (
+          <Navbar fixed user={this.props.user} />
         ) : (
           <HomeNav
             // scrollPosition={this.state.scrollPosition}
@@ -72,6 +74,7 @@ class Home extends PureComponent {
             <Route path="/signup" component={Signup} />
             <Route path="/explore/:id" component={TempWorkspace} />
             <Route path="/confirmation" component={Confirmation} />
+            <Route path="/profile" component={Profile} />
           </Switch>
         </div>
         {/* <Route path='/about' component={About} />

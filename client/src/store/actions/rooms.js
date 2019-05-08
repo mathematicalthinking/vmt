@@ -247,17 +247,21 @@ export const populateRoom = (id, opts) => {
       temp = opts.temp;
       events = opts.events;
     }
-    API.getById('rooms', id, temp, events)
+    API.getPopulatedById('rooms', id, temp, events)
       .then(res => {
         // creae a log combining events and chat messages
         let room = res.data.result;
-        delete room.currentMembers;
+        // room.currentMembers
+        console.log('ROOMS: ', room);
         room.log = buildLog(room.tabs, room.chat);
         // consider deleting tab.events and room.chat here since we have all of the information in the log now
         dispatch(updatedRoom(id, room));
         dispatch(loading.success());
       })
-      .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
+      .catch(err => {
+        console.log(err);
+        dispatch(loading.fail(err.response.data.errorMessage));
+      });
   };
 };
 
@@ -306,7 +310,7 @@ export const updateRoomMembers = (roomId, updatedMembers) => {
   return dispatch => {
     API.updateMembers('rooms', roomId, updatedMembers)
       .then(res => {
-        dispatch(updatedRoom(roomId, res.data.result));
+        dispatch(updatedRoom(roomId, res.data));
       })
       .catch(err => {
         // dispatch(loading.fail())s

@@ -38,13 +38,10 @@ describe('Edit Members Roles', function() {
     cy.getTestElement('tab')
       .contains('Members')
       .click();
-    cy.getTestElement('avatar-name')
-      .contains('worf')
-      .parent()
-      .parent()
-      .siblings()
-      .last()
+    cy.getTestElement('member-worf')
       .children()
+      .children()
+      .eq(1)
       .should($el => {
         expect($el).to.include.text('facilitator');
       });

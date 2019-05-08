@@ -20,7 +20,6 @@ class ContentBox extends PureComponent {
   };
 
   render() {
-    console.log(this.props);
     const notifications =
       this.props.notifications > 0 ? (
         <Notification

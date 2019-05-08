@@ -1,4 +1,4 @@
-:import("../../colors.css") {
+:import('../../colors.css') {
   blue: blue;
   darkShadow: darkShadow;
   navbarHeight: navbarHeight;
@@ -52,23 +52,25 @@
 }
 
 .NavListContainer {
+  height: 100%;
   order: 2;
   flex: 0.75 0 auto;
 }
 
 .NavListContainer ul {
   display: flex;
+  height: 100%;
   flex-direction: row;
   flex-wrap: nowrap;
   flex-flow: center;
   justify-content: flex-end;
-  align-content: flex-end;
-  align-items: flex-end;
+  align-items: center;
+  margin-right: 60px;
 }
 
-.NavListContainer ul li {
+/* .NavListContainer ul li {
   flex: 0.1 0 auto;
-}
+} */
 
 @media screen and (min-width: 1300px) {
   .NavContainer {

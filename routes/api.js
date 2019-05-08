@@ -71,7 +71,33 @@ router.get('/searchPaginated/:resource', (req, res, next) => {
     });
 });
 
+// returns a record with all of its info populated including sensitive information about record members etc.
+router.get(
+  '/:resource/:id/populated',
+  middleware.validateRecordAccess,
+  (req, res, next) => {
+    console.log('getting populated!');
+    let { id, resource } = req.params;
+    let controller = controllers[resource];
+    controller
+      .getPopulatedById(id, req.query)
+      .then(result => res.json({ result }))
+      .catch(err => {
+        console.error(`Error get populated ${resource}/${id}: ${err}`);
+        let msg = null;
+
+        if (typeof err === 'string') {
+          msg = err;
+        }
+
+        return errors.sendError.InternalError(msg, res);
+      });
+  }
+);
+
+// returns a record WITHOUT sensitive information
 router.get('/:resource/:id', middleware.validateUser, (req, res, next) => {
+  console.log('getting unpopulated');
   let { id, resource } = req.params;
   let controller = controllers[resource];
   controller
@@ -260,6 +286,7 @@ router.put('/:resource/:id', middleware.validateUser, (req, res, next) => {
           res
         );
       }
+      console.log('req.body: ', req.body);
       let prunedBody = middleware.prunePutBody(req.user, id, req.body, details);
       return controller.put(id, prunedBody);
     })

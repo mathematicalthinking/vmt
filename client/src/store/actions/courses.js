@@ -103,11 +103,13 @@ export const removeCourseMember = (courseId, userId) => {
 };
 
 export const updateCourseMembers = (courseId, updatedMembers) => {
+  console.log('updated members: ', updatedMembers);
   return dispatch => {
     dispatch(loading.start());
     API.updateMembers('courses', courseId, updatedMembers)
       .then(res => {
-        dispatch(updatedCourse(courseId, { members: res.data.result.members }));
+        console.log('RES: ', res);
+        dispatch(updatedCourse(courseId, { members: res.data.members }));
         dispatch(loading.success());
       })
       .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));

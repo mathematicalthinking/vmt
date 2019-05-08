@@ -5,6 +5,7 @@ import {
   grantAccess,
   clearError,
   joinWithCode,
+  populateRoom,
 } from '../store/actions';
 import PrivateAccessModal from '../Components/UI/Modal/PrivateAccess';
 import PublicAccessModal from '../Components/UI/Modal/PublicAccess';
@@ -19,6 +20,7 @@ class Access extends Component {
 }
 
 const mapStateToProps = (store, ownProps) => ({
+  user: store.user,
   error: store.loading.errorMessage,
 });
 
