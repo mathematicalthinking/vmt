@@ -36,6 +36,7 @@ const navbar = props => {
           <NavItem link="/community/rooms" name="Community" />
           {/* <NavItem link='/profile' name='Profile' /> */}
           <DropdownNavItem
+            data-testid={'avatar'}
             name={<Avatar username={props.user ? props.user.username : ''} />}
             list={[
               { name: 'Profile', link: '/profile' },

@@ -252,7 +252,6 @@ export const populateRoom = (id, opts) => {
         // creae a log combining events and chat messages
         let room = res.data.result;
         // room.currentMembers
-        console.log('ROOMS: ', room);
         room.log = buildLog(room.tabs, room.chat);
         // consider deleting tab.events and room.chat here since we have all of the information in the log now
         dispatch(updatedRoom(id, room));

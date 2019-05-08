@@ -22,6 +22,7 @@ import {
   getRooms,
   updateActivity,
   getActivities,
+  getCurrentActivity,
 } from '../store/actions';
 import { populateResource } from '../store/reducers';
 class Activity extends Component {
@@ -30,15 +31,19 @@ class Activity extends Component {
     tabs: [{ name: 'Details' }, { name: 'Rooms' }, { name: 'Settings' }],
     // assigning: false, // this seems to be duplicated in Layout/Dashboard/MakeRooms.js
     editing: false,
-    name: this.props.activity.name,
-    description: this.props.activity.description,
-    instructions: this.props.activity.instructions,
-    privacySetting: this.props.activity.privacySetting,
+    name: this.props.activity ? this.props.activity.name : null,
+    description: this.props.activity ? this.props.activity.description : null,
+    instructions: this.props.activity ? this.props.activity.instructions : null,
+    privacySetting: this.props.activity
+      ? this.props.activity.privacySetting
+      : null,
     // isAdmin: false,
   };
 
   componentDidMount() {
-    // this.props.getActivities() // WHY ARE WE DOING THIS??
+    if (!this.props.activity) {
+      return this.props.getCurrentActivity(this.props.match.params.activity_id); // WHY ARE WE DOING THIS??
+    }
     const { resource } = this.props.match.params;
     if (resource === 'rooms') {
       // this.fetchRooms();
@@ -52,6 +57,21 @@ class Activity extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (!this.props.activity) {
       return;
+    }
+
+    if (!prevProps.activity && this.props.activity) {
+      let {
+        name,
+        description,
+        instructions,
+        privacySetting,
+      } = this.props.activity;
+      this.setState({
+        name,
+        description,
+        instructions,
+        privacySetting,
+      });
     }
     const prevResource = prevProps.match.params.resource;
     const { resource } = this.props.match.params;
@@ -170,7 +190,7 @@ class Activity extends Component {
           update={this.updateActivityInfo}
           instructions={this.state.instructions}
           editing={this.state.editing}
-          owner={this.state.owner}
+          owner={this.state.owner || this.props.user.isAdmin}
           toggleEdit={this.toggleEdit}
           userId={this.props.user._id}
           course={this.props.course}
@@ -229,7 +249,7 @@ class Activity extends Component {
                     </EditText>
                   </Error>
                 }
-                owner={this.state.owner}
+                owner={this.state.owner || this.props.user.isAdmin}
                 additionalDetails={additionalDetails}
                 editButton={
                   this.state.owner || this.props.user.isAdmin ? (
@@ -316,5 +336,5 @@ const mapStateToProps = (state, ownProps) => {
 
 export default connect(
   mapStateToProps,
-  { getCourses, getRooms, updateActivity, getActivities }
+  { getCourses, getRooms, updateActivity, getActivities, getCurrentActivity }
 )(Activity);

@@ -261,14 +261,12 @@ module.exports = {
       } else {
         return db.Course.findById(id)
           .then(course => {
-            console.log('BODY: ', body);
             for (key in body) {
               course[key] = body[key];
             }
             return course.save();
           })
           .then(updatedCourse => {
-            console.log('UPDATED COURSE: ', updatedCourse);
             return updatedCourse.populate(
               { path: 'members.user', select: 'username' },
               (err, pop) => {

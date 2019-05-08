@@ -1,8 +1,8 @@
 // ALSO CONSIDER MOVING GRANTACCESS() FROM COURSE CONTAINER TO HERE
 // EXTRACT OUT THE LAYOUT PORTION INTO THE LAYYOUT FOLDER
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "react-redux";
-import API from "../../utils/apiRequests";
+import React, { PureComponent, Fragment } from 'react';
+import { connect } from 'react-redux';
+import API from '../../utils/apiRequests';
 import {
   grantAccess,
   updateCourseMembers,
@@ -11,20 +11,20 @@ import {
   inviteToRoom,
   clearNotification,
   removeCourseMember,
-  removeRoomMember
-} from "../../store/actions";
-import { getAllUsersInStore } from "../../store/reducers/";
-import { Member, Search, Modal, Button } from "../../Components";
-import SearchResults from "./SearchResults";
-import classes from "./members.css";
+  removeRoomMember,
+} from '../../store/actions';
+import { getAllUsersInStore } from '../../store/reducers/';
+import { Member, Search, Modal, Button } from '../../Components';
+import SearchResults from './SearchResults';
+import classes from './members.css';
 
 class Members extends PureComponent {
   state = {
-    searchText: "",
+    searchText: '',
     searchResults: this.props.searchedUsers || [],
     confirmingInvitation: false,
     userId: null,
-    username: null
+    username: null,
   };
 
   renderCount = 0;
@@ -32,7 +32,7 @@ class Members extends PureComponent {
     const { notifications } = this.props;
     if (notifications.length > 0) {
       notifications.forEach(ntf => {
-        if (ntf.notificationType === "newMember") {
+        if (ntf.notificationType === 'newMember') {
           this.props.clearNotification(ntf._id);
         }
       });
@@ -42,7 +42,7 @@ class Members extends PureComponent {
   inviteMember = (id, username) => {
     let confirmingInvitation = false;
     let { resourceId, resourceType, courseMembers } = this.props;
-    if (resourceType === "course") {
+    if (resourceType === 'course') {
       this.props.inviteToCourse(resourceId, id, username);
     } else {
       // If this is a course room check the member being added to the room already belongs to the course
@@ -67,7 +67,7 @@ class Members extends PureComponent {
       confirmingInvitation,
       searchResults: updatedResults,
       username: confirmingInvitation ? username : null,
-      userId: confirmingInvitation ? id : null
+      userId: confirmingInvitation ? id : null,
     });
   };
 
@@ -75,40 +75,44 @@ class Members extends PureComponent {
     let { parentResource, resourceId } = this.props;
     let { userId, username } = this.state;
     this.props.inviteToCourse(parentResource, userId, username, {
-      guest: true
+      guest: true,
     });
     this.props.inviteToRoom(resourceId, userId, username, {});
     this.setState({
       confirmingInvitation: false,
       username: null,
-      userId: null
+      userId: null,
     });
   };
 
   removeMember = info => {
     let { resourceId, resourceType } = this.props;
-    if (resourceType === "course") {
+    if (resourceType === 'course') {
       this.props.removeCourseMember(resourceId, info.user._id);
     } else this.props.removeRoomMember(resourceId, info.user._id);
   };
+  /**
+   * @method changeRole
+   * @param  {Object} info - member obj { color, _id, role, {_id: username}}
+   */
 
   changeRole = info => {
     let { classList, resourceId, resourceType } = this.props;
     let updatedMembers = classList.map(member => {
       return member.user._id === info.user._id
-        ? { role: info.role, user: info.user._id }
-        : { role: member.role, user: member.user._id };
+        ? { role: info.role, user: info.user._id, color: info.color }
+        : { role: member.role, user: member.user._id, color: member.color };
     });
-    if (resourceType === "course") {
+    if (resourceType === 'course') {
       this.props.updateCourseMembers(resourceId, updatedMembers);
     } else this.props.updateRoomMembers(resourceId, updatedMembers);
   };
 
-  // Consider finding a way to NOT duplicate this in MakeRooms
+  // Consider finding a way to NOT duplicate this in MakeRooms and also now in Profile
   search = text => {
     if (text.length > 0) {
       API.search(
-        "user",
+        'user',
         text,
         this.props.classList.map(member => member.user._id)
       )
@@ -117,7 +121,7 @@ class Members extends PureComponent {
           this.setState({ searchResults, searchText: text });
         })
         .catch(err => {
-          console.log("err: ", err);
+          console.log('err: ', err);
         });
     } else {
       this.setState({ searchResults: [], searchText: text });
@@ -130,12 +134,12 @@ class Members extends PureComponent {
       notifications,
       owner,
       resourceType,
-      courseMembers
+      courseMembers,
     } = this.props;
     let joinRequests = <p>There are no new requests to join</p>;
     if (this.props.owner && notifications.length >= 1) {
       joinRequests = notifications
-        .filter(ntf => ntf.notificationType === "requestAccess")
+        .filter(ntf => ntf.notificationType === 'requestAccess')
         .map((ntf, i) => {
           return (
             <Member
@@ -159,7 +163,7 @@ class Members extends PureComponent {
     // console.log("Class list: ", classList);
     classList.forEach(member => {
       // console.log(member);
-      if (member.role === "guest") {
+      if (member.role === 'guest') {
         guestList.push(member);
       } else {
         filteredClassList.push(member);
@@ -170,7 +174,7 @@ class Members extends PureComponent {
       let userId = member.user ? member.user._id : member._id;
       // checking for notification...newMember type indicates this user has added themself by entering the entryCode
       let notification = notifications.filter(ntf => {
-        if (ntf.fromUser && ntf.notificationType === "newMember") {
+        if (ntf.fromUser && ntf.notificationType === 'newMember') {
           return ntf.fromUser._id === userId;
         } else return false;
       });
@@ -219,7 +223,7 @@ class Members extends PureComponent {
                 Add To Room
               </Button>
               <Button
-                theme={"Cancel"}
+                theme={'Cancel'}
                 m={5}
                 click={() => {
                   this.setState({ confirmingInvitation: false });
@@ -261,7 +265,7 @@ class Members extends PureComponent {
                   inviteMember={this.inviteMember}
                 />
               ) : null}
-              {resourceType === "room" && courseMembers ? (
+              {resourceType === 'room' && courseMembers ? (
                 <div>Add participants from this course</div>
               ) : null}
             </Fragment>
@@ -279,7 +283,10 @@ const mapStateToProps = (state, ownProps) => {
   let userIds = [...allUsers.userIds].slice(0, 5);
   let usernames = [...allUsers.usernames].slice(0, 5);
   return {
-    searchedUsers: userIds.map((id, i) => ({ _id: id, username: usernames[i] }))
+    searchedUsers: userIds.map((id, i) => ({
+      _id: id,
+      username: usernames[i],
+    })),
   };
 };
 
@@ -293,6 +300,6 @@ export default connect(
     inviteToRoom,
     clearNotification,
     removeRoomMember,
-    removeCourseMember
+    removeCourseMember,
   }
 )(Members);
