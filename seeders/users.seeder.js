@@ -128,6 +128,24 @@ var data = [
     password: '$2b$12$Ptcu.r3bhFyE/mrtxAbqO.jGVm7MsoNQLv5XmSC/hXSt.oWPHdXha',
     accountType: 'participant',
   },
+
+  {
+    _id: '5ba289ba7223b9429888b9ee',
+    notifications: [],
+    courseTemplates: [],
+    courses: [],
+    rooms: [],
+    activities: [],
+    isAdmin: true,
+    seenTour: false,
+    username: 'q',
+    email: '',
+    firstName: 'Q',
+    lastName: '',
+    password: '$2b$12$GMfHvZySEkCTfV0UwRg3EeLFW6ZnonV6UnM7YIhqnNH8ZkjGcU.Ae',
+    accountType: 'facilitator',
+    __v: 2,
+  },
 ];
 
 var UsersSeeder = Seeder.extend({
