@@ -113,7 +113,6 @@ class NewResourceContainer extends Component {
       newResource.entryCode = hri.random();
     }
     return this.uploadGgbFiles().then(results => {
-      console.log(results.data.result);
       if (results && results.data) {
         newResource.ggbFiles = results.data.result;
       }
@@ -146,7 +145,6 @@ class NewResourceContainer extends Component {
           if (this.state.ggb) {
             newResource.appName = this.state.appName;
           }
-          console.log('new resource: ', newResource);
           this.props.createRoom(newResource);
           break;
         default:

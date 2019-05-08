@@ -24,7 +24,6 @@ class TrashModal extends Component {
   };
 
   render() {
-    console.log(this.props.resource);
     return (
       <Modal show={this.props.show} closeModal={this.props.closeModal}>
         <div>

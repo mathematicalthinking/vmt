@@ -701,7 +701,6 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action, eventQueue) => {
-    console.log('sending event', definition, label, eventType, action);
     let { room, user, myColor, currentTab } = this.props;
 
     let newData = {

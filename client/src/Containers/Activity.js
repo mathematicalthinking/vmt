@@ -42,7 +42,6 @@ class Activity extends Component {
 
   componentDidMount() {
     if (!this.props.activity) {
-      console.log('ID: ', this.props.match.params.activity_id);
       return this.props.getCurrentActivity(this.props.match.params.activity_id); // WHY ARE WE DOING THIS??
     }
     const { resource } = this.props.match.params;

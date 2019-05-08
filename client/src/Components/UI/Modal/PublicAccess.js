@@ -10,7 +10,6 @@ const publicAccess = ({
   closeModal,
 }) => {
   let displayResource = resource.slice(0, resource.length - 1);
-  console.log(closeModal);
   return (
     <Modal show={true} closeModal={closeModal}>
       <p>

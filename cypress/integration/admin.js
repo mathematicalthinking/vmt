@@ -1,6 +1,6 @@
 const Q = require('../fixtures/user7');
 
-describe('test notifications and access to resources', function() {
+describe('test admin privileges', function() {
   before(function() {
     cy.task('seedDB').then(() => cy.login(Q));
   });

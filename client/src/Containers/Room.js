@@ -118,7 +118,6 @@ class Room extends Component {
       this.props.room &&
       prevProps.room.members.length !== this.props.room.members.length
     ) {
-      console.log('checking access a new member has been added!');
       this.checkAccess();
     }
     // THESE ARE SUSCEPTIBLE TO ERRORS BECAUSE YOU COULD GAIN AND LOSE TWO DIFFERENT NTFS IN A SINGLE UPDATE POTENTIALLY? ACTUALLY COULD YOU?
