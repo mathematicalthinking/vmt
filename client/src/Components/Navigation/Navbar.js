@@ -52,7 +52,7 @@ const navbar = props => {
               />
             }
             list={[
-              { name: 'Profile', link: '/profile' },
+              { name: 'Profile', link: '/myVMT/profile' },
               { name: 'Logout', link: '/logout' },
             ]}
           />

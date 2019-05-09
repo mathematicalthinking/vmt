@@ -46,9 +46,16 @@ class Workspace extends Component {
     if (!this.props.temp) {
       this.props.populateRoom(room._id, { events: true });
       if (room.members) {
-        let myColor = room.members.filter(
-          member => member.user._id === user._id
-        )[0].color;
+        let myColor;
+        try {
+          myColor = room.members.filter(
+            member => member.user._id === user._id
+          )[0].color;
+        } catch (err) {
+          if (user.isAdmin) {
+            myColor = '#ffd549';
+          }
+        }
         this.setState({ myColor }, () => {
           if (this.props.room.log) {
             this.initializeListeners();
@@ -117,11 +124,18 @@ class Workspace extends Component {
     };
     // const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
     if (!this.props.temp) {
-      let { role } = room.members.filter(
-        member => member.user._id === user._id
-      )[0];
-      if (role === 'facilitator') {
-        this.setState({ role: 'facilitator' });
+      // if the user joined this room with their admin privileges instead of being a bona fide member they won't be in the room list
+      try {
+        let { role } = room.members.filter(
+          member => member.user._id === user._id
+        )[0];
+        if (role === 'facilitator') {
+          this.setState({ role: 'facilitator' });
+        }
+      } catch (err) {
+        if (this.props.user.isAdmin) {
+          this.setState({ role: 'admin' });
+        }
       }
       if (!this.props.user.inAdminMode) {
         socket.emit('JOIN', sendData, (res, err) => {
@@ -137,6 +151,7 @@ class Workspace extends Component {
     }
 
     socket.on('USER_JOINED', data => {
+      console.log('user joined: ', data);
       this.props.updatedRoom(room._id, { currentMembers: data.currentMembers });
       this.props.addToLog(room._id, data.message);
     });

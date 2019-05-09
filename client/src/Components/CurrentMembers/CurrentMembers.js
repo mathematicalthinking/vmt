@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import classes from "./currentMembers.css";
-import Avatar from "../UI/Avatar/Avatar";
+import React, { Component } from 'react';
+import classes from './currentMembers.css';
+import Avatar from '../UI/Avatar/Avatar';
 class CurrentMembers extends Component {
   // state = {
   //   expanded: true
@@ -16,10 +16,11 @@ class CurrentMembers extends Component {
   }
 
   toggleExpansion = () => {
-    this.props.toggleExpansion("members");
+    this.props.toggleExpansion('members');
   };
 
   render() {
+    let member;
     const { currentMembers, members, activeMember } = this.props;
     return (
       <div className={classes.Container}>
@@ -41,14 +42,20 @@ class CurrentMembers extends Component {
                 <div
                   className={[
                     classes.Avatar,
-                    user._id === activeMember ? classes.Active : classes.Passive
-                  ].join(" ")}
+                    user._id === activeMember
+                      ? classes.Active
+                      : classes.Passive,
+                  ].join(' ')}
                   key={user.username}
                 >
                   <Avatar username={user.username} color={member.color} />
                 </div>
               );
-            } else return null;
+            } else {
+              return (
+                <Avatar username={`${user.username} (admin)`} color="#ffd549" />
+              );
+            }
           })}
         </div>
       </div>
