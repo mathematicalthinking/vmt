@@ -185,6 +185,30 @@ var data = [
     updatedAt: '2019-01-03T18:48:13.123Z',
     __v: 0,
   },
+  {
+    _id: '5c2e58e4684f328cbca1dace',
+    chat: [],
+    currentMembers: [],
+    tabs: ['5c2e58e4684f328cbca1d998'],
+    privacySetting: 'private',
+    tempRoom: false,
+    isTrashed: true,
+    name: "Q's Admin Room",
+    description: '',
+    creator: '5ba289ba7223b9429888b9ee',
+    image:
+      'http://tinygraphs.com/spaceinvaders/gfggfg?theme=daisygarden&numcolors=4&size=220&fmt=svg',
+    members: [
+      {
+        user: '5ba289ba7223b9429888b9ee',
+        role: 'facilitator',
+      },
+    ],
+    dueDate: null,
+    createdAt: '2019-01-03T18:48:04.573Z',
+    updatedAt: '2019-01-03T18:48:13.123Z',
+    __v: 0,
+  },
 ];
 
 var RoomsSeeder = Seeder.extend({

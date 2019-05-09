@@ -37,7 +37,12 @@ const navbar = props => {
           {/* <NavItem link='/profile' name='Profile' /> */}
           <DropdownNavItem
             data-testid={'avatar'}
-            name={<Avatar username={props.user ? props.user.username : ''} />}
+            name={
+              <Avatar
+                username={props.user ? props.user.username : ''}
+                color={props.user.inAdminMode ? '#ffd549' : '#2d91f2'}
+              />
+            }
             list={[
               { name: 'Profile', link: '/profile' },
               { name: 'Logout', link: '/logout' },

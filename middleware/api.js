@@ -155,6 +155,7 @@ const canModifyResource = req => {
     .exec()
     .then(record => {
       if (user.isAdmin) {
+        console.log('user is admin and can modify');
         results.canModify = true;
         return results;
       }

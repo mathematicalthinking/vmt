@@ -84,4 +84,20 @@ describe('test admin privileges', function() {
       .children()
       .should('have.length', 2);
   });
+
+  it('Q turns admin mode on for anonymous viewing', function() {
+    cy.get('.fa-user')
+      .first()
+      .should('have.css', 'background-color')
+      .and('eq', 'rgb(45, 145, 242)');
+    cy.getTestElement('edit-On').click();
+    cy.get('.fa-user')
+      .first()
+      .should('have.css', 'background-color')
+      .and('eq', 'rgb(255, 213, 73)');
+    cy.contains('My VMT').click();
+    cy.contains("Q's Admin Room").click();
+    cy.getTestElement('Enter').click();
+    cy.contains('You are currently in "Admin Mode"').should('exist');
+  });
 });

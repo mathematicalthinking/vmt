@@ -17,7 +17,7 @@
     "prodTest": "SET \"NODE_ENV=production\" && node ./bin/www",
     "testEncompass": "SET \"NODE_ENV=production\" && SET \"ENCOMPASS=true\" && node ./bin/www",
     "cypress": "./node_modules/.bin/cypress open",
-    "cypress:run": "cypress run --browser electron",
+    "cypress:run": "cypress run --browser electron --record --key 103dfac6-8e4d-4672-adf9-b661fb7738da",
     "prettier-watch": "onchange '**/*.js' -- prettier --write {{changed}}",
     "heroku-postbuild": "cd client && npm install && npm run build"
   },

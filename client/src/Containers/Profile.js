@@ -5,9 +5,10 @@ import Button from '../Components/UI/Button/Button';
 import SidePanel from '../Layout/Dashboard/SidePanel/SidePanel';
 import BreadCrumbs from '../Components/Navigation/BreadCrumbs/BreadCrumbs';
 import SearchResults from '../Containers/Members/SearchResults';
-import Search from '../Components/Search/Search';
-import Member from '../Components/UI/Member/Member';
+import { Search, Member, EditText, ToolTip } from '../Components';
 import API from '../utils/apiRequests';
+
+import { updateUser } from '../store/actions/';
 // import MainContent from '../Layout/Dashboard/MainContent/';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 class Profile extends Component {
@@ -54,10 +55,15 @@ class Profile extends Component {
   };
 
   makeAdmin = userId => {
-    API.put('user', userId, { isAdmin: true }).then(res => {
-      let { username, _id } = res.data;
-      this.setState({ admins: [...this.state.admins, { username, _id }] });
-    });
+    API.put('user', userId, { isAdmin: true })
+      .then(res => {
+        console.log('success making admin');
+        let { username, _id } = res.data;
+        this.setState({ admins: [...this.state.admins, { username, _id }] });
+      })
+      .catch(err => {
+        console.log('err making admin: ', err);
+      });
   };
 
   render() {
@@ -90,6 +96,33 @@ class Profile extends Component {
         ) : null}
       </div>
     );
+
+    let additionalDetails = {
+      email: user.email,
+    };
+
+    if (this.props.user.isAdmin) {
+      additionalDetails['Admin Mode'] = (
+        <ToolTip
+          text="admin mode allows you to enter rooms anonymously"
+          delay={1000}
+        >
+          <EditText
+            inputType="radio"
+            editing={true}
+            change={() =>
+              this.props.updateUser({
+                inAdminMode: !this.props.user.inAdminMode,
+              })
+            }
+            options={['On', 'Off']}
+            name={'adminMode'}
+          >
+            {this.props.user.inAdminMode ? 'On' : 'Off'}
+          </EditText>
+        </ToolTip>
+      );
+    }
     return (
       <DashboardLayout
         mainContent={mainContent}
@@ -101,9 +134,7 @@ class Profile extends Component {
             image={user.profilePic}
             name={user.username}
             subTitle={`${user.firstName} ${user.lastName}`}
-            additionalDetails={{
-              email: user.email,
-            }}
+            additionalDetails={additionalDetails}
             accountType={user.accountType}
             editButton={
               <Fragment>
@@ -154,5 +185,5 @@ const mapStateToProps = store => ({
 
 export default connect(
   mapStateToProps,
-  null
+  { updateUser }
 )(Profile);
