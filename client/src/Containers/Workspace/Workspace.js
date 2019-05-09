@@ -36,6 +36,7 @@ class Workspace extends Component {
     toolsExpanded: true,
     isFirstTabLoaded: false,
     myColor: null,
+    showAdminWarning: this.props.user ? this.props.user.inAdminMode : false,
   };
 
   componentDidMount() {
@@ -122,15 +123,17 @@ class Workspace extends Component {
       if (role === 'facilitator') {
         this.setState({ role: 'facilitator' });
       }
-      socket.emit('JOIN', sendData, (res, err) => {
-        if (err) {
-          console.log(err); // HOW SHOULD WE HANDLE THIS
-        }
-        this.props.updatedRoom(room._id, {
-          currentMembers: res.room.currentMembers,
+      if (!this.props.user.inAdminMode) {
+        socket.emit('JOIN', sendData, (res, err) => {
+          if (err) {
+            console.log(err); // HOW SHOULD WE HANDLE THIS
+          }
+          this.props.updatedRoom(room._id, {
+            currentMembers: res.room.currentMembers,
+          });
+          this.props.addToLog(room._id, res.message);
         });
-        this.props.addToLog(room._id, res.message);
-      });
+      }
     }
 
     socket.on('USER_JOINED', data => {
@@ -259,6 +262,11 @@ class Workspace extends Component {
         this.props.addToLog(room._id, message);
       });
     } else {
+      if (user.inAdminMode) {
+        return this.setState({
+          showAdminWarning: true,
+        });
+      }
       // We're taking control
       this.props.updatedRoom(room._id, { controlledBy: user._id });
       this.resetControlTimer();
@@ -565,6 +573,14 @@ class Workspace extends Component {
             updatedRoom={this.props.updatedRoom}
             sendEvent={this.emitNewTab}
           />
+        </Modal>
+        <Modal
+          show={this.state.showAdminWarning}
+          closeModal={() => this.setState({ showAdminWarning: false })}
+        >
+          You are currently in "Admin Mode". You are in this room anonymously.
+          If you want to be seen in this room go to your profile and turn "Admin
+          Mode" off.
         </Modal>
       </Fragment>
     );

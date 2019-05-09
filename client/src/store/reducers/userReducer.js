@@ -15,6 +15,7 @@ const initialState = {
   bothRoles: false,
   justLoggedIn: false,
   isAdmin: false,
+  inAdminMode: false,
   connected: false, // connected over the socket
 };
 

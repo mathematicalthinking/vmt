@@ -109,7 +109,7 @@ class Profile extends Component {
         >
           <EditText
             inputType="radio"
-            editing={this.state.editing}
+            editing={true}
             change={() =>
               this.props.updateUser({
                 inAdminMode: !this.props.user.inAdminMode,
