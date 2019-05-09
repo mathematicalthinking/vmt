@@ -18,5 +18,5 @@ before_script:
   ## else it would block execution and hang travis
   - node ./bin/www &
 script:
-  - npm run cypress:run --record --key a1daa7ba-55fe-4386-84c9-d7427d112bda
+  - npm run cypress:run --record --key 103dfac6-8e4d-4672-adf9-b661fb7738da
   #  ADD THIS TO PACKAGE>JSON CYPRESS SCRUPT
