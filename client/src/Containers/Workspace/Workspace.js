@@ -434,6 +434,7 @@ class Workspace extends Component {
       />
     );
     let tabs;
+    console.log('ROOM: ', room);
     if (room.tabs[0].name) {
       // This che
       tabs = (
