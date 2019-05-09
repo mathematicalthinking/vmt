@@ -232,6 +232,9 @@ class Room extends Component {
   };
 
   goToWorkspace = () => {
+    if (this.props.user.isAdmin) {
+      // display a modal
+    }
     this.props.history.push(`/myVMT/workspace/${this.props.room._id}`);
   };
 
@@ -345,7 +348,8 @@ class Room extends Component {
         });
       }
       let mainContent;
-      if (this.props.match.params.resource === 'details') {
+      let { resource } = this.props.match.params;
+      if (resource === 'details') {
         mainContent = (
           <RoomDetails
             room={room}
@@ -360,7 +364,7 @@ class Room extends Component {
             loading={this.props.loading}
           />
         );
-      } else if (this.props.match.params.resource === 'members') {
+      } else if (resource === 'members') {
         mainContent = (
           <Members
             user={user}
@@ -375,7 +379,7 @@ class Room extends Component {
             }
           />
         );
-      } else if (this.props.match.params.resource === 'settings') {
+      } else if (resource === 'settings') {
         mainContent = (
           <RoomSettings
             owner={this.state.owner}
