@@ -1,6 +1,6 @@
 .Item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   flex-basis: 100px;
   list-style-type: none;
