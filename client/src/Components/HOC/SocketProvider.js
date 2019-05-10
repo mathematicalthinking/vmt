@@ -18,7 +18,7 @@ import {
 } from '../../store/actions';
 import Notification from '../Notification/Notification';
 import classes from './socketProvider.css';
-
+import { createNtfMessage } from './socketProvider.utils';
 class SocketProvider extends Component {
   state = {
     initializedCount: 0,
@@ -93,29 +93,27 @@ class SocketProvider extends Component {
         // message =
       } else {
         this.props.addNotification(notification);
-
+        message = createNtfMessage(notification, course, room, {
+          courses: this.props.courses,
+          rooms: this.props.rooms,
+        });
         if (type === 'newMember') {
-          // add new member to room
+          // add new member to room/course//
           let actionName = `add${capitalize(resource)}Member`;
           let { _id, username } = notification.fromUser;
           this.props[actionName](notification.resourceId, {
             user: { _id, username },
             role: 'participant',
           });
-          message = `${username} joined ${resource} ${
-            this.props[`${resource}s`][notification.resourceId].name
-          } `;
         }
         if (course) {
           let normalizedCourse = normalize([course]);
           this.props.gotCourses(normalizedCourse);
-
           this.props.addUserCourses([course._id]);
         }
 
         if (room) {
           let normalizedRoom = normalize([room]);
-
           this.props.gotRooms(normalizedRoom, true);
           this.props.addUserRooms([room._id]);
           if (room.course) {
@@ -150,14 +148,13 @@ class SocketProvider extends Component {
   }
 
   showNtfToast = ntfMessage => {
-    this.setState({ showNtfMessgae: true, ntfMessage }, () => {
-      this.toastTimer = setTimeout(
+    this.setState({ showNtfMessage: true, ntfMessage }, () => {
+      this.toastTimer = setTimeout(() => {
         this.setState({
-          showNtfMessgae: false,
+          showNtfMessage: false,
           ntfMessage: '',
-        }),
-        2000
-      );
+        });
+      }, 3500);
     });
   };
   render() {
