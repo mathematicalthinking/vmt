@@ -12,7 +12,7 @@ if (process.env.REACT_APP_STAGING) {
   baseURL = process.env.REACT_APP_SERVER_URL_DEV;
 }
 
-console.log('server url: ', baseURL);
+// console.log('server url: ', baseURL);
 const api = axios.create({ baseURL });
 
 export default {

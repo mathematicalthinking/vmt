@@ -60,7 +60,7 @@ const navbar = props => {
               <DropdownNavItem
                 name={<Avatar username={props.user.username} />}
                 list={[
-                  { name: 'Profile', link: '/profile' },
+                  { name: 'Profile', link: '/myVMT/profile' },
                   { name: 'Logout', link: '/logout' },
                 ]}
               />

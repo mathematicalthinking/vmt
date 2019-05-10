@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import socket from '../../utils/sockets';
 import { normalize } from '../../store/utils';
 import { connect } from 'react-redux';
@@ -16,12 +16,17 @@ import {
   updateUser,
   clearError,
 } from '../../store/actions';
-
+import Notification from '../Notification/Notification';
+import classes from './socketProvider.css';
+import { createNtfMessage } from './socketProvider.utils';
 class SocketProvider extends Component {
   state = {
     initializedCount: 0,
+    ntfMessage: '',
+    showNtfMessage: false,
   };
   componentDidMount() {
+    // setTimeout(() => this.setState({ showNtfMessage: true }), 2000);
     if (this.props.user.loggedIn) {
       this.props.clearError(); // get rid of any lingering errors in the store from their last session
       this.props.getUser(this.props.user._id);
@@ -44,13 +49,15 @@ class SocketProvider extends Component {
     }
   }
 
-  shouldComponentUpdate(nextProps) {
+  shouldComponentUpdate(nextProps, nextState) {
     if (!this.props.user.loggedIn && nextProps.user.loggedIn) {
+      return true;
+    } else if (nextState !== this.state) {
       return true;
     } else return false;
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     if (!prevProps.user.loggedIn && this.props.user.loggedIn) {
       this.props.clearError();
       let userId = this.props.user._id;
@@ -67,39 +74,55 @@ class SocketProvider extends Component {
     }
   }
 
+  componentWillUnmount() {
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
+    socket.removeAllListeners();
+  }
+
   initializeListeners() {
     socket.removeAllListeners();
     socket.on('NEW_NOTIFICATION', data => {
       let { notification, course, room } = data;
       let type = notification.notificationType;
       let resource = notification.resourceType;
-
-      this.props.addNotification(notification);
-
-      if (type === 'newMember') {
-        // add new member to room
-        let actionName = `add${capitalize(resource)}Member`;
-        let { _id, username } = notification.fromUser;
-        this.props[actionName](notification.resourceId, {
-          user: { _id, username },
-          role: 'participant',
+      let message = null;
+      if (notification.isTrashed) {
+        this.props.getUser(this.props.user._id);
+        // message =
+      } else {
+        this.props.addNotification(notification);
+        message = createNtfMessage(notification, course, room, {
+          courses: this.props.courses,
+          rooms: this.props.rooms,
         });
-      }
-      if (course) {
-        let normalizedCourse = normalize([course]);
-        this.props.gotCourses(normalizedCourse);
-
-        this.props.addUserCourses([course._id]);
-      }
-
-      if (room) {
-        let normalizedRoom = normalize([room]);
-
-        this.props.gotRooms(normalizedRoom, true);
-        this.props.addUserRooms([room._id]);
-        if (room.course) {
-          this.props.addCourseRooms(room.course, [room._id]);
+        if (type === 'newMember') {
+          // add new member to room/course//
+          let actionName = `add${capitalize(resource)}Member`;
+          let { _id, username } = notification.fromUser;
+          this.props[actionName](notification.resourceId, {
+            user: { _id, username },
+            role: 'participant',
+          });
         }
+        if (course) {
+          let normalizedCourse = normalize([course]);
+          this.props.gotCourses(normalizedCourse);
+          this.props.addUserCourses([course._id]);
+        }
+
+        if (room) {
+          let normalizedRoom = normalize([room]);
+          this.props.gotRooms(normalizedRoom, true);
+          this.props.addUserRooms([room._id]);
+          if (room.course) {
+            this.props.addCourseRooms(room.course, [room._id]);
+          }
+        }
+      }
+      if (message) {
+        this.showNtfToast(message);
       }
     });
 
@@ -124,23 +147,46 @@ class SocketProvider extends Component {
     });
   }
 
-  componentWillUnmount() {
-    socket.removeAllListeners();
-  }
-
+  showNtfToast = ntfMessage => {
+    this.setState({ showNtfMessage: true, ntfMessage }, () => {
+      this.toastTimer = setTimeout(() => {
+        this.setState({
+          showNtfMessage: false,
+          ntfMessage: '',
+        });
+      }, 3500);
+    });
+  };
   render() {
-    return this.props.children;
+    return (
+      <Fragment>
+        {this.props.children}
+        <div
+          className={
+            this.state.showNtfMessage ? classes.Visible : classes.Hidden
+          }
+        >
+          <Notification size="small" />
+          {this.state.ntfMessage}
+        </div>
+      </Fragment>
+    );
   }
 }
 
 const mapStateToProps = state => {
-  return { user: state.user };
+  return {
+    user: state.user,
+    rooms: state.rooms.byId,
+    courses: state.courses.byId,
+  };
 };
 
 export default connect(
   mapStateToProps,
   {
     addNotification,
+    // removeNotification,
     addUserCourses,
     getUser,
     addUserRooms,

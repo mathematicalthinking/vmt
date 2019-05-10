@@ -7,16 +7,24 @@ import { Link, withRouter } from 'react-router-dom';
 const navbar = props => {
   let styles = classes.NavContainer;
   let ntf = false;
-  if (props.location.pathname.indexOf('workspace') > -1) {
-    styles = classes.WorkspaceNav;
-    if (
-      props.user &&
-      props.user.notifications &&
-      props.user.notifications.length > 0
-    ) {
-      ntf = true;
-    }
-  } else if (props.fixed) styles = classes.Fixed;
+  styles = classes.WorkspaceNav;
+  console.log('pathname: ', props.location.pathname);
+  if (
+    props.user &&
+    props.user.notifications &&
+    props.user.notifications.length > 0 &&
+    (props.location.pathname.indexOf('myVMT') === -1 ||
+      props.location.pathname.indexOf('workspace') > -1)
+  ) {
+    ntf = true;
+  }
+  if (
+    props.location.pathname.indexOf('community') > -1 ||
+    (props.location.pathname.indexOf('myVMT') > -1 &&
+      props.location.pathname.indexOf('workspace') === -1)
+  ) {
+    styles = classes.Fixed;
+  }
 
   return (
     <nav className={styles}>
@@ -44,7 +52,7 @@ const navbar = props => {
               />
             }
             list={[
-              { name: 'Profile', link: '/profile' },
+              { name: 'Profile', link: '/myVMT/profile' },
               { name: 'Logout', link: '/logout' },
             ]}
           />

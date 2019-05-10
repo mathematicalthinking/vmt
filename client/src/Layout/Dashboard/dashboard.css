@@ -1,6 +1,7 @@
-:import("../../colors.css") {
+:import('../../colors.css') {
   lightBlue: lightBlue;
   blue: blue;
+  navbarHeight: navbarHeight;
 }
 
 :root {
@@ -10,6 +11,7 @@
 .Container {
   max-width: 1600px;
   margin: 0 auto;
+  margin-top: navbarHeight;
   display: flex;
   flex-flow: column;
   align-content: center;

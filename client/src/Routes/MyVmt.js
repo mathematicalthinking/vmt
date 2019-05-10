@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import Navbar from "../Components/Navigation/Navbar";
+import React, { Component } from 'react';
+import Navbar from '../Components/Navigation/Navbar';
 import {
   MyVMT,
   Course,
@@ -7,14 +7,15 @@ import {
   Room,
   Workspace,
   Replayer,
-  ActivityWorkspace
-} from "../Containers";
-import { PrivateRoute, ErrorToast } from "../Components";
-import { Confirmation, FacilitatorInstructions } from "../Layout";
+  Profile,
+  ActivityWorkspace,
+} from '../Containers';
+import { PrivateRoute, ErrorToast } from '../Components';
+import { Confirmation, FacilitatorInstructions } from '../Layout';
 // import Aux from '../Components/HOC/Auxil';
-import { connect } from "react-redux";
-import { Route, Switch } from "react-router-dom";
-import ErrorBoundary from "../ErrorBoundary";
+import { connect } from 'react-redux';
+import { Route, Switch } from 'react-router-dom';
+import ErrorBoundary from '../ErrorBoundary';
 
 class MyVmt extends Component {
   render() {
@@ -28,6 +29,12 @@ class MyVmt extends Component {
             path={`${path}/facilitator`}
             authed={this.props.loggedIn}
             component={FacilitatorInstructions}
+          />
+          <PrivateRoute
+            exact
+            path={`${path}/profile`}
+            authed={this.props.loggedIn}
+            component={Profile}
           />
           <PrivateRoute
             exact
@@ -109,7 +116,7 @@ class MyVmt extends Component {
 const mapStateToProps = state => ({
   loggedIn: state.user.loggedIn,
   user: state.user,
-  globalErrorMessage: state.loading.globalErrorMessage
+  globalErrorMessage: state.loading.globalErrorMessage,
 });
 
 export default connect(
