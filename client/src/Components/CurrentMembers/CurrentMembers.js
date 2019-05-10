@@ -53,7 +53,20 @@ class CurrentMembers extends Component {
               );
             } else {
               return (
-                <Avatar username={`${user.username} (admin)`} color="#ffd549" />
+                <div
+                  className={[
+                    classes.Avatar,
+                    user._id === activeMember
+                      ? classes.Active
+                      : classes.Passive,
+                  ].join(' ')}
+                  key={user.username}
+                >
+                  <Avatar
+                    username={`${user.username} (admin)`}
+                    color="#ffd549"
+                  />
+                </div>
               );
             }
           })}

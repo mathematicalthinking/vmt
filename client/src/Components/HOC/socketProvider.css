@@ -1,0 +1,26 @@
+.NtfToast {
+  display: flex;
+  align-items: center;
+  font-size: 1.1em;
+  position: fixed;
+  bottom: 50px;
+  left: 50px;
+  background: rgba(2, 43, 114, 0.714);
+  color: white;
+  padding: 11px;
+  padding-right: 19px;
+  border-radius: 6px;
+  transform: translateY(0);
+  transition: 0.2s ease-in;
+}
+
+.Visible {
+  composes: NtfToast;
+  opacity: 1;
+}
+
+.Hidden {
+  composes: NtfToast;
+  opacity: 0;
+  transform: translateY(200px);
+}
