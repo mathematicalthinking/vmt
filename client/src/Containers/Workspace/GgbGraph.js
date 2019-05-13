@@ -34,6 +34,7 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
+    console.log('ggb mounted');
     // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
     this.throttledSendEvent = throttle(this.sendEvent, 500, {
       leading: true,
@@ -337,6 +338,7 @@ class GgbGraph extends Component {
    */
 
   initializeGgb = () => {
+    console.log('initializing fggb');
     this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
     this.ggbApplet.setMode(40); // Sets the tool to zoom
     let { room, tabId } = this.props;
@@ -352,6 +354,7 @@ class GgbGraph extends Component {
       this.ggbApplet.setBase64(ggbFile);
     }
     this.registerListeners();
+    console.log('setting first tab loaded');
     this.props.setFirstTabLoaded();
   };
 

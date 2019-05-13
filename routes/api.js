@@ -117,10 +117,11 @@ router.get('/:resource/:id', middleware.validateUser, (req, res, next) => {
 // Bypass the middlewre for now on a temp room...eventually we should probably change the URL
 // from the rooms id to some sort of secret entry code.
 router.get('/:resource/:id/:tempRoom', (req, res, next) => {
+  console.log('GETTING TEMP ROOM');
   let { id, resource } = req.params;
   let controller = controllers[resource];
   controller
-    .getById(id, req.query)
+    .getPopulatedById(id, req.query)
     .then(result => res.json({ result }))
     .catch(err => {
       console.error(`Error get ${resource}/${id}: ${err}`);
@@ -203,6 +204,7 @@ router.put('/:resource/:id/add', middleware.validateUser, (req, res, next) => {
         );
       }
       let prunedBody = middleware.prunePutBody(req.user, id, req.body, details);
+      console.log('pruned body: ', prunedBody);
       return controller.add(id, prunedBody);
     })
     .then(result => res.json(result))

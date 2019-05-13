@@ -535,6 +535,7 @@ class Workspace extends Component {
         );
       }
     });
+    console.log('GRAPHS: ', graphs);
     return (
       <Fragment>
         {!this.state.isFirstTabLoaded ? (
