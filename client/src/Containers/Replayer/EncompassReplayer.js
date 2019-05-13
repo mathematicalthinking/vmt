@@ -10,32 +10,20 @@ class EncompassReplayer extends Component {
 
   componentDidMount() {
     let currentUrl = window.location.hash;
-    console.log("curl", currentUrl);
-    console.log("window", window.vmtRooms);
     let roomId = this.getRoomIdFromUrl(currentUrl);
-    let room = this.getRoomFromWindow(roomId);
-    console.log("room cdm", room);
     this.setState({ room: this.getRoomFromWindow(roomId) });
 
     window.addEventListener("hashchange", this.setRoom, false);
+    window.addEventListener("message", this.onEncMessage, false);
   }
 
   componentWillUnmount() {
     window.removeEventListener("hashchange", this.setRoom);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    console.log("component did update", prevState);
-    console.log("new state", this.state);
-  }
-
   setRoom = event => {
     let newUrl = event.newURL;
-    console.log("new url", newUrl);
     let roomId = this.getRoomIdFromUrl(newUrl);
-    console.log("roomId", roomId);
-    let room = this.getRoomFromWindow(roomId);
-    console.log("room setroom", room);
 
     this.setState({ room: this.getRoomFromWindow(roomId) });
   };
@@ -62,11 +50,35 @@ class EncompassReplayer extends Component {
     return window.vmtRooms[roomId] || null;
   };
 
+  getEncUrl = () => {
+    let hostname = window.location.hostname;
+
+    if (hostname === "localhost") {
+      return process.env.REACT_APP_ENCOMPASS_URL_DEV;
+    }
+
+    if (hostname === "vmt-test.mathematicalthinking.org") {
+      return process.env.REACT_APP_ENCOMPASS_URL_STAGING;
+    }
+    if (hostname === "vmt.mathematicalthinking.org") {
+      return process.env.REACT_APP_ENCOMPASS_URL_PRODUCTION;
+    }
+  };
+
+  shareReplayerState = replayerState => {
+    window.vmtReplayerState = replayerState;
+  };
+
   render() {
     if (this.state.room) {
       return (
         <div className={classes.EncompassReplayer}>
-          <SharedReplayer room={this.state.room} encompass />
+          <SharedReplayer
+            room={this.state.room}
+            getEncUrl={this.getEncUrl}
+            shareState={this.shareReplayerState}
+            encompass
+          />
         </div>
       );
     } else {

@@ -45,7 +45,14 @@ class SharedReplayer extends Component {
       });
     } else {
       this.buildLog();
+
+      // listen for messages from encompass browser
+      window.addEventListener("message", this.onEncMessage, false);
     }
+    }
+
+  componentWillUnmount() {
+    window.removeEventListener("message");
   }
 
   buildLog = () => {
@@ -124,9 +131,12 @@ class SharedReplayer extends Component {
       this.state.playing &&
       this.state.logIndex < this.updatedLog.length
     ) {
+      // switched from stopped to playing
       this.playing();
     } else if (!this.state.playing && this.interval) {
+      // switched from playing to stopped
       clearInterval(this.interval);
+      this.props.shareState(this.state);
     }
 
     if (
@@ -169,7 +179,11 @@ class SharedReplayer extends Component {
       let nextEvent = this.updatedLog[this.state.logIndex + 1];
       let currentTab = this.state.currentTab;
       if (!nextEvent) {
-        return this.setState({ playing: false });
+        return this.setState({ playing: false }, () => {
+          if (this.props.encompass) {
+            this.props.shareState(this.state);
+      }
+        });
       }
       if (timeElapsed >= nextEvent.relTime) {
         // WHAT IF ITS GREAT THAN THE NEXT...NEXT EVENT (THIS HAPPENS WHEN WE INCREASE THE PLAY SPEED) ???? NOT SURE HOW TO HANDLE
@@ -197,15 +211,22 @@ class SharedReplayer extends Component {
           absTimeElapsed = 0;
         }
       }
-      this.setState(prevState => ({
+      this.setState(
+        prevState => ({
         logIndex,
         timeElapsed,
         currentMembers,
         startTime,
         absTimeElapsed,
         changingIndex: false,
-        currentTab,
-      }));
+          currentTab
+        }),
+        () => {
+          if (this.props.encompass) {
+            this.props.shareState(this.state);
+          }
+        }
+      );
     }, PLAYBACK_FIDELITY);
   };
 
@@ -287,7 +308,25 @@ class SharedReplayer extends Component {
       });
     } else {
       this.setState({
-        isFullscreen: true,
+        isFullscreen: true
+      });
+    }
+  };
+
+  onEncMessage = event => {
+    let allowedOrigin = this.props.getEncUrl();
+
+    let { origin, data } = event;
+
+    if (allowedOrigin !== origin) {
+      return;
+    }
+
+    if (data === "PAUSE_VMT_REPLAYER") {
+      // pause replayer
+      this.setState({ playing: false }, () => {
+        console.log("after pause vmt");
+        // should we communicate back to encompass?
       });
     }
   };
