@@ -1,16 +1,16 @@
-import React from "react";
-import Awareness from "./Awareness";
-import classes from "./tools.css";
+import React from 'react';
+import Awareness from './Awareness';
+import classes from './tools.css';
 
 const Tools = React.memo(props => {
   let { inControl, lastEvent, replayer, save } = props;
   let controlText;
   if (!replayer) {
-    controlText = "Request Control";
-    if (inControl === "ME") {
-      controlText = "Release Control";
-    } else if (inControl === "NONE") {
-      controlText = "Take Control";
+    controlText = 'Request Control';
+    if (inControl === 'ME') {
+      controlText = 'Release Control';
+    } else if (inControl === 'NONE') {
+      controlText = 'Take Control';
     }
   }
   return (
@@ -34,7 +34,7 @@ const Tools = React.memo(props => {
             // theme={"Small"}
             data-testid="exit-room"
           >
-            Exit {replayer ? "Replayer" : "Room"}
+            Exit {replayer ? 'Replayer' : 'Room'}
           </div>
         </div>
         {props.save ? (
@@ -42,6 +42,7 @@ const Tools = React.memo(props => {
             <div
               className={classes.SideButton}
               role="button"
+              data-testid="save"
               onClick={props.save}
             >
               save
@@ -60,11 +61,11 @@ const Tools = React.memo(props => {
             >
               <i
                 className={[
-                  "fas",
-                  "fa-mouse-pointer",
+                  'fas',
+                  'fa-mouse-pointer',
                   classes.MousePointer,
-                  props.referencing ? classes.ReferencingActive : ""
-                ].join(" ")}
+                  props.referencing ? classes.ReferencingActive : '',
+                ].join(' ')}
               />
               <div className={classes.ReferenceTool}>Reference</div>
               {/* <div className={classes.RefrenceTool}>Perspective</div> */}

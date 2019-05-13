@@ -174,7 +174,6 @@ module.exports = function() {
           controllers.rooms.put(data.room, { controlledBy: data.user._id }),
         ]);
       } catch (err) {
-        console.log('ERROR TAKING CONTROL: ', err);
         callback(err, null);
       }
       socket.to(data.room).emit('TOOK_CONTROL', data);
