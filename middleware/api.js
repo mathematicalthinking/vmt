@@ -37,8 +37,6 @@ const getEncSecret = () => {
 
 const validateUser = (req, res, next) => {
   delete req.isTempRoom; // see if (tab.room.tempRoom)
-  console.log('validating user: ', req.body);
-  console.log('PARAMS: ', req.params);
   let { resource, id } = req.params;
 
   if (req.body.tempRoom) {
@@ -56,7 +54,6 @@ const validateUser = (req, res, next) => {
       .populate({ path: 'room', select: 'tempRoom' })
       .then(tab => {
         if (tab.room.tempRoom) {
-          console.log('its a temp room!');
           // modify the req so don't have to check this in subsequent middlewate
           req.isTempRoom = true;
           return next();
@@ -123,7 +120,6 @@ const validateRecordAccess = (req, res, next) => {
 };
 
 const canModifyResource = req => {
-  console.log('checking if i can modify');
   let { id, resource, remove } = req.params;
   // Admins can do anything
   let results = {
@@ -138,10 +134,8 @@ const canModifyResource = req => {
   };
 
   let user = utils.getUser(req);
-  console.log('user ', user, req.isTempRoom);
   if (!user && req.isTempRoom) {
     results.canModify = true;
-    console.log('returuning resykts');
     return Promise.resolve(results);
   }
   console.log(
@@ -178,9 +172,7 @@ const canModifyResource = req => {
     .lean()
     .exec()
     .then(record => {
-      console.log('shouldnt make it here');
       if (user.isAdmin) {
-        console.log('user is admin and can modify');
         results.canModify = true;
         return results;
       }
