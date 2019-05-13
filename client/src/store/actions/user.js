@@ -129,6 +129,7 @@ export const updateUserResource = (resource, resourceId, userId) => {
 // when the user explicitly grants access (see actions.access)
 export const clearNotification = ntfId => {
   return dispatch => {
+    console.log('removing notficaiton');
     dispatch(removeNotification(ntfId));
     // API.removeNotification(ntfId, userId, requestingUser, resource, ntfType)
     API.put('notifications', ntfId, { isTrashed: true })
