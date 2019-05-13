@@ -14,7 +14,6 @@ class EncompassReplayer extends Component {
     this.setState({ room: this.getRoomFromWindow(roomId) });
 
     window.addEventListener("hashchange", this.setRoom, false);
-    window.addEventListener("message", this.onEncMessage, false);
   }
 
   componentWillUnmount() {
@@ -50,24 +49,16 @@ class EncompassReplayer extends Component {
     return window.vmtRooms[roomId] || null;
   };
 
-  getEncUrl = () => {
-    let hostname = window.location.hostname;
+  onLoad = (replayerState, totalDuration) => {
+    window.postMessage({
+      messageType: 'VMT_ON_REPLAYER_LOAD',
+    });
+    this.updateEncompass(replayerState, totalDuration);
+  }
 
-    if (hostname === "localhost") {
-      return process.env.REACT_APP_ENCOMPASS_URL_DEV;
-    }
-
-    if (hostname === "vmt-test.mathematicalthinking.org") {
-      return process.env.REACT_APP_ENCOMPASS_URL_STAGING;
-    }
-    if (hostname === "vmt.mathematicalthinking.org") {
-      return process.env.REACT_APP_ENCOMPASS_URL_PRODUCTION;
-    }
-  };
-
-  shareReplayerState = replayerState => {
-    window.vmtReplayerState = replayerState;
-  };
+  updateEncompass = (replayerState, totalDuration) => {
+    window.vmtReplayerInfo = {...replayerState, totalDuration };
+  }
 
   render() {
     if (this.state.room) {
@@ -75,8 +66,8 @@ class EncompassReplayer extends Component {
         <div className={classes.EncompassReplayer}>
           <SharedReplayer
             room={this.state.room}
-            getEncUrl={this.getEncUrl}
-            shareState={this.shareReplayerState}
+            updateEnc={this.updateEncompass}
+            onLoadEnc={this.onLoad}
             encompass
           />
         </div>

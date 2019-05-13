@@ -46,10 +46,10 @@ class SharedReplayer extends Component {
     } else {
       this.buildLog();
 
-      // listen for messages from encompass browser
+      // listen for messages from encompass
       window.addEventListener("message", this.onEncMessage, false);
     }
-    }
+  }
 
   componentWillUnmount() {
     window.removeEventListener("message");
@@ -110,7 +110,13 @@ class SharedReplayer extends Component {
         .format('MM/DD/YYYY h:mm:ss A'),
       currentMembers: updatedMembers,
     });
-    this.setState({ loading: false });
+    this.setState({ loading: false }, () => {
+      if (this.props.encompass) {
+        // let encompass know the room has finished loading
+        // also update window with replayer state/duration
+        this.props.onLoadEnc(this.state, this.relativeDuration);
+      }
+    });
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -136,7 +142,11 @@ class SharedReplayer extends Component {
     } else if (!this.state.playing && this.interval) {
       // switched from playing to stopped
       clearInterval(this.interval);
-      this.props.shareState(this.state);
+
+      if (this.props.encompass) {
+        // update window for encompass
+        this.props.updateEnc(this.state, this.relativeDuration)
+      }
     }
 
     if (
@@ -181,7 +191,8 @@ class SharedReplayer extends Component {
       if (!nextEvent) {
         return this.setState({ playing: false }, () => {
           if (this.props.encompass) {
-            this.props.shareState(this.state);
+            // update window for encompass
+            this.props.updateEnc(this.state, this.relativeDuration);
       }
         });
       }
@@ -223,7 +234,8 @@ class SharedReplayer extends Component {
         }),
         () => {
           if (this.props.encompass) {
-            this.props.shareState(this.state);
+            // update window for encompass
+            this.props.updateEnc(this.state,this.relativeDuration);
           }
         }
       );
@@ -314,7 +326,7 @@ class SharedReplayer extends Component {
   };
 
   onEncMessage = event => {
-    let allowedOrigin = this.props.getEncUrl();
+    let allowedOrigin = window.location.origin;
 
     let { origin, data } = event;
 
@@ -322,12 +334,23 @@ class SharedReplayer extends Component {
       return;
     }
 
-    if (data === "PAUSE_VMT_REPLAYER") {
+    let { messageType } = data;
+
+    if (messageType === "VMT_PAUSE_REPLAYER") {
       // pause replayer
-      this.setState({ playing: false }, () => {
-        console.log("after pause vmt");
-        // should we communicate back to encompass?
-      });
+      return this.setState({ playing: false });
+    }
+
+    if (messageType === 'VMT_GO_TO_TIME') {
+      let timeElapsed = data.timeElapsed;
+
+      if (typeof timeElapsed === 'number') {
+        // is this the best way to set time?
+        // or should we just set this.state.timeElapsed?
+        let percentage = timeElapsed / this.relativeDuration;
+        this.goToTime(percentage);
+      }
+
     }
   };
 
