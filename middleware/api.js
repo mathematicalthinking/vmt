@@ -87,6 +87,41 @@ const validateUser = (req, res, next) => {
 
 const validateRecordAccess = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
+
+  return errors.sendError.NotAuthorizedError(null, res);
+};
+
+const validateRecordAccess = (req, res, next) => {
+  let user = req.user;
+
+  if (!user) {
+    // currently enc only needs access to /room/:id
+    const allowedResources = {
+      rooms: true
+    };
+
+    let requestedResource = utils.getResource(req);
+    let authorization = req.headers.authorization;
+
+    if (!allowedResources[requestedResource] || !authorization) {
+      return errors.sendError.NotAuthorizedError(null, res);
+    }
+
+    let secret = getEncSecret();
+
+    return bcrypt.compare(secret, authorization, function(err, isValid) {
+      if (err) {
+        console.log('error bcrypt compare', err);
+        return errors.sendError.InternalError(null, res);
+      }
+      if (isValid) {
+        return next();
+      }
+      return errors.sendError.NotAuthorizedError(null, res);
+    });
+  }
+
+  if (req.user.isAdmin) {
     return next();
   }
 
@@ -110,7 +145,7 @@ const validateRecordAccess = (req, res, next) => {
         if (_.isEqual(req.user._id, record.creator)) {
           return next();
         }
-        return errors.sendError.NotAuthorizedError(null, res);
+
       })
       .catch(err => {
         console.error(`Error canModifyResource: ${err}`);
