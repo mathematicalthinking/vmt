@@ -57,7 +57,6 @@ class Profile extends Component {
   makeAdmin = userId => {
     API.put('user', userId, { isAdmin: true })
       .then(res => {
-        console.log('success making admin');
         let { username, _id } = res.data;
         this.setState({ admins: [...this.state.admins, { username, _id }] });
       })

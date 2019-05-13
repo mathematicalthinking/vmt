@@ -27,7 +27,6 @@ class Members extends PureComponent {
     username: null,
   };
 
-  renderCount = 0;
   componentWillUnmount() {
     const { notifications } = this.props;
     if (notifications.length > 0) {
@@ -151,6 +150,9 @@ class Members extends PureComponent {
                   ntf._id,
                   ntf.toUser
                 );
+              }}
+              rejectAccess={() => {
+                this.props.clearNotification(ntf._id);
               }}
               info={ntf.fromUser}
               key={i}

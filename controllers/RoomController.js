@@ -181,7 +181,7 @@ module.exports = {
         await tabModels.forEach(tab => tab.save()); // These could run in parallel I suppose but then we'd have to edit one if ther ewas a failuer with the other
         await room.save();
         room.populate(
-          { path: 'members.user tabs', select: 'username tabType' },
+          { path: 'members.user tabs', select: 'username tabType name events' },
           (err, room) => {
             if (err) reject(err);
             resolve(room);

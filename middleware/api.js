@@ -36,6 +36,7 @@ const getEncSecret = () => {
 };
 
 const validateUser = (req, res, next) => {
+  delete req.isTempRoom; // see if (tab.room.tempRoom)
   let { resource, id } = req.params;
 
   if (req.body.tempRoom) {
@@ -47,32 +48,45 @@ const validateUser = (req, res, next) => {
   if (user) {
     return next();
   }
-  // currently enc only needs access to /room/:id
-  const allowedResources = {
-    rooms: true,
-  };
+  // if there is no user check if the resource is the tab of temp room
+  if (resource === 'tabs') {
+    return models.Tab.findById(id)
+      .populate({ path: 'room', select: 'tempRoom' })
+      .then(tab => {
+        if (tab.room.tempRoom) {
+          // modify the req so don't have to check this in subsequent middlewate
+          req.isTempRoom = true;
+          return next();
+        }
+      });
+  } else {
+    // currently enc only needs access to /room/:id
+    const allowedResources = {
+      rooms: true,
+    };
 
-  let requestedResource = utils.getResource(req);
-  let authorization = req.headers.authorization;
-  if (!allowedResources[requestedResource] || !authorization) {
-    return errors.sendError.NotAuthorizedError(null, res);
+    let requestedResource = utils.getResource(req);
+    let authorization = req.headers.authorization;
+    if (!allowedResources[requestedResource] || !authorization) {
+      return errors.sendError.NotAuthorizedError(null, res);
+    }
+
+    let secret = getEncSecret();
+    bcrypt.compare(secret, authorization, function(err, isValid) {
+      if (err) {
+        console.log('error bcrypt compare', err);
+        return errors.sendError.InternalError(null, res);
+      }
+      if (isValid) {
+        return next();
+      }
+      return errors.sendError.NotAuthorizedError(null, res);
+    });
   }
-
-  let secret = getEncSecret();
-  bcrypt.compare(secret, authorization, function(err, isValid) {
-    if (err) {
-      console.log('error bcrypt compare', err);
-      return errors.sendError.InternalError(null, res);
-    }
-    if (isValid) {
-      return next();
-    }
-    return errors.sendError.NotAuthorizedError(null, res);
-  });
 };
 
 const validateRecordAccess = (req, res, next) => {
-  if (req.user.isAdmin) {
+  if (req.user && req.user.isAdmin) {
     return next();
   }
 
@@ -107,7 +121,6 @@ const validateRecordAccess = (req, res, next) => {
 
 const canModifyResource = req => {
   let { id, resource, remove } = req.params;
-  let user = utils.getUser(req);
   // Admins can do anything
   let results = {
     canModify: false,
@@ -120,6 +133,11 @@ const canModifyResource = req => {
     },
   };
 
+  let user = utils.getUser(req);
+  if (!user && req.isTempRoom) {
+    results.canModify = true;
+    return Promise.resolve(results);
+  }
   console.log(
     `${user.username}
     is requesting to update ${resource} (${id}) with request body:
@@ -155,7 +173,6 @@ const canModifyResource = req => {
     .exec()
     .then(record => {
       if (user.isAdmin) {
-        console.log('user is admin and can modify');
         results.canModify = true;
         return results;
       }
@@ -266,7 +283,7 @@ const validateNewRecord = (req, res, next) => {
 };
 
 const prunePutBody = (user, recordIdToUpdate, body, details) => {
-  if (user.isAdmin) return body;
+  if (user && user.isAdmin) return body;
   if (!helpers.isNonEmptyObject(details)) {
     details = {};
   }

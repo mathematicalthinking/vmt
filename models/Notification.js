@@ -99,7 +99,6 @@ function buildEmitData(notification, next) {
 
 // update toUser with notification
 Notification.post('save', function(notification, next) {
-  console.log('ntf saved after updateMany');
   if (notification.toUser) {
     let ntfType = notification.notificationType;
 
@@ -115,24 +114,14 @@ Notification.post('save', function(notification, next) {
     // assigned new room - send room along with ntf
     return updateUser(notification.toUser, updateQuery)
       .then(updatedUser => {
-        console.log('we"ve updated the user successfully:');
         // check if there is socket for user
         // if (!notification.isTrashed) {
         let socketId = _.propertyOf(updatedUser)('socketId');
         let socket = _.propertyOf(sockets)(`io.sockets.sockets.${socketId}`);
-        console.log('their socketid is: ', socketId);
         // console.log('socket: ', socket);
         if (socket) {
-          console.log('building emit data');
           return buildEmitData(notification).then(data => {
             if (data) {
-              console.log(notification.isTrashed);
-              console.log('DATA: ', data);
-              console.log('-------------------------------');
-              console.log('-------------------------------');
-              console.log('-------------------------------');
-              console.log('-------------------------------');
-              console.log('-------------------------------');
               return socket.emit('NEW_NOTIFICATION', data);
             }
           });

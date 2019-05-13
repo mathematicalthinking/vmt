@@ -96,7 +96,6 @@ router.get(
 
 // returns a record WITHOUT sensitive information
 router.get('/:resource/:id', middleware.validateUser, (req, res, next) => {
-  console.log('getting unpopulated');
   let { id, resource } = req.params;
   let controller = controllers[resource];
   controller
@@ -120,7 +119,7 @@ router.get('/:resource/:id/:tempRoom', (req, res, next) => {
   let { id, resource } = req.params;
   let controller = controllers[resource];
   controller
-    .getById(id, req.query)
+    .getPopulatedById(id, req.query)
     .then(result => res.json({ result }))
     .catch(err => {
       console.error(`Error get ${resource}/${id}: ${err}`);

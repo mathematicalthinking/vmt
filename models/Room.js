@@ -78,7 +78,6 @@ Room.pre('save', function(next) {
         // console.log(this)
       } else if (field === 'isTrashed' && this.isTrashed) {
         // delete all ntfs related to this resource
-        console.log('this room has been trashed!!!!');
         return Notification.find({ resourceId: this._id })
           .then(ntfs => {
             Promise.all(
@@ -87,13 +86,11 @@ Room.pre('save', function(next) {
                 ntf.save();
               })
             ).then(res => {
-              console.log('RES: ', res);
-              console.log('updating many Notifations successful');
               next();
             });
           })
           .catch(err => {
-            console.log('DER WAS AN ERL ', err);
+            console.log(err);
             next(err);
           });
       } else {
@@ -170,7 +167,7 @@ Room.post('save', function(doc, next) {
         next();
       })
       .catch(err => {
-        console.log('ERROR: ', err);
+        console.error(err);
         next(err);
       }); //@TODO WE NEED ERROR HANDLING HERE
   } else {

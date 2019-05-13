@@ -151,7 +151,6 @@ class Workspace extends Component {
     }
 
     socket.on('USER_JOINED', data => {
-      console.log('user joined: ', data);
       this.props.updatedRoom(room._id, { currentMembers: data.currentMembers });
       this.props.addToLog(room._id, data.message);
     });
