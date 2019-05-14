@@ -46,13 +46,16 @@ class SharedReplayer extends Component {
     } else {
       this.buildLog();
 
-      // listen for messages from encompass
-      window.addEventListener("message", this.onEncMessage, false);
+      // listen for messages from encompasss
+      window.addEventListener('message', this.onEncMessage, false);
     }
   }
 
   componentWillUnmount() {
-    window.removeEventListener("message");
+    window.removeEventListener('message');
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
   }
 
   buildLog = () => {
@@ -145,7 +148,7 @@ class SharedReplayer extends Component {
 
       if (this.props.encompass) {
         // update window for encompass
-        this.props.updateEnc(this.state, this.relativeDuration)
+        this.props.updateEnc(this.state, this.relativeDuration);
       }
     }
 
@@ -189,12 +192,7 @@ class SharedReplayer extends Component {
       let nextEvent = this.updatedLog[this.state.logIndex + 1];
       let currentTab = this.state.currentTab;
       if (!nextEvent) {
-        return this.setState({ playing: false }, () => {
-          if (this.props.encompass) {
-            // update window for encompass
-            this.props.updateEnc(this.state, this.relativeDuration);
-      }
-        });
+        return this.setState({ playing: false });
       }
       if (timeElapsed >= nextEvent.relTime) {
         // WHAT IF ITS GREAT THAN THE NEXT...NEXT EVENT (THIS HAPPENS WHEN WE INCREASE THE PLAY SPEED) ???? NOT SURE HOW TO HANDLE
@@ -224,18 +222,19 @@ class SharedReplayer extends Component {
       }
       this.setState(
         prevState => ({
-        logIndex,
-        timeElapsed,
-        currentMembers,
-        startTime,
-        absTimeElapsed,
-        changingIndex: false,
-          currentTab
+          logIndex,
+          timeElapsed,
+          currentMembers,
+          startTime,
+          absTimeElapsed,
+          changingIndex: false,
+          currentTab,
         }),
         () => {
           if (this.props.encompass) {
             // update window for encompass
-            this.props.updateEnc(this.state,this.relativeDuration);
+            // consider removing this from interval if performance issues
+            this.props.updateEnc(this.state, this.relativeDuration);
           }
         }
       );
@@ -320,7 +319,7 @@ class SharedReplayer extends Component {
       });
     } else {
       this.setState({
-        isFullscreen: true
+        isFullscreen: true,
       });
     }
   };
@@ -336,7 +335,7 @@ class SharedReplayer extends Component {
 
     let { messageType } = data;
 
-    if (messageType === "VMT_PAUSE_REPLAYER") {
+    if (messageType === 'VMT_PAUSE_REPLAYER') {
       // pause replayer
       return this.setState({ playing: false });
     }
@@ -350,7 +349,6 @@ class SharedReplayer extends Component {
         let percentage = timeElapsed / this.relativeDuration;
         this.goToTime(percentage);
       }
-
     }
   };
 
