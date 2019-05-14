@@ -47,12 +47,12 @@ class SharedReplayer extends Component {
       this.buildLog();
 
       // listen for messages from encompasss
-      window.addEventListener('message', this.onEncMessage, false);
+      window.addEventListener('message', this.onEncMessage);
     }
   }
 
   componentWillUnmount() {
-    window.removeEventListener('message');
+    window.removeEventListener('message', this.onEncMessage);
     if (this.interval) {
       clearInterval(this.interval);
     }
@@ -117,7 +117,11 @@ class SharedReplayer extends Component {
       if (this.props.encompass) {
         // let encompass know the room has finished loading
         // also update window with replayer state/duration
-        this.props.onLoadEnc(this.state, this.relativeDuration);
+        this.props.updateEnc(
+          'VMT_ON_REPLAYER_LOAD',
+          this.state,
+          this.relativeDuration
+        );
       }
     });
   };
@@ -135,6 +139,19 @@ class SharedReplayer extends Component {
       });
     }
 
+    if (this.props.encompass) {
+      if (
+        (prevState.playing && !this.state.playing) ||
+        (!prevState.playing && this.state.changingIndex)
+      ) {
+        this.props.updateEnc(
+          'VMT_UPDATE_REPLAYER',
+          this.state,
+          this.relativeDuration
+        );
+      }
+    }
+
     if (
       !prevState.playing &&
       this.state.playing &&
@@ -145,13 +162,7 @@ class SharedReplayer extends Component {
     } else if (!this.state.playing && this.interval) {
       // switched from playing to stopped
       clearInterval(this.interval);
-
-      if (this.props.encompass) {
-        // update window for encompass
-        this.props.updateEnc(this.state, this.relativeDuration);
-      }
     }
-
     if (
       this.props.changingIndex &&
       this.log[this.props.index].tab !==
@@ -220,24 +231,15 @@ class SharedReplayer extends Component {
           absTimeElapsed = 0;
         }
       }
-      this.setState(
-        prevState => ({
-          logIndex,
-          timeElapsed,
-          currentMembers,
-          startTime,
-          absTimeElapsed,
-          changingIndex: false,
-          currentTab,
-        }),
-        () => {
-          if (this.props.encompass) {
-            // update window for encompass
-            // consider removing this from interval if performance issues
-            this.props.updateEnc(this.state, this.relativeDuration);
-          }
-        }
-      );
+      this.setState(prevState => ({
+        logIndex,
+        timeElapsed,
+        currentMembers,
+        startTime,
+        absTimeElapsed,
+        changingIndex: false,
+        currentTab,
+      }));
     }, PLAYBACK_FIDELITY);
   };
 
