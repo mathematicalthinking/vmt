@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "concurrently": "^4.1.0",
-    "cypress": "^3.1.5",
+    "cypress": "^3.2.0",
     "nodemon": "^1.18.10",
     "onchange": "^5.2.0",
     "prettier": "^1.16.3"

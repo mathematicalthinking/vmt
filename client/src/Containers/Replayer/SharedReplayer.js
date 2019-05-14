@@ -45,6 +45,16 @@ class SharedReplayer extends Component {
       });
     } else {
       this.buildLog();
+
+      // listen for messages from encompasss
+      window.addEventListener('message', this.onEncMessage, false);
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('message');
+    if (this.interval) {
+      clearInterval(this.interval);
     }
   }
 
@@ -103,7 +113,13 @@ class SharedReplayer extends Component {
         .format('MM/DD/YYYY h:mm:ss A'),
       currentMembers: updatedMembers,
     });
-    this.setState({ loading: false });
+    this.setState({ loading: false }, () => {
+      if (this.props.encompass) {
+        // let encompass know the room has finished loading
+        // also update window with replayer state/duration
+        this.props.onLoadEnc(this.state, this.relativeDuration);
+      }
+    });
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -124,9 +140,16 @@ class SharedReplayer extends Component {
       this.state.playing &&
       this.state.logIndex < this.updatedLog.length
     ) {
+      // switched from stopped to playing
       this.playing();
     } else if (!this.state.playing && this.interval) {
+      // switched from playing to stopped
       clearInterval(this.interval);
+
+      if (this.props.encompass) {
+        // update window for encompass
+        this.props.updateEnc(this.state, this.relativeDuration);
+      }
     }
 
     if (
@@ -197,15 +220,24 @@ class SharedReplayer extends Component {
           absTimeElapsed = 0;
         }
       }
-      this.setState(prevState => ({
-        logIndex,
-        timeElapsed,
-        currentMembers,
-        startTime,
-        absTimeElapsed,
-        changingIndex: false,
-        currentTab,
-      }));
+      this.setState(
+        prevState => ({
+          logIndex,
+          timeElapsed,
+          currentMembers,
+          startTime,
+          absTimeElapsed,
+          changingIndex: false,
+          currentTab,
+        }),
+        () => {
+          if (this.props.encompass) {
+            // update window for encompass
+            // consider removing this from interval if performance issues
+            this.props.updateEnc(this.state, this.relativeDuration);
+          }
+        }
+      );
     }, PLAYBACK_FIDELITY);
   };
 
@@ -289,6 +321,34 @@ class SharedReplayer extends Component {
       this.setState({
         isFullscreen: true,
       });
+    }
+  };
+
+  onEncMessage = event => {
+    let allowedOrigin = window.location.origin;
+
+    let { origin, data } = event;
+
+    if (allowedOrigin !== origin) {
+      return;
+    }
+
+    let { messageType } = data;
+
+    if (messageType === 'VMT_PAUSE_REPLAYER') {
+      // pause replayer
+      return this.setState({ playing: false });
+    }
+
+    if (messageType === 'VMT_GO_TO_TIME') {
+      let timeElapsed = data.timeElapsed;
+
+      if (typeof timeElapsed === 'number') {
+        // is this the best way to set time?
+        // or should we just set this.state.timeElapsed?
+        let percentage = timeElapsed / this.relativeDuration;
+        this.goToTime(percentage);
+      }
     }
   };
 
