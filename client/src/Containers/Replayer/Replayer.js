@@ -1,4 +1,3 @@
-import React from "react";
 import { connect } from "react-redux";
 import { populateRoom } from "../../store/actions/";
 import SharedReplayer from "./SharedReplayer";
