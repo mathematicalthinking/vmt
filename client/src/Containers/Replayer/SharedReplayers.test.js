@@ -7,11 +7,13 @@ import user from '../../../__mocks__/testUser';
 
 describe('component - SharedReplayer', () => {
   const mock = jest.fn();
+  const encMock = jest.fn();
   const props = {
     room,
     user,
     match: { params: { roomId: room._id } },
     populateRoom: mock,
+    encompass: false,
   };
 
   it('renders the vmt replayer', () => {
@@ -31,11 +33,17 @@ describe('component - SharedReplayer', () => {
 
   it('renders the encompass replayer', () => {
     const mock = jest.fn();
+    props.onLoadEnc = encMock;
     const wrapper = shallow(<SharedReplayer {...props} encompass />);
     const instance = wrapper.instance();
     jest.spyOn(instance, 'buildLog');
     instance.componentDidMount();
     expect(mock).not.toHaveBeenCalled();
+    expect(encMock).toHaveBeenCalled();
     expect(instance.buildLog).toHaveBeenCalled();
   });
+
+  // it('plays the replayer', () => {
+
+  // })
 });
