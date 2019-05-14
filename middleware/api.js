@@ -62,7 +62,7 @@ const validateUser = (req, res, next) => {
   } else {
     // currently enc only needs access to /room/:id
     const allowedResources = {
-      rooms: true,
+      rooms: true
     };
 
     let requestedResource = utils.getResource(req);
@@ -83,12 +83,6 @@ const validateUser = (req, res, next) => {
       return errors.sendError.NotAuthorizedError(null, res);
     });
   }
-};
-
-const validateRecordAccess = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
-
-  return errors.sendError.NotAuthorizedError(null, res);
 };
 
 const validateRecordAccess = (req, res, next) => {
@@ -145,7 +139,6 @@ const validateRecordAccess = (req, res, next) => {
         if (_.isEqual(req.user._id, record.creator)) {
           return next();
         }
-
       })
       .catch(err => {
         console.error(`Error canModifyResource: ${err}`);
@@ -164,8 +157,8 @@ const canModifyResource = req => {
       isCreator: false,
       isFacilitator: false,
       modelName: null,
-      isAdmin: false,
-    },
+      isAdmin: false
+    }
   };
 
   let user = utils.getUser(req);
