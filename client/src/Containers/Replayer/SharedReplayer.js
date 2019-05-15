@@ -141,7 +141,7 @@ class SharedReplayer extends Component {
 
     if (this.props.encompass) {
       if (
-        (prevState.playing && !this.state.playing) ||
+        prevState.playing !== this.state.playing ||
         (!prevState.playing && this.state.changingIndex)
       ) {
         this.props.updateEnc(
@@ -149,6 +149,15 @@ class SharedReplayer extends Component {
           this.state,
           this.relativeDuration
         );
+      }
+    }
+
+    if (this.state.stopTime && this.state.playing) {
+      // if stopTime was set (encompass selection was clicked on)
+      // check if replayer has reached end of selection
+      if (this.state.timeElapsed >= this.state.stopTime) {
+        // stop replayer and clear stopTime if done
+        this.setState({ playing: false, stopTime: null });
       }
     }
 
@@ -251,7 +260,7 @@ class SharedReplayer extends Component {
   };
 
   // Takes a % of total progress and goes to the nearest timestamp
-  goToTime = percent => {
+  goToTime = (percent, doAutoPlay = false, stopTime = null) => {
     let logIndex;
     let timeElapsed = percent * this.relativeDuration;
     if (percent === 1) {
@@ -277,7 +286,8 @@ class SharedReplayer extends Component {
       timeElapsed,
       logIndex,
       currentTab,
-      playing: false,
+      playing: doAutoPlay,
+      stopTime,
       changingIndex: true,
     });
     // setTimeout(() => this.setState({playing:}))
@@ -343,13 +353,13 @@ class SharedReplayer extends Component {
     }
 
     if (messageType === 'VMT_GO_TO_TIME') {
-      let timeElapsed = data.timeElapsed;
+      let { timeElapsed, doAutoPlay, stopTime } = data;
 
       if (typeof timeElapsed === 'number') {
         // is this the best way to set time?
         // or should we just set this.state.timeElapsed?
         let percentage = timeElapsed / this.relativeDuration;
-        this.goToTime(percentage);
+        this.goToTime(percentage, doAutoPlay, stopTime);
       }
     }
   };
