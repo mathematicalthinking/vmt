@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classes from './replayerControls.css';
-import Slider from './Slider/Slider';
-import Settings from './Settings/Settings';
 class ReplayerControls extends Component {
   state = {
-    showControls: true,
     mouseOverControls: false,
   };
 
@@ -29,13 +27,10 @@ class ReplayerControls extends Component {
     }
   }
 
-  getProgress = progress => {
-    this.setState({ progress });
-  };
-
   next = () => {
     const { log, index, duration, goToTime } = this.props;
     const percent = log[index + 1].relTime / duration;
+
     goToTime(percent);
   };
 
@@ -70,30 +65,19 @@ class ReplayerControls extends Component {
 
   render() {
     const {
-      playing,
-      startTime,
-      duration, //ms
+      playing, //ms
       pausePlay,
-      relTime,
-      isFullscreen,
-      toggleFullscreen,
       log,
       index,
+      settings,
       clock,
-      changingIndex,
-      goToIndex,
-      goToTime,
-      absTimeElapsed,
-      speed,
-      setSpeed,
+      slider,
     } = this.props;
     const pausePlayButton = playing ? (
       <i className="fas fa-pause" />
     ) : (
       <i className="fas fa-play" />
     );
-
-    const progress = (relTime / duration) * 100; // %
     return (
       <div
         className={
@@ -102,21 +86,7 @@ class ReplayerControls extends Component {
         onMouseEnter={() => this.setState({ mouseOverControls: true })}
         onMouseLeave={() => this.setState({ mouseOverControls: false })}
       >
-        <div className={classes.ProgressBar}>
-          {/* <div className={classes.Time} style={{ marginRight: 3 }}>
-              {this.originalStartTime || startTime}
-            </div> */}
-          <Slider
-            progress={progress}
-            log={log}
-            duration={duration}
-            playing={playing}
-            goToTime={percent => goToTime(percent)}
-          />
-          {/* <div className={classes.Time} style={{ marginLeft: 3 }}>
-              {endTime}
-            </div> */}
-        </div>
+        <div className={classes.ProgressBar}>{slider}</div>
         <div className={classes.Controls}>
           <div className={classes.PlayControls}>
             <button
@@ -152,17 +122,27 @@ class ReplayerControls extends Component {
             </button>
             {clock}
           </div>
-          <Settings
-            setSpeed={setSpeed}
-            speed={speed}
-            hideSettings={!this.state.showControls}
-            isFullscreen={isFullscreen}
-            toggleFullscreen={toggleFullscreen}
-          />
+          {settings}
         </div>
         <div className={classes.Backdrop} />
       </div>
     );
   }
 }
+
+ReplayerControls.propTypes = {
+  playing: PropTypes.bool.isRequired,
+  pausePlay: PropTypes.func.isRequired,
+  speed: PropTypes.number.isRequired,
+  setSpeed: PropTypes.func.isRequired,
+  duration: PropTypes.number.isRequired,
+  index: PropTypes.number.isRequired,
+  log: PropTypes.arrayOf(PropTypes.object).isRequired,
+  goToTime: PropTypes.func.isRequired,
+  reset: PropTypes.func.isRequired,
+  settings: PropTypes.element.isRequired,
+  slider: PropTypes.element.isRequired,
+  clock: PropTypes.element.isRequired,
+};
+
 export default ReplayerControls;

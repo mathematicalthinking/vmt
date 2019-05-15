@@ -6,6 +6,8 @@ import DesmosReplayer from './DesmosReplayer';
 import GgbReplayer from './GgbReplayer';
 import ChatReplayer from './ChatReplayer';
 import Clock from './Clock';
+import Slider from './Slider';
+import Settings from './Settings';
 
 import CurrentMembers from '../../Components/CurrentMembers/CurrentMembers';
 import Loading from '../../Components/Loading/Loading';
@@ -32,11 +34,13 @@ const INITIAL_STATE = {
   multipleTabTypes: false,
   isFullscreen: false,
   stopTime: null,
+  showControls: true,
 };
 class SharedReplayer extends Component {
   state = INITIAL_STATE;
   updatedLog = [];
   tabsLoaded = 0;
+  endTime = 0;
 
   componentDidMount() {
     // @TODO We should never populate the tabs events before getting here
@@ -370,32 +374,43 @@ class SharedReplayer extends Component {
       <ReplayerControls
         playing={this.state.playing}
         pausePlay={this.pausePlay}
-        duration={this.relativeDuration}
-        startTime={this.state.startTime}
-        absTimeElapsed={this.state.absTimeElapsed}
-        goToTime={this.goToTime}
-        changingIndex={this.state.changingIndex}
         speed={this.state.playbackSpeed}
         setSpeed={this.setSpeed}
-        relTime={this.state.timeElapsed}
         index={this.state.logIndex}
         log={this.updatedLog}
-        endTime={this.endTime}
+        goToTime={this.goToTime}
         reset={this.reset}
+        duration={this.relativeDuration || 0}
+        settings={
+          <Settings
+            setSpeed={this.setSpeed}
+            speed={this.state.playbackSpeed}
+            settingsHidden={!this.state.showControls}
+            isFullscreen={this.state.isFullscreen}
+            toggleFullscreen={this.toggleFullscreen}
+          />
+        }
+        slider={
+          <Slider
+            progress={(this.state.timeElapsed / this.relativeDuration) * 100}
+            log={this.updatedLog}
+            duration={this.relativeDuration || 0}
+            playing={this.state.playing}
+            goToTime={this.goToTime}
+          />
+        }
         clock={
           <Clock
             startTime={this.state.startTime}
             playing={this.state.playing}
-            duration={this.relativeDuration}
+            duration={this.relativeDuration || 0}
             relTime={this.state.timeElapsed}
             changingIndex={this.state.changingIndex}
             // absTimeElapsed={absTimeElapsed}
           />
         }
-        currentMembers={this.state.currentMembers}
-        setCurrentMembers={this.setCurrentMembers}
-        toggleFullscreen={this.toggleFullscreen}
-        isFullscreen={this.state.isFullscreen}
+        // currentMembers={this.state.currentMembers}
+        // setCurrentMembers={this.setCurrentMembers}
       />
     );
 

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import classes from './slider.css';
 // import Aux from '../../HOC/Auxil';
@@ -107,5 +107,13 @@ class Slider extends Component {
     );
   }
 }
+
+Slider.propTypes = {
+  progress: PropTypes.number.isRequired,
+  log: PropTypes.arrayOf(PropTypes.object).isRequired,
+  duration: PropTypes.number.isRequired,
+  playing: PropTypes.bool.isRequired,
+  goToTime: PropTypes.func.isRequired,
+};
 
 export default Slider;

@@ -8,7 +8,7 @@ class Settings extends PureComponent {
   };
 
   componentDidUpdate(prevProps) {
-    if (this.props.hideSettings) {
+    if (this.props.settingsHidden) {
       this.setState({ currentSetting: 'home', showSettings: false });
     }
   }
@@ -110,6 +110,12 @@ class Settings extends PureComponent {
   }
 }
 
-Settings.propTypes = {};
+Settings.propTypes = {
+  setSpeed: PropTypes.func.isRequired,
+  speed: PropTypes.number.isRequired,
+  settingsHidden: PropTypes.bool.isRequired,
+  isFullscreen: PropTypes.bool.isRequired,
+  toggleFullscreen: PropTypes.func.isRequired,
+};
 
 export default Settings;
