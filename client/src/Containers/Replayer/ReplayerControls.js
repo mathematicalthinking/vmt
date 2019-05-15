@@ -1,16 +1,15 @@
-import React, { Component } from "react";
-import classes from "./replayerControls.css";
-import Clock from "./Clock/Clock";
-import Slider from "./Slider/Slider";
-import Settings from "./Settings/Settings";
+import React, { Component } from 'react';
+import classes from './replayerControls.css';
+import Slider from './Slider/Slider';
+import Settings from './Settings/Settings';
 class ReplayerControls extends Component {
   state = {
     showControls: true,
-    mouseOverControls: false
+    mouseOverControls: false,
   };
 
   componentDidMount() {
-    window.addEventListener("mousemove", this.showControls);
+    window.addEventListener('mousemove', this.showControls);
   }
 
   componentDidUpdate(prevProps) {
@@ -24,7 +23,7 @@ class ReplayerControls extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener("mousemove", this.showControls);
+    window.removeEventListener('mousemove', this.showControls);
     if (this.hideControlsTimer) {
       clearTimeout(this.hideControlsTimer);
     }
@@ -80,12 +79,13 @@ class ReplayerControls extends Component {
       toggleFullscreen,
       log,
       index,
+      clock,
       changingIndex,
       goToIndex,
       goToTime,
       absTimeElapsed,
       speed,
-      setSpeed
+      setSpeed,
     } = this.props;
     const pausePlayButton = playing ? (
       <i className="fas fa-pause" />
@@ -150,14 +150,7 @@ class ReplayerControls extends Component {
             >
               <i className="fas fa-fast-forward" />
             </button>
-            <Clock
-              startTime={startTime}
-              playing={playing}
-              duration={duration}
-              relTime={relTime}
-              changingIndex={changingIndex}
-              // absTimeElapsed={absTimeElapsed}
-            />
+            {clock}
           </div>
           <Settings
             setSpeed={setSpeed}

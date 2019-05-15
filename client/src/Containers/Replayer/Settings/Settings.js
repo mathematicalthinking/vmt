@@ -1,15 +1,15 @@
-import React, { PureComponent, Fragment } from "react";
-import classes from "./settings.css";
-
+import React, { PureComponent, Fragment } from 'react';
+import PropTypes from 'prop-types';
+import classes from './settings.css';
 class Settings extends PureComponent {
   state = {
-    currentSetting: "home",
-    showSettings: false
+    currentSetting: 'home',
+    showSettings: false,
   };
 
   componentDidUpdate(prevProps) {
     if (this.props.hideSettings) {
-      this.setState({ currentSetting: "home", showSettings: false });
+      this.setState({ currentSetting: 'home', showSettings: false });
     }
   }
 
@@ -25,14 +25,14 @@ class Settings extends PureComponent {
 
   toggleSettings = () => {
     this.setState(prevState => ({
-      showSettings: !prevState.showSettings
+      showSettings: !prevState.showSettings,
     }));
   };
 
   setSpeed = speed => {
     this.props.setSpeed(speed);
     this.hideSettingsTimer = setTimeout(() => {
-      this.setState({ currentSetting: "home", showSettings: false });
+      this.setState({ currentSetting: 'home', showSettings: false });
     }, 1000);
   };
 
@@ -50,11 +50,11 @@ class Settings extends PureComponent {
       </Fragment>
     );
 
-    if (this.state.currentSetting === "speed") {
+    if (this.state.currentSetting === 'speed') {
       displaySettings = (
         <Fragment>
           <i
-            className={["fas fa-long-arrow-alt-left", classes.Back].join(" ")}
+            className={['fas fa-long-arrow-alt-left', classes.Back].join(' ')}
             id="home"
             onClick={this.setCurrentSetting}
           />
@@ -96,12 +96,12 @@ class Settings extends PureComponent {
         </div>
         {!isFullscreen ? (
           <i
-            className={["fas fa-expand", classes.Fullscreen].join(" ")}
+            className={['fas fa-expand', classes.Fullscreen].join(' ')}
             onClick={this.props.toggleFullscreen}
           />
         ) : (
           <i
-            className={["fas fa-compress", classes.Fullscreen].join(" ")}
+            className={['fas fa-compress', classes.Fullscreen].join(' ')}
             onClick={this.props.toggleFullscreen}
           />
         )}
@@ -110,9 +110,6 @@ class Settings extends PureComponent {
   }
 }
 
-export default Settings;
+Settings.propTypes = {};
 
-{
-  /*
-   */
-}
+export default Settings;

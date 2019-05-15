@@ -9,7 +9,7 @@ export default props => {
       <div className={classes.DropdownContent}>
         {props.list.map(item => {
           return (
-            <div className={classes.DropdownItem}>
+            <div className={classes.DropdownItem} key={item.name}>
               <NavItem
                 // className={classes.DropdownItem}
                 link={item.link}

@@ -73,6 +73,7 @@ class Slider extends Component {
       let percentFromStart = (entry.relTime / this.props.duration) * 100;
       return (
         <EventDesc
+          key={entry.relTime}
           color={color}
           offset={percentFromStart}
           entry={entry}

@@ -52,15 +52,16 @@ class CurrentMembers extends Component {
                 </div>
               );
             } else {
+              console.log('key: ', user.username);
               return (
                 <div
+                  key={user.username}
                   className={[
                     classes.Avatar,
                     user._id === activeMember
                       ? classes.Active
                       : classes.Passive,
                   ].join(' ')}
-                  key={user.username}
                 >
                   <Avatar
                     username={`${user.username} (admin)`}

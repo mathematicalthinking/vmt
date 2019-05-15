@@ -5,6 +5,7 @@ import ReplayerControls from './ReplayerControls';
 import DesmosReplayer from './DesmosReplayer';
 import GgbReplayer from './GgbReplayer';
 import ChatReplayer from './ChatReplayer';
+import Clock from './Clock';
 
 import CurrentMembers from '../../Components/CurrentMembers/CurrentMembers';
 import Loading from '../../Components/Loading/Loading';
@@ -381,6 +382,16 @@ class SharedReplayer extends Component {
         log={this.updatedLog}
         endTime={this.endTime}
         reset={this.reset}
+        clock={
+          <Clock
+            startTime={this.state.startTime}
+            playing={this.state.playing}
+            duration={this.relativeDuration}
+            relTime={this.state.timeElapsed}
+            changingIndex={this.state.changingIndex}
+            // absTimeElapsed={absTimeElapsed}
+          />
+        }
         currentMembers={this.state.currentMembers}
         setCurrentMembers={this.setCurrentMembers}
         toggleFullscreen={this.toggleFullscreen}
