@@ -1,11 +1,11 @@
-import React, { Component } from "react";
-import ReactDOM from "react-dom";
-import classes from "./EncompassReplayer.css";
-import SharedReplayer from "./SharedReplayer";
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import classes from './EncompassReplayer.css';
+import SharedReplayer from './SharedReplayer';
 
 class EncompassReplayer extends Component {
   state = {
-    room: null
+    room: null,
   };
 
   componentDidMount() {
@@ -13,11 +13,11 @@ class EncompassReplayer extends Component {
     let roomId = this.getRoomIdFromUrl(currentUrl);
     this.setState({ room: this.getRoomFromWindow(roomId) });
 
-    window.addEventListener("hashchange", this.setRoom, false);
+    window.addEventListener('hashchange', this.setRoom, false);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("hashchange", this.setRoom);
+    window.removeEventListener('hashchange', this.setRoom);
   }
 
   setRoom = event => {
@@ -28,11 +28,11 @@ class EncompassReplayer extends Component {
   };
 
   getRoomIdFromUrl = url => {
-    if (typeof url !== "string") {
+    if (typeof url !== 'string') {
       return null;
     }
 
-    let target = "vmtRoomId=";
+    let target = 'vmtRoomId=';
     let targetIx = url.indexOf(target);
     let roomId;
 
@@ -49,16 +49,12 @@ class EncompassReplayer extends Component {
     return window.vmtRooms[roomId] || null;
   };
 
-  onLoad = (replayerState, totalDuration) => {
+  updateEncompass = (messageType, replayerState, totalDuration) => {
     window.postMessage({
-      messageType: 'VMT_ON_REPLAYER_LOAD',
+      messageType,
+      vmtReplayerInfo: { ...replayerState, totalDuration },
     });
-    this.updateEncompass(replayerState, totalDuration);
-  }
-
-  updateEncompass = (replayerState, totalDuration) => {
-    window.vmtReplayerInfo = {...replayerState, totalDuration };
-  }
+  };
 
   render() {
     if (this.state.room) {
@@ -67,7 +63,6 @@ class EncompassReplayer extends Component {
           <SharedReplayer
             room={this.state.room}
             updateEnc={this.updateEncompass}
-            onLoadEnc={this.onLoad}
             encompass
           />
         </div>
@@ -78,4 +73,4 @@ class EncompassReplayer extends Component {
   }
 }
 
-ReactDOM.render(<EncompassReplayer />, document.getElementById("root"));
+ReactDOM.render(<EncompassReplayer />, document.getElementById('root'));
