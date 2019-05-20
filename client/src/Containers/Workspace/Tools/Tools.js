@@ -22,6 +22,7 @@ const Tools = React.memo(props => {
             <div
               className={classes.SideButton}
               role="button"
+              data-testid="take-control"
               onClick={props.toggleControl}
             >
               {controlText}

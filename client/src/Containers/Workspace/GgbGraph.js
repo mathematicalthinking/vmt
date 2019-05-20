@@ -865,7 +865,7 @@ class GgbGraph extends Component {
 GgbGraph.propTypes = {
   room: PropTypes.shape({
     _id: PropTypes.string.isRequired,
-    log: PropTypes.arrayOf(PropTypes.object).isRequired,
+    log: PropTypes.arrayOf(PropTypes.object),
     controlledBy: PropTypes.string,
   }).isRequired,
   user: PropTypes.shape({

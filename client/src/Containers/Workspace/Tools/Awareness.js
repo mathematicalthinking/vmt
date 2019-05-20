@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 // import { Avatar, ToolTip, Aux } from "../../../Components";
 import classes from './tools.css';
 import ggbTools from './GgbIcons/';
@@ -17,7 +18,7 @@ class Awareness extends Component {
     let { lastEvent } = this.props;
     if (lastEvent) {
       return (
-        <div className={classes.AwarenessDesc}>
+        <div className={classes.AwarenessDesc} data-testid="awareness-desc">
           {lastEvent.description || lastEvent.text || lastEvent.message}
           <a
             className={classes.AwarenessIcon}
@@ -32,6 +33,7 @@ class Awareness extends Component {
               //     .replace("_", " ")}
               // >
               <img
+                data-testid="awareness-img"
                 src={ggbTools[lastEvent.label].image}
                 height={40}
                 href={ggbTools[lastEvent.label].link}
@@ -45,5 +47,13 @@ class Awareness extends Component {
     } else return null;
   }
 }
+
+Awareness.propTypes = {
+  lastEvent: PropTypes.shape({
+    description: PropTypes.string,
+    text: PropTypes.string,
+    message: PropTypes.string,
+  }),
+};
 
 export default Awareness;
