@@ -105,6 +105,17 @@ class GgbGraph extends Component {
         });
       }
     });
+    socket.on('FORCE_SYNC', room => {
+      console.log('forcing sync');
+      this.setState({ receivingData: true }, () => {
+        room.tabs.forEach((tab, i) => {
+          if (i === this.props.currentTab) {
+            this.ggbApplet.setXML(tab.currentState);
+            this.registerListeners();
+          }
+        });
+      });
+    });
   }
 
   shouldComponentUpdate(nextProps) {
@@ -171,31 +182,18 @@ class GgbGraph extends Component {
       if (prevProps.currentTab !== this.props.currentTab) {
         // console.log("IM swtichting tgabs");
         this.updateDimensions();
-        // let { currentState, startingPoint, ggbFile } = this.props.room.tabs[
-        //   this.props.currentTab
-        // ];
-        // // console.log("CURRENT STSTWE: ", currentState);
-        // if (currentState) {
-        //   this.ggbApplet.setXML(currentState);
-        // } else if (startingPoint) {
-        //   this.ggbApplet.setXML(startingPoint);
-        // } else if (ggbFile) {
-        //   this.ggbApplet.setBase64(ggbFile, () => {
-        //     let updatedTabs = [...this.props.room.tabs];
-        //     let updatedTab = { ...this.props.room.tabs[this.props.currentTab] };
-        //     updatedTab.currentState = this.ggbApplet.getXML();
-        //     updatedTabs[this.props.currentTab] = updatedTab;
+      }
 
-        //     this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-        //   });
-        // } else {
-        //   // this.ggbApplet.setXML(INITIAL_GGB);
-        // }
-        // this.registerListeners(); // this.ggbApplet.setXML() erases listeners
-
-        // // if (perspective) {
-        // //   this.ggbApplet.setPerspective(perspective);
-        // // }
+      // switching control
+      // when control is switched we get the currentState of each tab in the socket callback
+      // we should apply those current states to make sure the room is in sync
+      if (prevProps.room.controlledBy !== this.props.room.controlledBy) {
+        console.log(
+          'control changed ew should update the graph with current state'
+        );
+        // this.ggbApplet.setXML(
+        //   this.props.room.tabs[this.props.currentTab].currentState
+        // );
       }
     }
   }
@@ -217,6 +215,11 @@ class GgbGraph extends Component {
       this.ggbApplet.unregisterClientListener(this.clientListener);
       // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
     }
+
+    if (this.updatingTab) {
+      clearTimeout(this.updatingTab);
+    }
+
     socket.removeAllListeners('RECEIVE_EVENT');
     // if (!this.props.tempRoom) {
     //   let canvas = document.querySelector('[aria-label="Graphics View 1"]');
@@ -787,6 +790,7 @@ class GgbGraph extends Component {
       // when this method is called by componentDidUnmount we sometimes may not have access to ggbApplet depending on HOW the component was unmounted
       let currentState = this.ggbApplet.getXML();
       let tabId = room.tabs[this.props.currentTab]._id;
+      console.log('updating construction');
       this.props.updateRoomTab(room._id, tabId, {
         // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
         currentState,

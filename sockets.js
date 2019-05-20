@@ -180,8 +180,9 @@ module.exports = function() {
       controllers.rooms
         .getCurrentState(data.room)
         .then(room => {
-          console.log('CURRENT STATE OF ROOM: ', room);
-          callback(null, room);
+          // callback(null, room);
+          console.log('forcing sync');
+          socket.emit('FORCE_SYNC', room);
         })
         .catch(err => {
           callback(err, null);

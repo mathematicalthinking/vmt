@@ -4,6 +4,7 @@ import {
   updateRoom,
   updatedRoom,
   updateRoomTab,
+  updatedRoomTab,
   populateRoom,
   setRoomStartingPoint,
   updateUser,
@@ -299,6 +300,11 @@ class Workspace extends Component {
       // the room is falling out of sync in the first place, this a temp fix)
       socket.emit('TAKE_CONTROL', message, (err, room) => {
         console.log('CURRENT STSTE : ROOM : ', room);
+        // room.tabs.forEach(tab => {
+        //   this.props.updatedRoomTab(room._id, tab._id, {
+        //     currentState: tab.currentState,
+        //   });
+        // });
       });
     }
     if (!user.connected) {
@@ -612,6 +618,7 @@ export default connect(
     updateRoom,
     updatedRoom,
     updateRoomTab,
+    updatedRoomTab,
     populateRoom,
     setRoomStartingPoint,
     addToLog,
