@@ -246,7 +246,7 @@ class GgbGraph extends Component {
 
   recursiveUpdate(events, adding) {
     // console.log(events.length);
-    if (events.length > 0 && Array.isArray(events)) {
+    if (events && events.length > 0 && Array.isArray(events)) {
       if (adding) {
         for (let i = 0; i < events.length; i++) {
           this.ggbApplet.evalCommand(events[i]);
