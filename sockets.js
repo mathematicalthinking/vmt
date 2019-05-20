@@ -177,7 +177,15 @@ module.exports = function() {
         callback(err, null);
       }
       socket.to(data.room).emit('TOOK_CONTROL', data);
-      callback(null, data);
+      controllers.rooms
+        .getCurrentState(data.room)
+        .then(room => {
+          console.log('CURRENT STATE OF ROOM: ', room);
+          callback(null, room);
+        })
+        .catch(err => {
+          callback(err, null);
+        });
     });
 
     socket.on('RELEASE_CONTROL', (data, callback) => {

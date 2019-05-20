@@ -294,15 +294,11 @@ class Workspace extends Component {
         timestamp: new Date().getTime(),
       };
       this.props.addToLog(room._id, message);
-      socket.emit('TAKE_CONTROL', message, (err, message) => {
-        // this.scrollToBottom(); @TODO
-        // this.setState(
-        //   { awarenessDesc: message.text, awarenessIcon: null },
-        //   () => {
-        //     console.log(this.state.awarenessDesc);
-        //   }
-        // );
-        // IF ERROR WE NEED TO UNDO CONTROL
+      // When a user takes control they receive the current state of each tab in the callback
+      // so that we're guranteed they have the most up to date state (hopefully we can figure out why
+      // the room is falling out of sync in the first place, this a temp fix)
+      socket.emit('TAKE_CONTROL', message, (err, room) => {
+        console.log('CURRENT STSTE : ROOM : ', room);
       });
     }
     if (!user.connected) {

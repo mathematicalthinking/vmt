@@ -78,6 +78,22 @@ module.exports = {
     });
   },
 
+  // returns the current state for each tab...does not return events or any other information
+  getCurrentState: id => {
+    return new Promise((resolve, reject) => {
+      db.Room.findById(id)
+        .select('tabs')
+        .populate({ path: 'tabs', select: 'currentState' })
+        .lean()
+        .then(room => {
+          resolve(room);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  },
+
   searchPaginated: (criteria, skip, filters) => {
     let params = { tempRoom: false, isTrashed: false };
     if (filters.privacySetting) params.privacySetting = filters.privacySetting;

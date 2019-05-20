@@ -1,6 +1,5 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
-import sinon from 'sinon';
 import GgbGraph from './GgbGraph';
 
 import room from '../../../__mocks__/testRoom';
