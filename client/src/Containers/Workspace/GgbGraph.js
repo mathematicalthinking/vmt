@@ -105,19 +105,20 @@ class GgbGraph extends Component {
         });
       }
     });
-    // socket.on('FORCE_SYNC', room => {
-    //   console.log('forcing sync');
-    //   this.setState({ receivingData: true }, () => {
-    //     console.log(room.tabs.length);
-    //     room.tabs.forEach((tab, i) => {
-    //       console.log(this.props.currentTab);
-    //       if (i === this.props.currentTab) {
-    //         this.ggbApplet.setXML(tab.currentState);
-    //         this.registerListeners();
-    //       }
-    //     });
-    //   });
-    // });
+    socket.on('FORCE_SYNC', room => {
+      console.log('forcing sync');
+      this.setState({ receivingData: true }, () => {
+        console.log(room.tabs.length);
+        room.tabs.forEach((tab, i) => {
+          console.log(this.props.currentTab);
+          if (i === this.props.tabId) {
+            console.log('updating tab: ', i + 1);
+            this.ggbApplet.setXML(tab.currentState);
+            this.registerListeners();
+          }
+        });
+      });
+    });
   }
 
   shouldComponentUpdate(nextProps) {
