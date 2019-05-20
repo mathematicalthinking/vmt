@@ -105,17 +105,19 @@ class GgbGraph extends Component {
         });
       }
     });
-    socket.on('FORCE_SYNC', room => {
-      console.log('forcing sync');
-      this.setState({ receivingData: true }, () => {
-        room.tabs.forEach((tab, i) => {
-          if (i === this.props.currentTab) {
-            this.ggbApplet.setXML(tab.currentState);
-            this.registerListeners();
-          }
-        });
-      });
-    });
+    // socket.on('FORCE_SYNC', room => {
+    //   console.log('forcing sync');
+    //   this.setState({ receivingData: true }, () => {
+    //     console.log(room.tabs.length);
+    //     room.tabs.forEach((tab, i) => {
+    //       console.log(this.props.currentTab);
+    //       if (i === this.props.currentTab) {
+    //         this.ggbApplet.setXML(tab.currentState);
+    //         this.registerListeners();
+    //       }
+    //     });
+    //   });
+    // });
   }
 
   shouldComponentUpdate(nextProps) {
@@ -221,6 +223,7 @@ class GgbGraph extends Component {
     }
 
     socket.removeAllListeners('RECEIVE_EVENT');
+    socket.removeAllListeners('FORCE_SYNC');
     // if (!this.props.tempRoom) {
     //   let canvas = document.querySelector('[aria-label="Graphics View 1"]');
     //   this.props.updateRoom(this.props.room._id, {graphImage: {imageData: canvas.toDataURL()}})
@@ -789,7 +792,7 @@ class GgbGraph extends Component {
     if (this.ggbApplet) {
       // when this method is called by componentDidUnmount we sometimes may not have access to ggbApplet depending on HOW the component was unmounted
       let currentState = this.ggbApplet.getXML();
-      let tabId = room.tabs[this.props.currentTab]._id;
+      let tabId = room.tabs[this.props.tabId]._id;
       console.log('updating construction');
       this.props.updateRoomTab(room._id, tabId, {
         // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy

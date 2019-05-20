@@ -17,6 +17,7 @@ module.exports = function() {
   });
 
   io.sockets.on('connection', socket => {
+    console.log(io.sockets);
     // console.log(socket.getEventNames())
 
     socket.on('JOIN_TEMP', async (data, callback) => {
@@ -168,6 +169,7 @@ module.exports = function() {
     });
 
     socket.on('TAKE_CONTROL', async (data, callback) => {
+      console.log('someone is taking control');
       try {
         await Promise.all([
           controllers.messages.post(data),
@@ -176,6 +178,7 @@ module.exports = function() {
       } catch (err) {
         callback(err, null);
       }
+      console.log('sending control message to everyone else');
       socket.to(data.room).emit('TOOK_CONTROL', data);
       controllers.rooms
         .getCurrentState(data.room)

@@ -283,7 +283,6 @@ class Workspace extends Component {
         });
       }
       // We're taking control
-      this.props.updatedRoom(room._id, { controlledBy: user._id });
       this.resetControlTimer();
       let message = {
         user: { _id: user._id, username: 'VMTBot' },
@@ -298,13 +297,14 @@ class Workspace extends Component {
       // When a user takes control they receive the current state of each tab in the callback
       // so that we're guranteed they have the most up to date state (hopefully we can figure out why
       // the room is falling out of sync in the first place, this a temp fix)
+      this.props.updatedRoom(room._id, { controlledBy: user._id });
       socket.emit('TAKE_CONTROL', message, (err, room) => {
-        console.log('CURRENT STSTE : ROOM : ', room);
-        // room.tabs.forEach(tab => {
-        //   this.props.updatedRoomTab(room._id, tab._id, {
-        //     currentState: tab.currentState,
-        //   });
-        // });
+        //   console.log('CURRENT STSTE : ROOM : ', room);
+        //   // room.tabs.forEach(tab => {
+        //   //   this.props.updatedRoomTab(room._id, tab._id, {
+        //   //     currentState: tab.currentState,
+        //   //   });
+        //   // });
       });
     }
     if (!user.connected) {
