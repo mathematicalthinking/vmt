@@ -44,6 +44,8 @@ class GgbGraph extends Component {
     window.addEventListener('resize', this.updateDimensions);
     // socket.removeAllListeners("RECEIVE_EVENT");
     socket.on('RECEIVE_EVENT', data => {
+      console.log('receive_event: ', data);
+      // callback('success');
       let { room, tabId } = this.props;
       // If this event is for this tab add it to the log
       if (data.tab === room.tabs[tabId]._id) {
@@ -53,6 +55,10 @@ class GgbGraph extends Component {
         if (this.props.currentTab !== this.props.tabId) {
           this.props.addNtfToTabs(room.tabs[this.props.tabId]._id);
         }
+
+        // If we're still processing data from the last event
+        // save this event in a queue...then when processing is done we'll pull
+        // from this queue
         if (this.state.receivingData) {
           // we're already processing the previous event.
           this.socketQueue.push(data);
@@ -85,6 +91,7 @@ class GgbGraph extends Component {
                 this.ggbApplet.showAlgebraInput(true);
                 break;
               case 'BATCH_UPDATE':
+                console.log('BACTH UPDATE LENGTH: ', data.eventArray.length);
                 // this.updatingOn = true;
                 this.batchUpdating = true;
                 this.recursiveUpdate(data.eventArray, data.noOfPoints);
@@ -108,11 +115,8 @@ class GgbGraph extends Component {
     socket.on('FORCE_SYNC', room => {
       console.log('forcing sync');
       this.setState({ receivingData: true }, () => {
-        console.log(room.tabs.length);
         room.tabs.forEach((tab, i) => {
-          console.log(this.props.currentTab);
           if (i === this.props.tabId) {
-            console.log('updating tab: ', i + 1);
             this.ggbApplet.setXML(tab.currentState);
             this.registerListeners();
           }
@@ -141,12 +145,19 @@ class GgbGraph extends Component {
       if (!this.ggbApplet) return;
 
       // new evnet
+      if (!prevProps.room.log) {
+        console.log('prevProps.rom.log does not exist!');
+      }
+      if (!this.props.room.log) {
+        console.log('this.props.room.log does not exist');
+      }
       if (prevProps.room.log.length < this.props.room.log.length) {
         this.previousEvent = this.props.room.log[
           this.props.room.log.length - 1
         ];
       }
 
+      // Creating a reference
       if (!prevProps.referencing && this.props.referencing) {
         this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
       } else if (prevProps.referencing && !this.props.referencing) {
@@ -161,6 +172,7 @@ class GgbGraph extends Component {
         this.ggbApplet.setMode(40);
       }
 
+      // Displaying Reference
       if (
         !prevProps.showingReference &&
         this.props.showingReference &&
@@ -181,22 +193,11 @@ class GgbGraph extends Component {
         );
         this.props.setToElAndCoords(null, position);
       }
+
       // switching tab
       if (prevProps.currentTab !== this.props.currentTab) {
         // console.log("IM swtichting tgabs");
         this.updateDimensions();
-      }
-
-      // switching control
-      // when control is switched we get the currentState of each tab in the socket callback
-      // we should apply those current states to make sure the room is in sync
-      if (prevProps.room.controlledBy !== this.props.room.controlledBy) {
-        console.log(
-          'control changed ew should update the graph with current state'
-        );
-        // this.ggbApplet.setXML(
-        //   this.props.room.tabs[this.props.currentTab].currentState
-        // );
       }
     }
   }
@@ -245,7 +246,6 @@ class GgbGraph extends Component {
    */
 
   recursiveUpdate(events, adding) {
-    // console.log(events.length);
     if (events && events.length > 0 && Array.isArray(events)) {
       if (adding) {
         for (let i = 0; i < events.length; i++) {
@@ -263,18 +263,25 @@ class GgbGraph extends Component {
           }
         }
         if (Array.isArray(events)) {
+          console.log('UPDATE: ', events[0]);
           this.ggbApplet.evalXML(events.shift());
         } else {
+          console('update:: ', events);
           this.ggbApplet.evalXML(events);
         }
         this.ggbApplet.evalCommand('UpdateConstruction()');
         setTimeout(() => {
           this.recursiveUpdate(events);
-        }, 10);
+        }, 0);
       }
+      // After we've finished applying all of the events check the socketQueue to see if more
+      // events came over the socket while we were painting those updates
     } else if (this.socketQueue.length > 0) {
+      console.log('going into the socket queue to apply events');
       let nextEvent = this.socketQueue.shift();
-      this.recursiveUpdate(nextEvent.event, false);
+      console.log('event from queue: ', nextEvent);
+      this.recursiveUpdate(nextEvent.eventArray, false);
+      // If we're all done
     } else {
       this.batchUpdating = false;
       this.setState({ receivingData: false });
@@ -397,6 +404,7 @@ class GgbGraph extends Component {
    */
 
   clientListener = event => {
+    // console.log('client listener');
     // console.log("client Listener");
     if (this.state.receivingData) {
       return this.setState({ receivingData: false });
@@ -516,6 +524,7 @@ class GgbGraph extends Component {
    */
 
   addListener = label => {
+    console.log('add listener');
     if (this.state.receivingData && !this.updatingOn) {
       this.setState({ receivingData: false });
       return;
@@ -527,12 +536,14 @@ class GgbGraph extends Component {
     if (!this.userCanEdit()) {
       this.resetting = true;
       this.ggbApplet.deleteObject(label);
+      // Let the Ggb UI updates happen first...then when the stack is clear show an alert
       setTimeout(() => this.showAlert(), 0);
       return;
     }
     if (!this.state.receivingData) {
       let xml = this.ggbApplet.getXML(label);
       let definition = this.ggbApplet.getCommandString(label);
+      console.log('sending add event');
       this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
     }
   };
@@ -543,6 +554,7 @@ class GgbGraph extends Component {
    */
 
   removeListener = label => {
+    console.log('remove listener');
     if (this.state.receivingData && !this.updatingOn) {
       this.setState({ receivingData: false });
       return;
@@ -560,6 +572,7 @@ class GgbGraph extends Component {
       return;
     }
     if (!this.state.receivingData) {
+      console.log('sending remove event');
       this.sendEventBuffer(null, null, label, 'REMOVE', 'removed');
     }
   };
@@ -572,6 +585,7 @@ class GgbGraph extends Component {
    */
 
   updateListener = label => {
+    // console.log('update event');
     if (this.batchUpdating || this.movingGeos) return;
     if (this.state.receivingData && !this.updatingOn) {
       this.setState({ receivingData: false });
@@ -582,6 +596,7 @@ class GgbGraph extends Component {
     // let isInControl = this.props.room.controlledBy === this.props.user._id;
     if (!this.state.receivingData && label === this.pointSelected) {
       let xml = this.ggbApplet.getXML(label);
+      // console.log('sending update event');
       this.sendEventBuffer(xml, null, label, 'UPDATE', 'updated');
     }
   };
@@ -592,6 +607,7 @@ class GgbGraph extends Component {
    */
 
   clickListener = async element => {
+    // console.log('click event');
     if (this.props.referencing) {
       let elementType = this.ggbApplet.getObjectType(element);
       let position;
@@ -642,6 +658,7 @@ class GgbGraph extends Component {
    */
 
   sendEventBuffer = (xml, definition, label, eventType, action) => {
+    // console.log('in the event buffer');
     let sendEventFromTimer = true;
     // Don't send if the user is not allowed to make changes
     if (
@@ -710,6 +727,7 @@ class GgbGraph extends Component {
    */
 
   sendEvent = (xml, definition, label, eventType, action, eventQueue) => {
+    console.log('sending event');
     let { room, user, myColor, currentTab } = this.props;
 
     let newData = {
@@ -744,7 +762,13 @@ class GgbGraph extends Component {
       clearTimeout(this.updatingTab);
       this.updatingTab = null;
     }
-    socket.emit('SEND_EVENT', newData);
+    socket.emit('SEND_EVENT', newData, msg => {
+      console.log(msg);
+    });
+    if (newData.eventArray) {
+      console.log('SENT EVENT: ', newData.eventArray.length);
+    }
+
     this.updatingTab = setTimeout(this.updateConstructionState, 3000);
     this.timer = null;
     this.movingGeos = false;

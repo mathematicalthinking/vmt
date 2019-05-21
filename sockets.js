@@ -17,7 +17,6 @@ module.exports = function() {
   });
 
   io.sockets.on('connection', socket => {
-    console.log(io.sockets);
     // console.log(socket.getEventNames())
 
     socket.on('JOIN_TEMP', async (data, callback) => {
@@ -199,7 +198,7 @@ module.exports = function() {
       callback(null, {});
     });
 
-    socket.on('SEND_EVENT', async data => {
+    socket.on('SEND_EVENT', async (data, callback) => {
       socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data);
       let xmlObj = '';
       if (data.xml && data.eventType !== 'CHANGE_PERSPECTIVE') {

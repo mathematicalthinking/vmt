@@ -54,7 +54,7 @@ class Member extends PureComponent {
     } = this.props;
     let username = info.user ? info.user.username : info.username;
     return (
-      <div data-testid={`member-${username}`} class>
+      <div data-testid={`member-${username}`}>
         <div className={classes.Container}>
           <div className={classes.Avatar}>
             <Avatar username={username} color={info.color} />
