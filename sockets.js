@@ -198,7 +198,7 @@ module.exports = function() {
       callback(null, {});
     });
 
-    socket.on('SEND_EVENT', async (data, callback) => {
+    socket.on('SEND_EVENT', async data => {
       socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data);
       let xmlObj = '';
       if (data.xml && data.eventType !== 'CHANGE_PERSPECTIVE') {
