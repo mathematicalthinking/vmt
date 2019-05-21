@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import PropTypes from 'prop-types';
 import classes from '../Workspace/graph.css';
 import Script from 'react-load-script';
 class GgbReplayer extends Component {
@@ -31,6 +32,7 @@ class GgbReplayer extends Component {
         (log[index].event || log[index].eventArray)
       ) {
         // check if the tab has changed
+        console.log('constructing event: ', log[index]);
         this.constructEvent(log[index]);
       }
 
@@ -58,12 +60,13 @@ class GgbReplayer extends Component {
 
   /**
    * @method applyMultipleEvents
-   * @description Takes two indices from the log and applies (or un-applies if going backwards thru time) all
+   * @description Takes two indices from the log and applies (or un-applies if going backwards thru time) all events between
    * @param  {} startIndex
    * @param  {} endIndex
    */
 
   applyMultipleEvents(startIndex, endIndex) {
+    // Forwards through time
     if (startIndex < endIndex) {
       // this.ggbApplet.setXML(this.props.log[endIndex].currentState);
       for (let i = startIndex; i <= endIndex; i++) {
@@ -128,6 +131,7 @@ class GgbReplayer extends Component {
       case 'BATCH_UPDATE':
         // make a copy because we're going to mutate the array so we
         // know when to stop the recursive process
+        console.log('in construct event funciton calling recursiveUpdate');
         this.recursiveUpdate([...data.eventArray], false);
         break;
       case 'BATCH_ADD':
@@ -165,10 +169,14 @@ class GgbReplayer extends Component {
         this.ggbApplet.evalXML(events.shift());
         this.ggbApplet.evalCommand('UpdateConstruction()');
         setTimeout(() => {
+          if (events.length === 1) {
+            console.log('EVENTS: ', JSON.stringify(events, null, 2));
+          }
           this.recursiveUpdate(events, false);
         }, 10);
       }
     } else {
+      console.log('recursive update done');
       return;
     }
   }
@@ -237,5 +245,24 @@ class GgbReplayer extends Component {
     );
   }
 }
+
+GgbReplayer.propTypes = {
+  log: PropTypes.array.isRequired,
+  changeTab: PropTypes.func.isRequired,
+  changingIndex: PropTypes.bool.isRequired,
+  currentTab: PropTypes.number.isRequired,
+  inView: PropTypes.bool.isRequired,
+  index: PropTypes.number.isRequired,
+  isFullscreen: PropTypes.bool.isRequired,
+  reset: PropTypes.func.isRequired,
+  setTabLoaded: PropTypes.func.isRequired,
+  tab: PropTypes.shape({
+    appName: PropTypes.string.isRequired,
+    _id: PropTypes.string.isRequired,
+    startinPoint: PropTypes.string,
+    ggbFile: PropTypes.string,
+  }).isRequired,
+  tabId: PropTypes.string.isRequired,
+};
 
 export default GgbReplayer;

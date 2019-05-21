@@ -26,16 +26,7 @@ export const buildLog = (tabs, chat) => {
   tabs.forEach(tab => {
     allEvents = allEvents.concat(tab.events);
   });
-  allEvents = allEvents
-    .concat(chat)
-    .sort((a, b) => a.timestamp - b.timestamp)
-    .filter((entry, i, arr) => {
-      if (arr[i - 1]) {
-        if (entry.description) {
-          return entry.description !== arr[i - 1].description;
-        } else return true;
-      }
-      return true;
-    });
+
+  allEvents = allEvents.concat(chat).sort((a, b) => a.timestamp - b.timestamp);
   return allEvents;
 };

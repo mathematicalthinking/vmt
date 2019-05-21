@@ -72,7 +72,8 @@ class SharedReplayer extends Component {
     this.endTime = moment
       .unix(this.log[this.log.length - 1].timestamp / 1000)
       .format('MM/DD/YYYY h:mm:ss A');
-    /** @todo refacotring to a for loop */
+
+    /** @todo refacotring to a for loop  -- actually im not convinced this ISNT the way to do it*/
     this.relativeDuration = this.log.reduce((acc, cur, idx, src) => {
       // Copy currentEvent
       let event = { ...cur };

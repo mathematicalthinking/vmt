@@ -139,7 +139,10 @@ class GgbGraph extends Component {
       if (!this.ggbApplet) return;
 
       // new evnet
-      if (prevProps.room.log.length < this.props.room.log.length) {
+      if (
+        prevProps.room.log &&
+        prevProps.room.log.length < this.props.room.log.length
+      ) {
         this.previousEvent = this.props.room.log[
           this.props.room.log.length - 1
         ];
