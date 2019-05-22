@@ -1,0 +1,31 @@
+{
+  "extends": [
+    "airbnb",
+    "plugin:jest/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": ["jest", "prettier"],
+  "globals": {
+    "window": true,
+    "document": true,
+    "fetch": true
+  },
+  "rules": {
+    "react/jsx-filename-extension": 0,
+    "react/prefer-stateless-function": 0,
+    "prettier/prettier": [
+      "error",
+      { "trailingComma": "es5", "singleQuote": true }
+    ]
+  },
+  "env": {
+    "jest/globals": true
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "moduleDirectory": ["node_modules", "src"]
+      }
+    }
+  }
+}

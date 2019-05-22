@@ -1,0 +1,20 @@
+{
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"],
+  "plugins": ["prettier", "eslint-config-aribnb-base"],
+  "rules": {
+    "prettier/prettier": [
+      "error",
+      { "trailingComma": "es5", "singleQuote": true }
+    ]
+  },
+  "env": {
+    "node": true
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "moduleDirectory": ["node_modules"]
+      }
+    }
+  }
+}
