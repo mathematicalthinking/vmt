@@ -1,16 +1,16 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import MyVmt from './Routes/MyVmt';
 import Home from './Routes/Home';
 import SocketProvider from './Components/HOC/SocketProvider';
-import { Provider } from 'react-redux';
 
 import configureStore from './configureStore';
-import global from './global.css';
+import './global.css';
 
 export const store = configureStore();
 
-const App = props => (
+const App = () => (
   <Provider store={store}>
     <SocketProvider>
       <Router>
