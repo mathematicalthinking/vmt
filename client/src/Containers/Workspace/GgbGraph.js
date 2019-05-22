@@ -655,15 +655,22 @@ class GgbGraph extends Component {
       // cancel the last sendEvent function
       clearTimeout(this.timer);
       this.timer = null;
-      // Don't build up the queue for more than 2 seconds. If A user starts dragging,
-      // we'll combine all of those events into one and then send them after 2 seconds,
+      // Don't build up the queue for more than 1.5 seconds. If A user starts dragging,
+      // we'll combine all of those events into one and then send them after 1.5 seconds,
       // if the user is still dragging we build up a new queue. This way, if they drag for several seconds,
       // there is not a several second delay before the other users in the room see the event
       if (this.time && Date.now() - this.time > 1500) {
+        let isMultiPart = true;
         eventType = eventType === 'UPDATE' ? 'BATCH_UPDATE' : 'BATCH_ADD';
-        this.sendEvent(xml, definition, label, eventType, action, [
-          ...this.eventQueue,
-        ]);
+        this.sendEvent(
+          xml,
+          definition,
+          label,
+          eventType,
+          action,
+          [...this.eventQueue],
+          isMultiPart
+        );
         sendEventFromTimer = false;
         this.eventQueue = [];
         this.time = null;
@@ -701,9 +708,21 @@ class GgbGraph extends Component {
    * @param  {String} label - ggb label. ggbApplet.evalXML(label) yields xml representation of this label
    * @param  {String} eventType - ["ADD", "REMOVE", "UPDATE", "CHANGE_PERSPECTIVE", "NEW_TAB", "BATCH"] see ./models/event
    * @param  {String} action - ggb action ["addedd", "removed", "clicked", "updated"]
+   * @param {Array} eventQueue - if we're sending many events they'll be stored in array (for dragging and creating multiple points/lines of a shape)
+   * @param {bool} isMultiPart - When drag events last more than 1.5 seconds we break the event up so we can continuusly emit the drag to
+   * other users while the drag is happening instead of waiting until the very end. isMultiPart = true if the event is a broken up drag.
+   * We want to store this information so we know how to combine the multipart events into a single event for the replayer.
    */
 
-  sendEvent = (xml, definition, label, eventType, action, eventQueue) => {
+  sendEvent = (
+    xml,
+    definition,
+    label,
+    eventType,
+    action,
+    eventQueue,
+    isMultiPart = false
+  ) => {
     let { room, user, myColor, currentTab } = this.props;
 
     let newData = {
@@ -711,6 +730,7 @@ class GgbGraph extends Component {
       label,
       eventType,
       action,
+      isMultiPart,
       room: room._id,
       tab: room.tabs[currentTab]._id,
       event: xml,
