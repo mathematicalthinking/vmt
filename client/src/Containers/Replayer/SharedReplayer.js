@@ -30,6 +30,7 @@ const INITIAL_STATE = {
   currentTab: 0,
   multipleTabTypes: false,
   isFullscreen: false,
+  stopTime: null,
 };
 class SharedReplayer extends Component {
   state = INITIAL_STATE;
@@ -113,17 +114,7 @@ class SharedReplayer extends Component {
         .format('MM/DD/YYYY h:mm:ss A'),
       currentMembers: updatedMembers,
     });
-    this.setState({ loading: false }, () => {
-      if (this.props.encompass) {
-        // let encompass know the room has finished loading
-        // also update window with replayer state/duration
-        this.props.updateEnc(
-          'VMT_ON_REPLAYER_LOAD',
-          this.state,
-          this.relativeDuration
-        );
-      }
-    });
+    this.setState({ loading: false });
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -255,7 +246,16 @@ class SharedReplayer extends Component {
   setTabLoaded = id => {
     this.tabsLoaded++;
     if (this.tabsLoaded === this.props.room.tabs.length) {
-      this.setState({ allTabsLoaded: true });
+      this.setState({ allTabsLoaded: true }, () => {
+        if (this.props.encompass) {
+          // let encompass know the room / ggbApplet has finished loading
+          this.props.updateEnc(
+            'VMT_ON_REPLAYER_LOAD',
+            this.state,
+            this.relativeDuration
+          );
+        }
+      });
     }
   };
 
