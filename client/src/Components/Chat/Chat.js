@@ -42,7 +42,9 @@ class Chat extends Component {
     window.addEventListener('keypress', this.onKeyPress);
     if (!this.props.replayer) this.chatInput.current.focus();
     this.setState({
-      containerCoords: this.chatContainer.current.offsetParent.getBoundingClientRect(),
+      containerCoords: this.chatContainer.current.offsetParent
+        ? this.chatContainer.current.offsetParent.getBoundingClientRect()
+        : null,
       chatCoords: this.chatContainer.current.getBoundingClientRect(),
       chatInputCoords: this.props.replayer
         ? null
