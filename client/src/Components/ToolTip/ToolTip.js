@@ -1,10 +1,10 @@
-import React, { Component } from "react";
-import classes from "./toolTip.css";
+import React, { Component } from 'react';
+import classes from './toolTip.css';
 class ToolTip extends Component {
   state = {
     visible: false,
     x: null,
-    y: null
+    y: null,
   };
 
   toolTipSource = React.createRef(); // I.e. the element hovered
@@ -20,7 +20,7 @@ class ToolTip extends Component {
         let {
           top,
           x,
-          width
+          width,
         } = this.toolTipSource.current.getBoundingClientRect();
         this.setState({ x: x + width / 2, y: top - 55, visible: true });
       }, this.props.delay);
@@ -28,7 +28,7 @@ class ToolTip extends Component {
       let {
         top,
         x,
-        width
+        width,
       } = this.toolTipSource.current.getBoundingClientRect();
       this.setState({ x: x + width / 2, y: top - 55, visible: true });
     }
