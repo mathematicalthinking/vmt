@@ -73,4 +73,21 @@ class EncompassReplayer extends Component {
   }
 }
 
-ReactDOM.render(<EncompassReplayer />, document.getElementById('root'));
+let root = document.getElementById('root');
+
+let destroyHandler = event => {
+  if (event.data.messageType === 'DESTROY_REPLAYER') {
+    try {
+      ReactDOM.unmountComponentAtNode(root);
+      window.removeEventListener('message', destroyHandler);
+    } catch (err) {
+      // handle err
+    }
+  }
+};
+
+if (process.env.REACT_APP_ENCOMPASS) {
+  window.addEventListener('message', destroyHandler);
+}
+
+ReactDOM.render(<EncompassReplayer />, root);
