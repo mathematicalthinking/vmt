@@ -1,15 +1,16 @@
-import * as actionTypes from "../actions/actionTypes";
-import merge from "lodash/merge";
-import union from "lodash/union";
+import merge from 'lodash/merge';
+import union from 'lodash/union';
+import * as actionTypes from '../actions/actionTypes';
+
 const initialState = {
   byId: {},
-  allIds: []
+  allIds: [],
 };
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case actionTypes.GOT_ROOMS:
-      let updatedRooms = merge({ ...state.byId }, action.byId);
+    case actionTypes.GOT_ROOMS: {
+      const updatedRooms = merge({ ...state.byId }, action.byId);
       let updatedIds;
       if (action.isNewRoom) {
         updatedIds = union([...state.allIds], [...action.allIds]);
@@ -19,15 +20,15 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         byId: updatedRooms,
-        allIds: updatedIds
+        allIds: updatedIds,
       };
-
+    }
     case actionTypes.LOGOUT:
       return initialState;
 
-    case actionTypes.UPDATED_ROOM:
-      let updatedRoom = { ...state.byId[action.roomId] };
-      let fields = Object.keys(action.body);
+    case actionTypes.UPDATED_ROOM: {
+      const updatedRoom = { ...state.byId[action.roomId] };
+      const fields = Object.keys(action.body);
       fields.forEach(field => {
         updatedRoom[field] = action.body[field];
       });
@@ -35,13 +36,13 @@ const reducer = (state = initialState, action) => {
         ...state,
         byId: {
           ...state.byId,
-          [action.roomId]: updatedRoom
-        }
+          [action.roomId]: updatedRoom,
+        },
       };
-
-    case actionTypes.UPDATED_ROOM_TAB:
-      fields = Object.keys(action.body);
-      let updatedTabs = state.byId[action.roomId].tabs.map(tab => {
+    }
+    case actionTypes.UPDATED_ROOM_TAB: {
+      const fields = Object.keys(action.body);
+      const updatedTabs = state.byId[action.roomId].tabs.map(tab => {
         if (tab._id === action.tabId) {
           fields.forEach(field => {
             tab[field] = action.body[field];
@@ -55,33 +56,33 @@ const reducer = (state = initialState, action) => {
           ...state.byId,
           [action.roomId]: {
             ...state.byId[action.roomId],
-            tabs: updatedTabs
-          }
-        }
+            tabs: updatedTabs,
+          },
+        },
       };
-
+    }
     // @TODO if we've created a new room alert the user so we can redirect
     // to the room --> do this by updating the sto
 
-    case actionTypes.CREATED_ROOM:
-      updatedRooms = { ...state.byId };
+    case actionTypes.CREATED_ROOM: {
+      const updatedRooms = { ...state.byId };
       updatedRooms[action.newRoom._id] = action.newRoom;
       return {
         ...state,
         byId: updatedRooms,
-        allIds: [action.newRoom._id, ...state.allIds]
+        allIds: [action.newRoom._id, ...state.allIds],
       };
-
-    case actionTypes.DESTROY_ROOM:
-      let updatedObj = { ...state.byId };
-      let updatedList = state.allIds.filter(id => id !== action.id);
+    }
+    case actionTypes.DESTROY_ROOM: {
+      const updatedObj = { ...state.byId };
+      const updatedList = state.allIds.filter(id => id !== action.id);
       delete updatedObj[action.id];
       return {
         ...state,
         byId: updatedObj,
-        allIds: updatedList
+        allIds: updatedList,
       };
-
+    }
     case actionTypes.ADD_TO_LOG:
       return {
         ...state,
@@ -91,13 +92,13 @@ const reducer = (state = initialState, action) => {
             ...state.byId[action.roomId],
             log: state.byId[action.roomId].log
               ? [...state.byId[action.roomId].log, action.entry]
-              : [action.entry]
-          }
-        }
+              : [action.entry],
+          },
+        },
       };
 
-    case actionTypes.ADD_ROOM_MEMBER:
-      let updatedMembers = [...state.byId[action.roomId].members] || [];
+    case actionTypes.ADD_ROOM_MEMBER: {
+      const updatedMembers = [...state.byId[action.roomId].members] || [];
       updatedMembers.push(action.body);
       return {
         ...state,
@@ -105,13 +106,13 @@ const reducer = (state = initialState, action) => {
           ...state.byId,
           [action.roomId]: {
             ...state.byId[action.roomId],
-            members: updatedMembers
-          }
-        }
+            members: updatedMembers,
+          },
+        },
       };
-
-    case actionTypes.REMOVE_ROOM_MEMBER:
-      updatedMembers = state.byId[action.roomId].members.filter(
+    }
+    case actionTypes.REMOVE_ROOM_MEMBER: {
+      const updatedMembers = state.byId[action.roomId].members.filter(
         member => member._id !== action.userId
       );
       return {
@@ -120,27 +121,29 @@ const reducer = (state = initialState, action) => {
           ...state.byId,
           [action.roomId]: {
             ...state.byId[action.roomId],
-            members: updatedMembers
-          }
-        }
+            members: updatedMembers,
+          },
+        },
       };
-
-    case actionTypes.REMOVE_ROOMS:
-      updatedIds = state.allIds.filter(id => !action.roomIds.includes(id));
-      let updatedById = { ...state.byId };
+    }
+    case actionTypes.REMOVE_ROOMS: {
+      const updatedIds = state.allIds.filter(
+        id => !action.roomIds.includes(id)
+      );
+      const updatedById = { ...state.byId };
       action.roomIds.forEach(id => {
         delete updatedById[id];
       });
       return {
         ...state,
         byId: updatedById,
-        allIds: updatedIds
+        allIds: updatedIds,
       };
-
+    }
     case actionTypes.CREATE_ROOM_CONFIRMED:
       return {
         ...state,
-        createdNewRoom: false
+        createdNewRoom: false,
       };
     default:
       return state;

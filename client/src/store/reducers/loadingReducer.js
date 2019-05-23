@@ -1,16 +1,16 @@
-import * as actionTypes from "../actions/actionTypes";
+import * as actionTypes from '../actions/actionTypes';
 
 const initialState = {
   loading: false,
   logginError: false,
-  errorMessage: "",
+  errorMessage: '',
   loginSuccess: false,
   accessSuccess: false,
-  successMessage: "",
+  successMessage: '',
   updateFail: false,
   updateResource: null,
   globalErrorMessage: null,
-  updateKeys: []
+  updateKeys: [],
   // frontEndError: false,
 };
 
@@ -19,14 +19,14 @@ const reducer = (state = initialState, action) => {
     case actionTypes.START:
       return {
         ...state,
-        loading: true
+        loading: true,
       };
     case actionTypes.FAIL:
       return {
         ...state,
         loading: false,
         loginError: true,
-        errorMessage: action.error
+        errorMessage: action.error,
       };
 
     case actionTypes.LOGOUT:
@@ -36,19 +36,19 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        loginSuccess: true
+        loginSuccess: true,
       };
     case actionTypes.ACCESS_SUCCESS:
       return {
         ...state,
         accessSuccess: true,
         loading: false,
-        successMessage: "Your request has been sent"
+        successMessage: 'Your request has been sent',
       };
     case actionTypes.CLEAR_ERROR:
       return {
         ...state,
-        errorMessage: ""
+        errorMessage: '',
       };
     case actionTypes.CLEAR_ALL:
       return initialState;
@@ -58,13 +58,8 @@ const reducer = (state = initialState, action) => {
         updateFail: true,
         updateResource: action.resource,
         updateKeys: action.keys,
-        globalErrorMessage: "The last update failed, please try again"
+        globalErrorMessage: 'The last update failed, please try again',
       };
-    // case actionTypes.FRONT_END_ERROR:
-    //   return
-    //     ...state,
-    //     errorMessage: action.errorMessage,
-    //     frontEndError: action.
 
     default:
       return { ...state };

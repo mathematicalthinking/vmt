@@ -1,5 +1,6 @@
 export const normalize = resources => {
   const byId = resources.reduce((accum, current) => {
+    // eslint-disable-next-line no-param-reassign
     accum[current._id] = current;
     return accum;
   }, {});
@@ -8,9 +9,10 @@ export const normalize = resources => {
 };
 
 export const addUserRoleToResource = (resource, userId) => {
+  const updatedResource = resource;
   if (resource.members) {
     resource.members.forEach(member => {
-      if (member.user._id === userId) resource.myRole = member.role;
+      if (member.user._id === userId) updatedResource.myRole = member.role;
     });
   }
   return resource;
@@ -32,7 +34,7 @@ export const buildLog = (tabs, chat) => {
 
   // Combine drag events that had been split up for efficient sending over the socket
   // see sendEventBuffer method @ ./client/src/containers/workspace/ggbGraph.js
-  let consolidatedEvents = [];
+  const consolidatedEvents = [];
   let consolidating = false;
   allEvents.forEach(event => {
     if (!consolidating) {
