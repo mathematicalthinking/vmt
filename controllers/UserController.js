@@ -73,11 +73,14 @@ module.exports = {
       })
       .populate({
         path: 'rooms',
-        select: 'name members image instructions ',
-        populate: {
-          path: 'members.user',
-          select: 'username',
-        },
+        select: 'name members image instructions activity ',
+        populate: [
+          {
+            path: 'members.user',
+            select: 'username',
+          },
+          { path: 'activity', select: 'name instructions' },
+        ],
       })
       .then(result => {
         let filteredResults = {};

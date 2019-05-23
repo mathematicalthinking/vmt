@@ -1,10 +1,10 @@
 // Theres a lot of repetiion between this component and the regular Ggb Graph...for example they both resize @TODO how might we utilize HOCs to cut down on repetition
-import React, { Component } from "react";
-import { parseString } from "xml2js";
-import throttle from "lodash/throttle";
-import { Aux, Modal } from "../../Components";
-import Script from "react-load-script";
-import classes from "./graph.css";
+import React, { Component } from 'react';
+import { parseString } from 'xml2js';
+import throttle from 'lodash/throttle';
+import { Aux, Modal } from '../../Components';
+import Script from 'react-load-script';
+import classes from './graph.css';
 
 class GgbActivityGraph extends Component {
   state = {
@@ -14,7 +14,7 @@ class GgbActivityGraph extends Component {
   graph = React.createRef();
   isFileLoaded = false;
   componentDidMount() {
-    window.addEventListener("resize", this.updateDimensions);
+    window.addEventListener('resize', this.updateDimensions);
     // if (window.ggbApplet) {
     //   this.initializeGgb();
     // }
@@ -65,7 +65,7 @@ class GgbActivityGraph extends Component {
   // }
 
   componentWillUnmount() {
-    window.removeEventListener("resize", this.updateDimensions);
+    window.removeEventListener('resize', this.updateDimensions);
     if (this.timer) {
       clearInterval(this.timer);
     }
@@ -86,7 +86,7 @@ class GgbActivityGraph extends Component {
   perspectiveChanged = newPerspectiveCode => {
     let updatedTab = { ...this.props.tabs[this.props.currentTab] };
     this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {
-      perspective: newPerspectiveCode
+      perspective: newPerspectiveCode,
     });
 
     // // REinitialize listener with new perspective
@@ -109,7 +109,7 @@ class GgbActivityGraph extends Component {
         if (
           this.props.showingReference ||
           (this.props.referencing &&
-            this.props.referToEl.elmentType !== "chat_message")
+            this.props.referToEl.elmentType !== 'chat_message')
         ) {
           let { element } = this.props.referToEl;
           let position = await this.getRelativeCoords(element);
@@ -131,6 +131,8 @@ class GgbActivityGraph extends Component {
         // get the coords of its children
       }
       // Get the element's location relative to the client Window
+      console.log(' GGB activity graph: ', this.graph.current);
+
       let ggbCoords = this.graph.current.getBoundingClientRect();
       let construction = await this.parseXML(this.ggbApplet.getXML()); // IS THERE ANY WAY TO DO THIS WITHOUT HAVING TO ASYNC PARSE THE XML...
       let euclidianView = construction.geogebra.euclidianView[0];
@@ -150,20 +152,20 @@ class GgbActivityGraph extends Component {
       // "scaleContainerClasse": "graph",
       // customToolBar:
       // "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
-      showToolBar: this.props.role === "facilitator",
-      showMenuBar: this.props.role === "facilitator",
+      showToolBar: this.props.role === 'facilitator',
+      showMenuBar: this.props.role === 'facilitator',
       showAlgebraInput: true,
-      language: "en",
+      language: 'en',
       useBrowserForJS: false,
-      borderColor: "#ddd",
+      borderColor: '#ddd',
       buttonShadows: true,
       errorDialogsActive: false,
       preventFocus: true,
       // filename: this.props.tabs[this.props.tabId].ggbFile || null,
       appletOnLoad: this.initializeGgb,
-      appName: this.props.tabs[this.props.tabId].appName || "classic"
+      appName: this.props.tabs[this.props.tabId].appName || 'classic',
     };
-    const ggbApp = new window.GGBApplet(parameters, "6.0");
+    const ggbApp = new window.GGBApplet(parameters, '6.0');
     if (this.props.currentTab === this.props.tabId) {
       ggbApp.inject(`ggb-element${this.props.tabId}A`);
     } else {
@@ -209,18 +211,18 @@ class GgbActivityGraph extends Component {
   // Save new state to the redux store on each modification to the construction
   // When the user leaves the room we'll update the backend (that way we only do it once)
   getGgbState = throttle(() => {
-    if (this.props.role === "facilitator") {
+    if (this.props.role === 'facilitator') {
       let updatedTabs = [...this.props.tabs];
       let updatedTab = { ...this.props.tabs[this.props.currentTab] };
       updatedTab.currentState = this.ggbApplet.getXML();
       updatedTabs[this.props.currentTab] = updatedTab;
       this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {
-        currentState: updatedTab.currentState
+        currentState: updatedTab.currentState,
       });
       // this.props.updatedActivity(this.props.activity._id, {tabs: updatedTabs})
     } else {
       alert(
-        "You cannot edit this activity because you are not the owner. If you want to make changes, copy it to your list of activities first."
+        'You cannot edit this activity because you are not the owner. If you want to make changes, copy it to your list of activities first.'
       );
     }
   }, 1000);
@@ -262,7 +264,7 @@ class GgbActivityGraph extends Component {
         />
         <div
           className={classes.Graph}
-          style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0 }}
+          style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
           id={`ggb-element${this.props.tabId}A`}
           ref={this.graph}
         />

@@ -1,15 +1,15 @@
-import React, { Component, Fragment } from "react";
-import classes from "../Workspace/graph.css";
-import Script from "react-load-script";
+import React, { Component, Fragment } from 'react';
+import classes from '../Workspace/graph.css';
+import Script from 'react-load-script';
 class GgbReplayer extends Component {
   state = {
-    xmlContext: ""
+    xmlContext: '',
   };
 
   graph = React.createRef();
   isFileSet = false; // calling ggb.setBase64 triggers this.initializeGgb(), because we set base 64 inside initializeGgb we use this instance var to track whether we've already set the file. When the ggb tries to load the file twice it breaks everything
   componentDidMount() {
-    window.addEventListener("resize", this.updateDimensions);
+    window.addEventListener('resize', this.updateDimensions);
   }
 
   // shouldComponentUpdate(nextProps, nextState) {
@@ -50,7 +50,8 @@ class GgbReplayer extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener("resize", this.updateDimensions);
+    window.removeEventListener('resize', this.updateDimensions);
+    delete window[`ggbApplet${this.props.tabId}A`];
   }
 
   // We should periodically save the entire state so if we skip to the very end we don't have to apply each event one at a time
@@ -69,12 +70,12 @@ class GgbReplayer extends Component {
         if (
           this.props.log[i].eventArray &&
           this.props.log[i].eventArray.length > 0 &&
-          this.props.log[i].eventType === "BATCH_UPDATE"
+          this.props.log[i].eventType === 'BATCH_UPDATE'
         ) {
           let syntheticEvent = { ...this.props.log[i] };
           let { eventArray } = syntheticEvent;
           syntheticEvent.event = eventArray.pop();
-          syntheticEvent.eventType = "UPDATE";
+          syntheticEvent.eventType = 'UPDATE';
           this.constructEvent(syntheticEvent);
         } else {
           this.constructEvent(this.props.log[i]);
@@ -86,50 +87,50 @@ class GgbReplayer extends Component {
     else {
       for (let i = startIndex; i > endIndex; i--) {
         let syntheticEvent = { ...this.props.log[i] };
-        if (syntheticEvent.eventType === "ADD") {
-          syntheticEvent.eventType = "REMOVE";
-        } else if (syntheticEvent.eventType === "REMOVE") {
-          syntheticEvent.eventType = "ADD";
-        } else if (syntheticEvent.eventType === "BATCH_ADD") {
-          syntheticEvent.eventType = "BATCH_REMOVE";
-        } else if (syntheticEvent.eventType === "BATCH_UPDATE") {
+        if (syntheticEvent.eventType === 'ADD') {
+          syntheticEvent.eventType = 'REMOVE';
+        } else if (syntheticEvent.eventType === 'REMOVE') {
+          syntheticEvent.eventType = 'ADD';
+        } else if (syntheticEvent.eventType === 'BATCH_ADD') {
+          syntheticEvent.eventType = 'BATCH_REMOVE';
+        } else if (syntheticEvent.eventType === 'BATCH_UPDATE') {
           let { eventArray } = { ...syntheticEvent };
           syntheticEvent.event = eventArray.shift();
-          syntheticEvent.eventType = "UPDATE";
+          syntheticEvent.eventType = 'UPDATE';
         }
         this.constructEvent(syntheticEvent);
       }
     }
   }
 
-  constructEvent(data) {
+  constructEvent = data => {
     switch (data.eventType) {
-      case "ADD":
+      case 'ADD':
         if (data.definition) {
           this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
         }
         this.ggbApplet.evalXML(data.event);
-        this.ggbApplet.evalCommand("UpdateConstruction()");
+        this.ggbApplet.evalCommand('UpdateConstruction()');
         break;
-      case "REMOVE":
+      case 'REMOVE':
         this.ggbApplet.deleteObject(data.label);
         break;
-      case "UPDATE":
+      case 'UPDATE':
         this.ggbApplet.evalXML(data.event);
-        this.ggbApplet.evalCommand("UpdateConstruction()");
+        this.ggbApplet.evalCommand('UpdateConstruction()');
         break;
-      case "CHANGE_PERSPECTIVE":
+      case 'CHANGE_PERSPECTIVE':
         this.ggbApplet.setPerspective(data.event);
         this.ggbApplet.showAlgebraInput(true);
         // this.ggbApplet.evalXML(data.event);
         // this.ggbApplet.evalCommand("UpdateConstruction()");
         break;
-      case "BATCH_UPDATE":
+      case 'BATCH_UPDATE':
         // make a copy because we're going to mutate the array so we
         // know when to stop the recursive process
         this.recursiveUpdate([...data.eventArray], false);
         break;
-      case "BATCH_ADD":
+      case 'BATCH_ADD':
         if (data.definition) {
           // this.ggbApplet.evalCommand(data.event);
           this.recursiveUpdate(data.eventArray, true);
@@ -138,7 +139,7 @@ class GgbReplayer extends Component {
       default:
         break;
     }
-  }
+  };
 
   /**
    * @method recursiveUpdate
@@ -162,7 +163,7 @@ class GgbReplayer extends Component {
           events.splice(0, 2);
         }
         this.ggbApplet.evalXML(events.shift());
-        this.ggbApplet.evalCommand("UpdateConstruction()");
+        this.ggbApplet.evalCommand('UpdateConstruction()');
         setTimeout(() => {
           this.recursiveUpdate(events, false);
         }, 10);
@@ -181,15 +182,15 @@ class GgbReplayer extends Component {
       showToolBar: false,
       showMenuBar: false,
       showAlgebraInput: true,
-      language: "en",
+      language: 'en',
       useBrowserForJS: true,
-      borderColor: "#ddd",
+      borderColor: '#ddd',
       errorDialogsActive: false,
       preventFocus: true,
       appletOnLoad: this.initializeGgb,
-      appName: this.props.tab.appName
+      appName: this.props.tab.appName,
     };
-    const ggbApp = new window.GGBApplet(parameters, "5.0");
+    const ggbApp = new window.GGBApplet(parameters, '5.0');
     ggbApp.inject(`ggb-element${this.props.tabId}A`);
   };
 

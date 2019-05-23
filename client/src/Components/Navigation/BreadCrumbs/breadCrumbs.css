@@ -34,6 +34,12 @@
   white-space: nowrap;
   text-overflow: "-";
   transition: 0.2s;
+  text-decoration: none;
+
+}
+
+.CrumbContainer:hover {
+  text-decoration: none;
 }
 
 .Crumb {
@@ -74,3 +80,4 @@
   top: 0px;
   right: 6px;
 }
+

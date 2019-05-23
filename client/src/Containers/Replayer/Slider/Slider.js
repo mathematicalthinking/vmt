@@ -1,30 +1,30 @@
-import React, { Component } from "react";
-import ReactDOM from "react-dom";
-import Draggable from "react-draggable";
-import classes from "./slider.css";
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import Draggable from 'react-draggable';
+import classes from './slider.css';
 // import Aux from '../../HOC/Auxil';
-import EventDesc from "./EventDesc/EventDesc";
+import EventDesc from './EventDesc/EventDesc';
 
 class Slider extends Component {
   state = {
     dragging: false,
-    sliderWidth: 0
+    sliderWidth: 0,
   };
 
   slider = React.createRef();
 
   componentDidMount() {
     this.getSliderWidth();
-    window.addEventListener("resize", this.getSliderWidth);
+    window.addEventListener('resize', this.getSliderWidth);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("resize", this.getSliderWidth);
+    window.removeEventListener('resize', this.getSliderWidth);
   }
 
   getSliderWidth = () => {
     this.setState({
-      sliderWidth: this.slider.current.getBoundingClientRect().width
+      sliderWidth: this.slider.current.getBoundingClientRect().width,
     });
   };
 
@@ -63,13 +63,13 @@ class Slider extends Component {
 
   showEventDetail = event => {
     if (!this.state.dragging) {
-      event.target.children.style = { display: "flex" };
+      event.target.children.style = { display: 'flex' };
     }
   };
 
   render() {
     let eventMarks = this.props.log.map((entry, i) => {
-      let color = entry.synthetic ? "red" : entry.color;
+      let color = entry.synthetic ? 'red' : entry.color;
       let percentFromStart = (entry.relTime / this.props.duration) * 100;
       return (
         <EventDesc
