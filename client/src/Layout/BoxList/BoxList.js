@@ -1,23 +1,34 @@
 import React from 'react';
 import ContentBox from '../../Components/UI/ContentBox/ContentBox';
 import DragContentBox from '../../Components/UI/ContentBox/DragContentBox';
-
 import classes from './boxList.css';
+
 const boxList = React.memo(props => {
+  const {
+    list,
+    listType,
+    resource,
+    notifications,
+    linkPath,
+    linkSuffix,
+    draggable,
+    maxHeight,
+    scrollable,
+  } = props;
   let listElems = "There doesn't appear to be anything here yet";
-  if (props.list.length > 0) {
-    listElems = props.list.map((item, i) => {
+  if (list.length > 0) {
+    listElems = list.map(item => {
+      let details;
       if (item) {
-        let notifications = 0;
-        let details = undefined;
-        if (props.listType === 'private') {
-          if (props.notifications.length > 0) {
-            props.notifications.forEach(ntf => {
+        let notificationCount = 0;
+        if (listType === 'private') {
+          if (notifications.length > 0) {
+            notifications.forEach(ntf => {
               if (
                 ntf.resourceId === item._id ||
                 ntf.parentResource === item._id
               ) {
-                notifications += 1;
+                notificationCount += 1;
               }
             });
           }
@@ -28,8 +39,8 @@ const boxList = React.memo(props => {
               ? item.members
                   .filter(member => member.role === 'facilitator')
                   .map(
-                    (member, i, arr) =>
-                      `${member.user.username}${i < arr.length - 1 ? ', ' : ''}`
+                    (member, x, arr) =>
+                      `${member.user.username}${x < arr.length - 1 ? ', ' : ''}`
                   )
               : [],
           };
@@ -44,15 +55,15 @@ const boxList = React.memo(props => {
           details = { creator: item.creator.username };
         }
         return (
-          <div className={classes.ContentBox} key={i}>
-            {!props.draggable ? (
+          <div className={classes.ContentBox} key={item._id}>
+            {!draggable ? (
               <ContentBox
                 title={item.name}
-                link={`${props.linkPath}${item._id}${props.linkSuffix}`}
+                link={`${linkPath}${item._id}${linkSuffix}`}
                 key={item._id}
                 id={item._id}
                 image={item.image}
-                notifications={notifications}
+                notifications={notificationCount}
                 roomType={
                   item.roomType || item.tabs
                     ? item.tabs.map(tab => tab.tabType)
@@ -60,36 +71,37 @@ const boxList = React.memo(props => {
                 }
                 locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
                 details={details}
-                listType={props.listType}
+                listType={listType}
               >
                 {item.description}
               </ContentBox>
             ) : (
               <DragContentBox
                 title={item.name}
-                link={`${props.linkPath}${item._id}${props.linkSuffix}`}
+                link={`${linkPath}${item._id}${linkSuffix}`}
                 key={item._id}
                 id={item._id}
                 notifications={notifications}
                 roomType={item.roomType}
-                resource={props.resource}
-                listType={props.listType}
+                resource={resource}
+                listType={listType}
                 locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
                 details={details}
               />
             )}
           </div>
         );
-      } else return null;
+      }
+      return null;
     });
   }
   return (
     <div
       className={classes.Container}
       style={
-        props.scrollable
+        scrollable
           ? {
-              maxHeight: props.maxHeight,
+              maxHeight,
               overflowY: 'scroll',
               border: '1px solid #ddd',
               padding: 10,
