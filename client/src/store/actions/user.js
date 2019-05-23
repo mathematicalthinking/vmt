@@ -52,20 +52,6 @@ export const removeUserActivities = activityIdsArr => {
   };
 };
 
-export const addUserRooms = newRoomsArr => {
-  return {
-    type: actionTypes.ADD_USER_ROOMS,
-    newRoomsArr,
-  };
-};
-
-export const removeUserRooms = roomIdsArr => {
-  return {
-    type: actionTypes.REMOVE_USER_ROOMS,
-    roomIdsArr,
-  };
-};
-
 export const loggedOut = () => {
   return { type: actionTypes.LOGOUT };
 };

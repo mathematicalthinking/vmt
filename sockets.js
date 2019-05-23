@@ -183,6 +183,7 @@ module.exports = function() {
           socket.emit('FORCE_SYNC', room);
         })
         .catch(err => {
+          console.error(err);
           callback(err, null);
         });
     });

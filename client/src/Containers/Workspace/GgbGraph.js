@@ -762,7 +762,7 @@ class GgbGraph extends Component {
       user: { _id: user._id, username: user.username },
       timestamp: new Date().getTime(),
       // currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
-      // mode: this.ggbApplet.getMode()
+      // mode: this.ggbApplet.getMode() // all ggbApplet get methods are too slow for dragging...right?
     };
 
     newData.description = this.buildDescription(

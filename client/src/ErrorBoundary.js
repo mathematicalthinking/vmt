@@ -1,13 +1,15 @@
-import React, { Component } from "react";
-import { Redirect } from "react-router";
+import React, { Component } from 'react';
+import { Redirect } from 'react-router';
+import PropTypes from 'prop-types';
+
 class ErrorBoundary extends Component {
   state = { hasError: false };
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError() {
     return { hasError: true };
   }
 
-  componentDidCatch(error, info) {
+  componentDidCatch() {
     // You can also log the error to an error reporting service
     // logErrorToMyService(error, info);
     // this.props.fail('Uh oh! Something went wrong!')
@@ -15,18 +17,23 @@ class ErrorBoundary extends Component {
   }
 
   render() {
-    return this.state.hasError ? (
+    const { hasError } = this.state;
+    const { children } = this.props;
+    return hasError ? (
       <Redirect
         to={{
-          pathname: "/",
-          state: { error: "Sorry, something went wrong! Please try again." }
+          pathname: '/',
+          state: { error: 'Sorry, something went wrong! Please try again.' },
         }}
       />
     ) : (
       // ? <div>gheleelo</div>
-      this.props.children
+      children
     );
   }
 }
 
+ErrorBoundary.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 export default ErrorBoundary;

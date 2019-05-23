@@ -103,7 +103,7 @@ class Workspace extends Component {
     socket.emit('LEAVE_ROOM', this.state.myColor, res => {});
   }
 
-  initializeListeners() {
+  initializeListeners = () => {
     socket.removeAllListeners('USER_JOINED');
     socket.removeAllListeners('CREATED_TAB');
     socket.removeAllListeners('USER_LEFT');
@@ -191,7 +191,7 @@ class Workspace extends Component {
       tabs.push(data);
       this.props.updatedRoom(this.props.room._id, { tabs });
     });
-  }
+  };
 
   createNewTab = () => {
     if (
