@@ -1,8 +1,10 @@
 import React from 'react';
-import classes from './chat.css';
+import PropTypes from 'prop-types';
 import moment from 'moment';
+import classes from './chat.css';
+
 const Message = React.forwardRef((props, ref) => {
-  let { message, click, highlighted, key, referencing } = props;
+  const { message, click, highlighted, key, referencing } = props;
   let highlightClass = '';
   if (highlighted) {
     highlightClass = classes.Highlight;
@@ -18,6 +20,9 @@ const Message = React.forwardRef((props, ref) => {
           highlightClass,
         ].join(' ')}
         onClick={click}
+        onKeyPress={click}
+        tabIndex="-1"
+        role="button"
         style={{
           cursor: message.reference || referencing ? 'pointer' : 'auto',
           color: message.color,
@@ -34,7 +39,20 @@ const Message = React.forwardRef((props, ref) => {
         </div>
       </div>
     );
-  } else return null;
+  }
+  return null;
 });
 
+Message.propTypes = {
+  message: PropTypes.string.isRequired,
+  click: PropTypes.func.isRequired,
+  highlighted: PropTypes.bool,
+  key: PropTypes.string.isRequired,
+  referencing: PropTypes.bool,
+};
+
+Message.defaultProps = {
+  highlighted: false,
+  referencing: false,
+};
 export default Message;

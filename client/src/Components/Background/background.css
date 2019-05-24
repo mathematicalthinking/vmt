@@ -1,4 +1,4 @@
-:import("../../colors.css") {
+:import('../../colors.css') {
   gridBlue: gridBlue;
   darkBlue: darkBlue;
 }
@@ -46,7 +46,7 @@
   background-size: 25px 25px;
   background-image: linear-gradient(to right, gridBlue 0.5px, transparent 1px),
     linear-gradient(to bottom, gridBlue 0.5px, transparent 1px) !important;
-  font-family: "Voces", "sans-serif";
+  font-family: 'Voces', 'sans-serif';
   z-index: 20;
   height: 20vh;
   border-bottom: 1px solid #d9d9d9;
@@ -96,7 +96,7 @@
 }
 .waveTop {
   background-size: 50% 100px;
-  background-image: url("./wave-top.png");
+  background-image: url('./wave-top.png');
 }
 .waveAnimation .bgTop {
   animation: move-wave 3s linear infinite;
@@ -106,14 +106,14 @@
 }
 .waveMiddle {
   background-size: 50% 120px;
-  background-image: url("./wave-mid.png");
+  background-image: url('./wave-mid.png');
 }
 .waveAnimation .waveMiddle {
   animation: move_wave 10s linear infinite;
 }
 .waveBottom {
   background-size: 50% 100px;
-  background-image: url("./wave-bot.png");
+  background-image: url('./wave-bot.png');
 }
 .waveAnimation .waveBottom {
   animation: move_wave 15s linear infinite;

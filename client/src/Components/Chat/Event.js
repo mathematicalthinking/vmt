@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classes from './chat.css';
 import ToolTip from '../ToolTip/ToolTip';
+
 class Event extends Component {
   state = {};
   render() {
-    let { color, description, id, key } = this.props.event;
+    const { event } = this.props;
+    const { color, description, key } = event;
     return (
       <ToolTip text={description} key={key}>
         <div className={classes.Event} style={{ background: color }} />
@@ -13,4 +16,7 @@ class Event extends Component {
   }
 }
 
+Event.propTypes = {
+  event: PropTypes.shape({}).isRequired,
+};
 export default Event;
