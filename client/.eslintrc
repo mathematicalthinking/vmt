@@ -6,7 +6,7 @@
     "plugin:prettier/recommended"
   ],
   "parser": "babel-eslint",
-  "plugins": ["jest", "prettier"],
+  "plugins": ["jest", "prettier", "css-modules"],
   "globals": {
     "window": true,
     "document": true,
@@ -19,6 +19,7 @@
     "react/state-in-constructor": 0,
     "lines-between-class-members": 0,
     "no-underscore-dangle": 0,
+    "css(unknownProperties)": 0,
     "no-param-reassign": 0,
     "prettier/prettier": [
       "error",
