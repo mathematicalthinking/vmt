@@ -1,11 +1,6 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils';
-import { addUserActivities, removeUserActivities } from './user';
-// import { createdActivityTemplate } from './activityTemplates';
-import { clearLoadingInfo } from './loading';
-import { addCourseActivities, removeCourseActivities } from './courses';
-
 import * as loading from './loading';
 
 export const gotActivities = activities => ({
@@ -33,6 +28,34 @@ export const updatedActivityTab = (activityId, tabId, body) => {
     activityId,
     tabId,
     body,
+  };
+};
+
+export const addCourseActivities = (courseId, activityIdsArr) => ({
+  type: actionTypes.ADD_COURSE_ACTIVITIES,
+  courseId,
+  activityIdsArr,
+});
+
+export const removeCourseActivities = (courseId, activityIdsArr) => {
+  return {
+    type: actionTypes.REMOVE_COURSE_ACTIVITIES,
+    courseId,
+    activityIdsArr,
+  };
+};
+
+export const addUserActivities = newActivitiesArr => {
+  return {
+    type: actionTypes.ADD_USER_ACTIVITIES,
+    newActivitiesArr,
+  };
+};
+
+export const removeUserActivities = activityIdsArr => {
+  return {
+    type: actionTypes.REMOVE_USER_ACTIVITIES,
+    activityIdsArr,
   };
 };
 
@@ -72,14 +95,6 @@ export const createdActivity = resp => {
   return {
     type: actionTypes.CREATED_ACTIVITY,
     newActivity,
-  };
-};
-
-export const addActivityRooms = (activityId, roomIdsArr) => {
-  return {
-    type: actionTypes.ADD_ACTIVITY_ROOMS,
-    activityId,
-    roomIdsArr,
   };
 };
 

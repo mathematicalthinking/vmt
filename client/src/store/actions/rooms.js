@@ -1,10 +1,6 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { normalize, buildLog } from '../utils';
-import { addUserRooms, removeUserRooms } from './user';
-import { addCourseRooms, removeCourseRooms } from './courses';
-import { addActivityRooms } from './activities';
-import { clearLoadingInfo } from './loading';
 import * as loading from './loading';
 
 export const gotRooms = (rooms, isNewRoom) => ({
@@ -67,24 +63,39 @@ export const addRoomMember = (roomId, body) => {
   };
 };
 
-/**
- * @function addToLog
- * @param  {String} roomId
- * @param  {Object} message - as Message or Event
- */
+export const addCourseRooms = (courseId, roomIdsArr) => {
+  return {
+    type: actionTypes.ADD_COURSE_ROOMS,
+    courseId,
+    roomIdsArr,
+  };
+};
+export const removeCourseRooms = (courseId, roomIdsArr) => {
+  return {
+    type: actionTypes.REMOVE_COURSE_ROOMS,
+    courseId,
+    roomIdsArr,
+  };
+};
 
-export const addToLog = (roomId, entry) => {
-  return (dispatch, getState) => {
-    if (getState().rooms.byId[roomId].log) {
-      let log = getState().rooms.byId[roomId].log;
-      let lastEvent = log[log.length - 1];
-      if (entry.description && entry.description === lastEvent.description) {
-        return;
-      }
-      return dispatch(addUniqueToLog(roomId, entry));
-    } else {
-      // return dispatch(addUniqueToLog(roomId, entry));
-    }
+export const addUserRooms = newRoomsArr => {
+  return {
+    type: actionTypes.ADD_USER_ROOMS,
+    newRoomsArr,
+  };
+};
+
+export const removeUserRooms = roomIdsArr => {
+  return {
+    type: actionTypes.REMOVE_USER_ROOMS,
+    roomIdsArr,
+  };
+};
+export const addActivityRooms = (activityId, roomIdsArr) => {
+  return {
+    type: actionTypes.ADD_ACTIVITY_ROOMS,
+    activityId,
+    roomIdsArr,
   };
 };
 
@@ -95,9 +106,29 @@ export const addUniqueToLog = (roomId, entry) => {
     entry,
   };
 };
+
+/**
+ * @function addToLog
+ * @param  {String} roomId
+ * @param  {Object} message - as Message or Event
+ */
+
+export const addToLog = (roomId, entry) => {
+  return (dispatch, getState) => {
+    if (getState().rooms.byId[roomId].log) {
+      const { log } = getState().rooms.byId[roomId];
+      const lastEvent = log[log.length - 1];
+      if (entry.description && entry.description === lastEvent.description) {
+        return;
+      }
+      dispatch(addUniqueToLog(roomId, entry));
+    }
+  };
+};
+
 export const setRoomStartingPoint = roomId => {
   return (dispatch, getState) => {
-    let tabs = getState().rooms.byId[roomId].tabs.map(tab => {
+    const tabs = getState().rooms.byId[roomId].tabs.map(tab => {
       tab.startingPoint = tab.currentState;
       tab.events = [];
       return tab;
@@ -113,8 +144,34 @@ export const setRoomStartingPoint = roomId => {
         )
         .concat([API.put('rooms', roomId, { chat: [] })])
     )
-      .then(res => {})
+      .then()
+      // eslint-disable-next-line no-console
       .catch(err => console.log('ER w THT: ', err));
+  };
+};
+
+export const createRoom = body => {
+  return dispatch => {
+    dispatch(loading.start());
+    API.post('rooms', body)
+      .then(res => {
+        const { result } = res.data.result;
+        result.myRole = 'facilitator';
+        dispatch(createdRoom(result));
+        if (!body.tempRoom) {
+          if (body.course) {
+            dispatch(addCourseRooms(body.course, [result._id]));
+          }
+          if (body.activity) {
+            dispatch(addActivityRooms(body.activity, [result._id]));
+          }
+          dispatch(addUserRooms([result._id]));
+        }
+        return dispatch(loading.success());
+      })
+      .catch(err => {
+        dispatch(loading.fail(err.response.data.errorMessage));
+      });
   };
 };
 
@@ -125,8 +182,9 @@ export const createRoomFromActivity = (
   courseId
 ) => {
   return (dispatch, getState) => {
-    let activity = getState().activities.byId[activityId];
-    let newRoom = {
+    const activity = getState().activities.byId[activityId];
+    const newRoom = {
+      dueDate,
       name: `${activity.name} (room)`,
       activity: activity._id,
       creator: userId,
@@ -137,7 +195,6 @@ export const createRoomFromActivity = (
       ggbFile: activity.ggbFile,
       instructions: activity.instructions,
       members: { user: userId, role: 'facilitator' },
-      dueDate: dueDate,
     };
     if (courseId) newRoom.course = courseId;
     dispatch(createRoom(newRoom));
@@ -146,7 +203,7 @@ export const createRoomFromActivity = (
 
 export const updateRoom = (id, body) => {
   return (dispatch, getState) => {
-    let room = { ...getState().rooms.byId[id] };
+    const room = { ...getState().rooms.byId[id] };
     if (body.isTrashed) {
       dispatch(removeUserRooms([id]));
       dispatch(roomsRemoved([id]));
@@ -154,14 +211,14 @@ export const updateRoom = (id, body) => {
       dispatch(updatedRoom(id, body)); // Optimistically update the UI
     }
     API.put('rooms', id, body)
-      .then(res => {})
-      .catch(err => {
+      .then()
+      .catch(() => {
         if (body.isTrashed) {
           dispatch(addUserRooms([id]));
           dispatch(createdRoom(room));
         }
-        let prevRoom = {};
-        let keys = Object.keys(body);
+        const prevRoom = {};
+        const keys = Object.keys(body);
         keys.forEach(key => {
           prevRoom[key] = room[key];
         });
@@ -169,7 +226,7 @@ export const updateRoom = (id, body) => {
         dispatch(updatedRoom(id, prevRoom));
         dispatch(loading.updateFail('room', keys));
         setTimeout(() => {
-          dispatch(clearLoadingInfo());
+          dispatch(loading.clearLoadingInfo());
         }, 2000);
       });
     // API REQUEST
@@ -180,8 +237,9 @@ export const updateRoomTab = (roomId, tabId, body) => {
   return dispatch => {
     dispatch(updatedRoomTab(roomId, tabId, body));
     API.put('tabs', tabId, body)
-      .then(res => {})
+      .then()
       .catch(err => {
+        // eslint-disable-next-line no-console
         console.log(err);
       });
   };
@@ -208,7 +266,7 @@ export const getRooms = params => {
     API.get('rooms', params)
       .then(res => {
         // Normalize res
-        let rooms = normalize(res.data.results);
+        const rooms = normalize(res.data.results);
         dispatch(gotRooms(rooms));
         dispatch(loading.success());
       })
@@ -244,13 +302,15 @@ export const populateRoom = (id, opts) => {
     let events;
     // Why are you doing this?? just pass the whole opts obj
     if (opts) {
+      // eslint-disable-next-line prefer-destructuring
       temp = opts.temp;
+      // eslint-disable-next-line prefer-destructuring
       events = opts.events;
     }
     API.getPopulatedById('rooms', id, temp, events)
       .then(res => {
         // creae a log combining events and chat messages
-        let room = res.data.result;
+        const room = res.data.result;
         // room.currentMembers
         if (room.tabs && room.chat) {
           room.log = buildLog(room.tabs, room.chat);
@@ -260,32 +320,8 @@ export const populateRoom = (id, opts) => {
         dispatch(loading.success());
       })
       .catch(err => {
+        // eslint-disable-next-line no-console
         console.log(err);
-        dispatch(loading.fail(err.response.data.errorMessage));
-      });
-  };
-};
-
-export const createRoom = body => {
-  return dispatch => {
-    dispatch(loading.start());
-    API.post('rooms', body)
-      .then(res => {
-        let result = res.data.result;
-        result.myRole = 'facilitator';
-        dispatch(createdRoom(result));
-        if (!body.tempRoom) {
-          if (body.course) {
-            dispatch(addCourseRooms(body.course, [result._id]));
-          }
-          if (body.activity) {
-            dispatch(addActivityRooms(body.activity, [result._id]));
-          }
-          dispatch(addUserRooms([result._id]));
-        }
-        return dispatch(loading.success());
-      })
-      .catch(err => {
         dispatch(loading.fail(err.response.data.errorMessage));
       });
   };
@@ -300,8 +336,9 @@ export const inviteToRoom = (roomId, toUserId, toUserUsername) => {
       })
     );
     API.grantAccess(toUserId, 'room', roomId, 'invitation')
-      .then(res => {})
+      .then()
       .catch(err => {
+        // eslint-disable-next-line no-console
         console.log(err);
       });
   };
@@ -315,6 +352,7 @@ export const updateRoomMembers = (roomId, updatedMembers) => {
       })
       .catch(err => {
         // dispatch(loading.fail())s
+        // eslint-disable-next-line no-console
         console.log(err);
       });
   };
@@ -334,6 +372,7 @@ export const removeRoom = roomId => {
       })
       .catch(err => {
         dispatch(loading.fail());
+        // eslint-disable-next-line no-console
         console.log(err);
       });
   };

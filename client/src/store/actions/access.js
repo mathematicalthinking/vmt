@@ -1,14 +1,7 @@
-import {
-  updatedCourse,
-  updatedRoom,
-  removeNotification,
-  addUserRooms,
-  addRoomMember,
-  addUserCourses,
-  addCourseMember,
-} from './index';
+import { updatedCourse, addCourseMember, addUserCourses } from './courses';
+import { updatedRoom, addRoomMember, addUserRooms } from './rooms';
+import { removeNotification } from './user';
 import * as loading from './loading';
-import { buildLog } from '../utils';
 import API from '../../utils/apiRequests';
 
 export const joinWithCode = (
