@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from 'react';
+import PropTypes from 'prop-types';
+import Script from 'react-load-script';
+import debounce from 'lodash/debounce';
 import classes from './graph.css';
 import Modal from '../../Components/UI/Modal/Modal';
 import Button from '../../Components/UI/Button/Button';
-import Script from 'react-load-script';
 import socket from '../../utils/sockets';
 import API from '../../utils/apiRequests';
-import debounce from 'lodash/debounce';
 // import { updatedRoom } from '../../store/actions';
 class DesmosGraph extends Component {
   state = {
@@ -20,185 +21,11 @@ class DesmosGraph extends Component {
   undoing = false;
   calculatorRef = React.createRef();
 
-  componentDidMount() {
-    window.addEventListener('keydown', this.allowKeypressCheck);
-    // If we have multiple desmos tabs we'll already have a Desmos object attached to the window
-    // and thus we dont need to load the desmos script. Eventually abstract out the commonalities
-    // between didMount and onScriptLoad into its own function to make it more DRY...but not till
-    // this component is more stable
-    if (window.Desmos) {
-      this.initializing = true;
-      let { room, tabId } = this.props;
-      let { tabs } = room;
-      this.calculator = window.Desmos.GraphingCalculator(
-        this.calculatorRef.current
-      );
-      this.initializeListeners();
-      if (tabs[tabId].currentState) {
-        this.calculator.setState(tabs[tabId].currentState);
-      } else if (tabs[tabId].desmosLink) {
-        API.getDesmos(tabs[tabId].desmosLink)
-          .then(res => {
-            this.calculator.setState(res.data.result.state);
-            this.initializeListeners();
-          })
-          .catch(err => console.log(err));
-      }
-      this.props.setFirstTabLoaded();
-      let desmosState = this.calculator.getState();
-      this.expressionList = desmosState.expressions.list;
-      this.graph = desmosState.graph;
-      this.initializing = false;
-    }
-  }
-
-  allowKeypressCheck = event => {
-    if (this.state.showControlWarning) {
-      event.preventDefault();
-    }
-  };
-
-  componentWillUnmount() {
-    if (this.caluclator) {
-      this.calculator.unobserveEvent('change');
-      this.calculator.destroy();
-    }
-    window.removeEventListener('keydown', this.allowKeypressCheck);
-  }
-
-  componentDidUpdate(prevProps) {
-    // if (prevProps.currentTab !== this.props.currentTab) {
-    //   this.setState({ receivingEvent: true }, () => {
-    //     let { room, currentTab } = this.props;
-    //     let { tabs } = room;
-    //     if (tabs[currentTab].currentState) {
-    //       this.calculator.setState(tabs[currentTab].currentState);
-    //     } else if (tabs[currentTab].desmosLink) {
-    //       API.getDesmos(tabs[currentTab].desmosLink)
-    //         .then(res => {
-    //           this.calculator.setState(res.data.result.state);
-    //           this.initializeListeners();
-    //         })
-    //         .catch(err => console.log(err));
-    //     }
-    //   });
-    // }
-  }
-
-  onScriptLoad = () => {
-    this.initializing = true;
-    if (!this.calculator) {
-      this.calculator = window.Desmos.GraphingCalculator(
-        this.calculatorRef.current
-      );
-    }
-    let { room, tabId } = this.props;
-    let { tabs } = room;
-    let { desmosLink, currentState } = tabs[tabId];
-    if (currentState) {
-      try {
-        this.calculator.setState(currentState);
-        this.initializeListeners();
-      } catch (err) {
-        alert('the state of this room has been corrupted :(');
-      }
-    } else if (desmosLink) {
-      // @TODO This will require some major reconfiguration / But what we shoould do is
-      // when the user creates this room get teh state from the link and then just save it
-      // as as event on this model.
-      API.getDesmos(desmosLink)
-        .then(res => {
-          try {
-            this.calculator.setState(res.data.result.state);
-          } catch (err) {
-            alert('the state of this room has been corrupted :(');
-          }
-          // console.
-          this.initializeListeners();
-        })
-        .catch(err => console.log(err));
-    } else {
-      this.initializeListeners();
-    }
-    let desmosState = this.calculator.getState();
-    this.expressionList = desmosState.expressions.list;
-    this.graph = desmosState.graph;
-    this.props.setFirstTabLoaded();
-    this.initializing = false;
-  };
-
-  initializeListeners() {
-    // INITIALIZE EVENT LISTENER
-    this.calculator.observeEvent('change', event => {
-      // console.log("initializing ", this.initializing);
-      if (this.initializing) return;
-      if (this.undoing) {
-        this.undoing = false;
-        return;
-      }
-      let { room, tabId, user } = this.props;
-      let currentState = this.calculator.getState();
-      if (!this.state.receivingEvent) {
-        let statesAreEqual = this.areDesmosStatesEqual(currentState);
-        if (statesAreEqual) return;
-        // we only want to listen for changes to the expressions. i.e. we want to ignore zoom-in-out changes
-        if (!user.connected || room.controlledBy !== user._id) {
-          this.undoing = true;
-          document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
-          // we have the global keypress listener to prevent typing if controlWarning is being shown
-          return this.setState({ showControlWarning: true });
-        }
-        let currentStateString = JSON.stringify(currentState);
-        // console.log(this.calculator.getState());
-        const newData = {
-          room: room._id,
-          tab: room.tabs[tabId]._id,
-          event: currentStateString,
-          color: this.props.myColor,
-          user: {
-            _id: user._id,
-            username: user.username,
-          },
-          timestamp: new Date().getTime(),
-        };
-        // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
-        socket.emit('SEND_EVENT', newData, res => {});
-        this.props.resetControlTimer();
-        // if (this.debouncedUpdate) {
-        //   this.debouncedUpdate.cancel();
-        // }
-        this.debouncedUpdate();
-      }
-      this.expressionList = currentState.expressions.list;
-      this.graph = currentState.graph;
-      this.setState({ receivingEvent: false });
-    });
-    socket.removeAllListeners('RECEIVE_EVENT');
-    socket.on('RECEIVE_EVENT', data => {
-      let { room, tabId } = this.props;
-      if (data.tab === room.tabs[tabId]._id) {
-        let updatedTabs = this.props.room.tabs.map(tab => {
-          if (tab._id === data.tab) {
-            tab.currentState = data.currentState;
-          }
-          return tab;
-        });
-        this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-        this.props.updatedRoom(this.props.room._id, { tabs: updatedTabs });
-        this.setState({ receivingEvent: true }, () => {
-          this.calculator.setState(data.event);
-        });
-      } else {
-        this.props.addNtfToTabs(data.tab);
-      }
-    });
-  }
-
   debouncedUpdate = debounce(
     () => {
-      let { room, tabId } = this.props;
-      let currentStateString = JSON.stringify(this.calculator.getState());
-      this.props.updateRoomTab(room._id, room.tabs[tabId]._id, {
+      const { room, tabId, updateRoomTab } = this.props;
+      const currentStateString = JSON.stringify(this.calculator.getState());
+      updateRoomTab(room._id, room.tabs[tabId]._id, {
         currentState: currentStateString,
       });
     },
@@ -214,12 +41,199 @@ class DesmosGraph extends Component {
    * It ignores changes to graph.viewport because we want users who are not in control to still be able to zoom in and out
    */
 
+  componentDidMount() {
+    const { room, tabId, setFirstTabLoaded } = this.props;
+    const { tabs } = room;
+
+    window.addEventListener('keydown', this.allowKeypressCheck);
+    // If we have multiple desmos tabs we'll already have a Desmos object attached to the window
+    // and thus we dont need to load the desmos script. Eventually abstract out the commonalities
+    // between didMount and onScriptLoad into its own function to make it more DRY...but not till
+    // this component is more stable
+    if (window.Desmos) {
+      this.initializing = true;
+      this.calculator = window.Desmos.GraphingCalculator(
+        this.calculatorRef.current
+      );
+      this.initializeListeners();
+      if (tabs[tabId].currentState) {
+        this.calculator.setState(tabs[tabId].currentState);
+      } else if (tabs[tabId].desmosLink) {
+        API.getDesmos(tabs[tabId].desmosLink)
+          .then(res => {
+            this.calculator.setState(res.data.result.state);
+            this.initializeListeners();
+          })
+          // eslint-disable-next-line no-console
+          .catch(err => console.log(err));
+      }
+      setFirstTabLoaded();
+      const desmosState = this.calculator.getState();
+      this.expressionList = desmosState.expressions.list;
+      this.graph = desmosState.graph;
+      this.initializing = false;
+    }
+  }
+
+  // componentDidUpdate(prevProps) {
+  //   // if (prevProps.currentTab !== this.props.currentTab) {
+  //   //   this.setState({ receivingEvent: true }, () => {
+  //   //     let { room, currentTab } = this.props;
+  //   //     let { tabs } = room;
+  //   //     if (tabs[currentTab].currentState) {
+  //   //       this.calculator.setState(tabs[currentTab].currentState);
+  //   //     } else if (tabs[currentTab].desmosLink) {
+  //   //       API.getDesmos(tabs[currentTab].desmosLink)
+  //   //         .then(res => {
+  //   //           this.calculator.setState(res.data.result.state);
+  //   //           this.initializeListeners();
+  //   //         })
+  //   //         .catch(err => console.log(err));
+  //   //     }
+  //   //   });
+  //   // }
+  // }
+  componentWillUnmount() {
+    if (this.caluclator) {
+      this.calculator.unobserveEvent('change');
+      this.calculator.destroy();
+    }
+    window.removeEventListener('keydown', this.allowKeypressCheck);
+  }
+
+  allowKeypressCheck = event => {
+    const { showControlWarning } = this.state;
+    if (showControlWarning) {
+      event.preventDefault();
+    }
+  };
+
+  onScriptLoad = () => {
+    const { room, tabId, setFirstTabLoaded } = this.props;
+    const { tabs } = room;
+    const { desmosLink, currentState } = tabs[tabId];
+    this.initializing = true;
+    if (!this.calculator) {
+      this.calculator = window.Desmos.GraphingCalculator(
+        this.calculatorRef.current
+      );
+    }
+    if (currentState) {
+      try {
+        this.calculator.setState(currentState);
+        this.initializeListeners();
+      } catch (err) {
+        // eslint-disable-next-line no-alert
+        window.alert('the state of this room has been corrupted :(');
+      }
+    } else if (desmosLink) {
+      // @TODO This will require some major reconfiguration / But what we shoould do is
+      // when the user creates this room get teh state from the link and then just save it
+      // as as event on this model.
+      API.getDesmos(desmosLink)
+        .then(res => {
+          try {
+            this.calculator.setState(res.data.result.state);
+          } catch (err) {
+            // eslint-disable-next-line no-alert
+            window.alert('the state of this room has been corrupted :(');
+          }
+          // console.
+          this.initializeListeners();
+        })
+        // eslint-disable-next-line no-console
+        .catch(err => console.log(err));
+    } else {
+      this.initializeListeners();
+    }
+    const desmosState = this.calculator.getState();
+    this.expressionList = desmosState.expressions.list;
+    this.graph = desmosState.graph;
+    setFirstTabLoaded();
+    this.initializing = false;
+  };
+
+  initializeListeners() {
+    const {
+      room,
+      tabId,
+      user,
+      myColor,
+      resetControlTimer,
+      updatedRoom,
+      addNtfToTabs,
+    } = this.props;
+    const { receivingEvent } = this.state;
+    // INITIALIZE EVENT LISTENER
+    this.calculator.observeEvent('change', () => {
+      // console.log("initializing ", this.initializing);
+      if (this.initializing) return;
+      if (this.undoing) {
+        this.undoing = false;
+        return;
+      }
+      const currentState = this.calculator.getState();
+      if (!receivingEvent) {
+        const statesAreEqual = this.areDesmosStatesEqual(currentState);
+        if (statesAreEqual) return;
+        // we only want to listen for changes to the expressions. i.e. we want to ignore zoom-in-out changes
+        if (!user.connected || room.controlledBy !== user._id) {
+          this.undoing = true;
+          document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
+          // we have the global keypress listener to prevent typing if controlWarning is being shown
+          this.setState({ showControlWarning: true });
+        }
+        const currentStateString = JSON.stringify(currentState);
+        // console.log(this.calculator.getState());
+        const newData = {
+          room: room._id,
+          tab: room.tabs[tabId]._id,
+          event: currentStateString,
+          color: myColor,
+          user: {
+            _id: user._id,
+            username: user.username,
+          },
+          timestamp: new Date().getTime(),
+        };
+        // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
+        socket.emit('SEND_EVENT', newData, () => {});
+        resetControlTimer();
+        // if (this.debouncedUpdate) {
+        //   this.debouncedUpdate.cancel();
+        // }
+        this.debouncedUpdate();
+      }
+      this.expressionList = currentState.expressions.list;
+      this.graph = currentState.graph;
+      this.setState({ receivingEvent: false });
+    });
+    socket.removeAllListeners('RECEIVE_EVENT');
+    socket.on('RECEIVE_EVENT', data => {
+      if (data.tab === room.tabs[tabId]._id) {
+        const updatedTabs = room.tabs.map(tab => {
+          if (tab._id === data.tab) {
+            tab.currentState = data.currentState;
+          }
+          return tab;
+        });
+        updatedRoom(room._id, { tabs: updatedTabs });
+        updatedRoom(room._id, { tabs: updatedTabs });
+        this.setState({ receivingEvent: true }, () => {
+          this.calculator.setState(data.event);
+        });
+      } else {
+        addNtfToTabs(data.tab);
+      }
+    });
+  }
+
   areDesmosStatesEqual(newState) {
     if (newState.expressions.list.length !== this.expressionList.length) {
       return false;
     }
-    let currentGraphProps = Object.getOwnPropertyNames(newState.graph);
-    let prevGraphProps = Object.getOwnPropertyNames(this.graph);
+    const currentGraphProps = Object.getOwnPropertyNames(newState.graph);
+    const prevGraphProps = Object.getOwnPropertyNames(this.graph);
 
     if (currentGraphProps.length !== prevGraphProps.length) {
       return false;
@@ -227,17 +241,17 @@ class DesmosGraph extends Component {
     // I'm okay with this O(a*b) because a SHOULD never be longer than 100 (and is usually closer to 10) and b never more than 4
     // If these assumptions change in the future we may need to refactor
     for (let i = 0; i < this.expressionList.length; i++) {
-      let currentExpressionProps = Object.getOwnPropertyNames(
+      const currentExpressionProps = Object.getOwnPropertyNames(
         newState.expressions.list[i]
       );
-      let prevExpressionsProps = Object.getOwnPropertyNames(
+      const prevExpressionsProps = Object.getOwnPropertyNames(
         this.expressionList[i]
       );
       if (currentExpressionProps.length !== prevExpressionsProps.length) {
         return false;
       }
       for (let x = 0; x < currentExpressionProps.length; x++) {
-        let propName = currentExpressionProps[x];
+        const propName = currentExpressionProps[x];
         if (
           newState.expressions.list[i][propName] !==
           this.expressionList[i][propName]
@@ -248,7 +262,7 @@ class DesmosGraph extends Component {
     }
 
     for (let i = 0; i < currentGraphProps.length; i++) {
-      let propName = currentGraphProps[i];
+      const propName = currentGraphProps[i];
       // ignore changes to viewport property
       if (
         propName !== 'viewport' &&
@@ -263,29 +277,29 @@ class DesmosGraph extends Component {
   }
 
   render() {
+    const { inControl, toggleControl } = this.props;
+    const { showControlWarning } = this.state;
     return (
       <Fragment>
         <span id="focus" ref={this.focus} />
         <Modal
-          show={this.state.showControlWarning}
+          show={showControlWarning}
           closeModal={() => this.setState({ showControlWarning: false })}
         >
           <div>
-            You can't make updates when you're not in control click "Take
-            Control" first.
+            You can&#39;t make updates when you&#39;re not in control click
+            &#34;Take Control&#34; first.
           </div>
           <div>
             <Button
               m={5}
               click={() => {
                 this.calculator.undo();
-                this.props.toggleControl();
+                toggleControl();
                 this.setState({ showControlWarning: false });
               }}
             >
-              {this.props.inControl === 'NONE'
-                ? 'Take Control'
-                : 'Request Control'}
+              {inControl === 'NONE' ? 'Take Control' : 'Request Control'}
             </Button>
             <Button
               theme="Cancel"
@@ -314,5 +328,19 @@ class DesmosGraph extends Component {
     );
   }
 }
+
+DesmosGraph.propTypes = {
+  room: PropTypes.shape({}).isRequired,
+  tabId: PropTypes.number.isRequired,
+  user: PropTypes.shape({}).isRequired,
+  myColor: PropTypes.shape({}).isRequired,
+  resetControlTimer: PropTypes.shape({}).isRequired,
+  updatedRoom: PropTypes.shape({}).isRequired,
+  inControl: PropTypes.string.isRequired,
+  toggleControl: PropTypes.func.isRequired,
+  setFirstTabLoaded: PropTypes.func.isRequired,
+  updateRoomTab: PropTypes.func.isRequired,
+  addNtfToTabs: PropTypes.shape({}).isRequired,
+};
 
 export default DesmosGraph;

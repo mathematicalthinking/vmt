@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import SharedReplayer from './SharedReplayer';
 
 import room from '../../../__mocks__/testRoom';
@@ -22,7 +22,7 @@ describe('component - SharedReplayer', () => {
   });
 
   it('builds the log after populating', () => {
-    const wrapper = shallow(<SharedReplayer {...props} loading={true} />);
+    const wrapper = shallow(<SharedReplayer {...props} loading />);
     const instance = wrapper.instance();
     jest.spyOn(instance, 'buildLog');
     jest.spyOn(instance, 'componentDidUpdate');
@@ -32,7 +32,6 @@ describe('component - SharedReplayer', () => {
   });
 
   it('renders the encompass replayer', () => {
-    const mock = jest.fn();
     props.onLoadEnc = encMock;
     const wrapper = shallow(<SharedReplayer {...props} encompass />);
     const instance = wrapper.instance();

@@ -1,7 +1,8 @@
-import React, { Component } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker-cssmodules.css";
-import classes from "./create.css";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker-cssmodules.css';
+import classes from './create.css';
 
 class DueDate extends Component {
   datePicker = React.createRef();
@@ -11,14 +12,15 @@ class DueDate extends Component {
   }
 
   render() {
+    const { dueDate, selectDate } = this.props;
     return (
       <div className={classes.DateContainer}>
         <h3>Select a Due Date (optional)</h3>
         <DatePicker
           startOpen
           autoFocus
-          selected={this.props.dueDate}
-          onChange={this.props.selectDate}
+          selected={dueDate}
+          onChange={selectDate}
           popperPlacement="bottom-left"
           shouldCloseOnSelect={false}
         />
@@ -26,4 +28,9 @@ class DueDate extends Component {
     );
   }
 }
+
+DueDate.propTypes = {
+  dueDate: PropTypes.string.isRequired,
+  selectDate: PropTypes.func.isRequired,
+};
 export default DueDate;

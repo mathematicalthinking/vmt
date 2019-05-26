@@ -1,20 +1,30 @@
-import React, { Component } from "react";
-import { Aux, TextInput } from "../../../Components";
-import threeD from "./images/3d.png";
-import classic from "./images/classic.png";
-import graphing from "./images/graphing.png";
-import geometry from "./images/geometry.png";
-import classes from "./roomOpts.css";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Aux, TextInput } from '../../../Components';
+import threeD from './images/3d.png';
+import classic from './images/classic.png';
+import graphing from './images/graphing.png';
+import geometry from './images/geometry.png';
+import classes from './roomOpts.css';
 
 const ggbOpts = [
-  { img: classic, name: "Classic", appName: "classic" },
-  { img: threeD, name: "3D", appName: "3d" },
-  { img: graphing, name: "Graphing", appName: "graphing" },
-  { img: geometry, name: "Geometry", appName: "geometry" }
+  { img: classic, name: 'Classic', appName: 'classic' },
+  { img: threeD, name: '3D', appName: '3d' },
+  { img: graphing, name: 'Graphing', appName: 'graphing' },
+  { img: geometry, name: 'Geometry', appName: 'geometry' },
 ];
 class RoomOpts extends Component {
   render() {
-    if (this.props.ggb) {
+    const {
+      ggb,
+      appName,
+      setGgbApp,
+      setGgbFile,
+      tab,
+      desmosLink,
+      setDesmosLink,
+    } = this.props;
+    if (ggb) {
       return (
         <div className={classes.RoomOpts}>
           <p>Select a GeoGebra App</p>
@@ -24,14 +34,17 @@ class RoomOpts extends Component {
                 key={opt.appName}
                 className={classes.Opt}
                 onClick={() => {
-                  this.props.setGgbApp(opt.appName);
+                  setGgbApp(opt.appName);
                 }}
+                onKeyPress={() => {
+                  setGgbApp(opt.appName);
+                }}
+                tabIndex="-1"
+                role="button"
               >
                 <div
                   className={
-                    this.props.appName === opt.appName
-                      ? classes.Selected
-                      : classes.GgbIcon
+                    appName === opt.appName ? classes.Selected : classes.GgbIcon
                   }
                 >
                   <img src={opt.img} alt="classic" />
@@ -46,32 +59,41 @@ class RoomOpts extends Component {
               <input
                 type="file"
                 id="file"
-                multiple={true}
+                multiple
                 name="ggbFile"
                 accept=".ggb"
-                onChange={this.props.setGgbFile}
+                onChange={setGgbFile}
               />
             </div>
           </div>
-          {!this.props.tab ? (
+          {!tab ? (
             <p>(optional, click next if you wish to skip this step)</p>
           ) : null}
         </div>
       );
-    } else
-      return (
-        <Aux>
-          <TextInput
-            light
-            name="desmosLink"
-            label="Paste a Desmos workspace (optional)"
-            value={this.props.desmosLink}
-            change={this.props.setDesmosLink}
-            width="100%"
-          />
-        </Aux>
-      );
+    }
+    return (
+      <Aux>
+        <TextInput
+          light
+          name="desmosLink"
+          label="Paste a Desmos workspace (optional)"
+          value={desmosLink}
+          change={setDesmosLink}
+          width="100%"
+        />
+      </Aux>
+    );
   }
 }
 
+RoomOpts.propTypes = {
+  ggb: PropTypes.bool.isRequired,
+  appName: PropTypes.string.isRequired,
+  setGgbApp: PropTypes.func.isRequired,
+  setGgbFile: PropTypes.func.isRequired,
+  tab: PropTypes.shape({}).isRequired,
+  desmosLink: PropTypes.string.isRequired,
+  setDesmosLink: PropTypes.func.isRequired,
+};
 export default RoomOpts;

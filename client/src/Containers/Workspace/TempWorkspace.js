@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
   populateRoom,
@@ -9,50 +10,59 @@ import {
   addToLog,
 } from '../../store/actions';
 import Workspace from './Workspace';
-import { Aux, TextInput, Modal, Button } from '../../Components/';
+import { Aux, TextInput, Modal, Button } from '../../Components';
 import Signup from '../Signup';
 import socket from '../../utils/sockets';
 import COLOR_MAP from '../../utils/colorMap';
 // import Replayer from ''
 class TempWorkspace extends Component {
   state = {
-    room: null,
     user: null,
     tempUsername: null,
     errorMessage: '',
-    unloading: false,
     firstEntry: true,
-    enteredRoom: false,
     saving: false,
     saved: false,
   };
 
   componentDidMount() {
+    const {
+      connectPopulateRoom,
+      connectUpdatedRoom,
+      connectAddToLog,
+      match,
+      room,
+    } = this.props;
+    const { firstEntry } = this.state;
     // window.addEventListener("beforeunload", this.confirmUnload);
-    this.props.populateRoom(this.props.match.params.id, {
+    connectPopulateRoom(match.params.id, {
       temp: true,
-      events: !this.state.fistEntry,
+      events: !firstEntry,
     });
     // If there is no room by this id ins the user's store, then they're not the first to join
     // The user creating this room will it have in their store. A user who just drops the link in their url bar will not have it in the store
-    if (!this.props.room || this.props.room.currentMembers.length > 0) {
+    if (!room || room.currentMembers.length > 0) {
       this.setState({ firstEntry: false });
     }
     socket.on('USER_JOINED_TEMP', data => {
-      let { id } = this.props.match.params;
-      let { currentMembers, members } = data;
-      this.props.updatedRoom(id, { currentMembers, members });
-      this.props.addToLog(id, data.message);
+      const { id } = match.params;
+      const { currentMembers, members } = data;
+      connectUpdatedRoom(id, { currentMembers, members });
+      connectAddToLog(id, data.message);
     });
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
+    const { loggedIn } = this.props;
+    const { saving } = this.state;
     // An already signed in user has saved the workspace
-    if (this.state.saving && !prevProps.loggedIn && this.props.loggedIn) {
+    if (saving && !prevProps.loggedIn && loggedIn) {
+      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ saved: true, saving: false });
     }
     // The user has signed in from this page and saved the workspace
-    if (!prevProps.loggedIn && this.props.loggedIn) {
+    if (!prevProps.loggedIn && loggedIn) {
+      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ saved: true });
     }
     // if (prevProps.room !== this.props.room) {
@@ -67,92 +77,97 @@ class TempWorkspace extends Component {
   };
 
   joinRoom = graphType => {
+    const {
+      loggedIn,
+      username,
+      match,
+      userId,
+      room,
+      connectUpdatedRoom,
+      connectAddToLog,
+    } = this.props;
+    const { tempUsername, firstEntry } = this.state;
     // Set username
-    let username;
-    if (this.props.loggedIn) {
-      username = this.props.username;
-    } else if (!this.state.tempUsername) {
+    let roomUsername;
+    if (loggedIn) {
+      roomUsername = username;
+    } else if (!tempUsername) {
       return this.setState({
         errorMessage: 'Please enter a username before joining',
       });
     } else {
-      username = this.state.tempUsername;
+      roomUsername = tempUsername;
     }
 
-    const { id } = this.props.match.params;
-    let sendData = {
-      username: username,
-      userId: this.props.userId, // this will be undefined if they're not logged in
+    const { id } = match.params;
+    const sendData = {
+      userId, // this will be undefined if they're not logged in
+      firstEntry,
+      username: roomUsername,
       tempRoom: true,
       roomName: `temporary room ${id.slice(id.length - 5, id.length - 1)}...`,
       roomId: id,
-      color: COLOR_MAP[this.props.room.members.length || 0],
-      tabId: this.props.room.tabs[0]._id,
+      color: COLOR_MAP[room.members.length || 0],
+      tabId: room.tabs[0]._id,
       roomType: graphType, // this wil be undefined if its not the first user in the room
-      firstEntry: this.state.firstEntry,
     };
-    let updatedTabs = [...this.props.room.tabs];
-    if (graphType === 'desmos' && this.state.firstEntry) {
+    const updatedTabs = [...room.tabs];
+    if (graphType === 'desmos' && firstEntry) {
       updatedTabs[0].tabType = 'desmos';
     }
     // this.setState({enteredRoom: true, graph: graphType})
-    socket.emit('JOIN_TEMP', sendData, (res, err) => {
+    return socket.emit('JOIN_TEMP', sendData, (res, err) => {
       if (err) {
+        // eslint-disable-next-line no-console
         console.log('error ', err); // HOW SHOULD WE HANDLE THIS
       }
-      let { room, message, user } = res;
-      this.props.updatedRoom(room._id, {
-        currentMembers: room.currentMembers,
+      connectUpdatedRoom(res.room._id, {
+        currentMembers: res.room.currentMembers,
         members: room.members,
         tabs: updatedTabs,
       });
-      this.props.addToLog(room._id, message);
+      connectAddToLog(res.room._id, res.message);
       // if (!this.state.firstEntry) res.room.chat.push(message);
-      user.connected = socket.connected;
-      this.setState({ user: user, room: room });
+      res.user.connected = socket.connected;
+      this.setState({ user: res.user });
     });
   };
 
-  // componentWillUnmount() {
-  //   window.removeEventListener("beforeunload", this.confirmUnload);
-  //   // destroy this room from the store IF IT HASNT BEEN SAVED
-  //   if (!this.state.saved) {
-  //     // this.props.removedRoom(this.props.match.params.id)
-  //   }
-  // }
-
-  // confirmUnload = ev => {
-  //   if (this.state.saved) return;
-  //   ev.preventDefault();
-  //   return (ev.returnValue = "Are you sure you want to leave");
-  // };
-
   saveWorkspace = () => {
-    this.props.updateRoom(this.props.match.params.id, {
+    const {
+      connectUpdatedRoom,
+      connectAddUserRooms,
+      loggedIn,
+      match,
+    } = this.props;
+    const { user } = this.state;
+    connectUpdatedRoom(match.params.id, {
       tempRoom: false,
-      creator: this.state.user._id,
+      creator: user._id,
     });
-    if (this.props.loggedIn)
-      this.props.addUserRooms(this.props.match.params.id);
+    if (loggedIn) connectAddUserRooms(match.params.id);
     this.setState({ saving: true });
   };
 
   goBack = () => {
-    this.props.history.goBack();
+    const { history } = this.props;
+    history.goBack();
   };
 
   render() {
-    return this.state.user ? (
+    const { loggedIn, room } = this.props;
+    const { user, saving, firstEntry, saved, errorMessage } = this.state;
+    return user ? (
       <Aux>
-        {this.state.saving && !this.props.loggedIn ? (
+        {saving && !loggedIn ? (
           <Modal
-            show={this.state.saving}
+            show={saving}
             closeModal={() => this.setState({ saving: false })}
           >
             <Signup
               temp
-              user={this.state.user}
-              room={this.props.room._id}
+              user={user}
+              room={room._id}
               closeModal={() => this.setState({ saving: false })}
             />
           </Modal>
@@ -160,21 +175,21 @@ class TempWorkspace extends Component {
         <Workspace
           {...this.props}
           temp
-          firstEntry={this.state.firstEntry}
-          user={this.state.user}
-          save={!this.state.saved ? this.saveWorkspace : null}
+          firstEntry={firstEntry}
+          user={user}
+          save={!saved ? this.saveWorkspace : null}
         />
       </Aux>
     ) : (
-      <Modal show={!this.state.user} closeModal={this.goBack}>
-        {!this.props.loggedIn ? (
+      <Modal show={!user} closeModal={this.goBack}>
+        {!loggedIn ? (
           <Aux>
             <div>Enter a temporary username</div>
             <TextInput light change={this.setName} />
-            <div>{this.state.errorMessage}</div>
+            <div>{errorMessage}</div>
           </Aux>
         ) : null}
-        {this.state.firstEntry ? (
+        {firstEntry ? (
           <div>
             <p>Select a room type </p>
             <Button
@@ -207,6 +222,15 @@ class TempWorkspace extends Component {
   }
 }
 
+TempWorkspace.propTypes = {
+  connectPopulateRoom: PropTypes.func.isRequired,
+  connectRemovedRoom: PropTypes.func.isRequired,
+  connectUpdateRoom: PropTypes.func.isRequired,
+  connectUpdatedRoom: PropTypes.func.isRequired,
+  connectAddUserRooms: PropTypes.func.isRequired,
+  connectAddToLog: PropTypes.func.isRequired,
+};
+
 const mapStateToProps = (store, ownProps) => ({
   room: store.rooms.byId[ownProps.match.params.id],
   loggedIn: store.user.loggedIn,
@@ -217,11 +241,11 @@ const mapStateToProps = (store, ownProps) => ({
 export default connect(
   mapStateToProps,
   {
-    populateRoom,
-    removedRoom,
-    updateRoom,
-    updatedRoom,
-    addUserRooms,
-    addToLog,
+    connectPopulateRoom: populateRoom,
+    connectRemovedRoom: removedRoom,
+    connectUpdateRoom: updateRoom,
+    connectUpdatedRoom: updatedRoom,
+    connectAddUserRooms: addUserRooms,
+    connectAddToLog: addToLog,
   }
 )(TempWorkspace);

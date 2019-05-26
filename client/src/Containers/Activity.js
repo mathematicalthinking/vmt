@@ -1,12 +1,13 @@
+/* eslint-disable react/no-did-update-set-state */
 import React, { Component } from 'react';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
   DashboardLayout,
   SidePanel,
   ActivityDetails,
   ResourceList,
-} from '../Layout/Dashboard/';
+} from '../Layout/Dashboard';
 import {
   Aux,
   // Modal,
@@ -25,47 +26,47 @@ import {
   getCurrentActivity,
 } from '../store/actions';
 import { populateResource } from '../store/reducers';
+
 class Activity extends Component {
-  state = {
-    owner: false,
-    tabs: [{ name: 'Details' }, { name: 'Rooms' }, { name: 'Settings' }],
-    // assigning: false, // this seems to be duplicated in Layout/Dashboard/MakeRooms.js
-    editing: false,
-    name: this.props.activity ? this.props.activity.name : null,
-    description: this.props.activity ? this.props.activity.description : null,
-    instructions: this.props.activity ? this.props.activity.instructions : null,
-    privacySetting: this.props.activity
-      ? this.props.activity.privacySetting
-      : null,
-    // isAdmin: false,
-  };
+  constructor(props) {
+    super(props);
+    const { activity } = this.props;
+    this.state = {
+      owner: false,
+      tabs: [{ name: 'Details' }, { name: 'Rooms' }, { name: 'Settings' }],
+      // assigning: false, // this seems to be duplicated in Layout/Dashboard/MakeRooms.js
+      editing: false,
+      name: activity ? activity.name : null,
+      description: activity ? activity.description : null,
+      instructions: activity ? activity.instructions : null,
+      privacySetting: activity ? this.privacySetting : null,
+      // isAdmin: false,
+    };
+  }
 
   componentDidMount() {
-    if (!this.props.activity) {
-      return this.props.getCurrentActivity(this.props.match.params.activity_id); // WHY ARE WE DOING THIS??
+    const { activity, connectGetCurrentActivity, match, user } = this.props;
+    if (!activity) {
+      connectGetCurrentActivity(match.params.activity_id); // WHY ARE WE DOING THIS??
     }
-    const { resource } = this.props.match.params;
+    const { resource } = match.params;
     if (resource === 'rooms') {
       // this.fetchRooms();
     }
     // Check ability to edit
-    if (this.props.activity.creator === this.props.user._id) {
+    if (activity.creator === user._id) {
       this.setState({ owner: true });
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (!this.props.activity) {
+  componentDidUpdate(prevProps) {
+    const { activity, match, loading } = this.props;
+    if (!activity) {
       return;
     }
 
-    if (!prevProps.activity && this.props.activity) {
-      let {
-        name,
-        description,
-        instructions,
-        privacySetting,
-      } = this.props.activity;
+    if (!prevProps.activity && activity) {
+      const { name, description, instructions, privacySetting } = activity;
       this.setState({
         name,
         description,
@@ -74,19 +75,19 @@ class Activity extends Component {
       });
     }
     const prevResource = prevProps.match.params.resource;
-    const { resource } = this.props.match.params;
+    const { resource } = match.params;
     if (prevResource !== resource && resource === 'rooms') {
       // this.fetchRooms()
     }
     if (
       prevProps.loading.updateResource === null &&
-      this.props.loading.updateResource === 'activity'
+      loading.updateResource === 'activity'
     ) {
       this.setState({
-        name: this.props.activity.name,
-        description: this.props.activity.description,
-        privacySetting: this.props.activity.privacySetting,
-        instructions: this.props.activity.instructions,
+        name: activity.name,
+        description: activity.description,
+        privacySetting: activity.privacySetting,
+        instructions: activity.instructions,
       });
     }
   }
@@ -99,36 +100,37 @@ class Activity extends Component {
   // }
 
   toggleEdit = () => {
+    const { activity } = this.props;
     this.setState(prevState => ({
       editing: !prevState.editing,
-      name: this.props.activity.name,
-      description: this.props.activity.description,
-      privacySetting: this.props.activity.privacySetting,
-      instructions: this.props.activity.instructions,
+      name: activity.name,
+      description: activity.description,
+      privacySetting: activity.privacySetting,
+      instructions: activity.instructions,
     }));
   };
   // options is for radioButton/checkbox inputs
   updateActivityInfo = (event, option) => {
-    let { value, name } = event.target;
+    const { value, name } = event.target;
     this.setState({ [name]: option || value });
   };
 
   updateActivity = () => {
-    let { updateActivity, activity } = this.props;
-    let {
+    const { connectUpdateActivity, activity } = this.props;
+    const {
       name,
       instructions,
       details,
       privacySetting,
       description,
     } = this.state;
-    let body = { name, details, instructions, privacySetting, description };
+    const body = { name, details, instructions, privacySetting, description };
     Object.keys(body).forEach(key => {
       if (body[key] === activity[key]) {
         delete body[key];
       }
     });
-    updateActivity(activity._id, body);
+    connectUpdateActivity(activity._id, body);
     this.setState({
       editing: false,
     });
@@ -139,11 +141,31 @@ class Activity extends Component {
   };
 
   render() {
-    let { activity, course, match, user, loading } = this.props;
-    let { updateFail, updateKeys } = this.props;
+    const {
+      activity,
+      course,
+      match,
+      user,
+      loading,
+      updateFail,
+      updateKeys,
+      rooms,
+      history,
+      connectUpdateActivity,
+    } = this.props;
+    const {
+      editing,
+      privacySetting,
+      name,
+      description,
+      instructions,
+      owner,
+      tabs,
+      trashing,
+    } = this.state;
     if (activity) {
-      let { resource } = match.params;
-      let additionalDetails = {
+      const { resource } = match.params;
+      const additionalDetails = {
         type: activity.roomType,
         privacy: (
           <Error
@@ -152,11 +174,11 @@ class Activity extends Component {
             <EditText
               change={this.updateActivityInfo}
               inputType="radio"
-              editing={this.state.editing}
+              editing={editing}
               options={['public', 'private']}
               name="privacySetting"
             >
-              {this.state.privacySetting}
+              {privacySetting}
             </EditText>
           </Error>
         ),
@@ -186,14 +208,14 @@ class Activity extends Component {
 
       let mainContent = (
         <ActivityDetails
-          activity={this.props.activity}
+          activity={activity}
           update={this.updateActivityInfo}
-          instructions={this.state.instructions}
-          editing={this.state.editing}
-          owner={this.state.owner || this.props.user.isAdmin}
+          instructions={instructions}
+          editing={editing}
+          owner={owner || user.isAdmin}
           toggleEdit={this.toggleEdit}
-          userId={this.props.user._id}
-          course={this.props.course}
+          userId={user._id}
+          course={course}
           loading={loading}
         />
       );
@@ -201,9 +223,7 @@ class Activity extends Component {
       if (resource === 'rooms') {
         mainContent = (
           <ResourceList
-            userResources={activity.rooms.map(
-              roomId => this.props.rooms[roomId]
-            )}
+            userResources={activity.rooms.map(roomId => rooms[roomId])}
             notifications={[]}
             user={user}
             resource={resource}
@@ -222,16 +242,16 @@ class Activity extends Component {
             sidePanel={
               <SidePanel
                 image={activity.image}
-                editing={this.state.editing}
+                editing={editing}
                 name={
                   <Error error={updateFail && updateKeys.indexOf('name')}>
                     <EditText
                       change={this.updateActivityInfo}
                       inputType="title"
                       name="name"
-                      editing={this.state.editing}
+                      editing={editing}
                     >
-                      {this.state.name}
+                      {name}
                     </EditText>
                   </Error>
                 }
@@ -243,28 +263,30 @@ class Activity extends Component {
                       change={this.updateActivityInfo}
                       inputType="text"
                       name="description"
-                      editing={this.state.editing}
+                      editing={editing}
                     >
-                      {this.state.description}
+                      {description}
                     </EditText>
                   </Error>
                 }
-                owner={this.state.owner || this.props.user.isAdmin}
+                owner={owner || user.isAdmin}
                 additionalDetails={additionalDetails}
                 editButton={
-                  this.state.owner || this.props.user.isAdmin ? (
+                  owner || user.isAdmin ? (
                     <Aux>
                       <div
                         role="button"
                         style={{
-                          display: this.state.editing ? 'none' : 'block',
+                          display: editing ? 'none' : 'block',
                         }}
                         data-testid="edit-activity"
                         onClick={this.toggleEdit}
+                        onKeyPress={this.toggleEdit}
+                        tabIndex="-1"
                       >
                         Edit Activity <i className="fas fa-edit" />
                       </div>
-                      {this.state.editing ? (
+                      {editing ? (
                         // @TODO this should be a resuable component
                         <div
                           style={{
@@ -297,29 +319,46 @@ class Activity extends Component {
               />
             }
             mainContent={mainContent}
-            tabs={
-              <TabList routingInfo={this.props.match} tabs={this.state.tabs} />
-            }
+            tabs={<TabList routingInfo={match} tabs={tabs} />}
           />
-          {this.state.trashing ? (
+          {trashing ? (
             <TrashModal
               resource="activity"
               resourceId={activity._id}
-              update={this.props.updateActivity}
-              show={this.state.trashing}
+              update={connectUpdateActivity}
+              show={trashing}
               closeModal={() => {
                 this.setState({ trashing: false });
               }}
-              history={this.props.history}
+              history={history}
             />
           ) : null}
         </Aux>
       );
-    } else return null;
+    }
+    return null;
   }
 }
 
+Activity.propTypes = {
+  match: PropTypes.shape({}).isRequired,
+  activity: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({}).isRequired,
+  course: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({}).isRequired,
+  loading: PropTypes.bool.isRequired,
+  updateFail: PropTypes.bool.isRequired,
+  updateKeys: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
+  rooms: PropTypes.isRequired,
+  // connectGetCourses: PropTypes.func.isRequired,
+  // connectGetRooms: PropTypes.func.isRequired,
+  connectUpdateActivity: PropTypes.func.isRequired,
+  // connectGetActivities: PropTypes.func.isRequired,
+  connectGetCurrentActivity: PropTypes.func.isRequired,
+};
+
 const mapStateToProps = (state, ownProps) => {
+  // eslint-disable-next-line camelcase
   const { activity_id, course_id } = ownProps.match.params;
   return {
     activity: state.activities.byId[activity_id],
@@ -336,5 +375,11 @@ const mapStateToProps = (state, ownProps) => {
 
 export default connect(
   mapStateToProps,
-  { getCourses, getRooms, updateActivity, getActivities, getCurrentActivity }
+  {
+    connectGetCourses: getCourses,
+    connectGetRooms: getRooms,
+    connectUpdateActivity: updateActivity,
+    connectGetActivities: getActivities,
+    connectGetCurrentActivity: getCurrentActivity,
+  }
 )(Activity);

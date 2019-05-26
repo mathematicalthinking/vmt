@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { hri } from 'human-readable-ids';
 import Step1 from './Step1';
@@ -8,18 +10,16 @@ import Step3 from './Step3';
 import DueDate from '../DueDate';
 import RoomOpts from './RoomOpts';
 import { getUserResources, populateResource } from '../../../store/reducers';
-import { Modal, Aux, Button } from '../../../Components/';
+import { Modal, Aux, Button } from '../../../Components';
 import classes from '../create.css';
-import { connect } from 'react-redux';
 import {
   createCourse,
   createRoom,
   createActivity,
-  createCourseTemplate,
   updateUser,
   createRoomFromActivity,
   copyActivity,
-} from '../../../store/actions/';
+} from '../../../store/actions';
 import API from '../../../utils/apiRequests';
 // import propertyOf from 'lodash/propertyOf';
 
@@ -75,7 +75,8 @@ class NewResourceContainer extends Component {
   // @TODO move this somewhere it can be shared with Containsers/Workspace/NewTabForm
   // maybe it makes sense to move newTabForm Here because its creating something
   uploadGgbFiles = () => {
-    let files = this.state.ggbFiles;
+    const { ggbFiles } = this.state;
+    const files = ggbFiles;
     if (typeof files !== 'object' || files.length < 1) {
       return Promise.resolve({
         data: {
@@ -83,31 +84,52 @@ class NewResourceContainer extends Component {
         },
       });
     }
-    let formData = new FormData();
+    const formData = new window.FormData();
 
-    for (let f of files) {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const f of files) {
       formData.append('ggbFiles', f);
     }
     return API.uploadGgbFiles(formData);
   };
 
   submitForm = () => {
-    let { resource } = this.props;
-    let theme = imageThemes[Math.floor(Math.random() * imageThemes.length)];
+    const {
+      name,
+      description,
+      privacySetting,
+      activities,
+      desmosLink,
+      ggb,
+      dueDate,
+      appName,
+    } = this.state;
+    const {
+      resource,
+      courseId,
+      userId,
+      username,
+      connectCreateCourse,
+      connectCreateActivity,
+      connectCreateRoom,
+      connectUpdateUser,
+      intro,
+      history,
+    } = this.props;
+    const theme = imageThemes[Math.floor(Math.random() * imageThemes.length)];
 
-    let newResource = {
-      name: this.state.name,
-      description: this.state.description,
-      creator: this.props.userId,
-      privacySetting: this.state.privacySetting,
-      activities:
-        this.state.activities.length > 0 ? this.state.activities : null,
-      desmosLink: this.state.desmosLink,
-      course: this.props.courseId,
-      roomType: this.state.ggb ? 'geogebra' : 'desmos',
-      image: `http://tinygraphs.com/${shapes[resource]}/${
-        this.state.name
-      }?theme=${theme}&numcolors=4&size=220&fmt=svg`,
+    const newResource = {
+      name,
+      description,
+      desmosLink,
+      privacySetting,
+      creator: userId,
+      activities: activities.length > 0 ? activities : null,
+      course: courseId,
+      roomType: ggb ? 'geogebra' : 'desmos',
+      image: `http://tinygraphs.com/${
+        shapes[resource]
+      }/${name}?theme=${theme}&numcolors=4&size=220&fmt=svg`,
     };
     if (newResource.privacySetting === 'private') {
       newResource.entryCode = hri.random();
@@ -125,49 +147,51 @@ class NewResourceContainer extends Component {
           delete newResource.roomType;
           newResource.members = [
             {
-              user: { _id: this.props.userId, username: this.props.username },
+              user: { username, _id: userId },
               role: 'facilitator',
             },
           ];
-          this.props.createCourse(newResource);
+          connectCreateCourse(newResource);
           break;
         case 'activities':
-          this.props.createActivity(newResource);
+          connectCreateActivity(newResource);
           break;
         case 'rooms':
           newResource.members = [
             {
-              user: { _id: this.props.userId, username: this.props.username },
+              user: { username, _id: userId },
               role: 'facilitator',
             },
           ];
-          newResource.dueDate = this.state.dueDate;
-          if (this.state.ggb) {
-            newResource.appName = this.state.appName;
+          newResource.dueDate = dueDate;
+          if (ggb) {
+            newResource.appName = appName;
           }
-          this.props.createRoom(newResource);
+          connectCreateRoom(newResource);
           break;
         default:
           break;
       }
       this.setState({ ...initialState });
-      if (this.props.intro) {
-        this.props.updateUser({ accountType: 'facilitator' });
-        this.props.history.push(`/myVMT/${resource}`);
+      if (intro) {
+        connectUpdateUser({ accountType: 'facilitator' });
+        history.push(`/myVMT/${resource}`);
       }
     });
   };
 
   redirectToActivity = () => {
-    this.props.history.push('/community/activities/selecting');
+    const { history } = this.props;
+    history.push('/community/activities/selecting');
   };
 
   addActivity = (event, id) => {
+    const { activities } = this.state;
     let updatedActivities;
-    if (this.state.activities.indexOf(id) >= 0) {
-      updatedActivities = this.state.activities.filter(acId => acId !== id);
+    if (activities.indexOf(id) >= 0) {
+      updatedActivities = activities.filter(acId => acId !== id);
     } else {
-      updatedActivities = [...this.state.activities, id];
+      updatedActivities = [...activities, id]; // becaue we're filtering above we probably don't need to spread activities here we could just push the id
     }
     this.setState({ activities: updatedActivities });
   };
@@ -193,22 +217,24 @@ class NewResourceContainer extends Component {
     this.setState({ privacySetting });
   };
   nextStep = direction => {
-    let copying = this.state.copying;
-    if (this.state.step === 0) {
+    let { copying } = this.state;
+    const { step } = this.state;
+    if (step === 0) {
       if (direction === 'copy') {
         copying = true;
       }
     }
     this.setState({
-      step: this.state.step + 1,
-      copying: copying,
+      step: step + 1,
+      copying,
     });
   };
 
   prevStep = () => {
+    const { step, copying } = this.state;
     this.setState({
-      copying: this.state.step === 1 ? false : this.state.copying,
-      step: this.state.step - 1 || 0,
+      copying: step === 1 ? false : copying,
+      step: step - 1 || 0,
     });
   };
 
@@ -222,7 +248,19 @@ class NewResourceContainer extends Component {
 
   render() {
     // Intro = true if and only if we've navigated from the "Become a Facilitator" page
-    let { resource } = this.props;
+    const { resource } = this.props;
+    const {
+      name,
+      description,
+      privacySetting,
+      appName,
+      copying,
+      ggb,
+      desmosLink,
+      dueDate,
+      step,
+      creating,
+    } = this.state;
     let displayResource;
     if (resource === 'activities') {
       displayResource = 'activity';
@@ -230,53 +268,54 @@ class NewResourceContainer extends Component {
       displayResource = resource.slice(0, resource.length - 1);
     }
 
-    let steps = [
+    const steps = [
       <Step1
+        key="step1"
         displayResource={displayResource}
-        name={this.state.name}
-        description={this.state.description}
+        name={name}
+        description={description}
         changeHandler={this.changeHandler}
       />,
-      this.state.copying ? (
+      copying ? (
         <Step2Copy
+          key="step2"
           displayResource={displayResource}
           addActivity={this.addActivity}
         />
       ) : (
         <Step2New
+          key="step2"
           setGgb={this.setGgb}
-          ggb={this.state.ggb}
+          ggb={ggb}
           changeHandler={this.changeHandler}
         />
       ),
       <Step3
+        key="step3"
         displayResource={displayResource}
         check={this.setPrivacy}
-        privacySetting={this.state.privacySetting}
+        privacySetting={privacySetting}
       />,
     ];
     if (resource === 'rooms') {
       steps.splice(
         2,
         0,
-        <DueDate dueDate={this.state.dueDate} selectDate={this.setDueDate} />
+        <DueDate dueDate={dueDate} selectDate={this.setDueDate} />
       );
     }
 
-    if (
-      !this.state.copying &&
-      (resource === 'rooms' || resource === 'activities')
-    ) {
+    if (!copying && (resource === 'rooms' || resource === 'activities')) {
       steps.splice(
         2,
         0,
         <RoomOpts
-          ggb={this.state.ggb}
+          ggb={ggb}
           setGgbFile={this.setGgbFile}
           setGgbApp={this.setGgbApp}
-          desmosLink={this.state.desmosLink}
+          desmosLink={desmosLink}
           setDesmosLink={this.changeHandler}
-          appName={this.state.appName}
+          appName={appName}
         />
       );
     }
@@ -285,17 +324,18 @@ class NewResourceContainer extends Component {
       steps.splice(1, 1);
     }
 
-    let stepDisplays = steps.map((step, i) => (
+    const stepDisplays = steps.map((currentStep, i) => (
       <div
+        key={currentStep}
         className={[
           classes.Step,
-          i <= this.state.step ? classes.CompletedStep : null,
+          i <= step ? classes.CompletedStep : null,
         ].join(' ')}
       />
     ));
 
     let buttons;
-    if (this.state.step === 0) {
+    if (step === 0) {
       if (resource === 'courses') {
         buttons = <Button click={this.nextStep}>next</Button>;
       } else {
@@ -303,7 +343,7 @@ class NewResourceContainer extends Component {
           <Aux>
             <div className={classes.ModalButton}>
               <Button
-                disabled={this.state.name.length === 0}
+                disabled={name.length === 0}
                 click={() => {
                   this.nextStep('new');
                 }}
@@ -314,7 +354,7 @@ class NewResourceContainer extends Component {
             </div>
             <div className={classes.ModalButton}>
               <Button
-                disabled={this.state.name.length === 0}
+                disabled={name.length === 0}
                 click={() => {
                   this.nextStep('copy');
                 }}
@@ -326,7 +366,7 @@ class NewResourceContainer extends Component {
           </Aux>
         );
       }
-    } else if (this.state.step === steps.length - 1) {
+    } else if (step === steps.length - 1) {
       buttons = (
         <div className={classes.ModalButton}>
           <Button data-testId="create" click={this.submitForm}>
@@ -340,15 +380,14 @@ class NewResourceContainer extends Component {
 
     return (
       <Aux>
-        {this.state.creating ? (
-          <Modal
-            height={470}
-            show={this.state.creating}
-            closeModal={this.closeModal}
-          >
-            {this.state.step > 0 ? (
+        {creating ? (
+          <Modal height={470} show={creating} closeModal={this.closeModal}>
+            {step > 0 ? (
               <i
                 onClick={this.prevStep}
+                onKeyPress={this.prevStep}
+                tabIndex="-1"
+                role="button"
                 className={['fas', 'fa-arrow-left', classes.BackIcon].join(' ')}
               />
             ) : null}
@@ -357,9 +396,7 @@ class NewResourceContainer extends Component {
                 Create {resource === 'activities' ? 'an' : 'a'}{' '}
                 {displayResource}
               </h2>
-              <div className={classes.MainModalContent}>
-                {steps[this.state.step]}
-              </div>
+              <div className={classes.MainModalContent}>{steps[step]}</div>
               <div className={classes.Row}>{buttons}</div>
             </div>
             <div className={classes.StepDisplayContainer}>{stepDisplays}</div>
@@ -367,7 +404,7 @@ class NewResourceContainer extends Component {
         ) : null}
         <div className={classes.Button}>
           <Button
-            theme={'Small'}
+            theme="Small"
             click={this.startCreation}
             data-testid={`create-${displayResource}`}
           >
@@ -378,26 +415,28 @@ class NewResourceContainer extends Component {
           </Button>
         </div>
       </Aux>
-
-      //   {this.state.creating ? <NewResource
-      //     step={this.state.step}
-      //     resource={resource}
-      //     displayResource={displayResource}
-      //     show={this.state.creating}
-      //     ggb={this.state.ggb}
-      //     close={() => this.setState({creating: false})}
-      //     submit={this.submitForm}
-      //   /> : null}
-      //   <div className={classes.Button}>
-      //     <Button theme={'Small'} click={this.create} data-testid={`create-${displayResource}`}>
-      //       Create <span className={classes.Plus}><i className="fas fa-plus"></i></span>
-      //     </Button>
-      //   </div>
     );
   }
 }
 
-let mapStateToProps = (store, ownProps) => {
+NewResourceContainer.propTypes = {
+  resource: PropTypes.string.isRequired,
+  courseId: PropTypes.string,
+  userId: PropTypes.string.isRequired,
+  username: PropTypes.string.isRequired,
+  connectCreateCourse: PropTypes.func.isRequired,
+  connectCreateRoom: PropTypes.func.isRequired,
+  connectCreateActivity: PropTypes.func.isRequired,
+  intro: PropTypes.bool.isRequired,
+  connectUpdateUser: PropTypes.func.isRequired,
+  history: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+};
+
+NewResourceContainer.defaultProps = {
+  courseId: null,
+};
+
+const mapStateToProps = (store, ownProps) => {
   return {
     myRooms: store.user.rooms,
     rooms: store.rooms.rooms, // ????
@@ -416,13 +455,12 @@ export default withRouter(
   connect(
     mapStateToProps,
     {
-      createCourse,
-      createRoom,
-      createActivity,
-      createCourseTemplate,
-      updateUser,
-      createRoomFromActivity,
-      copyActivity,
+      connectCreateCourse: createCourse,
+      connectCreateRoom: createRoom,
+      connectCreateActivity: createActivity,
+      connectUpdateUser: updateUser,
+      connectCreateRoomFromActivity: createRoomFromActivity,
+      connectCopyActivity: copyActivity,
     }
   )(NewResourceContainer)
 );

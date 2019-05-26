@@ -1,16 +1,18 @@
+/* eslint-disable no-console */
 import React, { Component, Fragment } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import Button from '../Components/UI/Button/Button';
 import SidePanel from '../Layout/Dashboard/SidePanel/SidePanel';
 import BreadCrumbs from '../Components/Navigation/BreadCrumbs/BreadCrumbs';
-import SearchResults from '../Containers/Members/SearchResults';
+import SearchResults from './Members/SearchResults';
 import { Search, Member, EditText, ToolTip } from '../Components';
 import API from '../utils/apiRequests';
-
-import { updateUser } from '../store/actions/';
+import { updateUser } from '../store/actions';
 // import MainContent from '../Layout/Dashboard/MainContent/';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
+
 class Profile extends Component {
   state = {
     editing: false,
@@ -37,10 +39,12 @@ class Profile extends Component {
   };
 
   search = text => {
+    const { user } = this.props;
+    const { admins } = this.state;
     if (text.length > 0) {
-      API.search('user', text, [this.props.user._id], this.state.admins)
+      API.search('user', text, [user._id], admins)
         .then(res => {
-          let searchResults = res.data.results;
+          const searchResults = res.data.results;
           this.setState({
             searchResults,
             searchText: text,
@@ -55,10 +59,11 @@ class Profile extends Component {
   };
 
   makeAdmin = userId => {
+    const { admins } = this.state;
     API.put('user', userId, { isAdmin: true })
       .then(res => {
-        let { username, _id } = res.data;
-        this.setState({ admins: [...this.state.admins, { username, _id }] });
+        const { username, _id } = res.data;
+        this.setState({ admins: [...admins, { username, _id }] });
       })
       .catch(err => {
         console.log('err making admin: ', err);
@@ -66,16 +71,16 @@ class Profile extends Component {
   };
 
   render() {
-    const { user } = this.props;
-
+    const { user, connectUpdateUser } = this.props;
+    const { admins, searchResults, searchText, editing } = this.state;
     const mainContent = (
       <div>
-        {this.props.user.isAdmin ? (
+        {user.isAdmin ? (
           <Fragment>
             <h3>Admins</h3>
             <div data-testid="admin-list">
-              {this.state.admins.map(admin => (
-                <Member info={admin} />
+              {admins.map(admin => (
+                <Member info={admin} key={admin} />
               ))}
             </div>
             <h3>Create Admins</h3>
@@ -84,10 +89,10 @@ class Profile extends Component {
               _search={this.search}
               placeholder="search by username or email address"
             />
-            {this.state.searchResults.length > 0 ? (
+            {searchResults.length > 0 ? (
               <SearchResults
-                searchText={this.state.searchText}
-                usersSearched={this.state.searchResults}
+                searchText={searchText}
+                usersSearched={searchResults}
                 inviteMember={this.makeAdmin}
               />
             ) : null}
@@ -96,11 +101,11 @@ class Profile extends Component {
       </div>
     );
 
-    let additionalDetails = {
+    const additionalDetails = {
       email: user.email,
     };
 
-    if (this.props.user.isAdmin) {
+    if (user.isAdmin) {
       additionalDetails['Admin Mode'] = (
         <ToolTip
           text="admin mode allows you to enter rooms anonymously"
@@ -108,16 +113,16 @@ class Profile extends Component {
         >
           <EditText
             inputType="radio"
-            editing={true}
+            editing
             change={() =>
-              this.props.updateUser({
-                inAdminMode: !this.props.user.inAdminMode,
+              connectUpdateUser({
+                inAdminMode: !user.inAdminMode,
               })
             }
             options={['On', 'Off']}
-            name={'adminMode'}
+            name="adminMode"
           >
-            {this.props.user.inAdminMode ? 'On' : 'Off'}
+            {user.inAdminMode ? 'On' : 'Off'}
           </EditText>
         </ToolTip>
       );
@@ -140,16 +145,18 @@ class Profile extends Component {
                 <div
                   role="button"
                   style={{
-                    display: this.state.editing ? 'none' : 'block',
+                    display: editing ? 'none' : 'block',
                   }}
                   data-testid="edit-course"
                   onClick={this.toggleEdit}
+                  onKeyPress={this.toggleEdit}
+                  tabIndex="-1"
                 >
                   <span>
                     Edit User Info <i className="fas fa-edit" />
                   </span>
                 </div>
-                {this.state.editing ? (
+                {editing ? (
                   // @TODO this should be a resuable component
                   <div
                     style={{
@@ -178,11 +185,16 @@ class Profile extends Component {
   }
 }
 
+Profile.propTypes = {
+  user: PropTypes.shape({}).isRequired,
+  connectUpdateUser: PropTypes.func.isRequired,
+};
+
 const mapStateToProps = store => ({
   user: store.user,
 });
 
 export default connect(
   mapStateToProps,
-  { updateUser }
+  { connectUpdateUser: updateUser }
 )(Profile);

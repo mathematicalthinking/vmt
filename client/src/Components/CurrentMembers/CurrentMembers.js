@@ -1,14 +1,17 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classes from './currentMembers.css';
 import Avatar from '../UI/Avatar/Avatar';
+
 class CurrentMembers extends Component {
   // state = {
   //   expanded: true
   // }
   shouldComponentUpdate(nextProps) {
+    const { currentMembers, activeMember } = this.props;
     if (
-      nextProps.currentMembers !== this.props.currentMembers ||
-      nextProps.activeMember !== this.props.activeMember
+      nextProps.currentMembers !== currentMembers ||
+      nextProps.activeMember !== activeMember
     ) {
       return true;
     }
@@ -16,12 +19,12 @@ class CurrentMembers extends Component {
   }
 
   toggleExpansion = () => {
-    this.props.toggleExpansion('members');
+    const { toggleExpansion } = this.props;
+    toggleExpansion('members');
   };
 
   render() {
-    let member;
-    const { currentMembers, members, activeMember } = this.props;
+    const { currentMembers, members, activeMember, expanded } = this.props;
     return (
       <div className={classes.Container}>
         <div className={classes.Title} onClick={this.toggleExpansion}>
@@ -29,12 +32,12 @@ class CurrentMembers extends Component {
           <div className={classes.Count}>{currentMembers.length}</div>
         </div>
         <div
-          className={this.props.expanded ? classes.Expanded : classes.Collapsed}
+          className={expanded ? classes.Expanded : classes.Collapsed}
           data-testid="current-members"
         >
           {currentMembers.map(user => {
             // get the users color
-            let member = members.filter(
+            const member = members.filter(
               member => member.user._id === user._id
             )[0];
             if (member) {
@@ -52,7 +55,6 @@ class CurrentMembers extends Component {
                 </div>
               );
             } else {
-              console.log('key: ', user.username);
               return (
                 <div
                   key={user.username}
@@ -76,5 +78,13 @@ class CurrentMembers extends Component {
     );
   }
 }
+
+CurrentMembers.propTypes = {
+  currentMembers: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  members: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  activeMember: PropTypes.string.isRequired,
+  expanded: PropTypes.bool.isRequired,
+  toggleExpansion: PropTypes.func.isRequired,
+};
 
 export default CurrentMembers;

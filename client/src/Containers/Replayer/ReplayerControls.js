@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classes from './replayerControls.css';
+
 class ReplayerControls extends Component {
   state = {
     mouseOverControls: false,
@@ -11,12 +12,13 @@ class ReplayerControls extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.playing !== this.props.playing) {
-      if (this.props.playing) {
-      }
+    const { playing, startTime } = this.props;
+    if (prevProps.playing !== playing) {
+      // if (playing) {
+      // }
     }
-    if (prevProps.startTime !== this.props.startTime) {
-      this.originalStartTime = this.props.startTime;
+    if (prevProps.startTime !== startTime) {
+      this.originalStartTime = startTime;
     }
   }
 
@@ -41,21 +43,24 @@ class ReplayerControls extends Component {
   };
 
   first = () => {
-    this.props.goToTime(0);
+    const { goToTime } = this.props;
+    goToTime(0);
   };
 
   last = () => {
-    this.props.goToTime(1);
+    const { goToTime } = this.props;
+    goToTime(1);
   };
 
   showControls = () => {
+    const { showControls, mouseOverControls } = this.state;
     if (this.hideControlsTimer) {
       clearTimeout(this.hideControlsTimer);
     }
-    if (!this.state.showControls) {
+    if (!showControls) {
       this.setState({ showControls: true });
     }
-    if (!this.state.mouseOverControls) {
+    if (!mouseOverControls) {
       this.hideControlsTimer = setTimeout(
         () => this.setState({ showControls: false }),
         1500
@@ -65,7 +70,7 @@ class ReplayerControls extends Component {
 
   render() {
     const {
-      playing, //ms
+      playing,
       pausePlay,
       log,
       index,
@@ -73,6 +78,7 @@ class ReplayerControls extends Component {
       clock,
       slider,
     } = this.props;
+    const { showControls } = this.state;
     const pausePlayButton = playing ? (
       <i className="fas fa-pause" />
     ) : (
@@ -80,9 +86,7 @@ class ReplayerControls extends Component {
     );
     return (
       <div
-        className={
-          this.state.showControls ? classes.Container : classes.HiddenContainer
-        }
+        className={showControls ? classes.Container : classes.HiddenContainer}
         onMouseEnter={() => this.setState({ mouseOverControls: true })}
         onMouseLeave={() => this.setState({ mouseOverControls: false })}
       >
@@ -93,6 +97,7 @@ class ReplayerControls extends Component {
               disabled={index === 0}
               onClick={this.first}
               className={classes.Button}
+              type="button"
             >
               <i className="fas fa-fast-backward" />
             </button>
@@ -100,16 +105,22 @@ class ReplayerControls extends Component {
               disabled={index === 0}
               onClick={this.back}
               className={classes.Button}
+              type="button"
             >
               <i className="fas fa-backward" />
             </button>
-            <button className={classes.Button} onClick={pausePlay}>
+            <button
+              className={classes.Button}
+              onClick={pausePlay}
+              type="button"
+            >
               {pausePlayButton}
             </button>
             <button
               disabled={index === log.length - 1}
               onClick={this.next}
               className={classes.Button}
+              type="button"
             >
               <i className="fas fa-forward" />
             </button>
@@ -117,6 +128,7 @@ class ReplayerControls extends Component {
               disabled={index === log.length - 1}
               onClick={this.last}
               className={classes.Button}
+              type="button"
             >
               <i className="fas fa-fast-forward" />
             </button>
@@ -131,15 +143,13 @@ class ReplayerControls extends Component {
 }
 
 ReplayerControls.propTypes = {
+  startTime: PropTypes.number.isRequired,
   playing: PropTypes.bool.isRequired,
   pausePlay: PropTypes.func.isRequired,
-  speed: PropTypes.number.isRequired,
-  setSpeed: PropTypes.func.isRequired,
   duration: PropTypes.number.isRequired,
   index: PropTypes.number.isRequired,
   log: PropTypes.arrayOf(PropTypes.object).isRequired,
   goToTime: PropTypes.func.isRequired,
-  reset: PropTypes.func.isRequired,
   settings: PropTypes.element.isRequired,
   slider: PropTypes.element.isRequired,
   clock: PropTypes.element.isRequired,

@@ -1,9 +1,9 @@
-import React, { Component } from "react";
-import { Avatar, Button } from "../../Components/";
-import classes from "./members.css";
+import React, { Component } from 'react';
+import { Avatar, Button } from '../../Components';
+import classes from './members.css';
 class SearchResults extends Component {
   state = {
-    areResultsExpanded: false
+    areResultsExpanded: false,
   };
 
   componentDidUpdate(prevProps) {
@@ -15,11 +15,11 @@ class SearchResults extends Component {
   render() {
     let toggleExpansion = (
       <div>
-        See Suggested Participants{" "}
+        See Suggested Participants{' '}
         <Button
           click={() =>
             this.setState(prevState => ({
-              areResultsExpanded: !prevState.areResultsExpanded
+              areResultsExpanded: !prevState.areResultsExpanded,
             }))
           }
         >
@@ -32,11 +32,11 @@ class SearchResults extends Component {
       return (
         <ul className={classes.SearchResults}>
           <div>
-            See Suggested Participants{" "}
+            See Suggested Participants{' '}
             <Button
               click={() =>
                 this.setState(prevState => ({
-                  areResultsExpanded: !prevState.areResultsExpanded
+                  areResultsExpanded: !prevState.areResultsExpanded,
                 }))
               }
             >
@@ -47,7 +47,7 @@ class SearchResults extends Component {
             return (
               <li className={classes.SearchResItem} key={user._id}>
                 <div className={classes.FlexRow}>
-                  <Avatar username={user.username} />{" "}
+                  <Avatar username={user.username} />{' '}
                   <span className={classes.Email}>{user.email}</span>
                 </div>
                 <Button

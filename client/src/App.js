@@ -16,8 +16,8 @@ const App = () => (
       <Router>
         <div style={{ display: 'flex', flexFlow: 'column', minHeight: '100%' }}>
           <Switch>
-            <Route path={'/myVMT'} component={MyVmt} />
-            <Route path={'/'} component={Home} />
+            <Route path="/myVMT" component={MyVmt} />
+            <Route path="/" component={Home} />
           </Switch>
         </div>
       </Router>

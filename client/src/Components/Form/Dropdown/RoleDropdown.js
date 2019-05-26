@@ -1,48 +1,56 @@
-//PROPS: title,  list, selectHandler(listOfSelectedItems)
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import onClickOutside from 'react-onclickoutside';
+import classes from './dropdown.css';
 
-import React, { Component } from "react";
-import classes from "./dropdown.css";
-import onClickOutside from "react-onclickoutside";
 class RoleDropdown extends Component {
   state = {
     listOpen: false,
-    selected: []
   };
 
-  handleClickOutside = event => {
-    if (this.state.listOpen) {
+  handleClickOutside = () => {
+    const { listOpen } = this.state;
+    if (listOpen) {
       this.setState({
-        listOpen: false
+        listOpen: false,
       });
     }
   };
 
-  toggleList = event => {
+  toggleList = () => {
     this.setState(prevState => ({
-      listOpen: !prevState.listOpen
+      listOpen: !prevState.listOpen,
     }));
   };
 
   render() {
-    let list;
-    if (this.props.list.length === 0 || !this.props.list) {
-      list = (
-        <div className={classes.ErrorItem}>There's nothing in here yet</div>
+    const { list, selectHandler } = this.props;
+    const { listOpen } = this.state;
+    let ElementList;
+    if (list.length === 0 || !list) {
+      ElementList = (
+        <div className={classes.ErrorItem}>There&#39;s nothing in here yet</div>
       );
     } else {
-      list = this.props.list.map((item, i) => {
+      ElementList = list.map((item, i) => {
         // check if this item is in state.selected
-        let colorClass = classes.ListItem;
+        const colorClass = classes.ListItem;
         const backgroundClass =
           i % 2 === 0 ? classes.Background1 : classes.Background2;
-        const className = [colorClass, backgroundClass].join(" ");
+        const className = [colorClass, backgroundClass].join(' ');
         return (
           <div
-            key={i}
-            onClick={event => {
+            key={item.name}
+            onClick={() => {
               this.setState({ listOpen: false });
-              this.props.selectHandler(item);
+              selectHandler(item);
             }}
+            onKeyPress={() => {
+              this.setState({ listOpen: false });
+              selectHandler(item);
+            }}
+            role="button"
+            tabIndex="-2"
             className={className}
             data-testid="dropdown-item"
           >
@@ -51,21 +59,29 @@ class RoleDropdown extends Component {
         );
       });
     }
-    const ddState = this.state.listOpen ? classes.Open : classes.Close;
+    const ddState = listOpen ? classes.Open : classes.Close;
     return (
       <div className={classes.Wrapper}>
         <div
           onClick={this.toggleList}
+          onKeyPress={this.toggleList}
+          role="button"
+          tabIndex="-1"
           className={classes.Header}
           data-testid="dropdown"
         >
-          <span>{list[0]}</span> <i className="fas fa-caret-down" />
+          <span>{ElementList[0]}</span> <i className="fas fa-caret-down" />
         </div>
-        <div className={[classes.Dropdown, ddState].join(" ")}>
-          {list.slice(1)}
+        <div className={[classes.Dropdown, ddState].join(' ')}>
+          {ElementList.slice(1)}
         </div>
       </div>
     );
   }
 }
+
+RoleDropdown.propTypes = {
+  list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  selectHandler: PropTypes.func.isRequired,
+};
 export default onClickOutside(RoleDropdown);

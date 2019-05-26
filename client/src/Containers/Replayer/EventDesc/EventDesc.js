@@ -1,30 +1,35 @@
-import React, { Component } from "react";
-import classes from "./eventDesc.css";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import classes from './eventDesc.css';
+
 class EventDesc extends Component {
   state = {
-    show: false
+    show: false,
   };
 
   mouseEnter = () => {
-    if (!this.props.dragging) {
+    const { dragging } = this.props;
+    if (!dragging) {
       this.setState({ show: true });
     }
   };
 
   mouseExit = () => {
-    if (!this.props.dragging) {
+    const { dragging } = this.props;
+    if (!dragging) {
       this.setState({ show: false });
     }
   };
 
   render() {
-    let { entry, offset, color } = this.props;
-    let offS = offset > 99 ? `calc(${offset}% - 4px)` : `${offset}%`;
+    const { entry, offset, color } = this.props;
+    const { show } = this.state;
+    const offS = offset > 99 ? `calc(${offset}% - 4px)` : `${offset}%`;
     return (
       <div
         style={{
-          backgroundColor: this.state.show ? "#2D91F2" : color,
-          left: offS
+          backgroundColor: show ? '#2D91F2' : color,
+          left: offS,
         }}
         className={classes.Event}
         onPointerEnter={this.mouseEnter}
@@ -34,7 +39,7 @@ class EventDesc extends Component {
           className={classes.EventDetails}
           style={{
             left: `calc(${offset}% - 50px)`,
-            display: `${this.state.show ? "flex" : "none"}`
+            display: `${show ? 'flex' : 'none'}`,
           }}
         >
           {entry.description || entry.text || entry.message}
@@ -44,4 +49,10 @@ class EventDesc extends Component {
   }
 }
 
+EventDesc.propTypes = {
+  entry: PropTypes.shape({}).isRequired,
+  offset: PropTypes.number.isRequired,
+  color: PropTypes.string.isRequired,
+  dragging: PropTypes.bool.isRequired,
+};
 export default EventDesc;

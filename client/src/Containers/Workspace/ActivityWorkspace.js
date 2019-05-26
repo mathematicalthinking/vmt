@@ -1,34 +1,37 @@
-import React, { Component, Fragment } from "react";
-import { connect } from "react-redux";
+import React, { Component, Fragment } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import {
   updatedActivity,
   updateActivityTab,
   setActivityStartingPoint,
   getCurrentActivity,
-  createActivity
-} from "../../store/actions";
-import { Modal, TextInput, Button, Loading } from "../../Components";
+  createActivity,
+} from '../../store/actions';
+import { Modal, TextInput, Button, Loading } from '../../Components';
 import {
   DesmosActivityGraph,
   GgbActivityGraph,
   Tabs,
   RoomInfo,
-  ActivityTools
-} from "./index";
-import { WorkspaceLayout } from "../../Layout";
-import NewTabForm from "../Create/NewTabForm";
+  ActivityTools,
+} from './index';
+import { WorkspaceLayout } from '../../Layout';
+import NewTabForm from '../Create/NewTabForm';
+
 class ActivityWorkspace extends Component {
   state = {
     currentTab: 0,
     creatingNewTab: false,
     addingToMyActivities: false,
     isFirstTabLoaded: false,
-    newName: ""
+    newName: '',
   };
 
   componentDidMount() {
-    if (!this.props.activity || !this.props.activity.tabs[0].name) {
-      this.props.getCurrentActivity(this.props.match.params.activity_id);
+    const { activity, match, connectGetCurrentActivity } = this.props;
+    if (!activity || !activity.tabs[0].name) {
+      connectGetCurrentActivity(match.params.activity_id);
     }
   }
 
@@ -45,7 +48,8 @@ class ActivityWorkspace extends Component {
   };
 
   setStartingPoint = () => {
-    this.props.setActivityStartingPoint(this.props.activity._id);
+    const { connectSetActivityStartingPoint, activity } = this.props;
+    connectSetActivityStartingPoint(activity._id);
   };
 
   addToMyActivities = () => {
@@ -54,19 +58,21 @@ class ActivityWorkspace extends Component {
   };
 
   createNewActivity = () => {
-    let activity = { ...this.props.activity };
+    const { activity } = { ...this.props };
+    const { user, connectCreateActivity, history } = this.props;
+    const { newName } = this.state;
     activity.activities = [activity._id];
     delete activity._id;
     delete activity.createdAt;
     delete activity.updatedAt;
     delete activity.course;
     delete activity.courses;
-    activity.creator = this.props.user._id;
-    activity.name = this.state.newName;
+    activity.creator = user._id;
+    activity.name = newName;
     activity.tabs = activity.tabs.map(tab => tab._id);
-    this.props.createActivity(activity);
+    connectCreateActivity(activity);
     this.setState({ addingToMyActivities: false });
-    this.props.history.push("/myVMT/activities");
+    history.push('/myVMT/activities');
   };
 
   setFirstTabLoaded = () => {
@@ -74,51 +80,66 @@ class ActivityWorkspace extends Component {
   };
 
   goBack = () => {
-    this.props.history.goBack();
+    const { history } = this.props;
+    history.goBack();
   };
 
   render() {
-    let { activity, user } = this.props;
-    let role = "participant";
+    const {
+      activity,
+      user,
+      connectUpdateActivityTab,
+      connectUpdatedActivity,
+      temp,
+    } = this.props;
+    const {
+      currentTab,
+      isFirstTabLoaded,
+      creatingNewTab,
+      addingToMyActivities,
+      newName,
+    } = this.state;
+    let role = 'participant';
     let graphs;
     let tabs;
-    if (activity && user.activities.indexOf(this.props.activity._id) >= 0) {
-      role = "facilitator";
+    if (activity && user.activities.indexOf(activity._id) >= 0) {
+      role = 'facilitator';
     }
     if (activity && activity.tabs[0].name) {
       graphs = activity.tabs.map((tab, i) => {
-        if (tab.tabType === "desmos") {
+        if (tab.tabType === 'desmos') {
           return (
             <DesmosActivityGraph
               activity={activity}
               role={role}
               tabId={i}
-              currentTab={this.state.currentTab}
-              updateActivityTab={this.props.updateActivityTab}
+              key={tab._id}
+              currentTab={currentTab}
+              updateActivityTab={connectUpdateActivityTab}
               setFirstTabLoaded={this.setFirstTabLoaded}
-              isFirstTabLoaded={this.state.isFirstTabLoaded}
-            />
-          );
-        } else {
-          return (
-            <GgbActivityGraph
-              tabs={activity.tabs}
-              currentTab={this.state.currentTab}
-              role={role}
-              user={user}
-              tabId={i}
-              activity={activity}
-              updateActivityTab={this.props.updateActivityTab}
-              setFirstTabLoaded={this.setFirstTabLoaded}
-              isFirstTabLoaded={this.state.isFirstTabLoaded}
+              isFirstTabLoaded={isFirstTabLoaded}
             />
           );
         }
+        return (
+          <GgbActivityGraph
+            tabs={activity.tabs}
+            currentTab={currentTab}
+            role={role}
+            user={user}
+            tabId={i}
+            key={tab._id}
+            activity={activity}
+            updateActivityTab={connectUpdateActivityTab}
+            setFirstTabLoaded={this.setFirstTabLoaded}
+            isFirstTabLoaded={isFirstTabLoaded}
+          />
+        );
       });
       tabs = (
         <Tabs
           tabs={activity.tabs}
-          currentTab={this.state.currentTab}
+          currentTab={currentTab}
           role={role}
           changeTab={this.changeTab}
           createNewTab={this.createNewTab}
@@ -127,37 +148,37 @@ class ActivityWorkspace extends Component {
     }
     return (
       <Fragment>
-        {!this.state.isFirstTabLoaded ? (
+        {!isFirstTabLoaded ? (
           <Loading message="Preparing your activity..." />
         ) : null}
-        {this.props.activity && this.props.activity.tabs[0].name ? (
+        {activity && activity.tabs[0].name ? (
           <WorkspaceLayout
             graphs={graphs}
             tabs={tabs}
             // activeMember={this.state.activeMember}
             roomName={activity.name} // THIS IS NO GOOD...WE SHOULD CHANGE THE ROOM ATTR TO RESOURCE THAT CAN ACCEPT EITHER A ROOM OR AN ACTIVITY
-            user={this.props.user}
+            user={user}
             role={role} // oh shit role is taken...its for a11y  stuff
-            currentTab={this.state.currentTab}
+            currentTab={currentTab}
             // updateRoom={this.props.updateRoom}
             bottomRight={
               <ActivityTools
-                owner={role === "facilitator"}
+                owner={role === 'facilitator'}
                 goBack={this.goBack}
                 copy={this.addToMyActivities}
               />
             }
             bottomLeft={
               <RoomInfo
-                temp={this.props.temp}
+                temp={temp}
                 role={role}
-                updateRoom={this.props.updateRoom}
+                updateRoom={connectUpdatedActivity}
                 room={activity}
-                currentTab={this.state.currentTab}
+                currentTab={currentTab}
               />
             }
-            updatedActivity={this.props.updatedActivity}
-            updateActivityTab={this.props.updateActivityTab}
+            updatedActivity={connectUpdatedActivity}
+            updateActivityTab={connectUpdateActivityTab}
             copyActivity={this.addToMyActivities}
             inControl
             activity
@@ -166,26 +187,26 @@ class ActivityWorkspace extends Component {
             setStartingPoint={this.setStartingPoint}
           />
         ) : null}
-        <Modal show={this.state.creatingNewTab} closeModal={this.closeModal}>
+        <Modal show={creatingNewTab} closeModal={this.closeModal}>
           <NewTabForm
-            activity={this.props.activity}
+            activity={activity}
             closeModal={this.closeModal}
-            updatedActivity={this.props.updatedActivity}
+            updatedActivity={connectUpdatedActivity}
           />
         </Modal>
         <Modal
-          show={this.state.addingToMyActivities}
+          show={addingToMyActivities}
           closeModal={() => this.setState({ addingToMyActivities: false })}
         >
           <TextInput
-            show={this.state.addingToMyActivities}
+            show={addingToMyActivities}
             light
-            focus={true}
-            value={this.state.newName}
+            focus
+            value={newName}
             change={event => {
               this.setState({ newName: event.target.value });
             }}
-            label={"New Activity Name"}
+            label="New Activity Name"
           />
           <Button click={this.createNewActivity}>Copy Activity</Button>
         </Modal>
@@ -194,20 +215,33 @@ class ActivityWorkspace extends Component {
   }
 }
 
+ActivityWorkspace.propTypes = {
+  activity: PropTypes.shape({}).isRequired,
+  match: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({}).isRequired,
+  temp: PropTypes.bool,
+  connectUpdatedActivity: PropTypes.func.isRequired,
+  connectSetActivityStartingPoint: PropTypes.func.isRequired,
+  connectGetCurrentActivity: PropTypes.func.isRequired,
+  connectCreateActivity: PropTypes.func.isRequired,
+  connectUpdateActivityTab: PropTypes.func.isRequired,
+};
+ActivityWorkspace.defaultProps = { temp: false };
 const mapStateToProps = (state, ownProps) => {
   return {
     activity: state.activities.byId[ownProps.match.params.activity_id],
-    user: state.user
+    user: state.user,
   };
 };
 
 export default connect(
   mapStateToProps,
   {
-    updatedActivity,
-    setActivityStartingPoint,
-    getCurrentActivity,
-    createActivity,
-    updateActivityTab
+    connectUpdatedActivity: updatedActivity,
+    connectSetActivityStartingPoint: setActivityStartingPoint,
+    connectGetCurrentActivity: getCurrentActivity,
+    connectCreateActivity: createActivity,
+    connectUpdateActivityTab: updateActivityTab,
   }
 )(ActivityWorkspace);

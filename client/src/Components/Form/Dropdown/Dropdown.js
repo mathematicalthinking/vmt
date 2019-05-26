@@ -1,25 +1,26 @@
-//PROPS: title,  list, selectHandler(listOfSelectedItems)
 // @TODO THINK ABOUT COMBINING THIS CODE WITH ROLEDROPDOWN ... WE'RE REPEATING
 // A BUNCH OF CODE BUT SOMETIMES I FEEL LIKE THATS BETTER THAN ALL THESE COMPLEX
 // CONDITIONALS DETERMINNING WHAT KIND OF ITEMS THE DROP DOWN SHOULD
-import React, { Component } from "react";
-import classes from "./dropdown.css";
-import onClickOutside from "react-onclickoutside";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import onClickOutside from 'react-onclickoutside';
+import classes from './dropdown.css';
+
 class Dropdown extends Component {
   state = {
     listOpen: this.props.open,
-    selected: []
+    selected: [],
   };
 
   handleClickOutside = event => {
     this.setState({
-      listOpen: false
+      listOpen: false,
     });
   };
 
   toggleList = event => {
     this.setState(prevState => ({
-      listOpen: !prevState.listOpen
+      listOpen: !prevState.listOpen,
     }));
   };
 
@@ -32,7 +33,7 @@ class Dropdown extends Component {
       updatedSelected.push({ name, id });
     }
     this.setState({
-      selected: updatedSelected
+      selected: updatedSelected,
     });
     // run function passed in props to update parents state
     this.props.selectHandler(updatedSelected);
@@ -50,7 +51,7 @@ class Dropdown extends Component {
         let colorClass = classes.ListItem;
         const backgroundClass =
           i % 2 === 0 ? classes.Background1 : classes.Background2;
-        const className = [colorClass, backgroundClass].join(" ");
+        const className = [colorClass, backgroundClass].join(' ');
         return (
           <div
             key={i}
@@ -72,7 +73,7 @@ class Dropdown extends Component {
         >
           <span>{list[0]}</span> <i className="fas fa-caret-down" />
         </div>
-        <div className={[classes.Dropdown, ddState].join(" ")}>
+        <div className={[classes.Dropdown, ddState].join(' ')}>
           {list.slice(1)}
         </div>
       </div>

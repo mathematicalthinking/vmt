@@ -1,14 +1,17 @@
-import React, { Component } from "react";
-import classes from "./makeRooms.css";
-import { RadioBtn, TextInput, Button } from "../../../Components";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import classes from './makeRooms.css';
+import { RadioBtn, TextInput, Button } from '../../../Components';
+
 class Step1Course extends Component {
   render() {
-    let {
+    const {
       participantList,
       assignRandom,
       setRandom,
       setManual,
-      error
+      error,
+      submit,
     } = this.props;
     return (
       <div className={classes.Container}>
@@ -18,7 +21,7 @@ class Step1Course extends Component {
             name="random"
             checked={assignRandom}
             check={setRandom}
-            defaultChecked={true}
+            defaultChecked
           >
             Assign Randomly
           </RadioBtn>
@@ -34,7 +37,7 @@ class Step1Course extends Component {
         </div>
         {assignRandom ? (
           <div className={classes.SubContainer}>
-            <div className={classes.Error}>{error || ""}</div>
+            <div className={classes.Error}>{error || ''}</div>
             <TextInput
               light
               label="Number of participants per room"
@@ -48,7 +51,7 @@ class Step1Course extends Component {
           </div>
         )}
         <div className={classes.Button}>
-          <Button m={5} click={this.props.submit} data-testid="assign-rooms">
+          <Button m={5} click={submit} data-testid="assign-rooms">
             assign
           </Button>
         </div>
@@ -56,5 +59,18 @@ class Step1Course extends Component {
     );
   }
 }
+
+Step1Course.propTypes = {
+  participantList: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  assignRandom: PropTypes.func.isRequired,
+  setRandom: PropTypes.func.isRequired,
+  setManual: PropTypes.func.isRequired,
+  error: PropTypes.string.isRequired,
+  submit: PropTypes.func.isRequired,
+};
+
+Step1Course.defaultPropTypes = {
+  error: null,
+};
 
 export default Step1Course;
