@@ -1,23 +1,25 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classes from './roomSettings.css';
-import { RadioBtn } from '../../../Components/';
+import { RadioBtn } from '../../../Components';
+
 class RoomSettings extends Component {
-  toggleCreateTabs = event => {
-    let { roomId, settings } = this.props;
-    let updatedSettings = { ...settings };
+  toggleCreateTabs = () => {
+    const { roomId, settings, updateRoom } = this.props;
+    const updatedSettings = { ...settings };
     updatedSettings.participantsCanCreateTabs = !settings.participantsCanCreateTabs;
-    this.props.updateRoom(roomId, { settings: updatedSettings });
+    updateRoom(roomId, { settings: updatedSettings });
   };
 
-  togglePerspective = event => {
-    let { roomId, settings } = this.props;
+  togglePerspective = () => {
+    const { roomId, settings, updateRoom } = this.props;
 
-    let updatedSettings = { ...settings };
+    const updatedSettings = { ...settings };
     updatedSettings.participantsCanChangePerspective = !settings.participantsCanChangePerspective;
-    this.props.updateRoom(roomId, { settings: updatedSettings });
+    updateRoom(roomId, { settings: updatedSettings });
   };
   render() {
-    let { settings, owner } = this.props;
+    const { settings, owner } = this.props;
     return owner ? (
       <div>
         <h2 className={classes.Heading}>Participants can create new Tabs</h2>
@@ -73,4 +75,10 @@ class RoomSettings extends Component {
   }
 }
 
+RoomSettings.propTypes = {
+  roomId: PropTypes.string.isRequired,
+  settings: PropTypes.shape({}).isRequired,
+  owner: PropTypes.bool.isRequired,
+  updateRoom: PropTypes.func.isRequired,
+};
 export default RoomSettings;

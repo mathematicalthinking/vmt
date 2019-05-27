@@ -1,6 +1,8 @@
 import React from 'react';
-import classes from './editText.css';
+import PropTypes from 'prop-types';
 import moment from 'moment';
+import classes from './editText.css';
+
 const EditText = React.memo(
   ({ editing, inputType, change, children, options, name }) => {
     let input;
@@ -8,7 +10,7 @@ const EditText = React.memo(
     if (editing) {
       switch (inputType) {
         case 'title':
-          return (input = (
+          input = (
             <input
               data-testid={`edit-${name}`}
               className={[classes.Common, classes.Title].join(' ')}
@@ -17,9 +19,10 @@ const EditText = React.memo(
               onChange={change}
               name={name}
             />
-          ));
+          );
+          break;
         case 'radio':
-          return (input = (
+          input = (
             <div className={classes.Radios}>
               {/* THIS COULD BE MADE DYNAMIC BY STICKING IN AN OPTIONS.FOREACH LOOP */}
               <span className={classes.RadioItem}>
@@ -47,20 +50,22 @@ const EditText = React.memo(
                 {options[1]}
               </span>
             </div>
-          ));
+          );
+          break;
         case 'date':
-          return (input = (
+          input = (
             <input
-              data-testid={`edit-dueDate`}
+              data-testid="edit-dueDate"
               className={[classes.Common, classes.Date].join(' ')}
               name={name}
               type="date"
               value={children || ''}
               onChange={change}
             />
-          ));
+          );
+          break;
         case 'text-area':
-          return (input = (
+          input = (
             <textarea
               data-testid={`edit-${name}`}
               className={classes.TextArea}
@@ -68,9 +73,10 @@ const EditText = React.memo(
               name={name}
               value={children || ''}
             />
-          ));
+          );
+          break;
         default:
-          return (input = (
+          input = (
             <input
               data-testid={`edit-${name}`}
               className={[classes.Common, classes.Text].join(' ')}
@@ -79,7 +85,7 @@ const EditText = React.memo(
               value={children || ''}
               onChange={change}
             />
-          ));
+          );
       }
     } else {
       if (inputType === 'date') {
@@ -99,4 +105,16 @@ const EditText = React.memo(
   }
 );
 
+EditText.propTypes = {
+  editing: PropTypes.bool.isRequired,
+  inputType: PropTypes.string.isRequired,
+  change: PropTypes.func.isRequired,
+  children: PropTypes.node.isRequired,
+  options: PropTypes.arrayOf(PropTypes.string),
+  name: PropTypes.string.isRequired,
+};
+
+EditText.defaultProps = {
+  options: null,
+};
 export default EditText;

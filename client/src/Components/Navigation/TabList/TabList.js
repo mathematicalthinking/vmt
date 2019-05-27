@@ -1,15 +1,19 @@
-import React from "react";
-import classes from "./tabList.css";
-import Notification from "../../Notification/Notification";
-import { Link } from "react-router-dom";
-const tabList = props => {
-  const { params, url } = props.routingInfo;
-  const tabElems = props.tabs.map(tab => {
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+import classes from './tabList.css';
+import Notification from '../../Notification/Notification';
+
+const TabList = props => {
+  const { routingInfo, tabs } = props;
+  const { params, url } = routingInfo;
+  const tabElems = tabs.map(tab => {
     let style = classes.Tab;
     if (tab.name.toLowerCase() === params.resource) {
-      style = [classes.Tab, classes.ActiveTab].join(" ");
+      style = [classes.Tab, classes.ActiveTab].join(' ');
     }
-    let updatedUrl = url.replace(params.resource, "") + tab.name.toLowerCase();
+    const updatedUrl =
+      url.replace(params.resource, '') + tab.name.toLowerCase();
     return (
       <Link
         to={updatedUrl}
@@ -33,4 +37,9 @@ const tabList = props => {
   return <div className={classes.Tabs}>{tabElems}</div>;
 };
 
-export default tabList;
+TabList.propTypes = {
+  routingInfo: PropTypes.shape({}).isRequired,
+  tabs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+};
+
+export default TabList;

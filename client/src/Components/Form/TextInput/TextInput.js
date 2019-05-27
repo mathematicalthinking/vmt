@@ -1,51 +1,85 @@
-import React, { Component } from "react";
-import classes from "./textInput.css";
-import lightClasses from "./lightTextInput.css";
+/* eslint-disable jsx-a11y/label-has-for */
+/* eslint-disable react/prop-types */
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import classes from './textInput.css';
+import lightClasses from './lightTextInput.css';
+
 class TextInput extends Component {
   textInput = React.createRef();
 
   componentDidMount() {
-    if (this.props.focus) {
+    const { focus } = this.props;
+    if (focus) {
       this.textInput.current.focus();
     }
   }
 
   componentDidUpdate() {
-    if (this.props.focus) {
+    const { focus } = this.props;
+    if (focus) {
       this.textInput.current.focus();
     }
   }
 
   render() {
-    let styles = this.props.light ? lightClasses : classes;
-    let autoComplete = this.props.autoComplete || this.props.type;
-    if (this.props.type === "password") {
-      autoComplete = "current-password";
+    const {
+      light,
+      autoComplete,
+      type,
+      width,
+      name,
+      placeholder,
+      change,
+      onKeyDown,
+      value,
+      size,
+      label,
+    } = this.props;
+    const styles = light ? lightClasses : classes;
+    let derivedAutoComplete = autoComplete || type;
+    if (type === 'password') {
+      derivedAutoComplete = 'current-password';
     }
     return (
-      <div className={styles.Container} style={{ width: this.props.width }}>
+      <div className={styles.Container} style={{ width }}>
         <input
           ref={this.textInput}
-          autoComplete={autoComplete}
+          autoComplete={derivedAutoComplete}
           className={styles.Input}
-          type={this.props.type}
-          id={this.props.name}
-          name={this.props.name}
-          placeholder={this.props.placeholder}
-          onChange={this.props.change}
-          onKeyDown={this.props.onKeyDown}
-          value={this.props.value}
-          style={{ fontSize: this.props.size }}
-          data-testid={this.props["data-testid"] || null}
+          type={type}
+          id={name}
+          name={name}
+          placeholder={placeholder}
+          onChange={change}
+          onKeyDown={onKeyDown}
+          value={value}
+          style={{ fontSize: size }}
+          // eslint-disable-next-line react/destructuring-assignment
+          data-testid={this.props['data-testid'] || null}
         />
-        {this.props.label ? (
-          <label className={styles.Label} htmlFor={this.props.name}>
-            {this.props.label}
+        {label ? (
+          <label className={styles.Label} htmlFor={name}>
+            {label}
           </label>
         ) : null}
       </div>
     );
   }
 }
+
+TextInput.propTypes = {
+  light: PropTypes.bool.isRequired,
+  autoComplete: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+  width: PropTypes.number.isRequired,
+  name: PropTypes.string.isRequired,
+  placeholder: PropTypes.string.isRequired,
+  change: PropTypes.func.isRequired,
+  onKeyDown: PropTypes.func.isRequired,
+  value: PropTypes.string.isRequired,
+  size: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+};
 
 export default TextInput;

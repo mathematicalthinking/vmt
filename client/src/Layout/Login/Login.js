@@ -1,10 +1,12 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import { Redirect } from 'react-router-dom';
 import Button from '../../Components/UI/Button/Button';
 import Aux from '../../Components/HOC/Auxil';
 import classes from './login.css';
 import Input from '../../Components/Form/TextInput/TextInput';
 import Background from '../../Components/Background/Background';
+
 class LoginLayout extends PureComponent {
   // / Im not really a fan of how this is setup anymore
   state = {
@@ -29,8 +31,9 @@ class LoginLayout extends PureComponent {
   }
 
   componentWillUnmount() {
-    if (this.props.errorMessage) {
-      this.props.clearError();
+    const { errorMessage, clearError } = this.props;
+    if (errorMessage) {
+      clearError();
     }
     window.removeEventListener('keypress', this.onKeyPress);
   }
@@ -43,37 +46,37 @@ class LoginLayout extends PureComponent {
 
   // pass to text inputs to update state from user input
   changeHandler = event => {
-    let updatedControls = { ...this.state.controls };
+    const { errorMessage, clearError } = this.props;
+    const { controls } = this.state;
+    const updatedControls = { ...controls };
     updatedControls[event.target.name].value = event.target.value;
     this.setState({
       controls: updatedControls,
     });
     // if there's an error message from a previous request clear it.
-    if (this.props.errorMessage) {
-      this.props.clearError();
+    if (errorMessage) {
+      clearError();
     }
   };
 
   // submit form
   loginHandler = () => {
+    const { login } = this.props;
+    const { controls } = this.state;
     // event.preventDefault();
     // pass submission off to redux
-    this.props.login(
-      this.state.controls.username.value,
-      this.state.controls.password.value
-    );
+    login(controls.username.value, controls.password.value);
   };
 
-  googleLogin = event => {
-    this.props.onGoogleLogin(
-      this.state.controls.username.value,
-      this.state.controls.password.value
-    );
-  };
+  // googleLogin = event => {
+  //   onGoogleLogin(controls.username.value, controls.password.value);
+  // };
   render() {
-    const formElements = Object.keys(this.state.controls);
+    const { loggedIn, errorMessage, loading } = this.props;
+    const { controls } = this.state;
+    const formElements = Object.keys(controls);
     const form = formElements.map(formElement => {
-      const elem = { ...this.state.controls[formElement] };
+      const elem = { ...controls[formElement] };
       return (
         <Input
           key={formElement}
@@ -86,7 +89,7 @@ class LoginLayout extends PureComponent {
         />
       );
     });
-    return this.props.loggedIn ? (
+    return loggedIn ? (
       <Redirect to="/myVMT/rooms" />
     ) : (
       <div className={classes.Container}>
@@ -96,9 +99,9 @@ class LoginLayout extends PureComponent {
           <form onSubmit={this.loginHandler} className={classes.Form}>
             {form}
             <div className={classes.ErrorMsg}>
-              <div className={classes.Error}>{this.props.errorMessage}</div>
+              <div className={classes.Error}>{errorMessage}</div>
             </div>
-            {this.props.loading ? (
+            {loading ? (
               <Aux>
                 {/* <Backdrop show={true} /> */}
                 {/* <img className={classes.Loading} src={Loading} alt='loading' /> */}
@@ -106,7 +109,7 @@ class LoginLayout extends PureComponent {
             ) : null}
           </form>
           <div className={classes.Submit}>
-            <Button click={this.loginHandler} theme={'Big'}>
+            <Button click={this.loginHandler} theme="Big">
               Login
             </Button>
           </div>
@@ -118,4 +121,11 @@ class LoginLayout extends PureComponent {
   }
 }
 
+LoginLayout.propTypes = {
+  loggedIn: PropTypes.bool.isRequired,
+  errorMessage: PropTypes.string.isRequired,
+  loading: PropTypes.bool.isRequired,
+  clearError: PropTypes.func.isRequired,
+  login: PropTypes.func.isRequired,
+};
 export default LoginLayout;

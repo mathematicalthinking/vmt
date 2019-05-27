@@ -27,7 +27,13 @@ class CurrentMembers extends Component {
     const { currentMembers, members, activeMember, expanded } = this.props;
     return (
       <div className={classes.Container}>
-        <div className={classes.Title} onClick={this.toggleExpansion}>
+        <div
+          className={classes.Title}
+          onClick={this.toggleExpansion}
+          onKeyPress={this.toggleExpansion}
+          role="button"
+          tabIndex="-1"
+        >
           Currently in this room
           <div className={classes.Count}>{currentMembers.length}</div>
         </div>
@@ -37,9 +43,7 @@ class CurrentMembers extends Component {
         >
           {currentMembers.map(user => {
             // get the users color
-            const member = members.filter(
-              member => member.user._id === user._id
-            )[0];
+            const member = members.filter(m => m.user._id === user._id)[0];
             if (member) {
               return (
                 <div
@@ -54,24 +58,18 @@ class CurrentMembers extends Component {
                   <Avatar username={user.username} color={member.color} />
                 </div>
               );
-            } else {
-              return (
-                <div
-                  key={user.username}
-                  className={[
-                    classes.Avatar,
-                    user._id === activeMember
-                      ? classes.Active
-                      : classes.Passive,
-                  ].join(' ')}
-                >
-                  <Avatar
-                    username={`${user.username} (admin)`}
-                    color="#ffd549"
-                  />
-                </div>
-              );
             }
+            return (
+              <div
+                key={user.username}
+                className={[
+                  classes.Avatar,
+                  user._id === activeMember ? classes.Active : classes.Passive,
+                ].join(' ')}
+              >
+                <Avatar username={`${user.username} (admin)`} color="#ffd549" />
+              </div>
+            );
           })}
         </div>
       </div>

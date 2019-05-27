@@ -1,15 +1,14 @@
-// import React from 'react';
+// // import React from 'react';
 
+// //WE NEED
+// const checkAccess = ({resource, id, userId}) => {
+//   // check the store
 
-//WE NEED 
-const checkAccess = ({resource, id, userId}) => {
-  // check the store
+//     // if not in stroe api request
+//   // check access
+//   return (
 
-    // if not in stroe api request 
-  // check access 
-  return (
+//   )
+// }
 
-  )
-}
-
-export default checkAccess;
+// export default checkAccess;

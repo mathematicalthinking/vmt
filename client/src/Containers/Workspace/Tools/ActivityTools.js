@@ -1,16 +1,15 @@
-import React from "react";
-import classes from "./tools.css";
-import { Link } from "react-router-dom";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+import classes from './tools.css';
 
-const ActivityTools = React.memo(props => {
+const ActivityTools = props => {
+  const { owner, copy, save, goBack } = props;
   return (
     <div className={classes.Container}>
       <h3 className={classes.Title}>Tools</h3>
-      <div
-        className={true ? classes.Expanded : classes.Collapsed}
-        data-testid="current-members"
-      >
-        {props.owner ? (
+      <div className={classes.Expanded} data-testid="current-members">
+        {owner ? (
           <div>
             <p>
               As the owner of this activity you can make changes to initial
@@ -18,15 +17,16 @@ const ActivityTools = React.memo(props => {
             </p>
             <p>
               Once you are ready to collaborate on this activity you can click
-              "Exit Activity" and then select "Assign Activity". You can then
-              decide who you want to collaborate with.
+              &#147;Exit Activity&#148; and then select &#147;Assign
+              Activity&#148;. You can then decide who you want to collaborate
+              with.
             </p>
             <p>
-              When you click "Assign" this activity will be copied to a room
-              where you can begin collaborating.
+              When you click &#147;Assign&#148; this activity will be copied to
+              a room where you can begin collaborating.
             </p>
             <p>
-              For more information click{" "}
+              For more information click{' '}
               <Link className={classes.Link} to="/about">
                 here
               </Link>
@@ -35,7 +35,9 @@ const ActivityTools = React.memo(props => {
               <div
                 className={classes.SideButton}
                 role="button"
-                onClick={props.save}
+                tabIndex="-2"
+                onKeyPress={save}
+                onClick={save}
               >
                 save
               </div>
@@ -56,7 +58,9 @@ const ActivityTools = React.memo(props => {
               <div
                 className={classes.SideButton}
                 role="button"
-                onClick={props.copy}
+                tabIndex="-3"
+                onKeyPress={copy}
+                onClick={copy}
               >
                 copy this activity
               </div>
@@ -65,10 +69,12 @@ const ActivityTools = React.memo(props => {
         )}
         <div className={classes.Controls}>
           <div
-            className={[classes.SideButton, classes.Exit].join(" ")}
+            className={[classes.SideButton, classes.Exit].join(' ')}
             role="button"
-            onClick={props.goBack}
-            theme={"Small"}
+            tabIndex="-4"
+            onClick={goBack}
+            onKeyPress={goBack}
+            theme="Small"
             data-testid="exit-room"
           >
             Exit Activity
@@ -77,6 +83,13 @@ const ActivityTools = React.memo(props => {
       </div>
     </div>
   );
-});
+};
+
+ActivityTools.propTypes = {
+  owner: PropTypes.bool.isRequired,
+  save: PropTypes.func.isRequired,
+  copy: PropTypes.func.isRequired,
+  goBack: PropTypes.func.isRequired,
+};
 
 export default ActivityTools;

@@ -7,27 +7,33 @@ import onClickOutside from 'react-onclickoutside';
 import classes from './dropdown.css';
 
 class Dropdown extends Component {
-  state = {
-    listOpen: this.props.open,
-    selected: [],
-  };
+  constructor(props) {
+    super(props);
+    const { open } = this.props;
+    this.state = {
+      listOpen: open,
+      selected: [],
+    };
+  }
 
-  handleClickOutside = event => {
+  handleClickOutside = () => {
     this.setState({
       listOpen: false,
     });
   };
 
-  toggleList = event => {
+  toggleList = () => {
     this.setState(prevState => ({
       listOpen: !prevState.listOpen,
     }));
   };
 
-  select = (name, id, selected) => {
-    let updatedSelected = [...this.state.selected];
+  select = (name, id, prevSelected) => {
+    const { selectHandler } = this.props;
+    const { selected } = this.state;
+    let updatedSelected = [...selected];
     // if already selected remove from list
-    if (selected) {
+    if (prevSelected) {
       updatedSelected = updatedSelected.filter(room => room.id !== id);
     } else {
       updatedSelected.push({ name, id });
@@ -36,26 +42,31 @@ class Dropdown extends Component {
       selected: updatedSelected,
     });
     // run function passed in props to update parents state
-    this.props.selectHandler(updatedSelected);
+    selectHandler(updatedSelected);
   };
 
   render() {
-    let list;
-    if (this.props.list.length === 0 || !this.props.list) {
-      list = (
-        <div className={classes.ErrorItem}>There's nothing in here yet</div>
+    const { list } = this.props;
+    const { listOpen } = this.state;
+    let ElementList;
+    if (list.length === 0 || !list) {
+      ElementList = (
+        <div className={classes.ErrorItem}>There&#39;s nothing in here yet</div>
       );
     } else {
-      list = this.props.list.map((item, i) => {
+      ElementList = list.map((item, i) => {
         // check if this item is in state.selected
-        let colorClass = classes.ListItem;
+        const colorClass = classes.ListItem;
         const backgroundClass =
           i % 2 === 0 ? classes.Background1 : classes.Background2;
         const className = [colorClass, backgroundClass].join(' ');
         return (
           <div
-            key={i}
-            onClick={event => this.select(item)}
+            key={item}
+            onClick={() => this.select(item)}
+            onKeyPress={() => this.select(item)}
+            tabIndex="-2"
+            role="button"
             className={className}
           >
             {item}
@@ -63,21 +74,30 @@ class Dropdown extends Component {
         );
       });
     }
-    const ddState = this.state.listOpen ? classes.Open : classes.Close;
+    const ddState = listOpen ? classes.Open : classes.Close;
     return (
       <div className={classes.Wrapper}>
         <div
           onClick={this.toggleList}
+          onKeyPress={this.toggleList}
+          role="button"
+          tabIndex="-3"
           className={classes.Header}
           data-testid="dropdown"
         >
-          <span>{list[0]}</span> <i className="fas fa-caret-down" />
+          <span>{ElementList[0]}</span> <i className="fas fa-caret-down" />
         </div>
         <div className={[classes.Dropdown, ddState].join(' ')}>
-          {list.slice(1)}
+          {ElementList.slice(1)}
         </div>
       </div>
     );
   }
 }
+
+Dropdown.propTypes = {
+  list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  selectHandler: PropTypes.func.isRequired,
+  open: PropTypes.func.isRequired,
+};
 export default onClickOutside(Dropdown);

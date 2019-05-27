@@ -1,19 +1,21 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import classes from './breadCrumbs.css';
 // import glb from "../../../global.css";
-import { Link } from 'react-router-dom';
-const breadCrumbs = ({ crumbs, notifications }) => {
+const BreadCrumbs = ({ crumbs, notifications }) => {
   let ntf;
   if (crumbs.length > 1 && notifications.length > 0) {
-    let link = crumbs[crumbs.length - 1].link;
-    ntf = notifications.filter(ntf => {
+    const { link } = crumbs[crumbs.length - 1];
+    ntf = notifications.filter(n => {
       if (ntf.parentResource) {
-        return !link.includes(ntf.parentResource);
-      } else return !link.includes(ntf.resourceId);
+        return !link.includes(n.parentResource);
+      }
+      return !link.includes(n.resourceId);
     }).length;
   }
 
-  let crumbElements = crumbs.map((crumb, i) => {
+  const crumbElements = crumbs.map((crumb, i) => {
     let style = classes.Crumb;
     let seperatorStyle = classes.Seperator;
     if (i === crumbs.length - 1) {
@@ -22,7 +24,7 @@ const breadCrumbs = ({ crumbs, notifications }) => {
     }
     return (
       <Link
-        key={i}
+        key={crumb.title}
         className={classes.CrumbContainer}
         to={crumb.link}
         style={{ zIndex: i }}
@@ -35,7 +37,7 @@ const breadCrumbs = ({ crumbs, notifications }) => {
         </div>
         <div className={seperatorStyle}>
           {' '}
-          <i className={'fas fa-caret-right'} />{' '}
+          <i className="fas fa-caret-right" />{' '}
         </div>
       </Link>
     );
@@ -43,4 +45,9 @@ const breadCrumbs = ({ crumbs, notifications }) => {
   return <div className={classes.BreadcrumbContainer}>{crumbElements}</div>;
 };
 
-export default breadCrumbs;
+BreadCrumbs.propTypes = {
+  crumbs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+};
+
+export default BreadCrumbs;

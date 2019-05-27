@@ -1,5 +1,7 @@
-import React from "react";
-const expandIcon = ({ clickHandler, height, width, viewBox }) => {
+import React from 'react';
+import PropTypes from 'prop-types';
+
+const expandIcon = ({ clickHandler }) => {
   return (
     <svg
       onClick={clickHandler}
@@ -14,4 +16,7 @@ const expandIcon = ({ clickHandler, height, width, viewBox }) => {
   );
 };
 
+expandIcon.propTypes = {
+  clickHandler: PropTypes.func.isRequired,
+};
 export default expandIcon;

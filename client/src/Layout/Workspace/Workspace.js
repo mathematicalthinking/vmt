@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classes from './workspace.css';
 
 class WorkspaceLayout extends Component {
   Graph = React.createRef();
 
   componentDidUpdate(prevProps) {
-    if (this.props.isFullscreen && !prevProps.isFullscreen) {
+    const { isFullscreen } = this.props;
+    if (isFullscreen && !prevProps.isFullscreen) {
       this.Graph.current.requestFullscreen();
     }
   }
 
   render() {
-    let {
+    const {
       chat,
       tabs,
       bottomRight, // rename to tools
@@ -25,8 +27,9 @@ class WorkspaceLayout extends Component {
       roomName,
       loaded,
       activity,
-      isFullscreen,
       encompass,
+      chatExpanded,
+      membersExpanded,
     } = this.props;
     // Set text for taking control button based on current control
     // let controlText = 'Take Control';
@@ -46,15 +49,15 @@ class WorkspaceLayout extends Component {
     let membersHeight = 'auto';
     let chatHeight = '43%';
     let flexB = '0';
-    if (!this.props.chatExpanded) {
+    if (!chatExpanded) {
       chatHeight = 'auto';
-      if (this.props.membersExpanded) {
+      if (membersExpanded) {
         membersHeight = '33%';
       }
     }
     // This is annoying but the flexx basis behavior is not consistant across browsers and it is messing up how
     // the right panel elements collapse and expand....there's gotta be a better way to do this
-    if (typeof InstallTrigger !== 'undefined' && this.props.chatExpanded) {
+    if (typeof InstallTrigger !== 'undefined' && chatExpanded) {
       // If this is Firefox
       flexB = 'auto';
     }
@@ -82,7 +85,7 @@ class WorkspaceLayout extends Component {
               {graphs.map((graph, i) => {
                 return (
                   <div
-                    key={i}
+                    key={graph}
                     className={replayer ? classes.ReplayerGraph : classes.Graph}
                     style={{
                       zIndex: currentTab === i ? 100 : 0,
@@ -94,7 +97,7 @@ class WorkspaceLayout extends Component {
                       right: 0,
                     }}
                   >
-                    {/**  "graph" class here is so geogebra applet will scale to container**/}
+                    {/**  "graph" class here is so geogebra applet will scale to container */}
                     {graph}
                   </div>
                 );
@@ -141,4 +144,29 @@ class WorkspaceLayout extends Component {
     );
   }
 }
+
+WorkspaceLayout.propTypes = {
+  chat: PropTypes.element.isRequired,
+  tabs: PropTypes.arrayOf(PropTypes.element).isRequired,
+  bottomRight: PropTypes.element.isRequired, // rename to tools
+  bottomLeft: PropTypes.element.isRequired,
+  currentMembers: PropTypes.element.isRequired,
+  referFromCoords: PropTypes.shape({}).isRequired,
+  referToCoords: PropTypes.shape({}).isRequired,
+  graphs: PropTypes.arrayOf(PropTypes.element).isRequired,
+  replayer: PropTypes.element.isRequired,
+  currentTab: PropTypes.number.isRequired,
+  roomName: PropTypes.string.isRequired,
+  loaded: PropTypes.bool.isRequired,
+  activity: PropTypes.shape({}),
+  isFullscreen: PropTypes.bool.isRequired,
+  encompass: PropTypes.bool,
+  chatExpanded: PropTypes.bool.isRequired,
+  membersExpanded: PropTypes.bool.isRequired,
+};
+
+WorkspaceLayout.defaultProps = {
+  activity: null,
+  encompass: false,
+};
 export default WorkspaceLayout;

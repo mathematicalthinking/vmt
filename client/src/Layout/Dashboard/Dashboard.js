@@ -1,5 +1,5 @@
-import React from "react";
-import classes from "./dashboard.css";
+import React from 'react';
+import classes from './dashboard.css';
 
 const Dashboard = React.memo(
   ({ sidePanel, mainContent, breadCrumbs, tabs }) => (

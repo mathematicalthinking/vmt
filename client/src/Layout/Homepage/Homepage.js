@@ -1,48 +1,48 @@
-import React, { PureComponent } from "react";
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 // import { Link } from 'react-router-dom';
-import classes from "./homepage.css";
+import classes from './homepage.css';
 // import BoxList from '../BoxList/BoxList'
-import Button from "../../Components/UI/Button/Button";
-import Background from "../../Components/Background/Background";
+import Button from '../../Components/UI/Button/Button';
+import Background from '../../Components/Background/Background';
 // import GeogebraImg from './Geogebra.png';
 // import DesmosImg from './desmos.jpg';
-import API from "../../utils/apiRequests";
-import Aux from "../../Components/HOC/Auxil";
+// import API from '../../utils/apiRequests';
+import Aux from '../../Components/HOC/Auxil';
 
 class Homepage extends PureComponent {
   state = {
-    popularActivities: [],
-    error: null
+    // popularActivities: [],
+    error: null,
   };
 
   containerRef = React.createRef();
+
   componentDidMount() {
-    if (this.props.location.state && this.props.location.state.error) {
-      this.setState({ error: this.props.location.state.error });
+    const { location } = this.propsl;
+    if (location.state && location.state.error) {
+      this.setState({ error: location.state.error });
       this.timer = setTimeout(() => {
         this.setState({ error: null });
       }, 2000);
     }
-    API.get("activities").then(res => {
-      this.setState({ popularActivities: res.data.results });
-    });
+    // API.get('activities').then(res => {
+    //   this.setState({ popularActivities: res.data.results });
+    // });
   }
 
   componentDidUpdate(prevProps) {
+    const { rooms, history } = this.props;
     // If the user creates a temporary room // redirect them once its been created
-    if (
-      Object.keys(prevProps.rooms).length < Object.keys(this.props.rooms).length
-    ) {
-      const currentRooms = Object.keys(this.props.rooms).map(
-        id => this.props.rooms[id]
-      );
+    if (Object.keys(prevProps.rooms).length < Object.keys(rooms).length) {
+      const currentRooms = Object.keys(rooms).map(id => rooms[id]);
       const prevRooms = Object.keys(prevProps.rooms).map(
         id => prevProps.rooms[id]
       );
-      let room = currentRooms.filter(room => !prevRooms.includes(room));
-      if (room[0]._id && this.props.rooms[room[0]._id].tempRoom) {
+      const room = currentRooms.filter(rm => !prevRooms.includes(rm));
+      if (room[0]._id && rooms[room[0]._id].tempRoom) {
         // THIS IS HACKY
-        this.props.history.push(`explore/${room[0]._id}`);
+        history.push(`explore/${room[0]._id}`);
       }
     }
   }
@@ -54,26 +54,28 @@ class Homepage extends PureComponent {
   }
 
   createRoom = () => {
-    let room = {
-      name: "temp room",
+    const { user, createRoom } = this.props;
+    const room = {
+      name: 'temp room',
       tempRoom: true,
-      creator: this.props.user._id || null
+      creator: user._id || null,
     };
-    if (this.props.user._id) {
-      room.members = [{ user: this.props.user._id, role: "facilitator" }];
+    if (user._id) {
+      room.members = [{ user: user._id, role: 'facilitator' }];
     }
-    this.props.createRoom(room);
+    createRoom(room);
   };
 
   scrollToDomRef = () => {
     window.scroll({
       top: this.containerRef.current.offsetTop - 100,
       left: 0,
-      behavior: "smooth"
+      behavior: 'smooth',
     });
   };
 
   render() {
+    const { error } = this.state;
     return (
       <Aux>
         <Background
@@ -87,14 +89,12 @@ class Homepage extends PureComponent {
         <div className={classes.Ex6}></div> */}
         <div className={classes.Main}>
           <section className={classes.Top}>
-            {this.state.error ? (
-              <div className={classes.Error}>{this.state.error}</div>
-            ) : null}
+            {error ? <div className={classes.Error}>{error}</div> : null}
             <p className={classes.Blurb}>
               Collaborative Workspaces for Exploring the World of Math
             </p>
             <div className={classes.WorkspaceButton}>
-              <Button theme={"Big"} click={this.createRoom} m={35}>
+              <Button theme="Big" click={this.createRoom} m={35}>
                 Try out a Workspace
               </Button>
             </div>
@@ -127,5 +127,17 @@ class Homepage extends PureComponent {
     );
   }
 }
+
+Homepage.propTypes = {
+  user: PropTypes.shape({}),
+  history: PropTypes.shape({}).isRequired,
+  createRoom: PropTypes.func.isRequired,
+  rooms: PropTypes.arrayOf(PropTypes.shape({})),
+};
+
+Homepage.defaultProps = {
+  user: null,
+  rooms: null,
+};
 
 export default Homepage;

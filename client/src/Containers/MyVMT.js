@@ -15,7 +15,7 @@ import {
   toggleJustLoggedIn,
 } from '../store/actions';
 
-import * as ntfUtils from '../utils/notifications';
+import getUserNotifications from '../utils/notifications';
 
 class MyVMT extends Component {
   state = {
@@ -118,18 +118,8 @@ class MyVMT extends Component {
     //   })
     //   return found;
     // })
-    const courseNtfs = ntfUtils.getUserNotifications(
-      user,
-      null,
-      'course',
-      'MY_VMT'
-    );
-    const roomNtfs = ntfUtils.getUserNotifications(
-      user,
-      null,
-      'room',
-      'MY_VMT'
-    );
+    const courseNtfs = getUserNotifications(user, null, 'course', 'MY_VMT');
+    const roomNtfs = getUserNotifications(user, null, 'room', 'MY_VMT');
     updatedTabs[1].notifications =
       courseNtfs.length === 0 ? '' : courseNtfs.length;
     // if (courseNotifications.newRoom.length > 0){
@@ -234,8 +224,8 @@ class MyVMT extends Component {
             }
             notifications={
               resource === 'courses'
-                ? ntfUtils.getUserNotifications(user, null, 'course')
-                : ntfUtils.getUserNotifications(user, null, 'room')
+                ? getUserNotifications(user, null, 'course')
+                : getUserNotifications(user, null, 'room')
             }
             user={user}
             resource={resource}

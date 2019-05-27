@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classes from './create.css';
 import { Modal, TextInput, Button, RadioBtn } from '../../../Components';
+
 class NewResource extends Component {
   state = {
     name: '',
@@ -34,18 +36,21 @@ class NewResource extends Component {
   };
 
   submit = () => {
-    let updatedName = this.state.name;
+    const { submit } = this.props;
+    const { name } = this.state;
+    const updatedName = name;
     if (updatedName.trim().length <= 1) {
       this.setState({
         errorMessage: 'Please provide a name',
       });
       return;
     }
-    this.props.submit({ ...this.state });
+    submit({ ...this.state });
   };
 
   render() {
-    let { displayResource, resource, show, close } = this.props;
+    const { displayResource, resource, show, close } = this.props;
+    const { ggb, errorMessage, privacySetting } = this.state;
     return (
       <Modal show={show} closeModal={close}>
         <div className={classes.Container}>
@@ -54,16 +59,14 @@ class NewResource extends Component {
             <div className={classes.FormSection}>
               <TextInput
                 light
-                name={`name`}
+                name="name"
                 label={`${displayResource} Name`}
                 change={this.changeHandler}
                 onKeyPress={this.onKeyPress}
                 width="100%"
               />
-              {this.state.errorMessage ? (
-                <div className={classes.ErrorMessage}>
-                  {this.state.errorMessage}
-                </div>
+              {errorMessage ? (
+                <div className={classes.ErrorMessage}>{errorMessage}</div>
               ) : null}
               <TextInput
                 light
@@ -80,20 +83,20 @@ class NewResource extends Component {
                 <div className={classes.RadioButtons}>
                   <RadioBtn
                     name="geogebra"
-                    checked={this.state.ggb}
+                    checked={ggb}
                     check={() => this.setState({ ggb: true })}
                   >
                     GeoGebra
                   </RadioBtn>
                   <RadioBtn
                     name="desmos"
-                    checked={!this.state.ggb}
+                    checked={!ggb}
                     check={() => this.setState({ ggb: false })}
                   >
                     Desmos
                   </RadioBtn>
                 </div>
-                {this.state.ggb ? (
+                {ggb ? (
                   <div className={classes.Geogebra}>
                     <div>Import a GeoGebra workspace</div>
                     <div className={classes.GeogebraButton}>
@@ -126,14 +129,14 @@ class NewResource extends Component {
               <div className={classes.RadioButtons}>
                 <RadioBtn
                   name="public"
-                  checked={this.state.privacySetting === 'public'}
+                  checked={privacySetting === 'public'}
                   check={() => this.setState({ privacySetting: 'public' })}
                 >
                   Public
                 </RadioBtn>
                 <RadioBtn
                   name="private"
-                  checked={this.state.privacySetting === 'private'}
+                  checked={privacySetting === 'private'}
                   check={() => this.setState({ privacySetting: 'private' })}
                 >
                   Private
@@ -148,7 +151,7 @@ class NewResource extends Component {
             <div className={classes.Submit}>
               <div className={classes.Button}>
                 <Button
-                  theme={'Small'}
+                  theme="Small"
                   data-testid={`${resource}-submit`}
                   m={5}
                   click={this.submit}
@@ -157,7 +160,7 @@ class NewResource extends Component {
                 </Button>
               </div>
               <div className={classes.Button}>
-                <Button theme={'Cancel'} m={5} click={close}>
+                <Button theme="Cancel" m={5} click={close}>
                   Cancel
                 </Button>
               </div>
@@ -168,5 +171,13 @@ class NewResource extends Component {
     );
   }
 }
+
+NewResource.propTypes = {
+  displayResource: PropTypes.string.isRequired,
+  resource: PropTypes.string.isRequired,
+  show: PropTypes.bool.isRequired,
+  close: PropTypes.func.isRequired,
+  submit: PropTypes.func.isRequired,
+};
 
 export default NewResource;

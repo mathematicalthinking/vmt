@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classes from './makeRooms.css';
 import { Button, Search } from '../../../Components';
-import { ParticipantList } from '.';
+import ParticipantList from './ParticipantList';
 import API from '../../../utils/apiRequests';
 // import SearchResults from "../../Members/SearchResults";
 class Step2 extends Component {

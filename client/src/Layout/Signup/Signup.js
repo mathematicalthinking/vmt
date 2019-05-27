@@ -1,12 +1,8 @@
+/* eslint-disable jsx-a11y/label-has-for */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Redirect } from 'react-router-dom';
-import {
-  TextInput,
-  Button,
-  RadioBtn,
-  Background,
-  Aux,
-} from '../../Components/';
+import { TextInput, Button, RadioBtn, Background, Aux } from '../../Components';
 import classes from './signup.css';
 
 class Signup extends Component {
@@ -22,123 +18,133 @@ class Signup extends Component {
   };
 
   componentDidMount() {
-    if (this.props.temp && this.props.user) {
-      this.setState({ username: this.props.user.username });
+    const { temp, user } = this.props;
+    if (temp && user) {
+      this.setState({ username: user.username });
     }
     window.addEventListener('keypress', this.onKeyPress);
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.tempRoom && !prevProps.loggedIn && this.props.loggedIn) {
-      this.props.closeModal();
+    const { tempRoom, loggedIn, closeModal } = this.props;
+    if (tempRoom && !prevProps.loggedIn && loggedIn) {
+      closeModal();
     }
   }
 
   componentWillUnmount() {
-    if (this.props.errorMessage) {
-      this.props.clearError();
+    const { errorMessage, clearError } = this.props;
+    if (errorMessage) {
+      clearError();
     }
     window.removeEventListener('keypress', this.onKeyPress);
   }
   // pass to text inputs to update state from user input
   changeHandler = event => {
-    let updatedState = { ...this.state };
+    const updatedState = { ...this.state };
     updatedState[event.target.name] = event.target.value;
     this.setState(updatedState);
   };
 
   onKeyPress = event => {
+    const { errorMessage, clearError } = this.props;
     if (event.key === 'Enter') {
       this.signUp();
     }
-    if (this.props.errorMessage) {
-      this.props.clearError();
+    if (errorMessage) {
+      clearError();
     }
   };
   signUp = () => {
-    const accountType = this.state.participantAccount
-      ? 'participant'
-      : 'facilitator';
+    const { temp, room, signup, user } = this.props;
+    const {
+      participantAccount,
+      firstName,
+      lastName,
+      username,
+      email,
+      password,
+    } = this.state;
+    const accountType = participantAccount ? 'participant' : 'facilitator';
     const newUser = {
-      firstName: this.state.firstName,
-      lastName: this.state.lastName,
-      username: this.state.username,
-      email: this.state.email,
-      password: this.state.password,
+      firstName,
+      lastName,
+      username,
+      email,
+      password,
       accountType,
     };
-    if (this.props.temp) {
-      newUser._id = this.props.user._id;
-      newUser.rooms = [this.props.room];
+    if (temp) {
+      newUser._id = user._id;
+      newUser.rooms = [room];
     }
-    this.props.signup(newUser, this.props.room); // this.props.room will only exist when creating user from tempUser
+    signup(newUser, room); // this.props.room will only exist when creating user from tempUser
   };
 
   render() {
-    let containerClass = this.props.temp
+    const { user, temp, loggedIn, errorMessage } = this.props;
+    const { participantAccount, username } = this.state;
+    const containerClass = temp
       ? classes.ModalContainer
       : classes.SignupContainer;
 
-    let initialValue = this.props.user ? this.props.user.username : '';
+    const initialValue = user ? user.username : '';
     return (
       // after creating a user redirect to login @TODO figure out if this is for creating participants or for signing up on your own
       // the answer will determine where/if we redirect to
-      this.props.loggedIn && !this.props.temp ? (
-        <Redirect to={'/myVMT/rooms'} />
+      loggedIn && !temp ? (
+        <Redirect to="/myVMT/rooms" />
       ) : (
         <Aux>
-          {!this.props.temp ? <Background bottomSpace={-40} fixed /> : null}
+          {!temp ? <Background bottomSpace={-40} fixed /> : null}
           <div className={classes.Container}>
             <div className={containerClass}>
               <h2 className={classes.Title}>Signup</h2>
               <form className={classes.Form}>
                 <TextInput
-                  light={this.props.temp}
+                  light={temp}
                   change={this.changeHandler}
                   type="text"
                   label="First Name"
                   name="firstName"
                 />
                 <TextInput
-                  light={this.props.temp}
+                  light={temp}
                   change={this.changeHandler}
                   type="text"
                   label="Last Name"
                   name="lastName"
                 />
                 <TextInput
-                  light={this.props.temp}
+                  light={temp}
                   change={this.changeHandler}
                   type="text"
                   label="Username"
                   name="username"
-                  value={
-                    this.state.username.length > 0
-                      ? this.state.username
-                      : initialValue
-                  }
+                  value={username.length > 0 ? username : initialValue}
                 />
                 <TextInput
-                  light={this.props.temp}
+                  light={temp}
                   change={this.changeHandler}
                   type="email"
                   label="Email"
                   name="email"
                 />
                 <TextInput
-                  light={this.props.temp}
+                  light={temp}
                   change={this.changeHandler}
                   type="password"
                   label="Password"
                   name="password"
                 />
                 <div className={classes.AccountTypeContainer}>
+                  {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                   <label className={classes.AccountTypeLabel}>
                     Account Type
                   </label>
                   <div className={classes.RadioOption}>
                     <RadioBtn
-                      checked={this.state.participantAccount}
+                      checked={participantAccount}
                       check={() => this.setState({ participantAccount: true })}
                     >
                       Participant
@@ -146,7 +152,7 @@ class Signup extends Component {
                   </div>
                   <div className={classes.RadioOption}>
                     <RadioBtn
-                      checked={!this.state.participantAccount}
+                      checked={!participantAccount}
                       check={() => this.setState({ participantAccount: false })}
                     >
                       Facilitator
@@ -159,13 +165,13 @@ class Signup extends Component {
                   others without making separate accounts.
                 </p>
                 <div className={classes.ErrorMsg}>
-                  <div className={classes.Error}>{this.props.errorMessage}</div>
+                  <div className={classes.Error}>{errorMessage}</div>
                 </div>
               </form>
               <div className={classes.Submit}>
                 <Button
                   type=""
-                  theme={this.props.temp ? 'Small' : 'Big'}
+                  theme={temp ? 'Small' : 'Big'}
                   data-testid="submit-signup"
                   click={this.signUp}
                 >
@@ -179,5 +185,23 @@ class Signup extends Component {
     );
   }
 }
+
+Signup.propTypes = {
+  temp: PropTypes.bool.isRequired,
+  room: PropTypes.string,
+  signup: PropTypes.func.isRequired,
+  user: PropTypes.shape({}),
+  tempRoom: PropTypes.func.isRequired,
+  errorMessage: PropTypes.string,
+  clearError: PropTypes.func.isRequired,
+  loggedIn: PropTypes.bool.isRequired,
+  closeModal: PropTypes.func.isRequired,
+};
+
+Signup.defaultProps = {
+  room: null,
+  user: null,
+  errorMessage: null,
+};
 
 export default Signup;

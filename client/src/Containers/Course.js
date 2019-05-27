@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 // import _difference from 'lodash/difference';
 import { populateResource } from '../store/reducers';
 import Members from './Members/Members';
-import * as ntfUtils from '../utils/notifications';
+import getUserNotifications from '../utils/notifications';
 
 import {
   removeCourseMember,
@@ -586,7 +586,7 @@ const mapStateToProps = (store, ownProps) => {
     rooms: store.rooms.allIds,
     user: store.user,
     // notifications: store.user.courseNotifications.access,
-    notifications: ntfUtils.getUserNotifications(store.user, null, 'course'),
+    notifications: getUserNotifications(store.user, null, 'course'),
     loading: store.loading,
   };
 };

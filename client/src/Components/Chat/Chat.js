@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from '..';
+import Modal from '../UI/Modal/Modal';
 import Message from './Message';
 import Event from './Event';
 import classes from './chat.css';

@@ -1,34 +1,52 @@
-import React from "react";
-import { connect } from "react-redux";
-import * as actions from "../../store/actions";
-import { Link } from "react-router-dom";
-import { Background, Aux, Button } from "../../Components";
-import classes from "./confirmation.css";
-const confirmation = props => (
-  <Aux>
-    <Background />
-    <div className={classes.Main}>
-      <div>{props.success ? props.successMessage : props.errorMessage}</div>
-      <Link onClick={props.clear} to="/myVMT/courses">
-        <Button theme={"Big"} m={20}>
-          Go to your dashboard
-        </Button>
-      </Link>
-    </div>
-  </Aux>
-);
+import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
+import * as actions from '../../store/actions';
+import { Background, Aux, Button } from '../../Components';
+import classes from './confirmation.css';
+// import { Confirmation } from '..';
+
+const Confirmation = props => {
+  const { errorMessage, successMessage, success, connectClear } = props;
+  return (
+    <Aux>
+      <Background />
+      <div className={classes.Main}>
+        <div>{success ? successMessage : errorMessage}</div>
+        <Link onClick={connectClear} to="/myVMT/courses">
+          <Button theme="Big" m={20}>
+            Go to your dashboard
+          </Button>
+        </Link>
+      </div>
+    </Aux>
+  );
+};
+
+Confirmation.propTypes = {
+  errorMessage: PropTypes.string,
+  successMessage: PropTypes.string,
+  success: PropTypes.bool.isRequired,
+  connectClear: PropTypes.func.isRequired,
+};
+
+Confirmation.defaultProps = {
+  errorMessage: null,
+  successMessage: null,
+};
 
 const mapStateToProps = state => ({
   success: state.loading.accessSuccess,
   successMessage: state.loading.successMessage,
-  errorMessage: state.loading.errorMessage
+  errorMessage: state.loading.errorMessage,
 });
 
 const mapDispatchToProps = dispatch => ({
-  clear: () => dispatch(actions.clearLoadingInfo())
+  connectClear: () => dispatch(actions.clearLoadingInfo()),
 });
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(confirmation);
+)(Confirmation);

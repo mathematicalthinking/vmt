@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils';
@@ -61,7 +62,7 @@ export const removeUserActivities = activityIdsArr => {
 
 export const setActivityStartingPoint = id => {
   return (dispatch, getState) => {
-    let tabs = getState().activities.byId[id].tabs.map(tab => {
+    const tabs = getState().activities.byId[id].tabs.map(tab => {
       tab.startingPoint = tab.currentState;
       tab.currentState = tab.currentState;
       tab.events = [];
@@ -77,9 +78,7 @@ export const setActivityStartingPoint = id => {
         })
       )
     )
-      .then(res => {
-        return;
-      })
+      .then()
       .catch(err => console.log('ER w THT: ', err));
   };
 };
@@ -142,7 +141,7 @@ export const createActivity = body => {
     dispatch(loading.start());
     API.post('activities', body)
       .then(res => {
-        let result = res.data.result;
+        const { result } = res.data;
         dispatch(createdActivity(result));
         if (body.course) {
           dispatch(addCourseActivities(body.course, [result._id]));
@@ -151,7 +150,7 @@ export const createActivity = body => {
         return dispatch(loading.success());
       })
       .catch(err => {
-        dispatch(loading.fail());
+        dispatch(loading.fail(err));
       });
   };
 };
@@ -160,7 +159,7 @@ export const updateActivityTab = (activityId, tabId, body) => {
   return dispatch => {
     dispatch(updatedActivityTab(activityId, tabId, body));
     API.put('tabs', tabId, body)
-      .then(res => {})
+      .then(() => {})
       .catch(err => {
         console.log(err);
       });
@@ -169,7 +168,7 @@ export const updateActivityTab = (activityId, tabId, body) => {
 
 export const copyActivity = (activityId, userId, courseId) => {
   return (dispatch, getState) => {
-    let activity = { ...getState().activities.byId[activityId] };
+    const activity = { ...getState().activities.byId[activityId] };
     activity.source = activity._id;
     delete activity._id;
     delete activity.rooms;
@@ -197,7 +196,7 @@ export const removeActivity = activityId => {
 
 export const updateActivity = (id, body) => {
   return (dispatch, getState) => {
-    let activity = { ...getState().activities.byId[id] };
+    const activity = { ...getState().activities.byId[id] };
     if (body.isTrashed) {
       dispatch(removeUserActivities([id]));
       dispatch(activitiesRemoved([id]));
@@ -206,13 +205,12 @@ export const updateActivity = (id, body) => {
     }
     // dispatch(loading.start())
     API.put('activities', id, body)
-      .then(res => {
+      .then(() => {
         // dispatch(loading.success())
-        return;
       })
-      .catch(err => {
+      .catch(() => {
         // Undo changes
-        let keys = Object.keys(body);
+        const keys = Object.keys(body);
         if (body.isTrashed) {
           dispatch(createdActivity(activity));
           if (activity.course) {
@@ -220,7 +218,7 @@ export const updateActivity = (id, body) => {
           }
           dispatch(addUserActivities([activity._id]));
         } else {
-          let prevActivity = {};
+          const prevActivity = {};
           keys.forEach(key => {
             prevActivity[key] = activity[key];
           });
@@ -228,7 +226,7 @@ export const updateActivity = (id, body) => {
         }
         dispatch(loading.updateFail('activity', keys));
         setTimeout(() => {
-          dispatch(clearLoadingInfo());
+          dispatch(loading.clearLoadingInfo());
         }, 2000);
       });
   };
