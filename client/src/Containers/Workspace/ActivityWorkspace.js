@@ -138,9 +138,11 @@ class ActivityWorkspace extends Component {
       });
       tabs = (
         <Tabs
+          activity
           tabs={activity.tabs}
           currentTab={currentTab}
-          role={role}
+          participantCanCreate={false}
+          memberRole={role}
           changeTab={this.changeTab}
           createNewTab={this.createNewTab}
         />
@@ -191,7 +193,8 @@ class ActivityWorkspace extends Component {
           <NewTabForm
             activity={activity}
             closeModal={this.closeModal}
-            updatedActivity={connectUpdatedActivity}
+            updatedRoom={connectUpdatedActivity}
+            user={user}
           />
         </Modal>
         <Modal
@@ -202,6 +205,7 @@ class ActivityWorkspace extends Component {
             show={addingToMyActivities}
             light
             focus
+            name="new name"
             value={newName}
             change={event => {
               this.setState({ newName: event.target.value });
@@ -216,7 +220,7 @@ class ActivityWorkspace extends Component {
 }
 
 ActivityWorkspace.propTypes = {
-  activity: PropTypes.shape({}).isRequired,
+  activity: PropTypes.shape({}),
   match: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
   history: PropTypes.shape({}).isRequired,
@@ -227,7 +231,7 @@ ActivityWorkspace.propTypes = {
   connectCreateActivity: PropTypes.func.isRequired,
   connectUpdateActivityTab: PropTypes.func.isRequired,
 };
-ActivityWorkspace.defaultProps = { temp: false };
+ActivityWorkspace.defaultProps = { temp: false, activity: null };
 const mapStateToProps = (state, ownProps) => {
   return {
     activity: state.activities.byId[ownProps.match.params.activity_id],

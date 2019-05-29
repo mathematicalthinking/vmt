@@ -101,14 +101,18 @@ Tools.propTypes = {
   lastEvent: PropTypes.shape({}),
   replayer: PropTypes.bool,
   save: PropTypes.func,
-  referencing: PropTypes.bool.isRequired,
+  referencing: PropTypes.bool,
   goBack: PropTypes.func.isRequired,
-  toggleControl: PropTypes.func.isRequired,
-  clearReference: PropTypes.func.isRequired,
-  startNewReference: PropTypes.func.isRequired,
+  toggleControl: PropTypes.func,
+  clearReference: PropTypes.func,
+  startNewReference: PropTypes.func,
 };
 
 Tools.defaultProps = {
+  toggleControl: null,
+  referencing: false,
+  clearReference: null,
+  startNewReference: null,
   lastEvent: null,
   inControl: null,
   replayer: false,

@@ -141,6 +141,7 @@ class Room extends Component {
       const updatedTabs = this.displayNotifications([...tabs]);
       this.setState({ tabs: updatedTabs });
     }
+
     if (!prevState.isAdmin && isAdmin) {
       connectPopulateRoom(room._id);
     }
@@ -596,6 +597,7 @@ class Room extends Component {
         </Aux>
       );
     }
+    if (!room) return <div>Loading</div>;
     return (
       <Access
         closeModal={history.goBack}

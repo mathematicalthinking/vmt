@@ -33,9 +33,8 @@ class Member extends PureComponent {
     const { role } = this.state;
     if (newRole === role) return;
     const { changeRole, info } = this.props;
-    // BAD!!! Duplicating role in local state and in prop
-    this.setState({ role: newRole, editing: false });
-    info.role = role;
+    this.setState({ editing: false });
+    info.role = newRole;
     changeRole(info);
   };
 

@@ -18,16 +18,17 @@ class Tabs extends Component {
       tabs,
       currentTab,
       ntfTabs,
-      role,
+      memberRole,
       changeTab,
       createNewTab,
       participantCanCreate,
+      replayer,
     } = this.props;
     const tabEls = tabs.map((tab, i) => (
       <div
         key={tab._id || i}
-        onClick={() => changeTab(i)}
-        onKeyPress={() => changeTab(i)}
+        onClick={!replayer ? () => changeTab(i) : null}
+        onKeyPress={!replayer ? () => changeTab(i) : null}
         role="button"
         tabIndex="-2"
         className={[classes.Tab, currentTab === i ? classes.Active : ''].join(
@@ -48,7 +49,7 @@ class Tabs extends Component {
     return (
       <div className={classes.WorkspaceTabs}>
         {tabEls}
-        {role === 'facilitator' || participantCanCreate ? (
+        {memberRole === 'facilitator' || participantCanCreate ? (
           <div className={[classes.Tab, classes.NewTab].join(' ')}>
             <div
               onClick={createNewTab}
@@ -68,12 +69,26 @@ class Tabs extends Component {
 
 Tabs.propTypes = {
   tabs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  currentTab: PropTypes.number.isRequired,
-  ntfTabs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  role: PropTypes.string.isRequired,
-  changeTab: PropTypes.func.isRequired,
-  createNewTab: PropTypes.func.isRequired,
   participantCanCreate: PropTypes.bool.isRequired,
+  currentTab: PropTypes.number.isRequired,
+  ntfTabs: PropTypes.arrayOf(PropTypes.shape({})),
+  memberRole: PropTypes.string.isRequired,
+  replayer: PropTypes.bool,
+  changeTab: PropTypes.func,
+  createNewTab: (props, propName) => {
+    if (props.participantCanCreate && !props[propName]) {
+      throw new Error(
+        'if participants can create a create function needs to be provided'
+      );
+    }
+  },
+};
+
+Tabs.defaultProps = {
+  changeTab: null,
+  replayer: false,
+  createNewTab: null,
+  ntfTabs: [],
 };
 
 export default Tabs;

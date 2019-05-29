@@ -146,31 +146,36 @@ class WorkspaceLayout extends Component {
 }
 
 WorkspaceLayout.propTypes = {
-  chat: PropTypes.element.isRequired,
+  chat: PropTypes.element,
   tabs: PropTypes.element.isRequired,
   bottomRight: PropTypes.element.isRequired, // rename to tools
   bottomLeft: PropTypes.element.isRequired,
-  currentMembers: PropTypes.element.isRequired,
+  currentMembers: PropTypes.element,
   referFromCoords: PropTypes.shape({}),
   referToCoords: PropTypes.shape({}),
   graphs: PropTypes.arrayOf(PropTypes.element).isRequired,
   replayer: PropTypes.bool,
   currentTab: PropTypes.number.isRequired,
   roomName: PropTypes.string.isRequired,
-  loaded: PropTypes.bool.isRequired,
-  activity: PropTypes.shape({}),
+  loaded: PropTypes.bool,
+  activity: PropTypes.bool,
   isFullscreen: PropTypes.bool,
   encompass: PropTypes.bool,
-  chatExpanded: PropTypes.bool.isRequired,
-  membersExpanded: PropTypes.bool.isRequired,
+  chatExpanded: PropTypes.bool,
+  membersExpanded: PropTypes.bool,
 };
 
 WorkspaceLayout.defaultProps = {
-  activity: null,
+  activity: false,
+  currentMembers: null,
+  chat: null,
   replayer: false,
+  loaded: true,
   isFullscreen: false,
   encompass: false,
   referFromCoords: null,
   referToCoords: null,
+  chatExpanded: true,
+  membersExpanded: true,
 };
 export default WorkspaceLayout;

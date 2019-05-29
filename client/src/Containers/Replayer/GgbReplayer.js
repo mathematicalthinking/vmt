@@ -254,7 +254,7 @@ GgbReplayer.propTypes = {
     startinPoint: PropTypes.string,
     ggbFile: PropTypes.string,
   }).isRequired,
-  tabId: PropTypes.string.isRequired,
+  tabId: PropTypes.number.isRequired,
 };
 
 export default GgbReplayer;

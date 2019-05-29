@@ -102,7 +102,9 @@ class NewTabForm extends Component {
             timestamp: new Date().getTime(),
           };
           newTab._id = res.data.result._id;
-          sendEvent(newTab);
+          if (sendEvent) {
+            sendEvent(newTab);
+          }
         } else {
           tabs = [...activity.tabs];
           tabs.push(res.data.result);
@@ -193,15 +195,17 @@ NewTabForm.propTypes = {
   room: PropTypes.shape({}),
   user: PropTypes.shape({}).isRequired,
   activity: PropTypes.shape({}),
-  updatedRoom: PropTypes.func.isRequired,
+  updatedRoom: PropTypes.func,
   updatedActivity: PropTypes.func,
+  sendEvent: PropTypes.func,
   closeModal: PropTypes.func.isRequired,
-  sendEvent: PropTypes.func.isRequired,
 };
 
 NewTabForm.defaultProps = {
   room: null,
   updatedActivity: null,
+  updatedRoom: null,
+  sendEvent: null,
   activity: null,
 };
 export default NewTabForm;

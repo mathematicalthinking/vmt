@@ -506,7 +506,7 @@ class Workspace extends Component {
           tabs={room.tabs}
           ntfTabs={activityOnOtherTabs}
           currentTab={currentTab}
-          role={role}
+          memberRole={role}
           changeTab={this.changeTab}
           createNewTab={this.createNewTab}
         />

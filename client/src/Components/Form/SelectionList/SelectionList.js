@@ -6,8 +6,8 @@ import classes from './selectionList.css';
 
 class SelectionList extends Component {
   render() {
-    const { selectItem, list } = this.props;
-    const ElementList = list.map((activity, i) => {
+    const { selectItem, listToSelectFrom, selected } = this.props;
+    const ElementList = listToSelectFrom.map((activity, i) => {
       return (
         <li
           className={[classes.ListItem, i % 2 ? classes.Odd : null].join(' ')}
@@ -17,6 +17,7 @@ class SelectionList extends Component {
             change={event => {
               selectItem(event, activity._id);
             }}
+            checked={selected.indexOf(activity._id) > -1}
             dataId={`select-${activity.name}`}
             // @todo this component is sometimes controlled...but here it is not. we need to consistantly pass check and checked instead of onChange
             // but now this is going to require have two lists ... options vs. selected and then checked will = options contains selected.
@@ -28,7 +29,7 @@ class SelectionList extends Component {
     });
     return (
       <ul className={classes.List}>
-        {list.length > 0 ? (
+        {listToSelectFrom.length > 0 ? (
           ElementList
         ) : (
           <div className={classes.ErrorText}>
@@ -41,8 +42,12 @@ class SelectionList extends Component {
 }
 
 SelectionList.propTypes = {
-  list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  listToSelectFrom: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  selected: PropTypes.arrayOf(PropTypes.string),
   selectItem: PropTypes.func.isRequired,
 };
 
+SelectionList.defaultProps = {
+  selected: [],
+};
 export default SelectionList;

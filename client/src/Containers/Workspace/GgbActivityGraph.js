@@ -121,12 +121,6 @@ class GgbActivityGraph extends Component {
   };
 
   updateDimensions = () => {
-    const {
-      showingReference,
-      referencing,
-      referToEl,
-      setToElAndCoords,
-    } = this.props;
     const { loading } = this.state;
     if (this.resizeTimer) {
       clearTimeout(this.resizeTimer);
@@ -135,15 +129,7 @@ class GgbActivityGraph extends Component {
       if (this.graph.current && !loading) {
         const { clientHeight, clientWidth } = this.graph.current.parentElement;
         window.ggbApplet.setSize(clientWidth, clientHeight);
-        // window.ggbApplet.evalCommand('UpdateConstruction()')
-        if (
-          showingReference ||
-          (referencing && referToEl.elmentType !== 'chat_message')
-        ) {
-          const { element } = referToEl;
-          const position = await this.getRelativeCoords(element);
-          setToElAndCoords(null, position);
-        }
+        // window.ggbApplet.evalCommand('UpdateConstruction()'
       }
       this.resizeTimer = undefined;
     }, 200);
@@ -294,11 +280,7 @@ GgbActivityGraph.propTypes = {
   tabId: PropTypes.number.isRequired,
   user: PropTypes.shape({}).isRequired,
   activity: PropTypes.shape({}).isRequired,
-  showingReference: PropTypes.bool.isRequired,
-  referencing: PropTypes.bool.isRequired,
   isFirstTabLoaded: PropTypes.bool.isRequired,
-  referToEl: PropTypes.shape({}).isRequired,
-  setToElAndCoords: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
   updateActivityTab: PropTypes.func.isRequired,
 };

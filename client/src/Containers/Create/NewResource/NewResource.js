@@ -253,6 +253,7 @@ class NewResourceContainer extends Component {
       name,
       description,
       privacySetting,
+      activities,
       appName,
       copying,
       ggb,
@@ -282,6 +283,7 @@ class NewResourceContainer extends Component {
           key="step2"
           displayResource={displayResource}
           addActivity={this.addActivity}
+          selectedActivities={activities}
         />
       ) : (
         <Step2New

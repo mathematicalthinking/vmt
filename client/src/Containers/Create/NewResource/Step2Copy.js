@@ -14,12 +14,16 @@ class Step2Copy extends Component {
     });
   }
   render() {
-    const { addActivity } = this.props;
+    const { selectedActivities, addActivity } = this.props;
     const { activityList } = this.state;
     return (
       <Aux>
         <p>Select one or many activities to copy</p>
-        <SelectionList list={activityList} selectItem={addActivity} />
+        <SelectionList
+          listToSelectFrom={activityList}
+          selectItem={addActivity}
+          selected={selectedActivities}
+        />
       </Aux>
     );
   }
@@ -27,5 +31,10 @@ class Step2Copy extends Component {
 
 Step2Copy.propTypes = {
   addActivity: PropTypes.func.isRequired,
+  selectedActivities: PropTypes.arrayOf(PropTypes.string),
+};
+
+Step2Copy.defaultProps = {
+  selectedActivities: [],
 };
 export default Step2Copy;

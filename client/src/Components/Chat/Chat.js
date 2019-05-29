@@ -344,35 +344,36 @@ class Chat extends Component {
             </div>
           ) : null}
         </div>
-        settings ? (
-        <Modal
-          show={settings}
-          closeModal={() => this.setState({ settings: false })}
-        >
-          Settings
-        </Modal>
-        ) : {null}
+        {settings ? (
+          <Modal
+            show={settings}
+            closeModal={() => this.setState({ settings: false })}
+          >
+            Settings
+          </Modal>
+        ) : null}
       </Fragment>
     );
   }
 }
 
+// @todo we need to consider making a different component for replayer chat or conditionally requiring many of these props (like change and submit) if this is NOT a replayer chat
 Chat.propTypes = {
   toggleExpansion: PropTypes.func.isRequired,
-  referencing: PropTypes.bool.isRequired,
+  referencing: PropTypes.bool,
   referToEl: PropTypes.shape({}),
   referFromEl: PropTypes.shape({}),
-  setFromElAndCoords: PropTypes.func.isRequired,
-  setToElAndCoords: PropTypes.func.isRequired,
-  showReference: PropTypes.func.isRequired,
-  clearReference: PropTypes.func.isRequired,
-  showingReference: PropTypes.bool.isRequired,
+  setFromElAndCoords: PropTypes.func,
+  setToElAndCoords: PropTypes.func,
+  showReference: PropTypes.func,
+  clearReference: PropTypes.func,
+  showingReference: PropTypes.bool,
   referenceElement: PropTypes.shape({}),
-  change: PropTypes.func.isRequired,
+  change: PropTypes.func,
   value: PropTypes.string,
   // referenceElementCoords: PropTypes.arrayOf(PropTypes.number),
   replayer: PropTypes.bool,
-  submit: PropTypes.func.isRequired,
+  submit: PropTypes.func,
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   expanded: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool,
@@ -385,6 +386,14 @@ Chat.defaultProps = {
   value: '',
   replayer: false,
   isConnected: false,
+  change: null,
+  submit: null,
+  referencing: false,
+  setFromElAndCoords: null,
+  setToElAndCoords: null,
+  showReference: null,
+  clearReference: null,
+  showingReference: null,
   // referenceElementCoords: [],
 };
 

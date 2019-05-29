@@ -47,15 +47,17 @@ class Activity extends Component {
   componentDidMount() {
     const { activity, connectGetCurrentActivity, match, user } = this.props;
     if (!activity) {
+      console.log('getting current activity');
       connectGetCurrentActivity(match.params.activity_id); // WHY ARE WE DOING THIS??
-    }
-    const { resource } = match.params;
-    if (resource === 'rooms') {
-      // this.fetchRooms();
-    }
-    // Check ability to edit
-    if (activity.creator === user._id) {
-      this.setState({ owner: true });
+    } else {
+      const { resource } = match.params;
+      if (resource === 'rooms') {
+        // this.fetchRooms();
+      }
+      // Check ability to edit
+      if (activity.creator === user._id) {
+        this.setState({ owner: true });
+      }
     }
   }
 
@@ -342,7 +344,7 @@ class Activity extends Component {
 
 Activity.propTypes = {
   match: PropTypes.shape({}).isRequired,
-  activity: PropTypes.shape({}).isRequired,
+  activity: PropTypes.shape({}),
   user: PropTypes.shape({}).isRequired,
   course: PropTypes.shape({}),
   history: PropTypes.shape({}).isRequired,
@@ -359,6 +361,7 @@ Activity.propTypes = {
 
 Activity.defaultProps = {
   course: null,
+  activity: null,
 };
 
 const mapStateToProps = (state, ownProps) => {

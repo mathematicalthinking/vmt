@@ -87,9 +87,13 @@ const ActivityTools = props => {
 
 ActivityTools.propTypes = {
   owner: PropTypes.bool.isRequired,
-  save: PropTypes.func.isRequired,
+  save: PropTypes.func,
   copy: PropTypes.func.isRequired,
   goBack: PropTypes.func.isRequired,
+};
+
+ActivityTools.defaultProps = {
+  save: null,
 };
 
 export default ActivityTools;

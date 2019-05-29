@@ -12,13 +12,10 @@ class ReplayerControls extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { playing, startTime } = this.props;
+    const { playing } = this.props;
     if (prevProps.playing !== playing) {
       // if (playing) {
       // }
-    }
-    if (prevProps.startTime !== startTime) {
-      this.originalStartTime = startTime;
     }
   }
 
@@ -143,7 +140,6 @@ class ReplayerControls extends Component {
 }
 
 ReplayerControls.propTypes = {
-  startTime: PropTypes.number.isRequired,
   playing: PropTypes.bool.isRequired,
   pausePlay: PropTypes.func.isRequired,
   duration: PropTypes.number.isRequired,
