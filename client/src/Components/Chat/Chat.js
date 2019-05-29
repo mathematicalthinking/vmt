@@ -91,7 +91,9 @@ class Chat extends Component {
 
   toggleExpansion = () => {
     const { toggleExpansion } = this.props;
-    toggleExpansion('chat');
+    if (toggleExpansion) {
+      toggleExpansion('chat');
+    }
     // start counting all unread messages once chat window is collapsed?
     // this.setState({
     //   expanded: !this.state.expanded
@@ -359,7 +361,7 @@ class Chat extends Component {
 
 // @todo we need to consider making a different component for replayer chat or conditionally requiring many of these props (like change and submit) if this is NOT a replayer chat
 Chat.propTypes = {
-  toggleExpansion: PropTypes.func.isRequired,
+  toggleExpansion: PropTypes.func,
   referencing: PropTypes.bool,
   referToEl: PropTypes.shape({}),
   referFromEl: PropTypes.shape({}),
@@ -380,6 +382,7 @@ Chat.propTypes = {
 };
 
 Chat.defaultProps = {
+  toggleExpansion: null,
   referToEl: null,
   referFromEl: null,
   referenceElement: null,

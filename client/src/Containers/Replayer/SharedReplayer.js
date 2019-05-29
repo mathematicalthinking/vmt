@@ -259,6 +259,12 @@ class SharedReplayer extends Component {
     }, PLAYBACK_FIDELITY);
   };
 
+  // toggleExpansion = element => {
+  //   this.setState(prevState => ({
+  //     [`${element}Expanded`]: !prevState[`${element}Expanded`],
+  //   }));
+  // };
+
   setTabLoaded = () => {
     const { room, encompass, updateEnc } = this.props;
     this.tabsLoaded += 1;
