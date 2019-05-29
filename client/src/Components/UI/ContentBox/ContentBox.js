@@ -15,7 +15,7 @@ class ContentBox extends PureComponent {
   toggleExpand = event => {
     event.preventDefault();
     this.setState(prevState => ({
-      expanded: !prevState,
+      expanded: !prevState.expanded,
     }));
   };
 
@@ -29,12 +29,11 @@ class ContentBox extends PureComponent {
       title,
       locked,
       details,
-      resource,
     } = this.props;
     const { expanded } = this.state;
     const notificationElements =
       notifications > 0 ? (
-        <Notification count={notifications} dat-testid="content-box-ntf" />
+        <Notification count={notifications} data-testid="content-box-ntf" />
       ) : null;
     return (
       <Aux>
@@ -84,9 +83,7 @@ class ContentBox extends PureComponent {
                   {details.creator ? `Creator: ${details.creator}` : null}
                   {details.entryCode ? (
                     <div>Entry Code: {details.entryCode}</div>
-                  ) : (
-                    resource
-                  )}
+                  ) : null}
                 </div>
               ) : null}
             </div>
@@ -98,14 +95,21 @@ class ContentBox extends PureComponent {
 }
 
 ContentBox.propTypes = {
-  notifications: PropTypes.string.isRequired,
+  notifications: PropTypes.number.isRequired,
   link: PropTypes.string.isRequired,
-  image: PropTypes.string.isRequired,
-  roomType: PropTypes.string.isRequired,
+  image: PropTypes.string,
+  roomType: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
   listType: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   locked: PropTypes.bool.isRequired,
   details: PropTypes.shape({}).isRequired,
-  resource: PropTypes.string.isRequired,
+};
+
+ContentBox.defaultProps = {
+  image: null,
+  roomType: null,
 };
 export default ContentBox;

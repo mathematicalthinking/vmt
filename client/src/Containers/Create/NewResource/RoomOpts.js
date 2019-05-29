@@ -92,8 +92,13 @@ RoomOpts.propTypes = {
   appName: PropTypes.string.isRequired,
   setGgbApp: PropTypes.func.isRequired,
   setGgbFile: PropTypes.func.isRequired,
-  tab: PropTypes.shape({}).isRequired,
+  tab: PropTypes.bool,
   desmosLink: PropTypes.string.isRequired,
   setDesmosLink: PropTypes.func.isRequired,
 };
+
+RoomOpts.defaultProps = {
+  tab: false,
+};
+
 export default RoomOpts;

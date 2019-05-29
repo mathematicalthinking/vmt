@@ -9,6 +9,7 @@ describe('test admin privileges', function() {
     cy.contains('Community').click();
     cy.getTestElement('content-box-room 2').click();
     cy.getTestElement('view-as-admin').click();
+    cy.wait(5000);
     cy.url().should('include', 'myVMT/rooms/5ba289c57223b9429888b9b6/details');
   });
 

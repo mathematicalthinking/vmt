@@ -19,7 +19,7 @@ class Homepage extends PureComponent {
   containerRef = React.createRef();
 
   componentDidMount() {
-    const { location } = this.propsl;
+    const { location } = this.props;
     if (location.state && location.state.error) {
       this.setState({ error: location.state.error });
       this.timer = setTimeout(() => {
@@ -130,14 +130,16 @@ class Homepage extends PureComponent {
 
 Homepage.propTypes = {
   user: PropTypes.shape({}),
+  location: PropTypes.shape({}),
   history: PropTypes.shape({}).isRequired,
   createRoom: PropTypes.func.isRequired,
-  rooms: PropTypes.arrayOf(PropTypes.shape({})),
+  rooms: PropTypes.shape({}),
 };
 
 Homepage.defaultProps = {
   user: null,
   rooms: null,
+  location: null,
 };
 
 export default Homepage;

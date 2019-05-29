@@ -263,8 +263,9 @@ class Chat extends Component {
         if (message.messageType) {
           return (
             <Message
+              key={message._id || 'newest_message'}
               message={message}
-              key={message._id} // ?? no message._id ??
+              id={message._id} // ?? no message._id ??
               ref={this[`message-${message._id}`]}
               click={event => this.messageClickHandler(event, message)}
               highlighted={highlighted}
@@ -272,7 +273,7 @@ class Chat extends Component {
             />
           );
         }
-        return <Event event={message} key={message._id} />;
+        return <Event event={message} id={message._id} key={message._id} />;
       });
       // use this to scroll to the bottom
       // displayMessages.push(<div key='end' ref={this.chatEnd}></div>)
@@ -368,20 +369,22 @@ Chat.propTypes = {
   showingReference: PropTypes.bool.isRequired,
   referenceElement: PropTypes.shape({}),
   change: PropTypes.func.isRequired,
-  value: PropTypes.number,
+  value: PropTypes.string,
   // referenceElementCoords: PropTypes.arrayOf(PropTypes.number),
-  replayer: PropTypes.bool.isRequired,
+  replayer: PropTypes.bool,
   submit: PropTypes.func.isRequired,
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   expanded: PropTypes.bool.isRequired,
-  isConnected: PropTypes.bool.isRequired,
+  isConnected: PropTypes.bool,
 };
 
 Chat.defaultProps = {
   referToEl: null,
   referFromEl: null,
   referenceElement: null,
-  value: null,
+  value: '',
+  replayer: false,
+  isConnected: false,
   // referenceElementCoords: [],
 };
 

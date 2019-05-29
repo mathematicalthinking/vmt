@@ -69,17 +69,28 @@ class TextInput extends Component {
 }
 
 TextInput.propTypes = {
-  light: PropTypes.bool.isRequired,
-  autoComplete: PropTypes.string.isRequired,
-  type: PropTypes.string.isRequired,
-  width: PropTypes.number.isRequired,
+  light: PropTypes.bool,
+  autoComplete: PropTypes.string,
+  type: PropTypes.string,
+  width: PropTypes.string,
   name: PropTypes.string.isRequired,
-  placeholder: PropTypes.string.isRequired,
+  placeholder: PropTypes.string,
   change: PropTypes.func.isRequired,
-  onKeyDown: PropTypes.func.isRequired,
+  onKeyDown: PropTypes.func,
   value: PropTypes.string.isRequired,
-  size: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
+  size: PropTypes.string,
+  label: PropTypes.string,
+};
+
+TextInput.defaultProps = {
+  autoComplete: null,
+  type: null,
+  width: null,
+  placeholder: null,
+  onKeyDown: null,
+  label: null,
+  size: null,
+  light: false,
 };
 
 export default TextInput;

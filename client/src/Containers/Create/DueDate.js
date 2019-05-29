@@ -21,7 +21,7 @@ class DueDate extends Component {
           autoFocus
           selected={dueDate}
           onChange={selectDate}
-          popperPlacement="bottom-left"
+          popperPlacement="bottom"
           shouldCloseOnSelect={false}
         />
       </div>
@@ -30,7 +30,11 @@ class DueDate extends Component {
 }
 
 DueDate.propTypes = {
-  dueDate: PropTypes.string.isRequired,
+  dueDate: PropTypes.instanceOf(Date),
   selectDate: PropTypes.func.isRequired,
+};
+
+DueDate.defaultProps = {
+  dueDate: null,
 };
 export default DueDate;

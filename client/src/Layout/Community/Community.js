@@ -56,6 +56,7 @@ class Community extends Component {
             <Search
               _search={value => setCriteria(value)}
               placeholder="Search..."
+              data-testid="community-search"
             />
           </div>
           <div className={classes.Filter}>
@@ -125,7 +126,10 @@ Community.propTypes = {
   visibleResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   linkPath: PropTypes.string.isRequired,
   linkSuffix: PropTypes.string.isRequired,
-  filters: PropTypes.arrayOf(PropTypes.string).isRequired,
+  filters: PropTypes.shape({
+    privacySetting: PropTypes.oneOf(['public', 'private']),
+    roomType: PropTypes.oneOf(['geogebra', 'desmos']),
+  }).isRequired,
   toggleFilter: PropTypes.func.isRequired,
   setSkip: PropTypes.func.isRequired,
   moreAvailable: PropTypes.bool.isRequired,

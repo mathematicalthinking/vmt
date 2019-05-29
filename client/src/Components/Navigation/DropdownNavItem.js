@@ -27,10 +27,14 @@ const DropdownNavItem = props => {
 };
 
 DropdownNavItem.propTypes = {
-  name: PropTypes.string.isRequired,
+  name: PropTypes.element.isRequired,
   list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   // eslint-disable-next-line react/no-unused-prop-types
-  'data-testid': PropTypes.string.isRequired,
+  'data-testid': PropTypes.string,
+};
+
+DropdownNavItem.defaultProps = {
+  'data-testid': 'dropdownNavItem',
 };
 
 export default DropdownNavItem;

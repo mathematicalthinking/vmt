@@ -6,10 +6,10 @@ import ToolTip from '../ToolTip/ToolTip';
 class Event extends Component {
   state = {};
   render() {
-    const { event } = this.props;
-    const { color, description, key } = event;
+    const { event, id } = this.props;
+    const { color, description } = event;
     return (
-      <ToolTip text={description} key={key}>
+      <ToolTip text={description} key={id}>
         <div className={classes.Event} style={{ background: color }} />
       </ToolTip>
     );
@@ -17,6 +17,7 @@ class Event extends Component {
 }
 
 Event.propTypes = {
+  id: PropTypes.string.isRequired,
   event: PropTypes.shape({}).isRequired,
 };
 export default Event;

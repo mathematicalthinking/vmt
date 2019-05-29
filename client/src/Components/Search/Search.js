@@ -11,13 +11,17 @@ class Search extends Component {
     this.searchRef.current.focus();
   }
   render() {
-    const { theme, placeholder, _search } = this.props;
+    const {
+      theme,
+      placeholder,
+      _search,
+      'data-testid': dataTestId,
+    } = this.props;
     return (
       <div className={[classes.Search].join(' ')}>
         <input
           ref={this.searchRef}
-          // eslint-disable-next-line react/destructuring-assignment
-          data-testid={this.props['data-testid']}
+          data-testid={dataTestId}
           className={[classes.Input, classes[theme]].join(' ')}
           type="text"
           placeholder={placeholder}
@@ -30,10 +34,15 @@ class Search extends Component {
 }
 
 Search.propTypes = {
-  theme: PropTypes.string.isRequired,
-  placeholder: PropTypes.string.isRequired,
+  theme: PropTypes.string,
+  placeholder: PropTypes.string,
   _search: PropTypes.func.isRequired,
   'data-testid': PropTypes.string.isRequired,
+};
+
+Search.defaultProps = {
+  theme: null,
+  placeholder: '',
 };
 
 export default Search;

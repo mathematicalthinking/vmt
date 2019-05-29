@@ -25,6 +25,7 @@ class CurrentMembers extends Component {
 
   render() {
     const { currentMembers, members, activeMember, expanded } = this.props;
+    console.log('CURRENT MEMBERS: ', currentMembers);
     return (
       <div className={classes.Container}>
         <div
@@ -78,11 +79,17 @@ class CurrentMembers extends Component {
 }
 
 CurrentMembers.propTypes = {
-  currentMembers: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  currentMembers: PropTypes.arrayOf(
+    PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string])
+  ).isRequired,
   members: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  activeMember: PropTypes.string.isRequired,
+  activeMember: PropTypes.string,
   expanded: PropTypes.bool.isRequired,
   toggleExpansion: PropTypes.func.isRequired,
+};
+
+CurrentMembers.defaultProps = {
+  activeMember: null,
 };
 
 export default CurrentMembers;

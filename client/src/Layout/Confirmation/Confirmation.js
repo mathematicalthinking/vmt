@@ -15,7 +15,7 @@ const Confirmation = props => {
       <div className={classes.Main}>
         <div>{success ? successMessage : errorMessage}</div>
         <Link onClick={connectClear} to="/myVMT/courses">
-          <Button theme="Big" m={20}>
+          <Button theme="Big" m={20} click={connectClear}>
             Go to your dashboard
           </Button>
         </Link>

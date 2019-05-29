@@ -33,7 +33,7 @@ const pages = [
   },
   {
     path: '/courses/:course_id/rooms/:room_id/:resource',
-    componeny: Room,
+    component: Room,
     redirectPath: '/signup',
   },
   {
@@ -68,28 +68,30 @@ const pages = [
 ];
 class MyVmt extends Component {
   render() {
-    const { match, loggedIn, fail, user, globalErrorMessage } = this.props;
+    const { match, loggedIn, user, globalErrorMessage } = this.props;
     const { path } = match;
     return (
-      <ErrorBoundary dispatchFail={fail}>
+      <ErrorBoundary>
         <Navbar user={user} />
         <Switch>
-          {pages.map(page => (
-            <PrivateRoute
-              exact
-              key={page.path}
-              path={`${path}/${page.path}`}
-              authed={loggedIn}
-              component={page.component}
-              redirectPath={page.redirectPath || '/'}
-            />
-          ))}
+          {pages.map(page => {
+            return (
+              <PrivateRoute
+                exact
+                key={page.path}
+                path={`${path}${page.path}`}
+                authed={loggedIn}
+                component={page.component}
+                redirectPath={page.redirectPath || '/'}
+              />
+            );
+          })}
           <Route
             path="*"
-            render={() => {
-              return <div>Error</div>;
+            component={
+              () => <div>Error</div>
               // ^ @TODO 404 page
-            }}
+            }
           />
         </Switch>
         {globalErrorMessage ? (
@@ -101,9 +103,8 @@ class MyVmt extends Component {
 }
 
 MyVmt.propTypes = {
-  match: PropTypes.string.isRequired,
+  match: PropTypes.shape({}).isRequired,
   loggedIn: PropTypes.bool.isRequired,
-  fail: PropTypes.func.isRequired,
   user: PropTypes.shape({}),
   globalErrorMessage: PropTypes.string,
 };

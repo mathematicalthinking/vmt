@@ -21,7 +21,7 @@ class RoomDetails extends Component {
               editing={editing}
               change={updateRoomInfo}
             >
-              {instructions}
+              {instructions || 'No instructions set yet'}
             </EditText>
           </Error>
         </div>
@@ -54,9 +54,12 @@ class RoomDetails extends Component {
 RoomDetails.propTypes = {
   room: PropTypes.shape({}).isRequired,
   editing: PropTypes.bool.isRequired,
-  updateRoomInfo: PropTypes.bool.isRequired,
-  instructions: PropTypes.string.isRequired,
+  updateRoomInfo: PropTypes.func.isRequired,
+  instructions: PropTypes.string,
   loading: PropTypes.bool.isRequired,
 };
 
+RoomDetails.defaultProps = {
+  instructions: null,
+};
 export default RoomDetails;

@@ -91,12 +91,20 @@ ActivityDetails.propTypes = {
   activity: PropTypes.shape({}).isRequired,
   history: PropTypes.shape({}).isRequired,
   userId: PropTypes.string.isRequired,
-  instructions: PropTypes.string.isRequired,
-  editing: PropTypes.bool.isRequired,
+  instructions: PropTypes.string,
+  editing: PropTypes.bool,
   update: PropTypes.func.isRequired,
-  course: PropTypes.shape({}).isRequired,
-  owner: PropTypes.bool.isRequired,
-  loading: PropTypes.bool.isRequired,
+  course: PropTypes.shape({}),
+  owner: PropTypes.bool,
+  loading: PropTypes.bool,
+};
+
+ActivityDetails.defaultProps = {
+  instructions: null,
+  editing: false,
+  owner: false,
+  course: null,
+  loading: false,
 };
 
 export default withRouter(ActivityDetails);

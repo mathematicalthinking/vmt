@@ -52,7 +52,7 @@ const initialState = {
   desmosLink: '',
   ggbFiles: '',
   appName: 'classic',
-  dueDate: '',
+  dueDate: null,
   activities: [],
   privacySetting: 'public',
 };
@@ -274,6 +274,7 @@ class NewResourceContainer extends Component {
         displayResource={displayResource}
         name={name}
         description={description}
+        resource={resource}
         changeHandler={this.changeHandler}
       />,
       copying ? (
@@ -326,7 +327,8 @@ class NewResourceContainer extends Component {
 
     const stepDisplays = steps.map((currentStep, i) => (
       <div
-        key={currentStep}
+        // eslint-disable-next-line react/no-array-index-key
+        key={`id-${i}`}
         className={[
           classes.Step,
           i <= step ? classes.CompletedStep : null,
@@ -427,13 +429,14 @@ NewResourceContainer.propTypes = {
   connectCreateCourse: PropTypes.func.isRequired,
   connectCreateRoom: PropTypes.func.isRequired,
   connectCreateActivity: PropTypes.func.isRequired,
-  intro: PropTypes.bool.isRequired,
+  intro: PropTypes.bool,
   connectUpdateUser: PropTypes.func.isRequired,
-  history: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  history: PropTypes.shape({}).isRequired,
 };
 
 NewResourceContainer.defaultProps = {
   courseId: null,
+  intro: false,
 };
 
 const mapStateToProps = (store, ownProps) => {

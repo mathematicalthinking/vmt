@@ -655,7 +655,7 @@ class Workspace extends Component {
 Workspace.propTypes = {
   room: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
-  temp: PropTypes.bool.isRequired,
+  temp: PropTypes.bool,
   history: PropTypes.shape({}).isRequired,
   save: PropTypes.func,
   connectUpdateUser: PropTypes.func.isRequired,
@@ -669,6 +669,7 @@ Workspace.propTypes = {
 
 Workspace.defaultProps = {
   save: null,
+  temp: false,
 };
 const mapStateToProps = (state, ownProps) => {
   return {

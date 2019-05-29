@@ -97,7 +97,7 @@ const Tools = ({
 };
 
 Tools.propTypes = {
-  inControl: PropTypes.bool.isRequired,
+  inControl: PropTypes.string,
   lastEvent: PropTypes.shape({}),
   replayer: PropTypes.bool,
   save: PropTypes.func,
@@ -110,6 +110,7 @@ Tools.propTypes = {
 
 Tools.defaultProps = {
   lastEvent: null,
+  inControl: null,
   replayer: false,
   save: null,
 };

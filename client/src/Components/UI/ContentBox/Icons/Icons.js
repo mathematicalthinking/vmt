@@ -80,13 +80,17 @@ const Icons = ({ lock, listType, roomType, image }) => {
 };
 
 Icons.propTypes = {
-  image: PropTypes.string.isRequired,
+  image: PropTypes.string,
   lock: PropTypes.bool.isRequired,
   listType: PropTypes.string.isRequired,
   roomType: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
-  ]).isRequired,
+  ]),
 };
 
+Icons.defaultProps = {
+  image: null,
+  roomType: null,
+};
 export default Icons;

@@ -164,19 +164,26 @@ class Member extends PureComponent {
   }
 }
 
+// Consider adding a listType prop that speicifes if this member is showing up in a classList or a requestAccess list
+// and then conditionally require the access vs edit function isntead of just blindly not requiring any of them
 Member.propTypes = {
   info: PropTypes.shape({}).isRequired,
-  changeRole: PropTypes.func.isRequired,
-  removeMember: PropTypes.func.isRequired,
-  owner: PropTypes.bool.isRequired,
-  grantAccess: PropTypes.func.isRequired,
-  rejectAccess: PropTypes.func.isRequired,
+  changeRole: PropTypes.func,
+  removeMember: PropTypes.func,
+  owner: PropTypes.bool,
+  grantAccess: PropTypes.func,
+  rejectAccess: PropTypes.func,
   notification: PropTypes.bool,
   resourceName: PropTypes.string.isRequired,
 };
 
 Member.defaultProps = {
   notification: false,
+  owner: false,
+  changeRole: null,
+  removeMember: null,
+  grantAccess: null,
+  rejectAccess: null,
 };
 
 export default Member;

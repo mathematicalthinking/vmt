@@ -7,7 +7,7 @@ class Step1Course extends Component {
   render() {
     const {
       participantList,
-      assignRandom,
+      isRandom,
       setRandom,
       setManual,
       error,
@@ -19,7 +19,7 @@ class Step1Course extends Component {
         <div className={classes.Radios}>
           <RadioBtn
             name="random"
-            checked={assignRandom}
+            checked={isRandom}
             check={setRandom}
             defaultChecked
           >
@@ -28,14 +28,14 @@ class Step1Course extends Component {
           <RadioBtn
             data-testid="assign-manually"
             name="manual"
-            checked={!assignRandom}
+            checked={!isRandom}
             defaultChecked={false}
             check={setManual}
           >
             Assign Manually
           </RadioBtn>
         </div>
-        {assignRandom ? (
+        {isRandom ? (
           <div className={classes.SubContainer}>
             <div className={classes.Error}>{error || ''}</div>
             <TextInput
@@ -61,16 +61,17 @@ class Step1Course extends Component {
 }
 
 Step1Course.propTypes = {
-  participantList: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  assignRandom: PropTypes.func.isRequired,
+  participantList: PropTypes.element.isRequired,
+  isRandom: PropTypes.bool,
   setRandom: PropTypes.func.isRequired,
   setManual: PropTypes.func.isRequired,
-  error: PropTypes.string.isRequired,
+  error: PropTypes.string,
   submit: PropTypes.func.isRequired,
 };
 
-Step1Course.defaultPropTypes = {
+Step1Course.defaultProps = {
   error: null,
+  isRandom: false,
 };
 
 export default Step1Course;

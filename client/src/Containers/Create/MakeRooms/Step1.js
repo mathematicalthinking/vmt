@@ -21,8 +21,12 @@ class Step1 extends Component {
 }
 
 Step1.propTypes = {
-  dueDate: PropTypes.string.isRequired,
+  dueDate: PropTypes.instanceOf(Date),
   setDueDate: PropTypes.func.isRequired,
   nextStep: PropTypes.func.isRequired,
+};
+
+Step1.defaultProps = {
+  dueDate: null,
 };
 export default Step1;

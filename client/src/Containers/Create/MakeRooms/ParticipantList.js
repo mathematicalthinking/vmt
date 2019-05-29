@@ -35,8 +35,8 @@ class ParticipantList extends Component {
 }
 
 ParticipantList.propTypes = {
-  list: PropTypes.arrayOf(PropTypes.element).isRequired,
-  selectedParticipants: PropTypes.arrayOf(PropTypes.element).isRequired,
+  list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  selectedParticipants: PropTypes.arrayOf(PropTypes.string).isRequired,
   select: PropTypes.func.isRequired,
 };
 export default ParticipantList;

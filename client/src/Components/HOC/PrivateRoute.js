@@ -34,7 +34,7 @@ const privateRoute = ({
 };
 
 privateRoute.propTypes = {
-  component: PropTypes.element.isRequired,
+  component: PropTypes.func.isRequired,
   authed: PropTypes.bool,
   redirectPath: PropTypes.string,
   connectFail: PropTypes.func.isRequired,

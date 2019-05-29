@@ -58,7 +58,7 @@ class PrivateAccess extends Component {
 
   render() {
     const { resource, user, setAdmin, error } = this.props;
-    const { show } = this.state;
+    const { show, entryCode } = this.state;
     let displayResource = 'activity';
     if (resource === 'rooms') displayResource = 'room';
     if (resource === 'courses') displayResource = 'course';
@@ -71,6 +71,8 @@ class PrivateAccess extends Component {
         <TextInput
           light
           type="text"
+          value={entryCode}
+          placeholder="entry code"
           name="entryCode"
           change={this.updateEntry}
         />
@@ -110,8 +112,12 @@ PrivateAccess.propTypes = {
   username: PropTypes.string.isRequired,
   joinWithCode: PropTypes.func.isRequired,
   history: PropTypes.shape({}).isRequired,
-  error: PropTypes.string.isRequired,
+  error: PropTypes.string,
   clearError: PropTypes.func.isRequired,
+};
+
+PrivateAccess.defaultProps = {
+  error: null,
 };
 
 export default withRouter(PrivateAccess);

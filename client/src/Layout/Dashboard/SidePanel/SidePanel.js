@@ -63,17 +63,33 @@ const SidePanel = ({
 };
 
 SidePanel.propTypes = {
-  image: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  subTitle: PropTypes.string.isRequired,
-  alt: PropTypes.string.isRequired,
+  image: PropTypes.string,
+  name: PropTypes.oneOfType([
+    PropTypes.element.isRequired,
+    PropTypes.string.isRequired,
+  ]).isRequired,
+  subTitle: PropTypes.oneOfType([
+    PropTypes.element.isRequired,
+    PropTypes.string.isRequired,
+  ]).isRequired,
+  alt: PropTypes.string,
   additionalDetails: PropTypes.shape({}).isRequired,
-  owner: PropTypes.shape({}).isRequired,
-  editButton: PropTypes.element.isRequired,
-  editing: PropTypes.bool.isRequired,
-  buttons: PropTypes.shape({}).isRequired,
-  accountType: PropTypes.string.isRequired,
-  bothRoles: PropTypes.bool.isRequired,
+  // owner: PropTypes.bool,
+  editButton: PropTypes.element,
+  editing: PropTypes.bool,
+  buttons: PropTypes.shape({}),
+  accountType: PropTypes.oneOf(['facilitator', 'participant']),
+  bothRoles: PropTypes.bool,
 };
 
+SidePanel.defaultProps = {
+  image: null,
+  alt: null,
+  // owner: false,
+  editButton: null,
+  editing: false,
+  accountType: null,
+  buttons: null,
+  bothRoles: false,
+};
 export default SidePanel;

@@ -331,7 +331,7 @@ class Room extends Component {
               editing={editing}
               name="dueDate"
             >
-              {dueDate}
+              {dueDate || 'Not Set'}
             </EditText>
           </Error>
         ),
@@ -366,7 +366,7 @@ class Room extends Component {
               name="entryCode"
               editing={editing}
             >
-              {entryCode}
+              {entryCode || 'Not Set'}
             </EditText>
           </Error>
         );
@@ -542,7 +542,7 @@ class Room extends Component {
           {firstView ? (
             <Modal
               show={firstView}
-              close={this.clearFirstViewModal}
+              closeModal={this.clearFirstViewModal}
               history={history}
             >
               <p>
@@ -603,12 +603,12 @@ class Room extends Component {
         resourceId={match.params.room_id}
         userId={user._id}
         username={user.username}
-        privacySetting={room ? room.privacySetting : null}
+        privacySetting={room ? room.privacySetting : 'private'}
         owners={
           room
             ? room.members
                 .filter(member => member.role.toLowerCase() === 'facilitator')
-                .map(member => member.user._id)
+                .map(member => member.user)
             : []
         }
         error={error}
@@ -622,7 +622,7 @@ class Room extends Component {
 }
 
 Room.propTypes = {
-  room: PropTypes.shape({}).isRequired,
+  room: PropTypes.shape({}),
   user: PropTypes.shape({}).isRequired,
   course: PropTypes.shape({}),
   history: PropTypes.shape({}).isRequired,
@@ -642,6 +642,7 @@ Room.propTypes = {
 };
 
 Room.defaultProps = {
+  room: null,
   course: null,
   error: null,
 };
@@ -654,7 +655,7 @@ const mapStateToProps = (state, ownProps) => {
     // courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
     user: state.user,
     notifications: getUserNotifications(state.user, null, 'room'), // this seems redundant
-    loading: state.loading,
+    loading: state.loading.loading,
   };
 };
 

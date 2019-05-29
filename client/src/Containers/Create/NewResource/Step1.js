@@ -29,7 +29,7 @@ const Step1 = React.memo(props => {
   );
 });
 
-Step1.PropTypes = {
+Step1.propTypes = {
   displayResource: PropTypes.string.isRequired,
   changeHandler: PropTypes.func.isRequired,
   description: PropTypes.string.isRequired,

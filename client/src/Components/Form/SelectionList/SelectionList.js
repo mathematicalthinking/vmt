@@ -1,25 +1,12 @@
+// @TODO this is very similar to participantList...look into combining/abstracting
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Checkbox from '../Checkbox/Checkbox';
 import classes from './selectionList.css';
-import API from '../../../utils/apiRequests';
 
 class SelectionList extends Component {
-  state = {
-    list: [],
-  };
-  componentDidMount() {
-    const { list } = this.props;
-    if (list === 'activities') {
-      API.get('activities').then(res => {
-        this.setState({ list: res.data.results });
-      });
-    }
-  }
-
   render() {
-    const { selectItem } = this.props;
-    const { list } = this.state;
+    const { selectItem, list } = this.props;
     const ElementList = list.map((activity, i) => {
       return (
         <li
@@ -30,6 +17,9 @@ class SelectionList extends Component {
             change={event => {
               selectItem(event, activity._id);
             }}
+            dataId={`select-${activity.name}`}
+            // @todo this component is sometimes controlled...but here it is not. we need to consistantly pass check and checked instead of onChange
+            // but now this is going to require have two lists ... options vs. selected and then checked will = options contains selected.
           >
             {activity.name}
           </Checkbox>
@@ -51,7 +41,7 @@ class SelectionList extends Component {
 }
 
 SelectionList.propTypes = {
-  list: PropTypes.arrayOf({}).isRequired,
+  list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   selectItem: PropTypes.func.isRequired,
 };
 

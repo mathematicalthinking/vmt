@@ -73,12 +73,13 @@ const Navbar = ({ page, user, loggedIn, scrollPosition }) => {
 Navbar.propTypes = {
   page: PropTypes.string.isRequired,
   loggedIn: PropTypes.bool.isRequired,
-  scrollPosition: PropTypes.number.isRequired,
+  scrollPosition: PropTypes.number,
   user: PropTypes.shape({}),
 };
 
 Navbar.defaultProps = {
   user: null,
+  scrollPosition: null,
 };
 
 const mapStateToProps = store => ({

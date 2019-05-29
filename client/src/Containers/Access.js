@@ -22,7 +22,7 @@ class Access extends Component {
 }
 
 Access.propTypes = {
-  privacySetting: PropTypes.bool.isRequired,
+  privacySetting: PropTypes.oneOf(['public', 'private']).isRequired,
 };
 
 const mapStateToProps = store => ({

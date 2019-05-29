@@ -135,10 +135,15 @@ class Chat extends Component {
 
 Chat.propTypes = {
   referencing: PropTypes.bool.isRequired,
-  referToEl: PropTypes.shape({}).isRequired,
+  referToEl: PropTypes.shape({}),
   addToLog: PropTypes.func.isRequired,
-  replaying: PropTypes.bool.isRequired,
+  replaying: PropTypes.bool,
   roomId: PropTypes.string.isRequired,
+};
+
+Chat.defaultProps = {
+  referToEl: null,
+  replaying: false,
 };
 
 export default Chat;

@@ -40,7 +40,7 @@ class RoleDropdown extends Component {
         const className = [colorClass, backgroundClass].join(' ');
         return (
           <div
-            key={item.name}
+            key={item}
             onClick={() => {
               this.setState({ listOpen: false });
               selectHandler(item);
@@ -81,7 +81,7 @@ class RoleDropdown extends Component {
 }
 
 RoleDropdown.propTypes = {
-  list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  list: PropTypes.arrayOf(PropTypes.string).isRequired,
   selectHandler: PropTypes.func.isRequired,
 };
 export default onClickOutside(RoleDropdown);

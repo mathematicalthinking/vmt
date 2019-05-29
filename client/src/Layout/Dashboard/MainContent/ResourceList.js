@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
 import classes from './resourceList.css';
-import Search from '../../../Components/Search/Search';
+// import Search from '../../../Components/Search/Search';
 // CONSIDER RENAMING TO DASHBOARDCONTENT
-const resources = props => {
+const ResourceList = props => {
   const {
     resource,
     parentResource,
@@ -62,9 +62,7 @@ const resources = props => {
     <div>
       {/* @TODO don't show create optinos for participants */}
       <div className={classes.Controls}>
-        <div className={classes.Search}>
-          <Search />
-        </div>
+        <div className={classes.Search}>{/* <Search /> */}</div>
         {create}
       </div>
       {facilitatorList.length > 0 && participantList.length > 0 ? (
@@ -119,13 +117,18 @@ const resources = props => {
   );
 };
 
-resources.propTypes = {
+ResourceList.propTypes = {
   resource: PropTypes.string.isRequired,
-  parentResource: PropTypes.string.isRequired,
-  parentResourceId: PropTypes.string.isRequired,
+  parentResource: PropTypes.string,
+  parentResourceId: PropTypes.string,
   user: PropTypes.shape({}).isRequired,
   userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
-export default resources;
+ResourceList.defaultProps = {
+  parentResource: null,
+  parentResourceId: null,
+};
+
+export default ResourceList;

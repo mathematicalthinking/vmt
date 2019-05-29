@@ -8,7 +8,7 @@ const BreadCrumbs = ({ crumbs, notifications }) => {
   if (crumbs.length > 1 && notifications.length > 0) {
     const { link } = crumbs[crumbs.length - 1];
     ntf = notifications.filter(n => {
-      if (ntf.parentResource) {
+      if (n.parentResource) {
         return !link.includes(n.parentResource);
       }
       return !link.includes(n.resourceId);
@@ -47,7 +47,11 @@ const BreadCrumbs = ({ crumbs, notifications }) => {
 
 BreadCrumbs.propTypes = {
   crumbs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  notifications: PropTypes.arrayOf(PropTypes.shape({})),
+};
+
+BreadCrumbs.defaultProps = {
+  notifications: null,
 };
 
 export default BreadCrumbs;

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classes from './notification.css';
 
-const Notification = ({ count, size, dataTestId }) => {
+const Notification = ({ count, size, 'data-testid': dataTestId }) => {
   return (
     <span
       data-testid={dataTestId || 'ntf'}
@@ -20,8 +20,14 @@ const Notification = ({ count, size, dataTestId }) => {
 };
 
 Notification.propTypes = {
-  count: PropTypes.number.isRequired,
-  size: PropTypes.string.isRequired,
-  dataTestId: PropTypes.string.isRequired,
+  count: PropTypes.number,
+  size: PropTypes.string,
+  'data-testid': PropTypes.string,
+};
+
+Notification.defaultProps = {
+  count: null,
+  'data-testid': 'ntf-icon',
+  size: null,
 };
 export default Notification;

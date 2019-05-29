@@ -194,13 +194,14 @@ NewTabForm.propTypes = {
   user: PropTypes.shape({}).isRequired,
   activity: PropTypes.shape({}),
   updatedRoom: PropTypes.func.isRequired,
-  updatedActivity: PropTypes.func.isRequired,
+  updatedActivity: PropTypes.func,
   closeModal: PropTypes.func.isRequired,
   sendEvent: PropTypes.func.isRequired,
 };
 
 NewTabForm.defaultProps = {
   room: null,
+  updatedActivity: null,
   activity: null,
 };
 export default NewTabForm;

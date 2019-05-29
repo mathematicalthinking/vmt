@@ -65,7 +65,12 @@ const Navbar = ({ user, location }) => {
 
 Navbar.propTypes = {
   user: PropTypes.shape({}),
-  location: PropTypes.string.isRequired,
+  location: PropTypes.shape({
+    pathname: PropTypes.string,
+    search: PropTypes.string,
+    key: PropTypes.string,
+    hash: PropTypes.string,
+  }).isRequired,
 };
 Navbar.defaultProps = {
   user: null,

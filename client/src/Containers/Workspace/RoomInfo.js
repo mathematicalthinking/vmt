@@ -59,7 +59,7 @@ class RoomInfo extends Component {
               transform: expanded ? `rotate(0)` : `rotate(90deg)`,
             }}
           >
-            <Expand />
+            <Expand clickHandler={() => {}} />
           </div>
         </div>
         <div
@@ -110,10 +110,13 @@ class RoomInfo extends Component {
 
 RoomInfo.propTypes = {
   role: PropTypes.string.isRequired,
-  updatedActivity: PropTypes.func.isRequired,
+  updatedActivity: PropTypes.func,
   room: PropTypes.shape({}).isRequired,
   currentTab: PropTypes.number.isRequired,
   temp: PropTypes.bool.isRequired,
 };
 
+RoomInfo.defaultProps = {
+  updatedActivity: null,
+};
 export default RoomInfo;

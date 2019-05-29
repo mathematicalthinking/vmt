@@ -6,9 +6,6 @@ const Button = props => {
   const { theme, disabled, m, click, type, children } = props;
   // let styles = [classes.Button]
   let styles = classes[theme];
-  if (!theme) {
-    styles = classes.Small;
-  }
   if (disabled) {
     styles = classes.Disabled;
   }
@@ -30,17 +27,21 @@ const Button = props => {
 };
 
 Button.propTypes = {
-  'data-testid': PropTypes.string.isRequired,
-  theme: PropTypes.string.isRequired,
-  disabled: PropTypes.bool.isRequired,
+  'data-testid': PropTypes.string,
+  theme: PropTypes.string,
+  disabled: PropTypes.bool,
   m: PropTypes.number,
   click: PropTypes.func.isRequired,
-  type: PropTypes.func.isRequired,
-  children: PropTypes.func.isRequired,
+  type: PropTypes.string,
+  children: PropTypes.node.isRequired,
 };
 
 Button.defaultProps = {
   m: 0,
+  disabled: false,
+  type: 'button',
+  'data-testid': null,
+  theme: 'Small',
 };
 
 export default Button;

@@ -19,6 +19,10 @@ const NavItem = ({ name, link, ntf }) => {
 NavItem.propTypes = {
   name: PropTypes.string.isRequired,
   link: PropTypes.string.isRequired,
-  ntf: PropTypes.bool.isRequired,
+  ntf: PropTypes.bool,
+};
+
+NavItem.defaultProps = {
+  ntf: false,
 };
 export default NavItem;

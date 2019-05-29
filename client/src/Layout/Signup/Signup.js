@@ -83,7 +83,14 @@ class Signup extends Component {
 
   render() {
     const { user, temp, loggedIn, errorMessage } = this.props;
-    const { participantAccount, username } = this.state;
+    const {
+      participantAccount,
+      username,
+      firstName,
+      lastName,
+      email,
+      password,
+    } = this.state;
     const containerClass = temp
       ? classes.ModalContainer
       : classes.SignupContainer;
@@ -106,6 +113,7 @@ class Signup extends Component {
                   change={this.changeHandler}
                   type="text"
                   label="First Name"
+                  value={firstName}
                   name="firstName"
                 />
                 <TextInput
@@ -113,6 +121,7 @@ class Signup extends Component {
                   change={this.changeHandler}
                   type="text"
                   label="Last Name"
+                  value={lastName}
                   name="lastName"
                 />
                 <TextInput
@@ -128,6 +137,7 @@ class Signup extends Component {
                   change={this.changeHandler}
                   type="email"
                   label="Email"
+                  value={email}
                   name="email"
                 />
                 <TextInput
@@ -135,6 +145,7 @@ class Signup extends Component {
                   change={this.changeHandler}
                   type="password"
                   label="Password"
+                  value={password}
                   name="password"
                 />
                 <div className={classes.AccountTypeContainer}>
@@ -145,6 +156,7 @@ class Signup extends Component {
                   <div className={classes.RadioOption}>
                     <RadioBtn
                       checked={participantAccount}
+                      name="participant"
                       check={() => this.setState({ participantAccount: true })}
                     >
                       Participant
@@ -153,6 +165,7 @@ class Signup extends Component {
                   <div className={classes.RadioOption}>
                     <RadioBtn
                       checked={!participantAccount}
+                      name="facilitator"
                       check={() => this.setState({ participantAccount: false })}
                     >
                       Facilitator
@@ -187,21 +200,30 @@ class Signup extends Component {
 }
 
 Signup.propTypes = {
-  temp: PropTypes.bool.isRequired,
+  temp: PropTypes.bool,
   room: PropTypes.string,
   signup: PropTypes.func.isRequired,
   user: PropTypes.shape({}),
-  tempRoom: PropTypes.func.isRequired,
+  tempRoom: PropTypes.bool,
   errorMessage: PropTypes.string,
   clearError: PropTypes.func.isRequired,
   loggedIn: PropTypes.bool.isRequired,
-  closeModal: PropTypes.func.isRequired,
+  closeModal: (props, propName) => {
+    if (props.temp && !props[propName]) {
+      throw new Error(
+        'please provide a function to close the signup modal when props.temp is true'
+      );
+    }
+  },
 };
 
 Signup.defaultProps = {
   room: null,
   user: null,
   errorMessage: null,
+  temp: false,
+  tempRoom: false,
+  closeModal: null,
 };
 
 export default Signup;

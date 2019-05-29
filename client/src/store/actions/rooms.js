@@ -155,7 +155,7 @@ export const createRoom = body => {
     dispatch(loading.start());
     API.post('rooms', body)
       .then(res => {
-        const { result } = res.data.result;
+        const { result } = res.data;
         result.myRole = 'facilitator';
         dispatch(createdRoom(result));
         if (!body.tempRoom) {

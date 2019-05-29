@@ -344,17 +344,21 @@ Activity.propTypes = {
   match: PropTypes.shape({}).isRequired,
   activity: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
-  course: PropTypes.shape({}).isRequired,
+  course: PropTypes.shape({}),
   history: PropTypes.shape({}).isRequired,
   loading: PropTypes.bool.isRequired,
   updateFail: PropTypes.bool.isRequired,
   updateKeys: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
-  rooms: PropTypes.isRequired,
+  rooms: PropTypes.shape({}).isRequired,
   // connectGetCourses: PropTypes.func.isRequired,
   // connectGetRooms: PropTypes.func.isRequired,
   connectUpdateActivity: PropTypes.func.isRequired,
   // connectGetActivities: PropTypes.func.isRequired,
   connectGetCurrentActivity: PropTypes.func.isRequired,
+};
+
+Activity.defaultProps = {
+  course: null,
 };
 
 const mapStateToProps = (state, ownProps) => {
@@ -369,7 +373,9 @@ const mapStateToProps = (state, ownProps) => {
     rooms: state.rooms.byId,
     userId: state.user._id,
     user: state.user,
-    loading: state.loading,
+    loading: state.loading.loading,
+    updateFail: state.loading.updateFail,
+    updateKeys: state.loading.updateKeys,
   };
 };
 

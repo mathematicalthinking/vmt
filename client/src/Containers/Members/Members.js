@@ -181,6 +181,7 @@ class Members extends PureComponent {
                   ntf.toUser
                 );
               }}
+              resourceName={resourceType}
               rejectAccess={() => {
                 connectClearNotification(ntf._id);
               }}
@@ -222,7 +223,11 @@ class Members extends PureComponent {
           owner
         />
       ) : (
-        <Member info={member} key={member.user._id} />
+        <Member
+          info={member}
+          key={member.user._id}
+          resourceName={resourceType}
+        />
       );
     });
 
@@ -310,14 +315,14 @@ class Members extends PureComponent {
 }
 
 Members.propTypes = {
-  searchedUsers: PropTypes.arrayOf({}),
-  notifications: PropTypes.arrayOf({}),
+  searchedUsers: PropTypes.arrayOf(PropTypes.shape({})),
+  notifications: PropTypes.arrayOf(PropTypes.shape({})),
   resourceId: PropTypes.string.isRequired,
   resourceType: PropTypes.string.isRequired,
   courseMembers: PropTypes.arrayOf({}),
   owner: PropTypes.bool.isRequired,
-  parentResource: PropTypes.string.isRequired,
-  classList: PropTypes.arrayOf({}),
+  parentResource: PropTypes.string,
+  classList: PropTypes.arrayOf(PropTypes.shape({})),
   connectGrantAccess: PropTypes.func.isRequired,
   connectUpdateCourseMembers: PropTypes.func.isRequired,
   connectUpdateRoomMembers: PropTypes.func.isRequired,
@@ -333,6 +338,7 @@ Members.defaultProps = {
   classList: [],
   courseMembers: null,
   notifications: null,
+  parentResource: null,
 };
 const mapStateToProps = (state, ownProps) => {
   // STart the search results populated with people already in the store

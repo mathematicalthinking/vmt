@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { updateUserResource } from '../store/actions';
 import { CommunityLayout } from '../Layout';
 import API from '../utils/apiRequests';
 
@@ -165,7 +164,6 @@ Community.propTypes = {
   // roomsArr: PropTypes.PropTypes.arrayOf(PropTypes.string).isRequired,
   user: PropTypes.shape({}).isRequired,
   match: PropTypes.shape({}).isRequired,
-  connectUpdateUserResource: PropTypes.shape({}).isRequired,
 };
 
 const mapStateToProps = store => {
@@ -182,5 +180,5 @@ const mapStateToProps = store => {
 
 export default connect(
   mapStateToProps,
-  { connectUpdateUserResource: updateUserResource }
+  null
 )(Community);

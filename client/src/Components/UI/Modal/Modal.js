@@ -51,9 +51,14 @@ const Modal = ({ show, closeModal, message, children, height }) => (
 Modal.propTypes = {
   show: PropTypes.bool.isRequired,
   closeModal: PropTypes.func.isRequired,
-  message: PropTypes.string.isRequired,
+  message: PropTypes.string,
   children: PropTypes.node.isRequired,
-  height: PropTypes.number.isRequired,
+  height: PropTypes.number,
+};
+
+Modal.defaultProps = {
+  message: null,
+  height: null,
 };
 
 export default Modal;

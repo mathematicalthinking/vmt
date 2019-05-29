@@ -40,11 +40,12 @@ const Avatar = props => {
 Avatar.propTypes = {
   size: PropTypes.string,
   color: PropTypes.string,
-  username: PropTypes.string.isRequired,
+  username: PropTypes.string,
 };
 
 Avatar.defaultProps = {
   size: null,
   color: null,
+  username: null,
 };
 export default Avatar;

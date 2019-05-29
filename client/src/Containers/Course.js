@@ -11,6 +11,8 @@ import {
   updateCourse,
   clearNotification,
   getCourse,
+  requestAccess,
+  grantAccess,
 } from '../store/actions';
 import { DashboardLayout, SidePanel, ResourceList } from '../Layout/Dashboard';
 import {
@@ -150,15 +152,15 @@ class Course extends Component {
 
   requestAccess = () => {
     // consider getting requestAccess from mapDispatchToProps instead of patent component
-    const { course, user, requestAccess, history } = this.props;
+    const { course, user, connectRequestAccess, history } = this.props;
     // HEY? WHY DO WE NEED COURSE.CREATOR RIGHT HERE
-    requestAccess(course.creator, user._id, 'courses', course._id);
+    connectRequestAccess(course.creator, user._id, 'courses', course._id);
     history.push('/confirmation');
   };
 
   requestPublicAccess = () => {
-    const { grantAccess, user, course } = this.props;
-    grantAccess(
+    const { connectGrantAccess, user, course } = this.props;
+    connectGrantAccess(
       { _id: user._id, username: user.username },
       'courses',
       course._id
@@ -546,7 +548,7 @@ class Course extends Component {
         resourceId={match.params.course_id}
         userId={user._id}
         username={user.username}
-        privacySetting={course ? course.privacySetting : null}
+        privacySetting={course ? course.privacySetting : 'private'}
         owners={
           course
             ? course.members
@@ -561,18 +563,23 @@ class Course extends Component {
 }
 
 Course.propTypes = {
-  course: PropTypes.shape({}).isRequired,
+  course: PropTypes.shape({}),
   user: PropTypes.shape({}).isRequired,
   match: PropTypes.shape({}).isRequired,
-  notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  history: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  notifications: PropTypes.arrayOf(PropTypes.shape({})),
+  history: PropTypes.shape({}).isRequired,
   loading: PropTypes.bool.isRequired,
-  requestAccess: PropTypes.func.isRequired,
-  grantAccess: PropTypes.func.isRequired,
+  connectGrantAccess: PropTypes.func.isRequired,
+  connectRequestAccess: PropTypes.func.isRequired,
   connectGetCourse: PropTypes.func.isRequired,
   connectClearNotification: PropTypes.func.isRequired,
   connectRemoveCourseMember: PropTypes.func.isRequired,
   connectUpdateCourse: PropTypes.func.isRequired,
+};
+
+Course.defaultProps = {
+  course: null,
+  notifications: null,
 };
 
 const mapStateToProps = (store, ownProps) => {
@@ -587,7 +594,7 @@ const mapStateToProps = (store, ownProps) => {
     user: store.user,
     // notifications: store.user.courseNotifications.access,
     notifications: getUserNotifications(store.user, null, 'course'),
-    loading: store.loading,
+    loading: store.loading.loading,
   };
 };
 
@@ -598,5 +605,7 @@ export default connect(
     connectRemoveCourseMember: removeCourseMember,
     connectUpdateCourse: updateCourse,
     connectGetCourse: getCourse,
+    connectRequestAccess: requestAccess,
+    connectGrantAccess: grantAccess,
   }
 )(Course);

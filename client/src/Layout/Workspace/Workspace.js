@@ -147,19 +147,19 @@ class WorkspaceLayout extends Component {
 
 WorkspaceLayout.propTypes = {
   chat: PropTypes.element.isRequired,
-  tabs: PropTypes.arrayOf(PropTypes.element).isRequired,
+  tabs: PropTypes.element.isRequired,
   bottomRight: PropTypes.element.isRequired, // rename to tools
   bottomLeft: PropTypes.element.isRequired,
   currentMembers: PropTypes.element.isRequired,
-  referFromCoords: PropTypes.shape({}).isRequired,
-  referToCoords: PropTypes.shape({}).isRequired,
+  referFromCoords: PropTypes.shape({}),
+  referToCoords: PropTypes.shape({}),
   graphs: PropTypes.arrayOf(PropTypes.element).isRequired,
-  replayer: PropTypes.element.isRequired,
+  replayer: PropTypes.bool,
   currentTab: PropTypes.number.isRequired,
   roomName: PropTypes.string.isRequired,
   loaded: PropTypes.bool.isRequired,
   activity: PropTypes.shape({}),
-  isFullscreen: PropTypes.bool.isRequired,
+  isFullscreen: PropTypes.bool,
   encompass: PropTypes.bool,
   chatExpanded: PropTypes.bool.isRequired,
   membersExpanded: PropTypes.bool.isRequired,
@@ -167,6 +167,10 @@ WorkspaceLayout.propTypes = {
 
 WorkspaceLayout.defaultProps = {
   activity: null,
+  replayer: false,
+  isFullscreen: false,
   encompass: false,
+  referFromCoords: null,
+  referToCoords: null,
 };
 export default WorkspaceLayout;

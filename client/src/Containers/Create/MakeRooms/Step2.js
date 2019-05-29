@@ -105,7 +105,7 @@ class Step2 extends Component {
 
 Step2.propTypes = {
   userId: PropTypes.string.isRequired,
-  selectedParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  selectedParticipants: PropTypes.arrayOf(PropTypes.string).isRequired,
   select: PropTypes.func.isRequired,
   submit: PropTypes.func.isRequired,
 };

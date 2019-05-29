@@ -27,7 +27,7 @@ class Tabs extends Component {
       <div
         key={tab._id || i}
         onClick={() => changeTab(i)}
-        onkeyPress={() => changeTab(i)}
+        onKeyPress={() => changeTab(i)}
         role="button"
         tabIndex="-2"
         className={[classes.Tab, currentTab === i ? classes.Active : ''].join(
@@ -52,7 +52,7 @@ class Tabs extends Component {
           <div className={[classes.Tab, classes.NewTab].join(' ')}>
             <div
               onClick={createNewTab}
-              onKeypress={createNewTab}
+              onKeyPress={createNewTab}
               role="button"
               tabIndex="-3"
               className={classes.TabBox}
@@ -69,7 +69,7 @@ class Tabs extends Component {
 Tabs.propTypes = {
   tabs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   currentTab: PropTypes.number.isRequired,
-  ntfTabs: PropTypes.number.isRequired,
+  ntfTabs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   role: PropTypes.string.isRequired,
   changeTab: PropTypes.func.isRequired,
   createNewTab: PropTypes.func.isRequired,

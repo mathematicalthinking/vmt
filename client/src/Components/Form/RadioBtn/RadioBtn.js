@@ -27,6 +27,10 @@ RadioBtn.propTypes = {
   checked: PropTypes.bool.isRequired,
   name: PropTypes.string.isRequired,
   check: PropTypes.func.isRequired,
-  'data-testid': PropTypes.string.isRequired,
+  'data-testid': PropTypes.string,
+};
+
+RadioBtn.defaultProps = {
+  'data-testid': 'radioBtn',
 };
 export default RadioBtn;
