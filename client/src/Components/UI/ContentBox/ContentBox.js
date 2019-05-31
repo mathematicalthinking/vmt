@@ -1,9 +1,10 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import classes from './contentBox.css';
 import Icons from './Icons/Icons';
 import Aux from '../../HOC/Auxil';
-import Expand from './expand.js';
+import Expand from './expand';
 import Notification from '../../Notification/Notification';
 
 class ContentBox extends PureComponent {
@@ -13,78 +14,76 @@ class ContentBox extends PureComponent {
 
   toggleExpand = event => {
     event.preventDefault();
-    let prevState = this.state.expanded;
-    this.setState({
-      expanded: !prevState,
-    });
+    this.setState(prevState => ({
+      expanded: !prevState.expanded,
+    }));
   };
 
   render() {
-    const notifications =
-      this.props.notifications > 0 ? (
-        <Notification
-          count={this.props.notifications}
-          dataTestId={'content-box-ntf'}
-        />
+    const {
+      notifications,
+      link,
+      image,
+      roomType,
+      listType,
+      title,
+      locked,
+      details,
+    } = this.props;
+    const { expanded } = this.state;
+    const notificationElements =
+      notifications > 0 ? (
+        <Notification count={notifications} data-testid="content-box-ntf" />
       ) : null;
     return (
       <Aux>
         <Link
-          to={this.props.link}
+          to={link}
           className={classes.Container}
-          style={{ height: this.state.expanded ? 150 : 50 }}
+          style={{ height: expanded ? 150 : 50 }}
         >
           <div
-            data-testid={`content-box-${this.props.title}`}
+            data-testid={`content-box-${title}`}
             className={classes.SubContainer}
           >
             <div className={classes.TopBanner}>
               <div className={classes.BannerLeft}>
                 <div className={classes.Icons}>
                   <Icons
-                    image={this.props.image}
-                    lock={this.props.locked}
-                    roomType={this.props.roomType}
-                    listType={this.props.listType} // private means the list is displayed in myVMT public means its displayed on /community
+                    image={image}
+                    lock={locked}
+                    roomType={roomType}
+                    listType={listType} // private means the list is displayed in myVMT public means its displayed on /community
                   />
                 </div>
                 <div className={classes.Title} data-testid="">
-                  {this.props.title}
+                  {title}
                 </div>
-                {notifications}
+                {notificationElements}
               </div>
               <div
                 className={classes.Expand}
                 style={{
-                  transform: this.state.expanded
-                    ? `rotate(180deg)`
-                    : `rotate(0)`,
+                  transform: expanded ? `rotate(180deg)` : `rotate(0)`,
                 }}
               >
                 <Expand clickHandler={this.toggleExpand} />
               </div>
             </div>
             <div className={classes.Content}>
-              {this.props.details && this.state.expanded ? (
+              {details && expanded ? (
                 <div className={classes.Expanded}>
-                  <div>{this.props.details.description || ''}</div>
-                  {this.props.details.facilitators &&
-                  this.props.details.facilitators.length > 0 ? (
+                  <div>{details.description || ''}</div>
+                  {details.facilitators && details.facilitators.length > 0 ? (
                     <div>
                       Facilitators:{' '}
-                      {this.props.details.facilitators.map(
-                        facilitator => facilitator
-                      )}
+                      {details.facilitators.map(facilitator => facilitator)}
                     </div>
                   ) : null}
-                  {this.props.details.creator
-                    ? `Creator: ${this.props.details.creator}`
-                    : null}
-                  {this.props.details.entryCode ? (
-                    <div>Entry Code: {this.props.details.entryCode}</div>
-                  ) : (
-                    this.props.resource
-                  )}
+                  {details.creator ? `Creator: ${details.creator}` : null}
+                  {details.entryCode ? (
+                    <div>Entry Code: {details.entryCode}</div>
+                  ) : null}
                 </div>
               ) : null}
             </div>
@@ -95,4 +94,22 @@ class ContentBox extends PureComponent {
   }
 }
 
+ContentBox.propTypes = {
+  notifications: PropTypes.number.isRequired,
+  link: PropTypes.string.isRequired,
+  image: PropTypes.string,
+  roomType: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
+  listType: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  locked: PropTypes.bool.isRequired,
+  details: PropTypes.shape({}).isRequired,
+};
+
+ContentBox.defaultProps = {
+  image: null,
+  roomType: null,
+};
 export default ContentBox;

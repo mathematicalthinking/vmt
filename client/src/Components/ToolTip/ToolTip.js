@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classes from './toolTip.css';
+
 class ToolTip extends Component {
   state = {
     visible: false,
@@ -15,17 +17,18 @@ class ToolTip extends Component {
     }
   }
   setVisible = () => {
-    if (this.props.delay) {
+    const { delay } = this.props;
+    if (delay) {
       this.timer = setTimeout(() => {
-        let {
+        const {
           top,
           x,
           width,
         } = this.toolTipSource.current.getBoundingClientRect();
         this.setState({ x: x + width / 2, y: top - 55, visible: true });
-      }, this.props.delay);
+      }, delay);
     } else {
-      let {
+      const {
         top,
         x,
         width,
@@ -39,6 +42,8 @@ class ToolTip extends Component {
   };
 
   render() {
+    const { color, text, children } = this.props;
+    const { visible, x, y } = this.state;
     return (
       <div
         className={classes.Container}
@@ -46,22 +51,34 @@ class ToolTip extends Component {
         onMouseEnter={this.setVisible}
         ref={this.toolTipSource}
       >
-        {this.state.visible ? (
+        {visible ? (
           <div
             className={
-              this.props.color
-                ? classes[this.props.color] || classes.ToolTipText
+              color
+                ? classes[color] || classes.ToolTipText
                 : classes.ToolTipText
             }
-            style={{ top: this.state.y, left: this.state.x }}
+            style={{ top: y, left: x }}
           >
-            {this.props.text}
+            {text}
           </div>
         ) : null}
-        {this.props.children}
+        {children}
       </div>
     );
   }
 }
+
+ToolTip.propTypes = {
+  color: PropTypes.string,
+  text: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
+  delay: PropTypes.number,
+};
+
+ToolTip.defaultProps = {
+  color: 'black',
+  delay: 0,
+};
 
 export default ToolTip;

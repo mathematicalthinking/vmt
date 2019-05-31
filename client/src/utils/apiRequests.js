@@ -25,8 +25,8 @@ export default {
   },
 
   searchPaginated: (resource, criteria, skip, filters) => {
-    let { privacySetting, roomType } = filters;
-    let params = criteria ? { criteria, skip } : { skip };
+    const { privacySetting, roomType } = filters;
+    const params = criteria ? { criteria, skip } : { skip };
     if (privacySetting !== null) params.privacySetting = privacySetting;
     if (roomType !== null) params.roomType = roomType;
     return api.get(`/api/searchPaginated/${resource}`, { params });
@@ -95,14 +95,14 @@ export default {
       resourceType = 'room';
     }
     // @TODO consider making notificationTypes a directory of constants like action types in redux
-    let promises = owners.map(owner => {
+    const promises = owners.map(owner => {
       // return axios.put(`/api/user/${owner}`, {notificationType: 'requestAccess', user: userId, resource, _id: resourceId})
       return api.post('api/notifications', {
+        resourceType,
+        resourceId,
         notificationType: 'requestAccess',
         toUser: owner,
         fromUser: userId,
-        resourceType: resourceType,
-        resourceId: resourceId,
       });
     });
     return Promise.all(promises);

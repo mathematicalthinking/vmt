@@ -1,10 +1,11 @@
-import React from "react";
-import classes from "./about.css";
-import example1 from "./example1.gif";
-import example2 from "./example2.gif";
-import example3 from "./example3.gif";
-import example4 from "./example4.gif";
-import { Aux, DemoBrowser } from "../../Components";
+import React from 'react';
+import classes from './about.css';
+import example1 from './example1.gif';
+import example2 from './example2.gif';
+import example3 from './example3.gif';
+import example4 from './example4.gif';
+import { Aux, DemoBrowser } from '../../Components';
+
 const About = () => {
   return (
     <Aux>
@@ -26,7 +27,7 @@ const About = () => {
             <img src={example1} height={320} alt="example-1" />
           </DemoBrowser>
           <p className={classes.Description}>
-            VMT uses{" "}
+            VMT uses{' '}
             <a
               className={classes.Link}
               href="https://www.geogebra.org/"
@@ -34,8 +35,8 @@ const About = () => {
               target="_blank"
             >
               GeoGebra
-            </a>{" "}
-            and{" "}
+            </a>{' '}
+            and{' '}
             <a
               className={classes.Link}
               href="https://www.desmos.com/"
@@ -43,7 +44,7 @@ const About = () => {
               target="_blank"
             >
               Desmos
-            </a>{" "}
+            </a>{' '}
             as the underlying workspace so you instantly have access to millions
             of activities created by teachers and math enthusiasts around the
             world.

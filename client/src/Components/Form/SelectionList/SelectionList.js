@@ -1,30 +1,26 @@
-import React, { Component } from "react";
-import Checkbox from "../Checkbox/Checkbox";
-import classes from "./selectionList.css";
-import API from "../../../utils/apiRequests";
-class SelectionList extends Component {
-  state = {
-    list: []
-  };
-  componentDidMount() {
-    if (this.props.list === "activities") {
-      API.get("activities").then(res => {
-        this.setState({ list: res.data.results });
-      });
-    }
-  }
+// @TODO this is very similar to participantList...look into combining/abstracting
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import Checkbox from '../Checkbox/Checkbox';
+import classes from './selectionList.css';
 
+class SelectionList extends Component {
   render() {
-    let list = this.state.list.map((activity, i) => {
+    const { selectItem, listToSelectFrom, selected } = this.props;
+    const ElementList = listToSelectFrom.map((activity, i) => {
       return (
         <li
-          className={[classes.ListItem, i % 2 ? classes.Odd : null].join(" ")}
+          className={[classes.ListItem, i % 2 ? classes.Odd : null].join(' ')}
           key={activity._id}
         >
           <Checkbox
             change={event => {
-              this.props.selectItem(event, activity._id);
+              selectItem(event, activity._id);
             }}
+            checked={selected.indexOf(activity._id) > -1}
+            dataId={`select-${activity.name}`}
+            // @todo this component is sometimes controlled...but here it is not. we need to consistantly pass check and checked instead of onChange
+            // but now this is going to require have two lists ... options vs. selected and then checked will = options contains selected.
           >
             {activity.name}
           </Checkbox>
@@ -33,11 +29,11 @@ class SelectionList extends Component {
     });
     return (
       <ul className={classes.List}>
-        {list.length > 0 ? (
-          list
+        {listToSelectFrom.length > 0 ? (
+          ElementList
         ) : (
           <div className={classes.ErrorText}>
-            There doesn't appear to be anything here yet...
+            There doesn&#39;t appear to be anything here yet...
           </div>
         )}
       </ul>
@@ -45,4 +41,13 @@ class SelectionList extends Component {
   }
 }
 
+SelectionList.propTypes = {
+  listToSelectFrom: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  selected: PropTypes.arrayOf(PropTypes.string),
+  selectItem: PropTypes.func.isRequired,
+};
+
+SelectionList.defaultProps = {
+  selected: [],
+};
 export default SelectionList;

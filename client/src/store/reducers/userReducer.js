@@ -72,44 +72,44 @@ const reducer = (state = initialState, action) => {
         rooms: state.rooms.concat(action.newRoomsArr),
       };
 
-    case actionTypes.REMOVE_USER_COURSE:
+    case actionTypes.REMOVE_USER_COURSE: {
       const courses = state.courses.filter(id => id !== action.courseId);
       return { ...state, courses };
-
-    case actionTypes.REMOVE_USER_ACTIVITIES:
+    }
+    case actionTypes.REMOVE_USER_ACTIVITIES: {
       const activities = state.activities.filter(
         id => !action.activityIdsArr.includes(id)
       );
       return { ...state, activities };
-
-    case actionTypes.REMOVE_USER_ROOMS:
+    }
+    case actionTypes.REMOVE_USER_ROOMS: {
       const rooms = state.rooms.filter(id => !action.roomIdsArr.includes(id));
       return { ...state, rooms };
-
-    case actionTypes.ADD_NOTIFICATION:
-      let newNotifications = [...state.notifications, action.ntf];
+    }
+    case actionTypes.ADD_NOTIFICATION: {
+      const newNotifications = [...state.notifications, action.ntf];
       return {
         ...state,
         notifications: newNotifications,
       };
-
-    case actionTypes.REMOVE_NOTIFICATION:
+    }
+    case actionTypes.REMOVE_NOTIFICATION: {
       // let updatedNotifications = {...state[`${action.resource}Notifications`]}
 
-      let updatedNotifications = state.notifications.filter(ntf => {
+      const updatedNotifications = state.notifications.filter(ntf => {
         return ntf._id !== action.ntfId;
       });
       return {
         ...state,
         notifications: updatedNotifications,
       };
-
-    case actionTypes.CLEAR_ERROR:
+    }
+    case actionTypes.CLEAR_ERROR: {
       return {
         ...state,
         loginError: '',
       };
-
+    }
     default:
       return state;
   }

@@ -1,9 +1,19 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import Awareness from './Awareness';
 import classes from './tools.css';
 
-const Tools = React.memo(props => {
-  let { inControl, lastEvent, replayer, save } = props;
+const Tools = ({
+  inControl,
+  lastEvent,
+  replayer,
+  save,
+  referencing,
+  goBack,
+  toggleControl,
+  clearReference,
+  startNewReference,
+}) => {
   let controlText;
   if (!replayer) {
     controlText = 'Request Control';
@@ -16,13 +26,16 @@ const Tools = React.memo(props => {
   return (
     <div className={classes.Container}>
       {/* <h3 className={classes.Title}>Tools</h3> */}
-      <div className={true ? classes.Expanded : classes.Collapsed}>
+      <div className={classes.Expanded}>
         <div className={classes.Controls}>
           {!replayer ? (
             <div
               className={classes.SideButton}
               role="button"
-              onClick={props.toggleControl}
+              data-testid="take-control"
+              onClick={toggleControl}
+              onKeyPress={toggleControl}
+              tabIndex="-1"
             >
               {controlText}
             </div>
@@ -30,20 +43,24 @@ const Tools = React.memo(props => {
           <div
             className={classes.Exit}
             role="button"
-            onClick={props.goBack}
+            onClick={goBack}
+            onKeyPress={goBack}
+            tabIndex="-2"
             // theme={"Small"}
             data-testid="exit-room"
           >
             Exit {replayer ? 'Replayer' : 'Room'}
           </div>
         </div>
-        {props.save ? (
+        {save ? (
           <div className={classes.Save}>
             <div
               className={classes.SideButton}
               role="button"
               data-testid="save"
-              onClick={props.save}
+              onClick={save}
+              onKeyPress={save}
+              tabIndex="-3"
             >
               save
             </div>
@@ -53,18 +70,17 @@ const Tools = React.memo(props => {
           {!replayer ? (
             <div
               className={classes.ReferenceControls}
-              onClick={
-                props.referencing
-                  ? props.clearReference
-                  : props.startNewReference
-              }
+              onClick={referencing ? clearReference : startNewReference}
+              onKeyPress={referencing ? clearReference : startNewReference}
+              role="button"
+              tabIndex="-4"
             >
               <i
                 className={[
                   'fas',
                   'fa-mouse-pointer',
                   classes.MousePointer,
-                  props.referencing ? classes.ReferencingActive : '',
+                  referencing ? classes.ReferencingActive : '',
                 ].join(' ')}
               />
               <div className={classes.ReferenceTool}>Reference</div>
@@ -78,6 +94,29 @@ const Tools = React.memo(props => {
       </div>
     </div>
   );
-});
+};
+
+Tools.propTypes = {
+  inControl: PropTypes.string,
+  lastEvent: PropTypes.shape({}),
+  replayer: PropTypes.bool,
+  save: PropTypes.func,
+  referencing: PropTypes.bool,
+  goBack: PropTypes.func.isRequired,
+  toggleControl: PropTypes.func,
+  clearReference: PropTypes.func,
+  startNewReference: PropTypes.func,
+};
+
+Tools.defaultProps = {
+  toggleControl: null,
+  referencing: false,
+  clearReference: null,
+  startNewReference: null,
+  lastEvent: null,
+  inControl: null,
+  replayer: false,
+  save: null,
+};
 
 export default Tools;

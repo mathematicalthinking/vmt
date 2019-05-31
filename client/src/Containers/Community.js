@@ -1,8 +1,10 @@
+/* eslint-disable react/no-did-update-set-state */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { updateUserResource } from '../store/actions/';
 import { CommunityLayout } from '../Layout';
 import API from '../utils/apiRequests';
+
 const SKIP_VALUE = 20;
 class Community extends Component {
   state = {
@@ -18,7 +20,8 @@ class Community extends Component {
   allResources = [];
 
   componentDidMount() {
-    let { resource } = this.props.match.params;
+    const { match } = this.props;
+    const { resource } = match.params;
     // @TODO WHen should we refresh this data. Here we're saying:
     // if there aren't fift result then we've probably only loaded the users
     // own courses. This is assuming that the database will have more than 50 courses and rooms
@@ -27,7 +30,9 @@ class Community extends Component {
     this.fetchData(resource);
     // }
     // else {
-    let resourceList = this.props[`${resource}Arr`].map(
+    // eslint-disable-next-line react/destructuring-assignment
+    const resourceList = this.props[`${resource}Arr`].map(
+      // eslint-disable-next-line react/destructuring-assignment
       id => this.props[resource][id]
     );
     this.setState({ visibleResources: resourceList });
@@ -36,7 +41,9 @@ class Community extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { resource } = this.props.match.params;
+    const { match } = this.props;
+    const { criteria, skip } = this.state;
+    const { resource } = match.params;
     if (prevProps.match.params.resource !== resource) {
       this.setState(
         {
@@ -47,16 +54,16 @@ class Community extends Component {
         },
         () => this.fetchData(resource)
       );
-    } else if (prevState.criteria !== this.state.criteria) {
+    } else if (prevState.criteria !== criteria) {
       this.fetchData(resource);
-    } else if (prevState.skip !== this.state.skip) {
-      let concat = true;
+    } else if (prevState.skip !== skip) {
+      const concat = true;
       this.fetchData(resource, concat);
     }
   }
   // concat tells us whether we should concat to existing results or overwrite
   fetchData = (resource, concat) => {
-    let { criteria, skip, filters } = this.state;
+    const { criteria, skip, filters } = this.state;
     API.searchPaginated(resource, criteria, skip, filters).then(res => {
       if (res.data.results.length < SKIP_VALUE) {
         if (concat) {
@@ -93,7 +100,9 @@ class Community extends Component {
   };
 
   toggleFilter = (filter, clearAll) => {
-    let updatedFilters = { ...this.state.filters };
+    const { match } = this.props;
+    const { filters } = this.state;
+    let updatedFilters = { ...filters };
     if (clearAll) {
       updatedFilters = { privacySetting: null, roomType: null };
     } else {
@@ -102,49 +111,60 @@ class Community extends Component {
       } else if (filter === 'desmos' || filter === 'geogebra') {
         updatedFilters.roomType = filter;
       }
-      if (this.props.match.params.resource === 'courses') {
+      if (match.params.resource === 'courses') {
         updatedFilters.roomType = null;
       }
     }
     this.setState({ filters: updatedFilters }, () => {
-      setTimeout(this.fetchData(this.props.match.params.resource, false), 0);
+      setTimeout(this.fetchData(match.params.resource, false), 0);
     });
   };
 
   render() {
+    const { match, user } = this.props;
+    const { visibleResources, moreAvailable, filters } = this.state;
     let linkPath;
     let linkSuffix;
     // @ TODO conditional logic for displaying room in dahsboard if it belongs to the user
-    if (this.props.match.params.resource === 'courses') {
+    if (match.params.resource === 'courses') {
       linkPath = '/myVMT/courses/';
       linkSuffix = '/rooms';
-    } else if (this.props.match.params.resource === 'rooms') {
+    } else if (match.params.resource === 'rooms') {
       linkPath = '/myVMT/rooms/';
       linkSuffix = '/details';
+    } else if (user.isAdmin) {
+      linkPath = '/myVMT/activities/';
+      linkSuffix = '/details';
     } else {
-      if (this.props.user.isAdmin) {
-        linkPath = '/myVMT/activities/';
-        linkSuffix = '/details';
-      } else {
-        linkPath = '/myVMT/workspace/';
-        linkSuffix = '/activity';
-      }
+      linkPath = '/myVMT/workspace/';
+      linkSuffix = '/activity';
     }
     return (
       <CommunityLayout
-        visibleResources={this.state.visibleResources}
-        resource={this.props.match.params.resource}
+        visibleResources={visibleResources}
+        resource={match.params.resource}
         linkPath={linkPath}
         linkSuffix={linkSuffix}
         setSkip={this.setSkip}
         setCriteria={this.setCriteria}
-        moreAvailable={this.state.moreAvailable}
-        filters={this.state.filters}
+        moreAvailable={moreAvailable}
+        filters={filters}
         toggleFilter={this.toggleFilter}
       />
     );
   }
 }
+
+Community.propTypes = {
+  courses: PropTypes.shape({}).isRequired,
+  // coursesArr: PropTypes.arrayOf(PropTypes.string).isRequired,
+  activities: PropTypes.shape({}).isRequired,
+  // activitiesArr: PropTypes.arrayOf(PropTypes.string).isRequired,
+  rooms: PropTypes.shape({}).isRequired,
+  // roomsArr: PropTypes.PropTypes.arrayOf(PropTypes.string).isRequired,
+  user: PropTypes.shape({}).isRequired,
+  match: PropTypes.shape({}).isRequired,
+};
 
 const mapStateToProps = store => {
   return {
@@ -160,5 +180,5 @@ const mapStateToProps = store => {
 
 export default connect(
   mapStateToProps,
-  { updateUserResource }
+  null
 )(Community);

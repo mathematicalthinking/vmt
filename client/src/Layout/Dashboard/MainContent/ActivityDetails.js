@@ -1,30 +1,34 @@
 // THIS DOESN"T FEEL LIKE ITS IN A VERY LOGICAL PLACE IN THE FILE STRUCUTRE
 
-import React, { Component } from "react";
-import { withRouter } from "react-router-dom";
-import { Aux, Button, EditText, Error } from "../../../Components";
-import MakeRooms from "../../../Containers/Create/MakeRooms/MakeRooms";
-import classes from "./activityDetails.css";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
+import { Aux, Button, EditText, Error } from '../../../Components';
+import MakeRooms from '../../../Containers/Create/MakeRooms/MakeRooms';
+import classes from './activityDetails.css';
+
 class ActivityDetails extends Component {
   state = {
-    assigning: false
+    assigning: false,
   };
 
   viewActivity = () => {
-    this.props.history.push(
-      `/myVMT/workspace/${this.props.activity._id}/activity`
-    );
+    const { history, activity } = this.props;
+    history.push(`/myVMT/workspace/${activity._id}/activity`);
   };
 
   render() {
     const {
       activity,
       course,
-      // editing,
-      // toggleEdit,
       owner,
-      loading
+      loading,
+      instructions,
+      update,
+      editing,
+      userId,
     } = this.props;
+    const { assigning } = this.state;
     return (
       <Aux>
         <div>
@@ -33,16 +37,16 @@ class ActivityDetails extends Component {
             <Error
               error={
                 loading.updateFail &&
-                loading.updateKeys.indexOf("instructions") > -1
+                loading.updateKeys.indexOf('instructions') > -1
               }
             >
               <EditText
                 inputType="text-area"
                 name="instructions"
-                change={this.props.update}
-                editing={this.props.editing}
+                change={update}
+                editing={editing}
               >
-                {this.props.instructions}
+                {instructions}
               </EditText>
             </Error>
           </div>
@@ -63,17 +67,17 @@ class ActivityDetails extends Component {
             </div>
           ) : null}
         </div>
-        {this.state.assigning ? (
+        {assigning ? (
           <MakeRooms
             activity={activity}
             course={course ? course._id : null}
-            userId={this.props.userId}
+            userId={userId}
             close={() => {
               this.setState({ assigning: false });
             }}
             participants={
               course
-                ? course.members.filter(member => member.role === "participant")
+                ? course.members.filter(member => member.role === 'participant')
                 : []
             }
           />
@@ -82,5 +86,25 @@ class ActivityDetails extends Component {
     );
   }
 }
+
+ActivityDetails.propTypes = {
+  activity: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({}).isRequired,
+  userId: PropTypes.string.isRequired,
+  instructions: PropTypes.string,
+  editing: PropTypes.bool,
+  update: PropTypes.func.isRequired,
+  course: PropTypes.shape({}),
+  owner: PropTypes.bool,
+  loading: PropTypes.bool,
+};
+
+ActivityDetails.defaultProps = {
+  instructions: null,
+  editing: false,
+  owner: false,
+  course: null,
+  loading: false,
+};
 
 export default withRouter(ActivityDetails);

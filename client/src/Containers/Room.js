@@ -1,4 +1,6 @@
+/* eslint-disable react/no-did-update-set-state */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 // import moment from 'moment'
 import { connect } from 'react-redux';
 import {
@@ -6,11 +8,11 @@ import {
   SidePanel,
   RoomDetails,
   RoomSettings,
-} from '../Layout/Dashboard/';
+} from '../Layout/Dashboard';
 import Members from './Members/Members';
-import { getUserNotifications } from '../utils/notifications';
+import getUserNotifications from '../utils/notifications';
 import {
-  enterRoomWithCode,
+  joinWithCode,
   requestAccess,
   clearError,
   clearNotification,
@@ -35,35 +37,39 @@ import Access from './Access';
 // import PublicAccessModal from '../Components/UI/Modal/PublicAccess'
 // import Participants from './Participants/Participants';
 class Room extends Component {
-  state = {
-    member: false,
-    guestMode: true,
-    tabs: [{ name: 'Details' }, { name: 'Members' }, { name: 'Settings' }],
-    firstView: false,
-    editing: false,
-    invited: false,
-    dueDate: this.props.room ? this.props.room.dueDate : null,
-    name: this.props.room ? this.props.room.name : null,
-    description: this.props.room ? this.props.room.description : null,
-    entryCode: this.props.room ? this.props.room.entryCode : null,
-    instructions: this.props.room ? this.props.room.instructions : null,
-    privacySetting: this.props.room ? this.props.room.privacySetting : null,
-    trashing: false,
-    isAdmin: false,
-  };
-
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
+  constructor(props) {
+    super(props);
+    const { room } = this.props;
+    this.state = {
+      // member: false,
+      guestMode: true,
+      tabs: [{ name: 'Details' }, { name: 'Members' }, { name: 'Settings' }],
+      firstView: false,
+      editing: false,
+      invited: false,
+      dueDate: room ? room.dueDate : null,
+      name: room ? room.name : null,
+      description: room ? room.description : null,
+      entryCode: room ? room.entryCode : null,
+      instructions: room ? room.instructions : null,
+      privacySetting: room ? room.privacySetting : null,
+      trashing: false,
+      isAdmin: false,
+    };
+  }
 
   componentDidMount() {
-    const { room, user, clearNotification } = this.props;
+    const { room, user, connectClearNotification } = this.props;
+    const { tabs } = this.state;
     // this.props.populateRoom(room._id, { events: t rue });
-    let notifications = user.notifications;
+    const { notifications } = user;
     // UPDATE ROOM ANYTIME WE'RE HERE SO WE'RE GUARANTEED TO HAVE THE FRESHEST DATA
     // If its in the store check access
     if (room) {
       // check access
-      let updatedTabs = [...this.state.tabs];
-      let owner = false;
+      let updatedTabs = [...tabs];
+      const owner = false;
       let firstView = false;
       let invited = false;
       if (room.myRole === 'facilitator') {
@@ -77,10 +83,10 @@ class Room extends Component {
               ntf.notificationType === 'assignedNewRoom'
             ) {
               firstView = true;
-              clearNotification(ntf._id);
+              connectClearNotification(ntf._id);
             } else if (ntf.notificationType === 'invitation') {
               invited = true;
-              clearNotification(ntf._id);
+              connectClearNotification(ntf._id);
             }
           }
         });
@@ -100,80 +106,77 @@ class Room extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!this.props.room) {
+    const {
+      room,
+      user,
+      connectPopulateRoom,
+      connectClearLoadingInfo,
+      history,
+      loading,
+      notifications,
+    } = this.props;
+    const { tabs, isAdmin } = this.state;
+    if (!room) {
       return;
     }
     if (
-      prevProps.user.rooms.indexOf(this.props.room._id) > -1 &&
-      this.props.user.rooms.indexOf(this.props.room._id) === -1
+      prevProps.user.rooms.indexOf(room._id) > -1 &&
+      user.rooms.indexOf(room._id) === -1
     ) {
-      return this.props.history.push('/myVMT/rooms');
+      history.push('/myVMT/rooms');
     }
     // If we just fetched the room now check access
-    if (!prevProps.room && this.props.room) {
+    if (!prevProps.room && room) {
       this.checkAccess();
     }
     if (
       prevProps.room &&
-      this.props.room &&
-      prevProps.room.members.length !== this.props.room.members.length
+      room &&
+      prevProps.room.members.length !== room.members.length
     ) {
       this.checkAccess();
     }
     // THESE ARE SUSCEPTIBLE TO ERRORS BECAUSE YOU COULD GAIN AND LOSE TWO DIFFERENT NTFS IN A SINGLE UPDATE POTENTIALLY? ACTUALLY COULD YOU?
-    if (prevProps.notifications.length !== this.props.notifications.length) {
-      let updatedTabs = this.displayNotifications([...this.state.tabs]);
+    if (prevProps.notifications.length !== notifications.length) {
+      const updatedTabs = this.displayNotifications([...tabs]);
       this.setState({ tabs: updatedTabs });
     }
-    if (!prevState.isAdmin && this.state.isAdmin) {
-      this.props.populateRoom(this.props.room._id);
+
+    if (!prevState.isAdmin && isAdmin) {
+      connectPopulateRoom(room._id);
     }
     if (
       prevProps.loading.updateResource === null &&
-      this.props.loading.updateResource === 'room'
+      loading.updateResource === 'room'
     ) {
       setTimeout(() => {
         // @TODO need to clean this up in cwum
-        this.props.clearLoadingInfo();
+        connectClearLoadingInfo();
       }, 2000);
       this.setState({
-        name: this.props.room.name,
-        description: this.props.room.description,
-        entryCode: this.props.room.entryCode,
-        privacySetting: this.props.room.privacySetting,
-        instructions: this.props.room.instructions,
-        dueDate: this.props.room.dueDate,
+        name: room.name,
+        description: room.description,
+        entryCode: room.entryCode,
+        privacySetting: room.privacySetting,
+        instructions: room.instructions,
+        dueDate: room.dueDate,
       });
     }
   }
 
-  checkAccess() {
-    if (
-      this.props.room.members.find(
-        member => member.user._id === this.props.user._id
-      )
-    ) {
-      // if the room hasnt been populated yet...populate it
-      if (!this.props.room.tabs) {
-        this.props.populateRoom(this.props.room._id);
-      }
-      this.setState({ member: true, guestMode: false });
-    }
-  }
-
   enterWithCode = entryCode => {
-    let { room, user } = this.props;
-    this.props.enterRoomWithCode(room._id, entryCode, user._id, user.username);
+    const { room, user, connectJoinWithCode } = this.props;
+    connectJoinWithCode(room._id, entryCode, user._id, user.username);
   };
 
   displayNotifications = tabs => {
-    let { user, room, notifications } = this.props;
+    const { user, room, notifications } = this.props;
     if (
       room.members.filter(
         member => member.role === 'facilitator' && member.user._id === user._id
       ).length > 0
     ) {
-      let thisRoomsNtfs = notifications.filter(
+      const thisRoomsNtfs = notifications.filter(
         ntf => ntf.resourceId === room._id
       );
       tabs[1].notifications =
@@ -183,25 +186,26 @@ class Room extends Component {
   };
 
   toggleEdit = () => {
+    const { room } = this.props;
     this.setState(prevState => ({
       editing: !prevState.editing,
-      name: this.props.room.name,
-      dueDate: this.props.room.dueDate,
-      privacySetting: this.props.room.privacySetting,
-      entryCode: this.props.room.entryCode,
-      description: this.props.room.description,
-      instructions: this.props.room.instructions,
+      name: room.name,
+      dueDate: room.dueDate,
+      privacySetting: room.privacySetting,
+      entryCode: room.entryCode,
+      description: room.description,
+      instructions: room.instructions,
     }));
   };
   // options is for radioButton/checkbox inputs
   updateRoomInfo = (event, option) => {
-    let { value, name } = event.target;
+    const { value, name } = event.target;
     this.setState({ [name]: option || value });
   };
 
   updateRoom = () => {
-    let { updateRoom, room } = this.props;
-    let {
+    const { connectUpdateRoom, room } = this.props;
+    const {
       dueDate,
       entryCode,
       name,
@@ -210,7 +214,7 @@ class Room extends Component {
       description,
       privacySetting,
     } = this.state;
-    let body = {
+    const body = {
       entryCode,
       name,
       dueDate,
@@ -225,25 +229,28 @@ class Room extends Component {
         delete body[key];
       }
     });
-    updateRoom(room._id, body);
+    connectUpdateRoom(room._id, body);
     this.setState({
       editing: false,
     });
   };
 
   goToWorkspace = () => {
-    if (this.props.user.isAdmin) {
+    const { user, history, room } = this.props;
+    if (user.isAdmin) {
       // display a modal
     }
-    this.props.history.push(`/myVMT/workspace/${this.props.room._id}`);
+    history.push(`/myVMT/workspace/${room._id}`);
   };
 
   goToReplayer = () => {
-    this.props.history.push(`/myVMT/workspace/${this.props.room._id}/replayer`);
+    const { history, room } = this.props;
+    history.push(`/myVMT/workspace/${room._id}/replayer`);
   };
 
   fetchRoom = () => {
-    this.props.getRoom(this.props.match.params.room_id);
+    const { connectGetRoom, match } = this.props;
+    connectGetRoom(match.params.room_id);
   };
 
   trashRoom = () => {
@@ -255,24 +262,55 @@ class Room extends Component {
   };
 
   removeMeFromRoom = () => {
+    const { connectRemoveRoomMember, room, user } = this.props;
     // This will cause compnentDidUpdate to fire. There we will check if the user still belongs to this course,
     // if they don;t, we'll redirect to myVMT
-    this.props.removeRoomMember(this.props.room._id, this.props.user._id);
+    connectRemoveRoomMember(room._id, user._id);
   };
 
+  checkAccess() {
+    const { room, user, connectPopulateRoom } = this.props;
+    if (room.members.find(member => member.user._id === user._id)) {
+      // if the room hasnt been populated yet...populate it
+      if (!room.tabs) {
+        connectPopulateRoom(room._id);
+      }
+      this.setState({ guestMode: false });
+    }
+  }
+
   render() {
-    let {
+    const {
       room,
       match,
       user,
       notifications,
+      loading,
+      history,
       error,
-      clearError,
+      connectClearError,
+      connectUpdateRoom,
       course,
     } = this.props;
-    if (room && room.tabs && !this.state.guestMode) {
+    const {
+      guestMode,
+      editing,
+      dueDate,
+      description,
+      privacySetting,
+      entryCode,
+      instructions,
+      owner,
+      invited,
+      isAdmin,
+      tabs,
+      firstView,
+      name,
+      trashing,
+    } = this.state;
+    if (room && room.tabs && !guestMode) {
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
-      let dueDateText = 'Due Date'; // the fact that we have to do this make this not worth it
+      const dueDateText = 'Due Date'; // the fact that we have to do this make this not worth it
       let ggb = false;
       let desmos = false;
       room.tabs.forEach(tab => {
@@ -283,18 +321,18 @@ class Room extends Component {
       if (ggb && desmos) roomType = 'GeoGebra/Desmos';
       else roomType = ggb ? 'GeoGebra' : 'Desmos';
 
-      let { updateFail, updateKeys } = this.props.loading;
+      const { updateFail, updateKeys } = loading;
 
-      let additionalDetails = {
+      const additionalDetails = {
         [dueDateText]: (
           <Error error={updateFail && updateKeys.indexOf('dueDate') > -1}>
             <EditText
               change={this.updateRoomInfo}
               inputType="date"
-              editing={this.state.editing}
+              editing={editing}
               name="dueDate"
             >
-              {this.state.dueDate}
+              {dueDate || 'Not Set'}
             </EditText>
           </Error>
         ),
@@ -306,11 +344,11 @@ class Room extends Component {
             <EditText
               change={this.updateRoomInfo}
               inputType="radio"
-              editing={this.state.editing}
+              editing={editing}
               options={['public', 'private']}
               name="privacySetting"
             >
-              {this.state.privacySetting}
+              {privacySetting}
             </EditText>
           </Error>
         ),
@@ -327,19 +365,19 @@ class Room extends Component {
               change={this.updateRoomInfo}
               inputType="text"
               name="entryCode"
-              editing={this.state.editing}
+              editing={editing}
             >
-              {this.state.entryCode}
+              {entryCode || 'Not Set'}
             </EditText>
           </Error>
         );
       }
 
-      let crumbs = [
+      const crumbs = [
         { title: 'My VMT', link: '/myVMT/rooms' },
         { title: room.name, link: `/myVMT/rooms/${room._id}/details` },
       ];
-      //@TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
+      // @TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
       // THE REDUX STORE USING THE COURSE ID IN THE URL
       if (course) {
         crumbs.splice(1, 0, {
@@ -348,7 +386,7 @@ class Room extends Component {
         });
       }
       let mainContent;
-      let { resource } = this.props.match.params;
+      const { resource } = match.params;
       if (resource === 'details') {
         mainContent = (
           <RoomDetails
@@ -357,11 +395,11 @@ class Room extends Component {
             notifications={
               notifications.filter(ntf => ntf.resourceId === room._id) || []
             }
-            editing={this.state.editing}
+            editing={editing}
             toggleEdit={this.toggleEdit}
             updateRoomInfo={this.updateRoomInfo}
-            instructions={this.state.instructions}
-            loading={this.props.loading}
+            instructions={instructions}
+            loading={loading}
           />
         );
       } else if (resource === 'members') {
@@ -369,8 +407,8 @@ class Room extends Component {
           <Members
             user={user}
             classList={room.members}
-            owner={room.myRole === 'facilitator' || this.state.isAdmin}
-            resourceType={'room'}
+            owner={room.myRole === 'facilitator' || isAdmin}
+            resourceType="room"
             resourceId={room._id}
             parentResource={course ? course._id : null}
             courseMembers={course ? course.members : null}
@@ -382,9 +420,9 @@ class Room extends Component {
       } else if (resource === 'settings') {
         mainContent = (
           <RoomSettings
-            owner={this.state.owner}
+            owner={owner}
             settings={room.settings}
-            updateRoom={this.props.updateRoom}
+            updateRoom={connectUpdateRoom}
             roomId={room._id}
           />
         );
@@ -398,17 +436,17 @@ class Room extends Component {
             sidePanel={
               <SidePanel
                 image={room.image}
-                alt={this.state.name}
-                editing={this.state.editing}
+                alt={name}
+                editing={editing}
                 name={
                   <Error error={updateFail && updateKeys.indexOf('name') > -1}>
                     <EditText
                       change={this.updateRoomInfo}
                       inputType="title"
                       name="name"
-                      editing={this.state.editing}
+                      editing={editing}
                     >
-                      {this.state.name}
+                      {name}
                     </EditText>
                   </Error>
                 }
@@ -420,9 +458,9 @@ class Room extends Component {
                       change={this.updateRoomInfo}
                       inputType="text"
                       name="description"
-                      editing={this.state.editing}
+                      editing={editing}
                     >
-                      {this.state.description}
+                      {description}
                     </EditText>
                   </Error>
                 }
@@ -432,32 +470,20 @@ class Room extends Component {
                   <Aux>
                     <span>
                       <Button
-                        theme={
-                          this.props.loading.loading ? 'SmallCancel' : 'Small'
-                        }
+                        theme={loading.loading ? 'SmallCancel' : 'Small'}
                         m={10}
-                        click={
-                          !this.props.loading.loading
-                            ? this.goToWorkspace
-                            : () => null
-                        }
-                        data-testid={'Enter'}
+                        data-testid="Enter"
+                        click={!loading.loading ? this.goToWorkspace : null}
                       >
                         Enter
                       </Button>
                     </span>
                     <span>
                       <Button
-                        theme={
-                          this.props.loading.loading ? 'SmallCancel' : 'Small'
-                        }
+                        theme={loading.loading ? 'SmallCancel' : 'Small'}
                         m={10}
-                        click={
-                          !this.props.loading.loading
-                            ? this.goToReplayer
-                            : () => null
-                        }
-                        data-testid={'Replayer'}
+                        data-testid="Replayer"
+                        click={!loading.loading ? this.goToReplayer : null}
                       >
                         Replayer
                       </Button>
@@ -465,19 +491,21 @@ class Room extends Component {
                   </Aux>
                 }
                 editButton={
-                  room.myRole === 'facilitator' || this.state.isAdmin ? (
+                  room.myRole === 'facilitator' || isAdmin ? (
                     <Aux>
                       <div
                         role="button"
                         style={{
-                          display: this.state.editing ? 'none' : 'block',
+                          display: editing ? 'none' : 'block',
                         }}
                         data-testid="edit-room"
                         onClick={this.toggleEdit}
+                        onKeyPress={this.toggleEdit}
+                        tabIndex="-1"
                       >
                         Edit Room <i className="fas fa-edit" />
                       </div>
-                      {this.state.editing ? (
+                      {editing ? (
                         // @TODO this should be a resuable component
                         <div
                           style={{
@@ -510,20 +538,18 @@ class Room extends Component {
               />
             }
             mainContent={mainContent}
-            tabs={
-              <TabList routingInfo={this.props.match} tabs={this.state.tabs} />
-            }
+            tabs={<TabList routingInfo={match} tabs={tabs} />}
           />
-          {this.state.firstView ? (
+          {firstView ? (
             <Modal
-              show={this.state.firstView}
-              close={this.clearFirstViewModal}
-              history={this.props.history}
+              show={firstView}
+              closeModal={this.clearFirstViewModal}
+              history={history}
             >
               <p>
                 Welcome to {room.name}. If this is your first time joining a
                 room, we recommend you take a tour. Otherwise you can start
-                exploring this room's features.
+                exploring this room&#39;s features.
               </p>
               <Button
                 data-testid="explore-room"
@@ -533,95 +559,119 @@ class Room extends Component {
               </Button>
             </Modal>
           ) : null}
-          <Modal
-            show={this.state.invited}
-            closeModal={this.clearFirstViewModal}
-          >
+          <Modal show={invited} closeModal={this.clearFirstViewModal}>
             <p>
-              You have been invited to {room.name}. If you think you've been
-              added to this course in error you can click "leave" and you will
-              be removed.
+              You have been invited to {room.name}. If you think you&#39;ve been
+              added to this course in error you can click &#34;leave&#34; and
+              you will be removed.
             </p>
             <div style={{ display: 'flex', justifyContent: 'space-around' }}>
               <Button
                 data-testid="join"
-                theme={'Small'}
+                theme="Small"
                 click={this.clearFirstViewModal}
               >
                 Join
               </Button>
               <Button
                 data-testid="leave"
-                theme={'Small'}
+                theme="Small"
                 click={this.removeMeFromRoom}
               >
                 Leave
               </Button>
             </div>
           </Modal>
-          {this.state.trashing ? (
+          {trashing ? (
             <TrashModal
               resource="room"
               resourceId={room._id}
-              update={this.props.updateRoom}
-              show={this.state.trashing}
+              update={connectUpdateRoom}
+              show={trashing}
               closeModal={() => {
                 this.setState({ trashing: false });
               }}
-              history={this.props.history}
+              history={history}
             />
           ) : null}
         </Aux>
       );
-    } else
-      return (
-        <Access
-          closeModal={() => this.props.history.goBack()}
-          resource="rooms"
-          resourceId={match.params.room_id}
-          userId={user._id}
-          username={user.username}
-          privacySetting={room ? room.privacySetting : null}
-          owners={
-            room
-              ? room.members
-                  .filter(member => member.role.toLowerCase() === 'facilitator')
-                  .map(member => member.user._id)
-              : []
-          }
-          error={error}
-          clearError={clearError}
-          setAdmin={() => {
-            this.setState({ isAdmin: true, guestMode: false });
-          }}
-        />
-      );
+    }
+    if (!room) return <div>Loading</div>;
+    return (
+      <Access
+        closeModal={history.goBack}
+        resource="rooms"
+        resourceId={match.params.room_id}
+        userId={user._id}
+        username={user.username}
+        privacySetting={room ? room.privacySetting : 'private'}
+        owners={
+          room
+            ? room.members
+                .filter(member => member.role.toLowerCase() === 'facilitator')
+                .map(member => member.user)
+            : []
+        }
+        error={error}
+        clearError={connectClearError}
+        setAdmin={() => {
+          this.setState({ isAdmin: true, guestMode: false });
+        }}
+      />
+    );
   }
 }
 
+Room.propTypes = {
+  room: PropTypes.shape({}),
+  user: PropTypes.shape({}).isRequired,
+  course: PropTypes.shape({}),
+  history: PropTypes.shape({}).isRequired,
+  match: PropTypes.shape({}).isRequired,
+  loading: PropTypes.bool.isRequired,
+  notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  error: PropTypes.string,
+  connectJoinWithCode: PropTypes.func.isRequired,
+  // connectRequestAccess: PropTypes.func.isRequired,
+  connectClearError: PropTypes.func.isRequired,
+  connectClearNotification: PropTypes.func.isRequired,
+  connectUpdateRoom: PropTypes.func.isRequired,
+  connectGetRoom: PropTypes.func.isRequired,
+  connectRemoveRoomMember: PropTypes.func.isRequired,
+  connectClearLoadingInfo: PropTypes.func.isRequired,
+  connectPopulateRoom: PropTypes.func.isRequired,
+};
+
+Room.defaultProps = {
+  room: null,
+  course: null,
+  error: null,
+};
 const mapStateToProps = (state, ownProps) => {
-  let { room_id, course_id } = ownProps.match.params;
+  // eslint-disable-next-line camelcase
+  const { room_id, course_id } = ownProps.match.params;
   return {
     room: state.rooms.byId[room_id],
     course: state.courses.byId[course_id] || null,
     // courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
     user: state.user,
     notifications: getUserNotifications(state.user, null, 'room'), // this seems redundant
-    loading: state.loading,
+    loading: state.loading.loading,
   };
 };
 
 export default connect(
   mapStateToProps,
   {
-    enterRoomWithCode,
-    requestAccess,
-    clearError,
-    clearNotification,
-    updateRoom,
-    getRoom,
-    removeRoomMember,
-    clearLoadingInfo,
-    populateRoom,
+    connectJoinWithCode: joinWithCode,
+    connectRequestAccess: requestAccess,
+    connectClearError: clearError,
+    connectClearNotification: clearNotification,
+    connectUpdateRoom: updateRoom,
+    connectGetRoom: getRoom,
+    connectRemoveRoomMember: removeRoomMember,
+    connectClearLoadingInfo: clearLoadingInfo,
+    connectPopulateRoom: populateRoom,
   }
 )(Room);

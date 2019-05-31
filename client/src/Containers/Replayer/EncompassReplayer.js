@@ -9,8 +9,8 @@ class EncompassReplayer extends Component {
   };
 
   componentDidMount() {
-    let currentUrl = window.location.hash;
-    let roomId = this.getRoomIdFromUrl(currentUrl);
+    const currentUrl = window.location.hash;
+    const roomId = this.getRoomIdFromUrl(currentUrl);
     this.setState({ room: this.getRoomFromWindow(roomId) });
 
     window.addEventListener('hashchange', this.setRoom, false);
@@ -21,8 +21,8 @@ class EncompassReplayer extends Component {
   }
 
   setRoom = event => {
-    let newUrl = event.newURL;
-    let roomId = this.getRoomIdFromUrl(newUrl);
+    const newUrl = event.newURL;
+    const roomId = this.getRoomIdFromUrl(newUrl);
 
     this.setState({ room: this.getRoomFromWindow(roomId) });
   };
@@ -32,8 +32,8 @@ class EncompassReplayer extends Component {
       return null;
     }
 
-    let target = 'vmtRoomId=';
-    let targetIx = url.indexOf(target);
+    const target = 'vmtRoomId=';
+    const targetIx = url.indexOf(target);
     let roomId;
 
     if (targetIx !== -1) {
@@ -57,25 +57,25 @@ class EncompassReplayer extends Component {
   };
 
   render() {
-    if (this.state.room) {
+    const { room } = this.state;
+    if (room) {
       return (
         <div className={classes.EncompassReplayer}>
           <SharedReplayer
-            room={this.state.room}
+            room={room}
             updateEnc={this.updateEncompass}
             encompass
           />
         </div>
       );
-    } else {
-      return <div>Fetching room</div>;
     }
+    return <div>Fetching room</div>;
   }
 }
 
-let root = document.getElementById('root');
+const root = document.getElementById('root');
 
-let destroyHandler = event => {
+const destroyHandler = event => {
   if (event.data.messageType === 'DESTROY_REPLAYER') {
     try {
       ReactDOM.unmountComponentAtNode(root);

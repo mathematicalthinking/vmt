@@ -1,11 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import classes from '../Workspace/graph.css';
+import PropTypes from 'prop-types';
 import Script from 'react-load-script';
-class GgbReplayer extends Component {
-  state = {
-    xmlContext: '',
-  };
+import classes from '../Workspace/graph.css';
 
+class GgbReplayer extends Component {
   graph = React.createRef();
   isFileSet = false; // calling ggb.setBase64 triggers this.initializeGgb(), because we set base 64 inside initializeGgb we use this instance var to track whether we've already set the file. When the ggb tries to load the file twice it breaks everything
   componentDidMount() {
@@ -18,12 +16,12 @@ class GgbReplayer extends Component {
   //   } else return false;
   // }
 
-  componentDidUpdate(prevProps, prevState) {
-    let { log, index, changingIndex } = this.props;
-    if (!prevProps.inView && this.props.inView) {
+  componentDidUpdate(prevProps) {
+    const { inView, log, index, changingIndex, isFullscreen } = this.props;
+    if (!prevProps.inView && inView) {
       this.updateDimensions();
     }
-    if (this.props.inView) {
+    if (inView) {
       if (changingIndex && prevProps.index !== index) {
         this.applyMultipleEvents(prevProps.index, index);
       } else if (
@@ -37,71 +35,25 @@ class GgbReplayer extends Component {
       // IF we're skipping it means we might need to reconstruct several evenets, possible in reverse order if the prevIndex is greater than this index.
       // This is a god damned mess...good luck
     }
-    if (prevProps.isFullscreen && !this.props.isFullscreen) {
+    if (prevProps.isFullscreen && !isFullscreen) {
       this.updateDimensions();
     }
     // else if (!this.state.loading || this.state.tabStates !== prevState.tabStates){
     //   console.log('the tabState have changed')
     //   this.constructEvent(log[index])
     // }
-    if (this.ggbApplet && prevProps.log !== this.props.log) {
+    if (this.ggbApplet && prevProps.log !== log) {
       this.onScriptLoad();
     }
   }
 
   componentWillUnmount() {
+    const { tabId } = this.props;
     window.removeEventListener('resize', this.updateDimensions);
-    delete window[`ggbApplet${this.props.tabId}A`];
+    delete window[`ggbApplet${tabId}A`];
   }
 
   // We should periodically save the entire state so if we skip to the very end we don't have to apply each event one at a time
-
-  /**
-   * @method applyMultipleEvents
-   * @description Takes two indices from the log and applies (or un-applies if going backwards thru time) all
-   * @param  {} startIndex
-   * @param  {} endIndex
-   */
-
-  applyMultipleEvents(startIndex, endIndex) {
-    if (startIndex < endIndex) {
-      // this.ggbApplet.setXML(this.props.log[endIndex].currentState);
-      for (let i = startIndex; i <= endIndex; i++) {
-        if (
-          this.props.log[i].eventArray &&
-          this.props.log[i].eventArray.length > 0 &&
-          this.props.log[i].eventType === 'BATCH_UPDATE'
-        ) {
-          let syntheticEvent = { ...this.props.log[i] };
-          let { eventArray } = syntheticEvent;
-          syntheticEvent.event = eventArray.pop();
-          syntheticEvent.eventType = 'UPDATE';
-          this.constructEvent(syntheticEvent);
-        } else {
-          this.constructEvent(this.props.log[i]);
-        }
-      }
-    }
-
-    // backwards through time
-    else {
-      for (let i = startIndex; i > endIndex; i--) {
-        let syntheticEvent = { ...this.props.log[i] };
-        if (syntheticEvent.eventType === 'ADD') {
-          syntheticEvent.eventType = 'REMOVE';
-        } else if (syntheticEvent.eventType === 'REMOVE') {
-          syntheticEvent.eventType = 'ADD';
-        } else if (syntheticEvent.eventType === 'BATCH_ADD') {
-          syntheticEvent.eventType = 'BATCH_REMOVE';
-        } else if (syntheticEvent.eventType === 'BATCH_UPDATE') {
-          let { eventArray } = { ...syntheticEvent };
-          syntheticEvent.event = eventArray.shift();
-          syntheticEvent.eventType = 'UPDATE';
-        }
-        this.constructEvent(syntheticEvent);
-      }
-    }
-  }
 
   constructEvent = data => {
     switch (data.eventType) {
@@ -141,6 +93,53 @@ class GgbReplayer extends Component {
     }
   };
 
+  onScriptLoad = () => {
+    const { tab, tabId } = this.props;
+    const parameters = {
+      id: `ggbApplet${tabId}A`, // THE 'A' here is because ggb doesn't like us ending Id name with a number
+      // "width": 1300 * .75, // 75% width of container
+      // "height": GRAPH_HEIGHT,
+      // "scaleContainerClass": "graph",
+      showToolBar: false,
+      showMenuBar: false,
+      showAlgebraInput: true,
+      language: 'en',
+      useBrowserForJS: true,
+      borderColor: '#ddd',
+      errorDialogsActive: false,
+      preventFocus: true,
+      appletOnLoad: this.initializeGgb,
+      appName: tab.appName,
+    };
+    const ggbApp = new window.GGBApplet(parameters, '5.0');
+    ggbApp.inject(`ggb-element${tabId}A`);
+  };
+
+  initializeGgb = () => {
+    const { tabId, tab, setTabLoaded } = this.props;
+    this.ggbApplet = window[`ggbApplet${tabId}A`];
+    setTabLoaded(tab._id);
+    this.ggbApplet.setMode(40); // Sets the tool to zoom
+    const { startingPoint, ggbFile } = tab;
+    // put the current construction on the graph, disable everything until the user takes control
+    // if (perspective) this.ggbApplet.setPerspective(perspective);
+    if (startingPoint) {
+      this.ggbApplet.setXML(startingPoint);
+    } else if (ggbFile && !this.isFileSet) {
+      this.isFileSet = true;
+      this.ggbApplet.setBase64(ggbFile);
+    }
+  };
+
+  updateDimensions = () => {
+    const { tabId } = this.props;
+    // this.resizeTimer = setTimeout(() => {
+    if (this.graph.current) {
+      const { clientHeight, clientWidth } = this.graph.current.parentElement;
+      window[`ggbApplet${tabId}A`].setSize(clientWidth, clientHeight);
+    }
+  };
+
   /**
    * @method recursiveUpdate
    * @description takes an array of events and updates the construction in batches
@@ -165,63 +164,67 @@ class GgbReplayer extends Component {
         this.ggbApplet.evalXML(events.shift());
         this.ggbApplet.evalCommand('UpdateConstruction()');
         setTimeout(() => {
+          if (events.length === 1) {
+            // eslint-disable-next-line no-console
+            console.log('EVENTS: ', JSON.stringify(events, null, 2));
+          }
           this.recursiveUpdate(events, false);
         }, 10);
       }
-    } else {
-      return;
     }
   }
 
-  onScriptLoad = () => {
-    let parameters = {
-      id: `ggbApplet${this.props.tabId}A`, // THE 'A' here is because ggb doesn't like us ending Id name with a number
-      // "width": 1300 * .75, // 75% width of container
-      // "height": GRAPH_HEIGHT,
-      // "scaleContainerClass": "graph",
-      showToolBar: false,
-      showMenuBar: false,
-      showAlgebraInput: true,
-      language: 'en',
-      useBrowserForJS: true,
-      borderColor: '#ddd',
-      errorDialogsActive: false,
-      preventFocus: true,
-      appletOnLoad: this.initializeGgb,
-      appName: this.props.tab.appName,
-    };
-    const ggbApp = new window.GGBApplet(parameters, '5.0');
-    ggbApp.inject(`ggb-element${this.props.tabId}A`);
-  };
+  /**
+   * @method applyMultipleEvents
+   * @description Takes two indices from the log and applies (or un-applies if going backwards thru time) all events between
+   * @param  {} startIndex
+   * @param  {} endIndex
+   */
 
-  initializeGgb = () => {
-    this.ggbApplet = window[`ggbApplet${this.props.tabId}A`];
-    this.props.setTabLoaded(this.props.tab._id);
-    this.ggbApplet.setMode(40); // Sets the tool to zoom
-    let { tab } = this.props;
-    let { startingPoint, ggbFile } = tab;
-    // put the current construction on the graph, disable everything until the user takes control
-    // if (perspective) this.ggbApplet.setPerspective(perspective);
-    if (startingPoint) {
-      this.ggbApplet.setXML(startingPoint);
-    } else if (ggbFile && !this.isFileSet) {
-      this.isFileSet = true;
-      this.ggbApplet.setBase64(ggbFile);
+  applyMultipleEvents(startIndex, endIndex) {
+    const { log } = this.props;
+    // Forwards through time
+    if (startIndex < endIndex) {
+      // this.ggbApplet.setXML(this.props.log[endIndex].currentState);
+      for (let i = startIndex; i <= endIndex; i++) {
+        if (
+          log[i].eventArray &&
+          log[i].eventArray.length > 0 &&
+          log[i].eventType === 'BATCH_UPDATE'
+        ) {
+          const syntheticEvent = { ...log[i] };
+          const { eventArray } = syntheticEvent;
+          syntheticEvent.event = eventArray.pop();
+          syntheticEvent.eventType = 'UPDATE';
+          this.constructEvent(syntheticEvent);
+        } else {
+          this.constructEvent(log[i]);
+        }
+      }
     }
-  };
 
-  updateDimensions = () => {
-    // this.resizeTimer = setTimeout(() => {
-    if (this.graph.current) {
-      let { clientHeight, clientWidth } = this.graph.current.parentElement;
-      window[`ggbApplet${this.props.tabId}A`].setSize(
-        clientWidth,
-        clientHeight
-      );
+    // backwards through time
+    else {
+      for (let i = startIndex; i > endIndex; i--) {
+        const syntheticEvent = { ...log[i] };
+        if (syntheticEvent.eventType === 'ADD') {
+          syntheticEvent.eventType = 'REMOVE';
+        } else if (syntheticEvent.eventType === 'REMOVE') {
+          syntheticEvent.eventType = 'ADD';
+        } else if (syntheticEvent.eventType === 'BATCH_ADD') {
+          syntheticEvent.eventType = 'BATCH_REMOVE';
+        } else if (syntheticEvent.eventType === 'BATCH_UPDATE') {
+          const { eventArray } = { ...syntheticEvent };
+          syntheticEvent.event = eventArray.shift();
+          syntheticEvent.eventType = 'UPDATE';
+        }
+        this.constructEvent(syntheticEvent);
+      }
     }
-  };
+  }
 
   render() {
+    const { tabId } = this.props;
     return (
       <Fragment>
         <Script
@@ -230,12 +233,28 @@ class GgbReplayer extends Component {
         />
         <div
           className={classes.Graph}
-          id={`ggb-element${this.props.tabId}A`}
+          id={`ggb-element${tabId}A`}
           ref={this.graph}
         />
       </Fragment>
     );
   }
 }
+
+GgbReplayer.propTypes = {
+  log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  changingIndex: PropTypes.bool.isRequired,
+  inView: PropTypes.bool.isRequired,
+  index: PropTypes.number.isRequired,
+  isFullscreen: PropTypes.bool.isRequired,
+  setTabLoaded: PropTypes.func.isRequired,
+  tab: PropTypes.shape({
+    appName: PropTypes.string.isRequired,
+    _id: PropTypes.string.isRequired,
+    startinPoint: PropTypes.string,
+    ggbFile: PropTypes.string,
+  }).isRequired,
+  tabId: PropTypes.number.isRequired,
+};
 
 export default GgbReplayer;

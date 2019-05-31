@@ -1,23 +1,24 @@
-import React, { Component } from "react";
-import classes from "./graph.css";
-import Aux from "../../Components/HOC/Auxil";
-import Script from "react-load-script";
-import API from "../../utils/apiRequests";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import Script from 'react-load-script';
+import classes from './graph.css';
+import Aux from '../../Components/HOC/Auxil';
+import API from '../../utils/apiRequests';
 // import { updatedRoom } from '../../store/actions';
 class DesmosActivityGraph extends Component {
-  state = {
-    loading: window.Desmos ? false : true
-  };
+  // state = {
+  //   loading: window.Desmos ? false : true,
+  // };
   calculatorRef = React.createRef();
 
   componentDidMount() {
+    const { activity, currentTab, setFirstTabLoaded } = this.props;
+    const { tabs } = activity;
     if (window.Desmos) {
-      let { activity, currentTab } = this.props;
-      let { tabs } = activity;
       this.calculator = window.Desmos.GraphingCalculator(
         this.calculatorRef.current
       );
-      this.setState({ loading: false });
+      // this.setState({ loading: false });
       if (tabs[currentTab].currentState) {
         this.calculator.setState(tabs[currentTab].currentState);
       } else if (tabs[currentTab].desmosLink) {
@@ -25,70 +26,72 @@ class DesmosActivityGraph extends Component {
           .then(res => {
             this.calculator.setState(res.data.result.state);
           })
+          // eslint-disable-next-line no-console
           .catch(err => console.log(err));
       }
-      this.props.setFirstTabLoaded();
+      setFirstTabLoaded();
     }
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.currentTab !== this.props.currentTab) {
-      if (this.props.role === "facilitator") {
-        let updatedTabs = [...prevProps.activity.tabs];
-        let updatedTab = updatedTabs[prevProps.currentTab];
+    const { currentTab, role, activity, updateActivityTab } = this.props;
+    if (prevProps.currentTab !== currentTab) {
+      if (role === 'facilitator') {
+        const updatedTabs = [...prevProps.activity.tabs];
+        const updatedTab = updatedTabs[prevProps.currentTab];
         updatedTab.currentState = JSON.stringify({
-          ...this.calculator.getState()
+          ...this.calculator.getState(),
         });
-        updatedTabs[this.props.currentTab] = updatedTab;
-        this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {
-          currentState: updatedTab.currentState
+        updatedTabs[currentTab] = updatedTab;
+        updateActivityTab(activity._id, updatedTab._id, {
+          currentState: updatedTab.currentState,
         });
       }
-      this.calculator.setState(
-        this.props.activity.tabs[this.props.currentTab].currentState
-      );
+      this.calculator.setState(activity.tabs[currentTab].currentState);
     }
   }
 
   componentWillUnmount() {
+    const { role, activity, currentTab, updateActivityTab } = this.props;
     // save on unmount
-    if (this.props.role === "facilitator") {
-      let updatedTabs = [...this.props.activity.tabs];
-      let updatedTab = updatedTabs[this.props.currentTab];
+    if (role === 'facilitator') {
+      const updatedTabs = [...activity.tabs];
+      const updatedTab = updatedTabs[currentTab];
       updatedTab.currentState = JSON.stringify({
-        ...this.calculator.getState()
+        ...this.calculator.getState(),
       });
-      updatedTabs[this.props.currentTab] = updatedTab;
-      this.props.updateActivityTab(this.props.activity._id, updatedTab._id, {
-        currentState: updatedTab.currentState
+      updatedTabs[currentTab] = updatedTab;
+      updateActivityTab(activity._id, updatedTab._id, {
+        currentState: updatedTab.currentState,
       });
     }
-    this.calculator.unobserveEvent("change");
+    this.calculator.unobserveEvent('change');
     this.calculator.destroy();
   }
 
   onScriptLoad = () => {
+    const { activity, currentTab, setFirstTabLoaded } = this.props;
+    const { tabs } = activity;
+    const { desmosLink } = tabs[currentTab];
     this.calculator = window.Desmos.GraphingCalculator(
       this.calculatorRef.current
     );
-    let { activity, currentTab } = this.props;
-    let { tabs } = activity;
-    let { desmosLink } = tabs[currentTab];
     if (tabs[currentTab].currentState) {
       this.calculator.setState(tabs[currentTab].currentState);
-      this.setState({ loading: false });
+      // this.setState({ loading: false });
     } else if (desmosLink) {
       API.getDesmos(desmosLink)
         .then(res => {
           this.calculator.setState(res.data.result.state);
-          this.setState({ loading: false });
+          // this.setState({ loading: false });
           // this.initializeListeners();
         })
+        // eslint-disable-next-line no-console
         .catch(err => console.log(err));
     } else {
-      this.setState({ loading: false });
+      // this.setState({ loading: false });
     }
-    this.props.setFirstTabLoaded();
+    setFirstTabLoaded();
   };
 
   render() {
@@ -109,5 +112,13 @@ class DesmosActivityGraph extends Component {
     );
   }
 }
+
+DesmosActivityGraph.propTypes = {
+  activity: PropTypes.shape({}).isRequired,
+  currentTab: PropTypes.number.isRequired,
+  role: PropTypes.string.isRequired,
+  setFirstTabLoaded: PropTypes.func.isRequired,
+  updateActivityTab: PropTypes.func.isRequired,
+};
 
 export default DesmosActivityGraph;

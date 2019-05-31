@@ -1,58 +1,68 @@
+/* eslint-disable react/no-did-update-set-state */
 // Should we store chat data in this component's state or in the
 // redux store?
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import socket from '../../utils/sockets';
 import { Chat as ChatLayout } from '../../Components';
+
 class Chat extends Component {
   state = {
     newMessage: '',
   };
 
   componentDidMount() {
+    const { addToLog, replaying, roomId } = this.props;
+    const { newMessage } = this.state;
     // event handler for enter key presses
     document.addEventListener('keydown', event => {
       if (event.key === 'Enter') {
         // handle differenct contexts of Enter clicks
-        if (this.state.newMessage.length > 0) {
+        if (newMessage.length > 0) {
           this.submitMessage();
           //  @TODO we need to check if the chat enry is in focuse with a ref()
         }
       }
     });
-    if (!this.props.replaying) {
+    if (!replaying) {
       socket.removeAllListeners('RECEIVE_MESSAGE');
       socket.on('RECEIVE_MESSAGE', data => {
-        this.props.addToLog(this.props.roomId, data);
+        addToLog(roomId, data);
         // this.scrollToBottom()
       });
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!prevProps.referencing && this.props.referencing) {
-      this.setState({ newMessage: `⬅️ ${this.state.newMessage}` });
-    } else if (prevProps.referencing && !this.props.referencing) {
-      let newMessage = this.state.newMessage.replace(/⬅/g, '');
-      this.setState({ newMessage });
+    const { referencing, referToEl, clearReference } = this.props;
+    const { newMessage } = this.state;
+    if (!prevProps.referencing && referencing) {
+      this.setState(currentState => ({
+        newMessage: `⬅️ ${currentState.newMessage}`,
+      }));
+    } else if (prevProps.referencing && !referencing) {
+      this.setState(currentState => ({
+        newMessage: currentState.newMessage.replace(/⬅/g, ''),
+      }));
     }
     if (
       (prevState.newMessage.includes('⬅') &&
-        !this.state.newMessage.includes('⬅️') &&
-        !this.state.newMessage.includes('⬆️')) ||
+        !newMessage.includes('⬅️') &&
+        !newMessage.includes('⬆️')) ||
       (prevState.newMessage.includes('⬆️') &&
-        !this.state.newMessage.includes('⬆️') &&
-        !this.state.newMessage.includes('⬅'))
+        !newMessage.includes('⬆️') &&
+        !newMessage.includes('⬅'))
     ) {
-      this.props.clearReference();
+      clearReference();
     }
     if (
       !prevProps.referToEl &&
-      this.props.referToEl &&
-      this.props.referToEl.elementType === 'chat_message'
+      referToEl &&
+      referToEl.elementType === 'chat_message'
     ) {
-      let updatedMessage = this.state.newMessage;
-      let newMessage = updatedMessage.replace('⬅', '⬆️');
-      this.setState({ newMessage });
+      this.setState(currentState => ({
+        newMessage: currentState.replace('⬅', '⬆️'),
+      }));
     }
   }
 
@@ -64,35 +74,45 @@ class Chat extends Component {
   };
 
   submitMessage = () => {
+    const {
+      referToEl,
+      referencing,
+      currentTab,
+      clearReference,
+      addToLog,
+    } = this.props;
+    const { newMessage } = this.state;
     const { roomId, user, myColor } = this.props;
     if (!user.connected) {
-      return alert(
+      // eslint-disable-next-line no-alert
+      window.alert(
         'you have disconnected from the server. Check your internet connect and try refreshing the page'
       );
     }
-    if (this.state.newMessage.length === 0) return;
-    const newMessage = {
-      text: this.state.newMessage,
+    if (newMessage.length === 0) return;
+    const messageData = {
+      text: newMessage,
       user: { _id: user._id, username: user.username },
       room: roomId,
       color: myColor,
       messageType: 'TEXT',
       timestamp: new Date().getTime(),
     };
-    if (this.props.referencing) {
+    if (referencing) {
       newMessage.reference = {
-        ...this.props.referToEl,
-        tab: this.props.currentTab,
+        ...referToEl,
+        tab: currentTab,
       };
-      this.props.clearReference();
+      clearReference();
     }
-    socket.emit('SEND_MESSAGE', newMessage, (res, err) => {
+    socket.emit('SEND_MESSAGE', messageData, (res, err) => {
       if (err) {
+        // eslint-disable-next-line no-console
         console.log(err);
         return;
         // IF THERES AN ERROR WE NEED TO UNDO THE SETSTATE BELOW
       }
-      this.props.addToLog(roomId, { ...newMessage, _id: res._id });
+      addToLog(roomId, { ...messageData, _id: res._id });
     });
     delete newMessage.room;
     // this.scrollToBottom(); @TODO
@@ -105,27 +125,25 @@ class Chat extends Component {
   render() {
     return (
       <ChatLayout
-        log={this.props.log}
-        messages={this.props.messages}
         change={this.changeHandler}
         submit={this.submitMessage}
-        value={this.state.newMessage}
-        referencing={this.props.referencing}
-        referToEl={this.props.referToEl}
-        referToCoords={this.props.referToCoords}
-        referFromEl={this.props.referFromEl}
-        referFromCoords={this.props.referFromCoords}
-        setToElAndCoords={this.props.setToElAndCoords}
-        setFromElAndCoords={this.props.setFromElAndCoords}
-        showingReference={this.props.showingReference}
-        clearReference={this.props.clearReference}
-        showReference={this.props.showReference}
-        isConnected={this.props.user.connected}
-        expanded={this.props.expanded}
-        toggleExpansion={this.props.toggleExpansion}
+        {...this.props}
       />
     );
   }
 }
+
+Chat.propTypes = {
+  referencing: PropTypes.bool.isRequired,
+  referToEl: PropTypes.shape({}),
+  addToLog: PropTypes.func.isRequired,
+  replaying: PropTypes.bool,
+  roomId: PropTypes.string.isRequired,
+};
+
+Chat.defaultProps = {
+  referToEl: null,
+  replaying: false,
+};
 
 export default Chat;

@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Modal from './Modal';
 import classes from './modal.css';
 import Button from '../Button/Button';
+
 const hash = {
   course: 'courses',
   room: 'rooms',
@@ -9,26 +11,27 @@ const hash = {
 };
 class TrashModal extends Component {
   trashResource = () => {
-    this.props.history.push(`/myVMT/${hash[this.props.resource]}`);
-    this.props.update(this.props.resourceId, { isTrashed: true });
-    this.props.closeModal();
+    const { history, update, closeModal, resource, resourceId } = this.props;
+    history.push(`/myVMT/${hash[resource]}`);
+    update(resourceId, { isTrashed: true });
+    closeModal();
   };
 
   trashResourceAndChildren = () => {
-    this.props.update(this.props.resourceId, {
+    const { history, update, closeModal, resource, resourceId } = this.props;
+    update(resourceId, {
       isTrashed: true,
       trashChildren: true,
     });
-    this.props.closeModal();
-    this.props.history.push(`/myVMT/${hash[this.props.resource]}`);
+    closeModal();
+    history.push(`/myVMT/${hash[resource]}`);
   };
 
   render() {
+    const { show, closeModal, resource } = this.props;
     return (
-      <Modal show={this.props.show} closeModal={this.props.closeModal}>
-        <div>
-          {`Are you sure you want to delete this ${this.props.resource}`}?
-        </div>
+      <Modal show={show} closeModal={closeModal}>
+        <div>{`Are you sure you want to delete this ${resource}`}?</div>
         <div className={classes.Row}>
           <Button
             m={10}
@@ -36,9 +39,9 @@ class TrashModal extends Component {
             data-testid="confirm-trash"
             click={this.trashResource}
           >
-            <i className="fas fa-trash-alt" /> delete this {this.props.resource}
+            <i className="fas fa-trash-alt" /> delete this {resource}
           </Button>
-          {this.props.resource === 'course' ? (
+          {resource === 'course' ? (
             <Button
               m={10}
               theme="Danger"
@@ -49,7 +52,7 @@ class TrashModal extends Component {
               its resources
             </Button>
           ) : null}
-          <Button m={10} theme="Cancel" click={this.props.closeModal}>
+          <Button m={10} theme="Cancel" click={closeModal}>
             Cancel
           </Button>
         </div>
@@ -58,4 +61,12 @@ class TrashModal extends Component {
   }
 }
 
+TrashModal.propTypes = {
+  history: PropTypes.shape({}).isRequired,
+  update: PropTypes.func.isRequired,
+  show: PropTypes.bool.isRequired,
+  closeModal: PropTypes.func.isRequired,
+  resource: PropTypes.string.isRequired,
+  resourceId: PropTypes.string.isRequired,
+};
 export default TrashModal;

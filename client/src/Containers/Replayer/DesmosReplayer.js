@@ -1,9 +1,11 @@
 import React, { Component, Fragment } from 'react';
+import PropTypes from 'prop-types';
 import Script from 'react-load-script';
 import API from '../../utils/apiRequests';
+
 class DesmosReplayer extends Component {
   state = {
-    tabStates: {},
+    // tabStates: {},
   };
 
   calculatorRef = React.createRef();
@@ -36,6 +38,14 @@ class DesmosReplayer extends Component {
   //   } else return false;
   // }
 
+  componentDidUpdate(prevProps) {
+    const { inView, index, log } = this.props;
+    if (inView) {
+      if (prevProps.index !== index && log[index].event) {
+        this.calculator.setState(log[index].event);
+      }
+    }
+  }
   componentWillUnmount() {
     if (this.calculator) {
       this.calculator.unobserveEvent('change');
@@ -43,36 +53,26 @@ class DesmosReplayer extends Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.inView) {
-      if (
-        prevProps.index !== this.props.index &&
-        this.props.log[this.props.index].event
-      ) {
-        this.calculator.setState(this.props.log[this.props.index].event);
-      }
-    }
-  }
-
   onScriptLoad = () => {
+    const { tab, setTabLoaded } = this.props;
     this.calculator = window.Desmos.GraphingCalculator(
       this.calculatorRef.current
     );
-    let { tab } = this.props;
     if (tab.startingPoint) {
       this.calculator.setState(tab.startingPoint);
-      this.props.setTabLoaded(tab._id);
+      setTabLoaded(tab._id);
     } else if (tab.desmosLink) {
       API.getDesmos(tab.desmosLink)
         .then(res => {
           this.calculator.setState(res.data.result.state);
           // console.
-          this.props.setTabLoaded(tab._id);
+          setTabLoaded(tab._id);
         })
+        // eslint-disable-next-line no-console
         .catch(err => console.log(err));
     } else {
       this.calculator.setBlank();
-      this.props.setTabLoaded(tab._id);
+      setTabLoaded(tab._id);
     }
   };
 
@@ -94,5 +94,13 @@ class DesmosReplayer extends Component {
     );
   }
 }
+
+DesmosReplayer.propTypes = {
+  inView: PropTypes.bool.isRequired,
+  log: PropTypes.func.isRequired,
+  index: PropTypes.func.isRequired,
+  tab: PropTypes.shape({}).isRequired,
+  setTabLoaded: PropTypes.func.isRequired,
+};
 
 export default DesmosReplayer;

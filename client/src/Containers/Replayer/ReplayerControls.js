@@ -1,42 +1,35 @@
-import React, { Component } from "react";
-import classes from "./replayerControls.css";
-import Clock from "./Clock/Clock";
-import Slider from "./Slider/Slider";
-import Settings from "./Settings/Settings";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import classes from './replayerControls.css';
+
 class ReplayerControls extends Component {
   state = {
-    showControls: true,
-    mouseOverControls: false
+    mouseOverControls: false,
   };
 
   componentDidMount() {
-    window.addEventListener("mousemove", this.showControls);
+    window.addEventListener('mousemove', this.showControls);
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.playing !== this.props.playing) {
-      if (this.props.playing) {
-      }
-    }
-    if (prevProps.startTime !== this.props.startTime) {
-      this.originalStartTime = this.props.startTime;
+    const { playing } = this.props;
+    if (prevProps.playing !== playing) {
+      // if (playing) {
+      // }
     }
   }
 
   componentWillUnmount() {
-    window.removeEventListener("mousemove", this.showControls);
+    window.removeEventListener('mousemove', this.showControls);
     if (this.hideControlsTimer) {
       clearTimeout(this.hideControlsTimer);
     }
   }
 
-  getProgress = progress => {
-    this.setState({ progress });
-  };
-
   next = () => {
     const { log, index, duration, goToTime } = this.props;
     const percent = log[index + 1].relTime / duration;
+
     goToTime(percent);
   };
 
@@ -47,21 +40,24 @@ class ReplayerControls extends Component {
   };
 
   first = () => {
-    this.props.goToTime(0);
+    const { goToTime } = this.props;
+    goToTime(0);
   };
 
   last = () => {
-    this.props.goToTime(1);
+    const { goToTime } = this.props;
+    goToTime(1);
   };
 
   showControls = () => {
+    const { showControls, mouseOverControls } = this.state;
     if (this.hideControlsTimer) {
       clearTimeout(this.hideControlsTimer);
     }
-    if (!this.state.showControls) {
+    if (!showControls) {
       this.setState({ showControls: true });
     }
-    if (!this.state.mouseOverControls) {
+    if (!mouseOverControls) {
       this.hideControlsTimer = setTimeout(
         () => this.setState({ showControls: false }),
         1500
@@ -72,57 +68,33 @@ class ReplayerControls extends Component {
   render() {
     const {
       playing,
-      startTime,
-      duration, //ms
       pausePlay,
-      relTime,
-      isFullscreen,
-      toggleFullscreen,
       log,
       index,
-      changingIndex,
-      goToIndex,
-      goToTime,
-      absTimeElapsed,
-      speed,
-      setSpeed
+      settings,
+      clock,
+      slider,
     } = this.props;
+    const { showControls } = this.state;
     const pausePlayButton = playing ? (
       <i className="fas fa-pause" />
     ) : (
       <i className="fas fa-play" />
     );
-
-    const progress = (relTime / duration) * 100; // %
     return (
       <div
-        className={
-          this.state.showControls ? classes.Container : classes.HiddenContainer
-        }
+        className={showControls ? classes.Container : classes.HiddenContainer}
         onMouseEnter={() => this.setState({ mouseOverControls: true })}
         onMouseLeave={() => this.setState({ mouseOverControls: false })}
       >
-        <div className={classes.ProgressBar}>
-          {/* <div className={classes.Time} style={{ marginRight: 3 }}>
-              {this.originalStartTime || startTime}
-            </div> */}
-          <Slider
-            progress={progress}
-            log={log}
-            duration={duration}
-            playing={playing}
-            goToTime={percent => goToTime(percent)}
-          />
-          {/* <div className={classes.Time} style={{ marginLeft: 3 }}>
-              {endTime}
-            </div> */}
-        </div>
+        <div className={classes.ProgressBar}>{slider}</div>
         <div className={classes.Controls}>
           <div className={classes.PlayControls}>
             <button
               disabled={index === 0}
               onClick={this.first}
               className={classes.Button}
+              type="button"
             >
               <i className="fas fa-fast-backward" />
             </button>
@@ -130,16 +102,22 @@ class ReplayerControls extends Component {
               disabled={index === 0}
               onClick={this.back}
               className={classes.Button}
+              type="button"
             >
               <i className="fas fa-backward" />
             </button>
-            <button className={classes.Button} onClick={pausePlay}>
+            <button
+              className={classes.Button}
+              onClick={pausePlay}
+              type="button"
+            >
               {pausePlayButton}
             </button>
             <button
               disabled={index === log.length - 1}
               onClick={this.next}
               className={classes.Button}
+              type="button"
             >
               <i className="fas fa-forward" />
             </button>
@@ -147,29 +125,30 @@ class ReplayerControls extends Component {
               disabled={index === log.length - 1}
               onClick={this.last}
               className={classes.Button}
+              type="button"
             >
               <i className="fas fa-fast-forward" />
             </button>
-            <Clock
-              startTime={startTime}
-              playing={playing}
-              duration={duration}
-              relTime={relTime}
-              changingIndex={changingIndex}
-              // absTimeElapsed={absTimeElapsed}
-            />
+            {clock}
           </div>
-          <Settings
-            setSpeed={setSpeed}
-            speed={speed}
-            hideSettings={!this.state.showControls}
-            isFullscreen={isFullscreen}
-            toggleFullscreen={toggleFullscreen}
-          />
+          {settings}
         </div>
         <div className={classes.Backdrop} />
       </div>
     );
   }
 }
+
+ReplayerControls.propTypes = {
+  playing: PropTypes.bool.isRequired,
+  pausePlay: PropTypes.func.isRequired,
+  duration: PropTypes.number.isRequired,
+  index: PropTypes.number.isRequired,
+  log: PropTypes.arrayOf(PropTypes.object).isRequired,
+  goToTime: PropTypes.func.isRequired,
+  settings: PropTypes.element.isRequired,
+  slider: PropTypes.element.isRequired,
+  clock: PropTypes.element.isRequired,
+};
+
 export default ReplayerControls;

@@ -1,11 +1,12 @@
-import { createStore, applyMiddleware, compose } from "redux";
+import { createStore, applyMiddleware, compose } from 'redux';
+import thunk from 'redux-thunk';
+import throttle from 'lodash/throttle';
 
-import throttle from "lodash/throttle";
-import rootReducer from "./store/reducers";
-import thunk from "redux-thunk";
-import { loadState, saveState } from "./utils/localStorage";
+import rootReducer from './store/reducers';
+import { loadState, saveState } from './utils/localStorage';
+
 const configureStore = () => {
-  const logger = store => {
+  const logger = () => {
     return next => {
       return action => {
         const result = next(action);

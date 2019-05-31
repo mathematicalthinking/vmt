@@ -1,5 +1,6 @@
-import React from "react";
-const MousePointer = props => {
+import React from 'react';
+
+const MousePointer = () => {
   return (
     <svg
       aria-hidden="true"

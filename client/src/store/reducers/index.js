@@ -1,12 +1,9 @@
-import { combineReducers } from "redux";
-import user from "./userReducer";
-import rooms from "./roomsReducer";
-import courses from "./coursesReducer";
-import courseTemplates from "./courseTemplatesReducer";
-import activities from "./activitiesReducer";
-import loading from "./loadingReducer";
-import dnd from "./dndReducer";
-// import registrationReducer from './registrationReducer';
+import { combineReducers } from 'redux';
+import user from './userReducer';
+import rooms from './roomsReducer';
+import courses from './coursesReducer';
+import activities from './activitiesReducer';
+import loading from './loadingReducer';
 
 const rootReducer = combineReducers({
   user,
@@ -14,8 +11,6 @@ const rootReducer = combineReducers({
   courses,
   activities,
   rooms,
-  courseTemplates,
-  dnd
 });
 
 export default rootReducer;
@@ -25,10 +20,10 @@ export const getUserResources = (state, resource) => {
   if (state[resource].allIds && state[resource].allIds.length > 0) {
     return state.user[resource].reduce((acc, cur) => {
       // Only get resources that are stand alone (i.e. not belonging to a course)
-      let popRec = state[resource].byId[cur];
+      const popRec = state[resource].byId[cur];
       if (
-        resource === "courses" ||
-        (resource !== "courses" && popRec && !popRec.course)
+        resource === 'courses' ||
+        (resource !== 'courses' && popRec && !popRec.course)
       ) {
         acc.push(popRec);
       }
@@ -63,8 +58,8 @@ export const populateResource = (
 };
 
 export const getAllUsersInStore = (state, usersToExclude) => {
-  let userIds = new Set();
-  let usernames = new Set();
+  const userIds = new Set();
+  const usernames = new Set();
   state.courses.allIds.forEach(id => {
     state.courses.byId[id].members.forEach(member => {
       if (usersToExclude.indexOf(member.user._id) === -1) {

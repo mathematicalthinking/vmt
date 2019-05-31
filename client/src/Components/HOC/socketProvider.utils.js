@@ -1,9 +1,9 @@
-export const createNtfMessage = (notification, course, room, myResources) => {
+export default (notification, course, room, myResources) => {
   let message = null;
-  let type = notification.notificationType;
-  let resource = notification.resourceType;
+  const type = notification.notificationType;
+  const resource = notification.resourceType;
   if (type === 'requestAccess') {
-    let { username } = notification.fromUser;
+    const { username } = notification.fromUser;
     message = `${username} is requesting to join ${resource} ${
       myResources[`${resource}s`][notification.resourceId].name
     }`;
@@ -12,7 +12,7 @@ export const createNtfMessage = (notification, course, room, myResources) => {
       resource === 'room' ? room.name : course.name
     } has been accpeted`;
   } else if (type === 'newMember') {
-    let { username } = notification.fromUser;
+    const { username } = notification.fromUser;
     message = `${username} joined ${resource} ${
       myResources[`${resource}s`][notification.resourceId].name
     } `;
@@ -21,7 +21,7 @@ export const createNtfMessage = (notification, course, room, myResources) => {
       resource === 'room' ? room.name : course.name
     }`;
   } else if (type === 'assignedNewRoom') {
-    let { username } = notification.fromUser;
+    const { username } = notification.fromUser;
     message = `${username} has assigned you to room ${room.name}`;
   }
   return message;

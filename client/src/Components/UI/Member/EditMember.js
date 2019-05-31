@@ -1,6 +1,8 @@
-import React, { PureComponent } from "react";
-import Aux from "../../HOC/Auxil";
-import RadioBtn from "../../Form/RadioBtn/RadioBtn";
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
+import Aux from '../../HOC/Auxil';
+import RadioBtn from '../../Form/RadioBtn/RadioBtn';
+
 class EditMember extends PureComponent {
   render() {
     const { changeRole, role } = this.props;
@@ -8,15 +10,15 @@ class EditMember extends PureComponent {
       <Aux>
         <RadioBtn
           check={changeRole}
-          checked={role === "facilitator"}
-          name={"facilitator"}
+          checked={role === 'facilitator'}
+          name="facilitator"
         >
           Facilitator
         </RadioBtn>
         <RadioBtn
           check={changeRole}
-          checked={role === "participant"}
-          name={"participant"}
+          checked={role === 'participant'}
+          name="participant"
         >
           Participant
         </RadioBtn>
@@ -24,5 +26,10 @@ class EditMember extends PureComponent {
     );
   }
 }
+
+EditMember.propTypes = {
+  changeRole: PropTypes.func.isRequired,
+  role: PropTypes.string.isRequired,
+};
 
 export default EditMember;

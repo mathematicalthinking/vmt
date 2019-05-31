@@ -1,7 +1,8 @@
-import React, { Component } from "react";
-import CustomLink from "../../Components/Navigation/CustomLink/CustomLink";
-import NewResource from "../../Containers/Create/NewResource/NewResource";
-import classes from "./facilitator.css";
+import React, { Component } from 'react';
+import CustomLink from '../../Components/Navigation/CustomLink/CustomLink';
+import NewResource from '../../Containers/Create/NewResource/NewResource';
+import classes from './facilitator.css';
+
 class FacilitatorInstructions extends Component {
   componentDidMount() {}
 
@@ -32,21 +33,21 @@ class FacilitatorInstructions extends Component {
           <div className={classes.Cards}>
             <div className={classes.CardContainer}>
               <div className={classes.CreateTitle}>Activity</div>
-              <NewResource resource={"activities"} intro />
+              <NewResource resource="activities" intro />
             </div>
             <div className={classes.CardContainer}>
               <div className={classes.CreateTitle}>Room</div>
-              <NewResource resource={"rooms"} intro />
+              <NewResource resource="rooms" intro />
             </div>
 
             <div className={classes.CardContainer}>
               <div className={classes.CreateTitle}>Course</div>
-              <NewResource resource={"courses"} intro />
+              <NewResource resource="courses" intro />
             </div>
           </div>
           <p className={classes.Tutorial}>
-            What's the difference between an activity and a room? To learn about
-            how VMT works, try one of our{" "}
+            What&#39;s the difference between an activity and a room? To learn
+            about how VMT works, try one of our{' '}
             <CustomLink to="tutorials">tutorials</CustomLink>
           </p>
         </div>

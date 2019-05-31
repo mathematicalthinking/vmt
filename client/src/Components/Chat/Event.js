@@ -1,16 +1,23 @@
-import React, { Component } from "react";
-import classes from "./chat.css";
-import ToolTip from "../ToolTip/ToolTip";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import classes from './chat.css';
+import ToolTip from '../ToolTip/ToolTip';
+
 class Event extends Component {
   state = {};
   render() {
-    let { color, description, id } = this.props.event;
+    const { event, id } = this.props;
+    const { color, description } = event;
     return (
-      <ToolTip text={description}>
+      <ToolTip text={description} key={id}>
         <div className={classes.Event} style={{ background: color }} />
       </ToolTip>
     );
   }
 }
 
+Event.propTypes = {
+  id: PropTypes.string.isRequired,
+  event: PropTypes.shape({}).isRequired,
+};
 export default Event;

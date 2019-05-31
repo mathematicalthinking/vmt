@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 
-const ArrowDown = React.memo(props => {
+const ArrowDown = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -12,6 +12,6 @@ const ArrowDown = React.memo(props => {
       <path d="M0 0h24v24H0z" fill="none" />
     </svg>
   );
-});
+};
 
 export default ArrowDown;

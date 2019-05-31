@@ -1,9 +1,15 @@
-import React, { Component } from "react";
-import { Modal } from "../../Components";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Modal } from '../../../Components';
+
 class FromActivity extends Component {
   render() {
-    return <Modal show={this.props.show} />;
+    const { show } = this.props;
+    return <Modal show={show} />;
   }
 }
 
+FromActivity.propTypes = {
+  show: PropTypes.func.isRequired,
+};
 export default FromActivity;

@@ -1,27 +1,47 @@
-import React from "react";
-import classes from "./button.css";
-const button = props => {
+import React from 'react';
+import PropTypes from 'prop-types';
+import classes from './button.css';
+
+const Button = props => {
+  const { theme, disabled, m, click, type, children } = props;
   // let styles = [classes.Button]
-  let styles = classes[props.theme];
-  if (!props.theme) {
-    styles = classes.Small;
-  }
-  if (props.disabled) {
+  let styles = classes[theme];
+  if (disabled) {
     styles = classes.Disabled;
   }
 
   return (
+    // eslint-disable-next-line react/button-has-type
     <button
       className={styles}
-      style={{ margin: props.m }}
-      onClick={props.click}
-      type={props.type}
-      data-testid={props["data-testid"]}
-      disabled={props.disabled}
+      style={{ margin: m }}
+      onClick={click}
+      type={type}
+      // eslint-disable-next-line react/destructuring-assignment
+      data-testid={props['data-testid']}
+      disabled={disabled}
     >
-      {props.children}
+      {children}
     </button>
   );
 };
 
-export default button;
+Button.propTypes = {
+  'data-testid': PropTypes.string,
+  theme: PropTypes.string,
+  disabled: PropTypes.bool,
+  m: PropTypes.number,
+  click: PropTypes.func.isRequired,
+  type: PropTypes.string,
+  children: PropTypes.node.isRequired,
+};
+
+Button.defaultProps = {
+  m: 0,
+  disabled: false,
+  type: 'button',
+  'data-testid': null,
+  theme: 'Small',
+};
+
+export default Button;

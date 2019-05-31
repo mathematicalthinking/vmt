@@ -1,18 +1,21 @@
 import React, { Component, Fragment } from 'react';
+import PropTypes from 'prop-types';
+import moment from 'moment';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
-
 import ReplayerControls from './ReplayerControls';
 import DesmosReplayer from './DesmosReplayer';
 import GgbReplayer from './GgbReplayer';
 import ChatReplayer from './ChatReplayer';
+import Clock from './Clock';
+import Slider from './Slider';
+import Settings from './Settings';
 
 import CurrentMembers from '../../Components/CurrentMembers/CurrentMembers';
 import Loading from '../../Components/Loading/Loading';
 import Tabs from '../Workspace/Tabs';
 import Tools from '../Workspace/Tools/Tools';
-// import throttle from "lodash/throttle";
-import moment from 'moment';
 
+// import throttle from "lodash/throttle";
 const MAX_WAIT = 10000; // 10 seconds
 const BREAK_DURATION = 2000;
 const PLAYBACK_FIDELITY = 100;
@@ -31,17 +34,20 @@ const INITIAL_STATE = {
   multipleTabTypes: false,
   isFullscreen: false,
   stopTime: null,
+  showControls: true,
 };
 class SharedReplayer extends Component {
   state = INITIAL_STATE;
   updatedLog = [];
   tabsLoaded = 0;
+  endTime = 0;
 
   componentDidMount() {
     // @TODO We should never populate the tabs events before getting here
     // we dont need them for the regular room activity only for playback
-    if (!this.props.encompass) {
-      this.props.populateRoom(this.props.match.params.room_id, {
+    const { encompass, populateRoom, match } = this.props;
+    if (!encompass) {
+      populateRoom(match.params.room_id, {
         events: true,
       });
     } else {
@@ -52,6 +58,82 @@ class SharedReplayer extends Component {
     }
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    const { encompass, loading, room, updateEnc } = this.props;
+    const {
+      playing,
+      changingIndex,
+      logIndex,
+      timeElapsed,
+      stopTime,
+    } = this.state;
+    // Once we've fetched the room, build a log of all the events by combining all of the events from each tab
+    // in chornological order
+    if (!encompass && prevProps.loading && !loading) {
+      this.buildLog();
+    }
+
+    if (encompass && prevProps.room._id !== room._id) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ ...INITIAL_STATE, loading: false }, () => {
+        this.buildLog();
+      });
+    }
+
+    if (encompass) {
+      if (
+        prevState.playing !== playing ||
+        (!prevState.playing && changingIndex)
+      ) {
+        updateEnc('VMT_UPDATE_REPLAYER', this.state, this.relativeDuration);
+      }
+    }
+
+    if (stopTime && playing) {
+      // if stopTime was set (encompass selection was clicked on)
+      // check if replayer has reached end of selection
+      if (timeElapsed >= stopTime) {
+        // stop replayer and clear stopTime if done
+        // eslint-disable-next-line react/no-did-update-set-state
+        this.setState({ playing: false, stopTime: null });
+      }
+    }
+
+    if (!prevState.playing && playing && logIndex < this.updatedLog.length) {
+      // switched from stopped to playing
+      this.playing();
+    } else if (!playing && this.interval) {
+      // switched from playing to stopped
+      clearInterval(this.interval);
+    }
+    // if (
+    //   this.props.changingIndex && // UH OH THIS IS THE SAME NAME AS A PIECE OF STATE WHATS GOING HERE????
+    //   this.log[this.props.index].tab !==
+    //     this.props.tabs[this.props.currentTab]._id
+    // ) {
+    //   let tabStates = { ...this.state.tabState };
+    //   tabStates[this.props.tabs[prevProps.currentTab]._id] = {
+    //     construction: this.calculator.getState(),
+    //     lastIndex: prevProps.index,
+    //   };
+    //   this.setState({ tabStates });
+    //   // let startIndex;
+    //   // if (tabStates[log[this.props.index].tab]) {
+    //   //   startIndex = tabStates[log[this.props.index].tab].lastIndex;
+    //   // }
+    //   // else {startIndex = prevProps.index}
+    //   let tabIndex;
+    //   // find the target tab index
+    //   this.props.tabs.forEach((tab, i) => {
+    //     if (tab._id === this.props.log[this.props.index].tab) {
+    //       tabIndex = i;
+    //     }
+    //   });
+    //   // We've promisified changeTab() so we can ensure we wait for the state to be updated before proceeding
+    //   this.props.changeTab(tabIndex);
+    // }
+  }
+
   componentWillUnmount() {
     window.removeEventListener('message', this.onEncMessage);
     if (this.interval) {
@@ -60,200 +142,137 @@ class SharedReplayer extends Component {
   }
 
   buildLog = () => {
-    this.log = this.props.room.log;
+    const { room } = this.props;
     this.updatedLog = [];
     this.tabsLoaded = 0;
 
     this.endTime = moment
-      .unix(this.log[this.log.length - 1].timestamp / 1000)
+      .unix(room.log[room.log.length - 1].timestamp / 1000)
       .format('MM/DD/YYYY h:mm:ss A');
-    /** @todo refacotring to a for loop */
-    this.relativeDuration = this.log.reduce((acc, cur, idx, src) => {
+
+    /** @todo refacotring to a for loop  -- actually im not convinced this ISNT the way to do it */
+    this.relativeDuration = room.log.reduce((acc, cur, idx, src) => {
       // Copy currentEvent
-      let event = { ...cur };
+      const event = { ...cur };
       // Add the relative Time
       event.relTime = acc;
       // ADD A TAB FOR EVENTS THAT DONT ALREADY HAVE THEM TO MAKE SKIPPING AROUND EASIER
       if (!event.tab) {
         // when would we ever have an event without a tab ID ? // is this so it works with old data before we had tabs?
         if (!src[idx - 1]) {
-          //IF this is the first event give it the starting tab
-          event.tab = this.props.room.tabs[0]._id;
+          // IF this is the first event give it the starting tab
+          event.tab = room.tabs[0]._id;
         } else {
-          event.tab = this.updatedLog[this.updatedLog.length - 1].tab; //Else give it the same tabId as the event before
+          event.tab = this.updatedLog[this.updatedLog.length - 1].tab; // Else give it the same tabId as the event before
         }
       }
       this.updatedLog.push(event);
       // calculate the next time
       if (src[idx + 1]) {
-        let diff = src[idx + 1].timestamp - cur.timestamp;
+        const diff = src[idx + 1].timestamp - cur.timestamp;
         if (diff < MAX_WAIT) {
-          return (acc += diff);
-        } else {
-          this.updatedLog.push({
-            synthetic: true,
-            message: `No activity ... skipping ahead to ${moment
-              .unix(src[idx + 1].timestamp / 1000)
-              .format('MM/DD/YYYY h:mm:ss A')}`,
-            relTime: (acc += BREAK_DURATION),
-            tab: this.updatedLog[this.updatedLog.length - 1].tab,
-          });
-          return (acc += BREAK_DURATION);
+          acc += diff;
+          return acc;
         }
-      } else return acc;
+        this.updatedLog.push({
+          synthetic: true,
+          message: `No activity ... skipping ahead to ${moment
+            .unix(src[idx + 1].timestamp / 1000)
+            .format('MM/DD/YYYY h:mm:ss A')}`,
+          relTime: (acc += BREAK_DURATION),
+          tab: this.updatedLog[this.updatedLog.length - 1].tab,
+        });
+        acc += BREAK_DURATION;
+        return acc;
+      }
+      return acc;
     }, 0);
     const updatedMembers = [];
-    if (this.log[0].autogenerated) {
-      // DONT NEED TO CHECK IF THEYRE ENTERING OR EXITING, BECAUSE ITS THE FIRST EVENT THEY MUST
-      // BE ENTERING
-      updatedMembers.push({ user: this.log[0].user });
-    }
+    // if (this.updatedLog[0].autogenerated) {
+    //   // DONT NEED TO CHECK IF THEYRE ENTERING OR EXITING, BECAUSE ITS THE FIRST EVENT THEY MUST
+    //   // BE ENTERING
+    //   updatedMembers.push({ user: this.log[0].user });
+    // }
     this.setState({
       startTime: moment
-        .unix(this.log[0].timestamp / 1000)
+        .unix(this.updatedLog[0].timestamp / 1000)
         .format('MM/DD/YYYY h:mm:ss A'),
       currentMembers: updatedMembers,
     });
     this.setState({ loading: false });
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    // Once we've fetched the room, build a log of all the events by combining all of the events from each tab
-    // in chornological order
-    if (!this.props.encompass && prevProps.loading && !this.props.loading) {
-      this.buildLog();
-    }
-
-    if (this.props.encompass && prevProps.room._id !== this.props.room._id) {
-      this.setState({ ...INITIAL_STATE, loading: false }, () => {
-        this.buildLog();
-      });
-    }
-
-    if (this.props.encompass) {
-      if (
-        prevState.playing !== this.state.playing ||
-        (!prevState.playing && this.state.changingIndex)
-      ) {
-        this.props.updateEnc(
-          'VMT_UPDATE_REPLAYER',
-          this.state,
-          this.relativeDuration
-        );
-      }
-    }
-
-    if (this.state.stopTime && this.state.playing) {
-      // if stopTime was set (encompass selection was clicked on)
-      // check if replayer has reached end of selection
-      if (this.state.timeElapsed >= this.state.stopTime) {
-        // stop replayer and clear stopTime if done
-        this.setState({ playing: false, stopTime: null });
-      }
-    }
-
-    if (
-      !prevState.playing &&
-      this.state.playing &&
-      this.state.logIndex < this.updatedLog.length
-    ) {
-      // switched from stopped to playing
-      this.playing();
-    } else if (!this.state.playing && this.interval) {
-      // switched from playing to stopped
-      clearInterval(this.interval);
-    }
-    if (
-      this.props.changingIndex &&
-      this.log[this.props.index].tab !==
-        this.props.tabs[this.props.currentTab]._id
-    ) {
-      let tabStates = { ...this.state.tabState };
-      tabStates[this.props.tabs[prevProps.currentTab]._id] = {
-        construction: this.calculator.getState(),
-        lastIndex: prevProps.index,
-      };
-      this.setState({ tabStates });
-      // let startIndex;
-      // if (tabStates[log[this.props.index].tab]) {
-      //   startIndex = tabStates[log[this.props.index].tab].lastIndex;
-      // }
-      // else {startIndex = prevProps.index}
-      let tabIndex;
-      // find the target tab index
-      this.props.tabs.forEach((tab, i) => {
-        if (tab._id === this.props.log[this.props.index].tab) {
-          tabIndex = i;
-        }
-      });
-      // We've promisified changeTab() so we can ensure we wait for the state to be updated before proceeding
-      this.props.changeTab(tabIndex);
-    }
-  }
-
   playing = () => {
+    const { room } = this.props;
+    let {
+      timeElapsed,
+      logIndex,
+      startTime,
+      absTimeElapsed,
+      currentTab,
+    } = this.state;
+    const { currentMembers, playbackSpeed } = this.state;
+    // eslint-disable-next-line consistent-return
     this.interval = setInterval(() => {
-      let timeElapsed = this.state.timeElapsed;
-      let logIndex = this.state.logIndex;
-      let currentMembers = [...this.state.currentMembers];
-      let startTime = this.state.startTime;
-      let absTimeElapsed = this.state.absTimeElapsed;
-      timeElapsed += PLAYBACK_FIDELITY * this.state.playbackSpeed;
-      absTimeElapsed += PLAYBACK_FIDELITY * this.state.playbackSpeed;
-      let nextEvent = this.updatedLog[this.state.logIndex + 1];
-      let currentTab = this.state.currentTab;
+      let updatedMembers = [...currentMembers];
+      timeElapsed += PLAYBACK_FIDELITY * playbackSpeed;
+      absTimeElapsed += PLAYBACK_FIDELITY * playbackSpeed;
+      const nextEvent = this.updatedLog[logIndex + 1];
       if (!nextEvent) {
         return this.setState({ playing: false });
       }
       if (timeElapsed >= nextEvent.relTime) {
         // WHAT IF ITS GREAT THAN THE NEXT...NEXT EVENT (THIS HAPPENS WHEN WE INCREASE THE PLAY SPEED) ???? NOT SURE HOW TO HANDLE
         if (nextEvent.tab) {
-          this.props.room.tabs.forEach((tab, i) => {
+          room.tabs.forEach((tab, i) => {
             if (tab._id === nextEvent.tab) {
               currentTab = i;
             }
           });
         }
-        logIndex++;
+        logIndex += 1;
         if (nextEvent.autogenerated) {
           if (nextEvent.text.includes('joined')) {
-            currentMembers.push({ user: nextEvent.user });
+            updatedMembers.push({ user: nextEvent.user });
           } else if (nextEvent.text.includes('left')) {
-            currentMembers = currentMembers.filter(u => {
+            updatedMembers = updatedMembers.filter(u => {
               return u.user._id !== nextEvent.user._id;
             });
           }
         }
-        if (this.updatedLog[this.state.logIndex].synthetic) {
+        if (this.updatedLog[logIndex].synthetic) {
           startTime = moment(nextEvent.timestamp).format(
             'MM/DD/YYYY h:mm:ss A'
           );
           absTimeElapsed = 0;
         }
       }
-      this.setState(prevState => ({
+      this.setState({
         logIndex,
         timeElapsed,
-        currentMembers,
         startTime,
         absTimeElapsed,
-        changingIndex: false,
         currentTab,
-      }));
+        changingIndex: false,
+        currentMembers: updatedMembers,
+      });
     }, PLAYBACK_FIDELITY);
   };
 
-  setTabLoaded = id => {
-    this.tabsLoaded++;
-    if (this.tabsLoaded === this.props.room.tabs.length) {
+  // toggleExpansion = element => {
+  //   this.setState(prevState => ({
+  //     [`${element}Expanded`]: !prevState[`${element}Expanded`],
+  //   }));
+  // };
+
+  setTabLoaded = () => {
+    const { room, encompass, updateEnc } = this.props;
+    this.tabsLoaded += 1;
+    if (this.tabsLoaded === room.tabs.length) {
       this.setState({ allTabsLoaded: true }, () => {
-        if (this.props.encompass) {
+        if (encompass) {
           // let encompass know the room / ggbApplet has finished loading
-          this.props.updateEnc(
-            'VMT_ON_REPLAYER_LOAD',
-            this.state,
-            this.relativeDuration
-          );
+          updateEnc('VMT_ON_REPLAYER_LOAD', this.state, this.relativeDuration);
         }
       });
     }
@@ -261,6 +280,8 @@ class SharedReplayer extends Component {
 
   // Takes a % of total progress and goes to the nearest timestamp
   goToTime = (percent, doAutoPlay = false, stopTime = null) => {
+    const { room } = this.props;
+    let { currentTab } = this.state;
     let logIndex;
     let timeElapsed = percent * this.relativeDuration;
     if (percent === 1) {
@@ -276,8 +297,7 @@ class SharedReplayer extends Component {
         return false;
       });
     }
-    let currentTab = this.state.currentTab;
-    this.props.room.tabs.forEach((tab, i) => {
+    room.tabs.forEach((tab, i) => {
       if (tab._id === this.updatedLog[logIndex].tab) {
         currentTab = i;
       }
@@ -312,7 +332,8 @@ class SharedReplayer extends Component {
   };
 
   changeTab = index => {
-    return new Promise((resolve, reject) => {
+    // why is this a promise?
+    return new Promise(resolve => {
       this.setState({ currentTab: index }, () => {
         resolve();
       });
@@ -320,11 +341,14 @@ class SharedReplayer extends Component {
   };
 
   goBack = () => {
-    this.props.history.goBack();
+    const { history } = this.props;
+    history.goBack();
   };
 
+  // @TODO THIS NEEDS TO BE ADDED TO AN EVENT LSITENER FOR THE ESC KEY WHEN isFullscreen IS SET TO TRUE THE FIRST TIME
   toggleFullscreen = () => {
-    if (this.state.isFullscreen) {
+    const { isFullscreen } = this.state;
+    if (isFullscreen) {
       document.exitFullscreen().then(() => {
         // After exiting fullscreen resize ggb Graph
         this.setState({ isFullscreen: false });
@@ -337,104 +361,135 @@ class SharedReplayer extends Component {
   };
 
   onEncMessage = event => {
-    let allowedOrigin = window.location.origin;
-
-    let { origin, data } = event;
-
+    const allowedOrigin = window.location.origin;
+    const { origin, data } = event;
     if (allowedOrigin !== origin) {
       return;
     }
 
-    let { messageType } = data;
-
+    const { messageType } = data;
     if (messageType === 'VMT_PAUSE_REPLAYER') {
       // pause replayer
-      return this.setState({ playing: false });
-    }
-
-    if (messageType === 'VMT_GO_TO_TIME') {
-      let { timeElapsed, doAutoPlay, stopTime } = data;
+      this.setState({ playing: false });
+    } else if (messageType === 'VMT_GO_TO_TIME') {
+      const { timeElapsed, doAutoPlay, stopTime } = data;
 
       if (typeof timeElapsed === 'number') {
         // is this the best way to set time?
         // or should we just set this.state.timeElapsed?
-        let percentage = timeElapsed / this.relativeDuration;
+        const percentage = timeElapsed / this.relativeDuration;
         this.goToTime(percentage, doAutoPlay, stopTime);
       }
     }
   };
 
   render() {
-    let replayer = (
+    const { room, user, encompass } = this.props;
+    const {
+      playing,
+      playbackSpeed,
+      logIndex,
+      timeElapsed,
+      startTime,
+      changingIndex,
+      isFullscreen,
+      showControls,
+      currentTab,
+      currentMembers,
+      allTabsLoaded,
+    } = this.state;
+    if (!this.updatedLog) return null;
+    const replayer = (
       <ReplayerControls
-        playing={this.state.playing}
+        playing={playing}
         pausePlay={this.pausePlay}
-        duration={this.relativeDuration}
-        startTime={this.state.startTime}
-        absTimeElapsed={this.state.absTimeElapsed}
-        goToTime={this.goToTime}
-        changingIndex={this.state.changingIndex}
-        speed={this.state.playbackSpeed}
+        speed={playbackSpeed}
         setSpeed={this.setSpeed}
-        relTime={this.state.timeElapsed}
-        index={this.state.logIndex}
+        index={logIndex}
         log={this.updatedLog}
-        endTime={this.endTime}
+        goToTime={this.goToTime}
         reset={this.reset}
-        currentMembers={this.state.currentMembers}
-        setCurrentMembers={this.setCurrentMembers}
-        toggleFullscreen={this.toggleFullscreen}
-        isFullscreen={this.state.isFullscreen}
+        duration={this.relativeDuration || 0}
+        settings={
+          <Settings
+            setSpeed={this.setSpeed}
+            speed={playbackSpeed}
+            settingsHidden={!showControls}
+            isFullscreen={isFullscreen}
+            toggleFullscreen={this.toggleFullscreen}
+          />
+        }
+        slider={
+          <Slider
+            progress={(timeElapsed / this.relativeDuration) * 100}
+            log={this.updatedLog}
+            duration={this.relativeDuration || 0}
+            playing={playing}
+            goToTime={this.goToTime}
+          />
+        }
+        clock={
+          <Clock
+            startTime={startTime}
+            playing={playing}
+            duration={this.relativeDuration || 0}
+            relTime={timeElapsed}
+            changingIndex={changingIndex}
+            // absTimeElapsed={absTimeElapsed}
+          />
+        }
+        // currentMembers={this.state.currentMembers}
+        // setCurrentMembers={this.setCurrentMembers}
       />
     );
 
-    let chat = (
+    const chat = (
       <ChatReplayer
-        roomId={this.props.room._id}
+        roomId={room._id}
         log={this.updatedLog}
-        index={this.state.logIndex}
-        changingIndex={this.state.changingIndex}
+        index={logIndex}
+        changingIndex={changingIndex}
         reset={this.reset}
         setCurrentMembers={this.setCurrentMembers}
       />
     );
-    let graphs = this.props.room.tabs.map((tab, i) => {
+    const graphs = room.tabs.map((tab, i) => {
       if (tab.tabType === 'geogebra') {
         return (
           <GgbReplayer
             log={this.updatedLog}
-            index={this.state.logIndex}
-            changingIndex={this.state.changingIndex}
-            playing={this.state.playing}
+            index={logIndex}
+            changingIndex={changingIndex}
+            playing={playing}
             reset={this.reset}
             changeTab={this.changeTab}
-            currentTab={this.state.currentTab}
+            currentTab={currentTab}
             setTabLoaded={this.setTabLoaded}
             tab={tab}
+            key={tab._id}
             tabId={i}
-            isFullscreen={this.state.isFullscreen}
-            inView={this.state.currentTab === i}
-          />
-        );
-      } else {
-        return (
-          <DesmosReplayer
-            log={this.updatedLog}
-            index={this.state.logIndex}
-            changingIndex={this.state.changingIndex}
-            playing={this.state.playing}
-            reset={this.reset}
-            changeTab={this.changeTab}
-            currentTab={this.state.currentTab}
-            setTabLoaded={this.setTabLoaded}
-            tab={tab}
-            inView={this.state.currentTab === i}
+            isFullscreen={isFullscreen}
+            inView={currentTab === i}
           />
         );
       }
+      return (
+        <DesmosReplayer
+          log={this.updatedLog}
+          index={logIndex}
+          changingIndex={changingIndex}
+          playing={playing}
+          reset={this.reset}
+          changeTab={this.changeTab}
+          currentTab={currentTab}
+          setTabLoaded={this.setTabLoaded}
+          tab={tab}
+          key={tab._id}
+          inView={currentTab === i}
+        />
+      );
     });
-    const { room, user } = this.props;
-    const event = this.updatedLog[this.state.logIndex] || {};
+    const event = this.updatedLog[logIndex] || {};
     return (
       <Fragment>
         <WorkspaceLayout
@@ -445,17 +500,18 @@ class SharedReplayer extends Component {
             <Tabs
               tabs={room.tabs}
               changeTabs={this.changeTab}
-              currentTab={this.state.currentTab}
+              currentTab={currentTab}
+              participantCanCreate={false}
+              replayer
+              memberRole="participant" // this controls the user's ability to make a new tab...we don't want them to make a new a tab in the replayer no matter what their role is
             />
           }
           currentMembers={
-            this.state.currentMembers.length > 0 ? (
+            currentMembers.length > 0 ? (
               <CurrentMembers
-                currentMembers={this.state.currentMembers.map(
-                  member => member.user
-                )}
+                currentMembers={currentMembers.map(member => member.user)}
                 members={room.members}
-                expanded={true}
+                expanded
                 activeMember={event.user}
               />
             ) : null
@@ -463,30 +519,46 @@ class SharedReplayer extends Component {
           bottomLeft={replayer}
           activeMember={event.user}
           replayerControls={replayer}
-          currentTab={this.state.currentTab}
+          currentTab={currentTab}
           roomName={`${room.name} Replayer`}
           bottomRight={
             <Tools
               goBack={this.goBack}
               toggleControl={this.toggleControl}
-              lastEvent={this.updatedLog[this.state.logIndex]}
+              lastEvent={this.updatedLog[logIndex]}
               replayer
             />
           }
           replayer
-          loaded={this.state.allTabsLoaded}
-          isFullscreen={this.state.isFullscreen}
+          loaded={allTabsLoaded}
+          isFullscreen={isFullscreen}
           membersExpanded
           chatExpanded
           instructionsExpanded
-          encompass={this.props.encompass}
+          encompass={encompass}
         />
-        {!this.state.allTabsLoaded && this.updatedLog.length > 0 ? (
+        {!allTabsLoaded && this.updatedLog.length > 0 ? (
           <Loading message="Preparing the replayer..." />
         ) : null}
       </Fragment>
     );
   }
 }
+
+SharedReplayer.propTypes = {
+  encompass: PropTypes.bool,
+  populateRoom: PropTypes.func.isRequired,
+  match: PropTypes.shape({}).isRequired,
+  room: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({}).isRequired,
+  loading: PropTypes.bool.isRequired,
+  updateEnc: PropTypes.func,
+  history: PropTypes.shape({}).isRequired,
+};
+
+SharedReplayer.defaultProps = {
+  encompass: false,
+  updateEnc: null,
+};
 
 export default SharedReplayer;

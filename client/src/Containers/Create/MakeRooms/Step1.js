@@ -1,11 +1,12 @@
-import React, { Component } from "react";
-import classes from "./makeRooms.css";
-import DueDate from "../DueDate";
-import { Button } from "../../../Components";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import classes from './makeRooms.css';
+import DueDate from '../DueDate';
+import { Button } from '../../../Components';
 
 class Step1 extends Component {
   render() {
-    let { dueDate, setDueDate, nextStep } = this.props;
+    const { dueDate, setDueDate, nextStep } = this.props;
     return (
       <div className={classes.Container}>
         <DueDate dueDate={dueDate} selectDate={setDueDate} />
@@ -19,4 +20,13 @@ class Step1 extends Component {
   }
 }
 
+Step1.propTypes = {
+  dueDate: PropTypes.instanceOf(Date),
+  setDueDate: PropTypes.func.isRequired,
+  nextStep: PropTypes.func.isRequired,
+};
+
+Step1.defaultProps = {
+  dueDate: null,
+};
 export default Step1;

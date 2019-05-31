@@ -1,55 +1,69 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import Modal from './Modal';
 import classes from './modal.css';
 import TextInput from '../../Form/TextInput/TextInput';
 import Button from '../Button/Button';
-class privateAccess extends Component {
+
+class PrivateAccess extends Component {
   state = {
     entryCode: '',
     show: true,
   };
 
+  componentWillUnmount() {
+    const { error, clearError } = this.props;
+    if (error) clearError();
+  }
   updateEntry = event => {
-    if (this.props.error) this.props.clearError();
+    const { error, clearError } = this.props;
+    if (error) clearError();
     this.setState({ entryCode: event.target.value });
   };
 
   closeModal = () => {
-    if (this.props.error) this.props.clearError();
+    const { error, clearError, history } = this.props;
+    if (error) clearError();
     this.setState({ show: false });
-    this.props.history.goBack();
+    history.goBack();
   };
 
-  componentWillUnmount() {
-    if (this.props.error) this.props.clearError();
-  }
-
   requestAccess = () => {
-    let { resource, owners, resourceId, userId, requestAccess } = this.props;
+    const {
+      resource,
+      owners,
+      resourceId,
+      userId,
+      requestAccess,
+      history,
+    } = this.props;
     requestAccess(owners, userId, resource, resourceId);
-    this.props.history.push('/confirmation');
+    history.push('/confirmation');
   };
 
   joinWithCode = () => {
-    let { resource, resourceId, userId, username, joinWithCode } = this.props;
+    const { resource, resourceId, userId, username, joinWithCode } = this.props;
+    const { entryCode } = this.state;
+    let singResource = resource;
     // put request was being made to /course/:id when it should be /courses/:id
     if (resource === 'course') {
-      resource = 'courses';
+      singResource = 'courses';
     }
     if (resource === 'room') {
-      resource = 'rooms';
+      singResource = 'rooms';
     }
-    joinWithCode(resource, resourceId, userId, username, this.state.entryCode);
+    joinWithCode(singResource, resourceId, userId, username, entryCode);
   };
 
   render() {
-    let { resource, user } = this.props;
+    const { resource, user, setAdmin, error } = this.props;
+    const { show, entryCode } = this.state;
     let displayResource = 'activity';
     if (resource === 'rooms') displayResource = 'room';
     if (resource === 'courses') displayResource = 'course';
     return (
-      <Modal show={this.state.show} closeModal={this.closeModal}>
+      <Modal show={show} closeModal={this.closeModal}>
         <p className={classes.Description}>
           {`You currently don't have access to this ${displayResource}. If you know this
           ${displayResource}'s entry code, you can enter it below`}
@@ -57,15 +71,17 @@ class privateAccess extends Component {
         <TextInput
           light
           type="text"
+          value={entryCode}
+          placeholder="entry code"
           name="entryCode"
           change={this.updateEntry}
         />
-        <Button theme={'Small'} m={10} click={this.joinWithCode}>
+        <Button theme="Small" m={10} click={this.joinWithCode}>
           Join
         </Button>
         <p>{`Otherwise you can ask this ${resource}'s owner for access`}</p>
         <Button
-          theme={'Small'}
+          theme="Small"
           m={10}
           click={this.requestAccess}
           data-testid="request-access-btn"
@@ -73,16 +89,35 @@ class privateAccess extends Component {
           Request Access
         </Button>
         {user.isAdmin ? (
-          <Button data-testid="view-as-admin" click={this.props.setAdmin}>
+          <Button data-testid="view-as-admin" click={setAdmin}>
             View as Admin
           </Button>
         ) : null}
         <div className={classes.Error} data-testid="entry-code-error">
-          {this.props.error}
+          {error}
         </div>
       </Modal>
     );
   }
 }
 
-export default withRouter(privateAccess);
+PrivateAccess.propTypes = {
+  resource: PropTypes.string.isRequired,
+  owners: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  resourceId: PropTypes.string.isRequired,
+  userId: PropTypes.string.isRequired,
+  requestAccess: PropTypes.func.isRequired,
+  user: PropTypes.shape({}).isRequired,
+  setAdmin: PropTypes.func.isRequired,
+  username: PropTypes.string.isRequired,
+  joinWithCode: PropTypes.func.isRequired,
+  history: PropTypes.shape({}).isRequired,
+  error: PropTypes.string,
+  clearError: PropTypes.func.isRequired,
+};
+
+PrivateAccess.defaultProps = {
+  error: null,
+};
+
+export default withRouter(PrivateAccess);

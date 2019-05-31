@@ -1,14 +1,16 @@
-import React, { Component } from "react";
-import classes from "./makeRooms.css";
-import { Checkbox } from "../../../Components";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import classes from './makeRooms.css';
+import { Checkbox } from '../../../Components';
+
 class ParticipantList extends Component {
   render() {
-    let { list, selectedParticipants, select } = this.props;
+    const { list, selectedParticipants, select } = this.props;
     return !list || list.length === 0
-      ? "there are no users to display yet"
+      ? 'there are no users to display yet'
       : list.map((participant, i) => {
-          let rowClass = selectedParticipants.includes(participant.user._id)
-            ? [classes.Participant, classes.Selected].join(" ")
+          const rowClass = selectedParticipants.includes(participant.user._id)
+            ? [classes.Participant, classes.Selected].join(' ')
             : classes.Participant;
           return (
             <div
@@ -32,4 +34,9 @@ class ParticipantList extends Component {
   }
 }
 
+ParticipantList.propTypes = {
+  list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  selectedParticipants: PropTypes.arrayOf(PropTypes.string).isRequired,
+  select: PropTypes.func.isRequired,
+};
 export default ParticipantList;

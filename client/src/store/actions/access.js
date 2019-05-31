@@ -1,14 +1,8 @@
-import {
-  updatedCourse,
-  updatedRoom,
-  removeNotification,
-  addUserRooms,
-  addRoomMember,
-  addUserCourses,
-  addCourseMember,
-} from './index';
+/* eslint-disable no-console */
+import { updatedCourse, addCourseMember, addUserCourses } from './courses';
+import { updatedRoom, addRoomMember, addUserRooms } from './rooms';
+import { removeNotification } from './user';
 import * as loading from './loading';
-import { buildLog } from '../utils';
 import API from '../../utils/apiRequests';
 
 export const joinWithCode = (
@@ -38,7 +32,7 @@ export const joinWithCode = (
           dispatch(
             addCourseMember(resourceId, {
               role: 'participant',
-              user: { _id: userId, username: username },
+              user: { _id: userId, username },
             })
           );
         }
@@ -56,25 +50,26 @@ export const requestAccess = (owners, userId, resource, resourceId) => {
   return dispatch => {
     dispatch(loading.start());
     API.requestAccess(owners, userId, resource, resourceId)
-      .then(res => {
+      .then(() => {
         dispatch(loading.success());
         return dispatch(loading.accessSuccess());
       })
       .catch(err => {
-        return dispatch(loading.fail());
+        return dispatch(loading.fail(err));
       });
   };
 };
 
-export const grantAccess = (user, resource, resourceId, ntfId, toUserId) => {
-  return (dispatch, getState) => {
+export const grantAccess = (user, resource, resourceId, ntfId) => {
+  return dispatch => {
     // dispatch(loading.start())
     if (ntfId) {
       API.removeNotification(ntfId)
-        .then(res => {
+        .then(() => {
           dispatch(removeNotification(ntfId));
           // dispatch(gotUser(res.data))
         })
+        // eslint-disable-next-line no-console
         .catch(err => console.log(err));
     }
     API.grantAccess(user, resource, resourceId, 'grantedAccess')

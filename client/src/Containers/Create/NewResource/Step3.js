@@ -1,21 +1,24 @@
 import React from 'react';
-import { RadioBtn, Aux } from '../../../Components/';
+import PropTypes from 'prop-types';
+import { RadioBtn, Aux } from '../../../Components';
 import classes from '../create.css';
+
 const Step3 = props => {
+  const { privacySetting, check } = props;
   return (
     <Aux>
       <div className={classes.RadioButtons}>
         <RadioBtn
           name="public"
-          checked={props.privacySetting === 'public'}
-          check={() => props.check('public')}
+          checked={privacySetting === 'public'}
+          check={() => check('public')}
         >
           Public
         </RadioBtn>
         <RadioBtn
           name="private"
-          checked={props.privacySetting === 'private'}
-          check={() => props.check('private')}
+          checked={privacySetting === 'private'}
+          check={() => check('private')}
         >
           Private
         </RadioBtn>
@@ -31,4 +34,8 @@ const Step3 = props => {
   );
 };
 
+Step3.propTypes = {
+  privacySetting: PropTypes.string.isRequired,
+  check: PropTypes.func.isRequired,
+};
 export default Step3;

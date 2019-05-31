@@ -1,16 +1,22 @@
-import React from "react";
-import { Redirect } from "react-router-dom";
-import { connect } from "react-redux";
-import { logout } from "../store/actions";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { logout } from '../store/actions';
 
 const Logout = props => {
-  sessionStorage.clear();
-  props.logout();
+  const { connectLogout } = props;
+  window.sessionStorage.clear();
+  connectLogout();
   // window.location.reload(true)
   return <Redirect to="/myVMT/courses" />;
 };
 
+Logout.propTypes = {
+  connectLogout: PropTypes.func.isRequired,
+};
+
 export default connect(
   null,
-  { logout }
+  { connectLogout: logout }
 )(Logout);

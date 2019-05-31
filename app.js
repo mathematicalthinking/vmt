@@ -20,7 +20,6 @@ const enc = require('./routes/enc');
 // const test = require('./routes/test');
 
 const app = express();
-
 console.log('NODE_ENV=', process.env.NODE_ENV);
 console.log('ENCOMPASS: ', process.env.ENCOMPASS);
 // SETUP DATABASE & SESSION

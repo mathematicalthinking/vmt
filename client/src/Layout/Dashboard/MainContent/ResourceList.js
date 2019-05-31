@@ -1,55 +1,60 @@
-import React, { Fragment } from "react";
-import BoxList from "../../BoxList/BoxList";
-import NewResource from "../../../Containers/Create/NewResource/NewResource";
-import classes from "./resourceList.css";
-import Search from "../../../Components/Search/Search";
+import React, { Fragment } from 'react';
+import PropTypes from 'prop-types';
+import BoxList from '../../BoxList/BoxList';
+import NewResource from '../../../Containers/Create/NewResource/NewResource';
+import classes from './resourceList.css';
+// import Search from '../../../Components/Search/Search';
 // CONSIDER RENAMING TO DASHBOARDCONTENT
-const resources = props => {
-  let linkPath = `/myVMT/${props.resource}/`;
+const ResourceList = props => {
+  const {
+    resource,
+    parentResource,
+    parentResourceId,
+    user,
+    userResources,
+    notifications,
+  } = props;
+  let linkPath = `/myVMT/${resource}/`;
   let linkSuffix;
-  if (props.resource === "courses") {
-    linkSuffix = "/activities";
+  if (resource === 'courses') {
+    linkSuffix = '/activities';
   } else {
-    linkSuffix = "/details";
+    linkSuffix = '/details';
   }
-  const displayResource =
-    props.resource[0].toUpperCase() + props.resource.slice(1);
-  if (props.parentResource === "courses") {
-    linkPath = `/myVMT/${props.parentResource}/${props.parentResourceId}/${
+  const displayResource = resource[0].toUpperCase() + resource.slice(1);
+  if (parentResource === 'courses') {
+    linkPath = `/myVMT/${props.parentResource}/${parentResourceId}/${
       props.resource
     }/`;
-    linkSuffix = "/details";
+    linkSuffix = '/details';
   }
 
   let create;
   // if (props.resource === 'courses' && props.user.accountType === 'facilitator') {
   //   create = <NewCourse />
   // }
-  if (
-    props.parentResource !== "activities" &&
-    props.user.accountType === "facilitator"
-  ) {
+  if (parentResource !== 'activities' && user.accountType === 'facilitator') {
     // THIS SHOULD ACTUALLY CHANGE DEPENDING ON states CURRENT ROLE ?? MAYBE
     create = (
       <NewResource
         resource={props.resource}
         courseId={
-          props.parentResource === "courses" ? props.parentResourceId : null
+          props.parentResource === 'courses' ? props.parentResourceId : null
         }
       />
     );
   }
 
-  let facilitatorList = [];
-  let participantList = [];
+  const facilitatorList = [];
+  const participantList = [];
   /** consider storing a field like myRole on the actual resource in the store...we could compute this when its added to the store and then never again
    * I feel like we are checking roles...which requires looping through the resources members each time.
    */
-  props.userResources.forEach(resource => {
-    if (resource.myRole === "facilitator") {
-      facilitatorList.push(resource);
+  userResources.forEach(userResource => {
+    if (resource.myRole === 'facilitator') {
+      facilitatorList.push(userResource);
     } else {
-      participantList.push(resource);
+      participantList.push(userResource);
     }
   });
 
@@ -57,9 +62,7 @@ const resources = props => {
     <div>
       {/* @TODO don't show create optinos for participants */}
       <div className={classes.Controls}>
-        <div className={classes.Search}>
-          <Search />
-        </div>
+        <div className={classes.Search}>{/* <Search /> */}</div>
         {create}
       </div>
       {facilitatorList.length > 0 && participantList.length > 0 ? (
@@ -72,25 +75,25 @@ const resources = props => {
               list={facilitatorList}
               linkPath={linkPath}
               linkSuffix={linkSuffix}
-              notifications={props.notifications}
-              resource={props.resource}
+              notifications={notifications}
+              resource={resource}
               listType="private"
-              parentResourec={props.parentResource}
+              parentResourec={parentResource}
               // draggable
             />
           </div>
           <div className={classes.Col}>
             <h2 className={classes.ResourceHeader}>
-              {displayResource} I'm a member of
+              {displayResource} I&#39;m a member of
             </h2>
             <BoxList
               list={participantList}
               linkPath={linkPath}
               linkSuffix={linkSuffix}
-              notifications={props.notifications}
-              resource={props.resource}
+              notifications={notifications}
+              resource={resource}
               listType="private"
-              parentResourec={props.parentResource}
+              parentResourec={parentResource}
               // draggable
             />
           </div>
@@ -99,13 +102,13 @@ const resources = props => {
         <Fragment>
           <h2 className={classes.ResourceHeader}>My {displayResource}</h2>
           <BoxList
-            list={props.userResources}
+            list={userResources}
             linkPath={linkPath}
             linkSuffix={linkSuffix}
-            notifications={props.notifications}
-            resource={props.resource}
+            notifications={notifications}
+            resource={resource}
             listType="private"
-            parentResourec={props.parentResource}
+            parentResourec={parentResource}
             // draggable
           />
         </Fragment>
@@ -114,4 +117,18 @@ const resources = props => {
   );
 };
 
-export default resources;
+ResourceList.propTypes = {
+  resource: PropTypes.string.isRequired,
+  parentResource: PropTypes.string,
+  parentResourceId: PropTypes.string,
+  user: PropTypes.shape({}).isRequired,
+  userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+};
+
+ResourceList.defaultProps = {
+  parentResource: null,
+  parentResourceId: null,
+};
+
+export default ResourceList;

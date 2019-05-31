@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import classes from './slider.css';
 // import Aux from '../../HOC/Auxil';
@@ -29,13 +29,15 @@ class Slider extends Component {
   };
 
   jumpToPosition = event => {
+    const { goToTime } = this.props;
+    const { dragging } = this.state;
     // if (this.state.dragging) {
     //   event.preventDefault();
     // }
-    if (!this.state.dragging) {
-      let sliderEl = this.slider.current.getBoundingClientRect();
-      let percent = (event.clientX - sliderEl.left) / sliderEl.width; // As a fraction
-      this.props.goToTime(percent);
+    if (!dragging) {
+      const sliderEl = this.slider.current.getBoundingClientRect();
+      const percent = (event.clientX - sliderEl.left) / sliderEl.width; // As a fraction
+      goToTime(percent);
     }
   };
 
@@ -43,53 +45,61 @@ class Slider extends Component {
     this.setState({ dragging: true });
   };
 
-  onDrag = (e, d) => {
-    let sliderEl = this.slider.current.getBoundingClientRect();
+  onDrag = e => {
+    const { goToTime } = this.props;
+    const sliderEl = this.slider.current.getBoundingClientRect();
     let percent = (e.clientX - sliderEl.left) / sliderEl.width;
     if (percent < 0) percent = 0;
     if (percent > 1) percent = 1;
-    this.props.goToTime(percent);
+    goToTime(percent);
     this.setState({ dragging: false });
   };
 
-  stopDrag = (e, d) => {
-    let sliderEl = this.slider.current.getBoundingClientRect();
+  stopDrag = e => {
+    const { goToTime } = this.props;
+    const sliderEl = this.slider.current.getBoundingClientRect();
     let percent = (e.clientX - sliderEl.left) / sliderEl.width;
     if (percent < 0) percent = 0;
     if (percent > 1) percent = 1;
-    this.props.goToTime(percent);
+    goToTime(percent);
     this.setState({ dragging: false });
   };
 
   showEventDetail = event => {
-    if (!this.state.dragging) {
+    const { dragging } = this.state;
+    if (!dragging) {
       event.target.children.style = { display: 'flex' };
     }
   };
 
   render() {
-    let eventMarks = this.props.log.map((entry, i) => {
-      let color = entry.synthetic ? 'red' : entry.color;
-      let percentFromStart = (entry.relTime / this.props.duration) * 100;
+    const { log, duration, progress } = this.props;
+    const { dragging, sliderWidth } = this.state;
+    const eventMarks = log.map(entry => {
+      const color = entry.synthetic ? 'red' : entry.color;
+      const percentFromStart = (entry.relTime / duration) * 100;
       return (
         <EventDesc
+          key={entry.relTime}
           color={color}
           offset={percentFromStart}
           entry={entry}
-          dragging={this.state.dragging}
+          dragging={dragging}
         />
       );
     });
-    let x =
-      (this.props.progress / 100) * (this.state.sliderWidth - 6) >
-      this.state.sliderWidth - 6
-        ? this.state.sliderWidth - 6
-        : (this.props.progress / 100) * (this.state.sliderWidth - 6);
+    const x =
+      (progress / 100) * (sliderWidth - 6) > sliderWidth - 6
+        ? sliderWidth - 6
+        : (progress / 100) * (sliderWidth - 6);
     return (
       <div
         ref={this.slider}
         className={classes.Slider}
         onClick={this.jumpToPosition}
+        onKeyPress={this.jumpToPosition}
+        tabIndex="-2"
+        role="button"
       >
         {eventMarks}
         <Draggable
@@ -98,13 +108,20 @@ class Slider extends Component {
           onStart={this.startDrag}
           onDrag={this.onDrag}
           onStop={this.stopDrag}
-          position={{ x: x, y: 0 }}
+          position={{ x, y: 0 }}
         >
-          <div ref="marker" className={classes.ProgressMarker} />
+          <div ref={this.slider} className={classes.ProgressMarker} />
         </Draggable>
       </div>
     );
   }
 }
+
+Slider.propTypes = {
+  progress: PropTypes.number.isRequired,
+  log: PropTypes.arrayOf(PropTypes.object).isRequired,
+  duration: PropTypes.number.isRequired,
+  goToTime: PropTypes.func.isRequired,
+};
 
 export default Slider;

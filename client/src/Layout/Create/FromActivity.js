@@ -1,64 +1,75 @@
-import React, { Component } from "react";
-import { Modal, RadioBtn, Button, TextInput } from "../../Components";
-import { BoxList } from "../index";
-import classes from "./NewResource/create.css";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Modal, RadioBtn, Button, TextInput } from '../../Components';
+import { BoxList } from '../index';
+import classes from './NewResource/create.css';
+
 class FromActivity extends Component {
   state = {
     community: true,
     ownResources: false,
     thisCourse: false,
     selected: [],
-    dueDate: ""
+    dueDate: '',
   };
 
   componentDidMount() {
-    window.addEventListener("keypress", this.onKeyPress);
+    window.addEventListener('keypress', this.onKeyPress);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("keypress", this.onKeyPress);
+    window.removeEventListener('keypress', this.onKeyPress);
   }
 
   onKeyPress = event => {
-    if (event.key === "Enter") {
+    if (event.key === 'Enter') {
       this.submit();
     }
   };
 
   select = id => {
-    let updatedSelected = [...this.state.selected];
+    const { selected } = this.state;
+    const updatedSelected = [...selected];
     updatedSelected.push(id);
     this.setState({ selected: updatedSelected });
   };
 
   deSelect = id => {
-    let updatedSelected = this.state.selected.filter(current => current !== id);
+    const { selected } = this.state;
+    const updatedSelected = selected.filter(current => current !== id);
     this.setState({ selected: updatedSelected });
   };
 
   submit = () => {
-    this.state.selected.forEach(id => {
-      if (this.props.mode === "create") {
-        this.props.create(
-          id,
-          this.props.userId,
-          this.state.dueDate,
-          this.props.course
-        );
+    const { mode, userId, course, create, copy, close } = this.props;
+    const { selected, dueDate } = this.state;
+    selected.forEach(id => {
+      if (mode === 'create') {
+        create(id, userId, dueDate, course);
       } else {
-        this.props.copy(id, this.props.userId, this.props.course);
+        copy(id, userId, course);
       }
     });
-    this.props.close();
+    close();
   };
 
   render() {
+    const {
+      courseActivities,
+      userActivities,
+      show,
+      close,
+      course,
+      resource,
+      mode,
+    } = this.props;
+    const { thisCourse, ownResources, community, selected } = this.state;
     let list = [];
-    if (this.state.thisCourse) {
-      list = this.props.courseActivities;
-    } else if (this.state.ownResources) list = this.props.userActivities;
+    if (thisCourse) {
+      list = courseActivities;
+    } else if (ownResources) list = userActivities;
     return (
-      <Modal show={this.props.show} closeModal={this.props.close}>
+      <Modal show={show} closeModal={close}>
         <div className={classes.Container}>
           <h3 className={classes.Title}>Create from an Existing Activity</h3>
           <div className={classes.Form}>
@@ -66,12 +77,12 @@ class FromActivity extends Component {
               <div className={classes.VerticalButtons}>
                 <RadioBtn
                   name="community"
-                  checked={this.state.community}
+                  checked={community}
                   check={() =>
                     this.setState({
                       community: true,
                       ownResources: false,
-                      thisCourse: false
+                      thisCourse: false,
                     })
                   }
                 >
@@ -79,26 +90,26 @@ class FromActivity extends Component {
                 </RadioBtn>
                 <RadioBtn
                   name="ownActivities"
-                  checked={this.state.ownResources}
+                  checked={ownResources}
                   check={() =>
                     this.setState({
                       ownResources: true,
                       thisCourse: false,
-                      community: false
+                      community: false,
                     })
                   }
                 >
                   From Your Activities
                 </RadioBtn>
-                {this.props.course && this.props.resource !== "activities" ? (
+                {course && resource !== 'activities' ? (
                   <RadioBtn
                     name="ownActivities"
-                    checked={this.state.thisCourse}
+                    checked={thisCourse}
                     check={() =>
                       this.setState({
                         thisCourse: true,
                         ownResources: false,
-                        community: false
+                        community: false,
                       })
                     }
                   >
@@ -107,7 +118,7 @@ class FromActivity extends Component {
                 ) : null}
               </div>
             </div>
-            {this.props.mode === "create" ? (
+            {mode === 'create' ? (
               <div className={classes.FormSection}>
                 <TextInput
                   light
@@ -121,7 +132,7 @@ class FromActivity extends Component {
               </div>
             ) : null}
             <div className={classes.Status}>
-              You've selected {this.state.selected.length} activities
+              You&#39;ve selected {selected.length} activities
             </div>
             <div className={classes.ActivityList}>
               <BoxList
@@ -133,10 +144,10 @@ class FromActivity extends Component {
               />
             </div>
             <div className={classes.Submit}>
-              <Button click={this.submit} theme={"Small"} m={10}>
+              <Button click={this.submit} theme="Small" m={10}>
                 Done
               </Button>
-              <Button click={this.props.close} m={10}>
+              <Button click={close} m={10}>
                 Cancel
               </Button>
             </div>
@@ -146,5 +157,24 @@ class FromActivity extends Component {
     );
   }
 }
+
+FromActivity.propTypes = {
+  courseActivities: PropTypes.arrayOf(PropTypes.shape({})),
+  userActivities: PropTypes.arrayOf(PropTypes.shape({})),
+  show: PropTypes.bool.isRequired,
+  close: PropTypes.func.isRequired,
+  course: PropTypes.shape({}),
+  resource: PropTypes.string.isRequired,
+  mode: PropTypes.string.isRequired,
+  userId: PropTypes.string.isRequired,
+  create: PropTypes.func.isRequired,
+  copy: PropTypes.func.isRequired,
+};
+
+FromActivity.defaultProps = {
+  courseActivities: [],
+  userActivities: [],
+  course: null,
+};
 
 export default FromActivity;

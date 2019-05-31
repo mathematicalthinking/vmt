@@ -1,14 +1,17 @@
-import React, { Component } from "react";
-import classes from "./makeRooms.css";
-import { RadioBtn, TextInput, Button } from "../../../Components";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import classes from './makeRooms.css';
+import { RadioBtn, TextInput, Button } from '../../../Components';
+
 class Step1Course extends Component {
   render() {
-    let {
+    const {
       participantList,
-      assignRandom,
+      isRandom,
       setRandom,
       setManual,
-      error
+      error,
+      submit,
     } = this.props;
     return (
       <div className={classes.Container}>
@@ -16,25 +19,25 @@ class Step1Course extends Component {
         <div className={classes.Radios}>
           <RadioBtn
             name="random"
-            checked={assignRandom}
+            checked={isRandom}
             check={setRandom}
-            defaultChecked={true}
+            defaultChecked
           >
             Assign Randomly
           </RadioBtn>
           <RadioBtn
             data-testid="assign-manually"
             name="manual"
-            checked={!assignRandom}
+            checked={!isRandom}
             defaultChecked={false}
             check={setManual}
           >
             Assign Manually
           </RadioBtn>
         </div>
-        {assignRandom ? (
+        {isRandom ? (
           <div className={classes.SubContainer}>
-            <div className={classes.Error}>{error || ""}</div>
+            <div className={classes.Error}>{error || ''}</div>
             <TextInput
               light
               label="Number of participants per room"
@@ -48,7 +51,7 @@ class Step1Course extends Component {
           </div>
         )}
         <div className={classes.Button}>
-          <Button m={5} click={this.props.submit} data-testid="assign-rooms">
+          <Button m={5} click={submit} data-testid="assign-rooms">
             assign
           </Button>
         </div>
@@ -56,5 +59,19 @@ class Step1Course extends Component {
     );
   }
 }
+
+Step1Course.propTypes = {
+  participantList: PropTypes.element.isRequired,
+  isRandom: PropTypes.bool,
+  setRandom: PropTypes.func.isRequired,
+  setManual: PropTypes.func.isRequired,
+  error: PropTypes.string,
+  submit: PropTypes.func.isRequired,
+};
+
+Step1Course.defaultProps = {
+  error: null,
+  isRandom: false,
+};
 
 export default Step1Course;

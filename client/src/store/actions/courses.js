@@ -1,19 +1,11 @@
 import * as actionTypes from './actionTypes';
-import {
-  addUserCourses,
-  // addUserCourseTemplates,
-  removeUserCourse,
-  removeUserRooms,
-  removeUserActivities,
-  activitiesRemoved,
-  roomsRemoved,
-  clearLoadingInfo,
-} from './index';
+import { activitiesRemoved, removeUserActivities } from './activities';
+import { roomsRemoved, removeUserRooms } from './rooms';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils';
 import * as loading from './loading';
 
-//@TODO HAVE MORE ACTIONS HERE FOR TRACKING STATUS OF REQUEST i.e. pending erro success
+// @TODO HAVE MORE ACTIONS HERE FOR TRACKING STATUS OF REQUEST i.e. pending erro success
 export const gotCourses = courses => {
   return {
     type: actionTypes.GOT_COURSES,
@@ -29,13 +21,7 @@ export const updatedCourse = (courseId, body) => ({
   body,
 });
 
-export const addCourseActivities = (courseId, activityIdsArr) => ({
-  type: actionTypes.ADD_COURSE_ACTIVITIES,
-  courseId,
-  activityIdsArr,
-});
-
-//@TODO REMOVE THIS
+// @TODO REMOVE THIS
 export const clearCurrentCourse = () => ({
   type: actionTypes.CLEAR_COURSE,
 });
@@ -47,14 +33,6 @@ export const createdCourse = resp => {
   };
 };
 
-export const addCourseRooms = (courseId, roomIdsArr) => {
-  return {
-    type: actionTypes.ADD_COURSE_ROOMS,
-    courseId,
-    roomIdsArr,
-  };
-};
-
 export const addCourseMember = (courseId, newMember) => {
   return {
     type: actionTypes.ADD_COURSE_MEMBER,
@@ -63,25 +41,23 @@ export const addCourseMember = (courseId, newMember) => {
   };
 };
 
-export const removeCourseActivities = (courseId, activityIdsArr) => {
-  return {
-    type: actionTypes.REMOVE_COURSE_ACTIVITIES,
-    courseId,
-    activityIdsArr,
-  };
-};
-
-export const removeCourseRooms = (courseId, roomIdsArr) => {
-  return {
-    type: actionTypes.REMOVE_COURSE_ROOMS,
-    courseId,
-    roomIdsArr,
-  };
-};
-
 export const courseRemoved = courseId => {
   return {
     type: actionTypes.REMOVE_COURSE,
+    courseId,
+  };
+};
+
+export const addUserCourses = newCoursesArr => {
+  return {
+    type: actionTypes.ADD_USER_COURSES,
+    newCoursesArr,
+  };
+};
+
+export const removeUserCourse = courseId => {
+  return {
+    type: actionTypes.REMOVE_USER_COURSE,
     courseId,
   };
 };
@@ -114,27 +90,9 @@ export const updateCourseMembers = (courseId, updatedMembers) => {
   };
 };
 
-// export const removeCourse = courseId => {
-//   return dispatch => {
-//     dispatch(loading.start())
-//     API.remove('courses', courseId)
-//     .then(res => {
-//       // remove course from user
-//       dispatch(removeUserCourse(courseId))
-//         // remove courseRooms from user
-//         dispatch(removeUserRooms)
-//         // remove courseActivities from user
-//         // remove courseRooms
-//         // remove courseActivities
-//       dispatch(courseRemoved(courseId))
-//       return dispatch(loading.success())
-//     })
-//   }
-// }
-
 export const updateCourse = (id, body) => {
   return (dispatch, getState) => {
-    let course = { ...getState().courses.byId[id] };
+    const course = { ...getState().courses.byId[id] };
     if (body.isTrashed) {
       dispatch(removeUserCourse(id));
       dispatch(courseRemoved(id));
@@ -142,21 +100,20 @@ export const updateCourse = (id, body) => {
       dispatch(updatedCourse(id, body));
     }
     API.put('courses', id, body)
-      .then(res => {
+      .then(() => {
         if (body.trashChildren) {
-          let { activities, rooms } = course;
+          const { activities, rooms } = course;
           dispatch(removeUserActivities(activities));
           dispatch(activitiesRemoved(activities));
           dispatch(removeUserRooms(rooms));
           dispatch(roomsRemoved(rooms));
         }
-        return;
       })
-      .catch(err => {
+      .catch(() => {
         // Undo updates because something went wrong with the server/connection
 
-        let prevCourse = {};
-        let keys = Object.keys(body);
+        const prevCourse = {};
+        const keys = Object.keys(body);
         keys.forEach(key => {
           prevCourse[key] = course[key];
         });
@@ -168,7 +125,7 @@ export const updateCourse = (id, body) => {
         dispatch(updatedCourse(id, prevCourse));
         dispatch(loading.updateFail('course', keys));
         setTimeout(() => {
-          dispatch(clearLoadingInfo());
+          dispatch(loading.clearLoadingInfo());
         }, 2000);
       });
   };
@@ -182,21 +139,10 @@ export const getCourses = params => {
         const courses = normalize(res.data.results);
         dispatch(gotCourses(courses));
       })
+      // eslint-disable-next-line no-console
       .catch(err => console.log(err));
   };
 };
-// export const getCoursesIds = ids => {
-//   return dispatch => {
-//     API.getIds('courses', ids)
-//     .then(res => {
-//       // Normalize res
-//       let rooms = normalize(res.data.results)
-//       dispatch(gotCourses(rooms))
-//       dispatch(loading.success())
-//     })
-//     .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
-//   }
-// }
 
 export const getCourse = id => {
   return dispatch => {
@@ -221,19 +167,11 @@ export const inviteToCourse = (courseId, toUserId, toUserUsername, options) => {
       })
     );
     API.grantAccess(toUserId, 'course', courseId, 'invitation', options)
-      .then(res => {})
+      .then()
+      // eslint-disable-next-line no-console
       .catch(err => console.log(err));
   };
 };
-
-// export const populateCurrentCourse = id => {
-//   return dispatch => {
-//     API.getById('courses', id)
-//     .then(res => {
-//       dispatch(updateCourse(res.data.result))})
-//     .catch(err => console.log(err))
-//   }
-// }
 
 export const createCourse = body => {
   return dispatch => {
@@ -252,10 +190,11 @@ export const createCourse = body => {
         }
         dispatch(createdCourse(res.data.result));
         dispatch(addUserCourses([res.data.result._id]));
-        dispatch(loading.success());
+        return dispatch(loading.success());
       })
       .catch(err => {
         dispatch(loading.fail());
+        // eslint-disable-next-line no-console
         console.log(err);
       });
   };

@@ -1,5 +1,6 @@
 export const normalize = resources => {
   const byId = resources.reduce((accum, current) => {
+    // eslint-disable-next-line no-param-reassign
     accum[current._id] = current;
     return accum;
   }, {});
@@ -8,9 +9,10 @@ export const normalize = resources => {
 };
 
 export const addUserRoleToResource = (resource, userId) => {
+  const updatedResource = resource;
   if (resource.members) {
     resource.members.forEach(member => {
-      if (member.user._id === userId) resource.myRole = member.role;
+      if (member.user._id === userId) updatedResource.myRole = member.role;
     });
   }
   return resource;
@@ -21,21 +23,35 @@ export const addUserRoleToResource = (resource, userId) => {
  * @param {Array} chat
  * @returns {Array} chat and events from each tab combined into a single chonological array
  */
+
 export const buildLog = (tabs, chat) => {
   let allEvents = [];
   tabs.forEach(tab => {
     allEvents = allEvents.concat(tab.events);
   });
-  allEvents = allEvents
-    .concat(chat)
-    .sort((a, b) => a.timestamp - b.timestamp)
-    .filter((entry, i, arr) => {
-      if (arr[i - 1]) {
-        if (entry.description) {
-          return entry.description !== arr[i - 1].description;
-        } else return true;
-      }
-      return true;
-    });
-  return allEvents;
+
+  allEvents = allEvents.concat(chat).sort((a, b) => a.timestamp - b.timestamp);
+
+  // Combine drag events that had been split up for efficient sending over the socket
+  // see sendEventBuffer method @ ./client/src/containers/workspace/ggbGraph.js
+  const consolidatedEvents = [];
+  let consolidating = false;
+  allEvents.forEach(event => {
+    if (!consolidating) {
+      consolidatedEvents.push(event);
+    } else if (event.eventArray) {
+      consolidatedEvents[
+        consolidatedEvents.length - 1
+      ].eventArray = consolidatedEvents[
+        consolidatedEvents.length - 1
+      ].eventArray.concat(event.eventArray);
+    }
+    if (event.isMultiPart && !consolidating) {
+      consolidating = true;
+    } else if (!event.isMultiPart && consolidating) {
+      consolidating = false;
+    }
+  });
+
+  return consolidatedEvents;
 };

@@ -1,25 +1,31 @@
-import React, { Component } from "react";
-import { Avatar, Button } from "../../Components/";
-import classes from "./members.css";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Avatar, Button } from '../../Components';
+import classes from './members.css';
+
 class SearchResults extends Component {
   state = {
-    areResultsExpanded: false
+    areResultsExpanded: false,
   };
 
   componentDidUpdate(prevProps) {
-    if (prevProps.searchText.length > 0 && this.props.searchText === 0) {
+    const { searchText } = this.props;
+    if (prevProps.searchText.length > 0 && searchText === 0) {
+      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ areResultsExpanded: false });
     }
   }
 
   render() {
-    let toggleExpansion = (
+    const { usersSearched, inviteMember, searchText } = this.props;
+    const { areResultsExpanded } = this.state;
+    const toggleExpansion = (
       <div>
-        See Suggested Participants{" "}
+        See Suggested Participants{' '}
         <Button
           click={() =>
             this.setState(prevState => ({
-              areResultsExpanded: !prevState.areResultsExpanded
+              areResultsExpanded: !prevState.areResultsExpanded,
             }))
           }
         >
@@ -27,16 +33,15 @@ class SearchResults extends Component {
         </Button>
       </div>
     );
-    let { usersSearched, inviteMember, searchText } = this.props;
-    if (searchText.length > 0 || this.state.areResultsExpanded) {
+    if (searchText.length > 0 || areResultsExpanded) {
       return (
         <ul className={classes.SearchResults}>
           <div>
-            See Suggested Participants{" "}
+            See Suggested Participants{' '}
             <Button
               click={() =>
                 this.setState(prevState => ({
-                  areResultsExpanded: !prevState.areResultsExpanded
+                  areResultsExpanded: !prevState.areResultsExpanded,
                 }))
               }
             >
@@ -47,7 +52,7 @@ class SearchResults extends Component {
             return (
               <li className={classes.SearchResItem} key={user._id}>
                 <div className={classes.FlexRow}>
-                  <Avatar username={user.username} />{" "}
+                  <Avatar username={user.username} />{' '}
                   <span className={classes.Email}>{user.email}</span>
                 </div>
                 <Button
@@ -63,8 +68,14 @@ class SearchResults extends Component {
           })}
         </ul>
       );
-    } else return <ul className={classes.SearchResults}>{toggleExpansion}</ul>;
+    }
+    return <ul className={classes.SearchResults}>{toggleExpansion}</ul>;
   }
 }
 
+SearchResults.propTypes = {
+  usersSearched: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  inviteMember: PropTypes.func.isRequired,
+  searchText: PropTypes.string.isRequired,
+};
 export default SearchResults;

@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Route, Switch } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import Navbar from '../Components/Navigation/Navbar';
 import {
   MyVMT,
@@ -12,106 +15,104 @@ import {
 } from '../Containers';
 import { PrivateRoute, ErrorToast } from '../Components';
 import { Confirmation, FacilitatorInstructions } from '../Layout';
-// import Aux from '../Components/HOC/Auxil';
-import { connect } from 'react-redux';
-import { Route, Switch } from 'react-router-dom';
 import ErrorBoundary from '../ErrorBoundary';
 
+const pages = [
+  { path: '/facilitator', component: FacilitatorInstructions },
+  { path: '/profile', component: Profile },
+  { path: '/:resource', component: MyVMT },
+  {
+    path: '/courses/:course_id/:resource',
+    component: Course,
+    redirectPath: '/signup',
+  },
+  {
+    path: '/courses/:course_id/activities/:activity_id/:resource',
+    component: Activity,
+    redirectPath: '/signup',
+  },
+  {
+    path: '/courses/:course_id/rooms/:room_id/:resource',
+    component: Room,
+    redirectPath: '/signup',
+  },
+  {
+    path: '/rooms/:room_id/:resource',
+    component: Room,
+    redirectPath: '/signup',
+  },
+  {
+    path: '/activities/:activity_id/:resource',
+    component: Activity,
+    redirectPath: '/signup',
+  },
+  {
+    path: '/workspace/:room_id/replayer',
+    component: Replayer,
+    redirectPath: '/signup',
+  },
+  {
+    path: '/workspace/:activity_id/activity',
+    component: ActivityWorkspace,
+    redirectPath: '/signup',
+  },
+  {
+    path: '/workspace/:room_id',
+    component: Workspace,
+    redirectPath: '/signup',
+  },
+  {
+    path: '/confirmation',
+    component: Confirmation,
+  },
+];
 class MyVmt extends Component {
   render() {
-    let { path } = this.props.match;
+    const { match, loggedIn, user, globalErrorMessage } = this.props;
+    const { path } = match;
     return (
-      <ErrorBoundary dispatchFail={this.props.fail}>
-        <Navbar user={this.props.user} />
+      <ErrorBoundary>
+        <Navbar user={user} />
         <Switch>
-          <PrivateRoute
-            exact
-            path={`${path}/facilitator`}
-            authed={this.props.loggedIn}
-            component={FacilitatorInstructions}
-          />
-          <PrivateRoute
-            exact
-            path={`${path}/profile`}
-            authed={this.props.loggedIn}
-            component={Profile}
-          />
-          <PrivateRoute
-            exact
-            path={`${path}/:resource`}
-            authed={this.props.loggedIn}
-            component={MyVMT}
-          />
-          <PrivateRoute
-            exact
-            path={`${path}/courses/:course_id/:resource`}
-            authed={this.props.loggedIn}
-            redirectPath="/signup"
-            component={Course}
-          />
-          <PrivateRoute
-            exact
-            path={`${path}/courses/:course_id/activities/:activity_id/:resource`}
-            authed={this.props.loggedIn}
-            redirectPath="/signup"
-            component={Activity}
-          />
-          <PrivateRoute
-            exact
-            path={`${path}/courses/:course_id/rooms/:room_id/:resource`}
-            redirectPath="/signup"
-            authed={this.props.loggedIn}
-            component={Room}
-          />
-          <PrivateRoute
-            exact
-            path={`${path}/rooms/:room_id/:resource`}
-            redirectPath="/signup"
-            authed={this.props.loggedIn}
-            component={Room}
-          />
-          <PrivateRoute
-            exact
-            path={`${path}/activities/:activity_id/:resource`}
-            authed={this.props.loggedIn}
-            redirectPath="/signup"
-            component={Activity}
-          />
-          <PrivateRoute
-            exact
-            path={`${path}/workspace/:room_id/replayer`}
-            authed={this.props.loggedIn}
-            component={Replayer}
-          />
-          <PrivateRoute
-            exact
-            path={`${path}/workspace/:activity_id/activity`}
-            authed={this.props.loggedIn}
-            redirectPath="/signup"
-            component={ActivityWorkspace}
-          />
-          <PrivateRoute
-            exact
-            path={`${path}/workspace/:room_id`}
-            authed={this.props.loggedIn}
-            component={Workspace}
-          />
-          <Route exact path="/confirmation" component={Confirmation} />}
+          {pages.map(page => {
+            return (
+              <PrivateRoute
+                exact
+                key={page.path}
+                path={`${path}${page.path}`}
+                authed={loggedIn}
+                component={page.component}
+                redirectPath={page.redirectPath || '/'}
+              />
+            );
+          })}
           <Route
             path="*"
-            render={() => {
-              return <div>Error</div>;
+            component={
+              () => <div>Error</div>
               // ^ @TODO 404 page
-            }}
+            }
           />
         </Switch>
-        {this.props.globalErrorMessage ? (
-          <ErrorToast>{this.props.globalErrorMessage}</ErrorToast>
+        {globalErrorMessage ? (
+          <ErrorToast>{globalErrorMessage}</ErrorToast>
         ) : null}
       </ErrorBoundary>
     );
   }
 }
+
+MyVmt.propTypes = {
+  match: PropTypes.shape({}).isRequired,
+  loggedIn: PropTypes.bool.isRequired,
+  user: PropTypes.shape({}),
+  globalErrorMessage: PropTypes.string,
+};
+
+MyVmt.defaultProps = {
+  user: {},
+  globalErrorMessage: null,
+};
 // Provide login status to all private routes
 const mapStateToProps = state => ({
   loggedIn: state.user.loggedIn,

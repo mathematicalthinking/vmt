@@ -1,6 +1,7 @@
 // @TODO Consider moving this Containers/Members
 
 import React, { PureComponent, Fragment } from 'react';
+import PropTypes from 'prop-types';
 import classes from './member.css';
 import Avatar from '../Avatar/Avatar';
 import Button from '../Button/Button';
@@ -12,11 +13,15 @@ import RoleDropdown from '../../Form/Dropdown/RoleDropdown';
 // import { removeRoomMember } from '../../../store/actions/rooms';
 
 class Member extends PureComponent {
-  state = {
-    role: this.props.info.role,
-    editing: false,
-    trashing: false,
-  };
+  constructor(props) {
+    super(props);
+    const { info } = this.props;
+    this.state = {
+      role: info.role,
+      editing: false,
+      trashing: false,
+    };
+  }
 
   edit = () => {
     this.setState(prevState => ({
@@ -24,17 +29,18 @@ class Member extends PureComponent {
     }));
   };
 
-  changeRole = role => {
-    if (role === this.state.role) return;
-    let { changeRole, info } = this.props;
-    this.setState({ role, editing: false });
-    info.role = role;
+  changeRole = newRole => {
+    const { role } = this.state;
+    if (newRole === role) return;
+    const { changeRole, info } = this.props;
+    this.setState({ editing: false });
+    info.role = newRole;
     changeRole(info);
   };
 
   trash = () => {
     // DONT ALLOW REMOVING CREATOR
-    let { info, removeMember } = this.props;
+    const { info, removeMember } = this.props;
     removeMember(info);
     this.setState({ trashing: false, editing: false });
   };
@@ -52,9 +58,10 @@ class Member extends PureComponent {
       notification,
       resourceName,
     } = this.props;
-    let username = info.user ? info.user.username : info.username;
+    const { editing, trashing } = this.state;
+    const username = info.user ? info.user.username : info.username;
     return (
-      <div data-testid={`member-${username}`} class>
+      <div data-testid={`member-${username}`}>
         <div className={classes.Container}>
           <div className={classes.Avatar}>
             <Avatar username={username} color={info.color} />
@@ -68,41 +75,42 @@ class Member extends PureComponent {
             {grantAccess ? (
               <Fragment>
                 <Button
-                  theme={'Small'}
+                  theme="Small"
                   m={5}
-                  click={this.props.grantAccess}
+                  click={grantAccess}
                   data-testid={`grant-access-${username}`}
                 >
                   Grant Access
                 </Button>
-                <Button m={5} click={rejectAccess} theme={'Danger'}>
+                <Button m={5} click={rejectAccess} theme="Danger">
                   <i className="fas fa-trash-alt" />
                 </Button>
               </Fragment>
             ) : null}
-            {this.state.editing ? (
+            {editing ? (
               <div className={classes.DropDown}>
                 <RoleDropdown
                   selectHandler={this.changeRole}
                   // not just hardcoding the options because we want the users current role to show up first in the lsit
-                  list={['facilitator', 'participant', 'guest'].sort(function(
-                    a,
-                    b
-                  ) {
+                  list={['facilitator', 'participant', 'guest'].sort(a => {
                     if (a === info.role) {
                       return -1;
-                    } else return 1;
+                    }
+                    return 1;
                   })}
                 />
               </div>
             ) : (
               <div className={classes.Role}>{info.role}</div>
             )}
-            {this.state.editing ? (
+            {editing ? (
               <div
                 className={classes.Trash}
                 onClick={() => this.setState({ trashing: true })}
-                data-testid={'trash-member'}
+                onKeyPress={() => this.setState({ trashing: true })}
+                role="button"
+                tabIndex="-1"
+                data-testid="trash-member"
               >
                 <i className="fas fa-trash-alt" />
               </div>
@@ -112,7 +120,10 @@ class Member extends PureComponent {
               <div
                 className={classes.Edit}
                 onClick={this.edit}
+                onKeyPress={this.edit}
                 data-testid="edit-member"
+                role="button"
+                tabIndex="-2"
               >
                 <i className="fas fa-edit" />
               </div>
@@ -120,7 +131,7 @@ class Member extends PureComponent {
           </div>
         </div>
         <Modal
-          show={this.state.trashing}
+          show={trashing}
           closeModal={() => this.setState({ trashing: false })}
         >
           <div>
@@ -130,7 +141,7 @@ class Member extends PureComponent {
             </div>
             <div>
               <Button
-                theme={'Small'}
+                theme="Small"
                 m={5}
                 click={this.trash}
                 data-testid="confirm-trash"
@@ -138,7 +149,7 @@ class Member extends PureComponent {
                 Yes
               </Button>
               <Button
-                theme={'SmallCancel'}
+                theme="SmallCancel"
                 m={5}
                 click={() => this.setState({ trashing: false })}
               >
@@ -151,5 +162,27 @@ class Member extends PureComponent {
     );
   }
 }
+
+// Consider adding a listType prop that speicifes if this member is showing up in a classList or a requestAccess list
+// and then conditionally require the access vs edit function isntead of just blindly not requiring any of them
+Member.propTypes = {
+  info: PropTypes.shape({}).isRequired,
+  changeRole: PropTypes.func,
+  removeMember: PropTypes.func,
+  owner: PropTypes.bool,
+  grantAccess: PropTypes.func,
+  rejectAccess: PropTypes.func,
+  notification: PropTypes.bool,
+  resourceName: PropTypes.string.isRequired,
+};
+
+Member.defaultProps = {
+  notification: false,
+  owner: false,
+  changeRole: null,
+  removeMember: null,
+  grantAccess: null,
+  rejectAccess: null,
+};
 
 export default Member;

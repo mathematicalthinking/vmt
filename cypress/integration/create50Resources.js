@@ -4,7 +4,7 @@ const room = require('../fixtures/room');
 const activity = require('../fixtures/activity');
 const arr = [];
 
-xdescribe('create each type of resource', function() {
+xdescribe('create 50 courses', function() {
   before(function() {
     for (let i = 0; i < 150; i++) {
       arr.push(i);
