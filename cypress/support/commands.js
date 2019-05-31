@@ -10,13 +10,14 @@
 //
 //
 // -- This is a parent command --
-Cypress.Commands.add("login", user => {
-  cy.clearLocalStorage();
-  cy.visit("/");
-  cy.contains("Login").click();
-  cy.get("input[name=username]").type(user.username);
-  cy.get("input[name=password]").type(user.password);
-  cy.get("button").click();
+Cypress.Commands.add('login', user => {
+  cy.clearLocalStorage().then(() => {
+    cy.visit('/');
+    cy.contains('Login').click();
+    cy.get('input[name=username]').type(user.username);
+    cy.get('input[name=password]').type(user.password);
+    cy.get('button').click();
+  });
   // CANT GET THE CODE BELOW TO WORK -- want to do it programitcally - not through the UI
   // cy.request({
   //   url: 'localhost:3001/auth/login',
@@ -26,7 +27,7 @@ Cypress.Commands.add("login", user => {
   // cy.visit('/')
 });
 
-Cypress.Commands.add("getTestElement", selector => {
+Cypress.Commands.add('getTestElement', selector => {
   return cy.get(`[data-testid="${selector}"]`);
 });
 
