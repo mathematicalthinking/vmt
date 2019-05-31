@@ -9,6 +9,7 @@ import {
   addUserRooms,
   addToLog,
 } from '../../store/actions';
+import generateMongoId from '../../utils/createMongoId';
 import Workspace from './Workspace';
 import { Aux, TextInput, Modal, Button } from '../../Components';
 import Signup from '../Signup';
@@ -101,6 +102,7 @@ class TempWorkspace extends Component {
 
     const { id } = match.params;
     const sendData = {
+      _id: generateMongoId(),
       userId, // this will be undefined if they're not logged in
       firstEntry,
       username: roomUsername,
