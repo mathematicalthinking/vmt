@@ -263,7 +263,6 @@ class Chat extends Component {
           }
         }
         if (message.messageType) {
-          console.log('messageId: ', message._id);
           return (
             <Message
               key={message._id}

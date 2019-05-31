@@ -39,6 +39,7 @@ module.exports = function() {
         socket.user_id = user._id; // store the user id on the socket so we can tell who comes and who goes
         socket.username = user.username;
         const message = {
+          _id: data._id,
           user: { _id: user._id, username: 'VMTbot' },
           room: data.roomId,
           messageType: 'JOINED_ROOM',
