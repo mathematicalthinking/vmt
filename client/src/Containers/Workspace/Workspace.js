@@ -6,6 +6,7 @@ import {
   updateRoom,
   updatedRoom,
   updateRoomTab,
+  updatedRoomTab,
   populateRoom,
   setRoomStartingPoint,
   updateUser,
@@ -158,7 +159,6 @@ class Workspace extends Component {
       }
       if (!user.inAdminMode) {
         socket.emit('JOIN', sendData, (res, err) => {
-          console.log(res.message);
           if (err) {
             // eslint-disable-next-line no-console
             console.log(err); // HOW SHOULD WE HANDLE THIS
@@ -256,7 +256,13 @@ class Workspace extends Component {
   };
 
   toggleControl = (event, auto) => {
-    const { room, user, connectUpdatedRoom, connectAddToLog } = this.props;
+    const {
+      room,
+      user,
+      connectUpdatedRoom,
+      // connectUpdatedRoomTab,
+      connectAddToLog,
+    } = this.props;
     const { myColor } = this.state;
     if (!user.connected && !auto) {
       // i.e. if the user clicked the button manually instead of controll being toggled programatically
@@ -335,11 +341,11 @@ class Workspace extends Component {
       connectUpdatedRoom(room._id, { controlledBy: user._id });
       socket.emit('TAKE_CONTROL', message, () => {
         //   console.log('CURRENT STSTE : ROOM : ', room);
-        //   // room.tabs.forEach(tab => {
-        //   //   this.props.updatedRoomTab(room._id, tab._id, {
-        //   //     currentState: tab.currentState,
-        //   //   });
-        //   // });
+        //   room.tabs.forEach(tab => {
+        //     connectUpdatedRoomTab(room._id, tab._id, {
+        //       currentState: tab.currentState,
+        //     });
+        //   });
       });
     }
   };
@@ -669,6 +675,7 @@ Workspace.propTypes = {
   connectUpdateRoom: PropTypes.func.isRequired,
   connectUpdatedRoom: PropTypes.func.isRequired,
   connectUpdateRoomTab: PropTypes.func.isRequired,
+  // connectUpdatedRoomTab: PropTypes.func.isRequired,
   connectPopulateRoom: PropTypes.func.isRequired,
   connectSetRoomStartingPoint: PropTypes.func.isRequired,
   connectAddToLog: PropTypes.func.isRequired,
@@ -693,6 +700,7 @@ export default connect(
     connectUpdateRoom: updateRoom,
     connectUpdatedRoom: updatedRoom,
     connectUpdateRoomTab: updateRoomTab,
+    connectUpdatedRoomTab: updatedRoomTab,
     connectPopulateRoom: populateRoom,
     connectSetRoomStartingPoint: setRoomStartingPoint,
     connectAddToLog: addToLog,

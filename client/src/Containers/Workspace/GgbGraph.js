@@ -108,12 +108,12 @@ class GgbGraph extends Component {
         });
       }
     });
-    socket.on('FORCE_SYNC', () => {
+    socket.on('FORCE_SYNC', data => {
       this.setState({ receivingData: true }, () => {
-        room.tabs.forEach((tab, i) => {
+        data.tabs.forEach((tab, i) => {
           if (i === tabId) {
             this.ggbApplet.setXML(tab.currentState);
-            this.registerListeners();
+            this.registerListeners(); // always reset listeners after calling sextXML (setXML destorys everything)
           }
         });
       });
