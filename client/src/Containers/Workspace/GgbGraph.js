@@ -101,9 +101,9 @@ class GgbGraph extends Component {
                 }
                 break;
               default:
+                this.setState({ receivingData: false });
                 break;
             }
-            this.setState({ receivingData: false });
           }
         });
       }
