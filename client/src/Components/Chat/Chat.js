@@ -248,7 +248,6 @@ class Chat extends Component {
       user,
     } = this.props;
     const { settings } = this.state;
-    console.log('user in chat layout: ', user);
     let displayMessages = [];
     if (log) {
       displayMessages = log.map(message => {

@@ -189,6 +189,14 @@ class GgbGraph extends Component {
       if (prevProps.currentTab !== currentTab) {
         this.updateDimensions();
       }
+
+      // releasing control
+      if (
+        prevProps.room.controlledBy !== room.controlledBy &&
+        room.controlledBY === null
+      ) {
+        this.updateConstructionState();
+      }
     }
   }
 
