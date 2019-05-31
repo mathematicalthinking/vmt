@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { mount } from 'enzyme';
 import GgbGraph from './GgbGraph';
 
 import room from '../../../__mocks__/testRoom';
@@ -50,9 +50,7 @@ describe('component - GgbGraph', () => {
     const script = document.createElement('script');
     script.src = 'https://cdn.geogebra.org/apps/deployggb.js';
     script.async = 1;
-    console.log('we are making it here');
     script.onload = () => {
-      console.log("but we're never making it here huh? ");
       // jest.spyOn(instance, 'componentDidMount');
       jest.spyOn(instance, 'onScriptLoad');
       jest.spyOn(instance, 'initializeGgb');
@@ -60,7 +58,6 @@ describe('component - GgbGraph', () => {
 
       expect(instance.componentDidMount).toHaveBeenCalled();
       // on scriptLoad should call initializeGgb
-      console.log(wrapper.props());
       expect(instance.onScriptLoad).toHaveBeenCalled();
       expect(instance.initializeGgb).toHaveBeenCalled();
     };

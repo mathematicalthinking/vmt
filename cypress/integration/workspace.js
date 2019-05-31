@@ -14,26 +14,19 @@ describe('Workspace/replayer', function() {
       .children()
       .should('have.length', 1);
   });
-  // it('prevents tool selection without taking control', function() {
-  //   const obj = {
-  //     foo: () => true,
-  //   };
-  //   // const stub = cy.stub();
-  //   const spy = cy.spy(obj, 'foo');
-  //   cy.on('window:alert', obj.foo);
-  //   cy.get(':nth-child(5) > .toolbar_button > .gwt-Image').click();
-  //   cy.get('[mode="16"] > .gwt-Label').click();
-  //   cy.get('.cursor_hit')
-  //     .click()
-  //     .then(function() {
-  //       return cy.wait(5000);
-  //     })
-  //     .then(() => {
-  //       expect(spy).to.be.calledWith(
-  //         `You are not in control. Click "Take Control" before making changes`
-  //       );
-  //     });
-  // });
+  it('prevents tool selection without taking control', function() {
+    // const stub = cy.stub();
+    const stub1 = cy.stub();
+    cy.on('window:alert', stub1);
+    cy.get(':nth-child(5) > .toolbar_button > .gwt-Image').click();
+    cy.get('[mode="16"] > .gwt-Label')
+      .click()
+      .then(() => {
+        expect(stub1.getCall(0)).to.be.calledWith(
+          `You are not in control. Click "Take Control" before making changes`
+        );
+      });
+  });
   it('allows tool selection after taking control', function() {
     cy.getTestElement('awareness-desc')
       .contains('jl-picard joined room 1')

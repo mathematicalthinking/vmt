@@ -101,9 +101,9 @@ class GgbGraph extends Component {
                 }
                 break;
               default:
-                this.setState({ receivingData: false });
                 break;
             }
+            this.setState({ receivingData: false });
           }
         });
       }
@@ -116,6 +116,7 @@ class GgbGraph extends Component {
             this.registerListeners(); // always reset listeners after calling sextXML (setXML destorys everything)
           }
         });
+        this.setState({ receivingData: false });
       });
     });
   }
@@ -599,6 +600,7 @@ class GgbGraph extends Component {
     // let independent = this.ggbApplet.isIndependent(label);
     // let moveable = this.ggbApplet.isMoveable(label);
     // let isInControl = this.props.room.controlledBy === this.props.user._id;
+
     if (!receivingData && label === this.pointSelected) {
       const xml = this.ggbApplet.getXML(label);
       this.sendEventBuffer(xml, null, label, 'UPDATE', 'updated');
@@ -757,7 +759,6 @@ class GgbGraph extends Component {
       addToLog,
       resetControlTimer,
     } = this.props;
-
     const newData = {
       _id: mongoIdGenerator(),
       definition,
