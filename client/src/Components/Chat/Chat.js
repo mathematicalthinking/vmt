@@ -263,9 +263,10 @@ class Chat extends Component {
           }
         }
         if (message.messageType) {
+          console.log('messageId: ', message._id);
           return (
             <Message
-              key={message._id || 'newest_message'}
+              key={message._id}
               message={message}
               id={message._id} // ?? no message._id ??
               ref={this[`message-${message._id}`]}

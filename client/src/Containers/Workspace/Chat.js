@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import socket from '../../utils/sockets';
+import mongoIdGenerator from '../../utils/createMongoId';
 import { Chat as ChatLayout } from '../../Components';
 
 class Chat extends Component {
@@ -80,9 +81,11 @@ class Chat extends Component {
       currentTab,
       clearReference,
       addToLog,
+      roomId,
+      user,
+      myColor,
     } = this.props;
     const { newMessage } = this.state;
-    const { roomId, user, myColor } = this.props;
     if (!user.connected) {
       // eslint-disable-next-line no-alert
       window.alert(
@@ -91,6 +94,7 @@ class Chat extends Component {
     }
     if (newMessage.length === 0) return;
     const messageData = {
+      _id: mongoIdGenerator(),
       text: newMessage,
       user: { _id: user._id, username: user.username },
       room: roomId,
@@ -98,6 +102,7 @@ class Chat extends Component {
       messageType: 'TEXT',
       timestamp: new Date().getTime(),
     };
+
     if (referencing) {
       newMessage.reference = {
         ...referToEl,
@@ -123,10 +128,12 @@ class Chat extends Component {
   };
 
   render() {
+    const { newMessage } = this.state;
     return (
       <ChatLayout
         change={this.changeHandler}
         submit={this.submitMessage}
+        value={newMessage}
         {...this.props}
       />
     );

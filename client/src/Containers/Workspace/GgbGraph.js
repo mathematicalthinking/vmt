@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Script from 'react-load-script';
 import { parseString } from 'xml2js';
 import throttle from 'lodash/throttle';
+import mongoIdGenerator from '../../utils/createMongoId';
 import classes from './graph.css';
 import { Aux } from '../../Components';
 import socket from '../../utils/sockets';
@@ -750,6 +751,7 @@ class GgbGraph extends Component {
     } = this.props;
 
     const newData = {
+      _id: mongoIdGenerator(),
       definition,
       label,
       eventType,

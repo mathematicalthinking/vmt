@@ -95,6 +95,7 @@ module.exports = function() {
       socket.join(data.roomId, async () => {
         // update current users of this room
         let message = {
+          _id: data._id,
           user: { _id: data.userId, username: 'VMTbot' },
           room: data.roomId,
           text: `${data.username} joined ${data.roomName}`,
