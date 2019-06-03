@@ -14,6 +14,7 @@ class GgbGraph extends Component {
   state = {
     receivingData: false,
     showControlWarning: false,
+    redo: false,
   };
 
   graph = React.createRef();
@@ -408,6 +409,7 @@ class GgbGraph extends Component {
    */
 
   clientListener = event => {
+    console.log(event);
     const { referencing } = this.props;
     const { receivingData } = this.state;
     if (receivingData) {
@@ -448,7 +450,7 @@ class GgbGraph extends Component {
           // this.showAlert();
           // this.resetting = true;
           // this.ggbApplet.redo();
-          this.setState({ showControlWarning: true });
+          this.setState({ showControlWarning: true, redo: true });
         }
         break;
       case 'redo':
@@ -904,7 +906,7 @@ class GgbGraph extends Component {
 
   render() {
     const { tabId, toggleControl, inControl } = this.props;
-    const { showControlWarning } = this.state;
+    const { showControlWarning, redo } = this.state;
     return (
       <Aux>
         <Script
@@ -925,22 +927,36 @@ class GgbGraph extends Component {
         />
         <ControlWarningModal
           showControlWarning={showControlWarning}
-          toggleControlWarning={() =>
-            this.setState({ showControlWarning: false })
-          }
+          toggleControlWarning={() => {
+            if (redo) {
+              this.ggbApplet.redo();
+            } else {
+              this.ggbApplet.undo();
+            }
+            this.ggbApplet.setMode(40);
+            this.setState({ showControlWarning: false, redo: false });
+          }}
           takeControl={() => {
-            this.ggbApplet.undo();
+            if (redo) {
+              this.ggbApplet.redo();
+            } else {
+              this.ggbApplet.undo();
+            }
             if (inControl !== 'NONE') {
               this.ggbApplet.setMode(40);
             }
             toggleControl();
-            this.setState({ showControlWarning: false });
+            this.setState({ showControlWarning: false, redo: false });
           }}
           inControl={inControl}
           cancel={() => {
-            this.ggbApplet.undo();
+            if (redo) {
+              this.ggbApplet.redo();
+            } else {
+              this.ggbApplet.undo();
+            }
             this.ggbApplet.setMode(40);
-            this.setState({ showControlWarning: false });
+            this.setState({ showControlWarning: false, redo: false });
           }}
         />
         {/* <div className={classes.ReferenceLine} style={{left: this.state.referencedElementPosition.left, top: this.state.referencedElementPosition.top}}></div> */}
