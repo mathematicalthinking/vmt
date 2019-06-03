@@ -6,12 +6,14 @@ import throttle from 'lodash/throttle';
 import mongoIdGenerator from '../../utils/createMongoId';
 import classes from './graph.css';
 import { Aux } from '../../Components';
+import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
 import ggbTools from './Tools/GgbIcons';
 
 class GgbGraph extends Component {
   state = {
     receivingData: false,
+    showControlWarning: false,
   };
 
   graph = React.createRef();
@@ -432,8 +434,9 @@ class GgbGraph extends Component {
           // Then don't send this to the other users/=.
         }
         if (event[2] !== '0') {
-          this.showAlert();
-          this.ggbApplet.setMode(40);
+          // this.showAlert();
+          // this.ggbApplet.setMode(40);
+          this.setState({ showControlWarning: true });
         }
         this.setState({ receivingData: false });
         break;
@@ -442,18 +445,20 @@ class GgbGraph extends Component {
         if (this.resetting || this.userCanEdit()) {
           this.resetting = false;
         } else {
-          this.showAlert();
-          this.resetting = true;
-          this.ggbApplet.redo();
+          // this.showAlert();
+          // this.resetting = true;
+          // this.ggbApplet.redo();
+          this.setState({ showControlWarning: true });
         }
         break;
       case 'redo':
         if (this.resetting || this.userCanEdit()) {
           this.resetting = false;
         } else {
-          this.showAlert();
-          this.resetting = true;
-          this.ggbApplet.undo();
+          // this.showAlert();
+          // this.resetting = true;
+          // this.ggbApplet.undo();
+          this.setState({ showControlWarning: true });
         }
         break;
       case 'select':
@@ -477,7 +482,7 @@ class GgbGraph extends Component {
         break;
       case 'openMenu':
         if (!this.userCanEdit()) {
-          this.showAlert();
+          this.setState({ showControlWarning: true });
         }
         break;
       case 'perspectiveChange':
@@ -495,8 +500,8 @@ class GgbGraph extends Component {
           return;
         }
         // If they weren't allowed to tupe here undo to the previous state
-        this.ggbApplet.setEditorState(this.editorState);
-        this.showAlert();
+        // this.ggbApplet.setEditorState(this.editorState);
+        this.setState({ showControlWarning: true });
         break;
 
       // ARE WE ACTUALLY USING THE BLCOKS BELOW??
@@ -542,10 +547,11 @@ class GgbGraph extends Component {
       return;
     }
     if (!this.userCanEdit()) {
-      this.resetting = true;
-      this.ggbApplet.deleteObject(label);
+      // this.resetting = true;
+      // this.ggbApplet.deleteObject(label);
       // Let the Ggb UI updates happen first...then when the stack is clear show an alert
-      setTimeout(() => this.showAlert(), 0);
+      // setTimeout(() => this.showAlert(), 0);
+      this.setState({ showControlWarning: true });
       return;
     }
     if (!receivingData) {
@@ -562,7 +568,7 @@ class GgbGraph extends Component {
 
   removeListener = label => {
     const { receivingData } = this.state;
-    const { room, currentTab } = this.props;
+    // const { room, currentTab } = this.props;
     if (receivingData && !this.updatingOn) {
       this.setState({ receivingData: false });
       return;
@@ -572,10 +578,11 @@ class GgbGraph extends Component {
       return;
     }
     if (!this.userCanEdit()) {
-      this.showAlert();
-      this.ggbApplet.setXML(room.tabs[currentTab].currentState);
+      // this.showAlert();
+      this.setState({ showControlWarning: true });
+      // this.ggbApplet.setXML(room.tabs[currentTab].currentState);
       // Reregister the listeners because setXML clears everything
-      this.registerListeners();
+      // this.registerListeners();
       return;
     }
     if (!receivingData) {
@@ -670,8 +677,9 @@ class GgbGraph extends Component {
     // Don't send if the user is not allowed to make changes
     if (!user.connected || room.controlledBy !== user._id) {
       // eslint-disable-next-line no-alert
-      this.showAlert();
-      this.ggbApplet.undo();
+      // this.showAlert();
+      this.setState({ showControlWarning: true });
+      // this.ggbApplet.undo();
       return;
     }
     // Add event to eventQueue in case there are multiple events to send.
@@ -895,7 +903,8 @@ class GgbGraph extends Component {
   };
 
   render() {
-    const { tabId } = this.props;
+    const { tabId, toggleControl, inControl } = this.props;
+    const { showControlWarning } = this.state;
     return (
       <Aux>
         <Script
@@ -913,6 +922,26 @@ class GgbGraph extends Component {
           }}
           id={`ggb-element${tabId}A`}
           ref={this.graph}
+        />
+        <ControlWarningModal
+          showControlWarning={showControlWarning}
+          toggleControlWarning={() =>
+            this.setState({ showControlWarning: false })
+          }
+          takeControl={() => {
+            this.ggbApplet.undo();
+            if (inControl !== 'NONE') {
+              this.ggbApplet.setMode(40);
+            }
+            toggleControl();
+            this.setState({ showControlWarning: false });
+          }}
+          inControl={inControl}
+          cancel={() => {
+            this.ggbApplet.undo();
+            this.ggbApplet.setMode(40);
+            this.setState({ showControlWarning: false });
+          }}
         />
         {/* <div className={classes.ReferenceLine} style={{left: this.state.referencedElementPosition.left, top: this.state.referencedElementPosition.top}}></div> */}
         {/* {this.state.showControlWarning ? <div className={classes.ControlWarning} style={{left: this.state.warningPosition.x, top: this.state.warningPosition.y}}>
@@ -940,7 +969,9 @@ GgbGraph.propTypes = {
   myColor: PropTypes.string,
   addToLog: PropTypes.func.isRequired,
   updateRoomTab: PropTypes.func.isRequired,
+  toggleControl: PropTypes.func.isRequired,
   resetControlTimer: PropTypes.func.isRequired,
+  inControl: PropTypes.string.isRequired,
   currentTab: PropTypes.number.isRequired,
   tabId: PropTypes.number.isRequired,
   addNtfToTabs: PropTypes.func.isRequired,

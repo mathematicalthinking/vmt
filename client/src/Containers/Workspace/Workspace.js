@@ -584,9 +584,11 @@ class Workspace extends Component {
           updateRoomTab={connectUpdateRoomTab}
           updatedRoom={connectUpdatedRoom}
           resetControlTimer={this.resetControlTimer}
+          inControl={control}
           currentTab={currentTab}
           tabId={i}
           addNtfToTabs={this.addNtfToTabs}
+          toggleControl={this.toggleControl}
           isFirstTabLoaded={isFirstTabLoaded}
           referToEl={referToEl}
           showingReference={showingReference}

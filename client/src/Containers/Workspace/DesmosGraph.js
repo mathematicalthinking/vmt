@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import Script from 'react-load-script';
 import debounce from 'lodash/debounce';
 import classes from './graph.css';
-import Modal from '../../Components/UI/Modal/Modal';
-import Button from '../../Components/UI/Button/Button';
+import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
 import API from '../../utils/apiRequests';
 // import { updatedRoom } from '../../store/actions';
@@ -282,37 +281,22 @@ class DesmosGraph extends Component {
     return (
       <Fragment>
         <span id="focus" ref={this.focus} />
-        <Modal
-          show={showControlWarning}
-          closeModal={() => this.setState({ showControlWarning: false })}
-        >
-          <div>
-            You can&#39;t make updates when you&#39;re not in control click
-            &#34;Take Control&#34; first.
-          </div>
-          <div>
-            <Button
-              m={5}
-              click={() => {
-                this.calculator.undo();
-                toggleControl();
-                this.setState({ showControlWarning: false });
-              }}
-            >
-              {inControl === 'NONE' ? 'Take Control' : 'Request Control'}
-            </Button>
-            <Button
-              theme="Cancel"
-              m={5}
-              click={() => {
-                this.calculator.undo();
-                this.setState({ showControlWarning: false });
-              }}
-            >
-              Cancel
-            </Button>
-          </div>
-        </Modal>
+        <ControlWarningModal
+          showControlWarning={showControlWarning}
+          toggleControlWarning={() =>
+            this.setState({ showControlWarning: false })
+          }
+          takeControl={() => {
+            this.calculator.undo();
+            toggleControl();
+            this.setState({ showControlWarning: false });
+          }}
+          inControl={inControl}
+          cancel={() => {
+            this.calculator.undo();
+            this.setState({ showControlWarning: false });
+          }}
+        />
         {!window.Desmos ? (
           <Script
             url="https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"
