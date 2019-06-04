@@ -11,7 +11,7 @@ const ControlWarningModal = ({
 }) => {
   return (
     <Modal show={showControlWarning} closeModal={toggleControlWarning}>
-      <div>
+      <div data-testid="control-warning">
         You can&#39;t make updates when you&#39;re not in control click
         &#34;Take Control&#34; first.
       </div>
@@ -19,7 +19,7 @@ const ControlWarningModal = ({
         <Button m={5} click={takeControl}>
           {inControl === 'NONE' ? 'Take Control' : 'Request Control'}
         </Button>
-        <Button theme="Cancel" m={5} click={cancel}>
+        <Button theme="Cancel" m={5} click={cancel} data-testid="cancel">
           Cancel
         </Button>
       </div>

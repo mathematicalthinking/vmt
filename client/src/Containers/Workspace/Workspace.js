@@ -24,8 +24,20 @@ import COLOR_MAP from '../../utils/colorMap';
 class Workspace extends Component {
   constructor(props) {
     super(props);
-    const { user } = this.props;
+    const { user, room } = this.props;
+    let myColor = null;
+    if (room.members) {
+      try {
+        myColor = room.members.filter(member => member.user._id === user._id)[0]
+          .color;
+      } catch (err) {
+        if (user.isAdmin) {
+          myColor = '#ffd549';
+        }
+      }
+    }
     this.state = {
+      myColor,
       activeMember: '',
       referencing: false,
       showingReference: false,
@@ -42,7 +54,6 @@ class Workspace extends Component {
       instructionsExpanded: true,
       toolsExpanded: true,
       isFirstTabLoaded: false,
-      myColor: null,
       showAdminWarning: user ? user.inAdminMode : false,
     };
   }

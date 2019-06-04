@@ -9,13 +9,13 @@ import API from '../../utils/apiRequests';
 // import { updatedRoom } from '../../store/actions';
 class DesmosGraph extends Component {
   state = {
-    receivingEvent: false, // @TODO experiment with moving this out of state with the other instance vars
     showControlWarning: false,
   };
   // Because DESMOS controls its own state we're keeping much of our "state" outside of the actual react.this.state
   // this is because we don't want to trigger rerenders...desmos does this. Yeah, yeah. yeah...this is not the react way,
   // but we're limited by Desmos and ggb
   expressionList = [];
+  receivingData = false;
   graph = {};
   undoing = false;
   calculatorRef = React.createRef();
@@ -31,7 +31,7 @@ class DesmosGraph extends Component {
     // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
     2000,
     { trailing: true, leading: false }
-  ); // we;re creating multuple versions!!! need to define this elsewhere
+  );
   /**
    * @method areDesmosStatesEqual
    * @param  {Object} newState - desmos state object return from desmos.getState
@@ -153,18 +153,11 @@ class DesmosGraph extends Component {
   };
 
   initializeListeners() {
-    const {
-      room,
-      tabId,
-      user,
-      myColor,
-      resetControlTimer,
-      updatedRoom,
-      addNtfToTabs,
-    } = this.props;
-    const { receivingEvent } = this.state;
     // INITIALIZE EVENT LISTENER
+    const { updatedRoom, addNtfToTabs } = this.props;
     this.calculator.observeEvent('change', () => {
+      const { room, tabId, user, myColor, resetControlTimer } = this.props;
+      // eslint-disable-next-line react/destructuring-assignment
       // console.log("initializing ", this.initializing);
       if (this.initializing) return;
       if (this.undoing) {
@@ -172,7 +165,7 @@ class DesmosGraph extends Component {
         return;
       }
       const currentState = this.calculator.getState();
-      if (!receivingEvent) {
+      if (!this.receivingData) {
         const statesAreEqual = this.areDesmosStatesEqual(currentState);
         if (statesAreEqual) return;
         // we only want to listen for changes to the expressions. i.e. we want to ignore zoom-in-out changes
@@ -205,10 +198,12 @@ class DesmosGraph extends Component {
       }
       this.expressionList = currentState.expressions.list;
       this.graph = currentState.graph;
-      this.setState({ receivingEvent: false });
+      this.receivingData = false;
     });
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', data => {
+      const { room, tabId } = this.props;
+      this.receivingData = true;
       if (data.tab === room.tabs[tabId]._id) {
         const updatedTabs = room.tabs.map(tab => {
           if (tab._id === data.tab) {
@@ -218,11 +213,10 @@ class DesmosGraph extends Component {
         });
         updatedRoom(room._id, { tabs: updatedTabs });
         updatedRoom(room._id, { tabs: updatedTabs });
-        this.setState({ receivingEvent: true }, () => {
-          this.calculator.setState(data.event);
-        });
+        this.calculator.setState(data.event);
       } else {
         addNtfToTabs(data.tab);
+        this.receivingData = false;
       }
     });
   }
@@ -314,17 +308,19 @@ class DesmosGraph extends Component {
 }
 
 DesmosGraph.propTypes = {
-  room: PropTypes.shape({}).isRequired,
+  room: PropTypes.shape({
+    controlledBy: PropTypes.string,
+  }).isRequired,
   tabId: PropTypes.number.isRequired,
   user: PropTypes.shape({}).isRequired,
-  myColor: PropTypes.shape({}).isRequired,
-  resetControlTimer: PropTypes.shape({}).isRequired,
-  updatedRoom: PropTypes.shape({}).isRequired,
+  myColor: PropTypes.string.isRequired,
+  resetControlTimer: PropTypes.func.isRequired,
+  updatedRoom: PropTypes.func.isRequired,
   inControl: PropTypes.string.isRequired,
   toggleControl: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
   updateRoomTab: PropTypes.func.isRequired,
-  addNtfToTabs: PropTypes.shape({}).isRequired,
+  addNtfToTabs: PropTypes.func.isRequired,
 };
 
 export default DesmosGraph;
