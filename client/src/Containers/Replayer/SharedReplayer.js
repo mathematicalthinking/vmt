@@ -43,6 +43,10 @@ class SharedReplayer extends Component {
   endTime = 0;
 
   componentDidMount() {
+    document.addEventListener('webkitfullscreenchange', this.resizeListener);
+    document.addEventListener('mozfullscreenchange', this.resizeListener);
+    document.addEventListener('fullscreenchange', this.resizeListener);
+    document.addEventListener('MSFullscreenChange', this.resizeListener);
     // @TODO We should never populate the tabs events before getting here
     // we dont need them for the regular room activity only for playback
     const { encompass, populateRoom, match } = this.props;
@@ -52,7 +56,6 @@ class SharedReplayer extends Component {
       });
     } else {
       this.buildLog();
-
       // listen for messages from encompasss
       window.addEventListener('message', this.onEncMessage);
     }
@@ -139,6 +142,10 @@ class SharedReplayer extends Component {
     if (this.interval) {
       clearInterval(this.interval);
     }
+    document.removeEventListener('webkitfullscreenchange', this.resizeListener);
+    document.removeEventListener('mozfullscreenchange', this.resizeListener);
+    document.removeEventListener('fullscreenchange', this.resizeListener);
+    document.removeEventListener('MSFullscreenChange', this.resizeListener);
   }
 
   buildLog = () => {
@@ -323,6 +330,14 @@ class SharedReplayer extends Component {
     this.setState({ changingIndex: false });
   };
 
+  resizeListener = () => {
+    // Hitting the escape key when in full screen mode causes
+    // this.state.isFullscreen to remain true. This gets them back in sync
+    const { isFullscreen } = this.state;
+    if (!document.fullscreenElement && isFullscreen) {
+      this.setState({ isFullscreen: false });
+    }
+  };
   setCurrentMembers = currentMembers => {
     this.setState({ currentMembers });
   };
@@ -345,12 +360,10 @@ class SharedReplayer extends Component {
     history.goBack();
   };
 
-  // @TODO THIS NEEDS TO BE ADDED TO AN EVENT LSITENER FOR THE ESC KEY WHEN isFullscreen IS SET TO TRUE THE FIRST TIME
   toggleFullscreen = () => {
     const { isFullscreen } = this.state;
     if (isFullscreen) {
       document.exitFullscreen().then(() => {
-        // After exiting fullscreen resize ggb Graph
         this.setState({ isFullscreen: false });
       });
     } else {
@@ -492,6 +505,7 @@ class SharedReplayer extends Component {
     const event = this.updatedLog[logIndex] || {};
     return (
       <Fragment>
+        <div>{isFullscreen}</div>
         <WorkspaceLayout
           graphs={graphs}
           user={user}
