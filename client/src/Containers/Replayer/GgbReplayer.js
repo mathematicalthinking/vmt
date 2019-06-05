@@ -56,6 +56,7 @@ class GgbReplayer extends Component {
   // We should periodically save the entire state so if we skip to the very end we don't have to apply each event one at a time
 
   constructEvent = data => {
+    console.log('constructing event: ', data);
     switch (data.eventType) {
       case 'ADD':
         if (data.definition) {
@@ -65,7 +66,13 @@ class GgbReplayer extends Component {
         this.ggbApplet.evalCommand('UpdateConstruction()');
         break;
       case 'REMOVE':
-        this.ggbApplet.deleteObject(data.label);
+        if (data.eventArray && data.eventArray.lenght > 1) {
+          data.eventArray.forEach(label => {
+            this.ggbApplet.deleteObject(label);
+          });
+        } else {
+          this.ggbApplet.deleteObject(data.label);
+        }
         break;
       case 'UPDATE':
         this.ggbApplet.evalXML(data.event);
@@ -88,6 +95,16 @@ class GgbReplayer extends Component {
           this.recursiveUpdate(data.eventArray, true);
         }
         break;
+      case 'BATCH_REMOVE':
+        console.log('deleting object');
+        data.eventArray.forEach(label => this.ggbApplet.deleteObject(label));
+        break;
+      case 'UPDATE_STYLE': {
+        if (data.eventArray) {
+          this.recursiveUpdate(data.eventArray);
+        }
+        break;
+      }
       default:
         break;
     }
