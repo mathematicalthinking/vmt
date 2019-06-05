@@ -99,10 +99,17 @@ class GgbGraph extends Component {
               }
               break;
             case 'UPDATE_STYLE': {
-              console.log('updating style: ', data);
               if (data.eventArray) {
                 this.recursiveUpdate(data.eventArray);
               }
+              break;
+            }
+            case 'UNDO': {
+              this.ggbApplet.undo(); // @TODO this is not working...undo only undoes USER actions
+              break;
+            }
+            case 'REDO': {
+              this.ggbApplet.redo();
               break;
             }
             default:
@@ -241,7 +248,7 @@ class GgbGraph extends Component {
    * used to make drag updates and multipoint shape creation more efficient. See ./docs/Geogebra
    * Note that this is copy-pasted in GgbReplayer for now, consider abstracting.
    * When we've reached the bottom of the recursive chain we check if any events came in while
-   * making these changes. (See the socket listener if(this.state.receviingData))
+   * making these changes. (See the socket listener if(receviingData))
    * @param  {Array} events - array of ggb xml events
    * @param  {Number} batchSize - the batch size, i.e., number of points in the shape
    * @param  {Boolean} adding - true if BATCH_ADD false if BATCH_UPDATE
@@ -451,22 +458,26 @@ class GgbGraph extends Component {
         break;
 
       case 'undo':
-        if (this.resetting || this.userCanEdit()) {
+        if (this.resetting) {
           this.resetting = false;
+          return;
+        }
+        if (this.userCanEdit()) {
+          this.sendEvent(null, null, null, 'UNDO', null);
         } else {
-          // this.showAlert();
-          // this.resetting = true;
-          // this.ggbApplet.redo();
           this.setState({ showControlWarning: true, redo: true });
         }
         break;
       case 'redo':
-        if (this.resetting || this.userCanEdit()) {
+        if (this.resetting) {
           this.resetting = false;
-        } else {
+          return;
+        }
+        if (this.userCanEdit()) {
           // this.showAlert();
           // this.resetting = true;
           // this.ggbApplet.undo();
+        } else {
           this.setState({ showControlWarning: true });
         }
         break;
@@ -585,6 +596,7 @@ class GgbGraph extends Component {
    */
 
   removeListener = label => {
+    console.log('removing');
     // const { room, currentTab } = this.props;
     if (this.receivingData && !this.updatingOn) {
       this.receivingData = false;
@@ -735,7 +747,6 @@ class GgbGraph extends Component {
 
     if (sendEventFromTimer) {
       this.timer = setTimeout(() => {
-        console.log('sending event from timer');
         let renamedEventType = 'BATCH_ADD';
         if (eventType === 'UPDATE') {
           renamedEventType = 'BATCH_UPDATE';
@@ -745,7 +756,7 @@ class GgbGraph extends Component {
         }
         // Because all ADD events pass thru this buffer, if the eventQueue just has one event in it
         // the event is actually just an "ADD" not a batch add
-        if (this.eventQueue.length === 1) {
+        if (this.eventQueue.length === 1 && eventType !== 'UPDATE_STYLE') {
           renamedEventType = 'ADD';
           this.sendEvent(xml, definition, label, renamedEventType, action);
         } else {
@@ -844,11 +855,14 @@ class GgbGraph extends Component {
    * @return {String} description
    */
   buildDescription = (definition, label, eventType, action, eventQueue) => {
+    console.log(definition, label, eventType, action, eventQueue);
     const { user } = this.props;
     let description = `${user.username}`;
     let newLabel = label;
     let objType = this.ggbApplet.getObjectType(label);
-    if (action === 'updated') {
+    if (eventType === 'UPDATE_STYLE') {
+      description += ` updated the style of ${objType} ${label}`;
+    } else if (action === 'updated') {
       if (this.shapeSelected && eventType === 'BATCH_UPDATE') {
         objType = this.ggbApplet.getObjectType(this.shapeSelected);
         newLabel = this.shapeSelected;

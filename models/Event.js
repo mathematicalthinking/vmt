@@ -24,6 +24,8 @@ const Event = new mongoose.Schema({
       'BATCH_UPDATE',
       'BATCH_ADD',
       'SELECT',
+      'UNDO',
+      'REDO',
     ],
   },
   color: { type: String },
