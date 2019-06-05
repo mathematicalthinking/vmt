@@ -18,6 +18,7 @@ const Event = new mongoose.Schema({
       'ADD',
       'REMOVE',
       'UPDATE',
+      'UPDATE_STYLE',
       'CHANGE_PERSPECTIVE',
       'NEW_TAB',
       'BATCH_UPDATE',

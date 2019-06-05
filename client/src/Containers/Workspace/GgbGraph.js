@@ -98,6 +98,13 @@ class GgbGraph extends Component {
                 this.recursiveUpdate(data.eventArray, true);
               }
               break;
+            case 'UPDATE_STYLE': {
+              console.log('updating style: ', data);
+              if (data.eventArray) {
+                this.recursiveUpdate(data.eventArray);
+              }
+              break;
+            }
             default:
               this.receivingData = false;
               break;
@@ -246,8 +253,10 @@ class GgbGraph extends Component {
         for (let i = 0; i < events.length; i++) {
           this.ggbApplet.evalCommand(events[i]);
         }
-        this.updatingOn = false;
-        this.receivingData = false;
+        setTimeout(() => {
+          this.updatingOn = false;
+          this.receivingData = false;
+        }, 0);
       } else {
         // If the socket queue is getting long skip some events to speed it up
         if (this.socketQueue.length > 1 && events.length > 2) {
@@ -404,10 +413,15 @@ class GgbGraph extends Component {
    */
 
   clientListener = event => {
-    const { referencing } = this.props;
+    console.log('client');
+    console.log('event: ', event);
+    const { referencing, resetControlTimer } = this.props;
     if (this.receivingData) {
       this.receivingData = false;
       return;
+    }
+    if (this.userCanEdit()) {
+      resetControlTimer();
     }
     switch (event[0]) {
       case 'setMode':
@@ -482,8 +496,14 @@ class GgbGraph extends Component {
         break;
       case 'perspectiveChange':
         break;
-      case 'updateStyle':
+      case 'updateStyle': {
+        const label = event[1];
+        const xml = this.ggbApplet.getXML(label);
+        if (this.userCanEdit()) {
+          this.sendEventBuffer(xml, null, label, 'UPDATE_STYLE', 'updated');
+        }
         break;
+      }
       case 'editorStart':
         // this.ggbApplet.evalCommand("editorStop()");
         // save the state of what's being edited BEFORE they edit it. This way,
@@ -532,7 +552,11 @@ class GgbGraph extends Component {
    */
 
   addListener = label => {
-    if (this.receivingData && !this.updatingOn) {
+    console.log('add: ', this.batchUpdating);
+    if (this.batchUpdating) {
+      return;
+    }
+    if (this.receivingData) {
       this.receivingData = false;
       return;
     }
@@ -666,17 +690,14 @@ class GgbGraph extends Component {
     const { user, room } = this.props;
     // console.log('in the event buffer');
     let sendEventFromTimer = true;
-    // Don't send if the user is not allowed to make changes
+
     if (!user.connected || room.controlledBy !== user._id) {
-      // eslint-disable-next-line no-alert
-      // this.showAlert();
       this.setState({ showControlWarning: true });
-      // this.ggbApplet.undo();
       return;
     }
     // Add event to eventQueue in case there are multiple events to send.
     this.eventQueue.push(action === 'updated' ? xml : `${label}:${definition}`);
-
+    console.log(this.eventQueue);
     if (this.timer) {
       // cancel the last sendEvent function
       clearTimeout(this.timer);
@@ -687,8 +708,13 @@ class GgbGraph extends Component {
       // there is not a several second delay before the other users in the room see the event
       if (this.time && Date.now() - this.time > 1500) {
         const isMultiPart = true;
-        const renamedEventType =
-          eventType === 'UPDATE' ? 'BATCH_UPDATE' : 'BATCH_ADD';
+        let renamedEventType = 'BATCH_ADD';
+        if (eventType === 'UPDATE') {
+          renamedEventType = 'BATCH_UPDATE';
+        }
+        if (eventType === 'UPDATE_STYLE') {
+          renamedEventType = 'UPDATE_STYLE';
+        }
         this.sendEvent(
           xml,
           definition,
@@ -709,8 +735,14 @@ class GgbGraph extends Component {
 
     if (sendEventFromTimer) {
       this.timer = setTimeout(() => {
-        let renamedEventType =
-          eventType === 'UPDATE' ? 'BATCH_UPDATE' : 'BATCH_ADD';
+        console.log('sending event from timer');
+        let renamedEventType = 'BATCH_ADD';
+        if (eventType === 'UPDATE') {
+          renamedEventType = 'BATCH_UPDATE';
+        }
+        if (eventType === 'UPDATE_STYLE') {
+          renamedEventType = 'UPDATE_STYLE';
+        }
         // Because all ADD events pass thru this buffer, if the eventQueue just has one event in it
         // the event is actually just an "ADD" not a batch add
         if (this.eventQueue.length === 1) {
