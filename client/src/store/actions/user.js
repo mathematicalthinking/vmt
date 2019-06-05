@@ -189,6 +189,10 @@ export const getUser = id => {
         dispatch(loading.success());
       })
       .catch(err => {
+        // if the session has expired logout
+        if (err.response.data.errorMessage === 'Not Authorized') {
+          dispatch(logout());
+        }
         dispatch(loading.fail(err.response.data.errorMessage));
       });
   };

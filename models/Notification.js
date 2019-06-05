@@ -112,15 +112,10 @@ Notification.post('save', function(notification, next) {
     if (ntfType === 'assignedNewRoom' && method === '$addToSet') {
       updateQuery['$addToSet'].rooms = notification.resourceId;
     }
-    console.log('sending ntf to toUser: ', notification.toUser);
     // granted access - send course along with ntf
     // assigned new room - send room along with ntf
     return updateUser(notification.toUser, updateQuery)
       .then(updatedUser => {
-        console.log(
-          'updateduser after adding ntf: ',
-          updatedUser.notifications
-        );
         // check if there is socket for user
         // if (!notification.isTrashed) {
         let socketId = _.propertyOf(updatedUser)('socketId');
@@ -129,6 +124,7 @@ Notification.post('save', function(notification, next) {
         if (socket) {
           return buildEmitData(notification).then(data => {
             if (data) {
+              console.log('EMITTING NTF: ', data);
               return socket.emit('NEW_NOTIFICATION', data);
             }
           });
