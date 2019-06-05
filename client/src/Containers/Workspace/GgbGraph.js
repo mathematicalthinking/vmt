@@ -77,7 +77,15 @@ class GgbGraph extends Component {
               this.ggbApplet.evalCommand('UpdateConstruction()');
               break;
             case 'REMOVE':
-              this.ggbApplet.deleteObject(data.label);
+              if (data.eventArray) {
+                this.updatingOn = true;
+                data.eventArray.forEach(label => {
+                  this.ggbApplet.deleteObject(label);
+                });
+                this.updatingOn = false;
+              } else {
+                this.ggbApplet.deleteObject(data.label);
+              }
               break;
             case 'UPDATE':
               this.ggbApplet.evalXML(data.event);
@@ -95,7 +103,7 @@ class GgbGraph extends Component {
             case 'BATCH_ADD':
               this.batchUpdating = true;
               if (data.definition) {
-                this.recursiveUpdate(data.eventArray, true);
+                this.recursiveUpdate(data.eventArray, 'ADDING');
               }
               break;
             case 'UPDATE_STYLE': {
@@ -254,9 +262,9 @@ class GgbGraph extends Component {
    * @param  {Boolean} adding - true if BATCH_ADD false if BATCH_UPDATE
    */
 
-  recursiveUpdate = (events, adding) => {
+  recursiveUpdate = (events, updateType) => {
     if (events && events.length > 0 && Array.isArray(events)) {
-      if (adding) {
+      if (updateType === 'ADDING') {
         for (let i = 0; i < events.length; i++) {
           this.ggbApplet.evalCommand(events[i]);
         }
@@ -420,8 +428,6 @@ class GgbGraph extends Component {
    */
 
   clientListener = event => {
-    console.log('client');
-    console.log('event: ', event);
     const { referencing, resetControlTimer } = this.props;
     if (this.receivingData) {
       this.receivingData = false;
@@ -563,7 +569,6 @@ class GgbGraph extends Component {
    */
 
   addListener = label => {
-    console.log('add: ', this.batchUpdating);
     if (this.batchUpdating) {
       return;
     }
@@ -596,7 +601,6 @@ class GgbGraph extends Component {
    */
 
   removeListener = label => {
-    console.log('removing');
     // const { room, currentTab } = this.props;
     if (this.receivingData && !this.updatingOn) {
       this.receivingData = false;
@@ -694,7 +698,7 @@ class GgbGraph extends Component {
    * @param  {String} xml - ggb generated xml of the even
    * @param  {String} definition - ggb multipoint definition (e.g. "Polygon(D, E, F, G)")
    * @param  {String} label - ggb label. ggbApplet.evalXML(label) yields xml representation of this label
-   * @param  {String} eventType - ["ADD", "REMOVE", "UPDATE", "CHANGE_PERSPECTIVE", "NEW_TAB", "BATCH"] see ./models/event
+   * @param  {String} eventType - ["ADD", "REMOVE", "UPDATE", "CHANGE_PERSPECTIVE", "NEW_TAB", "BATCH", etc.] see ./models/event
    * @param  {String} action - ggb action ["addedd", "removed", "clicked", "updated"]
    */
 
@@ -708,8 +712,13 @@ class GgbGraph extends Component {
       return;
     }
     // Add event to eventQueue in case there are multiple events to send.
-    this.eventQueue.push(action === 'updated' ? xml : `${label}:${definition}`);
-    console.log(this.eventQueue);
+    if (eventType === 'REMOVE') {
+      this.eventQueue.push(label);
+    } else {
+      this.eventQueue.push(
+        action === 'updated' ? xml : `${label}:${definition}`
+      );
+    }
     if (this.timer) {
       // cancel the last sendEvent function
       clearTimeout(this.timer);
@@ -724,6 +733,7 @@ class GgbGraph extends Component {
         if (eventType === 'UPDATE') {
           renamedEventType = 'BATCH_UPDATE';
         }
+        // I dont think this condition will ever be met because style updates dont take more than 1.5...consider remove
         if (eventType === 'UPDATE_STYLE') {
           renamedEventType = 'UPDATE_STYLE';
         }
@@ -747,23 +757,17 @@ class GgbGraph extends Component {
 
     if (sendEventFromTimer) {
       this.timer = setTimeout(() => {
-        let renamedEventType = 'BATCH_ADD';
+        let renamedEventType = eventType;
         if (eventType === 'UPDATE') {
           renamedEventType = 'BATCH_UPDATE';
-        }
-        if (eventType === 'UPDATE_STYLE') {
+        } else if (eventType === 'UPDATE_STYLE') {
           renamedEventType = 'UPDATE_STYLE';
+        } else if (eventType === 'ADD' && this.eventQueue.length > 1) {
+          renamedEventType = 'BATCH_ADD';
         }
-        // Because all ADD events pass thru this buffer, if the eventQueue just has one event in it
-        // the event is actually just an "ADD" not a batch add
-        if (this.eventQueue.length === 1 && eventType !== 'UPDATE_STYLE') {
-          renamedEventType = 'ADD';
-          this.sendEvent(xml, definition, label, renamedEventType, action);
-        } else {
-          this.sendEvent(xml, definition, label, renamedEventType, action, [
-            ...this.eventQueue,
-          ]);
-        }
+        this.sendEvent(xml, definition, label, renamedEventType, action, [
+          ...this.eventQueue,
+        ]);
         this.eventQueue = [];
         this.time = null;
         this.timer = null;
@@ -855,7 +859,6 @@ class GgbGraph extends Component {
    * @return {String} description
    */
   buildDescription = (definition, label, eventType, action, eventQueue) => {
-    console.log(definition, label, eventType, action, eventQueue);
     const { user } = this.props;
     let description = `${user.username}`;
     let newLabel = label;
