@@ -859,6 +859,7 @@ class GgbGraph extends Component {
    * @return {String} description
    */
   buildDescription = (definition, label, eventType, action, eventQueue) => {
+    console.log(definition, label, eventType, action, eventQueue);
     const { user } = this.props;
     let description = `${user.username}`;
     let newLabel = label;
@@ -882,6 +883,9 @@ class GgbGraph extends Component {
       description += ` selected ${objType} ${newLabel}`;
     } else if (action === 'added') {
       description += ` ${action} ${objType} ${newLabel}`;
+    } else if (eventType === 'REMOVE') {
+      description += ` removed ${label}`;
+      console.log('DESCRIPTION: ', description);
     }
     return description;
   };
