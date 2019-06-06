@@ -16,4 +16,8 @@ export default {
   logout: userId => {
     return axios.post(`/auth/logout/${userId}`);
   },
+
+  currentUser: () => {
+    return axios.get('/auth/currentUser');
+  },
 };

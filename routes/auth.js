@@ -4,16 +4,18 @@
  * @author Michael McVeigh
  */
 
-const passport = require("passport");
-const express = require("express");
+const passport = require('passport');
+const express = require('express');
 const router = express.Router();
-const bcrypt = require("bcrypt");
-const crypto = require("crypto");
-const User = require("../models/User");
-const errors = require("../middleware/errors");
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+const User = require('../models/User');
+const errors = require('../middleware/errors');
+const { getUser } = require('../middleware/utils/request');
+const userController = require('../controllers/UserController');
 
-router.post("/login", (req, res, next) => {
-  passport.authenticate("local-login", (err, user, info) => {
+router.post('/login', (req, res, next) => {
+  passport.authenticate('local-login', (err, user, info) => {
     if (user) {
       return req.login(user, err => {
         if (err) {
@@ -33,8 +35,8 @@ router.post("/login", (req, res, next) => {
   })(req, res, next);
 });
 
-router.post("/signup", (req, res, next) => {
-  passport.authenticate("local-signup", (err, user, info) => {
+router.post('/signup', (req, res, next) => {
+  passport.authenticate('local-signup', (err, user, info) => {
     if (user) {
       return req.login(user, err => {
         if (err) {
@@ -55,22 +57,22 @@ router.post("/signup", (req, res, next) => {
 });
 
 /** Authentication for Encompass users who want to import rooms into the Encompass account **/
-router.post("/enc", (req, res, next) => {
+router.post('/enc', (req, res, next) => {
   let { username, password } = req.body;
   User.findOne({ username })
     .then(user => {
       if (!user) {
-        return res.json({ errorMessage: "Incorrect username" });
+        return res.json({ errorMessage: 'Incorrect username' });
       }
       if (!bcrypt.compareSync(password, user.password)) {
-        return res.json({ errorMessage: "Incorrect password" });
+        return res.json({ errorMessage: 'Incorrect password' });
       } else {
         let userSummary = {};
         userSummary.username = user.username;
         userSummary._id = user._id;
         crypto.randomBytes(20, (err, buff) => {
           if (err) return errors.sendError.InternalError(err, res);
-          userSummary.token = buff.toString("hex");
+          userSummary.token = buff.toString('hex');
           user.token = userSummary.token;
           user.tokenExpiryDate = Date.now() + 3600000; // 1 Day
           user.save();
@@ -79,18 +81,18 @@ router.post("/enc", (req, res, next) => {
       }
     })
     .catch(err => {
-      console.log("ERROR ", err);
+      console.log('ERROR ', err);
       return errors.sendError.InternalError(err, res);
     });
 });
 
-router.post("/logout/:userId", (req, res, next) => {
+router.post('/logout/:userId', (req, res, next) => {
   User.findByIdAndUpdate(req.params.userId, { socketId: null })
     .lean()
     .then(() => {
       try {
         req.logout();
-        res.json({ result: "success" });
+        res.json({ result: 'success' });
       } catch (err) {
         return errors.sendError.InternalError(err, res);
       }
@@ -98,19 +100,19 @@ router.post("/logout/:userId", (req, res, next) => {
     .catch(err => errors.sendError.InternalError(err, res));
 });
 
-router.get("/googleAuth", (req, res, next) => {
-  passport.authenticate("google", {
+router.get('/googleAuth', (req, res, next) => {
+  passport.authenticate('google', {
     scope: [
-      "https://www.googleapis.com/auth/plus.login",
-      "https://www.googleapis.com/auth/plus.profile.emails.read"
-    ]
+      'https://www.googleapis.com/auth/plus.login',
+      'https://www.googleapis.com/auth/plus.profile.emails.read',
+    ],
   })(req, res, next);
 });
 
-router.get("/google/callback", (req, res, next) => {
-  passport.authenticate("google", {
-    failureRedirect: "/#/login",
-    successRedirect: "/"
+router.get('/google/callback', (req, res, next) => {
+  passport.authenticate('google', {
+    failureRedirect: '/#/login',
+    successRedirect: '/',
   })(req, res, next);
 });
 
@@ -118,7 +120,21 @@ const googleReturn = (req, res, next) => {};
 
 const logout = (req, res, next) => {
   req.logout();
-  res.redirect("/");
+  res.redirect('/');
 };
+
+router.get('/currentUser', (req, res, next) => {
+  let currentUser = getUser(req);
+
+  if (currentUser === null) {
+    return res.json({ user: null });
+  }
+  return userController
+    .getById(currentUser._id)
+    .then(result => {
+      res.json({ result });
+    })
+    .catch(err => errors.sendError.InternalError(err, res));
+});
 
 module.exports = router;
