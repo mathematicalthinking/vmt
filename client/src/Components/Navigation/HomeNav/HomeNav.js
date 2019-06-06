@@ -7,6 +7,7 @@ import Avatar from '../../UI/Avatar/Avatar';
 import DropdownNavItem from '../DropdownNavItem';
 import Aux from '../../HOC/Auxil';
 import classes from './homeNav.css';
+import navItemClasses from '../NavItem/navItem.css';
 
 const Navbar = ({ page, user, loggedIn, isDark }) => {
   let styles = classes.Nav;
@@ -22,6 +23,20 @@ const Navbar = ({ page, user, loggedIn, isDark }) => {
   if (user && user.notifications && user.notifications.length > 0) {
     ntf = true;
   }
+
+  const envType = process.env.NODE_ENV;
+
+  let mtLoginUrl;
+  if (envType === 'production') {
+    mtLoginUrl = process.env.REACT_APP_MT_LOGIN_URL_PRODUCTION;
+  } else if (envType === 'staging') {
+    mtLoginUrl = process.env.REACT_APP_MT_LOGIN_URL_STAGING;
+  } else {
+    mtLoginUrl = process.env.REACT_APP_MT_LOGIN_URL_DEV;
+  }
+  const { origin } = window.location;
+
+  const mtUrlWithRedirect = `${mtLoginUrl}?redirectURL=${origin}`;
 
   return (
     <nav className={styles}>
@@ -41,7 +56,9 @@ const Navbar = ({ page, user, loggedIn, isDark }) => {
               <NavItem link="/myVMT/rooms" name="My VMT" ntf={ntf} />
             ) : (
               <Aux>
-                <NavItem link="/login" name="Login" />
+                <a className={navItemClasses.Item} href={mtUrlWithRedirect}>
+                  Login
+                </a>
                 <NavItem link="/signup" name="Signup" />
               </Aux>
             )}
