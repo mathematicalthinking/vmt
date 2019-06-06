@@ -25,7 +25,7 @@ class ToolTip extends Component {
           x,
           width,
         } = this.toolTipSource.current.getBoundingClientRect();
-        this.setState({ x: x + width / 2, y: top - 55, visible: true });
+        this.setState({ x: x + width / 2, y: top, visible: true });
       }, delay);
     } else {
       const {
@@ -33,7 +33,7 @@ class ToolTip extends Component {
         x,
         width,
       } = this.toolTipSource.current.getBoundingClientRect();
-      this.setState({ x: x + width / 2, y: top - 55, visible: true });
+      this.setState({ x: x + width / 2, y: top, visible: true });
     }
   };
   setHidden = () => {
@@ -58,7 +58,7 @@ class ToolTip extends Component {
                 ? classes[color] || classes.ToolTipText
                 : classes.ToolTipText
             }
-            style={{ top: y, left: x }}
+            style={{ bottom: window.innerHeight - y + 5, left: x }}
           >
             {text}
           </div>

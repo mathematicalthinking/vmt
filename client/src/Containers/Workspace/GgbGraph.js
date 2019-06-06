@@ -64,6 +64,7 @@ class GgbGraph extends Component {
         // save this event in a queue...then when processing is done we'll pull
         // from this queue
         if (this.receivingData) {
+          console.log('adding to socketQueue');
           // we're already processing the previous event.
           this.socketQueue.push(data);
           return;
@@ -272,10 +273,9 @@ class GgbGraph extends Component {
         for (let i = 0; i < events.length; i++) {
           this.ggbApplet.evalCommand(events[i]);
         }
-        setTimeout(() => {
-          this.updatingOn = false;
-          this.receivingData = false;
-        }, 0);
+        this.batchUpdating = false;
+        this.updatingOn = false;
+        this.receivingData = false;
       } else {
         // If the socket queue is getting long skip some events to speed it up
         if (this.socketQueue.length > 1 && events.length > 2) {
