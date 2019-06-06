@@ -46,6 +46,10 @@ class GgbGraph extends Component {
     window.addEventListener('resize', this.updateDimensions);
     // socket.removeAllListeners("RECEIVE_EVENT");
     socket.on('RECEIVE_EVENT', data => {
+      console.log('received event: ', data);
+      console.log('receivingData: ', this.receivingData);
+      console.log('updatingOn: ', this.updatingOn);
+      console.log('batchUpdating: ', this.batchUpdating);
       // callback('success');
       // If this event is for this tab add it to the log
       if (data.tab === room.tabs[tabId]._id) {
@@ -569,6 +573,7 @@ class GgbGraph extends Component {
    */
 
   addListener = label => {
+    console.log('add listener');
     if (this.batchUpdating) {
       return;
     }
@@ -590,8 +595,17 @@ class GgbGraph extends Component {
     }
     if (!this.receivingData) {
       const xml = this.ggbApplet.getXML(label);
+      const objType = this.ggbApplet.getObjectType(label);
       const definition = this.ggbApplet.getCommandString(label);
-      this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
+      console.log('xml: ', xml);
+      console.log('definition: ', definition);
+      console.log('label: ', label);
+      console.log('objType: ', objType);
+      if (objType === 'point') {
+        this.sendEvent(xml, null, label, 'ADD', 'added');
+      } else {
+        this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
+      }
     }
   };
 
@@ -703,6 +717,8 @@ class GgbGraph extends Component {
    */
 
   sendEventBuffer = (xml, definition, label, eventType, action) => {
+    console.log('sendEvent buffer');
+    console.log(xml, definition, label, eventType, action);
     const { user, room } = this.props;
     // console.log('in the event buffer');
     let sendEventFromTimer = true;
@@ -798,6 +814,7 @@ class GgbGraph extends Component {
     eventQueue,
     isMultiPart = false
   ) => {
+    console.log('send event');
     const {
       room,
       user,
@@ -859,7 +876,7 @@ class GgbGraph extends Component {
    * @return {String} description
    */
   buildDescription = (definition, label, eventType, action, eventQueue) => {
-    console.log(definition, label, eventType, action, eventQueue);
+    // console.log(definition, label, eventType, action, eventQueue);
     const { user } = this.props;
     let description = `${user.username}`;
     let newLabel = label;
