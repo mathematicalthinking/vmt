@@ -6,6 +6,8 @@ const helpers = require('../middleware/utils/helpers');
 const models = require('../models');
 const bcrypt = require('bcrypt');
 
+const { getUser } = require('./utils/request');
+
 const validateResource = (req, res, next) => {
   const resource = utils.getResource(req);
   if (_.isNil(controllers[resource])) {
@@ -86,7 +88,7 @@ const validateUser = (req, res, next) => {
 };
 
 const validateRecordAccess = (req, res, next) => {
-  let user = req.user;
+  let user = getUser(req);
 
   if (!user) {
     // currently enc only needs access to /room/:id
@@ -115,7 +117,7 @@ const validateRecordAccess = (req, res, next) => {
     });
   }
 
-  if (req.user.isAdmin) {
+  if (user.isAdmin) {
     return next();
   }
 
@@ -130,13 +132,13 @@ const validateRecordAccess = (req, res, next) => {
       .exec()
       .then(record => {
         if (record.members) {
-          let role = helpers.getUserRoleInRecord(record, req.user._id);
+          let role = helpers.getUserRoleInRecord(record, user._id);
           if (role) return next();
         }
         if (record.privacySetting === 'public') {
           return next();
         }
-        if (_.isEqual(req.user._id, record.creator)) {
+        if (_.isEqual(user._id, record.creator)) {
           return next();
         }
       })

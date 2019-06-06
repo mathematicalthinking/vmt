@@ -12,6 +12,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 // REQUIRE FILES
+const mtAuth = require('./middleware/mt-auth');
 const configure = require('./config/passport');
 const api = require('./routes/api');
 const auth = require('./routes/auth');
@@ -93,6 +94,11 @@ app.use(function(req, res, next) {
 configure(passport); // SETUP STRATEGIES ./middleware/passport
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Mathematical Thinking Auth middleware
+app.use(mtAuth.prep);
+app.use(mtAuth.prepareMtUser);
+app.use(mtAuth.prepareVmtUser);
 
 // CONNECT ROUTES
 app.use('/desmos', desmos);
