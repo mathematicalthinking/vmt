@@ -39,6 +39,7 @@ export const logout = () => {
     const userId = getState().user._id;
     AUTH.logout(userId)
       .then(() => {
+        document.cookie = 'mtToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         dispatch(loggedOut());
       })
       .catch(err => dispatch(loading.fail(err)));
@@ -168,25 +169,54 @@ export const login = (username, password) => {
 export const getUser = id => {
   return dispatch => {
     dispatch(loading.start());
-    API.getById('user', id)
+    const resolvedUser =
+      id === undefined ? AUTH.currentUser() : API.getById('user', id);
+    resolvedUser
       .then(res => {
-        const courses = normalize(res.data.result.courses);
-        dispatch(gotCourses(courses));
+        const currentUser = res.data.result;
 
-        const rooms = normalize(res.data.result.rooms);
-        dispatch(gotRooms(rooms));
+        if (res.data.errorMessage) {
+          dispatch(logout());
+          return dispatch(loading.fail(res.data.errorMessage));
+        }
+        let courses;
+        let rooms;
+        let activities;
 
-        const activities = normalize(res.data.result.activities);
-        dispatch(gotActivities(activities));
+        if (currentUser) {
+          if (currentUser.courses.length > 0) {
+            const coursesWithRoles = currentUser.courses.map(course =>
+              addUserRoleToResource(course, currentUser._id)
+            );
+            courses = normalize(coursesWithRoles);
+            // const activities = normalize(currentUser.activities)
+            dispatch(gotCourses(courses));
+          }
+          if (currentUser.rooms.length > 0) {
+            const roomsWithRoles = currentUser.rooms.map(room =>
+              addUserRoleToResource(room, currentUser._id)
+            );
+            rooms = normalize(roomsWithRoles);
+            dispatch(gotRooms(rooms));
+          }
 
-        const user = {
-          ...res.data.result,
-          courses: courses.allIds,
-          activities: activities.allIds,
-          rooms: rooms.allIds,
-        };
-        dispatch(gotUser(user));
-        dispatch(loading.success());
+          activities = normalize(currentUser.activities);
+          dispatch(gotActivities(activities));
+
+          const user = {
+            ...res.data.result,
+            courses: courses ? courses.allIds : [],
+            rooms: rooms ? rooms.allIds : [],
+            activities: activities ? activities.allIds : [],
+          };
+          dispatch(gotUser(user));
+        } else {
+          // no user is logged in
+          // can we check if user is still set to loggedIn in store?
+          dispatch(loggedOut());
+        }
+
+        return dispatch(loading.success());
       })
       .catch(err => {
         // if the session has expired logout
