@@ -46,10 +46,6 @@ class GgbGraph extends Component {
     window.addEventListener('resize', this.updateDimensions);
     // socket.removeAllListeners("RECEIVE_EVENT");
     socket.on('RECEIVE_EVENT', data => {
-      console.log('received event: ', data);
-      console.log('receivingData: ', this.receivingData);
-      console.log('updatingOn: ', this.updatingOn);
-      console.log('batchUpdating: ', this.batchUpdating);
       // callback('success');
       // If this event is for this tab add it to the log
       if (data.tab === room.tabs[tabId]._id) {
@@ -63,8 +59,7 @@ class GgbGraph extends Component {
         // If we're still processing data from the last event
         // save this event in a queue...then when processing is done we'll pull
         // from this queue
-        if (this.receivingData) {
-          console.log('adding to socketQueue');
+        if (this.receivingData || this.batchUpdating) {
           // we're already processing the previous event.
           this.socketQueue.push(data);
           return;
@@ -128,6 +123,10 @@ class GgbGraph extends Component {
             default:
               this.receivingData = false;
               break;
+          }
+          if (this.socketQueue.length > 0) {
+            console.log('something got stuck in the socket queue??');
+            console.log(this.socketQueue);
           }
         }
       }
@@ -298,7 +297,22 @@ class GgbGraph extends Component {
       // events came over the socket while we were painting those updates
     } else if (this.socketQueue.length > 0) {
       const nextEvent = this.socketQueue.shift();
-      this.recursiveUpdate(nextEvent.eventArray, false);
+      let adding = false;
+      if (nextEvent.eventArray) {
+        if (nextEvent.eventType === 'BATCH_ADD') {
+          adding = true;
+        }
+        this.recursiveUpdate(nextEvent.eventArray, adding);
+      } else if (nextEvent.event) {
+        if (nextEvent.eventType === 'ADD') {
+          adding = true;
+        }
+        this.recursiveUpdate(nextEvent.eventArray, adding);
+      } else {
+        this.recursiveUpdate(nextEvent.event);
+        // this.batchUpdating = false;
+        // this.receivingData = false;
+      }
       // If we're all done
     } else {
       this.batchUpdating = false;
@@ -507,6 +521,7 @@ class GgbGraph extends Component {
             this.shapeSelected = event[1];
             this.pointSelected = null;
           }
+          // console.log('mode: ', this.ggbApplet.getMode());
           this.sendEvent(null, selection, event[1], 'SELECT', 'ggbObj');
         }
         break;
@@ -573,7 +588,6 @@ class GgbGraph extends Component {
    */
 
   addListener = label => {
-    console.log('add listener');
     if (this.batchUpdating) {
       return;
     }
@@ -597,10 +611,6 @@ class GgbGraph extends Component {
       const xml = this.ggbApplet.getXML(label);
       const objType = this.ggbApplet.getObjectType(label);
       const definition = this.ggbApplet.getCommandString(label);
-      console.log('xml: ', xml);
-      console.log('definition: ', definition);
-      console.log('label: ', label);
-      console.log('objType: ', objType);
       if (objType === 'point') {
         this.sendEvent(xml, null, label, 'ADD', 'added');
       } else {
@@ -717,8 +727,6 @@ class GgbGraph extends Component {
    */
 
   sendEventBuffer = (xml, definition, label, eventType, action) => {
-    console.log('sendEvent buffer');
-    console.log(xml, definition, label, eventType, action);
     const { user, room } = this.props;
     // console.log('in the event buffer');
     let sendEventFromTimer = true;
@@ -814,7 +822,6 @@ class GgbGraph extends Component {
     eventQueue,
     isMultiPart = false
   ) => {
-    console.log('send event');
     const {
       room,
       user,
@@ -902,7 +909,6 @@ class GgbGraph extends Component {
       description += ` ${action} ${objType} ${newLabel}`;
     } else if (eventType === 'REMOVE') {
       description += ` removed ${label}`;
-      console.log('DESCRIPTION: ', description);
     }
     return description;
   };
