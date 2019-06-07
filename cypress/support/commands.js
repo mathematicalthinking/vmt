@@ -13,6 +13,7 @@
 Cypress.Commands.add('login', user => {
   cy.clearLocalStorage().then(() => {
     cy.visit('/');
+    cy.clearCookies();
     cy.contains('Login').click();
     cy.get('input[name=username]').type(user.username);
     cy.get('input[name=password]').type(user.password);
@@ -25,6 +26,10 @@ Cypress.Commands.add('login', user => {
   //   body: user
   // })
   // cy.visit('/')
+});
+
+Cypress.Commands.add('logout', () => {
+  cy.contains('Logout').click({ force: true });
 });
 
 Cypress.Commands.add('getTestElement', selector => {

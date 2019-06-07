@@ -70,7 +70,7 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         byId: updatedRooms,
-        allIds: [action.newRoom._id, ...state.allIds],
+        allIds: [...state.allIds, action.newRoom._id],
       };
     }
     case actionTypes.DESTROY_ROOM: {

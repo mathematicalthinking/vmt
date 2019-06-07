@@ -7,19 +7,21 @@ const user6 = require('../fixtures/user6');
 
 describe('test notifications and access to resources', function() {
   before(function() {
-    cy.task('seedDB').then(() => cy.login(user2));
+    cy.task('seedDB');
   });
 
   // COURSE
   it('user2 requests access to course 1', function() {
-    cy.contains('Community').click();
+    cy.login(user2);
     cy.wait(1000);
+    cy.contains('Community').click();
     cy.url().should('include', 'community/rooms');
     cy.contains('Courses').click();
     cy.url().should('include', 'community/courses');
     cy.getTestElement('content-box-course 1').click();
     cy.getTestElement('request-access-btn').click();
     cy.url().should('include', '/confirmation');
+    cy.logout();
   });
   it('user3 requests access to course 1', function() {
     cy.login(user3);
@@ -31,6 +33,7 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('content-box-course 1').click();
     cy.getTestElement('request-access-btn').click();
     cy.url().should('include', '/confirmation');
+    cy.logout();
   });
   it('user1 gets 2 notifications and grants access to course 1', function() {
     cy.login(user1);
@@ -70,6 +73,7 @@ describe('test notifications and access to resources', function() {
       .children()
       .contains('There are no new requests to join')
       .should('exist');
+    cy.logout();
 
     // MAKE SURE THE NOTIFICATION IS VISUALLY RESOLVED
   });
@@ -87,6 +91,7 @@ describe('test notifications and access to resources', function() {
     cy.contains('My VMT').click();
     cy.getTestElement('tab-ntf').should('not.exist');
     cy.getTestElement('content-box-ntf').should('not.exist');
+    cy.logout();
     // NAVIGATE BACK AND MAKE SURE NOTIFICATIONS HAVE BEEN RESOLVED
   });
 
@@ -109,6 +114,7 @@ describe('test notifications and access to resources', function() {
       .contains('Rooms')
       .click();
     cy.getTestElement('content-box-ACTIVITY 2 (room 1)').should('exist');
+    cy.logout();
   });
 
   it('User3 gets a notification they have been assigned to a new course room', function() {
@@ -140,6 +146,7 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('explore-room').click();
     cy.getTestElement('crumb').contains('My VMT');
     cy.getTestElement('tab-ntf').should('not.exist');
+    cy.logout();
   });
 
   it('user2 assigns user 5 to a stand alone room', function() {
@@ -161,6 +168,7 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('content-box-stand-alone-activity (room 1)').should(
       'exist'
     );
+    cy.logout();
   });
 
   it('d-troi should have a new room notification', function() {
@@ -183,6 +191,7 @@ describe('test notifications and access to resources', function() {
       .contains('My VMT')
       .click();
     cy.getTestElement('tab-ntf').should('not.exist');
+    cy.logout();
   });
 
   it('user2 enters course with entry-code', function() {
@@ -203,6 +212,7 @@ describe('test notifications and access to resources', function() {
       .children()
       .should('have.length', 2);
     cy.contains(user2.username).should('exist');
+    cy.logout();
   });
 
   it('user1 gets notification that user2 joined course', function() {
@@ -233,6 +243,7 @@ describe('test notifications and access to resources', function() {
       .click();
     cy.getTestElement('tab-ntf').should('not.exist');
     cy.getTestElement('content-box-ntf').should('not.exist');
+    cy.logout();
   });
 
   //  // ROOM
@@ -245,6 +256,7 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('content-box-request access').click();
     cy.getTestElement('request-access-btn').click();
     cy.url().should('include', '/confirmation');
+    cy.logout();
   });
 
   it('user1 grants access to user2 (room)', function() {
@@ -265,6 +277,7 @@ describe('test notifications and access to resources', function() {
       .children()
       .should('have.length', 2);
     cy.contains(user2.username).should('exist');
+    cy.logout();
   });
 
   it('user2 now has access to room', function() {
@@ -293,7 +306,6 @@ describe('test notifications and access to resources', function() {
   });
 
   it('user2 joins a room by entering entry-code', function() {
-    cy.login(user2);
     cy.contains('Community').click();
     cy.wait(500);
     cy.url().should('include', 'community/rooms');
@@ -303,6 +315,7 @@ describe('test notifications and access to resources', function() {
       .type('rare-shrimp-45');
     cy.contains('Join').click();
     cy.url().should('include', 'details');
+    cy.logout();
   });
 
   it('user 1 should get a notification that user2 joined', function() {
@@ -334,7 +347,6 @@ describe('test notifications and access to resources', function() {
   });
 
   it('Picard invites Beverly to join a course', function() {
-    cy.login(user1);
     cy.getTestElement('tab')
       .contains('Courses')
       .click();
@@ -366,6 +378,7 @@ describe('test notifications and access to resources', function() {
       .type('Bc');
     cy.getTestElement('invite-member-bcrush').click();
     cy.getTestElement('member-bcrush').should('exist');
+    cy.logout();
   });
 
   it('Beverly gets a notification shes been added to a course', function() {
@@ -392,6 +405,7 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('content-box-room 1').click();
     cy.getTestElement('leave').click();
     cy.getTestElement('content-box-room 1').should('not.exist');
+    cy.logout();
   });
 
   it('user fails to join with wrong entry code (room)', function() {

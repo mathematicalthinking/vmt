@@ -57,18 +57,26 @@ class SocketProvider extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    const { user } = this.props;
+    const { user, rooms, courses } = this.props;
     if (!user.loggedIn && nextProps.user.loggedIn) {
       return true;
     }
     if (nextState !== this.state) {
       return true;
     }
+    if (nextProps.rooms !== rooms || nextProps.courses !== courses) return true;
     return false;
   }
 
   componentDidUpdate(prevProps) {
-    const { user, connectClearError, connectUpdateUser } = this.props;
+    console.log('component updated');
+    const {
+      user,
+      connectClearError,
+      connectUpdateUser,
+      rooms,
+      courses,
+    } = this.props;
     if (!prevProps.user.loggedIn && user.loggedIn) {
       connectClearError();
       const userId = user._id;
@@ -81,6 +89,11 @@ class SocketProvider extends Component {
         connectUpdateUser({ connected: true });
       });
       // socket.removeAllListeners();
+      this.initializeListeners();
+    }
+    // Reinitialize listeners if store changes
+    if (prevProps.rooms !== rooms || prevProps.courses !== courses) {
+      console.log('updated room');
       this.initializeListeners();
     }
   }
@@ -119,6 +132,7 @@ class SocketProvider extends Component {
     socket.removeAllListeners();
     socket.on('NEW_NOTIFICATION', data => {
       const { notification, course, room } = data;
+      console.log(data);
       const type = notification.notificationType;
       const resource = notification.resourceType;
       let message = null;
@@ -162,7 +176,7 @@ class SocketProvider extends Component {
     });
 
     socket.on('disconnect', () => {
-      updateUser({ connected: false });
+      connectUpdateUser({ connected: false });
     });
 
     socket.on('reconnect', () => {
