@@ -84,12 +84,14 @@ class GgbGraph extends Component {
               this.ggbApplet.evalCommand('UpdateConstruction()');
               break;
             case 'REMOVE':
+              console.log(data);
               if (data.eventArray) {
                 this.updatingOn = true;
                 data.eventArray.forEach(label => {
                   this.ggbApplet.deleteObject(label);
                 });
                 this.updatingOn = false;
+                this.receivingData = false;
               } else {
                 this.ggbApplet.deleteObject(data.label);
               }
