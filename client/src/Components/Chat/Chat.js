@@ -245,7 +245,7 @@ class Chat extends Component {
       expanded,
       referToEl,
       referencing,
-      isConnected,
+      user,
     } = this.props;
     const { settings } = this.state;
     let displayMessages = [];
@@ -299,11 +299,11 @@ class Chat extends Component {
                 <i
                   className={[
                     'fas fa-wifi',
-                    isConnected ? classes.Connected : classes.Disconnected,
+                    user.connected ? classes.Connected : classes.Disconnected,
                   ].join(' ')}
                 />
                 <div className={classes.StatusText}>
-                  {isConnected ? '' : 'disconnected!'}
+                  {user.connected ? '' : 'disconnected!'}
                 </div>
                 <i
                   onClick={() => this.setState({ settings: true })}
@@ -361,6 +361,7 @@ class Chat extends Component {
 
 // @todo we need to consider making a different component for replayer chat or conditionally requiring many of these props (like change and submit) if this is NOT a replayer chat
 Chat.propTypes = {
+  user: PropTypes.shape({}).isRequired,
   toggleExpansion: PropTypes.func,
   referencing: PropTypes.bool,
   referToEl: PropTypes.shape({}),
@@ -378,7 +379,6 @@ Chat.propTypes = {
   submit: PropTypes.func,
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   expanded: PropTypes.bool.isRequired,
-  isConnected: PropTypes.bool,
 };
 
 Chat.defaultProps = {
@@ -388,7 +388,6 @@ Chat.defaultProps = {
   referenceElement: null,
   value: '',
   replayer: false,
-  isConnected: false,
   change: null,
   submit: null,
   referencing: false,

@@ -57,18 +57,25 @@ class SocketProvider extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    const { user } = this.props;
+    const { user, rooms, courses } = this.props;
     if (!user.loggedIn && nextProps.user.loggedIn) {
       return true;
     }
     if (nextState !== this.state) {
       return true;
     }
+    if (nextProps.rooms !== rooms || nextProps.courses !== courses) return true;
     return false;
   }
 
   componentDidUpdate(prevProps) {
-    const { user, connectClearError, connectUpdateUser } = this.props;
+    const {
+      user,
+      connectClearError,
+      connectUpdateUser,
+      roomsArr,
+      courses,
+    } = this.props;
     if (!prevProps.user.loggedIn && user.loggedIn) {
       connectClearError();
       const userId = user._id;
@@ -81,6 +88,14 @@ class SocketProvider extends Component {
         connectUpdateUser({ connected: true });
       });
       // socket.removeAllListeners();
+      this.initializeListeners();
+    }
+    // Reinitialize listeners if store changes
+    if (
+      prevProps.roomsArr.length !== roomsArr.length ||
+      prevProps.courses !== courses
+    ) {
+      // N.B. reinitializing listeners whil user is in the workspace will break their connection
       this.initializeListeners();
     }
   }
@@ -162,7 +177,7 @@ class SocketProvider extends Component {
     });
 
     socket.on('disconnect', () => {
-      updateUser({ connected: false });
+      connectUpdateUser({ connected: false });
     });
 
     socket.on('reconnect', () => {
@@ -201,6 +216,7 @@ SocketProvider.propTypes = {
   user: PropTypes.shape({ loggedIn: PropTypes.bool.isRequired }).isRequired,
   courses: PropTypes.shape({}).isRequired,
   rooms: PropTypes.shape({}).isRequired,
+  roomsArr: PropTypes.arrayOf(PropTypes.string).isRequired,
   children: PropTypes.node.isRequired,
   connectAddNotification: PropTypes.func.isRequired,
   connectAddUserCourses: PropTypes.func.isRequired,
@@ -219,6 +235,7 @@ const mapStateToProps = state => {
   return {
     user: state.user,
     rooms: state.rooms.byId,
+    roomsArr: state.rooms.allIds,
     courses: state.courses.byId,
   };
 };

@@ -252,6 +252,7 @@ class GgbActivityGraph extends Component {
     this.ggbApplet.registerUpdateListener(this.getGgbState);
     this.ggbApplet.registerRemoveListener(this.getGgbState);
     this.ggbApplet.registerClickListener(this.getGgbState);
+    this.ggbApplet.registerClientListener(this.getGgbState);
   }
 
   render() {

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-indent */
 /* eslint-disable no-alert */
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
@@ -6,6 +7,7 @@ import {
   updateRoom,
   updatedRoom,
   updateRoomTab,
+  updatedRoomTab,
   populateRoom,
   setRoomStartingPoint,
   updateUser,
@@ -23,8 +25,20 @@ import COLOR_MAP from '../../utils/colorMap';
 class Workspace extends Component {
   constructor(props) {
     super(props);
-    const { user } = this.props;
+    const { user, room } = this.props;
+    let myColor = null;
+    if (room.members) {
+      try {
+        myColor = room.members.filter(member => member.user._id === user._id)[0]
+          .color;
+      } catch (err) {
+        if (user.isAdmin) {
+          myColor = '#ffd549';
+        }
+      }
+    }
     this.state = {
+      myColor,
       activeMember: '',
       referencing: false,
       showingReference: false,
@@ -41,7 +55,6 @@ class Workspace extends Component {
       instructionsExpanded: true,
       toolsExpanded: true,
       isFirstTabLoaded: false,
-      myColor: null,
       showAdminWarning: user ? user.inAdminMode : false,
     };
   }
@@ -54,7 +67,6 @@ class Workspace extends Component {
       connectUpdateUser,
       connectPopulateRoom,
     } = this.props;
-
     connectUpdateUser({ connected: socket.connected });
     if (!temp) {
       connectPopulateRoom(room._id, { events: true });
@@ -158,7 +170,6 @@ class Workspace extends Component {
       }
       if (!user.inAdminMode) {
         socket.emit('JOIN', sendData, (res, err) => {
-          console.log(res.message);
           if (err) {
             // eslint-disable-next-line no-console
             console.log(err); // HOW SHOULD WE HANDLE THIS
@@ -256,7 +267,13 @@ class Workspace extends Component {
   };
 
   toggleControl = (event, auto) => {
-    const { room, user, connectUpdatedRoom, connectAddToLog } = this.props;
+    const {
+      room,
+      user,
+      connectUpdatedRoom,
+      // connectUpdatedRoomTab,
+      connectAddToLog,
+    } = this.props;
     const { myColor } = this.state;
     if (!user.connected && !auto) {
       // i.e. if the user clicked the button manually instead of controll being toggled programatically
@@ -335,11 +352,11 @@ class Workspace extends Component {
       connectUpdatedRoom(room._id, { controlledBy: user._id });
       socket.emit('TAKE_CONTROL', message, () => {
         //   console.log('CURRENT STSTE : ROOM : ', room);
-        //   // room.tabs.forEach(tab => {
-        //   //   this.props.updatedRoomTab(room._id, tab._id, {
-        //   //     currentState: tab.currentState,
-        //   //   });
-        //   // });
+        //   room.tabs.forEach(tab => {
+        //     connectUpdatedRoomTab(room._id, tab._id, {
+        //       currentState: tab.currentState,
+        //     });
+        //   });
       });
     }
   };
@@ -578,9 +595,11 @@ class Workspace extends Component {
           updateRoomTab={connectUpdateRoomTab}
           updatedRoom={connectUpdatedRoom}
           resetControlTimer={this.resetControlTimer}
+          inControl={control}
           currentTab={currentTab}
           tabId={i}
           addNtfToTabs={this.addNtfToTabs}
+          toggleControl={this.toggleControl}
           isFirstTabLoaded={isFirstTabLoaded}
           referToEl={referToEl}
           showingReference={showingReference}
@@ -597,7 +616,10 @@ class Workspace extends Component {
         {!isFirstTabLoaded ? (
           <Loading message="Preparing your room..." />
         ) : null}
-        {room.tabs[0].name ? (
+        {room.tabs[0].currentState &&
+        (room.tabs[0].currentState ||
+          room.tabs[0].ggbFile ||
+          room.tabs[0].startingPoint) ? (
           <WorkspaceLayout
             graphs={graphs}
             roomName={room.name}
@@ -669,6 +691,7 @@ Workspace.propTypes = {
   connectUpdateRoom: PropTypes.func.isRequired,
   connectUpdatedRoom: PropTypes.func.isRequired,
   connectUpdateRoomTab: PropTypes.func.isRequired,
+  // connectUpdatedRoomTab: PropTypes.func.isRequired,
   connectPopulateRoom: PropTypes.func.isRequired,
   connectSetRoomStartingPoint: PropTypes.func.isRequired,
   connectAddToLog: PropTypes.func.isRequired,
@@ -693,6 +716,7 @@ export default connect(
     connectUpdateRoom: updateRoom,
     connectUpdatedRoom: updatedRoom,
     connectUpdateRoomTab: updateRoomTab,
+    connectUpdatedRoomTab: updatedRoomTab,
     connectPopulateRoom: populateRoom,
     connectSetRoomStartingPoint: setRoomStartingPoint,
     connectAddToLog: addToLog,

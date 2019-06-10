@@ -38,8 +38,10 @@ const Notification = new mongoose.Schema(
 );
 
 function updateUser(userId, query) {
+  // console.log('query: ', query);
   return new Promise((resolve, reject) => {
     User.findByIdAndUpdate(userId, query, { new: true }, (err, res) => {
+      // console.log(res.notifications);
       if (err) {
         return reject(err);
       }
@@ -122,6 +124,7 @@ Notification.post('save', function(notification, next) {
         if (socket) {
           return buildEmitData(notification).then(data => {
             if (data) {
+              console.log('EMITTING NTF: ', data);
               return socket.emit('NEW_NOTIFICATION', data);
             }
           });

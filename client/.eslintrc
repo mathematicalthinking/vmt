@@ -10,6 +10,7 @@
   "globals": {
     "window": true,
     "document": true,
+    "screen": true,
     "fetch": true
   },
   "rules": {

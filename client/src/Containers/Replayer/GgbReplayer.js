@@ -65,7 +65,13 @@ class GgbReplayer extends Component {
         this.ggbApplet.evalCommand('UpdateConstruction()');
         break;
       case 'REMOVE':
-        this.ggbApplet.deleteObject(data.label);
+        if (data.eventArray && data.eventArray.lenght > 1) {
+          data.eventArray.forEach(label => {
+            this.ggbApplet.deleteObject(label);
+          });
+        } else {
+          this.ggbApplet.deleteObject(data.label);
+        }
         break;
       case 'UPDATE':
         this.ggbApplet.evalXML(data.event);
@@ -88,6 +94,15 @@ class GgbReplayer extends Component {
           this.recursiveUpdate(data.eventArray, true);
         }
         break;
+      case 'BATCH_REMOVE':
+        data.eventArray.forEach(label => this.ggbApplet.deleteObject(label));
+        break;
+      case 'UPDATE_STYLE': {
+        if (data.eventArray) {
+          this.recursiveUpdate(data.eventArray);
+        }
+        break;
+      }
       default:
         break;
     }

@@ -32,6 +32,7 @@ export {
   addUserRooms,
   removeUserRooms,
   updatedRoom,
+  updatedRoomTab,
   removeRoom,
   updateRoomMembers,
   addRoomMember,

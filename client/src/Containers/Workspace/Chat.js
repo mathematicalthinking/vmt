@@ -62,7 +62,7 @@ class Chat extends Component {
       referToEl.elementType === 'chat_message'
     ) {
       this.setState(currentState => ({
-        newMessage: currentState.replace('⬅', '⬆️'),
+        newMessage: currentState.newMessage.replace('⬅', '⬆️'),
       }));
     }
   }
@@ -104,7 +104,7 @@ class Chat extends Component {
     };
 
     if (referencing) {
-      newMessage.reference = {
+      messageData.reference = {
         ...referToEl,
         tab: currentTab,
       };

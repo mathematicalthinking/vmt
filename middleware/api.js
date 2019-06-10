@@ -36,6 +36,7 @@ const getEncSecret = () => {
 };
 
 const validateUser = (req, res, next) => {
+  console.log('validate user: ', req.user);
   delete req.isTempRoom; // see if (tab.room.tempRoom)
   let { resource, id } = req.params;
 
@@ -62,7 +63,7 @@ const validateUser = (req, res, next) => {
   } else {
     // currently enc only needs access to /room/:id
     const allowedResources = {
-      rooms: true
+      rooms: true,
     };
 
     let requestedResource = utils.getResource(req);
@@ -91,7 +92,7 @@ const validateRecordAccess = (req, res, next) => {
   if (!user) {
     // currently enc only needs access to /room/:id
     const allowedResources = {
-      rooms: true
+      rooms: true,
     };
 
     let requestedResource = utils.getResource(req);
@@ -157,8 +158,8 @@ const canModifyResource = req => {
       isCreator: false,
       isFacilitator: false,
       modelName: null,
-      isAdmin: false
-    }
+      isAdmin: false,
+    },
   };
 
   let user = utils.getUser(req);

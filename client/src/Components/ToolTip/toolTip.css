@@ -1,10 +1,8 @@
-:import("../../colors.css") {
+:import('../../colors.css') {
   green: green;
 }
 
 .Container {
-  position: relative;
-  /* transition: 0.2s; */
 }
 
 .ToolTipText {
@@ -30,7 +28,7 @@
 .ToolTipText::after {
   position: absolute;
   display: block;
-  content: "";
+  content: '';
   border-style: solid;
   border-width: 8px;
   height: 0;
