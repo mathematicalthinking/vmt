@@ -29,6 +29,8 @@ class GgbGraph extends Component {
   shapeSelected = null;
   isFileSet = false; // calling ggb.setBase64 triggers this.initializeGgb(), because we set base 64 inside initializeGgb we use this instance var to track whether we've already set the file. When the ggb tries to load the file twice it breaks everything
   socketQueue = [];
+  isFaviconNtf = false;
+  isWindowVisible = true;
   previousEvent = null; // Prevent repeat events from firing (for example if they keep selecting the same tool)
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
   /**
@@ -44,8 +46,13 @@ class GgbGraph extends Component {
       trailing: false,
     });
     window.addEventListener('resize', this.updateDimensions);
+    window.addEventListener('visibilitychange', this.visibilityChange);
     // socket.removeAllListeners("RECEIVE_EVENT");
     socket.on('RECEIVE_EVENT', data => {
+      if (!this.isWindowVisible) {
+        this.isFaviconNtf = true;
+        this.changeFavicon('/favNtf.ico');
+      }
       // callback('success');
       // If this event is for this tab add it to the log
       if (data.tab === room.tabs[tabId]._id) {
@@ -244,7 +251,7 @@ class GgbGraph extends Component {
     if (this.updatingTab) {
       clearTimeout(this.updatingTab);
     }
-
+    window.removeEventListener('visibilitychange', this.visibilityChange);
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.removeAllListeners('FORCE_SYNC');
     // if (!this.props.tempRoom) {
@@ -254,6 +261,26 @@ class GgbGraph extends Component {
     window.removeEventListener('resize', this.updateDimensions);
   }
 
+  visibilityChange = () => {
+    this.isWindowVisible = !this.isWindowVisible;
+    console.log(this.isWindowVisible);
+    console.log(this.isFaviconNtf);
+    if (this.isWindowVisible && this.isFaviconNtf) {
+      console.log('vis changed to true');
+      this.isFaviconNtf = false;
+      this.changeFavicon('/favicon.ico');
+    }
+  };
+
+  changeFavicon = href => {
+    const link =
+      document.querySelector("link[rel*='icon']") ||
+      document.createElement('link');
+    link.type = 'image/x-icon';
+    link.rel = 'shortcut icon';
+    link.href = href;
+    document.getElementsByTagName('head')[0].appendChild(link);
+  };
   /**
    * @method recursiveUpdate
    * @description takes an array of events and updates the construction in batches

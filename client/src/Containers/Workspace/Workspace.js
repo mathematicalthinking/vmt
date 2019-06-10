@@ -66,7 +66,6 @@ class Workspace extends Component {
       connectUpdateUser,
       connectPopulateRoom,
     } = this.props;
-
     connectUpdateUser({ connected: socket.connected });
     if (!temp) {
       connectPopulateRoom(room._id, { events: true });
