@@ -69,12 +69,11 @@ class SocketProvider extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log('component updated');
     const {
       user,
       connectClearError,
       connectUpdateUser,
-      rooms,
+      roomsArr,
       courses,
     } = this.props;
     if (!prevProps.user.loggedIn && user.loggedIn) {
@@ -92,8 +91,11 @@ class SocketProvider extends Component {
       this.initializeListeners();
     }
     // Reinitialize listeners if store changes
-    if (prevProps.rooms !== rooms || prevProps.courses !== courses) {
-      console.log('updated room');
+    if (
+      prevProps.roomsArr.length !== roomsArr.length ||
+      prevProps.courses !== courses
+    ) {
+      // N.B. reinitializing listeners whil user is in the workspace will break their connection
       this.initializeListeners();
     }
   }
@@ -132,7 +134,6 @@ class SocketProvider extends Component {
     socket.removeAllListeners();
     socket.on('NEW_NOTIFICATION', data => {
       const { notification, course, room } = data;
-      console.log(data);
       const type = notification.notificationType;
       const resource = notification.resourceType;
       let message = null;
@@ -215,6 +216,7 @@ SocketProvider.propTypes = {
   user: PropTypes.shape({ loggedIn: PropTypes.bool.isRequired }).isRequired,
   courses: PropTypes.shape({}).isRequired,
   rooms: PropTypes.shape({}).isRequired,
+  roomsArr: PropTypes.arrayOf(PropTypes.string).isRequired,
   children: PropTypes.node.isRequired,
   connectAddNotification: PropTypes.func.isRequired,
   connectAddUserCourses: PropTypes.func.isRequired,
@@ -233,6 +235,7 @@ const mapStateToProps = state => {
   return {
     user: state.user,
     rooms: state.rooms.byId,
+    roomsArr: state.rooms.allIds,
     courses: state.courses.byId,
   };
 };
