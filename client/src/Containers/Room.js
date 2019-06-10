@@ -61,6 +61,7 @@ class Room extends Component {
 
   componentDidMount() {
     const { room, user, connectClearNotification } = this.props;
+    console.log(room.dueDate);
     const { tabs } = this.state;
     // this.props.populateRoom(room._id, { events: t rue });
     const { notifications } = user;

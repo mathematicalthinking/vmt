@@ -88,7 +88,7 @@ const EditText = ({ editing, inputType, change, children, options, name }) => {
     }
   } else {
     if (inputType === 'date') {
-      if (children) {
+      if (children && children !== 'Not Set') {
         children = moment(children).format('L');
       } else {
         children = 'Not Set';
