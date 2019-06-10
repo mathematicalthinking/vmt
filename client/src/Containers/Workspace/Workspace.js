@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-indent */
 /* eslint-disable no-alert */
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
@@ -615,7 +616,10 @@ class Workspace extends Component {
         {!isFirstTabLoaded ? (
           <Loading message="Preparing your room..." />
         ) : null}
-        {room.tabs[0].name ? (
+        {room.tabs[0].currentState &&
+        (room.tabs[0].currentState ||
+          room.tabs[0].ggbFile ||
+          room.tabs[0].startingPoint) ? (
           <WorkspaceLayout
             graphs={graphs}
             roomName={room.name}
