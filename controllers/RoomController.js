@@ -185,6 +185,7 @@ module.exports = {
             new Tab({
               name: 'Tab 1',
               room: room._id,
+              startinpoint: ' ',
               desmosLink: body.desmosLink,
               tabType: body.roomType || 'geogebra',
               appName: body.appName,
