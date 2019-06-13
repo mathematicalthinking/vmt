@@ -59,7 +59,6 @@ class GgbGraph extends Component {
     window.addEventListener('visibilitychange', this.visibilityChange);
     // socket.removeAllListeners("RECEIVE_EVENT");
     socket.on('RECEIVE_EVENT', data => {
-      // console.log('receivied data: ', data);
       // console.log('recievingData: ', this.receivingData);
       // console.log('batchUpdating, ', this.batchUpdating);
       // console.log('received event: ', data);
@@ -151,6 +150,7 @@ class GgbGraph extends Component {
       if (!wasInControl && isInControl) {
         this.ggbApplet.setMode(0);
       } else if (wasInControl && !isInControl) {
+        this.updateConstructionState();
         this.ggbApplet.setMode(40);
       }
 
@@ -577,7 +577,11 @@ class GgbGraph extends Component {
             this.pointSelected = null;
           }
           // console.log('mode: ', this.ggbApplet.getMode());
-          this.sendEvent(null, selection, event[1], 'SELECT', 'ggbObj');
+          if (this.eventQueue.length > 0) {
+            this.sendEventBuffer(null, selection, event[1], 'SELECT', 'ggbObj');
+          } else {
+            this.sendEvent(null, selection, event[1], 'SELECT', 'ggbObj');
+          }
         }
         break;
       case 'openMenu':
@@ -651,10 +655,6 @@ class GgbGraph extends Component {
       return;
     }
     if (!this.userCanEdit()) {
-      // this.resetting = true;
-      // this.ggbApplet.deleteObject(label);
-      // Let the Ggb UI updates happen first...then when the stack is clear show an alert
-      // setTimeout(() => this.showAlert(), 0);
       this.setState({ showControlWarning: true });
       return;
     }
@@ -663,8 +663,10 @@ class GgbGraph extends Component {
       const objType = this.ggbApplet.getObjectType(label);
       const definition = this.ggbApplet.getCommandString(label);
       if (objType === 'point') {
+        // console.log('add listenener: sendEvent: ', label);
         this.sendEvent(xml, null, label, 'ADD', 'added');
       } else {
+        // console.log('addListener: sendEventBuffer, ', label, definition);
         this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
       }
     }
@@ -780,6 +782,7 @@ class GgbGraph extends Component {
    */
 
   sendEventBuffer = (xml, definition, label, eventType, action) => {
+    // console.log({ xml, definition, label, eventType, action });
     const { user, room } = this.props;
     // console.log('in the event buffer');
     let sendEventFromTimer = true;
@@ -793,10 +796,10 @@ class GgbGraph extends Component {
     // Add event to eventQueue in case there are multiple events to send.
     if (eventType === 'REMOVE') {
       this.eventQueue.push(label);
+    } else if (action === 'updated' || definition === '' || !definition) {
+      this.eventQueue.push(xml);
     } else {
-      this.eventQueue.push(
-        action === 'updated' ? xml : `${label}:${definition}`
-      );
+      this.eventQueue.push(`${label}:${definition}`);
     }
     if (this.timer) {
       // cancel the last sendEvent function
@@ -808,7 +811,10 @@ class GgbGraph extends Component {
       // there is not a several second delay before the other users in the room see the event
       if (this.time && Date.now() - this.time > 1500) {
         const isMultiPart = true;
-        let renamedEventType = 'BATCH_ADD';
+        let renamedEventType = eventType;
+        if (eventType === 'ADD' && definition.length > 0) {
+          renamedEventType = 'BATCH_ADD';
+        }
         if (eventType === 'UPDATE') {
           renamedEventType = 'BATCH_UPDATE';
         }
@@ -841,7 +847,11 @@ class GgbGraph extends Component {
           renamedEventType = 'BATCH_UPDATE';
         } else if (eventType === 'UPDATE_STYLE') {
           renamedEventType = 'UPDATE_STYLE';
-        } else if (eventType === 'ADD' && this.eventQueue.length > 1) {
+        } else if (
+          eventType === 'ADD' &&
+          this.eventQueue.length > 1 &&
+          definition.length > 0
+        ) {
           renamedEventType = 'BATCH_ADD';
         }
         this.sendEvent(xml, definition, label, renamedEventType, action, [
@@ -850,7 +860,7 @@ class GgbGraph extends Component {
         this.eventQueue = [];
         this.time = null;
         this.timer = null;
-      }, 110);
+      }, 210);
     }
   };
 
