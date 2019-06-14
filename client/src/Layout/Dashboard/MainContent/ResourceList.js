@@ -58,9 +58,6 @@ const ResourceList = props => {
     }
   });
 
-  console.log(facilitatorList);
-  console.log(participantList);
-
   return (
     <div>
       {/* @TODO don't show create optinos for participants */}

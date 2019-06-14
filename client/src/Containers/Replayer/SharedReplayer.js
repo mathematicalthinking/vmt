@@ -210,17 +210,17 @@ class SharedReplayer extends Component {
   };
 
   playing = () => {
-    const { room } = this.props;
-    let {
-      timeElapsed,
-      logIndex,
-      startTime,
-      absTimeElapsed,
-      currentTab,
-    } = this.state;
-    const { currentMembers, playbackSpeed } = this.state;
     // eslint-disable-next-line consistent-return
     this.interval = setInterval(() => {
+      const { currentMembers, playbackSpeed } = this.state;
+      const { room } = this.props;
+      let {
+        timeElapsed,
+        logIndex,
+        startTime,
+        absTimeElapsed,
+        currentTab,
+      } = this.state;
       let updatedMembers = [...currentMembers];
       timeElapsed += PLAYBACK_FIDELITY * playbackSpeed;
       absTimeElapsed += PLAYBACK_FIDELITY * playbackSpeed;
@@ -343,6 +343,7 @@ class SharedReplayer extends Component {
   };
 
   setSpeed = speed => {
+    console.log('setting speed, ', speed);
     this.setState({ playbackSpeed: speed });
   };
 
