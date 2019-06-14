@@ -16,6 +16,7 @@ const About = () => {
         <div className={classes.Background} />
       </div>
       <div className={classes.Container}>
+        version: 6.14.19.1
         <div className={classes.Banner}>
           <h2 className={classes.Tagline}>
             Virtual Math Teams (VMT) provides a collaborative environment for

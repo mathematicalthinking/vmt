@@ -15,8 +15,6 @@
 .Graph {
   height: 100px;
   width: 100px;
-  /* overflow-x: hidden; */
-  border: 2px solid inset #f8f8f8;
   background-size: 11px 11px;
   display: flex;
   justify-content: center;
