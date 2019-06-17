@@ -34,28 +34,29 @@ class Chat extends Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
+    // eslint-disable-next-line no-unused-vars
     const { referencing, referToEl, clearReference } = this.props;
-    const { newMessage } = this.state;
-    if (!prevProps.referencing && referencing) {
-      this.setState(currentState => ({
-        newMessage: `⬅️ ${currentState.newMessage}`,
-      }));
-    } else if (prevProps.referencing && !referencing) {
-      this.setState(currentState => ({
-        newMessage: currentState.newMessage.replace(/⬅/g, ''),
-      }));
-    }
-    if (
-      (prevState.newMessage.includes('⬅') &&
-        !newMessage.includes('⬅️') &&
-        !newMessage.includes('⬆️')) ||
-      (prevState.newMessage.includes('⬆️') &&
-        !newMessage.includes('⬆️') &&
-        !newMessage.includes('⬅'))
-    ) {
-      clearReference();
-    }
+    // const { newMessage } = this.state;
+    // if (!prevProps.referencing && referencing) {
+    //   this.setState(currentState => ({
+    //     newMessage: `⬅️ ${currentState.newMessage}`,
+    //   }));
+    // } else if (prevProps.referencing && !referencing) {
+    //   this.setState(currentState => ({
+    //     newMessage: currentState.newMessage.replace(/⬅/g, ''),
+    //   }));
+    // }
+    // if (
+    //   (prevState.newMessage.includes('⬅') &&
+    //     !newMessage.includes('⬅️') &&
+    //     !newMessage.includes('⬆️')) ||
+    //   (prevState.newMessage.includes('⬆️') &&
+    //     !newMessage.includes('⬆️') &&
+    //     !newMessage.includes('⬅'))
+    // ) {
+    //   clearReference();
+    // }
     if (
       !prevProps.referToEl &&
       referToEl &&

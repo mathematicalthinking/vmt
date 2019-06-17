@@ -1,3 +1,4 @@
+/* eslint-disable react/no-did-update-set-state */
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Modal from '../UI/Modal/Modal';
@@ -14,6 +15,7 @@ class Chat extends Component {
       containerCoords: null,
       chatCoords: null,
       chatInputCoords: null,
+      highlightedMessage: null,
       settings: false,
     };
     this.chatContainer = React.createRef();
@@ -73,7 +75,10 @@ class Chat extends Component {
     ) {
       // set the coordinates of the refElement to proper ref
       const refMessage = this[`message-${referToEl.element}`].current;
+      console.log('component did updaste setELANDCORODS');
       setToElAndCoords(null, this.getRelativeCoords(refMessage));
+    } else if (prevProps.referencing && !referencing) {
+      this.setState({ highlightedMessage: null });
     }
     //  else if (
     //   !prevProps.referenceElementCoords &&
@@ -179,6 +184,8 @@ class Chat extends Component {
   referToMessage = (event, id) => {
     const { setToElAndCoords } = this.props;
     const position = this.getRelativeCoords(event.target);
+    console.log('setting toElAndCoords', position);
+    console.log('settingTOELANDCOORDS in referToMessage');
     setToElAndCoords({ element: id, elementType: 'chat_message' }, position);
   };
 
@@ -204,6 +211,7 @@ class Chat extends Component {
       if (referToEl.elementType === 'chat_message') {
         // Find and update the position of the reference
         const elementRef = this[`message-${referToEl.element}`].current;
+        console.log('settingTOELANDCOORDS in updateReferencePositions');
         setToElAndCoords(null, this.getRelativeCoords(elementRef));
       }
     } else if (
@@ -212,6 +220,7 @@ class Chat extends Component {
       referToEl.elementType === 'chat_message'
     ) {
       const elementRef = this[`message-${referToEl.element}`].current;
+      console.log('settingTOELANDCOORDS in updateReferencePositions # 2');
       setToElAndCoords(null, this.getRelativeCoords(elementRef));
     }
   };
@@ -226,6 +235,8 @@ class Chat extends Component {
     const { replayer, referencing } = this.props;
     if (!replayer) {
       if (referencing) {
+        console.log('refering to ', message._id);
+        this.setState({ highlightedMessage: message._id });
         this.referToMessage(event, message._id);
       } else if (message.reference)
         this.showReference(event, message.reference);
@@ -246,8 +257,9 @@ class Chat extends Component {
       referToEl,
       referencing,
       user,
+      startNewReference,
     } = this.props;
-    const { settings } = this.state;
+    const { settings, highlightedMessage } = this.state;
     let displayMessages = [];
     if (log) {
       displayMessages = log.map(message => {
@@ -261,6 +273,8 @@ class Chat extends Component {
           ) {
             highlighted = true;
           }
+        } else if (message._id === highlightedMessage) {
+          highlighted = true;
         }
         if (message.messageType) {
           return (
@@ -332,6 +346,12 @@ class Chat extends Component {
                 type="text"
                 onChange={change}
                 value={value}
+                onFocus={() => {
+                  if (!referencing) {
+                    startNewReference();
+                  }
+                }}
+                // onBlur={clearReference}
               />
               {/* <TextInput width={"90%"} size={20} light autoComplete="off" change={change} type='text' name='message' value={value}/> */}
               <div
@@ -374,6 +394,7 @@ Chat.propTypes = {
   referenceElement: PropTypes.shape({}),
   change: PropTypes.func,
   value: PropTypes.string,
+  startNewReference: PropTypes.func.isRequired,
   // referenceElementCoords: PropTypes.arrayOf(PropTypes.number),
   replayer: PropTypes.bool,
   submit: PropTypes.func,

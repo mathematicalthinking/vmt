@@ -61,7 +61,7 @@ class WorkspaceLayout extends Component {
       // If this is Firefox
       flexB = 'auto';
     }
-    // console.log(showingReference);
+    console.log({ referToCoords, referFromCoords });
     return (
       <div
         className={classes.PageContainer}
@@ -126,7 +126,7 @@ class WorkspaceLayout extends Component {
           </div>
           {referToCoords && referFromCoords ? (
             <div className={classes.ReferenceLine}>
-              <svg height="100%" width="100%" style={{ zIndex: 2500 }}>
+              <svg height="100%" width="100%" style={{ zIndex: 300 }}>
                 <line
                   style={{ zIndex: 2500 }}
                   x1={referToCoords.left}
