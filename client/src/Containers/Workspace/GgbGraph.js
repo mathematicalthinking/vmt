@@ -734,7 +734,8 @@ class GgbGraph extends Component {
     const { referencing, setToElAndCoords } = this.props;
     if (referencing) {
       const elementType = this.ggbApplet.getObjectType(element);
-      let renamedElement;
+      let renamedElement = element;
+      console.log({ elementType });
       if (elementType !== 'point') {
         const commandString = this.ggbApplet.getCommandString(element);
         renamedElement = commandString.slice(
@@ -743,6 +744,7 @@ class GgbGraph extends Component {
         );
       }
       const position = await this.getRelativeCoords(renamedElement);
+      console.log({ position });
       setToElAndCoords({ element, elementType: 'point' }, position);
     }
   };

@@ -265,6 +265,9 @@ class Chat extends Component {
       displayMessages = log.map(message => {
         let highlighted = false;
         let reference = false;
+        if (message.reference) {
+          reference = true;
+        }
         if (referToEl) {
           if (
             referToEl.element === message._id ||
@@ -276,8 +279,6 @@ class Chat extends Component {
           }
         } else if (message._id === highlightedMessage) {
           highlighted = true;
-        } else if (message.reference) {
-          reference = true;
         }
         if (message.messageType) {
           return (

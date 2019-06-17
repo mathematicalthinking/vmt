@@ -126,7 +126,7 @@ class WorkspaceLayout extends Component {
           </div>
           {referToCoords && referFromCoords ? (
             <div className={classes.ReferenceLine}>
-              <svg height="100%" width="100%" style={{ zIndex: 300 }}>
+              <svg height="100%" width="100%" style={{ zIndex: 12000 }}>
                 <line
                   style={{ zIndex: 2500 }}
                   x1={referToCoords.left}
