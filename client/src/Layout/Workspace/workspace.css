@@ -122,6 +122,7 @@
   flex-wrap: nowrap;
   justify-content: flex-start;
   align-content: stretch;
+  z-index: 1;
   align-items: stretch;
 }
 
