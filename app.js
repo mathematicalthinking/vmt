@@ -5,15 +5,11 @@ const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const passport = require('passport');
-const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
 const mongoose = require('mongoose');
 require('dotenv').config();
 
 // REQUIRE FILES
 const mtAuth = require('./middleware/mt-auth');
-const configure = require('./config/passport');
 const api = require('./routes/api');
 const auth = require('./routes/auth');
 const desmos = require('./routes/desmos');
@@ -47,21 +43,6 @@ mongoose.connect(mongoURI, (err, res) => {
   }
 });
 
-app.use(
-  require('express-session')({
-    secret: 'my-secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      // secure: true,
-    },
-    store: new MongoStore({
-      mongooseConnection: mongoose.connection,
-      stringify: false,
-    }),
-  })
-);
-
 // MIDDLEWARE
 app.use(logger('dev'));
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -89,11 +70,6 @@ app.use(function(req, res, next) {
   // Pass to next layer of middleware
   next();
 });
-
-// PASSPORT
-configure(passport); // SETUP STRATEGIES ./middleware/passport
-app.use(passport.initialize());
-app.use(passport.session());
 
 // Mathematical Thinking Auth middleware
 app.use(mtAuth.prep);
