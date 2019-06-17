@@ -189,6 +189,10 @@
   border: 2px solid blue;
 }
 
+.Reference {
+  border: 2px dotted blueHover;
+}
+
 .EventBlock {
   display: flex;
   width: 95%;
