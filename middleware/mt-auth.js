@@ -74,6 +74,15 @@ const getVmtUser = mtUserDetails => {
   return null;
 };
 
+module.exports.extractBearerToken = req => {
+  let { authorization } = req.headers;
+
+  if (typeof authorization !== 'string') {
+    return;
+  }
+  return authorization.split(' ')[1];
+};
+
 module.exports.getMtUser = getMtUser;
 module.exports.prep = prep;
 module.exports.getVmtUser = getVmtUser;

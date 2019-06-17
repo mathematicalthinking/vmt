@@ -4,7 +4,6 @@
  * @author Michael McVeigh
  */
 
-const passport = require('passport');
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
@@ -14,46 +13,63 @@ const errors = require('../middleware/errors');
 const { getUser } = require('../middleware/utils/request');
 const userController = require('../controllers/UserController');
 
-router.post('/login', (req, res, next) => {
-  passport.authenticate('local-login', (err, user, info) => {
-    if (user) {
-      return req.login(user, err => {
-        if (err) {
-          return errors.sendError.InternalError(null, res);
-        }
-        res.json(user);
-      });
-    }
-    let msg;
+const axios = require('axios');
+const jwt = require('jsonwebtoken');
 
-    if (info && info.message) {
-      msg = info.message;
-    } else {
-      msg = info;
+const { getMtSsoUrl } = require('../config/app-urls');
+const { extractBearerToken } = require('../middleware/mt-auth');
+
+router.post('/login', async (req, res, next) => {
+  try {
+    let url = `${getMtSsoUrl()}/login`;
+    let mtLoginResults = await axios.post(url, req.body);
+
+    let { message, mtToken } = mtLoginResults.data;
+    if (message) {
+      return errors.sendError.InvalidCredentialsError(message, res);
     }
-    return errors.sendError.InvalidCredentialsError(msg, res);
-  })(req, res, next);
+
+    let verifiedToken = await jwt.verify(
+      mtToken,
+      process.env.MT_USER_JWT_SECRET
+    );
+
+    let user = await User.findById(verifiedToken.vmtUserId)
+      .lean()
+      .exec();
+
+    res.cookie('mtToken', mtToken);
+    return res.json(user);
+  } catch (err) {
+    return errors.sendError.InternalError(null, res);
+  }
 });
 
-router.post('/signup', (req, res, next) => {
-  passport.authenticate('local-signup', (err, user, info) => {
-    if (user) {
-      return req.login(user, err => {
-        if (err) {
-          errors.sendError.InternalError(null, res);
-        }
-        res.json(user);
-      });
-    }
-    let msg;
-    if (info && info.message) {
-      msg = info.message;
-    } else {
-      msg = info;
+router.post('/signup', async (req, res, next) => {
+  try {
+    let url = `${getMtSsoUrl()}/signup`;
+    let mtSignupResults = await axios.post(url, req.body);
+
+    let { message, mtToken } = mtSignupResults.data;
+    if (message) {
+      return errors.sendError.InvalidCredentialsError(message, res);
     }
 
-    return errors.sendError.InvalidCredentialsError(msg, res);
-  })(req, res, next);
+    let verifiedToken = await jwt.verify(
+      mtToken,
+      process.env.MT_USER_JWT_SECRET
+    );
+
+    res.cookie('mtToken', mtToken);
+
+    let user = await User.findById(verifiedToken.vmtUserId)
+      .lean()
+      .exec();
+
+    return res.json(user);
+  } catch (err) {
+    return errors.sendError.InternalError(null, res);
+  }
 });
 
 /** Authentication for Encompass users who want to import rooms into the Encompass account **/
@@ -91,37 +107,35 @@ router.post('/logout/:userId', (req, res, next) => {
     .lean()
     .then(() => {
       try {
-        req.logout();
         res.json({ result: 'success' });
       } catch (err) {
+        console.log(('logout err', err));
         return errors.sendError.InternalError(err, res);
       }
     })
     .catch(err => errors.sendError.InternalError(err, res));
 });
 
-router.get('/googleAuth', (req, res, next) => {
-  passport.authenticate('google', {
-    scope: [
-      'https://www.googleapis.com/auth/plus.login',
-      'https://www.googleapis.com/auth/plus.profile.emails.read',
-    ],
-  })(req, res, next);
-});
+// router.get('/googleAuth', (req, res, next) => {
+//   passport.authenticate('google', {
+//     scope: [
+//       'https://www.googleapis.com/auth/plus.login',
+//       'https://www.googleapis.com/auth/plus.profile.emails.read',
+//     ],
+//   })(req, res, next);
+// });
 
-router.get('/google/callback', (req, res, next) => {
-  passport.authenticate('google', {
-    failureRedirect: '/#/login',
-    successRedirect: '/',
-  })(req, res, next);
-});
+// router.get('/google/callback', (req, res, next) => {
+//   passport.authenticate('google', {
+//     failureRedirect: '/#/login',
+//     successRedirect: '/',
+//   })(req, res, next);
+// });
 
-const googleReturn = (req, res, next) => {};
-
-const logout = (req, res, next) => {
-  req.logout();
-  res.redirect('/');
-};
+// const logout = (req, res, next) => {
+//   req.logout();
+//   res.redirect('/');
+// };
 
 router.get('/currentUser', (req, res, next) => {
   let currentUser = getUser(req);
@@ -135,6 +149,27 @@ router.get('/currentUser', (req, res, next) => {
       res.json({ result });
     })
     .catch(err => errors.sendError.InternalError(err, res));
+});
+
+router.post('/newMtUser', async (req, res, next) => {
+  try {
+    let authToken = extractBearerToken(req);
+
+    let verifiedToken = await jwt.verify(
+      authToken,
+      process.env.MT_USER_JWT_SECRET
+    );
+
+    let newUser = await User.create(req.body);
+
+    return res.json(newUser);
+  } catch (err) {
+    // invalid token
+    return errors.sendError.InvalidCredentialsError(
+      'Unauthorized request',
+      res
+    );
+  }
 });
 
 module.exports = router;
