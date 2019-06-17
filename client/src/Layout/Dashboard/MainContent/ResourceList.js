@@ -51,7 +51,7 @@ const ResourceList = props => {
    * I feel like we are checking roles...which requires looping through the resources members each time.
    */
   userResources.forEach(userResource => {
-    if (resource.myRole === 'facilitator') {
+    if (userResource.myRole === 'facilitator') {
       facilitatorList.push(userResource);
     } else {
       participantList.push(userResource);

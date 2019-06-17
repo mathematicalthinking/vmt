@@ -99,6 +99,13 @@ class Homepage extends PureComponent {
               </Button>
             </div>
           </section>
+          <section>
+            <p>
+              VMT is currently in Alpha. If you encounter bugs or want to
+              suggest new features please email mmcveigh@21pstem.org
+            </p>
+            <p>version: 6.14.19.2</p>
+          </section>
           {/* <i onClick={this.scrollToDomRef} className={["fas fa-chevron-down", classes.Down].join(" ")}></i> */}
           <section className={classes.Options} ref={this.containerRef}>
             {/* <h3 className={classes.Subtitle}>Popular Activities</h3>

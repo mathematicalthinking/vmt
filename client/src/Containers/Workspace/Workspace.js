@@ -103,13 +103,16 @@ class Workspace extends Component {
     //   this.setState({someoneElseInControl: true, inControl: false})
     // }
 
-    // if (prevProps.room.controlledBy === this.props.user._id && this.props.room.controlledBy === null) {
-    //   console.log('releasing control')
-    //   socket.emit('RELEASE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
-    //     this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
-    //     // this.setState({activeMember: ''})
-    //   })
-    // }
+    if (
+      prevProps.room.controlledBy === null &&
+      room.controlledBy !== null &&
+      room.controlledBy !== user._id
+    ) {
+      //   socket.emit('RELEASE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
+      //     this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
+      //     // this.setState({activeMember: ''})
+      //   })
+    }
 
     if (!prevProps.room.log && room.log) {
       this.initializeListeners();
@@ -140,10 +143,6 @@ class Workspace extends Component {
     socket.removeAllListeners('USER_LEFT');
     socket.removeAllListeners('RELEASED_CONTROL');
     socket.removeAllListeners('TOOK_CONTROL');
-
-    if (room.controlledBy) {
-      this.setState({ someoneElseInControl: true, inControl: false });
-    }
 
     const sendData = {
       _id: mongoIdGenerator(),
@@ -207,8 +206,6 @@ class Workspace extends Component {
       connectAddToLog(room._id, message);
       connectUpdatedRoom(room._id, { controlledBy: null });
       this.setState({
-        activeMember: '',
-        someoneElseInControl: false,
         awarenessDesc: message.text,
         awarenessIcon: 'USER',
       });
@@ -611,15 +608,17 @@ class Workspace extends Component {
         />
       );
     });
+
     return (
       <Fragment>
         {!isFirstTabLoaded ? (
           <Loading message="Preparing your room..." />
         ) : null}
-        {room.tabs[0].currentState &&
-        (room.tabs[0].currentState ||
-          room.tabs[0].ggbFile ||
-          room.tabs[0].startingPoint) ? (
+        {temp ||
+        // we check these fields to check if the room was populated.
+        room.tabs[0].currentState ||
+        room.tabs[0].ggbFile ||
+        room.tabs[0].startingPoint ? (
           <WorkspaceLayout
             graphs={graphs}
             roomName={room.name}
