@@ -732,11 +732,23 @@ class GgbGraph extends Component {
 
   clickListener = async element => {
     const { referencing, setToElAndCoords } = this.props;
+    let position;
     if (referencing) {
       const elementType = this.ggbApplet.getObjectType(element);
-
-      // Find centorid
-      if (elementType !== 'point') {
+      console.log('element type');
+      console.log(element);
+      console.log(elementType);
+      // Find centroid
+      if (elementType === 'circle') {
+        const commandString = this.ggbApplet.getCommandString(element);
+        const point = commandString.slice(
+          commandString.indexOf('(') + 1,
+          commandString.indexOf(',')
+        );
+        console.log(position);
+        position = await this.getRelativeCoords(point);
+        console.log(commandString);
+      } else if (elementType !== 'point') {
         const commandString = this.ggbApplet.getCommandString(element);
         const pointsOfShape = commandString
           .slice(commandString.indexOf('(') + 1, commandString.indexOf(')'))
@@ -753,12 +765,12 @@ class GgbGraph extends Component {
         });
         const leftAvg = leftTotal / coordsArr.length;
         const topAvg = topTotal / coordsArr.length;
-        const position = { left: leftAvg, top: topAvg };
+        position = { left: leftAvg, top: topAvg };
         setToElAndCoords({ element, elementType: 'shape' }, position);
       } else {
-        const position = await this.getRelativeCoords(element);
-        setToElAndCoords({ element, elementType: 'point' }, position);
+        position = await this.getRelativeCoords(element);
       }
+      setToElAndCoords({ element, elementType: 'point' }, position);
     }
   };
 
