@@ -161,15 +161,18 @@ class GgbGraph extends Component {
         referToEl.elementType !== 'chat_message'
       ) {
         // find the coordinates of the point we're referencing
-        const position = await this.getRelativeCoords(referToEl.element);
-        setToElAndCoords(null, position);
+        const { renamedElementType, position } = await this.getReferenceCoords(
+          referToEl.element,
+          referToEl.elementType
+        );
+        setToElAndCoords(referToEl, position);
       } else if (
         showingReference &&
         prevProps.referToEl !== referToEl &&
         referToEl.elementType !== 'chat_message'
       ) {
-        const position = await this.getRelativeCoords(referToEl.element);
-        setToElAndCoords(null, position);
+        // const position = await this.getRelativeCoords(referToEl.element);
+        // setToElAndCoords(null, position);
       }
 
       // switching tab
@@ -732,45 +735,13 @@ class GgbGraph extends Component {
 
   clickListener = async element => {
     const { referencing, setToElAndCoords } = this.props;
-    let position;
     if (referencing) {
       const elementType = this.ggbApplet.getObjectType(element);
-      console.log('element type');
-      console.log(element);
-      console.log(elementType);
-      // Find centroid
-      if (elementType === 'circle') {
-        const commandString = this.ggbApplet.getCommandString(element);
-        const point = commandString.slice(
-          commandString.indexOf('(') + 1,
-          commandString.indexOf(',')
-        );
-        console.log(position);
-        position = await this.getRelativeCoords(point);
-        console.log(commandString);
-      } else if (elementType !== 'point') {
-        const commandString = this.ggbApplet.getCommandString(element);
-        const pointsOfShape = commandString
-          .slice(commandString.indexOf('(') + 1, commandString.indexOf(')'))
-          .split(',')
-          .map(point => point.trim());
-        const coordsArr = await Promise.all(
-          pointsOfShape.map(point => this.getRelativeCoords(point))
-        );
-        let leftTotal = 0;
-        let topTotal = 0;
-        coordsArr.forEach(coords => {
-          leftTotal += coords.left;
-          topTotal += coords.top;
-        });
-        const leftAvg = leftTotal / coordsArr.length;
-        const topAvg = topTotal / coordsArr.length;
-        position = { left: leftAvg, top: topAvg };
-        setToElAndCoords({ element, elementType: 'shape' }, position);
-      } else {
-        position = await this.getRelativeCoords(element);
-      }
-      setToElAndCoords({ element, elementType: 'point' }, position);
+      const { renamedElementType, position } = await this.getReferenceCoords(
+        element,
+        elementType
+      );
+      setToElAndCoords({ element, elementType: renamedElementType }, position);
     }
   };
 
@@ -1024,6 +995,54 @@ class GgbGraph extends Component {
    * @param  {String} element - ggb defined Label. MUST be a point
    * @return {Promise Object} - because parseXML is async
    */
+
+  getReferenceCoords = async (element, elementType) => {
+    let position;
+    let renamedElementType = elementType;
+    // find center point of circle
+    if (elementType === 'circle') {
+      const commandString = this.ggbApplet.getCommandString(element);
+      const point = commandString.slice(
+        commandString.indexOf('(') + 1,
+        commandString.indexOf(',')
+      );
+      position = await this.getRelativeCoords(point);
+      return { renamedElementType, position };
+    }
+    // Find centroid of polygon
+    if (elementType !== 'point') {
+      console.log('getting poly');
+      renamedElementType = 'poly';
+      const commandString = this.ggbApplet.getCommandString(element);
+      console.log({ commandString });
+      const pointsOfShape = commandString
+        .slice(commandString.indexOf('(') + 1, commandString.indexOf(')'))
+        .split(',')
+        .map(point => point.trim())
+        // filter out any non-points (e.g. regular polygons are defined like (A,B,4) for a square)
+        .filter(str => str.match(/[a-z]/i));
+      console.log({ pointsOfShape });
+      const coordsArr = await Promise.all(
+        pointsOfShape.map(point => this.getRelativeCoords(point))
+      );
+      console.log(coordsArr);
+      let leftTotal = 0;
+      let topTotal = 0;
+      coordsArr.forEach(coords => {
+        leftTotal += coords.left;
+        topTotal += coords.top;
+      });
+      console.log({ coordsArr });
+      const leftAvg = leftTotal / coordsArr.length;
+      const topAvg = topTotal / coordsArr.length;
+      position = { left: leftAvg, top: topAvg };
+      console.log('RETURNING : ', position);
+      return { renamedElementType, position };
+    }
+    // regular point
+    position = await this.getRelativeCoords(element);
+    return { renamedElementType, position };
+  };
 
   getRelativeCoords = element => {
     return new Promise(async (resolve, reject) => {

@@ -143,7 +143,7 @@ class Chat extends Component {
 
 Chat.propTypes = {
   referencing: PropTypes.bool.isRequired,
-  referToEl: PropTypes.shape({}),
+  referToEl: PropTypes.string,
   addToLog: PropTypes.func.isRequired,
   replaying: PropTypes.bool,
   roomId: PropTypes.string.isRequired,

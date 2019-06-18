@@ -376,7 +376,6 @@ class Workspace extends Component {
   };
 
   startNewReference = () => {
-    console.log('starting new ref');
     this.setState({
       referencing: true,
       showingReference: false,
@@ -408,7 +407,6 @@ class Workspace extends Component {
   };
 
   clearReference = () => {
-    console.log('clearing refe');
     this.setState({
       referToEl: null,
       referFromEl: null,
@@ -421,7 +419,6 @@ class Workspace extends Component {
 
   // this shouLD BE refereNT
   setToElAndCoords = (el, coords) => {
-    console.log('MAIN METHOD');
     if (el) {
       this.setState({
         referToEl: el,

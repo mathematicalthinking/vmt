@@ -22,7 +22,7 @@ class Chat extends Component {
     this.chatContainer = React.createRef();
     this.chatInput = React.createRef();
     this.chatEnd = React.createRef();
-
+    console.log(this.chatContainer);
     // Create a ref for each chat element so they can be used with the referencing tool
     // This is why we needed to have a constructor function
     log.forEach(message => {
@@ -99,6 +99,7 @@ class Chat extends Component {
 
   updateCoords = () => {
     const { replayer } = this.props;
+    if (!this.chatContainer.current) return;
     this.setState({
       containerCoords: this.chatContainer.current.offsetParent
         ? this.chatContainer.current.offsetParent.getBoundingClientRect()
@@ -200,8 +201,6 @@ class Chat extends Component {
   referToMessage = (event, id) => {
     const { setToElAndCoords } = this.props;
     const position = this.getRelativeCoords(event.target);
-    console.log('setting toElAndCoords', position);
-    console.log('settingTOELANDCOORDS in referToMessage');
     setToElAndCoords({ element: id, elementType: 'chat_message' }, position);
   };
 
