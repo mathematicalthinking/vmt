@@ -734,18 +734,31 @@ class GgbGraph extends Component {
     const { referencing, setToElAndCoords } = this.props;
     if (referencing) {
       const elementType = this.ggbApplet.getObjectType(element);
-      let renamedElement = element;
-      console.log({ elementType });
+
+      // Find centorid
       if (elementType !== 'point') {
         const commandString = this.ggbApplet.getCommandString(element);
-        renamedElement = commandString.slice(
-          commandString.indexOf('(') + 1,
-          commandString.indexOf('(') + 2
+        const pointsOfShape = commandString
+          .slice(commandString.indexOf('(') + 1, commandString.indexOf(')'))
+          .split(',')
+          .map(point => point.trim());
+        const coordsArr = await Promise.all(
+          pointsOfShape.map(point => this.getRelativeCoords(point))
         );
+        let leftTotal = 0;
+        let topTotal = 0;
+        coordsArr.forEach(coords => {
+          leftTotal += coords.left;
+          topTotal += coords.top;
+        });
+        const leftAvg = leftTotal / coordsArr.length;
+        const topAvg = topTotal / coordsArr.length;
+        const position = { left: leftAvg, top: topAvg };
+        setToElAndCoords({ element, elementType: 'shape' }, position);
+      } else {
+        const position = await this.getRelativeCoords(element);
+        setToElAndCoords({ element, elementType: 'point' }, position);
       }
-      const position = await this.getRelativeCoords(renamedElement);
-      console.log({ position });
-      setToElAndCoords({ element, elementType: 'point' }, position);
     }
   };
 
