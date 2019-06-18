@@ -28,12 +28,12 @@ const User = new mongoose.Schema(
     },
     accountType: { type: String, enum: ['participant', 'facilitator', 'temp'] },
     bothRoles: { type: Boolean, default: false },
-    password: {
-      type: String,
-      required: function() {
-        return this.accountType !== 'temp';
-      },
-    },
+    // password: {
+    //   type: String,
+    //   required: function() {
+    //     return this.accountType !== 'temp';
+    //   },
+    // },
     isAdmin: { type: Boolean, default: false },
     seenTour: { type: Boolean, default: false },
     socketId: { type: String },
