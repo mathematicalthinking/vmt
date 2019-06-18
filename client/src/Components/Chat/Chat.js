@@ -1,6 +1,7 @@
 /* eslint-disable react/no-did-update-set-state */
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
+import debounce from 'lodash/debounce';
 import Modal from '../UI/Modal/Modal';
 import Message from './Message';
 import Event from './Event';
@@ -27,13 +28,15 @@ class Chat extends Component {
     log.forEach(message => {
       this[`message-${message._id}`] = React.createRef();
     });
+
+    this.debouncedUpdateCoords = debounce(this.updateCoords, 200);
   }
 
   componentDidMount() {
     const { replayer } = this.props;
     window.addEventListener('resize', this.updateOnResize);
     window.addEventListener('keypress', this.onKeyPress);
-    if (!replayer) this.chatInput.current.focus();
+    window.addEventListener('scroll', this.debouncedUpdateCoords);
     this.setState({
       containerCoords: this.chatContainer.current.offsetParent
         ? this.chatContainer.current.offsetParent.getBoundingClientRect()
@@ -94,6 +97,18 @@ class Chat extends Component {
     window.removeEventListener('resize', this.updateOnResize);
   }
 
+  updateCoords = () => {
+    const { replayer } = this.props;
+    this.setState({
+      containerCoords: this.chatContainer.current.offsetParent
+        ? this.chatContainer.current.offsetParent.getBoundingClientRect()
+        : null,
+      chatCoords: this.chatContainer.current.getBoundingClientRect(),
+      chatInputCoords: replayer
+        ? null
+        : this.chatInput.current.getBoundingClientRect(),
+    });
+  };
   toggleExpansion = () => {
     const { toggleExpansion } = this.props;
     if (toggleExpansion) {
@@ -141,6 +156,7 @@ class Chat extends Component {
   };
 
   showReference = (event, reference) => {
+    // console.log(event.target);
     const { showReference, referToEl, clearReference } = this.props;
     // If we're already showing this reference clear the reference
     if (showReference && referToEl && reference.element === referToEl.element) {
