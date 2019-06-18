@@ -22,7 +22,6 @@ class Chat extends Component {
     this.chatContainer = React.createRef();
     this.chatInput = React.createRef();
     this.chatEnd = React.createRef();
-    console.log(this.chatContainer);
     // Create a ref for each chat element so they can be used with the referencing tool
     // This is why we needed to have a constructor function
     log.forEach(message => {
@@ -78,7 +77,6 @@ class Chat extends Component {
     ) {
       // set the coordinates of the refElement to proper ref
       const refMessage = this[`message-${referToEl.element}`].current;
-      console.log('component did updaste setELANDCORODS');
       setToElAndCoords(null, this.getRelativeCoords(refMessage));
     } else if (prevProps.referencing && !referencing) {
       this.setState({ highlightedMessage: null });
@@ -95,6 +93,7 @@ class Chat extends Component {
   componentWillUnmount() {
     window.removeEventListener('keypress', this.onKeyPress);
     window.removeEventListener('resize', this.updateOnResize);
+    window.removeEventListener('scroll', this.debouncedUpdateCoords);
   }
 
   updateCoords = () => {
@@ -226,7 +225,6 @@ class Chat extends Component {
       if (referToEl.elementType === 'chat_message') {
         // Find and update the position of the reference
         const elementRef = this[`message-${referToEl.element}`].current;
-        console.log('settingTOELANDCOORDS in updateReferencePositions');
         setToElAndCoords(null, this.getRelativeCoords(elementRef));
       }
     } else if (
@@ -235,7 +233,6 @@ class Chat extends Component {
       referToEl.elementType === 'chat_message'
     ) {
       const elementRef = this[`message-${referToEl.element}`].current;
-      console.log('settingTOELANDCOORDS in updateReferencePositions # 2');
       setToElAndCoords(null, this.getRelativeCoords(elementRef));
     }
   };
@@ -250,7 +247,6 @@ class Chat extends Component {
     const { replayer, referencing } = this.props;
     if (!replayer) {
       if (referencing) {
-        console.log('refering to ', message._id);
         this.setState({ highlightedMessage: message._id });
         this.referToMessage(event, message._id);
       } else if (message.reference)
@@ -404,8 +400,8 @@ Chat.propTypes = {
   user: PropTypes.shape({}).isRequired,
   toggleExpansion: PropTypes.func,
   referencing: PropTypes.bool,
-  referToEl: PropTypes.shape({}),
-  referFromEl: PropTypes.shape({}),
+  referToEl: PropTypes.oneOfType(PropTypes.shape({}), PropTypes.string),
+  referFromEl: PropTypes.oneOfType(PropTypes.shape({}), PropTypes.string),
   setFromElAndCoords: PropTypes.func,
   setToElAndCoords: PropTypes.func,
   showReference: PropTypes.func,

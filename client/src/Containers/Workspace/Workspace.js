@@ -602,6 +602,7 @@ class Workspace extends Component {
           referToEl={referToEl}
           showingReference={showingReference}
           referencing={referencing}
+          clearReference={this.clearReference}
           setToElAndCoords={this.setToElAndCoords}
           setFirstTabLoaded={() => {
             this.setState({ isFirstTabLoaded: true });

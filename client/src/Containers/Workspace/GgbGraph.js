@@ -57,16 +57,11 @@ class GgbGraph extends Component {
     });
     window.addEventListener('resize', this.updateDimensions);
     window.addEventListener('visibilitychange', this.visibilityChange);
-    // socket.removeAllListeners("RECEIVE_EVENT");
     socket.on('RECEIVE_EVENT', data => {
-      // console.log('recievingData: ', this.receivingData);
-      // console.log('batchUpdating, ', this.batchUpdating);
-      // console.log('received event: ', data);
       if (!this.isWindowVisible) {
         this.isFaviconNtf = true;
         this.changeFavicon('/favNtf.ico');
       }
-      // callback('success');
       // If this event is for this tab add it to the log
       if (data.tab === room.tabs[tabId]._id) {
         addToLog(room._id, data);
@@ -79,13 +74,7 @@ class GgbGraph extends Component {
         // If we're still processing data from the last event
         // save this event in a queue...then when processing is done we'll pull
         // from this queue in clearSocketQueue()
-        if (
-          this.receivingData ||
-          this.batchUpdating
-          // &&
-          // GgbEventTypes.indexOf(data.eventType) > -1
-        ) {
-          // console.log('adding to socket queue');
+        if (this.receivingData || this.batchUpdating) {
           this.socketQueue.push(data);
           return;
         }
@@ -130,7 +119,6 @@ class GgbGraph extends Component {
       setToElAndCoords,
     } = this.props;
     if (currentTab === tabId) {
-      // console.log("component updated");
       if (!this.ggbApplet) return;
 
       // new evnet
@@ -161,7 +149,7 @@ class GgbGraph extends Component {
         referToEl.elementType !== 'chat_message'
       ) {
         // find the coordinates of the point we're referencing
-        const { renamedElementType, position } = await this.getReferenceCoords(
+        const { position } = await this.getReferenceCoords(
           referToEl.element,
           referToEl.elementType
         );
@@ -171,8 +159,11 @@ class GgbGraph extends Component {
         prevProps.referToEl !== referToEl &&
         referToEl.elementType !== 'chat_message'
       ) {
-        // const position = await this.getRelativeCoords(referToEl.element);
-        // setToElAndCoords(null, position);
+        const { position } = await this.getReferenceCoords(
+          referToEl.element,
+          referToEl.elementType
+        );
+        setToElAndCoords(referToEl, position);
       }
 
       // switching tab
@@ -310,20 +301,15 @@ class GgbGraph extends Component {
         break;
     }
     if (readyToClearSocketQueue) {
-      // console.log('checking socket qeueue from CONSTRUCT_EVENT');
       this.clearSocketQueue();
     }
   };
 
   clearSocketQueue = () => {
-    // console.log('this.clearSocketQueue');
     if (this.socketQueue.length > 0) {
-      // console.log('more event in socket queue');
       const nextEvent = this.socketQueue.shift();
-      // console.log(nextEvent);
       this.constructEvent(nextEvent);
     } else {
-      // console.log('all done');
       this.updatingOn = false;
       this.batchUpdating = false;
       this.receivingData = false;
@@ -332,7 +318,6 @@ class GgbGraph extends Component {
 
   // eslint-disable-next-line consistent-return
   recursiveUpdate = (events, updateType) => {
-    // console.log('recursive update: ', events, updateType);
     let readyToClearSocketQueue = true;
     if (events && events.length > 0 && Array.isArray(events)) {
       if (updateType === 'ADDING') {
@@ -367,7 +352,6 @@ class GgbGraph extends Component {
       // events came over the socket while we were painting those updates
     }
     if (readyToClearSocketQueue) {
-      // console.log('checking socket queue from RECURSIVE_UPDAYE');
       this.clearSocketQueue();
     }
   };
@@ -471,7 +455,6 @@ class GgbGraph extends Component {
   userCanEdit = () => {
     const { user, room } = this.props;
     if (this.resetting || this.updatingOn) {
-      // console.log('edit allowed because reset or updatingon');
       return true;
     }
     if (
@@ -499,15 +482,10 @@ class GgbGraph extends Component {
    */
 
   clientListener = event => {
-    // console.log('client listener');
-    // eslint-disable-next-line no-unused-vars
-    const { referencing, resetControlTimer } = this.props;
+    const { referencing } = this.props;
     if (this.receivingData) {
       return;
     }
-    // if (this.userCanEdit()) {
-    //   resetControlTimer();
-    // }
     switch (event[0]) {
       case 'setMode':
         // ignore this event if its the same as the last one or the user is selecting
@@ -528,12 +506,6 @@ class GgbGraph extends Component {
           // Then don't send this to the other users/=.
         }
         if (event[2] !== '0') {
-          // console.log(
-          //   'showing control warning from client listener -- set mode'
-          // );
-          // this.showAlert();
-          // this.ggbApplet.setMode(40);
-
           this.setState({ showControlWarning: true });
         }
         this.receivingData = false;
@@ -579,7 +551,6 @@ class GgbGraph extends Component {
             this.shapeSelected = event[1];
             this.pointSelected = null;
           }
-          // console.log('mode: ', this.ggbApplet.getMode());
           if (this.eventQueue.length > 0) {
             this.sendEventBuffer(null, selection, event[1], 'SELECT', 'ggbObj');
           } else {
@@ -666,10 +637,8 @@ class GgbGraph extends Component {
       const objType = this.ggbApplet.getObjectType(label);
       const definition = this.ggbApplet.getCommandString(label);
       if (objType === 'point') {
-        // console.log('add listenener: sendEvent: ', label);
         this.sendEvent(xml, null, label, 'ADD', 'added');
       } else {
-        // console.log('addListener: sendEventBuffer, ', label, definition);
         this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
       }
     }
@@ -714,10 +683,6 @@ class GgbGraph extends Component {
     if (this.receivingData && !this.updatingOn) {
       return;
     }
-    // let independent = this.ggbApplet.isIndependent(label);
-    // let moveable = this.ggbApplet.isMoveable(label);
-    // let isInControl = this.props.room.controlledBy === this.props.user._id;
-
     if (
       this.userCanEdit &&
       !this.receivingData &&
@@ -780,16 +745,21 @@ class GgbGraph extends Component {
    */
 
   sendEventBuffer = (xml, definition, label, eventType, action) => {
-    // console.log({ xml, definition, label, eventType, action });
-    const { user, room } = this.props;
-    // console.log('in the event buffer');
+    const {
+      user,
+      room,
+      referencing,
+      showingReference,
+      clearReference,
+    } = this.props;
     let sendEventFromTimer = true;
 
     if (!user.connected || room.controlledBy !== user._id) {
-      // console.log('show control warning from sendEventBuffer');
-      // console.log(xml, definition, label, eventType, action);
       this.setState({ showControlWarning: true });
       return;
+    }
+    if (referencing || showingReference) {
+      clearReference();
     }
     // Add event to eventQueue in case there are multiple events to send.
     if (eventType === 'REMOVE') {
@@ -1011,32 +981,26 @@ class GgbGraph extends Component {
     }
     // Find centroid of polygon
     if (elementType !== 'point') {
-      console.log('getting poly');
       renamedElementType = 'poly';
       const commandString = this.ggbApplet.getCommandString(element);
-      console.log({ commandString });
       const pointsOfShape = commandString
         .slice(commandString.indexOf('(') + 1, commandString.indexOf(')'))
         .split(',')
         .map(point => point.trim())
         // filter out any non-points (e.g. regular polygons are defined like (A,B,4) for a square)
         .filter(str => str.match(/[a-z]/i));
-      console.log({ pointsOfShape });
       const coordsArr = await Promise.all(
         pointsOfShape.map(point => this.getRelativeCoords(point))
       );
-      console.log(coordsArr);
       let leftTotal = 0;
       let topTotal = 0;
       coordsArr.forEach(coords => {
         leftTotal += coords.left;
         topTotal += coords.top;
       });
-      console.log({ coordsArr });
       const leftAvg = leftTotal / coordsArr.length;
       const topAvg = topTotal / coordsArr.length;
       position = { left: leftAvg, top: topAvg };
-      console.log('RETURNING : ', position);
       return { renamedElementType, position };
     }
     // regular point
@@ -1172,6 +1136,7 @@ GgbGraph.propTypes = {
   referToEl: PropTypes.shape({}),
   showingReference: PropTypes.bool.isRequired,
   referencing: PropTypes.bool.isRequired,
+  clearReference: PropTypes.func.isRequired,
   setToElAndCoords: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
 };
