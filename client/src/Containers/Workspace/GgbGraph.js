@@ -722,7 +722,7 @@ class GgbGraph extends Component {
       referToEl,
       setToElAndCoords,
     } = this.props;
-    if (referencing || showingReference) {
+    if ((referencing && referToEl) || showingReference) {
       const { position } = await this.getReferenceCoords(
         referToEl.element,
         referToEl.elementType
@@ -748,7 +748,6 @@ class GgbGraph extends Component {
 
     // Set corner object to listen for zooming/moving of graph
     this.zoomObj = this.ggbApplet.evalCommandGetLabels('Corner(1)');
-    console.log(this.zoomObj);
     this.ggbApplet.setAuxiliary(this.zoomObj, true);
     this.ggbApplet.registerObjectUpdateListener(
       this.zoomObj,
