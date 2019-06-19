@@ -700,9 +700,7 @@ class GgbGraph extends Component {
    * @description used to get reference positions
    */
 
-  clickListener = async (element, event) => {
-    console.log({ element });
-    console.log({ event });
+  clickListener = async element => {
     const { referencing, setToElAndCoords } = this.props;
     if (referencing) {
       const elementType = this.ggbApplet.getObjectType(element);

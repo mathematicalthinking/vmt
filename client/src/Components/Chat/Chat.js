@@ -33,7 +33,7 @@ class Chat extends Component {
 
   componentDidMount() {
     const { replayer } = this.props;
-    window.addEventListener('resize', this.updateOnResize);
+    window.addEventListener('resize', this.updateCoords);
     window.addEventListener('keypress', this.onKeyPress);
     window.addEventListener('scroll', this.debouncedUpdateCoords);
     this.setState({
@@ -125,29 +125,6 @@ class Chat extends Component {
     if (event.key === 'Enter') {
       submit();
     }
-  };
-
-  // Updaye on resize
-  updateOnResize = () => {
-    const { showingReference, referencing } = this.props;
-    if (this.resizeTimer) {
-      clearTimeout(this.resizeTimer);
-    }
-    this.resizeTimer = setTimeout(() => {
-      if (showingReference || referencing) {
-        this.setState(
-          {
-            containerCoords: this.chatContainer.current.offsetParent.getBoundingClientRect(),
-            chatCoords: this.chatContainer.current.getBoundingClientRect(),
-            chatInputCoords: this.chatInput.current.getBoundingClientRect(),
-          },
-          () => {
-            this.updateReferencePositions();
-          }
-        );
-      }
-      this.resizeTimer = undefined;
-    }, 200);
   };
 
   scrollToBottom = () => {
