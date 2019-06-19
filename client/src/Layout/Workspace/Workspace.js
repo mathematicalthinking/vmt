@@ -127,15 +127,39 @@ class WorkspaceLayout extends Component {
           {referToCoords && referFromCoords ? (
             <div className={classes.ReferenceLine}>
               <svg height="100%" width="100%" style={{ zIndex: 12000 }}>
+                <defs>
+                  <marker
+                    id="arrow"
+                    markerWidth="10"
+                    markerHeight="10"
+                    refX="8"
+                    refY="3"
+                    orient="auto"
+                    markerUnits="strokeWidth"
+                  >
+                    <path d="M0,0 L0,6 L9,3 z" fill="#2D91F2" />
+                  </marker>
+                </defs>
                 <line
                   style={{ zIndex: 2500 }}
-                  x1={referToCoords.left}
-                  y1={referToCoords.top}
-                  x2={referFromCoords.left}
-                  y2={referFromCoords.top}
+                  x2={referToCoords.left} // -10 for width of arrow
+                  y2={referToCoords.top}
+                  x1={referFromCoords.left}
+                  y1={referFromCoords.top}
                   stroke="#2D91F2"
                   strokeWidth="3"
+                  markerEnd="url(#arrow)"
                 />
+                {/* <g
+                  x
+                >
+                  <path
+                    fill="#2D91F2"
+
+                    d="M145.188,238.575l215.5-215.5c5.3-5.3,5.3-13.8,0-19.1s-13.8-5.3-19.1,0l-225.1,225.1c-5.3,5.3-5.3,13.8,0,19.1l225.1,225
+		c2.6,2.6,6.1,4,9.5,4s6.9-1.3,9.5-4c5.3-5.3,5.3-13.8,0-19.1L145.188,238.575z"
+                  />
+                </g> */}
               </svg>
             </div>
           ) : null}

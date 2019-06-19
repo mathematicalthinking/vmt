@@ -64,6 +64,7 @@
 
 .TabsAndTitle {
   display: flex;
+  height: 35px;
   /* border: 1px solid khaki; */
 }
 

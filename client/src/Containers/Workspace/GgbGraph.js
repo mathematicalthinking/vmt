@@ -55,6 +55,10 @@ class GgbGraph extends Component {
       leading: true,
       trailing: false,
     });
+    this.throttledZoomListener = throttle(this.zoomListener, 90, {
+      leading: true,
+      trailing: true,
+    });
     window.addEventListener('resize', this.updateDimensions);
     window.addEventListener('visibilitychange', this.visibilityChange);
     socket.on('RECEIVE_EVENT', data => {
@@ -149,6 +153,7 @@ class GgbGraph extends Component {
         referToEl.elementType !== 'chat_message'
       ) {
         // find the coordinates of the point we're referencing
+        // consider abstracting this into its own funciton
         const { position } = await this.getReferenceCoords(
           referToEl.element,
           referToEl.elementType
@@ -358,26 +363,23 @@ class GgbGraph extends Component {
 
   updateDimensions = async () => {
     const {
-      showingReference,
-      referencing,
-      referToEl,
-      setToElAndCoords,
+      tabId,
+      // referencing,
+      // showingReference,
+      // referToEl,
+      // setToElAndCoords,
     } = this.props;
     if (this.graph.current) {
       const { clientHeight, clientWidth } = this.graph.current.parentElement;
       this.ggbApplet.setSize(clientWidth, clientHeight);
       this.ggbApplet.recalculateEnvironments();
-      // window.ggbApplet.evalCommand('UpdateConstruction()')
-      if (
-        showingReference ||
-        (referencing && referToEl.elmentType !== 'chat_message')
-      ) {
-        const { element } = referToEl;
-        const position = await this.getRelativeCoords(element);
-        setToElAndCoords(null, position);
-
-        // @TODO SET A CANCELABLE TIMER TO SHOW THE REFERENCE AFTER RESIZING IS DONE
-      }
+      // if (referencing || showingReference) {
+      //   const { position } = await this.getReferenceCoords(
+      //     referToEl.element,
+      //     referToEl.elementType
+      //   );
+      //   setToElAndCoords(referToEl, position);
+      // }
     }
   };
 
@@ -698,7 +700,9 @@ class GgbGraph extends Component {
    * @description used to get reference positions
    */
 
-  clickListener = async element => {
+  clickListener = async (element, event) => {
+    console.log({ element });
+    console.log({ event });
     const { referencing, setToElAndCoords } = this.props;
     if (referencing) {
       const elementType = this.ggbApplet.getObjectType(element);
@@ -707,6 +711,23 @@ class GgbGraph extends Component {
         elementType
       );
       setToElAndCoords({ element, elementType: renamedElementType }, position);
+    }
+  };
+
+  zoomListener = async () => {
+    // console.log({ event });
+    const {
+      referencing,
+      showingReference,
+      referToEl,
+      setToElAndCoords,
+    } = this.props;
+    if (referencing || showingReference) {
+      const { position } = await this.getReferenceCoords(
+        referToEl.element,
+        referToEl.elementType
+      );
+      setToElAndCoords(referToEl, position);
     }
   };
 
@@ -724,6 +745,15 @@ class GgbGraph extends Component {
       this.ggbApplet.unregisterClearListener(this.clearListener);
       this.ggbApplet.unregisterClientListener(this.clientListener);
     }
+
+    // Set corner object to listen for zooming/moving of graph
+    this.zoomObj = this.ggbApplet.evalCommandGetLabels('Corner(1)');
+    console.log(this.zoomObj);
+    this.ggbApplet.setAuxiliary(this.zoomObj, true);
+    this.ggbApplet.registerObjectUpdateListener(
+      this.zoomObj,
+      this.throttledZoomListener
+    );
     this.ggbApplet.registerClientListener(this.clientListener);
     this.ggbApplet.registerAddListener(this.addListener);
     this.ggbApplet.registerClickListener(this.clickListener);

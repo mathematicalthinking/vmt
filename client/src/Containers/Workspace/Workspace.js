@@ -127,6 +127,7 @@ class Workspace extends Component {
   componentWillUnmount() {
     const { myColor } = this.state;
     socket.emit('LEAVE_ROOM', myColor);
+    window.removeEventListener('resize', this.clearReference);
   }
 
   initializeListeners = () => {
