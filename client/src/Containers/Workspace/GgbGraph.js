@@ -706,7 +706,7 @@ class GgbGraph extends Component {
   };
 
   zoomListener = async () => {
-    // console.log({ event });
+    this.getInnerGraphCoords();
     const {
       referencing,
       showingReference,
@@ -996,8 +996,12 @@ class GgbGraph extends Component {
         commandString.indexOf('(') + 1,
         commandString.indexOf(',')
       );
-      position = await this.getRelativeCoords(point);
-      return { renamedElementType, position };
+      try {
+        position = await this.getRelativeCoords(point);
+        return { renamedElementType, position };
+      } catch (err) {
+        return null;
+      }
     }
     if (elementType !== 'point') {
       // Find centroid of polygon
@@ -1014,27 +1018,35 @@ class GgbGraph extends Component {
         // selecting segment of a poly will mess this up because the poly is the 3rd argument and passing that getRelativeCoords will fail because its not a point
         pointsOfShape.splice(2, pointsOfShape.length - 2);
       }
-      const coordsArr = await Promise.all(
-        pointsOfShape.map(point => this.getRelativeCoords(point))
-      );
-      let leftTotal = 0;
-      let topTotal = 0;
-      coordsArr.forEach(coords => {
-        leftTotal += coords.left;
-        topTotal += coords.top;
-      });
-      const leftAvg = leftTotal / coordsArr.length;
-      const topAvg = topTotal / coordsArr.length;
-      position = { left: leftAvg, top: topAvg };
-      return { renamedElementType, position };
+      try {
+        const coordsArr = await Promise.all(
+          pointsOfShape.map(point => this.getRelativeCoords(point))
+        );
+        let leftTotal = 0;
+        let topTotal = 0;
+        coordsArr.forEach(coords => {
+          leftTotal += coords.left;
+          topTotal += coords.top;
+        });
+        const leftAvg = leftTotal / coordsArr.length;
+        const topAvg = topTotal / coordsArr.length;
+        position = { left: leftAvg, top: topAvg };
+        return { renamedElementType, position };
+      } catch (err) {
+        return null;
+      }
     }
     // regular point
-    position = await this.getRelativeCoords(element);
-    return { renamedElementType, position };
+    try {
+      position = await this.getRelativeCoords(element);
+      return { renamedElementType, position };
+    } catch (err) {
+      return null;
+    }
   };
 
   getRelativeCoords = element => {
-    return new Promise(async resolve => {
+    return new Promise(async (resolve, reject) => {
       let elX;
       let elY;
       try {
@@ -1042,7 +1054,7 @@ class GgbGraph extends Component {
         elY = this.ggbApplet.getYcoord(element);
       } catch (err) {
         // this will happen if we pass something other than a point
-        resolve(null);
+        reject(err);
       }
       // Get the element's location relative to the client Window
       // Check if the Algebra input window is positioned left or bottom
@@ -1056,21 +1068,25 @@ class GgbGraph extends Component {
           .getBoundingClientRect().height;
       }
       const ggbCoords = this.graph.current.getBoundingClientRect();
-      this.graph.current.style = 'border: 1px solid red';
       const construction = await this.parseXML(this.ggbApplet.getXML()); // IS THERE ANY WAY TO DO THIS WITHOUT HAVING TO ASYNC PARSE THE XML...
-      const euclidianView = construction.geogebra.euclidianView[0];
-      const { xZero, yZero, scale } = euclidianView.coordSystem[0].$;
-      let { yScale } = euclidianView.coordSystem[0].$;
-      if (!yScale) yScale = scale;
-      const { width, height } = euclidianView.size[0].$;
-      const xOffset =
-        ggbCoords.width - width + parseInt(xZero, 10) + elX * scale;
-      let yOffset =
-        ggbCoords.height - height + parseInt(yZero, 10) - elY * yScale;
-      if (bottomMenuHeight) {
-        yOffset -= bottomMenuHeight;
+      try {
+        const euclidianView = construction.geogebra.euclidianView[0];
+        const { xZero, yZero, scale } = euclidianView.coordSystem[0].$;
+        let { yScale } = euclidianView.coordSystem[0].$;
+        if (!yScale) yScale = scale;
+        const { width, height } = euclidianView.size[0].$;
+        const xOffset =
+          ggbCoords.width - width + parseInt(xZero, 10) + elX * scale;
+        let yOffset =
+          ggbCoords.height - height + parseInt(yZero, 10) - elY * yScale;
+        if (bottomMenuHeight) {
+          yOffset -= bottomMenuHeight;
+        }
+        resolve({ left: xOffset, top: yOffset });
+      } catch (err) {
+        // an error will occur if the euclidianView doesn't exists...probably because its hidden behind the algebra window
+        reject(err);
       }
-      resolve({ left: xOffset, top: yOffset });
     });
   };
 
