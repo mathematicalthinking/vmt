@@ -11,7 +11,6 @@ class WorkspaceLayout extends Component {
       this.Graph.current.requestFullscreen();
     }
   }
-
   render() {
     const {
       chat,
@@ -30,22 +29,22 @@ class WorkspaceLayout extends Component {
       encompass,
       chatExpanded,
       membersExpanded,
+      graphCoords,
     } = this.props;
-    // Set text for taking control button based on current control
-    // let controlText = 'Take Control';
-    // let inControl = false;
-    // if (room.controlledBy === user._id) {
-    //   controlText = 'Release Control';
-    //   inControl = true;
-    // }
-    // else if (room.controlledBy) controlText = 'Request Control';
-
-    // let bottomButton;
-    // if (role === 'facilitator' && !activityWorkspace) {
-    //     bottomButton = <div><Button click={setStartingPoint}>Set starting point</Button></div>
-    // } else if (role === 'participant' && activityWorkspace) {
-    //   bottomButton = <div><Button click={copyActivity}>Add To My Activities</Button></div>
-    // }
+    let x2;
+    let y2;
+    if (referToCoords && graphCoords) {
+      y2 = referToCoords.top;
+      x2 = referToCoords.left;
+      if (graphCoords.height < referToCoords.top) {
+        y2 = graphCoords.height;
+      } else if (graphCoords.top > referToCoords.top) {
+        y2 = graphCoords.top;
+      }
+      if (graphCoords.left > referToCoords.left) {
+        x2 = graphCoords.left;
+      }
+    }
     let membersHeight = 'auto';
     let chatHeight = '43%';
     let flexB = '0';
@@ -61,7 +60,11 @@ class WorkspaceLayout extends Component {
       // If this is Firefox
       flexB = 'auto';
     }
+<<<<<<< HEAD
     console.log({ referToCoords, referFromCoords });
+=======
+
+>>>>>>> restrict ref line to graph / no overflow
     return (
       <div
         className={classes.PageContainer}
@@ -126,7 +129,7 @@ class WorkspaceLayout extends Component {
           </div>
           {referToCoords && referFromCoords ? (
             <div className={classes.ReferenceLine}>
-              <svg height="100%" width="100%" style={{ zIndex: 12000 }}>
+              <svg height="100%" width="100%" style={{ zIndex: 1000 }}>
                 <defs>
                   <marker
                     id="arrow"
@@ -142,24 +145,14 @@ class WorkspaceLayout extends Component {
                 </defs>
                 <line
                   style={{ zIndex: 2500 }}
-                  x2={referToCoords.left} // -10 for width of arrow
-                  y2={referToCoords.top}
+                  x2={x2}
+                  y2={y2}
                   x1={referFromCoords.left}
                   y1={referFromCoords.top}
                   stroke="#2D91F2"
                   strokeWidth="3"
                   markerEnd="url(#arrow)"
                 />
-                {/* <g
-                  x
-                >
-                  <path
-                    fill="#2D91F2"
-
-                    d="M145.188,238.575l215.5-215.5c5.3-5.3,5.3-13.8,0-19.1s-13.8-5.3-19.1,0l-225.1,225.1c-5.3,5.3-5.3,13.8,0,19.1l225.1,225
-		c2.6,2.6,6.1,4,9.5,4s6.9-1.3,9.5-4c5.3-5.3,5.3-13.8,0-19.1L145.188,238.575z"
-                  />
-                </g> */}
               </svg>
             </div>
           ) : null}
@@ -187,6 +180,11 @@ WorkspaceLayout.propTypes = {
   encompass: PropTypes.bool,
   chatExpanded: PropTypes.bool,
   membersExpanded: PropTypes.bool,
+  graphCoords: PropTypes.shape({
+    left: PropTypes.number,
+    height: PropTypes.number,
+    top: PropTypes.number,
+  }),
 };
 
 WorkspaceLayout.defaultProps = {
@@ -201,5 +199,6 @@ WorkspaceLayout.defaultProps = {
   referToCoords: null,
   chatExpanded: true,
   membersExpanded: true,
+  graphCoords: null,
 };
 export default WorkspaceLayout;

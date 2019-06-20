@@ -56,6 +56,7 @@ class Workspace extends Component {
       toolsExpanded: true,
       isFirstTabLoaded: false,
       showAdminWarning: user ? user.inAdminMode : false,
+      graphCoords: null,
     };
   }
 
@@ -477,6 +478,10 @@ class Workspace extends Component {
     history.goBack();
   };
 
+  setGraphCoords = graphCoords => {
+    this.setState({ graphCoords });
+  };
+
   render() {
     const {
       room,
@@ -506,6 +511,7 @@ class Workspace extends Component {
       isFirstTabLoaded,
       creatingNewTab,
       showAdminWarning,
+      graphCoords,
     } = this.state;
     let control = 'OTHER';
     if (room.controlledBy === user._id) control = 'ME';
@@ -608,6 +614,7 @@ class Workspace extends Component {
           setFirstTabLoaded={() => {
             this.setState({ isFirstTabLoaded: true });
           }}
+          setGraphCoords={this.setGraphCoords}
         />
       );
     });
@@ -659,6 +666,7 @@ class Workspace extends Component {
             toolsExpanded={toolsExpanded}
             referToCoords={referToCoords}
             referFromCoords={referFromCoords}
+            graphCoords={graphCoords}
           />
         ) : null}
         <Modal show={creatingNewTab} closeModal={this.closeModal}>

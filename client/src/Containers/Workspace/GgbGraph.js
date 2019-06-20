@@ -55,7 +55,7 @@ class GgbGraph extends Component {
       leading: true,
       trailing: false,
     });
-    this.throttledZoomListener = throttle(this.zoomListener, 90, {
+    this.throttledZoomListener = throttle(this.zoomListener, 110, {
       leading: true,
       trailing: true,
     });
@@ -362,24 +362,11 @@ class GgbGraph extends Component {
   };
 
   updateDimensions = async () => {
-    const {
-      tabId,
-      // referencing,
-      // showingReference,
-      // referToEl,
-      // setToElAndCoords,
-    } = this.props;
-    if (this.graph.current) {
+    const { tabId } = this.props;
+    if (this.graph.current && this.ggbApplet) {
       const { clientHeight, clientWidth } = this.graph.current.parentElement;
       this.ggbApplet.setSize(clientWidth, clientHeight);
       this.ggbApplet.recalculateEnvironments();
-      // if (referencing || showingReference) {
-      //   const { position } = await this.getReferenceCoords(
-      //     referToEl.element,
-      //     referToEl.elementType
-      //   );
-      //   setToElAndCoords(referToEl, position);
-      // }
     }
   };
 
@@ -429,7 +416,11 @@ class GgbGraph extends Component {
    */
 
   initializeGgb = () => {
+    // Save the coords of the graph element so we know how to restrict reference lines (i.e. prevent from overflowing graph)
+
     const { room, tabId, setFirstTabLoaded } = this.props;
+
+    this.getInnerGraphCoords();
     const { currentState, startingPoint, ggbFile } = room.tabs[tabId];
     this.ggbApplet = window[`ggbApplet${tabId}A`];
     this.ggbApplet.setMode(40); // Sets the tool to zoom
@@ -538,6 +529,8 @@ class GgbGraph extends Component {
         }
         break;
       case 'select':
+        console.log({ event });
+        console.log('type: ', Array.isArray(event));
         if (referencing) {
           return;
         }
@@ -1006,9 +999,9 @@ class GgbGraph extends Component {
       position = await this.getRelativeCoords(point);
       return { renamedElementType, position };
     }
-    // Find centroid of polygon
     if (elementType !== 'point') {
-      renamedElementType = 'poly';
+      // Find centroid of polygon
+      renamedElementType = elementType === 'segment' ? 'segment' : 'poly';
       const commandString = this.ggbApplet.getCommandString(element);
       const pointsOfShape = commandString
         .slice(commandString.indexOf('(') + 1, commandString.indexOf(')'))
@@ -1016,6 +1009,11 @@ class GgbGraph extends Component {
         .map(point => point.trim())
         // filter out any non-points (e.g. regular polygons are defined like (A,B,4) for a square)
         .filter(str => str.match(/[a-z]/i));
+      if (elementType === 'segment') {
+        // only take the first two points if its a segment
+        // selecting segment of a poly will mess this up because the poly is the 3rd argument and passing that getRelativeCoords will fail because its not a point
+        pointsOfShape.splice(2, pointsOfShape.length - 2);
+      }
       const coordsArr = await Promise.all(
         pointsOfShape.map(point => this.getRelativeCoords(point))
       );
@@ -1036,18 +1034,29 @@ class GgbGraph extends Component {
   };
 
   getRelativeCoords = element => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async resolve => {
       let elX;
       let elY;
       try {
         elX = this.ggbApplet.getXcoord(element);
         elY = this.ggbApplet.getYcoord(element);
       } catch (err) {
-        // get the coords of its children
-        reject(err);
+        // this will happen if we pass something other than a point
+        resolve(null);
       }
       // Get the element's location relative to the client Window
+      // Check if the Algebra input window is positioned left or bottom
+      const vertical = document.getElementsByClassName(
+        'gwt-SplitLayoutPanel-VDragger'
+      );
+      let bottomMenuHeight;
+      if (vertical.length > 0) {
+        bottomMenuHeight = document
+          .getElementsByClassName('ggbdockpanelhack')[1]
+          .getBoundingClientRect().height;
+      }
       const ggbCoords = this.graph.current.getBoundingClientRect();
+      this.graph.current.style = 'border: 1px solid red';
       const construction = await this.parseXML(this.ggbApplet.getXML()); // IS THERE ANY WAY TO DO THIS WITHOUT HAVING TO ASYNC PARSE THE XML...
       const euclidianView = construction.geogebra.euclidianView[0];
       const { xZero, yZero, scale } = euclidianView.coordSystem[0].$;
@@ -1056,10 +1065,26 @@ class GgbGraph extends Component {
       const { width, height } = euclidianView.size[0].$;
       const xOffset =
         ggbCoords.width - width + parseInt(xZero, 10) + elX * scale;
-      const yOffset =
+      let yOffset =
         ggbCoords.height - height + parseInt(yZero, 10) - elY * yScale;
-      // this + 36 here is a hack...
-      resolve({ left: xOffset, top: yOffset + 36 });
+      if (bottomMenuHeight) {
+        yOffset -= bottomMenuHeight;
+      }
+      resolve({ left: xOffset, top: yOffset });
+    });
+  };
+
+  getInnerGraphCoords = () => {
+    const { setGraphCoords } = this.props;
+    const graphEl = document.querySelector('[aria-label="Graphics View 1"]');
+    const topBarHeight = document
+      .getElementsByClassName('ggbtoolbarpanel')[0]
+      .getBoundingClientRect().height;
+    const innerGraphCoords = graphEl.getBoundingClientRect();
+    setGraphCoords({
+      left: innerGraphCoords.left - 17,
+      height: innerGraphCoords.height + topBarHeight,
+      top: topBarHeight,
     });
   };
 
@@ -1083,13 +1108,6 @@ class GgbGraph extends Component {
         />
         <div
           className={classes.Graph}
-          style={{
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-          }}
           id={`ggb-element${tabId}A`}
           ref={this.graph}
         />
@@ -1166,6 +1184,7 @@ GgbGraph.propTypes = {
   clearReference: PropTypes.func.isRequired,
   setToElAndCoords: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
+  setGraphCoords: PropTypes.func.isRequired,
 };
 
 export default GgbGraph;

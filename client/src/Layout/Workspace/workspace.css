@@ -254,7 +254,8 @@
   position: absolute;
   height: 100%;
   width: 100%;
-  top: 0;
+  /*top = tabAndTitle height */
+  top: 35px;
   left: 0;
   z-index: 100;
   pointer-events: none;
