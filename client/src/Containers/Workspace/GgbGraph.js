@@ -1099,6 +1099,7 @@ class GgbGraph extends Component {
     const innerGraphCoords = graphEl.getBoundingClientRect();
     setGraphCoords({
       left: innerGraphCoords.left - 17,
+      right: innerGraphCoords.right - 17,
       height: innerGraphCoords.height + topBarHeight,
       top: topBarHeight,
     });

@@ -43,6 +43,8 @@ class WorkspaceLayout extends Component {
       }
       if (graphCoords.left > referToCoords.left) {
         x2 = graphCoords.left;
+      } else if (graphCoords.right < referToCoords.left) {
+        x2 = graphCoords.right;
       }
     }
     let membersHeight = 'auto';
@@ -182,6 +184,7 @@ WorkspaceLayout.propTypes = {
   membersExpanded: PropTypes.bool,
   graphCoords: PropTypes.shape({
     left: PropTypes.number,
+    right: PropTypes.number,
     height: PropTypes.number,
     top: PropTypes.number,
   }),
