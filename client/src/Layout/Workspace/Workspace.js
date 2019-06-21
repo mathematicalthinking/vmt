@@ -62,11 +62,6 @@ class WorkspaceLayout extends Component {
       // If this is Firefox
       flexB = 'auto';
     }
-<<<<<<< HEAD
-    console.log({ referToCoords, referFromCoords });
-=======
-
->>>>>>> restrict ref line to graph / no overflow
     return (
       <div
         className={classes.PageContainer}

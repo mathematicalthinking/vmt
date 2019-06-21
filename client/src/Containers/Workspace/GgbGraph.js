@@ -362,7 +362,7 @@ class GgbGraph extends Component {
   };
 
   updateDimensions = async () => {
-    const { tabId } = this.props;
+    // const { tabId } = this.props;
     if (this.graph.current && this.ggbApplet) {
       const { clientHeight, clientWidth } = this.graph.current.parentElement;
       this.ggbApplet.setSize(clientWidth, clientHeight);
