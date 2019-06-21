@@ -9,7 +9,7 @@ const clearDB = () => {
     .then(() => mongoose.connection.db.dropDatabase());
 };
 
-seedCollection = (db, collectionName, data) => {
+const seedCollection = (db, collectionName, data) => {
   return db.collection(collectionName).insertMany(data);
 }
 const seed = async (collections=Object.keys(data)) => {
