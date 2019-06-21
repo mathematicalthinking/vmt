@@ -12,7 +12,6 @@
 // the project's config changing)
 const models = require("../../models");
 const room = require("../fixtures/room");
-const exec = require("child_process").exec;
 const mongoose = require("mongoose");
 const data = [
   {
@@ -20,6 +19,8 @@ const data = [
     documents: [room]
   }
 ];
+
+const { seed } = require('../../seeders/seed');
 
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
@@ -31,15 +32,15 @@ module.exports = (on, config) => {
         .then(() => mongoose.connection.db.dropDatabase());
     },
     seedDBLogin: () => {
-      return new Promise((resolve, reject) => {
-        exec("md-seed run users --dropdb", () => resolve("success"));
-      });
+      return seed(['users']).then(() => {
+        resolve('success');
+      })
     },
     seedDB: () => {
       return new Promise((resolve, reject) => {
-        exec("md-seed run users courses rooms activities tabs --dropdb", () =>
-          resolve("success")
-        );
+        return seed().then(() => {
+          resolve('success');
+        })
       });
     }
     // disconnect : () => {
