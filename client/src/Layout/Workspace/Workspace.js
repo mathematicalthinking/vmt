@@ -23,7 +23,7 @@ class WorkspaceLayout extends Component {
 
   setOffSet = () => {
     const coords = this.Graph.current.getBoundingClientRect();
-    this.setState({ offSet: coords.x - 14 }); // -5 for width of arrow head
+    this.setState({ offSet: coords.x - 18 }); // -18 for width of arrow head
   };
   render() {
     const {

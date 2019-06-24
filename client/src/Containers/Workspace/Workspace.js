@@ -92,7 +92,7 @@ class Workspace extends Component {
       this.setState({ myColor: COLOR_MAP[room.members.length - 1] });
       this.initializeListeners();
     }
-    // window.addEventListener("beforeunload", this.componentCleanup);
+    window.addEventListener('resize', this.clearReference);
   }
 
   componentDidUpdate(prevProps) {
