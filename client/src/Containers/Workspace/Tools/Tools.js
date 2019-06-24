@@ -83,7 +83,12 @@ const Tools = ({
                   referencing ? classes.ReferencingActive : '',
                 ].join(' ')}
               />
-              <div className={classes.ReferenceTool}>Reference</div>
+              <div
+                className={classes.ReferenceTool}
+                data-testid="new-reference"
+              >
+                Reference
+              </div>
               {/* <div className={classes.RefrenceTool}>Perspective</div> */}
             </div>
           ) : null}

@@ -665,6 +665,7 @@ class Workspace extends Component {
             instructionsExpanded={instructionsExpanded}
             toolsExpanded={toolsExpanded}
             referToCoords={referToCoords}
+            referToEl={referToEl}
             referFromCoords={referFromCoords}
             graphCoords={graphCoords}
           />

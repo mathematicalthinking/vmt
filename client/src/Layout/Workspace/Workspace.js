@@ -43,6 +43,7 @@ class WorkspaceLayout extends Component {
       encompass,
       chatExpanded,
       membersExpanded,
+      referToEl,
       graphCoords,
     } = this.props;
     const { offSet } = this.state;
@@ -58,7 +59,10 @@ class WorkspaceLayout extends Component {
       }
       if (graphCoords.left - offSet > referToCoords.left) {
         x2 = graphCoords.left - offSet;
-      } else if (graphCoords.right - offSet < referToCoords.left) {
+      } else if (
+        graphCoords.right - offSet < referToCoords.left &&
+        referToEl.elementType !== 'chat_message'
+      ) {
         x2 = graphCoords.right - offSet;
       }
     }
@@ -156,6 +160,7 @@ class WorkspaceLayout extends Component {
                   </marker>
                 </defs>
                 <line
+                  data-testid="reference-line"
                   style={{ zIndex: 2500 }}
                   x2={x2}
                   y2={y2}
@@ -198,6 +203,9 @@ WorkspaceLayout.propTypes = {
     height: PropTypes.number,
     top: PropTypes.number,
   }),
+  referToEl: PropTypes.shape({
+    elementType: PropTypes.string.isRequired,
+  }),
 };
 
 WorkspaceLayout.defaultProps = {
@@ -211,6 +219,7 @@ WorkspaceLayout.defaultProps = {
   referFromCoords: null,
   referToCoords: null,
   chatExpanded: true,
+  referToEl: null,
   membersExpanded: true,
   graphCoords: null,
 };

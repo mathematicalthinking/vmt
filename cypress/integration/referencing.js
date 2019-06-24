@@ -14,5 +14,16 @@ describe('Workspace/replayer', function() {
       .children()
       .should('have.length', 23);
   });
-  it('shows a reference when clicking on reference message', () => {});
+  it('shows a reference when clicking on reference message', () => {
+    cy.getTestElement('reference-line').should('not.be.visible');
+    cy.getTestElement('5d0d2f0748e22b165488897c').click();
+    cy.getTestElement('reference-line').should('be.visible');
+  });
+
+  it('makes a new reference', () => {
+    cy.getTestElement('new-reference').click();
+    cy.getTestElement('reference-line').should('not.be.visible');
+    cy.getTestElement('5d0d2f0748e22b165488897c').click();
+    cy.getTestElement('reference-line').should('be.visible');
+  });
 });

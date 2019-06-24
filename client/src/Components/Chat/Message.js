@@ -17,6 +17,7 @@ const Message = React.forwardRef((props, ref) => {
     return (
       <div
         id={message._id}
+        data-testid={message._id}
         key={id}
         ref={ref}
         className={[

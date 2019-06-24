@@ -436,6 +436,7 @@ class GgbGraph extends Component {
     }
     this.registerListeners();
     setFirstTabLoaded();
+    // EMIT Ggb loaded to request current state...this will ensure that if events occured while we were loading ggb we'll still get them
   };
 
   /**
