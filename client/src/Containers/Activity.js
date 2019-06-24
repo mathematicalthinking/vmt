@@ -47,7 +47,6 @@ class Activity extends Component {
   componentDidMount() {
     const { activity, connectGetCurrentActivity, match, user } = this.props;
     if (!activity) {
-      console.log('getting current activity');
       connectGetCurrentActivity(match.params.activity_id); // WHY ARE WE DOING THIS??
     } else {
       const { resource } = match.params;

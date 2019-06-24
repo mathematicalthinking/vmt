@@ -36,7 +36,6 @@ const getEncSecret = () => {
 };
 
 const validateUser = (req, res, next) => {
-  console.log('validate user: ', req.user);
   delete req.isTempRoom; // see if (tab.room.tempRoom)
   let { resource, id } = req.params;
 

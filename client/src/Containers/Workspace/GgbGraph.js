@@ -55,18 +55,17 @@ class GgbGraph extends Component {
       leading: true,
       trailing: false,
     });
+    this.throttledZoomListener = throttle(this.zoomListener, 110, {
+      leading: true,
+      trailing: true,
+    });
     window.addEventListener('resize', this.updateDimensions);
     window.addEventListener('visibilitychange', this.visibilityChange);
-    // socket.removeAllListeners("RECEIVE_EVENT");
     socket.on('RECEIVE_EVENT', data => {
-      // console.log('recievingData: ', this.receivingData);
-      // console.log('batchUpdating, ', this.batchUpdating);
-      // console.log('received event: ', data);
       if (!this.isWindowVisible) {
         this.isFaviconNtf = true;
         this.changeFavicon('/favNtf.ico');
       }
-      // callback('success');
       // If this event is for this tab add it to the log
       if (data.tab === room.tabs[tabId]._id) {
         addToLog(room._id, data);
@@ -79,13 +78,7 @@ class GgbGraph extends Component {
         // If we're still processing data from the last event
         // save this event in a queue...then when processing is done we'll pull
         // from this queue in clearSocketQueue()
-        if (
-          this.receivingData ||
-          this.batchUpdating
-          // &&
-          // GgbEventTypes.indexOf(data.eventType) > -1
-        ) {
-          // console.log('adding to socket queue');
+        if (this.receivingData || this.batchUpdating) {
           this.socketQueue.push(data);
           return;
         }
@@ -130,7 +123,6 @@ class GgbGraph extends Component {
       setToElAndCoords,
     } = this.props;
     if (currentTab === tabId) {
-      // console.log("component updated");
       if (!this.ggbApplet) return;
 
       // new evnet
@@ -161,15 +153,22 @@ class GgbGraph extends Component {
         referToEl.elementType !== 'chat_message'
       ) {
         // find the coordinates of the point we're referencing
-        const position = await this.getRelativeCoords(referToEl.element);
-        setToElAndCoords(null, position);
+        // consider abstracting this into its own funciton
+        const { position } = await this.getReferenceCoords(
+          referToEl.element,
+          referToEl.elementType
+        );
+        setToElAndCoords(referToEl, position);
       } else if (
         showingReference &&
         prevProps.referToEl !== referToEl &&
         referToEl.elementType !== 'chat_message'
       ) {
-        const position = await this.getRelativeCoords(referToEl.element);
-        setToElAndCoords(null, position);
+        const { position } = await this.getReferenceCoords(
+          referToEl.element,
+          referToEl.elementType
+        );
+        setToElAndCoords(referToEl, position);
       }
 
       // switching tab
@@ -307,20 +306,15 @@ class GgbGraph extends Component {
         break;
     }
     if (readyToClearSocketQueue) {
-      // console.log('checking socket qeueue from CONSTRUCT_EVENT');
       this.clearSocketQueue();
     }
   };
 
   clearSocketQueue = () => {
-    // console.log('this.clearSocketQueue');
     if (this.socketQueue.length > 0) {
-      // console.log('more event in socket queue');
       const nextEvent = this.socketQueue.shift();
-      // console.log(nextEvent);
       this.constructEvent(nextEvent);
     } else {
-      // console.log('all done');
       this.updatingOn = false;
       this.batchUpdating = false;
       this.receivingData = false;
@@ -329,7 +323,6 @@ class GgbGraph extends Component {
 
   // eslint-disable-next-line consistent-return
   recursiveUpdate = (events, updateType) => {
-    // console.log('recursive update: ', events, updateType);
     let readyToClearSocketQueue = true;
     if (events && events.length > 0 && Array.isArray(events)) {
       if (updateType === 'ADDING') {
@@ -364,33 +357,16 @@ class GgbGraph extends Component {
       // events came over the socket while we were painting those updates
     }
     if (readyToClearSocketQueue) {
-      // console.log('checking socket queue from RECURSIVE_UPDAYE');
       this.clearSocketQueue();
     }
   };
 
   updateDimensions = async () => {
-    const {
-      showingReference,
-      referencing,
-      referToEl,
-      setToElAndCoords,
-    } = this.props;
-    if (this.graph.current) {
+    // const { tabId } = this.props;
+    if (this.graph.current && this.ggbApplet) {
       const { clientHeight, clientWidth } = this.graph.current.parentElement;
       this.ggbApplet.setSize(clientWidth, clientHeight);
       this.ggbApplet.recalculateEnvironments();
-      // window.ggbApplet.evalCommand('UpdateConstruction()')
-      if (
-        showingReference ||
-        (referencing && referToEl.elmentType !== 'chat_message')
-      ) {
-        const { element } = referToEl;
-        const position = await this.getRelativeCoords(element);
-        setToElAndCoords(null, position);
-
-        // @TODO SET A CANCELABLE TIMER TO SHOW THE REFERENCE AFTER RESIZING IS DONE
-      }
     }
   };
 
@@ -440,7 +416,11 @@ class GgbGraph extends Component {
    */
 
   initializeGgb = () => {
+    // Save the coords of the graph element so we know how to restrict reference lines (i.e. prevent from overflowing graph)
+
     const { room, tabId, setFirstTabLoaded } = this.props;
+
+    this.getInnerGraphCoords();
     const { currentState, startingPoint, ggbFile } = room.tabs[tabId];
     this.ggbApplet = window[`ggbApplet${tabId}A`];
     this.ggbApplet.setMode(40); // Sets the tool to zoom
@@ -456,6 +436,7 @@ class GgbGraph extends Component {
     }
     this.registerListeners();
     setFirstTabLoaded();
+    // EMIT Ggb loaded to request current state...this will ensure that if events occured while we were loading ggb we'll still get them
   };
 
   /**
@@ -468,7 +449,6 @@ class GgbGraph extends Component {
   userCanEdit = () => {
     const { user, room } = this.props;
     if (this.resetting || this.updatingOn) {
-      // console.log('edit allowed because reset or updatingon');
       return true;
     }
     if (
@@ -496,15 +476,10 @@ class GgbGraph extends Component {
    */
 
   clientListener = event => {
-    // console.log('client listener');
-    // eslint-disable-next-line no-unused-vars
-    const { referencing, resetControlTimer } = this.props;
+    const { referencing } = this.props;
     if (this.receivingData) {
       return;
     }
-    // if (this.userCanEdit()) {
-    //   resetControlTimer();
-    // }
     switch (event[0]) {
       case 'setMode':
         // ignore this event if its the same as the last one or the user is selecting
@@ -525,12 +500,6 @@ class GgbGraph extends Component {
           // Then don't send this to the other users/=.
         }
         if (event[2] !== '0') {
-          // console.log(
-          //   'showing control warning from client listener -- set mode'
-          // );
-          // this.showAlert();
-          // this.ggbApplet.setMode(40);
-
           this.setState({ showControlWarning: true });
         }
         this.receivingData = false;
@@ -561,6 +530,8 @@ class GgbGraph extends Component {
         }
         break;
       case 'select':
+        console.log({ event });
+        console.log('type: ', Array.isArray(event));
         if (referencing) {
           return;
         }
@@ -576,7 +547,6 @@ class GgbGraph extends Component {
             this.shapeSelected = event[1];
             this.pointSelected = null;
           }
-          // console.log('mode: ', this.ggbApplet.getMode());
           if (this.eventQueue.length > 0) {
             this.sendEventBuffer(null, selection, event[1], 'SELECT', 'ggbObj');
           } else {
@@ -663,10 +633,8 @@ class GgbGraph extends Component {
       const objType = this.ggbApplet.getObjectType(label);
       const definition = this.ggbApplet.getCommandString(label);
       if (objType === 'point') {
-        // console.log('add listenener: sendEvent: ', label);
         this.sendEvent(xml, null, label, 'ADD', 'added');
       } else {
-        // console.log('addListener: sendEventBuffer, ', label, definition);
         this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
       }
     }
@@ -711,10 +679,6 @@ class GgbGraph extends Component {
     if (this.receivingData && !this.updatingOn) {
       return;
     }
-    // let independent = this.ggbApplet.isIndependent(label);
-    // let moveable = this.ggbApplet.isMoveable(label);
-    // let isInControl = this.props.room.controlledBy === this.props.user._id;
-
     if (
       this.userCanEdit &&
       !this.receivingData &&
@@ -734,16 +698,28 @@ class GgbGraph extends Component {
     const { referencing, setToElAndCoords } = this.props;
     if (referencing) {
       const elementType = this.ggbApplet.getObjectType(element);
-      let renamedElement;
-      if (elementType !== 'point') {
-        const commandString = this.ggbApplet.getCommandString(element);
-        renamedElement = commandString.slice(
-          commandString.indexOf('(') + 1,
-          commandString.indexOf('(') + 2
-        );
-      }
-      const position = await this.getRelativeCoords(renamedElement);
-      setToElAndCoords({ element, elementType: 'point' }, position);
+      const { renamedElementType, position } = await this.getReferenceCoords(
+        element,
+        elementType
+      );
+      setToElAndCoords({ element, elementType: renamedElementType }, position);
+    }
+  };
+
+  zoomListener = async () => {
+    this.getInnerGraphCoords();
+    const {
+      referencing,
+      showingReference,
+      referToEl,
+      setToElAndCoords,
+    } = this.props;
+    if ((referencing && referToEl) || showingReference) {
+      const { position } = await this.getReferenceCoords(
+        referToEl.element,
+        referToEl.elementType
+      );
+      setToElAndCoords(referToEl, position);
     }
   };
 
@@ -761,6 +737,14 @@ class GgbGraph extends Component {
       this.ggbApplet.unregisterClearListener(this.clearListener);
       this.ggbApplet.unregisterClientListener(this.clientListener);
     }
+
+    // Set corner object to listen for zooming/moving of graph
+    this.zoomObj = this.ggbApplet.evalCommandGetLabels('Corner(1)');
+    this.ggbApplet.setAuxiliary(this.zoomObj, true);
+    this.ggbApplet.registerObjectUpdateListener(
+      this.zoomObj,
+      this.throttledZoomListener
+    );
     this.ggbApplet.registerClientListener(this.clientListener);
     this.ggbApplet.registerAddListener(this.addListener);
     this.ggbApplet.registerClickListener(this.clickListener);
@@ -782,16 +766,21 @@ class GgbGraph extends Component {
    */
 
   sendEventBuffer = (xml, definition, label, eventType, action) => {
-    // console.log({ xml, definition, label, eventType, action });
-    const { user, room } = this.props;
-    // console.log('in the event buffer');
+    const {
+      user,
+      room,
+      referencing,
+      showingReference,
+      clearReference,
+    } = this.props;
     let sendEventFromTimer = true;
 
     if (!user.connected || room.controlledBy !== user._id) {
-      // console.log('show control warning from sendEventBuffer');
-      // console.log(xml, definition, label, eventType, action);
       this.setState({ showControlWarning: true });
       return;
+    }
+    if (referencing || showingReference) {
+      clearReference();
     }
     // Add event to eventQueue in case there are multiple events to send.
     if (eventType === 'REMOVE') {
@@ -998,6 +987,65 @@ class GgbGraph extends Component {
    * @return {Promise Object} - because parseXML is async
    */
 
+  getReferenceCoords = async (element, elementType) => {
+    let position;
+    let renamedElementType = elementType;
+    // find center point of circle
+    if (elementType === 'circle') {
+      const commandString = this.ggbApplet.getCommandString(element);
+      const point = commandString.slice(
+        commandString.indexOf('(') + 1,
+        commandString.indexOf(',')
+      );
+      try {
+        position = await this.getRelativeCoords(point);
+        return { renamedElementType, position };
+      } catch (err) {
+        return null;
+      }
+    }
+    if (elementType !== 'point') {
+      // Find centroid of polygon
+      renamedElementType = elementType === 'segment' ? 'segment' : 'poly';
+      const commandString = this.ggbApplet.getCommandString(element);
+      const pointsOfShape = commandString
+        .slice(commandString.indexOf('(') + 1, commandString.indexOf(')'))
+        .split(',')
+        .map(point => point.trim())
+        // filter out any non-points (e.g. regular polygons are defined like (A,B,4) for a square)
+        .filter(str => str.match(/[a-z]/i));
+      if (elementType === 'segment') {
+        // only take the first two points if its a segment
+        // selecting segment of a poly will mess this up because the poly is the 3rd argument and passing that getRelativeCoords will fail because its not a point
+        pointsOfShape.splice(2, pointsOfShape.length - 2);
+      }
+      try {
+        const coordsArr = await Promise.all(
+          pointsOfShape.map(point => this.getRelativeCoords(point))
+        );
+        let leftTotal = 0;
+        let topTotal = 0;
+        coordsArr.forEach(coords => {
+          leftTotal += coords.left;
+          topTotal += coords.top;
+        });
+        const leftAvg = leftTotal / coordsArr.length;
+        const topAvg = topTotal / coordsArr.length;
+        position = { left: leftAvg, top: topAvg };
+        return { renamedElementType, position };
+      } catch (err) {
+        return null;
+      }
+    }
+    // regular point
+    try {
+      position = await this.getRelativeCoords(element);
+      return { renamedElementType, position };
+    } catch (err) {
+      return null;
+    }
+  };
+
   getRelativeCoords = element => {
     return new Promise(async (resolve, reject) => {
       let elX;
@@ -1006,23 +1054,55 @@ class GgbGraph extends Component {
         elX = this.ggbApplet.getXcoord(element);
         elY = this.ggbApplet.getYcoord(element);
       } catch (err) {
-        // get the coords of its children
+        // this will happen if we pass something other than a point
         reject(err);
       }
       // Get the element's location relative to the client Window
+      // Check if the Algebra input window is positioned left or bottom
+      const vertical = document.getElementsByClassName(
+        'gwt-SplitLayoutPanel-VDragger'
+      );
+      let bottomMenuHeight;
+      if (vertical.length > 0) {
+        bottomMenuHeight = document
+          .getElementsByClassName('ggbdockpanelhack')[1]
+          .getBoundingClientRect().height;
+      }
       const ggbCoords = this.graph.current.getBoundingClientRect();
       const construction = await this.parseXML(this.ggbApplet.getXML()); // IS THERE ANY WAY TO DO THIS WITHOUT HAVING TO ASYNC PARSE THE XML...
-      const euclidianView = construction.geogebra.euclidianView[0];
-      const { xZero, yZero, scale } = euclidianView.coordSystem[0].$;
-      let { yScale } = euclidianView.coordSystem[0].$;
-      if (!yScale) yScale = scale;
-      const { width, height } = euclidianView.size[0].$;
-      const xOffset =
-        ggbCoords.width - width + parseInt(xZero, 10) + elX * scale;
-      const yOffset =
-        ggbCoords.height - height + parseInt(yZero, 10) - elY * yScale;
-      // this + 36 here is a hack...
-      resolve({ left: xOffset, top: yOffset + 36 });
+      try {
+        const euclidianView = construction.geogebra.euclidianView[0];
+        const { xZero, yZero, scale } = euclidianView.coordSystem[0].$;
+        let { yScale } = euclidianView.coordSystem[0].$;
+        if (!yScale) yScale = scale;
+        const { width, height } = euclidianView.size[0].$;
+        const xOffset =
+          ggbCoords.width - width + parseInt(xZero, 10) + elX * scale;
+        let yOffset =
+          ggbCoords.height - height + parseInt(yZero, 10) - elY * yScale;
+        if (bottomMenuHeight) {
+          yOffset -= bottomMenuHeight;
+        }
+        resolve({ left: xOffset, top: yOffset });
+      } catch (err) {
+        // an error will occur if the euclidianView doesn't exists...probably because its hidden behind the algebra window
+        reject(err);
+      }
+    });
+  };
+
+  getInnerGraphCoords = () => {
+    const { setGraphCoords } = this.props;
+    const graphEl = document.querySelector('[aria-label="Graphics View 1"]');
+    const topBarHeight = document
+      .getElementsByClassName('ggbtoolbarpanel')[0]
+      .getBoundingClientRect().height;
+    const innerGraphCoords = graphEl.getBoundingClientRect();
+    setGraphCoords({
+      left: innerGraphCoords.left - 17,
+      right: innerGraphCoords.right - 17,
+      height: innerGraphCoords.height + topBarHeight,
+      top: topBarHeight,
     });
   };
 
@@ -1046,13 +1126,6 @@ class GgbGraph extends Component {
         />
         <div
           className={classes.Graph}
-          style={{
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-          }}
           id={`ggb-element${tabId}A`}
           ref={this.graph}
         />
@@ -1126,8 +1199,10 @@ GgbGraph.propTypes = {
   referToEl: PropTypes.shape({}),
   showingReference: PropTypes.bool.isRequired,
   referencing: PropTypes.bool.isRequired,
+  clearReference: PropTypes.func.isRequired,
   setToElAndCoords: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
+  setGraphCoords: PropTypes.func.isRequired,
 };
 
 export default GgbGraph;

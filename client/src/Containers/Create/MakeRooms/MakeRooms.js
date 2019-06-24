@@ -79,7 +79,6 @@ class MakeRooms extends Component {
   };
 
   setDate = event => {
-    console.log(event);
     this.setState({ dueDate: event });
   };
 

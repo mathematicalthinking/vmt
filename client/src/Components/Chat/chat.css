@@ -28,6 +28,7 @@
   border-radius: 3px 3px 0 0;
   color: black;
   font-size: 17px;
+  z-index: 400;
   letter-spacing: 1.12px;
   cursor: pointer;
 }
@@ -121,6 +122,7 @@
   border: 1px solid #ddd;
   border-radius: 0 0 0 3px;
   font-size: 13px;
+  z-index: 400;
   font-weight: 400;
   background-color: white;
 }
@@ -154,6 +156,7 @@
   flex-flow: column;
   width: 100%;
   font-size: 15px;
+  padding: 3px;
   /* width: 90%; */
   border: 2px solid transparent;
 }
@@ -169,13 +172,9 @@
 }
 
 .VmtBotEntry {
-  display: flex;
-  flex-flow: column;
+  composes: Entry;
   font-size: 13px;
-  width: 100%;
   color: #999;
-  /* padding: 1px; */
-  border: 2px solid transparent;
 }
 
 .Point {
@@ -188,6 +187,10 @@
 
 .Highlight {
   border: 2px solid blue;
+}
+
+.Reference {
+  border: 2px dotted blueHover;
 }
 
 .EventBlock {

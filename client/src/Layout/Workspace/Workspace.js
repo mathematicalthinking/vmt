@@ -3,8 +3,13 @@ import PropTypes from 'prop-types';
 import classes from './workspace.css';
 
 class WorkspaceLayout extends Component {
+  state = { offSet: 0 };
   Graph = React.createRef();
 
+  componentDidMount() {
+    this.setOffSet();
+    window.addEventListener('resize', this.setOffSet);
+  }
   componentDidUpdate(prevProps) {
     const { isFullscreen } = this.props;
     if (isFullscreen && !prevProps.isFullscreen) {
@@ -12,6 +17,14 @@ class WorkspaceLayout extends Component {
     }
   }
 
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.setOffSet);
+  }
+
+  setOffSet = () => {
+    const coords = this.Graph.current.getBoundingClientRect();
+    this.setState({ offSet: coords.x - 18 }); // -18 for width of arrow head
+  };
   render() {
     const {
       chat,
@@ -30,22 +43,29 @@ class WorkspaceLayout extends Component {
       encompass,
       chatExpanded,
       membersExpanded,
+      referToEl,
+      graphCoords,
     } = this.props;
-    // Set text for taking control button based on current control
-    // let controlText = 'Take Control';
-    // let inControl = false;
-    // if (room.controlledBy === user._id) {
-    //   controlText = 'Release Control';
-    //   inControl = true;
-    // }
-    // else if (room.controlledBy) controlText = 'Request Control';
-
-    // let bottomButton;
-    // if (role === 'facilitator' && !activityWorkspace) {
-    //     bottomButton = <div><Button click={setStartingPoint}>Set starting point</Button></div>
-    // } else if (role === 'participant' && activityWorkspace) {
-    //   bottomButton = <div><Button click={copyActivity}>Add To My Activities</Button></div>
-    // }
+    const { offSet } = this.state;
+    let x2;
+    let y2;
+    if (referToCoords && graphCoords) {
+      y2 = referToCoords.top;
+      x2 = referToCoords.left;
+      if (graphCoords.height < referToCoords.top) {
+        y2 = graphCoords.height;
+      } else if (graphCoords.top > referToCoords.top) {
+        y2 = graphCoords.top;
+      }
+      if (graphCoords.left - offSet > referToCoords.left) {
+        x2 = graphCoords.left - offSet;
+      } else if (
+        graphCoords.right - offSet < referToCoords.left &&
+        referToEl.elementType !== 'chat_message'
+      ) {
+        x2 = graphCoords.right - offSet;
+      }
+    }
     let membersHeight = 'auto';
     let chatHeight = '43%';
     let flexB = '0';
@@ -61,7 +81,6 @@ class WorkspaceLayout extends Component {
       // If this is Firefox
       flexB = 'auto';
     }
-    // console.log(showingReference);
     return (
       <div
         className={classes.PageContainer}
@@ -126,15 +145,30 @@ class WorkspaceLayout extends Component {
           </div>
           {referToCoords && referFromCoords ? (
             <div className={classes.ReferenceLine}>
-              <svg height="100%" width="100%" style={{ zIndex: 2500 }}>
+              <svg height="100%" width="100%" style={{ zIndex: 1000 }}>
+                <defs>
+                  <marker
+                    id="arrow"
+                    markerWidth="10"
+                    markerHeight="10"
+                    refX="8"
+                    refY="3"
+                    orient="auto"
+                    markerUnits="strokeWidth"
+                  >
+                    <path d="M0,0 L0,6 L9,3 z" fill="#2D91F2" />
+                  </marker>
+                </defs>
                 <line
+                  data-testid="reference-line"
                   style={{ zIndex: 2500 }}
-                  x1={referToCoords.left}
-                  y1={referToCoords.top}
-                  x2={referFromCoords.left}
-                  y2={referFromCoords.top}
+                  x2={x2}
+                  y2={y2}
+                  x1={referFromCoords.left}
+                  y1={referFromCoords.top}
                   stroke="#2D91F2"
                   strokeWidth="3"
+                  markerEnd="url(#arrow)"
                 />
               </svg>
             </div>
@@ -163,6 +197,15 @@ WorkspaceLayout.propTypes = {
   encompass: PropTypes.bool,
   chatExpanded: PropTypes.bool,
   membersExpanded: PropTypes.bool,
+  graphCoords: PropTypes.shape({
+    left: PropTypes.number,
+    right: PropTypes.number,
+    height: PropTypes.number,
+    top: PropTypes.number,
+  }),
+  referToEl: PropTypes.shape({
+    elementType: PropTypes.string.isRequired,
+  }),
 };
 
 WorkspaceLayout.defaultProps = {
@@ -176,6 +219,8 @@ WorkspaceLayout.defaultProps = {
   referFromCoords: null,
   referToCoords: null,
   chatExpanded: true,
+  referToEl: null,
   membersExpanded: true,
+  graphCoords: null,
 };
 export default WorkspaceLayout;

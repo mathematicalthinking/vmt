@@ -56,6 +56,7 @@ class Workspace extends Component {
       toolsExpanded: true,
       isFirstTabLoaded: false,
       showAdminWarning: user ? user.inAdminMode : false,
+      graphCoords: null,
     };
   }
 
@@ -91,7 +92,7 @@ class Workspace extends Component {
       this.setState({ myColor: COLOR_MAP[room.members.length - 1] });
       this.initializeListeners();
     }
-    // window.addEventListener("beforeunload", this.componentCleanup);
+    window.addEventListener('resize', this.clearReference);
   }
 
   componentDidUpdate(prevProps) {
@@ -127,6 +128,7 @@ class Workspace extends Component {
   componentWillUnmount() {
     const { myColor } = this.state;
     socket.emit('LEAVE_ROOM', myColor);
+    window.removeEventListener('resize', this.clearReference);
   }
 
   initializeListeners = () => {
@@ -476,6 +478,10 @@ class Workspace extends Component {
     history.goBack();
   };
 
+  setGraphCoords = graphCoords => {
+    this.setState({ graphCoords });
+  };
+
   render() {
     const {
       room,
@@ -505,6 +511,7 @@ class Workspace extends Component {
       isFirstTabLoaded,
       creatingNewTab,
       showAdminWarning,
+      graphCoords,
     } = this.state;
     let control = 'OTHER';
     if (room.controlledBy === user._id) control = 'ME';
@@ -554,6 +561,7 @@ class Workspace extends Component {
         showingReference={showingReference}
         clearReference={this.clearReference}
         showReference={this.showReference}
+        startNewReference={this.startNewReference}
         currentTab={currentTab}
         expanded={chatExpanded}
         toggleExpansion={this.toggleExpansion}
@@ -601,10 +609,12 @@ class Workspace extends Component {
           referToEl={referToEl}
           showingReference={showingReference}
           referencing={referencing}
+          clearReference={this.clearReference}
           setToElAndCoords={this.setToElAndCoords}
           setFirstTabLoaded={() => {
             this.setState({ isFirstTabLoaded: true });
           }}
+          setGraphCoords={this.setGraphCoords}
         />
       );
     });
@@ -655,7 +665,9 @@ class Workspace extends Component {
             instructionsExpanded={instructionsExpanded}
             toolsExpanded={toolsExpanded}
             referToCoords={referToCoords}
+            referToEl={referToEl}
             referFromCoords={referFromCoords}
+            graphCoords={graphCoords}
           />
         ) : null}
         <Modal show={creatingNewTab} closeModal={this.closeModal}>
