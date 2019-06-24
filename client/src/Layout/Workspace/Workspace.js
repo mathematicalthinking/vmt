@@ -3,14 +3,28 @@ import PropTypes from 'prop-types';
 import classes from './workspace.css';
 
 class WorkspaceLayout extends Component {
+  state = { offSet: 0 };
   Graph = React.createRef();
 
+  componentDidMount() {
+    this.setOffSet();
+    window.addEventListener('resize', this.setOffSet);
+  }
   componentDidUpdate(prevProps) {
     const { isFullscreen } = this.props;
     if (isFullscreen && !prevProps.isFullscreen) {
       this.Graph.current.requestFullscreen();
     }
   }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.setOffSet);
+  }
+
+  setOffSet = () => {
+    const coords = this.Graph.current.getBoundingClientRect();
+    this.setState({ offSet: coords.x - 14 }); // -5 for width of arrow head
+  };
   render() {
     const {
       chat,
@@ -31,6 +45,7 @@ class WorkspaceLayout extends Component {
       membersExpanded,
       graphCoords,
     } = this.props;
+    const { offSet } = this.state;
     let x2;
     let y2;
     if (referToCoords && graphCoords) {
@@ -41,10 +56,10 @@ class WorkspaceLayout extends Component {
       } else if (graphCoords.top > referToCoords.top) {
         y2 = graphCoords.top;
       }
-      if (graphCoords.left > referToCoords.left) {
-        x2 = graphCoords.left;
-      } else if (graphCoords.right < referToCoords.left) {
-        x2 = graphCoords.right;
+      if (graphCoords.left - offSet > referToCoords.left) {
+        x2 = graphCoords.left - offSet;
+      } else if (graphCoords.right - offSet < referToCoords.left) {
+        x2 = graphCoords.right - offSet;
       }
     }
     let membersHeight = 'auto';

@@ -28,11 +28,13 @@
   justify-content: flex-start;
   align-items: center;
   z-index: 0;
+  border: 1px solid red;
   padding: 0 20px;
   /* overflow-y: hidden; */
 }
 
 .Container {
+  border: 1px solid blue;
   position: relative;
   width: 100%;
   height: 100%;
