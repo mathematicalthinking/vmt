@@ -1,18 +1,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-// import { Link } from 'react-router-dom';
 import classes from './homepage.css';
-// import BoxList from '../BoxList/BoxList'
 import Button from '../../Components/UI/Button/Button';
 import Background from '../../Components/Background/Background';
-// import GeogebraImg from './Geogebra.png';
-// import DesmosImg from './desmos.jpg';
-// import API from '../../utils/apiRequests';
 import Aux from '../../Components/HOC/Auxil';
 
 class Homepage extends PureComponent {
   state = {
-    // popularActivities: [],
     error: null,
   };
 
@@ -81,12 +75,6 @@ class Homepage extends PureComponent {
         <Background
           bottomSpace={window.screen.availHeight < 1000 ? -10 : null}
         />
-        {/* <div className={classes.BackgroundExtension}></div>
-        <div className={classes.Ex2}></div>
-        <div className={classes.Ex3}></div>
-        <div className={classes.Ex4}></div>
-        <div className={classes.Ex5}></div>
-        <div className={classes.Ex6}></div> */}
         <div className={classes.Main}>
           <section className={classes.Top}>
             {error ? <div className={classes.Error}>{error}</div> : null}
@@ -104,7 +92,7 @@ class Homepage extends PureComponent {
               VMT is currently in Alpha. If you encounter bugs or want to
               suggest new features please email mmcveigh@21pstem.org
             </p>
-            <p>version: 6.14.19.2</p>
+            <p>version: 6.24.19.1</p>
           </section>
           {/* <i onClick={this.scrollToDomRef} className={["fas fa-chevron-down", classes.Down].join(" ")}></i> */}
           <section className={classes.Options} ref={this.containerRef}>

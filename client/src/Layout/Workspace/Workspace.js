@@ -40,7 +40,7 @@ class WorkspaceLayout extends Component {
       roomName,
       loaded,
       activity,
-      encompass,
+      // encompass,
       chatExpanded,
       membersExpanded,
       referToEl,
@@ -86,7 +86,7 @@ class WorkspaceLayout extends Component {
         className={classes.PageContainer}
         style={{ visibility: loaded || activity ? 'visible' : 'hidden' }}
       >
-        {!encompass ? <div className={classes.Background} /> : null}
+        {/* {!encompass ? <div className={classes.Background} /> : null} */}
         <div className={classes.Container}>
           <div className={classes.Left}>
             <div className={classes.TabsAndTitle}>
@@ -194,7 +194,7 @@ WorkspaceLayout.propTypes = {
   loaded: PropTypes.bool,
   activity: PropTypes.bool,
   isFullscreen: PropTypes.bool,
-  encompass: PropTypes.bool,
+  // encompass: PropTypes.bool,
   chatExpanded: PropTypes.bool,
   membersExpanded: PropTypes.bool,
   graphCoords: PropTypes.shape({
@@ -215,7 +215,7 @@ WorkspaceLayout.defaultProps = {
   replayer: false,
   loaded: true,
   isFullscreen: false,
-  encompass: false,
+  // encompass: false,
   referFromCoords: null,
   referToCoords: null,
   chatExpanded: true,

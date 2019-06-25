@@ -619,7 +619,7 @@ class Workspace extends Component {
           referencing={referencing}
           clearReference={this.clearReference}
           setToElAndCoords={this.setToElAndCoords}
-          setFirstTabLoaded={() => this.setFirstTabLoaded}
+          setFirstTabLoaded={this.setFirstTabLoaded}
           setGraphCoords={this.setGraphCoords}
         />
       );
