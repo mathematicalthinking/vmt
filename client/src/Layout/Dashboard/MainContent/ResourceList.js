@@ -1,121 +1,176 @@
-import React, { Fragment } from 'react';
+/* eslint-disable react/no-did-update-set-state */
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
 import classes from './resourceList.css';
-// import Search from '../../../Components/Search/Search';
+import Search from '../../../Components/Search/Search';
 // CONSIDER RENAMING TO DASHBOARDCONTENT
-const ResourceList = props => {
-  const {
-    resource,
-    parentResource,
-    parentResourceId,
-    user,
-    userResources,
-    notifications,
-  } = props;
-  let linkPath = `/myVMT/${resource}/`;
-  let linkSuffix;
-  if (resource === 'courses') {
-    linkSuffix = '/activities';
-  } else {
-    linkSuffix = '/details';
-  }
-  const displayResource = resource[0].toUpperCase() + resource.slice(1);
-  if (parentResource === 'courses') {
-    linkPath = `/myVMT/${props.parentResource}/${parentResourceId}/${
-      props.resource
-    }/`;
-    linkSuffix = '/details';
+class ResourceList extends Component {
+  state = {
+    participantList: [],
+    facilitatorList: [],
+  };
+
+  componentDidMount() {
+    const { userResources } = this.props;
+    const { facilitatorList, participantList } = this.sortUserResources(
+      userResources
+    );
+    this.setState({
+      facilitatorList,
+      participantList,
+    });
   }
 
-  let create;
-  // if (props.resource === 'courses' && props.user.accountType === 'facilitator') {
-  //   create = <NewCourse />
-  // }
-  if (parentResource !== 'activities' && user.accountType === 'facilitator') {
-    // THIS SHOULD ACTUALLY CHANGE DEPENDING ON states CURRENT ROLE ?? MAYBE
-    create = (
-      <NewResource
-        resource={props.resource}
-        courseId={
-          props.parentResource === 'courses' ? props.parentResourceId : null
-        }
-      />
+  componentDidUpdate(prevProps) {
+    console.log(this.props);
+    const { userResources } = this.props;
+    if (prevProps.userResources !== userResources) {
+      const { facilitatorList, participantList } = this.sortUserResources(
+        userResources
+      );
+      this.setState({
+        facilitatorList,
+        participantList,
+      });
+    }
+  }
+
+  search = criteria => {
+    const { userResources } = this.props;
+    let { facilitatorList, participantList } = this.sortUserResources(
+      userResources
+    );
+    facilitatorList = facilitatorList.filter(resource => {
+      return resource.name.indexOf(criteria) > -1;
+    });
+    console.log('updatedFacilitator: ', facilitatorList);
+    participantList = participantList.filter(resource => {
+      return resource.name.indexOf(criteria) > -1;
+    });
+    this.setState({
+      facilitatorList,
+      participantList,
+    });
+  };
+
+  sortUserResources = resources => {
+    const facilitatorList = [];
+    const participantList = [];
+    resources.forEach(userResource => {
+      if (userResource.myRole === 'facilitator') {
+        facilitatorList.push(userResource);
+      } else {
+        participantList.push(userResource);
+      }
+    });
+    return {
+      facilitatorList,
+      participantList,
+    };
+  };
+
+  render() {
+    const {
+      resource,
+      parentResource,
+      parentResourceId,
+      user,
+      notifications,
+    } = this.props;
+    const { facilitatorList, participantList } = this.state;
+    let linkPath = `/myVMT/${resource}/`;
+    let linkSuffix;
+    if (resource === 'courses') {
+      linkSuffix = '/activities';
+    } else {
+      linkSuffix = '/details';
+    }
+    const displayResource = resource[0].toUpperCase() + resource.slice(1);
+    if (parentResource === 'courses') {
+      linkPath = `/myVMT/${parentResource}/${parentResourceId}/${resource}/`;
+      linkSuffix = '/details';
+    }
+
+    let create;
+    // if (props.resource === 'courses' && props.user.accountType === 'facilitator') {
+    //   create = <NewCourse />
+    // }
+    if (parentResource !== 'activities' && user.accountType === 'facilitator') {
+      // THIS SHOULD ACTUALLY CHANGE DEPENDING ON states CURRENT ROLE ?? MAYBE
+      create = (
+        <NewResource
+          resource={resource}
+          courseId={parentResource === 'courses' ? parentResourceId : null}
+        />
+      );
+    }
+    /** consider storing a field like myRole on the actual resource in the store...we could compute this when its added to the store and then never again
+     * I feel like we are checking roles...which requires looping through the resources members each time.
+     */
+
+    return (
+      <div>
+        {/* @TODO don't show create optinos for participants */}
+        <div className={classes.Controls}>
+          <div className={classes.Search}>
+            <Search _search={this.search} data-testid="search" />
+          </div>
+          {create}
+        </div>
+        {facilitatorList.length > 0 && participantList.length > 0 ? (
+          <div className={classes.Row}>
+            <div className={classes.Col}>
+              <h2 className={classes.ResourceHeader}>
+                {displayResource} I Manage
+              </h2>
+              <BoxList
+                list={facilitatorList}
+                linkPath={linkPath}
+                linkSuffix={linkSuffix}
+                notifications={notifications}
+                resource={resource}
+                listType="private"
+                parentResourec={parentResource}
+                // draggable
+              />
+            </div>
+            <div className={classes.Col}>
+              <h2 className={classes.ResourceHeader}>
+                {displayResource} I&#39;m a member of
+              </h2>
+              <BoxList
+                list={participantList}
+                linkPath={linkPath}
+                linkSuffix={linkSuffix}
+                notifications={notifications}
+                resource={resource}
+                listType="private"
+                parentResourec={parentResource}
+                // draggable
+              />
+            </div>
+          </div>
+        ) : (
+          <Fragment>
+            <h2 className={classes.ResourceHeader}>My {displayResource}</h2>
+            <BoxList
+              list={facilitatorList.concat(participantList)}
+              linkPath={linkPath}
+              linkSuffix={linkSuffix}
+              notifications={notifications}
+              resource={resource}
+              listType="private"
+              parentResourec={parentResource}
+              // draggable
+            />
+          </Fragment>
+        )}
+      </div>
     );
   }
-
-  const facilitatorList = [];
-  const participantList = [];
-  /** consider storing a field like myRole on the actual resource in the store...we could compute this when its added to the store and then never again
-   * I feel like we are checking roles...which requires looping through the resources members each time.
-   */
-  userResources.forEach(userResource => {
-    if (userResource.myRole === 'facilitator') {
-      facilitatorList.push(userResource);
-    } else {
-      participantList.push(userResource);
-    }
-  });
-
-  return (
-    <div>
-      {/* @TODO don't show create optinos for participants */}
-      <div className={classes.Controls}>
-        <div className={classes.Search}>{/* <Search /> */}</div>
-        {create}
-      </div>
-      {facilitatorList.length > 0 && participantList.length > 0 ? (
-        <div className={classes.Row}>
-          <div className={classes.Col}>
-            <h2 className={classes.ResourceHeader}>
-              {displayResource} I Manage
-            </h2>
-            <BoxList
-              list={facilitatorList}
-              linkPath={linkPath}
-              linkSuffix={linkSuffix}
-              notifications={notifications}
-              resource={resource}
-              listType="private"
-              parentResourec={parentResource}
-              // draggable
-            />
-          </div>
-          <div className={classes.Col}>
-            <h2 className={classes.ResourceHeader}>
-              {displayResource} I&#39;m a member of
-            </h2>
-            <BoxList
-              list={participantList}
-              linkPath={linkPath}
-              linkSuffix={linkSuffix}
-              notifications={notifications}
-              resource={resource}
-              listType="private"
-              parentResourec={parentResource}
-              // draggable
-            />
-          </div>
-        </div>
-      ) : (
-        <Fragment>
-          <h2 className={classes.ResourceHeader}>My {displayResource}</h2>
-          <BoxList
-            list={userResources}
-            linkPath={linkPath}
-            linkSuffix={linkSuffix}
-            notifications={notifications}
-            resource={resource}
-            listType="private"
-            parentResourec={parentResource}
-            // draggable
-          />
-        </Fragment>
-      )}
-    </div>
-  );
-};
+}
 
 ResourceList.propTypes = {
   resource: PropTypes.string.isRequired,

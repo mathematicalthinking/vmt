@@ -1,9 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import ContentBox from '../../Components/UI/ContentBox/ContentBox';
 import DragContentBox from '../../Components/UI/ContentBox/DragContentBox';
 import classes from './boxList.css';
 
-const boxList = React.memo(props => {
+const boxList = props => {
   const {
     list,
     listType,
@@ -16,6 +17,7 @@ const boxList = React.memo(props => {
     scrollable,
   } = props;
   let listElems = "There doesn't appear to be anything here yet";
+  console.log('list: ', list);
   if (list.length > 0) {
     listElems = list.map(item => {
       let details;
@@ -113,6 +115,24 @@ const boxList = React.memo(props => {
       {listElems}
     </div>
   );
-});
+};
+
+boxList.propTypes = {
+  list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  listType: PropTypes.string.isRequired,
+  resource: PropTypes.string.isRequired,
+  notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  linkPath: PropTypes.string.isRequired,
+  linkSuffix: PropTypes.string.isRequired,
+  draggable: PropTypes.bool,
+  maxHeight: PropTypes.number,
+  scrollable: PropTypes.bool,
+};
+
+boxList.defaultProps = {
+  draggable: false,
+  maxHeight: null,
+  scrollable: false,
+};
 
 export default boxList;
