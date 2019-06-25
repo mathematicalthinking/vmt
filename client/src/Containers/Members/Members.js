@@ -15,7 +15,7 @@ import {
   removeRoomMember,
 } from '../../store/actions';
 import { getAllUsersInStore } from '../../store/reducers';
-import { Member, Search, Modal, Button } from '../../Components';
+import { Member, Search, Modal, Button, InfoBox } from '../../Components';
 import SearchResults from './SearchResults';
 import classes from './members.css';
 
@@ -274,39 +274,46 @@ class Members extends PureComponent {
         }
         <div>
           {owner ? (
-            <Fragment>
-              <h3 className={classes.SubHeader}>New Requests to Join</h3>
-              <div
-                className={classes.Notifications}
-                data-testid="join-requests"
-              >
-                {joinRequests}
-              </div>
-            </Fragment>
+            <InfoBox
+              title="New Requests to Join"
+              icon={<i className="fas fa-bell" />}
+            >
+              {joinRequests}
+            </InfoBox>
           ) : null}
-          <h3 className={classes.SubHeader}>Class List</h3>
-          <div data-testid="members">{classListComponents}</div>
-          <h3 className={classes.SubHeader}>Guest List</h3>
-          <div data-testid="members">{guestListComponents}</div>
+          <InfoBox title="Class List" icon={<i className="fas fa-users" />}>
+            <div data-testid="members">{classListComponents}</div>
+          </InfoBox>
+          <InfoBox title="Guest List" icon={<i className="fas fa-id-badge" />}>
+            <div data-testid="members">
+              {guestListComponents.length > 0
+                ? guestListComponents
+                : `There are no guests in this ${resourceType}`}
+            </div>
+          </InfoBox>
           {owner ? (
-            <Fragment>
-              <h3 className={classes.SubHeader}>Add New Participants</h3>
-              <Search
-                data-testid="member-search"
-                _search={this.search}
-                placeholder="search by username or email address"
-              />
-              {searchResults.length > 0 ? (
-                <SearchResults
-                  searchText={searchText}
-                  usersSearched={searchResults}
-                  inviteMember={this.inviteMember}
+            <InfoBox
+              title="Add New Participants"
+              icon={<i className="fas fa-user-plus" />}
+            >
+              <Fragment>
+                <Search
+                  data-testid="member-search"
+                  _search={this.search}
+                  placeholder="search by username or email address"
                 />
-              ) : null}
-              {resourceType === 'room' && courseMembers ? (
-                <div>Add participants from this course</div>
-              ) : null}
-            </Fragment>
+                {searchResults.length > 0 ? (
+                  <SearchResults
+                    searchText={searchText}
+                    usersSearched={searchResults}
+                    inviteMember={this.inviteMember}
+                  />
+                ) : null}
+                {resourceType === 'room' && courseMembers ? (
+                  <div>Add participants from this course</div>
+                ) : null}
+              </Fragment>
+            </InfoBox>
           ) : null}
         </div>
       </div>

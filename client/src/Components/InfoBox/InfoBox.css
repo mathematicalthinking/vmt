@@ -1,0 +1,35 @@
+:import('../../colors.css') {
+  lightBlue: lightBlue;
+  lightestShadow: lightestShadow;
+}
+
+.Section {
+  display: flex;
+  flex-flow: column;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  background: white;
+  /* box-shadow: lightestShadow; */
+  /* padding: 3px; */
+  border-radius: 3px;
+}
+
+.Header {
+  display: flex;
+  font-weight: 600;
+  font-size: 1.1em;
+  color: #666;
+  background: #eee;
+  padding: 3px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 3px;
+}
+
+.Icon {
+  margin-right: 8px;
+  color: lightBlue;
+}
+
+.Content {
+  padding: 10px;
+}

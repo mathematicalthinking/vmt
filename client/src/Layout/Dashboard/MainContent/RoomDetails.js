@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classes from './roomDetails.css';
-import { EditText, Error } from '../../../Components'; // @TODO consider combining Error and Edit Text into one component
+import { EditText, Error, InfoBox } from '../../../Components'; // @TODO consider combining Error and Edit Text into one component
 
 class RoomDetails extends Component {
   render() {
@@ -12,8 +12,10 @@ class RoomDetails extends Component {
     return (
       <div className={classes.Container}>
         {/*  Make sure we have all of the room info before letting the user enter */}
-        <div className={classes.Instructions}>
-          <b>Instructions: </b>
+        <InfoBox
+          icon={<i className="fas fa-info-circle" />}
+          title="Instructions"
+        >
           <Error error={updateFail && updateKeys.indexOf('instructions') > -1}>
             <EditText
               inputType="text-area"
@@ -24,28 +26,16 @@ class RoomDetails extends Component {
               {instructions || 'No instructions set yet'}
             </EditText>
           </Error>
-        </div>
-        <div className={classes.Section}>
-          <div>
-            {/* CONSIDER: COULD REPLACE THESE 0'S WITH LOADING SPINNERS? */}
-            {/* {room.graphImage && room.graphImage.imageData !== '' ? <div><div><b>Current Construction: </b></div><img className={classes.StateImage} src={room.graphImage.imageData} alt="current-state"/></div> : null} */}
-            <div>
-              <b>In the room now: </b>
-              {room.currentMembers ? room.currentMembers.length : 0}
-            </div>
-            <div>
-              <b>Tabs: </b>
-              {room.tabs ? room.tabs.length : 0}
-            </div>
-            <div>
-              <b>Messages: </b>
-              {room.chat ? room.chat.length : 0}
-            </div>
-          </div>
-        </div>
-        <div className={classes.Section}>
-          {/* <div>Events: </div>{room.events ? room.events.length : 0} */}
-        </div>
+        </InfoBox>
+        <InfoBox title="In The Room Now" icon={<i className="fas fa-users" />}>
+          {room.currentMembers ? room.currentMembers.length : 0}
+        </InfoBox>
+        <InfoBox title="Tabs" icon={<i className="fas fa-folder" />}>
+          {room.tabs ? room.tabs.length : 0}
+        </InfoBox>
+        <InfoBox title="Messages" icon={<i className="fas fa-comments" />}>
+          {room.chat ? room.chat.length : 0}
+        </InfoBox>
       </div>
     );
   }
