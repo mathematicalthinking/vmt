@@ -1,5 +1,5 @@
 :import('../../colors.css') {
-  lightShadow: lightestShadow;
+  lightestShadow: lightestShadow;
   darkShadow: darkShadow;
   background: mainBackground;
   lightBlue: lightBlue;
@@ -29,7 +29,7 @@
   z-index: 0;
   padding: 0 20px;
   padding-top: calc(navbarHeight / 2);
-  background: #eee8e8;
+  background: #f8f8f8;
   /* overflow-y: hidden; */
 }
 
@@ -159,7 +159,7 @@
   overflow: visible !important;
   order: 1;
   flex: 1 0 auto;
-  box-shadow: lightShadow;
+  box-shadow: lightestShadow;
   /* border: 1px solid blue; */
   height: 100%;
   /* width: 100%; */
@@ -181,7 +181,7 @@
   align-content: flex-start;
   flex: 1 1 auto;
   margin-top: 10px;
-  box-shadow: lightShadow;
+  box-shadow: lightestShadow;
   /* box-shadow: 0px -1px 15px 2px rgb(148, 162, 200),
     2px 4px 4px 1px rgb(126, 135, 158); */
 }
@@ -197,7 +197,7 @@
 }
 
 .Chat {
-  box-shadow: lightShadow;
+  box-shadow: lightestShadow;
   /* box-shadow: 0px -1px 30px 2px rgb(67, 77, 104),
     2px 4px 4px 1px rgb(76, 102, 172); */
   order: 1;
@@ -207,7 +207,7 @@
 }
 
 .Members {
-  box-shadow: lightShadow;
+  box-shadow: lightestShadow;
   /* box-shadow: 0px -1px 15px 2px rgb(148, 162, 200),
     2px 4px 4px 1px rgb(126, 135, 158); */
   /* border-radius: 5px; */
@@ -216,7 +216,7 @@
 }
 
 .Tools {
-  box-shadow: lightShadow;
+  box-shadow: lightestShadow;
   /* box-shadow: 0px -1px 15px 2px rgb(148, 162, 200),
     2px 4px 4px 1px rgb(126, 135, 158); */
   order: 2;

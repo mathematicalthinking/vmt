@@ -95,25 +95,26 @@ class WorkspaceLayout extends Component {
             </div>
             <div
               ref={this.Graph}
-              className={[
-                replayer ? classes.ReplayerTop : classes.Top,
-                'graph',
-              ].join(' ')}
-              style={{ position: 'relative', overflow: 'hidden' }}
+              className={replayer ? classes.ReplayerTop : classes.Top}
+              style={{ position: 'relative' }}
             >
               {graphs.map((graph, i) => {
+                console.log({ graph });
+                console.log({ currentTab });
+                console.log(i);
                 return (
                   <div
-                    key={graph}
+                    key={graph.key}
                     className={replayer ? classes.ReplayerGraph : classes.Graph}
                     style={{
                       zIndex: currentTab === i ? 100 : 0,
-                      display: 'flex',
+                      // border: i === 0 ? '1px solid red' : '1px solid green',
+                      // display: 'flex',
                       position: 'absolute',
                       top: 0,
-                      left: 0,
-                      bottom: 0,
-                      right: 0,
+                      left: 1,
+                      bottom: 1,
+                      right: 1,
                     }}
                   >
                     {/**  "graph" class here is so geogebra applet will scale to container */}
