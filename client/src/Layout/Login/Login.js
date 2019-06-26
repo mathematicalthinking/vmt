@@ -6,6 +6,7 @@ import classes from './login.css';
 import Input from '../../Components/Form/TextInput/TextInput';
 import SmallLoading from '../../Components/Loading/SmallLoading';
 import Background from '../../Components/Background/Background';
+import GoogleLogin from '../../Components/Form/Google/LoginButton';
 
 class LoginLayout extends PureComponent {
   // / Im not really a fan of how this is setup anymore
@@ -68,9 +69,6 @@ class LoginLayout extends PureComponent {
     login(controls.username.value, controls.password.value);
   };
 
-  // googleLogin = event => {
-  //   onGoogleLogin(controls.username.value, controls.password.value);
-  // };
   render() {
     const { loggedIn, errorMessage, loading } = this.props;
     const { controls } = this.state;
@@ -111,8 +109,8 @@ class LoginLayout extends PureComponent {
               </Button>
             )}
           </div>
-          {/* <div>or</div> */}
-          {/* <GoogleSignIn click={this.googleLogin} /> */}
+          <div>or</div> */
+          <GoogleLogin />
         </div>
       </div>
     );
