@@ -11,30 +11,28 @@ const clearDB = () => {
 
 const seedCollection = (db, collectionName, data) => {
   return db.collection(collectionName).insertMany(data);
-}
-const seed = async (collections=Object.keys(data)) => {
+};
+const seed = async (collections = Object.keys(data)) => {
   try {
     await clearDB();
 
     let db = mongoose.connection;
 
     let seededCollections = collections.map(collectionName => {
-      return seedCollection(db, collectionName, data[collectionName])
-      .then((writeResults) => {
-        return `${collectionName}: ${writeResults.result.n}`
-      });
+      return seedCollection(db, collectionName, data[collectionName]).then(
+        writeResults => {
+          return `${collectionName}: ${writeResults.result.n}`;
+        }
+      );
     });
 
     let results = await Promise.all(seededCollections);
 
     console.log('Seed Results: ', results);
     mongoose.connection.close();
-
-  }catch(err) {
+  } catch (err) {
     console.log('Error seeding: ', err);
-
   }
-
 };
 
 module.exports.seed = seed;
