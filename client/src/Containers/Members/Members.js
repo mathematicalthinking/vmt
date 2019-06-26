@@ -278,7 +278,7 @@ class Members extends PureComponent {
               title="New Requests to Join"
               icon={<i className="fas fa-bell" />}
             >
-              {joinRequests}
+              <div data-testid="join-requests">{joinRequests}</div>
             </InfoBox>
           ) : null}
           <InfoBox title="Class List" icon={<i className="fas fa-users" />}>

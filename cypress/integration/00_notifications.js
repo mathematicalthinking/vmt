@@ -347,6 +347,9 @@ describe('test notifications and access to resources', function() {
   });
 
   it('Picard invites Beverly to join a course', function() {
+    cy.getTestElement('crumb')
+      .contains('My VMT')
+      .click();
     cy.getTestElement('tab')
       .contains('Courses')
       .click();
@@ -365,7 +368,7 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('crumb')
       .contains('My VMT')
       .click();
-
+    cy.wait(1000);
     cy.getTestElement('tab')
       .contains('Rooms')
       .click();
