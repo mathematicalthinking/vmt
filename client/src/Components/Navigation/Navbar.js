@@ -9,14 +9,7 @@ import Avatar from '../UI/Avatar/Avatar';
 const Navbar = ({ user, location }) => {
   let styles = classes.NavContainer;
   let ntf = false;
-  styles = classes.WorkspaceNav;
-  if (
-    user &&
-    user.notifications &&
-    user.notifications.length > 0 &&
-    (location.pathname.indexOf('myVMT') === -1 ||
-      location.pathname.indexOf('workspace') > -1)
-  ) {
+  if (user && user.notifications && user.notifications.length > 0) {
     ntf = true;
   }
   if (

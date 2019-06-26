@@ -1,6 +1,7 @@
 :import('../../colors.css') {
   orange: orange;
   red: red;
+  lightestShadow: lightestShadow;
 }
 
 .Tab {
@@ -9,6 +10,10 @@
   height: 35px;
   overflow: hidden;
   float: left;
+  z-index: 600;
+  box-shadow: lightestShadow;
+  border-radius: 4px 4px 0 0;
+  border-bottom: none;
   margin: 0 0 0 0;
   cursor: pointer;
   position: relative;
@@ -43,6 +48,10 @@
   100% {
     transform: rotateY(360deg);
   }
+}
+
+.NewTab {
+  box-shadow: none;
 }
 
 .NewTab .TabBox {

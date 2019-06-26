@@ -99,10 +99,15 @@ class GgbGraph extends Component {
     });
   }
 
-  shouldComponentUpdate(nextProps) {
-    const { tabId, currentTab } = this.props;
-    return tabId === currentTab || nextProps.tabId === nextProps.currentTab;
-  }
+  // shouldComponentUpdate(nextProps) {
+  //   const { tabId, currentTab } = this.props;
+  //   console.log(
+  //     'should component update: ',
+  //     tabId,
+  //     tabId === currentTab || nextProps.tabId === nextProps.currentTab
+  //   );
+  //   return tabId === currentTab || nextProps.tabId === nextProps.currentTab;
+  // }
 
   /**
    * @method componentDidUpdate
@@ -377,7 +382,7 @@ class GgbGraph extends Component {
    */
 
   onScriptLoad = () => {
-    const { tabId, room, currentTab, isFirstTabLoaded } = this.props;
+    const { tabId, room, currentTab } = this.props;
     const parameters = {
       id: `ggbApplet${tabId}A`,
       // scaleContainerClass: "graph",
@@ -394,7 +399,6 @@ class GgbGraph extends Component {
       appletOnLoad: this.initializeGgb,
       appName: room.tabs[tabId].appName || 'classic',
     };
-
     const ggbApp = new window.GGBApplet(parameters, '6.0');
     if (currentTab === tabId) {
       ggbApp.inject(`ggb-element${tabId}A`);
@@ -402,6 +406,7 @@ class GgbGraph extends Component {
       // wait to inject other tabs if they're not in focus
       // i.e. prioritze loading of the current tab
       this.loadingTimer = setInterval(() => {
+        const { isFirstTabLoaded } = this.props; // pulling off of props here instead of top of function so that this value is current on each interval
         if (isFirstTabLoaded) {
           ggbApp.inject(`ggb-element${tabId}A`);
           clearInterval(this.loadingTimer);
@@ -435,8 +440,9 @@ class GgbGraph extends Component {
       this.ggbApplet.setBase64(ggbFile);
     }
     this.registerListeners();
-    setFirstTabLoaded();
-    // EMIT Ggb loaded to request current state...this will ensure that if events occured while we were loading ggb we'll still get them
+    if (tabId === 0) {
+      setFirstTabLoaded();
+    }
   };
 
   /**
@@ -617,6 +623,7 @@ class GgbGraph extends Component {
    */
 
   addListener = label => {
+    console.log('add listener');
     if (this.batchUpdating || this.receivingData) {
       return;
     }

@@ -126,8 +126,9 @@ class Workspace extends Component {
   }
 
   componentWillUnmount() {
+    const { room } = this.props;
     const { myColor } = this.state;
-    socket.emit('LEAVE_ROOM', myColor);
+    socket.emit('LEAVE_ROOM', room._id, myColor);
     window.removeEventListener('resize', this.clearReference);
   }
 
@@ -482,6 +483,13 @@ class Workspace extends Component {
     this.setState({ graphCoords });
   };
 
+  setFirstTabLoaded = () => {
+    const { connectPopulateRoom, room } = this.props;
+    this.setState({ isFirstTabLoaded: true });
+    // refetech the room after its loaded to make sure we didnt miss any events that came over the wire while initializing ggb
+    connectPopulateRoom(room._id, { events: true });
+  };
+
   render() {
     const {
       room,
@@ -611,9 +619,7 @@ class Workspace extends Component {
           referencing={referencing}
           clearReference={this.clearReference}
           setToElAndCoords={this.setToElAndCoords}
-          setFirstTabLoaded={() => {
-            this.setState({ isFirstTabLoaded: true });
-          }}
+          setFirstTabLoaded={this.setFirstTabLoaded}
           setGraphCoords={this.setGraphCoords}
         />
       );

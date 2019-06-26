@@ -124,7 +124,8 @@ module.exports = function() {
       });
     });
 
-    socket.on('LEAVE_ROOM', (color, cb) => {
+    socket.on('LEAVE_ROOM', (roomId, color, cb) => {
+      socket.leave(roomId);
       leaveRoom(cb);
     });
 
@@ -132,6 +133,7 @@ module.exports = function() {
       // if they're in a room we need to remove them
       let room = Object.keys(socket.rooms).pop(); // they can only be in one room so just grab the last one
       if (room && ObjectId.isValid(room)) {
+        socket.leave(room);
         leaveRoom();
       }
     });

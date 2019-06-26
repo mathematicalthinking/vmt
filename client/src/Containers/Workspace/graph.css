@@ -1,4 +1,4 @@
-:import("../../colors.css") {
+:import('../../colors.css') {
   graphHeight: graphHeight;
   graphWidth: graphWidth;
   lightShadow: lightShadow;
@@ -9,7 +9,8 @@
   height: 100%;
   width: 100%;
   position: absolute;
-  /* border: 1px solid #ddd; */
+  /* box-shadow: lightShadow; */
+  /* border: 1px solid red; */
 }
 
 .ControlWarning {
