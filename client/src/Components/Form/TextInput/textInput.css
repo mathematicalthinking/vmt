@@ -1,4 +1,4 @@
-:import('../../../colors.css'){
+:import('../../../colors.css') {
   lightBlue: gridBlue;
   blue: blue;
 }
@@ -22,14 +22,13 @@
   font-size: 35px;
   caret-color: lightBlue;
   color: white;
-  transition: .2s;
+  transition: 0.2s;
   font-size: 20px;
   padding: 10px 10px 10px 0px;
 }
 
 .Input:-webkit-autofill {
   -webkit-text-fill-color: blue !important;
-
 }
 
 .Input:focus {
@@ -41,21 +40,21 @@
 
 .Input::placeholder {
   color: #d3d3d3;
-  opacity: .8;
+  opacity: 0.8;
   font-weight: 300;
 }
 
 .Input:-ms-input-placeholder {
   /* Internet Explorer 10-11 */
   color: #d3d3d3;
-  opacity: .8;
+  opacity: 0.8;
   font-weight: 300;
 }
 
 .Input::-ms-input-placeholder {
   /* Microsoft Edge */
   color: #d3d3d3;
-  opacity: .8;
+  opacity: 0.8;
   font-weight: 300;
 }
 
@@ -67,6 +66,6 @@
   font-size: 18px;
 }
 
-.Input:focus + .Label{
+/* .Input:focus + .Label{
   color: blue;
-}
+} */
