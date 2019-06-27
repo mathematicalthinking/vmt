@@ -6,6 +6,7 @@ const mapStateToProps = store => {
   return {
     loggedIn: store.user.loggedIn,
     errorMessage: store.loading.errorMessage,
+    loading: store.loading.loading,
   };
 };
 

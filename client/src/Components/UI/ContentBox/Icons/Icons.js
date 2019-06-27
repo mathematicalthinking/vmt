@@ -61,7 +61,6 @@ const Icons = ({ lock, listType, roomType, image }) => {
     } else if (des) {
       roomTypeIcon = desImageAndToolTip;
     } else {
-      console.log('room is ggb');
       roomTypeIcon = ggbImageAndToolTip;
     }
   } else if (roomType === 'desmos') {

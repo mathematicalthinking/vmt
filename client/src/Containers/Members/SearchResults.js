@@ -19,24 +19,24 @@ class SearchResults extends Component {
   render() {
     const { usersSearched, inviteMember, searchText } = this.props;
     const { areResultsExpanded } = this.state;
-    const toggleExpansion = (
-      <div>
-        See Suggested Participants{' '}
-        <Button
-          click={() =>
-            this.setState(prevState => ({
-              areResultsExpanded: !prevState.areResultsExpanded,
-            }))
-          }
-        >
-          <i className="fas fa-chevron-down" />
-        </Button>
-      </div>
-    );
+    // const toggleExpansion = (
+    //   <div>
+    //     See Suggested Participants{' '}
+    //     <Button
+    //       click={() =>
+    //         this.setState(prevState => ({
+    //           areResultsExpanded: !prevState.areResultsExpanded,
+    //         }))
+    //       }
+    //     >
+    //       <i className="fas fa-chevron-down" />
+    //     </Button>
+    //   </div>
+    // );
     if (searchText.length > 0 || areResultsExpanded) {
       return (
         <ul className={classes.SearchResults}>
-          <div>
+          {/* <div>
             See Suggested Participants{' '}
             <Button
               click={() =>
@@ -47,7 +47,7 @@ class SearchResults extends Component {
             >
               <i className="fas fa-chevron-down" />
             </Button>
-          </div>
+          </div> */}
           {usersSearched.map(user => {
             return (
               <li className={classes.SearchResItem} key={user._id}>
@@ -69,7 +69,8 @@ class SearchResults extends Component {
         </ul>
       );
     }
-    return <ul className={classes.SearchResults}>{toggleExpansion}</ul>;
+    // return <ul className={classes.SearchResults}>{toggleExpansion}</ul>;
+    return null;
   }
 }
 

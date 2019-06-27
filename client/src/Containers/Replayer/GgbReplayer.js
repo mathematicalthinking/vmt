@@ -179,10 +179,6 @@ class GgbReplayer extends Component {
         this.ggbApplet.evalXML(events.shift());
         this.ggbApplet.evalCommand('UpdateConstruction()');
         setTimeout(() => {
-          if (events.length === 1) {
-            // eslint-disable-next-line no-console
-            console.log('EVENTS: ', JSON.stringify(events, null, 2));
-          }
           this.recursiveUpdate(events, false);
         }, 10);
       }

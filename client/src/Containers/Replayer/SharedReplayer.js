@@ -275,6 +275,7 @@ class SharedReplayer extends Component {
   setTabLoaded = () => {
     const { room, encompass, updateEnc } = this.props;
     this.tabsLoaded += 1;
+    console.log('setting tabs loaded');
     if (this.tabsLoaded === room.tabs.length) {
       this.setState({ allTabsLoaded: true }, () => {
         if (encompass) {
@@ -343,7 +344,6 @@ class SharedReplayer extends Component {
   };
 
   setSpeed = speed => {
-    console.log('setting speed, ', speed);
     this.setState({ playbackSpeed: speed });
   };
 

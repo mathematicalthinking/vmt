@@ -351,6 +351,7 @@ class NewResourceContainer extends Component {
                 click={() => {
                   this.nextStep('new');
                 }}
+                tabIndex={0}
                 m={5}
               >
                 create a new {displayResource}
@@ -363,6 +364,7 @@ class NewResourceContainer extends Component {
                   this.nextStep('copy');
                 }}
                 m={5}
+                tabIndex={0}
               >
                 copy existing activities
               </Button>
