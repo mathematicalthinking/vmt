@@ -8,6 +8,7 @@ import classes from './icons.css';
 
 const Icons = ({ lock, listType, roomType, image }) => {
   let lockIcon;
+  let roomTypeIcon;
   if (lock && listType === 'public') {
     lockIcon = (
       <ToolTip text="private" delay={600}>
@@ -28,7 +29,6 @@ const Icons = ({ lock, listType, roomType, image }) => {
     );
   }
 
-  let roomTypeIcon;
   const desImageAndToolTip = (
     <ToolTip text="Desmos" delay={600}>
       <div className={classes.Icon}>
@@ -59,14 +59,15 @@ const Icons = ({ lock, listType, roomType, image }) => {
         </ToolTip>
       );
     } else if (des) {
-      roomType = desImageAndToolTip;
+      roomTypeIcon = desImageAndToolTip;
     } else {
-      roomType = ggbImageAndToolTip;
+      console.log('room is ggb');
+      roomTypeIcon = ggbImageAndToolTip;
     }
   } else if (roomType === 'desmos') {
-    roomType = desImageAndToolTip;
+    roomTypeIcon = desImageAndToolTip;
   } else if (roomType === 'geogebra') {
-    roomType = ggbImageAndToolTip;
+    roomTypeIcon = ggbImageAndToolTip;
   }
   return (
     <Fragment>

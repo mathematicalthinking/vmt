@@ -31,6 +31,7 @@ class ContentBox extends PureComponent {
       details,
     } = this.props;
     const { expanded } = this.state;
+    console.log(roomType);
     const notificationElements =
       notifications > 0 ? (
         <Notification count={notifications} data-testid="content-box-ntf" />
