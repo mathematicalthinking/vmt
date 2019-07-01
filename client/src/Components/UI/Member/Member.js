@@ -88,17 +88,19 @@ class Member extends PureComponent {
               </Fragment>
             ) : null}
             {editing ? (
-              <div className={classes.DropDown}>
-                <RoleDropdown
-                  selectHandler={this.changeRole}
-                  // not just hardcoding the options because we want the users current role to show up first in the lsit
-                  list={['facilitator', 'participant', 'guest'].sort(a => {
-                    if (a === info.role) {
-                      return -1;
-                    }
-                    return 1;
-                  })}
-                />
+              <div className={classes.DropDownContainer}>
+                <div className={classes.DropDown}>
+                  <RoleDropdown
+                    selectHandler={this.changeRole}
+                    // not just hardcoding the options because we want the users current role to show up first in the lsit
+                    list={['facilitator', 'participant', 'guest'].sort(a => {
+                      if (a === info.role) {
+                        return -1;
+                      }
+                      return 1;
+                    })}
+                  />
+                </div>
               </div>
             ) : (
               <div className={classes.Role}>{info.role}</div>

@@ -81,7 +81,6 @@ class WorkspaceLayout extends Component {
       // If this is Firefox
       flexB = 'auto';
     }
-    console.log(graphs);
     return (
       <div
         className={classes.PageContainer}

@@ -1,6 +1,6 @@
 @value colors: '../../colors.css';
 @value blue from colors;
-:import('../../colors.css'){
+:import('../../colors.css') {
   background: mainBackground;
 }
 
@@ -15,7 +15,7 @@
 
 .Avatar {
   margin: 10px 0;
-  transition: .25s;
+  transition: 0.25s;
 }
 
 .Active {
@@ -40,7 +40,6 @@
   display: none;
 }
 
-
 .Expanded::-webkit-scrollbar {
   width: 0.5em;
   height: 0.09em;
@@ -55,7 +54,7 @@
 .Title {
   padding: 8px 10px 8px 10px;
   border-bottom: 1px solid #ddd;
-  background-color: rgb(245, 245, 245);
+  background-color: #eee;
   border-radius: 3px 3px 0 0;
   color: black;
   font-size: 17px;

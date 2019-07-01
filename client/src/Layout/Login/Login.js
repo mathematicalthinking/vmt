@@ -122,7 +122,7 @@ class LoginLayout extends PureComponent {
 
 LoginLayout.propTypes = {
   loggedIn: PropTypes.bool.isRequired,
-  errorMessage: PropTypes.string.isRequired,
+  errorMessage: PropTypes.string,
   loading: PropTypes.bool,
   clearError: PropTypes.func.isRequired,
   login: PropTypes.func.isRequired,
@@ -130,5 +130,6 @@ LoginLayout.propTypes = {
 
 LoginLayout.defaultProps = {
   loading: false,
+  errorMessage: null,
 };
 export default LoginLayout;

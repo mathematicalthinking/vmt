@@ -1,4 +1,4 @@
-:import("../../../colors.css") {
+:import('../../../colors.css') {
   lightestShadow: lightestShadow;
   blue: blue;
   red: red;
@@ -15,10 +15,10 @@
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 2px;
-  box-shadow: lightestShadow;
+  /* box-shadow: lightestShadow; */
   height: 64px;
   max-height: 64px;
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
 }
 
 .Avatar {
@@ -82,8 +82,16 @@
   color: #888;
 }
 
+.DropDownContainer {
+  position: relative;
+}
+
 .DropDown {
-  margin-right: 20px;
+  right: 20px;
+  top: -16px;
+  position: absolute;
+  background: white;
+  z-index: 200;
 }
 
 @media screen and (max-width: 800px) {
