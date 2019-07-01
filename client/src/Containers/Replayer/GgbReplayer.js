@@ -222,6 +222,7 @@ class GgbReplayer extends Component {
           syntheticEvent.eventType = 'REMOVE';
         } else if (syntheticEvent.eventType === 'REMOVE') {
           syntheticEvent.eventType = 'ADD';
+          syntheticEvent.event = syntheticEvent.undoXML;
         } else if (syntheticEvent.eventType === 'BATCH_ADD') {
           syntheticEvent.eventType = 'BATCH_REMOVE';
         } else if (syntheticEvent.eventType === 'BATCH_UPDATE') {

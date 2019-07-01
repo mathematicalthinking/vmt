@@ -21,6 +21,29 @@ export const buildLog = (log, tabs) => {
         event.tab = updatedLog[updatedLog.length - 1].tab; // Else give it the same tabId as the event before
       }
     }
+
+    // to undo a remove event we need to get the xml from when that event was created
+    if (event.eventType === 'REMOVE') {
+      console.log('this is a remove event');
+      console.log(event.eventArray);
+      console.log(event.label);
+      const { label } = event;
+      //   if (eventArray && eventArray.length > 1) {
+      //       eventArray
+      //   }
+      for (let i = idx - 1; i >= 0; i--) {
+        if (
+          label === src[i].label &&
+          (src[i].eventType === 'ADD' || src[i].eventType === 'BATCH_ADD')
+        ) {
+          console.log('this is its corresponding event');
+          console.log(src[i]);
+          event.undoXML = src[i].event;
+          break;
+        }
+      }
+    }
+
     updatedLog.push(event);
     // calculate the next time
     if (src[idx + 1]) {
