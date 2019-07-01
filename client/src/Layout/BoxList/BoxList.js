@@ -17,7 +17,6 @@ const boxList = props => {
     scrollable,
   } = props;
   let listElems = "There doesn't appear to be anything here yet";
-  console.log('list: ', list);
   if (list.length > 0) {
     listElems = list.map(item => {
       let details;

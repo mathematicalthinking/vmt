@@ -58,7 +58,7 @@ class DesmosReplayer extends Component {
     this.calculator = window.Desmos.GraphingCalculator(
       this.calculatorRef.current
     );
-    if (tab.startingPoint) {
+    if (tab.startingPoint.length > 1) {
       this.calculator.setState(tab.startingPoint);
       setTabLoaded(tab._id);
     } else if (tab.desmosLink) {

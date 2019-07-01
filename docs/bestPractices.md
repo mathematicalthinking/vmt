@@ -4,7 +4,7 @@ Several conventions and standards are delineated to keep the app clean and maint
 
 ## Making API Requests
 ALL  requests to the backend should be performed via __Redux__. This will ensure that our
-Redux store and backend database stay in synch with each other, and updates (to both)
+Redux store and backend database stay in sync with each other, and updates (to both)
 will be immediately seen by the user.
 
 To see why this is important consider the following scenario:

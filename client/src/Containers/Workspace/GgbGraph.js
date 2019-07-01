@@ -536,8 +536,6 @@ class GgbGraph extends Component {
         }
         break;
       case 'select':
-        console.log({ event });
-        console.log('type: ', Array.isArray(event));
         if (referencing) {
           return;
         }

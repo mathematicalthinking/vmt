@@ -130,7 +130,8 @@
 
 .ReplayerLeft {
   composes: Left;
-  border: 1px solid red;
+  overflow: none;
+  height: 90%;
 }
 
 .Right {
@@ -156,7 +157,7 @@
   /* display: flex;
   align-items: center;
   justify-content: center; */
-  overflow: visible !important;
+  /* overflow: visible !important; */
   order: 1;
   flex: 1 0 auto;
   box-shadow: lightestShadow;

@@ -146,8 +146,6 @@ class GgbActivityGraph extends Component {
         // get the coords of its children
       }
       // Get the element's location relative to the client Window
-      // eslint-disable-next-line no-console
-      console.log(' GGB activity graph: ', this.graph.current);
 
       const ggbCoords = this.graph.current.getBoundingClientRect();
       const construction = await this.parseXML(this.ggbApplet.getXML()); // IS THERE ANY WAY TO DO THIS WITHOUT HAVING TO ASYNC PARSE THE XML...

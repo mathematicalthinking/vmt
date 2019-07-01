@@ -58,7 +58,15 @@ class GgbReplayer extends Component {
   constructEvent = data => {
     switch (data.eventType) {
       case 'ADD':
-        if (data.definition) {
+        if (data.undoRemove) {
+          if (data.undoXML) {
+            this.ggbApplet.evalXML(data.undoXML);
+            this.ggbApplet.evalCommand('UpdateConstruction()');
+          }
+          if (data.undoArray) {
+            this.recursiveUpdate(data.undoArray, true);
+          }
+        } else if (data.definition) {
           this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
         }
         this.ggbApplet.evalXML(data.event);
@@ -179,10 +187,6 @@ class GgbReplayer extends Component {
         this.ggbApplet.evalXML(events.shift());
         this.ggbApplet.evalCommand('UpdateConstruction()');
         setTimeout(() => {
-          if (events.length === 1) {
-            // eslint-disable-next-line no-console
-            console.log('EVENTS: ', JSON.stringify(events, null, 2));
-          }
           this.recursiveUpdate(events, false);
         }, 10);
       }
@@ -225,6 +229,7 @@ class GgbReplayer extends Component {
         if (syntheticEvent.eventType === 'ADD') {
           syntheticEvent.eventType = 'REMOVE';
         } else if (syntheticEvent.eventType === 'REMOVE') {
+          syntheticEvent.undoRemove = true;
           syntheticEvent.eventType = 'ADD';
         } else if (syntheticEvent.eventType === 'BATCH_ADD') {
           syntheticEvent.eventType = 'BATCH_REMOVE';

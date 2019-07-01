@@ -2,9 +2,9 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Redirect } from 'react-router-dom';
 import Button from '../../Components/UI/Button/Button';
-import Aux from '../../Components/HOC/Auxil';
 import classes from './login.css';
 import Input from '../../Components/Form/TextInput/TextInput';
+import SmallLoading from '../../Components/Loading/SmallLoading';
 import Background from '../../Components/Background/Background';
 
 class LoginLayout extends PureComponent {
@@ -73,6 +73,7 @@ class LoginLayout extends PureComponent {
   // };
   render() {
     const { loggedIn, errorMessage, loading } = this.props;
+    console.log(loading);
     const { controls } = this.state;
     const formElements = Object.keys(controls);
     const form = formElements.map(formElement => {
@@ -101,17 +102,15 @@ class LoginLayout extends PureComponent {
             <div className={classes.ErrorMsg}>
               <div className={classes.Error}>{errorMessage}</div>
             </div>
-            {loading ? (
-              <Aux>
-                {/* <Backdrop show={true} /> */}
-                {/* <img className={classes.Loading} src={Loading} alt='loading' /> */}
-              </Aux>
-            ) : null}
           </form>
           <div className={classes.Submit}>
-            <Button click={this.loginHandler} theme="Big">
-              Login
-            </Button>
+            {loading ? (
+              <SmallLoading />
+            ) : (
+              <Button click={this.loginHandler} theme="Big">
+                Login
+              </Button>
+            )}
           </div>
           {/* <div>or</div> */}
           {/* <GoogleSignIn click={this.googleLogin} /> */}
@@ -123,7 +122,7 @@ class LoginLayout extends PureComponent {
 
 LoginLayout.propTypes = {
   loggedIn: PropTypes.bool.isRequired,
-  errorMessage: PropTypes.string.isRequired,
+  errorMessage: PropTypes.string,
   loading: PropTypes.bool,
   clearError: PropTypes.func.isRequired,
   login: PropTypes.func.isRequired,
@@ -131,5 +130,6 @@ LoginLayout.propTypes = {
 
 LoginLayout.defaultProps = {
   loading: false,
+  errorMessage: null,
 };
 export default LoginLayout;

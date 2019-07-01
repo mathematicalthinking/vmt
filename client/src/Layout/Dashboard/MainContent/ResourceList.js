@@ -24,7 +24,6 @@ class ResourceList extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log(this.props);
     const { userResources } = this.props;
     if (prevProps.userResources !== userResources) {
       const { facilitatorList, participantList } = this.sortUserResources(
@@ -45,7 +44,6 @@ class ResourceList extends Component {
     facilitatorList = facilitatorList.filter(resource => {
       return resource.name.indexOf(criteria) > -1;
     });
-    console.log('updatedFacilitator: ', facilitatorList);
     participantList = participantList.filter(resource => {
       return resource.name.indexOf(criteria) > -1;
     });

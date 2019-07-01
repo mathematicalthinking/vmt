@@ -127,3 +127,17 @@ a {
   text-decoration: none;
   color: inherit;
 }
+
+/* Hack for overriding chrome autofill styles */
+@-webkit-keyframes autofill {
+  to {
+    color: #666;
+    background: transparent;
+  }
+}
+
+input:-webkit-autofill {
+  -webkit-animation-name: autofill;
+  -webkit-animation-fill-mode: both;
+  -webkit-text-fill-color: white !important;
+}

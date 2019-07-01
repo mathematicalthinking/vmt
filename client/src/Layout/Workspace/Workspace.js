@@ -88,7 +88,7 @@ class WorkspaceLayout extends Component {
       >
         {/* {!encompass ? <div className={classes.Background} /> : null} */}
         <div className={classes.Container}>
-          <div className={classes.Left}>
+          <div className={replayer ? classes.ReplayerLeft : classes.Left}>
             <div className={classes.TabsAndTitle}>
               <div className={classes.WorkspaceTabs}>{tabs}</div>
               <h2 className={classes.Title}>{roomName}</h2>

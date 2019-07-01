@@ -9,7 +9,7 @@
   margin-bottom: 15px;
   border: 1px solid #ddd;
   background: white;
-  /* box-shadow: lightestShadow; */
+  box-shadow: lightestShadow;
   /* padding: 3px; */
   border-radius: 3px;
 }
