@@ -11,9 +11,7 @@ class DesmosReplayer extends Component {
   calculatorRef = React.createRef();
 
   componentDidMount() {
-    console.log('demos mounted');
     if (window.Desmos) {
-      console.log('already have desmos');
       this.onScriptLoad();
       // let { inView, tab } = this.props;
       // this.calculator = window.Desmos.GraphingCalculator(
@@ -56,17 +54,12 @@ class DesmosReplayer extends Component {
   }
 
   onScriptLoad = () => {
-    console.log('script loaded');
     const { tab, setTabLoaded } = this.props;
     this.calculator = window.Desmos.GraphingCalculator(
       this.calculatorRef.current
     );
     if (tab.startingPoint.length > 1) {
-      console.log(tab.startingPoint);
-      console.log('setting tab loaded from desmos');
-      console.log(this.calculator);
       this.calculator.setState(tab.startingPoint);
-      console.log('state set');
       setTabLoaded(tab._id);
     } else if (tab.desmosLink) {
       API.getDesmos(tab.desmosLink)
@@ -79,13 +72,11 @@ class DesmosReplayer extends Component {
         .catch(err => console.log(err));
     } else {
       this.calculator.setBlank();
-      console.log('setting tab loaded!');
       setTabLoaded(tab._id);
     }
   };
 
   render() {
-    console.log('rendering demos replayer');
     return (
       <Fragment>
         {!window.Desmos ? (

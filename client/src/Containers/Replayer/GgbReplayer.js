@@ -174,7 +174,6 @@ class GgbReplayer extends Component {
    */
 
   recursiveUpdate(events, adding) {
-    console.log('makin a recursive update');
     if (events && events.length > 0) {
       if (adding) {
         for (let i = 0; i < events.length; i++) {
