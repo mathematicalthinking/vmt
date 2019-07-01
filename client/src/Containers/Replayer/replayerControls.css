@@ -1,4 +1,4 @@
-:import("../../colors.css") {
+:import('../../colors.css') {
   blue: blue;
   darkGrey: darkGrey;
   lightGrey: lightGrey;
@@ -24,6 +24,7 @@
   composes: Container;
   /* opacity: 0.2; */
   max-height: 0;
+  opacity: 0;
 }
 /* .Backdrop {
   position: absolute;
