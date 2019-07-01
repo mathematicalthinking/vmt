@@ -23,25 +23,48 @@ export const buildLog = (log, tabs) => {
     }
 
     // to undo a remove event we need to get the xml from when that event was created
+    // when shapes, points etc. are batch removed we need to potentially find multiple events
+    // and when shapes etc are batch created we need to potentially extract one element from
+    // the event array...or potentially a combination of both of theses things
+    // to manage this we define Array eventsToFind which we mutate
+    // eventsToFind so that if it is empty we know we've found all of the relevant events
     if (event.eventType === 'REMOVE') {
-      console.log('this is a remove event');
-      console.log(event.eventArray);
-      console.log(event.label);
-      const { label } = event;
-      //   if (eventArray && eventArray.length > 1) {
-      //       eventArray
-      //   }
+      let eventsToFind;
+      let undoXML = '';
+      let undoArray = [];
+      const { label, eventArray } = event;
+      if (eventArray && eventArray.length > 1) {
+        eventsToFind = [...eventArray];
+      } else eventsToFind = [label];
+      // go back through all of the previous events
       for (let i = idx - 1; i >= 0; i--) {
-        if (
-          label === src[i].label &&
-          (src[i].eventType === 'ADD' || src[i].eventType === 'BATCH_ADD')
-        ) {
-          console.log('this is its corresponding event');
-          console.log(src[i]);
-          event.undoXML = src[i].event;
-          break;
+        if (src[i].eventType === 'ADD' || src[i].eventType === 'BATCH_ADD') {
+          // If the event has an event array, look through it for eventsToFind
+          if (src[i].eventArray && src[i].eventArray.length > 0) {
+            undoArray = undoArray.concat(
+              src[i].eventArray.filter(e => {
+                let found = false;
+                const eSlice = e.slice(0, e.indexOf(':'));
+                eventsToFind.forEach(etf => {
+                  if (eSlice.indexOf(etf)) {
+                    found = true;
+                  }
+                });
+                return found;
+              })
+            );
+          } else if (src[i].label && eventsToFind.indexOf(src[i].label)) {
+            const index = eventsToFind.indexOf(src[i].label);
+            eventsToFind.splice(index, 1);
+            undoXML += src[i].event;
+          }
+          if (eventsToFind.length === 0) {
+            break;
+          }
         }
       }
+      event.undoXML = undoXML;
+      event.undoArray = undoArray;
     }
 
     updatedLog.push(event);
@@ -65,7 +88,6 @@ export const buildLog = (log, tabs) => {
     }
     return acc;
   }, 0);
-
   return {
     relativeDuration,
     endTime,

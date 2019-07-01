@@ -290,6 +290,7 @@ class SharedReplayer extends Component {
       this.setState({ isFullscreen: false });
     }
   };
+
   setCurrentMembers = currentMembers => {
     this.setState({ currentMembers });
   };
@@ -363,9 +364,9 @@ class SharedReplayer extends Component {
       currentMembers,
       allTabsLoaded,
     } = this.state;
-    if (!this.updatedLog) return null;
-    // this.updatedLog.forEach(l => console.log({ tab: l.tab }));
-    console.log(this.updatedLog);
+    if (this.updatedLog.length === 0) {
+      return <Loading message="Preparing the replayer..." />;
+    }
     const replayer = (
       <ReplayerControls
         playing={playing}

@@ -58,7 +58,15 @@ class GgbReplayer extends Component {
   constructEvent = data => {
     switch (data.eventType) {
       case 'ADD':
-        if (data.definition) {
+        if (data.undoRemove) {
+          if (data.undoXML) {
+            this.ggbApplet.evalXML(data.undoXML);
+            this.ggbApplet.evalCommand('UpdateConstruction()');
+          }
+          if (data.undoArray) {
+            this.recursiveUpdate(data.undoArray, true);
+          }
+        } else if (data.definition) {
           this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
         }
         this.ggbApplet.evalXML(data.event);
@@ -166,6 +174,7 @@ class GgbReplayer extends Component {
    */
 
   recursiveUpdate(events, adding) {
+    console.log('makin a recursive update');
     if (events && events.length > 0) {
       if (adding) {
         for (let i = 0; i < events.length; i++) {
@@ -221,8 +230,8 @@ class GgbReplayer extends Component {
         if (syntheticEvent.eventType === 'ADD') {
           syntheticEvent.eventType = 'REMOVE';
         } else if (syntheticEvent.eventType === 'REMOVE') {
+          syntheticEvent.undoRemove = true;
           syntheticEvent.eventType = 'ADD';
-          syntheticEvent.event = syntheticEvent.undoXML;
         } else if (syntheticEvent.eventType === 'BATCH_ADD') {
           syntheticEvent.eventType = 'BATCH_REMOVE';
         } else if (syntheticEvent.eventType === 'BATCH_UPDATE') {
