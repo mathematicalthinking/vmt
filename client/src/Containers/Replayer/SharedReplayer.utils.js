@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-export const buildLog = (log, tabs) => {
+export default (log, tabs) => {
   const BREAK_DURATION = 2000;
   const MAX_WAIT = 10000; // 10 seconds
   const updatedLog = [];
@@ -94,5 +94,3 @@ export const buildLog = (log, tabs) => {
     updatedLog,
   };
 };
-
-export const something = function() {};

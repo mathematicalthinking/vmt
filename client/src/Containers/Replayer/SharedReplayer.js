@@ -14,7 +14,7 @@ import CurrentMembers from '../../Components/CurrentMembers/CurrentMembers';
 import Loading from '../../Components/Loading/Loading';
 import Tabs from '../Workspace/Tabs';
 import Tools from '../Workspace/Tools/Tools';
-import { buildLog } from './SharedReplayer.utils';
+import buildLog from './SharedReplayer.utils';
 
 const PLAYBACK_FIDELITY = 100;
 const INITIAL_STATE = {
