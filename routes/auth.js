@@ -10,7 +10,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const User = require('../models/User');
 const errors = require('../middleware/errors');
-const { getUser } = require('../middleware/utils/request');
+const { getUser, setSsoCookie } = require('../middleware/utils/request');
 const userController = require('../controllers/UserController');
 
 const axios = require('axios');
@@ -50,7 +50,9 @@ router.post('/login', async (req, res, next) => {
     .populate({ path: 'notifications', populate: { path: 'fromUser' } })
       .lean()
       .exec();
-    res.cookie('mtToken', mtToken);
+
+      setSsoCookie(res, mtToken, verifiedToken);
+
     let data = vmtUser;
     return res.json(data);
   } catch (err) {
@@ -73,7 +75,7 @@ router.post('/signup', async (req, res, next) => {
       process.env.MT_USER_JWT_SECRET
     );
 
-    res.cookie('mtToken', mtToken);
+    setSsoCookie(res, mtToken, verifiedToken);
 
     let user = await User.findById(verifiedToken.vmtUserId)
       .lean()
