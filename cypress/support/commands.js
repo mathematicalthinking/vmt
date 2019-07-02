@@ -18,6 +18,7 @@ Cypress.Commands.add('login', user => {
     cy.get('input[name=username]').type(user.username);
     cy.get('input[name=password]').type(user.password);
     cy.get('button').click();
+    cy.wait(500);
   });
   // CANT GET THE CODE BELOW TO WORK -- want to do it programitcally - not through the UI
   // cy.request({

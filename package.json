@@ -20,7 +20,12 @@
     "cypress:run": "cypress run --browser electron --record --key 103dfac6-8e4d-4672-adf9-b661fb7738da",
     "prettier-watch": "onchange '**/*.js' -- prettier --write {{changed}}",
     "heroku-postbuild": "cd client && npm install && npm run build",
-    "seed": "node cypress/seedDb"
+    "seed": "node cypress/seedDb",
+    "seed-sso": "cd ../mt-login && npm run test",
+    "seed-enc": "cd ../encompass &&  grunt serve-seed",
+    "test-all": "concurrently \"npm:test-mac\" \"npm:seed-enc\" \"npm:seed-sso\"",
+    "restore-sso": "cd ../mt-login && npm run seed",
+    "restore-enc": "cd ../encompass && npm run seed"
   },
   "dependencies": {
     "axios": "^0.19.0",

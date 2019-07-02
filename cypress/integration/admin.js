@@ -2,7 +2,7 @@ const Q = require('../fixtures/user7');
 
 describe('test admin privileges', function() {
   before(function() {
-    cy.task('seedDB').then(() => cy.login(Q));
+    cy.task('restoreAll').then(() => cy.login(Q));
   });
 
   it('Q accesses a room he does not belong to', function() {

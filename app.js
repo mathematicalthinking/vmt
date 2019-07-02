@@ -35,7 +35,7 @@ if (process.env.NODE_ENV === 'dev') {
 
 console.log('mongoURI ', mongoURI);
 
-mongoose.connect(mongoURI, (err, res) => {
+mongoose.connect(mongoURI, { useNewUrlParser: true }, (err, res) => {
   if (err) {
     console.log('DB CONNECTION FAILED: ' + err);
   } else {

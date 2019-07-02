@@ -21,15 +21,29 @@ const data = [
 ];
 
 const { seed } = require('../../seeders/seed');
+const restore = require('../restore');
+
+const dropDb = (uri) => {
+  return mongoose.createConnection(uri, {useNewUrlParser: true})
+  .then((db) => {
+    db.dropDatabase();
+  })
+  .catch(console.log);
+}
+
+const encDbUri = 'mongodb://localhost:27017/encompass_seed';
+const vmtDbUri = 'mongodb://localhost:27017/vmt-test';
+const ssoDbUri = 'mongodb://localhost:27017/mtlogin_test';
 
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
   on('task', {
     clearDB: () => {
-      return mongoose
-        .connect('mongodb://localhost/vmt-test')
-        .then(() => mongoose.connection.db.dropDatabase());
+      return Promise.all([dropDb(encDbUri), dropDb(vmtDbUri), dropDb(ssoDbUri)])
+      .then(() => {
+        return 'success';
+      });
     },
     seedDBLogin: () => {
       return seed(['users']).then(() => {
@@ -42,6 +56,10 @@ module.exports = (on, config) => {
           resolve('success');
         });
       });
+    },
+    restoreAll: () => {
+      // drops and restore all 3 of vmt, enc, sso dbs
+      return restore.prepTestDb();
     },
 
     seedDBforWorkspace: () => {

@@ -7,7 +7,7 @@ const user6 = require('../fixtures/user6');
 
 describe('test notifications and access to resources', function() {
   before(function() {
-    cy.task('seedDB');
+    cy.task('restoreAll');
   });
 
   // COURSE

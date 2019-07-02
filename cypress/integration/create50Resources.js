@@ -9,7 +9,7 @@ xdescribe('create 50 courses', function() {
     for (let i = 0; i < 150; i++) {
       arr.push(i);
     }
-    cy.task('seedDB').then(() => {
+    cy.task('restoreAll').then(() => {
       cy.login(user);
     });
     // cy.visit('/myVMT/courses')

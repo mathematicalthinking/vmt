@@ -17,7 +17,7 @@
 import "./commands";
 
 Cypress.Cookies.defaults({
-  whitelist: "connect.sid"
+  whitelist: "mtToken"
 });
 
 // Alternatively you can use CommonJS syntax:

@@ -5,7 +5,7 @@ const activity = require('../fixtures/activity');
 
 describe('create each type of resource', function() {
   before(function() {
-    cy.task('seedDB').then(() => {
+    cy.task('restoreAll').then(() => {
       cy.login(user);
     });
     // cy.visit('/myVMT/courses')

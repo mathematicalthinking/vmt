@@ -1,7 +1,7 @@
 module.exports = {
   firstName: "Jean-Luc",
   lastName: "Picard",
-  username: "jl-picard",
+  username: "jl_picard",
   email: "jlc@example.com",
   password: "enterprise"
 };

@@ -5,7 +5,7 @@ const dbURI = `mongodb://localhost:27017/vmt-test`;
 
 const clearDB = () => {
   return mongoose
-    .connect(dbURI)
+    .connect(dbURI, { useNewUrlParser: true })
     .then(() => mongoose.connection.db.dropDatabase());
 };
 

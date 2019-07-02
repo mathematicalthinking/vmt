@@ -2,7 +2,7 @@ const user = require('../fixtures/user');
 let url;
 describe('temporary room', function() {
   beforeEach(function() {
-    cy.task('clearDB');
+    cy.task('restoreAll');
     cy.window().then(win => {
       win.sessionStorage.clear();
       cy.clearLocalStorage();

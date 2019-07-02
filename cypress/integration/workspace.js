@@ -2,7 +2,7 @@ import user1 from '../fixtures/user';
 
 describe('Workspace/replayer', function() {
   before(function() {
-    cy.task('seedDB').then(() => cy.login(user1));
+    cy.task('restoreAll').then(() => cy.login(user1));
   });
   it('loads a workspace', function() {
     cy.get('#Rooms').click();
