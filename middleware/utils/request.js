@@ -69,6 +69,9 @@ const schemaHasProperty = (schema, property) => {
   }
   return _.has(schema, `paths.${property}`);
 };
+ const setSsoCookie = (res, encodedToken, verifiedTokenPayload)=> {
+  res.cookie('mtToken', encodedToken, { httpOnly: true, maxAge: verifiedTokenPayload.exp });
+};
 
 module.exports.getUser = getUser;
 module.exports.getResource = getResource;
@@ -80,3 +83,4 @@ module.exports.getSchema = getSchema;
 module.exports.getModel = getModel;
 module.exports.getModelName = getModelName;
 module.exports.getModelFromRequest = getModelFromRequest;
+module.exports.setSsoCookie = setSsoCookie;
