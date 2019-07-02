@@ -33,13 +33,26 @@ router.post('/login', async (req, res, next) => {
       mtToken,
       process.env.MT_USER_JWT_SECRET
     );
-
-    let user = await User.findById(verifiedToken.vmtUserId)
+    let vmtUser = await User.findById(verifiedToken.vmtUserId)
+    .populate({
+      path: 'courses',
+      populate: { path: 'members.user', select: 'username' },
+    })
+    .populate({
+      path: 'rooms',
+      select: '-currentState',
+      populate: { path: 'tabs members.user', select: 'username tabType' },
+    })
+    .populate({
+      path: 'activities',
+      populate: { path: 'tabs' },
+    })
+    .populate({ path: 'notifications', populate: { path: 'fromUser' } })
       .lean()
       .exec();
-
     res.cookie('mtToken', mtToken);
-    return res.json(user);
+    let data = vmtUser;
+    return res.json(data);
   } catch (err) {
     return errors.sendError.InternalError(null, res);
   }
