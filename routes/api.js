@@ -16,7 +16,6 @@ router.get('/:resource', (req, res, next) => {
   let controller = controllers[req.params.resource];
   req.query.isTrashed = false;
 
-  if (req.params.resource === 'users')
     controller
       .get(req.query)
       .then(results => res.json({ results }))
