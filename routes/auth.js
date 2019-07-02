@@ -19,6 +19,10 @@ const jwt = require('jsonwebtoken');
 const { getMtSsoUrl } = require('../config/app-urls');
 const { extractBearerToken } = require('../middleware/mt-auth');
 
+const { isValidMongoId } = require('../middleware/utils/helpers');
+
+const Room = require('../models/Room');
+
 router.post('/login', async (req, res, next) => {
   try {
     let url = `${getMtSsoUrl()}/auth/login`;
@@ -174,6 +178,19 @@ router.post('/newMtUser', async (req, res, next) => {
       authToken,
       process.env.MT_USER_JWT_SECRET
     );
+    let wasFromTempUser = Array.isArray(req.body.rooms) && isValidMongoId(req.body.rooms[0]);
+    if (wasFromTempUser) {
+      let [updatedRoom, updatedUser] = await Promise.all([
+        Room.findByIdAndUpdate(req.body.rooms[0], {
+          tempRoom: false,
+          members: [{ user: req.body._id, role: 'facilitator' }],
+        }),
+        User.findByIdAndUpdate(req.body._id, req.body, {
+          new: true,
+        }),
+      ])
+      return res.json(updatedUser);
+    }
 
     let newUser = await User.create(req.body);
 
