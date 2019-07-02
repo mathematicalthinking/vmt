@@ -47,7 +47,7 @@ router.post('/login', async (req, res, next) => {
 
 router.post('/signup', async (req, res, next) => {
   try {
-    let url = `${getMtSsoUrl()}/auth/signup`;
+    let url = `${getMtSsoUrl()}/auth/signup/vmt`;
     let mtSignupResults = await axios.post(url, req.body);
 
     let { message, mtToken } = mtSignupResults.data;
