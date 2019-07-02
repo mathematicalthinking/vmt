@@ -54,7 +54,7 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('join-requests')
       .children()
       .should('have.length', 2); // One div is the request the other is the modal to trash it
-    cy.getTestElement('grant-access-g-laforge').click();
+    cy.getTestElement('grant-access-g_laforge').click();
     cy.getTestElement('tab-ntf')
       .contains('1')
       .should('exist');
@@ -107,7 +107,7 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('assign-manually').click();
     cy.contains('data').click();
     // cy.contains('worf').click()
-    // cy.contains('g-laforge').click()
+    // cy.contains('g_laforge').click()
     cy.getTestElement('assign-rooms').click();
     cy.getTestElement('close-modal').click();
     cy.getTestElement('tab')
@@ -160,7 +160,7 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('member-search')
       .click()
       .type('D');
-    cy.contains('D-troi').click();
+    cy.contains('d_troi').click();
     cy.getTestElement('assign-rooms').click();
     cy.getTestElement('tab')
       .contains('Rooms')
@@ -171,7 +171,7 @@ describe('test notifications and access to resources', function() {
     cy.logout();
   });
 
-  it('d-troi should have a new room notification', function() {
+  it('d_troi should have a new room notification', function() {
     cy.login(user5);
     cy.getTestElement('tab-ntf')
       .contains('1')
@@ -233,7 +233,7 @@ describe('test notifications and access to resources', function() {
       .should('have.length', 2);
     cy.getTestElement('members')
       .children()
-      .contains('g-laforge');
+      .contains('g_laforge');
     cy.getTestElement('member-ntf').should('exist');
   });
 
@@ -271,7 +271,7 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('join-requests')
       .children()
       .should('have.length', 1);
-    cy.getTestElement('grant-access-g-laforge').click();
+    cy.getTestElement('grant-access-g_laforge').click();
     cy.getTestElement('tab-ntf').should('not.exist');
     cy.getTestElement('members')
       .children()
@@ -335,7 +335,7 @@ describe('test notifications and access to resources', function() {
       .should('have.length', 2);
     cy.getTestElement('members')
       .children()
-      .contains('g-laforge');
+      .contains('g_laforge');
     cy.getTestElement('member-ntf').should('exist');
   });
 

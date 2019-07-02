@@ -79,7 +79,7 @@ describe('test admin privileges', function() {
       .children()
       .should('have.length', 1);
     cy.getTestElement('member-search').type('picard');
-    cy.getTestElement('invite-member-jl-picard').click();
+    cy.getTestElement('invite-member-jl_picard').click();
     cy.getTestElement('admin-list')
       .children()
       .should('have.length', 2);

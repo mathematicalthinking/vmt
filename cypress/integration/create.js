@@ -249,7 +249,7 @@ describe('create each type of resource', function() {
   //   cy.getTestElement('content-box-ACTIVITY 2').click()
   //   cy.getTestElement('assign').click()
   //   cy.get('[type="radio"]').last().check()
-  //   cy.contains('g-laforge').click()
+  //   cy.contains('g_laforge').click()
   //   cy.contains('data').click()
   //   cy.getTestElement('assign-rooms').click();
   //   cy.contains('worf').click()

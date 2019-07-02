@@ -1,4 +1,4 @@
-const user = require('../fixtures/user');
+const user = require('../fixtures/userTemp');
 let url;
 describe('temporary room', function() {
   beforeEach(function() {
@@ -18,7 +18,10 @@ describe('temporary room', function() {
     cy.get('.ggbtoolbarpanel').should('exist');
     cy.url({ log: true }).then(res => (url = res));
     cy.getTestElement('save').click();
-    cy.get('input[name=password]').type('555');
+    cy.get('input[name=firstName]').type(user.firstName);
+    cy.get('input[name=lastName]').type(user.lastName);
+    cy.get('input[name=email]').type(user.email);
+    cy.get('input[name=password]').type(user.password);
     cy.getTestElement('submit-signup').click();
     cy.getTestElement('nav-My VMT').click();
     cy.getTestElement('tab')

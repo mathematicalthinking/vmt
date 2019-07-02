@@ -16,7 +16,7 @@ describe('Workspace/replayer', function() {
   });
   it('prevents tool selection without taking control', function() {
     cy.getTestElement('awareness-desc')
-      .contains('jl-picard joined room 1')
+      .contains('jl_picard joined room 1')
       .should('be.visible');
     cy.getTestElement('take-control').click();
     cy.wait(5000);
@@ -31,7 +31,7 @@ describe('Workspace/replayer', function() {
   it('allows tool selection after taking control', function() {
     cy.getTestElement('take-control').click();
     cy.getTestElement('awareness-desc')
-      .contains('jl-picard selected the move tool')
+      .contains('jl_picard selected the move tool')
       .should('be.visible');
     cy.getTestElement('chat')
       .children()
@@ -39,7 +39,7 @@ describe('Workspace/replayer', function() {
       .should('have.length', 10);
     cy.get(':nth-child(5) > .toolbar_button > .gwt-Image').click();
     cy.getTestElement('awareness-desc')
-      .contains('jl-picard selected the polygon tool')
+      .contains('jl_picard selected the polygon tool')
       .should('be.visible');
   });
   it('loads a replayer', function() {
