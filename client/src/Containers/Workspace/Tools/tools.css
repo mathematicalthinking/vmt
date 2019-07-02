@@ -51,6 +51,11 @@ all share. we are repeating styles in each of those copmnents  */
 
 .ReferenceWindow {
   /* height: 100%; */
+  margin: 3px 0;
+  border: 1px solid#aaa;
+  padding: 2px;
+  display: flex;
+  justify-content: space-between;
   box-shadow: lightShadow;
   align-self: auto;
   flex: 0 0 auto;
@@ -58,12 +63,17 @@ all share. we are repeating styles in each of those copmnents  */
   flex-shrink: 1; */
 }
 
+.ReferenceWindow > * {
+}
+
 .AwarenessDesc {
   display: flex;
+  border: 1px solid #aaa;
   align-items: center;
+  width: 100%;
+  padding: 2px;
   min-height: 48px;
   height: 100%;
-  margin: 0 10px;
 }
 
 .AwarenessIcon {

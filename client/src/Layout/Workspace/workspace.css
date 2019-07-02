@@ -147,7 +147,7 @@
   flex-wrap: nowrap;
   height: 100%;
   justify-content: flex-start;
-  /* border: 2px solid red; */
+  border: 1px solid red;
   /* align-content: stretch;
   align-items: stretch; */
 }
@@ -199,21 +199,20 @@
 
 .Chat {
   box-shadow: lightestShadow;
-  /* box-shadow: 0px -1px 30px 2px rgb(67, 77, 104),
-    2px 4px 4px 1px rgb(76, 102, 172); */
   order: 1;
   align-self: auto;
   border-radius: 3px;
-  flex: 0 1 0;
+  flex: 2 0 60%;
+  /* Will overflow flex container without height set */
+  height: 100px;
 }
 
 .Members {
   box-shadow: lightestShadow;
-  /* box-shadow: 0px -1px 15px 2px rgb(148, 162, 200),
-    2px 4px 4px 1px rgb(126, 135, 158); */
-  /* border-radius: 5px; */
   order: 3;
-  flex: 0 0 auto;
+  flex: 1 1 20%;
+  /* Will overflow flex container without height set */
+  height: 30px;
 }
 
 .Tools {
