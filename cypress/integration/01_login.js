@@ -6,9 +6,10 @@ describe('user signup/login', function() {
   });
   beforeEach(function() {
     cy.window().then(win => {
-      // win.sessionStorage.clear();
-      // win.localStorage.clear();
-      // // cy.contains("Logout").click()
+      win.sessionStorage.clear();
+      win.localStorage.clear();
+      cy.clearCookies();
+      cy.visit('/');
     });
   });
   it('signs up a new user', function() {
