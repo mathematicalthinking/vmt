@@ -126,6 +126,8 @@ router.post('/logout/:userId', (req, res, next) => {
     .lean()
     .then(() => {
       try {
+        res.cookie('mtToken', '', {httpOnly: true, maxAge: 0});
+
         res.json({ result: 'success' });
       } catch (err) {
         console.log(('logout err', err));

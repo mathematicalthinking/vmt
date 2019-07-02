@@ -39,7 +39,6 @@ export const logout = () => {
     const userId = getState().user._id;
     AUTH.logout(userId)
       .then(() => {
-        document.cookie = 'mtToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         dispatch(loggedOut());
       })
       .catch(err => dispatch(loading.fail(err)));
