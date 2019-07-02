@@ -40,6 +40,7 @@ const User = new mongoose.Schema(
     token: { type: String }, // For Authentication Encompass users,
     tokenExpiryDate: { type: Date }, // // For Authentication Encompass users
     isTrashed: { type: Boolean, default: false },
+    ssoId: { type: ObjectId },
   },
   { timestamps: true }
 );
