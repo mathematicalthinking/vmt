@@ -25,7 +25,10 @@
     "seed-enc": "cd ../encompass &&  grunt serve-seed",
     "test-all": "concurrently \"npm:seed-enc\" \"npm:test-mac\"  \"npm:seed-sso\"",
     "restore-sso": "cd ../mt-login && npm run seed",
-    "restore-enc": "cd ../encompass && npm run seed"
+    "restore-enc": "cd ../encompass && npm run seed",
+    "dev-sso": "cd ../mt-login && npm run dev",
+    "dev-enc": "cd ../encompass && npm run start",
+    "dev-all": "concurrently \"npm:dev\" \"npm:dev-sso\" \"npm:dev-enc\""
   },
   "dependencies": {
     "axios": "^0.19.0",
