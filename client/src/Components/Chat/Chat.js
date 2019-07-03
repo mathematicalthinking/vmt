@@ -234,6 +234,7 @@ class Chat extends Component {
   };
 
   render() {
+    console.log('render chat componenet');
     const {
       // messages,
       log,

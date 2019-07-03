@@ -129,6 +129,7 @@ class Chat extends Component {
   };
 
   render() {
+    console.log('render chat container');
     const { newMessage } = this.state;
     return (
       <ChatLayout

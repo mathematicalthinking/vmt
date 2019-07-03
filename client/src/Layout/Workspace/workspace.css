@@ -145,11 +145,8 @@
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
-  height: 100%;
+  height: 96%;
   justify-content: flex-start;
-  border: 1px solid red;
-  /* align-content: stretch;
-  align-items: stretch; */
 }
 
 .Graph {
@@ -210,9 +207,10 @@
 .Members {
   box-shadow: lightestShadow;
   order: 3;
-  flex: 1 1 20%;
+  flex: 1 0 20%;
   /* Will overflow flex container without height set */
   height: 30px;
+  /* min-height: 100px; */
 }
 
 .Tools {

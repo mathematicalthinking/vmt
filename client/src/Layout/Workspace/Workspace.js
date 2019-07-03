@@ -79,7 +79,6 @@ class WorkspaceLayout extends Component {
       membersFlexBasis = 0;
     }
     const isFirefox = window.navigator.userAgent.indexOf('Firefox') !== -1;
-    console.log({ isFirefox });
     return (
       <div
         className={classes.PageContainer}
