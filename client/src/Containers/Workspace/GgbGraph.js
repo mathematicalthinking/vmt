@@ -621,7 +621,6 @@ class GgbGraph extends Component {
    */
 
   addListener = label => {
-    console.log('add listener');
     if (this.batchUpdating || this.receivingData) {
       return;
     }

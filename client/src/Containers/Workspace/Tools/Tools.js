@@ -24,7 +24,6 @@ const Tools = ({
       controlText = 'Take Control';
     }
   }
-  console.log({ referencing });
   return (
     <div className={classes.Container}>
       {/* <h3 className={classes.Title}>Tools</h3> */}
@@ -72,6 +71,7 @@ const Tools = ({
           <div className={classes.ReferenceWindow}>
             Referencing
             <Slider
+              data-testid="new-reference"
               onClick={referencing ? clearReference : startNewReference}
               isOn={referencing}
             />

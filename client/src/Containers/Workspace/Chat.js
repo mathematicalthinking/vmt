@@ -34,44 +34,9 @@ class Chat extends Component {
     }
   }
 
-  // componentDidUpdate(prevProps) {
-  // eslint-disable-next-line no-unused-vars
-  // const { referencing, referToEl, clearReference } = this.props;
-  // const { newMessage } = this.state;
-  // if (!prevProps.referencing && referencing) {
-  //   this.setState(currentState => ({
-  //     newMessage: `⬅️ ${currentState.newMessage}`,
-  //   }));
-  // } else if (prevProps.referencing && !referencing) {
-  //   this.setState(currentState => ({
-  //     newMessage: currentState.newMessage.replace(/⬅/g, ''),
-  //   }));
-  // }
-  // if (
-  //   (prevState.newMessage.includes('⬅') &&
-  //     !newMessage.includes('⬅️') &&
-  //     !newMessage.includes('⬆️')) ||
-  //   (prevState.newMessage.includes('⬆️') &&
-  //     !newMessage.includes('⬆️') &&
-  //     !newMessage.includes('⬅'))
-  // ) {
-  //   clearReference();
-  // }
-  // if (
-  //   !prevProps.referToEl &&
-  //   referToEl &&
-  //   referToEl.elementType === 'chat_message'
-  // ) {
-  //   this.setState(currentState => ({
-  //     newMessage: currentState.newMessage.replace('⬅', '⬆️'),
-  //   }));
-  // }
-  // }
-
   changeHandler = event => {
     this.setState({
       newMessage: event.target.value,
-      // isConnected: socket.connected,
     });
   };
 
@@ -129,7 +94,6 @@ class Chat extends Component {
   };
 
   render() {
-    console.log('render chat container');
     const { newMessage } = this.state;
     return (
       <ChatLayout

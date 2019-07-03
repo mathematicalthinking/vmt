@@ -1,6 +1,6 @@
 import user8 from '../fixtures/user8';
 
-describe('Workspace/replayer', function() {
+describe('Referencing', function() {
   before(function() {
     cy.task('seedDB').then(() => cy.login(user8));
   });
@@ -21,7 +21,7 @@ describe('Workspace/replayer', function() {
   });
 
   it('makes a new reference', () => {
-    cy.getTestElement('new-reference').click();
+    cy.getTestElement('new-reference').click({ force: true });
     cy.getTestElement('reference-line').should('not.be.visible');
     cy.getTestElement('5d0d2f0748e22b165488897c').click();
     cy.getTestElement('reference-line').should('be.visible');

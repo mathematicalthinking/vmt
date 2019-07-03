@@ -1,4 +1,4 @@
-:import("../../../colors.css") {
+:import('../../../colors.css') {
   blue: blue;
   lightBlue: lightBlue;
   orange: orange;
@@ -73,6 +73,13 @@
 .Small:active {
   background-image: none;
   background-color: #3796f5;
+}
+
+.Arrow {
+  composes: Small;
+  padding: 0;
+  padding: 4px;
+  font-size: 12px;
 }
 
 .Cancel {

@@ -389,6 +389,7 @@ class SharedReplayer extends Component {
         }
         slider={
           <Slider
+            data-testid="new-reference"
             progress={(timeElapsed / this.relativeDuration) * 100}
             log={this.updatedLog}
             duration={this.relativeDuration || 0}
