@@ -70,7 +70,7 @@ const schemaHasProperty = (schema, property) => {
   return _.has(schema, `paths.${property}`);
 };
  const setSsoCookie = (res, encodedToken, verifiedTokenPayload)=> {
-  res.cookie('mtToken', encodedToken, { httpOnly: true, maxAge: verifiedTokenPayload.exp });
+  res.cookie('mtToken', encodedToken, { httpOnly: true, expires: verifiedTokenPayload.exp });
 };
 
 module.exports.getUser = getUser;
