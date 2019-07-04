@@ -38,24 +38,24 @@ router.post('/login', async (req, res, next) => {
       process.env.MT_USER_JWT_SECRET
     );
     let vmtUser = await User.findById(verifiedToken.vmtUserId)
-    .populate({
-      path: 'courses',
-      populate: { path: 'members.user', select: 'username' },
-    })
-    .populate({
-      path: 'rooms',
-      select: '-currentState',
-      populate: { path: 'tabs members.user', select: 'username tabType' },
-    })
-    .populate({
-      path: 'activities',
-      populate: { path: 'tabs' },
-    })
-    .populate({ path: 'notifications', populate: { path: 'fromUser' } })
+      .populate({
+        path: 'courses',
+        populate: { path: 'members.user', select: 'username' },
+      })
+      .populate({
+        path: 'rooms',
+        select: '-currentState',
+        populate: { path: 'tabs members.user', select: 'username tabType' },
+      })
+      .populate({
+        path: 'activities',
+        populate: { path: 'tabs' },
+      })
+      .populate({ path: 'notifications', populate: { path: 'fromUser' } })
       .lean()
       .exec();
 
-      setSsoCookie(res, mtToken, verifiedToken);
+    setSsoCookie(res, mtToken, verifiedToken);
 
     let data = vmtUser;
     return res.json(data);
@@ -126,7 +126,7 @@ router.post('/logout/:userId', (req, res, next) => {
     .lean()
     .then(() => {
       try {
-        res.cookie('mtToken', '', {httpOnly: true, maxAge: 0});
+        res.cookie('mtToken', '', { httpOnly: true, maxAge: 0 });
 
         res.json({ result: 'success' });
       } catch (err) {
@@ -180,7 +180,8 @@ router.post('/newMtUser', async (req, res, next) => {
       authToken,
       process.env.MT_USER_JWT_SECRET
     );
-    let wasFromTempUser = Array.isArray(req.body.rooms) && isValidMongoId(req.body.rooms[0]);
+    let wasFromTempUser =
+      Array.isArray(req.body.rooms) && isValidMongoId(req.body.rooms[0]);
     if (wasFromTempUser) {
       let [updatedRoom, updatedUser] = await Promise.all([
         Room.findByIdAndUpdate(req.body.rooms[0], {
@@ -190,7 +191,7 @@ router.post('/newMtUser', async (req, res, next) => {
         User.findByIdAndUpdate(req.body._id, req.body, {
           new: true,
         }),
-      ])
+      ]);
       return res.json(updatedUser);
     }
 

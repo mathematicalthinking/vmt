@@ -25,10 +25,12 @@ class LoginLayout extends PureComponent {
         label: 'Password',
       },
     },
+    oauthErrorMessage: null,
   };
 
   componentDidMount() {
     window.addEventListener('keypress', this.onKeyPress);
+    this.parseOauthError();
   }
 
   componentWillUnmount() {
@@ -48,7 +50,7 @@ class LoginLayout extends PureComponent {
   // pass to text inputs to update state from user input
   changeHandler = event => {
     const { errorMessage, clearError } = this.props;
-    const { controls } = this.state;
+    const { controls, oauthErrorMessage } = this.state;
     const updatedControls = { ...controls };
     updatedControls[event.target.name].value = event.target.value;
     this.setState({
@@ -57,6 +59,9 @@ class LoginLayout extends PureComponent {
     // if there's an error message from a previous request clear it.
     if (errorMessage) {
       clearError();
+    }
+    if (oauthErrorMessage) {
+      this.setState({ oauthErrorMessage: null });
     }
   };
 
@@ -69,9 +74,29 @@ class LoginLayout extends PureComponent {
     login(controls.username.value, controls.password.value);
   };
 
+  parseOauthError = () => {
+    const { href } = window.location;
+    const qIndex = href.indexOf('oau');
+    if (qIndex === -1) {
+      return;
+    }
+
+    const queryString = href.slice(qIndex);
+
+    const isEmailUnavailable =
+      queryString.indexOf('oauthError=emailUnavailable') !== -1;
+
+    if (isEmailUnavailable) {
+      this.setState({
+        oauthErrorMessage:
+          'Email is already associated with an existing account',
+      });
+    }
+  };
+
   render() {
     const { loggedIn, errorMessage, loading } = this.props;
-    const { controls } = this.state;
+    const { controls, oauthErrorMessage } = this.state;
     const formElements = Object.keys(controls);
     const form = formElements.map(formElement => {
       const elem = { ...controls[formElement] };
@@ -97,7 +122,9 @@ class LoginLayout extends PureComponent {
           <form onSubmit={this.loginHandler} className={classes.Form}>
             {form}
             <div className={classes.ErrorMsg}>
-              <div className={classes.Error}>{errorMessage}</div>
+              <div className={classes.Error}>
+                {errorMessage || oauthErrorMessage}
+              </div>
             </div>
           </form>
           <div className={classes.Submit}>
