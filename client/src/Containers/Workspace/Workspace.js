@@ -93,6 +93,7 @@ class Workspace extends Component {
       this.initializeListeners();
     }
     window.addEventListener('resize', this.clearReference);
+    window.addEventListener('keydown', this.keyListener);
   }
 
   componentDidUpdate(prevProps) {
@@ -130,7 +131,15 @@ class Workspace extends Component {
     const { myColor } = this.state;
     socket.emit('LEAVE_ROOM', room._id, myColor);
     window.removeEventListener('resize', this.clearReference);
+    window.removeEventListener('keypress', this.keyListener);
   }
+
+  keyListener = event => {
+    const { referencing } = this.state;
+    if (event.key === 'Escape' && referencing) {
+      this.clearReference();
+    }
+  };
 
   initializeListeners = () => {
     const {
@@ -572,6 +581,7 @@ class Workspace extends Component {
         startNewReference={this.startNewReference}
         currentTab={currentTab}
         expanded={chatExpanded}
+        membersExpanded={membersExpanded}
         toggleExpansion={this.toggleExpansion}
       />
     );

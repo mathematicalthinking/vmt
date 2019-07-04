@@ -221,13 +221,13 @@ class Chat extends Component {
   };
 
   messageClickHandler = (event, message) => {
-    const { replayer, referencing } = this.props;
+    const { replayer, startNewReference, referencing } = this.props;
     if (!replayer) {
-      if (referencing) {
-        this.setState({ highlightedMessage: message._id });
-        this.referToMessage(event, message._id);
-      } else if (message.reference)
-        this.showReference(event, message.reference);
+      if (!referencing) {
+        startNewReference();
+      }
+      this.setState({ highlightedMessage: message._id });
+      this.referToMessage(event, message._id);
     } else {
       this.display_temporary_error();
     }
@@ -275,7 +275,10 @@ class Chat extends Component {
               message={message}
               id={message._id} // ?? no message._id ??
               ref={this[`message-${message._id}`]}
-              click={event => this.messageClickHandler(event, message)}
+              onClick={event => this.messageClickHandler(event, message)}
+              showReference={event =>
+                this.showReference(event, message.reference)
+              }
               highlighted={highlighted}
               reference={reference}
               referencing={referencing}

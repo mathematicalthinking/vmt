@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Awareness from './Awareness';
+import Slider from '../../../Components/UI/Button/Slider';
 import classes from './tools.css';
 
 const Tools = ({
@@ -66,33 +67,17 @@ const Tools = ({
             </div>
           </div>
         ) : null}
-        <div className={classes.ReferenceWindow}>
-          {!replayer ? (
-            <div
-              className={classes.ReferenceControls}
+        {!replayer ? (
+          <div className={classes.ReferenceWindow}>
+            Referencing
+            <Slider
+              data-testid="new-reference"
               onClick={referencing ? clearReference : startNewReference}
-              onKeyPress={referencing ? clearReference : startNewReference}
-              role="button"
-              tabIndex="-4"
-            >
-              <i
-                className={[
-                  'fas',
-                  'fa-mouse-pointer',
-                  classes.MousePointer,
-                  referencing ? classes.ReferencingActive : '',
-                ].join(' ')}
-              />
-              <div
-                className={classes.ReferenceTool}
-                data-testid="new-reference"
-              >
-                Reference
-              </div>
-              {/* <div className={classes.RefrenceTool}>Perspective</div> */}
-            </div>
-          ) : null}
-        </div>
+              isOn={referencing}
+            />
+          </div>
+        ) : null}
+
         <div>
           <Awareness lastEvent={lastEvent} />
         </div>

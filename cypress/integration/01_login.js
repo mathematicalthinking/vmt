@@ -6,13 +6,13 @@ describe('user signup/login', function() {
   });
   beforeEach(function() {
     cy.window().then(win => {
-      win.sessionStorage.clear();
-      win.localStorage.clear();
-      // cy.contains("Logout").click()
-      cy.visit('/');
+      // win.sessionStorage.clear();
+      // win.localStorage.clear();
+      // // cy.contains("Logout").click()
     });
   });
   it('signs up a new user', function() {
+    cy.visit('/');
     cy.contains('Signup').click();
     cy.url().should('include', 'signup');
     cy.get('input[name=firstName]').type(user.firstName);
@@ -22,6 +22,7 @@ describe('user signup/login', function() {
     cy.get('input[name=password]').type(user.password);
     cy.get('button').click();
     cy.url().should('include', '/myVMT/rooms');
+    cy.logout();
   });
   it('logs in the user we just created', function() {
     cy.contains('Login').click();
@@ -29,6 +30,7 @@ describe('user signup/login', function() {
     cy.get('input[name=password]').type(user.password);
     cy.get('button').click();
     cy.url().should('include', '/myVMT/rooms');
+    cy.logout();
   });
   it('fails to sign up a user with the same username', function() {
     cy.contains('Signup').click();

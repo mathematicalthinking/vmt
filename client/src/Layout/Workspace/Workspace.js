@@ -66,21 +66,19 @@ class WorkspaceLayout extends Component {
         x2 = graphCoords.right - offSet;
       }
     }
-    let membersHeight = 'auto';
-    let chatHeight = '43%';
-    let flexB = '0';
+    let chatFlexGrow = 2;
+    let membersFlexGrow = 1;
+    let chatFlexBasis = '66%';
+    let membersFlexBasis = '20%';
     if (!chatExpanded) {
-      chatHeight = 'auto';
-      if (membersExpanded) {
-        membersHeight = '33%';
-      }
+      chatFlexGrow = 0;
+      chatFlexBasis = 0;
     }
-    // This is annoying but the flexx basis behavior is not consistant across browsers and it is messing up how
-    // the right panel elements collapse and expand....there's gotta be a better way to do this
-    if (typeof InstallTrigger !== 'undefined' && chatExpanded) {
-      // If this is Firefox
-      flexB = 'auto';
+    if (!membersExpanded) {
+      membersFlexGrow = 0;
+      membersFlexBasis = 0;
     }
+    const isFirefox = window.navigator.userAgent.indexOf('Firefox') !== -1;
     return (
       <div
         className={classes.PageContainer}
@@ -127,14 +125,25 @@ class WorkspaceLayout extends Component {
           <div className={classes.Right}>
             <div
               className={classes.Chat}
-              style={{ height: chatHeight, flexBasis: flexB }}
+              style={{
+                flexGrow: chatFlexGrow,
+                flexBasis: chatFlexBasis,
+                maxHeight: isFirefox ? '66%' : 'auto',
+              }}
             >
               {chat}
             </div>
             <div className={activity ? classes.ActivityTools : classes.Tools}>
               {bottomRight}
             </div>
-            <div className={classes.Members} style={{ height: membersHeight }}>
+            <div
+              className={classes.Members}
+              style={{
+                flexGrow: membersFlexGrow,
+                flexBasis: membersFlexBasis,
+                maxHeight: isFirefox ? '20%' : 'auto',
+              }}
+            >
               {currentMembers}
             </div>
           </div>
