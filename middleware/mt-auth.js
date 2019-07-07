@@ -2,8 +2,10 @@ const jwt = require('jsonwebtoken');
 const { defaults } = require('lodash');
 const { isValidMongoId } = require('./utils/request');
 const User = require('../models/User');
+const { getVmtIssuerId, getMtIssuerId } = require('../config/app-urls');
 
 const secret = process.env.MT_USER_JWT_SECRET;
+const { apiToken, accessCookie } = require('../constants/sso');
 
 const prep = (req, res, next) => {
   defaults(req, { mt: {} });
@@ -13,14 +15,14 @@ const prep = (req, res, next) => {
 
 const getMtUser = async req => {
   try {
-    let mtToken = req.cookies.mtToken;
+    let accessToken = req.cookies[accessCookie.name];
 
-    if (!mtToken) {
+    if (accessToken === undefined) {
       return null;
     }
 
     // if token is not verified, error will be thrown
-    let verifiedToken = await jwt.verify(mtToken, secret);
+    let verifiedToken = await jwt.verify(accessToken, secret);
 
     return verifiedToken;
   } catch (err) {
@@ -74,7 +76,7 @@ const getVmtUser = mtUserDetails => {
   return null;
 };
 
-module.exports.extractBearerToken = req => {
+const extractBearerToken = req => {
   let { authorization } = req.headers;
 
   if (typeof authorization !== 'string') {
@@ -83,8 +85,18 @@ module.exports.extractBearerToken = req => {
   return authorization.split(' ')[1];
 };
 
+// used when communicating to MT SSO
+const generateAnonApiToken = (expiration = apiToken.expiresIn) => {
+  let payload = { iat: Date.now() };
+  let options = { expiresIn: expiration, issuer: getVmtIssuerId(), audience: getMtIssuerId() };
+
+  return jwt.sign(payload, secret, options);
+};
+
 module.exports.getMtUser = getMtUser;
 module.exports.prep = prep;
 module.exports.getVmtUser = getVmtUser;
 module.exports.prepareMtUser = prepareMtUser;
 module.exports.prepareVmtUser = prepareVmtUser;
+module.exports.extractBearerToken = extractBearerToken;
+module.exports.generateAnonApiToken = generateAnonApiToken;

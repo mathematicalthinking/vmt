@@ -1,4 +1,4 @@
-const getMtSsoUrl = () => {
+module.exports.getMtSsoUrl = () => {
   let envName = process.env.NODE_ENV;
 
   if (envName === 'production') {
@@ -15,4 +15,38 @@ const getMtSsoUrl = () => {
   return process.env.MT_SSO_URL_DEV;
 };
 
-module.exports.getMtSsoUrl = getMtSsoUrl;
+module.exports.getVmtIssuerId = () => {
+  let envName = process.env.NODE_ENV;
+
+  if (envName === 'production') {
+    return process.env.JWT_ISSUER_ID_PROD;
+  }
+
+  if (envName === 'staging') {
+    return process.env.JWT_ISSUER_ID_STAGING;
+  }
+
+  if (envName === 'test') {
+    return process.env.JWT_ISSUER_ID_TEST;
+  }
+
+  return process.env.JWT_ISSUER_ID_DEV;
+};
+
+module.exports.getMtIssuerId = () => {
+  let envName = process.env.NODE_ENV;
+
+  if (envName === 'production') {
+    return process.env.MT_SSO_JWT_ISSUER_ID_PROD;
+  }
+
+  if (envName === 'staging') {
+    return process.env.MT_SSO_JWT_ISSUER_ID_STAGING;
+  }
+
+  if (envName === 'test') {
+    return process.env.MT_SSO_JWT_ISSUER_ID_TEST;
+  }
+
+  return process.env.MT_SSO_JWT_ISSUER_ID_DEV;
+};

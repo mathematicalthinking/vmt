@@ -10,7 +10,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const User = require('../models/User');
 const errors = require('../middleware/errors');
-const { getUser, setSsoCookie } = require('../middleware/utils/request');
+const { getUser, setSsoCookie, setSsoRefreshCookie } = require('../middleware/utils/request');
 const userController = require('../controllers/UserController');
 
 const axios = require('axios');
@@ -23,18 +23,19 @@ const { isValidMongoId } = require('../middleware/utils/helpers');
 
 const Room = require('../models/Room');
 
+const { accessCookie, refreshCookie } = require('../constants/sso');
+
+const ssoService = require('../services/sso');
+
 router.post('/login', async (req, res, next) => {
   try {
-    let url = `${getMtSsoUrl()}/auth/login`;
-    let mtLoginResults = await axios.post(url, req.body);
-
-    let { message, mtToken } = mtLoginResults.data;
+    let { message, accessToken, refreshToken } = await ssoService.login(req.body);
     if (message) {
       return errors.sendError.InvalidCredentialsError(message, res);
     }
 
     let verifiedToken = await jwt.verify(
-      mtToken,
+      accessToken,
       process.env.MT_USER_JWT_SECRET
     );
     let vmtUser = await User.findById(verifiedToken.vmtUserId)
@@ -55,7 +56,8 @@ router.post('/login', async (req, res, next) => {
       .lean()
       .exec();
 
-    setSsoCookie(res, mtToken, verifiedToken);
+    setSsoCookie(res, accessToken);
+    setSsoRefreshCookie(res, refreshToken);
 
     let data = vmtUser;
     return res.json(data);
@@ -66,20 +68,19 @@ router.post('/login', async (req, res, next) => {
 
 router.post('/signup', async (req, res, next) => {
   try {
-    let url = `${getMtSsoUrl()}/auth/signup/vmt`;
-    let mtSignupResults = await axios.post(url, req.body);
+    let { message, accessToken, refreshToken } = await ssoService.signup(req.body);
 
-    let { message, mtToken } = mtSignupResults.data;
     if (message) {
       return errors.sendError.InvalidCredentialsError(message, res);
     }
 
     let verifiedToken = await jwt.verify(
-      mtToken,
+      accessToken,
       process.env.MT_USER_JWT_SECRET
     );
 
-    setSsoCookie(res, mtToken, verifiedToken);
+    setSsoCookie(res, accessToken);
+    setSsoRefreshCookie(res, refreshToken);
 
     let user = await User.findById(verifiedToken.vmtUserId)
       .lean()
@@ -126,7 +127,8 @@ router.post('/logout/:userId', (req, res, next) => {
     .lean()
     .then(() => {
       try {
-        res.cookie('mtToken', '', { httpOnly: true, maxAge: 0 });
+        res.cookie(accessCookie.name, '', { httpOnly: true, maxAge: 0 });
+        res.cookie(refreshCookie.name, '', { httpOnly: true, maxAge: 0 });
 
         res.json({ result: 'success' });
       } catch (err) {

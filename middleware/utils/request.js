@@ -1,6 +1,8 @@
 const _ = require('lodash');
 const models = require('../../models');
 
+const {accessCookie, refreshCookie, } = require('../../constants/sso');
+
 const resourceToModelMap = {
   activities: 'Activity',
   courses: 'Course',
@@ -69,8 +71,19 @@ const schemaHasProperty = (schema, property) => {
   }
   return _.has(schema, `paths.${property}`);
 };
- const setSsoCookie = (res, encodedToken, verifiedTokenPayload)=> {
-  res.cookie('mtToken', encodedToken, { httpOnly: true, expires: verifiedTokenPayload.exp });
+ const setSsoCookie = (res, encodedToken)=> {
+  let doSetSecure =
+  process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
+
+  res.cookie(accessCookie.name, encodedToken, { httpOnly: true, maxAge: accessCookie.maxAge, secure: doSetSecure });
+};
+
+const setSsoRefreshCookie = (res, encodedToken) => {
+  let doSetSecure =
+  process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
+
+  res.cookie(refreshCookie.name, encodedToken, { httpOnly: true,secure: doSetSecure, maxAge: refreshCookie.maxAge });
+
 };
 
 module.exports.getUser = getUser;
@@ -84,3 +97,4 @@ module.exports.getModel = getModel;
 module.exports.getModelName = getModelName;
 module.exports.getModelFromRequest = getModelFromRequest;
 module.exports.setSsoCookie = setSsoCookie;
+module.exports.setSsoRefreshCookie = setSsoRefreshCookie;
