@@ -29,7 +29,6 @@ export const getMtSsoUrl = () => {
 export const getGoogleUrl = () => {
   const base = getMtSsoUrl();
   const redirectUrl = getRedirectUrl();
-  const endpoint = 'auth/oauth/google';
-
+  const endpoint = 'oauth/google';
   return `${base}/${endpoint}?redirectURL=${redirectUrl}`;
 };
