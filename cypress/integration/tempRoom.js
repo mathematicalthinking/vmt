@@ -9,6 +9,11 @@ describe('temporary room', function() {
       cy.visit('/');
     });
   });
+
+  after(function() {
+    cy.logout();
+  });
+
   it('creates a temp user and room and then saves', function() {
     cy.contains('Try out a Workspace').click();
     cy.url().should('include', 'explore');

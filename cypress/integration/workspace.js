@@ -4,6 +4,11 @@ describe('Workspace/replayer', function() {
   before(function() {
     cy.task('restoreAll').then(() => cy.login(user1));
   });
+
+  after(function() {
+    cy.logout();
+  });
+
   it('loads a workspace', function() {
     cy.get('#Rooms').click();
     cy.getTestElement('content-box-room 1').click();

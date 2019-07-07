@@ -10,6 +10,10 @@ describe('test notifications and access to resources', function() {
     cy.task('restoreAll');
   });
 
+  after(function() {
+    cy.logout();
+  });
+
   // COURSE
   it('user2 requests access to course 1', function() {
     cy.login(user2);

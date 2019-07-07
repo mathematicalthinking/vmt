@@ -5,6 +5,10 @@ describe('test admin privileges', function() {
     cy.task('restoreAll').then(() => cy.login(Q));
   });
 
+  after(function() {
+    cy.logout();
+  });
+
   it('Q accesses a room he does not belong to', function() {
     cy.contains('Community').click();
     cy.getTestElement('content-box-room 2').click();

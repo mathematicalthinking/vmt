@@ -8,7 +8,10 @@ describe('create each type of resource', function() {
     cy.task('restoreAll').then(() => {
       cy.login(user);
     });
-    // cy.visit('/myVMT/courses')
+  });
+
+  after(function() {
+    cy.logout();
   });
 
   it('creates a course', function() {

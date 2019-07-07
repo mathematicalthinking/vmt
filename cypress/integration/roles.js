@@ -9,6 +9,11 @@ xdescribe("show different views based on role", function() {
     });
     // cy.visit('/myVMT/courses')
   });
+
+  after(function() {
+    cy.logout();
+  });
+
   let fToggle = "View: Facilitator";
   let pToggle = "View: Participant";
   let toggleIcon = "i.fas.fa-sync";

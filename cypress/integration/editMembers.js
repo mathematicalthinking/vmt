@@ -6,6 +6,10 @@ describe('Edit Members Roles', function() {
     cy.task('restoreAll').then(() => cy.login(user1));
   });
 
+  afterEach(function() {
+    cy.logout();
+  });
+
   // COURSE
   it('picard changes worf from participant to facilitator', function() {
     cy.getTestElement('tab')

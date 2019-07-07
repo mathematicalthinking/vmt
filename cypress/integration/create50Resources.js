@@ -14,6 +14,11 @@ xdescribe('create 50 courses', function() {
     });
     // cy.visit('/myVMT/courses')
   });
+
+  after(function() {
+    cy.logout();
+  });
+
   it('creates a course', function() {
     cy.wrap(arr).each(index => {
       cy.getTestElement('tab')

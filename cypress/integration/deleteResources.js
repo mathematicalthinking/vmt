@@ -5,6 +5,10 @@ describe("Delete resource", function() {
     cy.task('restoreAll').then(() => cy.login(user5));
   });
 
+  after(function() {
+    cy.logout();
+  });
+
   // COURSE
   it("deletes a stand alone room", function() {
     cy.getTestElement("tab")

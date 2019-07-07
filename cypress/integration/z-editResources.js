@@ -5,6 +5,10 @@ describe("Edit Resources", function() {
     cy.task('restoreAll').then(() => cy.login(user5));
   });
 
+  after(function() {
+    cy.logout();
+  });
+
   it("successfully edits all fields of a room", function() {
     cy.getTestElement("tab")
       .contains("Rooms")
