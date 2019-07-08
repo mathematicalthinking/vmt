@@ -107,6 +107,8 @@
 @media screen and (max-width: 400px) {
   .SidePanel {
     height: auto;
+    width: 100%;
+    min-width: 250px;
   }
   .Main {
     flex-flow: column;
@@ -114,9 +116,6 @@
 
   .Content {
     width: 100%;
-  }
-
-  .SidePanel {
-    width: 100%;
+    min-width: 250px;
   }
 }
