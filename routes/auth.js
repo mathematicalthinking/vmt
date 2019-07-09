@@ -10,20 +10,16 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const User = require('../models/User');
 const errors = require('../middleware/errors');
-const { getUser, setSsoCookie, setSsoRefreshCookie } = require('../middleware/utils/request');
+const { getUser, setSsoCookie, setSsoRefreshCookie, clearAccessCookie, clearRefreshCookie } = require('../middleware/utils/request');
 const userController = require('../controllers/UserController');
 
-const axios = require('axios');
 const jwt = require('jsonwebtoken');
 
-const { getMtSsoUrl } = require('../config/app-urls');
 const { extractBearerToken } = require('../middleware/mt-auth');
 
 const { isValidMongoId } = require('../middleware/utils/helpers');
 
 const Room = require('../models/Room');
-
-const { accessCookie, refreshCookie } = require('../constants/sso');
 
 const ssoService = require('../services/sso');
 
@@ -127,8 +123,8 @@ router.post('/logout/:userId', (req, res, next) => {
     .lean()
     .then(() => {
       try {
-        res.cookie(accessCookie.name, '', { httpOnly: true, maxAge: 0 });
-        res.cookie(refreshCookie.name, '', { httpOnly: true, maxAge: 0 });
+        clearAccessCookie(res);
+        clearRefreshCookie(res);
 
         res.json({ result: 'success' });
       } catch (err) {
@@ -139,26 +135,6 @@ router.post('/logout/:userId', (req, res, next) => {
     .catch(err => errors.sendError.InternalError(err, res));
 });
 
-// router.get('/googleAuth', (req, res, next) => {
-//   passport.authenticate('google', {
-//     scope: [
-//       'https://www.googleapis.com/auth/plus.login',
-//       'https://www.googleapis.com/auth/plus.profile.emails.read',
-//     ],
-//   })(req, res, next);
-// });
-
-// router.get('/google/callback', (req, res, next) => {
-//   passport.authenticate('google', {
-//     failureRedirect: '/#/login',
-//     successRedirect: '/',
-//   })(req, res, next);
-// });
-
-// const logout = (req, res, next) => {
-//   req.logout();
-//   res.redirect('/');
-// };
 
 router.get('/currentUser', (req, res, next) => {
   let currentUser = getUser(req);
