@@ -72,9 +72,7 @@ class Homepage extends PureComponent {
     const { error } = this.state;
     return (
       <Aux>
-        <Background
-          bottomSpace={window.screen.availHeight < 1000 ? -10 : null}
-        />
+        <Background bottomSpace={null} />
         <div className={classes.Main}>
           <section className={classes.Top}>
             {error ? <div className={classes.Error}>{error}</div> : null}
