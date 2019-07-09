@@ -86,8 +86,13 @@ const prepareVmtUser = (req, res, next) => {
     req.mt.auth.vmtUser = null;
     console.log('no user logged in : ', req.path, 'clearing cookies');
     // clear any invalid cookies
-    clearAccessCookie(res);
-    clearRefreshCookie(res);
+    if (req.cookies[accessCookie.name]) {
+      clearAccessCookie(res);
+
+    }
+    if (req.cookies[refreshCookie.name]) {
+      clearRefreshCookie(res);
+    }
 
     return next();
   }

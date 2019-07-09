@@ -76,14 +76,25 @@ const schemaHasProperty = (schema, property) => {
   let doSetSecure =
   process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
 
-  res.cookie(accessCookie.name, encodedToken, { httpOnly: true, maxAge: accessCookie.maxAge, secure: doSetSecure });
+  let options = { httpOnly: true, maxAge: accessCookie.maxAge, secure: doSetSecure };
+
+  if (doSetSecure) {
+    options.domain = process.env.SSO_COOKIE_DOMAIN;
+  }
+
+  res.cookie(accessCookie.name, encodedToken, options);
 };
 
 const setSsoRefreshCookie = (res, encodedToken) => {
   let doSetSecure =
   process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
 
-  res.cookie(refreshCookie.name, encodedToken, { httpOnly: true,secure: doSetSecure, });
+  let options = { httpOnly: true,secure: doSetSecure };
+  if (doSetSecure) {
+    options.domain = process.env.SSO_COOKIE_DOMAIN;
+  }
+
+  res.cookie(refreshCookie.name, encodedToken, options);
 
 };
 
