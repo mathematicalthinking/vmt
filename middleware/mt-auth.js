@@ -1,11 +1,13 @@
 const jwt = require('jsonwebtoken');
 const { defaults } = require('lodash');
-const { isValidMongoId } = require('./utils/request');
+const { isValidMongoId, verifyJwt, clearAccessCookie, clearRefreshCookie, setSsoCookie } = require('./utils/request');
 const User = require('../models/User');
 const { getVmtIssuerId, getMtIssuerId } = require('../config/app-urls');
 
 const secret = process.env.MT_USER_JWT_SECRET;
-const { apiToken, accessCookie } = require('../constants/sso');
+const { apiToken, accessCookie, refreshCookie } = require('../constants/sso');
+
+const ssoService = require('../services/sso');
 
 const prep = (req, res, next) => {
   defaults(req, { mt: {} });
@@ -13,22 +15,55 @@ const prep = (req, res, next) => {
   return next();
 };
 
-const getMtUser = async req => {
-  try {
-    let accessToken = req.cookies[accessCookie.name];
+const resolveAccessToken = async (token) => {
+  if (typeof token !== 'string') {
+    return null;
+  }
 
-    if (accessToken === undefined) {
+  let [accessTokenErr, verifiedAccessToken] = await verifyJwt(token, secret);
+
+  return verifiedAccessToken;
+
+};
+
+const getMtUser = async (req, res) => {
+  try {
+    let verifiedAccessToken = await resolveAccessToken(req.cookies[accessCookie.name]);
+    let accessTokenErr;
+
+    if (verifiedAccessToken !== null) {
+      return verifiedAccessToken;
+    }
+    // access token verification failed request new access token with refresh token
+
+    let currentRefreshToken = req.cookies[refreshCookie.name];
+
+    if (currentRefreshToken === undefined) {
       return null;
     }
 
-    // if token is not verified, error will be thrown
-    let verifiedToken = await jwt.verify(accessToken, secret);
+    // request new accessToken with refreshToken
+    let { accessToken } = await ssoService.requestNewAccessToken(currentRefreshToken);
 
-    return verifiedToken;
-  } catch (err) {
+    [ accessTokenErr, verifiedAccessToken] = await verifyJwt(accessToken, secret);
+
+    if (accessTokenErr) {
+      console.log('accessTokenErr getMtUser: ', accessTokenErr)
+      // should never happen
+      return null;
+    }
+
+    console.log('received new access token vmt: ', verifiedAccessToken);
+
+    setSsoCookie(res, accessToken);
+    return verifiedAccessToken;
+
+  }catch(err) {
     console.error(`Error getMtUser: ${err}`);
     return null;
+
   }
+
 };
 
 const prepareMtUser = (req, res, next) => {
@@ -49,6 +84,11 @@ const prepareVmtUser = (req, res, next) => {
 
   if (mtUserDetails === null) {
     req.mt.auth.vmtUser = null;
+    console.log('no user logged in : ', req.path, 'clearing cookies');
+    // clear any invalid cookies
+    clearAccessCookie(res);
+    clearRefreshCookie(res);
+
     return next();
   }
 
@@ -58,7 +98,8 @@ const prepareVmtUser = (req, res, next) => {
     .then(user => {
       req.mt.auth.vmtUser = user;
       next();
-    });
+    })
+    .catch(next);
 };
 
 const getVmtUser = mtUserDetails => {

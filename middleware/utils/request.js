@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const jwt = require('jsonwebtoken');
 const models = require('../../models');
 
 const {accessCookie, refreshCookie, } = require('../../constants/sso');
@@ -82,9 +83,42 @@ const setSsoRefreshCookie = (res, encodedToken) => {
   let doSetSecure =
   process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
 
-  res.cookie(refreshCookie.name, encodedToken, { httpOnly: true,secure: doSetSecure, maxAge: refreshCookie.maxAge });
+  res.cookie(refreshCookie.name, encodedToken, { httpOnly: true,secure: doSetSecure, });
 
 };
+
+const verifyJwt = (
+  token,
+  key,
+  options,
+) => {
+  return new Promise(
+    (resolve, reject) => {
+      jwt.verify(
+        token,
+        key,
+        options || {},
+        (err, decoded)=> {
+          if (err) {
+            resolve([err, null]);
+          } else {
+            resolve([null, decoded]);
+          }
+        },
+      );
+    },
+  );
+};
+
+const clearAccessCookie = (res) => {
+  res.cookie(accessCookie.name, '', {httpOnly: true, maxAge: 0});
+};
+
+const clearRefreshCookie = (res) => {
+  res.cookie(refreshCookie.name, '', {httpOnly: true, maxAge: 0});
+
+};
+
 
 module.exports.getUser = getUser;
 module.exports.getResource = getResource;
@@ -98,3 +132,6 @@ module.exports.getModelName = getModelName;
 module.exports.getModelFromRequest = getModelFromRequest;
 module.exports.setSsoCookie = setSsoCookie;
 module.exports.setSsoRefreshCookie = setSsoRefreshCookie;
+module.exports.verifyJwt = verifyJwt;
+module.exports.clearAccessCookie = clearAccessCookie;
+module.exports.clearRefreshCookie = clearRefreshCookie;

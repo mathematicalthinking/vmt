@@ -5,7 +5,7 @@ module.exports = {
   },
   refreshCookie: {
     name: 'mt_sso_rf',
-    maxAge: 2592000000 // ms (1 year)
+    // maxAge: 2592000000 // ms (1 year)
   },
   apiToken: {
     expiresIn: '5m',
