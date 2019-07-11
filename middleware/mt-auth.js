@@ -1,11 +1,9 @@
-const jwt = require('jsonwebtoken');
 const { defaults } = require('lodash');
 const { isValidMongoId, verifyJwt, clearAccessCookie, clearRefreshCookie, setSsoCookie } = require('./utils/request');
 const User = require('../models/User');
-const { getVmtIssuerId, getMtIssuerId } = require('../config/app-urls');
 
 const secret = process.env.MT_USER_JWT_SECRET;
-const { apiToken, accessCookie, refreshCookie } = require('../constants/sso');
+const { accessCookie, refreshCookie } = require('../constants/sso');
 
 const ssoService = require('../services/sso');
 
@@ -131,18 +129,9 @@ const extractBearerToken = req => {
   return authorization.split(' ')[1];
 };
 
-// used when communicating to MT SSO
-const generateAnonApiToken = (expiration = apiToken.expiresIn) => {
-  let payload = { iat: Date.now() };
-  let options = { expiresIn: expiration, issuer: getVmtIssuerId(), audience: getMtIssuerId() };
-
-  return jwt.sign(payload, secret, options);
-};
-
 module.exports.getMtUser = getMtUser;
 module.exports.prep = prep;
 module.exports.getVmtUser = getVmtUser;
 module.exports.prepareMtUser = prepareMtUser;
 module.exports.prepareVmtUser = prepareVmtUser;
 module.exports.extractBearerToken = extractBearerToken;
-module.exports.generateAnonApiToken = generateAnonApiToken;
