@@ -105,9 +105,9 @@ const verifyJwt = (token, key, options) => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, key, options || {}, (err, decoded) => {
       if (err) {
-        resolve([err, null]);
+        reject(err);
       } else {
-        resolve([null, decoded]);
+        resolve(decoded);
       }
     });
   });

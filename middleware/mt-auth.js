@@ -14,20 +14,22 @@ const prep = (req, res, next) => {
 };
 
 const resolveAccessToken = async (token) => {
-  if (typeof token !== 'string') {
+  try {
+    if (typeof token !== 'string') {
+      return null;
+    }
+    return verifyJwt(token, secret);
+
+  }catch(err) {
+    // invalid access token
     return null;
   }
-
-  let [accessTokenErr, verifiedAccessToken] = await verifyJwt(token, secret);
-
-  return verifiedAccessToken;
 
 };
 
 const getMtUser = async (req, res) => {
   try {
     let verifiedAccessToken = await resolveAccessToken(req.cookies[accessCookie.name]);
-    let accessTokenErr;
 
     if (verifiedAccessToken !== null) {
       return verifiedAccessToken;
@@ -43,13 +45,7 @@ const getMtUser = async (req, res) => {
     // request new accessToken with refreshToken
     let { accessToken } = await ssoService.requestNewAccessToken(currentRefreshToken);
 
-    [ accessTokenErr, verifiedAccessToken] = await verifyJwt(accessToken, secret);
-
-    if (accessTokenErr) {
-      console.log('accessTokenErr getMtUser: ', accessTokenErr)
-      // should never happen
-      return null;
-    }
+    verifiedAccessToken = await verifyJwt(accessToken, secret);
 
     console.log('received new access token vmt: ', verifiedAccessToken);
 
@@ -58,6 +54,7 @@ const getMtUser = async (req, res) => {
 
   }catch(err) {
     console.error(`Error getMtUser: ${err}`);
+    // invalid access token
     return null;
 
   }
