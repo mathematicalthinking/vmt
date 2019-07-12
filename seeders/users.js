@@ -27,7 +27,7 @@ module.exports = [
   "seenTour" : false,
   "isTrashed" : false,
   "username" : "jl_picard",
-  "email" : "",
+  "email" : "vmtmath@gmail.com",
   "firstName" : "jean-luc",
   "lastName" : "picard",
   "password" : "$2b$12$xI0a6mVLlVoFYeVsmU2XrOVowVVphu9ORSD9EVHG6lzWMvfP8cgES",
