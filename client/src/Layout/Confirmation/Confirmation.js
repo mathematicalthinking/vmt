@@ -37,7 +37,7 @@ Confirmation.defaultProps = {
 };
 
 const mapStateToProps = state => ({
-  success: state.loading.accessSuccess,
+  success: state.loading.accessSuccess || state.loading.forgotPasswordSuccess,
   successMessage: state.loading.successMessage,
   errorMessage: state.loading.errorMessage,
 });
