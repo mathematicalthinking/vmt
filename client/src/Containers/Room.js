@@ -9,6 +9,7 @@ import {
   RoomSettings,
 } from '../Layout/Dashboard';
 import Members from './Members/Members';
+import Stats from './Stats/Stats';
 import getUserNotifications from '../utils/notifications';
 import {
   joinWithCode,
@@ -42,7 +43,12 @@ class Room extends Component {
     this.state = {
       // member: false,
       guestMode: true,
-      tabs: [{ name: 'Details' }, { name: 'Members' }, { name: 'Settings' }],
+      tabs: [
+        { name: 'Details' },
+        { name: 'Members' },
+        { name: 'Stats' },
+        { name: 'Settings' },
+      ],
       firstView: false,
       editing: false,
       invited: false,
@@ -424,6 +430,8 @@ class Room extends Component {
             roomId={room._id}
           />
         );
+      } else if (resource === 'stats') {
+        mainContent = <Stats data={room} />;
       }
       return (
         <Aux>
@@ -605,7 +613,7 @@ class Room extends Component {
         username={user.username}
         privacySetting={room ? room.privacySetting : 'private'}
         owners={
-          room
+          room && room.members
             ? room.members
                 .filter(member => member.role.toLowerCase() === 'facilitator')
                 .map(member => member.user)
