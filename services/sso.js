@@ -1,24 +1,28 @@
 const axios = require('axios');
-const jwt = require('jsonwebtoken');
 
 const { getMtSsoUrl, getVmtIssuerId, getMtIssuerId } = require('../config/app-urls');
 const { apiToken } = require('../constants/sso');
+const { signJwt } = require('../middleware/utils/request');
 
 const secret = process.env.MT_USER_JWT_SECRET;
 const BASE_URL = getMtSsoUrl();
 
-const generateAnonApiToken = (expiration = apiToken.expiresIn) => {
+const generateSsoApiToken = (reqUser) => {
   let payload = { iat: Date.now() };
-  let options = { expiresIn: expiration, issuer: getVmtIssuerId(), audience: getMtIssuerId() };
 
-  return jwt.sign(payload, secret, options);
+  if (reqUser) {
+    payload.ssoId = reqUser.ssoId;
+  }
+  let options = { expiresIn: apiToken.expiresIn, issuer: getVmtIssuerId(), audience: getMtIssuerId() };
+
+  return signJwt(payload, secret, options);
 };
 
-module.exports.post = async (path, body) => {
+module.exports.post = async (path, body, reqUser) => {
   try {
     // encoded jwt which sso server will use to verify request came from
     // vmt or enc
-    let token = await generateAnonApiToken();
+    let token = await generateSsoApiToken(reqUser);
     let config = {
       headers: { Authorization: 'Bearer ' + token },
     };
@@ -32,11 +36,11 @@ module.exports.post = async (path, body) => {
   }
 };
 
-module.exports.get = async (path, params) => {
+module.exports.get = async (path, params, reqUser) => {
   try {
     // encoded jwt which sso server will use to verify request came from
     // vmt or enc
-    let token = await generateAnonApiToken();
+    let token = await generateSsoApiToken(reqUser);
     let headers =
     { Authorization: 'Bearer ' + token };
 
@@ -51,6 +55,7 @@ module.exports.get = async (path, params) => {
   }
 };
 
+// details { username, password }
 module.exports.login = (details) => {
   return this.post('/auth/login', details);
 };
@@ -60,5 +65,37 @@ module.exports.signup = (details) => {
 };
 
 module.exports.requestNewAccessToken = (refreshToken) => {
-  return this.post('/auth/accessToken', {refreshToken});
+  return this.post('/auth/accessToken', { refreshToken });
+};
+
+module.exports.confirmEmail = (token) => {
+  return this.get(`/auth/confirmEmail/confirm/${token}`);
+};
+
+// user must be logged in to request new confirmEmail email
+module.exports.resendConfirmEmail = (reqUser) => {
+  return this.get('/auth/confirmEmail/resend', {}, reqUser);
+};
+
+// details { email } or { username }
+module.exports.forgotPassword = (details) => {
+  return this.post('/auth/forgot/password', details);
+};
+
+module.exports.validateResetPasswordToken = (token) => {
+  return this.get(`/auth/reset/password/${token}`);
+};
+
+// details { password } where password is new password
+// user is not logged in when making the request
+module.exports.resetPassword = (details, token) => {
+  return this.post(`/auth/reset/password/${token}`, details);
+};
+
+// user must be logged in
+// user can reset own password
+// user can reset other user's password IF authorized
+// for vmt is this only admins?
+module.exports.resetPasswordById = (details, reqUser) => {
+  return this.post('/auth/reset/password/user', details, reqUser);
 };

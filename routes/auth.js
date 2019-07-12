@@ -17,7 +17,7 @@ const jwt = require('jsonwebtoken');
 
 const { extractBearerToken } = require('../middleware/mt-auth');
 
-const { isValidMongoId } = require('../middleware/utils/helpers');
+const { isValidMongoId, areObjectIdsEqual } = require('../middleware/utils/helpers');
 
 const Room = require('../models/Room');
 
@@ -182,6 +182,100 @@ router.post('/newMtUser', async (req, res, next) => {
       'Unauthorized request',
       res
     );
+  }
+});
+
+router.post('/forgotPassword', async (req, res, next) => {
+  try {
+    let results = await ssoService.forgotPassword(req.body);
+    return res.json(results);
+  }catch(err) {
+    console.error(`Error auth/forgot: ${err}`);
+    console.trace();
+    errors.handleError(err, res);
+  }
+});
+
+router.get('/resetPassword/validate/:token', async (req, res, next) => {
+  try {
+    let results = await ssoService.validateResetPasswordToken(req.params.token);
+    return res.json(results);
+
+  }catch(err) {
+    errors.handleError(err, res);
+  }
+});
+
+router.post('/resetPassword/:token', async (req, res, next) => {
+  try {
+    let { user, accessToken, refreshToken, message } = await ssoService.resetPassword(req.body, req.params.token);
+
+    if (message) {
+      res.json(message);
+      return;
+    }
+    // await jwt.verify(accessToken, process.env.MT_USER_JWT_SECRET);
+
+    setSsoCookie(res, accessToken);
+    setSsoRefreshCookie(res, refreshToken );
+
+    return res.json(user);
+  }catch(err) {
+    console.error(`Error resetPassword: ${err}`);
+    console.trace();
+    errors.handleError(err, res);
+  }
+});
+
+router.post('/resetPassword/user', async (req, res, next) => {
+  try {
+    const reqUser = getUser(req);
+    if (!reqUser) {
+      return errors.sendError.InvalidCredentialsError(null, res);
+    }
+    // need to be admin or be teacher and resetting one of your students
+    //TODO: update this to only let you reset one of your student's passwords
+    let isSelf = areObjectIdsEqual(reqUser._id, req.body.id);
+
+    const hasPermission = reqUser.isAdmin || isSelf;
+
+    if (!hasPermission) {
+      return errors.sendError.NotAuthorizedError('You are not authorized.', res);
+    }
+
+    let results = await ssoService.resetPasswordById(req.body, reqUser);
+    return res.json(results);
+
+    }catch(err) {
+      errors.handleError(err, res);
+    }
+});
+
+router.get('/confirmEmail/:token', async(req, res, next) => {
+  try {
+    let results = await ssoService.confirmEmail(req.params.token);
+
+    return res.json(results);
+}catch(err) {
+  console.log('err conf em: ', err.message);
+  errors.handleError(err, res);
+}
+});
+
+router.get('/confirmEmail/resend', async(req, res, next) => {
+  try {
+    let reqUser = userAuth.getUser(req);
+
+    if (!reqUser) {
+      return errors.sendError.InvalidCredentialsError(null, res);
+    }
+
+    let results = await ssoService.resendConfirmEmail(reqUser);
+    return res.json(results);
+
+  }catch(err) {
+    console.log('err resend conf: ', err.message);
+    errors.handleError(err, res);
   }
 });
 
