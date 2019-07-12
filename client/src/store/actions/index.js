@@ -11,6 +11,7 @@ export {
   updateUserResource,
   logout,
   toggleJustLoggedIn,
+  forgotPassword,
 } from './user';
 export {
   fail,

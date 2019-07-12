@@ -23,6 +23,7 @@ export const ACCESS_SUCCESS = 'ACCESS_SUCCESS';
 export const CLEAR_ERROR = 'CLEAR_ERROR';
 export const CLEAR_ALL = 'CLEAR_ALL';
 export const UPDATE_FAIL = 'UPDATE_FAIL';
+export const FORGOT_PASSWORD_SUCCESS = 'FORGOT_PASSWORD_SUCCESS';
 
 // COURSES
 export const GOT_COURSES = 'GOT_COURSES';

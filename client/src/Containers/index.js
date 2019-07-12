@@ -24,3 +24,4 @@ export { default as ChatReplayer } from './Replayer/ChatReplayer';
 export { default as Members } from './Members/Members';
 export { default as TempWorkspace } from './Workspace/TempWorkspace';
 export { default as Profile } from './Profile';
+export { default as ForgotPassword } from './ForgotPassword';

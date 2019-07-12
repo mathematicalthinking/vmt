@@ -7,6 +7,8 @@ import { gotCourses } from './courses';
 import { gotRooms } from './rooms';
 import { gotActivities, addUserActivities } from './activities';
 
+import { validateForgotPassword } from '../../utils/validators';
+
 export const gotUser = (user, temp) => {
   let loggedIn = true;
   if (temp) loggedIn = false;
@@ -242,4 +244,29 @@ export const googleLogin = (username, password) => {
 
 export const clearError = () => {
   return { type: actionTypes.CLEAR_ERROR };
+};
+
+export const forgotPassword = (email, username) => {
+  return dispatch => {
+    dispatch(loading.start());
+
+    return validateForgotPassword(email, username).then(validationResults => {
+      const [validationErr, validatedBody] = validationResults;
+      if (validationErr) {
+        return dispatch(loading.fail(validationErr));
+      }
+      return AUTH.forgotPassword(validatedBody)
+        .then(res => {
+          const { isSuccess, info } = res.data;
+          if (isSuccess) {
+            dispatch(loading.forgotPasswordSuccess());
+          } else {
+            dispatch(loading.fail(info));
+          }
+        })
+        .catch(err => {
+          dispatch(loading.fail(err.response.data.errorMessage));
+        });
+    });
+  };
 };

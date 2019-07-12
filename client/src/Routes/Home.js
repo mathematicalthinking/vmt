@@ -9,6 +9,7 @@ import {
   Community,
   Logout,
   Profile,
+  ForgotPassword,
 } from '../Containers';
 import { Confirmation, About } from '../Layout';
 import classes from './main.css';
@@ -67,6 +68,7 @@ class Home extends PureComponent {
 
             <Route path="/confirmation" component={Confirmation} />
             <Route path="/profile" component={Profile} />
+            <Route path="/forgotPassword" component={ForgotPassword} />
           </Switch>
         </div>
         {/* <Route path='/about' component={About} />
