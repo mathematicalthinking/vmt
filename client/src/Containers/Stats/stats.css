@@ -1,8 +1,23 @@
+.Container {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  background: #f8f8f8;
+  padding: 4px;
+  border: 1px solid #999;
+  border-radius: 4px;
+}
+
 .Graph {
   width: 100%;
   height: 42vh;
   display: center;
   justify-content: center;
+  overflow: visible;
+}
+
+.svgContainer {
+  overflow: visible;
 }
 
 .line {

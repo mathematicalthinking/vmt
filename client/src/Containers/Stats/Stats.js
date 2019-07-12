@@ -15,7 +15,7 @@ const Stats = ({ data }) => {
   const [[height, width], setDimensions] = useState([null, null]);
   const [processedData, setProcessedData] = useState(null);
 
-  const margin = { top: 20, right: 20, bottom: 0, left: 20 };
+  const margin = { top: 30, right: 10, bottom: 20, left: 50 };
 
   // const [isDataProcessed, setDataProcessed] = useState(false);
   useEffect(() => {
@@ -68,35 +68,41 @@ const Stats = ({ data }) => {
   // console.log({ processedData });
   // console.log(linePath);
   return (
-    <div className={classes.Graph} ref={graph}>
-      {processedData ? (
-        <svg
-          height="100%"
-          width="100%"
-          transform="translate(0, -5)"
-          style={{ border: '1px solid blue' }}
-        >
-          <Axis
-            isXAxis
-            scale={x.current}
-            height={height}
-            width={width}
-            left={margin.left}
-          />
-          <Axis
-            isXAxis={false}
-            left={margin.left}
-            scale={y.current}
-            width={width}
-            height={height}
-          />
-          <path
-            className={classes.line}
-            d={linePath}
-            transform={`translate(${margin.left}, 0)`}
-          />
-        </svg>
-      ) : null}
+    <div className={classes.Container}>
+      <h2>{data.name} activity</h2>
+      <div className={classes.Graph} ref={graph}>
+        {processedData ? (
+          <svg height="100%" width="100%" className={classes.svgContainer}>
+            <Axis
+              isXAxis
+              scale={x.current}
+              height={height}
+              width={width}
+              left={margin.left}
+            />
+            <Axis
+              isXAxis={false}
+              left={margin.left}
+              scale={y.current}
+              width={width}
+              height={height}
+            />
+            <path
+              className={classes.line}
+              d={linePath}
+              transform={`translate(${margin.left}, 0)`}
+            />
+            <text transform={`translate(${width / 2}, ${height + 40})`}>
+              Time
+            </text>
+            <text
+              transform={`rotate(-90) translate(${(height + 40) / -2}, 12)`}
+            >
+              # of events
+            </text>
+          </svg>
+        ) : null}
+      </div>
     </div>
   );
 };
