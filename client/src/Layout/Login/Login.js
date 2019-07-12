@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import Button from '../../Components/UI/Button/Button';
 import classes from './login.css';
 import Input from '../../Components/Form/TextInput/TextInput';
@@ -138,6 +138,26 @@ class LoginLayout extends PureComponent {
           </div>
           <div>or</div>
           <GoogleLogin />
+          <div>
+            <span className={classes.AuthLinkQ}>New to VMT?</span>
+            <Link
+              data-testid="login-link-signup"
+              className={classes.Link}
+              to="/signup"
+            >
+              Sign Up Now
+            </Link>
+          </div>
+          <div>
+            <span className={classes.AuthLinkQ}>Forgot Password?</span>
+            <Link
+              data-testid="login-link-forgot"
+              className={classes.Link}
+              to="/forgotPassword"
+            >
+              Request Password Reset
+            </Link>
+          </div>
         </div>
       </div>
     );
