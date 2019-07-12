@@ -57,120 +57,19 @@ class MyVMT extends Component {
     }
   }
 
-  // Checks if the user has mulitple roles for a single resource (i.e. facilitator and participant)
-  // if so we toggle the "view as" buttons to be visible
-  // checkMultipleRoles = () => {
-  //   let { match, user } = this.props;
-  //   let { resource } = match.params;
-  //   return new Promise(resolve => {
-  //     if (match.params.resource === "activities") {
-  //       this.setState({ bothRoles: false, view: "facilitator" });
-  //       return resolve(); // Activities are for facilitators only
-  //     } else {
-  //       // determine roles
-  //       let isFacilitator = false;
-  //       let isParticipant = false;
-  //       let bothRoles = false;
-  //       let view = "facilitator";
-  //       if (this.props[resource]) {
-  //         console.log(this.props[resource]);
-  //         this.props[resource].allIds.forEach(id => {
-  //           this.props[resource].byId[id].members.forEach(member => {
-  //             if (member.user && member.user._id === user._id) {
-  //               if (member.role === "participant" || member.role === "guest")
-  //                 isParticipant = true;
-  //               if (member.role === "facilitator") isFacilitator = true;
-  //             }
-  //           });
-  //         });
-  //       }
-  //       // @TODO Theres some redundancy here
-  //       if (isFacilitator && isParticipant) bothRoles = true;
-  //       else view = isFacilitator ? "facilitator" : "participant";
-  //       this.setState(
-  //         {
-  //           bothRoles,
-  //           view
-  //         },
-  //         () => resolve()
-  //       );
-  //     }
-  //   });
-  // };
-
-  // fetchByIds = (resource, ids) => {
-  //   resource = resource.charAt(0).toUpperCase() + resource.slice(1);
-  //   this.props[`get${resource}`](ids);
-  // };
-
   updateTabs = () => {
     const { user } = this.props;
     const { tabs } = this.state;
-    // const { resource } = this.props.match.params;
-    // let { notifications } = this.props.user; // add room notifications eventually
     const updatedTabs = [...tabs];
-    // let courseNtfs = courseNotifications.access.filter(ntf => { //WHY ARE WE FILTERING HERE ? WE SHOULD BE FILTERING FOR THEIR ROLE NOT THE RESOURCE ID
-    //   let found = false;
-    //   this.state.displayResources.forEach(resource => {
-    //     if (resource._id === ntf._id) {
-    //      found = true;
-    //     }
-    //   })
-    //   return found;
-    // })
     const courseNtfs = getUserNotifications(user, null, 'course', 'MY_VMT');
     const roomNtfs = getUserNotifications(user, null, 'room', 'MY_VMT');
     updatedTabs[1].notifications =
       courseNtfs.length === 0 ? '' : courseNtfs.length;
-    // if (courseNotifications.newRoom.length > 0){
-    //   updatedTabs[0].notifications += courseNotifications.newRoom.length;
-    // }
-    // let roomNtfs = roomNotifications.filter(ntf => ntf._id ===)
     updatedTabs[0].notifications = roomNtfs.length === 0 ? '' : roomNtfs.length;
     this.setState({
       tabs: updatedTabs,
     });
   };
-
-  // Display different content depending on the user's current role
-  // setDisplayResources = () => {
-  //   return new Promise(resolve => {
-  //     let { user, match } = this.props;
-  //     let { resource } = match.params;
-  //     let myActivities;
-  //     if (match.params.resource === "activities") {
-  //       myActivities = this.props[resource].allIds.filter(id => {
-  //         if (this.props[resource].byId[id].creator === user._id) {
-  //           return true;
-  //         }
-  //         return false;
-  //       });
-  //       return this.setState({ displayResources: myActivities }, () =>
-  //         resolve()
-  //       );
-  //     }
-  //     let displayResources = [];
-  //     if (this.props[resource]) {
-  //       displayResources = this.props[resource].allIds.filter(id => {
-  //         let included = false;
-  //         if (this.props[resource].byId[id].members) {
-  //           this.props[resource].byId[id].members.forEach(member => {
-  //             if (
-  //               member.user &&
-  //               member.user._id === user._id
-  //               // && member.role === this.state.view
-  //             ) {
-  //               included = true;
-  //             }
-  //           });
-  //           return included;
-  //         }
-  //         return false;
-  //       });
-  //     }
-  //     this.setState({ displayResources }, () => resolve());
-  //   });
-  // };
 
   toggleView = () => {
     const validViews = ['facilitator', 'participant'];

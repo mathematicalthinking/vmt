@@ -8,7 +8,7 @@ const DropdownNavItem = props => {
   return (
     // eslint-disable-next-line react/destructuring-assignment
     <li className={classes.Container} data-testid={props['data-testid']}>
-      <div className={classes.Header}>{name}</div>
+      <NavItem link={list[0].link} name={name} />
       <div className={classes.DropdownContent}>
         {list.map(item => {
           return (

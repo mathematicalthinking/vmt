@@ -8,22 +8,16 @@ import DropdownNavItem from '../DropdownNavItem';
 import Aux from '../../HOC/Auxil';
 import classes from './homeNav.css';
 
-const Navbar = ({ page, user, loggedIn, scrollPosition }) => {
+const Navbar = ({ page, user, loggedIn, isDark }) => {
   let styles = classes.Nav;
   if (page === '/about') {
     styles = classes.FixedGradientNav;
-  } else if (
-    (scrollPosition > 0.3 && page === '/') ||
-    (page !== '/' &&
-      page !== '/signup' &&
-      page !== '/login' &&
-      page !== '/confirmation')
-  ) {
+  } else if (isDark) {
     styles = classes.LightNav;
   }
-  if (page.indexOf('explore') > -1) {
-    styles = classes.TempWorkspaceNav;
-  }
+  // if (page.indexOf('explore') > -1) {
+  //   styles = classes.TempWorkspaceNav;
+  // }
   let ntf = false;
   if (user && user.notifications && user.notifications.length > 0) {
     ntf = true;
@@ -73,13 +67,13 @@ const Navbar = ({ page, user, loggedIn, scrollPosition }) => {
 Navbar.propTypes = {
   page: PropTypes.string.isRequired,
   loggedIn: PropTypes.bool.isRequired,
-  scrollPosition: PropTypes.number,
+  isDark: PropTypes.bool,
   user: PropTypes.shape({}),
 };
 
 Navbar.defaultProps = {
   user: null,
-  scrollPosition: null,
+  isDark: false,
 };
 
 const mapStateToProps = store => ({

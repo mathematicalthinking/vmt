@@ -1,7 +1,6 @@
 /* eslint-disable react/no-did-update-set-state */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-// import moment from 'moment'
 import { connect } from 'react-redux';
 import {
   DashboardLayout,
@@ -34,8 +33,7 @@ import {
   Error,
 } from '../Components';
 import Access from './Access';
-// import PublicAccessModal from '../Components/UI/Modal/PublicAccess'
-// import Participants from './Participants/Participants';
+
 class Room extends Component {
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
   constructor(props) {

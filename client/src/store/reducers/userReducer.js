@@ -4,6 +4,7 @@ const initialState = {
   firstName: '',
   lastName: '',
   username: '',
+  email: '',
   _id: '',
   loggedIn: false,
   courses: [],
@@ -25,22 +26,7 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         loggedIn: action.loggedIn,
-        username: action.user.username,
-        firstName: action.user.firstName,
-        lastName: action.user.lastName,
-        _id: action.user._id,
-        courses: action.user.courses,
-        // courseNotifications: action.user.courseNotifications,
-        rooms: action.user.rooms,
-        // roomNotifications: action.user.roomNotifications,
-        notifications: action.user.notifications,
-        courseTemplates: action.user.courseTemplates,
-        activities: action.user.activities,
-        seenTour: action.user.seenTour,
-        accountType: action.user.accountType,
-        bothRoles: action.user.bothRoles,
-        isAdmin: action.user.isAdmin,
-        justLoggedIn: true,
+        ...action.user,
       };
     case actionTypes.TOGGLE_JUST_LOGGED_IN:
       return {

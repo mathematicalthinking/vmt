@@ -7,19 +7,26 @@ import Button from '../Components/UI/Button/Button';
 import SidePanel from '../Layout/Dashboard/SidePanel/SidePanel';
 import BreadCrumbs from '../Components/Navigation/BreadCrumbs/BreadCrumbs';
 import SearchResults from './Members/SearchResults';
-import { Search, Member, EditText, ToolTip } from '../Components';
+import { Search, Member, EditText, ToolTip, Error } from '../Components';
 import API from '../utils/apiRequests';
 import { updateUser } from '../store/actions';
 // import MainContent from '../Layout/Dashboard/MainContent/';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 
 class Profile extends Component {
-  state = {
-    editing: false,
-    searchText: '',
-    searchResults: [],
-    admins: [],
-  };
+  constructor(props) {
+    super(props);
+    const { user } = this.props;
+    this.state = {
+      // username: user.username || null,
+      name: user.name || null,
+      // email: user.email || null,
+      editing: false,
+      searchText: '',
+      searchResults: [],
+      admins: [],
+    };
+  }
 
   componentDidMount() {
     API.get('user', { isAdmin: true }).then(res => {
@@ -71,8 +78,17 @@ class Profile extends Component {
   };
 
   render() {
-    const { user, connectUpdateUser } = this.props;
-    const { admins, searchResults, searchText, editing } = this.state;
+    const { user, connectUpdateUser, loading } = this.props;
+    const { updateFail, updateKeys } = loading;
+    const {
+      admins,
+      searchResults,
+      searchText,
+      editing,
+      // username,
+      name,
+      // email,
+    } = this.state;
     const mainContent = (
       <div>
         {user.isAdmin ? (
@@ -136,7 +152,11 @@ class Profile extends Component {
         sidePanel={
           <SidePanel
             image={user.profilePic}
-            name={user.username}
+            name={
+              <Error error={updateFail && updateKeys.indexOf('name') > -1}>
+                <EditText>{name}</EditText>
+              </Error>
+            }
             subTitle={`${user.firstName} ${user.lastName}`}
             additionalDetails={additionalDetails}
             accountType={user.accountType}
@@ -187,11 +207,13 @@ class Profile extends Component {
 
 Profile.propTypes = {
   user: PropTypes.shape({}).isRequired,
+  loading: PropTypes.shape({}).isRequired,
   connectUpdateUser: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = store => ({
   user: store.user,
+  loading: store.loading,
 });
 
 export default connect(
