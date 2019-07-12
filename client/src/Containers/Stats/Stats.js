@@ -2,7 +2,6 @@ import React, { useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 // import moment from 'moment';
 import * as d3 from 'd3';
-import { Aux } from '../../Components';
 import processData from './proccessData';
 import Axis from './Axis';
 import classes from './stats.css';
@@ -15,6 +14,8 @@ const Stats = ({ data }) => {
   const valueLine = useRef(null);
   const [[height, width], setDimensions] = useState([null, null]);
   const [processedData, setProcessedData] = useState(null);
+
+  const margin = { top: 20, right: 20, bottom: 0, left: 20 };
 
   // const [isDataProcessed, setDataProcessed] = useState(false);
   useEffect(() => {
@@ -39,6 +40,7 @@ const Stats = ({ data }) => {
         .y(d => y.current(d[1]));
       // console.log(valueLine);
       // console.log(processedData[0], processedData[processedData.length - 1]);
+      updatedData.unshift([0, 0]);
       updatedData.push([
         (log[log.length - 1].timestamp - log[0].timestamp) / 1000,
         0,
@@ -53,45 +55,47 @@ const Stats = ({ data }) => {
         width: updatedWidth,
         height: updatedHeight,
       } = graph.current.getBoundingClientRect();
-      setDimensions([updatedHeight, updatedWidth]);
+      setDimensions([
+        updatedHeight - margin.top - margin.bottom,
+        updatedWidth - margin.left - margin.right,
+      ]);
     }
   }, []);
   let linePath = '';
   if (valueLine.current) {
     linePath = valueLine.current(processedData);
   }
-  console.log({ processedData });
-  console.log(linePath);
+  // console.log({ processedData });
+  // console.log(linePath);
   return (
     <div className={classes.Graph} ref={graph}>
       {processedData ? (
-        <Aux>
-          <svg
+        <svg
+          height="100%"
+          width="100%"
+          transform="translate(0, -5)"
+          style={{ border: '1px solid blue' }}
+        >
+          <Axis
+            isXAxis
+            scale={x.current}
             height={height}
-            width="100%"
-            // transform="translate(10, 10)"
-            style={{ border: ' 1px solid blue', padding: 10 }}
-          >
-            <Axis
-              isXAxis
-              scale={x.current}
-              height={height - 30}
-              width={width - 30}
-            />
-            <Axis
-              isXAxis={false}
-              scale={y.current}
-              height={height - 150}
-              width={width - 30}
-            />
-            <path
-              transform={`translate(20, ${height - 20}`}
-              width="100%"
-              d={linePath}
-              style={{ boder: '1px solid red', stroke: '#000000' }}
-            />
-          </svg>
-        </Aux>
+            width={width}
+            left={margin.left}
+          />
+          <Axis
+            isXAxis={false}
+            left={margin.left}
+            scale={y.current}
+            width={width}
+            height={height}
+          />
+          <path
+            className={classes.line}
+            d={linePath}
+            transform={`translate(${margin.left}, 0)`}
+          />
+        </svg>
       ) : null}
     </div>
   );

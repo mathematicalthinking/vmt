@@ -1,7 +1,24 @@
 .Graph {
-  border: 1px solid red;
   width: 100%;
-  height: 40vh;
+  height: 42vh;
   display: center;
   justify-content: center;
+}
+
+.line {
+  fill: none;
+  stroke: #f89e35;
+  stroke-width: 2px;
+  /* transform: translate(-100, -10); */
+  stroke-dasharray: 10000;
+  stroke-dashoffset: 10000;
+  animation: dash 10s forwards;
+}
+@keyframes dash {
+  from {
+    stroke-dashoffset: 10000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
 }
