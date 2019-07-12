@@ -20,4 +20,8 @@ export default {
   currentUser: () => {
     return axios.get('/auth/currentUser');
   },
+
+  forgotPassword: details => {
+    return axios.post('/auth/forgotPassword', details);
+  },
 };
