@@ -1,3 +1,11 @@
+:import('../../colors.css') {
+  gridBlue: gridBlue;
+  blue: blue;
+  blueHover: blueHover;
+  lightBlue: lightBlue;
+  darkBlue: darkBlue;
+}
+
 .Container {
   display: flex;
   flex-flow: column;
@@ -21,8 +29,8 @@
 }
 
 .line {
-  fill: none;
-  stroke: #f89e35;
+  fill: transparent;
+  stroke: blue;
   stroke-width: 2px;
   /* transform: translate(-100, -10); */
   stroke-dasharray: 10000;
@@ -32,8 +40,10 @@
 @keyframes dash {
   from {
     stroke-dashoffset: 10000;
+    fill: transparent;
   }
   to {
     stroke-dashoffset: 0;
+    fill: gridBlue;
   }
 }

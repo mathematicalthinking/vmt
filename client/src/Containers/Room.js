@@ -294,6 +294,7 @@ class Room extends Component {
       error,
       connectClearError,
       connectUpdateRoom,
+      connectPopulateRoom,
       course,
     } = this.props;
     const {
@@ -431,7 +432,7 @@ class Room extends Component {
           />
         );
       } else if (resource === 'stats') {
-        mainContent = <Stats data={room} />;
+        mainContent = <Stats data={room} populateRoom={connectPopulateRoom} />;
       }
       return (
         <Aux>
