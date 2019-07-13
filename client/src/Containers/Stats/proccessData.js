@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+// @todo rename utils
 export const processData = (data, { byUser }) => {
   let timeElapsed = 0; // seconds
   let eventCount = 0;
@@ -43,11 +44,11 @@ const calculateTimeScale = (start, end) => {
   let timeScale;
   const seconds = (end - start) / 1000;
   if (seconds > 63072000) {
-    timeScale = 31536000;
+    timeScale = 31536000; // Yeear
   } else if (seconds > 5184000) {
-    timeScale = 2592000;
+    timeScale = 2592000; // 30 Days
   } else if (seconds > 1209600) {
-    timeScale = 604800;
+    timeScale = 604800; // Week
   } else if (seconds > 172800) {
     timeScale = 86400; // Day
   } else if (seconds > 7200) {
@@ -68,4 +69,14 @@ export const timeUnitMap = {
   3600: 'hours',
   60: 'minutes',
   1: 'seconds',
+};
+
+export const dateFormatMap = {
+  years: 'MM/DD/YYYY',
+  months: 'MM/DD/YYYY',
+  weeks: 'MM/DD/YYYY',
+  days: 'MM/DD/YYYY h:mm',
+  hours: 'h:mm:ss A',
+  minutes: 'h:mm:ss A',
+  seconds: 'h:mm:ss A',
 };

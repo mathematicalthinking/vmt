@@ -37,6 +37,17 @@
   stroke-dashoffset: 10000;
   animation: dash 10s forwards;
 }
+
+.Filters {
+  display: flex;
+}
+
+.Options {
+  border: 1px solid red;
+  display: flex;
+  height: 200px;
+}
+
 @keyframes dash {
   from {
     stroke-dashoffset: 10000;

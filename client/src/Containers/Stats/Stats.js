@@ -1,10 +1,19 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
-// import populateRoom from '../../store/actions';
 import Chart from './Chart';
+// import classes from './stats.css';
+import filterReducer from './filterReducer';
+import Filters from './Filters';
 
+const initialState = {
+  byUser: false,
+  byEvent: false,
+  users: [],
+  events: [],
+};
 const Stats = ({ data, populateRoom }) => {
-  console.log(data.log);
+  const [state, dispatch] = useReducer(filterReducer, initialState);
+
   let chart;
   if (data.log) {
     chart = <Chart data={data} />;
@@ -16,11 +25,17 @@ const Stats = ({ data, populateRoom }) => {
     if (!data.log) {
       populateRoom(data._id, { events: true });
     }
-  }, []);
-  return chart;
+  }, [data.log]);
+
+  return (
+    <div>
+      {chart}
+      <Filters data={data} filters={state} dispatch={dispatch} />
+    </div>
+  );
 };
 
-Chart.propTypes = {
+Stats.propTypes = {
   data: PropTypes.shape({}).isRequired,
   populateRoom: PropTypes.func.isRequired,
 };

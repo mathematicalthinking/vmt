@@ -1,8 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 // import moment from 'moment';
+import moment from 'moment';
 import * as d3 from 'd3';
-import { processData } from './proccessData';
+import { processData, dateFormatMap } from './proccessData';
 import Axis from './Axis';
 import classes from './stats.css';
 
@@ -30,7 +31,6 @@ const Chart = ({ data }) => {
       y.current = d3.scaleLinear().range([height, 0]);
       const durationS =
         (log[log.length - 1].timestamp - log[0].timestamp) / 1000;
-      console.log(timeScale);
       const adjDuration = durationS / timeScale;
 
       x.current.domain([0, adjDuration]);
@@ -96,6 +96,18 @@ const Chart = ({ data }) => {
               transform={`rotate(-90) translate(${(height + 40) / -2}, 12)`}
             >
               # of events
+            </text>
+            <text transform={`translate(${0}, ${height + 40})`}>
+              {data.log
+                ? moment(data.log[0].timestamp).format(dateFormatMap[timeUnits])
+                : null}
+            </text>
+            <text transform={`translate(${width - 40}, ${height + 40})`}>
+              {data.log
+                ? moment(data.log[data.log.length - 1].timestamp).format(
+                    dateFormatMap[timeUnits]
+                  )
+                : null}
             </text>
           </svg>
         ) : null}
