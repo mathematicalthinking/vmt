@@ -15,21 +15,25 @@ const Stats = ({ data }) => {
   const [[height, width], setDimensions] = useState([null, null]);
   const [processedData, setProcessedData] = useState(null);
 
-  const margin = { top: 30, right: 10, bottom: 20, left: 50 };
+  const margin = { top: 10, right: 10, bottom: 10, left: 50 };
 
   // const [isDataProcessed, setDataProcessed] = useState(false);
   useEffect(() => {
     if (graph.current && height && width) {
       const { log } = data;
+      console.log({ log });
       // console.log((log[log.length - 1].timestamp - log[0].timestamp) / 1000);
-      const updatedData = processData(log, { timeScale: 10, byUser: false }); // 10s
+      const { processedData: updatedData, timeScale } = processData(log, {
+        byUser: false,
+      });
       x.current = d3.scaleLinear().range([0, width]);
       y.current = d3.scaleLinear().range([height, 0]);
-      // const timestamps = data.log.map(d => d.timestamp);
-      x.current.domain([
-        0,
-        (log[log.length - 1].timestamp - log[0].timestamp) / 1000,
-      ]);
+      const durationS =
+        (log[log.length - 1].timestamp - log[0].timestamp) / 1000;
+      const adjDuration = durationS / timeScale;
+
+      console.log(updatedData);
+      x.current.domain([0, adjDuration]);
       y.current.domain([0, d3.max(updatedData, d => d[1])]);
 
       valueLine.current = d3
@@ -40,11 +44,7 @@ const Stats = ({ data }) => {
         .y(d => y.current(d[1]));
       // console.log(valueLine);
       // console.log(processedData[0], processedData[processedData.length - 1]);
-      updatedData.unshift([0, 0]);
-      updatedData.push([
-        (log[log.length - 1].timestamp - log[0].timestamp) / 1000,
-        0,
-      ]);
+      // updatedData.unshift([0, 0]);
       setProcessedData(updatedData);
     }
   }, [data, height, width]);
@@ -64,6 +64,7 @@ const Stats = ({ data }) => {
   let linePath = '';
   if (valueLine.current) {
     linePath = valueLine.current(processedData);
+    console.log(linePath);
   }
   // console.log({ processedData });
   // console.log(linePath);
