@@ -4,8 +4,6 @@ import * as d3 from 'd3';
 import styles from './stats.css';
 
 const Line = ({ data, color, leftMargin, x, y }) => {
-  // const x = useRef(null);
-  // const y = useRef(null);
   const line = d3
     .line()
     .curve(d3.curveMonotoneX)

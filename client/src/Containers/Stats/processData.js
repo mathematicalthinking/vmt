@@ -7,7 +7,8 @@ export const processData = (data, { users, events }) => {
     data[0].timestamp,
     data[data.length - 1].timestamp
   );
-
+  console.log(data);
+  // data = data.filter()
   if (users.length > 0) {
     lines = users.map(user => buildLineData(data, timeScale, user));
   } else {
@@ -46,13 +47,12 @@ const buildLineData = (data, timeScale, user) => {
   let timeElapsed = 0; // seconds
   let eventCount = 0;
   let startTime = 0;
-  let color;
+  let color = '#2d91f2';
   const processedData = [];
   if (user) {
     data = data.filter(d => (d.user ? d.user._id === user : false));
     [{ color }] = data;
   }
-  console.log(data);
   // combine events by timeScale -- i.e. get the number of events that happened between start and end of timeScale unit
   data.forEach((datum, i) => {
     if (data[i - 1]) {

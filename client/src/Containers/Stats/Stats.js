@@ -13,15 +13,16 @@ const initialState = {
   lines: [],
   timeScale: null,
   min: 0,
-  max: null,
+  maxY: 0,
   units: '',
 };
+
 const Stats = ({ data, populateRoom }) => {
   const [state, dispatch] = useReducer(statsReducer, initialState);
 
   let chart;
   if (data.log) {
-    chart = <Chart data={data} filters={state} />;
+    chart = <Chart data={data} state={state} />;
   } else {
     chart = 'loading';
   }
@@ -29,6 +30,8 @@ const Stats = ({ data, populateRoom }) => {
   useEffect(() => {
     if (!data.log) {
       populateRoom(data._id, { events: true });
+    } else {
+      dispatch({ type: 'GENERATE_DATA', data: data.log });
     }
   }, [data.log]);
 
