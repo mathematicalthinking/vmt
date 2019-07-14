@@ -2,7 +2,7 @@ import React, { useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import Chart from './Chart';
 // import classes from './stats.css';
-import filterReducer from './filterReducer';
+import statsReducer from './statsReducer';
 import Filters from './Filters';
 
 const initialState = {
@@ -10,13 +10,18 @@ const initialState = {
   byEvent: false,
   users: [],
   events: [],
+  lines: [],
+  timeScale: null,
+  min: 0,
+  max: null,
+  units: '',
 };
 const Stats = ({ data, populateRoom }) => {
-  const [state, dispatch] = useReducer(filterReducer, initialState);
+  const [state, dispatch] = useReducer(statsReducer, initialState);
 
   let chart;
   if (data.log) {
-    chart = <Chart data={data} />;
+    chart = <Chart data={data} filters={state} />;
   } else {
     chart = 'loading';
   }

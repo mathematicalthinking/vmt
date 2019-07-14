@@ -1,15 +1,58 @@
 /* eslint-disable no-unused-vars */
 // @todo rename utils
-export const processData = (data, { byUser }) => {
-  let timeElapsed = 0; // seconds
-  let eventCount = 0;
-  let startTime = 0;
-  const processedData = [];
+export const processData = (data, { users, events }) => {
+  let lines;
+  let color;
   const timeScale = calculateTimeScale(
     data[0].timestamp,
     data[data.length - 1].timestamp
   );
 
+  if (users.length > 0) {
+    lines = users.map(user => buildLineData(data, timeScale, user));
+  } else {
+    lines = buildLineData(data, timeScale);
+    lines = [lines];
+  }
+  return {
+    lines,
+    timeScale,
+    units: timeUnitMap[timeScale],
+  };
+};
+
+const calculateTimeScale = (start, end) => {
+  let timeScale;
+  const seconds = (end - start) / 1000;
+  if (seconds > 63072000) {
+    timeScale = 31536000; // Yeear
+  } else if (seconds > 5184000) {
+    timeScale = 2592000; // 30 Days
+  } else if (seconds > 1209600) {
+    timeScale = 604800; // Week
+  } else if (seconds > 172800) {
+    timeScale = 86400; // Day
+  } else if (seconds > 7200) {
+    timeScale = 3600; // hour
+  } else if (seconds > 120) {
+    timeScale = 60; // minute
+  } else {
+    timeScale = 1; // @todo consider putting in 10s increments
+  }
+  return timeScale;
+};
+
+const buildLineData = (data, timeScale, user) => {
+  let timeElapsed = 0; // seconds
+  let eventCount = 0;
+  let startTime = 0;
+  let color;
+  const processedData = [];
+  if (user) {
+    data = data.filter(d => (d.user ? d.user._id === user : false));
+    [{ color }] = data;
+  }
+  console.log(data);
   // combine events by timeScale -- i.e. get the number of events that happened between start and end of timeScale unit
   data.forEach((datum, i) => {
     if (data[i - 1]) {
@@ -37,30 +80,9 @@ export const processData = (data, { byUser }) => {
   });
   processedData.unshift([0, 0]);
   processedData.push([startTime + 1, 0]);
-  return { processedData, timeScale, units: timeUnitMap[timeScale] };
+  console.log({ processedData });
+  return { data: processedData, color };
 };
-
-const calculateTimeScale = (start, end) => {
-  let timeScale;
-  const seconds = (end - start) / 1000;
-  if (seconds > 63072000) {
-    timeScale = 31536000; // Yeear
-  } else if (seconds > 5184000) {
-    timeScale = 2592000; // 30 Days
-  } else if (seconds > 1209600) {
-    timeScale = 604800; // Week
-  } else if (seconds > 172800) {
-    timeScale = 86400; // Day
-  } else if (seconds > 7200) {
-    timeScale = 3600; // hour
-  } else if (seconds > 120) {
-    timeScale = 60; // minute
-  } else {
-    timeScale = 1; // @todo consider putting in 10s increments
-  }
-  return timeScale;
-};
-
 export const timeUnitMap = {
   31536000: 'years',
   2592000: 'months',

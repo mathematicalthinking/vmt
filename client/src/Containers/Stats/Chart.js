@@ -5,9 +5,13 @@ import moment from 'moment';
 import * as d3 from 'd3';
 import { processData, dateFormatMap } from './proccessData';
 import Axis from './Axis';
+import Line from './Line';
 import classes from './stats.css';
 
-const Chart = ({ data }) => {
+const margin = { top: 10, right: 10, bottom: 40, left: 50 };
+
+const Chart = ({ data, filters }) => {
+  const color = 'red';
   const graph = useRef(null);
   const x = useRef(null);
   const y = useRef(null);
@@ -15,18 +19,18 @@ const Chart = ({ data }) => {
   const [[height, width], setDimensions] = useState([null, null]);
   const [[processedData, timeUnits], setProcessedData] = useState([null, '']);
 
-  const margin = { top: 10, right: 10, bottom: 40, left: 50 };
+  const { users, events } = filters;
 
-  // const [isDataProcessed, setDataProcessed] = useState(false);
   useEffect(() => {
     if (graph.current && height && width) {
       const { log } = data;
-      const { processedData: updatedData, timeScale, units } = processData(
-        log,
-        {
-          byUser: false,
-        }
-      );
+      const { lines, timeScale, units } = processData(log, {
+        users,
+        events,
+      });
+      // lines.forEach(({ data: lineData, color }) => {
+      //   console.log(lineData, color);
+      // });
       x.current = d3.scaleLinear().range([0, width]);
       y.current = d3.scaleLinear().range([height, 0]);
       const durationS =
@@ -34,7 +38,7 @@ const Chart = ({ data }) => {
       const adjDuration = durationS / timeScale;
 
       x.current.domain([0, adjDuration]);
-      y.current.domain([0, d3.max(updatedData, d => d[1])]);
+      y.current.domain([0, d3.max(lines[0].data, d => d[1])]);
 
       valueLine.current = d3
         .line()
@@ -42,9 +46,9 @@ const Chart = ({ data }) => {
         // .curve(d3.curveBasis)
         .x(d => x.current(d[0]))
         .y(d => y.current(d[1]));
-      setProcessedData([updatedData, units]);
+      setProcessedData([lines[0].data, units]);
     }
-  }, [data, height, width]);
+  }, [data, height, width, users, events]);
 
   useEffect(() => {
     if (graph.current) {
@@ -58,10 +62,11 @@ const Chart = ({ data }) => {
       ]);
     }
   }, []);
-  let linePath = '';
-  if (valueLine.current) {
-    linePath = valueLine.current(processedData);
-  }
+
+  // let linePath = '';
+  // if (valueLine.current) {
+  //   linePath = valueLine.current(processedData);
+  // }
   // console.log({ processedData });
   // console.log(linePath);
   return (
@@ -84,11 +89,18 @@ const Chart = ({ data }) => {
               width={width}
               height={height}
             />
-            <path
+            <Line
+              leftMargin={margin.left}
+              data={processedData}
+              color={color}
+              x={x.current}
+              y={y.current}
+            />
+            {/* <path
               className={classes.line}
               d={linePath}
               transform={`translate(${margin.left}, 0)`}
-            />
+            /> */}
             <text transform={`translate(${width / 2}, ${height + 40})`}>
               Time ({timeUnits})
             </text>
@@ -118,6 +130,7 @@ const Chart = ({ data }) => {
 
 Chart.propTypes = {
   data: PropTypes.shape({}).isRequired,
+  filters: PropTypes.shape({}).isRequired,
 };
 
 export default Chart;

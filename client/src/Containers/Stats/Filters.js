@@ -26,27 +26,31 @@ const Filters = ({ data, filters, dispatch }) => {
           By event
         </Checkbox>
       </div>
-      <div className={classes.Options}>
-        {data.members.map(m => {
-          const { _id } = m.user;
-          console.log(typeof _id);
-          return (
-            <Checkbox
-              dataId={_id}
-              checked={filters.users.indexOf(_id) > -1}
-              id={_id}
-              change={(_, id) => {
-                console.log(id);
-                console.log(_id);
-                dispatch({ type: 'ADD_REMOVE_USER', user: _id });
-              }}
-              key={_id}
-            >
-              <Avatar username={m.user.username} color={m.color} />
-            </Checkbox>
-          );
-        })}
+      <div className={classes.SubContainer}>
+        <h3>User Filters</h3>
+        <div className={classes.Options}>
+          {data.members.map(m => {
+            const {
+              color,
+              user: { username, _id },
+            } = m;
+            return (
+              <Checkbox
+                dataId={_id}
+                checked={filters.users.indexOf(_id) > -1}
+                id={_id}
+                change={() => {
+                  dispatch({ type: 'ADD_REMOVE_USER', user: _id });
+                }}
+                key={_id}
+              >
+                <Avatar username={username} color={color} />
+              </Checkbox>
+            );
+          })}
+        </div>
       </div>
+      <div className={classes.Options}>events</div>
     </div>
   );
 };

@@ -30,11 +30,11 @@
 
 .line {
   fill: transparent;
-  stroke: blue;
+  /* stroke: blue; */
   stroke-width: 2px;
   /* transform: translate(-100, -10); */
-  stroke-dasharray: 10000;
-  stroke-dashoffset: 10000;
+  /* stroke-dasharray: 10000;
+  stroke-dashoffset: 10000; */
   animation: dash 10s forwards;
 }
 
@@ -51,7 +51,7 @@
   border: 1px solid red;
 }
 
-@keyframes dash {
+/* @keyframes dash {
   from {
     stroke-dashoffset: 10000;
     fill: transparent;
@@ -60,4 +60,4 @@
     stroke-dashoffset: 0;
     fill: gridBlue;
   }
-}
+} */
