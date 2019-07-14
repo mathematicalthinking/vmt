@@ -43,9 +43,12 @@
 }
 
 .Options {
-  border: 1px solid red;
   display: flex;
-  height: 200px;
+}
+
+.UserOption {
+  display: flex;
+  border: 1px solid red;
 }
 
 @keyframes dash {
