@@ -1,25 +1,66 @@
 /* eslint-disable no-unused-vars */
 // @todo rename utils
 export const processData = (data, { users, events, messages, actions }) => {
-  let lines;
   const timeScale = calculateTimeScale(
     data[0].timestamp,
     data[data.length - 1].timestamp
   );
-  // data = data.filter()
-  if (users && users.length > 0) {
-    lines = users.map(user => buildLineData(data, timeScale, { user }));
-  } else if (events && events.length > 0) {
-    lines = events.map(event => buildLineData(data, timeScale, { event }));
-  } else {
-    lines = buildLineData(data, timeScale, {});
-    lines = [lines];
-  }
+  const filteredData = filterData(data, { users, events });
+  const lines = filteredData.map(fd => ({
+    data: buildLineData(fd.data, timeScale),
+    color: fd.color,
+  }));
   return {
     lines,
     timeScale,
     units: timeUnitMap[timeScale],
   };
+};
+
+const filterData = (data, { users, events, messages, actions }) => {
+  let dataSets;
+  // If filtering by two or more users we want the lines on the graph to represent them.
+  // But if we're looking at just one user or all users we want the lines to represent
+  // the different event types
+  if (users && users.length > 0) {
+    dataSets = users.map(user => {
+      const filteredData = data.filter(d => {
+        let criteriaMet = false;
+        if ((d.user && d.user._id === user) || d.user === user) {
+          criteriaMet = true;
+          if (events && events.length > 0) {
+            const includeMessages = events.indexOf('MESSAGES') > -1;
+            const includeActions = events.indexOf('ACTIONS') > -1;
+            criteriaMet =
+              (includeMessages && d.messageType) ||
+              (includeActions && !d.messageType);
+          }
+        }
+        return criteriaMet;
+      });
+      return { data: filteredData, color: filteredData[0].color };
+    });
+  } else if (events && events.length > 0) {
+    dataSets = events.map(e => {
+      if (e === 'MESSAGES') {
+        return {
+          data: data.filter(d => d.messageType),
+          color: lineColors.MESSAGES,
+        };
+      }
+      if (e === 'ACTIONS') {
+        return {
+          data: data.filter(d => !d.messageType),
+          color: lineColors.ACTIONS,
+        };
+      }
+      return null;
+    });
+  } else {
+    console.log({ user: users[0] });
+    dataSets = [{ data, color: users && users[0] ? data[0].color : '#2d91f2' }];
+  }
+  return dataSets;
 };
 
 const calculateTimeScale = (start, end) => {
@@ -43,28 +84,11 @@ const calculateTimeScale = (start, end) => {
   return timeScale;
 };
 
-const buildLineData = (data, timeScale, { user, event, message, action }) => {
+const buildLineData = (data, timeScale) => {
   let timeElapsed = 0; // seconds
   let eventCount = 0;
   let startTime = 0;
-  let color = '#2d91f2';
   const processedData = [];
-  if (user) {
-    data = data.filter(d =>
-      d.user ? d.user._id === user || d.user === user : false
-    );
-    [{ color }] = data;
-  }
-  console.log('building line daya: ', event);
-  if (event === 'MESSAGES') {
-    data = data.filter(d => d.messageType);
-    color = lineColors.MESSAGES;
-  } else if (event === 'ACTIONS') {
-    console.log(event === 'ACTIONS');
-    data = data.filter(d => !d.messageType);
-    color = lineColors.ACTIONS;
-  }
-  console.log(data);
   // combine events by timeScale -- i.e. get the number of events that happened between start and end of timeScale unit
   data.forEach((datum, i) => {
     if (data[i - 1]) {
@@ -92,7 +116,7 @@ const buildLineData = (data, timeScale, { user, event, message, action }) => {
   });
   processedData.unshift([0, 0]);
   processedData.push([startTime + 0.1, 0]);
-  return { data: processedData, color };
+  return processedData;
 };
 export const timeUnitMap = {
   31536000: 'years',
