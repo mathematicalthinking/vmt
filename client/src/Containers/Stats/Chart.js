@@ -41,69 +41,63 @@ const Chart = ({ data, state }) => {
       ]);
     }
   }, []);
-
-  console.log({ x, y, lines });
-  console.log(lines.length > 0, x.domain().length, y.domain().length);
+  // console.log({ xAxis: d3.axisBottom(x), y, lines });
+  // console.log(lines.length > 0, x.domain().length, y.domain().length);
   return (
-    <div className={classes.Container}>
-      <h2>{data.name} activity</h2>
-      <div className={classes.Graph} ref={graph}>
-        {lines.length > 0 &&
-        x.domain().length === 2 &&
-        y.domain().length === 2 ? (
-          <svg height="100%" width="100%" className={classes.svgContainer}>
-            <Axis
-              isXAxis
-              scale={x}
-              height={height}
-              width={width}
-              left={margin.left}
+    <div className={classes.Graph} ref={graph}>
+      {lines.length > 0 &&
+      x.domain().length === 2 &&
+      y.domain().length === 2 ? (
+        <svg height="100%" width="100%" className={classes.svgContainer}>
+          <Axis
+            isXAxis
+            scale={x}
+            height={height}
+            width={width}
+            left={margin.left}
+          />
+          <Axis
+            isXAxis={false}
+            left={margin.left}
+            scale={y}
+            width={width}
+            height={height}
+          />
+          {lines.map(line => (
+            <Line
+              key={line.color}
+              leftMargin={margin.left}
+              data={line.data}
+              color={line.color}
+              x={x}
+              y={y}
             />
-            <Axis
-              isXAxis={false}
-              left={margin.left}
-              scale={y}
-              width={width}
-              height={height}
-            />
-            {lines.map(line => (
-              <Line
-                key={line.color}
-                leftMargin={margin.left}
-                data={line.data}
-                color={line.color}
-                x={x}
-                y={y}
-              />
-            ))}
-            {/* <path
+          ))}
+          {/* <path
               className={classes.line}
               d={linePath}
               transform={`translate(${margin.left}, 0)`}
             /> */}
-            <text transform={`translate(${width / 2}, ${height + 40})`}>
-              Time ({units})
-            </text>
-            <text
-              transform={`rotate(-90) translate(${(height + 40) / -2}, 12)`}
-            >
-              # of events
-            </text>
-            <text transform={`translate(${0}, ${height + 40})`}>
-              {data.log
-                ? moment(data.log[0].timestamp).format(dateFormatMap[units])
-                : null}
-            </text>
-            <text transform={`translate(${width - 40}, ${height + 40})`}>
-              {data.log
-                ? moment(data.log[data.log.length - 1].timestamp).format(
-                    dateFormatMap[units]
-                  )
-                : null}
-            </text>
-          </svg>
-        ) : null}
-      </div>
+          <text transform={`translate(${width / 2}, ${height + 40})`}>
+            Time ({units})
+          </text>
+          <text transform={`rotate(-90) translate(${(height + 40) / -2}, 12)`}>
+            # of events
+          </text>
+          <text transform={`translate(${0}, ${height + 40})`}>
+            {data.log
+              ? moment(data.log[0].timestamp).format(dateFormatMap[units])
+              : null}
+          </text>
+          <text transform={`translate(${width - 40}, ${height + 40})`}>
+            {data.log
+              ? moment(data.log[data.log.length - 1].timestamp).format(
+                  dateFormatMap[units]
+                )
+              : null}
+          </text>
+        </svg>
+      ) : null}
     </div>
   );
 };

@@ -1,7 +1,22 @@
 import { max } from 'd3';
 import { processData } from './processData';
 
-export default (state, action) => {
+export const initialState = {
+  byUser: false,
+  byEvent: false,
+  users: [],
+  events: [],
+  messages: [],
+  actions: [],
+  lines: [],
+  timeScale: null,
+  min: 0,
+  maxY: 0,
+  units: '',
+};
+
+export default (state = initialState, action) => {
+  console.log(action);
   switch (action.type) {
     case 'GENERATE_DATA': {
       const { data } = action;
@@ -22,39 +37,25 @@ export default (state, action) => {
       };
     }
 
-    case 'TOGGLE_USER': {
-      return {
-        ...state,
-        byUser: !state.byUser,
-      };
-    }
-
-    case 'TOGGLE_EVENT': {
-      return {
-        ...state,
-        byEvent: !state.byEvent,
-      };
-    }
-    case 'ADD_REMOVE_USER': {
-      let updatedUsers;
-      const { users, data } = state;
-      if (users.indexOf(action.user) > -1) {
-        updatedUsers = users.filter(u => u !== action.user);
+    case 'ADD_REMOVE_FILTER': {
+      let updatedFiltersArr;
+      const { filterType, payload } = action;
+      const { data } = state;
+      if (payload === 'ALL') {
+        updatedFiltersArr = [];
+      } else if (state[filterType].indexOf(payload) > -1) {
+        updatedFiltersArr = state[filterType].filter(u => u !== payload);
       } else {
-        updatedUsers = [...users, action.user];
+        updatedFiltersArr = [...state[filterType], payload];
       }
-      const { lines } = processData(data, { users: updatedUsers });
+      const { lines } = processData(data, { [filterType]: updatedFiltersArr });
       return {
         ...state,
-        users: updatedUsers,
+        [filterType]: updatedFiltersArr,
         lines,
       };
     }
-    case 'ADD_REMOVE_EVENT': {
-      return {
-        ...state,
-      };
-    }
+
     default:
       return state;
   }

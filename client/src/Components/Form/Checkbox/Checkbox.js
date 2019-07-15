@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import classes from './checkbox.css';
 
 const Checkbox = props => {
-  const { children, dataId, id, checked, change } = props;
+  const { children, dataId, id, checked, change, style } = props;
   return (
-    <div className={classes.checkbox}>
+    <div className={classes.checkbox} style={style}>
       <input
         data-testid={`${children}-checkbox`}
         type="checkbox"
@@ -28,9 +28,11 @@ Checkbox.propTypes = {
   id: PropTypes.string,
   checked: PropTypes.bool.isRequired,
   change: PropTypes.func.isRequired,
+  style: PropTypes.shape({}),
 };
 
 Checkbox.defaultProps = {
   id: null,
+  style: null,
 };
 export default Checkbox;

@@ -3,32 +3,78 @@ import PropTypes from 'prop-types';
 import classes from './stats.css';
 import Checkbox from '../../Components/Form/Checkbox/Checkbox';
 import Avatar from '../../Components/UI/Avatar/Avatar';
+import { lineColors } from './processData';
+
+const messageFilters = [
+  // {
+  //   dataId: 'All',
+  //   payload: 'ALL',
+  //   filterType: 'messages',
+  // },
+  {
+    dataId: 'User messages',
+    payload: 'USER',
+    filterType: 'messages',
+  },
+  {
+    dataId: 'Enter/exit messages',
+    payload: 'ENTER_EXIT',
+    filterType: 'messages',
+  },
+];
+
+const actionFilters = [
+  {
+    dataId: 'Add',
+    payload: 'ADD',
+    filterType: 'actions',
+  },
+  {
+    dataId: 'Remove',
+    payload: 'REMOVE',
+    filterType: 'actions',
+  },
+  {
+    dataId: 'Drag',
+    payload: 'DRAG',
+    filterType: 'actions',
+  },
+  {
+    dataId: 'Update',
+    payload: 'UPDATE',
+    filterType: 'actions',
+  },
+  {
+    dataId: 'Select',
+    payload: 'SELECT',
+    filterType: 'actions',
+  },
+];
 
 const Filters = ({ data, filters, dispatch }) => {
   //   console.log(data.members);
   //   console.log(filters);
+  const { users, events } = filters;
+  const areMessages = events.indexOf('MESSAGES') > -1;
+  const areActions = events.indexOf('ACTIONS') > -1;
   return (
-    <div className={classes.Container}>
-      Filters
-      <div className={classes.Filters}>
-        <Checkbox
-          dataId="byUser"
-          checked={filters.byUser}
-          change={() => dispatch({ type: 'TOGGLE_USER' })}
-        >
-          By user
-        </Checkbox>
-        <Checkbox
-          dataId="byEvent"
-          checked={filters.byEvent}
-          change={() => dispatch({ type: 'TOGGLE_EVENT' })}
-        >
-          By event
-        </Checkbox>
-      </div>
-      <div className={classes.SubContainer}>
-        <h3>User Filters</h3>
+    <div>
+      <div className={classes.row}>
+        <h3>Users</h3>
         <div className={classes.Options}>
+          <Checkbox
+            dataId="all_users"
+            checked={filters.users.length === 0}
+            change={() => {
+              dispatch({
+                type: 'ADD_REMOVE_FILTER',
+                filterType: 'users',
+                payload: 'ALL',
+              });
+            }}
+          >
+            All
+          </Checkbox>
           {data.members.map(m => {
             const {
               color,
@@ -37,10 +83,14 @@ const Filters = ({ data, filters, dispatch }) => {
             return (
               <Checkbox
                 dataId={_id}
-                checked={filters.users.indexOf(_id) > -1}
+                checked={users.indexOf(_id) > -1}
                 id={_id}
                 change={() => {
-                  dispatch({ type: 'ADD_REMOVE_USER', user: _id });
+                  dispatch({
+                    type: 'ADD_REMOVE_FILTER',
+                    filterType: 'users',
+                    payload: _id,
+                  });
                 }}
                 key={_id}
               >
@@ -50,7 +100,97 @@ const Filters = ({ data, filters, dispatch }) => {
           })}
         </div>
       </div>
-      <div className={classes.Options}>events</div>
+      <div className={classes.row}>
+        <h3>Events</h3>
+        <div>
+          <Checkbox
+            dataId="all_events"
+            checked={filters.events.length === 0}
+            id="all_events"
+            change={() => {
+              dispatch({
+                type: 'ADD_REMOVE_FILTER',
+                filterType: 'events',
+                payload: 'ALL',
+              });
+            }}
+          >
+            All
+          </Checkbox>
+          <Checkbox
+            dataId="messages"
+            checked={areMessages}
+            change={() => {
+              dispatch({
+                type: 'ADD_REMOVE_FILTER',
+                filterType: 'events',
+                payload: 'MESSAGES',
+              });
+            }}
+            style={areMessages ? { color: lineColors.MESSAGES } : null}
+          >
+            Messages
+          </Checkbox>
+          {areMessages ? (
+            <div className={classes.IndentedRow}>
+              {messageFilters.map(mf => {
+                return (
+                  <Checkbox
+                    key={mf.dataId}
+                    dataId={mf.dataId}
+                    checked={filters[mf.filterType].indexOf(mf.payload) > -1}
+                    change={() => {
+                      dispatch({
+                        type: 'ADD_REMOVE_FILTER',
+                        payload: mf.payload,
+                        filterType: mf.filterType,
+                      });
+                    }}
+                  >
+                    {mf.dataId}
+                  </Checkbox>
+                );
+              })}
+            </div>
+          ) : null}
+          <Checkbox
+            dataId="actions"
+            checked={areActions}
+            change={() => {
+              dispatch({
+                type: 'ADD_REMOVE_FILTER',
+                filterType: 'events',
+                payload: 'ACTIONS',
+              });
+            }}
+            style={areActions ? { color: lineColors.ACTIONS } : null}
+          >
+            Actions
+          </Checkbox>
+          {areActions ? (
+            <div className={classes.IndentedRow}>
+              {actionFilters.map(af => {
+                return (
+                  <Checkbox
+                    key={af.dataId}
+                    dataId={af.dataId}
+                    checked={filters[af.filterType].indexOf(af.payload) > -1}
+                    change={() => {
+                      dispatch({
+                        type: 'ADD_REMOVE_FILTER',
+                        payload: af.payload,
+                        filterType: af.filterType,
+                      });
+                    }}
+                  >
+                    {af.dataId}
+                  </Checkbox>
+                );
+              })}
+            </div>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 };

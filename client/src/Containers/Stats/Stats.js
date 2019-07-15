@@ -2,20 +2,9 @@ import React, { useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import Chart from './Chart';
 // import classes from './stats.css';
-import statsReducer from './statsReducer';
+import statsReducer, { initialState } from './statsReducer';
 import Filters from './Filters';
-
-const initialState = {
-  byUser: false,
-  byEvent: false,
-  users: [],
-  events: [],
-  lines: [],
-  timeScale: null,
-  min: 0,
-  maxY: 0,
-  units: '',
-};
+import InfoBox from '../../Components/InfoBox/InfoBox';
 
 const Stats = ({ data, populateRoom }) => {
   const [state, dispatch] = useReducer(statsReducer, initialState);
@@ -37,8 +26,15 @@ const Stats = ({ data, populateRoom }) => {
 
   return (
     <div>
-      {chart}
-      <Filters data={data} filters={state} dispatch={dispatch} />
+      <InfoBox
+        title={`${data.name} activity`}
+        icon={<i className="fas fa-chart-line" />}
+      >
+        {chart}
+      </InfoBox>
+      <InfoBox title="Filters" icon={<i className="fas fa-filter" />}>
+        <Filters data={data} filters={state} dispatch={dispatch} />
+      </InfoBox>
     </div>
   );
 };
