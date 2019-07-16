@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 // import moment from 'moment';
 import moment from 'moment';
 import * as d3 from 'd3';
-import { dateFormatMap } from './processData';
+import { dateFormatMap } from './stats.utils';
 import Axis from './Axis';
 import Line from './Line';
 import classes from './stats.css';

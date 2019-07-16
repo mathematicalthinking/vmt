@@ -1,5 +1,5 @@
 import { max } from 'd3';
-import { processData } from './processData';
+import { processData } from './stats.utils';
 
 export const initialState = {
   byUser: false,

@@ -32,6 +32,7 @@ const filterData = (
           let includeUserMessages;
           let includeControlMessages;
           let includeEntryExitMessages;
+          // this could be simplified if we were filtering for exact message type; enter and exist insteado enter_exit for example
           if (messages.length > 0 && d.messageType) {
             includeUserMessages = messages.indexOf('USER') > -1;
             includeEntryExitMessages = messages.indexOf('ENTER_EXIT') > -1;
@@ -49,17 +50,29 @@ const filterData = (
               d.eventType &&
               actions.indexOf(d.eventType) > -1) ||
             events.length === 0;
-        } else if (events && events.length > 0) {
-          const includeMessages = events.indexOf('MESSAGES') > -1;
-          const includeActions =
-            events.indexOf('ACTIONS') > -1 && actions.length === 0;
-          criteriaMet =
-            (includeMessages && d.messageType) ||
-            (includeActions && !d.messageType);
+          if (
+            events.length > 0 &&
+            actions.length === 0 &&
+            messages.length === 0
+          ) {
+            const includeMessages = events.indexOf('MESSAGES') > -1;
+            const includeActions =
+              events.indexOf('ACTIONS') > -1 && actions.length === 0;
+            criteriaMet =
+              (includeMessages && d.messageType) ||
+              (includeActions && !d.messageType);
+          }
         }
         return criteriaMet;
       });
       if (filteredData.length > 0) {
+        console.log(
+          filteredData,
+          ' for user: ',
+          user,
+          ' color: ',
+          filteredData[0].color
+        );
         return { data: filteredData, color: filteredData[0].color };
       }
       return { data: [], color: null };
@@ -68,6 +81,7 @@ const filterData = (
   // if we're looking at just one user or all users we want the lines to represent
   // the different event types
   else if (events.length > 0) {
+    console.log('shouldnt ever be in here');
     if (users.length === 1) {
       data = data.filter(
         d => d.user && (d.user === users[0] || d.user._id === users[0])
@@ -127,6 +141,7 @@ const filterData = (
   }
   // if we're filtering by one or all users and nothing else
   else {
+    console.log('shouldnt ever be in here');
     // figure out users color+*
     if (users.length === 1) {
       data = data.filter(

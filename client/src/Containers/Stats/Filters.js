@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import Draggable from 'react-draggable';
 import classes from './stats.css';
 import Checkbox from '../../Components/Form/Checkbox/Checkbox';
 import Avatar from '../../Components/UI/Avatar/Avatar';
-import { lineColors } from './processData';
+import { lineColors } from './stats.utils';
 
 const messageFilters = [
   {
@@ -52,9 +53,18 @@ const actionFilters = [
 ];
 
 const Filters = ({ data, filters, dispatch }) => {
-  //   console.log(data.members);
-  //   console.log(filters);
-  const { users, events, messages, actions } = filters;
+  const { users, events, messages, actions, time } = filters;
+
+  const startSlider = useRef(null);
+  const endSlider = useRef(null);
+  const timeline = useRef(null);
+
+  const [timelineWidth, setWidth] = useState(0);
+  useEffect(() => {
+    if (timeline.current)
+      setWidth(timeline.current.getBoundingClientRect().width);
+  }, [time]);
+
   const areMessages = events.indexOf('MESSAGES') > -1;
   const areActions = events.indexOf('ACTIONS') > -1;
   return (
@@ -235,7 +245,20 @@ const Filters = ({ data, filters, dispatch }) => {
       </div>
       <div className={classes.Filter}>
         <h3>Time</h3>
-        <div className={classes.Options}>start - end</div>
+        <div className={classes.Options}>
+          <div className={classes.Timeline} ref={timeline}>
+            <Draggable axis="x" bounds="parent" position={{ x: 0, y: 0 }}>
+              <div ref={startSlider} className={classes.Marker} />
+            </Draggable>
+            <Draggable
+              axis="x"
+              bounds="parent"
+              position={{ x: timelineWidth, y: 0 }}
+            >
+              <div ref={endSlider} className={classes.Marker} />
+            </Draggable>
+          </div>
+        </div>
       </div>
     </div>
   );
