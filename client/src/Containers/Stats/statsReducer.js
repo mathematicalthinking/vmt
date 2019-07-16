@@ -39,7 +39,6 @@ export default (state = initialState, action) => {
     case 'ADD_REMOVE_FILTER': {
       let updatedFiltersArr;
       const { filterType, payload } = action;
-      console.log({ payload, filterType });
       const { data, users, events } = state;
       let { messages, actions } = { ...state };
       if (payload === 'ALL') {

@@ -29,27 +29,33 @@ const filterData = (
         let criteriaMet = false;
         if ((d.user && d.user._id === user) || d.user === user) {
           criteriaMet = true;
-          if (messages && messages.length > 0 && d.messageType) {
-            const includeUserMessages = messages.indexOf('USER') > -1;
-            const includeEntryExitMessages =
-              messages.indexOf('ENTER_EXIT') > -1;
-            const includeControlMessages = messages.indexOf('CONTROL') > -1;
-            criteriaMet =
-              (includeUserMessages && d.messageType === 'TEXT') ||
-              (includeEntryExitMessages &&
-                (d.messageType === 'JOINED_ROOM' ||
-                  d.messageType === 'LEFT_ROOM')) ||
-              (includeControlMessages &&
-                (d.messageType === 'TOOK_CONTROL' ||
-                  d.messageType === 'RELAESED_CONTROL'));
-          } else if (events && events.length > 0) {
-            const includeMessages = events.indexOf('MESSAGES') > -1;
-            const includeActions =
-              events.indexOf('ACTIONS') > -1 && actions.length === 0;
-            criteriaMet =
-              (includeMessages && d.messageType) ||
-              (includeActions && !d.messageType);
+          let includeUserMessages;
+          let includeControlMessages;
+          let includeEntryExitMessages;
+          if (messages.length > 0 && d.messageType) {
+            includeUserMessages = messages.indexOf('USER') > -1;
+            includeEntryExitMessages = messages.indexOf('ENTER_EXIT') > -1;
+            includeControlMessages = messages.indexOf('CONTROL') > -1;
           }
+          criteriaMet =
+            (includeUserMessages && d.messageType === 'TEXT') ||
+            (includeEntryExitMessages &&
+              (d.messageType === 'JOINED_ROOM' ||
+                d.messageType === 'LEFT_ROOM')) ||
+            (includeControlMessages &&
+              (d.messageType === 'TOOK_CONTROL' ||
+                d.messageType === 'RELAESED_CONTROL')) ||
+            (actions.length > 0 &&
+              d.eventType &&
+              actions.indexOf(d.eventType) > -1) ||
+            events.length === 0;
+        } else if (events && events.length > 0) {
+          const includeMessages = events.indexOf('MESSAGES') > -1;
+          const includeActions =
+            events.indexOf('ACTIONS') > -1 && actions.length === 0;
+          criteriaMet =
+            (includeMessages && d.messageType) ||
+            (includeActions && !d.messageType);
         }
         return criteriaMet;
       });
@@ -118,7 +124,9 @@ const filterData = (
         return { data: [], color: null };
       })
     );
-  } else {
+  }
+  // if we're filtering by one or all users and nothing else
+  else {
     // figure out users color+*
     if (users.length === 1) {
       data = data.filter(
