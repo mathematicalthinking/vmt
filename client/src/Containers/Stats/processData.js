@@ -112,7 +112,6 @@ const filterData = (data, { users, events, messages = [], actions = [] }) => {
     }
     dataSets = [{ data, color: users && users[0] ? data[0].color : '#2d91f2' }];
   }
-  console.log({ dataSets });
   return dataSets.filter(ds => ds.color);
 };
 
@@ -198,8 +197,17 @@ export const lineColors = {
   ENTER_EXIT: '#4655d4',
   CONTROL: '#c940ce',
   USER: '#43c086',
-  redorange: '#fb4b02',
-  orange: '#ff8d14',
-  lime: '#94e839',
-  red: '#cf2418',
+  ADD: '#fb4b02',
+  BATCH_UPDATE: '#ff8d14',
+  REMOVE: '#94e839',
+  UPDATE: '#cf2418',
+  SELECT: '#e846ba',
+  // 'UPDATE_STYLE',
+  // 'CHANGE_PERSPECTIVE',
+  // 'NEW_TAB',
+  // 'BATCH_UPDATE',
+  // 'BATCH_ADD',
+  // 'SELECT',
+  // 'UNDO',
+  // 'REDO',
 };

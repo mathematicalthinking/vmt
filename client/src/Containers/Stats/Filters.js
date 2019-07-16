@@ -36,7 +36,7 @@ const actionFilters = [
   },
   {
     dataId: 'Drag',
-    payload: 'DRAG',
+    payload: 'BATCH_UPDATE',
     filterType: 'actions',
   },
   {
@@ -54,160 +54,188 @@ const actionFilters = [
 const Filters = ({ data, filters, dispatch }) => {
   //   console.log(data.members);
   //   console.log(filters);
-  const { users, events, messages } = filters;
+  const { users, events, messages, actions } = filters;
   const areMessages = events.indexOf('MESSAGES') > -1;
   const areActions = events.indexOf('ACTIONS') > -1;
   return (
-    <div>
-      <div className={classes.row}>
+    <div className={classes.Container}>
+      <div className={classes.Filter}>
         <h3>Users</h3>
         <div className={classes.Options}>
-          <Checkbox
-            dataId="all_users"
-            checked={filters.users.length === 0}
-            change={() => {
-              dispatch({
-                type: 'ADD_REMOVE_FILTER',
-                filterType: 'users',
-                payload: 'ALL',
-              });
-            }}
-          >
-            All
-          </Checkbox>
+          <div className={classes.Checkbox}>
+            <Checkbox
+              dataId="all_users"
+              checked={filters.users.length === 0}
+              change={() => {
+                dispatch({
+                  type: 'ADD_REMOVE_FILTER',
+                  filterType: 'users',
+                  payload: 'ALL',
+                });
+              }}
+            >
+              All
+            </Checkbox>
+          </div>
           {data.members.map(m => {
             const {
               color,
               user: { username, _id },
             } = m;
             return (
-              <Checkbox
-                dataId={_id}
-                checked={users.indexOf(_id) > -1}
-                id={_id}
-                change={() => {
-                  dispatch({
-                    type: 'ADD_REMOVE_FILTER',
-                    filterType: 'users',
-                    payload: _id,
-                  });
-                }}
-                key={_id}
-              >
-                <Avatar username={username} color={color} />
-              </Checkbox>
+              <div className={classes.Checkbox} key={_id}>
+                <Checkbox
+                  dataId={_id}
+                  checked={users.indexOf(_id) > -1}
+                  id={_id}
+                  change={() => {
+                    dispatch({
+                      type: 'ADD_REMOVE_FILTER',
+                      filterType: 'users',
+                      payload: _id,
+                    });
+                  }}
+                >
+                  <Avatar username={username} color={color} />
+                </Checkbox>
+              </div>
             );
           })}
         </div>
       </div>
-      <div className={classes.row}>
+      <div className={classes.Filter}>
         <h3>Events</h3>
-        <div>
-          <Checkbox
-            dataId="all_events"
-            checked={filters.events.length === 0}
-            id="all_events"
-            change={() => {
-              dispatch({
-                type: 'ADD_REMOVE_FILTER',
-                filterType: 'events',
-                payload: 'ALL',
-              });
-            }}
-          >
-            All
-          </Checkbox>
-          <Checkbox
-            dataId="messages"
-            checked={areMessages}
-            change={() => {
-              dispatch({
-                type: 'ADD_REMOVE_FILTER',
-                filterType: 'events',
-                payload: 'MESSAGES',
-              });
-            }}
+        <div className={classes.Col}>
+          <div className={classes.ColCheckbox}>
+            <Checkbox
+              dataId="all_events"
+              checked={filters.events.length === 0}
+              id="all_events"
+              change={() => {
+                dispatch({
+                  type: 'ADD_REMOVE_FILTER',
+                  filterType: 'events',
+                  payload: 'ALL',
+                });
+              }}
+            >
+              All
+            </Checkbox>
+          </div>
+          <div
+            className={classes.ColCheckbox}
             style={
-              areMessages
+              areMessages && messages.length === 0 && users.length < 2
                 ? {
-                    color:
-                      messages.length === 0 && users.length < 2
-                        ? lineColors.MESSAGES
-                        : 'inherit',
+                    background: lineColors.MESSAGES,
+                    color: 'white',
                   }
                 : null
             }
           >
-            Messages
-          </Checkbox>
+            <Checkbox
+              dataId="messages"
+              checked={areMessages}
+              change={() => {
+                dispatch({
+                  type: 'ADD_REMOVE_FILTER',
+                  filterType: 'events',
+                  payload: 'MESSAGES',
+                });
+              }}
+            >
+              Messages
+            </Checkbox>
+          </div>
           {areMessages ? (
             <div className={classes.IndentedRow}>
               {messageFilters.map(mf => {
                 return (
-                  <Checkbox
+                  <div
                     key={mf.dataId}
-                    dataId={mf.dataId}
-                    checked={filters[mf.filterType].indexOf(mf.payload) > -1}
-                    change={() => {
-                      dispatch({
-                        type: 'ADD_REMOVE_FILTER',
-                        payload: mf.payload,
-                        filterType: mf.filterType,
-                      });
-                    }}
+                    className={classes.Checkbox}
                     style={
                       messages.indexOf(mf.payload) > -1 && users.length < 2
-                        ? { color: lineColors[mf.payload] }
+                        ? { background: lineColors[mf.payload], color: 'white' }
                         : null
                     }
                   >
-                    {mf.dataId}
-                  </Checkbox>
+                    <Checkbox
+                      dataId={mf.dataId}
+                      checked={filters[mf.filterType].indexOf(mf.payload) > -1}
+                      change={() => {
+                        dispatch({
+                          type: 'ADD_REMOVE_FILTER',
+                          payload: mf.payload,
+                          filterType: mf.filterType,
+                        });
+                      }}
+                    >
+                      {mf.dataId}
+                    </Checkbox>
+                  </div>
                 );
               })}
             </div>
           ) : null}
-          <Checkbox
-            dataId="actions"
-            checked={areActions}
-            change={() => {
-              dispatch({
-                type: 'ADD_REMOVE_FILTER',
-                filterType: 'events',
-                payload: 'ACTIONS',
-              });
-            }}
+          <div
+            className={classes.ColCheckbox}
             style={
-              areActions && users.length < 2
-                ? { color: lineColors.ACTIONS }
+              areActions && users.length < 2 && actions.length === 0
+                ? { background: lineColors.ACTIONS, color: 'white' }
                 : null
             }
           >
-            Actions
-          </Checkbox>
+            <Checkbox
+              dataId="actions"
+              checked={areActions}
+              change={() => {
+                dispatch({
+                  type: 'ADD_REMOVE_FILTER',
+                  filterType: 'events',
+                  payload: 'ACTIONS',
+                });
+              }}
+            >
+              Actions
+            </Checkbox>
+          </div>
           {areActions ? (
             <div className={classes.IndentedRow}>
               {actionFilters.map(af => {
                 return (
-                  <Checkbox
+                  <div
                     key={af.dataId}
-                    dataId={af.dataId}
-                    checked={filters[af.filterType].indexOf(af.payload) > -1}
-                    change={() => {
-                      dispatch({
-                        type: 'ADD_REMOVE_FILTER',
-                        payload: af.payload,
-                        filterType: af.filterType,
-                      });
-                    }}
+                    className={classes.Checkbox}
+                    style={
+                      actions.indexOf(af.payload) > -1 && users.length < 2
+                        ? { background: lineColors[af.payload], color: 'white' }
+                        : null
+                    }
                   >
-                    {af.dataId}
-                  </Checkbox>
+                    <Checkbox
+                      dataId={af.dataId}
+                      checked={filters[af.filterType].indexOf(af.payload) > -1}
+                      change={() => {
+                        dispatch({
+                          type: 'ADD_REMOVE_FILTER',
+                          payload: af.payload,
+                          filterType: af.filterType,
+                        });
+                      }}
+                    >
+                      {af.dataId}
+                    </Checkbox>
+                  </div>
                 );
               })}
             </div>
           ) : null}
         </div>
+      </div>
+      <div className={classes.Filter}>
+        <h3>Time</h3>
+        <div className={classes.Options}>start - end</div>
       </div>
     </div>
   );

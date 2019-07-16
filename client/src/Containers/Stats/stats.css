@@ -9,11 +9,9 @@
 .Container {
   display: flex;
   flex-flow: column;
-  align-items: center;
-  background: #f8f8f8;
   padding: 4px;
-  border: 1px solid #999;
-  border-radius: 4px;
+  /* border: 1px solid #999;
+  border-radius: 4px; */
 }
 
 .Graph {
@@ -42,18 +40,49 @@
   display: flex;
 }
 
+.Col {
+  display: inline-block;
+  /* width: auto; */
+}
+
+.Filter {
+  /* border: 1px solid red; */
+  margin-bottom: 4px;
+}
+
+.Filter > h3 {
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
 .Options {
   display: flex;
 }
 
 .UserOption {
   display: flex;
-  border: 1px solid red;
 }
 
 .IndentedRow {
   display: flex;
-  margin-left: 20px;
+  margin: 3px 0 0 20px;
+}
+
+.Checkbox {
+  display: flex;
+  width: auto;
+  justify-content: center;
+  align-items: center;
+  margin-right: 3px;
+  margin-bottom: 3px;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.ColCheckbox {
+  composes: Checkbox;
+  justify-content: flex-start;
 }
 /* @keyframes dash {
   from {
