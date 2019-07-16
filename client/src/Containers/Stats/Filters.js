@@ -131,7 +131,9 @@ const Filters = ({ data, filters, dispatch }) => {
               areMessages
                 ? {
                     color:
-                      messages.length === 0 ? lineColors.MESSAGES : 'inherit',
+                      messages.length === 0 && users.length < 2
+                        ? lineColors.MESSAGES
+                        : 'inherit',
                   }
                 : null
             }
@@ -154,7 +156,7 @@ const Filters = ({ data, filters, dispatch }) => {
                       });
                     }}
                     style={
-                      messages.indexOf(mf.payload) > -1
+                      messages.indexOf(mf.payload) > -1 && users.length < 2
                         ? { color: lineColors[mf.payload] }
                         : null
                     }
@@ -175,7 +177,11 @@ const Filters = ({ data, filters, dispatch }) => {
                 payload: 'ACTIONS',
               });
             }}
-            style={areActions ? { color: lineColors.ACTIONS } : null}
+            style={
+              areActions && users.length < 2
+                ? { color: lineColors.ACTIONS }
+                : null
+            }
           >
             Actions
           </Checkbox>
