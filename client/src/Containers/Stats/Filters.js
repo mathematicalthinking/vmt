@@ -6,11 +6,6 @@ import Avatar from '../../Components/UI/Avatar/Avatar';
 import { lineColors } from './processData';
 
 const messageFilters = [
-  // {
-  //   dataId: 'All',
-  //   payload: 'ALL',
-  //   filterType: 'messages',
-  // },
   {
     dataId: 'User messages',
     payload: 'USER',
@@ -19,6 +14,11 @@ const messageFilters = [
   {
     dataId: 'Enter/exit messages',
     payload: 'ENTER_EXIT',
+    filterType: 'messages',
+  },
+  {
+    dataId: 'Control',
+    payload: 'CONTROL',
     filterType: 'messages',
   },
 ];
@@ -54,7 +54,7 @@ const actionFilters = [
 const Filters = ({ data, filters, dispatch }) => {
   //   console.log(data.members);
   //   console.log(filters);
-  const { users, events } = filters;
+  const { users, events, messages } = filters;
   const areMessages = events.indexOf('MESSAGES') > -1;
   const areActions = events.indexOf('ACTIONS') > -1;
   return (
@@ -127,7 +127,14 @@ const Filters = ({ data, filters, dispatch }) => {
                 payload: 'MESSAGES',
               });
             }}
-            style={areMessages ? { color: lineColors.MESSAGES } : null}
+            style={
+              areMessages
+                ? {
+                    color:
+                      messages.length === 0 ? lineColors.MESSAGES : 'inherit',
+                  }
+                : null
+            }
           >
             Messages
           </Checkbox>
@@ -146,6 +153,11 @@ const Filters = ({ data, filters, dispatch }) => {
                         filterType: mf.filterType,
                       });
                     }}
+                    style={
+                      messages.indexOf(mf.payload) > -1
+                        ? { color: lineColors[mf.payload] }
+                        : null
+                    }
                   >
                     {mf.dataId}
                   </Checkbox>

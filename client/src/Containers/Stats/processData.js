@@ -5,7 +5,7 @@ export const processData = (data, { users, events, messages, actions }) => {
     data[0].timestamp,
     data[data.length - 1].timestamp
   );
-  const filteredData = filterData(data, { users, events });
+  const filteredData = filterData(data, { users, events, messages });
   const lines = filteredData.map(fd => ({
     data: buildLineData(fd.data, timeScale),
     color: fd.color,
@@ -17,20 +17,32 @@ export const processData = (data, { users, events, messages, actions }) => {
   };
 };
 
-const filterData = (data, { users, events, messages, actions }) => {
-  let dataSets;
+const filterData = (data, { users, events, messages = [], actions = [] }) => {
+  let dataSets = [];
   // If filtering by two or more users we want the lines on the graph to represent them.
-  // But if we're looking at just one user or all users we want the lines to represent
-  // the different event types
-  if (users && users.length > 0) {
+  if (users && users.length > 1) {
     dataSets = users.map(user => {
       const filteredData = data.filter(d => {
         let criteriaMet = false;
         if ((d.user && d.user._id === user) || d.user === user) {
           criteriaMet = true;
-          if (events && events.length > 0) {
+          if (messages && messages.length > 0 && d.messageType) {
+            const includeUserMessages = messages.indexOf('USER') > -1;
+            const includeEntryExitMessages =
+              messages.indexOf('ENTER_EXIT') > -1;
+            const includeControlMessages = messages.indexOf('CONTROL') > -1;
+            criteriaMet =
+              (includeUserMessages && d.messageType === 'TEXT') ||
+              (includeEntryExitMessages &&
+                (d.messageType === 'JOINED_ROOM' ||
+                  d.messageType === 'LEFT_ROOM')) ||
+              (includeControlMessages &&
+                (d.messageType === 'TOOK_CONTROL' ||
+                  d.messageType === 'RELAESED_CONTROL'));
+          } else if (events && events.length > 0) {
             const includeMessages = events.indexOf('MESSAGES') > -1;
-            const includeActions = events.indexOf('ACTIONS') > -1;
+            const includeActions =
+              events.indexOf('ACTIONS') > -1 && actions.length === 0;
             criteriaMet =
               (includeMessages && d.messageType) ||
               (includeActions && !d.messageType);
@@ -38,29 +50,70 @@ const filterData = (data, { users, events, messages, actions }) => {
         }
         return criteriaMet;
       });
-      return { data: filteredData, color: filteredData[0].color };
-    });
-  } else if (events && events.length > 0) {
-    dataSets = events.map(e => {
-      if (e === 'MESSAGES') {
-        return {
-          data: data.filter(d => d.messageType),
-          color: lineColors.MESSAGES,
-        };
+      if (filteredData.length > 0) {
+        return { data: filteredData, color: filteredData[0].color };
       }
-      if (e === 'ACTIONS') {
-        return {
-          data: data.filter(d => !d.messageType),
-          color: lineColors.ACTIONS,
-        };
-      }
-      return null;
+      return { data: [], color: null };
     });
+  }
+  // if we're looking at just one user or all users we want the lines to represent
+  // the different event types
+  else if (events && events.length > 0) {
+    if (users && users.length === 1) {
+      data = data.filter(
+        d => d.user && (d.user === users[0] || d.user._id === users[0])
+      );
+    }
+    if (messages.length > 0) {
+      dataSets = dataSets.concat(
+        messages.map(m => {
+          return {
+            data: data.filter(d => {
+              const { messageType: mt } = d;
+              if (!mt) return false;
+              return (
+                (m === 'USER' && mt === 'TEXT') ||
+                (m === 'ENTER_EXIT' &&
+                  (mt === 'JOINED_ROOM' || mt === 'LEFT_ROOM')) ||
+                (m === 'CONTROL' &&
+                  (mt === 'TOOK_CONTROL' || mt === 'TOOK_CONTROL'))
+              );
+            }),
+            color: lineColors[m],
+          };
+        })
+      );
+    } else if (actions.length > 0) {
+      console.log('actions need to be filtered');
+    }
+    dataSets = dataSets.concat(
+      events.map(e => {
+        if (e === 'MESSAGES' && messages.length === 0) {
+          return {
+            data: data.filter(d => d.messageType),
+            color: lineColors.MESSAGES,
+          };
+        }
+        if (e === 'ACTIONS' && actions.length === 0) {
+          return {
+            data: data.filter(d => !d.messageType),
+            color: lineColors.ACTIONS,
+          };
+        }
+        return { data: [], color: null };
+      })
+    );
   } else {
-    console.log({ user: users[0] });
+    // figure out users color+*
+    if (users && users.length === 1) {
+      data = data.filter(
+        d => d.user && (d.user === users[0] || d.user._id === users[0])
+      );
+    }
     dataSets = [{ data, color: users && users[0] ? data[0].color : '#2d91f2' }];
   }
-  return dataSets;
+  console.log({ dataSets });
+  return dataSets.filter(ds => ds.color);
 };
 
 const calculateTimeScale = (start, end) => {
@@ -118,6 +171,7 @@ const buildLineData = (data, timeScale) => {
   processedData.push([startTime + 0.1, 0]);
   return processedData;
 };
+
 export const timeUnitMap = {
   31536000: 'years',
   2592000: 'months',
@@ -141,11 +195,11 @@ export const dateFormatMap = {
 export const lineColors = {
   MESSAGES: '#5dd74a',
   ACTIONS: '#8d4adb',
-  blue: '#4655d4',
+  ENTER_EXIT: '#4655d4',
+  CONTROL: '#c940ce',
+  USER: '#43c086',
   redorange: '#fb4b02',
-  violet: '#c940ce',
   orange: '#ff8d14',
   lime: '#94e839',
-  aqua: '#43c086',
   red: '#cf2418',
 };

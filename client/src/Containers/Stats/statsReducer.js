@@ -40,7 +40,7 @@ export default (state = initialState, action) => {
     case 'ADD_REMOVE_FILTER': {
       let updatedFiltersArr;
       const { filterType, payload } = action;
-      const { data, users, events } = state;
+      const { data, users, events, messages } = state;
       if (payload === 'ALL') {
         updatedFiltersArr = [];
       } else if (state[filterType].indexOf(payload) > -1) {
@@ -51,6 +51,7 @@ export default (state = initialState, action) => {
       const { lines } = processData(data, {
         users,
         events,
+        messages,
         [filterType]: updatedFiltersArr,
       });
       return {
