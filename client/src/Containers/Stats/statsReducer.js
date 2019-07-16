@@ -39,7 +39,9 @@ export default (state = initialState, action) => {
     case 'ADD_REMOVE_FILTER': {
       let updatedFiltersArr;
       const { filterType, payload } = action;
-      const { data, users, events, messages } = state;
+      console.log({ payload, filterType });
+      const { data, users, events } = state;
+      let { messages, actions } = { ...state };
       if (payload === 'ALL') {
         updatedFiltersArr = [];
       } else if (state[filterType].indexOf(payload) > -1) {
@@ -47,14 +49,26 @@ export default (state = initialState, action) => {
       } else {
         updatedFiltersArr = [...state[filterType], payload];
       }
+      if (filterType === 'events') {
+        if (payload === 'MESSAGES') {
+          messages = [];
+        } else if (payload === 'ACTIONS') {
+          actions = [];
+        }
+      }
       const { lines } = processData(data, {
         users,
         events,
         messages,
+        actions,
         [filterType]: updatedFiltersArr,
       });
       return {
         ...state,
+        users,
+        events,
+        messages,
+        actions,
         [filterType]: updatedFiltersArr,
         lines,
       };

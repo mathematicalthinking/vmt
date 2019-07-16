@@ -5,7 +5,7 @@ export const processData = (data, { users, events, messages, actions }) => {
     data[0].timestamp,
     data[data.length - 1].timestamp
   );
-  const filteredData = filterData(data, { users, events, messages });
+  const filteredData = filterData(data, { users, events, messages, actions });
   const lines = filteredData.map(fd => ({
     data: buildLineData(fd.data, timeScale),
     color: fd.color,
@@ -17,10 +17,13 @@ export const processData = (data, { users, events, messages, actions }) => {
   };
 };
 
-const filterData = (data, { users, events, messages = [], actions = [] }) => {
+const filterData = (
+  data,
+  { users = [], events = [], messages = [], actions = [] }
+) => {
   let dataSets = [];
   // If filtering by two or more users we want the lines on the graph to represent them.
-  if (users && users.length > 1) {
+  if (users.length > 1) {
     dataSets = users.map(user => {
       const filteredData = data.filter(d => {
         let criteriaMet = false;
@@ -58,8 +61,8 @@ const filterData = (data, { users, events, messages = [], actions = [] }) => {
   }
   // if we're looking at just one user or all users we want the lines to represent
   // the different event types
-  else if (events && events.length > 0) {
-    if (users && users.length === 1) {
+  else if (events.length > 0) {
+    if (users.length === 1) {
       data = data.filter(
         d => d.user && (d.user === users[0] || d.user._id === users[0])
       );
@@ -83,8 +86,20 @@ const filterData = (data, { users, events, messages = [], actions = [] }) => {
           };
         })
       );
-    } else if (actions.length > 0) {
-      console.log('actions need to be filtered');
+    }
+    if (actions.length > 0) {
+      dataSets = dataSets.concat(
+        actions.map(a => {
+          return {
+            data: data.filter(d => {
+              const { eventType: et } = d;
+              if (!et) return false;
+              return a === et;
+            }),
+            color: lineColors[a],
+          };
+        })
+      );
     }
     dataSets = dataSets.concat(
       events.map(e => {
@@ -105,7 +120,7 @@ const filterData = (data, { users, events, messages = [], actions = [] }) => {
     );
   } else {
     // figure out users color+*
-    if (users && users.length === 1) {
+    if (users.length === 1) {
       data = data.filter(
         d => d.user && (d.user === users[0] || d.user._id === users[0])
       );
@@ -199,7 +214,7 @@ export const lineColors = {
   USER: '#43c086',
   ADD: '#fb4b02',
   BATCH_UPDATE: '#ff8d14',
-  REMOVE: '#94e839',
+  REMOVE: '#42770a',
   UPDATE: '#cf2418',
   SELECT: '#e846ba',
   // 'UPDATE_STYLE',
