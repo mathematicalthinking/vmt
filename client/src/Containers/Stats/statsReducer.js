@@ -87,6 +87,21 @@ export default (state = initialState, action) => {
       };
     }
 
+    case 'UPDATE_TIME': {
+      const { id, percent } = action;
+      const { duration, startTime } = state;
+      let newStartTime;
+      if (id === 'start') {
+        let newDuration = percent * duration;
+        newStartTime = startTime + newDuration;
+      }
+      // trim the data after or before a current timestamp given the date;
+      console.log({ newStartTime });
+      return {
+        ...state,
+      };
+    }
+
     default:
       return state;
   }

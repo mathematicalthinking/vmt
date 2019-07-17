@@ -5,14 +5,18 @@
 
 .Container {
   width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .Timeline {
   margin: 10px 0 30px 0;
   border: 1px solid gridBlue;
   position: relative;
-  width: 99%;
-  height: 5px;
+  width: 90%;
+  height: 16px;
+  background: #eeeeee;
+  border: 2px solid #666;
 }
 
 .SliderContainer {
@@ -28,19 +32,19 @@
 .Marker {
   position: absolute;
   border: 3px solid blue;
-  background-color: blue;
+  background-color: gridBlue;
   box-shadow: lightestShadow;
-  left: -4px;
-  top: -8px;
-  height: 16px;
-  width: 16px;
+  left: -13px;
+  top: -7.5px;
+  height: 26px;
+  width: 26px;
   border-radius: 50%;
+  z-index: 100;
   cursor: pointer;
-  border: 1px solid green;
 }
 
 .Time {
-  top: 8px;
+  top: 18px;
   position: absolute;
   width: auto;
   white-space: nowrap;
@@ -49,4 +53,24 @@
   border: 1px solid #666;
   color: #666;
   border-radius: 3px;
+}
+
+.EndTime {
+  composes: Time;
+  right: 0;
+}
+
+.StartTime {
+  composes: Time;
+  right: 0;
+}
+
+.CurrentTimeline {
+  top: 1px;
+  bottom: 1px;
+  z-index: 1;
+  border-top: 3px solid blue;
+  border-bottom: 3px solid blue;
+  background: gridBlue;
+  position: absolute;
 }
