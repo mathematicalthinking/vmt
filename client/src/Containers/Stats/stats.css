@@ -94,24 +94,3 @@
     fill: gridBlue;
   }
 } */
-
-.Timeline {
-  margin-top: 10px;
-  border: 1px solid gridBlue;
-  position: relative;
-  width: 95%;
-  height: 3px;
-}
-
-.Marker {
-  border: 3px solid blue;
-  background-color: blue;
-  position: absolute;
-  box-shadow: lightestShadow;
-  left: -4px;
-  top: -8px;
-  height: 16px;
-  width: 16px;
-  border-radius: 50%;
-  cursor: pointer;
-}

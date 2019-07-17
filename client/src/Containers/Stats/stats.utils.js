@@ -66,13 +66,6 @@ const filterData = (
         return criteriaMet;
       });
       if (filteredData.length > 0) {
-        console.log(
-          filteredData,
-          ' for user: ',
-          user,
-          ' color: ',
-          filteredData[0].color
-        );
         return { data: filteredData, color: filteredData[0].color };
       }
       return { data: [], color: null };
@@ -81,7 +74,6 @@ const filterData = (
   // if we're looking at just one user or all users we want the lines to represent
   // the different event types
   else if (events.length > 0) {
-    console.log('shouldnt ever be in here');
     if (users.length === 1) {
       data = data.filter(
         d => d.user && (d.user === users[0] || d.user._id === users[0])
@@ -141,7 +133,6 @@ const filterData = (
   }
   // if we're filtering by one or all users and nothing else
   else {
-    console.log('shouldnt ever be in here');
     // figure out users color+*
     if (users.length === 1) {
       data = data.filter(
