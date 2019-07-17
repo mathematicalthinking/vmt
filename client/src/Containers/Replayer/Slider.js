@@ -45,6 +45,7 @@ class Slider extends Component {
     this.setState({ dragging: true });
   };
 
+  // @TODO consider throttling this
   onDrag = e => {
     const { goToTime } = this.props;
     const sliderEl = this.slider.current.getBoundingClientRect();

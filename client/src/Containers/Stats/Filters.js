@@ -53,7 +53,17 @@ const actionFilters = [
 ];
 
 const Filters = ({ data, filters, dispatch }) => {
-  const { users, events, messages, actions } = filters;
+  const {
+    users,
+    events,
+    messages,
+    actions,
+    startDateF,
+    endDateF,
+    startTime,
+    endTime,
+  } = filters;
+  const { members } = data;
 
   const areMessages = events.indexOf('MESSAGES') > -1;
   const areActions = events.indexOf('ACTIONS') > -1;
@@ -77,7 +87,7 @@ const Filters = ({ data, filters, dispatch }) => {
               All
             </Checkbox>
           </div>
-          {data.members.map(m => {
+          {members.map(m => {
             const {
               color,
               user: { username, _id },
@@ -237,8 +247,10 @@ const Filters = ({ data, filters, dispatch }) => {
         <h3>Time</h3>
         <div className={classes.Options}>
           <Timeline
-            startTime={data.log[0].timestamp}
-            endTime={data.log[data.log.length - 1].timestamp}
+            startTime={startTime}
+            endTime={endTime}
+            startDateF={startDateF}
+            endDateF={endDateF}
           />
         </div>
       </div>

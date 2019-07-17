@@ -1,5 +1,6 @@
 import { max } from 'd3';
-import { processData } from './stats.utils';
+import moment from 'moment';
+import { processData, dateFormatMap } from './stats.utils';
 
 export const initialState = {
   byUser: false,
@@ -9,9 +10,14 @@ export const initialState = {
   messages: [],
   actions: [],
   lines: [],
+  data: [],
   timeScale: null,
   min: 0,
   maxY: 0,
+  startDateF: '',
+  endDateF: '',
+  startTime: 0,
+  endTime: 0,
   units: '',
 };
 
@@ -33,6 +39,14 @@ export default (state = initialState, action) => {
         maxY,
         data,
         duration: adjDuration,
+        startDateF: moment
+          .unix(data[0].timestamp / 1000)
+          .format(dateFormatMap[units]),
+        endDateF: moment
+          .unix(data[data.length - 1].timestamp / 1000)
+          .format(dateFormatMap[units]),
+        startTime: data[0].timestamp,
+        endTime: data[data.length - 1],
       };
     }
 

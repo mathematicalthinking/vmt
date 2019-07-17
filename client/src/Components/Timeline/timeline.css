@@ -3,18 +3,32 @@
   blue: blue;
 }
 
+.Container {
+  width: 100%;
+}
+
 .Timeline {
-  margin-top: 10px;
+  margin: 10px 0 30px 0;
   border: 1px solid gridBlue;
   position: relative;
-  width: 95%;
-  height: 3px;
+  width: 99%;
+  height: 5px;
+}
+
+.SliderContainer {
+  position: absolute;
+  border: 1px solid red;
+}
+
+.EndSlider {
+  composes: SliderContainer;
+  left: 0;
 }
 
 .Marker {
+  position: absolute;
   border: 3px solid blue;
   background-color: blue;
-  position: absolute;
   box-shadow: lightestShadow;
   left: -4px;
   top: -8px;
@@ -22,4 +36,17 @@
   width: 16px;
   border-radius: 50%;
   cursor: pointer;
+  border: 1px solid green;
+}
+
+.Time {
+  top: 8px;
+  position: absolute;
+  width: auto;
+  white-space: nowrap;
+  background: #eee;
+  padding: 3px;
+  border: 1px solid #666;
+  color: #666;
+  border-radius: 3px;
 }

@@ -1,17 +1,14 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-// import moment from 'moment';
-import moment from 'moment';
 import * as d3 from 'd3';
-import { dateFormatMap } from './stats.utils';
 import Axis from './Axis';
 import Line from './Line';
 import classes from './stats.css';
 
 const margin = { top: 10, right: 10, bottom: 40, left: 50 };
 
-const Chart = ({ data, state }) => {
-  const { lines, units, maxY, duration = 0 } = state;
+const Chart = ({ state }) => {
+  const { lines, units, maxY, duration = 0, startDateF, endDateF } = state;
   const [[height, width], setDimensions] = useState([0, 0]);
   const graph = useRef(null);
   const x = useCallback(
@@ -85,16 +82,10 @@ const Chart = ({ data, state }) => {
             # of events
           </text>
           <text transform={`translate(${0}, ${height + 40})`}>
-            {data.log
-              ? moment(data.log[0].timestamp).format(dateFormatMap[units])
-              : null}
+            {startDateF}
           </text>
           <text transform={`translate(${width - 40}, ${height + 40})`}>
-            {data.log
-              ? moment(data.log[data.log.length - 1].timestamp).format(
-                  dateFormatMap[units]
-                )
-              : null}
+            {endDateF}
           </text>
         </svg>
       ) : null}

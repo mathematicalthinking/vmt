@@ -1,32 +1,78 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
+import moment from 'moment';
 import classes from './timeline.css';
 // import Aux from '../../HOC/Auxil';
 // import EventDesc from './EventDesc/EventDesc';
 
-const Timeline = ({ startTime, endTime }) => {
+const Timeline = ({ startTime, endTime, startDateF, endDateF }) => {
+  console.log({ startTime, endTime });
   const startSlider = useRef(null);
   const endSlider = useRef(null);
+  const endTimeRef = useRef(null);
   const timeline = useRef(null);
-  const currentStart = useRef(startTime);
-  const currentEnd = useRef(endTime);
+  const [[currentStart, currentEnd], setCurrent] = useState([
+    startTime,
+    endTime,
+  ]);
 
+  const onStop = e => {
+    const timelineEl = timeline.current.getBoundingClientRect();
+    let percent = (e.clientX - timelineEl.left) / timelineEl.width;
+    if (percent < 0) percent = 0;
+    if (percent > 1) percent = 1;
+    let position = e.clientX - timelineEl.left;
+    if (position < 0) position = 0;
+    if (position > timelineEl.width) position = timelineEl.width;
+    setCurrent([position, currentEnd]);
+  };
+
+  console.log(currentStart, currentEnd);
   const [timelineWidth, setWidth] = useState(0);
   useEffect(() => {
-    if (timeline.current)
-      setWidth(timeline.current.getBoundingClientRect().width);
+    let width;
+    if (timeline.current) {
+      ({ width } = timeline.current.getBoundingClientRect());
+
+      const duration = endTime - startTime;
+      setCurrent([0, width]);
+    }
   }, [startTime, endTime]);
 
   return (
-    <div className={classes.Timeline} ref={timeline}>
-      <Draggable axis="x" bounds="parent" position={{ x: 0, y: 0 }}>
-        <div ref={startSlider} className={classes.Marker} />
-      </Draggable>
-      <Draggable axis="x" bounds="parent" position={{ x: timelineWidth, y: 0 }}>
-        <div ref={endSlider} className={classes.Marker} />
-      </Draggable>
+    <div className={classes.Container}>
+      <div className={classes.Timeline} ref={timeline}>
+        <Draggable
+          axis="x"
+          bounds="parent"
+          position={{ x: currentStart, y: 0 }}
+          onStop={onStop}
+        >
+          <div className={classes.SliderContainer}>
+            <div ref={startSlider} className={classes.Marker} />
+            <div className={classes.Time}>{startDateF}</div>
+          </div>
+        </Draggable>
+        <Draggable axis="x" bounds="parent" position={{ x: currentEnd, y: 0 }}>
+          <div className={classes.SliderContainer}>
+            <div ref={endSlider} className={classes.Marker} />
+            <div
+              className={classes.Time}
+              ref={endTimeRef}
+              style={{
+                right: 0,
+              }}
+            >
+              {endDateF}
+            </div>
+          </div>
+        </Draggable>
+        <div className={classes.CurrentTimeline} />
+      </div>
+      {/* <div className={classes.AbsoluteTimes}>
+      </div> */}
     </div>
   );
 };
@@ -139,6 +185,8 @@ const Timeline = ({ startTime, endTime }) => {
 Timeline.propTypes = {
   startTime: PropTypes.number.isRequired,
   endTime: PropTypes.number.isRequired,
+  startDateF: PropTypes.string.isRequired,
+  endDateF: PropTypes.string.isRequired,
   // progress: PropTypes.number.isRequired,
   // log: PropTypes.arrayOf(PropTypes.object).isRequired,
   // duration: PropTypes.number.isRequired,
