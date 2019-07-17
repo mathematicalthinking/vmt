@@ -27,32 +27,13 @@ class SocketProvider extends Component {
     showNtfMessage: false,
   };
   componentDidMount() {
-    const {
-      user,
-      connectClearError,
-      connectGetUser,
-      connectUpdateUser,
-    } = this.props;
+    const { user, connectClearError, connectGetUser } = this.props;
     // setTimeout(() => this.setState({ showNtfMessage: true }), 2000);
     if (user.loggedIn) {
       connectClearError(); // get rid of any lingering errors in the store from their last session
       connectGetUser(user._id);
-      socket.on('connect', () => {
-        // @TODO consider doing this on the backend...we're trgin to make sure the socketId stored on the user obj in the db is fresh.
-        // Why dont we just, every time a socket connects on the backend, grab the user obj and go update their socketId
-        const userId = user._id;
-        const socketId = socket.id;
-        socket.emit('SYNC_SOCKET', { socketId, userId }, (res, err) => {
-          if (err) {
-            // something went wrong updatnig user socket
-            // THIS MEANS WE WONT GET NOTIFICATIONS
-            // HOW SHOULD WE HANDLE THIS @TODO
-            return;
-          }
-          connectUpdateUser({ connected: true });
-        });
-        this.initializeListeners();
-      });
+      this.syncSocket();
+      this.initializeListeners();
     }
   }
 
@@ -69,26 +50,11 @@ class SocketProvider extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {
-      user,
-      connectClearError,
-      connectUpdateUser,
-      roomsArr,
-      courses,
-    } = this.props;
+    const { user, connectClearError, roomsArr, courses } = this.props;
     if (!prevProps.user.loggedIn && user.loggedIn) {
       connectClearError();
-      const userId = user._id;
-      const socketId = socket.id;
-      socket.emit('SYNC_SOCKET', { socketId, userId }, (res, err) => {
-        if (err) {
-          connectUpdateUser({ connected: false });
-          return;
-        }
-        connectUpdateUser({ connected: true });
-      });
+      this.syncSocket();
       // socket.removeAllListeners();
-      this.initializeListeners();
     }
     // Reinitialize listeners if store changes
     if (
@@ -106,6 +72,23 @@ class SocketProvider extends Component {
     }
     socket.removeAllListeners();
   }
+
+  syncSocket = () => {
+    const {
+      connectUpdateUser,
+      user: { _id },
+    } = this.props;
+    socket.emit('SYNC_SOCKET', _id, (res, err) => {
+      if (err) {
+        console.log({ err });
+        console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
+        return;
+      }
+      console.log(res);
+      connectUpdateUser({ connected: true });
+      this.initializeListeners();
+    });
+  };
 
   showNtfToast = ntfMessage => {
     this.setState({ showNtfMessage: true, ntfMessage }, () => {
@@ -181,19 +164,9 @@ class SocketProvider extends Component {
     });
 
     socket.on('reconnect', () => {
-      const userId = user._id;
-      const socketId = socket.id;
-      socket.emit('SYNC_SOCKET', { socketId, userId }, (res, err) => {
-        if (err) {
-          // something went wrong updatnig user socket
-          // HOW SHOULD WE HANDLE THIS @TODO
-          // return;
-        }
-      });
-      // console.log('reconnected after ', attemptNumber, ' attempts')
-      // MAYBE FETCH THE USER TO GET MISSING NOTIFICATIONS AND THE LIKE
+      console.log('reconnected');
+      this.syncSocket();
       connectGetUser(user._id);
-      connectUpdateUser({ connected: true });
     });
   }
 
