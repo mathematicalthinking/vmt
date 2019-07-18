@@ -11,7 +11,7 @@ const Stats = ({ data, populateRoom }) => {
   console.log({ state });
   let chart;
   if (data.log) {
-    chart = <Chart data={data} state={state} />;
+    chart = <Chart state={state} />;
   } else {
     chart = 'loading';
   }

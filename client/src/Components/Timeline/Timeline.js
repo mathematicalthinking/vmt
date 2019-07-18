@@ -7,7 +7,7 @@ import classes from './timeline.css';
 // import Aux from '../../HOC/Auxil';
 // import EventDesc from './EventDesc/EventDesc';
 
-const Timeline = ({ startTime, endTime, startDateF, endDateF }) => {
+const Timeline = ({ dispatch, startTime, endTime, startDateF, endDateF }) => {
   const startSlider = useRef(null);
   const endSlider = useRef(null);
   const timeline = useRef(null);
@@ -26,14 +26,9 @@ const Timeline = ({ startTime, endTime, startDateF, endDateF }) => {
   }, [startTime, endTime]);
   const onDrag = (e, id) => {
     const timelineEl = timeline.current.getBoundingClientRect();
-    // instead of using clientX we could use position of endSlider or startSlider
-    // this way they can drag from label and progress bar won't get off
-    let percent = (e.clientX - timelineEl.left) / timelineEl.width;
-    if (percent < 0) percent = 0;
-    if (percent > 1) percent = 1;
-    let position = e.clientX - timelineEl.left;
-    if (position < 0) position = 0;
-    if (position > timelineEl.width) position = timelineEl.width;
+
+    const { percent, position } = getPercentAndPosition(timelineEl, e);
+    dispatch({ type: 'UPDATE_TIME', payload: { id, percent } });
     setCurrent(
       id === 'start' ? [position, currentEnd] : [currentStart, position]
     );
@@ -41,12 +36,12 @@ const Timeline = ({ startTime, endTime, startDateF, endDateF }) => {
 
   const onStop = (e, id) => {
     const timelineEl = timeline.current.getBoundingClientRect();
-    const {percent, position } = getPercentAndPosition(timelineEl, e)
-    dispatch({type: 'UPDATE_TIME', payload: {id, percent}})
+    const { percent, position } = getPercentAndPosition(timelineEl, e);
+    dispatch({ type: 'UPDATE_TIME', payload: { id, percent } });
     setCurrent(
       id === 'start' ? [position, currentEnd] : [currentStart, position]
     );
-  }
+  };
   return (
     <div className={classes.Container}>
       <div className={classes.Timeline} ref={timeline}>
@@ -54,7 +49,7 @@ const Timeline = ({ startTime, endTime, startDateF, endDateF }) => {
           axis="x"
           bounds="parent"
           position={{ x: currentStart, y: 0 }}
-          // onStop={e => onDrag(e, 'start')}
+          onStop={e => onStop(e, 'start')}
           onDrag={e => onDrag(e, 'start')}
         >
           <div className={classes.SliderContainer}>
@@ -66,7 +61,7 @@ const Timeline = ({ startTime, endTime, startDateF, endDateF }) => {
           axis="x"
           bounds="parent"
           position={{ x: currentEnd, y: 0 }}
-          onStop={e => onDrag(e, 'end')}
+          onStop={e => onStop(e, 'end')}
           onDrag={e => onDrag(e, 'end')}
         >
           <div className={classes.SliderContainer}>
@@ -87,7 +82,17 @@ const Timeline = ({ startTime, endTime, startDateF, endDateF }) => {
   );
 };
 
-const getPercentAndPosition()
+const getPercentAndPosition = (element, event) => {
+  // instead of using clientX we could use position of endSlider or startSlider
+  // this way they can drag from label and progress bar won't get off
+  let percent = (event.clientX - element.left) / element.width;
+  if (percent < 0) percent = 0;
+  if (percent > 1) percent = 1;
+  let position = event.clientX - element.left;
+  if (position < 0) position = 0;
+  if (position > element.width) position = element.width;
+  return { percent, position };
+};
 //   slider = React.createRef();
 
 //   componentDidMount() {
@@ -199,6 +204,7 @@ Timeline.propTypes = {
   endTime: PropTypes.number.isRequired,
   startDateF: PropTypes.string.isRequired,
   endDateF: PropTypes.string.isRequired,
+  dispatch: PropTypes.func.isRequired,
   // progress: PropTypes.number.isRequired,
   // log: PropTypes.arrayOf(PropTypes.object).isRequired,
   // duration: PropTypes.number.isRequired,

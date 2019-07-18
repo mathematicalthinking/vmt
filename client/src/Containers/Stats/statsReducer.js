@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { max } from 'd3';
 import moment from 'moment';
 import { processData, dateFormatMap } from './stats.utils';
@@ -17,8 +18,12 @@ export const initialState = {
   startDateF: '',
   endDateF: '',
   startTime: 0,
+  currentStartTime: 0,
   endTime: 0,
+  currentEndTime: 0,
   units: '',
+  durationDisplay: 0,
+  rawDuration: 0,
 };
 
 export default (state = initialState, action) => {
@@ -26,11 +31,17 @@ export default (state = initialState, action) => {
     case 'GENERATE_DATA': {
       const { data } = action;
       const { users, events } = state;
-      const duration =
-        (data[data.length - 1].timestamp - data[0].timestamp) / 1000;
-      const { lines, timeScale, units } = processData(data, { users, events });
+      const start = data[0].timestamp;
+      const end = data[data.length - 1].timestamp;
+      const rawDuration = end - start;
+      const { lines, timeScale, units } = processData(
+        data,
+        { users, events },
+        { start, end }
+      );
       const maxY = max(lines[0].data, d => d[1]);
-      const adjDuration = duration / timeScale;
+      console.log({ rawDuration });
+      const durationDisplay = rawDuration / 1000 / timeScale;
       return {
         ...state,
         lines,
@@ -38,22 +49,21 @@ export default (state = initialState, action) => {
         units,
         maxY,
         data,
-        duration: adjDuration,
-        startDateF: moment
-          .unix(data[0].timestamp / 1000)
-          .format(dateFormatMap[units]),
-        endDateF: moment
-          .unix(data[data.length - 1].timestamp / 1000)
-          .format(dateFormatMap[units]),
-        startTime: data[0].timestamp,
-        endTime: data[data.length - 1],
+        rawDuration,
+        durationDisplay,
+        startDateF: moment.unix(start / 1000).format(dateFormatMap[units]),
+        endDateF: moment.unix(end / 1000).format(dateFormatMap[units]),
+        startTime: start,
+        currentStartTime: start,
+        endTime: end,
+        currentEndTime: end,
       };
     }
 
     case 'ADD_REMOVE_FILTER': {
       let updatedFiltersArr;
       const { filterType, payload } = action;
-      const { data, users, events } = state;
+      const { data, users, events, currentStartTime, currentEndTime } = state;
       let { messages, actions } = { ...state };
       if (payload === 'ALL') {
         updatedFiltersArr = [];
@@ -69,13 +79,17 @@ export default (state = initialState, action) => {
           actions = [];
         }
       }
-      const { lines } = processData(data, {
-        users,
-        events,
-        messages,
-        actions,
-        [filterType]: updatedFiltersArr,
-      });
+      const { lines } = processData(
+        data,
+        {
+          users,
+          events,
+          messages,
+          actions,
+          [filterType]: updatedFiltersArr,
+        },
+        { start: currentStartTime, end: currentEndTime }
+      );
       return {
         ...state,
         users,
@@ -88,17 +102,74 @@ export default (state = initialState, action) => {
     }
 
     case 'UPDATE_TIME': {
-      const { id, percent } = action;
-      const { duration, startTime } = state;
-      let newStartTime;
+      const {
+        payload: { id, percent },
+      } = action;
+      const {
+        rawDuration,
+        currentStartTime,
+        currentEndTime,
+        startTime,
+        endTime,
+        data,
+        users,
+        events,
+        actions,
+        messages,
+        timeScale,
+        maxY,
+      } = state;
+      let newStartTime = currentStartTime;
+      let newEndTime = currentEndTime;
+      let newMaxY = maxY;
+      let startOffset = 0;
+      let endOffset = 0;
       if (id === 'start') {
-        let newDuration = percent * duration;
-        newStartTime = startTime + newDuration;
+        console.log({ percent, rawDuration });
+        startOffset = percent * rawDuration;
+        newStartTime = startTime + startOffset;
       }
-      // trim the data after or before a current timestamp given the date;
-      console.log({ newStartTime });
+      if (id === 'end') {
+        endOffset = (1 - percent) * rawDuration;
+        newEndTime = endTime - endOffset;
+        console.log({ newEndTime });
+      }
+      const { lines, timeScale: newTimeScale, units, start, end } = processData(
+        data,
+        {
+          users,
+          events,
+          actions,
+          messages,
+        },
+        { start: newStartTime, end: newEndTime }
+      );
+      const newDuration = newEndTime - newStartTime;
+      const durationDisplay = newDuration / 1000 / newTimeScale;
+
+      // if (newTimeScale !== timeScale) {
+      let oldMaxY = 0;
+      lines.forEach(l => {
+        const candidateMaxY = max(l.data, d => d[1]);
+        if (candidateMaxY > oldMaxY) {
+          newMaxY = candidateMaxY;
+          oldMaxY = newMaxY;
+        }
+      });
+      // }
       return {
         ...state,
+        lines,
+        units,
+        durationDisplay,
+        maxY: newMaxY,
+        timeScale: newTimeScale,
+        currentStartTime: start,
+        currentEndTime: end,
+        startDateF: moment
+          .unix(newStartTime / 1000)
+          .format(dateFormatMap[units]),
+        endDateF: moment.unix(newEndTime / 1000).format(dateFormatMap[units]),
       };
     }
 

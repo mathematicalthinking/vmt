@@ -1,11 +1,29 @@
 /* eslint-disable no-unused-vars */
 // @todo rename utils
-export const processData = (data, { users, events, messages, actions }) => {
-  const timeScale = calculateTimeScale(
-    data[0].timestamp,
-    data[data.length - 1].timestamp
-  );
-  const filteredData = filterData(data, { users, events, messages, actions });
+export const processData = (
+  data,
+  { users, events, messages, actions },
+  { start, end }
+) => {
+  // console.log({ start, end });
+  const timeFilteredData = data.filter((d, i) => {
+    // if (d.timestamp >= start) {
+    //   console.log(d.timestamp, start, i);
+    // }
+    return d.timestamp >= start && d.timestamp <= end;
+  });
+  start = timeFilteredData[0].timestamp;
+  end = timeFilteredData[timeFilteredData.length - 1].timestamp;
+  // console.log({ timeFilteredData });
+  const timeScale = calculateTimeScale(start, end);
+  // console.log({ timeScale });
+  const filteredData = filterData(timeFilteredData, {
+    users,
+    events,
+    messages,
+    actions,
+  });
+  // console.log({ filteredData });
   const lines = filteredData.map(fd => ({
     data: buildLineData(fd.data, timeScale),
     color: fd.color,
@@ -13,6 +31,8 @@ export const processData = (data, { users, events, messages, actions }) => {
   return {
     lines,
     timeScale,
+    start,
+    end,
     units: timeUnitMap[timeScale],
   };
 };
@@ -166,6 +186,7 @@ const calculateTimeScale = (start, end) => {
 };
 
 const buildLineData = (data, timeScale) => {
+  console.log({ data, timeScale });
   let timeElapsed = 0; // seconds
   let eventCount = 0;
   let startTime = 0;
@@ -182,11 +203,15 @@ const buildLineData = (data, timeScale) => {
         } else {
           processedData.push([startTime, eventCount]);
         }
-        const skips = Math.floor(timeElapsed / timeScale);
         // startTime += 1;
-        for (i = 0; i < skips * 4; i++) {
-          startTime += 0.25;
-          processedData.push([startTime - 0.1, 0]);
+        const skips = Math.floor(timeElapsed / timeScale);
+        if (skips > 0) {
+          for (i = 0; i < skips * 4; i++) {
+            startTime += 0.25;
+            processedData.push([startTime - 0.1, 0]);
+          }
+        } else {
+          startTime += 1;
         }
         timeElapsed = 0;
         eventCount = 0;
@@ -215,7 +240,7 @@ export const dateFormatMap = {
   months: 'MM/DD/YYYY',
   weeks: 'MM/DD/YYYY',
   days: 'MM/DD/YYYY h:mm',
-  hours: 'h:mm:ss A',
+  hours: 'MM/DD/YYYY h:mm',
   minutes: 'h:mm:ss A',
   seconds: 'h:mm:ss A',
 };

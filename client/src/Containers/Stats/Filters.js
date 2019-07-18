@@ -247,6 +247,7 @@ const Filters = ({ data, filters, dispatch }) => {
         <h3>Time</h3>
         <div className={classes.Options}>
           <Timeline
+            dispatch={dispatch}
             startTime={startTime}
             endTime={endTime}
             startDateF={startDateF}

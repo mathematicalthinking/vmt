@@ -8,22 +8,30 @@ import classes from './stats.css';
 const margin = { top: 10, right: 10, bottom: 40, left: 50 };
 
 const Chart = ({ state }) => {
-  const { lines, units, maxY, duration = 0, startDateF, endDateF } = state;
+  const {
+    lines,
+    units,
+    maxY,
+    durationDisplay = 0,
+    startDateF,
+    endDateF,
+  } = state;
+  console.log(durationDisplay);
   const [[height, width], setDimensions] = useState([0, 0]);
   const graph = useRef(null);
   const x = useCallback(
     d3
       .scaleLinear()
-      .domain([0, duration])
+      .domain([0, durationDisplay])
       .range([0, width]),
-    [duration, width]
+    [durationDisplay, width]
   );
   const y = useCallback(
     d3
       .scaleLinear()
       .domain([0, maxY])
       .range([height, 0]),
-    [duration, height, maxY]
+    [durationDisplay, height, maxY]
   );
 
   useEffect(() => {
