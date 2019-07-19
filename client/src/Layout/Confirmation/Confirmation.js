@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import * as actions from '../../store/actions';
 import { Background, Aux, Button } from '../../Components';
 import classes from './confirmation.css';
-// import { Confirmation } from '..';
 
 const Confirmation = props => {
   const { errorMessage, successMessage, success, connectClear } = props;
@@ -27,13 +26,14 @@ const Confirmation = props => {
 Confirmation.propTypes = {
   errorMessage: PropTypes.string,
   successMessage: PropTypes.string,
-  success: PropTypes.bool.isRequired,
+  success: PropTypes.bool,
   connectClear: PropTypes.func.isRequired,
 };
 
 Confirmation.defaultProps = {
   errorMessage: null,
   successMessage: null,
+  success: false,
 };
 
 const mapStateToProps = state => ({
