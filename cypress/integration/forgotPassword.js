@@ -64,7 +64,6 @@ describe('Forgot Password', function() {
     it('should display success message', function() {
       typeInputByName('email', user.email);
       submit();
-      cy.url().should('include', 'confirmation');
       cy.contains(successMsg);
     });
   });
@@ -78,7 +77,6 @@ describe('Forgot Password', function() {
     it('should display success message', function() {
       typeInputByName('username', user.username);
       submit();
-      cy.url().should('include', 'confirmation');
       cy.contains(successMsg);
     });
   });

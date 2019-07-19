@@ -91,9 +91,7 @@ class ForgotPasswordLayout extends PureComponent {
     if (loggedIn) {
       return <Redirect to="/myVMT/rooms" />;
     }
-    return successMessage ? (
-      <Redirect to="/confirmation" />
-    ) : (
+    return (
       <div className={classes.Container}>
         <Background bottomSpace={-60} fixed />
         <div className={classes.ForgotPasswordContainer}>
@@ -105,6 +103,9 @@ class ForgotPasswordLayout extends PureComponent {
             {form}
             <div className={classes.ErrorMsg}>
               <div className={classes.Error}>{errorMessage}</div>
+            </div>
+            <div className={classes.SuccessMsg}>
+              <div className={classes.Success}>{successMessage}</div>
             </div>
           </form>
           <div className={classes.Submit}>
