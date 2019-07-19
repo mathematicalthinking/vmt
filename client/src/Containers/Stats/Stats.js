@@ -8,7 +8,6 @@ import InfoBox from '../../Components/InfoBox/InfoBox';
 
 const Stats = ({ data, populateRoom }) => {
   const [state, dispatch] = useReducer(statsReducer, initialState);
-  console.log({ state });
   let chart;
   if (data.log) {
     chart = <Chart state={state} />;

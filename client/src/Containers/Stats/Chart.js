@@ -16,7 +16,6 @@ const Chart = ({ state }) => {
     startDateF,
     endDateF,
   } = state;
-  console.log(durationDisplay);
   const [[height, width], setDimensions] = useState([0, 0]);
   const graph = useRef(null);
   const x = useCallback(

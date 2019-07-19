@@ -7,9 +7,17 @@ import classes from './timeline.css';
 // import Aux from '../../HOC/Auxil';
 // import EventDesc from './EventDesc/EventDesc';
 
-const Timeline = ({ dispatch, startTime, endTime, startDateF, endDateF }) => {
+const Timeline = ({
+  dispatch,
+  startTime,
+  endTime,
+  startDateF,
+  endDateF,
+  durationDisplay,
+}) => {
   const startSlider = useRef(null);
   const endSlider = useRef(null);
+  const currentTimeline = useRef(null);
   const timeline = useRef(null);
 
   const [width, setWidth] = useState(0);
@@ -26,22 +34,64 @@ const Timeline = ({ dispatch, startTime, endTime, startDateF, endDateF }) => {
   }, [startTime, endTime]);
   const onDrag = (e, id) => {
     const timelineEl = timeline.current.getBoundingClientRect();
-
-    const { percent, position } = getPercentAndPosition(timelineEl, e);
+    const slider = id === 'start' ? startSlider : endSlider;
+    const sliderEl = slider.current.getBoundingClientRect();
+    const { percent, position } = getPercentAndPosition(
+      timelineEl,
+      sliderEl,
+      currentEnd - currentStart
+    );
     dispatch({ type: 'UPDATE_TIME', payload: { id, percent } });
     setCurrent(
       id === 'start' ? [position, currentEnd] : [currentStart, position]
     );
+  };
+
+  const dragBoth = () => {
+    console.log('dragBoth');
+    // const timelineRect = timeline.current.getBoundingClientRect();
+    // console.log({ timelineRect });
+    // const currentTimelineRect = currentTimeline.current.getBoundingClientRect();
+    // console.log(currentTimelineRect);
+    // const newStart = currentTimelineRect.left - timelineRect.left;
+    // const newEnd = newStart + currentTimelineRect.width;
+    // console.log({ newStart, newEnd });
+    // const sliderEl = startSlider.current.getBoundingClientRect();
+    // const { percent, position } = getPercentAndPosition(
+    //   timelineEl,
+    //   sliderEl,
+    //   currentEnd - currentStart
+    // );
+    // dispatch({ type: 'UPDATE_TIME', payload: { id, percent } });
+    // setCurrent([newStart, newEnd]);
+    // id === 'start' ? [position, currentEnd] : [currentStart, position]
   };
 
   const onStop = (e, id) => {
     const timelineEl = timeline.current.getBoundingClientRect();
-    const { percent, position } = getPercentAndPosition(timelineEl, e);
+    const slider = id === 'start' ? startSlider : endSlider;
+    const sliderEl = slider.current.getBoundingClientRect();
+    const { percent, position } = getPercentAndPosition(
+      timelineEl,
+      sliderEl,
+      currentEnd - currentStart
+    );
     dispatch({ type: 'UPDATE_TIME', payload: { id, percent } });
     setCurrent(
       id === 'start' ? [position, currentEnd] : [currentStart, position]
     );
   };
+  const x = 1;
+  // eslint-disable-next-line no-array-constructor
+  const markers = Array(Math.floor(durationDisplay))
+    .fill()
+    .map((e, i) => x + i); // needs to be filled to map over;
+  const markerEls = markers.map((e, i) => {
+    const currentWidth = currentEnd - currentStart;
+    const offset = (currentWidth / markers.length - 1) * (i + 1);
+    return <div className={classes.Marker} key={e} style={{ left: offset }} />;
+  });
+  console.log(currentStart, currentEnd);
   return (
     <div className={classes.Container}>
       <div className={classes.Timeline} ref={timeline}>
@@ -53,7 +103,7 @@ const Timeline = ({ dispatch, startTime, endTime, startDateF, endDateF }) => {
           onDrag={e => onDrag(e, 'start')}
         >
           <div className={classes.SliderContainer}>
-            <div ref={startSlider} className={classes.Marker} />
+            <div ref={startSlider} className={classes.Slider} />
             <div className={classes.StartTime}>{startDateF}</div>
           </div>
         </Draggable>
@@ -65,16 +115,25 @@ const Timeline = ({ dispatch, startTime, endTime, startDateF, endDateF }) => {
           onDrag={e => onDrag(e, 'end')}
         >
           <div className={classes.SliderContainer}>
-            <div ref={endSlider} className={classes.Marker} />
+            <div ref={endSlider} className={classes.Slider} />
             <div className={classes.EndTime} style={{ right: 0 }}>
               {endDateF}
             </div>
           </div>
         </Draggable>
-        <div
-          className={classes.CurrentTimeline}
-          style={{ left: currentStart + 10, right: width - currentEnd + 4 }}
-        />
+        <Draggable
+          axis="x"
+          bounds="parent"
+          position={{ x: 0, y: 0 }}
+          onDrag={dragBoth}
+        >
+          <div
+            className={classes.CurrentTimeline}
+            ref={currentTimeline}
+            style={{ left: currentStart + 10, right: width - currentEnd + 4 }}
+          />
+        </Draggable>
+        {/* {markerEls} */}
       </div>
       {/* <div className={classes.AbsoluteTimes}>
       </div> */}
@@ -82,122 +141,26 @@ const Timeline = ({ dispatch, startTime, endTime, startDateF, endDateF }) => {
   );
 };
 
-const getPercentAndPosition = (element, event) => {
+const getPercentAndPosition = (container, slider, adjustment) => {
+  console.log({ adjustment });
+  if (adjustment < 75) {
+    adjustment = 75; // i.e. min-width of timeline bar is 75px
+  }
   // instead of using clientX we could use position of endSlider or startSlider
   // this way they can drag from label and progress bar won't get off
-  let percent = (event.clientX - element.left) / element.width;
-  if (percent < 0) percent = 0;
+  const zoomFactor = (1 - adjustment / container.width) * 0.35;
+  console.log({ zoomFactor });
+  let percent =
+    (slider.left + slider.width / 2 - container.left) / container.width -
+    zoomFactor;
+  if (percent < 0) percent = 0.0001;
   if (percent > 1) percent = 1;
-  let position = event.clientX - element.left;
+  console.log({ percent });
+  let position = slider.left + slider.width / 2 - container.left;
   if (position < 0) position = 0;
-  if (position > element.width) position = element.width;
+  if (position > container.width) position = container.width;
   return { percent, position };
 };
-//   slider = React.createRef();
-
-//   componentDidMount() {
-//     this.getSliderWidth();
-//     window.addEventListener('resize', this.getSliderWidth);
-//   }
-
-//   componentWillUnmount() {
-//     window.removeEventListener('resize', this.getSliderWidth);
-//   }
-
-//   getSliderWidth = () => {
-//     this.setState({
-//       sliderWidth: this.slider.current.getBoundingClientRect().width,
-//     });
-//   };
-
-//   jumpToPosition = event => {
-//     const { goToTime } = this.props;
-//     const { dragging } = this.state;
-//     // if (this.state.dragging) {
-//     //   event.preventDefault();
-//     // }
-//     if (!dragging) {
-//       const sliderEl = this.slider.current.getBoundingClientRect();
-//       const percent = (event.clientX - sliderEl.left) / sliderEl.width; // As a fraction
-//       goToTime(percent);
-//     }
-//   };
-
-//   startDrag = () => {
-//     this.setState({ dragging: true });
-//   };
-
-//   onDrag = e => {
-//     const { goToTime } = this.props;
-//     const sliderEl = this.slider.current.getBoundingClientRect();
-//     let percent = (e.clientX - sliderEl.left) / sliderEl.width;
-//     if (percent < 0) percent = 0;
-//     if (percent > 1) percent = 1;
-//     goToTime(percent);
-//     this.setState({ dragging: false });
-//   };
-
-//   stopDrag = e => {
-//     const { goToTime } = this.props;
-//     const sliderEl = this.slider.current.getBoundingClientRect();
-//     let percent = (e.clientX - sliderEl.left) / sliderEl.width;
-//     if (percent < 0) percent = 0;
-//     if (percent > 1) percent = 1;
-//     goToTime(percent);
-//     this.setState({ dragging: false });
-//   };
-
-//   showEventDetail = event => {
-//     const { dragging } = this.state;
-//     if (!dragging) {
-//       event.target.children.style = { display: 'flex' };
-//     }
-//   };
-
-//   render() {
-//     const { log, duration, progress } = this.props;
-//     const { dragging, sliderWidth } = this.state;
-//     const eventMarks = log.map(entry => {
-//       const color = entry.synthetic ? 'red' : entry.color;
-//       const percentFromStart = (entry.relTime / duration) * 100;
-//       return (
-//         <EventDesc
-//           key={entry.relTime}
-//           color={color}
-//           offset={percentFromStart}
-//           entry={entry}
-//           dragging={dragging}
-//         />
-//       );
-//     });
-//     const x =
-//       (progress / 100) * (sliderWidth - 6) > sliderWidth - 6
-//         ? sliderWidth - 6
-//         : (progress / 100) * (sliderWidth - 6);
-//     return (
-//       <div
-//         ref={this.slider}
-//         className={classes.Slider}
-//         onClick={this.jumpToPosition}
-//         onKeyPress={this.jumpToPosition}
-//         tabIndex="-2"
-//         role="button"
-//       >
-//         {eventMarks}
-//         <Draggable
-//           axis="x"
-//           bounds="parent"
-//           onStart={this.startDrag}
-//           onDrag={this.onDrag}
-//           onStop={this.stopDrag}
-//           position={{ x, y: 0 }}
-//         >
-//           <div ref={this.slider} className={classes.ProgressMarker} />
-//         </Draggable>
-//       </div>
-//     );
-//   }
-// }
 
 Timeline.propTypes = {
   startTime: PropTypes.number.isRequired,
@@ -207,7 +170,7 @@ Timeline.propTypes = {
   dispatch: PropTypes.func.isRequired,
   // progress: PropTypes.number.isRequired,
   // log: PropTypes.arrayOf(PropTypes.object).isRequired,
-  // duration: PropTypes.number.isRequired,
+  durationDisplay: PropTypes.number.isRequired,
   // goToTime: PropTypes.func.isRequired,
 };
 

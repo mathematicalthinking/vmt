@@ -61,6 +61,7 @@ const Filters = ({ data, filters, dispatch }) => {
     startDateF,
     endDateF,
     startTime,
+    durationDisplay,
     endTime,
   } = filters;
   const { members } = data;
@@ -252,6 +253,7 @@ const Filters = ({ data, filters, dispatch }) => {
             endTime={endTime}
             startDateF={startDateF}
             endDateF={endDateF}
+            durationDisplay={durationDisplay}
           />
         </div>
       </div>

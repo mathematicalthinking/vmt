@@ -12,8 +12,8 @@ export const processData = (
     // }
     return d.timestamp >= start && d.timestamp <= end;
   });
-  start = timeFilteredData[0].timestamp;
-  end = timeFilteredData[timeFilteredData.length - 1].timestamp;
+  // const startTimestamp = timeFilteredData[0].timestamp;
+  // const endTimestamp = timeFilteredData[timeFilteredData.length - 1].timestamp;
   // console.log({ timeFilteredData });
   const timeScale = calculateTimeScale(start, end);
   // console.log({ timeScale });
@@ -25,7 +25,7 @@ export const processData = (
   });
   // console.log({ filteredData });
   const lines = filteredData.map(fd => ({
-    data: buildLineData(fd.data, timeScale),
+    data: buildLineData(fd.data, timeScale, start, end),
     color: fd.color,
   }));
   return {
@@ -185,14 +185,19 @@ const calculateTimeScale = (start, end) => {
   return timeScale;
 };
 
-const buildLineData = (data, timeScale) => {
-  console.log({ data, timeScale });
+const buildLineData = (data, timeScale, start, end) => {
+  // console.log({ data, timeScale });
   let timeElapsed = 0; // seconds
   let eventCount = 0;
   let startTime = 0;
   const processedData = [];
   // combine events by timeScale -- i.e. get the number of events that happened between start and end of timeScale unit
   data.forEach((datum, i) => {
+    if (i === 0) {
+      // console.log({ start });
+      // console.log(datum.timestamp);
+      // console.log(datum.timestamp - start);
+    }
     if (data[i - 1]) {
       eventCount += 1;
       const timeToAdd = (datum.timestamp - data[i - 1].timestamp) / 1000; // in seconds

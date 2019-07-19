@@ -40,7 +40,6 @@ export default (state = initialState, action) => {
         { start, end }
       );
       const maxY = max(lines[0].data, d => d[1]);
-      console.log({ rawDuration });
       const durationDisplay = rawDuration / 1000 / timeScale;
       return {
         ...state,
@@ -125,14 +124,12 @@ export default (state = initialState, action) => {
       let startOffset = 0;
       let endOffset = 0;
       if (id === 'start') {
-        console.log({ percent, rawDuration });
         startOffset = percent * rawDuration;
         newStartTime = startTime + startOffset;
       }
       if (id === 'end') {
         endOffset = (1 - percent) * rawDuration;
         newEndTime = endTime - endOffset;
-        console.log({ newEndTime });
       }
       const { lines, timeScale: newTimeScale, units, start, end } = processData(
         data,
