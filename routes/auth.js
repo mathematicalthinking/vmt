@@ -211,15 +211,33 @@ router.post('/resetPassword/:token', async (req, res, next) => {
     let { user, accessToken, refreshToken, message } = await ssoService.resetPassword(req.body, req.params.token);
 
     if (message) {
-      res.json(message);
+      res.json({message});
       return;
     }
     // await jwt.verify(accessToken, process.env.MT_USER_JWT_SECRET);
 
+    let vmtUser = await User.findById(user.vmtUserId)
+      .populate({
+        path: 'courses',
+        populate: { path: 'members.user', select: 'username' },
+      })
+      .populate({
+        path: 'rooms',
+        select: '-currentState',
+        populate: { path: 'tabs members.user', select: 'username tabType' },
+      })
+      .populate({
+        path: 'activities',
+        populate: { path: 'tabs' },
+      })
+      .populate({ path: 'notifications', populate: { path: 'fromUser' } })
+      .lean()
+      .exec();
+
     setSsoCookie(res, accessToken);
     setSsoRefreshCookie(res, refreshToken );
 
-    return res.json(user);
+    return res.json(vmtUser);
   }catch(err) {
     console.error(`Error resetPassword: ${err}`);
     console.trace();
