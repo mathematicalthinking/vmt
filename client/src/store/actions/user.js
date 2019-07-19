@@ -7,7 +7,10 @@ import { gotCourses } from './courses';
 import { gotRooms } from './rooms';
 import { gotActivities, addUserActivities } from './activities';
 
-import { validateForgotPassword } from '../../utils/validators';
+import {
+  validateForgotPassword,
+  validateResetPassword,
+} from '../../utils/validators';
 
 export const gotUser = (user, temp) => {
   let loggedIn = true;
@@ -268,5 +271,60 @@ export const forgotPassword = (email, username) => {
           dispatch(loading.fail(err.response.data.errorMessage));
         });
     });
+  };
+};
+
+export const resetPassword = (password, confirmPassword, token) => {
+  return dispatch => {
+    dispatch(loading.start());
+
+    return validateResetPassword(password, confirmPassword, token).then(
+      validationResults => {
+        const [validationErr, validatedBody] = validationResults;
+        if (validationErr) {
+          return dispatch(loading.fail(validationErr));
+        }
+
+        return AUTH.resetPassword(validatedBody.password, validatedBody.token)
+          .then(res => {
+            const { message } = res.data;
+            if (message) {
+              dispatch(loading.fail(message));
+            } else {
+              let courses;
+              let rooms;
+              if (res.data.courses.length > 0) {
+                const coursesWithRoles = res.data.courses.map(course =>
+                  addUserRoleToResource(course, res.data._id)
+                );
+                courses = normalize(coursesWithRoles);
+                dispatch(gotCourses(courses));
+              }
+              if (res.data.rooms.length > 0) {
+                const roomsWithRoles = res.data.rooms.map(room =>
+                  addUserRoleToResource(room, res.data._id)
+                );
+                rooms = normalize(roomsWithRoles);
+                dispatch(gotRooms(rooms));
+              }
+
+              const activities = normalize(res.data.activities);
+              dispatch(gotActivities(activities));
+
+              const user = {
+                ...res.data,
+                courses: courses ? courses.allIds : [],
+                rooms: rooms ? rooms.allIds : [],
+                activities: activities ? activities.allIds : [],
+              };
+              dispatch(gotUser(user));
+              dispatch(loading.resetPasswordSuccess());
+            }
+          })
+          .catch(err => {
+            dispatch(loading.fail(err.response.data.errorMessage));
+          });
+      }
+    );
   };
 };

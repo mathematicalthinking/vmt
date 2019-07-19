@@ -1,6 +1,13 @@
+/* eslint-disable func-names */
 import * as yup from 'yup';
 
+const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+const usernamePattern = /^[a-z0-9_]{3,30}$/;
+const disallowedUsernames = ['admin', 'encompass', 'vmt', 'virtualmathteams'];
+
 const trimmed = yup.string().trim();
+
+const passwordSchema = trimmed.min(10).max(72);
 
 const validateSchema = (schema, value) => {
   return schema
@@ -13,8 +20,11 @@ const validateSchema = (schema, value) => {
     });
 };
 
-export const emailSchema = trimmed.email();
-export const usernameSchema = trimmed.lowercase();
+export const emailSchema = trimmed.matches(emailPattern);
+export const usernameSchema = trimmed
+  .lowercase()
+  .matches(usernamePattern)
+  .notOneOf(disallowedUsernames);
 
 export const validateEmail = val => {
   return validateSchema(emailSchema.required(), val);
@@ -46,4 +56,30 @@ export const validateForgotPassword = async (email, username) => {
     return [null, { email: validatedEmail }];
   }
   return [null, { username: validatedUsername }];
+};
+
+const resetPasswordSchema = yup.object().shape({
+  password: passwordSchema.required(),
+  confirmPassword: yup
+    .mixed()
+    .test('doPasswordsMatch', 'Passwords do not match', function(value) {
+      return value === this.parent.password;
+    }),
+  token: trimmed.required(),
+});
+
+export const validateResetPassword = (password, confirmPassword, token) => {
+  return validateSchema(resetPasswordSchema, {
+    password,
+    confirmPassword,
+    token,
+  });
+};
+
+const basicTokenSchema = yup.object().shape({
+  token: trimmed.required('Invalid token'),
+});
+
+export const validateBasicToken = token => {
+  return validateSchema(basicTokenSchema, { token });
 };

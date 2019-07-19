@@ -10,3 +10,4 @@ export { default as BoxList } from './BoxList/BoxList';
 export { default as WorkspaceLayout } from './Workspace/Workspace';
 export { default as About } from './About/About';
 export { default as ForgotPassword } from './ForgotPassword/ForgotPassword';
+export { default as ResetPasswordLayout } from './ResetPassword/ResetPassword';

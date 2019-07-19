@@ -50,3 +50,9 @@ export const forgotPasswordSuccess = () => {
     type: actionTypes.FORGOT_PASSWORD_SUCCESS,
   };
 };
+
+export const resetPasswordSuccess = () => {
+  return {
+    type: actionTypes.RESET_PASSWORD_SUCCESS,
+  };
+};

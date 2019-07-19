@@ -68,6 +68,12 @@ const reducer = (state = initialState, action) => {
         successMessage:
           'An email with further instructions has been sent to the email address on file',
       };
+    case actionTypes.RESET_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        resetPasswordSuccess: true,
+      };
 
     default:
       return { ...state };

@@ -24,4 +24,11 @@ export default {
   forgotPassword: details => {
     return axios.post('/auth/forgotPassword', details);
   },
+
+  resetPassword: (password, token) => {
+    return axios.post(`/auth/resetPassword/${token}`, { password });
+  },
+  validateResetPasswordToken: token => {
+    return axios.get(`/auth/resetPassword/validate/${token}`);
+  },
 };
