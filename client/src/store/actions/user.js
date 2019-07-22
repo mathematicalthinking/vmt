@@ -328,3 +328,22 @@ export const resetPassword = (password, confirmPassword, token) => {
     );
   };
 };
+
+export const confirmEmail = token => {
+  return dispatch => {
+    dispatch(loading.start());
+    return AUTH.confirmEmail(token)
+      .then(res => {
+        const { isValid, info } = res.data;
+        if (isValid) {
+          dispatch(updateUser({ isEmailConfirmed: true }));
+          dispatch(loading.confirmEmailSuccess());
+        } else {
+          dispatch(loading.fail(info));
+        }
+      })
+      .catch(err => {
+        dispatch(loading.fail(err.response.data.errorMessage));
+      });
+  };
+};

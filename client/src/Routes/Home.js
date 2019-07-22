@@ -11,6 +11,8 @@ import {
   Profile,
   ForgotPassword,
   ResetPassword,
+  ConfirmEmail,
+  Unconfirmed,
 } from '../Containers';
 import { Confirmation, About } from '../Layout';
 import classes from './main.css';
@@ -40,6 +42,7 @@ class Home extends PureComponent {
   render() {
     const { location, user } = this.props;
     const { scrollPosition } = this.state;
+
     return (
       <Aux>
         {location.pathname.indexOf('community') > -1 ||
@@ -71,6 +74,8 @@ class Home extends PureComponent {
             <Route path="/profile" component={Profile} />
             <Route path="/forgotPassword" component={ForgotPassword} />
             <Route path="/resetPassword/:token" component={ResetPassword} />
+            <Route path="/confirmEmail/:token" component={ConfirmEmail} />
+            <Route path="/unconfirmed" component={Unconfirmed} />
           </Switch>
         </div>
         {/* <Route path='/about' component={About} />

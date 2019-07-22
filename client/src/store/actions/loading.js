@@ -56,3 +56,9 @@ export const resetPasswordSuccess = () => {
     type: actionTypes.RESET_PASSWORD_SUCCESS,
   };
 };
+
+export const confirmEmailSuccess = () => {
+  return {
+    type: actionTypes.CONFIRM_EMAIL_SUCCESS,
+  };
+};

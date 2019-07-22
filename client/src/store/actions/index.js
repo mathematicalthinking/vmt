@@ -13,6 +13,7 @@ export {
   toggleJustLoggedIn,
   forgotPassword,
   resetPassword,
+  confirmEmail,
 } from './user';
 export {
   fail,
@@ -23,6 +24,7 @@ export {
   accessSuccess,
   forgotPasswordSuccess,
   resetPasswordSuccess,
+  confirmEmailSuccess,
 } from './loading';
 export {
   getRooms,
