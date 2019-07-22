@@ -297,4 +297,19 @@ router.get('/confirmEmail/resend', async(req, res, next) => {
   }
 });
 
+router.put('/sso/user/:id', async(req, res, next) => {
+  try {
+    let authToken = extractBearerToken(req);
+    await jwt.verify(
+     authToken,
+     process.env.MT_USER_JWT_SECRET
+   );
+   await User.findByIdAndUpdate(req.params.id, {$set: req.body}, {new: true});
+   return res.json({isSuccess: true})
+  }catch(err) {
+    errors.handleError(err, res);
+  }
+
+});
+
 module.exports = router;
