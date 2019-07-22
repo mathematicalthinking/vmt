@@ -17,7 +17,10 @@ const initialState = {
   justLoggedIn: false,
   isAdmin: false,
   inAdminMode: false,
-  connected: false, // connected over the socket
+  connected: false, // connected over the socket,
+  isEmailConfirmed: false,
+  ssoId: '',
+  doForcePasswordChange: false,
 };
 
 const reducer = (state = initialState, action) => {
@@ -27,6 +30,9 @@ const reducer = (state = initialState, action) => {
         ...state,
         loggedIn: action.loggedIn,
         ...action.user,
+        firstName: action.user.firstName || '',
+        lastName: action.user.lastName || '',
+        email: action.user.email || '',
       };
     case actionTypes.TOGGLE_JUST_LOGGED_IN:
       return {

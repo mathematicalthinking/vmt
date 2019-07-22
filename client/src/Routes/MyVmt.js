@@ -71,7 +71,10 @@ class MyVmt extends Component {
   render() {
     const { match, loggedIn, user, globalErrorMessage } = this.props;
     const { path } = match;
-    console.log('path: ', path);
+    const { email, isEmailConfirmed } = user;
+
+    const doRedirectToUnconfirmed =
+      loggedIn && typeof email === 'string' && isEmailConfirmed === false;
     return (
       <ErrorBoundary>
         <Navbar user={user} />
@@ -82,9 +85,13 @@ class MyVmt extends Component {
                 exact
                 key={page.path}
                 path={`${path}${page.path}`}
-                authed={loggedIn}
+                authed={loggedIn && !doRedirectToUnconfirmed}
                 component={page.component}
-                redirectPath={page.redirectPath || '/'}
+                redirectPath={
+                  doRedirectToUnconfirmed
+                    ? '/unconfirmed'
+                    : page.redirectPath || '/'
+                }
               />
             );
           })}
