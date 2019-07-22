@@ -31,4 +31,10 @@ export default {
   validateResetPasswordToken: token => {
     return axios.get(`/auth/resetPassword/validate/${token}`);
   },
+  confirmEmail: token => {
+    return axios.get(`/auth/confirmEmail/confirm/${token}`);
+  },
+  resendEmailConfirmation: () => {
+    return axios.get('/auth/confirmEmail/resend');
+  },
 };
