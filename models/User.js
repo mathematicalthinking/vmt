@@ -43,6 +43,7 @@ const User = new mongoose.Schema(
     ssoId: { type: ObjectId },
     ipAddresses: [{type: String}],
     latestIpAddress: { type: String },
+    isEmailConfirmed: { type: Boolean, default: false }
   },
   { timestamps: true }
 );
