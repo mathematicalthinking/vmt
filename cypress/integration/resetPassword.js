@@ -74,19 +74,16 @@ describe('Reset Password', function() {
       });
     });
     describe('Submitting valid form', function() {
-      it('Should automaticaly log user in and redirect to myVmt', function() {
+      it('Should automaticaly log user in and redirect to myVMT', function() {
         typeInputByName('password', userLiveToken.newPassword);
         typeInputByName('confirmPassword', userLiveToken.newPassword);
         submit();
         cy.url().should('include', '/myVMT/rooms');
+        cy.logout();
       });
     });
 
     describe('Future login', function() {
-      before(function() {
-        cy.logout();
-      });
-
       it('Should not let user login with old password', function() {
         cy.visit('/login');
         cy.url().should('include', '/login');
@@ -104,6 +101,7 @@ describe('Reset Password', function() {
         typeInputByName('password', userLiveToken.newPassword);
         submit();
         cy.url().should('include', '/myVMT/rooms');
+        cy.logout();
       });
     });
   });
