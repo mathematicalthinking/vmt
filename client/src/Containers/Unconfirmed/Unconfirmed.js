@@ -40,7 +40,7 @@ class Unconfirmed extends Component {
       .catch(err => {
         this.setState({
           isResendingEmail: false,
-          resendErrorMsg: err.response.errorMessage,
+          resendErrorMsg: err.errorMessage || err.message,
         });
       });
   };

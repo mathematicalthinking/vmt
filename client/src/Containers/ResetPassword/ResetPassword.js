@@ -51,7 +51,7 @@ class ResetPassword extends Component {
       .catch(err => {
         this.setState({
           isVerifyingToken: false,
-          tokenErrorMessage: err.message,
+          tokenErrorMessage: err.errorMessage || err.message,
         });
       });
   };
