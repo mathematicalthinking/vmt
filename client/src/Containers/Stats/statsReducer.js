@@ -24,6 +24,7 @@ export const initialState = {
   units: '',
   durationDisplay: 0,
   rawDuration: 0,
+  inChartView: true,
 };
 
 export default (state = initialState, action) => {
@@ -165,6 +166,13 @@ export default (state = initialState, action) => {
           .unix(newStartTime / 1000)
           .format(dateFormatMap[units]),
         endDateF: moment.unix(newEndTime / 1000).format(dateFormatMap[units]),
+      };
+    }
+
+    case 'TOGGLE_CHART_VIEW': {
+      return {
+        ...state,
+        inChartView: !state.inChartView,
       };
     }
 

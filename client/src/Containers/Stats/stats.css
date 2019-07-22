@@ -15,12 +15,25 @@
   border-radius: 4px; */
 }
 
+.ChartContainer {
+  display: flex;
+  min-height: 400px;
+}
+
+.ChartContainer > * {
+  margin: auto;
+}
+
 .Graph {
   width: 100%;
   height: 42vh;
   display: center;
   justify-content: center;
   overflow: visible;
+}
+
+.ChartDate {
+  font-size: 10px;
 }
 
 .svgContainer {

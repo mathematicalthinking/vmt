@@ -90,10 +90,16 @@ const Chart = ({ state }) => {
           <text transform={`rotate(-90) translate(${(height + 40) / -2}, 12)`}>
             # of events
           </text>
-          <text transform={`translate(${0}, ${height + 40})`}>
+          <text
+            className={classes.chartDate}
+            transform={`translate(${0}, ${height + 40})`}
+          >
             {startDateF}
           </text>
-          <text transform={`translate(${width - 40}, ${height + 40})`}>
+          <text
+            className={classes.chartDate}
+            transform={`translate(${width - 65}, ${height + 40})`}
+          >
             {endDateF}
           </text>
         </svg>
@@ -103,8 +109,12 @@ const Chart = ({ state }) => {
 };
 
 Chart.propTypes = {
-  data: PropTypes.shape({}).isRequired,
+  data: PropTypes.shape({}),
   state: PropTypes.shape({}).isRequired,
+};
+
+Chart.defaultProps = {
+  data: null,
 };
 
 export default Chart;

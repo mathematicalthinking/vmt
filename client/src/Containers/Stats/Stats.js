@@ -2,10 +2,12 @@ import React, { useEffect, useState, useReducer, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import Chart from './Chart';
-// import classes from './stats.css';
+import Table from './Table';
+import classes from './stats.css';
 import statsReducer, { initialState } from './statsReducer';
 import Filters from './Filters';
 import Loading from '../../Components/Loading/Loading';
+import Button from '../../Components/UI/Button/Button';
 import InfoBox from '../../Components/InfoBox/InfoBox';
 
 const Stats = ({ data, populateRoom }) => {
@@ -13,8 +15,11 @@ const Stats = ({ data, populateRoom }) => {
   const [isResizing, setResizing] = useState(false);
   const debounceResize = useCallback(debounce(() => setResizing(false), 1000));
   let chart;
-  if (data.log && !isResizing) {
+  const { inChartView } = state;
+  if (data.log && !isResizing && inChartView) {
     chart = <Chart state={state} />;
+  } else if (data.log && !isResizing) {
+    chart = <Table data={data.log} />;
   } else {
     chart = <Loading isSmall />;
   }
@@ -43,18 +48,35 @@ const Stats = ({ data, populateRoom }) => {
     <div>
       <InfoBox
         title={`${data.name} activity`}
-        icon={<i className="fas fa-chart-line" />}
+        icon={
+          inChartView ? (
+            <i className="fas fa-chart-line" />
+          ) : (
+            <i className="fas fa-table" />
+          )
+        }
+        rightIcons={[
+          <Button
+            theme="None"
+            key="1"
+            click={() => dispatch({ type: 'TOGGLE_CHART_VIEW' })}
+          >
+            {inChartView ? (
+              <i className="fas fa-table" />
+            ) : (
+              <i className="fas fa-chart-line" />
+            )}
+          </Button>,
+          <Button
+            theme="None"
+            key="2"
+            click={() => console.log('download csv')}
+          >
+            <i className="fas fa-download" />,
+          </Button>,
+        ]}
       >
-        <div
-          style={{
-            minHeight: 400,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          {chart}
-        </div>
+        <div className={classes.ChartContainer}>{chart}</div>
       </InfoBox>
       <InfoBox title="Filters" icon={<i className="fas fa-filter" />}>
         <Filters data={data} filters={state} dispatch={dispatch} />

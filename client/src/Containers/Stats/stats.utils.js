@@ -244,10 +244,11 @@ export const dateFormatMap = {
   years: 'MM/DD/YYYY',
   months: 'MM/DD/YYYY',
   weeks: 'MM/DD/YYYY',
-  days: 'MM/DD/YYYY h:mm',
-  hours: 'MM/DD/YYYY h:mm',
+  days: 'MM/DD/YYYY h:mm A',
+  hours: 'MM/DD/YYYY h:mm A',
   minutes: 'h:mm:ss A',
   seconds: 'h:mm:ss A',
+  all: 'MM/DD/YYYY h:mm:ss A',
 };
 
 export const lineColors = {
@@ -269,4 +270,8 @@ export const lineColors = {
   // 'SELECT',
   // 'UNDO',
   // 'REDO',
+};
+
+export const convertToCSV = () => {
+  console.log('converting to csv');
 };
