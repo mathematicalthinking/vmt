@@ -15,8 +15,6 @@ const Timeline = ({
   dispatch,
 }) => {
   const selectDate = (date, id) => {
-    console.log('date picked: ', date);
-    console.log(id);
     let unixDate = moment(date).format('x');
     if (unixDate < startTime) {
       unixDate = startTime;
@@ -25,7 +23,6 @@ const Timeline = ({
     }
     dispatch({ type: 'UPDATE_TIME', payload: { id, time: unixDate } });
   };
-  console.log(currentStartTime);
   return (
     <div className={classes.Timeline}>
       <DatePicker
