@@ -102,36 +102,34 @@ export default (state = initialState, action) => {
 
     case 'UPDATE_TIME': {
       const {
-        payload: { id, percent },
+        payload: { id, time },
       } = action;
       const {
-        rawDuration,
         currentStartTime,
         currentEndTime,
-        startTime,
-        endTime,
         data,
         users,
         events,
         actions,
         messages,
-        timeScale,
+        startTime,
+        endTime,
         maxY,
       } = state;
       let newStartTime = currentStartTime;
       let newEndTime = currentEndTime;
       let newMaxY = maxY;
-      let startOffset = 0;
-      let endOffset = 0;
       if (id === 'start') {
-        startOffset = percent * rawDuration;
-        newStartTime = startTime + startOffset;
+        newStartTime = time;
       }
       if (id === 'end') {
-        endOffset = (1 - percent) * rawDuration;
-        newEndTime = endTime - endOffset;
+        newEndTime = time;
       }
-      const { lines, timeScale: newTimeScale, units, start, end } = processData(
+      if (id === 'both') {
+        newStartTime = startTime;
+        newEndTime = endTime;
+      }
+      const { lines, timeScale, units, start, end } = processData(
         data,
         {
           users,
@@ -142,7 +140,7 @@ export default (state = initialState, action) => {
         { start: newStartTime, end: newEndTime }
       );
       const newDuration = newEndTime - newStartTime;
-      const durationDisplay = newDuration / 1000 / newTimeScale;
+      const durationDisplay = newDuration / 1000 / timeScale;
 
       // if (newTimeScale !== timeScale) {
       let oldMaxY = 0;
@@ -160,9 +158,9 @@ export default (state = initialState, action) => {
         units,
         durationDisplay,
         maxY: newMaxY,
-        timeScale: newTimeScale,
-        currentStartTime: start,
-        currentEndTime: end,
+        timeScale,
+        currentStartTime: parseInt(start, 10),
+        currentEndTime: parseInt(end, 10),
         startDateF: moment
           .unix(newStartTime / 1000)
           .format(dateFormatMap[units]),

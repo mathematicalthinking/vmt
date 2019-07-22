@@ -6,17 +6,23 @@
 .Container {
   width: 100%;
   display: flex;
-  justify-content: center;
 }
 
 .Timeline {
-  margin: 10px 0 30px 0;
+  display: flex;
+  /* justify-content: center; */
+  align-items: center;
+  /* margin: 10px 0 30px 0;
   border: 1px solid gridBlue;
   position: relative;
   width: 90%;
   height: 16px;
   background: #eeeeee;
-  border: 2px solid #666;
+  border: 2px solid #666; */
+}
+
+.Timeline > * {
+  margin-right: 10px;
 }
 
 .SliderContainer {

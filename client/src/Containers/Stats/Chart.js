@@ -22,14 +22,16 @@ const Chart = ({ state }) => {
     d3
       .scaleLinear()
       .domain([0, durationDisplay])
-      .range([0, width]),
+      .range([0, width])
+      .nice(),
     [durationDisplay, width]
   );
   const y = useCallback(
     d3
       .scaleLinear()
       .domain([0, maxY])
-      .range([height, 0]),
+      .range([height, 0])
+      .nice(),
     [durationDisplay, height, maxY]
   );
 

@@ -61,8 +61,10 @@ const Filters = ({ data, filters, dispatch }) => {
     startDateF,
     endDateF,
     startTime,
-    durationDisplay,
     endTime,
+    durationDisplay,
+    currentStartTime,
+    currentEndTime,
   } = filters;
   const { members } = data;
 
@@ -70,6 +72,21 @@ const Filters = ({ data, filters, dispatch }) => {
   const areActions = events.indexOf('ACTIONS') > -1;
   return (
     <div className={classes.Container}>
+      <div className={classes.Filter}>
+        <h3>Time</h3>
+        <div className={classes.Options}>
+          <Timeline
+            dispatch={dispatch}
+            startTime={startTime}
+            endTime={endTime}
+            currentStartTime={currentStartTime}
+            currentEndTime={currentEndTime}
+            startDateF={startDateF}
+            endDateF={endDateF}
+            durationDisplay={durationDisplay}
+          />
+        </div>
+      </div>
       <div className={classes.Filter}>
         <h3>Users</h3>
         <div className={classes.Options}>
@@ -242,19 +259,6 @@ const Filters = ({ data, filters, dispatch }) => {
               })}
             </div>
           ) : null}
-        </div>
-      </div>
-      <div className={classes.Filter}>
-        <h3>Time</h3>
-        <div className={classes.Options}>
-          <Timeline
-            dispatch={dispatch}
-            startTime={startTime}
-            endTime={endTime}
-            startDateF={startDateF}
-            endDateF={endDateF}
-            durationDisplay={durationDisplay}
-          />
         </div>
       </div>
     </div>
