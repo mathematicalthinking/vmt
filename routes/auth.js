@@ -269,7 +269,7 @@ router.post('/resetPassword/user', async (req, res, next) => {
     }
 });
 
-router.get('/confirmEmail/:token', async(req, res, next) => {
+router.get('/confirmEmail/confirm/:token', async(req, res, next) => {
   try {
     let results = await ssoService.confirmEmail(req.params.token);
 
@@ -282,7 +282,7 @@ router.get('/confirmEmail/:token', async(req, res, next) => {
 
 router.get('/confirmEmail/resend', async(req, res, next) => {
   try {
-    let reqUser = userAuth.getUser(req);
+    let reqUser = getUser(req);
 
     if (!reqUser) {
       return errors.sendError.InvalidCredentialsError(null, res);
