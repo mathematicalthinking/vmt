@@ -91,13 +91,13 @@ const Chart = ({ state }) => {
             # of events
           </text>
           <text
-            className={classes.chartDate}
+            className={classes.ChartDate}
             transform={`translate(${0}, ${height + 40})`}
           >
             {startDateF}
           </text>
           <text
-            className={classes.chartDate}
+            className={classes.ChartDate}
             transform={`translate(${width - 65}, ${height + 40})`}
           >
             {endDateF}

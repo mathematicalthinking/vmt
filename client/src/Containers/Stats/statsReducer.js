@@ -12,6 +12,7 @@ export const initialState = {
   actions: [],
   lines: [],
   data: [],
+  filteredData: [],
   timeScale: null,
   min: 0,
   maxY: 0,
@@ -35,7 +36,7 @@ export default (state = initialState, action) => {
       const start = data[0].timestamp;
       const end = data[data.length - 1].timestamp;
       const rawDuration = end - start;
-      const { lines, timeScale, units } = processData(
+      const { filteredData, lines, timeScale, units } = processData(
         data,
         { users, events },
         { start, end }
@@ -49,6 +50,7 @@ export default (state = initialState, action) => {
         units,
         maxY,
         data,
+        filteredData,
         rawDuration,
         durationDisplay,
         startDateF: moment.unix(start / 1000).format(dateFormatMap[units]),
@@ -79,7 +81,7 @@ export default (state = initialState, action) => {
           actions = [];
         }
       }
-      const { lines } = processData(
+      const { lines, filteredData } = processData(
         data,
         {
           users,
@@ -95,6 +97,7 @@ export default (state = initialState, action) => {
         users,
         events,
         messages,
+        filteredData,
         actions,
         [filterType]: updatedFiltersArr,
         lines,
@@ -130,7 +133,7 @@ export default (state = initialState, action) => {
         newStartTime = startTime;
         newEndTime = endTime;
       }
-      const { lines, timeScale, units, start, end } = processData(
+      const { filteredData, lines, timeScale, units, start, end } = processData(
         data,
         {
           users,
@@ -158,8 +161,9 @@ export default (state = initialState, action) => {
         lines,
         units,
         durationDisplay,
-        maxY: newMaxY,
         timeScale,
+        filteredData,
+        maxY: newMaxY,
         currentStartTime: parseInt(start, 10),
         currentEndTime: parseInt(end, 10),
         startDateF: moment

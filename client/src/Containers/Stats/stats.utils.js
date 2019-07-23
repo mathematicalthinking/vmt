@@ -5,25 +5,17 @@ export const processData = (
   { users, events, messages, actions },
   { start, end }
 ) => {
-  // console.log({ start, end });
   const timeFilteredData = data.filter((d, i) => {
-    // if (d.timestamp >= start) {
-    //   console.log(d.timestamp, start, i);
-    // }
     return d.timestamp >= start && d.timestamp <= end;
   });
-  // const startTimestamp = timeFilteredData[0].timestamp;
-  // const endTimestamp = timeFilteredData[timeFilteredData.length - 1].timestamp;
-  // console.log({ timeFilteredData });
   const timeScale = calculateTimeScale(start, end);
-  // console.log({ timeScale });
   const filteredData = filterData(timeFilteredData, {
     users,
     events,
     messages,
     actions,
   });
-  // console.log({ filteredData });
+  console.log({ filteredData });
   const lines = filteredData.map(fd => ({
     data: buildLineData(fd.data, timeScale, start, end),
     color: fd.color,
@@ -33,6 +25,7 @@ export const processData = (
     timeScale,
     start,
     end,
+    filteredData: filteredData.reduce((acc, fd) => acc.concat(fd.data), []),
     units: timeUnitMap[timeScale],
   };
 };
@@ -52,7 +45,7 @@ const filterData = (
           let includeUserMessages;
           let includeControlMessages;
           let includeEntryExitMessages;
-          // this could be simplified if we were filtering for exact message type; enter and exist insteado enter_exit for example
+          // this could be simplified if we were filtering for exact message type; enter and exit instead enter_exit for example
           if (messages.length > 0 && d.messageType) {
             includeUserMessages = messages.indexOf('USER') > -1;
             includeEntryExitMessages = messages.indexOf('ENTER_EXIT') > -1;
@@ -272,6 +265,12 @@ export const lineColors = {
   // 'REDO',
 };
 
-export const convertToCSV = () => {
-  console.log('converting to csv');
-};
+// export const convertToCSV = (dataArr) => {
+//   console.log('converting to csv');
+//   const csvString = '';
+//   dataArr.forEach(d => {
+//     Object.keys(d).forEach(k => {
+
+//     })
+//   })
+// };
