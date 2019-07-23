@@ -1,6 +1,6 @@
 export const getRedirectUrl = () => {
   const env = process.env.NODE_ENV;
-  const isStaging = process.env.REACT_APP_STAGING === true;
+  const isStaging = process.env.REACT_APP_STAGING === 'true';
 
   if (isStaging) {
     return process.env.REACT_APP_SERVER_URL_STAGING;
@@ -15,7 +15,7 @@ export const getRedirectUrl = () => {
 
 export const getMtSsoUrl = () => {
   const env = process.env.NODE_ENV;
-  const isStaging = process.env.REACT_APP_STAGING === true;
+  const isStaging = process.env.REACT_APP_STAGING === 'true';
 
   if (isStaging) {
     return process.env.REACT_APP_MT_LOGIN_URL_STAGING;
