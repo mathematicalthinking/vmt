@@ -15,7 +15,6 @@ export const processData = (
     messages,
     actions,
   });
-  console.log({ filteredData });
   const lines = filteredData.map(fd => ({
     data: buildLineData(fd.data, timeScale, start, end),
     color: fd.color,
@@ -25,7 +24,17 @@ export const processData = (
     timeScale,
     start,
     end,
-    filteredData: filteredData.reduce((acc, fd) => acc.concat(fd.data), []),
+    filteredData: filteredData
+      .reduce((acc, fd) => {
+        const fdWithColor = fd.data.map(d => {
+          if (fd.color) {
+            d.filterColor = fd.color;
+          }
+          return d;
+        });
+        return acc.concat(fdWithColor);
+      }, [])
+      .sort((a, b) => a.timestamp - b.timestamp),
     units: timeUnitMap[timeScale],
   };
 };

@@ -31,11 +31,14 @@ export const initialState = {
 export default (state = initialState, action) => {
   switch (action.type) {
     case 'GENERATE_DATA': {
-      const { data } = action;
+      let { data } = action;
       const { users, events } = state;
       const start = data[0].timestamp;
       const end = data[data.length - 1].timestamp;
       const rawDuration = end - start;
+      data = data.filter(d => !d.isMultiPart);
+      console.log({ data });
+
       const { filteredData, lines, timeScale, units } = processData(
         data,
         { users, events },

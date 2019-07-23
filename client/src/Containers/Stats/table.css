@@ -16,9 +16,10 @@ table {
 }
 th,
 td {
-  border: 1px solid #ddd;
-  padding: 8px 16px;
+  border: 1px solid #999 !important;
+  padding: 6px !important;
 }
+
 th {
-  background: #eee;
+  background: white;
 }

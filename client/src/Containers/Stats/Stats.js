@@ -16,6 +16,7 @@ const Stats = ({ data, populateRoom }) => {
   const debounceResize = useCallback(debounce(() => setResizing(false), 1000));
   let chart;
   const { inChartView, filteredData } = state;
+  console.log({ filteredData });
   if (data.log && !isResizing && inChartView) {
     chart = <Chart state={state} />;
   } else if (data.log && !isResizing) {

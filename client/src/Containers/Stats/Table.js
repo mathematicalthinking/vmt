@@ -19,7 +19,13 @@ const Table = ({ data }) => {
         </thead>
         <tbody>
           {data.map(d => (
-            <tr key={d._id} style={{ background: d.color }}>
+            <tr
+              key={d._id}
+              style={{
+                background: `${d.filterColor}80` || d.color,
+                border: `2px solid ${d.filterColor || d.color}`,
+              }}
+            >
               <td>
                 {moment.unix(d.timestamp / 1000).format(dateFormatMap.all)}
               </td>
