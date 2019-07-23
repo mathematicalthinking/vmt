@@ -19,12 +19,12 @@ const InfoBox = ({ title, children, icon, rightIcons }) => {
 InfoBox.propTypes = {
   title: PropTypes.string.isRequired,
   icon: PropTypes.element,
-  rightIcons: PropTypes.arrayOf(PropTypes.element),
+  rightIcons: PropTypes.element,
   children: PropTypes.element.isRequired,
 };
 
 InfoBox.defaultProps = {
   icon: null,
-  rightIcons: [],
+  rightIcons: null,
 };
 export default InfoBox;

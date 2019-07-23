@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useReducer, useCallback } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useReducer,
+  useCallback,
+  Fragment,
+} from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import Chart from './Chart';
@@ -9,6 +15,7 @@ import { exportCSV } from './stats.utils';
 import Filters from './Filters';
 import Loading from '../../Components/Loading/Loading';
 import Button from '../../Components/UI/Button/Button';
+import ToolTip from '../../Components/ToolTip/ToolTip';
 import InfoBox from '../../Components/InfoBox/InfoBox';
 
 const Stats = ({ data, populateRoom }) => {
@@ -57,26 +64,30 @@ const Stats = ({ data, populateRoom }) => {
           )
         }
         rightIcons={
-          <div>
-            <Button
-              theme="None"
-              key="1"
-              click={() => dispatch({ type: 'TOGGLE_CHART_VIEW' })}
-            >
-              {inChartView ? (
-                <i className="fas fa-table" />
-              ) : (
-                <i className="fas fa-chart-line" />
-              )}
-            </Button>
-            <Button
-              theme="None"
-              key="2"
-              click={() => exportCSV(filteredData, `${data.name}_csv`)}
-            >
-              <i className="fas fa-download" />
-            </Button>
-          </div>
+          <Fragment>
+            <ToolTip text={inChartView ? 'View table' : 'View line graph'}>
+              <Button
+                theme="None"
+                key="1"
+                click={() => dispatch({ type: 'TOGGLE_CHART_VIEW' })}
+              >
+                {inChartView ? (
+                  <i className="fas fa-table" />
+                ) : (
+                  <i className="fas fa-chart-line" />
+                )}
+              </Button>
+            </ToolTip>
+            <ToolTip text="download csv">
+              <Button
+                theme="None"
+                key="2"
+                click={() => exportCSV(filteredData, `${data.name}_csv`)}
+              >
+                <i className="fas fa-download" />
+              </Button>
+            </ToolTip>
+          </Fragment>
         }
       >
         <div className={classes.ChartContainer}>{chart}</div>

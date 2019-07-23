@@ -17,7 +17,7 @@ const NavItem = ({ name, link, ntf }) => {
 };
 
 NavItem.propTypes = {
-  name: PropTypes.string.isRequired,
+  name: PropTypes.oneOfType(PropTypes.string, PropTypes.element).isRequired,
   link: PropTypes.string.isRequired,
   ntf: PropTypes.bool,
 };
