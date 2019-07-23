@@ -4,7 +4,7 @@ import classes from './table.css';
 
 const Table = ({ data }) => {
   return (
-    <div className={classes.Container}>
+    <div className={classes.Container} data-testid="table">
       <table>
         <thead>
           <tr>

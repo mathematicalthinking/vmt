@@ -50,7 +50,7 @@ const Chart = ({ state }) => {
   // console.log({ xAxis: d3.axisBottom(x), y, lines });
   // console.log(lines.length > 0, x.domain().length, y.domain().length);
   return (
-    <div className={classes.Graph} ref={graph}>
+    <div className={classes.Graph} ref={graph} data-testid="chart">
       {lines.length > 0 &&
       x.domain().length === 2 &&
       y.domain().length === 2 ? (

@@ -8,7 +8,7 @@ const Checkbox = props => {
   return (
     <div className={classes.checkbox} style={style}>
       <input
-        data-testid={`${children}-checkbox`}
+        data-testid={`${dataId}-checkbox`}
         type="checkbox"
         id={id || children}
         userid={dataId}

@@ -14,6 +14,7 @@ const Line = ({ data, color, leftMargin, x, y }) => {
   const linePath = line(data);
   return (
     <path
+      data-testid={`line-${color}`}
       className={styles.line}
       d={linePath}
       stroke={color}

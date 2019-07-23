@@ -262,6 +262,7 @@ export const exportCSV = (dataArr, fileName = 'vmt-csv-export') => {
 
   const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
+  console.log({ url });
   const link = document.createElement('a');
   if (link.download !== undefined) {
     // feature detection
@@ -269,9 +270,12 @@ export const exportCSV = (dataArr, fileName = 'vmt-csv-export') => {
     link.setAttribute('href', url);
     link.setAttribute('download', `${fileName}.csv`);
     link.style.visibility = 'hidden';
+    link.setAttribute('data-testid', 'downloadLink');
     document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    if (!window.Cypress) {
+      link.click();
+      document.body.removeChild(link);
+    }
   }
 };
 

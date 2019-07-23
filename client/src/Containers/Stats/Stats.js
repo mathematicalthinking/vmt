@@ -69,6 +69,7 @@ const Stats = ({ data, populateRoom }) => {
               <Button
                 theme="None"
                 key="1"
+                data-testid="toggle-chart"
                 click={() => dispatch({ type: 'TOGGLE_CHART_VIEW' })}
               >
                 {inChartView ? (
@@ -82,6 +83,7 @@ const Stats = ({ data, populateRoom }) => {
               <Button
                 theme="None"
                 key="2"
+                data-testid="download-csv"
                 click={() => exportCSV(filteredData, `${data.name}_csv`)}
               >
                 <i className="fas fa-download" />
