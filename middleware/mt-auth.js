@@ -18,7 +18,8 @@ const resolveAccessToken = async (token) => {
     if (typeof token !== 'string') {
       return null;
     }
-    return verifyJwt(token, secret);
+    let verifiedToken = await verifyJwt(token, secret);
+    return verifiedToken;
 
   }catch(err) {
     // invalid access token
@@ -37,7 +38,6 @@ const getMtUser = async (req, res) => {
     // access token verification failed request new access token with refresh token
 
     let currentRefreshToken = req.cookies[refreshCookie.name];
-
     if (currentRefreshToken === undefined) {
       return null;
     }
@@ -62,7 +62,7 @@ const getMtUser = async (req, res) => {
 };
 
 const prepareMtUser = (req, res, next) => {
-  return getMtUser(req)
+  return getMtUser(req, res)
     .then(user => {
       // user is null or verified payload from jwt token
       // set on request for later user to retrieve vmt user record
