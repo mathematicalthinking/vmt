@@ -5,6 +5,7 @@ import Chart from './Chart';
 import Table from './Table';
 import classes from './stats.css';
 import statsReducer, { initialState } from './statsReducer';
+import { exportCSV } from './stats.utils';
 import Filters from './Filters';
 import Loading from '../../Components/Loading/Loading';
 import Button from '../../Components/UI/Button/Button';
@@ -16,7 +17,6 @@ const Stats = ({ data, populateRoom }) => {
   const debounceResize = useCallback(debounce(() => setResizing(false), 1000));
   let chart;
   const { inChartView, filteredData } = state;
-  console.log({ filteredData });
   if (data.log && !isResizing && inChartView) {
     chart = <Chart state={state} />;
   } else if (data.log && !isResizing) {
@@ -56,26 +56,28 @@ const Stats = ({ data, populateRoom }) => {
             <i className="fas fa-table" />
           )
         }
-        rightIcons={[
-          <Button
-            theme="None"
-            key="1"
-            click={() => dispatch({ type: 'TOGGLE_CHART_VIEW' })}
-          >
-            {inChartView ? (
-              <i className="fas fa-table" />
-            ) : (
-              <i className="fas fa-chart-line" />
-            )}
-          </Button>,
-          <Button
-            theme="None"
-            key="2"
-            click={() => console.log('download csv')}
-          >
-            <i className="fas fa-download" />,
-          </Button>,
-        ]}
+        rightIcons={
+          <div>
+            <Button
+              theme="None"
+              key="1"
+              click={() => dispatch({ type: 'TOGGLE_CHART_VIEW' })}
+            >
+              {inChartView ? (
+                <i className="fas fa-table" />
+              ) : (
+                <i className="fas fa-chart-line" />
+              )}
+            </Button>
+            <Button
+              theme="None"
+              key="2"
+              click={() => exportCSV(filteredData, `${data.name}_csv`)}
+            >
+              <i className="fas fa-download" />
+            </Button>
+          </div>
+        }
       >
         <div className={classes.ChartContainer}>{chart}</div>
       </InfoBox>

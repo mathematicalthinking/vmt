@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 /* eslint-disable no-unused-vars */
 // @todo rename utils
 export const processData = (
@@ -27,10 +29,17 @@ export const processData = (
     filteredData: filteredData
       .reduce((acc, fd) => {
         const fdWithColor = fd.data.map(d => {
-          if (fd.color) {
-            d.filterColor = fd.color;
-          }
-          return d;
+          return {
+            time: moment.unix(d.timestamp / 1000).format(dateFormatMap.all),
+            user: d.user ? d.user.username || d.user : null,
+            'action/message': d.messageType
+              ? `message: ${d.messageType.toLowerCase()}`
+              : `action: ${d.eventType.toLowerCase()}`,
+            details: d.messageType ? d.text : d.description,
+            xml: d.event || d.definition,
+            color: fd.color,
+            _id: d._id,
+          };
         });
         return acc.concat(fdWithColor);
       }, [])
@@ -232,6 +241,40 @@ const buildLineData = (data, timeScale, start, end) => {
   return processedData;
 };
 
+export const exportCSV = (dataArr, fileName = 'vmt-csv-export') => {
+  const csvString = dataArr.reduce((acc, d, idx) => {
+    if (idx === 0) {
+      acc += Object.keys(d).join(',');
+      acc += ',\r\n';
+    }
+    Object.keys(d).forEach(k => {
+      if (d[k]) {
+        let parsedString = d[k].replace(',', `","`);
+        parsedString = parsedString.replace(/(\r\n|\n|\r)/gm, '');
+        acc += `${parsedString},`;
+      } else {
+        acc += ',';
+      }
+    });
+    acc += '\r\n';
+    return acc;
+  }, '');
+
+  const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  if (link.download !== undefined) {
+    // feature detection
+    // Browsers that support HTML5 download attribute
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${fileName}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+};
+
 export const timeUnitMap = {
   31536000: 'years',
   2592000: 'months',
@@ -273,13 +316,3 @@ export const lineColors = {
   // 'UNDO',
   // 'REDO',
 };
-
-// export const convertToCSV = (dataArr) => {
-//   console.log('converting to csv');
-//   const csvString = '';
-//   dataArr.forEach(d => {
-//     Object.keys(d).forEach(k => {
-
-//     })
-//   })
-// };

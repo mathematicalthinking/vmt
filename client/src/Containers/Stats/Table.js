@@ -1,7 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
-import { dateFormatMap } from './stats.utils';
 import classes from './table.css';
 
 const Table = ({ data }) => {
@@ -10,11 +8,9 @@ const Table = ({ data }) => {
       <table>
         <thead>
           <tr>
-            <th>Time</th>
-            <th>Action/Message</th>
-            <th>User</th>
-            <th>Details</th>
-            <th>xml</th>
+            {Object.keys(data[0]).map(k => (
+              <th key={k}>{k}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
@@ -22,17 +18,12 @@ const Table = ({ data }) => {
             <tr
               key={d._id}
               style={{
-                background: `${d.filterColor}80` || d.color,
-                border: `2px solid ${d.filterColor || d.color}`,
+                background: `${d.color}80`,
               }}
             >
-              <td>
-                {moment.unix(d.timestamp / 1000).format(dateFormatMap.all)}
-              </td>
-              <td>{d.messageType ? 'message' : 'action'}</td>
-              <td>{d.user ? d.user.username : 'heloo'}</td>
-              <td>{d.messageType ? d.text : d.description}</td>
-              <td>{d.event || d.eventArray}</td>
+              {Object.keys(d).map(k => {
+                return <td key={d._id + k}>{d[k]}</td>;
+              })}
             </tr>
           ))}
         </tbody>
