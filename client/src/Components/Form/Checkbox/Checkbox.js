@@ -6,9 +6,12 @@ import classes from './checkbox.css';
 const Checkbox = props => {
   const { children, dataId, id, checked, change, style } = props;
   return (
-    <div className={classes.checkbox} style={style}>
+    <div
+      className={classes.checkbox}
+      style={style}
+      data-testid={`${dataId}-checkbox`}
+    >
       <input
-        data-testid={`${dataId}-checkbox`}
         type="checkbox"
         id={id || children}
         userid={dataId}
