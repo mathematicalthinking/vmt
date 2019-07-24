@@ -2,6 +2,7 @@ const controllers = require('./controllers');
 const _ = require('lodash');
 const parseString = require('xml2js').parseString;
 const socketInit = require('./socketInit');
+const cookie = require('cookie');
 const ObjectId = require('mongoose').Types.ObjectId;
 
 // const io = require('socket.io')(server, {wsEngine: 'ws'});
@@ -9,15 +10,19 @@ module.exports = function() {
   const io = socketInit.io;
 
   io.use((socket, next) => {
+    // const cookief = socket.handshake.headers.cookie;
+    // console.log(cookief);
+    // const cookies = cookie.parse(cookief);
+    // console.log(cookies);
+    // @todo middleware after SSO is done
+
     next();
-    // console.log("in the middle ware");
-    // console.log(socket.request);
-    // @TODO Authentication
-    // look here https://stackoverflow.com/questions/13095418/how-to-use-passport-with-express-and-socket-io
   });
 
   io.sockets.on('connection', socket => {
     // console.log(socket.getEventNames())
+    // if the socket has a jwt cookie find the user and update their socket
+    // should we try to detect if the socket is already associated with a user...if so we need to update users on socket disconnect and remove their socket id
 
     socket.on('JOIN_TEMP', async (data, callback) => {
       socket.join(data.roomId, async () => {
@@ -87,7 +92,7 @@ module.exports = function() {
       });
     });
 
-    socket.on('JOIN', async (data, callback) => {
+    socket.on('JOIN', async (data, cb) => {
       socket.user_id = data.userId; // store the user id on the socket so we can tell who comes and who goes
       socket.username = data.username;
       let promises = [];
@@ -116,10 +121,10 @@ module.exports = function() {
             currentMembers: results[1].currentMembers,
             message,
           });
-          callback({ room: results[1], message, user }, null);
+          cb({ room: results[1], message, user }, null);
         } catch (err) {
-          console.log('ERROR: ', err);
-          return callback(null, err);
+          console.log('ERROR JOINING ROOM for user: ', data.userId);
+          return cb(null, err);
         }
       });
     });
@@ -138,19 +143,18 @@ module.exports = function() {
       }
     });
 
-    socket.on('disconnect', () => {
-      console.log('socket disconnect');
-    });
+    socket.on('disconnect', () => {});
 
-    socket.on('SYNC_SOCKET', (data, cb) => {
-      let { userId, socketId } = data;
-      if (!userId) {
+    socket.on('SYNC_SOCKET', (_id, cb) => {
+      if (!_id) {
+        console.log('unknown user connected: ', data);
+        cb(null, 'NO USER');
         return;
       }
       controllers.user
-        .put(userId, { socketId: socketId })
+        .put(_id, { socketId: socket.id })
         .then(user => {
-          cb('User socketId updated', null);
+          cb(`User socketId updated to ${socket.id}`, null);
         })
         .catch(err => cb(null, err));
     });
@@ -200,17 +204,16 @@ module.exports = function() {
     });
 
     socket.on('SEND_EVENT', async data => {
-      console.log('event received: ', data.eventType);
-      socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data);
       let xmlObj = '';
-      if (data.xml && data.eventType !== 'CHANGE_PERSPECTIVE') {
-        xmlObj = await parseXML(xml); // @TODO We should do this parsing on the backend yeah? we only need this for to build the description which we only need in the replayer anyway
-      }
+      // if (data.xml && data.eventType !== 'CHANGE_PERSPECTIVE') {
+      //   xmlObj = await parseXML(xml); // @TODO We should do this parsing on the backend yeah? we only need this for to build the description which we only need in the replayer anyway
+      // }
       try {
+        socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data);
         await controllers.events.post(data);
         // data.currentState = currentState;
       } catch (err) {
-        console.log('err 2: ', err);
+        console.log('ERROR SENDING EVENT: ', err);
       }
     });
 
@@ -281,6 +284,8 @@ module.exports = function() {
           }
         })
         .catch(err => {
+          console.log('ERROR LEAVING ROOM ', room, ' user: ', socket.user._id);
+          console.log('socketid: ', socket.id);
           if (cb) cb(null, err);
         });
     };
