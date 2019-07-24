@@ -29,9 +29,14 @@ class SocketProvider extends Component {
   componentDidMount() {
     const { user, connectClearError, connectGetUser } = this.props;
     // setTimeout(() => this.setState({ showNtfMessage: true }), 2000);
+    const url = window.location.href;
+    const isForConfirmEmail = url.includes('confirmEmail');
+
     if (user.loggedIn) {
       connectClearError(); // get rid of any lingering errors in the store from their last session
-      connectGetUser(user._id);
+      if (!isForConfirmEmail) {
+        connectGetUser(user._id);
+      }
       this.syncSocket();
       this.initializeListeners();
     }
@@ -200,6 +205,7 @@ SocketProvider.propTypes = {
   // connectAddCourseMember: PropTypes.func.isRequired,
   connectUpdateUser: PropTypes.func.isRequired,
   connectClearError: PropTypes.func.isRequired,
+  location: PropTypes.shape({}).isRequired,
 };
 
 const mapStateToProps = state => {
