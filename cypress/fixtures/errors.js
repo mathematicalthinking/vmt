@@ -17,6 +17,7 @@ module.exports = {
     invalidPassword: 'Invalid password',
   },
   confirmEmail: {
-    invalidToken: 'Confirm email token is invalid or has expired.'
+    invalidToken: 'Confirm email token is invalid',
+    expiredToken: 'Confirm email token is expired',
   },
 };

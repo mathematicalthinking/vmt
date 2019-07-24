@@ -29,7 +29,7 @@ describe('Confirming Email', function() {
     describe('While not logged in', function() {
       it('should display error message', function() {
         cy.visit(url);
-        cy.contains(errors.invalidToken);
+        cy.contains(errors.expiredToken);
       });
 
       it ('should not display resend email button', function() {
@@ -44,8 +44,12 @@ describe('Confirming Email', function() {
         cy.get('input[name=password]').type(user.password);
         cy.get('button').click();
         cy.url().should('include','/unconfirmed');
+        // not sure why we have to wait here
+        // not recognizing that we are logged in otherwise
+        cy.wait(1000);
         cy.visit(url);
-        cy.contains(errors.invalidToken);
+        cy.url().should('include', '/confirmEmail')
+        cy.contains(errors.expiredToken);
       });
 
       it ('should display resend email button', function() {
@@ -65,11 +69,31 @@ describe('Confirming Email', function() {
 
   describe('Valid Token', function() {
     let url = `/confirmEmail/${userLiveToken.token}`;
-
-    it('should display success message', function() {
-      cy.visit(url);
-      cy.contains(successMsg);
+    let user = userLiveToken;
+    describe('While not logged in', function() {
+      it('should display success message', function() {
+        cy.visit(url);
+        cy.contains(successMsg);
+      });
     });
+
+    describe('While logged in', function() {
+      before(function() {
+        cy.task('restoreAll');
+      });
+
+      it('should redirect to myVMT', function() {
+        cy.visit('/login');
+        cy.get('input[name=username]').type(user.username);
+        cy.get('input[name=password]').type(user.password);
+        cy.get('button').click();
+        cy.url().should('include', '/unconfirmed')
+        cy.visit(url);
+        cy.url().should('include', '/myVMT/rooms');
+        cy.logout();
+      });
+    });
+
   });
 
   describe('Logging in with unconfirmed email', function() {
