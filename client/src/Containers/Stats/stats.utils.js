@@ -29,12 +29,17 @@ export const processData = (
     filteredData: filteredData
       .reduce((acc, fd) => {
         const fdWithColor = fd.data.map(d => {
+          console.log({ d });
           return {
             time: moment.unix(d.timestamp / 1000).format(dateFormatMap.all),
             user: d.user ? d.user.username || d.user : null,
             'action/message': d.messageType
               ? `message: ${d.messageType.toLowerCase()}`
-              : `action: ${d.eventType.toLowerCase()}`,
+              : `action: ${
+                  d.eventType
+                    ? d.eventType.toLowerCase()
+                    : 'generic desmos event'
+                }`,
             details: d.messageType ? d.text : d.description,
             xml: d.event || d.definition,
             color: fd.color,

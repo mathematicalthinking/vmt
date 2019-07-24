@@ -10,9 +10,9 @@ module.exports = function() {
   const io = socketInit.io;
 
   io.use((socket, next) => {
-    const cookief = socket.handshake.headers.cookie;
+    // const cookief = socket.handshake.headers.cookie;
     // console.log(cookief);
-    const cookies = cookie.parse(cookief);
+    // const cookies = cookie.parse(cookief);
     // console.log(cookies);
     // @todo middleware after SSO is done
 
