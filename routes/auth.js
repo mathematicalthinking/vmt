@@ -23,6 +23,8 @@ const Room = require('../models/Room');
 
 const ssoService = require('../services/sso');
 
+const { isNil } = require('lodash');
+
 router.post('/login', async (req, res, next) => {
   try {
     let { message, accessToken, refreshToken } = await ssoService.login(req.body);
@@ -272,7 +274,12 @@ router.post('/resetPassword/user', async (req, res, next) => {
 router.get('/confirmEmail/confirm/:token', async(req, res, next) => {
   try {
     let results = await ssoService.confirmEmail(req.params.token);
+    let isNotLoggedIn = isNil(getUser(req));
 
+    // front end only needs updated user if user was already logged in
+    if (isNotLoggedIn) {
+      delete results.user;
+    }
     return res.json(results);
 }catch(err) {
   console.log('err conf em: ', err.message);
@@ -304,8 +311,8 @@ router.put('/sso/user/:id', async(req, res, next) => {
      authToken,
      process.env.MT_USER_JWT_SECRET
    );
-   await User.findByIdAndUpdate(req.params.id, {$set: req.body}, {new: true});
-   return res.json({isSuccess: true})
+   let vmtUser = await User.findByIdAndUpdate(req.params.id, {$set: req.body}, {new: true});
+   return res.json(vmtUser)
   }catch(err) {
     errors.handleError(err, res);
   }
