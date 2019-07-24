@@ -84,7 +84,6 @@ class SocketProvider extends Component {
         console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
         return;
       }
-      console.log(res);
       connectUpdateUser({ connected: true });
       this.initializeListeners();
     });
@@ -164,7 +163,6 @@ class SocketProvider extends Component {
     });
 
     socket.on('reconnect', () => {
-      console.log('reconnected');
       this.syncSocket();
       connectGetUser(user._id);
     });
