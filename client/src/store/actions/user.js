@@ -335,15 +335,48 @@ export const confirmEmail = token => {
     return AUTH.confirmEmail(token)
       .then(res => {
         const { isValid, info } = res.data;
-        if (isValid) {
-          dispatch(updateUser({ isEmailConfirmed: true }));
-          dispatch(loading.confirmEmailSuccess());
-        } else {
+        const userData = res.data.user;
+
+        if (!isValid) {
           dispatch(loading.fail(info));
+        } else {
+          // user object will be sent back if user was logged in when the request was made
+          if (userData) {
+            let courses;
+            let rooms;
+            if (userData.courses.length > 0) {
+              const coursesWithRoles = userData.courses.map(course =>
+                addUserRoleToResource(course, userData._id)
+              );
+              courses = normalize(coursesWithRoles);
+              // const activities = normalize(userData.activities)
+              dispatch(gotCourses(courses));
+            }
+            if (userData.rooms.length > 0) {
+              const roomsWithRoles = userData.rooms.map(room =>
+                addUserRoleToResource(room, userData._id)
+              );
+              rooms = normalize(roomsWithRoles);
+              dispatch(gotRooms(rooms));
+            }
+
+            const activities = normalize(userData.activities);
+            dispatch(gotActivities(activities));
+
+            const user = {
+              ...userData,
+              courses: courses ? courses.allIds : [],
+              rooms: rooms ? rooms.allIds : [],
+              activities: activities ? activities.allIds : [],
+            };
+            dispatch(gotUser(user));
+          }
+
+          dispatch(loading.confirmEmailSuccess());
         }
       })
       .catch(err => {
-        dispatch(loading.fail(err.response.data.errorMessage));
+        dispatch(loading.fail(err.message || err.errorMessage));
       });
   };
 };

@@ -74,6 +74,12 @@ const reducer = (state = initialState, action) => {
         loading: false,
         resetPasswordSuccess: true,
       };
+    case actionTypes.CONFIRM_EMAIL_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        confirmEmailSuccess: true,
+      };
 
     default:
       return { ...state };

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { confirmEmail, clearError } from '../../store/actions';
+import { updateUser, confirmEmail, clearError } from '../../store/actions';
 import SmallLoading from '../../Components/Loading/SmallLoading';
 import { Aux, Background, Button } from '../../Components';
 import classes from './confirmEmail.css';
@@ -11,50 +11,24 @@ import auth from '../../utils/auth';
 
 class ConfirmEmail extends Component {
   state = {
-    isVerifyingToken: false,
-    tokenErrorMessage: null,
-    isTokenValid: false,
     isResendingEmail: false,
     resendSuccessMsg: null,
     resendErrorMsg: null,
   };
 
   componentDidMount() {
-    const { match } = this.props;
+    const { match, connectConfirmEmail } = this.props;
     const { token } = match.params;
 
-    this.verifyToken(token);
+    connectConfirmEmail(token);
   }
 
-  verifyToken = token => {
-    this.setState({
-      isVerifyingToken: true,
-    });
-
-    auth
-      .confirmEmail(token)
-      .then(res => {
-        const { isValid, info } = res.data;
-        if (isValid) {
-          this.setState({
-            isVerifyingToken: false,
-            isTokenValid: true,
-          });
-        } else {
-          this.setState({
-            isVerifyingToken: false,
-            tokenErrorMessage: info,
-            isTokenValid: false,
-          });
-        }
-      })
-      .catch(err => {
-        this.setState({
-          isVerifyingToken: false,
-          tokenErrorMessage: err.errorMessage || err.message,
-        });
-      });
-  };
+  componentWillUnmount() {
+    const { errorMessage, connectClearError } = this.props;
+    if (errorMessage) {
+      connectClearError();
+    }
+  }
 
   resendConfirmationEmail = () => {
     this.setState({
@@ -87,33 +61,43 @@ class ConfirmEmail extends Component {
   };
 
   render() {
+    const { isResendingEmail, resendSuccessMsg, resendErrorMsg } = this.state;
+
     const {
-      isVerifyingToken,
-      tokenErrorMessage,
-      isTokenValid,
-      isResendingEmail,
-      resendSuccessMsg,
-      resendErrorMsg,
-    } = this.state;
+      loggedIn,
+      isEmailConfirmed,
+      email,
+      loading,
+      errorMessage,
+      confirmEmailSuccess,
+    } = this.props;
 
-    const { loggedIn, isEmailConfirmed, email } = this.props;
-
-    if (loggedIn && (isEmailConfirmed || typeof email !== 'string')) {
+    // redirect if user's email has already been confirmed or they do not have an email
+    if (loggedIn && (isEmailConfirmed || email.length === 0)) {
       return <Redirect to="/myVMT/rooms" />;
     }
 
-    if (isTokenValid) {
+    if (confirmEmailSuccess) {
       return (
         <Aux>
           <Background />
           <div className={classes.Main}>
             <div>Your email has been successfully confirmed!</div>
           </div>
+          {loggedIn ? null : (
+            <Link
+              data-testid="confirm-link-login"
+              className={classes.Link}
+              to="/login"
+            >
+              Login now{' '}
+            </Link>
+          )}
         </Aux>
       );
     }
 
-    if (isVerifyingToken) {
+    if (loading) {
       return (
         <Aux>
           <Background />
@@ -126,7 +110,7 @@ class ConfirmEmail extends Component {
       <Aux>
         <Background />
         <div className={classes.Main}>
-          <div>{tokenErrorMessage}</div>
+          <div>{errorMessage}</div>
           {loggedIn ? (
             <Button
               data-testid="resend-btn"
@@ -135,7 +119,15 @@ class ConfirmEmail extends Component {
             >
               Resend Confirmation Email
             </Button>
-          ) : null}
+          ) : (
+            <Link
+              data-testid="confirm-link-login"
+              className={classes.Link}
+              to="/login"
+            >
+              Login now{' '}
+            </Link>
+          )}
           {isResendingEmail ? (
             <SmallLoading />
           ) : (
@@ -152,11 +144,19 @@ ConfirmEmail.propTypes = {
   loggedIn: PropTypes.bool.isRequired,
   isEmailConfirmed: PropTypes.bool,
   email: PropTypes.string,
+  errorMessage: PropTypes.string,
+  loading: PropTypes.bool,
+  connectConfirmEmail: PropTypes.func.isRequired,
+  confirmEmailSuccess: PropTypes.bool,
+  connectClearError: PropTypes.func.isRequired,
 };
 
 ConfirmEmail.defaultProps = {
   isEmailConfirmed: false,
   email: null,
+  errorMessage: null,
+  loading: false,
+  confirmEmailSuccess: false,
 };
 
 const mapStateToProps = store => {
@@ -166,10 +166,15 @@ const mapStateToProps = store => {
     loading: store.loading.loading,
     isEmailConfirmed: store.user.isEmailConfirmed,
     email: store.user.email,
+    confirmEmailSuccess: store.loading.confirmEmailSuccess,
   };
 };
 
 export default connect(
   mapStateToProps,
-  { connectConfirmEmail: confirmEmail, connectClearError: clearError }
+  {
+    connectUpdateUser: updateUser,
+    connectConfirmEmail: confirmEmail,
+    connectClearError: clearError,
+  }
 )(ConfirmEmail);
