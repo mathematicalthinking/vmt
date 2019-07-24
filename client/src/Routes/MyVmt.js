@@ -74,7 +74,7 @@ class MyVmt extends Component {
     const { email, isEmailConfirmed } = user;
 
     const doRedirectToUnconfirmed =
-      loggedIn && typeof email === 'string' && isEmailConfirmed === false;
+      loggedIn && email.length > 0 && isEmailConfirmed === false;
     return (
       <ErrorBoundary>
         <Navbar user={user} />
