@@ -205,3 +205,11 @@
 .Danger:active {
   background: #ec4545;
 }
+
+.None {
+  border: none;
+  background: inherit;
+  color: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}

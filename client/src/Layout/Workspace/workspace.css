@@ -30,6 +30,7 @@
   padding: 0 20px;
   padding-top: calc(navbarHeight / 2);
   background: #f8f8f8;
+  overflow: hidden;
   /* overflow-y: hidden; */
 }
 
@@ -119,7 +120,7 @@
   flex: 1 0 auto;
   /* width: 75%; */
   display: flex;
-  width: 80%;
+  /* width: 80%; */
   flex-direction: column;
   flex-wrap: nowrap;
   justify-content: flex-start;
@@ -142,6 +143,7 @@
   /* height of tab should save this as a var so we just have to update it in one place */
   margin-top: 35px;
   width: 20%;
+  min-width: 175px;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -156,7 +158,8 @@
   justify-content: center; */
   /* overflow: visible !important; */
   order: 1;
-  flex: 1 0 auto;
+  border: 1px solid red;
+  flex: 1 1 auto;
   box-shadow: lightestShadow;
   /* border: 1px solid blue; */
   height: 100%;
@@ -210,6 +213,7 @@
   flex: 1 0 20%;
   /* Will overflow flex container without height set */
   height: 30px;
+  margin-bottom: 20px;
   /* min-height: 100px; */
 }
 

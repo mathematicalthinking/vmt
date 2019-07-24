@@ -1,0 +1,110 @@
+:import('../../colors.css') {
+  gridBlue: gridBlue;
+  blue: blue;
+  blueHover: blueHover;
+  lightBlue: lightBlue;
+  darkBlue: darkBlue;
+}
+
+.Container {
+  display: flex;
+  flex-flow: column;
+  padding: 4px;
+  /* border: 1px solid red; */
+  /* border: 1px solid #999;
+  border-radius: 4px; */
+}
+
+.ChartContainer {
+  display: flex;
+  min-height: 400px;
+}
+
+.ChartContainer > * {
+  margin: auto;
+}
+
+.Graph {
+  width: 100%;
+  height: 42vh;
+  display: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.ChartDate {
+  font-size: 11px;
+}
+
+.svgContainer {
+  overflow: visible;
+}
+
+.line {
+  fill: transparent;
+  /* stroke: blue; */
+  stroke-width: 2px;
+  /* transform: translate(-100, -10); */
+  /* stroke-dasharray: 10000;
+  stroke-dashoffset: 10000; */
+  animation: dash 10s forwards;
+}
+
+.Filters {
+  display: flex;
+}
+
+.Col {
+  display: inline-block;
+  /* width: auto; */
+}
+
+.Filter {
+  /* border: 1px solid red; */
+  margin-bottom: 4px;
+}
+
+.Filter > h3 {
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.Options {
+  display: flex;
+}
+
+.UserOption {
+  display: flex;
+}
+
+.IndentedRow {
+  display: flex;
+  margin: 3px 0 0 20px;
+}
+
+.Checkbox {
+  display: flex;
+  width: auto;
+  justify-content: center;
+  align-items: center;
+  margin-right: 3px;
+  margin-bottom: 3px;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.ColCheckbox {
+  composes: Checkbox;
+  justify-content: flex-start;
+}
+/* @keyframes dash {
+  from {
+    stroke-dashoffset: 10000;
+    fill: transparent;
+  }
+  to {
+    stroke-dashoffset: 0;
+    fill: gridBlue;
+  }
+} */

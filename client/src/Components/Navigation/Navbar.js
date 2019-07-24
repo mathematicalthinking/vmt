@@ -15,7 +15,8 @@ const Navbar = ({ user, location }) => {
   if (
     location.pathname.indexOf('community') > -1 ||
     (location.pathname.indexOf('myVMT') > -1 &&
-      location.pathname.indexOf('workspace') === -1)
+      location.pathname.indexOf('workspace') === -1 &&
+      location.pathname.indexOf('explore') === -1)
   ) {
     styles = classes.Fixed;
   }

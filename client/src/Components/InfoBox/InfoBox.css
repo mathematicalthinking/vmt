@@ -16,6 +16,7 @@
 
 .Header {
   display: flex;
+  justify-content: space-between;
   font-weight: 600;
   font-size: 1.1em;
   color: #666;
@@ -25,9 +26,21 @@
   margin-bottom: 3px;
 }
 
-.Icon {
+.Left {
+  display: flex;
+}
+
+.Icon,
+.Right {
   margin: 0 8px;
   color: lightBlue;
+}
+
+.Right {
+  min-width: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .Content {

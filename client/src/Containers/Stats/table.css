@@ -1,0 +1,25 @@
+.Container {
+  /* max-height: 600px; */
+  overflow-y: auto;
+  height: 400px;
+  width: 100%;
+}
+
+.Container thead th {
+  position: sticky;
+  top: 0;
+}
+/* Just common table stuff. Really. */
+table {
+  width: 100%;
+  max-height: 400px;
+}
+th,
+td {
+  border: 1px solid #999 !important;
+  padding: 6px !important;
+}
+
+th {
+  background: white;
+}

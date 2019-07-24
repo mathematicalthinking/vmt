@@ -1,0 +1,91 @@
+:import('../../colors.css') {
+  gridBlue: gridBlue;
+  blue: blue;
+}
+
+.Container {
+  width: 100%;
+  display: flex;
+}
+
+.Timeline {
+  display: flex;
+  flex-flow: wrap;
+  /* justify-content: center; */
+  align-items: center;
+  /* margin: 10px 0 30px 0;
+  border: 1px solid gridBlue;
+  position: relative;
+  width: 90%;
+  height: 16px;
+  background: #eeeeee;
+  border: 2px solid #666; */
+}
+
+.Timeline > * {
+  margin-right: 10px;
+}
+
+.SliderContainer {
+  position: absolute;
+  border: 1px solid red;
+}
+
+.EndSlider {
+  composes: SliderContainer;
+  left: 0;
+}
+
+.Slider {
+  position: absolute;
+  border: 3px solid blue;
+  background-color: gridBlue;
+  box-shadow: lightestShadow;
+  left: -13px;
+  top: -7.5px;
+  height: 26px;
+  width: 26px;
+  border-radius: 50%;
+  z-index: 100;
+  cursor: pointer;
+}
+
+.Time {
+  top: 18px;
+  position: absolute;
+  width: auto;
+  white-space: nowrap;
+  background: #eee;
+  padding: 3px;
+  border: 1px solid #666;
+  color: #666;
+  border-radius: 3px;
+}
+
+.EndTime {
+  composes: Time;
+  right: 0;
+}
+
+.StartTime {
+  composes: Time;
+  right: 0;
+}
+
+.CurrentTimeline {
+  top: 1px;
+  bottom: 1px;
+  z-index: 1;
+  border-top: 3px solid blue;
+  border-bottom: 3px solid blue;
+  background: gridBlue;
+  position: absolute;
+}
+
+.Marker {
+  height: 10px;
+  width: 10px;
+  position: absolute;
+  z-index: 100;
+  background: red;
+}

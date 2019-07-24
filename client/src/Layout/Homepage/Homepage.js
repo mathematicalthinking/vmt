@@ -36,7 +36,7 @@ class Homepage extends PureComponent {
       const room = currentRooms.filter(rm => !prevRooms.includes(rm));
       if (room[0]._id && rooms[room[0]._id].tempRoom) {
         // THIS IS HACKY
-        history.push(`explore/${room[0]._id}`);
+        history.push(`myVMT/explore/${room[0]._id}`);
       }
     }
   }
@@ -72,9 +72,7 @@ class Homepage extends PureComponent {
     const { error } = this.state;
     return (
       <Aux>
-        <Background
-          bottomSpace={window.screen.availHeight < 1000 ? -10 : null}
-        />
+        <Background bottomSpace={null} />
         <div className={classes.Main}>
           <section className={classes.Top}>
             {error ? <div className={classes.Error}>{error}</div> : null}

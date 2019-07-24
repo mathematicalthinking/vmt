@@ -12,6 +12,7 @@ import {
   Replayer,
   Profile,
   ActivityWorkspace,
+  TempWorkspace,
 } from '../Containers';
 import { PrivateRoute, ErrorToast } from '../Components';
 import { Confirmation, FacilitatorInstructions } from '../Layout';
@@ -70,6 +71,7 @@ class MyVmt extends Component {
   render() {
     const { match, loggedIn, user, globalErrorMessage } = this.props;
     const { path } = match;
+    console.log('path: ', path);
     return (
       <ErrorBoundary>
         <Navbar user={user} />
@@ -86,6 +88,7 @@ class MyVmt extends Component {
               />
             );
           })}
+          <Route path={`${path}/explore/:id`} component={TempWorkspace} />
           <Route
             path="*"
             component={

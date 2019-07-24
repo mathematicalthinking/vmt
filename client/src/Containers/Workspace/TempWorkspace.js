@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -107,7 +108,7 @@ class TempWorkspace extends Component {
       firstEntry,
       username: roomUsername,
       tempRoom: true,
-      roomName: `temporary room ${id.slice(id.length - 5, id.length - 1)}...`,
+      roomName: `temporary room ...${id.slice(id.length - 5, id.length)}`,
       roomId: id,
       color: COLOR_MAP[room.members.length || 0],
       tabId: room.tabs[0]._id,

@@ -11,7 +11,8 @@
     "window": true,
     "document": true,
     "screen": true,
-    "fetch": true
+    "fetch": true,
+    "Blob": true
   },
   "rules": {
     "react/jsx-filename-extension": 0,

@@ -1,7 +1,6 @@
 /* eslint-disable react/no-did-update-set-state */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-// import moment from 'moment'
 import { connect } from 'react-redux';
 import {
   DashboardLayout,
@@ -10,6 +9,7 @@ import {
   RoomSettings,
 } from '../Layout/Dashboard';
 import Members from './Members/Members';
+import Stats from './Stats/Stats';
 import getUserNotifications from '../utils/notifications';
 import {
   joinWithCode,
@@ -34,8 +34,7 @@ import {
   Error,
 } from '../Components';
 import Access from './Access';
-// import PublicAccessModal from '../Components/UI/Modal/PublicAccess'
-// import Participants from './Participants/Participants';
+
 class Room extends Component {
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
   constructor(props) {
@@ -44,7 +43,12 @@ class Room extends Component {
     this.state = {
       // member: false,
       guestMode: true,
-      tabs: [{ name: 'Details' }, { name: 'Members' }, { name: 'Settings' }],
+      tabs: [
+        { name: 'Details' },
+        { name: 'Members' },
+        { name: 'Stats' },
+        { name: 'Settings' },
+      ],
       firstView: false,
       editing: false,
       invited: false,
@@ -290,6 +294,7 @@ class Room extends Component {
       error,
       connectClearError,
       connectUpdateRoom,
+      connectPopulateRoom,
       course,
     } = this.props;
     const {
@@ -426,6 +431,8 @@ class Room extends Component {
             roomId={room._id}
           />
         );
+      } else if (resource === 'stats') {
+        mainContent = <Stats data={room} populateRoom={connectPopulateRoom} />;
       }
       return (
         <Aux>
@@ -607,7 +614,7 @@ class Room extends Component {
         username={user.username}
         privacySetting={room ? room.privacySetting : 'private'}
         owners={
-          room
+          room && room.members
             ? room.members
                 .filter(member => member.role.toLowerCase() === 'facilitator')
                 .map(member => member.user)

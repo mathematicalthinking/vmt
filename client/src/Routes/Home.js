@@ -8,7 +8,6 @@ import {
   Signup,
   Community,
   Logout,
-  TempWorkspace,
   Profile,
 } from '../Containers';
 import { Confirmation, About } from '../Layout';
@@ -46,7 +45,7 @@ class Home extends PureComponent {
           <Navbar fixed user={user} />
         ) : (
           <HomeNav
-            // scrollPosition={this.state.scrollPosition}
+            isDark={scrollPosition > 0.45}
             page={location.pathname}
             user={user}
           />
@@ -58,20 +57,14 @@ class Home extends PureComponent {
           }}
         >
           <Switch>
-            <Route
-              exact
-              path="/"
-              render={() => (
-                <Homepage scrollPosition={scrollPosition} {...this.props} />
-              )}
-            />
+            <Route exact path="/" render={() => <Homepage {...this.props} />} />
             {/* <Route path="/community/:resource/:action" component={Community} /> */}
             <Route path="/about" component={About} />
             <Route path="/community/:resource" component={Community} />
             <Route exact path="/logout" component={Logout} />
             <Route path="/login" component={Login} />
             <Route path="/signup" component={Signup} />
-            <Route path="/explore/:id" component={TempWorkspace} />
+
             <Route path="/confirmation" component={Confirmation} />
             <Route path="/profile" component={Profile} />
           </Switch>

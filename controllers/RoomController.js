@@ -128,6 +128,7 @@ module.exports = {
    */
   post: body => {
     return new Promise(async (resolve, reject) => {
+      console.log('creating new room!?')
       // Prepare the tabs if they exist
       let existingTabs;
       if (body.tabs) {

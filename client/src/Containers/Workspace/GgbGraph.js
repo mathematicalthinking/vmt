@@ -367,11 +367,15 @@ class GgbGraph extends Component {
   };
 
   updateDimensions = async () => {
-    // const { tabId } = this.props;
+    const { tabId } = this.props;
     if (this.graph.current && this.ggbApplet) {
       const { clientHeight, clientWidth } = this.graph.current.parentElement;
       this.ggbApplet.setSize(clientWidth, clientHeight);
       this.ggbApplet.recalculateEnvironments();
+      const appScalar = document.querySelector(`#ggb-element${tabId}A`)
+        .firstChild;
+
+      appScalar.style.width = clientWidth;
     }
   };
 
@@ -616,7 +620,7 @@ class GgbGraph extends Component {
    * @description listener for add events. First checks if this event was initiated
    * by the current user or by a socket event. If Initiated by a socket event we let the update happen,
    * If this was a user initiated event we first check if the user is able to make
-   * this addition and calls sendEvent() if they can. Else it undoes their change.
+   * this addition (i.e. are they in control?) and calls sendEvent() if they can. Else it undoes their change.
    * @param  {String} label - label of the point, segment, shape etc added
    */
 
@@ -1122,6 +1126,7 @@ class GgbGraph extends Component {
   render() {
     const { tabId, toggleControl, inControl } = this.props;
     const { showControlWarning, redo } = this.state;
+    console.log('rendered ggb graphg!');
     return (
       <Aux>
         <Script

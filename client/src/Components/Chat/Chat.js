@@ -163,12 +163,12 @@ class Chat extends Component {
   getRelativeCoords = target => {
     const { chatCoords, containerCoords, chatInputCoords } = this.state;
     const messageCoords = target.getBoundingClientRect(); // RENAME THIS ...THIS IS THE CHAT MESSAGE OR CHAT
-    const left = chatCoords.left - containerCoords.left + 10; // + 10 to account for margin
+    const left = chatCoords.left - containerCoords.left; // + 10 to account for margin
     let top = messageCoords.top - containerCoords.top;
     if (messageCoords.top > chatInputCoords.bottom) {
-      top = chatInputCoords.bottom - containerCoords.top - 10;
+      top = chatInputCoords.bottom - containerCoords.top - 37;
     } else if (messageCoords.bottom < containerCoords.top) {
-      top = chatCoords.top - containerCoords.top;
+      top = chatCoords.top - containerCoords.bottom + 10;
     }
     return { left, top };
   };
@@ -396,6 +396,7 @@ Chat.propTypes = {
   submit: PropTypes.func,
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   expanded: PropTypes.bool.isRequired,
+  // membersExpanded: PropTypes.bool.isRequired,
 };
 
 Chat.defaultProps = {
