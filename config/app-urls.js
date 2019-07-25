@@ -50,3 +50,20 @@ module.exports.getMtIssuerId = () => {
 
   return process.env.MT_SSO_JWT_ISSUER_ID_DEV;
 };
+
+module.exports.getEncUrl = () => {
+  let envName = process.env.NODE_ENV;
+
+  if (envName === 'production') {
+    return process.env.ENC_URL_PROD;
+  }
+
+  if (envName === 'staging') {
+    return process.env.ENC_URL_STAGING;
+  }
+
+  if (envName === 'test') {
+    return process.env.ENC_URL_TEST;
+  }
+  return process.env.ENC_URL_DEV;
+};
