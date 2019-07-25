@@ -42,7 +42,9 @@ describe('Workspace/replayer', function() {
       .children()
       .children()
       .should('have.length', 10);
+      cy.wait(3000);
     cy.get(':nth-child(5) > .toolbar_button > .gwt-Image').click();
+    cy.wait(3000);
     cy.getTestElement('awareness-desc')
       .contains('jl_picard selected the polygon tool')
       .should('be.visible');
