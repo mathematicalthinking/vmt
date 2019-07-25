@@ -147,7 +147,7 @@ module.exports = function() {
 
     socket.on('SYNC_SOCKET', (_id, cb) => {
       if (!_id) {
-        console.log('unknown user connected: ', data);
+        console.log('unknown user connected: ', socket.id);
         cb(null, 'NO USER');
         return;
       }

@@ -205,7 +205,6 @@ SocketProvider.propTypes = {
   // connectAddCourseMember: PropTypes.func.isRequired,
   connectUpdateUser: PropTypes.func.isRequired,
   connectClearError: PropTypes.func.isRequired,
-  location: PropTypes.shape({}).isRequired,
 };
 
 const mapStateToProps = state => {
