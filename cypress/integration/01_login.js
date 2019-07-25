@@ -22,7 +22,7 @@ describe('user signup/login', function() {
     cy.get('input[name=email]').type(user.email);
     cy.get('input[name=password]').type(user.password);
     cy.get('button').click();
-    cy.url().should('include', '/myVMT/rooms');
+    cy.url().should('include', '/unconfirmed');
     cy.logout();
   });
   it('logs in the user we just created', function() {
@@ -30,7 +30,7 @@ describe('user signup/login', function() {
     cy.get('input[name=username]').type(user.username);
     cy.get('input[name=password]').type(user.password);
     cy.get('button').click();
-    cy.url().should('include', '/myVMT/rooms');
+    cy.url().should('include', '/unconfirmed');
     cy.logout();
   });
   it('fails to sign up a user with the same username', function() {

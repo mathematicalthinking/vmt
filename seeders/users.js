@@ -71,7 +71,8 @@ module.exports = [
   "createdAt" : ISODate("2019-06-21T17:08:26.424Z"),
   "updatedAt" : ISODate("2019-06-21T17:08:26.667Z"),
   "__v" : 0,
-  "ssoId" : ObjectId("5d1a59d79c78ad48c0480c8e")
+  "ssoId" : ObjectId("5d1a59d79c78ad48c0480c8e"),
+  "isEmailConfirmed": true,
 },
 
 /* 3 */
@@ -97,7 +98,8 @@ module.exports = [
   "createdAt" : ISODate("2019-06-21T17:08:26.424Z"),
   "updatedAt" : ISODate("2019-06-21T17:08:26.424Z"),
   "__v" : 0,
-  "ssoId" : ObjectId("5d1a59d79c78ad48c0480c8d")
+  "ssoId" : ObjectId("5d1a59d79c78ad48c0480c8d"),
+  "isEmailConfirmed": true,
 },
 
 /* 4 */
@@ -123,7 +125,8 @@ module.exports = [
   "createdAt" : ISODate("2019-06-21T17:08:26.424Z"),
   "updatedAt" : ISODate("2019-06-21T17:08:26.424Z"),
   "__v" : 0,
-  "ssoId" : ObjectId("5d1a59d79c78ad48c0480c8f")
+  "ssoId" : ObjectId("5d1a59d79c78ad48c0480c8f"),
+  "isEmailConfirmed": true,
 },
 
 /* 5 */
@@ -147,7 +150,8 @@ module.exports = [
   "createdAt" : ISODate("2019-06-21T17:08:26.424Z"),
   "updatedAt" : ISODate("2019-06-21T17:08:26.424Z"),
   "__v" : 0,
-  "ssoId" : ObjectId("5d1a59d79c78ad48c0480c90")
+  "ssoId" : ObjectId("5d1a59d79c78ad48c0480c90"),
+  "isEmailConfirmed": true,
 },
 
 /* 6 */
@@ -173,7 +177,8 @@ module.exports = [
   "__v" : 0,
   "createdAt" : ISODate("2019-06-21T17:08:26.424Z"),
   "updatedAt" : ISODate("2019-06-21T17:08:26.615Z"),
-  "ssoId" : ObjectId("5d1a59d79c78ad48c0480c92")
+  "ssoId" : ObjectId("5d1a59d79c78ad48c0480c92"),
+  "isEmailConfirmed": false,
 },
 
 /* 7 */
@@ -199,7 +204,8 @@ module.exports = [
   "createdAt" : ISODate("2019-06-21T19:23:27.148Z"),
   "updatedAt" : ISODate("2019-06-21T19:24:01.126Z"),
   "__v" : 0,
-  "ssoId" : ObjectId("5d1a59d79c78ad48c0480c91")
+  "ssoId" : ObjectId("5d1a59d79c78ad48c0480c91"),
+  "isEmailConfirmed": false,
 },
 
 /* 8 */
