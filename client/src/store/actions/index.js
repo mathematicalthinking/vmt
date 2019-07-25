@@ -11,6 +11,9 @@ export {
   updateUserResource,
   logout,
   toggleJustLoggedIn,
+  forgotPassword,
+  resetPassword,
+  confirmEmail,
 } from './user';
 export {
   fail,
@@ -19,6 +22,9 @@ export {
   success,
   clearError,
   accessSuccess,
+  forgotPasswordSuccess,
+  resetPasswordSuccess,
+  confirmEmailSuccess,
 } from './loading';
 export {
   getRooms,

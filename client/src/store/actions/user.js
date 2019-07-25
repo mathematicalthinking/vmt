@@ -7,6 +7,11 @@ import { gotCourses } from './courses';
 import { gotRooms } from './rooms';
 import { gotActivities, addUserActivities } from './activities';
 
+import {
+  validateForgotPassword,
+  validateResetPassword,
+} from '../../utils/validators';
+
 export const gotUser = (user, temp) => {
   let loggedIn = true;
   if (temp) loggedIn = false;
@@ -168,25 +173,54 @@ export const login = (username, password) => {
 export const getUser = id => {
   return dispatch => {
     dispatch(loading.start());
-    API.getById('user', id)
+    const resolvedUser =
+      id === undefined ? AUTH.currentUser() : API.getById('user', id);
+    resolvedUser
       .then(res => {
-        const courses = normalize(res.data.result.courses);
-        dispatch(gotCourses(courses));
+        const currentUser = res.data.result;
 
-        const rooms = normalize(res.data.result.rooms);
-        dispatch(gotRooms(rooms));
+        if (res.data.errorMessage) {
+          dispatch(logout());
+          return dispatch(loading.fail(res.data.errorMessage));
+        }
+        let courses;
+        let rooms;
+        let activities;
 
-        const activities = normalize(res.data.result.activities);
-        dispatch(gotActivities(activities));
+        if (currentUser) {
+          if (currentUser.courses.length > 0) {
+            const coursesWithRoles = currentUser.courses.map(course =>
+              addUserRoleToResource(course, currentUser._id)
+            );
+            courses = normalize(coursesWithRoles);
+            // const activities = normalize(currentUser.activities)
+            dispatch(gotCourses(courses));
+          }
+          if (currentUser.rooms.length > 0) {
+            const roomsWithRoles = currentUser.rooms.map(room =>
+              addUserRoleToResource(room, currentUser._id)
+            );
+            rooms = normalize(roomsWithRoles);
+            dispatch(gotRooms(rooms));
+          }
 
-        const user = {
-          ...res.data.result,
-          courses: courses.allIds,
-          activities: activities.allIds,
-          rooms: rooms.allIds,
-        };
-        dispatch(gotUser(user));
-        dispatch(loading.success());
+          activities = normalize(currentUser.activities);
+          dispatch(gotActivities(activities));
+
+          const user = {
+            ...res.data.result,
+            courses: courses ? courses.allIds : [],
+            rooms: rooms ? rooms.allIds : [],
+            activities: activities ? activities.allIds : [],
+          };
+          dispatch(gotUser(user));
+        } else {
+          // no user is logged in
+          // can we check if user is still set to loggedIn in store?
+          dispatch(loggedOut());
+        }
+
+        return dispatch(loading.success());
       })
       .catch(err => {
         // if the session has expired logout
@@ -213,4 +247,136 @@ export const googleLogin = (username, password) => {
 
 export const clearError = () => {
   return { type: actionTypes.CLEAR_ERROR };
+};
+
+export const forgotPassword = (email, username) => {
+  return dispatch => {
+    dispatch(loading.start());
+
+    return validateForgotPassword(email, username).then(validationResults => {
+      const [validationErr, validatedBody] = validationResults;
+      if (validationErr) {
+        return dispatch(loading.fail(validationErr));
+      }
+      return AUTH.forgotPassword(validatedBody)
+        .then(res => {
+          const { isSuccess, info } = res.data;
+          if (isSuccess) {
+            dispatch(loading.forgotPasswordSuccess());
+          } else {
+            dispatch(loading.fail(info));
+          }
+        })
+        .catch(err => {
+          dispatch(loading.fail(err.response.data.errorMessage));
+        });
+    });
+  };
+};
+
+export const resetPassword = (password, confirmPassword, token) => {
+  return dispatch => {
+    dispatch(loading.start());
+
+    return validateResetPassword(password, confirmPassword, token).then(
+      validationResults => {
+        const [validationErr, validatedBody] = validationResults;
+        if (validationErr) {
+          return dispatch(loading.fail(validationErr));
+        }
+
+        return AUTH.resetPassword(validatedBody.password, validatedBody.token)
+          .then(res => {
+            const { message } = res.data;
+            if (message) {
+              dispatch(loading.fail(message));
+            } else {
+              let courses;
+              let rooms;
+              if (res.data.courses.length > 0) {
+                const coursesWithRoles = res.data.courses.map(course =>
+                  addUserRoleToResource(course, res.data._id)
+                );
+                courses = normalize(coursesWithRoles);
+                dispatch(gotCourses(courses));
+              }
+              if (res.data.rooms.length > 0) {
+                const roomsWithRoles = res.data.rooms.map(room =>
+                  addUserRoleToResource(room, res.data._id)
+                );
+                rooms = normalize(roomsWithRoles);
+                dispatch(gotRooms(rooms));
+              }
+
+              const activities = normalize(res.data.activities);
+              dispatch(gotActivities(activities));
+
+              const user = {
+                ...res.data,
+                courses: courses ? courses.allIds : [],
+                rooms: rooms ? rooms.allIds : [],
+                activities: activities ? activities.allIds : [],
+              };
+              dispatch(gotUser(user));
+              dispatch(loading.resetPasswordSuccess());
+            }
+          })
+          .catch(err => {
+            dispatch(loading.fail(err.response.data.errorMessage));
+          });
+      }
+    );
+  };
+};
+
+export const confirmEmail = token => {
+  return dispatch => {
+    dispatch(loading.start());
+    return AUTH.confirmEmail(token)
+      .then(res => {
+        const { isValid, info } = res.data;
+        const userData = res.data.user;
+
+        if (!isValid) {
+          dispatch(loading.fail(info));
+        } else {
+          // user object will be sent back if user was logged in when the request was made
+          if (userData) {
+            let courses;
+            let rooms;
+            if (userData.courses.length > 0) {
+              const coursesWithRoles = userData.courses.map(course =>
+                addUserRoleToResource(course, userData._id)
+              );
+              courses = normalize(coursesWithRoles);
+              // const activities = normalize(userData.activities)
+              dispatch(gotCourses(courses));
+            }
+            if (userData.rooms.length > 0) {
+              const roomsWithRoles = userData.rooms.map(room =>
+                addUserRoleToResource(room, userData._id)
+              );
+              rooms = normalize(roomsWithRoles);
+              dispatch(gotRooms(rooms));
+            }
+
+            const activities = normalize(userData.activities);
+            dispatch(gotActivities(activities));
+
+            const user = {
+              ...userData,
+              courses: courses ? courses.allIds : [],
+              rooms: rooms ? rooms.allIds : [],
+              activities: activities ? activities.allIds : [],
+            };
+            dispatch(gotUser(user));
+          }
+
+          dispatch(loading.confirmEmailSuccess());
+        }
+      })
+      .catch(err => {
+        dispatch(loading.fail(err.message || err.errorMessage));
+      });
+  };
 };

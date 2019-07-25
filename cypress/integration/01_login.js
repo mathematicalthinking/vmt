@@ -6,9 +6,10 @@ describe('user signup/login', function() {
   });
   beforeEach(function() {
     cy.window().then(win => {
-      // win.sessionStorage.clear();
-      // win.localStorage.clear();
-      // // cy.contains("Logout").click()
+      win.sessionStorage.clear();
+      win.localStorage.clear();
+      cy.clearCookies();
+      cy.visit('/');
     });
   });
   it('signs up a new user', function() {
@@ -21,7 +22,7 @@ describe('user signup/login', function() {
     cy.get('input[name=email]').type(user.email);
     cy.get('input[name=password]').type(user.password);
     cy.get('button').click();
-    cy.url().should('include', '/myVMT/rooms');
+    cy.url().should('include', '/unconfirmed');
     cy.logout();
   });
   it('logs in the user we just created', function() {
@@ -29,7 +30,7 @@ describe('user signup/login', function() {
     cy.get('input[name=username]').type(user.username);
     cy.get('input[name=password]').type(user.password);
     cy.get('button').click();
-    cy.url().should('include', '/myVMT/rooms');
+    cy.url().should('include', '/unconfirmed');
     cy.logout();
   });
   it('fails to sign up a user with the same username', function() {
@@ -41,7 +42,7 @@ describe('user signup/login', function() {
     cy.get('input[name=email]').type(user.email);
     cy.get('input[name=password]').type(user.password);
     cy.get('button').click();
-    cy.contains('That username is already taken.' || 'Unauthorized').should(
+    cy.contains('There already exists a user with that username' || 'Unauthorized').should(
       'exist'
     );
   });
@@ -50,7 +51,7 @@ describe('user signup/login', function() {
     cy.get('input[name=username]').type(user.username);
     cy.get('input[name=password]').type('incorrect password');
     cy.get('button').click();
-    cy.contains('The password you entered is incorrect').should('exist');
+    cy.contains('Incorrect password').should('exist');
   });
   it('fails to login with wrong username', function() {
     cy.contains('Login').click();
@@ -58,7 +59,7 @@ describe('user signup/login', function() {
     cy.get('input[name=password]').type(user.password);
     cy.get('button').click();
     cy.contains(
-      'That username does not exist. If you want to create an account go to Signup'
+      'Incorrect username'
     ).should('exist');
   });
 });

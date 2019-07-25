@@ -2,7 +2,11 @@ const user5 = require("../fixtures/user5");
 
 describe("Edit Resources", function() {
   before(function() {
-    cy.task("seedDB").then(() => cy.login(user5));
+    cy.task('restoreAll').then(() => cy.login(user5));
+  });
+
+  after(function() {
+    cy.logout();
   });
 
   it("successfully edits all fields of a room", function() {

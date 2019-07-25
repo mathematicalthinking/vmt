@@ -4,11 +4,16 @@ const room = require("../fixtures/room");
 
 xdescribe("show different views based on role", function() {
   before(function() {
-    cy.task("seedDB").then(() => {
+    cy.task('restoreAll').then(() => {
       cy.login(user2);
     });
     // cy.visit('/myVMT/courses')
   });
+
+  after(function() {
+    cy.logout();
+  });
+
   let fToggle = "View: Facilitator";
   let pToggle = "View: Participant";
   let toggleIcon = "i.fas.fa-sync";

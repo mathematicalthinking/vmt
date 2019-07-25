@@ -2,7 +2,11 @@ const Q = require('../fixtures/user7');
 
 describe('test admin privileges', function() {
   before(function() {
-    cy.task('seedDB').then(() => cy.login(Q));
+    cy.task('restoreAll').then(() => cy.login(Q));
+  });
+
+  after(function() {
+    cy.logout();
   });
 
   it('Q accesses a room he does not belong to', function() {
@@ -79,7 +83,7 @@ describe('test admin privileges', function() {
       .children()
       .should('have.length', 1);
     cy.getTestElement('member-search').type('picard');
-    cy.getTestElement('invite-member-jl-picard').click();
+    cy.getTestElement('invite-member-jl_picard').click();
     cy.getTestElement('admin-list')
       .children()
       .should('have.length', 2);

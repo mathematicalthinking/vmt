@@ -1,3 +1,5 @@
+const { isNonEmptyObject } = require('../middleware/utils/helpers');
+
 module.exports.sendError = {
   InternalError: function(err, res) {
     res.status(500).json({
@@ -34,4 +36,30 @@ module.exports.sendError = {
       errorMessage: err || "Invalid Content"
     });
   }
+};
+
+module.exports.handleError = (err, res) => {
+  let status;
+  let message;
+
+  let jwtErrorNames = ['TokenExpiredError', 'JsonWebTokenError', 'NotBeforeError'];
+
+
+  let isJwtError = typeof err.name === 'string' && jwtErrorNames.includes(err.name);
+  let isAxiosError = isNonEmptyObject(err.response);
+
+  if (isJwtError) {
+    status = 401;
+    message = 'Invalid or expired credentials';
+  } else if (isAxiosError) {
+    status = err.response.status || 500;
+    message = err.response.message || 'Internal Error';
+  } else {
+    status = 500;
+    message = 'Internal Error';
+  }
+
+  return res.status(status).json({
+    errorMessage: message
+  });
 };

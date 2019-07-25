@@ -5,19 +5,17 @@ const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const passport = require('passport');
-const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
 const mongoose = require('mongoose');
 require('dotenv').config();
 
 // REQUIRE FILES
-const configure = require('./config/passport');
+const mtAuth = require('./middleware/mt-auth');
 const api = require('./routes/api');
 const auth = require('./routes/auth');
 const desmos = require('./routes/desmos');
 const enc = require('./routes/enc');
 // const test = require('./routes/test');
+const cors = require('./middleware/cors');
 
 const app = express();
 console.log('NODE_ENV=', process.env.NODE_ENV);
@@ -38,7 +36,7 @@ if (process.env.NODE_ENV === 'dev') {
 
 console.log('mongoURI ', mongoURI);
 
-mongoose.connect(mongoURI, (err, res) => {
+mongoose.connect(mongoURI, { useNewUrlParser: true }, (err, res) => {
   if (err) {
     console.log('DB CONNECTION FAILED: ' + err);
   } else {
@@ -46,53 +44,17 @@ mongoose.connect(mongoURI, (err, res) => {
   }
 });
 
-app.use(
-  require('express-session')({
-    secret: 'my-secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      // secure: true,
-    },
-    store: new MongoStore({
-      mongooseConnection: mongoose.connection,
-      stringify: false,
-    }),
-  })
-);
-
 // MIDDLEWARE
 app.use(logger('dev'));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: false }));
 app.use(cookieParser());
+app.use(cors);
 
-// Add headers to bypass CORS issues -->
-// @TODO remove before going to production
-app.use(function(req, res, next) {
-  // Website you wish to allow to connect
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  // Request methods you wish to allow
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'GET, POST, OPTIONS, PUT, PATCH, DELETE'
-  );
-  // Request headers you wish to allow
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-Requested-With,content-type,Authorization'
-  );
-  // Set to true if you need the website to include cookies in the requests sent
-  // to the API (e.g. in case you use sessions)
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  // Pass to next layer of middleware
-  next();
-});
-
-// PASSPORT
-configure(passport); // SETUP STRATEGIES ./middleware/passport
-app.use(passport.initialize());
-app.use(passport.session());
+// Mathematical Thinking Auth middleware
+app.use(mtAuth.prep);
+app.use(mtAuth.prepareMtUser);
+app.use(mtAuth.prepareVmtUser);
 
 // CONNECT ROUTES
 app.use('/desmos', desmos);

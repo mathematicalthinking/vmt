@@ -60,6 +60,26 @@ const reducer = (state = initialState, action) => {
         updateKeys: action.keys,
         globalErrorMessage: 'The last update failed, please try again',
       };
+    case actionTypes.FORGOT_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        forgotPasswordSuccess: true,
+        successMessage:
+          'An email with further instructions has been sent to the email address on file',
+      };
+    case actionTypes.RESET_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        resetPasswordSuccess: true,
+      };
+    case actionTypes.CONFIRM_EMAIL_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        confirmEmailSuccess: true,
+      };
 
     default:
       return { ...state };

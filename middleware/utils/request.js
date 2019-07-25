@@ -1,29 +1,32 @@
-const _ = require("lodash");
-const models = require("../../models");
+const _ = require('lodash');
+const jwt = require('jsonwebtoken');
+const models = require('../../models');
+
+const { accessCookie, refreshCookie } = require('../../constants/sso');
 
 const resourceToModelMap = {
-  activities: "Activity",
-  courses: "Course",
-  events: "Event",
-  images: "Image",
-  messages: "Message",
-  rooms: "Room",
-  tabs: "Tab",
-  teams: "Team",
-  user: "User",
-  notifications: "Notification"
+  activities: 'Activity',
+  courses: 'Course',
+  events: 'Event',
+  images: 'Image',
+  messages: 'Message',
+  rooms: 'Room',
+  tabs: 'Tab',
+  teams: 'Team',
+  user: 'User',
+  notifications: 'Notification',
 };
 
 const getUser = req => {
-  return _.propertyOf(req)("user");
+  return _.propertyOf(req)('mt.auth.vmtUser');
 };
 
 const getResource = req => {
-  return _.propertyOf(req)("params.resource");
+  return _.propertyOf(req)('params.resource');
 };
 
 const getParamsId = req => {
-  return _.propertyOf(req)("params.id");
+  return _.propertyOf(req)('params.id');
 };
 
 const getModelFromRequest = req => {
@@ -32,18 +35,18 @@ const getModelFromRequest = req => {
 };
 
 const isValidMongoId = value => {
-  const regex = new RegExp("^[0-9a-fA-F]{24}$");
+  const regex = new RegExp('^[0-9a-fA-F]{24}$');
   return regex.test(value);
 };
 
 const getMethod = req => {
-  return _.propertyOf(req)("method");
+  return _.propertyOf(req)('method');
 };
 
 const isModifyRequest = req => {
   let modifyMethods = {
     POST: true,
-    PUT: true
+    PUT: true,
   };
 
   return modifyMethods[getMethod(req)] === true;
@@ -60,7 +63,7 @@ const getModelName = resource => {
 const getSchema = resource => {
   let model = getModel(resource);
 
-  return _.propertyOf(model)("schema");
+  return _.propertyOf(model)('schema');
 };
 
 const schemaHasProperty = (schema, property) => {
@@ -69,6 +72,77 @@ const schemaHasProperty = (schema, property) => {
   }
   return _.has(schema, `paths.${property}`);
 };
+const setSsoCookie = (res, encodedToken) => {
+  let doSetSecure =
+    process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
+
+  let options = {
+    httpOnly: true,
+    maxAge: accessCookie.maxAge,
+    secure: doSetSecure,
+  };
+
+  if (doSetSecure) {
+    options.domain = process.env.SSO_COOKIE_DOMAIN;
+  }
+
+  res.cookie(accessCookie.name, encodedToken, options);
+};
+
+const setSsoRefreshCookie = (res, encodedToken) => {
+  let doSetSecure =
+    process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
+
+  let options = { httpOnly: true, secure: doSetSecure };
+  if (doSetSecure) {
+    options.domain = process.env.SSO_COOKIE_DOMAIN;
+  }
+
+  res.cookie(refreshCookie.name, encodedToken, options);
+};
+
+const verifyJwt = (token, key, options) => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, key, options || {}, (err, decoded) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(decoded);
+      }
+    });
+  });
+};
+
+const clearAccessCookie = res => {
+  let isSecure =
+    process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
+  let domain = isSecure ? process.env.SSO_COOKIE_DOMAIN : 'localhost';
+
+  let options = { domain, httpOnly: true, secure: isSecure };
+
+  res.clearCookie(accessCookie.name, options);
+};
+
+const clearRefreshCookie = res => {
+  let isSecure =
+    process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
+  let domain = isSecure ? process.env.SSO_COOKIE_DOMAIN : 'localhost';
+
+  let options = { domain, httpOnly: true, secure: isSecure };
+  res.clearCookie(refreshCookie.name, options);
+};
+
+const signJwt = (payload, secret, options) => {
+  return new Promise((resolve, reject) => {
+    jwt.sign(payload, secret, options || {}, (err, encoded) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(encoded);
+      }
+    });
+  });
+}
 
 module.exports.getUser = getUser;
 module.exports.getResource = getResource;
@@ -80,3 +154,9 @@ module.exports.getSchema = getSchema;
 module.exports.getModel = getModel;
 module.exports.getModelName = getModelName;
 module.exports.getModelFromRequest = getModelFromRequest;
+module.exports.setSsoCookie = setSsoCookie;
+module.exports.setSsoRefreshCookie = setSsoRefreshCookie;
+module.exports.verifyJwt = verifyJwt;
+module.exports.clearAccessCookie = clearAccessCookie;
+module.exports.clearRefreshCookie = clearRefreshCookie;
+module.exports.signJwt = signJwt;

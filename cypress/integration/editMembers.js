@@ -3,7 +3,11 @@ const user4 = require('../fixtures/user4');
 
 describe('Edit Members Roles', function() {
   before(function() {
-    cy.task('seedDB').then(() => cy.login(user1));
+    cy.task('restoreAll').then(() => cy.login(user1));
+  });
+
+  afterEach(function() {
+    cy.logout();
   });
 
   // COURSE

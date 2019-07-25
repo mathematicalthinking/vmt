@@ -16,4 +16,25 @@ export default {
   logout: userId => {
     return axios.post(`/auth/logout/${userId}`);
   },
+
+  currentUser: () => {
+    return axios.get('/auth/currentUser');
+  },
+
+  forgotPassword: details => {
+    return axios.post('/auth/forgotPassword', details);
+  },
+
+  resetPassword: (password, token) => {
+    return axios.post(`/auth/resetPassword/${token}`, { password });
+  },
+  validateResetPasswordToken: token => {
+    return axios.get(`/auth/resetPassword/validate/${token}`);
+  },
+  confirmEmail: token => {
+    return axios.get(`/auth/confirmEmail/confirm/${token}`);
+  },
+  resendEmailConfirmation: () => {
+    return axios.get('/auth/confirmEmail/resend');
+  },
 };

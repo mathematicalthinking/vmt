@@ -7,24 +7,27 @@ const multer = require('multer');
 const multerMw = require('../middleware/multer');
 const _ = require('lodash');
 
+const { getUser } = require('../middleware/utils/request');
+
 router.param('resource', middleware.validateResource);
 router.param('id', middleware.validateId);
 
 router.get('/:resource', (req, res, next) => {
   let controller = controllers[req.params.resource];
   req.query.isTrashed = false;
-  controller
-    .get(req.query)
-    .then(results => res.json({ results }))
-    .catch(err => {
-      console.error(`Error get ${resource}: ${err}`);
-      let msg = null;
 
-      if (typeof err === 'string') {
-        msg = err;
-      }
-      return errors.sendError.InternalError(msg, res);
-    });
+    controller
+      .get(req.query)
+      .then(results => res.json({ results }))
+      .catch(err => {
+        console.error(`Error get ${resource}: ${err}`);
+        let msg = null;
+
+        if (typeof err === 'string') {
+          msg = err;
+        }
+        return errors.sendError.InternalError(msg, res);
+      });
 });
 
 router.get('/search/:resource', (req, res, next) => {
@@ -186,6 +189,8 @@ router.put('/:resource/:id/add', middleware.validateUser, (req, res, next) => {
   let { resource, id } = req.params;
   let controller = controllers[resource];
 
+  let user = getUser(req);
+
   return middleware
     .canModifyResource(req)
     .then(results => {
@@ -201,7 +206,7 @@ router.put('/:resource/:id/add', middleware.validateUser, (req, res, next) => {
           res
         );
       }
-      let prunedBody = middleware.prunePutBody(req.user, id, req.body, details);
+      let prunedBody = middleware.prunePutBody(user, id, req.body, details);
       return controller.add(id, prunedBody);
     })
     .then(result => res.json(result))
@@ -266,6 +271,8 @@ router.put('/:resource/:id', middleware.validateUser, (req, res, next) => {
   let { resource, id } = req.params;
   let controller = controllers[resource];
 
+  let user = getUser(req);
+
   if (resource === 'events') {
     return errors.sendError.BadMethodError('Events cannot be modified!', res);
   }
@@ -284,7 +291,7 @@ router.put('/:resource/:id', middleware.validateUser, (req, res, next) => {
           res
         );
       }
-      let prunedBody = middleware.prunePutBody(req.user, id, req.body, details);
+      let prunedBody = middleware.prunePutBody(user, id, req.body, details);
       return controller.put(id, prunedBody);
     })
     .then(result => res.json(result))

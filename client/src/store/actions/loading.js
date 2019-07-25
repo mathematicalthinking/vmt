@@ -44,3 +44,21 @@ export const updateFail = (resource, keys) => {
     type: actionTypes.UPDATE_FAIL,
   };
 };
+
+export const forgotPasswordSuccess = () => {
+  return {
+    type: actionTypes.FORGOT_PASSWORD_SUCCESS,
+  };
+};
+
+export const resetPasswordSuccess = () => {
+  return {
+    type: actionTypes.RESET_PASSWORD_SUCCESS,
+  };
+};
+
+export const confirmEmailSuccess = () => {
+  return {
+    type: actionTypes.CONFIRM_EMAIL_SUCCESS,
+  };
+};

@@ -17,7 +17,7 @@ module.exports = [
     color: '#f26247',
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145066995.0,
-    description: 'w-crush selected the move tool',
+    description: 'w_crush selected the move tool',
     __v: 0,
   },
 
@@ -37,7 +37,7 @@ module.exports = [
     color: '#f26247',
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145069173.0,
-    description: 'w-crush selected the polygon tool',
+    description: 'w_crush selected the polygon tool',
     __v: 0,
   },
 
@@ -58,7 +58,7 @@ module.exports = [
     color: '#f26247',
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145070311.0,
-    description: 'w-crush added point B',
+    description: 'w_crush added point B',
     __v: 0,
   },
 
@@ -79,7 +79,7 @@ module.exports = [
     color: '#f26247',
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145071304.0,
-    description: 'w-crush added point C',
+    description: 'w_crush added point C',
     __v: 0,
   },
 
@@ -100,7 +100,7 @@ module.exports = [
     color: '#f26247',
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145071881.0,
-    description: 'w-crush added point D',
+    description: 'w_crush added point D',
     __v: 0,
   },
 
@@ -121,7 +121,7 @@ module.exports = [
     color: '#f26247',
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145072542.0,
-    description: 'w-crush added point E',
+    description: 'w_crush added point E',
     __v: 0,
   },
 
@@ -148,7 +148,7 @@ module.exports = [
     color: '#f26247',
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145073588.0,
-    description: 'w-crush added quadrilateral q1',
+    description: 'w_crush added quadrilateral q1',
     __v: 0,
   },
 
@@ -168,7 +168,7 @@ module.exports = [
     color: '#f26247',
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145074430.0,
-    description: 'w-crush selected the circle_two_points tool',
+    description: 'w_crush selected the circle_two_points tool',
     __v: 0,
   },
 
@@ -189,7 +189,7 @@ module.exports = [
     color: '#f26247',
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145075918.0,
-    description: 'w-crush added point F',
+    description: 'w_crush added point F',
     __v: 0,
   },
 
@@ -210,7 +210,7 @@ module.exports = [
     color: '#f26247',
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145076784.0,
-    description: 'w-crush added point G',
+    description: 'w_crush added point G',
     __v: 0,
   },
 
@@ -231,7 +231,7 @@ module.exports = [
     color: '#f26247',
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145077142.0,
-    description: 'w-crush added circle f',
+    description: 'w_crush added circle f',
     __v: 0,
   },
 
@@ -251,7 +251,7 @@ module.exports = [
     color: '#f26247',
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145078194.0,
-    description: 'w-crush selected the join tool',
+    description: 'w_crush selected the join tool',
     __v: 0,
   },
 
@@ -272,7 +272,7 @@ module.exports = [
     color: '#f26247',
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145079344.0,
-    description: 'w-crush added point H',
+    description: 'w_crush added point H',
     __v: 0,
   },
 
@@ -293,7 +293,7 @@ module.exports = [
     color: '#f26247',
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145080669.0,
-    description: 'w-crush added point I',
+    description: 'w_crush added point I',
     __v: 0,
   },
 
@@ -314,7 +314,7 @@ module.exports = [
     color: '#f26247',
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145081053.0,
-    description: 'w-crush added line g',
+    description: 'w_crush added line g',
     __v: 0,
   },
 ];

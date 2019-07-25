@@ -5,10 +5,13 @@ const activity = require('../fixtures/activity');
 
 describe('create each type of resource', function() {
   before(function() {
-    cy.task('seedDB').then(() => {
+    cy.task('restoreAll').then(() => {
       cy.login(user);
     });
-    // cy.visit('/myVMT/courses')
+  });
+
+  after(function() {
+    cy.logout();
   });
 
   it('creates a course', function() {
@@ -249,7 +252,7 @@ describe('create each type of resource', function() {
   //   cy.getTestElement('content-box-ACTIVITY 2').click()
   //   cy.getTestElement('assign').click()
   //   cy.get('[type="radio"]').last().check()
-  //   cy.contains('g-laforge').click()
+  //   cy.contains('g_laforge').click()
   //   cy.contains('data').click()
   //   cy.getTestElement('assign-rooms').click();
   //   cy.contains('worf').click()
