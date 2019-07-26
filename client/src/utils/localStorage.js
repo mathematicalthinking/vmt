@@ -15,8 +15,11 @@ export const loadState = () => {
 
 export const saveState = state => {
   try {
-    state.loading = loadingInitialState;
-    const serializedState = JSON.stringify(state);
+    const savedState = {
+      ...state,
+      loading: loadingInitialState,
+    };
+    const serializedState = JSON.stringify(savedState);
     window.localStorage.setItem('state', serializedState);
   } catch (err) {
     // Ignore write errors
