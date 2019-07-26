@@ -1,3 +1,5 @@
+import { initialState as loadingInitialState } from '../store/reducers/loadingReducer';
+
 export const loadState = () => {
   // Need try/catch here because this could fail if browser has disabled local storage
   try {
@@ -13,6 +15,7 @@ export const loadState = () => {
 
 export const saveState = state => {
   try {
+    state.loading = loadingInitialState;
     const serializedState = JSON.stringify(state);
     window.localStorage.setItem('state', serializedState);
   } catch (err) {
