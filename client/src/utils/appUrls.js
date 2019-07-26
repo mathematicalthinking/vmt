@@ -25,7 +25,7 @@ export const getMtSsoUrl = () => {
     return process.env.REACT_APP_MT_LOGIN_URL_PRODUCTION;
   }
 
-  if (env === 'test') {
+  if (process.env.REACT_APP_IS_TEST === 'true') {
     return process.env.REACT_APP_MT_LOGIN_URL_TEST;
   }
   return process.env.REACT_APP_MT_LOGIN_URL_DEV;
@@ -35,5 +35,5 @@ export const getGoogleUrl = () => {
   const base = getMtSsoUrl();
   const redirectUrl = getRedirectUrl();
   const endpoint = 'oauth/google';
-  return `${base}/${endpoint}?redirectURL=${redirectUrl}`;
+  return `${base}/${endpoint}?redirectURL=${redirectUrl}/oauth/return`;
 };

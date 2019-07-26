@@ -217,6 +217,7 @@ export const getUser = id => {
         } else {
           // no user is logged in
           // can we check if user is still set to loggedIn in store?
+          dispatch(loading.fail('No user logged in'));
           dispatch(loggedOut());
         }
 

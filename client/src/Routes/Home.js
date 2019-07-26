@@ -17,6 +17,7 @@ import {
 import { Confirmation, About } from '../Layout';
 import classes from './main.css';
 import Aux from '../Components/HOC/Auxil';
+import OauthReturn from '../Components/HOC/OauthReturn';
 
 class Home extends PureComponent {
   state = {
@@ -76,6 +77,7 @@ class Home extends PureComponent {
             <Route path="/resetPassword/:token" component={ResetPassword} />
             <Route path="/confirmEmail/:token" component={ConfirmEmail} />
             <Route path="/unconfirmed" component={Unconfirmed} />
+            <Route path="/oauth/return" component={OauthReturn} />
           </Switch>
         </div>
         {/* <Route path='/about' component={About} />
