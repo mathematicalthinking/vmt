@@ -19,7 +19,6 @@ const cors = require('./middleware/cors');
 
 const app = express();
 console.log('NODE_ENV=', process.env.NODE_ENV);
-console.log('ENCOMPASS: ', process.env.ENCOMPASS);
 // SETUP DATABASE & SESSION
 let mongoURI;
 if (process.env.NODE_ENV === 'dev') {
@@ -34,7 +33,7 @@ if (process.env.NODE_ENV === 'dev') {
   mongoURI = process.env.MONGO_TEST_URI;
 }
 
-console.log('mongoURI ', mongoURI);
+console.log({ mongoURI });
 
 mongoose.connect(mongoURI, { useNewUrlParser: true }, (err, res) => {
   if (err) {
