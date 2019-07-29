@@ -367,15 +367,15 @@ class GgbGraph extends Component {
   };
 
   updateDimensions = async () => {
-    const { tabId } = this.props;
+    // const { tabId } = this.props;
     if (this.graph.current && this.ggbApplet) {
       const { clientHeight, clientWidth } = this.graph.current.parentElement;
       this.ggbApplet.setSize(clientWidth, clientHeight);
       this.ggbApplet.recalculateEnvironments();
-      const appScalar = document.querySelector(`#ggb-element${tabId}A`)
-        .firstChild;
+      // const appScalar = document.querySelector(`#ggb-element${tabId}A`)
+      //   .firstChild;
 
-      appScalar.style.width = clientWidth;
+      // appScalar.style.width = clientWidth;
     }
   };
 
