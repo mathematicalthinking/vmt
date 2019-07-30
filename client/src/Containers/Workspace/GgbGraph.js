@@ -374,10 +374,7 @@ class GgbGraph extends Component {
       this.ggbApplet.recalculateEnvironments();
       const appScalar = document.querySelector(`#ggb-element${tabId}A`)
         .firstChild;
-
-      console.log({ appScalar });
       appScalar.style.width = `${clientWidth}px`;
-      console.log('new width: ', clientWidth);
       this.forceUpdate();
     }
   };
@@ -912,6 +909,9 @@ class GgbGraph extends Component {
       // mode: this.ggbApplet.getMode() // all ggbApplet get methods are too slow for dragging...right?
     };
 
+    // set undo point
+    const undoPoint = this.ggbApplet.setUndoPoint();
+
     newData.description = this.buildDescription(
       definition,
       label,
@@ -992,12 +992,6 @@ class GgbGraph extends Component {
     }
   };
 
-  /**
-   * @method getRelativeCoords - converts x,y coordinates of ggb point and converts them to the pizel location on the screen
-   * @param  {String} element - ggb defined Label. MUST be a point
-   * @return {Promise Object} - because parseXML is async
-   */
-
   getReferenceCoords = async (element, elementType) => {
     let position;
     let renamedElementType = elementType;
@@ -1057,6 +1051,11 @@ class GgbGraph extends Component {
     }
   };
 
+  /**
+   * @method getRelativeCoords - converts x,y coordinates of ggb point and converts them to the pizel location on the screen
+   * @param  {String} element - ggb defined Label. MUST be a point
+   * @return {Promise Object} - because parseXML is async
+   */
   getRelativeCoords = element => {
     return new Promise(async (resolve, reject) => {
       let elX;
