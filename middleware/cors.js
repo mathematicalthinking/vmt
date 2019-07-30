@@ -1,14 +1,17 @@
-const { getMtSsoUrl, getEncUrl  } = require('../config/app-urls');
+const { getMtSsoUrl, getEncUrl } = require('../config/app-urls');
 
 let allowedOrigins = `${getMtSsoUrl()}, ${getEncUrl()}`;
 
-if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test' ) {
-  allowedOrigins += ', http://localhost:3000'
+if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+  allowedOrigins += ', http://localhost:3000';
 }
 console.log('allowedOrigins: ', allowedOrigins);
 module.exports = (req, res, next) => {
   // Website you wish to allow to connect
-  res.setHeader('Access-Control-Allow-Origin', allowedOrigins);
+  let { origin } = req.headers;
+  let originHeader = allowedOrigins.includes(origin) ? origin : null;
+
+  res.setHeader('Access-Control-Allow-Origin', originHeader);
   // Request methods you wish to allow
   res.setHeader(
     'Access-Control-Allow-Methods',
@@ -24,4 +27,4 @@ module.exports = (req, res, next) => {
   res.setHeader('Access-Control-Allow-Credentials', true);
   // Pass to next layer of middleware
   next();
-}
+};
