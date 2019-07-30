@@ -2,6 +2,10 @@
   blue: blue;
   blueHover: blueHover;
   gray: backgroundGray;
+  coldGray: coldGray;
+  darkGray: darkGray;
+  lightGray: lightGray;
+  lightBorder: lightBorder;
   background: mainBackground;
   scrollBackground: scrollBackground;
   scrollBar: scrollBar;
@@ -23,10 +27,10 @@
 
 .Title {
   padding: 8px 0 8px 10px;
-  border-bottom: 1px solid #ddd;
-  background-color: #eee;
+  border-bottom: 1px solid lightBorder;
+  background-color: coldGray;
   border-radius: 3px 3px 0 0;
-  color: black;
+  color: darkGray;
   font-size: 17px;
   letter-spacing: 1.12px;
   cursor: pointer;
@@ -58,7 +62,7 @@
 
 .Settings {
   padding-left: 3px;
-  color: #666;
+  /* color: darkGray; */
 }
 
 .Settings:hover {

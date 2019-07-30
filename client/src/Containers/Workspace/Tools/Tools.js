@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Awareness from './Awareness';
 import Slider from '../../../Components/UI/Button/Slider';
+import Button from '../../../Components/UI/Button/Button';
 import classes from './tools.css';
 
 const Tools = ({
@@ -30,18 +31,24 @@ const Tools = ({
       <div className={classes.Expanded}>
         <div className={classes.Controls}>
           {!replayer ? (
-            <div
-              className={classes.SideButton}
-              role="button"
-              data-testid="take-control"
-              onClick={toggleControl}
-              onKeyPress={toggleControl}
-              tabIndex="-1"
-            >
+            <Button theme="xs" data-testid="take-control" click={toggleControl}>
               {controlText}
-            </div>
-          ) : null}
-          <div
+            </Button>
+          ) : // <div
+          //   className={classes.SideButton}
+          //   role="button"
+          //   data-testid="take-control"
+          //   onClick={toggleControl}
+          //   onKeyPress={toggleControl}
+          //   tabIndex="-1"
+          // >
+          //   {controlText}
+          // </div>
+          null}
+          <Button theme="xs-cancel" click={goBack} data-testid="exit-room">
+            Exit {replayer ? 'Replayer' : 'Room'}
+          </Button>
+          {/* <div
             className={classes.Exit}
             role="button"
             onClick={goBack}
@@ -51,7 +58,7 @@ const Tools = ({
             data-testid="exit-room"
           >
             Exit {replayer ? 'Replayer' : 'Room'}
-          </div>
+          </div> */}
         </div>
         {save ? (
           <div className={classes.Save}>
@@ -68,7 +75,13 @@ const Tools = ({
           </div>
         ) : null}
         {!replayer ? (
-          <div className={classes.ReferenceWindow}>
+          <div
+            className={
+              referencing
+                ? classes.ActiveReferenceWindow
+                : classes.ReferenceWindow
+            }
+          >
             Referencing
             <Slider
               data-testid="new-reference"

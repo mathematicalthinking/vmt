@@ -56,24 +56,29 @@ all share. we are repeating styles in each of those copmnents  */
 .ReferenceWindow {
   /* height: 100%; */
   margin: 3px 0;
-  border: 1px solid#aaa;
   padding: 2px;
   display: flex;
   justify-content: space-between;
   box-shadow: lightShadow;
   align-self: auto;
   flex: 0 0 auto;
+  transition: 0.2s;
   /* flex-grow: 0;
   flex-shrink: 1; */
 }
 
-.ReferenceWindow > * {
+.ActiveReferenceWindow {
+  composes: ReferenceWindow;
+  font-weight: 600;
 }
 
 .AwarenessDesc {
   display: flex;
-  border: 1px solid #aaa;
+  justify-content: center;
   align-items: center;
+  border: 1px solid#ddd;
+  background: #eff3f6;
+  border-radius: 4px;
   width: 100%;
   padding: 2px;
   min-height: 48px;

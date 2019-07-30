@@ -1,7 +1,9 @@
-:import("../../../colors.css") {
+:import('../../../colors.css') {
   lightestShadow: lightestShadow;
+  lightBorder: lightBorder;
   blue: blue;
-  darkGrey: darkGrey;
+  coldGray: coldGray;
+  darkGray: darkGray;
 }
 
 .Container {
@@ -43,8 +45,8 @@
 
 .spAdditional {
   padding: 15px 0;
-  border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
+  border-top: 1px solid lightBorder;
+  border-bottom: 1px solid lightBorder;
 }
 
 .spButtons {
@@ -57,10 +59,10 @@
 
 .Edit {
   text-align: center;
-  background-color: #eff3f6;
-  color: darkGrey;
+  background-color: coldGray;
+  color: darkGray;
   cursor: pointer;
-  border: 1px solid #ddd;
+  border: 1px solid lightBorder;
   padding: 12px 0;
   margin-top: 15px;
   margin-bottom: 10px;
