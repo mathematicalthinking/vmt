@@ -909,9 +909,6 @@ class GgbGraph extends Component {
       // mode: this.ggbApplet.getMode() // all ggbApplet get methods are too slow for dragging...right?
     };
 
-    // set undo point
-    const undoPoint = this.ggbApplet.setUndoPoint();
-
     newData.description = this.buildDescription(
       definition,
       label,
