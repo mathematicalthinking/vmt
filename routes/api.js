@@ -31,8 +31,15 @@ router.get('/:resource', (req, res, next) => {
 });
 
 router.get('/search/:resource', (req, res, next) => {
+  let { resource } = req.params.resource;
+  // currently only /search/user uses this endpt
+  if (resource !== 'user') {
+    return errors.sendError.InvalidContentError('Invalid Resource', res);
+  }
   let controller = controllers[req.params.resource];
-  let text = req.query.text.replace(/\s+/g, '');
+  let text = req.query.text || '';
+
+  text = text.replace(/\s+/g, '');
   let regex = new RegExp(text, 'i');
   controller
     .search(regex, req.query.exclude)

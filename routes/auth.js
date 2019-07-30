@@ -1,13 +1,11 @@
 /**
  * # Auth API
- * @description API passport authentication
+ * @description API auth authentication
  * @author Michael McVeigh
  */
 
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
-const crypto = require('crypto');
 const User = require('../models/User');
 const errors = require('../middleware/errors');
 const {
@@ -136,35 +134,6 @@ router.post('/signup', async (req, res, next) => {
   }
 });
 
-/** Authentication for Encompass users who want to import rooms into the Encompass account **/
-router.post('/enc', (req, res, next) => {
-  let { username, password } = req.body;
-  User.findOne({ username })
-    .then(user => {
-      if (!user) {
-        return res.json({ errorMessage: 'Incorrect username' });
-      }
-      if (!bcrypt.compareSync(password, user.password)) {
-        return res.json({ errorMessage: 'Incorrect password' });
-      } else {
-        let userSummary = {};
-        userSummary.username = user.username;
-        userSummary._id = user._id;
-        crypto.randomBytes(20, (err, buff) => {
-          if (err) return errors.sendError.InternalError(err, res);
-          userSummary.token = buff.toString('hex');
-          user.token = userSummary.token;
-          user.tokenExpiryDate = Date.now() + 3600000; // 1 Day
-          user.save();
-          return res.json({ user: userSummary });
-        });
-      }
-    })
-    .catch(err => {
-      console.log('ERROR ', err);
-      return errors.sendError.InternalError(err, res);
-    });
-});
 
 router.post('/logout/:userId', (req, res, next) => {
   User.findByIdAndUpdate(req.params.userId, { socketId: null })
@@ -350,7 +319,7 @@ router.get('/confirmEmail/confirm/:token', async (req, res, next) => {
     }
     return res.json(results);
   } catch (err) {
-    console.log('err conf em: ', err);
+    console.log('err conf em: ', err.message);
     errors.handleError(err, res);
   }
 });

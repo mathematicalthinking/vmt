@@ -4,7 +4,6 @@ const _ = require('lodash');
 const errors = require('../middleware/errors');
 const helpers = require('../middleware/utils/helpers');
 const models = require('../models');
-const bcrypt = require('bcrypt');
 
 const { getUser } = require('./utils/request');
 
@@ -22,19 +21,6 @@ const validateId = (req, res, next) => {
     return errors.sendError.InvalidArgumentError('Invalid Resource Id', res);
   }
   next();
-};
-
-const getEncSecret = () => {
-  let nodeEnv = process.env.NODE_ENV;
-
-  if (nodeEnv === 'production') {
-    return process.env.ENC_SECRET_PROD;
-  }
-
-  if (nodeEnv === 'staging') {
-    return process.env.ENC_SECRET_STAGING;
-  }
-  return process.env.ENC_SECRET_DEV;
 };
 
 const validateUser = (req, res, next) => {
@@ -60,55 +46,29 @@ const validateUser = (req, res, next) => {
           req.isTempRoom = true;
           return next();
         }
+      })
+      .catch(err => {
+        errors.sendError.InternalError(null, res);
       });
-  } else {
-    // currently enc only needs access to /room/:id
-    const allowedResources = {
-      rooms: true,
-    };
-
-    let requestedResource = utils.getResource(req);
-    let authorization = req.headers.authorization;
-    if (!allowedResources[requestedResource] || !authorization) {
-      return errors.sendError.NotAuthorizedError(null, res);
-    }
-
-    let secret = getEncSecret();
-    bcrypt.compare(secret, authorization, function(err, isValid) {
-      if (err) {
-        console.log('error bcrypt compare', err);
-        return errors.sendError.InternalError(null, res);
-      }
-      if (isValid) {
-        return next();
-      }
-      return errors.sendError.NotAuthorizedError(null, res);
-    });
   }
+
+  return errors.sendError.NotAuthorizedError(null, res);
+
 };
 
 const validateRecordAccess = (req, res, next) => {
-  console.log('validating record access');
   let user = getUser(req);
   let { id, resource } = req.params;
   let modelName = utils.getModelName(resource);
   let model = models[modelName];
 
   if (!user) {
-    // currently enc only needs access to /room/:id
-    const allowedResources = {
-      rooms: true,
-    };
-
-    let requestedResource = utils.getResource(req);
-    let authorization = req.headers.authorization;
-
-    if (req.params.resource === 'rooms' && !authorization) {
+    // no user logged in; check if tempRoom
+    if (req.params.resource === 'rooms') {
       return model
         .findById(id)
         .lean()
         .then(room => {
-          console.log('we better be in here');
           if (room.tempRoom) {
             return next();
           } else {
@@ -117,33 +77,18 @@ const validateRecordAccess = (req, res, next) => {
         })
         .catch(err => {
           console.error(`Error canModifyResource: ${err}`);
-          reject(err);
+          return errors.sendError.InternalError(null, res);
         });
     }
 
-    if (!allowedResources[requestedResource] || !authorization) {
-      return errors.sendError.NotAuthorizedError(null, res);
-    }
-
-    let secret = getEncSecret();
-
-    return bcrypt.compare(secret, authorization, function(err, isValid) {
-      if (err) {
-        console.log('error bcrypt compare', err);
-        return errors.sendError.InternalError(null, res);
-      }
-      if (isValid) {
-        return next();
-      }
-      return errors.sendError.NotAuthorizedError(null, res);
-    });
+    return errors.sendError.NotAuthorizedError(null, res);
   }
+
 
   if (user.isAdmin) {
     return next();
   }
 
-  console.log('make it here?');
   return (
     model
       .findById(id)
@@ -151,7 +96,6 @@ const validateRecordAccess = (req, res, next) => {
       .lean()
       .exec()
       .then(record => {
-        console.log({ record });
         if (record.members) {
           let role = helpers.getUserRoleInRecord(record, user._id);
           if (role) return next();
@@ -165,7 +109,7 @@ const validateRecordAccess = (req, res, next) => {
       })
       .catch(err => {
         console.error(`Error canModifyResource: ${err}`);
-        reject(err);
+        return errors.sendError.InternalError(null, res);
       })
   );
 };
@@ -311,7 +255,7 @@ const canModifyResource = req => {
     })
     .catch(err => {
       console.error(`Error canModifyResource: ${err}`);
-      reject(err);
+      return errors.sendError.InternalError(null, res);
     });
 };
 

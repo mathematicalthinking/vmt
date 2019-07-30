@@ -1,18 +1,20 @@
-const express = require("express");
-const fs = require("fs");
-const _ = require("lodash");
-const controllers = require("../controllers");
-const path = require("path");
-const errors = require("../middleware/errors");
+const express = require('express');
+const fs = require('fs');
+const _ = require('lodash');
+const controllers = require('../controllers');
+const path = require('path');
+const errors = require('../middleware/errors');
 const router = express.Router();
+const { getUser } = require('../middleware/utils/request');
 
-router.get("/search", (req, res, next) => {
+router.get('/search', (req, res, next) => {
   let { resourceName } = req.query;
-  let token = req.headers.authorization;
+  let reqUser = getUser(req);
+
   controllers.user
-    .getUserResources(token, {
+    .getUserResources(reqUser._id, {
       resourceName,
-      resources: "activities rooms"
+      resources: 'activities rooms',
     })
     .then(({ activities, rooms, isInvalidToken }, err) => {
       if (err) {
@@ -26,7 +28,7 @@ router.get("/search", (req, res, next) => {
     });
 });
 
-router.get("/replayer/:asset", (req, res, next) => {
+router.get('/replayer/:asset', (req, res, next) => {
   let { asset } = req.params;
   fs.readdir(
     path.join(__dirname, `../client/encompassBuild/static/${asset}`),
@@ -44,13 +46,5 @@ router.get("/replayer/:asset", (req, res, next) => {
     }
   );
 });
-
-function encompassAuthentication(req, res, next) {
-  User.findOne({ token: req.headers.Authorization })
-    .then(res => {})
-    .catch(err => {
-      return errors.sendError.NotAuthorizedError(err, res);
-    });
-}
 
 module.exports = router;
