@@ -35,7 +35,10 @@ module.exports = {
         .populate({
           path: 'rooms',
           select: '-currentState',
-          populate: { path: 'tabs members.user', select: 'username tabType' },
+          populate: {
+            path: 'tabs members.user',
+            select: 'username tabType name instructions',
+          },
         })
         .populate({
           path: 'activities',

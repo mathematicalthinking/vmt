@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 import {
   updateRoom,
   updatedRoom,
-  updateRoomTab,
   updatedRoomTab,
   populateRoom,
   setRoomStartingPoint,
@@ -20,6 +19,7 @@ import { Modal, CurrentMembers, Loading } from '../../Components';
 import NewTabForm from '../Create/NewTabForm';
 import socket from '../../utils/sockets';
 import COLOR_MAP from '../../utils/colorMap';
+import API from '../../utils/apiRequests';
 
 // import Replayer from ''
 class Workspace extends Component {
@@ -38,6 +38,8 @@ class Workspace extends Component {
       }
     }
     this.state = {
+      tabs: [],
+      messages: [],
       myColor,
       activeMember: '',
       referencing: false,
@@ -61,16 +63,25 @@ class Workspace extends Component {
   }
 
   componentDidMount() {
-    const {
-      room,
-      user,
-      temp,
-      connectUpdateUser,
-      connectPopulateRoom,
-    } = this.props;
-    connectUpdateUser({ connected: socket.connected });
+    const { room, user, temp } = this.props;
+    // connectUpdateUser({ connected: socket.connected });
     if (!temp) {
-      connectPopulateRoom(room._id, { events: true });
+      console.log('getting populatedTabs');
+      console.log(room.tabs);
+      API.getPopulatedById('rooms', room._id, false, false)
+        .then(res => {
+          // creae a log combining events and chat messages
+          const populatedRoom = res.data.result;
+          console.log({ populatedRoom });
+          this.setState({ tabs: populatedRoom.tabs });
+          // consider deleting tab.events and room.chat here since we have all of the information in the log now
+          // dispatch(updatedRoom(id, room));
+          // dispatch(loading.success());
+        })
+        .catch(err => {
+          // eslint-disable-next-line no-console
+          console.log(err);
+        });
       if (room.members) {
         let myColor;
         try {
@@ -493,10 +504,10 @@ class Workspace extends Component {
   };
 
   setFirstTabLoaded = () => {
-    const { connectPopulateRoom, room } = this.props;
+    // const { connectPopulateRoom, room } = this.props;
     this.setState({ isFirstTabLoaded: true });
     // refetech the room after its loaded to make sure we didnt miss any events that came over the wire while initializing ggb
-    connectPopulateRoom(room._id, { events: true });
+    // connectPopulateRoom(room._id, { events: true });
   };
 
   render() {
@@ -511,6 +522,7 @@ class Workspace extends Component {
       temp,
     } = this.props;
     const {
+      tabs: currentTabs,
       membersExpanded,
       toolsExpanded,
       instructionsExpanded,
@@ -548,7 +560,7 @@ class Workspace extends Component {
       tabs = (
         <Tabs
           participantCanCreate={room.settings.participantsCanCreateTabs}
-          tabs={room.tabs}
+          tabs={currentTabs}
           ntfTabs={activityOnOtherTabs}
           currentTab={currentTab}
           memberRole={role}
@@ -585,7 +597,7 @@ class Workspace extends Component {
         toggleExpansion={this.toggleExpansion}
       />
     );
-    const graphs = room.tabs.map((tab, i) => {
+    const graphs = currentTabs.map((tab, i) => {
       if (tab.tabType === 'desmos') {
         return (
           <DesmosGraph
@@ -615,7 +627,6 @@ class Workspace extends Component {
           role={role}
           addToLog={connectAddToLog}
           updateRoom={connectUpdateRoom}
-          updateRoomTab={connectUpdateRoomTab}
           updatedRoom={connectUpdatedRoom}
           resetControlTimer={this.resetControlTimer}
           inControl={control}
@@ -634,17 +645,17 @@ class Workspace extends Component {
         />
       );
     });
-    console.log({ graphs });
     return (
       <Fragment>
         {!isFirstTabLoaded ? (
           <Loading message="Preparing your room..." />
         ) : null}
         {temp ||
-        // we check these fields to check if the room was populated.
-        room.tabs[0].currentState ||
-        room.tabs[0].ggbFile ||
-        room.tabs[0].startingPoint ? (
+        (currentTabs[0] &&
+          // we check these fields to check if the room was populated.
+          (currentTabs[0].currentState ||
+            currentTabs[0].ggbFile ||
+            currentTabs[0].startingPoint)) ? (
           <WorkspaceLayout
             graphs={graphs}
             roomName={room.name}
@@ -714,12 +725,12 @@ Workspace.propTypes = {
   temp: PropTypes.bool,
   history: PropTypes.shape({}).isRequired,
   save: PropTypes.func,
-  connectUpdateUser: PropTypes.func.isRequired,
+  // connectUpdateUser: PropTypes.func.isRequired,
   connectUpdateRoom: PropTypes.func.isRequired,
   connectUpdatedRoom: PropTypes.func.isRequired,
   connectUpdateRoomTab: PropTypes.func.isRequired,
   // connectUpdatedRoomTab: PropTypes.func.isRequired,
-  connectPopulateRoom: PropTypes.func.isRequired,
+  // connectPopulateRoom: PropTypes.func.isRequired,
   connectSetRoomStartingPoint: PropTypes.func.isRequired,
   connectAddToLog: PropTypes.func.isRequired,
 };
@@ -742,7 +753,6 @@ export default connect(
     connectUpdateUser: updateUser,
     connectUpdateRoom: updateRoom,
     connectUpdatedRoom: updatedRoom,
-    connectUpdateRoomTab: updateRoomTab,
     connectUpdatedRoomTab: updatedRoomTab,
     connectPopulateRoom: populateRoom,
     connectSetRoomStartingPoint: setRoomStartingPoint,

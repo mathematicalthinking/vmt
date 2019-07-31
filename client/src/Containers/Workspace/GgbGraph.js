@@ -9,6 +9,7 @@ import { Aux } from '../../Components';
 import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
 import ggbTools from './Tools/GgbIcons';
+import API from '../../utils/apiRequests';
 
 // const GgbEventTypes = [
 //   'ADD',
@@ -976,16 +977,20 @@ class GgbGraph extends Component {
   };
 
   updateConstructionState = () => {
-    const { room, tabId, updateRoomTab } = this.props;
+    const { room, tabId } = this.props;
     // console.log("updating construction state");
     if (this.ggbApplet) {
       // when this method is called by componentDidUnmount we sometimes may not have access to ggbApplet depending on HOW the component was unmounted
       const currentState = this.ggbApplet.getXML();
       const { _id } = room.tabs[tabId];
-      updateRoomTab(room._id, _id, {
-        // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
-        currentState,
-      });
+      API.put('tabs', _id, { currentState })
+        .then(() => {
+          console.log('room updayted!');
+        })
+        .catch(err => {
+          // eslint-disable-next-line no-console
+          console.log(err);
+        });
     }
   };
 
@@ -1125,7 +1130,6 @@ class GgbGraph extends Component {
   render() {
     const { tabId, toggleControl, inControl } = this.props;
     const { showControlWarning, redo } = this.state;
-    console.log('rendered ggb graphg!');
     return (
       <Aux>
         <Script
@@ -1196,7 +1200,7 @@ GgbGraph.propTypes = {
   }).isRequired,
   myColor: PropTypes.string,
   addToLog: PropTypes.func.isRequired,
-  updateRoomTab: PropTypes.func.isRequired,
+  // updateRoomTab: PropTypes.func.isRequired,
   toggleControl: PropTypes.func.isRequired,
   resetControlTimer: PropTypes.func.isRequired,
   inControl: PropTypes.string.isRequired,

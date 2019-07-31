@@ -233,17 +233,11 @@ export const updateRoom = (id, body) => {
   };
 };
 
-export const updateRoomTab = (roomId, tabId, body) => {
-  return dispatch => {
-    dispatch(updatedRoomTab(roomId, tabId, body));
-    API.put('tabs', tabId, body)
-      .then()
-      .catch(err => {
-        // eslint-disable-next-line no-console
-        console.log(err);
-      });
-  };
-};
+// export const updateRoomTab = (roomId, tabId, body) => {
+// return dispatch => {
+// dispatch(updatedRoomTab(roomId, tabId, body));
+// };
+// };
 
 export const removeRoomMember = (roomId, userId) => {
   return (dispatch, getState) => {
