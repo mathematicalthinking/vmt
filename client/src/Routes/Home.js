@@ -74,8 +74,8 @@ class Home extends PureComponent {
             <Route path="/confirmation" component={Confirmation} />
             <Route path="/profile" component={Profile} />
             <Route path="/forgotPassword" component={ForgotPassword} />
-            <Route path="/resetPassword/:token" component={ResetPassword} />
-            <Route path="/confirmEmail/:token" component={ConfirmEmail} />
+            <Route path="/resetPassword/:token?" component={ResetPassword} />
+            <Route path="/confirmEmail/:token?" component={ConfirmEmail} />
             <Route path="/unconfirmed" component={Unconfirmed} />
             <Route path="/oauth/return" component={OauthReturn} />
           </Switch>
