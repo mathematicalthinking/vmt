@@ -54,8 +54,8 @@ class Unconfirmed extends Component {
     if (!loggedIn) {
       return <Redirect to="/login" />;
     }
-    if (isEmailConfirmed === true || typeof email !== 'string') {
-      return <Redirect to="/myVmt/rooms" />;
+    if (isEmailConfirmed === true || email.length === 0) {
+      return <Redirect to="/myVMT/rooms" />;
     }
 
     return (
