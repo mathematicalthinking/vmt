@@ -30,6 +30,7 @@ const User = new mongoose.Schema(
     latestIpAddress: { type: String },
     isEmailConfirmed: { type: Boolean, default: false },
     doForcePasswordChange: {type: Boolean, default: false },
+    confirmEmailDate: { type: Date },
   },
   { timestamps: true }
 );
