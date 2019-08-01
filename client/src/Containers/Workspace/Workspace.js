@@ -37,6 +37,7 @@ class Workspace extends Component {
       tabs: [],
       log: [],
       myColor,
+      controlledBy: room.controlledBy,
       activeMember: '',
       referencing: false,
       showingReference: false,
@@ -66,9 +67,7 @@ class Workspace extends Component {
         .then(res => {
           // creae a log combining events and chat messages
           const populatedRoom = res.data.result;
-          console.log({ populatedRoom });
           const log = buildLog(populatedRoom.tabs, populatedRoom.chat);
-          console.log({ log });
           this.setState({ log, tabs: populatedRoom.tabs }, () => {
             this.initializeListeners();
           });
@@ -220,8 +219,12 @@ class Workspace extends Component {
 
     socket.on('TOOK_CONTROL', message => {
       this.addToLog(message);
-      connectUpdatedRoom(room._id, { controlledBy: message.user._id });
-      this.setState({ awarenessDesc: message.text, awarenessIcon: 'USER' });
+      // connectUpdatedRoom(room._id, { controlledBy: message.user._id });
+      this.setState({
+        awarenessDesc: message.text,
+        awarenessIcon: 'USER',
+        controlledBy: message.user._id,
+      });
     });
 
     socket.on('RELEASED_CONTROL', message => {
@@ -230,6 +233,7 @@ class Workspace extends Component {
       this.setState({
         awarenessDesc: message.text,
         awarenessIcon: 'USER',
+        controlledBy: message.user._id,
       });
     });
 
@@ -287,6 +291,7 @@ class Workspace extends Component {
 
   toggleControl = (event, auto) => {
     const { room, user, connectUpdatedRoom } = this.props;
+    const { controlledBy } = this.state;
     const { myColor } = this.state;
     if (!user.connected && !auto) {
       // i.e. if the user clicked the button manually instead of controll being toggled programatically
@@ -296,7 +301,7 @@ class Workspace extends Component {
       );
     }
 
-    if (room.controlledBy === user._id) {
+    if (controlledBy === user._id) {
       // Releasing control
       const message = {
         _id: mongoIdGenerator(),
@@ -310,7 +315,11 @@ class Workspace extends Component {
       };
       connectUpdatedRoom(room._id, { controlledBy: null });
       this.addToLog(message);
-      this.setState({ awarenessDesc: message.text, awarenessIcon: null });
+      this.setState({
+        awarenessDesc: message.text,
+        awarenessIcon: null,
+        controlledBy: null,
+      });
       socket.emit('RELEASE_CONTROL', message, err => {
         // eslint-disable-next-line no-console
         if (err) console.log(err);
@@ -319,7 +328,7 @@ class Workspace extends Component {
     }
 
     // If room is controlled by someone else
-    else if (room.controlledBy) {
+    else if (controlledBy) {
       const message = {
         _id: mongoIdGenerator(),
         text: 'Can I take control?',
@@ -359,18 +368,9 @@ class Workspace extends Component {
         timestamp: new Date().getTime(),
       };
       this.addToLog(message);
-      // When a user takes control they receive the current state of each tab in the callback
-      // so that we're guranteed they have the most up to date state (hopefully we can figure out why
-      // the room is falling out of sync in the first place, this a temp fix)
-      connectUpdatedRoom(room._id, { controlledBy: user._id });
-      socket.emit('TAKE_CONTROL', message, () => {
-        //   console.log('CURRENT STSTE : ROOM : ', room);
-        //   room.tabs.forEach(tab => {
-        //     connectUpdatedRoomTab(room._id, tab._id, {
-        //       currentState: tab.currentState,
-        //     });
-        //   });
-      });
+      console.log('setting controlledBy to ', user._id);
+      this.setState({ controlledBy: user._id });
+      socket.emit('TAKE_CONTROL', message, () => {});
     }
   };
 
@@ -514,6 +514,7 @@ class Workspace extends Component {
     const {
       tabs: currentTabs,
       log,
+      controlledBy,
       membersExpanded,
       toolsExpanded,
       instructionsExpanded,
@@ -528,15 +529,16 @@ class Workspace extends Component {
       showingReference,
       chatExpanded,
       referFromEl,
-      inControl,
       isFirstTabLoaded,
       creatingNewTab,
       showAdminWarning,
       graphCoords,
     } = this.state;
-    // let control = 'OTHER';
-    // if (room.controlledBy === user._id) control = 'ME';
-    // else if (!room.controlledBy) control = 'NONE';
+    let inControl = 'OTHER';
+    console.log({ controlledBy });
+    if (controlledBy === user._id) inControl = 'ME';
+    else if (!controlledBy) inControl = 'NONE';
+    console.log({ inControl });
     const currentMembers = (
       <CurrentMembers
         members={room.members}
