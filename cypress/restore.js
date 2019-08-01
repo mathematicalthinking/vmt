@@ -35,4 +35,9 @@ const prepTestDb = function() {
   }
 };
 
+const restoreEnc = function() {
+  return dropAndRestoreDb('enc')
+};
+
 module.exports.prepTestDb = prepTestDb;
+module.exports.restoreEnc = restoreEnc;

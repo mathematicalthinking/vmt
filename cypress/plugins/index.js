@@ -69,6 +69,16 @@ module.exports = (on, config) => {
         );
       });
     },
+    dropEnc: () => {
+      return dropDb(encDbUri).then(() => {
+        return 'success';
+      })
+    },
+    restoreEnc: () => {
+      return restore.restoreEnc().then(() => {
+        return 'success';
+      })
+    }
     // disconnect : () => {
     //   return new Promise((resolve, reject) => {
     //     exec('taskkill /f /im node.exe')
