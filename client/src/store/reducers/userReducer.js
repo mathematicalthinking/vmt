@@ -21,6 +21,7 @@ const initialState = {
   isEmailConfirmed: false,
   ssoId: '',
   doForcePasswordChange: false,
+  confirmEmailDate: null,
 };
 
 const reducer = (state = initialState, action) => {

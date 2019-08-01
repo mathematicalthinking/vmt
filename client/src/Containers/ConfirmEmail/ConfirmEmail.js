@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Redirect, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { updateUser, confirmEmail, clearError } from '../../store/actions';
+import {
+  updateUser,
+  confirmEmail,
+  clearError,
+  logout,
+} from '../../store/actions';
 import SmallLoading from '../../Components/Loading/SmallLoading';
 import { Aux, Background, Button } from '../../Components';
 import classes from './confirmEmail.css';
@@ -19,7 +24,6 @@ class ConfirmEmail extends Component {
   componentDidMount() {
     const { match, connectConfirmEmail } = this.props;
     const { token } = match.params;
-
     connectConfirmEmail(token);
   }
 
@@ -60,29 +64,47 @@ class ConfirmEmail extends Component {
       });
   };
 
+  logout = () => {
+    const { connectLogout } = this.props;
+    connectLogout();
+  };
+
   render() {
     const { isResendingEmail, resendSuccessMsg, resendErrorMsg } = this.state;
 
     const {
       loggedIn,
-      isEmailConfirmed,
       email,
       loading,
       errorMessage,
       confirmEmailSuccess,
+      confirmedEmail,
     } = this.props;
 
-    // redirect if user's email has already been confirmed or they do not have an email
-    if (loggedIn && (isEmailConfirmed || email.length === 0)) {
-      return <Redirect to="/myVMT/rooms" />;
-    }
+    const doPromptLogout =
+      loggedIn && confirmEmailSuccess && email !== confirmedEmail;
 
     if (confirmEmailSuccess) {
       return (
         <Aux>
           <Background />
           <div className={classes.Main}>
-            <div>Your email has been successfully confirmed!</div>
+            <div>{confirmedEmail} has been successfully confirmed!</div>
+            {doPromptLogout ? (
+              <div>
+                <p>
+                  Click Log Out below if you would like to log in to the account
+                  associated with {confirmedEmail}
+                </p>
+                <Button
+                  data-testid="confirmEmail-logout"
+                  click={this.logout}
+                  m={20}
+                >
+                  Log Out
+                </Button>
+              </div>
+            ) : null}
           </div>
           {loggedIn ? null : (
             <Link
@@ -142,21 +164,23 @@ class ConfirmEmail extends Component {
 ConfirmEmail.propTypes = {
   match: PropTypes.shape({}).isRequired,
   loggedIn: PropTypes.bool.isRequired,
-  isEmailConfirmed: PropTypes.bool,
   email: PropTypes.string,
   errorMessage: PropTypes.string,
   loading: PropTypes.bool,
   connectConfirmEmail: PropTypes.func.isRequired,
   confirmEmailSuccess: PropTypes.bool,
   connectClearError: PropTypes.func.isRequired,
+  confirmedEmail: PropTypes.string,
+  connectLogout: PropTypes.func.isRequired,
+  history: PropTypes.shape({}).isRequired,
 };
 
 ConfirmEmail.defaultProps = {
-  isEmailConfirmed: false,
   email: null,
   errorMessage: null,
   loading: false,
   confirmEmailSuccess: false,
+  confirmedEmail: null,
 };
 
 const mapStateToProps = store => {
@@ -167,6 +191,7 @@ const mapStateToProps = store => {
     isEmailConfirmed: store.user.isEmailConfirmed,
     email: store.user.email,
     confirmEmailSuccess: store.loading.confirmEmailSuccess,
+    confirmedEmail: store.loading.confirmedEmail,
   };
 };
 
@@ -176,5 +201,6 @@ export default connect(
     connectUpdateUser: updateUser,
     connectConfirmEmail: confirmEmail,
     connectClearError: clearError,
+    connectLogout: logout,
   }
 )(ConfirmEmail);

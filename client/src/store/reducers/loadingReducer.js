@@ -11,6 +11,8 @@ export const initialState = {
   updateResource: null,
   globalErrorMessage: null,
   updateKeys: [],
+  confirmedEmail: null,
+  confirmEmailSuccess: false,
   // frontEndError: false,
 };
 
@@ -79,6 +81,7 @@ const reducer = (state = initialState, action) => {
         ...state,
         loading: false,
         confirmEmailSuccess: true,
+        confirmedEmail: action.confirmedEmail,
       };
 
     default:
