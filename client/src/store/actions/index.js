@@ -46,7 +46,6 @@ export {
   roomsRemoved,
   removedRoom,
   createRoomFromActivity,
-  updateRoomTab,
   setRoomStartingPoint,
   addToLog,
   inviteToRoom,

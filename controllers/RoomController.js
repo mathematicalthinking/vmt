@@ -59,6 +59,7 @@ module.exports = {
       .populate({ path: 'creator', select: 'username' })
       .populate({
         path: 'chat',
+        options: { limit: 25 },
         populate: { path: 'user', select: 'username' },
         select: '-room',
       })
@@ -67,7 +68,10 @@ module.exports = {
       .populate({ path: 'course', select: 'name' })
       .populate({
         path: 'tabs',
-        populate: { path: params.events ? 'events' : '' },
+        populate: {
+          path: params.events ? 'events' : '',
+          options: { limit: 25 },
+        },
       });
   },
 

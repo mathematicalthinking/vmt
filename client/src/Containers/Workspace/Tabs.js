@@ -16,7 +16,7 @@ class Tabs extends Component {
   render() {
     const {
       tabs,
-      currentTab,
+      currentTabId,
       ntfTabs,
       memberRole,
       changeTab,
@@ -27,13 +27,14 @@ class Tabs extends Component {
     const tabEls = tabs.map((tab, i) => (
       <div
         key={tab._id || i}
-        onClick={!replayer ? () => changeTab(i) : null}
-        onKeyPress={!replayer ? () => changeTab(i) : null}
+        onClick={!replayer ? () => changeTab(tab._id) : null}
+        onKeyPress={!replayer ? () => changeTab(tab._id) : null}
         role="button"
         tabIndex="-2"
-        className={[classes.Tab, currentTab === i ? classes.Active : ''].join(
-          ' '
-        )}
+        className={[
+          classes.Tab,
+          tab._id === currentTabId ? classes.Active : '',
+        ].join(' ')}
         style={{ zIndex: tabs.length - i }}
       >
         <div style={{ zIndex: tabs.length - i }} className={classes.TabBox}>
@@ -70,7 +71,7 @@ class Tabs extends Component {
 Tabs.propTypes = {
   tabs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   participantCanCreate: PropTypes.bool.isRequired,
-  currentTab: PropTypes.number.isRequired,
+  currentTabId: PropTypes.string.isRequired,
   ntfTabs: PropTypes.arrayOf(PropTypes.shape({})),
   memberRole: PropTypes.string.isRequired,
   replayer: PropTypes.bool,

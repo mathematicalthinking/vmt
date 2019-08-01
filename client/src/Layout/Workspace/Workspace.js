@@ -36,7 +36,7 @@ class WorkspaceLayout extends Component {
       referToCoords,
       graphs,
       replayer,
-      currentTab,
+      currentTabId,
       roomName,
       loaded,
       activity,
@@ -96,13 +96,13 @@ class WorkspaceLayout extends Component {
               className={replayer ? classes.ReplayerTop : classes.Top}
               style={{ position: 'relative' }}
             >
-              {graphs.map((graph, i) => {
+              {graphs.map(graph => {
                 return (
                   <div
                     key={graph.key}
                     className={replayer ? classes.ReplayerGraph : classes.Graph}
                     style={{
-                      zIndex: currentTab === i ? 100 : 0,
+                      zIndex: currentTabId === graph.props.tab._id ? 100 : 0,
                       position: 'absolute',
                       top: 0,
                       left: 1,
@@ -193,7 +193,7 @@ WorkspaceLayout.propTypes = {
   referToCoords: PropTypes.shape({}),
   graphs: PropTypes.arrayOf(PropTypes.element).isRequired,
   replayer: PropTypes.bool,
-  currentTab: PropTypes.number.isRequired,
+  currentTabId: PropTypes.string.isRequired,
   roomName: PropTypes.string.isRequired,
   loaded: PropTypes.bool,
   activity: PropTypes.bool,

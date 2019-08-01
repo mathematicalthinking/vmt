@@ -1,6 +1,6 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
-import { normalize, buildLog } from '../utils';
+import { normalize } from '../utils';
 import * as loading from './loading';
 
 export const gotRooms = (rooms, isNewRoom) => ({
@@ -289,37 +289,37 @@ export const getRoom = id => {
  *
  */
 
-export const populateRoom = (id, opts) => {
-  return dispatch => {
-    dispatch(loading.start());
-    let temp;
-    let events;
-    // Why are you doing this?? just pass the whole opts obj
-    if (opts) {
-      // eslint-disable-next-line prefer-destructuring
-      temp = opts.temp;
-      // eslint-disable-next-line prefer-destructuring
-      events = opts.events;
-    }
-    API.getPopulatedById('rooms', id, temp, events)
-      .then(res => {
-        // creae a log combining events and chat messages
-        const room = res.data.result;
-        // room.currentMembers
-        if (room.tabs && room.chat) {
-          room.log = buildLog(room.tabs, room.chat);
-        } else room.log = [];
-        // consider deleting tab.events and room.chat here since we have all of the information in the log now
-        dispatch(updatedRoom(id, room));
-        dispatch(loading.success());
-      })
-      .catch(err => {
-        // eslint-disable-next-line no-console
-        console.log(err);
-        dispatch(loading.fail(err.response.data.errorMessage));
-      });
-  };
-};
+// export const populateRoom = (id, opts) => {
+//   return dispatch => {
+//     dispatch(loading.start());
+//     let temp;
+//     let events;
+//     // Why are you doing this?? just pass the whole opts obj
+//     if (opts) {
+//       // eslint-disable-next-line prefer-destructuring
+//       temp = opts.temp;
+//       // eslint-disable-next-line prefer-destructuring
+//       events = opts.events;
+//     }
+//     API.getPopulatedById('rooms', id, temp, events)
+//       .then(res => {
+//         // creae a log combining events and chat messages
+//         const room = res.data.result;
+//         // room.currentMembers
+//         if (room.tabs && room.chat) {
+//           // room.log = buildLog(room.tabs, room.chat);
+//         } else room.log = [];
+//         // consider deleting tab.events and room.chat here since we have all of the information in the log now
+//         dispatch(updatedRoom(id, room));
+//         dispatch(loading.success());
+//       })
+//       .catch(err => {
+//         // eslint-disable-next-line no-console
+//         console.log(err);
+//         dispatch(loading.fail(err.response.data.errorMessage));
+//       });
+//   };
+// };
 
 export const inviteToRoom = (roomId, toUserId, toUserUsername) => {
   return dispatch => {
