@@ -356,6 +356,7 @@ class Workspace extends Component {
       );
     } else {
       // We're taking control
+      this.setState({ controlledBy: user._id });
       this.resetControlTimer();
       const message = {
         _id: mongoIdGenerator(),
@@ -369,7 +370,6 @@ class Workspace extends Component {
       };
       this.addToLog(message);
       console.log('setting controlledBy to ', user._id);
-      this.setState({ controlledBy: user._id });
       socket.emit('TAKE_CONTROL', message, () => {});
     }
   };
@@ -658,7 +658,7 @@ class Workspace extends Component {
                 inControl={inControl}
                 goBack={this.goBack}
                 toggleControl={this.toggleControl}
-                lastEvent={room.log ? room.log[room.log.length - 1] : {}}
+                lastEvent={log[log.length - 1]}
                 save={save}
                 referencing={referencing}
                 startNewReference={this.startNewReference}

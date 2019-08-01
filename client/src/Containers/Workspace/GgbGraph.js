@@ -149,7 +149,7 @@ class GgbGraph extends Component {
       if (!wasInControl && isInControl) {
         this.ggbApplet.setMode(0);
       } else if (wasInControl && !isInControl) {
-        this.updateConstructionState();
+        // this.updateConstructionState();
         this.ggbApplet.setMode(40);
       }
 
@@ -185,7 +185,7 @@ class GgbGraph extends Component {
 
       // releasing control
       if (prevProps.inControl !== inControl && inControl === 'NONE') {
-        this.updateConstructionState();
+        // this.updateConstructionState();
       }
     }
   }

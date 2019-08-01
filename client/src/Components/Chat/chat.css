@@ -77,7 +77,7 @@
 .ChatScroll {
   flex-grow: 0;
   display: flex;
-  flex-flow: wrap;
+  flex-flow: column;
   padding: 0 10px;
   width: 100%;
   position: relative;

@@ -217,7 +217,7 @@ module.exports = function() {
       controllers.rooms
         .getCurrentState(data.room)
         .then(room => {
-          socket.emit('FORCE_SYNC', room);
+          // socket.emit('FORCE_SYNC', room);
         })
         .catch(err => {
           console.error(err);
