@@ -9,7 +9,6 @@ import {
   updatedRoomTab,
   setRoomStartingPoint,
   updateUser,
-  addToLog,
 } from '../../store/actions';
 import mongoIdGenerator from '../../utils/createMongoId';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
@@ -67,9 +66,12 @@ class Workspace extends Component {
         .then(res => {
           // creae a log combining events and chat messages
           const populatedRoom = res.data.result;
-          const log = buildLog(populatedRoom.tabs, populatedRoom.messages);
+          console.log({ populatedRoom });
+          const log = buildLog(populatedRoom.tabs, populatedRoom.chat);
           console.log({ log });
-          this.setState({ log, tabs: populatedRoom.tabs });
+          this.setState({ log, tabs: populatedRoom.tabs }, () => {
+            this.initializeListeners();
+          });
           // consider deleting tab.events and room.chat here since we have all of the information in the log now
           // dispatch(updatedRoom(id, room));
           // dispatch(loading.success());
@@ -89,11 +91,7 @@ class Workspace extends Component {
             myColor = '#ffd549';
           }
         }
-        this.setState({ myColor }, () => {
-          if (room.log) {
-            this.initializeListeners();
-          }
-        });
+        this.setState({ myColor });
       }
     } else {
       this.setState({ myColor: COLOR_MAP[room.members.length - 1] });
@@ -141,6 +139,12 @@ class Workspace extends Component {
     window.removeEventListener('keypress', this.keyListener);
   }
 
+  addToLog = entry => {
+    console.log(entry);
+    const { log } = this.state;
+    this.setState({ log: [...log, entry] });
+  };
+
   keyListener = event => {
     const { referencing } = this.state;
     if (event.key === 'Escape' && referencing) {
@@ -149,13 +153,8 @@ class Workspace extends Component {
   };
 
   initializeListeners = () => {
-    const {
-      temp,
-      room,
-      user,
-      connectUpdatedRoom,
-      connectAddToLog,
-    } = this.props;
+    console.log('initing listeners');
+    const { temp, room, user, connectUpdatedRoom } = this.props;
     const { myColor } = this.state;
     socket.removeAllListeners('USER_JOINED');
     socket.removeAllListeners('CREATED_TAB');
@@ -187,22 +186,26 @@ class Workspace extends Component {
         }
       }
       if (!user.inAdminMode) {
+        console.log('we in here');
         socket.emit('JOIN', sendData, (res, err) => {
           if (err) {
+            console.log('error');
             // eslint-disable-next-line no-console
             console.log(err); // HOW SHOULD WE HANDLE THIS
           }
           connectUpdatedRoom(room._id, {
             currentMembers: res.room.currentMembers,
           });
-          connectAddToLog(room._id, res.message);
+          console.log('adding join message to log');
+          console.log(res.message);
+          this.addToLog(res.message);
         });
       }
     }
 
     socket.on('USER_JOINED', data => {
       connectUpdatedRoom(room._id, { currentMembers: data.currentMembers });
-      connectAddToLog(room._id, data.message);
+      this.addToLog(data.message);
     });
 
     socket.on('USER_LEFT', data => {
@@ -212,17 +215,17 @@ class Workspace extends Component {
       const updatedChat = [...room.chat];
       updatedChat.push(data.message);
       connectUpdatedRoom(room._id, { currentMembers: data.currentMembers });
-      connectAddToLog(room._id, data.message);
+      this.addToLog(data.message);
     });
 
     socket.on('TOOK_CONTROL', message => {
-      connectAddToLog(room._id, message);
+      this.addToLog(message);
       connectUpdatedRoom(room._id, { controlledBy: message.user._id });
       this.setState({ awarenessDesc: message.text, awarenessIcon: 'USER' });
     });
 
     socket.on('RELEASED_CONTROL', message => {
-      connectAddToLog(room._id, message);
+      this.addToLog(message);
       connectUpdatedRoom(room._id, { controlledBy: null });
       this.setState({
         awarenessDesc: message.text,
@@ -231,7 +234,7 @@ class Workspace extends Component {
     });
 
     socket.on('CREATED_TAB', data => {
-      connectAddToLog(room._id, data.message);
+      this.addToLog(data.message);
       delete data.message;
       delete data.creator;
       const tabs = [...room.tabs];
@@ -253,7 +256,7 @@ class Workspace extends Component {
   };
 
   changeTab = id => {
-    const { room, user, connectAddToLog } = this.props;
+    const { room, user } = this.props;
     const { activityOnOtherTabs, myColor } = this.state;
     this.clearReference();
     const data = {
@@ -276,20 +279,14 @@ class Workspace extends Component {
       // this.props.updatedRoom(this.props.room._id, {
       //   chat: [...this.props.room.chat, res.message]
       // });
-      connectAddToLog(room._id, data);
+      this.addToLog(data);
     });
     const updatedTabs = activityOnOtherTabs.filter(tab => tab !== id);
     this.setState({ currentTabId: id, activityOnOtherTabs: updatedTabs });
   };
 
   toggleControl = (event, auto) => {
-    const {
-      room,
-      user,
-      connectUpdatedRoom,
-      // connectUpdatedRoomTab,
-      connectAddToLog,
-    } = this.props;
+    const { room, user, connectUpdatedRoom } = this.props;
     const { myColor } = this.state;
     if (!user.connected && !auto) {
       // i.e. if the user clicked the button manually instead of controll being toggled programatically
@@ -312,7 +309,7 @@ class Workspace extends Component {
         timestamp: new Date().getTime(),
       };
       connectUpdatedRoom(room._id, { controlledBy: null });
-      connectAddToLog(room._id, message);
+      this.addToLog(message);
       this.setState({ awarenessDesc: message.text, awarenessIcon: null });
       socket.emit('RELEASE_CONTROL', message, err => {
         // eslint-disable-next-line no-console
@@ -333,7 +330,7 @@ class Workspace extends Component {
         timestamp: new Date().getTime(),
       };
       socket.emit('SEND_MESSAGE', message, () => {
-        connectAddToLog(room._id, message);
+        this.addToLog(message);
       });
     } else if (user.inAdminMode) {
       this.setState({
@@ -361,7 +358,7 @@ class Workspace extends Component {
         color: myColor,
         timestamp: new Date().getTime(),
       };
-      connectAddToLog(room._id, message);
+      this.addToLog(message);
       // When a user takes control they receive the current state of each tab in the callback
       // so that we're guranteed they have the most up to date state (hopefully we can figure out why
       // the room is falling out of sync in the first place, this a temp fix)
@@ -378,11 +375,10 @@ class Workspace extends Component {
   };
 
   emitNewTab = tabInfo => {
-    const { connectAddToLog, room } = this.props;
     const { myColor } = this.state;
     tabInfo.message.color = myColor;
     socket.emit('NEW_TAB', tabInfo, () => {
-      connectAddToLog(room._id, tabInfo.message);
+      this.addToLog(tabInfo.message);
     });
   };
 
@@ -510,7 +506,6 @@ class Workspace extends Component {
     const {
       room,
       user,
-      connectAddToLog,
       connectUpdateRoom,
       connectUpdatedRoom,
       save,
@@ -571,7 +566,7 @@ class Workspace extends Component {
       <Chat
         roomId={room._id}
         log={log || []}
-        addToLog={connectAddToLog}
+        addToLog={this.addToLog}
         myColor={myColor}
         user={user}
         referencing={referencing}
@@ -619,7 +614,7 @@ class Workspace extends Component {
           user={user}
           myColor={myColor}
           role={role}
-          addToLog={connectAddToLog}
+          addToLog={this.addToLog}
           updateRoom={connectUpdateRoom}
           updatedRoom={connectUpdatedRoom}
           resetControlTimer={this.resetControlTimer}
@@ -719,14 +714,9 @@ Workspace.propTypes = {
   temp: PropTypes.bool,
   history: PropTypes.shape({}).isRequired,
   save: PropTypes.func,
-  // connectUpdateUser: PropTypes.func.isRequired,
   connectUpdateRoom: PropTypes.func.isRequired,
   connectUpdatedRoom: PropTypes.func.isRequired,
-  // connectUpdateRoomTab: PropTypes.func.isRequired,
-  // connectUpdatedRoomTab: PropTypes.func.isRequired,
-  // connectPopulateRoom: PropTypes.func.isRequired,
   connectSetRoomStartingPoint: PropTypes.func.isRequired,
-  connectAddToLog: PropTypes.func.isRequired,
 };
 
 Workspace.defaultProps = {
@@ -749,6 +739,5 @@ export default connect(
     connectUpdatedRoom: updatedRoom,
     connectUpdatedRoomTab: updatedRoomTab,
     connectSetRoomStartingPoint: setRoomStartingPoint,
-    connectAddToLog: addToLog,
   }
 )(Workspace);

@@ -83,7 +83,7 @@ class Chat extends Component {
         return;
         // IF THERES AN ERROR WE NEED TO UNDO THE SETSTATE BELOW
       }
-      addToLog(roomId, { ...messageData, _id: res._id });
+      addToLog({ ...messageData, _id: res._id });
     });
     delete newMessage.room;
     // this.scrollToBottom(); @TODO

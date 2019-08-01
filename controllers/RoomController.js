@@ -59,7 +59,7 @@ module.exports = {
       .populate({ path: 'creator', select: 'username' })
       .populate({
         path: 'chat',
-        options: { limit: 25 },
+        // options: { limit: 25 }, // Eventually we'll need to paginate this
         populate: { path: 'user', select: 'username' },
         select: '-room',
       })
@@ -70,7 +70,7 @@ module.exports = {
         path: 'tabs',
         populate: {
           path: params.events ? 'events' : '',
-          options: { limit: 25 },
+          // options: { limit: 25 },
         },
       });
   },

@@ -5,6 +5,7 @@
  */
 
 export default (tabs, chat) => {
+  console.log({ chat });
   let allEvents = [];
   tabs.forEach(tab => {
     allEvents = allEvents.concat(tab.events);
