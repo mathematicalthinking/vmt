@@ -335,7 +335,7 @@ export const confirmEmail = token => {
     dispatch(loading.start());
     return AUTH.confirmEmail(token)
       .then(res => {
-        const { isValid, info } = res.data;
+        const { isValid, info, confirmedEmail } = res.data;
         const userData = res.data.user;
 
         if (!isValid) {
@@ -373,7 +373,7 @@ export const confirmEmail = token => {
             dispatch(gotUser(user));
           }
 
-          dispatch(loading.confirmEmailSuccess());
+          dispatch(loading.confirmEmailSuccess(confirmedEmail));
         }
       })
       .catch(err => {

@@ -274,15 +274,33 @@ router.post('/resetPassword/user', async (req, res, next) => {
 router.get('/confirmEmail/confirm/:token', async(req, res, next) => {
   try {
     let results = await ssoService.confirmEmail(req.params.token);
-    let isNotLoggedIn = isNil(getUser(req));
+    let currentUser = getUser(req);
+    let isLoggedIn = !isNil(currentUser);
+    let confirmedUser = results.user;
 
-    // front end only needs updated user if user was already logged in
-    if (isNotLoggedIn) {
-      delete results.user;
+    let wasSuccess = results.isValid === true && !isNil(confirmedUser);
+
+    if (!wasSuccess) {
+      return res.json(results);
     }
-    return res.json(results);
+    // front end only needs updated user if user was already logged in
+    if (!isLoggedIn) {
+      delete results.user;
+    } else {
+      // there is an existing user logged in
+      // check if the user whose email was confirmed is the same as the logged in user
+      let isSameUser = areObjectIdsEqual(currentUser._id, confirmedUser._id);
+
+      console.log('isSameUser', isSameUser, currentUser, confirmedUser)
+
+      if (!isSameUser) {
+        delete results.user;
+      }
+    }
+    return res.json(results)
+
 }catch(err) {
-  console.log('err conf em: ', err.message);
+  console.log('err conf em: ', err);
   errors.handleError(err, res);
 }
 });

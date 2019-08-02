@@ -57,8 +57,9 @@ export const resetPasswordSuccess = () => {
   };
 };
 
-export const confirmEmailSuccess = () => {
+export const confirmEmailSuccess = confirmedEmail => {
   return {
     type: actionTypes.CONFIRM_EMAIL_SUCCESS,
+    confirmedEmail,
   };
 };

@@ -17,5 +17,9 @@ module.exports = {
     username: 'jamie4',
     password: 'jamie'
 
+  },
+  userConfirmed: {
+    username: 'g_laforge',
+    password: `I'm49blind`,
   }
 };
