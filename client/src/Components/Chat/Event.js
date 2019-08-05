@@ -9,9 +9,11 @@ class Event extends Component {
     const { event, id } = this.props;
     const { color, description } = event;
     return (
-      <ToolTip text={description} key={id}>
-        <div className={classes.Event} style={{ background: color }} />
-      </ToolTip>
+      <div className={classes.EventContainer}>
+        <ToolTip text={description} key={id}>
+          <div className={classes.Event} style={{ background: color }} />
+        </ToolTip>
+      </div>
     );
   }
 }

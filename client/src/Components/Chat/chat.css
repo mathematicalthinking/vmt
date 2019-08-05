@@ -76,8 +76,8 @@
 
 .ChatScroll {
   flex-grow: 0;
-  display: flex;
-  flex-flow: column;
+  /* display: flex;
+  flex-flow: column; */
   padding: 0 10px;
   width: 100%;
   position: relative;
@@ -201,13 +201,17 @@
   width: 95%;
 }
 
+.EventContainer {
+  display: inline-block;
+  margin: 1px;
+  padding-bottom: 7px;
+  margin-top: 0px;
+}
+
 .Event {
   display: flex;
   height: 7px;
   width: 7px;
-  margin: 1px;
-  padding-bottom: 7px;
-  margin-top: 0px;
   transition: 0.2s;
 }
 
