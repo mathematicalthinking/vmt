@@ -185,7 +185,6 @@ class Workspace extends Component {
         }
       }
       if (!user.inAdminMode) {
-        console.log('we in here');
         socket.emit('JOIN', sendData, (res, err) => {
           if (err) {
             console.log('error');
@@ -195,8 +194,6 @@ class Workspace extends Component {
           connectUpdatedRoom(room._id, {
             currentMembers: res.room.currentMembers,
           });
-          console.log('adding join message to log');
-          console.log(res.message);
           this.addToLog(res.message);
         });
       }
@@ -369,7 +366,6 @@ class Workspace extends Component {
         timestamp: new Date().getTime(),
       };
       this.addToLog(message);
-      console.log('setting controlledBy to ', user._id);
       socket.emit('TAKE_CONTROL', message, () => {});
     }
   };
@@ -535,10 +531,8 @@ class Workspace extends Component {
       graphCoords,
     } = this.state;
     let inControl = 'OTHER';
-    console.log({ controlledBy });
     if (controlledBy === user._id) inControl = 'ME';
     else if (!controlledBy) inControl = 'NONE';
-    console.log({ inControl });
     const currentMembers = (
       <CurrentMembers
         members={room.members}

@@ -50,7 +50,7 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
-    const { room, tab, currentTabId, addToLog, addNtfToTabs } = this.props;
+    const { tab, currentTabId, addToLog, addNtfToTabs } = this.props;
     // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
     this.throttledSendEvent = throttle(this.sendEvent, 500, {
       leading: true,
@@ -69,7 +69,7 @@ class GgbGraph extends Component {
       }
       // If this event is for this tab add it to the log
       if (data.tab._id === currentTabId) {
-        addToLog(room._id, data);
+        addToLog(data);
         // If the event is for this tab but this tab is not in view,
         // add a notification to this tab
         if (currentTabId !== tab._id) {
@@ -247,7 +247,9 @@ class GgbGraph extends Component {
    */
 
   constructEvent = data => {
+    const { addToLog } = this.props;
     let readyToClearSocketQueue = true;
+    addToLog(data);
     switch (data.eventType) {
       case 'ADD':
         if (data.definition && data.definition.length > 0) {
@@ -459,12 +461,12 @@ class GgbGraph extends Component {
   userCanEdit = () => {
     const { inControl } = this.props;
     if (this.resetting || this.updatingOn) {
-      return true;
-    }
-    if (inControl === 'ME' && !this.receivingData) {
       return false;
     }
-    return true;
+    if (inControl === 'ME' && !this.receivingData) {
+      return true;
+    }
+    return false;
   };
 
   showAlert = () => {
@@ -483,18 +485,18 @@ class GgbGraph extends Component {
    */
 
   clientListener = event => {
+    console.log({ event });
     const { referencing } = this.props;
     if (this.receivingData) {
       return;
     }
     switch (event[0]) {
       case 'setMode':
-        // ignore this event if its the same as the last one or the user is selecting
-        // zoom tool or the user is referencing and only using the pointer tool
         if (
           event[2] === '40' ||
           (referencing && event[2] === '0') ||
-          (this.previousEvent.action === 'mode' &&
+          (this.previousEvent &&
+            this.previousEvent.action === 'mode' &&
             this.previousEvent.label === event[2])
         ) {
           return;
@@ -659,7 +661,6 @@ class GgbGraph extends Component {
       return;
     }
     if (!this.userCanEdit()) {
-      // this.showAlert();
       this.setState({ showControlWarning: true });
       return;
     }
@@ -771,7 +772,7 @@ class GgbGraph extends Component {
     let sendEventFromTimer = true;
 
     // this is redundant...but maybe good.
-    if (this.userCanEdit()) {
+    if (!this.userCanEdit()) {
       this.setState({ showControlWarning: true });
       return;
     }
@@ -908,7 +909,8 @@ class GgbGraph extends Component {
     if (eventQueue && eventQueue.length > 0) {
       newData.eventArray = eventQueue;
     }
-    addToLog(room._id, newData);
+    console.log('sending event: ', newData);
+    addToLog(newData);
 
     if (this.updatingTab) {
       clearTimeout(this.updatingTab);
