@@ -53,7 +53,7 @@ class CurrentMembers extends Component {
                       ? classes.Active
                       : classes.Passive,
                   ].join(' ')}
-                  key={user.username}
+                  key={member.user._id}
                 >
                   <Avatar username={user.username} color={member.color} />
                 </div>
@@ -61,7 +61,7 @@ class CurrentMembers extends Component {
             }
             return (
               <div
-                key={user.username}
+                key={user._id}
                 className={[
                   classes.Avatar,
                   user._id === activeMember ? classes.Active : classes.Passive,

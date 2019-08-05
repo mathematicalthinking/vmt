@@ -89,7 +89,6 @@ class GgbGraph extends Component {
     });
 
     socket.on('FORCE_SYNC', data => {
-      console.log('forcing a sync');
       this.receivingData = true;
       data.tabs.forEach(t => {
         if (t._id === tab._id) {
@@ -365,12 +364,10 @@ class GgbGraph extends Component {
 
   updateDimensions = async () => {
     const { tab } = this.props;
-    console.log({ tab });
     if (this.graph.current && this.ggbApplet) {
       const { clientHeight, clientWidth } = this.graph.current.parentElement;
       this.ggbApplet.setSize(clientWidth, clientHeight);
       this.ggbApplet.recalculateEnvironments();
-      console.log(tab._id);
       const appScalar = document.querySelector(`#ggb-element${tab._id}A`)
         .firstChild;
       appScalar.style.width = `${clientWidth}px`;
@@ -426,11 +423,9 @@ class GgbGraph extends Component {
    */
 
   initializeGgb = () => {
-    console.log('initing');
     // Save the coords of the graph element so we know how to restrict reference lines (i.e. prevent from overflowing graph)
 
     const { tab, setFirstTabLoaded, currentTabId } = this.props;
-    console.log({ tabId: tab._id, currentTabId });
     this.getInnerGraphCoords();
     const { currentState, startingPoint, ggbFile } = tab;
     this.ggbApplet = window[`ggbApplet${tab._id}A`];
@@ -485,7 +480,6 @@ class GgbGraph extends Component {
    */
 
   clientListener = event => {
-    console.log({ event });
     const { referencing } = this.props;
     if (this.receivingData) {
       return;
@@ -909,7 +903,6 @@ class GgbGraph extends Component {
     if (eventQueue && eventQueue.length > 0) {
       newData.eventArray = eventQueue;
     }
-    console.log('sending event: ', newData);
     addToLog(newData);
 
     if (this.updatingTab) {
@@ -971,9 +964,7 @@ class GgbGraph extends Component {
       const currentState = this.ggbApplet.getXML();
       const { _id } = tab;
       API.put('tabs', _id, { currentState })
-        .then(() => {
-          console.log('room updayted!');
-        })
+        .then(() => {})
         .catch(err => {
           // eslint-disable-next-line no-console
           console.log(err);

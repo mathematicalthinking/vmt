@@ -139,7 +139,6 @@ class Workspace extends Component {
   }
 
   addToLog = entry => {
-    console.log(entry);
     const { log } = this.state;
     this.setState({ log: [...log, entry] });
   };
@@ -152,7 +151,6 @@ class Workspace extends Component {
   };
 
   initializeListeners = () => {
-    console.log('initing listeners');
     const { temp, room, user, connectUpdatedRoom } = this.props;
     const { myColor } = this.state;
     socket.removeAllListeners('USER_JOINED');

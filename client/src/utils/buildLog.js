@@ -5,7 +5,6 @@
  */
 
 export default (tabs, chat) => {
-  console.log({ chat });
   let allEvents = [];
   tabs.forEach(tab => {
     allEvents = allEvents.concat(tab.events);
@@ -16,7 +15,6 @@ export default (tabs, chat) => {
   // see sendEventBuffer method @ ./client/src/containers/workspace/ggbGraph.js
   const consolidatedEvents = [];
   let consolidating = false;
-  console.log({ allEvents });
   allEvents.forEach(event => {
     if (!event) {
       return;

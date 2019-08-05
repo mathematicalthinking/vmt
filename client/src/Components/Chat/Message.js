@@ -78,7 +78,6 @@ const Message = React.forwardRef((props, ref) => {
 
 Message.propTypes = {
   message: PropTypes.shape({}).isRequired,
-  click: PropTypes.func.isRequired,
   highlighted: PropTypes.bool,
   id: PropTypes.string.isRequired,
   referencing: PropTypes.bool,
