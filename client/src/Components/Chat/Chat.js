@@ -377,7 +377,13 @@ class Chat extends Component {
 
 // @todo we need to consider making a different component for replayer chat or conditionally requiring many of these props (like change and submit) if this is NOT a replayer chat
 Chat.propTypes = {
-  user: PropTypes.shape({}).isRequired,
+  user: props => {
+    const { replayer, user } = props;
+    if (!replayer && !user) {
+      return new Error('prop user is required when not in replayer mode');
+    }
+    return null;
+  },
   toggleExpansion: PropTypes.func,
   referencing: PropTypes.bool,
   referToEl: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]),
@@ -390,7 +396,7 @@ Chat.propTypes = {
   referenceElement: PropTypes.shape({}),
   change: PropTypes.func,
   value: PropTypes.string,
-  startNewReference: PropTypes.func.isRequired,
+  startNewReference: PropTypes.func,
   // referenceElementCoords: PropTypes.arrayOf(PropTypes.number),
   replayer: PropTypes.bool,
   submit: PropTypes.func,
@@ -400,6 +406,7 @@ Chat.propTypes = {
 };
 
 Chat.defaultProps = {
+  user: null,
   toggleExpansion: null,
   referToEl: null,
   referFromEl: null,
@@ -411,6 +418,7 @@ Chat.defaultProps = {
   referencing: false,
   setFromElAndCoords: null,
   setToElAndCoords: null,
+  startNewReference: null,
   showReference: null,
   clearReference: null,
   showingReference: null,

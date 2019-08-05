@@ -10,7 +10,7 @@ class CurrentMembers extends Component {
   shouldComponentUpdate(nextProps) {
     const { currentMembers, activeMember } = this.props;
     if (
-      nextProps.currentMembers !== currentMembers ||
+      nextProps.currentMembers.length !== currentMembers.length ||
       nextProps.activeMember !== activeMember
     ) {
       return true;

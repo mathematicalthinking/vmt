@@ -9,12 +9,13 @@ import ChatReplayer from './ChatReplayer';
 import Clock from './Clock';
 import Slider from './Slider';
 import Settings from './Settings';
-
+import API from '../../utils/apiRequests';
 import CurrentMembers from '../../Components/CurrentMembers/CurrentMembers';
 import Loading from '../../Components/Loading/Loading';
 import Tabs from '../Workspace/Tabs';
 import Tools from '../Workspace/Tools/Tools';
-import buildLog from './SharedReplayer.utils';
+import buildReplayerLog from './SharedReplayer.utils';
+import buildLog from '../../utils/buildLog';
 
 const PLAYBACK_FIDELITY = 100;
 const INITIAL_STATE = {
@@ -28,7 +29,7 @@ const INITIAL_STATE = {
   allTabsLoaded: false,
   startTime: '',
   loading: true,
-  currentTab: 0,
+  currentTabId: null,
   multipleTabTypes: false,
   isFullscreen: false,
   stopTime: null,
@@ -36,7 +37,9 @@ const INITIAL_STATE = {
 };
 class SharedReplayer extends Component {
   state = INITIAL_STATE;
+  log = [];
   updatedLog = [];
+  tabs = [];
   tabsLoaded = 0;
   endTime = 0;
 
@@ -47,11 +50,30 @@ class SharedReplayer extends Component {
     document.addEventListener('MSFullscreenChange', this.resizeListener);
     // @TODO We should never populate the tabs events before getting here
     // we dont need them for the regular room activity only for playback
-    const { encompass, populateRoom, match } = this.props;
+    const { encompass, room } = this.props;
     if (!encompass) {
-      populateRoom(match.params.room_id, {
-        events: true,
-      });
+      API.getPopulatedById('rooms', room._id, false, true)
+        .then(res => {
+          // creae a log combining events and chat messages
+          const populatedRoom = res.data.result;
+          this.tabs = populatedRoom.tabs;
+          this.log = buildLog(populatedRoom.tabs, populatedRoom.chat);
+          this.setState(
+            {
+              currentTabId: populatedRoom.tabs[0]._id,
+            },
+            () => {
+              this.buildReplayerLog();
+            }
+          );
+          // consider deleting tab.events and room.chat here since we have all of the information in the log now
+          // dispatch(updatedRoom(id, room));
+          // dispatch(loading.success());
+        })
+        .catch(err => {
+          // eslint-disable-next-line no-console
+          console.log(err);
+        });
     } else {
       this.buildLog();
       // listen for messages from encompasss
@@ -60,7 +82,7 @@ class SharedReplayer extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { encompass, loading, room, updateEnc } = this.props;
+    const { encompass, room, updateEnc } = this.props;
     const {
       playing,
       changingIndex,
@@ -70,14 +92,14 @@ class SharedReplayer extends Component {
     } = this.state;
     // Once we've fetched the room, build a log of all the events by combining all of the events from each tab
     // in chornological order
-    if (!encompass && prevProps.loading && !loading) {
-      this.buildLog();
-    }
+    // if (!encompass && prevProps.loading && !loading) {
+    //   this.buildReplayerLog();
+    // }
 
     if (encompass && prevProps.room._id !== room._id) {
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ ...INITIAL_STATE, loading: false }, () => {
-        this.buildLog();
+        this.buildReplayerLog();
       });
     }
 
@@ -146,15 +168,14 @@ class SharedReplayer extends Component {
     document.removeEventListener('MSFullscreenChange', this.resizeListener);
   }
 
-  buildLog = () => {
-    const updatedMembers = [];
-    const {
-      room: { log, tabs },
-    } = this.props;
+  buildReplayerLog = () => {
     this.updatedLog = [];
     this.tabsLoaded = 0;
 
-    const { updatedLog, relativeDuration, endTime } = buildLog(log, tabs);
+    const { updatedLog, relativeDuration, endTime } = buildReplayerLog(
+      this.log,
+      this.tabs
+    );
     this.updatedLog = updatedLog;
     this.relativeDuration = relativeDuration;
     this.endTime = endTime;
@@ -162,7 +183,7 @@ class SharedReplayer extends Component {
       startTime: moment
         .unix(this.updatedLog[0].timestamp / 1000)
         .format('MM/DD/YYYY h:mm:ss A'),
-      currentMembers: updatedMembers,
+      currentMembers: [this.updatedLog[0].user],
     });
     this.setState({ loading: false });
   };
@@ -240,7 +261,7 @@ class SharedReplayer extends Component {
   // Takes a % of total progress and goes to the nearest timestamp
   goToTime = (percent, doAutoPlay = false, stopTime = null) => {
     const { room } = this.props;
-    let { currentTab } = this.state;
+    let { currentTabId } = this.state;
     let logIndex;
     let timeElapsed = percent * this.relativeDuration;
     if (percent === 1) {
@@ -256,15 +277,15 @@ class SharedReplayer extends Component {
         return false;
       });
     }
-    room.tabs.forEach((tab, i) => {
+    room.tabs.forEach(tab => {
       if (tab._id === this.updatedLog[logIndex].tab) {
-        currentTab = i;
+        currentTabId = tab._id;
       }
     });
     this.setState({
       timeElapsed,
       logIndex,
-      currentTab,
+      currentTabId,
       playing: doAutoPlay,
       stopTime,
       changingIndex: true,
@@ -299,10 +320,10 @@ class SharedReplayer extends Component {
     this.setState({ playbackSpeed: speed });
   };
 
-  changeTab = index => {
+  changeTab = id => {
     // why is this a promise?
     return new Promise(resolve => {
-      this.setState({ currentTab: index }, () => {
+      this.setState({ currentTabId: id }, () => {
         resolve();
       });
     });
@@ -360,7 +381,7 @@ class SharedReplayer extends Component {
       changingIndex,
       isFullscreen,
       showControls,
-      currentTab,
+      currentTabId,
       currentMembers,
       allTabsLoaded,
     } = this.state;
@@ -422,7 +443,7 @@ class SharedReplayer extends Component {
         setCurrentMembers={this.setCurrentMembers}
       />
     );
-    const graphs = room.tabs.map((tab, i) => {
+    const graphs = this.tabs.map((tab, i) => {
       if (tab.tabType === 'geogebra') {
         return (
           <GgbReplayer
@@ -432,13 +453,13 @@ class SharedReplayer extends Component {
             playing={playing}
             reset={this.reset}
             changeTab={this.changeTab}
-            currentTab={currentTab}
+            currentTabId={currentTabId}
             setTabLoaded={this.setTabLoaded}
             tab={tab}
             key={tab._id}
             tabId={i}
             isFullscreen={isFullscreen}
-            inView={currentTab === i}
+            inView={currentTabId === tab._id}
           />
         );
       }
@@ -450,11 +471,11 @@ class SharedReplayer extends Component {
           playing={playing}
           reset={this.reset}
           changeTab={this.changeTab}
-          currentTab={currentTab}
+          currentTabId={currentTabId}
           setTabLoaded={this.setTabLoaded}
           tab={tab}
           key={tab._id}
-          inView={currentTab === i}
+          inView={currentTabId === tab._id}
         />
       );
     });
@@ -470,7 +491,7 @@ class SharedReplayer extends Component {
             <Tabs
               tabs={room.tabs}
               changeTabs={this.changeTab}
-              currentTab={currentTab}
+              currentTabId={currentTabId}
               participantCanCreate={false}
               replayer
               memberRole="participant" // this controls the user's ability to make a new tab...we don't want them to make a new a tab in the replayer no matter what their role is
@@ -479,17 +500,19 @@ class SharedReplayer extends Component {
           currentMembers={
             currentMembers.length > 0 ? (
               <CurrentMembers
-                currentMembers={currentMembers.map(member => member.user)}
                 members={room.members}
+                currentMembers={currentMembers}
                 expanded
-                activeMember={event.user}
+                activeMember={
+                  event.user && event.user._id ? event.user._id : event.user
+                }
               />
             ) : null
           }
           bottomLeft={replayer}
           activeMember={event.user}
           replayerControls={replayer}
-          currentTab={currentTab}
+          currentTabId={currentTabId}
           roomName={`${room.name} Replayer`}
           bottomRight={
             <Tools
@@ -517,11 +540,9 @@ class SharedReplayer extends Component {
 
 SharedReplayer.propTypes = {
   encompass: PropTypes.bool,
-  populateRoom: PropTypes.func.isRequired,
   match: PropTypes.shape({}).isRequired,
   room: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
-  loading: PropTypes.bool.isRequired,
   updateEnc: PropTypes.func,
   history: PropTypes.shape({}).isRequired,
 };
