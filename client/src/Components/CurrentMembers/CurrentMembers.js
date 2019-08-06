@@ -7,16 +7,20 @@ class CurrentMembers extends Component {
   // state = {
   //   expanded: true
   // }
-  shouldComponentUpdate(nextProps) {
-    const { currentMembers, activeMember } = this.props;
-    if (
-      nextProps.currentMembers.length !== currentMembers.length ||
-      nextProps.activeMember !== activeMember
-    ) {
-      return true;
-    }
-    return false;
-  }
+  // shouldComponentUpdate(nextProps) {
+  //   const { currentMembers, activeMember } = this.props;
+  //   console.log(
+  //     nextProps.currentMembers.length !== currentMembers.length ||
+  //       nextProps.activeMember !== activeMember
+  //   );
+  //   if (
+  //     nextProps.currentMembers.length !== currentMembers.length ||
+  //     nextProps.activeMember !== activeMember
+  //   ) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
   toggleExpansion = () => {
     const { toggleExpansion } = this.props;
@@ -25,6 +29,7 @@ class CurrentMembers extends Component {
 
   render() {
     const { currentMembers, members, activeMember, expanded } = this.props;
+    console.log({ currentMembers });
     return (
       <div className={classes.Container}>
         <div
@@ -42,6 +47,7 @@ class CurrentMembers extends Component {
           data-testid="current-members"
         >
           {currentMembers.map(user => {
+            console.log({ user });
             // get the users color
             const member = members.filter(m => m.user._id === user._id)[0];
             if (member) {
@@ -49,11 +55,11 @@ class CurrentMembers extends Component {
                 <div
                   className={[
                     classes.Avatar,
-                    user._id === activeMember
+                    activeMember && user._id === activeMember._id
                       ? classes.Active
                       : classes.Passive,
                   ].join(' ')}
-                  key={member.user._id}
+                  key={user._id}
                 >
                   <Avatar username={user.username} color={member.color} />
                 </div>
