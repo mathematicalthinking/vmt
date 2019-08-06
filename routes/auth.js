@@ -23,7 +23,7 @@ const Room = require('../models/Room');
 
 const ssoService = require('../services/sso');
 
-const { isNil } = require('lodash');
+const { isNil, isEqual } = require('lodash');
 
 router.post('/login', async (req, res, next) => {
   try {
@@ -84,8 +84,38 @@ router.post('/signup', async (req, res, next) => {
       .lean()
       .exec();
 
+    let wasFromTempUser = Array.isArray(user.rooms) && user.rooms.length > 0;
+
+    if (wasFromTempUser) {
+      // update the room
+      let tempRoom = await Room.findById(user.rooms[0]);
+
+      if (tempRoom) {
+        tempRoom.tempRoom = false;
+
+        let foundUser = false;
+
+        let members = tempRoom.members;
+        members.forEach((member) => {
+          if (isEqual(member.user, user._id)) {
+            if (member.role !== 'facilitator') {
+              member.role = 'facilitator';
+            }
+            foundUser = true;
+          }
+        });
+
+        // will this ever happen?
+        if (!foundUser) {
+          members.push({user: user._id, role: 'facilitator'})
+        }
+        await tempRoom.save();
+      }
+    }
+
     return res.json(user);
   } catch (err) {
+    console.log('err signup', err);
     return errors.sendError.InternalError(null, res);
   }
 });
