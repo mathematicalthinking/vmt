@@ -84,6 +84,17 @@ router.post('/signup', async (req, res, next) => {
       .lean()
       .exec();
 
+    let wasFromTempUser = Array.isArray(user.rooms) && user.rooms.length > 0;
+
+    if (wasFromTempUser) {
+      // update the room
+      console.log('updating temp room for ', user.username);
+      await Room.findByIdAndUpdate(user.rooms[0], {
+        tempRoom: false,
+        members: [{ user: user._id, role: 'facilitator' }],
+      });
+    }
+
     return res.json(user);
   } catch (err) {
     return errors.sendError.InternalError(null, res);
