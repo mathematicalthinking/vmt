@@ -61,7 +61,7 @@ const pages = [
   },
   {
     path: '/workspace/:room_id',
-    component: Workspace,
+    component: withPopulatedRoom(Workspace),
     redirectPath: '/signup',
   },
   {
@@ -97,7 +97,10 @@ class MyVmt extends Component {
               />
             );
           })}
-          <Route path={`${path}/explore/:id`} component={TempWorkspace} />
+          <Route
+            path={`${path}/explore/:id`}
+            component={withPopulatedRoom(TempWorkspace)}
+          />
           <Route
             path="*"
             component={

@@ -29,7 +29,6 @@ class CurrentMembers extends Component {
 
   render() {
     const { currentMembers, members, activeMember, expanded } = this.props;
-    console.log({ currentMembers });
     return (
       <div className={classes.Container}>
         <div
@@ -47,7 +46,6 @@ class CurrentMembers extends Component {
           data-testid="current-members"
         >
           {currentMembers.map(user => {
-            console.log({ user });
             // get the users color
             const member = members.filter(m => m.user._id === user._id)[0];
             if (member) {

@@ -127,6 +127,7 @@ class SharedReplayer extends Component {
         .unix(this.updatedLog[0].timestamp / 1000)
         .format('MM/DD/YYYY h:mm:ss A'),
       currentMembers: [this.updatedLog[0].user],
+      currentTabId: this.updatedLog[0].tab,
     });
     this.setState({ loading: false });
   };
@@ -228,7 +229,6 @@ class SharedReplayer extends Component {
 
     const { logIndex: previousIndex } = this.state;
     const updatedMembers = this.deriveCurrentMembers(previousIndex, logIndex);
-    console.log({ updatedMembers });
     this.setState({
       timeElapsed,
       currentMembers: updatedMembers,
@@ -243,7 +243,6 @@ class SharedReplayer extends Component {
 
   deriveCurrentMembers = (startIndex, endIndex) => {
     const { currentMembers } = this.state;
-    console.log({ currentMembers });
     let updatedMembers = [...currentMembers];
     if (endIndex - startIndex > 0) {
       for (let i = startIndex + 1; i <= endIndex; i++) {
@@ -355,7 +354,6 @@ class SharedReplayer extends Component {
 
   render() {
     const { populatedRoom, encompass } = this.props;
-    console.log({ populatedRoom, encompass });
     const {
       playing,
       playbackSpeed,

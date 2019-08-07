@@ -5,8 +5,6 @@ export default (log, tabs) => {
   const MAX_WAIT = 10000; // 10 seconds
   const updatedLog = [];
   let endTime;
-  console.log(Array.isArray(log));
-  console.log(log);
   const relativeDuration = log.reduce((acc, cur, idx, src) => {
     // Copy currentEvent
     const event = { ...cur };

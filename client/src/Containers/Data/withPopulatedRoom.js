@@ -27,16 +27,24 @@ function withPopulatedRoom(WrappedComponent) {
         });
     }
     render() {
+      const { history } = this.props;
       const { loading } = this.state;
       if (loading) {
         return 'loading';
       }
-      return <WrappedComponent populatedRoom={this.populatedRoom} />;
+      console.log(this.populatedRoom);
+      return (
+        <WrappedComponent
+          populatedRoom={this.populatedRoom}
+          history={history}
+        />
+      );
     }
   }
 
   PopulatedRoom.propTypes = {
     match: PropTypes.shape({}).isRequired,
+    history: PropTypes.shape({}).isRequired,
   };
 
   return PopulatedRoom;
