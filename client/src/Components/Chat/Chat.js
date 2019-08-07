@@ -134,6 +134,7 @@ class Chat extends Component {
 
   showReference = (event, reference) => {
     // console.log(event.target);
+    console.log(reference);
     const { showReference, referToEl, clearReference } = this.props;
     // If we're already showing this reference clear the reference
     if (showReference && referToEl && reference.element === referToEl.element) {

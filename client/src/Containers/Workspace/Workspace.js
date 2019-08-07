@@ -387,10 +387,10 @@ class Workspace extends Component {
     referToCoords,
     referFromEl,
     referFromCoords,
-    tab
+    tabId
   ) => {
     const { currentTabId } = this.state;
-    if (tab !== currentTabId && referToEl.elementType !== 'chat_message') {
+    if (tabId !== currentTabId && referToEl.elementType !== 'chat_message') {
       window.alert('This reference does not belong to this tab'); // @TODO HOW SHOULD WE HANDLE THIS?
     } else {
       this.setState({

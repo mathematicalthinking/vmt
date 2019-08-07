@@ -606,6 +606,7 @@ class GgbGraph extends Component {
       default:
         break;
     }
+    console.log('draggin?');
   };
 
   /**
@@ -703,14 +704,15 @@ class GgbGraph extends Component {
   };
 
   zoomListener = async () => {
-    this.getInnerGraphCoords();
     const {
       referencing,
       showingReference,
       referToEl,
       setToElAndCoords,
     } = this.props;
+    console.log('zoom listener');
     if ((referencing && referToEl) || showingReference) {
+      this.getInnerGraphCoords();
       const { position } = await this.getReferenceCoords(
         referToEl.element,
         referToEl.elementType

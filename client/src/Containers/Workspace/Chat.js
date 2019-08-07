@@ -44,7 +44,7 @@ class Chat extends Component {
     const {
       referToEl,
       referencing,
-      currentTab,
+      currentTabId,
       clearReference,
       addToLog,
       roomId,
@@ -72,7 +72,7 @@ class Chat extends Component {
     if (referencing && referToEl) {
       messageData.reference = {
         ...referToEl,
-        tab: currentTab,
+        tab: currentTabId,
       };
       clearReference();
     }
@@ -112,6 +112,7 @@ Chat.propTypes = {
   addToLog: PropTypes.func.isRequired,
   replaying: PropTypes.bool,
   roomId: PropTypes.string.isRequired,
+  currentTabId: PropTypes.string.isRequired,
 };
 
 Chat.defaultProps = {
