@@ -8,13 +8,15 @@ import {
   Course,
   Activity,
   Room,
-  Workspace,
-  Replayer,
+  SharedReplayer,
   Profile,
   ActivityWorkspace,
+  Workspace,
   TempWorkspace,
+  withPopulatedRoom,
 } from '../Containers';
 import { PrivateRoute, ErrorToast } from '../Components';
+// import Workspace from './Workspace';
 import { Confirmation, FacilitatorInstructions } from '../Layout';
 import ErrorBoundary from '../ErrorBoundary';
 
@@ -49,7 +51,7 @@ const pages = [
   },
   {
     path: '/workspace/:room_id/replayer',
-    component: Replayer,
+    component: withPopulatedRoom(SharedReplayer),
     redirectPath: '/signup',
   },
   {
