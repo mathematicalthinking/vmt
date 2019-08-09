@@ -30,9 +30,8 @@ function withPopulatedRoom(WrappedComponent) {
       const { history } = this.props;
       const { loading } = this.state;
       if (loading) {
-        return 'loading';
+        return <div>loading</div>;
       }
-      console.log(this.populatedRoom);
       return (
         <WrappedComponent
           populatedRoom={this.populatedRoom}

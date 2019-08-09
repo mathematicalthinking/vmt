@@ -710,7 +710,6 @@ class GgbGraph extends Component {
       referToEl,
       setToElAndCoords,
     } = this.props;
-    console.log('zoom listener');
     if ((referencing && referToEl) || showingReference) {
       this.getInnerGraphCoords();
       const { position } = await this.getReferenceCoords(

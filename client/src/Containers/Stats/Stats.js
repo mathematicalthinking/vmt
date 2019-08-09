@@ -18,27 +18,23 @@ import Button from '../../Components/UI/Button/Button';
 import ToolTip from '../../Components/ToolTip/ToolTip';
 import InfoBox from '../../Components/InfoBox/InfoBox';
 
-const Stats = ({ data, populateRoom }) => {
+const Stats = ({ populatedRoom }) => {
   const [state, dispatch] = useReducer(statsReducer, initialState);
   const [isResizing, setResizing] = useState(false);
   const debounceResize = useCallback(debounce(() => setResizing(false), 1000));
   let chart;
   const { inChartView, filteredData } = state;
-  if (data.log && !isResizing && inChartView) {
+  if (populatedRoom.log && !isResizing && inChartView) {
     chart = <Chart state={state} />;
-  } else if (data.log && !isResizing) {
+  } else if (populatedRoom.log && !isResizing) {
     chart = <Table data={filteredData} />;
   } else {
     chart = <Loading isSmall />;
   }
 
   useEffect(() => {
-    if (!data.log) {
-      populateRoom(data._id, { events: true });
-    } else {
-      dispatch({ type: 'GENERATE_DATA', data: data.log });
-    }
-  }, [data.log]);
+    dispatch({ type: 'GENERATE_DATA', data: populatedRoom.log });
+  }, [populatedRoom.log]);
 
   // resize
   useEffect(() => {
@@ -55,7 +51,7 @@ const Stats = ({ data, populateRoom }) => {
   return (
     <div>
       <InfoBox
-        title={`${data.name} activity`}
+        title={`${populatedRoom.name} activity`}
         icon={
           inChartView ? (
             <i className="fas fa-chart-line" />
@@ -84,7 +80,9 @@ const Stats = ({ data, populateRoom }) => {
                 theme="None"
                 key="2"
                 data-testid="download-csv"
-                click={() => exportCSV(filteredData, `${data.name}_csv`)}
+                click={() =>
+                  exportCSV(filteredData, `${populatedRoom.name}_csv`)
+                }
               >
                 <i className="fas fa-download" />
               </Button>
@@ -95,15 +93,14 @@ const Stats = ({ data, populateRoom }) => {
         <div className={classes.ChartContainer}>{chart}</div>
       </InfoBox>
       <InfoBox title="Filters" icon={<i className="fas fa-filter" />}>
-        <Filters data={data} filters={state} dispatch={dispatch} />
+        <Filters data={populatedRoom} filters={state} dispatch={dispatch} />
       </InfoBox>
     </div>
   );
 };
 
 Stats.propTypes = {
-  data: PropTypes.shape({}).isRequired,
-  populateRoom: PropTypes.func.isRequired,
+  populatedRoom: PropTypes.shape({}).isRequired,
 };
 
 export default Stats;
