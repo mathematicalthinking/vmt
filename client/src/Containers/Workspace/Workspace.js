@@ -22,7 +22,6 @@ class Workspace extends Component {
   constructor(props) {
     super(props);
     const { user, populatedRoom, tempCurrentMembers } = this.props;
-    console.log('constructing');
     let myColor = null;
     if (populatedRoom.members) {
       try {
@@ -36,8 +35,8 @@ class Workspace extends Component {
       }
     }
     this.state = {
-      tabs: [],
-      log: [],
+      tabs: populatedRoom.tabs || [],
+      log: populatedRoom.log || [],
       myColor,
       controlledBy: populatedRoom.controlledBy,
       activeMember: '',
@@ -93,13 +92,7 @@ class Workspace extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {
-      populatedRoom,
-      user,
-      temp,
-      tempCurrentMembers,
-      lastMessage,
-    } = this.props;
+    const { populatedRoom, user, temp, lastMessage } = this.props;
     if (
       prevProps.populatedRoom.controlledBy === null &&
       populatedRoom.controlledBy !== null &&
@@ -116,14 +109,11 @@ class Workspace extends Component {
       this.toggleControl(null, auto);
     }
 
-    if (
-      temp &&
-      prevProps.tempCurrentMembers.length !== tempCurrentMembers.length
-    ) {
-      console.log({ tempCurrentMembers });
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ currentMembers: tempCurrentMembers });
-      this.addToLog(lastMessage);
+    if (temp) {
+      if (prevProps.lastMessage !== lastMessage) {
+        console.log({ lastMessage });
+        this.addToLog(lastMessage);
+      }
     }
   }
 
@@ -136,6 +126,7 @@ class Workspace extends Component {
   }
 
   addToLog = entry => {
+    console.log({ ...entry });
     const { log } = this.state;
     this.setState({ log: [...log, entry] });
   };
@@ -212,7 +203,6 @@ class Workspace extends Component {
 
     socket.on('TOOK_CONTROL', message => {
       this.addToLog(message);
-      // connectUpdatedRoom(room._id, { controlledBy: message.user._id });
       this.setState({
         awarenessDesc: message.text,
         awarenessIcon: 'USER',
@@ -222,11 +212,10 @@ class Workspace extends Component {
 
     socket.on('RELEASED_CONTROL', message => {
       this.addToLog(message);
-      // connectUpdatedRoom(populatedRoom._id, { controlledBy: null });
       this.setState({
         awarenessDesc: message.text,
         awarenessIcon: 'USER',
-        controlledBy: message.user._id,
+        controlledBy: null,
       });
     });
 
@@ -236,7 +225,7 @@ class Workspace extends Component {
       delete data.creator;
       const tabs = [...populatedRoom.tabs];
       tabs.push(data);
-      // connectUpdatedRoom(populatedRoom._id, { tabs });
+      this.setState({ tabs });
     });
   };
 
@@ -286,7 +275,7 @@ class Workspace extends Component {
   };
 
   toggleControl = (event, auto) => {
-    const { populatedRoom, user, connectUpdatedRoom } = this.props;
+    const { populatedRoom, user } = this.props;
     const { controlledBy } = this.state;
     const { myColor } = this.state;
     if (!user.connected && !auto) {
@@ -309,7 +298,6 @@ class Workspace extends Component {
         color: myColor,
         timestamp: new Date().getTime(),
       };
-      connectUpdatedRoom(populatedRoom._id, { controlledBy: null });
       this.addToLog(message);
       this.setState({
         awarenessDesc: message.text,
@@ -352,7 +340,7 @@ class Workspace extends Component {
       );
     } else {
       // We're taking control
-      this.setState({ controlledBy: user._id });
+      this.setState({ controlledBy: user._id, referencing: false });
       this.resetControlTimer();
       const message = {
         _id: mongoIdGenerator(),
@@ -535,6 +523,9 @@ class Workspace extends Component {
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
     else if (!controlledBy) inControl = 'NONE';
+    console.log({ ...tempCurrentMembers });
+    console.log({ ...activeMembers });
+    console.log({ log });
     const currentMembers = (
       <CurrentMembers
         members={tempMembers || populatedRoom.members}

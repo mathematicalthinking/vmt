@@ -13,7 +13,7 @@ class Chat extends Component {
   };
 
   componentDidMount() {
-    const { addToLog, replaying, roomId } = this.props;
+    const { addToLog, replaying } = this.props;
     const { newMessage } = this.state;
     // event handler for enter key presses
     document.addEventListener('keydown', event => {
@@ -28,7 +28,7 @@ class Chat extends Component {
     if (!replaying) {
       socket.removeAllListeners('RECEIVE_MESSAGE');
       socket.on('RECEIVE_MESSAGE', data => {
-        addToLog(roomId, data);
+        addToLog(data);
         // this.scrollToBottom()
       });
     }
@@ -83,7 +83,8 @@ class Chat extends Component {
         return;
         // IF THERES AN ERROR WE NEED TO UNDO THE SETSTATE BELOW
       }
-      addToLog({ ...messageData, _id: res._id });
+      console.log({ messageData });
+      addToLog(messageData);
     });
     delete newMessage.room;
     // this.scrollToBottom(); @TODO

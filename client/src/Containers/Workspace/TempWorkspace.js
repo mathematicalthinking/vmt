@@ -34,7 +34,6 @@ class TempWorkspace extends Component {
 
   componentDidMount() {
     const { populatedRoom } = this.props;
-    console.log({ populatedRoom });
     // If there is no room by this id ins the user's store, then they're not the first to join
     // The user creating this room will it have in their store. A user who just drops the link in their url bar will not have it in the store
     if (
@@ -43,12 +42,11 @@ class TempWorkspace extends Component {
     ) {
       this.setState({ firstEntry: false });
     }
+
     socket.on('USER_JOINED_TEMP', data => {
-      // const { id } = match.params;
       const { currentMembers, members } = data;
+      console.log('user joined updating current members and members');
       this.setState({ currentMembers, members, lastMessage: data.message });
-      // connectUpdatedRoom(id, { currentMembers, members });
-      // connectAddToLog(id, data.message);
     });
   }
 
@@ -110,7 +108,6 @@ class TempWorkspace extends Component {
       }
       res.user.connected = socket.connected;
       // eslint-disable-next-line no-console
-      console.log('joined!', res);
       this.setState({
         user: res.user,
         currentMembers: res.room.currentMembers,
@@ -121,18 +118,8 @@ class TempWorkspace extends Component {
   };
 
   saveWorkspace = () => {
-    const {
-      connectUpdatedRoom,
-      connectAddUserRooms,
-      loggedIn,
-      match,
-    } = this.props;
-    const { user } = this.state;
-    // connectUpdatedRoom(match.params.id, {
-    //   tempRoom: false,
-    //   creator: user._id,
-    // });
-    if (loggedIn) connectAddUserRooms(match.params.id);
+    const { connectAddUserRooms, loggedIn, match } = this.props;
+    if (loggedIn) connectAddUserRooms(match.params.id); // this is going to re-render the compnent ?? BAD
     this.setState({ saving: true });
   };
 
@@ -154,7 +141,6 @@ class TempWorkspace extends Component {
       members,
       lastMessage,
     } = this.state;
-    console.log({ firstEntry });
     return user ? (
       <Aux>
         {saving && !loggedIn ? (
