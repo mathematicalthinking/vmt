@@ -55,7 +55,7 @@ module.exports = [
     reference: {
       element: 'g',
       elementType: 'poly',
-      tab: 0,
+      tab: ObjectId('5d0d2ed0535e3a522445f7a9'),
     },
     __v: 0,
   },
@@ -73,7 +73,7 @@ module.exports = [
     reference: {
       element: 'q1',
       elementType: 'poly',
-      tab: 0,
+      tab: ObjectId('5d0d2ed0535e3a522445f7a9'),
     },
     __v: 0,
   },
@@ -91,7 +91,7 @@ module.exports = [
     reference: {
       element: 'f',
       elementType: 'circle',
-      tab: 0,
+      tab: ObjectId('5d0d2ed0535e3a522445f7a9'),
     },
     __v: 0,
   },
