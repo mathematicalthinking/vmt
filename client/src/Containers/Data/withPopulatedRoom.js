@@ -11,7 +11,6 @@ function withPopulatedRoom(WrappedComponent) {
 
     componentDidMount() {
       const { match } = this.props;
-      console.log(match.params.room_id);
       API.getPopulatedById('rooms', match.params.room_id, false, true)
         .then(res => {
           this.populatedRoom = res.data.result;
@@ -28,11 +27,14 @@ function withPopulatedRoom(WrappedComponent) {
         });
     }
     render() {
+      console.log('why did this rerender??');
       const { history } = this.props;
       const { loading } = this.state;
       if (loading) {
         return <div>loading</div>;
       }
+
+      console.log(this.populatedRoom);
       return (
         <WrappedComponent
           populatedRoom={this.populatedRoom}

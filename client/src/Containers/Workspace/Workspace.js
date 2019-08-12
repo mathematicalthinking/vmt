@@ -21,7 +21,8 @@ import { socket } from '../../utils';
 class Workspace extends Component {
   constructor(props) {
     super(props);
-    const { user, populatedRoom } = this.props;
+    const { user, populatedRoom, tempCurrentMembers } = this.props;
+    console.log('constructing');
     let myColor = null;
     if (populatedRoom.members) {
       try {
@@ -40,7 +41,7 @@ class Workspace extends Component {
       myColor,
       controlledBy: populatedRoom.controlledBy,
       activeMember: '',
-      currentMembers: populatedRoom.currentMembers,
+      currentMembers: tempCurrentMembers || populatedRoom.currentMembers,
       referencing: false,
       showingReference: false,
       referToEl: null,
@@ -62,31 +63,43 @@ class Workspace extends Component {
   }
 
   componentDidMount() {
-    const { populatedRoom, user } = this.props;
-    if (populatedRoom.members) {
-      let myColor;
-      try {
-        myColor = populatedRoom.members.filter(
-          member => member.user._id === user._id
-        )[0].color;
-      } catch (err) {
-        if (user.isAdmin) {
-          myColor = '#ffd549';
-        }
-      }
-      this.setState({
-        myColor,
-        tabs: populatedRoom.tabs,
-        log: populatedRoom.log,
-      });
-      this.initializeListeners();
+    // console.log(this.props);
+    const { populatedRoom, user, temp, tempMembers, lastMessage } = this.props;
+    let membersToFilter = populatedRoom.members;
+    if (temp) {
+      membersToFilter = tempMembers;
     }
+    let myColor;
+    console.log('mounted!!');
+    console.log({ membersToFilter });
+    try {
+      myColor = membersToFilter.filter(
+        member => member.user._id === user._id
+      )[0].color;
+    } catch (err) {
+      if (user.isAdmin) {
+        myColor = '#ffd549';
+      }
+    }
+    this.setState({
+      myColor,
+      tabs: populatedRoom.tabs,
+      log: populatedRoom.log,
+    });
+    if (lastMessage) this.addToLog(lastMessage);
+    this.initializeListeners();
     window.addEventListener('resize', this.clearReference);
     window.addEventListener('keydown', this.keyListener);
   }
 
   componentDidUpdate(prevProps) {
-    const { populatedRoom, user } = this.props;
+    const {
+      populatedRoom,
+      user,
+      temp,
+      tempCurrentMembers,
+      lastMessage,
+    } = this.props;
     if (
       prevProps.populatedRoom.controlledBy === null &&
       populatedRoom.controlledBy !== null &&
@@ -101,6 +114,16 @@ class Workspace extends Component {
     if (!user.connected && populatedRoom.controlledBy === user._id) {
       const auto = true;
       this.toggleControl(null, auto);
+    }
+
+    if (
+      temp &&
+      prevProps.tempCurrentMembers.length !== tempCurrentMembers.length
+    ) {
+      console.log({ tempCurrentMembers });
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ currentMembers: tempCurrentMembers });
+      this.addToLog(lastMessage);
     }
   }
 
@@ -125,7 +148,7 @@ class Workspace extends Component {
   };
 
   initializeListeners = () => {
-    const { temp, populatedRoom, user, connectUpdatedRoom } = this.props;
+    const { temp, populatedRoom, user } = this.props;
     const { myColor } = this.state;
     socket.removeAllListeners('USER_JOINED');
     socket.removeAllListeners('CREATED_TAB');
@@ -133,16 +156,16 @@ class Workspace extends Component {
     socket.removeAllListeners('RELEASED_CONTROL');
     socket.removeAllListeners('TOOK_CONTROL');
 
-    const sendData = {
-      _id: mongoIdGenerator(),
-      userId: user._id,
-      roomId: populatedRoom._id,
-      username: user.username,
-      roomName: populatedRoom.name,
-      color: myColor,
-    };
     // const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
     if (!temp) {
+      const sendData = {
+        _id: mongoIdGenerator(),
+        userId: user._id,
+        roomId: populatedRoom._id,
+        username: user.username,
+        roomName: populatedRoom.name,
+        color: myColor,
+      };
       // if the user joined this room with their admin privileges instead of being a bona fide member they won't be in the room list
       try {
         const { role } = populatedRoom.members.filter(
@@ -157,24 +180,21 @@ class Workspace extends Component {
         }
       }
       if (!user.inAdminMode) {
-        socket.emit('JOIN', sendData, (res, err) => {
+        socket.emit('JOIN', sendData, ({ room, message }, err) => {
           if (err) {
             console.log('error');
             // eslint-disable-next-line no-console
             console.log(err); // HOW SHOULD WE HANDLE THIS
           }
           this.setState({
-            currentMembers: res.room.currentMembers,
+            currentMembers: room.currentMembers,
           });
-          this.addToLog(res.message);
+          this.addToLog(message);
         });
       }
     }
 
     socket.on('USER_JOINED', data => {
-      connectUpdatedRoom(populatedRoom._id, {
-        currentMembers: data.currentMembers,
-      });
       this.setState({
         currentMembers: data.currentMembers,
       });
@@ -182,7 +202,6 @@ class Workspace extends Component {
     });
 
     socket.on('USER_LEFT', data => {
-      console.log('user left: ', data);
       let { controlledBy } = this.state;
       if (data.releasedControl) {
         controlledBy = null;
@@ -203,7 +222,7 @@ class Workspace extends Component {
 
     socket.on('RELEASED_CONTROL', message => {
       this.addToLog(message);
-      connectUpdatedRoom(populatedRoom._id, { controlledBy: null });
+      // connectUpdatedRoom(populatedRoom._id, { controlledBy: null });
       this.setState({
         awarenessDesc: message.text,
         awarenessIcon: 'USER',
@@ -217,7 +236,7 @@ class Workspace extends Component {
       delete data.creator;
       const tabs = [...populatedRoom.tabs];
       tabs.push(data);
-      connectUpdatedRoom(populatedRoom._id, { tabs });
+      // connectUpdatedRoom(populatedRoom._id, { tabs });
     });
   };
 
@@ -486,6 +505,8 @@ class Workspace extends Component {
       connectUpdatedRoom,
       save,
       temp,
+      tempMembers,
+      tempCurrentMembers,
     } = this.props;
     const {
       tabs: currentTabs,
@@ -516,8 +537,8 @@ class Workspace extends Component {
     else if (!controlledBy) inControl = 'NONE';
     const currentMembers = (
       <CurrentMembers
-        members={populatedRoom.members}
-        currentMembers={activeMembers}
+        members={tempMembers || populatedRoom.members}
+        currentMembers={tempCurrentMembers || activeMembers}
         activeMember={populatedRoom.controlledBy}
         expanded={membersExpanded}
         toggleExpansion={this.toggleExpansion}
@@ -677,6 +698,9 @@ class Workspace extends Component {
 
 Workspace.propTypes = {
   populatedRoom: PropTypes.shape({}).isRequired,
+  tempCurrentMembers: PropTypes.arrayOf(PropTypes.shape({})),
+  tempMembers: PropTypes.arrayOf(PropTypes.shape({})),
+  lastMessage: PropTypes.shape({}),
   user: PropTypes.shape({}).isRequired,
   temp: PropTypes.bool,
   history: PropTypes.shape({}).isRequired,
@@ -687,6 +711,9 @@ Workspace.propTypes = {
 };
 
 Workspace.defaultProps = {
+  tempCurrentMembers: null,
+  tempMembers: null,
+  lastMessage: null,
   save: null,
   temp: false,
 };

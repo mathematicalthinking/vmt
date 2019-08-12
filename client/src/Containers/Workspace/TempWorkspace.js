@@ -21,23 +21,32 @@ class TempWorkspace extends Component {
   state = {
     user: null,
     tempUsername: null,
+    currentMembers: [],
+    members: [],
+    lastMessage: null,
     errorMessage: '',
     firstEntry: true,
     saving: false,
     saved: false,
   };
 
-  componentDidMount() {
-    const { room } = this.props;
+  initialCurrentMembers = [];
 
+  componentDidMount() {
+    const { populatedRoom } = this.props;
+    console.log({ populatedRoom });
     // If there is no room by this id ins the user's store, then they're not the first to join
     // The user creating this room will it have in their store. A user who just drops the link in their url bar will not have it in the store
-    if (!room || room.currentMembers.length > 0) {
+    if (
+      populatedRoom.currentMembers &&
+      populatedRoom.currentMembers.length > 0
+    ) {
       this.setState({ firstEntry: false });
     }
     socket.on('USER_JOINED_TEMP', data => {
       // const { id } = match.params;
-      // const { currentMembers, members } = data;
+      const { currentMembers, members } = data;
+      this.setState({ currentMembers, members, lastMessage: data.message });
       // connectUpdatedRoom(id, { currentMembers, members });
       // connectAddToLog(id, data.message);
     });
@@ -97,11 +106,17 @@ class TempWorkspace extends Component {
     // this.setState({enteredRoom: true, graph: graphType})
     return socket.emit('JOIN_TEMP', sendData, (res, err) => {
       if (err) {
-        // eslint-disable-next-line no-console
         console.log('error ', err); // HOW SHOULD WE HANDLE THIS
       }
       res.user.connected = socket.connected;
-      this.setState({ user: res.user });
+      // eslint-disable-next-line no-console
+      console.log('joined!', res);
+      this.setState({
+        user: res.user,
+        currentMembers: res.room.currentMembers,
+        members: res.room.members,
+        lastMessage: res.message,
+      });
     });
   };
 
@@ -128,7 +143,18 @@ class TempWorkspace extends Component {
 
   render() {
     const { loggedIn, populatedRoom } = this.props;
-    const { user, saving, firstEntry, saved, errorMessage } = this.state;
+    console.log({ populatedRoom });
+    const {
+      user,
+      saving,
+      firstEntry,
+      saved,
+      errorMessage,
+      currentMembers,
+      members,
+      lastMessage,
+    } = this.state;
+    console.log({ firstEntry });
     return user ? (
       <Aux>
         {saving && !loggedIn ? (
@@ -144,13 +170,18 @@ class TempWorkspace extends Component {
             />
           </Modal>
         ) : null}
-        <Workspace
-          {...this.props}
-          temp
-          firstEntry={firstEntry}
-          user={user}
-          save={!saved ? this.saveWorkspace : null}
-        />
+        {user ? (
+          <Workspace
+            {...this.props}
+            temp
+            tempCurrentMembers={currentMembers}
+            tempMembers={members}
+            lastMessage={lastMessage}
+            firstEntry={firstEntry}
+            user={user}
+            save={!saved ? this.saveWorkspace : null}
+          />
+        ) : null}
       </Aux>
     ) : (
       <Modal show={!user} closeModal={this.goBack}>
