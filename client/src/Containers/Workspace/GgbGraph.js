@@ -50,7 +50,7 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
-    const { tab, currentTabId, addToLog, addNtfToTabs } = this.props;
+    const { tab, currentTabId, addNtfToTabs } = this.props;
     // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
     this.throttledSendEvent = throttle(this.sendEvent, 500, {
       leading: true,
@@ -68,9 +68,8 @@ class GgbGraph extends Component {
         this.changeFavicon('/favNtf.ico');
       }
       // If this event is for this tab add it to the log
-      if (data.tab._id === currentTabId) {
-        addToLog(data);
-        // If the event is for this tab but this tab is not in view,
+      if (data.tab === currentTabId) {
+        // If the event is for this room tab (i.e., not browser tab) but this tab is not in view,
         // add a notification to this tab
         if (currentTabId !== tab._id) {
           addNtfToTabs(tab._id);
