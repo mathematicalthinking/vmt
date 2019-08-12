@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "concurrently \"nodemon --ignore 'client/'\" \"npm run client\"",
+    "dev": "concurrently \"nodemon --ignore './client'\" \"npm run client\"",
     "client": "cd client && npm run start",
     "build-staging": "cd client && node scripts/build.js staging",
     "build-production": "cd client && node scripts/build.js production vmt",

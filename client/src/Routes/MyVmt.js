@@ -98,7 +98,7 @@ class MyVmt extends Component {
             );
           })}
           <Route
-            path={`${path}/explore/:id`}
+            path={`${path}/explore/:room_id`}
             component={withPopulatedRoom(TempWorkspace)}
           />
           <Route

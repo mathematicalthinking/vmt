@@ -88,7 +88,11 @@ const validateUser = (req, res, next) => {
 };
 
 const validateRecordAccess = (req, res, next) => {
+  console.log('validating record access');
   let user = getUser(req);
+  let { id, resource } = req.params;
+  let modelName = utils.getModelName(resource);
+  let model = models[modelName];
 
   if (!user) {
     // currently enc only needs access to /room/:id
@@ -98,6 +102,24 @@ const validateRecordAccess = (req, res, next) => {
 
     let requestedResource = utils.getResource(req);
     let authorization = req.headers.authorization;
+
+    if (req.params.resource === 'rooms' && !authorization) {
+      return model
+        .findById(id)
+        .lean()
+        .then(room => {
+          console.log('we better be in here');
+          if (room.tempRoom) {
+            return next();
+          } else {
+            return errors.sendError.NotAuthorizedError(null, res);
+          }
+        })
+        .catch(err => {
+          console.error(`Error canModifyResource: ${err}`);
+          reject(err);
+        });
+    }
 
     if (!allowedResources[requestedResource] || !authorization) {
       return errors.sendError.NotAuthorizedError(null, res);
@@ -121,9 +143,7 @@ const validateRecordAccess = (req, res, next) => {
     return next();
   }
 
-  let { id, resource } = req.params;
-  let modelName = utils.getModelName(resource);
-  let model = models[modelName];
+  console.log('make it here?');
   return (
     model
       .findById(id)
@@ -131,6 +151,7 @@ const validateRecordAccess = (req, res, next) => {
       .lean()
       .exec()
       .then(record => {
+        console.log({ record });
         if (record.members) {
           let role = helpers.getUserRoleInRecord(record, user._id);
           if (role) return next();

@@ -28,29 +28,18 @@ class TempWorkspace extends Component {
   };
 
   componentDidMount() {
-    const {
-      connectPopulateRoom,
-      connectUpdatedRoom,
-      connectAddToLog,
-      match,
-      room,
-    } = this.props;
-    const { firstEntry } = this.state;
-    // window.addEventListener("beforeunload", this.confirmUnload);
-    connectPopulateRoom(match.params.id, {
-      temp: true,
-      events: !firstEntry,
-    });
+    const { room } = this.props;
+
     // If there is no room by this id ins the user's store, then they're not the first to join
     // The user creating this room will it have in their store. A user who just drops the link in their url bar will not have it in the store
     if (!room || room.currentMembers.length > 0) {
       this.setState({ firstEntry: false });
     }
     socket.on('USER_JOINED_TEMP', data => {
-      const { id } = match.params;
-      const { currentMembers, members } = data;
-      connectUpdatedRoom(id, { currentMembers, members });
-      connectAddToLog(id, data.message);
+      // const { id } = match.params;
+      // const { currentMembers, members } = data;
+      // connectUpdatedRoom(id, { currentMembers, members });
+      // connectAddToLog(id, data.message);
     });
   }
 
@@ -67,11 +56,6 @@ class TempWorkspace extends Component {
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ saved: true });
     }
-    // if (prevProps.room !== this.props.room) {
-    //   console.log("ROOOOOM: ", this.props.room )
-    // }
-    // if (!prevProps.room && this.props.room) {
-    // }
   }
 
   setName = event => {
@@ -79,15 +63,7 @@ class TempWorkspace extends Component {
   };
 
   joinRoom = graphType => {
-    const {
-      loggedIn,
-      username,
-      match,
-      userId,
-      room,
-      connectUpdatedRoom,
-      connectAddToLog,
-    } = this.props;
+    const { loggedIn, username, userId, populatedRoom } = this.props;
     const { tempUsername, firstEntry } = this.state;
     // Set username
     let roomUsername;
@@ -101,20 +77,20 @@ class TempWorkspace extends Component {
       roomUsername = tempUsername;
     }
 
-    const { id } = match.params;
+    const { _id } = populatedRoom;
     const sendData = {
       _id: generateMongoId(),
       userId, // this will be undefined if they're not logged in
       firstEntry,
       username: roomUsername,
       tempRoom: true,
-      roomName: `temporary room ...${id.slice(id.length - 5, id.length)}`,
-      roomId: id,
-      color: COLOR_MAP[room.members.length || 0],
-      tabId: room.tabs[0]._id,
+      roomName: `temporary room ...${_id.slice(_id.length - 5, _id.length)}`,
+      roomId: _id,
+      color: COLOR_MAP[populatedRoom.members.length || 0],
+      tabId: populatedRoom.tabs[0]._id,
       roomType: graphType, // this wil be undefined if its not the first user in the room
     };
-    const updatedTabs = [...room.tabs];
+    const updatedTabs = [...populatedRoom.tabs];
     if (graphType === 'desmos' && firstEntry) {
       updatedTabs[0].tabType = 'desmos';
     }
@@ -124,13 +100,6 @@ class TempWorkspace extends Component {
         // eslint-disable-next-line no-console
         console.log('error ', err); // HOW SHOULD WE HANDLE THIS
       }
-      connectUpdatedRoom(res.room._id, {
-        currentMembers: res.room.currentMembers,
-        members: room.members,
-        tabs: updatedTabs,
-      });
-      connectAddToLog(res.room._id, res.message);
-      // if (!this.state.firstEntry) res.room.chat.push(message);
       res.user.connected = socket.connected;
       this.setState({ user: res.user });
     });
@@ -144,10 +113,10 @@ class TempWorkspace extends Component {
       match,
     } = this.props;
     const { user } = this.state;
-    connectUpdatedRoom(match.params.id, {
-      tempRoom: false,
-      creator: user._id,
-    });
+    // connectUpdatedRoom(match.params.id, {
+    //   tempRoom: false,
+    //   creator: user._id,
+    // });
     if (loggedIn) connectAddUserRooms(match.params.id);
     this.setState({ saving: true });
   };
@@ -158,7 +127,7 @@ class TempWorkspace extends Component {
   };
 
   render() {
-    const { loggedIn, room } = this.props;
+    const { loggedIn, populatedRoom } = this.props;
     const { user, saving, firstEntry, saved, errorMessage } = this.state;
     return user ? (
       <Aux>
@@ -170,7 +139,7 @@ class TempWorkspace extends Component {
             <Signup
               temp
               user={user}
-              room={room._id}
+              room={populatedRoom._id}
               closeModal={() => this.setState({ saving: false })}
             />
           </Modal>
@@ -226,7 +195,7 @@ class TempWorkspace extends Component {
 }
 
 TempWorkspace.propTypes = {
-  connectPopulateRoom: PropTypes.func.isRequired,
+  // connectPopulateRoom: PropTypes.func.isRequired,
   connectRemovedRoom: PropTypes.func.isRequired,
   connectUpdateRoom: PropTypes.func.isRequired,
   connectUpdatedRoom: PropTypes.func.isRequired,
@@ -235,7 +204,6 @@ TempWorkspace.propTypes = {
 };
 
 const mapStateToProps = (store, ownProps) => ({
-  room: store.rooms.byId[ownProps.match.params.id],
   loggedIn: store.user.loggedIn,
   username: store.user.username,
   userId: store.user._id,

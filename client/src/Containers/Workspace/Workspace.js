@@ -40,6 +40,7 @@ class Workspace extends Component {
       myColor,
       controlledBy: populatedRoom.controlledBy,
       activeMember: '',
+      currentMembers: populatedRoom.currentMembers,
       referencing: false,
       showingReference: false,
       referToEl: null,
@@ -62,8 +63,6 @@ class Workspace extends Component {
 
   componentDidMount() {
     const { populatedRoom, user } = this.props;
-    console.log(populatedRoom);
-    // connectUpdateUser({ connected: socket.connected });
     if (populatedRoom.members) {
       let myColor;
       try {
@@ -88,13 +87,6 @@ class Workspace extends Component {
 
   componentDidUpdate(prevProps) {
     const { populatedRoom, user } = this.props;
-    // let { user } = this.props;
-    // When we first the load room
-    // if (prevProps.room.controlledBy === null && this.props.room.controlledBy !==  null && this.) {
-    //   console.log('someonelse in controll')
-    //   this.setState({someoneElseInControl: true, inControl: false})
-    // }
-
     if (
       prevProps.populatedRoom.controlledBy === null &&
       populatedRoom.controlledBy !== null &&
@@ -171,7 +163,7 @@ class Workspace extends Component {
             // eslint-disable-next-line no-console
             console.log(err); // HOW SHOULD WE HANDLE THIS
           }
-          connectUpdatedRoom(populatedRoom._id, {
+          this.setState({
             currentMembers: res.room.currentMembers,
           });
           this.addToLog(res.message);
@@ -183,18 +175,19 @@ class Workspace extends Component {
       connectUpdatedRoom(populatedRoom._id, {
         currentMembers: data.currentMembers,
       });
+      this.setState({
+        currentMembers: data.currentMembers,
+      });
       this.addToLog(data.message);
     });
 
     socket.on('USER_LEFT', data => {
+      console.log('user left: ', data);
+      let { controlledBy } = this.state;
       if (data.releasedControl) {
-        connectUpdatedRoom(populatedRoom._id, { controlledBy: null });
+        controlledBy = null;
       }
-      const updatedChat = [...populatedRoom.chat];
-      updatedChat.push(data.message);
-      connectUpdatedRoom(populatedRoom._id, {
-        currentMembers: data.currentMembers,
-      });
+      this.setState({ controlledBy, currentMembers: data.currentMembers });
       this.addToLog(data.message);
     });
 
@@ -496,6 +489,7 @@ class Workspace extends Component {
     } = this.props;
     const {
       tabs: currentTabs,
+      currentMembers: activeMembers,
       log,
       controlledBy,
       membersExpanded,
@@ -517,14 +511,13 @@ class Workspace extends Component {
       showAdminWarning,
       graphCoords,
     } = this.state;
-    console.log(this.state);
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
     else if (!controlledBy) inControl = 'NONE';
     const currentMembers = (
       <CurrentMembers
         members={populatedRoom.members}
-        currentMembers={populatedRoom.currentMembers}
+        currentMembers={activeMembers}
         activeMember={populatedRoom.controlledBy}
         expanded={membersExpanded}
         toggleExpansion={this.toggleExpansion}
