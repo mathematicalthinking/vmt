@@ -62,15 +62,12 @@ class Workspace extends Component {
   }
 
   componentDidMount() {
-    // console.log(this.props);
     const { populatedRoom, user, temp, tempMembers, lastMessage } = this.props;
     let membersToFilter = populatedRoom.members;
     if (temp) {
       membersToFilter = tempMembers;
     }
     let myColor;
-    console.log('mounted!!');
-    console.log({ membersToFilter });
     try {
       myColor = membersToFilter.filter(
         member => member.user._id === user._id
@@ -111,7 +108,6 @@ class Workspace extends Component {
 
     if (temp) {
       if (prevProps.lastMessage !== lastMessage) {
-        console.log({ lastMessage });
         this.addToLog(lastMessage);
       }
     }
@@ -126,7 +122,6 @@ class Workspace extends Component {
   }
 
   addToLog = entry => {
-    console.log({ ...entry });
     const { log } = this.state;
     this.setState({ log: [...log, entry] });
   };
@@ -173,7 +168,6 @@ class Workspace extends Component {
       if (!user.inAdminMode) {
         socket.emit('JOIN', sendData, ({ room, message }, err) => {
           if (err) {
-            console.log('error');
             // eslint-disable-next-line no-console
             console.log(err); // HOW SHOULD WE HANDLE THIS
           }
@@ -523,9 +517,6 @@ class Workspace extends Component {
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
     else if (!controlledBy) inControl = 'NONE';
-    console.log({ ...tempCurrentMembers });
-    console.log({ ...activeMembers });
-    console.log({ log });
     const currentMembers = (
       <CurrentMembers
         members={tempMembers || populatedRoom.members}

@@ -78,12 +78,9 @@ class Chat extends Component {
     }
     socket.emit('SEND_MESSAGE', messageData, (res, err) => {
       if (err) {
-        // eslint-disable-next-line no-console
         console.log(err);
         return;
-        // IF THERES AN ERROR WE NEED TO UNDO THE SETSTATE BELOW
       }
-      console.log({ messageData });
       addToLog(messageData);
     });
     delete newMessage.room;
@@ -91,7 +88,6 @@ class Chat extends Component {
     this.setState({
       newMessage: '',
     });
-    // this.props.updateRoom({chat: updatedMessages})
   };
 
   render() {

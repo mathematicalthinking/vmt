@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import API from '../../utils/apiRequests';
 import buildLog from '../../utils/buildLog';
+import Loading from '../../Components/Loading/Loading';
 
 function withPopulatedRoom(WrappedComponent) {
   class PopulatedRoom extends Component {
@@ -27,14 +28,12 @@ function withPopulatedRoom(WrappedComponent) {
         });
     }
     render() {
-      console.log('why did this rerender??');
       const { history } = this.props;
       const { loading } = this.state;
       if (loading) {
-        return <div>loading</div>;
+        return <Loading message="Fetching your room..." />;
       }
 
-      console.log(this.populatedRoom);
       return (
         <WrappedComponent
           populatedRoom={this.populatedRoom}

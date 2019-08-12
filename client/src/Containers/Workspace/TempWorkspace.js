@@ -45,7 +45,6 @@ class TempWorkspace extends Component {
 
     socket.on('USER_JOINED_TEMP', data => {
       const { currentMembers, members } = data;
-      console.log('user joined updating current members and members');
       this.setState({ currentMembers, members, lastMessage: data.message });
     });
   }
@@ -130,7 +129,6 @@ class TempWorkspace extends Component {
 
   render() {
     const { loggedIn, populatedRoom } = this.props;
-    console.log({ populatedRoom });
     const {
       user,
       saving,
