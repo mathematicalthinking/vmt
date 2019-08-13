@@ -6,7 +6,7 @@ import Aux from '../HOC/Auxil';
 import Button from '../UI/Button/Button';
 import classes from './editableText.css';
 import {
-  updateRoomTab,
+  // updateRoomTab,
   updateActivity,
   updateCourse,
   updateActivityTab,
@@ -147,7 +147,7 @@ EditableText.defaultProps = {
 export default connect(
   null,
   {
-    connectUpdateRoomTab: updateRoomTab,
+    // connectUpdateRoomTab: updateRoomTab,
     connectUpdateActivity: updateActivity,
     connectUpdateCourse: updateCourse,
     connectUpdateActivityTab: updateActivityTab,

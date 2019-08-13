@@ -4,6 +4,7 @@ const parseString = require('xml2js').parseString;
 const socketInit = require('./socketInit');
 const cookie = require('cookie');
 const ObjectId = require('mongoose').Types.ObjectId;
+const Message = require('./models/Message');
 
 // const io = require('socket.io')(server, {wsEngine: 'ws'});
 module.exports = function() {
@@ -20,6 +21,8 @@ module.exports = function() {
   });
 
   io.sockets.on('connection', socket => {
+    console.log('socket connected: ', socket.id);
+
     // console.log(socket.getEventNames())
     // if the socket has a jwt cookie find the user and update their socket
     // should we try to detect if the socket is already associated with a user...if so we need to update users on socket disconnect and remove their socket id
@@ -93,6 +96,10 @@ module.exports = function() {
     });
 
     socket.on('JOIN', async (data, cb) => {
+      console.log('user joined: ', data.eventType);
+      console.log('user with data: ', data.user);
+      console.log('from user: ', socket.user_id);
+      console.log(new Date());
       socket.user_id = data.userId; // store the user id on the socket so we can tell who comes and who goes
       socket.username = data.username;
       let promises = [];
@@ -121,6 +128,13 @@ module.exports = function() {
             currentMembers: results[1].currentMembers,
             message,
           });
+          console.log(
+            data.userId,
+            ' joined room ',
+            results[1]._id,
+            'with socket id',
+            socket.id
+          );
           cb({ room: results[1], message, user }, null);
         } catch (err) {
           console.log('ERROR JOINING ROOM for user: ', data.userId);
@@ -130,12 +144,16 @@ module.exports = function() {
     });
 
     socket.on('LEAVE_ROOM', (roomId, color, cb) => {
+      console.log('user left room: ', roomId);
+      console.log('from user: ', socket.user_id);
+      console.log(new Date());
       socket.leave(roomId);
       leaveRoom(cb);
     });
 
     socket.on('disconnecting', () => {
       // if they're in a room we need to remove them
+      console.log('socket id: ', socket.user_id);
       let room = Object.keys(socket.rooms).pop(); // they can only be in one room so just grab the last one
       if (room && ObjectId.isValid(room)) {
         socket.leave(room);
@@ -143,7 +161,11 @@ module.exports = function() {
       }
     });
 
-    socket.on('disconnect', () => {});
+    socket.on('disconnect', () => {
+      console.log('socket disconnect');
+      console.log('from user: ', socket.user_id);
+      console.log(new Date());
+    });
 
     socket.on('SYNC_SOCKET', (_id, cb) => {
       if (!_id) {
@@ -160,6 +182,10 @@ module.exports = function() {
     });
 
     socket.on('SEND_MESSAGE', (data, callback) => {
+      console.log('message received: ', data.messageType);
+      console.log('user with data: ', data.user);
+      console.log('from user: ', socket.user_id);
+      console.log(new Date());
       let postData = { ...data };
       postData.user = postData.user._id;
       controllers.messages
@@ -176,6 +202,10 @@ module.exports = function() {
     });
 
     socket.on('TAKE_CONTROL', async (data, callback) => {
+      console.log('TAKE_CONTROL', data);
+      console.log('user with data: ', data.user);
+      console.log('from user: ', socket.user_id);
+      console.log(new Date());
       try {
         await Promise.all([
           controllers.messages.post(data),
@@ -188,7 +218,7 @@ module.exports = function() {
       controllers.rooms
         .getCurrentState(data.room)
         .then(room => {
-          socket.emit('FORCE_SYNC', room);
+          // socket.emit('FORCE_SYNC', room);
         })
         .catch(err => {
           console.error(err);
@@ -197,6 +227,10 @@ module.exports = function() {
     });
 
     socket.on('RELEASE_CONTROL', (data, callback) => {
+      console.log('release control ', data);
+      console.log('user with data: ', data.user);
+      console.log('from user: ', socket.user_id);
+      console.log(new Date());
       controllers.messages.post(data);
       controllers.rooms.put(data.room, { controlledBy: null });
       socket.to(data.room).emit('RELEASED_CONTROL', data);
@@ -204,6 +238,10 @@ module.exports = function() {
     });
 
     socket.on('SEND_EVENT', async data => {
+      console.log('event received: ', data.eventType);
+      console.log('user with data: ', data.user);
+      console.log('from user: ', socket.user_id);
+      console.log(new Date());
       let xmlObj = '';
       // if (data.xml && data.eventType !== 'CHANGE_PERSPECTIVE') {
       //   xmlObj = await parseXML(xml); // @TODO We should do this parsing on the backend yeah? we only need this for to build the description which we only need in the replayer anyway
@@ -253,7 +291,7 @@ module.exports = function() {
               }
               return true;
             });
-            let message = {
+            let message = new Message({
               color,
               room,
               user: { _id: removedMember._id, username: 'VMTBot' },
@@ -261,7 +299,7 @@ module.exports = function() {
               messageType: 'LEFT_ROOM',
               autogenerated: true,
               timestamp: new Date().getTime(),
-            };
+            });
             let releasedControl = false;
             // parse to string becayse it is an objectId
             if (
@@ -271,7 +309,7 @@ module.exports = function() {
               controllers.rooms.put(room, { controlledBy: null });
               releasedControl = true;
             }
-            controllers.messages.post(message);
+            message.save();
             socket
               .to(room)
               .emit('USER_LEFT', { currentMembers, releasedControl, message });

@@ -55,27 +55,28 @@ module.exports = {
   },
 
   getPopulatedById: (id, params) => {
-    return new Promise((resolve, reject) => {
-      db.Room.findById(id)
-        .populate({ path: 'creator', select: 'username' })
-        .populate({
-          path: 'chat',
-          populate: { path: 'user', select: 'username' },
-          select: '-room',
-        })
-        .populate({ path: 'members.user', select: 'username' })
-        .populate({ path: 'currentMembers', select: 'username' })
-        .populate({ path: 'course', select: 'name' })
-        .populate({
-          path: 'tabs',
-          populate: { path: params.events ? 'events' : '' },
-        })
-        .populate({ path: 'graphImage', select: 'imageData' })
-        .then(room => {
-          resolve(room);
-        })
-        .catch(err => reject(err));
-    });
+    console.log('getting populated')
+    return db.Room.findById(id)
+      .populate({ path: 'creator', select: 'username' })
+      .populate({
+        path: 'chat',
+        // options: { limit: 25 }, // Eventually we'll need to paginate this
+        populate: { path: 'user', select: 'username' },
+        select: '-room',
+      })
+      .populate({ path: 'members.user', select: 'username' })
+      .populate({ path: 'currentMembers', select: 'username' })
+      .populate({ path: 'course', select: 'name' })
+      .populate({
+        path: 'tabs',
+        populate: {
+          path: params.events ? 'events' : '',
+          populate: params.events
+            ? { path: 'user', select: 'username color' }
+            : '',
+          // options: { limit: 25 },
+        },
+      });
   },
 
   // returns the current state for each tab...does not return events or any other information
@@ -128,7 +129,6 @@ module.exports = {
    */
   post: body => {
     return new Promise(async (resolve, reject) => {
-      console.log('creating new room!?')
       // Prepare the tabs if they exist
       let existingTabs;
       if (body.tabs) {

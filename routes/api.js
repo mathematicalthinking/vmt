@@ -16,18 +16,18 @@ router.get('/:resource', (req, res, next) => {
   let controller = controllers[req.params.resource];
   req.query.isTrashed = false;
 
-    controller
-      .get(req.query)
-      .then(results => res.json({ results }))
-      .catch(err => {
-        console.error(`Error get ${resource}: ${err}`);
-        let msg = null;
+  controller
+    .get(req.query)
+    .then(results => res.json({ results }))
+    .catch(err => {
+      console.error(`Error get ${resource}: ${err}`);
+      let msg = null;
 
-        if (typeof err === 'string') {
-          msg = err;
-        }
-        return errors.sendError.InternalError(msg, res);
-      });
+      if (typeof err === 'string') {
+        msg = err;
+      }
+      return errors.sendError.InternalError(msg, res);
+    });
 });
 
 router.get('/search/:resource', (req, res, next) => {
@@ -81,9 +81,13 @@ router.get(
   (req, res, next) => {
     let { id, resource } = req.params;
     let controller = controllers[resource];
+    console.log('query: ', req.query);
     controller
       .getPopulatedById(id, req.query)
-      .then(result => res.json({ result }))
+      .then(result => {
+        // console.log({ result });
+        res.json({ result });
+      })
       .catch(err => {
         console.error(`Error get populated ${resource}/${id}: ${err}`);
         let msg = null;

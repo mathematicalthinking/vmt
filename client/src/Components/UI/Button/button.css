@@ -6,8 +6,8 @@
   darkOrange: darkOrange;
   red: red;
   lightRed: lightRed;
-  lightGrey: lightGrey;
-  darkGrey: darkGrey;
+  lightGray: lightGray;
+  darkGray: darkGray;
   lightestShadow: lightestShadow;
   lightShadow: lightShadow;
   newBoxShadow: newBoxShadow;
@@ -94,11 +94,17 @@
 }
 
 .xs {
-  composes: Button;
-  padding: 2px;
-  background-color: #999;
-  color: white;
+  composes: Small;
+  height: auto;
+  width: 100%;
+  /* margin-bottom: 1px; */
+  padding: 4px 2px;
   transition: 0.2s;
+}
+
+.xs-cancel {
+  composes: xs Cancel;
+  font-weight: 500 !important;
 }
 
 .edit {
@@ -126,7 +132,7 @@
 
 .Cancel {
   composes: Button;
-  background-image: linear-gradient(-180deg, #ddcfcf, lightGrey 90%);
+  background-image: linear-gradient(-180deg, #ddcfcf, lightGray 90%);
   color: white;
   text-transform: uppercase;
   font-weight: 700;
@@ -142,7 +148,7 @@
 
 .Cancel:hover {
   /* box-shadow: lightShadow; */
-  background-image: linear-gradient(-180deg, #cfc2c2, lightGrey 90%);
+  background-image: linear-gradient(-180deg, #cfc2c2, lightGray 90%);
 }
 
 .Cancel:active {
@@ -185,11 +191,11 @@
   composes: Small;
   color: #333;
   cursor: not-allowed;
-  background: linear-gradient(to top, #b9b0b0, lightGrey 90%);
+  background: linear-gradient(to top, #b9b0b0, lightGray 90%);
 }
 
 .Disabled:hover {
-  background: linear-gradient(to top, #b9b0b0, lightGrey 90%);
+  background: linear-gradient(to top, #b9b0b0, lightGray 90%);
 }
 
 .Danger {

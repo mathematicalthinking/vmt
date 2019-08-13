@@ -11,7 +11,7 @@ const Message = new mongoose.Schema({
   reference: {
     element: { type: String },
     elementType: { type: String },
-    tab: { type: Number },
+    tab: { type: ObjectId, ref: 'Tab' },
   },
   messageType: {
     type: String,

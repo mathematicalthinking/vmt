@@ -1,6 +1,7 @@
 /* eslint-disable react/no-did-update-set-state */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import {
   DashboardLayout,
@@ -10,6 +11,7 @@ import {
 } from '../Layout/Dashboard';
 import Members from './Members/Members';
 import Stats from './Stats/Stats';
+import withPopulatedRoom from './Data/withPopulatedRoom';
 import getUserNotifications from '../utils/notifications';
 import {
   joinWithCode,
@@ -294,7 +296,6 @@ class Room extends Component {
       error,
       connectClearError,
       connectUpdateRoom,
-      connectPopulateRoom,
       course,
     } = this.props;
     const {
@@ -432,7 +433,8 @@ class Room extends Component {
           />
         );
       } else if (resource === 'stats') {
-        mainContent = <Stats data={room} populateRoom={connectPopulateRoom} />;
+        const MainContent = withRouter(withPopulatedRoom(Stats));
+        mainContent = <MainContent />;
       }
       return (
         <Aux>

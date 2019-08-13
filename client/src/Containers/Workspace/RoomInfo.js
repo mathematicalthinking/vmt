@@ -43,11 +43,11 @@ class RoomInfo extends Component {
             inputType="INPUT"
             resource="tab"
             parentResource={updatedActivity ? 'activity' : 'room'}
-            id={room.tabs[currentTab]._id}
+            id={currentTab._id}
             parentId={room._id}
             field="name"
           >
-            {room.tabs[currentTab].name}
+            {currentTab.name}
           </EditableText>
           <div
             onClick={this.toggleCollapse}
@@ -95,11 +95,11 @@ class RoomInfo extends Component {
               inputType="TEXT_AREA"
               resource="tab"
               parentResource={updatedActivity ? 'activity' : 'room'}
-              id={room.tabs[currentTab]._id}
+              id={currentTab._id}
               parentId={room._id}
               field="instructions"
             >
-              {room.tabs[currentTab].instructions || room.instructions}
+              {currentTab.instructions || room.instructions}
             </EditableText>
           )}
         </div>
@@ -112,7 +112,7 @@ RoomInfo.propTypes = {
   role: PropTypes.string.isRequired,
   updatedActivity: PropTypes.func,
   room: PropTypes.shape({}).isRequired,
-  currentTab: PropTypes.number.isRequired,
+  currentTab: PropTypes.shape({}).isRequired,
   temp: PropTypes.bool.isRequired,
 };
 

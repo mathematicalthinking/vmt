@@ -1,7 +1,8 @@
-@value colors: '../../colors.css';
-@value blue from colors;
 :import('../../colors.css') {
   background: mainBackground;
+  darkGray: darkGray;
+  coldGray: coldGray;
+  lightBorder: lightBorder;
 }
 
 .Container {
@@ -53,17 +54,17 @@
 
 .Title {
   padding: 8px 10px 8px 10px;
-  border-bottom: 1px solid #ddd;
-  background-color: #eee;
+  border-bottom: 1px solid lightBorder;
+  background-color: coldGray;
   border-radius: 3px 3px 0 0;
-  color: black;
+  color: darkGray;
   font-size: 17px;
   letter-spacing: 1px;
   cursor: pointer;
 }
 
 .Count {
-  color: darkGrey;
+  /* color: darkGray; */
   float: right;
   position: relative;
   right: 0px;

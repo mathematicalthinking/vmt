@@ -2,6 +2,7 @@ export default (notification, course, room, myResources) => {
   let message = null;
   const type = notification.notificationType;
   const resource = notification.resourceType;
+  // @todo refactor switch statements\
   if (type === 'requestAccess') {
     const { username } = notification.fromUser;
     message = `${username} is requesting to join ${resource} ${

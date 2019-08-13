@@ -7,16 +7,20 @@ class CurrentMembers extends Component {
   // state = {
   //   expanded: true
   // }
-  shouldComponentUpdate(nextProps) {
-    const { currentMembers, activeMember } = this.props;
-    if (
-      nextProps.currentMembers !== currentMembers ||
-      nextProps.activeMember !== activeMember
-    ) {
-      return true;
-    }
-    return false;
-  }
+  // shouldComponentUpdate(nextProps) {
+  //   const { currentMembers, activeMember } = this.props;
+  //   console.log(
+  //     nextProps.currentMembers.length !== currentMembers.length ||
+  //       nextProps.activeMember !== activeMember
+  //   );
+  //   if (
+  //     nextProps.currentMembers.length !== currentMembers.length ||
+  //     nextProps.activeMember !== activeMember
+  //   ) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
   toggleExpansion = () => {
     const { toggleExpansion } = this.props;
@@ -49,11 +53,11 @@ class CurrentMembers extends Component {
                 <div
                   className={[
                     classes.Avatar,
-                    user._id === activeMember
+                    activeMember && user._id === activeMember._id
                       ? classes.Active
                       : classes.Passive,
                   ].join(' ')}
-                  key={user.username}
+                  key={user._id}
                 >
                   <Avatar username={user.username} color={member.color} />
                 </div>
@@ -61,7 +65,7 @@ class CurrentMembers extends Component {
             }
             return (
               <div
-                key={user.username}
+                key={user._id}
                 className={[
                   classes.Avatar,
                   user._id === activeMember ? classes.Active : classes.Passive,

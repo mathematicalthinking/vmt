@@ -26,10 +26,10 @@ const User = new mongoose.Schema(
     tokenExpiryDate: { type: Date }, // // For Authentication Encompass users
     isTrashed: { type: Boolean, default: false },
     ssoId: { type: ObjectId },
-    ipAddresses: [{type: String}],
+    ipAddresses: [{ type: String }],
     latestIpAddress: { type: String },
     isEmailConfirmed: { type: Boolean, default: false },
-    doForcePasswordChange: {type: Boolean, default: false },
+    doForcePasswordChange: { type: Boolean, default: false },
     confirmEmailDate: { type: Date },
   },
   { timestamps: true }

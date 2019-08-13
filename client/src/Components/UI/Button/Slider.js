@@ -3,15 +3,12 @@ import PropTypes from 'prop-types';
 import classes from './Slider.css';
 
 const Slider = ({ onClick, isOn, 'data-testid': dataTestId }) => {
-  const click = () => {
-    onClick();
-  };
   return (
     <label className={classes.Switch} htmlFor="referencing">
       <input
         type="checkbox"
         checked={isOn}
-        onClick={click}
+        onChange={onClick}
         id="referencing"
         data-testid={dataTestId}
       />

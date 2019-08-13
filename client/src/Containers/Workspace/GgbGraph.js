@@ -9,6 +9,7 @@ import { Aux } from '../../Components';
 import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
 import ggbTools from './Tools/GgbIcons';
+import API from '../../utils/apiRequests';
 
 // const GgbEventTypes = [
 //   'ADD',
@@ -49,7 +50,7 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
-    const { room, tabId, currentTab, addToLog, addNtfToTabs } = this.props;
+    const { tab, currentTabId, addNtfToTabs } = this.props;
     // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
     this.throttledSendEvent = throttle(this.sendEvent, 500, {
       leading: true,
@@ -67,12 +68,11 @@ class GgbGraph extends Component {
         this.changeFavicon('/favNtf.ico');
       }
       // If this event is for this tab add it to the log
-      if (data.tab === room.tabs[tabId]._id) {
-        addToLog(room._id, data);
-        // If the event is for this tab but this tab is not in view,
+      if (data.tab === currentTabId) {
+        // If the event is for this room tab (i.e., not browser tab) but this tab is not in view,
         // add a notification to this tab
-        if (currentTab !== tabId) {
-          addNtfToTabs(room.tabs[tabId]._id);
+        if (currentTabId !== tab._id) {
+          addNtfToTabs(tab._id);
         }
 
         // If we're still processing data from the last event
@@ -89,8 +89,8 @@ class GgbGraph extends Component {
 
     socket.on('FORCE_SYNC', data => {
       this.receivingData = true;
-      data.tabs.forEach((tab, i) => {
-        if (i === tabId) {
+      data.tabs.forEach(t => {
+        if (t._id === tab._id) {
           this.ggbApplet.setXML(tab.currentState);
           this.registerListeners(); // always reset listeners after calling sextXML (setXML destorys everything)
         }
@@ -122,7 +122,7 @@ class GgbGraph extends Component {
       tabId,
       room,
       referencing,
-      user,
+      inControl,
       showingReference,
       referToEl,
       setToElAndCoords,
@@ -142,12 +142,12 @@ class GgbGraph extends Component {
         this.ggbApplet.setMode(40);
       }
       // Control
-      const wasInControl = prevProps.room.controlledBy === user._id;
-      const isInControl = room.controlledBy === user._id;
+      const wasInControl = prevProps.inControl === 'ME';
+      const isInControl = inControl === 'ME';
       if (!wasInControl && isInControl) {
         this.ggbApplet.setMode(0);
       } else if (wasInControl && !isInControl) {
-        this.updateConstructionState();
+        // this.updateConstructionState();
         this.ggbApplet.setMode(40);
       }
 
@@ -182,11 +182,8 @@ class GgbGraph extends Component {
       }
 
       // releasing control
-      if (
-        prevProps.room.controlledBy !== room.controlledBy &&
-        room.controlledBY === null
-      ) {
-        this.updateConstructionState();
+      if (prevProps.inControl !== inControl && inControl === 'NONE') {
+        // this.updateConstructionState();
       }
     }
   }
@@ -215,10 +212,6 @@ class GgbGraph extends Component {
     window.removeEventListener('visibilitychange', this.visibilityChange);
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.removeAllListeners('FORCE_SYNC');
-    // if (!this.props.tempRoom) {
-    //   let canvas = document.querySelector('[aria-label="Graphics View 1"]');
-    //   this.props.updateRoom(this.props.room._id, {graphImage: {imageData: canvas.toDataURL()}})
-    // }
     window.removeEventListener('resize', this.updateDimensions);
   }
 
@@ -252,7 +245,9 @@ class GgbGraph extends Component {
    */
 
   constructEvent = data => {
+    const { addToLog } = this.props;
     let readyToClearSocketQueue = true;
+    addToLog(data);
     switch (data.eventType) {
       case 'ADD':
         if (data.definition && data.definition.length > 0) {
@@ -367,15 +362,15 @@ class GgbGraph extends Component {
   };
 
   updateDimensions = async () => {
-    const { tabId } = this.props;
+    const { tab } = this.props;
     if (this.graph.current && this.ggbApplet) {
       const { clientHeight, clientWidth } = this.graph.current.parentElement;
       this.ggbApplet.setSize(clientWidth, clientHeight);
       this.ggbApplet.recalculateEnvironments();
-      const appScalar = document.querySelector(`#ggb-element${tabId}A`)
+      const appScalar = document.querySelector(`#ggb-element${tab._id}A`)
         .firstChild;
-
-      appScalar.style.width = clientWidth;
+      appScalar.style.width = `${clientWidth}px`;
+      this.forceUpdate();
     }
   };
 
@@ -386,9 +381,9 @@ class GgbGraph extends Component {
    */
 
   onScriptLoad = () => {
-    const { tabId, room, currentTab } = this.props;
+    const { tab, currentTabId } = this.props;
     const parameters = {
-      id: `ggbApplet${tabId}A`,
+      id: `ggbApplet${tab._id}A`,
       // scaleContainerClass: "graph",
       showToolBar: true,
       showMenuBar: true,
@@ -401,18 +396,20 @@ class GgbGraph extends Component {
       showLogging: false,
       errorDialogsActive: false,
       appletOnLoad: this.initializeGgb,
-      appName: room.tabs[tabId].appName || 'classic',
+      appName: tab.appName || 'classic',
     };
     const ggbApp = new window.GGBApplet(parameters, '6.0');
-    if (currentTab === tabId) {
-      ggbApp.inject(`ggb-element${tabId}A`);
+    if (currentTabId === tab._id) {
+      ggbApp.inject(`ggb-element${tab._id}A`);
     } else {
       // wait to inject other tabs if they're not in focus
       // i.e. prioritze loading of the current tab
       this.loadingTimer = setInterval(() => {
-        const { isFirstTabLoaded } = this.props; // pulling off of props here instead of top of function so that this value is current on each interval
+        // accessing props here instead of top of function so that
+        // this value is current on each interval
+        const { isFirstTabLoaded } = this.props;
         if (isFirstTabLoaded) {
-          ggbApp.inject(`ggb-element${tabId}A`);
+          ggbApp.inject(`ggb-element${tab._id}A`);
           clearInterval(this.loadingTimer);
         }
       }, 500);
@@ -427,11 +424,10 @@ class GgbGraph extends Component {
   initializeGgb = () => {
     // Save the coords of the graph element so we know how to restrict reference lines (i.e. prevent from overflowing graph)
 
-    const { room, tabId, setFirstTabLoaded } = this.props;
-
+    const { tab, setFirstTabLoaded, currentTabId } = this.props;
     this.getInnerGraphCoords();
-    const { currentState, startingPoint, ggbFile } = room.tabs[tabId];
-    this.ggbApplet = window[`ggbApplet${tabId}A`];
+    const { currentState, startingPoint, ggbFile } = tab;
+    this.ggbApplet = window[`ggbApplet${tab._id}A`];
     this.ggbApplet.setMode(40); // Sets the tool to zoom
     // put the current construction on the graph, disable everything until the user takes control
     // if (perspective) this.ggbApplet.setPerspective(perspective);
@@ -444,7 +440,7 @@ class GgbGraph extends Component {
       this.ggbApplet.setBase64(ggbFile);
     }
     this.registerListeners();
-    if (tabId === 0) {
+    if (tab._id === currentTabId) {
       setFirstTabLoaded();
     }
   };
@@ -457,17 +453,14 @@ class GgbGraph extends Component {
    */
 
   userCanEdit = () => {
-    const { user, room } = this.props;
+    const { inControl } = this.props;
     if (this.resetting || this.updatingOn) {
-      return true;
-    }
-    if (
-      (!user.connected || room.controlledBy !== user._id) &&
-      !this.receivingData
-    ) {
       return false;
     }
-    return true;
+    if (inControl === 'ME' && !this.receivingData) {
+      return true;
+    }
+    return false;
   };
 
   showAlert = () => {
@@ -492,12 +485,11 @@ class GgbGraph extends Component {
     }
     switch (event[0]) {
       case 'setMode':
-        // ignore this event if its the same as the last one or the user is selecting
-        // zoom tool or the user is referencing and only using the pointer tool
         if (
           event[2] === '40' ||
           (referencing && event[2] === '0') ||
-          (this.previousEvent.action === 'mode' &&
+          (this.previousEvent &&
+            this.previousEvent.action === 'mode' &&
             this.previousEvent.label === event[2])
         ) {
           return;
@@ -613,6 +605,7 @@ class GgbGraph extends Component {
       default:
         break;
     }
+    console.log('draggin?');
   };
 
   /**
@@ -654,7 +647,6 @@ class GgbGraph extends Component {
    */
 
   removeListener = label => {
-    // const { room, currentTab } = this.props;
     if (this.receivingData && !this.updatingOn) {
       return;
     }
@@ -663,11 +655,7 @@ class GgbGraph extends Component {
       return;
     }
     if (!this.userCanEdit()) {
-      // this.showAlert();
       this.setState({ showControlWarning: true });
-      // this.ggbApplet.setXML(room.tabs[currentTab].currentState);
-      // Reregister the listeners because setXML clears everything
-      // this.registerListeners();
       return;
     }
     if (!this.receivingData) {
@@ -715,7 +703,6 @@ class GgbGraph extends Component {
   };
 
   zoomListener = async () => {
-    this.getInnerGraphCoords();
     const {
       referencing,
       showingReference,
@@ -723,6 +710,7 @@ class GgbGraph extends Component {
       setToElAndCoords,
     } = this.props;
     if ((referencing && referToEl) || showingReference) {
+      this.getInnerGraphCoords();
       const { position } = await this.getReferenceCoords(
         referToEl.element,
         referToEl.elementType
@@ -774,16 +762,11 @@ class GgbGraph extends Component {
    */
 
   sendEventBuffer = (xml, definition, label, eventType, action) => {
-    const {
-      user,
-      room,
-      referencing,
-      showingReference,
-      clearReference,
-    } = this.props;
+    const { referencing, showingReference, clearReference } = this.props;
     let sendEventFromTimer = true;
 
-    if (!user.connected || room.controlledBy !== user._id) {
+    // this is redundant...but maybe good.
+    if (!this.userCanEdit()) {
       this.setState({ showControlWarning: true });
       return;
     }
@@ -886,9 +869,9 @@ class GgbGraph extends Component {
   ) => {
     const {
       room,
+      tab,
       user,
       myColor,
-      currentTab,
       addToLog,
       resetControlTimer,
     } = this.props;
@@ -900,7 +883,7 @@ class GgbGraph extends Component {
       action,
       isMultiPart,
       room: room._id,
-      tab: room.tabs[currentTab]._id,
+      tab: tab._id,
       event: xml,
       color: myColor,
       user: { _id: user._id, username: user.username },
@@ -920,7 +903,7 @@ class GgbGraph extends Component {
     if (eventQueue && eventQueue.length > 0) {
       newData.eventArray = eventQueue;
     }
-    addToLog(room._id, newData);
+    addToLog(newData);
 
     if (this.updatingTab) {
       clearTimeout(this.updatingTab);
@@ -976,24 +959,18 @@ class GgbGraph extends Component {
   };
 
   updateConstructionState = () => {
-    const { room, tabId, updateRoomTab } = this.props;
-    // console.log("updating construction state");
+    const { tab } = this.props;
     if (this.ggbApplet) {
-      // when this method is called by componentDidUnmount we sometimes may not have access to ggbApplet depending on HOW the component was unmounted
       const currentState = this.ggbApplet.getXML();
-      const { _id } = room.tabs[tabId];
-      updateRoomTab(room._id, _id, {
-        // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
-        currentState,
-      });
+      const { _id } = tab;
+      API.put('tabs', _id, { currentState })
+        .then(() => {})
+        .catch(err => {
+          // eslint-disable-next-line no-console
+          console.log(err);
+        });
     }
   };
-
-  /**
-   * @method getRelativeCoords - converts x,y coordinates of ggb point and converts them to the pizel location on the screen
-   * @param  {String} element - ggb defined Label. MUST be a point
-   * @return {Promise Object} - because parseXML is async
-   */
 
   getReferenceCoords = async (element, elementType) => {
     let position;
@@ -1054,6 +1031,11 @@ class GgbGraph extends Component {
     }
   };
 
+  /**
+   * @method getRelativeCoords - converts x,y coordinates of ggb point and converts them to the pizel location on the screen
+   * @param  {String} element - ggb defined Label. MUST be a point
+   * @return {Promise Object} - because parseXML is async
+   */
   getRelativeCoords = element => {
     return new Promise(async (resolve, reject) => {
       let elX;
@@ -1124,9 +1106,8 @@ class GgbGraph extends Component {
   };
 
   render() {
-    const { tabId, toggleControl, inControl } = this.props;
+    const { tab, toggleControl, inControl } = this.props;
     const { showControlWarning, redo } = this.state;
-    console.log('rendered ggb graphg!');
     return (
       <Aux>
         <Script
@@ -1135,7 +1116,7 @@ class GgbGraph extends Component {
         />
         <div
           className={classes.Graph}
-          id={`ggb-element${tabId}A`}
+          id={`ggb-element${tab._id}A`}
           ref={this.graph}
         />
         <ControlWarningModal
@@ -1195,14 +1176,14 @@ GgbGraph.propTypes = {
     username: PropTypes.string.isRequired,
     connected: PropTypes.bool.isRequired,
   }).isRequired,
+  tab: PropTypes.shape({}).isRequired,
   myColor: PropTypes.string,
   addToLog: PropTypes.func.isRequired,
-  updateRoomTab: PropTypes.func.isRequired,
+  // updateRoomTab: PropTypes.func.isRequired,
   toggleControl: PropTypes.func.isRequired,
   resetControlTimer: PropTypes.func.isRequired,
   inControl: PropTypes.string.isRequired,
-  currentTab: PropTypes.number.isRequired,
-  tabId: PropTypes.number.isRequired,
+  currentTabId: PropTypes.string.isRequired,
   addNtfToTabs: PropTypes.func.isRequired,
   isFirstTabLoaded: PropTypes.bool.isRequired,
   referToEl: PropTypes.shape({}),

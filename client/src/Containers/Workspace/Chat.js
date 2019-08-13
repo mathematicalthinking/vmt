@@ -13,7 +13,7 @@ class Chat extends Component {
   };
 
   componentDidMount() {
-    const { addToLog, replaying, roomId } = this.props;
+    const { addToLog, replaying } = this.props;
     const { newMessage } = this.state;
     // event handler for enter key presses
     document.addEventListener('keydown', event => {
@@ -28,7 +28,7 @@ class Chat extends Component {
     if (!replaying) {
       socket.removeAllListeners('RECEIVE_MESSAGE');
       socket.on('RECEIVE_MESSAGE', data => {
-        addToLog(roomId, data);
+        addToLog(data);
         // this.scrollToBottom()
       });
     }
@@ -44,7 +44,7 @@ class Chat extends Component {
     const {
       referToEl,
       referencing,
-      currentTab,
+      currentTabId,
       clearReference,
       addToLog,
       roomId,
@@ -72,25 +72,22 @@ class Chat extends Component {
     if (referencing && referToEl) {
       messageData.reference = {
         ...referToEl,
-        tab: currentTab,
+        tab: currentTabId,
       };
       clearReference();
     }
     socket.emit('SEND_MESSAGE', messageData, (res, err) => {
       if (err) {
-        // eslint-disable-next-line no-console
         console.log(err);
         return;
-        // IF THERES AN ERROR WE NEED TO UNDO THE SETSTATE BELOW
       }
-      addToLog(roomId, { ...messageData, _id: res._id });
+      addToLog(messageData);
     });
     delete newMessage.room;
     // this.scrollToBottom(); @TODO
     this.setState({
       newMessage: '',
     });
-    // this.props.updateRoom({chat: updatedMessages})
   };
 
   render() {
@@ -112,6 +109,7 @@ Chat.propTypes = {
   addToLog: PropTypes.func.isRequired,
   replaying: PropTypes.bool,
   roomId: PropTypes.string.isRequired,
+  currentTabId: PropTypes.string.isRequired,
 };
 
 Chat.defaultProps = {

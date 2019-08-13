@@ -37,7 +37,6 @@ export default (state = initialState, action) => {
       const end = data[data.length - 1].timestamp;
       const rawDuration = end - start;
       data = data.filter(d => !d.isMultiPart);
-      console.log({ data });
 
       const { filteredData, lines, timeScale, units } = processData(
         data,

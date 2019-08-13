@@ -29,7 +29,6 @@ export const processData = (
     filteredData: filteredData
       .reduce((acc, fd) => {
         const fdWithColor = fd.data.map(d => {
-          console.log({ d });
           return {
             time: moment.unix(d.timestamp / 1000).format(dateFormatMap.all),
             user: d.user ? d.user.username || d.user : null,

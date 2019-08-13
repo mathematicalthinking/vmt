@@ -1,5 +1,7 @@
 :import('../../colors.css') {
   lightBlue: lightBlue;
+  coldGray: coldGray;
+  darkGray: darkGray;
   lightestShadow: lightestShadow;
 }
 
@@ -19,8 +21,8 @@
   justify-content: space-between;
   font-weight: 600;
   font-size: 1.1em;
-  color: #666;
-  background: #eee;
+  color: darkGray;
+  background: coldGray;
   padding: 3px;
   border-bottom: 1px solid #ddd;
   margin-bottom: 3px;

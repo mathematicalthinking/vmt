@@ -96,13 +96,6 @@ Room.pre('save', function(next) {
       } else {
         next();
       }
-      // WERE DOING THIS IN THE ROOM CONTROLLER...WE NEED TO BE CONSISTANT ABOUT WHERE WE DO THESE THINGS @TODO
-      // else if (field === "isTrashed") {
-      //   let users = this.members.map(member => member.user);
-      //   User.update({ _id: { $in: users } }, { $pull: { rooms: this._id } })
-      //     .then(() => next())
-      //     .catch(err => console.log(err));
-      // }
     });
   } else {
     next();

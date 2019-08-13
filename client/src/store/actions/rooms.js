@@ -1,6 +1,6 @@
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
-import { normalize, buildLog } from '../utils';
+import { normalize } from '../utils';
 import * as loading from './loading';
 
 export const gotRooms = (rooms, isNewRoom) => ({
@@ -233,17 +233,11 @@ export const updateRoom = (id, body) => {
   };
 };
 
-export const updateRoomTab = (roomId, tabId, body) => {
-  return dispatch => {
-    dispatch(updatedRoomTab(roomId, tabId, body));
-    API.put('tabs', tabId, body)
-      .then()
-      .catch(err => {
-        // eslint-disable-next-line no-console
-        console.log(err);
-      });
-  };
-};
+// export const updateRoomTab = (roomId, tabId, body) => {
+// return dispatch => {
+// dispatch(updatedRoomTab(roomId, tabId, body));
+// };
+// };
 
 export const removeRoomMember = (roomId, userId) => {
   return (dispatch, getState) => {
@@ -313,7 +307,7 @@ export const populateRoom = (id, opts) => {
         const room = res.data.result;
         // room.currentMembers
         if (room.tabs && room.chat) {
-          room.log = buildLog(room.tabs, room.chat);
+          // room.log = buildLog(room.tabs, room.chat);
         } else room.log = [];
         // consider deleting tab.events and room.chat here since we have all of the information in the log now
         dispatch(updatedRoom(id, room));

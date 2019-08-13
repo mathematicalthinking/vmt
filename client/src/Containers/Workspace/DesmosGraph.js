@@ -32,13 +32,6 @@ class DesmosGraph extends Component {
     2000,
     { trailing: true, leading: false }
   );
-  /**
-   * @method areDesmosStatesEqual
-   * @param  {Object} newState - desmos state object return from desmos.getState
-   * @return {Boolean} statesAreEqual
-   * @description - compares the previous desmos state (stored as in instance variable) with the newState argument
-   * It ignores changes to graph.viewport because we want users who are not in control to still be able to zoom in and out
-   */
 
   componentDidMount() {
     const { room, tabId, setFirstTabLoaded } = this.props;
@@ -221,6 +214,13 @@ class DesmosGraph extends Component {
     });
   }
 
+  /**
+   * @method areDesmosStatesEqual
+   * @param  {Object} newState - desmos state object return from desmos.getState
+   * @return {Boolean} statesAreEqual
+   * @description - compares the previous desmos state (stored as in instance variable) with the newState argument
+   * It ignores changes to graph.viewport because we want users who are not in control to still be able to zoom in and out
+   */
   areDesmosStatesEqual(newState) {
     if (newState.expressions.list.length !== this.expressionList.length) {
       return false;

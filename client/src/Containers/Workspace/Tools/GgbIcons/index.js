@@ -126,7 +126,7 @@ export default {
     image: svg1,
   },
   2: {
-    name: 'JOIN',
+    name: 'LINE',
     link: 'https://wiki.geogebra.org/en/Line_Tool',
     image: svg2,
   },

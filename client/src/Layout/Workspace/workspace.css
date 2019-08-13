@@ -115,12 +115,11 @@
 
 .Left {
   /* width: graphWidth; */
+  display: flex;
   order: 1;
   align-self: auto;
-  flex: 1 0 auto;
+  flex: 1 0;
   /* width: 75%; */
-  display: flex;
-  /* width: 80%; */
   flex-direction: column;
   flex-wrap: nowrap;
   justify-content: flex-start;
@@ -136,6 +135,7 @@
 }
 
 .Right {
+  display: flex;
   order: 2;
   align-self: auto;
   flex: 0 0 auto;
@@ -144,7 +144,6 @@
   margin-top: 35px;
   width: 20%;
   min-width: 175px;
-  display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
   height: 96%;
@@ -158,7 +157,6 @@
   justify-content: center; */
   /* overflow: visible !important; */
   order: 1;
-  border: 1px solid red;
   flex: 1 1 auto;
   box-shadow: lightestShadow;
   /* border: 1px solid blue; */

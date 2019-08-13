@@ -10,16 +10,16 @@
   top: 0;
 }
 /* Just common table stuff. Really. */
-table {
+.Container table {
   width: 100%;
   max-height: 400px;
 }
-th,
-td {
+.Container th,
+.Container td {
   border: 1px solid #999 !important;
   padding: 6px !important;
 }
 
-th {
+.Container th {
   background: white;
 }

@@ -28,3 +28,5 @@ export { default as ForgotPassword } from './ForgotPassword';
 export { default as ResetPassword } from './ResetPassword/ResetPassword';
 export { default as ConfirmEmail } from './ConfirmEmail/ConfirmEmail';
 export { default as Unconfirmed } from './Unconfirmed/Unconfirmed';
+export { default as withPopulatedRoom } from './Data/withPopulatedRoom';
+export { default as SharedReplayer } from './Replayer/SharedReplayer';
