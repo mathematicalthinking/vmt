@@ -1,19 +1,19 @@
 const db = require('../models');
 
 module.exports = {
-  get: params => db.Tab.find(params),
+  get: (params) => db.Tab.find(params),
 
-  getById: id => db.Tab.findById(id),
+  getById: (id) => db.Tab.findById(id),
 
-  populateByIds: _ids => {
+  populateByIds: (_ids) => {
     return db.Tab.find({ _id: { $in: _ids } }).populate('events');
   },
 
-  post: body => {
+  post: (body) => {
     return new Promise((resolve, reject) => {
       let newTab;
       db.Tab.create(body)
-        .then(tab => {
+        .then((tab) => {
           newTab = tab;
           if (tab.room) {
             return db.Room.findByIdAndUpdate(body.room, {
@@ -24,18 +24,18 @@ module.exports = {
             $addToSet: { tabs: tab._id },
           });
         })
-        .then(resource => {
+        .then(() => {
           resolve(newTab);
         })
-        .catch(err => reject(err));
+        .catch((err) => reject(err));
     });
   },
 
   put: (id, body) => {
     return new Promise((resolve, reject) => {
       db.Tab.findByIdAndUpdate(id, body)
-        .then(tab => resolve(tab))
-        .catch(err => reject(err));
+        .then((tab) => resolve(tab))
+        .catch((err) => reject(err));
     });
   },
 };

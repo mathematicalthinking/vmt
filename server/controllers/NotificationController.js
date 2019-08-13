@@ -1,28 +1,28 @@
-const db = require("../models");
-const _ = require("lodash");
+const _ = require('lodash');
+const db = require('../models');
 
 module.exports = {
-  get: params => {
+  get: (params) => {
     return new Promise((resolve, reject) => {
       db.Notification.find(params)
-        .then(notifications => resolve(notifications))
-        .catch(err => reject(err));
+        .then((notifications) => resolve(notifications))
+        .catch((err) => reject(err));
     });
   },
 
-  getById: id => {
+  getById: (id) => {
     return new Promise((resolve, reject) => {
       db.Notification.findById(id)
-        .then(notification => resolve(notification))
-        .catch(err => reject(err));
+        .then((notification) => resolve(notification))
+        .catch((err) => reject(err));
     });
   },
 
-  post: body => {
+  post: (body) => {
     return new Promise((resolve, reject) => {
       db.Notification.create(body)
-        .then(notification => resolve(notification))
-        .catch(err => reject(err));
+        .then((notification) => resolve(notification))
+        .catch((err) => reject(err));
     });
   },
 
@@ -30,16 +30,16 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.Notification.findById(id)
         .exec()
-        .then(notification => {
+        .then((notification) => {
           if (_.isNil(notification)) {
-            return null;
+            return reject(); // when whould this happen??
           }
-          for (let field of Object.keys(body)) {
-            notification[field] = body[field];
-          }
-          resolve(notification.save());
+          Object.keys(body).forEach((key) => {
+            notification[key] = body[key];
+          });
+          return resolve(notification.save());
         })
-        .catch(err => reject(err));
+        .catch((err) => reject(err));
     });
-  }
+  },
 };

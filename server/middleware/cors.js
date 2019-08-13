@@ -8,8 +8,8 @@ if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
 console.log('allowedOrigins: ', allowedOrigins);
 module.exports = (req, res, next) => {
   // Website you wish to allow to connect
-  let { origin } = req.headers;
-  let originHeader = allowedOrigins.includes(origin) ? origin : null;
+  const { origin } = req.headers;
+  const originHeader = allowedOrigins.includes(origin) ? origin : null;
 
   res.setHeader('Access-Control-Allow-Origin', originHeader);
   // Request methods you wish to allow

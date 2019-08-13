@@ -1,16 +1,17 @@
+const { ObjectId } = require('mongoose').Types;
 const db = require('../models');
-const ObjectId = require('mongoose').Types.ObjectId;
+
 module.exports = {
-  get: params => {
+  get: (params) => {
     return new Promise((resolve, reject) => {
       db.User.find(params)
-        .then(users => resolve(users))
-        .catch(err => reject(err));
+        .then((users) => resolve(users))
+        .catch((err) => reject(err));
     });
   },
 
   search: (regex, exclude) => {
-    let idsToExclude = exclude.map(id => ObjectId(id));
+    const idsToExclude = exclude.map((id) => ObjectId(id));
     return new Promise((resolve, reject) => {
       db.User.find({
         $or: [{ email: regex }, { username: regex }],
@@ -18,14 +19,14 @@ module.exports = {
       })
         .limit(5)
         .select('username email')
-        .then(users => {
+        .then((users) => {
           resolve(users);
         })
-        .catch(err => reject(err));
+        .catch((err) => reject(err));
     });
   },
 
-  getById: id => {
+  getById: (id) => {
     return new Promise((resolve, reject) => {
       db.User.findById(id)
         .populate({
@@ -45,8 +46,8 @@ module.exports = {
           populate: { path: 'tabs' },
         })
         .populate({ path: 'notifications', populate: { path: 'fromUser' } })
-        .then(user => resolve(user))
-        .catch(err => reject(err));
+        .then((user) => resolve(user))
+        .catch((err) => reject(err));
     });
   },
   /**
@@ -59,10 +60,6 @@ module.exports = {
       .populate({
         path: 'activities',
         select: 'name members intructions image rooms',
-        populate: {
-          path: 'members.user',
-          select: 'username',
-        },
         populate: {
           path: 'rooms',
           populate: {
@@ -82,17 +79,17 @@ module.exports = {
           { path: 'activity', select: 'name instructions' },
         ],
       })
-      .then(result => {
-        let filteredResults = {};
+      .then((result) => {
+        const filteredResults = {};
         if (!result) {
           filteredResults.isInvalidToken = true;
           return filteredResults;
         }
-        resources.split(' ').forEach(resource => {
+        resources.split(' ').forEach((resource) => {
           // resourceName = resourceName.replace(/\s+/g, "");
-          let regex = new RegExp(resourceName, 'i');
+          const regex = new RegExp(resourceName, 'i');
           if (result[resource]) {
-            filteredResults[resource] = result[resource].filter(rec => {
+            filteredResults[resource] = result[resource].filter((rec) => {
               return rec.name.match(regex);
             });
           }
@@ -101,11 +98,11 @@ module.exports = {
       });
   },
 
-  post: body => {
+  post: (body) => {
     return new Promise((resolve, reject) => {
       db.User.create(body)
-        .then(user => resolve(user))
-        .catch(err => reject(err));
+        .then((user) => resolve(user))
+        .catch((err) => reject(err));
     });
   },
 
@@ -124,30 +121,30 @@ module.exports = {
     return new Promise((resolve, reject) => {
       if (query) body = query;
       db.User.findByIdAndUpdate(id, body, { new: true })
-        .then(user => {
+        .then((user) => {
           resolve(user);
         }) // should we just try to pass back the info that chnaged?
-        .catch(err => reject(err));
+        .catch((err) => reject(err));
     });
   },
 
   add: (id, body) => {
     return new Promise((resolve, reject) => {
       db.User.findByIdAndUpdate(id, { $addToSet: body }, { new: true })
-        .then(res => resolve(res))
-        .catch(err => reject(err));
+        .then((res) => resolve(res))
+        .catch((err) => reject(err));
     });
   },
 
   remove: (id, body) => {
     return new Promise((resolve, reject) => {
-      let key = Object.keys(body)[0].split('.')[0];
+      const key = Object.keys(body)[0].split('.')[0];
       db.User.findByIdAndUpdate(id, { $pull: body }, { new: true })
         // .populate(key, 'select', user.username)
-        .then(res => {
+        .then((res) => {
           resolve({ [key]: res[key] });
         })
-        .catch(err => reject(err));
+        .catch((err) => reject(err));
     });
   },
 };

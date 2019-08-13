@@ -17,34 +17,34 @@ const resourceToModelMap = {
   notifications: 'Notification',
 };
 
-const getUser = req => {
+const getUser = (req) => {
   return _.propertyOf(req)('mt.auth.vmtUser');
 };
 
-const getResource = req => {
+const getResource = (req) => {
   return _.propertyOf(req)('params.resource');
 };
 
-const getParamsId = req => {
+const getParamsId = (req) => {
   return _.propertyOf(req)('params.id');
 };
 
-const getModelFromRequest = req => {
-  let resource = getResource(req);
+const getModelFromRequest = (req) => {
+  const resource = getResource(req);
   return getModel(resource);
 };
 
-const isValidMongoId = value => {
+const isValidMongoId = (value) => {
   const regex = new RegExp('^[0-9a-fA-F]{24}$');
   return regex.test(value);
 };
 
-const getMethod = req => {
+const getMethod = (req) => {
   return _.propertyOf(req)('method');
 };
 
-const isModifyRequest = req => {
-  let modifyMethods = {
+const isModifyRequest = (req) => {
+  const modifyMethods = {
     POST: true,
     PUT: true,
   };
@@ -52,16 +52,16 @@ const isModifyRequest = req => {
   return modifyMethods[getMethod(req)] === true;
 };
 
-const getModel = resource => {
+const getModel = (resource) => {
   return models[resourceToModelMap[resource]];
 };
 
-const getModelName = resource => {
+const getModelName = (resource) => {
   return resourceToModelMap[resource];
 };
 
-const getSchema = resource => {
-  let model = getModel(resource);
+const getSchema = (resource) => {
+  const model = getModel(resource);
 
   return _.propertyOf(model)('schema');
 };
@@ -73,10 +73,10 @@ const schemaHasProperty = (schema, property) => {
   return _.has(schema, `paths.${property}`);
 };
 const setSsoCookie = (res, encodedToken) => {
-  let doSetSecure =
+  const doSetSecure =
     process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
 
-  let options = {
+  const options = {
     httpOnly: true,
     maxAge: accessCookie.maxAge,
     secure: doSetSecure,
@@ -90,10 +90,10 @@ const setSsoCookie = (res, encodedToken) => {
 };
 
 const setSsoRefreshCookie = (res, encodedToken) => {
-  let doSetSecure =
+  const doSetSecure =
     process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
 
-  let options = { httpOnly: true, secure: doSetSecure };
+  const options = { httpOnly: true, secure: doSetSecure };
   if (doSetSecure) {
     options.domain = process.env.SSO_COOKIE_DOMAIN;
   }
@@ -113,22 +113,22 @@ const verifyJwt = (token, key, options) => {
   });
 };
 
-const clearAccessCookie = res => {
-  let isSecure =
+const clearAccessCookie = (res) => {
+  const isSecure =
     process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
-  let domain = isSecure ? process.env.SSO_COOKIE_DOMAIN : 'localhost';
+  const domain = isSecure ? process.env.SSO_COOKIE_DOMAIN : 'localhost';
 
-  let options = { domain, httpOnly: true, secure: isSecure };
+  const options = { domain, httpOnly: true, secure: isSecure };
 
   res.clearCookie(accessCookie.name, options);
 };
 
-const clearRefreshCookie = res => {
-  let isSecure =
+const clearRefreshCookie = (res) => {
+  const isSecure =
     process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
-  let domain = isSecure ? process.env.SSO_COOKIE_DOMAIN : 'localhost';
+  const domain = isSecure ? process.env.SSO_COOKIE_DOMAIN : 'localhost';
 
-  let options = { domain, httpOnly: true, secure: isSecure };
+  const options = { domain, httpOnly: true, secure: isSecure };
   res.clearCookie(refreshCookie.name, options);
 };
 

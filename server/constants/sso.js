@@ -1,7 +1,7 @@
 module.exports = {
   accessCookie: {
     name: 'mt_sso_ac',
-    maxAge: 86400000 // ms (1 day)
+    maxAge: 86400000, // ms (1 day)
   },
   refreshCookie: {
     name: 'mt_sso_rf',
@@ -9,5 +9,5 @@ module.exports = {
   },
   apiToken: {
     expiresIn: '5m',
-  }
-}
+  },
+};

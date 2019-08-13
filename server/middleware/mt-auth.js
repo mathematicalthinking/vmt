@@ -19,12 +19,12 @@ const prep = (req, res, next) => {
   return next();
 };
 
-const resolveAccessToken = async token => {
+const resolveAccessToken = async (token) => {
   try {
     if (typeof token !== 'string') {
       return null;
     }
-    let verifiedToken = await verifyJwt(token, secret);
+    const verifiedToken = await verifyJwt(token, secret);
     return verifiedToken;
   } catch (err) {
     // invalid access token
@@ -43,13 +43,13 @@ const getMtUser = async (req, res) => {
     }
     // access token verification failed request new access token with refresh token
 
-    let currentRefreshToken = req.cookies[refreshCookie.name];
+    const currentRefreshToken = req.cookies[refreshCookie.name];
     if (currentRefreshToken === undefined) {
       return null;
     }
 
     // request new accessToken with refreshToken
-    let { accessToken } = await ssoService.requestNewAccessToken(
+    const { accessToken } = await ssoService.requestNewAccessToken(
       currentRefreshToken
     );
 
@@ -68,19 +68,19 @@ const getMtUser = async (req, res) => {
 
 const prepareMtUser = (req, res, next) => {
   return getMtUser(req, res)
-    .then(user => {
+    .then((user) => {
       // user is null or verified payload from jwt token
       // set on request for later user to retrieve vmt user record
       req.mt.auth.user = user;
       next();
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(`prepareMtUser error: ${err}`);
     });
 };
 
 const prepareVmtUser = (req, res, next) => {
-  let mtUserDetails = req.mt.auth.user;
+  const mtUserDetails = req.mt.auth.user;
 
   if (mtUserDetails === null) {
     req.mt.auth.vmtUser = null;
@@ -88,7 +88,6 @@ const prepareVmtUser = (req, res, next) => {
     // clear any invalid cookies
     if (req.cookies[accessCookie.name]) {
       clearAccessCookie(res);
-
     }
     if (req.cookies[refreshCookie.name]) {
       clearRefreshCookie(res);
@@ -100,19 +99,19 @@ const prepareVmtUser = (req, res, next) => {
   return User.findById(mtUserDetails.vmtUserId)
     .lean()
     .exec()
-    .then(user => {
+    .then((user) => {
       req.mt.auth.vmtUser = user;
       next();
     })
     .catch(next);
 };
 
-const getVmtUser = mtUserDetails => {
+const getVmtUser = (mtUserDetails) => {
   if (mtUserDetails === null) {
     // token was not verified; no user authenticated
     return null;
   }
-  let { vmtUserId } = mtUserDetails;
+  const { vmtUserId } = mtUserDetails;
 
   if (isValidMongoId(vmtUserId)) {
     return User.findById(vmtUserId)
@@ -122,11 +121,11 @@ const getVmtUser = mtUserDetails => {
   return null;
 };
 
-const extractBearerToken = req => {
-  let { authorization } = req.headers;
+const extractBearerToken = (req) => {
+  const { authorization } = req.headers;
 
   if (typeof authorization !== 'string') {
-    return;
+    return null;
   }
   return authorization.split(' ')[1];
 };

@@ -1,5 +1,5 @@
 module.exports.getMtSsoUrl = () => {
-  let envName = process.env.NODE_ENV;
+  const envName = process.env.NODE_ENV;
 
   if (envName === 'production') {
     return process.env.MT_SSO_URL_PROD;
@@ -16,7 +16,7 @@ module.exports.getMtSsoUrl = () => {
 };
 
 module.exports.getVmtIssuerId = () => {
-  let envName = process.env.NODE_ENV;
+  const envName = process.env.NODE_ENV;
 
   if (envName === 'production') {
     return process.env.JWT_ISSUER_ID_PROD;
@@ -34,7 +34,7 @@ module.exports.getVmtIssuerId = () => {
 };
 
 module.exports.getMtIssuerId = () => {
-  let envName = process.env.NODE_ENV;
+  const envName = process.env.NODE_ENV;
 
   if (envName === 'production') {
     return process.env.MT_SSO_JWT_ISSUER_ID_PROD;
@@ -52,7 +52,7 @@ module.exports.getMtIssuerId = () => {
 };
 
 module.exports.getEncUrl = () => {
-  let envName = process.env.NODE_ENV;
+  const envName = process.env.NODE_ENV;
 
   if (envName === 'production') {
     return process.env.ENC_URL_PROD;

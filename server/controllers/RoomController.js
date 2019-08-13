@@ -1,18 +1,17 @@
-const db = require('../models');
-const Tab = db.Tab;
-const Room = db.Room;
-const mongoose = require('mongoose');
-const ObjectId = mongoose.Types.ObjectId;
 const _ = require('lodash');
+const db = require('../models');
+
+const { Tab } = db;
+const { Room } = db;
 
 const colorMap = require('../constants/colorMap.js');
 
 module.exports = {
-  get: params => {
+  get: (params) => {
     if (params && params.constructor === Array) {
       params = { _id: { $in: params } };
     } else {
-      params = params ? params : {};
+      params = params || {};
       params.tempRoom = false; // we don't want any temporary rooms
     }
     return new Promise((resolve, reject) => {
@@ -21,15 +20,15 @@ module.exports = {
         .populate({ path: 'members.user', select: 'username' })
         .populate({ path: 'currentMembers', select: 'username' })
         .populate({ path: 'tabs', select: 'name tabType' })
-        .then(rooms => {
+        .then((rooms) => {
           // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
           resolve(rooms);
         })
-        .catch(err => reject(err));
+        .catch((err) => reject(err));
     });
   },
 
-  getById: (id, params) => {
+  getById: (id) => {
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
         .populate({ path: 'creator', select: 'username' })
@@ -47,15 +46,15 @@ module.exports = {
         // })
         .populate({ path: 'graphImage', select: 'imageData' })
         .select('name creator members course graphImage privacySetting _id')
-        .then(room => {
+        .then((room) => {
           resolve(room);
         })
-        .catch(err => reject(err));
+        .catch((err) => reject(err));
     });
   },
 
   getPopulatedById: (id, params) => {
-    console.log('getting populated')
+    console.log('getting populated');
     return db.Room.findById(id)
       .populate({ path: 'creator', select: 'username' })
       .populate({
@@ -80,37 +79,37 @@ module.exports = {
   },
 
   // returns the current state for each tab...does not return events or any other information
-  getCurrentState: id => {
+  getCurrentState: (id) => {
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
         .select('tabs')
         .populate({ path: 'tabs', select: 'currentState' })
         .lean()
-        .then(room => {
+        .then((room) => {
           resolve(room);
         })
-        .catch(err => {
+        .catch((err) => {
           reject(err);
         });
     });
   },
 
   searchPaginated: (criteria, skip, filters) => {
-    let params = { tempRoom: false, isTrashed: false };
+    const params = { tempRoom: false, isTrashed: false };
     if (filters.privacySetting) params.privacySetting = filters.privacySetting;
     if (criteria) params.name = criteria;
     return db.Room.find(params)
-      .skip(parseInt(skip))
+      .skip(parseInt(skip, 10))
       .limit(20)
       .sort('-createdAt')
       .populate({ path: 'members.user', select: 'username' })
       .populate({ path: 'tabs', select: 'tabType' })
       .select('name members description tabs privacySetting image')
-      .then(rooms => {
+      .then((rooms) => {
         if (filters.roomType) {
-          return rooms.filter(room => {
+          return rooms.filter((room) => {
             return (
-              room.tabs.filter(tab => {
+              room.tabs.filter((tab) => {
                 return tab.tabType === filters.roomType;
               }).length > 0
             );
@@ -118,7 +117,7 @@ module.exports = {
         }
         return rooms;
       })
-      .catch(err => {
+      .catch((err) => {
         Promise.reject(err);
       });
   },
@@ -127,7 +126,7 @@ module.exports = {
    * @method post - creates a room (and tabs if necessary)
    * @param  {body} - fields for creating new room and tabs
    */
-  post: body => {
+  post: (body) => {
     return new Promise(async (resolve, reject) => {
       // Prepare the tabs if they exist
       let existingTabs;
@@ -135,7 +134,7 @@ module.exports = {
         existingTabs = Object.assign([], body.tabs);
       } else if (body.activities) {
         try {
-          let activities = await db.Activity.find({
+          const activities = await db.Activity.find({
             _id: { $in: body.activities },
           }).populate('tabs');
           existingTabs = activities.reduce(
@@ -155,10 +154,10 @@ module.exports = {
         ggbFiles = [...body.ggbFiles];
         delete body.ggbFiles;
       }
-      let room = new Room(body);
+      const room = new Room(body);
       if (existingTabs) {
-        tabModels = existingTabs.map(tab => {
-          let newTab = new Tab({
+        tabModels = existingTabs.map((tab) => {
+          const newTab = new Tab({
             name: tab.name,
             room: room._id,
             ggbFile: tab.ggbFile,
@@ -170,39 +169,37 @@ module.exports = {
           });
           return newTab;
         });
-      } else {
-        if (Array.isArray(ggbFiles) && ggbFiles.length > 0) {
-          tabModels = ggbFiles.map((file, index) => {
-            return new Tab({
-              name: `Tab ${index + 1}`,
-              room: room._id,
-              ggbFile: file,
-              tabType: body.roomType,
-              appName: body.appName,
-            });
+      } else if (Array.isArray(ggbFiles) && ggbFiles.length > 0) {
+        tabModels = ggbFiles.map((file, index) => {
+          return new Tab({
+            name: `Tab ${index + 1}`,
+            room: room._id,
+            ggbFile: file,
+            tabType: body.roomType,
+            appName: body.appName,
           });
-        } else {
-          tabModels = [
-            new Tab({
-              name: 'Tab 1',
-              room: room._id,
-              startinpoint: ' ',
-              desmosLink: body.desmosLink,
-              tabType: body.roomType || 'geogebra',
-              appName: body.appName,
-            }),
-          ];
-        }
+        });
+      } else {
+        tabModels = [
+          new Tab({
+            name: 'Tab 1',
+            room: room._id,
+            startinpoint: ' ',
+            desmosLink: body.desmosLink,
+            tabType: body.roomType || 'geogebra',
+            appName: body.appName,
+          }),
+        ];
       }
-      room.tabs = tabModels.map(tab => tab._id);
+      room.tabs = tabModels.map((tab) => tab._id);
       try {
-        await tabModels.forEach(tab => tab.save()); // These could run in parallel I suppose but then we'd have to edit one if ther ewas a failuer with the other
+        await tabModels.forEach((tab) => tab.save()); // These could run in parallel I suppose but then we'd have to edit one if ther ewas a failuer with the other
         await room.save();
         room.populate(
           { path: 'members.user tabs', select: 'username tabType name events' },
-          (err, room) => {
+          (err, populatedRoom) => {
             if (err) reject(err);
-            resolve(room);
+            resolve(populatedRoom);
           }
         );
       } catch (err) {
@@ -211,24 +208,24 @@ module.exports = {
     });
   },
 
-  //Used for when a facilitator adds a new member. This is poorly organized and documents
+  // Used for when a facilitator adds a new member. This is poorly organized and documents
   // but the put method is for when a user grants themself access or requests access.
   add: (id, body) => {
     return new Promise((resolve, reject) => {
       let room;
       let newMembers;
-      let { ntfType, members } = body;
-      let { user, role } = members;
+      const { ntfType, members } = body;
+      const { user, role } = members;
       delete body.ntfType;
       db.Room.findById(id)
         // .populate({ path: "members.user", select: "username" })
-        .then(res => {
+        .then((res) => {
           room = res;
-          let color = colorMap[room.members.length];
+          const color = colorMap[room.members.length];
           room.members.push({ user, role, color });
           return room.save();
         })
-        .then(savedRoom => {
+        .then((savedRoom) => {
           return savedRoom.populate(
             {
               path: 'members.user',
@@ -237,7 +234,7 @@ module.exports = {
             () => {} // !! This is strange, but if we don't provide a callback here the population does not work
           );
         })
-        .then(populatedRoom => {
+        .then((populatedRoom) => {
           newMembers = populatedRoom.members;
           return db.User.findByIdAndUpdate(user, {
             $addToSet: {
@@ -245,7 +242,7 @@ module.exports = {
             },
           });
         })
-        .then(user => {
+        .then(() => {
           return db.Notification.create({
             resourceType: 'room',
             resourceId: id,
@@ -255,7 +252,7 @@ module.exports = {
           });
         })
         .then(() => resolve(newMembers))
-        .catch(err => reject(err));
+        .catch((err) => reject(err));
     });
   },
 
@@ -264,10 +261,10 @@ module.exports = {
       db.User.findByIdAndUpdate(body.members.user, { $pull: { rooms: id } }); // @todo there is no error handling for this
       db.Room.findByIdAndUpdate(id, { $pull: body }, { new: true })
         .populate({ path: 'members.user', select: 'username' })
-        .then(res => {
+        .then((res) => {
           resolve(res.members);
         })
-        .catch(err => reject(err));
+        .catch((err) => reject(err));
     });
   },
 
@@ -276,14 +273,14 @@ module.exports = {
     return new Promise((resolve, reject) => {
       if (body.graphImage) {
         db.Room.findById(id)
-          .then(room => {
+          .then((room) => {
             db.Image.findByIdAndUpdate(room.graphImage, {
               imageData: body.graphImage.imageData,
-            }).then(img => {
+            }).then(() => {
               return resolve();
             });
           })
-          .catch(err => {
+          .catch((err) => {
             console.log(err);
             reject(err);
           });
@@ -291,8 +288,8 @@ module.exports = {
         let roomToPopulate;
         let fromUser;
         db.Room.findById(id)
-          .then(async room => {
-            let { entryCode, userId } = body.checkAccess;
+          .then(async (room) => {
+            const { entryCode, userId } = body.checkAccess;
             fromUser = userId;
             // @todo we should encrypt this
             if (
@@ -303,7 +300,10 @@ module.exports = {
             }
             // correctCode, update room with user
             if (
-              _.find(room.members, member => member.user.toString() === userId)
+              _.find(
+                room.members,
+                (member) => member.user.toString() === userId
+              )
             ) {
               throw 'You have already been granted access to this room!';
             }
@@ -324,20 +324,20 @@ module.exports = {
             }
             return room.save();
           })
-          .then(updatedRoom => {
+          .then((updatedRoom) => {
             // create notifications
             roomToPopulate = updatedRoom;
-            let facilitators = updatedRoom.members.filter(m => {
+            const facilitators = updatedRoom.members.filter((m) => {
               return m.role === 'facilitator';
             });
             return Promise.all(
-              facilitators.map(f => {
+              facilitators.map((f) => {
                 return db.Notification.create({
                   resourceType: 'room',
                   resourceId: roomToPopulate._id,
                   notificationType: 'newMember',
                   toUser: f.user,
-                  fromUser: fromUser,
+                  fromUser,
                   parentResource: roomToPopulate.course,
                 });
               })
@@ -351,11 +351,11 @@ module.exports = {
               }
             );
           })
-          .catch(err => {
+          .catch((err) => {
             reject(err);
           });
       } else if (Object.keys(body)[0] === 'tempRoom') {
-        db.Room.findById(id).then(async room => {
+        db.Room.findById(id).then(async (room) => {
           room.tempRoom = body.tempRoom;
           try {
             await room.save();
@@ -368,18 +368,18 @@ module.exports = {
       } else if (body.isTrashed) {
         let updatedRoom;
         db.Room.findById(id)
-          .then(async room => {
+          .then(async (room) => {
             room.isTrashed = true;
             try {
               updatedRoom = await room.save();
             } catch (err) {
               reject(err);
             }
-            let userIds = room.members.map(member => member.user);
+            const userIds = room.members.map((member) => member.user);
             // Delete any notifications associated with this room
-            return db.Notification.find({ resourceId: id }).then(ntfs => {
-              let ntfIds = ntfs.map(ntf => ntf._id);
-              let promises = [
+            return db.Notification.find({ resourceId: id }).then((ntfs) => {
+              const ntfIds = ntfs.map((ntf) => ntf._id);
+              const promises = [
                 db.User.update(
                   { _id: { $in: userIds } },
                   {
@@ -405,36 +405,33 @@ module.exports = {
               return Promise.all(promises);
             });
           })
-          .then(promiseResults => {
+          .then(() => {
             resolve(updatedRoom);
           })
-          .catch(err => {
+          .catch((err) => {
             reject(err);
           });
       } else {
         db.Room.findByIdAndUpdate(id, body, { new: true })
           .populate('currentMembers.user members.user', 'username')
           .populate('chat') // this seems random
-          .then(res => resolve(res))
-          .catch(err => {
-            if (body.isTrashed) {
-              res;
-            }
+          .then((res) => resolve(res))
+          .catch((err) => {
             reject(err);
           })
-          .catch(err => reject(err));
+          .catch((err) => reject(err));
       }
     });
   },
 
-  delete: id => {
+  delete: (id) => {
     return new Promise((resolve, reject) => {
       db.Room.findById(id)
-        .then(room => {
+        .then((room) => {
           room.remove();
           resolve(room);
         })
-        .catch(err => reject(err));
+        .catch((err) => reject(err));
     });
   },
 
@@ -442,13 +439,13 @@ module.exports = {
   addCurrentUsers: (roomId, newCurrentUserId, members) => {
     return new Promise(async (resolve, reject) => {
       // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
-      let query = members
-        ? { $addToSet: { currentMembers: newCurrentUserId, members: members } }
+      const query = members
+        ? { $addToSet: { currentMembers: newCurrentUserId, members } }
         : { $addToSet: { currentMembers: newCurrentUserId } };
       db.Room.findByIdAndUpdate(roomId, query, { new: true })
         // .populate({ path: 'members.user', select: 'username' })
         .select('currentMembers members')
-        .then(room => {
+        .then((room) => {
           room.populate(
             { path: 'currentMembers members.user', select: 'username' },
             (err, poppedRoom) => {
@@ -459,7 +456,7 @@ module.exports = {
             }
           );
         })
-        .catch(err => reject(err));
+        .catch((err) => reject(err));
     });
   },
 
@@ -468,10 +465,10 @@ module.exports = {
       db.Room.findByIdAndUpdate(roomId, { $pull: { currentMembers: userId } }) // dont return new! we need the original list to filter back in sockets.js
         .populate({ path: 'currentMembers', select: 'username' })
         .select('currentMembers controlledBy')
-        .then(room => {
+        .then((room) => {
           resolve(room);
         })
-        .catch(err => reject(err));
+        .catch((err) => reject(err));
     });
   },
 };

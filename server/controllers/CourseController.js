@@ -1,29 +1,30 @@
-const db = require('../models');
+/* eslint-disable no-throw-literal */
 const _ = require('lodash');
+const db = require('../models');
 
 module.exports = {
-  get: params => {
+  get: (params) => {
     return new Promise((resolve, reject) => {
       if (params && params.constructor === Array) {
         params = { _id: { $in: params } };
       }
-      db.Course.find(params ? params : {})
+      db.Course.find(params || {})
         .sort('-createdAt')
         .populate({ path: 'members.user', select: 'username' })
-        .then(courses => resolve(courses))
-        .catch(err => reject(err));
+        .then((courses) => resolve(courses))
+        .catch((err) => reject(err));
     });
   },
 
-  getById: id => {
+  getById: (id) => {
     return new Promise((resolve, reject) => {
       db.Course.findById(id)
         // .populate('creator')
         // .populate('rooms', 'name ')
         .populate('members.user', 'username')
         // .populate('notifications.user')
-        .then(course => resolve(course))
-        .catch(err => reject(err));
+        .then((course) => resolve(course))
+        .catch((err) => reject(err));
     });
   },
 
@@ -33,16 +34,16 @@ module.exports = {
         ? { ...filters, name: criteria, isTrashed: false }
         : { ...filters, isTrashed: false }
     )
-      .skip(parseInt(skip))
+      .skip(parseInt(skip, 10))
       .limit(20)
       .populate('members.user', 'username')
-      .then(courses => {
+      .then((courses) => {
         // console.log(courses);
         return courses;
       });
   },
 
-  post: body => {
+  post: (body) => {
     // check if we should make a template from this course
     return new Promise((resolve, reject) => {
       if (body.template) {
@@ -54,14 +55,14 @@ module.exports = {
           creator,
         };
         db.CourseTemplate.create(template)
-          .then(template => {
-            body.template = template._id;
+          .then((createdTemplate) => {
+            body.template = createdTemplate._id;
             delete body[templatePrivacySetting];
             db.Course.create(body)
-              .then(course => resolve([course, template]))
-              .catch(err => reject(err));
+              .then((course) => resolve([course, template]))
+              .catch((err) => reject(err));
           })
-          .catch(err => {
+          .catch((err) => {
             console.log(err);
             reject(err);
           });
@@ -69,12 +70,12 @@ module.exports = {
         delete body.templatePrivacySetting;
         delete body.template;
         db.Course.create(body)
-          .then(course => {
+          .then((course) => {
             course.populate({ path: 'members.user', select: 'username' }, () =>
               resolve(course)
             );
           })
-          .catch(err => {
+          .catch((err) => {
             console.log(err);
             reject(err);
           });
@@ -88,11 +89,11 @@ module.exports = {
 
       let members;
       let course;
-      let ntfType = body.ntfType;
+      const { ntfType } = body;
       delete body.ntfType;
       db.Course.findByIdAndUpdate(id, { $addToSet: body }, { new: true })
         .populate({ path: 'members.user', select: 'username' })
-        .then(res => {
+        .then((res) => {
           course = res;
           return db.User.findByIdAndUpdate(body.members.user, {
             $addToSet: {
@@ -101,7 +102,7 @@ module.exports = {
           });
         })
         .then(() => {
-          members = course.members;
+          ({ members } = course);
           return db.Notification.create({
             resourceType: 'course',
             resourceId: id,
@@ -110,7 +111,7 @@ module.exports = {
           });
         })
         .then(() => resolve(members))
-        .catch(err => reject(err));
+        .catch((err) => reject(err));
     });
   },
 
@@ -125,15 +126,15 @@ module.exports = {
         },
         { new: true }
       )
-        .then(user => {
+        .then(() => {
           return db.Course.findByIdAndUpdate(
             id,
             { $pull: body },
             { new: true }
           ).populate({ path: 'members.user', select: 'username' });
         })
-        .then(res => resolve(res.members))
-        .catch(err => reject(err));
+        .then((res) => resolve(res.members))
+        .catch((err) => reject(err));
     });
   },
 
@@ -143,10 +144,9 @@ module.exports = {
 
     return new Promise((resolve, reject) => {
       if (body.checkAccess) {
-        let { entryCode, userId } = body.checkAccess;
-
+        const { entryCode, userId } = body.checkAccess;
         db.Course.findById(id)
-          .then(course => {
+          .then((course) => {
             // @todo SHOULD PROBABLY HASH THIS AND MOVE TO AUTH ROUTE
             userToAdd = userId;
             // throw error if incorrect entry code
@@ -154,6 +154,7 @@ module.exports = {
               course.entryCode !== entryCode &&
               course.privacySetting === 'private'
             ) {
+              // eslint-disable-next-line no-throw-literal
               throw 'Incorrect Entry Code';
             }
 
@@ -162,7 +163,7 @@ module.exports = {
             if (
               _.find(
                 course.members,
-                member => member.user.toString() === userId
+                (member) => member.user.toString() === userId
               )
             ) {
               throw 'You already have been granted access to this course!';
@@ -170,7 +171,7 @@ module.exports = {
             course.members.push({ user: userId, role: 'participant' });
             return course.save();
           })
-          .then(updatedCourse => {
+          .then((updatedCourse) => {
             courseToPopulate = updatedCourse;
             return db.User.findByIdAndUpdate(
               userToAdd,
@@ -178,12 +179,12 @@ module.exports = {
               { new: true }
             );
           })
-          .then(user => {
-            let facilitators = courseToPopulate.members.filter(
-              member => member.role === 'facilitator'
+          .then(() => {
+            const facilitators = courseToPopulate.members.filter(
+              (member) => member.role === 'facilitator'
             );
             return Promise.all(
-              facilitators.map(facilitator => {
+              facilitators.map((facilitator) => {
                 return db.Notification.create({
                   resourceType: 'course',
                   resourceId: courseToPopulate._id,
@@ -205,19 +206,19 @@ module.exports = {
               }
             );
           })
-          .catch(err => {
+          .catch((err) => {
             reject(err);
           });
       } else if (body.isTrashed) {
         let updatedCourse;
         db.Course.findByIdAndUpdate(id, body, { new: true })
-          .then(course => {
+          .then((course) => {
             updatedCourse = course;
-            let userIds = course.members.map(member => member.user);
+            const userIds = course.members.map((member) => member.user);
             // Delete any notifications associated with this course
-            return db.Notification.find({ resourceId: id }).then(ntfs => {
-              let ntfIds = ntfs.map(ntf => ntf._id);
-              let promises = [
+            return db.Notification.find({ resourceId: id }).then((ntfs) => {
+              const ntfIds = ntfs.map((ntf) => ntf._id);
+              const promises = [
                 db.User.update(
                   { _id: { $in: userIds } },
                   {
@@ -234,18 +235,18 @@ module.exports = {
               );
               if (body.trashChildren) {
                 promises.push(
-                  course.rooms.map(room =>
-                    db.Room.findById(room).then(room => {
-                      room.isTrashed = true;
-                      room.save();
+                  course.rooms.map((room) =>
+                    db.Room.findById(room).then((foundRoom) => {
+                      foundRoom.isTrashed = true;
+                      foundRoom.save();
                     })
                   )
                 );
                 promises.push(
-                  course.activities.map(activity =>
-                    db.Activity.findById(activity).then(activity => {
-                      activity.isTrashed = true;
-                      activity.save();
+                  course.activities.map((activity) =>
+                    db.Activity.findById(activity).then((foundActivity) => {
+                      foundActivity.isTrashed = true;
+                      foundActivity.save();
                     })
                   )
                 );
@@ -254,19 +255,17 @@ module.exports = {
               return Promise.all(promises);
             });
           })
-          .then(() => {
-            resolve(updatedCourse);
-          })
-          .catch(err => reject(err));
+          .then(() => resolve(updatedCourse))
+          .catch((err) => reject(err));
       } else {
-        return db.Course.findById(id)
-          .then(course => {
-            for (key in body) {
+        db.Course.findById(id)
+          .then((course) => {
+            Object.keys(body).forEach((key) => {
               course[key] = body[key];
-            }
+            });
             return course.save();
           })
-          .then(updatedCourse => {
+          .then((updatedCourse) => {
             return updatedCourse.populate(
               { path: 'members.user', select: 'username' },
               (err, pop) => {
@@ -274,7 +273,7 @@ module.exports = {
               }
             );
           })
-          .catch(err => {
+          .catch((err) => {
             reject(err);
           });
       }

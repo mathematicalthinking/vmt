@@ -1,6 +1,6 @@
+const _ = require('lodash');
 const utils = require('./utils/request');
 const controllers = require('../controllers');
-const _ = require('lodash');
 const errors = require('../middleware/errors');
 const helpers = require('../middleware/utils/helpers');
 const models = require('../models');
@@ -12,7 +12,7 @@ const validateResource = (req, res, next) => {
   if (_.isNil(controllers[resource])) {
     return errors.sendError.InvalidContentError('Invalid Resource', res);
   }
-  next();
+  return next();
 };
 
 const validateId = (req, res, next) => {
@@ -20,12 +20,12 @@ const validateId = (req, res, next) => {
   if (!utils.isValidMongoId(id)) {
     return errors.sendError.InvalidArgumentError('Invalid Resource Id', res);
   }
-  next();
+  return next();
 };
 
 const validateUser = (req, res, next) => {
   delete req.isTempRoom; // see if (tab.room.tempRoom)
-  let { resource, id } = req.params;
+  const { resource, id } = req.params;
 
   if (req.body.tempRoom) {
     // @todo we need to CHECK this resource is a tempRoom, not take this req's word for it.
@@ -40,27 +40,26 @@ const validateUser = (req, res, next) => {
   if (resource === 'tabs') {
     return models.Tab.findById(id)
       .populate({ path: 'room', select: 'tempRoom' })
-      .then(tab => {
+      .then((tab) => {
         if (tab.room.tempRoom) {
           // modify the req so don't have to check this in subsequent middlewate
           req.isTempRoom = true;
-          return next();
         }
+        return next();
       })
-      .catch(err => {
+      .catch(() => {
         errors.sendError.InternalError(null, res);
       });
   }
 
   return errors.sendError.NotAuthorizedError(null, res);
-
 };
 
 const validateRecordAccess = (req, res, next) => {
-  let user = getUser(req);
-  let { id, resource } = req.params;
-  let modelName = utils.getModelName(resource);
-  let model = models[modelName];
+  const user = getUser(req);
+  const { id, resource } = req.params;
+  const modelName = utils.getModelName(resource);
+  const model = models[modelName];
 
   if (!user) {
     // no user logged in; check if tempRoom
@@ -68,14 +67,13 @@ const validateRecordAccess = (req, res, next) => {
       return model
         .findById(id)
         .lean()
-        .then(room => {
+        .then((room) => {
           if (room.tempRoom) {
             return next();
-          } else {
-            return errors.sendError.NotAuthorizedError(null, res);
           }
+          return errors.sendError.NotAuthorizedError(null, res);
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(`Error canModifyResource: ${err}`);
           return errors.sendError.InternalError(null, res);
         });
@@ -83,7 +81,6 @@ const validateRecordAccess = (req, res, next) => {
 
     return errors.sendError.NotAuthorizedError(null, res);
   }
-
 
   if (user.isAdmin) {
     return next();
@@ -95,9 +92,9 @@ const validateRecordAccess = (req, res, next) => {
       // .populate('members.user', 'username') // for rooms and courses
       .lean()
       .exec()
-      .then(record => {
+      .then((record) => {
         if (record.members) {
-          let role = helpers.getUserRoleInRecord(record, user._id);
+          const role = helpers.getUserRoleInRecord(record, user._id);
           if (role) return next();
         }
         if (record.privacySetting === 'public') {
@@ -106,18 +103,19 @@ const validateRecordAccess = (req, res, next) => {
         if (_.isEqual(user._id, record.creator)) {
           return next();
         }
+        return errors.sendError.NotAuthorizedError(null, res);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(`Error canModifyResource: ${err}`);
         return errors.sendError.InternalError(null, res);
       })
   );
 };
 
-const canModifyResource = req => {
-  let { id, resource, remove } = req.params;
+const canModifyResource = (req) => {
+  const { id, resource, remove } = req.params;
   // Admins can do anything
-  let results = {
+  const results = {
     canModify: false,
     doesRecordExist: true,
     details: {
@@ -128,7 +126,7 @@ const canModifyResource = req => {
     },
   };
 
-  let user = utils.getUser(req);
+  const user = utils.getUser(req);
   if (!user && req.isTempRoom) {
     results.canModify = true;
     return Promise.resolve(results);
@@ -146,10 +144,10 @@ const canModifyResource = req => {
   //   console.log(`${user.username} is operating as ADMIN`);
   //   return results;
   // }
-  let modelName = utils.getModelName(resource);
+  const modelName = utils.getModelName(resource);
   results.details.modelName = modelName;
-  let model = models[modelName];
-  let schema = utils.getSchema(resource);
+  const model = models[modelName];
+  const schema = utils.getSchema(resource);
   // If a user is trying to remove themself they do not have to be facilitator
   if (
     remove &&
@@ -166,7 +164,7 @@ const canModifyResource = req => {
     .populate('activity', 'creator')
     .lean()
     .exec()
-    .then(record => {
+    .then((record) => {
       if (user.isAdmin) {
         results.canModify = true;
         return results;
@@ -193,7 +191,7 @@ const canModifyResource = req => {
       }
 
       if (helpers.isNonEmptyObject(record.room)) {
-        let roomCreator = record.room.creator;
+        const roomCreator = record.room.creator;
 
         if (_.isEqual(user._id, roomCreator)) {
           results.canModify = true;
@@ -209,7 +207,7 @@ const canModifyResource = req => {
       }
 
       if (helpers.isNonEmptyObject(record.activity)) {
-        let activityCreator = record.activity.creator;
+        const activityCreator = record.activity.creator;
 
         if (_.isEqual(user._id, activityCreator)) {
           results.canModify = true;
@@ -230,7 +228,7 @@ const canModifyResource = req => {
 
       if (modelName === 'Tab') {
         if (_.isArray(record.room.members)) {
-          let role = helpers.getUserRoleInRecord(record.room, user._id);
+          const role = helpers.getUserRoleInRecord(record.room, user._id);
           if (role) results.canModify = true;
         }
       }
@@ -253,27 +251,26 @@ const canModifyResource = req => {
       // console.log('returning result, ', results)
       return results;
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(`Error canModifyResource: ${err}`);
-      return errors.sendError.InternalError(null, res);
     });
 };
 
 const validateNewRecord = (req, res, next) => {
-  let { user, body } = req;
-  let { resource } = req.params;
-  let model = utils.getModel(resource);
-  let doc = new model(body);
+  const { body } = req;
+  const { resource } = req.params;
+  const Model = utils.getModel(resource);
+  const doc = new Model(body);
   if (!_.hasIn(doc, 'validate')) {
     return errors.sendError.InvalidContentError(null, res);
   }
-  doc.validate(err => {
+  return doc.validate((err) => {
     if (err) {
       console.log('validation err', err);
 
       return errors.sendError.InvalidContentError(null, res);
     }
-    next();
+    return next();
   });
 };
 
@@ -282,10 +279,10 @@ const prunePutBody = (user, recordIdToUpdate, body, details) => {
   if (!helpers.isNonEmptyObject(details)) {
     details = {};
   }
-  let { isCreator, isFacilitator, modelName } = details;
-  let copy = Object.assign({}, body);
+  const { isCreator, isFacilitator, modelName } = details;
+  const copy = Object.assign({}, body);
   if (modelName === 'User') {
-    let isUpdatingSelf = _.isEqual(user._id, recordIdToUpdate);
+    const isUpdatingSelf = _.isEqual(user._id, recordIdToUpdate);
     if (!isUpdatingSelf) {
       // can only modify another user's notifications
       return _.pick(

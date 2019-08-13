@@ -1,29 +1,29 @@
-const _ = require("lodash");
+const _ = require('lodash');
 
-const isNonEmptyObject = val => {
+const isNonEmptyObject = (val) => {
   return _.isObject(val) && !_.isEmpty(val);
 };
 
 const getUserRoleInRecord = (record, userId) => {
-  let members = _.propertyOf(record)("members");
+  const members = _.propertyOf(record)('members');
 
   if (!_.isArray(members)) {
     return;
   }
 
-  let userMemberObject = _.find(members, obj => {
+  const userMemberObject = _.find(members, (obj) => {
     return _.isEqual(userId, obj.user);
   });
 
-  return _.propertyOf(userMemberObject)("role");
+  return _.propertyOf(userMemberObject)('role');
 };
 
 const isUserFacilitatorInRecord = (record, userId) => {
-  return getUserRoleInRecord(record, userId) === "facilitator";
+  return getUserRoleInRecord(record, userId) === 'facilitator';
 };
 
 const isValidMongoId = (val) => {
-  let checkForHexRegExp = new RegExp("^[0-9a-fA-F]{24}$");
+  const checkForHexRegExp = new RegExp('^[0-9a-fA-F]{24}$');
   return checkForHexRegExp.test(val);
 };
 
@@ -40,8 +40,8 @@ const areObjectIdsEqual = (a, b) => {
     return false;
   }
 
-  let type1 = typeof a;
-  let type2 = typeof b;
+  const type1 = typeof a;
+  const type2 = typeof b;
 
   if (type1 === 'string' && type2 === 'string') {
     return a === b;
