@@ -39,6 +39,11 @@ class SocketProvider extends Component {
       }
       this.syncSocket();
       this.initializeListeners();
+    } else {
+      // this seems necessary for the case where user has vmt open while logged out
+      // then logs into encompass in a different tab or browser
+      // then refreshing vmt should recognize that the user is now logged in
+      connectGetUser();
     }
   }
 
