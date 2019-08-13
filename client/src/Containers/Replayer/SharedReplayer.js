@@ -293,10 +293,10 @@ class SharedReplayer extends Component {
     }
   };
 
-  // setCurrentMembers = () => {
-  //   console.log('setting current members');
-  //   // this.setState({ currentMembers });
-  // };
+  setCurrentMembers = () => {
+    const { currentMembers } = this.state;
+    this.setState({ currentMembers });
+  };
 
   setSpeed = speed => {
     this.setState({ playbackSpeed: speed });
