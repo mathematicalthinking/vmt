@@ -54,11 +54,8 @@ module.exports = {
    * @param {String} resourceName
    * @param {String} recourses
    */
-  getUserResources: (token, { resources, resourceName }) => {
-    return db.User.findOne(
-      { token, tokenExpiryDate: { $gt: Date.now() } },
-      { select: resources }
-    )
+  getUserResources: (id, { resources, resourceName }) => {
+    return db.User.findOne({ _id: id }, { select: resources })
       .populate({
         path: 'activities',
         select: 'name members intructions image rooms',

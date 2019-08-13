@@ -63,3 +63,16 @@ export const confirmEmailSuccess = confirmedEmail => {
     confirmedEmail,
   };
 };
+
+export const confirmEmailStart = () => {
+  return {
+    type: actionTypes.CONFIRM_EMAIL_START,
+  };
+};
+
+export const confirmEmailFail = error => {
+  return {
+    type: actionTypes.CONFIRM_EMAIL_FAIL,
+    error,
+  };
+};

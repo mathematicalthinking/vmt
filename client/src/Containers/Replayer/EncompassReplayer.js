@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import classes from './EncompassReplayer.css';
 import SharedReplayer from './SharedReplayer';
+import buildLog from '../../utils/buildLog';
 
 class EncompassReplayer extends Component {
   state = {
@@ -46,7 +47,12 @@ class EncompassReplayer extends Component {
     if (!window.vmtRooms || !roomId) {
       return null;
     }
-    return window.vmtRooms[roomId] || null;
+    const room = window.vmtRooms[roomId];
+    if (!room) {
+      return null;
+    }
+    room.log = buildLog(room.tabs, room.chat);
+    return room;
   };
 
   updateEncompass = (messageType, replayerState, totalDuration) => {
@@ -62,7 +68,7 @@ class EncompassReplayer extends Component {
       return (
         <div className={classes.EncompassReplayer}>
           <SharedReplayer
-            room={room}
+            populatedRoom={room}
             updateEnc={this.updateEncompass}
             encompass
           />

@@ -142,7 +142,7 @@ const signJwt = (payload, secret, options) => {
       }
     });
   });
-}
+};
 
 module.exports.getUser = getUser;
 module.exports.getResource = getResource;

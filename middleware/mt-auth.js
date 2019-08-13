@@ -1,5 +1,11 @@
 const { defaults } = require('lodash');
-const { isValidMongoId, verifyJwt, clearAccessCookie, clearRefreshCookie, setSsoCookie } = require('./utils/request');
+const {
+  isValidMongoId,
+  verifyJwt,
+  clearAccessCookie,
+  clearRefreshCookie,
+  setSsoCookie,
+} = require('./utils/request');
 const User = require('../models/User');
 
 const secret = process.env.MT_USER_JWT_SECRET;
@@ -13,24 +19,24 @@ const prep = (req, res, next) => {
   return next();
 };
 
-const resolveAccessToken = async (token) => {
+const resolveAccessToken = async token => {
   try {
     if (typeof token !== 'string') {
       return null;
     }
     let verifiedToken = await verifyJwt(token, secret);
     return verifiedToken;
-
-  }catch(err) {
+  } catch (err) {
     // invalid access token
     return null;
   }
-
 };
 
 const getMtUser = async (req, res) => {
   try {
-    let verifiedAccessToken = await resolveAccessToken(req.cookies[accessCookie.name]);
+    let verifiedAccessToken = await resolveAccessToken(
+      req.cookies[accessCookie.name]
+    );
 
     if (verifiedAccessToken !== null) {
       return verifiedAccessToken;
@@ -43,7 +49,9 @@ const getMtUser = async (req, res) => {
     }
 
     // request new accessToken with refreshToken
-    let { accessToken } = await ssoService.requestNewAccessToken(currentRefreshToken);
+    let { accessToken } = await ssoService.requestNewAccessToken(
+      currentRefreshToken
+    );
 
     verifiedAccessToken = await verifyJwt(accessToken, secret);
 
@@ -51,14 +59,11 @@ const getMtUser = async (req, res) => {
 
     setSsoCookie(res, accessToken);
     return verifiedAccessToken;
-
-  }catch(err) {
+  } catch (err) {
     console.error(`Error getMtUser: ${err}`);
     // invalid access token
     return null;
-
   }
-
 };
 
 const prepareMtUser = (req, res, next) => {

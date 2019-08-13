@@ -29,14 +29,16 @@ class Profile extends Component {
   }
 
   componentDidMount() {
-    API.get('user', { isAdmin: true }).then(res => {
-      this.setState({
-        admins: res.data.results.map(user => ({
-          username: user.username,
-          _id: user._id,
-        })),
-      });
-    });
+    API.get('user', { isAdmin: true })
+      .then(res => {
+        this.setState({
+          admins: res.data.results.map(user => ({
+            username: user.username,
+            _id: user._id,
+          })),
+        });
+      })
+      .catch(() => {});
   }
 
   toggleEdit = () => {
