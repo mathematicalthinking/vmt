@@ -186,8 +186,8 @@ ConfirmEmail.defaultProps = {
 const mapStateToProps = store => {
   return {
     loggedIn: store.user.loggedIn,
-    errorMessage: store.loading.errorMessage,
-    loading: store.loading.loading,
+    errorMessage: store.loading.confirmEmailErrorMsg,
+    loading: store.loading.isConfirmingEmail,
     isEmailConfirmed: store.user.isEmailConfirmed,
     email: store.user.email,
     confirmEmailSuccess: store.loading.confirmEmailSuccess,

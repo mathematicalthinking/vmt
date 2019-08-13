@@ -25,6 +25,8 @@ export {
   forgotPasswordSuccess,
   resetPasswordSuccess,
   confirmEmailSuccess,
+  confirmEmailStart,
+  confirmEmailFail,
 } from './loading';
 export {
   getRooms,

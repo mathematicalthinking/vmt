@@ -332,14 +332,14 @@ export const resetPassword = (password, confirmPassword, token) => {
 
 export const confirmEmail = token => {
   return dispatch => {
-    dispatch(loading.start());
+    dispatch(loading.confirmEmailStart());
     return AUTH.confirmEmail(token)
       .then(res => {
         const { isValid, info, confirmedEmail } = res.data;
         const userData = res.data.user;
 
         if (!isValid) {
-          dispatch(loading.fail(info));
+          dispatch(loading.confirmEmailFail(info));
         } else {
           // user object will be sent back if user was logged in when the request was made
           if (userData) {
@@ -377,7 +377,7 @@ export const confirmEmail = token => {
         }
       })
       .catch(err => {
-        dispatch(loading.fail(err.message || err.errorMessage));
+        dispatch(loading.confirmEmailFail(err.message || err.errorMessage));
       });
   };
 };

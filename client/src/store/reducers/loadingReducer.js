@@ -13,6 +13,8 @@ export const initialState = {
   updateKeys: [],
   confirmedEmail: null,
   confirmEmailSuccess: false,
+  isConfirmingEmail: false,
+  confirmEmailErrorMsg: '',
   // frontEndError: false,
 };
 
@@ -79,9 +81,20 @@ const reducer = (state = initialState, action) => {
     case actionTypes.CONFIRM_EMAIL_SUCCESS:
       return {
         ...state,
-        loading: false,
         confirmEmailSuccess: true,
         confirmedEmail: action.confirmedEmail,
+        isConfirmingEmail: false,
+      };
+    case actionTypes.CONFIRM_EMAIL_START:
+      return {
+        ...state,
+        isConfirmingEmail: true,
+      };
+    case actionTypes.CONFIRM_EMAIL_FAIL:
+      return {
+        ...state,
+        isConfirmingEmail: false,
+        confirmEmailErrorMsg: action.error,
       };
 
     default:
