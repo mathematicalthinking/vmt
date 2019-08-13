@@ -7,7 +7,7 @@ const multer = require('multer');
 const multerMw = require('../middleware/multer');
 const _ = require('lodash');
 
-const { getUser } = require('../middleware/utils/request');
+const { getUser, getResource } = require('../middleware/utils/request');
 
 router.param('resource', middleware.validateResource);
 router.param('id', middleware.validateId);
@@ -31,7 +31,7 @@ router.get('/:resource', (req, res, next) => {
 });
 
 router.get('/search/:resource', (req, res, next) => {
-  let { resource } = req.params.resource;
+  let resource = getResource(req);
   // currently only /search/user uses this endpt
   if (resource !== 'user') {
     return errors.sendError.InvalidContentError('Invalid Resource', res);
