@@ -9,5 +9,6 @@
 /production/
 /staging/
 /client/encompassBuild
+/server/node_modules
 backup.zip
 /geogebra/
