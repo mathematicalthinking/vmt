@@ -88,5 +88,6 @@ describe('Data Visualization', function() {
       .should('not.be.visible')
       .should('have.attr', 'href')
       .and('include', 'blob:http://localhost');
+    cy.logout();
   });
 });
