@@ -67,7 +67,7 @@ class Course extends Component {
       let firstView = false;
       let invited = false;
       if (notifications.length > 0) {
-        notifications.forEach(ntf => {
+        notifications.forEach((ntf) => {
           if (ntf.resourceId === course._id) {
             if (ntf.notificationType === 'grantedAccess') {
               firstView = true;
@@ -175,7 +175,7 @@ class Course extends Component {
     // if (course.creator === user._id
     if (course.myRole === 'facilitator') {
       const memberNtfs = notifications.filter(
-        ntf =>
+        (ntf) =>
           ntf.resourceId === course._id &&
           (ntf.notificationType === 'requestAccess' ||
             ntf.notificationType === 'newMember')
@@ -184,7 +184,7 @@ class Course extends Component {
         memberNtfs.length > 0 ? memberNtfs.length : '';
     }
     const newRoomNtfs = notifications.filter(
-      ntf =>
+      (ntf) =>
         ntf.parentResource === course._id &&
         (ntf.notificationType === 'assignedNewRoom' ||
           ntf.notificationType === 'invitation')
@@ -211,7 +211,7 @@ class Course extends Component {
 
   checkAccess = () => {
     const { course, user } = this.props;
-    course.members.forEach(member => {
+    course.members.forEach((member) => {
       if (member.user._id === user._id) {
         this.setState({ guestMode: false });
       }
@@ -220,7 +220,7 @@ class Course extends Component {
 
   toggleEdit = () => {
     const { course } = this.props;
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       editing: !prevState.editing,
       name: course.name,
       privacySetting: course.privacySetting,
@@ -245,7 +245,7 @@ class Course extends Component {
     } = this.state;
     const body = { entryCode, name, details, description, privacySetting };
     // only send the fields that have changed
-    Object.keys(body).forEach(key => {
+    Object.keys(body).forEach((key) => {
       if (body[key] === course[key]) {
         delete body[key];
       }
@@ -302,9 +302,9 @@ class Course extends Component {
       const { resource } = match.params;
       let myRooms;
       if (resource === 'rooms') {
-        myRooms = course.rooms.filter(room => {
+        myRooms = course.rooms.filter((room) => {
           let included = false;
-          room.members.forEach(member => {
+          room.members.forEach((member) => {
             if (member.user._id === user._id) included = true;
           });
           return included;
@@ -329,7 +329,7 @@ class Course extends Component {
             user={user}
             resource={resource}
             notifications={notifications.filter(
-              ntf => ntf.parentResource === course._id
+              (ntf) => ntf.parentResource === course._id
             )}
             parentResource="courses"
             parentResourceId={course._id}
@@ -344,7 +344,7 @@ class Course extends Component {
             resourceType="course"
             resourceId={course._id}
             notifications={
-              notifications.filter(ntf => ntf.resourceId === course._id) || []
+              notifications.filter((ntf) => ntf.resourceId === course._id) || []
             }
           />
         );
@@ -354,7 +354,7 @@ class Course extends Component {
 
       const additionalDetails = {
         facilitators: course.members.filter(
-          member => member.role === 'facilitator'
+          (member) => member.role === 'facilitator'
         ).length,
         acitivities: course.activities.length,
         rooms: course.rooms.length,
@@ -552,8 +552,8 @@ class Course extends Component {
         owners={
           course
             ? course.members
-                .filter(member => member.role === 'facilitator')
-                .map(member => member.user)
+                .filter((member) => member.role === 'facilitator')
+                .map((member) => member.user)
             : []
         }
         setAdmin={() => this.setState({ isAdmin: true, guestMode: false })}

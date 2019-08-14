@@ -99,7 +99,7 @@ class SocketProvider extends Component {
     });
   };
 
-  showNtfToast = ntfMessage => {
+  showNtfToast = (ntfMessage) => {
     this.setState({ showNtfMessage: true, ntfMessage }, () => {
       this.toastTimer = setTimeout(() => {
         this.setState({
@@ -124,7 +124,7 @@ class SocketProvider extends Component {
       user,
     } = this.props;
     socket.removeAllListeners();
-    socket.on('NEW_NOTIFICATION', data => {
+    socket.on('NEW_NOTIFICATION', (data) => {
       const { notification, course, room } = data;
       const type = notification.notificationType;
       const resource = notification.resourceType;
@@ -212,7 +212,7 @@ SocketProvider.propTypes = {
   connectClearError: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     user: state.user,
     rooms: state.rooms.byId,

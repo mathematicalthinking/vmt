@@ -30,9 +30,9 @@ class Profile extends Component {
 
   componentDidMount() {
     API.get('user', { isAdmin: true })
-      .then(res => {
+      .then((res) => {
         this.setState({
-          admins: res.data.results.map(user => ({
+          admins: res.data.results.map((user) => ({
             username: user.username,
             _id: user._id,
           })),
@@ -42,24 +42,24 @@ class Profile extends Component {
   }
 
   toggleEdit = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       editing: !prevState.editing,
     }));
   };
 
-  search = text => {
+  search = (text) => {
     const { user } = this.props;
     const { admins } = this.state;
     if (text.length > 0) {
       API.search('user', text, [user._id], admins)
-        .then(res => {
+        .then((res) => {
           const searchResults = res.data.results;
           this.setState({
             searchResults,
             searchText: text,
           });
         })
-        .catch(err => {
+        .catch((err) => {
           console.log('err: ', err);
         });
     } else {
@@ -67,14 +67,14 @@ class Profile extends Component {
     }
   };
 
-  makeAdmin = userId => {
+  makeAdmin = (userId) => {
     const { admins } = this.state;
     API.put('user', userId, { isAdmin: true })
-      .then(res => {
+      .then((res) => {
         const { username, _id } = res.data;
         this.setState({ admins: [...admins, { username, _id }] });
       })
-      .catch(err => {
+      .catch((err) => {
         console.log('err making admin: ', err);
       });
   };
@@ -97,7 +97,7 @@ class Profile extends Component {
           <Fragment>
             <h3>Admins</h3>
             <div data-testid="admin-list">
-              {admins.map(admin => (
+              {admins.map((admin) => (
                 <Member info={admin} key={admin} />
               ))}
             </div>
@@ -213,7 +213,7 @@ Profile.propTypes = {
   connectUpdateUser: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = store => ({
+const mapStateToProps = (store) => ({
   user: store.user,
   loading: store.loading,
 });

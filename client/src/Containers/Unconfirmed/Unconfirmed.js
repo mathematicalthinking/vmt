@@ -23,7 +23,7 @@ class Unconfirmed extends Component {
     });
     auth
       .resendEmailConfirmation()
-      .then(results => {
+      .then((results) => {
         const { isSuccess, info } = results.data;
         if (isSuccess) {
           this.setState({
@@ -37,7 +37,7 @@ class Unconfirmed extends Component {
           });
         }
       })
-      .catch(err => {
+      .catch((err) => {
         this.setState({
           isResendingEmail: false,
           resendErrorMsg: err.errorMessage || err.message,
@@ -102,7 +102,7 @@ Unconfirmed.defaultProps = {
   email: null,
 };
 
-const mapStateToProps = store => {
+const mapStateToProps = (store) => {
   return {
     loggedIn: store.user.loggedIn,
     isEmailConfirmed: store.user.isEmailConfirmed,

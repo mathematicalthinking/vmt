@@ -12,10 +12,10 @@ const passwordSchema = trimmed.min(10).max(72);
 const validateSchema = (schema, value) => {
   return schema
     .validate(value)
-    .then(validatedValue => {
+    .then((validatedValue) => {
       return [null, validatedValue];
     })
-    .catch(err => {
+    .catch((err) => {
       return [err.errors[0], null];
     });
 };
@@ -26,11 +26,11 @@ export const usernameSchema = trimmed
   .matches(usernamePattern)
   .notOneOf(disallowedUsernames);
 
-export const validateEmail = val => {
+export const validateEmail = (val) => {
   return validateSchema(emailSchema.required(), val);
 };
 
-export const validateUsername = val => {
+export const validateUsername = (val) => {
   return validateSchema(usernameSchema.required(), val);
 };
 
@@ -80,6 +80,6 @@ const basicTokenSchema = yup.object().shape({
   token: trimmed.required('Invalid token'),
 });
 
-export const validateBasicToken = token => {
+export const validateBasicToken = (token) => {
   return validateSchema(basicTokenSchema, { token });
 };

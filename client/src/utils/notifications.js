@@ -13,7 +13,7 @@ export default (user, notificationTypes, resourceType) => {
   }
 
   if (Array.isArray(notificationTypes)) {
-    return notifications.filter(notification => {
+    return notifications.filter((notification) => {
       return (
         includes(notificationTypes, notification.notificationType) &&
         includes(resourceTypes, notification.resourceType)
@@ -24,7 +24,7 @@ export default (user, notificationTypes, resourceType) => {
   // @TODO RIGHT NOW ONLY THE myVMT PAGE IS USING HTIS METHOD...WHEN WE USE IT IN ROOM AND COURSE WE'LL NEED TO IMPLEMENT THE PAGE_CHECK
   // SO THAT IF WE'RE ON myVMT AND A ROOM NOTIFICATION HAS A PARENT RESOURCE, WE SHOULD DISPLAY IT ON THE COURSE
   if (resourceType === 'course' || resourceType === 'room') {
-    return notifications.filter(notification => {
+    return notifications.filter((notification) => {
       if (notification.parentResource) {
         return resourceType === 'course';
       }

@@ -33,7 +33,7 @@ export const clearCurrentRoom = () => {
   };
 };
 
-export const createdRoom = resp => {
+export const createdRoom = (resp) => {
   const newRoom = resp;
   return {
     type: actionTypes.CREATED_ROOM,
@@ -41,14 +41,14 @@ export const createdRoom = resp => {
   };
 };
 
-export const roomsRemoved = roomIds => {
+export const roomsRemoved = (roomIds) => {
   return {
     type: actionTypes.REMOVE_ROOMS,
     roomIds,
   };
 };
 
-export const removedRoom = id => {
+export const removedRoom = (id) => {
   return {
     type: actionTypes.REMOVE_ROOM,
     id,
@@ -78,14 +78,14 @@ export const removeCourseRooms = (courseId, roomIdsArr) => {
   };
 };
 
-export const addUserRooms = newRoomsArr => {
+export const addUserRooms = (newRoomsArr) => {
   return {
     type: actionTypes.ADD_USER_ROOMS,
     newRoomsArr,
   };
 };
 
-export const removeUserRooms = roomIdsArr => {
+export const removeUserRooms = (roomIdsArr) => {
   return {
     type: actionTypes.REMOVE_USER_ROOMS,
     roomIdsArr,
@@ -126,9 +126,9 @@ export const addToLog = (roomId, entry) => {
   };
 };
 
-export const setRoomStartingPoint = roomId => {
+export const setRoomStartingPoint = (roomId) => {
   return (dispatch, getState) => {
-    const tabs = getState().rooms.byId[roomId].tabs.map(tab => {
+    const tabs = getState().rooms.byId[roomId].tabs.map((tab) => {
       tab.startingPoint = tab.currentState;
       tab.events = [];
       return tab;
@@ -136,7 +136,7 @@ export const setRoomStartingPoint = roomId => {
     dispatch(updatedRoom(roomId, { tabs, chat: [] }));
     Promise.all(
       tabs
-        .map(tab =>
+        .map((tab) =>
           API.put('tabs', tab._id, {
             events: [],
             startingPoint: tab.startingPoint,
@@ -146,15 +146,15 @@ export const setRoomStartingPoint = roomId => {
     )
       .then()
       // eslint-disable-next-line no-console
-      .catch(err => console.log('ER w THT: ', err));
+      .catch((err) => console.log('ER w THT: ', err));
   };
 };
 
-export const createRoom = body => {
-  return dispatch => {
+export const createRoom = (body) => {
+  return (dispatch) => {
     dispatch(loading.start());
     API.post('rooms', body)
-      .then(res => {
+      .then((res) => {
         const { result } = res.data;
         result.myRole = 'facilitator';
         dispatch(createdRoom(result));
@@ -169,7 +169,7 @@ export const createRoom = body => {
         }
         return dispatch(loading.success());
       })
-      .catch(err => {
+      .catch((err) => {
         dispatch(loading.fail(err.response.data.errorMessage));
       });
   };
@@ -219,7 +219,7 @@ export const updateRoom = (id, body) => {
         }
         const prevRoom = {};
         const keys = Object.keys(body);
-        keys.forEach(key => {
+        keys.forEach((key) => {
           prevRoom[key] = room[key];
         });
 
@@ -243,40 +243,40 @@ export const removeRoomMember = (roomId, userId) => {
   return (dispatch, getState) => {
     dispatch(loading.start());
     API.removeMember('rooms', roomId, userId)
-      .then(res => {
+      .then((res) => {
         dispatch(updatedRoom(roomId, { members: res.data }));
         if (userId === getState().user._id) {
           dispatch(removeUserRooms([roomId]));
         }
         dispatch(loading.success());
       })
-      .catch(err => dispatch(loading.fail(err)));
+      .catch((err) => dispatch(loading.fail(err)));
   };
 };
 
-export const getRooms = params => {
-  return dispatch => {
+export const getRooms = (params) => {
+  return (dispatch) => {
     dispatch(loading.start());
     API.get('rooms', params)
-      .then(res => {
+      .then((res) => {
         // Normalize res
         const rooms = normalize(res.data.results);
         dispatch(gotRooms(rooms));
         dispatch(loading.success());
       })
-      .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
+      .catch((err) => dispatch(loading.fail(err.response.data.errorMessage)));
   };
 };
 
-export const getRoom = id => {
-  return dispatch => {
+export const getRoom = (id) => {
+  return (dispatch) => {
     dispatch(loading.start());
     API.getById('rooms', id)
-      .then(res => {
+      .then((res) => {
         dispatch(updatedRoom(id, res.data.result));
         dispatch(loading.success());
       })
-      .catch(err => {
+      .catch((err) => {
         dispatch(loading.fail(err.response.data.errorMessage));
       });
   };
@@ -290,7 +290,7 @@ export const getRoom = id => {
  */
 
 export const populateRoom = (id, opts) => {
-  return dispatch => {
+  return (dispatch) => {
     dispatch(loading.start());
     let temp;
     let events;
@@ -302,7 +302,7 @@ export const populateRoom = (id, opts) => {
       events = opts.events;
     }
     API.getPopulatedById('rooms', id, temp, events)
-      .then(res => {
+      .then((res) => {
         // creae a log combining events and chat messages
         const room = res.data.result;
         // room.currentMembers
@@ -313,7 +313,7 @@ export const populateRoom = (id, opts) => {
         dispatch(updatedRoom(id, room));
         dispatch(loading.success());
       })
-      .catch(err => {
+      .catch((err) => {
         // eslint-disable-next-line no-console
         console.log(err);
         dispatch(loading.fail(err.response.data.errorMessage));
@@ -322,7 +322,7 @@ export const populateRoom = (id, opts) => {
 };
 
 export const inviteToRoom = (roomId, toUserId, toUserUsername) => {
-  return dispatch => {
+  return (dispatch) => {
     dispatch(
       addRoomMember(roomId, {
         user: { _id: toUserId, username: toUserUsername },
@@ -331,7 +331,7 @@ export const inviteToRoom = (roomId, toUserId, toUserUsername) => {
     );
     API.grantAccess(toUserId, 'room', roomId, 'invitation')
       .then()
-      .catch(err => {
+      .catch((err) => {
         // eslint-disable-next-line no-console
         console.log(err);
       });
@@ -339,12 +339,12 @@ export const inviteToRoom = (roomId, toUserId, toUserUsername) => {
 };
 
 export const updateRoomMembers = (roomId, updatedMembers) => {
-  return dispatch => {
+  return (dispatch) => {
     API.updateMembers('rooms', roomId, updatedMembers)
-      .then(res => {
+      .then((res) => {
         dispatch(updatedRoom(roomId, res.data));
       })
-      .catch(err => {
+      .catch((err) => {
         // dispatch(loading.fail())s
         // eslint-disable-next-line no-console
         console.log(err);
@@ -352,11 +352,11 @@ export const updateRoomMembers = (roomId, updatedMembers) => {
   };
 };
 
-export const removeRoom = roomId => {
-  return dispatch => {
+export const removeRoom = (roomId) => {
+  return (dispatch) => {
     dispatch(loading.start());
     API.remove('rooms', roomId)
-      .then(res => {
+      .then((res) => {
         dispatch(removeUserRooms([roomId]));
         if (res.data.result.course) {
           dispatch(removeCourseRooms(res.data.result.course, [roomId]));
@@ -364,7 +364,7 @@ export const removeRoom = roomId => {
         dispatch(removedRoom(roomId));
         dispatch(loading.success());
       })
-      .catch(err => {
+      .catch((err) => {
         dispatch(loading.fail());
         // eslint-disable-next-line no-console
         console.log(err);

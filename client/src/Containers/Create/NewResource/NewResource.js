@@ -62,13 +62,13 @@ class NewResourceContainer extends Component {
 
   startCreation = () => this.setState({ creating: true });
 
-  changeHandler = event => {
+  changeHandler = (event) => {
     this.setState({
       [event.target.name]: event.target.value,
     });
   };
 
-  setCopying = event => {
+  setCopying = (event) => {
     this.setState({ copying: event.target.name === 'copy' });
   };
 
@@ -134,7 +134,7 @@ class NewResourceContainer extends Component {
     if (newResource.privacySetting === 'private') {
       newResource.entryCode = hri.random();
     }
-    return this.uploadGgbFiles().then(results => {
+    return this.uploadGgbFiles().then((results) => {
       if (results && results.data) {
         newResource.ggbFiles = results.data.result;
       }
@@ -189,34 +189,34 @@ class NewResourceContainer extends Component {
     const { activities } = this.state;
     let updatedActivities;
     if (activities.indexOf(id) >= 0) {
-      updatedActivities = activities.filter(acId => acId !== id);
+      updatedActivities = activities.filter((acId) => acId !== id);
     } else {
       updatedActivities = [...activities, id]; // becaue we're filtering above we probably don't need to spread activities here we could just push the id
     }
     this.setState({ activities: updatedActivities });
   };
 
-  setGgb = event => {
+  setGgb = (event) => {
     this.setState({ ggb: event.target.name === 'geogebra' });
   };
 
-  setGgbFile = event => {
+  setGgbFile = (event) => {
     this.setState({
       ggbFiles: event.target.files,
     });
   };
 
-  setGgbApp = appName => {
+  setGgbApp = (appName) => {
     this.setState({ appName });
   };
 
-  setDueDate = dueDate => {
+  setDueDate = (dueDate) => {
     this.setState({ dueDate });
   };
-  setPrivacy = privacySetting => {
+  setPrivacy = (privacySetting) => {
     this.setState({ privacySetting });
   };
-  nextStep = direction => {
+  nextStep = (direction) => {
     let { copying } = this.state;
     const { step } = this.state;
     if (step === 0) {

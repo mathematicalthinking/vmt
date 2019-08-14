@@ -23,8 +23,8 @@ class Step2 extends Component {
     // this seems bad actualy...we're duplicating parent state here...we ashould just rename this local state
     // parent state = paritcipants we're confirmed are being adding to the room. this component's state = staging
     if (prevProps.selectedParticipants.length < selectedParticipants.length) {
-      const selectedUser = searchResults.filter(user =>
-        selectedParticipants.find(userId => user._id.toString() === userId)
+      const selectedUser = searchResults.filter((user) =>
+        selectedParticipants.find((userId) => user._id.toString() === userId)
       );
       this.setState({
         nominatedParticipants: nominatedParticipants.concat(selectedUser),
@@ -33,14 +33,14 @@ class Step2 extends Component {
     } else if (
       prevProps.selectedParticipants.length > selectedParticipants.length
     ) {
-      const updatedNominated = nominatedParticipants.filter(user => {
-        return selectedParticipants.find(userId => user._id === userId);
+      const updatedNominated = nominatedParticipants.filter((user) => {
+        return selectedParticipants.find((userId) => user._id === userId);
       });
       this.setState({ nominatedParticipants: updatedNominated });
     }
   }
 
-  search = text => {
+  search = (text) => {
     const { selectedParticipants, userId } = this.props;
     if (text.length > 0) {
       API.search(
@@ -48,11 +48,11 @@ class Step2 extends Component {
         text,
         [userId].concat(selectedParticipants) // Exclude myself and already selected members from th search
       )
-        .then(res => {
+        .then((res) => {
           const searchResults = res.data.results;
           this.setState({ searchResults });
         })
-        .catch(err => {
+        .catch((err) => {
           console.log('err: ', err);
         });
     } else {
@@ -65,10 +65,10 @@ class Step2 extends Component {
     const { nominatedParticipants, searchResults } = this.state;
     const uniqueIds = [];
     const list = nominatedParticipants
-      .map(member => ({ user: member }))
-      .concat(searchResults.map(member => ({ user: member })))
-      .filter(member => {
-        if (uniqueIds.find(id => id === member.user._id)) {
+      .map((member) => ({ user: member }))
+      .concat(searchResults.map((member) => ({ user: member })))
+      .filter((member) => {
+        if (uniqueIds.find((id) => id === member.user._id)) {
           return false;
         }
         uniqueIds.push(member.user._id);

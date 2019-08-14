@@ -13,7 +13,7 @@ function withPopulatedRoom(WrappedComponent) {
     componentDidMount() {
       const { match } = this.props;
       API.getPopulatedById('rooms', match.params.room_id, false, true)
-        .then(res => {
+        .then((res) => {
           this.populatedRoom = res.data.result;
           this.populatedRoom.log = buildLog(
             this.populatedRoom.tabs,

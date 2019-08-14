@@ -8,7 +8,7 @@ import createClasses from '../create.css';
 import { createRoom } from '../../../store/actions';
 
 // @TODO CONSIDER DOING THIS DIFFERENTLY
-const shuffle = array => {
+const shuffle = (array) => {
   const arrayCopy = [...array];
   // const currentIndex = arrayCopy.length,
   //   temporaryValue,
@@ -53,7 +53,7 @@ class MakeRooms extends Component {
     window.removeEventListener('keypress', this.onKeyPress);
   }
 
-  onKeyPress = event => {
+  onKeyPress = (event) => {
     const { step } = this.state;
     if (event.key === 'Enter') {
       if (step < 1) {
@@ -68,28 +68,28 @@ class MakeRooms extends Component {
 
   setManual = () => this.setState({ isRandom: false });
 
-  setParticipantNumber = event =>
+  setParticipantNumber = (event) =>
     this.setState({ participantsPerRoom: event.target.value });
 
-  setNumber = event => {
+  setNumber = (event) => {
     this.setState({
       participantsPerRoom: event.target.value.trim(),
       error: null,
     });
   };
 
-  setDate = event => {
+  setDate = (event) => {
     this.setState({ dueDate: event });
   };
 
   nextStep = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       step: prevState.step + 1,
     }));
   };
 
   prevStep = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       step: prevState.step - 1,
     }));
   };
@@ -101,7 +101,7 @@ class MakeRooms extends Component {
     // if user is already selected, remove them from the selected lis
     if (selectedParticipants.includes(newParticipant)) {
       updatedSelectedParticipants = selectedParticipants.filter(
-        participant => participant !== newParticipant
+        (participant) => participant !== newParticipant
       );
       // updatedRemainingParticipants.push()
       // if the user is not already selected, add them to selected and remove from remaining
@@ -160,7 +160,7 @@ class MakeRooms extends Component {
     };
     if (!isRandom) {
       // create a room with the selected participants
-      const members = selectedParticipants.map(participant => ({
+      const members = selectedParticipants.map((participant) => ({
         user: participant,
         role: 'participant',
       }));
@@ -168,13 +168,15 @@ class MakeRooms extends Component {
       newRoom.name = `${name} (room ${roomsCreated + 1})`;
       newRoom.members = members;
       connectCreateRoom(newRoom);
-      const updatedParticipants = remainingParticipants.filter(participant => {
-        if (selectedParticipants.includes(participant.user._id)) {
-          return false;
+      const updatedParticipants = remainingParticipants.filter(
+        (participant) => {
+          if (selectedParticipants.includes(participant.user._id)) {
+            return false;
+          }
+          return true;
         }
-        return true;
-      });
-      this.setState(prevState => ({
+      );
+      this.setState((prevState) => ({
         selectedParticipants: [],
         roomsCreated: prevState.roomsCreated + 1,
         remainingParticipants: updatedParticipants,
@@ -203,7 +205,7 @@ class MakeRooms extends Component {
         const currentRoom = { ...newRoom };
         const members = updatedParticipants
           .splice(0, participantsPerRoom)
-          .map(participant => ({
+          .map((participant) => ({
             user: participant.user._id,
             role: 'participant',
           }));
@@ -212,7 +214,7 @@ class MakeRooms extends Component {
         currentRoom.members = members;
         roomsToCreate.push(currentRoom);
       }
-      roomsToCreate.forEach(room => connectCreateRoom(room));
+      roomsToCreate.forEach((room) => connectCreateRoom(room));
       close();
       const { url } = match;
       history.push(`${url.slice(0, url.length - 7)}rooms`);
@@ -327,8 +329,8 @@ MakeRooms.propTypes = {
 MakeRooms.defaultProps = {
   course: null,
 };
-const mapDispatchToProps = dispatch => ({
-  connectCreateRoom: room => dispatch(createRoom(room)),
+const mapDispatchToProps = (dispatch) => ({
+  connectCreateRoom: (room) => dispatch(createRoom(room)),
 });
 
 export default withRouter(

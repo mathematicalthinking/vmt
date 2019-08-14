@@ -29,11 +29,11 @@ class Homepage extends PureComponent {
     const { rooms, history } = this.props;
     // If the user creates a temporary room // redirect them once its been created
     if (Object.keys(prevProps.rooms).length < Object.keys(rooms).length) {
-      const currentRooms = Object.keys(rooms).map(id => rooms[id]);
+      const currentRooms = Object.keys(rooms).map((id) => rooms[id]);
       const prevRooms = Object.keys(prevProps.rooms).map(
-        id => prevProps.rooms[id]
+        (id) => prevProps.rooms[id]
       );
-      const room = currentRooms.filter(rm => !prevRooms.includes(rm));
+      const room = currentRooms.filter((rm) => !prevRooms.includes(rm));
       if (room[0]._id && rooms[room[0]._id].tempRoom) {
         // THIS IS HACKY
         history.push(`myVMT/explore/${room[0]._id}`);

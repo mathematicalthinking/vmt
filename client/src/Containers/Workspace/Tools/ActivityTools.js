@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import classes from './tools.css';
 
-const ActivityTools = props => {
+const ActivityTools = (props) => {
   const { owner, copy, save, goBack } = props;
   return (
     <div className={classes.Container}>

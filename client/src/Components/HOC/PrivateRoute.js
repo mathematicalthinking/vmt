@@ -17,7 +17,7 @@ const privateRoute = ({
   return (
     <Route
       {...rest}
-      render={props =>
+      render={(props) =>
         authed === true ? (
           <Component {...props} />
         ) : (

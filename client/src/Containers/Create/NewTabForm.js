@@ -15,14 +15,14 @@ class NewTabForm extends Component {
     appName: 'classic',
   };
 
-  changeHandler = event => {
+  changeHandler = (event) => {
     this.setState({
       [event.target.name]: event.target.value,
       errorMessage: null,
     });
   };
 
-  onKeyDown = event => {
+  onKeyDown = (event) => {
     if (event.key === 'Enter') {
       event.preventDefault();
       event.stopPropagation();
@@ -76,7 +76,7 @@ class NewTabForm extends Component {
       activity: activity ? activity._id : null,
     };
     this.uploadGgbFiles()
-      .then(results => {
+      .then((results) => {
         if (results && results.data) {
           // THIS MAY BE MEHAFUCKED UO NOW
           const [ggbFile] = results.data.result;
@@ -84,7 +84,7 @@ class NewTabForm extends Component {
         }
         return API.post('tabs', newTab);
       })
-      .then(res => {
+      .then((res) => {
         let tabs;
         if (room) {
           tabs = [...room.tabs];
@@ -118,7 +118,7 @@ class NewTabForm extends Component {
       });
   };
 
-  setGgbFile = event => {
+  setGgbFile = (event) => {
     this.setState({
       ggbFile: event.target.files,
     });
@@ -176,9 +176,9 @@ class NewTabForm extends Component {
           tab
           ggb={ggb}
           setGgbFile={this.setGgbFile}
-          setGgbApp={newAppName => this.setState({ appName: newAppName })}
+          setGgbApp={(newAppName) => this.setState({ appName: newAppName })}
           desmosLink={desmosLink}
-          setDesmosLink={event =>
+          setDesmosLink={(event) =>
             this.setState({ desmosLink: event.target.value })
           }
           appName={appName}

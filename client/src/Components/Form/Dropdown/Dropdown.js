@@ -23,7 +23,7 @@ class Dropdown extends Component {
   };
 
   toggleList = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       listOpen: !prevState.listOpen,
     }));
   };
@@ -34,7 +34,7 @@ class Dropdown extends Component {
     let updatedSelected = [...selected];
     // if already selected remove from list
     if (prevSelected) {
-      updatedSelected = updatedSelected.filter(room => room.id !== id);
+      updatedSelected = updatedSelected.filter((room) => room.id !== id);
     } else {
       updatedSelected.push({ name, id });
     }

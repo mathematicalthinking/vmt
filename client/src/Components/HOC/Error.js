@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 // import { fail } from '../../store/actions/loading';
 import classes from './error.css';
 
-const Error = props => {
+const Error = (props) => {
   const { error, children } = props;
   return <div className={error ? classes.Error : null}>{children}</div>;
 };

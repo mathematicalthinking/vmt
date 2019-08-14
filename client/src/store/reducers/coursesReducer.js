@@ -42,7 +42,7 @@ const reducer = (state = initialState, action) => {
       };
     }
     case actionTypes.REMOVE_COURSE: {
-      const updatedIds = state.allIds.filter(id => id !== action.courseId);
+      const updatedIds = state.allIds.filter((id) => id !== action.courseId);
       const updatedById = { ...state.byId };
       delete updatedById[action.courseId];
       return {
@@ -54,7 +54,7 @@ const reducer = (state = initialState, action) => {
     case actionTypes.UPDATED_COURSE: {
       const updatedCourse = { ...state.byId[action.courseId] };
       const fields = Object.keys(action.body);
-      fields.forEach(field => {
+      fields.forEach((field) => {
         updatedCourse[field] = action.body[field];
       });
       return {
@@ -79,7 +79,7 @@ const reducer = (state = initialState, action) => {
       const updatedById = { ...state.byId };
       const updatedCourseActivities = updatedById[
         action.courseId
-      ].activities.filter(id => id !== action.activityId);
+      ].activities.filter((id) => id !== action.activityId);
       updatedById[action.courseId].rooms = updatedCourseActivities;
       return {
         ...state,
@@ -90,7 +90,7 @@ const reducer = (state = initialState, action) => {
       const updatedCourses = { ...state.byId };
       // ONly add unique ids, dont add dups
       const roomIds = action.roomIdsArr.filter(
-        roomId => updatedCourses[action.courseId].rooms.indexOf(roomId) <= 0
+        (roomId) => updatedCourses[action.courseId].rooms.indexOf(roomId) <= 0
       );
       updatedCourses[action.courseId].rooms = updatedCourses[
         action.courseId
@@ -103,7 +103,7 @@ const reducer = (state = initialState, action) => {
     case actionTypes.REMOVE_COURSE_ROOMS: {
       const updatedById = { ...state.byId };
       const updatedCourseRooms = updatedById[action.courseId].rooms.filter(
-        id => id !== action.roomId
+        (id) => id !== action.roomId
       );
       updatedById[action.courseId].rooms = updatedCourseRooms;
       return {

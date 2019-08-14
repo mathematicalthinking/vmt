@@ -36,14 +36,14 @@ export default (state = initialState, action) => {
       const start = data[0].timestamp;
       const end = data[data.length - 1].timestamp;
       const rawDuration = end - start;
-      data = data.filter(d => !d.isMultiPart);
+      data = data.filter((d) => !d.isMultiPart);
 
       const { filteredData, lines, timeScale, units } = processData(
         data,
         { users, events },
         { start, end }
       );
-      const maxY = max(lines[0].data, d => d[1]);
+      const maxY = max(lines[0].data, (d) => d[1]);
       const durationDisplay = rawDuration / 1000 / timeScale;
       return {
         ...state,
@@ -72,7 +72,7 @@ export default (state = initialState, action) => {
       if (payload === 'ALL') {
         updatedFiltersArr = [];
       } else if (state[filterType].indexOf(payload) > -1) {
-        updatedFiltersArr = state[filterType].filter(u => u !== payload);
+        updatedFiltersArr = state[filterType].filter((u) => u !== payload);
       } else {
         updatedFiltersArr = [...state[filterType], payload];
       }
@@ -150,8 +150,8 @@ export default (state = initialState, action) => {
 
       // if (newTimeScale !== timeScale) {
       let oldMaxY = 0;
-      lines.forEach(l => {
-        const candidateMaxY = max(l.data, d => d[1]);
+      lines.forEach((l) => {
+        const candidateMaxY = max(l.data, (d) => d[1]);
         if (candidateMaxY > oldMaxY) {
           newMaxY = candidateMaxY;
           oldMaxY = newMaxY;

@@ -22,17 +22,17 @@ class Settings extends PureComponent {
     }
   }
 
-  setCurrentSetting = event => {
+  setCurrentSetting = (event) => {
     this.setState({ currentSetting: event.target.id });
   };
 
   toggleSettings = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       showSettings: !prevState.showSettings,
     }));
   };
 
-  setSpeed = speed => {
+  setSpeed = (speed) => {
     const { setSpeed } = this.props;
     setSpeed(speed);
     this.hideSettingsTimer = setTimeout(() => {

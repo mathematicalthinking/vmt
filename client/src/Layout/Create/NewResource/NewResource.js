@@ -22,13 +22,13 @@ class NewResource extends Component {
     window.removeEventListener('keypress', this.onKeyPress);
   }
 
-  onKeyPress = event => {
+  onKeyPress = (event) => {
     if (event.key === 'Enter') {
       this.submit();
     }
   };
 
-  changeHandler = event => {
+  changeHandler = (event) => {
     this.setState({
       [event.target.name]: event.target.value,
       errorMessage: null,

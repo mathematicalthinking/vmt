@@ -16,7 +16,7 @@ class Chat extends Component {
     const { addToLog, replaying } = this.props;
     const { newMessage } = this.state;
     // event handler for enter key presses
-    document.addEventListener('keydown', event => {
+    document.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') {
         // handle differenct contexts of Enter clicks
         if (newMessage.length > 0) {
@@ -27,14 +27,14 @@ class Chat extends Component {
     });
     if (!replaying) {
       socket.removeAllListeners('RECEIVE_MESSAGE');
-      socket.on('RECEIVE_MESSAGE', data => {
+      socket.on('RECEIVE_MESSAGE', (data) => {
         addToLog(data);
         // this.scrollToBottom()
       });
     }
   }
 
-  changeHandler = event => {
+  changeHandler = (event) => {
     this.setState({
       newMessage: event.target.value,
     });

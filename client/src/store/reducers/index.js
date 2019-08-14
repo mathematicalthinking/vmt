@@ -41,14 +41,14 @@ export const populateResource = (
   resources
 ) => {
   const currentResource = { ...state[resourceToPop].byId[resourceId] };
-  resources.forEach(resource => {
+  resources.forEach((resource) => {
     let populatedResources;
     if (state[resourceToPop].byId[resourceId][resource]) {
       populatedResources = state[resourceToPop].byId[resourceId][resource]
-        .filter(id => {
+        .filter((id) => {
           return state[resource].byId[id] || null;
         })
-        .map(id => {
+        .map((id) => {
           return state[resource].byId[id];
         });
     }
@@ -60,16 +60,16 @@ export const populateResource = (
 export const getAllUsersInStore = (state, usersToExclude) => {
   const userIds = new Set();
   const usernames = new Set();
-  state.courses.allIds.forEach(id => {
-    state.courses.byId[id].members.forEach(member => {
+  state.courses.allIds.forEach((id) => {
+    state.courses.byId[id].members.forEach((member) => {
       if (usersToExclude.indexOf(member.user._id) === -1) {
         userIds.add(member.user._id);
         usernames.add(member.user.username);
       }
     });
   });
-  state.rooms.allIds.forEach(id => {
-    state.rooms.byId[id].members.forEach(member => {
+  state.rooms.allIds.forEach((id) => {
+    state.rooms.byId[id].members.forEach((member) => {
       if (usersToExclude.indexOf(member.user._id) === -1) {
         userIds.add(member.user._id);
         usernames.add(member.user.username);

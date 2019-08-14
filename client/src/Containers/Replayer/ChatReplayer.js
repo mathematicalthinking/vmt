@@ -49,7 +49,7 @@ class Chat extends PureComponent {
           if (entry.text.includes('joined')) {
             currentMembers.push({ user: entry.user });
           } else if (entry.text.includes('left')) {
-            currentMembers = currentMembers.filter(member => {
+            currentMembers = currentMembers.filter((member) => {
               return entry.user._id !== member.user._id;
             });
           }
@@ -69,7 +69,7 @@ class Chat extends PureComponent {
       }
       setCurrentMembers(uniqueMembers);
     } else if (didIndexChange && !isWaitingForUpdatedLog) {
-      this.setState(prevState => ({
+      this.setState((prevState) => ({
         messages: [...prevState.messages, log[index]],
       }));
     }

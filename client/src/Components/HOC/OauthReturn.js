@@ -38,7 +38,7 @@ OauthReturn.defaultProps = {
   errorMessage: null,
   loading: false,
 };
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     loggedIn: state.user.loggedIn,
     errorMessage: state.loading.errorMessage,

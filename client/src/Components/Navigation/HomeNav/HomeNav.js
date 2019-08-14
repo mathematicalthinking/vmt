@@ -76,7 +76,7 @@ Navbar.defaultProps = {
   isDark: false,
 };
 
-const mapStateToProps = store => ({
+const mapStateToProps = (store) => ({
   loggedIn: store.user.loggedIn,
 });
 

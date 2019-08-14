@@ -41,14 +41,14 @@ class LoginLayout extends PureComponent {
     window.removeEventListener('keypress', this.onKeyPress);
   }
 
-  onKeyPress = event => {
+  onKeyPress = (event) => {
     if (event.key === 'Enter') {
       this.loginHandler();
     }
   };
 
   // pass to text inputs to update state from user input
-  changeHandler = event => {
+  changeHandler = (event) => {
     const { errorMessage, clearError } = this.props;
     const { controls, oauthErrorMessage } = this.state;
     const updatedControls = { ...controls };
@@ -98,7 +98,7 @@ class LoginLayout extends PureComponent {
     const { loggedIn, errorMessage, loading } = this.props;
     const { controls, oauthErrorMessage } = this.state;
     const formElements = Object.keys(controls);
-    const form = formElements.map(formElement => {
+    const form = formElements.map((formElement) => {
       const elem = { ...controls[formElement] };
       return (
         <Input

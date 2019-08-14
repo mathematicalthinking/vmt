@@ -20,7 +20,7 @@ const SidePanel = ({
   accountType,
   bothRoles,
 }) => {
-  const details = Object.keys(additionalDetails).map(key => {
+  const details = Object.keys(additionalDetails).map((key) => {
     return (
       <div key={key} className={classes.KeyContainer}>
         <span className={classes.KeyName}>{key} </span>

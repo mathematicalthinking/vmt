@@ -24,7 +24,7 @@ class Chat extends Component {
     this.chatEnd = React.createRef();
     // Create a ref for each chat element so they can be used with the referencing tool
     // This is why we needed to have a constructor function
-    log.forEach(message => {
+    log.forEach((message) => {
       this[`message-${message._id}`] = React.createRef();
     });
 
@@ -120,7 +120,7 @@ class Chat extends Component {
     // });
   };
 
-  onKeyPress = event => {
+  onKeyPress = (event) => {
     const { submit } = this.props;
     if (event.key === 'Enter') {
       submit();
@@ -161,7 +161,7 @@ class Chat extends Component {
     }
   };
 
-  getRelativeCoords = target => {
+  getRelativeCoords = (target) => {
     const { chatCoords, containerCoords, chatInputCoords } = this.state;
     const messageCoords = target.getBoundingClientRect(); // RENAME THIS ...THIS IS THE CHAT MESSAGE OR CHAT
     const left = chatCoords.left - containerCoords.left; // + 10 to account for margin
@@ -251,7 +251,7 @@ class Chat extends Component {
     const { settings, highlightedMessage } = this.state;
     let displayMessages = [];
     if (log) {
-      displayMessages = log.map(message => {
+      displayMessages = log.map((message) => {
         let highlighted = false;
         let reference = false;
         if (message.reference) {
@@ -276,8 +276,8 @@ class Chat extends Component {
               message={message}
               id={message._id} // ?? no message._id ??
               ref={this[`message-${message._id}`]}
-              onClick={event => this.messageClickHandler(event, message)}
-              showReference={event =>
+              onClick={(event) => this.messageClickHandler(event, message)}
+              showReference={(event) =>
                 this.showReference(event, message.reference)
               }
               highlighted={highlighted}
@@ -378,7 +378,7 @@ class Chat extends Component {
 
 // @todo we need to consider making a different component for replayer chat or conditionally requiring many of these props (like change and submit) if this is NOT a replayer chat
 Chat.propTypes = {
-  user: props => {
+  user: (props) => {
     const { replayer, user } = props;
     if (!replayer && !user) {
       return new Error('prop user is required when not in replayer mode');

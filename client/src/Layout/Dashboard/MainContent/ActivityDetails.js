@@ -77,7 +77,9 @@ class ActivityDetails extends Component {
             }}
             participants={
               course
-                ? course.members.filter(member => member.role === 'participant')
+                ? course.members.filter(
+                    (member) => member.role === 'participant'
+                  )
                 : []
             }
           />

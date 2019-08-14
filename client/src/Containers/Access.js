@@ -25,7 +25,7 @@ Access.propTypes = {
   privacySetting: PropTypes.oneOf(['public', 'private']).isRequired,
 };
 
-const mapStateToProps = store => ({
+const mapStateToProps = (store) => ({
   user: store.user,
   error: store.loading.errorMessage,
 });

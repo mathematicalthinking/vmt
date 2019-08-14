@@ -27,7 +27,7 @@ const Timeline = ({
     <div className={classes.Timeline}>
       <DatePicker
         selected={new Date(currentStartTime)}
-        onChange={date => selectDate(date, 'start')}
+        onChange={(date) => selectDate(date, 'start')}
         popperPlacement="top-start"
         shouldCloseOnSelect
         showTimeSelect
@@ -36,7 +36,7 @@ const Timeline = ({
       />
       <DatePicker
         selected={new Date(currentEndTime)}
-        onChange={date => selectDate(date, 'end')}
+        onChange={(date) => selectDate(date, 'end')}
         popperPlacement="top-start"
         shouldCloseOnSelect
         showTimeSelect

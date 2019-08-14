@@ -54,7 +54,7 @@ class Community extends Component {
           </div>
           <div className={classes.Search}>
             <Search
-              _search={value => setCriteria(value)}
+              _search={(value) => setCriteria(value)}
               placeholder="Search..."
               data-testid="community-search"
             />

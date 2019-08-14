@@ -34,12 +34,12 @@ class EditableText extends Component {
     }
   }
 
-  updateText = event => {
+  updateText = (event) => {
     this.setState({ text: event.target.value });
   };
 
   toggleEdit = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       editing: !prevState.editing,
     }));
   };

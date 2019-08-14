@@ -16,7 +16,7 @@ class PrivateAccess extends Component {
     const { error, clearError } = this.props;
     if (error) clearError();
   }
-  updateEntry = event => {
+  updateEntry = (event) => {
     const { error, clearError } = this.props;
     if (error) clearError();
     this.setState({ entryCode: event.target.value });

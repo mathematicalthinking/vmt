@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classes from './checkbox.css';
 
-const Checkbox = props => {
+const Checkbox = (props) => {
   const { children, dataId, id, checked, change, style } = props;
   return (
     <div
@@ -15,7 +15,7 @@ const Checkbox = props => {
         type="checkbox"
         id={id || children}
         userid={dataId}
-        onChange={event => {
+        onChange={(event) => {
           change(event, dataId);
         }}
         checked={checked}

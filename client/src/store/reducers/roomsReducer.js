@@ -29,7 +29,7 @@ const reducer = (state = initialState, action) => {
     case actionTypes.UPDATED_ROOM: {
       const updatedRoom = { ...state.byId[action.roomId] };
       const fields = Object.keys(action.body);
-      fields.forEach(field => {
+      fields.forEach((field) => {
         updatedRoom[field] = action.body[field];
       });
       return {
@@ -42,9 +42,9 @@ const reducer = (state = initialState, action) => {
     }
     case actionTypes.UPDATED_ROOM_TAB: {
       const fields = Object.keys(action.body);
-      const updatedTabs = state.byId[action.roomId].tabs.map(tab => {
+      const updatedTabs = state.byId[action.roomId].tabs.map((tab) => {
         if (tab._id === action.tabId) {
-          fields.forEach(field => {
+          fields.forEach((field) => {
             tab[field] = action.body[field];
           });
         }
@@ -75,7 +75,7 @@ const reducer = (state = initialState, action) => {
     }
     case actionTypes.DESTROY_ROOM: {
       const updatedObj = { ...state.byId };
-      const updatedList = state.allIds.filter(id => id !== action.id);
+      const updatedList = state.allIds.filter((id) => id !== action.id);
       delete updatedObj[action.id];
       return {
         ...state,
@@ -113,7 +113,7 @@ const reducer = (state = initialState, action) => {
     }
     case actionTypes.REMOVE_ROOM_MEMBER: {
       const updatedMembers = state.byId[action.roomId].members.filter(
-        member => member._id !== action.userId
+        (member) => member._id !== action.userId
       );
       return {
         ...state,
@@ -128,10 +128,10 @@ const reducer = (state = initialState, action) => {
     }
     case actionTypes.REMOVE_ROOMS: {
       const updatedIds = state.allIds.filter(
-        id => !action.roomIds.includes(id)
+        (id) => !action.roomIds.includes(id)
       );
       const updatedById = { ...state.byId };
-      action.roomIds.forEach(id => {
+      action.roomIds.forEach((id) => {
         delete updatedById[id];
       });
       return {

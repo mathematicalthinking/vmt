@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classes from './button.css';
 
-const Button = props => {
+const Button = (props) => {
   const { theme, disabled, m, click, type, children, tabIndex, id } = props;
   // let styles = [classes.Button]
   let styles = classes[theme];

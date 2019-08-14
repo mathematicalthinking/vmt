@@ -7,7 +7,7 @@ const BreadCrumbs = ({ crumbs, notifications }) => {
   let ntf;
   if (crumbs.length > 1 && notifications.length > 0) {
     const { link } = crumbs[crumbs.length - 1];
-    ntf = notifications.filter(n => {
+    ntf = notifications.filter((n) => {
       if (n.parentResource) {
         return !link.includes(n.parentResource);
       }

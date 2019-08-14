@@ -116,7 +116,7 @@ class MyVMT extends Component {
             userResources={
               user[resource]
                 // eslint-disable-next-line react/destructuring-assignment
-                .map(id => this.props[resource].byId[id])
+                .map((id) => this.props[resource].byId[id])
                 .sort((a, b) => {
                   return new Date(b.createdAt) - new Date(a.createdAt);
                 }) || []
@@ -144,7 +144,7 @@ MyVMT.propTypes = {
 // @NB THE LACK OF CAMEL CASE HERE IS INTENTIONAL AND ALLOWS US TO AVOID LOTS
 // OF CONDITIONAL LOGIC CHECKING THE RESOURCE TYPE AND THEN GRABBING DATA BASED
 // ON ITS VALUE. INSTEAD, WITH THE CURRENT METHOD WE CAN DO LIKE user[resource] or get[resource]
-const mapStateToProps = store => ({
+const mapStateToProps = (store) => ({
   user: store.user,
   rooms: store.rooms,
   courses: store.courses,

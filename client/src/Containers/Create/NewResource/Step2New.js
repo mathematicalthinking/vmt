@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { RadioBtn, Aux } from '../../../Components';
 import classes from '../create.css';
 
-const Step2New = props => {
+const Step2New = (props) => {
   const { ggb, setGgb } = props;
   return (
     <Aux>

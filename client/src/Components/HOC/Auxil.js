@@ -1,4 +1,4 @@
-const aux = props => {
+const aux = (props) => {
   return props.children;
 };
 

@@ -21,29 +21,29 @@ class FromActivity extends Component {
     window.removeEventListener('keypress', this.onKeyPress);
   }
 
-  onKeyPress = event => {
+  onKeyPress = (event) => {
     if (event.key === 'Enter') {
       this.submit();
     }
   };
 
-  select = id => {
+  select = (id) => {
     const { selected } = this.state;
     const updatedSelected = [...selected];
     updatedSelected.push(id);
     this.setState({ selected: updatedSelected });
   };
 
-  deSelect = id => {
+  deSelect = (id) => {
     const { selected } = this.state;
-    const updatedSelected = selected.filter(current => current !== id);
+    const updatedSelected = selected.filter((current) => current !== id);
     this.setState({ selected: updatedSelected });
   };
 
   submit = () => {
     const { mode, userId, course, create, copy, close } = this.props;
     const { selected, dueDate } = this.state;
-    selected.forEach(id => {
+    selected.forEach((id) => {
       if (mode === 'create') {
         create(id, userId, dueDate, course);
       } else {
@@ -125,7 +125,7 @@ class FromActivity extends Component {
                   label="Due Date (Optional)"
                   name="dueDate"
                   type="date"
-                  change={event =>
+                  change={(event) =>
                     this.setState({ dueDate: event.target.value })
                   }
                 />

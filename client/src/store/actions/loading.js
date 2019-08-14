@@ -12,7 +12,7 @@ export const success = () => {
   };
 };
 
-export const fail = errorMessage => {
+export const fail = (errorMessage) => {
   return {
     type: actionTypes.FAIL,
     error: errorMessage,
@@ -57,7 +57,7 @@ export const resetPasswordSuccess = () => {
   };
 };
 
-export const confirmEmailSuccess = confirmedEmail => {
+export const confirmEmailSuccess = (confirmedEmail) => {
   return {
     type: actionTypes.CONFIRM_EMAIL_SUCCESS,
     confirmedEmail,
@@ -70,7 +70,7 @@ export const confirmEmailStart = () => {
   };
 };
 
-export const confirmEmailFail = error => {
+export const confirmEmailFail = (error) => {
   return {
     type: actionTypes.CONFIRM_EMAIL_FAIL,
     error,

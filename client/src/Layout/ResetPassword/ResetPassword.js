@@ -38,14 +38,14 @@ class ResetPasswordLayout extends PureComponent {
     window.removeEventListener('keypress', this.onKeyPress);
   }
 
-  onKeyPress = event => {
+  onKeyPress = (event) => {
     if (event.key === 'Enter') {
       this.resetPasswordHandler();
     }
   };
 
   // pass to text inputs to update state from user input
-  changeHandler = event => {
+  changeHandler = (event) => {
     const { errorMessage, clearError } = this.props;
     const { controls } = this.state;
     const updatedControls = { ...controls };
@@ -77,7 +77,7 @@ class ResetPasswordLayout extends PureComponent {
 
     // TODO: Add or between email and username fields
     const formElements = Object.keys(controls);
-    const form = formElements.map(formElement => {
+    const form = formElements.map((formElement) => {
       const elem = { ...controls[formElement] };
       return (
         <Input

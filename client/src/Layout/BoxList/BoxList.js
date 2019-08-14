@@ -4,7 +4,7 @@ import ContentBox from '../../Components/UI/ContentBox/ContentBox';
 import DragContentBox from '../../Components/UI/ContentBox/DragContentBox';
 import classes from './boxList.css';
 
-const boxList = props => {
+const boxList = (props) => {
   const {
     list,
     listType,
@@ -18,13 +18,13 @@ const boxList = props => {
   } = props;
   let listElems = "There doesn't appear to be anything here yet";
   if (list.length > 0) {
-    listElems = list.map(item => {
+    listElems = list.map((item) => {
       let details;
       if (item) {
         let notificationCount = 0;
         if (listType === 'private') {
           if (notifications.length > 0) {
-            notifications.forEach(ntf => {
+            notifications.forEach((ntf) => {
               if (
                 ntf.resourceId === item._id ||
                 ntf.parentResource === item._id
@@ -38,7 +38,7 @@ const boxList = props => {
             description: item.description,
             facilitators: item.members
               ? item.members
-                  .filter(member => member.role === 'facilitator')
+                  .filter((member) => member.role === 'facilitator')
                   .map(
                     (member, x, arr) =>
                       `${member.user.username}${x < arr.length - 1 ? ', ' : ''}`
@@ -67,7 +67,7 @@ const boxList = props => {
                 notifications={notificationCount}
                 roomType={
                   item.roomType || item.tabs
-                    ? item.tabs.map(tab => tab.tabType)
+                    ? item.tabs.map((tab) => tab.tabType)
                     : null
                 }
                 locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both

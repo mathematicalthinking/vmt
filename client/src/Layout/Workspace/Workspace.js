@@ -96,7 +96,7 @@ class WorkspaceLayout extends Component {
               className={replayer ? classes.ReplayerTop : classes.Top}
               style={{ position: 'relative' }}
             >
-              {graphs.map(graph => {
+              {graphs.map((graph) => {
                 return (
                   <div
                     key={graph.key}

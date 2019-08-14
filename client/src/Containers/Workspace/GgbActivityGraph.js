@@ -105,7 +105,7 @@ class GgbActivityGraph extends Component {
     }
   }, 1000);
 
-  perspectiveChanged = newPerspectiveCode => {
+  perspectiveChanged = (newPerspectiveCode) => {
     const { tabs, currentTab, activity, updateActivityTab } = this.props;
     const updatedTab = { ...tabs[currentTab] };
     updateActivityTab(activity._id, updatedTab._id, {
@@ -135,8 +135,8 @@ class GgbActivityGraph extends Component {
     }, 200);
   };
 
-  getRelativeCoords = element => {
-    return new Promise(async resolve => {
+  getRelativeCoords = (element) => {
+    return new Promise(async (resolve) => {
       let elX;
       let elY;
       try {
@@ -224,7 +224,7 @@ class GgbActivityGraph extends Component {
     // put the current construction on the graph, disable everything until the user takes control
   };
 
-  parseXML = xml => {
+  parseXML = (xml) => {
     return new Promise((resolve, reject) => {
       parseString(xml, (err, result) => {
         if (err) return reject(err);
@@ -233,9 +233,9 @@ class GgbActivityGraph extends Component {
     });
   };
 
-  freezeElements = freeze => {
+  freezeElements = (freeze) => {
     const allElements = this.ggbApplet.getAllObjectNames(); // WARNING ... THIS METHOD IS DEPRECATED
-    allElements.forEach(element => {
+    allElements.forEach((element) => {
       // AS THE CONSTRUCTION GETS BIGGER THIS GETS SLOWER...SET_FIXED IS BLOCKING
       this.ggbApplet.setFixed(element, freeze, true); // Unfix/fix all of the elements
     });

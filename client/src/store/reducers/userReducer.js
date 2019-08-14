@@ -66,17 +66,17 @@ const reducer = (state = initialState, action) => {
       };
 
     case actionTypes.REMOVE_USER_COURSE: {
-      const courses = state.courses.filter(id => id !== action.courseId);
+      const courses = state.courses.filter((id) => id !== action.courseId);
       return { ...state, courses };
     }
     case actionTypes.REMOVE_USER_ACTIVITIES: {
       const activities = state.activities.filter(
-        id => !action.activityIdsArr.includes(id)
+        (id) => !action.activityIdsArr.includes(id)
       );
       return { ...state, activities };
     }
     case actionTypes.REMOVE_USER_ROOMS: {
-      const rooms = state.rooms.filter(id => !action.roomIdsArr.includes(id));
+      const rooms = state.rooms.filter((id) => !action.roomIdsArr.includes(id));
       return { ...state, rooms };
     }
     case actionTypes.ADD_NOTIFICATION: {
@@ -89,7 +89,7 @@ const reducer = (state = initialState, action) => {
     case actionTypes.REMOVE_NOTIFICATION: {
       // let updatedNotifications = {...state[`${action.resource}Notifications`]}
 
-      const updatedNotifications = state.notifications.filter(ntf => {
+      const updatedNotifications = state.notifications.filter((ntf) => {
         return ntf._id !== action.ntfId;
       });
       return {

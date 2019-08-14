@@ -22,7 +22,7 @@ export const gotUser = (user, temp) => {
   };
 };
 
-export const updateUser = body => {
+export const updateUser = (body) => {
   return {
     type: actionTypes.UPDATE_USER,
     body,
@@ -46,18 +46,18 @@ export const logout = () => {
       .then(() => {
         dispatch(loggedOut());
       })
-      .catch(err => dispatch(loading.fail(err)));
+      .catch((err) => dispatch(loading.fail(err)));
   };
 };
 
-export const addUserCourseTemplates = newTemplate => {
+export const addUserCourseTemplates = (newTemplate) => {
   return {
     type: actionTypes.ADD_USER_COURSE_TEMPLATES,
     newTemplate,
   };
 };
 
-export const addNotification = ntf => {
+export const addNotification = (ntf) => {
   return {
     type: actionTypes.ADD_NOTIFICATION,
     ntf,
@@ -65,7 +65,7 @@ export const addNotification = ntf => {
 };
 
 // user is requesting user? // @TODO rename this CLEARED
-export const removeNotification = ntfId => {
+export const removeNotification = (ntfId) => {
   return {
     type: actionTypes.REMOVE_NOTIFICATION,
     ntfId,
@@ -79,19 +79,19 @@ export const toggleJustLoggedIn = () => {
 };
 
 export const updateUserResource = (resource, resourceId, userId) => {
-  return dispatch => {
+  return (dispatch) => {
     API.addUserResource(resource, resourceId, userId)
       .then(() => {
         dispatch(addUserActivities([resourceId])); // <-- this seems like it should be dynamic...rooms/courses/activities
       })
-      .catch(err => dispatch(loading.fail(err)));
+      .catch((err) => dispatch(loading.fail(err)));
   };
 };
 
 // For clearing notifications after the user has seen it. As opposed to request for access notifications which are cleared
 // when the user explicitly grants access (see actions.access)
-export const clearNotification = ntfId => {
-  return dispatch => {
+export const clearNotification = (ntfId) => {
+  return (dispatch) => {
     dispatch(removeNotification(ntfId));
     // API.removeNotification(ntfId, userId, requestingUser, resource, ntfType)
     API.put('notifications', ntfId, { isTrashed: true })
@@ -99,43 +99,43 @@ export const clearNotification = ntfId => {
         // dispatch(gotUser(res.data))
       })
       // eslint-disable-next-line no-console
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   };
 };
 
 export const signup = (body, room) => {
   // room is optional -- if we're siging up someone in a temp room
-  return dispatch => {
+  return (dispatch) => {
     if (room) {
       // dispatch(updateRoomMembers(room, {user:{username: body.username, _id: body._id}, role: 'facilitator'}))
     }
     dispatch(loading.start());
     AUTH.signup(body)
-      .then(res => {
+      .then((res) => {
         if (res.data.errorMessage) {
           return dispatch(loading.fail(res.data.errorMessage));
         }
         dispatch(gotUser(res.data));
         return dispatch(loading.success());
       })
-      .catch(err => {
+      .catch((err) => {
         dispatch(loading.fail(err.response.data.errorMessage));
       });
   };
 };
 
 export const login = (username, password) => {
-  return dispatch => {
+  return (dispatch) => {
     dispatch(loading.start());
     AUTH.login(username, password)
-      .then(res => {
+      .then((res) => {
         if (res.data.errorMessage) {
           return dispatch(loading.fail(res.data.errorMessage));
         }
         let courses;
         let rooms;
         if (res.data.courses.length > 0) {
-          const coursesWithRoles = res.data.courses.map(course =>
+          const coursesWithRoles = res.data.courses.map((course) =>
             addUserRoleToResource(course, res.data._id)
           );
           courses = normalize(coursesWithRoles);
@@ -143,7 +143,7 @@ export const login = (username, password) => {
           dispatch(gotCourses(courses));
         }
         if (res.data.rooms.length > 0) {
-          const roomsWithRoles = res.data.rooms.map(room =>
+          const roomsWithRoles = res.data.rooms.map((room) =>
             addUserRoleToResource(room, res.data._id)
           );
           rooms = normalize(roomsWithRoles);
@@ -162,7 +162,7 @@ export const login = (username, password) => {
         dispatch(gotUser(user));
         return dispatch(loading.success());
       })
-      .catch(err => {
+      .catch((err) => {
         // eslint-disable-next-line no-console
         console.log(err);
         dispatch(loading.fail(err.response.data.errorMessage));
@@ -170,13 +170,13 @@ export const login = (username, password) => {
   };
 };
 
-export const getUser = id => {
-  return dispatch => {
+export const getUser = (id) => {
+  return (dispatch) => {
     dispatch(loading.start());
     const resolvedUser =
       id === undefined ? AUTH.currentUser() : API.getById('user', id);
     resolvedUser
-      .then(res => {
+      .then((res) => {
         const currentUser = res.data.result;
 
         if (res.data.errorMessage) {
@@ -189,7 +189,7 @@ export const getUser = id => {
 
         if (currentUser) {
           if (currentUser.courses.length > 0) {
-            const coursesWithRoles = currentUser.courses.map(course =>
+            const coursesWithRoles = currentUser.courses.map((course) =>
               addUserRoleToResource(course, currentUser._id)
             );
             courses = normalize(coursesWithRoles);
@@ -197,7 +197,7 @@ export const getUser = id => {
             dispatch(gotCourses(courses));
           }
           if (currentUser.rooms.length > 0) {
-            const roomsWithRoles = currentUser.rooms.map(room =>
+            const roomsWithRoles = currentUser.rooms.map((room) =>
               addUserRoleToResource(room, currentUser._id)
             );
             rooms = normalize(roomsWithRoles);
@@ -223,7 +223,7 @@ export const getUser = id => {
 
         return dispatch(loading.success());
       })
-      .catch(err => {
+      .catch((err) => {
         // if the session has expired logout
         if (err.response.data.errorMessage === 'Not Authorized') {
           dispatch(logout());
@@ -234,13 +234,13 @@ export const getUser = id => {
 };
 
 export const googleLogin = (username, password) => {
-  return dispatch => {
+  return (dispatch) => {
     dispatch(loading.start());
     AUTH.googleLogin(username, password)
-      .then(res => {
+      .then((res) => {
         dispatch(loading.success(res));
       })
-      .catch(err => {
+      .catch((err) => {
         dispatch(loading.fail(err));
       });
   };
@@ -251,16 +251,16 @@ export const clearError = () => {
 };
 
 export const forgotPassword = (email, username) => {
-  return dispatch => {
+  return (dispatch) => {
     dispatch(loading.start());
 
-    return validateForgotPassword(email, username).then(validationResults => {
+    return validateForgotPassword(email, username).then((validationResults) => {
       const [validationErr, validatedBody] = validationResults;
       if (validationErr) {
         return dispatch(loading.fail(validationErr));
       }
       return AUTH.forgotPassword(validatedBody)
-        .then(res => {
+        .then((res) => {
           const { isSuccess, info } = res.data;
           if (isSuccess) {
             dispatch(loading.forgotPasswordSuccess());
@@ -268,7 +268,7 @@ export const forgotPassword = (email, username) => {
             dispatch(loading.fail(info));
           }
         })
-        .catch(err => {
+        .catch((err) => {
           dispatch(loading.fail(err.response.data.errorMessage));
         });
     });
@@ -276,18 +276,18 @@ export const forgotPassword = (email, username) => {
 };
 
 export const resetPassword = (password, confirmPassword, token) => {
-  return dispatch => {
+  return (dispatch) => {
     dispatch(loading.start());
 
     return validateResetPassword(password, confirmPassword, token).then(
-      validationResults => {
+      (validationResults) => {
         const [validationErr, validatedBody] = validationResults;
         if (validationErr) {
           return dispatch(loading.fail(validationErr));
         }
 
         return AUTH.resetPassword(validatedBody.password, validatedBody.token)
-          .then(res => {
+          .then((res) => {
             const { message } = res.data;
             if (message) {
               dispatch(loading.fail(message));
@@ -295,14 +295,14 @@ export const resetPassword = (password, confirmPassword, token) => {
               let courses;
               let rooms;
               if (res.data.courses.length > 0) {
-                const coursesWithRoles = res.data.courses.map(course =>
+                const coursesWithRoles = res.data.courses.map((course) =>
                   addUserRoleToResource(course, res.data._id)
                 );
                 courses = normalize(coursesWithRoles);
                 dispatch(gotCourses(courses));
               }
               if (res.data.rooms.length > 0) {
-                const roomsWithRoles = res.data.rooms.map(room =>
+                const roomsWithRoles = res.data.rooms.map((room) =>
                   addUserRoleToResource(room, res.data._id)
                 );
                 rooms = normalize(roomsWithRoles);
@@ -322,7 +322,7 @@ export const resetPassword = (password, confirmPassword, token) => {
               dispatch(loading.resetPasswordSuccess());
             }
           })
-          .catch(err => {
+          .catch((err) => {
             dispatch(loading.fail(err.response.data.errorMessage));
           });
       }
@@ -330,11 +330,11 @@ export const resetPassword = (password, confirmPassword, token) => {
   };
 };
 
-export const confirmEmail = token => {
-  return dispatch => {
+export const confirmEmail = (token) => {
+  return (dispatch) => {
     dispatch(loading.confirmEmailStart());
     return AUTH.confirmEmail(token)
-      .then(res => {
+      .then((res) => {
         const { isValid, info, confirmedEmail } = res.data;
         const userData = res.data.user;
 
@@ -346,7 +346,7 @@ export const confirmEmail = token => {
             let courses;
             let rooms;
             if (userData.courses.length > 0) {
-              const coursesWithRoles = userData.courses.map(course =>
+              const coursesWithRoles = userData.courses.map((course) =>
                 addUserRoleToResource(course, userData._id)
               );
               courses = normalize(coursesWithRoles);
@@ -354,7 +354,7 @@ export const confirmEmail = token => {
               dispatch(gotCourses(courses));
             }
             if (userData.rooms.length > 0) {
-              const roomsWithRoles = userData.rooms.map(room =>
+              const roomsWithRoles = userData.rooms.map((room) =>
                 addUserRoleToResource(room, userData._id)
               );
               rooms = normalize(roomsWithRoles);
@@ -376,7 +376,7 @@ export const confirmEmail = token => {
           dispatch(loading.confirmEmailSuccess(confirmedEmail));
         }
       })
-      .catch(err => {
+      .catch((err) => {
         dispatch(loading.confirmEmailFail(err.message || err.errorMessage));
       });
   };

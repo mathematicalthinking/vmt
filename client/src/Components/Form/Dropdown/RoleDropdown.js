@@ -18,7 +18,7 @@ class RoleDropdown extends Component {
   };
 
   toggleList = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       listOpen: !prevState.listOpen,
     }));
   };

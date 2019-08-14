@@ -12,9 +12,9 @@ class ContentBox extends PureComponent {
     expanded: false,
   };
 
-  toggleExpand = event => {
+  toggleExpand = (event) => {
     event.preventDefault();
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       expanded: !prevState.expanded,
     }));
   };
@@ -77,7 +77,7 @@ class ContentBox extends PureComponent {
                   {details.facilitators && details.facilitators.length > 0 ? (
                     <div>
                       Facilitators:{' '}
-                      {details.facilitators.map(facilitator => facilitator)}
+                      {details.facilitators.map((facilitator) => facilitator)}
                     </div>
                   ) : null}
                   {details.creator ? `Creator: ${details.creator}` : null}

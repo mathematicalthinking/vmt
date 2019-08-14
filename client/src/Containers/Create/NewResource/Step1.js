@@ -4,7 +4,7 @@ import { TextInput } from '../../../Components';
 import classes from '../create.css';
 
 // @TODO CHANGE TO CLASS COMPONENTS SO WE CAN USE AREF TO SET THE FOCUS
-const Step1 = React.memo(props => {
+const Step1 = React.memo((props) => {
   const { displayResource, changeHandler, description, resource, name } = props;
   return (
     <div className={classes.FormSection}>

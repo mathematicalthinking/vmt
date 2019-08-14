@@ -1,11 +1,11 @@
-import React, { PureComponent } from "react";
-import clickOutside from "react-click-outside";
-import classes from "./positionedBox.css";
+import React, { PureComponent } from 'react';
+import clickOutside from 'react-click-outside';
+import classes from './positionedBox.css';
 
 class PositionedBox extends PureComponent {
   state = {
     left: 0,
-    top: 0
+    top: 0,
   };
 
   boxRef = React.createRef();
@@ -13,7 +13,7 @@ class PositionedBox extends PureComponent {
   componentDidMount() {
     this.setState({
       left: this.props.x - this.boxRef.current.clientWidth,
-      top: this.props.y - this.boxRef.current.clientHeight
+      top: this.props.y - this.boxRef.current.clientHeight,
     });
   }
   handleClickOutside() {

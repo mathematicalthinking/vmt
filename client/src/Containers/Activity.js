@@ -102,7 +102,7 @@ class Activity extends Component {
 
   toggleEdit = () => {
     const { activity } = this.props;
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       editing: !prevState.editing,
       name: activity.name,
       description: activity.description,
@@ -126,7 +126,7 @@ class Activity extends Component {
       description,
     } = this.state;
     const body = { name, details, instructions, privacySetting, description };
-    Object.keys(body).forEach(key => {
+    Object.keys(body).forEach((key) => {
       if (body[key] === activity[key]) {
         delete body[key];
       }
@@ -224,7 +224,7 @@ class Activity extends Component {
       if (resource === 'rooms') {
         mainContent = (
           <ResourceList
-            userResources={activity.rooms.map(roomId => rooms[roomId])}
+            userResources={activity.rooms.map((roomId) => rooms[roomId])}
             notifications={[]}
             user={user}
             resource={resource}
