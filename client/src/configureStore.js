@@ -7,8 +7,8 @@ import { loadState, saveState } from './utils/localStorage';
 
 const configureStore = () => {
   const logger = () => {
-    return next => {
-      return action => {
+    return (next) => {
+      return (action) => {
         const result = next(action);
         return result;
       };

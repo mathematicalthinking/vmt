@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classes from './avatar.css';
 // import { Link } from 'react-router-dom';
-const Avatar = props => {
+const Avatar = (props) => {
   const { size, color, username } = props;
   let fontSize = 15;
   let padding = 7;

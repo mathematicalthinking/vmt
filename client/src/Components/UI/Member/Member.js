@@ -24,12 +24,12 @@ class Member extends PureComponent {
   }
 
   edit = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       editing: !prevState.editing,
     }));
   };
 
-  changeRole = newRole => {
+  changeRole = (newRole) => {
     const { role } = this.state;
     if (newRole === role) return;
     const { changeRole, info } = this.props;
@@ -93,7 +93,7 @@ class Member extends PureComponent {
                   <RoleDropdown
                     selectHandler={this.changeRole}
                     // not just hardcoding the options because we want the users current role to show up first in the lsit
-                    list={['facilitator', 'participant', 'guest'].sort(a => {
+                    list={['facilitator', 'participant', 'guest'].sort((a) => {
                       if (a === info.role) {
                         return -1;
                       }

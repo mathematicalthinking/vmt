@@ -95,7 +95,7 @@ export default {
       resourceType = 'room';
     }
     // @TODO consider making notificationTypes a directory of constants like action types in redux
-    const promises = owners.map(owner => {
+    const promises = owners.map((owner) => {
       // return axios.put(`/api/user/${owner}`, {notificationType: 'requestAccess', user: userId, resource, _id: resourceId})
       return api.post('api/notifications', {
         resourceType,
@@ -108,7 +108,7 @@ export default {
     return Promise.all(promises);
   },
 
-  removeNotification: ntfId => {
+  removeNotification: (ntfId) => {
     return api.put(`/api/notifications/${ntfId}`, {
       isTrashed: true,
     });
@@ -141,10 +141,10 @@ export default {
       members: updatedMembers,
     });
   },
-  getDesmos: url => {
+  getDesmos: (url) => {
     return api.get(`/desmos?url=${url}`);
   },
-  uploadGgbFiles: formData => {
+  uploadGgbFiles: (formData) => {
     return api.post(`/api/upload/ggb`, formData);
   },
 };

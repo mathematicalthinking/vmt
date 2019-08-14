@@ -82,7 +82,7 @@ class Room extends Component {
         updatedTabs = this.displayNotifications(updatedTabs);
       }
       if (notifications.length > 0) {
-        notifications.forEach(ntf => {
+        notifications.forEach((ntf) => {
           if (ntf.resourceId === room._id) {
             if (
               ntf.notificationType === 'grantedAccess' ||
@@ -170,20 +170,21 @@ class Room extends Component {
     }
   }
 
-  enterWithCode = entryCode => {
+  enterWithCode = (entryCode) => {
     const { room, user, connectJoinWithCode } = this.props;
     connectJoinWithCode(room._id, entryCode, user._id, user.username);
   };
 
-  displayNotifications = tabs => {
+  displayNotifications = (tabs) => {
     const { user, room, notifications } = this.props;
     if (
       room.members.filter(
-        member => member.role === 'facilitator' && member.user._id === user._id
+        (member) =>
+          member.role === 'facilitator' && member.user._id === user._id
       ).length > 0
     ) {
       const thisRoomsNtfs = notifications.filter(
-        ntf => ntf.resourceId === room._id
+        (ntf) => ntf.resourceId === room._id
       );
       tabs[1].notifications =
         thisRoomsNtfs.length > 0 ? thisRoomsNtfs.length : '';
@@ -193,7 +194,7 @@ class Room extends Component {
 
   toggleEdit = () => {
     const { room } = this.props;
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       editing: !prevState.editing,
       name: room.name,
       dueDate: room.dueDate,
@@ -230,7 +231,7 @@ class Room extends Component {
       privacySetting,
     };
     // only send the fields that have changed
-    Object.keys(body).forEach(key => {
+    Object.keys(body).forEach((key) => {
       if (body[key] === room[key]) {
         delete body[key];
       }
@@ -276,7 +277,7 @@ class Room extends Component {
 
   checkAccess() {
     const { room, user, connectPopulateRoom } = this.props;
-    if (room.members.find(member => member.user._id === user._id)) {
+    if (room.members.find((member) => member.user._id === user._id)) {
       // if the room hasnt been populated yet...populate it
       if (!room.tabs) {
         connectPopulateRoom(room._id);
@@ -319,7 +320,7 @@ class Room extends Component {
       const dueDateText = 'Due Date'; // the fact that we have to do this make this not worth it
       let ggb = false;
       let desmos = false;
-      room.tabs.forEach(tab => {
+      room.tabs.forEach((tab) => {
         if (tab.tabType === 'geogebra') ggb = true;
         else if (tab.tabType === 'desmos') desmos = true;
       });
@@ -399,7 +400,7 @@ class Room extends Component {
             room={room}
             owner={room.myRole === 'facilitator'}
             notifications={
-              notifications.filter(ntf => ntf.resourceId === room._id) || []
+              notifications.filter((ntf) => ntf.resourceId === room._id) || []
             }
             editing={editing}
             toggleEdit={this.toggleEdit}
@@ -419,7 +420,7 @@ class Room extends Component {
             parentResource={course ? course._id : null}
             courseMembers={course ? course.members : null}
             notifications={
-              notifications.filter(ntf => ntf.resourceId === room._id) || []
+              notifications.filter((ntf) => ntf.resourceId === room._id) || []
             }
           />
         );
@@ -618,8 +619,8 @@ class Room extends Component {
         owners={
           room && room.members
             ? room.members
-                .filter(member => member.role.toLowerCase() === 'facilitator')
-                .map(member => member.user)
+                .filter((member) => member.role.toLowerCase() === 'facilitator')
+                .map((member) => member.user)
             : []
         }
         error={error}

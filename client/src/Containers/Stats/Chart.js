@@ -69,7 +69,7 @@ const Chart = ({ state }) => {
             width={width}
             height={height}
           />
-          {lines.map(line => (
+          {lines.map((line) => (
             <Line
               key={line.color}
               leftMargin={margin.left}

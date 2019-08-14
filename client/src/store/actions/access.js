@@ -12,9 +12,9 @@ export const joinWithCode = (
   username,
   entryCode
 ) => {
-  return dispatch => {
+  return (dispatch) => {
     API.enterWithCode(resource, resourceId, userId, entryCode)
-      .then(res => {
+      .then((res) => {
         if (resource === 'rooms') {
           dispatch(addUserRooms([resourceId]));
           // let room = res.data.result;
@@ -39,7 +39,7 @@ export const joinWithCode = (
 
         return dispatch(loading.success());
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         dispatch(loading.fail('That entry code was incorrect. Try again.'));
       });
@@ -47,21 +47,21 @@ export const joinWithCode = (
 };
 
 export const requestAccess = (owners, userId, resource, resourceId) => {
-  return dispatch => {
+  return (dispatch) => {
     dispatch(loading.start());
     API.requestAccess(owners, userId, resource, resourceId)
       .then(() => {
         dispatch(loading.success());
         return dispatch(loading.accessSuccess());
       })
-      .catch(err => {
+      .catch((err) => {
         return dispatch(loading.fail(err));
       });
   };
 };
 
 export const grantAccess = (user, resource, resourceId, ntfId) => {
-  return dispatch => {
+  return (dispatch) => {
     // dispatch(loading.start())
     if (ntfId) {
       API.removeNotification(ntfId)
@@ -70,10 +70,10 @@ export const grantAccess = (user, resource, resourceId, ntfId) => {
           // dispatch(gotUser(res.data))
         })
         // eslint-disable-next-line no-console
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     }
     API.grantAccess(user, resource, resourceId, 'grantedAccess')
-      .then(res => {
+      .then((res) => {
         if (resource === 'rooms' || resource === 'room') {
           dispatch(updatedRoom(resourceId, { members: res.data })); // change to add
         } else if (resource === 'courses' || resource === 'course') {
@@ -87,7 +87,7 @@ export const grantAccess = (user, resource, resourceId, ntfId) => {
         // })
         // dispatch(loading.success())
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         dispatch(loading.fail(err));
       });

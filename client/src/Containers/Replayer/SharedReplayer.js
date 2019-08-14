@@ -165,7 +165,7 @@ class SharedReplayer extends Component {
           if (nextEvent.text.includes('joined')) {
             updatedMembers.push(nextEvent.user);
           } else if (nextEvent.text.includes('left')) {
-            updatedMembers = updatedMembers.filter(u => {
+            updatedMembers = updatedMembers.filter((u) => {
               return u._id !== nextEvent.user._id;
             });
           }
@@ -221,7 +221,7 @@ class SharedReplayer extends Component {
         return false;
       });
     }
-    populatedRoom.tabs.forEach(tab => {
+    populatedRoom.tabs.forEach((tab) => {
       if (tab._id === this.updatedLog[logIndex].tab) {
         currentTabId = tab._id;
       }
@@ -251,7 +251,7 @@ class SharedReplayer extends Component {
           if (nextEvent.text.includes('joined')) {
             updatedMembers.push(nextEvent.user);
           } else if (nextEvent.text.includes('left')) {
-            updatedMembers = updatedMembers.filter(u => {
+            updatedMembers = updatedMembers.filter((u) => {
               return u._id !== nextEvent.user._id;
             });
           }
@@ -264,7 +264,7 @@ class SharedReplayer extends Component {
           if (nextEvent.text.includes('left')) {
             updatedMembers.push(nextEvent.user);
           } else if (nextEvent.text.includes('joined')) {
-            updatedMembers = updatedMembers.filter(u => {
+            updatedMembers = updatedMembers.filter((u) => {
               return u._id !== nextEvent.user._id;
             });
           }
@@ -275,7 +275,7 @@ class SharedReplayer extends Component {
   };
 
   pausePlay = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       playing: !prevState.playing,
     }));
   };
@@ -298,13 +298,13 @@ class SharedReplayer extends Component {
     this.setState({ currentMembers });
   };
 
-  setSpeed = speed => {
+  setSpeed = (speed) => {
     this.setState({ playbackSpeed: speed });
   };
 
-  changeTab = id => {
+  changeTab = (id) => {
     // why is this a promise?
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.setState({ currentTabId: id }, () => {
         resolve();
       });
@@ -329,7 +329,7 @@ class SharedReplayer extends Component {
     }
   };
 
-  onEncMessage = event => {
+  onEncMessage = (event) => {
     const allowedOrigin = window.location.origin;
     const { origin, data } = event;
     if (allowedOrigin !== origin) {

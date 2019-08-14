@@ -43,7 +43,7 @@ class TempWorkspace extends Component {
       this.setState({ firstEntry: false });
     }
 
-    socket.on('USER_JOINED_TEMP', data => {
+    socket.on('USER_JOINED_TEMP', (data) => {
       const { currentMembers, members } = data;
       this.setState({ currentMembers, members, lastMessage: data.message });
     });
@@ -64,11 +64,11 @@ class TempWorkspace extends Component {
     }
   }
 
-  setName = event => {
+  setName = (event) => {
     this.setState({ tempUsername: event.target.value, errorMessage: '' });
   };
 
-  joinRoom = graphType => {
+  joinRoom = (graphType) => {
     const { loggedIn, username, userId, populatedRoom } = this.props;
     const { tempUsername, firstEntry } = this.state;
     // Set username

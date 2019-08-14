@@ -1,6 +1,7 @@
-import React from "react";
-import { Button } from "../../../Components/";
-const Step1 = React.memo(props => {
+import React from 'react';
+import { Button } from '../../../Components';
+
+const Step1 = React.memo((props) => {
   return (
     <div>
       <Button>Create a New {props.resource}</Button>

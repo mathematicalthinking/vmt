@@ -21,14 +21,14 @@ class EncompassReplayer extends Component {
     window.removeEventListener('hashchange', this.setRoom);
   }
 
-  setRoom = event => {
+  setRoom = (event) => {
     const newUrl = event.newURL;
     const roomId = this.getRoomIdFromUrl(newUrl);
 
     this.setState({ room: this.getRoomFromWindow(roomId) });
   };
 
-  getRoomIdFromUrl = url => {
+  getRoomIdFromUrl = (url) => {
     if (typeof url !== 'string') {
       return null;
     }
@@ -43,7 +43,7 @@ class EncompassReplayer extends Component {
     return roomId || null;
   };
 
-  getRoomFromWindow = roomId => {
+  getRoomFromWindow = (roomId) => {
     if (!window.vmtRooms || !roomId) {
       return null;
     }
@@ -81,7 +81,7 @@ class EncompassReplayer extends Component {
 
 const root = document.getElementById('root');
 
-const destroyHandler = event => {
+const destroyHandler = (event) => {
   if (event.data.messageType === 'DESTROY_REPLAYER') {
     try {
       ReactDOM.unmountComponentAtNode(root);

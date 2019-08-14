@@ -4,10 +4,10 @@ import { Link } from 'react-router-dom';
 import classes from './tabList.css';
 import Notification from '../../Notification/Notification';
 
-const TabList = props => {
+const TabList = (props) => {
   const { routingInfo, tabs } = props;
   const { params, url } = routingInfo;
-  const tabElems = tabs.map(tab => {
+  const tabElems = tabs.map((tab) => {
     let style = classes.Tab;
     if (tab.name.toLowerCase() === params.resource) {
       style = [classes.Tab, classes.ActiveTab].join(' ');

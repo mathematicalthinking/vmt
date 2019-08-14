@@ -23,11 +23,11 @@ class DesmosActivityGraph extends Component {
         this.calculator.setState(tabs[currentTab].currentState);
       } else if (tabs[currentTab].desmosLink) {
         API.getDesmos(tabs[currentTab].desmosLink)
-          .then(res => {
+          .then((res) => {
             this.calculator.setState(res.data.result.state);
           })
           // eslint-disable-next-line no-console
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
       }
       setFirstTabLoaded();
     }
@@ -81,13 +81,13 @@ class DesmosActivityGraph extends Component {
       // this.setState({ loading: false });
     } else if (desmosLink) {
       API.getDesmos(desmosLink)
-        .then(res => {
+        .then((res) => {
           this.calculator.setState(res.data.result.state);
           // this.setState({ loading: false });
           // this.initializeListeners();
         })
         // eslint-disable-next-line no-console
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     } else {
       // this.setState({ loading: false });
     }

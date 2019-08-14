@@ -28,7 +28,7 @@ class Slider extends Component {
     });
   };
 
-  jumpToPosition = event => {
+  jumpToPosition = (event) => {
     const { goToTime } = this.props;
     const { dragging } = this.state;
     // if (this.state.dragging) {
@@ -46,7 +46,7 @@ class Slider extends Component {
   };
 
   // @TODO consider throttling this
-  onDrag = e => {
+  onDrag = (e) => {
     const { goToTime } = this.props;
     const sliderEl = this.slider.current.getBoundingClientRect();
     let percent = (e.clientX - sliderEl.left) / sliderEl.width;
@@ -56,7 +56,7 @@ class Slider extends Component {
     this.setState({ dragging: false });
   };
 
-  stopDrag = e => {
+  stopDrag = (e) => {
     const { goToTime } = this.props;
     const sliderEl = this.slider.current.getBoundingClientRect();
     let percent = (e.clientX - sliderEl.left) / sliderEl.width;
@@ -66,7 +66,7 @@ class Slider extends Component {
     this.setState({ dragging: false });
   };
 
-  showEventDetail = event => {
+  showEventDetail = (event) => {
     const { dragging } = this.state;
     if (!dragging) {
       event.target.children.style = { display: 'flex' };
@@ -76,7 +76,7 @@ class Slider extends Component {
   render() {
     const { log, duration, progress } = this.props;
     const { dragging, sliderWidth } = this.state;
-    const eventMarks = log.map(entry => {
+    const eventMarks = log.map((entry) => {
       const color = entry.synthetic ? 'red' : entry.color;
       const percentFromStart = (entry.relTime / duration) * 100;
       return (

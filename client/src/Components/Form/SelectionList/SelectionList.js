@@ -14,7 +14,7 @@ class SelectionList extends Component {
           key={activity._id}
         >
           <Checkbox
-            change={event => {
+            change={(event) => {
               selectItem(event, activity._id);
             }}
             checked={selected.indexOf(activity._id) > -1}

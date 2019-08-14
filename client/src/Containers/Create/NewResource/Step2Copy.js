@@ -9,7 +9,7 @@ class Step2Copy extends Component {
     activityList: [],
   };
   componentDidMount() {
-    API.get('activities').then(res => {
+    API.get('activities').then((res) => {
       this.setState({ activityList: res.data.results });
     });
   }

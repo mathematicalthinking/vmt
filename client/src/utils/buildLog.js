@@ -6,7 +6,7 @@
 
 export default (tabs, chat) => {
   let allEvents = [];
-  tabs.forEach(tab => {
+  tabs.forEach((tab) => {
     allEvents = allEvents.concat(tab.events);
   });
   allEvents = allEvents.concat(chat).sort((a, b) => a.timestamp - b.timestamp);
@@ -15,7 +15,7 @@ export default (tabs, chat) => {
   // see sendEventBuffer method @ ./client/src/containers/workspace/ggbGraph.js
   const consolidatedEvents = [];
   let consolidating = false;
-  allEvents.forEach(event => {
+  allEvents.forEach((event) => {
     if (!event) {
       return;
     }

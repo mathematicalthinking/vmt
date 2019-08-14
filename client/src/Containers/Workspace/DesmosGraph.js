@@ -52,12 +52,12 @@ class DesmosGraph extends Component {
         this.calculator.setState(tabs[tabId].currentState);
       } else if (tabs[tabId].desmosLink) {
         API.getDesmos(tabs[tabId].desmosLink)
-          .then(res => {
+          .then((res) => {
             this.calculator.setState(res.data.result.state);
             this.initializeListeners();
           })
           // eslint-disable-next-line no-console
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
       }
       setFirstTabLoaded();
       const desmosState = this.calculator.getState();
@@ -93,7 +93,7 @@ class DesmosGraph extends Component {
     window.removeEventListener('keydown', this.allowKeypressCheck);
   }
 
-  allowKeypressCheck = event => {
+  allowKeypressCheck = (event) => {
     const { showControlWarning } = this.state;
     if (showControlWarning) {
       event.preventDefault();
@@ -123,7 +123,7 @@ class DesmosGraph extends Component {
       // when the user creates this room get teh state from the link and then just save it
       // as as event on this model.
       API.getDesmos(desmosLink)
-        .then(res => {
+        .then((res) => {
           try {
             this.calculator.setState(res.data.result.state);
           } catch (err) {
@@ -134,7 +134,7 @@ class DesmosGraph extends Component {
           this.initializeListeners();
         })
         // eslint-disable-next-line no-console
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     } else {
       this.initializeListeners();
     }
@@ -194,11 +194,11 @@ class DesmosGraph extends Component {
       this.receivingData = false;
     });
     socket.removeAllListeners('RECEIVE_EVENT');
-    socket.on('RECEIVE_EVENT', data => {
+    socket.on('RECEIVE_EVENT', (data) => {
       const { room, tabId } = this.props;
       this.receivingData = true;
       if (data.tab === room.tabs[tabId]._id) {
-        const updatedTabs = room.tabs.map(tab => {
+        const updatedTabs = room.tabs.map((tab) => {
           if (tab._id === data.tab) {
             tab.currentState = data.currentState;
           }

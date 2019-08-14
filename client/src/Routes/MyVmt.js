@@ -81,7 +81,7 @@ class MyVmt extends Component {
       <ErrorBoundary>
         <Navbar user={user} />
         <Switch>
-          {pages.map(page => {
+          {pages.map((page) => {
             return (
               <PrivateRoute
                 exact
@@ -129,7 +129,7 @@ MyVmt.defaultProps = {
   globalErrorMessage: null,
 };
 // Provide login status to all private routes
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   loggedIn: state.user.loggedIn,
   user: state.user,
   globalErrorMessage: state.loading.globalErrorMessage,

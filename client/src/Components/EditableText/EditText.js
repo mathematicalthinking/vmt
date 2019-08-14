@@ -30,7 +30,7 @@ const EditText = ({ editing, inputType, change, children, options, name }) => {
                 type="radio"
                 name={name}
                 checked={children === options[0]}
-                onChange={event => {
+                onChange={(event) => {
                   change(event, options[0]);
                 }}
               />{' '}
@@ -42,7 +42,7 @@ const EditText = ({ editing, inputType, change, children, options, name }) => {
                 type="radio"
                 name={name}
                 checked={children === options[1]}
-                onChange={event => {
+                onChange={(event) => {
                   change(event, options[1]);
                 }}
               />{' '}

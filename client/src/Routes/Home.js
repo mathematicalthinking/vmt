@@ -33,7 +33,7 @@ class Home extends PureComponent {
     window.removeEventListener('scroll', this.handleScroll);
   }
 
-  handleScroll = event => {
+  handleScroll = (event) => {
     this.setState({
       scrollPosition:
         event.srcElement.scrollingElement.scrollTop / window.innerHeight,
@@ -88,6 +88,6 @@ class Home extends PureComponent {
 }
 
 export default connect(
-  state => ({ user: state.user }),
+  (state) => ({ user: state.user }),
   null
 )(Home);

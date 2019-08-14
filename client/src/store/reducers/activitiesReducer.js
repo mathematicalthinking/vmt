@@ -29,10 +29,10 @@ const reducer = (state = initialState, action) => {
 
     case actionTypes.REMOVE_ACTIVITIES: {
       const updatedIds = state.allIds.filter(
-        id => !action.activityIds.includes(id)
+        (id) => !action.activityIds.includes(id)
       );
       const updatedById = { ...state.byId };
-      action.activityIds.forEach(id => {
+      action.activityIds.forEach((id) => {
         delete updatedById[id];
       });
       return {
@@ -81,9 +81,9 @@ const reducer = (state = initialState, action) => {
     }
     case actionTypes.UPDATED_ACTIVITY_TAB: {
       const fields = Object.keys(action.body);
-      const updatedTabs = state.byId[action.activityId].tabs.map(tab => {
+      const updatedTabs = state.byId[action.activityId].tabs.map((tab) => {
         if (tab._id === action.tabId) {
-          fields.forEach(field => {
+          fields.forEach((field) => {
             // eslint-disable-next-line no-param-reassign
             tab[field] = action.body[field];
           });

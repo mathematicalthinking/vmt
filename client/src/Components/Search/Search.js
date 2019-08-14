@@ -25,7 +25,7 @@ class Search extends Component {
           className={[classes.Input, classes[theme]].join(' ')}
           type="text"
           placeholder={placeholder}
-          onChange={event => _search(event.target.value.trim())}
+          onChange={(event) => _search(event.target.value.trim())}
         />
         <i className={['fas fa-search', classes.Icon].join(' ')} />
       </div>

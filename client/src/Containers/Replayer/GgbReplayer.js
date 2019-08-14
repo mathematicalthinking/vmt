@@ -55,7 +55,7 @@ class GgbReplayer extends Component {
 
   // We should periodically save the entire state so if we skip to the very end we don't have to apply each event one at a time
 
-  constructEvent = data => {
+  constructEvent = (data) => {
     switch (data.eventType) {
       case 'ADD':
         if (data.undoRemove) {
@@ -74,7 +74,7 @@ class GgbReplayer extends Component {
         break;
       case 'REMOVE':
         if (data.eventArray && data.eventArray.lenght > 1) {
-          data.eventArray.forEach(label => {
+          data.eventArray.forEach((label) => {
             this.ggbApplet.deleteObject(label);
           });
         } else {
@@ -103,7 +103,7 @@ class GgbReplayer extends Component {
         }
         break;
       case 'BATCH_REMOVE':
-        data.eventArray.forEach(label => this.ggbApplet.deleteObject(label));
+        data.eventArray.forEach((label) => this.ggbApplet.deleteObject(label));
         break;
       case 'UPDATE_STYLE': {
         if (data.eventArray) {

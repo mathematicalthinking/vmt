@@ -63,13 +63,13 @@ class DesmosReplayer extends Component {
       setTabLoaded(tab._id);
     } else if (tab.desmosLink) {
       API.getDesmos(tab.desmosLink)
-        .then(res => {
+        .then((res) => {
           this.calculator.setState(res.data.result.state);
           // console.
           setTabLoaded(tab._id);
         })
         // eslint-disable-next-line no-console
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     } else {
       this.calculator.setBlank();
       setTabLoaded(tab._id);

@@ -17,7 +17,7 @@ export const processData = (
     messages,
     actions,
   });
-  const lines = filteredData.map(fd => ({
+  const lines = filteredData.map((fd) => ({
     data: buildLineData(fd.data, timeScale, start, end),
     color: fd.color,
   }));
@@ -28,7 +28,7 @@ export const processData = (
     end,
     filteredData: filteredData
       .reduce((acc, fd) => {
-        const fdWithColor = fd.data.map(d => {
+        const fdWithColor = fd.data.map((d) => {
           return {
             time: moment.unix(d.timestamp / 1000).format(dateFormatMap.all),
             user: d.user ? d.user.username || d.user : null,
@@ -59,8 +59,8 @@ const filterData = (
   let dataSets = [];
   // If filtering by two or more users we want the lines on the graph to represent them.
   if (users.length > 1) {
-    dataSets = users.map(user => {
-      const filteredData = data.filter(d => {
+    dataSets = users.map((user) => {
+      const filteredData = data.filter((d) => {
         let criteriaMet = false;
         if ((d.user && d.user._id === user) || d.user === user) {
           criteriaMet = true;
@@ -111,14 +111,14 @@ const filterData = (
   else if (events.length > 0) {
     if (users.length === 1) {
       data = data.filter(
-        d => d.user && (d.user === users[0] || d.user._id === users[0])
+        (d) => d.user && (d.user === users[0] || d.user._id === users[0])
       );
     }
     if (messages.length > 0) {
       dataSets = dataSets.concat(
-        messages.map(m => {
+        messages.map((m) => {
           return {
-            data: data.filter(d => {
+            data: data.filter((d) => {
               const { messageType: mt } = d;
               if (!mt) return false;
               return (
@@ -136,9 +136,9 @@ const filterData = (
     }
     if (actions.length > 0) {
       dataSets = dataSets.concat(
-        actions.map(a => {
+        actions.map((a) => {
           return {
-            data: data.filter(d => {
+            data: data.filter((d) => {
               const { eventType: et } = d;
               if (!et) return false;
               return a === et;
@@ -149,16 +149,16 @@ const filterData = (
       );
     }
     dataSets = dataSets.concat(
-      events.map(e => {
+      events.map((e) => {
         if (e === 'MESSAGES' && messages.length === 0) {
           return {
-            data: data.filter(d => d.messageType),
+            data: data.filter((d) => d.messageType),
             color: lineColors.MESSAGES,
           };
         }
         if (e === 'ACTIONS' && actions.length === 0) {
           return {
-            data: data.filter(d => !d.messageType),
+            data: data.filter((d) => !d.messageType),
             color: lineColors.ACTIONS,
           };
         }
@@ -171,12 +171,12 @@ const filterData = (
     // figure out users color+*
     if (users.length === 1) {
       data = data.filter(
-        d => d.user && (d.user === users[0] || d.user._id === users[0])
+        (d) => d.user && (d.user === users[0] || d.user._id === users[0])
       );
     }
     dataSets = [{ data, color: users && users[0] ? data[0].color : '#2d91f2' }];
   }
-  return dataSets.filter(ds => ds.color);
+  return dataSets.filter((ds) => ds.color);
 };
 
 const calculateTimeScale = (start, end) => {
@@ -251,7 +251,7 @@ export const exportCSV = (dataArr, fileName = 'vmt-csv-export') => {
       acc += Object.keys(d).join(',');
       acc += ',\r\n';
     }
-    Object.keys(d).forEach(k => {
+    Object.keys(d).forEach((k) => {
       if (d[k]) {
         let parsedString = d[k].replace(',', `","`);
         parsedString = parsedString.replace(/(\r\n|\n|\r)/gm, '');

@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classes from './radioBtn.css';
 
-const RadioBtn = props => {
+const RadioBtn = (props) => {
   const { children, checked, name, check } = props;
   return (
     <label className={classes.Container}>

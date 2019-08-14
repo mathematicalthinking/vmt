@@ -6,7 +6,7 @@ import * as actions from '../../store/actions';
 import { Background, Aux, Button } from '../../Components';
 import classes from './confirmation.css';
 
-const Confirmation = props => {
+const Confirmation = (props) => {
   const { errorMessage, successMessage, success, connectClear } = props;
   return (
     <Aux>
@@ -36,13 +36,13 @@ Confirmation.defaultProps = {
   success: false,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   success: state.loading.accessSuccess || state.loading.forgotPasswordSuccess,
   successMessage: state.loading.successMessage,
   errorMessage: state.loading.errorMessage,
 });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   connectClear: () => dispatch(actions.clearLoadingInfo()),
 });
 

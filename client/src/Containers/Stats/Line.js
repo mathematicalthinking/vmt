@@ -8,8 +8,8 @@ const Line = ({ data, color, leftMargin, x, y }) => {
     .line()
     .curve(d3.curveMonotoneX)
     // .curve(d3.curveBundle.beta(1))
-    .x(d => x(d[0]))
-    .y(d => y(d[1]));
+    .x((d) => x(d[0]))
+    .y((d) => y(d[1]));
 
   const linePath = line(data);
   return (

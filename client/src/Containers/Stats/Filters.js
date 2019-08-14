@@ -105,7 +105,7 @@ const Filters = ({ data, filters, dispatch }) => {
               All
             </Checkbox>
           </div>
-          {members.map(m => {
+          {members.map((m) => {
             const {
               color,
               user: { username, _id },
@@ -177,7 +177,7 @@ const Filters = ({ data, filters, dispatch }) => {
           </div>
           {areMessages ? (
             <div className={classes.IndentedRow}>
-              {messageFilters.map(mf => {
+              {messageFilters.map((mf) => {
                 return (
                   <div
                     key={mf.dataId}
@@ -230,7 +230,7 @@ const Filters = ({ data, filters, dispatch }) => {
           </div>
           {areActions ? (
             <div className={classes.IndentedRow}>
-              {actionFilters.map(af => {
+              {actionFilters.map((af) => {
                 return (
                   <div
                     key={af.dataId}

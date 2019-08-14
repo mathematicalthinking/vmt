@@ -46,7 +46,7 @@ const Icons = ({ lock, listType, roomType, image }) => {
   if (Array.isArray(roomType)) {
     let des = false;
     let ggb = false;
-    roomType.forEach(rmType => {
+    roomType.forEach((rmType) => {
       if (rmType === 'desmos') des = true;
       else ggb = true;
     });

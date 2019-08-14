@@ -25,14 +25,14 @@ class ResetPassword extends Component {
     this.verifyToken(token);
   }
 
-  verifyToken = token => {
+  verifyToken = (token) => {
     this.setState({
       isVerifyingToken: true,
     });
 
     auth
       .validateResetPasswordToken(token)
-      .then(res => {
+      .then((res) => {
         const { isValid, info } = res.data;
         if (isValid) {
           this.setState({
@@ -48,7 +48,7 @@ class ResetPassword extends Component {
           });
         }
       })
-      .catch(err => {
+      .catch((err) => {
         this.setState({
           isVerifyingToken: false,
           tokenErrorMessage: err.errorMessage || err.message,
@@ -123,7 +123,7 @@ ResetPassword.defaultProps = {
   errorMessage: null,
 };
 
-const mapStateToProps = store => {
+const mapStateToProps = (store) => {
   return {
     loggedIn: store.user.loggedIn,
     errorMessage: store.loading.errorMessage,

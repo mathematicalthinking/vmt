@@ -1,9 +1,9 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import * as actions from "../../store/actions/";
-import BoxList from "../../Layout/BoxList/BoxList";
-import NewResource from "../Create/NewResource/NewResource";
-import { getUserResources } from "../../store/reducers/";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import * as actions from '../../store/actions';
+import BoxList from '../../Layout/BoxList/BoxList';
+import NewResource from '../Create/NewResource/NewResource';
+import { getUserResources } from '../../store/reducers';
 
 class Templates extends Component {
   componentDidMount() {
@@ -11,7 +11,7 @@ class Templates extends Component {
       userCourseTemplates,
       userCourseTemplateIds,
       userRoomTemplates,
-      userRoomTemplateIds
+      userRoomTemplateIds,
     } = this.props;
     if (!userCourseTemplates && userCourseTemplateIds.length > 0) {
       this.props.populateCourseTemplates(userCourseTemplateIds);
@@ -47,19 +47,19 @@ class Templates extends Component {
   }
 }
 
-const mapStateToProps = store => ({
+const mapStateToProps = (store) => ({
   userCourseTemplateIds: store.user.courseTemplates,
-  userCourseTemplates: getUserResources(store, "courseTemplates"),
-  userId: store.user._id
+  userCourseTemplates: getUserResources(store, 'courseTemplates'),
+  userId: store.user._id,
 });
 
-const mapDispatchToProps = dispatch => ({
-  populateCourseTemplates: ids => {
+const mapDispatchToProps = (dispatch) => ({
+  populateCourseTemplates: (ids) => {
     dispatch(actions.getCourseTemplates(ids));
   },
-  populateRoomTemplates: ids => {
+  populateRoomTemplates: (ids) => {
     dispatch(actions.getRoomTemplates(ids));
-  }
+  },
 });
 export default connect(
   mapStateToProps,

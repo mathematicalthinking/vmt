@@ -6,7 +6,7 @@ import { normalize } from '../utils';
 import * as loading from './loading';
 
 // @TODO HAVE MORE ACTIONS HERE FOR TRACKING STATUS OF REQUEST i.e. pending erro success
-export const gotCourses = courses => {
+export const gotCourses = (courses) => {
   return {
     type: actionTypes.GOT_COURSES,
     byId: courses.byId,
@@ -26,7 +26,7 @@ export const clearCurrentCourse = () => ({
   type: actionTypes.CLEAR_COURSE,
 });
 
-export const createdCourse = resp => {
+export const createdCourse = (resp) => {
   return {
     type: actionTypes.CREATED_COURSE,
     course: resp,
@@ -41,21 +41,21 @@ export const addCourseMember = (courseId, newMember) => {
   };
 };
 
-export const courseRemoved = courseId => {
+export const courseRemoved = (courseId) => {
   return {
     type: actionTypes.REMOVE_COURSE,
     courseId,
   };
 };
 
-export const addUserCourses = newCoursesArr => {
+export const addUserCourses = (newCoursesArr) => {
   return {
     type: actionTypes.ADD_USER_COURSES,
     newCoursesArr,
   };
 };
 
-export const removeUserCourse = courseId => {
+export const removeUserCourse = (courseId) => {
   return {
     type: actionTypes.REMOVE_USER_COURSE,
     courseId,
@@ -66,7 +66,7 @@ export const removeCourseMember = (courseId, userId) => {
   return (dispatch, getState) => {
     dispatch(loading.start());
     API.removeMember('courses', courseId, userId)
-      .then(res => {
+      .then((res) => {
         dispatch(updatedCourse(courseId, { members: res.data }));
         // If removing self
         if (userId === getState().user._id) {
@@ -74,19 +74,19 @@ export const removeCourseMember = (courseId, userId) => {
         }
         dispatch(loading.success());
       })
-      .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
+      .catch((err) => dispatch(loading.fail(err.response.data.errorMessage)));
   };
 };
 
 export const updateCourseMembers = (courseId, updatedMembers) => {
-  return dispatch => {
+  return (dispatch) => {
     dispatch(loading.start());
     API.updateMembers('courses', courseId, updatedMembers)
-      .then(res => {
+      .then((res) => {
         dispatch(updatedCourse(courseId, { members: res.data.members }));
         dispatch(loading.success());
       })
-      .catch(err => dispatch(loading.fail(err.response.data.errorMessage)));
+      .catch((err) => dispatch(loading.fail(err.response.data.errorMessage)));
   };
 };
 
@@ -114,7 +114,7 @@ export const updateCourse = (id, body) => {
 
         const prevCourse = {};
         const keys = Object.keys(body);
-        keys.forEach(key => {
+        keys.forEach((key) => {
           prevCourse[key] = course[key];
         });
 
@@ -131,35 +131,35 @@ export const updateCourse = (id, body) => {
   };
 };
 
-export const getCourses = params => {
-  return dispatch => {
+export const getCourses = (params) => {
+  return (dispatch) => {
     API.get('courses', params)
-      .then(res => {
+      .then((res) => {
         // Normalize data
         const courses = normalize(res.data.results);
         dispatch(gotCourses(courses));
       })
       // eslint-disable-next-line no-console
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   };
 };
 
-export const getCourse = id => {
-  return dispatch => {
+export const getCourse = (id) => {
+  return (dispatch) => {
     dispatch(loading.start());
     API.getById('courses', id)
-      .then(res => {
+      .then((res) => {
         dispatch(updatedCourse(id, res.data.result));
         dispatch(loading.success());
       })
-      .catch(err => {
+      .catch((err) => {
         dispatch(loading.fail(err.response.data.errorMessage));
       });
   };
 };
 
 export const inviteToCourse = (courseId, toUserId, toUserUsername, options) => {
-  return dispatch => {
+  return (dispatch) => {
     dispatch(
       addCourseMember(courseId, {
         user: { _id: toUserId, username: toUserUsername },
@@ -169,15 +169,15 @@ export const inviteToCourse = (courseId, toUserId, toUserUsername, options) => {
     API.grantAccess(toUserId, 'course', courseId, 'invitation', options)
       .then()
       // eslint-disable-next-line no-console
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   };
 };
 
-export const createCourse = body => {
-  return dispatch => {
+export const createCourse = (body) => {
+  return (dispatch) => {
     dispatch(loading.start());
     API.post('courses', body)
-      .then(res => {
+      .then((res) => {
         if (body.template) {
           // dispatch(addUserCourseTemplates(res.data.result[1]._id))
           // BUG THE ORDER HERE MATTERS. IF WE UPDATE USERCOURSES BEFORE COURSES THE getUserResource SELECTOR WILL FAIL
@@ -192,7 +192,7 @@ export const createCourse = body => {
         dispatch(addUserCourses([res.data.result._id]));
         return dispatch(loading.success());
       })
-      .catch(err => {
+      .catch((err) => {
         dispatch(loading.fail());
         // eslint-disable-next-line no-console
         console.log(err);

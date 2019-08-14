@@ -40,13 +40,13 @@ class Signup extends Component {
     window.removeEventListener('keypress', this.onKeyPress);
   }
   // pass to text inputs to update state from user input
-  changeHandler = event => {
+  changeHandler = (event) => {
     const updatedState = { ...this.state };
     updatedState[event.target.name] = event.target.value;
     this.setState(updatedState);
   };
 
-  onKeyPress = event => {
+  onKeyPress = (event) => {
     const { errorMessage, clearError } = this.props;
     if (event.key === 'Enter') {
       this.signUp();

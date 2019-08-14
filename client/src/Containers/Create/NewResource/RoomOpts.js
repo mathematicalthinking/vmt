@@ -29,7 +29,7 @@ class RoomOpts extends Component {
         <div className={classes.RoomOpts}>
           <p>Select a GeoGebra App</p>
           <div className={classes.Container}>
-            {ggbOpts.map(opt => (
+            {ggbOpts.map((opt) => (
               <div
                 key={opt.appName}
                 className={classes.Opt}

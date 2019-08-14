@@ -41,10 +41,10 @@ export default (log, tabs) => {
           // If the event has an event array, look through it for eventsToFind
           if (src[i].eventArray && src[i].eventArray.length > 0) {
             undoArray = undoArray.concat(
-              src[i].eventArray.filter(e => {
+              src[i].eventArray.filter((e) => {
                 let found = false;
                 const eSlice = e.slice(0, e.indexOf(':'));
-                eventsToFind.forEach(etf => {
+                eventsToFind.forEach((etf) => {
                   if (eSlice.indexOf(etf)) {
                     found = true;
                   }

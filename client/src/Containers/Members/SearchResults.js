@@ -48,7 +48,7 @@ class SearchResults extends Component {
               <i className="fas fa-chevron-down" />
             </Button>
           </div> */}
-          {usersSearched.map(user => {
+          {usersSearched.map((user) => {
             return (
               <li className={classes.SearchResItem} key={user._id}>
                 <div className={classes.FlexRow}>

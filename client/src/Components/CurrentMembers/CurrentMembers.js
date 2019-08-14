@@ -45,9 +45,9 @@ class CurrentMembers extends Component {
           className={expanded ? classes.Expanded : classes.Collapsed}
           data-testid="current-members"
         >
-          {currentMembers.map(user => {
+          {currentMembers.map((user) => {
             // get the users color
-            const member = members.filter(m => m.user._id === user._id)[0];
+            const member = members.filter((m) => m.user._id === user._id)[0];
             if (member) {
               return (
                 <div

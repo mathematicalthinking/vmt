@@ -36,15 +36,15 @@ class ResourceList extends Component {
     }
   }
 
-  search = criteria => {
+  search = (criteria) => {
     const { userResources } = this.props;
     let { facilitatorList, participantList } = this.sortUserResources(
       userResources
     );
-    facilitatorList = facilitatorList.filter(resource => {
+    facilitatorList = facilitatorList.filter((resource) => {
       return resource.name.indexOf(criteria) > -1;
     });
-    participantList = participantList.filter(resource => {
+    participantList = participantList.filter((resource) => {
       return resource.name.indexOf(criteria) > -1;
     });
     this.setState({
@@ -53,10 +53,10 @@ class ResourceList extends Component {
     });
   };
 
-  sortUserResources = resources => {
+  sortUserResources = (resources) => {
     const facilitatorList = [];
     const participantList = [];
-    resources.forEach(userResource => {
+    resources.forEach((userResource) => {
       if (userResource.myRole === 'facilitator') {
         facilitatorList.push(userResource);
       } else {

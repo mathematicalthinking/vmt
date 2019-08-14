@@ -62,7 +62,7 @@ class GgbGraph extends Component {
     });
     window.addEventListener('resize', this.updateDimensions);
     window.addEventListener('visibilitychange', this.visibilityChange);
-    socket.on('RECEIVE_EVENT', data => {
+    socket.on('RECEIVE_EVENT', (data) => {
       if (!this.isWindowVisible) {
         this.isFaviconNtf = true;
         this.changeFavicon('/favNtf.ico');
@@ -87,9 +87,9 @@ class GgbGraph extends Component {
       }
     });
 
-    socket.on('FORCE_SYNC', data => {
+    socket.on('FORCE_SYNC', (data) => {
       this.receivingData = true;
-      data.tabs.forEach(t => {
+      data.tabs.forEach((t) => {
         if (t._id === tab._id) {
           this.ggbApplet.setXML(tab.currentState);
           this.registerListeners(); // always reset listeners after calling sextXML (setXML destorys everything)
@@ -223,7 +223,7 @@ class GgbGraph extends Component {
     }
   };
 
-  changeFavicon = href => {
+  changeFavicon = (href) => {
     const link =
       document.querySelector("link[rel*='icon']") ||
       document.createElement('link');
@@ -244,7 +244,7 @@ class GgbGraph extends Component {
    * @param  { String } updateType - 'ADDING if we want to invoke evalCommand else null to invoke evalXML'
    */
 
-  constructEvent = data => {
+  constructEvent = (data) => {
     const { addToLog } = this.props;
     let readyToClearSocketQueue = true;
     addToLog(data);
@@ -259,7 +259,7 @@ class GgbGraph extends Component {
       case 'REMOVE':
         if (data.eventArray) {
           this.updatingOn = true;
-          data.eventArray.forEach(label => {
+          data.eventArray.forEach((label) => {
             this.ggbApplet.deleteObject(label);
           });
         } else {
@@ -478,7 +478,7 @@ class GgbGraph extends Component {
    * @param  {Array} event - Ggb array [eventType (e.g. setMode),  String, String]
    */
 
-  clientListener = event => {
+  clientListener = (event) => {
     const { referencing } = this.props;
     if (this.receivingData) {
       return;
@@ -617,7 +617,7 @@ class GgbGraph extends Component {
    * @param  {String} label - label of the point, segment, shape etc added
    */
 
-  addListener = label => {
+  addListener = (label) => {
     if (this.batchUpdating || this.receivingData) {
       return;
     }
@@ -646,7 +646,7 @@ class GgbGraph extends Component {
    * @description See add (but for removing)
    */
 
-  removeListener = label => {
+  removeListener = (label) => {
     if (this.receivingData && !this.updatingOn) {
       return;
     }
@@ -670,7 +670,7 @@ class GgbGraph extends Component {
    * allow if they're already in control
    */
 
-  updateListener = label => {
+  updateListener = (label) => {
     if (this.batchUpdating || this.movingGeos) return;
     if (this.receivingData && !this.updatingOn) {
       return;
@@ -690,7 +690,7 @@ class GgbGraph extends Component {
    * @description used to get reference positions
    */
 
-  clickListener = async element => {
+  clickListener = async (element) => {
     const { referencing, setToElAndCoords } = this.props;
     if (referencing) {
       const elementType = this.ggbApplet.getObjectType(element);
@@ -965,7 +965,7 @@ class GgbGraph extends Component {
       const { _id } = tab;
       API.put('tabs', _id, { currentState })
         .then(() => {})
-        .catch(err => {
+        .catch((err) => {
           // eslint-disable-next-line no-console
           console.log(err);
         });
@@ -996,9 +996,9 @@ class GgbGraph extends Component {
       const pointsOfShape = commandString
         .slice(commandString.indexOf('(') + 1, commandString.indexOf(')'))
         .split(',')
-        .map(point => point.trim())
+        .map((point) => point.trim())
         // filter out any non-points (e.g. regular polygons are defined like (A,B,4) for a square)
-        .filter(str => str.match(/[a-z]/i));
+        .filter((str) => str.match(/[a-z]/i));
       if (elementType === 'segment') {
         // only take the first two points if its a segment
         // selecting segment of a poly will mess this up because the poly is the 3rd argument and passing that getRelativeCoords will fail because its not a point
@@ -1006,11 +1006,11 @@ class GgbGraph extends Component {
       }
       try {
         const coordsArr = await Promise.all(
-          pointsOfShape.map(point => this.getRelativeCoords(point))
+          pointsOfShape.map((point) => this.getRelativeCoords(point))
         );
         let leftTotal = 0;
         let topTotal = 0;
-        coordsArr.forEach(coords => {
+        coordsArr.forEach((coords) => {
           leftTotal += coords.left;
           topTotal += coords.top;
         });
@@ -1036,7 +1036,7 @@ class GgbGraph extends Component {
    * @param  {String} element - ggb defined Label. MUST be a point
    * @return {Promise Object} - because parseXML is async
    */
-  getRelativeCoords = element => {
+  getRelativeCoords = (element) => {
     return new Promise(async (resolve, reject) => {
       let elX;
       let elY;
@@ -1096,7 +1096,7 @@ class GgbGraph extends Component {
     });
   };
 
-  parseXML = xml => {
+  parseXML = (xml) => {
     return new Promise((resolve, reject) => {
       parseString(xml, (err, result) => {
         if (err) return reject(err);

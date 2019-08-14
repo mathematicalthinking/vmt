@@ -35,7 +35,7 @@ class ActivityWorkspace extends Component {
     }
   }
 
-  changeTab = index => {
+  changeTab = (index) => {
     this.setState({ currentTab: index });
   };
 
@@ -69,7 +69,7 @@ class ActivityWorkspace extends Component {
     delete activity.courses;
     activity.creator = user._id;
     activity.name = newName;
-    activity.tabs = activity.tabs.map(tab => tab._id);
+    activity.tabs = activity.tabs.map((tab) => tab._id);
     connectCreateActivity(activity);
     this.setState({ addingToMyActivities: false });
     history.push('/myVMT/activities');
@@ -207,7 +207,7 @@ class ActivityWorkspace extends Component {
             focus
             name="new name"
             value={newName}
-            change={event => {
+            change={(event) => {
               this.setState({ newName: event.target.value });
             }}
             label="New Activity Name"

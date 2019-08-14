@@ -35,7 +35,7 @@ class Members extends PureComponent {
   componentWillUnmount() {
     const { notifications, connectClearNotification } = this.props;
     if (notifications.length > 0) {
-      notifications.forEach(ntf => {
+      notifications.forEach((ntf) => {
         if (ntf.notificationType === 'newMember') {
           connectClearNotification(ntf._id);
         }
@@ -57,7 +57,7 @@ class Members extends PureComponent {
       connectInviteToCourse(resourceId, id, username);
     } else if (courseMembers) {
       const inCourse = courseMembers.filter(
-        member => member.user._id === id
+        (member) => member.user._id === id
       )[0];
       if (!inCourse) {
         confirmingInvitation = true;
@@ -68,7 +68,7 @@ class Members extends PureComponent {
       connectInviteToRoom(resourceId, id, username);
     }
     // Remove the invited member from the search results
-    const updatedResults = searchResults.filter(user => user._id !== id);
+    const updatedResults = searchResults.filter((user) => user._id !== id);
     this.setState({
       confirmingInvitation,
       searchResults: updatedResults,
@@ -96,7 +96,7 @@ class Members extends PureComponent {
     });
   };
 
-  removeMember = info => {
+  removeMember = (info) => {
     const {
       resourceId,
       resourceType,
@@ -112,7 +112,7 @@ class Members extends PureComponent {
    * @param  {Object} info - member obj { color, _id, role, {_id: username}}
    */
 
-  changeRole = info => {
+  changeRole = (info) => {
     const {
       classList,
       resourceId,
@@ -120,7 +120,7 @@ class Members extends PureComponent {
       connectUpdateRoomMembers,
       connectUpdateCourseMembers,
     } = this.props;
-    const updatedMembers = classList.map(member => {
+    const updatedMembers = classList.map((member) => {
       return member.user._id === info.user._id
         ? { role: info.role, user: info.user._id, color: info.color }
         : { role: member.role, user: member.user._id, color: member.color };
@@ -131,15 +131,15 @@ class Members extends PureComponent {
   };
 
   // Consider finding a way to NOT duplicate this in MakeRooms and also now in Profile
-  search = text => {
+  search = (text) => {
     const { classList } = this.props;
     if (text.length > 0) {
-      API.search('user', text, classList.map(member => member.user._id))
-        .then(res => {
+      API.search('user', text, classList.map((member) => member.user._id))
+        .then((res) => {
           const searchResults = res.data.results;
           this.setState({ searchResults, searchText: text });
         })
-        .catch(err => {
+        .catch((err) => {
           // eslint-disable-next-line no-console
           console.log('err: ', err);
         });
@@ -168,8 +168,8 @@ class Members extends PureComponent {
     let joinRequests = <p>There are no new requests to join</p>;
     if (owner && notifications.length >= 1) {
       joinRequests = notifications
-        .filter(ntf => ntf.notificationType === 'requestAccess')
-        .map(ntf => {
+        .filter((ntf) => ntf.notificationType === 'requestAccess')
+        .map((ntf) => {
           return (
             <Member
               grantAccess={() => {
@@ -194,7 +194,7 @@ class Members extends PureComponent {
     const filteredClassList = [];
     const guestList = [];
     // console.log("Class list: ", classList);
-    classList.forEach(member => {
+    classList.forEach((member) => {
       // console.log(member);
       if (member.role === 'guest') {
         guestList.push(member);
@@ -202,11 +202,11 @@ class Members extends PureComponent {
         filteredClassList.push(member);
       }
     });
-    const classListComponents = filteredClassList.map(member => {
+    const classListComponents = filteredClassList.map((member) => {
       // at least sometimes member is just user object so there is no member.user property /// <-- well thats not good, how did that happen? this hsould be consistant
       const userId = member.user ? member.user._id : member._id;
       // checking for notification...newMember type indicates this user has added themself by entering the entryCode
-      const notification = notifications.filter(ntf => {
+      const notification = notifications.filter((ntf) => {
         if (ntf.fromUser && ntf.notificationType === 'newMember') {
           return ntf.fromUser._id === userId;
         }
@@ -231,7 +231,7 @@ class Members extends PureComponent {
       );
     });
 
-    const guestListComponents = guestList.map(member => {
+    const guestListComponents = guestList.map((member) => {
       return owner ? (
         <Member
           changeRole={this.changeRole}
@@ -349,7 +349,7 @@ Members.defaultProps = {
 };
 const mapStateToProps = (state, ownProps) => {
   // STart the search results populated with people already in the store
-  const usersToExclude = ownProps.classList.map(member => member.user._id);
+  const usersToExclude = ownProps.classList.map((member) => member.user._id);
   const allUsers = getAllUsersInStore(state, usersToExclude);
   const userIds = [...allUsers.userIds].slice(0, 5);
   const usernames = [...allUsers.usernames].slice(0, 5);

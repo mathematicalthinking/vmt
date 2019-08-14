@@ -33,7 +33,7 @@ class Community extends Component {
     // eslint-disable-next-line react/destructuring-assignment
     const resourceList = this.props[`${resource}Arr`].map(
       // eslint-disable-next-line react/destructuring-assignment
-      id => this.props[resource][id]
+      (id) => this.props[resource][id]
     );
     this.setState({ visibleResources: resourceList });
     this.allResources = resourceList;
@@ -64,10 +64,10 @@ class Community extends Component {
   // concat tells us whether we should concat to existing results or overwrite
   fetchData = (resource, concat) => {
     const { criteria, skip, filters } = this.state;
-    API.searchPaginated(resource, criteria, skip, filters).then(res => {
+    API.searchPaginated(resource, criteria, skip, filters).then((res) => {
       if (res.data.results.length < SKIP_VALUE) {
         if (concat) {
-          this.setState(prevState => ({
+          this.setState((prevState) => ({
             visibleResources: [...prevState.visibleResources].concat(
               res.data.results
             ),
@@ -80,7 +80,7 @@ class Community extends Component {
           });
         }
       } else if (concat) {
-        this.setState(prevState => ({
+        this.setState((prevState) => ({
           visibleResources: [...prevState.visibleResources].concat(
             res.data.results
           ),
@@ -89,12 +89,12 @@ class Community extends Component {
     });
   };
 
-  setCriteria = criteria => {
+  setCriteria = (criteria) => {
     this.setState({ criteria, skip: 0, moreAvailable: true });
   };
 
   setSkip = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       skip: prevState.skip + SKIP_VALUE,
     }));
   };
@@ -166,7 +166,7 @@ Community.propTypes = {
   match: PropTypes.shape({}).isRequired,
 };
 
-const mapStateToProps = store => {
+const mapStateToProps = (store) => {
   return {
     courses: store.courses.byId,
     coursesArr: store.courses.allIds,

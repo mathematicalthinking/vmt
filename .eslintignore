@@ -1,2 +1,4 @@
 /client/src/registerServiceWorker.js
 /client/src/**/*.css$
+/server/node_modules
+/server/bin/
