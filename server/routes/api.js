@@ -15,9 +15,8 @@ router.param('id', middleware.validateId);
 
 router.get('/:resource', (req, res) => {
   const { resource } = req.params;
-  const controller = controllers[req.params];
+  const controller = controllers[resource];
   req.query.isTrashed = false;
-
   controller
     .get(req.query)
     .then((results) => res.json({ results }))

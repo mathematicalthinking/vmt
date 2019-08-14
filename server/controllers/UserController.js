@@ -5,8 +5,14 @@ module.exports = {
   get: (params) => {
     return new Promise((resolve, reject) => {
       db.User.find(params)
-        .then((users) => resolve(users))
-        .catch((err) => reject(err));
+        .then((users) => {
+          console.log({ users });
+          resolve(users);
+        })
+        .catch((err) => {
+          console.log('err', err);
+          reject(err);
+        });
     });
   },
 
