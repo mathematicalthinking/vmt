@@ -1,7 +1,6 @@
 const user1 = require('../fixtures/user');
 const user2 = require('../fixtures/user2');
 const user3 = require('../fixtures/user3');
-const user4 = require('../fixtures/user4');
 const user5 = require('../fixtures/user5');
 const user6 = require('../fixtures/user6');
 

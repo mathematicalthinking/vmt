@@ -20,7 +20,7 @@ describe('Reset Password', function() {
   });
 
   describe('Visiting reset page with invalid token', function() {
-    let url = `/resetPassword/${userLiveToken.invalidToken}`;
+    const url = `/resetPassword/${userLiveToken.invalidToken}`;
 
     it('Should display error message', function() {
       cy.visit(url);
@@ -29,7 +29,7 @@ describe('Reset Password', function() {
   });
 
   describe('Visiting reset page with valid but expired token', function() {
-    let url = `/resetPassword/${userExpiredToken.token}`;
+    const url = `/resetPassword/${userExpiredToken.token}`;
     it('Should display error message', function() {
       cy.visit(url);
       cy.contains(errors.invalidToken);
@@ -37,7 +37,7 @@ describe('Reset Password', function() {
   });
 
   describe('Visiting reset page with valid token', function() {
-    let url = `/resetPassword/${userLiveToken.token}`;
+    const url = `/resetPassword/${userLiveToken.token}`;
     it('Should load resetPassword page / form', function() {
       cy.visit(url);
       cy.url().should('include', '/resetPassword');

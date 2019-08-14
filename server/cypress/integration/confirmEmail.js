@@ -1,10 +1,12 @@
+/* eslint-disable no-shadow */
+/* eslint-disable no-unused-expressions */
 const {
   userLiveToken,
   userExpiredToken,
   noEmailUser,
-  userConfirmed
+  // userConfirmed,
 } = require('../fixtures/confirmEmail');
-const errors = require('../fixtures/errors').confirmEmail
+const errors = require('../fixtures/errors').confirmEmail;
 
 describe('Confirming Email', function() {
   before(function() {
@@ -12,40 +14,40 @@ describe('Confirming Email', function() {
   });
 
   // TODO: Determine better way to mimic clicking email link
-  xdescribe('Visiting unconfirmed page with already confirmed email', function() {
-    let user = userConfirmed;
-    let confirmUrl =  `/confirmEmail/${userLiveToken.token}`;
-    let successMsg = `${userLiveToken.email} has been successfully confirmed`;
-    let logoutPrompt = `Click Log Out below if you would like to log in to the account
-    associated with ${userLiveToken.email};
-`;
+  //   xdescribe('Visiting unconfirmed page with already confirmed email', function() {
+  //     const user = userConfirmed;
+  //     const confirmUrl = `/confirmEmail/${userLiveToken.token}`;
+  //     const successMsg = `${userLiveToken.email} has been successfully confirmed`;
+  //     const logoutPrompt = `Click Log Out below if you would like to log in to the account
+  //     associated with ${userLiveToken.email};
+  // `;
 
-    xit('should redirect to myVMT', function() {
-      cy.visit('/login');
-      cy.get('input[name=username]').type(user.username);
-      cy.get('input[name=password]').type(user.password);
-      cy.get('button').click();
-      cy.url().should('include', '/myVMT/rooms')
-      cy.wait(1000);
-    });
+  //     xit('should redirect to myVMT', function() {
+  //       cy.visit('/login');
+  //       cy.get('input[name=username]').type(user.username);
+  //       cy.get('input[name=password]').type(user.password);
+  //       cy.get('button').click();
+  //       cy.url().should('include', '/myVMT/rooms');
+  //       cy.wait(1000);
+  //     });
 
-    xit ('should be prompted to logout after confirming email for another account', function() {
-      cy.visit(confirmUrl);
-      cy.contains(successMsg);
-      cy.contains(logoutPrompt);
-      cy.getTestElement('confirmEmail-logout').click();
-      cy.url().should('include', '/');
-    });
-  });
+  //     xit('should be prompted to logout after confirming email for another account', function() {
+  //       cy.visit(confirmUrl);
+  //       cy.contains(successMsg);
+  //       cy.contains(logoutPrompt);
+  //       cy.getTestElement('confirmEmail-logout').click();
+  //       cy.url().should('include', '/');
+  //     });
+  //   });
 
   describe('Unexpected Errors', function() {
-    let url = `/confirmEmail/${userLiveToken.token}`;
-    let successMsg = `${userLiveToken.email} has been successfully confirmed`
+    const url = `/confirmEmail/${userLiveToken.token}`;
+    const successMsg = `${userLiveToken.email} has been successfully confirmed`;
 
     describe('While not logged in', function() {
       describe('Encompass error', function() {
         before(function() {
-          cy.task('dropEnc')
+          cy.task('dropEnc');
         });
 
         after(function() {
@@ -62,11 +64,11 @@ describe('Confirming Email', function() {
           cy.get('input[name=username]').type(userLiveToken.username);
           cy.get('input[name=password]').type(userLiveToken.password);
           cy.get('button').click();
-          cy.url().should('include','/unconfirmed');
+          cy.url().should('include', '/unconfirmed');
           cy.wait(1000);
         });
 
-        it('vmt user\'s email should not be confirmed', function() {
+        it("vmt user's email should not be confirmed", function() {
           cy.request('/auth/currentUser').should((response) => {
             expect(response.body.result.isEmailConfirmed).to.be.false;
             expect(response.body.result.confirmEmailDate).to.be.null;
@@ -85,7 +87,7 @@ describe('Confirming Email', function() {
     describe('While logged in', function() {
       describe('Encompass error', function() {
         before(function() {
-          cy.task('dropEnc')
+          cy.task('dropEnc');
         });
 
         after(function() {
@@ -97,7 +99,7 @@ describe('Confirming Email', function() {
           cy.get('input[name=username]').type(userLiveToken.username);
           cy.get('input[name=password]').type(userLiveToken.password);
           cy.get('button').click();
-          cy.url().should('include','/unconfirmed');
+          cy.url().should('include', '/unconfirmed');
           cy.wait(1000);
           cy.visit(url);
           cy.contains('Request failed with status code 500');
@@ -108,11 +110,11 @@ describe('Confirming Email', function() {
           cy.url().should('include', '/unconfirmed');
         });
 
-        it('vmt user\'s email should not be confirmed', function() {
+        it("vmt user's email should not be confirmed", function() {
           cy.request('/auth/currentUser').should((response) => {
-            let { isEmailConfirmed, confirmEmailDate } = response.body.result;
-            expect(response.body.result.isEmailConfirmed).to.be.false;
-            expect(response.body.result.confirmEmailDate).to.be.null;
+            const { isEmailConfirmed, confirmEmailDate } = response.body.result;
+            expect(isEmailConfirmed).to.be.false;
+            expect(confirmEmailDate).to.be.null;
             cy.task('restoreEnc');
           });
         });
@@ -126,7 +128,7 @@ describe('Confirming Email', function() {
   });
 
   describe('Invalid token', function() {
-    let url = `/confirmEmail/${userLiveToken.invalidToken}`;
+    const url = `/confirmEmail/${userLiveToken.invalidToken}`;
 
     it('should display error message', function() {
       cy.visit(url);
@@ -135,8 +137,8 @@ describe('Confirming Email', function() {
   });
 
   describe('Existing but expired token', function() {
-    let url = `/confirmEmail/${userExpiredToken.token}`;
-    let user = userExpiredToken;
+    const url = `/confirmEmail/${userExpiredToken.token}`;
+    const user = userExpiredToken;
 
     describe('While not logged in', function() {
       it('should display error message', function() {
@@ -144,7 +146,7 @@ describe('Confirming Email', function() {
         cy.contains(errors.expiredToken);
       });
 
-      it ('should not display resend email button', function() {
+      it('should not display resend email button', function() {
         cy.getTestElement('resend-btn').should('not.be.visible');
       });
     });
@@ -155,34 +157,32 @@ describe('Confirming Email', function() {
         cy.get('input[name=username]').type(user.username);
         cy.get('input[name=password]').type(user.password);
         cy.get('button').click();
-        cy.url().should('include','/unconfirmed');
+        cy.url().should('include', '/unconfirmed');
         // not sure why we have to wait here
         // not recognizing that we are logged in otherwise
         cy.wait(1000);
         cy.visit(url);
-        cy.url().should('include', '/confirmEmail')
+        cy.url().should('include', '/confirmEmail');
         cy.contains(errors.expiredToken);
       });
 
-      it ('should display resend email button', function() {
+      it('should display resend email button', function() {
         cy.getTestElement('resend-btn').should('be.visible');
       });
 
       it('should display success message after clicking resend email button', function() {
-        let msg = `Email has been sent to ${user.email} with instructions for email confirmation.`
+        const msg = `Email has been sent to ${user.email} with instructions for email confirmation.`;
         cy.getTestElement('resend-btn').click();
         cy.contains(msg);
         cy.logout();
       });
     });
-
-
   });
 
   describe('Valid Token', function() {
-    let url = `/confirmEmail/${userLiveToken.token}`;
-    let user = userLiveToken;
-    let successMsg = `${userLiveToken.email} has been successfully confirmed`
+    const url = `/confirmEmail/${userLiveToken.token}`;
+    const user = userLiveToken;
+    const successMsg = `${userLiveToken.email} has been successfully confirmed`;
     describe('While not logged in', function() {
       it('should display success message', function() {
         cy.visit(url);
@@ -194,14 +194,14 @@ describe('Confirming Email', function() {
       before(function() {
         cy.task('restoreAll');
       });
-      let successMsg = `${user.email} has been successfully confirmed`
+      const successMsg = `${user.email} has been successfully confirmed`;
 
       it('should display success message', function() {
         cy.visit('/login');
         cy.get('input[name=username]').type(user.username);
         cy.get('input[name=password]').type(user.password);
         cy.get('button').click();
-        cy.url().should('include', '/unconfirmed')
+        cy.url().should('include', '/unconfirmed');
         cy.visit(url);
         cy.contains(successMsg);
 
@@ -213,48 +213,44 @@ describe('Confirming Email', function() {
       before(function() {
         cy.task('restoreAll');
       });
-
-
     });
-
   });
 
   describe('Logging in with unconfirmed email', function() {
     before(function() {
       cy.task('restoreAll');
-
     });
 
     describe('As user without email address', function() {
-      let user = noEmailUser;
+      const user = noEmailUser;
 
       it('should redirect to myVMT', function() {
         cy.visit('/login');
         cy.get('input[name=username]').type(user.username);
         cy.get('input[name=password]').type(user.password);
         cy.get('button').click();
-        cy.url().should('include', '/myVMT/')
+        cy.url().should('include', '/myVMT/');
         cy.logout();
       });
     });
 
     describe('As user with email address', function() {
-      let user = userLiveToken;
+      const user = userLiveToken;
 
       it('should redirect to unconfirmed page', function() {
         cy.visit('/login');
         cy.get('input[name=username]').type(user.username);
         cy.get('input[name=password]').type(user.password);
         cy.get('button').click();
-        cy.url().should('include', '/unconfirmed')
+        cy.url().should('include', '/unconfirmed');
       });
 
       it('should display success message after clicking resend email button', function() {
-        let msg = `Email has been sent to ${user.email} with instructions for email confirmation.`
+        const msg = `Email has been sent to ${user.email} with instructions for email confirmation.`;
         cy.contains('Resend Confirmation Email').click();
         cy.contains(msg);
         cy.logout();
       });
-    })
+    });
   });
 });

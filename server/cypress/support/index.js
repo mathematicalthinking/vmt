@@ -14,10 +14,10 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import "./commands";
+import './commands';
 
 Cypress.Cookies.defaults({
-  whitelist: "mt_sso_ac"
+  whitelist: 'mt_sso_ac',
 });
 
 // Alternatively you can use CommonJS syntax:

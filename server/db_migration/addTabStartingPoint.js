@@ -15,11 +15,11 @@ function addStartingPoint() {
       },
       { $set: { startingPoint: ' ' } }
     )
-      .then(tabs => {
+      .then((tabs) => {
         console.log(`${tabs.length} tabs updated`);
         resolve();
       })
-      .catch(err => reject(err));
+      .catch((err) => reject(err));
   });
 }
 
@@ -27,6 +27,6 @@ addStartingPoint()
   .then(() => {
     mongoose.connection.close();
   })
-  .catch(err => {
+  .catch((err) => {
     console.error('something went wrong: ', err);
   });

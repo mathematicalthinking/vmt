@@ -1,5 +1,5 @@
 const { seed } = require('../seeders/seed');
 
-return seed().then(() => {
+seed().then(() => {
   console.log('Seeding done!');
 });

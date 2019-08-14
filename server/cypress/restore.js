@@ -1,18 +1,18 @@
-const exec = require('child_process').exec;
+const { exec } = require('child_process');
 
-let commands = {
+const commands = {
   enc: 'npm run restore-enc',
   vmt: 'npm run seed',
-  mt: 'npm run restore-sso'
+  mt: 'npm run restore-sso',
 };
 
 const dropAndRestoreDb = function(app) {
   return new Promise((resolve, reject) => {
-    let command = commands[app];
+    const command = commands[app];
     if (command === undefined) {
-      return reject('Invalid app name');
+      reject(new Error('Invalid app name'));
     }
-    exec(command, (err, stdout, stderr) => {
+    exec(command, (err, stdout) => {
       if (err) {
         console.log('ERROR FROM RESTORE: ', err);
         reject(err);
@@ -28,15 +28,15 @@ const prepTestDb = function() {
     return Promise.all([
       dropAndRestoreDb('enc'),
       dropAndRestoreDb('mt'),
-      dropAndRestoreDb('vmt')
+      dropAndRestoreDb('vmt'),
     ]);
   } catch (err) {
-    throw(err);
+    throw err;
   }
 };
 
 const restoreEnc = function() {
-  return dropAndRestoreDb('enc')
+  return dropAndRestoreDb('enc');
 };
 
 module.exports.prepTestDb = prepTestDb;

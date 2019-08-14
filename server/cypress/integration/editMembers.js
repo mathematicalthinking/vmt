@@ -46,7 +46,7 @@ describe('Edit Members Roles', function() {
       .children()
       .children()
       .eq(1)
-      .should($el => {
+      .should(($el) => {
         expect($el).to.include.text('facilitator');
       });
     // .and('include', 'facilitator')

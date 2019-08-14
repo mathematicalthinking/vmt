@@ -1,9 +1,10 @@
+/* eslint-disable no-unused-expressions */
 const user = require('../fixtures/userTemp');
-let url;
+
 describe('temporary room', function() {
   beforeEach(function() {
     cy.task('restoreAll');
-    cy.window().then(win => {
+    cy.window().then((win) => {
       win.sessionStorage.clear();
       cy.clearLocalStorage();
       cy.visit('/');
@@ -20,7 +21,7 @@ describe('temporary room', function() {
     cy.get('input').type(user.username);
     cy.getTestElement('temp-geogebra').click();
     cy.get('.ggbtoolbarpanel').should('exist');
-    cy.url({ log: true }).then(res => (url = res));
+    cy.url({ log: true });
     cy.getTestElement('save').click();
     cy.get('input[name=firstName]').type(user.firstName);
     cy.get('input[name=lastName]').type(user.lastName);
@@ -30,9 +31,9 @@ describe('temporary room', function() {
     cy.getTestElement('nav-My VMT').click();
     cy.url().should('include', '/unconfirmed');
     cy.request('/auth/currentUser').should((response) => {
-      let rooms = response.body.result.rooms;
+      const { rooms } = response.body.result;
       expect(rooms).to.have.length(1);
-      let room = rooms[0];
+      const room = rooms[0];
       expect(room.tempRoom).to.be.false;
     });
   });

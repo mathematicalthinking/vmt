@@ -5,7 +5,7 @@ describe('user signup/login', function() {
     cy.task('clearDB');
   });
   beforeEach(function() {
-    cy.window().then(win => {
+    cy.window().then((win) => {
       win.sessionStorage.clear();
       win.localStorage.clear();
       cy.clearCookies();
@@ -42,9 +42,9 @@ describe('user signup/login', function() {
     cy.get('input[name=email]').type(user.email);
     cy.get('input[name=password]').type(user.password);
     cy.get('button').click();
-    cy.contains('There already exists a user with that username' || 'Unauthorized').should(
-      'exist'
-    );
+    cy.contains(
+      'There already exists a user with that username' || 'Unauthorized'
+    ).should('exist');
   });
   it('fails to login with wrong password', function() {
     cy.contains('Login').click();
@@ -58,8 +58,6 @@ describe('user signup/login', function() {
     cy.get('input[name=username]').type('incorrect username');
     cy.get('input[name=password]').type(user.password);
     cy.get('button').click();
-    cy.contains(
-      'Incorrect username'
-    ).should('exist');
+    cy.contains('Incorrect username').should('exist');
   });
 });

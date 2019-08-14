@@ -10,7 +10,7 @@
 //
 //
 // -- This is a parent command --
-Cypress.Commands.add('login', user => {
+Cypress.Commands.add('login', (user) => {
   cy.clearLocalStorage().then(() => {
     cy.visit('/');
     cy.clearCookies();
@@ -18,7 +18,7 @@ Cypress.Commands.add('login', user => {
     cy.get('input[name=username]').type(user.username);
     cy.get('input[name=password]').type(user.password);
     cy.get('button').click();
-    cy.url().should('include', '/myVMT/')
+    cy.url().should('include', '/myVMT/');
   });
   // CANT GET THE CODE BELOW TO WORK -- want to do it programitcally - not through the UI
   // cy.request({
@@ -33,7 +33,7 @@ Cypress.Commands.add('logout', () => {
   cy.contains('Logout').click({ force: true });
 });
 
-Cypress.Commands.add('getTestElement', selector => {
+Cypress.Commands.add('getTestElement', (selector) => {
   return cy.get(`[data-testid="${selector}"]`);
 });
 

@@ -4,12 +4,12 @@ const { clearInputByName, typeInputByName } = require('../helpers');
 
 const submit = () => {
   cy.get('button').click();
-}
+};
 
 const clearAllFields = () => {
   clearInputByName('email');
   clearInputByName('username');
-}
+};
 
 describe('Forgot Password', function() {
   before(function() {
@@ -59,7 +59,8 @@ describe('Forgot Password', function() {
   });
 
   describe('Submitting valid form with existing email address', function() {
-    const successMsg = 'An email with further instructions has been sent to the email address on file';
+    const successMsg =
+      'An email with further instructions has been sent to the email address on file';
 
     it('should display success message', function() {
       typeInputByName('email', user.email);
@@ -69,10 +70,11 @@ describe('Forgot Password', function() {
   });
 
   describe('Submitting valid form with existing username', function() {
-    const successMsg = 'An email with further instructions has been sent to the email address on file';
+    const successMsg =
+      'An email with further instructions has been sent to the email address on file';
     before(function() {
       cy.visit('/forgotPassword');
-    })
+    });
 
     it('should display success message', function() {
       typeInputByName('username', user.username);
@@ -80,5 +82,4 @@ describe('Forgot Password', function() {
       cy.contains(successMsg);
     });
   });
-
 });
