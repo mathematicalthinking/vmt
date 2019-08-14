@@ -1,14 +1,14 @@
-const controllers = require('./controllers');
-const _ = require('lodash');
-const parseString = require('xml2js').parseString;
+// const _ = require('lodash');
+// const { parseString } = require('xml2js');
+const { ObjectId } = require('mongoose').Types;
+// const cookie = require('cookie');
 const socketInit = require('./socketInit');
-const cookie = require('cookie');
-const ObjectId = require('mongoose').Types.ObjectId;
+const controllers = require('./controllers');
 const Message = require('./models/Message');
 
 // const io = require('socket.io')(server, {wsEngine: 'ws'});
 module.exports = function() {
-  const io = socketInit.io;
+  const { io } = socketInit;
 
   io.use((socket, next) => {
     // const cookief = socket.handshake.headers.cookie;
@@ -20,7 +20,7 @@ module.exports = function() {
     next();
   });
 
-  io.sockets.on('connection', socket => {
+  io.sockets.on('connection', (socket) => {
     console.log('socket connected: ', socket.id);
 
     // console.log(socket.getEventNames())
@@ -30,7 +30,7 @@ module.exports = function() {
     socket.on('JOIN_TEMP', async (data, callback) => {
       socket.join(data.roomId, async () => {
         let user;
-        let promises = [];
+        const promises = [];
         // If the user is NOT logged in, create a temp user
         if (!data.userId) {
           try {
@@ -102,12 +102,12 @@ module.exports = function() {
       console.log(new Date());
       socket.user_id = data.userId; // store the user id on the socket so we can tell who comes and who goes
       socket.username = data.username;
-      let promises = [];
-      let user = { _id: data.userId, username: data.username };
+      const promises = [];
+      const user = { _id: data.userId, username: data.username };
 
       socket.join(data.roomId, async () => {
         // update current users of this room
-        let message = {
+        const message = {
           _id: data._id,
           user: { _id: data.userId, username: 'VMTbot' },
           room: data.roomId,
@@ -135,7 +135,7 @@ module.exports = function() {
             'with socket id',
             socket.id
           );
-          cb({ room: results[1], message, user }, null);
+          return cb({ room: results[1], message, user }, null);
         } catch (err) {
           console.log('ERROR JOINING ROOM for user: ', data.userId);
           return cb(null, err);
@@ -154,7 +154,7 @@ module.exports = function() {
     socket.on('disconnecting', () => {
       // if they're in a room we need to remove them
       console.log('socket id: ', socket.user_id);
-      let room = Object.keys(socket.rooms).pop(); // they can only be in one room so just grab the last one
+      const room = Object.keys(socket.rooms).pop(); // they can only be in one room so just grab the last one
       if (room && ObjectId.isValid(room)) {
         socket.leave(room);
         leaveRoom();
@@ -175,10 +175,10 @@ module.exports = function() {
       }
       controllers.user
         .put(_id, { socketId: socket.id })
-        .then(user => {
+        .then(() => {
           cb(`User socketId updated to ${socket.id}`, null);
         })
-        .catch(err => cb(null, err));
+        .catch((err) => cb(null, err));
     });
 
     socket.on('SEND_MESSAGE', (data, callback) => {
@@ -186,17 +186,17 @@ module.exports = function() {
       console.log('user with data: ', data.user);
       console.log('from user: ', socket.user_id);
       console.log(new Date());
-      let postData = { ...data };
+      const postData = { ...data };
       postData.user = postData.user._id;
       controllers.messages
         .post(postData)
-        .then(res => {
+        .then((res) => {
           socket.broadcast
             .to(data.room)
             .emit('RECEIVE_MESSAGE', { ...data, _id: res._id });
           callback(res, null);
         })
-        .catch(err => {
+        .catch((err) => {
           callback('fail', err);
         });
     });
@@ -217,10 +217,10 @@ module.exports = function() {
       socket.to(data.room).emit('TOOK_CONTROL', data);
       controllers.rooms
         .getCurrentState(data.room)
-        .then(room => {
+        .then(() => {
           // socket.emit('FORCE_SYNC', room);
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
           callback(err, null);
         });
@@ -237,12 +237,12 @@ module.exports = function() {
       callback(null, {});
     });
 
-    socket.on('SEND_EVENT', async data => {
+    socket.on('SEND_EVENT', async (data) => {
       console.log('event received: ', data.eventType);
       console.log('user with data: ', data.user);
       console.log('from user: ', socket.user_id);
       console.log(new Date());
-      let xmlObj = '';
+      // const xmlObj = '';
       // if (data.xml && data.eventType !== 'CHANGE_PERSPECTIVE') {
       //   xmlObj = await parseXML(xml); // @TODO We should do this parsing on the backend yeah? we only need this for to build the description which we only need in the replayer anyway
       // }
@@ -258,11 +258,11 @@ module.exports = function() {
     socket.on('SWITCH_TAB', (data, callback) => {
       controllers.messages
         .post(data)
-        .then(res => {
+        .then(() => {
           socket.broadcast.to(data.room).emit('RECEIVE_MESSAGE', data);
           callback('sucess', null);
         })
-        .catch(err => {
+        .catch((err) => {
           callback(null, err);
         });
     });
@@ -270,28 +270,28 @@ module.exports = function() {
     socket.on('NEW_TAB', (data, callback) => {
       controllers.messages
         .post(data.message)
-        .then(res => {
+        .then(() => {
           socket.broadcast.to(data.message.room).emit('CREATED_TAB', data);
           callback('success');
         })
-        .catch(err => callback('fail', err));
+        .catch((err) => callback('fail', err));
     });
 
     const leaveRoom = function(color, cb) {
-      room = Object.keys(socket.rooms).pop();
+      const room = Object.keys(socket.rooms).pop();
       controllers.rooms
         .removeCurrentUsers(room, socket.user_id)
-        .then(res => {
+        .then((res) => {
           let removedMember = {};
           if (res && res.currentMembers) {
-            let currentMembers = res.currentMembers.filter(member => {
+            const currentMembers = res.currentMembers.filter((member) => {
               if (socket.user_id.toString() === member._id.toString()) {
                 removedMember = member;
                 return false;
               }
               return true;
             });
-            let message = new Message({
+            const message = new Message({
               color,
               room,
               user: { _id: removedMember._id, username: 'VMTBot' },
@@ -317,11 +317,11 @@ module.exports = function() {
             // This function can be invoked by the LEAVE_ROOM handler or by disconnecting...in the case of disconnecting
             // there is no callback because
             if (cb) {
-              return cb('exited!', null);
+              cb('exited!', null);
             }
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.log('ERROR LEAVING ROOM ', room, ' user: ', socket.user._id);
           console.log('socketid: ', socket.id);
           if (cb) cb(null, err);
@@ -330,11 +330,11 @@ module.exports = function() {
   });
 };
 
-const parseXML = xml => {
-  return new Promise((resolve, reject) => {
-    parseString(xml, (err, result) => {
-      if (err) return reject(err);
-      return resolve(result);
-    });
-  });
-};
+// const parseXML = (xml) => {
+//   return new Promise((resolve, reject) => {
+//     parseString(xml, (err, result) => {
+//       if (err) return reject(err);
+//       return resolve(result);
+//     });
+//   });
+// };

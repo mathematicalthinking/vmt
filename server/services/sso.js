@@ -1,6 +1,10 @@
 const axios = require('axios');
 
-const { getMtSsoUrl, getVmtIssuerId, getMtIssuerId } = require('../config/app-urls');
+const {
+  getMtSsoUrl,
+  getVmtIssuerId,
+  getMtIssuerId,
+} = require('../config/app-urls');
 const { apiToken } = require('../constants/sso');
 const { signJwt } = require('../middleware/utils/request');
 
@@ -8,12 +12,16 @@ const secret = process.env.MT_USER_JWT_SECRET;
 const BASE_URL = getMtSsoUrl();
 
 const generateSsoApiToken = (reqUser) => {
-  let payload = { iat: Date.now() };
+  const payload = { iat: Date.now() };
 
   if (reqUser) {
     payload.ssoId = reqUser.ssoId;
   }
-  let options = { expiresIn: apiToken.expiresIn, issuer: getVmtIssuerId(), audience: getMtIssuerId() };
+  const options = {
+    expiresIn: apiToken.expiresIn,
+    issuer: getVmtIssuerId(),
+    audience: getMtIssuerId(),
+  };
 
   return signJwt(payload, secret, options);
 };
@@ -22,17 +30,16 @@ module.exports.post = async (path, body, reqUser) => {
   try {
     // encoded jwt which sso server will use to verify request came from
     // vmt or enc
-    let token = await generateSsoApiToken(reqUser);
-    let config = {
-      headers: { Authorization: 'Bearer ' + token },
+    const token = await generateSsoApiToken(reqUser);
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
     };
 
-    let results = await axios.post(`${BASE_URL}${path}`, body, config);
+    const results = await axios.post(`${BASE_URL}${path}`, body, config);
 
     return results.data;
-
-  }catch(err) {
-    throw (err);
+  } catch (err) {
+    throw err;
   }
 };
 
@@ -40,18 +47,16 @@ module.exports.get = async (path, params, reqUser) => {
   try {
     // encoded jwt which sso server will use to verify request came from
     // vmt or enc
-    let token = await generateSsoApiToken(reqUser);
-    let headers =
-    { Authorization: 'Bearer ' + token };
+    const token = await generateSsoApiToken(reqUser);
+    const headers = { Authorization: `Bearer ${token}` };
 
-    let config = { params, headers};
+    const config = { params, headers };
 
-    let results = await axios.get(`${BASE_URL}${path}`, config);
+    const results = await axios.get(`${BASE_URL}${path}`, config);
 
     return results.data;
-
-  }catch(err) {
-    throw (err);
+  } catch (err) {
+    throw err;
   }
 };
 

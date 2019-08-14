@@ -8,7 +8,7 @@ const getUserRoleInRecord = (record, userId) => {
   const members = _.propertyOf(record)('members');
 
   if (!_.isArray(members)) {
-    return;
+    return null;
   }
 
   const userMemberObject = _.find(members, (obj) => {

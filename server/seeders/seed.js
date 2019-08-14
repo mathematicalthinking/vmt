@@ -1,5 +1,5 @@
-const data = require('./index');
 const mongoose = require('mongoose');
+const data = require('./index');
 
 const dbURI = `mongodb://localhost:27017/vmt-test`;
 
@@ -16,17 +16,17 @@ const seed = async (collections = Object.keys(data)) => {
   try {
     await clearDB();
 
-    let db = mongoose.connection;
+    const db = mongoose.connection;
 
-    let seededCollections = collections.map(collectionName => {
+    const seededCollections = collections.map((collectionName) => {
       return seedCollection(db, collectionName, data[collectionName]).then(
-        writeResults => {
+        (writeResults) => {
           return `${collectionName}: ${writeResults.result.n}`;
         }
       );
     });
 
-    let results = await Promise.all(seededCollections);
+    const results = await Promise.all(seededCollections);
 
     console.log('Seed Results: ', results);
     mongoose.connection.close();
