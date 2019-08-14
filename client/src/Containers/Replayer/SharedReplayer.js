@@ -10,6 +10,7 @@ import Clock from './Clock';
 import Slider from './Slider';
 import Settings from './Settings';
 import CurrentMembers from '../../Components/CurrentMembers/CurrentMembers';
+import Error from '../../Components/HOC/Error';
 import Loading from '../../Components/Loading/Loading';
 import Tabs from '../Workspace/Tabs';
 import Tools from '../Workspace/Tools/Tools';
@@ -32,6 +33,7 @@ const INITIAL_STATE = {
   isFullscreen: false,
   stopTime: null,
   showControls: true,
+  errorMessage: null,
 };
 class SharedReplayer extends Component {
   state = INITIAL_STATE;
@@ -40,14 +42,25 @@ class SharedReplayer extends Component {
   endTime = 0;
 
   componentDidMount() {
-    document.addEventListener('webkitfullscreenchange', this.resizeListener);
-    document.addEventListener('mozfullscreenchange', this.resizeListener);
-    document.addEventListener('fullscreenchange', this.resizeListener);
-    document.addEventListener('MSFullscreenChange', this.resizeListener);
-    window.addEventListener('message', this.onEncMessage);
-    // @TODO We should never populate the tabs events before getting here
-    // we dont need them for the regular room activity only for playback
-    this.buildReplayerLog();
+    const { populatedRoom } = this.props;
+    console.log('we have the populatede rtoom ', { ...populatedRoom });
+    console.log(populatedRoom.log);
+    console.log(populatedRoom.log.length);
+    if (!populatedRoom.log || populatedRoom.log.length === 0) {
+      console.log('OK SETTING STATE!');
+      this.setState({
+        errorMessage: 'This room does not have any activity yet',
+      });
+    } else {
+      document.addEventListener('webkitfullscreenchange', this.resizeListener);
+      document.addEventListener('mozfullscreenchange', this.resizeListener);
+      document.addEventListener('fullscreenchange', this.resizeListener);
+      document.addEventListener('MSFullscreenChange', this.resizeListener);
+      window.addEventListener('message', this.onEncMessage);
+      // @TODO We should never populate the tabs events before getting here
+      // we dont need them for the regular room activity only for playback
+      this.buildReplayerLog();
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -366,7 +379,15 @@ class SharedReplayer extends Component {
       currentTabId,
       currentMembers,
       allTabsLoaded,
+      errorMessage,
     } = this.state;
+    if (errorMessage) {
+      return (
+        <Error fullPage>
+          <h2>This room does not have any activity to replay yet</h2>
+        </Error>
+      );
+    }
     if (this.updatedLog.length === 0) {
       return <Loading message="Preparing the replayer..." />;
     }
@@ -517,7 +538,7 @@ class SharedReplayer extends Component {
 
 SharedReplayer.propTypes = {
   encompass: PropTypes.bool,
-  match: PropTypes.shape({}).isRequired,
+  // match: PropTypes.shape({}).isRequired,
   populatedRoom: PropTypes.shape({}).isRequired,
   // user: PropTypes.shape({}).isRequired,
   updateEnc: PropTypes.func,
