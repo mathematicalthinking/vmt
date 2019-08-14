@@ -1,10 +1,11 @@
-const express = require("express");
-const router = express.Router();
-const errors = require("../middleware/errors");
+// const express = require('express');
 
-router.get("/disconnect", (req, res, next) => {
-  res.status(200);
-  return process.exit();
-});
+// const router = express.Router();
+// const errors = require('../middleware/errors');
 
-module.exports = router;
+// router.get('/disconnect', (req, res) => {
+//   res.status(200);
+//   return process.exit();
+// });
+
+// module.exports = router;

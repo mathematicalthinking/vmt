@@ -5,7 +5,10 @@
  */
 
 const express = require('express');
+
 const router = express.Router();
+const jwt = require('jsonwebtoken');
+const { isNil, isEqual } = require('lodash');
 const User = require('../models/User');
 const errors = require('../middleware/errors');
 const {
@@ -16,8 +19,6 @@ const {
   clearRefreshCookie,
 } = require('../middleware/utils/request');
 const userController = require('../controllers/UserController');
-
-const jwt = require('jsonwebtoken');
 
 const { extractBearerToken } = require('../middleware/mt-auth');
 
@@ -30,22 +31,20 @@ const Room = require('../models/Room');
 
 const ssoService = require('../services/sso');
 
-const { isNil, isEqual } = require('lodash');
-
-router.post('/login', async (req, res, next) => {
+router.post('/login', async (req, res) => {
   try {
-    let { message, accessToken, refreshToken } = await ssoService.login(
+    const { message, accessToken, refreshToken } = await ssoService.login(
       req.body
     );
     if (message) {
       return errors.sendError.InvalidCredentialsError(message, res);
     }
 
-    let verifiedToken = await jwt.verify(
+    const verifiedToken = await jwt.verify(
       accessToken,
       process.env.MT_USER_JWT_SECRET
     );
-    let vmtUser = await User.findById(verifiedToken.vmtUserId)
+    const vmtUser = await User.findById(verifiedToken.vmtUserId)
       .populate({
         path: 'courses',
         populate: { path: 'members.user', select: 'username' },
@@ -69,16 +68,16 @@ router.post('/login', async (req, res, next) => {
     setSsoCookie(res, accessToken);
     setSsoRefreshCookie(res, refreshToken);
 
-    let data = vmtUser;
+    const data = vmtUser;
     return res.json(data);
   } catch (err) {
     return errors.sendError.InternalError(null, res);
   }
 });
 
-router.post('/signup', async (req, res, next) => {
+router.post('/signup', async (req, res) => {
   try {
-    let { message, accessToken, refreshToken } = await ssoService.signup(
+    const { message, accessToken, refreshToken } = await ssoService.signup(
       req.body
     );
 
@@ -86,7 +85,7 @@ router.post('/signup', async (req, res, next) => {
       return errors.sendError.InvalidCredentialsError(message, res);
     }
 
-    let verifiedToken = await jwt.verify(
+    const verifiedToken = await jwt.verify(
       accessToken,
       process.env.MT_USER_JWT_SECRET
     );
@@ -94,23 +93,23 @@ router.post('/signup', async (req, res, next) => {
     setSsoCookie(res, accessToken);
     setSsoRefreshCookie(res, refreshToken);
 
-    let user = await User.findById(verifiedToken.vmtUserId)
+    const user = await User.findById(verifiedToken.vmtUserId)
       .lean()
       .exec();
 
-    let wasFromTempUser = Array.isArray(user.rooms) && user.rooms.length > 0;
+    const wasFromTempUser = Array.isArray(user.rooms) && user.rooms.length > 0;
 
     if (wasFromTempUser) {
       // update the room
-      let tempRoom = await Room.findById(user.rooms[0]);
+      const tempRoom = await Room.findById(user.rooms[0]);
 
       if (tempRoom) {
         tempRoom.tempRoom = false;
 
         let foundUser = false;
 
-        let members = tempRoom.members;
-        members.forEach(member => {
+        const { members } = tempRoom;
+        members.forEach((member) => {
           if (isEqual(member.user, user._id)) {
             if (member.role !== 'facilitator') {
               member.role = 'facilitator';
@@ -134,8 +133,7 @@ router.post('/signup', async (req, res, next) => {
   }
 });
 
-
-router.post('/logout/:userId', (req, res, next) => {
+router.post('/logout/:userId', (req, res) => {
   User.findByIdAndUpdate(req.params.userId, { socketId: null })
     .lean()
     .then(() => {
@@ -146,50 +144,51 @@ router.post('/logout/:userId', (req, res, next) => {
         res.json({ result: 'success' });
       } catch (err) {
         console.log(('logout err', err));
-        return errors.sendError.InternalError(err, res);
+        errors.sendError.InternalError(err, res);
       }
     })
-    .catch(err => errors.sendError.InternalError(err, res));
+    .catch((err) => errors.sendError.InternalError(err, res));
 });
 
-router.get('/currentUser', (req, res, next) => {
-  let currentUser = getUser(req);
+router.get('/currentUser', (req, res) => {
+  const currentUser = getUser(req);
 
   if (currentUser === null) {
     return res.json({ user: null });
   }
   return userController
     .getById(currentUser._id)
-    .then(result => {
+    .then((result) => {
       res.json({ result });
     })
-    .catch(err => errors.sendError.InternalError(err, res));
+    .catch((err) => errors.sendError.InternalError(err, res));
 });
 
-router.post('/newMtUser', async (req, res, next) => {
+router.post('/newMtUser', async (req, res) => {
   try {
-    let authToken = extractBearerToken(req);
+    const authToken = extractBearerToken(req);
 
-    let verifiedToken = await jwt.verify(
-      authToken,
-      process.env.MT_USER_JWT_SECRET
-    );
-    let wasFromTempUser =
+    await jwt.verify(authToken, process.env.MT_USER_JWT_SECRET);
+    const wasFromTempUser =
       Array.isArray(req.body.rooms) && isValidMongoId(req.body.rooms[0]);
     if (wasFromTempUser) {
-      let [updatedRoom, updatedUser] = await Promise.all([
+      const results = await Promise.all([
         Room.findByIdAndUpdate(req.body.rooms[0], {
           tempRoom: false,
+          /** @todo this would overwrite the room list with just this user...if  there is in fact
+           * a members list and not just a currentMembers list. but this raises the larger question o
+           * how do we want to handle this? would it be bad to have tempUsers in a members list??
+           */
           members: [{ user: req.body._id, role: 'facilitator' }],
         }),
         User.findByIdAndUpdate(req.body._id, req.body, {
           new: true,
         }),
       ]);
-      return res.json(updatedUser);
+      return res.json(results[1]);
     }
 
-    let newUser = await User.create(req.body);
+    const newUser = await User.create(req.body);
 
     return res.json(newUser);
   } catch (err) {
@@ -201,10 +200,10 @@ router.post('/newMtUser', async (req, res, next) => {
   }
 });
 
-router.post('/forgotPassword', async (req, res, next) => {
+router.post('/forgotPassword', async (req, res) => {
   try {
-    let results = await ssoService.forgotPassword(req.body);
-    return res.json(results);
+    const results = await ssoService.forgotPassword(req.body);
+    res.json(results);
   } catch (err) {
     console.error(`Error auth/forgot: ${err}`);
     console.trace();
@@ -212,18 +211,20 @@ router.post('/forgotPassword', async (req, res, next) => {
   }
 });
 
-router.get('/resetPassword/validate/:token', async (req, res, next) => {
+router.get('/resetPassword/validate/:token', async (req, res) => {
   try {
-    let results = await ssoService.validateResetPasswordToken(req.params.token);
-    return res.json(results);
+    const results = await ssoService.validateResetPasswordToken(
+      req.params.token
+    );
+    res.json(results);
   } catch (err) {
     errors.handleError(err, res);
   }
 });
 
-router.post('/resetPassword/:token', async (req, res, next) => {
+router.post('/resetPassword/:token', async (req, res) => {
   try {
-    let {
+    const {
       user,
       accessToken,
       refreshToken,
@@ -236,7 +237,7 @@ router.post('/resetPassword/:token', async (req, res, next) => {
     }
     // await jwt.verify(accessToken, process.env.MT_USER_JWT_SECRET);
 
-    let vmtUser = await User.findById(user.vmtUserId)
+    const vmtUser = await User.findById(user.vmtUserId)
       .populate({
         path: 'courses',
         populate: { path: 'members.user', select: 'username' },
@@ -257,7 +258,7 @@ router.post('/resetPassword/:token', async (req, res, next) => {
     setSsoCookie(res, accessToken);
     setSsoRefreshCookie(res, refreshToken);
 
-    return res.json(vmtUser);
+    res.json(vmtUser);
   } catch (err) {
     console.error(`Error resetPassword: ${err}`);
     console.trace();
@@ -265,15 +266,15 @@ router.post('/resetPassword/:token', async (req, res, next) => {
   }
 });
 
-router.post('/resetPassword/user', async (req, res, next) => {
+router.post('/resetPassword/user', async (req, res) => {
   try {
     const reqUser = getUser(req);
     if (!reqUser) {
       return errors.sendError.InvalidCredentialsError(null, res);
     }
     // need to be admin or be teacher and resetting one of your students
-    //TODO: update this to only let you reset one of your student's passwords
-    let isSelf = areObjectIdsEqual(reqUser._id, req.body.id);
+    // TODO: update this to only let you reset one of your student's passwords
+    const isSelf = areObjectIdsEqual(reqUser._id, req.body.id);
 
     const hasPermission = reqUser.isAdmin || isSelf;
 
@@ -284,21 +285,21 @@ router.post('/resetPassword/user', async (req, res, next) => {
       );
     }
 
-    let results = await ssoService.resetPasswordById(req.body, reqUser);
+    const results = await ssoService.resetPasswordById(req.body, reqUser);
     return res.json(results);
   } catch (err) {
-    errors.handleError(err, res);
+    return errors.handleError(err, res);
   }
 });
 
-router.get('/confirmEmail/confirm/:token', async (req, res, next) => {
+router.get('/confirmEmail/confirm/:token', async (req, res) => {
   try {
-    let results = await ssoService.confirmEmail(req.params.token);
-    let currentUser = getUser(req);
-    let isLoggedIn = !isNil(currentUser);
-    let confirmedUser = results.user;
+    const results = await ssoService.confirmEmail(req.params.token);
+    const currentUser = getUser(req);
+    const isLoggedIn = !isNil(currentUser);
+    const confirmedUser = results.user;
 
-    let wasSuccess = results.isValid === true && !isNil(confirmedUser);
+    const wasSuccess = results.isValid === true && !isNil(confirmedUser);
 
     if (!wasSuccess) {
       return res.json(results);
@@ -309,7 +310,7 @@ router.get('/confirmEmail/confirm/:token', async (req, res, next) => {
     } else {
       // there is an existing user logged in
       // check if the user whose email was confirmed is the same as the logged in user
-      let isSameUser = areObjectIdsEqual(currentUser._id, confirmedUser._id);
+      const isSameUser = areObjectIdsEqual(currentUser._id, confirmedUser._id);
 
       console.log('isSameUser', isSameUser, currentUser, confirmedUser);
 
@@ -320,38 +321,38 @@ router.get('/confirmEmail/confirm/:token', async (req, res, next) => {
     return res.json(results);
   } catch (err) {
     console.log('err conf em: ', err.message);
-    errors.handleError(err, res);
+    return errors.handleError(err, res);
   }
 });
 
-router.get('/confirmEmail/resend', async (req, res, next) => {
+router.get('/confirmEmail/resend', async (req, res) => {
   try {
-    let reqUser = getUser(req);
+    const reqUser = getUser(req);
 
     if (!reqUser) {
       return errors.sendError.InvalidCredentialsError(null, res);
     }
 
-    let results = await ssoService.resendConfirmEmail(reqUser);
+    const results = await ssoService.resendConfirmEmail(reqUser);
     return res.json(results);
   } catch (err) {
     console.log('err resend conf: ', err.message);
-    errors.handleError(err, res);
+    return errors.handleError(err, res);
   }
 });
 
-router.put('/sso/user/:id', async (req, res, next) => {
+router.put('/sso/user/:id', async (req, res) => {
   try {
-    let authToken = extractBearerToken(req);
+    const authToken = extractBearerToken(req);
     await jwt.verify(authToken, process.env.MT_USER_JWT_SECRET);
-    let vmtUser = await User.findByIdAndUpdate(
+    const vmtUser = await User.findByIdAndUpdate(
       req.params.id,
       { $set: req.body },
       { new: true }
     );
     return res.json(vmtUser);
   } catch (err) {
-    errors.handleError(err, res);
+    return errors.handleError(err, res);
   }
 });
 
