@@ -31,6 +31,8 @@ Cypress.Commands.add('login', (user) => {
 
 Cypress.Commands.add('logout', () => {
   cy.contains('Logout').click({ force: true });
+  cy.clearCookies();
+  cy.wait(1000);
 });
 
 Cypress.Commands.add('getTestElement', (selector) => {

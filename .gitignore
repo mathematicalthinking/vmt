@@ -1,11 +1,12 @@
 /node_modules/
+/client/node_modules/
 /concertChatApps/
 /cypress/integration/examples/
 /cypress/screenshots/
 /cypress/videos/
 /client/build
 .vscode
-.env
+/server/.env
 /production/
 /staging/
 /client/encompassBuild

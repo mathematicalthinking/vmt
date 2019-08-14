@@ -16,6 +16,9 @@ describe('Forgot Password', function() {
     cy.task('restoreAll');
     cy.visit('/login');
   });
+  after(function() {
+    cy.logout();
+  });
 
   it('Clicks on Request Password Reset link from login page', function() {
     cy.contains('Request Password Reset').click();

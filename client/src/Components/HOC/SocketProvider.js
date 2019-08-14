@@ -31,6 +31,8 @@ class SocketProvider extends Component {
     // setTimeout(() => this.setState({ showNtfMessage: true }), 2000);
     const url = window.location.href;
     const isForConfirmEmail = url.includes('confirmEmail');
+    const isForResetPassword = url.includes('resetPassword');
+    const isForForgotPassword = url.includes('forgotPassword');
 
     if (user.loggedIn) {
       connectClearError(); // get rid of any lingering errors in the store from their last session
@@ -39,11 +41,17 @@ class SocketProvider extends Component {
       }
       this.syncSocket();
       this.initializeListeners();
-    } else {
+    } else if (
+      !isForConfirmEmail &&
+      !isForForgotPassword &&
+      !isForResetPassword
+    ) {
       // this seems necessary for the case where user has vmt open while logged out
       // then logs into encompass in a different tab or browser
       // then refreshing vmt should recognize that the user is now logged in
-      // connectGetUser();
+      if (!window.Cypress) {
+        connectGetUser();
+      }
     }
   }
 
@@ -62,6 +70,7 @@ class SocketProvider extends Component {
   componentDidUpdate(prevProps) {
     const { user, connectClearError, roomsArr, courses } = this.props;
     if (!prevProps.user.loggedIn && user.loggedIn) {
+      console.log('user logged in !', { user });
       connectClearError();
       this.syncSocket();
       // socket.removeAllListeners();

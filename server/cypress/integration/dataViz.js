@@ -5,6 +5,10 @@ describe('Data Visualization', function() {
     cy.task('seedDB').then(() => cy.login(user8));
   });
 
+  after(function() {
+    cy.logout();
+  });
+
   it('displays a graph of activity', () => {
     cy.getTestElement('content-box-reference room').click();
     cy.contains('Stats').click();
