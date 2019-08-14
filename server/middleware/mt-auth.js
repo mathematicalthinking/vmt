@@ -12,6 +12,7 @@ const secret = process.env.MT_USER_JWT_SECRET;
 const { accessCookie, refreshCookie } = require('../constants/sso');
 
 const ssoService = require('../services/sso');
+const { getEncIssuerId, getVmtIssuerId } = require('../config/app-urls');
 
 const prep = (req, res, next) => {
   defaults(req, { mt: {} });
@@ -130,9 +131,29 @@ const extractBearerToken = (req) => {
   return authorization.split(' ')[1];
 };
 
+const resolveEncRoomToken = async (req) => {
+  try {
+    const bearerToken = extractBearerToken(req);
+    const options = {
+      subject: 'room',
+      issuer: getEncIssuerId(),
+      audience: getVmtIssuerId(),
+    };
+    if (typeof bearerToken !== 'string') {
+      return null;
+    }
+    const verifiedToken = await verifyJwt(bearerToken, secret, options);
+    return verifiedToken;
+  } catch (err) {
+    // invalid access token
+    return null;
+  }
+};
+
 module.exports.getMtUser = getMtUser;
 module.exports.prep = prep;
 module.exports.getVmtUser = getVmtUser;
 module.exports.prepareMtUser = prepareMtUser;
 module.exports.prepareVmtUser = prepareVmtUser;
 module.exports.extractBearerToken = extractBearerToken;
+module.exports.resolveEncRoomToken = resolveEncRoomToken;

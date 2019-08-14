@@ -6,6 +6,7 @@ const helpers = require('../middleware/utils/helpers');
 const models = require('../models');
 
 const { getUser } = require('./utils/request');
+const { resolveEncRoomToken } = require('../middleware/mt-auth');
 
 const validateResource = (req, res, next) => {
   const resource = utils.getResource(req);
@@ -68,6 +69,9 @@ const validateRecordAccess = (req, res, next) => {
         .findById(id)
         .lean()
         .then((room) => {
+          if (!room) {
+            return errors.sendError.NotFoundError(null, res);
+          }
           if (room.tempRoom) {
             return next();
           }
@@ -84,6 +88,19 @@ const validateRecordAccess = (req, res, next) => {
 
   if (user.isAdmin) {
     return next();
+  }
+
+  const { authorization } = req.headers;
+
+  if (typeof authorization === 'string') {
+    // enc room request
+    return resolveEncRoomToken(req).then((verifiedToken) => {
+      if (verifiedToken !== null) {
+        // authorized request from enc server
+        return next();
+      }
+      return errors.sendError.NotAuthorizedError(null, res);
+    });
   }
 
   return (
