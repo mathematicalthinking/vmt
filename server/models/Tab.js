@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const ObjectId = mongoose.Schema.Types.ObjectId;
+
+const { ObjectId } = mongoose.Schema.Types;
 const Tab = new mongoose.Schema({
   name: { type: String },
   appName: { type: String, enum: ['3d', 'graphing', 'classic', 'geometry'] }, // Only for GeoGebra Rooms
@@ -10,13 +11,13 @@ const Tab = new mongoose.Schema({
   desmosLink: { type: String },
   perspective: {
     type: String,
-    default: 'AD', //https://wiki.geogebra.org/en/SetPerspective_Command
+    default: 'AD', // https://wiki.geogebra.org/en/SetPerspective_Command
     validate: {
-      validator: function(v) {
-        let regex = /[ABCDGLST]/g;
+      validator(v) {
+        const regex = /[ABCDGLST]/g;
         return regex.test(v);
       },
-      message: props => `${props.value} is not a valide perspective`,
+      message: (props) => `${props.value} is not a valide perspective`,
     },
   },
   events: { type: [{ type: ObjectId, ref: 'Event', _id: false }], default: [] },

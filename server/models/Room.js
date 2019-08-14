@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const ObjectId = mongoose.Schema.Types.ObjectId;
+
+const { ObjectId } = mongoose.Schema.Types;
 const User = require('./User');
 const Course = require('./Course');
 const Image = require('./Image');
@@ -57,7 +58,7 @@ Room.pre('save', function(next) {
     this.wasNew = this.isNew;
     next();
   } else if (this.modifiedPaths().length > 0) {
-    this.modifiedPaths().forEach(field => {
+    this.modifiedPaths().forEach((field) => {
       // if (field === "members") {
       //   User.findByIdAndUpdate(this.members[this.members.length - 1].user, {
       //     $addToSet: { rooms: this._id }
@@ -69,27 +70,27 @@ Room.pre('save', function(next) {
       // } else
       if (field === 'tempRoom') {
         User.findByIdAndUpdate(this.creator, { $addToSet: { rooms: this._id } })
-          .then(res => {
+          .then(() => {
             next();
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
       } else if (field === 'currentMembers') {
         // console.log('current members modified what we can do with tha info...how do we tell WHO was added')
         // console.log(this)
       } else if (field === 'isTrashed' && this.isTrashed) {
         // delete all ntfs related to this resource
-        return Notification.find({ resourceId: this._id })
-          .then(ntfs => {
+        Notification.find({ resourceId: this._id })
+          .then((ntfs) => {
             Promise.all(
-              ntfs.map(ntf => {
+              ntfs.map((ntf) => {
                 ntf.isTrashed = true;
-                ntf.save();
+                return ntf.save();
               })
-            ).then(res => {
+            ).then(() => {
               next();
             });
           })
-          .catch(err => {
+          .catch((err) => {
             console.log(err);
             next(err);
           });
@@ -110,10 +111,10 @@ Room.post('save', function(doc, next) {
     promises.push(Image.create({ imageData: '' }));
     // Add the room to all of the users in this room
     promises = promises.concat(
-      this.members.map(member => {
+      this.members.map((member) => {
         // add a new room notification if they're not the facilitator
-        let query = { $addToSet: { rooms: this._id } };
-        //@TODO use notification schema
+        // const query = { $addToSet: { rooms: this._id } };
+        // @TODO use notification schema
         let notification;
         if (member.role === 'participant') {
           notification = {
@@ -127,14 +128,13 @@ Room.post('save', function(doc, next) {
           // Creating a notification of type assignedNewRoom will automatically add this room
           // to the users room list as part of the pre save hook')
           return Notification.create(notification);
-        } else {
-          // We only want to create notifications for participants
-          // If we don't create a ntf the user doesnt get the room added to their list in the pre save hook
-          // so we do it here
-          return User.findByIdAndUpdate(this.creator, {
-            $addToSet: { rooms: this._id },
-          });
         }
+        // We only want to create notifications for participants
+        // If we don't create a ntf the user doesnt get the room added to their list in the pre save hook
+        // so we do it here
+        return User.findByIdAndUpdate(this.creator, {
+          $addToSet: { rooms: this._id },
+        });
       })
     );
     // promises.push(User.findByIdAndUpdate(this.creator, {$addToSet: {rooms: this._id}}))
@@ -153,16 +153,16 @@ Room.post('save', function(doc, next) {
       );
     }
     Promise.all(promises)
-      .then(values => {
+      .then((values) => {
         if (values[0]) {
           this.graphImage = values[0]._id;
         }
         next();
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
         next(err);
-      }); //@TODO WE NEED ERROR HANDLING HERE
+      }); // @TODO WE NEED ERROR HANDLING HERE
   } else {
     next();
   }
@@ -170,7 +170,7 @@ Room.post('save', function(doc, next) {
 
 Room.methods.summary = function() {
   // @TODO ONLY RETURN THE ENTRY CODE IF THE CLIENT IS THE OWNER
-  obj = {
+  const obj = {
     entryCode: this.entryCode,
     activity: this.activity,
     name: this.name,

@@ -1,26 +1,28 @@
-const mongoose = require("mongoose");
-const ObjectId = mongoose.Schema.Types.ObjectId;
-const User = require("./User");
+const mongoose = require('mongoose');
+
+const { ObjectId } = mongoose.Schema.Types;
+const User = require('./User');
+
 const RoomTemplate = new mongoose.Schema(
   {
     name: { type: String, required: true },
     description: { type: String },
-    roomType: { type: String, default: "geogebra" },
-    creator: { type: ObjectId, ref: "User" },
+    roomType: { type: String, default: 'geogebra' },
+    creator: { type: ObjectId, ref: 'User' },
     privacySetting: {
       type: String,
-      enum: ["private", "public"],
-      default: "private"
+      enum: ['private', 'public'],
+      default: 'private',
     },
-    isTrashed: { type: Boolean, default: false }
+    isTrashed: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
-RoomTemplate.post("save", doc => {
+RoomTemplate.post('save', (doc) => {
   User.findById(doc.creator, (err, res) => {
     if (err) {
-      return console.log(err);
+      console.log(err);
     }
     res.roomTemplates.push(doc._id);
     res.save();
@@ -29,4 +31,4 @@ RoomTemplate.post("save", doc => {
   });
 });
 
-module.exports = mongoose.model("RoomTemplate", RoomTemplate);
+module.exports = mongoose.model('RoomTemplate', RoomTemplate);

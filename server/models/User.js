@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const ObjectId = mongoose.Schema.Types.ObjectId;
+
+const { ObjectId } = mongoose.Schema.Types;
 const User = new mongoose.Schema(
   {
     courseTemplates: {

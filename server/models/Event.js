@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
-const ObjectId = mongoose.Schema.Types.ObjectId;
+
+const { ObjectId } = mongoose.Schema.Types;
 const Tab = require('./Tab.js');
+
 const Event = new mongoose.Schema({
   user: { type: ObjectId, ref: 'User' },
   event: { type: String }, // ggb xml
@@ -30,7 +32,7 @@ const Event = new mongoose.Schema({
   },
   color: { type: String },
   isMultiPart: { type: Boolean, default: false },
-  timestamp: { type: Number, required: true }, //UNIX TIME but in MS
+  timestamp: { type: Number, required: true }, // UNIX TIME but in MS
   isTrashed: { type: Boolean, default: false },
 });
 

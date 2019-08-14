@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
-const ObjectId = mongoose.Schema.Types.ObjectId;
+
+const { ObjectId } = mongoose.Schema.Types;
+const _ = require('lodash');
 const User = require('./User');
 const sockets = require('../socketInit');
-const _ = require('lodash');
 
 const Notification = new mongoose.Schema(
   {
@@ -21,8 +22,8 @@ const Notification = new mongoose.Schema(
     resourceId: {
       type: String,
       validate: {
-        validator: id => {
-          var idRegex = /^[0-9a-fA-F]{24}$/;
+        validator: (id) => {
+          const idRegex = /^[0-9a-fA-F]{24}$/;
           return idRegex.test(id);
         },
         message: '{VALUE} is not a valid resource Id',
@@ -50,15 +51,15 @@ function updateUser(userId, query) {
   });
 }
 
-function buildEmitData(notification, next) {
+function buildEmitData(notification) {
   // Requiring room at the top of file was causing problems
   const Room = require('./Room');
   const Course = require('./Course');
 
   return new Promise((resolve, reject) => {
-    let emitData = {};
-    let type = notification.notificationType;
-    let resource = notification.resourceType;
+    const emitData = {};
+    const type = notification.notificationType;
+    const resource = notification.resourceType;
     notification.populate({ path: 'fromUser' }, (err, ntf) => {
       if (err) {
         return reject(err);
@@ -72,7 +73,7 @@ function buildEmitData(notification, next) {
       ) {
         // if this ntf signifies a new resource send that resource to user so they can add it to their store
         if (resource === 'course') {
-          Course.findById(notification.resourceId)
+          return Course.findById(notification.resourceId)
             .populate({ path: 'members.user', select: 'username' })
             .exec((err, course) => {
               if (err) {
@@ -81,20 +82,18 @@ function buildEmitData(notification, next) {
               emitData.course = course;
               return resolve(emitData);
             });
-        } else {
-          Room.findById(notification.resourceId)
-            .populate({ path: 'members.user', select: 'username' })
-            .exec((err, room) => {
-              if (err) {
-                return reject(err);
-              }
-              emitData.room = room;
-              return resolve(emitData);
-            });
         }
-      } else {
-        return resolve(emitData);
+        return Room.findById(notification.resourceId)
+          .populate({ path: 'members.user', select: 'username' })
+          .exec((err, room) => {
+            if (err) {
+              return reject(err);
+            }
+            emitData.room = room;
+            return resolve(emitData);
+          });
       }
+      return resolve(emitData);
     });
   });
 }
@@ -102,41 +101,42 @@ function buildEmitData(notification, next) {
 // update toUser with notification
 Notification.post('save', function(notification, next) {
   if (notification.toUser) {
-    let ntfType = notification.notificationType;
+    const ntfType = notification.notificationType;
 
-    let method = notification.isTrashed ? '$pull' : '$addToSet';
+    const method = notification.isTrashed ? '$pull' : '$addToSet';
     // Add a room the users list if they've been assigned
-    let updateQuery = {
+    const updateQuery = {
       [method]: { notifications: notification._id },
     };
     if (ntfType === 'assignedNewRoom' && method === '$addToSet') {
-      updateQuery['$addToSet'].rooms = notification.resourceId;
+      updateQuery.$addToSet.rooms = notification.resourceId;
     }
     // granted access - send course along with ntf
     // assigned new room - send room along with ntf
     return updateUser(notification.toUser, updateQuery)
-      .then(updatedUser => {
+      .then((updatedUser) => {
         // check if there is socket for user
         // if (!notification.isTrashed) {
-        let socketId = _.propertyOf(updatedUser)('socketId');
-        let socket = _.propertyOf(sockets)(`io.sockets.sockets.${socketId}`);
+        const socketId = _.propertyOf(updatedUser)('socketId');
+        const socket = _.propertyOf(sockets)(`io.sockets.sockets.${socketId}`);
         // console.log('socket: ', socket);
         if (socket) {
-          return buildEmitData(notification).then(data => {
+          return buildEmitData(notification).then((data) => {
             if (data) {
               console.log('EMITTING NTF: ', data);
               return socket.emit('NEW_NOTIFICATION', data);
             }
+            return null;
           });
         }
-        // }
-        return;
+        return null;
       })
-      .catch(err => {
+      .catch((err) => {
         console.log('err post save ntf', err);
         next(err);
       });
   }
+  return next();
 });
 
 module.exports = mongoose.model('Notification', Notification);

@@ -15,10 +15,12 @@ module.exports = {
     // after: true,
   },
   rules: {
-    'no-use-before-define': 0,
-    'no-param-reassign': 0,
-    'no-underscore-dangle': 0,
-    'no-throw-literal': 0,
+    'global-require': 0,
     'func-names': 0,
+    'no-param-reassign': 0,
+    'no-throw-literal': 0,
+    'no-use-before-define': 0,
+    'no-underscore-dangle': 0,
+    'no-shadow': 0,
   },
 };
