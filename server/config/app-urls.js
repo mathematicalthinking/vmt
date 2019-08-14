@@ -67,3 +67,21 @@ module.exports.getEncUrl = () => {
   }
   return process.env.ENC_URL_DEV;
 };
+
+module.exports.getEncIssuerId = () => {
+  const envName = process.env.NODE_ENV;
+
+  if (envName === 'production') {
+    return process.env.ENC_JWT_ISSUER_ID_PROD;
+  }
+
+  if (envName === 'staging') {
+    return process.env.ENC_JWT_ISSUER_ID_STAGING;
+  }
+
+  if (envName === 'test') {
+    return process.env.ENC_JWT_ISSUER_ID_TEST;
+  }
+
+  return process.env.ENC_JWT_ISSUER_ID_DEV;
+};

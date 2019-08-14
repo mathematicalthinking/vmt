@@ -121,7 +121,7 @@ router.get('/search', (req, res) => {
 router.get('/replayer/:asset', (req, res) => {
   const { asset } = req.params;
   fs.readdir(
-    path.join(__dirname, `../client/encompassBuild/static/${asset}`),
+    path.join(__dirname, `../../client/encompassBuild/static/${asset}`),
     (err, files) => {
       if (err) {
         console.log(err);
@@ -130,7 +130,7 @@ router.get('/replayer/:asset', (req, res) => {
       return res.sendFile(
         path.join(
           __dirname,
-          `../client/encompassBuild/static/${asset}/${files[0]}`
+          `../../client/encompassBuild/static/${asset}/${files[0]}`
         )
       );
     }
