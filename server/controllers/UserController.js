@@ -6,7 +6,6 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.User.find(params)
         .then((users) => {
-          console.log({ users });
           resolve(users);
         })
         .catch((err) => {

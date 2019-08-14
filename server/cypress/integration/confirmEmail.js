@@ -4,7 +4,7 @@ const {
   userLiveToken,
   userExpiredToken,
   noEmailUser,
-  // userConfirmed,
+  userConfirmed,
 } = require('../fixtures/confirmEmail');
 const errors = require('../fixtures/errors').confirmEmail;
 
@@ -14,31 +14,31 @@ describe('Confirming Email', function() {
   });
 
   // TODO: Determine better way to mimic clicking email link
-  //   xdescribe('Visiting unconfirmed page with already confirmed email', function() {
-  //     const user = userConfirmed;
-  //     const confirmUrl = `/confirmEmail/${userLiveToken.token}`;
-  //     const successMsg = `${userLiveToken.email} has been successfully confirmed`;
-  //     const logoutPrompt = `Click Log Out below if you would like to log in to the account
-  //     associated with ${userLiveToken.email};
-  // `;
+  xdescribe('Visiting unconfirmed page with already confirmed email', function() {
+    const user = userConfirmed;
+    const confirmUrl = `/confirmEmail/${userLiveToken.token}`;
+    const successMsg = `${userLiveToken.email} has been successfully confirmed`;
+    const logoutPrompt = `Click Log Out below if you would like to log in to the account
+      associated with ${userLiveToken.email};
+  `;
 
-  //     xit('should redirect to myVMT', function() {
-  //       cy.visit('/login');
-  //       cy.get('input[name=username]').type(user.username);
-  //       cy.get('input[name=password]').type(user.password);
-  //       cy.get('button').click();
-  //       cy.url().should('include', '/myVMT/rooms');
-  //       cy.wait(1000);
-  //     });
+    xit('should redirect to myVMT', function() {
+      cy.visit('/login');
+      cy.get('input[name=username]').type(user.username);
+      cy.get('input[name=password]').type(user.password);
+      cy.get('button').click();
+      cy.url().should('include', '/myVMT/rooms');
+      cy.wait(1000);
+    });
 
-  //     xit('should be prompted to logout after confirming email for another account', function() {
-  //       cy.visit(confirmUrl);
-  //       cy.contains(successMsg);
-  //       cy.contains(logoutPrompt);
-  //       cy.getTestElement('confirmEmail-logout').click();
-  //       cy.url().should('include', '/');
-  //     });
-  //   });
+    xit('should be prompted to logout after confirming email for another account', function() {
+      cy.visit(confirmUrl);
+      cy.contains(successMsg);
+      cy.contains(logoutPrompt);
+      cy.getTestElement('confirmEmail-logout').click();
+      cy.url().should('include', '/');
+    });
+  });
 
   describe('Unexpected Errors', function() {
     const url = `/confirmEmail/${userLiveToken.token}`;
@@ -122,6 +122,7 @@ describe('Confirming Email', function() {
         it('should succeed on retry with same token', function() {
           cy.visit(url);
           cy.contains(successMsg);
+          cy.logout();
         });
       });
     });
