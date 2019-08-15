@@ -8,12 +8,29 @@ import { Aux } from '../../Components';
 import classes from './graph.css';
 
 class GgbActivityGraph extends Component {
-  state = {
-    // loading: true
-  };
-
   graph = React.createRef();
   isFileLoaded = false;
+  constructor(props) {
+    super(props);
+    this.getGgbState = throttle(() => {
+      const { role, tab, activity, updateActivityTab } = this.props;
+      console.log('saving activity state!');
+      console.log({ role });
+      if (role === 'facilitator' && this.ggbApplet) {
+        console.log('you are the facilitator');
+        updateActivityTab(activity._id, tab._id, {
+          currentState: this.ggbApplet.getXML(),
+        });
+        // this.props.updatedActivity(this.props.activity._id, {tabs: updatedTabs})
+      } else {
+        // eslint-disable-next-line no-alert
+        window.alert(
+          'You cannot edit this activity because you are not the owner. If you want to make changes, copy it to your list of activities first.'
+        );
+      }
+    }, 1000);
+  }
+
   componentDidMount() {
     window.addEventListener('resize', this.updateDimensions);
     // if (window.ggbApplet) {
@@ -86,29 +103,10 @@ class GgbActivityGraph extends Component {
 
   // Save new state to the redux store on each modification to the construction
   // When the user leaves the room we'll update the backend (that way we only do it once)
-  getGgbState = throttle(() => {
-    const { role, tabs, currentTab, activity, updateActivityTab } = this.props;
-    if (role === 'facilitator') {
-      const updatedTabs = [...tabs];
-      const updatedTab = { ...tabs[currentTab] };
-      updatedTab.currentState = this.ggbApplet.getXML();
-      updatedTabs[currentTab] = updatedTab;
-      updateActivityTab(activity._id, updatedTab._id, {
-        currentState: updatedTab.currentState,
-      });
-      // this.props.updatedActivity(this.props.activity._id, {tabs: updatedTabs})
-    } else {
-      // eslint-disable-next-line no-alert
-      window.alert(
-        'You cannot edit this activity because you are not the owner. If you want to make changes, copy it to your list of activities first.'
-      );
-    }
-  }, 1000);
 
   perspectiveChanged = (newPerspectiveCode) => {
-    const { tabs, currentTab, activity, updateActivityTab } = this.props;
-    const updatedTab = { ...tabs[currentTab] };
-    updateActivityTab(activity._id, updatedTab._id, {
+    const { tab, activity, updateActivityTab } = this.props;
+    updateActivityTab(activity._id, tab._id, {
       perspective: newPerspectiveCode,
     });
 
@@ -163,9 +161,9 @@ class GgbActivityGraph extends Component {
   };
 
   onScriptLoad = () => {
-    const { tabId, role, tabs, currentTab, isFirstTabLoaded } = this.props;
+    const { tabId, role, tab, currentTab, isFirstTabLoaded } = this.props;
     const parameters = {
-      id: `ggb-element${tabId}A`,
+      id: `ggb-element${tab._id}A`,
       // "scaleContainerClasse": "graph",
       // customToolBar:
       // "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
@@ -180,10 +178,10 @@ class GgbActivityGraph extends Component {
       preventFocus: true,
       // filename: this.props.tabs[this.props.tabId].ggbFile || null,
       appletOnLoad: this.initializeGgb,
-      appName: tabs[tabId].appName || 'classic',
+      appName: tab.appName || 'classic',
     };
     const ggbApp = new window.GGBApplet(parameters, '6.0');
-    if (currentTab === tabId) {
+    if (currentTab === tab._id) {
       ggbApp.inject(`ggb-element${tabId}A`);
     } else {
       this.loadingTimer = setInterval(() => {
@@ -196,10 +194,11 @@ class GgbActivityGraph extends Component {
   };
 
   initializeGgb = () => {
-    const { tabs, tabId, user, activity, setFirstTabLoaded } = this.props;
+    console.log('initing ggb');
+    const { tab, user, activity, setFirstTabLoaded } = this.props;
     this.ggbApplet = window.ggbApplet;
     // this.setState({ loading: false });
-    const { currentState, startingPoint, ggbFile } = tabs[tabId];
+    const { currentState, startingPoint, ggbFile } = tab;
     //
     if (currentState) {
       this.ggbApplet.setXML(currentState);
@@ -220,6 +219,7 @@ class GgbActivityGraph extends Component {
       this.freezeElements(true);
     }
     this.registerListeners();
+    console.log('setting first tab loaded');
     setFirstTabLoaded();
     // put the current construction on the graph, disable everything until the user takes control
   };
@@ -274,14 +274,15 @@ class GgbActivityGraph extends Component {
 
 GgbActivityGraph.propTypes = {
   role: PropTypes.string.isRequired,
-  currentTab: PropTypes.number.isRequired,
-  tabs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  currentTab: PropTypes.string.isRequired,
+  // tabs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   tabId: PropTypes.number.isRequired,
   user: PropTypes.shape({}).isRequired,
   activity: PropTypes.shape({}).isRequired,
   isFirstTabLoaded: PropTypes.bool.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
   updateActivityTab: PropTypes.func.isRequired,
+  tab: PropTypes.shape({}).isRequired,
 };
 
 export default GgbActivityGraph;

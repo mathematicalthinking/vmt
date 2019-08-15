@@ -17,7 +17,7 @@ const ActivityTools = (props) => {
             </p>
             <p>
               Once you are ready to collaborate on this activity you can click
-              &#147;Exit Activity&#148; and then select &#147;Assign
+              &#147; Exit Activity &#148; and then select &#147;Assign
               Activity&#148;. You can then decide who you want to collaborate
               with.
             </p>
