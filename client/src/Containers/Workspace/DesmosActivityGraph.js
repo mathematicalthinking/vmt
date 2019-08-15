@@ -12,17 +12,16 @@ class DesmosActivityGraph extends Component {
   calculatorRef = React.createRef();
 
   componentDidMount() {
-    const { activity, currentTab, setFirstTabLoaded } = this.props;
-    const { tabs } = activity;
+    const { tab, setFirstTabLoaded } = this.props;
     if (window.Desmos) {
       this.calculator = window.Desmos.GraphingCalculator(
         this.calculatorRef.current
       );
       // this.setState({ loading: false });
-      if (tabs[currentTab].currentState) {
-        this.calculator.setState(tabs[currentTab].currentState);
-      } else if (tabs[currentTab].desmosLink) {
-        API.getDesmos(tabs[currentTab].desmosLink)
+      if (tab.currentState) {
+        this.calculator.setState(tab.currentState);
+      } else if (tab.desmosLink) {
+        API.getDesmos(tab.desmosLink)
           .then((res) => {
             this.calculator.setState(res.data.result.state);
           })
@@ -52,17 +51,13 @@ class DesmosActivityGraph extends Component {
   }
 
   componentWillUnmount() {
-    const { role, activity, currentTab, updateActivityTab } = this.props;
+    const { role, activity, tab, updateActivityTab } = this.props;
     // save on unmount
     if (role === 'facilitator') {
-      const updatedTabs = [...activity.tabs];
-      const updatedTab = updatedTabs[currentTab];
-      updatedTab.currentState = JSON.stringify({
-        ...this.calculator.getState(),
-      });
-      updatedTabs[currentTab] = updatedTab;
-      updateActivityTab(activity._id, updatedTab._id, {
-        currentState: updatedTab.currentState,
+      updateActivityTab(activity._id, tab._id, {
+        currentState: JSON.stringify({
+          ...this.calculator.getState(),
+        }),
       });
     }
     this.calculator.unobserveEvent('change');
@@ -70,14 +65,13 @@ class DesmosActivityGraph extends Component {
   }
 
   onScriptLoad = () => {
-    const { activity, currentTab, setFirstTabLoaded } = this.props;
-    const { tabs } = activity;
-    const { desmosLink } = tabs[currentTab];
+    const { tab, setFirstTabLoaded } = this.props;
+    const { desmosLink } = tab;
     this.calculator = window.Desmos.GraphingCalculator(
       this.calculatorRef.current
     );
-    if (tabs[currentTab].currentState) {
-      this.calculator.setState(tabs[currentTab].currentState);
+    if (tab.currentState) {
+      this.calculator.setState(tab.currentState);
       // this.setState({ loading: false });
     } else if (desmosLink) {
       API.getDesmos(desmosLink)
@@ -115,7 +109,8 @@ class DesmosActivityGraph extends Component {
 
 DesmosActivityGraph.propTypes = {
   activity: PropTypes.shape({}).isRequired,
-  currentTab: PropTypes.number.isRequired,
+  currentTab: PropTypes.string.isRequired,
+  tab: PropTypes.shape({}).isRequired,
   role: PropTypes.string.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
   updateActivityTab: PropTypes.func.isRequired,

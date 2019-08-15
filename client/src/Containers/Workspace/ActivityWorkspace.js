@@ -34,7 +34,6 @@ class ActivityWorkspace extends Component {
 
   componentDidMount() {
     const { match, connectGetCurrentActivity } = this.props;
-    console.log('mounted');
     connectGetCurrentActivity(match.params.activity_id);
   }
 
@@ -109,7 +108,6 @@ class ActivityWorkspace extends Component {
       role = 'facilitator';
     }
     if (activity && activity.tabs[0].name) {
-      console.log('here we are');
       graphs = activity.tabs.map((tab) => {
         if (tab.tabType === 'desmos') {
           return (

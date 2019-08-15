@@ -14,10 +14,7 @@ class GgbActivityGraph extends Component {
     super(props);
     this.getGgbState = throttle(() => {
       const { role, tab, activity, updateActivityTab } = this.props;
-      console.log('saving activity state!');
-      console.log({ role });
       if (role === 'facilitator' && this.ggbApplet) {
-        console.log('you are the facilitator');
         updateActivityTab(activity._id, tab._id, {
           currentState: this.ggbApplet.getXML(),
         });
@@ -194,7 +191,6 @@ class GgbActivityGraph extends Component {
   };
 
   initializeGgb = () => {
-    console.log('initing ggb');
     const { tab, user, activity, setFirstTabLoaded } = this.props;
     this.ggbApplet = window.ggbApplet;
     // this.setState({ loading: false });
@@ -219,7 +215,6 @@ class GgbActivityGraph extends Component {
       this.freezeElements(true);
     }
     this.registerListeners();
-    console.log('setting first tab loaded');
     setFirstTabLoaded();
     // put the current construction on the graph, disable everything until the user takes control
   };
