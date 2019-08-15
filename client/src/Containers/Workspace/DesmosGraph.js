@@ -22,11 +22,19 @@ class DesmosGraph extends Component {
 
   debouncedUpdate = debounce(
     () => {
-      const { room, tabId, updateRoomTab } = this.props;
+      const { tab } = this.props;
       const currentStateString = JSON.stringify(this.calculator.getState());
-      updateRoomTab(room._id, room.tabs[tabId]._id, {
-        currentState: currentStateString,
-      });
+      // updateRoomTab(room._id, tab._id, {
+      //   currentState: currentStateString,
+      // });
+      const currentState = currentStateString;
+      const { _id } = tab;
+      API.put('tabs', _id, { currentState })
+        .then(() => {})
+        .catch((err) => {
+          // eslint-disable-next-line no-console
+          console.log(err);
+        });
     },
     // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
     2000,
@@ -34,9 +42,7 @@ class DesmosGraph extends Component {
   );
 
   componentDidMount() {
-    const { room, tabId, setFirstTabLoaded } = this.props;
-    const { tabs } = room;
-
+    const { tab, setFirstTabLoaded } = this.props;
     window.addEventListener('keydown', this.allowKeypressCheck);
     // If we have multiple desmos tabs we'll already have a Desmos object attached to the window
     // and thus we dont need to load the desmos script. Eventually abstract out the commonalities
@@ -48,10 +54,10 @@ class DesmosGraph extends Component {
         this.calculatorRef.current
       );
       this.initializeListeners();
-      if (tabs[tabId].currentState) {
-        this.calculator.setState(tabs[tabId].currentState);
-      } else if (tabs[tabId].desmosLink) {
-        API.getDesmos(tabs[tabId].desmosLink)
+      if (tab.currentState) {
+        this.calculator.setState(tab.currentState);
+      } else if (tab.desmosLink) {
+        API.getDesmos(tab.desmosLink)
           .then((res) => {
             this.calculator.setState(res.data.result.state);
             this.initializeListeners();
@@ -68,22 +74,26 @@ class DesmosGraph extends Component {
   }
 
   // componentDidUpdate(prevProps) {
-  //   // if (prevProps.currentTab !== this.props.currentTab) {
-  //   //   this.setState({ receivingEvent: true }, () => {
-  //   //     let { room, currentTab } = this.props;
-  //   //     let { tabs } = room;
-  //   //     if (tabs[currentTab].currentState) {
-  //   //       this.calculator.setState(tabs[currentTab].currentState);
-  //   //     } else if (tabs[currentTab].desmosLink) {
-  //   //       API.getDesmos(tabs[currentTab].desmosLink)
-  //   //         .then(res => {
-  //   //           this.calculator.setState(res.data.result.state);
-  //   //           this.initializeListeners();
-  //   //         })
-  //   //         .catch(err => console.log(err));
-  //   //     }
-  //   //   });
-  //   // }
+  // if (prevProps.currentTab !== this.props.currentTab) {
+  //   this.setState({ receivingEvent: true }, () => {
+  //     let { room, currentTab } = this.props;
+  //     let { tabs } = room;
+  //     if (tabs[currentTab].currentState) {
+  //       this.calculator.setState(tabs[currentTab].currentState);
+  //     } else if (tabs[currentTab].desmosLink) {
+  //       API.getDesmos(tabs[currentTab].desmosLink)
+  //         .then(res => {
+  //           this.calculator.setState(res.data.result.state);
+  //           this.initializeListeners();
+  //         })
+  //         .catch(err => console.log(err));
+  //     }
+  //   });
+  // }
+  // const { inControl } = this.props;
+  // if (inControl === 'ME') {
+  // this.setState({ showControlWarning: true });
+  // }
   // }
   componentWillUnmount() {
     if (this.caluclator) {
@@ -95,15 +105,15 @@ class DesmosGraph extends Component {
 
   allowKeypressCheck = (event) => {
     const { showControlWarning } = this.state;
+    console.log('showing control warning');
     if (showControlWarning) {
       event.preventDefault();
     }
   };
 
   onScriptLoad = () => {
-    const { room, tabId, setFirstTabLoaded } = this.props;
-    const { tabs } = room;
-    const { desmosLink, currentState } = tabs[tabId];
+    const { tab, setFirstTabLoaded } = this.props;
+    const { desmosLink, currentState } = tab;
     this.initializing = true;
     if (!this.calculator) {
       this.calculator = window.Desmos.GraphingCalculator(
@@ -147,9 +157,9 @@ class DesmosGraph extends Component {
 
   initializeListeners() {
     // INITIALIZE EVENT LISTENER
-    const { updatedRoom, addNtfToTabs } = this.props;
+    const { tab, updatedRoom, addNtfToTabs } = this.props;
     this.calculator.observeEvent('change', () => {
-      const { room, tabId, user, myColor, resetControlTimer } = this.props;
+      const { room, user, myColor, resetControlTimer, inControl } = this.props;
       // eslint-disable-next-line react/destructuring-assignment
       // console.log("initializing ", this.initializing);
       if (this.initializing) return;
@@ -162,7 +172,7 @@ class DesmosGraph extends Component {
         const statesAreEqual = this.areDesmosStatesEqual(currentState);
         if (statesAreEqual) return;
         // we only want to listen for changes to the expressions. i.e. we want to ignore zoom-in-out changes
-        if (!user.connected || room.controlledBy !== user._id) {
+        if (inControl !== 'ME') {
           this.undoing = true;
           document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
           // we have the global keypress listener to prevent typing if controlWarning is being shown
@@ -172,7 +182,7 @@ class DesmosGraph extends Component {
         // console.log(this.calculator.getState());
         const newData = {
           room: room._id,
-          tab: room.tabs[tabId]._id,
+          tab: tab._id,
           event: currentStateString,
           color: myColor,
           user: {
@@ -195,12 +205,12 @@ class DesmosGraph extends Component {
     });
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
-      const { room, tabId } = this.props;
+      const { room } = this.props;
       this.receivingData = true;
-      if (data.tab === room.tabs[tabId]._id) {
-        const updatedTabs = room.tabs.map((tab) => {
-          if (tab._id === data.tab) {
-            tab.currentState = data.currentState;
+      if (data.tab === tab._id) {
+        const updatedTabs = room.tabs.map((t) => {
+          if (t._id === data.tab) {
+            t.currentState = data.currentState;
           }
           return tab;
         });
@@ -308,10 +318,8 @@ class DesmosGraph extends Component {
 }
 
 DesmosGraph.propTypes = {
-  room: PropTypes.shape({
-    controlledBy: PropTypes.string,
-  }).isRequired,
-  tabId: PropTypes.number.isRequired,
+  room: PropTypes.shape({}).isRequired,
+  tab: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
   myColor: PropTypes.string.isRequired,
   resetControlTimer: PropTypes.func.isRequired,
@@ -319,7 +327,6 @@ DesmosGraph.propTypes = {
   inControl: PropTypes.string.isRequired,
   toggleControl: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
-  updateRoomTab: PropTypes.func.isRequired,
   addNtfToTabs: PropTypes.func.isRequired,
 };
 

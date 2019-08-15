@@ -233,11 +233,11 @@ export const updateRoom = (id, body) => {
   };
 };
 
-// export const updateRoomTab = (roomId, tabId, body) => {
-// return dispatch => {
-// dispatch(updatedRoomTab(roomId, tabId, body));
-// };
-// };
+export const updateRoomTab = (roomId, tabId, body) => {
+  return (dispatch) => {
+    dispatch(updatedRoomTab(roomId, tabId, body));
+  };
+};
 
 export const removeRoomMember = (roomId, userId) => {
   return (dispatch, getState) => {
