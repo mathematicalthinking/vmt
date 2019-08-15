@@ -20,23 +20,25 @@ import { WorkspaceLayout } from '../../Layout';
 import NewTabForm from '../Create/NewTabForm';
 
 class ActivityWorkspace extends Component {
-  state = {
-    currentTab: 0,
-    creatingNewTab: false,
-    addingToMyActivities: false,
-    isFirstTabLoaded: false,
-    newName: '',
-  };
-
-  componentDidMount() {
-    const { activity, match, connectGetCurrentActivity } = this.props;
-    if (!activity || !activity.tabs[0].name) {
-      connectGetCurrentActivity(match.params.activity_id);
-    }
+  constructor(props) {
+    super(props);
+    const { activity } = this.props;
+    this.state = {
+      currentTab: activity.tabs[0]._id,
+      creatingNewTab: false,
+      addingToMyActivities: false,
+      isFirstTabLoaded: false,
+      newName: '',
+    };
   }
 
-  changeTab = (index) => {
-    this.setState({ currentTab: index });
+  componentDidMount() {
+    const { match, connectGetCurrentActivity } = this.props;
+    connectGetCurrentActivity(match.params.activity_id);
+  }
+
+  changeTab = (id) => {
+    this.setState({ currentTab: id });
   };
 
   createNewTab = () => {
@@ -106,14 +108,14 @@ class ActivityWorkspace extends Component {
       role = 'facilitator';
     }
     if (activity && activity.tabs[0].name) {
-      graphs = activity.tabs.map((tab, i) => {
+      graphs = activity.tabs.map((tab) => {
         if (tab.tabType === 'desmos') {
           return (
             <DesmosActivityGraph
+              key={tab._id}
+              tab={tab}
               activity={activity}
               role={role}
-              tabId={i}
-              key={tab._id}
               currentTab={currentTab}
               updateActivityTab={connectUpdateActivityTab}
               setFirstTabLoaded={this.setFirstTabLoaded}
@@ -123,13 +125,13 @@ class ActivityWorkspace extends Component {
         }
         return (
           <GgbActivityGraph
+            activity={activity}
             tabs={activity.tabs}
             currentTab={currentTab}
             role={role}
             user={user}
-            tabId={i}
+            tab={tab}
             key={tab._id}
-            activity={activity}
             updateActivityTab={connectUpdateActivityTab}
             setFirstTabLoaded={this.setFirstTabLoaded}
             isFirstTabLoaded={isFirstTabLoaded}
@@ -140,7 +142,7 @@ class ActivityWorkspace extends Component {
         <Tabs
           activity
           tabs={activity.tabs}
-          currentTab={currentTab}
+          currentTabId={currentTab}
           participantCanCreate={false}
           memberRole={role}
           changeTab={this.changeTab}
@@ -148,6 +150,7 @@ class ActivityWorkspace extends Component {
         />
       );
     }
+    console.log(activity.tabs);
     return (
       <Fragment>
         {!isFirstTabLoaded ? (
@@ -161,7 +164,7 @@ class ActivityWorkspace extends Component {
             roomName={activity.name} // THIS IS NO GOOD...WE SHOULD CHANGE THE ROOM ATTR TO RESOURCE THAT CAN ACCEPT EITHER A ROOM OR AN ACTIVITY
             user={user}
             role={role} // oh shit role is taken...its for a11y  stuff
-            currentTab={currentTab}
+            currentTabId={currentTab}
             // updateRoom={this.props.updateRoom}
             bottomRight={
               <ActivityTools

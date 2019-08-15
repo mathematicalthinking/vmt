@@ -5,5 +5,6 @@ export { default as GgbReplayer } from './GgbReplayer';
 export { default as DesmosReplayer } from './DesmosReplayer';
 export { default as ChatReplayer } from './ChatReplayer';
 export { default as ReplayerControls } from './ReplayerControls';
+// export { default as SharedReplayer } from './SharedReplayer';
 
 export default Replayer;

@@ -7,6 +7,7 @@ import {
   updateRoom,
   updatedRoom,
   updatedRoomTab,
+  updateRoomTab,
   setRoomStartingPoint,
   updateUser,
 } from '../../store/actions';
@@ -488,6 +489,7 @@ class Workspace extends Component {
       save,
       temp,
       tempMembers,
+      connectUpdateRoomTab,
       tempCurrentMembers,
     } = this.props;
     const {
@@ -562,7 +564,7 @@ class Workspace extends Component {
         toggleExpansion={this.toggleExpansion}
       />
     );
-    const graphs = currentTabs.map((tab, i) => {
+    const graphs = currentTabs.map((tab) => {
       if (tab.tabType === 'desmos') {
         return (
           <DesmosGraph
@@ -571,7 +573,8 @@ class Workspace extends Component {
             user={user}
             resetControlTimer={this.resetControlTimer}
             currentTabId={currentTabId}
-            tabId={i}
+            updateRoomTab={connectUpdateRoomTab}
+            tab={tab}
             inControl={inControl}
             myColor={myColor}
             toggleControl={this.toggleControl}
@@ -609,6 +612,7 @@ class Workspace extends Component {
         />
       );
     });
+    console.log({ graphs });
     return (
       <Fragment>
         {!isFirstTabLoaded ? (
@@ -689,6 +693,7 @@ Workspace.propTypes = {
   save: PropTypes.func,
   connectUpdateRoom: PropTypes.func.isRequired,
   connectUpdatedRoom: PropTypes.func.isRequired,
+  connectUpdateRoomTab: PropTypes.func.isRequired,
   connectSetRoomStartingPoint: PropTypes.func.isRequired,
 };
 
@@ -713,6 +718,7 @@ export default connect(
     connectUpdateRoom: updateRoom,
     connectUpdatedRoom: updatedRoom,
     connectUpdatedRoomTab: updatedRoomTab,
+    connectUpdateRoomTab: updateRoomTab,
     connectSetRoomStartingPoint: setRoomStartingPoint,
   }
 )(Workspace);

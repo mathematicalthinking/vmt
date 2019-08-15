@@ -8,13 +8,13 @@ import {
   Course,
   Activity,
   Room,
-  SharedReplayer,
   Profile,
   ActivityWorkspace,
   Workspace,
   TempWorkspace,
   withPopulatedRoom,
 } from '../Containers';
+import SharedReplayer from '../Containers/Replayer/SharedReplayer';
 import { PrivateRoute, ErrorToast } from '../Components';
 // import Workspace from './Workspace';
 import { Confirmation, FacilitatorInstructions } from '../Layout';

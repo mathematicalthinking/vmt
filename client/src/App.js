@@ -14,7 +14,9 @@ const App = () => (
   <Provider store={store}>
     <SocketProvider>
       <Router>
-        <div style={{ display: 'flex', flexFlow: 'column', minHeight: '100%' }}>
+        <div
+          style={{ display: 'flex', flexFlow: 'column', minHeight: '100vh' }}
+        >
           <Switch>
             <Route path="/myVMT" component={MyVmt} />
             <Route path="/" component={Home} />

@@ -238,9 +238,9 @@ module.exports = function() {
     });
 
     socket.on('SEND_EVENT', async (data) => {
-      console.log('event received: ', data.eventType);
-      console.log('user with data: ', data.user);
+      console.log('event received');
       console.log('from user: ', socket.user_id);
+      console.log({ data });
       console.log(new Date());
       // const xmlObj = '';
       // if (data.xml && data.eventType !== 'CHANGE_PERSPECTIVE') {
