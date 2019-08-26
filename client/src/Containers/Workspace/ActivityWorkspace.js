@@ -34,6 +34,7 @@ class ActivityWorkspace extends Component {
 
   componentDidMount() {
     const { match, connectGetCurrentActivity } = this.props;
+    console.log('getting current Activity!');
     connectGetCurrentActivity(match.params.activity_id);
   }
 
@@ -87,6 +88,7 @@ class ActivityWorkspace extends Component {
   };
 
   render() {
+    console.log('render activity workspace');
     const {
       activity,
       user,
@@ -150,7 +152,6 @@ class ActivityWorkspace extends Component {
         />
       );
     }
-    console.log(activity.tabs);
     return (
       <Fragment>
         {!isFirstTabLoaded ? (
