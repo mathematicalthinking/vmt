@@ -235,9 +235,11 @@ class GgbGraph extends Component {
       case 'ADD': {
         let shouldEvalXML = true;
         if (data.definition && data.definition.length > 0) {
-          this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
           if (data.definition.indexOf('Roots') > -1) {
             shouldEvalXML = false;
+            this.ggbApplet.evalCommand(`${data.definition}`);
+          } else {
+            this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
           }
         }
         if (shouldEvalXML) {
