@@ -37,6 +37,8 @@ class GgbGraph extends Component {
   batchUpdating = false;
   movingGeos = false;
   pointSelected = null;
+  currentDefinition = null; // used to prevent duplicate definitions being sent across the socket...e.g., when using the roots tools (https://help.geogebra.org/en/tool/Roots)
+  // it sends the Roots(line, x, y) for each point that is created...we only want to send it once
   shapeSelected = null;
   isFileSet = false; // calling ggb.setBase64 triggers this.initializeGgb(), because we set base 64 inside initializeGgb we use this instance var to track whether we've already set the file. When the ggb tries to load the file twice it breaks everything
   socketQueue = [];
@@ -63,6 +65,7 @@ class GgbGraph extends Component {
     window.addEventListener('resize', this.updateDimensions);
     window.addEventListener('visibilitychange', this.visibilityChange);
     socket.on('RECEIVE_EVENT', (data) => {
+      console.log('data received: ', { data });
       if (!this.isWindowVisible) {
         this.isFaviconNtf = true;
         this.changeFavicon('/favNtf.ico');
@@ -223,29 +226,26 @@ class GgbGraph extends Component {
     document.getElementsByTagName('head')[0].appendChild(link);
   };
 
-  /**
-   * @method recursiveUpdate
-   * @description takes an array of events and updates the construction in batches
-   * used to make drag updates and multipoint shape creation more efficient. See ./docs/Geogebra
-   * Note that this is copy-pasted in GgbReplayer for now, consider abstracting.
-   * When we've reached the bottom of the recursive chain we check if any events came in while
-   * making these changes. (See the socket listener if(receviingData))
-   * @param  {Array || Object} events - array of ggb xml events
-   * @param  { String } updateType - 'ADDING if we want to invoke evalCommand else null to invoke evalXML'
-   */
-
   constructEvent = (data) => {
     const { addToLog } = this.props;
     let readyToClearSocketQueue = true;
     addToLog(data);
+    console.log({ data });
     switch (data.eventType) {
-      case 'ADD':
+      case 'ADD': {
+        let shouldEvalXML = true;
         if (data.definition && data.definition.length > 0) {
           this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
+          if (data.definition.indexOf('Roots') > -1) {
+            shouldEvalXML = false;
+          }
         }
-        this.ggbApplet.evalXML(data.event);
+        if (shouldEvalXML) {
+          this.ggbApplet.evalXML(data.event);
+        }
         this.ggbApplet.evalCommand('UpdateConstruction()');
         break;
+      }
       case 'REMOVE':
         if (data.eventArray) {
           this.updatingOn = true;
@@ -311,6 +311,16 @@ class GgbGraph extends Component {
     }
   };
 
+  /**
+   * @method recursiveUpdate
+   * @description takes an array of events and updates the construction in batches
+   * used to make drag updates and multipoint shape creation more efficient. See ./docs/Geogebra
+   * Note that this is copy-pasted in GgbReplayer for now, consider abstracting.
+   * When we've reached the bottom of the recursive chain we check if any events came in while
+   * making these changes. (See the socket listener if(receviingData))
+   * @param  {Array || Object} events - array of ggb xml events
+   * @param  { String } updateType - 'ADDING if we want to invoke evalCommand else null to invoke evalXML'
+   */
   // eslint-disable-next-line consistent-return
   recursiveUpdate = (events, updateType) => {
     let readyToClearSocketQueue = true;
@@ -469,6 +479,7 @@ class GgbGraph extends Component {
    */
 
   clientListener = (event) => {
+    console.log('client listener: ', event);
     const { referencing } = this.props;
     if (this.receivingData) {
       return;
@@ -605,6 +616,7 @@ class GgbGraph extends Component {
    */
 
   addListener = (label) => {
+    console.log('added: ', label);
     if (this.batchUpdating || this.receivingData) {
       return;
     }
@@ -618,8 +630,22 @@ class GgbGraph extends Component {
     }
     if (!this.receivingData) {
       const xml = this.ggbApplet.getXML(label);
-      // const objType = this.ggbApplet.getObjectType(label);
+      const objType = this.ggbApplet.getObjectType(label);
       const definition = this.ggbApplet.getCommandString(label);
+      if (definition.indexOf('Roots') > -1) {
+        console.log('this a roots def');
+        console.log('currentDefinition', this.currentDefinition);
+        console.log({ definition });
+        if (this.currentDefinition !== definition) {
+          this.currentDefinition = definition;
+          console.log('sending through buffer');
+          this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
+          return;
+        }
+        this.currentDefinition = definition;
+        return;
+      }
+      console.log({ objType, definition });
       this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
     }
   };
