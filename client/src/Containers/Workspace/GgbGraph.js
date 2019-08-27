@@ -99,16 +99,6 @@ class GgbGraph extends Component {
     });
   }
 
-  // shouldComponentUpdate(nextProps) {
-  //   const { tabId, currentTab } = this.props;
-  //   console.log(
-  //     'should component update: ',
-  //     tabId,
-  //     tabId === currentTab || nextProps.tabId === nextProps.currentTab
-  //   );
-  //   return tabId === currentTab || nextProps.tabId === nextProps.currentTab;
-  // }
-
   /**
    * @method componentDidUpdate
    * @description - determines what should happen when props update
@@ -268,7 +258,7 @@ class GgbGraph extends Component {
         break;
       case 'UPDATE':
         this.ggbApplet.evalXML(data.event);
-        this.ggbApplet.evalCommand('UpdateConstruction()');
+        // this.ggbApplet.evalCommand('UpdateConstruction()');
         break;
       case 'CHANGE_PERSPECTIVE':
         this.ggbApplet.setPerspective(data.event);
@@ -583,8 +573,6 @@ class GgbGraph extends Component {
         // this.ggbApplet.setEditorState(this.editorState);
         this.setState({ showControlWarning: true });
         break;
-
-      // ARE WE ACTUALLY USING THE BLCOKS BELOW??
       case 'movingGeos':
         this.movingGeos = true; // turn of updating so the updateListener does not send events
         break;
@@ -605,7 +593,6 @@ class GgbGraph extends Component {
       default:
         break;
     }
-    console.log('draggin?');
   };
 
   /**
@@ -631,13 +618,9 @@ class GgbGraph extends Component {
     }
     if (!this.receivingData) {
       const xml = this.ggbApplet.getXML(label);
-      const objType = this.ggbApplet.getObjectType(label);
+      // const objType = this.ggbApplet.getObjectType(label);
       const definition = this.ggbApplet.getCommandString(label);
-      if (objType === 'point') {
-        this.sendEvent(xml, null, label, 'ADD', 'added');
-      } else {
-        this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
-      }
+      this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
     }
   };
 
@@ -753,7 +736,7 @@ class GgbGraph extends Component {
    * @description --- creates a buffer for sending events across the websocket.
    *  Because dragging a shape or point causes the update handler to fire every 10 to 20 ms, the
    *  constant sending of events across the network starts to slow things down. Instead of sending each
-   *  event as it comes in we concatanate them into one event and then send them all roughly once every 1500 ms.
+   *  event as it comes in, we concatanate them into one event and then send them all roughly once every 1500 ms.
    * @param  {String} xml - ggb generated xml of the even
    * @param  {String} definition - ggb multipoint definition (e.g. "Polygon(D, E, F, G)")
    * @param  {String} label - ggb label. ggbApplet.evalXML(label) yields xml representation of this label
@@ -928,7 +911,6 @@ class GgbGraph extends Component {
    * @return {String} description
    */
   buildDescription = (definition, label, eventType, action, eventQueue) => {
-    // console.log(definition, label, eventType, action, eventQueue);
     const { user } = this.props;
     let description = `${user.username}`;
     let newLabel = label;

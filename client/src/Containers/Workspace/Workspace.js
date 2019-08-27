@@ -270,7 +270,6 @@ class Workspace extends Component {
   };
 
   toggleControl = (event, auto) => {
-    console.log('toggling control');
     const { populatedRoom, user } = this.props;
     const { controlledBy } = this.state;
     const { myColor } = this.state;
@@ -336,7 +335,6 @@ class Workspace extends Component {
       );
     } else {
       // We're taking control
-      console.log('im taking control');
       this.setState({ controlledBy: user._id, referencing: false });
       this.resetControlTimer();
       const message = {
@@ -521,8 +519,6 @@ class Workspace extends Component {
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
     else if (!controlledBy) inControl = 'NONE';
-    console.log({ controlledBy });
-    console.log({ inControl });
     const currentMembers = (
       <CurrentMembers
         members={tempMembers || populatedRoom.members}
@@ -616,7 +612,6 @@ class Workspace extends Component {
         />
       );
     });
-    console.log({ graphs });
     return (
       <Fragment>
         {!isFirstTabLoaded ? (
