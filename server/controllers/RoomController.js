@@ -54,7 +54,6 @@ module.exports = {
   },
 
   getPopulatedById: (id, params) => {
-    console.log('getting populated');
     return db.Room.findById(id)
       .populate({ path: 'creator', select: 'username' })
       .populate({
