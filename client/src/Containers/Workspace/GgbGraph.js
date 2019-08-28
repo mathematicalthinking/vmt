@@ -649,10 +649,11 @@ class GgbGraph extends Component {
       const definition = this.ggbApplet.getCommandString(label);
       if (definition.indexOf('Roots') > -1) {
         if (this.currentDefinition !== definition) {
+          console.log('sending event!');
           this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
-          return;
         }
         this.currentDefinition = definition;
+        console.log('current defs are the same not sending event');
         return;
       }
       this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
