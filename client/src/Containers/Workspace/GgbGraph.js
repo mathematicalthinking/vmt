@@ -39,6 +39,7 @@ class GgbGraph extends Component {
   pointSelected = null;
   currentDefinition = null; // used to prevent duplicate definitions being sent across the socket...e.g., when using the roots tools (https://help.geogebra.org/en/tool/Roots)
   // it sends the Roots(line, x, y) for each point that is created...we only want to send it once
+  currentTool = null;
   shapeSelected = null;
   isFileSet = false; // calling ggb.setBase64 triggers this.initializeGgb(), because we set base 64 inside initializeGgb we use this instance var to track whether we've already set the file. When the ggb tries to load the file twice it breaks everything
   socketQueue = [];
@@ -65,7 +66,6 @@ class GgbGraph extends Component {
     window.addEventListener('resize', this.updateDimensions);
     window.addEventListener('visibilitychange', this.visibilityChange);
     socket.on('RECEIVE_EVENT', (data) => {
-      console.log('data received: ', { data });
       if (!this.isWindowVisible) {
         this.isFaviconNtf = true;
         this.changeFavicon('/favNtf.ico');
@@ -230,7 +230,6 @@ class GgbGraph extends Component {
     const { addToLog } = this.props;
     let readyToClearSocketQueue = true;
     addToLog(data);
-    console.log({ data });
     switch (data.eventType) {
       case 'ADD': {
         let shouldEvalXML = true;
@@ -250,7 +249,7 @@ class GgbGraph extends Component {
       }
       case 'REMOVE':
         if (data.eventArray) {
-          this.updatingOn = true;
+          // this.updatingOn = true;
           data.eventArray.forEach((label) => {
             this.ggbApplet.deleteObject(label);
           });
@@ -287,11 +286,11 @@ class GgbGraph extends Component {
         break;
       }
       case 'UNDO': {
-        this.ggbApplet.undo(); // @TODO this is not working...undo only undoes USER actions
+        // this.ggbApplet.undo(); // @TODO this is not working...undo only undoes USER actions
         break;
       }
       case 'REDO': {
-        this.ggbApplet.redo();
+        // this.ggbApplet.redo();
         break;
       }
       default:
@@ -423,27 +422,43 @@ class GgbGraph extends Component {
    * @description
    */
 
-  initializeGgb = () => {
+  resyncGgbState = () => {
+    const { tab } = this.props;
+    return API.getById('tabs', tab._id)
+      .then((res) => {
+        const { currentState, ggbFile, startingPoint } = res.data.result;
+        console.log(currentState);
+        if (currentState) {
+          console.log('setting currentState!');
+          this.ggbApplet.setXML(currentState);
+        } else if (startingPoint) {
+          this.ggbApplet.setXML(startingPoint);
+        } else if (ggbFile && !this.isFileSet) {
+          this.isFileSet = true;
+          this.ggbApplet.setBase64(ggbFile);
+        }
+        this.registerListeners();
+      })
+      .catch((err) => {
+        console.log('ERROR: ', 'failed to updated', err);
+      });
+  };
+  initializeGgb = async () => {
     // Save the coords of the graph element so we know how to restrict reference lines (i.e. prevent from overflowing graph)
 
     const { tab, setFirstTabLoaded, currentTabId } = this.props;
     this.getInnerGraphCoords();
-    const { currentState, startingPoint, ggbFile } = tab;
     this.ggbApplet = window[`ggbApplet${tab._id}A`];
     this.ggbApplet.setMode(40); // Sets the tool to zoom
     // put the current construction on the graph, disable everything until the user takes control
     // if (perspective) this.ggbApplet.setPerspective(perspective);
-    if (currentState) {
-      this.ggbApplet.setXML(currentState);
-    } else if (startingPoint) {
-      this.ggbApplet.setXML(startingPoint);
-    } else if (ggbFile && !this.isFileSet) {
-      this.isFileSet = true;
-      this.ggbApplet.setBase64(ggbFile);
-    }
-    this.registerListeners();
-    if (tab._id === currentTabId) {
-      setFirstTabLoaded();
+    try {
+      await this.resyncGgbState();
+      if (tab._id === currentTabId) {
+        setFirstTabLoaded();
+      }
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -481,13 +496,14 @@ class GgbGraph extends Component {
    */
 
   clientListener = (event) => {
-    console.log('client listener: ', event);
     const { referencing } = this.props;
     if (this.receivingData) {
       return;
     }
     switch (event[0]) {
       case 'setMode':
+        // eslint-disable-next-line prefer-destructuring
+        this.currentTool = event[2];
         if (
           event[2] === '40' ||
           (referencing && event[2] === '0') ||
@@ -618,8 +634,11 @@ class GgbGraph extends Component {
    */
 
   addListener = (label) => {
-    console.log('added: ', label);
-    if (this.batchUpdating || this.receivingData) {
+    console.log(this.currentTool);
+    if (this.batchUpdating || this.receivingData || this.currentTool === '40') {
+      console.log(
+        'zzom is selected so we"re allowing these points to be created'
+      );
       return;
     }
     if (this.resetting) {
@@ -632,22 +651,16 @@ class GgbGraph extends Component {
     }
     if (!this.receivingData) {
       const xml = this.ggbApplet.getXML(label);
-      const objType = this.ggbApplet.getObjectType(label);
+      // const objType = this.ggbApplet.getObjectType(label);
       const definition = this.ggbApplet.getCommandString(label);
       if (definition.indexOf('Roots') > -1) {
-        console.log('this a roots def');
-        console.log('currentDefinition', this.currentDefinition);
-        console.log({ definition });
         if (this.currentDefinition !== definition) {
-          this.currentDefinition = definition;
-          console.log('sending through buffer');
           this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
           return;
         }
         this.currentDefinition = definition;
         return;
       }
-      console.log({ objType, definition });
       this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
     }
   };
@@ -1141,11 +1154,8 @@ class GgbGraph extends Component {
             this.setState({ showControlWarning: false, redo: false });
           }}
           takeControl={() => {
-            if (redo) {
-              this.ggbApplet.redo();
-            } else {
-              this.ggbApplet.undo();
-            }
+            console.log('resyncing state');
+            this.resyncGgbState();
             if (inControl !== 'NONE') {
               this.ggbApplet.setMode(40);
             }
@@ -1154,11 +1164,7 @@ class GgbGraph extends Component {
           }}
           inControl={inControl}
           cancel={() => {
-            if (redo) {
-              this.ggbApplet.redo();
-            } else {
-              this.ggbApplet.undo();
-            }
+            this.resyncGgbState();
             this.ggbApplet.setMode(40);
             this.setState({ showControlWarning: false, redo: false });
           }}
