@@ -5,6 +5,7 @@ import Script from 'react-load-script';
 import { parseString } from 'xml2js';
 import throttle from 'lodash/throttle';
 import { Aux } from '../../Components';
+import API from '../../utils/apiRequests';
 import classes from './graph.css';
 
 class GgbActivityGraph extends Component {
@@ -12,23 +13,32 @@ class GgbActivityGraph extends Component {
   isFileLoaded = false;
   constructor(props) {
     super(props);
-    this.getGgbState = throttle(() => {
-      const { role, tab, activity, updateActivityTab } = this.props;
-      if (role === 'facilitator' && this.ggbApplet) {
-        updateActivityTab(activity._id, tab._id, {
-          currentState: this.ggbApplet.getXML(),
-        });
-        // this.props.updatedActivity(this.props.activity._id, {tabs: updatedTabs})
-      } else {
-        // eslint-disable-next-line no-alert
-        window.alert(
-          'You cannot edit this activity because you are not the owner. If you want to make changes, copy it to your list of activities first.'
-        );
-      }
-    }, 1000);
+    this.getGgbState = throttle(
+      () => {
+        // eslint-disable-next-line no-unused-vars
+        const { role, tab, activity, updateActivityTab } = this.props;
+        if (role === 'facilitator' && this.ggbApplet) {
+          API.put('tabs', tab._id, { currentState: this.ggbApplet.getXML() })
+            .then(() => {})
+            .catch((err) => {
+              // eslint-disable-next-line no-console
+              console.log(err);
+            });
+          // this.props.updatedActivity(this.props.activity._id, {tabs: updatedTabs})
+        } else {
+          // eslint-disable-next-line no-alert
+          window.alert(
+            'You cannot edit this activity because you are not the owner. If you want to make changes, copy it to your list of activities first.'
+          );
+        }
+      },
+      1000,
+      { leading: false }
+    );
   }
 
   componentDidMount() {
+    console.log('ggb activitiy graph mounted');
     window.addEventListener('resize', this.updateDimensions);
     // if (window.ggbApplet) {
     //   this.initializeGgb();
@@ -115,22 +125,23 @@ class GgbActivityGraph extends Component {
     // );
   };
 
-  updateDimensions = () => {
-    const { loading } = this.state;
-    if (this.resizeTimer) {
-      clearTimeout(this.resizeTimer);
-    }
-    this.resizeTimer = setTimeout(async () => {
-      if (this.graph.current && !loading) {
-        const { clientHeight, clientWidth } = this.graph.current.parentElement;
-        window.ggbApplet.setSize(clientWidth, clientHeight);
-        // window.ggbApplet.evalCommand('UpdateConstruction()'
-      }
-      this.resizeTimer = undefined;
-    }, 200);
-  };
+  // updateDimensions = () => {
+  //   const { loading } = this.state;
+  //   if (this.resizeTimer) {
+  //     clearTimeout(this.resizeTimer);
+  //   }
+  //   this.resizeTimer = setTimeout(async () => {
+  //     if (this.graph.current && !loading) {
+  //       const { clientHeight, clientWidth } = this.graph.current.parentElement;
+  //       window.ggbApplet.setSize(clientWidth, clientHeight);
+  //       // window.ggbApplet.evalCommand('UpdateConstruction()'
+  //     }
+  //     this.resizeTimer = undefined;
+  //   }, 200);
+  // };
 
   getRelativeCoords = (element) => {
+    console.log('getting relative coords');
     return new Promise(async (resolve) => {
       let elX;
       let elY;
@@ -209,10 +220,10 @@ class GgbActivityGraph extends Component {
     //   this.ggbApplet.setPerspective(perspective);
     // }
     if (user._id === activity.creator) {
-      this.freezeElements(false);
+      // this.freezeElements(false);
       // this.freezeElements(true)
     } else {
-      this.freezeElements(true);
+      // this.freezeElements(true);
     }
     this.registerListeners();
     setFirstTabLoaded();
@@ -228,17 +239,17 @@ class GgbActivityGraph extends Component {
     });
   };
 
-  freezeElements = (freeze) => {
-    const allElements = this.ggbApplet.getAllObjectNames(); // WARNING ... THIS METHOD IS DEPRECATED
-    allElements.forEach((element) => {
-      // AS THE CONSTRUCTION GETS BIGGER THIS GETS SLOWER...SET_FIXED IS BLOCKING
-      this.ggbApplet.setFixed(element, freeze, true); // Unfix/fix all of the elements
-    });
+  // freezeElements = (freeze) => {
+  //   const allElements = this.ggbApplet.getAllObjectNames(); // WARNING ... THIS METHOD IS DEPRECATED
+  //   allElements.forEach((element) => {
+  //     // AS THE CONSTRUCTION GETS BIGGER THIS GETS SLOWER...SET_FIXED IS BLOCKING
+  //     this.ggbApplet.setFixed(element, freeze, true); // Unfix/fix all of the elements
+  //   });
 
-    this.ggbApplet.enableRightClick(!freeze);
-    this.ggbApplet.showToolBar(!freeze);
-    this.ggbApplet.setMode(freeze ? 40 : 0);
-  };
+  //   this.ggbApplet.enableRightClick(!freeze);
+  //   this.ggbApplet.showToolBar(!freeze);
+  //   this.ggbApplet.setMode(freeze ? 40 : 0);
+  // };
 
   registerListeners() {
     this.ggbApplet.registerAddListener(this.getGgbState);

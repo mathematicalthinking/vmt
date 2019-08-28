@@ -87,6 +87,7 @@ class ActivityWorkspace extends Component {
   };
 
   render() {
+    console.log('render activity workspace');
     const {
       activity,
       user,
@@ -150,7 +151,6 @@ class ActivityWorkspace extends Component {
         />
       );
     }
-    console.log(activity.tabs);
     return (
       <Fragment>
         {!isFirstTabLoaded ? (

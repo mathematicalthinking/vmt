@@ -43,11 +43,7 @@ class SharedReplayer extends Component {
 
   componentDidMount() {
     const { populatedRoom } = this.props;
-    console.log('we have the populatede rtoom ', { ...populatedRoom });
-    console.log(populatedRoom.log);
-    console.log(populatedRoom.log.length);
     if (!populatedRoom.log || populatedRoom.log.length === 0) {
-      console.log('OK SETTING STATE!');
       this.setState({
         errorMessage: 'This room does not have any activity yet',
       });
