@@ -427,9 +427,7 @@ class GgbGraph extends Component {
     return API.getById('tabs', tab._id)
       .then((res) => {
         const { currentState, ggbFile, startingPoint } = res.data.result;
-        console.log(currentState);
         if (currentState) {
-          console.log('setting currentState!');
           this.ggbApplet.setXML(currentState);
         } else if (startingPoint) {
           this.ggbApplet.setXML(startingPoint);
@@ -634,11 +632,7 @@ class GgbGraph extends Component {
    */
 
   addListener = (label) => {
-    console.log(this.currentTool);
     if (this.batchUpdating || this.receivingData || this.currentTool === '40') {
-      console.log(
-        'zzom is selected so we"re allowing these points to be created'
-      );
       return;
     }
     if (this.resetting) {
@@ -1154,7 +1148,6 @@ class GgbGraph extends Component {
             this.setState({ showControlWarning: false, redo: false });
           }}
           takeControl={() => {
-            console.log('resyncing state');
             this.resyncGgbState();
             if (inControl !== 'NONE') {
               this.ggbApplet.setMode(40);

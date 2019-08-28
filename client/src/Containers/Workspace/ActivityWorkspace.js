@@ -34,7 +34,6 @@ class ActivityWorkspace extends Component {
 
   componentDidMount() {
     const { match, connectGetCurrentActivity } = this.props;
-    console.log('getting current Activity!');
     connectGetCurrentActivity(match.params.activity_id);
   }
 

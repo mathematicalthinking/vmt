@@ -268,7 +268,6 @@ export const exportCSV = (dataArr, fileName = 'vmt-csv-export') => {
     type: 'text/csv;charset=utf-8;',
   });
   const url = URL.createObjectURL(blob);
-  console.log({ url });
   const link = document.createElement('a');
   if (link.download !== undefined) {
     // feature detection

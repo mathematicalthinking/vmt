@@ -70,7 +70,6 @@ class SocketProvider extends Component {
   componentDidUpdate(prevProps) {
     const { user, connectClearError, roomsArr, courses } = this.props;
     if (!prevProps.user.loggedIn && user.loggedIn) {
-      console.log('user logged in !', { user });
       connectClearError();
       this.syncSocket();
       // socket.removeAllListeners();
