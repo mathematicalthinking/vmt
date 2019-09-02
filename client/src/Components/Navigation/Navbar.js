@@ -36,7 +36,10 @@ const Navbar = ({ user, location }) => {
       <div className={classes.NavListContainer}>
         <ul className={classes.NavList}>
           <NavItem link="/myVMT/rooms" name="My VMT" ntf={ntf} />
-          <NavItem link="/community/rooms" name="Community" />
+          <NavItem
+            link="/community/rooms?privacy=all&roomType=all"
+            name="Community"
+          />
           {/* <NavItem link='/profile' name='Profile' /> */}
           <DropdownNavItem
             data-testid="avatar"

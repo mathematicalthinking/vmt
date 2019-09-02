@@ -20,6 +20,7 @@ class Community extends Component {
   allResources = [];
 
   componentDidMount() {
+    console.log('this didnt remount though did it?');
     const { match } = this.props;
     const { resource } = match.params;
     // @TODO WHen should we refresh this data. Here we're saying:
@@ -41,7 +42,7 @@ class Community extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { match } = this.props;
+    const { match, location } = this.props;
     const { criteria, skip } = this.state;
     const { resource } = match.params;
     if (prevProps.match.params.resource !== resource) {
@@ -54,6 +55,8 @@ class Community extends Component {
         },
         () => this.fetchData(resource)
       );
+    } else if (location.search !== prevProps.location.search) {
+      console.log('query changed');
     } else if (prevState.criteria !== criteria) {
       this.fetchData(resource);
     } else if (prevState.skip !== skip) {
@@ -99,30 +102,42 @@ class Community extends Component {
     }));
   };
 
-  toggleFilter = (filter, clearAll) => {
-    const { match } = this.props;
-    const { filters } = this.state;
-    let updatedFilters = { ...filters };
-    if (clearAll) {
-      updatedFilters = { privacySetting: null, roomType: null };
-    } else {
-      if (filter === 'public' || filter === 'private') {
-        updatedFilters.privacySetting = filter;
-      } else if (filter === 'desmos' || filter === 'geogebra') {
-        updatedFilters.roomType = filter;
-      }
-      if (match.params.resource === 'courses') {
-        updatedFilters.roomType = null;
-      }
+  toggleFilter = (filter) => {
+    const { match, history, location } = this.props;
+    let privacySetting = 'all';
+    let roomType = 'all';
+    if (filter === 'public' || filter === 'private') {
+      privacySetting = filter;
+    } else if (filter === 'desmos' || filter === 'geogebra') {
+      roomType = filter;
     }
-    this.setState({ filters: updatedFilters }, () => {
-      setTimeout(this.fetchData(match.params.resource, false), 0);
+    if (match.params.resource === 'courses') {
+      roomType = null;
+    }
+
+    console.log({ history });
+    console.log({ match });
+    console.log({ location });
+    history.push({
+      pathname: match.url,
+      search: `?privacy=${privacySetting}&roomType=${roomType}`,
     });
+    // history.push()
+    // this.setState({ filters: updatedFilters }, () => {
+    // setTimeout(this.fetchData(match.params.resource, false), 0);
+    // });
   };
 
   render() {
-    const { match, user } = this.props;
-    const { visibleResources, moreAvailable, filters } = this.state;
+    const { match, user, location } = this.props;
+    const { visibleResources, moreAvailable } = this.state;
+    const { search } = location;
+    const params = new URLSearchParams(search);
+    const filters = {
+      privacySetting: params.get('privacy'),
+      roomType: params.get('roomType'),
+    };
+    console.log({ location });
     let linkPath;
     let linkSuffix;
     // @ TODO conditional logic for displaying room in dahsboard if it belongs to the user
@@ -157,6 +172,8 @@ class Community extends Component {
 
 Community.propTypes = {
   courses: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({}).isRequired,
+  location: PropTypes.shape({}).isRequired,
   // coursesArr: PropTypes.arrayOf(PropTypes.string).isRequired,
   activities: PropTypes.shape({}).isRequired,
   // activitiesArr: PropTypes.arrayOf(PropTypes.string).isRequired,

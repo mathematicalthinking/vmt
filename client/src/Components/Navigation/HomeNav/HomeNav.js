@@ -45,7 +45,10 @@ const Navbar = ({ page, user, loggedIn, isDark }) => {
                 <NavItem link="/signup" name="Signup" />
               </Aux>
             )}
-            <NavItem link="/community/rooms" name="Community" />
+            <NavItem
+              link="/community/rooms?privacy=all&roomType=all"
+              name="Community"
+            />
             <NavItem link="/about" name="About" />
             <NavItem link="/tutorials" name="Tutorials" />
             {loggedIn ? (
