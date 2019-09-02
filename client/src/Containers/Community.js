@@ -1,5 +1,6 @@
 /* eslint-disable react/no-did-update-set-state */
 import React, { Component } from 'react';
+import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { CommunityLayout } from '../Layout';
@@ -10,14 +11,15 @@ class Community extends Component {
   state = {
     visibleResources: [],
     skip: 0,
-    criteria: '',
     moreAvailable: true,
-    filters: {
-      privacySetting: null,
-      roomType: null,
-    },
   };
   allResources = [];
+  debounceFetchData = debounce(() => this.fetchData(), 1000);
+  debouncedSetCriteria = debounce((criteria) => {
+    const filters = this.getQueryParams();
+    filters.search = criteria;
+    this.setQueryParams(filters);
+  }, 700);
 
   componentDidMount() {
     console.log('this didnt remount though did it?');
@@ -28,7 +30,7 @@ class Community extends Component {
     // own courses. This is assuming that the database will have more than 50 courses and rooms
     // MAYBE conside having and upToDate flag in resoure that tracks whether we've requested this recently
     // if (Object.keys(this.props[resource]).length < 50 && !this.state.upToDate) {
-    this.fetchData(resource);
+    this.fetchData();
     // }
     // else {
     // eslint-disable-next-line react/destructuring-assignment
@@ -41,33 +43,27 @@ class Community extends Component {
     // }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     const { match, location } = this.props;
-    const { criteria, skip } = this.state;
+    // const { criteria, skip } = this.state;
     const { resource } = match.params;
     if (prevProps.match.params.resource !== resource) {
-      this.setState(
-        {
-          skip: 0,
-          criteria: '',
-          moreAvailable: true,
-          filters: { privactSetting: null, roomType: null },
-        },
-        () => this.fetchData(resource)
-      );
+      this.fetchData();
     } else if (location.search !== prevProps.location.search) {
-      console.log('query changed');
-    } else if (prevState.criteria !== criteria) {
-      this.fetchData(resource);
-    } else if (prevState.skip !== skip) {
-      const concat = true;
-      this.fetchData(resource, concat);
+      console.log('the filter has been updated, refetching');
+      this.fetchData();
     }
   }
   // concat tells us whether we should concat to existing results or overwrite
-  fetchData = (resource, concat) => {
-    const { criteria, skip, filters } = this.state;
-    API.searchPaginated(resource, criteria, skip, filters).then((res) => {
+  fetchData = (concat = false) => {
+    const { skip } = this.state;
+    const {
+      match: {
+        params: { resource },
+      },
+    } = this.props;
+    const filters = this.getQueryParams();
+    API.searchPaginated(resource, filters.search, skip, filters).then((res) => {
       if (res.data.results.length < SKIP_VALUE) {
         if (concat) {
           this.setState((prevState) => ({
@@ -92,10 +88,6 @@ class Community extends Component {
     });
   };
 
-  setCriteria = (criteria) => {
-    this.setState({ criteria, skip: 0, moreAvailable: true });
-  };
-
   setSkip = () => {
     this.setState((prevState) => ({
       skip: prevState.skip + SKIP_VALUE,
@@ -103,41 +95,50 @@ class Community extends Component {
   };
 
   toggleFilter = (filter) => {
-    const { match, history, location } = this.props;
-    let privacySetting = 'all';
-    let roomType = 'all';
+    const {
+      match: {
+        params: { resource },
+      },
+    } = this.props;
+    const filters = this.getQueryParams();
     if (filter === 'public' || filter === 'private') {
-      privacySetting = filter;
+      filters.privacySetting = filter;
     } else if (filter === 'desmos' || filter === 'geogebra') {
-      roomType = filter;
+      filters.roomType = filter;
     }
-    if (match.params.resource === 'courses') {
-      roomType = null;
+    if (resource === 'courses') {
+      filters.roomType = null;
     }
-
-    console.log({ history });
-    console.log({ match });
-    console.log({ location });
-    history.push({
-      pathname: match.url,
-      search: `?privacy=${privacySetting}&roomType=${roomType}`,
-    });
-    // history.push()
-    // this.setState({ filters: updatedFilters }, () => {
-    // setTimeout(this.fetchData(match.params.resource, false), 0);
-    // });
+    this.setQueryParams(filters);
   };
 
-  render() {
-    const { match, user, location } = this.props;
-    const { visibleResources, moreAvailable } = this.state;
-    const { search } = location;
+  getQueryParams = () => {
+    const {
+      location: { search },
+    } = this.props;
     const params = new URLSearchParams(search);
     const filters = {
       privacySetting: params.get('privacy'),
       roomType: params.get('roomType'),
+      search: params.get('search'),
     };
-    console.log({ location });
+    return filters;
+  };
+
+  setQueryParams = (filters) => {
+    const { history, match } = this.props;
+    const { privacySetting, roomType, search } = filters;
+    history.push({
+      pathname: match.url,
+      search: `?privacy=${privacySetting || 'all'}&roomType=${roomType ||
+        'all'}&search=${search || ''}`,
+    });
+  };
+
+  render() {
+    const { match, user } = this.props;
+    const { visibleResources, moreAvailable } = this.state;
+    const filters = this.getQueryParams();
     let linkPath;
     let linkSuffix;
     // @ TODO conditional logic for displaying room in dahsboard if it belongs to the user
@@ -161,7 +162,7 @@ class Community extends Component {
         linkPath={linkPath}
         linkSuffix={linkSuffix}
         setSkip={this.setSkip}
-        setCriteria={this.setCriteria}
+        setCriteria={this.debouncedSetCriteria}
         moreAvailable={moreAvailable}
         filters={filters}
         toggleFilter={this.toggleFilter}
