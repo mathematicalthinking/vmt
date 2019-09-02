@@ -39,7 +39,6 @@ class GgbGraph extends Component {
   pointSelected = null;
   currentDefinition = null; // used to prevent duplicate definitions being sent across the socket...e.g., when using the roots tools (https://help.geogebra.org/en/tool/Roots)
   // it sends the Roots(line, x, y) for each point that is created...we only want to send it once
-  currentTool = null;
   shapeSelected = null;
   isFileSet = false; // calling ggb.setBase64 triggers this.initializeGgb(), because we set base 64 inside initializeGgb we use this instance var to track whether we've already set the file. When the ggb tries to load the file twice it breaks everything
   socketQueue = [];
@@ -182,7 +181,7 @@ class GgbGraph extends Component {
   }
 
   componentWillUnmount() {
-    this.updateConstructionState();
+    // this.updateConstructionState();
     if (this.timer) {
       clearInterval(this.timer);
     }
@@ -417,11 +416,6 @@ class GgbGraph extends Component {
     }
   };
 
-  /**
-   * @method initializeGgb
-   * @description
-   */
-
   resyncGgbState = () => {
     const { tab } = this.props;
     return API.getById('tabs', tab._id)
@@ -441,6 +435,12 @@ class GgbGraph extends Component {
         console.log('ERROR: ', 'failed to updated', err);
       });
   };
+
+  /**
+   * @method initializeGgb
+   * @description
+   */
+
   initializeGgb = async () => {
     // Save the coords of the graph element so we know how to restrict reference lines (i.e. prevent from overflowing graph)
 
@@ -501,7 +501,6 @@ class GgbGraph extends Component {
     switch (event[0]) {
       case 'setMode':
         // eslint-disable-next-line prefer-destructuring
-        this.currentTool = event[2];
         if (
           event[2] === '40' ||
           (referencing && event[2] === '0') ||
@@ -632,7 +631,11 @@ class GgbGraph extends Component {
    */
 
   addListener = (label) => {
-    if (this.batchUpdating || this.receivingData || this.currentTool === '40') {
+    if (
+      this.batchUpdating ||
+      this.receivingData ||
+      this.ggbApplet.getMode() === 40
+    ) {
       return;
     }
     if (this.resetting) {
@@ -650,7 +653,6 @@ class GgbGraph extends Component {
       if (definition.indexOf('Roots') > -1) {
         if (this.currentDefinition !== definition) {
           this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
-          return;
         }
         this.currentDefinition = definition;
         return;
