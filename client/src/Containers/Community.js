@@ -61,7 +61,20 @@ class Community extends Component {
       },
     } = this.props;
     const filters = this.getQueryParams();
-    API.searchPaginated(resource, filters.search, skip, filters).then((res) => {
+    // if filter = all we're not actually filtering...we want all
+    const updatedFilters = { ...filters };
+    if (updatedFilters.roomType === 'all') {
+      delete updatedFilters.roomType;
+    }
+    if (updatedFilters.privacySetting === 'all') {
+      delete updatedFilters.privacySetting;
+    }
+    API.searchPaginated(
+      resource,
+      updatedFilters.search,
+      skip,
+      updatedFilters
+    ).then((res) => {
       if (res.data.results.length < SKIP_VALUE) {
         if (concat) {
           this.setState((prevState) => ({
@@ -103,6 +116,10 @@ class Community extends Component {
       filters.privacySetting = filter;
     } else if (filter === 'desmos' || filter === 'geogebra') {
       filters.roomType = filter;
+    } else if (filter === 'all-roomType') {
+      filters.roomType = 'all';
+    } else if (filter === 'all-privacySetting') {
+      filters.privacySetting = 'all';
     }
     if (resource === 'courses') {
       filters.roomType = null;

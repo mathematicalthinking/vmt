@@ -65,7 +65,7 @@ class Community extends Component {
             <InfoBox title="Privacy Setting">
               <div className={classes.FilterOpts}>
                 <RadioBtn
-                  check={() => toggleFilter('all')}
+                  check={() => toggleFilter('all-privacySetting')}
                   checked={filters.privacySetting === 'all'}
                   name="All-privacy"
                 >
@@ -91,7 +91,7 @@ class Community extends Component {
               <InfoBox title="Room Type">
                 <div className={classes.FilterOpts}>
                   <RadioBtn
-                    check={() => toggleFilter('all')}
+                    check={() => toggleFilter('all-roomType')}
                     checked={filters.roomType === 'all'}
                     name="All-roomType"
                   >
