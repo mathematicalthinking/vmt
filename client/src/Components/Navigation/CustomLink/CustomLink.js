@@ -5,7 +5,11 @@ import classes from './customLink.css';
 
 const CustomLink = ({ to, children }) => {
   return (
-    <NavLink to={to} className={classes.Link} activeStyle={{ color: '#999' }}>
+    <NavLink
+      to={to}
+      className={classes.Link}
+      activeStyle={{ borderBottom: '1px solid #2d91f2' }}
+    >
       {children}
     </NavLink>
   );

@@ -7,7 +7,6 @@ import {
   CustomLink,
   Button,
   RadioBtn,
-  BreadCrumbs,
   InfoBox,
 } from '../../Components';
 // import Button from '../../Components/UI/Button/Button';
@@ -32,13 +31,9 @@ class Community extends Component {
       setCriteria,
       toggleFilter,
     } = this.props;
-    console.log({ filters });
     return (
       <div className={classes.Container}>
         <div className={classes.Header}>
-          <BreadCrumbs
-            crumbs={[{ link: '/community/rooms', title: 'Community' }]}
-          />
           <h3 className={classes.Title}>
             search for activities or ask to join rooms and courses
           </h3>
@@ -141,8 +136,8 @@ Community.propTypes = {
   linkPath: PropTypes.string.isRequired,
   linkSuffix: PropTypes.string.isRequired,
   filters: PropTypes.shape({
-    privacySetting: PropTypes.oneOf(['public', 'private']),
-    roomType: PropTypes.oneOf(['geogebra', 'desmos']),
+    privacySetting: PropTypes.oneOf(['public', 'private', 'all']),
+    roomType: PropTypes.oneOf(['geogebra', 'desmos', 'all']),
   }).isRequired,
   toggleFilter: PropTypes.func.isRequired,
   setSkip: PropTypes.func.isRequired,

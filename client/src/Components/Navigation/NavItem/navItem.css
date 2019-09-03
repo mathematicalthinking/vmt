@@ -43,11 +43,29 @@
   /* -webkit-transition: width .2s; */
 }
 
+.ActiveLink {
+  composes: Item;
+}
+
+.ActiveLink:after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  width: 100%;
+  height: 2px;
+  display: block;
+  border-radius: 4px;
+  right: 0;
+  background: white;
+  transition: width 0.2s ease-in;
+}
+
 .Item:hover:after {
   width: 100%;
-  left: 0;
-  background: white;
 }
+/* .ActiveLink:hover:after {
+  width: 0%;
+} */
 
 .Ntf {
   position: absolute;
