@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import debounce from 'lodash/debounce';
 // import { CustomLink } from 'react-router-dom';
 import BoxList from '../BoxList/BoxList';
 import {
@@ -13,11 +14,15 @@ import {
 import classes from './community.css';
 
 class Community extends Component {
-  shouldComponentUpdate(nextProps) {
-    if (nextProps === this.props) {
-      return false;
-    }
-    return true;
+  header = React.createRef();
+  debouncedResizeListener = debounce(() => this.forceUpdate(), 1000);
+
+  componentDidMount() {
+    window.addEventListener('resize', this.debouncedResizeListener);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.debouncedResizeListener);
   }
   render() {
     const {
@@ -33,7 +38,7 @@ class Community extends Component {
     } = this.props;
     return (
       <div className={classes.Container}>
-        <div className={classes.Header}>
+        <div className={classes.Header} ref={this.header}>
           <h3 className={classes.Title}>
             search for activities or ask to join rooms and courses
           </h3>
@@ -111,7 +116,14 @@ class Community extends Component {
             ) : null}
           </div>
         </div>
-        <div className={classes.List}>
+        <div
+          className={classes.List}
+          style={{
+            marginTop: this.header.current
+              ? this.header.current.getBoundingClientRect().height
+              : 260,
+          }}
+        >
           <BoxList
             list={visibleResources}
             resource={resource}
