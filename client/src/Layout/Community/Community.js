@@ -8,6 +8,7 @@ import {
   Button,
   RadioBtn,
   BreadCrumbs,
+  InfoBox,
 } from '../../Components';
 // import Button from '../../Components/UI/Button/Button';
 import classes from './community.css';
@@ -31,7 +32,7 @@ class Community extends Component {
       setCriteria,
       toggleFilter,
     } = this.props;
-
+    console.log({ filters });
     return (
       <div className={classes.Container}>
         <div className={classes.Header}>
@@ -39,7 +40,7 @@ class Community extends Component {
             crumbs={[{ link: '/community/rooms', title: 'Community' }]}
           />
           <h3 className={classes.Title}>
-            Search for activities or ask to join rooms and courses
+            search for activities or ask to join rooms and courses
           </h3>
           <div className={classes.ResourceOpts}>
             <div>
@@ -59,47 +60,60 @@ class Community extends Component {
               data-testid="community-search"
             />
           </div>
-          <div className={classes.Filter}>
-            <i className={['fas fa-sliders-h', classes.FilterIcon].join(' ')} />
-            <div className={classes.FilterGroup}>
-              <RadioBtn
-                check={() => toggleFilter('public')}
-                checked={filters.privacySetting === 'public'}
-                name="Public"
-              >
-                Public
-              </RadioBtn>
-              <RadioBtn
-                check={() => toggleFilter('private')}
-                checked={filters.privacySetting === 'private'}
-                name="Private"
-              >
-                Private
-              </RadioBtn>
-            </div>
-            {resource !== 'courses' ? (
-              <div className={classes.FilterGroup}>
+          <div className={classes.Filters}>
+            {/* <i className={['fas fa-sliders-h', classes.FilterIcon].join(' ')} /> */}
+            <InfoBox title="Privacy Setting">
+              <div className={classes.FilterOpts}>
                 <RadioBtn
-                  check={() => toggleFilter('geogebra')}
-                  checked={filters.roomType === 'geogebra'}
-                  name="GeoGebra"
+                  check={() => toggleFilter('all')}
+                  checked={filters.privacySetting === 'all'}
+                  name="All-privacy"
                 >
-                  GeoGebra
+                  All
                 </RadioBtn>
                 <RadioBtn
-                  check={() => toggleFilter('desmos')}
-                  checked={filters.roomType === 'desmos'}
-                  name="Desmos"
+                  check={() => toggleFilter('public')}
+                  checked={filters.privacySetting === 'public'}
+                  name="Public"
                 >
-                  Desmos
+                  Public
+                </RadioBtn>
+                <RadioBtn
+                  check={() => toggleFilter('private')}
+                  checked={filters.privacySetting === 'private'}
+                  name="Private"
+                >
+                  Private
                 </RadioBtn>
               </div>
+            </InfoBox>
+            {resource !== 'courses' ? (
+              <InfoBox title="Room Type">
+                <div className={classes.FilterOpts}>
+                  <RadioBtn
+                    check={() => toggleFilter('all')}
+                    checked={filters.roomType === 'all'}
+                    name="All-roomType"
+                  >
+                    All
+                  </RadioBtn>
+                  <RadioBtn
+                    check={() => toggleFilter('geogebra')}
+                    checked={filters.roomType === 'geogebra'}
+                    name="GeoGebra"
+                  >
+                    GeoGebra
+                  </RadioBtn>
+                  <RadioBtn
+                    check={() => toggleFilter('desmos')}
+                    checked={filters.roomType === 'desmos'}
+                    name="Desmos"
+                  >
+                    Desmos
+                  </RadioBtn>
+                </div>
+              </InfoBox>
             ) : null}
-            <div className={classes.FilterGroup}>
-              <Button click={() => toggleFilter(null, true)}>
-                clear all filters
-              </Button>
-            </div>
           </div>
         </div>
         <div className={classes.List}>

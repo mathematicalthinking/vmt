@@ -22,7 +22,6 @@ class Community extends Component {
   }, 700);
 
   componentDidMount() {
-    console.log('this didnt remount though did it?');
     const { match } = this.props;
     const { resource } = match.params;
     // @TODO WHen should we refresh this data. Here we're saying:
@@ -50,7 +49,6 @@ class Community extends Component {
     if (prevProps.match.params.resource !== resource) {
       this.fetchData();
     } else if (location.search !== prevProps.location.search) {
-      console.log('the filter has been updated, refetching');
       this.fetchData();
     }
   }
