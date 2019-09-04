@@ -77,6 +77,7 @@ class Community extends Component {
             >
               <div className={classes.FilterOpts}>
                 <RadioBtn
+                  data-testid="all-privacy-filter"
                   check={() => toggleFilter('all-privacySetting')}
                   checked={filters.privacySetting === 'all'}
                   name="All-privacy"
@@ -84,6 +85,7 @@ class Community extends Component {
                   All
                 </RadioBtn>
                 <RadioBtn
+                  data-testid="public-filter"
                   check={() => toggleFilter('public')}
                   checked={filters.privacySetting === 'public'}
                   name="Public"
@@ -91,6 +93,7 @@ class Community extends Component {
                   Public
                 </RadioBtn>
                 <RadioBtn
+                  data-testid="private-filter"
                   check={() => toggleFilter('private')}
                   checked={filters.privacySetting === 'private'}
                   name="Private"
@@ -103,6 +106,7 @@ class Community extends Component {
               <InfoBox title="Room Type" icon={<i className="fas fa-filter" />}>
                 <div className={classes.FilterOpts}>
                   <RadioBtn
+                    data-testid="all-roomType-filter"
                     check={() => toggleFilter('all-roomType')}
                     checked={filters.roomType === 'all'}
                     name="All-roomType"
@@ -110,6 +114,7 @@ class Community extends Component {
                     All
                   </RadioBtn>
                   <RadioBtn
+                    data-testid="geogebra-filter"
                     check={() => toggleFilter('geogebra')}
                     checked={filters.roomType === 'geogebra'}
                     name="GeoGebra"
@@ -117,6 +122,7 @@ class Community extends Component {
                     GeoGebra
                   </RadioBtn>
                   <RadioBtn
+                    data-testid="desmos-filter"
                     check={() => toggleFilter('desmos')}
                     checked={filters.roomType === 'desmos'}
                     name="Desmos"
