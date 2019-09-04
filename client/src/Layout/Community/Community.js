@@ -62,6 +62,7 @@ class Community extends Component {
           </div>
           <div className={classes.Search}>
             <Search
+              isControlled
               value={searchValue}
               _search={(value) => setCriteria(value)}
               placeholder="Search by name, description, or facilitators..."

@@ -14,7 +14,7 @@ class Community extends Component {
       visibleResources: [],
       skip: 0,
       moreAvailable: true,
-      searchText: this.getQueryParams().search,
+      searchText: this.getQueryParams().search || '',
     };
     this.debounceFetchData = debounce(() => this.fetchData(), 1000);
     this.debouncedSetCriteria = debounce((criteria) => {
