@@ -1,7 +1,7 @@
 describe('test community search and filter', function() {
-  // before(function() {
-  //   cy.login(Q);
-  // });
+  before(function() {
+    cy.task('restoreAll');
+  });
 
   it('searches for a single room', function() {
     cy.visit('/');
