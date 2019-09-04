@@ -8,18 +8,21 @@ import API from '../utils/apiRequests';
 
 const SKIP_VALUE = 20;
 class Community extends Component {
-  state = {
-    visibleResources: [],
-    skip: 0,
-    moreAvailable: true,
-  };
-  allResources = [];
-  debounceFetchData = debounce(() => this.fetchData(), 1000);
-  debouncedSetCriteria = debounce((criteria) => {
-    const filters = this.getQueryParams();
-    filters.search = criteria;
-    this.setQueryParams(filters);
-  }, 700);
+  constructor(props) {
+    super(props);
+    this.state = {
+      visibleResources: [],
+      skip: 0,
+      moreAvailable: true,
+      searchText: this.getQueryParams().search,
+    };
+    this.debounceFetchData = debounce(() => this.fetchData(), 1000);
+    this.debouncedSetCriteria = debounce((criteria) => {
+      const filters = this.getQueryParams();
+      filters.search = criteria;
+      this.setQueryParams(filters);
+    }, 700);
+  }
 
   componentDidMount() {
     const { match } = this.props;
@@ -38,7 +41,6 @@ class Community extends Component {
       (id) => this.props[resource][id]
     );
     this.setState({ visibleResources: resourceList });
-    this.allResources = resourceList;
     // }
   }
 
@@ -150,9 +152,17 @@ class Community extends Component {
     });
   };
 
+  setSearchCriteria = (text) => {
+    // immediately update the state so user sees what they're typing
+    this.setState({ searchText: text });
+    // debounce update the url so it doesn't change on each key stroke
+    // only when the user is done typing
+    this.debouncedSetCriteria(text);
+  };
+
   render() {
     const { match, user } = this.props;
-    const { visibleResources, moreAvailable } = this.state;
+    const { visibleResources, moreAvailable, searchText } = this.state;
     const filters = this.getQueryParams();
     let linkPath;
     let linkSuffix;
@@ -175,9 +185,10 @@ class Community extends Component {
         visibleResources={visibleResources}
         resource={match.params.resource}
         linkPath={linkPath}
+        searchValue={searchText}
         linkSuffix={linkSuffix}
         setSkip={this.setSkip}
-        setCriteria={this.debouncedSetCriteria}
+        setCriteria={this.setSearchCriteria}
         moreAvailable={moreAvailable}
         filters={filters}
         toggleFilter={this.toggleFilter}

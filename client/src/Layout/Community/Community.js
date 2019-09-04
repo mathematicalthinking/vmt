@@ -35,6 +35,7 @@ class Community extends Component {
       setSkip,
       setCriteria,
       toggleFilter,
+      searchValue,
     } = this.props;
     return (
       <div className={classes.Container}>
@@ -61,6 +62,7 @@ class Community extends Component {
           </div>
           <div className={classes.Search}>
             <Search
+              value={searchValue}
               _search={(value) => setCriteria(value)}
               placeholder="Search by name, description, or facilitators..."
               data-testid="community-search"
@@ -156,6 +158,7 @@ Community.propTypes = {
   visibleResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   linkPath: PropTypes.string.isRequired,
   linkSuffix: PropTypes.string.isRequired,
+  searchValue: PropTypes.string.isRequired,
   filters: PropTypes.shape({
     privacySetting: PropTypes.oneOf(['public', 'private', 'all']),
     roomType: PropTypes.oneOf(['geogebra', 'desmos', 'all']),

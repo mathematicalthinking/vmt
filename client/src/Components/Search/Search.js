@@ -15,11 +15,13 @@ class Search extends Component {
       theme,
       placeholder,
       _search,
+      value,
       'data-testid': dataTestId,
     } = this.props;
     return (
       <div className={[classes.Search].join(' ')}>
         <input
+          value={value}
           ref={this.searchRef}
           data-testid={dataTestId}
           className={[classes.Input, classes[theme]].join(' ')}
@@ -35,6 +37,7 @@ class Search extends Component {
 
 Search.propTypes = {
   theme: PropTypes.string,
+  value: PropTypes.string,
   placeholder: PropTypes.string,
   _search: PropTypes.func.isRequired,
   'data-testid': PropTypes.string.isRequired,
@@ -43,6 +46,7 @@ Search.propTypes = {
 Search.defaultProps = {
   theme: null,
   placeholder: '',
+  value: null,
 };
 
 export default Search;
