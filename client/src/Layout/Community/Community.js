@@ -44,25 +44,34 @@ class Community extends Component {
           </h3>
           <div className={classes.ResourceOpts}>
             <div>
-              <CustomLink to="/community/rooms">Rooms</CustomLink>
+              <CustomLink to="/community/rooms?privacy=all&roomType=all">
+                Rooms
+              </CustomLink>
             </div>
             <div>
-              <CustomLink to="/community/activities">Activities</CustomLink>
+              <CustomLink to="/community/activities?privacy=all&roomType=all">
+                Activities
+              </CustomLink>
             </div>
             <div>
-              <CustomLink to="/community/courses">Courses</CustomLink>
+              <CustomLink to="/community/courses?privacy=all">
+                Courses
+              </CustomLink>
             </div>
           </div>
           <div className={classes.Search}>
             <Search
               _search={(value) => setCriteria(value)}
-              placeholder="Search..."
+              placeholder="Search by name, description, or facilitators..."
               data-testid="community-search"
             />
           </div>
           <div className={classes.Filters}>
             {/* <i className={['fas fa-sliders-h', classes.FilterIcon].join(' ')} /> */}
-            <InfoBox title="Privacy Setting">
+            <InfoBox
+              title="Privacy Setting"
+              icon={<i className="fas fa-filter" />}
+            >
               <div className={classes.FilterOpts}>
                 <RadioBtn
                   check={() => toggleFilter('all-privacySetting')}
@@ -88,7 +97,7 @@ class Community extends Component {
               </div>
             </InfoBox>
             {resource !== 'courses' ? (
-              <InfoBox title="Room Type">
+              <InfoBox title="Room Type" icon={<i className="fas fa-filter" />}>
                 <div className={classes.FilterOpts}>
                   <RadioBtn
                     check={() => toggleFilter('all-roomType')}
