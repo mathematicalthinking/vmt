@@ -1,5 +1,6 @@
 /* eslint-disable react/no-did-update-set-state */
 import React, { Component } from 'react';
+import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { CommunityLayout } from '../Layout';
@@ -7,17 +8,21 @@ import API from '../utils/apiRequests';
 
 const SKIP_VALUE = 20;
 class Community extends Component {
-  state = {
-    visibleResources: [],
-    skip: 0,
-    criteria: '',
-    moreAvailable: true,
-    filters: {
-      privacySetting: null,
-      roomType: null,
-    },
-  };
-  allResources = [];
+  constructor(props) {
+    super(props);
+    this.state = {
+      visibleResources: [],
+      skip: 0,
+      moreAvailable: true,
+      searchText: this.getQueryParams().search || '',
+    };
+    this.debounceFetchData = debounce(() => this.fetchData(), 1000);
+    this.debouncedSetCriteria = debounce((criteria) => {
+      const filters = this.getQueryParams();
+      filters.search = criteria;
+      this.setQueryParams(filters);
+    }, 700);
+  }
 
   componentDidMount() {
     const { match } = this.props;
@@ -27,7 +32,7 @@ class Community extends Component {
     // own courses. This is assuming that the database will have more than 50 courses and rooms
     // MAYBE conside having and upToDate flag in resoure that tracks whether we've requested this recently
     // if (Object.keys(this.props[resource]).length < 50 && !this.state.upToDate) {
-    this.fetchData(resource);
+    this.fetchData();
     // }
     // else {
     // eslint-disable-next-line react/destructuring-assignment
@@ -36,35 +41,42 @@ class Community extends Component {
       (id) => this.props[resource][id]
     );
     this.setState({ visibleResources: resourceList });
-    this.allResources = resourceList;
     // }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { match } = this.props;
-    const { criteria, skip } = this.state;
+  componentDidUpdate(prevProps) {
+    const { match, location } = this.props;
+    // const { criteria, skip } = this.state;
     const { resource } = match.params;
     if (prevProps.match.params.resource !== resource) {
-      this.setState(
-        {
-          skip: 0,
-          criteria: '',
-          moreAvailable: true,
-          filters: { privactSetting: null, roomType: null },
-        },
-        () => this.fetchData(resource)
-      );
-    } else if (prevState.criteria !== criteria) {
-      this.fetchData(resource);
-    } else if (prevState.skip !== skip) {
-      const concat = true;
-      this.fetchData(resource, concat);
+      this.fetchData();
+    } else if (location.search !== prevProps.location.search) {
+      this.fetchData();
     }
   }
   // concat tells us whether we should concat to existing results or overwrite
-  fetchData = (resource, concat) => {
-    const { criteria, skip, filters } = this.state;
-    API.searchPaginated(resource, criteria, skip, filters).then((res) => {
+  fetchData = (concat = false) => {
+    const { skip } = this.state;
+    const {
+      match: {
+        params: { resource },
+      },
+    } = this.props;
+    const filters = this.getQueryParams();
+    // if filter = all we're not actually filtering...we want all
+    const updatedFilters = { ...filters };
+    if (updatedFilters.roomType === 'all') {
+      delete updatedFilters.roomType;
+    }
+    if (updatedFilters.privacySetting === 'all') {
+      delete updatedFilters.privacySetting;
+    }
+    API.searchPaginated(
+      resource,
+      updatedFilters.search,
+      skip,
+      updatedFilters
+    ).then((res) => {
       if (res.data.results.length < SKIP_VALUE) {
         if (concat) {
           this.setState((prevState) => ({
@@ -89,40 +101,69 @@ class Community extends Component {
     });
   };
 
-  setCriteria = (criteria) => {
-    this.setState({ criteria, skip: 0, moreAvailable: true });
-  };
-
   setSkip = () => {
     this.setState((prevState) => ({
       skip: prevState.skip + SKIP_VALUE,
     }));
   };
 
-  toggleFilter = (filter, clearAll) => {
-    const { match } = this.props;
-    const { filters } = this.state;
-    let updatedFilters = { ...filters };
-    if (clearAll) {
-      updatedFilters = { privacySetting: null, roomType: null };
-    } else {
-      if (filter === 'public' || filter === 'private') {
-        updatedFilters.privacySetting = filter;
-      } else if (filter === 'desmos' || filter === 'geogebra') {
-        updatedFilters.roomType = filter;
-      }
-      if (match.params.resource === 'courses') {
-        updatedFilters.roomType = null;
-      }
+  toggleFilter = (filter) => {
+    const {
+      match: {
+        params: { resource },
+      },
+    } = this.props;
+    const filters = this.getQueryParams();
+    if (filter === 'public' || filter === 'private') {
+      filters.privacySetting = filter;
+    } else if (filter === 'desmos' || filter === 'geogebra') {
+      filters.roomType = filter;
+    } else if (filter === 'all-roomType') {
+      filters.roomType = 'all';
+    } else if (filter === 'all-privacySetting') {
+      filters.privacySetting = 'all';
     }
-    this.setState({ filters: updatedFilters }, () => {
-      setTimeout(this.fetchData(match.params.resource, false), 0);
+    if (resource === 'courses') {
+      filters.roomType = null;
+    }
+    this.setQueryParams(filters);
+  };
+
+  getQueryParams = () => {
+    const {
+      location: { search },
+    } = this.props;
+    const params = new URLSearchParams(search);
+    const filters = {
+      privacySetting: params.get('privacy'),
+      roomType: params.get('roomType'),
+      search: params.get('search'),
+    };
+    return filters;
+  };
+
+  setQueryParams = (filters) => {
+    const { history, match } = this.props;
+    const { privacySetting, roomType, search } = filters;
+    history.push({
+      pathname: match.url,
+      search: `?privacy=${privacySetting || 'all'}&roomType=${roomType ||
+        'all'}&search=${search || ''}`,
     });
+  };
+
+  setSearchCriteria = (text) => {
+    // immediately update the state so user sees what they're typing
+    this.setState({ searchText: text });
+    // debounce update the url so it doesn't change on each key stroke
+    // only when the user is done typing
+    this.debouncedSetCriteria(text);
   };
 
   render() {
     const { match, user } = this.props;
-    const { visibleResources, moreAvailable, filters } = this.state;
+    const { visibleResources, moreAvailable, searchText } = this.state;
+    const filters = this.getQueryParams();
     let linkPath;
     let linkSuffix;
     // @ TODO conditional logic for displaying room in dahsboard if it belongs to the user
@@ -144,9 +185,10 @@ class Community extends Component {
         visibleResources={visibleResources}
         resource={match.params.resource}
         linkPath={linkPath}
+        searchValue={searchText}
         linkSuffix={linkSuffix}
         setSkip={this.setSkip}
-        setCriteria={this.setCriteria}
+        setCriteria={this.setSearchCriteria}
         moreAvailable={moreAvailable}
         filters={filters}
         toggleFilter={this.toggleFilter}
@@ -157,6 +199,8 @@ class Community extends Component {
 
 Community.propTypes = {
   courses: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({}).isRequired,
+  location: PropTypes.shape({}).isRequired,
   // coursesArr: PropTypes.arrayOf(PropTypes.string).isRequired,
   activities: PropTypes.shape({}).isRequired,
   // activitiesArr: PropTypes.arrayOf(PropTypes.string).isRequired,

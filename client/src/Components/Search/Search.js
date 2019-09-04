@@ -15,18 +15,32 @@ class Search extends Component {
       theme,
       placeholder,
       _search,
+      value,
+      isControlled,
       'data-testid': dataTestId,
     } = this.props;
     return (
       <div className={[classes.Search].join(' ')}>
-        <input
-          ref={this.searchRef}
-          data-testid={dataTestId}
-          className={[classes.Input, classes[theme]].join(' ')}
-          type="text"
-          placeholder={placeholder}
-          onChange={(event) => _search(event.target.value.trim())}
-        />
+        {isControlled ? ( // if value this will be controlled else it won't
+          <input
+            value={value}
+            ref={this.searchRef}
+            data-testid={dataTestId}
+            className={[classes.Input, classes[theme]].join(' ')}
+            type="text"
+            placeholder={placeholder}
+            onChange={(event) => _search(event.target.value)}
+          />
+        ) : (
+          <input
+            ref={this.searchRef}
+            data-testid={dataTestId}
+            className={[classes.Input, classes[theme]].join(' ')}
+            type="text"
+            placeholder={placeholder}
+            onChange={(event) => _search(event.target.value)}
+          />
+        )}
         <i className={['fas fa-search', classes.Icon].join(' ')} />
       </div>
     );
@@ -35,14 +49,18 @@ class Search extends Component {
 
 Search.propTypes = {
   theme: PropTypes.string,
+  value: PropTypes.string,
   placeholder: PropTypes.string,
   _search: PropTypes.func.isRequired,
+  isControlled: PropTypes.bool,
   'data-testid': PropTypes.string.isRequired,
 };
 
 Search.defaultProps = {
   theme: null,
   placeholder: '',
+  value: null,
+  isControlled: false,
 };
 
 export default Search;

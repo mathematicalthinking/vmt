@@ -1,4 +1,4 @@
-:import("../../colors.css") {
+:import('../../colors.css') {
   lightestShadow: lightestShadow;
   blue: blue;
   lightBlue: lightBlue;
@@ -18,6 +18,7 @@
   border-radius: 3px;
   width: 100%;
   padding: 10px;
+  padding-left: 35px;
   transition: 0.2s;
   background-color: white;
   font-size: 16px;
@@ -25,6 +26,8 @@
   color: #666;
   caret-color: lightBlue;
   font-family: inherit;
+  position: relative;
+  box-shadow: lightestShadow;
 }
 
 .Input:focus {
@@ -35,9 +38,9 @@
 
 .Icon {
   font-size: inherit;
-  padding: 5px;
-  margin: 0 20px 0 10px;
-  color: darkGrey;
+  margin-left: 8px;
+  position: absolute;
+  color: darkGray;
 }
 
 .Dark {

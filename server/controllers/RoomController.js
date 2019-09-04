@@ -95,8 +95,14 @@ module.exports = {
 
   searchPaginated: (criteria, skip, filters) => {
     const params = { tempRoom: false, isTrashed: false };
-    if (filters.privacySetting) params.privacySetting = filters.privacySetting;
-    if (criteria) params.name = criteria;
+    if (filters.privacySetting) {
+      params.privacySetting = filters.privacySetting;
+    }
+    params.$or = [
+      { name: criteria },
+      { description: criteria },
+      { instructions: criteria },
+    ];
     return db.Room.find(params)
       .skip(parseInt(skip, 10))
       .limit(20)

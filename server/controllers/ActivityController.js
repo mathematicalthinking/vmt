@@ -24,7 +24,15 @@ module.exports = {
   searchPaginated: (criteria, skip, filters) => {
     return db.Activity.find(
       criteria
-        ? { ...filters, name: criteria || '', isTrashed: false }
+        ? {
+            ...filters,
+            $or: [
+              { name: criteria },
+              { desciprtion: criteria },
+              { instructions: criteria },
+            ],
+            isTrashed: false,
+          }
         : { ...filters, isTrashed: false }
     )
       .skip(parseInt(skip, 10))
