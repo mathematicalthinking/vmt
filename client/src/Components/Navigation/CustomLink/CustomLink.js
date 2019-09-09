@@ -4,8 +4,6 @@ import { NavLink } from 'react-router-dom';
 import classes from './customLink.css';
 
 const CustomLink = ({ to, children }) => {
-  console.log({ to });
-  console.log(window.location.href);
   return (
     <NavLink
       exact
