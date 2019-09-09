@@ -4,10 +4,18 @@ import { NavLink } from 'react-router-dom';
 import classes from './customLink.css';
 
 const CustomLink = ({ to, children }) => {
+  console.log({ to });
+  console.log(window.location.href);
   return (
     <NavLink
+      exact
       to={to}
       className={classes.Link}
+      style={
+        window.location.href.indexOf(children.toLowerCase()) > -1
+          ? { borderBottom: '1px solid #2d91f2' }
+          : null
+      }
       activeStyle={{ borderBottom: '1px solid #2d91f2' }}
     >
       {children}
