@@ -22,27 +22,40 @@ module.exports = {
   },
 
   searchPaginated: async (criteria, skip, filters) => {
-    let aggregationPipeline = [
+    const aggregationPipeline = [
       { $match: { isTrashed: false } },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          creator: 1,
+        },
+      },
       {
         $lookup: {
           from: 'users',
           localField: 'creator',
           foreignField: '_id',
-          as: 'facilitatorObject',
+          as: 'creatorObject',
         },
       },
-      { $unwind: '$facilitatorObject' },
       {
         $match: {
           $or: [
             { name: criteria },
             { description: criteria },
             { instructions: criteria },
-            { 'facilitatorObject.username': criteria },
+            { 'creatorObject.username': criteria },
           ],
         },
       },
+      { $unwind: '$creatorObject' },
       {
         $lookup: {
           from: 'tabs',
@@ -60,10 +73,8 @@ module.exports = {
           description: { $first: '$description' },
           privacySetting: { $first: '$privacySetting' },
           image: { $first: '$image' },
-          members: {
-            $push: { user: '$facilitatorObject', role: 'facilitator' },
-          },
-          creator: { $first: '$facilitatorObject' },
+          updatedAt: { $first: '$updatedAt' },
+          creator: { $first: '$creatorObject' },
           tabs: { $push: '$tabObject' },
         },
       },
@@ -74,10 +85,11 @@ module.exports = {
           instructions: 1,
           description: 1,
           image: 1,
-          tabs: 1,
+          'tabs.tabType': 1,
           privacySetting: 1,
-          'members.role': 1,
-          'members.user.username': 1,
+          updatedAt: 1,
+          'creator.username': '$creator.username',
+          'creator._id': '$creator._id',
         },
       },
     ];
@@ -88,22 +100,20 @@ module.exports = {
     }
 
     if (filters.roomType) {
-      aggregationPipeline = aggregationPipeline.concat([
-        {
-          $match: {
-            tabs: {
-              $elemMatch: { tabType: filters.roomType },
-            },
+      aggregationPipeline.push({
+        $match: {
+          tabs: {
+            $elemMatch: { tabType: filters.roomType },
           },
         },
-      ]);
+      });
     }
     if (skip) {
       aggregationPipeline.push({ $skip: parseInt(skip, 10) });
     }
     aggregationPipeline.push({ $limit: 20 });
+    aggregationPipeline.push({ $sort: { updatedAt: -1 } });
     const activities = await db.Activity.aggregate(aggregationPipeline);
-    console.log({ activities });
     return activities;
   },
 

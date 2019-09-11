@@ -83,6 +83,19 @@ module.exports = {
           },
         },
       },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          privacySetting: 1,
+          image: 1,
+          'members.user.username': 1,
+          'members.user._id': 1,
+          'members.role': 1,
+        },
+      },
     ];
     if (filters.privacySetting) {
       aggregationPipeline.unshift({
