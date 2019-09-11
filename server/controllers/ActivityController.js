@@ -25,17 +25,6 @@ module.exports = {
     let aggregationPipeline = [
       { $match: { isTrashed: false } },
       {
-        $project: {
-          _id: 1,
-          name: 1,
-          instructions: 1,
-          description: 1,
-          image: 1,
-          tabs: 1,
-          privacySetting: 1,
-        },
-      },
-      {
         $lookup: {
           from: 'users',
           localField: 'creator',
@@ -43,6 +32,7 @@ module.exports = {
           as: 'facilitatorObject',
         },
       },
+      { $unwind: '$facilitatorObject' },
       {
         $match: {
           $or: [
@@ -70,8 +60,24 @@ module.exports = {
           description: { $first: '$description' },
           privacySetting: { $first: '$privacySetting' },
           image: { $first: '$image' },
-          members: { $first: '$members' },
+          members: {
+            $push: { user: '$facilitatorObject', role: 'facilitator' },
+          },
+          creator: { $first: '$facilitatorObject' },
           tabs: { $push: '$tabObject' },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          'members.role': 1,
+          'members.user.username': 1,
         },
       },
     ];

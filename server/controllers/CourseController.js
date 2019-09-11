@@ -70,6 +70,19 @@ module.exports = {
           ],
         },
       },
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          privacySetting: { $first: '$privacySetting' },
+          image: { $first: '$image' },
+          members: {
+            $push: { user: '$facilitatorObject', role: 'facilitator' },
+          },
+        },
+      },
     ];
     if (filters.privacySetting) {
       aggregationPipeline.unshift({

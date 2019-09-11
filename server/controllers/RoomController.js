@@ -105,6 +105,7 @@ module.exports = {
           image: 1,
           tabs: 1,
           privacySetting: 1,
+          updatedAt: 1,
           members: {
             $filter: {
               input: '$members',
@@ -137,6 +138,21 @@ module.exports = {
         },
       },
       {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          privacySetting: { $first: '$privacySetting' },
+          image: { $first: '$image' },
+          tabs: { $first: '$tabs' },
+          updatedAt: { $first: '$updatedAt' },
+          members: {
+            $push: { user: '$facilitatorObject', role: 'facilitator' },
+          },
+        },
+      },
+      {
         $lookup: {
           from: 'tabs',
           localField: 'tabs',
@@ -153,8 +169,23 @@ module.exports = {
           description: { $first: '$description' },
           privacySetting: { $first: '$privacySetting' },
           image: { $first: '$image' },
+          updatedAt: { $first: '$updatedAt' },
           members: { $first: '$members' },
           tabs: { $push: '$tabObject' },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          'tabs.tabType': 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          'members.role': 1,
+          'members.user.username': 1,
         },
       },
     ];
@@ -165,41 +196,19 @@ module.exports = {
     }
 
     if (filters.roomType) {
-      aggregationPipeline = aggregationPipeline.concat([
-        {
-          $lookup: {
-            from: 'tabs',
-            localField: 'tabs',
-            foreignField: '_id',
-            as: 'tabObject',
+      aggregationPipeline = aggregationPipeline.push({
+        $match: {
+          tabs: {
+            $elemMatch: { tabType: filters.roomType },
           },
         },
-        { $unwind: '$tabObject' },
-        {
-          $group: {
-            _id: '$_id',
-            name: { $first: '$name' },
-            instructions: { $first: '$instructions' },
-            description: { $first: '$description' },
-            privacySetting: { $first: '$privacySetting' },
-            image: { $first: '$image' },
-            members: { $first: '$members' },
-            tabs: { $push: '$tabObject' },
-          },
-        },
-        {
-          $match: {
-            tabs: {
-              $elemMatch: { tabType: filters.roomType },
-            },
-          },
-        },
-      ]);
+      });
     }
     if (skip) {
       aggregationPipeline.push({ $skip: parseInt(skip, 10) });
     }
     aggregationPipeline.push({ $limit: 20 });
+    aggregationPipeline.push({ $sort: { updatedAt: -1 } });
     const rooms = await Room.aggregate(aggregationPipeline);
     return rooms;
   },
