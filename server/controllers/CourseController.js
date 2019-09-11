@@ -28,23 +28,61 @@ module.exports = {
     });
   },
 
-  searchPaginated: (criteria, skip, filters) => {
-    return db.Course.find(
-      criteria
-        ? {
-            ...filters,
-            $or: [{ name: criteria }, { description: criteria }],
-            isTrashed: false,
-          }
-        : { ...filters, isTrashed: false }
-    )
-      .skip(parseInt(skip, 10))
-      .limit(20)
-      .populate('members.user', 'username')
-      .then((courses) => {
-        // console.log(courses);
-        return courses;
+  searchPaginated: async (criteria, skip, filters) => {
+    const aggregationPipeline = [
+      { $match: { isTrashed: false } },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          privacySetting: 1,
+          members: {
+            $filter: {
+              input: '$members',
+              as: 'member',
+              cond: {
+                $eq: ['$$member.role', 'facilitator'],
+              },
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'facilitatorObject',
+        },
+      },
+
+      { $unwind: '$facilitatorObject' },
+      {
+        $match: {
+          $or: [
+            { name: criteria },
+            { description: criteria },
+            { instructions: criteria },
+            { 'facilitatorObject.username': criteria },
+          ],
+        },
+      },
+    ];
+    if (filters.privacySetting) {
+      aggregationPipeline.unshift({
+        $match: { privacySetting: filters.privacySetting },
       });
+    }
+
+    if (skip) {
+      aggregationPipeline.push({ $skip: parseInt(skip, 10) });
+    }
+    aggregationPipeline.push({ $limit: 20 });
+    const courses = await db.Course.aggregate(aggregationPipeline);
+    return courses;
   },
 
   post: (body) => {

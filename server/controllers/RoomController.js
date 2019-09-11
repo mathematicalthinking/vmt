@@ -175,6 +175,10 @@ module.exports = {
         },
       ]);
     }
+    if (skip) {
+      aggregationPipeline.push({ $skip: parseInt(skip, 10) });
+    }
+    aggregationPipeline.push({ $limit: 20 });
     const rooms = await Room.aggregate(aggregationPipeline);
     return rooms;
   },
