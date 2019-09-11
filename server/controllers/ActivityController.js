@@ -21,26 +21,84 @@ module.exports = {
     });
   },
 
-  searchPaginated: (criteria, skip, filters) => {
-    return db.Activity.find(
-      criteria
-        ? {
-            ...filters,
-            $or: [
-              { name: criteria },
-              { desciprtion: criteria },
-              { instructions: criteria },
-            ],
-            isTrashed: false,
-          }
-        : { ...filters, isTrashed: false }
-    )
-      .skip(parseInt(skip, 10))
-      .limit(20)
-      .populate('creator', 'username')
-      .then((activities) => {
-        return activities;
+  searchPaginated: async (criteria, skip, filters) => {
+    let aggregationPipeline = [
+      { $match: { isTrashed: false } },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'creator',
+          foreignField: '_id',
+          as: 'facilitatorObject',
+        },
+      },
+      {
+        $match: {
+          $or: [
+            { name: criteria },
+            { description: criteria },
+            { instructions: criteria },
+            { 'facilitatorObject.username': criteria },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: 'tabs',
+          localField: 'tabs',
+          foreignField: '_id',
+          as: 'tabObject',
+        },
+      },
+      { $unwind: '$tabObject' },
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          privacySetting: { $first: '$privacySetting' },
+          image: { $first: '$image' },
+          members: { $first: '$members' },
+          tabs: { $push: '$tabObject' },
+        },
+      },
+    ];
+    if (filters.privacySetting) {
+      aggregationPipeline.unshift({
+        $match: { privacySetting: filters.privacySetting },
       });
+    }
+
+    if (filters.roomType) {
+      aggregationPipeline = aggregationPipeline.concat([
+        {
+          $match: {
+            tabs: {
+              $elemMatch: { tabType: filters.roomType },
+            },
+          },
+        },
+      ]);
+    }
+    if (skip) {
+      aggregationPipeline.push({ $skip: parseInt(skip, 10) });
+    }
+    aggregationPipeline.push({ $limit: 20 });
+    const activities = await db.Activity.aggregate(aggregationPipeline);
+    console.log({ activities });
+    return activities;
   },
 
   post: (body) => {

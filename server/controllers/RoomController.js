@@ -136,6 +136,27 @@ module.exports = {
           ],
         },
       },
+      {
+        $lookup: {
+          from: 'tabs',
+          localField: 'tabs',
+          foreignField: '_id',
+          as: 'tabObject',
+        },
+      },
+      { $unwind: '$tabObject' },
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          privacySetting: { $first: '$privacySetting' },
+          image: { $first: '$image' },
+          members: { $first: '$members' },
+          tabs: { $push: '$tabObject' },
+        },
+      },
     ];
     if (filters.privacySetting) {
       aggregationPipeline.unshift({
