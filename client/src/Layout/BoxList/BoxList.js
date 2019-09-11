@@ -55,6 +55,7 @@ const boxList = (props) => {
         } else if (item.creator) {
           details = { creator: item.creator.username };
         }
+        console.log({ item });
         return (
           <div className={classes.ContentBox} key={item._id}>
             {!draggable ? (
@@ -66,9 +67,7 @@ const boxList = (props) => {
                 image={item.image}
                 notifications={notificationCount}
                 roomType={
-                  item.roomType || item.tabs
-                    ? item.tabs.map((tab) => tab.tabType)
-                    : null
+                  item && item.tabs ? item.tabs.map((tab) => tab.tabType) : null
                 }
                 locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
                 details={details}

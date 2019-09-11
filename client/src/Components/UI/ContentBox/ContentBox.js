@@ -95,7 +95,7 @@ class ContentBox extends PureComponent {
 }
 
 ContentBox.propTypes = {
-  notifications: PropTypes.number.isRequired,
+  notifications: PropTypes.number,
   link: PropTypes.string.isRequired,
   image: PropTypes.string,
   roomType: PropTypes.oneOfType([
@@ -109,6 +109,7 @@ ContentBox.propTypes = {
 };
 
 ContentBox.defaultProps = {
+  notifications: null,
   image: null,
   roomType: null,
 };

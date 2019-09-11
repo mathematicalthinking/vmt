@@ -104,6 +104,7 @@ module.exports = {
           description: 1,
           image: 1,
           tabs: 1,
+          privacySetting: 1,
           members: {
             $filter: {
               input: '$members',
@@ -143,85 +144,39 @@ module.exports = {
     }
 
     if (filters.roomType) {
-      console.log('fitlering by room type: ', filters.roomType);
       aggregationPipeline = aggregationPipeline.concat([
-        { $unwind: '$tabs' },
         {
           $lookup: {
             from: 'tabs',
             localField: 'tabs',
             foreignField: '_id',
-            as: 'tabObjects',
+            as: 'tabObject',
           },
         },
-        { $unwind: '$tabObjects' },
-        // {
-        //   $group: {
-        //     _id: '$_id',
-        //     name: { $set: '$name' },
-        //     tabs: { $push: '$tabs' },
-        //     tabObjects: { $push: '$tabObjects' },
-        //   },
-        // },
+        { $unwind: '$tabObject' },
         {
-          $match: { 'tabObjects.tabType': filters.roomType },
-          // $project: {
-          //   _id: 1,
-          //   name: 1,
-          //   instructions: 1,
-          //   description: 1,
-          //   image: 1,
-          //   tabs: 1,
-          //   members: 1,
-          //   tabObjects: 1,
-          //   isGeogebra: {
-          //     $filter: {
-          //       input: '$tabObject',
-          //       as: 'tab',
-          //       cond: {
-          //         $eq: ['$$tab.tabType', 'geogebra'],
-          //       },
-          //     },
-          //   },
-          //   isDesmos: {
-          //     $filter: {
-          //       input: '$tabs',
-          //       as: 'tab',
-          //       cond: {
-          //         $eq: ['$$tab.tabType', 'desmos'],
-          //       },
-          //     },
-          //   },
-          // },
+          $group: {
+            _id: '$_id',
+            name: { $first: '$name' },
+            instructions: { $first: '$instructions' },
+            description: { $first: '$description' },
+            privacySetting: { $first: '$privacySetting' },
+            image: { $first: '$image' },
+            members: { $first: '$members' },
+            tabs: { $push: '$tabObject' },
+          },
+        },
+        {
+          $match: {
+            tabs: {
+              $elemMatch: { tabType: filters.roomType },
+            },
+          },
         },
       ]);
     }
-    console.log({ aggregationPipeline });
     const rooms = await Room.aggregate(aggregationPipeline);
-    console.log(rooms[0]);
     return rooms;
-    // return db.Room.find(params)
-    //   .skip(parseInt(skip, 10))
-    //   .limit(20)
-    //   .sort('-createdAt')
-    //   .populate({ path: 'members.user', select: 'username' })
-    //   .populate({ path: 'tabs', select: 'tabType' })
-    //   .select('name members description tabs privacySetting image')
-    //   .then((rooms) => {
-    //     if (filters.roomType) {
-    //       return rooms.filter((room) => {
-    //         return (
-    //           room.tabs.filter((tab) => {
-    //             return tab.tabType === filters.roomType;
-    //           }).length > 0
-    //         );
-    //       });
-    //     }
-    //     return rooms;
-    //   })
-    //   .catch((err) => {
-    //     Promise.reject(err);
-    //   });
   },
 
   /**
