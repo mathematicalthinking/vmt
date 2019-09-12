@@ -30,6 +30,7 @@ class ContentBox extends PureComponent {
       locked,
       details,
     } = this.props;
+    console.log({ details });
     const { expanded } = this.state;
     const notificationElements =
       notifications > 0 ? (
@@ -95,7 +96,7 @@ class ContentBox extends PureComponent {
 }
 
 ContentBox.propTypes = {
-  notifications: PropTypes.number.isRequired,
+  notifications: PropTypes.number,
   link: PropTypes.string.isRequired,
   image: PropTypes.string,
   roomType: PropTypes.oneOfType([
@@ -109,6 +110,7 @@ ContentBox.propTypes = {
 };
 
 ContentBox.defaultProps = {
+  notifications: null,
   image: null,
   roomType: null,
 };

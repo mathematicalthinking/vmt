@@ -21,26 +21,100 @@ module.exports = {
     });
   },
 
-  searchPaginated: (criteria, skip, filters) => {
-    return db.Activity.find(
-      criteria
-        ? {
-            ...filters,
-            $or: [
-              { name: criteria },
-              { desciprtion: criteria },
-              { instructions: criteria },
-            ],
-            isTrashed: false,
-          }
-        : { ...filters, isTrashed: false }
-    )
-      .skip(parseInt(skip, 10))
-      .limit(20)
-      .populate('creator', 'username')
-      .then((activities) => {
-        return activities;
+  searchPaginated: async (criteria, skip, filters) => {
+    const aggregationPipeline = [
+      { $match: { isTrashed: false } },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          creator: 1,
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'creator',
+          foreignField: '_id',
+          as: 'creatorObject',
+        },
+      },
+      {
+        $match: {
+          $or: [
+            { name: criteria },
+            { description: criteria },
+            { instructions: criteria },
+            { 'creatorObject.username': criteria },
+          ],
+        },
+      },
+      { $unwind: '$creatorObject' },
+      {
+        $lookup: {
+          from: 'tabs',
+          localField: 'tabs',
+          foreignField: '_id',
+          as: 'tabObject',
+        },
+      },
+      { $unwind: '$tabObject' },
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          privacySetting: { $first: '$privacySetting' },
+          image: { $first: '$image' },
+          updatedAt: { $first: '$updatedAt' },
+          creator: { $first: '$creatorObject' },
+          tabs: { $push: '$tabObject' },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          'tabs.tabType': 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          'creator.username': '$creator.username',
+          'creator._id': '$creator._id',
+        },
+      },
+    ];
+    if (filters.privacySetting) {
+      aggregationPipeline.unshift({
+        $match: { privacySetting: filters.privacySetting },
       });
+    }
+
+    if (filters.roomType) {
+      aggregationPipeline.push({
+        $match: {
+          tabs: {
+            $elemMatch: { tabType: filters.roomType },
+          },
+        },
+      });
+    }
+    if (skip) {
+      aggregationPipeline.push({ $skip: parseInt(skip, 10) });
+    }
+    aggregationPipeline.push({ $limit: 20 });
+    aggregationPipeline.push({ $sort: { updatedAt: -1 } });
+    const activities = await db.Activity.aggregate(aggregationPipeline);
+    return activities;
   },
 
   post: (body) => {

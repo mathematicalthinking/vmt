@@ -9,7 +9,7 @@ describe('test community search and filter', function() {
     cy.url().should('include', 'community/rooms?privacy=all&roomType=all');
     cy.getTestElement('box-list')
       .children()
-      .should('have.length', 5);
+      .should('have.length', 9);
     cy.getTestElement('community-search')
       .click()
       .type('reference');
@@ -29,7 +29,7 @@ describe('test community search and filter', function() {
     cy.wait(1000);
     cy.getTestElement('box-list')
       .children()
-      .should('have.length', 5);
+      .should('have.length', 9);
     cy.getTestElement('public-filter').click();
     cy.url().should(
       'include',
@@ -37,7 +37,7 @@ describe('test community search and filter', function() {
     );
     cy.getTestElement('box-list')
       .children()
-      .should('have.length', 1);
+      .should('have.length', 3);
     cy.getTestElement('private-filter').click();
     cy.url().should(
       'include',
@@ -45,7 +45,7 @@ describe('test community search and filter', function() {
     );
     cy.getTestElement('box-list')
       .children()
-      .should('have.length', 4);
+      .should('have.length', 6);
     cy.getTestElement('all-privacy-filter').click();
     cy.url().should(
       'include',
@@ -53,7 +53,7 @@ describe('test community search and filter', function() {
     );
     cy.getTestElement('box-list')
       .children()
-      .should('have.length', 5);
+      .should('have.length', 9);
   });
 
   it('filters room type', function() {
@@ -61,7 +61,7 @@ describe('test community search and filter', function() {
     cy.wait(1000);
     cy.getTestElement('box-list')
       .children()
-      .should('have.length', 5);
+      .should('have.length', 9);
     cy.getTestElement('geogebra-filter').click();
     cy.url().should(
       'include',
@@ -69,7 +69,7 @@ describe('test community search and filter', function() {
     );
     cy.getTestElement('box-list')
       .children()
-      .should('have.length', 5);
+      .should('have.length', 9);
     cy.getTestElement('desmos-filter').click();
     cy.url().should(
       'include',
@@ -77,7 +77,7 @@ describe('test community search and filter', function() {
     );
     cy.getTestElement('box-list')
       .children()
-      .should('have.length', 0); // update the seed data so we have a desmos room
+      .should('have.length', 0); // @todo update the seed data so we have a desmos room
     cy.getTestElement('all-roomType-filter').click();
     cy.url().should(
       'include',
@@ -85,9 +85,22 @@ describe('test community search and filter', function() {
     );
     cy.getTestElement('box-list')
       .children()
-      .should('have.length', 5);
+      .should('have.length', 9);
   });
 
   // @todo test that we can search by description or instructions
+  it('searches by description', function() {
+    cy.getTestElement('community-search')
+      .clear()
+      .type('reference tool');
+    cy.url().should(
+      'include',
+      'community/rooms?privacy=all&roomType=all&search=reference%20tool'
+    );
+    cy.getTestElement('box-list')
+      .children()
+      .should('have.length', 1);
+  });
+
   // @todo add tests for course and activities
 });

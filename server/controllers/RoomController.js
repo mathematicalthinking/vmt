@@ -93,38 +93,127 @@ module.exports = {
     });
   },
 
-  searchPaginated: (criteria, skip, filters) => {
-    const params = { tempRoom: false, isTrashed: false };
-    if (filters.privacySetting) {
-      params.privacySetting = filters.privacySetting;
-    }
-    params.$or = [
-      { name: criteria },
-      { description: criteria },
-      { instructions: criteria },
+  searchPaginated: async (criteria, skip, filters) => {
+    const aggregationPipeline = [
+      { $match: { tempRoom: false, isTrashed: false } },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          members: {
+            $filter: {
+              input: '$members',
+              as: 'member',
+              cond: {
+                $eq: ['$$member.role', 'facilitator'],
+              },
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'facilitatorObject',
+        },
+      },
+
+      { $unwind: '$facilitatorObject' },
+      {
+        $match: {
+          $or: [
+            { name: criteria },
+            { description: criteria },
+            { instructions: criteria },
+            { 'facilitatorObject.username': criteria },
+          ],
+        },
+      },
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          privacySetting: { $first: '$privacySetting' },
+          image: { $first: '$image' },
+          tabs: { $first: '$tabs' },
+          updatedAt: { $first: '$updatedAt' },
+          members: {
+            $push: { user: '$facilitatorObject', role: 'facilitator' },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'tabs',
+          localField: 'tabs',
+          foreignField: '_id',
+          as: 'tabObject',
+        },
+      },
+      { $unwind: '$tabObject' },
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          privacySetting: { $first: '$privacySetting' },
+          image: { $first: '$image' },
+          updatedAt: { $first: '$updatedAt' },
+          members: { $first: '$members' },
+          tabs: { $push: '$tabObject' },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          'tabs.tabType': 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          'members.role': 1,
+          'members.user.username': 1,
+          'members.user._id': 1,
+        },
+      },
     ];
-    return db.Room.find(params)
-      .skip(parseInt(skip, 10))
-      .limit(20)
-      .sort('-createdAt')
-      .populate({ path: 'members.user', select: 'username' })
-      .populate({ path: 'tabs', select: 'tabType' })
-      .select('name members description tabs privacySetting image')
-      .then((rooms) => {
-        if (filters.roomType) {
-          return rooms.filter((room) => {
-            return (
-              room.tabs.filter((tab) => {
-                return tab.tabType === filters.roomType;
-              }).length > 0
-            );
-          });
-        }
-        return rooms;
-      })
-      .catch((err) => {
-        Promise.reject(err);
+    if (filters.privacySetting) {
+      aggregationPipeline.unshift({
+        $match: { privacySetting: filters.privacySetting },
       });
+    }
+
+    if (filters.roomType) {
+      aggregationPipeline.push({
+        $match: {
+          tabs: {
+            $elemMatch: { tabType: filters.roomType },
+          },
+        },
+      });
+    }
+    if (skip) {
+      aggregationPipeline.push({ $skip: parseInt(skip, 10) });
+    }
+    aggregationPipeline.push({ $limit: 20 });
+    aggregationPipeline.push({ $sort: { updatedAt: -1 } });
+    console.log({ aggregationPipeline: JSON.stringify(aggregationPipeline) });
+    const rooms = await Room.aggregate(aggregationPipeline);
+    console.log({ rooms });
+    return rooms;
   },
 
   /**
