@@ -23,7 +23,7 @@ const Tab = new mongoose.Schema({
   events: { type: [{ type: ObjectId, ref: 'Event', _id: false }], default: [] },
   room: { type: ObjectId, ref: 'Room' },
   activity: { type: ObjectId, ref: 'Activity' },
-  startingPoint: { type: String, default: '' }, // string with a space so its truthy
+  startingPoint: { type: String, default: '' },
   sequenceNo: { type: Number },
   controlledBy: { type: ObjectId, ref: 'User', default: null },
   creator: { type: ObjectId, ref: 'User' },
