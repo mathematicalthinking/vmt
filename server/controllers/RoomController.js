@@ -94,7 +94,7 @@ module.exports = {
   },
 
   searchPaginated: async (criteria, skip, filters) => {
-    let aggregationPipeline = [
+    const aggregationPipeline = [
       { $match: { tempRoom: false, isTrashed: false } },
       {
         $project: {
@@ -186,6 +186,7 @@ module.exports = {
           updatedAt: 1,
           'members.role': 1,
           'members.user.username': 1,
+          'members.user._id': 1,
         },
       },
     ];
@@ -196,7 +197,7 @@ module.exports = {
     }
 
     if (filters.roomType) {
-      aggregationPipeline = aggregationPipeline.push({
+      aggregationPipeline.push({
         $match: {
           tabs: {
             $elemMatch: { tabType: filters.roomType },
@@ -209,7 +210,9 @@ module.exports = {
     }
     aggregationPipeline.push({ $limit: 20 });
     aggregationPipeline.push({ $sort: { updatedAt: -1 } });
+    console.log({ aggregationPipeline: JSON.stringify(aggregationPipeline) });
     const rooms = await Room.aggregate(aggregationPipeline);
+    console.log({ rooms });
     return rooms;
   },
 
