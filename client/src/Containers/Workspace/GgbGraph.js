@@ -417,13 +417,11 @@ class GgbGraph extends Component {
   };
 
   resyncGgbState = () => {
-    console.log('resynving GgbState');
     const { tab } = this.props;
     return API.getById('tabs', tab._id)
       .then((res) => {
         const { currentState, ggbFile, startingPoint } = res.data.result;
 
-        console.log({ currentState, startingPoint, ggbFile });
         if (currentState) {
           this.ggbApplet.setXML(currentState);
         } else if (startingPoint) {
