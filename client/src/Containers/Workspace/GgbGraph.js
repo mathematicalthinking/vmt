@@ -421,6 +421,7 @@ class GgbGraph extends Component {
     return API.getById('tabs', tab._id)
       .then((res) => {
         const { currentState, ggbFile, startingPoint } = res.data.result;
+
         if (currentState) {
           this.ggbApplet.setXML(currentState);
         } else if (startingPoint) {

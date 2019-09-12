@@ -9,6 +9,9 @@
 // ***********************************************
 //
 //
+
+require('cypress-file-upload');
+
 // -- This is a parent command --
 Cypress.Commands.add('login', (user) => {
   cy.clearLocalStorage().then(() => {

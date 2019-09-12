@@ -3,6 +3,18 @@ const course = require('../fixtures/course');
 const room = require('../fixtures/room');
 const activity = require('../fixtures/activity');
 
+function next() {
+  cy.get('button')
+    .contains('next')
+    .click();
+}
+
+function create() {
+  cy.get('button')
+    .contains('create')
+    .click();
+}
+
 describe('create each type of resource', function() {
   before(function() {
     cy.task('restoreAll').then(() => {
@@ -205,6 +217,52 @@ describe('create each type of resource', function() {
       .contains('create')
       .click();
     cy.contains(course.room.name).should('exist');
+  });
+
+  it('creates a room from a ggb file', function() {
+    const roomName = `${room.name} with ggb file`;
+
+    cy.getTestElement('tab')
+      .contains('Rooms')
+      .click();
+    cy.getTestElement('create-room').click();
+    cy.get('input[name=name]')
+      .type('{selectall} {backspace}')
+      .type(roomName);
+    cy.get('button')
+      .contains('create a new room')
+      .click();
+
+    // choose Geogebra or desmos - default GeoGebra
+    next();
+
+    const fileName = 'ggbFiles/list-of-functions.ggb';
+    cy.fixture(fileName, 'base64').then((fileContent) => {
+      cy.get('input[name=ggbFile]').upload({
+        fileContent,
+        fileName,
+        mimeType: 'application/zip',
+        encoding: 'base64',
+      });
+
+      next(); // move past file screen
+
+      // select date(optional)
+      next();
+
+      // select public or private; default private
+      create();
+      cy.contains(roomName).should('exist');
+
+      // go in to room and make sure the file loads
+      cy.contains(roomName).click();
+      cy.contains('Enter').click();
+
+      // check that the file loaded
+      // should be items in the left algebra panel
+      const numAlgebraPanelItems = 11;
+      cy.get('.gwt-TreeItem').should('have.length', numAlgebraPanelItems);
+    });
   });
 
   // it("creates a course room from a course activity", function() {
