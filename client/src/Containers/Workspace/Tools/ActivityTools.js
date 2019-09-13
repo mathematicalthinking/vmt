@@ -11,7 +11,7 @@ const ActivityTools = (props) => {
       <div className={classes.Expanded} data-testid="current-members">
         {owner ? (
           <div>
-            <p>
+            <p data-testid="owner-msg">
               As the owner of this activity you can make changes to initial
               construction.
             </p>
@@ -27,7 +27,11 @@ const ActivityTools = (props) => {
             </p>
             <p>
               For more information click{' '}
-              <Link className={classes.Link} to="/about">
+              <Link
+                className={classes.Link}
+                to="/about"
+                data-testid="about-link"
+              >
                 here
               </Link>
             </p>
@@ -38,6 +42,7 @@ const ActivityTools = (props) => {
                 tabIndex="-2"
                 onKeyPress={save}
                 onClick={save}
+                data-testid="save-activity"
               >
                 save
               </div>
