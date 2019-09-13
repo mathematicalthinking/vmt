@@ -151,7 +151,7 @@ const canModifyResource = (req) => {
   console.log(
     `${user.username}
     is requesting to update ${resource} (${id}) with request body:
-    ${req.body}
+    ${JSON.stringify(req.body, null, 2)}
     `
   );
 
