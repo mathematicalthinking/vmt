@@ -24,7 +24,8 @@ class ActivityWorkspace extends Component {
     super(props);
     const { activity } = this.props;
     this.state = {
-      currentTab: activity ? activity.tabs[0]._id : null,
+      currentTab:
+        activity && activity.tabs.length > 0 ? activity.tabs[0]._id : null,
       creatingNewTab: false,
       addingToMyActivities: false,
       isFirstTabLoaded: false,
@@ -104,6 +105,18 @@ class ActivityWorkspace extends Component {
     let role = 'participant';
     let graphs;
     let tabs;
+
+    let initialTabId = null;
+
+    if (activity && !currentTab) {
+      // activity has been loaded, but currentTab has not been updated
+      // in state. Just use the first tab from the fetched activity
+      // as the initial tab. If a user changes tabs, the currentTab will
+      // be updated in state
+      if (activity.tabs && activity.tabs.length > 0) {
+        initialTabId = activity.tabs[0]._id;
+      }
+    }
     if (activity && user.activities.indexOf(activity._id) >= 0) {
       role = 'facilitator';
     }
@@ -116,7 +129,7 @@ class ActivityWorkspace extends Component {
               tab={tab}
               activity={activity}
               role={role}
-              currentTab={currentTab}
+              currentTab={currentTab || initialTabId}
               updateActivityTab={connectUpdateActivityTab}
               setFirstTabLoaded={this.setFirstTabLoaded}
               isFirstTabLoaded={isFirstTabLoaded}
@@ -127,7 +140,7 @@ class ActivityWorkspace extends Component {
           <GgbActivityGraph
             activity={activity}
             tabs={activity.tabs}
-            currentTab={currentTab}
+            currentTab={currentTab || initialTabId}
             role={role}
             user={user}
             tab={tab}
@@ -142,7 +155,7 @@ class ActivityWorkspace extends Component {
         <Tabs
           activity
           tabs={activity.tabs}
-          currentTabId={currentTab}
+          currentTabId={currentTab || initialTabId}
           participantCanCreate={false}
           memberRole={role}
           changeTab={this.changeTab}
@@ -163,7 +176,7 @@ class ActivityWorkspace extends Component {
             roomName={activity.name} // THIS IS NO GOOD...WE SHOULD CHANGE THE ROOM ATTR TO RESOURCE THAT CAN ACCEPT EITHER A ROOM OR AN ACTIVITY
             user={user}
             role={role} // oh shit role is taken...its for a11y  stuff
-            currentTabId={currentTab}
+            currentTabId={currentTab || initialTabId}
             // updateRoom={this.props.updateRoom}
             bottomRight={
               <ActivityTools
@@ -178,7 +191,7 @@ class ActivityWorkspace extends Component {
                 role={role}
                 updateRoom={connectUpdatedActivity}
                 room={activity}
-                currentTab={currentTab}
+                currentTab={currentTab || initialTabId}
                 updatedActivity={connectUpdatedActivity}
               />
             }
