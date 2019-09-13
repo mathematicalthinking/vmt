@@ -49,7 +49,6 @@ const boxList = (props) => {
         } else if (item.creator) {
           details.creator = item.creator.username;
         }
-        console.log({ item });
         return (
           <div className={classes.ContentBox} key={item._id}>
             {!draggable ? (

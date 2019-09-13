@@ -30,7 +30,6 @@ class ContentBox extends PureComponent {
       locked,
       details,
     } = this.props;
-    console.log({ details });
     const { expanded } = this.state;
     const notificationElements =
       notifications > 0 ? (

@@ -66,6 +66,7 @@ const ActivityTools = (props) => {
                 tabIndex="-3"
                 onKeyPress={copy}
                 onClick={copy}
+                data-testid="copy-activity"
               >
                 copy this activity
               </div>
