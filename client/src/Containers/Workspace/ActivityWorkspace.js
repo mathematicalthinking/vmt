@@ -24,7 +24,7 @@ class ActivityWorkspace extends Component {
     super(props);
     const { activity } = this.props;
     this.state = {
-      currentTab: activity.tabs[0]._id,
+      currentTab: activity ? activity.tabs[0]._id : null,
       creatingNewTab: false,
       addingToMyActivities: false,
       isFirstTabLoaded: false,
@@ -87,7 +87,6 @@ class ActivityWorkspace extends Component {
   };
 
   render() {
-    console.log('render activity workspace');
     const {
       activity,
       user,
@@ -180,6 +179,7 @@ class ActivityWorkspace extends Component {
                 updateRoom={connectUpdatedActivity}
                 room={activity}
                 currentTab={currentTab}
+                updatedActivity={connectUpdatedActivity}
               />
             }
             updatedActivity={connectUpdatedActivity}
