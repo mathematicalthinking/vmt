@@ -32,22 +32,39 @@ class RoomInfo extends Component {
     });
   };
 
+  getCurrentTabFromRoom = (room, currentTabId) => {
+    if (!currentTabId || !Array.isArray(room.tabs)) {
+      return null;
+    }
+    const currentTab = room.tabs.filter((tab) => {
+      return tab._id === currentTabId;
+    })[0];
+
+    return currentTab;
+  };
+
   render() {
     const { role, updatedActivity, room, currentTab, temp } = this.props;
     const { expanded, copied } = this.state;
+
+    // currentTab is Id
+    const currentTabObj = this.getCurrentTabFromRoom(room, currentTab);
+    const tabDisplayName = currentTabObj ? currentTabObj.name : '';
+    const tabDisplayInstructions =
+      (currentTabObj && currentTabObj.instructions) || room.instructions;
     return (
       <div className={classes.RoomDescription}>
-        <div className={classes.TabNameTitle}>
+        <div className={classes.TabNameTitle} data-testid="room-info-tab-name">
           <EditableText
             owner={role === 'facilitator'}
             inputType="INPUT"
             resource="tab"
             parentResource={updatedActivity ? 'activity' : 'room'}
-            id={currentTab._id}
+            id={currentTab}
             parentId={room._id}
             field="name"
           >
-            {currentTab.name}
+            {tabDisplayName}
           </EditableText>
           <div
             onClick={this.toggleCollapse}
@@ -66,6 +83,7 @@ class RoomInfo extends Component {
           className={
             expanded ? classes.InstructionsContainer : classes.Collapsed
           }
+          data-testid="instructions-container"
         >
           <h4 className={classes.InstructionsTitle}>Instructions: </h4>
           {temp ? (
@@ -95,11 +113,11 @@ class RoomInfo extends Component {
               inputType="TEXT_AREA"
               resource="tab"
               parentResource={updatedActivity ? 'activity' : 'room'}
-              id={currentTab._id}
+              id={currentTab}
               parentId={room._id}
               field="instructions"
             >
-              {currentTab.instructions || room.instructions}
+              {tabDisplayInstructions}
             </EditableText>
           )}
         </div>
@@ -112,7 +130,7 @@ RoomInfo.propTypes = {
   role: PropTypes.string.isRequired,
   updatedActivity: PropTypes.func,
   room: PropTypes.shape({}).isRequired,
-  currentTab: PropTypes.shape({}).isRequired,
+  currentTab: PropTypes.string.isRequired, // TODO add custom propType for objectId HexString
   temp: PropTypes.bool.isRequired,
 };
 
