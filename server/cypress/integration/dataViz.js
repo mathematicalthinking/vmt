@@ -1,4 +1,5 @@
 import user8 from '../fixtures/user8';
+import user from '../fixtures/user';
 
 describe('Data Visualization', function() {
   before(function() {
@@ -92,5 +93,25 @@ describe('Data Visualization', function() {
       .should('not.be.visible')
       .should('have.attr', 'href')
       .and('include', 'blob:http://localhost');
+  });
+});
+
+describe('Visiting stats page for a room with no recorded data', function() {
+  const roomId = '5ba289c57223b9429888b9b5';
+  const roomName = 'room 1';
+
+  before(function() {
+    cy.login(user);
+    cy.contains(roomName).click();
+    cy.contains('Stats').click();
+  });
+
+  after(function() {
+    cy.logout();
+  });
+
+  it('Should display no data message', function() {
+    cy.url().should('include', `/myVMT/rooms/${roomId}/stats`);
+    cy.getTestElement('no-data-message').should('exist');
   });
 });
