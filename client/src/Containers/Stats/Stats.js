@@ -19,36 +19,41 @@ import ToolTip from '../../Components/ToolTip/ToolTip';
 import InfoBox from '../../Components/InfoBox/InfoBox';
 
 const Stats = ({ populatedRoom }) => {
+  const hasLog = populatedRoom.log.length > 0;
+
   const [state, dispatch] = useReducer(statsReducer, initialState);
   const [isResizing, setResizing] = useState(false);
   const debounceResize = useCallback(debounce(() => setResizing(false), 1000));
   let chart;
   const { inChartView, filteredData } = state;
-  if (populatedRoom.log && !isResizing && inChartView) {
+
+  if (hasLog && !isResizing && inChartView) {
     chart = <Chart state={state} />;
-  } else if (populatedRoom.log && !isResizing) {
+  } else if (hasLog && !isResizing) {
     chart = <Table data={filteredData} />;
   } else {
     chart = <Loading isSmall />;
   }
 
-  useEffect(() => {
-    dispatch({ type: 'GENERATE_DATA', data: populatedRoom.log });
-  }, [populatedRoom.log]);
+  if (hasLog) {
+    useEffect(() => {
+      dispatch({ type: 'GENERATE_DATA', data: populatedRoom.log });
+    }, [populatedRoom.log]);
 
-  // resize
-  useEffect(() => {
-    const handleResize = () => {
-      setResizing(true);
-      debounceResize();
-    };
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  });
+    // resize
+    useEffect(() => {
+      const handleResize = () => {
+        setResizing(true);
+        debounceResize();
+      };
+      window.addEventListener('resize', handleResize);
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    });
+  }
 
-  return (
+  return hasLog ? (
     <div>
       <InfoBox
         title={`${populatedRoom.name} activity`}
@@ -95,6 +100,10 @@ const Stats = ({ populatedRoom }) => {
       <InfoBox title="Filters" icon={<i className="fas fa-filter" />}>
         <Filters data={populatedRoom} filters={state} dispatch={dispatch} />
       </InfoBox>
+    </div>
+  ) : (
+    <div data-testid="no-data-message">
+      This room does not have any activity yet.
     </div>
   );
 };
