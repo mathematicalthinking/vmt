@@ -24,7 +24,7 @@ describe('Workspace/replayer', function() {
       .contains('jl_picard joined room 1')
       .should('be.visible');
     cy.getTestElement('take-control').click();
-    cy.wait(5000);
+    cy.wait(1000);
     cy.getTestElement('take-control').click();
     cy.get(':nth-child(5) > .toolbar_button > .gwt-Image').click();
     cy.getTestElement('control-warning').should('be.visible');
