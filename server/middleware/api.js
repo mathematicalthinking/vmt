@@ -151,7 +151,7 @@ const canModifyResource = (req) => {
   console.log(
     `${user.username}
     is requesting to update ${resource} (${id}) with request body:
-    ${req.body}
+    ${JSON.stringify(req.body, null, 2)}
     `
   );
 
@@ -244,7 +244,7 @@ const canModifyResource = (req) => {
       }
 
       if (modelName === 'Tab') {
-        if (_.isArray(record.room.members)) {
+        if (record.room && _.isArray(record.room.members)) {
           const role = helpers.getUserRoleInRecord(record.room, user._id);
           if (role) results.canModify = true;
         }

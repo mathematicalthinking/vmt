@@ -169,7 +169,7 @@ class GgbActivityGraph extends Component {
   };
 
   onScriptLoad = () => {
-    const { tabId, role, tab, currentTab, isFirstTabLoaded } = this.props;
+    const { role, tab, currentTab, isFirstTabLoaded } = this.props;
     const parameters = {
       id: `ggb-element${tab._id}A`,
       // "scaleContainerClasse": "graph",
@@ -190,11 +190,11 @@ class GgbActivityGraph extends Component {
     };
     const ggbApp = new window.GGBApplet(parameters, '6.0');
     if (currentTab === tab._id) {
-      ggbApp.inject(`ggb-element${tabId}A`);
+      ggbApp.inject(`ggb-element${tab._id}A`);
     } else {
       this.loadingTimer = setInterval(() => {
         if (isFirstTabLoaded) {
-          ggbApp.inject(`ggb-element${tabId}A`);
+          ggbApp.inject(`ggb-element${tab._id}A`);
           clearInterval(this.loadingTimer);
         }
       }, 500);
@@ -260,17 +260,19 @@ class GgbActivityGraph extends Component {
   }
 
   render() {
-    const { tabId } = this.props;
+    const { tab } = this.props;
     return (
       <Aux>
-        <Script
-          url="https://cdn.geogebra.org/apps/deployggb.js"
-          onLoad={this.onScriptLoad}
-        />
+        {tab ? (
+          <Script
+            url="https://cdn.geogebra.org/apps/deployggb.js"
+            onLoad={this.onScriptLoad}
+          />
+        ) : null}
         <div
           className={classes.Graph}
           style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
-          id={`ggb-element${tabId}A`}
+          id={`ggb-element${tab._id}A`}
           ref={this.graph}
         />
       </Aux>
@@ -282,7 +284,6 @@ GgbActivityGraph.propTypes = {
   role: PropTypes.string.isRequired,
   currentTab: PropTypes.string.isRequired,
   // tabs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  tabId: PropTypes.number.isRequired,
   user: PropTypes.shape({}).isRequired,
   activity: PropTypes.shape({}).isRequired,
   isFirstTabLoaded: PropTypes.bool.isRequired,
