@@ -138,6 +138,7 @@ class TempWorkspace extends Component {
       currentMembers,
       members,
       lastMessage,
+      tempUsername,
     } = this.state;
     return user ? (
       <Aux>
@@ -183,6 +184,7 @@ class TempWorkspace extends Component {
               data-testid="temp-desmos"
               m={5}
               click={() => this.joinRoom('desmos')}
+              disabled={!tempUsername}
             >
               Desmos
             </Button>
@@ -190,6 +192,7 @@ class TempWorkspace extends Component {
               data-testid="temp-geogebra"
               m={5}
               click={() => this.joinRoom('geogebra')}
+              disabled={!tempUsername}
             >
               GeoGebra
             </Button>

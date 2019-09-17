@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-expressions */
 const user = require('../fixtures/userTemp');
 
 describe('temporary room', function() {
@@ -18,8 +17,20 @@ describe('temporary room', function() {
   it('creates a temp user and room and then saves', function() {
     cy.contains('Try out a Workspace').click();
     cy.url().should('include', 'explore');
+
+    cy.getTestElement('temp-geogebra').as('ggbBtn');
+    cy.getTestElement('temp-desmos').as('desmosBtn');
+
+    // DESMOS/GEOGEBRA buttons should be disabled until username is given
+    cy.get('@ggbBtn').should('be.disabled');
+    cy.get('@desmosBtn').should('be.disabled');
+
     cy.get('input').type(user.username);
-    cy.getTestElement('temp-geogebra').click();
+
+    cy.get('@ggbBtn').should('be.enabled');
+    cy.get('@desmosBtn').should('be.enabled');
+
+    cy.get('@ggbBtn').click();
     cy.get('.ggbtoolbarpanel').should('exist');
     cy.url({ log: true });
     cy.getTestElement('save').click();
@@ -34,7 +45,7 @@ describe('temporary room', function() {
       const { rooms } = response.body.result;
       expect(rooms).to.have.length(1);
       const room = rooms[0];
-      expect(room.tempRoom).to.be.false;
+      return expect(room.tempRoom).to.be.false;
     });
   });
 
