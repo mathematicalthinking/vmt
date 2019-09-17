@@ -48,7 +48,7 @@ class Tabs extends Component {
       </div>
     ));
     return (
-      <div className={classes.WorkspaceTabs}>
+      <div className={classes.WorkspaceTabs} data-testid="tabs-container">
         {tabEls}
         {memberRole === 'facilitator' || participantCanCreate ? (
           <div className={[classes.Tab, classes.NewTab].join(' ')}>
@@ -59,7 +59,7 @@ class Tabs extends Component {
               tabIndex="-3"
               className={classes.TabBox}
             >
-              <i className="fas fa-plus" />
+              <i data-testid="add-tab" className="fas fa-plus" />
             </div>
           </div>
         ) : null}
