@@ -121,6 +121,9 @@ class Workspace extends Component {
     socket.emit('LEAVE_ROOM', populatedRoom._id, myColor);
     window.removeEventListener('resize', this.clearReference);
     window.removeEventListener('keypress', this.keyListener);
+    if (this.controlTimer) {
+      clearTimeout(this.controlTimer);
+    }
   }
 
   addToLog = (entry) => {
@@ -366,6 +369,7 @@ class Workspace extends Component {
     this.time = Date.now();
     clearTimeout(this.controlTimer);
     this.controlTimer = setTimeout(() => {
+      console.log('resetting control from timer');
       this.toggleControl();
     }, 60 * 1000);
   };
