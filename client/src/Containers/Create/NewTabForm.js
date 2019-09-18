@@ -5,15 +5,17 @@ import RoomOpts from './NewResource/RoomOpts';
 import classes from './newTabForm.css';
 import API from '../../utils/apiRequests';
 
+const initialState = {
+  name: '',
+  instructions: '',
+  ggbFile: '',
+  desmosLink: '',
+  ggb: true,
+  appName: 'classic',
+};
+
 class NewTabForm extends Component {
-  state = {
-    name: '',
-    instructions: '',
-    ggbFile: '',
-    desmosLink: '',
-    ggb: true,
-    appName: 'classic',
-  };
+  state = { ...initialState };
 
   changeHandler = (event) => {
     this.setState({
@@ -54,13 +56,15 @@ class NewTabForm extends Component {
       room,
       user,
       activity,
-      updatedRoom,
+      // updatedRoom,
       sendEvent,
       closeModal,
       updatedActivity,
+      setTabs,
+      currentTabs,
     } = this.props;
     const { name, instructions, ggb, desmosLink, appName } = this.state;
-    if (name.trim().length <= 1) {
+    if (name.trim().length < 1) {
       this.setState({
         errorMessage: 'Please provide a name for the tab',
       });
@@ -87,9 +91,9 @@ class NewTabForm extends Component {
       .then((res) => {
         let tabs;
         if (room) {
-          tabs = [...room.tabs];
+          tabs = [...currentTabs];
           tabs.push(res.data.result);
-          updatedRoom(room._id, { tabs });
+          setTabs(tabs);
           newTab.creator = {
             username: user.username,
             _id: user._id,
@@ -111,6 +115,7 @@ class NewTabForm extends Component {
           // UPDATE REDUX ACTIVITY
           updatedActivity(activity._id, { tabs });
         }
+        this.setState(initialState);
         closeModal();
       })
       .catch(() => {
@@ -183,7 +188,7 @@ class NewTabForm extends Component {
           }
           appName={appName}
         />
-        <Button m={10} click={this.submit}>
+        <Button m={10} click={this.submit} data-testid="create-tab">
           Create
         </Button>
       </div>
@@ -195,16 +200,16 @@ NewTabForm.propTypes = {
   room: PropTypes.shape({}),
   user: PropTypes.shape({}).isRequired,
   activity: PropTypes.shape({}),
-  updatedRoom: PropTypes.func,
   updatedActivity: PropTypes.func,
   sendEvent: PropTypes.func,
   closeModal: PropTypes.func.isRequired,
+  setTabs: PropTypes.func.isRequired,
+  currentTabs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 NewTabForm.defaultProps = {
   room: null,
   updatedActivity: null,
-  updatedRoom: null,
   sendEvent: null,
   activity: null,
 };
