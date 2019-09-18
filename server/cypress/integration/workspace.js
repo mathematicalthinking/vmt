@@ -75,6 +75,10 @@ describe('Workspace/replayer', function() {
     checkInstructions(newInstructions);
   }
 
+  function checkAwareness(expectedText) {
+    cy.getTestElement('awareness-desc').should('contain', expectedText);
+  }
+
   it('loads a workspace', function() {
     cy.get('#Rooms').click();
     cy.getTestElement('content-box-room 1').click();
@@ -84,9 +88,7 @@ describe('Workspace/replayer', function() {
       .should('have.length', 1);
   });
   it('prevents tool selection without taking control', function() {
-    cy.getTestElement('awareness-desc')
-      .contains('jl_picard joined room 1')
-      .should('be.visible');
+    checkAwareness('jl_picard joined room 1');
     cy.getTestElement('take-control').click();
     cy.getTestElement('release-control').click();
     cy.get(':nth-child(5) > .toolbar_button > .gwt-Image').click();
@@ -98,17 +100,17 @@ describe('Workspace/replayer', function() {
   });
   it('allows tool selection after taking control', function() {
     cy.getTestElement('take-control').click();
-    cy.getTestElement('awareness-desc')
-      .contains('jl_picard selected the move tool')
-      .should('be.visible');
+
+    checkAwareness('jl_picard selected the move tool');
     cy.getTestElement('chat')
       .children()
       .children()
       .should('have.length', 10);
     cy.get(':nth-child(5) > .toolbar_button > .gwt-Image').click();
-    cy.getTestElement('awareness-desc')
-      .contains('jl_picard selected the polygon tool')
-      .should('be.visible');
+    cy.wait(500);
+    cy.get(':nth-child(5) > .toolbar_button > .gwt-Image').click();
+
+    checkAwareness('jl_picard selected the polygon tool');
   });
   describe('Managing tabs', function() {
     const secondTabName = 'Tab 2 Bananas';
