@@ -10,6 +10,7 @@ import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
 import ggbTools from './Tools/GgbIcons';
 import API from '../../utils/apiRequests';
+import { isNonEmptyArray } from '../../utils/objects';
 
 // const GgbEventTypes = [
 //   'ADD',
@@ -746,7 +747,10 @@ class GgbGraph extends Component {
    */
 
   registerListeners = () => {
-    if (this.ggbApplet.listeners.length > 0) {
+    // bug arose where this.ggbApplet.listeners was undefined
+    // should this ever be the case?
+    console.log('registering Listeners: ', this.ggbApplet.listeners);
+    if (isNonEmptyArray(this.ggbApplet.listeners)) {
       // return;
       this.ggbApplet.unregisterAddListener(this.addListener);
       this.ggbApplet.unregisterUpdateListener(this.updateListener);

@@ -264,6 +264,10 @@ class Chat extends Component {
           highlighted = true;
         }
         if (message.messageType) {
+          if (!message._id) {
+            console.log('no id for message: ', message);
+          }
+
           return (
             <Message
               key={message._id}
@@ -279,6 +283,9 @@ class Chat extends Component {
               referencing={referencing}
             />
           );
+        }
+        if (!message._id) {
+          console.log('no id for message: ', message);
         }
         return <Event event={message} id={message._id} key={message._id} />;
       });
