@@ -9,7 +9,7 @@ import { blankEditorState } from './ggbUtils';
 import { Aux } from '../../Components';
 import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
-import ggbTools from './Tools/GgbIcons';
+// import ggbTools from './Tools/GgbIcons';
 import { isNonEmptyArray } from '../../utils/objects';
 import API from '../../utils/apiRequests';
 
@@ -71,7 +71,7 @@ class GgbGraph extends Component {
     window.addEventListener('resize', this.updateDimensions);
     window.addEventListener('visibilitychange', this.visibilityChange);
     socket.on('RECEIVE_EVENT', (data) => {
-      // console.log({ data });
+      console.log({ data });
       // if (!this.isWindowVisible) {
       //   this.isFaviconNtf = true;
       //   this.changeFavicon('/favNtf.ico');
@@ -235,9 +235,14 @@ class GgbGraph extends Component {
   writeToGraph = (event) => {
     // console.log('writing to graph');
     // console.log(event.eventType);
-    if (event.eventType === 'POINT_DRAG') {
-      this.ggbApplet.setCoords(event.label, event.coords.x, event.coords.y);
-    } else if (event.commandString && event.objType !== 'point') {
+    // if (event.eventType === 'POINT_DRAG') {
+    //   this.ggbApplet.setCoords(event.label, event.coords.x, event.coords.y);
+    // } else
+    if (
+      event.commandString &&
+      event.objType !== 'point' &&
+      event.eventType !== 'DRAG'
+    ) {
       this.ggbApplet.evalCommand(event.commandString);
       // if (event.valueString) {
       //   this.ggbApplet.evalCommand(event.valueString);
@@ -627,7 +632,6 @@ class GgbGraph extends Component {
           if (selection === 'point') {
             // eslint-disable-next-line prefer-destructuring
             [, this.pointSelected] = event;
-            console.log('setting point selected');
             this.shapeSelected = null;
           } else {
             // eslint-disable-next-line prefer-destructuring
@@ -652,7 +656,8 @@ class GgbGraph extends Component {
         const label = event[1];
         const xml = this.ggbApplet.getXML(label);
         if (this.userCanEdit()) {
-          this.sendEventBuffer(xml, null, label, 'UPDATE_STYLE', 'updated');
+          console.log('updated style');
+          this.sendEventBuffer({ xml, label, eventType: 'UPDATE_STYLE' });
         }
         break;
       }
@@ -675,20 +680,18 @@ class GgbGraph extends Component {
         this.setState({ showControlWarning: true });
         break;
       case 'movingGeos':
-        this.movingGeos = true; // turn of updating so the updateListener does not send events
+        this.movingGeos = true; // turn off updating so the updateListener does not send events
         break;
       case 'movedGeos': {
         this.movingGeos = true;
         // combine xml into one event
-        console.log({ ...event });
         let xml = '';
         let label = '';
         for (let i = 1; i < event.length; i++) {
           xml += this.ggbApplet.getXML(event[i]);
         }
         label = event[event.length - 1];
-        console.log('moved geos');
-        this.sendEventBuffer({ xml, label, eventType: 'GEO_DRAG' });
+        this.sendEventBuffer({ xml, label, eventType: 'DRAG' });
         // this.movingGeos = false;
         break;
       }
@@ -774,15 +777,16 @@ class GgbGraph extends Component {
       !this.receivingData &&
       label === this.pointSelected
     ) {
-      console.log('moving point');
       // const xml = this.ggbApplet.getXML(label);
-      const x = this.ggbApplet.getXcoord(label);
-      const y = this.ggbApplet.getYcoord(label);
-      console.log('sending event to event buffer');
+      // const x = this.ggbApplet.getXcoord(label);
+      // const y = this.ggbApplet.getYcoord(label);
+      const xml = this.ggbApplet.getXML(label);
       this.sendEventBuffer({
-        coords: { x, y },
+        // coords: { x, y },
+        xml,
         label,
-        eventType: 'POINT_DRAG',
+        objType: 'point',
+        eventType: 'DRAG',
       });
     }
   };
@@ -865,7 +869,7 @@ class GgbGraph extends Component {
 
   sendEventBuffer = (event) => {
     // console.log({ coords });
-    // const { referencing, showingReference, clearReference } = this.props;
+    const { referencing, showingReference, clearReference } = this.props;
     let sendEventFromTimer = true;
 
     // this is redundant...but maybe good.
@@ -873,17 +877,9 @@ class GgbGraph extends Component {
     //   this.setState({ showControlWarning: true });
     //   return;
     // }
-    // if (referencing || showingReference) {
-    //   clearReference();
-    // }
-    // // Add event to eventQueue in case there are multiple events to send.
-    // if (eventType === 'REMOVE') {
-    //   this.outgoingEventQueue.push({ label });
-    // } else if (action === 'updated' || definition === '' || !definition) {
-    //   this.outgoingEventQueue.push({ xml });
-    // } else {
-    //   this.outgoingEventQueue.push({ commandString: `${label}:${definition}` });
-    // }
+    if (referencing || showingReference) {
+      clearReference();
+    }
     this.outgoingEventQueue.push(event);
     if (this.timer) {
       // cancel the last sendEvent function
@@ -894,21 +890,7 @@ class GgbGraph extends Component {
       // if the user is still dragging we build up a new queue. This way, if they drag for several seconds,
       // there is not a several second delay before the other users in the room see the event
       if (this.time && Date.now() - this.time > 1500) {
-        // const isMultiPart = true;
-        // let renamedEventType = event.eventType;
-        // if (eventType === 'ADD' && event.definition.length > 0) {
-        //   renamedEventType = 'BATCH_ADD';
-        // }
-        // if (eventType === 'UPDATE') {
-        //   renamedEventType = 'BATCH_UPDATE';
-        // }
-        // // I dont think this condition will ever be met because style updates dont take more than 1.5...consider remove
-        // if (eventType === 'UPDATE_STYLE') {
-        //   renamedEventType = 'UPDATE_STYLE';
-        // }
         event.isMultipart = true;
-        console.log('time limti exceeed');
-        console.log({ ...this.outgoingEventQueue });
         this.sendEvent([...this.outgoingEventQueue]); // copy the event queue because we're going to clear it right now
         sendEventFromTimer = false;
         this.outgoingEventQueue = [];
@@ -921,20 +903,6 @@ class GgbGraph extends Component {
 
     if (sendEventFromTimer) {
       this.timer = setTimeout(() => {
-        // event.eventType = 'BATCH'
-        // if (eventType === 'UPDATE') {
-        //   renamedEventType = 'BATCH_UPDATE';
-        // } else if (eventType === 'UPDATE_STYLE') {
-        //   renamedEventType = 'UPDATE_STYLE';
-        // } else if (
-        //   eventType === 'ADD' &&
-        //   this.outgoingEventQueue.length > 1 &&
-        //   definition.length > 0
-        // ) {
-        //   renamedEventType = 'BATCH_ADD';
-        // }
-        console.log('sending from timer');
-        console.log({ ...this.outgoingEventQueue });
         this.sendEvent([...this.outgoingEventQueue]);
         this.outgoingEventQueue = [];
         this.time = null;
@@ -946,77 +914,47 @@ class GgbGraph extends Component {
   /**
    * @method sendEvnet
    * @description emits the geogebra event over the socket and updates the room in the redux store.
-   * @param  {String} xml - ggb generated xml of the even
-   * @param  {String} definition - ggb multipoint definition (e.g. "Polygon(D, E, F, G)")
-   * @param  {String} label - ggb label. ggbApplet.evalXML(label) yields xml representation of this label
-   * @param  {String} eventType - ["ADD", "REMOVE", "UPDATE", "CHANGE_PERSPECTIVE", "NEW_TAB", "BATCH"] see ./models/event
-   * @param  {String} action - ggb action ["addedd", "removed", "clicked", "updated"]
-   * @param {Array} eventQueue - if we're sending many events they'll be stored in array (for dragging and creating multiple points/lines of a shape)
+   * @param  {String} event.xml - ggb generated xml of the even
+   * @param  {String} event.commandString - ggb multipoint definition (e.g. "Polygon(D, E, F, G)")
+   * @param  {String} event.label - ggb label. ggbApplet.evalXML(label) yields xml representation of this label
+   * @param  {String} event.eventType - ["ADD", "REMOVE", "UPDATE", "CHANGE_PERSPECTIVE", "NEW_TAB", "BATCH"] see ./models/event
    * @param {bool} isMultiPart - When drag events last more than 1.5 seconds we break the event up so we can continuusly emit the drag to
    * other users while the drag is happening instead of waiting until the very end. isMultiPart = true if the event is a broken up drag.
    * We want to store this information so we know how to combine the multipart events into a single event for the replayer.
-   * @param {Object} coords
-   * @param {Number} coords.x
-   * @param {Number} coords.y
+   * @param {Object} event.coords
+   * @param {Number} event.coords.x
+   * @param {Number} event.coords.y
    */
 
-  sendEvent = (
-    event
-    // xml,
-    // definition,
-    // label,
-    // eventType,
-    // action,
-    // eventQueue,
-    // isMultiPart = false,
-    // coords
-  ) => {
+  sendEvent = (event) => {
     const {
       room,
       tab,
       user,
       myColor,
-      // addToLog,
+      addToLog,
       resetControlTimer,
     } = this.props;
     // console.log({ coords });
     const newData = {
       _id: mongoIdGenerator(),
-      // definition,
-      // label,
-      // eventType,
-      // action,
       room: room._id,
       tab: tab._id,
       event, // array of event object or single event object
-      // event: xml,
       color: myColor,
-      // coords,
       user: { _id: user._id, username: user.username },
       timestamp: new Date().getTime(),
       // currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
       // mode: this.ggbApplet.getMode() // all ggbApplet get methods are too slow for dragging...right?
     };
 
-    // newData.description = this.buildDescription(
-    //   definition,
-    //   label,
-    //   eventType,
-    //   action,
-    //   eventQueue
-    // );
-
-    // if (eventQueue && eventQueue.length > 0) {
-    //   newData.eventArray = eventQueue;
-    // }
-    // addToLog(newData);
+    newData.description = this.buildDescription(event);
+    addToLog(newData);
 
     if (this.updatingTab) {
       clearTimeout(this.updatingTab);
       this.updatingTab = null;
     }
-    console.log('SENDING EVNET');
-    console.log(newData);
     socket.emit('SEND_EVENT', newData);
 
     this.updatingTab = setTimeout(this.updateConstructionState, 3000);
@@ -1035,33 +973,34 @@ class GgbGraph extends Component {
    *
    * @return {String} description
    */
-  buildDescription = (definition, label, eventType, action, eventQueue) => {
-    const { user } = this.props;
-    let description = `${user.username}`;
-    let newLabel = label;
-    let objType = this.ggbApplet.getObjectType(label);
-    if (eventType === 'UPDATE_STYLE') {
-      description += ` updated the style of ${objType} ${label}`;
-    } else if (action === 'updated') {
-      if (this.shapeSelected && eventType === 'BATCH_UPDATE') {
-        objType = this.ggbApplet.getObjectType(this.shapeSelected);
-        newLabel = this.shapeSelected;
-      }
-      description += ` dragged ${objType} ${newLabel}`;
-    } else if (eventType === 'BATCH_ADD') {
-      // parse the element label from the first element in eventQuere...it is always the most encompassing elemennt
-      newLabel = eventQueue[0].slice(0, eventQueue[0].indexOf(':'));
-      objType = this.ggbApplet.getObjectType(newLabel);
-      description += ` ${action} ${objType} ${newLabel}`;
-    } else if (action === 'mode') {
-      description += ` selected the ${ggbTools[label].name.toLowerCase()} tool`;
-    } else if (eventType === 'SELECT') {
-      description += ` selected ${objType} ${newLabel}`;
-    } else if (action === 'added') {
-      description += ` ${action} ${objType} ${newLabel}`;
-    } else if (eventType === 'REMOVE') {
-      description += ` removed ${label}`;
-    }
+  buildDescription = () => {
+    // const { user } = this.props;
+    // let description = `${user.username}`;
+    // let newLabel = label;
+    // let objType = this.ggbApplet.getObjectType(label);
+    // if (eventType === 'UPDATE_STYLE') {
+    //   description += ` updated the style of ${objType} ${label}`;
+    // } else if (action === 'updated') {
+    //   if (this.shapeSelected && eventType === 'BATCH_UPDATE') {
+    //     objType = this.ggbApplet.getObjectType(this.shapeSelected);
+    //     newLabel = this.shapeSelected;
+    //   }
+    //   description += ` dragged ${objType} ${newLabel}`;
+    // } else if (eventType === 'BATCH_ADD') {
+    //   // parse the element label from the first element in eventQuere...it is always the most encompassing elemennt
+    //   newLabel = eventQueue[0].slice(0, eventQueue[0].indexOf(':'));
+    //   objType = this.ggbApplet.getObjectType(newLabel);
+    //   description += ` ${action} ${objType} ${newLabel}`;
+    // } else if (action === 'mode') {
+    //   description += ` selected the ${ggbTools[label].name.toLowerCase()} tool`;
+    // } else if (eventType === 'SELECT') {
+    //   description += ` selected ${objType} ${newLabel}`;
+    // } else if (action === 'added') {
+    //   description += ` ${action} ${objType} ${newLabel}`;
+    // } else if (eventType === 'REMOVE') {
+    //   description += ` removed ${label}`;
+    // }
+    const description = 'sample description';
     return description;
   };
 
@@ -1288,7 +1227,7 @@ GgbGraph.propTypes = {
   referToEl: PropTypes.shape({}),
   showingReference: PropTypes.bool.isRequired,
   referencing: PropTypes.bool.isRequired,
-  // clearReference: PropTypes.func.isRequired,
+  clearReference: PropTypes.func.isRequired,
   setToElAndCoords: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
   setGraphCoords: PropTypes.func.isRequired,
