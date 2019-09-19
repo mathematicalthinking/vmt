@@ -46,6 +46,7 @@ class GgbGraph extends Component {
   isFaviconNtf = false;
   isWindowVisible = true;
   previousEvent = null; // Prevent repeat events from firing (for example if they keep selecting the same tool)
+  previousCommandString = null;
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
   /**
    * @method componentDidMount
@@ -66,7 +67,7 @@ class GgbGraph extends Component {
     window.addEventListener('resize', this.updateDimensions);
     window.addEventListener('visibilitychange', this.visibilityChange);
     socket.on('RECEIVE_EVENT', (data) => {
-      console.log({ data });
+      console.log({ ...data });
       if (!this.isWindowVisible) {
         this.isFaviconNtf = true;
         this.changeFavicon('/favNtf.ico');
@@ -560,6 +561,7 @@ class GgbGraph extends Component {
    */
 
   clientListener = (event) => {
+    console.log({ clientListener: event });
     // console.log({ clientListener: event });
     // console.log({ clientListener: event });
     const { referencing } = this.props;
@@ -720,6 +722,13 @@ class GgbGraph extends Component {
     }
     if (!this.receivingData) {
       const event = this.readFromGraph(label, 'ADD');
+      if (event.commandString) {
+        if (event.commandString === this.previousCommandString) {
+          return;
+        }
+        this.previousCommandString = event.commandString;
+      }
+      console.log({ addListener: event });
       if (event.objType === 'point') {
         this.sendEvent(event);
       } else {
