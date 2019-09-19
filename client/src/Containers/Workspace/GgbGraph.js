@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import chalk from 'chalk';
 import Script from 'react-load-script';
 import { parseString } from 'xml2js';
 import throttle from 'lodash/throttle';
@@ -32,7 +31,8 @@ class GgbGraph extends Component {
 
   graph = React.createRef();
 
-  eventQueue = [];
+  outgoingEventQueue = [];
+  incomingEventQueue = [];
   firstLabel = null;
   resetting = false; // used to reset the construction when something is done by a user not in control.
   editorState = null; // In the algebra input window,
@@ -44,7 +44,6 @@ class GgbGraph extends Component {
   // it sends the Roots(line, x, y) for each point that is created...we only want to send it once
   shapeSelected = null;
   isFileSet = false; // calling ggb.setBase64 triggers this.initializeGgb(), because we set base 64 inside initializeGgb we use this instance var to track whether we've already set the file. When the ggb tries to load the file twice it breaks everything
-  socketQueue = [];
   isFaviconNtf = false;
   isWindowVisible = true;
   previousEvent = null; // Prevent repeat events from firing (for example if they keep selecting the same tool)
@@ -72,8 +71,6 @@ class GgbGraph extends Component {
     window.addEventListener('resize', this.updateDimensions);
     window.addEventListener('visibilitychange', this.visibilityChange);
     socket.on('RECEIVE_EVENT', (data) => {
-      console.log('receiving evnet: ', data);
-      // this.constructEvent(data);
       // console.log({ data });
       // if (!this.isWindowVisible) {
       //   this.isFaviconNtf = true;
@@ -91,7 +88,7 @@ class GgbGraph extends Component {
       //   // save this event in a queue...then when processing is done we'll pull
       //   // from this queue in clearSocketQueue()
       if (this.receivingData || this.batchUpdating) {
-        this.socketQueue.push(data);
+        this.incomingEventQueue.push(data);
         return;
       }
       this.receivingData = true;
@@ -236,8 +233,11 @@ class GgbGraph extends Component {
   };
 
   writeToGraph = (event) => {
-    console.log('writing to graph: ', { event });
-    if (event.commandString && event.objType !== 'point') {
+    // console.log('writing to graph');
+    // console.log(event.eventType);
+    if (event.eventType === 'POINT_DRAG') {
+      this.ggbApplet.setCoords(event.label, event.coords.x, event.coords.y);
+    } else if (event.commandString && event.objType !== 'point') {
       this.ggbApplet.evalCommand(event.commandString);
       // if (event.valueString) {
       //   this.ggbApplet.evalCommand(event.valueString);
@@ -248,11 +248,35 @@ class GgbGraph extends Component {
     this.ggbApplet.evalCommand('UpdateConstruction()');
   };
 
+  readFromGraph = (label, eventType) => {
+    const objType = this.ggbApplet.getObjectType(label);
+    const xml = this.ggbApplet.getXML(label);
+    const commandString = this.ggbApplet.getCommandString(label);
+    const valueString = this.ggbApplet.getValueString(label);
+    const editorState = this.ggbApplet.getEditorState(label);
+    let x;
+    let y;
+    const algXML = this.ggbApplet.getAlgorithmXML(label);
+    if (objType === 'point') {
+      x = this.ggbApplet.getXcoord(label);
+      y = this.ggbApplet.getYcoord(label);
+    }
+    const event = {
+      commandString: commandString === '' ? null : commandString,
+      valueString,
+      editorState: editorState === blankEditorState ? null : editorState,
+      coords: { x, y },
+      xml: algXML || xml,
+      label,
+      objType,
+      eventType,
+    };
+
+    return event;
+  };
+
   constructEvent = (dataObj) => {
-    console.log('constructingEvent');
-    // console.log({ dataObj });
     const { addToLog } = this.props;
-    // let readyToClearSocketQueue = true;
     addToLog(dataObj);
     const { event } = dataObj;
     let readyToClearSocketQueue = true;
@@ -260,7 +284,7 @@ class GgbGraph extends Component {
       if (isNonEmptyArray(event)) {
         readyToClearSocketQueue = false;
         this.batchUpdating = true;
-        this.recursiveUpdate(dataObj.event, 'ADDING');
+        this.recursiveUpdate(event);
       } else {
         this.writeToGraph(event);
       }
@@ -332,14 +356,13 @@ class GgbGraph extends Component {
     //     break;
     // }
     if (readyToClearSocketQueue) {
-      console.log('');
       this.clearSocketQueue();
     }
   };
   // @todo socketQueue should be renamed incomingEventQueue and eventQeue should be renamed outgoingEventQueue
   clearSocketQueue = () => {
-    if (this.socketQueue.length > 0) {
-      const nextEvent = this.socketQueue.shift();
+    if (this.incomingEventQueue.length > 0) {
+      const nextEvent = this.incomingEventQueue.shift();
       this.constructEvent(nextEvent);
     } else {
       this.updatingOn = false;
@@ -359,43 +382,48 @@ class GgbGraph extends Component {
    * @param  { String } updateType - 'ADDING if we want to invoke evalCommand else null to invoke evalXML'
    */
   // eslint-disable-next-line consistent-return
-  recursiveUpdate = (events, updateType) => {
+  recursiveUpdate = (events) => {
     let readyToClearSocketQueue = true;
     if (events && events.length > 0 && Array.isArray(events)) {
-      if (updateType === 'ADDING') {
-        const event = events.shift();
-        this.writeToGraph(event);
-        if (events.length > 0) {
-          readyToClearSocketQueue = false;
-          this.recursiveUpdate(events, 'ADDING');
-        }
-      } else {
-        // If the socket queue is getting long skip some events to speed it up
-        // if (
-        //   this.socketQueue.length > 1 &&
-        //   events.length > 2 &&
-        //   events[0].eventType === 'BATCH_UPDATE'
-        // ) {
-        //   if (Array.isArray(events)) {
-        //     // this should probably never happen...we should only have arrays in here
-        //     events.shift();
-        //   }
-        // }
-        this.ggbApplet.evalXML(events.shift());
-        this.ggbApplet.evalCommand('UpdateConstruction()');
-        if (events.length > 0) {
-          readyToClearSocketQueue = false;
-          return setTimeout(() => {
-            this.recursiveUpdate(events);
-          }, 0);
-        }
+      const event = events.shift();
+      this.writeToGraph(event);
+      if (events.length > 0) {
+        readyToClearSocketQueue = false;
+        // By wrapping calls to recursiveUpdate in a setTimeout we end up with behavior that is closer
+        // to a natural dragging motion. If we write events one after the other w/o a timeout
+        // the point moves too quickly and looks like its jumping to the final position
+        setTimeout(() => this.recursiveUpdate(events), 0);
       }
-    } else if (events) {
-      this.ggbApplet.evalXML(events);
-      this.ggbApplet.evalCommand('UpdateConstruction()');
-      // After we've finished applying all of the events check the socketQueue to see if more
-      // events came over the socket while we were painting those updates
     }
+
+    //   else {
+    //     // If the socket queue is getting long skip some events to speed it up
+    //     // if (
+    //     //   this.incomingEventQueue.length > 1 &&
+    //     //   events.length > 2 &&
+    //     //   events[0].eventType === 'BATCH_UPDATE'
+    //     // ) {
+    //     //   if (Array.isArray(events)) {
+    //     //     // this should probably never happen...we should only have arrays in here
+    //     //     events.shift();
+    //     //   }
+    //     // }
+    //     this.ggbApplet.evalXML(events.shift());
+    //     this.ggbApplet.evalCommand('UpdateConstruction()');
+    //     if (events.length > 0) {
+    //       readyToClearSocketQueue = false;
+    //       return setTimeout(() => {
+    //         this.recursiveUpdate(events);
+    //       }, 0);
+    //     }
+    //   }
+
+    // else if (events) {
+    //   this.ggbApplet.evalXML(events);
+    //   this.ggbApplet.evalCommand('UpdateConstruction()');
+    //   // After we've finished applying all of the events check the socketQueue to see if more
+    //   // events came over the socket while we were painting those updates
+    // }
     if (readyToClearSocketQueue) {
       this.clearSocketQueue();
     }
@@ -536,6 +564,7 @@ class GgbGraph extends Component {
 
   clientListener = (event) => {
     // console.log({ clientListener: event });
+    // console.log({ clientListener: event });
     const { referencing } = this.props;
     if (this.receivingData) {
       return;
@@ -596,16 +625,16 @@ class GgbGraph extends Component {
         if (this.ggbApplet.getMode() === 0) {
           const selection = this.ggbApplet.getObjectType(event[1]);
           if (selection === 'point') {
-            // How do you destructure when saving to a property of an object in this case `this`
             // eslint-disable-next-line prefer-destructuring
-            this.pointSelected = event[1];
+            [, this.pointSelected] = event;
+            console.log('setting point selected');
             this.shapeSelected = null;
           } else {
             // eslint-disable-next-line prefer-destructuring
             this.shapeSelected = event[1];
             this.pointSelected = null;
           }
-          if (this.eventQueue.length > 0) {
+          if (this.outgoingEventQueue.length > 0) {
             this.sendEventBuffer(null, selection, event[1], 'SELECT', 'ggbObj');
           } else {
             this.sendEvent(null, selection, event[1], 'SELECT', 'ggbObj');
@@ -625,6 +654,10 @@ class GgbGraph extends Component {
         if (this.userCanEdit()) {
           this.sendEventBuffer(xml, null, label, 'UPDATE_STYLE', 'updated');
         }
+        break;
+      }
+      case 'renameComplete': {
+        console.log('renamed!');
         break;
       }
       case 'editorStart':
@@ -647,13 +680,15 @@ class GgbGraph extends Component {
       case 'movedGeos': {
         this.movingGeos = true;
         // combine xml into one event
+        console.log({ ...event });
         let xml = '';
         let label = '';
         for (let i = 1; i < event.length; i++) {
           xml += this.ggbApplet.getXML(event[i]);
         }
         label = event[event.length - 1];
-        this.sendEventBuffer(xml, null, label, 'UPDATE', 'updated');
+        console.log('moved geos');
+        this.sendEventBuffer({ xml, label, eventType: 'GEO_DRAG' });
         // this.movingGeos = false;
         break;
       }
@@ -673,7 +708,6 @@ class GgbGraph extends Component {
    */
 
   addListener = (label) => {
-    console.log(label);
     if (
       this.batchUpdating ||
       this.receivingData ||
@@ -690,44 +724,10 @@ class GgbGraph extends Component {
       return;
     }
     if (!this.receivingData) {
-      const objType = this.ggbApplet.getObjectType(label);
-      const xml = this.ggbApplet.getXML(label);
-      const commandString = this.ggbApplet.getCommandString(label);
-      // const constructionSteps = this.ggbApplet.getConstructionSteps(label);
-      const valueString = this.ggbApplet.getValueString(label);
-      const editorState = this.ggbApplet.getEditorState(label);
-      let x;
-      let y;
-      const algXML = this.ggbApplet.getAlgorithmXML(label);
-      if (objType === 'point') {
-        x = this.ggbApplet.getXcoord(label);
-        y = this.ggbApplet.getYcoord(label);
-      }
-      if (commandString.indexOf('Roots') > -1) {
-        if (this.currentDefinition !== commandString) {
-          // this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
-        }
-        this.currentDefinition = commandString;
-        // return;
-      }
-      const event = {
-        commandString: commandString === '' ? null : commandString,
-        valueString,
-        editorState: editorState === blankEditorState ? null : editorState,
-        coords: { x, y },
-        xml: algXML || xml,
-        label,
-        objType,
-        eventType: 'ADD',
-      };
-
-      // console.log({ event });
-      // this.sendEventBuffer(event);
-      if (objType === 'point') {
-        console.log('NO buffer');
+      const event = this.readFromGraph(label, 'ADD');
+      if (event.objType === 'point') {
         this.sendEvent(event);
       } else {
-        console.log('buffer');
         this.sendEventBuffer(event);
       }
     }
@@ -767,13 +767,23 @@ class GgbGraph extends Component {
     if (this.receivingData && !this.updatingOn) {
       return;
     }
+    // console.log(this.pointSelected);
+    // console.log(label);
     if (
       this.userCanEdit &&
       !this.receivingData &&
       label === this.pointSelected
     ) {
-      const xml = this.ggbApplet.getXML(label);
-      this.sendEventBuffer(xml, null, label, 'UPDATE', 'updated');
+      console.log('moving point');
+      // const xml = this.ggbApplet.getXML(label);
+      const x = this.ggbApplet.getXcoord(label);
+      const y = this.ggbApplet.getYcoord(label);
+      console.log('sending event to event buffer');
+      this.sendEventBuffer({
+        coords: { x, y },
+        label,
+        eventType: 'POINT_DRAG',
+      });
     }
   };
 
@@ -868,13 +878,13 @@ class GgbGraph extends Component {
     // }
     // // Add event to eventQueue in case there are multiple events to send.
     // if (eventType === 'REMOVE') {
-    //   this.eventQueue.push({ label });
+    //   this.outgoingEventQueue.push({ label });
     // } else if (action === 'updated' || definition === '' || !definition) {
-    //   this.eventQueue.push({ xml });
+    //   this.outgoingEventQueue.push({ xml });
     // } else {
-    //   this.eventQueue.push({ commandString: `${label}:${definition}` });
+    //   this.outgoingEventQueue.push({ commandString: `${label}:${definition}` });
     // }
-    this.eventQueue.push(event);
+    this.outgoingEventQueue.push(event);
     if (this.timer) {
       // cancel the last sendEvent function
       clearTimeout(this.timer);
@@ -898,10 +908,10 @@ class GgbGraph extends Component {
         // }
         event.isMultipart = true;
         console.log('time limti exceeed');
-        console.log({ ...this.eventQueue });
-        this.sendEvent([...this.eventQueue]); // copy the event queue because we're going to clear it right now
+        console.log({ ...this.outgoingEventQueue });
+        this.sendEvent([...this.outgoingEventQueue]); // copy the event queue because we're going to clear it right now
         sendEventFromTimer = false;
-        this.eventQueue = [];
+        this.outgoingEventQueue = [];
         this.time = null;
         this.timer = null;
       }
@@ -918,15 +928,15 @@ class GgbGraph extends Component {
         //   renamedEventType = 'UPDATE_STYLE';
         // } else if (
         //   eventType === 'ADD' &&
-        //   this.eventQueue.length > 1 &&
+        //   this.outgoingEventQueue.length > 1 &&
         //   definition.length > 0
         // ) {
         //   renamedEventType = 'BATCH_ADD';
         // }
         console.log('sending from timer');
-        console.log({ ...this.eventQueue });
-        this.sendEvent([...this.eventQueue]);
-        this.eventQueue = [];
+        console.log({ ...this.outgoingEventQueue });
+        this.sendEvent([...this.outgoingEventQueue]);
+        this.outgoingEventQueue = [];
         this.time = null;
         this.timer = null;
       }, 210);
@@ -1005,7 +1015,7 @@ class GgbGraph extends Component {
       clearTimeout(this.updatingTab);
       this.updatingTab = null;
     }
-    console.log(chalk.green('SENDING EVNET'));
+    console.log('SENDING EVNET');
     console.log(newData);
     socket.emit('SEND_EVENT', newData);
 
