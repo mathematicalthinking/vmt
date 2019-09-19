@@ -31,6 +31,10 @@ const Event = new mongoose.Schema({
     ],
   },
   color: { type: String },
+  coords: {
+    x: { type: Number },
+    y: { type: Number },
+  },
   isMultiPart: { type: Boolean, default: false },
   timestamp: { type: Number, required: true }, // UNIX TIME but in MS
   isTrashed: { type: Boolean, default: false },
