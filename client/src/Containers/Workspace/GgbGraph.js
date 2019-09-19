@@ -10,7 +10,6 @@ import { Aux } from '../../Components';
 import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
 // import ggbTools from './Tools/GgbIcons';
-import { isNonEmptyArray } from '../../utils/objects';
 import API from '../../utils/apiRequests';
 
 // const GgbEventTypes = [
@@ -54,11 +53,7 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
-    const {
-      tab,
-      // currentTabId,
-      // addNtfToTabs
-    } = this.props;
+    const { tab, currentTabId, addNtfToTabs } = this.props;
     // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
     this.throttledSendEvent = throttle(this.sendEvent, 500, {
       leading: true,
@@ -72,28 +67,27 @@ class GgbGraph extends Component {
     window.addEventListener('visibilitychange', this.visibilityChange);
     socket.on('RECEIVE_EVENT', (data) => {
       console.log({ data });
-      // if (!this.isWindowVisible) {
-      //   this.isFaviconNtf = true;
-      //   this.changeFavicon('/favNtf.ico');
-      // }
-      // // If this event is for this tab add it to the log
-      // if (data.tab === currentTabId) {
-      //   // If the event is for this room tab (i.e., not browser tab) but this tab is not in view,
-      //   // add a notification to this tab
-      //   if (currentTabId !== tab._id) {
-      //     addNtfToTabs(tab._id);
-      //   }
-
-      //   // If we're still processing data from the last event
-      //   // save this event in a queue...then when processing is done we'll pull
-      //   // from this queue in clearSocketQueue()
-      if (this.receivingData || this.batchUpdating) {
-        this.incomingEventQueue.push(data);
-        return;
+      if (!this.isWindowVisible) {
+        this.isFaviconNtf = true;
+        this.changeFavicon('/favNtf.ico');
       }
-      this.receivingData = true;
-      this.constructEvent(data);
-      // }
+      // If the event is for this room tab (i.e., not browser tab) but this tab is not in view,
+      // add a notification to this tab
+      if (currentTabId !== tab._id) {
+        addNtfToTabs(tab._id);
+      }
+      // // If this event is for this tab add it to the log
+      else if (data.tab === currentTabId) {
+        //   // If we're still processing data from the last event
+        //   // save this event in a queue...then when processing is done we'll pull
+        //   // from this queue in clearSocketQueue()
+        if (this.receivingData || this.batchUpdating) {
+          this.incomingEventQueue.push(data);
+          return;
+        }
+        this.receivingData = true;
+        this.constructEvent(data);
+      }
     });
 
     socket.on('FORCE_SYNC', (data) => {
@@ -280,19 +274,17 @@ class GgbGraph extends Component {
     return event;
   };
 
-  constructEvent = (dataObj) => {
+  constructEvent = (eventObj) => {
     const { addToLog } = this.props;
-    addToLog(dataObj);
-    const { event } = dataObj;
+    addToLog(eventObj);
+    const { ggbEvent, eventArray } = eventObj;
     let readyToClearSocketQueue = true;
-    if (event) {
-      if (isNonEmptyArray(event)) {
-        readyToClearSocketQueue = false;
-        this.batchUpdating = true;
-        this.recursiveUpdate(event);
-      } else {
-        this.writeToGraph(event);
-      }
+    if (eventArray) {
+      readyToClearSocketQueue = false;
+      this.batchUpdating = true;
+      this.recursiveUpdate(eventArray);
+    } else if (ggbEvent) {
+      this.writeToGraph(ggbEvent);
     }
     // switch (data.eventType) {
     //   case 'ADD': {
@@ -890,8 +882,7 @@ class GgbGraph extends Component {
       // if the user is still dragging we build up a new queue. This way, if they drag for several seconds,
       // there is not a several second delay before the other users in the room see the event
       if (this.time && Date.now() - this.time > 1500) {
-        event.isMultipart = true;
-        this.sendEvent([...this.outgoingEventQueue]); // copy the event queue because we're going to clear it right now
+        this.sendEvent([...this.outgoingEventQueue], { isMultiPart: true }); // copy the event queue because we're going to clear it right now
         sendEventFromTimer = false;
         this.outgoingEventQueue = [];
         this.time = null;
@@ -926,7 +917,7 @@ class GgbGraph extends Component {
    * @param {Number} event.coords.y
    */
 
-  sendEvent = (event) => {
+  sendEvent = (event, options) => {
     const {
       room,
       tab,
@@ -936,26 +927,35 @@ class GgbGraph extends Component {
       resetControlTimer,
     } = this.props;
     // console.log({ coords });
-    const newData = {
+    const eventData = {
       _id: mongoIdGenerator(),
       room: room._id,
       tab: tab._id,
-      event, // array of event object or single event object
       color: myColor,
       user: { _id: user._id, username: user.username },
       timestamp: new Date().getTime(),
       // currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
       // mode: this.ggbApplet.getMode() // all ggbApplet get methods are too slow for dragging...right?
     };
+    if (options) {
+      Object.keys(options).forEach((key) => {
+        eventData[key] = options[key];
+      });
+    }
+    if (Array.isArray(event)) {
+      eventData.eventArray = event;
+    } else {
+      eventData.ggbEvent = event;
+    }
 
-    newData.description = this.buildDescription(event);
-    addToLog(newData);
+    eventData.description = this.buildDescription(event);
+    addToLog(eventData);
 
     if (this.updatingTab) {
       clearTimeout(this.updatingTab);
       this.updatingTab = null;
     }
-    socket.emit('SEND_EVENT', newData);
+    socket.emit('SEND_EVENT', eventData);
 
     this.updatingTab = setTimeout(this.updateConstructionState, 3000);
     this.timer = null;
@@ -1222,7 +1222,7 @@ GgbGraph.propTypes = {
   resetControlTimer: PropTypes.func.isRequired,
   inControl: PropTypes.string.isRequired,
   currentTabId: PropTypes.string.isRequired,
-  // addNtfToTabs: PropTypes.func.isRequired,
+  addNtfToTabs: PropTypes.func.isRequired,
   isFirstTabLoaded: PropTypes.bool.isRequired,
   referToEl: PropTypes.shape({}),
   showingReference: PropTypes.bool.isRequired,

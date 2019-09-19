@@ -5,9 +5,13 @@
 - Geogebra makes it possible to listen to the following events:
   - add (registerAddListener)
   - update (registerUpdateListener)
+  - client (registerClientListener)
+		- select
+		- moveGeos
+		- updateStyle
+
   - remove (registerRemovListener)
   - click (registerClickListener)
-  - client (registerClientListener)
 
 ### Add Events
 
@@ -36,3 +40,10 @@ the label is:
 	<eqnStyle style="implicit"/>
 </element>
 ```
+
+
+### Update Events
+
+### Receiving events
+
+socketListener() --> constructEvent() --> writeToGraph()
