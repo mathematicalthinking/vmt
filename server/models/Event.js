@@ -3,34 +3,35 @@ const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Schema.Types;
 const Tab = require('./Tab.js');
 
+const ggbEvent = {
+  xml: { type: String },
+  coords: { x: { type: Number }, y: { type: Number } },
+  commandString: { type: String },
+  valueString: { type: String },
+  label: { type: String },
+  objType: { type: String },
+  editorState: { type: String },
+  eventType: {
+    type: String,
+    enum: [
+      'ADD',
+      'REMOVE',
+      'DRAG',
+      'RENAME',
+      'UPDATE_STYLE',
+      'CHANGE_PERSPECTIVE',
+      'NEW_TAB',
+      'SELECT',
+      'UNDO',
+      'REDO',
+    ],
+  },
+};
 const Event = new mongoose.Schema({
   user: { type: ObjectId, ref: 'User' },
-  ggbEvent: {
-    xml: { type: String },
-    coords: { x: { type: Number }, y: { type: Number } },
-    commandString: { type: String },
-    valueString: { type: String },
-    label: { type: String },
-    objType: { type: String },
-    editorState: { type: String },
-    eventType: {
-      type: String,
-      enum: [
-        'ADD',
-        'REMOVE',
-        'DRAG',
-        'RENAME',
-        'UPDATE_STYLE',
-        'CHANGE_PERSPECTIVE',
-        'NEW_TAB',
-        'SELECT',
-        'UNDO',
-        'REDO',
-      ],
-    },
-  },
-  eventArray: [{ type: String }], // array of ffb events
-  description: { type: String }, // e,g, "Michael added point A"
+  ggbEvent,
+  eventArray: [ggbEvent],
+  description: { type: String },
   currentState: { type: String }, // DESMOS ONLY...@todo some validation for this
   room: { type: ObjectId, ref: 'Room', required: true },
   tab: { type: ObjectId, ref: 'Tab', required: true },
