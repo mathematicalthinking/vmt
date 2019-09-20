@@ -16,7 +16,7 @@ const Activity = new mongoose.Schema(
     },
     users: { type: [{ type: ObjectId, ref: 'User' }], default: [], _id: false }, // WHAT IS THIS FIELD FOR? maybe people who can edit???
     dueDate: { type: Date },
-    roomType: { type: String, default: 'geogebra' },
+    roomType: { type: String, default: 'geogebra' }, // deprecated
     privacySetting: {
       type: String,
       enum: ['private', 'public'],
