@@ -43,7 +43,7 @@ class Community extends Component {
           <h3 className={classes.Title}>
             search for activities or ask to join rooms and courses
           </h3>
-          <div className={classes.ResourceOpts}>
+          <div className={classes.ResourceOpts} data-testid="resource-tabs">
             <div>
               <CustomLink to="/community/rooms?privacy=all&roomType=all">
                 Rooms
