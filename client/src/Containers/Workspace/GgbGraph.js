@@ -585,13 +585,17 @@ class GgbGraph extends Component {
         this.movingGeos = true;
         // combine xml into one event
         let xml = '';
-        let label = '';
         for (let i = 1; i < event.length; i++) {
           xml += this.ggbApplet.getXML(event[i]);
         }
-        label = event[event.length - 1];
-        this.sendEventBuffer({ xml, label, eventType: 'DRAG' });
-        // this.movingGeos = false;
+        console.log(this.shapeSelected);
+        console.log('senfing event');
+        this.sendEventBuffer({
+          xml,
+          label: this.shapeSelected,
+          eventType: 'DRAG',
+          objType: this.ggbApplet.getObjectType(this.shapeSelected),
+        });
         break;
       }
 
@@ -673,7 +677,7 @@ class GgbGraph extends Component {
    */
 
   updateListener = (label) => {
-    console.log({ updateListener: label });
+    // console.log({ updateListener: label });
     if (this.batchUpdating || this.movingGeos) return;
     if (this.receivingData && !this.updatingOn) {
       return;
@@ -783,7 +787,7 @@ class GgbGraph extends Component {
    */
 
   sendEventBuffer = (event) => {
-    // console.log({ coords });
+    console.log({ buffer: event });
     const { referencing, showingReference, clearReference } = this.props;
     let sendEventFromTimer = true;
 
@@ -832,6 +836,7 @@ class GgbGraph extends Component {
    * @param {}
    * */
   sendEvent = (event, options) => {
+    console.log('send event');
     const {
       room,
       tab,
@@ -888,7 +893,7 @@ class GgbGraph extends Component {
     }
     const { user } = this.props;
     const { label, eventType, objType } = event;
-
+    // if (objType ===)
     let description = `${user.username} `;
     // let newLabel = label;
     // let objType = this.ggbApplet.getObjectType(label);

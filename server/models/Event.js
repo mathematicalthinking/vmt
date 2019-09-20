@@ -24,6 +24,7 @@ const ggbEvent = {
       'SELECT',
       'UNDO',
       'REDO',
+      'MODE',
     ],
   },
 };
