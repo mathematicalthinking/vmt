@@ -39,6 +39,7 @@ module.exports = {
           description: 1,
           image: 1,
           privacySetting: 1,
+          updatedAt: 1,
           members: {
             $filter: {
               input: '$members',
@@ -81,6 +82,7 @@ module.exports = {
           members: {
             $push: { user: '$facilitatorObject', role: 'facilitator' },
           },
+          updatedAt: { $first: '$updatedAt' },
         },
       },
       {
@@ -91,6 +93,7 @@ module.exports = {
           description: 1,
           privacySetting: 1,
           image: 1,
+          updatedAt: 1,
           'members.user.username': 1,
           'members.user._id': 1,
           'members.role': 1,
@@ -107,6 +110,7 @@ module.exports = {
       aggregationPipeline.push({ $skip: parseInt(skip, 10) });
     }
     aggregationPipeline.push({ $limit: 20 });
+    aggregationPipeline.push({ $sort: { updatedAt: -1 } });
     const courses = await db.Course.aggregate(aggregationPipeline);
     return courses;
   },
