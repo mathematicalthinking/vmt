@@ -19,4 +19,19 @@ function findBadTabs() {
     });
 }
 
+function findTabsWithBadActivity() {
+  return Models.Tab.find({ activity: { $ne: null } })
+    .populate('activity')
+    .then((tabs) => {
+      return tabs.map((tab) => {
+        const hasBadActivity = !tab.activity;
+        if (hasBadActivity) {
+          console.log(`Tab ${tab._id} has bad activity`);
+        }
+        return tabs;
+      });
+    });
+}
+
 findBadTabs();
+findTabsWithBadActivity();

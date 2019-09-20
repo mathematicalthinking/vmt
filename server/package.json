@@ -32,7 +32,8 @@
     "dev-enc": "cd ../../encompass && npm run start",
     "dev-all": "concurrently \"npm:dev\" \"npm:dev-sso\" \"npm:dev-enc\"",
     "test-travis": "NODE_ENV=test REACT_APP_IS_TEST=true npm run start",
-    "cypress:record": "cypress run --browser electron --record --key 103dfac6-8e4d-4672-adf9-b661fb7738da"
+    "cypress:record": "cypress run --browser electron --record --key 103dfac6-8e4d-4672-adf9-b661fb7738da",
+    "test-start": "NODE_ENV=test concurrently \"nodemon --ignore '../client'\" \"npm run client\""
 
   },
   "dependencies": {

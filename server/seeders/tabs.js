@@ -1,4 +1,4 @@
-const { ObjectId } = require('./utils');
+const { ObjectId, ISODate } = require('./utils');
 
 module.exports = [
   /* 1 */
@@ -34,6 +34,8 @@ module.exports = [
     appName: 'classic',
     __v: 0,
   },
+
+  /* 3 */
   {
     _id: ObjectId('5d0d2ed0535e3a522445f7a9'),
     currentState:
@@ -67,6 +69,7 @@ module.exports = [
     __v: 0,
   },
 
+  /* 4 */
   {
     _id: ObjectId('5d3b493dca44f53a90a9ed35'),
     currentState: '',
@@ -164,6 +167,8 @@ module.exports = [
     appName: 'classic',
     __v: 0,
   },
+
+  /* 5 */
   {
     _id: ObjectId('5d7bd90dc5770e47a40c44ed'),
     currentState: '',
@@ -178,6 +183,8 @@ module.exports = [
     tabType: 'geogebra',
     __v: 0,
   },
+
+  /* 6 */
   {
     _id: ObjectId('5d7bd9bde1f24148ffa81059'),
     currentState: '',
@@ -190,6 +197,151 @@ module.exports = [
     activity: ObjectId('5c2e58e9684f328cbca1d99b'),
     desmosLink: '',
     tabType: 'geogebra',
+    __v: 0,
+  },
+
+  /* 7 */
+  {
+    _id: ObjectId('5d83e970753c000d8e999d2b'),
+    currentState: '',
+    perspective: 'AD',
+    events: [],
+    startingPoint: '',
+    controlledBy: null,
+    isTrashed: false,
+    name: 'Tab 1',
+    activity: ObjectId('5c2e58e9684f328cbca1d99a'),
+    desmosLink: '',
+    tabType: 'geogebra',
+    __v: 0,
+  },
+
+  /* 8 */
+  {
+    _id: ObjectId('5d83f00add0c4946d81684ce'),
+    currentState: '',
+    perspective: 'AD',
+    events: [],
+    startingPoint: '',
+    controlledBy: null,
+    isTrashed: false,
+    name: 'Tab 1',
+    room: ObjectId('5d83f00add0c4946d81684cc'),
+    desmosLink: '',
+    tabType: 'desmos',
+    createdAt: ISODate('2019-09-19T21:15:54.395Z'),
+    updatedAt: ISODate('2019-09-19T21:15:54.395Z'),
+    __v: 0,
+  },
+
+  /* 9 */
+  {
+    _id: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState: '',
+    perspective: 'AD',
+    events: [],
+    startingPoint: '',
+    controlledBy: null,
+    isTrashed: false,
+    name: 'Tab 1',
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    desmosLink: '',
+    tabType: 'desmos',
+    createdAt: ISODate('2019-09-19T21:16:25.894Z'),
+    updatedAt: ISODate('2019-09-19T21:16:25.894Z'),
+    __v: 0,
+  },
+
+  /* 10 */
+  {
+    _id: ObjectId('5d83f39a15329f5bfcd49c11'),
+    currentState: '',
+    perspective: 'AD',
+    events: [],
+    startingPoint: '',
+    controlledBy: null,
+    isTrashed: false,
+    name: 'Tab 1',
+    room: ObjectId('5d83f39a15329f5bfcd49c0f'),
+    desmosLink: '',
+    tabType: 'geogebra',
+    appName: 'classic',
+    createdAt: ISODate('2019-09-19T21:31:06.116Z'),
+    updatedAt: ISODate('2019-09-19T21:31:06.116Z'),
+    __v: 0,
+  },
+
+  /* 11 */
+  {
+    _id: ObjectId('5d83f3b615329f5bfcd49c17'),
+    currentState: '',
+    perspective: 'AD',
+    events: [],
+    startingPoint: '',
+    controlledBy: null,
+    isTrashed: false,
+    name: 'Tab 1',
+    room: ObjectId('5d83f3b615329f5bfcd49c15'),
+    desmosLink: '',
+    tabType: 'geogebra',
+    appName: 'classic',
+    createdAt: ISODate('2019-09-19T21:31:34.748Z'),
+    updatedAt: ISODate('2019-09-19T21:31:34.748Z'),
+    __v: 0,
+  },
+
+  /* 12 */
+  {
+    _id: ObjectId('5d83f3e015329f5bfcd49c1b'),
+    currentState: '',
+    perspective: 'AD',
+    events: [],
+    startingPoint: '',
+    controlledBy: null,
+    isTrashed: false,
+    name: 'Tab 1',
+    activity: ObjectId('5d83f3e015329f5bfcd49c1a'),
+    desmosLink: '',
+    tabType: 'geogebra',
+    createdAt: ISODate('2019-09-19T21:32:16.921Z'),
+    updatedAt: ISODate('2019-09-19T21:32:16.921Z'),
+    __v: 0,
+  },
+
+  /* 13 */
+  {
+    _id: ObjectId('5d83f3fc15329f5bfcd49c1e'),
+    currentState: '',
+    perspective: 'AD',
+    events: [],
+    startingPoint: '',
+    controlledBy: null,
+    isTrashed: false,
+    name: 'Tab 1',
+    activity: ObjectId('5d83f3fc15329f5bfcd49c1d'),
+    desmosLink: '',
+    tabType: 'geogebra',
+    createdAt: ISODate('2019-09-19T21:32:44.587Z'),
+    updatedAt: ISODate('2019-09-19T21:32:44.587Z'),
+    __v: 0,
+  },
+
+  /* 14 */
+  {
+    _id: ObjectId('5d83f42e15329f5bfcd49c23'),
+    currentState: '',
+    perspective: 'AD',
+    events: [],
+    startingPoint: '',
+    controlledBy: null,
+    isTrashed: false,
+    name: 'Tab 1',
+    room: ObjectId('5d83f42e15329f5bfcd49c21'),
+    desmosLink: '',
+    tabType: 'geogebra',
+    appName: 'classic',
+    createdAt: ISODate('2019-09-19T21:33:34.794Z'),
+    updatedAt: ISODate('2019-09-19T21:33:34.794Z'),
     __v: 0,
   },
 ];
