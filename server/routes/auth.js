@@ -31,6 +31,14 @@ const Room = require('../models/Room');
 
 const ssoService = require('../services/sso');
 
+let secret;
+
+if (process.env.NODE_ENV === 'test') {
+  secret = process.env.MT_USER_JWT_SECRET_TEST;
+} else {
+  secret = process.env.MT_USER_JWT_SECRET;
+}
+
 router.post('/login', async (req, res) => {
   try {
     const { message, accessToken, refreshToken } = await ssoService.login(
@@ -40,10 +48,7 @@ router.post('/login', async (req, res) => {
       return errors.sendError.InvalidCredentialsError(message, res);
     }
 
-    const verifiedToken = await jwt.verify(
-      accessToken,
-      process.env.MT_USER_JWT_SECRET
-    );
+    const verifiedToken = await jwt.verify(accessToken, secret);
     const vmtUser = await User.findById(verifiedToken.vmtUserId)
       .populate({
         path: 'courses',
@@ -85,10 +90,7 @@ router.post('/signup', async (req, res) => {
       return errors.sendError.InvalidCredentialsError(message, res);
     }
 
-    const verifiedToken = await jwt.verify(
-      accessToken,
-      process.env.MT_USER_JWT_SECRET
-    );
+    const verifiedToken = await jwt.verify(accessToken, secret);
 
     setSsoCookie(res, accessToken);
     setSsoRefreshCookie(res, refreshToken);
@@ -168,7 +170,7 @@ router.post('/newMtUser', async (req, res) => {
   try {
     const authToken = extractBearerToken(req);
 
-    await jwt.verify(authToken, process.env.MT_USER_JWT_SECRET);
+    await jwt.verify(authToken, secret);
     const wasFromTempUser =
       Array.isArray(req.body.rooms) && isValidMongoId(req.body.rooms[0]);
     if (wasFromTempUser) {
@@ -344,7 +346,7 @@ router.get('/confirmEmail/resend', async (req, res) => {
 router.put('/sso/user/:id', async (req, res) => {
   try {
     const authToken = extractBearerToken(req);
-    await jwt.verify(authToken, process.env.MT_USER_JWT_SECRET);
+    await jwt.verify(authToken, secret);
     const vmtUser = await User.findByIdAndUpdate(
       req.params.id,
       { $set: req.body },
