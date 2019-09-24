@@ -1,6 +1,11 @@
 language: node_js
 node_js:
   - 10.8
+addons:
+  apt:
+    packages:
+    # Ubuntu 16+ does not install this dependency by default, so we need to install it ourselves
+    - libgconf-2-4
 services:
   - mongodb
 before_install:
@@ -17,7 +22,7 @@ before_install:
   - "cd .."
   - "git clone --branch=fixTravisTests https://github.com/DanielJKelly/encompass.git"
   - "cd encompass && npm i --only=production"
-  - "npm run test-travis &"
+  - "grunt serve-seed &"
   - "sleep 6"
   - "cd ../vmt"
 
@@ -29,8 +34,8 @@ install:
   - npm --prefix ../client install ../client
   - npm run build-production-test
 cache:
+  npm: true
   directories:
-    - ~/.npm
     - ~/.cache
 before_script:
   ## we use the '&' ampersand which tells
