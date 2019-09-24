@@ -42,6 +42,8 @@ before_script:
   ## travis to run this process in the background
   ## else it would block execution and hang travis
   - node ./bin/www &
+  - npm run client &
+  - sleep 6
 script:
   - npm run cypress:run
   #  ADD THIS TO PACKAGE>JSON CYPRESS SCRUPT
