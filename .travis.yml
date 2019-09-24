@@ -22,7 +22,7 @@ before_install:
   - "cd .."
   - "git clone --branch=fixTravisTests https://github.com/DanielJKelly/encompass.git"
   - "cd encompass && npm i --only=production"
-  - "grunt serve-seed &"
+  - "npm run test-travis &"
   - "sleep 6"
   - "cd ../vmt"
 
@@ -37,11 +37,12 @@ cache:
   npm: true
   directories:
     - ~/.cache
+    - client/node_modules
 before_script:
   ## we use the '&' ampersand which tells
   ## travis to run this process in the background
   ## else it would block execution and hang travis
-  - node ./bin/www &
+  - NODE_ENV=test REACT_APP_IS_TEST=true node ./bin/www &
   - npm run client &
   - sleep 6
 script:
