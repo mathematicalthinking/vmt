@@ -14,6 +14,7 @@
     "build-enc-dev": "cd ../client && node scripts/build.js dev encompass",
     "build-enc-staging": "cd ../client && node scripts/build.js staging encompass",
     "build-enc-production": "cd ../client && node scripts/build.js production encompass",
+    "build-enc-test": "cd ../client && node scripts/build.js test encompass",
     "test": "NODE_ENV=test REACT_APP_IS_TEST=true concurrently \"nodemon\" \"npm run client\" \"npm run cypress\"",
     "prodTest": "SET \"NODE_ENV=production\" && node ./bin/www",
     "testEncompass": "SET \"NODE_ENV=production\" && SET \"ENCOMPASS=true\" && node ./bin/www",
