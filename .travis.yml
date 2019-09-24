@@ -3,10 +3,30 @@ node_js:
   - 10.8
 services:
   - mongodb
+before_install:
+  # clone mt-sso
+  - "cd .."
+  - "git clone --branch=fixTravisTests https://github.com/DanielJKelly/mt-sso.git"
+  - "cd mt-sso"
+  - "nvm install 8.6.0"
+  - "nvm use 8.6.0"
+  - "npm i"
+  - "npm run test-travis &"
+  - "sleep 5"
+  # clone encompass
+  - "cd .."
+  - "git clone --branch=fixTravisTests https://github.com/DanielJKelly/encompass.git"
+  - "cd encompass && npm i --only=production"
+  - "npm run test-travis &"
+  - "sleep 6"
+  - "cd ../vmt"
+
 install:
+  - cd server
+  - nvm use 10.8
   - npm ci
   - npm install
-  - npm --prefix ./client install ./client
+  - npm --prefix ../client install ../client
   - npm run build-production-test
 cache:
   directories:
