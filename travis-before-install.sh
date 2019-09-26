@@ -19,8 +19,8 @@ echo "Account: $githubAccount"
   cd ..
   git clone --branch=$branch https://github.com/$githubAccount/mt-sso.git mt-sso
   cd mt-sso
-  nvm install 8.6.0
-  nvm use 8.6.0
+  ~/.nvm/nvm.sh install 8.6.0
+  ~/.nvm/nvm.sh use 8.6.0
   npm i
   npm run test-travis &
   sleep 5
