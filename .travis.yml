@@ -44,7 +44,7 @@ before_script:
   ## else it would block execution and hang travis
   - NODE_ENV=test REACT_APP_IS_TEST=true node ./bin/www &
   - npm run client &
-  - sleep 6
+  - sleep 20
 script:
   - npm run cypress:run
   #  ADD THIS TO PACKAGE>JSON CYPRESS SCRUPT
