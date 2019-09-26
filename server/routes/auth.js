@@ -314,8 +314,6 @@ router.get('/confirmEmail/confirm/:token', async (req, res) => {
       // check if the user whose email was confirmed is the same as the logged in user
       const isSameUser = areObjectIdsEqual(currentUser._id, confirmedUser._id);
 
-      console.log('isSameUser', isSameUser, currentUser, confirmedUser);
-
       if (!isSameUser) {
         delete results.user;
       }

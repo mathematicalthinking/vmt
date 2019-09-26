@@ -123,7 +123,7 @@ Notification.post('save', function(notification, next) {
         if (socket) {
           return buildEmitData(notification).then((data) => {
             if (data) {
-              console.log('EMITTING NTF: ', data);
+              // console.log('EMITTING NTF: ', data);
               return socket.emit('NEW_NOTIFICATION', data);
             }
             return null;

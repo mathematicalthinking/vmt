@@ -148,12 +148,12 @@ const canModifyResource = (req) => {
     results.canModify = true;
     return Promise.resolve(results);
   }
-  console.log(
-    `${user.username}
-    is requesting to update ${resource} (${id}) with request body:
-    ${JSON.stringify(req.body, null, 2)}
-    `
-  );
+  // console.log(
+  //   `${user.username}
+  //   is requesting to update ${resource} (${id}) with request body:
+  //   ${JSON.stringify(req.body, null, 2)}
+  //   `
+  // );
 
   // if (user.isAdmin) {
   //   results.canModify = true;
