@@ -8,27 +8,10 @@ addons:
     - libgconf-2-4
 services:
   - mongodb
-before_install: bash ./travis-before-install.sh fixTravisTests DanielJKelly
-  # clone mt-sso
-  # - "cd .."
-  # - "git clone --branch=fixTravisTests https://github.com/DanielJKelly/mt-sso.git"
-  # - "cd mt-sso"
-  # - "nvm install 8.6.0"
-  # - "nvm use 8.6.0"
-  # - "npm i"
-  # - "npm run test-travis &"
-  # - "sleep 5"
-  # # clone encompass
-  # - "cd .."
-  # - "git clone --branch=fixTravisTests https://github.com/DanielJKelly/encompass.git"
-  # - "cd encompass && npm i --only=production"
-  # - "npm run test-travis &"
-  # - "sleep 6"
-  # - "cd ../vmt"
+before_install: bash ./travis-before-install.sh
 
 install:
   - cd server
-  - nvm use 10.8
   - npm ci
   - npm install
   - npm --prefix ../client install ../client
@@ -44,7 +27,7 @@ before_script:
   ## else it would block execution and hang travis
   - NODE_ENV=test REACT_APP_IS_TEST=true node ./bin/www &
   - npm run client &
-  - sleep 20
+  - sleep 10
 script:
   - npm run cypress:run
   #  ADD THIS TO PACKAGE>JSON CYPRESS SCRUPT
