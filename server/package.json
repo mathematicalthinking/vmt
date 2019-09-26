@@ -19,7 +19,7 @@
     "prodTest": "SET \"NODE_ENV=production\" && node ./bin/www",
     "testEncompass": "SET \"NODE_ENV=production\" && SET \"ENCOMPASS=true\" && node ./bin/www",
     "cypress": "./node_modules/.bin/cypress open",
-    "cypress:run": "cypress run --browser electron --key 103dfac6-8e4d-4672-adf9-b661fb7738da",
+    "cypress:run": "cypress run --browser electron",
     "prettier-watch": "onchange '**/*.js' -- prettier --write {{changed}}",
     "heroku-postbuild": "cd ../client && npm install && npm run build",
     "seed": "node cypress/seedDb",
@@ -31,7 +31,8 @@
     "dev-sso": "cd ../../mt-sso && npm run dev",
     "dev-enc": "cd ../../encompass && npm run start",
     "dev-all": "concurrently \"npm:dev\" \"npm:dev-sso\" \"npm:dev-enc\"",
-    "test-travis": "NODE_ENV=test REACT_APP_IS_TEST=true npm run start"
+    "test-travis": "NODE_ENV=test REACT_APP_IS_TEST=true npm run start",
+    "cypress:record": "cypress run --browser electron --record --key 103dfac6-8e4d-4672-adf9-b661fb7738da"
 
   },
   "dependencies": {
