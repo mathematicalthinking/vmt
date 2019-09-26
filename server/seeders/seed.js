@@ -26,9 +26,9 @@ const seed = async (collections = Object.keys(data)) => {
       );
     });
 
-    const results = await Promise.all(seededCollections);
+    await Promise.all(seededCollections);
 
-    console.log('Seed Results: ', results);
+    console.log('Done seeding vmt-test');
     mongoose.connection.close();
   } catch (err) {
     console.log('Error seeding: ', err);

@@ -1,22 +1,33 @@
 language: node_js
 node_js:
   - 10.8
+addons:
+  apt:
+    packages:
+    # Ubuntu 16+ does not install this dependency by default, so we need to install it ourselves
+    - libgconf-2-4
 services:
   - mongodb
+before_install: bash ./travis-before-install.sh
+
 install:
+  - cd server
   - npm ci
   - npm install
-  - npm --prefix ./client install ./client
+  - npm --prefix ../client install ../client
   - npm run build-production-test
 cache:
+  npm: true
   directories:
-    - ~/.npm
     - ~/.cache
+    - client/node_modules
 before_script:
   ## we use the '&' ampersand which tells
   ## travis to run this process in the background
   ## else it would block execution and hang travis
-  - node ./bin/www &
+  - NODE_ENV=test REACT_APP_IS_TEST=true node ./bin/www &
+  - npm run client &
+  - sleep 10
 script:
   - npm run cypress:run
   #  ADD THIS TO PACKAGE>JSON CYPRESS SCRUPT

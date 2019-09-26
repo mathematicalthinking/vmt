@@ -210,9 +210,7 @@ module.exports = {
     }
     aggregationPipeline.push({ $limit: 20 });
     aggregationPipeline.push({ $sort: { updatedAt: -1 } });
-    console.log({ aggregationPipeline: JSON.stringify(aggregationPipeline) });
     const rooms = await Room.aggregate(aggregationPipeline);
-    console.log({ rooms });
     return rooms;
   },
 

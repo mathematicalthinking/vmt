@@ -57,14 +57,25 @@ router.get('/search', (req, res) => {
   const { resourceName } = req.query;
   const reqUser = getUser(req);
 
+  console.log('enc search query: ', resourceName);
   if (!reqUser) {
+    console.log(`No user in enc search!`);
     return errors.sendError.InvalidCredentialsError('No user logged in', res);
   }
+
+  console.log(`in enc search user: ${reqUser.username} `);
 
   const roomCriteria = getAccessCriteria(reqUser, resourceName, 'room');
   const activityCriteria = getAccessCriteria(reqUser, resourceName, 'activity');
   // should never happen
   if (roomCriteria === undefined || activityCriteria === undefined) {
+    console.log(
+      'enc search criteria err: ',
+      'rooms: ',
+      roomCriteria,
+      'act: ',
+      activityCriteria
+    );
     return errors.sendError.InternalError(null, res);
   }
 
@@ -107,6 +118,13 @@ router.get('/search', (req, res) => {
 
   return Promise.all([rooms, activities])
     .then(([rooms, activities]) => {
+      console.log(
+        `enc search results: rooms: ${JSON.stringify(
+          rooms,
+          null,
+          2
+        )}, activities: ${JSON.stringify(activities, null, 2)}  `
+      );
       return res.json({
         activities,
         rooms,

@@ -90,7 +90,6 @@ router.get(
   (req, res) => {
     const { id, resource } = req.params;
     const controller = controllers[resource];
-    console.log('query: ', req.query);
     controller
       .getPopulatedById(id, req.query)
       .then((result) => {
@@ -169,7 +168,7 @@ router.post(
       if (buffer) {
         return buffer.toString('base64');
       }
-      console.log('no buffer!');
+      // console.log('no buffer!');
       return errors.sendError('no buffer on fileObj while mapping files', res);
     });
     const compacted = _.compact(base64Files);

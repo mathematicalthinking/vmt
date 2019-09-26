@@ -26,10 +26,17 @@ describe('Edit Members Roles', function() {
 
     cy.getTestElement('dropdown').click();
     cy.getTestElement('dropdown-item')
-      .eq(1)
+      .contains('facilitator')
       .click();
     cy.getTestElement('dropdown').should('not.be.visible');
     cy.getTestElement('trash-member').should('not.be.visible');
+    cy.getTestElement('member-worf')
+      .children()
+      .children()
+      .eq(1)
+      .should(($el) => {
+        expect($el).to.include.text('facilitator');
+      });
   });
 
   it('allows worf to see edit controls after being made a facilitator', function() {

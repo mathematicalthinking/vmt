@@ -8,7 +8,13 @@ const {
 } = require('./utils/request');
 const User = require('../models/User');
 
-const secret = process.env.MT_USER_JWT_SECRET;
+let secret;
+if (process.env.NODE_ENV === 'test') {
+  secret = process.env.MT_USER_JWT_SECRET_TEST;
+} else {
+  secret = process.env.MT_USER_JWT_SECRET;
+}
+
 const { accessCookie, refreshCookie } = require('../constants/sso');
 
 const ssoService = require('../services/sso');
@@ -56,7 +62,7 @@ const getMtUser = async (req, res) => {
 
     verifiedAccessToken = await verifyJwt(accessToken, secret);
 
-    console.log('received new access token vmt: ', verifiedAccessToken);
+    // console.log('received new access token vmt: ', verifiedAccessToken);
 
     setSsoCookie(res, accessToken);
     return verifiedAccessToken;
@@ -85,7 +91,6 @@ const prepareVmtUser = (req, res, next) => {
 
   if (mtUserDetails === null) {
     req.mt.auth.vmtUser = null;
-    console.log('no user logged in : ', req.path, 'clearing cookies');
     // clear any invalid cookies
     if (req.cookies[accessCookie.name]) {
       clearAccessCookie(res);
