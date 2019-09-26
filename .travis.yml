@@ -8,23 +8,23 @@ addons:
     - libgconf-2-4
 services:
   - mongodb
-before_install:
+before_install: bash ./travis-before-install.sh fixTravisTests DanielJKelly
   # clone mt-sso
-  - "cd .."
-  - "git clone --branch=fixTravisTests https://github.com/DanielJKelly/mt-sso.git"
-  - "cd mt-sso"
-  - "nvm install 8.6.0"
-  - "nvm use 8.6.0"
-  - "npm i"
-  - "npm run test-travis &"
-  - "sleep 5"
-  # clone encompass
-  - "cd .."
-  - "git clone --branch=fixTravisTests https://github.com/DanielJKelly/encompass.git"
-  - "cd encompass && npm i --only=production"
-  - "npm run test-travis &"
-  - "sleep 6"
-  - "cd ../vmt"
+  # - "cd .."
+  # - "git clone --branch=fixTravisTests https://github.com/DanielJKelly/mt-sso.git"
+  # - "cd mt-sso"
+  # - "nvm install 8.6.0"
+  # - "nvm use 8.6.0"
+  # - "npm i"
+  # - "npm run test-travis &"
+  # - "sleep 5"
+  # # clone encompass
+  # - "cd .."
+  # - "git clone --branch=fixTravisTests https://github.com/DanielJKelly/encompass.git"
+  # - "cd encompass && npm i --only=production"
+  # - "npm run test-travis &"
+  # - "sleep 6"
+  # - "cd ../vmt"
 
 install:
   - cd server
