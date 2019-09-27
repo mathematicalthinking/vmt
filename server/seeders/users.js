@@ -776,7 +776,7 @@ module.exports = [
     firstName: 'Summer',
     lastName: 'Smith',
     createdAt: ISODate('2018-09-06T15:30:21.278Z'),
-    updatedAt: ISODate('2019-09-19T21:44:17.930Z'),
+    updatedAt: ISODate('2019-09-27T14:33:58.294Z'),
     isTrashed: false,
     isEmailConfirmed: true,
     doForcePasswordChange: false,

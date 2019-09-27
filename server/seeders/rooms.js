@@ -366,7 +366,12 @@ module.exports = [
       participantsCanChangePerspective: false,
       controlByTab: false,
     },
-    chat: [],
+    chat: [
+      ObjectId('5d8e1c20f61e66114f5a9aab'),
+      ObjectId('5d8e1c37fc4d0b4c1c8873ba'),
+      ObjectId('5d8e1c9583074a44e85d97e0'),
+      ObjectId('5d8e1ca633014c946f1fcb6e'),
+    ],
     currentMembers: [],
     tabs: [ObjectId('5d83f029dd0c4946d81684d4')],
     privacySetting: 'public',
@@ -389,7 +394,7 @@ module.exports = [
     ],
     dueDate: null,
     createdAt: ISODate('2019-09-19T21:16:25.896Z'),
-    updatedAt: ISODate('2019-09-19T21:16:25.896Z'),
+    updatedAt: ISODate('2019-09-27T14:28:54.455Z'),
     __v: 0,
   },
 
