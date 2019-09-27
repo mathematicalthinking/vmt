@@ -1,4 +1,9 @@
 import moment from 'moment';
+import { property } from 'lodash';
+
+const getGgbEventType = property('ggbEvent.eventType');
+const getGgbEventArray = property('ggbEvent.eventArray');
+const getGgbEventLabel = property('ggbEvent.label');
 
 export default (log, tabs) => {
   const BREAK_DURATION = 2000;
@@ -8,6 +13,9 @@ export default (log, tabs) => {
   const relativeDuration = log.reduce((acc, cur, idx, src) => {
     // Copy currentEvent
     const event = { ...cur };
+
+    const ggbEventType = getGgbEventType(event);
+
     // Add the relative Time
     event.relTime = acc;
     // ADD A TAB FOR EVENTS THAT DONT ALREADY HAVE THEM TO MAKE SKIPPING AROUND EASIER
@@ -27,21 +35,26 @@ export default (log, tabs) => {
     // the event array...or potentially a combination of both of theses things
     // to manage this we define Array eventsToFind which we mutate
     // eventsToFind so that if it is empty we know we've found all of the relevant events
-    if (event.eventType === 'REMOVE') {
+    if (ggbEventType === 'REMOVE') {
       let eventsToFind;
       let undoXML = '';
       let undoArray = [];
-      const { label, eventArray } = event;
+      const { label, eventArray } = event.ggbEvent;
       if (eventArray && eventArray.length > 1) {
         eventsToFind = [...eventArray];
       } else eventsToFind = [label];
       // go back through all of the previous events
       for (let i = idx - 1; i >= 0; i--) {
-        if (src[i].eventType === 'ADD' || src[i].eventType === 'BATCH_ADD') {
+        if (
+          getGgbEventType(src[i]) === 'ADD' ||
+          getGgbEventType(src[i]) === 'BATCH_ADD'
+        ) {
+          const evArray = getGgbEventArray(src[i]);
+
           // If the event has an event array, look through it for eventsToFind
-          if (src[i].eventArray && src[i].eventArray.length > 0) {
+          if (evArray && evArray.length > 0) {
             undoArray = undoArray.concat(
-              src[i].eventArray.filter((e) => {
+              evArray.filter((e) => {
                 let found = false;
                 const eSlice = e.slice(0, e.indexOf(':'));
                 eventsToFind.forEach((etf) => {
@@ -52,8 +65,11 @@ export default (log, tabs) => {
                 return found;
               })
             );
-          } else if (src[i].label && eventsToFind.indexOf(src[i].label)) {
-            const index = eventsToFind.indexOf(src[i].label);
+          } else if (
+            getGgbEventLabel(src[i]) &&
+            eventsToFind.indexOf(getGgbEventLabel(src[i]))
+          ) {
+            const index = eventsToFind.indexOf(getGgbEventLabel(src[i]));
             eventsToFind.splice(index, 1);
             undoXML += src[i].event;
           }
