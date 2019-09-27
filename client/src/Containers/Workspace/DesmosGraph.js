@@ -183,7 +183,7 @@ class DesmosGraph extends Component {
         const newData = {
           room: room._id,
           tab: tab._id,
-          event: currentStateString,
+          currentState: currentStateString, // desmos events use the currentState field on Event model
           color: myColor,
           user: {
             _id: user._id,
