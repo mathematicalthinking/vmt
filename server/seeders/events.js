@@ -326,7 +326,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594421315.0,
@@ -342,7 +342,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594425975.0,
@@ -358,7 +358,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594426196.0,
@@ -374,7 +374,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594426790.0,
@@ -390,7 +390,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x_2","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x_2","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594427816.0,
@@ -406,7 +406,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594428949.0,
@@ -422,7 +422,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ ","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ ","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594429968.0,
@@ -438,7 +438,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594430264.0,
@@ -454,7 +454,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594431198.0,
@@ -470,7 +470,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594433246.0,
@@ -486,7 +486,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594437135.0,
@@ -502,7 +502,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594437342.0,
@@ -518,7 +518,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=4","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=4","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594437471.0,
@@ -534,7 +534,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=4x","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=4x","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594437741.0,
@@ -550,7 +550,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=4","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=4","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594440101.0,
@@ -566,7 +566,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594440436.0,
@@ -582,7 +582,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594444901.0,
@@ -598,7 +598,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594445406.0,
@@ -614,7 +614,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^{ },","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^{ },","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594446614.0,
@@ -630,7 +630,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594447182.0,
@@ -646,7 +646,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594449124.0,
@@ -662,7 +662,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"4","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"4","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594451310.0,
@@ -678,7 +678,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594452299.0,
@@ -694,7 +694,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594456165.0,
@@ -710,7 +710,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594456590.0,
@@ -726,7 +726,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594460774.0,
@@ -742,7 +742,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594461164.0,
@@ -758,7 +758,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^{ },","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^{ },","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594462422.0,
@@ -774,7 +774,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594462749.0,
@@ -790,7 +790,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^{9\\\\ },","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^{9\\\\ },","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594464806.0,
@@ -806,7 +806,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^{9\\\\ ^{ },},","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^{9\\\\ ^{ }}","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594467181.0,
@@ -822,7 +822,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^{9\\\\ },","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^{9\\\\ },","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594468532.0,
@@ -838,7 +838,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594469451.0,
@@ -854,7 +854,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^{ },","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^{ },","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594471124.0,
@@ -870,7 +870,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594472030.0,
@@ -886,7 +886,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594472909.0,
@@ -902,7 +902,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ ","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ ","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594474110.0,
@@ -918,7 +918,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594474294.0,
@@ -934,7 +934,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ ","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ ","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594474558.0,
@@ -950,7 +950,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594474716.0,
@@ -966,7 +966,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4z","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4z","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594477230.0,
@@ -982,7 +982,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4z^{ },","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4z^{ },","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594478219.0,
@@ -998,7 +998,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4z^3","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4z^3","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594478491.0,
@@ -1014,7 +1014,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4z^{ },","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4z^{ },","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594479729.0,
@@ -1030,7 +1030,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4z","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4z","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594480032.0,
@@ -1046,7 +1046,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594480449.0,
@@ -1062,7 +1062,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ ","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ ","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594481066.0,
@@ -1078,7 +1078,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594481681.0,
@@ -1094,7 +1094,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ ","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ ","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594481864.0,
@@ -1110,7 +1110,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594485139.0,
@@ -1126,7 +1126,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -4","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -4","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594485698.0,
@@ -1142,7 +1142,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -44","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -44","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594485897.0,
@@ -1158,7 +1158,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -4","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -4","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594487113.0,
@@ -1174,7 +1174,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -4","style":"SOLID"},{"type":"expression","id":"5","color":"#fa7e19","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -4","style":"SOLID"},{"type":"expression","id":"5","color":"#fa7e19","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594488945.0,
@@ -1190,7 +1190,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -4","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -4","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594493084.0,
@@ -1206,7 +1206,7 @@ module.exports = [
     room: ObjectId('5d83f029dd0c4946d81684d2'),
     tab: ObjectId('5d83f029dd0c4946d81684d4'),
     currentState:
-      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811},},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -4","style":"SOLID"},]},},',
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -4","style":"SOLID"}]}}',
     color: '#f26247',
     user: ObjectId('5d1a59d79c78ad48c0480caa'),
     timestamp: 1569594494225.0,
