@@ -3,6 +3,14 @@ import PropTypes from 'prop-types';
 import Script from 'react-load-script';
 import classes from '../Workspace/graph.css';
 
+import {
+  getEventLabel,
+  getEventType,
+  getEventXml,
+  setEventXml,
+  setEventType,
+} from './SharedReplayer.utils';
+
 class GgbReplayer extends Component {
   graph = React.createRef();
   isFileSet = false; // calling ggb.setBase64 triggers this.initializeGgb(), because we set base 64 inside initializeGgb we use this instance var to track whether we've already set the file. When the ggb tries to load the file twice it breaks everything
@@ -26,7 +34,7 @@ class GgbReplayer extends Component {
         this.applyMultipleEvents(prevProps.index, index);
       } else if (
         prevProps.index !== index &&
-        (log[index].event || log[index].eventArray)
+        (getEventXml(log[index]) || log[index].eventArray)
       ) {
         // check if the tab has changed
         this.constructEvent(log[index]);
@@ -56,7 +64,8 @@ class GgbReplayer extends Component {
   // We should periodically save the entire state so if we skip to the very end we don't have to apply each event one at a time
 
   constructEvent = (data) => {
-    switch (data.eventType) {
+    const eventType = getEventType(data);
+    switch (eventType) {
       case 'ADD':
         if (data.undoRemove) {
           if (data.undoXML) {
@@ -68,25 +77,32 @@ class GgbReplayer extends Component {
           }
         } else if (data.definition) {
           this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
+        } else if (data.ggbEvent && data.ggbEvent.commandString) {
+          // not sure if this is correct...
+          this.ggbApplet.evalCommand(data.ggbEvent.commandString);
         }
-        this.ggbApplet.evalXML(data.event);
+        this.ggbApplet.evalXML(getEventXml(data));
         this.ggbApplet.evalCommand('UpdateConstruction()');
         break;
       case 'REMOVE':
         if (data.eventArray && data.eventArray.lenght > 1) {
-          data.eventArray.forEach((label) => {
-            this.ggbApplet.deleteObject(label);
+          data.eventArray.forEach((labelOrGgbEvent) => {
+            if (typeof labelOrGgbEvent === 'string') {
+              this.ggbApplet.deleteObject(labelOrGgbEvent);
+            } else {
+              this.ggbApplet.deleteObject(labelOrGgbEvent.label);
+            }
           });
         } else {
-          this.ggbApplet.deleteObject(data.label);
+          this.ggbApplet.deleteObject(getEventLabel(data));
         }
         break;
       case 'UPDATE':
-        this.ggbApplet.evalXML(data.event);
+        this.ggbApplet.evalXML(getEventXml(data));
         this.ggbApplet.evalCommand('UpdateConstruction()');
         break;
       case 'CHANGE_PERSPECTIVE':
-        this.ggbApplet.setPerspective(data.event);
+        this.ggbApplet.setPerspective(getEventXml(data));
         this.ggbApplet.showAlgebraInput(true);
         // this.ggbApplet.evalXML(data.event);
         // this.ggbApplet.evalCommand("UpdateConstruction()");
@@ -100,10 +116,18 @@ class GgbReplayer extends Component {
         if (data.definition) {
           // this.ggbApplet.evalCommand(data.event);
           this.recursiveUpdate(data.eventArray, true);
+        } else if (data.ggbEvent && data.ggbEvent.commandString) {
+          this.recursiveUpdate(data.eventArray, true);
         }
         break;
       case 'BATCH_REMOVE':
-        data.eventArray.forEach((label) => this.ggbApplet.deleteObject(label));
+        data.eventArray.forEach((labelOrGgbEvent) => {
+          if (typeof labelOrGgbEvent === 'string') {
+            this.ggbApplet.deleteObject(labelOrGgbEvent);
+          } else {
+            this.ggbApplet.deleteObject(labelOrGgbEvent.label);
+          }
+        });
         break;
       case 'UPDATE_STYLE': {
         if (data.eventArray) {
@@ -209,12 +233,16 @@ class GgbReplayer extends Component {
         if (
           log[i].eventArray &&
           log[i].eventArray.length > 0 &&
-          log[i].eventType === 'BATCH_UPDATE'
+          getEventType(log[i]) === 'BATCH_UPDATE'
         ) {
           const syntheticEvent = { ...log[i] };
           const { eventArray } = syntheticEvent;
-          syntheticEvent.event = eventArray.pop();
-          syntheticEvent.eventType = 'UPDATE';
+
+          const xmlOrGgbEvent = eventArray.pop();
+
+          setEventXml(syntheticEvent, xmlOrGgbEvent);
+          setEventType(syntheticEvent, 'UPDATE');
+
           this.constructEvent(syntheticEvent);
         } else {
           this.constructEvent(log[i]);
@@ -226,17 +254,22 @@ class GgbReplayer extends Component {
     else {
       for (let i = startIndex; i > endIndex; i--) {
         const syntheticEvent = { ...log[i] };
-        if (syntheticEvent.eventType === 'ADD') {
-          syntheticEvent.eventType = 'REMOVE';
-        } else if (syntheticEvent.eventType === 'REMOVE') {
+        const eventType = getEventType(syntheticEvent);
+
+        if (eventType === 'ADD') {
+          setEventType(syntheticEvent, 'REMOVE');
+        } else if (eventType === 'REMOVE') {
           syntheticEvent.undoRemove = true;
-          syntheticEvent.eventType = 'ADD';
-        } else if (syntheticEvent.eventType === 'BATCH_ADD') {
-          syntheticEvent.eventType = 'BATCH_REMOVE';
-        } else if (syntheticEvent.eventType === 'BATCH_UPDATE') {
+          setEventType(syntheticEvent, 'ADD');
+        } else if (eventType === 'BATCH_ADD') {
+          setEventType(syntheticEvent, 'BATCH_REMOVE');
+        } else if (eventType === 'BATCH_UPDATE') {
           const { eventArray } = { ...syntheticEvent };
-          syntheticEvent.event = eventArray.shift();
-          syntheticEvent.eventType = 'UPDATE';
+
+          const xmlOrGgbEvent = eventArray.shift();
+
+          setEventXml(syntheticEvent, xmlOrGgbEvent);
+          setEventType(syntheticEvent, 'UPDATE');
         }
         this.constructEvent(syntheticEvent);
       }

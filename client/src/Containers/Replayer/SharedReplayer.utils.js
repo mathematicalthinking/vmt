@@ -1,9 +1,50 @@
 import moment from 'moment';
-import { property } from 'lodash';
 
-const getGgbEventType = property('ggbEvent.eventType');
-const getGgbEventArray = property('ggbEvent.eventArray');
-const getGgbEventLabel = property('ggbEvent.label');
+export function getEventType(event) {
+  if (event.ggbEvent && typeof event.ggbEvent.eventType === 'string') {
+    return event.ggbEvent.eventType;
+  }
+  return event.eventType;
+}
+
+export function getEventLabel(event) {
+  if (event.ggbEvent && typeof event.ggbEvent.label === 'string') {
+    return event.ggbEvent.label;
+  }
+  return event.label;
+}
+
+export function getEventXml(event) {
+  if (event.ggbEvent && typeof event.ggbEvent.xml === 'string') {
+    return event.ggbEvent.xml;
+  }
+  return event.event;
+}
+
+export function setEventXml(event, xmlOrGgbEvent) {
+  const isNewEvent =
+    event.ggbEvent && typeof event.ggbEvent.eventType === 'string';
+
+  const xml =
+    typeof xmlOrGgbEvent === 'string' ? xmlOrGgbEvent : xmlOrGgbEvent.xml;
+
+  if (isNewEvent) {
+    event.ggbEvent.xml = xml;
+  } else {
+    event.event = xml;
+  }
+}
+
+export function setEventType(event, eventType) {
+  const isNewEvent =
+    event.ggbEvent && typeof event.ggbEvent.eventType === 'string';
+
+  if (isNewEvent) {
+    event.ggbEvent.eventType = eventType;
+  } else {
+    event.eventType = eventType;
+  }
+}
 
 export default (log, tabs) => {
   const BREAK_DURATION = 2000;
@@ -13,9 +54,6 @@ export default (log, tabs) => {
   const relativeDuration = log.reduce((acc, cur, idx, src) => {
     // Copy currentEvent
     const event = { ...cur };
-
-    const ggbEventType = getGgbEventType(event);
-
     // Add the relative Time
     event.relTime = acc;
     // ADD A TAB FOR EVENTS THAT DONT ALREADY HAVE THEM TO MAKE SKIPPING AROUND EASIER
@@ -35,26 +73,26 @@ export default (log, tabs) => {
     // the event array...or potentially a combination of both of theses things
     // to manage this we define Array eventsToFind which we mutate
     // eventsToFind so that if it is empty we know we've found all of the relevant events
-    if (ggbEventType === 'REMOVE') {
+    const eventType = getEventType(event);
+    if (eventType === 'REMOVE') {
       let eventsToFind;
       let undoXML = '';
       let undoArray = [];
-      const { label, eventArray } = event.ggbEvent;
+
+      const label = getEventLabel(event);
+
+      const { eventArray } = event;
       if (eventArray && eventArray.length > 1) {
         eventsToFind = [...eventArray];
       } else eventsToFind = [label];
       // go back through all of the previous events
       for (let i = idx - 1; i >= 0; i--) {
-        if (
-          getGgbEventType(src[i]) === 'ADD' ||
-          getGgbEventType(src[i]) === 'BATCH_ADD'
-        ) {
-          const evArray = getGgbEventArray(src[i]);
-
+        const srcEventType = getEventType(src[i]);
+        if (srcEventType === 'ADD' || srcEventType === 'BATCH_ADD') {
           // If the event has an event array, look through it for eventsToFind
-          if (evArray && evArray.length > 0) {
+          if (src[i].eventArray && src[i].eventArray.length > 0) {
             undoArray = undoArray.concat(
-              evArray.filter((e) => {
+              src[i].eventArray.filter((e) => {
                 let found = false;
                 const eSlice = e.slice(0, e.indexOf(':'));
                 eventsToFind.forEach((etf) => {
@@ -66,12 +104,12 @@ export default (log, tabs) => {
               })
             );
           } else if (
-            getGgbEventLabel(src[i]) &&
-            eventsToFind.indexOf(getGgbEventLabel(src[i]))
+            getEventLabel(src[i]) &&
+            eventsToFind.indexOf(getEventLabel(src[i]))
           ) {
-            const index = eventsToFind.indexOf(getGgbEventLabel(src[i]));
+            const index = eventsToFind.indexOf(getEventLabel(src[i]));
             eventsToFind.splice(index, 1);
-            undoXML += src[i].event;
+            undoXML += getEventXml(src[i]);
           }
           if (eventsToFind.length === 0) {
             break;
