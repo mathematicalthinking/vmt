@@ -85,7 +85,7 @@ class GgbReplayer extends Component {
         this.ggbApplet.evalCommand('UpdateConstruction()');
         break;
       case 'REMOVE':
-        if (data.eventArray && data.eventArray.lenght > 1) {
+        if (data.eventArray && data.eventArray.length > 1) {
           data.eventArray.forEach((labelOrGgbEvent) => {
             if (typeof labelOrGgbEvent === 'string') {
               this.ggbApplet.deleteObject(labelOrGgbEvent);
