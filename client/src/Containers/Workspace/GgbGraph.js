@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Script from 'react-load-script';
 import { parseString } from 'xml2js';
 import throttle from 'lodash/throttle';
+import { random } from 'lodash';
 import mongoIdGenerator from '../../utils/createMongoId';
 import classes from './graph.css';
 import { blankEditorState } from './ggbUtils';
@@ -761,6 +762,12 @@ class GgbGraph extends Component {
       this.zoomObj,
       this.throttledZoomListener
     );
+    // make cornerLabel a random letter a-z concatenated with the date in ms
+    const cornerLabel =
+      String.fromCharCode(random(97, 122)) + Date.now().toString();
+
+    this.ggbApplet.renameObject(this.zoomObj, cornerLabel);
+
     this.ggbApplet.registerClientListener(this.clientListener);
     this.ggbApplet.registerAddListener(this.addListener);
     this.ggbApplet.registerClickListener(this.clickListener);
