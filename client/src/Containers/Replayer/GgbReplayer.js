@@ -64,7 +64,18 @@ class GgbReplayer extends Component {
   // We should periodically save the entire state so if we skip to the very end we don't have to apply each event one at a time
 
   constructEvent = (data) => {
-    const eventType = getEventType(data);
+    const { eventType } = data;
+    const isNewEvent = typeof eventType !== 'string';
+
+    if (isNewEvent) {
+      const { ggbEvent, eventArray } = data;
+      if (eventArray && eventArray.length > 0) {
+        this.recursiveUpdateNew(eventArray);
+      } else if (ggbEvent) {
+        this.writeGgbEventToGraph(ggbEvent);
+      }
+      return;
+    }
     switch (eventType) {
       case 'ADD':
         if (data.undoRemove) {
@@ -187,6 +198,144 @@ class GgbReplayer extends Component {
     }
   };
 
+  writeGgbEventToGraph = (event) => {
+    if (
+      event.commandString &&
+      event.objType !== 'point' &&
+      event.eventType !== 'DRAG'
+    ) {
+      this.ggbApplet.evalCommand(event.commandString);
+      // if (event.valueString) {
+      //   this.ggbApplet.evalCommand(event.valueString);
+      // }
+    } else if (event.xml) {
+      this.ggbApplet.evalXML(event.xml);
+    } else if (event.eventType === 'REMOVE') {
+      console.log(`DELETING ${event.label}`);
+      this.ggbApplet.deleteObject(event.label);
+    }
+    this.ggbApplet.evalCommand('UpdateConstruction()');
+  };
+
+  /**
+   * @method applyMultipleEvents
+   * @description Takes two indices from the log and applies (or un-applies if going backwards thru time) all events between
+   * @param  {} startIndex
+   * @param  {} endIndex
+   */
+
+  applyMultipleEvents(startIndex, endIndex) {
+    const { log } = this.props;
+    // Forwards through time
+    if (startIndex < endIndex) {
+      // this.ggbApplet.setXML(this.props.log[endIndex].currentState);
+      console.log(
+        'applying multiple forwards',
+        'from ',
+        startIndex,
+        'to ',
+        endIndex
+      );
+
+      for (let i = startIndex; i <= endIndex; i++) {
+        const syntheticEvent = { ...log[i] };
+        const { eventType } = syntheticEvent;
+        const isNewEvent = typeof eventType !== 'string';
+
+        if (isNewEvent) {
+          const { ggbEvent, eventArray } = syntheticEvent;
+          if (eventArray && eventArray.length > 0) {
+            this.recursiveUpdateNew(eventArray);
+          } else if (ggbEvent) {
+            console.log(
+              'calling write from applyMultiple events forwards:',
+              ggbEvent
+            );
+            this.writeGgbEventToGraph(ggbEvent);
+          }
+        } else if (
+          log[i].eventArray &&
+          log[i].eventArray.length > 0 &&
+          getEventType(log[i]) === 'BATCH_UPDATE'
+        ) {
+          const { eventArray } = syntheticEvent;
+
+          const xmlOrGgbEvent = eventArray.pop();
+
+          setEventXml(syntheticEvent, xmlOrGgbEvent);
+          setEventType(syntheticEvent, 'UPDATE');
+
+          console.log('calling constructEvent from applyMult');
+          this.constructEvent(syntheticEvent);
+        } else {
+          console.log('calling constructEvent from applyMult else');
+          this.constructEvent(log[i]);
+        }
+      }
+    }
+
+    // backwards through time
+    else {
+      console.log(
+        'applying multiple backwards',
+        'from ',
+        startIndex,
+        'to ',
+        endIndex
+      );
+      for (let i = startIndex; i > endIndex; i--) {
+        const syntheticEvent = { ...log[i] };
+        const { eventType } = syntheticEvent;
+        const isNewEvent = typeof eventType !== 'string';
+
+        if (isNewEvent) {
+          const { ggbEvent, eventArray } = syntheticEvent;
+          if (eventArray && eventArray.length > 0) {
+            const syntheticEvents = eventArray.map((ev) => {
+              const copy = { ...ev };
+              const { eventType: evType } = copy;
+              if (evType === 'ADD') {
+                copy.eventType = 'REMOVE';
+                copy.xml = '';
+              } else if (evType === 'REMOVE') {
+                copy.eventType = 'ADD';
+              }
+              return copy;
+            });
+            this.recursiveUpdateNew(syntheticEvents);
+          } else if (ggbEvent) {
+            const copy = { ...ggbEvent };
+            if (copy.eventType === 'ADD') {
+              copy.eventType = 'REMOVE';
+              copy.xml = '';
+            } else if (copy.eventType === 'REMOVE') {
+              copy.eventType = 'ADD';
+            }
+            console.log('calling write from applyMult backwards', copy);
+            this.writeGgbEventToGraph(copy);
+          }
+        } else {
+          if (eventType === 'ADD') {
+            setEventType(syntheticEvent, 'REMOVE');
+          } else if (eventType === 'REMOVE') {
+            syntheticEvent.undoRemove = true;
+            setEventType(syntheticEvent, 'ADD');
+          } else if (eventType === 'BATCH_ADD') {
+            setEventType(syntheticEvent, 'BATCH_REMOVE');
+          } else if (eventType === 'BATCH_UPDATE') {
+            const { eventArray } = { ...syntheticEvent };
+
+            const xmlOrGgbEvent = eventArray.shift();
+
+            setEventXml(syntheticEvent, xmlOrGgbEvent);
+            setEventType(syntheticEvent, 'UPDATE');
+          }
+          this.constructEvent(syntheticEvent);
+        }
+      }
+    }
+  }
+
   /**
    * @method recursiveUpdate
    * @description takes an array of events and updates the construction in batches
@@ -201,15 +350,34 @@ class GgbReplayer extends Component {
     if (events && events.length > 0) {
       if (adding) {
         for (let i = 0; i < events.length; i++) {
-          this.ggbApplet.evalCommand(events[i]);
+          const ggbEventOrXml = events[i];
+          const isXml = typeof ggbEventOrXml === 'string';
+          if (isXml) {
+            this.ggbApplet.evalCommand(ggbEventOrXml);
+          } else {
+            console.log('calling write from recursiveUpdate: ', ggbEventOrXml);
+            this.writeGgbEventToGraph(ggbEventOrXml);
+          }
         }
       } else {
         // @todo skip more events depending on playback speed.
         if (events.length > 10) {
           events.splice(0, 2);
         }
-        this.ggbApplet.evalXML(events.shift());
-        this.ggbApplet.evalCommand('UpdateConstruction()');
+        const ggbEventOrXml = events.shift();
+        const isXml = typeof ggbEventOrXml === 'string';
+
+        if (isXml) {
+          this.ggbApplet.evalXML(ggbEventOrXml);
+          this.ggbApplet.evalCommand('UpdateConstruction()');
+        } else {
+          console.log(
+            'calling write from recursiveUpdate not adding: ',
+            ggbEventOrXml
+          );
+
+          this.writeGgbEventToGraph(ggbEventOrXml);
+        }
         setTimeout(() => {
           this.recursiveUpdate(events, false);
         }, 10);
@@ -217,65 +385,25 @@ class GgbReplayer extends Component {
     }
   }
 
-  /**
-   * @method applyMultipleEvents
-   * @description Takes two indices from the log and applies (or un-applies if going backwards thru time) all events between
-   * @param  {} startIndex
-   * @param  {} endIndex
-   */
+  recursiveUpdateNew(events) {
+    if (Array.isArray(events) && events.length > 0) {
+      const copiedEvents = [...events];
 
-  applyMultipleEvents(startIndex, endIndex) {
-    const { log } = this.props;
-    // Forwards through time
-    if (startIndex < endIndex) {
-      // this.ggbApplet.setXML(this.props.log[endIndex].currentState);
-      for (let i = startIndex; i <= endIndex; i++) {
-        if (
-          log[i].eventArray &&
-          log[i].eventArray.length > 0 &&
-          getEventType(log[i]) === 'BATCH_UPDATE'
-        ) {
-          const syntheticEvent = { ...log[i] };
-          const { eventArray } = syntheticEvent;
-
-          const xmlOrGgbEvent = eventArray.pop();
-
-          setEventXml(syntheticEvent, xmlOrGgbEvent);
-          setEventType(syntheticEvent, 'UPDATE');
-
-          this.constructEvent(syntheticEvent);
-        } else {
-          this.constructEvent(log[i]);
-        }
+      const event = copiedEvents.shift();
+      console.log('calling write from recursiveUpdateNew: ', event);
+      this.writeGgbEventToGraph(event);
+      if (copiedEvents.length > 0) {
+        // readyToClearSocketQueue = false;
+        // By wrapping calls to recursiveUpdate in a setTimeout we end up with behavior that is closer
+        // to a natural dragging motion. If we write copy one after the other w/o a timeout
+        // the point moves too quickly and looks like its jumping to the final position
+        setTimeout(() => this.recursiveUpdate(copiedEvents), 0);
       }
     }
-
-    // backwards through time
-    else {
-      for (let i = startIndex; i > endIndex; i--) {
-        const syntheticEvent = { ...log[i] };
-        const eventType = getEventType(syntheticEvent);
-
-        if (eventType === 'ADD') {
-          setEventType(syntheticEvent, 'REMOVE');
-        } else if (eventType === 'REMOVE') {
-          syntheticEvent.undoRemove = true;
-          setEventType(syntheticEvent, 'ADD');
-        } else if (eventType === 'BATCH_ADD') {
-          setEventType(syntheticEvent, 'BATCH_REMOVE');
-        } else if (eventType === 'BATCH_UPDATE') {
-          const { eventArray } = { ...syntheticEvent };
-
-          const xmlOrGgbEvent = eventArray.shift();
-
-          setEventXml(syntheticEvent, xmlOrGgbEvent);
-          setEventType(syntheticEvent, 'UPDATE');
-        }
-        this.constructEvent(syntheticEvent);
-      }
-    }
+    // if (readyToClearSocketQueue) {
+    //   this.clearSocketQueue();
+    // }
   }
-
   render() {
     const { tabId } = this.props;
     return (
