@@ -466,6 +466,10 @@ class GgbGraph extends Component {
 
   clientListener = (event) => {
     console.log({ clientListener: event });
+    if (!event) {
+      // seems to happen if you click a bunch of points really quickly
+      return;
+    }
     // console.log({ clientListener: event });
     // console.log({ clientListener: event });
     const { referencing } = this.props;
@@ -505,7 +509,7 @@ class GgbGraph extends Component {
           return;
         }
         if (this.userCanEdit()) {
-          this.sendEvent(null, null, null, 'UNDO', null);
+          this.sendEvent({ eventType: 'UNDO' });
         } else {
           this.setState({ showControlWarning: true, redo: true });
         }
@@ -539,9 +543,22 @@ class GgbGraph extends Component {
             this.pointSelected = null;
           }
           if (this.outgoingEventQueue.length > 0) {
-            this.sendEventBuffer(null, selection, event[1], 'SELECT', 'ggbObj');
+            this.sendEventBuffer({
+              xml: null,
+              objType: selection,
+              label: event[1],
+              eventType: 'SELECT',
+            });
+
+            // ggbObj ???
           } else {
-            this.sendEvent(null, selection, event[1], 'SELECT', 'ggbObj');
+            this.sendEvent({
+              xml: null,
+              objType: selection,
+              label: event[1],
+              eventType: 'SELECT',
+            });
+            // 'ggbObj' ???
           }
         }
         break;
@@ -589,8 +606,8 @@ class GgbGraph extends Component {
         for (let i = 1; i < event.length; i++) {
           xml += this.ggbApplet.getXML(event[i]);
         }
-        console.log(this.shapeSelected);
-        console.log('senfing event');
+        console.log('shape selected movedGeos: ', this.shapeSelected);
+        console.log('sending event movedGeos');
         this.sendEventBuffer({
           xml,
           label: this.shapeSelected,
@@ -639,6 +656,7 @@ class GgbGraph extends Component {
         this.previousCommandString = event.commandString;
       }
       if (event.objType === 'point') {
+        console.log('sending point add listener', event);
         this.sendEvent(event);
       } else {
         this.sendEventBuffer(event);
@@ -843,7 +861,10 @@ class GgbGraph extends Component {
    * @param {}
    * */
   sendEvent = (event, options) => {
-    console.log('send event');
+    if (!event) {
+      return;
+    }
+    console.log('send event', { event, options });
     const {
       room,
       tab,
@@ -894,7 +915,7 @@ class GgbGraph extends Component {
    * @param  {Object} ggbEvent
    * */
   buildDescription = (event) => {
-    console.log({ event });
+    console.log({ eventInBuildDescription: event });
     if (Array.isArray(event)) {
       [event] = event;
     }
