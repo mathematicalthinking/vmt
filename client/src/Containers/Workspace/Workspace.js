@@ -86,7 +86,7 @@ class Workspace extends Component {
     });
     if (lastMessage) this.addToLog(lastMessage);
     this.initializeListeners();
-    window.addEventListener('resize', this.clearReference);
+    window.addEventListener('resize', this.resizeHandler);
     window.addEventListener('keydown', this.keyListener);
   }
 
@@ -119,7 +119,7 @@ class Workspace extends Component {
     const { populatedRoom } = this.props;
     const { myColor } = this.state;
     socket.emit('LEAVE_ROOM', populatedRoom._id, myColor);
-    window.removeEventListener('resize', this.clearReference);
+    window.removeEventListener('resize', this.resizeHandler);
     window.removeEventListener('keypress', this.keyListener);
     if (this.controlTimer) {
       clearTimeout(this.controlTimer);
@@ -369,7 +369,6 @@ class Workspace extends Component {
     this.time = Date.now();
     clearTimeout(this.controlTimer);
     this.controlTimer = setTimeout(() => {
-      console.log('resetting control from timer');
       this.toggleControl();
     }, 60 * 1000);
   };
@@ -513,6 +512,26 @@ class Workspace extends Component {
       }
     });
     this.setTabs(copiedTabs);
+  };
+
+  resizeHandler = () => {
+    const { referencing } = { ...this.state };
+
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
+    }
+    if (typeof this.wasReferencingBeforeResize !== 'boolean') {
+      this.wasReferencingBeforeResize = referencing;
+    }
+    this.clearReference();
+    this.resizeTimeout = setTimeout(this.doneResizing, 500);
+  };
+
+  doneResizing = () => {
+    if (this.wasReferencingBeforeResize) {
+      this.setState({ referencing: true });
+      this.wasReferencingBeforeResize = null;
+    }
   };
 
   render() {
