@@ -63,6 +63,7 @@ class Chat extends Component {
       // create a ref for the new element
       this[`message-${log[log.length - 1]._id}`] = React.createRef();
       this.scrollToBottom();
+      this.chatInput.current.focus();
     } else if (!prevProps.referencing && referencing) {
       setFromElAndCoords(
         this.chatInput.current,

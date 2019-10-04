@@ -74,7 +74,8 @@ class Chat extends Component {
         ...referToEl,
         tab: currentTabId,
       };
-      clearReference();
+      // per annie's request, referencing should stay on after submitting msg
+      clearReference({ doKeepReferencingOn: true });
     }
     socket.emit('SEND_MESSAGE', messageData, (res, err) => {
       if (err) {

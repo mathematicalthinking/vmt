@@ -405,15 +405,25 @@ class Workspace extends Component {
     // get coords of referenced element,
   };
 
-  clearReference = () => {
-    this.setState({
-      referToEl: null,
-      referFromEl: null,
-      referToCoords: null,
-      referFromCoords: null,
-      referencing: false,
-      showingReference: false,
-    });
+  clearReference = (options = {}) => {
+    const { doKeepReferencingOn = false } = options;
+
+    if (doKeepReferencingOn) {
+      this.setState({
+        referToEl: null,
+        referToCoords: null,
+        showingReference: false,
+      });
+    } else {
+      this.setState({
+        referToEl: null,
+        referFromEl: null,
+        referToCoords: null,
+        referFromCoords: null,
+        referencing: false,
+        showingReference: false,
+      });
+    }
   };
 
   // this shouLD BE refereNT
