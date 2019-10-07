@@ -12,16 +12,20 @@ class Chat extends Component {
     newMessage: '',
   };
 
+  chatInput = React.createRef();
+
   componentDidMount() {
     const { addToLog, replaying } = this.props;
-    const { newMessage } = this.state;
     // event handler for enter key presses
     document.addEventListener('keydown', (event) => {
+      const { newMessage } = this.state;
+
       if (event.key === 'Enter') {
         // handle differenct contexts of Enter clicks
-        if (newMessage.length > 0) {
+        const isChatInputInFocus =
+          this.chatInput.current === document.activeElement;
+        if (isChatInputInFocus && newMessage.length > 0) {
           this.submitMessage();
-          //  @TODO we need to check if the chat enry is in focuse with a ref()
         }
       }
     });
@@ -86,9 +90,16 @@ class Chat extends Component {
     });
     delete newMessage.room;
     // this.scrollToBottom(); @TODO
-    this.setState({
-      newMessage: '',
-    });
+    this.setState(
+      {
+        newMessage: '',
+      },
+      () => {
+        if (this.chatInput.current) {
+          this.chatInput.current.focus();
+        }
+      }
+    );
   };
 
   render() {
@@ -98,6 +109,7 @@ class Chat extends Component {
         change={this.changeHandler}
         submit={this.submitMessage}
         value={newMessage}
+        chatInput={this.chatInput}
         {...this.props}
       />
     );

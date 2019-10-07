@@ -11,7 +11,7 @@ class Chat extends Component {
   // We need this construcotr, stop deleting it...look @ line29
   constructor(props) {
     super(props);
-    const { log } = this.props;
+    const { log, chatInput } = this.props;
     this.state = {
       containerCoords: null,
       chatCoords: null,
@@ -20,7 +20,7 @@ class Chat extends Component {
       settings: false,
     };
     this.chatContainer = React.createRef();
-    this.chatInput = React.createRef();
+    this.chatInput = chatInput || React.createRef();
     this.chatEnd = React.createRef();
     // Create a ref for each chat element so they can be used with the referencing tool
     // This is why we needed to have a constructor function
@@ -34,7 +34,6 @@ class Chat extends Component {
   componentDidMount() {
     const { replayer } = this.props;
     window.addEventListener('resize', this.updateCoords);
-    window.addEventListener('keypress', this.onKeyPress);
     window.addEventListener('scroll', this.debouncedUpdateCoords);
     this.setState({
       containerCoords: this.chatContainer.current.offsetParent
@@ -63,7 +62,6 @@ class Chat extends Component {
       // create a ref for the new element
       this[`message-${log[log.length - 1]._id}`] = React.createRef();
       this.scrollToBottom();
-      this.chatInput.current.focus();
     } else if (!prevProps.referencing && referencing) {
       setFromElAndCoords(
         this.chatInput.current,
@@ -92,7 +90,6 @@ class Chat extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('keypress', this.onKeyPress);
     window.removeEventListener('resize', this.updateOnResize);
     window.removeEventListener('scroll', this.debouncedUpdateCoords);
   }
@@ -119,13 +116,6 @@ class Chat extends Component {
     // this.setState({
     //   expanded: !this.state.expanded
     // });
-  };
-
-  onKeyPress = (event) => {
-    const { submit } = this.props;
-    if (event.key === 'Enter') {
-      submit();
-    }
   };
 
   scrollToBottom = () => {
@@ -406,6 +396,7 @@ Chat.propTypes = {
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   expanded: PropTypes.bool.isRequired,
   // membersExpanded: PropTypes.bool.isRequired,
+  chatInput: PropTypes.shape({ current: PropTypes.any }),
 };
 
 Chat.defaultProps = {
@@ -426,6 +417,7 @@ Chat.defaultProps = {
   clearReference: null,
   showingReference: null,
   // referenceElementCoords: [],
+  chatInput: null,
 };
 
 export default Chat;
