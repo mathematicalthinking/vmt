@@ -553,9 +553,11 @@ class GgbGraph extends Component {
             this.pointSelectedValueString = this.ggbApplet.getValueString(
               event[1]
             );
+            this.shapeSelectedType = null;
           } else {
             // eslint-disable-next-line prefer-destructuring
             this.shapeSelected = event[1];
+            this.shapeSelectedType = this.ggbApplet.getObjectType(event[1]);
             this.pointSelected = null;
             this.pointSelectedValueString = null;
           }
@@ -782,7 +784,8 @@ class GgbGraph extends Component {
       return;
     }
 
-    if (this.isAutoRemovingCornerAnchor) {
+    if (label === this.cornerLabel && this.isAutoRemovingCornerAnchor) {
+      console.log('auto removing corner anchor');
       this.isAutoRemovingCornerAnchor = false;
       return;
     }
@@ -794,7 +797,15 @@ class GgbGraph extends Component {
       this.previousCommandString = null;
       console.log(`sending REMOVE eventBuffer for label: ${label}.`);
 
-      this.sendEventBuffer({ label, eventType: 'REMOVE' });
+      const data = { label, eventType: 'REMOVE' };
+
+      if (this.pointSelected === label) {
+        data.objType = 'point';
+      } else if (this.shapeSelected === label) {
+        data.objType = this.shapeSelectedType;
+      }
+
+      this.sendEventBuffer(data);
     }
   };
 
@@ -1130,10 +1141,22 @@ class GgbGraph extends Component {
    * */
   buildDescription = (event) => {
     if (Array.isArray(event)) {
-      [event] = event;
+      if (event.length === 0) {
+        return '';
+      }
+      // eventTypes should always all be the same
+      const { eventType } = event[0];
+
+      if (eventType === 'ADD') {
+        [event] = event;
+      } else {
+        event = event[event.length - 1];
+      }
     }
+
+    console.log('event build desc', event);
     const { user } = this.props;
-    const { label, eventType, objType, oldLabel } = event;
+    const { label, eventType, objType = 'object', oldLabel } = event;
     let description = `${user.username} `;
 
     if (eventType === 'UPDATE_STYLE') {
@@ -1141,8 +1164,6 @@ class GgbGraph extends Component {
     } else if (eventType === 'DRAG') {
       description += `dragged ${objType} ${label}`;
     } else if (eventType === 'ADD') {
-      //   // parse the element label from the first element in eventQuere...it is always the most encompassing elemennt
-      //   newLabel = eventQueue[0].slice(0, eventQueue[0].indexOf(':'));
       description += `added ${objType} ${label}`;
     } else if (eventType === 'MODE') {
       description += `selected the ${ggbTools[label].name.toLowerCase()} tool`;
