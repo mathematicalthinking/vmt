@@ -126,6 +126,8 @@ class GgbGraph extends Component {
     if (currentTab === tabId) {
       if (!this.ggbApplet) return;
 
+      const isInControl = inControl === 'ME';
+
       // new evnet
       if (prevProps.room.log && prevProps.room.log.length < room.log.length) {
         this.previousEvent = room.log[room.log.length - 1];
@@ -133,13 +135,19 @@ class GgbGraph extends Component {
 
       // Creating a reference
       if (!prevProps.referencing && referencing) {
+        // prompt if they want reference to automatically turn on when chat is in focus?
         this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
       } else if (prevProps.referencing && !referencing) {
-        this.ggbApplet.setMode(40);
+        // if they are in control, can keep mode set to move tool
+
+        if (!isInControl) {
+          // force resync in case they moved anything while referencing
+          this.resyncGgbState();
+          this.ggbApplet.setMode(40);
+        }
       }
       // Control
       const wasInControl = prevProps.inControl === 'ME';
-      const isInControl = inControl === 'ME';
       if (!wasInControl && isInControl) {
         this.ggbApplet.setMode(0);
       } else if (wasInControl && !isInControl) {
@@ -1183,6 +1191,9 @@ class GgbGraph extends Component {
   };
 
   updateConstructionState = () => {
+    if (!this.userCanEdit()) {
+      return;
+    }
     const { tab } = this.props;
     if (this.ggbApplet) {
       const currentState = this.ggbApplet.getXML();
