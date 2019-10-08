@@ -3,7 +3,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { each } from 'lodash';
+import { each, isFinite } from 'lodash';
 import {
   updateRoom,
   updatedRoom,
@@ -428,8 +428,19 @@ class Workspace extends Component {
   // this shouLD BE refereNT
   setToElAndCoords = (el, coords) => {
     if (el) {
+      let referToEl = el;
+
+      const { mouseDownCoords } = referToEl;
+
+      if (Array.isArray(mouseDownCoords)) {
+        const [x, y] = mouseDownCoords;
+        if (isFinite(x) && isFinite(y)) {
+          delete referToEl.mouseDownCoords;
+          referToEl = { ...referToEl, x, y };
+        }
+      }
       this.setState({
-        referToEl: el,
+        referToEl,
       });
     }
     if (coords) {

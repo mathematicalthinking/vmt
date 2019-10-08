@@ -13,6 +13,8 @@ const Message = new mongoose.Schema({
     element: { type: String },
     elementType: { type: String },
     tab: { type: ObjectId, ref: 'Tab' },
+    x: Number, // from mousedown
+    y: Number, // from mousedown
   },
   messageType: {
     type: String,
