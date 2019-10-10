@@ -124,10 +124,21 @@ class Chat extends Component {
   };
 
   showReference = (event, reference) => {
-    const { showReference, referToEl, clearReference } = this.props;
+    const {
+      showReference,
+      referToEl,
+      clearReference,
+      referencing,
+    } = this.props;
     // If we're already showing this reference clear the reference
-    if (showReference && referToEl && reference.element === referToEl.element) {
-      clearReference();
+    if (
+      showReference &&
+      referToEl &&
+      this.areReferToElsSame(referToEl, reference)
+    ) {
+      // if referencing was already on, no reason to turn referencing off when hiding
+      // a reference
+      clearReference({ doKeepReferencingOn: referencing });
     } else {
       const fromCoords = this.getRelativeCoords(event.target);
       let toCoords;
@@ -217,6 +228,13 @@ class Chat extends Component {
     } else {
       this.display_temporary_error();
     }
+  };
+
+  areReferToElsSame = (elA, elB) => {
+    if (elA.refPoint && elB.refPoint) {
+      return elA.refPoint === elB.refPoint;
+    }
+    return elA.element === elB.element;
   };
 
   render() {
