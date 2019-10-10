@@ -27,6 +27,7 @@ const ggbEvent = {
       'MODE',
     ],
   },
+  isForRefPoint: { type: Boolean, default: false },
 };
 const Event = new mongoose.Schema({
   user: { type: ObjectId, ref: 'User' },

@@ -13,8 +13,9 @@ const Message = new mongoose.Schema({
     element: { type: String },
     elementType: { type: String },
     tab: { type: ObjectId, ref: 'Tab' },
-    x: Number, // from mousedown
-    y: Number, // from mousedown
+    refPoint: { type: String }, // label of invisible point used for referencing
+    wasObjectDeleted: { type: Boolean }, // so we know not to update deleted references when objects are renamed
+    wasObjectUpdated: { type: Boolean }, // e.g. renamed, moved, redefined
   },
   messageType: {
     type: String,
