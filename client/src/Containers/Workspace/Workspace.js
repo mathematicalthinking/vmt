@@ -3,7 +3,8 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { each, isFinite } from 'lodash';
+import each from 'lodash/each';
+import find from 'lodash/find';
 import {
   updateRoom,
   updatedRoom,
@@ -17,10 +18,12 @@ import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from '.';
 import { Modal, CurrentMembers, Loading } from '../../Components';
 import NewTabForm from '../Create/NewTabForm';
-import { socket } from '../../utils';
+import { socket, API } from '../../utils';
 
 // import Replayer from ''
 class Workspace extends Component {
+  refBeingSaved = null;
+
   constructor(props) {
     super(props);
     const { user, populatedRoom, tempCurrentMembers } = this.props;
@@ -60,11 +63,21 @@ class Workspace extends Component {
       isFirstTabLoaded: false,
       showAdminWarning: user ? user.inAdminMode : false,
       graphCoords: null,
+      refPointToEmit: null,
+      eventsWithRefs: [],
+      refPointToClear: null,
     };
   }
 
   componentDidMount() {
     const { populatedRoom, user, temp, tempMembers, lastMessage } = this.props;
+
+    // initialize a hash of events that have references that will be
+    // updated every time a reference made
+    // allows for quicker lookup when needing to check if objects
+    // that have been referenced have been updated or deleted
+    this.computeReferences();
+
     let membersToFilter = populatedRoom.members;
     if (temp) {
       membersToFilter = tempMembers;
@@ -128,7 +141,15 @@ class Workspace extends Component {
 
   addToLog = (entry) => {
     const { log } = this.state;
-    this.setState({ log: [...log, entry] });
+    const isReference = this.doesEventHaveReference(entry);
+
+    const updateHash = { log: [...log, entry] };
+
+    if (isReference) {
+      const { eventsWithRefs } = this.state;
+      updateHash.eventsWithRefs = [...eventsWithRefs, entry];
+    }
+    this.setState(updateHash);
   };
 
   keyListener = (event) => {
@@ -405,13 +426,24 @@ class Workspace extends Component {
   };
 
   clearReference = (options = {}) => {
-    const { doKeepReferencingOn = false } = options;
+    const { doKeepReferencingOn = false, refBeingSaved = {} } = options;
+    const { referToEl } = this.state;
+    this.refBeingSaved = refBeingSaved;
+
+    let refPointToClear;
+
+    if (referToEl && referToEl.refPoint) {
+      if (!this.hasRefPointBeenSaved(referToEl.refPoint)) {
+        refPointToClear = referToEl.refPoint;
+      }
+    }
 
     if (doKeepReferencingOn) {
       this.setState({
         referToEl: null,
         referToCoords: null,
         showingReference: false,
+        refPointToClear,
       });
     } else {
       this.setState({
@@ -421,6 +453,7 @@ class Workspace extends Component {
         referFromCoords: null,
         referencing: false,
         showingReference: false,
+        refPointToClear,
       });
     }
   };
@@ -428,19 +461,8 @@ class Workspace extends Component {
   // this shouLD BE refereNT
   setToElAndCoords = (el, coords) => {
     if (el) {
-      let referToEl = el;
-
-      const { mouseDownCoords } = referToEl;
-
-      if (Array.isArray(mouseDownCoords)) {
-        const [x, y] = mouseDownCoords;
-        if (isFinite(x) && isFinite(y)) {
-          delete referToEl.mouseDownCoords;
-          referToEl = { ...referToEl, x, y };
-        }
-      }
       this.setState({
-        referToEl,
+        referToEl: el,
       });
     }
     if (coords) {
@@ -545,6 +567,70 @@ class Workspace extends Component {
     }
   };
 
+  triggerAddRefEvent = (refPointToEmit) => {
+    this.setState({ refPointToEmit });
+  };
+
+  clearRefPointToEmit = () => {
+    this.setState({ refPointToEmit: null });
+  };
+
+  computeReferences = () => {
+    const { log } = this.state;
+    const eventsWithRefs = log.filter(this.doesEventHaveReference);
+    this.setState({ eventsWithRefs });
+  };
+
+  renameReferences = (oldLabel, newLabel) => {
+    const { eventsWithRefs } = this.state;
+
+    const updatedEvents = eventsWithRefs.map((ev) => {
+      const { reference } = ev;
+      let doUpdate = false;
+      if (reference.element === oldLabel && !reference.refPoint) {
+        ev.reference.element = newLabel;
+        doUpdate = true;
+      } else if (oldLabel === reference.refPoint) {
+        // if for some reason the refPoint was renamed
+        ev.reference.refPoint = newLabel;
+        doUpdate = true;
+      }
+      if (doUpdate) {
+        API.put('messages', ev._id, ev);
+      }
+      return reference;
+    });
+
+    this.setState({ eventsWithRefs: updatedEvents });
+  };
+
+  hasRefPointBeenSaved = (refPoint) => {
+    if (this.refBeingSaved && this.refBeingSaved.refPoint === refPoint) {
+      return true;
+    }
+
+    const { eventsWithRefs } = this.state;
+    const event = find(eventsWithRefs, (ev) => {
+      return ev.reference.refPoint === refPoint;
+    });
+
+    if (event) {
+      return true;
+    }
+    return false;
+  };
+
+  clearRefPointToClear = () => {
+    this.setState({ refPointToClear: null });
+  };
+
+  doesEventHaveReference = (event) => {
+    if (!event || !event.reference) {
+      return false;
+    }
+    return typeof event.reference.element === 'string';
+  };
+
   render() {
     const {
       populatedRoom,
@@ -580,6 +666,9 @@ class Workspace extends Component {
       creatingNewTab,
       showAdminWarning,
       graphCoords,
+      refPointToEmit,
+      eventsWithRefs,
+      refPointToClear,
     } = this.state;
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
@@ -627,6 +716,8 @@ class Workspace extends Component {
         expanded={chatExpanded}
         membersExpanded={membersExpanded}
         toggleExpansion={this.toggleExpansion}
+        triggerAddRefEvent={this.triggerAddRefEvent}
+        clearRefPointToEmit={this.clearRefPointToEmit}
       />
     );
     const graphs = currentTabs.map((tab) => {
@@ -674,6 +765,14 @@ class Workspace extends Component {
           setToElAndCoords={this.setToElAndCoords}
           setFirstTabLoaded={this.setFirstTabLoaded}
           setGraphCoords={this.setGraphCoords}
+          log={log}
+          refPointToEmit={refPointToEmit}
+          clearRefPointToEmit={this.clearRefPointToEmit}
+          eventsWithRefs={eventsWithRefs}
+          renameReferences={this.renameReferences}
+          refPointToClear={refPointToClear}
+          clearRefPointToClear={this.clearRefPointToClear}
+          hasRefPointBeenSaved={this.hasRefPointBeenSaved}
         />
       );
     });

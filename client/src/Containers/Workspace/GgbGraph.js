@@ -4,6 +4,8 @@ import Script from 'react-load-script';
 import { parseString } from 'xml2js';
 import throttle from 'lodash/throttle';
 import isFinite from 'lodash/isFinite';
+import find from 'lodash/find';
+import random from 'lodash/random';
 import mongoIdGenerator from '../../utils/createMongoId';
 import classes from './graph.css';
 import { blankEditorState } from './ggbUtils';
@@ -50,6 +52,8 @@ class GgbGraph extends Component {
   previousEvent = null; // Prevent repeat events from firing (for example if they keep selecting the same tool)
   previousCommandString = null;
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
+
+  renameDetails = []; // tuple of oldLabel, newLabel
   /**
    * @method componentDidMount
    * @description add socket listeners, window resize listener
@@ -117,93 +121,147 @@ class GgbGraph extends Component {
     const {
       currentTab,
       tabId,
-      room,
+      // room,
       referencing,
       inControl,
       showingReference,
       referToEl,
       clearReference,
+      log,
+      refPointToEmit,
+      clearRefPointToEmit,
+      refPointToClear,
+      clearRefPointToClear,
+      hasRefPointBeenSaved,
     } = this.props;
-    if (currentTab === tabId) {
-      if (!this.ggbApplet) return;
 
-      const isInControl = inControl === 'ME';
+    if (!this.ggbApplet) {
+      return;
+    }
 
-      // new evnet
-      if (prevProps.room.log && prevProps.room.log.length < room.log.length) {
-        this.previousEvent = room.log[room.log.length - 1];
+    if (currentTab !== tabId) {
+      return;
+    }
+
+    const isInControl = inControl === 'ME';
+    const wasInControl = prevProps.inControl === 'ME';
+    const didGainControl = !wasInControl && isInControl;
+    const didReleaseControl = wasInControl && !isInControl;
+
+    const isNewEvent = prevProps.log.length < log.length;
+    const doEmitRefPoint = !prevProps.refPointToEmit && refPointToEmit;
+    const doClearRefPoint = !prevProps.refPointToClear && refPointToClear;
+    const didStartReferencing = !prevProps.referencing && referencing;
+    const didStopReferencing = prevProps.referencing && !referencing;
+
+    const didStartDisplayingReference =
+      !prevProps.showingReference && showingReference;
+
+    const didReferToElChange = prevProps.referToEl !== referToEl;
+    const previousRefPoint = prevProps.referToEl
+      ? prevProps.referToEl.refPoint
+      : undefined;
+    const refPoint = referToEl ? referToEl.refPoint : undefined;
+
+    if (isNewEvent) {
+      this.previousEvent = log[log.length - 1];
+    }
+
+    if (doEmitRefPoint) {
+      console.log(`Emitting ref point: ${refPointToEmit}`);
+      const event = this.readFromGraph(refPointToEmit, 'ADD');
+      event.isForRefPoint = true;
+      if (this.outgoingEventQueue.length > 0) {
+        this.sendEventBuffer(event);
+      } else {
+        this.sendEvent(event);
       }
 
-      // Creating a reference
-      if (!prevProps.referencing && referencing) {
-        // prompt if they want reference to automatically turn on when chat is in focus?
-        this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
-      } else if (prevProps.referencing && !referencing) {
-        // if they are in control, can keep mode set to move tool
-        if (!isInControl) {
-          // force resync in case they moved anything while referencing
-          this.resyncGgbState();
-          this.ggbApplet.setMode(40);
-        }
+      clearRefPointToEmit();
+    }
+
+    if (doClearRefPoint) {
+      this.isClearingRefPoint = true;
+      console.log(`Clearing ref point: ${refPointToClear}`);
+      this.ggbApplet.deleteObject(refPointToClear);
+      clearRefPointToClear();
+    }
+
+    // Creating a reference
+    if (didStartReferencing) {
+      // prompt if they want reference to automatically turn on when chat is in focus?
+      this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
+    } else if (didStopReferencing) {
+      // if they are in control, can keep mode set to move tool
+      if (!isInControl) {
+        // force resync in case they moved anything while referencing
+        this.resyncGgbState();
+        this.ggbApplet.setMode(40);
       }
-      // Control
-      const wasInControl = prevProps.inControl === 'ME';
-      if (!wasInControl && isInControl) {
-        if (prevProps.referencing) {
-          // force resync in case they moved anything while referencing
-          this.resyncGgbState();
-        }
-        if (this.intendedMode) {
-          // if they tried to click on a tool while not
-          // in control, set mode to that tool
-          this.ggbApplet.setMode(this.intendedMode);
-          this.intendedMode = null;
-        } else {
+    }
+    // Control
+    if (didGainControl) {
+      if (prevProps.referencing) {
+        // force resync in case they moved anything while referencing
+        this.resyncGgbState();
+      }
+      if (this.intendedMode) {
+        // if they tried to click on a tool while not
+        // in control, set mode to that tool
+        this.ggbApplet.setMode(this.intendedMode);
+        this.intendedMode = null;
+      } else {
+        this.ggbApplet.setMode(0);
+      }
+
+      clearReference();
+    } else if (didReleaseControl) {
+      // this.updateConstructionState();
+
+      if (referencing) {
+        const currentMode = this.ggbApplet.getMode();
+        if (currentMode !== 0) {
           this.ggbApplet.setMode(0);
         }
-        // when control is taken, the workspace container is setting referencing to false
-        // so we should leave the arrow on the graph
-
-        clearReference();
-      } else if (wasInControl && !isInControl) {
-        // this.updateConstructionState();
-
-        if (referencing) {
-          const currentMode = this.ggbApplet.getMode();
-          if (currentMode !== 0) {
-            this.ggbApplet.setMode(0);
-          }
-        } else {
-          this.ggbApplet.setMode(40);
-        }
+      } else {
+        this.ggbApplet.setMode(40);
       }
+    }
 
-      // Displaying Reference
-      if (
-        !prevProps.showingReference &&
-        showingReference &&
-        referToEl.elementType !== 'chat_message'
-      ) {
-        // find the coordinates of the point we're referencing
+    // Displaying Reference
+    if (
+      didStartDisplayingReference &&
+      referToEl.elementType !== 'chat_message'
+    ) {
+      // find the coordinates of the point we're referencing
 
-        await this.updateReferToEl(referToEl);
-      } else if (
-        showingReference &&
-        prevProps.referToEl !== referToEl &&
-        referToEl.elementType !== 'chat_message'
-      ) {
-        await this.updateReferToEl(referToEl);
+      await this.updateReferToEl(referToEl);
+    } else if (
+      showingReference &&
+      didReferToElChange &&
+      referToEl.elementType !== 'chat_message'
+    ) {
+      await this.updateReferToEl(referToEl);
+    }
+
+    if (previousRefPoint && previousRefPoint !== refPoint) {
+      if (!hasRefPointBeenSaved(previousRefPoint)) {
+        this.isClearingRefPoint = true;
+        console.log(
+          `Clearing ref point due to switching referToEls: ${previousRefPoint}`
+        );
+        this.ggbApplet.deleteObject(previousRefPoint);
       }
+    }
 
-      // switching tab
-      if (prevProps.currentTab !== currentTab) {
-        this.updateDimensions();
-      }
+    // switching tab
+    if (prevProps.currentTab !== currentTab) {
+      this.updateDimensions();
+    }
 
-      // releasing control
-      if (prevProps.inControl !== inControl && inControl === 'NONE') {
-        // this.updateConstructionState();
-      }
+    // releasing control
+    if (prevProps.inControl !== inControl && inControl === 'NONE') {
+      // this.updateConstructionState();
     }
   }
 
@@ -478,6 +536,23 @@ class GgbGraph extends Component {
     return false;
   };
 
+  /**
+   * @method doIgnoreRefPoint
+   * @description checks if event in listener is due to the creation of invisible reference point
+   * @param {string} label
+   * @return {Boolean} whether to ignore event in listener
+   */
+
+  doIgnoreRefPoint = (label) => {
+    if (this.isCreatingRefPoint) {
+      return true;
+    }
+    if (this.referToEl && this.referToEl.refPoint === label) {
+      return true;
+    }
+    return false;
+  };
+
   showAlert = () => {
     // eslint-disable-next-line no-alert
     window.alert(
@@ -550,24 +625,22 @@ class GgbGraph extends Component {
         // }
         break;
       case 'redo':
-        // disable for now
-
         // if (this.resetting) {
         //   this.resetting = false;
         //   return;
         // }
         // if (this.userCanEdit()) {
-        //   // this.showAlert();
-        //   // this.resetting = true;
-        //   // this.ggbApplet.undo();
+        // this.showAlert();
+        // this.resetting = true;
+        // this.ggbApplet.undo();
         // } else {
         //   this.setState({ showControlWarning: true });
         // }
         break;
       case 'select':
-        if (referencing) {
-          return;
-        }
+        // if (referencing) {
+        //   return;
+        // }
         if (this.ggbApplet.getMode() === 0) {
           const selection = this.ggbApplet.getObjectType(event[1]);
           if (selection === 'point') {
@@ -585,6 +658,10 @@ class GgbGraph extends Component {
             this.shapeSelectedType = this.ggbApplet.getObjectType(event[1]);
             this.pointSelected = null;
             this.pointSelectedValueString = null;
+          }
+
+          if (referencing) {
+            return;
           }
           if (this.outgoingEventQueue.length > 0) {
             this.sendEventBuffer({
@@ -672,6 +749,10 @@ class GgbGraph extends Component {
               commandString,
             });
           }
+
+          // // check for references that need to be updated
+          const { renameReferences } = this.props;
+          renameReferences(oldLabel, newLabel);
         }
 
         break;
@@ -700,7 +781,6 @@ class GgbGraph extends Component {
         for (let i = 1; i < event.length; i++) {
           xml += this.ggbApplet.getXML(event[i]);
         }
-        console.log('shape selected movedGeos: ', this.shapeSelected);
         this.sendEventBuffer({
           xml,
           label: this.shapeSelected,
@@ -756,14 +836,14 @@ class GgbGraph extends Component {
         this.mouseDownCoords = [event.x, event.y];
         break;
       }
-      case 'viewChanged2D': {
-        const props = JSON.parse(this.ggbApplet.getViewProperties());
-        const { xMin, yMin, width, height, invXscale, invYscale } = props;
-        const xMax = xMin + width * invXscale;
-        const yMax = yMin + height * invYscale;
-        console.log(xMin, yMin, xMax, yMax);
-        break;
-      }
+      // case 'viewChanged2D': {
+      //   const props = JSON.parse(this.ggbApplet.getViewProperties());
+      //   const { xMin, yMin, width, height, invXscale, invYscale } = props;
+      //   const xMax = xMin + width * invXscale;
+      //   const yMax = yMin + height * invYscale;
+      //   console.log(xMin, yMin, xMax, yMax);
+      //   break;
+      // }
 
       default:
         break;
@@ -783,7 +863,8 @@ class GgbGraph extends Component {
     if (
       this.batchUpdating ||
       this.receivingData ||
-      this.ggbApplet.getMode() === 40
+      this.ggbApplet.getMode() === 40 ||
+      this.isCreatingRefPoint
     ) {
       return;
     }
@@ -795,6 +876,7 @@ class GgbGraph extends Component {
       this.setState({ showControlWarning: true });
       return;
     }
+
     if (!this.receivingData) {
       const event = this.readFromGraph(label, 'ADD');
       if (event.commandString) {
@@ -804,7 +886,6 @@ class GgbGraph extends Component {
         this.previousCommandString = event.commandString;
       }
       if (event.objType === 'point') {
-        console.log('sending point add listener', event);
         this.sendEvent(event);
       } else {
         this.sendEventBuffer(event);
@@ -839,13 +920,17 @@ class GgbGraph extends Component {
       this.isAutoRemovingCornerAnchor = false;
       return;
     }
+
+    if (this.isClearingRefPoint) {
+      this.isClearingRefPoint = false;
+      return;
+    }
     if (!this.userCanEdit()) {
       this.setState({ showControlWarning: true });
       return;
     }
     if (!this.receivingData) {
       this.previousCommandString = null;
-      console.log(`sending REMOVE eventBuffer for label: ${label}.`);
 
       const data = { label, eventType: 'REMOVE' };
 
@@ -867,7 +952,12 @@ class GgbGraph extends Component {
    */
 
   updateListener = (label) => {
-    if (this.batchUpdating || this.movingGeos || this.renamedDetails) {
+    if (
+      this.batchUpdating ||
+      this.movingGeos ||
+      this.renamedDetails ||
+      this.isCreatingRefPoint
+    ) {
       return;
     }
     if (this.receivingData && !this.updatingOn) {
@@ -882,7 +972,6 @@ class GgbGraph extends Component {
       return;
     }
     const isUpdateForSelectedPoint = label === this.pointSelected;
-    console.log({ isUpdateForSelectedPoint });
 
     if (isUpdateForSelectedPoint) {
       // check if is drag event
@@ -927,7 +1016,6 @@ class GgbGraph extends Component {
       // update
       if (doSendDragEvent) {
         const xml = this.ggbApplet.getXML(label);
-        console.log(`Sending DRAG eventBuffer for label :${label}`);
         this.sendEventBuffer({
           // coords: { x, y },
           xml,
@@ -984,18 +1072,44 @@ class GgbGraph extends Component {
     const { referencing, setToElAndCoords } = this.props;
     if (referencing) {
       const elementType = this.ggbApplet.getObjectType(element);
+      let refPoint;
+
+      if (elementType !== 'point' && Array.isArray(this.mouseDownCoords)) {
+        // create an invisible ref point
+        this.isCreatingRefPoint = true;
+        const [x, y] = this.mouseDownCoords;
+        if (isFinite(x) && isFinite(y)) {
+          refPoint = this.ggbApplet.evalCommandGetLabels(`PointIn(${element})`);
+          if (!refPoint) {
+            // use Point
+            refPoint = this.ggbApplet.evalCommandGetLabels(`Point(${element})`);
+          }
+          this.ggbApplet.setVisible(refPoint, false);
+          this.ggbApplet.setAuxiliary(refPoint, true);
+          this.ggbApplet.setCoords(refPoint, x, y);
+
+          const randomChar = String.fromCharCode(random(65, 90)); // A-Z
+          const newLabel = `${randomChar}${Date.now()}`;
+          this.ggbApplet.renameObject(refPoint, newLabel);
+          refPoint = newLabel;
+          // give ref point a unique name so as to minimize
+          // chances of having to rename point
+
+          this.isCreatingRefPoint = false;
+        }
+      }
 
       const { renamedElementType, position } = await this.getReferenceCoords(
         element,
         elementType,
-        this.mouseDownCoords
+        refPoint
       );
 
       setToElAndCoords(
         {
           element,
           elementType: renamedElementType,
-          mouseDownCoords: this.mouseDownCoords,
+          refPoint,
         },
         position
       );
@@ -1015,6 +1129,9 @@ class GgbGraph extends Component {
   };
 
   renameListener = (oldLabel, newLabel) => {
+    if (this.isCreatingRefPoint) {
+      return;
+    }
     if (this.isAutoRenamingCornerLabel) {
       this.isAutoRenamingCornerLabel = false;
       return;
@@ -1024,6 +1141,10 @@ class GgbGraph extends Component {
     console.log(
       `renameListener: Element ${oldLabel} was renamed to ${newLabel}`
     );
+  };
+
+  storeUndoListener = () => {
+    console.log('registering undo point');
   };
 
   /**
@@ -1038,6 +1159,7 @@ class GgbGraph extends Component {
     this.ggbApplet.unregisterRemoveListener(this.RemoveListener);
     this.ggbApplet.unregisterClearListener(this.clearListener);
     this.ggbApplet.unregisterRenameListener(this.renameListener);
+    // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
 
     // Set corner object to listen for zooming/moving of graph
 
@@ -1068,6 +1190,7 @@ class GgbGraph extends Component {
     this.ggbApplet.registerRemoveListener(this.removeListener);
     this.ggbApplet.registerClearListener(this.clearListener);
     this.ggbApplet.registerRenameListener(this.renameListener);
+    this.ggbApplet.registerStoreUndoListener(this.undoListener);
   };
 
   /**
@@ -1092,11 +1215,19 @@ class GgbGraph extends Component {
     let sendEventFromTimer = true;
 
     // this is redundant...but maybe good.
-    if (!this.userCanEdit()) {
-      // this.setState({ showControlWarning: true });
+    if (!event) {
       return;
     }
+
+    if (!this.userCanEdit()) {
+      // this.setState({ showControlWarning: true });
+      if (!event.isForRefPoint) {
+        return;
+      }
+    }
     if (referencing || showingReference) {
+      // clear unsaved ref point if necessary
+      // this.clearUnsavedRefPoint();
       clearReference();
     }
     this.outgoingEventQueue.push(event);
@@ -1136,12 +1267,18 @@ class GgbGraph extends Component {
    * @param {}
    * */
   sendEvent = (event, options) => {
-    if (
-      !this.userCanEdit() ||
-      !event ||
-      (Array.isArray(event) && event.length === 0)
-    ) {
+    if (!event || (Array.isArray(event) && event.length === 0)) {
       return;
+    }
+
+    let doOnlyUpdateRefPoint = false;
+
+    if (!this.userCanEdit()) {
+      // only allow special add event for ref point
+      if (!event.isForRefPoint) {
+        return;
+      }
+      doOnlyUpdateRefPoint = true;
     }
     console.log('send event', { event, options });
     const {
@@ -1183,7 +1320,15 @@ class GgbGraph extends Component {
     }
     socket.emit('SEND_EVENT', eventData);
 
-    this.updatingTab = setTimeout(this.updateConstructionState, 3000);
+    if (doOnlyUpdateRefPoint) {
+      this.updateConstructionStateWithRefPoint(event);
+    } else {
+      this.updatingTab = setTimeout(
+        this.updateConstructionState.bind(this, event),
+        3000
+      );
+    }
+
     this.timer = null;
     this.movingGeos = false;
     resetControlTimer();
@@ -1208,7 +1353,6 @@ class GgbGraph extends Component {
       }
     }
 
-    console.log('event build desc', event);
     const { user } = this.props;
     const { label, eventType, objType = 'object', oldLabel } = event;
     let description = `${user.username} `;
@@ -1232,7 +1376,6 @@ class GgbGraph extends Component {
     } else if (eventType === 'REDEFINE') {
       description += `redefined ${objType} ${label}`;
     }
-    console.log(`Description for event ${event}: ${description}`);
     return description;
   };
 
@@ -1253,11 +1396,36 @@ class GgbGraph extends Component {
     }
   };
 
-  getReferenceCoords = async (element, elementType, mouseDownCoords) => {
+  updateConstructionStateWithRefPoint = (event) => {
+    if (!event.isForRefPoint) {
+      return;
+    }
+    this.resyncGgbState()
+      .then(() => {
+        this.isCreatingRefPoint = true;
+        this.ggbApplet.evalXML(event.xml);
+        this.isCreatingRefPoint = false;
+        const currentState = this.ggbApplet.getXML();
+        const { tab } = this.props;
+
+        const { _id } = tab;
+        API.put('tabs', _id, { currentState })
+          .then(() => {})
+          .catch((err) => {
+            // eslint-disable-next-line no-console
+            console.log(err);
+          });
+      })
+      .catch((err) => {
+        console.log('Error updating construction with ref point: ', err);
+      });
+  };
+
+  getReferenceCoords = async (element, elementType, refPoint) => {
     let position;
 
-    if (Array.isArray(mouseDownCoords)) {
-      position = await this.getRelativeCoords(null, mouseDownCoords);
+    if (typeof refPoint === 'string') {
+      position = await this.getRelativeCoords(refPoint);
       return {
         renamedElementType: elementType,
         position,
@@ -1323,24 +1491,19 @@ class GgbGraph extends Component {
   /**
    * @method getRelativeCoords - converts x,y coordinates of ggb point and converts them to the pizel location on the screen
    * @param  {String} element - ggb defined Label. MUST be a point
-   * @param {Array} coords - [x,y]
    * @return {Promise Object} - because parseXML is async
    */
-  getRelativeCoords = (element, coords) => {
+  getRelativeCoords = (element) => {
     return new Promise(async (resolve, reject) => {
       let elX;
       let elY;
 
-      if (Array.isArray(coords)) {
-        [elX, elY] = coords;
-      } else {
-        try {
-          elX = this.ggbApplet.getXcoord(element);
-          elY = this.ggbApplet.getYcoord(element);
-        } catch (err) {
-          // this will happen if we pass something other than a point
-          reject(err);
-        }
+      try {
+        elX = this.ggbApplet.getXcoord(element);
+        elY = this.ggbApplet.getYcoord(element);
+      } catch (err) {
+        // this will happen if we pass something other than a point
+        reject(err);
       }
       // Get the element's location relative to the client Window
       // Check if the Algebra input window is positioned left or bottom
@@ -1403,15 +1566,35 @@ class GgbGraph extends Component {
   updateReferToEl = async (referToElDetails) => {
     const { setToElAndCoords } = this.props;
 
-    const { element, elementType, x, y } = referToElDetails;
-    const mouseDownCoords = isFinite(x) && isFinite(y) ? [x, y] : null;
+    const { element, elementType, refPoint } = referToElDetails;
 
     const { position } = await this.getReferenceCoords(
       element,
       elementType,
-      mouseDownCoords
+      refPoint
     );
     setToElAndCoords(referToElDetails, position);
+  };
+
+  // clearUnsavedRefPoint = () => {
+  //   const { referToEl } = this.props;
+  //   if (referToEl && referToEl.refPoint) {
+  //     this.isDeletingUnsavedRefPoint = true;
+  //     this.ggbApplet.deleteObject(referToEl.refPoint);
+  //     this.isDeletingUnsavedRefPoint = false;
+  //   }
+  // };
+
+  hasRefPointBeenSaved = (refPoint) => {
+    const { eventsWithRefs } = this.props;
+    const event = find(eventsWithRefs, (ev) => {
+      return ev.reference.refPoint === refPoint;
+    });
+
+    if (event) {
+      return true;
+    }
+    return false;
   };
 
   render() {
@@ -1465,6 +1648,9 @@ class GgbGraph extends Component {
 GgbGraph.defaultProps = {
   myColor: 'blue',
   referToEl: {},
+  refPointToEmit: null,
+  clearRefPointToEmit: null,
+  refPointToClear: null,
 };
 GgbGraph.propTypes = {
   room: PropTypes.shape({
@@ -1494,6 +1680,14 @@ GgbGraph.propTypes = {
   setToElAndCoords: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
   setGraphCoords: PropTypes.func.isRequired,
+  log: PropTypes.arrayOf(PropTypes.object).isRequired,
+  refPointToEmit: PropTypes.string,
+  clearRefPointToEmit: PropTypes.func,
+  eventsWithRefs: PropTypes.arrayOf(PropTypes.object).isRequired,
+  renameReferences: PropTypes.func.isRequired,
+  refPointToClear: PropTypes.string,
+  clearRefPointToClear: PropTypes.func.isRequired,
+  hasRefPointBeenSaved: PropTypes.func.isRequired,
 };
 
 export default GgbGraph;
