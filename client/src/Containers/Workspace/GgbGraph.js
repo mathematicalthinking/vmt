@@ -975,7 +975,6 @@ class GgbGraph extends Component {
       return;
     }
     const isUpdateForSelectedPoint = label === this.pointSelected;
-
     if (isUpdateForSelectedPoint) {
       // check if is drag event
       let doSendDragEvent = false;
@@ -1084,8 +1083,11 @@ class GgbGraph extends Component {
         if (isFinite(x) && isFinite(y)) {
           refPoint = this.ggbApplet.evalCommandGetLabels(`PointIn(${element})`);
           if (!refPoint) {
-            // use Point
-            refPoint = this.ggbApplet.evalCommandGetLabels(`Point(${element})`);
+            // was not able to reference on or in element
+            console.log(
+              `Unable to create reference for ${elementType} ${element}`
+            );
+            return;
           }
           this.ggbApplet.setVisible(refPoint, false);
           this.ggbApplet.setAuxiliary(refPoint, true);
@@ -1330,6 +1332,18 @@ class GgbGraph extends Component {
         this.updateConstructionState.bind(this, event),
         3000
       );
+
+      const mutateEvents = ['DRAG', 'UPDATE_STYLE'];
+      const { updateModifiedReferences } = this.props;
+
+      const evType = Array.isArray(event)
+        ? event[0].eventType
+        : event.eventType;
+
+      if (mutateEvents.includes(evType)) {
+        const label = Array.isArray(event) ? event[0].label : event.label;
+        updateModifiedReferences(label);
+      }
     }
 
     this.timer = null;
@@ -1692,6 +1706,7 @@ GgbGraph.propTypes = {
   clearRefPointToClear: PropTypes.func.isRequired,
   hasRefPointBeenSaved: PropTypes.func.isRequired,
   updateRemovedReferences: PropTypes.func.isRequired,
+  updateModifiedReferences: PropTypes.func.isRequired,
 };
 
 export default GgbGraph;

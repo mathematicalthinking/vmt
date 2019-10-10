@@ -425,6 +425,13 @@ class Workspace extends Component {
       return;
     }
 
+    if (referToEl.wasObjectUpdated) {
+      const msg = `Caution! The referenced object (${referToEl.elementType} ${
+        referToEl.element
+      }) has been modified since the time of reference.`;
+      window.alert(msg);
+    }
+
     this.setState({
       referToEl,
       referFromEl,
@@ -594,6 +601,8 @@ class Workspace extends Component {
   renameReferences = (oldLabel, newLabel) => {
     const { eventsWithRefs } = this.state;
 
+    let doUpdateState = false;
+
     const updatedEvents = eventsWithRefs.map((ev) => {
       const { reference } = ev;
       let doUpdate = false;
@@ -608,12 +617,15 @@ class Workspace extends Component {
         doUpdate = true;
       }
       if (doUpdate) {
+        doUpdateState = true;
         API.put('messages', ev._id, ev);
       }
       return reference;
     });
 
-    this.setState({ eventsWithRefs: updatedEvents });
+    if (doUpdateState) {
+      this.setState({ eventsWithRefs: updatedEvents });
+    }
   };
 
   hasRefPointBeenSaved = (refPoint) => {
@@ -646,18 +658,43 @@ class Workspace extends Component {
   updateRemovedReferences = (label) => {
     const { eventsWithRefs } = this.state;
 
+    let doUpdate = false;
     const updatedEvents = eventsWithRefs.map((event) => {
       if (
         event.reference.element === label &&
         !event.reference.wasObjectDeleted
       ) {
+        doUpdate = true;
         event.reference.wasObjectDeleted = true;
         API.put('messages', event._id, event);
       }
       return event;
     });
 
-    this.setState({ eventsWithRefs: updatedEvents });
+    if (doUpdate) {
+      this.setState({ eventsWithRefs: updatedEvents });
+    }
+  };
+
+  updateModifiedReferences = (label) => {
+    const { eventsWithRefs } = this.state;
+
+    let doUpdate = false;
+    const updatedEvents = eventsWithRefs.map((event) => {
+      if (
+        event.reference.element === label &&
+        !event.reference.wasObjectUpdated
+      ) {
+        doUpdate = true;
+        event.reference.wasObjectUpdated = true;
+        API.put('messages', event._id, event);
+      }
+      return event;
+    });
+
+    if (doUpdate) {
+      this.setState({ eventsWithRefs: updatedEvents });
+    }
   };
 
   render() {
@@ -803,6 +840,7 @@ class Workspace extends Component {
           clearRefPointToClear={this.clearRefPointToClear}
           hasRefPointBeenSaved={this.hasRefPointBeenSaved}
           updateRemovedReferences={this.updateRemovedReferences}
+          updateModifiedReferences={this.updateModifiedReferences}
         />
       );
     });
