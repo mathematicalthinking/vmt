@@ -941,6 +941,9 @@ class GgbGraph extends Component {
       }
 
       this.sendEventBuffer(data);
+
+      const { updateRemovedReferences } = this.props;
+      updateRemovedReferences(label);
     }
   };
 
@@ -1688,6 +1691,7 @@ GgbGraph.propTypes = {
   refPointToClear: PropTypes.string,
   clearRefPointToClear: PropTypes.func.isRequired,
   hasRefPointBeenSaved: PropTypes.func.isRequired,
+  updateRemovedReferences: PropTypes.func.isRequired,
 };
 
 export default GgbGraph;

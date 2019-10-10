@@ -413,15 +413,25 @@ class Workspace extends Component {
     const { currentTabId } = this.state;
     if (tabId !== currentTabId && referToEl.elementType !== 'chat_message') {
       window.alert('This reference does not belong to this tab'); // @TODO HOW SHOULD WE HANDLE THIS?
-    } else {
-      this.setState({
-        referToEl,
-        referFromEl,
-        referToCoords,
-        referFromCoords,
-        showingReference: true,
-      });
+      return;
     }
+
+    if (referToEl.wasObjectDeleted) {
+      // referenced object was removed
+      const msg = `The referenced object (${referToEl.elementType} ${
+        referToEl.element
+      }) was deleted.`;
+      window.alert(msg);
+      return;
+    }
+
+    this.setState({
+      referToEl,
+      referFromEl,
+      referToCoords,
+      referFromCoords,
+      showingReference: true,
+    });
     // get coords of referenced element,
   };
 
@@ -589,10 +599,12 @@ class Workspace extends Component {
       let doUpdate = false;
       if (reference.element === oldLabel && !reference.refPoint) {
         ev.reference.element = newLabel;
+        ev.reference.wasObjectUpdated = true;
         doUpdate = true;
       } else if (oldLabel === reference.refPoint) {
         // if for some reason the refPoint was renamed
         ev.reference.refPoint = newLabel;
+        ev.reference.wasObjectUpdated = true;
         doUpdate = true;
       }
       if (doUpdate) {
@@ -629,6 +641,23 @@ class Workspace extends Component {
       return false;
     }
     return typeof event.reference.element === 'string';
+  };
+
+  updateRemovedReferences = (label) => {
+    const { eventsWithRefs } = this.state;
+
+    const updatedEvents = eventsWithRefs.map((event) => {
+      if (
+        event.reference.element === label &&
+        !event.reference.wasObjectDeleted
+      ) {
+        event.reference.wasObjectDeleted = true;
+        API.put('messages', event._id, event);
+      }
+      return event;
+    });
+
+    this.setState({ eventsWithRefs: updatedEvents });
   };
 
   render() {
@@ -773,6 +802,7 @@ class Workspace extends Component {
           refPointToClear={refPointToClear}
           clearRefPointToClear={this.clearRefPointToClear}
           hasRefPointBeenSaved={this.hasRefPointBeenSaved}
+          updateRemovedReferences={this.updateRemovedReferences}
         />
       );
     });
