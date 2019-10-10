@@ -54,6 +54,7 @@ class Chat extends Component {
       roomId,
       user,
       myColor,
+      triggerAddRefEvent,
     } = this.props;
     const { newMessage } = this.state;
     if (!user.connected) {
@@ -73,18 +74,33 @@ class Chat extends Component {
       timestamp: new Date().getTime(),
     };
 
+    let doTriggerAddRef = false;
+
     if (referencing && referToEl) {
       messageData.reference = {
         ...referToEl,
         tab: currentTabId,
       };
+
+      if (triggerAddRefEvent && referToEl.refPoint) {
+        // triggedAddRefEvent may not always be passed down in props
+        // since this component is reused?
+        doTriggerAddRef = true;
+      }
       // per annie's request, referencing should stay on after submitting msg
-      clearReference({ doKeepReferencingOn: true });
+      clearReference({
+        doKeepReferencingOn: true,
+        refBeingSaved: messageData.reference, // so we don't clear the reference before it has a chance to be saved
+      });
     }
+
     socket.emit('SEND_MESSAGE', messageData, (res, err) => {
       if (err) {
         console.log(err);
         return;
+      }
+      if (doTriggerAddRef) {
+        triggerAddRefEvent(referToEl.refPoint);
       }
       addToLog(messageData);
     });
@@ -123,11 +139,13 @@ Chat.propTypes = {
   replaying: PropTypes.bool,
   roomId: PropTypes.string.isRequired,
   currentTabId: PropTypes.string.isRequired,
+  triggerAddRefEvent: PropTypes.func,
 };
 
 Chat.defaultProps = {
   referToEl: null,
   replaying: false,
+  triggerAddRefEvent: null,
 };
 
 export default Chat;
