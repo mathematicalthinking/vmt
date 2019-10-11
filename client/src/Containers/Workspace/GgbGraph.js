@@ -1075,31 +1075,13 @@ class GgbGraph extends Component {
     if (referencing) {
       const elementType = this.ggbApplet.getObjectType(element);
       let refPoint;
-
       if (elementType !== 'point' && Array.isArray(this.mouseDownCoords)) {
         // create an invisible ref point
-        this.isCreatingRefPoint = true;
+
         const [x, y] = this.mouseDownCoords;
         if (isFinite(x) && isFinite(y)) {
-          refPoint = this.ggbApplet.evalCommandGetLabels(`PointIn(${element})`);
-          if (!refPoint) {
-            // was not able to reference on or in element
-            console.log(
-              `Unable to create reference for ${elementType} ${element}`
-            );
-            return;
-          }
-          this.ggbApplet.setVisible(refPoint, false);
-          this.ggbApplet.setAuxiliary(refPoint, true);
-          this.ggbApplet.setCoords(refPoint, x, y);
-
-          const randomChar = String.fromCharCode(random(65, 90)); // A-Z
-          const newLabel = `${randomChar}${Date.now()}`;
-          this.ggbApplet.renameObject(refPoint, newLabel);
-          refPoint = newLabel;
-          // give ref point a unique name so as to minimize
-          // chances of having to rename point
-
+          this.isCreatingRefPoint = true;
+          refPoint = this.createRefPoint(element, elementType, x, y);
           this.isCreatingRefPoint = false;
         }
       }
@@ -1591,6 +1573,53 @@ class GgbGraph extends Component {
       refPoint
     );
     setToElAndCoords(referToElDetails, position);
+  };
+
+  createRefPoint = (element, elementType, x, y) => {
+    if (typeof element !== 'string') {
+      return null;
+    }
+
+    let refPoint;
+    let command = 'ClosestPoint';
+    const pointInTypes = ['polygon', 'triangle', 'quadrilateral'];
+
+    if (pointInTypes.indexOf(elementType)) {
+      command = 'ClosestPointRegion';
+    }
+
+    try {
+      refPoint = this.ggbApplet.evalCommandGetLabels(
+        `${command}(${element}, (${x}, ${y}))`
+      );
+      if (!refPoint) {
+        // was not able to reference on or in element
+        console.log(
+          `Unable to create refPoint for object ${element} with ${command} command`
+        );
+        return null;
+      }
+
+      this.ggbApplet.setVisible(refPoint, false);
+      this.ggbApplet.setAuxiliary(refPoint, true);
+      this.ggbApplet.setCoords(refPoint, x, y);
+
+      const randomChar = String.fromCharCode(random(65, 90)); // A-Z
+      const newLabel = `${randomChar}${Date.now()}`;
+      this.ggbApplet.renameObject(refPoint, newLabel);
+      refPoint = newLabel;
+
+      return refPoint;
+    } catch (err) {
+      console.log(
+        `Error creating refPoint for object ${element} with ${command} command`
+      );
+
+      if (refPoint) {
+        this.ggbApplet.deleteObject(refPoint);
+      }
+      return null;
+    }
   };
 
   // clearUnsavedRefPoint = () => {
