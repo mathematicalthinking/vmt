@@ -10,8 +10,19 @@ class Awareness extends Component {
   };
 
   shouldComponentUpdate(nextProps) {
-    if (nextProps.lastEvent && nextProps.lastEvent.messageType === 'TEXT') {
-      return false;
+    const { lastEvent } = nextProps;
+
+    if (lastEvent) {
+      if (lastEvent.messageType === 'TEXT') {
+        return false;
+      }
+      const { ggbEvent } = lastEvent;
+
+      if (ggbEvent && ggbEvent.isForRefPoint) {
+        // do not show event for invisible ref point in awareness window
+        // unless we wanted to add a description that someone referenced an object
+        return false;
+      }
     }
     return true;
   }
