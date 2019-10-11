@@ -18,7 +18,7 @@ import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from '.';
 import { Modal, CurrentMembers, Loading } from '../../Components';
 import NewTabForm from '../Create/NewTabForm';
-import { socket, API } from '../../utils';
+import { socket } from '../../utils';
 
 // import Replayer from ''
 class Workspace extends Component {
@@ -248,6 +248,11 @@ class Workspace extends Component {
       tabs.push(data);
       this.setState({ tabs });
     });
+
+    socket.on('RECEIVED_UPDATED_REFERENCES', (data) => {
+      console.log('received refs', data);
+      this.setState({ eventsWithRefs: data });
+    });
   };
 
   createNewTab = () => {
@@ -410,6 +415,7 @@ class Workspace extends Component {
     referFromCoords,
     tabId
   ) => {
+    console.log('Showing reference: ', referToEl);
     const { currentTabId } = this.state;
     if (tabId !== currentTabId && referToEl.elementType !== 'chat_message') {
       window.alert('This reference does not belong to this tab'); // @TODO HOW SHOULD WE HANDLE THIS?
@@ -598,36 +604,6 @@ class Workspace extends Component {
     this.setState({ eventsWithRefs });
   };
 
-  renameReferences = (oldLabel, newLabel) => {
-    const { eventsWithRefs } = this.state;
-
-    let doUpdateState = false;
-
-    const updatedEvents = eventsWithRefs.map((ev) => {
-      const { reference } = ev;
-      let doUpdate = false;
-      if (reference.element === oldLabel && !reference.refPoint) {
-        ev.reference.element = newLabel;
-        ev.reference.wasObjectUpdated = true;
-        doUpdate = true;
-      } else if (oldLabel === reference.refPoint) {
-        // if for some reason the refPoint was renamed
-        ev.reference.refPoint = newLabel;
-        ev.reference.wasObjectUpdated = true;
-        doUpdate = true;
-      }
-      if (doUpdate) {
-        doUpdateState = true;
-        API.put('messages', ev._id, ev);
-      }
-      return reference;
-    });
-
-    if (doUpdateState) {
-      this.setState({ eventsWithRefs: updatedEvents });
-    }
-  };
-
   hasRefPointBeenSaved = (refPoint) => {
     if (this.refBeingSaved && this.refBeingSaved.refPoint === refPoint) {
       return true;
@@ -655,46 +631,8 @@ class Workspace extends Component {
     return typeof event.reference.element === 'string';
   };
 
-  updateRemovedReferences = (label) => {
-    const { eventsWithRefs } = this.state;
-
-    let doUpdate = false;
-    const updatedEvents = eventsWithRefs.map((event) => {
-      if (
-        event.reference.element === label &&
-        !event.reference.wasObjectDeleted
-      ) {
-        doUpdate = true;
-        event.reference.wasObjectDeleted = true;
-        API.put('messages', event._id, event);
-      }
-      return event;
-    });
-
-    if (doUpdate) {
-      this.setState({ eventsWithRefs: updatedEvents });
-    }
-  };
-
-  updateModifiedReferences = (label) => {
-    const { eventsWithRefs } = this.state;
-
-    let doUpdate = false;
-    const updatedEvents = eventsWithRefs.map((event) => {
-      if (
-        event.reference.element === label &&
-        !event.reference.wasObjectUpdated
-      ) {
-        doUpdate = true;
-        event.reference.wasObjectUpdated = true;
-        API.put('messages', event._id, event);
-      }
-      return event;
-    });
-
-    if (doUpdate) {
-      this.setState({ eventsWithRefs: updatedEvents });
-    }
+  updateEventsWithReferences = (events) => {
+    this.setState({ eventsWithRefs: events });
   };
 
   render() {
@@ -835,12 +773,10 @@ class Workspace extends Component {
           refPointToEmit={refPointToEmit}
           clearRefPointToEmit={this.clearRefPointToEmit}
           eventsWithRefs={eventsWithRefs}
-          renameReferences={this.renameReferences}
           refPointToClear={refPointToClear}
           clearRefPointToClear={this.clearRefPointToClear}
           hasRefPointBeenSaved={this.hasRefPointBeenSaved}
-          updateRemovedReferences={this.updateRemovedReferences}
-          updateModifiedReferences={this.updateModifiedReferences}
+          updateEventsWithReferences={this.updateEventsWithReferences}
         />
       );
     });

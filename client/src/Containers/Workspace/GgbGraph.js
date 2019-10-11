@@ -749,10 +749,6 @@ class GgbGraph extends Component {
               commandString,
             });
           }
-
-          // // check for references that need to be updated
-          const { renameReferences } = this.props;
-          renameReferences(oldLabel, newLabel);
         }
 
         break;
@@ -941,9 +937,6 @@ class GgbGraph extends Component {
       }
 
       this.sendEventBuffer(data);
-
-      const { updateRemovedReferences } = this.props;
-      updateRemovedReferences(label);
     }
   };
 
@@ -1315,17 +1308,7 @@ class GgbGraph extends Component {
         3000
       );
 
-      const mutateEvents = ['DRAG', 'UPDATE_STYLE'];
-      const { updateModifiedReferences } = this.props;
-
-      const evType = Array.isArray(event)
-        ? event[0].eventType
-        : event.eventType;
-
-      if (mutateEvents.includes(evType)) {
-        const label = Array.isArray(event) ? event[0].label : event.label;
-        updateModifiedReferences(label);
-      }
+      this.checkForUpdatedReferences(eventData);
     }
 
     this.timer = null;
@@ -1370,7 +1353,6 @@ class GgbGraph extends Component {
       description += `removed ${objType} ${label}`;
     } else if (eventType === 'RENAME') {
       description += `renamed ${objType} ${oldLabel} to ${label}`;
-      delete event.oldLabel;
       this.renamedDetails = null;
     } else if (eventType === 'REDEFINE') {
       description += `redefined ${objType} ${label}`;
@@ -1647,6 +1629,85 @@ class GgbGraph extends Component {
     return false;
   };
 
+  checkForUpdatedReferences = (event) => {
+    const { eventsWithRefs, updateEventsWithReferences } = this.props;
+
+    const { ggbEvent, tab, eventArray } = event;
+    const events =
+      Array.isArray(eventArray) && eventArray.length > 0
+        ? eventArray
+        : [ggbEvent];
+
+    const { eventType } = events[0];
+
+    const mutateEvents = ['DRAG', 'REMOVE', 'RENAME', 'UPDATE_STYLE'];
+
+    if (mutateEvents.includes(eventType)) {
+      const labels = [...events].reduce((results, ev) => {
+        if (!ev.isForRefPoint && typeof ev.label === 'string') {
+          if (eventType === 'RENAME') {
+            results.push([ev.oldLabel, ev.label]);
+          } else {
+            results.push(ev.label);
+          }
+        }
+        return results;
+      }, []);
+
+      if (labels.length === 0) {
+        return;
+      }
+      let doEmit = false;
+
+      const updatedEvents = [...eventsWithRefs].map((ev) => {
+        const { reference } = ev;
+
+        if (reference.tab !== tab) {
+          return ev;
+        }
+
+        if (eventType === 'RENAME') {
+          const match = find(labels, (tuple) => {
+            return !reference.refPoint && tuple[0] === reference.element;
+          });
+
+          if (match) {
+            // eslint-disable-next-line prefer-destructuring
+            ev.reference.element = match[1];
+            ev.reference.wasObjectUpdated = true;
+            doEmit = true;
+          } else {
+            const refPointMatch = find(labels, (tuple) => {
+              return tuple[0] === reference.refPoint;
+            });
+
+            if (refPointMatch) {
+              // eslint-disable-next-line prefer-destructuring
+              ev.reference.refPoint = refPointMatch[1];
+              ev.reference.wasObjectUpdated = true;
+              doEmit = true;
+            }
+          }
+          return ev;
+        }
+        const propToCheck =
+          eventType === 'REMOVE' ? 'wasObjectDeleted' : 'wasObjectUpdated';
+
+        if (!reference[propToCheck] && labels.indexOf(reference.element) >= 0) {
+          reference[propToCheck] = true;
+          doEmit = true;
+        }
+        return ev;
+      });
+
+      if (doEmit) {
+        socket.emit('UPDATED_REFERENCES', updatedEvents);
+
+        updateEventsWithReferences(updatedEvents);
+      }
+    }
+  };
+
   render() {
     const { tab, toggleControl, inControl } = this.props;
     const { showControlWarning, redo } = this.state;
@@ -1734,12 +1795,10 @@ GgbGraph.propTypes = {
   refPointToEmit: PropTypes.string,
   clearRefPointToEmit: PropTypes.func,
   eventsWithRefs: PropTypes.arrayOf(PropTypes.object).isRequired,
-  renameReferences: PropTypes.func.isRequired,
   refPointToClear: PropTypes.string,
   clearRefPointToClear: PropTypes.func.isRequired,
   hasRefPointBeenSaved: PropTypes.func.isRequired,
-  updateRemovedReferences: PropTypes.func.isRequired,
-  updateModifiedReferences: PropTypes.func.isRequired,
+  updateEventsWithReferences: PropTypes.func.isRequired,
 };
 
 export default GgbGraph;

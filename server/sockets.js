@@ -277,6 +277,11 @@ module.exports = function() {
         .catch((err) => callback('fail', err));
     });
 
+    socket.on('UPDATED_REFERENCES', (data) => {
+      console.log('emitting updating refs', data);
+      socket.broadcast.to(data.room).emit('RECEIVED_UPDATED_REFERENCES', data);
+    });
+
     const leaveRoom = function(color, cb) {
       const room = Object.keys(socket.rooms).pop();
       controllers.rooms
