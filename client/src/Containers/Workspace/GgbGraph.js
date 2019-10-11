@@ -1581,17 +1581,21 @@ class GgbGraph extends Component {
     }
 
     let refPoint;
-    let command = 'ClosestPoint';
-    const pointInTypes = ['polygon', 'triangle', 'quadrilateral'];
+    let command = 'Point';
+    const pointInTypes = [
+      'polygon',
+      'triangle',
+      'quadrilateral',
+      'pentagon',
+      'hexagon',
+    ];
 
-    if (pointInTypes.indexOf(elementType)) {
-      command = 'ClosestPointRegion';
+    if (pointInTypes.indexOf(elementType) >= 0) {
+      command = 'PointIn';
     }
 
     try {
-      refPoint = this.ggbApplet.evalCommandGetLabels(
-        `${command}(${element}, (${x}, ${y}))`
-      );
+      refPoint = this.ggbApplet.evalCommandGetLabels(`${command}(${element})`);
       if (!refPoint) {
         // was not able to reference on or in element
         console.log(
