@@ -6,26 +6,22 @@ import sine from './sine.gif';
 class Loading extends Component {
   state = {
     doDisplay: false,
-    timer: null,
   };
+  timer = null;
 
   componentDidMount() {
     const { waitTimeMs } = this.props;
-    const timer = setTimeout(() => {
+    this.timer = setTimeout(() => {
       const { doDisplay } = this.state;
       if (!doDisplay) {
         this.setState({ doDisplay: true });
       }
     }, waitTimeMs);
-
-    this.setState({ timer });
   }
 
   componentWillUnmount() {
-    const { timer } = this.state;
-
-    if (timer) {
-      clearTimeout(timer);
+    if (this.timer) {
+      clearTimeout(this.timer);
     }
   }
 
