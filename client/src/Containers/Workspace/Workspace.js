@@ -250,7 +250,6 @@ class Workspace extends Component {
     });
 
     socket.on('RECEIVED_UPDATED_REFERENCES', (data) => {
-      console.log('received refs', data);
       this.setState({ eventsWithRefs: data });
     });
   };
@@ -415,7 +414,6 @@ class Workspace extends Component {
     referFromCoords,
     tabId
   ) => {
-    console.log('Showing reference: ', referToEl);
     const { currentTabId } = this.state;
     if (tabId !== currentTabId && referToEl.elementType !== 'chat_message') {
       window.alert('This reference does not belong to this tab'); // @TODO HOW SHOULD WE HANDLE THIS?
@@ -681,7 +679,7 @@ class Workspace extends Component {
       <CurrentMembers
         members={tempMembers || populatedRoom.members}
         currentMembers={tempCurrentMembers || activeMembers}
-        activeMember={populatedRoom.controlledBy}
+        activeMember={controlledBy}
         expanded={membersExpanded}
         toggleExpansion={this.toggleExpansion}
       />

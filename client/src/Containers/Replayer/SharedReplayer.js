@@ -499,7 +499,7 @@ class SharedReplayer extends Component {
                 members={populatedRoom.members}
                 currentMembers={currentMembers}
                 expanded
-                activeMember={event.user}
+                activeMember={event.user && event.user._id}
               />
             ) : null
           }
