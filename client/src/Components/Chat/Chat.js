@@ -2,6 +2,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
+import find from 'lodash/find';
 import Modal from '../UI/Modal/Modal';
 import Message from './Message';
 import Event from './Event';
@@ -90,7 +91,7 @@ class Chat extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.updateOnResize);
+    window.removeEventListener('resize', this.updateCoords);
     window.removeEventListener('scroll', this.debouncedUpdateCoords);
   }
 
@@ -123,7 +124,7 @@ class Chat extends Component {
     // window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
   };
 
-  showReference = (event, reference) => {
+  showReference = (event, reference, messageId) => {
     const {
       showReference,
       referToEl,
@@ -147,8 +148,9 @@ class Chat extends Component {
           this[`message-${reference.element}`].current
         );
       }
+      const updatedReference = this.findReference(reference, messageId);
       showReference(
-        reference,
+        updatedReference,
         toCoords,
         event.currentTarget.id,
         fromCoords,
@@ -237,6 +239,15 @@ class Chat extends Component {
     return elA.element === elB.element;
   };
 
+  findReference = (reference, messageId) => {
+    const { eventsWithRefs } = this.props;
+    const found = find(eventsWithRefs, (ev) => {
+      return ev._id === messageId;
+    });
+
+    return found.reference || reference;
+  };
+
   render() {
     const {
       // messages,
@@ -285,7 +296,7 @@ class Chat extends Component {
               ref={this[`message-${message._id}`]}
               onClick={(event) => this.messageClickHandler(event, message)}
               showReference={(event) =>
-                this.showReference(event, message.reference)
+                this.showReference(event, message.reference, message._id)
               }
               highlighted={highlighted}
               reference={reference}
@@ -415,6 +426,7 @@ Chat.propTypes = {
   expanded: PropTypes.bool.isRequired,
   // membersExpanded: PropTypes.bool.isRequired,
   chatInput: PropTypes.shape({ current: PropTypes.any }),
+  eventsWithRefs: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 Chat.defaultProps = {
@@ -436,6 +448,7 @@ Chat.defaultProps = {
   showingReference: null,
   // referenceElementCoords: [],
   chatInput: null,
+  eventsWithRefs: [],
 };
 
 export default Chat;

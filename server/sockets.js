@@ -278,8 +278,12 @@ module.exports = function() {
     });
 
     socket.on('UPDATED_REFERENCES', (data) => {
-      console.log('emitting updating refs', data);
-      socket.broadcast.to(data.room).emit('RECEIVED_UPDATED_REFERENCES', data);
+      const { roomId, updatedEvents } = data;
+      console.log('emitting updating refs', roomId, updatedEvents);
+
+      socket.broadcast
+        .to(roomId)
+        .emit('RECEIVED_UPDATED_REFERENCES', updatedEvents);
     });
 
     const leaveRoom = function(color, cb) {

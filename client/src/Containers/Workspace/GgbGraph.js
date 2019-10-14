@@ -117,10 +117,12 @@ class GgbGraph extends Component {
    * @param  {Object} prevProps - props before update
    */
 
-  async componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps) {
     const {
-      currentTab,
-      tabId,
+      // currentTab,
+      // tabId,
+      currentTabId,
+      tab,
       // room,
       referencing,
       inControl,
@@ -139,7 +141,7 @@ class GgbGraph extends Component {
       return;
     }
 
-    if (currentTab !== tabId) {
+    if (currentTabId !== tab._id) {
       return;
     }
 
@@ -235,13 +237,13 @@ class GgbGraph extends Component {
     ) {
       // find the coordinates of the point we're referencing
 
-      await this.updateReferToEl(referToEl);
+      this.updateReferToEl(referToEl);
     } else if (
       showingReference &&
       didReferToElChange &&
       referToEl.elementType !== 'chat_message'
     ) {
-      await this.updateReferToEl(referToEl);
+      this.updateReferToEl(referToEl);
     }
 
     if (previousRefPoint && previousRefPoint !== refPoint) {
@@ -255,7 +257,7 @@ class GgbGraph extends Component {
     }
 
     // switching tab
-    if (prevProps.currentTab !== currentTab) {
+    if (prevProps.currentTabId !== currentTabId) {
       this.updateDimensions();
     }
 
@@ -833,14 +835,16 @@ class GgbGraph extends Component {
         break;
       }
       // case 'viewChanged2D': {
+      //   const { xZero, yZero, scale, yscale } = event;
       //   const props = JSON.parse(this.ggbApplet.getViewProperties());
-      //   const { xMin, yMin, width, height, invXscale, invYscale } = props;
+      //   const { width, height, xMin, yMin, invXscale, invYscale } = props;
       //   const xMax = xMin + width * invXscale;
       //   const yMax = yMin + height * invYscale;
       //   console.log(xMin, yMin, xMax, yMax);
+      //   this.ggbViewProperties = { xZero, yZero, scale, yscale, width, height };
+
       //   break;
       // }
-
       default:
         break;
     }
@@ -1063,7 +1067,7 @@ class GgbGraph extends Component {
    * @description used to get reference positions
    */
 
-  clickListener = async (element) => {
+  clickListener = (element) => {
     const { referencing, setToElAndCoords } = this.props;
     if (referencing) {
       const elementType = this.ggbApplet.getObjectType(element);
@@ -1079,7 +1083,7 @@ class GgbGraph extends Component {
         }
       }
 
-      const { renamedElementType, position } = await this.getReferenceCoords(
+      const { renamedElementType, position } = this.getReferenceCoords(
         element,
         elementType,
         refPoint
@@ -1402,11 +1406,11 @@ class GgbGraph extends Component {
       });
   };
 
-  getReferenceCoords = async (element, elementType, refPoint) => {
+  getReferenceCoords = (element, elementType, refPoint) => {
     let position;
 
     if (typeof refPoint === 'string') {
-      position = await this.getRelativeCoords(refPoint);
+      position = this.getRelativeCoords(refPoint);
       return {
         renamedElementType: elementType,
         position,
@@ -1420,12 +1424,10 @@ class GgbGraph extends Component {
         commandString.indexOf('(') + 1,
         commandString.indexOf(',')
       );
-      try {
-        position = await this.getRelativeCoords(point);
-        return { renamedElementType, position };
-      } catch (err) {
-        return null;
-      }
+
+      position = this.getRelativeCoords(point);
+
+      return position ? { renamedElementType, position } : null;
     }
     if (elementType !== 'point') {
       // Find centroid of polygon
@@ -1442,82 +1444,78 @@ class GgbGraph extends Component {
         // selecting segment of a poly will mess this up because the poly is the 3rd argument and passing that getRelativeCoords will fail because its not a point
         pointsOfShape.splice(2, pointsOfShape.length - 2);
       }
-      try {
-        const coordsArr = await Promise.all(
-          pointsOfShape.map((point) => this.getRelativeCoords(point))
-        );
-        let leftTotal = 0;
-        let topTotal = 0;
-        coordsArr.forEach((coords) => {
-          leftTotal += coords.left;
-          topTotal += coords.top;
-        });
-        const leftAvg = leftTotal / coordsArr.length;
-        const topAvg = topTotal / coordsArr.length;
-        position = { left: leftAvg, top: topAvg };
-        return { renamedElementType, position };
-      } catch (err) {
-        return null;
-      }
+      const coordsArr = pointsOfShape.map((point) =>
+        this.getRelativeCoords(point)
+      );
+      let leftTotal = 0;
+      let topTotal = 0;
+      coordsArr.forEach((coords) => {
+        leftTotal += coords.left;
+        topTotal += coords.top;
+      });
+      const leftAvg = leftTotal / coordsArr.length;
+      const topAvg = topTotal / coordsArr.length;
+      position = { left: leftAvg, top: topAvg };
+      return position ? { renamedElementType, position } : null;
     }
     // regular point
-    try {
-      position = await this.getRelativeCoords(element);
-      return { renamedElementType, position };
-    } catch (err) {
-      return null;
-    }
+    position = this.getRelativeCoords(element);
+    return position ? { renamedElementType, position } : null;
   };
 
   /**
    * @method getRelativeCoords - converts x,y coordinates of ggb point and converts them to the pizel location on the screen
    * @param  {String} element - ggb defined Label. MUST be a point
-   * @return {Promise Object} - because parseXML is async
+   * @return {Object} - { left, top} or null if invalid point passed in
    */
   getRelativeCoords = (element) => {
-    return new Promise(async (resolve, reject) => {
-      let elX;
-      let elY;
+    let elX;
+    let elY;
 
-      try {
-        elX = this.ggbApplet.getXcoord(element);
-        elY = this.ggbApplet.getYcoord(element);
-      } catch (err) {
-        // this will happen if we pass something other than a point
-        reject(err);
-      }
-      // Get the element's location relative to the client Window
-      // Check if the Algebra input window is positioned left or bottom
-      const vertical = document.getElementsByClassName(
-        'gwt-SplitLayoutPanel-VDragger'
-      );
-      let bottomMenuHeight;
-      if (vertical.length > 0) {
-        bottomMenuHeight = document
-          .getElementsByClassName('ggbdockpanelhack')[1]
-          .getBoundingClientRect().height;
-      }
-      const ggbCoords = this.graph.current.getBoundingClientRect();
-      const construction = await this.parseXML(this.ggbApplet.getXML()); // IS THERE ANY WAY TO DO THIS WITHOUT HAVING TO ASYNC PARSE THE XML...
-      try {
-        const euclidianView = construction.geogebra.euclidianView[0];
-        const { xZero, yZero, scale } = euclidianView.coordSystem[0].$;
-        let { yScale } = euclidianView.coordSystem[0].$;
-        if (!yScale) yScale = scale;
-        const { width, height } = euclidianView.size[0].$;
-        const xOffset =
-          ggbCoords.width - width + parseInt(xZero, 10) + elX * scale;
-        let yOffset =
-          ggbCoords.height - height + parseInt(yZero, 10) - elY * yScale;
-        if (bottomMenuHeight) {
-          yOffset -= bottomMenuHeight;
-        }
-        resolve({ left: xOffset, top: yOffset });
-      } catch (err) {
-        // an error will occur if the euclidianView doesn't exists...probably because its hidden behind the algebra window
-        reject(err);
-      }
-    });
+    try {
+      elX = this.ggbApplet.getXcoord(element);
+      elY = this.ggbApplet.getYcoord(element);
+    } catch (err) {
+      // this will happen if we pass something other than a point
+      return null;
+    }
+    // Get the element's location relative to the client Window
+    // Check if the Algebra input window is positioned left or bottom
+    const vertical = document.getElementsByClassName(
+      'gwt-SplitLayoutPanel-VDragger'
+    );
+    let bottomMenuHeight;
+    if (vertical.length > 0) {
+      bottomMenuHeight = document
+        .getElementsByClassName('ggbdockpanelhack')[1]
+        .getBoundingClientRect().height;
+    }
+    const ggbCoords = this.graph.current.getBoundingClientRect();
+    const ggbViewProps = JSON.parse(this.ggbApplet.getViewProperties());
+
+    const { width, height, xMin, yMin, invXscale } = ggbViewProps;
+
+    let { invYscale } = ggbViewProps;
+
+    if (!invYscale) {
+      invYscale = invXscale;
+    }
+
+    const scale = 1 / invXscale;
+    const yscale = 1 / invYscale;
+    const yMax = yMin + height * invYscale;
+
+    const xZero = -1 * xMin * (1 / invXscale);
+    const yZero = Math.abs(yMax) * (1 / invYscale);
+
+    if (!invYscale) invYscale = invXscale;
+    const xOffset = ggbCoords.width - width + parseInt(xZero, 10) + elX * scale;
+    let yOffset =
+      ggbCoords.height - height + parseInt(yZero, 10) - elY * yscale;
+    if (bottomMenuHeight) {
+      yOffset -= bottomMenuHeight;
+    }
+    return { left: xOffset, top: yOffset };
   };
 
   getInnerGraphCoords = () => {
@@ -1544,12 +1542,12 @@ class GgbGraph extends Component {
     });
   };
 
-  updateReferToEl = async (referToElDetails) => {
+  updateReferToEl = (referToElDetails) => {
     const { setToElAndCoords } = this.props;
 
     const { element, elementType, refPoint } = referToElDetails;
 
-    const { position } = await this.getReferenceCoords(
+    const { position } = this.getReferenceCoords(
       element,
       elementType,
       refPoint
@@ -1630,7 +1628,7 @@ class GgbGraph extends Component {
   };
 
   checkForUpdatedReferences = (event) => {
-    const { eventsWithRefs, updateEventsWithReferences } = this.props;
+    const { eventsWithRefs, updateEventsWithReferences, room } = this.props;
 
     const { ggbEvent, tab, eventArray } = event;
     const events =
@@ -1701,7 +1699,7 @@ class GgbGraph extends Component {
       });
 
       if (doEmit) {
-        socket.emit('UPDATED_REFERENCES', updatedEvents);
+        socket.emit('UPDATED_REFERENCES', { roomId: room._id, updatedEvents });
 
         updateEventsWithReferences(updatedEvents);
       }

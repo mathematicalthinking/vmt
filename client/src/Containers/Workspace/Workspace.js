@@ -722,6 +722,7 @@ class Workspace extends Component {
         toggleExpansion={this.toggleExpansion}
         triggerAddRefEvent={this.triggerAddRefEvent}
         clearRefPointToEmit={this.clearRefPointToEmit}
+        eventsWithRefs={eventsWithRefs}
       />
     );
     const graphs = currentTabs.map((tab) => {
