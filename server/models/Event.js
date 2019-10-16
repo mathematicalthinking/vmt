@@ -28,7 +28,6 @@ const ggbEvent = {
       'MODE',
     ],
   },
-  isForRefPoint: { type: Boolean },
   oldLabel: { type: String }, // used for RENAME events
 };
 const Event = new mongoose.Schema({
@@ -70,7 +69,7 @@ Event.post('save', async function(event) {
 
       if (mutateEvents.includes(eventType)) {
         const labels = [...events].reduce((results, event) => {
-          if (!event.isForRefPoint && typeof event.label === 'string') {
+          if (typeof event.label === 'string') {
             if (eventType === 'RENAME') {
               results.push([event.oldLabel, event.label]);
             } else {
@@ -125,10 +124,7 @@ Event.post('save', async function(event) {
             const [oldLabel, newLabel] = labels;
             const criteria = {
               'reference.tab': tab,
-              $or: [
-                { 'reference.element': oldLabel },
-                { 'reference.refPoint': oldLabel },
-              ],
+              'reference.element': oldLabel,
             };
 
             return Message.findOne(criteria)
@@ -140,13 +136,9 @@ Event.post('save', async function(event) {
 
                 let doSave = false;
 
-                if (reference.element === oldLabel && !reference.refPoint) {
+                if (reference.element === oldLabel) {
                   message.reference.wasObjectUpdated = true;
                   message.reference.element = newLabel;
-                  doSave = true;
-                } else if (oldLabel === reference.refPoint) {
-                  message.reference.wasObjectUpdated = true;
-                  message.reference.refPoint = newLabel;
                   doSave = true;
                 }
                 return doSave ? message.save() : message;

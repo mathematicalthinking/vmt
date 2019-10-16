@@ -130,19 +130,18 @@ class Chat extends Component {
       referToEl,
       clearReference,
       referencing,
+      referFromEl,
     } = this.props;
     // If we're already showing this reference clear the reference
-    if (
-      showReference &&
-      referToEl &&
-      this.areReferToElsSame(referToEl, reference)
-    ) {
+    if (showReference && referToEl && messageId === referFromEl) {
       // if referencing was already on, no reason to turn referencing off when hiding
       // a reference
+      this.currentRefMessageId = null;
       clearReference({ doKeepReferencingOn: referencing });
     } else {
       const fromCoords = this.getRelativeCoords(event.target);
       let toCoords;
+      this.currentRefMessageId = messageId;
       if (reference.elementType === 'chat_message') {
         toCoords = this.getRelativeCoords(
           this[`message-${reference.element}`].current
@@ -232,13 +231,6 @@ class Chat extends Component {
     }
   };
 
-  areReferToElsSame = (elA, elB) => {
-    if (elA.refPoint && elB.refPoint) {
-      return elA.refPoint === elB.refPoint;
-    }
-    return elA.element === elB.element;
-  };
-
   findReference = (reference, messageId) => {
     const { eventsWithRefs } = this.props;
     const found = find(eventsWithRefs, (ev) => {
@@ -304,10 +296,11 @@ class Chat extends Component {
             />
           );
         }
-        if (!message._id) {
-          // console.log('no id for message: ', message);
+        if (!message.synthetic) {
+          // for replayer only. should not show up in chat, only slider
+          return <Event event={message} id={message._id} key={message._id} />;
         }
-        return <Event event={message} id={message._id} key={message._id} />;
+        return null;
       });
       // use this to scroll to the bottom
       // displayMessages.push(<div key='end' ref={this.chatEnd}></div>)

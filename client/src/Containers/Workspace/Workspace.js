@@ -4,7 +4,6 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import each from 'lodash/each';
-import find from 'lodash/find';
 import {
   updateRoom,
   updatedRoom,
@@ -22,8 +21,6 @@ import { socket } from '../../utils';
 
 // import Replayer from ''
 class Workspace extends Component {
-  refBeingSaved = null;
-
   constructor(props) {
     super(props);
     const { user, populatedRoom, tempCurrentMembers } = this.props;
@@ -63,9 +60,7 @@ class Workspace extends Component {
       isFirstTabLoaded: false,
       showAdminWarning: user ? user.inAdminMode : false,
       graphCoords: null,
-      refPointToEmit: null,
       eventsWithRefs: [],
-      refPointToClear: null,
     };
   }
 
@@ -447,24 +442,13 @@ class Workspace extends Component {
   };
 
   clearReference = (options = {}) => {
-    const { doKeepReferencingOn = false, refBeingSaved = {} } = options;
-    const { referToEl } = this.state;
-    this.refBeingSaved = refBeingSaved;
-
-    let refPointToClear;
-
-    if (referToEl && referToEl.refPoint) {
-      if (!this.hasRefPointBeenSaved(referToEl.refPoint)) {
-        refPointToClear = referToEl.refPoint;
-      }
-    }
+    const { doKeepReferencingOn = false } = options;
 
     if (doKeepReferencingOn) {
       this.setState({
         referToEl: null,
         referToCoords: null,
         showingReference: false,
-        refPointToClear,
       });
     } else {
       this.setState({
@@ -474,7 +458,6 @@ class Workspace extends Component {
         referFromCoords: null,
         referencing: false,
         showingReference: false,
-        refPointToClear,
       });
     }
   };
@@ -588,38 +571,10 @@ class Workspace extends Component {
     }
   };
 
-  triggerAddRefEvent = (refPointToEmit) => {
-    this.setState({ refPointToEmit });
-  };
-
-  clearRefPointToEmit = () => {
-    this.setState({ refPointToEmit: null });
-  };
-
   computeReferences = () => {
     const { log } = this.state;
     const eventsWithRefs = log.filter(this.doesEventHaveReference);
     this.setState({ eventsWithRefs });
-  };
-
-  hasRefPointBeenSaved = (refPoint) => {
-    if (this.refBeingSaved && this.refBeingSaved.refPoint === refPoint) {
-      return true;
-    }
-
-    const { eventsWithRefs } = this.state;
-    const event = find(eventsWithRefs, (ev) => {
-      return ev.reference.refPoint === refPoint;
-    });
-
-    if (event) {
-      return true;
-    }
-    return false;
-  };
-
-  clearRefPointToClear = () => {
-    this.setState({ refPointToClear: null });
   };
 
   doesEventHaveReference = (event) => {
@@ -668,9 +623,7 @@ class Workspace extends Component {
       creatingNewTab,
       showAdminWarning,
       graphCoords,
-      refPointToEmit,
       eventsWithRefs,
-      refPointToClear,
     } = this.state;
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
@@ -718,8 +671,6 @@ class Workspace extends Component {
         expanded={chatExpanded}
         membersExpanded={membersExpanded}
         toggleExpansion={this.toggleExpansion}
-        triggerAddRefEvent={this.triggerAddRefEvent}
-        clearRefPointToEmit={this.clearRefPointToEmit}
         eventsWithRefs={eventsWithRefs}
       />
     );
@@ -769,12 +720,7 @@ class Workspace extends Component {
           setFirstTabLoaded={this.setFirstTabLoaded}
           setGraphCoords={this.setGraphCoords}
           log={log}
-          refPointToEmit={refPointToEmit}
-          clearRefPointToEmit={this.clearRefPointToEmit}
           eventsWithRefs={eventsWithRefs}
-          refPointToClear={refPointToClear}
-          clearRefPointToClear={this.clearRefPointToClear}
-          hasRefPointBeenSaved={this.hasRefPointBeenSaved}
           updateEventsWithReferences={this.updateEventsWithReferences}
         />
       );

@@ -16,13 +16,6 @@ class Awareness extends Component {
       if (lastEvent.messageType === 'TEXT') {
         return false;
       }
-      const { ggbEvent } = lastEvent;
-
-      if (ggbEvent && ggbEvent.isForRefPoint) {
-        // do not show event for invisible ref point in awareness window
-        // unless we wanted to add a description that someone referenced an object
-        return false;
-      }
     }
     return true;
   }

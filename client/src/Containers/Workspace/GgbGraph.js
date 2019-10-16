@@ -5,7 +5,6 @@ import { parseString } from 'xml2js';
 import throttle from 'lodash/throttle';
 import isFinite from 'lodash/isFinite';
 import find from 'lodash/find';
-import random from 'lodash/random';
 import mongoIdGenerator from '../../utils/createMongoId';
 import classes from './graph.css';
 import { blankEditorState } from './ggbUtils';
@@ -73,7 +72,6 @@ class GgbGraph extends Component {
     window.addEventListener('resize', this.updateDimensions);
     window.addEventListener('visibilitychange', this.visibilityChange);
     socket.on('RECEIVE_EVENT', (data) => {
-      console.log('Receiving event: ', data);
       if (!this.isWindowVisible) {
         this.isFaviconNtf = true;
         this.changeFavicon('/favNtf.ico');
@@ -93,7 +91,6 @@ class GgbGraph extends Component {
           return;
         }
         this.receivingData = true;
-        console.log('Constructing received event');
         this.constructEvent(data);
       }
     });
@@ -119,8 +116,6 @@ class GgbGraph extends Component {
 
   componentDidUpdate(prevProps) {
     const {
-      // currentTab,
-      // tabId,
       currentTabId,
       tab,
       // room,
@@ -130,11 +125,6 @@ class GgbGraph extends Component {
       referToEl,
       clearReference,
       log,
-      refPointToEmit,
-      clearRefPointToEmit,
-      refPointToClear,
-      clearRefPointToClear,
-      hasRefPointBeenSaved,
     } = this.props;
 
     if (!this.ggbApplet) {
@@ -151,8 +141,6 @@ class GgbGraph extends Component {
     const didReleaseControl = wasInControl && !isInControl;
 
     const isNewEvent = prevProps.log.length < log.length;
-    const doEmitRefPoint = !prevProps.refPointToEmit && refPointToEmit;
-    const doClearRefPoint = !prevProps.refPointToClear && refPointToClear;
     const didStartReferencing = !prevProps.referencing && referencing;
     const didStopReferencing = prevProps.referencing && !referencing;
 
@@ -160,33 +148,9 @@ class GgbGraph extends Component {
       !prevProps.showingReference && showingReference;
 
     const didReferToElChange = prevProps.referToEl !== referToEl;
-    const previousRefPoint = prevProps.referToEl
-      ? prevProps.referToEl.refPoint
-      : undefined;
-    const refPoint = referToEl ? referToEl.refPoint : undefined;
 
     if (isNewEvent) {
       this.previousEvent = log[log.length - 1];
-    }
-
-    if (doEmitRefPoint) {
-      console.log(`Emitting ref point: ${refPointToEmit}`);
-      const event = this.readFromGraph(refPointToEmit, 'ADD');
-      event.isForRefPoint = true;
-      if (this.outgoingEventQueue.length > 0) {
-        this.sendEventBuffer(event);
-      } else {
-        this.sendEvent(event);
-      }
-
-      clearRefPointToEmit();
-    }
-
-    if (doClearRefPoint) {
-      this.isClearingRefPoint = true;
-      console.log(`Clearing ref point: ${refPointToClear}`);
-      this.ggbApplet.deleteObject(refPointToClear);
-      clearRefPointToClear();
     }
 
     // Creating a reference
@@ -246,16 +210,6 @@ class GgbGraph extends Component {
       this.updateReferToEl(referToEl);
     }
 
-    if (previousRefPoint && previousRefPoint !== refPoint) {
-      if (!hasRefPointBeenSaved(previousRefPoint)) {
-        this.isClearingRefPoint = true;
-        console.log(
-          `Clearing ref point due to switching referToEls: ${previousRefPoint}`
-        );
-        this.ggbApplet.deleteObject(previousRefPoint);
-      }
-    }
-
     // switching tab
     if (prevProps.currentTabId !== currentTabId) {
       this.updateDimensions();
@@ -283,7 +237,6 @@ class GgbGraph extends Component {
       this.ggbApplet.unregisterClearListener(this.clearListener);
       this.ggbApplet.unregisterClientListener(this.clientListener);
       this.ggbApplet.unregisterRenameListener(this.renameListener);
-      // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
       this.ggbApplet.unregisterObjectUpdateListener(this.cornerLabel);
       this.ggbApplet.deleteObject(this.cornerLabel);
     }
@@ -295,6 +248,25 @@ class GgbGraph extends Component {
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.removeAllListeners('FORCE_SYNC');
     window.removeEventListener('resize', this.updateDimensions);
+  }
+
+  getCoordsFromPathParameter(element, parameter) {
+    if (!this.ggbApplet) {
+      return [];
+    }
+
+    this.doIgnoreAdd = true;
+    const refPoint = this.ggbApplet.evalCommandGetLabels(
+      `Point(${element},${parameter})`
+    );
+    this.doIgnoreAdd = false;
+
+    this.ggbApplet.setAuxiliary(refPoint, true);
+
+    const refCoords = this.getGgbPointCoords(refPoint);
+
+    this.removeGgbObjectSilent(refPoint);
+    return refCoords;
   }
 
   visibilityChange = () => {
@@ -538,23 +510,6 @@ class GgbGraph extends Component {
     return false;
   };
 
-  /**
-   * @method doIgnoreRefPoint
-   * @description checks if event in listener is due to the creation of invisible reference point
-   * @param {string} label
-   * @return {Boolean} whether to ignore event in listener
-   */
-
-  doIgnoreRefPoint = (label) => {
-    if (this.isCreatingRefPoint) {
-      return true;
-    }
-    if (this.referToEl && this.referToEl.refPoint === label) {
-      return true;
-    }
-    return false;
-  };
-
   showAlert = () => {
     // eslint-disable-next-line no-alert
     window.alert(
@@ -571,7 +526,6 @@ class GgbGraph extends Component {
    */
 
   clientListener = (event) => {
-    console.log('event in clientListener: ', event);
     if (!event) {
       // seems to happen if you click a bunch of points really quickly
       return;
@@ -589,7 +543,6 @@ class GgbGraph extends Component {
     switch (event[0]) {
       case 'setMode':
         // eslint-disable-next-line prefer-destructuring
-        // console.log({ referencing });
         if (
           event[2] === '40' ||
           (referencing && event[2] === '0') ||
@@ -672,8 +625,6 @@ class GgbGraph extends Component {
               label: event[1],
               eventType: 'SELECT',
             });
-
-            // ggbObj ???
           } else {
             this.sendEvent({
               xml: null,
@@ -681,7 +632,6 @@ class GgbGraph extends Component {
               label: event[1],
               eventType: 'SELECT',
             });
-            // 'ggbObj' ???
           }
         }
         break;
@@ -697,7 +647,6 @@ class GgbGraph extends Component {
           const label = event[1];
           const xml = this.ggbApplet.getXML(label);
           const objType = this.ggbApplet.getObjectType(label);
-          console.log(`Updating style for ${objType} ${label}`);
 
           this.sendEventBuffer({
             xml,
@@ -709,8 +658,6 @@ class GgbGraph extends Component {
         break;
       }
       case 'renameComplete': {
-        console.log('rename details in rc: ', this.renamedDetails);
-
         if (this.renamedDetails) {
           const [oldLabel, newLabel] = this.renamedDetails;
 
@@ -721,7 +668,6 @@ class GgbGraph extends Component {
             // one of their points cornerZoomAnchor
             this.cornerLabel = newLabel;
             this.renamedDetails = null;
-            console.log('new anchor: ', newLabel);
             return;
           }
 
@@ -794,57 +740,10 @@ class GgbGraph extends Component {
         }
         break;
       }
-      // case 'deselect': {
-      //   this.lastPointSelected = this.pointSelected;
-
-      //   if (this.pointSelected) {
-      //     this.lastPointSelected = this.pointSelected;
-      //     this.lastPointSelectedValueStr = this.ggbApplet.getValueString(
-      //       this.lastPointSelected
-      //     );
-
-      //     this.pointSelected = null;
-      //   }
-
-      //   if (this.lastShapeSelected) {
-      //     this.lastShapeSelected = this.shapeSelected;
-      //     this.lastShapeSelectedValueStr = this.ggbApplet.getValueString(
-      //       this.lastShapeSelected
-      //     );
-
-      //     this.shapeSelected = null;
-      //   }
-
-      //   break;
-      // }
       case 'mouseDown': {
-        let hits = '';
-        for (let i = 0; i < event.hits.length; i++) {
-          hits += event.hits[i];
-          hits += ' ';
-        }
-        if (!hits) {
-          hits = '(none)';
-        }
-        console.log(
-          `${event[0]} in view ${event.viewNo} at (${event.x}, ${
-            event.y
-          }) hitting objects: ${hits}`
-        );
         this.mouseDownCoords = [event.x, event.y];
         break;
       }
-      // case 'viewChanged2D': {
-      //   const { xZero, yZero, scale, yscale } = event;
-      //   const props = JSON.parse(this.ggbApplet.getViewProperties());
-      //   const { width, height, xMin, yMin, invXscale, invYscale } = props;
-      //   const xMax = xMin + width * invXscale;
-      //   const yMax = yMin + height * invYscale;
-      //   console.log(xMin, yMin, xMax, yMax);
-      //   this.ggbViewProperties = { xZero, yZero, scale, yscale, width, height };
-
-      //   break;
-      // }
       default:
         break;
     }
@@ -864,7 +763,7 @@ class GgbGraph extends Component {
       this.batchUpdating ||
       this.receivingData ||
       this.ggbApplet.getMode() === 40 ||
-      this.isCreatingRefPoint
+      this.doIgnoreAdd
     ) {
       return;
     }
@@ -899,32 +798,23 @@ class GgbGraph extends Component {
    */
 
   removeListener = (label) => {
-    console.log({ removeListener: label });
     if (this.receivingData && !this.updatingOn) {
-      console.log(
-        `receivingData & !updatingOn in removeListener for label: ${label}. NOT removing`
-      );
       return;
     }
     if (this.resetting) {
       this.resetting = false;
-      console.log(
-        `resetting in removeListener for label: ${label}. NOT removing`
-      );
+      return;
+    }
 
+    if (this.doIgnoreRemove) {
       return;
     }
 
     if (label === this.cornerLabel && this.isAutoRemovingCornerAnchor) {
-      console.log('auto removing corner anchor');
       this.isAutoRemovingCornerAnchor = false;
       return;
     }
 
-    if (this.isClearingRefPoint) {
-      this.isClearingRefPoint = false;
-      return;
-    }
     if (!this.userCanEdit()) {
       this.setState({ showControlWarning: true });
       return;
@@ -940,7 +830,11 @@ class GgbGraph extends Component {
         data.objType = this.shapeSelectedType;
       }
 
-      this.sendEventBuffer(data);
+      if (this.outgoingEventQueue.length > 0) {
+        this.sendEventBuffer(data);
+      } else {
+        this.sendEvent(data);
+      }
     }
   };
 
@@ -952,19 +846,10 @@ class GgbGraph extends Component {
    */
 
   updateListener = (label) => {
-    if (
-      this.batchUpdating ||
-      this.movingGeos ||
-      this.renamedDetails ||
-      this.isCreatingRefPoint
-    ) {
+    if (this.batchUpdating || this.movingGeos || this.renamedDetails) {
       return;
     }
     if (this.receivingData && !this.updatingOn) {
-      console.log(
-        `was receiving data or updatingOn in update listener for ${label}; returning`
-      );
-
       return;
     }
 
@@ -985,33 +870,6 @@ class GgbGraph extends Component {
           this.isDraggingPoint = true;
         }
       }
-      // if (this.isDraggingPoint) {
-      //   // in the middle of a drag
-      //   // once dragEnds, this.isDraggingPoint will be set to false
-      //   // from the clientListener (dragEnd event)
-      //   doSendDragEvent = true;
-      // } else {
-      //   // check if this is the beginning of a dragEvent
-      //   // i.e. the coords of the selectedPoint are not the same as when they
-      //   // were selected
-
-      //   let y;
-
-      //   if (x !== originalCoords[0]) {
-      //     doSendDragEvent = true;
-      //     this.isDraggingPoint = true;
-      //     console.log('starting to drag point: ', label);
-      //   } else {
-      //     y = this.ggbApplet.getYcoord(label);
-      //     if (y !== originalCoords[1]) {
-      //       doSendDragEvent = true;
-      //       this.isDraggingPoint = true;
-      //       console.log('starting to drag point: ', label);
-      //     }
-      //   }
-      // }
-
-      // coords are different
       // update
       if (doSendDragEvent) {
         const xml = this.ggbApplet.getXML(label);
@@ -1024,42 +882,6 @@ class GgbGraph extends Component {
         });
       }
     }
-
-    // else if (
-    //   label === this.lastPointSelected ||
-    //   label === this.lastShapeSelected
-    // ) {
-    //   // object was updated and it is the current selected point
-    //   // was not renamed and not being dragged
-    //   // could have been redefined
-    //   // are there other possibilities?
-    //   // check if coordinates changed
-    //   console.log('object possibly redefined', label);
-
-    //   const objType = this.ggbApplet.getObjectType(label);
-
-    //   const valueString = this.ggbApplet.getValueString(label);
-
-    //   console.log({ valueString });
-    //   if (objType === 'point') {
-    //     // if coords changed, must be redefinition?
-    //     const didChange = valueString !== this.lastPointSelectedValueStr;
-
-    //     if (didChange) {
-    //       const xml = this.ggbApplet.getXML(label);
-    //       this.lastPointSelectedValueStr = valueString;
-    //       console.log(`Sending redefine event for point: ${label}`);
-
-    //       this.sendEvent({
-    //         eventType: 'REDEFINE',
-    //         objType: 'point',
-    //         label,
-    //         valueString,
-    //         xml,
-    //       });
-    //     }
-    //   }
-    // }
   };
 
   /**
@@ -1071,29 +893,58 @@ class GgbGraph extends Component {
     const { referencing, setToElAndCoords } = this.props;
     if (referencing) {
       const elementType = this.ggbApplet.getObjectType(element);
-      let refPoint;
+      let refCoords;
+      let pathParameter;
+      let x;
+      let y;
+      let refType = 'point';
+
+      let renamedElementType;
+      let position;
+
       if (elementType !== 'point' && Array.isArray(this.mouseDownCoords)) {
-        // create an invisible ref point
-
-        const [x, y] = this.mouseDownCoords;
+        [x, y] = this.mouseDownCoords;
         if (isFinite(x) && isFinite(y)) {
-          this.isCreatingRefPoint = true;
-          refPoint = this.createRefPoint(element, elementType, x, y);
-          this.isCreatingRefPoint = false;
+          const pointInTypes = [
+            'polygon',
+            'triangle',
+            'quadrilateral',
+            'pentagon',
+            'hexagon',
+          ];
+
+          if (pointInTypes.includes(elementType)) {
+            refType = 'region';
+            refCoords = this.getRegionCoords(element, x, y);
+          } else {
+            refType = 'path';
+            [refCoords, pathParameter] = this.getPathCoordsAndParam(element, [
+              x,
+              y,
+            ]);
+          }
         }
+
+        position = this.getRelativeCoords(refCoords);
+        renamedElementType = elementType;
+      } else {
+        ({ renamedElementType, position } = this.getReferenceCoords(
+          element,
+          elementType,
+          pathParameter,
+          x,
+          y,
+          refType
+        ));
       }
-
-      const { renamedElementType, position } = this.getReferenceCoords(
-        element,
-        elementType,
-        refPoint
-      );
-
       setToElAndCoords(
         {
           element,
           elementType: renamedElementType,
-          refPoint,
+          pathParameter,
+          x,
+          y,
+          isForRegion: refType === 'region',
         },
         position
       );
@@ -1113,22 +964,12 @@ class GgbGraph extends Component {
   };
 
   renameListener = (oldLabel, newLabel) => {
-    if (this.isCreatingRefPoint) {
-      return;
-    }
     if (this.isAutoRenamingCornerLabel) {
       this.isAutoRenamingCornerLabel = false;
       return;
     }
 
     this.renamedDetails = [oldLabel, newLabel];
-    console.log(
-      `renameListener: Element ${oldLabel} was renamed to ${newLabel}`
-    );
-  };
-
-  storeUndoListener = () => {
-    console.log('registering undo point');
   };
 
   /**
@@ -1143,7 +984,6 @@ class GgbGraph extends Component {
     this.ggbApplet.unregisterRemoveListener(this.RemoveListener);
     this.ggbApplet.unregisterClearListener(this.clearListener);
     this.ggbApplet.unregisterRenameListener(this.renameListener);
-    // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
 
     // Set corner object to listen for zooming/moving of graph
 
@@ -1174,7 +1014,6 @@ class GgbGraph extends Component {
     this.ggbApplet.registerRemoveListener(this.removeListener);
     this.ggbApplet.registerClearListener(this.clearListener);
     this.ggbApplet.registerRenameListener(this.renameListener);
-    this.ggbApplet.registerStoreUndoListener(this.undoListener);
   };
 
   /**
@@ -1205,13 +1044,9 @@ class GgbGraph extends Component {
 
     if (!this.userCanEdit()) {
       // this.setState({ showControlWarning: true });
-      if (!event.isForRefPoint) {
-        return;
-      }
+      return;
     }
     if (referencing || showingReference) {
-      // clear unsaved ref point if necessary
-      // this.clearUnsavedRefPoint();
       clearReference();
     }
     this.outgoingEventQueue.push(event);
@@ -1255,16 +1090,10 @@ class GgbGraph extends Component {
       return;
     }
 
-    let doOnlyUpdateRefPoint = false;
-
     if (!this.userCanEdit()) {
-      // only allow special add event for ref point
-      if (!event.isForRefPoint) {
-        return;
-      }
-      doOnlyUpdateRefPoint = true;
+      return;
     }
-    console.log('send event', { event, options });
+
     const {
       room,
       tab,
@@ -1273,7 +1102,6 @@ class GgbGraph extends Component {
       addToLog,
       resetControlTimer,
     } = this.props;
-    // console.log({ coords });
     const eventData = {
       _id: mongoIdGenerator(),
       room: room._id,
@@ -1304,16 +1132,11 @@ class GgbGraph extends Component {
     }
     socket.emit('SEND_EVENT', eventData);
 
-    if (doOnlyUpdateRefPoint) {
-      this.updateConstructionStateWithRefPoint(event);
-    } else {
-      this.updatingTab = setTimeout(
-        this.updateConstructionState.bind(this, event),
-        3000
-      );
-
-      this.checkForUpdatedReferences(eventData);
-    }
+    this.updatingTab = setTimeout(
+      this.updateConstructionState.bind(this, event),
+      3000
+    );
+    this.checkForUpdatedReferences(eventData);
 
     this.timer = null;
     this.movingGeos = false;
@@ -1381,41 +1204,30 @@ class GgbGraph extends Component {
     }
   };
 
-  updateConstructionStateWithRefPoint = (event) => {
-    if (!event.isForRefPoint) {
-      return;
-    }
-    this.resyncGgbState()
-      .then(() => {
-        this.isCreatingRefPoint = true;
-        this.ggbApplet.evalXML(event.xml);
-        this.isCreatingRefPoint = false;
-        const currentState = this.ggbApplet.getXML();
-        const { tab } = this.props;
-
-        const { _id } = tab;
-        API.put('tabs', _id, { currentState })
-          .then(() => {})
-          .catch((err) => {
-            // eslint-disable-next-line no-console
-            console.log(err);
-          });
-      })
-      .catch((err) => {
-        console.log('Error updating construction with ref point: ', err);
-      });
-  };
-
-  getReferenceCoords = (element, elementType, refPoint) => {
+  getReferenceCoords = (element, elementType, pathParameter, x, y, refType) => {
     let position;
 
-    if (typeof refPoint === 'string') {
-      position = this.getRelativeCoords(refPoint);
+    if (isFinite(pathParameter)) {
+      const coords = this.getCoordsFromPathParameter(element, pathParameter);
+
+      position = this.getRelativeCoords(coords);
       return {
         renamedElementType: elementType,
         position,
       };
     }
+
+    if (refType === 'region') {
+      if (isFinite(x) && isFinite(y)) {
+        const refCoords = this.getRegionCoords(element, x, y);
+        position = this.getRelativeCoords(refCoords);
+        return {
+          renamedElementType: elementType,
+          position,
+        };
+      }
+    }
+
     let renamedElementType = elementType;
     // find center point of circle
     if (elementType === 'circle') {
@@ -1472,13 +1284,21 @@ class GgbGraph extends Component {
     let elX;
     let elY;
 
-    try {
-      elX = this.ggbApplet.getXcoord(element);
-      elY = this.ggbApplet.getYcoord(element);
-    } catch (err) {
-      // this will happen if we pass something other than a point
-      return null;
+    if (Array.isArray(element) && element.length >= 2) {
+      [elX, elY] = element;
+      if (!isFinite(elX) || !isFinite(elY)) {
+        return null;
+      }
+    } else {
+      try {
+        elX = this.ggbApplet.getXcoord(element);
+        elY = this.ggbApplet.getYcoord(element);
+      } catch (err) {
+        // this will happen if we pass something other than a point
+        return null;
+      }
     }
+
     // Get the element's location relative to the client Window
     // Check if the Algebra input window is positioned left or bottom
     const vertical = document.getElementsByClassName(
@@ -1545,86 +1365,26 @@ class GgbGraph extends Component {
   updateReferToEl = (referToElDetails) => {
     const { setToElAndCoords } = this.props;
 
-    const { element, elementType, refPoint } = referToElDetails;
+    const {
+      element,
+      elementType,
+      pathParameter,
+      x,
+      y,
+      isForRegion,
+    } = referToElDetails;
+
+    const refType = isForRegion ? 'region' : 'path';
 
     const { position } = this.getReferenceCoords(
       element,
       elementType,
-      refPoint
+      pathParameter,
+      x,
+      y,
+      refType
     );
     setToElAndCoords(referToElDetails, position);
-  };
-
-  createRefPoint = (element, elementType, x, y) => {
-    if (typeof element !== 'string') {
-      return null;
-    }
-
-    let refPoint;
-    let command = 'Point';
-    const pointInTypes = [
-      'polygon',
-      'triangle',
-      'quadrilateral',
-      'pentagon',
-      'hexagon',
-    ];
-
-    if (pointInTypes.indexOf(elementType) >= 0) {
-      command = 'PointIn';
-    }
-
-    try {
-      refPoint = this.ggbApplet.evalCommandGetLabels(`${command}(${element})`);
-      if (!refPoint) {
-        // was not able to reference on or in element
-        console.log(
-          `Unable to create refPoint for object ${element} with ${command} command`
-        );
-        return null;
-      }
-
-      this.ggbApplet.setVisible(refPoint, false);
-      this.ggbApplet.setAuxiliary(refPoint, true);
-      this.ggbApplet.setCoords(refPoint, x, y);
-
-      const randomChar = String.fromCharCode(random(65, 90)); // A-Z
-      const newLabel = `${randomChar}${Date.now()}`;
-      this.ggbApplet.renameObject(refPoint, newLabel);
-      refPoint = newLabel;
-
-      return refPoint;
-    } catch (err) {
-      console.log(
-        `Error creating refPoint for object ${element} with ${command} command`
-      );
-
-      if (refPoint) {
-        this.ggbApplet.deleteObject(refPoint);
-      }
-      return null;
-    }
-  };
-
-  // clearUnsavedRefPoint = () => {
-  //   const { referToEl } = this.props;
-  //   if (referToEl && referToEl.refPoint) {
-  //     this.isDeletingUnsavedRefPoint = true;
-  //     this.ggbApplet.deleteObject(referToEl.refPoint);
-  //     this.isDeletingUnsavedRefPoint = false;
-  //   }
-  // };
-
-  hasRefPointBeenSaved = (refPoint) => {
-    const { eventsWithRefs } = this.props;
-    const event = find(eventsWithRefs, (ev) => {
-      return ev.reference.refPoint === refPoint;
-    });
-
-    if (event) {
-      return true;
-    }
-    return false;
   };
 
   checkForUpdatedReferences = (event) => {
@@ -1641,8 +1401,9 @@ class GgbGraph extends Component {
     const mutateEvents = ['DRAG', 'REMOVE', 'RENAME', 'UPDATE_STYLE'];
 
     if (mutateEvents.includes(eventType)) {
-      const labels = [...events].reduce((results, ev) => {
-        if (!ev.isForRefPoint && typeof ev.label === 'string') {
+      const base = eventType === 'DRAG' ? [events[0]] : events;
+      const labels = [...base].reduce((results, ev) => {
+        if (typeof ev.label === 'string') {
           if (eventType === 'RENAME') {
             results.push([ev.oldLabel, ev.label]);
           } else {
@@ -1666,25 +1427,13 @@ class GgbGraph extends Component {
 
         if (eventType === 'RENAME') {
           const match = find(labels, (tuple) => {
-            return !reference.refPoint && tuple[0] === reference.element;
+            return tuple[0] === reference.element;
           });
 
           if (match) {
-            // eslint-disable-next-line prefer-destructuring
-            ev.reference.element = match[1];
+            [, ev.reference.element] = match;
             ev.reference.wasObjectUpdated = true;
             doEmit = true;
-          } else {
-            const refPointMatch = find(labels, (tuple) => {
-              return tuple[0] === reference.refPoint;
-            });
-
-            if (refPointMatch) {
-              // eslint-disable-next-line prefer-destructuring
-              ev.reference.refPoint = refPointMatch[1];
-              ev.reference.wasObjectUpdated = true;
-              doEmit = true;
-            }
           }
           return ev;
         }
@@ -1704,6 +1453,110 @@ class GgbGraph extends Component {
         updateEventsWithReferences(updatedEvents);
       }
     }
+  };
+
+  isPointInRegion = (point, region) => {
+    if (!this.ggbApplet) {
+      return false;
+    }
+
+    this.doIgnoreAdd = true;
+
+    const booleanObj = this.ggbApplet.evalCommandGetLabels(
+      `IsInRegion(${point}, ${region})`
+    );
+    this.doIgnoreAdd = false;
+
+    this.ggbApplet.setAuxiliary(booleanObj, true);
+
+    const isInRegion = this.ggbApplet.getValue(booleanObj);
+
+    this.removeGgbObjectSilent(booleanObj);
+    return isInRegion;
+  };
+
+  getCoordsOfArbitraryPointInRegion = (region) => {
+    if (!this.ggbApplet) {
+      return [];
+    }
+    const point = this.ggbApplet.evalCommandGetLabels(`PointIn(${region})`);
+
+    const coords = this.getGgbPointCoords();
+
+    this.removeGgbObjectSilent(point);
+
+    return coords;
+  };
+
+  getGgbPointCoords = (point) => {
+    try {
+      const x = this.ggbApplet.getXcoord(point);
+      const y = this.ggbApplet.getYcoord(point);
+      const z = this.ggbApplet.getZcoord(point);
+
+      return [x, y, z];
+    } catch (err) {
+      console.log('getGgbPointCoords err: ', err);
+      return [];
+    }
+  };
+
+  removeGgbObjectSilent = (label) => {
+    if (!this.ggbApplet) {
+      return;
+    }
+
+    this.doIgnoreRemove = true;
+    this.ggbApplet.deleteObject(label);
+    this.doIgnoreRemove = false;
+  };
+  getRegionCoords = (region, x, y) => {
+    if (!this.ggbApplet) {
+      return [];
+    }
+
+    this.doIgnoreAdd = true;
+    const refPoint = this.ggbApplet.evalCommandGetLabels(`PointIn(${region})`);
+    this.doIgnoreAdd = false;
+
+    this.ggbApplet.setAuxiliary(refPoint, true);
+    this.ggbApplet.setCoords(refPoint, x, y);
+
+    const refCoords = this.getGgbPointCoords(refPoint);
+
+    this.removeGgbObjectSilent(refPoint);
+    return refCoords;
+  };
+
+  getPathCoordsAndParam = (element, clickCoords) => {
+    if (!this.ggbApplet) {
+      return [];
+    }
+
+    const [x, y] = clickCoords;
+
+    this.doIgnoreAdd = true;
+    const refPoint = this.ggbApplet.evalCommandGetLabels(`Point(${element})`);
+    this.doIgnoreAdd = false;
+
+    this.ggbApplet.setAuxiliary(refPoint, true);
+    this.ggbApplet.setCoords(refPoint, x, y);
+
+    const refCoords = this.getGgbPointCoords(refPoint);
+
+    this.doIgnoreAdd = true;
+    const parameterObj = this.ggbApplet.evalCommandGetLabels(
+      `PathParameter(${refPoint})`
+    );
+    this.doIgnoreAdd = false;
+
+    this.ggbApplet.setAuxiliary(parameterObj, true);
+    const pathParameter = this.ggbApplet.getValue(parameterObj);
+
+    this.removeGgbObjectSilent(parameterObj);
+
+    this.removeGgbObjectSilent(refPoint);
+    return [refCoords, pathParameter];
   };
 
   render() {
@@ -1757,9 +1610,6 @@ class GgbGraph extends Component {
 GgbGraph.defaultProps = {
   myColor: 'blue',
   referToEl: {},
-  refPointToEmit: null,
-  clearRefPointToEmit: null,
-  refPointToClear: null,
 };
 GgbGraph.propTypes = {
   room: PropTypes.shape({
@@ -1790,12 +1640,7 @@ GgbGraph.propTypes = {
   setFirstTabLoaded: PropTypes.func.isRequired,
   setGraphCoords: PropTypes.func.isRequired,
   log: PropTypes.arrayOf(PropTypes.object).isRequired,
-  refPointToEmit: PropTypes.string,
-  clearRefPointToEmit: PropTypes.func,
   eventsWithRefs: PropTypes.arrayOf(PropTypes.object).isRequired,
-  refPointToClear: PropTypes.string,
-  clearRefPointToClear: PropTypes.func.isRequired,
-  hasRefPointBeenSaved: PropTypes.func.isRequired,
   updateEventsWithReferences: PropTypes.func.isRequired,
 };
 
