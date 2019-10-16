@@ -73,7 +73,6 @@ async function migrateOldGeogebraEvents() {
     // eslint-disable-next-line no-unused-vars
     const updatedEvents = events.map(async (event) => {
       const copy = event.toObject();
-
       const { eventType } = copy;
 
       // const ggbEvent = {};
@@ -194,9 +193,6 @@ async function migrateOldGeogebraEvents() {
           const split = joined.split(':');
           // eslint-disable-next-line prefer-const
           let [label, commandString] = split;
-          if (label.includes('face') || label.includes('edge')) {
-            label = undefined;
-          }
 
           let objType;
           if (commandString === '' || commandString === 'null') {
