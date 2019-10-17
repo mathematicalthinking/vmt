@@ -830,11 +830,7 @@ class GgbGraph extends Component {
         data.objType = this.shapeSelectedType;
       }
 
-      if (this.outgoingEventQueue.length > 0) {
-        this.sendEventBuffer(data);
-      } else {
-        this.sendEvent(data);
-      }
+      this.sendEventBuffer(data);
     }
   };
 
