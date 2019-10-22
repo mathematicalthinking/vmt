@@ -194,25 +194,31 @@ class GgbReplayer extends Component {
   writeGgbEventToGraph = (event) => {
     const { eventType } = event;
 
-    if (eventType === 'REMOVE' && !event.isUndoAdd) {
+    if (eventType === 'REMOVE') {
       const { label } = event;
-      const cachedXmlStack = this.elementXmlBeforeRemovalHash[label];
 
-      if (!Array.isArray(cachedXmlStack)) {
-        // no removed items with this label have been cached
-        this.elementXmlBeforeRemovalHash[label] = [];
+      if (!event.isUndoAdd) {
+        const cachedXmlStack = this.elementXmlBeforeRemovalHash[label];
 
-        const elementXml = this.ggbApplet.getXML(label);
-        if (elementXml) {
-          this.elementXmlBeforeRemovalHash[label].push(elementXml);
-        }
-      } else {
-        const elementXml = this.ggbApplet.getXML(label);
-        if (elementXml) {
-          this.elementXmlBeforeRemovalHash[label].push(elementXml);
+        if (!Array.isArray(cachedXmlStack)) {
+          // no removed items with this label have been cached
+          this.elementXmlBeforeRemovalHash[label] = [];
+
+          const elementXml = this.ggbApplet.getXML(label);
+          if (elementXml) {
+            this.elementXmlBeforeRemovalHash[label].push(elementXml);
+          }
+        } else {
+          const elementXml = this.ggbApplet.getXML(label);
+          if (elementXml) {
+            this.elementXmlBeforeRemovalHash[label].push(elementXml);
+          }
         }
       }
       this.ggbApplet.deleteObject(label);
+    } else if (event.isUndoRename) {
+      // have to reset the renamed object to old label
+      this.ggbApplet.renameObject(event.label, event.oldLabel);
     } else if (event.xml) {
       this.ggbApplet.evalXML(event.xml);
     } else if (eventType === 'ADD' && event.isUndoRemove) {
@@ -220,7 +226,11 @@ class GgbReplayer extends Component {
 
       if (isNonEmptyArray(cachedXmlStack)) {
         const cachedXml = this.elementXmlBeforeRemovalHash[event.label].pop();
-        console.log('found cachedXml for event: ', 'event', cachedXml);
+
+        if (cachedXml) {
+          this.ggbApplet.evalXML(cachedXml);
+        }
+        console.log('found cachedXml for event: ', 'event', event, cachedXml);
       } else {
         console.log('missing cached xml for ', event);
       }
@@ -340,6 +350,8 @@ class GgbReplayer extends Component {
               copy.eventType = 'ADD';
               copy.isUndoRemove = true;
               // look for undoXML
+            } else if (evType === 'RENAME') {
+              copy.isUndoRename = true;
             }
             return copy;
           });
@@ -354,6 +366,8 @@ class GgbReplayer extends Component {
           } else if (copy.eventType === 'REMOVE') {
             copy.eventType = 'ADD';
             copy.isUndoRemove = true;
+          } else if (copy.eventType === 'RENAME') {
+            copy.isUndoRename = true;
           }
           this.writeGgbEventToGraph(copy);
         }
