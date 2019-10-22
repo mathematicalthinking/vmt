@@ -238,7 +238,8 @@ class GgbGraph extends Component {
       this.ggbApplet.unregisterClientListener(this.clientListener);
       this.ggbApplet.unregisterRenameListener(this.renameListener);
       this.ggbApplet.unregisterObjectUpdateListener(this.cornerLabel);
-      this.ggbApplet.deleteObject(this.cornerLabel);
+
+      this.removeGgbObjectSilent(this.cornerLabel);
     }
 
     if (this.updatingTab) {
