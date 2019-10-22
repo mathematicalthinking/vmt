@@ -1337,10 +1337,14 @@ class GgbGraph extends Component {
 
   getInnerGraphCoords = () => {
     const { setGraphCoords } = this.props;
-    const graphEl = document.querySelector('[aria-label="Graphics View 1"]');
-    const topBarHeight = document
-      .getElementsByClassName('ggbtoolbarpanel')[0]
-      .getBoundingClientRect().height;
+    const graphSelector = '.EuclidianPanel > canvas';
+    const graphEl = document.querySelector(graphSelector);
+
+    const topBar = document.getElementsByClassName('ggbtoolbarpanel')[0];
+    let topBarHeight = 0;
+    if (topBar) {
+      topBarHeight = topBar.getBoundingClientRect().height;
+    }
     const innerGraphCoords = graphEl.getBoundingClientRect();
     setGraphCoords({
       left: innerGraphCoords.left - 17,
