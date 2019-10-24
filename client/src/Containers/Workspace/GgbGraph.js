@@ -1602,6 +1602,9 @@ class GgbGraph extends Component {
           cancel={() => {
             this.resyncGgbState();
             this.ggbApplet.setMode(40);
+            if (this.intendedMode) {
+              this.intendedMode = null;
+            }
             this.setState({ showControlWarning: false, redo: false });
           }}
         />
