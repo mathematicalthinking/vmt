@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { getSignificantGgbEventFromEvent } from '../Replayer/SharedReplayer.utils';
 
 /* eslint-disable no-unused-vars */
 // @todo rename utils
@@ -29,18 +30,21 @@ export const processData = (
     filteredData: filteredData
       .reduce((acc, fd) => {
         const fdWithColor = fd.data.map((d) => {
+          const ggbEvent = getSignificantGgbEventFromEvent(d);
           return {
             time: moment.unix(d.timestamp / 1000).format(dateFormatMap.all),
             user: d.user ? d.user.username || d.user : null,
             'action/message': d.messageType
               ? `message: ${d.messageType.toLowerCase()}`
               : `action: ${
-                  d.eventType
-                    ? d.eventType.toLowerCase()
+                  ggbEvent && ggbEvent.eventType
+                    ? ggbEvent.eventType.toLowerCase()
                     : 'generic desmos event'
                 }`,
             details: d.messageType ? d.text : d.description,
-            xml: d.event || d.definition,
+            xml:
+              (ggbEvent && ggbEvent.xml) ||
+              (ggbEvent && ggbEvent.commandString),
             color: fd.color,
             _id: d._id,
           };
@@ -80,7 +84,7 @@ const filterData = (
                 d.messageType === 'LEFT_ROOM')) ||
             (includeControlMessages &&
               (d.messageType === 'TOOK_CONTROL' ||
-                d.messageType === 'RELAESED_CONTROL')) ||
+                d.messageType === 'RELEASED_CONTROL')) ||
             (actions.length > 0 &&
               d.eventType &&
               actions.indexOf(d.eventType) > -1) ||
@@ -139,7 +143,11 @@ const filterData = (
         actions.map((a) => {
           return {
             data: data.filter((d) => {
-              const { eventType: et } = d;
+              const { ggbEvent } = d;
+              if (!ggbEvent) {
+                return false;
+              }
+              const { eventType: et } = ggbEvent;
               if (!et) return false;
               return a === et;
             }),
