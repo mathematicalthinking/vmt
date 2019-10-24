@@ -259,7 +259,7 @@ module.exports = {
             ggbFile: tab.ggbFile,
             desmosLink: body.desmosLink,
             currentState: tab.currentState,
-            startingPoint: tab.startingPoint,
+            startingPoint: tab.currentState,
             tabType: tab.tabType,
             appName: tab.appName,
           });
@@ -377,7 +377,6 @@ module.exports = {
             });
           })
           .catch((err) => {
-            console.log(err);
             reject(err);
           });
       } else if (body.checkAccess) {
@@ -457,7 +456,6 @@ module.exports = {
             await room.save();
             resolve();
           } catch (err) {
-            console.log(err);
             reject(err);
           }
         });
