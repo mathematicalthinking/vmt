@@ -150,7 +150,7 @@ class Workspace extends Component {
   keyListener = (event) => {
     const { referencing } = this.state;
     if (event.key === 'Escape' && referencing) {
-      this.clearReference();
+      this.clearReference({ doKeepReferencingOn: true });
     }
   };
 
