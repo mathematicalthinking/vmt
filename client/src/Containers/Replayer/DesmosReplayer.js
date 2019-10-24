@@ -41,8 +41,8 @@ class DesmosReplayer extends Component {
   componentDidUpdate(prevProps) {
     const { inView, index, log } = this.props;
     if (inView) {
-      if (prevProps.index !== index && log[index].event) {
-        this.calculator.setState(log[index].event);
+      if (prevProps.index !== index && log[index].currentState) {
+        this.calculator.setState(log[index].currentState);
       }
     }
   }
@@ -65,7 +65,6 @@ class DesmosReplayer extends Component {
       API.getDesmos(tab.desmosLink)
         .then((res) => {
           this.calculator.setState(res.data.result.state);
-          // console.
           setTabLoaded(tab._id);
         })
         // eslint-disable-next-line no-console
@@ -97,7 +96,7 @@ class DesmosReplayer extends Component {
 
 DesmosReplayer.propTypes = {
   inView: PropTypes.bool.isRequired,
-  log: PropTypes.func.isRequired,
+  log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   index: PropTypes.func.isRequired,
   tab: PropTypes.shape({}).isRequired,
   setTabLoaded: PropTypes.func.isRequired,

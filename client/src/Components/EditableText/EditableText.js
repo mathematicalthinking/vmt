@@ -6,11 +6,11 @@ import Aux from '../HOC/Auxil';
 import Button from '../UI/Button/Button';
 import classes from './editableText.css';
 import {
-  // updateRoomTab,
   updateActivity,
   updateCourse,
   updateActivityTab,
 } from '../../store/actions';
+import API from '../../utils/apiRequests';
 
 class EditableText extends Component {
   constructor(props) {
@@ -22,11 +22,6 @@ class EditableText extends Component {
     };
   }
 
-  // componentDidMount(){
-  //   this.setState({
-  //     text: this.props.children
-  //   })
-  // }
   componentDidUpdate(prevProps, prevState) {
     const { children } = this.props;
     if (prevState === this.state && prevProps.children !== children) {
@@ -50,12 +45,23 @@ class EditableText extends Component {
       parentId,
       field,
       id,
-      connectUpdateRoomTab,
       connectUpdateActivityTab,
+      updateRoomTab,
     } = this.props;
     const { text } = this.state;
     if (parentResource === 'room') {
-      connectUpdateRoomTab(parentId, id, { [field]: text });
+      // update tabs state of Workspace
+      const putBody = { [field]: text };
+      API.put('tabs', id, putBody)
+        .then((results) => {
+          if (updateRoomTab) {
+            updateRoomTab(results.data._id, putBody);
+          }
+        })
+        .catch((err) => {
+          // what is best way to handle error here?
+          console.log(err);
+        });
     } else if (parentResource === 'activity') {
       connectUpdateActivityTab(parentId, id, { [field]: text });
     }
@@ -128,10 +134,10 @@ EditableText.propTypes = {
   id: PropTypes.string.isRequired,
   inputType: PropTypes.string.isRequired,
   children: PropTypes.string,
-  connectUpdateRoomTab: PropTypes.func,
   connectUpdateActivityTab: PropTypes.func,
   owner: PropTypes.bool,
   title: PropTypes.string,
+  updateRoomTab: PropTypes.func,
 };
 
 EditableText.defaultProps = {
@@ -141,13 +147,12 @@ EditableText.defaultProps = {
   title: null,
   owner: false,
   connectUpdateActivityTab: null,
-  connectUpdateRoomTab: null,
+  updateRoomTab: null,
 };
 
 export default connect(
   null,
   {
-    // connectUpdateRoomTab: updateRoomTab,
     connectUpdateActivity: updateActivity,
     connectUpdateCourse: updateCourse,
     connectUpdateActivityTab: updateActivityTab,

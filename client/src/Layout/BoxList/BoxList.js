@@ -112,7 +112,7 @@ boxList.propTypes = {
   list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   listType: PropTypes.string.isRequired,
   resource: PropTypes.string.isRequired,
-  notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  notifications: PropTypes.arrayOf(PropTypes.shape({})),
   linkPath: PropTypes.string.isRequired,
   linkSuffix: PropTypes.string.isRequired,
   draggable: PropTypes.bool,
@@ -124,6 +124,7 @@ boxList.defaultProps = {
   draggable: false,
   maxHeight: null,
   scrollable: false,
+  notifications: [],
 };
 
 export default boxList;

@@ -32,26 +32,20 @@ class RoomInfo extends Component {
     });
   };
 
-  getCurrentTabFromRoom = (room, currentTabId) => {
-    if (!currentTabId || !Array.isArray(room.tabs)) {
-      return null;
-    }
-    const currentTab = room.tabs.filter((tab) => {
-      return tab._id === currentTabId;
-    })[0];
-
-    return currentTab;
-  };
-
   render() {
-    const { role, updatedActivity, room, currentTab, temp } = this.props;
+    const {
+      role,
+      updatedActivity,
+      room,
+      currentTab,
+      temp,
+      updateRoomTab,
+    } = this.props;
     const { expanded, copied } = this.state;
 
-    // currentTab is Id
-    const currentTabObj = this.getCurrentTabFromRoom(room, currentTab);
-    const tabDisplayName = currentTabObj ? currentTabObj.name : '';
+    const tabDisplayName = currentTab.name || '';
     const tabDisplayInstructions =
-      (currentTabObj && currentTabObj.instructions) || room.instructions;
+      (currentTab && currentTab.instructions) || room.instructions;
     return (
       <div className={classes.RoomDescription}>
         <div className={classes.TabNameTitle} data-testid="room-info-tab-name">
@@ -60,9 +54,10 @@ class RoomInfo extends Component {
             inputType="INPUT"
             resource="tab"
             parentResource={updatedActivity ? 'activity' : 'room'}
-            id={currentTab}
+            id={currentTab._id}
             parentId={room._id}
             field="name"
+            updateRoomTab={updateRoomTab}
           >
             {tabDisplayName}
           </EditableText>
@@ -113,9 +108,10 @@ class RoomInfo extends Component {
               inputType="TEXT_AREA"
               resource="tab"
               parentResource={updatedActivity ? 'activity' : 'room'}
-              id={currentTab}
+              id={currentTab._id}
               parentId={room._id}
               field="instructions"
+              updateRoomTab={updateRoomTab}
             >
               {tabDisplayInstructions}
             </EditableText>
@@ -130,11 +126,13 @@ RoomInfo.propTypes = {
   role: PropTypes.string.isRequired,
   updatedActivity: PropTypes.func,
   room: PropTypes.shape({}).isRequired,
-  currentTab: PropTypes.string.isRequired, // TODO add custom propType for objectId HexString
+  currentTab: PropTypes.shape({}).isRequired,
   temp: PropTypes.bool.isRequired,
+  updateRoomTab: PropTypes.func,
 };
 
 RoomInfo.defaultProps = {
   updatedActivity: null,
+  updateRoomTab: null,
 };
 export default RoomInfo;

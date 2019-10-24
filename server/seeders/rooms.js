@@ -2,6 +2,7 @@
 const { ObjectId, ISODate } = require('./utils');
 
 module.exports = [
+  /* 1 */
   {
     _id: ObjectId('5ba289c57223b9429888b9b5'),
     settings: {
@@ -64,8 +65,8 @@ module.exports = [
     creator: ObjectId('5ba289ba7223b9429888b9b4'),
     entryCode: 'rare-shrimp-10',
     dueDate: null,
-    createdAt: ISODate('2018-09-19T17:39:17.490Z'),
-    updatedAt: ISODate('2018-09-19T17:39:17.490Z'),
+    createdAt: ISODate('2018-09-19T16:44:22.490Z'),
+    updatedAt: ISODate('2018-09-19T16:44:22.490Z'),
     __v: 0,
   },
 
@@ -97,8 +98,8 @@ module.exports = [
     ],
     creator: ObjectId('5ba289ba7223b9429888b9b4'),
     dueDate: null,
-    createdAt: ISODate('2018-09-19T17:39:17.490Z'),
-    updatedAt: ISODate('2018-09-19T17:39:17.490Z'),
+    createdAt: ISODate('2018-09-19T13:26:22.410Z'),
+    updatedAt: ISODate('2018-09-19T13:26:22.410Z'),
     __v: 0,
   },
 
@@ -170,8 +171,8 @@ module.exports = [
     ],
     creator: ObjectId('5ba289ba7223b9429888b9b4'),
     dueDate: null,
-    createdAt: ISODate('2018-09-19T17:39:17.490Z'),
-    updatedAt: ISODate('2018-09-19T17:39:17.490Z'),
+    createdAt: ISODate('2018-09-19T12:21:14.290Z'),
+    updatedAt: ISODate('2018-09-19T12:21:14.290Z'),
     __v: 0,
   },
 
@@ -205,8 +206,8 @@ module.exports = [
     ],
     entryCode: 'testEntrycode',
     dueDate: null,
-    createdAt: ISODate('2019-01-03T18:48:04.573Z'),
-    updatedAt: ISODate('2019-01-03T18:48:04.573Z'),
+    createdAt: ISODate('2019-01-03T13:28:14.973Z'),
+    updatedAt: ISODate('2019-01-03T13:28:14.973Z'),
     __v: 0,
   },
 
@@ -239,8 +240,8 @@ module.exports = [
       },
     ],
     dueDate: null,
-    createdAt: ISODate('2019-01-03T18:48:04.573Z'),
-    updatedAt: ISODate('2019-01-03T18:48:04.573Z'),
+    createdAt: ISODate('2019-01-03T09:18:34.333Z'),
+    updatedAt: ISODate('2019-01-03T09:18:34.333Z'),
     __v: 0,
   },
 
@@ -273,10 +274,12 @@ module.exports = [
       },
     ],
     dueDate: null,
-    createdAt: ISODate('2019-01-03T18:48:04.573Z'),
-    updatedAt: ISODate('2019-01-03T18:48:04.573Z'),
+    createdAt: ISODate('2019-01-03T17:21:56.222Z'),
+    updatedAt: ISODate('2019-01-03T17:21:56.222Z'),
     __v: 0,
   },
+
+  /* 9 */
   {
     _id: ObjectId('5d0d2ed0535e3a522445f7a7'),
     settings: {
@@ -316,6 +319,189 @@ module.exports = [
     dueDate: null,
     createdAt: ISODate('2019-06-21T19:24:00.104Z'),
     updatedAt: ISODate('2019-06-21T19:25:32.404Z'),
+    __v: 0,
+  },
+
+  /* 10 */
+  {
+    _id: ObjectId('5d83f00add0c4946d81684cc'),
+    settings: {
+      participantsCanCreateTabs: false,
+      participantsCanChangePerspective: false,
+      controlByTab: false,
+    },
+    chat: [],
+    currentMembers: [],
+    tabs: [ObjectId('5d83f00add0c4946d81684ce')],
+    privacySetting: 'private',
+    tempRoom: false,
+    controlledBy: null,
+    isTrashed: false,
+    name: 'ssmith desmos fun',
+    description: 'desmos test room',
+    creator: ObjectId('5d1a59d79c78ad48c0480caa'),
+    course: null,
+    image:
+      'http://tinygraphs.com/spaceinvaders/ssmith desmos fun?theme=seascape&numcolors=4&size=220&fmt=svg',
+    entryCode: 'calm-penguin-87',
+    members: [
+      {
+        color: '#f26247',
+        _id: ObjectId('5d83f00add0c4946d81684cd'),
+        user: ObjectId('5d1a59d79c78ad48c0480caa'),
+        role: 'facilitator',
+      },
+    ],
+    dueDate: ISODate('2021-05-28T04:00:00.000Z'),
+    createdAt: ISODate('2019-09-19T21:15:54.402Z'),
+    updatedAt: ISODate('2019-09-19T21:15:54.402Z'),
+    __v: 0,
+  },
+
+  /* 11 */
+  {
+    _id: ObjectId('5d83f029dd0c4946d81684d2'),
+    settings: {
+      participantsCanCreateTabs: false,
+      participantsCanChangePerspective: false,
+      controlByTab: false,
+    },
+    chat: [
+      ObjectId('5d8e1c20f61e66114f5a9aab'),
+      ObjectId('5d8e1c37fc4d0b4c1c8873ba'),
+      ObjectId('5d8e1c9583074a44e85d97e0'),
+      ObjectId('5d8e1ca633014c946f1fcb6e'),
+    ],
+    currentMembers: [],
+    tabs: [ObjectId('5d83f029dd0c4946d81684d4')],
+    privacySetting: 'public',
+    tempRoom: false,
+    controlledBy: null,
+    isTrashed: false,
+    name: 'ssmith public desmos',
+    description: 'public desmos room',
+    creator: ObjectId('5d1a59d79c78ad48c0480caa'),
+    course: null,
+    image:
+      'http://tinygraphs.com/spaceinvaders/ssmith public desmos?theme=berrypie&numcolors=4&size=220&fmt=svg',
+    members: [
+      {
+        color: '#f26247',
+        _id: ObjectId('5d83f029dd0c4946d81684d3'),
+        user: ObjectId('5d1a59d79c78ad48c0480caa'),
+        role: 'facilitator',
+      },
+    ],
+    dueDate: null,
+    createdAt: ISODate('2019-09-19T21:16:25.896Z'),
+    updatedAt: ISODate('2019-09-27T14:28:54.455Z'),
+    __v: 0,
+  },
+
+  /* 12 */
+  {
+    _id: ObjectId('5d83f39a15329f5bfcd49c0f'),
+    settings: {
+      participantsCanCreateTabs: false,
+      participantsCanChangePerspective: false,
+      controlByTab: false,
+    },
+    chat: [],
+    currentMembers: [],
+    tabs: [ObjectId('5d83f39a15329f5bfcd49c11')],
+    privacySetting: 'private',
+    tempRoom: false,
+    controlledBy: null,
+    isTrashed: false,
+    name: 'ssmith c1: triangles',
+    description: 'first room in c1',
+    creator: ObjectId('5d1a59d79c78ad48c0480caa'),
+    course: ObjectId('5d83f32415329f5bfcd49c0c'),
+    image:
+      'http://tinygraphs.com/spaceinvaders/ssmith c1: triangles?theme=bythepool&numcolors=4&size=220&fmt=svg',
+    entryCode: 'serious-mayfly-48',
+    members: [
+      {
+        color: '#f26247',
+        _id: ObjectId('5d83f39a15329f5bfcd49c10'),
+        user: ObjectId('5d1a59d79c78ad48c0480caa'),
+        role: 'facilitator',
+      },
+    ],
+    dueDate: null,
+    createdAt: ISODate('2019-09-19T21:31:06.118Z'),
+    updatedAt: ISODate('2019-09-19T21:31:06.118Z'),
+    __v: 0,
+  },
+
+  /* 13 */
+  {
+    _id: ObjectId('5d83f3b615329f5bfcd49c15'),
+    settings: {
+      participantsCanCreateTabs: false,
+      participantsCanChangePerspective: false,
+      controlByTab: false,
+    },
+    chat: [],
+    currentMembers: [],
+    tabs: [ObjectId('5d83f3b615329f5bfcd49c17')],
+    privacySetting: 'private',
+    tempRoom: false,
+    controlledBy: null,
+    isTrashed: false,
+    name: 'ssmith c1: squares',
+    description: '',
+    creator: ObjectId('5d1a59d79c78ad48c0480caa'),
+    course: ObjectId('5d83f32415329f5bfcd49c0c'),
+    image:
+      'http://tinygraphs.com/spaceinvaders/ssmith c1: squares?theme=duskfalling&numcolors=4&size=220&fmt=svg',
+    entryCode: 'clever-seahorse-28',
+    members: [
+      {
+        color: '#f26247',
+        _id: ObjectId('5d83f3b615329f5bfcd49c16'),
+        user: ObjectId('5d1a59d79c78ad48c0480caa'),
+        role: 'facilitator',
+      },
+    ],
+    dueDate: null,
+    createdAt: ISODate('2019-09-19T21:31:34.750Z'),
+    updatedAt: ISODate('2019-09-19T21:31:34.750Z'),
+    __v: 0,
+  },
+
+  /* 14 */
+  {
+    _id: ObjectId('5d83f42e15329f5bfcd49c21'),
+    settings: {
+      participantsCanCreateTabs: false,
+      participantsCanChangePerspective: false,
+      controlByTab: false,
+    },
+    chat: [],
+    currentMembers: [],
+    tabs: [ObjectId('5d83f42e15329f5bfcd49c23')],
+    privacySetting: 'public',
+    tempRoom: false,
+    controlledBy: null,
+    isTrashed: false,
+    name: 'math is fun roomA',
+    description: '',
+    creator: ObjectId('5d1a59d79c78ad48c0480caa'),
+    course: ObjectId('5d83f32415329f5bfcd49c0c'),
+    image:
+      'http://tinygraphs.com/spaceinvaders/math is fun roomA?theme=sugarsweets&numcolors=4&size=220&fmt=svg',
+    members: [
+      {
+        color: '#f26247',
+        _id: ObjectId('5d83f42e15329f5bfcd49c22'),
+        user: ObjectId('5d1a59d79c78ad48c0480caa'),
+        role: 'facilitator',
+      },
+    ],
+    dueDate: null,
+    createdAt: ISODate('2019-09-19T21:33:34.796Z'),
+    updatedAt: ISODate('2019-09-19T21:33:34.796Z'),
     __v: 0,
   },
 ];

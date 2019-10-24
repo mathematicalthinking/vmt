@@ -317,4 +317,900 @@ module.exports = [
     description: 'w_crush added line g',
     __v: 0,
   },
+
+  /* 16 */
+  {
+    _id: ObjectId('5d8e1c3533014c946f1fcb34'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594421315.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 17 */
+  {
+    _id: ObjectId('5d8e1c3933014c946f1fcb36'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594425975.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 18 */
+  {
+    _id: ObjectId('5d8e1c3a33014c946f1fcb37'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594426196.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 19 */
+  {
+    _id: ObjectId('5d8e1c3a33014c946f1fcb38'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594426790.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 20 */
+  {
+    _id: ObjectId('5d8e1c3b33014c946f1fcb39'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x_2","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594427816.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 21 */
+  {
+    _id: ObjectId('5d8e1c3c33014c946f1fcb3a'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594428949.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 22 */
+  {
+    _id: ObjectId('5d8e1c3d33014c946f1fcb3b'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ ","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594429968.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 23 */
+  {
+    _id: ObjectId('5d8e1c3e33014c946f1fcb3c'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594430264.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 24 */
+  {
+    _id: ObjectId('5d8e1c3f33014c946f1fcb3d'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594431198.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 25 */
+  {
+    _id: ObjectId('5d8e1c4133014c946f1fcb3e'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594433246.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 26 */
+  {
+    _id: ObjectId('5d8e1c4533014c946f1fcb3f'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594437135.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 27 */
+  {
+    _id: ObjectId('5d8e1c4533014c946f1fcb40'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594437342.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 28 */
+  {
+    _id: ObjectId('5d8e1c4533014c946f1fcb41'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=4","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594437471.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 29 */
+  {
+    _id: ObjectId('5d8e1c4533014c946f1fcb42'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=4x","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594437741.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 30 */
+  {
+    _id: ObjectId('5d8e1c4833014c946f1fcb43'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=4","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594440101.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 31 */
+  {
+    _id: ObjectId('5d8e1c4833014c946f1fcb44'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594440436.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 32 */
+  {
+    _id: ObjectId('5d8e1c4c33014c946f1fcb45'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594444901.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 33 */
+  {
+    _id: ObjectId('5d8e1c4d33014c946f1fcb46'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594445406.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 34 */
+  {
+    _id: ObjectId('5d8e1c4e33014c946f1fcb47'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^{ },","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594446614.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 35 */
+  {
+    _id: ObjectId('5d8e1c4f33014c946f1fcb48'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594447182.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 36 */
+  {
+    _id: ObjectId('5d8e1c5133014c946f1fcb49'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594449124.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 37 */
+  {
+    _id: ObjectId('5d8e1c5333014c946f1fcb4a'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"4","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594451310.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 38 */
+  {
+    _id: ObjectId('5d8e1c5433014c946f1fcb4b'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594452299.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 39 */
+  {
+    _id: ObjectId('5d8e1c5833014c946f1fcb4c'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594456165.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 40 */
+  {
+    _id: ObjectId('5d8e1c5833014c946f1fcb4d'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594456590.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 41 */
+  {
+    _id: ObjectId('5d8e1c5c33014c946f1fcb4e'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594460774.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 42 */
+  {
+    _id: ObjectId('5d8e1c5d33014c946f1fcb4f'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594461164.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 43 */
+  {
+    _id: ObjectId('5d8e1c5e33014c946f1fcb50'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^{ },","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594462422.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 44 */
+  {
+    _id: ObjectId('5d8e1c5e33014c946f1fcb51'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594462749.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 45 */
+  {
+    _id: ObjectId('5d8e1c6033014c946f1fcb52'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^{9\\\\ },","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594464806.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 46 */
+  {
+    _id: ObjectId('5d8e1c6333014c946f1fcb53'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^{9\\\\ ^{ }}","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594467181.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 47 */
+  {
+    _id: ObjectId('5d8e1c6433014c946f1fcb54'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^{9\\\\ },","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594468532.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 48 */
+  {
+    _id: ObjectId('5d8e1c6533014c946f1fcb55'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594469451.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 49 */
+  {
+    _id: ObjectId('5d8e1c6733014c946f1fcb56'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^{ },","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594471124.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 50 */
+  {
+    _id: ObjectId('5d8e1c6833014c946f1fcb57'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594472030.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 51 */
+  {
+    _id: ObjectId('5d8e1c6833014c946f1fcb58'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594472909.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 52 */
+  {
+    _id: ObjectId('5d8e1c6a33014c946f1fcb59'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ ","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594474110.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 53 */
+  {
+    _id: ObjectId('5d8e1c6a33014c946f1fcb5a'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594474294.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 54 */
+  {
+    _id: ObjectId('5d8e1c6a33014c946f1fcb5b'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ ","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594474558.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 55 */
+  {
+    _id: ObjectId('5d8e1c6a33014c946f1fcb5c'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594474716.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 56 */
+  {
+    _id: ObjectId('5d8e1c6d33014c946f1fcb5d'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4z","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594477230.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 57 */
+  {
+    _id: ObjectId('5d8e1c6e33014c946f1fcb5e'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4z^{ },","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594478219.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 58 */
+  {
+    _id: ObjectId('5d8e1c6e33014c946f1fcb5f'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4z^3","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594478491.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 59 */
+  {
+    _id: ObjectId('5d8e1c6f33014c946f1fcb60'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4z^{ },","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594479729.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 60 */
+  {
+    _id: ObjectId('5d8e1c7033014c946f1fcb61'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4z","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594480032.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 61 */
+  {
+    _id: ObjectId('5d8e1c7033014c946f1fcb62'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ 4","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594480449.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 62 */
+  {
+    _id: ObjectId('5d8e1c7133014c946f1fcb63'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -\\\\ ","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594481066.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 63 */
+  {
+    _id: ObjectId('5d8e1c7133014c946f1fcb64'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594481681.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 64 */
+  {
+    _id: ObjectId('5d8e1c7133014c946f1fcb65'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ ","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594481864.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 65 */
+  {
+    _id: ObjectId('5d8e1c7533014c946f1fcb66'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594485139.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 66 */
+  {
+    _id: ObjectId('5d8e1c7533014c946f1fcb67'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -4","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594485698.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 67 */
+  {
+    _id: ObjectId('5d8e1c7533014c946f1fcb68'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -44","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594485897.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 68 */
+  {
+    _id: ObjectId('5d8e1c7733014c946f1fcb69'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -4","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594487113.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 69 */
+  {
+    _id: ObjectId('5d8e1c7833014c946f1fcb6a'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -4","style":"SOLID"},{"type":"expression","id":"5","color":"#fa7e19","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594488945.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 70 */
+  {
+    _id: ObjectId('5d8e1c7d33014c946f1fcb6b'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -4","style":"SOLID"},{"type":"expression","id":"4","color":"#388c46","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594493084.0,
+    eventArray: [],
+    __v: 0,
+  },
+
+  /* 71 */
+  {
+    _id: ObjectId('5d8e1c7e33014c946f1fcb6c'),
+    isMultiPart: false,
+    isTrashed: false,
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    tab: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -4","style":"SOLID"}]}}',
+    color: '#f26247',
+    user: ObjectId('5d1a59d79c78ad48c0480caa'),
+    timestamp: 1569594494225.0,
+    eventArray: [],
+    __v: 0,
+  },
 ];

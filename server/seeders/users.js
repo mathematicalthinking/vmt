@@ -776,13 +776,26 @@ module.exports = [
     firstName: 'Summer',
     lastName: 'Smith',
     createdAt: ISODate('2018-09-06T15:30:21.278Z'),
-    updatedAt: ISODate('2018-09-06T15:36:31.451Z'),
+    updatedAt: ISODate('2019-09-27T14:33:58.294Z'),
     isTrashed: false,
     isEmailConfirmed: true,
     doForcePasswordChange: false,
     googleId: null,
     ssoId: ObjectId('5d1a59d79c78ad48c0480c8b'),
     accountType: 'facilitator',
+    socketId: 'urTqCqppB5WREr54AAAE',
+    rooms: [
+      ObjectId('5d83f00add0c4946d81684cc'),
+      ObjectId('5d83f029dd0c4946d81684d2'),
+      ObjectId('5d83f39a15329f5bfcd49c0f'),
+      ObjectId('5d83f3b615329f5bfcd49c15'),
+      ObjectId('5d83f42e15329f5bfcd49c21'),
+    ],
+    courses: [ObjectId('5d83f32415329f5bfcd49c0c')],
+    activities: [
+      ObjectId('5d83f3e015329f5bfcd49c1a'),
+      ObjectId('5d83f3fc15329f5bfcd49c1d'),
+    ],
   },
 
   /* 32 */

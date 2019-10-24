@@ -10,8 +10,12 @@ class Awareness extends Component {
   };
 
   shouldComponentUpdate(nextProps) {
-    if (nextProps.lastEvent && nextProps.lastEvent.messageType === 'TEXT') {
-      return false;
+    const { lastEvent } = nextProps;
+
+    if (lastEvent) {
+      if (lastEvent.messageType === 'TEXT') {
+        return false;
+      }
     }
     return true;
   }

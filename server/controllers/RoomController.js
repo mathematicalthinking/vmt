@@ -94,8 +94,16 @@ module.exports = {
   },
 
   searchPaginated: async (criteria, skip, filters) => {
+    const initialFilter = { tempRoom: false, isTrashed: false };
+
+    const allowedPrivacySettings = ['private', 'public'];
+
+    if (allowedPrivacySettings.includes(filters.privacySetting)) {
+      initialFilter.privacySetting = filters.privacySetting;
+    }
+
     const aggregationPipeline = [
-      { $match: { tempRoom: false, isTrashed: false } },
+      { $match: initialFilter },
       {
         $project: {
           _id: 1,
@@ -190,11 +198,6 @@ module.exports = {
         },
       },
     ];
-    if (filters.privacySetting) {
-      aggregationPipeline.unshift({
-        $match: { privacySetting: filters.privacySetting },
-      });
-    }
 
     if (filters.roomType) {
       aggregationPipeline.push({
@@ -205,11 +208,12 @@ module.exports = {
         },
       });
     }
+    aggregationPipeline.push({ $sort: { updatedAt: -1 } });
+
     if (skip) {
       aggregationPipeline.push({ $skip: parseInt(skip, 10) });
     }
     aggregationPipeline.push({ $limit: 20 });
-    aggregationPipeline.push({ $sort: { updatedAt: -1 } });
     const rooms = await Room.aggregate(aggregationPipeline);
     return rooms;
   },
@@ -255,7 +259,7 @@ module.exports = {
             ggbFile: tab.ggbFile,
             desmosLink: body.desmosLink,
             currentState: tab.currentState,
-            startingPoint: tab.startingPoint,
+            startingPoint: tab.currentState,
             tabType: tab.tabType,
             appName: tab.appName,
           });
@@ -373,7 +377,6 @@ module.exports = {
             });
           })
           .catch((err) => {
-            console.log(err);
             reject(err);
           });
       } else if (body.checkAccess) {
@@ -453,7 +456,6 @@ module.exports = {
             await room.save();
             resolve();
           } catch (err) {
-            console.log(err);
             reject(err);
           }
         });

@@ -13,6 +13,13 @@ const Message = new mongoose.Schema({
     element: { type: String },
     elementType: { type: String },
     tab: { type: ObjectId, ref: 'Tab' },
+    wasObjectDeleted: { type: Boolean }, // so we know not to update deleted references when objects are renamed
+    wasObjectUpdated: { type: Boolean }, // e.g. renamed, moved, redefined
+    pathParameter: { type: Number },
+    isForRegion: { type: Boolean },
+    x: { type: Number },
+    y: { type: Number },
+    z: { type: Number },
   },
   messageType: {
     type: String,

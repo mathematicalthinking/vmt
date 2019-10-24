@@ -89,7 +89,9 @@ class WorkspaceLayout extends Component {
           <div className={replayer ? classes.ReplayerLeft : classes.Left}>
             <div className={classes.TabsAndTitle}>
               <div className={classes.WorkspaceTabs}>{tabs}</div>
-              <h2 className={classes.Title}>{roomName}</h2>
+              <h2 className={classes.Title} data-testid="room-name">
+                {roomName}
+              </h2>
             </div>
             <div
               ref={this.Graph}

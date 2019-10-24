@@ -1,4 +1,4 @@
-const { ObjectId } = require('./utils');
+const { ObjectId, ISODate } = require('./utils');
 
 module.exports = [
   /* 1 */
@@ -34,6 +34,8 @@ module.exports = [
     appName: 'classic',
     __v: 0,
   },
+
+  /* 3 */
   {
     _id: ObjectId('5d0d2ed0535e3a522445f7a9'),
     currentState:
@@ -67,6 +69,7 @@ module.exports = [
     __v: 0,
   },
 
+  /* 4 */
   {
     _id: ObjectId('5d3b493dca44f53a90a9ed35'),
     currentState: '',
@@ -164,6 +167,8 @@ module.exports = [
     appName: 'classic',
     __v: 0,
   },
+
+  /* 5 */
   {
     _id: ObjectId('5d7bd90dc5770e47a40c44ed'),
     currentState: '',
@@ -178,6 +183,8 @@ module.exports = [
     tabType: 'geogebra',
     __v: 0,
   },
+
+  /* 6 */
   {
     _id: ObjectId('5d7bd9bde1f24148ffa81059'),
     currentState: '',
@@ -190,6 +197,209 @@ module.exports = [
     activity: ObjectId('5c2e58e9684f328cbca1d99b'),
     desmosLink: '',
     tabType: 'geogebra',
+    __v: 0,
+  },
+
+  /* 7 */
+  {
+    _id: ObjectId('5d83e970753c000d8e999d2b'),
+    currentState: '',
+    perspective: 'AD',
+    events: [],
+    startingPoint: '',
+    controlledBy: null,
+    isTrashed: false,
+    name: 'Tab 1',
+    activity: ObjectId('5c2e58e9684f328cbca1d99a'),
+    desmosLink: '',
+    tabType: 'geogebra',
+    __v: 0,
+  },
+
+  /* 8 */
+  {
+    _id: ObjectId('5d83f00add0c4946d81684ce'),
+    currentState: '',
+    perspective: 'AD',
+    events: [],
+    startingPoint: '',
+    controlledBy: null,
+    isTrashed: false,
+    name: 'Tab 1',
+    room: ObjectId('5d83f00add0c4946d81684cc'),
+    desmosLink: '',
+    tabType: 'desmos',
+    createdAt: ISODate('2019-09-19T21:15:54.395Z'),
+    updatedAt: ISODate('2019-09-19T21:15:54.395Z'),
+    __v: 0,
+  },
+
+  /* 9 */
+  {
+    _id: ObjectId('5d83f029dd0c4946d81684d4'),
+    currentState:
+      '{"version":5,"graph":{"viewport":{"xmin":-10,"ymin":-10.774558209070811,"xmax":10,"ymax":10.774558209070811}},"expressions":{"list":[{"type":"expression","id":"1","color":"#c74440","latex":"y=4x\\\\ +3","style":"SOLID"},{"type":"expression","id":"2","color":"#c74440","latex":"y=3x^4","style":"SOLID"},{"type":"expression","id":"3","color":"#2d70b3","latex":"y=3x^9\\\\ -4","style":"SOLID"}]}}',
+    perspective: 'AD',
+    events: [
+      ObjectId('5d8e1c3533014c946f1fcb34'),
+      ObjectId('5d8e1c3933014c946f1fcb36'),
+      ObjectId('5d8e1c3a33014c946f1fcb37'),
+      ObjectId('5d8e1c3a33014c946f1fcb38'),
+      ObjectId('5d8e1c3b33014c946f1fcb39'),
+      ObjectId('5d8e1c3c33014c946f1fcb3a'),
+      ObjectId('5d8e1c3d33014c946f1fcb3b'),
+      ObjectId('5d8e1c3e33014c946f1fcb3c'),
+      ObjectId('5d8e1c3f33014c946f1fcb3d'),
+      ObjectId('5d8e1c4133014c946f1fcb3e'),
+      ObjectId('5d8e1c4533014c946f1fcb3f'),
+      ObjectId('5d8e1c4533014c946f1fcb40'),
+      ObjectId('5d8e1c4533014c946f1fcb41'),
+      ObjectId('5d8e1c4533014c946f1fcb42'),
+      ObjectId('5d8e1c4833014c946f1fcb43'),
+      ObjectId('5d8e1c4833014c946f1fcb44'),
+      ObjectId('5d8e1c4c33014c946f1fcb45'),
+      ObjectId('5d8e1c4d33014c946f1fcb46'),
+      ObjectId('5d8e1c4e33014c946f1fcb47'),
+      ObjectId('5d8e1c4f33014c946f1fcb48'),
+      ObjectId('5d8e1c5133014c946f1fcb49'),
+      ObjectId('5d8e1c5333014c946f1fcb4a'),
+      ObjectId('5d8e1c5433014c946f1fcb4b'),
+      ObjectId('5d8e1c5833014c946f1fcb4c'),
+      ObjectId('5d8e1c5833014c946f1fcb4d'),
+      ObjectId('5d8e1c5c33014c946f1fcb4e'),
+      ObjectId('5d8e1c5d33014c946f1fcb4f'),
+      ObjectId('5d8e1c5e33014c946f1fcb50'),
+      ObjectId('5d8e1c5e33014c946f1fcb51'),
+      ObjectId('5d8e1c6033014c946f1fcb52'),
+      ObjectId('5d8e1c6333014c946f1fcb53'),
+      ObjectId('5d8e1c6433014c946f1fcb54'),
+      ObjectId('5d8e1c6533014c946f1fcb55'),
+      ObjectId('5d8e1c6733014c946f1fcb56'),
+      ObjectId('5d8e1c6833014c946f1fcb57'),
+      ObjectId('5d8e1c6833014c946f1fcb58'),
+      ObjectId('5d8e1c6a33014c946f1fcb59'),
+      ObjectId('5d8e1c6a33014c946f1fcb5a'),
+      ObjectId('5d8e1c6a33014c946f1fcb5b'),
+      ObjectId('5d8e1c6a33014c946f1fcb5c'),
+      ObjectId('5d8e1c6d33014c946f1fcb5d'),
+      ObjectId('5d8e1c6e33014c946f1fcb5e'),
+      ObjectId('5d8e1c6e33014c946f1fcb5f'),
+      ObjectId('5d8e1c6f33014c946f1fcb60'),
+      ObjectId('5d8e1c7033014c946f1fcb61'),
+      ObjectId('5d8e1c7033014c946f1fcb62'),
+      ObjectId('5d8e1c7133014c946f1fcb63'),
+      ObjectId('5d8e1c7133014c946f1fcb64'),
+      ObjectId('5d8e1c7133014c946f1fcb65'),
+      ObjectId('5d8e1c7533014c946f1fcb66'),
+      ObjectId('5d8e1c7533014c946f1fcb67'),
+      ObjectId('5d8e1c7533014c946f1fcb68'),
+      ObjectId('5d8e1c7733014c946f1fcb69'),
+      ObjectId('5d8e1c7833014c946f1fcb6a'),
+      ObjectId('5d8e1c7d33014c946f1fcb6b'),
+      ObjectId('5d8e1c7e33014c946f1fcb6c'),
+    ],
+    startingPoint: '',
+    controlledBy: null,
+    isTrashed: false,
+    name: 'Tab 1',
+    room: ObjectId('5d83f029dd0c4946d81684d2'),
+    desmosLink: '',
+    tabType: 'desmos',
+    createdAt: ISODate('2019-09-19T21:16:25.894Z'),
+    updatedAt: ISODate('2019-09-27T14:28:16.239Z'),
+    __v: 0,
+  },
+
+  /* 10 */
+  {
+    _id: ObjectId('5d83f39a15329f5bfcd49c11'),
+    currentState: '',
+    perspective: 'AD',
+    events: [],
+    startingPoint: '',
+    controlledBy: null,
+    isTrashed: false,
+    name: 'Tab 1',
+    room: ObjectId('5d83f39a15329f5bfcd49c0f'),
+    desmosLink: '',
+    tabType: 'geogebra',
+    appName: 'classic',
+    createdAt: ISODate('2019-09-19T21:31:06.116Z'),
+    updatedAt: ISODate('2019-09-19T21:31:06.116Z'),
+    __v: 0,
+  },
+
+  /* 11 */
+  {
+    _id: ObjectId('5d83f3b615329f5bfcd49c17'),
+    currentState: '',
+    perspective: 'AD',
+    events: [],
+    startingPoint: '',
+    controlledBy: null,
+    isTrashed: false,
+    name: 'Tab 1',
+    room: ObjectId('5d83f3b615329f5bfcd49c15'),
+    desmosLink: '',
+    tabType: 'geogebra',
+    appName: 'classic',
+    createdAt: ISODate('2019-09-19T21:31:34.748Z'),
+    updatedAt: ISODate('2019-09-19T21:31:34.748Z'),
+    __v: 0,
+  },
+
+  /* 12 */
+  {
+    _id: ObjectId('5d83f3e015329f5bfcd49c1b'),
+    currentState: '',
+    perspective: 'AD',
+    events: [],
+    startingPoint: '',
+    controlledBy: null,
+    isTrashed: false,
+    name: 'Tab 1',
+    activity: ObjectId('5d83f3e015329f5bfcd49c1a'),
+    desmosLink: '',
+    tabType: 'geogebra',
+    createdAt: ISODate('2019-09-19T21:32:16.921Z'),
+    updatedAt: ISODate('2019-09-19T21:32:16.921Z'),
+    __v: 0,
+  },
+
+  /* 13 */
+  {
+    _id: ObjectId('5d83f3fc15329f5bfcd49c1e'),
+    currentState: '',
+    perspective: 'AD',
+    events: [],
+    startingPoint: '',
+    controlledBy: null,
+    isTrashed: false,
+    name: 'Tab 1',
+    activity: ObjectId('5d83f3fc15329f5bfcd49c1d'),
+    desmosLink: '',
+    tabType: 'geogebra',
+    createdAt: ISODate('2019-09-19T21:32:44.587Z'),
+    updatedAt: ISODate('2019-09-19T21:32:44.587Z'),
+    __v: 0,
+  },
+
+  /* 14 */
+  {
+    _id: ObjectId('5d83f42e15329f5bfcd49c23'),
+    currentState: '',
+    perspective: 'AD',
+    events: [],
+    startingPoint: '',
+    controlledBy: null,
+    isTrashed: false,
+    name: 'Tab 1',
+    room: ObjectId('5d83f42e15329f5bfcd49c21'),
+    desmosLink: '',
+    tabType: 'geogebra',
+    appName: 'classic',
+    createdAt: ISODate('2019-09-19T21:33:34.794Z'),
+    updatedAt: ISODate('2019-09-19T21:33:34.794Z'),
     __v: 0,
   },
 ];

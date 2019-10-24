@@ -87,9 +87,11 @@ class ReplayerControls extends Component {
         onMouseEnter={() => this.setState({ mouseOverControls: true })}
         onMouseLeave={() => this.setState({ mouseOverControls: false })}
       >
-        <div className={classes.ProgressBar}>{slider}</div>
+        <div className={classes.ProgressBar} data-testid="progress-bar">
+          {slider}
+        </div>
         <div className={classes.Controls}>
-          <div className={classes.PlayControls}>
+          <div className={classes.PlayControls} data-testid="play-controls">
             <button
               disabled={index === 0}
               onClick={this.first}

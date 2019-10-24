@@ -48,10 +48,16 @@ class Community extends Component {
     const { match, location } = this.props;
     // const { criteria, skip } = this.state;
     const { resource } = match.params;
+    // when switching between resources and filters,
+    // we should reset skip back to 0
     if (prevProps.match.params.resource !== resource) {
-      this.fetchData();
+      this.setState({ skip: 0 }, () => {
+        this.fetchData();
+      });
     } else if (location.search !== prevProps.location.search) {
-      this.fetchData();
+      this.setState({ skip: 0 }, () => {
+        this.fetchData();
+      });
     }
   }
   // concat tells us whether we should concat to existing results or overwrite
@@ -77,34 +83,25 @@ class Community extends Component {
       skip,
       updatedFilters
     ).then((res) => {
-      if (res.data.results.length < SKIP_VALUE) {
-        if (concat) {
-          this.setState((prevState) => ({
-            visibleResources: [...prevState.visibleResources].concat(
-              res.data.results
-            ),
-            moreAvailable: false,
-          }));
-        } else {
-          this.setState({
-            moreAvailable: false,
-            visibleResources: res.data.results,
-          });
-        }
-      } else if (concat) {
-        this.setState((prevState) => ({
-          visibleResources: [...prevState.visibleResources].concat(
-            res.data.results
-          ),
-        }));
-      } else this.setState({ visibleResources: res.data.results });
+      const moreAvailable = res.data.results.length >= SKIP_VALUE;
+      this.setState((prevState) => ({
+        visibleResources: concat
+          ? [...prevState.visibleResources].concat(res.data.results)
+          : res.data.results,
+        moreAvailable,
+      }));
     });
   };
 
   setSkip = () => {
-    this.setState((prevState) => ({
-      skip: prevState.skip + SKIP_VALUE,
-    }));
+    this.setState(
+      (prevState) => ({
+        skip: prevState.skip + SKIP_VALUE,
+      }),
+      () => {
+        this.fetchData(true);
+      }
+    );
   };
 
   toggleFilter = (filter) => {

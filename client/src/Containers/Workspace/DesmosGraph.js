@@ -105,7 +105,6 @@ class DesmosGraph extends Component {
 
   allowKeypressCheck = (event) => {
     const { showControlWarning } = this.state;
-    console.log('showing control warning');
     if (showControlWarning) {
       event.preventDefault();
     }
@@ -183,7 +182,7 @@ class DesmosGraph extends Component {
         const newData = {
           room: room._id,
           tab: tab._id,
-          event: currentStateString,
+          currentState: currentStateString, // desmos events use the currentState field on Event model
           color: myColor,
           user: {
             _id: user._id,
@@ -216,7 +215,7 @@ class DesmosGraph extends Component {
         });
         updatedRoom(room._id, { tabs: updatedTabs });
         updatedRoom(room._id, { tabs: updatedTabs });
-        this.calculator.setState(data.event);
+        this.calculator.setState(data.currentState);
       } else {
         addNtfToTabs(data.tab);
         this.receivingData = false;

@@ -20,7 +20,8 @@ InfoBox.propTypes = {
   title: PropTypes.string.isRequired,
   icon: PropTypes.element,
   rightIcons: PropTypes.element,
-  children: PropTypes.element.isRequired,
+  children: PropTypes.oneOfType([PropTypes.element, PropTypes.number])
+    .isRequired,
 };
 
 InfoBox.defaultProps = {

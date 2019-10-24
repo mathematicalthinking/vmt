@@ -24,7 +24,7 @@ class ActivityWorkspace extends Component {
     super(props);
     const { activity } = this.props;
     this.state = {
-      currentTab:
+      currentTabId:
         activity && activity.tabs.length > 0 ? activity.tabs[0]._id : null,
       creatingNewTab: false,
       addingToMyActivities: false,
@@ -39,7 +39,7 @@ class ActivityWorkspace extends Component {
   }
 
   changeTab = (id) => {
-    this.setState({ currentTab: id });
+    this.setState({ currentTabId: id });
   };
 
   createNewTab = () => {
@@ -96,7 +96,7 @@ class ActivityWorkspace extends Component {
       temp,
     } = this.props;
     const {
-      currentTab,
+      currentTabId,
       isFirstTabLoaded,
       creatingNewTab,
       addingToMyActivities,
@@ -107,14 +107,16 @@ class ActivityWorkspace extends Component {
     let tabs;
 
     let initialTabId = null;
+    let initialTab = null;
 
-    if (activity && !currentTab) {
+    if (activity && !currentTabId) {
       // activity has been loaded, but currentTab has not been updated
       // in state. Just use the first tab from the fetched activity
-      // as the initial tab. If a user changes tabs, the currentTab will
+      // as the initial tab. If a user changes tabs, the currentTabId will
       // be updated in state
       if (activity.tabs && activity.tabs.length > 0) {
-        initialTabId = activity.tabs[0]._id;
+        [initialTab] = activity.tabs;
+        initialTabId = initialTab._id;
       }
     }
     if (activity && user.activities.indexOf(activity._id) >= 0) {
@@ -129,7 +131,7 @@ class ActivityWorkspace extends Component {
               tab={tab}
               activity={activity}
               role={role}
-              currentTab={currentTab || initialTabId}
+              currentTab={currentTabId || initialTabId}
               updateActivityTab={connectUpdateActivityTab}
               setFirstTabLoaded={this.setFirstTabLoaded}
               isFirstTabLoaded={isFirstTabLoaded}
@@ -140,7 +142,7 @@ class ActivityWorkspace extends Component {
           <GgbActivityGraph
             activity={activity}
             tabs={activity.tabs}
-            currentTab={currentTab || initialTabId}
+            currentTab={currentTabId || initialTabId}
             role={role}
             user={user}
             tab={tab}
@@ -155,7 +157,7 @@ class ActivityWorkspace extends Component {
         <Tabs
           activity
           tabs={activity.tabs}
-          currentTabId={currentTab || initialTabId}
+          currentTabId={currentTabId || initialTabId}
           participantCanCreate={false}
           memberRole={role}
           changeTab={this.changeTab}
@@ -176,7 +178,7 @@ class ActivityWorkspace extends Component {
             roomName={activity.name} // THIS IS NO GOOD...WE SHOULD CHANGE THE ROOM ATTR TO RESOURCE THAT CAN ACCEPT EITHER A ROOM OR AN ACTIVITY
             user={user}
             role={role} // oh shit role is taken...its for a11y  stuff
-            currentTabId={currentTab || initialTabId}
+            currentTabId={currentTabId || initialTabId}
             // updateRoom={this.props.updateRoom}
             bottomRight={
               <ActivityTools
@@ -191,7 +193,10 @@ class ActivityWorkspace extends Component {
                 role={role}
                 updateRoom={connectUpdatedActivity}
                 room={activity}
-                currentTab={currentTab || initialTabId}
+                currentTab={
+                  activity.tabs.filter((t) => t._id === currentTabId)[0] ||
+                  initialTab
+                }
                 updatedActivity={connectUpdatedActivity}
               />
             }

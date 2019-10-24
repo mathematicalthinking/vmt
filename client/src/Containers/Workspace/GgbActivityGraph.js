@@ -38,7 +38,6 @@ class GgbActivityGraph extends Component {
   }
 
   componentDidMount() {
-    console.log('ggb activitiy graph mounted');
     window.addEventListener('resize', this.updateDimensions);
     // if (window.ggbApplet) {
     //   this.initializeGgb();
@@ -99,11 +98,11 @@ class GgbActivityGraph extends Component {
     }
     if (this.ggbApplet && this.ggbApplet.listeners) {
       // delete window.ggbApplet;
-      this.ggbApplet.unregisterAddListener(this.addListener);
-      this.ggbApplet.unregisterUpdateListener();
-      this.ggbApplet.unregisterRemoveListener(this.eventListener);
-      this.ggbApplet.unregisterClearListener(this.clearListener);
-      this.ggbApplet.unregisterClientListener(this.clientListener);
+      this.ggbApplet.unregisterAddListener(this.getGgbState);
+      this.ggbApplet.unregisterUpdateListener(this.getGgbState);
+      this.ggbApplet.unregisterRemoveListener(this.getGgbState);
+      this.ggbApplet.unregisterClearListener(this.getGgbState);
+      this.ggbApplet.unregisterClientListener(this.getGgbState);
     }
     delete window.ggbApplet;
   }
@@ -139,33 +138,17 @@ class GgbActivityGraph extends Component {
   //     this.resizeTimer = undefined;
   //   }, 200);
   // };
-
-  getRelativeCoords = (element) => {
-    console.log('getting relative coords');
-    return new Promise(async (resolve) => {
-      let elX;
-      let elY;
-      try {
-        elX = this.ggbApplet.getXcoord(element);
-        elY = this.ggbApplet.getYcoord(element);
-      } catch (err) {
-        // get the coords of its children
-      }
-      // Get the element's location relative to the client Window
-
-      const ggbCoords = this.graph.current.getBoundingClientRect();
-      const construction = await this.parseXML(this.ggbApplet.getXML()); // IS THERE ANY WAY TO DO THIS WITHOUT HAVING TO ASYNC PARSE THE XML...
-      const euclidianView = construction.geogebra.euclidianView[0];
-      const { xZero, yZero, scale } = euclidianView.coordSystem[0].$;
-      let { yScale } = euclidianView.coordSystem[0].$;
-      if (!yScale) yScale = scale;
-      const { width, height } = euclidianView.size[0].$;
-      const xOffset =
-        ggbCoords.width - width + parseInt(xZero, 10) + elX * scale;
-      const yOffset =
-        ggbCoords.height - height + parseInt(yZero, 10) - elY * yScale;
-      resolve({ left: xOffset, top: yOffset });
-    });
+  updateDimensions = async () => {
+    const { tab } = this.props;
+    if (this.graph.current && this.ggbApplet) {
+      const { clientHeight, clientWidth } = this.graph.current.parentElement;
+      this.ggbApplet.setSize(clientWidth, clientHeight);
+      this.ggbApplet.recalculateEnvironments();
+      const appScalar = document.querySelector(`#ggb-element${tab._id}A`)
+        .firstChild;
+      appScalar.style.width = `${clientWidth}px`;
+      this.forceUpdate();
+    }
   };
 
   onScriptLoad = () => {

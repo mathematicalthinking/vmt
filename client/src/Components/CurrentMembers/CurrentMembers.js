@@ -24,7 +24,9 @@ class CurrentMembers extends Component {
 
   toggleExpansion = () => {
     const { toggleExpansion } = this.props;
-    toggleExpansion('members');
+    if (toggleExpansion) {
+      toggleExpansion('members');
+    }
   };
 
   render() {
@@ -88,11 +90,12 @@ CurrentMembers.propTypes = {
   members: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   activeMember: PropTypes.string,
   expanded: PropTypes.bool.isRequired,
-  toggleExpansion: PropTypes.func.isRequired,
+  toggleExpansion: PropTypes.func,
 };
 
 CurrentMembers.defaultProps = {
   activeMember: null,
+  toggleExpansion: null,
 };
 
 export default CurrentMembers;

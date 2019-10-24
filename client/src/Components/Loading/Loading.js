@@ -1,41 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classes from './loading.css';
 import sine from './sine.gif';
 
-const Loading = ({ message, isSmall, waitTimeMs }) => {
-  const [doDisplay, setDisplay] = useState(false);
+class Loading extends Component {
+  state = {
+    doDisplay: false,
+  };
+  timer = null;
 
-  const [timer, setTimer] = useState(false);
-
-  useEffect(() => {
-    if (!timer) {
-      const timeout = setTimeout(() => {
-        if (!doDisplay) {
-          setDisplay(true);
-        }
-      }, waitTimeMs);
-
-      setTimer(timeout);
-    }
-
-    return () => {
-      if (timer) {
-        clearTimeout(timer);
-        setTimer(null);
+  componentDidMount() {
+    const { waitTimeMs } = this.props;
+    this.timer = setTimeout(() => {
+      const { doDisplay } = this.state;
+      if (!doDisplay) {
+        this.setState({ doDisplay: true });
       }
-    };
-  });
+    }, waitTimeMs);
+  }
 
-  return doDisplay ? (
-    <div className={!isSmall ? classes.Loading : classes.SmallLoading}>
-      <div className={classes.Graph}>
-        <img src={sine} height={20} width={100} alt="...loading" />
+  componentWillUnmount() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  }
+
+  render() {
+    const { doDisplay } = this.state;
+    const { isSmall, message } = this.props;
+    return doDisplay ? (
+      <div className={!isSmall ? classes.Loading : classes.SmallLoading}>
+        <div className={classes.Graph}>
+          <img src={sine} height={20} width={100} alt="...loading" />
+        </div>
+        <div className={classes.Message}>{message}</div>
       </div>
-      <div className={classes.Message}>{message}</div>
-    </div>
-  ) : null;
-};
+    ) : null;
+  }
+}
 
 Loading.propTypes = {
   message: PropTypes.string,

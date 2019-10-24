@@ -2,6 +2,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
+import find from 'lodash/find';
 import Modal from '../UI/Modal/Modal';
 import Message from './Message';
 import Event from './Event';
@@ -11,7 +12,7 @@ class Chat extends Component {
   // We need this construcotr, stop deleting it...look @ line29
   constructor(props) {
     super(props);
-    const { log } = this.props;
+    const { log, chatInput } = this.props;
     this.state = {
       containerCoords: null,
       chatCoords: null,
@@ -20,7 +21,7 @@ class Chat extends Component {
       settings: false,
     };
     this.chatContainer = React.createRef();
-    this.chatInput = React.createRef();
+    this.chatInput = chatInput || React.createRef();
     this.chatEnd = React.createRef();
     // Create a ref for each chat element so they can be used with the referencing tool
     // This is why we needed to have a constructor function
@@ -34,7 +35,6 @@ class Chat extends Component {
   componentDidMount() {
     const { replayer } = this.props;
     window.addEventListener('resize', this.updateCoords);
-    window.addEventListener('keypress', this.onKeyPress);
     window.addEventListener('scroll', this.debouncedUpdateCoords);
     this.setState({
       containerCoords: this.chatContainer.current.offsetParent
@@ -91,8 +91,7 @@ class Chat extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('keypress', this.onKeyPress);
-    window.removeEventListener('resize', this.updateOnResize);
+    window.removeEventListener('resize', this.updateCoords);
     window.removeEventListener('scroll', this.debouncedUpdateCoords);
   }
 
@@ -120,33 +119,37 @@ class Chat extends Component {
     // });
   };
 
-  onKeyPress = (event) => {
-    const { submit } = this.props;
-    if (event.key === 'Enter') {
-      submit();
-    }
-  };
-
   scrollToBottom = () => {
     this.chatEnd.current.scrollTop = this.chatEnd.current.scrollHeight;
     // window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
   };
 
-  showReference = (event, reference) => {
-    const { showReference, referToEl, clearReference } = this.props;
+  showReference = (event, reference, messageId) => {
+    const {
+      showReference,
+      referToEl,
+      clearReference,
+      referencing,
+      referFromEl,
+    } = this.props;
     // If we're already showing this reference clear the reference
-    if (showReference && referToEl && reference.element === referToEl.element) {
-      clearReference();
+    if (showReference && referToEl && messageId === referFromEl) {
+      // if referencing was already on, no reason to turn referencing off when hiding
+      // a reference
+      this.currentRefMessageId = null;
+      clearReference({ doKeepReferencingOn: referencing });
     } else {
       const fromCoords = this.getRelativeCoords(event.target);
       let toCoords;
+      this.currentRefMessageId = messageId;
       if (reference.elementType === 'chat_message') {
         toCoords = this.getRelativeCoords(
           this[`message-${reference.element}`].current
         );
       }
+      const updatedReference = this.findReference(reference, messageId);
       showReference(
-        reference,
+        updatedReference,
         toCoords,
         event.currentTarget.id,
         fromCoords,
@@ -228,6 +231,15 @@ class Chat extends Component {
     }
   };
 
+  findReference = (reference, messageId) => {
+    const { eventsWithRefs } = this.props;
+    const found = find(eventsWithRefs, (ev) => {
+      return ev._id === messageId;
+    });
+
+    return found.reference || reference;
+  };
+
   render() {
     const {
       // messages,
@@ -264,6 +276,10 @@ class Chat extends Component {
           highlighted = true;
         }
         if (message.messageType) {
+          if (!message._id) {
+            // console.log('no id for message: ', message);
+          }
+
           return (
             <Message
               key={message._id}
@@ -272,7 +288,7 @@ class Chat extends Component {
               ref={this[`message-${message._id}`]}
               onClick={(event) => this.messageClickHandler(event, message)}
               showReference={(event) =>
-                this.showReference(event, message.reference)
+                this.showReference(event, message.reference, message._id)
               }
               highlighted={highlighted}
               reference={reference}
@@ -280,7 +296,11 @@ class Chat extends Component {
             />
           );
         }
-        return <Event event={message} id={message._id} key={message._id} />;
+        if (!message.synthetic) {
+          // for replayer only. should not show up in chat, only slider
+          return <Event event={message} id={message._id} key={message._id} />;
+        }
+        return null;
       });
       // use this to scroll to the bottom
       // displayMessages.push(<div key='end' ref={this.chatEnd}></div>)
@@ -398,6 +418,8 @@ Chat.propTypes = {
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   expanded: PropTypes.bool.isRequired,
   // membersExpanded: PropTypes.bool.isRequired,
+  chatInput: PropTypes.shape({ current: PropTypes.any }),
+  eventsWithRefs: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 Chat.defaultProps = {
@@ -418,6 +440,8 @@ Chat.defaultProps = {
   clearReference: null,
   showingReference: null,
   // referenceElementCoords: [],
+  chatInput: null,
+  eventsWithRefs: [],
 };
 
 export default Chat;

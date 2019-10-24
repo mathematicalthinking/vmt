@@ -29,8 +29,15 @@ module.exports = {
   },
 
   searchPaginated: async (criteria, skip, filters) => {
+    const initialFilter = { isTrashed: false };
+    const allowedPrivacySettings = ['private', 'public'];
+
+    if (allowedPrivacySettings.includes(filters.privacySetting)) {
+      initialFilter.privacySetting = filters.privacySetting;
+    }
+
     const aggregationPipeline = [
-      { $match: { isTrashed: false } },
+      { $match: initialFilter },
       {
         $project: {
           _id: 1,
@@ -39,6 +46,7 @@ module.exports = {
           description: 1,
           image: 1,
           privacySetting: 1,
+          updatedAt: 1,
           members: {
             $filter: {
               input: '$members',
@@ -81,6 +89,7 @@ module.exports = {
           members: {
             $push: { user: '$facilitatorObject', role: 'facilitator' },
           },
+          updatedAt: { $first: '$updatedAt' },
         },
       },
       {
@@ -91,17 +100,15 @@ module.exports = {
           description: 1,
           privacySetting: 1,
           image: 1,
+          updatedAt: 1,
           'members.user.username': 1,
           'members.user._id': 1,
           'members.role': 1,
         },
       },
     ];
-    if (filters.privacySetting) {
-      aggregationPipeline.unshift({
-        $match: { privacySetting: filters.privacySetting },
-      });
-    }
+
+    aggregationPipeline.push({ $sort: { updatedAt: -1 } });
 
     if (skip) {
       aggregationPipeline.push({ $skip: parseInt(skip, 10) });

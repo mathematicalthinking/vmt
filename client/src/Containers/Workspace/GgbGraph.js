@@ -3,8 +3,11 @@ import PropTypes from 'prop-types';
 import Script from 'react-load-script';
 import { parseString } from 'xml2js';
 import throttle from 'lodash/throttle';
+import isFinite from 'lodash/isFinite';
+import find from 'lodash/find';
 import mongoIdGenerator from '../../utils/createMongoId';
 import classes from './graph.css';
+import { blankEditorState } from './ggbUtils';
 import { Aux } from '../../Components';
 import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
@@ -29,7 +32,8 @@ class GgbGraph extends Component {
 
   graph = React.createRef();
 
-  eventQueue = [];
+  outgoingEventQueue = [];
+  incomingEventQueue = [];
   firstLabel = null;
   resetting = false; // used to reset the construction when something is done by a user not in control.
   editorState = null; // In the algebra input window,
@@ -41,11 +45,14 @@ class GgbGraph extends Component {
   // it sends the Roots(line, x, y) for each point that is created...we only want to send it once
   shapeSelected = null;
   isFileSet = false; // calling ggb.setBase64 triggers this.initializeGgb(), because we set base 64 inside initializeGgb we use this instance var to track whether we've already set the file. When the ggb tries to load the file twice it breaks everything
-  socketQueue = [];
   isFaviconNtf = false;
   isWindowVisible = true;
+  currentShape = [];
   previousEvent = null; // Prevent repeat events from firing (for example if they keep selecting the same tool)
+  previousCommandString = null;
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
+
+  renameDetails = []; // tuple of oldLabel, newLabel
   /**
    * @method componentDidMount
    * @description add socket listeners, window resize listener
@@ -69,19 +76,18 @@ class GgbGraph extends Component {
         this.isFaviconNtf = true;
         this.changeFavicon('/favNtf.ico');
       }
-      // If this event is for this tab add it to the log
-      if (data.tab === currentTabId) {
-        // If the event is for this room tab (i.e., not browser tab) but this tab is not in view,
-        // add a notification to this tab
-        if (currentTabId !== tab._id) {
-          addNtfToTabs(tab._id);
-        }
-
-        // If we're still processing data from the last event
-        // save this event in a queue...then when processing is done we'll pull
-        // from this queue in clearSocketQueue()
+      // If the event is for this room tab (i.e., not browser tab) but this tab is not in view,
+      // add a notification to this tab
+      if (currentTabId !== tab._id) {
+        addNtfToTabs(tab._id);
+      }
+      // // If this event is for this tab add it to the log
+      else if (data.tab === currentTabId) {
+        //   // If we're still processing data from the last event
+        //   // save this event in a queue...then when processing is done we'll pull
+        //   // from this queue in clearSocketQueue()
         if (this.receivingData || this.batchUpdating) {
-          this.socketQueue.push(data);
+          this.incomingEventQueue.push(data);
           return;
         }
         this.receivingData = true;
@@ -108,75 +114,110 @@ class GgbGraph extends Component {
    * @param  {Object} prevProps - props before update
    */
 
-  async componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps) {
     const {
-      currentTab,
-      tabId,
-      room,
+      currentTabId,
+      tab,
+      // room,
       referencing,
       inControl,
       showingReference,
       referToEl,
-      setToElAndCoords,
+      clearReference,
+      log,
     } = this.props;
-    if (currentTab === tabId) {
-      if (!this.ggbApplet) return;
 
-      // new evnet
-      if (prevProps.room.log && prevProps.room.log.length < room.log.length) {
-        this.previousEvent = room.log[room.log.length - 1];
-      }
+    if (!this.ggbApplet) {
+      return;
+    }
 
-      // Creating a reference
-      if (!prevProps.referencing && referencing) {
-        this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
-      } else if (prevProps.referencing && !referencing) {
+    if (currentTabId !== tab._id) {
+      return;
+    }
+
+    const isInControl = inControl === 'ME';
+    const wasInControl = prevProps.inControl === 'ME';
+    const didGainControl = !wasInControl && isInControl;
+    const didReleaseControl = wasInControl && !isInControl;
+
+    const isNewEvent = prevProps.log.length < log.length;
+    const didStartReferencing = !prevProps.referencing && referencing;
+    const didStopReferencing = prevProps.referencing && !referencing;
+
+    const didStartDisplayingReference =
+      !prevProps.showingReference && showingReference;
+
+    const didReferToElChange = prevProps.referToEl !== referToEl;
+
+    if (isNewEvent) {
+      this.previousEvent = log[log.length - 1];
+    }
+
+    // Creating a reference
+    if (didStartReferencing) {
+      // prompt if they want reference to automatically turn on when chat is in focus?
+      this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
+    } else if (didStopReferencing) {
+      // if they are in control, can keep mode set to move tool
+      if (!isInControl) {
+        // force resync in case they moved anything while referencing
+        this.resyncGgbState();
         this.ggbApplet.setMode(40);
       }
-      // Control
-      const wasInControl = prevProps.inControl === 'ME';
-      const isInControl = inControl === 'ME';
-      if (!wasInControl && isInControl) {
+    }
+    // Control
+    if (didGainControl) {
+      if (prevProps.referencing) {
+        // force resync in case they moved anything while referencing
+        this.resyncGgbState();
+      }
+      if (this.intendedMode) {
+        // if they tried to click on a tool while not
+        // in control, set mode to that tool
+        this.ggbApplet.setMode(this.intendedMode);
+        this.intendedMode = null;
+      } else {
         this.ggbApplet.setMode(0);
-      } else if (wasInControl && !isInControl) {
-        // this.updateConstructionState();
+      }
+
+      clearReference();
+    } else if (didReleaseControl) {
+      // this.updateConstructionState();
+
+      if (referencing) {
+        const currentMode = this.ggbApplet.getMode();
+        if (currentMode !== 0) {
+          this.ggbApplet.setMode(0);
+        }
+      } else {
         this.ggbApplet.setMode(40);
       }
+    }
 
-      // Displaying Reference
-      if (
-        !prevProps.showingReference &&
-        showingReference &&
-        referToEl.elementType !== 'chat_message'
-      ) {
-        // find the coordinates of the point we're referencing
-        // consider abstracting this into its own funciton
-        const { position } = await this.getReferenceCoords(
-          referToEl.element,
-          referToEl.elementType
-        );
-        setToElAndCoords(referToEl, position);
-      } else if (
-        showingReference &&
-        prevProps.referToEl !== referToEl &&
-        referToEl.elementType !== 'chat_message'
-      ) {
-        const { position } = await this.getReferenceCoords(
-          referToEl.element,
-          referToEl.elementType
-        );
-        setToElAndCoords(referToEl, position);
-      }
+    // Displaying Reference
+    if (
+      didStartDisplayingReference &&
+      referToEl.elementType !== 'chat_message'
+    ) {
+      // find the coordinates of the point we're referencing
 
-      // switching tab
-      if (prevProps.currentTab !== currentTab) {
-        this.updateDimensions();
-      }
+      this.updateReferToEl(referToEl);
+    } else if (
+      showingReference &&
+      didReferToElChange &&
+      referToEl.elementType !== 'chat_message'
+    ) {
+      this.updateReferToEl(referToEl);
+    }
 
-      // releasing control
-      if (prevProps.inControl !== inControl && inControl === 'NONE') {
-        // this.updateConstructionState();
-      }
+    // switching tab
+    if (prevProps.currentTabId !== currentTabId) {
+      this.updateDimensions();
+    }
+
+    // releasing control
+    if (prevProps.inControl !== inControl && inControl === 'NONE') {
+      // this.updateConstructionState();
     }
   }
 
@@ -188,14 +229,17 @@ class GgbGraph extends Component {
     if (this.loadingTimer) {
       clearInterval(this.loadingTimer);
     }
-    if (this.ggbApplet && this.ggbApplet.listeners) {
+    if (this.ggbApplet) {
       // delete window.ggbApplet;
       this.ggbApplet.unregisterAddListener(this.addListener);
-      this.ggbApplet.unregisterUpdateListener();
-      this.ggbApplet.unregisterRemoveListener(this.eventListener);
+      this.ggbApplet.unregisterUpdateListener(this.updateListener);
+      this.ggbApplet.unregisterRemoveListener(this.removeListener);
       this.ggbApplet.unregisterClearListener(this.clearListener);
       this.ggbApplet.unregisterClientListener(this.clientListener);
-      // this.ggbApplet.unregisterStoreUndoListener(this.undoListener);
+      this.ggbApplet.unregisterRenameListener(this.renameListener);
+      this.ggbApplet.unregisterObjectUpdateListener(this.cornerLabel);
+
+      this.removeGgbObjectSilent(this.cornerLabel);
     }
 
     if (this.updatingTab) {
@@ -205,6 +249,25 @@ class GgbGraph extends Component {
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.removeAllListeners('FORCE_SYNC');
     window.removeEventListener('resize', this.updateDimensions);
+  }
+
+  getCoordsFromPathParameter(element, parameter) {
+    if (!this.ggbApplet) {
+      return [];
+    }
+
+    this.doIgnoreAdd = true;
+    const refPoint = this.ggbApplet.evalCommandGetLabels(
+      `Point(${element},${parameter})`
+    );
+    this.doIgnoreAdd = false;
+
+    this.ggbApplet.setAuxiliary(refPoint, true);
+
+    const refCoords = this.getGgbPointCoords(refPoint);
+
+    this.removeGgbObjectSilent(refPoint);
+    return refCoords;
   }
 
   visibilityChange = () => {
@@ -225,84 +288,73 @@ class GgbGraph extends Component {
     document.getElementsByTagName('head')[0].appendChild(link);
   };
 
-  constructEvent = (data) => {
+  writeToGraph = (event) => {
+    if (
+      event.commandString &&
+      event.objType !== 'point' &&
+      event.eventType !== 'DRAG'
+    ) {
+      this.ggbApplet.evalCommand(event.commandString);
+      // if (event.valueString) {
+      //   this.ggbApplet.evalCommand(event.valueString);
+      // }
+    } else if (event.xml) {
+      this.ggbApplet.evalXML(event.xml);
+    } else if (event.eventType === 'REMOVE') {
+      this.ggbApplet.deleteObject(event.label);
+    } else if (event.eventType === 'RENAME') {
+      this.ggbApplet.evalCommand(event.commandString);
+    }
+    this.ggbApplet.evalCommand('UpdateConstruction()');
+  };
+
+  readFromGraph = (label, eventType) => {
+    const objType = this.ggbApplet.getObjectType(label);
+    const xml = this.ggbApplet.getXML(label);
+    const commandString = this.ggbApplet.getCommandString(label);
+    const valueString = this.ggbApplet.getValueString(label);
+    const editorState = this.ggbApplet.getEditorState(label);
+    let x;
+    let y;
+    const algXML = this.ggbApplet.getAlgorithmXML(label);
+    if (objType === 'point') {
+      x = this.ggbApplet.getXcoord(label);
+      y = this.ggbApplet.getYcoord(label);
+    }
+    const event = {
+      commandString: commandString === '' ? null : commandString,
+      valueString,
+      editorState: editorState === blankEditorState ? null : editorState,
+      coords: { x, y },
+      xml: algXML || xml,
+      label,
+      objType,
+      eventType,
+    };
+
+    return event;
+  };
+
+  constructEvent = (eventObj) => {
     const { addToLog } = this.props;
+    addToLog(eventObj);
+    const { ggbEvent, eventArray } = eventObj;
     let readyToClearSocketQueue = true;
-    addToLog(data);
-    switch (data.eventType) {
-      case 'ADD': {
-        let shouldEvalXML = true;
-        if (data.definition && data.definition.length > 0) {
-          if (data.definition.indexOf('Roots') > -1) {
-            shouldEvalXML = false;
-            this.ggbApplet.evalCommand(`${data.definition}`);
-          } else {
-            this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
-          }
-        }
-        if (shouldEvalXML) {
-          this.ggbApplet.evalXML(data.event);
-        }
-        this.ggbApplet.evalCommand('UpdateConstruction()');
-        break;
-      }
-      case 'REMOVE':
-        if (data.eventArray) {
-          // this.updatingOn = true;
-          data.eventArray.forEach((label) => {
-            this.ggbApplet.deleteObject(label);
-          });
-        } else {
-          this.ggbApplet.deleteObject(data.label);
-        }
-        break;
-      case 'UPDATE':
-        this.ggbApplet.evalXML(data.event);
-        // this.ggbApplet.evalCommand('UpdateConstruction()');
-        break;
-      case 'CHANGE_PERSPECTIVE':
-        this.ggbApplet.setPerspective(data.event);
-        this.ggbApplet.showAlgebraInput(true);
-        break;
-      case 'BATCH_UPDATE':
-        // this.updatingOn = true;
-        readyToClearSocketQueue = false;
-        this.batchUpdating = true;
-        this.recursiveUpdate(data.eventArray);
-        break;
-      case 'BATCH_ADD':
-        readyToClearSocketQueue = false;
-        this.batchUpdating = true;
-        if (data.definition) {
-          this.recursiveUpdate(data.eventArray, 'ADDING');
-        }
-        break;
-      case 'UPDATE_STYLE': {
-        if (data.eventArray) {
-          readyToClearSocketQueue = false;
-          this.recursiveUpdate(data.eventArray);
-        }
-        break;
-      }
-      case 'UNDO': {
-        // this.ggbApplet.undo(); // @TODO this is not working...undo only undoes USER actions
-        break;
-      }
-      case 'REDO': {
-        // this.ggbApplet.redo();
-        break;
-      }
-      default:
-        break;
+    if (eventArray) {
+      readyToClearSocketQueue = false;
+      this.batchUpdating = true;
+      this.recursiveUpdate(eventArray);
+    } else if (ggbEvent) {
+      this.writeToGraph(ggbEvent);
     }
     if (readyToClearSocketQueue) {
       this.clearSocketQueue();
     }
   };
-
+  // @todo socketQueue should be renamed incomingEventQueue and eventQeue should be renamed outgoingEventQueue
   clearSocketQueue = () => {
-    if (this.socketQueue.length > 0) {
-      const nextEvent = this.socketQueue.shift();
+    if (this.incomingEventQueue.length > 0) {
+      const nextEvent = this.incomingEventQueue.shift();
       this.constructEvent(nextEvent);
     } else {
       this.updatingOn = false;
@@ -322,39 +374,18 @@ class GgbGraph extends Component {
    * @param  { String } updateType - 'ADDING if we want to invoke evalCommand else null to invoke evalXML'
    */
   // eslint-disable-next-line consistent-return
-  recursiveUpdate = (events, updateType) => {
+  recursiveUpdate = (events) => {
     let readyToClearSocketQueue = true;
     if (events && events.length > 0 && Array.isArray(events)) {
-      if (updateType === 'ADDING') {
-        for (let i = 0; i < events.length; i++) {
-          this.ggbApplet.evalCommand(events[i]);
-        }
-      } else {
-        // If the socket queue is getting long skip some events to speed it up
-        // if (
-        //   this.socketQueue.length > 1 &&
-        //   events.length > 2 &&
-        //   events[0].eventType === 'BATCH_UPDATE'
-        // ) {
-        //   if (Array.isArray(events)) {
-        //     // this should probably never happen...we should only have arrays in here
-        //     events.shift();
-        //   }
-        // }
-        this.ggbApplet.evalXML(events.shift());
-        this.ggbApplet.evalCommand('UpdateConstruction()');
-        if (events.length > 0) {
-          readyToClearSocketQueue = false;
-          return setTimeout(() => {
-            this.recursiveUpdate(events);
-          }, 0);
-        }
+      const event = events.shift();
+      this.writeToGraph(event);
+      if (events.length > 0) {
+        readyToClearSocketQueue = false;
+        // By wrapping calls to recursiveUpdate in a setTimeout we end up with behavior that is closer
+        // to a natural dragging motion. If we write events one after the other w/o a timeout
+        // the point moves too quickly and looks like its jumping to the final position
+        setTimeout(() => this.recursiveUpdate(events), 0);
       }
-    } else if (events) {
-      this.ggbApplet.evalXML(events);
-      this.ggbApplet.evalCommand('UpdateConstruction()');
-      // After we've finished applying all of the events check the socketQueue to see if more
-      // events came over the socket while we were painting those updates
     }
     if (readyToClearSocketQueue) {
       this.clearSocketQueue();
@@ -397,6 +428,7 @@ class GgbGraph extends Component {
       errorDialogsActive: false,
       appletOnLoad: this.initializeGgb,
       appName: tab.appName || 'classic',
+      enableUndoRedo: false, // undo/redo is problematic; disable for now
     };
     const ggbApp = new window.GGBApplet(parameters, '6.0');
     if (currentTabId === tab._id) {
@@ -433,7 +465,7 @@ class GgbGraph extends Component {
         this.registerListeners();
       })
       .catch((err) => {
-        console.log('ERROR: ', 'failed to updated', err);
+        console.log('ERROR resyncing: ', 'failed to updated', err);
       });
   };
 
@@ -457,7 +489,7 @@ class GgbGraph extends Component {
         setFirstTabLoaded();
       }
     } catch (err) {
-      console.log(err);
+      console.log(`Error initializingGgb: `, err);
     }
   };
 
@@ -495,10 +527,20 @@ class GgbGraph extends Component {
    */
 
   clientListener = (event) => {
+    if (!event) {
+      // seems to happen if you click a bunch of points really quickly
+      return;
+    }
+
+    // modes (https://wiki.geogebra.org/en/Reference:Toolbar)
+    // 40 = TRANSLATEVIEW
+    // 0 = MOVE
+
     const { referencing } = this.props;
     if (this.receivingData) {
       return;
     }
+
     switch (event[0]) {
       case 'setMode':
         // eslint-disable-next-line prefer-destructuring
@@ -506,68 +548,91 @@ class GgbGraph extends Component {
           event[2] === '40' ||
           (referencing && event[2] === '0') ||
           (this.previousEvent &&
-            this.previousEvent.action === 'mode' &&
+            this.previousEvent.eventType === 'mode' &&
             this.previousEvent.label === event[2])
         ) {
           return;
         }
         if (this.userCanEdit()) {
           // throttled because of a bug in Geogebra that causes this to fire twice
-          this.throttledSendEvent(null, null, event[2], 'SELECT', 'mode');
+          this.throttledSendEvent({ eventType: 'MODE', label: event[2] });
           return;
           // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
           // Then don't send this to the other users/=.
         }
-        if (event[2] !== '0') {
+        if (event[2] !== '40') {
+          // eslint-disable-next-line prefer-destructuring
+          this.intendedMode = event[2];
           this.setState({ showControlWarning: true });
         }
         this.receivingData = false;
         break;
 
       case 'undo':
-        if (this.resetting) {
-          this.resetting = false;
-          return;
-        }
-        if (this.userCanEdit()) {
-          this.sendEvent(null, null, null, 'UNDO', null);
-        } else {
-          this.setState({ showControlWarning: true, redo: true });
-        }
+        // disable for now
+
+        // if (this.resetting) {
+        //   this.resetting = false;
+        // }
+        // if (this.userCanEdit()) {
+        //   this.sendEvent({ eventType: 'UNDO' });
+        // } else {
+        //   this.setState({ showControlWarning: true, redo: true });
+        // }
         break;
       case 'redo':
-        if (this.resetting) {
-          this.resetting = false;
-          return;
-        }
-        if (this.userCanEdit()) {
-          // this.showAlert();
-          // this.resetting = true;
-          // this.ggbApplet.undo();
-        } else {
-          this.setState({ showControlWarning: true });
-        }
+        // if (this.resetting) {
+        //   this.resetting = false;
+        //   return;
+        // }
+        // if (this.userCanEdit()) {
+        // this.showAlert();
+        // this.resetting = true;
+        // this.ggbApplet.undo();
+        // } else {
+        //   this.setState({ showControlWarning: true });
+        // }
         break;
       case 'select':
-        if (referencing) {
-          return;
-        }
+        // if (referencing) {
+        //   return;
+        // }
         if (this.ggbApplet.getMode() === 0) {
           const selection = this.ggbApplet.getObjectType(event[1]);
           if (selection === 'point') {
-            // How do you destructure when saving to a property of an object in this case `this`
             // eslint-disable-next-line prefer-destructuring
-            this.pointSelected = event[1];
+            [, this.pointSelected] = event;
+
             this.shapeSelected = null;
+            this.pointSelectedValueString = this.ggbApplet.getValueString(
+              event[1]
+            );
+            this.shapeSelectedType = null;
           } else {
             // eslint-disable-next-line prefer-destructuring
             this.shapeSelected = event[1];
+            this.shapeSelectedType = this.ggbApplet.getObjectType(event[1]);
             this.pointSelected = null;
+            this.pointSelectedValueString = null;
           }
-          if (this.eventQueue.length > 0) {
-            this.sendEventBuffer(null, selection, event[1], 'SELECT', 'ggbObj');
+
+          if (referencing) {
+            return;
+          }
+          if (this.outgoingEventQueue.length > 0) {
+            this.sendEventBuffer({
+              xml: null,
+              objType: selection,
+              label: event[1],
+              eventType: 'SELECT',
+            });
           } else {
-            this.sendEvent(null, selection, event[1], 'SELECT', 'ggbObj');
+            this.sendEvent({
+              xml: null,
+              objType: selection,
+              label: event[1],
+              eventType: 'SELECT',
+            });
           }
         }
         break;
@@ -579,11 +644,62 @@ class GgbGraph extends Component {
       case 'perspectiveChange':
         break;
       case 'updateStyle': {
-        const label = event[1];
-        const xml = this.ggbApplet.getXML(label);
         if (this.userCanEdit()) {
-          this.sendEventBuffer(xml, null, label, 'UPDATE_STYLE', 'updated');
+          const label = event[1];
+          const xml = this.ggbApplet.getXML(label);
+          const objType = this.ggbApplet.getObjectType(label);
+
+          this.sendEventBuffer({
+            xml,
+            label,
+            objType,
+            eventType: 'UPDATE_STYLE',
+          });
         }
+        break;
+      }
+      case 'renameComplete': {
+        if (this.renamedDetails) {
+          const [oldLabel, newLabel] = this.renamedDetails;
+
+          if (oldLabel === this.cornerLabel) {
+            // update the new name of the cornerZoomAnchor point
+            // but do not emit renaming event
+            // if user for some reason renamed
+            // one of their points cornerZoomAnchor
+            this.cornerLabel = newLabel;
+            this.renamedDetails = null;
+            return;
+          }
+
+          if (this.isAutoRenamingCornerLabel) {
+            // triggered by registerListeners
+            this.isAutoRenamingCornerLabel = false;
+            this.renamedDetails = null;
+            return;
+          }
+          const objType = this.ggbApplet.getObjectType(newLabel);
+          const commandString = `Rename(${oldLabel},"${newLabel}")`;
+
+          if (this.outgoingEventQueue.length > 0) {
+            this.sendEventBuffer({
+              label: newLabel,
+              objType,
+              eventType: 'RENAME',
+              oldLabel,
+              commandString,
+            });
+          } else {
+            this.sendEvent({
+              label: newLabel,
+              objType,
+              eventType: 'RENAME',
+              oldLabel,
+              commandString,
+            });
+          }
+        }
+
         break;
       }
       case 'editorStart':
@@ -596,27 +712,39 @@ class GgbGraph extends Component {
         if (this.userCanEdit()) {
           return;
         }
-        // If they weren't allowed to tupe here undo to the previous state
-        // this.ggbApplet.setEditorState(this.editorState);
+        // If they weren't allowed to type here undo to the previous state
+        this.ggbApplet.setEditorState(this.editorState);
         this.setState({ showControlWarning: true });
         break;
       case 'movingGeos':
-        this.movingGeos = true; // turn of updating so the updateListener does not send events
+        this.movingGeos = true; // turn off updating so the updateListener does not send events
         break;
       case 'movedGeos': {
         this.movingGeos = true;
         // combine xml into one event
         let xml = '';
-        let label = '';
         for (let i = 1; i < event.length; i++) {
           xml += this.ggbApplet.getXML(event[i]);
         }
-        label = event[event.length - 1];
-        this.sendEventBuffer(xml, null, label, 'UPDATE', 'updated');
-        // this.movingGeos = false;
+        this.sendEventBuffer({
+          xml,
+          label: this.shapeSelected,
+          eventType: 'DRAG',
+          objType: this.ggbApplet.getObjectType(this.shapeSelected),
+        });
         break;
       }
 
+      case 'dragEnd': {
+        if (this.isDraggingPoint) {
+          this.isDraggingPoint = false;
+        }
+        break;
+      }
+      case 'mouseDown': {
+        this.mouseDownCoords = [event.x, event.y];
+        break;
+      }
       default:
         break;
     }
@@ -635,7 +763,8 @@ class GgbGraph extends Component {
     if (
       this.batchUpdating ||
       this.receivingData ||
-      this.ggbApplet.getMode() === 40
+      this.ggbApplet.getMode() === 40 ||
+      this.doIgnoreAdd
     ) {
       return;
     }
@@ -647,18 +776,20 @@ class GgbGraph extends Component {
       this.setState({ showControlWarning: true });
       return;
     }
+
     if (!this.receivingData) {
-      const xml = this.ggbApplet.getXML(label);
-      // const objType = this.ggbApplet.getObjectType(label);
-      const definition = this.ggbApplet.getCommandString(label);
-      if (definition.indexOf('Roots') > -1) {
-        if (this.currentDefinition !== definition) {
-          this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
+      const event = this.readFromGraph(label, 'ADD');
+      if (event.commandString) {
+        if (event.commandString === this.previousCommandString) {
+          return;
         }
-        this.currentDefinition = definition;
-        return;
+        this.previousCommandString = event.commandString;
       }
-      this.sendEventBuffer(xml, definition, label, 'ADD', 'added');
+      if (event.objType === 'point') {
+        this.sendEvent(event);
+      } else {
+        this.sendEventBuffer(event);
+      }
     }
   };
 
@@ -675,12 +806,32 @@ class GgbGraph extends Component {
       this.resetting = false;
       return;
     }
+
+    if (this.doIgnoreRemove) {
+      return;
+    }
+
+    if (label === this.cornerLabel && this.isAutoRemovingCornerAnchor) {
+      this.isAutoRemovingCornerAnchor = false;
+      return;
+    }
+
     if (!this.userCanEdit()) {
       this.setState({ showControlWarning: true });
       return;
     }
     if (!this.receivingData) {
-      this.sendEventBuffer(null, null, label, 'REMOVE', 'removed');
+      this.previousCommandString = null;
+
+      const data = { label, eventType: 'REMOVE' };
+
+      if (this.pointSelected === label) {
+        data.objType = 'point';
+      } else if (this.shapeSelected === label) {
+        data.objType = this.shapeSelectedType;
+      }
+
+      this.sendEventBuffer(data);
     }
   };
 
@@ -692,17 +843,41 @@ class GgbGraph extends Component {
    */
 
   updateListener = (label) => {
-    if (this.batchUpdating || this.movingGeos) return;
+    if (this.batchUpdating || this.movingGeos || this.renamedDetails) {
+      return;
+    }
     if (this.receivingData && !this.updatingOn) {
       return;
     }
-    if (
-      this.userCanEdit &&
-      !this.receivingData &&
-      label === this.pointSelected
-    ) {
-      const xml = this.ggbApplet.getXML(label);
-      this.sendEventBuffer(xml, null, label, 'UPDATE', 'updated');
+
+    if (!this.userCanEdit()) {
+      return;
+    }
+    const isUpdateForSelectedPoint = label === this.pointSelected;
+    if (isUpdateForSelectedPoint) {
+      // check if is drag event
+      let doSendDragEvent = false;
+      if (this.isDraggingPoint) {
+        doSendDragEvent = true;
+      } else {
+        const valueString = this.ggbApplet.getValueString(label);
+
+        if (valueString !== this.pointSelectedValueString) {
+          doSendDragEvent = true;
+          this.isDraggingPoint = true;
+        }
+      }
+      // update
+      if (doSendDragEvent) {
+        const xml = this.ggbApplet.getXML(label);
+        this.sendEventBuffer({
+          // coords: { x, y },
+          xml,
+          label,
+          objType: 'point',
+          eventType: 'DRAG',
+        });
+      }
     }
   };
 
@@ -711,33 +886,87 @@ class GgbGraph extends Component {
    * @description used to get reference positions
    */
 
-  clickListener = async (element) => {
+  clickListener = (element) => {
     const { referencing, setToElAndCoords } = this.props;
     if (referencing) {
       const elementType = this.ggbApplet.getObjectType(element);
-      const { renamedElementType, position } = await this.getReferenceCoords(
-        element,
-        elementType
+      let refCoords;
+      let pathParameter;
+      let x;
+      let y;
+      let refType = 'point';
+
+      let renamedElementType;
+      let position;
+
+      if (elementType !== 'point' && Array.isArray(this.mouseDownCoords)) {
+        [x, y] = this.mouseDownCoords;
+        if (isFinite(x) && isFinite(y)) {
+          const pointInTypes = [
+            'polygon',
+            'triangle',
+            'quadrilateral',
+            'pentagon',
+            'hexagon',
+          ];
+
+          if (pointInTypes.includes(elementType)) {
+            refType = 'region';
+            refCoords = this.getRegionCoords(element, x, y);
+          } else {
+            refType = 'path';
+            [refCoords, pathParameter] = this.getPathCoordsAndParam(element, [
+              x,
+              y,
+            ]);
+          }
+        }
+
+        position = this.getRelativeCoords(refCoords);
+        renamedElementType = elementType;
+      } else {
+        ({ renamedElementType, position } = this.getReferenceCoords(
+          element,
+          elementType,
+          pathParameter,
+          x,
+          y,
+          refType
+        ));
+      }
+      setToElAndCoords(
+        {
+          element,
+          elementType: renamedElementType,
+          pathParameter,
+          x,
+          y,
+          isForRegion: refType === 'region',
+        },
+        position
       );
-      setToElAndCoords({ element, elementType: renamedElementType }, position);
     }
   };
 
+  clearListener = (element) => {
+    console.log({ clearListener: element });
+  };
+
   zoomListener = async () => {
-    const {
-      referencing,
-      showingReference,
-      referToEl,
-      setToElAndCoords,
-    } = this.props;
+    const { referencing, showingReference, referToEl } = this.props;
     if ((referencing && referToEl) || showingReference) {
       this.getInnerGraphCoords();
-      const { position } = await this.getReferenceCoords(
-        referToEl.element,
-        referToEl.elementType
-      );
-      setToElAndCoords(referToEl, position);
+      this.updateReferToEl(referToEl);
     }
+  };
+
+  renameListener = (oldLabel, newLabel) => {
+    if (this.isAutoRenamingCornerLabel) {
+      this.isAutoRenamingCornerLabel = false;
+      return;
+    }
+
+    this.renamedDetails = [oldLabel, newLabel];
   };
 
   /**
@@ -746,27 +975,42 @@ class GgbGraph extends Component {
    */
 
   registerListeners = () => {
-    if (this.ggbApplet.listeners.length > 0) {
-      // return;
-      this.ggbApplet.unregisterAddListener(this.addListener);
-      this.ggbApplet.unregisterUpdateListener(this.updateListener);
-      this.ggbApplet.unregisterRemoveListener(this.eventListener);
-      this.ggbApplet.unregisterClearListener(this.clearListener);
-      this.ggbApplet.unregisterClientListener(this.clientListener);
-    }
+    this.ggbApplet.unregisterClientListener(this.clientListener);
+    this.ggbApplet.unregisterAddListener(this.addListener);
+    this.ggbApplet.unregisterUpdateListener(this.updateListener);
+    this.ggbApplet.unregisterRemoveListener(this.RemoveListener);
+    this.ggbApplet.unregisterClearListener(this.clearListener);
+    this.ggbApplet.unregisterRenameListener(this.renameListener);
 
     // Set corner object to listen for zooming/moving of graph
+
+    const cornerLabel = 'cornerZoomAnchor';
+    this.cornerLabel = cornerLabel;
+
+    const hasAnchor = this.ggbApplet.exists(cornerLabel);
+    if (hasAnchor) {
+      this.isAutoRemovingCornerAnchor = true;
+      this.ggbApplet.deleteObject(cornerLabel);
+    }
+
     this.zoomObj = this.ggbApplet.evalCommandGetLabels('Corner(1)');
     this.ggbApplet.setAuxiliary(this.zoomObj, true);
     this.ggbApplet.registerObjectUpdateListener(
       this.zoomObj,
       this.throttledZoomListener
     );
+
+    this.isAutoRenamingCornerLabel = true;
+
+    this.ggbApplet.renameObject(this.zoomObj, cornerLabel);
+
     this.ggbApplet.registerClientListener(this.clientListener);
     this.ggbApplet.registerAddListener(this.addListener);
     this.ggbApplet.registerClickListener(this.clickListener);
     this.ggbApplet.registerUpdateListener(this.updateListener);
     this.ggbApplet.registerRemoveListener(this.removeListener);
+    this.ggbApplet.registerClearListener(this.clearListener);
+    this.ggbApplet.registerRenameListener(this.renameListener);
   };
 
   /**
@@ -775,33 +1019,34 @@ class GgbGraph extends Component {
    *  Because dragging a shape or point causes the update handler to fire every 10 to 20 ms, the
    *  constant sending of events across the network starts to slow things down. Instead of sending each
    *  event as it comes in, we concatanate them into one event and then send them all roughly once every 1500 ms.
-   * @param  {String} xml - ggb generated xml of the even
-   * @param  {String} definition - ggb multipoint definition (e.g. "Polygon(D, E, F, G)")
-   * @param  {String} label - ggb label. ggbApplet.evalXML(label) yields xml representation of this label
-   * @param  {String} eventType - ["ADD", "REMOVE", "UPDATE", "CHANGE_PERSPECTIVE", "NEW_TAB", "BATCH", etc.] see ./models/event
-   * @param  {String} action - ggb action ["addedd", "removed", "clicked", "updated"]
+   * @param {Object} event
+   * @param  {String} event.xml - ggb generated xml of the even
+   * @param  {String} event.definition - ggb multipoint definition (e.g. "Polygon(D, E, F, G)")
+   * @param  {String} event.label - ggb label. ggbApplet.evalXML(label) yields xml representation of this label
+   * @param  {String} event.eventType - ["ADD", "REMOVE", "UPDATE", "CHANGE_PERSPECTIVE", "NEW_TAB", "BATCH", etc.] see ./models/event
+   * @param  {String} event.action - ggb action ["addedd", "removed", "clicked", "updated"]
+   * @param {Object} event.coords
+   * @param {Number} event.coords.x
+   * @param {Number} event.coords.y
    */
 
-  sendEventBuffer = (xml, definition, label, eventType, action) => {
+  sendEventBuffer = (event) => {
     const { referencing, showingReference, clearReference } = this.props;
     let sendEventFromTimer = true;
 
     // this is redundant...but maybe good.
+    if (!event) {
+      return;
+    }
+
     if (!this.userCanEdit()) {
-      this.setState({ showControlWarning: true });
+      // this.setState({ showControlWarning: true });
       return;
     }
     if (referencing || showingReference) {
       clearReference();
     }
-    // Add event to eventQueue in case there are multiple events to send.
-    if (eventType === 'REMOVE') {
-      this.eventQueue.push(label);
-    } else if (action === 'updated' || definition === '' || !definition) {
-      this.eventQueue.push(xml);
-    } else {
-      this.eventQueue.push(`${label}:${definition}`);
-    }
+    this.outgoingEventQueue.push(event);
     if (this.timer) {
       // cancel the last sendEvent function
       clearTimeout(this.timer);
@@ -811,29 +1056,9 @@ class GgbGraph extends Component {
       // if the user is still dragging we build up a new queue. This way, if they drag for several seconds,
       // there is not a several second delay before the other users in the room see the event
       if (this.time && Date.now() - this.time > 1500) {
-        const isMultiPart = true;
-        let renamedEventType = eventType;
-        if (eventType === 'ADD' && definition.length > 0) {
-          renamedEventType = 'BATCH_ADD';
-        }
-        if (eventType === 'UPDATE') {
-          renamedEventType = 'BATCH_UPDATE';
-        }
-        // I dont think this condition will ever be met because style updates dont take more than 1.5...consider remove
-        if (eventType === 'UPDATE_STYLE') {
-          renamedEventType = 'UPDATE_STYLE';
-        }
-        this.sendEvent(
-          xml,
-          definition,
-          label,
-          renamedEventType,
-          action,
-          [...this.eventQueue],
-          isMultiPart
-        );
+        this.sendEvent([...this.outgoingEventQueue], { isMultiPart: true }); // copy the event queue because we're going to clear it right now
         sendEventFromTimer = false;
-        this.eventQueue = [];
+        this.outgoingEventQueue = [];
         this.time = null;
         this.timer = null;
       }
@@ -843,22 +1068,8 @@ class GgbGraph extends Component {
 
     if (sendEventFromTimer) {
       this.timer = setTimeout(() => {
-        let renamedEventType = eventType;
-        if (eventType === 'UPDATE') {
-          renamedEventType = 'BATCH_UPDATE';
-        } else if (eventType === 'UPDATE_STYLE') {
-          renamedEventType = 'UPDATE_STYLE';
-        } else if (
-          eventType === 'ADD' &&
-          this.eventQueue.length > 1 &&
-          definition.length > 0
-        ) {
-          renamedEventType = 'BATCH_ADD';
-        }
-        this.sendEvent(xml, definition, label, renamedEventType, action, [
-          ...this.eventQueue,
-        ]);
-        this.eventQueue = [];
+        this.sendEvent([...this.outgoingEventQueue]);
+        this.outgoingEventQueue = [];
         this.time = null;
         this.timer = null;
       }, 210);
@@ -866,28 +1077,20 @@ class GgbGraph extends Component {
   };
 
   /**
-   * @method sendEvnet
+   * @method sendEvent
    * @description emits the geogebra event over the socket and updates the room in the redux store.
-   * @param  {String} xml - ggb generated xml of the even
-   * @param  {String} definition - ggb multipoint definition (e.g. "Polygon(D, E, F, G)")
-   * @param  {String} label - ggb label. ggbApplet.evalXML(label) yields xml representation of this label
-   * @param  {String} eventType - ["ADD", "REMOVE", "UPDATE", "CHANGE_PERSPECTIVE", "NEW_TAB", "BATCH"] see ./models/event
-   * @param  {String} action - ggb action ["addedd", "removed", "clicked", "updated"]
-   * @param {Array} eventQueue - if we're sending many events they'll be stored in array (for dragging and creating multiple points/lines of a shape)
-   * @param {bool} isMultiPart - When drag events last more than 1.5 seconds we break the event up so we can continuusly emit the drag to
-   * other users while the drag is happening instead of waiting until the very end. isMultiPart = true if the event is a broken up drag.
-   * We want to store this information so we know how to combine the multipart events into a single event for the replayer.
-   */
+   * @param {Object} ggbEvent
+   * @param {}
+   * */
+  sendEvent = (event, options) => {
+    if (!event || (Array.isArray(event) && event.length === 0)) {
+      return;
+    }
 
-  sendEvent = (
-    xml,
-    definition,
-    label,
-    eventType,
-    action,
-    eventQueue,
-    isMultiPart = false
-  ) => {
+    if (!this.userCanEdit()) {
+      return;
+    }
+
     const {
       room,
       tab,
@@ -896,43 +1099,42 @@ class GgbGraph extends Component {
       addToLog,
       resetControlTimer,
     } = this.props;
-    const newData = {
+    const eventData = {
       _id: mongoIdGenerator(),
-      definition,
-      label,
-      eventType,
-      action,
-      isMultiPart,
       room: room._id,
       tab: tab._id,
-      event: xml,
       color: myColor,
       user: { _id: user._id, username: user.username },
       timestamp: new Date().getTime(),
       // currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
       // mode: this.ggbApplet.getMode() // all ggbApplet get methods are too slow for dragging...right?
     };
-
-    newData.description = this.buildDescription(
-      definition,
-      label,
-      eventType,
-      action,
-      eventQueue
-    );
-
-    if (eventQueue && eventQueue.length > 0) {
-      newData.eventArray = eventQueue;
+    if (options) {
+      Object.keys(options).forEach((key) => {
+        eventData[key] = options[key];
+      });
     }
-    addToLog(newData);
+    if (Array.isArray(event)) {
+      eventData.eventArray = event;
+    } else {
+      eventData.ggbEvent = event;
+    }
+
+    eventData.description = this.buildDescription(event);
+    addToLog(eventData);
 
     if (this.updatingTab) {
       clearTimeout(this.updatingTab);
       this.updatingTab = null;
     }
-    socket.emit('SEND_EVENT', newData);
+    socket.emit('SEND_EVENT', eventData);
 
-    this.updatingTab = setTimeout(this.updateConstructionState, 3000);
+    this.updatingTab = setTimeout(
+      this.updateConstructionState.bind(this, event),
+      3000
+    );
+    this.checkForUpdatedReferences(eventData);
+
     this.timer = null;
     this.movingGeos = false;
     resetControlTimer();
@@ -940,45 +1142,57 @@ class GgbGraph extends Component {
   /**
    * @method buildDescription - takes information passed to send event and builds
    *  a description of the event that occured
-   * @param  {String} definition
-   * @param  {String} label
-   * @param  {String} eventType
-   * @param  {String} action
-   * @param  {Array} eventQueue
-   *
-   * @return {String} description
-   */
-  buildDescription = (definition, label, eventType, action, eventQueue) => {
-    const { user } = this.props;
-    let description = `${user.username}`;
-    let newLabel = label;
-    let objType = this.ggbApplet.getObjectType(label);
-    if (eventType === 'UPDATE_STYLE') {
-      description += ` updated the style of ${objType} ${label}`;
-    } else if (action === 'updated') {
-      if (this.shapeSelected && eventType === 'BATCH_UPDATE') {
-        objType = this.ggbApplet.getObjectType(this.shapeSelected);
-        newLabel = this.shapeSelected;
+   * @param  {Object} ggbEvent
+   * */
+  buildDescription = (event) => {
+    if (Array.isArray(event)) {
+      if (event.length === 0) {
+        return '';
       }
-      description += ` dragged ${objType} ${newLabel}`;
-    } else if (eventType === 'BATCH_ADD') {
-      // parse the element label from the first element in eventQuere...it is always the most encompassing elemennt
-      newLabel = eventQueue[0].slice(0, eventQueue[0].indexOf(':'));
-      objType = this.ggbApplet.getObjectType(newLabel);
-      description += ` ${action} ${objType} ${newLabel}`;
-    } else if (action === 'mode') {
-      description += ` selected the ${ggbTools[label].name.toLowerCase()} tool`;
+      // eventTypes should always all be the same
+      const { eventType } = event[0];
+
+      if (eventType === 'ADD') {
+        [event] = event;
+      } else {
+        event = event[event.length - 1];
+      }
+    }
+
+    const { user } = this.props;
+    const { label, eventType, objType = 'object', oldLabel } = event;
+    let description = `${user.username} `;
+
+    if (eventType === 'UPDATE_STYLE') {
+      description += `updated the style of ${objType} ${label}`;
+    } else if (eventType === 'DRAG') {
+      description += `dragged ${objType} ${label}`;
+    } else if (eventType === 'ADD') {
+      description += `added ${objType} ${label}`;
+    } else if (eventType === 'MODE') {
+      // some tools are not listed in the ggbTools file
+      // such as switching to CAS mode
+      const tool = ggbTools[label];
+      const toolName = tool ? tool.name.toLowerCase() : 'unknown tool';
+
+      description += `selected the ${toolName} tool`;
     } else if (eventType === 'SELECT') {
-      description += ` selected ${objType} ${newLabel}`;
-    } else if (action === 'added') {
-      description += ` ${action} ${objType} ${newLabel}`;
+      description += `selected ${objType} ${label}`;
     } else if (eventType === 'REMOVE') {
-      description += ` removed ${label}`;
+      description += `removed ${objType} ${label}`;
+    } else if (eventType === 'RENAME') {
+      description += `renamed ${objType} ${oldLabel} to ${label}`;
+      this.renamedDetails = null;
+    } else if (eventType === 'REDEFINE') {
+      description += `redefined ${objType} ${label}`;
     }
     return description;
   };
 
   updateConstructionState = () => {
+    if (!this.userCanEdit()) {
+      return;
+    }
     const { tab } = this.props;
     if (this.ggbApplet) {
       const currentState = this.ggbApplet.getXML();
@@ -992,8 +1206,30 @@ class GgbGraph extends Component {
     }
   };
 
-  getReferenceCoords = async (element, elementType) => {
+  getReferenceCoords = (element, elementType, pathParameter, x, y, refType) => {
     let position;
+
+    if (isFinite(pathParameter)) {
+      const coords = this.getCoordsFromPathParameter(element, pathParameter);
+
+      position = this.getRelativeCoords(coords);
+      return {
+        renamedElementType: elementType,
+        position,
+      };
+    }
+
+    if (refType === 'region') {
+      if (isFinite(x) && isFinite(y)) {
+        const refCoords = this.getRegionCoords(element, x, y);
+        position = this.getRelativeCoords(refCoords);
+        return {
+          renamedElementType: elementType,
+          position,
+        };
+      }
+    }
+
     let renamedElementType = elementType;
     // find center point of circle
     if (elementType === 'circle') {
@@ -1002,12 +1238,10 @@ class GgbGraph extends Component {
         commandString.indexOf('(') + 1,
         commandString.indexOf(',')
       );
-      try {
-        position = await this.getRelativeCoords(point);
-        return { renamedElementType, position };
-      } catch (err) {
-        return null;
-      }
+
+      position = this.getRelativeCoords(point);
+
+      return position ? { renamedElementType, position } : null;
     }
     if (elementType !== 'point') {
       // Find centroid of polygon
@@ -1024,89 +1258,98 @@ class GgbGraph extends Component {
         // selecting segment of a poly will mess this up because the poly is the 3rd argument and passing that getRelativeCoords will fail because its not a point
         pointsOfShape.splice(2, pointsOfShape.length - 2);
       }
-      try {
-        const coordsArr = await Promise.all(
-          pointsOfShape.map((point) => this.getRelativeCoords(point))
-        );
-        let leftTotal = 0;
-        let topTotal = 0;
-        coordsArr.forEach((coords) => {
-          leftTotal += coords.left;
-          topTotal += coords.top;
-        });
-        const leftAvg = leftTotal / coordsArr.length;
-        const topAvg = topTotal / coordsArr.length;
-        position = { left: leftAvg, top: topAvg };
-        return { renamedElementType, position };
-      } catch (err) {
-        return null;
-      }
+      const coordsArr = pointsOfShape.map((point) =>
+        this.getRelativeCoords(point)
+      );
+      let leftTotal = 0;
+      let topTotal = 0;
+      coordsArr.forEach((coords) => {
+        leftTotal += coords.left;
+        topTotal += coords.top;
+      });
+      const leftAvg = leftTotal / coordsArr.length;
+      const topAvg = topTotal / coordsArr.length;
+      position = { left: leftAvg, top: topAvg };
+      return position ? { renamedElementType, position } : null;
     }
     // regular point
-    try {
-      position = await this.getRelativeCoords(element);
-      return { renamedElementType, position };
-    } catch (err) {
-      return null;
-    }
+    position = this.getRelativeCoords(element);
+    return position ? { renamedElementType, position } : null;
   };
 
   /**
    * @method getRelativeCoords - converts x,y coordinates of ggb point and converts them to the pizel location on the screen
    * @param  {String} element - ggb defined Label. MUST be a point
-   * @return {Promise Object} - because parseXML is async
+   * @return {Object} - { left, top} or null if invalid point passed in
    */
   getRelativeCoords = (element) => {
-    return new Promise(async (resolve, reject) => {
-      let elX;
-      let elY;
+    let elX;
+    let elY;
+
+    if (Array.isArray(element) && element.length >= 2) {
+      [elX, elY] = element;
+      if (!isFinite(elX) || !isFinite(elY)) {
+        return null;
+      }
+    } else {
       try {
         elX = this.ggbApplet.getXcoord(element);
         elY = this.ggbApplet.getYcoord(element);
       } catch (err) {
         // this will happen if we pass something other than a point
-        reject(err);
+        return null;
       }
-      // Get the element's location relative to the client Window
-      // Check if the Algebra input window is positioned left or bottom
-      const vertical = document.getElementsByClassName(
-        'gwt-SplitLayoutPanel-VDragger'
-      );
-      let bottomMenuHeight;
-      if (vertical.length > 0) {
-        bottomMenuHeight = document
-          .getElementsByClassName('ggbdockpanelhack')[1]
-          .getBoundingClientRect().height;
-      }
-      const ggbCoords = this.graph.current.getBoundingClientRect();
-      const construction = await this.parseXML(this.ggbApplet.getXML()); // IS THERE ANY WAY TO DO THIS WITHOUT HAVING TO ASYNC PARSE THE XML...
-      try {
-        const euclidianView = construction.geogebra.euclidianView[0];
-        const { xZero, yZero, scale } = euclidianView.coordSystem[0].$;
-        let { yScale } = euclidianView.coordSystem[0].$;
-        if (!yScale) yScale = scale;
-        const { width, height } = euclidianView.size[0].$;
-        const xOffset =
-          ggbCoords.width - width + parseInt(xZero, 10) + elX * scale;
-        let yOffset =
-          ggbCoords.height - height + parseInt(yZero, 10) - elY * yScale;
-        if (bottomMenuHeight) {
-          yOffset -= bottomMenuHeight;
-        }
-        resolve({ left: xOffset, top: yOffset });
-      } catch (err) {
-        // an error will occur if the euclidianView doesn't exists...probably because its hidden behind the algebra window
-        reject(err);
-      }
-    });
+    }
+
+    // Get the element's location relative to the client Window
+    // Check if the Algebra input window is positioned left or bottom
+    const vertical = document.getElementsByClassName(
+      'gwt-SplitLayoutPanel-VDragger'
+    );
+    let bottomMenuHeight;
+    if (vertical.length > 0) {
+      bottomMenuHeight = document
+        .getElementsByClassName('ggbdockpanelhack')[1]
+        .getBoundingClientRect().height;
+    }
+    const ggbCoords = this.graph.current.getBoundingClientRect();
+    const ggbViewProps = JSON.parse(this.ggbApplet.getViewProperties());
+
+    const { width, height, xMin, yMin, invXscale } = ggbViewProps;
+
+    let { invYscale } = ggbViewProps;
+
+    if (!invYscale) {
+      invYscale = invXscale;
+    }
+
+    const scale = 1 / invXscale;
+    const yscale = 1 / invYscale;
+    const yMax = yMin + height * invYscale;
+
+    const xZero = -1 * xMin * (1 / invXscale);
+    const yZero = Math.abs(yMax) * (1 / invYscale);
+
+    if (!invYscale) invYscale = invXscale;
+    const xOffset = ggbCoords.width - width + parseInt(xZero, 10) + elX * scale;
+    let yOffset =
+      ggbCoords.height - height + parseInt(yZero, 10) - elY * yscale;
+    if (bottomMenuHeight) {
+      yOffset -= bottomMenuHeight;
+    }
+    return { left: xOffset, top: yOffset };
   };
 
   getInnerGraphCoords = () => {
     const { setGraphCoords } = this.props;
-    const graphEl = document.querySelector('[aria-label="Graphics View 1"]');
-    const topBarHeight = document
-      .getElementsByClassName('ggbtoolbarpanel')[0]
-      .getBoundingClientRect().height;
+    const graphSelector = '.EuclidianPanel > canvas';
+    const graphEl = document.querySelector(graphSelector);
+
+    const topBar = document.getElementsByClassName('ggbtoolbarpanel')[0];
+    let topBarHeight = 0;
+    if (topBar) {
+      topBarHeight = topBar.getBoundingClientRect().height;
+    }
     const innerGraphCoords = graphEl.getBoundingClientRect();
     setGraphCoords({
       left: innerGraphCoords.left - 17,
@@ -1123,6 +1366,203 @@ class GgbGraph extends Component {
         return resolve(result);
       });
     });
+  };
+
+  updateReferToEl = (referToElDetails) => {
+    const { setToElAndCoords } = this.props;
+
+    const {
+      element,
+      elementType,
+      pathParameter,
+      x,
+      y,
+      isForRegion,
+    } = referToElDetails;
+
+    const refType = isForRegion ? 'region' : 'path';
+
+    const { position } = this.getReferenceCoords(
+      element,
+      elementType,
+      pathParameter,
+      x,
+      y,
+      refType
+    );
+    setToElAndCoords(referToElDetails, position);
+  };
+
+  checkForUpdatedReferences = (event) => {
+    const { eventsWithRefs, updateEventsWithReferences, room } = this.props;
+
+    const { ggbEvent, tab, eventArray } = event;
+    const events =
+      Array.isArray(eventArray) && eventArray.length > 0
+        ? eventArray
+        : [ggbEvent];
+
+    const { eventType } = events[0];
+
+    const mutateEvents = ['DRAG', 'REMOVE', 'RENAME', 'UPDATE_STYLE'];
+
+    if (mutateEvents.includes(eventType)) {
+      const base = eventType === 'DRAG' ? [events[0]] : events;
+      const labels = [...base].reduce((results, ev) => {
+        if (typeof ev.label === 'string') {
+          if (eventType === 'RENAME') {
+            results.push([ev.oldLabel, ev.label]);
+          } else {
+            results.push(ev.label);
+          }
+        }
+        return results;
+      }, []);
+
+      if (labels.length === 0) {
+        return;
+      }
+      let doEmit = false;
+
+      const updatedEvents = [...eventsWithRefs].map((ev) => {
+        const { reference } = ev;
+
+        if (reference.tab !== tab) {
+          return ev;
+        }
+
+        if (eventType === 'RENAME') {
+          const match = find(labels, (tuple) => {
+            return tuple[0] === reference.element;
+          });
+
+          if (match) {
+            [, ev.reference.element] = match;
+            ev.reference.wasObjectUpdated = true;
+            doEmit = true;
+          }
+          return ev;
+        }
+        const propToCheck =
+          eventType === 'REMOVE' ? 'wasObjectDeleted' : 'wasObjectUpdated';
+
+        if (!reference[propToCheck] && labels.indexOf(reference.element) >= 0) {
+          reference[propToCheck] = true;
+          doEmit = true;
+        }
+        return ev;
+      });
+
+      if (doEmit) {
+        socket.emit('UPDATED_REFERENCES', { roomId: room._id, updatedEvents });
+
+        updateEventsWithReferences(updatedEvents);
+      }
+    }
+  };
+
+  isPointInRegion = (point, region) => {
+    if (!this.ggbApplet) {
+      return false;
+    }
+
+    this.doIgnoreAdd = true;
+
+    const booleanObj = this.ggbApplet.evalCommandGetLabels(
+      `IsInRegion(${point}, ${region})`
+    );
+    this.doIgnoreAdd = false;
+
+    this.ggbApplet.setAuxiliary(booleanObj, true);
+
+    const isInRegion = this.ggbApplet.getValue(booleanObj);
+
+    this.removeGgbObjectSilent(booleanObj);
+    return isInRegion;
+  };
+
+  getCoordsOfArbitraryPointInRegion = (region) => {
+    if (!this.ggbApplet) {
+      return [];
+    }
+    const point = this.ggbApplet.evalCommandGetLabels(`PointIn(${region})`);
+
+    const coords = this.getGgbPointCoords();
+
+    this.removeGgbObjectSilent(point);
+
+    return coords;
+  };
+
+  getGgbPointCoords = (point) => {
+    try {
+      const x = this.ggbApplet.getXcoord(point);
+      const y = this.ggbApplet.getYcoord(point);
+      const z = this.ggbApplet.getZcoord(point);
+
+      return [x, y, z];
+    } catch (err) {
+      console.log('getGgbPointCoords err: ', err);
+      return [];
+    }
+  };
+
+  removeGgbObjectSilent = (label) => {
+    if (!this.ggbApplet) {
+      return;
+    }
+
+    this.doIgnoreRemove = true;
+    this.ggbApplet.deleteObject(label);
+    this.doIgnoreRemove = false;
+  };
+  getRegionCoords = (region, x, y) => {
+    if (!this.ggbApplet) {
+      return [];
+    }
+
+    this.doIgnoreAdd = true;
+    const refPoint = this.ggbApplet.evalCommandGetLabels(`PointIn(${region})`);
+    this.doIgnoreAdd = false;
+
+    this.ggbApplet.setAuxiliary(refPoint, true);
+    this.ggbApplet.setCoords(refPoint, x, y);
+
+    const refCoords = this.getGgbPointCoords(refPoint);
+
+    this.removeGgbObjectSilent(refPoint);
+    return refCoords;
+  };
+
+  getPathCoordsAndParam = (element, clickCoords) => {
+    if (!this.ggbApplet) {
+      return [];
+    }
+
+    const [x, y] = clickCoords;
+
+    this.doIgnoreAdd = true;
+    const refPoint = this.ggbApplet.evalCommandGetLabels(`Point(${element})`);
+    this.doIgnoreAdd = false;
+
+    this.ggbApplet.setAuxiliary(refPoint, true);
+    this.ggbApplet.setCoords(refPoint, x, y);
+
+    const refCoords = this.getGgbPointCoords(refPoint);
+
+    this.doIgnoreAdd = true;
+    const parameterObj = this.ggbApplet.evalCommandGetLabels(
+      `PathParameter(${refPoint})`
+    );
+    this.doIgnoreAdd = false;
+
+    this.ggbApplet.setAuxiliary(parameterObj, true);
+    const pathParameter = this.ggbApplet.getValue(parameterObj);
+
+    this.removeGgbObjectSilent(parameterObj);
+
+    this.removeGgbObjectSilent(refPoint);
+    return [refCoords, pathParameter];
   };
 
   render() {
@@ -1162,6 +1602,9 @@ class GgbGraph extends Component {
           cancel={() => {
             this.resyncGgbState();
             this.ggbApplet.setMode(40);
+            if (this.intendedMode) {
+              this.intendedMode = null;
+            }
             this.setState({ showControlWarning: false, redo: false });
           }}
         />
@@ -1205,6 +1648,9 @@ GgbGraph.propTypes = {
   setToElAndCoords: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
   setGraphCoords: PropTypes.func.isRequired,
+  log: PropTypes.arrayOf(PropTypes.object).isRequired,
+  eventsWithRefs: PropTypes.arrayOf(PropTypes.object).isRequired,
+  updateEventsWithReferences: PropTypes.func.isRequired,
 };
 
 export default GgbGraph;

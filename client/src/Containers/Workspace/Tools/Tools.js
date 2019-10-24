@@ -31,7 +31,13 @@ const Tools = ({
       <div className={classes.Expanded}>
         <div className={classes.Controls}>
           {!replayer ? (
-            <Button theme="xs" data-testid="take-control" click={toggleControl}>
+            <Button
+              theme="xs"
+              data-testid={
+                inControl === 'ME' ? 'release-control' : 'take-control'
+              }
+              click={toggleControl}
+            >
               {controlText}
             </Button>
           ) : // <div

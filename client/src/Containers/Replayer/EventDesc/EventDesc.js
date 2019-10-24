@@ -34,6 +34,7 @@ class EventDesc extends Component {
         className={classes.Event}
         onPointerEnter={this.mouseEnter}
         onPointerOut={this.mouseExit}
+        data-testclass="event-desc"
       >
         <div
           className={classes.EventDetails}

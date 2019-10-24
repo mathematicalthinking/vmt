@@ -22,8 +22,15 @@ module.exports = {
   },
 
   searchPaginated: async (criteria, skip, filters) => {
+    const initialFilter = { isTrashed: false };
+    const allowedPrivacySettings = ['private', 'public'];
+
+    if (allowedPrivacySettings.includes(filters.privacySetting)) {
+      initialFilter.privacySetting = filters.privacySetting;
+    }
+
     const aggregationPipeline = [
-      { $match: { isTrashed: false } },
+      { $match: initialFilter },
       {
         $project: {
           _id: 1,
@@ -93,11 +100,6 @@ module.exports = {
         },
       },
     ];
-    if (filters.privacySetting) {
-      aggregationPipeline.unshift({
-        $match: { privacySetting: filters.privacySetting },
-      });
-    }
 
     if (filters.roomType) {
       aggregationPipeline.push({
@@ -108,11 +110,13 @@ module.exports = {
         },
       });
     }
+
+    aggregationPipeline.push({ $sort: { updatedAt: -1 } });
+
     if (skip) {
       aggregationPipeline.push({ $skip: parseInt(skip, 10) });
     }
     aggregationPipeline.push({ $limit: 20 });
-    aggregationPipeline.push({ $sort: { updatedAt: -1 } });
     const activities = await db.Activity.aggregate(aggregationPipeline);
     return activities;
   },

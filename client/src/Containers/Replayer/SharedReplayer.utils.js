@@ -1,4 +1,68 @@
 import moment from 'moment';
+import propertyOf from 'lodash/propertyOf';
+import find from 'lodash/find';
+import { isNonEmptyArray } from '../../utils/objects';
+import generateMongoId from '../../utils/createMongoId';
+
+export function getEventType(event) {
+  const ggbEvent = getSignificantGgbEventFromEvent(event);
+  return (ggbEvent && ggbEvent.eventType) || null;
+}
+
+export function getEventLabel(event) {
+  if (event.ggbEvent && typeof event.ggbEvent.label === 'string') {
+    return event.ggbEvent.label;
+  }
+  return event.label; // ggbEvent
+}
+
+export function getEventXml(event) {
+  if (event.ggbEvent && typeof event.ggbEvent.xml === 'string') {
+    return event.ggbEvent.xml;
+  }
+  return event.xml; // ggbEvent
+}
+
+export function setEventXml(event, xmlOrGgbEvent) {
+  const isNewEvent =
+    event.ggbEvent && typeof event.ggbEvent.eventType === 'string';
+
+  const xml =
+    typeof xmlOrGgbEvent === 'string' ? xmlOrGgbEvent : xmlOrGgbEvent.xml;
+
+  if (isNewEvent) {
+    event.ggbEvent.xml = xml;
+  } else {
+    event.event = xml;
+  }
+}
+
+export function setEventType(event, eventType) {
+  const isNewEvent =
+    event.ggbEvent && typeof event.ggbEvent.eventType === 'string';
+
+  if (isNewEvent) {
+    event.ggbEvent.eventType = eventType;
+  } else {
+    event.eventType = eventType;
+  }
+}
+
+export function getSignificantGgbEventFromEvent(vmtEvent) {
+  if (typeof propertyOf(vmtEvent)('ggbEvent.eventType') === 'string') {
+    return vmtEvent.ggbEvent;
+  }
+
+  if (isNonEmptyArray(vmtEvent.eventArray)) {
+    const { eventType } = vmtEvent.eventArray[0];
+    if (eventType === 'ADD') {
+      return vmtEvent.eventArray[0];
+    }
+    return vmtEvent.eventArray[vmtEvent.eventArray.length - 1];
+  }
+  // events such as joining room, leaving room do not have ggbEvent
+  return null;
+}
 
 export default (log, tabs) => {
   const BREAK_DURATION = 2000;
@@ -27,42 +91,52 @@ export default (log, tabs) => {
     // the event array...or potentially a combination of both of theses things
     // to manage this we define Array eventsToFind which we mutate
     // eventsToFind so that if it is empty we know we've found all of the relevant events
-    if (event.eventType === 'REMOVE') {
+    const eventType = getEventType(event);
+    if (eventType === 'REMOVE') {
       let eventsToFind;
-      let undoXML = '';
+      let undoGgbEvent = '';
       let undoArray = [];
-      const { label, eventArray } = event;
+
+      const label = getEventLabel(event);
+      const { eventArray } = event;
       if (eventArray && eventArray.length > 1) {
-        eventsToFind = [...eventArray];
+        eventsToFind = [...eventArray.map((ggbEv) => ggbEv.label)];
       } else eventsToFind = [label];
       // go back through all of the previous events
       for (let i = idx - 1; i >= 0; i--) {
-        if (src[i].eventType === 'ADD' || src[i].eventType === 'BATCH_ADD') {
+        const srcEventType = getEventType(src[i]);
+        if (srcEventType === 'ADD' || srcEventType === 'BATCH_ADD') {
           // If the event has an event array, look through it for eventsToFind
-          if (src[i].eventArray && src[i].eventArray.length > 0) {
+
+          if (isNonEmptyArray(src[i].eventArray)) {
+            // array of ggbEvents
             undoArray = undoArray.concat(
               src[i].eventArray.filter((e) => {
-                let found = false;
-                const eSlice = e.slice(0, e.indexOf(':'));
-                eventsToFind.forEach((etf) => {
-                  if (eSlice.indexOf(etf)) {
-                    found = true;
-                  }
-                });
-                return found;
+                // const found = false;
+                // const eSlice = e.slice(0, e.indexOf(':'));
+                return find(eventsToFind, e.label);
+                // eventsToFind.forEach((etf) => {
+                //   if (e.label === etf) {
+                //     found = true;
+                //   }
+                // });
+                // return found;
               })
             );
-          } else if (src[i].label && eventsToFind.indexOf(src[i].label)) {
-            const index = eventsToFind.indexOf(src[i].label);
+          } else if (
+            getEventLabel(src[i]) &&
+            eventsToFind.indexOf(getEventLabel(src[i]))
+          ) {
+            const index = eventsToFind.indexOf(getEventLabel(src[i]));
             eventsToFind.splice(index, 1);
-            undoXML += src[i].event;
+            undoGgbEvent += getEventXml(src[i]);
           }
           if (eventsToFind.length === 0) {
             break;
           }
         }
       }
-      event.undoXML = undoXML;
+      event.undoGgbEvent = undoGgbEvent;
       event.undoArray = undoArray;
     }
 
@@ -75,6 +149,7 @@ export default (log, tabs) => {
         return acc;
       }
       updatedLog.push({
+        _id: generateMongoId(),
         synthetic: true,
         message: `No activity ... skipping ahead to ${moment
           .unix(src[idx + 1].timestamp / 1000)
