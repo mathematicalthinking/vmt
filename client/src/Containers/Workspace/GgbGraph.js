@@ -1170,7 +1170,12 @@ class GgbGraph extends Component {
     } else if (eventType === 'ADD') {
       description += `added ${objType} ${label}`;
     } else if (eventType === 'MODE') {
-      description += `selected the ${ggbTools[label].name.toLowerCase()} tool`;
+      // some tools are not listed in the ggbTools file
+      // such as switching to CAS mode
+      const tool = ggbTools[label];
+      const toolName = tool ? tool.name.toLowerCase() : 'unknown tool';
+
+      description += `selected the ${toolName} tool`;
     } else if (eventType === 'SELECT') {
       description += `selected ${objType} ${label}`;
     } else if (eventType === 'REMOVE') {
