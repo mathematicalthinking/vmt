@@ -151,7 +151,7 @@ class SharedReplayer extends Component {
         logIndex,
         startTime,
         absTimeElapsed,
-        currentTab,
+        currentTabId,
       } = this.state;
       let updatedMembers = [...currentMembers];
       timeElapsed += PLAYBACK_FIDELITY * playbackSpeed;
@@ -163,9 +163,9 @@ class SharedReplayer extends Component {
       if (timeElapsed >= nextEvent.relTime) {
         // WHAT IF ITS GREAT THAN THE NEXT...NEXT EVENT (THIS HAPPENS WHEN WE INCREASE THE PLAY SPEED) ???? NOT SURE HOW TO HANDLE
         if (nextEvent.tab) {
-          populatedRoom.tabs.forEach((tab, i) => {
+          populatedRoom.tabs.forEach((tab) => {
             if (tab._id === nextEvent.tab) {
-              currentTab = i;
+              currentTabId = tab._id;
             }
           });
         }
@@ -191,7 +191,7 @@ class SharedReplayer extends Component {
         timeElapsed,
         startTime,
         absTimeElapsed,
-        currentTab,
+        currentTabId,
         changingIndex: false,
         currentMembers: updatedMembers,
       });
