@@ -23,7 +23,8 @@ import {
   populateRoom,
   removeRoomMember,
   clearLoadingInfo,
-  // populateRoom
+  // populateRoom,
+  updateUser,
 } from '../store/actions';
 import {
   Aux,
@@ -298,6 +299,7 @@ class Room extends Component {
       connectClearError,
       connectUpdateRoom,
       course,
+      connectUpdateUser,
     } = this.props;
     const {
       guestMode,
@@ -626,6 +628,9 @@ class Room extends Component {
         error={error}
         clearError={connectClearError}
         setAdmin={() => {
+          connectUpdateUser({
+            inAdminMode: !user.inAdminMode,
+          });
           this.setState({ isAdmin: true, guestMode: false });
         }}
       />
@@ -651,6 +656,7 @@ Room.propTypes = {
   connectRemoveRoomMember: PropTypes.func.isRequired,
   connectClearLoadingInfo: PropTypes.func.isRequired,
   connectPopulateRoom: PropTypes.func.isRequired,
+  connectUpdateUser: PropTypes.func.isRequired,
 };
 
 Room.defaultProps = {
@@ -683,5 +689,6 @@ export default connect(
     connectRemoveRoomMember: removeRoomMember,
     connectClearLoadingInfo: clearLoadingInfo,
     connectPopulateRoom: populateRoom,
+    connectUpdateUser: updateUser,
   }
 )(Room);
