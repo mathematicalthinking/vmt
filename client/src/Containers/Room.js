@@ -629,7 +629,7 @@ class Room extends Component {
         clearError={connectClearError}
         setAdmin={() => {
           connectUpdateUser({
-            inAdminMode: !user.inAdminMode,
+            inAdminMode: true,
           });
           this.setState({ isAdmin: true, guestMode: false });
         }}
