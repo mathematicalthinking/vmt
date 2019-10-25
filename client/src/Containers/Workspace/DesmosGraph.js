@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Script from 'react-load-script';
 import debounce from 'lodash/debounce';
+import isEqual from 'lodash/isEqual';
 import classes from './graph.css';
 import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
@@ -159,8 +160,6 @@ class DesmosGraph extends Component {
     const { tab, updatedRoom, addNtfToTabs } = this.props;
     this.calculator.observeEvent('change', () => {
       const { room, user, myColor, resetControlTimer, inControl } = this.props;
-      // eslint-disable-next-line react/destructuring-assignment
-      // console.log("initializing ", this.initializing);
       if (this.initializing) return;
       if (this.undoing) {
         this.undoing = false;
@@ -189,6 +188,7 @@ class DesmosGraph extends Component {
             username: user.username,
           },
           timestamp: new Date().getTime(),
+          description: `${user.username} modified an expression`,
         };
         // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
         socket.emit('SEND_EVENT', newData, () => {});
@@ -254,9 +254,12 @@ class DesmosGraph extends Component {
       }
       for (let x = 0; x < currentExpressionProps.length; x++) {
         const propName = currentExpressionProps[x];
+        // cant just use === because values may be objects
         if (
-          newState.expressions.list[i][propName] !==
-          this.expressionList[i][propName]
+          !isEqual(
+            newState.expressions.list[i][propName],
+            this.expressionList[i][propName]
+          )
         ) {
           return false;
         }
@@ -268,7 +271,7 @@ class DesmosGraph extends Component {
       // ignore changes to viewport property
       if (
         propName !== 'viewport' &&
-        newState[propName] !== this.graph[propName]
+        !isEqual(newState.graph[propName], this.graph[propName])
       ) {
         return false;
       }
