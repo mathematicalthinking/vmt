@@ -14,6 +14,7 @@ export {
   forgotPassword,
   resetPassword,
   confirmEmail,
+  updateUserSettings,
 } from './user';
 export {
   fail,

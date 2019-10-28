@@ -381,3 +381,14 @@ export const confirmEmail = (token) => {
       });
   };
 };
+
+export const updateUserSettings = (userId, updatedSettings) => {
+  return (dispatch) => {
+    dispatch(updateUser(updatedSettings));
+    API.put('user', userId, updatedSettings)
+      .then(() => {
+        // handle success?
+      })
+      .catch((err) => dispatch(loading.fail(err)));
+  };
+};
