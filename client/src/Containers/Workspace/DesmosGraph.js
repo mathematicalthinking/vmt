@@ -7,10 +7,13 @@ import classes from './graph.css';
 import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
 import API from '../../utils/apiRequests';
-// import { updatedRoom } from '../../store/actions';
+import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
+
 class DesmosGraph extends Component {
   state = {
     showControlWarning: false,
+    showRefWarning: false,
+    doPreventFutureRefWarnings: false,
   };
   // Because DESMOS controls its own state we're keeping much of our "state" outside of the actual react.this.state
   // this is because we don't want to trigger rerenders...desmos does this. Yeah, yeah. yeah...this is not the react way,
@@ -20,6 +23,9 @@ class DesmosGraph extends Component {
   graph = {};
   undoing = false;
   calculatorRef = React.createRef();
+  refWarningMsg =
+    'Whiteboard referencing is currently not supported for Desmos rooms';
+  whiteboardSel = '.dcg-grapher';
 
   debouncedUpdate = debounce(
     () => {
@@ -97,7 +103,9 @@ class DesmosGraph extends Component {
   // }
   // }
   componentWillUnmount() {
-    if (this.caluclator) {
+    this.removeWhiteBoardListener('click', this.refWarningHandler);
+
+    if (this.calculator) {
       this.calculator.unobserveEvent('change');
       this.calculator.destroy();
     }
@@ -153,6 +161,60 @@ class DesmosGraph extends Component {
     this.graph = desmosState.graph;
     setFirstTabLoaded();
     this.initializing = false;
+  };
+
+  addWhiteBoardListener = (eventType, handler) => {
+    const whiteboard = document.querySelector(this.whiteboardSel);
+
+    if (whiteboard) {
+      whiteboard.addEventListener(eventType, handler);
+    }
+  };
+
+  removeWhiteBoardListener = (eventType, handler) => {
+    const whiteboard = document.querySelector(this.whiteboardSel);
+
+    if (whiteboard) {
+      whiteboard.removeEventListener(eventType, handler);
+    }
+  };
+
+  refWarningHandler = () => {
+    const { referencing } = this.props;
+
+    if (referencing) {
+      this.setState({ showRefWarning: true });
+    }
+  };
+
+  closeRefWarning = () => {
+    const { doPreventFutureRefWarnings } = this.state;
+
+    if (doPreventFutureRefWarnings) {
+      // update user's settings and remove listener
+      const { user } = this.props;
+      if (user) {
+        this.removeWhiteBoardListener('click', this.refWarningHandler);
+        const { updateUserSettings } = this.props;
+
+        const { settings: userSettings } = user;
+
+        const updatedSettings = {
+          ...userSettings,
+          doShowDesmosRefWarning: false,
+        };
+        updateUserSettings(user._id, { settings: updatedSettings });
+      }
+    }
+
+    this.setState({ showRefWarning: false });
+  };
+
+  togglePreventRefWarning = () => {
+    const { doPreventFutureRefWarnings } = this.state;
+    this.setState({
+      doPreventFutureRefWarnings: !doPreventFutureRefWarnings,
+    });
   };
 
   initializeListeners() {
@@ -221,6 +283,14 @@ class DesmosGraph extends Component {
         this.receivingData = false;
       }
     });
+
+    const { user: propsUser } = this.props;
+    const { settings } = propsUser;
+    const { doShowDesmosRefWarning } = settings;
+
+    if (doShowDesmosRefWarning) {
+      this.addWhiteBoardListener('click', this.refWarningHandler);
+    }
   }
 
   /**
@@ -283,7 +353,11 @@ class DesmosGraph extends Component {
 
   render() {
     const { inControl, toggleControl } = this.props;
-    const { showControlWarning } = this.state;
+    const {
+      showControlWarning,
+      showRefWarning,
+      doPreventFutureRefWarnings,
+    } = this.state;
     return (
       <Fragment>
         <span id="focus" ref={this.focus} />
@@ -303,6 +377,14 @@ class DesmosGraph extends Component {
             this.setState({ showControlWarning: false });
           }}
         />
+        <CheckboxModal
+          show={showRefWarning}
+          infoMessage={this.refWarningMsg}
+          closeModal={this.closeRefWarning}
+          isChecked={doPreventFutureRefWarnings}
+          checkboxDataId="ref-warning"
+          onSelect={this.togglePreventRefWarning}
+        />
         {!window.Desmos ? (
           <Script
             url="https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"
@@ -319,6 +401,10 @@ class DesmosGraph extends Component {
   }
 }
 
+DesmosGraph.defaultProps = {
+  updateUserSettings: null,
+};
+
 DesmosGraph.propTypes = {
   room: PropTypes.shape({}).isRequired,
   tab: PropTypes.shape({}).isRequired,
@@ -330,6 +416,8 @@ DesmosGraph.propTypes = {
   toggleControl: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
   addNtfToTabs: PropTypes.func.isRequired,
+  referencing: PropTypes.bool.isRequired,
+  updateUserSettings: PropTypes.func,
 };
 
 export default DesmosGraph;

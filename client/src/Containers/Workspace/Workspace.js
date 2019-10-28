@@ -11,6 +11,7 @@ import {
   updateRoomTab,
   setRoomStartingPoint,
   updateUser,
+  updateUserSettings,
 } from '../../store/actions';
 import mongoIdGenerator from '../../utils/createMongoId';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
@@ -599,6 +600,7 @@ class Workspace extends Component {
       tempMembers,
       connectUpdateRoomTab,
       tempCurrentMembers,
+      connectUpdateUserSettings,
     } = this.props;
     const {
       tabs: currentTabs,
@@ -692,6 +694,8 @@ class Workspace extends Component {
             addNtfToTabs={this.addNtfToTabs}
             isFirstTabLoaded={isFirstTabLoaded}
             setFirstTabLoaded={() => this.setState({ isFirstTabLoaded: true })}
+            referencing={referencing}
+            updateUserSettings={connectUpdateUserSettings}
           />
         );
       }
@@ -808,6 +812,7 @@ Workspace.propTypes = {
   connectUpdatedRoom: PropTypes.func.isRequired,
   connectUpdateRoomTab: PropTypes.func.isRequired,
   connectSetRoomStartingPoint: PropTypes.func.isRequired,
+  connectUpdateUserSettings: PropTypes.func.isRequired,
 };
 
 Workspace.defaultProps = {
@@ -833,5 +838,6 @@ export default connect(
     connectUpdatedRoomTab: updatedRoomTab,
     connectUpdateRoomTab: updateRoomTab,
     connectSetRoomStartingPoint: setRoomStartingPoint,
+    connectUpdateUserSettings: updateUserSettings,
   }
 )(Workspace);
