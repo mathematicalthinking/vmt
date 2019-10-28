@@ -61,6 +61,7 @@ const Message = React.forwardRef((props, ref) => {
             onKeyPress={onClick}
             role="button"
             tabIndex="0"
+            data-testid={`msg-${id}`}
           >
             {message.text}
           </span>
