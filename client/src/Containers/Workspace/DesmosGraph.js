@@ -4,6 +4,7 @@ import Script from 'react-load-script';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 import findLast from 'lodash/findLast';
+import difference from 'lodash/difference';
 import find from 'lodash/find';
 import classes from './graph.css';
 import ControlWarningModal from './ControlWarningModal';
@@ -240,6 +241,101 @@ class DesmosGraph extends Component {
     return null;
   };
 
+  buildDescription = (username, eventDetails) => {
+    const { expression, actionType, modifiedGraphProp } = eventDetails;
+
+    if (expression) {
+      // expression was either added, removed, or modified
+      const { type } = expression;
+      let content;
+
+      if (type === 'expression') {
+        content = expression.latex
+          ? `expression ${expression.latex}`
+          : 'a blank expression';
+      } else if (type === 'text') {
+        content = expression.text
+          ? `the note ${expression.text}`
+          : 'a blank note';
+      } else if (type === 'table') {
+        const { id } = expression;
+        // should use the index in the expression list because the user will
+        // not know what the id refers to
+        const expressionIx = this.getExpressionListIxFromId(id);
+        content = `table ${id} (expression #${expressionIx + 1})`;
+      } else if (type === 'folder') {
+        // const memberIds = { expression };
+
+        // const numItems = memberIds ? Object.keys(memberIds).length : 0;
+
+        content = expression.title
+          ? `folder ${expression.title}`
+          : 'an unnamed folder';
+      } else if (type === 'image') {
+        content = expression.name
+          ? `image ${expression.name}`
+          : 'an untitled imaged';
+      }
+
+      if (actionType === 'add' || actionType === 'removal') {
+        const verb = actionType === 'add' ? 'added' : 'removed';
+        return `${username} ${verb} ${content}`;
+      }
+      // modify
+
+      const { modifiedExpressionProp } = eventDetails;
+      let { oldValue, newValue } = eventDetails;
+      let verbPhrase = 'modified';
+      let valuesDescriptionPhrase = '';
+      if (modifiedExpressionProp === 'hidden') {
+        verbPhrase = newValue === true ? 'hid' : 'unhid';
+      } else if (modifiedExpressionProp === 'collapsed') {
+        verbPhrase = newValue === true ? 'collapsed' : 'expanded';
+      } else if (modifiedExpressionProp === 'columns') {
+        if (newValue.length > oldValue.length) {
+          verbPhrase = 'added a column to';
+        } else if (oldValue.length > newValue.length) {
+          verbPhrase = 'removed a column from';
+        } else {
+          verbPhrase = 'modified a column from';
+        }
+      } else {
+        verbPhrase = `changed the ${modifiedExpressionProp} of`;
+
+        if (oldValue === undefined) {
+          if (modifiedExpressionProp === 'latex') {
+            oldValue = 'blank';
+          } else if (modifiedExpressionProp === 'lineStyle') {
+            oldValue = 'SOLID';
+          }
+        }
+
+        if (newValue === undefined) {
+          if (modifiedExpressionProp === 'latex') {
+            newValue = 'blank';
+          } else if (modifiedExpressionProp === 'lineStyle') {
+            newValue = 'SOLID';
+          }
+        }
+        valuesDescriptionPhrase = ` from ${oldValue} to ${newValue}`;
+      }
+      return `${username} ${verbPhrase} ${content}${valuesDescriptionPhrase}`;
+    }
+
+    return `${username} modified ${modifiedGraphProp}`;
+
+    // graphProp changed
+  };
+
+  getExpressionListIxFromId = (expressionId) => {
+    for (let i = 0; i < this.expressionList.length; i++) {
+      if (expressionId === this.expressionList[i].id) {
+        return i;
+      }
+    }
+    return null;
+  };
+
   initializeListeners() {
     // INITIALIZE EVENT LISTENER
     const { tab, updatedRoom, addNtfToTabs } = this.props;
@@ -252,9 +348,14 @@ class DesmosGraph extends Component {
       }
       const currentState = this.calculator.getState();
       if (!this.receivingData) {
-        const statesAreEqual = this.areDesmosStatesEqual(currentState);
-        if (statesAreEqual) return;
+        const stateDifference = this.areDesmosStatesEqual(currentState);
+        if (stateDifference === null) return;
         // we only want to listen for changes to the expressions. i.e. we want to ignore zoom-in-out changes
+        const description = this.buildDescription(
+          user.username,
+          stateDifference
+        );
+        console.log({ description });
         if (inControl !== 'ME') {
           this.undoing = true;
           document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
@@ -273,7 +374,7 @@ class DesmosGraph extends Component {
             username: user.username,
           },
           timestamp: new Date().getTime(),
-          description: `${user.username} modified an expression`,
+          description,
         };
         // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
         socket.emit('SEND_EVENT', newData, () => {});
@@ -325,7 +426,6 @@ class DesmosGraph extends Component {
    */
   areDesmosStatesEqual(newState) {
     if (newState.expressions.list.length !== this.expressionList.length) {
-      console.log('expression added or removed');
       // return removed or added expressions
       const wasExpressionRemoved =
         newState.expressions.list.length < this.expressionList.length;
@@ -337,14 +437,24 @@ class DesmosGraph extends Component {
         this.expressionList,
         diffType
       );
-      console.log({ expression });
-      return false;
+      return {
+        expression,
+        actionType: diffType,
+      };
     }
     const currentGraphProps = Object.getOwnPropertyNames(newState.graph);
     const prevGraphProps = Object.getOwnPropertyNames(this.graph);
 
     if (currentGraphProps.length !== prevGraphProps.length) {
-      return false;
+      const wasRemoved = currentGraphProps.length < prevGraphProps.length;
+      const diffProp = wasRemoved
+        ? difference(prevGraphProps, currentGraphProps)
+        : difference(currentGraphProps, prevGraphProps);
+      return {
+        modifiedGraphProp: diffProp,
+        oldValue: this.graph[diffProp],
+        newValue: newState.graph[diffProp],
+      };
     }
     // I'm okay with this O(a*b) because a SHOULD never be longer than 100 (and is usually closer to 10) and b never more than 4
     // If these assumptions change in the future we may need to refactor
@@ -356,7 +466,38 @@ class DesmosGraph extends Component {
         this.expressionList[i]
       );
       if (currentExpressionProps.length !== prevExpressionsProps.length) {
-        return false;
+        const werePropertiesRemoved =
+          currentExpressionProps.length < prevExpressionsProps.length;
+
+        const diffProps = werePropertiesRemoved
+          ? difference(prevExpressionsProps, currentExpressionProps)
+          : difference(currentExpressionProps, prevExpressionsProps);
+
+        const results = {
+          expression: newState.expressions.list[i],
+          actionType: 'modify',
+          expressionPropActionType: werePropertiesRemoved ? 'removal' : 'add',
+        };
+
+        if (diffProps.length === 1) {
+          const [diffProp] = diffProps;
+          results.oldValue = this.expressionList[i][diffProp];
+          results.newValue = newState.expressions.list[i][diffProp];
+          results.modifiedExpressionProp = diffProp;
+        } else {
+          let diffProp;
+          if (diffProps.indexOf('type') !== -1) {
+            diffProp = 'type';
+          } else {
+            [diffProp] = diffProps;
+          }
+
+          results.oldValue = this.expressionList[i][diffProp];
+          results.newValue = newState.expressions.list[i][diffProp];
+          results.modifiedExpressionProp = diffProp;
+        }
+
+        return results;
       }
       for (let x = 0; x < currentExpressionProps.length; x++) {
         const propName = currentExpressionProps[x];
@@ -367,7 +508,14 @@ class DesmosGraph extends Component {
             this.expressionList[i][propName]
           )
         ) {
-          return false;
+          return {
+            expression: newState.expressions.list[i],
+            modifiedExpressionProp: propName,
+            actionType: 'modify',
+            oldValue: this.expressionList[i][propName],
+            newValue: newState.expressions.list[i][propName],
+          };
+          // return false;
         }
       }
     }
@@ -379,12 +527,17 @@ class DesmosGraph extends Component {
         propName !== 'viewport' &&
         !isEqual(newState.graph[propName], this.graph[propName])
       ) {
-        return false;
+        return {
+          modifiedGraphProp: propName,
+          oldValue: this.graph[propName],
+          newValue: newState.graph[propName],
+        };
+        // return false;
       }
     }
     // If we made it this far, objects
     // are considered equivalent
-    return true;
+    return null;
   }
 
   render() {
