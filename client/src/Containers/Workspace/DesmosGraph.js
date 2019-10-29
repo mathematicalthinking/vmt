@@ -4,6 +4,7 @@ import Script from 'react-load-script';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 import findLast from 'lodash/findLast';
+import startCase from 'lodash/startCase';
 import difference from 'lodash/difference';
 import find from 'lodash/find';
 import mongoIdGenerator from '../../utils/createMongoId';
@@ -243,7 +244,7 @@ class DesmosGraph extends Component {
   };
 
   buildDescription = (username, eventDetails) => {
-    const { expression, actionType, modifiedGraphProp } = eventDetails;
+    const { expression, actionType } = eventDetails;
 
     if (expression) {
       // expression was either added, removed, or modified
@@ -323,9 +324,74 @@ class DesmosGraph extends Component {
       return `${username} ${verbPhrase} ${content}${valuesDescriptionPhrase}`;
     }
 
-    return `${username} modified ${modifiedGraphProp}`;
+    const { modifiedGraphProp, newValue, oldValue } = eventDetails;
 
-    // graphProp changed
+    let verbPhrase = `modified ${modifiedGraphProp}`;
+
+    const showHideProps = [
+      'showGrid',
+      'showXAxis',
+      'showYAxis',
+      'xAxisNumbers',
+      'yAxisNumbers',
+      'polarNumbers',
+      'xAxisMinorSubdivisions',
+      'yAxisMinorSubdivisions',
+    ];
+    if (modifiedGraphProp === 'degreeMode') {
+      const displayValue = newValue === true ? 'degrees mode' : 'radians mode';
+      verbPhrase = `switched to ${displayValue}`;
+    } else if (modifiedGraphProp === 'polarMode') {
+      const displayValue =
+        newValue === true ? 'polar grid mode' : 'regular grid mode';
+      verbPhrase = `switched to ${displayValue}`;
+    } else if (showHideProps.indexOf(modifiedGraphProp) !== -1) {
+      let verb = newValue === false ? 'hid' : 'unhid';
+
+      let noun;
+      const target = 'show';
+      const showIx = modifiedGraphProp.indexOf(target);
+      if (showIx !== -1) {
+        noun = modifiedGraphProp.slice(target.length).toLowerCase();
+      } else if (modifiedGraphProp.indexOf('Numbers') !== -1) {
+        noun = 'axis numbers';
+      } else if (modifiedGraphProp.indexOf('Minor') !== -1) {
+        if (newValue === 1) {
+          verb = 'hid';
+        } else {
+          verb = 'unhid';
+        }
+        noun = 'minor gridlines';
+      }
+      verbPhrase = `${verb} the ${noun}`;
+    } else if (modifiedGraphProp.indexOf('ArrowMode') !== -1) {
+      if (newValue === undefined) {
+        verbPhrase = 'hid the axis arrows';
+      } else if (newValue === 'BOTH') {
+        verbPhrase = 'switched to displaying positive and negative axis arrows';
+      } else {
+        verbPhrase = 'switched to displaying only positive axis arrows';
+      }
+    } else if (modifiedGraphProp.indexOf('Label') !== -1) {
+      const noun = startCase(modifiedGraphProp).toLowerCase();
+
+      if (newValue === undefined) {
+        verbPhrase = `removed the ${noun}`;
+      } else if (oldValue === undefined) {
+        verbPhrase = `added ${noun} of ${newValue}`;
+      } else {
+        verbPhrase = `changed the ${noun} from ${oldValue} to ${newValue}`;
+      }
+    } else if (modifiedGraphProp.indexOf('Step') !== -1) {
+      const noun = startCase(modifiedGraphProp).toLowerCase();
+
+      if (newValue === undefined) {
+        verbPhrase = `reset the ${noun}`;
+      } else {
+        verbPhrase = `set the ${noun} to ${newValue}`;
+      }
+    }
+    return `${username} ${verbPhrase}`;
   };
 
   getExpressionListIxFromId = (expressionId) => {
@@ -352,17 +418,17 @@ class DesmosGraph extends Component {
         const stateDifference = this.areDesmosStatesEqual(currentState);
         if (stateDifference === null) return;
         // we only want to listen for changes to the expressions. i.e. we want to ignore zoom-in-out changes
-        const description = this.buildDescription(
-          user.username,
-          stateDifference
-        );
-        console.log({ description });
         if (inControl !== 'ME') {
           this.undoing = true;
           document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
           // we have the global keypress listener to prevent typing if controlWarning is being shown
           this.setState({ showControlWarning: true });
+          return;
         }
+        const description = this.buildDescription(
+          user.username,
+          stateDifference
+        );
         const currentStateString = JSON.stringify(currentState);
         // console.log(this.calculator.getState());
         const newData = {
@@ -451,14 +517,18 @@ class DesmosGraph extends Component {
 
     if (currentGraphProps.length !== prevGraphProps.length) {
       const wasRemoved = currentGraphProps.length < prevGraphProps.length;
-      const diffProp = wasRemoved
+      const diffProps = wasRemoved
         ? difference(prevGraphProps, currentGraphProps)
         : difference(currentGraphProps, prevGraphProps);
-      return {
-        modifiedGraphProp: diffProp,
-        oldValue: this.graph[diffProp],
-        newValue: newState.graph[diffProp],
-      };
+
+      const [diffProp] = diffProps;
+      if (diffProp !== 'squareAxes') {
+        return {
+          modifiedGraphProp: diffProp,
+          oldValue: this.graph[diffProp],
+          newValue: newState.graph[diffProp],
+        };
+      }
     }
     // I'm okay with this O(a*b) because a SHOULD never be longer than 100 (and is usually closer to 10) and b never more than 4
     // If these assumptions change in the future we may need to refactor
@@ -529,6 +599,7 @@ class DesmosGraph extends Component {
       // ignore changes to viewport property
       if (
         propName !== 'viewport' &&
+        propName !== 'squareAxes' &&
         !isEqual(newState.graph[propName], this.graph[propName])
       ) {
         return {
