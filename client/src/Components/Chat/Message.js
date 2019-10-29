@@ -39,6 +39,19 @@ const Message = React.forwardRef((props, ref) => {
     );
   }
   if (message) {
+    const oneWeekAgo = moment().subtract(7, 'days');
+    const oneYearAgo = moment().subtract(1, 'year');
+    const momentTimestamp = moment.unix(message.timestamp / 1000);
+
+    let format = 'ddd h:mm:ss a';
+    if (momentTimestamp.isBefore(oneYearAgo)) {
+      format = 'MMMM Do YYYY, h:mm:ss a';
+    } else if (momentTimestamp.isBefore(oneWeekAgo)) {
+      format = 'MMMM Do, h:mm:ss a';
+    }
+
+    const formattedTimestamp = momentTimestamp.format(format);
+
     return (
       <div
         key={id}
@@ -68,9 +81,7 @@ const Message = React.forwardRef((props, ref) => {
         </div>
         {/* CONSIDER CONDITIONALLLY FORMATIING THE DATE BASED ON HOW FAR IN THE PAST IT IS
               IF IT WAS LAST WEEK, SAYING THE DAY AND TIME IS MISLEADING */}
-        <div className={classes.Timestamp}>
-          {moment.unix(message.timestamp / 1000).format('ddd h:mm:ss a')}
-        </div>
+        <div className={classes.Timestamp}>{formattedTimestamp}</div>
       </div>
     );
   }
