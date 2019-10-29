@@ -299,7 +299,10 @@ const prunePutBody = (user, recordIdToUpdate, body, details) => {
   const { isCreator, isFacilitator, modelName } = details;
   const copy = Object.assign({}, body);
   if (modelName === 'User') {
-    const isUpdatingSelf = _.isEqual(user._id, recordIdToUpdate);
+    const isUpdatingSelf = helpers.areObjectIdsEqual(
+      user._id,
+      recordIdToUpdate
+    );
     if (!isUpdatingSelf) {
       // can only modify another user's notifications
       return _.pick(

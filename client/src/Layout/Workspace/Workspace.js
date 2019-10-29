@@ -65,6 +65,17 @@ class WorkspaceLayout extends Component {
       ) {
         x2 = graphCoords.right - offSet;
       }
+    } else if (
+      referToCoords &&
+      referToEl &&
+      referToEl.elementType === 'chat_message'
+    ) {
+      // graphCoords is not being set for desmos
+      // but we want to be able to reference chat messages
+      // should graphCoords still be set even though we arent
+      // making whiteboard references?
+      y2 = referToCoords.top;
+      x2 = referToCoords.left;
     }
     let chatFlexGrow = 2;
     let membersFlexGrow = 1;

@@ -50,12 +50,20 @@ class Community extends Component {
     const { resource } = match.params;
     // when switching between resources and filters,
     // we should reset skip back to 0
+    // reset search text
     if (prevProps.match.params.resource !== resource) {
-      this.setState({ skip: 0 }, () => {
+      this.setState({ skip: 0, searchText: '' }, () => {
         this.fetchData();
       });
     } else if (location.search !== prevProps.location.search) {
-      this.setState({ skip: 0 }, () => {
+      const stateHash = { skip: 0 };
+
+      if (location.search.indexOf('search=') === -1) {
+        // search query was cleared from url so search input needs to be cleared
+        // happens when clicking community top bar
+        stateHash.searchText = '';
+      }
+      this.setState(stateHash, () => {
         this.fetchData();
       });
     }

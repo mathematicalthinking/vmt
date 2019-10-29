@@ -300,87 +300,30 @@ describe('test community search and filter', function() {
   //   });
   // });
 
-  xdescribe('Searching', function() {
+  describe('Searching', function() {
     it('searches for a single room', function() {
-      cy.getTestElement('box-list')
-        .children()
-        .should('have.length', 9);
-      cy.getTestElement('community-search')
-        .click()
-        .type('reference');
-      cy.wait(1000);
+      clickResourceTab('rooms');
+      checkItemsLength(rooms.all.length);
+      doSearch('reference');
       cy.url().should(
         'include',
-        'community/rooms?privacy=all&roomType=all&search='
+        'community/rooms?privacy=all&roomType=all&search=reference'
       );
-      cy.getTestElement('box-list')
-        .children()
-        .should('have.length', 1);
+      checkItemsLength(1);
       cy.contains('reference room').should('exist');
     });
 
-    it('filters privacy setting', function() {
-      cy.getTestElement('community-search').clear();
-      cy.wait(1000);
-      cy.getTestElement('box-list')
-        .children()
-        .should('have.length', 9);
-      cy.getTestElement('public-filter').click();
-      cy.url().should(
-        'include',
-        'community/rooms?privacy=public&roomType=all&search='
-      );
-      cy.getTestElement('box-list')
-        .children()
-        .should('have.length', 3);
-      cy.getTestElement('private-filter').click();
-      cy.url().should(
-        'include',
-        'community/rooms?privacy=private&roomType=all&search='
-      );
-      cy.getTestElement('box-list')
-        .children()
-        .should('have.length', 6);
-      cy.getTestElement('all-privacy-filter').click();
-      cy.url().should(
-        'include',
-        'community/rooms?privacy=all&roomType=all&search='
-      );
-      cy.getTestElement('box-list')
-        .children()
-        .should('have.length', 9);
+    it('Changing resource tab should clear search text', function() {
+      clickResourceTab('activities');
+      cy.getTestElement('community-search').should('have.value', '');
+      clickResourceTab('rooms');
     });
 
-    it('filters room type', function() {
-      cy.getTestElement('community-search').clear();
-      cy.wait(1000);
-      cy.getTestElement('box-list')
-        .children()
-        .should('have.length', 9);
-      cy.getTestElement('geogebra-filter').click();
-      cy.url().should(
-        'include',
-        'community/rooms?privacy=all&roomType=geogebra&search='
-      );
-      cy.getTestElement('box-list')
-        .children()
-        .should('have.length', 9);
-      cy.getTestElement('desmos-filter').click();
-      cy.url().should(
-        'include',
-        'community/rooms?privacy=all&roomType=desmos&search='
-      );
-      cy.getTestElement('box-list')
-        .children()
-        .should('have.length', 0); // @todo update the seed data so we have a desmos room
-      cy.getTestElement('all-roomType-filter').click();
-      cy.url().should(
-        'include',
-        'community/rooms?privacy=all&roomType=all&search='
-      );
-      cy.getTestElement('box-list')
-        .children()
-        .should('have.length', 9);
+    xit('Clicking community tab should clear search text', function() {
+      doSearch('reference');
+      cy.getTestElement('community-search').should('have.value', 'reference');
+      cy.getTestElement('nav-Community').click({ force: true });
+      cy.getTestElement('community-search').should('have.value', '');
     });
 
     // @todo test that we can search by description or instructions

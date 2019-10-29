@@ -97,7 +97,7 @@ class DesmosReplayer extends Component {
 DesmosReplayer.propTypes = {
   inView: PropTypes.bool.isRequired,
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  index: PropTypes.func.isRequired,
+  index: PropTypes.number.isRequired,
   tab: PropTypes.shape({}).isRequired,
   setTabLoaded: PropTypes.func.isRequired,
 };

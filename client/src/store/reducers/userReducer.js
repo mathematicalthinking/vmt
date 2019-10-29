@@ -22,6 +22,9 @@ const initialState = {
   ssoId: '',
   doForcePasswordChange: false,
   confirmEmailDate: null,
+  settings: {
+    doShowDesmosRefWarning: true,
+  },
 };
 
 const reducer = (state = initialState, action) => {

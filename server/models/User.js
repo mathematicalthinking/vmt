@@ -32,6 +32,9 @@ const User = new mongoose.Schema(
     isEmailConfirmed: { type: Boolean, default: false },
     doForcePasswordChange: { type: Boolean, default: false },
     confirmEmailDate: { type: Date },
+    settings: {
+      doShowDesmosRefWarning: { type: Boolean, default: true },
+    },
   },
   { timestamps: true }
 );
