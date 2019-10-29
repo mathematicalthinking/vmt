@@ -3,6 +3,8 @@
 // redux store?
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import findLast from 'lodash/findLast';
+import moment from 'moment';
 import socket from '../../utils/sockets';
 import mongoIdGenerator from '../../utils/createMongoId';
 import { Chat as ChatLayout } from '../../Components';
@@ -54,6 +56,7 @@ class Chat extends Component {
       roomId,
       user,
       myColor,
+      log,
     } = this.props;
     const { newMessage } = this.state;
     if (!user.connected) {
@@ -78,6 +81,34 @@ class Chat extends Component {
         ...referToEl,
         tab: currentTabId,
       };
+
+      let refDescription = `${user.username} referenced`;
+
+      if (referToEl.elementType === 'chat_message') {
+        const msg = findLast(log, (event) => {
+          return event._id === referToEl.element;
+        });
+        if (msg) {
+          const oneWeekAgo = moment().subtract(7, 'days');
+          const oneYearAgo = moment().subtract(1, 'year');
+          const momentTimestamp = moment.unix(msg.timestamp / 1000);
+
+          let format = 'ddd h:mm:ss a';
+          if (momentTimestamp.isBefore(oneYearAgo)) {
+            format = 'MMMM Do YYYY, h:mm:ss a';
+          } else if (momentTimestamp.isBefore(oneWeekAgo)) {
+            format = 'MMMM Do, h:mm:ss a';
+          }
+          refDescription += ` the chat message created by ${
+            msg.user.username
+          } at ${momentTimestamp.format(format)}`;
+        } else {
+          refDescription += ' a chat message';
+        }
+      } else {
+        refDescription += ` ${referToEl.elementType} ${referToEl.element}`;
+      }
+      messageData.description = refDescription;
 
       // per annie's request, referencing should stay on after submitting msg
       clearReference({

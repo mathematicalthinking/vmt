@@ -13,7 +13,11 @@ class Awareness extends Component {
     const { lastEvent } = nextProps;
 
     if (lastEvent) {
-      if (lastEvent.messageType === 'TEXT') {
+      if (
+        (lastEvent.messageType === 'TEXT' && !lastEvent.reference) ||
+        !lastEvent.description
+      ) {
+        // only show messages with references && event descriptions
         return false;
       }
     }
