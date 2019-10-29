@@ -696,6 +696,7 @@ class Workspace extends Component {
             setFirstTabLoaded={() => this.setState({ isFirstTabLoaded: true })}
             referencing={referencing}
             updateUserSettings={connectUpdateUserSettings}
+            addToLog={this.addToLog}
           />
         );
       }

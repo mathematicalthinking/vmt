@@ -6,6 +6,7 @@ import isEqual from 'lodash/isEqual';
 import findLast from 'lodash/findLast';
 import difference from 'lodash/difference';
 import find from 'lodash/find';
+import mongoIdGenerator from '../../utils/createMongoId';
 import classes from './graph.css';
 import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
@@ -338,7 +339,7 @@ class DesmosGraph extends Component {
 
   initializeListeners() {
     // INITIALIZE EVENT LISTENER
-    const { tab, updatedRoom, addNtfToTabs } = this.props;
+    const { tab, updatedRoom, addNtfToTabs, addToLog } = this.props;
     this.calculator.observeEvent('change', () => {
       const { room, user, myColor, resetControlTimer, inControl } = this.props;
       if (this.initializing) return;
@@ -365,6 +366,7 @@ class DesmosGraph extends Component {
         const currentStateString = JSON.stringify(currentState);
         // console.log(this.calculator.getState());
         const newData = {
+          _id: mongoIdGenerator(),
           room: room._id,
           tab: tab._id,
           currentState: currentStateString, // desmos events use the currentState field on Event model
@@ -377,6 +379,7 @@ class DesmosGraph extends Component {
           description,
         };
         // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
+        addToLog(newData);
         socket.emit('SEND_EVENT', newData, () => {});
         resetControlTimer();
         // if (this.debouncedUpdate) {
@@ -390,6 +393,7 @@ class DesmosGraph extends Component {
     });
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
+      addToLog(data);
       const { room } = this.props;
       this.receivingData = true;
       if (data.tab === tab._id) {
@@ -607,6 +611,7 @@ DesmosGraph.propTypes = {
   addNtfToTabs: PropTypes.func.isRequired,
   referencing: PropTypes.bool.isRequired,
   updateUserSettings: PropTypes.func,
+  addToLog: PropTypes.func.isRequired,
 };
 
 export default DesmosGraph;
