@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import Script from 'react-load-script';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
+import findLast from 'lodash/findLast';
+import find from 'lodash/find';
 import classes from './graph.css';
 import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
@@ -217,6 +219,27 @@ class DesmosGraph extends Component {
     });
   };
 
+  findDifferentExpression = (newExpressions, oldExpressions, diffType) => {
+    if (diffType === 'add') {
+      // start from end of newExpressions and check if was in oldExpressions
+      return findLast(newExpressions, (newExpression) => {
+        return !find(oldExpressions, (oldExpression) => {
+          return isEqual(oldExpression, newExpression);
+        });
+      });
+    }
+
+    if (diffType === 'removal') {
+      // start from end of oldExpressions and check if in new expressions
+      return findLast(oldExpressions, (oldExpression) => {
+        return !find(newExpressions, (newExpression) => {
+          return isEqual(oldExpression, newExpression);
+        });
+      });
+    }
+    return null;
+  };
+
   initializeListeners() {
     // INITIALIZE EVENT LISTENER
     const { tab, updatedRoom, addNtfToTabs } = this.props;
@@ -302,6 +325,19 @@ class DesmosGraph extends Component {
    */
   areDesmosStatesEqual(newState) {
     if (newState.expressions.list.length !== this.expressionList.length) {
+      console.log('expression added or removed');
+      // return removed or added expressions
+      const wasExpressionRemoved =
+        newState.expressions.list.length < this.expressionList.length;
+
+      const diffType = wasExpressionRemoved ? 'removal' : 'add';
+
+      const expression = this.findDifferentExpression(
+        newState.expressions.list,
+        this.expressionList,
+        diffType
+      );
+      console.log({ expression });
       return false;
     }
     const currentGraphProps = Object.getOwnPropertyNames(newState.graph);
