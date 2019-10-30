@@ -34,8 +34,10 @@ export const processData = (
 
           const messageType =
             d.messageType && d.reference ? 'reference' : d.messageType;
-          const messageDetails =
-            messageType === 'reference' ? d.description : d.text;
+          let messageDetails = d.text;
+          if (d.description) {
+            messageDetails += ` (${d.description})`;
+          }
           return {
             time: moment.unix(d.timestamp / 1000).format(dateFormatMap.all),
             user: d.user ? d.user.username || d.user : null,
