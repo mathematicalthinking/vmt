@@ -31,17 +31,22 @@ export const processData = (
       .reduce((acc, fd) => {
         const fdWithColor = fd.data.map((d) => {
           const ggbEvent = getSignificantGgbEventFromEvent(d);
+
+          const messageType =
+            d.messageType && d.reference ? 'reference' : d.messageType;
+          const messageDetails =
+            messageType === 'reference' ? d.description : d.text;
           return {
             time: moment.unix(d.timestamp / 1000).format(dateFormatMap.all),
             user: d.user ? d.user.username || d.user : null,
-            'action/message': d.messageType
-              ? `message: ${d.messageType.toLowerCase()}`
+            'action/message': messageType
+              ? `message: ${messageType.toLowerCase()}`
               : `action: ${
                   ggbEvent && ggbEvent.eventType
                     ? ggbEvent.eventType.toLowerCase()
                     : 'generic desmos event'
                 }`,
-            details: d.messageType ? d.text : d.description,
+            details: d.messageType ? messageDetails : d.description,
             xml:
               (ggbEvent && ggbEvent.xml) ||
               (ggbEvent && ggbEvent.commandString),

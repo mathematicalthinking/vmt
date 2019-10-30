@@ -20,6 +20,7 @@ const Message = new mongoose.Schema({
     x: { type: Number },
     y: { type: Number },
     z: { type: Number },
+    description: { type: String },
   },
   messageType: {
     type: String,
@@ -35,6 +36,7 @@ const Message = new mongoose.Schema({
     default: 'TEXT',
   },
   color: { type: String, default: '#333' },
+  description: { type: String }, // used to describe references
   isTrashed: { type: Boolean, default: false },
 });
 
