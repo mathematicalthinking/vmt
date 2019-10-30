@@ -14,9 +14,9 @@ const DropdownNavItem = (props) => {
           return (
             <div className={classes.DropdownItem} key={item.name}>
               <NavItem
-                // className={classes.DropdownItem}
                 link={item.link}
                 name={item.name}
+                sliderDetails={item.sliderDetails}
               />
             </div>
           );
@@ -29,7 +29,6 @@ const DropdownNavItem = (props) => {
 DropdownNavItem.propTypes = {
   name: PropTypes.element.isRequired,
   list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  // eslint-disable-next-line react/no-unused-prop-types
   'data-testid': PropTypes.string,
 };
 

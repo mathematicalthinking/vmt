@@ -16,9 +16,9 @@ import {
 } from '../Containers';
 import SharedReplayer from '../Containers/Replayer/SharedReplayer';
 import { PrivateRoute, ErrorToast } from '../Components';
-// import Workspace from './Workspace';
 import { Confirmation, FacilitatorInstructions } from '../Layout';
 import ErrorBoundary from '../ErrorBoundary';
+import { updateUser } from '../store/actions/user';
 
 const pages = [
   { path: '/facilitator', component: FacilitatorInstructions },
@@ -70,6 +70,11 @@ const pages = [
   },
 ];
 class MyVmt extends Component {
+  toggleAdmin = () => {
+    const { connectUpdateUser, user } = this.props;
+    connectUpdateUser({ inAdminMode: !user.inAdminMode });
+  };
+
   render() {
     const { match, loggedIn, user, globalErrorMessage } = this.props;
     const { path } = match;
@@ -79,7 +84,7 @@ class MyVmt extends Component {
       loggedIn && email.length > 0 && isEmailConfirmed === false;
     return (
       <ErrorBoundary>
-        <Navbar user={user} />
+        <Navbar user={user} toggleAdmin={this.toggleAdmin} />
         <Switch>
           {pages.map((page) => {
             return (
@@ -122,6 +127,7 @@ MyVmt.propTypes = {
   loggedIn: PropTypes.bool.isRequired,
   user: PropTypes.shape({}),
   globalErrorMessage: PropTypes.string,
+  connectUpdateUser: PropTypes.func.isRequired,
 };
 
 MyVmt.defaultProps = {
@@ -137,5 +143,7 @@ const mapStateToProps = (state) => ({
 
 export default connect(
   mapStateToProps,
-  null
+  {
+    connectUpdateUser: updateUser,
+  }
 )(MyVmt);
