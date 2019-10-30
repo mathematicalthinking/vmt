@@ -321,8 +321,10 @@ class SharedReplayer extends Component {
   };
 
   goBack = () => {
+    const { populatedRoom } = this.props;
+    const { _id } = populatedRoom;
     const { history } = this.props;
-    history.goBack();
+    history.push(`/myVMT/rooms/${_id}/details`);
   };
 
   toggleFullscreen = () => {
@@ -359,6 +361,22 @@ class SharedReplayer extends Component {
         this.goToTime(percentage, doAutoPlay, stopTime);
       }
     }
+  };
+
+  goToReplayerOrRoom = (type) => {
+    const { populatedRoom } = this.props;
+    const { _id } = populatedRoom;
+    const getUrl = window.location;
+    const baseUrl = `${getUrl.protocol}//${getUrl.host}/${
+      getUrl.pathname.split('/')[1]
+    }`;
+
+    let endUrl = `/workspace/${_id}`;
+
+    if (type === 'replayer') {
+      endUrl += '/replayer';
+    }
+    window.open(`${baseUrl}${endUrl}`, 'newwindow', 'width=1200, height=700');
   };
 
   render() {
@@ -514,6 +532,7 @@ class SharedReplayer extends Component {
               toggleControl={this.toggleControl}
               lastEvent={this.updatedLog[logIndex]}
               replayer
+              goToReplayerOrRoom={this.goToReplayerOrRoom}
             />
           }
           replayer

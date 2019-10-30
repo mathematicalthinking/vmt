@@ -518,8 +518,9 @@ class Workspace extends Component {
   };
 
   goBack = () => {
-    const { history } = this.props;
-    history.goBack();
+    const { populatedRoom, history } = this.props;
+    const { _id } = populatedRoom;
+    history.push(`/myVMT/rooms/${_id}/details`);
   };
 
   setGraphCoords = (graphCoords) => {
@@ -587,6 +588,22 @@ class Workspace extends Component {
 
   updateEventsWithReferences = (events) => {
     this.setState({ eventsWithRefs: events });
+  };
+
+  goToReplayerOrRoom = (type) => {
+    const { populatedRoom } = this.props;
+    const { _id } = populatedRoom;
+    const getUrl = window.location;
+    const baseUrl = `${getUrl.protocol}//${getUrl.host}/${
+      getUrl.pathname.split('/')[1]
+    }`;
+
+    let endUrl = `/workspace/${_id}`;
+
+    if (type === 'replayer') {
+      endUrl += '/replayer';
+    }
+    window.open(`${baseUrl}${endUrl}`, 'newwindow', 'width=1200, height=700');
   };
 
   render() {
@@ -752,6 +769,7 @@ class Workspace extends Component {
               referencing={referencing}
               startNewReference={this.startNewReference}
               clearReference={this.clearReference}
+              goToReplayerOrRoom={this.goToReplayerOrRoom}
               // TEMP ROOM NEEDS TO KNOW IF ITS BEEN SAVED...pass that along as props
             />
           }
