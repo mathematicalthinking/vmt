@@ -101,7 +101,7 @@ class Chat extends Component {
           }
           refDescription += ` the chat message created by ${
             msg.user.username
-          } at ${momentTimestamp.format(format)}`;
+          } on ${momentTimestamp.format(format)}`;
         } else {
           refDescription += ' a chat message';
         }
