@@ -590,7 +590,7 @@ class Workspace extends Component {
     this.setState({ eventsWithRefs: events });
   };
 
-  goToReplayerOrRoom = (type) => {
+  goToReplayer = () => {
     const { populatedRoom } = this.props;
     const { _id } = populatedRoom;
     const getUrl = window.location;
@@ -598,11 +598,8 @@ class Workspace extends Component {
       getUrl.pathname.split('/')[1]
     }`;
 
-    let endUrl = `/workspace/${_id}`;
+    const endUrl = `/workspace/${_id}/replayer`;
 
-    if (type === 'replayer') {
-      endUrl += '/replayer';
-    }
     window.open(`${baseUrl}${endUrl}`, 'newwindow', 'width=1200, height=700');
   };
 
@@ -769,7 +766,7 @@ class Workspace extends Component {
               referencing={referencing}
               startNewReference={this.startNewReference}
               clearReference={this.clearReference}
-              goToReplayerOrRoom={this.goToReplayerOrRoom}
+              goToReplayer={this.goToReplayer}
               // TEMP ROOM NEEDS TO KNOW IF ITS BEEN SAVED...pass that along as props
             />
           }

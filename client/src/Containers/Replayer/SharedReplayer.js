@@ -363,22 +363,6 @@ class SharedReplayer extends Component {
     }
   };
 
-  goToReplayerOrRoom = (type) => {
-    const { populatedRoom } = this.props;
-    const { _id } = populatedRoom;
-    const getUrl = window.location;
-    const baseUrl = `${getUrl.protocol}//${getUrl.host}/${
-      getUrl.pathname.split('/')[1]
-    }`;
-
-    let endUrl = `/workspace/${_id}`;
-
-    if (type === 'replayer') {
-      endUrl += '/replayer';
-    }
-    window.open(`${baseUrl}${endUrl}`, 'newwindow', 'width=1200, height=700');
-  };
-
   render() {
     const { populatedRoom, encompass } = this.props;
     const {
@@ -532,7 +516,6 @@ class SharedReplayer extends Component {
               toggleControl={this.toggleControl}
               lastEvent={this.updatedLog[logIndex]}
               replayer
-              goToReplayerOrRoom={this.goToReplayerOrRoom}
             />
           }
           replayer

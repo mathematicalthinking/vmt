@@ -15,7 +15,7 @@ const Tools = ({
   toggleControl,
   clearReference,
   startNewReference,
-  goToReplayerOrRoom,
+  goToReplayer,
 }) => {
   let controlText;
   if (!replayer) {
@@ -78,14 +78,8 @@ const Tools = ({
             />
           </div>
         ) : null}
-        {goToReplayerOrRoom ? (
-          <Button
-            theme="xs"
-            click={() => {
-              const arg = replayer ? 'room' : 'replayer';
-              goToReplayerOrRoom(arg);
-            }}
-          >
+        {goToReplayer ? (
+          <Button theme="xs" click={goToReplayer}>
             Go to {goToText}
             <span className={classes.ExternalLink}>
               <i className="fas fa-external-link-alt" />
@@ -111,7 +105,7 @@ Tools.propTypes = {
   toggleControl: PropTypes.func,
   clearReference: PropTypes.func,
   startNewReference: PropTypes.func,
-  goToReplayerOrRoom: PropTypes.func,
+  goToReplayer: PropTypes.func,
 };
 
 Tools.defaultProps = {
@@ -123,7 +117,7 @@ Tools.defaultProps = {
   inControl: null,
   replayer: false,
   save: null,
-  goToReplayerOrRoom: null,
+  goToReplayer: null,
 };
 
 export default Tools;
