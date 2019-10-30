@@ -90,7 +90,7 @@ class Homepage extends PureComponent {
               VMT is currently in Alpha. If you encounter bugs or want to
               suggest new features please email vmt@21pstem.org
             </p>
-            <p>last updated: 10.29.2019</p>
+            <p>last updated: 10.30.2019</p>
           </section>
           {/* <i onClick={this.scrollToDomRef} className={["fas fa-chevron-down", classes.Down].join(" ")}></i> */}
           <section className={classes.Options} ref={this.containerRef}>
