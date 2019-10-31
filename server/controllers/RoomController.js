@@ -102,7 +102,7 @@ module.exports = {
       initialFilter.privacySetting = filters.privacySetting;
     }
 
-    const aggregationPipeline = [
+    let aggregationPipeline = [
       { $match: initialFilter },
       {
         $project: {
@@ -135,7 +135,10 @@ module.exports = {
       },
 
       { $unwind: '$facilitatorObject' },
-      {
+    ];
+
+    if (criteria) {
+      aggregationPipeline.push({
         $match: {
           $or: [
             { name: criteria },
@@ -144,7 +147,9 @@ module.exports = {
             { 'facilitatorObject.username': criteria },
           ],
         },
-      },
+      });
+    }
+    aggregationPipeline = aggregationPipeline.concat([
       {
         $group: {
           _id: '$_id',
@@ -197,7 +202,7 @@ module.exports = {
           'members.user._id': 1,
         },
       },
-    ];
+    ]);
 
     if (filters.roomType) {
       aggregationPipeline.push({

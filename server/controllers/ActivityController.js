@@ -29,7 +29,7 @@ module.exports = {
       initialFilter.privacySetting = filters.privacySetting;
     }
 
-    const aggregationPipeline = [
+    let aggregationPipeline = [
       { $match: initialFilter },
       {
         $project: {
@@ -52,7 +52,10 @@ module.exports = {
           as: 'creatorObject',
         },
       },
-      {
+    ];
+
+    if (criteria) {
+      aggregationPipeline.push({
         $match: {
           $or: [
             { name: criteria },
@@ -61,7 +64,9 @@ module.exports = {
             { 'creatorObject.username': criteria },
           ],
         },
-      },
+      });
+    }
+    aggregationPipeline = aggregationPipeline.concat([
       { $unwind: '$creatorObject' },
       {
         $lookup: {
@@ -99,7 +104,7 @@ module.exports = {
           'creator._id': '$creator._id',
         },
       },
-    ];
+    ]);
 
     if (filters.roomType) {
       aggregationPipeline.push({
