@@ -99,7 +99,11 @@ class GgbGraph extends Component {
       this.receivingData = true;
       data.tabs.forEach((t) => {
         if (t._id === tab._id) {
-          this.ggbApplet.setXML(tab.currentState);
+          if (tab.currentStateBase64) {
+            this.ggbApplet.setBase64(tab.currentStateBase64);
+          } else {
+            this.ggbApplet.setXML(tab.currentState);
+          }
           this.registerListeners(); // always reset listeners after calling sextXML (setXML destorys everything)
         }
       });
@@ -270,6 +274,21 @@ class GgbGraph extends Component {
     return refCoords;
   }
 
+  getBase64Async = () => {
+    // eslint-disable-next-line consistent-return
+    return new Promise((resolve, reject) => {
+      if (!this.ggbApplet) {
+        return reject(new Error('Missing ggbApplet'));
+      }
+      this.ggbApplet.getBase64((base64) => {
+        if (!base64) {
+          return reject(new Error('Unable to get base64 construction state'));
+        }
+        return resolve(base64);
+      });
+    });
+  };
+
   visibilityChange = () => {
     this.isWindowVisible = !this.isWindowVisible;
     if (this.isWindowVisible && this.isFaviconNtf) {
@@ -418,7 +437,7 @@ class GgbGraph extends Component {
       // scaleContainerClass: "graph",
       showToolBar: true,
       showMenuBar: true,
-      showAlgebraInput: true,
+      showAlgebraInput: false,
       language: 'en',
       useBrowserForJS: false,
       borderColor: '#ddd',
@@ -428,7 +447,7 @@ class GgbGraph extends Component {
       errorDialogsActive: false,
       appletOnLoad: this.initializeGgb,
       appName: tab.appName || 'classic',
-      enableUndoRedo: false, // undo/redo is problematic; disable for now
+      enableUndoRedo: false, // undo/redo is problematic; disable for now,
     };
     const ggbApp = new window.GGBApplet(parameters, '6.0');
     if (currentTabId === tab._id) {
@@ -452,9 +471,17 @@ class GgbGraph extends Component {
     const { tab } = this.props;
     return API.getById('tabs', tab._id)
       .then((res) => {
-        const { currentState, ggbFile, startingPoint } = res.data.result;
+        const {
+          currentState,
+          ggbFile,
+          startingPoint,
+          currentStateBase64,
+        } = res.data.result;
 
-        if (currentState) {
+        if (currentStateBase64 && !this.isFileSet) {
+          this.isFileSet = true;
+          this.ggbApplet.setBase64(currentStateBase64);
+        } else if (currentState) {
           this.ggbApplet.setXML(currentState);
         } else if (startingPoint) {
           this.ggbApplet.setXML(startingPoint);
@@ -485,6 +512,8 @@ class GgbGraph extends Component {
     // if (perspective) this.ggbApplet.setPerspective(perspective);
     try {
       await this.resyncGgbState();
+      const viewProps = JSON.parse(this.ggbApplet.getViewProperties());
+      this.viewProps = viewProps;
       if (tab._id === currentTabId) {
         setFirstTabLoaded();
       }
@@ -531,7 +560,6 @@ class GgbGraph extends Component {
       // seems to happen if you click a bunch of points really quickly
       return;
     }
-
     // modes (https://wiki.geogebra.org/en/Reference:Toolbar)
     // 40 = TRANSLATEVIEW
     // 0 = MOVE
@@ -1192,9 +1220,13 @@ class GgbGraph extends Component {
   updateConstructionState = () => {
     const { tab } = this.props;
     if (this.ggbApplet) {
-      const currentState = this.ggbApplet.getXML();
-      const { _id } = tab;
-      API.put('tabs', _id, { currentState })
+      // const currentState = this.ggbApplet.getXML();
+
+      this.getBase64Async()
+        .then((base64) => {
+          const { _id } = tab;
+          API.put('tabs', _id, { currentStateBase64: base64 });
+        })
         .then(() => {})
         .catch((err) => {
           // eslint-disable-next-line no-console

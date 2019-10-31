@@ -18,7 +18,9 @@ class GgbActivityGraph extends Component {
         // eslint-disable-next-line no-unused-vars
         const { role, tab, activity, updateActivityTab } = this.props;
         if (role === 'facilitator' && this.ggbApplet) {
-          API.put('tabs', tab._id, { currentState: this.ggbApplet.getXML() })
+          API.put('tabs', tab._id, {
+            currentStateBase64: this.ggbApplet.getBase64(),
+          })
             .then(() => {})
             .catch((err) => {
               // eslint-disable-next-line no-console
@@ -160,7 +162,7 @@ class GgbActivityGraph extends Component {
       // "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
       showToolBar: role === 'facilitator',
       showMenuBar: role === 'facilitator',
-      showAlgebraInput: true,
+      showAlgebraInput: false,
       language: 'en',
       useBrowserForJS: false,
       borderColor: '#ddd',
@@ -188,9 +190,12 @@ class GgbActivityGraph extends Component {
     const { tab, user, activity, setFirstTabLoaded } = this.props;
     this.ggbApplet = window.ggbApplet;
     // this.setState({ loading: false });
-    const { currentState, startingPoint, ggbFile } = tab;
+    const { currentState, startingPoint, ggbFile, currentStateBase64 } = tab;
     //
-    if (currentState) {
+    if (currentStateBase64 && !this.isFileLoaded) {
+      this.isFileLoaded = true;
+      this.ggbApplet.setBase64(currentStateBase64);
+    } else if (currentState) {
       this.ggbApplet.setXML(currentState);
     } else if (startingPoint) {
       this.ggbApplet.setXML(startingPoint);

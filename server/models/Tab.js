@@ -8,6 +8,7 @@ const Tab = new mongoose.Schema(
     instructions: { type: String },
     tabType: { type: String, enum: ['geogebra', 'desmos'] },
     currentState: { type: String, default: '' },
+    currentStateBase64: { type: String, default: '' },
     ggbFile: { type: String }, // ggb base64 file
     desmosLink: { type: String },
     perspective: {
@@ -18,7 +19,7 @@ const Tab = new mongoose.Schema(
           const regex = /[ABCDGLST]/g;
           return regex.test(v);
         },
-        message: (props) => `${props.value} is not a valide perspective`,
+        message: (props) => `${props.value} is not a valid perspective`,
       },
     },
     events: {
