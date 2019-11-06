@@ -41,7 +41,7 @@ const NavItem = ({ name, link, ntf, sliderDetails }) => {
 
 NavItem.propTypes = {
   name: PropTypes.oneOfType([PropTypes.string, PropTypes.element]).isRequired,
-  link: PropTypes.string.isRequired,
+  link: PropTypes.string,
   ntf: PropTypes.bool,
   sliderDetails: PropTypes.shape({
     isOn: PropTypes.bool,
@@ -52,5 +52,6 @@ NavItem.propTypes = {
 NavItem.defaultProps = {
   ntf: false,
   sliderDetails: null,
+  link: null,
 };
 export default NavItem;
