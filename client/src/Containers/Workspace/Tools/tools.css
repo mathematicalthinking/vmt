@@ -175,3 +175,8 @@ all share. we are repeating styles in each of those copmnents  */
 .Exit:hover {
   background: #dfdfdf;
 }
+
+.ExternalLink {
+  margin-left: 3px;
+  margin-right: -5px;
+}

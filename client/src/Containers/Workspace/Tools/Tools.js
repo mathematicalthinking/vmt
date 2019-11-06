@@ -15,6 +15,7 @@ const Tools = ({
   toggleControl,
   clearReference,
   startNewReference,
+  goToReplayer,
 }) => {
   let controlText;
   if (!replayer) {
@@ -25,6 +26,8 @@ const Tools = ({
       controlText = 'Take Control';
     }
   }
+
+  const goToText = replayer ? 'Room' : 'Replayer';
   return (
     <div className={classes.Container}>
       {/* <h3 className={classes.Title}>Tools</h3> */}
@@ -40,31 +43,10 @@ const Tools = ({
             >
               {controlText}
             </Button>
-          ) : // <div
-          //   className={classes.SideButton}
-          //   role="button"
-          //   data-testid="take-control"
-          //   onClick={toggleControl}
-          //   onKeyPress={toggleControl}
-          //   tabIndex="-1"
-          // >
-          //   {controlText}
-          // </div>
-          null}
+          ) : null}
           <Button theme="xs-cancel" click={goBack} data-testid="exit-room">
             Exit {replayer ? 'Replayer' : 'Room'}
           </Button>
-          {/* <div
-            className={classes.Exit}
-            role="button"
-            onClick={goBack}
-            onKeyPress={goBack}
-            tabIndex="-2"
-            // theme={"Small"}
-            data-testid="exit-room"
-          >
-            Exit {replayer ? 'Replayer' : 'Room'}
-          </div> */}
         </div>
         {save ? (
           <div className={classes.Save}>
@@ -96,6 +78,14 @@ const Tools = ({
             />
           </div>
         ) : null}
+        {goToReplayer ? (
+          <Button theme="xs" click={goToReplayer}>
+            Go to {goToText}
+            <span className={classes.ExternalLink}>
+              <i className="fas fa-external-link-alt" />
+            </span>
+          </Button>
+        ) : null}
 
         <div>
           <Awareness lastEvent={lastEvent} />
@@ -115,6 +105,7 @@ Tools.propTypes = {
   toggleControl: PropTypes.func,
   clearReference: PropTypes.func,
   startNewReference: PropTypes.func,
+  goToReplayer: PropTypes.func,
 };
 
 Tools.defaultProps = {
@@ -126,6 +117,7 @@ Tools.defaultProps = {
   inControl: null,
   replayer: false,
   save: null,
+  goToReplayer: null,
 };
 
 export default Tools;

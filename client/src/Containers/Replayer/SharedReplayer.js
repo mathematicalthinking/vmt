@@ -321,8 +321,10 @@ class SharedReplayer extends Component {
   };
 
   goBack = () => {
+    const { populatedRoom } = this.props;
+    const { _id } = populatedRoom;
     const { history } = this.props;
-    history.goBack();
+    history.push(`/myVMT/rooms/${_id}/details`);
   };
 
   toggleFullscreen = () => {

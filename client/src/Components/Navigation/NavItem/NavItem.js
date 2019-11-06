@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-// import classes from './navItem.css';
 import { NavLink } from 'react-router-dom';
 import Notification from '../../Notification/Notification';
 import classes from './navItem.css';
+import Checkbox from '../../Form/Checkbox/Checkbox';
 
-const NavItem = ({ name, link, ntf }) => {
+const NavItem = ({ name, link, ntf, sliderDetails }) => {
   let style = classes.Item;
   if (
     typeof name === 'string' &&
@@ -17,6 +17,17 @@ const NavItem = ({ name, link, ntf }) => {
     ) > -1
   ) {
     style = classes.ActiveLink;
+  }
+
+  if (sliderDetails) {
+    const { isOn, onClick } = sliderDetails;
+    return (
+      <div className={style}>
+        <Checkbox checked={isOn} change={onClick} dataId={`nav-${name}`}>
+          {name}
+        </Checkbox>
+      </div>
+    );
   }
   return (
     <div className={style}>
@@ -30,11 +41,17 @@ const NavItem = ({ name, link, ntf }) => {
 
 NavItem.propTypes = {
   name: PropTypes.oneOfType([PropTypes.string, PropTypes.element]).isRequired,
-  link: PropTypes.string.isRequired,
+  link: PropTypes.string,
   ntf: PropTypes.bool,
+  sliderDetails: PropTypes.shape({
+    isOn: PropTypes.bool,
+    onClick: PropTypes.func,
+  }),
 };
 
 NavItem.defaultProps = {
   ntf: false,
+  sliderDetails: null,
+  link: null,
 };
 export default NavItem;

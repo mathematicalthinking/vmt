@@ -18,6 +18,7 @@ import { Confirmation, About } from '../Layout';
 import classes from './main.css';
 import Aux from '../Components/HOC/Auxil';
 import OauthReturn from '../Components/HOC/OauthReturn';
+import { updateUser } from '../store/actions/user';
 
 class Home extends PureComponent {
   state = {
@@ -40,6 +41,11 @@ class Home extends PureComponent {
     });
   };
 
+  toggleAdmin = () => {
+    const { connectUpdateUser, user } = this.props;
+    connectUpdateUser({ inAdminMode: !user.inAdminMode });
+  };
+
   render() {
     const { location, user } = this.props;
     const { scrollPosition } = this.state;
@@ -48,12 +54,13 @@ class Home extends PureComponent {
       <Aux>
         {location.pathname.indexOf('community') > -1 ||
         location.pathname.indexOf('profile') > -1 ? (
-          <Navbar fixed user={user} />
+          <Navbar fixed user={user} toggleAdmin={this.toggleAdmin} />
         ) : (
           <HomeNav
             isDark={scrollPosition > 0.45}
             page={location.pathname}
             user={user}
+            toggleAdmin={this.toggleAdmin}
           />
         )}
         <div
@@ -64,7 +71,6 @@ class Home extends PureComponent {
         >
           <Switch>
             <Route exact path="/" render={() => <Homepage {...this.props} />} />
-            {/* <Route path="/community/:resource/:action" component={Community} /> */}
             <Route path="/about" component={About} />
             <Route path="/community/:resource" component={Community} />
             <Route exact path="/logout" component={Logout} />
@@ -80,8 +86,6 @@ class Home extends PureComponent {
             <Route path="/oauth/return" component={OauthReturn} />
           </Switch>
         </div>
-        {/* <Route path='/about' component={About} />
-        <Route path='/tutorials' component={Tutorials} /> */}
       </Aux>
     );
   }
@@ -89,5 +93,7 @@ class Home extends PureComponent {
 
 export default connect(
   (state) => ({ user: state.user }),
-  null
+  {
+    connectUpdateUser: updateUser,
+  }
 )(Home);

@@ -8,7 +8,7 @@ import DropdownNavItem from '../DropdownNavItem';
 import Aux from '../../HOC/Auxil';
 import classes from './homeNav.css';
 
-const Navbar = ({ page, user, loggedIn, isDark }) => {
+const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
   let styles = classes.Nav;
   if (page === '/about') {
     styles = classes.FixedGradientNav;
@@ -21,6 +21,18 @@ const Navbar = ({ page, user, loggedIn, isDark }) => {
   let ntf = false;
   if (user && user.notifications && user.notifications.length > 0) {
     ntf = true;
+  }
+
+  const list = [
+    { name: 'Profile', link: '/myVMT/profile' },
+    { name: 'Logout', link: '/logout' },
+  ];
+
+  if (user.isAdmin) {
+    list.splice(1, 0, {
+      name: 'Admin Mode',
+      sliderDetails: { isOn: user.inAdminMode, onClick: toggleAdmin },
+    });
   }
 
   return (
@@ -53,11 +65,13 @@ const Navbar = ({ page, user, loggedIn, isDark }) => {
             <NavItem link="/tutorials" name="Tutorials" />
             {loggedIn ? (
               <DropdownNavItem
-                name={<Avatar username={user.username} />}
-                list={[
-                  { name: 'Profile', link: '/myVMT/profile' },
-                  { name: 'Logout', link: '/logout' },
-                ]}
+                name={
+                  <Avatar
+                    username={user.username}
+                    color={user.inAdminMode ? '#ffd549' : '#2d91f2'}
+                  />
+                }
+                list={list}
               />
             ) : null}
           </ul>
@@ -72,6 +86,7 @@ Navbar.propTypes = {
   loggedIn: PropTypes.bool.isRequired,
   isDark: PropTypes.bool,
   user: PropTypes.shape({}),
+  toggleAdmin: PropTypes.func.isRequired,
 };
 
 Navbar.defaultProps = {

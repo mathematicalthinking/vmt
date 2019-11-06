@@ -6,7 +6,7 @@ import DropdownNavItem from './DropdownNavItem';
 import classes from './navbar.css';
 import Avatar from '../UI/Avatar/Avatar';
 
-const Navbar = ({ user, location }) => {
+const Navbar = ({ user, location, toggleAdmin }) => {
   let styles = classes.NavContainer;
   let ntf = false;
   if (user && user.notifications && user.notifications.length > 0) {
@@ -21,6 +21,17 @@ const Navbar = ({ user, location }) => {
     styles = classes.Fixed;
   }
 
+  const list = [
+    { name: 'Profile', link: '/myVMT/profile' },
+    { name: 'Logout', link: '/logout' },
+  ];
+
+  if (user.isAdmin) {
+    list.splice(1, 0, {
+      name: 'Admin Mode',
+      sliderDetails: { isOn: user.inAdminMode, onClick: toggleAdmin },
+    });
+  }
   return (
     <nav className={styles}>
       <div className={classes.LogoContainer}>
@@ -49,10 +60,7 @@ const Navbar = ({ user, location }) => {
                 color={user.inAdminMode ? '#ffd549' : '#2d91f2'}
               />
             }
-            list={[
-              { name: 'Profile', link: '/myVMT/profile' },
-              { name: 'Logout', link: '/logout' },
-            ]}
+            list={list}
           />
         </ul>
       </div>
@@ -68,6 +76,7 @@ Navbar.propTypes = {
     key: PropTypes.string,
     hash: PropTypes.string,
   }).isRequired,
+  toggleAdmin: PropTypes.func.isRequired,
 };
 Navbar.defaultProps = {
   user: null,
