@@ -24,6 +24,32 @@ import API from '../../utils/apiRequests';
 //   'REDO',
 //   'UNDO',
 // ];
+
+const GgbViewIdToPerspectiveMap = {
+  1: { perspective: 'G', defaultTool: 40, controlTool: 0 }, // graphing
+  2: { perspective: 'A', defaultTool: 0, controlTool: 0 }, // algebra
+  4: { perspective: 'S', defaultTool: 0, controlTool: 0 }, // spreadsheet
+  512: { perspective: 'T', defaultTool: 40, controlTool: 0 }, // 3D graphics,
+  8: { perspective: 'C', defaultTool: 1001, controlTool: 1001 }, // CAS,
+  64: { perspective: 'B', defaultTool: 0, controlTool: 0 }, // probability
+  16: { perspective: 'D', defaultTool: 40, controlTool: 0 }, // graphics view 2,
+  4097: { perspective: 'P', defaultTool: 0, controlTool: 0 }, // properties menu
+  32: { perspective: 'L', defaultTool: 0, controlTool: 0 }, // construction protocol,
+};
+
+// const viewLocationMap = { 2 views
+//   3: 'LEFT',
+//   2: 'BOTTOM',
+//   0: 'TOP',
+//   1: 'RIGHT',
+// };
+
+// 1 view location =0
+
+// 3 views
+// left: 3,3
+// middle 3,1
+
 class GgbGraph extends Component {
   state = {
     showControlWarning: false,
@@ -52,7 +78,8 @@ class GgbGraph extends Component {
   previousCommandString = null;
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
 
-  renameDetails = []; // tuple of oldLabel, newLabel
+  renamedDetails = null; // tuple of oldLabel, newLabel
+  tabFileLoadedHash = {};
   /**
    * @method componentDidMount
    * @description add socket listeners, window resize listener
@@ -100,11 +127,12 @@ class GgbGraph extends Component {
       data.tabs.forEach((t) => {
         if (t._id === tab._id) {
           if (tab.currentStateBase64) {
-            this.ggbApplet.setBase64(tab.currentStateBase64);
+            this.didResync = true;
+            this.setGgbBase64(tab.currentStateBase64);
           } else {
             this.ggbApplet.setXML(tab.currentState);
+            this.registerListeners(); // always reset listeners after calling sextXML (setXML destorys everything)
           }
-          this.registerListeners(); // always reset listeners after calling sextXML (setXML destorys everything)
         }
       });
       this.receivingData = false;
@@ -118,7 +146,7 @@ class GgbGraph extends Component {
    * @param  {Object} prevProps - props before update
    */
 
-  componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps) {
     const {
       currentTabId,
       tab,
@@ -160,42 +188,27 @@ class GgbGraph extends Component {
     // Creating a reference
     if (didStartReferencing) {
       // prompt if they want reference to automatically turn on when chat is in focus?
-      this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
+      this.setDefaultGgbMode();
+      // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
     } else if (didStopReferencing) {
       // if they are in control, can keep mode set to move tool
       if (!isInControl) {
         // force resync in case they moved anything while referencing
-        this.resyncGgbState();
-        this.ggbApplet.setMode(40);
+        this.setDefaultGgbMode();
+        await this.resyncGgbState();
       }
     }
     // Control
     if (didGainControl) {
       if (prevProps.referencing) {
         // force resync in case they moved anything while referencing
-        this.resyncGgbState();
+        await this.resyncGgbState();
       }
-      if (this.intendedMode) {
-        // if they tried to click on a tool while not
-        // in control, set mode to that tool
-        this.ggbApplet.setMode(this.intendedMode);
-        this.intendedMode = null;
-      } else {
-        this.ggbApplet.setMode(0);
-      }
-
+      this.setDefaultGgbMode();
       clearReference();
     } else if (didReleaseControl) {
       // this.updateConstructionState();
-
-      if (referencing) {
-        const currentMode = this.ggbApplet.getMode();
-        if (currentMode !== 0) {
-          this.ggbApplet.setMode(0);
-        }
-      } else {
-        this.ggbApplet.setMode(40);
-      }
+      this.setDefaultGgbMode();
     }
 
     // Displaying Reference
@@ -234,9 +247,9 @@ class GgbGraph extends Component {
       clearInterval(this.loadingTimer);
     }
     if (this.ggbApplet) {
-      // delete window.ggbApplet;
       this.ggbApplet.unregisterAddListener(this.addListener);
       this.ggbApplet.unregisterUpdateListener(this.updateListener);
+      this.ggbApplet.unregisterClickListener(this.clickListener);
       this.ggbApplet.unregisterRemoveListener(this.removeListener);
       this.ggbApplet.unregisterClearListener(this.clearListener);
       this.ggbApplet.unregisterClientListener(this.clientListener);
@@ -308,6 +321,13 @@ class GgbGraph extends Component {
   };
 
   writeToGraph = (event) => {
+    if (event.base64) {
+      // used for undo and redo events currently
+      // do not want to run UpdateConstruction command after setBase64
+      this.didResync = true;
+      this.setGgbBase64(event.base64);
+      return;
+    }
     if (
       event.commandString &&
       event.objType !== 'point' &&
@@ -447,7 +467,6 @@ class GgbGraph extends Component {
       errorDialogsActive: false,
       appletOnLoad: this.initializeGgb,
       appName: tab.appName || 'classic',
-      enableUndoRedo: false, // undo/redo is problematic; disable for now,
     };
     const ggbApp = new window.GGBApplet(parameters, '6.0');
     if (currentTabId === tab._id) {
@@ -469,30 +488,133 @@ class GgbGraph extends Component {
 
   resyncGgbState = () => {
     const { tab } = this.props;
+    this.didResync = true;
+    this.tabFileLoadedHash[tab._id] = false;
+    this.isResyncing = true;
+    return this.getTabState()
+      .then(() => {})
+      .catch(() => {
+        // eslint-disable-next-line no-alert
+        window.alert(
+          'An error occurred syncing the state of this room. It is recommended you refresh the page to avoid falling out of sync with other users.'
+        );
+      });
+    // const { tab } = this.props;
+    // return API.getById('tabs', tab._id)
+    //   .then((res) => {
+    //     return this.setGgbState(res.data.result);
+    //     // const {
+    //     //   currentState,
+    //     //   ggbFile,
+    //     //   startingPoint,
+    //     //   currentStateBase64,
+    //     // } = res.data.result;
+
+    //     // if (currentStateBase64) {
+    //     //   console.log('loading from currbase64 is file set: ', this.isFileSet);
+    //     //   if (!this.isFileSet) {
+    //     //     this.isFileSet = true;
+    //     //     this.ggbApplet.setBase64(currentStateBase64, () => {
+    //     //       this.registerListeners();
+    //     //       this.isResyncing = false;
+    //     //     });
+    //     //   } else {
+    //     //     this.isResyncing = false;
+    //     //   }
+    //     // } else if (currentState) {
+    //     //   console.log('loading from current state');
+    //     //   this.ggbApplet.setXML(currentState);
+    //     //   this.registerListeners();
+    //     //   this.isResyncing = false;
+    //     // } else if (startingPoint) {
+    //     //   console.log('loading from startingpoint');
+    //     //   this.ggbApplet.setXML(startingPoint);
+    //     //   this.registerListeners();
+    //     //   this.isResyncing = false;
+    //     // } else if (ggbFile && !this.isFileSet) {
+    //     //   console.log('loading from ggbFile');
+    //     //   this.isFileSet = true;
+    //     //   this.ggbApplet.setBase64(ggbFile, () => {
+    //     //     this.registerListeners();
+    //     //     this.isResyncing = false;
+    //     //   });
+    //     // } else {
+    //     //   this.isResyncing = false;
+    //     // }
+    //   })
+    //   .then(() => {
+    //     console.log('in then after setting ggb state');
+    //     this.registerListeners();
+    //     const { inControl } = this.props;
+    //     const expectedMode = inControl === 'ME' ? 0 : 40;
+    //     this.isResyncing = false;
+    //   })
+    //   .catch((err) => {
+    //     console.log('ERROR resyncing: ', 'failed to updated', err);
+    //     this.isResyncing = false;
+    //     // eslint-disable-next-line no-alert
+    //     window.alert(
+    //       'An error occurred syncing the state of this room. It is recommended you refresh the page to avoid falling out of sync with other users.'
+    //     );
+    //   });
+  };
+
+  getTabState = () => {
+    const { tab } = this.props;
     return API.getById('tabs', tab._id)
       .then((res) => {
-        const {
-          currentState,
-          ggbFile,
-          startingPoint,
-          currentStateBase64,
-        } = res.data.result;
+        return this.setGgbState(res.data.result);
+        // const {
+        //   currentState,
+        //   ggbFile,
+        //   startingPoint,
+        //   currentStateBase64,
+        // } = res.data.result;
 
-        if (currentStateBase64 && !this.isFileSet) {
-          this.isFileSet = true;
-          this.ggbApplet.setBase64(currentStateBase64);
-        } else if (currentState) {
-          this.ggbApplet.setXML(currentState);
-        } else if (startingPoint) {
-          this.ggbApplet.setXML(startingPoint);
-        } else if (ggbFile && !this.isFileSet) {
-          this.isFileSet = true;
-          this.ggbApplet.setBase64(ggbFile);
-        }
+        // if (currentStateBase64) {
+        //   console.log('loading from currbase64 is file set: ', this.isFileSet);
+        //   if (!this.isFileSet) {
+        //     this.isFileSet = true;
+        //     this.ggbApplet.setBase64(currentStateBase64, () => {
+        //       this.registerListeners();
+        //       this.isResyncing = false;
+        //     });
+        //   } else {
+        //     this.isResyncing = false;
+        //   }
+        // } else if (currentState) {
+        //   console.log('loading from current state');
+        //   this.ggbApplet.setXML(currentState);
+        //   this.registerListeners();
+        //   this.isResyncing = false;
+        // } else if (startingPoint) {
+        //   console.log('loading from startingpoint');
+        //   this.ggbApplet.setXML(startingPoint);
+        //   this.registerListeners();
+        //   this.isResyncing = false;
+        // } else if (ggbFile && !this.isFileSet) {
+        //   console.log('loading from ggbFile');
+        //   this.isFileSet = true;
+        //   this.ggbApplet.setBase64(ggbFile, () => {
+        //     this.registerListeners();
+        //     this.isResyncing = false;
+        //   });
+        // } else {
+        //   this.isResyncing = false;
+        // }
+      })
+      .then(() => {
         this.registerListeners();
+        this.setDefaultGgbMode().then(() => {
+          this.isResyncing = false;
+        });
       })
       .catch((err) => {
         console.log('ERROR resyncing: ', 'failed to updated', err);
+        this.isResyncing = false;
+        // eslint-disable-next-line no-alert
+
+        throw err;
       });
   };
 
@@ -502,23 +624,31 @@ class GgbGraph extends Component {
    */
 
   initializeGgb = async () => {
+    this.isInitializingGgb = true;
     // Save the coords of the graph element so we know how to restrict reference lines (i.e. prevent from overflowing graph)
-
     const { tab, setFirstTabLoaded, currentTabId } = this.props;
+
     this.getInnerGraphCoords();
     this.ggbApplet = window[`ggbApplet${tab._id}A`];
-    this.ggbApplet.setMode(40); // Sets the tool to zoom
+    await this.setDefaultGgbMode();
     // put the current construction on the graph, disable everything until the user takes control
     // if (perspective) this.ggbApplet.setPerspective(perspective);
     try {
-      await this.resyncGgbState();
-      const viewProps = JSON.parse(this.ggbApplet.getViewProperties());
-      this.viewProps = viewProps;
+      if (!this.didResync) {
+        await this.resyncGgbState();
+      } else {
+        this.didResync = false;
+      }
+
       if (tab._id === currentTabId) {
         setFirstTabLoaded();
       }
+      this.setDefaultGgbMode().then(() => {
+        this.isInitializingGgb = false;
+      });
     } catch (err) {
       console.log(`Error initializingGgb: `, err);
+      this.isInitializingGgb = false;
     }
   };
 
@@ -556,6 +686,9 @@ class GgbGraph extends Component {
    */
 
   clientListener = (event) => {
+    const { tab } = this.props;
+
+    console.log(`Client event and tab is ${tab.name}: `, event);
     if (!event) {
       // seems to happen if you click a bunch of points really quickly
       return;
@@ -573,7 +706,6 @@ class GgbGraph extends Component {
       case 'setMode':
         // eslint-disable-next-line prefer-destructuring
         if (
-          event[2] === '40' ||
           (referencing && event[2] === '0') ||
           (this.previousEvent &&
             this.previousEvent.eventType === 'mode' &&
@@ -581,45 +713,55 @@ class GgbGraph extends Component {
         ) {
           return;
         }
-        if (this.userCanEdit()) {
-          // throttled because of a bug in Geogebra that causes this to fire twice
-          this.throttledSendEvent({ eventType: 'MODE', label: event[2] });
-          return;
-          // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
-          // Then don't send this to the other users/=.
-        }
-        if (event[2] !== '40') {
-          // eslint-disable-next-line prefer-destructuring
-          this.intendedMode = event[2];
-          this.setState({ showControlWarning: true });
-        }
-        this.receivingData = false;
+        this.getDefaultGgbMode().then((mode) => {
+          if (event[2] === mode.toString()) {
+            return;
+          }
+          if (this.userCanEdit()) {
+            // throttled because of a bug in Geogebra that causes this to fire twice
+            this.throttledSendEvent({ eventType: 'MODE', label: event[2] });
+            return;
+            // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
+            // Then don't send this to the other users/=.
+          }
+          if (event[2] !== mode.toString()) {
+            if (!this.isResyncing && !this.isInitializingGgb) {
+              // this.intendedMode = parseInt(event[2], 10);
+              this.setState({ showControlWarning: true });
+            } else {
+              this.setDefaultGgbMode().then(() => {
+                this.receivingData = false;
+              });
+            }
+          } else {
+            this.receivingData = false;
+          }
+        });
         break;
 
       case 'undo':
-        // disable for now
-
-        // if (this.resetting) {
-        //   this.resetting = false;
-        // }
-        // if (this.userCanEdit()) {
-        //   this.sendEvent({ eventType: 'UNDO' });
-        // } else {
-        //   this.setState({ showControlWarning: true, redo: true });
-        // }
+        if (this.resetting) {
+          // undo was triggered as a result of someone not in control clicking redo
+          this.resetting = false;
+          return;
+        }
+        if (this.userCanEdit()) {
+          const base64 = this.ggbApplet.getBase64();
+          this.sendEvent({ eventType: 'UNDO', base64 });
+        } else {
+          this.setState({ showControlWarning: true, redo: true });
+        }
         break;
       case 'redo':
-        // if (this.resetting) {
-        //   this.resetting = false;
-        //   return;
-        // }
-        // if (this.userCanEdit()) {
-        // this.showAlert();
-        // this.resetting = true;
-        // this.ggbApplet.undo();
-        // } else {
-        //   this.setState({ showControlWarning: true });
-        // }
+        if (this.userCanEdit()) {
+          const base64 = this.ggbApplet.getBase64();
+
+          this.sendEvent({ eventType: 'REDO', base64 });
+        } else {
+          this.resetting = true;
+          this.ggbApplet.undo();
+          this.setState({ showControlWarning: true });
+        }
         break;
       case 'select':
         // if (referencing) {
@@ -670,6 +812,13 @@ class GgbGraph extends Component {
         }
         break;
       case 'perspectiveChange':
+        if (this.userCanEdit()) {
+          const base64 = this.ggbApplet.getBase64();
+          this.sendEventBuffer({
+            base64,
+            eventType: 'CHANGE_PERSPECTIVE',
+          });
+        }
         break;
       case 'updateStyle': {
         if (this.userCanEdit()) {
@@ -700,10 +849,7 @@ class GgbGraph extends Component {
             return;
           }
 
-          if (this.isAutoRenamingCornerLabel) {
-            // triggered by registerListeners
-            this.isAutoRenamingCornerLabel = false;
-            this.renamedDetails = null;
+          if (this.doIgnoreRename) {
             return;
           }
           const objType = this.ggbApplet.getObjectType(newLabel);
@@ -934,6 +1080,7 @@ class GgbGraph extends Component {
             'polygon',
             'triangle',
             'quadrilateral',
+            'sector',
             'pentagon',
             'hexagon',
           ];
@@ -989,26 +1136,29 @@ class GgbGraph extends Component {
   };
 
   renameListener = (oldLabel, newLabel) => {
-    if (this.isAutoRenamingCornerLabel) {
-      this.isAutoRenamingCornerLabel = false;
+    if (this.doIgnoreRename) {
       return;
     }
-
     this.renamedDetails = [oldLabel, newLabel];
   };
 
   /**
-   * @method registerListens
+   * @method registerListeners
    *  rs - register the even listeners with geogebra
    */
 
   registerListeners = () => {
     this.ggbApplet.unregisterClientListener(this.clientListener);
     this.ggbApplet.unregisterAddListener(this.addListener);
+    this.ggbApplet.unregisterClickListener(this.clickListener);
     this.ggbApplet.unregisterUpdateListener(this.updateListener);
     this.ggbApplet.unregisterRemoveListener(this.RemoveListener);
     this.ggbApplet.unregisterClearListener(this.clearListener);
     this.ggbApplet.unregisterRenameListener(this.renameListener);
+
+    if (this.zoomObj) {
+      this.ggbApplet.unregisterObjectUpdateListener(this.zoomObj);
+    }
 
     // Set corner object to listen for zooming/moving of graph
 
@@ -1017,8 +1167,7 @@ class GgbGraph extends Component {
 
     const hasAnchor = this.ggbApplet.exists(cornerLabel);
     if (hasAnchor) {
-      this.isAutoRemovingCornerAnchor = true;
-      this.ggbApplet.deleteObject(cornerLabel);
+      this.removeGgbObjectSilent(cornerLabel);
     }
 
     this.zoomObj = this.ggbApplet.evalCommandGetLabels('Corner(1)');
@@ -1028,9 +1177,7 @@ class GgbGraph extends Component {
       this.throttledZoomListener
     );
 
-    this.isAutoRenamingCornerLabel = true;
-
-    this.ggbApplet.renameObject(this.zoomObj, cornerLabel);
+    this.renameGgbObjectSilent(this.zoomObj, cornerLabel);
 
     this.ggbApplet.registerClientListener(this.clientListener);
     this.ggbApplet.registerAddListener(this.addListener);
@@ -1159,7 +1306,7 @@ class GgbGraph extends Component {
 
     this.updatingTab = setTimeout(
       this.updateConstructionState.bind(this, event),
-      3000
+      1500
     );
     this.checkForUpdatedReferences(eventData);
 
@@ -1213,6 +1360,13 @@ class GgbGraph extends Component {
       this.renamedDetails = null;
     } else if (eventType === 'REDEFINE') {
       description += `redefined ${objType} ${label}`;
+    } else if (eventType === 'UNDO') {
+      // not sure if we can give more information
+      description += 'performed an undo';
+    } else if (eventType === 'REDO') {
+      description += 'performed a redo';
+    } else if (eventType === 'CHANGE_PERSPECTIVE') {
+      description += 'changed perspectives';
     }
     return description;
   };
@@ -1221,7 +1375,6 @@ class GgbGraph extends Component {
     const { tab } = this.props;
     if (this.ggbApplet) {
       // const currentState = this.ggbApplet.getXML();
-
       this.getBase64Async()
         .then((base64) => {
           const { _id } = tab;
@@ -1374,18 +1527,22 @@ class GgbGraph extends Component {
     const graphSelector = '.EuclidianPanel > canvas';
     const graphEl = document.querySelector(graphSelector);
 
-    const topBar = document.getElementsByClassName('ggbtoolbarpanel')[0];
-    let topBarHeight = 0;
-    if (topBar) {
-      topBarHeight = topBar.getBoundingClientRect().height;
+    // will not always neccessarily be a graph
+    // for example if the probability calculator is on
+    if (graphEl) {
+      const topBar = document.getElementsByClassName('ggbtoolbarpanel')[0];
+      let topBarHeight = 0;
+      if (topBar) {
+        topBarHeight = topBar.getBoundingClientRect().height;
+      }
+      const innerGraphCoords = graphEl.getBoundingClientRect();
+      setGraphCoords({
+        left: innerGraphCoords.left - 17,
+        right: innerGraphCoords.right - 17,
+        height: innerGraphCoords.height + topBarHeight,
+        top: topBarHeight,
+      });
     }
-    const innerGraphCoords = graphEl.getBoundingClientRect();
-    setGraphCoords({
-      left: innerGraphCoords.left - 17,
-      right: innerGraphCoords.right - 17,
-      height: innerGraphCoords.height + topBarHeight,
-      top: topBarHeight,
-    });
   };
 
   parseXML = (xml) => {
@@ -1606,6 +1763,184 @@ class GgbGraph extends Component {
     return [refCoords, pathParameter];
   };
 
+  setGgbBase64 = (base64) => {
+    if (!this.ggbApplet || !typeof base64 === 'string') {
+      return;
+    }
+    this.ggbApplet.setBase64(base64, () => {
+      // always need to reregister listeners after setting base64
+      this.registerListeners();
+    });
+  };
+
+  setGgbState = (tab) => {
+    // eslint-disable-next-line consistent-return
+    return new Promise((resolve) => {
+      const { currentState, ggbFile, startingPoint, currentStateBase64 } = tab;
+
+      if (currentStateBase64) {
+        if (this.isInitialGgbFileLoaded(tab._id)) {
+          // call to resync was triggered by setBase64 invoking initializeGgb
+          console.log('currentStateBase64 already loaded for tab: ', tab.name);
+          return resolve(true);
+        }
+
+        // this.isFileSet = true;
+        this.tabFileLoadedHash[tab._id] = true;
+        console.log(
+          `Setting base64 from currentStateBase64 for tab ${tab._id}(${
+            tab.name
+          })`
+        );
+        this.ggbApplet.setBase64(currentStateBase64, () => {
+          console.log(`set base64 callback for tab ${tab._id}(${tab.name})`);
+          // this.registerListeners();
+          // this.isResyncing = false;
+          resolve(true);
+        });
+      } else if (currentState) {
+        console.log(
+          `loading from current state for tab ${tab._id}(${tab.name})`
+        );
+        this.ggbApplet.setXML(currentState);
+        resolve(true);
+      } else if (startingPoint) {
+        console.log(
+          `loading from startingpoint for tab ${tab._id}(${tab.name})`
+        );
+        this.ggbApplet.setXML(startingPoint);
+        resolve(true);
+      } else if (ggbFile && !this.tabFileLoadedHash[tab._id]) {
+        this.tabFileLoadedHash[tab._id] = true;
+        this.ggbApplet.setBase64(ggbFile, () => {
+          console.log(
+            `set base64 callback initial ggbfile tab ${tab._id}(${tab.name}) `
+          );
+          resolve(true);
+        });
+      } else {
+        resolve(true);
+      }
+    });
+  };
+
+  renameGgbObjectSilent = (oldLabel, newLabel) => {
+    if (!this.ggbApplet) {
+      return;
+    }
+
+    this.doIgnoreRename = true;
+    this.ggbApplet.renameObject(oldLabel, newLabel);
+    this.doIgnoreRename = false;
+  };
+
+  isInitialGgbFileLoaded = (tabId) => {
+    return this.tabFileLoadedHash[tabId];
+  };
+
+  getDefaultGgbMode = async () => {
+    try {
+      const { inControl } = this.props;
+      const visibleViews = await this.parseVisibleViews();
+      const defaultViewId = this.getDefaultActiveViewId(visibleViews);
+
+      if (defaultViewId === null) {
+        // no visible views.. should this ever happen?
+        return 0;
+      }
+
+      console.log({ defaultViewId });
+      if (inControl === 'ME') {
+        return GgbViewIdToPerspectiveMap[defaultViewId].controlTool;
+      }
+
+      // not in control
+
+      const { referencing } = this.props;
+
+      if (referencing) {
+        return GgbViewIdToPerspectiveMap[defaultViewId].controlTool;
+      }
+      // not referencing
+      return GgbViewIdToPerspectiveMap[defaultViewId].defaultTool;
+    } catch (err) {
+      console.log('error get default ggbMode:', err);
+      return 0;
+    }
+  };
+
+  setDefaultGgbMode = () => {
+    return this.getDefaultGgbMode().then((mode) => {
+      console.log(`Setting default ggb mode to ${mode}`);
+      this.ggbApplet.setMode(mode);
+    });
+  };
+
+  parseVisibleViews = () => {
+    const perspectiveXML = this.ggbApplet.getPerspectiveXML();
+    return this.parseXML(perspectiveXML)
+      .then((parsedPerspectiveXML) => {
+        const { view: views } = parsedPerspectiveXML.perspective.views[0];
+        const visibleViews = views.filter((view) => view.$.visible === 'true');
+        console.log({ visibleViews });
+        return visibleViews;
+      })
+      .catch((err) => {
+        console.log(`Error parsing views: ${err}`);
+        throw err;
+      });
+  };
+
+  getDefaultActiveViewId = (visibleViews) => {
+    if (!Array.isArray(visibleViews) || visibleViews.length === 0) {
+      return null;
+    }
+
+    if (visibleViews.length === 1) {
+      return visibleViews[0].$.id;
+    }
+
+    const viewHash = {};
+
+    for (let i = 0; i < visibleViews.length; i++) {
+      const { id } = visibleViews[i].$;
+      const isCas = id === '8';
+      if (isCas) {
+        return id;
+      }
+      viewHash[id] = true;
+    }
+
+    // spreadsheet view takes next precedence
+    const spreadsheetId = '4';
+
+    if (viewHash[spreadsheetId]) {
+      return spreadsheetId;
+    }
+    // next precedence is graphing (G or D)
+
+    if (viewHash['1']) {
+      return '1';
+    }
+
+    if (viewHash['16']) {
+      return '16';
+    }
+
+    // next 3d graph
+    if (viewHash['512']) {
+      return '512';
+    }
+
+    // next probability
+    if (viewHash['64']) {
+      return '64';
+    }
+
+    // remaining views do not actually have modes to set so does not matter
+    return Object.keys(viewHash)[0].$.id;
+  };
+
   render() {
     const { tab, toggleControl, inControl } = this.props;
     const { showControlWarning, redo } = this.state;
@@ -1622,30 +1957,27 @@ class GgbGraph extends Component {
         />
         <ControlWarningModal
           showControlWarning={showControlWarning}
-          toggleControlWarning={() => {
+          toggleControlWarning={async () => {
             if (redo) {
               this.ggbApplet.redo();
             } else {
               this.ggbApplet.undo();
             }
-            this.ggbApplet.setMode(40);
+            await this.setDefaultGgbMode();
             this.setState({ showControlWarning: false, redo: false });
           }}
-          takeControl={() => {
-            this.resyncGgbState();
+          takeControl={async () => {
             if (inControl !== 'NONE') {
-              this.ggbApplet.setMode(40);
+              await this.setDefaultGgbMode();
             }
             toggleControl();
+            await this.resyncGgbState();
             this.setState({ showControlWarning: false, redo: false });
           }}
           inControl={inControl}
           cancel={() => {
+            this.setDefaultGgbMode();
             this.resyncGgbState();
-            this.ggbApplet.setMode(40);
-            if (this.intendedMode) {
-              this.intendedMode = null;
-            }
             this.setState({ showControlWarning: false, redo: false });
           }}
         />
