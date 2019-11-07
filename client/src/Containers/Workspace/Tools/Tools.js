@@ -27,7 +27,6 @@ const Tools = ({
     }
   }
 
-  const goToText = replayer ? 'Room' : 'Replayer';
   return (
     <div className={classes.Container}>
       {/* <h3 className={classes.Title}>Tools</h3> */}
@@ -80,7 +79,7 @@ const Tools = ({
         ) : null}
         {goToReplayer ? (
           <Button theme="xs" click={goToReplayer}>
-            Go to {goToText}
+            Open Replayer
             <span className={classes.ExternalLink}>
               <i className="fas fa-external-link-alt" />
             </span>
