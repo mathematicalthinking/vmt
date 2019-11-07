@@ -194,8 +194,8 @@ class GgbGraph extends Component {
       // if they are in control, can keep mode set to move tool
       if (!isInControl) {
         // force resync in case they moved anything while referencing
-        this.setDefaultGgbMode();
-        await this.resyncGgbState();
+        // this.resyncGgbState();
+        // this.ggbApplet.setMode(40);
       }
     }
     // Control
@@ -217,7 +217,6 @@ class GgbGraph extends Component {
       referToEl.elementType !== 'chat_message'
     ) {
       // find the coordinates of the point we're referencing
-
       this.updateReferToEl(referToEl);
     } else if (
       showingReference &&
@@ -706,7 +705,8 @@ class GgbGraph extends Component {
       case 'setMode':
         // eslint-disable-next-line prefer-destructuring
         if (
-          (referencing && event[2] === '0') ||
+          event[2] === '40' ||
+          // (referencing && event[2] === '0') ||
           (this.previousEvent &&
             this.previousEvent.eventType === 'mode' &&
             this.previousEvent.label === event[2])
@@ -917,6 +917,11 @@ class GgbGraph extends Component {
       }
       case 'mouseDown': {
         this.mouseDownCoords = [event.x, event.y];
+
+        if (referencing && Array.isArray(event.hits) && event.hits.length > 0) {
+          // take the first hit and use that as referenced object
+          this.handleReference(event.hits[0]);
+        }
         break;
       }
       default:
@@ -1131,7 +1136,9 @@ class GgbGraph extends Component {
     const { referencing, showingReference, referToEl } = this.props;
     if ((referencing && referToEl) || showingReference) {
       this.getInnerGraphCoords();
-      this.updateReferToEl(referToEl);
+      if (referToEl.elementType !== 'chat_message') {
+        this.updateReferToEl(referToEl);
+      }
     }
   };
 
@@ -1939,6 +1946,67 @@ class GgbGraph extends Component {
 
     // remaining views do not actually have modes to set so does not matter
     return Object.keys(viewHash)[0].$.id;
+  };
+
+  handleReference = (element) => {
+    const { setToElAndCoords } = this.props;
+
+    const elementType = this.ggbApplet.getObjectType(element);
+    let refCoords;
+    let pathParameter;
+    let x;
+    let y;
+    let refType = 'point';
+
+    let renamedElementType;
+    let position;
+
+    if (elementType !== 'point' && Array.isArray(this.mouseDownCoords)) {
+      [x, y] = this.mouseDownCoords;
+      if (isFinite(x) && isFinite(y)) {
+        const pointInTypes = [
+          'polygon',
+          'triangle',
+          'quadrilateral',
+          'pentagon',
+          'hexagon',
+        ];
+
+        if (pointInTypes.includes(elementType)) {
+          refType = 'region';
+          refCoords = this.getRegionCoords(element, x, y);
+        } else {
+          refType = 'path';
+          [refCoords, pathParameter] = this.getPathCoordsAndParam(element, [
+            x,
+            y,
+          ]);
+        }
+      }
+
+      position = this.getRelativeCoords(refCoords);
+      renamedElementType = elementType;
+    } else {
+      ({ renamedElementType, position } = this.getReferenceCoords(
+        element,
+        elementType,
+        pathParameter,
+        x,
+        y,
+        refType
+      ));
+    }
+    setToElAndCoords(
+      {
+        element,
+        elementType: renamedElementType,
+        pathParameter,
+        x,
+        y,
+        isForRegion: refType === 'region',
+      },
+      position
+    );
   };
 
   render() {
