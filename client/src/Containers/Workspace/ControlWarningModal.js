@@ -7,10 +7,10 @@ const ControlWarningModal = ({
   takeControl,
   cancel,
   showControlWarning,
-  toggleControlWarning,
+  // toggleControlWarning,
 }) => {
   return (
-    <Modal show={showControlWarning} closeModal={toggleControlWarning}>
+    <Modal show={showControlWarning} closeModal={cancel}>
       <div data-testid="control-warning">
         You can&#39;t make updates when you&#39;re not in control click
         &#34;Take Control&#34; first.
@@ -32,7 +32,7 @@ ControlWarningModal.propTypes = {
   showControlWarning: PropTypes.bool.isRequired,
   takeControl: PropTypes.func.isRequired,
   cancel: PropTypes.func.isRequired,
-  toggleControlWarning: PropTypes.func.isRequired,
+  // toggleControlWarning: PropTypes.func.isRequired,
 };
 
 export default ControlWarningModal;
