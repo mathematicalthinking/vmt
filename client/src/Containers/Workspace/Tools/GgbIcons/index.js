@@ -657,4 +657,16 @@ export default {
     link: 'https://wiki.geogebra.org/en/Reflect_about_Plane_Tool',
     image: svg571,
   },
+  1001: {
+    name: 'Symbolic Evaluation',
+    link: 'https://wiki.geogebra.org/en/Evaluate_Tool',
+  },
+  1002: {
+    name: 'Numeric Evaluation',
+    link: 'https://wiki.geogebra.org/en/Numeric_Tool',
+  },
+  1003: {
+    name: 'Keep Input',
+    link: 'https://wiki.geogebra.org/en/Keep_Input_Tool',
+  },
 };
