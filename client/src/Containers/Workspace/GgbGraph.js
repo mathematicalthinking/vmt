@@ -287,16 +287,17 @@ class GgbGraph extends Component {
   }
 
   getBase64Async = () => {
-    // eslint-disable-next-line consistent-return
     return new Promise((resolve, reject) => {
       if (!this.ggbApplet) {
-        return reject(new Error('Missing ggbApplet'));
+        reject(new Error('Missing ggbApplet'));
+        return;
       }
       this.ggbApplet.getBase64((base64) => {
         if (!base64) {
-          return reject(new Error('Unable to get base64 construction state'));
+          reject(new Error('Unable to get base64 construction state'));
+          return;
         }
-        return resolve(base64);
+        resolve(base64);
       });
     });
   };
@@ -498,64 +499,6 @@ class GgbGraph extends Component {
           'An error occurred syncing the state of this room. It is recommended you refresh the page to avoid falling out of sync with other users.'
         );
       });
-    // const { tab } = this.props;
-    // return API.getById('tabs', tab._id)
-    //   .then((res) => {
-    //     return this.setGgbState(res.data.result);
-    //     // const {
-    //     //   currentState,
-    //     //   ggbFile,
-    //     //   startingPoint,
-    //     //   currentStateBase64,
-    //     // } = res.data.result;
-
-    //     // if (currentStateBase64) {
-    //     //   console.log('loading from currbase64 is file set: ', this.isFileSet);
-    //     //   if (!this.isFileSet) {
-    //     //     this.isFileSet = true;
-    //     //     this.ggbApplet.setBase64(currentStateBase64, () => {
-    //     //       this.registerListeners();
-    //     //       this.isResyncing = false;
-    //     //     });
-    //     //   } else {
-    //     //     this.isResyncing = false;
-    //     //   }
-    //     // } else if (currentState) {
-    //     //   console.log('loading from current state');
-    //     //   this.ggbApplet.setXML(currentState);
-    //     //   this.registerListeners();
-    //     //   this.isResyncing = false;
-    //     // } else if (startingPoint) {
-    //     //   console.log('loading from startingpoint');
-    //     //   this.ggbApplet.setXML(startingPoint);
-    //     //   this.registerListeners();
-    //     //   this.isResyncing = false;
-    //     // } else if (ggbFile && !this.isFileSet) {
-    //     //   console.log('loading from ggbFile');
-    //     //   this.isFileSet = true;
-    //     //   this.ggbApplet.setBase64(ggbFile, () => {
-    //     //     this.registerListeners();
-    //     //     this.isResyncing = false;
-    //     //   });
-    //     // } else {
-    //     //   this.isResyncing = false;
-    //     // }
-    //   })
-    //   .then(() => {
-    //     console.log('in then after setting ggb state');
-    //     this.registerListeners();
-    //     const { inControl } = this.props;
-    //     const expectedMode = inControl === 'ME' ? 0 : 40;
-    //     this.isResyncing = false;
-    //   })
-    //   .catch((err) => {
-    //     console.log('ERROR resyncing: ', 'failed to updated', err);
-    //     this.isResyncing = false;
-    //     // eslint-disable-next-line no-alert
-    //     window.alert(
-    //       'An error occurred syncing the state of this room. It is recommended you refresh the page to avoid falling out of sync with other users.'
-    //     );
-    //   });
   };
 
   getTabState = () => {
@@ -611,8 +554,6 @@ class GgbGraph extends Component {
       .catch((err) => {
         console.log('ERROR resyncing: ', 'failed to updated', err);
         this.isResyncing = false;
-        // eslint-disable-next-line no-alert
-
         throw err;
       });
   };
@@ -696,7 +637,7 @@ class GgbGraph extends Component {
     // 40 = TRANSLATEVIEW
     // 0 = MOVE
 
-    const { referencing } = this.props;
+    const { referencing, clearReference } = this.props;
     if (this.receivingData) {
       return;
     }
@@ -720,6 +661,10 @@ class GgbGraph extends Component {
           if (this.userCanEdit()) {
             // throttled because of a bug in Geogebra that causes this to fire twice
             this.throttledSendEvent({ eventType: 'MODE', label: event[2] });
+
+            if (referencing) {
+              clearReference();
+            }
             return;
             // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
             // Then don't send this to the other users/=.
