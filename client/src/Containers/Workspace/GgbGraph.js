@@ -1190,9 +1190,6 @@ class GgbGraph extends Component {
   };
 
   updateConstructionState = () => {
-    if (!this.userCanEdit()) {
-      return;
-    }
     const { tab } = this.props;
     if (this.ggbApplet) {
       const currentState = this.ggbApplet.getXML();
