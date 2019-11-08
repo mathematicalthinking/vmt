@@ -1801,19 +1801,15 @@ class GgbGraph extends Component {
         return 0;
       }
 
-      console.log({ defaultViewId });
       if (inControl === 'ME') {
+        const { referencing } = this.props;
+
+        if (referencing) {
+          return GgbViewIdToPerspectiveMap[defaultViewId].defaultTool;
+        }
         return GgbViewIdToPerspectiveMap[defaultViewId].controlTool;
       }
-
       // not in control
-
-      const { referencing } = this.props;
-
-      if (referencing) {
-        return GgbViewIdToPerspectiveMap[defaultViewId].controlTool;
-      }
-      // not referencing
       return GgbViewIdToPerspectiveMap[defaultViewId].defaultTool;
     } catch (err) {
       console.log('error get default ggbMode:', err);
