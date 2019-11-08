@@ -1377,6 +1377,18 @@ class GgbGraph extends Component {
       isForRegion,
     } = referToElDetails;
 
+    const doesExist = this.ggbApplet.exists(element);
+
+    if (!doesExist) {
+      // should only happen if something went wrong in terms of updating the construction
+      // should we also check the elementType?
+      const msg = `The referenced object (${elementType} ${element}) no longer exists.`;
+
+      // eslint-disable-next-line no-alert
+      window.alert(msg);
+      return;
+    }
+
     const refType = isForRegion ? 'region' : 'path';
 
     const { position } = this.getReferenceCoords(
