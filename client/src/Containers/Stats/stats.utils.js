@@ -268,8 +268,9 @@ export const exportCSV = (dataArr, fileName = 'vmt-csv-export') => {
     }
     Object.keys(d).forEach((k) => {
       if (d[k]) {
-        let parsedString = d[k].replace(',', `","`);
+        let parsedString = d[k].replace(/"/gm, '""');
         parsedString = parsedString.replace(/(\r\n|\n|\r)/gm, '');
+        parsedString = `"${parsedString}"`;
         acc += `${parsedString},`;
       } else {
         acc += ',';
