@@ -62,7 +62,7 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
               name="Community"
             />
             <NavItem link="/about" name="About" />
-            <NavItem link="/tutorials" name="Tutorials" />
+            {/* <NavItem link="/tutorials" name="Tutorials" /> */}
             {loggedIn ? (
               <DropdownNavItem
                 name={
