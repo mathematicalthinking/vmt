@@ -200,12 +200,9 @@ class GgbGraph extends Component {
     }
     // Control
     if (didGainControl) {
-      if (prevProps.referencing) {
-        // force resync in case they moved anything while referencing
-        await this.resyncGgbState();
-      }
-      this.setDefaultGgbMode();
       clearReference();
+      await this.resyncGgbState();
+      this.setDefaultGgbMode();
     } else if (didReleaseControl) {
       // this.updateConstructionState();
       this.setDefaultGgbMode();
@@ -248,7 +245,7 @@ class GgbGraph extends Component {
     if (this.ggbApplet) {
       this.ggbApplet.unregisterAddListener(this.addListener);
       this.ggbApplet.unregisterUpdateListener(this.updateListener);
-      this.ggbApplet.unregisterClickListener(this.clickListener);
+      // this.ggbApplet.unregisterClickListener(this.clickListener);
       this.ggbApplet.unregisterRemoveListener(this.removeListener);
       this.ggbApplet.unregisterClearListener(this.clearListener);
       this.ggbApplet.unregisterClientListener(this.clientListener);
@@ -494,6 +491,13 @@ class GgbGraph extends Component {
     return this.getTabState()
       .then(() => {})
       .catch(() => {
+        const { inControl, toggleControl } = this.props;
+
+        if (inControl === 'ME') {
+          // if an error occured while resyncing and the user has control
+          // auto remove control
+          toggleControl();
+        }
         // eslint-disable-next-line no-alert
         window.alert(
           'An error occurred syncing the state of this room. It is recommended you refresh the page to avoid falling out of sync with other users.'
@@ -758,12 +762,26 @@ class GgbGraph extends Component {
         break;
       case 'perspectiveChange':
         if (this.userCanEdit()) {
-          const base64 = this.ggbApplet.getBase64();
-          this.sendEventBuffer({
-            base64,
-            eventType: 'CHANGE_PERSPECTIVE',
-          });
+          this.parseVisibleViews()
+            .then((visibleViews) => {
+              const oldViews = [...this.visibleViews];
+              const newViews = visibleViews;
+              this.visibleViews = newViews;
+              const base64 = this.ggbApplet.getBase64();
+              this.sendEventBuffer({
+                base64,
+                eventType: 'CHANGE_PERSPECTIVE',
+                oldViews,
+                newViews,
+              });
+            })
+            .catch((err) => {
+              console.log('parse visible views err: ', err);
+            });
+        } else {
+          this.setState({ showControlWarning: true });
         }
+
         break;
       case 'updateStyle': {
         if (this.userCanEdit()) {
@@ -777,6 +795,8 @@ class GgbGraph extends Component {
             objType,
             eventType: 'UPDATE_STYLE',
           });
+        } else {
+          this.setState({ showControlWarning: true });
         }
         break;
       }
@@ -795,6 +815,11 @@ class GgbGraph extends Component {
           }
 
           if (this.doIgnoreRename) {
+            return;
+          }
+
+          if (!this.userCanEdit()) {
+            this.setState({ showControlWarning: true });
             return;
           }
           const objType = this.ggbApplet.getObjectType(newLabel);
@@ -1010,68 +1035,68 @@ class GgbGraph extends Component {
    * @description used to get reference positions
    */
 
-  clickListener = (element) => {
-    const { referencing, setToElAndCoords } = this.props;
-    if (referencing) {
-      const elementType = this.ggbApplet.getObjectType(element);
-      let refCoords;
-      let pathParameter;
-      let x;
-      let y;
-      let refType = 'point';
+  // clickListener = (element) => {
+  //   const { referencing, setToElAndCoords } = this.props;
+  //   if (referencing) {
+  //     const elementType = this.ggbApplet.getObjectType(element);
+  //     let refCoords;
+  //     let pathParameter;
+  //     let x;
+  //     let y;
+  //     let refType = 'point';
 
-      let renamedElementType;
-      let position;
+  //     let renamedElementType;
+  //     let position;
 
-      if (elementType !== 'point' && Array.isArray(this.mouseDownCoords)) {
-        [x, y] = this.mouseDownCoords;
-        if (isFinite(x) && isFinite(y)) {
-          const pointInTypes = [
-            'polygon',
-            'triangle',
-            'quadrilateral',
-            'sector',
-            'pentagon',
-            'hexagon',
-          ];
+  //     if (elementType !== 'point' && Array.isArray(this.mouseDownCoords)) {
+  //       [x, y] = this.mouseDownCoords;
+  //       if (isFinite(x) && isFinite(y)) {
+  //         const pointInTypes = [
+  //           'polygon',
+  //           'triangle',
+  //           'quadrilateral',
+  //           'sector',
+  //           'pentagon',
+  //           'hexagon',
+  //         ];
 
-          if (pointInTypes.includes(elementType)) {
-            refType = 'region';
-            refCoords = this.getRegionCoords(element, x, y);
-          } else {
-            refType = 'path';
-            [refCoords, pathParameter] = this.getPathCoordsAndParam(element, [
-              x,
-              y,
-            ]);
-          }
-        }
+  //         if (pointInTypes.includes(elementType)) {
+  //           refType = 'region';
+  //           refCoords = this.getRegionCoords(element, x, y);
+  //         } else {
+  //           refType = 'path';
+  //           [refCoords, pathParameter] = this.getPathCoordsAndParam(element, [
+  //             x,
+  //             y,
+  //           ]);
+  //         }
+  //       }
 
-        position = this.getRelativeCoords(refCoords);
-        renamedElementType = elementType;
-      } else {
-        ({ renamedElementType, position } = this.getReferenceCoords(
-          element,
-          elementType,
-          pathParameter,
-          x,
-          y,
-          refType
-        ));
-      }
-      setToElAndCoords(
-        {
-          element,
-          elementType: renamedElementType,
-          pathParameter,
-          x,
-          y,
-          isForRegion: refType === 'region',
-        },
-        position
-      );
-    }
-  };
+  //       position = this.getRelativeCoords(refCoords);
+  //       renamedElementType = elementType;
+  //     } else {
+  //       ({ renamedElementType, position } = this.getReferenceCoords(
+  //         element,
+  //         elementType,
+  //         pathParameter,
+  //         x,
+  //         y,
+  //         refType
+  //       ));
+  //     }
+  //     setToElAndCoords(
+  //       {
+  //         element,
+  //         elementType: renamedElementType,
+  //         pathParameter,
+  //         x,
+  //         y,
+  //         isForRegion: refType === 'region',
+  //       },
+  //       position
+  //     );
+  //   }
+  // };
 
   clearListener = (element) => {
     console.log({ clearListener: element });
@@ -1102,7 +1127,7 @@ class GgbGraph extends Component {
   registerListeners = () => {
     this.ggbApplet.unregisterClientListener(this.clientListener);
     this.ggbApplet.unregisterAddListener(this.addListener);
-    this.ggbApplet.unregisterClickListener(this.clickListener);
+    // this.ggbApplet.unregisterClickListener(this.clickListener);
     this.ggbApplet.unregisterUpdateListener(this.updateListener);
     this.ggbApplet.unregisterRemoveListener(this.RemoveListener);
     this.ggbApplet.unregisterClearListener(this.clearListener);
@@ -1133,7 +1158,7 @@ class GgbGraph extends Component {
 
     this.ggbApplet.registerClientListener(this.clientListener);
     this.ggbApplet.registerAddListener(this.addListener);
-    this.ggbApplet.registerClickListener(this.clickListener);
+    // this.ggbApplet.registerClickListener(this.clickListener);
     this.ggbApplet.registerUpdateListener(this.updateListener);
     this.ggbApplet.registerRemoveListener(this.removeListener);
     this.ggbApplet.registerClearListener(this.clearListener);
@@ -1733,41 +1758,22 @@ class GgbGraph extends Component {
       if (currentStateBase64) {
         if (this.isInitialGgbFileLoaded(tab._id)) {
           // call to resync was triggered by setBase64 invoking initializeGgb
-          console.log('currentStateBase64 already loaded for tab: ', tab.name);
           return resolve(true);
         }
 
-        // this.isFileSet = true;
         this.tabFileLoadedHash[tab._id] = true;
-        console.log(
-          `Setting base64 from currentStateBase64 for tab ${tab._id}(${
-            tab.name
-          })`
-        );
         this.ggbApplet.setBase64(currentStateBase64, () => {
-          console.log(`set base64 callback for tab ${tab._id}(${tab.name})`);
-          // this.registerListeners();
-          // this.isResyncing = false;
           resolve(true);
         });
       } else if (currentState) {
-        console.log(
-          `loading from current state for tab ${tab._id}(${tab.name})`
-        );
         this.ggbApplet.setXML(currentState);
         resolve(true);
       } else if (startingPoint) {
-        console.log(
-          `loading from startingpoint for tab ${tab._id}(${tab.name})`
-        );
         this.ggbApplet.setXML(startingPoint);
         resolve(true);
       } else if (ggbFile && !this.tabFileLoadedHash[tab._id]) {
         this.tabFileLoadedHash[tab._id] = true;
         this.ggbApplet.setBase64(ggbFile, () => {
-          console.log(
-            `set base64 callback initial ggbfile tab ${tab._id}(${tab.name}) `
-          );
           resolve(true);
         });
       } else {
@@ -1794,6 +1800,7 @@ class GgbGraph extends Component {
     try {
       const { inControl } = this.props;
       const visibleViews = await this.parseVisibleViews();
+      this.visibleViews = visibleViews;
       const defaultViewId = this.getDefaultActiveViewId(visibleViews);
 
       if (defaultViewId === null) {
@@ -1819,7 +1826,6 @@ class GgbGraph extends Component {
 
   setDefaultGgbMode = () => {
     return this.getDefaultGgbMode().then((mode) => {
-      console.log(`Setting default ggb mode to ${mode}`);
       this.ggbApplet.setMode(mode);
     });
   };
@@ -1830,7 +1836,6 @@ class GgbGraph extends Component {
       .then((parsedPerspectiveXML) => {
         const { view: views } = parsedPerspectiveXML.perspective.views[0];
         const visibleViews = views.filter((view) => view.$.visible === 'true');
-        console.log({ visibleViews });
         return visibleViews;
       })
       .catch((err) => {
@@ -1890,7 +1895,7 @@ class GgbGraph extends Component {
   };
 
   handleReference = (element) => {
-    const { setToElAndCoords } = this.props;
+    const { setToElAndCoords, clearReference, showingReference } = this.props;
 
     const elementType = this.ggbApplet.getObjectType(element);
     let refCoords;
@@ -1937,6 +1942,9 @@ class GgbGraph extends Component {
         refType
       ));
     }
+    if (showingReference) {
+      clearReference({ doKeepReferencingOn: true });
+    }
     setToElAndCoords(
       {
         element,
@@ -1976,18 +1984,20 @@ class GgbGraph extends Component {
             this.setState({ showControlWarning: false, redo: false });
           }}
           takeControl={async () => {
+            this.setState({ showControlWarning: false, redo: false });
             if (inControl !== 'NONE') {
               await this.setDefaultGgbMode();
             }
+            // await this.resyncGgbState();
+            // instead of just resyncing in this case, we can try
+            // always resyncing when a user gains control
             toggleControl();
-            await this.resyncGgbState();
-            this.setState({ showControlWarning: false, redo: false });
           }}
           inControl={inControl}
-          cancel={() => {
-            this.setDefaultGgbMode();
-            this.resyncGgbState();
+          cancel={async () => {
             this.setState({ showControlWarning: false, redo: false });
+            await this.setDefaultGgbMode();
+            this.resyncGgbState();
           }}
         />
         {/* <div className={classes.ReferenceLine} style={{left: this.state.referencedElementPosition.left, top: this.state.referencedElementPosition.top}}></div> */}
