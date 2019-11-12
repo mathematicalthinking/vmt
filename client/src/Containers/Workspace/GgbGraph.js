@@ -37,6 +37,12 @@ const GgbViewIdToPerspectiveMap = {
   32: { perspective: 'L', defaultTool: 0, controlTool: 0 }, // construction protocol,
 };
 
+const refViewToIdMap = {
+  1: '1',
+  2: '16',
+  512: '512',
+};
+
 // const viewLocationMap = { 2 views
 //   3: 'LEFT',
 //   2: 'BOTTOM',
@@ -886,11 +892,18 @@ class GgbGraph extends Component {
         break;
       }
       case 'mouseDown': {
-        this.mouseDownCoords = [event.x, event.y];
+        const { x, y, hits, viewNo } = event;
 
-        if (referencing && Array.isArray(event.hits) && event.hits.length > 0) {
+        this.mouseDownCoords = [x, y];
+
+        if (referencing && Array.isArray(hits) && hits.length > 0) {
           // take the first hit and use that as referenced object
-          this.handleReference(event.hits[0]);
+          if (viewNo === 512) {
+            // eslint-disable-next-line no-alert
+            window.alert('3D Graph Referencing is currently not supported');
+            return;
+          }
+          this.handleReference(event.hits[0], viewNo);
         }
         break;
       }
@@ -1365,13 +1378,21 @@ class GgbGraph extends Component {
     }
   };
 
-  getReferenceCoords = (element, elementType, pathParameter, x, y, refType) => {
+  getReferenceCoords = (
+    element,
+    elementType,
+    pathParameter,
+    x,
+    y,
+    refType,
+    viewNum
+  ) => {
     let position;
 
     if (isFinite(pathParameter)) {
       const coords = this.getCoordsFromPathParameter(element, pathParameter);
 
-      position = this.getRelativeCoords(coords);
+      position = this.getRelativeCoords(coords, viewNum);
       return {
         renamedElementType: elementType,
         position,
@@ -1381,7 +1402,7 @@ class GgbGraph extends Component {
     if (refType === 'region') {
       if (isFinite(x) && isFinite(y)) {
         const refCoords = this.getRegionCoords(element, x, y);
-        position = this.getRelativeCoords(refCoords);
+        position = this.getRelativeCoords(refCoords, viewNum);
         return {
           renamedElementType: elementType,
           position,
@@ -1398,7 +1419,7 @@ class GgbGraph extends Component {
         commandString.indexOf(',')
       );
 
-      position = this.getRelativeCoords(point);
+      position = this.getRelativeCoords(point, viewNum);
 
       return position ? { renamedElementType, position } : null;
     }
@@ -1418,7 +1439,7 @@ class GgbGraph extends Component {
         pointsOfShape.splice(2, pointsOfShape.length - 2);
       }
       const coordsArr = pointsOfShape.map((point) =>
-        this.getRelativeCoords(point)
+        this.getRelativeCoords(point, viewNum)
       );
       let leftTotal = 0;
       let topTotal = 0;
@@ -1432,7 +1453,7 @@ class GgbGraph extends Component {
       return position ? { renamedElementType, position } : null;
     }
     // regular point
-    position = this.getRelativeCoords(element);
+    position = this.getRelativeCoords(element, viewNum);
     return position ? { renamedElementType, position } : null;
   };
 
@@ -1441,7 +1462,7 @@ class GgbGraph extends Component {
    * @param  {String} element - ggb defined Label. MUST be a point
    * @return {Object} - { left, top} or null if invalid point passed in
    */
-  getRelativeCoords = (element) => {
+  getRelativeCoords = (element, viewNum) => {
     let elX;
     let elY;
 
@@ -1472,10 +1493,10 @@ class GgbGraph extends Component {
         .getBoundingClientRect().height;
     }
     const ggbCoords = this.graph.current.getBoundingClientRect();
-    const ggbViewProps = JSON.parse(this.ggbApplet.getViewProperties());
-
-    const { width, height, xMin, yMin, invXscale } = ggbViewProps;
-
+    const ggbViewProps = JSON.parse(
+      this.ggbApplet.getViewProperties(viewNum || 1)
+    );
+    const { height, xMin, yMin, invXscale, left } = ggbViewProps;
     let { invYscale } = ggbViewProps;
 
     if (!invYscale) {
@@ -1490,7 +1511,8 @@ class GgbGraph extends Component {
     const yZero = Math.abs(yMax) * (1 / invYscale);
 
     if (!invYscale) invYscale = invXscale;
-    const xOffset = ggbCoords.width - width + parseInt(xZero, 10) + elX * scale;
+    const xOffset = left - ggbCoords.left + parseInt(xZero, 10) + elX * scale;
+
     let yOffset =
       ggbCoords.height - height + parseInt(yZero, 10) - elY * yscale;
     if (bottomMenuHeight) {
@@ -1501,7 +1523,8 @@ class GgbGraph extends Component {
 
   getInnerGraphCoords = () => {
     const { setGraphCoords } = this.props;
-    const graphSelector = '.EuclidianPanel > canvas';
+    const graphSelector = '.gwt-SplitLayoutPanel';
+
     const graphEl = document.querySelector(graphSelector);
 
     // will not always neccessarily be a graph
@@ -1541,6 +1564,7 @@ class GgbGraph extends Component {
       x,
       y,
       isForRegion,
+      viewNum,
     } = referToElDetails;
 
     const doesExist = this.ggbApplet.exists(element);
@@ -1555,6 +1579,16 @@ class GgbGraph extends Component {
       return;
     }
 
+    const isViewVisible = this.isReferenceViewVisible(viewNum);
+
+    if (!isViewVisible) {
+      const msg = `The containing view for object (${elementType} ${element}) is not currently visible.`;
+
+      // eslint-disable-next-line no-alert
+      window.alert(msg);
+      return;
+    }
+
     const refType = isForRegion ? 'region' : 'path';
 
     const { position } = this.getReferenceCoords(
@@ -1563,7 +1597,8 @@ class GgbGraph extends Component {
       pathParameter,
       x,
       y,
-      refType
+      refType,
+      viewNum
     );
     setToElAndCoords(referToElDetails, position);
   };
@@ -1894,7 +1929,15 @@ class GgbGraph extends Component {
     return Object.keys(viewHash)[0].$.id;
   };
 
-  handleReference = (element) => {
+  isReferenceViewVisible = (viewNum) => {
+    const id = refViewToIdMap[viewNum];
+    const view = find(this.visibleViews, (v) => {
+      return v.$.id === id;
+    });
+    return view !== undefined;
+  };
+
+  handleReference = (element, viewNum) => {
     const { setToElAndCoords, clearReference, showingReference } = this.props;
 
     const elementType = this.ggbApplet.getObjectType(element);
@@ -1929,8 +1972,7 @@ class GgbGraph extends Component {
           ]);
         }
       }
-
-      position = this.getRelativeCoords(refCoords);
+      position = this.getRelativeCoords(refCoords, viewNum);
       renamedElementType = elementType;
     } else {
       ({ renamedElementType, position } = this.getReferenceCoords(
@@ -1939,7 +1981,8 @@ class GgbGraph extends Component {
         pathParameter,
         x,
         y,
-        refType
+        refType,
+        viewNum
       ));
     }
     if (showingReference) {
@@ -1953,6 +1996,7 @@ class GgbGraph extends Component {
         x,
         y,
         isForRegion: refType === 'region',
+        viewNum,
       },
       position
     );
@@ -1988,9 +2032,6 @@ class GgbGraph extends Component {
             if (inControl !== 'NONE') {
               await this.setDefaultGgbMode();
             }
-            // await this.resyncGgbState();
-            // instead of just resyncing in this case, we can try
-            // always resyncing when a user gains control
             toggleControl();
           }}
           inControl={inControl}
@@ -2000,10 +2041,6 @@ class GgbGraph extends Component {
             this.resyncGgbState();
           }}
         />
-        {/* <div className={classes.ReferenceLine} style={{left: this.state.referencedElementPosition.left, top: this.state.referencedElementPosition.top}}></div> */}
-        {/* {this.state.showControlWarning ? <div className={classes.ControlWarning} style={{left: this.state.warningPosition.x, top: this.state.warningPosition.y}}>
-          You don't have control!
-        </div> : null} */}
       </Aux>
     );
   }
@@ -2026,7 +2063,6 @@ GgbGraph.propTypes = {
   tab: PropTypes.shape({}).isRequired,
   myColor: PropTypes.string,
   addToLog: PropTypes.func.isRequired,
-  // updateRoomTab: PropTypes.func.isRequired,
   toggleControl: PropTypes.func.isRequired,
   resetControlTimer: PropTypes.func.isRequired,
   inControl: PropTypes.string.isRequired,
