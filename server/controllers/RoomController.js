@@ -265,6 +265,7 @@ module.exports = {
             desmosLink: body.desmosLink,
             currentState: tab.currentState,
             startingPoint: tab.currentState,
+            currentStateBase64: tab.currentStateBase64,
             tabType: tab.tabType,
             appName: tab.appName,
           });
@@ -285,7 +286,7 @@ module.exports = {
           new Tab({
             name: 'Tab 1',
             room: room._id,
-            startinpoint: ' ',
+            startingpoint: '',
             desmosLink: body.desmosLink,
             tabType: body.roomType || 'geogebra',
             appName: body.appName,
