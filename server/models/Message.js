@@ -21,6 +21,7 @@ const Message = new mongoose.Schema({
     y: { type: Number },
     z: { type: Number },
     description: { type: String },
+    viewNum: { type: Number },
   },
   messageType: {
     type: String,
