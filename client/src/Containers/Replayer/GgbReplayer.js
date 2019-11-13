@@ -439,7 +439,7 @@ GgbReplayer.propTypes = {
   tab: PropTypes.shape({
     appName: PropTypes.string,
     _id: PropTypes.string.isRequired,
-    startinPoint: PropTypes.string,
+    startingPoint: PropTypes.string,
     ggbFile: PropTypes.string,
   }).isRequired,
   tabId: PropTypes.number.isRequired,
