@@ -516,44 +516,6 @@ class GgbGraph extends Component {
     return API.getById('tabs', tab._id)
       .then((res) => {
         return this.setGgbState(res.data.result);
-        // const {
-        //   currentState,
-        //   ggbFile,
-        //   startingPoint,
-        //   currentStateBase64,
-        // } = res.data.result;
-
-        // if (currentStateBase64) {
-        //   console.log('loading from currbase64 is file set: ', this.isFileSet);
-        //   if (!this.isFileSet) {
-        //     this.isFileSet = true;
-        //     this.ggbApplet.setBase64(currentStateBase64, () => {
-        //       this.registerListeners();
-        //       this.isResyncing = false;
-        //     });
-        //   } else {
-        //     this.isResyncing = false;
-        //   }
-        // } else if (currentState) {
-        //   console.log('loading from current state');
-        //   this.ggbApplet.setXML(currentState);
-        //   this.registerListeners();
-        //   this.isResyncing = false;
-        // } else if (startingPoint) {
-        //   console.log('loading from startingpoint');
-        //   this.ggbApplet.setXML(startingPoint);
-        //   this.registerListeners();
-        //   this.isResyncing = false;
-        // } else if (ggbFile && !this.isFileSet) {
-        //   console.log('loading from ggbFile');
-        //   this.isFileSet = true;
-        //   this.ggbApplet.setBase64(ggbFile, () => {
-        //     this.registerListeners();
-        //     this.isResyncing = false;
-        //   });
-        // } else {
-        //   this.isResyncing = false;
-        // }
       })
       .then(() => {
         this.registerListeners();
@@ -636,9 +598,6 @@ class GgbGraph extends Component {
    */
 
   clientListener = (event) => {
-    const { tab } = this.props;
-
-    console.log(`Client event and tab is ${tab.name}: `, event);
     if (!event) {
       // seems to happen if you click a bunch of points really quickly
       return;
@@ -1578,8 +1537,9 @@ class GgbGraph extends Component {
       window.alert(msg);
       return;
     }
-
-    const isViewVisible = this.isReferenceViewVisible(viewNum);
+    // old references will not have the viewNum prop
+    // 1 is the normal default view when only having 1 graph
+    const isViewVisible = this.isReferenceViewVisible(viewNum || 1);
 
     if (!isViewVisible) {
       const msg = `The containing view for object (${elementType} ${element}) is not currently visible.`;
