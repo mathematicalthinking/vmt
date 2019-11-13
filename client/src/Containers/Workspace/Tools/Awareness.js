@@ -1,21 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-// import { Avatar, ToolTip, Aux } from "../../../Components";
 import classes from './tools.css';
 import ggbTools from './GgbIcons';
 
 class Awareness extends Component {
-  state = {
-    // showToolTip: false,
-  };
-
   shouldComponentUpdate(nextProps) {
     const { lastEvent } = nextProps;
-
     if (lastEvent) {
       if (
-        (lastEvent.messageType === 'TEXT' && !lastEvent.reference) ||
-        !lastEvent.description
+        lastEvent.messageType === 'TEXT' &&
+        (!lastEvent.reference || !lastEvent.description)
       ) {
         // only show messages with references && event descriptions
         return false;
@@ -29,20 +23,8 @@ class Awareness extends Component {
       return (
         <div className={classes.AwarenessDesc} data-testid="awareness-desc">
           {lastEvent.description || lastEvent.text || lastEvent.message}
-          <div
-            className={classes.AwarenessIcon}
-            // onMouseOver={() => this.setState({ showToolTip: true })}
-            // onFocus={() => this.setState({ showToolTip: true })}
-            // onMouseOut={() => this.setState({ showToolTip: false })}
-            // onBlur={() => this.setState({ showToolTip: false })}
-          >
+          <div className={classes.AwarenessIcon}>
             {lastEvent.action === 'mode' ? (
-              // <ToolTip
-              //   visible={this.state.showToolTip}
-              //   text={ggbTools[lastEvent.label].name
-              //     .toLowerCase()
-              //     .replace("_", " ")}
-              // >
               <img
                 data-testid="awareness-img"
                 src={ggbTools[lastEvent.label].image}
