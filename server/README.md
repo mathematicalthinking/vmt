@@ -20,7 +20,7 @@ To provide the colloaboration infrastructure, this application uses a combinatio
 - [Node.js](http://nodejs.org/)
 
 ## Setup for local Development
- Note: These instructions are outdated and will not work with the new Single Sign On system that integrates VMT with [EnCOMPASS](https://github.com/DanielJKelly/encompass). We hope to have updated instructions posted in the near future.
+ **N.B. These instructions are outdated and will not work with the new Single Sign On system that integrates VMT with [EnCOMPASS](https://github.com/mathematicalthinking/encompass). We hope to have updated instructions posted in the near future.**
  
 1. Fork this repo ([instructions](https://github.com/mathematicalthinking/vmt/blob/master/docs/gitForkRepo.md)) and cd into it (`$ cd vmt`)
 1. `$ npm install`
