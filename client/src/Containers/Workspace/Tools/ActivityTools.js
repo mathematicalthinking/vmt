@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import classes from './tools.css';
 
 const ActivityTools = (props) => {
-  const { owner, copy, save, goBack } = props;
+  const { owner, copy, goBack } = props;
   return (
     <div className={classes.Container}>
       <h3 className={classes.Title}>Tools</h3>
@@ -35,7 +35,7 @@ const ActivityTools = (props) => {
                 here
               </Link>
             </p>
-            <div className={classes.Save}>
+            {/* <div className={classes.Save}>
               <div
                 className={classes.SideButton}
                 role="button"
@@ -46,7 +46,7 @@ const ActivityTools = (props) => {
               >
                 save
               </div>
-            </div>
+            </div> */}
           </div>
         ) : (
           <div>
@@ -93,13 +93,13 @@ const ActivityTools = (props) => {
 
 ActivityTools.propTypes = {
   owner: PropTypes.bool.isRequired,
-  save: PropTypes.func,
+  // save: PropTypes.func,
   copy: PropTypes.func.isRequired,
   goBack: PropTypes.func.isRequired,
 };
 
-ActivityTools.defaultProps = {
-  save: null,
-};
+// ActivityTools.defaultProps = {
+//   save: null,
+// };
 
 export default ActivityTools;

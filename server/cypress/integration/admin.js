@@ -1,5 +1,16 @@
 const Q = require('../fixtures/user7');
 
+const adminColor = 'rgb(255, 213, 73)';
+const normalColor = 'rgb(45, 145, 242)';
+
+const checkAdminMode = (isOn) => {
+  const color = isOn ? adminColor : normalColor;
+  cy.get('.fa-user')
+    .first()
+    .should('have.css', 'background-color')
+    .and('eq', color);
+};
+
 describe('test admin privileges', function() {
   before(function() {
     cy.task('restoreAll').then(() => cy.login(Q));
@@ -14,13 +25,14 @@ describe('test admin privileges', function() {
     cy.getTestElement('content-box-room 2').click();
     cy.getTestElement('view-as-admin').click();
     cy.url().should('include', 'myVMT/rooms/5ba289c57223b9429888b9b6/details');
+    checkAdminMode(true);
   });
 
   it('Q can edit and delete this room', function() {
     cy.getTestElement('edit-room').click();
     cy.getTestElement('edit-instructions').type('new instructions');
     cy.getTestElement('save-room').click();
-    cy.wait(1000);
+    // cy.wait(1000);
     cy.contains('new instructions').should('exist');
     cy.getTestElement('edit-room').click();
     cy.getTestElement('trash-room').click();
@@ -90,6 +102,7 @@ describe('test admin privileges', function() {
   });
 
   it('Q turns admin mode on for anonymous viewing', function() {
+    cy.getTestElement('edit-Off').click();
     cy.get('.fa-user')
       .first()
       .should('have.css', 'background-color')

@@ -19,11 +19,13 @@ const NavItem = ({ name, link, ntf, sliderDetails }) => {
     style = classes.ActiveLink;
   }
 
+  const dataName = typeof name === 'string' ? name : 'profile';
+
   if (sliderDetails) {
     const { isOn, onClick } = sliderDetails;
     return (
       <div className={style}>
-        <Checkbox checked={isOn} change={onClick} dataId={`nav-${name}`}>
+        <Checkbox checked={isOn} change={onClick} dataId={`nav-${dataName}`}>
           {name}
         </Checkbox>
       </div>
@@ -31,7 +33,11 @@ const NavItem = ({ name, link, ntf, sliderDetails }) => {
   }
   return (
     <div className={style}>
-      <NavLink data-testid={`nav-${name}`} className={classes.link} to={link}>
+      <NavLink
+        data-testid={`nav-${dataName}`}
+        className={classes.link}
+        to={link}
+      >
         {name}
       </NavLink>
       {ntf ? <Notification size="small" /> : null}

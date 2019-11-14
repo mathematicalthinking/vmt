@@ -174,12 +174,10 @@ class ActivityWorkspace extends Component {
           <WorkspaceLayout
             graphs={graphs}
             tabs={tabs}
-            // activeMember={this.state.activeMember}
             roomName={activity.name} // THIS IS NO GOOD...WE SHOULD CHANGE THE ROOM ATTR TO RESOURCE THAT CAN ACCEPT EITHER A ROOM OR AN ACTIVITY
             user={user}
             role={role} // oh shit role is taken...its for a11y  stuff
             currentTabId={currentTabId || initialTabId}
-            // updateRoom={this.props.updateRoom}
             bottomRight={
               <ActivityTools
                 owner={role === 'facilitator'}
@@ -214,7 +212,7 @@ class ActivityWorkspace extends Component {
           <NewTabForm
             activity={activity}
             closeModal={this.closeModal}
-            updatedRoom={connectUpdatedActivity}
+            updatedActivity={connectUpdatedActivity}
             user={user}
           />
         </Modal>

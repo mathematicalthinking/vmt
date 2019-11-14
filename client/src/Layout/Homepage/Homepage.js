@@ -20,9 +20,6 @@ class Homepage extends PureComponent {
         this.setState({ error: null });
       }, 2000);
     }
-    // API.get('activities').then(res => {
-    //   this.setState({ popularActivities: res.data.results });
-    // });
   }
 
   componentDidUpdate(prevProps) {
@@ -90,31 +87,9 @@ class Homepage extends PureComponent {
               VMT is currently in Alpha. If you encounter bugs or want to
               suggest new features please email vmt@21pstem.org
             </p>
-            <p>last updated: 11.08.2019</p>
+            <p>last updated: 11.14.2019</p>
           </section>
-          {/* <i onClick={this.scrollToDomRef} className={["fas fa-chevron-down", classes.Down].join(" ")}></i> */}
-          <section className={classes.Options} ref={this.containerRef}>
-            {/* <h3 className={classes.Subtitle}>Popular Activities</h3>
-            <BoxList list={this.state.popularActivities}/> */}
-            {/* <div className={classes.Geogebra}>
-              <img className={classes.GgbImage} src={GeogebraImg} alt='geogebra' />
-              <div>
-                <p className={classes.LongerBlurb}>GeoGebra is dynamic mathematics software for all levels of education that
-                  brings together geometry, algebra, spreadsheets, graphing, statistics and
-                  calculus in one easy-to-use package. GeoGebra is a rapidly expanding
-                  community of millions of users located in just about every country.
-                </p>
-                <Link to='https://www.geogebra.org'>Learn More</Link>
-              </div>
-            </div>
-            <div className={classes.Desmos}>
-              <img className={classes.DesmosImage} src={DesmosImg} alt='desmos' />
-              <p className={classes.LongerBlurb}>
-                Desmos is a free graphing calculator with a large community of teachers and students actively
-                building and sharing activities.
-              </p>
-            </div> */}
-          </section>
+          <section className={classes.Options} ref={this.containerRef} />
         </div>
       </Aux>
     );

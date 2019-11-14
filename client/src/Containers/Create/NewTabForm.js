@@ -119,7 +119,10 @@ class NewTabForm extends Component {
         closeModal();
       })
       .catch(() => {
-        // DISPLAY THIS ERROR MESSAGE: @TODO
+        this.setState({
+          errorMessage:
+            'Sorry, an error occured. Please try reloading the page.',
+        });
       });
   };
 
@@ -203,8 +206,8 @@ NewTabForm.propTypes = {
   updatedActivity: PropTypes.func,
   sendEvent: PropTypes.func,
   closeModal: PropTypes.func.isRequired,
-  setTabs: PropTypes.func.isRequired,
-  currentTabs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  setTabs: PropTypes.func, // not used for activities
+  currentTabs: PropTypes.arrayOf(PropTypes.shape({})), // not used for activities
 };
 
 NewTabForm.defaultProps = {
@@ -212,5 +215,7 @@ NewTabForm.defaultProps = {
   updatedActivity: null,
   sendEvent: null,
   activity: null,
+  setTabs: null,
+  currentTabs: null,
 };
 export default NewTabForm;

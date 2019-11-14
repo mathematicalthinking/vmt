@@ -9,8 +9,6 @@ if (process.env.REACT_APP_STAGING) {
   url = process.env.REACT_APP_SERVER_URL_PRODUCTION;
 }
 
-// eslint-disable-next-line no-console
-console.log('SOCKET URL: ', url);
 const socket = io.connect(url);
 
 export default socket;

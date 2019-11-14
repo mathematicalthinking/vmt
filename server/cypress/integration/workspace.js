@@ -96,16 +96,17 @@ describe('Workspace/replayer', function() {
     cy.getTestElement('cancel').click();
     cy.getTestElement('chat')
       .children()
-      .should('have.length', 4);
+      .should('have.length', 3); // no longer emitting event for selecting move tool after taking control
   });
   it('allows tool selection after taking control', function() {
     cy.getTestElement('take-control').click();
 
-    checkAwareness('jl_picard selected the move tool');
+    checkAwareness('jl_picard took control');
+
     cy.getTestElement('chat')
       .children()
       .children()
-      .should('have.length', 10);
+      .should('have.length', 8);
     cy.get(':nth-child(5) > .toolbar_button > .gwt-Image').click();
     cy.wait(500);
     cy.get(':nth-child(5) > .toolbar_button > .gwt-Image').click();
@@ -177,11 +178,10 @@ describe('Workspace/replayer', function() {
         cy.getTestElement('about-link').should('exist');
       });
 
-      it('Should give option to save activity', function() {
-        // does save button work?
-        // does the user have to change the activity to be able to save?
-        cy.getTestElement('save-activity').should('exist');
-      });
+      // activities are auto saved every time the construction is updated
+      // xit('Should give option to save activity', function() {
+      //   cy.getTestElement('save-activity').should('exist');
+      // });
 
       it('Should display current tab name', function() {
         cy.getTestElement('room-info-tab-name').should(

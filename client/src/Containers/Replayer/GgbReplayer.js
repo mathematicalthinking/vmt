@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Script from 'react-load-script';
@@ -5,12 +6,14 @@ import classes from '../Workspace/graph.css';
 
 import { getEventXml } from './SharedReplayer.utils';
 import { isNonEmptyArray } from '../../utils/objects';
+import { setGgbBase64Async } from '../Workspace/ggbUtils';
 
 class GgbReplayer extends Component {
   graph = React.createRef();
   isFileSet = false; // calling ggb.setBase64 triggers this.initializeGgb(), because we set base 64 inside initializeGgb we use this instance var to track whether we've already set the file. When the ggb tries to load the file twice it breaks everything
 
   elementXmlBeforeRemovalHash = {};
+  backwardsBase64Hash = {};
 
   componentDidMount() {
     window.addEventListener('resize', this.updateDimensions);
@@ -61,12 +64,12 @@ class GgbReplayer extends Component {
 
   // We should periodically save the entire state so if we skip to the very end we don't have to apply each event one at a time
 
-  constructEvent = (data) => {
+  constructEvent = async (data) => {
     const { ggbEvent, eventArray } = data;
     if (eventArray && eventArray.length > 0) {
-      this.recursiveUpdateNew(eventArray);
+      await this.recursiveUpdateNew(eventArray, data._id);
     } else if (ggbEvent) {
-      this.writeGgbEventToGraph(ggbEvent);
+      await this.writeGgbEventToGraph(ggbEvent, data._id);
     }
     // return;
     // switch (eventType) {
@@ -160,7 +163,7 @@ class GgbReplayer extends Component {
       errorDialogsActive: false,
       preventFocus: true,
       appletOnLoad: this.initializeGgb,
-      appName: tab.appName,
+      appName: tab.appName, // doesn't need to be required because ggb default is 'classic'
     };
     const ggbApp = new window.GGBApplet(parameters, '5.0');
     ggbApp.inject(`ggb-element${tabId}A`);
@@ -170,7 +173,11 @@ class GgbReplayer extends Component {
     const { tabId, tab, setTabLoaded } = this.props;
     this.ggbApplet = window[`ggbApplet${tabId}A`];
     setTabLoaded(tab._id);
-    this.ggbApplet.setMode(40); // Sets the tool to zoom
+
+    // do we need to set the mode here?
+    // the toolbar is not visible and once we load the starting point or file
+    // the tool gets set automatically
+
     const { startingPoint, ggbFile } = tab;
     // put the current construction on the graph, disable everything until the user takes control
     // if (perspective) this.ggbApplet.setPerspective(perspective);
@@ -191,65 +198,83 @@ class GgbReplayer extends Component {
     }
   };
 
-  writeGgbEventToGraph = (event) => {
-    const { eventType } = event;
+  writeGgbEventToGraph = async (event, eventId) => {
+    try {
+      // eventId is the Event model id
+      const { eventType } = event;
 
-    if (eventType === 'REMOVE') {
-      const { label } = event;
+      if (eventType === 'REMOVE') {
+        const { label } = event;
 
-      if (!event.isUndoAdd) {
-        const cachedXmlStack = this.elementXmlBeforeRemovalHash[label];
+        if (!event.isUndoAdd) {
+          const cachedXmlStack = this.elementXmlBeforeRemovalHash[label];
 
-        if (!Array.isArray(cachedXmlStack)) {
-          // no removed items with this label have been cached
-          this.elementXmlBeforeRemovalHash[label] = [];
+          if (!Array.isArray(cachedXmlStack)) {
+            // no removed items with this label have been cached
+            this.elementXmlBeforeRemovalHash[label] = [];
 
-          const elementXml = this.ggbApplet.getXML(label);
-          if (elementXml) {
-            this.elementXmlBeforeRemovalHash[label].push(elementXml);
+            const elementXml = this.ggbApplet.getXML(label);
+            if (elementXml) {
+              this.elementXmlBeforeRemovalHash[label].push(elementXml);
+            }
+          } else {
+            const elementXml = this.ggbApplet.getXML(label);
+            if (elementXml) {
+              this.elementXmlBeforeRemovalHash[label].push(elementXml);
+            }
           }
+        }
+        this.ggbApplet.deleteObject(label);
+      } else if (event.isUndoRename) {
+        // have to reset the renamed object to old label
+        this.ggbApplet.renameObject(event.label, event.oldLabel);
+      } else if (event.xml) {
+        this.ggbApplet.evalXML(event.xml);
+      } else if (eventType === 'ADD' && event.isUndoRemove) {
+        const cachedXmlStack = this.elementXmlBeforeRemovalHash[event.label];
+
+        if (isNonEmptyArray(cachedXmlStack)) {
+          const cachedXml = this.elementXmlBeforeRemovalHash[event.label].pop();
+
+          if (cachedXml) {
+            this.ggbApplet.evalXML(cachedXml);
+          }
+        }
+      } else if (
+        event.commandString &&
+        event.objType !== 'point' &&
+        event.eventType !== 'DRAG'
+      ) {
+        this.ggbApplet.evalCommand(event.commandString);
+        // if (event.valueString) {
+        //   this.ggbApplet.evalCommand(event.valueString);
+        // }
+      } else if (event.commandString) {
+        const test = this.ggbApplet.evalCommandGetLabels(event.commandString);
+        if (event.label) {
+          this.ggbApplet.renameObject(test, event.label);
+        }
+      } else if (event.base64) {
+        let base64ToSet;
+        if (event.isForBackwards) {
+          base64ToSet = this.backwardsBase64Hash[eventId];
+          delete this.backwardsBase64Hash[eventId];
         } else {
-          const elementXml = this.ggbApplet.getXML(label);
-          if (elementXml) {
-            this.elementXmlBeforeRemovalHash[label].push(elementXml);
-          }
+          base64ToSet = event.base64;
+          this.backwardsBase64Hash[eventId] = this.ggbApplet.getBase64();
+        }
+
+        if (base64ToSet) {
+          this.didSetBase64 = true;
+          await setGgbBase64Async(this.ggbApplet, base64ToSet);
+        } else {
+          return;
         }
       }
-      this.ggbApplet.deleteObject(label);
-    } else if (event.isUndoRename) {
-      // have to reset the renamed object to old label
-      this.ggbApplet.renameObject(event.label, event.oldLabel);
-    } else if (event.xml) {
-      this.ggbApplet.evalXML(event.xml);
-    } else if (eventType === 'ADD' && event.isUndoRemove) {
-      const cachedXmlStack = this.elementXmlBeforeRemovalHash[event.label];
-
-      if (isNonEmptyArray(cachedXmlStack)) {
-        const cachedXml = this.elementXmlBeforeRemovalHash[event.label].pop();
-
-        if (cachedXml) {
-          this.ggbApplet.evalXML(cachedXml);
-        }
-        console.log('found cachedXml for event: ', 'event', event, cachedXml);
-      } else {
-        console.log('missing cached xml for ', event);
-      }
-    } else if (
-      event.commandString &&
-      event.objType !== 'point' &&
-      event.eventType !== 'DRAG'
-    ) {
-      this.ggbApplet.evalCommand(event.commandString);
-      // if (event.valueString) {
-      //   this.ggbApplet.evalCommand(event.valueString);
-      // }
-    } else if (event.commandString) {
-      const test = this.ggbApplet.evalCommandGetLabels(event.commandString);
-      if (event.label) {
-        this.ggbApplet.renameObject(test, event.label);
-      }
+      this.ggbApplet.evalCommand('UpdateConstruction()');
+    } catch (err) {
+      console.log(`Error writing ggb event to graph: `, err);
     }
-    this.ggbApplet.evalCommand('UpdateConstruction()');
   };
 
   /**
@@ -259,84 +284,28 @@ class GgbReplayer extends Component {
    * @param  {} endIndex
    */
 
-  applyMultipleEvents(startIndex, endIndex) {
+  async applyMultipleEvents(startIndex, endIndex) {
     const { log } = this.props;
     // Forwards through time
     if (startIndex < endIndex) {
-      // this.ggbApplet.setXML(this.props.log[endIndex].currentState);
-      console.log(
-        'applying multiple forwards',
-        'from ',
-        startIndex,
-        'to ',
-        endIndex
-      );
-
-      for (let i = startIndex; i <= endIndex; i++) {
+      // if we were paused on ix 2 and then click to index 5,
+      // we will have already applied the event for ix 2
+      for (let i = startIndex + 1; i <= endIndex; i++) {
         const syntheticEvent = { ...log[i] };
-        // const { eventType } = syntheticEvent;
-        // const isNewEvent = typeof eventType !== 'string';
-
-        // if (isNewEvent) {
         const { ggbEvent, eventArray } = syntheticEvent;
         if (eventArray && eventArray.length > 0) {
-          this.recursiveUpdateNew(eventArray);
+          await this.recursiveUpdateNew(eventArray);
         } else if (ggbEvent) {
-          this.writeGgbEventToGraph(ggbEvent);
-        } else {
-          // console.log('ELSE shouldnt be here: ', syntheticEvent);
+          await this.writeGgbEventToGraph(ggbEvent, syntheticEvent._id);
         }
-        // } else if (
-        //   log[i].eventArray &&
-        //   log[i].eventArray.length > 0 &&
-        //   getEventType(log[i]) === 'BATCH_UPDATE'
-        // ) {
-        //   const { eventArray } = syntheticEvent;
-
-        //   const xmlOrGgbEvent = eventArray.pop();
-
-        //   setEventXml(syntheticEvent, xmlOrGgbEvent);
-        //   setEventType(syntheticEvent, 'UPDATE');
-
-        //   console.log('calling constructEvent from applyMult');
-        //   this.constructEvent(syntheticEvent);
-        // } else {
-        //   console.log('calling constructEvent from applyMult else');
-        //   this.constructEvent(log[i]);
-        // }
       }
     }
 
     // backwards through time
     else {
-      console.log(
-        'applying multiple backwards',
-        'from ',
-        startIndex,
-        'to ',
-        endIndex
-      );
       for (let i = startIndex; i > endIndex; i--) {
         const syntheticEvent = { ...log[i] };
-        // const { eventType } = syntheticEvent;
-        // const isNewEvent = typeof eventType !== 'string';
-
-        // if (isNewEvent) {
-        const {
-          ggbEvent,
-          eventArray,
-          // undoArray,
-          // undoGgbEvent,
-        } = syntheticEvent;
-
-        // if (isNonEmptyArray(undoArray)) {
-        //   console.log({ undoArray });
-        //   this.recursiveUpdateNew([...undoArray]);
-        // } else if (undoGgbEvent) {
-        //   console.log({ undoGgbEvent });
-        //   this.writeGgbEventToGraph(undoGgbEvent);
-        // } else
-
+        const { ggbEvent, eventArray } = syntheticEvent;
         if (eventArray && eventArray.length > 0) {
           const syntheticEvents = eventArray.map((ev) => {
             const copy = { ...ev };
@@ -349,13 +318,14 @@ class GgbReplayer extends Component {
             } else if (evType === 'REMOVE') {
               copy.eventType = 'ADD';
               copy.isUndoRemove = true;
-              // look for undoXML
             } else if (evType === 'RENAME') {
               copy.isUndoRename = true;
+            } else if (copy.base64) {
+              copy.isForBackwards = true;
             }
             return copy;
           });
-          this.recursiveUpdateNew(syntheticEvents);
+          await this.recursiveUpdateNew(syntheticEvents);
         } else if (ggbEvent) {
           const copy = { ...ggbEvent };
           if (copy.eventType === 'ADD') {
@@ -368,27 +338,11 @@ class GgbReplayer extends Component {
             copy.isUndoRemove = true;
           } else if (copy.eventType === 'RENAME') {
             copy.isUndoRename = true;
+          } else if (copy.base64) {
+            copy.isForBackwards = true;
           }
-          this.writeGgbEventToGraph(copy);
+          await this.writeGgbEventToGraph(copy, syntheticEvent._id);
         }
-        // } else {
-        //   if (eventType === 'ADD') {
-        //     setEventType(syntheticEvent, 'REMOVE');
-        //   } else if (eventType === 'REMOVE') {
-        //     syntheticEvent.undoRemove = true;
-        //     setEventType(syntheticEvent, 'ADD');
-        //   } else if (eventType === 'BATCH_ADD') {
-        //     setEventType(syntheticEvent, 'BATCH_REMOVE');
-        //   } else if (eventType === 'BATCH_UPDATE') {
-        //     const { eventArray } = { ...syntheticEvent };
-
-        //     const xmlOrGgbEvent = eventArray.shift();
-
-        //     setEventXml(syntheticEvent, xmlOrGgbEvent);
-        //     setEventType(syntheticEvent, 'UPDATE');
-        //   }
-        //   this.constructEvent(syntheticEvent);
-        // }
       }
     }
   }
@@ -436,18 +390,21 @@ class GgbReplayer extends Component {
     }
   }
 
-  recursiveUpdateNew(events) {
+  async recursiveUpdateNew(events, eventId) {
     if (Array.isArray(events) && events.length > 0) {
       const copiedEvents = [...events];
 
       const event = copiedEvents.shift();
-      this.writeGgbEventToGraph(event);
+      await this.writeGgbEventToGraph(event, eventId);
       if (copiedEvents.length > 0) {
         // readyToClearSocketQueue = false;
         // By wrapping calls to recursiveUpdate in a setTimeout we end up with behavior that is closer
         // to a natural dragging motion. If we write copy one after the other w/o a timeout
         // the point moves too quickly and looks like its jumping to the final position
-        setTimeout(() => this.recursiveUpdateNew(copiedEvents), 0);
+        setTimeout(
+          async () => this.recursiveUpdateNew(copiedEvents, eventId),
+          0
+        );
       }
     }
     // if (readyToClearSocketQueue) {
@@ -480,9 +437,9 @@ GgbReplayer.propTypes = {
   isFullscreen: PropTypes.bool.isRequired,
   setTabLoaded: PropTypes.func.isRequired,
   tab: PropTypes.shape({
-    appName: PropTypes.string.isRequired,
+    appName: PropTypes.string,
     _id: PropTypes.string.isRequired,
-    startinPoint: PropTypes.string,
+    startingPoint: PropTypes.string,
     ggbFile: PropTypes.string,
   }).isRequired,
   tabId: PropTypes.number.isRequired,

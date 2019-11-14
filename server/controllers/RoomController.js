@@ -102,7 +102,7 @@ module.exports = {
       initialFilter.privacySetting = filters.privacySetting;
     }
 
-    const aggregationPipeline = [
+    let aggregationPipeline = [
       { $match: initialFilter },
       {
         $project: {
@@ -135,7 +135,10 @@ module.exports = {
       },
 
       { $unwind: '$facilitatorObject' },
-      {
+    ];
+
+    if (criteria) {
+      aggregationPipeline.push({
         $match: {
           $or: [
             { name: criteria },
@@ -144,7 +147,9 @@ module.exports = {
             { 'facilitatorObject.username': criteria },
           ],
         },
-      },
+      });
+    }
+    aggregationPipeline = aggregationPipeline.concat([
       {
         $group: {
           _id: '$_id',
@@ -197,7 +202,7 @@ module.exports = {
           'members.user._id': 1,
         },
       },
-    ];
+    ]);
 
     if (filters.roomType) {
       aggregationPipeline.push({
@@ -260,6 +265,7 @@ module.exports = {
             desmosLink: body.desmosLink,
             currentState: tab.currentState,
             startingPoint: tab.currentState,
+            currentStateBase64: tab.currentStateBase64,
             tabType: tab.tabType,
             appName: tab.appName,
           });
@@ -280,7 +286,7 @@ module.exports = {
           new Tab({
             name: 'Tab 1',
             room: room._id,
-            startinpoint: ' ',
+            startingpoint: '',
             desmosLink: body.desmosLink,
             tabType: body.roomType || 'geogebra',
             appName: body.appName,

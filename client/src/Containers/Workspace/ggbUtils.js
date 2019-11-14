@@ -85,3 +85,19 @@
 
 // eslint-disable-next-line import/prefer-default-export
 export const blankEditorState = `{"content":"","caret":[0]}`;
+
+export const setGgbBase64Async = (ggbApplet, base64) => {
+  return new Promise((resolve, reject) => {
+    if (!ggbApplet || typeof base64 !== 'string') {
+      reject(new Error('Invalid arguments'));
+      return;
+    }
+    try {
+      ggbApplet.setBase64(base64, () => {
+        resolve(true);
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};

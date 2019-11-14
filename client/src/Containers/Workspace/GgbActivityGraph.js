@@ -5,7 +5,6 @@ import Script from 'react-load-script';
 import { parseString } from 'xml2js';
 import throttle from 'lodash/throttle';
 import { Aux } from '../../Components';
-import API from '../../utils/apiRequests';
 import classes from './graph.css';
 
 class GgbActivityGraph extends Component {
@@ -15,16 +14,12 @@ class GgbActivityGraph extends Component {
     super(props);
     this.getGgbState = throttle(
       () => {
-        // eslint-disable-next-line no-unused-vars
-        const { role, tab, activity, updateActivityTab } = this.props;
+        const { role, tab, updateActivityTab, activity } = this.props;
         if (role === 'facilitator' && this.ggbApplet) {
-          API.put('tabs', tab._id, { currentState: this.ggbApplet.getXML() })
-            .then(() => {})
-            .catch((err) => {
-              // eslint-disable-next-line no-console
-              console.log(err);
-            });
-          // this.props.updatedActivity(this.props.activity._id, {tabs: updatedTabs})
+          const base64 = this.ggbApplet.getBase64();
+          updateActivityTab(activity._id, tab._id, {
+            currentStateBase64: base64,
+          });
         } else {
           // eslint-disable-next-line no-alert
           window.alert(
@@ -39,54 +34,7 @@ class GgbActivityGraph extends Component {
 
   componentDidMount() {
     window.addEventListener('resize', this.updateDimensions);
-    // if (window.ggbApplet) {
-    //   this.initializeGgb();
-    // }
   }
-
-  // componentDidUpdate(prevProps, prevState) {
-  //   // if (prevProps.currentTab !== this.props.currentTab) {
-  //   //   // by wrapping this in a setimteout of 0 I'm attempting to delay all of the event blocking geogebra operations
-  //   //   // until after any UI updates////can't quite tell if it working...when switching tab the tab animation should be smoothe
-  //   //   setTimeout(() => {
-  //   //     let {
-  //   //       currentState,
-  //   //       startingPoint,
-  //   //       ggbFile,
-  //   //       perspective
-  //   //     } = this.props.tabs[this.props.currentTab];
-  //   //     if (perspective) this.ggbApplet.setPerspective(perspective);
-  //   //     initPerspectiveListener(document, perspective, this.perspectiveChanged);
-  //   //     if (currentState) {
-  //   //       this.ggbApplet.setXML(currentState);
-  //   //       this.registerListeners();
-  //   //     } else if (startingPoint) {
-  //   //       this.ggbApplet.setXML(startingPoint);
-  //   //       this.registerListeners();
-  //   //     } else if (ggbFile) {
-  //   //       this.ggbApplet.setBase64(ggbFile, () => {
-  //   //         this.getGgbState();
-  //   //         if (this.props.user._id === this.props.activity.creator) {
-  //   //           this.freezeElements(false);
-  //   //         }
-  //   //       });
-  //   //     } else {
-  //   //       // this.ggbApplet.setXML(INITIAL_GGB);
-  //   //       this.registerListeners();
-  //   //     }
-  //   //   }, 0);
-  //   //   // Waiting for the tabs to populate if they haven't akready
-  //   // } else if (!prevProps.tabs[0].name && this.props.tabs[0].name) {
-  //   //   this.initializeGgb();
-  //   // }
-  // }
-
-  // // shouldComponentUpdate(nextProps) {
-  // //   return (
-  // //     this.props.tabId === this.props.currentTab ||
-  // //     nextProps.tabId === nextProps.currentTab
-  // //   );
-  // // }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateDimensions);
@@ -96,8 +44,7 @@ class GgbActivityGraph extends Component {
     if (this.loadingTimer) {
       clearInterval(this.loadingTimer);
     }
-    if (this.ggbApplet && this.ggbApplet.listeners) {
-      // delete window.ggbApplet;
+    if (this.ggbApplet) {
       this.ggbApplet.unregisterAddListener(this.getGgbState);
       this.ggbApplet.unregisterUpdateListener(this.getGgbState);
       this.ggbApplet.unregisterRemoveListener(this.getGgbState);
@@ -107,37 +54,6 @@ class GgbActivityGraph extends Component {
     delete window.ggbApplet;
   }
 
-  // Save new state to the redux store on each modification to the construction
-  // When the user leaves the room we'll update the backend (that way we only do it once)
-
-  perspectiveChanged = (newPerspectiveCode) => {
-    const { tab, activity, updateActivityTab } = this.props;
-    updateActivityTab(activity._id, tab._id, {
-      perspective: newPerspectiveCode,
-    });
-
-    // // REinitialize listener with new perspective
-    // initPerspectiveListener(
-    //   document,
-    //   newPerspectiveCode,
-    //   this.perspectiveChanged
-    // );
-  };
-
-  // updateDimensions = () => {
-  //   const { loading } = this.state;
-  //   if (this.resizeTimer) {
-  //     clearTimeout(this.resizeTimer);
-  //   }
-  //   this.resizeTimer = setTimeout(async () => {
-  //     if (this.graph.current && !loading) {
-  //       const { clientHeight, clientWidth } = this.graph.current.parentElement;
-  //       window.ggbApplet.setSize(clientWidth, clientHeight);
-  //       // window.ggbApplet.evalCommand('UpdateConstruction()'
-  //     }
-  //     this.resizeTimer = undefined;
-  //   }, 200);
-  // };
   updateDimensions = async () => {
     const { tab } = this.props;
     if (this.graph.current && this.ggbApplet) {
@@ -152,22 +68,21 @@ class GgbActivityGraph extends Component {
   };
 
   onScriptLoad = () => {
-    const { role, tab, currentTab, isFirstTabLoaded } = this.props;
+    const { role, tab, currentTab } = this.props;
     const parameters = {
-      id: `ggb-element${tab._id}A`,
+      id: `ggbApplet${tab._id}A`,
       // "scaleContainerClasse": "graph",
       // customToolBar:
       // "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
       showToolBar: role === 'facilitator',
       showMenuBar: role === 'facilitator',
-      showAlgebraInput: true,
+      showAlgebraInput: false,
       language: 'en',
       useBrowserForJS: false,
       borderColor: '#ddd',
       buttonShadows: true,
       errorDialogsActive: false,
       preventFocus: true,
-      // filename: this.props.tabs[this.props.tabId].ggbFile || null,
       appletOnLoad: this.initializeGgb,
       appName: tab.appName || 'classic',
     };
@@ -176,6 +91,7 @@ class GgbActivityGraph extends Component {
       ggbApp.inject(`ggb-element${tab._id}A`);
     } else {
       this.loadingTimer = setInterval(() => {
+        const { isFirstTabLoaded } = this.props;
         if (isFirstTabLoaded) {
           ggbApp.inject(`ggb-element${tab._id}A`);
           clearInterval(this.loadingTimer);
@@ -185,12 +101,19 @@ class GgbActivityGraph extends Component {
   };
 
   initializeGgb = () => {
-    const { tab, user, activity, setFirstTabLoaded } = this.props;
-    this.ggbApplet = window.ggbApplet;
-    // this.setState({ loading: false });
-    const { currentState, startingPoint, ggbFile } = tab;
-    //
-    if (currentState) {
+    const { tab, setFirstTabLoaded, currentTab } = this.props;
+    this.ggbApplet = window[`ggbApplet${tab._id}A`];
+
+    const { currentState, startingPoint, ggbFile, currentStateBase64 } = tab;
+
+    if (currentStateBase64) {
+      if (this.isFileLoaded) {
+        this.registerListeners();
+        return;
+      }
+      this.isFileLoaded = true;
+      this.ggbApplet.setBase64(currentStateBase64);
+    } else if (currentState) {
       this.ggbApplet.setXML(currentState);
     } else if (startingPoint) {
       this.ggbApplet.setXML(startingPoint);
@@ -198,19 +121,10 @@ class GgbActivityGraph extends Component {
       this.isFileLoaded = true;
       this.ggbApplet.setBase64(ggbFile);
     }
-    //  else if (perspective) {
-    //   console.log("[erspecitve");
-    //   this.ggbApplet.setPerspective(perspective);
-    // }
-    if (user._id === activity.creator) {
-      // this.freezeElements(false);
-      // this.freezeElements(true)
-    } else {
-      // this.freezeElements(true);
-    }
     this.registerListeners();
-    setFirstTabLoaded();
-    // put the current construction on the graph, disable everything until the user takes control
+    if (currentTab === tab._id) {
+      setFirstTabLoaded();
+    }
   };
 
   parseXML = (xml) => {
@@ -222,23 +136,17 @@ class GgbActivityGraph extends Component {
     });
   };
 
-  // freezeElements = (freeze) => {
-  //   const allElements = this.ggbApplet.getAllObjectNames(); // WARNING ... THIS METHOD IS DEPRECATED
-  //   allElements.forEach((element) => {
-  //     // AS THE CONSTRUCTION GETS BIGGER THIS GETS SLOWER...SET_FIXED IS BLOCKING
-  //     this.ggbApplet.setFixed(element, freeze, true); // Unfix/fix all of the elements
-  //   });
-
-  //   this.ggbApplet.enableRightClick(!freeze);
-  //   this.ggbApplet.showToolBar(!freeze);
-  //   this.ggbApplet.setMode(freeze ? 40 : 0);
-  // };
-
   registerListeners() {
+    this.ggbApplet.unregisterAddListener(this.getGgbState);
+    this.ggbApplet.unregisterUpdateListener(this.getGgbState);
+    this.ggbApplet.unregisterRemoveListener(this.getGgbState);
+    this.ggbApplet.unregisterClearListener(this.getGgbState);
+    this.ggbApplet.unregisterClientListener(this.getGgbState);
+
     this.ggbApplet.registerAddListener(this.getGgbState);
     this.ggbApplet.registerUpdateListener(this.getGgbState);
     this.ggbApplet.registerRemoveListener(this.getGgbState);
-    this.ggbApplet.registerClickListener(this.getGgbState);
+    this.ggbApplet.registerClearListener(this.getGgbState);
     this.ggbApplet.registerClientListener(this.getGgbState);
   }
 
@@ -266,13 +174,12 @@ class GgbActivityGraph extends Component {
 GgbActivityGraph.propTypes = {
   role: PropTypes.string.isRequired,
   currentTab: PropTypes.string.isRequired,
-  // tabs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   user: PropTypes.shape({}).isRequired,
   activity: PropTypes.shape({}).isRequired,
   isFirstTabLoaded: PropTypes.bool.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
-  updateActivityTab: PropTypes.func.isRequired,
   tab: PropTypes.shape({}).isRequired,
+  updateActivityTab: PropTypes.func.isRequired,
 };
 
 export default GgbActivityGraph;

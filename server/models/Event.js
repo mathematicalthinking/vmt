@@ -28,7 +28,8 @@ const ggbEvent = {
       'MODE',
     ],
   },
-  oldLabel: { type: String }, // used for RENAME events
+  oldLabel: { type: String }, // used for RENAME events,
+  base64: { type: String }, // additional files such as images get lost using xml
 };
 const Event = new mongoose.Schema({
   user: { type: ObjectId, ref: 'User' },

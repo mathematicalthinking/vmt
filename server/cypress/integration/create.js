@@ -260,7 +260,7 @@ describe('create each type of resource', function() {
 
       // check that the file loaded
       // should be items in the left algebra panel
-      const numAlgebraPanelItems = 11;
+      const numAlgebraPanelItems = 10;
       cy.get('.gwt-TreeItem').should('have.length', numAlgebraPanelItems);
     });
   });

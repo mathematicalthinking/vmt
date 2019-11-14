@@ -56,8 +56,6 @@ class Chat extends Component {
       setToElAndCoords,
       referToEl,
       showingReference,
-      // referenceElement,
-      // referenceElementCoords,
     } = this.props;
     if (prevProps.log.length !== log.length) {
       // create a ref for the new element
@@ -80,14 +78,13 @@ class Chat extends Component {
       setToElAndCoords(null, this.getRelativeCoords(refMessage));
     } else if (prevProps.referencing && !referencing) {
       this.setState({ highlightedMessage: null });
+    } else if (prevProps.showingReference && !showingReference) {
+      // need to set the from el to the chatinput just as if we started referencing
+      setFromElAndCoords(
+        this.chatInput.current,
+        this.getRelativeCoords(this.chatInput.current)
+      );
     }
-    //  else if (
-    //   !prevProps.referenceElementCoords &&
-    //   referenceElementCoords &&
-    //   referenceElement.elementType === 'chat_message'
-    // ) {
-
-    // }
   }
 
   componentWillUnmount() {
@@ -173,7 +170,12 @@ class Chat extends Component {
 
   // If the object being reference is a chat message (and not an element on the graph)
   referToMessage = (event, id) => {
-    const { setToElAndCoords } = this.props;
+    const { setToElAndCoords, showingReference, clearReference } = this.props;
+
+    if (showingReference) {
+      clearReference({ doKeepReferencingOn: true });
+    }
+
     const position = this.getRelativeCoords(event.target);
     setToElAndCoords({ element: id, elementType: 'chat_message' }, position);
   };

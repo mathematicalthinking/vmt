@@ -24,6 +24,38 @@ import API from '../../utils/apiRequests';
 //   'REDO',
 //   'UNDO',
 // ];
+
+const GgbViewIdToPerspectiveMap = {
+  1: { perspective: 'G', defaultTool: 40, controlTool: 0 }, // graphing
+  2: { perspective: 'A', defaultTool: 0, controlTool: 0 }, // algebra
+  4: { perspective: 'S', defaultTool: 0, controlTool: 0 }, // spreadsheet
+  512: { perspective: 'T', defaultTool: 40, controlTool: 0 }, // 3D graphics,
+  8: { perspective: 'C', defaultTool: 1001, controlTool: 1001 }, // CAS,
+  64: { perspective: 'B', defaultTool: 0, controlTool: 0 }, // probability
+  16: { perspective: 'D', defaultTool: 40, controlTool: 0 }, // graphics view 2,
+  4097: { perspective: 'P', defaultTool: 0, controlTool: 0 }, // properties menu
+  32: { perspective: 'L', defaultTool: 0, controlTool: 0 }, // construction protocol,
+};
+
+const refViewToIdMap = {
+  1: '1',
+  2: '16',
+  512: '512',
+};
+
+// const viewLocationMap = { 2 views
+//   3: 'LEFT',
+//   2: 'BOTTOM',
+//   0: 'TOP',
+//   1: 'RIGHT',
+// };
+
+// 1 view location =0
+
+// 3 views
+// left: 3,3
+// middle 3,1
+
 class GgbGraph extends Component {
   state = {
     showControlWarning: false,
@@ -52,7 +84,8 @@ class GgbGraph extends Component {
   previousCommandString = null;
   time = null; // used to time how long an eventQueue is building up, we don't want to build it up for more than two seconds.
 
-  renameDetails = []; // tuple of oldLabel, newLabel
+  renamedDetails = null; // tuple of oldLabel, newLabel
+  tabFileLoadedHash = {};
   /**
    * @method componentDidMount
    * @description add socket listeners, window resize listener
@@ -99,8 +132,13 @@ class GgbGraph extends Component {
       this.receivingData = true;
       data.tabs.forEach((t) => {
         if (t._id === tab._id) {
-          this.ggbApplet.setXML(tab.currentState);
-          this.registerListeners(); // always reset listeners after calling sextXML (setXML destorys everything)
+          if (tab.currentStateBase64) {
+            this.didResync = true;
+            this.setGgbBase64(tab.currentStateBase64);
+          } else {
+            this.ggbApplet.setXML(tab.currentState);
+            this.registerListeners(); // always reset listeners after calling sextXML (setXML destorys everything)
+          }
         }
       });
       this.receivingData = false;
@@ -114,7 +152,7 @@ class GgbGraph extends Component {
    * @param  {Object} prevProps - props before update
    */
 
-  componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps) {
     const {
       currentTabId,
       tab,
@@ -156,42 +194,24 @@ class GgbGraph extends Component {
     // Creating a reference
     if (didStartReferencing) {
       // prompt if they want reference to automatically turn on when chat is in focus?
-      this.ggbApplet.setMode(0); // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
+      this.setDefaultGgbMode();
+      // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
     } else if (didStopReferencing) {
       // if they are in control, can keep mode set to move tool
       if (!isInControl) {
         // force resync in case they moved anything while referencing
-        this.resyncGgbState();
-        this.ggbApplet.setMode(40);
+        // this.resyncGgbState();
+        // this.ggbApplet.setMode(40);
       }
     }
     // Control
     if (didGainControl) {
-      if (prevProps.referencing) {
-        // force resync in case they moved anything while referencing
-        this.resyncGgbState();
-      }
-      if (this.intendedMode) {
-        // if they tried to click on a tool while not
-        // in control, set mode to that tool
-        this.ggbApplet.setMode(this.intendedMode);
-        this.intendedMode = null;
-      } else {
-        this.ggbApplet.setMode(0);
-      }
-
       clearReference();
+      await this.resyncGgbState();
+      this.setDefaultGgbMode();
     } else if (didReleaseControl) {
       // this.updateConstructionState();
-
-      if (referencing) {
-        const currentMode = this.ggbApplet.getMode();
-        if (currentMode !== 0) {
-          this.ggbApplet.setMode(0);
-        }
-      } else {
-        this.ggbApplet.setMode(40);
-      }
+      this.setDefaultGgbMode();
     }
 
     // Displaying Reference
@@ -200,7 +220,6 @@ class GgbGraph extends Component {
       referToEl.elementType !== 'chat_message'
     ) {
       // find the coordinates of the point we're referencing
-
       this.updateReferToEl(referToEl);
     } else if (
       showingReference &&
@@ -230,9 +249,9 @@ class GgbGraph extends Component {
       clearInterval(this.loadingTimer);
     }
     if (this.ggbApplet) {
-      // delete window.ggbApplet;
       this.ggbApplet.unregisterAddListener(this.addListener);
       this.ggbApplet.unregisterUpdateListener(this.updateListener);
+      // this.ggbApplet.unregisterClickListener(this.clickListener);
       this.ggbApplet.unregisterRemoveListener(this.removeListener);
       this.ggbApplet.unregisterClearListener(this.clearListener);
       this.ggbApplet.unregisterClientListener(this.clientListener);
@@ -270,6 +289,22 @@ class GgbGraph extends Component {
     return refCoords;
   }
 
+  getBase64Async = () => {
+    return new Promise((resolve, reject) => {
+      if (!this.ggbApplet) {
+        reject(new Error('Missing ggbApplet'));
+        return;
+      }
+      this.ggbApplet.getBase64((base64) => {
+        if (!base64) {
+          reject(new Error('Unable to get base64 construction state'));
+          return;
+        }
+        resolve(base64);
+      });
+    });
+  };
+
   visibilityChange = () => {
     this.isWindowVisible = !this.isWindowVisible;
     if (this.isWindowVisible && this.isFaviconNtf) {
@@ -289,6 +324,13 @@ class GgbGraph extends Component {
   };
 
   writeToGraph = (event) => {
+    if (event.base64) {
+      // used for undo and redo events currently
+      // do not want to run UpdateConstruction command after setBase64
+      this.didResync = true;
+      this.setGgbBase64(event.base64);
+      return;
+    }
     if (
       event.commandString &&
       event.objType !== 'point' &&
@@ -418,7 +460,7 @@ class GgbGraph extends Component {
       // scaleContainerClass: "graph",
       showToolBar: true,
       showMenuBar: true,
-      showAlgebraInput: true,
+      showAlgebraInput: false,
       language: 'en',
       useBrowserForJS: false,
       borderColor: '#ddd',
@@ -428,7 +470,6 @@ class GgbGraph extends Component {
       errorDialogsActive: false,
       appletOnLoad: this.initializeGgb,
       appName: tab.appName || 'classic',
-      enableUndoRedo: false, // undo/redo is problematic; disable for now
     };
     const ggbApp = new window.GGBApplet(parameters, '6.0');
     if (currentTabId === tab._id) {
@@ -450,22 +491,42 @@ class GgbGraph extends Component {
 
   resyncGgbState = () => {
     const { tab } = this.props;
+    this.didResync = true;
+    this.tabFileLoadedHash[tab._id] = false;
+    this.isResyncing = true;
+    return this.getTabState()
+      .then(() => {})
+      .catch(() => {
+        const { inControl, toggleControl } = this.props;
+
+        if (inControl === 'ME') {
+          // if an error occured while resyncing and the user has control
+          // auto remove control
+          toggleControl();
+        }
+        // eslint-disable-next-line no-alert
+        window.alert(
+          'An error occurred syncing the state of this room. It is recommended you refresh the page to avoid falling out of sync with other users.'
+        );
+      });
+  };
+
+  getTabState = () => {
+    const { tab } = this.props;
     return API.getById('tabs', tab._id)
       .then((res) => {
-        const { currentState, ggbFile, startingPoint } = res.data.result;
-
-        if (currentState) {
-          this.ggbApplet.setXML(currentState);
-        } else if (startingPoint) {
-          this.ggbApplet.setXML(startingPoint);
-        } else if (ggbFile && !this.isFileSet) {
-          this.isFileSet = true;
-          this.ggbApplet.setBase64(ggbFile);
-        }
+        return this.setGgbState(res.data.result);
+      })
+      .then(() => {
         this.registerListeners();
+        this.setDefaultGgbMode().then(() => {
+          this.isResyncing = false;
+        });
       })
       .catch((err) => {
         console.log('ERROR resyncing: ', 'failed to updated', err);
+        this.isResyncing = false;
+        throw err;
       });
   };
 
@@ -475,21 +536,31 @@ class GgbGraph extends Component {
    */
 
   initializeGgb = async () => {
+    this.isInitializingGgb = true;
     // Save the coords of the graph element so we know how to restrict reference lines (i.e. prevent from overflowing graph)
-
     const { tab, setFirstTabLoaded, currentTabId } = this.props;
+
     this.getInnerGraphCoords();
     this.ggbApplet = window[`ggbApplet${tab._id}A`];
-    this.ggbApplet.setMode(40); // Sets the tool to zoom
+    await this.setDefaultGgbMode();
     // put the current construction on the graph, disable everything until the user takes control
     // if (perspective) this.ggbApplet.setPerspective(perspective);
     try {
-      await this.resyncGgbState();
+      if (!this.didResync) {
+        await this.resyncGgbState();
+      } else {
+        this.didResync = false;
+      }
+
       if (tab._id === currentTabId) {
         setFirstTabLoaded();
       }
+      this.setDefaultGgbMode().then(() => {
+        this.isInitializingGgb = false;
+      });
     } catch (err) {
       console.log(`Error initializingGgb: `, err);
+      this.isInitializingGgb = false;
     }
   };
 
@@ -531,12 +602,11 @@ class GgbGraph extends Component {
       // seems to happen if you click a bunch of points really quickly
       return;
     }
-
     // modes (https://wiki.geogebra.org/en/Reference:Toolbar)
     // 40 = TRANSLATEVIEW
     // 0 = MOVE
 
-    const { referencing } = this.props;
+    const { referencing, clearReference } = this.props;
     if (this.receivingData) {
       return;
     }
@@ -546,52 +616,66 @@ class GgbGraph extends Component {
         // eslint-disable-next-line prefer-destructuring
         if (
           event[2] === '40' ||
-          (referencing && event[2] === '0') ||
+          // (referencing && event[2] === '0') ||
           (this.previousEvent &&
             this.previousEvent.eventType === 'mode' &&
             this.previousEvent.label === event[2])
         ) {
           return;
         }
-        if (this.userCanEdit()) {
-          // throttled because of a bug in Geogebra that causes this to fire twice
-          this.throttledSendEvent({ eventType: 'MODE', label: event[2] });
-          return;
-          // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
-          // Then don't send this to the other users/=.
-        }
-        if (event[2] !== '40') {
-          // eslint-disable-next-line prefer-destructuring
-          this.intendedMode = event[2];
-          this.setState({ showControlWarning: true });
-        }
-        this.receivingData = false;
+        this.getDefaultGgbMode().then((mode) => {
+          if (event[2] === mode.toString()) {
+            return;
+          }
+          if (this.userCanEdit()) {
+            // throttled because of a bug in Geogebra that causes this to fire twice
+            this.throttledSendEvent({ eventType: 'MODE', label: event[2] });
+
+            if (referencing) {
+              clearReference();
+            }
+            return;
+            // if the user is not connected or not in control and they initisted this event (i.e. it didn't come in over the socket)
+            // Then don't send this to the other users/=.
+          }
+          if (event[2] !== mode.toString()) {
+            if (!this.isResyncing && !this.isInitializingGgb) {
+              // this.intendedMode = parseInt(event[2], 10);
+              this.setState({ showControlWarning: true });
+            } else {
+              this.setDefaultGgbMode().then(() => {
+                this.receivingData = false;
+              });
+            }
+          } else {
+            this.receivingData = false;
+          }
+        });
         break;
 
       case 'undo':
-        // disable for now
-
-        // if (this.resetting) {
-        //   this.resetting = false;
-        // }
-        // if (this.userCanEdit()) {
-        //   this.sendEvent({ eventType: 'UNDO' });
-        // } else {
-        //   this.setState({ showControlWarning: true, redo: true });
-        // }
+        if (this.resetting) {
+          // undo was triggered as a result of someone not in control clicking redo
+          this.resetting = false;
+          return;
+        }
+        if (this.userCanEdit()) {
+          const base64 = this.ggbApplet.getBase64();
+          this.sendEvent({ eventType: 'UNDO', base64 });
+        } else {
+          this.setState({ showControlWarning: true, redo: true });
+        }
         break;
       case 'redo':
-        // if (this.resetting) {
-        //   this.resetting = false;
-        //   return;
-        // }
-        // if (this.userCanEdit()) {
-        // this.showAlert();
-        // this.resetting = true;
-        // this.ggbApplet.undo();
-        // } else {
-        //   this.setState({ showControlWarning: true });
-        // }
+        if (this.userCanEdit()) {
+          const base64 = this.ggbApplet.getBase64();
+
+          this.sendEvent({ eventType: 'REDO', base64 });
+        } else {
+          this.resetting = true;
+          this.ggbApplet.undo();
+          this.setState({ showControlWarning: true });
+        }
         break;
       case 'select':
         // if (referencing) {
@@ -642,6 +726,27 @@ class GgbGraph extends Component {
         }
         break;
       case 'perspectiveChange':
+        if (this.userCanEdit()) {
+          this.parseVisibleViews()
+            .then((visibleViews) => {
+              const oldViews = [...this.visibleViews];
+              const newViews = visibleViews;
+              this.visibleViews = newViews;
+              const base64 = this.ggbApplet.getBase64();
+              this.sendEventBuffer({
+                base64,
+                eventType: 'CHANGE_PERSPECTIVE',
+                oldViews,
+                newViews,
+              });
+            })
+            .catch((err) => {
+              console.log('parse visible views err: ', err);
+            });
+        } else {
+          this.setState({ showControlWarning: true });
+        }
+
         break;
       case 'updateStyle': {
         if (this.userCanEdit()) {
@@ -655,6 +760,8 @@ class GgbGraph extends Component {
             objType,
             eventType: 'UPDATE_STYLE',
           });
+        } else {
+          this.setState({ showControlWarning: true });
         }
         break;
       }
@@ -672,10 +779,12 @@ class GgbGraph extends Component {
             return;
           }
 
-          if (this.isAutoRenamingCornerLabel) {
-            // triggered by registerListeners
-            this.isAutoRenamingCornerLabel = false;
-            this.renamedDetails = null;
+          if (this.doIgnoreRename) {
+            return;
+          }
+
+          if (!this.userCanEdit()) {
+            this.setState({ showControlWarning: true });
             return;
           }
           const objType = this.ggbApplet.getObjectType(newLabel);
@@ -742,7 +851,19 @@ class GgbGraph extends Component {
         break;
       }
       case 'mouseDown': {
-        this.mouseDownCoords = [event.x, event.y];
+        const { x, y, hits, viewNo } = event;
+
+        this.mouseDownCoords = [x, y];
+
+        if (referencing && Array.isArray(hits) && hits.length > 0) {
+          // take the first hit and use that as referenced object
+          if (viewNo === 512) {
+            // eslint-disable-next-line no-alert
+            window.alert('3D Graph Referencing is currently not supported');
+            return;
+          }
+          this.handleReference(event.hits[0], viewNo);
+        }
         break;
       }
       default:
@@ -886,67 +1007,68 @@ class GgbGraph extends Component {
    * @description used to get reference positions
    */
 
-  clickListener = (element) => {
-    const { referencing, setToElAndCoords } = this.props;
-    if (referencing) {
-      const elementType = this.ggbApplet.getObjectType(element);
-      let refCoords;
-      let pathParameter;
-      let x;
-      let y;
-      let refType = 'point';
+  // clickListener = (element) => {
+  //   const { referencing, setToElAndCoords } = this.props;
+  //   if (referencing) {
+  //     const elementType = this.ggbApplet.getObjectType(element);
+  //     let refCoords;
+  //     let pathParameter;
+  //     let x;
+  //     let y;
+  //     let refType = 'point';
 
-      let renamedElementType;
-      let position;
+  //     let renamedElementType;
+  //     let position;
 
-      if (elementType !== 'point' && Array.isArray(this.mouseDownCoords)) {
-        [x, y] = this.mouseDownCoords;
-        if (isFinite(x) && isFinite(y)) {
-          const pointInTypes = [
-            'polygon',
-            'triangle',
-            'quadrilateral',
-            'pentagon',
-            'hexagon',
-          ];
+  //     if (elementType !== 'point' && Array.isArray(this.mouseDownCoords)) {
+  //       [x, y] = this.mouseDownCoords;
+  //       if (isFinite(x) && isFinite(y)) {
+  //         const pointInTypes = [
+  //           'polygon',
+  //           'triangle',
+  //           'quadrilateral',
+  //           'sector',
+  //           'pentagon',
+  //           'hexagon',
+  //         ];
 
-          if (pointInTypes.includes(elementType)) {
-            refType = 'region';
-            refCoords = this.getRegionCoords(element, x, y);
-          } else {
-            refType = 'path';
-            [refCoords, pathParameter] = this.getPathCoordsAndParam(element, [
-              x,
-              y,
-            ]);
-          }
-        }
+  //         if (pointInTypes.includes(elementType)) {
+  //           refType = 'region';
+  //           refCoords = this.getRegionCoords(element, x, y);
+  //         } else {
+  //           refType = 'path';
+  //           [refCoords, pathParameter] = this.getPathCoordsAndParam(element, [
+  //             x,
+  //             y,
+  //           ]);
+  //         }
+  //       }
 
-        position = this.getRelativeCoords(refCoords);
-        renamedElementType = elementType;
-      } else {
-        ({ renamedElementType, position } = this.getReferenceCoords(
-          element,
-          elementType,
-          pathParameter,
-          x,
-          y,
-          refType
-        ));
-      }
-      setToElAndCoords(
-        {
-          element,
-          elementType: renamedElementType,
-          pathParameter,
-          x,
-          y,
-          isForRegion: refType === 'region',
-        },
-        position
-      );
-    }
-  };
+  //       position = this.getRelativeCoords(refCoords);
+  //       renamedElementType = elementType;
+  //     } else {
+  //       ({ renamedElementType, position } = this.getReferenceCoords(
+  //         element,
+  //         elementType,
+  //         pathParameter,
+  //         x,
+  //         y,
+  //         refType
+  //       ));
+  //     }
+  //     setToElAndCoords(
+  //       {
+  //         element,
+  //         elementType: renamedElementType,
+  //         pathParameter,
+  //         x,
+  //         y,
+  //         isForRegion: refType === 'region',
+  //       },
+  //       position
+  //     );
+  //   }
+  // };
 
   clearListener = (element) => {
     console.log({ clearListener: element });
@@ -956,31 +1078,36 @@ class GgbGraph extends Component {
     const { referencing, showingReference, referToEl } = this.props;
     if ((referencing && referToEl) || showingReference) {
       this.getInnerGraphCoords();
-      this.updateReferToEl(referToEl);
+      if (referToEl.elementType !== 'chat_message') {
+        this.updateReferToEl(referToEl);
+      }
     }
   };
 
   renameListener = (oldLabel, newLabel) => {
-    if (this.isAutoRenamingCornerLabel) {
-      this.isAutoRenamingCornerLabel = false;
+    if (this.doIgnoreRename) {
       return;
     }
-
     this.renamedDetails = [oldLabel, newLabel];
   };
 
   /**
-   * @method registerListens
+   * @method registerListeners
    *  rs - register the even listeners with geogebra
    */
 
   registerListeners = () => {
     this.ggbApplet.unregisterClientListener(this.clientListener);
     this.ggbApplet.unregisterAddListener(this.addListener);
+    // this.ggbApplet.unregisterClickListener(this.clickListener);
     this.ggbApplet.unregisterUpdateListener(this.updateListener);
     this.ggbApplet.unregisterRemoveListener(this.RemoveListener);
     this.ggbApplet.unregisterClearListener(this.clearListener);
     this.ggbApplet.unregisterRenameListener(this.renameListener);
+
+    if (this.zoomObj) {
+      this.ggbApplet.unregisterObjectUpdateListener(this.zoomObj);
+    }
 
     // Set corner object to listen for zooming/moving of graph
 
@@ -989,8 +1116,7 @@ class GgbGraph extends Component {
 
     const hasAnchor = this.ggbApplet.exists(cornerLabel);
     if (hasAnchor) {
-      this.isAutoRemovingCornerAnchor = true;
-      this.ggbApplet.deleteObject(cornerLabel);
+      this.removeGgbObjectSilent(cornerLabel);
     }
 
     this.zoomObj = this.ggbApplet.evalCommandGetLabels('Corner(1)');
@@ -1000,13 +1126,11 @@ class GgbGraph extends Component {
       this.throttledZoomListener
     );
 
-    this.isAutoRenamingCornerLabel = true;
-
-    this.ggbApplet.renameObject(this.zoomObj, cornerLabel);
+    this.renameGgbObjectSilent(this.zoomObj, cornerLabel);
 
     this.ggbApplet.registerClientListener(this.clientListener);
     this.ggbApplet.registerAddListener(this.addListener);
-    this.ggbApplet.registerClickListener(this.clickListener);
+    // this.ggbApplet.registerClickListener(this.clickListener);
     this.ggbApplet.registerUpdateListener(this.updateListener);
     this.ggbApplet.registerRemoveListener(this.removeListener);
     this.ggbApplet.registerClearListener(this.clearListener);
@@ -1131,7 +1255,7 @@ class GgbGraph extends Component {
 
     this.updatingTab = setTimeout(
       this.updateConstructionState.bind(this, event),
-      3000
+      1500
     );
     this.checkForUpdatedReferences(eventData);
 
@@ -1185,6 +1309,13 @@ class GgbGraph extends Component {
       this.renamedDetails = null;
     } else if (eventType === 'REDEFINE') {
       description += `redefined ${objType} ${label}`;
+    } else if (eventType === 'UNDO') {
+      // not sure if we can give more information
+      description += 'performed an undo';
+    } else if (eventType === 'REDO') {
+      description += 'performed a redo';
+    } else if (eventType === 'CHANGE_PERSPECTIVE') {
+      description += 'changed perspectives';
     }
     return description;
   };
@@ -1192,9 +1323,12 @@ class GgbGraph extends Component {
   updateConstructionState = () => {
     const { tab } = this.props;
     if (this.ggbApplet) {
-      const currentState = this.ggbApplet.getXML();
-      const { _id } = tab;
-      API.put('tabs', _id, { currentState })
+      // const currentState = this.ggbApplet.getXML();
+      this.getBase64Async()
+        .then((base64) => {
+          const { _id } = tab;
+          API.put('tabs', _id, { currentStateBase64: base64 });
+        })
         .then(() => {})
         .catch((err) => {
           // eslint-disable-next-line no-console
@@ -1203,13 +1337,21 @@ class GgbGraph extends Component {
     }
   };
 
-  getReferenceCoords = (element, elementType, pathParameter, x, y, refType) => {
+  getReferenceCoords = (
+    element,
+    elementType,
+    pathParameter,
+    x,
+    y,
+    refType,
+    viewNum
+  ) => {
     let position;
 
     if (isFinite(pathParameter)) {
       const coords = this.getCoordsFromPathParameter(element, pathParameter);
 
-      position = this.getRelativeCoords(coords);
+      position = this.getRelativeCoords(coords, viewNum);
       return {
         renamedElementType: elementType,
         position,
@@ -1219,7 +1361,7 @@ class GgbGraph extends Component {
     if (refType === 'region') {
       if (isFinite(x) && isFinite(y)) {
         const refCoords = this.getRegionCoords(element, x, y);
-        position = this.getRelativeCoords(refCoords);
+        position = this.getRelativeCoords(refCoords, viewNum);
         return {
           renamedElementType: elementType,
           position,
@@ -1236,7 +1378,7 @@ class GgbGraph extends Component {
         commandString.indexOf(',')
       );
 
-      position = this.getRelativeCoords(point);
+      position = this.getRelativeCoords(point, viewNum);
 
       return position ? { renamedElementType, position } : null;
     }
@@ -1256,7 +1398,7 @@ class GgbGraph extends Component {
         pointsOfShape.splice(2, pointsOfShape.length - 2);
       }
       const coordsArr = pointsOfShape.map((point) =>
-        this.getRelativeCoords(point)
+        this.getRelativeCoords(point, viewNum)
       );
       let leftTotal = 0;
       let topTotal = 0;
@@ -1270,7 +1412,7 @@ class GgbGraph extends Component {
       return position ? { renamedElementType, position } : null;
     }
     // regular point
-    position = this.getRelativeCoords(element);
+    position = this.getRelativeCoords(element, viewNum);
     return position ? { renamedElementType, position } : null;
   };
 
@@ -1279,7 +1421,7 @@ class GgbGraph extends Component {
    * @param  {String} element - ggb defined Label. MUST be a point
    * @return {Object} - { left, top} or null if invalid point passed in
    */
-  getRelativeCoords = (element) => {
+  getRelativeCoords = (element, viewNum) => {
     let elX;
     let elY;
 
@@ -1310,10 +1452,10 @@ class GgbGraph extends Component {
         .getBoundingClientRect().height;
     }
     const ggbCoords = this.graph.current.getBoundingClientRect();
-    const ggbViewProps = JSON.parse(this.ggbApplet.getViewProperties());
-
-    const { width, height, xMin, yMin, invXscale } = ggbViewProps;
-
+    const ggbViewProps = JSON.parse(
+      this.ggbApplet.getViewProperties(viewNum || 1)
+    );
+    const { height, xMin, yMin, invXscale, left } = ggbViewProps;
     let { invYscale } = ggbViewProps;
 
     if (!invYscale) {
@@ -1328,7 +1470,8 @@ class GgbGraph extends Component {
     const yZero = Math.abs(yMax) * (1 / invYscale);
 
     if (!invYscale) invYscale = invXscale;
-    const xOffset = ggbCoords.width - width + parseInt(xZero, 10) + elX * scale;
+    const xOffset = left - ggbCoords.left + parseInt(xZero, 10) + elX * scale;
+
     let yOffset =
       ggbCoords.height - height + parseInt(yZero, 10) - elY * yscale;
     if (bottomMenuHeight) {
@@ -1339,21 +1482,26 @@ class GgbGraph extends Component {
 
   getInnerGraphCoords = () => {
     const { setGraphCoords } = this.props;
-    const graphSelector = '.EuclidianPanel > canvas';
+    const graphSelector = '.gwt-SplitLayoutPanel';
+
     const graphEl = document.querySelector(graphSelector);
 
-    const topBar = document.getElementsByClassName('ggbtoolbarpanel')[0];
-    let topBarHeight = 0;
-    if (topBar) {
-      topBarHeight = topBar.getBoundingClientRect().height;
+    // will not always neccessarily be a graph
+    // for example if the probability calculator is on
+    if (graphEl) {
+      const topBar = document.getElementsByClassName('ggbtoolbarpanel')[0];
+      let topBarHeight = 0;
+      if (topBar) {
+        topBarHeight = topBar.getBoundingClientRect().height;
+      }
+      const innerGraphCoords = graphEl.getBoundingClientRect();
+      setGraphCoords({
+        left: innerGraphCoords.left - 17,
+        right: innerGraphCoords.right - 17,
+        height: innerGraphCoords.height + topBarHeight,
+        top: topBarHeight,
+      });
     }
-    const innerGraphCoords = graphEl.getBoundingClientRect();
-    setGraphCoords({
-      left: innerGraphCoords.left - 17,
-      right: innerGraphCoords.right - 17,
-      height: innerGraphCoords.height + topBarHeight,
-      top: topBarHeight,
-    });
   };
 
   parseXML = (xml) => {
@@ -1375,6 +1523,7 @@ class GgbGraph extends Component {
       x,
       y,
       isForRegion,
+      viewNum,
     } = referToElDetails;
 
     const doesExist = this.ggbApplet.exists(element);
@@ -1383,6 +1532,17 @@ class GgbGraph extends Component {
       // should only happen if something went wrong in terms of updating the construction
       // should we also check the elementType?
       const msg = `The referenced object (${elementType} ${element}) no longer exists.`;
+
+      // eslint-disable-next-line no-alert
+      window.alert(msg);
+      return;
+    }
+    // old references will not have the viewNum prop
+    // 1 is the normal default view when only having 1 graph
+    const isViewVisible = this.isReferenceViewVisible(viewNum || 1);
+
+    if (!isViewVisible) {
+      const msg = `The containing view for object (${elementType} ${element}) is not currently visible.`;
 
       // eslint-disable-next-line no-alert
       window.alert(msg);
@@ -1397,7 +1557,8 @@ class GgbGraph extends Component {
       pathParameter,
       x,
       y,
-      refType
+      refType,
+      viewNum
     );
     setToElAndCoords(referToElDetails, position);
   };
@@ -1574,6 +1735,233 @@ class GgbGraph extends Component {
     return [refCoords, pathParameter];
   };
 
+  setGgbBase64 = (base64) => {
+    if (!this.ggbApplet || !typeof base64 === 'string') {
+      return;
+    }
+    this.ggbApplet.setBase64(base64, () => {
+      // always need to reregister listeners after setting base64
+      this.registerListeners();
+    });
+  };
+
+  setGgbState = (tab) => {
+    // eslint-disable-next-line consistent-return
+    return new Promise((resolve) => {
+      const { currentState, ggbFile, startingPoint, currentStateBase64 } = tab;
+
+      if (currentStateBase64) {
+        if (this.isInitialGgbFileLoaded(tab._id)) {
+          // call to resync was triggered by setBase64 invoking initializeGgb
+          return resolve(true);
+        }
+
+        this.tabFileLoadedHash[tab._id] = true;
+        this.ggbApplet.setBase64(currentStateBase64, () => {
+          resolve(true);
+        });
+      } else if (currentState) {
+        this.ggbApplet.setXML(currentState);
+        resolve(true);
+      } else if (startingPoint) {
+        this.ggbApplet.setXML(startingPoint);
+        resolve(true);
+      } else if (ggbFile && !this.tabFileLoadedHash[tab._id]) {
+        this.tabFileLoadedHash[tab._id] = true;
+        this.ggbApplet.setBase64(ggbFile, () => {
+          resolve(true);
+        });
+      } else {
+        resolve(true);
+      }
+    });
+  };
+
+  renameGgbObjectSilent = (oldLabel, newLabel) => {
+    if (!this.ggbApplet) {
+      return;
+    }
+
+    this.doIgnoreRename = true;
+    this.ggbApplet.renameObject(oldLabel, newLabel);
+    this.doIgnoreRename = false;
+  };
+
+  isInitialGgbFileLoaded = (tabId) => {
+    return this.tabFileLoadedHash[tabId];
+  };
+
+  getDefaultGgbMode = async () => {
+    try {
+      const { inControl } = this.props;
+      const visibleViews = await this.parseVisibleViews();
+      this.visibleViews = visibleViews;
+      const defaultViewId = this.getDefaultActiveViewId(visibleViews);
+
+      if (defaultViewId === null) {
+        // no visible views.. should this ever happen?
+        return 0;
+      }
+
+      if (inControl === 'ME') {
+        const { referencing } = this.props;
+
+        if (referencing) {
+          return GgbViewIdToPerspectiveMap[defaultViewId].defaultTool;
+        }
+        return GgbViewIdToPerspectiveMap[defaultViewId].controlTool;
+      }
+      // not in control
+      return GgbViewIdToPerspectiveMap[defaultViewId].defaultTool;
+    } catch (err) {
+      console.log('error get default ggbMode:', err);
+      return 0;
+    }
+  };
+
+  setDefaultGgbMode = () => {
+    return this.getDefaultGgbMode().then((mode) => {
+      this.ggbApplet.setMode(mode);
+    });
+  };
+
+  parseVisibleViews = () => {
+    const perspectiveXML = this.ggbApplet.getPerspectiveXML();
+    return this.parseXML(perspectiveXML)
+      .then((parsedPerspectiveXML) => {
+        const { view: views } = parsedPerspectiveXML.perspective.views[0];
+        const visibleViews = views.filter((view) => view.$.visible === 'true');
+        return visibleViews;
+      })
+      .catch((err) => {
+        console.log(`Error parsing views: ${err}`);
+        throw err;
+      });
+  };
+
+  getDefaultActiveViewId = (visibleViews) => {
+    if (!Array.isArray(visibleViews) || visibleViews.length === 0) {
+      return null;
+    }
+
+    if (visibleViews.length === 1) {
+      return visibleViews[0].$.id;
+    }
+
+    const viewHash = {};
+
+    for (let i = 0; i < visibleViews.length; i++) {
+      const { id } = visibleViews[i].$;
+      const isCas = id === '8';
+      if (isCas) {
+        return id;
+      }
+      viewHash[id] = true;
+    }
+
+    // spreadsheet view takes next precedence
+    const spreadsheetId = '4';
+
+    if (viewHash[spreadsheetId]) {
+      return spreadsheetId;
+    }
+    // next precedence is graphing (G or D)
+
+    if (viewHash['1']) {
+      return '1';
+    }
+
+    if (viewHash['16']) {
+      return '16';
+    }
+
+    // next 3d graph
+    if (viewHash['512']) {
+      return '512';
+    }
+
+    // next probability
+    if (viewHash['64']) {
+      return '64';
+    }
+
+    // remaining views do not actually have modes to set so does not matter
+    return Object.keys(viewHash)[0].$.id;
+  };
+
+  isReferenceViewVisible = (viewNum) => {
+    const id = refViewToIdMap[viewNum];
+    const view = find(this.visibleViews, (v) => {
+      return v.$.id === id;
+    });
+    return view !== undefined;
+  };
+
+  handleReference = (element, viewNum) => {
+    const { setToElAndCoords, clearReference, showingReference } = this.props;
+
+    const elementType = this.ggbApplet.getObjectType(element);
+    let refCoords;
+    let pathParameter;
+    let x;
+    let y;
+    let refType = 'point';
+
+    let renamedElementType;
+    let position;
+
+    if (elementType !== 'point' && Array.isArray(this.mouseDownCoords)) {
+      [x, y] = this.mouseDownCoords;
+      if (isFinite(x) && isFinite(y)) {
+        const pointInTypes = [
+          'polygon',
+          'triangle',
+          'quadrilateral',
+          'pentagon',
+          'hexagon',
+        ];
+
+        if (pointInTypes.includes(elementType)) {
+          refType = 'region';
+          refCoords = this.getRegionCoords(element, x, y);
+        } else {
+          refType = 'path';
+          [refCoords, pathParameter] = this.getPathCoordsAndParam(element, [
+            x,
+            y,
+          ]);
+        }
+      }
+      position = this.getRelativeCoords(refCoords, viewNum);
+      renamedElementType = elementType;
+    } else {
+      ({ renamedElementType, position } = this.getReferenceCoords(
+        element,
+        elementType,
+        pathParameter,
+        x,
+        y,
+        refType,
+        viewNum
+      ));
+    }
+    if (showingReference) {
+      clearReference({ doKeepReferencingOn: true });
+    }
+    setToElAndCoords(
+      {
+        element,
+        elementType: renamedElementType,
+        pathParameter,
+        x,
+        y,
+        isForRegion: refType === 'region',
+        viewNum,
+      },
+      position
+    );
+  };
+
   render() {
     const { tab, toggleControl, inControl } = this.props;
     const { showControlWarning, redo } = this.state;
@@ -1590,37 +1978,29 @@ class GgbGraph extends Component {
         />
         <ControlWarningModal
           showControlWarning={showControlWarning}
-          toggleControlWarning={() => {
+          toggleControlWarning={async () => {
             if (redo) {
               this.ggbApplet.redo();
             } else {
               this.ggbApplet.undo();
             }
-            this.ggbApplet.setMode(40);
+            await this.setDefaultGgbMode();
             this.setState({ showControlWarning: false, redo: false });
           }}
-          takeControl={() => {
-            this.resyncGgbState();
+          takeControl={async () => {
+            this.setState({ showControlWarning: false, redo: false });
             if (inControl !== 'NONE') {
-              this.ggbApplet.setMode(40);
+              await this.setDefaultGgbMode();
             }
             toggleControl();
-            this.setState({ showControlWarning: false, redo: false });
           }}
           inControl={inControl}
-          cancel={() => {
-            this.resyncGgbState();
-            this.ggbApplet.setMode(40);
-            if (this.intendedMode) {
-              this.intendedMode = null;
-            }
+          cancel={async () => {
             this.setState({ showControlWarning: false, redo: false });
+            await this.setDefaultGgbMode();
+            this.resyncGgbState();
           }}
         />
-        {/* <div className={classes.ReferenceLine} style={{left: this.state.referencedElementPosition.left, top: this.state.referencedElementPosition.top}}></div> */}
-        {/* {this.state.showControlWarning ? <div className={classes.ControlWarning} style={{left: this.state.warningPosition.x, top: this.state.warningPosition.y}}>
-          You don't have control!
-        </div> : null} */}
       </Aux>
     );
   }
@@ -1643,7 +2023,6 @@ GgbGraph.propTypes = {
   tab: PropTypes.shape({}).isRequired,
   myColor: PropTypes.string,
   addToLog: PropTypes.func.isRequired,
-  // updateRoomTab: PropTypes.func.isRequired,
   toggleControl: PropTypes.func.isRequired,
   resetControlTimer: PropTypes.func.isRequired,
   inControl: PropTypes.string.isRequired,

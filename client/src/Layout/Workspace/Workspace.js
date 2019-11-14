@@ -136,29 +136,34 @@ class WorkspaceLayout extends Component {
             ) : null}
           </div>
           <div className={classes.Right}>
-            <div
-              className={classes.Chat}
-              style={{
-                flexGrow: chatFlexGrow,
-                flexBasis: chatFlexBasis,
-                maxHeight: isFirefox ? '66%' : 'auto',
-              }}
-            >
-              {chat}
-            </div>
+            {activity ? null : (
+              <div
+                className={classes.Chat}
+                style={{
+                  flexGrow: chatFlexGrow,
+                  flexBasis: chatFlexBasis,
+                  maxHeight: isFirefox ? '66%' : 'auto',
+                }}
+              >
+                {chat}
+              </div>
+            )}
+
             <div className={activity ? classes.ActivityTools : classes.Tools}>
               {bottomRight}
             </div>
-            <div
-              className={classes.Members}
-              style={{
-                flexGrow: membersFlexGrow,
-                flexBasis: membersFlexBasis,
-                maxHeight: isFirefox ? '20%' : 'auto',
-              }}
-            >
-              {currentMembers}
-            </div>
+            {activity ? null : (
+              <div
+                className={classes.Members}
+                style={{
+                  flexGrow: membersFlexGrow,
+                  flexBasis: membersFlexBasis,
+                  maxHeight: isFirefox ? '20%' : 'auto',
+                }}
+              >
+                {currentMembers}
+              </div>
+            )}
           </div>
           {referToCoords && referFromCoords ? (
             <div className={classes.ReferenceLine}>
