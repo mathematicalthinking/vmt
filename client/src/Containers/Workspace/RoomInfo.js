@@ -40,12 +40,15 @@ class RoomInfo extends Component {
       currentTab,
       temp,
       updateRoomTab,
+      currentTabIx,
     } = this.props;
     const { expanded, copied } = this.state;
-
     const tabDisplayName = currentTab.name || '';
-    const tabDisplayInstructions =
-      (currentTab && currentTab.instructions) || room.instructions;
+    let tabDisplayInstructions = (currentTab && currentTab.instructions) || '';
+
+    if (!tabDisplayInstructions && (currentTabIx === 0 && room.instructions)) {
+      tabDisplayInstructions = room.instructions;
+    }
     return (
       <div className={classes.RoomDescription}>
         <div className={classes.TabNameTitle} data-testid="room-info-tab-name">
@@ -129,10 +132,12 @@ RoomInfo.propTypes = {
   currentTab: PropTypes.shape({}).isRequired,
   temp: PropTypes.bool.isRequired,
   updateRoomTab: PropTypes.func,
+  currentTabIx: PropTypes.number,
 };
 
 RoomInfo.defaultProps = {
   updatedActivity: null,
   updateRoomTab: null,
+  currentTabIx: null,
 };
 export default RoomInfo;

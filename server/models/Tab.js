@@ -33,6 +33,8 @@ const Tab = new mongoose.Schema(
     controlledBy: { type: ObjectId, ref: 'User', default: null },
     creator: { type: ObjectId, ref: 'User' },
     isTrashed: { type: Boolean, default: false },
+    visitors: [{ type: ObjectId, ref: 'User' }], // unique list of users who have viewed this tab
+    visitorsSinceInstructionsUpdated: [{ type: ObjectId, ref: 'User' }], // used to determine if should show instructions modal; reset every time instructions have been updated
   },
   { timestamps: true }
 );
