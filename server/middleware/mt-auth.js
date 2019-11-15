@@ -101,8 +101,15 @@ const prepareVmtUser = (req, res, next) => {
 
     return next();
   }
+  // store/update ip addresses
+  const { ip } = req;
 
-  return User.findById(mtUserDetails.vmtUserId)
+  const update = {
+    $set: { latestIpAddress: ip },
+    $addToSet: { ipAddresses: ip },
+  };
+
+  return User.findByIdAndUpdate(mtUserDetails.vmtUserId, update, { new: true })
     .lean()
     .exec()
     .then((user) => {
