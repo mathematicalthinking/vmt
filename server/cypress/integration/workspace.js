@@ -37,6 +37,14 @@ describe('Workspace/replayer', function() {
     cy.getTestElement('create-tab').click();
 
     clickTab(name);
+
+    if (instructions) {
+      cy.getTestElement('instructions-modal').should('be.visible');
+      cy.getTestElement('instructions-modal')
+        .find('[data-testId="close-modal"]')
+        .click();
+    }
+
     checkInstructions(instructions);
     checkRoomInfoTabName(name);
   }

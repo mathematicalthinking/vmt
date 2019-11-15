@@ -11,11 +11,12 @@ import gif from './Ripple.gif';
 import Backdrop from '../Backdrop/Backdrop';
 import classes from './modal.css';
 
-const Modal = ({ show, closeModal, message, children, height }) => (
+const Modal = ({ show, closeModal, message, children, height, testId }) => (
   <Fragment>
     <Backdrop show={show} clicked={closeModal} />
     <div
       className={classes.Modal}
+      data-testId={testId}
       style={{
         transform: show ? 'translateY(-50%)' : 'translateY(-150vh)',
         opacity: show ? '1' : '0',
@@ -54,11 +55,13 @@ Modal.propTypes = {
   message: PropTypes.string,
   children: PropTypes.node.isRequired,
   height: PropTypes.number,
+  testId: PropTypes.string,
 };
 
 Modal.defaultProps = {
   message: null,
   height: null,
+  testId: null,
 };
 
 export default Modal;

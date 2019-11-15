@@ -905,6 +905,7 @@ class Workspace extends Component {
               instructionsModalMsg: null,
             })
           }
+          testId="instructions-modal"
         >
           {instructionsModalMsg}
         </Modal>
