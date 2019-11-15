@@ -4,6 +4,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import each from 'lodash/each';
+import find from 'lodash/find';
 import {
   updateRoom,
   updatedRoom,
@@ -19,6 +20,7 @@ import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from '.';
 import { Modal, CurrentMembers, Loading } from '../../Components';
 import NewTabForm from '../Create/NewTabForm';
 import { socket } from '../../utils';
+import API from '../../utils/apiRequests';
 
 // import Replayer from ''
 class Workspace extends Component {
@@ -62,6 +64,8 @@ class Workspace extends Component {
       showAdminWarning: user ? user.inAdminMode : false,
       graphCoords: null,
       eventsWithRefs: [],
+      showInstructionsModal: false,
+      instructionsModalMsg: null,
     };
   }
 
@@ -292,7 +296,12 @@ class Workspace extends Component {
       this.addToLog(data);
     });
     const updatedTabs = activityOnOtherTabs.filter((tab) => tab !== id);
-    this.setState({ currentTabId: id, activityOnOtherTabs: updatedTabs });
+    this.setState(
+      { currentTabId: id, activityOnOtherTabs: updatedTabs },
+      () => {
+        this.handleInstructionsModal();
+      }
+    );
   };
 
   toggleControl = (event, auto) => {
@@ -301,7 +310,6 @@ class Workspace extends Component {
     const { myColor } = this.state;
     if (!user.connected && !auto) {
       // i.e. if the user clicked the button manually instead of controll being toggled programatically
-      // eslint-disable-next-line no-alert
       window.alert(
         'You have disconnected from the server. Check your internet connection and try refreshing the page'
       );
@@ -528,10 +536,9 @@ class Workspace extends Component {
   };
 
   setFirstTabLoaded = () => {
-    // const { connectPopulateRoom, room } = this.props;
-    this.setState({ isFirstTabLoaded: true });
-    // refetech the room after its loaded to make sure we didnt miss any events that came over the wire while initializing ggb
-    // connectPopulateRoom(room._id, { events: true });
+    this.setState({ isFirstTabLoaded: true }, () => {
+      this.handleInstructionsModal();
+    });
   };
 
   setTabs = (tabs) => {
@@ -603,6 +610,74 @@ class Workspace extends Component {
     window.open(`${baseUrl}${endUrl}`, 'newwindow', 'width=1200, height=700');
   };
 
+  handleInstructionsModal = () => {
+    const { currentTabId, tabs } = this.state;
+    const { user, populatedRoom } = this.props;
+
+    if (!user || !populatedRoom) {
+      return;
+    }
+    let tabIndex;
+    const tab = find(tabs, (t, ix) => {
+      const isMatch = t._id === currentTabId;
+
+      if (isMatch) {
+        tabIndex = ix;
+      }
+      return isMatch;
+    });
+
+    if (!tab) {
+      return;
+    }
+    let { instructions } = tab;
+
+    if (!instructions && (tabIndex === 0 && populatedRoom.instructions)) {
+      ({ instructions } = populatedRoom);
+    }
+
+    if (!instructions) {
+      return;
+    }
+
+    const { visitors = [], visitorsSinceInstructionsUpdated = [] } = tab;
+
+    let updateBody;
+
+    if (visitors.indexOf(user._id) === -1) {
+      updateBody = {
+        visitors: [...visitors, user._id],
+        visitorsSinceInstructionsUpdated: [
+          ...visitorsSinceInstructionsUpdated,
+          user._id,
+        ],
+      };
+    } else if (visitorsSinceInstructionsUpdated.indexOf(user._id) === -1) {
+      updateBody = {
+        visitorsSinceInstructionsUpdated: [
+          ...visitorsSinceInstructionsUpdated,
+          user._id,
+        ],
+      };
+    }
+
+    if (!updateBody) {
+      return;
+    }
+
+    const msg = `Instructions: ${instructions}`;
+    this.setState({ showInstructionsModal: true, instructionsModalMsg: msg });
+    // update tab
+
+    API.put('tabs', tab._id, { newVisitor: user._id })
+      .then(() => {
+        this.updateTab(tab._id, updateBody);
+      })
+      .catch((err) => {
+        console.log('error updating visitors: ', err);
+      });
+  };
+
   render() {
     const {
       populatedRoom,
@@ -640,6 +715,8 @@ class Workspace extends Component {
       showAdminWarning,
       graphCoords,
       eventsWithRefs,
+      showInstructionsModal,
+      instructionsModalMsg,
     } = this.state;
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
@@ -707,7 +784,7 @@ class Workspace extends Component {
             updatedRoom={connectUpdatedRoom}
             addNtfToTabs={this.addNtfToTabs}
             isFirstTabLoaded={isFirstTabLoaded}
-            setFirstTabLoaded={() => this.setState({ isFirstTabLoaded: true })}
+            setFirstTabLoaded={this.setFirstTabLoaded}
             referencing={referencing}
             updateUserSettings={connectUpdateUserSettings}
             addToLog={this.addToLog}
@@ -744,6 +821,15 @@ class Workspace extends Component {
         />
       );
     });
+    let currentTabIx;
+    const currentTab = find(currentTabs, (t, ix) => {
+      if (t._id === currentTabId) {
+        currentTabIx = ix;
+        return true;
+      }
+      return false;
+    });
+
     return (
       <Fragment>
         {!isFirstTabLoaded ? (
@@ -776,7 +862,8 @@ class Workspace extends Component {
               role={role}
               updateRoom={connectUpdateRoom}
               room={populatedRoom}
-              currentTab={currentTabs.filter((t) => t._id === currentTabId)[0]}
+              currentTab={currentTab}
+              currentTabIx={currentTabIx}
               updateRoomTab={this.updateTab}
             />
           }
@@ -809,6 +896,18 @@ class Workspace extends Component {
           You are currently in &#34;Admin Mode&#34;. You are in this room
           anonymously. If you want to be seen in this room go to your profile
           and turn &#34;Admin Mode&#34; off.
+        </Modal>
+        <Modal
+          show={showInstructionsModal}
+          closeModal={() =>
+            this.setState({
+              showInstructionsModal: false,
+              instructionsModalMsg: null,
+            })
+          }
+          testId="instructions-modal"
+        >
+          {instructionsModalMsg}
         </Modal>
       </Fragment>
     );

@@ -512,10 +512,25 @@ module.exports = {
             reject(err);
           });
       } else {
+        const doUpdateTabVisitors =
+          typeof body.instructions === 'string' && body.instructions.length > 0;
         db.Room.findByIdAndUpdate(id, body, { new: true })
           .populate('currentMembers.user members.user', 'username')
           .populate('chat') // this seems random
-          .then((res) => resolve(res))
+          .then((res) => {
+            const firstTab = res && res.tabs[0];
+            if (doUpdateTabVisitors && firstTab) {
+              // we do not want to wait for this to finish before resolving
+              // what if it fails?
+              Tab.findById(firstTab._id).then((tab) => {
+                if (tab && !tab.instructions) {
+                  tab.visitorsSinceInstructionsUpdated = [];
+                  tab.save();
+                }
+              });
+            }
+            resolve(res);
+          })
           .catch((err) => {
             reject(err);
           })

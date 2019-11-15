@@ -33,6 +33,17 @@ module.exports = {
 
   put: (id, body) => {
     return new Promise((resolve, reject) => {
+      if (body.newVisitor) {
+        body = {
+          $addToSet: {
+            visitors: body.newVisitor,
+            visitorsSinceInstructionsUpdated: body.newVisitor,
+          },
+        };
+      } else if (body.instructions) {
+        // clear out visitorsSinceInstructionsUpdate
+        body.visitorsSinceInstructionsUpdated = [];
+      }
       db.Tab.findByIdAndUpdate(id, body)
         .then((tab) => resolve(tab))
         .catch((err) => reject(err));
