@@ -140,6 +140,7 @@ export const setRoomStartingPoint = (roomId) => {
           API.put('tabs', tab._id, {
             events: [],
             startingPoint: tab.startingPoint,
+            startingPointBase64: tab.startingPointBase64,
           })
         )
         .concat([API.put('rooms', roomId, { chat: [] })])

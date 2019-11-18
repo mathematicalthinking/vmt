@@ -174,14 +174,26 @@ class GgbReplayer extends Component {
     this.ggbApplet = window[`ggbApplet${tabId}A`];
     setTabLoaded(tab._id);
 
+    if (this.didSetBase64) {
+      this.didSetBase64 = false;
+      return;
+    }
     // do we need to set the mode here?
     // the toolbar is not visible and once we load the starting point or file
     // the tool gets set automatically
 
-    const { startingPoint, ggbFile } = tab;
+    const { startingPoint, ggbFile, startingPointBase64 } = tab;
     // put the current construction on the graph, disable everything until the user takes control
     // if (perspective) this.ggbApplet.setPerspective(perspective);
-    if (startingPoint) {
+    if (startingPointBase64) {
+      if (this.didSetBase64) {
+        this.didSetBase64 = false;
+        return;
+      }
+
+      this.didSetBase64 = true;
+      this.ggbApplet.setBase64(startingPointBase64);
+    } else if (startingPoint) {
       this.ggbApplet.setXML(startingPoint);
     } else if (ggbFile && !this.isFileSet) {
       this.isFileSet = true;

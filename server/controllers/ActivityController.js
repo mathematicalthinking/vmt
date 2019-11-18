@@ -182,6 +182,8 @@ module.exports = {
                 ggbFile: tab.ggbFile,
                 currentState: tab.currentState,
                 startingPoint: tab.startingPoint,
+                startingPointBase64: tab.startingPointBase64,
+                currentStateBase64: tab.currentStateBase64,
                 tabType: tab.tabType,
               });
               return newTab.save();

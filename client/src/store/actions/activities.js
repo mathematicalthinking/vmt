@@ -64,6 +64,7 @@ export const setActivityStartingPoint = (id) => {
   return (dispatch, getState) => {
     const tabs = getState().activities.byId[id].tabs.map((tab) => {
       tab.startingPoint = tab.currentState;
+      tab.startingPointBase64 = tab.currentStateBase64;
       tab.currentState = tab.currentState;
       tab.events = [];
       return tab;
@@ -74,7 +75,9 @@ export const setActivityStartingPoint = (id) => {
         API.put('tabs', tab._id, {
           events: [],
           startingPoint: tab.startingPoint,
+          startingPointBase64: tab.startingPointBase64,
           currentState: tab.currentState,
+          currentStateBase64: tab.currentStateBase64,
         })
       )
     )

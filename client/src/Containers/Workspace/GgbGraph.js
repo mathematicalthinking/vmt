@@ -1748,7 +1748,13 @@ class GgbGraph extends Component {
   setGgbState = (tab) => {
     // eslint-disable-next-line consistent-return
     return new Promise((resolve) => {
-      const { currentState, ggbFile, startingPoint, currentStateBase64 } = tab;
+      const {
+        currentState,
+        ggbFile,
+        startingPoint,
+        currentStateBase64,
+        startingPointBase64,
+      } = tab;
 
       if (currentStateBase64) {
         if (this.isInitialGgbFileLoaded(tab._id)) {
@@ -1763,6 +1769,16 @@ class GgbGraph extends Component {
       } else if (currentState) {
         this.ggbApplet.setXML(currentState);
         resolve(true);
+      } else if (startingPointBase64) {
+        if (this.isInitialGgbFileLoaded(tab._id)) {
+          // call to resync was triggered by setBase64 invoking initializeGgb
+          return resolve(true);
+        }
+
+        this.tabFileLoadedHash[tab._id] = true;
+        this.ggbApplet.setBase64(startingPointBase64, () => {
+          resolve(true);
+        });
       } else if (startingPoint) {
         this.ggbApplet.setXML(startingPoint);
         resolve(true);

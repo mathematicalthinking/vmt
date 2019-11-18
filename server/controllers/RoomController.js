@@ -265,6 +265,7 @@ module.exports = {
             desmosLink: body.desmosLink,
             currentState: tab.currentState,
             startingPoint: tab.currentState,
+            startingPointBase64: tab.currentStateBase64,
             currentStateBase64: tab.currentStateBase64,
             tabType: tab.tabType,
             appName: tab.appName,
