@@ -375,7 +375,7 @@ class NewResourceContainer extends Component {
     } else if (step === steps.length - 1) {
       buttons = (
         <div className={classes.ModalButton}>
-          <Button data-testId="create" click={this.submitForm}>
+          <Button data-testid="create" click={this.submitForm}>
             create
           </Button>
         </div>
