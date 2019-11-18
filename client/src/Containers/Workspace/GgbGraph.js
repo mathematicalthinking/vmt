@@ -72,10 +72,8 @@ class GgbGraph extends Component {
   receivingData = false;
   batchUpdating = false;
   movingGeos = false;
-  pointSelected = null;
   currentDefinition = null; // used to prevent duplicate definitions being sent across the socket...e.g., when using the roots tools (https://help.geogebra.org/en/tool/Roots)
   // it sends the Roots(line, x, y) for each point that is created...we only want to send it once
-  shapeSelected = null;
   isFileSet = false; // calling ggb.setBase64 triggers this.initializeGgb(), because we set base 64 inside initializeGgb we use this instance var to track whether we've already set the file. When the ggb tries to load the file twice it breaks everything
   isFaviconNtf = false;
   isWindowVisible = true;
@@ -346,6 +344,8 @@ class GgbGraph extends Component {
       this.ggbApplet.deleteObject(event.label);
     } else if (event.eventType === 'RENAME') {
       this.ggbApplet.evalCommand(event.commandString);
+    } else if (event.valueString) {
+      this.ggbApplet.evalCommand(event.valueString);
     }
     this.ggbApplet.evalCommand('UpdateConstruction()');
   };
@@ -678,31 +678,33 @@ class GgbGraph extends Component {
         }
         break;
       case 'select':
-        // if (referencing) {
-        //   return;
-        // }
         if (this.ggbApplet.getMode() === 0) {
-          const selection = this.ggbApplet.getObjectType(event[1]);
-          if (selection === 'point') {
-            // eslint-disable-next-line prefer-destructuring
-            [, this.pointSelected] = event;
-
-            this.shapeSelected = null;
-            this.pointSelectedValueString = this.ggbApplet.getValueString(
-              event[1]
-            );
-            this.shapeSelectedType = null;
-          } else {
-            // eslint-disable-next-line prefer-destructuring
-            this.shapeSelected = event[1];
-            this.shapeSelectedType = this.ggbApplet.getObjectType(event[1]);
-            this.pointSelected = null;
-            this.pointSelectedValueString = null;
-          }
-
           if (referencing) {
             return;
           }
+
+          const selection = this.ggbApplet.getObjectType(event[1]);
+          const valueString = this.ggbApplet.getValueString(event[1]);
+
+          this.objectSelected = {
+            objectType: selection,
+            valueString,
+            label: event[1],
+          };
+
+          if (selection === 'textfield') {
+            // e.g. InputBox(alpha)
+            const commandString = this.ggbApplet.getCommandString(event[1]);
+            const linkedObject = commandString.slice(
+              commandString.indexOf('(') + 1,
+              commandString.lastIndexOf(')')
+            );
+            this.objectSelected.linkedObject = linkedObject;
+            this.objectSelected.valueString = this.ggbApplet.getValueString(
+              linkedObject
+            );
+          }
+
           if (this.outgoingEventQueue.length > 0) {
             this.sendEventBuffer({
               xml: null,
@@ -835,11 +837,12 @@ class GgbGraph extends Component {
         for (let i = 1; i < event.length; i++) {
           xml += this.ggbApplet.getXML(event[i]);
         }
+        const selectedShape = this.objectSelected || {};
         this.sendEventBuffer({
           xml,
-          label: this.shapeSelected,
+          label: selectedShape.label,
           eventType: 'DRAG',
-          objType: this.ggbApplet.getObjectType(this.shapeSelected),
+          objType: this.ggbApplet.getObjectType(selectedShape.label),
         });
         break;
       }
@@ -946,12 +949,11 @@ class GgbGraph extends Component {
 
       const data = { label, eventType: 'REMOVE' };
 
-      if (this.pointSelected === label) {
-        data.objType = 'point';
-      } else if (this.shapeSelected === label) {
-        data.objType = this.shapeSelectedType;
+      const selectedObject = this.objectSelected || {};
+      const { label: selectedLabel, objectType } = selectedObject;
+      if (selectedLabel === label) {
+        data.objType = objectType;
       }
-
       this.sendEventBuffer(data);
     }
   };
@@ -974,101 +976,118 @@ class GgbGraph extends Component {
     if (!this.userCanEdit()) {
       return;
     }
-    const isUpdateForSelectedPoint = label === this.pointSelected;
-    if (isUpdateForSelectedPoint) {
-      // check if is drag event
-      let doSendDragEvent = false;
-      if (this.isDraggingPoint) {
-        doSendDragEvent = true;
-      } else {
+    const selectedObject = this.objectSelected || {};
+    const {
+      label: selectedLabel,
+      objectType: selectedType,
+      valueString: selectedValueString,
+    } = selectedObject;
+
+    if (label === selectedLabel) {
+      if (selectedType === 'point') {
+        // check if is drag event
+        let doSendDragEvent = false;
+        if (this.isDraggingPoint) {
+          doSendDragEvent = true;
+        } else {
+          const valueString = this.ggbApplet.getValueString(label);
+
+          if (valueString !== selectedValueString) {
+            doSendDragEvent = true;
+            this.isDraggingPoint = true;
+          }
+        }
+        // update
+        if (doSendDragEvent) {
+          const xml = this.ggbApplet.getXML(label);
+          this.sendEventBuffer({
+            xml,
+            label,
+            objType: 'point',
+            eventType: 'DRAG',
+          });
+        }
+      } else if (selectedType === 'numeric') {
+        // check if is drag event
+        let doSendDragEvent = false;
+        if (this.isDraggingNumeric) {
+          doSendDragEvent = true;
+        } else {
+          const valueString = this.ggbApplet.getValueString(label);
+
+          if (valueString !== selectedValueString) {
+            doSendDragEvent = true;
+            this.isDraggingNumeric = true;
+          }
+        }
+        // update
+        if (doSendDragEvent) {
+          const xml = this.ggbApplet.getXML(label);
+          this.sendEventBuffer({
+            xml,
+            label,
+            objType: 'numeric',
+            eventType: 'DRAG',
+          });
+        }
+      } else if (selectedType === 'boolean') {
         const valueString = this.ggbApplet.getValueString(label);
 
-        if (valueString !== this.pointSelectedValueString) {
-          doSendDragEvent = true;
-          this.isDraggingPoint = true;
+        if (valueString !== selectedValueString) {
+          // value changed
+          const caption = this.ggbApplet.getCaption(label);
+
+          if (this.outgoingEventQueue.length > 0) {
+            this.sendEventBuffer({
+              label,
+              objType: 'boolean',
+              valueString,
+              eventType: 'TOGGLE',
+              caption,
+            });
+          } else {
+            this.sendEvent({
+              label,
+              objType: 'boolean',
+              valueString,
+              eventType: 'TOGGLE',
+              caption,
+            });
+          }
         }
       }
-      // update
-      if (doSendDragEvent) {
-        const xml = this.ggbApplet.getXML(label);
-        this.sendEventBuffer({
-          // coords: { x, y },
-          xml,
-          label,
-          objType: 'point',
-          eventType: 'DRAG',
-        });
+    } else if (selectedObject.linkedObject === label) {
+      if (selectedType === 'textfield') {
+        const valueString = this.ggbApplet.getValueString(
+          selectedObject.linkedObject
+        );
+
+        if (valueString !== selectedValueString) {
+          // value changed
+          const caption = this.ggbApplet.getCaption(label);
+          if (this.outgoingEventQueue.length > 0) {
+            this.sendEventBuffer({
+              label: selectedObject.label,
+              objType: 'textfield',
+              valueString,
+              eventType: 'UPDATE_TEXT_FIELD',
+              caption,
+              originalValueString: selectedValueString,
+            });
+          } else {
+            this.sendEvent({
+              label: selectedObject.label,
+              objType: 'textfield',
+              valueString,
+              eventType: 'UPDATE_TEXT_FIELD',
+              caption,
+              originalValueString: selectedValueString,
+            });
+          }
+        }
       }
     }
   };
-
-  /**
-   * @param  {String} element - ggb label for what has been clicked
-   * @description used to get reference positions
-   */
-
-  // clickListener = (element) => {
-  //   const { referencing, setToElAndCoords } = this.props;
-  //   if (referencing) {
-  //     const elementType = this.ggbApplet.getObjectType(element);
-  //     let refCoords;
-  //     let pathParameter;
-  //     let x;
-  //     let y;
-  //     let refType = 'point';
-
-  //     let renamedElementType;
-  //     let position;
-
-  //     if (elementType !== 'point' && Array.isArray(this.mouseDownCoords)) {
-  //       [x, y] = this.mouseDownCoords;
-  //       if (isFinite(x) && isFinite(y)) {
-  //         const pointInTypes = [
-  //           'polygon',
-  //           'triangle',
-  //           'quadrilateral',
-  //           'sector',
-  //           'pentagon',
-  //           'hexagon',
-  //         ];
-
-  //         if (pointInTypes.includes(elementType)) {
-  //           refType = 'region';
-  //           refCoords = this.getRegionCoords(element, x, y);
-  //         } else {
-  //           refType = 'path';
-  //           [refCoords, pathParameter] = this.getPathCoordsAndParam(element, [
-  //             x,
-  //             y,
-  //           ]);
-  //         }
-  //       }
-
-  //       position = this.getRelativeCoords(refCoords);
-  //       renamedElementType = elementType;
-  //     } else {
-  //       ({ renamedElementType, position } = this.getReferenceCoords(
-  //         element,
-  //         elementType,
-  //         pathParameter,
-  //         x,
-  //         y,
-  //         refType
-  //       ));
-  //     }
-  //     setToElAndCoords(
-  //       {
-  //         element,
-  //         elementType: renamedElementType,
-  //         pathParameter,
-  //         x,
-  //         y,
-  //         isForRegion: refType === 'region',
-  //       },
-  //       position
-  //     );
-  //   }
-  // };
 
   clearListener = (element) => {
     console.log({ clearListener: element });
@@ -1316,6 +1335,30 @@ class GgbGraph extends Component {
       description += 'performed a redo';
     } else if (eventType === 'CHANGE_PERSPECTIVE') {
       description += 'changed perspectives';
+    } else if (eventType === 'TOGGLE') {
+      const { caption, valueString } = event;
+      const descriptor = caption || `boolean ${label}`;
+      let oldValue;
+      let newValue;
+      if (valueString.indexOf('true') !== -1) {
+        // toggled on
+        oldValue = 'false';
+        newValue = 'true';
+      } else if (valueString.indexOf('false') !== -1) {
+        // toggled off
+        oldValue = 'true';
+        newValue = 'false';
+      }
+      description += `toggled the value for ${descriptor}`;
+
+      if (oldValue && newValue) {
+        description += ` from ${oldValue} to ${newValue}`;
+      }
+    } else if (eventType === 'UPDATE_TEXT_FIELD') {
+      const { caption } = event;
+      const descriptor = caption || `text field ${label}`;
+
+      description += `changed the value of ${descriptor}`;
     }
     return description;
   };

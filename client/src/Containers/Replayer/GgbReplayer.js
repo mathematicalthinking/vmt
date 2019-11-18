@@ -282,6 +282,8 @@ class GgbReplayer extends Component {
         } else {
           return;
         }
+      } else if (event.valueString) {
+        this.ggbApplet.evalCommand(event.valueString);
       }
       this.ggbApplet.evalCommand('UpdateConstruction()');
     } catch (err) {
@@ -334,6 +336,15 @@ class GgbReplayer extends Component {
               copy.isUndoRename = true;
             } else if (copy.base64) {
               copy.isForBackwards = true;
+            } else if (evType === 'TOGGLE') {
+              let { valueString } = copy;
+              if (valueString.indexOf('true') !== -1) {
+                valueString = valueString.replace('true', 'false');
+              } else if (valueString.indexOf('false') !== -1) {
+                valueString = valueString.replace('false', 'true');
+              }
+            } else if (evType === 'UPDATE_TEXT_FIELD') {
+              copy.valueString = copy.originalValueString;
             }
             return copy;
           });
@@ -352,6 +363,15 @@ class GgbReplayer extends Component {
             copy.isUndoRename = true;
           } else if (copy.base64) {
             copy.isForBackwards = true;
+          } else if (copy.eventType === 'TOGGLE') {
+            let { valueString } = copy;
+            if (valueString.indexOf('true') !== -1) {
+              valueString = valueString.replace('true', 'false');
+            } else if (valueString.indexOf('false') !== -1) {
+              valueString = valueString.replace('false', 'true');
+            }
+          } else if (copy.eventType === 'UPDATE_TEXT_FIELD') {
+            copy.valueString = copy.originalValueString;
           }
           await this.writeGgbEventToGraph(copy, syntheticEvent._id);
         }
