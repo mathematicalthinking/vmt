@@ -104,7 +104,13 @@ class GgbActivityGraph extends Component {
     const { tab, setFirstTabLoaded, currentTab } = this.props;
     this.ggbApplet = window[`ggbApplet${tab._id}A`];
 
-    const { currentState, startingPoint, ggbFile, currentStateBase64 } = tab;
+    const {
+      currentState,
+      startingPoint,
+      ggbFile,
+      currentStateBase64,
+      startingPointBase64,
+    } = tab;
 
     if (currentStateBase64) {
       if (this.isFileLoaded) {
@@ -115,6 +121,13 @@ class GgbActivityGraph extends Component {
       this.ggbApplet.setBase64(currentStateBase64);
     } else if (currentState) {
       this.ggbApplet.setXML(currentState);
+    } else if (startingPointBase64) {
+      if (this.isFileLoaded) {
+        this.registerListeners();
+        return;
+      }
+      this.isFileLoaded = true;
+      this.ggbApplet.setBase64(startingPointBase64);
     } else if (startingPoint) {
       this.ggbApplet.setXML(startingPoint);
     } else if (ggbFile && !this.isFileLoaded) {

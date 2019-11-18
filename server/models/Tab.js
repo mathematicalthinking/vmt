@@ -29,6 +29,7 @@ const Tab = new mongoose.Schema(
     room: { type: ObjectId, ref: 'Room' },
     activity: { type: ObjectId, ref: 'Activity' },
     startingPoint: { type: String, default: '' },
+    startingPointBase64: { type: String, default: '' },
     sequenceNo: { type: Number },
     controlledBy: { type: ObjectId, ref: 'User', default: null },
     creator: { type: ObjectId, ref: 'User' },

@@ -41,7 +41,7 @@ describe('Workspace/replayer', function() {
     if (instructions) {
       cy.getTestElement('instructions-modal').should('be.visible');
       cy.getTestElement('instructions-modal')
-        .find('[data-testId="close-modal"]')
+        .find('[data-testid="close-modal"]')
         .click();
     }
 

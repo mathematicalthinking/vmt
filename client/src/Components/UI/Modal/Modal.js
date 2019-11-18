@@ -16,7 +16,7 @@ const Modal = ({ show, closeModal, message, children, height, testId }) => (
     <Backdrop show={show} clicked={closeModal} />
     <div
       className={classes.Modal}
-      data-testId={testId}
+      data-testid={testId}
       style={{
         transform: show ? 'translateY(-50%)' : 'translateY(-150vh)',
         opacity: show ? '1' : '0',

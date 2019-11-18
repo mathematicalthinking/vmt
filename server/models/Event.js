@@ -26,10 +26,14 @@ const ggbEvent = {
       'UNDO',
       'REDO',
       'MODE',
+      'TOGGLE',
+      'UPDATE_TEXT_FIELD',
     ],
   },
   oldLabel: { type: String }, // used for RENAME events,
-  base64: { type: String }, // additional files such as images get lost using xml
+  base64: { type: String }, // additional files such as images get lost using xml,
+  caption: { type: String }, // used to build description for certain objects; e.g. checkboxes with a label (diff from ggb object label)
+  originalValueString: { type: String },
 };
 const Event = new mongoose.Schema({
   user: { type: ObjectId, ref: 'User' },
