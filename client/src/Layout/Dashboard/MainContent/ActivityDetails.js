@@ -52,8 +52,12 @@ class ActivityDetails extends Component {
           </div>
           {owner ? (
             <div>
-              <Button m={5} click={this.viewActivity}>
-                View/Edit Activity
+              <Button
+                m={5}
+                click={this.viewActivity}
+                data-testid="view-activity"
+              >
+                Enter
               </Button>
               <Button
                 m={5}

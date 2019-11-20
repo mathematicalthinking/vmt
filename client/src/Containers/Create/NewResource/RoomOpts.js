@@ -41,13 +41,14 @@ class RoomOpts extends Component {
                 }}
                 tabIndex="-1"
                 role="button"
+                data-testid={opt.appName}
               >
                 <div
                   className={
                     appName === opt.appName ? classes.Selected : classes.GgbIcon
                   }
                 >
-                  <img src={opt.img} alt="classic" />
+                  <img src={opt.img} alt={opt.name} />
                 </div>
                 <h3 className={classes.OptText}>{opt.name}</h3>
               </div>
