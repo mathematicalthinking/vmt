@@ -8,7 +8,13 @@ import {
   getCurrentActivity,
   createActivity,
 } from '../../store/actions';
-import { Modal, TextInput, Button, Loading } from '../../Components';
+import {
+  Modal,
+  TextInput,
+  Button,
+  Loading,
+  SelectionList,
+} from '../../Components';
 import {
   DesmosActivityGraph,
   GgbActivityGraph,
@@ -18,6 +24,7 @@ import {
 } from './index';
 import { WorkspaceLayout } from '../../Layout';
 import NewTabForm from '../Create/NewTabForm';
+import ModalClasses from '../../Components/UI/Modal/modal.css';
 
 class ActivityWorkspace extends Component {
   constructor(props) {
@@ -30,6 +37,8 @@ class ActivityWorkspace extends Component {
       addingToMyActivities: false,
       isFirstTabLoaded: false,
       newName: '',
+      selectedTabIdsToCopy: [],
+      copyActivityError: null,
     };
   }
 
@@ -57,13 +66,31 @@ class ActivityWorkspace extends Component {
 
   addToMyActivities = () => {
     // create a new activity that belongs to the current user
-    this.setState({ addingToMyActivities: true });
+    const { activity } = this.props;
+    this.setState({
+      addingToMyActivities: true,
+      selectedTabIdsToCopy: activity.tabs.map((t) => t._id),
+    });
   };
 
   createNewActivity = () => {
     const { activity } = { ...this.props };
     const { user, connectCreateActivity, history } = this.props;
-    const { newName } = this.state;
+    const { newName, selectedTabIdsToCopy } = this.state;
+
+    if (!selectedTabIdsToCopy.length > 0) {
+      this.setState({
+        copyActivityError: 'Please select at least one tab to copy',
+      });
+      return;
+    }
+
+    if (!newName) {
+      this.setState({
+        copyActivityError: 'Please provide a name for your new activity',
+      });
+      return;
+    }
     activity.activities = [activity._id];
     delete activity._id;
     delete activity.createdAt;
@@ -73,8 +100,9 @@ class ActivityWorkspace extends Component {
     activity.creator = user._id;
     activity.name = newName;
     activity.tabs = activity.tabs.map((tab) => tab._id);
+    activity.selectedTabIds = selectedTabIdsToCopy;
     connectCreateActivity(activity);
-    this.setState({ addingToMyActivities: false });
+    this.setState({ addingToMyActivities: false, selectedTabIdsToCopy: [] });
     history.push('/myVMT/activities');
   };
 
@@ -85,6 +113,19 @@ class ActivityWorkspace extends Component {
   goBack = () => {
     const { history } = this.props;
     history.goBack();
+  };
+
+  addTabIdToCopy = (event, id) => {
+    const { selectedTabIdsToCopy } = this.state;
+    if (selectedTabIdsToCopy.indexOf(id) === -1) {
+      this.setState({ selectedTabIdsToCopy: [...selectedTabIdsToCopy, id] });
+    } else {
+      this.setState({
+        selectedTabIdsToCopy: selectedTabIdsToCopy.filter(
+          (tabId) => tabId !== id
+        ),
+      });
+    }
   };
 
   render() {
@@ -101,6 +142,8 @@ class ActivityWorkspace extends Component {
       creatingNewTab,
       addingToMyActivities,
       newName,
+      selectedTabIdsToCopy,
+      copyActivityError,
     } = this.state;
     let role = 'participant';
     let graphs;
@@ -218,7 +261,12 @@ class ActivityWorkspace extends Component {
         </Modal>
         <Modal
           show={addingToMyActivities}
-          closeModal={() => this.setState({ addingToMyActivities: false })}
+          closeModal={() =>
+            this.setState({
+              addingToMyActivities: false,
+              copyActivityError: null,
+            })
+          }
         >
           <TextInput
             show={addingToMyActivities}
@@ -231,6 +279,20 @@ class ActivityWorkspace extends Component {
             }}
             label="New Activity Name"
           />
+          {activity && activity.tabs.length > 1 ? (
+            <div>
+              <p>Choose at least one tab to include</p>
+              <SelectionList
+                listToSelectFrom={activity.tabs}
+                selectItem={this.addTabIdToCopy}
+                selected={selectedTabIdsToCopy}
+              />
+            </div>
+          ) : null}
+          {copyActivityError ? (
+            <div className={ModalClasses.Error}>{copyActivityError}</div>
+          ) : null}
+
           <Button click={this.createNewActivity}>Copy Activity</Button>
         </Modal>
       </Fragment>

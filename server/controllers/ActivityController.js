@@ -132,12 +132,25 @@ module.exports = {
       // This indicates we're copying 1 or more activities
       if (body.activities) {
         // We should save these "SOURCE" activities on the new acitivty so we know where they cam from
+
+        // users now have the option to exclude certain tabs when copying
+        // a single activity from the activity room
+        const { selectedTabIds = [] } = body;
         try {
           const activities = await db.Activity.find({
             _id: { $in: body.activities },
-          }).populate('tabs');
+          })
+            .populate('tabs')
+            .lean()
+            .exec();
           existingTabs = activities.reduce((acc, activity) => {
-            return acc.concat(activity.tabs);
+            const filtered =
+              selectedTabIds.length > 0
+                ? activity.tabs.filter((t) =>
+                    selectedTabIds.includes(t._id.toString())
+                  )
+                : activity.tabs;
+            return acc.concat(filtered);
           }, []);
         } catch (err) {
           reject(err);
