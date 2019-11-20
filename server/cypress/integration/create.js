@@ -1,3 +1,4 @@
+const capitalize = require('lodash/capitalize');
 const user = require('../fixtures/user');
 const course = require('../fixtures/course');
 const room = require('../fixtures/room');
@@ -15,6 +16,163 @@ function create() {
     .click();
 }
 
+function typeInput(inputName, text, options = {}) {
+  const { doClear = false } = options;
+
+  if (doClear) {
+    cy.get(`input[name=${inputName}]`)
+      .type('{selectall} {backspace}')
+      .type(text);
+  } else {
+    cy.get(`input[name=${inputName}]`).type(text);
+  }
+}
+
+function createResource(details) {
+  const {
+    name,
+    description,
+    resourceType,
+    existingActivityNames,
+    roomType,
+    ggbAppType = 'classic',
+    ggbFileName,
+    dueDate,
+    privacy = 'public',
+    desmosLink,
+    numTabs,
+  } = details;
+
+  const plural =
+    resourceType === 'activity' ? 'Activities' : `${capitalize(resourceType)}s`;
+  cy.getTestElement('tab')
+    .contains(plural)
+    .click();
+  cy.getTestElement(`create-${resourceType}`).click();
+
+  if (name) {
+    typeInput('name', name);
+  }
+
+  if (description) {
+    typeInput('description', description);
+  }
+
+  if (resourceType === 'course') {
+    next();
+    if (privacy === 'private') {
+      if (privacy === 'private') {
+        cy.get('input[name=private]').click();
+      }
+    }
+    create();
+    cy.contains(name).should('exist');
+  } else if (existingActivityNames) {
+    cy.get('button')
+      .contains('copy existing activities')
+      .click();
+    existingActivityNames.forEach((name) => {
+      cy.getTestElement(`${name}-checkbox`).click();
+    });
+
+    next();
+
+    if (resourceType === 'room') {
+      if (dueDate) {
+        // input date to date picker
+      }
+      next();
+    }
+
+    if (privacy === 'private') {
+      cy.get('input[name=private]').click();
+    }
+    create();
+    cy.contains(name).should('exist');
+
+    if (numTabs) {
+      cy.contains(name).click();
+
+      const enterTestId = resourceType === 'room' ? 'Enter' : 'view-activity';
+
+      cy.getTestElement(enterTestId).click();
+      cy.getTestElement('tabs-container')
+        .children()
+        .should('have.length', numTabs + 1); // counting new tab btn
+      cy.getTestElement('nav-My VMT').click();
+    }
+  } else {
+    const buttonText = `create a new ${resourceType}`;
+    cy.get('button')
+      .contains(buttonText)
+      .click();
+
+    if (roomType === 'desmos') {
+      cy.get('input[name=desmos]').click();
+      next();
+
+      if (desmosLink) {
+        typeInput('desmosLink', desmosLink);
+      }
+      next();
+      if (dueDate) {
+        // handle dueDate
+      }
+      next();
+      if (privacy === 'private') {
+        cy.get('input[name=private]').click();
+      }
+
+      create();
+      cy.contains(name).should('exist');
+    } else {
+      // ggb
+      // move past ggb or desmos screen
+      next();
+      if (ggbAppType !== 'classic') {
+        cy.getTestElement(ggbAppType).click();
+      }
+      if (ggbFileName) {
+        cy.fixture(ggbFileName, 'base64').then((fileContent) => {
+          cy.get('input[name=ggbFile]').upload({
+            fileContent,
+            ggbFileName,
+            mimeType: 'application/zip',
+            encoding: 'base64',
+          });
+
+          next(); // move past file screen
+          if (resourceType === 'room') {
+            if (dueDate) {
+              // handle dueDate
+            }
+            next();
+          }
+          if (privacy === 'private') {
+            cy.get('input[name=private]').click();
+          }
+
+          create();
+          cy.contains(name).should('exist');
+        });
+      } else {
+        next();
+        if (resourceType === 'room') {
+          if (dueDate) {
+            // handle dueDate
+          }
+          next();
+        }
+        if (privacy === 'private') {
+          cy.get('input[name=private]').click();
+        }
+        create();
+        cy.contains(name).should('exist');
+      }
+    }
+  }
+}
+
 describe('create each type of resource', function() {
   before(function() {
     cy.task('restoreAll').then(() => {
@@ -25,131 +183,90 @@ describe('create each type of resource', function() {
   after(function() {
     cy.logout();
   });
-
-  it('creates a course', function() {
-    cy.getTestElement('tab')
-      .contains('Courses')
-      .click();
-    cy.getTestElement('create-course').click();
-    cy.get('input[name=name]').type(course.name);
-    cy.get('input[name=description]').type(course.description);
-    cy.get('button')
-      .contains('next')
-      .click();
-    cy.get('button')
-      .contains('create')
-      .click();
-    cy.contains(course.name).should('exist');
+  const { name, description } = course;
+  it('creates a public course', function() {
+    createResource({ resourceType: 'course', name, description });
   });
 
-  it('creates a new room', function() {
-    // cy.get('button').click()
-    cy.getTestElement('tab')
-      .contains('Rooms')
-      .click();
-    cy.getTestElement('create-room').click();
-    cy.get('input[name=name]')
-      .type('{selectall} {backspace}')
-      .type(room.name);
-    cy.get('input[name=description]')
-      .type('{selectall} {backspace}')
-      .type(room.description);
-    cy.get('button')
-      .contains('create a new room')
-      .click();
-    cy.get('button')
-      .contains('next')
-      .click();
-    cy.get('button')
-      .contains('next')
-      .click();
-    cy.get('button')
-      .contains('next')
-      .click();
-    cy.get('button')
-      .contains('create')
-      .click();
-    cy.contains(room.name).should('exist');
+  it('creates a private course', function() {
+    createResource({
+      resourceType: 'course',
+      name: `${name} private`,
+      description,
+      privacy: 'private',
+    });
   });
 
-  it('creates an activity', function() {
-    cy.getTestElement('tab')
-      .contains('Activities')
-      .click();
-    cy.url().should('include', '/myVMT/activities');
-    cy.get('button')
-      .contains('Create')
-      .click();
-    cy.get('input[name=name]')
-      .type('{selectall} {backspace}')
-      .type(activity.name);
-    cy.get('input[name=description]')
-      .type('{selectall} {backspace}')
-      .type(activity.description);
-    cy.get('button')
-      .contains('create a new activity')
-      .click();
-    cy.get('button')
-      .contains('next')
-      .click();
-    cy.get('button')
-      .contains('next')
-      .click();
-    cy.get('button')
-      .contains('create')
-      .click();
-    cy.contains(activity.name).should('exist');
+  it('creates a new public ggb room', function() {
+    const { name, description } = room;
+    createResource({ resourceType: 'room', name, description });
   });
 
-  it('creates a room from an activity', function() {
-    cy.getTestElement('tab')
-      .contains('Rooms')
-      .click();
-    cy.getTestElement('create-room').click();
-    cy.get('input[name=name]')
-      .type('{selectall} {backspace}')
-      .type('room from activity');
-    cy.get('input[name=description]')
-      .type('{selectall} {backspace}')
-      .type(room.description);
-    cy.get('button')
-      .contains('copy existing activities')
-      .click();
-    cy.getTestElement('ACTIVITY 2-checkbox').click();
-    cy.get('button')
-      .contains('next')
-      .click();
-    cy.get('button')
-      .contains('next')
-      .click();
-    cy.get('button')
-      .contains('create')
-      .click();
-    cy.contains('room from activity').should('exist');
+  it('creates a new private ggb room', function() {
+    const { name, description } = room;
+    createResource({
+      resourceType: 'room',
+      name: `${name} private`,
+      description,
+      privacy: 'private',
+    });
+  });
+
+  it('creates a public ggb activity', function() {
+    const { name, description } = activity;
+    createResource({ resourceType: 'activity', name, description });
+  });
+
+  it('creates a private ggb activity', function() {
+    const { name, description } = activity;
+    createResource({
+      resourceType: 'activity',
+      name: `${name} private`,
+      description,
+      privacy: 'private',
+    });
+  });
+
+  it('creates a room from 1 activity', function() {
+    const existingActivityNames = ['ACTIVITY 2'];
+    const name = 'public room from activity 2';
+    createResource({ resourceType: 'room', name, existingActivityNames });
+  });
+
+  it('creates a room from multiple activities', function() {
+    const name = 'room from 3 activities';
+    const existingActivityNames = [
+      'ACTIVITY 2',
+      'ssmith c1: integrals',
+      'stand-alone-activity',
+    ];
+    createResource({
+      resourceType: 'room',
+      name,
+      existingActivityNames,
+      numTabs: 3,
+    });
   });
 
   it('creates an activity from an existing activity', function() {
-    cy.getTestElement('tab')
-      .contains('Activities')
-      .click();
-    cy.getTestElement('create-activity').click();
-    cy.get('input[name=name]')
-      .type('{selectall} {backspace}')
-      .type('activity from existing activity');
-    cy.get('input[name=description]')
-      .type('{selectall} {backspace}')
-      .type(room.description);
-    cy.get('button')
-      .contains('copy existing activities')
-      .click();
-    cy.getTestElement('ACTIVITY 2-checkbox').click();
-    cy.get('button')
-      .contains('next')
-      .click();
-    cy.get('button')
-      .contains('create')
-      .click();
-    cy.contains('activity from existing activity').should('exist');
+    const existingActivityNames = ['ACTIVITY 2'];
+    const name = 'public activity from activity 2';
+    createResource({ resourceType: 'activity', name, existingActivityNames });
+  });
+
+  it('creates an activity from multiple activities', function() {
+    const name = 'activity from 3 activities';
+    const existingActivityNames = [
+      'ACTIVITY 2',
+      'ssmith c1: integrals',
+      'stand-alone-activity',
+    ];
+    createResource({
+      resourceType: 'activity',
+      name,
+      existingActivityNames,
+      numTabs: 3,
+    });
   });
 
   it('creates a course activity', function() {
@@ -159,31 +276,12 @@ describe('create each type of resource', function() {
     cy.getTestElement('content-box-course 1').click();
     cy.url().should('include', '/myVMT/courses');
     cy.url().should('include', '/activities');
-    cy.getTestElement('tab')
-      .contains('Activities')
-      .click();
-    cy.get('button')
-      .contains('Create')
-      .click();
-    cy.get('input[name=name]')
-      .type('{selectall} {backspace}')
-      .type(course.activity.name);
-    cy.get('input[name=description]')
-      .type('{selectall} {backspace}')
-      .type(course.activity.description);
-    cy.get('button')
-      .contains('create a new activity')
-      .click();
-    cy.get('button')
-      .contains('next')
-      .click();
-    cy.get('button')
-      .contains('next')
-      .click();
-    cy.get('button')
-      .contains('create')
-      .click();
-    cy.contains(course.activity.name).should('exist');
+
+    createResource({
+      resourceType: 'activity',
+      name: course.activity.name,
+      description: course.activity.description,
+    });
   });
 
   it('creates a course room', function() {
@@ -192,31 +290,12 @@ describe('create each type of resource', function() {
       .click();
     cy.url().should('include', '/myVMT/courses');
     cy.url().should('include', '/rooms');
-    cy.get('button')
-      .contains('Create')
-      .click();
-    cy.get('input[name=name]')
-      .type('{selectall} {backspace}')
-      .type(course.room.name);
-    cy.get('input[name=description]')
-      .type('{selectall} {backspace}')
-      .type(course.room.description);
-    cy.get('button')
-      .contains('create a new room')
-      .click();
-    cy.get('button')
-      .contains('next')
-      .click();
-    cy.get('button')
-      .contains('next')
-      .click();
-    cy.get('button')
-      .contains('next')
-      .click();
-    cy.get('button')
-      .contains('create')
-      .click();
-    cy.contains(course.room.name).should('exist');
+
+    createResource({
+      resourceType: 'room',
+      name: course.room.name,
+      description: course.room.description,
+    });
   });
 
   it('creates a room from a ggb file', function() {
