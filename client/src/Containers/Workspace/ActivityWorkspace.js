@@ -74,7 +74,8 @@ class ActivityWorkspace extends Component {
   };
 
   createNewActivity = () => {
-    const { activity } = { ...this.props };
+    const { activity } = this.props;
+    const copy = { ...activity };
     const { user, connectCreateActivity, history } = this.props;
     const { newName, selectedTabIdsToCopy } = this.state;
 
@@ -91,17 +92,17 @@ class ActivityWorkspace extends Component {
       });
       return;
     }
-    activity.activities = [activity._id];
-    delete activity._id;
-    delete activity.createdAt;
-    delete activity.updatedAt;
-    delete activity.course;
-    delete activity.courses;
-    activity.creator = user._id;
-    activity.name = newName;
-    activity.tabs = activity.tabs.map((tab) => tab._id);
-    activity.selectedTabIds = selectedTabIdsToCopy;
-    connectCreateActivity(activity);
+    copy.activities = [copy._id];
+    delete copy._id;
+    delete copy.createdAt;
+    delete copy.updatedAt;
+    delete copy.course;
+    delete copy.courses;
+    copy.creator = user._id;
+    copy.name = newName;
+    copy.tabs = copy.tabs.map((tab) => tab._id);
+    copy.selectedTabIds = selectedTabIdsToCopy;
+    connectCreateActivity(copy);
     this.setState({ addingToMyActivities: false, selectedTabIdsToCopy: [] });
     history.push('/myVMT/activities');
   };
