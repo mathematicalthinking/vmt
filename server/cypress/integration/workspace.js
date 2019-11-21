@@ -28,7 +28,9 @@ describe('Workspace/replayer', function() {
 
     cy.getTestElement('add-tab').click();
     cy.get('input[name=name]').type(name);
-    cy.get('input[name=instructions]').type(instructions);
+    if (instructions) {
+      cy.get('input[name=instructions]').type(instructions);
+    }
     // GeoGebra default selected
 
     if (roomType === 'desmos') {
@@ -252,6 +254,70 @@ describe('Workspace/replayer', function() {
 
         cy.url().should('include', '/myVMT/activities');
         cy.contains(copyName).should('exist');
+        cy.contains(copyName).click();
+
+        cy.getTestElement('view-activity').click();
+        cy.getTestElement('tabs-container')
+          .children()
+          .should('have.length', 2);
+
+        let newName = 'Both Tabs';
+        const newTabName = 'Tab 2';
+        createTab({ name: newTabName });
+        cy.getTestElement('copy-activity').click();
+
+        // submit with no name and test error msg
+        const nameErrorMsg = 'Please provide a name for your new activity';
+        const noTabsErrorMsg = 'Please select at least one tab to copy';
+        cy.contains('Copy Activity').click();
+        cy.contains(nameErrorMsg).should('exist');
+
+        cy.get('input[name="new name"]').type(newName);
+
+        // uncheck both tabs and test error msg
+        cy.getTestElement(`${initialTabName}-checkbox`).click();
+        cy.getTestElement(`${newTabName}-checkbox`).click();
+
+        cy.contains('Copy Activity').click();
+        cy.contains(nameErrorMsg).should('not.exist');
+        cy.contains(noTabsErrorMsg).should('exist');
+
+        // recheck both tabs
+        cy.getTestElement(`${initialTabName}-checkbox`).click();
+        cy.getTestElement(`${newTabName}-checkbox`).click();
+
+        cy.contains('Copy Activity').click();
+
+        cy.contains(newName).should('exist');
+        cy.contains(newName).click();
+
+        cy.getTestElement('view-activity').click();
+        cy.getTestElement('tabs-container')
+          .children()
+          .should('have.length', 3);
+        cy.contains(initialTabName).should('be.visible');
+        cy.contains(newTabName).should('be.visible');
+
+        // create new tab then copy again
+        newName = 'Tab #2 Only';
+        cy.getTestElement('copy-activity').click();
+        cy.get('input[name="new name"]').type(newName);
+
+        // uncheck tab 1
+        cy.getTestElement(`${initialTabName}-checkbox`).click();
+        cy.contains('Copy Activity').click();
+
+        cy.contains(newName).should('exist');
+        cy.contains(newName).click();
+
+        cy.getTestElement('view-activity').click();
+        cy.getTestElement('tabs-container')
+          .children()
+          .should('have.length', 2);
+        cy.contains(initialTabName).should('not.be.visible');
+        cy.contains(newTabName).should('be.visible');
+
+        cy.wait(1000); // cypress fails in after all hook without this
       });
     });
   });
