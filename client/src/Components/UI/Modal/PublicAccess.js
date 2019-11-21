@@ -10,6 +10,8 @@ const PublicAccess = ({
   userId,
   joinWithCode,
   closeModal,
+  user,
+  setAdmin,
 }) => {
   const displayResource = resource.slice(0, resource.length - 1);
   return (
@@ -17,8 +19,6 @@ const PublicAccess = ({
       <p>
         If you would like to add this {displayResource} to your list of
         resources, click &#34;Join&#34;.
-        {/* If you just want to poke
-        around click 'Explore' */}
       </p>
       <div className={classes.Row}>
         <Button
@@ -30,10 +30,17 @@ const PublicAccess = ({
         >
           Join
         </Button>
-        {/* <Button m={5} theme={'Small'} click={() => 'clicked'}>
-          Explore
-        </Button> */}
       </div>
+      {user.isAdmin ? (
+        <div>
+          <p className={classes.Or}>Or</p>
+          <div className={classes.Row}>
+            <Button data-testid="view-as-admin" click={setAdmin}>
+              View as Admin
+            </Button>
+          </div>
+        </div>
+      ) : null}
     </Modal>
   );
 };
@@ -44,6 +51,10 @@ PublicAccess.propTypes = {
   userId: PropTypes.string.isRequired,
   joinWithCode: PropTypes.func.isRequired,
   closeModal: PropTypes.func.isRequired,
+  user: PropTypes.shape({
+    isAdmin: PropTypes.bool,
+  }).isRequired,
+  setAdmin: PropTypes.func.isRequired,
 };
 
 export default PublicAccess;

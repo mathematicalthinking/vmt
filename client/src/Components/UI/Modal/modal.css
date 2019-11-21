@@ -75,6 +75,11 @@
   justify-content: center;
   width: 100%;
 }
+
+.Or {
+  margin: 10px;
+}
+
 @media (max-width: 600px) {
   .Modal {
     width: 400px;
