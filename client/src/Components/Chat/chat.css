@@ -218,3 +218,12 @@
 .Event:hover {
   background: blue !important;
 }
+
+.ExternalLink {
+  margin-left: 3px;
+  margin-right: -5px;
+}
+
+.MoreMenuOption {
+  margin: 10px;
+}

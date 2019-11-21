@@ -15,7 +15,6 @@ const Tools = ({
   toggleControl,
   clearReference,
   startNewReference,
-  goToReplayer,
 }) => {
   let controlText;
   if (!replayer) {
@@ -29,7 +28,6 @@ const Tools = ({
 
   return (
     <div className={classes.Container}>
-      {/* <h3 className={classes.Title}>Tools</h3> */}
       <div className={classes.Expanded}>
         <div className={classes.Controls}>
           {!replayer ? (
@@ -77,15 +75,6 @@ const Tools = ({
             />
           </div>
         ) : null}
-        {goToReplayer ? (
-          <Button theme="xs" click={goToReplayer}>
-            Open Replayer
-            <span className={classes.ExternalLink}>
-              <i className="fas fa-external-link-alt" />
-            </span>
-          </Button>
-        ) : null}
-
         <div>
           <Awareness lastEvent={lastEvent} />
         </div>
@@ -104,7 +93,6 @@ Tools.propTypes = {
   toggleControl: PropTypes.func,
   clearReference: PropTypes.func,
   startNewReference: PropTypes.func,
-  goToReplayer: PropTypes.func,
 };
 
 Tools.defaultProps = {
@@ -116,7 +104,6 @@ Tools.defaultProps = {
   inControl: null,
   replayer: false,
   save: null,
-  goToReplayer: null,
 };
 
 export default Tools;

@@ -13,14 +13,23 @@ import {
   setRoomStartingPoint,
   updateUser,
   updateUserSettings,
+  createActivity,
 } from '../../store/actions';
 import mongoIdGenerator from '../../utils/createMongoId';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from '.';
-import { Modal, CurrentMembers, Loading } from '../../Components';
+import {
+  Modal,
+  CurrentMembers,
+  Loading,
+  Button,
+  SelectionList,
+  TextInput,
+} from '../../Components';
 import NewTabForm from '../Create/NewTabForm';
 import { socket } from '../../utils';
 import API from '../../utils/apiRequests';
+import ModalClasses from '../../Components/UI/Modal/modal.css';
 
 // import Replayer from ''
 class Workspace extends Component {
@@ -66,6 +75,7 @@ class Workspace extends Component {
       eventsWithRefs: [],
       showInstructionsModal: false,
       instructionsModalMsg: null,
+      isCreatingActivity: false,
     };
   }
 
@@ -678,6 +688,64 @@ class Workspace extends Component {
       });
   };
 
+  createNewActivity = () => {
+    const { populatedRoom } = this.props;
+    const copy = { ...populatedRoom };
+    const { user, connectCreateActivity, history } = this.props;
+    const { newName, selectedTabIdsToCopy } = this.state;
+
+    if (!selectedTabIdsToCopy.length > 0) {
+      this.setState({
+        createActivityError: 'Please select at least one tab to include',
+      });
+      return;
+    }
+
+    if (!newName) {
+      this.setState({
+        createActivityError: 'Please provide a name for your new activity',
+      });
+      return;
+    }
+
+    const { description, privacySetting, instructions } = copy;
+    const activityBody = {
+      creator: user._id,
+      name: newName,
+      selectedTabIds: selectedTabIdsToCopy,
+      description,
+      privacySetting,
+      instructions,
+      rooms: [populatedRoom._id],
+    };
+    connectCreateActivity(activityBody);
+    this.setState({ isCreatingActivity: false, selectedTabIdsToCopy: [] });
+    history.push('/myVMT/activities');
+  };
+
+  addTabIdToCopy = (event, id) => {
+    const { selectedTabIdsToCopy } = this.state;
+    if (selectedTabIdsToCopy.indexOf(id) === -1) {
+      this.setState({ selectedTabIdsToCopy: [...selectedTabIdsToCopy, id] });
+    } else {
+      this.setState({
+        selectedTabIdsToCopy: selectedTabIdsToCopy.filter(
+          (tabId) => tabId !== id
+        ),
+      });
+    }
+  };
+
+  beginCreatingActivity = () => {
+    // create a new activity that belongs to the current user
+    const { tabs } = this.state;
+    this.setState({
+      isCreatingActivity: true,
+      selectedTabIdsToCopy: tabs.map((t) => t._id),
+      settings: false,
+    });
+  };
+
   render() {
     const {
       populatedRoom,
@@ -717,6 +785,10 @@ class Workspace extends Component {
       eventsWithRefs,
       showInstructionsModal,
       instructionsModalMsg,
+      newName,
+      selectedTabIdsToCopy,
+      isCreatingActivity,
+      createActivityError,
     } = this.state;
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
@@ -741,7 +813,6 @@ class Workspace extends Component {
         createNewTab={this.createNewTab}
       />
     );
-    // {role === 'facilitator' ? <div className={[classes.Tab, classes.NewTab].join(' ')}><div onClick={createNewTab}    className={classes.TabBox}><i className="fas fa-plus"></i></div></div> : null}
     const chat = (
       <Chat
         roomId={populatedRoom._id}
@@ -765,6 +836,8 @@ class Workspace extends Component {
         membersExpanded={membersExpanded}
         toggleExpansion={this.toggleExpansion}
         eventsWithRefs={eventsWithRefs}
+        goToReplayer={this.goToReplayer}
+        createActivity={this.beginCreatingActivity}
       />
     );
     const graphs = currentTabs.map((tab) => {
@@ -852,7 +925,6 @@ class Workspace extends Component {
               referencing={referencing}
               startNewReference={this.startNewReference}
               clearReference={this.clearReference}
-              goToReplayer={this.goToReplayer}
               // TEMP ROOM NEEDS TO KNOW IF ITS BEEN SAVED...pass that along as props
             />
           }
@@ -909,6 +981,47 @@ class Workspace extends Component {
         >
           {instructionsModalMsg}
         </Modal>
+        <Modal
+          show={isCreatingActivity}
+          closeModal={() =>
+            this.setState({
+              isCreatingActivity: false,
+              createActivityError: null,
+            })
+          }
+        >
+          <TextInput
+            show={isCreatingActivity}
+            light
+            focus
+            name="new name"
+            value={newName}
+            change={(event) => {
+              this.setState({ newName: event.target.value });
+            }}
+            label="New Activity Name"
+          />
+          {currentTabs && currentTabs.length > 1 ? (
+            <div>
+              <p>Choose at least one tab to include</p>
+              <SelectionList
+                listToSelectFrom={currentTabs}
+                selectItem={this.addTabIdToCopy}
+                selected={selectedTabIdsToCopy}
+              />
+            </div>
+          ) : null}
+          {createActivityError ? (
+            <div className={ModalClasses.Error}>{createActivityError}</div>
+          ) : null}
+
+          <Button
+            data-testid="create-new-activity"
+            click={this.createNewActivity}
+          >
+            Create Activity
+          </Button>
+        </Modal>
       </Fragment>
     );
   }
@@ -928,6 +1041,7 @@ Workspace.propTypes = {
   connectUpdateRoomTab: PropTypes.func.isRequired,
   connectSetRoomStartingPoint: PropTypes.func.isRequired,
   connectUpdateUserSettings: PropTypes.func.isRequired,
+  connectCreateActivity: PropTypes.func.isRequired,
 };
 
 Workspace.defaultProps = {
@@ -954,5 +1068,6 @@ export default connect(
     connectUpdateRoomTab: updateRoomTab,
     connectSetRoomStartingPoint: setRoomStartingPoint,
     connectUpdateUserSettings: updateUserSettings,
+    connectCreateActivity: createActivity,
   }
 )(Workspace);

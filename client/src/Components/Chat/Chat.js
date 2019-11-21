@@ -7,6 +7,7 @@ import Modal from '../UI/Modal/Modal';
 import Message from './Message';
 import Event from './Event';
 import classes from './chat.css';
+import Button from '../UI/Button/Button';
 
 class Chat extends Component {
   // We need this construcotr, stop deleting it...look @ line29
@@ -194,7 +195,6 @@ class Chat extends Component {
     // INSTEAD OF DOING ALL OF THIS WE COULD JUST SEE HOW THE SCROLL HAS CHANGED AND THEN KNOW HOW TO UPDATE THE DOM LINE?
     if (showingReference) {
       // Find and update the position of the referer
-      // this.updateReference()
       setFromElAndCoords(
         null,
         this.getRelativeCoords(this[`message-${referFromEl}`].current)
@@ -242,9 +242,20 @@ class Chat extends Component {
     return found.reference || reference;
   };
 
+  createActivity = () => {
+    const { createActivity } = this.props;
+    this.setState({ settings: false });
+    createActivity();
+  };
+
+  openReplayer = () => {
+    const { goToReplayer } = this.props;
+    this.setState({ settings: false });
+    goToReplayer();
+  };
+
   render() {
     const {
-      // messages,
       log,
       replayer,
       change,
@@ -255,6 +266,8 @@ class Chat extends Component {
       referencing,
       user,
       startNewReference,
+      goToReplayer,
+      createActivity,
     } = this.props;
     const { settings, highlightedMessage } = this.state;
     let displayMessages = [];
@@ -328,6 +341,7 @@ class Chat extends Component {
                     'fas fa-wifi',
                     user.connected ? classes.Connected : classes.Disconnected,
                   ].join(' ')}
+                  title={user.connected ? 'Connected' : 'Disconnected'}
                 />
                 <div className={classes.StatusText}>
                   {user.connected ? '' : 'disconnected!'}
@@ -335,9 +349,11 @@ class Chat extends Component {
                 <i
                   onClick={() => this.setState({ settings: true })}
                   onKeyPress={() => this.setState({ settings: true })}
-                  className={['fas fa-cog', classes.Settings].join(' ')}
+                  className={['fas fa-ellipsis-v', classes.Settings].join(' ')}
                   tabIndex="-1"
                   role="button"
+                  data-testid="more-menu"
+                  title="More options"
                 />
               </div>
             ) : null}
@@ -364,9 +380,7 @@ class Chat extends Component {
                     startNewReference();
                   }
                 }}
-                // onBlur={clearReference}
               />
-              {/* <TextInput width={"90%"} size={20} light autoComplete="off" change={change} type='text' name='message' value={value}/> */}
               <div
                 className={classes.Send}
                 onClick={submit}
@@ -384,7 +398,29 @@ class Chat extends Component {
             show={settings}
             closeModal={() => this.setState({ settings: false })}
           >
-            Settings
+            More Options
+            <div className={classes.MoreMenu}>
+              {goToReplayer ? (
+                <div className={classes.MoreMenuOption}>
+                  <Button click={this.openReplayer} data-testid="open-replayer">
+                    Open Replayer
+                    <span className={classes.ExternalLink}>
+                      <i className="fas fa-external-link-alt" />
+                    </span>
+                  </Button>
+                </div>
+              ) : null}
+              {createActivity ? (
+                <div className={classes.MoreMenuOption}>
+                  <Button
+                    click={this.createActivity}
+                    data-testid="create-activity"
+                  >
+                    Create Activity from Room
+                  </Button>
+                </div>
+              ) : null}
+            </div>
           </Modal>
         ) : null}
       </Fragment>
@@ -414,14 +450,14 @@ Chat.propTypes = {
   change: PropTypes.func,
   value: PropTypes.string,
   startNewReference: PropTypes.func,
-  // referenceElementCoords: PropTypes.arrayOf(PropTypes.number),
   replayer: PropTypes.bool,
   submit: PropTypes.func,
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   expanded: PropTypes.bool.isRequired,
-  // membersExpanded: PropTypes.bool.isRequired,
   chatInput: PropTypes.shape({ current: PropTypes.any }),
   eventsWithRefs: PropTypes.arrayOf(PropTypes.shape({})),
+  goToReplayer: PropTypes.func,
+  createActivity: PropTypes.func,
 };
 
 Chat.defaultProps = {
@@ -441,9 +477,10 @@ Chat.defaultProps = {
   showReference: null,
   clearReference: null,
   showingReference: null,
-  // referenceElementCoords: [],
   chatInput: null,
   eventsWithRefs: [],
+  goToReplayer: null,
+  createActivity: null,
 };
 
 export default Chat;
