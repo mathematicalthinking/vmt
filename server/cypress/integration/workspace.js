@@ -126,7 +126,7 @@ describe('Workspace/replayer', function() {
   describe('Managing tabs', function() {
     const secondTabName = 'Tab 2 Bananas';
     const thirdTabName = 'Tab 3 Apples';
-
+    const thirdTabRenamed = 'Third Tab Renamed';
     it('successfully creates a new tab', function() {
       const name = secondTabName;
       const instructions = `These are the instructions for ${name}.`;
@@ -142,20 +142,91 @@ describe('Workspace/replayer', function() {
     // TODO create ggb tab from file
 
     it('edits tab name', function() {
-      const newTabName = 'Third Tab Renamed';
-
-      editTab(newTabName);
+      editTab(thirdTabRenamed);
     });
 
     it('edits tab instructions', function() {
       const newInstructions = `These are nonsensical instructions.`;
       editInstructions(newInstructions);
     });
+
+    it('creates an activity from room', function() {
+      cy.getTestElement('more-menu').click();
+      cy.getTestElement('create-activity').click();
+
+      const firstTabName = 'Tab 1';
+      let newName = 'Activity All Tabs';
+      // submit with no name and test error msg
+      const nameErrorMsg = 'Please provide a name for your new activity';
+      const noTabsErrorMsg = 'Please select at least one tab to include';
+      cy.getTestElement('create-new-activity').click();
+      cy.contains(nameErrorMsg).should('exist');
+
+      cy.get('input[name="new name"]').type(newName);
+
+      // uncheck both tabs and test error msg
+      cy.getTestElement(`${firstTabName}-checkbox`).click();
+      cy.getTestElement(`${secondTabName}-checkbox`).click();
+      cy.getTestElement(`${thirdTabRenamed}-checkbox`).click();
+
+      cy.getTestElement('create-new-activity').click();
+
+      cy.contains(nameErrorMsg).should('not.exist');
+      cy.contains(noTabsErrorMsg).should('exist');
+
+      // recheck both tabs
+      cy.getTestElement(`${firstTabName}-checkbox`).click();
+      cy.getTestElement(`${secondTabName}-checkbox`).click();
+      cy.getTestElement(`${thirdTabRenamed}-checkbox`).click();
+
+      cy.getTestElement('create-new-activity').click();
+
+      cy.contains(newName).should('exist');
+      cy.contains(newName).click();
+
+      cy.getTestElement('view-activity').click();
+      cy.getTestElement('tabs-container')
+        .children()
+        .should('have.length', 4);
+      cy.contains(firstTabName).should('be.visible');
+      cy.contains(secondTabName).should('be.visible');
+
+      cy.contains(thirdTabRenamed).should('be.visible');
+
+      cy.getTestElement('nav-My VMT').click();
+      cy.get('#Rooms').click();
+      cy.getTestElement('content-box-room 1').click();
+      cy.getTestElement('Enter').click();
+
+      // create new tab then copy again
+      newName = 'Tabs 2 & 3 Only';
+      cy.getTestElement('more-menu').click();
+      cy.getTestElement('create-activity').click();
+      cy.get('input[name="new name"]').type(newName);
+
+      // uncheck tab 1
+      cy.getTestElement(`${firstTabName}-checkbox`).click();
+      cy.getTestElement('create-new-activity').click();
+
+      cy.contains(newName).should('exist');
+      cy.contains(newName).click();
+
+      cy.getTestElement('view-activity').click();
+      cy.getTestElement('tabs-container')
+        .children()
+        .should('have.length', 3);
+      cy.contains(firstTabName).should('not.be.visible');
+      cy.contains(secondTabName).should('be.visible');
+      cy.contains(thirdTabRenamed).should('be.visible');
+    });
   });
 
   describe('Loading Replayer', function() {
     it('loads a replayer', function() {
-      cy.getTestElement('exit-room').click();
+      cy.getTestElement('nav-My VMT').click();
+      cy.get('#Rooms').click();
+      cy.getTestElement('content-box-room 1').click();
+      // cy.getTestElement('exit-room').click();
       cy.getTestElement('Replayer').click();
     });
   });
@@ -187,11 +258,6 @@ describe('Workspace/replayer', function() {
       it('Should display link to about page', function() {
         cy.getTestElement('about-link').should('exist');
       });
-
-      // activities are auto saved every time the construction is updated
-      // xit('Should give option to save activity', function() {
-      //   cy.getTestElement('save-activity').should('exist');
-      // });
 
       it('Should display current tab name', function() {
         cy.getTestElement('room-info-tab-name').should(
