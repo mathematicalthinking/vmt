@@ -23,10 +23,28 @@ class PrivateAccess extends Component {
   };
 
   closeModal = () => {
-    const { error, clearError, history } = this.props;
+    const { error, clearError, history, resource } = this.props;
     if (error) clearError();
     this.setState({ show: false });
-    history.goBack();
+
+    // right now only course or room
+    let pluralResource = resource;
+
+    if (resource === 'course') {
+      pluralResource = 'courses';
+    } else if (resource === 'room') {
+      pluralResource = 'rooms';
+    } else if (resource === 'activity') {
+      pluralResource = 'activities';
+    }
+
+    let query = '?privacy=all&roomType=all';
+
+    if (resource === 'course') {
+      query = '?privacy=all';
+    }
+    history.push(`/community/${pluralResource}${query}`);
+    // history.goBack();
   };
 
   requestAccess = () => {
