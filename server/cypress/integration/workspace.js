@@ -152,7 +152,7 @@ describe('Workspace/replayer', function() {
 
     it('creates an activity from room', function() {
       cy.getTestElement('more-menu').click();
-      cy.getTestElement('create-activity').click();
+      cy.getTestElement('create-workspace').click();
 
       const firstTabName = 'Tab 1';
       let newName = 'Activity All Tabs';
@@ -190,8 +190,8 @@ describe('Workspace/replayer', function() {
         .should('have.length', 4);
       cy.contains(firstTabName).should('be.visible');
       cy.contains(secondTabName).should('be.visible');
-
       cy.contains(thirdTabRenamed).should('be.visible');
+      cy.get('.ggbtoolbarpanel').should('be.visible');
 
       cy.getTestElement('nav-My VMT').click();
       cy.get('#Rooms').click();
@@ -201,7 +201,7 @@ describe('Workspace/replayer', function() {
       // create new tab then copy again
       newName = 'Tabs 2 & 3 Only';
       cy.getTestElement('more-menu').click();
-      cy.getTestElement('create-activity').click();
+      cy.getTestElement('create-workspace').click();
       cy.get('input[name="new name"]').type(newName);
 
       // uncheck tab 1
@@ -218,6 +218,86 @@ describe('Workspace/replayer', function() {
       cy.contains(firstTabName).should('not.be.visible');
       cy.contains(secondTabName).should('be.visible');
       cy.contains(thirdTabRenamed).should('be.visible');
+      cy.get('.ggbtoolbarpanel').should('be.visible');
+    });
+
+    it('creates a room from room', function() {
+      cy.getTestElement('nav-My VMT').click();
+      cy.get('#Rooms').click();
+      cy.getTestElement('content-box-room 1').click();
+      cy.getTestElement('Enter').click();
+
+      cy.getTestElement('more-menu').click();
+      cy.getTestElement('create-workspace').click();
+      cy.get('input[name=room]').click();
+
+      const firstTabName = 'Tab 1';
+      let newName = 'Room All Tabs';
+      // submit with no name and test error msg
+      const nameErrorMsg = 'Please provide a name for your new room';
+      const noTabsErrorMsg = 'Please select at least one tab to include';
+      cy.getTestElement('create-new-room').click();
+      cy.contains(nameErrorMsg).should('exist');
+
+      cy.get('input[name="new name"]').type(newName);
+
+      // uncheck both tabs and test error msg
+      cy.getTestElement(`${firstTabName}-checkbox`).click();
+      cy.getTestElement(`${secondTabName}-checkbox`).click();
+      cy.getTestElement(`${thirdTabRenamed}-checkbox`).click();
+
+      cy.getTestElement('create-new-room').click();
+
+      cy.contains(nameErrorMsg).should('not.exist');
+      cy.contains(noTabsErrorMsg).should('exist');
+
+      // recheck both tabs
+      cy.getTestElement(`${firstTabName}-checkbox`).click();
+      cy.getTestElement(`${secondTabName}-checkbox`).click();
+      cy.getTestElement(`${thirdTabRenamed}-checkbox`).click();
+
+      cy.getTestElement('create-new-room').click();
+
+      cy.contains(newName).should('exist');
+      cy.contains(newName).click();
+
+      cy.getTestElement('Enter').click();
+      cy.getTestElement('tabs-container')
+        .children()
+        .should('have.length', 4);
+      cy.contains(firstTabName).should('be.visible');
+      cy.contains(secondTabName).should('be.visible');
+      cy.contains(thirdTabRenamed).should('be.visible');
+      cy.get('.ggbtoolbarpanel').should('be.visible');
+
+      cy.getTestElement('nav-My VMT').click();
+      cy.get('#Rooms').click();
+      cy.getTestElement('content-box-room 1').click();
+      cy.getTestElement('Enter').click();
+
+      // create new tab then copy again
+      newName = 'Tabs 2 & 3 Only';
+      cy.getTestElement('more-menu').click();
+      cy.getTestElement('create-workspace').click();
+      cy.get('input[name=room]').click();
+
+      cy.get('input[name="new name"]').type(newName);
+
+      // uncheck tab 1
+      cy.getTestElement(`${firstTabName}-checkbox`).click();
+      cy.getTestElement('create-new-room').click();
+
+      cy.contains(newName).should('exist');
+      cy.contains(newName).click();
+
+      cy.getTestElement('Enter').click();
+      cy.getTestElement('tabs-container')
+        .children()
+        .should('have.length', 3);
+      cy.contains(firstTabName).should('not.be.visible');
+      cy.contains(secondTabName).should('be.visible');
+      cy.contains(thirdTabRenamed).should('be.visible');
+      cy.get('.ggbtoolbarpanel').should('be.visible');
     });
   });
 
@@ -363,6 +443,7 @@ describe('Workspace/replayer', function() {
           .should('have.length', 3);
         cy.contains(initialTabName).should('be.visible');
         cy.contains(newTabName).should('be.visible');
+        cy.get('.ggbtoolbarpanel').should('be.visible');
 
         // create new tab then copy again
         newName = 'Tab #2 Only';
@@ -382,6 +463,7 @@ describe('Workspace/replayer', function() {
           .should('have.length', 2);
         cy.contains(initialTabName).should('not.be.visible');
         cy.contains(newTabName).should('be.visible');
+        cy.get('.ggbtoolbarpanel').should('be.visible');
 
         cy.wait(1000); // cypress fails in after all hook without this
       });
