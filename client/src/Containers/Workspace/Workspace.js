@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import each from 'lodash/each';
 import find from 'lodash/find';
+import { hri } from 'human-readable-ids';
 import {
   updateRoom,
   updatedRoom,
@@ -14,6 +15,7 @@ import {
   updateUser,
   updateUserSettings,
   createActivity,
+  createRoom,
 } from '../../store/actions';
 import mongoIdGenerator from '../../utils/createMongoId';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
@@ -25,13 +27,15 @@ import {
   Button,
   SelectionList,
   TextInput,
+  RadioBtn,
 } from '../../Components';
 import NewTabForm from '../Create/NewTabForm';
 import { socket } from '../../utils';
 import API from '../../utils/apiRequests';
-import ModalClasses from '../../Components/UI/Modal/modal.css';
+import modalClasses from '../../Components/UI/Modal/modal.css';
+import createClasses from '../Create/create.css';
+import formatImageUrl from '../Create/tinyGraphs.utils';
 
-// import Replayer from ''
 class Workspace extends Component {
   constructor(props) {
     super(props);
@@ -76,6 +80,7 @@ class Workspace extends Component {
       showInstructionsModal: false,
       instructionsModalMsg: null,
       isCreatingActivity: false,
+      newResourceType: 'activity',
     };
   }
 
@@ -688,11 +693,16 @@ class Workspace extends Component {
       });
   };
 
-  createNewActivity = () => {
+  createNewActivityOrRoom = () => {
     const { populatedRoom } = this.props;
     const copy = { ...populatedRoom };
-    const { user, connectCreateActivity, history } = this.props;
-    const { newName, selectedTabIdsToCopy } = this.state;
+    const {
+      user,
+      connectCreateActivity,
+      history,
+      connectCreateRoom,
+    } = this.props;
+    const { newName, selectedTabIdsToCopy, newResourceType } = this.state;
 
     if (!selectedTabIdsToCopy.length > 0) {
       this.setState({
@@ -703,24 +713,49 @@ class Workspace extends Component {
 
     if (!newName) {
       this.setState({
-        createActivityError: 'Please provide a name for your new activity',
+        createActivityError: `Please provide a name for your new ${newResourceType}`,
       });
       return;
     }
 
     const { description, privacySetting, instructions } = copy;
-    const activityBody = {
+    const pluralResource =
+      newResourceType === 'activity' ? 'activities' : 'rooms';
+    const resourceBody = {
       creator: user._id,
       name: newName,
       selectedTabIds: selectedTabIdsToCopy,
       description,
       privacySetting,
       instructions,
-      rooms: [populatedRoom._id],
+      sourceRooms: [populatedRoom._id],
+      image: formatImageUrl(newName, pluralResource),
     };
-    connectCreateActivity(activityBody);
+
+    if (privacySetting === 'private') {
+      resourceBody.entryCode = hri.random();
+    }
+    let updateFn;
+    let myVMTEndPt;
+
+    if (newResourceType === 'activity') {
+      updateFn = connectCreateActivity;
+      myVMTEndPt = 'activities';
+    } else {
+      updateFn = connectCreateRoom;
+      myVMTEndPt = 'rooms';
+
+      resourceBody.members = [
+        {
+          user: { username: user.username, _id: user._id },
+          role: 'facilitator',
+        },
+      ];
+    }
+
+    updateFn(resourceBody);
     this.setState({ isCreatingActivity: false, selectedTabIdsToCopy: [] });
-    history.push('/myVMT/activities');
+    history.push(`/myVMT/${myVMTEndPt}`);
   };
 
   addTabIdToCopy = (event, id) => {
@@ -744,6 +779,10 @@ class Workspace extends Component {
       selectedTabIdsToCopy: tabs.map((t) => t._id),
       settings: false,
     });
+  };
+
+  setNewResourceType = (newResourceType) => {
+    this.setState({ newResourceType });
   };
 
   render() {
@@ -789,6 +828,7 @@ class Workspace extends Component {
       selectedTabIdsToCopy,
       isCreatingActivity,
       createActivityError,
+      newResourceType,
     } = this.state;
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
@@ -987,9 +1027,29 @@ class Workspace extends Component {
             this.setState({
               isCreatingActivity: false,
               createActivityError: null,
+              newResourceType: 'activity',
             })
           }
         >
+          <p style={{ marginBottom: 10 }}>
+            Create a new Room or Activity based on this room
+          </p>
+          <div className={createClasses.RadioButtons}>
+            <RadioBtn
+              name="activity"
+              checked={newResourceType === 'activity'}
+              check={() => this.setNewResourceType('activity')}
+            >
+              Activity
+            </RadioBtn>
+            <RadioBtn
+              name="room"
+              checked={newResourceType === 'room'}
+              check={() => this.setNewResourceType('room')}
+            >
+              Room
+            </RadioBtn>
+          </div>
           <TextInput
             show={isCreatingActivity}
             light
@@ -999,7 +1059,7 @@ class Workspace extends Component {
             change={(event) => {
               this.setState({ newName: event.target.value });
             }}
-            label="New Activity Name"
+            label={`New ${newResourceType} Name`}
           />
           {currentTabs && currentTabs.length > 1 ? (
             <div>
@@ -1012,14 +1072,14 @@ class Workspace extends Component {
             </div>
           ) : null}
           {createActivityError ? (
-            <div className={ModalClasses.Error}>{createActivityError}</div>
+            <div className={modalClasses.Error}>{createActivityError}</div>
           ) : null}
 
           <Button
-            data-testid="create-new-activity"
-            click={this.createNewActivity}
+            data-testid={`create-new-${newResourceType}`}
+            click={this.createNewActivityOrRoom}
           >
-            Create Activity
+            Create {newResourceType}
           </Button>
         </Modal>
       </Fragment>
@@ -1042,6 +1102,7 @@ Workspace.propTypes = {
   connectSetRoomStartingPoint: PropTypes.func.isRequired,
   connectUpdateUserSettings: PropTypes.func.isRequired,
   connectCreateActivity: PropTypes.func.isRequired,
+  connectCreateRoom: PropTypes.func.isRequired,
 };
 
 Workspace.defaultProps = {
@@ -1069,5 +1130,6 @@ export default connect(
     connectSetRoomStartingPoint: setRoomStartingPoint,
     connectUpdateUserSettings: updateUserSettings,
     connectCreateActivity: createActivity,
+    connectCreateRoom: createRoom,
   }
 )(Workspace);

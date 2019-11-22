@@ -156,7 +156,7 @@ module.exports = {
           reject(err);
         }
       } else if (
-        body.rooms &&
+        body.sourceRooms &&
         Array.isArray(body.selectedTabIds) &&
         body.selectedTabIds.length > 0
       ) {

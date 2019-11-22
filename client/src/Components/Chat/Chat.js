@@ -414,9 +414,9 @@ class Chat extends Component {
                 <div className={classes.MoreMenuOption}>
                   <Button
                     click={this.createActivity}
-                    data-testid="create-activity"
+                    data-testid="create-workspace"
                   >
-                    Create Activity from Room
+                    Create Activity or Room
                   </Button>
                 </div>
               ) : null}
