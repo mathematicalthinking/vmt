@@ -7,24 +7,36 @@ const ControlWarningModal = ({
   takeControl,
   cancel,
   showControlWarning,
-  // toggleControlWarning,
+  inAdminMode,
 }) => {
+  let msg = `You can't make updates when you're not in control. Click "Take Control" first.`;
+  let cancelText = 'Cancel';
+  let cancelTheme = 'Cancel';
+
+  if (inAdminMode) {
+    msg = "You can't make updates when you're in admin mode.";
+    cancelText = 'Okay';
+    cancelTheme = 'Small';
+  }
   return (
     <Modal show={showControlWarning} closeModal={cancel}>
-      <div data-testid="control-warning">
-        You can&#39;t make updates when you&#39;re not in control click
-        &#34;Take Control&#34; first.
-      </div>
+      <div data-testid="control-warning">{msg}</div>
       <div>
-        <Button m={5} click={takeControl}>
-          {inControl === 'NONE' ? 'Take Control' : 'Request Control'}
-        </Button>
-        <Button theme="Cancel" m={5} click={cancel} data-testid="cancel">
-          Cancel
+        {!inAdminMode ? (
+          <Button m={5} click={takeControl}>
+            {inControl === 'NONE' ? 'Take Control' : 'Request Control'}
+          </Button>
+        ) : null}
+        <Button theme={cancelTheme} m={5} click={cancel} data-testid="cancel">
+          {cancelText}
         </Button>
       </div>
     </Modal>
   );
+};
+
+ControlWarningModal.defaultProps = {
+  inAdminMode: false,
 };
 
 ControlWarningModal.propTypes = {
@@ -32,7 +44,7 @@ ControlWarningModal.propTypes = {
   showControlWarning: PropTypes.bool.isRequired,
   takeControl: PropTypes.func.isRequired,
   cancel: PropTypes.func.isRequired,
-  // toggleControlWarning: PropTypes.func.isRequired,
+  inAdminMode: PropTypes.bool,
 };
 
 export default ControlWarningModal;

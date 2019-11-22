@@ -380,16 +380,19 @@ class Chat extends Component {
                     startNewReference();
                   }
                 }}
+                disabled={user.inAdminMode}
               />
-              <div
-                className={classes.Send}
-                onClick={submit}
-                onKeyPress={submit}
-                tabIndex="-2"
-                role="button"
-              >
-                <i className="fab fa-telegram-plane" />
-              </div>
+              {!user.inAdminMode ? (
+                <div
+                  className={classes.Send}
+                  onClick={submit}
+                  onKeyPress={submit}
+                  tabIndex="-2"
+                  role="button"
+                >
+                  <i className="fab fa-telegram-plane" />
+                </div>
+              ) : null}
             </div>
           ) : null}
         </div>

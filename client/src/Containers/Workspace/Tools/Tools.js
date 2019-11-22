@@ -15,6 +15,7 @@ const Tools = ({
   toggleControl,
   clearReference,
   startNewReference,
+  inAdminMode,
 }) => {
   let controlText;
   if (!replayer) {
@@ -30,7 +31,7 @@ const Tools = ({
     <div className={classes.Container}>
       <div className={classes.Expanded}>
         <div className={classes.Controls}>
-          {!replayer ? (
+          {!replayer && !inAdminMode ? (
             <Button
               theme="xs"
               data-testid={
@@ -59,7 +60,7 @@ const Tools = ({
             </div>
           </div>
         ) : null}
-        {!replayer ? (
+        {!replayer && !inAdminMode ? (
           <div
             className={
               referencing
@@ -93,6 +94,7 @@ Tools.propTypes = {
   toggleControl: PropTypes.func,
   clearReference: PropTypes.func,
   startNewReference: PropTypes.func,
+  inAdminMode: PropTypes.bool,
 };
 
 Tools.defaultProps = {
@@ -104,6 +106,7 @@ Tools.defaultProps = {
   inControl: null,
   replayer: false,
   save: null,
+  inAdminMode: false,
 };
 
 export default Tools;

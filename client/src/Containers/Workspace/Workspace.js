@@ -141,6 +141,10 @@ class Workspace extends Component {
         this.addToLog(lastMessage);
       }
     }
+
+    if (prevProps.user.inAdminMode !== user.inAdminMode) {
+      this.goBack();
+    }
   }
 
   componentWillUnmount() {
@@ -965,6 +969,7 @@ class Workspace extends Component {
               referencing={referencing}
               startNewReference={this.startNewReference}
               clearReference={this.clearReference}
+              inAdminMode={user.inAdminMode}
               // TEMP ROOM NEEDS TO KNOW IF ITS BEEN SAVED...pass that along as props
             />
           }

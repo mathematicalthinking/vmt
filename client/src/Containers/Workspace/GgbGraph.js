@@ -572,12 +572,16 @@ class GgbGraph extends Component {
    */
 
   userCanEdit = () => {
-    const { inControl } = this.props;
+    const { inControl, user } = this.props;
     if (this.resetting || this.updatingOn) {
       return false;
     }
     if (inControl === 'ME' && !this.receivingData) {
       return true;
+    }
+
+    if (user.inAdminMode) {
+      return false;
     }
     return false;
   };
@@ -2022,7 +2026,7 @@ class GgbGraph extends Component {
   };
 
   render() {
-    const { tab, toggleControl, inControl } = this.props;
+    const { tab, toggleControl, inControl, user } = this.props;
     const { showControlWarning, redo } = this.state;
     return (
       <Aux>
@@ -2059,6 +2063,7 @@ class GgbGraph extends Component {
             await this.setDefaultGgbMode();
             this.resyncGgbState();
           }}
+          inAdminMode={user.inAdminMode}
         />
       </Aux>
     );
