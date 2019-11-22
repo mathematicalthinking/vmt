@@ -32,7 +32,6 @@ describe('test admin privileges', function() {
     cy.getTestElement('edit-room').click();
     cy.getTestElement('edit-instructions').type('new instructions');
     cy.getTestElement('save-room').click();
-    // cy.wait(1000);
     cy.contains('new instructions').should('exist');
     cy.getTestElement('edit-room').click();
     cy.getTestElement('trash-room').click();
@@ -45,7 +44,7 @@ describe('test admin privileges', function() {
   it('Q accesses a course he does not belong to', function() {
     cy.contains('Courses').click();
     cy.getTestElement('content-box-course 1').click();
-    cy.getTestElement('view-as-admin').click();
+    // cy.getTestElement('view-as-admin').click();
     cy.url().should('include', 'courses/5bbb82f72539b95500cf526e/rooms');
   });
 
@@ -53,7 +52,6 @@ describe('test admin privileges', function() {
     cy.getTestElement('edit-course').click();
     cy.getTestElement('edit-description').type('new description');
     cy.getTestElement('save-course').click();
-    cy.wait(1000);
     cy.contains('new description').should('exist');
     cy.getTestElement('edit-course').click();
     cy.getTestElement('trash-course').click();
@@ -77,7 +75,6 @@ describe('test admin privileges', function() {
     cy.getTestElement('edit-activity').click();
     cy.getTestElement('edit-description').type('new description');
     cy.getTestElement('save-activity').click();
-    cy.wait(1000);
     cy.contains('new description').should('exist');
     cy.getTestElement('edit-activity').click();
     cy.getTestElement('trash-activity').click();
