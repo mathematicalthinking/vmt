@@ -623,7 +623,9 @@ class Room extends Component {
     if (!room) return <div>Loading</div>;
     return (
       <Access
-        closeModal={history.goBack}
+        closeModal={() =>
+          history.push('/community/rooms?privacy=all&roomType=all')
+        }
         resource="rooms"
         resourceId={match.params.room_id}
         userId={user._id}
