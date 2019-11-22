@@ -8,7 +8,7 @@ The Workspace component is where the action happens.
 
 The data for Workspaces (and Replayer and Stats) is injected into the component via the withPopulatedRoom higher order component (HOC). `./client/src/Containers/Data`
 
-## Temporary Worksapce
+## Temporary Workspace
 
 ## Workspace membership
 

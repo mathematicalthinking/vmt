@@ -7,7 +7,7 @@ const Step2New = (props) => {
   const { ggb, setGgb } = props;
   return (
     <Aux>
-      <p style={{ marginBottom: 10 }}>Select a worksapce type</p>
+      <p style={{ marginBottom: 10 }}>Select a workspace type</p>
       <div className={classes.RadioButtons}>
         <RadioBtn name="geogebra" checked={ggb} check={setGgb}>
           GeoGebra
