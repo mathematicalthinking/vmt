@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-// import _difference from 'lodash/difference';
+import find from 'lodash/find';
 import { populateResource } from '../store/reducers';
 import Members from './Members/Members';
 import getUserNotifications from '../utils/notifications';
@@ -13,6 +13,7 @@ import {
   getCourse,
   requestAccess,
   grantAccess,
+  updateUser,
 } from '../store/actions';
 import { DashboardLayout, SidePanel, ResourceList } from '../Layout/Dashboard';
 import {
@@ -142,6 +143,10 @@ class Course extends Component {
         privacySetting: course.privacySetting,
       });
     }
+    if (prevProps.user.inAdminMode !== user.inAdminMode) {
+      // this would happen if admin toggled admin mode using the top bar
+      this.checkAccess();
+    }
     // if ((this.state.member || this.state.owner) && !this.props.loading) {
     //   this.checkForFetch();
     // }
@@ -211,11 +216,16 @@ class Course extends Component {
 
   checkAccess = () => {
     const { course, user } = this.props;
-    course.members.forEach((member) => {
-      if (member.user._id === user._id) {
-        this.setState({ guestMode: false });
-      }
-    });
+    const { guestMode } = this.state;
+
+    if (
+      user.inAdminMode ||
+      find(course.members, (member) => member.user._id === user._id)
+    ) {
+      this.setState({ guestMode: false, isAdmin: user.inAdminMode });
+    } else if (!guestMode) {
+      this.setState({ guestMode: true, isAdmin: false });
+    }
   };
 
   toggleEdit = () => {
@@ -283,6 +293,7 @@ class Course extends Component {
       loading,
       history,
       connectUpdateCourse,
+      connectUpdateUser,
     } = this.props;
     const {
       guestMode,
@@ -543,7 +554,7 @@ class Course extends Component {
     }
     return (
       <Access
-        closeModal={() => history.goBack()}
+        closeModal={() => history.push('/community/courses?privacy=all')}
         resource="courses"
         resourceId={match.params.course_id}
         userId={user._id}
@@ -556,7 +567,13 @@ class Course extends Component {
                 .map((member) => member.user)
             : []
         }
-        setAdmin={() => this.setState({ isAdmin: true, guestMode: false })}
+        setAdmin={() => {
+          connectUpdateUser({
+            inAdminMode: true,
+          });
+
+          this.setState({ isAdmin: true, guestMode: false });
+        }}
       />
     );
   }
@@ -575,6 +592,7 @@ Course.propTypes = {
   connectClearNotification: PropTypes.func.isRequired,
   connectRemoveCourseMember: PropTypes.func.isRequired,
   connectUpdateCourse: PropTypes.func.isRequired,
+  connectUpdateUser: PropTypes.func.isRequired,
 };
 
 Course.defaultProps = {
@@ -607,5 +625,6 @@ export default connect(
     connectGetCourse: getCourse,
     connectRequestAccess: requestAccess,
     connectGrantAccess: grantAccess,
+    connectUpdateUser: updateUser,
   }
 )(Course);
