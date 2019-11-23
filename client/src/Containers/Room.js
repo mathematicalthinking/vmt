@@ -152,6 +152,10 @@ class Room extends Component {
     if (!prevState.isAdmin && isAdmin) {
       connectPopulateRoom(room._id);
     }
+    if (prevProps.user.inAdminMode !== user.inAdminMode) {
+      // this would happen if admin toggled admin mode using the top bar
+      this.checkAccess();
+    }
     if (
       prevProps.loading.updateResource === null &&
       loading.updateResource === 'room'
@@ -278,12 +282,19 @@ class Room extends Component {
 
   checkAccess() {
     const { room, user, connectPopulateRoom } = this.props;
-    if (room.members.find((member) => member.user._id === user._id)) {
-      // if the room hasnt been populated yet...populate it
+    const { guestMode } = this.state;
+
+    if (
+      user.inAdminMode ||
+      room.members.find((member) => member.user._id === user._id)
+    ) {
       if (!room.tabs) {
         connectPopulateRoom(room._id);
       }
-      this.setState({ guestMode: false });
+
+      this.setState({ guestMode: false, isAdmin: user.inAdminMode });
+    } else if (!guestMode) {
+      this.setState({ guestMode: true, isAdmin: false });
     }
   }
 
@@ -612,7 +623,9 @@ class Room extends Component {
     if (!room) return <div>Loading</div>;
     return (
       <Access
-        closeModal={history.goBack}
+        closeModal={() =>
+          history.push('/community/rooms?privacy=all&roomType=all')
+        }
         resource="rooms"
         resourceId={match.params.room_id}
         userId={user._id}

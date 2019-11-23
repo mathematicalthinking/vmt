@@ -616,7 +616,7 @@ class DesmosGraph extends Component {
   }
 
   render() {
-    const { inControl, toggleControl } = this.props;
+    const { inControl, toggleControl, user } = this.props;
     const {
       showControlWarning,
       showRefWarning,
@@ -640,6 +640,7 @@ class DesmosGraph extends Component {
             this.calculator.undo();
             this.setState({ showControlWarning: false });
           }}
+          inAdminMode={user.inAdminMode}
         />
         <CheckboxModal
           show={showRefWarning}

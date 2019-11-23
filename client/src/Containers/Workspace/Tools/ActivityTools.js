@@ -35,18 +35,18 @@ const ActivityTools = (props) => {
                 here
               </Link>
             </p>
-            {/* <div className={classes.Save}>
+            <div className={classes.Save}>
               <div
                 className={classes.SideButton}
                 role="button"
-                tabIndex="-2"
-                onKeyPress={save}
-                onClick={save}
-                data-testid="save-activity"
+                tabIndex="-3"
+                onKeyPress={copy}
+                onClick={copy}
+                data-testid="copy-activity"
               >
-                save
+                copy this activity
               </div>
-            </div> */}
+            </div>
           </div>
         ) : (
           <div>

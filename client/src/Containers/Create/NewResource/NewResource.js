@@ -21,25 +21,7 @@ import {
   copyActivity,
 } from '../../../store/actions';
 import API from '../../../utils/apiRequests';
-// import propertyOf from 'lodash/propertyOf';
-
-const imageThemes = [
-  'frogideas',
-  'duskfalling',
-  'sugarsweets',
-  'heatwave',
-  'daisygarden',
-  'seascape',
-  'summerwarmth',
-  'bythepool',
-  'berrypie',
-];
-
-const shapes = {
-  activities: 'isogrids',
-  courses: 'labs/isogrids/hexa16',
-  rooms: 'spaceinvaders',
-};
+import formatImageUrl from '../tinyGraphs.utils';
 
 const initialState = {
   // rooms: [],
@@ -116,8 +98,6 @@ class NewResourceContainer extends Component {
       intro,
       history,
     } = this.props;
-    const theme = imageThemes[Math.floor(Math.random() * imageThemes.length)];
-
     const newResource = {
       name,
       description,
@@ -127,9 +107,7 @@ class NewResourceContainer extends Component {
       activities: activities.length > 0 ? activities : null,
       course: courseId,
       roomType: ggb ? 'geogebra' : 'desmos',
-      image: `http://tinygraphs.com/${
-        shapes[resource]
-      }/${name}?theme=${theme}&numcolors=4&size=220&fmt=svg`,
+      image: formatImageUrl(name, resource),
     };
     if (newResource.privacySetting === 'private') {
       newResource.entryCode = hri.random();

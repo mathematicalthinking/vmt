@@ -245,6 +245,15 @@ module.exports = {
         } catch (err) {
           reject(err);
         }
+      } else if (
+        body.sourceRooms &&
+        Array.isArray(body.selectedTabIds) &&
+        body.selectedTabIds.length > 0
+      ) {
+        // creating activity from existing room
+        existingTabs = await db.Tab.find({
+          _id: { $in: body.selectedTabIds },
+        });
       }
       let tabModels;
       delete body.tabs;
