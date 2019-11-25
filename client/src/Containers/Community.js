@@ -166,7 +166,7 @@ class Community extends Component {
   };
 
   render() {
-    const { match, user } = this.props;
+    const { match } = this.props;
     const { visibleResources, moreAvailable, searchText } = this.state;
     const filters = this.getQueryParams();
     let linkPath;
@@ -178,12 +178,9 @@ class Community extends Component {
     } else if (match.params.resource === 'rooms') {
       linkPath = '/myVMT/rooms/';
       linkSuffix = '/details';
-    } else if (user.isAdmin) {
+    } else {
       linkPath = '/myVMT/activities/';
       linkSuffix = '/details';
-    } else {
-      linkPath = '/myVMT/workspace/';
-      linkSuffix = '/activity';
     }
     return (
       <CommunityLayout
@@ -206,11 +203,8 @@ Community.propTypes = {
   courses: PropTypes.shape({}).isRequired,
   history: PropTypes.shape({}).isRequired,
   location: PropTypes.shape({}).isRequired,
-  // coursesArr: PropTypes.arrayOf(PropTypes.string).isRequired,
   activities: PropTypes.shape({}).isRequired,
-  // activitiesArr: PropTypes.arrayOf(PropTypes.string).isRequired,
   rooms: PropTypes.shape({}).isRequired,
-  // roomsArr: PropTypes.PropTypes.arrayOf(PropTypes.string).isRequired,
   user: PropTypes.shape({}).isRequired,
   match: PropTypes.shape({}).isRequired,
 };

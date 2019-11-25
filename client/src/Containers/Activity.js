@@ -26,6 +26,7 @@ import {
   getCurrentActivity,
 } from '../store/actions';
 import { populateResource } from '../store/reducers';
+import Access from './Access';
 
 class Activity extends Component {
   constructor(props) {
@@ -40,28 +41,21 @@ class Activity extends Component {
       description: activity ? activity.description : null,
       instructions: activity ? activity.instructions : null,
       privacySetting: activity ? this.privacySetting : null,
-      // isAdmin: false,
+      canAccess: false,
     };
   }
 
   componentDidMount() {
-    const { activity, connectGetCurrentActivity, match, user } = this.props;
+    const { activity, connectGetCurrentActivity, match } = this.props;
     if (!activity) {
       connectGetCurrentActivity(match.params.activity_id); // WHY ARE WE DOING THIS??
     } else {
-      const { resource } = match.params;
-      if (resource === 'rooms') {
-        // this.fetchRooms();
-      }
-      // Check ability to edit
-      if (activity.creator === user._id) {
-        this.setState({ owner: true });
-      }
+      this.checkAccess();
     }
   }
 
   componentDidUpdate(prevProps) {
-    const { activity, match, loading } = this.props;
+    const { activity, loading, user } = this.props;
     if (!activity) {
       return;
     }
@@ -74,12 +68,9 @@ class Activity extends Component {
         instructions,
         privacySetting,
       });
+      this.checkAccess();
     }
-    const prevResource = prevProps.match.params.resource;
-    const { resource } = match.params;
-    if (prevResource !== resource && resource === 'rooms') {
-      // this.fetchRooms()
-    }
+
     if (
       prevProps.loading.updateResource === null &&
       loading.updateResource === 'activity'
@@ -91,14 +82,11 @@ class Activity extends Component {
         instructions: activity.instructions,
       });
     }
-  }
 
-  // fetchRooms() {
-  //   const { activity, populatedActivity } = this.props;
-  //   if (activity.rooms.length !== populatedActivity.rooms.length) {
-  //     this.props.getRooms(activity.rooms)
-  //   }
-  // }
+    if (prevProps.user.isAdmin !== user.isAdmin) {
+      this.checkAccess();
+    }
+  }
 
   toggleEdit = () => {
     const { activity } = this.props;
@@ -141,6 +129,17 @@ class Activity extends Component {
     this.setState({ trashing: true });
   };
 
+  checkAccess() {
+    const { activity, user } = this.props;
+    const canEdit = activity.creator === user._id || user.isAdmin;
+
+    // Need to develop this criteria for accessing/editing activities
+    // For now just prevent non creators/admins from seeing private activities
+    const canAccess = canEdit || activity.privacySetting === 'public';
+
+    this.setState({ owner: canEdit, canAccess });
+  }
+
   render() {
     const {
       activity,
@@ -163,8 +162,9 @@ class Activity extends Component {
       owner,
       tabs,
       trashing,
+      canAccess,
     } = this.state;
-    if (activity) {
+    if (activity && canAccess) {
       const { resource } = match.params;
       const additionalDetails = {
         type: activity.roomType,
@@ -337,7 +337,22 @@ class Activity extends Component {
         </Aux>
       );
     }
-    return null;
+    if (!activity) return <div>Loading</div>;
+
+    // cannot access
+    return (
+      <Access
+        closeModal={() =>
+          history.push('/community/activities?privacy=all&roomType=all')
+        }
+        resource="activities"
+        resourceId={match.params.activity_id}
+        userId={user._id}
+        username={user.username}
+        privacySetting={activity.privacySetting}
+        owners={[activity.creator]}
+      />
+    );
   }
 }
 
