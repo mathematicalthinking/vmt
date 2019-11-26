@@ -10,7 +10,6 @@ import {
 } from '../Layout/Dashboard';
 import {
   Aux,
-  // Modal,
   Button,
   BreadCrumbs,
   TabList,
@@ -35,12 +34,11 @@ class Activity extends Component {
     this.state = {
       owner: false,
       tabs: [{ name: 'Details' }, { name: 'Rooms' }, { name: 'Settings' }],
-      // assigning: false, // this seems to be duplicated in Layout/Dashboard/MakeRooms.js
       editing: false,
       name: activity ? activity.name : null,
       description: activity ? activity.description : null,
       instructions: activity ? activity.instructions : null,
-      privacySetting: activity ? this.privacySetting : null,
+      privacySetting: activity ? activity.privacySetting : null,
       canAccess: false,
     };
   }
@@ -218,6 +216,7 @@ class Activity extends Component {
           userId={user._id}
           course={course}
           loading={loading}
+          canAccess={canAccess}
         />
       );
 
@@ -228,8 +227,9 @@ class Activity extends Component {
             notifications={[]}
             user={user}
             resource={resource}
-            parentResource={course ? 'course' : 'activity'}
+            parentResource={course ? 'courses' : 'activities'}
             parentResourceId={course ? course._id : activity._id}
+            activityOwner={owner || user.isAdmin}
           />
         );
       }

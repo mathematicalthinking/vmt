@@ -50,15 +50,11 @@ class ActivityDetails extends Component {
               </EditText>
             </Error>
           </div>
-          {owner ? (
-            <div>
-              <Button
-                m={5}
-                click={this.viewActivity}
-                data-testid="view-activity"
-              >
-                Enter
-              </Button>
+          <div>
+            <Button m={5} click={this.viewActivity} data-testid="view-activity">
+              Enter
+            </Button>
+            {owner ? (
               <Button
                 m={5}
                 click={() => {
@@ -68,8 +64,8 @@ class ActivityDetails extends Component {
               >
                 Assign Activity
               </Button>
-            </div>
-          ) : null}
+            ) : null}
+          </div>
         </div>
         {assigning ? (
           <MakeRooms

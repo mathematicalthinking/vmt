@@ -76,6 +76,7 @@ class ResourceList extends Component {
       parentResourceId,
       user,
       notifications,
+      canManageActivity,
     } = this.props;
     const { facilitatorList, participantList } = this.state;
     let linkPath = `/myVMT/${resource}/`;
@@ -92,10 +93,10 @@ class ResourceList extends Component {
     }
 
     let create;
-    // if (props.resource === 'courses' && props.user.accountType === 'facilitator') {
-    //   create = <NewCourse />
-    // }
-    if (parentResource !== 'activities' && user.accountType === 'facilitator') {
+    if (
+      (parentResource !== 'activities' && user.accountType === 'facilitator') ||
+      (parentResource === 'activities' && canManageActivity)
+    ) {
       // THIS SHOULD ACTUALLY CHANGE DEPENDING ON states CURRENT ROLE ?? MAYBE
       create = (
         <NewResource
@@ -177,11 +178,13 @@ ResourceList.propTypes = {
   user: PropTypes.shape({}).isRequired,
   userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  canManageActivity: PropTypes.bool,
 };
 
 ResourceList.defaultProps = {
   parentResource: null,
   parentResourceId: null,
+  canManageActivity: false,
 };
 
 export default ResourceList;
