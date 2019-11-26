@@ -139,7 +139,7 @@ PrivateAccess.propTypes = {
   userId: PropTypes.string.isRequired,
   requestAccess: PropTypes.func.isRequired,
   user: PropTypes.shape({}).isRequired,
-  setAdmin: PropTypes.func.isRequired,
+  setAdmin: PropTypes.func,
   username: PropTypes.string.isRequired,
   joinWithCode: PropTypes.func.isRequired,
   history: PropTypes.shape({}).isRequired,
@@ -149,6 +149,7 @@ PrivateAccess.propTypes = {
 
 PrivateAccess.defaultProps = {
   error: null,
+  setAdmin: null,
 };
 
 export default withRouter(PrivateAccess);

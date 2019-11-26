@@ -328,6 +328,7 @@ describe('Workspace/replayer', function() {
 
       it('Should load successfully', function() {
         cy.contains(activityName).click();
+        cy.getTestElement('view-activity').click();
         cy.url().should('match', workspaceUrlRegex);
       });
 
@@ -354,9 +355,9 @@ describe('Workspace/replayer', function() {
         editInstructions(newInstructions);
       });
 
-      it('Clicking Exit Activity should take you back to community', function() {
+      it('Clicking Exit Activity should take you back to activity page', function() {
         cy.getTestElement('exit-room').click();
-        cy.url().should('include', '/community/activities');
+        cy.url().should('include', '/myVMT/activities');
       });
     });
 
@@ -371,6 +372,7 @@ describe('Workspace/replayer', function() {
       const copyName = 'Deanna Course 2 - Picard';
       it('Should load successfully', function() {
         cy.contains(activityName).click();
+        cy.getTestElement('view-activity').click();
         cy.url().should('match', workspaceUrlRegex);
       });
 
