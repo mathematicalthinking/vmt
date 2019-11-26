@@ -87,7 +87,7 @@ class Homepage extends PureComponent {
               VMT is currently in Alpha. If you encounter bugs or want to
               suggest new features please email vmt@21pstem.org
             </p>
-            <p>last updated: 11.22.2019</p>
+            <p>last updated: 11.26.2019(2)</p>
           </section>
           <section className={classes.Options} ref={this.containerRef} />
         </div>
