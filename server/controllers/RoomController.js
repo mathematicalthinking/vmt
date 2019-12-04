@@ -1,8 +1,10 @@
 const _ = require('lodash');
+const moment = require('moment');
 const db = require('../models');
+const { areObjectIdsEqual } = require('../middleware/utils/helpers');
 
 const { Tab } = db;
-const { Room } = db;
+const { Room, Message } = db;
 
 const colorMap = require('../constants/colorMap.js');
 
@@ -595,5 +597,195 @@ module.exports = {
         })
         .catch((err) => reject(err));
     });
+  },
+  getRecentActivity: async (criteria, skip, filters) => {
+    let { since, to } = filters;
+
+    const allowedSincePresets = ['day', 'week', 'month', 'year'];
+
+    if (allowedSincePresets.includes(since)) {
+      since = Number(
+        moment()
+          .subtract(1, since)
+          .startOf('day')
+          .format('x')
+      );
+    } else {
+      // default to activity in last week
+      const momentObj = since ? moment(since) : moment();
+      since = Number(momentObj.startOf('day').format('x'));
+    }
+    let initialFilter = { updatedAt: { $gte: new Date(since) } };
+    let eventsFilter = { $gte: ['$$e.timestamp', since] };
+
+    if (to && since && to > since) {
+      initialFilter = {
+        updatedAt: {
+          $and: [{ $gte: new Date(since) }, { $lte: new Date(to) }],
+        },
+      };
+
+      to = Number(
+        moment(to)
+          .startOf('day')
+          .format('x')
+      );
+
+      eventsFilter = {
+        $and: [eventsFilter, { $lte: [['$$e.timestamp', to]] }],
+      };
+    }
+
+    const pipeline = [
+      { $match: initialFilter },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          members: 1,
+        },
+      },
+      {
+        $lookup: {
+          from: 'tabs',
+          localField: 'tabs',
+          foreignField: '_id',
+          as: 'tabObject',
+        },
+      },
+
+      { $unwind: '$tabObject' },
+      {
+        $lookup: {
+          from: 'events',
+          localField: 'tabObject.events',
+          foreignField: '_id',
+          as: 'eventObject',
+        },
+      },
+      { $unwind: '$eventObject' },
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          privacySetting: { $first: '$privacySetting' },
+          image: { $first: '$image' },
+          updatedAt: { $first: '$updatedAt' },
+          members: { $first: '$members' },
+          tabs: { $first: '$tabs' },
+          events: { $push: '$eventObject' },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          members: 1,
+
+          events: {
+            $filter: {
+              input: '$events',
+              as: 'e',
+              cond: eventsFilter,
+            },
+          },
+        },
+      },
+      { $unwind: '$events' },
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          privacySetting: { $first: '$privacySetting' },
+          image: { $first: '$image' },
+          updatedAt: { $first: '$updatedAt' },
+          members: { $first: '$members' },
+          tabs: { $first: '$tabs' },
+          eventsCount: { $push: '$events' },
+          activeMembers: { $addToSet: '$events.user' },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'activeMembers',
+          foreignField: '_id',
+          as: 'activeMembers',
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          members: 1,
+          'activeMembers.username': 1,
+          'activeMembers._id': 1,
+          eventsCount: { $size: '$eventsCount' },
+        },
+      },
+    ];
+
+    pipeline.push({ $sort: { updatedAt: -1, eventsCount: -1 } });
+
+    if (skip) {
+      pipeline.push({ $skip: parseInt(skip, 10) });
+    }
+    pipeline.push({ $limit: 20 });
+
+    const rooms = await Room.aggregate(pipeline);
+
+    // find messages from this room during time period
+
+    const roomsWithMessages = await Promise.all(
+      rooms.map((room) => {
+        const filter = { room: room._id, timestamp: { $gte: since } };
+
+        if (to && since && to > since) {
+          filter.timestamp.$lte = to;
+        }
+
+        return Message.find(filter, { user: 1, timestamp: 1, messageType: 1 })
+          .populate({ path: 'user', select: 'username' })
+          .lean()
+          .exec()
+          .then((messages) => {
+            room.messagesCount = messages.length;
+            messages.forEach((message) => {
+              if (
+                message.user &&
+                !room.activeMembers.find((member) => {
+                  return areObjectIdsEqual(member._id, message.user._id);
+                })
+              ) {
+                room.activeMembers.push(message.user);
+              }
+            });
+            return room;
+          });
+      })
+    );
+    return roomsWithMessages;
   },
 };
