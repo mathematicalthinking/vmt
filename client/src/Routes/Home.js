@@ -13,6 +13,7 @@ import {
   ResetPassword,
   ConfirmEmail,
   Unconfirmed,
+  Dashboard,
 } from '../Containers';
 import { Confirmation, About } from '../Layout';
 import classes from './main.css';
@@ -53,7 +54,8 @@ class Home extends PureComponent {
     return (
       <Aux>
         {location.pathname.indexOf('community') > -1 ||
-        location.pathname.indexOf('profile') > -1 ? (
+        location.pathname.indexOf('profile') > -1 ||
+        location.pathname.indexOf('dashboard') > -1 ? (
           <Navbar fixed user={user} toggleAdmin={this.toggleAdmin} />
         ) : (
           <HomeNav
@@ -84,6 +86,7 @@ class Home extends PureComponent {
             <Route path="/confirmEmail/:token?" component={ConfirmEmail} />
             <Route path="/unconfirmed" component={Unconfirmed} />
             <Route path="/oauth/return" component={OauthReturn} />
+            <Route path="/dashboard/:resource" component={Dashboard} />
           </Switch>
         </div>
       </Aux>

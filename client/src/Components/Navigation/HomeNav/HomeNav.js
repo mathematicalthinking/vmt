@@ -15,9 +15,6 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
   } else if (isDark) {
     styles = classes.LightNav;
   }
-  // if (page.indexOf('explore') > -1) {
-  //   styles = classes.TempWorkspaceNav;
-  // }
   let ntf = false;
   if (user && user.notifications && user.notifications.length > 0) {
     ntf = true;
@@ -61,8 +58,10 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
               link="/community/rooms?privacy=all&roomType=all"
               name="Community"
             />
+            {user.isAdmin ? (
+              <NavItem link="/dashboard/rooms" name="Dashboard" />
+            ) : null}
             <NavItem link="/about" name="About" />
-            {/* <NavItem link="/tutorials" name="Tutorials" /> */}
             {loggedIn ? (
               <DropdownNavItem
                 name={

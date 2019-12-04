@@ -147,4 +147,11 @@ export default {
   uploadGgbFiles: (formData) => {
     return api.post(`/api/upload/ggb`, formData);
   },
+  getRecentActivity: (resource, criteria, skip, filters) => {
+    const { since, to } = filters;
+    const params = criteria ? { criteria, skip } : { skip };
+    if (since !== null) params.since = since;
+    if (to !== null) params.to = to;
+    return api.get(`/api/dashBoard/${resource}`, { params });
+  },
 };

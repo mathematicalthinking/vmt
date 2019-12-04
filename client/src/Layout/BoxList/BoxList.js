@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import ContentBox from '../../Components/UI/ContentBox/ContentBox';
 import DragContentBox from '../../Components/UI/ContentBox/DragContentBox';
@@ -15,6 +16,7 @@ const boxList = (props) => {
     draggable,
     maxHeight,
     scrollable,
+    isDashboard,
   } = props;
   let listElems = "There doesn't appear to be anything here yet";
   if (list.length > 0) {
@@ -31,6 +33,20 @@ const boxList = (props) => {
                 )
             : [],
         };
+
+        if (isDashboard) {
+          details = {
+            eventsCount: item.eventsCount,
+            messagesCount: item.messagesCount,
+            activeMembers: item.activeMembers
+              ? item.activeMembers.map(
+                  (member, x, arr) =>
+                    `${member.username}${x < arr.length - 1 ? ', ' : ''}`
+                )
+              : [],
+            updatedAt: moment(item.updatedAt).format('MM/DD/YYYY h:mm:ss A'),
+          };
+        }
         let notificationCount = 0;
         if (listType === 'private') {
           if (notifications.length > 0) {
@@ -65,6 +81,7 @@ const boxList = (props) => {
                 locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
                 details={details}
                 listType={listType}
+                isDashboard={isDashboard}
               >
                 {item.description}
               </ContentBox>
@@ -80,6 +97,7 @@ const boxList = (props) => {
                 listType={listType}
                 locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
                 details={details}
+                isDashboard={isDashboard}
               />
             )}
           </div>
@@ -118,6 +136,7 @@ boxList.propTypes = {
   draggable: PropTypes.bool,
   maxHeight: PropTypes.number,
   scrollable: PropTypes.bool,
+  isDashboard: PropTypes.bool,
 };
 
 boxList.defaultProps = {
@@ -125,6 +144,7 @@ boxList.defaultProps = {
   maxHeight: null,
   scrollable: false,
   notifications: [],
+  isDashboard: false,
 };
 
 export default boxList;
