@@ -167,24 +167,23 @@ module.exports = {
           .format('x')
       );
     } else {
-      // default to activity in last week
-      const momentObj = since ? moment(since) : moment();
+      // default to activity in last day
+      let momentObj = moment(since, 'x', true);
+      if (!momentObj.isValid()) {
+        momentObj = moment();
+      }
       since = Number(momentObj.startOf('day').format('x'));
     }
-    let initialFilter = { updatedAt: { $gte: new Date(since) } };
+    const initialFilter = { updatedAt: { $gte: new Date(since) } };
 
     if (to && since && to > since) {
-      initialFilter = {
-        updatedAt: {
-          $and: [{ $gte: new Date(since) }, { $lte: new Date(to) }],
-        },
-      };
+      let toMomentObj = moment(to, 'x', true);
+      if (!toMomentObj.isValid()) {
+        toMomentObj = moment();
+      }
 
-      to = Number(
-        moment(to)
-          .startOf('day')
-          .format('x')
-      );
+      to = Number(toMomentObj.endOf('day').format('x'));
+      initialFilter.updatedAt.$lte = new Date(to);
     }
 
     const skipInt = skip ? parseInt(skip, 10) : 0;

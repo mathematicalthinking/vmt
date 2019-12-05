@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker-cssmodules.css';
 import DashboardBoxList from '../DashboardBoxList/DashboardBoxList';
 import {
   // Search,
@@ -29,13 +31,18 @@ class AdminDashboard extends Component {
       visibleResources,
       linkPath,
       linkSuffix,
-      filters,
+      // filters,
       moreAvailable,
       setSkip,
       // setCriteria,
       toggleFilter,
       // searchValue,
       totalCounts,
+      setSinceDate,
+      dateRangePreset,
+      customSinceDate,
+      customToDate,
+      setToDate,
     } = this.props;
 
     const totalCount = totalCounts ? totalCounts.totalCount || 0 : 0;
@@ -74,49 +81,71 @@ class AdminDashboard extends Component {
           </div> */}
           <div className={classes.Filters}>
             {/* <i className={['fas fa-sliders-h', classes.FilterIcon].join(' ')} /> */}
-            <InfoBox title="Since Date" icon={<i className="fas fa-filter" />}>
+            <InfoBox title="Time Period" icon={<i className="fas fa-filter" />}>
               <div className={classes.FilterOpts}>
                 <RadioBtn
-                  data-testid="since-day"
-                  check={() => toggleFilter('since-day')}
-                  checked={filters.since === 'day'}
-                  name="since-day"
+                  data-testid="last-day"
+                  check={() => toggleFilter('last-day')}
+                  checked={dateRangePreset === 'day'}
+                  name="last-day"
                 >
                   Last Day
                 </RadioBtn>
                 <RadioBtn
-                  data-testid="since-week"
-                  check={() => toggleFilter('since-week')}
-                  checked={filters.since === 'week'}
-                  name="since-week"
+                  data-testid="last-week"
+                  check={() => toggleFilter('last-week')}
+                  checked={dateRangePreset === 'week'}
+                  name="last-week"
                 >
                   Last Week
                 </RadioBtn>
                 <RadioBtn
-                  data-testid="since-month"
-                  check={() => toggleFilter('since-month')}
-                  checked={filters.since === 'month'}
-                  name="since-month"
+                  data-testid="last-month"
+                  check={() => toggleFilter('last-month')}
+                  checked={dateRangePreset === 'month'}
+                  name="last-month"
                 >
                   Last Month
                 </RadioBtn>
                 <RadioBtn
-                  data-testid="since-year"
-                  check={() => toggleFilter('since-year')}
-                  checked={filters.since === 'year'}
-                  name="since-year"
+                  data-testid="last-year"
+                  check={() => toggleFilter('last-year')}
+                  checked={dateRangePreset === 'year'}
+                  name="last-year"
                 >
                   Last Year
                 </RadioBtn>
-                {/* <RadioBtn
-                  data-testid="since-custom"
-                  check={() => toggleFilter('since-custom')}
-                  checked={filters.since === 'custom'}
-                  name="since-custom"
+                <RadioBtn
+                  data-testid="custom"
+                  check={() => toggleFilter('custom')}
+                  checked={dateRangePreset === 'custom'}
+                  name="custom"
                 >
                   Custom
-                </RadioBtn> */}
+                </RadioBtn>
               </div>
+              {dateRangePreset === 'custom' ? (
+                <div className={classes.CustomDateInputs}>
+                  <div className={classes.CustomSinceDate}>
+                    <h3>Since Date</h3>
+                    <DatePicker
+                      selected={customSinceDate}
+                      onChange={setSinceDate}
+                      popperPlacement="bottom"
+                      shouldCloseOnSelect
+                    />
+                  </div>
+                  <div className={classes.CustomToDate}>
+                    <h3>To Date</h3>
+                    <DatePicker
+                      selected={customToDate}
+                      onChange={setToDate}
+                      popperPlacement="bottom"
+                      shouldCloseOnSelect
+                    />
+                  </div>
+                </div>
+              ) : null}
             </InfoBox>
           </div>
         </div>
@@ -151,6 +180,8 @@ AdminDashboard.defaultProps = {
   linkPath: null,
   linkSuffix: null,
   totalCounts: null,
+  customSinceDate: null,
+  customToDate: null,
 };
 
 AdminDashboard.propTypes = {
@@ -168,6 +199,11 @@ AdminDashboard.propTypes = {
   moreAvailable: PropTypes.bool.isRequired,
   // setCriteria: PropTypes.func.isRequired,
   totalCounts: PropTypes.shape({ totalCount: PropTypes.number }),
+  setSinceDate: PropTypes.func.isRequired,
+  dateRangePreset: PropTypes.bool.isRequired,
+  customSinceDate: PropTypes.string,
+  customToDate: PropTypes.string,
+  setToDate: PropTypes.func.isRequired,
 };
 
 export default AdminDashboard;

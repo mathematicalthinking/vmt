@@ -67,7 +67,6 @@
   flex-direction: column;
   margin-left: 26px;
   border: 1px solid lightGray;
-  /* flex: 2; */
 }
 
 .FilterTitle {
@@ -80,6 +79,7 @@
 .FilterOpts {
   padding-left: 12px;
   display: flex;
+  flex-flow: row wrap;
 }
 
 .FilterOpts > * {
@@ -94,4 +94,14 @@
 
 .LoadMore {
   align-self: center;
+}
+
+.CustomDateInputs {
+  padding-left: 12px;
+  display: flex;
+  flex-flow: row wrap;
+
+}
+.CustomDateInputs > * {
+  margin-right: 15px;
 }

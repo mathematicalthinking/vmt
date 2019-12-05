@@ -16,6 +16,9 @@ class Dashboard extends Component {
       moreAvailable: true,
       searchText: this.getQueryParams().search || '',
       totalCounts: null,
+      dateRangePreset: 'day',
+      customSinceDate: null,
+      customToDate: null,
     };
     this.debounceFetchData = debounce(() => this.fetchData(), 1000);
     this.debouncedSetCriteria = debounce((criteria) => {
@@ -64,9 +67,18 @@ class Dashboard extends Component {
     // we should reset skip back to 0
     // reset search text
     if (prevProps.match.params.resource !== resource) {
-      this.setState({ skip: 0, searchText: '' }, () => {
-        this.fetchData();
-      });
+      this.setState(
+        {
+          skip: 0,
+          searchText: '',
+          customSinceDate: null,
+          customToDate: null,
+          dateRangePreset: 'day',
+        },
+        () => {
+          this.fetchData();
+        }
+      );
     } else if (location.search !== prevProps.location.search) {
       const stateHash = { skip: 0 };
 
@@ -129,10 +141,21 @@ class Dashboard extends Component {
 
   toggleFilter = (filter) => {
     const filters = this.getQueryParams();
-    if (filter.indexOf('since-') !== -1) {
+    if (filter.indexOf('last-') !== -1) {
       const split = filter.split('-');
       const unit = split[1];
       filters.since = unit;
+      this.setState({ dateRangePreset: unit });
+    } else if (filter === 'custom') {
+      const customTo = new Date();
+      const customSince = new Date();
+      filters.since = customSince.getTime();
+      filters.to = customTo.getTime();
+      this.setState({
+        dateRangePreset: 'custom',
+        customToDate: customTo,
+        customSinceDate: customSince,
+      });
     }
 
     this.setQueryParams(filters);
@@ -168,6 +191,24 @@ class Dashboard extends Component {
     this.debouncedSetCriteria(text);
   };
 
+  setSinceDate = (date) => {
+    let filters = this.getQueryParams();
+    const ms = date.getTime();
+    filters = { ...filters, since: ms };
+
+    this.setState({ customSinceDate: date });
+
+    this.setQueryParams(filters);
+  };
+
+  setToDate = (date) => {
+    let filters = this.getQueryParams();
+    const ms = date.getTime();
+    filters = { ...filters, to: ms };
+    this.setState({ customToDate: date });
+    this.setQueryParams(filters);
+  };
+
   render() {
     const { match } = this.props;
     const {
@@ -175,6 +216,9 @@ class Dashboard extends Component {
       moreAvailable,
       searchText,
       totalCounts,
+      dateRangePreset,
+      customSinceDate,
+      customToDate,
     } = this.state;
     const filters = this.getQueryParams();
     let linkPath;
@@ -201,6 +245,11 @@ class Dashboard extends Component {
         filters={filters}
         toggleFilter={this.toggleFilter}
         totalCounts={totalCounts}
+        setSinceDate={this.setSinceDate}
+        dateRangePreset={dateRangePreset}
+        customSinceDate={customSinceDate}
+        customToDate={customToDate}
+        setToDate={this.setToDate}
       />
     );
   }
