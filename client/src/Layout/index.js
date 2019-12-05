@@ -14,3 +14,6 @@ export { default as ResetPasswordLayout } from './ResetPassword/ResetPassword';
 export {
   default as AdminDashboardLayout,
 } from './AdminDashboard/AdminDashboard';
+export {
+  default as DashboardBoxList,
+} from './DashboardBoxList/DashboardBoxList';

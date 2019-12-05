@@ -15,6 +15,7 @@ class Dashboard extends Component {
       skip: 0,
       moreAvailable: true,
       searchText: this.getQueryParams().search || '',
+      totalCounts: null,
     };
     this.debounceFetchData = debounce(() => this.fetchData(), 1000);
     this.debouncedSetCriteria = debounce((criteria) => {
@@ -28,7 +29,7 @@ class Dashboard extends Component {
     const { match, history } = this.props;
     const { resource } = match.params;
 
-    const allowedResources = ['rooms'];
+    const allowedResources = ['rooms', 'users'];
 
     if (allowedResources.indexOf(resource) === -1) {
       history.push('/dashboard/rooms');
@@ -42,14 +43,17 @@ class Dashboard extends Component {
     this.fetchData();
     // }
     // else {
-    // eslint-disable-next-line react/destructuring-assignment
-    const resourceList = this.props[`${resource}Arr`].map(
-      // eslint-disable-next-line react/destructuring-assignment
-      (id) => this.props[resource][id]
-    );
 
-    this.setState({ visibleResources: resourceList });
-    // }
+    if (resource !== 'users') {
+      // eslint-disable-next-line react/destructuring-assignment
+      const resourceList = this.props[`${resource}Arr`].map(
+        // eslint-disable-next-line react/destructuring-assignment
+        (id) => this.props[resource][id]
+      );
+
+      this.setState({ visibleResources: resourceList });
+      // }
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -99,12 +103,15 @@ class Dashboard extends Component {
       skip,
       updatedFilters
     ).then((res) => {
-      const moreAvailable = res.data.results.length >= SKIP_VALUE;
+      const [items, totalCounts] = res.data.results;
+
+      const moreAvailable = items.length >= SKIP_VALUE;
       this.setState((prevState) => ({
         visibleResources: concat
-          ? [...prevState.visibleResources].concat(res.data.results)
-          : res.data.results,
+          ? [...prevState.visibleResources].concat(items)
+          : items,
         moreAvailable,
+        totalCounts,
       }));
     });
   };
@@ -163,20 +170,23 @@ class Dashboard extends Component {
 
   render() {
     const { match } = this.props;
-    const { visibleResources, moreAvailable, searchText } = this.state;
+    const {
+      visibleResources,
+      moreAvailable,
+      searchText,
+      totalCounts,
+    } = this.state;
     const filters = this.getQueryParams();
     let linkPath;
     let linkSuffix;
     // @ TODO conditional logic for displaying room in dahsboard if it belongs to the user
-    if (match.params.resource === 'courses') {
-      linkPath = '/myVMT/courses/';
-      linkSuffix = '/rooms';
-    } else if (match.params.resource === 'rooms') {
+    if (match.params.resource === 'rooms') {
       linkPath = '/myVMT/rooms/';
       linkSuffix = '/details';
-    } else {
-      linkPath = '/myVMT/activities/';
-      linkSuffix = '/details';
+    } else if (match.params.resource === 'users') {
+      // there's currently no interface for viewing other users' profiles
+      linkPath = null;
+      linkSuffix = null;
     }
     return (
       <AdminDashboardLayout
@@ -190,6 +200,7 @@ class Dashboard extends Component {
         moreAvailable={moreAvailable}
         filters={filters}
         toggleFilter={this.toggleFilter}
+        totalCounts={totalCounts}
       />
     );
   }

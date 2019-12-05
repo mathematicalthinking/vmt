@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
-// import { CustomLink } from 'react-router-dom';
-import BoxList from '../BoxList/BoxList';
+import DashboardBoxList from '../DashboardBoxList/DashboardBoxList';
 import {
   // Search,
   CustomLink,
@@ -36,14 +35,32 @@ class AdminDashboard extends Component {
       // setCriteria,
       toggleFilter,
       // searchValue,
+      totalCounts,
     } = this.props;
+
+    const totalCount = totalCounts ? totalCounts.totalCount || 0 : 0;
+    let displayResource;
+    let resultsMessage;
+    const hasHave = totalCount === 1 ? 'has' : 'have';
+
+    if (resource === 'rooms') {
+      displayResource = totalCount === 1 ? 'room' : 'rooms';
+
+      resultsMessage = `A total of ${totalCount} ${displayResource} ${hasHave} been updated within the selected time period. To be considered updated, either one or more room details, such as name, instructions, members, were updated, or one or more events and/or messages were created.`;
+    } else if (resource === 'users') {
+      displayResource = totalCount === 1 ? 'user' : 'users';
+      resultsMessage = `A total of ${totalCount} ${displayResource} ${hasHave} been active within the selected time period. "Active" in this case means that the user made a network request while logged in.`;
+    }
     return (
       <div className={classes.Container}>
         <div className={classes.Header} ref={this.header}>
-          <h3 className={classes.Title}>See Recently Active Rooms</h3>
+          <h3 className={classes.Title}>See Recently Active Rooms and Users</h3>
           <div className={classes.ResourceOpts} data-testid="resource-tabs">
             <div>
               <CustomLink to="/dashboard/rooms?since=day">Rooms</CustomLink>
+            </div>
+            <div>
+              <CustomLink to="/dashboard/users?since=day">Users</CustomLink>
             </div>
           </div>
           {/* <div className={classes.Search}>
@@ -91,14 +108,14 @@ class AdminDashboard extends Component {
                 >
                   Last Year
                 </RadioBtn>
-                <RadioBtn
+                {/* <RadioBtn
                   data-testid="since-custom"
                   check={() => toggleFilter('since-custom')}
                   checked={filters.since === 'custom'}
                   name="since-custom"
                 >
                   Custom
-                </RadioBtn>
+                </RadioBtn> */}
               </div>
             </InfoBox>
           </div>
@@ -111,13 +128,13 @@ class AdminDashboard extends Component {
               : 260,
           }}
         >
-          <BoxList
+          <DashboardBoxList
             list={visibleResources}
             resource={resource}
             linkPath={linkPath}
             linkSuffix={linkSuffix}
             listType="public"
-            isDashboard
+            resultsMessage={resultsMessage}
           />
           <div className={classes.LoadMore}>
             <Button m={20} disabled={!moreAvailable} click={setSkip}>
@@ -130,11 +147,17 @@ class AdminDashboard extends Component {
   }
 }
 
+AdminDashboard.defaultProps = {
+  linkPath: null,
+  linkSuffix: null,
+  totalCounts: null,
+};
+
 AdminDashboard.propTypes = {
   resource: PropTypes.string.isRequired,
   visibleResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  linkPath: PropTypes.string.isRequired,
-  linkSuffix: PropTypes.string.isRequired,
+  linkPath: PropTypes.string,
+  linkSuffix: PropTypes.string,
   // searchValue: PropTypes.string.isRequired,
   filters: PropTypes.shape({
     privacySetting: PropTypes.oneOf(['public', 'private', 'all']),
@@ -144,6 +167,7 @@ AdminDashboard.propTypes = {
   setSkip: PropTypes.func.isRequired,
   moreAvailable: PropTypes.bool.isRequired,
   // setCriteria: PropTypes.func.isRequired,
+  totalCounts: PropTypes.shape({ totalCount: PropTypes.number }),
 };
 
 export default AdminDashboard;

@@ -8,14 +8,9 @@ import Expand from './expand';
 import Notification from '../../Notification/Notification';
 
 class ContentBox extends PureComponent {
-  constructor(props) {
-    const { isDashboard } = props;
-    super(props);
-
-    this.state = {
-      expanded: isDashboard,
-    };
-  }
+  state = {
+    expanded: false,
+  };
 
   toggleExpand = (event) => {
     event.preventDefault();
@@ -34,7 +29,6 @@ class ContentBox extends PureComponent {
       title,
       locked,
       details,
-      isDashboard,
     } = this.props;
     const { expanded } = this.state;
     const notificationElements =
@@ -86,20 +80,6 @@ class ContentBox extends PureComponent {
                       {details.facilitators.map((facilitator) => facilitator)}
                     </div>
                   ) : null}
-                  {isDashboard ? (
-                    <div>Last Updated: {details.updatedAt}</div>
-                  ) : null}
-                  {details.eventsCount ? (
-                    <div>Event Count: {details.eventsCount}</div>
-                  ) : null}
-                  {details.messagesCount ? (
-                    <div>Message Count: {details.messagesCount}</div>
-                  ) : null}
-                  {details.activeMembers && details.activeMembers.length > 0 ? (
-                    <div>
-                      Active Members: {details.activeMembers.map((m) => m)}
-                    </div>
-                  ) : null}
                   {details.creator ? `Creator: ${details.creator}` : null}
                   {details.entryCode ? (
                     <div>Entry Code: {details.entryCode}</div>
@@ -126,13 +106,11 @@ ContentBox.propTypes = {
   title: PropTypes.string.isRequired,
   locked: PropTypes.bool.isRequired,
   details: PropTypes.shape({}).isRequired,
-  isDashboard: PropTypes.bool,
 };
 
 ContentBox.defaultProps = {
   notifications: null,
   image: null,
   roomType: null,
-  isDashboard: false,
 };
 export default ContentBox;

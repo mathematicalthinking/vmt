@@ -1,0 +1,21 @@
+.Container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  overflow-x: visible;
+  font-weight: 300;
+  margin-top: 10px;
+  font-size: 16px;
+  margin-bottom: 25px;
+}
+
+.ContentBox {
+  width: 100%;
+  margin: 2px;
+  transition: 0.2s;
+}
+
+.ResultsMessage {
+  margin: 10px;
+  font-size: 1.2em;
+}

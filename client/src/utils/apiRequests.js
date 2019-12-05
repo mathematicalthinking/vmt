@@ -152,6 +152,12 @@ export default {
     const params = criteria ? { criteria, skip } : { skip };
     if (since !== null) params.since = since;
     if (to !== null) params.to = to;
+
+    // backend uses singular user for some reason
+    // this should be made to be consistent
+    if (resource === 'users') {
+      resource = 'user';
+    }
     return api.get(`/api/dashBoard/${resource}`, { params });
   },
 };
