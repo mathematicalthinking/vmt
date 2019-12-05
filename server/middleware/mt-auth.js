@@ -102,7 +102,8 @@ const prepareVmtUser = (req, res, next) => {
     return next();
   }
   // store/update ip addresses
-  const { ip } = req;
+
+  const ip = req.headers['x-forwarded-for'];
 
   const update = {
     $set: { latestIpAddress: ip },
