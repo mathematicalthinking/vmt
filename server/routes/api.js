@@ -92,7 +92,7 @@ router.get('/dashboard/:resource', middleware.validateUser, (req, res) => {
     );
   }
   const { resource } = req.params;
-  const allowedResources = ['rooms'];
+  const allowedResources = ['rooms', 'user'];
 
   if (!allowedResources.includes(resource)) {
     return errors.sendError.InvalidContentError('Invalid Resource');

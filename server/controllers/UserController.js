@@ -1,5 +1,7 @@
 const { ObjectId } = require('mongoose').Types;
+const moment = require('moment');
 const db = require('../models');
+const { areObjectIdsEqual } = require('../middleware/utils/helpers');
 
 module.exports = {
   get: (params) => {
@@ -151,5 +153,104 @@ module.exports = {
         })
         .catch((err) => reject(err));
     });
+  },
+  getRecentActivity: async (criteria, skip, filters) => {
+    let { since, to } = filters;
+
+    const allowedSincePresets = ['day', 'week', 'month', 'year'];
+
+    if (allowedSincePresets.includes(since)) {
+      since = Number(
+        moment()
+          .subtract(1, since)
+          .startOf('day')
+          .format('x')
+      );
+    } else {
+      // default to activity in last week
+      const momentObj = since ? moment(since) : moment();
+      since = Number(momentObj.startOf('day').format('x'));
+    }
+    let initialFilter = { updatedAt: { $gte: new Date(since) } };
+
+    if (to && since && to > since) {
+      initialFilter = {
+        updatedAt: {
+          $and: [{ $gte: new Date(since) }, { $lte: new Date(to) }],
+        },
+      };
+
+      to = Number(
+        moment(to)
+          .startOf('day')
+          .format('x')
+      );
+    }
+
+    const skipInt = skip ? parseInt(skip, 10) : 0;
+
+    const [users, totalCount] = await Promise.all([
+      db.User.find(initialFilter, {
+        username: 1,
+        latestIpAddress: 1,
+        updatedAt: 1,
+      })
+        .sort({ updatedAt: -1 })
+        .skip(skipInt)
+        .limit(20)
+        .lean()
+        .exec(),
+      db.User.count(initialFilter).exec(),
+    ]);
+
+    const usersWithStats = await Promise.all(
+      users.map(async (user) => {
+        const filter = {
+          user: user._id,
+          timestamp: { $gte: since },
+        };
+
+        if (to && since && to > since) {
+          filter.timestamp.$lte = to;
+        }
+        const [events, messages] = await Promise.all([
+          db.Event.find(filter, { room: 1 })
+            .lean()
+            .populate({ path: 'room', select: 'name' })
+            .exec(),
+          db.Message.find(filter, { room: 1 })
+            .lean()
+            .populate({ path: 'room', select: 'name' })
+            .exec(),
+        ]);
+        user.eventsCount = events.length;
+        user.messagesCount = messages.length;
+
+        user.activeRooms = [];
+        events.forEach((event) => {
+          if (
+            event.room &&
+            !user.activeRooms.find((room) => {
+              return areObjectIdsEqual(room._id, event.room._id);
+            })
+          ) {
+            user.activeRooms.push(event.room);
+          }
+        });
+        messages.forEach((message) => {
+          if (
+            message.room &&
+            !user.activeRooms.find((room) => {
+              return areObjectIdsEqual(room._id, message.room._id);
+            })
+          ) {
+            user.activeRooms.push(message.room);
+          }
+        });
+        return user;
+      })
+    );
+
+    return [usersWithStats, { totalCount }];
   },
 };

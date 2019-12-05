@@ -747,15 +747,40 @@ module.exports = {
       },
     ];
 
-    pipeline.push({ $sort: { updatedAt: -1, eventsCount: -1 } });
+    pipeline.push({
+      $facet: {
+        paginatedResults: [
+          { $sort: { updatedAt: -1, eventsCount: -1 } },
+          { $skip: skip ? parseInt(skip, 10) : 0 },
+          { $limit: 20 },
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+              instructions: 1,
+              description: 1,
+              image: 1,
+              tabs: 1,
+              privacySetting: 1,
+              updatedAt: 1,
+              members: 1,
+              'activeMembers.username': 1,
+              'activeMembers._id': 1,
+              eventsCount: 1,
+            },
+          },
+        ],
+        totalCount: [
+          {
+            $count: 'count',
+          },
+        ],
+      },
+    });
 
-    if (skip) {
-      pipeline.push({ $skip: parseInt(skip, 10) });
-    }
-    pipeline.push({ $limit: 20 });
+    const [results] = await Room.aggregate(pipeline);
 
-    const rooms = await Room.aggregate(pipeline);
-
+    const { paginatedResults: rooms, totalCount } = results;
     // find messages from this room during time period
 
     const roomsWithMessages = await Promise.all(
@@ -786,6 +811,9 @@ module.exports = {
           });
       })
     );
-    return roomsWithMessages;
+    return [
+      roomsWithMessages,
+      { totalCount: totalCount && totalCount[0] ? totalCount[0].count : 0 },
+    ];
   },
 };
