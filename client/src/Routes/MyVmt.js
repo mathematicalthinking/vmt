@@ -13,6 +13,7 @@ import {
   Workspace,
   TempWorkspace,
   withPopulatedRoom,
+  Dashboard,
 } from '../Containers';
 import SharedReplayer from '../Containers/Replayer/SharedReplayer';
 import { PrivateRoute, ErrorToast } from '../Components';
@@ -67,6 +68,10 @@ const pages = [
   {
     path: '/confirmation',
     component: Confirmation,
+  },
+  {
+    path: '/dashboard/:resource',
+    component: Dashboard,
   },
 ];
 class MyVmt extends Component {

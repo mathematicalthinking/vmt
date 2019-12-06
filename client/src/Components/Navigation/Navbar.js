@@ -53,7 +53,7 @@ const Navbar = ({ user, location, toggleAdmin }) => {
             name="Community"
           />
           {user.isAdmin ? (
-            <NavItem link="/dashboard/rooms" name="Dashboard" />
+            <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
           ) : null}
           <DropdownNavItem
             data-testid="avatar"

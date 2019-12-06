@@ -13,7 +13,6 @@ import {
   ResetPassword,
   ConfirmEmail,
   Unconfirmed,
-  Dashboard,
 } from '../Containers';
 import { Confirmation, About } from '../Layout';
 import classes from './main.css';
@@ -86,7 +85,6 @@ class Home extends PureComponent {
             <Route path="/confirmEmail/:token?" component={ConfirmEmail} />
             <Route path="/unconfirmed" component={Unconfirmed} />
             <Route path="/oauth/return" component={OauthReturn} />
-            <Route path="/dashboard/:resource" component={Dashboard} />
           </Switch>
         </div>
       </Aux>

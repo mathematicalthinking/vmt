@@ -59,7 +59,7 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
               name="Community"
             />
             {user.isAdmin ? (
-              <NavItem link="/dashboard/rooms" name="Dashboard" />
+              <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
             ) : null}
             <NavItem link="/about" name="About" />
             {loggedIn ? (
