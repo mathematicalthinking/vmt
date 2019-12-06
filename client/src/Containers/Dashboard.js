@@ -1,10 +1,12 @@
 /* eslint-disable react/no-did-update-set-state */
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { AdminDashboardLayout } from '../Layout';
 import API from '../utils/apiRequests';
+import Modal from '../Components/UI/Modal/Modal';
+import Button from '../Components/UI/Button/Button';
 
 const SKIP_VALUE = 20;
 class Dashboard extends Component {
@@ -19,6 +21,8 @@ class Dashboard extends Component {
       dateRangePreset: 'day',
       customSinceDate: null,
       customToDate: null,
+      userToManage: null,
+      manageUserAction: null,
     };
     this.debounceFetchData = debounce(() => this.fetchData(), 1000);
     this.debouncedSetCriteria = debounce((criteria) => {
@@ -209,6 +213,81 @@ class Dashboard extends Component {
     this.setQueryParams(filters);
   };
 
+  logoutUser = (userId) => {
+    return API.revokeRefreshToken(userId)
+      .then((res) => {
+        const { user } = res.data;
+
+        if (user) {
+          this.updateVisibleResource(userId, { socketId: null });
+        }
+        this.stopManageUser();
+      })
+      .catch((err) => {
+        this.stopManageUser();
+        console.log({ err });
+      });
+  };
+
+  suspendUser = (userId) => {
+    return API.suspendUser(userId)
+      .then((res) => {
+        const { user } = res.data;
+
+        if (user) {
+          this.updateVisibleResource(userId, { isSuspended: true });
+        }
+        this.stopManageUser();
+      })
+      .catch((err) => {
+        this.stopManageUser();
+        console.log({ err });
+      });
+  };
+
+  reinstateUser = (userId) => {
+    return API.reinstateUser(userId)
+      .then((res) => {
+        const { user } = res.data;
+
+        if (user) {
+          this.updateVisibleResource(userId, { isSuspended: false });
+        }
+        this.stopManageUser();
+      })
+      .catch((err) => {
+        this.stopManageUser();
+        console.log({ err });
+      });
+  };
+
+  updateVisibleResource = (itemId, update) => {
+    const { visibleResources } = this.state;
+
+    const updated = visibleResources.map((resource) => {
+      if (resource._id !== itemId) {
+        return resource;
+      }
+      return { ...resource, ...update };
+    });
+
+    this.setState({ visibleResources: updated });
+  };
+
+  manageUser = (user, actionType) => {
+    this.setState({
+      userToManage: user,
+      manageUserAction: actionType,
+    });
+  };
+
+  stopManageUser = () => {
+    this.setState({
+      userToManage: null,
+      manageUserAction: null,
+    });
+  };
+
   render() {
     const { match } = this.props;
     const {
@@ -219,6 +298,8 @@ class Dashboard extends Component {
       dateRangePreset,
       customSinceDate,
       customToDate,
+      userToManage,
+      manageUserAction,
     } = this.state;
     const filters = this.getQueryParams();
     let linkPath;
@@ -232,25 +313,52 @@ class Dashboard extends Component {
       linkPath = null;
       linkSuffix = null;
     }
+    let manageUserPrompt = null;
+    if (userToManage && manageUserAction) {
+      const { username } = userToManage;
+      const actionMessageHash = {
+        logoutUser: `Are you sure you want to manually logout ${username}?`,
+        reinstateUser: `Are you sure you want to reinstate ${username}?`,
+        suspendUser: `Are you sure you want to suspend ${username}. They will not be able to use VMT until they are reinstated.`,
+      };
+      manageUserPrompt = actionMessageHash[manageUserAction];
+    }
     return (
-      <AdminDashboardLayout
-        visibleResources={visibleResources}
-        resource={match.params.resource}
-        linkPath={linkPath}
-        searchValue={searchText}
-        linkSuffix={linkSuffix}
-        setSkip={this.setSkip}
-        setCriteria={this.setSearchCriteria}
-        moreAvailable={moreAvailable}
-        filters={filters}
-        toggleFilter={this.toggleFilter}
-        totalCounts={totalCounts}
-        setSinceDate={this.setSinceDate}
-        dateRangePreset={dateRangePreset}
-        customSinceDate={customSinceDate}
-        customToDate={customToDate}
-        setToDate={this.setToDate}
-      />
+      <Fragment>
+        <AdminDashboardLayout
+          visibleResources={visibleResources}
+          resource={match.params.resource}
+          linkPath={linkPath}
+          searchValue={searchText}
+          linkSuffix={linkSuffix}
+          setSkip={this.setSkip}
+          setCriteria={this.setSearchCriteria}
+          moreAvailable={moreAvailable}
+          filters={filters}
+          toggleFilter={this.toggleFilter}
+          totalCounts={totalCounts}
+          setSinceDate={this.setSinceDate}
+          dateRangePreset={dateRangePreset}
+          customSinceDate={customSinceDate}
+          customToDate={customToDate}
+          setToDate={this.setToDate}
+          manageUser={this.manageUser}
+        />
+        <Modal show={userToManage !== null} closeModal={this.stopManageUser}>
+          {manageUserPrompt}
+          <Button
+            data-testid={manageUserAction}
+            click={() => {
+              this[manageUserAction](userToManage._id);
+            }}
+          >
+            Okay
+          </Button>
+          <Button data-testid="cancel-manage-user" click={this.stopManageUser}>
+            Cancel
+          </Button>
+        </Modal>
+      </Fragment>
     );
   }
 }

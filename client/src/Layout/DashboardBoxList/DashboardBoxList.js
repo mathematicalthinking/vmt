@@ -14,6 +14,7 @@ const dashboardBoxList = (props) => {
     maxHeight,
     scrollable,
     resultsMessage,
+    manageUser,
   } = props;
   let listElems = 'No activity within specified time period';
   if (list.length > 0) {
@@ -33,6 +34,9 @@ const dashboardBoxList = (props) => {
           details.activeRooms = item.activeRooms;
 
           details.latestIpAddress = item.latestIpAddress || 'Unknown';
+          details._id = item._id;
+          details.socketId = item.socketId;
+          details.isSuspended = item.isSuspended;
         }
 
         return (
@@ -47,9 +51,10 @@ const dashboardBoxList = (props) => {
                 item && item.tabs ? item.tabs.map((tab) => tab.tabType) : null
               }
               locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
-              details={details}
+              details={item}
               listType={listType}
               resource={resource}
+              manageUser={manageUser}
             />
           </div>
         );
@@ -88,7 +93,8 @@ dashboardBoxList.propTypes = {
   linkSuffix: PropTypes.string,
   maxHeight: PropTypes.number,
   scrollable: PropTypes.bool,
-  resultsMessage: PropTypes.bool,
+  resultsMessage: PropTypes.string,
+  manageUser: PropTypes.func.isRequired,
 };
 
 dashboardBoxList.defaultProps = {

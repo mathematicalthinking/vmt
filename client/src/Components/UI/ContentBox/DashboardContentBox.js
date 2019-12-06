@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import classes from './contentBox.css';
+import classes from './dashboardContentBox.css';
 import Icons from './Icons/Icons';
 import Aux from '../../HOC/Auxil';
 import Expand from './expand';
@@ -18,6 +18,13 @@ class DashboardContentBox extends PureComponent {
     }));
   };
 
+  toggleMoreMenu = (event) => {
+    event.preventDefault();
+    this.setState((prevState) => ({
+      doShowMoreMenu: !prevState.doShowMoreMenu,
+    }));
+  };
+
   render() {
     const {
       link,
@@ -28,9 +35,48 @@ class DashboardContentBox extends PureComponent {
       locked,
       details,
       resource,
+      manageUser,
     } = this.props;
     const { expanded } = this.state;
+    let iconActions = null;
+    let suspendReinstateAction = {
+      iconClass: 'fas fa-ban',
+      title: 'Suspend User',
+      testid: 'suspend',
+      color: 'red',
+      onClick: () => {
+        manageUser(details, 'suspendUser');
+      },
+    };
 
+    if (details.isSuspended) {
+      suspendReinstateAction = {
+        iconClass: 'fas fa-undo',
+        title: 'Reinstate User',
+        testid: 'reinstate',
+        color: 'green',
+        onClick: () => {
+          manageUser(details, 'reinstateUser');
+        },
+      };
+    }
+
+    const forceLogoutAction = {
+      iconClass: 'fas fa-power-off',
+      title: 'Force Logout',
+      testid: 'force-logout',
+      onClick: () => {
+        manageUser(details, 'logoutUser');
+      },
+    };
+
+    if (resource === 'users') {
+      iconActions = [suspendReinstateAction];
+
+      if (details.socketId) {
+        iconActions.unshift(forceLogoutAction);
+      }
+    }
     const innerContent = (
       <div
         data-testid={`content-box-${title}`}
@@ -53,13 +99,31 @@ class DashboardContentBox extends PureComponent {
               <span className={classes.TimeStamp}>{details.updatedAt}</span>
             </div>
           </div>
-          <div
-            className={classes.Expand}
-            style={{
-              transform: expanded ? `rotate(180deg)` : `rotate(0)`,
-            }}
-          >
-            <Expand clickHandler={this.toggleExpand} />
+          <div className={classes.ActionIconsContainer}>
+            {iconActions
+              ? iconActions.map((i, ix) => {
+                  return (
+                    <div
+                      key={`action-${i.testid}`}
+                      className={classes.ActionIcon}
+                      onClick={i.onClick}
+                      onKeyDown={i.onClick}
+                      data-testid={i.testid}
+                      title={i.title}
+                      role="button"
+                      tabIndex={ix}
+                    >
+                      <i style={{ color: i.color }} className={i.iconClass} />
+                    </div>
+                  );
+                })
+              : null}
+            <div
+              className={classes.Expand}
+              style={{ transform: expanded ? `rotate(180deg)` : `rotate(0)` }}
+            >
+              <Expand clickHandler={this.toggleExpand} />
+            </div>
           </div>
         </div>
         <div className={classes.Content}>
@@ -153,11 +217,13 @@ DashboardContentBox.propTypes = {
   locked: PropTypes.bool.isRequired,
   details: PropTypes.shape({}).isRequired,
   resource: PropTypes.string.isRequired,
+  manageUser: PropTypes.func,
 };
 
 DashboardContentBox.defaultProps = {
   image: null,
   roomType: null,
   link: null,
+  manageUser: null,
 };
 export default DashboardContentBox;

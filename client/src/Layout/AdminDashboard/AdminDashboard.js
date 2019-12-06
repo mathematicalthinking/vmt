@@ -43,6 +43,7 @@ class AdminDashboard extends Component {
       customSinceDate,
       customToDate,
       setToDate,
+      manageUser,
     } = this.props;
 
     const totalCount = totalCounts ? totalCounts.totalCount || 0 : 0;
@@ -64,10 +65,14 @@ class AdminDashboard extends Component {
           <h3 className={classes.Title}>See Recently Active Rooms and Users</h3>
           <div className={classes.ResourceOpts} data-testid="resource-tabs">
             <div>
-              <CustomLink to="/dashboard/rooms?since=day">Rooms</CustomLink>
+              <CustomLink to="/myVMT/dashboard/rooms?since=day">
+                Rooms
+              </CustomLink>
             </div>
             <div>
-              <CustomLink to="/dashboard/users?since=day">Users</CustomLink>
+              <CustomLink to="/myVMT/dashboard/users?since=day">
+                Users
+              </CustomLink>
             </div>
           </div>
           {/* <div className={classes.Search}>
@@ -164,6 +169,7 @@ class AdminDashboard extends Component {
             linkSuffix={linkSuffix}
             listType="public"
             resultsMessage={resultsMessage}
+            manageUser={manageUser}
           />
           <div className={classes.LoadMore}>
             <Button m={20} disabled={!moreAvailable} click={setSkip}>
@@ -200,10 +206,11 @@ AdminDashboard.propTypes = {
   // setCriteria: PropTypes.func.isRequired,
   totalCounts: PropTypes.shape({ totalCount: PropTypes.number }),
   setSinceDate: PropTypes.func.isRequired,
-  dateRangePreset: PropTypes.bool.isRequired,
+  dateRangePreset: PropTypes.string.isRequired,
   customSinceDate: PropTypes.string,
   customToDate: PropTypes.string,
   setToDate: PropTypes.func.isRequired,
+  manageUser: PropTypes.func.isRequired,
 };
 
 export default AdminDashboard;

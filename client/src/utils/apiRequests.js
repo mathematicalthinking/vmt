@@ -160,4 +160,14 @@ export default {
     }
     return api.get(`/api/dashBoard/${resource}`, { params });
   },
+
+  revokeRefreshToken: (userId) => {
+    return api.post(`/admin/forceUserLogout/${userId}`);
+  },
+  suspendUser: (userId) => {
+    return api.post(`/admin/suspendUser/${userId}`);
+  },
+  reinstateUser: (userId) => {
+    return api.post(`/admin/reinstateUser/${userId}`);
+  },
 };
