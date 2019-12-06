@@ -66,6 +66,23 @@ module.exports.get = async (path, params, reqUser) => {
   }
 };
 
+module.exports.put = async (path, body, reqUser) => {
+  try {
+    // encoded jwt which sso server will use to verify request came from
+    // vmt or enc
+    const token = await generateSsoApiToken(reqUser);
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+
+    const results = await axios.put(`${BASE_URL}${path}`, body, config);
+
+    return results.data;
+  } catch (err) {
+    throw err;
+  }
+};
+
 // details { username, password }
 module.exports.login = (details) => {
   return this.post('/auth/login', details);
@@ -109,4 +126,20 @@ module.exports.resetPassword = (details, token) => {
 // for vmt is this only admins?
 module.exports.resetPasswordById = (details, reqUser) => {
   return this.post('/auth/reset/password/user', details, reqUser);
+};
+
+module.exports.forceLogout = (userId, reqUser) => {
+  return this.put(
+    `/auth/user/${userId}`,
+    { doRevokeRefreshToken: true },
+    reqUser
+  );
+};
+
+module.exports.suspendUser = (userId, reqUser) => {
+  return this.put(`/auth/user/${userId}`, { isSuspended: true }, reqUser);
+};
+
+module.exports.reinstateUser = (userId, reqUser) => {
+  return this.put(`/auth/user/${userId}`, { isSuspended: false }, reqUser);
 };

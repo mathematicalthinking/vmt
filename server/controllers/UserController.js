@@ -11,7 +11,6 @@ module.exports = {
           resolve(users);
         })
         .catch((err) => {
-          console.log('err', err);
           reject(err);
         });
     });
@@ -193,6 +192,8 @@ module.exports = {
         username: 1,
         latestIpAddress: 1,
         updatedAt: 1,
+        isSuspended: 1,
+        socketId: 1,
       })
         .sort({ updatedAt: -1 })
         .skip(skipInt)

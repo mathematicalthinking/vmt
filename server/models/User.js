@@ -35,6 +35,7 @@ const User = new mongoose.Schema(
     settings: {
       doShowDesmosRefWarning: { type: Boolean, default: true },
     },
+    isSuspended: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
