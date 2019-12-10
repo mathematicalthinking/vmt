@@ -648,6 +648,7 @@ module.exports = {
           privacySetting: 1,
           updatedAt: 1,
           members: 1,
+          tempRoom: 1,
         },
       },
       {
@@ -681,6 +682,7 @@ module.exports = {
           members: { $first: '$members' },
           tabs: { $first: '$tabs' },
           events: { $push: '$eventObject' },
+          tempRoom: { $first: '$tempRoom' },
         },
       },
       {
@@ -694,6 +696,7 @@ module.exports = {
           privacySetting: 1,
           updatedAt: 1,
           members: 1,
+          tempRoom: 1,
 
           events: {
             $filter: {
@@ -718,6 +721,7 @@ module.exports = {
           tabs: { $first: '$tabs' },
           eventsCount: { $push: '$events' },
           activeMembers: { $addToSet: '$events.user' },
+          tempRoom: { $first: '$tempRoom' },
         },
       },
       {
@@ -742,6 +746,7 @@ module.exports = {
           'activeMembers.username': 1,
           'activeMembers._id': 1,
           eventsCount: { $size: '$eventsCount' },
+          tempRoom: 1,
         },
       },
     ];
@@ -766,6 +771,7 @@ module.exports = {
               'activeMembers.username': 1,
               'activeMembers._id': 1,
               eventsCount: 1,
+              tempRoom: 1,
             },
           },
         ],

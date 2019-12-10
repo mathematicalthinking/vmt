@@ -143,3 +143,7 @@ module.exports.suspendUser = (userId, reqUser) => {
 module.exports.reinstateUser = (userId, reqUser) => {
   return this.put(`/auth/user/${userId}`, { isSuspended: false }, reqUser);
 };
+
+module.exports.revokeRefreshToken = (encodedToken, reqUser) => {
+  return this.post(`/auth/revokedToken`, { encodedToken }, reqUser);
+};

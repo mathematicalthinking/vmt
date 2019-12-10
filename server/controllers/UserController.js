@@ -194,6 +194,8 @@ module.exports = {
         updatedAt: 1,
         isSuspended: 1,
         socketId: 1,
+        doForceLogout: 1,
+        accountType: 1,
       })
         .sort({ updatedAt: -1 })
         .skip(skipInt)

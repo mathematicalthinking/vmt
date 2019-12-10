@@ -1,4 +1,5 @@
-const { defaults } = require('lodash');
+const defaults = require('lodash/defaults');
+const propertyOf = require('lodash/propertyOf');
 const {
   isValidMongoId,
   verifyJwt,
@@ -19,6 +20,7 @@ const { accessCookie, refreshCookie } = require('../constants/sso');
 
 const ssoService = require('../services/sso');
 const { getEncIssuerId, getVmtIssuerId } = require('../config/app-urls');
+const sockets = require('../socketInit');
 
 const prep = (req, res, next) => {
   defaults(req, { mt: {} });
@@ -114,8 +116,36 @@ const prepareVmtUser = (req, res, next) => {
     .lean()
     .exec()
     .then((user) => {
-      req.mt.auth.vmtUser = user;
-      next();
+      if (user && (user.doForceLogout || user.isSuspended)) {
+        // clear socketId, clear cookies
+        ssoService.revokeRefreshToken(req.cookies[refreshCookie.name], user);
+
+        const { socketId } = user;
+        const socket = propertyOf(sockets)(`io.sockets.sockets.${socketId}`);
+
+        if (socket) {
+          socket.emit('FORCED_LOGOUT');
+        }
+
+        clearAccessCookie(res);
+        clearRefreshCookie(res);
+
+        User.findByIdAndUpdate(
+          user._id,
+          {
+            doForceLogout: false,
+            socketId: null,
+          },
+          { new: true }
+        ).then(() => {
+          req.mt.auth.vmtUser = null;
+          req.mt.auth.user = null;
+          next();
+        });
+      } else {
+        req.mt.auth.vmtUser = user;
+        next();
+      }
     })
     .catch(next);
 };

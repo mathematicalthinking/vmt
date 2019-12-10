@@ -29,7 +29,7 @@ router.post('/forceUserLogout/:id', async (req, res) => {
       const updatedVmtUser = await User.findByIdAndUpdate(
         req.params.id,
         {
-          socketId: null,
+          doForceLogout: true,
         },
         { new: true }
       );
