@@ -86,10 +86,16 @@ class LoginLayout extends PureComponent {
     const isEmailUnavailable =
       queryString.indexOf('oauthError=emailUnavailable') !== -1;
 
+    const isSuspended = queryString.indexOf('oauthError=userSuspended') !== -1;
+
     if (isEmailUnavailable) {
       this.setState({
         oauthErrorMessage:
           'Email is already associated with an existing account',
+      });
+    } else if (isSuspended) {
+      this.setState({
+        oauthErrorMessage: 'Your account has been suspended',
       });
     }
   };
