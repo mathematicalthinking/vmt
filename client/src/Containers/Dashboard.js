@@ -7,6 +7,7 @@ import { AdminDashboardLayout } from '../Layout';
 import API from '../utils/apiRequests';
 import Modal from '../Components/UI/Modal/Modal';
 import Button from '../Components/UI/Button/Button';
+import ModalClasses from '../Components/UI/Modal/modal.css';
 
 const SKIP_VALUE = 20;
 class Dashboard extends Component {
@@ -289,7 +290,7 @@ class Dashboard extends Component {
   };
 
   render() {
-    const { match } = this.props;
+    const { match, user } = this.props;
     const {
       visibleResources,
       moreAvailable,
@@ -343,20 +344,29 @@ class Dashboard extends Component {
           customToDate={customToDate}
           setToDate={this.setToDate}
           manageUser={this.manageUser}
+          ownUserId={user._id}
         />
         <Modal show={userToManage !== null} closeModal={this.stopManageUser}>
           {manageUserPrompt}
-          <Button
-            data-testid={manageUserAction}
-            click={() => {
-              this[manageUserAction](userToManage._id);
-            }}
-          >
-            Okay
-          </Button>
-          <Button data-testid="cancel-manage-user" click={this.stopManageUser}>
-            Cancel
-          </Button>
+          <div className={ModalClasses.Row}>
+            <Button
+              data-testid={manageUserAction}
+              click={() => {
+                this[manageUserAction](userToManage._id);
+              }}
+              m={5}
+            >
+              Yes
+            </Button>
+            <Button
+              data-testid="cancel-manage-user"
+              click={this.stopManageUser}
+              theme="Cancel"
+              m={5}
+            >
+              Cancel
+            </Button>
+          </div>
         </Modal>
       </Fragment>
     );

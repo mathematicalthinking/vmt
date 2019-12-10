@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import moment from 'moment';
 import classes from './dashboardContentBox.css';
 import Icons from './Icons/Icons';
 import Aux from '../../HOC/Auxil';
@@ -36,6 +37,7 @@ class DashboardContentBox extends PureComponent {
       details,
       resource,
       manageUser,
+      isSelf,
     } = this.props;
     const { expanded } = this.state;
     let iconActions = null;
@@ -71,9 +73,9 @@ class DashboardContentBox extends PureComponent {
     };
 
     if (resource === 'users') {
-      iconActions = [suspendReinstateAction];
+      iconActions = !isSelf ? [suspendReinstateAction] : [];
 
-      if (details.socketId) {
+      if (details.socketId && !details.doForceLogout) {
         iconActions.unshift(forceLogoutAction);
       }
     }
@@ -95,8 +97,10 @@ class DashboardContentBox extends PureComponent {
               </div>
             ) : null}
             <div className={classes.Title} data-testid="">
-              {title} -
-              <span className={classes.TimeStamp}>{details.updatedAt}</span>
+              {title}
+              <span className={classes.TimeStamp}>
+                {moment(details.updatedAt).format('YYYY-MM-DD hh:mm:ss a')}
+              </span>
             </div>
           </div>
           <div className={classes.ActionIconsContainer}>
@@ -129,6 +133,13 @@ class DashboardContentBox extends PureComponent {
         <div className={classes.Content}>
           {details && expanded ? (
             <div className={classes.Expanded}>
+              {details.accountType ? (
+                <div>
+                  <span className={classes.DashboardLabel}>Account Type:</span>{' '}
+                  {details.accountType}
+                </div>
+              ) : null}
+
               <div>
                 <span className={classes.DashboardLabel}>Event Count:</span>{' '}
                 {details.eventsCount}
@@ -218,6 +229,7 @@ DashboardContentBox.propTypes = {
   details: PropTypes.shape({}).isRequired,
   resource: PropTypes.string.isRequired,
   manageUser: PropTypes.func,
+  isSelf: PropTypes.bool.isRequired,
 };
 
 DashboardContentBox.defaultProps = {

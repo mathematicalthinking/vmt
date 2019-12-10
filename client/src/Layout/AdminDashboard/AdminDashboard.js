@@ -44,6 +44,7 @@ class AdminDashboard extends Component {
       customToDate,
       setToDate,
       manageUser,
+      ownUserId,
     } = this.props;
 
     const totalCount = totalCounts ? totalCounts.totalCount || 0 : 0;
@@ -170,6 +171,7 @@ class AdminDashboard extends Component {
             listType="public"
             resultsMessage={resultsMessage}
             manageUser={manageUser}
+            ownUserId={ownUserId}
           />
           <div className={classes.LoadMore}>
             <Button m={20} disabled={!moreAvailable} click={setSkip}>
@@ -211,6 +213,7 @@ AdminDashboard.propTypes = {
   customToDate: PropTypes.string,
   setToDate: PropTypes.func.isRequired,
   manageUser: PropTypes.func.isRequired,
+  ownUserId: PropTypes.string.isRequired,
 };
 
 export default AdminDashboard;

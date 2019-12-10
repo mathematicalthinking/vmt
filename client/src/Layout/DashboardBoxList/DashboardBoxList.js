@@ -15,6 +15,7 @@ const dashboardBoxList = (props) => {
     scrollable,
     resultsMessage,
     manageUser,
+    ownUserId,
   } = props;
   let listElems = 'No activity within specified time period';
   if (list.length > 0) {
@@ -55,6 +56,7 @@ const dashboardBoxList = (props) => {
               listType={listType}
               resource={resource}
               manageUser={manageUser}
+              isSelf={item._id === ownUserId}
             />
           </div>
         );
@@ -95,6 +97,7 @@ dashboardBoxList.propTypes = {
   scrollable: PropTypes.bool,
   resultsMessage: PropTypes.string,
   manageUser: PropTypes.func.isRequired,
+  ownUserId: PropTypes.string.isRequired,
 };
 
 dashboardBoxList.defaultProps = {
