@@ -67,7 +67,6 @@ const filterData = (
   data,
   { users = [], events = [], messages = [], actions = [] }
 ) => {
-  console.log('filter data', { users, events, messages, actions });
   let dataSets = [];
   // If filtering by two or more users we want the lines on the graph to represent them.
   if (users.length > 1) {
@@ -80,7 +79,6 @@ const filterData = (
           let includeControlMessages;
           let includeEntryExitMessages;
           let includeReferenceMessages;
-          console.log('messages', messages);
           // this could be simplified if we were filtering for exact message type; enter and exit instead enter_exit for example
           if (messages.length > 0 && d.messageType) {
             includeUserMessages = messages.indexOf('USER') > -1;
@@ -88,7 +86,6 @@ const filterData = (
             includeControlMessages = messages.indexOf('CONTROL') > -1;
             includeReferenceMessages = messages.indexOf('REFERENCE') > -1;
           }
-          console.log('d message', d);
           criteriaMet =
             (includeUserMessages && d.messageType === 'TEXT' && !d.reference) ||
             (includeReferenceMessages &&
@@ -104,8 +101,6 @@ const filterData = (
               d.eventType &&
               actions.indexOf(d.eventType) > -1) ||
             events.length === 0;
-
-          console.log({ d });
           if (
             events.length > 0 &&
             actions.length === 0 &&
@@ -140,7 +135,6 @@ const filterData = (
         messages.map((m) => {
           return {
             data: data.filter((d) => {
-              console.log('d msg', d, 'm msg', m);
               const { messageType: mt } = d;
               if (!mt) return false;
               return (
@@ -163,7 +157,6 @@ const filterData = (
           return {
             data: data.filter((d) => {
               const ggbEvent = getSignificantGgbEventFromEvent(d);
-              // const { ggbEvent } = d;
               if (!ggbEvent) {
                 return false;
               }
@@ -238,7 +231,6 @@ const buildLineData = (data, timeScale, start, end) => {
   const processedData = [];
   // combine events by timeScale -- i.e. get the number of events that happened between start and end of timeScale unit
   data.forEach((datum, i) => {
-    console.log('line datum', datum);
     if (i === 0) {
       eventCount += 1;
       if (datum.timestamp > start) {
