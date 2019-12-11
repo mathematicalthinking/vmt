@@ -219,7 +219,7 @@ module.exports = {
         .limit(20)
         .lean()
         .exec(),
-      db.User.count(initialFilter).exec(),
+      db.User.countDocuments(initialFilter).exec(),
     ]);
 
     const usersWithStats = await Promise.all(
