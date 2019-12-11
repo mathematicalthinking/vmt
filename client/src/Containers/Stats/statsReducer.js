@@ -67,7 +67,14 @@ export default (state = initialState, action) => {
     case 'ADD_REMOVE_FILTER': {
       let updatedFiltersArr;
       const { filterType, payload } = action;
-      const { data, users, events, currentStartTime, currentEndTime } = state;
+      const {
+        data,
+        users,
+        events,
+        currentStartTime,
+        currentEndTime,
+        maxY,
+      } = state;
       let { messages, actions } = { ...state };
       if (payload === 'ALL') {
         updatedFiltersArr = [];
@@ -94,6 +101,15 @@ export default (state = initialState, action) => {
         },
         { start: currentStartTime, end: currentEndTime }
       );
+      let oldMaxY = 0;
+      let newMaxY = maxY;
+      lines.forEach((l) => {
+        const candidateMaxY = max(l.data, (d) => d[1]);
+        if (candidateMaxY > oldMaxY) {
+          newMaxY = candidateMaxY;
+          oldMaxY = newMaxY;
+        }
+      });
       return {
         ...state,
         users,
@@ -103,6 +119,7 @@ export default (state = initialState, action) => {
         actions,
         [filterType]: updatedFiltersArr,
         lines,
+        maxY: newMaxY,
       };
     }
 
