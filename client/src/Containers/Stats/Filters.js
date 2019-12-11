@@ -22,6 +22,11 @@ const messageFilters = [
     payload: 'CONTROL',
     filterType: 'messages',
   },
+  {
+    dataId: 'References',
+    payload: 'REFERENCE',
+    filterType: 'messages',
+  },
 ];
 
 const actionFilters = [
@@ -37,17 +42,57 @@ const actionFilters = [
   },
   {
     dataId: 'Drag',
-    payload: 'BATCH_UPDATE',
+    payload: 'DRAG',
     filterType: 'actions',
   },
   {
-    dataId: 'Update',
-    payload: 'UPDATE',
+    dataId: 'Update Style',
+    payload: 'UPDATE_STYLE',
     filterType: 'actions',
   },
   {
     dataId: 'Select',
     payload: 'SELECT',
+    filterType: 'actions',
+  },
+  {
+    dataId: 'Rename',
+    payload: 'RENAME',
+    filterType: 'actions',
+  },
+  {
+    dataId: 'Undo',
+    payload: 'UNDO',
+    filterType: 'actions',
+  },
+  {
+    dataId: 'Redo',
+    payload: 'REDO',
+    filterType: 'actions',
+  },
+  {
+    dataId: 'New Tab',
+    payload: 'NEW_TAB',
+    filterType: 'actions',
+  },
+  {
+    dataId: 'Change Perspective',
+    payload: 'CHANGE_PERSPECTIVE',
+    filterType: 'actions',
+  },
+  {
+    dataId: 'Set Mode',
+    payload: 'MODE',
+    filterType: 'actions',
+  },
+  {
+    dataId: 'Toggle',
+    payload: 'TOGGLE',
+    filterType: 'actions',
+  },
+  {
+    dataId: 'Update Text Field',
+    payload: 'UPDATE_TEXT_FIELD',
     filterType: 'actions',
   },
 ];

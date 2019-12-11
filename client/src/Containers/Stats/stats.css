@@ -81,6 +81,7 @@
 .IndentedRow {
   display: flex;
   margin: 3px 0 0 20px;
+  flex-wrap: wrap;
 }
 
 .Checkbox {
