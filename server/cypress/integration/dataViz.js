@@ -52,7 +52,7 @@ describe('Data Visualization', function() {
     cy.getTestElement('line-#c940ce').should('be.visible');
     cy.getTestElement('line-#fb4b02').should('be.visible');
     cy.getTestElement('line-#42770a').should('be.visible');
-    cy.getTestElement('Update-checkbox').click();
+    cy.getTestElement('Update Style-checkbox').click();
     cy.getTestElement('line-#43c086').should('be.visible');
     cy.getTestElement('line-#4655d4').should('be.visible');
     cy.getTestElement('line-#c940ce').should('be.visible');
