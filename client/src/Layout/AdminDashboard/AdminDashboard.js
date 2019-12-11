@@ -5,7 +5,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker-cssmodules.css';
 import DashboardBoxList from '../DashboardBoxList/DashboardBoxList';
 import {
-  // Search,
+  Search,
   CustomLink,
   Button,
   RadioBtn,
@@ -34,9 +34,9 @@ class AdminDashboard extends Component {
       // filters,
       moreAvailable,
       setSkip,
-      // setCriteria,
+      setCriteria,
       toggleFilter,
-      // searchValue,
+      searchValue,
       totalCounts,
       setSinceDate,
       dateRangePreset,
@@ -76,7 +76,7 @@ class AdminDashboard extends Component {
               </CustomLink>
             </div>
           </div>
-          {/* <div className={classes.Search}>
+          <div className={classes.Search}>
             <Search
               isControlled
               value={searchValue}
@@ -84,7 +84,7 @@ class AdminDashboard extends Component {
               placeholder="Search by name, description, or facilitators..."
               data-testid="community-search"
             />
-          </div> */}
+          </div>
           <div className={classes.Filters}>
             {/* <i className={['fas fa-sliders-h', classes.FilterIcon].join(' ')} /> */}
             <InfoBox title="Time Period" icon={<i className="fas fa-filter" />}>
@@ -197,7 +197,7 @@ AdminDashboard.propTypes = {
   visibleResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   linkPath: PropTypes.string,
   linkSuffix: PropTypes.string,
-  // searchValue: PropTypes.string.isRequired,
+  searchValue: PropTypes.string.isRequired,
   filters: PropTypes.shape({
     privacySetting: PropTypes.oneOf(['public', 'private', 'all']),
     roomType: PropTypes.oneOf(['geogebra', 'desmos', 'all']),
@@ -205,7 +205,7 @@ AdminDashboard.propTypes = {
   toggleFilter: PropTypes.func.isRequired,
   setSkip: PropTypes.func.isRequired,
   moreAvailable: PropTypes.bool.isRequired,
-  // setCriteria: PropTypes.func.isRequired,
+  setCriteria: PropTypes.func.isRequired,
   totalCounts: PropTypes.shape({ totalCount: PropTypes.number }),
   setSinceDate: PropTypes.func.isRequired,
   dateRangePreset: PropTypes.string.isRequired,

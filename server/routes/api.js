@@ -98,10 +98,17 @@ router.get('/dashboard/:resource', middleware.validateUser, (req, res) => {
     return errors.sendError.InvalidContentError('Invalid Resource');
   }
   const { criteria, skip, since, to } = req.query;
+
+  let regex;
+  const trimmed = typeof criteria === 'string' ? criteria.trim() : '';
+
+  if (trimmed.length > 0) {
+    regex = new RegExp(criteria, 'i');
+  }
   const filters = { since, to };
 
   return controllers[resource]
-    .getRecentActivity(criteria, skip, filters)
+    .getRecentActivity(regex, skip, filters)
     .then((results) => res.json({ results }))
     .catch((err) => {
       console.error(`Error admin/dashboard/${resource}: ${err}`);

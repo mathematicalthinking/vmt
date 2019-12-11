@@ -173,7 +173,7 @@ module.exports = {
       }
       since = Number(momentObj.startOf('day').format('x'));
     }
-    const initialFilter = { updatedAt: { $gte: new Date(since) } };
+    let initialFilter = { updatedAt: { $gte: new Date(since) } };
 
     if (to && since && to > since) {
       let toMomentObj = moment(to, 'x', true);
@@ -187,6 +187,20 @@ module.exports = {
 
     const skipInt = skip ? parseInt(skip, 10) : 0;
 
+    if (criteria) {
+      initialFilter = {
+        ...initialFilter,
+        $or: [
+          { firstName: criteria },
+          { lastName: criteria },
+          { username: criteria },
+          { accountType: criteria },
+          { latestIpAddress: criteria },
+          { email: criteria },
+        ],
+      };
+    }
+
     const [users, totalCount] = await Promise.all([
       db.User.find(initialFilter, {
         username: 1,
@@ -196,6 +210,9 @@ module.exports = {
         socketId: 1,
         doForceLogout: 1,
         accountType: 1,
+        firstName: 1,
+        lastName: 1,
+        email: 1,
       })
         .sort({ updatedAt: -1 })
         .skip(skipInt)

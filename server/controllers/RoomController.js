@@ -751,6 +751,19 @@ module.exports = {
       },
     ];
 
+    if (criteria) {
+      pipeline.push({
+        $match: {
+          $or: [
+            { name: criteria },
+            { description: criteria },
+            { instructions: criteria },
+            { 'activeMembers.username': criteria },
+          ],
+        },
+      });
+    }
+
     pipeline.push({
       $facet: {
         paginatedResults: [

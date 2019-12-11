@@ -79,6 +79,22 @@ class DashboardContentBox extends PureComponent {
         iconActions.unshift(forceLogoutAction);
       }
     }
+
+    const { firstName = '', lastName = '' } = details;
+    let fullName;
+
+    if (firstName) {
+      fullName = firstName;
+    }
+
+    if (lastName) {
+      if (fullName) {
+        fullName = `${fullName} ${lastName}`;
+      } else {
+        fullName = lastName;
+      }
+    }
+
     const innerContent = (
       <div
         data-testid={`content-box-${title}`}
@@ -133,6 +149,18 @@ class DashboardContentBox extends PureComponent {
         <div className={classes.Content}>
           {details && expanded ? (
             <div className={classes.Expanded}>
+              {resource === 'users' ? (
+                <div>
+                  <span className={classes.DashboardLabel}>Name:</span>{' '}
+                  {fullName || 'N/A'}
+                </div>
+              ) : null}
+              {resource === 'users' ? (
+                <div>
+                  <span className={classes.DashboardLabel}>Email:</span>{' '}
+                  {details.email || 'N/A'}
+                </div>
+              ) : null}
               {details.accountType ? (
                 <div>
                   <span className={classes.DashboardLabel}>Account Type:</span>{' '}
