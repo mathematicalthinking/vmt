@@ -104,6 +104,14 @@ class GgbActivityGraph extends Component {
     const { tab, setFirstTabLoaded, currentTab } = this.props;
     this.ggbApplet = window[`ggbApplet${tab._id}A`];
 
+    // Attempt to fix erronenous shape/point creation when using
+    // tools that require multiple clicks such as circle with 2 points
+    const screenReader1 = document.querySelector('#screenReader1');
+
+    if (screenReader1) {
+      screenReader1.parentNode.removeChild(screenReader1);
+    }
+
     const {
       currentState,
       startingPoint,

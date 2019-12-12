@@ -543,6 +543,15 @@ class GgbGraph extends Component {
     this.getInnerGraphCoords();
     this.ggbApplet = window[`ggbApplet${tab._id}A`];
     await this.setDefaultGgbMode();
+
+    // Attempt to fix erronenous shape/point creation when using
+    // tools that require multiple clicks such as circle with 2 points
+
+    const screenReader1 = document.querySelector('#screenReader1');
+
+    if (screenReader1) {
+      screenReader1.parentNode.removeChild(screenReader1);
+    }
     // put the current construction on the graph, disable everything until the user takes control
     // if (perspective) this.ggbApplet.setPerspective(perspective);
     try {
