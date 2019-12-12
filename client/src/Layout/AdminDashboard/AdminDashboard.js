@@ -70,7 +70,7 @@ class AdminDashboard extends Component {
                 Rooms
               </CustomLink>
             </div>
-            <div>
+            <div data-testid="resource-tab-users">
               <CustomLink to="/myVMT/dashboard/users?since=day">
                 Users
               </CustomLink>
