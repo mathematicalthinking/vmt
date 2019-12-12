@@ -118,3 +118,6 @@
   z-index: 300;
 }
 
+.DashboardListItem > a {
+  color: lightBlue;
+}

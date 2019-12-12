@@ -211,7 +211,9 @@ class DashboardContentBox extends PureComponent {
                     <ul>
                       {details.activeRooms.map((r) => (
                         <li className={classes.DashboardListItem} key={r._id}>
-                          {r.name}
+                          <Link to={`/myVMT/rooms/${r._id}/details`}>
+                            {r.name}
+                          </Link>
                         </li>
                       ))}
                     </ul>
