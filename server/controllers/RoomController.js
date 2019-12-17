@@ -1,10 +1,10 @@
 const _ = require('lodash');
 const moment = require('moment');
 const db = require('../models');
-const { areObjectIdsEqual } = require('../middleware/utils/helpers');
+// const { areObjectIdsEqual } = require('../middleware/utils/helpers');
 
 const { Tab } = db;
-const { Room, Message } = db;
+const { Room } = db;
 
 const colorMap = require('../constants/colorMap.js');
 
@@ -649,6 +649,7 @@ module.exports = {
           updatedAt: 1,
           members: 1,
           tempRoom: 1,
+          chat: 1,
         },
       },
       {
@@ -660,7 +661,12 @@ module.exports = {
         },
       },
 
-      { $unwind: '$tabObject' },
+      {
+        $unwind: {
+          path: '$tabObject',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
       {
         $lookup: {
           from: 'events',
@@ -669,7 +675,7 @@ module.exports = {
           as: 'eventObject',
         },
       },
-      { $unwind: '$eventObject' },
+      { $unwind: { path: '$eventObject', preserveNullAndEmptyArrays: true } },
       {
         $group: {
           _id: '$_id',
@@ -683,6 +689,7 @@ module.exports = {
           tabs: { $first: '$tabs' },
           events: { $push: '$eventObject' },
           tempRoom: { $first: '$tempRoom' },
+          chat: { $first: '$chat' },
         },
       },
       {
@@ -697,6 +704,7 @@ module.exports = {
           updatedAt: 1,
           members: 1,
           tempRoom: 1,
+          chat: 1,
 
           events: {
             $filter: {
@@ -707,7 +715,20 @@ module.exports = {
           },
         },
       },
-      { $unwind: '$events' },
+      {
+        $lookup: {
+          from: 'messages',
+          localField: 'chat',
+          foreignField: '_id',
+          as: 'messageObject',
+        },
+      },
+      {
+        $unwind: {
+          path: '$messageObject',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
       {
         $group: {
           _id: '$_id',
@@ -719,11 +740,92 @@ module.exports = {
           updatedAt: { $first: '$updatedAt' },
           members: { $first: '$members' },
           tabs: { $first: '$tabs' },
-          eventsCount: { $push: '$events' },
+          events: { $first: '$events' },
+          tempRoom: { $first: '$tempRoom' },
+          messages: { $push: '$messageObject' },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          members: 1,
+          tempRoom: 1,
+          events: 1,
+
+          messages: {
+            $filter: {
+              input: '$messages',
+              as: 'e',
+              cond: eventsFilter,
+            },
+          },
+        },
+      },
+
+      { $unwind: { path: '$events', preserveNullAndEmptyArrays: true } },
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          privacySetting: { $first: '$privacySetting' },
+          image: { $first: '$image' },
+          updatedAt: { $first: '$updatedAt' },
+          members: { $first: '$members' },
+          tabs: { $first: '$tabs' },
+          events: { $push: '$events' },
+          messages: { $first: '$messages' },
           activeMembers: { $addToSet: '$events.user' },
           tempRoom: { $first: '$tempRoom' },
         },
       },
+      { $unwind: { path: '$messages', preserveNullAndEmptyArrays: true } },
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          privacySetting: { $first: '$privacySetting' },
+          image: { $first: '$image' },
+          updatedAt: { $first: '$updatedAt' },
+          members: { $first: '$members' },
+          tabs: { $first: '$tabs' },
+          events: { $first: '$events' },
+          messages: { $push: '$messages' },
+          activeMembers: { $first: '$activeMembers' },
+          activeMembersMessages: { $addToSet: '$messages.user' },
+          tempRoom: { $first: '$tempRoom' },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          members: 1,
+          activeMembers: {
+            $concatArrays: ['$activeMembers', '$activeMembersMessages'],
+          },
+          eventsCount: { $size: '$events' },
+          messagesCount: { $size: '$messages' },
+          tempRoom: 1,
+        },
+      },
+
       {
         $lookup: {
           from: 'users',
@@ -745,7 +847,8 @@ module.exports = {
           members: 1,
           'activeMembers.username': 1,
           'activeMembers._id': 1,
-          eventsCount: { $size: '$eventsCount' },
+          eventsCount: 1,
+          messagesCount: 1,
           tempRoom: 1,
         },
       },
@@ -785,6 +888,7 @@ module.exports = {
               'activeMembers._id': 1,
               eventsCount: 1,
               tempRoom: 1,
+              messagesCount: 1,
             },
           },
         ],
@@ -799,38 +903,9 @@ module.exports = {
     const [results] = await Room.aggregate(pipeline);
 
     const { paginatedResults: rooms, totalCount } = results;
-    // find messages from this room during time period
 
-    const roomsWithMessages = await Promise.all(
-      rooms.map((room) => {
-        const filter = { room: room._id, timestamp: { $gte: since } };
-
-        if (to && since && to > since) {
-          filter.timestamp.$lte = to;
-        }
-
-        return Message.find(filter, { user: 1, timestamp: 1, messageType: 1 })
-          .populate({ path: 'user', select: 'username' })
-          .lean()
-          .exec()
-          .then((messages) => {
-            room.messagesCount = messages.length;
-            messages.forEach((message) => {
-              if (
-                message.user &&
-                !room.activeMembers.find((member) => {
-                  return areObjectIdsEqual(member._id, message.user._id);
-                })
-              ) {
-                room.activeMembers.push(message.user);
-              }
-            });
-            return room;
-          });
-      })
-    );
     return [
-      roomsWithMessages,
+      rooms,
       { totalCount: totalCount && totalCount[0] ? totalCount[0].count : 0 },
     ];
   },
