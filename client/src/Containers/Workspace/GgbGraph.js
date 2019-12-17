@@ -352,13 +352,28 @@ class GgbGraph extends Component {
 
   readFromGraph = (label, eventType) => {
     const objType = this.ggbApplet.getObjectType(label);
-    const xml = this.ggbApplet.getXML(label);
-    const commandString = this.ggbApplet.getCommandString(label);
-    const valueString = this.ggbApplet.getValueString(label);
     const editorState = this.ggbApplet.getEditorState(label);
+
+    let base64;
+    let xml;
+    let commandString;
+    let valueString;
+
+    const algXML = this.ggbApplet.getAlgorithmXML(label);
+
+    if (!algXML) {
+      xml = this.ggbApplet.getXML(label);
+    }
+
+    if (objType === 'image' || objType === 'file') {
+      // need to get entire base64 state
+      base64 = this.ggbApplet.getBase64();
+    } else {
+      commandString = this.ggbApplet.getCommandString(label);
+      valueString = this.ggbApplet.getValueString(label);
+    }
     let x;
     let y;
-    const algXML = this.ggbApplet.getAlgorithmXML(label);
     if (objType === 'point') {
       x = this.ggbApplet.getXcoord(label);
       y = this.ggbApplet.getYcoord(label);
@@ -372,6 +387,7 @@ class GgbGraph extends Component {
       label,
       objType,
       eventType,
+      base64,
     };
 
     return event;
