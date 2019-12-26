@@ -30,3 +30,4 @@ export { default as ConfirmEmail } from './ConfirmEmail/ConfirmEmail';
 export { default as Unconfirmed } from './Unconfirmed/Unconfirmed';
 export { default as withPopulatedRoom } from './Data/withPopulatedRoom';
 export { default as SharedReplayer } from './Replayer/SharedReplayer';
+export { default as Dashboard } from './Dashboard';

@@ -1,5 +1,7 @@
 const { ObjectId } = require('mongoose').Types;
+const moment = require('moment');
 const db = require('../models');
+const { areObjectIdsEqual } = require('../middleware/utils/helpers');
 
 module.exports = {
   get: (params) => {
@@ -9,7 +11,6 @@ module.exports = {
           resolve(users);
         })
         .catch((err) => {
-          console.log('err', err);
           reject(err);
         });
     });
@@ -151,5 +152,124 @@ module.exports = {
         })
         .catch((err) => reject(err));
     });
+  },
+  getRecentActivity: async (criteria, skip, filters) => {
+    let { since, to } = filters;
+
+    const allowedSincePresets = ['day', 'week', 'month', 'year'];
+
+    if (allowedSincePresets.includes(since)) {
+      since = Number(
+        moment()
+          .subtract(1, since)
+          .startOf('day')
+          .format('x')
+      );
+    } else {
+      // default to activity in last day
+      let momentObj = moment(since, 'x', true);
+      if (!momentObj.isValid()) {
+        momentObj = moment();
+      }
+      since = Number(momentObj.startOf('day').format('x'));
+    }
+    let initialFilter = { updatedAt: { $gte: new Date(since) } };
+
+    if (to && since && to > since) {
+      let toMomentObj = moment(to, 'x', true);
+      if (!toMomentObj.isValid()) {
+        toMomentObj = moment();
+      }
+
+      to = Number(toMomentObj.endOf('day').format('x'));
+      initialFilter.updatedAt.$lte = new Date(to);
+    }
+
+    const skipInt = skip ? parseInt(skip, 10) : 0;
+
+    if (criteria) {
+      initialFilter = {
+        ...initialFilter,
+        $or: [
+          { firstName: criteria },
+          { lastName: criteria },
+          { username: criteria },
+          { accountType: criteria },
+          { latestIpAddress: criteria },
+          { email: criteria },
+        ],
+      };
+    }
+
+    const [users, totalCount] = await Promise.all([
+      db.User.find(initialFilter, {
+        username: 1,
+        latestIpAddress: 1,
+        updatedAt: 1,
+        isSuspended: 1,
+        socketId: 1,
+        doForceLogout: 1,
+        accountType: 1,
+        firstName: 1,
+        lastName: 1,
+        email: 1,
+      })
+        .sort({ updatedAt: -1 })
+        .skip(skipInt)
+        .limit(20)
+        .lean()
+        .exec(),
+      db.User.countDocuments(initialFilter).exec(),
+    ]);
+
+    const usersWithStats = await Promise.all(
+      users.map(async (user) => {
+        const filter = {
+          user: user._id,
+          timestamp: { $gte: since },
+        };
+
+        if (to && since && to > since) {
+          filter.timestamp.$lte = to;
+        }
+        const [events, messages] = await Promise.all([
+          db.Event.find(filter, { room: 1 })
+            .lean()
+            .populate({ path: 'room', select: 'name' })
+            .exec(),
+          db.Message.find(filter, { room: 1 })
+            .lean()
+            .populate({ path: 'room', select: 'name' })
+            .exec(),
+        ]);
+        user.eventsCount = events.length;
+        user.messagesCount = messages.length;
+
+        user.activeRooms = [];
+        events.forEach((event) => {
+          if (
+            event.room &&
+            !user.activeRooms.find((room) => {
+              return areObjectIdsEqual(room._id, event.room._id);
+            })
+          ) {
+            user.activeRooms.push(event.room);
+          }
+        });
+        messages.forEach((message) => {
+          if (
+            message.room &&
+            !user.activeRooms.find((room) => {
+              return areObjectIdsEqual(room._id, message.room._id);
+            })
+          ) {
+            user.activeRooms.push(message.room);
+          }
+        });
+        return user;
+      })
+    );
+
+    return [usersWithStats, { totalCount }];
   },
 };

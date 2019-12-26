@@ -346,6 +346,15 @@ const prunePutBody = (user, recordIdToUpdate, body, details) => {
   return copy;
 };
 
+const validateAdmin = (req, res, next) => {
+  const user = getUser(req);
+
+  if (!user || !user.isAdmin) {
+    return errors.sendError.NotAuthorizedError(null, res);
+  }
+  return next();
+};
+
 module.exports.validateResource = validateResource;
 module.exports.validateId = validateId;
 module.exports.validateUser = validateUser;
@@ -353,3 +362,4 @@ module.exports.canModifyResource = canModifyResource;
 module.exports.validateNewRecord = validateNewRecord;
 module.exports.prunePutBody = prunePutBody;
 module.exports.validateRecordAccess = validateRecordAccess;
+module.exports.validateAdmin = validateAdmin;

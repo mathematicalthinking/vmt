@@ -170,7 +170,7 @@
 .ReplayerGraph {
   composes: Graph;
   position: relative;
-  z-indes: 400;
+  z-index: 400;
 }
 
 .Bottom {

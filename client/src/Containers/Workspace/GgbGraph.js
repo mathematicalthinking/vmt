@@ -102,6 +102,17 @@ class GgbGraph extends Component {
     });
     window.addEventListener('resize', this.updateDimensions);
     window.addEventListener('visibilitychange', this.visibilityChange);
+    window.addEventListener('scroll', this.scrollChange);
+
+    if (this.graph.current) {
+      this.graph.current.addEventListener('mouseenter', this.lockWindowScroll);
+
+      this.graph.current.addEventListener(
+        'mouseleave',
+        this.unlockWindowScroll
+      );
+    }
+
     socket.on('RECEIVE_EVENT', (data) => {
       if (!this.isWindowVisible) {
         this.isFaviconNtf = true;
@@ -262,6 +273,18 @@ class GgbGraph extends Component {
     if (this.updatingTab) {
       clearTimeout(this.updatingTab);
     }
+
+    if (this.graph.current) {
+      this.graph.current.removeEventListener(
+        'mouseenter',
+        this.lockWindowScroll
+      );
+
+      this.graph.current.removeEventListener(
+        'mouseleave',
+        this.unlockWindowScroll
+      );
+    }
     window.removeEventListener('visibilitychange', this.visibilityChange);
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.removeAllListeners('FORCE_SYNC');
@@ -352,13 +375,28 @@ class GgbGraph extends Component {
 
   readFromGraph = (label, eventType) => {
     const objType = this.ggbApplet.getObjectType(label);
-    const xml = this.ggbApplet.getXML(label);
-    const commandString = this.ggbApplet.getCommandString(label);
-    const valueString = this.ggbApplet.getValueString(label);
     const editorState = this.ggbApplet.getEditorState(label);
+
+    let base64;
+    let xml;
+    let commandString;
+    let valueString;
+
+    const algXML = this.ggbApplet.getAlgorithmXML(label);
+
+    if (!algXML) {
+      xml = this.ggbApplet.getXML(label);
+    }
+
+    if (objType === 'image' || objType === 'file') {
+      // need to get entire base64 state
+      base64 = this.ggbApplet.getBase64();
+    } else {
+      commandString = this.ggbApplet.getCommandString(label);
+      valueString = this.ggbApplet.getValueString(label);
+    }
     let x;
     let y;
-    const algXML = this.ggbApplet.getAlgorithmXML(label);
     if (objType === 'point') {
       x = this.ggbApplet.getXcoord(label);
       y = this.ggbApplet.getYcoord(label);
@@ -372,6 +410,7 @@ class GgbGraph extends Component {
       label,
       objType,
       eventType,
+      base64,
     };
 
     return event;
@@ -543,6 +582,7 @@ class GgbGraph extends Component {
     this.getInnerGraphCoords();
     this.ggbApplet = window[`ggbApplet${tab._id}A`];
     await this.setDefaultGgbMode();
+
     // put the current construction on the graph, disable everything until the user takes control
     // if (perspective) this.ggbApplet.setPerspective(perspective);
     try {
@@ -2023,6 +2063,27 @@ class GgbGraph extends Component {
       },
       position
     );
+  };
+
+  scrollChange = () => {
+    console.log(`scroll change now: (${window.scrollX}, ${window.scrollY})`);
+
+    if (isFinite(this.scrollX) && isFinite(this.scrollY)) {
+      window.scrollTo(this.scrollX, this.scrollY);
+    }
+  };
+
+  lockWindowScroll = () => {
+    console.log(`Locking scroll at (${window.scrollX}, ${window.scrollY})`);
+    this.scrollX = window.scrollX;
+    this.scrollY = window.scrollY;
+  };
+
+  unlockWindowScroll = () => {
+    console.log('unlocking scroll');
+
+    this.scrollX = null;
+    this.scrollY = null;
   };
 
   render() {

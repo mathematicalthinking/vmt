@@ -21,7 +21,6 @@ class ActivityDetails extends Component {
     const {
       activity,
       course,
-      owner,
       loading,
       instructions,
       update,
@@ -50,26 +49,20 @@ class ActivityDetails extends Component {
               </EditText>
             </Error>
           </div>
-          {owner ? (
-            <div>
-              <Button
-                m={5}
-                click={this.viewActivity}
-                data-testid="view-activity"
-              >
-                Enter
-              </Button>
-              <Button
-                m={5}
-                click={() => {
-                  this.setState({ assigning: true });
-                }}
-                data-testid="assign"
-              >
-                Assign Activity
-              </Button>
-            </div>
-          ) : null}
+          <div>
+            <Button m={5} click={this.viewActivity} data-testid="view-activity">
+              Enter
+            </Button>
+            <Button
+              m={5}
+              click={() => {
+                this.setState({ assigning: true });
+              }}
+              data-testid="assign"
+            >
+              Assign Activity
+            </Button>
+          </div>
         </div>
         {assigning ? (
           <MakeRooms
@@ -101,14 +94,12 @@ ActivityDetails.propTypes = {
   editing: PropTypes.bool,
   update: PropTypes.func.isRequired,
   course: PropTypes.shape({}),
-  owner: PropTypes.bool,
   loading: PropTypes.bool,
 };
 
 ActivityDetails.defaultProps = {
   instructions: null,
   editing: false,
-  owner: false,
   course: null,
   loading: false,
 };

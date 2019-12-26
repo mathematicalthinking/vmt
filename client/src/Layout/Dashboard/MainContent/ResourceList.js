@@ -92,9 +92,6 @@ class ResourceList extends Component {
     }
 
     let create;
-    // if (props.resource === 'courses' && props.user.accountType === 'facilitator') {
-    //   create = <NewCourse />
-    // }
     if (parentResource !== 'activities' && user.accountType === 'facilitator') {
       // THIS SHOULD ACTUALLY CHANGE DEPENDING ON states CURRENT ROLE ?? MAYBE
       create = (

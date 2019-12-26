@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import Script from 'react-load-script';
 import { parseString } from 'xml2js';
 import throttle from 'lodash/throttle';
+import isFinite from 'lodash/isFinite';
 import { Aux } from '../../Components';
 import classes from './graph.css';
 
@@ -34,10 +35,32 @@ class GgbActivityGraph extends Component {
 
   componentDidMount() {
     window.addEventListener('resize', this.updateDimensions);
+    window.addEventListener('scroll', this.scrollChange);
+    if (this.graph.current) {
+      this.graph.current.addEventListener('mouseenter', this.lockWindowScroll);
+
+      this.graph.current.addEventListener(
+        'mouseleave',
+        this.unlockWindowScroll
+      );
+    }
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateDimensions);
+    window.removeEventListener('scroll', this.scrollChange);
+    if (this.graph.current) {
+      this.graph.current.removeEventListener(
+        'mouseenter',
+        this.lockWindowScroll
+      );
+
+      this.graph.current.removeEventListener(
+        'mouseleave',
+        this.unlockWindowScroll
+      );
+    }
+
     if (this.timer) {
       clearInterval(this.timer);
     }
@@ -49,7 +72,7 @@ class GgbActivityGraph extends Component {
       this.ggbApplet.unregisterUpdateListener(this.getGgbState);
       this.ggbApplet.unregisterRemoveListener(this.getGgbState);
       this.ggbApplet.unregisterClearListener(this.getGgbState);
-      this.ggbApplet.unregisterClientListener(this.getGgbState);
+      this.ggbApplet.unregisterClientListener(this.clientListener);
     }
     delete window.ggbApplet;
   }
@@ -71,7 +94,6 @@ class GgbActivityGraph extends Component {
     const { role, tab, currentTab } = this.props;
     const parameters = {
       id: `ggbApplet${tab._id}A`,
-      // "scaleContainerClasse": "graph",
       // customToolBar:
       // "0 39 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24  20 22 , 21 23 | 55 56 57 , 12 | 36 46 , 38 49  50 , 71  14  68 | 30 29 54 32 31 33 | 25 17 26 60 52 61 | 40 41 42 , 27 28 35 , 6",
       showToolBar: role === 'facilitator',
@@ -149,18 +171,52 @@ class GgbActivityGraph extends Component {
     });
   };
 
+  scrollChange = () => {
+    if (isFinite(this.scrollX) && isFinite(this.scrollY)) {
+      window.scrollTo(this.scrollX, this.scrollY);
+    }
+  };
+
+  lockWindowScroll = () => {
+    this.scrollX = window.scrollX;
+    this.scrollY = window.scrollY;
+  };
+
+  unlockWindowScroll = () => {
+    this.scrollX = null;
+    this.scrollY = null;
+  };
+
+  clientListener = (event) => {
+    if (!event) {
+      return;
+    }
+
+    const { type } = event;
+    switch (type) {
+      case 'setMode':
+        // since we always set the mode to a default value when loading a room or activity,
+        // it seems unnecessary to save the activity state to the db when changing the mode
+        return;
+      default:
+        break;
+    }
+
+    this.getGgbState();
+  };
+
   registerListeners() {
     this.ggbApplet.unregisterAddListener(this.getGgbState);
     this.ggbApplet.unregisterUpdateListener(this.getGgbState);
     this.ggbApplet.unregisterRemoveListener(this.getGgbState);
     this.ggbApplet.unregisterClearListener(this.getGgbState);
-    this.ggbApplet.unregisterClientListener(this.getGgbState);
+    this.ggbApplet.unregisterClientListener(this.clientListener);
 
     this.ggbApplet.registerAddListener(this.getGgbState);
     this.ggbApplet.registerUpdateListener(this.getGgbState);
     this.ggbApplet.registerRemoveListener(this.getGgbState);
     this.ggbApplet.registerClearListener(this.getGgbState);
-    this.ggbApplet.registerClientListener(this.getGgbState);
+    this.ggbApplet.registerClientListener(this.clientListener);
   }
 
   render() {

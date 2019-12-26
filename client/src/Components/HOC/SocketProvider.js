@@ -16,6 +16,7 @@ import {
   addCourseMember,
   updateUser,
   clearError,
+  logout,
 } from '../../store/actions';
 import Notification from '../Notification/Notification';
 import classes from './socketProvider.css';
@@ -28,7 +29,6 @@ class SocketProvider extends Component {
   };
   componentDidMount() {
     const { user, connectClearError, connectGetUser } = this.props;
-    // setTimeout(() => this.setState({ showNtfMessage: true }), 2000);
     const url = window.location.href;
     const isForConfirmEmail = url.includes('confirmEmail');
     const isForResetPassword = url.includes('resetPassword');
@@ -72,7 +72,6 @@ class SocketProvider extends Component {
     if (!prevProps.user.loggedIn && user.loggedIn) {
       connectClearError();
       this.syncSocket();
-      // socket.removeAllListeners();
     }
     // Reinitialize listeners if store changes
     if (
@@ -98,7 +97,6 @@ class SocketProvider extends Component {
     } = this.props;
     socket.emit('SYNC_SOCKET', _id, (res, err) => {
       if (err) {
-        console.log({ err });
         console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
         return;
       }
@@ -130,6 +128,7 @@ class SocketProvider extends Component {
       courses,
       rooms,
       user,
+      connectLogout,
     } = this.props;
     socket.removeAllListeners();
     socket.on('NEW_NOTIFICATION', (data) => {
@@ -139,7 +138,6 @@ class SocketProvider extends Component {
       let message = null;
       if (notification.isTrashed) {
         connectGetUser(user._id);
-        // message =
       } else {
         connectAddNotification(notification);
         message = createNtfMessage(notification, course, room, {
@@ -184,6 +182,10 @@ class SocketProvider extends Component {
       this.syncSocket();
       connectGetUser(user._id);
     });
+
+    socket.on('FORCED_LOGOUT', () => {
+      connectLogout();
+    });
   }
 
   render() {
@@ -213,11 +215,9 @@ SocketProvider.propTypes = {
   connectAddUserRooms: PropTypes.func.isRequired,
   connectGotCourses: PropTypes.func.isRequired,
   connectGotRooms: PropTypes.func.isRequired,
-  // connectAddCourseRooms: PropTypes.func.isRequired,
-  // connectAddRoomMember: PropTypes.func.isRequired,
-  // connectAddCourseMember: PropTypes.func.isRequired,
   connectUpdateUser: PropTypes.func.isRequired,
   connectClearError: PropTypes.func.isRequired,
+  connectLogout: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => {
@@ -243,5 +243,6 @@ export default connect(
     connectAddCourseMember: addCourseMember,
     connectUpdateUser: updateUser,
     connectClearError: clearError,
+    connectLogout: logout,
   }
 )(SocketProvider);

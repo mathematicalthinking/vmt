@@ -25,6 +25,7 @@ const initialState = {
   settings: {
     doShowDesmosRefWarning: true,
   },
+  isSuspended: false,
 };
 
 const reducer = (state = initialState, action) => {

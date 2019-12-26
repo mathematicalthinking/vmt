@@ -53,7 +53,8 @@ class Home extends PureComponent {
     return (
       <Aux>
         {location.pathname.indexOf('community') > -1 ||
-        location.pathname.indexOf('profile') > -1 ? (
+        location.pathname.indexOf('profile') > -1 ||
+        location.pathname.indexOf('dashboard') > -1 ? (
           <Navbar fixed user={user} toggleAdmin={this.toggleAdmin} />
         ) : (
           <HomeNav

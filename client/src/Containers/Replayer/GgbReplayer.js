@@ -240,7 +240,7 @@ class GgbReplayer extends Component {
       } else if (event.isUndoRename) {
         // have to reset the renamed object to old label
         this.ggbApplet.renameObject(event.label, event.oldLabel);
-      } else if (event.xml) {
+      } else if (event.xml && !event.base64) {
         this.ggbApplet.evalXML(event.xml);
       } else if (eventType === 'ADD' && event.isUndoRemove) {
         const cachedXmlStack = this.elementXmlBeforeRemovalHash[event.label];

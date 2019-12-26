@@ -80,6 +80,19 @@ class PrivateAccess extends Component {
     let displayResource = 'activity';
     if (resource === 'rooms') displayResource = 'room';
     if (resource === 'courses') displayResource = 'course';
+
+    if (displayResource === 'activity') {
+      return (
+        <Modal show={show} closeModal={this.closeModal}>
+          <p className={classes.Description}>
+            {`You currently don't have access to this ${displayResource}. Access via entry code is not yet available for private activities.`}
+          </p>
+          <Button theme="Small" m={10} click={this.closeModal}>
+            Okay
+          </Button>
+        </Modal>
+      );
+    }
     return (
       <Modal show={show} closeModal={this.closeModal}>
         <p className={classes.Description}>
@@ -126,7 +139,7 @@ PrivateAccess.propTypes = {
   userId: PropTypes.string.isRequired,
   requestAccess: PropTypes.func.isRequired,
   user: PropTypes.shape({}).isRequired,
-  setAdmin: PropTypes.func.isRequired,
+  setAdmin: PropTypes.func,
   username: PropTypes.string.isRequired,
   joinWithCode: PropTypes.func.isRequired,
   history: PropTypes.shape({}).isRequired,
@@ -136,6 +149,7 @@ PrivateAccess.propTypes = {
 
 PrivateAccess.defaultProps = {
   error: null,
+  setAdmin: null,
 };
 
 export default withRouter(PrivateAccess);

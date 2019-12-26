@@ -11,3 +11,9 @@ export { default as WorkspaceLayout } from './Workspace/Workspace';
 export { default as About } from './About/About';
 export { default as ForgotPassword } from './ForgotPassword/ForgotPassword';
 export { default as ResetPasswordLayout } from './ResetPassword/ResetPassword';
+export {
+  default as AdminDashboardLayout,
+} from './AdminDashboard/AdminDashboard';
+export {
+  default as DashboardBoxList,
+} from './DashboardBoxList/DashboardBoxList';

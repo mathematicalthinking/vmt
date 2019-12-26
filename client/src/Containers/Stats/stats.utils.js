@@ -78,14 +78,19 @@ const filterData = (
           let includeUserMessages;
           let includeControlMessages;
           let includeEntryExitMessages;
+          let includeReferenceMessages;
           // this could be simplified if we were filtering for exact message type; enter and exit instead enter_exit for example
           if (messages.length > 0 && d.messageType) {
             includeUserMessages = messages.indexOf('USER') > -1;
             includeEntryExitMessages = messages.indexOf('ENTER_EXIT') > -1;
             includeControlMessages = messages.indexOf('CONTROL') > -1;
+            includeReferenceMessages = messages.indexOf('REFERENCE') > -1;
           }
           criteriaMet =
-            (includeUserMessages && d.messageType === 'TEXT') ||
+            (includeUserMessages && d.messageType === 'TEXT' && !d.reference) ||
+            (includeReferenceMessages &&
+              d.messageType === 'TEXT' &&
+              d.reference) ||
             (includeEntryExitMessages &&
               (d.messageType === 'JOINED_ROOM' ||
                 d.messageType === 'LEFT_ROOM')) ||
@@ -133,7 +138,8 @@ const filterData = (
               const { messageType: mt } = d;
               if (!mt) return false;
               return (
-                (m === 'USER' && mt === 'TEXT') ||
+                (m === 'USER' && mt === 'TEXT' && !d.reference) ||
+                (m === 'REFERENCE' && mt === 'TEXT' && d.reference) ||
                 (m === 'ENTER_EXIT' &&
                   (mt === 'JOINED_ROOM' || mt === 'LEFT_ROOM')) ||
                 (m === 'CONTROL' &&
@@ -150,7 +156,7 @@ const filterData = (
         actions.map((a) => {
           return {
             data: data.filter((d) => {
-              const { ggbEvent } = d;
+              const ggbEvent = getSignificantGgbEventFromEvent(d);
               if (!ggbEvent) {
                 return false;
               }
@@ -189,7 +195,9 @@ const filterData = (
         (d) => d.user && (d.user === users[0] || d.user._id === users[0])
       );
     }
-    dataSets = [{ data, color: users && users[0] ? data[0].color : '#2d91f2' }];
+    dataSets = [
+      { data, color: users && users[0] ? data[0] && data[0].color : '#2d91f2' },
+    ];
   }
   return dataSets.filter((ds) => ds.color);
 };
@@ -224,12 +232,29 @@ const buildLineData = (data, timeScale, start, end) => {
   // combine events by timeScale -- i.e. get the number of events that happened between start and end of timeScale unit
   data.forEach((datum, i) => {
     if (i === 0) {
-      // console.log({ start });
-      // console.log(datum.timestamp);
-      // console.log(datum.timestamp - start);
+      eventCount += 1;
+      if (datum.timestamp > start) {
+        timeElapsed += (datum.timestamp - start) / 1000;
+
+        if (timeElapsed >= timeScale) {
+          const skips = Math.floor(timeElapsed / timeScale);
+          if (skips > 0) {
+            for (let j = 0; j < skips * 4; j++) {
+              startTime += 0.25;
+              processedData.push([startTime - 0.1, 0]);
+            }
+          } else {
+            startTime += 1;
+          }
+          timeElapsed = 0;
+        }
+
+        if (i === data.length - 1) {
+          processedData.push([startTime, eventCount]);
+        }
+      }
     }
     if (data[i - 1]) {
-      eventCount += 1;
       const timeToAdd = (datum.timestamp - data[i - 1].timestamp) / 1000; // in seconds
       timeElapsed += timeToAdd;
       if (timeElapsed >= timeScale) {
@@ -241,7 +266,7 @@ const buildLineData = (data, timeScale, start, end) => {
         // startTime += 1;
         const skips = Math.floor(timeElapsed / timeScale);
         if (skips > 0) {
-          for (i = 0; i < skips * 4; i++) {
+          for (let j = 0; j < skips * 4; j++) {
             startTime += 0.25;
             processedData.push([startTime - 0.1, 0]);
           }
@@ -249,9 +274,16 @@ const buildLineData = (data, timeScale, start, end) => {
           startTime += 1;
         }
         timeElapsed = 0;
-        eventCount = 0;
+        eventCount = 1;
+
+        if (i === data.length - 1) {
+          processedData.push([startTime, eventCount]);
+        }
       } else if (i === data.length - 1) {
+        eventCount += 1;
         processedData.push([startTime, eventCount]);
+      } else {
+        eventCount += 1;
       }
     }
   });
@@ -327,17 +359,18 @@ export const lineColors = {
   ENTER_EXIT: '#4655d4',
   CONTROL: '#c940ce',
   USER: '#43c086',
+  REFERENCE: '#99cc00',
   ADD: '#fb4b02',
-  BATCH_UPDATE: '#ff8d14',
+  DRAG: '#ff8d14',
   REMOVE: '#42770a',
-  UPDATE: '#cf2418',
+  UPDATE_STYLE: '#cf2418',
   SELECT: '#e846ba',
-  // 'UPDATE_STYLE',
-  // 'CHANGE_PERSPECTIVE',
-  // 'NEW_TAB',
-  // 'BATCH_UPDATE',
-  // 'BATCH_ADD',
-  // 'SELECT',
-  // 'UNDO',
-  // 'REDO',
+  RENAME: '#9999ff',
+  UNDO: '#cc9900',
+  REDO: '#0099cc',
+  CHANGE_PERSPECTIVE: '#cc6600',
+  NEW_TAB: '#00ccff',
+  MODE: '#669999',
+  TOGGLE: '#cccc00',
+  UPDATE_TEXT_FIELD: '#0066ff',
 };

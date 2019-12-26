@@ -83,6 +83,45 @@ router.get('/searchPaginated/:resource', (req, res) => {
     });
 });
 
+router.get('/dashboard/:resource', middleware.validateUser, (req, res) => {
+  const user = getUser(req);
+  if (!user.isAdmin) {
+    return errors.sendError.NotAuthorizedError(
+      'You do not have admin permissions',
+      res
+    );
+  }
+  const { resource } = req.params;
+  const allowedResources = ['rooms', 'user'];
+
+  if (!allowedResources.includes(resource)) {
+    return errors.sendError.InvalidContentError('Invalid Resource');
+  }
+  const { criteria, skip, since, to } = req.query;
+
+  let regex;
+  const trimmed = typeof criteria === 'string' ? criteria.trim() : '';
+
+  if (trimmed.length > 0) {
+    regex = new RegExp(criteria, 'i');
+  }
+  const filters = { since, to };
+
+  return controllers[resource]
+    .getRecentActivity(regex, skip, filters)
+    .then((results) => res.json({ results }))
+    .catch((err) => {
+      console.error(`Error admin/dashboard/${resource}: ${err}`);
+
+      let msg = null;
+
+      if (typeof err === 'string') {
+        msg = err;
+      }
+      return errors.sendError.InternalError(msg, res);
+    });
+});
+
 // returns a record with all of its info populated including sensitive information about record members etc.
 router.get(
   '/:resource/:id/populated',

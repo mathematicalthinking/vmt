@@ -147,4 +147,27 @@ export default {
   uploadGgbFiles: (formData) => {
     return api.post(`/api/upload/ggb`, formData);
   },
+  getRecentActivity: (resource, criteria, skip, filters) => {
+    const { since, to } = filters;
+    const params = criteria ? { criteria, skip } : { skip };
+    if (since !== null) params.since = since;
+    if (to !== null) params.to = to;
+
+    // backend uses singular user for some reason
+    // this should be made to be consistent
+    if (resource === 'users') {
+      resource = 'user';
+    }
+    return api.get(`/api/dashBoard/${resource}`, { params });
+  },
+
+  revokeRefreshToken: (userId) => {
+    return api.post(`/admin/forceUserLogout/${userId}`);
+  },
+  suspendUser: (userId) => {
+    return api.post(`/admin/suspendUser/${userId}`);
+  },
+  reinstateUser: (userId) => {
+    return api.post(`/admin/reinstateUser/${userId}`);
+  },
 };

@@ -31,6 +31,7 @@ const boxList = (props) => {
                 )
             : [],
         };
+
         let notificationCount = 0;
         if (listType === 'private') {
           if (notifications.length > 0) {

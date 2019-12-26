@@ -1,0 +1,107 @@
+:import('../../colors.css') {
+  green: green;
+  lightShadow: lightShadow;
+  darkShadow: darkShadow;
+  backgroundGray: backgroundGray;
+  darkGray: darkGray;
+  lightGray: lightGray;
+  navbarHeight: navbarHeight;
+}
+:root {
+  --margin-top: 48px;
+}
+.Container {
+  position: relative;
+  width: 80%;
+  max-width: 1100px;
+  align-self: center;
+}
+
+.Header {
+  padding-top: 25px;
+  position: fixed;
+  width: 80%;
+  max-width: 1100px;
+  z-index: 320;
+  color: #444;
+  background: #f8f8f8;
+  box-shadow: 10px 10px 10px 2px #f8f8f8, -10px 0 10px 2px #f8f8f8;
+}
+
+.Title {
+  font-size: 30px;
+  text-align: center;
+  border-bottom: none;
+}
+
+.ResourceOpts {
+  display: flex;
+  width: 300px;
+  justify-content: space-between;
+  margin-top: 25px;
+  margin-bottom: 10px;
+}
+
+.Search {
+  margin: 12px 0;
+}
+
+.Filters {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+
+.Filters > * {
+  margin-right: 12px;
+}
+
+.FilterIcon {
+  font-size: 50px;
+  color: darkGray;
+  flex: 0;
+}
+
+.FilterGroup {
+  display: flex;
+  flex-direction: column;
+  margin-left: 26px;
+  border: 1px solid lightGray;
+}
+
+.FilterTitle {
+  color: #5e5e5e;
+  padding: 4px;
+  border-bottom: 1px solid #5e5e5e;
+  margin-bottom: 4px;
+}
+
+.FilterOpts {
+  padding-left: 12px;
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.FilterOpts > * {
+  margin-right: 8px;
+}
+
+.List {
+  margin-top: 260px;
+  display: flex;
+  flex-flow: column;
+}
+
+.LoadMore {
+  align-self: center;
+}
+
+.CustomDateInputs {
+  padding-left: 12px;
+  display: flex;
+  flex-flow: row wrap;
+
+}
+.CustomDateInputs > * {
+  margin-right: 15px;
+}

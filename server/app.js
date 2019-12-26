@@ -13,7 +13,7 @@ const api = require('./routes/api');
 const auth = require('./routes/auth');
 const desmos = require('./routes/desmos');
 const enc = require('./routes/enc');
-// const test = require('./routes/test');
+const admin = require('./routes/admin');
 const cors = require('./middleware/cors');
 
 const app = express();
@@ -31,8 +31,6 @@ if (process.env.NODE_ENV === 'dev') {
 } else if (process.env.NODE_ENV === 'test') {
   mongoURI = process.env.MONGO_TEST_URI;
 }
-
-console.log({ mongoURI });
 
 mongoose.connect(mongoURI, { useNewUrlParser: true }, (err) => {
   if (err) {
@@ -59,6 +57,7 @@ app.use('/desmos', desmos);
 app.use('/auth', auth);
 app.use('/api', api);
 app.use('/enc', enc);
+app.use('/admin', admin);
 
 if (process.env.ENCOMPASS) {
   app.use(express.static(path.join(__dirname, '../client/encompassBuild')));
