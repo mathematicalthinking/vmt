@@ -21,11 +21,11 @@ To provide the colloaboration infrastructure, this application uses a combinatio
 
 ## Setup for local Development
  **N.B. These instructions are outdated and will not work with the new Single Sign On system that integrates VMT with [EnCOMPASS](https://github.com/mathematicalthinking/encompass). We hope to have updated instructions posted in the near future.**
- 
-1. Fork this repo ([instructions](https://github.com/mathematicalthinking/vmt/blob/master/docs/gitForkRepo.md)) and cd into it (`$ cd vmt`)
+
+1. Fork this repo ([instructions](https://github.com/mathematicalthinking/vmt/blob/master/docs/gitForkRepo.md)) and cd into it (`$ cd server/vmt`)
 1. `$ npm install`
-1. `$ cd client && npm install`
-   cd back up to root...
+1. `$ cd ../client && npm install`
+1.  `cd ..`
 1. `$ cp .env.example .env`
 1. Make sure you have mongodb installed. [instructions here](https://docs.mongodb.com/manual/installation/)
 1. From anywhere on your computer run `$ mongod` then cd back to the vmt/ and...
@@ -35,7 +35,7 @@ To provide the colloaboration infrastructure, this application uses a combinatio
 ## Deployment
 
 To deploy this project to staging or production go to the root level directory and run
-`$ ./deploy.sh <username> <environment>` where enviornment = production || staging
+`$ sh deploy-mac.sh <username> <environment>` where environment = production || staging
 
 This can only be done by the core contributors.
 
