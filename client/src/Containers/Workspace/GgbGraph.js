@@ -219,11 +219,7 @@ class GgbGraph extends Component {
       await this.resyncGgbState();
       this.setDefaultGgbMode();
     } else if (didReleaseControl) {
-      const rightButtonPanel = document.querySelector('.rightButtonPanel');
-
-      if (rightButtonPanel) {
-        rightButtonPanel.style.display = 'none';
-      }
+      this.hideShowRightButtonPanel(-1);
       this.setDefaultGgbMode();
     }
 
@@ -542,11 +538,8 @@ class GgbGraph extends Component {
     return this.getTabState()
       .then(() => {
         const { inControl } = this.props;
-        const rightButtonPanel = document.querySelector('.rightButtonPanel');
-        if (rightButtonPanel) {
-          rightButtonPanel.style.display =
-            inControl === 'ME' ? 'block' : 'none';
-        }
+        const displayValue = inControl === 'ME' ? 1 : -1;
+        this.hideShowRightButtonPanel(displayValue);
       })
       .catch(() => {
         const { inControl, toggleControl } = this.props;
@@ -2092,6 +2085,17 @@ class GgbGraph extends Component {
   unlockWindowScroll = () => {
     this.scrollX = null;
     this.scrollY = null;
+  };
+
+  hideShowRightButtonPanel = (val) => {
+    const rightButtonPanels = document.querySelectorAll('.rightButtonPanel');
+
+    if (rightButtonPanels) {
+      const displayValue = val === 1 ? 'block' : 'none';
+      rightButtonPanels.forEach((node) => {
+        node.style.display = displayValue;
+      });
+    }
   };
 
   render() {
