@@ -7,7 +7,7 @@ import isFinite from 'lodash/isFinite';
 import find from 'lodash/find';
 import mongoIdGenerator from '../../utils/createMongoId';
 import classes from './graph.css';
-import { blankEditorState } from './ggbUtils';
+import { blankEditorState, setCodeBase } from './ggbUtils';
 import { Aux } from '../../Components';
 import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
@@ -219,7 +219,11 @@ class GgbGraph extends Component {
       await this.resyncGgbState();
       this.setDefaultGgbMode();
     } else if (didReleaseControl) {
-      // this.updateConstructionState();
+      const rightButtonPanel = document.querySelector('.rightButtonPanel');
+
+      if (rightButtonPanel) {
+        rightButtonPanel.style.display = 'none';
+      }
       this.setDefaultGgbMode();
     }
 
@@ -512,6 +516,7 @@ class GgbGraph extends Component {
     };
     const ggbApp = new window.GGBApplet(parameters, '6.0');
     if (currentTabId === tab._id) {
+      setCodeBase(ggbApp);
       ggbApp.inject(`ggb-element${tab._id}A`);
     } else {
       // wait to inject other tabs if they're not in focus
@@ -521,6 +526,7 @@ class GgbGraph extends Component {
         // this value is current on each interval
         const { isFirstTabLoaded } = this.props;
         if (isFirstTabLoaded) {
+          setCodeBase(ggbApp);
           ggbApp.inject(`ggb-element${tab._id}A`);
           clearInterval(this.loadingTimer);
         }
@@ -534,7 +540,14 @@ class GgbGraph extends Component {
     this.tabFileLoadedHash[tab._id] = false;
     this.isResyncing = true;
     return this.getTabState()
-      .then(() => {})
+      .then(() => {
+        const { inControl } = this.props;
+        const rightButtonPanel = document.querySelector('.rightButtonPanel');
+        if (rightButtonPanel) {
+          rightButtonPanel.style.display =
+            inControl === 'ME' ? 'block' : 'none';
+        }
+      })
       .catch(() => {
         const { inControl, toggleControl } = this.props;
 
@@ -2066,22 +2079,17 @@ class GgbGraph extends Component {
   };
 
   scrollChange = () => {
-    console.log(`scroll change now: (${window.scrollX}, ${window.scrollY})`);
-
     if (isFinite(this.scrollX) && isFinite(this.scrollY)) {
       window.scrollTo(this.scrollX, this.scrollY);
     }
   };
 
   lockWindowScroll = () => {
-    console.log(`Locking scroll at (${window.scrollX}, ${window.scrollY})`);
     this.scrollX = window.scrollX;
     this.scrollY = window.scrollY;
   };
 
   unlockWindowScroll = () => {
-    console.log('unlocking scroll');
-
     this.scrollX = null;
     this.scrollY = null;
   };

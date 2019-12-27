@@ -101,3 +101,11 @@ export const setGgbBase64Async = (ggbApplet, base64) => {
     }
   });
 };
+
+export const setCodeBase = (ggbApp) => {
+  const versionNo = process.env.REACT_APP_GEOGEBRA_VERSION;
+
+  if (versionNo && ggbApp) {
+    ggbApp.setHTML5Codebase(`https://www.geogebra.org/apps/${versionNo}/web3d`);
+  }
+};

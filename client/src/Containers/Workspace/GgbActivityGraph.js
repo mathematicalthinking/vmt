@@ -7,6 +7,7 @@ import throttle from 'lodash/throttle';
 import isFinite from 'lodash/isFinite';
 import { Aux } from '../../Components';
 import classes from './graph.css';
+import { setCodeBase } from './ggbUtils';
 
 class GgbActivityGraph extends Component {
   graph = React.createRef();
@@ -110,11 +111,13 @@ class GgbActivityGraph extends Component {
     };
     const ggbApp = new window.GGBApplet(parameters, '6.0');
     if (currentTab === tab._id) {
+      setCodeBase(ggbApp);
       ggbApp.inject(`ggb-element${tab._id}A`);
     } else {
       this.loadingTimer = setInterval(() => {
         const { isFirstTabLoaded } = this.props;
         if (isFirstTabLoaded) {
+          setCodeBase(ggbApp);
           ggbApp.inject(`ggb-element${tab._id}A`);
           clearInterval(this.loadingTimer);
         }
