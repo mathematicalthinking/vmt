@@ -20,12 +20,15 @@ To provide the colloaboration infrastructure, this application uses a combinatio
 - [Node.js](http://nodejs.org/)
 
 ## Setup for local Development
- **N.B. These instructions are outdated and will not work with the new Single Sign On system that integrates VMT with [EnCOMPASS](https://github.com/mathematicalthinking/encompass). We hope to have updated instructions posted in the near future.**
+ In its current state, VMT is tightly linked with [EnCOMPASS](https://github.com/mathematicalthinking/encompass). When a user signs up with VMT, they also receive an EnCOMPASS account which has the same username (and vice versa). If a user is logged in to one app, they will also be logged in to the other app. As a result, you must also be running [mt-sso](https://github.com/mathematicalthinking/mt-sso) and [EnCOMPASS](https://github.com/mathematicalthinking/encompass) for user registration and login to work properly. If you do not need signup functionality while developing, then you do not need to be running EnCOMPASS.
+ 
+ If you wish to run VMT separately, then you just need to remove the existing auth routes (`server/routes/auth`) and middleware (`server/middleware/mt-auth`) and put in your own system. There are also routes used solely by EnCOMPASS that could be removed (`server/routes/enc`).
 
-1. Fork this repo ([instructions](https://github.com/mathematicalthinking/vmt/blob/master/docs/gitForkRepo.md)) and cd into it (`$ cd server/vmt`)
-1. `$ npm install`
+
+1. Fork this repo ([instructions](https://github.com/mathematicalthinking/vmt/blob/master/docs/gitForkRepo.md))
+1. `$ cd vmt/server && npm install`
 1. `$ cd ../client && npm install`
-1.  `cd ..`
+1. `$ cd ..`
 1. `$ cp .env.example .env`
 1. Make sure you have mongodb installed. [instructions here](https://docs.mongodb.com/manual/installation/)
 1. From anywhere on your computer run `$ mongod` then cd back to the vmt/ and...
