@@ -19,6 +19,10 @@ module.exports = [
     timestamp: 1561145066995.0,
     description: 'w_crush selected the move tool',
     __v: 0,
+    ggbEvent: {
+      label: '0',
+      eventType: 'MODE',
+    },
   },
 
   /* 2 */
@@ -39,6 +43,10 @@ module.exports = [
     timestamp: 1561145069173.0,
     description: 'w_crush selected the polygon tool',
     __v: 0,
+    ggbEvent: {
+      label: '16',
+      eventType: 'MODE',
+    },
   },
 
   /* 3 */
@@ -60,6 +68,14 @@ module.exports = [
     timestamp: 1561145070311.0,
     description: 'w_crush added point B',
     __v: 0,
+    ggbEvent: {
+      label: 'B',
+      eventType: 'ADD',
+      xml:
+        '<element type="point" label="B">\n\t<show object="true" label="true"/>\n\t<objColor r="77" g="77" b="255" alpha="0"/>\n\t<layer val="0"/>\n\t<labelMode val="0"/>\n\t<animation step="1" speed="1" type="1" playing="false"/>\n\t<coords x="-6.87" y="5.35" z="1"/>\n\t<pointSize val="5"/>\n\t<pointStyle val="0"/>\n</element>\n',
+      commandString: null,
+      objType: 'point',
+    },
   },
 
   /* 4 */
@@ -81,6 +97,14 @@ module.exports = [
     timestamp: 1561145071304.0,
     description: 'w_crush added point C',
     __v: 0,
+    ggbEvent: {
+      label: 'C',
+      eventType: 'ADD',
+      xml:
+        '<element type="point" label="C">\n\t<show object="true" label="true"/>\n\t<objColor r="77" g="77" b="255" alpha="0"/>\n\t<layer val="0"/>\n\t<labelMode val="0"/>\n\t<animation step="1" speed="1" type="1" playing="false"/>\n\t<coords x="-6.93" y="3.45" z="1"/>\n\t<pointSize val="5"/>\n\t<pointStyle val="0"/>\n</element>\n',
+      commandString: null,
+      objType: 'point',
+    },
   },
 
   /* 5 */
@@ -102,6 +126,14 @@ module.exports = [
     timestamp: 1561145071881.0,
     description: 'w_crush added point D',
     __v: 0,
+    ggbEvent: {
+      label: 'D',
+      eventType: 'ADD',
+      xml:
+        '<element type="point" label="D">\n\t<show object="true" label="true"/>\n\t<objColor r="77" g="77" b="255" alpha="0"/>\n\t<layer val="0"/>\n\t<labelMode val="0"/>\n\t<animation step="1" speed="1" type="1" playing="false"/>\n\t<coords x="-4.03" y="3.57" z="1"/>\n\t<pointSize val="5"/>\n\t<pointStyle val="0"/>\n</element>\n',
+      commandString: null,
+      objType: 'point',
+    },
   },
 
   /* 6 */
@@ -123,17 +155,55 @@ module.exports = [
     timestamp: 1561145072542.0,
     description: 'w_crush added point E',
     __v: 0,
+    ggbEvent: {
+      label: 'E',
+      eventType: 'ADD',
+      xml:
+        '<element type="point" label="E">\n\t<show object="true" label="true"/>\n\t<objColor r="77" g="77" b="255" alpha="0"/>\n\t<layer val="0"/>\n\t<labelMode val="0"/>\n\t<animation step="1" speed="1" type="1" playing="false"/>\n\t<coords x="-4.13" y="5.45" z="1"/>\n\t<pointSize val="5"/>\n\t<pointStyle val="0"/>\n</element>\n',
+      commandString: null,
+      objType: 'point',
+    },
   },
 
   /* 7 */
   {
     _id: ObjectId('5d0d2ef13017e01a937f8ad7'),
     eventArray: [
-      'q1:Polygon(B, C, D, E)',
-      'b:Segment(B, C, q1)',
-      'c:Segment(C, D, q1)',
-      'd:Segment(D, E, q1)',
-      'e:Segment(E, B, q1)',
+      {
+        _id: ObjectId('5e0a2caf973c2821655ada62'),
+        eventType: 'ADD',
+        label: 'q1',
+        commandString: 'Polygon(B, C, D, E)',
+        objType: 'polygon',
+      },
+      {
+        _id: ObjectId('5e0a2caf973c2821655ada61'),
+        eventType: 'ADD',
+        label: 'b',
+        commandString: 'Segment(B, C, q1)',
+        objType: 'segment',
+      },
+      {
+        _id: ObjectId('5e0a2caf973c2821655ada60'),
+        eventType: 'ADD',
+        label: 'c',
+        commandString: 'Segment(C, D, q1)',
+        objType: 'segment',
+      },
+      {
+        _id: ObjectId('5e0a2caf973c2821655ada5f'),
+        eventType: 'ADD',
+        label: 'd',
+        commandString: 'Segment(D, E, q1)',
+        objType: 'segment',
+      },
+      {
+        _id: ObjectId('5e0a2caf973c2821655ada5e'),
+        eventType: 'ADD',
+        label: 'e',
+        commandString: 'Segment(E, B, q1)',
+        objType: 'segment',
+      },
     ],
     isMultiPart: false,
     isTrashed: false,
@@ -149,7 +219,7 @@ module.exports = [
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145073588.0,
     description: 'w_crush added quadrilateral q1',
-    __v: 0,
+    __v: 1,
   },
 
   /* 8 */
@@ -170,6 +240,10 @@ module.exports = [
     timestamp: 1561145074430.0,
     description: 'w_crush selected the circle_two_points tool',
     __v: 0,
+    ggbEvent: {
+      label: '10',
+      eventType: 'MODE',
+    },
   },
 
   /* 9 */
@@ -191,6 +265,14 @@ module.exports = [
     timestamp: 1561145075918.0,
     description: 'w_crush added point F',
     __v: 0,
+    ggbEvent: {
+      label: 'F',
+      eventType: 'ADD',
+      xml:
+        '<element type="point" label="F">\n\t<show object="true" label="true"/>\n\t<objColor r="77" g="77" b="255" alpha="0"/>\n\t<layer val="0"/>\n\t<labelMode val="0"/>\n\t<animation step="1" speed="1" type="1" playing="false"/>\n\t<coords x="-4.65" y="-2.77" z="1"/>\n\t<pointSize val="5"/>\n\t<pointStyle val="0"/>\n</element>\n',
+      commandString: null,
+      objType: 'point',
+    },
   },
 
   /* 10 */
@@ -212,12 +294,20 @@ module.exports = [
     timestamp: 1561145076784.0,
     description: 'w_crush added point G',
     __v: 0,
+    ggbEvent: {
+      label: 'G',
+      eventType: 'ADD',
+      xml:
+        '<element type="point" label="G">\n\t<show object="true" label="true"/>\n\t<objColor r="77" g="77" b="255" alpha="0"/>\n\t<layer val="0"/>\n\t<labelMode val="0"/>\n\t<animation step="1" speed="1" type="1" playing="false"/>\n\t<coords x="-4.23" y="-4.29" z="1"/>\n\t<pointSize val="5"/>\n\t<pointStyle val="0"/>\n</element>\n',
+      commandString: null,
+      objType: 'point',
+    },
   },
 
   /* 11 */
   {
     _id: ObjectId('5d0d2ef596ec8494d9cba30b'),
-    eventArray: ['f:Circle(F, G)'],
+    eventArray: [],
     isMultiPart: false,
     isTrashed: false,
     definition: 'Circle(F, G)',
@@ -232,7 +322,15 @@ module.exports = [
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145077142.0,
     description: 'w_crush added circle f',
-    __v: 0,
+    __v: 1,
+    ggbEvent: {
+      label: 'f',
+      eventType: 'ADD',
+      xml:
+        '<element type="conic" label="f">\n\t<show object="true" label="true"/>\n\t<objColor r="0" g="0" b="0" alpha="0"/>\n\t<layer val="0"/>\n\t<labelMode val="0"/>\n\t<lineStyle thickness="5" type="0" typeHidden="1" opacity="178"/>\n\t<eigenvectors  x0="1" y0="0" z0="1.0" x1="0" y1="1" z1="1.0"/>\n\t<matrix A0="1" A1="1" A2="26.808600000000006" A3="0" A4="4.65" A5="2.77"/>\n\t<eqnStyle style="specific"/>\n</element>\n',
+      commandString: 'Circle(F, G)',
+      objType: 'circle',
+    },
   },
 
   /* 12 */
@@ -253,6 +351,10 @@ module.exports = [
     timestamp: 1561145078194.0,
     description: 'w_crush selected the join tool',
     __v: 0,
+    ggbEvent: {
+      label: '2',
+      eventType: 'MODE',
+    },
   },
 
   /* 13 */
@@ -274,6 +376,14 @@ module.exports = [
     timestamp: 1561145079344.0,
     description: 'w_crush added point H',
     __v: 0,
+    ggbEvent: {
+      label: 'H',
+      eventType: 'ADD',
+      xml:
+        '<element type="point" label="H">\n\t<show object="true" label="true"/>\n\t<objColor r="77" g="77" b="255" alpha="0"/>\n\t<layer val="0"/>\n\t<labelMode val="0"/>\n\t<animation step="1" speed="1" type="1" playing="false"/>\n\t<coords x="3.43" y="5.79" z="1"/>\n\t<pointSize val="5"/>\n\t<pointStyle val="0"/>\n</element>\n',
+      commandString: null,
+      objType: 'point',
+    },
   },
 
   /* 14 */
@@ -295,12 +405,20 @@ module.exports = [
     timestamp: 1561145080669.0,
     description: 'w_crush added point I',
     __v: 0,
+    ggbEvent: {
+      label: 'I',
+      eventType: 'ADD',
+      xml:
+        '<element type="point" label="I">\n\t<show object="true" label="true"/>\n\t<objColor r="77" g="77" b="255" alpha="0"/>\n\t<layer val="0"/>\n\t<labelMode val="0"/>\n\t<animation step="1" speed="1" type="1" playing="false"/>\n\t<coords x="3.89" y="-2.33" z="1"/>\n\t<pointSize val="5"/>\n\t<pointStyle val="0"/>\n</element>\n',
+      commandString: null,
+      objType: 'point',
+    },
   },
 
   /* 15 */
   {
     _id: ObjectId('5d0d2ef9dc6e8d35abcdafe3'),
-    eventArray: ['g:Line(H, I)'],
+    eventArray: [],
     isMultiPart: false,
     isTrashed: false,
     definition: 'Line(H, I)',
@@ -315,7 +433,15 @@ module.exports = [
     user: ObjectId('5d0d2eae535e3a522445f7a4'),
     timestamp: 1561145081053.0,
     description: 'w_crush added line g',
-    __v: 0,
+    __v: 1,
+    ggbEvent: {
+      label: 'g',
+      eventType: 'ADD',
+      xml:
+        '<element type="line" label="g">\n\t<show object="true" label="true"/>\n\t<objColor r="0" g="0" b="0" alpha="0"/>\n\t<layer val="0"/>\n\t<labelMode val="0"/>\n\t<coords x="8.2" y="0.48" z="-30.9052"/>\n\t<lineStyle thickness="5" type="0" typeHidden="1" opacity="178"/>\n\t<eqnStyle style="implicit"/>\n</element>\n',
+      commandString: 'Line(H, I)',
+      objType: 'line',
+    },
   },
 
   /* 16 */

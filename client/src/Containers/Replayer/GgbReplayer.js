@@ -6,7 +6,7 @@ import classes from '../Workspace/graph.css';
 
 import { getEventXml } from './SharedReplayer.utils';
 import { isNonEmptyArray } from '../../utils/objects';
-import { setGgbBase64Async } from '../Workspace/ggbUtils';
+import { setGgbBase64Async, setCodeBase } from '../Workspace/ggbUtils';
 
 class GgbReplayer extends Component {
   graph = React.createRef();
@@ -166,6 +166,7 @@ class GgbReplayer extends Component {
       appName: tab.appName, // doesn't need to be required because ggb default is 'classic'
     };
     const ggbApp = new window.GGBApplet(parameters, '5.0');
+    setCodeBase(ggbApp);
     ggbApp.inject(`ggb-element${tabId}A`);
   };
 

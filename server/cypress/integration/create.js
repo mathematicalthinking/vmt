@@ -338,9 +338,12 @@ describe('create each type of resource', function() {
       cy.contains('Enter').click();
 
       // check that the file loaded
-      // should be items in the left algebra panel
-      const numAlgebraPanelItems = 10;
-      cy.get('.gwt-TreeItem').should('have.length', numAlgebraPanelItems);
+      // not sure of best way to do this
+      const selector = 'div.applet_scaler > article.notranslate';
+
+      cy.get(selector).then(($el) => {
+        expect($el.length).to.eql(1);
+      });
     });
   });
 
