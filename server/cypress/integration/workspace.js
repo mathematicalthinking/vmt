@@ -27,9 +27,9 @@ describe('Workspace/replayer', function() {
     const { name, instructions = '', roomType = 'geogebra' } = details;
 
     cy.getTestElement('add-tab').click();
-    cy.get('input[name=name]').type(name);
+    cy.get('input[name=name]').type(name, { force: true });
     if (instructions) {
-      cy.get('input[name=instructions]').type(instructions);
+      cy.get('input[name=instructions]').type(instructions, { force: true });
     }
     // GeoGebra default selected
 
@@ -59,8 +59,8 @@ describe('Workspace/replayer', function() {
 
     cy.get('@container')
       .find('div > input')
-      .clear()
-      .type(newName);
+      .clear({ force: true })
+      .type(newName, { force: true });
 
     cy.get('@container').within(() => {
       cy.contains('Save').click();
@@ -76,8 +76,8 @@ describe('Workspace/replayer', function() {
 
     cy.get('@container')
       .find('div > textarea')
-      .clear()
-      .type(newInstructions);
+      .clear({ force: true })
+      .type(newInstructions, { force: true });
 
     cy.get('@container').within(() => {
       cy.contains('Save').click();
@@ -162,7 +162,7 @@ describe('Workspace/replayer', function() {
       cy.getTestElement('create-new-activity').click();
       cy.contains(nameErrorMsg).should('exist');
 
-      cy.get('input[name="new name"]').type(newName);
+      cy.get('input[name="new name"]').type(newName, { force: true });
 
       // uncheck both tabs and test error msg
       cy.getTestElement(`${firstTabName}-checkbox`).click();
@@ -202,7 +202,7 @@ describe('Workspace/replayer', function() {
       newName = 'Tabs 2 & 3 Only';
       cy.getTestElement('more-menu').click();
       cy.getTestElement('create-workspace').click();
-      cy.get('input[name="new name"]').type(newName);
+      cy.get('input[name="new name"]').type(newName, { force: true });
 
       // uncheck tab 1
       cy.getTestElement(`${firstTabName}-checkbox`).click();
@@ -239,7 +239,7 @@ describe('Workspace/replayer', function() {
       cy.getTestElement('create-new-room').click();
       cy.contains(nameErrorMsg).should('exist');
 
-      cy.get('input[name="new name"]').type(newName);
+      cy.get('input[name="new name"]').type(newName, { force: true });
 
       // uncheck both tabs and test error msg
       cy.getTestElement(`${firstTabName}-checkbox`).click();
@@ -281,7 +281,7 @@ describe('Workspace/replayer', function() {
       cy.getTestElement('create-workspace').click();
       cy.get('input[name=room]').click();
 
-      cy.get('input[name="new name"]').type(newName);
+      cy.get('input[name="new name"]').type(newName, { force: true });
 
       // uncheck tab 1
       cy.getTestElement(`${firstTabName}-checkbox`).click();
@@ -397,7 +397,7 @@ describe('Workspace/replayer', function() {
 
       it('Should let you copy activity', function() {
         cy.getTestElement('copy-activity').click();
-        cy.get('input[name="new name"]').type(copyName);
+        cy.get('input[name="new name"]').type(copyName, { force: true });
         cy.contains('Copy Activity').click();
 
         cy.url().should('include', '/myVMT/activities');
@@ -420,7 +420,7 @@ describe('Workspace/replayer', function() {
         cy.contains('Copy Activity').click();
         cy.contains(nameErrorMsg).should('exist');
 
-        cy.get('input[name="new name"]').type(newName);
+        cy.get('input[name="new name"]').type(newName, { force: true });
 
         // uncheck both tabs and test error msg
         cy.getTestElement(`${initialTabName}-checkbox`).click();
@@ -450,7 +450,7 @@ describe('Workspace/replayer', function() {
         // create new tab then copy again
         newName = 'Tab #2 Only';
         cy.getTestElement('copy-activity').click();
-        cy.get('input[name="new name"]').type(newName);
+        cy.get('input[name="new name"]').type(newName, { force: true });
 
         // uncheck tab 1
         cy.getTestElement(`${initialTabName}-checkbox`).click();
