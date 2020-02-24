@@ -45,8 +45,9 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('tab')
       .contains('Courses')
       .click({ force: true });
-    // cy.wait(1111)
+    //cy.wait(1111);
     cy.getTestElement('tab-ntf')
+      .get('span:nth-child(2)')
       .contains('2')
       .should('exist');
     cy.getTestElement('content-box-ntf')
