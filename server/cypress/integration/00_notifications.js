@@ -18,24 +18,24 @@ describe('test notifications and access to resources', function() {
   it('user2 requests access to course 1', function() {
     cy.login(user2);
     cy.wait(1000);
-    cy.contains('Community').click();
+    cy.contains('Community').click({ force: true });
     cy.url().should('include', 'community/rooms');
-    cy.contains('Courses').click();
+    cy.contains('Courses').click({ force: true });
     cy.url().should('include', 'community/courses');
-    cy.getTestElement('content-box-course 1').click();
-    cy.getTestElement('request-access-btn').click();
+    cy.getTestElement('content-box-course 1').click({ force: true });
+    cy.getTestElement('request-access-btn').click({ force: true });
     cy.url().should('include', '/confirmation');
     cy.logout();
   });
   it('user3 requests access to course 1', function() {
     cy.login(user3);
-    cy.contains('Community').click();
+    cy.contains('Community').click({ force: true });
     cy.wait(1000);
     cy.url().should('include', 'community/rooms');
-    cy.contains('Courses').click();
+    cy.contains('Courses').click({ force: true });
     cy.url().should('include', 'community/courses');
-    cy.getTestElement('content-box-course 1').click();
-    cy.getTestElement('request-access-btn').click();
+    cy.getTestElement('content-box-course 1').click({ force: true });
+    cy.getTestElement('request-access-btn').click({ force: true });
     cy.url().should('include', '/confirmation');
     cy.logout();
   });
@@ -44,7 +44,7 @@ describe('test notifications and access to resources', function() {
     cy.url().should('include', 'myVMT/rooms');
     cy.getTestElement('tab')
       .contains('Courses')
-      .click();
+      .click({ force: true });
     // cy.wait(1111)
     cy.getTestElement('tab-ntf')
       .contains('2')
@@ -52,13 +52,13 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('content-box-ntf')
       .contains('2')
       .should('exist');
-    cy.getTestElement('content-box-course 1').click();
+    cy.getTestElement('content-box-course 1').click({ force: true });
     // cy.getTestElement('tab-ntf').contains('1')
-    cy.get('#Members').click();
+    cy.get('#Members').click({ force: true });
     cy.getTestElement('join-requests')
       .children()
       .should('have.length', 2); // One div is the request the other is the modal to trash it
-    cy.getTestElement('grant-access-g_laforge').click();
+    cy.getTestElement('grant-access-g_laforge').click({ force: true });
     cy.getTestElement('tab-ntf')
       .contains('1')
       .should('exist');
@@ -69,7 +69,7 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('join-requests')
       .children()
       .should('have.length', 1);
-    cy.getTestElement('grant-access-data').click();
+    cy.getTestElement('grant-access-data').click({ force: true });
     cy.getTestElement('members')
       .children()
       .should('have.length', 3);
@@ -86,13 +86,13 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('tab-ntf').contains('1');
     cy.getTestElement('tab')
       .contains('Courses')
-      .click();
+      .click({ force: true });
     cy.getTestElement('tab-ntf').contains('1');
     cy.getTestElement('content-box-ntf').contains('1');
-    cy.getTestElement('content-box-course 1').click();
+    cy.getTestElement('content-box-course 1').click({ force: true });
     cy.get('p').contains('Welcome to course 1.');
-    cy.contains('Explore').click();
-    cy.contains('My VMT').click();
+    cy.contains('Explore').click({ force: true });
+    cy.contains('My VMT').click({ force: true });
     cy.getTestElement('tab-ntf').should('not.exist');
     cy.getTestElement('content-box-ntf').should('not.exist');
     cy.logout();
@@ -103,20 +103,20 @@ describe('test notifications and access to resources', function() {
     cy.login(user1);
     cy.getTestElement('tab')
       .contains('Courses')
-      .click();
-    cy.getTestElement('content-box-course 2').click();
-    cy.getTestElement('content-box-ACTIVITY 2').click();
-    cy.getTestElement('assign').click();
-    cy.getTestElement('next-step-assign').click();
-    cy.getTestElement('assign-manually').click();
-    cy.contains('data').click();
-    // cy.contains('worf').click()
-    // cy.contains('g_laforge').click()
-    cy.getTestElement('assign-rooms').click();
-    cy.getTestElement('close-modal').click();
+      .click({ force: true });
+    cy.getTestElement('content-box-course 2').click({ force: true });
+    cy.getTestElement('content-box-ACTIVITY 2').click({ force: true });
+    cy.getTestElement('assign').click({ force: true });
+    cy.getTestElement('next-step-assign').click({ force: true });
+    cy.getTestElement('assign-manually').click({ force: true });
+    cy.contains('data').click({ force: true });
+    // cy.contains('worf').click({force: true})
+    // cy.contains('g_laforge').click({force: true})
+    cy.getTestElement('assign-rooms').click({ force: true });
+    cy.getTestElement('close-modal').click({ force: true });
     cy.getTestElement('tab')
       .contains('Rooms')
-      .click();
+      .click({ force: true });
     cy.getTestElement('content-box-ACTIVITY 2 (room 1)').should('exist');
     cy.logout();
   });
@@ -128,26 +128,26 @@ describe('test notifications and access to resources', function() {
       .should('exist');
     cy.getTestElement('tab')
       .contains('Courses')
-      .click();
+      .click({ force: true });
     cy.getTestElement('tab-ntf')
       .contains('1')
       .should('exist');
     cy.getTestElement('content-box-ntf')
       .contains('1')
       .should('exist');
-    cy.getTestElement('content-box-course 2').click();
+    cy.getTestElement('content-box-course 2').click({ force: true });
     cy.getTestElement('tab-ntf')
       .contains('1')
       .should('exist');
     cy.getTestElement('tab-ntf')
       .contains('1')
-      .click();
+      .click({ force: true });
     cy.getTestElement('content-box-ACTIVITY 2 (room 1)').should('exist');
     cy.getTestElement('content-box-ntf')
       .contains('1')
       .should('exist');
-    cy.getTestElement('content-box-ACTIVITY 2 (room 1)').click();
-    cy.getTestElement('explore-room').click();
+    cy.getTestElement('content-box-ACTIVITY 2 (room 1)').click({ force: true });
+    cy.getTestElement('explore-room').click({ force: true });
     cy.getTestElement('crumb').contains('My VMT');
     cy.getTestElement('tab-ntf').should('not.exist');
     cy.logout();
@@ -157,18 +157,20 @@ describe('test notifications and access to resources', function() {
     cy.login(user1);
     cy.getTestElement('tab')
       .contains('Activities')
-      .click();
-    cy.getTestElement('content-box-stand-alone-activity').click();
-    cy.getTestElement('assign').click();
-    cy.getTestElement('next-step-assign').click();
+      .click({ force: true });
+    cy.getTestElement('content-box-stand-alone-activity').click({
+      force: true,
+    });
+    cy.getTestElement('assign').click({ force: true });
+    cy.getTestElement('next-step-assign').click({ force: true });
     cy.getTestElement('member-search')
-      .click()
-      .type('D');
-    cy.contains('d_troi').click();
-    cy.getTestElement('assign-rooms').click();
+      .click({ force: true })
+      .type('D', { force: true });
+    cy.contains('d_troi').click({ force: true });
+    cy.getTestElement('assign-rooms').click({ force: true });
     cy.getTestElement('tab')
       .contains('Rooms')
-      .click();
+      .click({ force: true });
     cy.getTestElement('content-box-stand-alone-activity (room 1)').should(
       'exist'
     );
@@ -182,36 +184,38 @@ describe('test notifications and access to resources', function() {
       .should('exist');
     cy.getTestElement('tab')
       .contains('Rooms')
-      .click();
+      .click({ force: true });
     cy.getTestElement('content-box-stand-alone-activity (room 1)').should(
       'exist'
     );
     cy.getTestElement('content-box-ntf')
       .contains('1')
       .should('exist');
-    cy.getTestElement('content-box-stand-alone-activity (room 1)').click();
-    cy.getTestElement('explore-room').click();
+    cy.getTestElement('content-box-stand-alone-activity (room 1)').click({
+      force: true,
+    });
+    cy.getTestElement('explore-room').click({ force: true });
     cy.getTestElement('crumb')
       .contains('My VMT')
-      .click();
+      .click({ force: true });
     cy.getTestElement('tab-ntf').should('not.exist');
     cy.logout();
   });
 
   it('user2 enters course with entry-code', function() {
     cy.login(user2);
-    cy.contains('Community').click();
+    cy.contains('Community').click({ force: true });
     cy.wait(1000);
-    cy.contains('Courses').click();
+    cy.contains('Courses').click({ force: true });
     cy.url().should('include', 'community/courses');
-    cy.getTestElement('content-box-entry-code course').click();
+    cy.getTestElement('content-box-entry-code course').click({ force: true });
     cy.get('#entryCode')
-      .type('{selectall} {backspace}')
-      .type('entry-code-10');
-    cy.contains('Join').click();
+      .type('{selectall} {backspace}', { force: true })
+      .type('entry-code-10', { force: true });
+    cy.contains('Join').click({ force: true });
     cy.getTestElement('tab')
       .contains('Members')
-      .click();
+      .click({ force: true });
     cy.getTestElement('members')
       .children()
       .should('have.length', 2);
@@ -224,14 +228,14 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('tab-ntf').contains('1');
     cy.getTestElement('tab')
       .contains('Courses')
-      .click();
+      .click({ force: true });
     cy.getTestElement('tab-ntf').contains('1');
     cy.getTestElement('content-box-ntf').contains('1');
-    cy.getTestElement('content-box-entry-code course').click();
+    cy.getTestElement('content-box-entry-code course').click({ force: true });
     cy.getTestElement('tab-ntf').contains('1');
     cy.getTestElement('tab')
       .contains('Members')
-      .click();
+      .click({ force: true });
     cy.getTestElement('members')
       .children()
       .should('have.length', 2);
@@ -244,7 +248,7 @@ describe('test notifications and access to resources', function() {
   it('should resolve notificaiton after user1 seees', function() {
     cy.getTestElement('crumb')
       .contains('My VMT')
-      .click();
+      .click({ force: true });
     cy.getTestElement('tab-ntf').should('not.exist');
     cy.getTestElement('content-box-ntf').should('not.exist');
     cy.logout();
@@ -253,12 +257,12 @@ describe('test notifications and access to resources', function() {
   //  // ROOM
   it('user2 requests access to room', function() {
     cy.login(user2);
-    cy.contains('Community').click();
+    cy.contains('Community').click({ force: true });
     cy.wait(500);
-    cy.contains('Rooms').click();
+    cy.contains('Rooms').click({ force: true });
     cy.wait(500);
-    cy.getTestElement('content-box-request access').click();
-    cy.getTestElement('request-access-btn').click();
+    cy.getTestElement('content-box-request access').click({ force: true });
+    cy.getTestElement('request-access-btn').click({ force: true });
     cy.url().should('include', '/confirmation');
     cy.logout();
   });
@@ -267,15 +271,15 @@ describe('test notifications and access to resources', function() {
     cy.login(user1);
     cy.getTestElement('tab-ntf')
       .contains('1')
-      .click();
+      .click({ force: true });
     cy.getTestElement('content-box-ntf').contains('1');
-    cy.getTestElement('content-box-request access').click();
+    cy.getTestElement('content-box-request access').click({ force: true });
     cy.getTestElement('tab-ntf').contains('1');
-    cy.get('#Members').click();
+    cy.get('#Members').click({ force: true });
     cy.getTestElement('join-requests')
       .children()
       .should('have.length', 1);
-    cy.getTestElement('grant-access-g_laforge').click();
+    cy.getTestElement('grant-access-g_laforge').click({ force: true });
     cy.getTestElement('tab-ntf').should('not.exist');
     cy.getTestElement('members')
       .children()
@@ -291,33 +295,33 @@ describe('test notifications and access to resources', function() {
       .should('exist');
     cy.getTestElement('tab')
       .contains('Rooms')
-      .click();
+      .click({ force: true });
     cy.getTestElement('content-box-ntf')
       .contains('1')
       .should('exist');
-    cy.getTestElement('content-box-request access').click();
-    cy.contains('Explore').click();
+    cy.getTestElement('content-box-request access').click({ force: true });
+    cy.contains('Explore').click({ force: true });
     cy.getTestElement('tab')
       .contains('Members')
-      .click();
+      .click({ force: true });
     cy.getTestElement('members')
       .children()
       .should('have.length', 2);
     cy.getTestElement('crumb')
       .contains('My VMT')
-      .click();
+      .click({ force: true });
     // cy.getTestElement('tab-ntf').should('not.exist') // we might want to chec
   });
 
   it('user2 joins a room by entering entry-code', function() {
-    cy.contains('Community').click();
+    cy.contains('Community').click({ force: true });
     cy.wait(500);
     cy.url().should('include', 'community/rooms');
-    cy.getTestElement('content-box-room 1').click();
+    cy.getTestElement('content-box-room 1').click({ force: true });
     cy.get('#entryCode')
-      .type('{selectall} {backspace}')
-      .type('rare-shrimp-45');
-    cy.contains('Join').click();
+      .type('{selectall} {backspace}', { force: true })
+      .type('rare-shrimp-45', { force: true });
+    cy.contains('Join').click({ force: true });
     cy.url().should('include', 'details');
     cy.logout();
   });
@@ -327,13 +331,13 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('tab-ntf').contains('1');
     cy.getTestElement('tab')
       .contains('Rooms')
-      .click();
+      .click({ force: true });
     cy.getTestElement('content-box-ntf').contains('1');
-    cy.getTestElement('content-box-room 1').click();
+    cy.getTestElement('content-box-room 1').click({ force: true });
     cy.getTestElement('tab-ntf').contains('1');
     cy.getTestElement('tab')
       .contains('Members')
-      .click();
+      .click({ force: true });
     cy.getTestElement('members')
       .children()
       .should('have.length', 2);
@@ -346,44 +350,44 @@ describe('test notifications and access to resources', function() {
   it('should resolve the notification after user 1 has seen it', function() {
     cy.getTestElement('tab')
       .contains('Details')
-      .click();
+      .click({ force: true });
     cy.getTestElement('tab-ntf').should('not.exist');
   });
 
   it('Picard invites Beverly to join a course', function() {
     cy.getTestElement('crumb')
       .contains('My VMT')
-      .click();
+      .click({ force: true });
     cy.getTestElement('tab')
       .contains('Courses')
-      .click();
-    cy.getTestElement('content-box-course 1').click();
+      .click({ force: true });
+    cy.getTestElement('content-box-course 1').click({ force: true });
     cy.getTestElement('tab')
       .contains('Members')
-      .click();
+      .click({ force: true });
     cy.getTestElement('member-search')
-      .click()
-      .type('Bc');
-    cy.getTestElement('invite-member-bcrush').click();
+      .click({ force: true })
+      .type('Bc', { force: true });
+    cy.getTestElement('invite-member-bcrush').click({ force: true });
     cy.getTestElement('member-bcrush').should('exist');
   });
 
   it('Picard invites Beverly to join a room', function() {
     cy.getTestElement('crumb')
       .contains('My VMT')
-      .click();
+      .click({ force: true });
     cy.wait(1000);
     cy.getTestElement('tab')
       .contains('Rooms')
-      .click();
-    cy.getTestElement('content-box-room 1').click();
+      .click({ force: true });
+    cy.getTestElement('content-box-room 1').click({ force: true });
     cy.getTestElement('tab')
       .contains('Members')
-      .click();
+      .click({ force: true });
     cy.getTestElement('member-search')
-      .click()
-      .type('Bc');
-    cy.getTestElement('invite-member-bcrush').click();
+      .click({ force: true })
+      .type('Bc', { force: true });
+    cy.getTestElement('invite-member-bcrush').click({ force: true });
     cy.getTestElement('member-bcrush').should('exist');
     cy.logout();
   });
@@ -395,50 +399,54 @@ describe('test notifications and access to resources', function() {
       .should('exist');
     cy.getTestElement('tab')
       .contains('Courses')
-      .click();
+      .click({ force: true });
     cy.getTestElement('content-box-ntf').contains('1');
-    cy.getTestElement('content-box-course 1').click();
-    cy.getTestElement('join').click();
+    cy.getTestElement('content-box-course 1').click({ force: true });
+    cy.getTestElement('join').click({ force: true });
   });
 
   it('Beverly gets a notification shes been added to a room', function() {
     cy.getTestElement('crumb')
       .contains('My VMT')
-      .click();
+      .click({ force: true });
     cy.getTestElement('tab')
       .contains('Rooms')
-      .click();
+      .click({ force: true });
     cy.getTestElement('content-box-ntf').contains('1');
-    cy.getTestElement('content-box-room 1').click();
-    cy.getTestElement('leave').click();
+    cy.getTestElement('content-box-room 1').click({ force: true });
+    cy.getTestElement('leave').click({ force: true });
     cy.getTestElement('content-box-room 1').should('not.exist');
     cy.logout();
   });
 
   it('user fails to join with wrong entry code (room)', function() {
     cy.login(user2);
-    cy.contains('Community').click();
+    cy.contains('Community').click({ force: true });
     cy.wait(1000);
     cy.url().should('include', 'community/rooms');
-    cy.getTestElement('content-box-wrong entry code room').click();
+    cy.getTestElement('content-box-wrong entry code room').click({
+      force: true,
+    });
     cy.get('#entryCode')
-      .type('{selectall} {backspace}')
-      .type('WRONG_CODE');
-    cy.contains('Join').click();
+      .type('{selectall} {backspace}', { force: true })
+      .type('WRONG_CODE', { force: true });
+    cy.contains('Join').click({ force: true });
     cy.getTestElement('entry-code-error').contains(
       'That entry code was incorrect. Try again.'
     );
-    cy.getTestElement('close-modal').click();
+    cy.getTestElement('close-modal').click({ force: true });
   });
 
   it('user fails to join with wrong entry code (course)', function() {
-    cy.contains('Courses').click();
+    cy.contains('Courses').click({ force: true });
     cy.url().should('include', 'community/courses');
-    cy.getTestElement('content-box-wrong entry code course').click();
+    cy.getTestElement('content-box-wrong entry code course').click({
+      force: true,
+    });
     cy.get('#entryCode')
-      .type('{selectall} {backspace}')
-      .type('WRONG_CODE');
-    cy.contains('Join').click();
+      .type('{selectall} {backspace}', { force: true })
+      .type('WRONG_CODE', { force: true });
+    cy.contains('Join').click({ force: true });
     cy.getTestElement('entry-code-error')
       .contains('That entry code was incorrect. Try again.')
       .should('exist');
