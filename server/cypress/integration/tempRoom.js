@@ -33,9 +33,7 @@ describe('temporary room', function() {
     cy.get('@ggbBtn').click();
     cy.get('.ggbtoolbarpanel').should('exist');
     cy.url({ log: true });
-    cy.getTestElement('save')
-      .click()
-      .blur();
+    cy.getTestElement('save').click();
     //use option: {force: true}, as a workaround for known issue with entering
     //information into an input field directly after unfocusing from an input field:
     //https://github.com/cypress-io/cypress/issues/5830
