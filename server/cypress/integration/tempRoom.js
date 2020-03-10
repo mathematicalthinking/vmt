@@ -34,10 +34,13 @@ describe('temporary room', function() {
     cy.get('.ggbtoolbarpanel').should('exist');
     cy.url({ log: true });
     cy.getTestElement('save').click();
-    cy.get('input[name=firstName]').type(user.firstName);
-    cy.get('input[name=lastName]').type(user.lastName);
-    cy.get('input[name=email]').type(user.email);
-    cy.get('input[name=password]').type(user.password);
+    //use option: {force: true}, as a workaround for known issue with entering
+    //information into an input field directly after unfocusing from an input field:
+    //https://github.com/cypress-io/cypress/issues/5830
+    cy.get('input[name=firstName]').type(user.firstName, { force: true });
+    cy.get('input[name=lastName]').type(user.lastName, { force: true });
+    cy.get('input[name=email]').type(user.email, { force: true });
+    cy.get('input[name=password]').type(user.password, { force: true });
     cy.getTestElement('submit-signup').click();
     cy.getTestElement('nav-My VMT').click();
     cy.url().should('include', '/unconfirmed');
