@@ -163,7 +163,6 @@ class Workspace extends Component {
     const isReference = this.doesEventHaveReference(entry);
 
     const updateHash = { log: [...log, entry] };
-
     if (isReference) {
       const { eventsWithRefs } = this.state;
       updateHash.eventsWithRefs = [...eventsWithRefs, entry];
@@ -1058,7 +1057,7 @@ class Workspace extends Component {
           <TextInput
             show={isCreatingActivity}
             light
-            focus
+            focus={isCreatingActivity}
             name="new name"
             value={newName}
             change={(event) => {
