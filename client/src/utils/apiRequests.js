@@ -25,10 +25,11 @@ export default {
   },
 
   searchPaginated: (resource, criteria, skip, filters) => {
-    const { privacySetting, roomType } = filters;
+    const { privacySetting, roomType, roomStatus } = filters;
     const params = criteria ? { criteria, skip } : { skip };
     if (privacySetting !== null) params.privacySetting = privacySetting;
     if (roomType !== null) params.roomType = roomType;
+    if (roomStatus !== null) params.roomStatus = roomStatus;
     return api.get(`/api/searchPaginated/${resource}`, { params });
   },
 

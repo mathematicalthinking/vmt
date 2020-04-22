@@ -54,7 +54,7 @@ const boxList = (props) => {
           <div className={classes.ContentBox} key={item._id}>
             {!draggable ? (
               <ContentBox
-                title={item.name}
+                title={`${item.isArchived ? '[ARCHIVED] ' : ''}${item.name}`}
                 link={`${linkPath}${item._id}${linkSuffix}`}
                 key={item._id}
                 id={item._id}
@@ -71,7 +71,7 @@ const boxList = (props) => {
               </ContentBox>
             ) : (
               <DragContentBox
-                title={item.name}
+                title={`${item.isArchived ? '[ARCHIVED] ' : ''}${item.name}`}
                 link={`${linkPath}${item._id}${linkSuffix}`}
                 key={item._id}
                 id={item._id}
