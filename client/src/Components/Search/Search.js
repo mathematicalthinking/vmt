@@ -18,6 +18,7 @@ class Search extends Component {
       value,
       isControlled,
       'data-testid': dataTestId,
+      roomStatus,
     } = this.props;
     return (
       <div className={[classes.Search].join(' ')}>
@@ -29,7 +30,7 @@ class Search extends Component {
             className={[classes.Input, classes[theme]].join(' ')}
             type="text"
             placeholder={placeholder}
-            onChange={(event) => _search(event.target.value)}
+            onChange={(event) => _search(event.target.value, roomStatus)}
           />
         ) : (
           <input
@@ -38,7 +39,7 @@ class Search extends Component {
             className={[classes.Input, classes[theme]].join(' ')}
             type="text"
             placeholder={placeholder}
-            onChange={(event) => _search(event.target.value)}
+            onChange={(event) => _search(event.target.value, roomStatus)}
           />
         )}
         <i className={['fas fa-search', classes.Icon].join(' ')} />
@@ -54,6 +55,7 @@ Search.propTypes = {
   _search: PropTypes.func.isRequired,
   isControlled: PropTypes.bool,
   'data-testid': PropTypes.string.isRequired,
+  roomStatus: PropTypes.string.isRequired,
 };
 
 Search.defaultProps = {

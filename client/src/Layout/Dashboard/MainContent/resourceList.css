@@ -33,6 +33,48 @@
   transition: 0.2s;
 }
 
+.Filters {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+
+.Filters > * {
+  margin-right: 12px;
+}
+
+.FilterIcon {
+  font-size: 50px;
+  color: darkGray;
+  flex: 0;
+}
+
+.FilterGroup {
+  display: flex;
+  flex-direction: column;
+  margin-left: 26px;
+  border: 1px solid lightGray;
+  /* flex: 2; */
+}
+
+.FilterTitle {
+  color: #5e5e5e;
+  padding: 4px;
+  border-bottom: 1px solid #5e5e5e;
+  margin-bottom: 4px;
+}
+
+.FilterOpts {
+  padding-left: 12px;
+  display: flex;
+  /* justify-content: space-between; */
+  /* flex: 1; */
+}
+
+.FilterOpts > * {
+  margin-right: 8px;
+}
+
 @media screen and (max-width: 800px) {
   .Row {
     flex-flow: column;

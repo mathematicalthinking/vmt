@@ -82,7 +82,7 @@ class MyVMT extends Component {
   };
 
   render() {
-    const { user, match } = this.props;
+    const { user, match, location } = this.props;
     const { bothRoles, view, tabs } = this.state;
     const { resource } = match.params;
 
@@ -128,6 +128,7 @@ class MyVMT extends Component {
             }
             user={user}
             resource={resource}
+            location={location}
           />
         }
         tabs={<TabList routingInfo={match} tabs={tabs} />}
@@ -139,6 +140,7 @@ class MyVMT extends Component {
 MyVMT.propTypes = {
   match: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
+  location: PropTypes.shape({}).isRequired,
 };
 
 // @NB THE LACK OF CAMEL CASE HERE IS INTENTIONAL AND ALLOWS US TO AVOID LOTS

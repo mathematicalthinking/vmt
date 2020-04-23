@@ -333,6 +333,43 @@ class Room extends Component {
       const dueDateText = 'Due Date'; // the fact that we have to do this make this not worth it
       let ggb = false;
       let desmos = false;
+      const sideBarNavButtons = room.isArchived ? (
+        <Aux>
+          <span>
+            <Button
+              theme={loading.loading ? 'SmallCancel' : 'Small'}
+              m={10}
+              data-testid="Replayer"
+              click={!loading.loading ? this.goToReplayer : null}
+            >
+              Replayer
+            </Button>
+          </span>
+        </Aux>
+      ) : (
+        <Aux>
+          <span>
+            <Button
+              theme={loading.loading ? 'SmallCancel' : 'Small'}
+              m={10}
+              data-testid="Enter"
+              click={!loading.loading ? this.goToWorkspace : null}
+            >
+              Enter
+            </Button>
+          </span>
+          <span>
+            <Button
+              theme={loading.loading ? 'SmallCancel' : 'Small'}
+              m={10}
+              data-testid="Replayer"
+              click={!loading.loading ? this.goToReplayer : null}
+            >
+              Replayer
+            </Button>
+          </span>
+        </Aux>
+      );
       room.tabs.forEach((tab) => {
         if (tab.tabType === 'geogebra') ggb = true;
         else if (tab.tabType === 'desmos') desmos = true;
@@ -489,30 +526,7 @@ class Room extends Component {
                 }
                 owner={room.myRole === 'facilitator'}
                 additionalDetails={additionalDetails}
-                buttons={
-                  <Aux>
-                    <span>
-                      <Button
-                        theme={loading.loading ? 'SmallCancel' : 'Small'}
-                        m={10}
-                        data-testid="Enter"
-                        click={!loading.loading ? this.goToWorkspace : null}
-                      >
-                        Enter
-                      </Button>
-                    </span>
-                    <span>
-                      <Button
-                        theme={loading.loading ? 'SmallCancel' : 'Small'}
-                        m={10}
-                        data-testid="Replayer"
-                        click={!loading.loading ? this.goToReplayer : null}
-                      >
-                        Replayer
-                      </Button>
-                    </span>
-                  </Aux>
-                }
+                buttons={sideBarNavButtons}
                 editButton={
                   room.myRole === 'facilitator' || isAdmin ? (
                     <Aux>
