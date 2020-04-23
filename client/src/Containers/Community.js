@@ -171,7 +171,7 @@ class Community extends Component {
   };
 
   render() {
-    const { match } = this.props;
+    const { match, user } = this.props;
     const { visibleResources, moreAvailable, searchText } = this.state;
     const filters = this.getQueryParams();
     let linkPath;
@@ -199,6 +199,7 @@ class Community extends Component {
         moreAvailable={moreAvailable}
         filters={filters}
         toggleFilter={this.toggleFilter}
+        user={user}
       />
     );
   }

@@ -36,7 +36,61 @@ class Community extends Component {
       setCriteria,
       toggleFilter,
       searchValue,
+      user,
     } = this.props;
+
+    const roomStatusInfoBox = user.isAdmin ? (
+      <InfoBox title="Room Status" icon={<i className="fas fa-filter" />}>
+        <div className={classes.FilterOpts}>
+          <RadioBtn
+            data-testid="all-roomStatus-filter"
+            check={() => toggleFilter('default-roomStatus')}
+            checked={filters.roomStatus === 'default'}
+            name="Default-roomStatus"
+          >
+            Active
+          </RadioBtn>
+          <RadioBtn
+            data-testid="archived-roomStatus-filter"
+            check={() => toggleFilter('isArchived')}
+            checked={filters.roomStatus === 'isArchived'}
+            name="isArchived"
+          >
+            Archived
+          </RadioBtn>
+          <RadioBtn
+            data-testid="trashed-roomStatus-filter"
+            check={() => toggleFilter('isTrashed')}
+            checked={filters.roomStatus === 'isTrashed'}
+            name="isTrashed"
+          >
+            Trashed
+          </RadioBtn>
+        </div>
+      </InfoBox>
+    ) : (
+      <InfoBox title="Room Status" icon={<i className="fas fa-filter" />}>
+        <div className={classes.FilterOpts}>
+          <RadioBtn
+            data-testid="all-roomStatus-filter"
+            check={() => toggleFilter('default-roomStatus')}
+            checked={filters.roomStatus === 'default'}
+            name="Default-roomStatus"
+          >
+            Active
+          </RadioBtn>
+          <RadioBtn
+            data-testid="archived-roomStatus-filter"
+            check={() => toggleFilter('isArchived')}
+            checked={filters.roomStatus === 'isArchived'}
+            name="isArchived"
+          >
+            Archived
+          </RadioBtn>
+        </div>
+      </InfoBox>
+    );
+
     return (
       <div className={classes.Container}>
         <div className={classes.Header} ref={this.header}>
@@ -132,39 +186,7 @@ class Community extends Component {
                 </div>
               </InfoBox>
             ) : null}
-            {resource === 'rooms' ? (
-              <InfoBox
-                title="Room Status"
-                icon={<i className="fas fa-filter" />}
-              >
-                <div className={classes.FilterOpts}>
-                  <RadioBtn
-                    data-testid="all-roomStatus-filter"
-                    check={() => toggleFilter('default-roomStatus')}
-                    checked={filters.roomStatus === 'default'}
-                    name="Default-roomStatus"
-                  >
-                    Active
-                  </RadioBtn>
-                  <RadioBtn
-                    data-testid="archived-roomStatus-filter"
-                    check={() => toggleFilter('isArchived')}
-                    checked={filters.roomStatus === 'isArchived'}
-                    name="isArchived"
-                  >
-                    Archived
-                  </RadioBtn>
-                  <RadioBtn
-                    data-testid="trashed-roomStatus-filter"
-                    check={() => toggleFilter('isTrashed')}
-                    checked={filters.roomStatus === 'isTrashed'}
-                    name="isTrashed"
-                  >
-                    Trashed
-                  </RadioBtn>
-                </div>
-              </InfoBox>
-            ) : null}
+            {resource === 'rooms' ? roomStatusInfoBox : null}
           </div>
         </div>
         <div
@@ -207,6 +229,7 @@ Community.propTypes = {
   setSkip: PropTypes.func.isRequired,
   moreAvailable: PropTypes.bool.isRequired,
   setCriteria: PropTypes.func.isRequired,
+  user: PropTypes.shape({}).isRequired,
 };
 
 export default Community;
