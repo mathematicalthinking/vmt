@@ -140,6 +140,14 @@ const reducer = (state = initialState, action) => {
         allIds: updatedIds,
       };
     }
+    case actionTypes.ARCHIVE_ROOMS: {
+      const updatedRoom = { ...state.byId[action.roomId] };
+      updatedRoom.isArchived = true;
+      return {
+        ...state,
+        byId: updatedRoom,
+      };
+    }
     case actionTypes.CREATE_ROOM_CONFIRMED:
       return {
         ...state,

@@ -48,6 +48,13 @@ export const roomsRemoved = (roomIds) => {
   };
 };
 
+export const roomsArchived = (roomIds) => {
+  return {
+    type: actionTypes.ARCHIVE_ROOMS,
+    roomIds,
+  };
+};
+
 export const removedRoom = (id) => {
   return {
     type: actionTypes.REMOVE_ROOM,
@@ -208,6 +215,8 @@ export const updateRoom = (id, body) => {
     if (body.isTrashed) {
       dispatch(removeUserRooms([id]));
       dispatch(roomsRemoved([id]));
+    } else if (body.isArchived) {
+      dispatch(updatedRoom(id, body));
     } else {
       dispatch(updatedRoom(id, body)); // Optimistically update the UI
     }

@@ -34,6 +34,7 @@ import {
   TabList,
   EditText,
   TrashModal,
+  ArchiveModal,
   Error,
 } from '../Components';
 import Access from './Access';
@@ -62,6 +63,7 @@ class Room extends Component {
       instructions: room ? room.instructions : null,
       privacySetting: room ? room.privacySetting : null,
       trashing: false,
+      archiving: false,
       isAdmin: false,
     };
   }
@@ -269,6 +271,10 @@ class Room extends Component {
     this.setState({ trashing: true });
   };
 
+  archiveRoom = () => {
+    this.setState({ archiving: true });
+  };
+
   clearFirstViewModal = () => {
     this.setState({ firstView: false, invited: false });
   };
@@ -327,6 +333,7 @@ class Room extends Component {
       firstView,
       name,
       trashing,
+      archiving,
     } = this.state;
     if (room && room.tabs && !guestMode) {
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
@@ -557,13 +564,24 @@ class Room extends Component {
                           >
                             Save
                           </Button>
-                          <Button
-                            click={this.trashRoom}
-                            data-testid="trash-room"
-                            theme="Danger"
-                          >
-                            <i className="fas fa-trash-alt" />
-                          </Button>
+                          {!room.isTrashed ? (
+                            <Button
+                              click={this.trashRoom}
+                              data-testid="trash-room"
+                              theme="Danger"
+                            >
+                              <i className="fas fa-trash-alt" />
+                            </Button>
+                          ) : null}
+                          {!room.isArchived ? (
+                            <Button
+                              click={this.archiveRoom}
+                              data-testid="archive-room"
+                              theme="Danger"
+                            >
+                              Archive
+                            </Button>
+                          ) : null}
                           <Button click={this.toggleEdit} theme="Cancel">
                             Cancel
                           </Button>
@@ -631,6 +649,19 @@ class Room extends Component {
               history={history}
             />
           ) : null}
+          {archiving ? (
+            <ArchiveModal
+              resource="room"
+              resourceId={room._id}
+              update={connectUpdateRoom}
+              show={archiving}
+              closeModal={() => {
+                this.setState({ archiving: false });
+              }}
+              history={history}
+            />
+          ) : null}
+          {connectUpdateRoom.toString()}
         </Aux>
       );
     }
