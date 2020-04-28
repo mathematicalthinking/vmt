@@ -19,6 +19,7 @@ import {
 } from '../../store/actions';
 import mongoIdGenerator from '../../utils/createMongoId';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
+import Error from '../../Components/HOC/Error';
 import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from '.';
 import {
   Modal,
@@ -833,6 +834,14 @@ class Workspace extends Component {
       createActivityError,
       newResourceType,
     } = this.state;
+    if (populatedRoom.isTrashed || populatedRoom.isArchived) {
+      const error = populatedRoom.isTrashed ? 'trashed' : 'archived';
+      return (
+        <Error fullPage>
+          <h2>Cannot enter workspace for {error} room.</h2>
+        </Error>
+      );
+    }
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
     else if (!controlledBy) inControl = 'NONE';
