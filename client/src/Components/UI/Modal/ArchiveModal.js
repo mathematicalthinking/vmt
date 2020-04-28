@@ -12,9 +12,19 @@ const hash = {
 };
 class ArchiveModal extends Component {
   archiveResource = () => {
-    const { history, update, closeModal, resource, resourceId } = this.props;
+    const {
+      history,
+      update,
+      closeModal,
+      resource,
+      resourceId,
+      restoring,
+    } = this.props;
+    const updateBody = restoring
+      ? { isArchived: false, isTrashed: false }
+      : { isArchived: true };
     history.push(`/myVMT/${hash[resource]}`);
-    update(resourceId, { isArchived: true });
+    update(resourceId, updateBody);
     closeModal();
   };
 
@@ -29,10 +39,14 @@ class ArchiveModal extends Component {
   // };
 
   render() {
-    const { show, closeModal, resource } = this.props;
+    const { show, closeModal, resource, restoring } = this.props;
+    const actionName = restoring ? 'restore' : 'archive';
+    const iconClass = restoring ? 'fas fa-undo' : 'fas fa-archive';
     return (
       <Modal show={show} closeModal={closeModal}>
-        <div>{`Are you sure you want to archive this ${resource}`}?</div>
+        <div>
+          Are you sure you want to {actionName} this {resource}?
+        </div>
         <div className={classes.Row}>
           <Button
             m={10}
@@ -40,7 +54,8 @@ class ArchiveModal extends Component {
             data-testid="confirm-archive"
             click={this.archiveResource}
           >
-            <i className="fas fa-archive" /> archive this {resource}
+            <i className={iconClass} />
+            {actionName} this {resource}
           </Button>
           <Button m={10} theme="Cancel" click={closeModal}>
             Cancel
@@ -58,5 +73,6 @@ ArchiveModal.propTypes = {
   closeModal: PropTypes.func.isRequired,
   resource: PropTypes.string.isRequired,
   resourceId: PropTypes.string.isRequired,
+  restoring: PropTypes.bool.isRequired,
 };
 export default ArchiveModal;

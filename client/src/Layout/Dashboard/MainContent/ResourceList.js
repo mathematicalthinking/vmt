@@ -31,7 +31,6 @@ class ResourceList extends Component {
     let { facilitatorList, participantList } = this.sortUserResources(
       userResources
     );
-    console.log(JSON.stringify(facilitatorList));
     const isArchived = roomStatus === 'isArchived';
     const isTrashed = roomStatus === 'isTrashed';
     const noStateFilter = resource !== 'rooms';

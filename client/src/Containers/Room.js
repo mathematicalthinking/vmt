@@ -64,6 +64,7 @@ class Room extends Component {
       privacySetting: room ? room.privacySetting : null,
       trashing: false,
       archiving: false,
+      restoring: false,
       isAdmin: false,
     };
   }
@@ -275,6 +276,10 @@ class Room extends Component {
     this.setState({ archiving: true });
   };
 
+  restoreRoom = () => {
+    this.setState({ restoring: true });
+  };
+
   clearFirstViewModal = () => {
     this.setState({ firstView: false, invited: false });
   };
@@ -334,49 +339,81 @@ class Room extends Component {
       name,
       trashing,
       archiving,
+      restoring,
     } = this.state;
     if (room && room.tabs && !guestMode) {
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
       const dueDateText = 'Due Date'; // the fact that we have to do this make this not worth it
       let ggb = false;
       let desmos = false;
-      const sideBarNavButtons = room.isArchived ? (
-        <Aux>
-          <span>
-            <Button
-              theme={loading.loading ? 'SmallCancel' : 'Small'}
-              m={10}
-              data-testid="Replayer"
-              click={!loading.loading ? this.goToReplayer : null}
-            >
-              Replayer
-            </Button>
-          </span>
-        </Aux>
-      ) : (
-        <Aux>
-          <span>
-            <Button
-              theme={loading.loading ? 'SmallCancel' : 'Small'}
-              m={10}
-              data-testid="Enter"
-              click={!loading.loading ? this.goToWorkspace : null}
-            >
-              Enter
-            </Button>
-          </span>
-          <span>
-            <Button
-              theme={loading.loading ? 'SmallCancel' : 'Small'}
-              m={10}
-              data-testid="Replayer"
-              click={!loading.loading ? this.goToReplayer : null}
-            >
-              Replayer
-            </Button>
-          </span>
-        </Aux>
-      );
+      const editOrRestoreButton =
+        room.isArchived || room.isTrashed ? (
+          <div
+            role="button"
+            style={{
+              display: editing ? 'none' : 'block',
+            }}
+            data-testid="restore-room"
+            onClick={this.restoreRoom}
+            onKeyPress={this.restoreRoom}
+            tabIndex="-1"
+          >
+            Restore Room
+          </div>
+        ) : (
+          <div
+            role="button"
+            style={{
+              display: editing ? 'none' : 'block',
+            }}
+            data-testid="edit-room"
+            onClick={this.toggleEdit}
+            onKeyPress={this.toggleEdit}
+            tabIndex="-1"
+          >
+            Edit Room <i className="fas fa-edit" />
+          </div>
+        );
+      const sideBarNavButtons =
+        room.isArchived || room.isTrashed ? (
+          <Aux>
+            {!room.isTrashed ? (
+              <span>
+                <Button
+                  theme={loading.loading ? 'SmallCancel' : 'Small'}
+                  m={10}
+                  data-testid="Replayer"
+                  click={!loading.loading ? this.goToReplayer : null}
+                >
+                  Replayer
+                </Button>
+              </span>
+            ) : null}
+          </Aux>
+        ) : (
+          <Aux>
+            <span>
+              <Button
+                theme={loading.loading ? 'SmallCancel' : 'Small'}
+                m={10}
+                data-testid="Enter"
+                click={!loading.loading ? this.goToWorkspace : null}
+              >
+                Enter
+              </Button>
+            </span>
+            <span>
+              <Button
+                theme={loading.loading ? 'SmallCancel' : 'Small'}
+                m={10}
+                data-testid="Replayer"
+                click={!loading.loading ? this.goToReplayer : null}
+              >
+                Replayer
+              </Button>
+            </span>
+          </Aux>
+        );
       room.tabs.forEach((tab) => {
         if (tab.tabType === 'geogebra') ggb = true;
         else if (tab.tabType === 'desmos') desmos = true;
@@ -537,18 +574,7 @@ class Room extends Component {
                 editButton={
                   room.myRole === 'facilitator' || isAdmin ? (
                     <Aux>
-                      <div
-                        role="button"
-                        style={{
-                          display: editing ? 'none' : 'block',
-                        }}
-                        data-testid="edit-room"
-                        onClick={this.toggleEdit}
-                        onKeyPress={this.toggleEdit}
-                        tabIndex="-1"
-                      >
-                        Edit Room <i className="fas fa-edit" />
-                      </div>
+                      {editOrRestoreButton}
                       {editing ? (
                         // @TODO this should be a resuable component
                         <div
@@ -573,7 +599,7 @@ class Room extends Component {
                               <i className="fas fa-trash-alt" />
                             </Button>
                           ) : null}
-                          {!room.isArchived ? (
+                          {!room.isArchived && !room.isTrashed ? (
                             <Button
                               click={this.archiveRoom}
                               data-testid="archive-room"
@@ -659,9 +685,22 @@ class Room extends Component {
                 this.setState({ archiving: false });
               }}
               history={history}
+              restoring={false}
             />
           ) : null}
-          {connectUpdateRoom.toString()}
+          {restoring ? (
+            <ArchiveModal
+              resource="room"
+              resourceId={room._id}
+              update={connectUpdateRoom}
+              show={restoring}
+              closeModal={() => {
+                this.setState({ restoring: false });
+              }}
+              history={history}
+              restoring
+            />
+          ) : null}
         </Aux>
       );
     }

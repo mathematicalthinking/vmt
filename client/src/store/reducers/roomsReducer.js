@@ -148,6 +148,15 @@ const reducer = (state = initialState, action) => {
         byId: updatedRoom,
       };
     }
+    case actionTypes.RESTORE_ROOMS: {
+      const updatedRoom = { ...state.byId[action.roomId] };
+      updatedRoom.isArchived = false;
+      updatedRoom.isTrashed = false;
+      return {
+        ...state,
+        byId: updatedRoom,
+      };
+    }
     case actionTypes.CREATE_ROOM_CONFIRMED:
       return {
         ...state,
