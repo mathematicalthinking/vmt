@@ -579,8 +579,11 @@ class Room extends Component {
                         // @TODO this should be a resuable component
                         <div
                           style={{
-                            display: 'flex',
-                            justifyContent: 'space-around',
+                            display: 'grid',
+                            gridTemplateColumns: '45% 45%',
+                            justifyContent: 'space-between',
+                            rowGap: '9px',
+                            padding: '0 5%',
                           }}
                         >
                           <Button
@@ -603,9 +606,9 @@ class Room extends Component {
                             <Button
                               click={this.archiveRoom}
                               data-testid="archive-room"
-                              theme="Danger"
+                              theme="Small"
                             >
-                              Archive
+                              ARCHIVE
                             </Button>
                           ) : null}
                           <Button click={this.toggleEdit} theme="Cancel">
