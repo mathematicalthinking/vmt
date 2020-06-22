@@ -307,7 +307,7 @@ describe('test community search and filter', function() {
       doSearch('reference');
       cy.url().should(
         'include',
-        'community/rooms?privacy=all&roomType=all&search=reference'
+        'community/rooms?privacy=all&roomType=all&roomStatus=default&search=reference'
       );
       checkItemsLength(1);
       cy.contains('reference room').should('exist');
@@ -333,7 +333,7 @@ describe('test community search and filter', function() {
         .type('reference tool');
       cy.url().should(
         'include',
-        'community/rooms?privacy=all&roomType=all&search=reference%20tool'
+        'community/rooms?privacy=all&roomType=all&roomStatus=default&search=reference%20tool'
       );
       cy.getTestElement('box-list')
         .children()

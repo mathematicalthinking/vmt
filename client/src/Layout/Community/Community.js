@@ -99,7 +99,7 @@ class Community extends Component {
           </h3>
           <div className={classes.ResourceOpts} data-testid="resource-tabs">
             <div>
-              <CustomLink to="/community/rooms?privacy=all&roomType=all">
+              <CustomLink to="/community/rooms?privacy=all&roomType=all&roomStatus=default">
                 Rooms
               </CustomLink>
             </div>

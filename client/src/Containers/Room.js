@@ -716,7 +716,9 @@ class Room extends Component {
     return (
       <Access
         closeModal={() =>
-          history.push('/community/rooms?privacy=all&roomType=all')
+          history.push(
+            '/community/rooms?privacy=all&roomType=all&roomStatus=default'
+          )
         }
         resource="rooms"
         resourceId={match.params.room_id}
