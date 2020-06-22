@@ -119,6 +119,7 @@ class Community extends Component {
               isControlled
               value={searchValue}
               _search={(value) => setCriteria(value)}
+              roomStatus=""
               placeholder="Search by name, description, or facilitators..."
               data-testid="community-search"
             />
@@ -224,6 +225,7 @@ Community.propTypes = {
   filters: PropTypes.shape({
     privacySetting: PropTypes.oneOf(['public', 'private', 'all']),
     roomType: PropTypes.oneOf(['geogebra', 'desmos', 'all']),
+    roomStatus: PropTypes.oneOf(['default', 'isArchived', 'isTrashed']),
   }).isRequired,
   toggleFilter: PropTypes.func.isRequired,
   setSkip: PropTypes.func.isRequired,

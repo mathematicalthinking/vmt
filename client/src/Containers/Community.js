@@ -85,6 +85,9 @@ class Community extends Component {
     if (updatedFilters.privacySetting === 'all') {
       delete updatedFilters.privacySetting;
     }
+    if (updatedFilters.roomStatus === 'default') {
+      delete updatedFilters.roomStatus;
+    }
     API.searchPaginated(
       resource,
       updatedFilters.search,

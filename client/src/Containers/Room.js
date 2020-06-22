@@ -346,20 +346,25 @@ class Room extends Component {
       const dueDateText = 'Due Date'; // the fact that we have to do this make this not worth it
       let ggb = false;
       let desmos = false;
+      const restoreButton = room.isArchived ? (
+        <div
+          role="button"
+          style={{
+            display: editing ? 'none' : 'block',
+          }}
+          data-testid="restore-room"
+          onClick={this.restoreRoom}
+          onKeyPress={this.restoreRoom}
+          tabIndex="-1"
+        >
+          Restore Room
+        </div>
+      ) : (
+        <div />
+      );
       const editOrRestoreButton =
         room.isArchived || room.isTrashed ? (
-          <div
-            role="button"
-            style={{
-              display: editing ? 'none' : 'block',
-            }}
-            data-testid="restore-room"
-            onClick={this.restoreRoom}
-            onKeyPress={this.restoreRoom}
-            tabIndex="-1"
-          >
-            Restore Room
-          </div>
+          restoreButton
         ) : (
           <div
             role="button"

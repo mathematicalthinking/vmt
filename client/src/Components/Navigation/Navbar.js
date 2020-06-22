@@ -49,7 +49,7 @@ const Navbar = ({ user, location, toggleAdmin }) => {
         <ul className={classes.NavList}>
           <NavItem link="/myVMT/rooms" name="My VMT" ntf={ntf} />
           <NavItem
-            link="/community/rooms?privacy=all&roomType=all"
+            link="/community/rooms?privacy=all&roomType=all&roomStatus=default"
             name="Community"
           />
           {user.isAdmin ? (

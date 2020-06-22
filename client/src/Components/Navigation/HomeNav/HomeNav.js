@@ -55,7 +55,7 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
               </Aux>
             )}
             <NavItem
-              link="/community/rooms?privacy=all&roomType=all"
+              link="/community/rooms?privacy=all&roomType=all&roomStatus=default"
               name="Community"
             />
             {user.isAdmin ? (
