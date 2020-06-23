@@ -61,26 +61,41 @@ resourceTypes.forEach((type) => {
 
   const isCourses = type === 'courses';
   fixtures[type] = {
-    all: allResources,
-    publicAll: allResources.filter((r) => r.privacySetting === pub),
-    privateAll: allResources.filter((r) => r.privacySetting === prv),
+    all: allResources.filter((r) => !r.isArchived),
+    publicAll: allResources.filter((r) => r.privacySetting === pub && !r.isArchived),
+    privateAll: allResources.filter((r) => r.privacySetting === prv && !r.isArchived),
   };
 
   if (!isCourses) {
     Object.assign(fixtures[type], {
-      allGgb: allResources.filter((r) => r.roomType === ggb),
-      allDesmos: allResources.filter((r) => r.roomType === des),
+      allGgb: allResources.filter(
+        (r) => r.roomType === ggb && !r.isArchived
+      ),
+      allDesmos: allResources.filter(
+        (r) => r.roomType === des && !r.isArchived
+      ),
       publicGgb: allResources.filter(
-        (r) => r.roomType === ggb && r.privacySetting === pub
+        (r) => r.roomType === ggb && r.privacySetting === pub && !r.isArchived
       ),
       publicDesmos: allResources.filter(
-        (r) => r.roomType === des && r.privacySetting === pub
+        (r) => r.roomType === des && r.privacySetting === pub && !r.isArchived
       ),
       privateGgb: allResources.filter(
-        (r) => r.roomType === ggb && r.privacySetting === prv
+        (r) => r.roomType === ggb && r.privacySetting === prv && !r.isArchived
       ),
       privateDesmos: allResources.filter(
-        (r) => r.roomType === des && r.privacySetting === prv
+        (r) => r.roomType === des && r.privacySetting === prv && !r.isArchived
+      ),
+    });
+  }
+  if (type === 'rooms') {
+    Object.assign(fixtures[type], {
+      allArchived: allResources.filter((r) => r.isArchived),
+      allPublicArchived: allResources.filter(
+        (r) => r.isArchived && r.privacySetting === pub
+      ),
+      allPrivateArchived: allResources.filter(
+        (r) => r.isArchived && r.privacySetting === prv
       ),
     });
   }
