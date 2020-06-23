@@ -34,6 +34,7 @@ import {
   TabList,
   EditText,
   TrashModal,
+  ArchiveModal,
   Error,
 } from '../Components';
 import Access from './Access';
@@ -62,6 +63,8 @@ class Room extends Component {
       instructions: room ? room.instructions : null,
       privacySetting: room ? room.privacySetting : null,
       trashing: false,
+      archiving: false,
+      restoring: false,
       isAdmin: false,
     };
   }
@@ -269,6 +272,14 @@ class Room extends Component {
     this.setState({ trashing: true });
   };
 
+  archiveRoom = () => {
+    this.setState({ archiving: true });
+  };
+
+  restoreRoom = () => {
+    this.setState({ restoring: true });
+  };
+
   clearFirstViewModal = () => {
     this.setState({ firstView: false, invited: false });
   };
@@ -327,12 +338,87 @@ class Room extends Component {
       firstView,
       name,
       trashing,
+      archiving,
+      restoring,
     } = this.state;
     if (room && room.tabs && !guestMode) {
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
       const dueDateText = 'Due Date'; // the fact that we have to do this make this not worth it
       let ggb = false;
       let desmos = false;
+      const restoreButton = room.isArchived ? (
+        <div
+          role="button"
+          style={{
+            display: editing ? 'none' : 'block',
+          }}
+          data-testid="restore-room"
+          onClick={this.restoreRoom}
+          onKeyPress={this.restoreRoom}
+          tabIndex="-1"
+        >
+          Restore Room
+        </div>
+      ) : (
+        <div />
+      );
+      const editOrRestoreButton =
+        room.isArchived || room.isTrashed ? (
+          restoreButton
+        ) : (
+          <div
+            role="button"
+            style={{
+              display: editing ? 'none' : 'block',
+            }}
+            data-testid="edit-room"
+            onClick={this.toggleEdit}
+            onKeyPress={this.toggleEdit}
+            tabIndex="-1"
+          >
+            Edit Room <i className="fas fa-edit" />
+          </div>
+        );
+      const sideBarNavButtons =
+        room.isArchived || room.isTrashed ? (
+          <Aux>
+            {!room.isTrashed ? (
+              <span>
+                <Button
+                  theme={loading.loading ? 'SmallCancel' : 'Small'}
+                  m={10}
+                  data-testid="Replayer"
+                  click={!loading.loading ? this.goToReplayer : null}
+                >
+                  Replayer
+                </Button>
+              </span>
+            ) : null}
+          </Aux>
+        ) : (
+          <Aux>
+            <span>
+              <Button
+                theme={loading.loading ? 'SmallCancel' : 'Small'}
+                m={10}
+                data-testid="Enter"
+                click={!loading.loading ? this.goToWorkspace : null}
+              >
+                Enter
+              </Button>
+            </span>
+            <span>
+              <Button
+                theme={loading.loading ? 'SmallCancel' : 'Small'}
+                m={10}
+                data-testid="Replayer"
+                click={!loading.loading ? this.goToReplayer : null}
+              >
+                Replayer
+              </Button>
+            </span>
+          </Aux>
+        );
       room.tabs.forEach((tab) => {
         if (tab.tabType === 'geogebra') ggb = true;
         else if (tab.tabType === 'desmos') desmos = true;
@@ -489,51 +575,20 @@ class Room extends Component {
                 }
                 owner={room.myRole === 'facilitator'}
                 additionalDetails={additionalDetails}
-                buttons={
-                  <Aux>
-                    <span>
-                      <Button
-                        theme={loading.loading ? 'SmallCancel' : 'Small'}
-                        m={10}
-                        data-testid="Enter"
-                        click={!loading.loading ? this.goToWorkspace : null}
-                      >
-                        Enter
-                      </Button>
-                    </span>
-                    <span>
-                      <Button
-                        theme={loading.loading ? 'SmallCancel' : 'Small'}
-                        m={10}
-                        data-testid="Replayer"
-                        click={!loading.loading ? this.goToReplayer : null}
-                      >
-                        Replayer
-                      </Button>
-                    </span>
-                  </Aux>
-                }
+                buttons={sideBarNavButtons}
                 editButton={
                   room.myRole === 'facilitator' || isAdmin ? (
                     <Aux>
-                      <div
-                        role="button"
-                        style={{
-                          display: editing ? 'none' : 'block',
-                        }}
-                        data-testid="edit-room"
-                        onClick={this.toggleEdit}
-                        onKeyPress={this.toggleEdit}
-                        tabIndex="-1"
-                      >
-                        Edit Room <i className="fas fa-edit" />
-                      </div>
+                      {editOrRestoreButton}
                       {editing ? (
                         // @TODO this should be a resuable component
                         <div
                           style={{
-                            display: 'flex',
-                            justifyContent: 'space-around',
+                            display: 'grid',
+                            gridTemplateColumns: '45% 45%',
+                            justifyContent: 'space-between',
+                            rowGap: '9px',
+                            padding: '0 5%',
                           }}
                         >
                           <Button
@@ -543,13 +598,24 @@ class Room extends Component {
                           >
                             Save
                           </Button>
-                          <Button
-                            click={this.trashRoom}
-                            data-testid="trash-room"
-                            theme="Danger"
-                          >
-                            <i className="fas fa-trash-alt" />
-                          </Button>
+                          {!room.isTrashed ? (
+                            <Button
+                              click={this.trashRoom}
+                              data-testid="trash-room"
+                              theme="Danger"
+                            >
+                              <i className="fas fa-trash-alt" />
+                            </Button>
+                          ) : null}
+                          {!room.isArchived && !room.isTrashed ? (
+                            <Button
+                              click={this.archiveRoom}
+                              data-testid="archive-room"
+                              theme="Small"
+                            >
+                              ARCHIVE
+                            </Button>
+                          ) : null}
                           <Button click={this.toggleEdit} theme="Cancel">
                             Cancel
                           </Button>
@@ -617,6 +683,32 @@ class Room extends Component {
               history={history}
             />
           ) : null}
+          {archiving ? (
+            <ArchiveModal
+              resource="room"
+              resourceId={room._id}
+              update={connectUpdateRoom}
+              show={archiving}
+              closeModal={() => {
+                this.setState({ archiving: false });
+              }}
+              history={history}
+              restoring={false}
+            />
+          ) : null}
+          {restoring ? (
+            <ArchiveModal
+              resource="room"
+              resourceId={room._id}
+              update={connectUpdateRoom}
+              show={restoring}
+              closeModal={() => {
+                this.setState({ restoring: false });
+              }}
+              history={history}
+              restoring
+            />
+          ) : null}
         </Aux>
       );
     }
@@ -624,7 +716,9 @@ class Room extends Component {
     return (
       <Access
         closeModal={() =>
-          history.push('/community/rooms?privacy=all&roomType=all')
+          history.push(
+            '/community/rooms?privacy=all&roomType=all&roomStatus=default'
+          )
         }
         resource="rooms"
         resourceId={match.params.room_id}

@@ -5,52 +5,65 @@ import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
 import classes from './resourceList.css';
 import Search from '../../../Components/Search/Search';
+import { RadioBtn, InfoBox } from '../../../Components';
 // CONSIDER RENAMING TO DASHBOARDCONTENT
 class ResourceList extends Component {
   state = {
     participantList: [],
     facilitatorList: [],
+    roomStatus: 'default',
   };
 
   componentDidMount() {
-    const { userResources } = this.props;
-    const { facilitatorList, participantList } = this.sortUserResources(
-      userResources
-    );
-    this.setState({
-      facilitatorList,
-      participantList,
-    });
+    this.filterByRoomStatus('default');
   }
 
   componentDidUpdate(prevProps) {
     const { userResources } = this.props;
     if (prevProps.userResources !== userResources) {
-      const { facilitatorList, participantList } = this.sortUserResources(
-        userResources
-      );
-      this.setState({
-        facilitatorList,
-        participantList,
-      });
+      const { roomStatus } = this.state;
+      this.filterByRoomStatus(roomStatus);
     }
   }
 
-  search = (criteria) => {
-    const { userResources } = this.props;
+  search = (criteria, roomStatus) => {
+    const { userResources, resource } = this.props;
     let { facilitatorList, participantList } = this.sortUserResources(
       userResources
     );
-    facilitatorList = facilitatorList.filter((resource) => {
-      return resource.name.indexOf(criteria) > -1;
+    const isArchived = roomStatus === 'isArchived';
+    const isTrashed = roomStatus === 'isTrashed';
+    const noStateFilter = resource !== 'rooms';
+    facilitatorList = facilitatorList.filter((rec) => {
+      return (
+        rec.name.indexOf(criteria) > -1 &&
+        (noStateFilter ||
+          (rec.isArchived === isArchived && rec.isTrashed === isTrashed))
+      );
     });
-    participantList = participantList.filter((resource) => {
-      return resource.name.indexOf(criteria) > -1;
+    participantList = participantList.filter((rec) => {
+      return (
+        rec.name.indexOf(criteria) > -1 &&
+        (noStateFilter ||
+          (rec.isArchived === isArchived && rec.isTrashed === isTrashed))
+      );
     });
     this.setState({
       facilitatorList,
       participantList,
     });
+  };
+
+  filterByRoomStatus = (status) => {
+    const allowedRoomStatus = ['default', 'isArchived', 'isTrashed'];
+    let { roomStatus } = this.state;
+    if (allowedRoomStatus.indexOf(status) > -1) {
+      roomStatus = status;
+    }
+    this.setState({
+      roomStatus,
+    });
+    this.search('', roomStatus);
   };
 
   sortUserResources = (resources) => {
@@ -77,7 +90,7 @@ class ResourceList extends Component {
       user,
       notifications,
     } = this.props;
-    const { facilitatorList, participantList } = this.state;
+    const { facilitatorList, participantList, roomStatus } = this.state;
     let linkPath = `/myVMT/${resource}/`;
     let linkSuffix;
     if (resource === 'courses') {
@@ -110,9 +123,37 @@ class ResourceList extends Component {
         {/* @TODO don't show create optinos for participants */}
         <div className={classes.Controls}>
           <div className={classes.Search}>
-            <Search _search={this.search} data-testid="search" />
+            <Search
+              _search={this.search}
+              data-testid="search"
+              roomStatus={roomStatus}
+            />
           </div>
           {create}
+        </div>
+        <div className={classes.Filters}>
+          {resource === 'rooms' ? (
+            <InfoBox title="Room Status" icon={<i className="fas fa-filter" />}>
+              <div className={classes.FilterOpts}>
+                <RadioBtn
+                  data-testid="all-roomStatus-filter"
+                  check={() => this.filterByRoomStatus('default')}
+                  checked={roomStatus === 'default'}
+                  name="Default-roomStatus"
+                >
+                  Active
+                </RadioBtn>
+                <RadioBtn
+                  data-testid="archived-roomStatus-filter"
+                  check={() => this.filterByRoomStatus('isArchived')}
+                  checked={roomStatus === 'isArchived'}
+                  name="isArchived"
+                >
+                  Archived
+                </RadioBtn>
+              </div>
+            </InfoBox>
+          ) : null}
         </div>
         {facilitatorList.length > 0 && participantList.length > 0 ? (
           <div className={classes.Row}>

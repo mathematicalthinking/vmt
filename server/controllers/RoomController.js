@@ -96,7 +96,9 @@ module.exports = {
   },
 
   searchPaginated: async (criteria, skip, filters) => {
-    const initialFilter = { tempRoom: false, isTrashed: false };
+    let isTrashed = filters.roomStatus ? (filters.roomStatus == 'isTrashed') : false;
+    let isArchived = filters.roomStatus ? (filters.roomStatus == 'isArchived') : false;
+    const initialFilter = { tempRoom: false, isTrashed: isTrashed, isArchived: isArchived };
 
     const allowedPrivacySettings = ['private', 'public'];
 
@@ -116,6 +118,7 @@ module.exports = {
           tabs: 1,
           privacySetting: 1,
           updatedAt: 1,
+          isArchived: 1,
           members: {
             $filter: {
               input: '$members',
@@ -159,6 +162,7 @@ module.exports = {
           instructions: { $first: '$instructions' },
           description: { $first: '$description' },
           privacySetting: { $first: '$privacySetting' },
+          isArchived: { $first: '$isArchived' },
           image: { $first: '$image' },
           tabs: { $first: '$tabs' },
           updatedAt: { $first: '$updatedAt' },
@@ -182,6 +186,7 @@ module.exports = {
           name: { $first: '$name' },
           instructions: { $first: '$instructions' },
           description: { $first: '$description' },
+          isArchived: { $first: '$isArchived' },
           privacySetting: { $first: '$privacySetting' },
           image: { $first: '$image' },
           updatedAt: { $first: '$updatedAt' },
@@ -199,6 +204,7 @@ module.exports = {
           'tabs.tabType': 1,
           privacySetting: 1,
           updatedAt: 1,
+          isArchived: 1,
           'members.role': 1,
           'members.user.username': 1,
           'members.user._id': 1,

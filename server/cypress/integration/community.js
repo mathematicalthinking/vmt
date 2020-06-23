@@ -4,11 +4,15 @@ const fixtures = require('../fixtures/community');
 
 const { rooms, activities, courses } = fixtures;
 describe('test community search and filter', function() {
-  function checkUrl(privacy, roomType, query, resourceType) {
+  function checkUrl(privacy, roomType, query, resourceType, roomStatus) {
     let expectedUrl = `community/${resourceType}?privacy=${privacy}`;
 
     if (resourceType !== 'courses') {
       expectedUrl += `&roomType=${roomType}`;
+    }
+
+    if (resourceType === 'rooms') {
+      expectedUrl += `&roomStatus=${roomStatus}`;
     }
 
     if (query) {
@@ -67,7 +71,7 @@ describe('test community search and filter', function() {
     all: {
       description: 'Initial Settings',
       setup: {
-        filtersToSelect: ['all-roomType-filter', 'all-privacy-filter'],
+        filtersToSelect: ['all-roomType-filter', 'all-privacy-filter', 'all-roomStatus-filter'],
         searchBar: {
           query: '',
           doClear: true,
@@ -76,6 +80,7 @@ describe('test community search and filter', function() {
       urlParams: {
         privacy: 'all',
         roomType: 'all',
+        roomStatus: 'default',
         search: '',
       },
       expectedItems: {
@@ -87,7 +92,7 @@ describe('test community search and filter', function() {
     allGgb: {
       description: 'All Geogebra',
       setup: {
-        filtersToSelect: ['all-privacy-filter', 'geogebra-filter'],
+        filtersToSelect: ['all-privacy-filter', 'geogebra-filter', 'all-roomStatus-filter'],
         searchBar: {
           query: '',
           doClear: true,
@@ -96,6 +101,7 @@ describe('test community search and filter', function() {
       urlParams: {
         privacy: 'all',
         roomType: 'geogebra',
+        roomStatus: 'default',
         search: '',
       },
       expectedItems: {
@@ -106,7 +112,7 @@ describe('test community search and filter', function() {
     allDesmos: {
       description: 'All Desmos',
       setup: {
-        filtersToSelect: ['all-privacy-filter', 'desmos-filter'],
+        filtersToSelect: ['all-privacy-filter', 'desmos-filter', 'all-roomStatus-filter'],
         searchBar: {
           query: '',
           doClear: true,
@@ -115,6 +121,7 @@ describe('test community search and filter', function() {
       urlParams: {
         privacy: 'all',
         roomType: 'desmos',
+        roomStatus: 'default',
         search: '',
       },
       expectedItems: {
@@ -125,7 +132,7 @@ describe('test community search and filter', function() {
     publicAll: {
       description: 'All Public Rooms',
       setup: {
-        filtersToSelect: ['public-filter', 'all-roomType-filter'],
+        filtersToSelect: ['public-filter', 'all-roomType-filter', 'all-roomStatus-filter'],
         searchBar: {
           query: '',
           doClear: true,
@@ -134,6 +141,7 @@ describe('test community search and filter', function() {
       urlParams: {
         privacy: 'public',
         roomType: 'all',
+        roomStatus: 'default',
         search: '',
       },
       expectedItems: {
@@ -145,7 +153,7 @@ describe('test community search and filter', function() {
     privateAll: {
       description: 'All Private Rooms',
       setup: {
-        filtersToSelect: ['private-filter', 'all-roomType-filter'],
+        filtersToSelect: ['private-filter', 'all-roomType-filter', 'all-roomStatus-filter'],
         searchBar: {
           query: '',
           doClear: true,
@@ -154,6 +162,7 @@ describe('test community search and filter', function() {
       urlParams: {
         privacy: 'private',
         roomType: 'all',
+        roomStatus: 'default',
         search: '',
       },
       expectedItems: {
@@ -165,7 +174,7 @@ describe('test community search and filter', function() {
     publicGgb: {
       description: 'Public Geogebra Rooms',
       setup: {
-        filtersToSelect: ['public-filter', 'geogebra-filter'],
+        filtersToSelect: ['public-filter', 'geogebra-filter', 'all-roomStatus-filter'],
         searchBar: {
           query: '',
           doClear: true,
@@ -174,6 +183,7 @@ describe('test community search and filter', function() {
       urlParams: {
         privacy: 'public',
         roomType: 'geogebra',
+        roomStatus: 'default',
         search: '',
       },
       expectedItems: {
@@ -184,7 +194,7 @@ describe('test community search and filter', function() {
     publicDesmos: {
       description: 'Public Desmos Rooms',
       setup: {
-        filtersToSelect: ['public-filter', 'desmos-filter'],
+        filtersToSelect: ['public-filter', 'desmos-filter', 'all-roomStatus-filter'],
         searchBar: {
           query: '',
           doClear: true,
@@ -193,6 +203,7 @@ describe('test community search and filter', function() {
       urlParams: {
         privacy: 'public',
         roomType: 'desmos',
+        roomStatus: 'default',
         search: '',
       },
       expectedItems: {
@@ -203,7 +214,7 @@ describe('test community search and filter', function() {
     privateDesmos: {
       description: 'Private Desmos Rooms',
       setup: {
-        filtersToSelect: ['private-filter', 'desmos-filter'],
+        filtersToSelect: ['private-filter', 'desmos-filter', 'all-roomStatus-filter'],
         searchBar: {
           query: '',
           doClear: true,
@@ -212,6 +223,7 @@ describe('test community search and filter', function() {
       urlParams: {
         privacy: 'private',
         roomType: 'desmos',
+        roomStatus: 'default',
         search: '',
       },
       expectedItems: {
@@ -219,12 +231,69 @@ describe('test community search and filter', function() {
         activities: activities.privateDesmos,
       },
     },
+    allArchived: {
+      description: 'All Archived Rooms',
+      setup: {
+        filtersToSelect: ['all-roomType-filter', 'all-privacy-filter', 'archived-roomStatus-filter'],
+        searchBar: {
+          query: '',
+          doClear: true,
+        },
+      },
+      urlParams: {
+        privacy: 'all',
+        roomType: 'all',
+        roomStatus: 'isArchived',
+        search: '',
+      },
+      expectedItems: {
+        rooms: rooms.allArchived,
+      },
+    },
+    allPublicArchived: {
+      description: 'All Public Archived Rooms',
+      setup: {
+        filtersToSelect: ['all-roomType-filter', 'public-filter', 'archived-roomStatus-filter'],
+        searchBar: {
+          query: '',
+          doClear: true,
+        },
+      },
+      urlParams: {
+        privacy: 'public',
+        roomType: 'all',
+        roomStatus: 'isArchived',
+        search: '',
+      },
+      expectedItems: {
+        rooms: rooms.allPublicArchived,
+      },
+    },
+    allPrivateArchived: {
+      description: 'All Private Archived Rooms',
+      setup: {
+        filtersToSelect: ['all-roomType-filter', 'private-filter', 'archived-roomStatus-filter'],
+        searchBar: {
+          query: '',
+          doClear: true,
+        },
+      },
+      urlParams: {
+        privacy: 'private',
+        roomType: 'all',
+        roomStatus: 'isArchived',
+        search: '',
+      },
+      expectedItems: {
+        rooms: rooms.allPrivateArchived,
+      },
+    }
   };
 
   describe('Filtering and Sorting Rooms', function() {
     return Object.values(configs).map((config) => {
       const { description, setup, urlParams, expectedItems } = config;
-      const { privacy, roomType, search: searchParam } = urlParams;
+      const { privacy, roomType, roomStatus, search: searchParam } = urlParams;
       const { filtersToSelect, searchBar } = setup;
 
       const { query, doClear } = searchBar;
@@ -237,12 +306,17 @@ describe('test community search and filter', function() {
             clickResourceTab(resourceType);
             filtersToSelect.forEach((testId) => {
               const doSkip =
-                resourceType === 'courses' &&
-                [
-                  'geogebra-filter',
-                  'desmos-filter',
-                  'all-roomType-filter',
-                ].includes(testId);
+                (resourceType === 'courses' &&
+                  [
+                    'geogebra-filter',
+                    'desmos-filter',
+                    'all-roomType-filter',
+                    'all-roomStatus-filter',
+                  ].includes(testId)
+                ) || (
+                  resourceType === 'activities' &&
+                  testId === 'all-roomStatus-filter'
+                );
               if (!doSkip) {
                 clickFilter(testId);
               }
@@ -250,7 +324,7 @@ describe('test community search and filter', function() {
             if (query) {
               doSearch(query, { doClear });
             }
-            checkUrl(privacy, roomType, searchParam, resourceType);
+            checkUrl(privacy, roomType, searchParam, resourceType, roomStatus);
           });
 
           it(`should display ${resources.length} items`, function() {
@@ -307,7 +381,7 @@ describe('test community search and filter', function() {
       doSearch('reference');
       cy.url().should(
         'include',
-        'community/rooms?privacy=all&roomType=all&search=reference'
+        'community/rooms?privacy=all&roomType=all&roomStatus=default&search=reference'
       );
       checkItemsLength(1);
       cy.contains('reference room').should('exist');
@@ -333,7 +407,7 @@ describe('test community search and filter', function() {
         .type('reference tool');
       cy.url().should(
         'include',
-        'community/rooms?privacy=all&roomType=all&search=reference%20tool'
+        'community/rooms?privacy=all&roomType=all&roomStatus=default&search=reference%20tool'
       );
       cy.getTestElement('box-list')
         .children()

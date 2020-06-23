@@ -85,6 +85,9 @@ class Community extends Component {
     if (updatedFilters.privacySetting === 'all') {
       delete updatedFilters.privacySetting;
     }
+    if (updatedFilters.roomStatus === 'default') {
+      delete updatedFilters.roomStatus;
+    }
     API.searchPaginated(
       resource,
       updatedFilters.search,
@@ -127,6 +130,10 @@ class Community extends Component {
       filters.roomType = 'all';
     } else if (filter === 'all-privacySetting') {
       filters.privacySetting = 'all';
+    } else if (filter === 'isArchived' || filter === 'isTrashed') {
+      filters.roomStatus = filter;
+    } else if (filter === 'default-roomStatus') {
+      filters.roomStatus = 'default';
     }
     if (resource === 'courses') {
       filters.roomType = null;
@@ -143,17 +150,18 @@ class Community extends Component {
       privacySetting: params.get('privacy'),
       roomType: params.get('roomType'),
       search: params.get('search'),
+      roomStatus: params.get('roomStatus'),
     };
     return filters;
   };
 
   setQueryParams = (filters) => {
     const { history, match } = this.props;
-    const { privacySetting, roomType, search } = filters;
+    const { privacySetting, roomType, roomStatus, search } = filters;
     history.push({
       pathname: match.url,
       search: `?privacy=${privacySetting || 'all'}&roomType=${roomType ||
-        'all'}&search=${search || ''}`,
+        'all'}&roomStatus=${roomStatus || 'default'}&search=${search || ''}`,
     });
   };
 
@@ -166,7 +174,7 @@ class Community extends Component {
   };
 
   render() {
-    const { match } = this.props;
+    const { match, user } = this.props;
     const { visibleResources, moreAvailable, searchText } = this.state;
     const filters = this.getQueryParams();
     let linkPath;
@@ -194,6 +202,7 @@ class Community extends Component {
         moreAvailable={moreAvailable}
         filters={filters}
         toggleFilter={this.toggleFilter}
+        user={user}
       />
     );
   }

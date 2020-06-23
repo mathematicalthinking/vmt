@@ -60,7 +60,7 @@ router.get('/search/:resource', (req, res) => {
 router.get('/searchPaginated/:resource', (req, res) => {
   const { resource } = req.params;
   const controller = controllers[resource];
-  const { criteria, skip, privacySetting, roomType } = req.query;
+  const { criteria, skip, privacySetting, roomType, roomStatus } = req.query;
   let regex;
   if (criteria) {
     regex = new RegExp(criteria, 'i');
@@ -68,6 +68,7 @@ router.get('/searchPaginated/:resource', (req, res) => {
   const filters = {};
   if (privacySetting) filters.privacySetting = privacySetting;
   if (roomType) filters.roomType = roomType;
+  if (roomStatus) filters.roomStatus = roomStatus;
   controller
     .searchPaginated(regex, skip, filters)
     .then((results) => {

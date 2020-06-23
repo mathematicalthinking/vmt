@@ -34,6 +34,7 @@ export { default as EditableText } from './EditableText/EditableText';
 export { default as EditText } from './EditableText/EditText';
 export { default as SelectionList } from './Form/SelectionList/SelectionList';
 export { default as TrashModal } from './UI/Modal/TrashModal';
+export { default as ArchiveModal } from './UI/Modal/ArchiveModal';
 export { default as Error } from './HOC/Error';
 export { default as ErrorToast } from './Error/ErrorToast';
 export { default as DemoBrowser } from './DemoBrowser/DemoBrowser';

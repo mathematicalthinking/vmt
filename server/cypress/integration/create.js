@@ -212,6 +212,45 @@ describe('create each type of resource', function() {
     });
   });
 
+    it('creates and archives a new ggb room', function() {
+    const { name, description } = room;
+    createResource({
+      resourceType: 'room',
+      name: `${name} to archive`,
+      description,
+    });
+    cy.getTestElement(`content-box-${name} to archive`).click();
+    cy.getTestElement('edit-room')
+      .contains('Edit Room')
+      .click();
+    cy.getTestElement('archive-room')
+      .contains('ARCHIVE')
+      .click();
+    cy.getTestElement('confirm-archive')
+      .contains('archive this room')
+      .click();
+    //Should return to the MyVMT rooms tab for this user
+    cy.url("include", "/myVMT/rooms");
+    //archived rooms should not appear on the myVMT page by default
+    cy.getTestElement(`content-box-${name} to archive`).should('not.exist');
+    //filter for archived rooms
+    cy.getTestElement('archived-roomStatus-filter').click();
+    //go to the archived room's detail page and restore it
+    cy.getTestElement(`content-box-[ARCHIVED] ${name} to archive`)
+      .contains(`[ARCHIVED] ${name} to archive`)
+      .click();
+    cy.getTestElement('restore-room')
+      .contains('Restore Room')
+      .click();
+    cy.getTestElement('confirm-archive')
+      .contains('restore this room')
+      .click();
+    //Should return to the MyVMT rooms tab for this user
+    cy.url("include", "/myVMT/rooms");
+    //restored room should appear on the myVMT page by default
+    cy.getTestElement(`content-box-${name} to archive`).should('exist');
+  });
+
   it('creates a public ggb activity', function() {
     const { name, description } = activity;
     createResource({ resourceType: 'activity', name, description });
@@ -346,6 +385,7 @@ describe('create each type of resource', function() {
       });
     });
   });
+
 
   // it("creates a course room from a course activity", function() {
   //   cy.getTestElement("content-box-course 1").click();
