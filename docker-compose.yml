@@ -1,0 +1,15 @@
+version: '3'
+services:
+  vmt:
+    image: "test/vmt"
+    container_name: "vmt-node-app"
+    environment:
+      - MONGO_DEV_URI='mongodb://database/vmt'
+      - MONGO_TEST_URI='mongodb://database/vmt-test'
+    ports:
+      - "3000:3000"
+  database:
+    image: "mongo"
+    container_name: "vmt-mongo-database"
+    ports:
+      - '27017:27017'
