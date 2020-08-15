@@ -1,7 +1,7 @@
 version: '3'
 services:
   vmt:
-    image: "test/vmt"
+    image: "mathematicalthinking/vmt"
     container_name: "vmt-node-app"
     environment:
       - MONGO_DEV_URI='mongodb://database/vmt'
