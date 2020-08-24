@@ -85,7 +85,10 @@ class Homepage extends PureComponent {
           <section>
             <p>
               VMT is currently in Alpha. If you encounter bugs or want to
-              suggest new features please email vmt@21pstem.org
+              suggest new features please email
+              <a href="mailto:vmt@21pstem.org?subject=%5BSite%20Feedback%5D&body=Request%2FBug%3A%0D%0ADescription%20or%20Steps%20to%20reproduce%20issue%3A%0D%0AWeb%20browser%3A">
+                : vmt@21pstem.org
+              </a>
             </p>
             <p>last updated: 12.30.2019</p>
           </section>
