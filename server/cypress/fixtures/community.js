@@ -38,6 +38,7 @@ function sortLatest(items) {
 
 const ggb = 'geogebra';
 const des = 'desmos';
+const desAct = 'desmosActivity';
 const prv = 'private';
 const pub = 'public';
 
