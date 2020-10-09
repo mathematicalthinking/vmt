@@ -19,7 +19,15 @@ import {
 } from '../../store/actions';
 import mongoIdGenerator from '../../utils/createMongoId';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
-import { GgbGraph, DesmosGraph, Chat, Tabs, Tools, RoomInfo } from '.';
+import {
+  GgbGraph,
+  DesmosGraph,
+  DesmosActivity,
+  Chat,
+  Tabs,
+  Tools,
+  RoomInfo,
+} from '.';
 import {
   Modal,
   CurrentMembers,
@@ -887,6 +895,28 @@ class Workspace extends Component {
       if (tab.tabType === 'desmos') {
         return (
           <DesmosGraph
+            key={tab._id}
+            room={populatedRoom}
+            user={user}
+            resetControlTimer={this.resetControlTimer}
+            currentTabId={currentTabId}
+            updateRoomTab={connectUpdateRoomTab}
+            tab={tab}
+            inControl={inControl}
+            myColor={myColor}
+            toggleControl={this.toggleControl}
+            updatedRoom={connectUpdatedRoom}
+            addNtfToTabs={this.addNtfToTabs}
+            isFirstTabLoaded={isFirstTabLoaded}
+            setFirstTabLoaded={this.setFirstTabLoaded}
+            referencing={referencing}
+            updateUserSettings={connectUpdateUserSettings}
+            addToLog={this.addToLog}
+          />
+        );
+      } else if (tab.tabType === 'desmosActivity') {
+        return (
+          <DesmosActivity
             key={tab._id}
             room={populatedRoom}
             user={user}

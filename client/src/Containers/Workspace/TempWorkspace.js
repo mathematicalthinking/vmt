@@ -189,6 +189,14 @@ class TempWorkspace extends Component {
               Desmos
             </Button>
             <Button
+              data-testid="temp-desmos-activity"
+              m={5}
+              click={() => this.joinRoom('desmosActivity')}
+              disabled={!loggedIn && !tempUsername}
+            >
+              Desmos Activity
+            </Button>
+            <Button
               data-testid="temp-geogebra"
               m={5}
               click={() => this.joinRoom('geogebra')}

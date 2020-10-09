@@ -98,6 +98,10 @@ class NewResourceContainer extends Component {
       intro,
       history,
     } = this.props;
+    let RoomTypeDet = null;
+    if (ggb) RoomTypeDet = 'geobegbra';
+    else RoomTypeDet = 'desmos';
+    // if (ggb) ? 'geogebra' : ggb ? 'desmos' : 'desmosActivity',
     const newResource = {
       name,
       description,
@@ -106,7 +110,7 @@ class NewResourceContainer extends Component {
       creator: userId,
       activities: activities.length > 0 ? activities : null,
       course: courseId,
-      roomType: ggb ? 'geogebra' : 'desmos',
+      roomType: RoomTypeDet,
       image: formatImageUrl(name, resource),
     };
     if (newResource.privacySetting === 'private') {

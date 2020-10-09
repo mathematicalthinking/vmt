@@ -333,13 +333,17 @@ class Room extends Component {
       const dueDateText = 'Due Date'; // the fact that we have to do this make this not worth it
       let ggb = false;
       let desmos = false;
+      let desmosActivity = false;
       room.tabs.forEach((tab) => {
         if (tab.tabType === 'geogebra') ggb = true;
         else if (tab.tabType === 'desmos') desmos = true;
+        else if (tab.tabType === 'desmosActivity') desmosActivity = true;
       });
       let roomType;
-      if (ggb && desmos) roomType = 'GeoGebra/Desmos';
-      else roomType = ggb ? 'GeoGebra' : 'Desmos';
+      if (ggb && (desmos || desmosActivity)) roomType = 'GeoGebra/Desmos';
+      else if (ggb) roomType = 'GeoGebra';
+      else if (desmos) roomType = 'Desmos';
+      else roomType = 'Desmos Activity';
 
       const { updateFail, updateKeys } = loading;
 

@@ -15,6 +15,9 @@ const Step2New = (props) => {
         <RadioBtn name="desmos" checked={!ggb} check={setGgb}>
           Desmos
         </RadioBtn>
+        <RadioBtn name="desmosActivity" checked={!ggb} check={setGgb}>
+          Desmos Activity
+        </RadioBtn>
       </div>
     </Aux>
   );
