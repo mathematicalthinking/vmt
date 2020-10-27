@@ -72,7 +72,8 @@ module.exports.getEncIssuerId = () => {
   const envName = process.env.NODE_ENV;
 
   if (envName === 'production') {
-    return process.env.ENC_JWT_ISSUER_ID_PROD;
+    // return process.env.ENC_JWT_ISSUER_ID_PROD;
+    return `https://encompass.mathematicalthinking.org`;
   }
 
   if (envName === 'staging') {
