@@ -77,7 +77,8 @@ module.exports.getEncIssuerId = () => {
   }
 
   if (envName === 'staging') {
-    return process.env.ENC_JWT_ISSUER_ID_STAGING;
+    // return process.env.ENC_JWT_ISSUER_ID_STAGING;
+    return `https://enc-test.mathematicalthinking.org/`;
   }
 
   if (envName === 'test') {
