@@ -82,7 +82,7 @@ class NewResourceContainer extends Component {
       privacySetting,
       activities,
       desmosLink,
-      ggb,
+      roomType,
       dueDate,
       appName,
     } = this.state;
@@ -98,10 +98,7 @@ class NewResourceContainer extends Component {
       intro,
       history,
     } = this.props;
-    let RoomTypeDet = null;
-    if (ggb) RoomTypeDet = 'geobegbra';
-    else RoomTypeDet = 'desmos';
-    // if (ggb) ? 'geogebra' : ggb ? 'desmos' : 'desmosActivity',
+
     const newResource = {
       name,
       description,
@@ -110,7 +107,7 @@ class NewResourceContainer extends Component {
       creator: userId,
       activities: activities.length > 0 ? activities : null,
       course: courseId,
-      roomType: RoomTypeDet,
+      roomType,
       image: formatImageUrl(name, resource),
     };
     if (newResource.privacySetting === 'private') {
@@ -146,7 +143,7 @@ class NewResourceContainer extends Component {
             },
           ];
           newResource.dueDate = dueDate;
-          if (ggb) {
+          if (roomType === 'geogebra') {
             newResource.appName = appName;
           }
           connectCreateRoom(newResource);
@@ -178,8 +175,8 @@ class NewResourceContainer extends Component {
     this.setState({ activities: updatedActivities });
   };
 
-  setGgb = (event) => {
-    this.setState({ ggb: event.target.name === 'geogebra' });
+  setRoomType = (event) => {
+    this.setState({ roomType: event.target.name });
   };
 
   setGgbFile = (event) => {
@@ -238,7 +235,7 @@ class NewResourceContainer extends Component {
       activities,
       appName,
       copying,
-      ggb,
+      roomType,
       desmosLink,
       dueDate,
       step,
@@ -270,8 +267,8 @@ class NewResourceContainer extends Component {
       ) : (
         <Step2New
           key="step2"
-          setGgb={this.setGgb}
-          ggb={ggb}
+          setRoomType={this.setRoomType}
+          roomType={roomType}
           changeHandler={this.changeHandler}
         />
       ),
@@ -295,7 +292,7 @@ class NewResourceContainer extends Component {
         2,
         0,
         <RoomOpts
-          ggb={ggb}
+          roomType={roomType}
           setGgbFile={this.setGgbFile}
           setGgbApp={this.setGgbApp}
           desmosLink={desmosLink}

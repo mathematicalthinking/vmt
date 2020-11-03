@@ -16,7 +16,7 @@ const ggbOpts = [
 class RoomOpts extends Component {
   render() {
     const {
-      ggb,
+      roomType,
       appName,
       setGgbApp,
       setGgbFile,
@@ -24,7 +24,7 @@ class RoomOpts extends Component {
       desmosLink,
       setDesmosLink,
     } = this.props;
-    if (ggb) {
+    if (roomType === 'geogebra') {
       return (
         <div className={classes.RoomOpts}>
           <p>Select a GeoGebra App</p>
@@ -73,6 +73,11 @@ class RoomOpts extends Component {
         </div>
       );
     }
+    if (roomType === 'desmosActivity') {
+      return (
+        <div>Hello Activity! No options yet...</div> // TODO consider removing step through logic on NewResource
+      );
+    }
     return (
       <Aux>
         <TextInput
@@ -89,7 +94,7 @@ class RoomOpts extends Component {
 }
 
 RoomOpts.propTypes = {
-  ggb: PropTypes.bool.isRequired,
+  roomType: PropTypes.string.isRequired,
   appName: PropTypes.string.isRequired,
   setGgbApp: PropTypes.func.isRequired,
   setGgbFile: PropTypes.func.isRequired,

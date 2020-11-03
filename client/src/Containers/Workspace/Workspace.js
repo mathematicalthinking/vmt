@@ -914,7 +914,8 @@ class Workspace extends Component {
             addToLog={this.addToLog}
           />
         );
-      } else if (tab.tabType === 'desmosActivity') {
+      }
+      if (tab.tabType === 'desmosActivity') {
         return (
           <DesmosActivity
             key={tab._id}
