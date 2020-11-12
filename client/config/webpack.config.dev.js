@@ -118,7 +118,8 @@ module.exports = {
             loader: require.resolve('eslint-loader'),
           },
         ],
-        include: paths.appSrc,
+        include: [paths.appSrc],
+        exclude: [paths.appExtModules],
       },
       {
         // "oneOf" will traverse all following loaders until one will
@@ -140,6 +141,7 @@ module.exports = {
           {
             test: /\.(js|jsx|mjs)$/,
             include: paths.appSrc,
+            exclude: [paths.appExtModules],
             loader: require.resolve('babel-loader'),
             options: {
               // This is a feature of `babel-loader` for webpack (not Babel itself).

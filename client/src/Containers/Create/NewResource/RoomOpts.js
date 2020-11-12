@@ -75,7 +75,16 @@ class RoomOpts extends Component {
     }
     if (roomType === 'desmosActivity') {
       return (
-        <div>Hello Activity! No options yet...</div> // TODO consider removing step through logic on NewResource
+        <Aux>
+          <TextInput
+            light
+            name="desmosLink"
+            label="Paste a Desmos Activity Builder url"
+            value={desmosLink}
+            change={setDesmosLink}
+            width="100%"
+          />
+        </Aux>
       );
     }
     return (

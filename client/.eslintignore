@@ -3,4 +3,4 @@
 ./OGsrc
 ./encompassBuild
 ./public
-./src/utils/Desmos/*.js
+./src/external
