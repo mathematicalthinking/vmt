@@ -84,7 +84,7 @@
     "yup": "^0.27.0"
   },
   "scripts": {
-    "start": "node scripts/start.js",
+    "start": "node --max-old-space-size=2048 scripts/start.js",
     "build-production": "node scripts/build.js production",
     "build-staging": "node scripts/build.js staging",
     "test": "node scripts/test.js --env=jsdom"
