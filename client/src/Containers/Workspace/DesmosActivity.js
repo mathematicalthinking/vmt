@@ -13,17 +13,12 @@ import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
 function DesmosActivityGraph(props) {
   const [screenPage, setScreenPage] = useState(1);
   const [activityPlayer, setActivityPlayer] = useState();
-  const [activityData, setActivityData] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
   const calculatorRef = useRef(null);
-  const keyPrefix = `activity-data:`;
 
-  let expressionList = [];
   let receivingData = false;
-  let graph = {};
   let undoing = false;
-  let refWarningMsg =
-    'Whiteboard referencing is currently not supported for Desmos Activities';
+  let initializing = true;
 
   function allowKeypressCheck(event) {
     if (showControlWarning) {
@@ -31,119 +26,68 @@ function DesmosActivityGraph(props) {
     }
   }
 
-  function makePlayer(data, target, onResponseDataUpdated, responseData) {
-    const playerOptions = {
-      activityConfig: data,
-      targetElement: document.getElementById('player-container'),
-      onResponseDataUpdated: handleResponseData,
-    };
-    if (responseData) {
-      playerOptions.responseData = responseData;
-    }
-
-    let newplayer = new Player({
-      playerOptions,
-    });
-    console.log('player', newplayer);
-    setActivityPlayer(newplayer);
-    return newplayer;
-  }
-
+  // Event listener callback on the Activity instance
   function handleResponseData(updates) {
     console.log('Updates: ', updates);
-    // capture state to exit if clearing activity state
-    // if (resetting) return;
-    console.log('Update schema, Session Key prefix: ', keyPrefix);
-    for (const key in updates) {
-      console.log('Updating response data for key ' + key);
-      setActivityData(keyPrefix + key, updates[key]);
+    if (initializing) return;
+    const { room, user, myColor, resetControlTimer, inControl } = props;
+    if (initializing) return;
+    if (undoing) {
+      undoing = false;
+      return;
     }
-  }
-
-  function updateActivityState(stateData) {
-    for (let prefixedKey of stateData) {
-      if (!prefixedKey.startsWith(keyPrefix)) continue;
-      const responseDataKey = prefixedKey.slice(keyPrefix.length);
-      responseData[responseDataKey] = sessionStorage[prefixedKey];
-    }
-
-    const playerOptions = {
-      activityConfig,
-      targetElement: document.getElementById('player-container'),
-      onResponseDataUpdated: handleResponseData,
+    const currentState = {
+      studentResponses: updates,
+      timestampEpochMs: new Date().getTime(),
     };
-    if (hasResponseData) {
-      playerOptions.responseData = responseData;
+    if (!receivingData) {
+      if (inControl !== 'ME') {
+        undoing = true;
+        document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
+        // we have the global keypress listener to prevent typing if controlWarning is being shown
+        setShowControlWarning(true);
+        return;
+      }
+      const description = this.buildDescription(
+        user.username
+        // stateDifference
+      );
+      const currentStateString = JSON.stringify(currentState);
+      // console.log(this.calculator.getState());
+      const newData = {
+        _id: mongoIdGenerator(),
+        room: room._id,
+        tab: tab._id,
+        currentState: currentStateString, // desmos events use the currentState field on Event model
+        color: myColor,
+        user: {
+          _id: user._id,
+          username: user.username,
+        },
+        timestamp: new Date().getTime(),
+        description,
+      };
+      // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
+      addToLog(newData);
+      socket.emit('SEND_EVENT', newData, () => {});
+      resetControlTimer();
     }
+    receivingData = false;
   }
 
-  /**
-   * @method areDesmosActivityStatesEqual
-   * @param  {Object} newState - desmos state object return from desmos.getState
-   * @return {Boolean} statesAreEqual
-   * @description - compares the previous desmos state (stored as in instance variable) with the newState argument
-   * It ignores changes to graph.viewport because we want users who are not in control to still be able to zoom in and out
-   */
-  function areDesmosActivityStatesEqual(newState) {
-    // return true as placeholder
-    return true;
+  // Handle the update of the Activity Player state
+  function updateActivityState(stateData) {
+    activityPlayer.dangerouslySetResponses(
+      { stateData: studentResponses },
+      {
+        stateData: timestampEpochMs,
+      }
+    );
   }
 
   function initializeListeners() {
     // INITIALIZE EVENT LISTENER
     const { tab, updatedRoom, addNtfToTabs, addToLog } = props;
-    // Look for change/input to activity
-    this.calculator.observeEvent('change', () => {
-      const { room, user, myColor, resetControlTimer, inControl } = props;
-      if (initializing) return;
-      if (undoing) {
-        undoing = false;
-        return;
-      }
-      const currentState = activityData;
-      if (!receivingData) {
-        const stateDifference = areDesmosActivityStatesEqual(currentState);
-        if (stateDifference === null) return;
-        // we only want to listen for changes to the expressions. i.e. we want to ignore zoom-in-out changes
-        if (inControl !== 'ME') {
-          undoing = true;
-          document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
-          // we have the global keypress listener to prevent typing if controlWarning is being shown
-          setShowControlWarning(true);
-          return;
-        }
-        const description = this.buildDescription(
-          user.username,
-          stateDifference
-        );
-        const currentStateString = JSON.stringify(currentState);
-        // console.log(this.calculator.getState());
-        const newData = {
-          _id: mongoIdGenerator(),
-          room: room._id,
-          tab: tab._id,
-          currentState: currentStateString, // desmos events use the currentState field on Event model
-          color: myColor,
-          user: {
-            _id: user._id,
-            username: user.username,
-          },
-          timestamp: new Date().getTime(),
-          description,
-        };
-        // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
-        addToLog(newData);
-        socket.emit('SEND_EVENT', newData, () => {});
-        resetControlTimer();
-        // if (this.debouncedUpdate) {
-        //   this.debouncedUpdate.cancel();
-        // }
-        debouncedUpdate();
-      }
-      // this.expressionList = currentState.expressions.list;
-      // this.graph = currentState.graph;
-      receivingData = false;
-    });
 
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
@@ -159,7 +103,7 @@ function DesmosActivityGraph(props) {
         });
         updatedRoom(room._id, { tabs: updatedTabs });
         // updatedRoom(room._id, { tabs: updatedTabs });
-        setActivityData(data.currentState);
+        updateActivityState(data.currentState);
       } else {
         addNtfToTabs(data.tab);
         receivingData = false;
@@ -199,6 +143,7 @@ function DesmosActivityGraph(props) {
       console.log('player', player);
       setActivityPlayer(player);
       props.setFirstTabLoaded();
+      initializing = false;
     }
     fetchData();
 
@@ -222,17 +167,17 @@ function DesmosActivityGraph(props) {
       <ControlWarningModal
         showControlWarning={showControlWarning}
         toggleControlWarning={() => {
-          setshowControlWarning(false);
+          setShowControlWarning(false);
         }}
         takeControl={() => {
           // this.calculator.undo();
-          toggleControl();
-          setshowControlWarning(false);
+          props.toggleControl();
+          setShowControlWarning(false);
         }}
         inControl={props.inControl}
         cancel={() => {
           // this.calculator.undo();
-          setshowControlWarning(false);
+          setShowControlWarning(false);
         }}
         inAdminMode={props.user.inAdminMode}
       />
