@@ -5,12 +5,13 @@ import classes from './graph.css';
 import { Aux, Button } from '../../Components';
 import { Player } from '../../external/js/api.full.es';
 import socket from '../../utils/sockets';
+import mongoIdGenerator from '../../utils/createMongoId';
 import ControlWarningModal from './ControlWarningModal';
 import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
 
 // import { updatedRoom } from '../../store/actions';
 
-function DesmosActivityGraph(props) {
+const DesmosActivityGraph = props => {
   const [screenPage, setScreenPage] = useState(1);
   const [activityPlayer, setActivityPlayer] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
@@ -18,7 +19,11 @@ function DesmosActivityGraph(props) {
 
   let receivingData = false;
   let undoing = false;
-  let initializing = true;
+  let initializing = false;
+
+  console.log("Your rendered the Activity Graph again!");
+  console.log("InControl? ", props.inControl);
+
 
   function allowKeypressCheck(event) {
     if (showControlWarning) {
@@ -26,30 +31,51 @@ function DesmosActivityGraph(props) {
     }
   }
 
+  let buildDescription = (username, updates) => {
+  //  let eventDetails = JSON.stringify(updates[updates.keys(updates)[0]]);
+  let eventDetails = JSON.stringify(updates);
+  console.log("Parsing updates... ", username);
+  return `${username} ${eventDetails}`;
+  };
+
+  // listener debugger to follow warming modal
+  useEffect(() => {
+    console.log('Warning listener: ', showControlWarning);
+    console.log('and control is currently ', props.inControl);
+  }, [showControlWarning])
+
+  useEffect(() => {
+    console.log("~~~~~~Props Control listener~~~~~~~~~")
+    console.log("In Control now...: ", props.inControl)
+  }, [props.inControl])
+
+
   // Event listener callback on the Activity instance
   function handleResponseData(updates) {
-    console.log('Updates: ', updates);
     if (initializing) return;
-    const { room, user, myColor, resetControlTimer, inControl } = props;
+    let { room, user, myColor, tab, resetControlTimer, inControl } = props;
     if (initializing) return;
     if (undoing) {
       undoing = false;
       return;
     }
+
     const currentState = {
       studentResponses: updates,
       timestampEpochMs: new Date().getTime(),
     };
     if (!receivingData) {
-      if (inControl !== 'ME') {
-        undoing = true;
-        document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
-        // we have the global keypress listener to prevent typing if controlWarning is being shown
-        setShowControlWarning(true);
-        return;
-      }
-      const description = this.buildDescription(
-        user.username
+      console.log('**** Updates: ', updates, ', Controlled by: ', inControl, ' ****');
+      // if (inControl !== 'ME') {
+      //   console.log('Oops, you are not in control!');
+      //   // undoing = true;
+      //   // document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
+      //   // we have the global keypress listener to prevent typing if controlWarning is being shown
+      //   setShowControlWarning(true);
+      //   return;
+      // }
+      let description = buildDescription(
+        user.username, updates
         // stateDifference
       );
       const currentStateString = JSON.stringify(currentState);
@@ -68,7 +94,7 @@ function DesmosActivityGraph(props) {
         description,
       };
       // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
-      addToLog(newData);
+      props.addToLog(newData);
       socket.emit('SEND_EVENT', newData, () => {});
       resetControlTimer();
     }
@@ -91,6 +117,7 @@ function DesmosActivityGraph(props) {
 
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
+      console.log('Socket: Received data: ', data);
       addToLog(data);
       const { room } = props;
       receivingData = true;
@@ -110,14 +137,15 @@ function DesmosActivityGraph(props) {
       }
     });
 
-    const { user: propsUser } = props;
-    const { settings } = propsUser;
+    // const { user: propsUser } = props;
+    // const { settings } = propsUser;
   }
 
   useEffect(() => {
     // // TODO handle existing room state?
     // try {
-    window.addEventListener('keydown', allowKeypressCheck());
+    initializing = true;
+    // window.addEventListener('keydown', allowKeypressCheck());
     let link = props.tab.desmosLink;
     link = link.split('/');
     const code = link[link.length - 1];
@@ -130,11 +158,6 @@ function DesmosActivityGraph(props) {
       });
       const data = await result.json();
       console.log('Data: ', data);
-      // const player = makePlayer(
-      //   data,
-      //   calculatorRef.current,
-      //   handleResponseData
-      // );
       const player = new Player({
         activityConfig: data,
         targetElement: calculatorRef.current,
@@ -146,7 +169,7 @@ function DesmosActivityGraph(props) {
       initializing = false;
     }
     fetchData();
-
+    initializeListeners();
     return function cleanup() {
       if (activityPlayer) {
         activityPlayer.destroy();
