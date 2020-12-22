@@ -14,6 +14,7 @@ import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
 const DesmosActivityGraph = props => {
   const [screenPage, setScreenPage] = useState(1);
   const [activityPlayer, setActivityPlayer] = useState();
+  const [activityUpdates, setActivityUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
   const calculatorRef = useRef(null);
 
@@ -45,13 +46,14 @@ const DesmosActivityGraph = props => {
   }, [showControlWarning])
 
   useEffect(() => {
-    console.log("~~~~~~Props Control listener~~~~~~~~~")
-    console.log("In Control now...: ", props.inControl)
-  }, [props.inControl])
+    console.log("~~~~~~activityUpdate listener~~~~~~~~~")
+    // console.log("Updates...: ", activityUpdates);
+    handleResponseData(activityUpdates);
+  }, [activityUpdates])
 
 
   // Event listener callback on the Activity instance
-  function handleResponseData(updates) {
+  const handleResponseData = updates => {
     if (initializing) return;
     let { room, user, myColor, tab, resetControlTimer, inControl } = props;
     if (initializing) return;
@@ -66,14 +68,15 @@ const DesmosActivityGraph = props => {
     };
     if (!receivingData) {
       console.log('**** Updates: ', updates, ', Controlled by: ', inControl, ' ****');
-      // if (inControl !== 'ME') {
-      //   console.log('Oops, you are not in control!');
-      //   // undoing = true;
-      //   // document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
-      //   // we have the global keypress listener to prevent typing if controlWarning is being shown
-      //   setShowControlWarning(true);
-      //   return;
-      // }
+      console.log("On page: ", screenPage)
+      if (inControl !== 'ME') {
+        console.log('Oops, you are not in control!');
+        // undoing = true;
+        // document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
+        // we have the global keypress listener to prevent typing if controlWarning is being shown
+        setShowControlWarning(true);
+        return;
+      }
       let description = buildDescription(
         user.username, updates
         // stateDifference
@@ -161,7 +164,10 @@ const DesmosActivityGraph = props => {
       const player = new Player({
         activityConfig: data,
         targetElement: calculatorRef.current,
-        onResponseDataUpdated: handleResponseData,
+        onResponseDataUpdated: (responses) => {
+          console.log('Responses updated: ', responses);
+          setActivityUpdates(responses);
+        },
       });
       console.log('player', player);
       setActivityPlayer(player);
