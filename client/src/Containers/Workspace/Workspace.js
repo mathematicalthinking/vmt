@@ -340,10 +340,10 @@ class Workspace extends Component {
         'You have disconnected from the server. Check your internet connection and try refreshing the page'
       );
     }
-    console.log(
-      'toggling control..., currently controlled by you-',
-      controlledBy === user._id
-    );
+    // console.log(
+    //   'toggling control..., currently controlled by you-',
+    //   controlledBy === user._id
+    // );
 
     if (controlledBy === user._id) {
       // Releasing control

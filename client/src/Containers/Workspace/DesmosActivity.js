@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import classes from './graph.css';
 import { Aux, Button } from '../../Components';
@@ -11,20 +11,21 @@ import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
 
 // import { updatedRoom } from '../../store/actions';
 
-const DesmosActivityGraph = props => {
+const DesmosActivityGraph = (props) => {
   const [screenPage, setScreenPage] = useState(1);
-  const [activityPlayer, setActivityPlayer] = useState();
+  // const [activityPlayer, setActivityPlayer] = useState({});
   const [activityUpdates, setActivityUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
-  const calculatorRef = useRef(null);
+  const calculatorRef = useRef();
+  const calculatorInst = useRef();
+
 
   let receivingData = false;
   let undoing = false;
   let initializing = false;
 
-  console.log("Your rendered the Activity Graph again!");
-  console.log("InControl? ", props.inControl);
-
+  // console.log('Your rendered the Activity Graph again!');
+  // console.log('InControl? ', props.inControl);
 
   function allowKeypressCheck(event) {
     if (showControlWarning) {
@@ -33,44 +34,44 @@ const DesmosActivityGraph = props => {
   }
 
   let buildDescription = (username, updates) => {
-  //  let eventDetails = JSON.stringify(updates[updates.keys(updates)[0]]);
-  let eventDetails = JSON.stringify(updates);
-  console.log("Parsing updates... ", username);
-  return `${username} ${eventDetails}`;
+    //  let eventDetails = JSON.stringify(updates[updates.keys(updates)[0]]);
+    let eventDetails = JSON.stringify(updates);
+    return `${username} ${eventDetails}`;
   };
 
   // listener debugger to follow warming modal
-  useEffect(() => {
-    console.log('Warning listener: ', showControlWarning);
-    console.log('and control is currently ', props.inControl);
-  }, [showControlWarning])
+  // useEffect(() => {
+  //   console.log('Warning listener: ', showControlWarning);
+  //   console.log('and control is currently ', props.inControl);
+  // }, [showControlWarning]);
 
   useEffect(() => {
-    console.log("~~~~~~activityUpdate listener~~~~~~~~~")
+    console.log('~~~~~~activityUpdate listener~~~~~~~~~');
     // console.log("Updates...: ", activityUpdates);
     handleResponseData(activityUpdates);
-  }, [activityUpdates])
-
+  }, [activityUpdates]);
 
   // Event listener callback on the Activity instance
-  const handleResponseData = updates => {
+  const handleResponseData = (updates) => {
     if (initializing) return;
     let { room, user, myColor, tab, resetControlTimer, inControl } = props;
-    if (initializing) return;
     if (undoing) {
       undoing = false;
       return;
     }
 
-    const currentState = {
-      studentResponses: updates,
-      timestampEpochMs: new Date().getTime(),
-    };
+    const currentState = updates;
     if (!receivingData) {
-      console.log('**** Updates: ', updates, ', Controlled by: ', inControl, ' ****');
-      console.log("On page: ", screenPage)
+      console.log(
+        '**** Updates: ',
+        currentState,
+        ', Controlled by: ',
+        inControl,
+        ' ****'
+      );
+      // console.log('On page: ', screenPage);
       if (inControl !== 'ME') {
-        console.log('Oops, you are not in control!');
+        // console.log('Oops, you are not in control!');
         // undoing = true;
         // document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
         // we have the global keypress listener to prevent typing if controlWarning is being shown
@@ -78,7 +79,8 @@ const DesmosActivityGraph = props => {
         return;
       }
       let description = buildDescription(
-        user.username, updates
+        user.username,
+        updates
         // stateDifference
       );
       const currentStateString = JSON.stringify(currentState);
@@ -102,15 +104,16 @@ const DesmosActivityGraph = props => {
       resetControlTimer();
     }
     receivingData = false;
-  }
+  };
 
   // Handle the update of the Activity Player state
   function updateActivityState(stateData) {
-    activityPlayer.dangerouslySetResponses(
-      { stateData: studentResponses },
-      {
-        stateData: timestampEpochMs,
-      }
+    let newState = JSON.parse(stateData);
+    console.log('Updating this player: ', calculatorInst.current);
+    console.log('Received this data: ', newState);
+    calculatorInst.current.dangerouslySetResponses(
+       newState.studentResponses,
+        {timestampEpochMs: newState.timestampEpochMs}
     );
   }
 
@@ -144,9 +147,7 @@ const DesmosActivityGraph = props => {
     // const { settings } = propsUser;
   }
 
-  useEffect(() => {
-    // // TODO handle existing room state?
-    // try {
+  const fetchData = useCallback(async () => {
     initializing = true;
     // window.addEventListener('keydown', allowKeypressCheck());
     let link = props.tab.desmosLink;
@@ -155,38 +156,55 @@ const DesmosActivityGraph = props => {
     const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
     console.log('adapted activity url: ', URL);
     // calling Desmos to get activity config
-    async function fetchData() {
-      const result = await fetch(URL, {
-        headers: { Accept: 'application/json' },
-      });
-      const data = await result.json();
-      console.log('Data: ', data);
-      const player = new Player({
-        activityConfig: data,
-        targetElement: calculatorRef.current,
-        onResponseDataUpdated: (responses) => {
-          console.log('Responses updated: ', responses);
-          setActivityUpdates(responses);
-        },
-      });
-      console.log('player', player);
-      setActivityPlayer(player);
-      props.setFirstTabLoaded();
-      initializing = false;
-    }
-    fetchData();
+    const result = await fetch(URL, {
+      headers: { Accept: 'application/json' },
+    });
+    const data = await result.json();
+    console.log('Data: ', data);
+    calculatorInst.current = new Player({
+      activityConfig: data,
+      targetElement: calculatorRef.current,
+      onResponseDataUpdated: (responses) => {
+        const currentState = {
+          studentResponses: responses,
+          timestampEpochMs: new Date().getTime(),
+        };
+        // console.log('Responses updated: ', responses);
+        setActivityUpdates(currentState);
+      },
+    });
+
+    // console.log('player', player);
+    // setActivityPlayer(player);
+    console.log(
+      'Desmos Activity Player initialized Version: ',
+      Player.version(),
+      'Player state: ',
+      calculatorInst.current
+    );
+    props.setFirstTabLoaded();
+    initializing = false;
     initializeListeners();
+  });
+
+  useEffect(() => {
+    // // TODO handle existing room state?
+    // try {
+
+    fetchData();
+
     return function cleanup() {
-      if (activityPlayer) {
-        activityPlayer.destroy();
+      if (calculatorInst.current) {
+        calculatorInst.current.destroy();
       }
       window.removeEventListener('keydown', allowKeypressCheck());
     };
   }, []);
 
   function navigateBy(increment) {
-    let page = activityPlayer.getActiveScreenIndex() + increment;
-    activityPlayer.setActiveScreenIndex(page);
+    console.log('chaging page for ', calculatorInst.current);
+    let page = calculatorInst.current.getActiveScreenIndex() + increment;
+    calculatorInst.current.setActiveScreenIndex(page);
     setScreenPage(page + 1);
   }
 
@@ -234,7 +252,7 @@ const DesmosActivityGraph = props => {
       </div>
     </Aux>
   );
-}
+};
 
 DesmosActivityGraph.propTypes = {
   room: PropTypes.shape({}).isRequired,

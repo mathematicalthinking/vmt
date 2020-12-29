@@ -469,6 +469,7 @@ class DesmosGraph extends Component {
           }
           return tab;
         });
+        // @TODO why is this method called twice?
         updatedRoom(room._id, { tabs: updatedTabs });
         updatedRoom(room._id, { tabs: updatedTabs });
         this.calculator.setState(data.currentState);
