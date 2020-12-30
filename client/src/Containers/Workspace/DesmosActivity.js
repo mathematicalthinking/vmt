@@ -1,6 +1,7 @@
 /* eslint-disable */
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import debounce from 'lodash/debounce';
 import classes from './graph.css';
 import { Aux, Button } from '../../Components';
 import { Player } from '../../external/js/api.full.es';
@@ -8,6 +9,7 @@ import socket from '../../utils/sockets';
 import mongoIdGenerator from '../../utils/createMongoId';
 import ControlWarningModal from './ControlWarningModal';
 import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
+import API from '../../utils/apiRequests';
 
 // import { updatedRoom } from '../../store/actions';
 
@@ -18,14 +20,56 @@ const DesmosActivityGraph = (props) => {
   const [showControlWarning, setShowControlWarning] = useState(false);
   const calculatorRef = useRef();
   const calculatorInst = useRef();
-
+  const keyPrefix = 'activity-data:';
 
   let receivingData = false;
   let undoing = false;
   let initializing = false;
 
-  // console.log('Your rendered the Activity Graph again!');
-  // console.log('InControl? ', props.inControl);
+  const buildStateLog = (updates) => {
+    for (const key in updates) {
+      sessionStorage.setItem(keyPrefix + key, updates[key]);
+    }
+  }
+
+  // const saveToTab = (currentState) => {
+  //   const { _id } = props.tab;
+
+  //   console.log('API sent state: ', { currentState });
+  //   API.put('tabs', _id, { currentState })
+  //     .then(() => {})
+  //     .catch((err) => {
+  //       // eslint-disable-next-line no-console
+  //       console.log(err);
+  //     });
+  // }
+
+  const debouncedUpdate = debounce(
+    () => {
+      const { tab } = props;
+      let responseData = {};
+      for (let prefixedKey of Object.keys(sessionStorage)) {
+        if (!prefixedKey.startsWith(keyPrefix)) continue;
+        const responseDataKey = prefixedKey.slice(keyPrefix.length);
+        responseData[responseDataKey] = sessionStorage[prefixedKey];
+      }
+      // updateRoomTab(room._id, tab._id, {
+      //   currentState: currentStateString,
+      // });
+      const currentState = JSON.stringify(responseData);
+      const { _id } = tab;
+      console.log('API sent state: ', { currentState });
+      API.put('tabs', _id, { currentState })
+        .then(() => {})
+        .catch((err) => {
+          // eslint-disable-next-line no-console
+          console.log(err);
+        });
+    },
+    // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
+    2000,
+    { trailing: true, leading: false }
+  );
 
   function allowKeypressCheck(event) {
     if (showControlWarning) {
@@ -71,9 +115,8 @@ const DesmosActivityGraph = (props) => {
       );
       // console.log('On page: ', screenPage);
       if (inControl !== 'ME') {
-        // console.log('Oops, you are not in control!');
-        // undoing = true;
-        // document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
+        undoing = true;
+        document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
         // we have the global keypress listener to prevent typing if controlWarning is being shown
         setShowControlWarning(true);
         return;
@@ -102,6 +145,7 @@ const DesmosActivityGraph = (props) => {
       props.addToLog(newData);
       socket.emit('SEND_EVENT', newData, () => {});
       resetControlTimer();
+      debouncedUpdate();
     }
     receivingData = false;
   };
@@ -136,6 +180,7 @@ const DesmosActivityGraph = (props) => {
         });
         updatedRoom(room._id, { tabs: updatedTabs });
         // updatedRoom(room._id, { tabs: updatedTabs });
+        console.log('Initial data: ', data.currentState)
         updateActivityState(data.currentState);
       } else {
         addNtfToTabs(data.tab);
@@ -161,7 +206,7 @@ const DesmosActivityGraph = (props) => {
     });
     const data = await result.json();
     console.log('Data: ', data);
-    calculatorInst.current = new Player({
+    let playerOptions = {
       activityConfig: data,
       targetElement: calculatorRef.current,
       onResponseDataUpdated: (responses) => {
@@ -170,16 +215,23 @@ const DesmosActivityGraph = (props) => {
           timestampEpochMs: new Date().getTime(),
         };
         // console.log('Responses updated: ', responses);
+        buildStateLog(responses);
         setActivityUpdates(currentState);
-      },
-    });
+      }
+    };
+    if (props.tab.currentState) {
+      console.log('Prior state: ', props.tab.currentState)
+      // updateActivityState(props.tab.currentState);
+      playerOptions.responseData = JSON.parse(props.tab.currentState);
+    }
+    calculatorInst.current = new Player(playerOptions);
 
     // console.log('player', player);
     // setActivityPlayer(player);
     console.log(
       'Desmos Activity Player initialized Version: ',
       Player.version(),
-      'Player state: ',
+      'Player instance: ',
       calculatorInst.current
     );
     props.setFirstTabLoaded();
@@ -189,10 +241,7 @@ const DesmosActivityGraph = (props) => {
 
   useEffect(() => {
     // // TODO handle existing room state?
-    // try {
-
     fetchData();
-
     return function cleanup() {
       if (calculatorInst.current) {
         calculatorInst.current.destroy();
