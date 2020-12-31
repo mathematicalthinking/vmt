@@ -84,6 +84,15 @@ class RoomOpts extends Component {
             change={setDesmosLink}
             width="100%"
           />
+          <p>
+            Paste in a share URL such as:
+            https://teacher.desmos.com/activitybuilder
+            /custom/564a325345d9115d06270607
+          </p>
+          <br />
+          <p>
+            Desmos Activities are in pre-Alpha, please expect and report issues
+          </p>
         </Aux>
       );
     }
