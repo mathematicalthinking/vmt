@@ -17,6 +17,7 @@ import {
 } from '../../Components';
 import {
   DesmosActivityGraph,
+  DesmosActivity,
   GgbActivityGraph,
   Tabs,
   RoomInfo,
@@ -171,6 +172,20 @@ class ActivityWorkspace extends Component {
         if (tab.tabType === 'desmos') {
           return (
             <DesmosActivityGraph
+              key={tab._id}
+              tab={tab}
+              activity={activity}
+              role={role}
+              currentTab={currentTabId || initialTabId}
+              updateActivityTab={connectUpdateActivityTab}
+              setFirstTabLoaded={this.setFirstTabLoaded}
+              isFirstTabLoaded={isFirstTabLoaded}
+            />
+          );
+        }
+        if (tab.tabType === 'desmosActivity') {
+          return (
+            <DesmosActivity
               key={tab._id}
               tab={tab}
               activity={activity}

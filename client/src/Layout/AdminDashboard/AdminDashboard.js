@@ -200,7 +200,7 @@ AdminDashboard.propTypes = {
   searchValue: PropTypes.string.isRequired,
   filters: PropTypes.shape({
     privacySetting: PropTypes.oneOf(['public', 'private', 'all']),
-    roomType: PropTypes.oneOf(['geogebra', 'desmos', 'all']),
+    roomType: PropTypes.oneOf(['geogebra', 'desmos', 'desmosActivity', 'all']),
   }).isRequired,
   toggleFilter: PropTypes.func.isRequired,
   setSkip: PropTypes.func.isRequired,

@@ -8,6 +8,12 @@
 .Graph {
   height: 100%;
   width: 100%;
+  /* z-index: 991; */
+}
+
+.Activity {
+  /* position: absolute; */
+  /* z-index: 990; */
 }
 
 .ControlWarning {
@@ -40,4 +46,23 @@
 
 .Info {
   margin: 15px 0;
+}
+
+.Title {
+  /* display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 2 0 auto; */
+  padding: 15px;
+  color: blue;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: capitalize;
+  /* border: 1px solid darkorchid; */
+  /* color: ; */
+}
+
+.ActivityNav {
+  z-index: 999;
+  position: absolute;
 }

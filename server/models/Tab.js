@@ -6,7 +6,7 @@ const Tab = new mongoose.Schema(
     name: { type: String },
     appName: { type: String, enum: ['3d', 'graphing', 'classic', 'geometry'] }, // Only for GeoGebra Rooms
     instructions: { type: String },
-    tabType: { type: String, enum: ['geogebra', 'desmos'] },
+    tabType: { type: String, enum: ['geogebra', 'desmos', 'desmosActivity'] },
     currentState: { type: String, default: '' },
     currentStateBase64: { type: String, default: '' },
     ggbFile: { type: String }, // ggb base64 file

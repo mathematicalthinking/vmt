@@ -144,6 +144,20 @@ export default {
   getDesmos: (url) => {
     return api.get(`/desmos?url=${url}`);
   },
+  // getDesmosActivity: (link) => {
+  //   try {
+  //     link = link.split('/');
+  //     const code = link[link.length - 1];
+  //     return api.get(
+  //       `https://teacher.desmos.com/activitybuilder/export/${code}`
+  //     );
+  //   } catch (err) {
+  //     console.log('Error- could not fetch URL, defaulting activity url: ', err);
+  //     return api.get(
+  //       `https://teacher.desmos.com/activitybuilder/export/5ddbf9ae009cd90bcdeaadd7`
+  //     );
+  //   }
+  // },
   uploadGgbFiles: (formData) => {
     return api.post(`/api/upload/ggb`, formData);
   },

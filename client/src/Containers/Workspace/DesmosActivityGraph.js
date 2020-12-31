@@ -93,7 +93,7 @@ class DesmosActivityGraph extends Component {
       <Aux>
         {!window.Desmos ? (
           <Script
-            url="https://www.desmos.com/api/v1.2/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"
+            url="https://www.desmos.com/api/v1.5/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"
             onLoad={this.onScriptLoad}
           />
         ) : null}
