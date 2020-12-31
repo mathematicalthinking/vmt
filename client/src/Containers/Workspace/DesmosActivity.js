@@ -38,7 +38,11 @@ const DesmosActivityGraph = (props) => {
   const debouncedUpdate = debounce(
     () => {
       const { tab } = props;
+      const { _id } = tab;
       let responseData = {};
+      if (tab.currentStateBase64) {
+        responseData = JSON.parse(tab.currentStateBase64);
+      }
       for (let prefixedKey of Object.keys(sessionStorage)) {
         if (!prefixedKey.startsWith(keyPrefix)) continue;
         const responseDataKey = prefixedKey.slice(keyPrefix.length);
@@ -48,7 +52,6 @@ const DesmosActivityGraph = (props) => {
       //   currentState: currentStateString,
       // });
       const currentStateBase64 = JSON.stringify(responseData);
-      const { _id } = tab;
       console.log('API sent state: ', { currentStateBase64 });
       API.put('tabs', _id, { currentStateBase64 })
         .then(() => {})
@@ -209,7 +212,6 @@ const DesmosActivityGraph = (props) => {
         updateSavedData(responses);
       },
     };
-    let responseData = {};
     if (props.tab.currentStateBase64) {
       const { tab } = props;
       let { currentStateBase64 } = tab;
