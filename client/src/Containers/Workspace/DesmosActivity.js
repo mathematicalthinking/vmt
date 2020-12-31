@@ -178,14 +178,13 @@ const DesmosActivityGraph = (props) => {
         receivingData = false;
       }
     });
-
     // const { user: propsUser } = props;
     // const { settings } = propsUser;
   }
 
   const fetchData = useCallback(async () => {
     initializing = true;
-    // window.addEventListener('keydown', allowKeypressCheck());
+    window.addEventListener('keydown', allowKeypressCheck());
     let link = props.tab.desmosLink;
     link = link.split('/');
     const code = link[link.length - 1];
@@ -215,6 +214,7 @@ const DesmosActivityGraph = (props) => {
       const { tab } = props;
       let { currentStateBase64 } = tab;
       let savedData = JSON.parse(currentStateBase64);
+      console.log('Prior state data loaded: ');
       console.log(savedData);
       // for (let prefixedKey of Object.keys(savedData)) {
       //   if (!prefixedKey.startsWith(keyPrefix)) continue;
