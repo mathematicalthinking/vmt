@@ -10,6 +10,7 @@ import mongoIdGenerator from '../../utils/createMongoId';
 import ControlWarningModal from './ControlWarningModal';
 import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
 import API from '../../utils/apiRequests';
+// import { update } from '../../../../server/models/Tab';
 
 // import { updatedRoom } from '../../store/actions';
 
@@ -26,23 +27,13 @@ const DesmosActivityGraph = (props) => {
   let undoing = false;
   let initializing = false;
 
-  const buildStateLog = (updates) => {
+  function updateSavedData(updates) {
     for (const key in updates) {
+      // console.log('Updating response data for key ' + key);
+      // console.log('Update schema, Session Key prefix: ', keyPrefix)
       sessionStorage.setItem(keyPrefix + key, updates[key]);
     }
   }
-
-  // const saveToTab = (currentState) => {
-  //   const { _id } = props.tab;
-
-  //   console.log('API sent state: ', { currentState });
-  //   API.put('tabs', _id, { currentState })
-  //     .then(() => {})
-  //     .catch((err) => {
-  //       // eslint-disable-next-line no-console
-  //       console.log(err);
-  //     });
-  // }
 
   const debouncedUpdate = debounce(
     () => {
@@ -56,10 +47,10 @@ const DesmosActivityGraph = (props) => {
       // updateRoomTab(room._id, tab._id, {
       //   currentState: currentStateString,
       // });
-      const currentState = JSON.stringify(responseData);
+      const currentStateBase64 = JSON.stringify(responseData);
       const { _id } = tab;
-      console.log('API sent state: ', { currentState });
-      API.put('tabs', _id, { currentState })
+      console.log('API sent state: ', { currentStateBase64 });
+      API.put('tabs', _id, { currentStateBase64 })
         .then(() => {})
         .catch((err) => {
           // eslint-disable-next-line no-console
@@ -126,6 +117,7 @@ const DesmosActivityGraph = (props) => {
         updates
         // stateDifference
       );
+
       const currentStateString = JSON.stringify(currentState);
       // console.log(this.calculator.getState());
       const newData = {
@@ -155,10 +147,9 @@ const DesmosActivityGraph = (props) => {
     let newState = JSON.parse(stateData);
     console.log('Updating this player: ', calculatorInst.current);
     console.log('Received this data: ', newState);
-    calculatorInst.current.dangerouslySetResponses(
-       newState.studentResponses,
-        {timestampEpochMs: newState.timestampEpochMs}
-    );
+    calculatorInst.current.dangerouslySetResponses(newState.studentResponses, {
+      timestampEpochMs: newState.timestampEpochMs,
+    });
   }
 
   function initializeListeners() {
@@ -180,7 +171,7 @@ const DesmosActivityGraph = (props) => {
         });
         updatedRoom(room._id, { tabs: updatedTabs });
         // updatedRoom(room._id, { tabs: updatedTabs });
-        console.log('Initial data: ', data.currentState)
+        console.log('Initial data: ', data.currentState);
         updateActivityState(data.currentState);
       } else {
         addNtfToTabs(data.tab);
@@ -215,15 +206,27 @@ const DesmosActivityGraph = (props) => {
           timestampEpochMs: new Date().getTime(),
         };
         // console.log('Responses updated: ', responses);
-        buildStateLog(responses);
         setActivityUpdates(currentState);
-      }
+        updateSavedData(responses);
+      },
     };
-    if (props.tab.currentState) {
-      console.log('Prior state: ', props.tab.currentState)
+    let responseData = {};
+    if (props.tab.currentStateBase64) {
+      const { tab } = props;
+      let { currentStateBase64 } = tab;
+      let savedData = JSON.parse(currentStateBase64);
+      console.log(savedData);
+      // for (let prefixedKey of Object.keys(savedData)) {
+      //   if (!prefixedKey.startsWith(keyPrefix)) continue;
+      //   let responseDataKey = prefixedKey.slice(keyPrefix.length);
+      //   responseData[responseDataKey] = savedData[prefixedKey];
+      // }
+      // console.log('Initial response data:');
+      // console.log(responseData);
       // updateActivityState(props.tab.currentState);
-      playerOptions.responseData = JSON.parse(props.tab.currentState);
+      playerOptions.responseData = savedData;
     }
+
     calculatorInst.current = new Player(playerOptions);
 
     // console.log('player', player);
@@ -247,6 +250,7 @@ const DesmosActivityGraph = (props) => {
         calculatorInst.current.destroy();
       }
       window.removeEventListener('keydown', allowKeypressCheck());
+      sessionStorage.clear();
     };
   }, []);
 
