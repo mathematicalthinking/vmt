@@ -469,6 +469,7 @@ class DesmosGraph extends Component {
           }
           return tab;
         });
+        // @TODO why is this method called twice?
         updatedRoom(room._id, { tabs: updatedTabs });
         updatedRoom(room._id, { tabs: updatedTabs });
         this.calculator.setState(data.currentState);
@@ -652,7 +653,7 @@ class DesmosGraph extends Component {
         />
         {!window.Desmos ? (
           <Script
-            url="https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"
+            url="https://www.desmos.com/api/v1.5/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"
             onLoad={this.onScriptLoad}
           />
         ) : null}

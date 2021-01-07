@@ -167,3 +167,11 @@
   border: 1px solid red;
   z-index: 1000;
 }
+
+.Link {
+  color: rgb(0, 8, 255);
+  /* background-color: lightRed; */
+  padding: 4px;
+  /* border: 1px solid red; */
+  /* z-index: 1000; */
+}

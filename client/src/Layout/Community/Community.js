@@ -129,6 +129,14 @@ class Community extends Component {
                   >
                     Desmos
                   </RadioBtn>
+                  {/* TODO reenable <RadioBtn
+                    data-testid="desmos-activity-filter"
+                    check={() => toggleFilter('desmosActivity')}
+                    checked={filters.roomType === 'desmosActivity'}
+                    name="DesmosActivity"
+                  >
+                    Desmos Activity
+                  </RadioBtn> */}
                 </div>
               </InfoBox>
             ) : null}
@@ -168,7 +176,7 @@ Community.propTypes = {
   searchValue: PropTypes.string.isRequired,
   filters: PropTypes.shape({
     privacySetting: PropTypes.oneOf(['public', 'private', 'all']),
-    roomType: PropTypes.oneOf(['geogebra', 'desmos', 'all']),
+    roomType: PropTypes.oneOf(['geogebra', 'desmos', 'desmosActivity', 'all']),
   }).isRequired,
   toggleFilter: PropTypes.func.isRequired,
   setSkip: PropTypes.func.isRequired,

@@ -100,6 +100,9 @@ class TempWorkspace extends Component {
     if (graphType === 'desmos' && firstEntry) {
       updatedTabs[0].tabType = 'desmos';
     }
+    if (graphType === 'desmosActivity' && firstEntry) {
+      updatedTabs[0].tabType = 'desmosActivity';
+    }
     // this.setState({enteredRoom: true, graph: graphType})
     return socket.emit('JOIN_TEMP', sendData, (res, err) => {
       if (err) {
@@ -188,6 +191,14 @@ class TempWorkspace extends Component {
             >
               Desmos
             </Button>
+            {/* <Button
+              data-testid="temp-desmos-activity"
+              m={5}
+              click={() => this.joinRoom('desmosActivity')}
+              disabled={!loggedIn && !tempUsername}
+            >
+              Desmos Activity
+            </Button> */}
             <Button
               data-testid="temp-geogebra"
               m={5}

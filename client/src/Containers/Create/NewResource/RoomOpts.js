@@ -16,7 +16,7 @@ const ggbOpts = [
 class RoomOpts extends Component {
   render() {
     const {
-      ggb,
+      roomType,
       appName,
       setGgbApp,
       setGgbFile,
@@ -24,7 +24,7 @@ class RoomOpts extends Component {
       desmosLink,
       setDesmosLink,
     } = this.props;
-    if (ggb) {
+    if (roomType === 'geogebra') {
       return (
         <div className={classes.RoomOpts}>
           <p>Select a GeoGebra App</p>
@@ -73,12 +73,35 @@ class RoomOpts extends Component {
         </div>
       );
     }
+    if (roomType === 'desmosActivity') {
+      return (
+        <Aux>
+          <TextInput
+            light
+            name="desmosLink"
+            label="Paste a Desmos Activity Builder url"
+            value={desmosLink}
+            change={setDesmosLink}
+            width="100%"
+          />
+          <p>
+            Paste in a share URL such as:
+            https://teacher.desmos.com/activitybuilder
+            /custom/564a325345d9115d06270607
+          </p>
+          <br />
+          <p>
+            Desmos Activities are in pre-Alpha, please expect and report issues
+          </p>
+        </Aux>
+      );
+    }
     return (
       <Aux>
         <TextInput
           light
           name="desmosLink"
-          label="Paste a Desmos workspace (optional)"
+          label="Paste a Desmos workspace link (optional)"
           value={desmosLink}
           change={setDesmosLink}
           width="100%"
@@ -89,7 +112,7 @@ class RoomOpts extends Component {
 }
 
 RoomOpts.propTypes = {
-  ggb: PropTypes.bool.isRequired,
+  roomType: PropTypes.string.isRequired,
   appName: PropTypes.string.isRequired,
   setGgbApp: PropTypes.func.isRequired,
   setGgbFile: PropTypes.func.isRequired,

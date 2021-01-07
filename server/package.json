@@ -8,7 +8,7 @@
     "start-staging": "NODE_ENV=staging node ./bin/www",
     "dev": "NODE_ENV=dev concurrently \"nodemon --ignore '../client'\" \"npm run client\"",
     "client": "cd ../client && npm run start",
-    "build-staging": "cd ../client && node scripts/build.js staging",
+    "build-staging": "cd ../client && node --max-old-space-size=3072 scripts/build.js staging",
     "build-production": "cd ../client && node scripts/build.js production vmt",
     "build-production-test": "cd ../client && node scripts/build.js test vmt",
     "build-enc-dev": "cd ../client && node scripts/build.js dev encompass",

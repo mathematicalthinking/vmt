@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Redirect } from 'react-router-dom';
 import { TextInput, Button, RadioBtn, Background, Aux } from '../../Components';
 import classes from './signup.css';
+import GoogleLogin from '../../Components/Form/Google/LoginButton';
 
 class Signup extends Component {
   // @TODO Redo Login containers state to match this. cleaner
@@ -107,6 +108,8 @@ class Signup extends Component {
           <div className={classes.Container}>
             <div className={containerClass}>
               <h2 className={classes.Title}>Signup</h2>
+              <GoogleLogin />
+              <div>or</div>
               <form className={classes.Form}>
                 <TextInput
                   light={temp}

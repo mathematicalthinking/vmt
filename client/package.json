@@ -84,9 +84,9 @@
     "yup": "^0.27.0"
   },
   "scripts": {
-    "start": "node scripts/start.js",
-    "build-production": "node scripts/build.js production",
-    "build-staging": "node scripts/build.js staging",
+    "start": "node --max-old-space-size=3072 scripts/start.js",
+    "build-production": "node --max-old-space-size=3072 scripts/build.js production",
+    "build-staging": "node --max-old-space-size=3072 scripts/build.js staging",
     "test": "node scripts/test.js --env=jsdom"
   },
   "proxy": "http://localhost:3001",
