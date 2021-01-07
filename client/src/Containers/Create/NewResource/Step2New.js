@@ -23,13 +23,13 @@ const Step2New = (props) => {
         >
           Desmos
         </RadioBtn>
-        <RadioBtn
+        {/* <RadioBtn
           name="desmosActivity"
           checked={roomType === 'desmosActivity'}
           check={setRoomType}
         >
           Desmos Activity
-        </RadioBtn>
+        </RadioBtn> */}
       </div>
     </Aux>
   );
