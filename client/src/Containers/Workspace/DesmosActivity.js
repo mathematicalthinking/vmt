@@ -35,6 +35,7 @@ const DesmosActivityGraph = (props) => {
     }
   }
 
+
   const debouncedUpdate = debounce(
     () => {
       const { tab } = props;
@@ -72,6 +73,8 @@ const DesmosActivityGraph = (props) => {
   }
 
   let buildDescription = (username, updates) => {
+
+    //TODO clean up and parse activity types
     //  let eventDetails = JSON.stringify(updates[updates.keys(updates)[0]]);
     let eventDetails = JSON.stringify(updates);
     return `${username} ${eventDetails}`;
@@ -87,7 +90,7 @@ const DesmosActivityGraph = (props) => {
     console.log('~~~~~~activityUpdate listener~~~~~~~~~');
     // console.log("Updates...: ", activityUpdates);
     handleResponseData(activityUpdates);
-  }, [activityUpdates]);
+  }, [activityUpdates, screenPage]);
 
   // Event listener callback on the Activity instance
   const handleResponseData = (updates) => {
@@ -97,8 +100,11 @@ const DesmosActivityGraph = (props) => {
       undoing = false;
       return;
     }
-
-    const currentState = updates;
+   
+    const currentState = {
+      desmosState: updates,
+      screen: screenPage - 1
+    };
     if (!receivingData) {
       console.log(
         '**** Updates: ',
@@ -147,7 +153,8 @@ const DesmosActivityGraph = (props) => {
 
   // Handle the update of the Activity Player state
   function updateActivityState(stateData) {
-    let newState = JSON.parse(stateData);
+    // let newState = JSON.parse(stateData);
+    let newState = stateData;
     console.log('Updating this player: ', calculatorInst.current);
     console.log('Received this data: ', newState);
     calculatorInst.current.dangerouslySetResponses(newState.studentResponses, {
@@ -174,8 +181,14 @@ const DesmosActivityGraph = (props) => {
         });
         updatedRoom(room._id, { tabs: updatedTabs });
         // updatedRoom(room._id, { tabs: updatedTabs });
-        console.log('Initial data: ', data.currentState);
-        updateActivityState(data.currentState);
+        let updatesState = JSON.parse(data.currentState);
+        console.log('Received data: ', updatesState);
+        updateActivityState(updatesState.desmosState);
+        if (updatesState.screen !== calculatorInst.current.getActiveScreenIndex()) {
+          calculatorInst.current.setActiveScreenIndex(updatesState.screen);
+          setScreenPage(updatesState.screen + 1);
+          setShowControlWarning(false);
+        }
       } else {
         addNtfToTabs(data.tab);
         receivingData = false;
@@ -257,10 +270,19 @@ const DesmosActivityGraph = (props) => {
   }, []);
 
   function navigateBy(increment) {
-    console.log('chaging page for ', calculatorInst.current);
-    let page = calculatorInst.current.getActiveScreenIndex() + increment;
-    calculatorInst.current.setActiveScreenIndex(page);
-    setScreenPage(page + 1);
+    if (props.inControl !== 'ME') {
+      undoing = true;
+      document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
+      // we have the global keypress listener to prevent typing if controlWarning is being shown
+      setShowControlWarning(true);
+      return;
+    } else {
+      console.log('changing page for ', calculatorInst.current);
+      let page = calculatorInst.current.getActiveScreenIndex() + increment;
+      calculatorInst.current.setActiveScreenIndex(page);
+      setScreenPage(page + 1);
+    }
+ 
   }
 
   return (
@@ -272,13 +294,11 @@ const DesmosActivityGraph = (props) => {
           setShowControlWarning(false);
         }}
         takeControl={() => {
-          // this.calculator.undo();
           props.toggleControl();
           setShowControlWarning(false);
         }}
         inControl={props.inControl}
         cancel={() => {
-          // this.calculator.undo();
           setShowControlWarning(false);
         }}
         inAdminMode={props.user.inAdminMode}
