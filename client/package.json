@@ -87,7 +87,7 @@
     "start": "node --max-old-space-size=3072 scripts/start.js",
     "build-production": "node --max-old-space-size=3072 scripts/build.js production",
     "build-staging": "node --max-old-space-size=3072 scripts/build.js staging",
-    "test": "node scripts/test.js --env=jsdom"
+    "test": "node --max-old-space-size=3072 scripts/test.js --env=jsdom"
   },
   "proxy": "http://localhost:3001",
   "jest": {
