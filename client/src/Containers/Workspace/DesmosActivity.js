@@ -51,7 +51,7 @@ const DesmosActivityGraph = (props) => {
       //   currentState: currentStateString,
       // });
       const currentStateBase64 = JSON.stringify(responseData);
-      console.log('API sent state: ', { currentStateBase64 });
+      // console.log('API sent state: ', { currentStateBase64 });
       API.put('tabs', _id, { currentStateBase64 })
         .then(() => {})
         .catch((err) => {
@@ -154,7 +154,7 @@ const DesmosActivityGraph = (props) => {
     // let newState = JSON.parse(stateData);
     if (stateData){
       let newState = stateData;
-      console.log('Updating this player: ', calculatorInst.current);
+      // console.log('Updating this player: ', calculatorInst.current);
       console.log('Received this data: ', newState);
       calculatorInst.current.dangerouslySetResponses(newState.studentResponses, {
         timestampEpochMs: newState.timestampEpochMs,
