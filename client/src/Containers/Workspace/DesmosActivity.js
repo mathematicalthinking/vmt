@@ -16,22 +16,21 @@ import API from '../../utils/apiRequests';
 
 const DesmosActivityGraph = (props) => {
   const [screenPage, setScreenPage] = useState(1);
-  // const [activityPlayer, setActivityPlayer] = useState({});
+  const [activityHistory, setActivityHistory] = useState({});
   const [activityUpdates, setActivityUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
   const calculatorRef = useRef();
   const calculatorInst = useRef();
-  const keyPrefix = 'activity-data:';
 
   let receivingData = false;
   let undoing = false;
   let initializing = false;
 
   function updateSavedData(updates) {
+    // TODO refactor using state
     for (const key in updates) {
-      // console.log('Updating response data for key ' + key);
-      // console.log('Update schema, Session Key prefix: ', keyPrefix)
-      sessionStorage.setItem(keyPrefix + key, updates[key]);
+      setActivityHistory(oldState => ({ ...oldState, [key]: updates[key]}));
+      // sessionStorage.setItem(keyPrefix + key, updates[key]);
     }
   }
 
@@ -44,11 +43,10 @@ const DesmosActivityGraph = (props) => {
       if (tab.currentStateBase64) {
         responseData = JSON.parse(tab.currentStateBase64);
       }
-      for (let prefixedKey of Object.keys(sessionStorage)) {
-        if (!prefixedKey.startsWith(keyPrefix)) continue;
-        const responseDataKey = prefixedKey.slice(keyPrefix.length);
-        responseData[responseDataKey] = sessionStorage[prefixedKey];
-      }
+      Object.entries(activityHistory).map(([key, value]) => {
+        responseData[key] = [value];
+    })
+ 
       // updateRoomTab(room._id, tab._id, {
       //   currentState: currentStateString,
       // });
@@ -154,12 +152,14 @@ const DesmosActivityGraph = (props) => {
   // Handle the update of the Activity Player state
   function updateActivityState(stateData) {
     // let newState = JSON.parse(stateData);
-    let newState = stateData;
-    console.log('Updating this player: ', calculatorInst.current);
-    console.log('Received this data: ', newState);
-    calculatorInst.current.dangerouslySetResponses(newState.studentResponses, {
-      timestampEpochMs: newState.timestampEpochMs,
-    });
+    if (stateData){
+      let newState = stateData;
+      console.log('Updating this player: ', calculatorInst.current);
+      console.log('Received this data: ', newState);
+      calculatorInst.current.dangerouslySetResponses(newState.studentResponses, {
+        timestampEpochMs: newState.timestampEpochMs,
+      });
+    }
   }
 
   function initializeListeners() {
