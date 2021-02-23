@@ -50,6 +50,15 @@ class NewResourceContainer extends Component {
     });
   };
 
+  linkMod = (event) => {
+    const codeLength = 24;
+    const link = event.target.value.split('/');
+    const code = link[link.length - 1].slice(0, codeLength);
+    this.setState({
+      [event.target.name]: code,
+    });
+  };
+
   setCopying = (event) => {
     this.setState({ copying: event.target.name === 'copy' });
   };
@@ -296,7 +305,7 @@ class NewResourceContainer extends Component {
           setGgbFile={this.setGgbFile}
           setGgbApp={this.setGgbApp}
           desmosLink={desmosLink}
-          setDesmosLink={this.changeHandler}
+          setDesmosLink={this.linkMod}
           appName={appName}
         />
       );
