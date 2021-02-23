@@ -208,11 +208,10 @@ const DesmosActivityGraph = (props) => {
   const fetchData = useCallback(async () => {
     initializing = true;
     window.addEventListener('keydown', allowKeypressCheck());
-    let link =
+    let code =
       props.tab.desmosLink ||
-      'https://teacher.desmos.com/activitybuilder/custom/5da9e2174769ea65a6413c93';
-    link = link.split('/');
-    const code = link[link.length - 1];
+      // fallback to turtle time trials, used for demo
+      '5da9e2174769ea65a6413c93';
     const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
     console.log('adapted activity url: ', URL);
     // calling Desmos to get activity config
