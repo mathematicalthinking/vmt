@@ -29,11 +29,10 @@ const DesmosActivityGraph = (props) => {
   function updateSavedData(updates) {
     // TODO refactor using state
     for (const key in updates) {
-      setActivityHistory(oldState => ({ ...oldState, [key]: updates[key]}));
+      setActivityHistory((oldState) => ({ ...oldState, [key]: updates[key] }));
       // sessionStorage.setItem(keyPrefix + key, updates[key]);
     }
   }
-
 
   const debouncedUpdate = debounce(
     () => {
@@ -45,8 +44,8 @@ const DesmosActivityGraph = (props) => {
       }
       Object.entries(activityHistory).map(([key, value]) => {
         responseData[key] = [value];
-    })
- 
+      });
+
       // updateRoomTab(room._id, tab._id, {
       //   currentState: currentStateString,
       // });
@@ -71,11 +70,13 @@ const DesmosActivityGraph = (props) => {
   }
 
   let buildDescription = (username, updates) => {
-
-    //TODO clean up and parse activity types
+    // @TODO clean up and parse activity types
+    // examples below
+    // anzook {"studentResponses":{"031cd62f-363b-4dd1-aa21-6bbd676ee7b3":"{\"numericValue\":null}"},"timestampEpochMs":1614013897960}
+    // anzook {"studentResponses":{"5fd0bf7a-c15d-43cc-95d0-952f52959e10":"{\"cells\":{\"c378111f-512d-4b68-956a-63e791e9a656\":{},\"423ebdc4-740a-4027-96cb-77db80932879\":{},\"b8dea663-31f5-4290-b94a-7c2083728231\":{\"content\":\"5\",\"numericValue\":5},\"60feee66-3bc8-4dc4-af2c-1e6bf16d75dd\":{}},\"rowIds\":[\"83b6c205-0acb-447a-ad35-d3a97182f702\",\"862ada77-692a-41ee-af04-9cba45cdfa11\"],\"rows\":{\"83b6c205-0acb-447a-ad35-d3a97182f702\":[\"c378111f-512d-4b68-956a-63e791e9a656\",\"423ebdc4-740a-4027-96cb-77db80932879\"],\"862ada77-692a-41ee-af04-9cba45cdfa11\":[\"b8dea663-31f5-4290-b94a-7c2083728231\",\"60feee66-3bc8-4dc4-af2c-1e6bf16d75dd\"]},\"columnTypes\":[0,0],\"fullyEditable\":true,\"canAddRows\":true,\"tableSubmitted\":false,\"updated\":true}"},"timestampEpochMs":1614014048516}
     //  let eventDetails = JSON.stringify(updates[updates.keys(updates)[0]]);
     let eventDetails = JSON.stringify(updates);
-    return `${username} ${eventDetails}`;
+    return `${username}: ${eventDetails}`;
   };
 
   // listener debugger to follow warming modal
@@ -98,10 +99,10 @@ const DesmosActivityGraph = (props) => {
       undoing = false;
       return;
     }
-   
+
     const currentState = {
       desmosState: updates,
-      screen: screenPage - 1
+      screen: screenPage - 1,
     };
     if (!receivingData) {
       console.log(
@@ -152,13 +153,16 @@ const DesmosActivityGraph = (props) => {
   // Handle the update of the Activity Player state
   function updateActivityState(stateData) {
     // let newState = JSON.parse(stateData);
-    if (stateData){
+    if (stateData) {
       let newState = stateData;
       // console.log('Updating this player: ', calculatorInst.current);
       console.log('Received this data: ', newState);
-      calculatorInst.current.dangerouslySetResponses(newState.studentResponses, {
-        timestampEpochMs: newState.timestampEpochMs,
-      });
+      calculatorInst.current.dangerouslySetResponses(
+        newState.studentResponses,
+        {
+          timestampEpochMs: newState.timestampEpochMs,
+        }
+      );
     }
   }
 
@@ -184,7 +188,9 @@ const DesmosActivityGraph = (props) => {
         let updatesState = JSON.parse(data.currentState);
         console.log('Received data: ', updatesState);
         updateActivityState(updatesState.desmosState);
-        if (updatesState.screen !== calculatorInst.current.getActiveScreenIndex()) {
+        if (
+          updatesState.screen !== calculatorInst.current.getActiveScreenIndex()
+        ) {
           calculatorInst.current.setActiveScreenIndex(updatesState.screen);
           setScreenPage(updatesState.screen + 1);
           setShowControlWarning(false);
@@ -201,7 +207,9 @@ const DesmosActivityGraph = (props) => {
   const fetchData = useCallback(async () => {
     initializing = true;
     window.addEventListener('keydown', allowKeypressCheck());
-    let link = props.tab.desmosLink;
+    let link =
+      props.tab.desmosLink ||
+      'https://teacher.desmos.com/activitybuilder/custom/5da9e2174769ea65a6413c93';
     link = link.split('/');
     const code = link[link.length - 1];
     const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
@@ -282,7 +290,6 @@ const DesmosActivityGraph = (props) => {
       calculatorInst.current.setActiveScreenIndex(page);
       setScreenPage(page + 1);
     }
- 
   }
 
   return (
