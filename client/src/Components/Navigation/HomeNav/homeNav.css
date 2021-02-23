@@ -69,7 +69,7 @@
 .LogoContainer {
   order: 1;
   flex: 0.2 0 auto;
-  /* border: 1px solid yellow; */
+  border: 1px dashed red;
 }
 
 .Logo {
