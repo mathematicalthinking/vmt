@@ -55,7 +55,8 @@ class NewResourceContainer extends Component {
     const link = event.target.value.split('/');
     const code = link[link.length - 1].slice(0, codeLength);
     this.setState({
-      [event.target.name]: code,
+      desmosLink: code,
+      [event.target.name]: event.target.value,
     });
   };
 

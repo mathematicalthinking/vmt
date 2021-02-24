@@ -78,12 +78,15 @@ class RoomOpts extends Component {
         <Aux>
           <TextInput
             light
-            name="desmosLink"
-            label="Desmos Activity Builder Code"
-            value={desmosLink}
+            name="desmosInput"
+            label="Desmos Activity Configuration"
+            // value={desmosLink}
             change={setDesmosLink}
             width="100%"
           />
+          <p>Desmos Activity Code:</p>
+          <div className={classes.Code}>{desmosLink}</div>
+          <br />
           <p>
             Paste in an activity builder share url or hash code from
             teacher.desmos
