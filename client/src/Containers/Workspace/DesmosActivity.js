@@ -28,10 +28,9 @@ const DesmosActivityGraph = (props) => {
 
   function updateSavedData(updates) {
     // TODO refactor using state
-    for (const key in updates) {
-      setActivityHistory((oldState) => ({ ...oldState, [key]: updates[key] }));
-      // sessionStorage.setItem(keyPrefix + key, updates[key]);
-    }
+    // Can this be done without a FOR loop/single update?
+    setActivityHistory((oldState) => ({ ...oldState, ...updates }));
+    // sessionStorage.setItem(keyPrefix + key, updates[key]);
   }
 
   const debouncedUpdate = debounce(
