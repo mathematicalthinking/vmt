@@ -55,8 +55,12 @@ class NewResourceContainer extends Component {
     const link = event.target.value.split('/');
     const code = link[link.length - 1].slice(0, codeLength);
     this.setState({
+<<<<<<< HEAD
       desmosLink: code,
       [event.target.name]: event.target.value,
+=======
+      [event.target.name]: code,
+>>>>>>> bbaab129e7800e5a2c2316918ef35bad3749b154
     });
   };
 

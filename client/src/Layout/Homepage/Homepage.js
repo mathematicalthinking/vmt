@@ -93,7 +93,11 @@ class Homepage extends PureComponent {
                 vmt@21pstem.org
               </a>
             </p>
+<<<<<<< HEAD
             <p>last updated: 2.23.2021</p>
+=======
+            <p>last updated: 2.22.2021</p>
+>>>>>>> bbaab129e7800e5a2c2316918ef35bad3749b154
           </section>
           <section className={classes.Options} ref={this.containerRef} />
         </div>

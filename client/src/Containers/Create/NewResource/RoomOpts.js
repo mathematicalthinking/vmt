@@ -78,9 +78,15 @@ class RoomOpts extends Component {
         <Aux>
           <TextInput
             light
+<<<<<<< HEAD
             name="desmosInput"
             label="Desmos Activity Configuration"
             // value={desmosLink}
+=======
+            name="desmosLink"
+            label="Desmos Activity Builder Code"
+            value={desmosLink}
+>>>>>>> bbaab129e7800e5a2c2316918ef35bad3749b154
             change={setDesmosLink}
             width="100%"
           />
