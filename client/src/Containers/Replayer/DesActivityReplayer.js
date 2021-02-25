@@ -14,9 +14,9 @@ import { Player } from '../../external/js/api.full.es';
 // import API from '../../utils/apiRequests';
 
 const DesActivityReplayer = (props) => {
-  const [screenPage, setScreenPage] = useState(1);
-  const [activityHistory, setActivityHistory] = useState({});
-  const [activityUpdates, setActivityUpdates] = useState();
+  // const [playerIndex, setPlayerIndex] = useState();
+  // const [activityHistory, setActivityHistory] = useState({});
+  // const [activityUpdates, setActivityUpdates] = useState();
   // const [showControlWarning, setShowControlWarning] = useState(false);
   const calculatorRef = useRef();
   const calculatorInst = useRef();
@@ -84,21 +84,24 @@ const DesActivityReplayer = (props) => {
     if (didMountRef.current) {
       updatePlayer();
     } else didMountRef.current = true;
-  });
+  }, [props.index]);
 
   function updatePlayer() {
     const { index, log } = props;
+    // Take updated player data with new Player state to update
     let newData = log[index].currentState;
     if (newData) {
       newData = JSON.parse(newData);
       // eslint-disable-next-line no-console
       console.log('log-index, Index: ', index, 'State data: ', newData);
-      calculatorInst.current.dangerouslySetResponses(
-        newData.desmosState.studentResponses,
-        {
-          timestampEpochMs: newData.desmosState.timestampEpochMs,
-        }
-      );
+      if (newData.desmosState && newData.desmosState.studentResponses) {
+        calculatorInst.current.dangerouslySetResponses(
+          newData.desmosState.studentResponses,
+          {
+            timestampEpochMs: newData.desmosState.timestampEpochMs,
+          }
+        );
+      }
       if (newData.screen !== calculatorInst.current.getActiveScreenIndex()) {
         calculatorInst.current.setActiveScreenIndex(newData.screen);
       }
