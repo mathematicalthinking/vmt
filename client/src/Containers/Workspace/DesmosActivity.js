@@ -86,7 +86,7 @@ const DesmosActivityGraph = (props) => {
   // }, [showControlWarning]);
 
   useEffect(() => {
-    console.log('~~~~~~activityUpdate listener~~~~~~~~~');
+    // console.log('~~~~~~activityUpdate listener~~~~~~~~~');
     // console.log("Updates...: ", activityUpdates);
     handleResponseData(activityUpdates);
   }, [activityUpdates, screenPage]);
@@ -105,13 +105,13 @@ const DesmosActivityGraph = (props) => {
       screen: screenPage - 1,
     };
     if (!receivingData) {
-      console.log(
-        '**** Updates: ',
-        currentState,
-        ', Controlled by: ',
-        inControl,
-        ' ****'
-      );
+      // console.log(
+      //   '**** Updates: ',
+      //   currentState,
+      //   ', Controlled by: ',
+      //   inControl,
+      //   ' ****'
+      // );
       // console.log('On page: ', screenPage);
       if (inControl !== 'ME') {
         undoing = true;
@@ -156,7 +156,7 @@ const DesmosActivityGraph = (props) => {
     if (stateData) {
       let newState = stateData;
       // console.log('Updating this player: ', calculatorInst.current);
-      console.log('Received this data: ', newState);
+      // console.log('Received this data: ', newState);
       calculatorInst.current.dangerouslySetResponses(
         newState.studentResponses,
         {
@@ -172,7 +172,7 @@ const DesmosActivityGraph = (props) => {
 
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
-      console.log('Socket: Received data: ', data);
+      // console.log('Socket: Received data: ', data);
       addToLog(data);
       const { room } = props;
       receivingData = true;
@@ -186,7 +186,7 @@ const DesmosActivityGraph = (props) => {
         updatedRoom(room._id, { tabs: updatedTabs });
         // updatedRoom(room._id, { tabs: updatedTabs });
         let updatesState = JSON.parse(data.currentState);
-        console.log('Received data: ', updatesState);
+        // console.log('Received data: ', updatesState);
         updateActivityState(updatesState.desmosState);
         if (
           updatesState.screen !== calculatorInst.current.getActiveScreenIndex()
@@ -218,7 +218,7 @@ const DesmosActivityGraph = (props) => {
       headers: { Accept: 'application/json' },
     });
     const data = await result.json();
-    console.log('Data: ', data);
+    // console.log('Data: ', data);
     let playerOptions = {
       activityConfig: data,
       targetElement: calculatorRef.current,
@@ -284,7 +284,7 @@ const DesmosActivityGraph = (props) => {
       setShowControlWarning(true);
       return;
     } else {
-      console.log('changing page for ', calculatorInst.current);
+      // console.log('changing page for ', calculatorInst.current);
       let page = calculatorInst.current.getActiveScreenIndex() + increment;
       calculatorInst.current.setActiveScreenIndex(page);
       setScreenPage(page + 1);
