@@ -1,4 +1,4 @@
-:import("../../../colors.css") {
+:import('../../../colors.css') {
   lightestShadow: lightestShadow;
   lightBlue: lightBlue;
 }
@@ -21,6 +21,11 @@ p {
   flex-flow: wrap;
   align-items: center;
   justify-content: center;
+}
+
+.Code {
+  color: #3796f5;
+  font-size: 150%;
 }
 
 .Opt {

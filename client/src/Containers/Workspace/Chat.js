@@ -123,7 +123,7 @@ class Chat extends Component {
         console.log(err);
         return;
       }
-      console.log('Sending Message: ', messageData);
+      // console.log('Sending Message: ', messageData);
       addToLog(messageData);
     });
     delete newMessage.room;
