@@ -986,6 +986,13 @@ class Workspace extends Component {
         {!isFirstTabLoaded ? (
           <Loading message="Preparing your room..." />
         ) : null}
+        <Button
+          click={() => {
+            throw new Error();
+          }}
+        >
+          Error
+        </Button>
         <WorkspaceLayout
           graphs={graphs}
           roomName={populatedRoom.name}
@@ -1060,6 +1067,7 @@ class Workspace extends Component {
         >
           {instructionsModalMsg}
         </Modal>
+        {/* @todo refactor brings this outside of this file */}
         <Modal
           show={isCreatingActivity}
           closeModal={() =>

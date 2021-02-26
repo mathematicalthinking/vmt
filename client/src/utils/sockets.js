@@ -9,6 +9,12 @@ if (process.env.REACT_APP_STAGING) {
   url = process.env.REACT_APP_SERVER_URL_PRODUCTION;
 }
 
-const socket = io.connect(url);
+// legacy config
+// const socket = io.connect(url);
+
+// updated config that includes options object, skips long polling connection
+const socket = io(url, {
+  transports: ['websocket'],
+});
 
 export default socket;
