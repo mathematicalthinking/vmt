@@ -986,13 +986,6 @@ class Workspace extends Component {
         {!isFirstTabLoaded ? (
           <Loading message="Preparing your room..." />
         ) : null}
-        <Button
-          click={() => {
-            throw new Error();
-          }}
-        >
-          Error
-        </Button>
         <WorkspaceLayout
           graphs={graphs}
           roomName={populatedRoom.name}
