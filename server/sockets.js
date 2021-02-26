@@ -260,7 +260,7 @@ module.exports = function() {
         .post(data)
         .then(() => {
           socket.broadcast.to(data.room).emit('RECEIVE_MESSAGE', data);
-          callback('sucess', null);
+          callback('success', null);
         })
         .catch((err) => {
           callback(null, err);
