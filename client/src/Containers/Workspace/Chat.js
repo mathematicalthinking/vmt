@@ -34,6 +34,7 @@ class Chat extends Component {
     if (!replaying) {
       socket.removeAllListeners('RECEIVE_MESSAGE');
       socket.on('RECEIVE_MESSAGE', (data) => {
+        // console.log('Received message ', data);
         addToLog(data);
         // this.scrollToBottom()
       });
@@ -122,6 +123,7 @@ class Chat extends Component {
         console.log(err);
         return;
       }
+      // console.log('Sending Message: ', messageData);
       addToLog(messageData);
     });
     delete newMessage.room;
