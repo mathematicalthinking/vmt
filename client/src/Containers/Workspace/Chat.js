@@ -34,7 +34,7 @@ class Chat extends Component {
     if (!replaying) {
       socket.removeAllListeners('RECEIVE_MESSAGE');
       socket.on('RECEIVE_MESSAGE', (data) => {
-        console.log('Received message ', data);
+        // console.log('Received message ', data);
         addToLog(data);
         // this.scrollToBottom()
       });
