@@ -69,7 +69,8 @@
 .LogoContainer {
   order: 1;
   flex: 0.2 0 auto;
-  /* border: 1px solid yellow; */
+  /* @TURN OFF FOR PROD */
+  /* border: 1px dashed red; */
 }
 
 .Logo {

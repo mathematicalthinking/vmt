@@ -108,7 +108,7 @@ class TempWorkspace extends Component {
       if (err) {
         console.log('error ', err); // HOW SHOULD WE HANDLE THIS
       }
-      res.user.connected = socket.connected;
+      res.user.connected = socket.connected();
       // eslint-disable-next-line no-console
       this.setState({
         user: res.user,
@@ -191,14 +191,14 @@ class TempWorkspace extends Component {
             >
               Desmos
             </Button>
-            {/* <Button
+            <Button
               data-testid="temp-desmos-activity"
               m={5}
               click={() => this.joinRoom('desmosActivity')}
               disabled={!loggedIn && !tempUsername}
             >
               Desmos Activity
-            </Button> */}
+            </Button>
             <Button
               data-testid="temp-geogebra"
               m={5}

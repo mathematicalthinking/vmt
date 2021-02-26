@@ -16,25 +16,22 @@ import API from '../../utils/apiRequests';
 
 const DesmosActivityGraph = (props) => {
   const [screenPage, setScreenPage] = useState(1);
-  // const [activityPlayer, setActivityPlayer] = useState({});
+  const [activityHistory, setActivityHistory] = useState({});
   const [activityUpdates, setActivityUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
   const calculatorRef = useRef();
   const calculatorInst = useRef();
-  const keyPrefix = 'activity-data:';
 
   let receivingData = false;
   let undoing = false;
   let initializing = false;
 
   function updateSavedData(updates) {
-    for (const key in updates) {
-      // console.log('Updating response data for key ' + key);
-      // console.log('Update schema, Session Key prefix: ', keyPrefix)
-      sessionStorage.setItem(keyPrefix + key, updates[key]);
-    }
+    // TODO refactor using state
+    // Can this be done without a FOR loop/single update?
+    setActivityHistory((oldState) => ({ ...oldState, ...updates }));
+    // sessionStorage.setItem(keyPrefix + key, updates[key]);
   }
-
 
   const debouncedUpdate = debounce(
     () => {
@@ -44,16 +41,15 @@ const DesmosActivityGraph = (props) => {
       if (tab.currentStateBase64) {
         responseData = JSON.parse(tab.currentStateBase64);
       }
-      for (let prefixedKey of Object.keys(sessionStorage)) {
-        if (!prefixedKey.startsWith(keyPrefix)) continue;
-        const responseDataKey = prefixedKey.slice(keyPrefix.length);
-        responseData[responseDataKey] = sessionStorage[prefixedKey];
-      }
+      Object.entries(activityHistory).map(([key, value]) => {
+        responseData[key] = [value];
+      });
+
       // updateRoomTab(room._id, tab._id, {
       //   currentState: currentStateString,
       // });
       const currentStateBase64 = JSON.stringify(responseData);
-      console.log('API sent state: ', { currentStateBase64 });
+      // console.log('API sent state: ', { currentStateBase64 });
       API.put('tabs', _id, { currentStateBase64 })
         .then(() => {})
         .catch((err) => {
@@ -73,11 +69,14 @@ const DesmosActivityGraph = (props) => {
   }
 
   let buildDescription = (username, updates) => {
-
-    //TODO clean up and parse activity types
+    // @TODO clean up and parse activity types
+    // examples below
+    // anzook {"studentResponses":{"031cd62f-363b-4dd1-aa21-6bbd676ee7b3":"{\"numericValue\":null}"},"timestampEpochMs":1614013897960}
+    // anzook {"studentResponses":{"5fd0bf7a-c15d-43cc-95d0-952f52959e10":"{\"cells\":{\"c378111f-512d-4b68-956a-63e791e9a656\":{},\"423ebdc4-740a-4027-96cb-77db80932879\":{},\"b8dea663-31f5-4290-b94a-7c2083728231\":{\"content\":\"5\",\"numericValue\":5},\"60feee66-3bc8-4dc4-af2c-1e6bf16d75dd\":{}},\"rowIds\":[\"83b6c205-0acb-447a-ad35-d3a97182f702\",\"862ada77-692a-41ee-af04-9cba45cdfa11\"],\"rows\":{\"83b6c205-0acb-447a-ad35-d3a97182f702\":[\"c378111f-512d-4b68-956a-63e791e9a656\",\"423ebdc4-740a-4027-96cb-77db80932879\"],\"862ada77-692a-41ee-af04-9cba45cdfa11\":[\"b8dea663-31f5-4290-b94a-7c2083728231\",\"60feee66-3bc8-4dc4-af2c-1e6bf16d75dd\"]},\"columnTypes\":[0,0],\"fullyEditable\":true,\"canAddRows\":true,\"tableSubmitted\":false,\"updated\":true}"},"timestampEpochMs":1614014048516}
     //  let eventDetails = JSON.stringify(updates[updates.keys(updates)[0]]);
     let eventDetails = JSON.stringify(updates);
-    return `${username} ${eventDetails}`;
+    // return `${username}: ${eventDetails}`;
+    return `${username} interacted with the Activity`;
   };
 
   // listener debugger to follow warming modal
@@ -87,7 +86,7 @@ const DesmosActivityGraph = (props) => {
   // }, [showControlWarning]);
 
   useEffect(() => {
-    console.log('~~~~~~activityUpdate listener~~~~~~~~~');
+    // console.log('~~~~~~activityUpdate listener~~~~~~~~~');
     // console.log("Updates...: ", activityUpdates);
     handleResponseData(activityUpdates);
   }, [activityUpdates, screenPage]);
@@ -100,19 +99,19 @@ const DesmosActivityGraph = (props) => {
       undoing = false;
       return;
     }
-   
+
     const currentState = {
       desmosState: updates,
-      screen: screenPage - 1
+      screen: screenPage - 1,
     };
     if (!receivingData) {
-      console.log(
-        '**** Updates: ',
-        currentState,
-        ', Controlled by: ',
-        inControl,
-        ' ****'
-      );
+      // console.log(
+      //   '**** Updates: ',
+      //   currentState,
+      //   ', Controlled by: ',
+      //   inControl,
+      //   ' ****'
+      // );
       // console.log('On page: ', screenPage);
       if (inControl !== 'ME') {
         undoing = true;
@@ -154,12 +153,17 @@ const DesmosActivityGraph = (props) => {
   // Handle the update of the Activity Player state
   function updateActivityState(stateData) {
     // let newState = JSON.parse(stateData);
-    let newState = stateData;
-    console.log('Updating this player: ', calculatorInst.current);
-    console.log('Received this data: ', newState);
-    calculatorInst.current.dangerouslySetResponses(newState.studentResponses, {
-      timestampEpochMs: newState.timestampEpochMs,
-    });
+    if (stateData) {
+      let newState = stateData;
+      // console.log('Updating this player: ', calculatorInst.current);
+      // console.log('Received this data: ', newState);
+      calculatorInst.current.dangerouslySetResponses(
+        newState.studentResponses,
+        {
+          timestampEpochMs: newState.timestampEpochMs,
+        }
+      );
+    }
   }
 
   function initializeListeners() {
@@ -168,7 +172,7 @@ const DesmosActivityGraph = (props) => {
 
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
-      console.log('Socket: Received data: ', data);
+      // console.log('Socket: Received data: ', data);
       addToLog(data);
       const { room } = props;
       receivingData = true;
@@ -182,9 +186,11 @@ const DesmosActivityGraph = (props) => {
         updatedRoom(room._id, { tabs: updatedTabs });
         // updatedRoom(room._id, { tabs: updatedTabs });
         let updatesState = JSON.parse(data.currentState);
-        console.log('Received data: ', updatesState);
+        // console.log('Received data: ', updatesState);
         updateActivityState(updatesState.desmosState);
-        if (updatesState.screen !== calculatorInst.current.getActiveScreenIndex()) {
+        if (
+          updatesState.screen !== calculatorInst.current.getActiveScreenIndex()
+        ) {
           calculatorInst.current.setActiveScreenIndex(updatesState.screen);
           setScreenPage(updatesState.screen + 1);
           setShowControlWarning(false);
@@ -201,9 +207,10 @@ const DesmosActivityGraph = (props) => {
   const fetchData = useCallback(async () => {
     initializing = true;
     window.addEventListener('keydown', allowKeypressCheck());
-    let link = props.tab.desmosLink;
-    link = link.split('/');
-    const code = link[link.length - 1];
+    let code =
+      props.tab.desmosLink ||
+      // fallback to turtle time trials, used for demo
+      '5da9e2174769ea65a6413c93';
     const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
     console.log('adapted activity url: ', URL);
     // calling Desmos to get activity config
@@ -211,7 +218,7 @@ const DesmosActivityGraph = (props) => {
       headers: { Accept: 'application/json' },
     });
     const data = await result.json();
-    console.log('Data: ', data);
+    // console.log('Data: ', data);
     let playerOptions = {
       activityConfig: data,
       targetElement: calculatorRef.current,
@@ -277,12 +284,11 @@ const DesmosActivityGraph = (props) => {
       setShowControlWarning(true);
       return;
     } else {
-      console.log('changing page for ', calculatorInst.current);
+      // console.log('changing page for ', calculatorInst.current);
       let page = calculatorInst.current.getActiveScreenIndex() + increment;
       calculatorInst.current.setActiveScreenIndex(page);
       setScreenPage(page + 1);
     }
- 
   }
 
   return (
