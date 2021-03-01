@@ -52,13 +52,18 @@ const DesmosActivityGraph = (props) => {
       Object.entries(activityHistory).map(([key, value]) => {
         responseData[key] = [value];
       });
-
+      let updateObject = {
+        currentStateBase64: JSON.stringify(responseData),
+      };
+      if (calculatorInst.current) {
+        updateObject.currentScreen = calculatorInst.current.getActiveScreenIndex();
+      }
       // updateRoomTab(room._id, tab._id, {
       //   currentState: currentStateString,
       // });
-      const currentStateBase64 = JSON.stringify(responseData);
+      // const currentStateBase64 = JSON.stringify(responseData);
       // console.log('API sent state: ', { currentStateBase64 });
-      API.put('tabs', _id, { currentStateBase64 })
+      API.put('tabs', _id, updateObject)
         .then(() => {})
         .catch((err) => {
           // eslint-disable-next-line no-console
@@ -270,6 +275,14 @@ const DesmosActivityGraph = (props) => {
     props.setFirstTabLoaded();
     initializing = false;
     initializeListeners();
+    if (props.tab.currentScreen) {
+      const { tab } = props;
+      let { currentScreen } = tab;
+      console.log('Prior screen index loaded: ');
+      console.log(currentScreen);
+      calculatorInst.current.setActiveScreenIndex(currentScreen);
+      setScreenPage(currentScreen + 1);
+    }
   });
 
   useEffect(() => {
