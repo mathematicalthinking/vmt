@@ -121,7 +121,11 @@ class Community extends Component {
     const filters = this.getQueryParams();
     if (filter === 'public' || filter === 'private') {
       filters.privacySetting = filter;
-    } else if (filter === 'desmos' || filter === 'geogebra') {
+    } else if (
+      filter === 'desmos' ||
+      filter === 'geogebra' ||
+      filter === 'desmosActivity'
+    ) {
       filters.roomType = filter;
     } else if (filter === 'all-roomType') {
       filters.roomType = 'all';

@@ -129,14 +129,14 @@ class Community extends Component {
                   >
                     Desmos
                   </RadioBtn>
-                  {/* TODO reenable <RadioBtn
+                  <RadioBtn
                     data-testid="desmos-activity-filter"
                     check={() => toggleFilter('desmosActivity')}
                     checked={filters.roomType === 'desmosActivity'}
                     name="DesmosActivity"
                   >
                     Desmos Activity
-                  </RadioBtn> */}
+                  </RadioBtn>
                 </div>
               </InfoBox>
             ) : null}
