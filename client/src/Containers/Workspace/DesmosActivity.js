@@ -1,7 +1,7 @@
 /* eslint-disable */
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import debounce from 'lodash/debounce';
+// import debounce from 'lodash/debounce';
 import classes from './graph.css';
 import { Aux, Button } from '../../Components';
 import { Player } from '../../external/js/api.full.es';
@@ -41,39 +41,32 @@ const DesmosActivityGraph = (props) => {
     // sessionStorage.setItem(keyPrefix + key, updates[key]);
   }
 
-  const debouncedUpdate = debounce(
-    () => {
-      const { tab } = props;
-      const { _id } = tab;
-      let responseData = {};
-      if (tab.currentStateBase64) {
-        responseData = JSON.parse(tab.currentStateBase64);
-      }
-      Object.entries(activityHistory).map(([key, value]) => {
-        responseData[key] = [value];
-      });
-      let updateObject = {
-        currentStateBase64: JSON.stringify(responseData),
-      };
-      if (calculatorInst.current) {
-        updateObject.currentScreen = calculatorInst.current.getActiveScreenIndex();
-      }
-      // updateRoomTab(room._id, tab._id, {
-      //   currentState: currentStateString,
-      // });
-      // const currentStateBase64 = JSON.stringify(responseData);
-      // console.log('API sent state: ', { currentStateBase64 });
-      API.put('tabs', _id, updateObject)
-        .then(() => {})
-        .catch((err) => {
-          // eslint-disable-next-line no-console
-          console.log(err);
-        });
-    },
-    // @todo consider saving an array of currentStates to make big jumps in the relpayer less laggy
-    2000,
-    { trailing: true, leading: false }
-  );
+  const putState = () => {
+    const { tab } = props;
+    const { _id } = tab;
+    let responseData = {};
+    if (tab.currentStateBase64) {
+      responseData = JSON.parse(tab.currentStateBase64);
+    }
+    Object.entries(activityHistory).map(([key, value]) => {
+      responseData[key] = [value];
+    });
+    let updateObject = {
+      currentStateBase64: JSON.stringify(responseData),
+    };
+    if (calculatorInst.current) {
+      updateObject.currentScreen = calculatorInst.current.getActiveScreenIndex();
+    }
+    // updateRoomTab(room._id, tab._id, {
+    //   currentState: currentStateString,
+    // });
+    // const currentStateBase64 = JSON.stringify(responseData);
+    // console.log('API sent state: ', { currentStateBase64 });
+    API.put('tabs', _id, updateObject).catch((err) => {
+      // eslint-disable-next-line no-console
+      console.log(err);
+    });
+  };
 
   function allowKeypressCheck(event) {
     if (showControlWarning) {
@@ -158,7 +151,7 @@ const DesmosActivityGraph = (props) => {
       props.addToLog(newData);
       socket.emit('SEND_EVENT', newData, () => {});
       resetControlTimer();
-      debouncedUpdate();
+      putState();
     }
     receivingData = false;
   };
@@ -217,9 +210,7 @@ const DesmosActivityGraph = (props) => {
     // const { settings } = propsUser;
   }
 
-  const fetchData = useCallback(async () => {
-    initializing = true;
-    window.addEventListener('keydown', allowKeypressCheck());
+  const fetchData = async () => {
     let code =
       props.tab.desmosLink ||
       // fallback to turtle time trials, used for demo
@@ -231,9 +222,12 @@ const DesmosActivityGraph = (props) => {
       headers: { Accept: 'application/json' },
     });
     const data = await result.json();
-    // console.log('Data: ', data);
+    return data;
+  };
+
+  const initPlayer = async () => {
     let playerOptions = {
-      activityConfig: data,
+      activityConfig: await fetchData(),
       targetElement: calculatorRef.current,
       onResponseDataUpdated: (responses) => {
         const currentState = {
@@ -251,14 +245,6 @@ const DesmosActivityGraph = (props) => {
       let savedData = JSON.parse(currentStateBase64);
       console.log('Prior state data loaded: ');
       console.log(savedData);
-      // for (let prefixedKey of Object.keys(savedData)) {
-      //   if (!prefixedKey.startsWith(keyPrefix)) continue;
-      //   let responseDataKey = prefixedKey.slice(keyPrefix.length);
-      //   responseData[responseDataKey] = savedData[prefixedKey];
-      // }
-      // console.log('Initial response data:');
-      // console.log(responseData);
-      // updateActivityState(props.tab.currentState);
       playerOptions.responseData = savedData;
     }
 
@@ -275,20 +261,23 @@ const DesmosActivityGraph = (props) => {
     props.setFirstTabLoaded();
     initializing = false;
     initializeListeners();
+    // Print current Tab data
+    console.log('Tab data: ', props.tab);
+    // Go to screen last used
     if (props.tab.currentScreen) {
       const { tab } = props;
       let { currentScreen } = tab;
-      console.log('Prior screen index loaded: ');
-      console.log(currentScreen);
+      console.log('Prior screen index loaded: ', currentScreen);
       calculatorInst.current.setActiveScreenIndex(currentScreen);
       setScreenPage(currentScreen + 1);
     }
-  });
+  };
 
   useEffect(() => {
-    // // TODO handle existing room state?
-    fetchData();
-    return function cleanup() {
+    initializing = true;
+    window.addEventListener('keydown', allowKeypressCheck());
+    initPlayer();
+    return function() {
       if (calculatorInst.current) {
         calculatorInst.current.destroy();
       }
