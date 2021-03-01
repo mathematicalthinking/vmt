@@ -26,6 +26,14 @@ const DesmosActivityGraph = (props) => {
   let undoing = false;
   let initializing = false;
 
+  let backBtn = calculatorInst.current
+    ? calculatorInst.current.getActiveScreenIndex() > 0
+    : false;
+  let fwdBtn = calculatorInst.current
+    ? calculatorInst.current.getActiveScreenIndex() <
+      calculatorInst.current.getScreenCount() - 1
+    : true;
+
   function updateSavedData(updates) {
     // TODO refactor using state
     // Can this be done without a FOR loop/single update?
@@ -74,7 +82,7 @@ const DesmosActivityGraph = (props) => {
     // anzook {"studentResponses":{"031cd62f-363b-4dd1-aa21-6bbd676ee7b3":"{\"numericValue\":null}"},"timestampEpochMs":1614013897960}
     // anzook {"studentResponses":{"5fd0bf7a-c15d-43cc-95d0-952f52959e10":"{\"cells\":{\"c378111f-512d-4b68-956a-63e791e9a656\":{},\"423ebdc4-740a-4027-96cb-77db80932879\":{},\"b8dea663-31f5-4290-b94a-7c2083728231\":{\"content\":\"5\",\"numericValue\":5},\"60feee66-3bc8-4dc4-af2c-1e6bf16d75dd\":{}},\"rowIds\":[\"83b6c205-0acb-447a-ad35-d3a97182f702\",\"862ada77-692a-41ee-af04-9cba45cdfa11\"],\"rows\":{\"83b6c205-0acb-447a-ad35-d3a97182f702\":[\"c378111f-512d-4b68-956a-63e791e9a656\",\"423ebdc4-740a-4027-96cb-77db80932879\"],\"862ada77-692a-41ee-af04-9cba45cdfa11\":[\"b8dea663-31f5-4290-b94a-7c2083728231\",\"60feee66-3bc8-4dc4-af2c-1e6bf16d75dd\"]},\"columnTypes\":[0,0],\"fullyEditable\":true,\"canAddRows\":true,\"tableSubmitted\":false,\"updated\":true}"},"timestampEpochMs":1614014048516}
     //  let eventDetails = JSON.stringify(updates[updates.keys(updates)[0]]);
-    let eventDetails = JSON.stringify(updates);
+    // let eventDetails = JSON.stringify(updates);
     // return `${username}: ${eventDetails}`;
     return `${username} interacted with the Activity`;
   };
@@ -318,15 +326,19 @@ const DesmosActivityGraph = (props) => {
         onSelect={props.togglePreventRefWarning}
       />
       <div id="activityNavigation" className={classes.ActivityNav}>
-        <Button theme="Small" id="nav-left" click={() => navigateBy(-1)}>
-          Prev
-        </Button>
+        {backBtn && (
+          <Button theme="Small" id="nav-left" click={() => navigateBy(-1)}>
+            Prev
+          </Button>
+        )}
         <span id="show-screen" className={classes.Title}>
           Screen {screenPage}
         </span>
-        <Button theme="Small" id="nav-right" click={() => navigateBy(1)}>
-          Next
-        </Button>
+        {fwdBtn && (
+          <Button theme="Small" id="nav-right" click={() => navigateBy(1)}>
+            Next
+          </Button>
+        )}
       </div>
       <div className={classes.Activity} id="calculatorParent">
         <div className={classes.Graph} id="calculator" ref={calculatorRef} />
