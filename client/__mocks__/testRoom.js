@@ -713,7 +713,7 @@ export default {
   },
   course: null,
   image:
-    'http://tinygraphs.com/spaceinvaders/ggb ?theme=daisygarden&numcolors=4&size=220&fmt=svg',
+    'https://www.tinygraphs.com/spaceinvaders/ggb%20?theme=daisygarden&numcolors=4&size=220&fmt=svg',
   members: [
     {
       color: '#f26247',

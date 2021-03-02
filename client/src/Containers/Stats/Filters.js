@@ -111,10 +111,14 @@ const Filters = ({ data, filters, dispatch }) => {
     currentStartTime,
     currentEndTime,
   } = filters;
-  const { members } = data;
+  const { members, tabs } = data;
 
   const areMessages = events.indexOf('MESSAGES') > -1;
   const areActions = events.indexOf('ACTIONS') > -1;
+  const notActivity =
+    tabs.filter((t) => t.tabType === 'desmos' || t.tabType === 'geogebra')
+      .length > 0;
+
   return (
     <div className={classes.Container}>
       <div className={classes.Filter}>
@@ -273,7 +277,7 @@ const Filters = ({ data, filters, dispatch }) => {
               Actions
             </Checkbox>
           </div>
-          {areActions ? (
+          {areActions && notActivity ? (
             <div className={classes.IndentedRow}>
               {actionFilters.map((af) => {
                 return (
