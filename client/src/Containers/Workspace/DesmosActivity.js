@@ -238,14 +238,7 @@ const DesmosActivityGraph = (props) => {
       let savedData = JSON.parse(currentStateBase64);
       console.log('Prior state data loaded: ');
       console.log(savedData);
-      // for (let prefixedKey of Object.keys(savedData)) {
-      //   if (!prefixedKey.startsWith(keyPrefix)) continue;
-      //   let responseDataKey = prefixedKey.slice(keyPrefix.length);
-      //   responseData[responseDataKey] = savedData[prefixedKey];
-      // }
-      // console.log('Initial response data:');
-      // console.log(responseData);
-      // updateActivityState(props.tab.currentState);
+
       playerOptions.responseData = savedData;
     }
 
