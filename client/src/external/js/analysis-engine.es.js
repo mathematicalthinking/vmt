@@ -1,4 +1,6 @@
 
+// *** The Desmos javascript source is a commercially licensed product. If you'd like to include it in your product, please email partnerships@desmos.com ***
+
 export const {
   StudentAnalysis,
   AnalysisContext,
