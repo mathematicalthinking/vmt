@@ -17,7 +17,7 @@ module.exports = [
     description: '',
     creator: ObjectId('5ba289ba7223b9429888b9b4'),
     image:
-      'http://tinygraphs.com/isogrids/ACTIVITY 1?theme=daisygarden&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/isogrids/ACTIVITY%201?theme=daisygarden&numcolors=4&size=220&fmt=svg',
     desmosLink: '',
     createdAt: ISODate('2018-10-25T14:58:45.945Z'),
     updatedAt: ISODate('2018-10-25T14:58:45.945Z'),
@@ -39,7 +39,7 @@ module.exports = [
     description: '',
     creator: ObjectId('5ba289ba7223b9429888b9b4'),
     image:
-      'http://tinygraphs.com/isogrids/ACTIVITY 2?theme=daisygarden&numcolors=2&size=220&fmt=svg',
+      'https://www.tinygraphs.com/isogrids/ACTIVITY%202?theme=daisygarden&numcolors=2&size=220&fmt=svg',
     desmosLink: '',
     createdAt: ISODate('2018-10-25T13:58:45.945Z'),
     updatedAt: ISODate('2018-10-25T13:58:45.945Z'),
@@ -62,7 +62,7 @@ module.exports = [
     creator: ObjectId('5be1eba75854270cd0920faa'),
     ggbFile: '',
     image:
-      'http://tinygraphs.com/isogrids/fgfdgdfg?theme=sugarsweets&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/isogrids/fgfdgdfg?theme=sugarsweets&numcolors=4&size=220&fmt=svg',
     createdAt: ISODate('2019-01-03T18:48:09.661Z'),
     updatedAt: ISODate('2019-01-03T18:48:09.661Z'),
     __v: 0,
@@ -83,7 +83,7 @@ module.exports = [
     description: '',
     creator: ObjectId('5ba289ba7223b9429888b9b4'),
     image:
-      'http://tinygraphs.com/isogrids/ACTIVITY 1?theme=daisygarden&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/isogrids/ACTIVITY%201?theme=daisygarden&numcolors=4&size=220&fmt=svg',
     desmosLink: '',
     createdAt: ISODate('2018-10-25T12:58:36.945Z'),
     updatedAt: ISODate('2018-10-25T12:58:36.945Z'),
@@ -107,7 +107,7 @@ module.exports = [
     ggbFile: '',
     course: ObjectId('5c2e58db684f328cbca1d995'),
     image:
-      'http://tinygraphs.com/isogrids/fgfdgdfg?theme=sugarsweets&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/isogrids/fgfdgdfg?theme=sugarsweets&numcolors=4&size=220&fmt=svg',
     createdAt: ISODate('2019-01-03T17:48:09.661Z'),
     updatedAt: ISODate('2019-01-03T17:48:09.661Z'),
     __v: 0,
@@ -130,7 +130,7 @@ module.exports = [
     ggbFile: '',
     course: ObjectId('5c2e58db684f328cbca1d995'),
     image:
-      'http://tinygraphs.com/isogrids/fgfdgdfg?theme=sugarsweets&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/isogrids/fgfdgdfg?theme=sugarsweets&numcolors=4&size=220&fmt=svg',
     createdAt: ISODate('2019-01-03T17:49:09.661Z'),
     updatedAt: ISODate('2019-01-03T17:49:09.661Z'),
     __v: 0,
@@ -153,7 +153,7 @@ module.exports = [
     creator: ObjectId('5d1a59d79c78ad48c0480caa'),
     course: ObjectId('5d83f32415329f5bfcd49c0c'),
     image:
-      'http://tinygraphs.com/isogrids/ssmith c1: math is fun?theme=summerwarmth&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/isogrids/ssmith%20c1:%20math%20is%20fun?theme=summerwarmth&numcolors=4&size=220&fmt=svg',
     createdAt: ISODate('2019-09-19T21:32:16.915Z'),
     updatedAt: ISODate('2019-09-19T21:32:16.922Z'),
     __v: 0,
@@ -176,7 +176,7 @@ module.exports = [
     creator: ObjectId('5d1a59d79c78ad48c0480caa'),
     course: ObjectId('5d83f32415329f5bfcd49c0c'),
     image:
-      'http://tinygraphs.com/isogrids/ssmith c1: integrals?theme=frogideas&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/isogrids/ssmith%20c1:%20integrals?theme=frogideas&numcolors=4&size=220&fmt=svg',
     createdAt: ISODate('2019-09-19T21:32:44.582Z'),
     updatedAt: ISODate('2019-09-19T21:32:44.589Z'),
     __v: 0,
