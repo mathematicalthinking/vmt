@@ -93,7 +93,11 @@ class Homepage extends PureComponent {
                 vmt@21pstem.org
               </a>
             </p>
-            <p>last updated: 3.01.2021</p>
+            <p>Last updated: 3.05.2021</p>
+            <small>
+              You are viewing this application in <b>{process.env.NODE_ENV}</b>{' '}
+              mode.
+            </small>
           </section>
           <section className={classes.Options} ref={this.containerRef} />
         </div>
