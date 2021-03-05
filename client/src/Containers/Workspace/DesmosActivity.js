@@ -18,6 +18,7 @@ const DesmosActivityGraph = (props) => {
   const [screenPage, setScreenPage] = useState(1);
   const [activityHistory, setActivityHistory] = useState({});
   const [activityUpdates, setActivityUpdates] = useState();
+  const [transientUpdates, setTransientUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
   const calculatorRef = useRef();
   const calculatorInst = useRef();
@@ -57,11 +58,6 @@ const DesmosActivityGraph = (props) => {
     if (calculatorInst.current) {
       updateObject.currentScreen = calculatorInst.current.getActiveScreenIndex();
     }
-    // updateRoomTab(room._id, tab._id, {
-    //   currentState: currentStateString,
-    // });
-    // const currentStateBase64 = JSON.stringify(responseData);
-    // console.log('API sent state: ', { currentStateBase64 });
     API.put('tabs', _id, updateObject).catch((err) => {
       // eslint-disable-next-line no-console
       console.log(err);
@@ -85,19 +81,13 @@ const DesmosActivityGraph = (props) => {
     return `${username} interacted with the Activity`;
   };
 
-  // listener debugger to follow warming modal
-  // useEffect(() => {
-  //   console.log('Warning listener: ', showControlWarning);
-  //   console.log('and control is currently ', props.inControl);
-  // }, [showControlWarning]);
-
+  // listener and persistent state handler
   useEffect(() => {
     // console.log('~~~~~~activityUpdate listener~~~~~~~~~');
     // console.log("Updates...: ", activityUpdates);
     handleResponseData(activityUpdates);
   }, [activityUpdates, screenPage]);
-
-  // Event listener callback on the Activity instance
+  // Event listener callback on the persistent Activity instance
   const handleResponseData = (updates) => {
     if (initializing) return;
     let { room, user, myColor, tab, resetControlTimer, inControl } = props;
@@ -105,20 +95,11 @@ const DesmosActivityGraph = (props) => {
       undoing = false;
       return;
     }
-
     const currentState = {
       desmosState: updates,
       screen: screenPage - 1,
     };
     if (!receivingData) {
-      // console.log(
-      //   '**** Updates: ',
-      //   currentState,
-      //   ', Controlled by: ',
-      //   inControl,
-      //   ' ****'
-      // );
-      // console.log('On page: ', screenPage);
       if (inControl !== 'ME') {
         undoing = true;
         document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
@@ -161,8 +142,6 @@ const DesmosActivityGraph = (props) => {
     // let newState = JSON.parse(stateData);
     if (stateData) {
       let newState = stateData;
-      // console.log('Updating this player: ', calculatorInst.current);
-      // console.log('Received this data: ', newState);
       calculatorInst.current.dangerouslySetResponses(
         newState.studentResponses,
         {
@@ -172,9 +151,42 @@ const DesmosActivityGraph = (props) => {
     }
   }
 
+  // listener on the transient state
+  useEffect(() => {
+    handleTransientData(transientUpdates);
+  }, [transientUpdates]);
+  // Event listener callback on the Activity instance
+  const handleTransientData = (event) => {
+    let { room, user, myColor, tab, resetControlTimer, inControl } = props;
+    if (inControl !== 'ME') {
+      return;
+    }
+    console.log('Sending transient event...');
+    const newData = {
+      room: room._id,
+      tab: tab._id,
+      event: event,
+      color: myColor,
+      user: {
+        _id: user._id,
+        username: user.username,
+      },
+      timestamp: new Date().getTime(),
+    };
+    socket.emit('SEND_SYNC', newData, () => {});
+    resetControlTimer();
+  };
+
   function initializeListeners() {
     // INITIALIZE EVENT LISTENER
     const { tab, updatedRoom, addNtfToTabs, addToLog } = props;
+
+    socket.removeAllListeners('RECEIVE_SYNC');
+    socket.on('RECEIVE_SYNC', (data) => {
+      console.log('Received transient event update: ', data);
+      // set transient state
+      calculatorInst.current.handleSyncEvent(data.event);
+    });
 
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
@@ -193,6 +205,7 @@ const DesmosActivityGraph = (props) => {
         // updatedRoom(room._id, { tabs: updatedTabs });
         let updatesState = JSON.parse(data.currentState);
         // console.log('Received data: ', updatesState);
+        // set persistent state
         updateActivityState(updatesState.desmosState);
         if (
           updatesState.screen !== calculatorInst.current.getActiveScreenIndex()
@@ -229,6 +242,12 @@ const DesmosActivityGraph = (props) => {
     let playerOptions = {
       activityConfig: await fetchData(),
       targetElement: calculatorRef.current,
+      onError: (err) => {
+        console.error(
+          err.message ? err : 'PlayerAPI error: ' + JSON.stringify(err, null, 2)
+        );
+      },
+      // callback to handle persistent state
       onResponseDataUpdated: (responses) => {
         const currentState = {
           studentResponses: responses,
@@ -250,8 +269,10 @@ const DesmosActivityGraph = (props) => {
 
     calculatorInst.current = new Player(playerOptions);
 
-    // console.log('player', player);
-    // setActivityPlayer(player);
+    // callback method to handle transient state
+    const unsubToken = calculatorInst.current.subscribeToSync((evnt) => {
+      setTransientUpdates(evnt);
+    });
     console.log(
       'Desmos Activity Player initialized Version: ',
       Player.version(),
@@ -287,6 +308,7 @@ const DesmosActivityGraph = (props) => {
   }, []);
 
   function navigateBy(increment) {
+    console.log('in control: ', props.inControl);
     if (props.inControl !== 'ME') {
       undoing = true;
       document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
@@ -294,7 +316,6 @@ const DesmosActivityGraph = (props) => {
       setShowControlWarning(true);
       return;
     } else {
-      // console.log('changing page for ', calculatorInst.current);
       let page = calculatorInst.current.getActiveScreenIndex() + increment;
       calculatorInst.current.setActiveScreenIndex(page);
       setScreenPage(page + 1);
