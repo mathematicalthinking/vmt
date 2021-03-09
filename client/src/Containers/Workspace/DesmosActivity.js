@@ -11,12 +11,12 @@ import ControlWarningModal from './ControlWarningModal';
 import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
 import API from '../../utils/apiRequests';
 
-const DesmosActivityGraph = (props) => {
+const DesmosActivity = (props) => {
   const [screenPage, setScreenPage] = useState(1);
   const [activityHistory, setActivityHistory] = useState({});
   const [activityUpdates, setActivityUpdates] = useState();
   const [transientUpdates, setTransientUpdates] = useState();
-  const [showControlWarning, setShowControlWarning] = useState(true);
+  const [showControlWarning, setShowControlWarning] = useState(false);
   const calculatorRef = useRef();
   const calculatorInst = useRef();
 
@@ -300,10 +300,10 @@ const DesmosActivityGraph = (props) => {
     if (!_hasControl()) {
       event.preventDefault();
       setShowControlWarning(true);
-      return;
-    } 
+      // return;
     }
   }
+
   const {
     inControl,
     user,
@@ -382,7 +382,7 @@ const DesmosActivityGraph = (props) => {
   );
 };
 
-DesmosActivityGraph.propTypes = {
+DesmosActivity.propTypes = {
   room: PropTypes.shape({}).isRequired,
   tab: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
@@ -398,4 +398,4 @@ DesmosActivityGraph.propTypes = {
   addToLog: PropTypes.func.isRequired,
 };
 
-export default DesmosActivityGraph;
+export default DesmosActivity;
