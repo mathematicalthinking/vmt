@@ -307,6 +307,7 @@ class NewResourceContainer extends Component {
           setGgbApp={this.setGgbApp}
           desmosLink={desmosLink}
           setDesmosLink={this.linkMod}
+          setDesmosCalcLink={this.changeHandler}
           appName={appName}
         />
       );

@@ -23,7 +23,7 @@ export default (name, resource) => {
   // escaping characters did not seem to work
   const urlName = name.replace(/[/,%,\\]/gm, '_');
 
-  return `http://tinygraphs.com/${
+  return `https://www.tinygraphs.com/${
     shapes[resource]
   }/${urlName}?theme=${theme}&numcolors=4&size=220&fmt=svg`;
 };

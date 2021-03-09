@@ -300,6 +300,8 @@ const DesmosActivityGraph = (props) => {
     if (!_hasControl()) {
       event.preventDefault();
       setShowControlWarning(true);
+      return;
+    } 
     }
   }
   const {
