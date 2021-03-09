@@ -1,20 +1,17 @@
-/* eslint-disable */
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+/* eslint-disable react/prop-types */
+/* eslint-disable no-console */
+import React, { useState, useRef, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
-// import debounce from 'lodash/debounce';
 import classes from './graph.css';
-import { Aux, Button } from '../../Components';
+import { Button } from '../../Components';
 import { Player } from '../../external/js/api.full.es';
 import socket from '../../utils/sockets';
 import mongoIdGenerator from '../../utils/createMongoId';
 import ControlWarningModal from './ControlWarningModal';
 import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
 import API from '../../utils/apiRequests';
-// import { update } from '../../../../server/models/Tab';
 
-// import { updatedRoom } from '../../store/actions';
-
-const DesmosActivityGraph = (props) => {
+const DesmosActivity = (props) => {
   const [screenPage, setScreenPage] = useState(1);
   const [activityHistory, setActivityHistory] = useState({});
   const [activityUpdates, setActivityUpdates] = useState();
@@ -24,22 +21,18 @@ const DesmosActivityGraph = (props) => {
   const calculatorInst = useRef();
 
   let receivingData = false;
-  let undoing = false;
   let initializing = false;
 
-  let backBtn = calculatorInst.current
+  const backBtn = calculatorInst.current
     ? calculatorInst.current.getActiveScreenIndex() > 0
     : false;
-  let fwdBtn = calculatorInst.current
+  const fwdBtn = calculatorInst.current
     ? calculatorInst.current.getActiveScreenIndex() <
       calculatorInst.current.getScreenCount() - 1
     : true;
 
   function updateSavedData(updates) {
-    // TODO refactor using state
-    // Can this be done without a FOR loop/single update?
     setActivityHistory((oldState) => ({ ...oldState, ...updates }));
-    // sessionStorage.setItem(keyPrefix + key, updates[key]);
   }
 
   const putState = () => {
@@ -49,10 +42,12 @@ const DesmosActivityGraph = (props) => {
     if (tab.currentStateBase64) {
       responseData = JSON.parse(tab.currentStateBase64);
     }
+    // eslint-disable-next-line array-callback-return
     Object.entries(activityHistory).map(([key, value]) => {
       responseData[key] = [value];
     });
-    let updateObject = {
+
+    const updateObject = {
       currentStateBase64: JSON.stringify(responseData),
     };
     if (calculatorInst.current) {
@@ -64,13 +59,8 @@ const DesmosActivityGraph = (props) => {
     });
   };
 
-  function allowKeypressCheck(event) {
-    if (showControlWarning) {
-      event.preventDefault();
-    }
-  }
-
-  let buildDescription = (username, updates) => {
+  // eslint-disable-next-line no-unused-vars
+  const buildDescription = (username, updates) => {
     // @TODO clean up and parse activity types
     // examples below
     // anzook {"studentResponses":{"031cd62f-363b-4dd1-aa21-6bbd676ee7b3":"{\"numericValue\":null}"},"timestampEpochMs":1614013897960}
@@ -90,24 +80,13 @@ const DesmosActivityGraph = (props) => {
   // Event listener callback on the persistent Activity instance
   const handleResponseData = (updates) => {
     if (initializing) return;
-    let { room, user, myColor, tab, resetControlTimer, inControl } = props;
-    if (undoing) {
-      undoing = false;
-      return;
-    }
+    const { room, user, myColor, tab, resetControlTimer } = props;
     const currentState = {
       desmosState: updates,
       screen: screenPage - 1,
     };
     if (!receivingData) {
-      if (inControl !== 'ME') {
-        undoing = true;
-        document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
-        // we have the global keypress listener to prevent typing if controlWarning is being shown
-        setShowControlWarning(true);
-        return;
-      }
-      let description = buildDescription(
+      const description = buildDescription(
         user.username,
         updates
         // stateDifference
@@ -141,7 +120,7 @@ const DesmosActivityGraph = (props) => {
   function updateActivityState(stateData) {
     // let newState = JSON.parse(stateData);
     if (stateData) {
-      let newState = stateData;
+      const newState = stateData;
       calculatorInst.current.dangerouslySetResponses(
         newState.studentResponses,
         {
@@ -157,7 +136,7 @@ const DesmosActivityGraph = (props) => {
   }, [transientUpdates]);
   // Event listener callback on the Activity instance
   const handleTransientData = (event) => {
-    let { room, user, myColor, tab, resetControlTimer, inControl } = props;
+    const { room, user, myColor, tab, resetControlTimer, inControl } = props;
     if (inControl !== 'ME') {
       return;
     }
@@ -165,7 +144,7 @@ const DesmosActivityGraph = (props) => {
     const newData = {
       room: room._id,
       tab: tab._id,
-      event: event,
+      event,
       color: myColor,
       user: {
         _id: user._id,
@@ -203,7 +182,7 @@ const DesmosActivityGraph = (props) => {
         });
         updatedRoom(room._id, { tabs: updatedTabs });
         // updatedRoom(room._id, { tabs: updatedTabs });
-        let updatesState = JSON.parse(data.currentState);
+        const updatesState = JSON.parse(data.currentState);
         // console.log('Received data: ', updatesState);
         // set persistent state
         updateActivityState(updatesState.desmosState);
@@ -224,8 +203,9 @@ const DesmosActivityGraph = (props) => {
   }
 
   const fetchData = async () => {
-    let code =
-      props.tab.desmosLink ||
+    const { tab } = props;
+    const code =
+      tab.desmosLink ||
       // fallback to turtle time trials, used for demo
       '5da9e2174769ea65a6413c93';
     const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
@@ -239,12 +219,13 @@ const DesmosActivityGraph = (props) => {
   };
 
   const initPlayer = async () => {
-    let playerOptions = {
+    const { tab } = props;
+    const playerOptions = {
       activityConfig: await fetchData(),
       targetElement: calculatorRef.current,
       onError: (err) => {
         console.error(
-          err.message ? err : 'PlayerAPI error: ' + JSON.stringify(err, null, 2)
+          err.message ? err : `PlayerAPI error: ${JSON.stringify(err, null, 2)}`
         );
       },
       // callback to handle persistent state
@@ -258,10 +239,9 @@ const DesmosActivityGraph = (props) => {
         updateSavedData(responses);
       },
     };
-    if (props.tab.currentStateBase64) {
-      const { tab } = props;
-      let { currentStateBase64 } = tab;
-      let savedData = JSON.parse(currentStateBase64);
+    if (tab.currentStateBase64) {
+      const { currentStateBase64 } = tab;
+      const savedData = JSON.parse(currentStateBase64);
       console.log('Prior state data loaded: ');
       console.log(savedData);
       playerOptions.responseData = savedData;
@@ -270,6 +250,8 @@ const DesmosActivityGraph = (props) => {
     calculatorInst.current = new Player(playerOptions);
 
     // callback method to handle transient state
+    // @TODO Why isn't this unsubscribe token being used?
+    // eslint-disable-next-line no-unused-vars
     const unsubToken = calculatorInst.current.subscribeToSync((evnt) => {
       setTransientUpdates(evnt);
     });
@@ -280,14 +262,12 @@ const DesmosActivityGraph = (props) => {
       calculatorInst.current
     );
     props.setFirstTabLoaded();
-    initializing = false;
     initializeListeners();
     // Print current Tab data
     console.log('Tab data: ', props.tab);
     // Go to screen last used
-    if (props.tab.currentScreen) {
-      const { tab } = props;
-      let { currentScreen } = tab;
+    if (tab.currentScreen) {
+      const { currentScreen } = tab;
       console.log('Prior screen index loaded: ', currentScreen);
       calculatorInst.current.setActiveScreenIndex(currentScreen);
       setScreenPage(currentScreen + 1);
@@ -296,35 +276,45 @@ const DesmosActivityGraph = (props) => {
 
   useEffect(() => {
     initializing = true;
-    window.addEventListener('keydown', allowKeypressCheck());
     initPlayer();
-    return function() {
+    initializing = false;
+    return () => {
       if (calculatorInst.current) {
         calculatorInst.current.destroy();
       }
-      window.removeEventListener('keydown', allowKeypressCheck());
-      sessionStorage.clear();
+      // sessionStorage.clear();  @TODO Is this leftover from somewhere?
     };
   }, []);
 
   function navigateBy(increment) {
-    console.log('in control: ', props.inControl);
-    if (props.inControl !== 'ME') {
-      undoing = true;
-      document.activeElement.blur(); // prevent the user from typing anything else N.B. this isnt actually preventing more typing it just removes the cursor
-      // we have the global keypress listener to prevent typing if controlWarning is being shown
+    const page = calculatorInst.current.getActiveScreenIndex() + increment;
+    calculatorInst.current.setActiveScreenIndex(page);
+    setScreenPage(page + 1);
+  }
+
+  function _hasControl() {
+    return props.inControl === 'ME';
+  }
+
+  function _checkForControl(event) {
+    if (!_hasControl()) {
+      event.preventDefault();
       setShowControlWarning(true);
-      return;
-    } else {
-      let page = calculatorInst.current.getActiveScreenIndex() + increment;
-      calculatorInst.current.setActiveScreenIndex(page);
-      setScreenPage(page + 1);
+      // return;
     }
   }
 
+  const {
+    inControl,
+    user,
+    showRefWarning,
+    refWarningMsg,
+    closeRefWarning,
+    doPreventFutureRefWarnings,
+    togglePreventRefWarning,
+  } = props;
   return (
-    <Aux>
-      <span id="focus" ref={focus} />
+    <Fragment>
       <ControlWarningModal
         showControlWarning={showControlWarning}
         toggleControlWarning={() => {
@@ -334,43 +324,65 @@ const DesmosActivityGraph = (props) => {
           props.toggleControl();
           setShowControlWarning(false);
         }}
-        inControl={props.inControl}
+        inControl={inControl}
         cancel={() => {
           setShowControlWarning(false);
         }}
-        inAdminMode={props.user.inAdminMode}
+        inAdminMode={user.inAdminMode}
       />
       <CheckboxModal
-        show={props.showRefWarning}
-        infoMessage={props.refWarningMsg}
-        closeModal={props.closeRefWarning}
-        isChecked={props.doPreventFutureRefWarnings}
+        show={showRefWarning}
+        infoMessage={refWarningMsg}
+        closeModal={closeRefWarning}
+        isChecked={doPreventFutureRefWarnings}
         checkboxDataId="ref-warning"
-        onSelect={props.togglePreventRefWarning}
+        onSelect={togglePreventRefWarning}
       />
-      <div id="activityNavigation" className={classes.ActivityNav}>
-        {backBtn && (
-          <Button theme="Small" id="nav-left" click={() => navigateBy(-1)}>
-            Prev
-          </Button>
-        )}
-        <span id="show-screen" className={classes.Title}>
-          Screen {screenPage}
-        </span>
-        {fwdBtn && (
-          <Button theme="Small" id="nav-right" click={() => navigateBy(1)}>
-            Next
-          </Button>
-        )}
+      <div id="container" onClickCapture={_checkForControl}>
+        <div
+          id="activityNavigation"
+          className={classes.ActivityNav}
+          style={{
+            pointerEvents: !_hasControl() ? 'none' : 'auto',
+          }}
+        >
+          {backBtn && (
+            <Button theme="Small" id="nav-left" click={() => navigateBy(-1)}>
+              Prev
+            </Button>
+          )}
+          <span id="show-screen" className={classes.Title}>
+            Screen {screenPage}
+          </span>
+          {fwdBtn && (
+            <Button theme="Small" id="nav-right" click={() => navigateBy(1)}>
+              Next
+            </Button>
+          )}
+        </div>
+        <div
+          className={classes.Activity}
+          id="calculatorParent"
+          style={{
+            height: '890px', // @TODO this needs to be adjusted based on the Player instance.
+          }}
+        >
+          <div
+            className={classes.Graph}
+            id="calculator"
+            ref={calculatorRef}
+            style={{
+              overflow: 'auto',
+              pointerEvents: !_hasControl() ? 'none' : 'auto',
+            }}
+          />
+        </div>
       </div>
-      <div className={classes.Activity} id="calculatorParent">
-        <div className={classes.Graph} id="calculator" ref={calculatorRef} />
-      </div>
-    </Aux>
+    </Fragment>
   );
 };
 
-DesmosActivityGraph.propTypes = {
+DesmosActivity.propTypes = {
   room: PropTypes.shape({}).isRequired,
   tab: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
@@ -381,9 +393,9 @@ DesmosActivityGraph.propTypes = {
   toggleControl: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
   addNtfToTabs: PropTypes.func.isRequired,
-  referencing: PropTypes.bool.isRequired,
-  updateUserSettings: PropTypes.func,
+  // referencing: PropTypes.bool.isRequired,
+  // updateUserSettings: PropTypes.func,
   addToLog: PropTypes.func.isRequired,
 };
 
-export default DesmosActivityGraph;
+export default DesmosActivity;

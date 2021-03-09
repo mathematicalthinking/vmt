@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Script from 'react-load-script';
 import { parseString } from 'xml2js';
@@ -8,7 +8,6 @@ import find from 'lodash/find';
 import mongoIdGenerator from '../../utils/createMongoId';
 import classes from './graph.css';
 import { blankEditorState, setCodeBase } from './ggbUtils';
-import { Aux } from '../../Components';
 import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
 import ggbTools from './Tools/GgbIcons';
@@ -2098,20 +2097,38 @@ class GgbGraph extends Component {
     }
   };
 
+  hasControl = () => {
+    const { inControl } = this.props;
+    return inControl === 'ME';
+  };
+
+  checkForControl = (event) => {
+    if (!this.hasControl()) {
+      event.preventDefault();
+      this.setState({ showControlWarning: true });
+    }
+  };
+
   render() {
     const { tab, toggleControl, inControl, user } = this.props;
     const { showControlWarning, redo } = this.state;
     return (
-      <Aux>
+      <Fragment>
         <Script
           url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.onScriptLoad}
         />
-        <div
-          className={classes.Graph}
-          id={`ggb-element${tab._id}A`}
-          ref={this.graph}
-        />
+        <span
+          onClickCapture={this.checkForControl.bind(this)}
+          onKeyPressCapture={this.checkForControl.bind(this)}
+        >
+          <div
+            className={classes.Graph}
+            id={`ggb-element${tab._id}A`}
+            ref={this.graph}
+            style={{ pointerEvents: this.hasControl() ? 'auto' : 'none' }}
+          />
+        </span>
         <ControlWarningModal
           showControlWarning={showControlWarning}
           toggleControlWarning={async () => {
@@ -2138,7 +2155,7 @@ class GgbGraph extends Component {
           }}
           inAdminMode={user.inAdminMode}
         />
-      </Aux>
+      </Fragment>
     );
   }
 }
