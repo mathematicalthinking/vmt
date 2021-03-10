@@ -48,7 +48,6 @@ class Homepage extends PureComponent {
 
   determineDep = () => {
     const url = window.location.href;
-    console.log('URL: ', url);
     if (url.split('.')[0] === 'https://vmt-test') {
       return 'staging';
     }

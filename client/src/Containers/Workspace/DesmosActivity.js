@@ -251,7 +251,6 @@ const DesmosActivity = (props) => {
     calculatorInst.current = new Player(playerOptions);
 
     // callback method to handle transient state
-    // @TODO Why isn't this unsubscribe token being used?
     // eslint-disable-next-line no-unused-vars
     const unsubToken = calculatorInst.current.subscribeToSync((evnt) => {
       setTransientUpdates(evnt);
@@ -278,11 +277,14 @@ const DesmosActivity = (props) => {
 
   useEffect(() => {
     initializing = true;
-    const unsub = initPlayer();
+    let unsub;
+    initPlayer().then((token) => {
+      unsub = token;
+    });
     initializing = false;
     return () => {
       if (calculatorInst.current) {
-        calculatorInst.current.unsubscribeFromSync(unsub);
+        if (unsub) calculatorInst.current.unsubscribeFromSync(unsub);
         calculatorInst.current.destroy();
       }
       // sessionStorage.clear();  @TODO Is this leftover from somewhere?
@@ -301,6 +303,7 @@ const DesmosActivity = (props) => {
 
   function _checkForControl(event) {
     // check if user is not in control and intercept event
+    console.log('Click intercepted - Controlled by Me?: ', _hasControl());
     if (!_hasControl()) {
       event.preventDefault();
       setShowControlWarning(true);
