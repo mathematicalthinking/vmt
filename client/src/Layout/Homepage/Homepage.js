@@ -8,12 +8,14 @@ import Aux from '../../Components/HOC/Auxil';
 class Homepage extends PureComponent {
   state = {
     error: null,
+    pageLocation: '',
   };
 
   containerRef = React.createRef();
 
   componentDidMount() {
     const { location } = this.props;
+    this.setState({ pageLocation: this.determineDep() });
     if (location.state && location.state.error) {
       this.setState({ error: location.state.error });
       this.timer = setTimeout(() => {
@@ -44,6 +46,18 @@ class Homepage extends PureComponent {
     }
   }
 
+  determineDep = () => {
+    const url = window.location.href;
+    console.log('URL: ', url);
+    if (url.split('.')[0] === 'https://vmt-test') {
+      return 'staging';
+    }
+    if (process.env.NODE_ENV === 'development') {
+      return 'development';
+    }
+    return 'production';
+  };
+
   createRoom = () => {
     const { user, createRoom } = this.props;
     const room = {
@@ -66,7 +80,10 @@ class Homepage extends PureComponent {
   };
 
   render() {
-    const { error } = this.state;
+    const { error, pageLocation } = this.state;
+    // hoisting for easy access to update and for @todo later streamlining
+    const dateStamp = <p>Last updated: 03.10.2021</p>;
+
     return (
       <Aux>
         <Background bottomSpace={null} />
@@ -93,10 +110,9 @@ class Homepage extends PureComponent {
                 vmt@21pstem.org
               </a>
             </p>
-            <p>Last updated: 3.05.2021</p>
+            {dateStamp}
             <small>
-              You are viewing this application in <b>{process.env.NODE_ENV}</b>{' '}
-              mode.
+              You are viewing this application in <b>{pageLocation}</b> mode.
             </small>
           </section>
           <section className={classes.Options} ref={this.containerRef} />

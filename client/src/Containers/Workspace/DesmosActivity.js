@@ -75,7 +75,9 @@ const DesmosActivity = (props) => {
   useEffect(() => {
     // console.log('~~~~~~activityUpdate listener~~~~~~~~~');
     // console.log("Updates...: ", activityUpdates);
-    handleResponseData(activityUpdates);
+    if (props.inControl === 'ME') {
+      handleResponseData(activityUpdates);
+    }
   }, [activityUpdates, screenPage]);
   // Event listener callback on the persistent Activity instance
   const handleResponseData = (updates) => {
@@ -132,14 +134,13 @@ const DesmosActivity = (props) => {
 
   // listener on the transient state
   useEffect(() => {
-    handleTransientData(transientUpdates);
+    if (props.inControl === 'ME') {
+      handleTransientData(transientUpdates);
+    }
   }, [transientUpdates]);
   // Event listener callback on the Activity instance
   const handleTransientData = (event) => {
-    const { room, user, myColor, tab, resetControlTimer, inControl } = props;
-    if (inControl !== 'ME') {
-      return;
-    }
+    const { room, user, myColor, tab, resetControlTimer } = props;
     console.log('Sending transient event...');
     const newData = {
       room: room._id,
@@ -272,14 +273,16 @@ const DesmosActivity = (props) => {
       calculatorInst.current.setActiveScreenIndex(currentScreen);
       setScreenPage(currentScreen + 1);
     }
+    return unsubToken;
   };
 
   useEffect(() => {
     initializing = true;
-    initPlayer();
+    const unsub = initPlayer();
     initializing = false;
     return () => {
       if (calculatorInst.current) {
+        calculatorInst.current.unsubscribeFromSync(unsub);
         calculatorInst.current.destroy();
       }
       // sessionStorage.clear();  @TODO Is this leftover from somewhere?
@@ -297,6 +300,7 @@ const DesmosActivity = (props) => {
   }
 
   function _checkForControl(event) {
+    // check if user is not in control and intercept event
     if (!_hasControl()) {
       event.preventDefault();
       setShowControlWarning(true);
@@ -363,9 +367,9 @@ const DesmosActivity = (props) => {
         <div
           className={classes.Activity}
           id="calculatorParent"
-          style={{
-            height: '890px', // @TODO this needs to be adjusted based on the Player instance.
-          }}
+          // style={{
+          //   height: '890px', // @TODO this needs to be adjusted based on the Player instance.
+          // }}
         >
           <div
             className={classes.Graph}
