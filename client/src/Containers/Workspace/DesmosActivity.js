@@ -301,6 +301,7 @@ const DesmosActivity = (props) => {
     return props.inControl === 'ME';
   }
 
+  // @TODO this could be selectively handled depending what div is clicked
   function _checkForControl(event) {
     // check if user is not in control and intercept event
     // console.log('Click intercepted - Event: ', event.target.id);
