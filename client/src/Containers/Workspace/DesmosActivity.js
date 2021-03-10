@@ -303,7 +303,7 @@ const DesmosActivity = (props) => {
 
   function _checkForControl(event) {
     // check if user is not in control and intercept event
-    console.log('Click intercepted - Controlled by Me?: ', _hasControl());
+    // console.log('Click intercepted - Event: ', event.target.id);
     if (!_hasControl()) {
       event.preventDefault();
       setShowControlWarning(true);
@@ -345,45 +345,45 @@ const DesmosActivity = (props) => {
         checkboxDataId="ref-warning"
         onSelect={togglePreventRefWarning}
       />
-      <div id="container" onClickCapture={_checkForControl}>
+      <div
+        id="activityNavigation"
+        className={classes.ActivityNav}
+        onClickCapture={_checkForControl}
+        style={{
+          pointerEvents: !_hasControl() ? 'none' : 'auto',
+        }}
+      >
+        {backBtn && (
+          <Button theme="Small" id="nav-left" click={() => navigateBy(-1)}>
+            Prev
+          </Button>
+        )}
+        <span id="show-screen" className={classes.Title}>
+          Screen {screenPage}
+        </span>
+        {fwdBtn && (
+          <Button theme="Small" id="nav-right" click={() => navigateBy(1)}>
+            Next
+          </Button>
+        )}
+      </div>
+      <div
+        className={classes.Activity}
+        onClickCapture={_checkForControl}
+        id="calculatorParent"
+        style={{
+          height: '890px', // @TODO this needs to be adjusted based on the Player instance.
+        }}
+      >
         <div
-          id="activityNavigation"
-          className={classes.ActivityNav}
+          className={classes.Graph}
+          id="calculator"
+          ref={calculatorRef}
           style={{
+            overflow: 'auto',
             pointerEvents: !_hasControl() ? 'none' : 'auto',
           }}
-        >
-          {backBtn && (
-            <Button theme="Small" id="nav-left" click={() => navigateBy(-1)}>
-              Prev
-            </Button>
-          )}
-          <span id="show-screen" className={classes.Title}>
-            Screen {screenPage}
-          </span>
-          {fwdBtn && (
-            <Button theme="Small" id="nav-right" click={() => navigateBy(1)}>
-              Next
-            </Button>
-          )}
-        </div>
-        <div
-          className={classes.Activity}
-          id="calculatorParent"
-          // style={{
-          //   height: '890px', // @TODO this needs to be adjusted based on the Player instance.
-          // }}
-        >
-          <div
-            className={classes.Graph}
-            id="calculator"
-            ref={calculatorRef}
-            style={{
-              overflow: 'auto',
-              pointerEvents: !_hasControl() ? 'none' : 'auto',
-            }}
-          />
-        </div>
+        />
       </div>
     </Fragment>
   );
