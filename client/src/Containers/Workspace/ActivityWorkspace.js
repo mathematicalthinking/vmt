@@ -19,6 +19,7 @@ import {
   DesmosActivityGraph,
   DesmosActivity,
   GgbActivityGraph,
+  CodePyretOrg,
   Tabs,
   RoomInfo,
   ActivityTools,
@@ -197,6 +198,21 @@ class ActivityWorkspace extends Component {
             />
           );
         }
+        if (tab.tabType === 'pyret') {
+          return (
+            <CodePyretOrg
+              key={tab._id}
+              tab={tab}
+              activity={activity}
+              role={role}
+              currentTab={currentTabId || initialTabId}
+              updateActivityTab={connectUpdateActivityTab}
+              setFirstTabLoaded={this.setFirstTabLoaded}
+              isFirstTabLoaded={isFirstTabLoaded}
+            />
+          );
+        }
+        console.log('Building a geogebra thing');
         return (
           <GgbActivityGraph
             activity={activity}

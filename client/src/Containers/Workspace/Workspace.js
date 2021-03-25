@@ -23,6 +23,7 @@ import {
   GgbGraph,
   DesmosGraph,
   DesmosActivity,
+  CodePyretOrg,
   Chat,
   Tabs,
   Tools,
@@ -922,6 +923,29 @@ class Workspace extends Component {
       if (tab.tabType === 'desmosActivity') {
         return (
           <DesmosActivity
+            key={tab._id}
+            room={populatedRoom}
+            user={user}
+            resetControlTimer={this.resetControlTimer}
+            currentTabId={currentTabId}
+            updateRoomTab={connectUpdateRoomTab}
+            tab={tab}
+            inControl={inControl}
+            myColor={myColor}
+            toggleControl={this.toggleControl}
+            updatedRoom={connectUpdatedRoom}
+            addNtfToTabs={this.addNtfToTabs}
+            isFirstTabLoaded={isFirstTabLoaded}
+            setFirstTabLoaded={this.setFirstTabLoaded}
+            referencing={referencing}
+            updateUserSettings={connectUpdateUserSettings}
+            addToLog={this.addToLog}
+          />
+        );
+      }
+      if (tab.tabType === 'pyret') {
+        return (
+          <CodePyretOrg
             key={tab._id}
             room={populatedRoom}
             user={user}
