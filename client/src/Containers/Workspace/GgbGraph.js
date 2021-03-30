@@ -2097,17 +2097,18 @@ class GgbGraph extends Component {
     }
   };
 
-  hasControl = () => {
-    const { inControl } = this.props;
-    return inControl === 'ME';
-  };
+  // Alternative control strategy logic
+  // hasControl = () => {
+  //   const { inControl } = this.props;
+  //   return inControl === 'ME';
+  // };
 
-  checkForControl = (event) => {
-    if (!this.hasControl()) {
-      event.preventDefault();
-      this.setState({ showControlWarning: true });
-    }
-  };
+  // checkForControl = (event) => {
+  //   if (!this.hasControl()) {
+  //     event.preventDefault();
+  //     this.setState({ showControlWarning: true });
+  //   }
+  // };
 
   render() {
     const { tab, toggleControl, inControl, user } = this.props;
@@ -2118,7 +2119,13 @@ class GgbGraph extends Component {
           url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.onScriptLoad}
         />
-        <span
+        <div
+          className={classes.Graph}
+          id={`ggb-element${tab._id}A`}
+          ref={this.graph}
+        />
+        {/* Alternative control stragey render */}
+        {/* <span
           onClickCapture={this.checkForControl.bind(this)}
           onKeyPressCapture={this.checkForControl.bind(this)}
         >
@@ -2128,7 +2135,7 @@ class GgbGraph extends Component {
             ref={this.graph}
             style={{ pointerEvents: this.hasControl() ? 'auto' : 'none' }}
           />
-        </span>
+        </span> */}
         <ControlWarningModal
           showControlWarning={showControlWarning}
           toggleControlWarning={async () => {

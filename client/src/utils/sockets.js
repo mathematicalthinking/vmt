@@ -13,9 +13,7 @@ if (process.env.REACT_APP_STAGING) {
 // const socket = io.connect(url);
 
 // updated config that includes options object, skips long polling connection
-const _socket = io(url, {
-  transports: ['websocket'],
-});
+const _socket = io(url);
 
 // helper socket methods to print socket messages
 const socket = {

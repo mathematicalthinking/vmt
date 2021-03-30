@@ -616,17 +616,18 @@ class DesmosGraph extends Component {
     return null;
   }
 
-  hasControl() {
-    const { inControl } = this.props;
-    return inControl === 'ME';
-  }
+  // Alternative control strategy logic
+  // hasControl() {
+  //   const { inControl } = this.props;
+  //   return inControl === 'ME';
+  // }
 
-  checkForControl(event) {
-    if (!this.hasControl()) {
-      event.preventDefault();
-      this.setState({ showControlWarning: true });
-    }
-  }
+  // checkForControl(event) {
+  //   if (!this.hasControl()) {
+  //     event.preventDefault();
+  //     this.setState({ showControlWarning: true });
+  //   }
+  // }
 
   render() {
     const { inControl, toggleControl, user } = this.props;
@@ -669,10 +670,16 @@ class DesmosGraph extends Component {
             onLoad={this.onScriptLoad}
           />
         ) : null}
+        <div
+          className={classes.Graph}
+          id="calculator"
+          ref={this.calculatorRef}
+        />
+        {/* Alternative control strategy render */}
         {/* This span covers the graph and captures all events when the user doesn't have control.
         For some reason, using a div here doesn't work. */}
         {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
-        <span
+        {/* <span
           onClickCapture={this.checkForControl.bind(this)}
           onKeyPressCapture={this.checkForControl.bind(this)}
         >
@@ -682,7 +689,7 @@ class DesmosGraph extends Component {
             ref={this.calculatorRef}
             style={{ pointerEvents: this.hasControl() ? 'auto' : 'none' }}
           />
-        </span>
+        </span> */}
       </Fragment>
     );
   }
