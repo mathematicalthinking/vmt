@@ -75,7 +75,9 @@ const DesmosActivity = (props) => {
   useEffect(() => {
     // console.log('~~~~~~activityUpdate listener~~~~~~~~~');
     // console.log("Updates...: ", activityUpdates);
-    handleResponseData(activityUpdates);
+    if (props.inControl === 'ME') {
+      handleResponseData(activityUpdates);
+    }
   }, [activityUpdates, screenPage]);
   // Event listener callback on the persistent Activity instance
   const handleResponseData = (updates) => {
@@ -132,14 +134,13 @@ const DesmosActivity = (props) => {
 
   // listener on the transient state
   useEffect(() => {
-    handleTransientData(transientUpdates);
+    if (props.inControl === 'ME') {
+      handleTransientData(transientUpdates);
+    }
   }, [transientUpdates]);
   // Event listener callback on the Activity instance
   const handleTransientData = (event) => {
-    const { room, user, myColor, tab, resetControlTimer, inControl } = props;
-    if (inControl !== 'ME') {
-      return;
-    }
+    const { room, user, myColor, tab, resetControlTimer } = props;
     console.log('Sending transient event...');
     const newData = {
       room: room._id,
@@ -250,7 +251,6 @@ const DesmosActivity = (props) => {
     calculatorInst.current = new Player(playerOptions);
 
     // callback method to handle transient state
-    // @TODO Why isn't this unsubscribe token being used?
     // eslint-disable-next-line no-unused-vars
     const unsubToken = calculatorInst.current.subscribeToSync((evnt) => {
       setTransientUpdates(evnt);
@@ -272,14 +272,19 @@ const DesmosActivity = (props) => {
       calculatorInst.current.setActiveScreenIndex(currentScreen);
       setScreenPage(currentScreen + 1);
     }
+    return unsubToken;
   };
 
   useEffect(() => {
     initializing = true;
-    initPlayer();
+    let unsub;
+    initPlayer().then((token) => {
+      unsub = token;
+    });
     initializing = false;
     return () => {
       if (calculatorInst.current) {
+        if (unsub) calculatorInst.current.unsubscribeFromSync(unsub);
         calculatorInst.current.destroy();
       }
       // sessionStorage.clear();  @TODO Is this leftover from somewhere?
@@ -296,7 +301,10 @@ const DesmosActivity = (props) => {
     return props.inControl === 'ME';
   }
 
+  // @TODO this could be selectively handled depending what div is clicked
   function _checkForControl(event) {
+    // check if user is not in control and intercept event
+    // console.log('Click intercepted - Event: ', event.target.id);
     if (!_hasControl()) {
       event.preventDefault();
       setShowControlWarning(true);
@@ -338,45 +346,45 @@ const DesmosActivity = (props) => {
         checkboxDataId="ref-warning"
         onSelect={togglePreventRefWarning}
       />
-      <div id="container" onClickCapture={_checkForControl}>
+      <div
+        id="activityNavigation"
+        className={classes.ActivityNav}
+        onClickCapture={_checkForControl}
+        style={{
+          pointerEvents: !_hasControl() ? 'none' : 'auto',
+        }}
+      >
+        {backBtn && (
+          <Button theme="Small" id="nav-left" click={() => navigateBy(-1)}>
+            Prev
+          </Button>
+        )}
+        <span id="show-screen" className={classes.Title}>
+          Screen {screenPage}
+        </span>
+        {fwdBtn && (
+          <Button theme="Small" id="nav-right" click={() => navigateBy(1)}>
+            Next
+          </Button>
+        )}
+      </div>
+      <div
+        className={classes.Activity}
+        onClickCapture={_checkForControl}
+        id="calculatorParent"
+        style={{
+          height: '890px', // @TODO this needs to be adjusted based on the Player instance.
+        }}
+      >
         <div
-          id="activityNavigation"
-          className={classes.ActivityNav}
+          className={classes.Graph}
+          id="calculator"
+          ref={calculatorRef}
           style={{
+            overflow: 'auto',
             pointerEvents: !_hasControl() ? 'none' : 'auto',
           }}
-        >
-          {backBtn && (
-            <Button theme="Small" id="nav-left" click={() => navigateBy(-1)}>
-              Prev
-            </Button>
-          )}
-          <span id="show-screen" className={classes.Title}>
-            Screen {screenPage}
-          </span>
-          {fwdBtn && (
-            <Button theme="Small" id="nav-right" click={() => navigateBy(1)}>
-              Next
-            </Button>
-          )}
-        </div>
-        <div
-          className={classes.Activity}
-          id="calculatorParent"
-          style={{
-            height: '890px', // @TODO this needs to be adjusted based on the Player instance.
-          }}
-        >
-          <div
-            className={classes.Graph}
-            id="calculator"
-            ref={calculatorRef}
-            style={{
-              overflow: 'auto',
-              pointerEvents: !_hasControl() ? 'none' : 'auto',
-            }}
-          />
-        </div>
+        />
       </div>
     </Fragment>
   );
