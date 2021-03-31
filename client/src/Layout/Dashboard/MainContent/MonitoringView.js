@@ -1,10 +1,15 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable react/no-unused-prop-types */
 /* eslint-disable no-unused-vars */
+/* eslint-disable jsx-a11y/label-has-associated-control */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import API from '../../../utils/apiRequests';
 import SimpleChat from '../../../Components/Chat/SimpleChat';
+import classes from './monitoringView.css';
+import ToggleGroup from './ToggleGroup';
+import SelectionTable from './SelectionTable';
 
 /**
  * The MonitoringView provides three views into a set of rooms: activity graph, thumbnail, and chat.  All possible rooms are given by userResources,
@@ -35,15 +40,33 @@ import SimpleChat from '../../../Components/Chat/SimpleChat';
  * @TODO:
  *  - Install react-query so that the chats can be cached and independently updated
  *  - have the outline of a chat visible as the messages are being retrieved from the server (as needed)
- *  - put all styles into a separate css file to be consistent with the rest of the codebase
+ *  - put all styles into a separate css file to be consistent with the rest of the codebase -- DONE
  *  - implement the other two types of monitoring.
  *  - when you use the menu to jump somewhere else, the way to get back to Monitoring is the browser's Back button.
  *    Is this obvious enough for users?
- *  - Right now, ALL rooms managed by the user are shown. There needs to be a way of selecting which rooms to monitor.
+ *  - Right now, ALL rooms managed by the user are shown. There needs to be a way of selecting which rooms to monitor. -- DONE
  */
 
 export default function MonitoringView({ userResources, notifications }) {
+  const constants = {
+    SELECT: 'Select',
+    VIEW: 'View',
+    CHAT: 'Chat',
+    THUMBNAIL: 'Thumbnail',
+    GRAPH: 'Graph',
+  };
+
   const [populatedRooms, setPopulated] = React.useState([]);
+  const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
+  const [selections, setSelections] = React.useState({});
+
+  const _initializeSelections = (rooms) => {
+    const result = {};
+    rooms.forEach((room) => {
+      result[room._id] = true;
+    });
+    return result;
+  };
 
   React.useEffect(() => {
     const populated = userResources.map(async (room) => {
@@ -51,55 +74,67 @@ export default function MonitoringView({ userResources, notifications }) {
       return res.data.result;
     });
     // note: The API calls are being made in parallel, so the time to get all the info is the time taken by the single slowest API response.
-    Promise.all(populated).then((res) => setPopulated(res));
+    Promise.all(populated).then((res) => {
+      setPopulated(res);
+      setSelections(_initializeSelections(res));
+    });
   }, []);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'row', flexFlow: 'wrap' }}>
-      {populatedRooms.map((room) => {
-        return (
-          !!room.chat.length && (
-            <div
-              key={room._id}
-              style={{
-                // copied from the usual Chat's css file
-                width: '300px',
-                display: 'flex',
-                flexFlow: 'wrap',
-                flexDirection: 'row',
-                boxShadow: 'lightestShadow',
-                alignSelf: 'auto',
-                borderRadius: '3px',
-                padding: '5px',
-                height: '300px',
-              }}
-            >
-              <SimpleChat
-                log={room.chat}
-                title={room.name}
-                menu={[
-                  {
-                    name: 'Enter Room',
-                    link: `/myVMT/workspace/${room._id}`,
-                  },
-                  {
-                    name: 'Manage Members',
-                    link: `/myVMT/rooms/${room._id}/members`,
-                  },
-                  {
-                    name: 'Open Replayer',
-                    link: `/myVMT/workspace/${room._id}/replayer`,
-                  },
-                  {
-                    name: 'View/Export Room Stats',
-                    link: `/myVMT/rooms/${room._id}/stats`,
-                  },
-                ]}
-              />
-            </div>
-          )
-        );
-      })}
+    <div className={classes.Container}>
+      <div className={classes.TogglesContainer}>
+        <ToggleGroup
+          buttons={[constants.VIEW, constants.SELECT]}
+          onChange={setViewOrSelect}
+        />
+        <ToggleGroup
+          buttons={[constants.CHAT, constants.THUMBNAIL, constants.GRAPH]}
+          onChange={() => {}}
+        />
+      </div>
+      {viewOrSelect === constants.SELECT ? (
+        <SelectionTable
+          data={populatedRooms}
+          selections={selections}
+          onChange={(newSelections) =>
+            setSelections({ ...selections, ...newSelections })
+          }
+        />
+      ) : (
+        <div className={classes.ChatGroup}>
+          {populatedRooms.map((room) => {
+            return (
+              // !!room.chat.length &&
+              selections[room._id] && (
+                <div key={room._id} className={classes.Chat}>
+                  <SimpleChat
+                    log={room.chat}
+                    title={room.name}
+                    menu={[
+                      {
+                        name: 'Enter Room',
+                        link: `/myVMT/workspace/${room._id}`,
+                      },
+                      {
+                        name: 'Manage Members',
+                        link: `/myVMT/rooms/${room._id}/members`,
+                      },
+                      {
+                        name: 'Open Replayer',
+                        link: `/myVMT/workspace/${room._id}/replayer`,
+                      },
+                      {
+                        name: 'View/Export Room Stats',
+                        link: `/myVMT/rooms/${room._id}/stats`,
+                      },
+                    ]}
+                  />
+                </div>
+              )
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

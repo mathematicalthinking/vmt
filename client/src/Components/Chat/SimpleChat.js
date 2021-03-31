@@ -59,20 +59,22 @@ function SimpleChat({ log, title, menu }) {
           id="scrollable"
           ref={chatScroll}
         >
-          {log.map((message) => {
-            return (
-              <Message
-                key={message._id}
-                message={message}
-                id={message._id} // ?? no message._id ??
-                onClick={() => {}}
-                showReference={() => {}}
-                highlighted={false}
-                reference={false}
-                referencing={false}
-              />
-            );
-          })}
+          {!log.length
+            ? 'No logs for this room'
+            : log.map((message) => {
+                return (
+                  <Message
+                    key={message._id}
+                    message={message}
+                    id={message._id} // ?? no message._id ??
+                    onClick={() => {}}
+                    showReference={() => {}}
+                    highlighted={false}
+                    reference={false}
+                    referencing={false}
+                  />
+                );
+              })}
         </div>
       </div>
     </Fragment>
