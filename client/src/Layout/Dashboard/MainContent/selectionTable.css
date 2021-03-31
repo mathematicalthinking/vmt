@@ -4,7 +4,7 @@ table {
 }
 
 table > caption {
-  font-size: 1.5rem;
+  font-size: 2rem;
   padding: 1em;
 }
 
@@ -23,7 +23,9 @@ thead button {
   margin-bottom: 1px;
 }
 
-thead button.ascending::after {
+/* not sure why below doesn't work */
+
+/* thead button.ascending::after {
   content: '👇';
   display: inline-block;
   margin-left: 1em;
@@ -33,7 +35,7 @@ thead button.descending::after {
   content: '☝️';
   display: inline-block;
   margin-left: 1em;
-}
+} */
 
 tbody td {
   padding: 0.5em;
