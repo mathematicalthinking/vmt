@@ -86,10 +86,10 @@ export default function MonitoringView({ userResources, notifications }) {
           buttons={[constants.VIEW, constants.SELECT]}
           onChange={setViewOrSelect}
         />
-        <ToggleGroup
+        {/* <ToggleGroup
           buttons={[constants.CHAT, constants.THUMBNAIL, constants.GRAPH]}
           onChange={() => {}}
-        />
+        /> */}
       </div>
       {viewOrSelect === constants.SELECT ? (
         <SelectionTable
@@ -119,7 +119,7 @@ export default function MonitoringView({ userResources, notifications }) {
                     title={
                       queryStates[room._id].isSuccess
                         ? queryStates[room._id].data.name
-                        : []
+                        : ''
                     }
                     menu={[
                       {

@@ -28,12 +28,42 @@ const DropdownMenu = (props) => {
   );
 };
 
+const NewMessages = (props) => {
+  const { show } = props;
+  return show ? (
+    <div
+      style={{
+        zIndex: 1,
+        backgroundColor: 'blue',
+        color: 'white',
+        fontSize: '9px',
+        position: 'relative',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        textAlign: 'center',
+        borderRadius: '10px',
+      }}
+    >
+      New Messages
+    </div>
+  ) : null;
+};
+
 function SimpleChat({ log, title, menu }) {
   const chatScroll = React.createRef();
+  const [showModal, setShowModal] = React.useState(false);
 
   React.useEffect(() => {
     chatScroll.current.scrollTop = chatScroll.current.scrollHeight;
   }, [title]);
+
+  React.useEffect(() => {
+    if (chatScroll.current.scrollTop === chatScroll.current.scrollHeight)
+      return;
+    if (chatScroll.current.scrollHeight < 300) return;
+    setShowModal(true);
+  }, [log]);
 
   return (
     <Fragment>
@@ -58,6 +88,7 @@ function SimpleChat({ log, title, menu }) {
           data-testid="chat"
           id="scrollable"
           ref={chatScroll}
+          onScroll={() => setShowModal(false)}
         >
           {!log.length
             ? 'No logs for this room'
@@ -76,6 +107,7 @@ function SimpleChat({ log, title, menu }) {
                 );
               })}
         </div>
+        <NewMessages show={showModal} />
       </div>
     </Fragment>
   );
@@ -100,7 +132,11 @@ DropdownMenu.propTypes = {
 };
 
 DropdownMenu.defaultProps = {
-  'data-testid': 'dropdownNavItem',
+  'data-testid': 'dropdownMenu',
+};
+
+NewMessages.propTypes = {
+  show: PropTypes.bool.isRequired,
 };
 
 export default SimpleChat;
