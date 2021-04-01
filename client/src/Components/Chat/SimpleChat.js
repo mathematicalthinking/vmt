@@ -33,7 +33,7 @@ function SimpleChat({ log, title, menu }) {
 
   React.useEffect(() => {
     chatScroll.current.scrollTop = chatScroll.current.scrollHeight;
-  }, []);
+  }, [title]);
 
   return (
     <Fragment>

@@ -5,6 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useQuery } from 'react-query';
 import API from '../../../utils/apiRequests';
 import SimpleChat from '../../../Components/Chat/SimpleChat';
 import classes from './monitoringView.css';
@@ -56,10 +57,6 @@ export default function MonitoringView({ userResources, notifications }) {
     GRAPH: 'Graph',
   };
 
-  const [populatedRooms, setPopulated] = React.useState([]);
-  const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
-  const [selections, setSelections] = React.useState({});
-
   const _initializeSelections = (rooms) => {
     const result = {};
     rooms.forEach((room) => {
@@ -68,17 +65,19 @@ export default function MonitoringView({ userResources, notifications }) {
     return result;
   };
 
-  React.useEffect(() => {
-    const populated = userResources.map(async (room) => {
-      const res = await API.getPopulatedById('rooms', room._id, false, false);
-      return res.data.result;
-    });
-    // note: The API calls are being made in parallel, so the time to get all the info is the time taken by the single slowest API response.
-    Promise.all(populated).then((res) => {
-      setPopulated(res);
-      setSelections(_initializeSelections(res));
-    });
-  }, []);
+  const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
+  const [selections, setSelections] = React.useState(
+    _initializeSelections(userResources)
+  );
+
+  const queryStates = {};
+  userResources.forEach((room) => {
+    queryStates[room._id] = useQuery(room._id, () =>
+      API.getPopulatedById('rooms', room._id, false, false).then(
+        (res) => res.data.result
+      )
+    );
+  });
 
   return (
     <div className={classes.Container}>
@@ -94,7 +93,11 @@ export default function MonitoringView({ userResources, notifications }) {
       </div>
       {viewOrSelect === constants.SELECT ? (
         <SelectionTable
-          data={populatedRooms}
+          data={Object.keys(queryStates)
+            .filter((id) => queryStates[id].isSuccess)
+            .map((_id) => {
+              return { _id, ...queryStates[_id].data };
+            })}
           selections={selections}
           onChange={(newSelections) =>
             setSelections({ ...selections, ...newSelections })
@@ -102,14 +105,22 @@ export default function MonitoringView({ userResources, notifications }) {
         />
       ) : (
         <div className={classes.ChatGroup}>
-          {populatedRooms.map((room) => {
+          {userResources.map((room) => {
             return (
               // !!room.chat.length &&
               selections[room._id] && (
                 <div key={room._id} className={classes.Chat}>
                   <SimpleChat
-                    log={room.chat}
-                    title={room.name}
+                    log={
+                      queryStates[room._id].isSuccess
+                        ? queryStates[room._id].data.chat
+                        : []
+                    }
+                    title={
+                      queryStates[room._id].isSuccess
+                        ? queryStates[room._id].data.name
+                        : []
+                    }
                     menu={[
                       {
                         name: 'Enter Room',
