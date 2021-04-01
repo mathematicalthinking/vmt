@@ -37,6 +37,7 @@ class SocketProvider extends Component {
     if (user.loggedIn) {
       connectClearError(); // get rid of any lingering errors in the store from their last session
       if (!isForConfirmEmail) {
+        console.log('User didMount API call');
         connectGetUser(user._id);
       }
       this.syncSocket();
@@ -179,8 +180,9 @@ class SocketProvider extends Component {
     });
 
     socket.on('reconnect', () => {
+      console.log('User reconnect API call');
       this.syncSocket();
-      connectGetUser(user._id);
+      // connectGetUser(user._id);
     });
 
     socket.on('FORCED_LOGOUT', () => {
