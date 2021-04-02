@@ -117,10 +117,11 @@ class GgbGraph extends Component {
         this.isFaviconNtf = true;
         this.changeFavicon('/favNtf.ico');
       }
+      console.log('CurrentTab: ', currentTabId);
       // If the event is for this room tab (i.e., not browser tab) but this tab is not in view,
       // add a notification to this tab
-      if (currentTabId !== tab._id) {
-        addNtfToTabs(tab._id);
+      if (currentTabId !== data.tab) {
+        addNtfToTabs(data.tab);
       }
       // // If this event is for this tab add it to the log
       else if (data.tab === currentTabId) {
