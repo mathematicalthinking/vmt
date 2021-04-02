@@ -124,7 +124,8 @@ class Community extends Component {
     } else if (
       filter === 'desmos' ||
       filter === 'geogebra' ||
-      filter === 'desmosActivity'
+      filter === 'desmosActivity' ||
+      filter === 'pyret'
     ) {
       filters.roomType = filter;
     } else if (filter === 'all-roomType') {
