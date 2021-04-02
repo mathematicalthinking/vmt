@@ -1,0 +1,36 @@
+.Container {
+}
+
+.Container > * {
+  margin-top: 2em;
+}
+
+.Container > *:first-child {
+  margin-top: 0px;
+}
+
+.TogglesContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.ChatGroup {
+  display: flex;
+  flex-direction: row;
+  flex-flow: wrap;
+}
+
+/* copied from the usual Chats css file */
+
+.Chat {
+  width: 300px;
+  display: flex;
+  flex-flow: wrap;
+  flex-direction: row;
+  box-shadow: lightestShadow;
+  align-self: auto;
+  border-radius: 3px;
+  padding: 5px;
+  height: 300px;
+}
