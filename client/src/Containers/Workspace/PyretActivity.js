@@ -2,6 +2,37 @@ import React, { useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import ControlWarningModal from './ControlWarningModal';
 
+function PyretAPI(iframeReference, onmessageHandler) {
+  let messageNumber = 0;
+  const oldOnMessage = window.onmessage;
+  const handlers = {
+    onmessage: onmessageHandler,
+    postMessage,
+  };
+  function postMessage(data) {
+    messageNumber += 1;
+    iframeReference().contentWindow.postMessage(
+      {
+        protocol: 'pyret',
+        messageNumber,
+        timestamp: window.performance.now(),
+        data,
+      },
+      '*'
+    );
+  }
+  window.onmessage = function(event) {
+    if (event.data.protocol !== 'pyret') {
+      console.log('Not a pyret');
+      if (typeof oldOnMessage === 'function') {
+        return oldOnMessage(event);
+      }
+    }
+    return handlers.onmessage(event.data);
+  };
+  return handlers;
+}
+
 const CodePyretOrg = (props) => {
   const [showControlWarning, setShowControlWarning] = useState(false);
   useEffect(() => {
@@ -20,6 +51,23 @@ const CodePyretOrg = (props) => {
 
   const style = { width: '100%', height: '100%' };
   const { inControl, user } = props;
+
+  const iframeRef = React.createRef();
+  const onMessage = function(data) {
+    console.log('Got a message VMT side', data);
+  };
+
+  const pyret = PyretAPI(function() {
+    return iframeRef.current;
+  }, onMessage);
+  window.tryItOut = function() {
+    const change = {
+      from: { line: 0, ch: 0 },
+      to: { line: 0, ch: 0 },
+      text: ['Startup'],
+    };
+    pyret.postMessage({ type: 'change', change });
+  };
   return (
     <Fragment>
       <ControlWarningModal
@@ -44,10 +92,12 @@ const CodePyretOrg = (props) => {
         onClickCapture={_checkForControl}
       >
         <iframe
+          ref={iframeRef}
           style={style}
           title="pyret"
-          src="https://code.pyret.org/editor"
+          src="http://localhost:5000/editor"
         />
+        ;
       </div>
     </Fragment>
   );
