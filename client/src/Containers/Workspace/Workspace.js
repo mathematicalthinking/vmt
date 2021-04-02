@@ -296,6 +296,7 @@ class Workspace extends Component {
   };
 
   changeTab = (id) => {
+    console.log('Switching to tab: ', id);
     const { populatedRoom, user } = this.props;
     const { activityOnOtherTabs, myColor, tabs } = this.state;
     this.clearReference();

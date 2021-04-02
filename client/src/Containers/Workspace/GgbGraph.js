@@ -89,7 +89,7 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
-    const { tab, currentTabId, addNtfToTabs } = this.props;
+    const { currentTabId } = this.props;
     // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
     this.throttledSendEvent = throttle(this.sendEvent, 500, {
       leading: true,
@@ -111,46 +111,13 @@ class GgbGraph extends Component {
         this.unlockWindowScroll
       );
     }
-
+    console.log('Mounted - Tab Id: ', currentTabId);
     socket.on('RECEIVE_EVENT', (data) => {
-      if (!this.isWindowVisible) {
-        this.isFaviconNtf = true;
-        this.changeFavicon('/favNtf.ico');
-      }
-      console.log('CurrentTab: ', currentTabId);
-      // If the event is for this room tab (i.e., not browser tab) but this tab is not in view,
-      // add a notification to this tab
-      if (currentTabId !== data.tab) {
-        addNtfToTabs(data.tab);
-      }
-      // // If this event is for this tab add it to the log
-      else if (data.tab === currentTabId) {
-        //   // If we're still processing data from the last event
-        //   // save this event in a queue...then when processing is done we'll pull
-        //   // from this queue in clearSocketQueue()
-        if (this.receivingData || this.batchUpdating) {
-          this.incomingEventQueue.push(data);
-          return;
-        }
-        this.receivingData = true;
-        this.constructEvent(data);
-      }
+      this.handleUpdate(data);
     });
 
     socket.on('FORCE_SYNC', (data) => {
-      this.receivingData = true;
-      data.tabs.forEach((t) => {
-        if (t._id === tab._id) {
-          if (tab.currentStateBase64) {
-            this.didResync = true;
-            this.setGgbBase64(tab.currentStateBase64);
-          } else {
-            this.ggbApplet.setXML(tab.currentState);
-            this.registerListeners(); // always reset listeners after calling sextXML (setXML destorys everything)
-          }
-        }
-      });
-      this.receivingData = false;
+      this.forceGgbSync(data);
     });
   }
 
@@ -240,6 +207,8 @@ class GgbGraph extends Component {
 
     // switching tab
     if (prevProps.currentTabId !== currentTabId) {
+      // this.forceGgbSync(tab);
+      this.resyncGgbState();
       this.updateDimensions();
     }
 
@@ -2097,6 +2066,51 @@ class GgbGraph extends Component {
       });
     }
   };
+
+  handleUpdate(data) {
+    const { currentTabId, addNtfToTabs } = this.props;
+
+    if (!this.isWindowVisible) {
+      this.isFaviconNtf = true;
+      this.changeFavicon('/favNtf.ico');
+    }
+    console.log('CurrentTab: ', currentTabId);
+    // If the event is for this room tab (i.e., not browser tab) but this tab is not in view,
+    // add a notification to this tab
+    if (currentTabId !== data.tab) {
+      addNtfToTabs(data.tab);
+    }
+    // // If this event is for this tab add it to the log
+    else if (data.tab === currentTabId) {
+      //   // If we're still processing data from the last event
+      //   // save this event in a queue...then when processing is done we'll pull
+      //   // from this queue in clearSocketQueue()
+      if (this.receivingData || this.batchUpdating) {
+        this.incomingEventQueue.push(data);
+        return;
+      }
+      this.receivingData = true;
+      this.constructEvent(data);
+    }
+  }
+
+  forceGgbSync(data) {
+    const { tab } = this.props;
+    const tabData = data.tabs ? data.tabs : data;
+    this.receivingData = true;
+    tabData.forEach((t) => {
+      if (t._id === tab._id) {
+        if (tab.currentStateBase64) {
+          this.didResync = true;
+          this.setGgbBase64(tab.currentStateBase64);
+        } else {
+          this.ggbApplet.setXML(tab.currentState);
+          this.registerListeners(); // always reset listeners after calling sextXML (setXML destorys everything)
+        }
+      }
+    });
+    this.receivingData = false;
+  }
 
   // Alternative control strategy logic
   // hasControl = () => {
