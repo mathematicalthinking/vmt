@@ -336,7 +336,7 @@ const DesmosActivity = (props) => {
         cancel={() => {
           setShowControlWarning(false);
         }}
-        inAdminMode={user.inAdminMode}
+        inAdminMode={user ? user.inAdminMode : false}
       />
       <CheckboxModal
         show={showRefWarning}

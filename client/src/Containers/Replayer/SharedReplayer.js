@@ -176,6 +176,7 @@ class SharedReplayer extends Component {
             updatedMembers.push(nextEvent.user);
           } else if (nextEvent.text.includes('left')) {
             updatedMembers = updatedMembers.filter((u) => {
+              if (!u) return false;
               return u._id !== nextEvent.user._id;
             });
           }
@@ -262,6 +263,7 @@ class SharedReplayer extends Component {
             updatedMembers.push(nextEvent.user);
           } else if (nextEvent.text.includes('left')) {
             updatedMembers = updatedMembers.filter((u) => {
+              if (!u) return false;
               return u._id !== nextEvent.user._id;
             });
           }
@@ -275,6 +277,7 @@ class SharedReplayer extends Component {
             updatedMembers.push(nextEvent.user);
           } else if (nextEvent.text.includes('joined')) {
             updatedMembers = updatedMembers.filter((u) => {
+              if (!u) return false;
               return u._id !== nextEvent.user._id;
             });
           }
