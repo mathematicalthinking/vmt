@@ -145,6 +145,12 @@ const reducer = (state = initialState, action) => {
         ...state,
         createdNewRoom: false,
       };
+    case actionTypes.UPDATED_ROOM_MONITOR_SELECTIONS: {
+      return {
+        ...state,
+        roomMonitorSelections: action.roomMonitorSelections,
+      };
+    }
     default:
       return state;
   }

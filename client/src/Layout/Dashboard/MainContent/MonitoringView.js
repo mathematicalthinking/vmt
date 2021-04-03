@@ -6,11 +6,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from 'react-query';
+import { connect } from 'react-redux';
 import API from '../../../utils/apiRequests';
 import SimpleChat from '../../../Components/Chat/SimpleChat';
 import classes from './monitoringView.css';
 import ToggleGroup from './ToggleGroup';
 import SelectionTable from './SelectionTable';
+import { updateRoomMonitorSelections } from '../../../store/actions/rooms';
 
 /**
  * The MonitoringView provides three views into a set of rooms: activity graph, thumbnail, and chat.  All possible rooms are given by userResources,
@@ -48,7 +50,12 @@ import SelectionTable from './SelectionTable';
  *  - Right now, ALL rooms managed by the user are shown. There needs to be a way of selecting which rooms to monitor. -- DONE
  */
 
-export default function MonitoringView({ userResources, notifications }) {
+function MonitoringView({
+  userResources,
+  storedSelections,
+  connectUpdateRoomMonitorSelections,
+  notifications,
+}) {
   const constants = {
     SELECT: 'Select',
     VIEW: 'View',
@@ -60,7 +67,14 @@ export default function MonitoringView({ userResources, notifications }) {
   const _initializeSelections = (rooms) => {
     const result = {};
     rooms.forEach((room) => {
-      result[room._id] = true;
+      if (
+        !storedSelections ||
+        (storedSelections && storedSelections[room._id] === undefined)
+      ) {
+        result[room._id] = true;
+      } else {
+        result[room._id] = storedSelections[room._id];
+      }
     });
     return result;
   };
@@ -78,6 +92,10 @@ export default function MonitoringView({ userResources, notifications }) {
       )
     );
   });
+
+  React.useEffect(() => {
+    connectUpdateRoomMonitorSelections(selections);
+  }, [selections]);
 
   return (
     <div className={classes.Container}>
@@ -158,9 +176,25 @@ MonitoringView.propTypes = {
   user: PropTypes.shape({}).isRequired,
   userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  storedSelections: PropTypes.shape({}),
+  connectUpdateRoomMonitorSelections: PropTypes.func.isRequired,
 };
 
 MonitoringView.defaultProps = {
   parentResource: null,
   parentResourceId: null,
+  storedSelections: {},
 };
+
+const mapStateToProps = (state) => {
+  return {
+    storedSelections: state.rooms.roomMonitorSelections,
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  {
+    connectUpdateRoomMonitorSelections: updateRoomMonitorSelections,
+  }
+)(MonitoringView);
