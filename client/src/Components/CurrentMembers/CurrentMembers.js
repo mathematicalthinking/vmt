@@ -32,13 +32,11 @@ class CurrentMembers extends Component {
   render() {
     const { currentMembers, members, activeMember, expanded } = this.props;
 
-    const presentMembers = members.filter((m) => {
-      if (currentMembers.length > 0 && currentMembers[0] !== undefined) {
-        const memId = currentMembers.map((cm) => cm._id);
-        return memId.indexOf(m.user._id) !== -1;
-      }
-      return [];
-    });
+    let presentMembers = [];
+    if (currentMembers.length > 0 && currentMembers[0] !== undefined) {
+      const memId = currentMembers.map((cm) => cm._id);
+      presentMembers = members.filter((m) => memId.indexOf(m.user._id) !== -1);
+    }
 
     return (
       <div className={classes.Container}>
@@ -56,18 +54,21 @@ class CurrentMembers extends Component {
           className={expanded ? classes.Expanded : classes.Collapsed}
           data-testid="current-members"
         >
-          {presentMembers.map((PM) => {
+          {presentMembers.map((presMember) => {
             return (
               <div
                 className={[
                   classes.Avatar,
-                  activeMember && PM.user._id === activeMember._id
+                  activeMember && presMember.user._id === activeMember
                     ? classes.Active
                     : classes.Passive,
                 ].join(' ')}
-                key={PM._id}
+                key={presMember._id}
               >
-                <Avatar username={PM.user.username} color={PM.color} />
+                <Avatar
+                  username={presMember.user.username}
+                  color={presMember.color}
+                />
               </div>
             );
           })}
