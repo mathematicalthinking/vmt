@@ -9,7 +9,6 @@ import mongoIdGenerator from '../../utils/createMongoId';
 import classes from './graph.css';
 import { blankEditorState, setCodeBase } from './ggbUtils';
 import ControlWarningModal from './ControlWarningModal';
-import Loading from '../../Components/Loading/Loading';
 import socket from '../../utils/sockets';
 import ggbTools from './Tools/GgbIcons';
 import API from '../../utils/apiRequests';
@@ -60,7 +59,6 @@ class GgbGraph extends Component {
   state = {
     showControlWarning: false,
     redo: false,
-    tabLoading: false,
   };
 
   graph = React.createRef();
@@ -209,8 +207,6 @@ class GgbGraph extends Component {
 
     // switching tab
     if (prevProps.currentTabId !== currentTabId) {
-      // this.forceGgbSync(tab);
-      this.resyncGgbState();
       this.updateDimensions();
     }
 
@@ -503,14 +499,12 @@ class GgbGraph extends Component {
 
   resyncGgbState = () => {
     const { tab } = this.props;
-    this.setState({ tabLoading: true });
     this.didResync = true;
     this.tabFileLoadedHash[tab._id] = false;
     this.isResyncing = true;
     return this.getTabState()
       .then(() => {
         const { inControl } = this.props;
-        this.setState({ tabLoading: false });
         const displayValue = inControl === 'ME' ? 1 : -1;
         this.hideShowRightButtonPanel(displayValue);
       })
@@ -2072,7 +2066,7 @@ class GgbGraph extends Component {
   };
 
   handleUpdate(data) {
-    const { currentTabId, addNtfToTabs } = this.props;
+    const { currentTabId, addNtfToTabs, tab } = this.props;
 
     if (!this.isWindowVisible) {
       this.isFaviconNtf = true;
@@ -2085,7 +2079,7 @@ class GgbGraph extends Component {
       addNtfToTabs(data.tab);
     }
     // // If this event is for this tab add it to the log
-    else if (data.tab === currentTabId) {
+    if (data.tab === tab._id) {
       //   // If we're still processing data from the last event
       //   // save this event in a queue...then when processing is done we'll pull
       //   // from this queue in clearSocketQueue()
@@ -2131,19 +2125,17 @@ class GgbGraph extends Component {
 
   render() {
     const { tab, toggleControl, inControl, user } = this.props;
-    const { showControlWarning, redo, tabLoading } = this.state;
+    const { showControlWarning, redo } = this.state;
     return (
       <Fragment>
         <Script
           url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.onScriptLoad}
         />
-        {tabLoading ? <Loading isSmall message="Loading tab..." /> : null}
         <div
           className={classes.Graph}
           id={`ggb-element${tab._id}A`}
           ref={this.graph}
-          style={{ display: tabLoading ? 'none' : 'block' }}
         />
 
         {/* Alternative control stragey render */}
