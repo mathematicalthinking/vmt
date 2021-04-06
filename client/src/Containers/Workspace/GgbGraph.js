@@ -208,7 +208,7 @@ class GgbGraph extends Component {
     // switching tab
     if (prevProps.currentTabId !== currentTabId) {
       // this.forceGgbSync(tab);
-      this.resyncGgbState();
+      // this.resyncGgbState();
       this.updateDimensions();
     }
 
@@ -2068,20 +2068,19 @@ class GgbGraph extends Component {
   };
 
   handleUpdate(data) {
-    const { currentTabId, addNtfToTabs } = this.props;
+    const { currentTabId, addNtfToTabs, tab } = this.props;
 
     if (!this.isWindowVisible) {
       this.isFaviconNtf = true;
       this.changeFavicon('/favNtf.ico');
     }
-    console.log('CurrentTab: ', currentTabId);
     // If the event is for this room tab (i.e., not browser tab) but this tab is not in view,
     // add a notification to this tab
     if (currentTabId !== data.tab) {
       addNtfToTabs(data.tab);
     }
     // // If this event is for this tab add it to the log
-    else if (data.tab === currentTabId) {
+    if (data.tab === tab._id) {
       //   // If we're still processing data from the last event
       //   // save this event in a queue...then when processing is done we'll pull
       //   // from this queue in clearSocketQueue()
