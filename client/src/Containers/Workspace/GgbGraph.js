@@ -9,6 +9,7 @@ import mongoIdGenerator from '../../utils/createMongoId';
 import classes from './graph.css';
 import { blankEditorState, setCodeBase } from './ggbUtils';
 import ControlWarningModal from './ControlWarningModal';
+import Loading from '../../Components/Loading/Loading';
 import socket from '../../utils/sockets';
 import ggbTools from './Tools/GgbIcons';
 import API from '../../utils/apiRequests';
@@ -59,6 +60,7 @@ class GgbGraph extends Component {
   state = {
     showControlWarning: false,
     redo: false,
+    tabLoading: false,
   };
 
   graph = React.createRef();
@@ -501,12 +503,14 @@ class GgbGraph extends Component {
 
   resyncGgbState = () => {
     const { tab } = this.props;
+    this.setState({ tabLoading: true });
     this.didResync = true;
     this.tabFileLoadedHash[tab._id] = false;
     this.isResyncing = true;
     return this.getTabState()
       .then(() => {
         const { inControl } = this.props;
+        this.setState({ tabLoading: false });
         const displayValue = inControl === 'ME' ? 1 : -1;
         this.hideShowRightButtonPanel(displayValue);
       })
@@ -2127,18 +2131,21 @@ class GgbGraph extends Component {
 
   render() {
     const { tab, toggleControl, inControl, user } = this.props;
-    const { showControlWarning, redo } = this.state;
+    const { showControlWarning, redo, tabLoading } = this.state;
     return (
       <Fragment>
         <Script
           url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.onScriptLoad}
         />
+        {tabLoading ? <Loading isSmall message="Loading tab..." /> : null}
         <div
           className={classes.Graph}
           id={`ggb-element${tab._id}A`}
           ref={this.graph}
+          style={{ display: tabLoading ? 'none' : 'block' }}
         />
+
         {/* Alternative control stragey render */}
         {/* <span
           onClickCapture={this.checkForControl.bind(this)}
