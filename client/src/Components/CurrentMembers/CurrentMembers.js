@@ -31,10 +31,13 @@ class CurrentMembers extends Component {
 
   render() {
     const { currentMembers, members, activeMember, expanded } = this.props;
+
     let presentMembers = [];
-    if (currentMembers.length > 0 && currentMembers[0] !== undefined) {
-      const memId = currentMembers.map((cm) => cm._id);
-      presentMembers = members.filter((m) => memId.indexOf(m.user._id) !== -1);
+    const currmembers = currentMembers.filter((m) => m && m._id);
+    // Creatings new array of only members in the room so that we have all of the member metadata (inc color)
+    if (currmembers.length > 0) {
+      const memId = currmembers.map((cm) => cm._id);
+      presentMembers = members.filter((m) => memId.includes(m.user._id));
     }
 
     return (

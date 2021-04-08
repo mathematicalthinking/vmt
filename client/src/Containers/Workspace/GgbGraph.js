@@ -207,8 +207,6 @@ class GgbGraph extends Component {
 
     // switching tab
     if (prevProps.currentTabId !== currentTabId) {
-      // this.forceGgbSync(tab);
-      this.resyncGgbState();
       this.updateDimensions();
     }
 
@@ -2068,7 +2066,7 @@ class GgbGraph extends Component {
   };
 
   handleUpdate(data) {
-    const { currentTabId, addNtfToTabs } = this.props;
+    const { currentTabId, addNtfToTabs, tab } = this.props;
 
     if (!this.isWindowVisible) {
       this.isFaviconNtf = true;
@@ -2081,7 +2079,7 @@ class GgbGraph extends Component {
       addNtfToTabs(data.tab);
     }
     // // If this event is for this tab add it to the log
-    else if (data.tab === currentTabId) {
+    if (data.tab === tab._id) {
       //   // If we're still processing data from the last event
       //   // save this event in a queue...then when processing is done we'll pull
       //   // from this queue in clearSocketQueue()
@@ -2139,6 +2137,7 @@ class GgbGraph extends Component {
           id={`ggb-element${tab._id}A`}
           ref={this.graph}
         />
+
         {/* Alternative control stragey render */}
         {/* <span
           onClickCapture={this.checkForControl.bind(this)}
