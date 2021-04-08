@@ -116,9 +116,9 @@ class GgbGraph extends Component {
       this.handleUpdate(data);
     });
 
-    socket.on('FORCE_SYNC', (data) => {
-      this.forceGgbSync(data);
-    });
+    // socket.on('FORCE_SYNC', (data) => {
+    //   this.forceGgbSync(data);
+    // });
   }
 
   /**
@@ -2092,23 +2092,23 @@ class GgbGraph extends Component {
     }
   }
 
-  forceGgbSync(data) {
-    const { tab } = this.props;
-    const tabData = data.tabs ? data.tabs : data;
-    this.receivingData = true;
-    tabData.forEach((t) => {
-      if (t._id === tab._id) {
-        if (tab.currentStateBase64) {
-          this.didResync = true;
-          this.setGgbBase64(tab.currentStateBase64);
-        } else {
-          this.ggbApplet.setXML(tab.currentState);
-          this.registerListeners(); // always reset listeners after calling sextXML (setXML destorys everything)
-        }
-      }
-    });
-    this.receivingData = false;
-  }
+  // forceGgbSync(data) {
+  //   const { tab } = this.props;
+  //   const tabData = data.tabs ? data.tabs : data;
+  //   this.receivingData = true;
+  //   tabData.forEach((t) => {
+  //     if (t._id === tab._id) {
+  //       if (tab.currentStateBase64) {
+  //         this.didResync = true;
+  //         this.setGgbBase64(tab.currentStateBase64);
+  //       } else {
+  //         this.ggbApplet.setXML(tab.currentState);
+  //         this.registerListeners(); // always reset listeners after calling sextXML (setXML destorys everything)
+  //       }
+  //     }
+  //   });
+  //   this.receivingData = false;
+  // }
 
   // Alternative control strategy logic
   // hasControl = () => {
