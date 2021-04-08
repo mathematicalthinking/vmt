@@ -1,33 +1,91 @@
 /* eslint-disable prettier/prettier */
 import React, { Fragment } from 'react';
-import PropTypes, { string } from 'prop-types';
+import PropTypes from 'prop-types';
 import Message from './Message';
 import ChatClasses from './chat.css';
-import DropdownMenuClasses from './dropdownmenu.css';
-import NavItem from '../Navigation/NavItem/NavItem';
 
-const DropdownMenu = (props) => {
-  const { name, list } = props;
+/**
+ * A simplifield version of Chat, which uses some of the original's CSS.
+ * Shows an alert if new messages have appeared off screen.
+ */
+
+function SimpleChat({ log }) {
+  const chatScroll = React.createRef();
+  const [showModal, setShowModal] = React.useState(false);
+  const previousInfo = React.useRef();
+
+  React.useEffect(() => {
+    const previous = previousInfo.current;
+    previousInfo.current = {
+      height: chatScroll.current.scrollHeight,
+      top: chatScroll.current.scrollTop,
+    };
+    const nonScrollToScroll =
+      previous &&
+      previous.height < chatScroll.current.clientHeight &&
+      chatScroll.current.scrollHeight >= chatScroll.current.clientHeight;
+
+    // For some reason, there's some imprecision in the client height,
+    // so if we're within 60px of the bottom, we say we are at the bottom.
+    const wasAtBottom =
+      previous &&
+      previous.height -
+        Math.floor(previous.top) -
+        chatScroll.current.clientHeight -
+        60 <
+        0;
+
+    // If this is the first time here, or we hadn't been scrollable but now we are, then
+    // scroll to the bottom
+    if (!previous || nonScrollToScroll || wasAtBottom) {
+      chatScroll.current.scrollTop = chatScroll.current.scrollHeight;
+      return;
+    }
+
+    // do nothing if we don't need to scroll
+    if (chatScroll.current.scrollHeight < chatScroll.current.clientHeight)
+      return;
+
+    // If we do need to scroll and we weren't at the bottom (i.e., all other cases),
+    // show that there's new messages
+    setShowModal(true);
+  }, [log]);
+
   return (
-    <li
-      className={DropdownMenuClasses.Container}
-      // eslint-disable-next-line react/destructuring-assignment
-      data-testid={props['data-testid']}
-    >
-      <NavItem link={list[0].link} name={name} />
-      <div className={DropdownMenuClasses.DropdownContent}>
-        {list.map((item) => {
-          return (
-            <div className={DropdownMenuClasses.DropdownItem} key={item.name}>
-              <NavItem link={item.link} name={item.name} />
-            </div>
-          );
-        })}
+    <Fragment>
+      <div
+        className={ChatClasses.ChatScroll}
+        data-testid="chat"
+        id="scrollable"
+        ref={chatScroll}
+        onScroll={() => setShowModal(false)}
+      >
+        {!log.length
+          ? 'No logs for this room'
+          : log.map((message) => {
+              return (
+                <Message
+                  key={message._id}
+                  message={message}
+                  id={message._id} // ?? no message._id ??
+                  onClick={() => {}}
+                  showReference={() => {}}
+                  highlighted={false}
+                  reference={false}
+                  referencing={false}
+                />
+              );
+            })}
       </div>
-    </li>
+      <NewMessages show={showModal} />
+    </Fragment>
   );
-};
+}
 
+/**
+ * NewMessages is a small alert for when there are new log messages
+ * that the user might not see.
+ */
 const NewMessages = (props) => {
   const { show } = props;
   return show ? (
@@ -50,90 +108,11 @@ const NewMessages = (props) => {
   ) : null;
 };
 
-function SimpleChat({ log, title, menu }) {
-  const chatScroll = React.createRef();
-  const [showModal, setShowModal] = React.useState(false);
-
-  React.useEffect(() => {
-    chatScroll.current.scrollTop = chatScroll.current.scrollHeight;
-  }, [title]);
-
-  React.useEffect(() => {
-    if (chatScroll.current.scrollTop === chatScroll.current.scrollHeight)
-      return;
-    if (chatScroll.current.scrollHeight < 300) return;
-    setShowModal(true);
-  }, [log]);
-
-  return (
-    <Fragment>
-      <div className={ChatClasses.Container}>
-        <div
-          className={ChatClasses.Title}
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}
-        >
-          {title || 'Chat'}
-          <DropdownMenu
-            list={menu}
-            name={<i className="fas fa-ellipsis-v" />}
-          />
-        </div>
-
-        <div
-          className={ChatClasses.ChatScroll}
-          data-testid="chat"
-          id="scrollable"
-          ref={chatScroll}
-          onScroll={() => setShowModal(false)}
-        >
-          {!log.length
-            ? 'No logs for this room'
-            : log.map((message) => {
-                return (
-                  <Message
-                    key={message._id}
-                    message={message}
-                    id={message._id} // ?? no message._id ??
-                    onClick={() => {}}
-                    showReference={() => {}}
-                    highlighted={false}
-                    reference={false}
-                    referencing={false}
-                  />
-                );
-              })}
-        </div>
-        <NewMessages show={showModal} />
-      </div>
-    </Fragment>
-  );
-}
-
-// @todo we need to consider making a different component for replayer chat or conditionally requiring many of these props (like change and submit) if this is NOT a replayer chat
 SimpleChat.propTypes = {
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  title: PropTypes.string,
-  menu: PropTypes.arrayOf(PropTypes.shape({ name: string, link: string }))
-    .isRequired,
 };
 
-SimpleChat.defaultProps = {
-  title: null,
-};
-
-DropdownMenu.propTypes = {
-  name: PropTypes.element.isRequired,
-  list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  'data-testid': PropTypes.string,
-};
-
-DropdownMenu.defaultProps = {
-  'data-testid': 'dropdownMenu',
-};
+SimpleChat.defaultProps = {};
 
 NewMessages.propTypes = {
   show: PropTypes.bool.isRequired,

@@ -32,3 +32,5 @@ export { default as Unconfirmed } from './Unconfirmed/Unconfirmed';
 export { default as withPopulatedRoom } from './Data/withPopulatedRoom';
 export { default as SharedReplayer } from './Replayer/SharedReplayer';
 export { default as Dashboard } from './Dashboard';
+export { default as Chart } from './Stats/Chart';
+export { default as statsReducer, initialState } from './Stats/statsReducer';

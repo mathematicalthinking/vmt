@@ -15,7 +15,7 @@
   justify-content: space-between;
 }
 
-.ChatGroup {
+.TileGroup {
   display: flex;
   flex-direction: row;
   flex-flow: wrap;
@@ -24,7 +24,7 @@
 /* copied from the usual Chats css file */
 
 .Chat {
-  width: 300px;
+  width: 500px;
   display: flex;
   flex-flow: wrap;
   flex-direction: row;
