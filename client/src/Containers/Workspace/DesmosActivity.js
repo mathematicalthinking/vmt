@@ -141,7 +141,7 @@ const DesmosActivity = (props) => {
   // Event listener callback on the Activity instance
   const handleTransientData = (event) => {
     const { room, user, myColor, tab, resetControlTimer } = props;
-    console.log('Sending transient event...');
+    // console.log('Sending transient event...');
     const newData = {
       room: room._id,
       tab: tab._id,
@@ -243,8 +243,8 @@ const DesmosActivity = (props) => {
     if (tab.currentStateBase64) {
       const { currentStateBase64 } = tab;
       const savedData = JSON.parse(currentStateBase64);
-      console.log('Prior state data loaded: ');
-      console.log(savedData);
+      // console.log('Prior state data loaded: ');
+      // console.log(savedData);
       playerOptions.responseData = savedData;
     }
 
@@ -264,11 +264,11 @@ const DesmosActivity = (props) => {
     props.setFirstTabLoaded();
     initializeListeners();
     // Print current Tab data
-    console.log('Tab data: ', props.tab);
+    // console.log('Tab data: ', props.tab);
     // Go to screen last used
     if (tab.currentScreen) {
       const { currentScreen } = tab;
-      console.log('Prior screen index loaded: ', currentScreen);
+      // console.log('Prior screen index loaded: ', currentScreen);
       calculatorInst.current.setActiveScreenIndex(currentScreen);
       setScreenPage(currentScreen + 1);
     }
