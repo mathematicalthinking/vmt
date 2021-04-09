@@ -10,12 +10,18 @@ function PyretAPI(iframeReference, onmessageHandler) {
   const handlers = {
     onmessage: onmessageHandler,
     postMessage,
+    setParams,
   };
   function postMessage(data) {
     if (!iframeReference()) {
       return;
     }
     iframeReference().contentWindow.postMessage(data, '*');
+  }
+  function setParams(params) {
+    console.log(params, iframeReference());
+    const pyretWindow = iframeReference();
+    pyretWindow.src += params;
   }
   window.onmessage = function(event) {
     if (event.data.protocol !== 'pyret') {
@@ -44,6 +50,7 @@ const CodePyretOrg = (props) => {
     setActivityHistory((oldState) => ({ ...oldState, ...updates }));
   }
 
+  // Janky copied code by Joe that needs revisiting
   const putState = () => {
     const { tab } = props;
     const { _id } = tab;
@@ -153,13 +160,6 @@ const CodePyretOrg = (props) => {
   const initPlayer = async () => {
     const { tab } = props;
     // TODO(joe): saved data?
-    if (tab.currentStateBase64) {
-      const { currentStateBase64 } = tab;
-      const savedData = JSON.parse(currentStateBase64);
-      console.log('Prior state data loaded: ');
-      console.log(savedData);
-    }
-
     props.setFirstTabLoaded();
     initializeListeners();
     // Print current Tab data
@@ -168,7 +168,7 @@ const CodePyretOrg = (props) => {
     const onMessage = function(data) {
       console.log('Got a message VMT side', data);
       const currentState = {
-        data, // NOTE(joe): what's a response?
+        data,
         timestampEpochMs: new Date().getTime(),
       };
       // console.log('Responses updated: ', responses);
@@ -178,6 +178,24 @@ const CodePyretOrg = (props) => {
     pyret = PyretAPI(function() {
       return cpoIframe.current;
     }, onMessage);
+    if (tab.currentStateBase64) {
+      const { currentStateBase64 } = tab;
+      const savedData = JSON.parse(currentStateBase64);
+      console.log('Prior state data loaded: ');
+      console.log(savedData);
+      const contents = savedData.data[0].currentState;
+      pyret.setParams(`#warnOnExit=false&editorContents=${contents}`);
+      /*
+      pyret.postMessage({
+        protocol: 'pyret',
+        data: {
+          type: 'setContents',
+          text: contents
+        },
+      });
+      */
+    }
+
     window.tryItOut = function() {
       const change = {
         from: { line: 0, ch: 0 },
