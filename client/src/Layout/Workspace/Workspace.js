@@ -45,6 +45,7 @@ class WorkspaceLayout extends Component {
       membersExpanded,
       referToEl,
       graphCoords,
+      snapshotRef,
     } = this.props;
     const { offSet } = this.state;
     let x2;
@@ -97,7 +98,10 @@ class WorkspaceLayout extends Component {
       >
         {/* {!encompass ? <div className={classes.Background} /> : null} */}
         <div className={classes.Container}>
-          <div className={replayer ? classes.ReplayerLeft : classes.Left}>
+          <div
+            ref={snapshotRef}
+            className={replayer ? classes.ReplayerLeft : classes.Left}
+          >
             <div className={classes.TabsAndTitle}>
               <div className={classes.WorkspaceTabs}>{tabs}</div>
               <h2 className={classes.Title} data-testid="room-name">
@@ -229,9 +233,11 @@ WorkspaceLayout.propTypes = {
   referToEl: PropTypes.shape({
     elementType: PropTypes.string.isRequired,
   }),
+  snapshotRef: PropTypes.node,
 };
 
 WorkspaceLayout.defaultProps = {
+  snapshotRef: React.createRef(),
   activity: false,
   currentMembers: null,
   chat: null,

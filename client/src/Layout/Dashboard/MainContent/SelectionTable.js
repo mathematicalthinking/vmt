@@ -4,7 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { useSortableData } from './utilityHooks';
+import { useSortableData } from '../../../utils';
 import './selectionTable.css';
 
 /**
