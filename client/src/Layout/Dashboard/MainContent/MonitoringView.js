@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable react/jsx-indent */
 /* eslint-disable react/no-unused-prop-types */
 /* eslint-disable no-unused-vars */
 /* eslint-disable jsx-a11y/label-has-associated-control */
@@ -16,7 +17,6 @@ import { Chart, statsReducer, initialState } from '../../../Containers';
 import { NavItem } from '../../../Components';
 import buildLog from '../../../utils/buildLog';
 import classes from './monitoringView.css';
-import ChatClasses from '../../../Components/Chat/chat.css';
 import DropdownMenuClasses from './dropdownmenu.css';
 
 /**
@@ -165,6 +165,14 @@ function MonitoringView({
             log={queryStates[id].isSuccess ? queryStates[id].data.chat : []}
           />
         );
+      case constants.THUMBNAIL:
+        return queryStates[id].isSuccess &&
+          queryStates[id].data.snapshot !== '' ? (
+          <img
+            alt={`Snapshot of room ${id}`}
+            src={queryStates[id].data.snapshot}
+          />
+        ) : null;
       default:
         return null;
     }
@@ -205,24 +213,25 @@ function MonitoringView({
             // then the particular view type.
             return (
               selections[room._id] && (
-                <div key={room._id} className={classes.Chat}>
-                  <div className={ChatClasses.Container}>
+                <div key={room._id} className={classes.Tile}>
+                  <div className={classes.TileContainer}>
                     <div
-                      className={ChatClasses.Title}
+                      className={classes.Title}
                       style={{
                         display: 'flex',
                         flexDirection: 'row',
-                        justifyContent: 'space-between',
+                        justifyContent: 'flex-start',
+                        alignItems: 'center',
                         marginBottom: '5px',
                       }}
                     >
+                      <DropdownMenu
+                        list={_makeMenu(room._id)}
+                        name={<i className="fas fa-bars" />}
+                      />
                       {queryStates[room._id].isSuccess
                         ? queryStates[room._id].data.name
                         : 'Loading...'}
-                      <DropdownMenu
-                        list={_makeMenu(room._id)}
-                        name={<i className="fas fa-ellipsis-v" />}
-                      />
                     </div>
 
                     {_displayViewType(room._id)}

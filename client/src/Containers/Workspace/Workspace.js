@@ -38,7 +38,7 @@ import {
   RadioBtn,
 } from '../../Components';
 import NewTabForm from '../Create/NewTabForm';
-import { socket } from '../../utils';
+import { socket, useSnapshots } from '../../utils';
 import API from '../../utils/apiRequests';
 import modalClasses from '../../Components/UI/Modal/modal.css';
 import createClasses from '../Create/create.css';
@@ -61,6 +61,9 @@ class Workspace extends Component {
       }
     }
     this.state = {
+      startSnapshots: () => {},
+      stopSnapshots: () => {},
+      snapshotRef: React.createRef(),
       tabs: populatedRoom.tabs || [],
       log: populatedRoom.log || [],
       myColor,
@@ -124,9 +127,20 @@ class Workspace extends Component {
     this.initializeListeners();
     window.addEventListener('resize', this.resizeHandler);
     window.addEventListener('keydown', this.keyListener);
+
+    //    set up the snapshots
+    const roomId = populatedRoom._id;
+    if (roomId && roomId !== '') {
+      const { startSnapshots, stopSnapshots, elementRef } = useSnapshots(
+        (data) => API.put('rooms', roomId, data)
+      );
+      this.setState({ startSnapshots, stopSnapshots, snapshotRef: elementRef });
+    }
   }
 
   componentDidUpdate(prevProps) {
+    // @TODO populatedRoom.controlledBy is ALWAYS null! Should use
+    // controlledBy in the state instead.
     const { populatedRoom, user, temp, lastMessage } = this.props;
     if (
       prevProps.populatedRoom.controlledBy === null &&
@@ -153,6 +167,10 @@ class Workspace extends Component {
     if (prevProps.user.inAdminMode !== user.inAdminMode) {
       this.goBack();
     }
+
+    const { startSnapshots, stopSnapshots, controlledBy } = this.state;
+    if (controlledBy === user._id) startSnapshots();
+    else stopSnapshots();
   }
 
   componentWillUnmount() {
@@ -164,6 +182,9 @@ class Workspace extends Component {
     if (this.controlTimer) {
       clearTimeout(this.controlTimer);
     }
+
+    const { stopSnapshots } = this.state;
+    stopSnapshots();
   }
 
   addToLog = (entry) => {
@@ -844,6 +865,7 @@ class Workspace extends Component {
       isCreatingActivity,
       createActivityError,
       newResourceType,
+      snapshotRef,
     } = this.state;
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
@@ -987,6 +1009,7 @@ class Workspace extends Component {
           <Loading message="Preparing your room..." />
         ) : null}
         <WorkspaceLayout
+          snapshotRef={snapshotRef}
           graphs={graphs}
           roomName={populatedRoom.name}
           user={user}
