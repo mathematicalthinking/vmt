@@ -86,9 +86,8 @@ const DesmosActivity = (props) => {
   }, [activityUpdates, screenPage]);
   // Event listener callback on the persistent Activity instance
   const handleResponseData = (updates) => {
-    // eslint-disable-next-line
-    const transient = updates.type ? true : false;
-    console.log('Handling transient?: ', transient);
+    const transient = !!updates.type;
+    console.log('Handling transient?: ', transient, ', Updates: ', updates);
     if (initializing) return;
     const { room, user, myColor, tab, resetControlTimer } = props;
     const currentState = {
@@ -181,6 +180,7 @@ const DesmosActivity = (props) => {
         updatedRoom(room._id, { tabs: updatedTabs });
         // updatedRoom(room._id, { tabs: updatedTabs });
         const updatesState = JSON.parse(data.currentState);
+        console.log('Received state: ', updatesState);
         // console.log('Received data: ', updatesState);
         // set persistent state
         if (updatesState.desmosState && !updatesState.transient) {
@@ -188,7 +188,7 @@ const DesmosActivity = (props) => {
             updatesState.desmosState
           );
         } else if (updatesState.desmosState && updatesState.transient) {
-          calculatorInst.current.handleSyncEvent(updatesState.event);
+          calculatorInst.current.handleSyncEvent(updatesState.desmosState);
         }
         if (
           updatesState.screen !== calculatorInst.current.getActiveScreenIndex()
