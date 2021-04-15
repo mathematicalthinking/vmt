@@ -197,7 +197,7 @@ class Chat extends Component {
 
   scrollHandler = () => {
     this.updateReferencePositions();
-    this.clearNewMessages();
+    if (this.nearBottom()) this.clearNewMessages();
   };
 
   updateReferencePositions = () => {
@@ -384,7 +384,7 @@ class Chat extends Component {
           >
             {displayMessages}
           </div>
-          <NewMessages show={hasNewMessages} />
+          <NewMessages show={hasNewMessages} onClick={this.scrollToBottom} />
           {!replayer ? (
             <div className={classes.ChatInput}>
               <input
@@ -454,12 +454,26 @@ class Chat extends Component {
  * that the user might not see.
  */
 const NewMessages = (props) => {
-  const { show } = props;
-  return show ? <div className={classes.NewMessages}>New Messages</div> : null;
+  const { show, onClick } = props;
+  return show ? (
+    <button
+      type="button"
+      className={classes.NewMessages}
+      onClick={onClick}
+      onKeyPress={onClick}
+    >
+      New Messages
+    </button>
+  ) : null;
 };
 
 NewMessages.propTypes = {
   show: PropTypes.bool.isRequired,
+  onClick: PropTypes.func,
+};
+
+NewMessages.defaultProps = {
+  onClick: () => {},
 };
 
 // @todo we need to consider making a different component for replayer chat or conditionally requiring many of these props (like change and submit) if this is NOT a replayer chat
