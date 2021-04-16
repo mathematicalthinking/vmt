@@ -23,6 +23,7 @@ class RoomOpts extends Component {
       tab,
       desmosLink,
       setDesmosLink,
+      setDesmosCalcLink,
     } = this.props;
     if (roomType === 'geogebra') {
       return (
@@ -105,7 +106,7 @@ class RoomOpts extends Component {
           name="desmosLink"
           label="Paste a Desmos workspace link (optional)"
           value={desmosLink}
-          change={setDesmosLink}
+          change={setDesmosCalcLink}
           width="100%"
         />
       </Aux>
@@ -121,6 +122,7 @@ RoomOpts.propTypes = {
   tab: PropTypes.bool,
   desmosLink: PropTypes.string.isRequired,
   setDesmosLink: PropTypes.func.isRequired,
+  setDesmosCalcLink: PropTypes.func.isRequired,
 };
 
 RoomOpts.defaultProps = {

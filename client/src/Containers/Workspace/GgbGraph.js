@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Script from 'react-load-script';
 import { parseString } from 'xml2js';
@@ -8,7 +8,6 @@ import find from 'lodash/find';
 import mongoIdGenerator from '../../utils/createMongoId';
 import classes from './graph.css';
 import { blankEditorState, setCodeBase } from './ggbUtils';
-import { Aux } from '../../Components';
 import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
 import ggbTools from './Tools/GgbIcons';
@@ -90,7 +89,7 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
-    const { tab, currentTabId, addNtfToTabs } = this.props;
+    const { currentTabId } = this.props;
     // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
     this.throttledSendEvent = throttle(this.sendEvent, 500, {
       leading: true,
@@ -112,46 +111,14 @@ class GgbGraph extends Component {
         this.unlockWindowScroll
       );
     }
-
+    console.log('Mounted - Tab Id: ', currentTabId);
     socket.on('RECEIVE_EVENT', (data) => {
-      if (!this.isWindowVisible) {
-        this.isFaviconNtf = true;
-        this.changeFavicon('/favNtf.ico');
-      }
-      // If the event is for this room tab (i.e., not browser tab) but this tab is not in view,
-      // add a notification to this tab
-      if (currentTabId !== tab._id) {
-        addNtfToTabs(tab._id);
-      }
-      // // If this event is for this tab add it to the log
-      else if (data.tab === currentTabId) {
-        //   // If we're still processing data from the last event
-        //   // save this event in a queue...then when processing is done we'll pull
-        //   // from this queue in clearSocketQueue()
-        if (this.receivingData || this.batchUpdating) {
-          this.incomingEventQueue.push(data);
-          return;
-        }
-        this.receivingData = true;
-        this.constructEvent(data);
-      }
+      this.handleUpdate(data);
     });
 
-    socket.on('FORCE_SYNC', (data) => {
-      this.receivingData = true;
-      data.tabs.forEach((t) => {
-        if (t._id === tab._id) {
-          if (tab.currentStateBase64) {
-            this.didResync = true;
-            this.setGgbBase64(tab.currentStateBase64);
-          } else {
-            this.ggbApplet.setXML(tab.currentState);
-            this.registerListeners(); // always reset listeners after calling sextXML (setXML destorys everything)
-          }
-        }
-      });
-      this.receivingData = false;
-    });
+    //   socket.on('FORCE_SYNC', (data) => {
+    //     this.forceGgbSync(data);
+    //   });
   }
 
   /**
@@ -2098,11 +2065,38 @@ class GgbGraph extends Component {
     }
   };
 
+  handleUpdate(data) {
+    const { currentTabId, addNtfToTabs, tab } = this.props;
+
+    if (!this.isWindowVisible) {
+      this.isFaviconNtf = true;
+      this.changeFavicon('/favNtf.ico');
+    }
+    // console.log('CurrentTab: ', currentTabId);
+    // If the event is for this room tab (i.e., not browser tab) but this tab is not in view,
+    // add a notification to this tab
+    if (currentTabId !== data.tab) {
+      addNtfToTabs(data.tab);
+    }
+    // // If this event is for this tab add it to the log
+    if (data.tab === tab._id) {
+      //   // If we're still processing data from the last event
+      //   // save this event in a queue...then when processing is done we'll pull
+      //   // from this queue in clearSocketQueue()
+      if (this.receivingData || this.batchUpdating) {
+        this.incomingEventQueue.push(data);
+        return;
+      }
+      this.receivingData = true;
+      this.constructEvent(data);
+    }
+  }
+
   render() {
     const { tab, toggleControl, inControl, user } = this.props;
     const { showControlWarning, redo } = this.state;
     return (
-      <Aux>
+      <Fragment>
         <Script
           url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.onScriptLoad}
@@ -2138,7 +2132,7 @@ class GgbGraph extends Component {
           }}
           inAdminMode={user.inAdminMode}
         />
-      </Aux>
+      </Fragment>
     );
   }
 }

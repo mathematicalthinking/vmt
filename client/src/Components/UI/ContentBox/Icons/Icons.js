@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import ggbIcon from './geogebra.png';
 import dsmIcon from './desmos.png';
+import dsmActIcon from './desmosActivity.png';
 import bothIcon from './desmosandgeogebra.png';
 import ToolTip from '../../../ToolTip/ToolTip';
 import classes from './icons.css';
@@ -36,6 +37,15 @@ const Icons = ({ lock, listType, roomType, image }) => {
       </div>
     </ToolTip>
   );
+
+  const desActImageAndToolTip = (
+    <ToolTip text="DesmosActivity" delay={600}>
+      <div className={classes.Icon}>
+        <img width={25} src={dsmActIcon} alt="dsm" />
+      </div>
+    </ToolTip>
+  );
+
   const ggbImageAndToolTip = (
     <ToolTip text="GeoGebra" delay={600}>
       <div className={classes.Icon}>
@@ -46,11 +56,13 @@ const Icons = ({ lock, listType, roomType, image }) => {
   if (Array.isArray(roomType)) {
     let des = false;
     let ggb = false;
+    let act = false;
     roomType.forEach((rmType) => {
       if (rmType === 'desmos') des = true;
+      else if (rmType === 'desmosActivity') act = true;
       else ggb = true;
     });
-    if (des && ggb) {
+    if (ggb && des) {
       roomTypeIcon = (
         <ToolTip text="GeoGebra/Desmos" delay={600}>
           <div className={classes.Icon}>
@@ -60,6 +72,8 @@ const Icons = ({ lock, listType, roomType, image }) => {
       );
     } else if (des) {
       roomTypeIcon = desImageAndToolTip;
+    } else if (act) {
+      roomTypeIcon = desActImageAndToolTip;
     } else {
       roomTypeIcon = ggbImageAndToolTip;
     }

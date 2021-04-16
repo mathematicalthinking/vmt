@@ -180,7 +180,7 @@ class SocketProvider extends Component {
 
     socket.on('reconnect', () => {
       this.syncSocket();
-      connectGetUser(user._id);
+      // connectGetUser(user._id);
     });
 
     socket.on('FORCED_LOGOUT', () => {

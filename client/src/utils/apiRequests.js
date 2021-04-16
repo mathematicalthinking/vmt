@@ -52,7 +52,7 @@ export default {
     if (events) {
       return api.get(`/api/${resource}/${id}`, { params: { events } });
     }
-
+    // Generic 'GET /api/user/{ID}' call
     return api.get(`/api/${resource}/${id}`);
   },
 

@@ -8,12 +8,14 @@ import Aux from '../../Components/HOC/Auxil';
 class Homepage extends PureComponent {
   state = {
     error: null,
+    pageLocation: '',
   };
 
   containerRef = React.createRef();
 
   componentDidMount() {
     const { location } = this.props;
+    this.setState({ pageLocation: this.determineDep() });
     if (location.state && location.state.error) {
       this.setState({ error: location.state.error });
       this.timer = setTimeout(() => {
@@ -44,6 +46,17 @@ class Homepage extends PureComponent {
     }
   }
 
+  determineDep = () => {
+    const url = window.location.href;
+    if (url.split('.')[0] === 'https://vmt-test') {
+      return 'staging';
+    }
+    if (process.env.NODE_ENV === 'development') {
+      return 'development';
+    }
+    return 'production';
+  };
+
   createRoom = () => {
     const { user, createRoom } = this.props;
     const room = {
@@ -66,7 +79,10 @@ class Homepage extends PureComponent {
   };
 
   render() {
-    const { error } = this.state;
+    const { error, pageLocation } = this.state;
+    // hoisting for easy access to update @TIMESTAMP and for @todo later streamlining
+    const dateStamp = <p>Last updated: 04.16.2021</p>;
+
     return (
       <Aux>
         <Background bottomSpace={null} />
@@ -83,17 +99,31 @@ class Homepage extends PureComponent {
             </div>
           </section>
           <section>
+            {dateStamp}
+            <br />
             <p>
-              VMT is currently in Alpha. If you encounter bugs or want to
-              suggest new features please email{' '}
+              If you encounter bugs or want to suggest new features please email
+              us at{' '}
               <a
                 className={classes.Link}
-                href="mailto:vmt@21pstem.org?subject=VMT%20Feedback%3A&body=Bug%2C%20Feature%20Request%2C%20or%20Feedback%3A%0D%0AType%20of%20activity%3A%0D%0ADescription%20or%20steps%20to%20reproduce%20issue%3A%0D%0ATime%20of%20issue%3A%0D%0AWeb%20browser%3A%0D%0AURL%20of%20area%20in%20question%3A%0D%0A"
+                href="mailto:vmt@21pstem.org?subject=%5BVMT%20Feedback%5D&body=Thank%20you%20for%20taking%20the%20time%20to%20help%20improve%20VMT!%20Please%20add%20the%20following%20information%20so%20that%20we%20can%20address%20your%20request-%0D%0A%0D%0AType%20of%20Request%20(Bug%2C%20Feature%2C%20Feedback%2C%20Question)%3A%0D%0ADescription%20or%20steps%20to%20reproduce%3A%0D%0ATime%20of%20issue%3A%0D%0AWeb%20browser%3A%0D%0ASite%20specific%20URL%3A"
               >
                 vmt@21pstem.org
               </a>
+              .{' '}
             </p>
-            <p>last updated: 2.26.2021</p>
+            <br />
+            <p>
+              VMT is{' '}
+              <a
+                className={classes.Link}
+                href="https://github.com/mathematicalthinking/vmt"
+              >
+                open source
+              </a>{' '}
+              and currently in Alpha - You are viewing this application in{' '}
+              <b>{pageLocation}</b> mode.{' '}
+            </p>
           </section>
           <section className={classes.Options} ref={this.containerRef} />
         </div>
