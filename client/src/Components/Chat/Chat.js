@@ -197,7 +197,7 @@ class Chat extends Component {
 
   scrollHandler = () => {
     this.updateReferencePositions();
-    this.clearNewMessages();
+    if (this.nearBottom()) this.clearNewMessages();
   };
 
   updateReferencePositions = () => {
@@ -384,7 +384,11 @@ class Chat extends Component {
           >
             {displayMessages}
           </div>
-          <NewMessages show={hasNewMessages} />
+          {hasNewMessages && (
+            <Button click={this.scrollToBottom} theme="xs">
+              New Messages
+            </Button>
+          )}
           {!replayer ? (
             <div className={classes.ChatInput}>
               <input
@@ -448,19 +452,6 @@ class Chat extends Component {
     );
   }
 }
-
-/**
- * NewMessages is a small alert for when there are new log messages
- * that the user might not see.
- */
-const NewMessages = (props) => {
-  const { show } = props;
-  return show ? <div className={classes.NewMessages}>New Messages</div> : null;
-};
-
-NewMessages.propTypes = {
-  show: PropTypes.bool.isRequired,
-};
 
 // @todo we need to consider making a different component for replayer chat or conditionally requiring many of these props (like change and submit) if this is NOT a replayer chat
 Chat.propTypes = {
