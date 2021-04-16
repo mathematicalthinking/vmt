@@ -240,3 +240,7 @@
   text-align: center;
   border-radius: 10px;
 }
+
+.NewMessages:hover {
+  background-color: blue;
+}

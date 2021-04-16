@@ -384,7 +384,11 @@ class Chat extends Component {
           >
             {displayMessages}
           </div>
-          <NewMessages show={hasNewMessages} onClick={this.scrollToBottom} />
+          {hasNewMessages && (
+            <Button click={this.scrollToBottom} theme="xs">
+              New Messages
+            </Button>
+          )}
           {!replayer ? (
             <div className={classes.ChatInput}>
               <input
@@ -448,33 +452,6 @@ class Chat extends Component {
     );
   }
 }
-
-/**
- * NewMessages is a small alert for when there are new log messages
- * that the user might not see.
- */
-const NewMessages = (props) => {
-  const { show, onClick } = props;
-  return show ? (
-    <button
-      type="button"
-      className={classes.NewMessages}
-      onClick={onClick}
-      onKeyPress={onClick}
-    >
-      New Messages
-    </button>
-  ) : null;
-};
-
-NewMessages.propTypes = {
-  show: PropTypes.bool.isRequired,
-  onClick: PropTypes.func,
-};
-
-NewMessages.defaultProps = {
-  onClick: () => {},
-};
 
 // @todo we need to consider making a different component for replayer chat or conditionally requiring many of these props (like change and submit) if this is NOT a replayer chat
 Chat.propTypes = {
