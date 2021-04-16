@@ -1,11 +1,10 @@
-/* eslint-disable */
-
 import React, { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import classes from './DesActivityReplayer.css';
 import { Player } from '../../external/js/api.full.es';
 
 const DesActivityReplayer = (props) => {
+  const { index } = props;
   const calculatorRef = useRef();
   const calculatorInst = useRef();
 
@@ -14,8 +13,8 @@ const DesActivityReplayer = (props) => {
   //   }
   const initCalc = (data) => {
     // eslint-disable-next-line no-console
-    // console.log('Data: ', data);
-    let playerOptions = {
+    console.log('Data: ', data);
+    const playerOptions = {
       activityConfig: data,
       targetElement: calculatorRef.current,
     };
@@ -34,9 +33,10 @@ const DesActivityReplayer = (props) => {
   };
 
   const fetchData = async () => {
+    const { tab } = props;
     // window.addEventListener('keydown', allowKeypressCheck());
-    let code =
-      props.tab.desmosLink ||
+    const code =
+      tab.desmosLink ||
       // fallback to turtle time trials, used for demo
       '5da9e2174769ea65a6413c93';
     const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
@@ -55,19 +55,22 @@ const DesActivityReplayer = (props) => {
     if (calculatorInst.current) {
       updatePlayer();
     }
-  }, [props.index]);
+  }, [index]);
 
   function updatePlayer() {
-    const { index, log } = props;
+    const { log } = props;
     // Take updated player data with new Player state to update
     let newData = log[index].currentState;
     if (newData) {
       newData = JSON.parse(newData);
+      // eslint-disable-next-line no-console
+      // console.log('log-index, Index: ', index, 'State data: ', newData);
       if (newData.desmosState && !newData.transient) {
         calculatorInst.current.dangerouslySetResponses(newData.desmosState);
       }
       if (newData.desmosState && newData.transient) {
         calculatorInst.current.handleSyncEvent(newData.desmosState);
+      }
       if (newData.screen !== calculatorInst.current.getActiveScreenIndex()) {
         calculatorInst.current.setActiveScreenIndex(newData.screen);
       }
@@ -77,7 +80,8 @@ const DesActivityReplayer = (props) => {
   useEffect(() => {
     fetchData().then((data) => {
       initCalc(data);
-      props.setTabLoaded(props.tab._id);
+      const { tab } = props;
+      props.setTabLoaded(tab._id);
     });
 
     return function() {
@@ -85,7 +89,6 @@ const DesActivityReplayer = (props) => {
         calculatorInst.current.destroy();
       }
       //   window.removeEventListener('keydown', allowKeypressCheck());
-      sessionStorage.clear();
     };
   }, []);
 
@@ -97,7 +100,6 @@ const DesActivityReplayer = (props) => {
 };
 
 DesActivityReplayer.propTypes = {
-  inView: PropTypes.bool.isRequired,
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   index: PropTypes.number.isRequired,
   tab: PropTypes.shape({}).isRequired,
