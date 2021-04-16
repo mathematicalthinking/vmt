@@ -115,7 +115,8 @@ class WorkspaceLayout extends Component {
                     key={graph.key}
                     className={replayer ? classes.ReplayerGraph : classes.Graph}
                     style={{
-                      zIndex: currentTabId === graph.props.tab._id ? 100 : 0,
+                      display:
+                        currentTabId === graph.props.tab._id ? 'block' : 'none',
                       position: 'absolute',
                       top: 0,
                       left: 1,

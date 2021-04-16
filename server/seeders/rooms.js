@@ -31,7 +31,7 @@ module.exports = [
     entryCode: 'rare-shrimp-45',
     dueDate: null,
     image:
-      'http://tinygraphs.com/spaceinvaders/room 1?theme=berrypie&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/spaceinvaders/room 1?theme=berrypie&numcolors=4&size=220&fmt=svg',
     createdAt: ISODate('2018-09-19T17:39:17.490Z'),
     updatedAt: ISODate('2018-09-19T17:39:17.490Z'),
     __v: 0,
@@ -122,7 +122,7 @@ module.exports = [
     description: '',
     creator: ObjectId('5be1eba75854270cd0920faa'),
     image:
-      'http://tinygraphs.com/spaceinvaders/gfggfg?theme=daisygarden&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/spaceinvaders/gfggfg?theme=daisygarden&numcolors=4&size=220&fmt=svg',
     members: [
       {
         color: '#f26247',
@@ -195,7 +195,7 @@ module.exports = [
     description: '',
     creator: ObjectId('5be1eba75854270cd0920faa'),
     image:
-      'http://tinygraphs.com/spaceinvaders/gfggfg?theme=daisygarden&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/spaceinvaders/gfggfg?theme=daisygarden&numcolors=4&size=220&fmt=svg',
     members: [
       {
         color: '#f26247',
@@ -230,7 +230,7 @@ module.exports = [
     description: '',
     creator: ObjectId('5be1eba75854270cd0920faa'),
     image:
-      'http://tinygraphs.com/spaceinvaders/gfggfg?theme=daisygarden&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/spaceinvaders/gfggfg?theme=daisygarden&numcolors=4&size=220&fmt=svg',
     members: [
       {
         color: '#f26247',
@@ -264,7 +264,7 @@ module.exports = [
     description: '',
     creator: ObjectId('5ba289ba7223b9429888b9ee'),
     image:
-      'http://tinygraphs.com/spaceinvaders/gfggfg?theme=daisygarden&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/spaceinvaders/gfggfg?theme=daisygarden&numcolors=4&size=220&fmt=svg',
     members: [
       {
         color: '#f26247',
@@ -307,7 +307,7 @@ module.exports = [
     creator: ObjectId('5d0d2eae535e3a522445f7a4'),
     course: null,
     image:
-      'http://tinygraphs.com/spaceinvaders/reference room?theme=heatwave&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/spaceinvaders/reference room?theme=heatwave&numcolors=4&size=220&fmt=svg',
     members: [
       {
         color: '#f26247',
@@ -342,7 +342,7 @@ module.exports = [
     creator: ObjectId('5d1a59d79c78ad48c0480caa'),
     course: null,
     image:
-      'http://tinygraphs.com/spaceinvaders/ssmith desmos fun?theme=seascape&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/spaceinvaders/ssmith desmos fun?theme=seascape&numcolors=4&size=220&fmt=svg',
     entryCode: 'calm-penguin-87',
     members: [
       {
@@ -383,7 +383,7 @@ module.exports = [
     creator: ObjectId('5d1a59d79c78ad48c0480caa'),
     course: null,
     image:
-      'http://tinygraphs.com/spaceinvaders/ssmith public desmos?theme=berrypie&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/spaceinvaders/ssmith public desmos?theme=berrypie&numcolors=4&size=220&fmt=svg',
     members: [
       {
         color: '#f26247',
@@ -418,7 +418,7 @@ module.exports = [
     creator: ObjectId('5d1a59d79c78ad48c0480caa'),
     course: ObjectId('5d83f32415329f5bfcd49c0c'),
     image:
-      'http://tinygraphs.com/spaceinvaders/ssmith c1: triangles?theme=bythepool&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/spaceinvaders/ssmith c1: triangles?theme=bythepool&numcolors=4&size=220&fmt=svg',
     entryCode: 'serious-mayfly-48',
     members: [
       {
@@ -454,7 +454,7 @@ module.exports = [
     creator: ObjectId('5d1a59d79c78ad48c0480caa'),
     course: ObjectId('5d83f32415329f5bfcd49c0c'),
     image:
-      'http://tinygraphs.com/spaceinvaders/ssmith c1: squares?theme=duskfalling&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/spaceinvaders/ssmith c1: squares?theme=duskfalling&numcolors=4&size=220&fmt=svg',
     entryCode: 'clever-seahorse-28',
     members: [
       {
@@ -490,7 +490,7 @@ module.exports = [
     creator: ObjectId('5d1a59d79c78ad48c0480caa'),
     course: ObjectId('5d83f32415329f5bfcd49c0c'),
     image:
-      'http://tinygraphs.com/spaceinvaders/math is fun roomA?theme=sugarsweets&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/spaceinvaders/math is fun roomA?theme=sugarsweets&numcolors=4&size=220&fmt=svg',
     members: [
       {
         color: '#f26247',

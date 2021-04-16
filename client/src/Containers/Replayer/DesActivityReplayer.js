@@ -14,7 +14,7 @@ const DesActivityReplayer = (props) => {
   //   }
   const initCalc = (data) => {
     // eslint-disable-next-line no-console
-    console.log('Data: ', data);
+    // console.log('Data: ', data);
     let playerOptions = {
       activityConfig: data,
       targetElement: calculatorRef.current,
@@ -64,7 +64,6 @@ const DesActivityReplayer = (props) => {
     if (newData) {
       newData = JSON.parse(newData);
       // eslint-disable-next-line no-console
-      console.log('log-index, Index: ', index, 'State data: ', newData);
       if (newData.desmosState && newData.desmosState.studentResponses) {
         calculatorInst.current.dangerouslySetResponses(
           newData.desmosState.studentResponses,

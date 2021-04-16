@@ -46,7 +46,7 @@ module.exports = [
     description: '',
     creator: ObjectId('5be1eba75854270cd0920faa'),
     image:
-      'http://tinygraphs.com/labs/isogrids/hexa16/course 1?theme=duskfalling&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/labs/isogrids/hexa16/course%201?theme=duskfalling&numcolors=4&size=220&fmt=svg',
     members: [
       {
         user: ObjectId('5be1eba75854270cd0920faa'),
@@ -134,7 +134,7 @@ module.exports = [
     description: '',
     creator: ObjectId('5be1eba75854270cd0920faa'),
     image:
-      'http://tinygraphs.com/labs/isogrids/hexa16/course 1?theme=duskfalling&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/labs/isogrids/hexa16/course%201?theme=duskfalling&numcolors=4&size=220&fmt=svg',
     members: [
       {
         user: ObjectId('5be1eba75854270cd0920faa'),
@@ -163,7 +163,7 @@ module.exports = [
     description: 'test course',
     creator: ObjectId('5d1a59d79c78ad48c0480caa'),
     image:
-      'http://tinygraphs.com/labs/isogrids/hexa16/ssmith course 1?theme=berrypie&numcolors=4&size=220&fmt=svg',
+      'https://www.tinygraphs.com/labs/isogrids/hexa16/ssmith%20course%201?theme=berrypie&numcolors=4&size=220&fmt=svg',
     entryCode: 'massive-elephant-32',
     members: [
       {
