@@ -87,7 +87,6 @@ const DesmosActivity = (props) => {
   // Event listener callback on the persistent Activity instance
   const handleResponseData = (updates) => {
     const transient = !!updates.type;
-    console.log('Handling transient?: ', transient, ', Updates: ', updates);
     if (initializing) return;
     const { room, user, myColor, tab, resetControlTimer } = props;
     const currentState = {
@@ -134,35 +133,10 @@ const DesmosActivity = (props) => {
       handleResponseData(transientUpdates);
     }
   }, [transientUpdates]);
-  // Event listener callback on the Activity instance
-  // const handleTransientData = (event) => {
-  //   const { room, user, myColor, tab, resetControlTimer } = props;
-  //   console.log('Sending transient event...');
-  //   const newData = {
-  //     room: room._id,
-  //     tab: tab._id,
-  //     event,
-  //     color: myColor,
-  //     user: {
-  //       _id: user._id,
-  //       username: user.username,
-  //     },
-  //     timestamp: new Date().getTime(),
-  //   };
-  //   socket.emit('SEND_SYNC', newData, () => {});
-  //   resetControlTimer();
-  // };
 
   function initializeListeners() {
     // INITIALIZE EVENT LISTENER
     const { tab, updatedRoom, addNtfToTabs, addToLog } = props;
-
-    // socket.removeAllListeners('RECEIVE_SYNC');
-    // socket.on('RECEIVE_SYNC', (data) => {
-    //   console.log('Received transient event update: ', data);
-    //   // set transient state
-    //   calculatorInst.current.handleSyncEvent(data.event);
-    // });
 
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
@@ -234,7 +208,6 @@ const DesmosActivity = (props) => {
       },
       // callback to handle persistent state
       onResponseDataUpdated: (responses) => {
-        // console.log('Responses updated: ', responses);
         setActivityUpdates(responses);
         setActivityHistory((oldState) => ({ ...oldState, ...responses }));
       },
@@ -242,8 +215,8 @@ const DesmosActivity = (props) => {
     if (tab.currentStateBase64) {
       const { currentStateBase64 } = tab;
       const savedData = JSON.parse(currentStateBase64);
-      console.log('Prior state data loaded: ');
-      console.log(savedData);
+      // console.log('Prior state data loaded: ');
+      // console.log(savedData);
       playerOptions.responseData = savedData;
     }
 
@@ -263,11 +236,11 @@ const DesmosActivity = (props) => {
     props.setFirstTabLoaded();
     initializeListeners();
     // Print current Tab data
-    console.log('Tab data: ', props.tab);
+    // console.log('Tab data: ', props.tab);
     // Go to screen last used
     if (tab.currentScreen) {
       const { currentScreen } = tab;
-      console.log('Prior screen index loaded: ', currentScreen);
+      // console.log('Prior screen index loaded: ', currentScreen);
       calculatorInst.current.setActiveScreenIndex(currentScreen);
       setScreenPage(currentScreen + 1);
     }
