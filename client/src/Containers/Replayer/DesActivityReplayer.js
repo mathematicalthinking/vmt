@@ -63,15 +63,11 @@ const DesActivityReplayer = (props) => {
     let newData = log[index].currentState;
     if (newData) {
       newData = JSON.parse(newData);
-      // eslint-disable-next-line no-console
-      if (newData.desmosState && newData.desmosState.studentResponses) {
-        calculatorInst.current.dangerouslySetResponses(
-          newData.desmosState.studentResponses,
-          {
-            timestampEpochMs: newData.desmosState.timestampEpochMs,
-          }
-        );
+      if (newData.desmosState && !newData.transient) {
+        calculatorInst.current.dangerouslySetResponses(newData.desmosState);
       }
+      if (newData.desmosState && newData.transient) {
+        calculatorInst.current.handleSyncEvent(newData.desmosState);
       if (newData.screen !== calculatorInst.current.getActiveScreenIndex()) {
         calculatorInst.current.setActiveScreenIndex(newData.screen);
       }

@@ -13,8 +13,11 @@ import API from '../../utils/apiRequests';
 
 const DesmosActivity = (props) => {
   const [screenPage, setScreenPage] = useState(1);
+  // every persistent event since session started (component loaded)
   const [activityHistory, setActivityHistory] = useState({});
+  // single latest persistent event
   const [activityUpdates, setActivityUpdates] = useState();
+  // single latest transient event
   const [transientUpdates, setTransientUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
   const calculatorRef = useRef();
@@ -31,9 +34,9 @@ const DesmosActivity = (props) => {
       calculatorInst.current.getScreenCount() - 1
     : true;
 
-  function updateSavedData(updates) {
-    setActivityHistory((oldState) => ({ ...oldState, ...updates }));
-  }
+  // function updateSavedData(updates) {
+  //   setActivityHistory((oldState) => ({ ...oldState, ...updates }));
+  // }
 
   const putState = () => {
     const { tab } = props;
@@ -43,9 +46,11 @@ const DesmosActivity = (props) => {
       responseData = JSON.parse(tab.currentStateBase64);
     }
     // eslint-disable-next-line array-callback-return
-    Object.entries(activityHistory).map(([key, value]) => {
-      responseData[key] = [value];
-    });
+    // Object.entries(activityHistory).map(([key, value]) => {
+    //   responseData[key] = [value];
+    // });
+
+    responseData = { ...responseData, ...activityHistory };
 
     const updateObject = {
       currentStateBase64: JSON.stringify(responseData),
@@ -81,11 +86,13 @@ const DesmosActivity = (props) => {
   }, [activityUpdates, screenPage]);
   // Event listener callback on the persistent Activity instance
   const handleResponseData = (updates) => {
+    const transient = !!updates.type;
     if (initializing) return;
     const { room, user, myColor, tab, resetControlTimer } = props;
     const currentState = {
       desmosState: updates,
       screen: screenPage - 1,
+      transient,
     };
     if (!receivingData) {
       const description = buildDescription(
@@ -113,60 +120,21 @@ const DesmosActivity = (props) => {
       props.addToLog(newData);
       socket.emit('SEND_EVENT', newData, () => {});
       resetControlTimer();
-      putState();
+      if (!currentState.transient) putState();
     }
     receivingData = false;
   };
 
-  // Handle the update of the Activity Player state
-  function updateActivityState(stateData) {
-    // let newState = JSON.parse(stateData);
-    if (stateData) {
-      const newState = stateData;
-      calculatorInst.current.dangerouslySetResponses(
-        newState.studentResponses,
-        {
-          timestampEpochMs: newState.timestampEpochMs,
-        }
-      );
-    }
-  }
-
   // listener on the transient state
   useEffect(() => {
     if (props.inControl === 'ME') {
-      handleTransientData(transientUpdates);
+      handleResponseData(transientUpdates);
     }
   }, [transientUpdates]);
-  // Event listener callback on the Activity instance
-  const handleTransientData = (event) => {
-    const { room, user, myColor, tab, resetControlTimer } = props;
-    // console.log('Sending transient event...');
-    const newData = {
-      room: room._id,
-      tab: tab._id,
-      event,
-      color: myColor,
-      user: {
-        _id: user._id,
-        username: user.username,
-      },
-      timestamp: new Date().getTime(),
-    };
-    socket.emit('SEND_SYNC', newData, () => {});
-    resetControlTimer();
-  };
 
   function initializeListeners() {
     // INITIALIZE EVENT LISTENER
     const { tab, updatedRoom, addNtfToTabs, addToLog } = props;
-
-    socket.removeAllListeners('RECEIVE_SYNC');
-    socket.on('RECEIVE_SYNC', (data) => {
-      console.log('Received transient event update: ', data);
-      // set transient state
-      calculatorInst.current.handleSyncEvent(data.event);
-    });
 
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
@@ -186,7 +154,13 @@ const DesmosActivity = (props) => {
         const updatesState = JSON.parse(data.currentState);
         // console.log('Received data: ', updatesState);
         // set persistent state
-        updateActivityState(updatesState.desmosState);
+        if (updatesState.desmosState && !updatesState.transient) {
+          calculatorInst.current.dangerouslySetResponses(
+            updatesState.desmosState
+          );
+        } else if (updatesState.desmosState && updatesState.transient) {
+          calculatorInst.current.handleSyncEvent(updatesState.desmosState);
+        }
         if (
           updatesState.screen !== calculatorInst.current.getActiveScreenIndex()
         ) {
@@ -231,13 +205,8 @@ const DesmosActivity = (props) => {
       },
       // callback to handle persistent state
       onResponseDataUpdated: (responses) => {
-        const currentState = {
-          studentResponses: responses,
-          timestampEpochMs: new Date().getTime(),
-        };
-        // console.log('Responses updated: ', responses);
-        setActivityUpdates(currentState);
-        updateSavedData(responses);
+        setActivityUpdates(responses);
+        setActivityHistory((oldState) => ({ ...oldState, ...responses }));
       },
     };
     if (tab.currentStateBase64) {
