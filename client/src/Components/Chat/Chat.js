@@ -364,7 +364,10 @@ class Chat extends Component {
                   {user.connected ? '' : 'disconnected!'}
                 </div>
                 <i
-                  onClick={() => this.setState({ settings: true })}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    this.setState({ settings: true });
+                  }}
                   onKeyPress={() => this.setState({ settings: true })}
                   className={['fas fa-ellipsis-v', classes.Settings].join(' ')}
                   tabIndex="-1"
