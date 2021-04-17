@@ -281,6 +281,7 @@ class Chat extends Component {
       expanded,
       referToEl,
       referencing,
+      simpleChat,
       user,
       startNewReference,
       goToReplayer,
@@ -325,6 +326,7 @@ class Chat extends Component {
               highlighted={highlighted}
               reference={reference}
               referencing={referencing}
+              simpleChat={simpleChat}
             />
           );
         }
@@ -467,6 +469,7 @@ Chat.propTypes = {
   },
   toggleExpansion: PropTypes.func,
   referencing: PropTypes.bool,
+  simpleChat: PropTypes.bool,
   referToEl: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]),
   referFromEl: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]),
   setFromElAndCoords: PropTypes.func,
@@ -499,6 +502,7 @@ Chat.defaultProps = {
   change: null,
   submit: null,
   referencing: false,
+  simpleChat: false,
   setFromElAndCoords: null,
   setToElAndCoords: null,
   startNewReference: null,
