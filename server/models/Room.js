@@ -49,7 +49,7 @@ const Room = new mongoose.Schema(
     controlledBy: { type: ObjectId, ref: 'User', default: null },
     // wasNew: {type: Boolean},
     isTrashed: { type: Boolean, default: false },
-    snapshot: { type: String, default: '' },
+    snapshot: {},
   },
   { timestamps: true }
 );

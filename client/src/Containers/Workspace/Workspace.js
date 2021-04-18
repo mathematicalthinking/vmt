@@ -61,8 +61,8 @@ class Workspace extends Component {
       }
     }
     this.state = {
-      startSnapshots: () => {},
       stopSnapshots: () => {},
+      takeSnapshot: () => {},
       snapshotRef: React.createRef(),
       tabs: populatedRoom.tabs || [],
       log: populatedRoom.log || [],
@@ -131,10 +131,19 @@ class Workspace extends Component {
     //    set up the snapshots
     const roomId = populatedRoom._id;
     if (roomId && roomId !== '') {
-      const { startSnapshots, stopSnapshots, elementRef } = useSnapshots(
-        (data) => API.put('rooms', roomId, data)
+      const { stopSnapshots, elementRef, takeSnapshot } = useSnapshots(
+        (data) => {
+          const { currentScreen } = this.props;
+          const { currentTabId } = this.state;
+          API.put('rooms', roomId, {
+            snapshot: {
+              ...populatedRoom.snapshot,
+              [`${currentTabId}SCREEN_${currentScreen || ''}`]: data,
+            },
+          });
+        }
       );
-      this.setState({ startSnapshots, stopSnapshots, snapshotRef: elementRef });
+      this.setState({ stopSnapshots, takeSnapshot, snapshotRef: elementRef });
     }
   }
 
@@ -168,9 +177,8 @@ class Workspace extends Component {
       this.goBack();
     }
 
-    const { startSnapshots, stopSnapshots, controlledBy } = this.state;
-    if (controlledBy === user._id) startSnapshots();
-    else stopSnapshots();
+    const { takeSnapshot, controlledBy } = this.state;
+    if (controlledBy === user._id) takeSnapshot();
   }
 
   componentWillUnmount() {
@@ -184,7 +192,7 @@ class Workspace extends Component {
     }
 
     const { stopSnapshots } = this.state;
-    stopSnapshots();
+    stopSnapshots(); // if Workspace were a functional component, we'd do this directly in the custom hook.
   }
 
   addToLog = (entry) => {
@@ -1156,6 +1164,7 @@ Workspace.propTypes = {
   tempMembers: PropTypes.arrayOf(PropTypes.shape({})),
   lastMessage: PropTypes.shape({}),
   user: PropTypes.shape({}).isRequired,
+  currentScreen: PropTypes.string.isRequired,
   temp: PropTypes.bool,
   history: PropTypes.shape({}).isRequired,
   save: PropTypes.func,
@@ -1176,9 +1185,16 @@ Workspace.defaultProps = {
   temp: false,
 };
 const mapStateToProps = (state, ownProps) => {
+  const { tabs } = state.rooms.byId[ownProps.populatedRoom._id];
+  const currentTabId = ownProps.populatedRoom.tabs[0]._id;
+  const currentTabInfo = tabs.find((tab) => {
+    return tab._id === currentTabId;
+  });
+
   return {
     user: state.user._id ? state.user : ownProps.user, // with tempWorkspace we won't have a user in the store
     loading: state.loading.loading,
+    currentScreen: currentTabInfo.currentScreen,
   };
 };
 

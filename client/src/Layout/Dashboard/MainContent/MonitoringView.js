@@ -12,7 +12,7 @@ import API from '../../../utils/apiRequests';
 import SimpleChat from '../../../Components/Chat/SimpleChat';
 import ToggleGroup from './ToggleGroup';
 import SelectionTable from './SelectionTable';
-import { updateRoomMonitorSelections } from '../../../store/actions';
+import { updateMonitorSelections } from '../../../store/actions';
 import { Chart, statsReducer, initialState } from '../../../Containers';
 import { NavItem } from '../../../Components';
 import buildLog from '../../../utils/buildLog';
@@ -40,20 +40,20 @@ import DropdownMenuClasses from './dropdownmenu.css';
  * Monitoring connects to the Redux store to maintain the user's selection of rooms.
  *
  * @TODO:
- *  - implement the thumbnail monitoring.
  *  - when you use the menu to jump somewhere else, the way to get back to Monitoring is the browser's Back button.
  *    Is this obvious enough for users?
- *  - Notification markers at top of each chat, graph, or thumbnail as needed
  *  - Perhaps adapt the InfoBox rather than having my custom "Title" div below.
- *  - Could clean up the CSS -- don't import from the Chat (keeping the
- *    dropdownMenu CSS separately in case we make that into a reusable component)
+ *  - Store entire state (room selections, toggle choices, scrollTop for each tile, etc.) in Redux store and restore MonitorView state accordingly
+ *  - Show notifications for rooms
+ *  - indicate 'last update' on each tile
+ *
  */
 
 function MonitoringView({
   userResources,
   storedSelections,
   user,
-  connectUpdateRoomMonitorSelections,
+  connectUpdateMonitorSelections,
   notifications,
 }) {
   const constants = {
@@ -88,6 +88,7 @@ function MonitoringView({
     _initializeSelections(userResources)
   );
   const [viewType, setViewType] = React.useState(constants.CHAT);
+  const savedState = React.useRef();
 
   // Because "useQuery" is the equivalent of useState, do this
   // initialization of queryStates (an object containing the states
@@ -102,10 +103,23 @@ function MonitoringView({
     );
   });
 
-  // When the selections change, notifiy the Redux store.
+  /**
+   * EFFECTS USED TO PERSIST STATE AFTER UNMOUNT
+   * 
+   * Whenever the state we want to persist changes, update the savedState ref. When the component unmounts,
+   * save the state in the Redux store. Much preferred to alerting the Redux store of every little local state change.
+   * 
+   */
+
   React.useEffect(() => {
-    connectUpdateRoomMonitorSelections(selections);
+    savedState.current = selections;
   }, [selections]);
+
+  React.useEffect(() => {
+    return () => {
+      connectUpdateMonitorSelections(savedState.current);
+    };
+  }, []);
 
   /**
    * FUNCTIONS USED TO SIMPLIFY THE RENDER LOGIC
@@ -147,6 +161,23 @@ function MonitoringView({
     ];
   };
 
+  const _getMostRecentSnapshot = (roomId) => {
+    if (!queryStates[roomId].isSuccess) return null;
+    const snapshotData = queryStates[roomId].data.snapshot; // all the snapshots, indexed by tabIds
+    if (!snapshotData) return null;
+    let maxSoFar = 0;
+    let result = null;
+    Object.values(snapshotData).forEach((snapDatum) => {
+      if (snapDatum.timestamp > maxSoFar) {
+        maxSoFar = snapDatum.timestamp;
+        result = snapDatum.dataURL;
+      }
+    });
+    return result;
+  };
+
+  // The isSuccess test is really not needed because we don't render unless it's true. However,
+  // it just seems clearer to keep the test here as we are using queryStates[].data
   const _displayViewType = (id) => {
     switch (viewType) {
       case constants.GRAPH:
@@ -165,14 +196,12 @@ function MonitoringView({
             log={queryStates[id].isSuccess ? queryStates[id].data.chat : []}
           />
         );
-      case constants.THUMBNAIL:
-        return queryStates[id].isSuccess &&
-          queryStates[id].data.snapshot !== '' ? (
-          <img
-            alt={`Snapshot of room ${id}`}
-            src={queryStates[id].data.snapshot}
-          />
+      case constants.THUMBNAIL: {
+        const snapshot = _getMostRecentSnapshot(id);
+        return snapshot && snapshot !== '' ? (
+          <img alt={`Snapshot of room ${id}`} src={snapshot} />
         ) : null;
+      }
       default:
         return null;
     }
@@ -234,7 +263,8 @@ function MonitoringView({
                         : 'Loading...'}
                     </div>
 
-                    {_displayViewType(room._id)}
+                    {queryStates[room._id].isSuccess &&
+                      _displayViewType(room._id)}
                   </div>
                 </div>
               )
@@ -249,7 +279,7 @@ function MonitoringView({
 /**
  * ChartUpdater is a simple wrapper that implements the reducer-based approach to displaying info
  * in the chart (taken from Stats.js). In Stats.js, the reducer is used to communicate changes
- * due to the log changing or the filters changing.
+ * due to the log or the filters changing.
  */
 function ChartUpdater(props) {
   const { log } = props;
@@ -301,7 +331,7 @@ MonitoringView.propTypes = {
   userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   storedSelections: PropTypes.shape({}),
-  connectUpdateRoomMonitorSelections: PropTypes.func.isRequired,
+  connectUpdateMonitorSelections: PropTypes.func.isRequired,
 };
 
 MonitoringView.defaultProps = {
@@ -326,13 +356,13 @@ DropdownMenu.defaultProps = {
 
 const mapStateToProps = (state) => {
   return {
-    storedSelections: state.rooms.roomMonitorSelections,
+    storedSelections: state.rooms.monitorSelections,
   };
 };
 
 export default connect(
   mapStateToProps,
   {
-    connectUpdateRoomMonitorSelections: updateRoomMonitorSelections,
+    connectUpdateMonitorSelections: updateMonitorSelections,
   }
 )(MonitoringView);

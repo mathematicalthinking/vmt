@@ -2,6 +2,7 @@
 /* eslint-disable import/prefer-default-export */
 import React from 'react';
 import * as htmltoimage from 'html-to-image';
+import debounce from 'lodash/debounce';
 
 export const useSortableData = (items, config = null) => {
   const [sortConfig, setSortConfig] = React.useState(config);
@@ -64,19 +65,45 @@ export function useSnapshots(callback) {
     }
   };
 
+  const takeSnapshot = debounce(
+    () => {
+      htmltoimage
+        .toPng(elementRef.current, { width: 1000 })
+        .then((dataURL) => {
+          callback({ dataURL, timestamp: Date.now() });
+        })
+        .catch((err) => console.error(err));
+    },
+    1000,
+    { maxWait: 5000 }
+  );
+
   const stopSnapshots = () => {
     if (timer) {
       clearInterval(timer);
       timer = null;
     }
+    takeSnapshot.cancel();
   };
 
   // Keeping saving and extraction details inside the hook so that
   // if (when) we change how we store snapshots, we only have to adjust
   // code inside this custom hook
-  const extractSnapshot = (resource) => {
-    return resource.snapShot;
+  // without other information, this returns the most recent snapshot if more than one.
+  const extractDataURL = (snapshot) => {
+    return snapshot.dataURL;
   };
 
-  return { elementRef, startSnapshots, stopSnapshots, extractSnapshot };
+  const extractTimestamp = (snapshot) => {
+    return snapshot.timestamp;
+  };
+
+  return {
+    elementRef,
+    startSnapshots,
+    stopSnapshots,
+    extractDataURL,
+    extractTimestamp,
+    takeSnapshot,
+  };
 }

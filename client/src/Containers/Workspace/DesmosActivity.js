@@ -39,7 +39,7 @@ const DesmosActivity = (props) => {
   // }
 
   const putState = () => {
-    const { tab } = props;
+    const { tab, updateRoomTab, room } = props;
     const { _id } = tab;
     let responseData = {};
     if (tab.currentStateBase64) {
@@ -58,10 +58,12 @@ const DesmosActivity = (props) => {
     if (calculatorInst.current) {
       updateObject.currentScreen = calculatorInst.current.getActiveScreenIndex();
     }
-    API.put('tabs', _id, updateObject).catch((err) => {
-      // eslint-disable-next-line no-console
-      console.log(err);
-    });
+    API.put('tabs', _id, updateObject)
+      .then(() => updateRoomTab(room._id, _id, updateObject))
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.log(err);
+      });
   };
 
   // eslint-disable-next-line no-unused-vars
@@ -86,7 +88,7 @@ const DesmosActivity = (props) => {
   }, [activityUpdates, screenPage]);
   // Event listener callback on the persistent Activity instance
   const handleResponseData = (updates) => {
-    const transient = !!updates.type;
+    const transient = updates ? !!updates.type : false;
     if (initializing) return;
     const { room, user, myColor, tab, resetControlTimer } = props;
     const currentState = {
