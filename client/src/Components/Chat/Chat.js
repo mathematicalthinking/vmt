@@ -462,7 +462,7 @@ class Chat extends Component {
 
 function Pending({ pendingUsers }) {
   if (Object.keys(pendingUsers).length === 0) return null;
-  return 'Heya';
+  return `${Object.keys(pendingUsers).join(' ')} is typing`;
 }
 
 // @todo we need to consider making a different component for replayer chat or conditionally requiring many of these props (like change and submit) if this is NOT a replayer chat

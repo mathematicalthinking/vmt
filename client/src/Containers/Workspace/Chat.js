@@ -13,6 +13,7 @@ class Chat extends Component {
   state = {
     newMessage: '',
     pendingUsers: {},
+    timeOut: null,
   };
 
   chatInput = React.createRef();
@@ -44,6 +45,11 @@ class Chat extends Component {
         this.handlePending(data);
       });
     }
+  }
+
+  componentWillUnmount() {
+    const { timeOut: timeID } = this.state;
+    clearTimeout(timeID);
   }
 
   handlePending = (data) => {
@@ -85,10 +91,14 @@ class Chat extends Component {
   };
 
   changeHandler = (event) => {
+    const { timeOut: timeID } = this.state;
+    clearTimeout(timeID);
     if (event.target.value === '') {
       this.sendPending(false);
     } else {
       this.sendPending(true);
+      const timeOut = setTimeout(() => this.sendPending(false), 5000);
+      this.setState({ timeOut });
     }
     this.setState({
       newMessage: event.target.value,
@@ -107,8 +117,9 @@ class Chat extends Component {
       myColor,
       log,
     } = this.props;
-    const { newMessage } = this.state;
+    const { newMessage, timeOut: timeID } = this.state;
     this.sendPending(false);
+    clearTimeout(timeID);
     if (!user.connected) {
       // eslint-disable-next-line no-alert
       window.alert(
