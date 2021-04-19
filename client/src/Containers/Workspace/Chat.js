@@ -55,8 +55,6 @@ class Chat extends Component {
   handlePending = (data) => {
     // handle data.isTyping boolean
     const { pendingUsers } = this.state;
-    console.log(data);
-    console.log(pendingUsers);
     if (!data.isTyping) {
       const usersObj = Object.assign({}, pendingUsers);
       const key = data.user.username;

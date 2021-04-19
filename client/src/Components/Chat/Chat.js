@@ -6,6 +6,7 @@ import find from 'lodash/find';
 import Modal from '../UI/Modal/Modal';
 import Message from './Message';
 import Event from './Event';
+import Pending from './Pending';
 import classes from './chat.css';
 import Button from '../UI/Button/Button';
 
@@ -458,11 +459,6 @@ class Chat extends Component {
       </Fragment>
     );
   }
-}
-
-function Pending({ pendingUsers }) {
-  if (Object.keys(pendingUsers).length === 0) return null;
-  return `${Object.keys(pendingUsers).join(' ')} is typing`;
 }
 
 // @todo we need to consider making a different component for replayer chat or conditionally requiring many of these props (like change and submit) if this is NOT a replayer chat

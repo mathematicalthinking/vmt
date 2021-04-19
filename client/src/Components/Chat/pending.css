@@ -1,0 +1,98 @@
+:import('../../colors.css') {
+  blue: blue;
+  lightBlue: lightBlue;
+  orange: orange;
+  gridBlue: gridBlue;
+  darkOrange: darkOrange;
+  red: red;
+  lightRed: lightRed;
+  lightGray: lightGray;
+  darkGray: darkGray;
+  lightestShadow: lightestShadow;
+  lightShadow: lightShadow;
+  newBoxShadow: newBoxShadow;
+}
+
+.Pending {
+  /* background-color: white; */
+  border: 1px solid lightBlue;
+  align-self: center;
+  border-radius: 5px;
+  /* border: 1px solid #d3d2d4; */
+  height: 100%;
+  transition: 0.2s;
+  font-size: inherit;
+  letter-spacing: 0.08em;
+  box-shadow: lightestShadow;
+  height: auto;
+  width: 100%;
+  margin: 1px 0px;
+  padding: 3px 2px;
+  transition: 0.2s;
+}
+
+.dot1 {
+  animation: visibility 2s linear infinite;
+}
+@keyframes visibility {
+  0% {
+    opacity: 1;
+  }
+  65% {
+    opacity: 1;
+  }
+  66% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.dot2 {
+  animation: visibility2 2s linear infinite;
+}
+@keyframes visibility2 {
+  0% {
+    opacity: 0;
+  }
+  21% {
+    opacity: 0;
+  }
+  22% {
+    opacity: 1;
+  }
+  65% {
+    opacity: 1;
+  }
+  66% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.dot3 {
+  animation: visibility3 2s linear infinite;
+}
+@keyframes visibility3 {
+  0% {
+    opacity: 0;
+  }
+  43% {
+    opacity: 0;
+  }
+  44% {
+    opacity: 1;
+  }
+  65% {
+    opacity: 1;
+  }
+  66% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
