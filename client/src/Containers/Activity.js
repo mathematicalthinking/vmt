@@ -285,7 +285,7 @@ class Activity extends Component {
                         onKeyPress={this.toggleEdit}
                         tabIndex="-1"
                       >
-                        Edit Activity <i className="fas fa-edit" />
+                        Edit Activity Template <i className="fas fa-edit" />
                       </div>
                       {editing ? (
                         // @TODO this should be a resuable component

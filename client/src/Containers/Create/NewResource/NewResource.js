@@ -253,7 +253,7 @@ class NewResourceContainer extends Component {
     } = this.state;
     let displayResource;
     if (resource === 'activities') {
-      displayResource = 'activity';
+      displayResource = 'activity template';
     } else {
       displayResource = resource.slice(0, resource.length - 1);
     }
