@@ -11,7 +11,7 @@ const Tools = ({
   replayer,
   save,
   referencing,
-  simpleChat,
+  isSimplified,
   goBack,
   toggleControl,
   toggleSimpleChat,
@@ -81,7 +81,7 @@ const Tools = ({
             </div>
             <div
               className={
-                simpleChat
+                isSimplified
                   ? classes.ActiveReferenceWindow
                   : classes.ReferenceWindow
               }
@@ -90,8 +90,8 @@ const Tools = ({
               <Slider
                 data-testid="simple-chat"
                 action={toggleSimpleChat}
-                isOn={simpleChat}
-                name="simpleChat"
+                isOn={isSimplified}
+                name="isSimplified"
               />
             </div>
           </Fragment>
@@ -110,7 +110,7 @@ Tools.propTypes = {
   replayer: PropTypes.bool,
   save: PropTypes.func,
   referencing: PropTypes.bool,
-  simpleChat: PropTypes.bool,
+  isSimplified: PropTypes.bool,
   goBack: PropTypes.func.isRequired,
   toggleControl: PropTypes.func,
   toggleSimpleChat: PropTypes.func,
@@ -123,7 +123,7 @@ Tools.defaultProps = {
   toggleControl: null,
   toggleSimpleChat: null,
   referencing: false,
-  simpleChat: false,
+  isSimplified: false,
   clearReference: null,
   startNewReference: null,
   lastEvent: null,
