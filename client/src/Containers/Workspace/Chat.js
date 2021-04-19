@@ -12,6 +12,7 @@ import { Chat as ChatLayout } from '../../Components';
 class Chat extends Component {
   state = {
     newMessage: '',
+    pendingUsers: {},
   };
 
   chatInput = React.createRef();
@@ -38,10 +39,57 @@ class Chat extends Component {
         addToLog(data);
         // this.scrollToBottom()
       });
+      socket.removeAllListeners('PENDING_MESSAGE');
+      socket.on('PENDING_MESSAGE', (data) => {
+        this.handlePending(data);
+      });
     }
   }
 
+  handlePending = (data) => {
+    // handle data.isTyping boolean
+    const { pendingUsers } = this.state;
+    console.log(data);
+    console.log(pendingUsers);
+    if (!data.isTyping) {
+      const usersObj = Object.assign({}, pendingUsers);
+      const key = data.user.username;
+      // accessing { username: boolean }
+      delete usersObj[key];
+      this.setState({
+        pendingUsers: usersObj,
+      });
+    } else {
+      this.setState({
+        pendingUsers: { ...pendingUsers, [data.user.username]: true },
+      });
+    }
+  };
+
+  sendPending = (isTyping) => {
+    const { roomId, user, myColor } = this.props;
+    const messageData = {
+      _id: mongoIdGenerator(),
+      user: { _id: user._id, username: user.username },
+      room: roomId,
+      color: myColor,
+      isTyping,
+      timestamp: new Date().getTime(),
+    };
+
+    socket.emit('PENDING_MESSAGE', messageData, (res, err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+  };
+
   changeHandler = (event) => {
+    if (event.target.value === '') {
+      this.sendPending(false);
+    } else {
+      this.sendPending(true);
+    }
     this.setState({
       newMessage: event.target.value,
     });
@@ -60,6 +108,7 @@ class Chat extends Component {
       log,
     } = this.props;
     const { newMessage } = this.state;
+    this.sendPending(false);
     if (!user.connected) {
       // eslint-disable-next-line no-alert
       window.alert(
@@ -141,9 +190,10 @@ class Chat extends Component {
   };
 
   render() {
-    const { newMessage } = this.state;
+    const { newMessage, pendingUsers } = this.state;
     return (
       <ChatLayout
+        pendingUsers={pendingUsers}
         change={this.changeHandler}
         submit={this.submitMessage}
         value={newMessage}

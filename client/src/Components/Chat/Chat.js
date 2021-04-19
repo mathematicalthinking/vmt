@@ -286,6 +286,7 @@ class Chat extends Component {
       startNewReference,
       goToReplayer,
       createActivity,
+      pendingUsers,
     } = this.props;
     const { settings, highlightedMessage, hasNewMessages } = this.state;
     let displayMessages = [];
@@ -394,6 +395,7 @@ class Chat extends Component {
               New Messages
             </Button>
           )}
+          <Pending pendingUsers={pendingUsers} />
           {!replayer ? (
             <div className={classes.ChatInput}>
               <input
@@ -458,6 +460,11 @@ class Chat extends Component {
   }
 }
 
+function Pending({ pendingUsers }) {
+  if (Object.keys(pendingUsers).length === 0) return null;
+  return 'Heya';
+}
+
 // @todo we need to consider making a different component for replayer chat or conditionally requiring many of these props (like change and submit) if this is NOT a replayer chat
 Chat.propTypes = {
   user: (props) => {
@@ -489,6 +496,7 @@ Chat.propTypes = {
   eventsWithRefs: PropTypes.arrayOf(PropTypes.shape({})),
   goToReplayer: PropTypes.func,
   createActivity: PropTypes.func,
+  pendingUsers: PropTypes.shape({}),
 };
 
 Chat.defaultProps = {
@@ -513,6 +521,7 @@ Chat.defaultProps = {
   eventsWithRefs: [],
   goToReplayer: null,
   createActivity: null,
+  pendingUsers: null,
 };
 
 export default Chat;
