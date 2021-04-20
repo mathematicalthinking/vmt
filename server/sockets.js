@@ -201,6 +201,10 @@ module.exports = function() {
         });
     });
 
+    socket.on('PENDING_MESSAGE', (data) => {
+      socket.broadcast.to(data.room).emit('PENDING_MESSAGE', { ...data });
+    });
+
     socket.on('TAKE_CONTROL', async (data, callback) => {
       // console.log('TAKE_CONTROL', data);
       // console.log('user with data: ', data.user);

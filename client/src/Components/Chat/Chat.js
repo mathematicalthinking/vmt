@@ -6,6 +6,7 @@ import find from 'lodash/find';
 import Modal from '../UI/Modal/Modal';
 import Message from './Message';
 import Event from './Event';
+import Pending from './Pending';
 import classes from './chat.css';
 import Button from '../UI/Button/Button';
 
@@ -281,10 +282,12 @@ class Chat extends Component {
       expanded,
       referToEl,
       referencing,
+      isSimplified,
       user,
       startNewReference,
       goToReplayer,
       createActivity,
+      pendingUsers,
     } = this.props;
     const { settings, highlightedMessage, hasNewMessages } = this.state;
     let displayMessages = [];
@@ -325,6 +328,7 @@ class Chat extends Component {
               highlighted={highlighted}
               reference={reference}
               referencing={referencing}
+              isSimplified={isSimplified}
             />
           );
         }
@@ -364,7 +368,10 @@ class Chat extends Component {
                   {user.connected ? '' : 'disconnected!'}
                 </div>
                 <i
-                  onClick={() => this.setState({ settings: true })}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    this.setState({ settings: true });
+                  }}
                   onKeyPress={() => this.setState({ settings: true })}
                   className={['fas fa-ellipsis-v', classes.Settings].join(' ')}
                   tabIndex="-1"
@@ -389,6 +396,7 @@ class Chat extends Component {
               New Messages
             </Button>
           )}
+          <Pending pendingUsers={pendingUsers} />
           {!replayer ? (
             <div className={classes.ChatInput}>
               <input
@@ -464,6 +472,7 @@ Chat.propTypes = {
   },
   toggleExpansion: PropTypes.func,
   referencing: PropTypes.bool,
+  isSimplified: PropTypes.bool,
   referToEl: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]),
   referFromEl: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]),
   setFromElAndCoords: PropTypes.func,
@@ -483,6 +492,7 @@ Chat.propTypes = {
   eventsWithRefs: PropTypes.arrayOf(PropTypes.shape({})),
   goToReplayer: PropTypes.func,
   createActivity: PropTypes.func,
+  pendingUsers: PropTypes.shape({}),
 };
 
 Chat.defaultProps = {
@@ -496,6 +506,7 @@ Chat.defaultProps = {
   change: null,
   submit: null,
   referencing: false,
+  isSimplified: false,
   setFromElAndCoords: null,
   setToElAndCoords: null,
   startNewReference: null,
@@ -506,6 +517,7 @@ Chat.defaultProps = {
   eventsWithRefs: [],
   goToReplayer: null,
   createActivity: null,
+  pendingUsers: null,
 };
 
 export default Chat;

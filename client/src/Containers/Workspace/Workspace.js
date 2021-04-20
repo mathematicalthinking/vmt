@@ -69,6 +69,7 @@ class Workspace extends Component {
       currentMembers: tempCurrentMembers || populatedRoom.currentMembers,
       referencing: false,
       showingReference: false,
+      isSimplified: false,
       referToEl: null,
       referToCoords: null,
       referFromEl: null,
@@ -439,6 +440,12 @@ class Workspace extends Component {
       referToEl: null,
       referToCoords: null,
     });
+  };
+
+  toggleSimpleChat = () => {
+    this.setState((prevState) => ({
+      isSimplified: !prevState.isSimplified,
+    }));
   };
 
   showReference = (
@@ -826,6 +833,7 @@ class Workspace extends Component {
       role,
       myColor,
       referencing,
+      isSimplified,
       referToEl,
       referToCoords,
       referFromCoords,
@@ -876,6 +884,7 @@ class Workspace extends Component {
         myColor={myColor}
         user={user}
         referencing={referencing}
+        isSimplified={isSimplified}
         referToEl={referToEl}
         referToCoords={referToCoords}
         referFromEl={referFromEl}
@@ -1000,6 +1009,8 @@ class Workspace extends Component {
               toggleControl={this.toggleControl}
               lastEvent={log[log.length - 1]}
               save={save}
+              isSimplified={isSimplified}
+              toggleSimpleChat={this.toggleSimpleChat}
               referencing={referencing}
               startNewReference={this.startNewReference}
               clearReference={this.clearReference}
