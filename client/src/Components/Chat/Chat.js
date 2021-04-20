@@ -59,6 +59,7 @@ class Chat extends Component {
       setToElAndCoords,
       referToEl,
       showingReference,
+      isSimplified,
     } = this.props;
     if (prevProps.log.length !== log.length) {
       // create a ref for the new element
@@ -88,6 +89,10 @@ class Chat extends Component {
         this.chatInput.current,
         this.getRelativeCoords(this.chatInput.current)
       );
+    }
+
+    if (prevProps.isSimplified !== isSimplified) {
+      this.scrollToBottom();
     }
   }
 
@@ -332,9 +337,11 @@ class Chat extends Component {
             />
           );
         }
-        if (!message.synthetic) {
-          // for replayer only. should not show up in chat, only slider
-          return <Event event={message} id={message._id} key={message._id} />;
+        if (!isSimplified) {
+          if (!message.synthetic) {
+            // for replayer only. should not show up in chat, only slider
+            return <Event event={message} id={message._id} key={message._id} />;
+          }
         }
         return null;
       });
