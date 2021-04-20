@@ -16,7 +16,7 @@ function Pending({ pendingUsers }) {
     return shortName;
   };
 
-  if (Object.keys(pendingUsers).length === 0) return null;
+  if (!pendingUsers || Object.keys(pendingUsers).length === 0) return null;
   let statusMessage = '';
   if (Object.keys(pendingUsers).length === 1)
     statusMessage = ` ${nameGen(Object.keys(pendingUsers).join(''))} is typing`;

@@ -161,6 +161,8 @@ class Chat extends Component {
       let toCoords;
       this.currentRefMessageId = messageId;
       if (reference.elementType === 'chat_message') {
+        // escape hatch in case referenced message is not rendred in current display
+        if (!this[`message-${reference.element}`].current) return;
         toCoords = this.getRelativeCoords(
           this[`message-${reference.element}`].current
         );
