@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import Classes from './pending.css';
 
@@ -10,18 +10,16 @@ function Pending({ pendingUsers }) {
   if (Object.keys(pendingUsers).length === 0) return null;
   let statusMessage = '';
   if (Object.keys(pendingUsers).length === 1)
-    statusMessage = ` ${Object.keys(pendingUsers).join(' ')} is typing`;
+    statusMessage = ` ${Object.keys(pendingUsers).join('')} is typing`;
   if (Object.keys(pendingUsers).length > 1)
-    statusMessage = ` ${Object.keys(pendingUsers).join(', ')} are typing`;
+    statusMessage = ` ${Object.keys(pendingUsers).length} users are typing`;
   return (
-    <Fragment>
-      <span className={Classes.Pending}>
-        {statusMessage}
-        <span className={Classes.dot1}>.</span>
-        <span className={Classes.dot2}>.</span>
-        <span className={Classes.dot3}>.</span>
-      </span>
-    </Fragment>
+    <span className={Classes.Pending}>
+      {statusMessage}
+      <span className={Classes.dot1}>.</span>
+      <span className={Classes.dot2}>.</span>
+      <span className={Classes.dot3}>.</span>
+    </span>
   );
 }
 

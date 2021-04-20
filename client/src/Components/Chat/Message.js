@@ -20,14 +20,13 @@ const Message = React.forwardRef((props, ref) => {
   let referenceClass = '';
   let referenceArrow = null;
   const nameGen = () => {
-    let shortned = message.user.username;
+    let shortName = message.user.username;
     const maxLen = 12;
-    if (!isSimplified) return shortned;
-    if (shortned.includes('@'))
-      shortned = shortned.substring(0, shortned.lastIndexOf('@'));
-    if (shortned.length > maxLen) shortned = shortned.substring(0, maxLen);
-    console.log('name: ', shortned);
-    return shortned;
+    if (!isSimplified) return shortName;
+    if (shortName.includes('@'))
+      shortName = shortName.substring(0, shortName.lastIndexOf('@'));
+    if (shortName.length > maxLen) shortName = shortName.substring(0, maxLen);
+    return shortName;
   };
 
   if (highlighted) {
