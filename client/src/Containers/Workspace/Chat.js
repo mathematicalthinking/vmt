@@ -71,7 +71,9 @@ class Chat extends Component {
   };
 
   sendPending = (isTyping) => {
-    const { roomId, user, myColor } = this.props;
+    const { roomId, user, myColor, timeOut: timeID } = this.props;
+    if (!isTyping) clearTimeout(timeID);
+
     const messageData = {
       _id: mongoIdGenerator(),
       user: { _id: user._id, username: user.username },
@@ -115,9 +117,8 @@ class Chat extends Component {
       myColor,
       log,
     } = this.props;
-    const { newMessage, timeOut: timeID } = this.state;
+    const { newMessage } = this.state;
     this.sendPending(false);
-    clearTimeout(timeID);
     if (!user.connected) {
       // eslint-disable-next-line no-alert
       window.alert(
