@@ -227,7 +227,7 @@ class ActivityWorkspace extends Component {
     return (
       <Fragment>
         {!isFirstTabLoaded ? (
-          <Loading message="Preparing your activity..." />
+          <Loading message="Preparing your activity template..." />
         ) : null}
         {activity && activity.tabs[0].name ? (
           <WorkspaceLayout
@@ -293,7 +293,7 @@ class ActivityWorkspace extends Component {
             change={(event) => {
               this.setState({ newName: event.target.value });
             }}
-            label="New Activity Name"
+            label="New Activity Template Name"
           />
           {activity && activity.tabs.length > 1 ? (
             <div>
@@ -309,7 +309,7 @@ class ActivityWorkspace extends Component {
             <div className={ModalClasses.Error}>{copyActivityError}</div>
           ) : null}
 
-          <Button click={this.createNewActivity}>Copy Activity</Button>
+          <Button click={this.createNewActivity}>Copy Activity Template</Button>
         </Modal>
       </Fragment>
     );

@@ -77,7 +77,7 @@ class PrivateAccess extends Component {
   render() {
     const { resource, user, setAdmin, error } = this.props;
     const { show, entryCode } = this.state;
-    let displayResource = 'activity';
+    let displayResource = 'activity template';
     if (resource === 'rooms') displayResource = 'room';
     if (resource === 'courses') displayResource = 'course';
 

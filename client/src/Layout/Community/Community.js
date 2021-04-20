@@ -41,7 +41,7 @@ class Community extends Component {
       <div className={classes.Container}>
         <div className={classes.Header} ref={this.header}>
           <h3 className={classes.Title}>
-            search for activities or ask to join rooms and courses
+            search for activity templates or ask to join rooms and courses
           </h3>
           <div className={classes.ResourceOpts} data-testid="resource-tabs">
             <div>

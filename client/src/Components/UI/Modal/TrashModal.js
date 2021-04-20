@@ -28,7 +28,9 @@ class TrashModal extends Component {
   };
 
   render() {
-    const { show, closeModal, resource } = this.props;
+    const { show, closeModal } = this.props;
+    let { resource } = this.props;
+    if (resource === 'activity') resource = 'activity template';
     return (
       <Modal show={show} closeModal={closeModal}>
         <div>{`Are you sure you want to delete this ${resource}`}?</div>
