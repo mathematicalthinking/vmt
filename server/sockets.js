@@ -255,15 +255,6 @@ module.exports = function() {
       }
     });
 
-    socket.on('SEND_SYNC', async (data) => {
-      try {
-        socket.broadcast.to(data.room).emit('RECEIVE_SYNC', data);
-        // await controllers.events.post(data);
-      } catch (err) {
-        console.log('ERROR SENDING SYNC EVENT: ', err);
-      }
-    });
-
     socket.on('SWITCH_TAB', (data, callback) => {
       controllers.messages
         .post(data)

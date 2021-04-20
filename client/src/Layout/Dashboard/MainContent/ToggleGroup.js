@@ -16,7 +16,7 @@ export default function ToggleGroup(props) {
   };
 
   return (
-    <div className={classes.ToggleGroup} onChange={_onChange}>
+    <div className={classes.ToggleGroup}>
       {buttons.map((buttonName) => {
         return (
           <div key={buttonName} className={classes.ToggleElement}>
@@ -26,6 +26,7 @@ export default function ToggleGroup(props) {
               value={buttonName}
               name={groupName}
               id={buttonName}
+              onChange={_onChange}
               checked={selection === buttonName}
             />
             <label htmlFor={buttonName}>{buttonName}</label>

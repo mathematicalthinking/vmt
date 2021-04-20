@@ -378,3 +378,12 @@ export const createdRoomConfirmed = () => {
     type: actionTypes.CREATE_ROOM_CONFIRMED,
   };
 };
+
+export const updateRoomMonitorSelections = (selections) => {
+  return (dispatch) => {
+    dispatch({
+      type: actionTypes.UPDATED_ROOM_MONITOR_SELECTIONS,
+      roomMonitorSelections: selections,
+    });
+  };
+};

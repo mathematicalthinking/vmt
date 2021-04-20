@@ -116,9 +116,9 @@ class GgbGraph extends Component {
       this.handleUpdate(data);
     });
 
-    // socket.on('FORCE_SYNC', (data) => {
-    //   this.forceGgbSync(data);
-    // });
+    //   socket.on('FORCE_SYNC', (data) => {
+    //     this.forceGgbSync(data);
+    //   });
   }
 
   /**
@@ -207,8 +207,6 @@ class GgbGraph extends Component {
 
     // switching tab
     if (prevProps.currentTabId !== currentTabId) {
-      // this.forceGgbSync(tab);
-      // this.resyncGgbState();
       this.updateDimensions();
     }
 
@@ -2093,37 +2091,6 @@ class GgbGraph extends Component {
     }
   }
 
-  // forceGgbSync(data) {
-  //   const { tab } = this.props;
-  //   const tabData = data.tabs ? data.tabs : data;
-  //   this.receivingData = true;
-  //   tabData.forEach((t) => {
-  //     if (t._id === tab._id) {
-  //       if (tab.currentStateBase64) {
-  //         this.didResync = true;
-  //         this.setGgbBase64(tab.currentStateBase64);
-  //       } else {
-  //         this.ggbApplet.setXML(tab.currentState);
-  //         this.registerListeners(); // always reset listeners after calling sextXML (setXML destorys everything)
-  //       }
-  //     }
-  //   });
-  //   this.receivingData = false;
-  // }
-
-  // Alternative control strategy logic
-  // hasControl = () => {
-  //   const { inControl } = this.props;
-  //   return inControl === 'ME';
-  // };
-
-  // checkForControl = (event) => {
-  //   if (!this.hasControl()) {
-  //     event.preventDefault();
-  //     this.setState({ showControlWarning: true });
-  //   }
-  // };
-
   render() {
     const { tab, toggleControl, inControl, user } = this.props;
     const { showControlWarning, redo } = this.state;
@@ -2138,18 +2105,6 @@ class GgbGraph extends Component {
           id={`ggb-element${tab._id}A`}
           ref={this.graph}
         />
-        {/* Alternative control stragey render */}
-        {/* <span
-          onClickCapture={this.checkForControl.bind(this)}
-          onKeyPressCapture={this.checkForControl.bind(this)}
-        >
-          <div
-            className={classes.Graph}
-            id={`ggb-element${tab._id}A`}
-            ref={this.graph}
-            style={{ pointerEvents: this.hasControl() ? 'auto' : 'none' }}
-          />
-        </span> */}
         <ControlWarningModal
           showControlWarning={showControlWarning}
           toggleControlWarning={async () => {

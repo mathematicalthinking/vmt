@@ -227,3 +227,20 @@
 .MoreMenuOption {
   margin: 10px;
 }
+
+.NewMessages {
+  z-index: 1;
+  background-color: blueHover;
+  color: white;
+  font-size: 0.75em;
+  position: relative;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  border-radius: 10px;
+}
+
+.NewMessages:hover {
+  background-color: blue;
+}

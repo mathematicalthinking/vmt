@@ -1,6 +1,6 @@
 # VMT (Virutal Math Teams) Env Guide
 
-Below are examples intended to help in configuring the .env files for VMT.
+Below are examples intended to help in configuring the .env files for VMT. Remove placeholders as needed for deployment. 
 
 ## 1. Client
 

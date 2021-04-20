@@ -20,6 +20,7 @@ class Chat extends Component {
       chatInputCoords: null,
       highlightedMessage: null,
       settings: false,
+      hasNewMessages: false,
     };
     this.chatContainer = React.createRef();
     this.chatInput = chatInput || React.createRef();
@@ -61,7 +62,8 @@ class Chat extends Component {
     if (prevProps.log.length !== log.length) {
       // create a ref for the new element
       this[`message-${log[log.length - 1]._id}`] = React.createRef();
-      this.scrollToBottom();
+      if (this.nearBottom()) this.scrollToBottom();
+      else this.setState({ hasNewMessages: true });
     } else if (!prevProps.referencing && referencing) {
       setFromElAndCoords(
         this.chatInput.current,
@@ -120,6 +122,18 @@ class Chat extends Component {
   scrollToBottom = () => {
     this.chatEnd.current.scrollTop = this.chatEnd.current.scrollHeight;
     // window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
+  };
+
+  nearBottom = () => {
+    const chat = this.chatEnd.current;
+    return (
+      chat.scrollHeight - Math.floor(chat.scrollTop) - chat.clientHeight - 100 <
+      0
+    );
+  };
+
+  clearNewMessages = () => {
+    this.setState({ hasNewMessages: false });
   };
 
   showReference = (event, reference, messageId) => {
@@ -181,7 +195,10 @@ class Chat extends Component {
     setToElAndCoords({ element: id, elementType: 'chat_message' }, position);
   };
 
-  scrollHandler = () => {};
+  scrollHandler = () => {
+    this.updateReferencePositions();
+    if (this.nearBottom()) this.clearNewMessages();
+  };
 
   updateReferencePositions = () => {
     const {
@@ -269,7 +286,7 @@ class Chat extends Component {
       goToReplayer,
       createActivity,
     } = this.props;
-    const { settings, highlightedMessage } = this.state;
+    const { settings, highlightedMessage, hasNewMessages } = this.state;
     let displayMessages = [];
     if (log) {
       displayMessages = log.map((message) => {
@@ -362,11 +379,16 @@ class Chat extends Component {
             className={expanded ? classes.ChatScroll : classes.Collapsed}
             data-testid="chat"
             ref={this.chatEnd}
-            onScroll={this.updateReferencePositions}
+            onScroll={this.scrollHandler}
             id="scrollable"
           >
             {displayMessages}
           </div>
+          {hasNewMessages && (
+            <Button click={this.scrollToBottom} theme="xs">
+              New Messages
+            </Button>
+          )}
           {!replayer ? (
             <div className={classes.ChatInput}>
               <input
