@@ -79,7 +79,7 @@ class WorkspaceLayout extends Component {
     }
     let chatFlexGrow = 2;
     let membersFlexGrow = 1;
-    let chatFlexBasis = '66%';
+    let chatFlexBasis = '50%';
     let membersFlexBasis = '20%';
     if (!chatExpanded) {
       chatFlexGrow = 0;
