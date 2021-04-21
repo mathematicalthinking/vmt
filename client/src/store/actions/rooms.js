@@ -379,11 +379,11 @@ export const createdRoomConfirmed = () => {
   };
 };
 
-export const updateRoomMonitorSelections = (selections) => {
+export const updateMonitorSelections = (selections) => {
   return (dispatch) => {
     dispatch({
-      type: actionTypes.UPDATED_ROOM_MONITOR_SELECTIONS,
-      roomMonitorSelections: selections,
+      type: actionTypes.UPDATE_MONITOR_SELECTIONS,
+      monitorSelections: selections,
     });
   };
 };

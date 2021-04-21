@@ -38,7 +38,7 @@ import {
   RadioBtn,
 } from '../../Components';
 import NewTabForm from '../Create/NewTabForm';
-import { socket } from '../../utils';
+import { socket, useSnapshots } from '../../utils';
 import API from '../../utils/apiRequests';
 import modalClasses from '../../Components/UI/Modal/modal.css';
 import createClasses from '../Create/create.css';
@@ -61,6 +61,9 @@ class Workspace extends Component {
       }
     }
     this.state = {
+      stopSnapshots: () => {},
+      takeSnapshot: () => {},
+      snapshotRef: React.createRef(),
       tabs: populatedRoom.tabs || [],
       log: populatedRoom.log || [],
       myColor,
@@ -125,9 +128,29 @@ class Workspace extends Component {
     this.initializeListeners();
     window.addEventListener('resize', this.resizeHandler);
     window.addEventListener('keydown', this.keyListener);
+
+    //    set up the snapshots
+    const roomId = populatedRoom._id;
+    if (roomId && roomId !== '') {
+      const { stopSnapshots, elementRef, takeSnapshot } = useSnapshots(
+        (data) => {
+          const { currentScreen } = this.props;
+          const { currentTabId } = this.state;
+          API.put('rooms', roomId, {
+            snapshot: {
+              ...populatedRoom.snapshot,
+              [`${currentTabId}SCREEN_${currentScreen || ''}`]: data,
+            },
+          });
+        }
+      );
+      this.setState({ stopSnapshots, takeSnapshot, snapshotRef: elementRef });
+    }
   }
 
   componentDidUpdate(prevProps) {
+    // @TODO populatedRoom.controlledBy is ALWAYS null! Should use
+    // controlledBy in the state instead.
     const { populatedRoom, user, temp, lastMessage } = this.props;
     if (
       prevProps.populatedRoom.controlledBy === null &&
@@ -154,6 +177,9 @@ class Workspace extends Component {
     if (prevProps.user.inAdminMode !== user.inAdminMode) {
       this.goBack();
     }
+
+    const { takeSnapshot, controlledBy } = this.state;
+    if (controlledBy === user._id) takeSnapshot();
   }
 
   componentWillUnmount() {
@@ -165,6 +191,9 @@ class Workspace extends Component {
     if (this.controlTimer) {
       clearTimeout(this.controlTimer);
     }
+
+    const { stopSnapshots } = this.state;
+    stopSnapshots(); // if Workspace were a functional component, we'd do this directly in the custom hook.
   }
 
   addToLog = (entry) => {
@@ -852,6 +881,7 @@ class Workspace extends Component {
       isCreatingActivity,
       createActivityError,
       newResourceType,
+      snapshotRef,
     } = this.state;
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
@@ -996,6 +1026,7 @@ class Workspace extends Component {
           <Loading message="Preparing your room..." />
         ) : null}
         <WorkspaceLayout
+          snapshotRef={snapshotRef}
           graphs={graphs}
           roomName={populatedRoom.name}
           user={user}
@@ -1144,6 +1175,7 @@ Workspace.propTypes = {
   tempMembers: PropTypes.arrayOf(PropTypes.shape({})),
   lastMessage: PropTypes.shape({}),
   user: PropTypes.shape({}).isRequired,
+  currentScreen: PropTypes.string.isRequired,
   temp: PropTypes.bool,
   history: PropTypes.shape({}).isRequired,
   save: PropTypes.func,
@@ -1164,9 +1196,16 @@ Workspace.defaultProps = {
   temp: false,
 };
 const mapStateToProps = (state, ownProps) => {
+  const { tabs } = state.rooms.byId[ownProps.populatedRoom._id];
+  const currentTabId = ownProps.populatedRoom.tabs[0]._id;
+  const currentTabInfo = tabs.find((tab) => {
+    return tab._id === currentTabId;
+  });
+
   return {
     user: state.user._id ? state.user : ownProps.user, // with tempWorkspace we won't have a user in the store
     loading: state.loading.loading,
+    currentScreen: currentTabInfo.currentScreen,
   };
 };
 
