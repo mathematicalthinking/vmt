@@ -183,17 +183,17 @@ class Activity extends Component {
         ),
       };
 
-      let crumbs = [{ title: 'My VMT', link: '/myVMT/activities' }];
+      let crumbs = [{ title: 'My VMT', link: '/myVMT/templates' }];
       if (course) {
         crumbs = [
           { title: 'My VMT', link: '/myVMT/courses' },
           {
             title: `${course.name}`,
-            link: `/myVMT/courses/${course._id}/activities`,
+            link: `/myVMT/courses/${course._id}/templates`,
           },
           {
             title: `${activity.name}`,
-            link: `/myVMT/courses/${course._id}/activities/${
+            link: `/myVMT/courses/${course._id}/templates/${
               activity._id
             }/details`,
           },
@@ -201,7 +201,7 @@ class Activity extends Component {
       } else {
         crumbs.push({
           title: `${activity.name}`,
-          link: `/myVMT/activities/${activity._id}/details`,
+          link: `/myVMT/templates/${activity._id}/details`,
         });
       }
 
@@ -280,12 +280,12 @@ class Activity extends Component {
                         style={{
                           display: editing ? 'none' : 'block',
                         }}
-                        data-testid="edit-activity"
+                        data-testid="edit-template"
                         onClick={this.toggleEdit}
                         onKeyPress={this.toggleEdit}
                         tabIndex="-1"
                       >
-                        Edit Activity Template <i className="fas fa-edit" />
+                        Edit Template <i className="fas fa-edit" />
                       </div>
                       {editing ? (
                         // @TODO this should be a resuable component
@@ -297,14 +297,14 @@ class Activity extends Component {
                         >
                           <Button
                             click={this.updateActivity}
-                            data-testid="save-activity"
+                            data-testid="save-template"
                             theme="Small"
                           >
                             Save
                           </Button>
                           <Button
                             click={this.trashActivity}
-                            data-testid="trash-activity"
+                            data-testid="trash-template"
                             theme="Danger"
                           >
                             <i className="fas fa-trash-alt" />
@@ -343,7 +343,7 @@ class Activity extends Component {
     return (
       <Access
         closeModal={() =>
-          history.push('/community/activities?privacy=all&roomType=all')
+          history.push('/community/templates?privacy=all&roomType=all')
         }
         resource="activities"
         resourceId={match.params.activity_id}

@@ -1,45 +1,40 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import { useQuery } from 'react-query';
 import API from '../../utils/apiRequests';
 import buildLog from '../../utils/buildLog';
 import Loading from '../../Components/Loading/Loading';
 
 function withPopulatedRoom(WrappedComponent) {
-  class PopulatedRoom extends Component {
-    state = {
-      loading: true,
-    };
-
-    componentDidMount() {
-      const { match } = this.props;
-      API.getPopulatedById('rooms', match.params.room_id, false, true)
-        .then((res) => {
-          this.populatedRoom = res.data.result;
-          this.populatedRoom.log = buildLog(
-            this.populatedRoom.tabs,
-            this.populatedRoom.chat
-          );
-          this.setState({ loading: false });
-        })
-        .catch(() => {
-          console.log(
-            'we should probably just go back to the previous page? maybe display the error'
-          );
-        });
-    }
-    render() {
-      const { history } = this.props;
-      const { loading } = this.state;
-      if (loading) {
-        return <Loading message="Fetching your room..." />;
+  function PopulatedRoom(props) {
+    const { match, history } = props;
+    const { isLoading, isSuccess, data, error, isError } = useQuery(
+      match.params.room_id,
+      async () => {
+        // eslint-disable-next-line no-return-await
+        return await API.getPopulatedById(
+          'rooms',
+          match.params.room_id,
+          false,
+          true
+        );
       }
+    );
 
+    if (isLoading) {
+      return <Loading message="Fetching your room..." />;
+    }
+
+    if (isSuccess) {
+      const populatedRoom = data.data.result;
+      populatedRoom.log = buildLog(populatedRoom.tabs, populatedRoom.chat);
       return (
-        <WrappedComponent
-          populatedRoom={this.populatedRoom}
-          history={history}
-        />
+        <WrappedComponent populatedRoom={populatedRoom} history={history} />
       );
+    }
+
+    if (isError) {
+      console.log(error);
     }
   }
 

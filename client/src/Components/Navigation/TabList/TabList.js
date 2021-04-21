@@ -22,7 +22,7 @@ const TabList = (props) => {
         className={style}
         data-testid="tab"
       >
-        {tab.name}
+        {tab.name === 'Activities' ? 'Templates' : tab.name}
         {tab.notifications ? (
           <div className={classes.Notifications} data-testid="tab-ntf">
             {/* <span className={classes.NotificationCount}>

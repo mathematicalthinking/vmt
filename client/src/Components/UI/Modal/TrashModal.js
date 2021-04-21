@@ -7,7 +7,7 @@ import Button from '../Button/Button';
 const hash = {
   course: 'courses',
   room: 'rooms',
-  activity: 'activities',
+  activity: 'templates',
 };
 class TrashModal extends Component {
   trashResource = () => {
@@ -30,7 +30,7 @@ class TrashModal extends Component {
   render() {
     const { show, closeModal } = this.props;
     let { resource } = this.props;
-    if (resource === 'activity') resource = 'activity template';
+    if (resource === 'activity') resource = 'template';
     return (
       <Modal show={show} closeModal={closeModal}>
         <div>{`Are you sure you want to delete this ${resource}`}?</div>
