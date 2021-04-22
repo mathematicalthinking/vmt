@@ -2,14 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classes from './Slider.css';
 
-const Slider = ({ onClick, isOn, 'data-testid': dataTestId }) => {
+const Slider = ({ action, isOn, 'data-testid': dataTestId, name }) => {
   return (
-    <label className={classes.Switch} htmlFor="referencing">
+    <label className={classes.Switch} htmlFor={name}>
       <input
+        name={name}
         type="checkbox"
         checked={isOn}
-        onChange={onClick}
-        id="referencing"
+        onChange={action}
+        id={name}
         data-testid={dataTestId}
       />
       <span className={classes.Slider} />
@@ -18,9 +19,10 @@ const Slider = ({ onClick, isOn, 'data-testid': dataTestId }) => {
 };
 
 Slider.propTypes = {
-  onClick: PropTypes.func.isRequired,
+  action: PropTypes.func.isRequired,
   isOn: PropTypes.bool.isRequired,
   'data-testid': PropTypes.string.isRequired,
+  name: PropTypes.func.isRequired,
 };
 
 export default Slider;

@@ -3,6 +3,7 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Message from './Message';
 import ChatClasses from './chat.css';
+import { Button } from '..';
 
 /**
  * A simplifield version of Chat, which uses some of the original's CSS.
@@ -11,44 +12,28 @@ import ChatClasses from './chat.css';
 
 function SimpleChat({ log }) {
   const chatScroll = React.createRef();
-  const [showModal, setShowModal] = React.useState(false);
-  const previousInfo = React.useRef();
+  const [showNewMessages, setShowNewMessages] = React.useState(false);
+
+  const _scrollToBottom = () => {
+    const chat = chatScroll.current;
+    chat.scrollTop = chat.scrollHeight;
+  };
+
+  const _isNearBottom = () => {
+    const chat = chatScroll.current;
+    return (
+      chat.scrollHeight - Math.floor(chat.scrollTop) - chat.clientHeight - 100 <
+      0
+    );
+  };
 
   React.useEffect(() => {
-    const previous = previousInfo.current;
-    previousInfo.current = {
-      height: chatScroll.current.scrollHeight,
-      top: chatScroll.current.scrollTop,
-    };
-    const nonScrollToScroll =
-      previous &&
-      previous.height < chatScroll.current.clientHeight &&
-      chatScroll.current.scrollHeight >= chatScroll.current.clientHeight;
+    _scrollToBottom();
+  }, []);
 
-    // For some reason, there's some imprecision in the client height,
-    // so if we're within 60px of the bottom, we say we are at the bottom.
-    const wasAtBottom =
-      previous &&
-      previous.height -
-        Math.floor(previous.top) -
-        chatScroll.current.clientHeight -
-        60 <
-        0;
-
-    // If this is the first time here, or we hadn't been scrollable but now we are, then
-    // scroll to the bottom
-    if (!previous || nonScrollToScroll || wasAtBottom) {
-      chatScroll.current.scrollTop = chatScroll.current.scrollHeight;
-      return;
-    }
-
-    // do nothing if we don't need to scroll
-    if (chatScroll.current.scrollHeight < chatScroll.current.clientHeight)
-      return;
-
-    // If we do need to scroll and we weren't at the bottom (i.e., all other cases),
-    // show that there's new messages
-    setShowModal(true);
+  React.useEffect(() => {
+    if (_isNearBottom()) _scrollToBottom();
+    else setShowNewMessages(true);
   }, [log]);
 
   return (
@@ -58,7 +43,9 @@ function SimpleChat({ log }) {
         data-testid="chat"
         id="scrollable"
         ref={chatScroll}
-        onScroll={() => setShowModal(false)}
+        onScroll={() => {
+          if (_isNearBottom()) setShowNewMessages(false);
+        }}
       >
         {!log.length
           ? 'No logs for this room'
@@ -77,45 +64,25 @@ function SimpleChat({ log }) {
               );
             })}
       </div>
-      <NewMessages show={showModal} />
+      {showNewMessages && (
+        <Button
+          click={() => {
+            _scrollToBottom();
+            setShowNewMessages(false);
+          }}
+          theme="xs"
+        >
+          &#8595; New Messages &#8595;
+        </Button>
+      )}
     </Fragment>
   );
 }
-
-/**
- * NewMessages is a small alert for when there are new log messages
- * that the user might not see.
- */
-const NewMessages = (props) => {
-  const { show } = props;
-  return show ? (
-    <div
-      style={{
-        zIndex: 1,
-        backgroundColor: 'blue',
-        color: 'white',
-        fontSize: '9px',
-        position: 'relative',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        textAlign: 'center',
-        borderRadius: '10px',
-      }}
-    >
-      New Messages
-    </div>
-  ) : null;
-};
 
 SimpleChat.propTypes = {
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 SimpleChat.defaultProps = {};
-
-NewMessages.propTypes = {
-  show: PropTypes.bool.isRequired,
-};
 
 export default SimpleChat;

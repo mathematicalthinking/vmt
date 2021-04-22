@@ -12,12 +12,13 @@ function withPopulatedRoom(WrappedComponent) {
       match.params.room_id,
       async () => {
         // eslint-disable-next-line no-return-await
-        return await API.getPopulatedById(
+        const { data: response } = await API.getPopulatedById(
           'rooms',
           match.params.room_id,
           false,
           true
         );
+        return response;
       }
     );
 
@@ -26,7 +27,7 @@ function withPopulatedRoom(WrappedComponent) {
     }
 
     if (isSuccess) {
-      const populatedRoom = data.data.result;
+      const populatedRoom = data.result;
       populatedRoom.log = buildLog(populatedRoom.tabs, populatedRoom.chat);
       return (
         <WrappedComponent populatedRoom={populatedRoom} history={history} />
