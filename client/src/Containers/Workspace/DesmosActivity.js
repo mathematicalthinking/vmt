@@ -78,17 +78,25 @@ const DesmosActivity = (props) => {
     return `${username} interacted with the Activity`;
   };
 
-  // listener and persistent state handler
+  // listener and event state handlers
+  // Persistent Events
   useEffect(() => {
-    // console.log('~~~~~~activityUpdate listener~~~~~~~~~');
-    // console.log("Updates...: ", activityUpdates);
+    const type = 'persistent';
     if (props.inControl === 'ME') {
-      handleResponseData(activityUpdates);
+      handleResponseData(activityUpdates, type);
     }
-  }, [activityUpdates, screenPage]);
+  }, [activityUpdates]);
+  // Transient Events
+  useEffect(() => {
+    const type = 'transient';
+    if (props.inControl === 'ME') {
+      handleResponseData(transientUpdates, type);
+    }
+  }, [transientUpdates]);
+
   // Event listener callback on the persistent Activity instance
-  const handleResponseData = (updates) => {
-    const transient = updates ? !!updates.type : false;
+  const handleResponseData = (updates, type) => {
+    const transient = type === 'transient';
     if (initializing) return;
     const { room, user, myColor, tab, resetControlTimer } = props;
     const currentState = {
@@ -102,6 +110,7 @@ const DesmosActivity = (props) => {
         updates
         // stateDifference
       );
+      console.log('Sent state: ', currentState);
 
       const currentStateString = JSON.stringify(currentState);
       // console.log(this.calculator.getState());
@@ -127,15 +136,6 @@ const DesmosActivity = (props) => {
     receivingData = false;
   };
 
-  // Handle the update of the Activity Player state
-
-  // listener on the transient state
-  useEffect(() => {
-    if (props.inControl === 'ME') {
-      handleResponseData(transientUpdates);
-    }
-  }, [transientUpdates]);
-
   function initializeListeners() {
     // INITIALIZE EVENT LISTENER
     const { tab, updatedRoom, addNtfToTabs, addToLog } = props;
@@ -157,7 +157,12 @@ const DesmosActivity = (props) => {
         // updatedRoom(room._id, { tabs: updatedTabs });
         const updatesState = JSON.parse(data.currentState);
         console.log('Received state: ', updatesState);
-        // console.log('Received data: ', updatesState);
+        if (
+          updatesState.screen !== calculatorInst.current.getActiveScreenIndex()
+        ) {
+          setScreenPage(updatesState.screen + 1);
+          setShowControlWarning(false);
+        }
         // set persistent state
         if (updatesState.desmosState && !updatesState.transient) {
           calculatorInst.current.dangerouslySetResponses(
@@ -165,13 +170,6 @@ const DesmosActivity = (props) => {
           );
         } else if (updatesState.desmosState && updatesState.transient) {
           calculatorInst.current.handleSyncEvent(updatesState.desmosState);
-        }
-        if (
-          updatesState.screen !== calculatorInst.current.getActiveScreenIndex()
-        ) {
-          calculatorInst.current.setActiveScreenIndex(updatesState.screen);
-          setScreenPage(updatesState.screen + 1);
-          setShowControlWarning(false);
         }
       } else {
         addNtfToTabs(data.tab);
@@ -328,7 +326,7 @@ const DesmosActivity = (props) => {
           pointerEvents: !_hasControl() ? 'none' : 'auto',
         }}
       >
-        {backBtn && (
+        {_hasControl() && backBtn && (
           <Button theme="Small" id="nav-left" click={() => navigateBy(-1)}>
             Prev
           </Button>
@@ -336,7 +334,7 @@ const DesmosActivity = (props) => {
         <span id="show-screen" className={classes.Title}>
           Screen {screenPage}
         </span>
-        {fwdBtn && (
+        {_hasControl() && fwdBtn && (
           <Button theme="Small" id="nav-right" click={() => navigateBy(1)}>
             Next
           </Button>
