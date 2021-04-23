@@ -11,6 +11,7 @@ import { Button } from '..';
  */
 
 function SimpleChat({ log }) {
+  if (!log) log = [];
   const chatScroll = React.createRef();
   const [showNewMessages, setShowNewMessages] = React.useState(false);
 
