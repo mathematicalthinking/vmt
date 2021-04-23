@@ -326,7 +326,7 @@ class Chat extends Component {
                   click={this.createActivity}
                   data-testid="create-workspace"
                 >
-                  Create Activity or Room
+                  Create Template or Room
                 </Button>
               </div>
             ) : null}

@@ -15,9 +15,10 @@ const ActivityTools = (props) => {
               As the owner of this template you can make changes to initial
               construction.
             </p>
+            <br />
             <p>
               Once you are ready to collaborate on this template you can click
-              &#147; Exit Template &#148; and then select &#147;Assign
+              &#147;Exit Template&#148; and then select &#147;Assign
               Template&#148;. You can then decide who you want to collaborate
               with.
             </p>
@@ -34,6 +35,18 @@ const ActivityTools = (props) => {
               >
                 here
               </Link>
+              {'. '}
+              Desmos Activity editing is not yet supported on VMT and must be
+              edited at{' '}
+              <a
+                className={classes.Link}
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://teacher.desmos.com/"
+                data-testid="desmos-link"
+              >
+                teacher.desmos.com
+              </a>
             </p>
             <div className={classes.Save}>
               <div

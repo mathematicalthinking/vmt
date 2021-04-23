@@ -1114,7 +1114,7 @@ class Workspace extends Component {
           }
         >
           <p style={{ marginBottom: 10 }}>
-            Create a new Room or Activity based on this room
+            Create a new Room or Template based on this room
           </p>
           <div className={createClasses.RadioButtons}>
             <RadioBtn
@@ -1122,7 +1122,7 @@ class Workspace extends Component {
               checked={newResourceType === 'activity'}
               check={() => this.setNewResourceType('activity')}
             >
-              Activity
+              Template
             </RadioBtn>
             <RadioBtn
               name="room"
@@ -1141,7 +1141,9 @@ class Workspace extends Component {
             change={(event) => {
               this.setState({ newName: event.target.value });
             }}
-            label={`New ${newResourceType} Name`}
+            label={`New ${
+              newResourceType === 'room' ? 'room' : 'template'
+            } Name`}
           />
           {currentTabs && currentTabs.length > 1 ? (
             <div>
@@ -1161,7 +1163,7 @@ class Workspace extends Component {
             data-testid={`create-new-${newResourceType}`}
             click={this.createNewActivityOrRoom}
           >
-            Create {newResourceType}
+            Create {newResourceType === 'room' ? 'room' : 'template'}
           </Button>
         </Modal>
       </Fragment>

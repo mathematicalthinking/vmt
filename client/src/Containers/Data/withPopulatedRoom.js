@@ -26,7 +26,7 @@ function withPopulatedRoom(WrappedComponent) {
       return <Loading message="Fetching your room..." />;
     }
 
-    if (isSuccess) {
+    if (isSuccess && data.result) {
       const populatedRoom = data.result;
       populatedRoom.log = buildLog(populatedRoom.tabs, populatedRoom.chat);
       return (
