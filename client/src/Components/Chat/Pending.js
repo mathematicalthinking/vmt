@@ -7,10 +7,19 @@ import Classes from './pending.css';
  */
 
 function Pending({ pendingUsers }) {
-  if (Object.keys(pendingUsers).length === 0) return null;
+  const nameGen = (username) => {
+    let shortName = username;
+    const maxLen = 12;
+    if (shortName.includes('@'))
+      shortName = shortName.substring(0, shortName.lastIndexOf('@'));
+    if (shortName.length > maxLen) shortName = shortName.substring(0, maxLen);
+    return shortName;
+  };
+
+  if (!pendingUsers || Object.keys(pendingUsers).length === 0) return null;
   let statusMessage = '';
   if (Object.keys(pendingUsers).length === 1)
-    statusMessage = ` ${Object.keys(pendingUsers).join('')} is typing`;
+    statusMessage = ` ${nameGen(Object.keys(pendingUsers).join(''))} is typing`;
   if (Object.keys(pendingUsers).length > 1)
     statusMessage = ` ${Object.keys(pendingUsers).length} users are typing`;
   return (

@@ -18,7 +18,7 @@ class Step2Copy extends Component {
     const { activityList } = this.state;
     return (
       <Aux>
-        <p>Select one or many activities to copy</p>
+        <p>Select one or many templates to copy</p>
         <SelectionList
           listToSelectFrom={activityList}
           selectItem={addActivity}

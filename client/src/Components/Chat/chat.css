@@ -244,3 +244,50 @@
 .NewMessages:hover {
   background-color: blue;
 }
+
+.DropdownContainer {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.DropdownContent {
+  display: none;
+  position: absolute;
+  top: 12px;
+  left: auto;
+  right: 0;
+  z-index: 1000;
+  box-shadow: lightShadow;
+  background: white;
+  color: white;
+  border: 1px solid #ddd;
+  min-width: 150px;
+  width: max-content;
+  flex-flow: column;
+  transition: 0.2s;
+}
+
+.DropdownItem {
+  margin: 8px 0;
+}
+
+.DropdownContainer:hover .DropdownContent {
+  display: flex;
+  animation: showDropdown 0.2s;
+}
+
+@keyframes showDropdown {
+  /* style rules */
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

@@ -3,7 +3,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import find from 'lodash/find';
-import Modal from '../UI/Modal/Modal';
+// import Modal from '../UI/Modal/Modal';
 import Message from './Message';
 import Event from './Event';
 import Pending from './Pending';
@@ -20,7 +20,7 @@ class Chat extends Component {
       chatCoords: null,
       chatInputCoords: null,
       highlightedMessage: null,
-      settings: false,
+      // settings: false,
       hasNewMessages: false,
     };
     this.chatContainer = React.createRef();
@@ -59,6 +59,7 @@ class Chat extends Component {
       setToElAndCoords,
       referToEl,
       showingReference,
+      isSimplified,
     } = this.props;
     if (prevProps.log.length !== log.length) {
       // create a ref for the new element
@@ -88,6 +89,10 @@ class Chat extends Component {
         this.chatInput.current,
         this.getRelativeCoords(this.chatInput.current)
       );
+    }
+
+    if (prevProps.isSimplified !== isSimplified) {
+      this.scrollToBottom();
     }
   }
 
@@ -156,6 +161,8 @@ class Chat extends Component {
       let toCoords;
       this.currentRefMessageId = messageId;
       if (reference.elementType === 'chat_message') {
+        // escape hatch in case referenced message is not rendred in current display
+        if (!this[`message-${reference.element}`].current) return;
         toCoords = this.getRelativeCoords(
           this[`message-${reference.element}`].current
         );
@@ -262,13 +269,13 @@ class Chat extends Component {
 
   createActivity = () => {
     const { createActivity } = this.props;
-    this.setState({ settings: false });
+    // this.setState({ settings: false });
     createActivity();
   };
 
   openReplayer = () => {
     const { goToReplayer } = this.props;
-    this.setState({ settings: false });
+    // this.setState({ settings: false });
     goToReplayer();
   };
 
@@ -289,7 +296,45 @@ class Chat extends Component {
       createActivity,
       pendingUsers,
     } = this.props;
-    const { settings, highlightedMessage, hasNewMessages } = this.state;
+    const { highlightedMessage, hasNewMessages } = this.state;
+    const DropdownMenu = () => {
+      return (
+        <div className={classes.DropdownContent}>
+          <div className={classes.MoreMenu}>
+            {goToReplayer ? (
+              <div className={classes.MoreMenuOption}>
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  click={this.openReplayer}
+                  data-testid="open-replayer"
+                >
+                  Open Replayer
+                  <span className={classes.ExternalLink}>
+                    <i className="fas fa-external-link-alt" />
+                  </span>
+                </Button>
+              </div>
+            ) : null}
+            {createActivity ? (
+              <div className={classes.MoreMenuOption}>
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  click={this.createActivity}
+                  data-testid="create-workspace"
+                >
+                  Create Template or Room
+                </Button>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      );
+    };
+
     let displayMessages = [];
     if (log) {
       displayMessages = log.map((message) => {
@@ -332,9 +377,11 @@ class Chat extends Component {
             />
           );
         }
-        if (!message.synthetic) {
-          // for replayer only. should not show up in chat, only slider
-          return <Event event={message} id={message._id} key={message._id} />;
+        if (!isSimplified) {
+          if (!message.synthetic) {
+            // for replayer only. should not show up in chat, only slider
+            return <Event event={message} id={message._id} key={message._id} />;
+          }
         }
         return null;
       });
@@ -367,7 +414,11 @@ class Chat extends Component {
                 <div className={classes.StatusText}>
                   {user.connected ? '' : 'disconnected!'}
                 </div>
-                <i
+                <div className={classes.DropdownContainer}>
+                  <i className="fas fa-bars" />
+                  <DropdownMenu />
+                </div>
+                {/* <i
                   onClick={(e) => {
                     e.stopPropagation();
                     this.setState({ settings: true });
@@ -378,7 +429,7 @@ class Chat extends Component {
                   role="button"
                   data-testid="more-menu"
                   title="More options"
-                />
+                /> */}
               </div>
             ) : null}
           </div>
@@ -426,7 +477,7 @@ class Chat extends Component {
             </div>
           ) : null}
         </div>
-        {settings ? (
+        {/* {settings ? (
           <Modal
             show={settings}
             closeModal={() => this.setState({ settings: false })}
@@ -455,11 +506,34 @@ class Chat extends Component {
               ) : null}
             </div>
           </Modal>
-        ) : null}
+        ) : null} */}
       </Fragment>
     );
   }
 }
+
+/**
+ * DropdownMenu is an adaptation of DropdownNavItem used in the main VMT header. I adapted it
+ * because it looks nice. If there's a desire to make this a generic, reusable
+ * component, it should be moved to the ./Components portion of src.
+ */
+
+// <li
+//   className={DropdownMenuClasses.Container}
+//   // eslint-disable-next-line react/destructuring-assignment
+//   data-testid={props['data-testid']}
+// >
+//   <NavItem link={list[0].link} name={name} />
+//   <div className={DropdownMenuClasses.DropdownContent}>
+//     {list.map((item) => {
+//       return (
+//         <div className={DropdownMenuClasses.DropdownItem} key={item.name}>
+//           <NavItem link={item.link} name={item.name} />
+//         </div>
+//       );
+//     })}
+//   </div>
+// </li>
 
 // @todo we need to consider making a different component for replayer chat or conditionally requiring many of these props (like change and submit) if this is NOT a replayer chat
 Chat.propTypes = {

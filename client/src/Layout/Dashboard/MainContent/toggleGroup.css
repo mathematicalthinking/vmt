@@ -10,8 +10,9 @@
   flex-direction: row;
   width: 220px;
   border: 3px solid lightBorder;
-  font-size: 1rem;
+  font-size: inherit;
   border-radius: 10px;
+  margin-bottom: 5px;
 }
 
 /* button plus label */
@@ -49,7 +50,7 @@
 }
 
 .ToggleButton:checked ~ label {
-  background-color: coldGray;
+  background-color: darkgray;
   font-weight: bold;
-  /* color: blue; */
+  color: black;
 }

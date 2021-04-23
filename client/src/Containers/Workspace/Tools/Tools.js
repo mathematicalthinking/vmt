@@ -32,22 +32,8 @@ const Tools = ({
   return (
     <div className={classes.Container}>
       <div className={classes.Expanded}>
-        <div className={classes.Controls}>
-          {!replayer && !inAdminMode ? (
-            <Button
-              theme="xs"
-              data-testid={
-                inControl === 'ME' ? 'release-control' : 'take-control'
-              }
-              click={toggleControl}
-            >
-              {controlText}
-            </Button>
-          ) : null}
-          <Button theme="xs-cancel" click={goBack} data-testid="exit-room">
-            Exit {replayer ? 'Replayer' : 'Room'}
-          </Button>
-        </div>
+        <Awareness lastEvent={lastEvent} />
+
         {save ? (
           <div className={classes.Save}>
             <div
@@ -97,7 +83,22 @@ const Tools = ({
           </Fragment>
         ) : null}
         <div>
-          <Awareness lastEvent={lastEvent} />
+          <div className={classes.Controls}>
+            {!replayer && !inAdminMode ? (
+              <Button
+                theme="xs"
+                data-testid={
+                  inControl === 'ME' ? 'release-control' : 'take-control'
+                }
+                click={toggleControl}
+              >
+                {controlText}
+              </Button>
+            ) : null}
+            <Button theme="xs-cancel" click={goBack} data-testid="exit-room">
+              Exit {replayer ? 'Replayer' : 'Room'}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

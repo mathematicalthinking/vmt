@@ -86,8 +86,7 @@ class ResourceList extends Component {
       linkSuffix = '/details';
     }
     let displayResource = resource[0].toUpperCase() + resource.slice(1);
-    if (displayResource === 'Activities')
-      displayResource = 'Activity Templates';
+    if (displayResource === 'Activities') displayResource = 'Templates';
     if (parentResource === 'courses') {
       linkPath = `/myVMT/${parentResource}/${parentResourceId}/${resource}/`;
       linkSuffix = '/details';

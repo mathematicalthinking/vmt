@@ -253,7 +253,7 @@ class NewResourceContainer extends Component {
     } = this.state;
     let displayResource;
     if (resource === 'activities') {
-      displayResource = 'activity template';
+      displayResource = 'template';
     } else {
       displayResource = resource.slice(0, resource.length - 1);
     }
@@ -356,7 +356,7 @@ class NewResourceContainer extends Component {
                 m={5}
                 tabIndex={0}
               >
-                copy existing activities
+                copy existing template
               </Button>
             </div>
           </Aux>
@@ -389,8 +389,7 @@ class NewResourceContainer extends Component {
             ) : null}
             <div className={classes.Container}>
               <h2 className={classes.ModalTitle}>
-                Create {resource === 'activities' ? 'an' : 'a'}{' '}
-                {displayResource}
+                Create {resource === 'activities' ? 'a' : 'a'} {displayResource}
               </h2>
               <div className={classes.MainModalContent}>{steps[step]}</div>
               <div className={classes.Row}>{buttons}</div>
