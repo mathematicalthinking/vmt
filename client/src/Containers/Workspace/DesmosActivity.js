@@ -20,6 +20,7 @@ const DesmosActivity = (props) => {
   // single latest transient event
   const [transientUpdates, setTransientUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
+  const [showConfigError, setShowConfigError] = useState(false);
   const calculatorRef = useRef();
   const calculatorInst = useRef();
 
@@ -181,7 +182,7 @@ const DesmosActivity = (props) => {
   }
 
   const fetchData = async () => {
-    const { tab } = props;
+    const { tab, setFirstTabLoaded } = props;
     const code =
       tab.desmosLink ||
       // fallback to turtle time trials, used for demo
@@ -192,6 +193,12 @@ const DesmosActivity = (props) => {
     const result = await fetch(URL, {
       headers: { Accept: 'application/json' },
     });
+    console.log('Result: ', result);
+    if (result.status !== 200) {
+      initializing = false;
+      setFirstTabLoaded();
+      setShowConfigError(true);
+    }
     const data = await result.json();
     return data;
   };
@@ -295,6 +302,17 @@ const DesmosActivity = (props) => {
   } = props;
   return (
     <Fragment>
+      <CheckboxModal
+        show={showConfigError}
+        infoMessage="Error retireving Activity Configuration, please make sure this activity is publiclly accessible"
+        checkboxDataId="config-warning"
+      />
+      {showConfigError && (
+        <div>
+          Error retireving Activity Configuration, please make sure this
+          activity is publiclly accessible.
+        </div>
+      )}
       <ControlWarningModal
         showControlWarning={showControlWarning}
         toggleControlWarning={() => {
