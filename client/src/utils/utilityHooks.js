@@ -68,7 +68,7 @@ export function useSnapshots(callback) {
   const takeSnapshot = debounce(
     () => {
       htmltoimage
-        .toPng(elementRef.current, { width: 1000 })
+        .toPng(elementRef.current)
         .then((dataURL) => {
           callback({ dataURL, timestamp: Date.now() });
         })
