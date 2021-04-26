@@ -49,7 +49,7 @@ export function useSnapshots(callback) {
     if (!timer) {
       timer = setInterval(() => {
         htmltoimage
-          .toPng(elementRef.current, { width: 1000 })
+          .toPng(elementRef.current)
           .then((dataURL) => {
             // adapted from https://stackoverflow.com/questions/15327959/get-height-and-width-dimensions-from-base64-png
             // const header = window
@@ -68,7 +68,7 @@ export function useSnapshots(callback) {
   const takeSnapshot = debounce(
     () => {
       htmltoimage
-        .toPng(elementRef.current, { width: 1000 })
+        .toPng(elementRef.current)
         .then((dataURL) => {
           callback({ dataURL, timestamp: Date.now() });
         })

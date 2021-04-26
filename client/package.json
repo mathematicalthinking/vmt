@@ -63,7 +63,7 @@
     "react-emotion": "^9.2.10",
     "react-load-script": "0.0.6",
     "react-onclickoutside": "^6.7.1",
-    "react-query": "^2.26.4",
+    "react-query": "^3.13.12",
     "react-redux": "^5.0.7",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",

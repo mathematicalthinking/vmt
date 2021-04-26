@@ -96,19 +96,25 @@ function MonitoringView({
   // of a useEffect.
   const queryStates = {};
   userResources.forEach((room) => {
-    queryStates[room._id] = useQuery(room._id, () =>
-      API.getPopulatedById('rooms', room._id, false, true).then(
-        (res) => res.data.result
-      )
+    queryStates[room._id] = useQuery(
+      room._id,
+      () =>
+        API.getPopulatedById('rooms', room._id, false, true).then(
+          (res) => res.data.result
+        ),
+      {
+        refetchInterval: 0,
+        // enabled: savedState.current && savedState.current[room._id],
+      }
     );
   });
 
   /**
    * EFFECTS USED TO PERSIST STATE AFTER UNMOUNT
-   * 
+   *
    * Whenever the state we want to persist changes, update the savedState ref. When the component unmounts,
    * save the state in the Redux store. Much preferred to alerting the Redux store of every little local state change.
-   * 
+   *
    */
 
   React.useEffect(() => {
@@ -200,7 +206,9 @@ function MonitoringView({
         const snapshot = _getMostRecentSnapshot(id);
         return snapshot && snapshot !== '' ? (
           <img alt={`Snapshot of room ${id}`} src={snapshot} />
-        ) : null;
+        ) : (
+          'No snapshot currently'
+        );
       }
       default:
         return null;

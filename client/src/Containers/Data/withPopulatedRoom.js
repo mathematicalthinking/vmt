@@ -37,6 +37,8 @@ function withPopulatedRoom(WrappedComponent) {
     if (isError) {
       console.log(error);
     }
+
+    return null;
   }
 
   PopulatedRoom.propTypes = {
