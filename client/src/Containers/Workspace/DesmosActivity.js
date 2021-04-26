@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-console */
 import React, { useState, useRef, useEffect, Fragment } from 'react';
+import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classes from './graph.css';
 import { Button } from '../../Components';
@@ -9,6 +10,7 @@ import socket from '../../utils/sockets';
 import mongoIdGenerator from '../../utils/createMongoId';
 import ControlWarningModal from './ControlWarningModal';
 import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
+import Modal from '../../Components/UI/Modal/Modal';
 import API from '../../utils/apiRequests';
 
 const DesmosActivity = (props) => {
@@ -26,6 +28,9 @@ const DesmosActivity = (props) => {
 
   let receivingData = false;
   let initializing = false;
+
+  const { history } = props;
+  const handleOnErrorClick = () => history.goBack();
 
   const backBtn = calculatorInst.current
     ? calculatorInst.current.getActiveScreenIndex() > 0
@@ -302,17 +307,11 @@ const DesmosActivity = (props) => {
   } = props;
   return (
     <Fragment>
-      <CheckboxModal
-        show={showConfigError}
-        infoMessage="Error retireving Activity Configuration, please make sure this activity is publiclly accessible"
-        checkboxDataId="config-warning"
-      />
-      {showConfigError && (
-        <div>
-          Error retireving Activity Configuration, please make sure this
-          activity is publiclly accessible.
-        </div>
-      )}
+      <Modal show={showConfigError} closeModal={handleOnErrorClick}>
+        {' '}
+        Error retrieving Activity Configuration, please make sure this activity
+        is publiclly accessible
+      </Modal>
       <ControlWarningModal
         showControlWarning={showControlWarning}
         toggleControlWarning={() => {
@@ -396,4 +395,4 @@ DesmosActivity.propTypes = {
   addToLog: PropTypes.func.isRequired,
 };
 
-export default DesmosActivity;
+export default withRouter(DesmosActivity);
