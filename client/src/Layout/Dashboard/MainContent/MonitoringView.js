@@ -18,6 +18,7 @@ import { NavItem } from '../../../Components';
 import buildLog from '../../../utils/buildLog';
 import classes from './monitoringView.css';
 import DropdownMenuClasses from './dropdownmenu.css';
+import NoSnapshot from '../../../Components/UI/ContentBox/Icons/NoSnapshot.png';
 
 /**
  * The MonitoringView provides three views into a set of rooms: activity graph, thumbnail, and chat. Users can
@@ -105,10 +106,10 @@ function MonitoringView({
 
   /**
    * EFFECTS USED TO PERSIST STATE AFTER UNMOUNT
-   * 
+   *
    * Whenever the state we want to persist changes, update the savedState ref. When the component unmounts,
    * save the state in the Redux store. Much preferred to alerting the Redux store of every little local state change.
-   * 
+   *
    */
 
   React.useEffect(() => {
@@ -200,7 +201,9 @@ function MonitoringView({
         const snapshot = _getMostRecentSnapshot(id);
         return snapshot && snapshot !== '' ? (
           <img alt={`Snapshot of room ${id}`} src={snapshot} />
-        ) : null;
+        ) : (
+          <img alt={`No snapshot available for room ${id}`} src={NoSnapshot} />
+        );
       }
       default:
         return null;
