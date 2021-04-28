@@ -97,10 +97,16 @@ function MonitoringView({
   // of a useEffect.
   const queryStates = {};
   userResources.forEach((room) => {
-    queryStates[room._id] = useQuery(room._id, () =>
-      API.getPopulatedById('rooms', room._id, false, true).then(
-        (res) => res.data.result
-      )
+    queryStates[room._id] = useQuery(
+      room._id,
+      () =>
+        API.getPopulatedById('rooms', room._id, false, true).then(
+          (res) => res.data.result
+        ),
+      {
+        refetchInterval: 0,
+        // enabled: savedState.current && savedState.current[room._id],
+      }
     );
   });
 
@@ -202,6 +208,7 @@ function MonitoringView({
         return snapshot && snapshot !== '' ? (
           <img alt={`Snapshot of room ${id}`} src={snapshot} />
         ) : (
+         /* 'No snapshot currently'. */
           <img alt={`No snapshot available for room ${id}`} src={NoSnapshot} />
         );
       }
