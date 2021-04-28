@@ -31,7 +31,6 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
       sliderDetails: { isOn: user.inAdminMode, onClick: toggleAdmin },
     });
   }
-  console.log('Nav user: ', user);
   return (
     <nav className={styles}>
       <div className={classes.NavContainer}>

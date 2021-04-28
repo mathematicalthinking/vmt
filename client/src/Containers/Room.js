@@ -76,10 +76,11 @@ class Room extends Component {
     if (room) {
       // check access
       let updatedTabs = [...tabs];
-      const owner = false;
+      let owner = false;
       let firstView = false;
       let invited = false;
       if (room.myRole === 'facilitator') {
+        owner = true;
         updatedTabs = this.displayNotifications(updatedTabs);
       }
       if (notifications.length > 0) {

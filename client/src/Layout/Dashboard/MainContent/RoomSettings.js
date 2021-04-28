@@ -20,6 +20,7 @@ class RoomSettings extends Component {
   };
   render() {
     const { settings, owner } = this.props;
+    console.log('Room settings: ', owner);
     return owner ? (
       <div>
         <h2 className={classes.Heading}>Participants can create new Tabs</h2>
@@ -54,13 +55,14 @@ class RoomSettings extends Component {
         >
           No
         </RadioBtn>
-        <h2 className={classes.Heading}>Control Specificity</h2>
+        {/* Control specificity not yet added TODO */}
+        {/* <h2 className={classes.Heading}>Control Specificity</h2>
         <RadioBtn name="yes" checked={settings.controlByRoom === false}>
           Room
         </RadioBtn>
         <RadioBtn name="No" checked={settings.controlByTab === true}>
           Tab
-        </RadioBtn>
+        </RadioBtn> */}
       </div>
     ) : (
       <div>
