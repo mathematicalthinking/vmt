@@ -208,8 +208,8 @@ function MonitoringView({
         return snapshot && snapshot !== '' ? (
           <img alt={`Snapshot of room ${id}`} src={snapshot} />
         ) : (
-         /* 'No snapshot currently'. */
-          <img alt={`No snapshot available for room ${id}`} src={NoSnapshot} />
+          <span className={classes.NoSnapshot}>No snapshot currently</span>
+          // <img alt={`No snapshot available for room ${id}`} src={NoSnapshot} />
         );
       }
       default:
