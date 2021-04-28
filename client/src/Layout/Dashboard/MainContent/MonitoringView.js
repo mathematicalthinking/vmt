@@ -18,6 +18,7 @@ import { NavItem } from '../../../Components';
 import buildLog from '../../../utils/buildLog';
 import classes from './monitoringView.css';
 import DropdownMenuClasses from './dropdownmenu.css';
+import NoSnapshot from '../../../Components/UI/ContentBox/Icons/NoSnapshot.png';
 
 /**
  * The MonitoringView provides three views into a set of rooms: activity graph, thumbnail, and chat. Users can
@@ -207,7 +208,8 @@ function MonitoringView({
         return snapshot && snapshot !== '' ? (
           <img alt={`Snapshot of room ${id}`} src={snapshot} />
         ) : (
-          'No snapshot currently'
+         /* 'No snapshot currently'. */
+          <img alt={`No snapshot available for room ${id}`} src={NoSnapshot} />
         );
       }
       default:

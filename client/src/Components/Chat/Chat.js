@@ -8,6 +8,7 @@ import Message from './Message';
 import Event from './Event';
 import Pending from './Pending';
 import classes from './chat.css';
+import DropdownMenuClasses from '../../Layout/Dashboard/MainContent/dropdownmenu.css';
 import Button from '../UI/Button/Button';
 
 class Chat extends Component {
@@ -299,41 +300,68 @@ class Chat extends Component {
     const { highlightedMessage, hasNewMessages } = this.state;
     const DropdownMenu = () => {
       return (
-        <div className={classes.DropdownContent}>
-          <div className={classes.MoreMenu}>
+        <div className={DropdownMenuClasses.Container}>
+          <i className="fas fa-bars" />
+
+          <div className={DropdownMenuClasses.DropdownContent}>
             {goToReplayer ? (
-              <div className={classes.MoreMenuOption}>
-                <Button
+              <div className={DropdownMenuClasses.DropdownItem}>
+                <button
+                  type="button"
+                  className={classes.Button}
                   onClick={(e) => {
+                    this.openReplayer();
                     e.stopPropagation();
                   }}
-                  click={this.openReplayer}
                   data-testid="open-replayer"
                 >
                   Open Replayer
                   <span className={classes.ExternalLink}>
                     <i className="fas fa-external-link-alt" />
                   </span>
-                </Button>
+                </button>
               </div>
             ) : null}
             {createActivity ? (
-              <div className={classes.MoreMenuOption}>
-                <Button
+              <div className={DropdownMenuClasses.DropdownItem}>
+                <button
+                  type="button"
+                  className={classes.Button}
                   onClick={(e) => {
+                    this.createActivity();
                     e.stopPropagation();
                   }}
-                  click={this.createActivity}
                   data-testid="create-workspace"
                 >
                   Create Template or Room
-                </Button>
+                </button>
               </div>
             ) : null}
           </div>
         </div>
       );
     };
+    // const DropdownMenu = (props) => {
+    //   const { name, list } = props;
+    //   return (
+    //     <li
+    //       className={DropdownMenuClasses.Container}
+    //       // eslint-disable-next-line react/destructuring-assignment
+    //       data-testid={props['data-testid']}
+    //     >
+    //       <NavItem link={list[0].link} name={name} />
+    //       <div className={DropdownMenuClasses.DropdownContent}>
+    //         {list.map((item) => {
+    //           return (
+    //             <div className={DropdownMenuClasses.DropdownItem} key={item.name}>
+    //               <NavItem link={item.link} name={item.name} />
+    //             </div>
+    //           );
+    //         })}
+    //       </div>
+    //     </li>
+    //   );
+    // };
 
     let displayMessages = [];
     if (log) {
@@ -401,6 +429,11 @@ class Chat extends Component {
             tabIndex="0"
             role="button"
           >
+            {!replayer ? (
+              <div className={classes.DropdownContainer}>
+                <DropdownMenu />{' '}
+              </div>
+            ) : null}
             Chat
             {!replayer ? (
               <div className={classes.Status}>
@@ -414,22 +447,6 @@ class Chat extends Component {
                 <div className={classes.StatusText}>
                   {user.connected ? '' : 'disconnected!'}
                 </div>
-                <div className={classes.DropdownContainer}>
-                  <i className="fas fa-bars" />
-                  <DropdownMenu />
-                </div>
-                {/* <i
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    this.setState({ settings: true });
-                  }}
-                  onKeyPress={() => this.setState({ settings: true })}
-                  className={['fas fa-ellipsis-v', classes.Settings].join(' ')}
-                  tabIndex="-1"
-                  role="button"
-                  data-testid="more-menu"
-                  title="More options"
-                /> */}
               </div>
             ) : null}
           </div>
@@ -511,29 +528,6 @@ class Chat extends Component {
     );
   }
 }
-
-/**
- * DropdownMenu is an adaptation of DropdownNavItem used in the main VMT header. I adapted it
- * because it looks nice. If there's a desire to make this a generic, reusable
- * component, it should be moved to the ./Components portion of src.
- */
-
-// <li
-//   className={DropdownMenuClasses.Container}
-//   // eslint-disable-next-line react/destructuring-assignment
-//   data-testid={props['data-testid']}
-// >
-//   <NavItem link={list[0].link} name={name} />
-//   <div className={DropdownMenuClasses.DropdownContent}>
-//     {list.map((item) => {
-//       return (
-//         <div className={DropdownMenuClasses.DropdownItem} key={item.name}>
-//           <NavItem link={item.link} name={item.name} />
-//         </div>
-//       );
-//     })}
-//   </div>
-// </li>
 
 // @todo we need to consider making a different component for replayer chat or conditionally requiring many of these props (like change and submit) if this is NOT a replayer chat
 Chat.propTypes = {

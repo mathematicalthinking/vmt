@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Modal from './Modal';
 import classes from './modal.css';
@@ -25,23 +25,27 @@ class CheckboxModal extends Component {
     return (
       <Modal show={show} closeModal={closeModal}>
         <div>{infoMessage}</div>
-        <div className={classes.Row}>
-          <Checkbox
-            change={(event) => {
-              this.onSelect(event);
-            }}
-            checked={isChecked}
-            dataId={checkboxDataId}
-          >
-            Do not show me this message again
-          </Checkbox>
-        </div>
+        {closeModal && (
+          <Fragment>
+            <div className={classes.Row}>
+              <Checkbox
+                change={(event) => {
+                  this.onSelect(event);
+                }}
+                checked={isChecked}
+                dataId={checkboxDataId}
+              >
+                Do not show me this message again
+              </Checkbox>
+            </div>
 
-        <div className={classes.Row}>
-          <Button m={10} click={closeModal}>
-            Okay
-          </Button>
-        </div>
+            <div className={classes.Row}>
+              <Button m={10} click={closeModal}>
+                Okay
+              </Button>
+            </div>
+          </Fragment>
+        )}
       </Modal>
     );
   }

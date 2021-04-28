@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-console */
 import React, { useState, useRef, useEffect, Fragment } from 'react';
+import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classes from './graph.css';
 import { Button } from '../../Components';
@@ -9,6 +10,7 @@ import socket from '../../utils/sockets';
 import mongoIdGenerator from '../../utils/createMongoId';
 import ControlWarningModal from './ControlWarningModal';
 import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
+import Modal from '../../Components/UI/Modal/Modal';
 import API from '../../utils/apiRequests';
 
 const DesmosActivity = (props) => {
@@ -20,11 +22,15 @@ const DesmosActivity = (props) => {
   // single latest transient event
   const [transientUpdates, setTransientUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
+  const [showConfigError, setShowConfigError] = useState(false);
   const calculatorRef = useRef();
   const calculatorInst = useRef();
 
   let receivingData = false;
   let initializing = false;
+
+  const { history } = props;
+  const handleOnErrorClick = () => history.goBack();
 
   const backBtn = calculatorInst.current
     ? calculatorInst.current.getActiveScreenIndex() > 0
@@ -181,7 +187,7 @@ const DesmosActivity = (props) => {
   }
 
   const fetchData = async () => {
-    const { tab } = props;
+    const { tab, setFirstTabLoaded } = props;
     const code =
       tab.desmosLink ||
       // fallback to turtle time trials, used for demo
@@ -192,6 +198,12 @@ const DesmosActivity = (props) => {
     const result = await fetch(URL, {
       headers: { Accept: 'application/json' },
     });
+    console.log('Result: ', result);
+    if (result.status !== 200) {
+      initializing = false;
+      setFirstTabLoaded();
+      setShowConfigError(true);
+    }
     const data = await result.json();
     return data;
   };
@@ -295,6 +307,11 @@ const DesmosActivity = (props) => {
   } = props;
   return (
     <Fragment>
+      <Modal show={showConfigError} closeModal={handleOnErrorClick}>
+        {' '}
+        Error retrieving Activity Configuration, please make sure this activity
+        is publiclly accessible
+      </Modal>
       <ControlWarningModal
         showControlWarning={showControlWarning}
         toggleControlWarning={() => {
@@ -378,4 +395,4 @@ DesmosActivity.propTypes = {
   addToLog: PropTypes.func.isRequired,
 };
 
-export default DesmosActivity;
+export default withRouter(DesmosActivity);
