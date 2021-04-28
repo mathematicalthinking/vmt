@@ -355,27 +355,6 @@ class Chat extends Component {
         </div>
       );
     };
-    // const DropdownMenu = (props) => {
-    //   const { name, list } = props;
-    //   return (
-    //     <li
-    //       className={DropdownMenuClasses.Container}
-    //       // eslint-disable-next-line react/destructuring-assignment
-    //       data-testid={props['data-testid']}
-    //     >
-    //       <NavItem link={list[0].link} name={name} />
-    //       <div className={DropdownMenuClasses.DropdownContent}>
-    //         {list.map((item) => {
-    //           return (
-    //             <div className={DropdownMenuClasses.DropdownItem} key={item.name}>
-    //               <NavItem link={item.link} name={item.name} />
-    //             </div>
-    //           );
-    //         })}
-    //       </div>
-    //     </li>
-    //   );
-    // };
 
     let displayMessages = [];
     if (log) {
@@ -589,7 +568,7 @@ Chat.defaultProps = {
   change: null,
   submit: null,
   referencing: false,
-  isSimplified: false,
+  isSimplified: true,
   setFromElAndCoords: null,
   setToElAndCoords: null,
   startNewReference: null,

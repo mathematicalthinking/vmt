@@ -72,7 +72,7 @@ class Workspace extends Component {
       currentMembers: tempCurrentMembers || populatedRoom.currentMembers,
       referencing: false,
       showingReference: false,
-      isSimplified: false,
+      isSimplified: true,
       referToEl: null,
       referToCoords: null,
       referFromEl: null,
