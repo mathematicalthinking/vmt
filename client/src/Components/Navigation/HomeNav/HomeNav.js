@@ -31,7 +31,7 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
       sliderDetails: { isOn: user.inAdminMode, onClick: toggleAdmin },
     });
   }
-
+  console.log('Nav user: ', user);
   return (
     <nav className={styles}>
       <div className={classes.NavContainer}>
@@ -58,6 +58,10 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
               link="/community/rooms?privacy=all&roomType=all"
               name="Community"
             />
+            {/* optional monitoring link from home */}
+            {/* {user.accountType === 'facilitator' ? (
+              <NavItem link="/myVMT/monitoring" name="Monitoring" />
+            ) : null} */}
             {user.isAdmin ? (
               <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
             ) : null}
