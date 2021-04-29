@@ -133,9 +133,11 @@ class Workspace extends Component {
     const roomId = populatedRoom._id;
     if (roomId && roomId !== '') {
       const { elementRef, takeSnapshot } = useSnapshots((data) => {
+        this.setState({ awaitingSnap: true });
         const { currentScreen } = this.props;
         const { currentTabId } = this.state;
         if (data && data.dataURL.length > 10) {
+          console.log('Creating snap for ', roomId);
           API.put('rooms', roomId, {
             snapshot: {
               ...populatedRoom.snapshot,
@@ -377,7 +379,7 @@ class Workspace extends Component {
 
     if (controlledBy === user._id) {
       const { takeSnapshot } = this.state;
-      this.setState({ awaitingSnap: true });
+      // this.setState({ awaitingSnap: true });
       takeSnapshot();
 
       // Releasing control
@@ -598,6 +600,7 @@ class Workspace extends Component {
   goBack = () => {
     const { awaitingSnap } = this.state;
     let delay = 0;
+    console.log('Awaiting snap: ', awaitingSnap);
     if (awaitingSnap) delay = 1000;
     const { populatedRoom, history } = this.props;
     const { _id } = populatedRoom;

@@ -2,7 +2,7 @@
 /* eslint-disable import/prefer-default-export */
 import React from 'react';
 import * as htmltoimage from 'html-to-image';
-import throttle from 'lodash/throttle';
+// import throttle from 'lodash/throttle';
 
 export const useSortableData = (items, config = null) => {
   const [sortConfig, setSortConfig] = React.useState(config);
@@ -65,7 +65,17 @@ export function useSnapshots(callback) {
   //   }
   // };
 
-  const takeSnapshot = throttle(() => {
+  // const takeSnapshot = throttle(() => {
+  //   if (!elementRef.current) return;
+  //   htmltoimage
+  //     .toPng(elementRef.current)
+  //     .then((dataURL) => {
+  //       callback({ dataURL, timestamp: Date.now() });
+  //     })
+  //     .catch((err) => console.error(err));
+  // }, 5000);
+
+  const takeSnapshot = () => {
     if (!elementRef.current) return;
     htmltoimage
       .toPng(elementRef.current)
@@ -73,7 +83,7 @@ export function useSnapshots(callback) {
         callback({ dataURL, timestamp: Date.now() });
       })
       .catch((err) => console.error(err));
-  }, 5000);
+  };
 
   // const stopSnapshots = () => {
   //   if (timer) {
