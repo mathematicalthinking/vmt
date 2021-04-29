@@ -136,12 +136,14 @@ class Workspace extends Component {
         (data) => {
           const { currentScreen } = this.props;
           const { currentTabId } = this.state;
-          API.put('rooms', roomId, {
-            snapshot: {
-              ...populatedRoom.snapshot,
-              [`${currentTabId}SCREEN_${currentScreen || ''}`]: data,
-            },
-          });
+          if (data && data.dataURL.length > 10) {
+            API.put('rooms', roomId, {
+              snapshot: {
+                ...populatedRoom.snapshot,
+                [`${currentTabId}SCREEN_${currentScreen || ''}`]: data,
+              },
+            });
+          }
         }
       );
       this.setState({ stopSnapshots, takeSnapshot, snapshotRef: elementRef });
