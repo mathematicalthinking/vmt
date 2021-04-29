@@ -4,7 +4,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from 'react-query';
 import { connect } from 'react-redux';
@@ -63,6 +63,8 @@ function MonitoringView({
     CHAT: 'Chat',
     THUMBNAIL: 'Thumbnail',
     GRAPH: 'Graph',
+    SIMPLE: 'Simple',
+    DETAILED: 'Detailed',
   };
 
   // Monitoring is allowed only on the rooms that the user manages.
@@ -95,6 +97,7 @@ function MonitoringView({
     _initializeSelections(userResources)
   );
   const [viewType, setViewType] = React.useState(constants.CHAT);
+  const [chatType, setChatType] = React.useState(constants.DETAILED);
   const savedState = React.useRef();
 
   // Because "useQuery" is the equivalent of useState, do this
@@ -218,9 +221,12 @@ function MonitoringView({
         );
       case constants.CHAT:
         return (
-          <SimpleChat
-            log={queryStates[id].isSuccess ? queryStates[id].data.chat : []}
-          />
+          <Fragment>
+            <SimpleChat
+              isSimplified={chatType === constants.SIMPLE}
+              log={queryStates[id].isSuccess ? queryStates[id].data.chat : []}
+            />
+          </Fragment>
         );
       case constants.THUMBNAIL: {
         const snapshot = _getMostRecentSnapshot(id);
@@ -249,6 +255,15 @@ function MonitoringView({
           buttons={[constants.CHAT, constants.THUMBNAIL, constants.GRAPH]}
           onChange={setViewType}
         />
+        {viewType === constants.CHAT ? (
+          <Fragment>
+            Chat log style:{' '}
+            <ToggleGroup
+              buttons={[constants.DETAILED, constants.SIMPLE]}
+              onChange={setChatType}
+            />
+          </Fragment>
+        ) : null}
       </div>
 
       {viewOrSelect === constants.SELECT ? (

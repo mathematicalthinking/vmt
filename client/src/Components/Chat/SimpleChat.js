@@ -10,7 +10,7 @@ import { Button } from '..';
  * Shows an alert if new messages have appeared off screen.
  */
 
-function SimpleChat({ log }) {
+function SimpleChat({ log, isSimplified }) {
   if (!log) log = [];
   const chatScroll = React.createRef();
   const [showNewMessages, setShowNewMessages] = React.useState(false);
@@ -61,10 +61,11 @@ function SimpleChat({ log }) {
                   highlighted={false}
                   reference={false}
                   referencing={false}
-                  isSimplified={false}
+                  isSimplified={isSimplified}
                 />
               );
             })}
+        <div className={ChatClasses.Timestamp}>End of message log</div>
       </div>
       {showNewMessages && (
         <Button
@@ -83,8 +84,11 @@ function SimpleChat({ log }) {
 
 SimpleChat.propTypes = {
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  isSimplified: PropTypes.bool,
 };
 
-SimpleChat.defaultProps = {};
+SimpleChat.defaultProps = {
+  isSimplified: true,
+};
 
 export default SimpleChat;
