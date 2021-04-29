@@ -623,8 +623,8 @@ class GgbGraph extends Component {
     // 40 = TRANSLATEVIEW
     // 0 = MOVE
 
-    const { referencing, clearReference, room } = this.props;
-    const canChangePerspective = room.settings.participantsCanChangePerspective;
+    const { referencing, clearReference } = this.props;
+    const canChangePerspective = false; //  room.settings.participantsCanChangePerspective;
     if (this.receivingData) {
       return;
     }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { TextInput, RadioBtn, Button } from '../../Components';
-import RoomOpts from './NewResource/RoomOpts';
+// import RoomOpts from './NewResource/RoomOpts';
 import classes from './newTabForm.css';
 import API from '../../utils/apiRequests';
 
@@ -137,8 +137,8 @@ class NewTabForm extends Component {
       name,
       errorMessage,
       ggb,
-      desmosLink,
-      appName,
+      // desmosLink,
+      // appName,
       instructions,
     } = this.state;
     return (
@@ -180,7 +180,7 @@ class NewTabForm extends Component {
             Desmos
           </RadioBtn>
         </div>
-        <RoomOpts
+        {/* <RoomOpts
           tab
           ggb={ggb}
           setGgbFile={this.setGgbFile}
@@ -190,7 +190,7 @@ class NewTabForm extends Component {
             this.setState({ desmosLink: event.target.value })
           }
           appName={appName}
-        />
+        /> */}
         <Button m={10} click={this.submit} data-testid="create-tab">
           Create
         </Button>
