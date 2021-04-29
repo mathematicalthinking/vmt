@@ -21,6 +21,7 @@ thead button {
   font-size: inherit;
   padding: 0.5em;
   margin-bottom: 1px;
+  margin-right: 5px;
 }
 
 /* not sure why below doesn't work */

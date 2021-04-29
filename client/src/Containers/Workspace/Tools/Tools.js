@@ -67,16 +67,16 @@ const Tools = ({
             </div>
             <div
               className={
-                isSimplified
+                !isSimplified
                   ? classes.ActiveReferenceWindow
                   : classes.ReferenceWindow
               }
             >
-              Simple Chat
+              Detailed Chat
               <Slider
                 data-testid="simple-chat"
                 action={toggleSimpleChat}
-                isOn={isSimplified}
+                isOn={!isSimplified}
                 name="isSimplified"
               />
             </div>
@@ -124,7 +124,7 @@ Tools.defaultProps = {
   toggleControl: null,
   toggleSimpleChat: null,
   referencing: false,
-  isSimplified: false,
+  isSimplified: true,
   clearReference: null,
   startNewReference: null,
   lastEvent: null,

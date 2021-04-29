@@ -16,7 +16,18 @@ import './selectionTable.css';
 
 export default function SelectionTable(props) {
   const { data, selections, onChange } = props;
-  const { items, requestSort, sortConfig } = useSortableData(data);
+  const tableData = data.map((datum) => {
+    const { _id, name, updatedAt, createdAt, currentMembers } = datum;
+    return {
+      _id,
+      name,
+      updatedAt,
+      createdAt,
+      currentMembers: currentMembers && currentMembers.length,
+    };
+  });
+
+  const { items, requestSort, sortConfig } = useSortableData(tableData);
   const [toggleAll, setToggleAll] = React.useState(
     !Object.values(selections).includes(false)
   );
@@ -58,6 +69,15 @@ export default function SelectionTable(props) {
               Room Name
             </button>
           </th>
+          <th style={{ textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={() => requestSort('currentMembers')}
+              className={getClassNamesFor('currentMembers')}
+            >
+              Currently In Room
+            </button>
+          </th>
           <th>
             <button
               type="button"
@@ -91,6 +111,7 @@ export default function SelectionTable(props) {
               />
             </td>
             <td>{item.name}</td>
+            <td style={{ textAlign: 'center' }}>{item.currentMembers}</td>
             <td>{moment(item.updatedAt).format('LLL')}</td>
             <td>{moment(item.createdAt).format('LLL')}</td>
           </tr>

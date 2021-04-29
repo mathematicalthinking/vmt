@@ -31,6 +31,7 @@
     "dev-sso": "cd ../../mt-sso && npm start",
     "dev-enc": "cd ../../encompass && npm run start",
     "dev-all": "concurrently \"npm:dev\" \"npm:dev-sso\" \"npm:dev-enc\"",
+    "dev-vmt": "concurrently \"npm:dev\" \"npm:dev-sso\"",
     "test-travis": "NODE_ENV=test REACT_APP_IS_TEST=true npm run start",
     "cypress:record": "cypress run --browser electron --record --key 103dfac6-8e4d-4672-adf9-b661fb7738da",
     "test-start": "NODE_ENV=test concurrently \"nodemon --ignore '../client'\" \"npm run client\""
@@ -50,7 +51,7 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.20",
     "moment": "^2.24.0",
-    "mongoose": "^5.4.17",
+    "mongoose": "^5.12.6",
     "morgan": "^1.9.1",
     "multer": "^1.4.1",
     "serve-favicon": "~2.4.5",

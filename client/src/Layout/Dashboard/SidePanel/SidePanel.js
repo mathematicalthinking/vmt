@@ -24,7 +24,7 @@ const SidePanel = ({
     return (
       <div key={key} className={classes.KeyContainer}>
         <span className={classes.KeyName}>
-          {key === 'activities' ? 'Templates' : key}{' '}
+          {key === 'activities' || key === 'Activities' ? 'Templates' : key}{' '}
         </span>
         <span className={classes.KeyValue}>{additionalDetails[key]}</span>
       </div>

@@ -462,6 +462,9 @@ class SharedReplayer extends Component {
             tabId={i}
             isFullscreen={isFullscreen}
             inView={currentTabId === tab._id}
+            style={{
+              pointerEvents: 'none',
+            }}
           />
         );
       }

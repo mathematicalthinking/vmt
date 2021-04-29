@@ -78,3 +78,9 @@
   letter-spacing: 1.12px;
   cursor: pointer;
 }
+
+.NoSnapshot {
+  color: blue;
+  padding: 8px 8px;
+  font-size: 17px;
+}

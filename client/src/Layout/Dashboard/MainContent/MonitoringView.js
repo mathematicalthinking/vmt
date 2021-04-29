@@ -37,7 +37,8 @@ import DropdownMenuClasses from './dropdownmenu.css';
  * Thumbnails (@TODO) might require server-side rendering (e.g., via
  * Puppeteer) and then pulling the base64 string to the client.
  *
- * Monitoring connects to the Redux store to maintain the user's selection of rooms.
+ * Monitoring connects to the Redux store to maintain the user's selection of rooms (and potentially other states of the
+ * monitoring view)
  *
  * @TODO:
  *  - when you use the menu to jump somewhere else, the way to get back to Monitoring is the browser's Back button.
@@ -45,12 +46,12 @@ import DropdownMenuClasses from './dropdownmenu.css';
  *  - Perhaps adapt the InfoBox rather than having my custom "Title" div below.
  *  - Store entire state (room selections, toggle choices, scrollTop for each tile, etc.) in Redux store and restore MonitorView state accordingly
  *  - Show notifications for rooms
- *  - indicate 'last update' on each tile
+ *  - indicate 'last update' on each tile as well as number currently in room (but how to do this so isn't overly busy)
  *
  */
 
 function MonitoringView({
-  userResources,
+  userResources: allResources,
   storedSelections,
   user,
   connectUpdateMonitorSelections,
@@ -63,6 +64,12 @@ function MonitoringView({
     THUMBNAIL: 'Thumbnail',
     GRAPH: 'Graph',
   };
+
+  // Monitoring is allowed only on the rooms that the user manages.
+  const userResources = React.useMemo(
+    () => allResources.filter((res) => res.myRole === 'facilitator'),
+    [allResources]
+  );
 
   // we have to check whether the rooms in userResources are consistent
   // with the collection of rooms that were available for selection
@@ -96,19 +103,35 @@ function MonitoringView({
   // of a useEffect.
   const queryStates = {};
   userResources.forEach((room) => {
-    queryStates[room._id] = useQuery(room._id, () =>
-      API.getPopulatedById('rooms', room._id, false, true).then(
-        (res) => res.data.result
-      )
+    queryStates[room._id] = useQuery(
+      room._id,
+      () =>
+        API.getPopulatedById('rooms', room._id, false, true).then(
+          (res) => res.data.result
+        ),
+      // Check for updates constantly. If we are viewing rooms (i.e., Chat, Thumbnail, or Graph), then we need
+      // to update only the currently selected rooms. If we are selecting rooms via the selection table, then we
+      // should try to update all rooms so that the "current in room" column remains correct.
+      {
+        refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
+        enabled:
+          (savedState.current && savedState.current[room._id]) ||
+          viewOrSelect === constants.SELECT,
+      }
     );
   });
 
   /**
-   * EFFECTS USED TO PERSIST STATE AFTER UNMOUNT
-   * 
+   * EFFECTS THAT ARE USED TO PERSIST STATE AFTER UNMOUNT
+   *
    * Whenever the state we want to persist changes, update the savedState ref. When the component unmounts,
    * save the state in the Redux store. Much preferred to alerting the Redux store of every little local state change.
-   * 
+   *
+   * Right now, we save only the current selections. In the future, we might save:
+   *  - width and height of each tile
+   *  - the scroll location for each tile
+   *  - whether we are viewing chat, thumbnail, or graph
+   *
    */
 
   React.useEffect(() => {
@@ -122,8 +145,11 @@ function MonitoringView({
   }, []);
 
   /**
-   * FUNCTIONS USED TO SIMPLIFY THE RENDER LOGIC
+   *
+   * FUNCTIONS THAT ARE USED TO SIMPLIFY THE RENDER LOGIC
+   *
    */
+
   const _adminWarning = () => {
     return (
       <div style={{ color: 'red' }}>
@@ -200,7 +226,10 @@ function MonitoringView({
         const snapshot = _getMostRecentSnapshot(id);
         return snapshot && snapshot !== '' ? (
           <img alt={`Snapshot of room ${id}`} src={snapshot} />
-        ) : null;
+        ) : (
+          <span className={classes.NoSnapshot}>No snapshot currently</span>
+          // <img alt={`No snapshot available for room ${id}`} src={NoSnapshot} />
+        );
       }
       default:
         return null;

@@ -126,6 +126,7 @@ class WorkspaceLayout extends Component {
                       left: 1,
                       bottom: 1,
                       right: 1,
+                      pointerEvents: replayer ? 'none' : 'auto',
                     }}
                   >
                     {graph}

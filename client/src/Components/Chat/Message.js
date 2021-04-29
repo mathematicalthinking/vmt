@@ -22,7 +22,8 @@ const Message = React.forwardRef((props, ref) => {
   const nameGen = () => {
     let shortName = message.user.username;
     const maxLen = 12;
-    if (!isSimplified) return shortName;
+    // currently always using abbreviated naming for both detailed and simple chat
+    // if (!isSimplified) return shortName;
     if (shortName.includes('@'))
       shortName = shortName.substring(0, shortName.lastIndexOf('@'));
     if (shortName.length > maxLen) shortName = shortName.substring(0, maxLen);
@@ -116,6 +117,6 @@ Message.propTypes = {
 Message.defaultProps = {
   highlighted: false,
   referencing: false,
-  isSimplified: false,
+  isSimplified: true,
 };
 export default Message;
