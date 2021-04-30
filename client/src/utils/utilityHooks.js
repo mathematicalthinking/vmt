@@ -81,7 +81,7 @@ export function useSnapshots(callback) {
     html2canvas(elementRef.current, {
       // html2canvas config
       // logging: true,
-      imageTimeout: 30000,
+      imageTimeout: 17000,
       // scale: 1,
       windowWidth: elementRef.current.scrollWidth,
       windowHeight: elementRef.current.scrollHeight,

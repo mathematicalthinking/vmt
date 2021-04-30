@@ -84,12 +84,22 @@ function MonitoringView({
         !storedSelections ||
         (storedSelections && storedSelections[room._id] === undefined)
       ) {
-        result[room._id] = true;
+        if (_defaultRoomSelections(room)) result[room._id] = true;
       } else {
         result[room._id] = storedSelections[room._id];
       }
     });
     return result;
+  };
+
+  const _defaultRoomSelections = (room) => {
+    // integrated logic to determine default rooms to view
+    // hours is time window to determine recent rooms
+    const hours = 24;
+    const recent = 3600000 * hours;
+    const lastUpdated = new Date(room.updatedAt);
+    const now = new Date();
+    return now - lastUpdated < recent;
   };
 
   const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
@@ -167,6 +177,14 @@ function MonitoringView({
         )}
       </div>
     );
+  };
+
+  const _checkForSelection = (roomsSelections) => {
+    if (Object.keys(roomsSelections).length === 0) return false;
+    if (Object.values(roomsSelections).indexOf(true) > -1) {
+      return true;
+    }
+    return false;
   };
 
   const _makeMenu = (id) => {
@@ -280,6 +298,11 @@ function MonitoringView({
         />
       ) : (
         <div className={classes.TileGroup}>
+          {!_checkForSelection(selections) && (
+            <div className={classes.NoSnapshot}>
+              No rooms in current selection
+            </div>
+          )}
           {userResources.map((room) => {
             // for each of the rooms managed by a user, if that
             // room is selected, display its title bar (title and menu) and
