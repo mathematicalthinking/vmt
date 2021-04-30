@@ -17,6 +17,7 @@ class SelectionList extends Component {
             change={(event) => {
               selectItem(event, activity._id);
             }}
+            id={activity._id}
             checked={selected.indexOf(activity._id) > -1}
             dataId={activity.name}
             // @todo this component is sometimes controlled...but here it is not. we need to consistantly pass check and checked instead of onChange

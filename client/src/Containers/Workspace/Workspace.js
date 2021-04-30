@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import each from 'lodash/each';
 import find from 'lodash/find';
-import { hri } from 'human-readable-ids';
 import {
   updateRoom,
   updatedRoom,
@@ -14,8 +13,6 @@ import {
   setRoomStartingPoint,
   updateUser,
   updateUserSettings,
-  createActivity,
-  createRoom,
 } from '../../store/actions';
 import mongoIdGenerator from '../../utils/createMongoId';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
@@ -28,21 +25,11 @@ import {
   Tools,
   RoomInfo,
 } from '.';
-import {
-  Modal,
-  CurrentMembers,
-  Loading,
-  Button,
-  SelectionList,
-  TextInput,
-  RadioBtn,
-} from '../../Components';
+import { Modal, CurrentMembers, Loading } from '../../Components';
 import NewTabForm from '../Create/NewTabForm';
+import CreationModal from './Tools/CreationModal';
 import { socket, useSnapshots } from '../../utils';
 import API from '../../utils/apiRequests';
-import modalClasses from '../../Components/UI/Modal/modal.css';
-import createClasses from '../Create/create.css';
-import formatImageUrl from '../Create/tinyGraphs.utils';
 
 class Workspace extends Component {
   constructor(props) {
@@ -92,7 +79,6 @@ class Workspace extends Component {
       showInstructionsModal: false,
       instructionsModalMsg: null,
       isCreatingActivity: false,
-      newResourceType: 'activity',
     };
   }
 
@@ -326,6 +312,12 @@ class Workspace extends Component {
 
   closeModal = () => {
     this.setState({ creatingNewTab: false });
+  };
+
+  closeCreate = () => {
+    this.setState({
+      isCreatingActivity: false,
+    });
   };
 
   changeTab = (id) => {
@@ -755,71 +747,6 @@ class Workspace extends Component {
       });
   };
 
-  createNewActivityOrRoom = () => {
-    const { populatedRoom } = this.props;
-    const copy = { ...populatedRoom };
-    const {
-      user,
-      connectCreateActivity,
-      history,
-      connectCreateRoom,
-    } = this.props;
-    const { newName, selectedTabIdsToCopy, newResourceType } = this.state;
-
-    if (!selectedTabIdsToCopy.length > 0) {
-      this.setState({
-        createActivityError: 'Please select at least one tab to include',
-      });
-      return;
-    }
-
-    if (!newName) {
-      this.setState({
-        createActivityError: `Please provide a name for your new ${newResourceType}`,
-      });
-      return;
-    }
-
-    const { description, privacySetting, instructions } = copy;
-    const pluralResource =
-      newResourceType === 'activity' ? 'activities' : 'rooms';
-    const resourceBody = {
-      creator: user._id,
-      name: newName,
-      selectedTabIds: selectedTabIdsToCopy,
-      description,
-      privacySetting,
-      instructions,
-      sourceRooms: [populatedRoom._id],
-      image: formatImageUrl(newName, pluralResource),
-    };
-
-    if (privacySetting === 'private') {
-      resourceBody.entryCode = hri.random();
-    }
-    let updateFn;
-    let myVMTEndPt;
-
-    if (newResourceType === 'activity') {
-      updateFn = connectCreateActivity;
-      myVMTEndPt = 'activities';
-    } else {
-      updateFn = connectCreateRoom;
-      myVMTEndPt = 'rooms';
-
-      resourceBody.members = [
-        {
-          user: { username: user.username, _id: user._id },
-          role: 'facilitator',
-        },
-      ];
-    }
-
-    updateFn(resourceBody);
-    this.setState({ isCreatingActivity: false, selectedTabIdsToCopy: [] });
-    history.push(`/myVMT/${myVMTEndPt}`);
-  };
-
   addTabIdToCopy = (event, id) => {
     const { selectedTabIdsToCopy } = this.state;
     if (selectedTabIdsToCopy.indexOf(id) === -1) {
@@ -841,10 +768,6 @@ class Workspace extends Component {
       selectedTabIdsToCopy: tabs.map((t) => t._id),
       settings: false,
     });
-  };
-
-  setNewResourceType = (newResourceType) => {
-    this.setState({ newResourceType });
   };
 
   render() {
@@ -887,16 +810,13 @@ class Workspace extends Component {
       eventsWithRefs,
       showInstructionsModal,
       instructionsModalMsg,
-      newName,
-      selectedTabIdsToCopy,
-      isCreatingActivity,
-      createActivityError,
-      newResourceType,
       snapshotRef,
+      isCreatingActivity,
     } = this.state;
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
     else if (!controlledBy) inControl = 'NONE';
+
     const currentMembers = (
       <CurrentMembers
         members={tempMembers || populatedRoom.members}
@@ -1114,69 +1034,15 @@ class Workspace extends Component {
           {instructionsModalMsg}
         </Modal>
         {/* @todo refactor brings this outside of this file */}
-        <Modal
-          show={isCreatingActivity}
-          closeModal={() =>
-            this.setState({
-              isCreatingActivity: false,
-              createActivityError: null,
-              newResourceType: 'activity',
-            })
-          }
-        >
-          <p style={{ marginBottom: 10 }}>
-            Create a new Room or Template based on this room
-          </p>
-          <div className={createClasses.RadioButtons}>
-            <RadioBtn
-              name="activity"
-              checked={newResourceType === 'activity'}
-              check={() => this.setNewResourceType('activity')}
-            >
-              Template
-            </RadioBtn>
-            <RadioBtn
-              name="room"
-              checked={newResourceType === 'room'}
-              check={() => this.setNewResourceType('room')}
-            >
-              Room
-            </RadioBtn>
-          </div>
-          <TextInput
-            show={isCreatingActivity}
-            light
-            focus={isCreatingActivity}
-            name="new name"
-            value={newName}
-            change={(event) => {
-              this.setState({ newName: event.target.value });
-            }}
-            label={`New ${
-              newResourceType === 'room' ? 'room' : 'template'
-            } Name`}
+        {isCreatingActivity && (
+          <CreationModal
+            closeModal={this.closeCreate}
+            isCreatingActivity
+            populatedRoom={populatedRoom}
+            currentTabs={currentTabs}
+            user={user}
           />
-          {currentTabs && currentTabs.length > 1 ? (
-            <div>
-              <p>Choose at least one tab to include</p>
-              <SelectionList
-                listToSelectFrom={currentTabs}
-                selectItem={this.addTabIdToCopy}
-                selected={selectedTabIdsToCopy}
-              />
-            </div>
-          ) : null}
-          {createActivityError ? (
-            <div className={modalClasses.Error}>{createActivityError}</div>
-          ) : null}
-
-          <Button
-            data-testid={`create-new-${newResourceType}`}
-            click={this.createNewActivityOrRoom}
-          >
-            Create {newResourceType === 'room' ? 'room' : 'template'}
-          </Button>
-        </Modal>
+        )}
       </Fragment>
     );
   }
@@ -1197,8 +1063,6 @@ Workspace.propTypes = {
   connectUpdateRoomTab: PropTypes.func.isRequired,
   connectSetRoomStartingPoint: PropTypes.func.isRequired,
   connectUpdateUserSettings: PropTypes.func.isRequired,
-  connectCreateActivity: PropTypes.func.isRequired,
-  connectCreateRoom: PropTypes.func.isRequired,
 };
 
 Workspace.defaultProps = {
@@ -1232,7 +1096,5 @@ export default connect(
     connectUpdateRoomTab: updateRoomTab,
     connectSetRoomStartingPoint: setRoomStartingPoint,
     connectUpdateUserSettings: updateUserSettings,
-    connectCreateActivity: createActivity,
-    connectCreateRoom: createRoom,
   }
 )(Workspace);
