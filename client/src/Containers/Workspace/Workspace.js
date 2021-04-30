@@ -138,6 +138,7 @@ class Workspace extends Component {
         const { currentTabId } = this.state;
         if (data && data.dataURL.length > 10) {
           console.log('Creating snap for ', roomId);
+          console.log(data);
           API.put('rooms', roomId, {
             snapshot: {
               ...populatedRoom.snapshot,

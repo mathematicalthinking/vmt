@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable import/prefer-default-export */
 import React from 'react';
-import * as htmltoimage from 'html-to-image';
+import html2canvas from 'html2canvas';
 // import throttle from 'lodash/throttle';
 
 export const useSortableData = (items, config = null) => {
@@ -77,12 +77,18 @@ export function useSnapshots(callback) {
 
   const takeSnapshot = () => {
     if (!elementRef.current) return;
-    htmltoimage
-      .toPng(elementRef.current)
-      .then((dataURL) => {
-        callback({ dataURL, timestamp: Date.now() });
-      })
-      .catch((err) => console.error(err));
+    console.log('Element ref: ', elementRef.current);
+    html2canvas(elementRef.current, {
+      // html2canvas config
+      // logging: true,
+      imageTimeout: 30000,
+      // scale: 1,
+      windowWidth: elementRef.current.scrollWidth,
+      windowHeight: elementRef.current.scrollHeight,
+    }).then((canvas) => {
+      const dataURL = canvas.toDataURL();
+      callback({ dataURL, timestamp: Date.now() });
+    });
   };
 
   // const stopSnapshots = () => {
