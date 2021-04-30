@@ -38,7 +38,7 @@
     "file-loader": "1.1.5",
     "fs-extra": "3.0.1",
     "html-webpack-plugin": "2.29.0",
-    "html2canvas": "^1.0.0-rc.7",
+    "html2canvas": "^0.5.0-beta4",
     "human-readable-ids": "^1.0.4",
     "jest": "20.0.4",
     "lodash": "^4.17.20",

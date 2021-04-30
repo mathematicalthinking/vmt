@@ -91,6 +91,20 @@ export function useSnapshots(callback) {
     });
   };
 
+  // const takeSnapshot = () => {
+  //   if (!elementRef.current) return;
+  //   const canvas = elementRef.current;
+
+  //   console.log('Element ref: ', canvas);
+  //   canvas.focus();
+  //   // console.log('URI: ', URI);
+  //   canvas
+  //     .toBlob((dataURL) => {
+  //       callback({ dataURL, timestamp: Date.now() });
+  //     })
+  //     .catch((err) => console.error(err));
+  // };
+
   // const stopSnapshots = () => {
   //   if (timer) {
   //     clearInterval(timer);
