@@ -102,6 +102,18 @@ function MonitoringView({
     return now - lastUpdated < recent;
   };
 
+  const _roomDateStamp = (lastUpdated) => {
+    const d = new Date(lastUpdated);
+    let month = d.getMonth() + 1;
+    let day = d.getDate();
+    const year = d.getFullYear();
+
+    if (month.length < 2) month = `0${month}`;
+    if (day.length < 2) day = `0${day}`;
+
+    return [month, day, year].join('-');
+  };
+
   const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
   const [selections, setSelections] = React.useState(
     _initializeSelections(userResources)
@@ -325,9 +337,19 @@ function MonitoringView({
                         list={_makeMenu(room._id)}
                         name={<i className="fas fa-bars" />}
                       />
-                      {queryStates[room._id].isSuccess
-                        ? queryStates[room._id].data.name
-                        : 'Loading...'}
+                      {queryStates[room._id].isSuccess ? (
+                        <Fragment>
+                          {queryStates[room._id].data.name}
+                          <span className={classes.Timestamp}>
+                            updated:{' '}
+                            {_roomDateStamp(
+                              queryStates[room._id].data.updatedAt
+                            )}
+                          </span>
+                        </Fragment>
+                      ) : (
+                        'Loading...'
+                      )}
                     </div>
 
                     {queryStates[room._id].isSuccess &&

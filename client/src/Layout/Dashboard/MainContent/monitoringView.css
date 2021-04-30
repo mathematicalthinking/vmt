@@ -79,6 +79,15 @@
   cursor: pointer;
 }
 
+.Timestamp {
+  font-style: italic;
+  color: #999;
+  font-size: 0.7em;
+  margin-right: 7px;
+  margin-top: 15px;
+  margin-left: auto;
+}
+
 .NoSnapshot {
   color: blue;
   padding: 8px 8px;
