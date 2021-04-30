@@ -50,6 +50,16 @@ class NewResourceContainer extends Component {
     });
   };
 
+  graphLinkMod = (event) => {
+    const codeLength = 10;
+    const link = event.target.value.split('/');
+    const code = link[link.length - 1].slice(0, codeLength);
+    this.setState({
+      desmosLink: `https://www.desmos.com/calculator/${code}`,
+      [event.target.name]: event.target.value,
+    });
+  };
+
   linkMod = (event) => {
     const codeLength = 24;
     const link = event.target.value.split('/');
@@ -307,7 +317,7 @@ class NewResourceContainer extends Component {
           setGgbApp={this.setGgbApp}
           desmosLink={desmosLink}
           setDesmosLink={this.linkMod}
-          setDesmosCalcLink={this.changeHandler}
+          setDesmosCalcLink={this.graphLinkMod}
           appName={appName}
         />
       );

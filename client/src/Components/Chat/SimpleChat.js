@@ -61,6 +61,7 @@ function SimpleChat({ log }) {
                   highlighted={false}
                   reference={false}
                   referencing={false}
+                  isSimplified={false}
                 />
               );
             })}

@@ -1,6 +1,5 @@
 /* eslint-disable react/no-did-update-set-state */
 import React, { Component, Fragment } from 'react';
-import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import find from 'lodash/find';
@@ -297,13 +296,13 @@ class Chat extends Component {
       goToReplayer,
       createActivity,
       pendingUsers,
-      history,
     } = this.props;
     const { highlightedMessage, hasNewMessages } = this.state;
     const DropdownMenu = () => {
       return (
         <div className={DropdownMenuClasses.Container}>
           <i className="fas fa-bars" />
+
           <div className={DropdownMenuClasses.DropdownContent}>
             {goToReplayer ? (
               <div className={DropdownMenuClasses.DropdownItem}>
@@ -338,19 +337,6 @@ class Chat extends Component {
                 </button>
               </div>
             ) : null}
-            <div className={DropdownMenuClasses.DropdownItem}>
-              <button
-                type="button"
-                className={classes.Button}
-                onClick={(e) => {
-                  history.push('/myVMT/monitoring');
-                  e.stopPropagation();
-                }}
-                data-testid="create-workspace"
-              >
-                Go to Monitoring
-              </button>
-            </div>
           </div>
         </div>
       );
@@ -424,7 +410,7 @@ class Chat extends Component {
           >
             {!replayer ? (
               <div className={classes.DropdownContainer}>
-                <DropdownMenu history={history} />{' '}
+                <DropdownMenu />{' '}
               </div>
             ) : null}
             Chat
@@ -554,7 +540,6 @@ Chat.propTypes = {
   goToReplayer: PropTypes.func,
   createActivity: PropTypes.func,
   pendingUsers: PropTypes.shape({}),
-  history: PropTypes.shape({}),
 };
 
 Chat.defaultProps = {
@@ -580,7 +565,6 @@ Chat.defaultProps = {
   goToReplayer: null,
   createActivity: null,
   pendingUsers: null,
-  history: null,
 };
 
-export default withRouter(Chat);
+export default Chat;

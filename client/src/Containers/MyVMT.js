@@ -127,12 +127,15 @@ class MyVMT extends Component {
         mainContent={
           <DashboardContent
             userResources={
+              // simple ternary in case navigation beats props update
               user[resource]
-                // eslint-disable-next-line react/destructuring-assignment
-                .map((id) => this.props[resource].byId[id])
-                .sort((a, b) => {
-                  return new Date(b.createdAt) - new Date(a.createdAt);
-                }) || []
+                ? user[resource]
+                    // eslint-disable-next-line react/destructuring-assignment
+                    .map((id) => this.props[resource].byId[id])
+                    .sort((a, b) => {
+                      return new Date(b.createdAt) - new Date(a.createdAt);
+                    }) || []
+                : []
             }
             notifications={
               resource === 'courses'

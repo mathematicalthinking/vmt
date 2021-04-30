@@ -624,6 +624,7 @@ class GgbGraph extends Component {
     // 0 = MOVE
 
     const { referencing, clearReference } = this.props;
+    const canChangePerspective = false; //  room.settings.participantsCanChangePerspective;
     if (this.receivingData) {
       return;
     }
@@ -745,6 +746,12 @@ class GgbGraph extends Component {
         }
         break;
       case 'perspectiveChange':
+        console.log(
+          'Perspective change... Can edit?: ',
+          this.userCanEdit(),
+          ' can change: ',
+          canChangePerspective
+        );
         if (this.userCanEdit()) {
           this.parseVisibleViews()
             .then((visibleViews) => {
@@ -762,7 +769,7 @@ class GgbGraph extends Component {
             .catch((err) => {
               console.log('parse visible views err: ', err);
             });
-        } else {
+        } else if (!canChangePerspective) {
           this.setState({ showControlWarning: true });
         }
 
