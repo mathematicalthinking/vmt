@@ -64,6 +64,7 @@ const DesmosActivity = (props) => {
     if (calculatorInst.current) {
       updateObject.currentScreen = calculatorInst.current.getActiveScreenIndex();
     }
+    console.log('Update object: ', updateObject);
     API.put('tabs', _id, updateObject)
       .then(() => updateRoomTab(room._id, _id, updateObject))
       .catch((err) => {
@@ -102,6 +103,7 @@ const DesmosActivity = (props) => {
 
   // Event listener callback on the persistent Activity instance
   const handleResponseData = (updates, type) => {
+    console.log('Screenpage(state): ', screenPage, ' Tab data: ', tab);
     const transient = type === 'transient';
     if (initializing) return;
     const { room, user, myColor, tab, resetControlTimer } = props;
@@ -252,7 +254,7 @@ const DesmosActivity = (props) => {
     // Go to screen last used
     if (tab.currentScreen) {
       const { currentScreen } = tab;
-      // console.log('Prior screen index loaded: ', currentScreen);
+      console.log('Prior screen index loaded: ', currentScreen);
       calculatorInst.current.setActiveScreenIndex(currentScreen);
       setScreenPage(currentScreen + 1);
     }
@@ -279,6 +281,7 @@ const DesmosActivity = (props) => {
     const page = calculatorInst.current.getActiveScreenIndex() + increment;
     calculatorInst.current.setActiveScreenIndex(page);
     setScreenPage(page + 1);
+    putState();
   }
 
   function _hasControl() {
