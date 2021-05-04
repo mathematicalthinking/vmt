@@ -49,7 +49,7 @@ class Workspace extends Component {
     }
     this.state = {
       takeSnapshot: () => {},
-      awaitingSnap: false,
+      cancelSnapshots: () => {},
       snapshotRef: React.createRef(),
       tabs: populatedRoom.tabs || [],
       log: populatedRoom.log || [],
@@ -118,22 +118,27 @@ class Workspace extends Component {
     // Set up snapshots
     const roomId = populatedRoom._id;
     if (roomId && roomId !== '') {
-      const { elementRef, takeSnapshot } = useSnapshots((data) => {
-        this.setState({ awaitingSnap: true });
-        const { currentScreen } = this.props;
-        const { currentTabId } = this.state;
-        if (data && data.dataURL.length > 10) {
-          console.log('Creating snap for ', roomId);
-          console.log(data);
-          API.put('rooms', roomId, {
-            snapshot: {
-              ...populatedRoom.snapshot,
-              [`${currentTabId}SCREEN_${currentScreen || ''}`]: data,
-            },
-          }).then(this.setState({ awaitingSnap: false }));
+      const { elementRef, takeSnapshot, cancelSnaphots } = useSnapshots(
+        (data) => {
+          const { currentScreen } = this.props;
+          const { currentTabId } = this.state;
+          if (data && data.dataURL.length > 10) {
+            console.log('Creating snap for ', roomId);
+            console.log(data);
+            API.put('rooms', roomId, {
+              snapshot: {
+                ...populatedRoom.snapshot,
+                [`${currentTabId}SCREEN_${currentScreen || ''}`]: data,
+              },
+            });
+          }
         }
+      );
+      this.setState({
+        takeSnapshot,
+        snapshotRef: elementRef,
+        cancelSnaphots,
       });
-      this.setState({ takeSnapshot, snapshotRef: elementRef });
     }
   }
 
@@ -181,8 +186,8 @@ class Workspace extends Component {
       clearTimeout(this.controlTimer);
     }
 
-    // const { stopSnapshots } = this.state;
-    // stopSnapshots(); // if Workspace were a functional component, we'd do this directly in the custom hook.
+    const { cancelSnapshots } = this.state;
+    cancelSnapshots(); // if Workspace were a functional component, we'd do this directly in the custom hook.
   }
 
   addToLog = (entry) => {
@@ -372,7 +377,6 @@ class Workspace extends Component {
 
     if (controlledBy === user._id) {
       const { takeSnapshot } = this.state;
-      // this.setState({ awaitingSnap: true });
       takeSnapshot();
 
       // Releasing control
@@ -591,13 +595,9 @@ class Workspace extends Component {
   };
 
   goBack = () => {
-    const { awaitingSnap } = this.state;
-    let delay = 0;
-    console.log('Awaiting snap: ', awaitingSnap);
-    if (awaitingSnap) delay = 1000;
     const { populatedRoom, history } = this.props;
     const { _id } = populatedRoom;
-    setTimeout(() => history.push(`/myVMT/rooms/${_id}/details`), delay);
+    history.push(`/myVMT/rooms/${_id}/details`);
   };
 
   setGraphCoords = (graphCoords) => {
