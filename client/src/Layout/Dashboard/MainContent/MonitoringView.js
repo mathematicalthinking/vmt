@@ -73,6 +73,16 @@ function MonitoringView({
     [allResources]
   );
 
+  const _wasRecentlyUpdated = (room) => {
+    // integrated logic to determine default rooms to view
+    // hours is time window to determine recent rooms
+    const hours = 24;
+    const recent = 3600000 * hours;
+    const lastUpdated = new Date(room.updatedAt);
+    const now = new Date();
+    return now - lastUpdated < recent;
+  };
+
   // we have to check whether the rooms in userResources are consistent
   // with the collection of rooms that were available for selection
   // and so stored in the Redux store.  For example, maybe a new room
@@ -123,16 +133,6 @@ function MonitoringView({
       }
     );
   });
-
-  const _wasRecentlyUpdated = (room) => {
-    // integrated logic to determine default rooms to view
-    // hours is time window to determine recent rooms
-    const hours = 24;
-    const recent = 3600000 * hours;
-    const lastUpdated = new Date(room.updatedAt);
-    const now = new Date();
-    return now - lastUpdated < recent;
-  };
 
   /**
    * EFFECTS THAT ARE USED TO PERSIST STATE AFTER UNMOUNT
