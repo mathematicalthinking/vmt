@@ -63,8 +63,8 @@ function MonitoringView({
     CHAT: 'Chat',
     THUMBNAIL: 'Thumbnail',
     GRAPH: 'Graph',
-    SIMPLE: 'Simple',
-    DETAILED: 'Detailed',
+    SIMPLE: 'Simple Chat',
+    DETAILED: 'Detailed Chat',
   };
 
   // Monitoring is allowed only on the rooms that the user manages.
@@ -72,6 +72,16 @@ function MonitoringView({
     () => allResources.filter((res) => res.myRole === 'facilitator'),
     [allResources]
   );
+
+  const _wasRecentlyUpdated = (room) => {
+    // integrated logic to determine default rooms to view
+    // hours is time window to determine recent rooms
+    const hours = 24;
+    const recent = 3600000 * hours;
+    const lastUpdated = new Date(room.updatedAt);
+    const now = new Date();
+    return now - lastUpdated < recent;
+  };
 
   // we have to check whether the rooms in userResources are consistent
   // with the collection of rooms that were available for selection
@@ -84,34 +94,12 @@ function MonitoringView({
         !storedSelections ||
         (storedSelections && storedSelections[room._id] === undefined)
       ) {
-        if (_defaultRoomSelections(room)) result[room._id] = true;
+        result[room.id] = _wasRecentlyUpdated(room);
       } else {
         result[room._id] = storedSelections[room._id];
       }
     });
     return result;
-  };
-
-  const _defaultRoomSelections = (room) => {
-    // integrated logic to determine default rooms to view
-    // hours is time window to determine recent rooms
-    const hours = 24;
-    const recent = 3600000 * hours;
-    const lastUpdated = new Date(room.updatedAt);
-    const now = new Date();
-    return now - lastUpdated < recent;
-  };
-
-  const _roomDateStamp = (lastUpdated) => {
-    const d = new Date(lastUpdated);
-    let month = d.getMonth() + 1;
-    let day = d.getDate();
-    const year = d.getFullYear();
-
-    if (month.length < 2) month = `0${month}`;
-    if (day.length < 2) day = `0${day}`;
-
-    return [month, day, year].join('-');
   };
 
   const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
@@ -251,12 +239,10 @@ function MonitoringView({
         );
       case constants.CHAT:
         return (
-          <Fragment>
-            <SimpleChat
-              isSimplified={chatType === constants.SIMPLE}
-              log={queryStates[id].isSuccess ? queryStates[id].data.chat : []}
-            />
-          </Fragment>
+          <SimpleChat
+            isSimplified={chatType === constants.SIMPLE}
+            log={queryStates[id].isSuccess ? queryStates[id].data.chat : []}
+          />
         );
       case constants.THUMBNAIL: {
         const snapshot = _getMostRecentSnapshot(id);
@@ -264,12 +250,24 @@ function MonitoringView({
           <img alt={`Snapshot of room ${id}`} src={snapshot} />
         ) : (
           <span className={classes.NoSnapshot}>No snapshot currently</span>
-          // <img alt={`No snapshot available for room ${id}`} src={NoSnapshot} />
         );
       }
       default:
         return null;
     }
+  };
+
+  // @TODO VMT should have a standard way of displaying timestamps, perhaps in utilities. This function should be there.
+  const _roomDateStamp = (lastUpdated) => {
+    const d = new Date(lastUpdated);
+    let month = d.getMonth() + 1;
+    let day = d.getDate();
+    const year = d.getFullYear();
+
+    if (month.length < 2) month = `0${month}`;
+    if (day.length < 2) day = `0${day}`;
+
+    return [month, day, year].join('-');
   };
 
   return (
@@ -281,19 +279,21 @@ function MonitoringView({
           buttons={[constants.VIEW, constants.SELECT]}
           onChange={setViewOrSelect}
         />
-        <ToggleGroup
-          buttons={[constants.CHAT, constants.THUMBNAIL, constants.GRAPH]}
-          onChange={setViewType}
-        />
-        {viewType === constants.CHAT ? (
+
+        {viewOrSelect === constants.VIEW && (
           <Fragment>
-            Chat log style:{' '}
             <ToggleGroup
-              buttons={[constants.DETAILED, constants.SIMPLE]}
-              onChange={setChatType}
+              buttons={[constants.CHAT, constants.THUMBNAIL, constants.GRAPH]}
+              onChange={setViewType}
             />
+            {viewType === constants.CHAT && (
+              <ToggleGroup
+                buttons={[constants.DETAILED, constants.SIMPLE]}
+                onChange={setChatType}
+              />
+            )}
           </Fragment>
-        ) : null}
+        )}
       </div>
 
       {viewOrSelect === constants.SELECT ? (
