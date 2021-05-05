@@ -103,9 +103,10 @@ const DesmosActivity = (props) => {
 
   // Event listener callback on the persistent Activity instance
   const handleResponseData = (updates, type) => {
-    console.log('Screenpage(state): ', screenPage, ' Tab data: ', tab);
+    // console.log('Screenpage(state): ', screenPage, ' Tab data: ', tab);
     const transient = type === 'transient';
     if (initializing) return;
+    // console.log('Receiving data: ', receivingData);
     const { room, user, myColor, tab, resetControlTimer } = props;
     const currentState = {
       desmosState: updates,
