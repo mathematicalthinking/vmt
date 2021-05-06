@@ -16,6 +16,7 @@ import Loading from '../../Components/Loading/Loading';
 import Tabs from '../Workspace/Tabs';
 import Tools from '../Workspace/Tools/Tools';
 import buildReplayerLog from './SharedReplayer.utils';
+import CreationModal from '../Workspace/Tools/CreationModal';
 
 const PLAYBACK_FIDELITY = 100;
 const INITIAL_STATE = {
@@ -35,6 +36,7 @@ const INITIAL_STATE = {
   stopTime: null,
   showControls: true,
   errorMessage: null,
+  isCreatingActivity: false,
 };
 class SharedReplayer extends Component {
   state = INITIAL_STATE;
@@ -140,6 +142,20 @@ class SharedReplayer extends Component {
       currentTabId: this.updatedLog[0].tab,
     });
     this.setState({ loading: false });
+  };
+
+  beginCreatingActivity = () => {
+    // create a new activity that belongs to the current user
+    // const { tabs } = this.state;
+    this.setState({
+      isCreatingActivity: true,
+    });
+  };
+
+  closeCreate = () => {
+    this.setState({
+      isCreatingActivity: false,
+    });
   };
 
   playing = () => {
@@ -368,7 +384,7 @@ class SharedReplayer extends Component {
   };
 
   render() {
-    const { populatedRoom, encompass } = this.props;
+    const { populatedRoom, encompass, user } = this.props;
     const {
       playing,
       playbackSpeed,
@@ -382,6 +398,7 @@ class SharedReplayer extends Component {
       currentMembers,
       allTabsLoaded,
       errorMessage,
+      isCreatingActivity,
     } = this.state;
     if (errorMessage) {
       return (
@@ -540,6 +557,7 @@ class SharedReplayer extends Component {
               toggleControl={this.toggleControl}
               lastEvent={this.updatedLog[logIndex]}
               replayer
+              createActivity={this.beginCreatingActivity}
             />
           }
           replayer
@@ -550,6 +568,15 @@ class SharedReplayer extends Component {
           instructionsExpanded
           encompass={encompass}
         />
+        {isCreatingActivity && (
+          <CreationModal
+            closeModal={this.closeCreate}
+            isCreatingActivity
+            populatedRoom={populatedRoom}
+            currentTabs={populatedRoom.tabs || []}
+            user={user}
+          />
+        )}
         {!allTabsLoaded && this.updatedLog.length > 0 ? (
           <Loading message="Preparing the replayer..." />
         ) : null}
@@ -562,7 +589,7 @@ SharedReplayer.propTypes = {
   encompass: PropTypes.bool,
   // match: PropTypes.shape({}).isRequired,
   populatedRoom: PropTypes.shape({}).isRequired,
-  // user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({}).isRequired,
   updateEnc: PropTypes.func,
   history: PropTypes.shape({}).isRequired,
 };

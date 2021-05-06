@@ -1033,7 +1033,6 @@ class Workspace extends Component {
         >
           {instructionsModalMsg}
         </Modal>
-        {/* @todo refactor brings this outside of this file */}
         {isCreatingActivity && (
           <CreationModal
             closeModal={this.closeCreate}
