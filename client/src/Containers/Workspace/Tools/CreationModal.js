@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -19,25 +19,20 @@ const CreationModal = (props) => {
   const [newName, setNewName] = useState('');
   const [newResourceType, setNewResourceType] = useState();
   const [selectedTabIdsToCopy, setSelectedIdsToCopy] = useState([]);
-  const [createActivityError, setCreateActivityError] = useState('');
+  const [createActivityError, setCreateActivityError] = useState(`${' '}`);
   const [isCreatingActivity, setIsCreatingActivity] = useState(true);
   const { populatedRoom, user, history } = props;
+
+  useEffect(() => {
+    _updateError();
+  }, [newResourceType, selectedTabIdsToCopy, newName]);
 
   const createNewActivityOrRoom = () => {
     const copy = { ...populatedRoom };
     const { connectCreateActivity, connectCreateRoom } = props;
 
-    if (!selectedTabIdsToCopy.length > 0) {
-      setCreateActivityError('Please select at least one tab to include');
-      return;
-    }
-
-    if (!newName) {
-      setCreateActivityError(
-        `Please provide a name for your new ${newResourceType}`
-      );
-      return;
-    }
+    _updateError();
+    if (createActivityError) return;
 
     const { description, privacySetting, instructions } = copy;
     const pluralResource =
@@ -77,6 +72,28 @@ const CreationModal = (props) => {
     updateFn(resourceBody);
     setIsCreatingActivity(false);
     history.push(`/myVMT/${myVMTEndPt}`);
+  };
+
+  const _updateError = () => {
+    const newResource =
+      newResourceType === 'activity' ? 'template' : newResourceType;
+    const isSingleTab = populatedRoom.tabs.length === 1;
+    if (createActivityError) {
+      if (isSingleTab && newName) setCreateActivityError(``);
+      else if (selectedTabIdsToCopy.length > 0 && newName) {
+        setCreateActivityError(``);
+      }
+    }
+    if (!selectedTabIdsToCopy.length > 0 && !isSingleTab) {
+      setCreateActivityError('Please select at least one tab to include');
+    }
+
+    if (!newName) {
+      setCreateActivityError(
+        `Please provide a name for your new ${newResource ||
+          'resource and select type above'}`
+      );
+    }
   };
 
   //   createNewActivity = () => {
@@ -133,14 +150,18 @@ const CreationModal = (props) => {
         <RadioBtn
           name="activity"
           checked={newResourceType === 'activity'}
-          check={() => setNewResourceType('activity')}
+          check={() => {
+            setNewResourceType('activity');
+          }}
         >
           Template
         </RadioBtn>
         <RadioBtn
           name="room"
           checked={newResourceType === 'room'}
-          check={() => setNewResourceType('room')}
+          check={() => {
+            setNewResourceType('room');
+          }}
         >
           Room
         </RadioBtn>
@@ -153,12 +174,12 @@ const CreationModal = (props) => {
         value={newName}
         change={(event) => {
           setNewName(event.target.value);
+          _updateError();
         }}
         label={`New ${newResourceType === 'room' ? 'room' : 'template'} Name`}
       />
       {currentTabs && currentTabs.length > 1 ? (
-        <div>
-          <p>Choose at least one tab to include</p>
+        <div className={modalClasses.FormSection}>
           <SelectionList
             listToSelectFrom={currentTabs}
             selectItem={addTabIdToCopy}
