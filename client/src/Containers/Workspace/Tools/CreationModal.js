@@ -16,12 +16,13 @@ import createClasses from '../../Create/create.css';
 import formatImageUrl from '../../Create/tinyGraphs.utils';
 
 const CreationModal = (props) => {
+  const { populatedRoom, user, history, mathState, currentTabId } = props;
+
   const [newName, setNewName] = useState('');
   const [newResourceType, setNewResourceType] = useState();
-  const [selectedTabIdsToCopy, setSelectedIdsToCopy] = useState([]);
+  const [selectedTabIdsToCopy, setSelectedIdsToCopy] = useState([currentTabId]);
   const [createActivityError, setCreateActivityError] = useState(`${' '}`);
   const [isCreatingActivity, setIsCreatingActivity] = useState(true);
-  const { populatedRoom, user, history } = props;
 
   useEffect(() => {
     _updateError();
@@ -45,6 +46,7 @@ const CreationModal = (props) => {
       privacySetting,
       instructions,
       sourceRooms: [populatedRoom._id],
+      mathState,
       image: formatImageUrl(newName, pluralResource),
     };
 
@@ -209,10 +211,13 @@ CreationModal.propTypes = {
   populatedRoom: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
   currentTabs: PropTypes.arrayOf(PropTypes.shape({})),
+  mathState: PropTypes.shape({}),
+  currentTabId: PropTypes.string.isRequired,
 };
 
 CreationModal.defaultProps = {
   currentTabs: {},
+  mathState: {},
 };
 
 const mapStateToProps = (state) => {

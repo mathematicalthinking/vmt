@@ -220,6 +220,7 @@ class ActivityWorkspace extends Component {
             isCreatingActivity={addingToMyActivities}
             populatedRoom={activity}
             user={user}
+            currentTabId={currentTabId}
           />
         )}
       </Fragment>

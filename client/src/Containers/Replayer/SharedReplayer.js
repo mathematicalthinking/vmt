@@ -37,6 +37,7 @@ const INITIAL_STATE = {
   showControls: true,
   errorMessage: null,
   isCreatingActivity: false,
+  mathState: {},
 };
 class SharedReplayer extends Component {
   state = INITIAL_STATE;
@@ -59,6 +60,7 @@ class SharedReplayer extends Component {
       // @TODO We should never populate the tabs events before getting here
       // we dont need them for the regular room activity only for playback
       this.buildReplayerLog();
+      this._setInitialMathState();
     }
   }
 
@@ -229,6 +231,25 @@ class SharedReplayer extends Component {
     }
   };
 
+  setMathState = (newState) => {
+    const { currentTabId, mathState } = this.state;
+    this.setState((prevState) => ({
+      mathState: { ...prevState.mathState, [currentTabId]: newState },
+    }));
+    console.log('Set new math space: ', mathState);
+  };
+
+  _setInitialMathState = () => {
+    const { populatedRoom } = this.props;
+    populatedRoom.tabs.forEach((tab) => {
+      if (tab.tabType === 'geogebra') {
+        this.setState({
+          mathState: { [tab._id]: tab.startingPointBase64 },
+        });
+      }
+    });
+  };
+
   // Takes a % of total progress and goes to the nearest timestamp
   goToTime = (percent, doAutoPlay = false, stopTime = null) => {
     const { populatedRoom } = this.props;
@@ -248,11 +269,13 @@ class SharedReplayer extends Component {
         return false;
       });
     }
-    populatedRoom.tabs.forEach((tab) => {
-      if (tab._id === this.updatedLog[logIndex].tab) {
-        currentTabId = tab._id;
-      }
-    });
+    if (populatedRoom.tabs) {
+      populatedRoom.tabs.forEach((tab) => {
+        if (tab._id === this.updatedLog[logIndex].tab) {
+          currentTabId = tab._id;
+        }
+      });
+    }
 
     const { logIndex: previousIndex } = this.state;
     const updatedMembers = this.deriveCurrentMembers(previousIndex, logIndex);
@@ -399,6 +422,7 @@ class SharedReplayer extends Component {
       allTabsLoaded,
       errorMessage,
       isCreatingActivity,
+      mathState,
     } = this.state;
     if (errorMessage) {
       return (
@@ -482,6 +506,7 @@ class SharedReplayer extends Component {
             style={{
               pointerEvents: 'none',
             }}
+            setMathState={this.setMathState}
           />
         );
       }
@@ -575,6 +600,8 @@ class SharedReplayer extends Component {
             populatedRoom={populatedRoom}
             currentTabs={populatedRoom.tabs || []}
             user={user}
+            mathState={mathState}
+            currentTabId={currentTabId}
           />
         )}
         {!allTabsLoaded && this.updatedLog.length > 0 ? (

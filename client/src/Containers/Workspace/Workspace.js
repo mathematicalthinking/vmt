@@ -1040,6 +1040,7 @@ class Workspace extends Component {
             populatedRoom={populatedRoom}
             currentTabs={currentTabs}
             user={user}
+            currentTabId={currentTabId}
           />
         )}
       </Fragment>
