@@ -1053,7 +1053,7 @@ Workspace.propTypes = {
   tempMembers: PropTypes.arrayOf(PropTypes.shape({})),
   lastMessage: PropTypes.shape({}),
   user: PropTypes.shape({}).isRequired,
-  currentScreen: PropTypes.string.isRequired,
+  currentScreen: PropTypes.string,
   temp: PropTypes.bool,
   history: PropTypes.shape({}).isRequired,
   save: PropTypes.func,
@@ -1070,6 +1070,7 @@ Workspace.defaultProps = {
   lastMessage: null,
   save: null,
   temp: false,
+  currentScreen: '',
 };
 const mapStateToProps = (state, ownProps) => {
   const { tabs } = state.rooms.byId[ownProps.populatedRoom._id];

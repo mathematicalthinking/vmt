@@ -9,7 +9,7 @@ import { Player } from '../../external/js/api.full.es';
 import socket from '../../utils/sockets';
 import mongoIdGenerator from '../../utils/createMongoId';
 import ControlWarningModal from './ControlWarningModal';
-import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
+// import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
 import Modal from '../../Components/UI/Modal/Modal';
 import API from '../../utils/apiRequests';
 
@@ -303,11 +303,12 @@ const DesmosActivity = (props) => {
   const {
     inControl,
     user,
-    showRefWarning,
-    refWarningMsg,
-    closeRefWarning,
-    doPreventFutureRefWarnings,
-    togglePreventRefWarning,
+    // @TODO **NONE OF THESE PROPS ARE RECEIVED RIGHT NOW **
+    // showRefWarning,
+    // refWarningMsg,
+    // closeRefWarning,
+    // doPreventFutureRefWarnings,
+    // togglePreventRefWarning,
   } = props;
   return (
     <Fragment>
@@ -331,6 +332,7 @@ const DesmosActivity = (props) => {
         }}
         inAdminMode={user ? user.inAdminMode : false}
       />
+      {/* @TODO None of the needed props are received right now
       <CheckboxModal
         show={showRefWarning}
         infoMessage={refWarningMsg}
@@ -338,7 +340,7 @@ const DesmosActivity = (props) => {
         isChecked={doPreventFutureRefWarnings}
         checkboxDataId="ref-warning"
         onSelect={togglePreventRefWarning}
-      />
+      /> */}
       <div
         id="activityNavigation"
         className={classes.ActivityNav}
