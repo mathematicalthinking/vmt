@@ -77,7 +77,7 @@ class Workspace extends Component {
       graphCoords: null,
       eventsWithRefs: [],
       showInstructionsModal: false,
-      instructionsModalMsg: null,
+      instructionsModalMsg: '',
       isCreatingActivity: false,
     };
   }
@@ -1054,7 +1054,7 @@ Workspace.propTypes = {
   tempMembers: PropTypes.arrayOf(PropTypes.shape({})),
   lastMessage: PropTypes.shape({}),
   user: PropTypes.shape({}).isRequired,
-  currentScreen: PropTypes.string,
+  currentScreen: PropTypes.number,
   temp: PropTypes.bool,
   history: PropTypes.shape({}).isRequired,
   save: PropTypes.func,
@@ -1083,7 +1083,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     user: state.user._id ? state.user : ownProps.user, // with tempWorkspace we won't have a user in the store
     loading: state.loading.loading,
-    currentScreen: currentTabInfo.currentScreen,
+    currentScreen: currentTabInfo.currentScreen || 0,
   };
 };
 
