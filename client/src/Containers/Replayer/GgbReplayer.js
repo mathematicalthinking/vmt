@@ -455,7 +455,6 @@ class GgbReplayer extends Component {
   }
 
   _getGgbState() {
-    console.log('Getting ggb state: ', this.ggbApplet.getBase64());
     return this.ggbApplet.getBase64();
   }
 

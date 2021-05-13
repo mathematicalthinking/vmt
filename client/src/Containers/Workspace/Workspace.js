@@ -302,6 +302,14 @@ class Workspace extends Component {
     socket.on('RECEIVED_UPDATED_REFERENCES', (data) => {
       this.setState({ eventsWithRefs: data });
     });
+
+    // helper to determine latency
+    let latency = 0;
+    socket.on('pong', function(ms) {
+      latency = ms;
+
+      console.log('Socket pong latency: ', latency);
+    });
   };
 
   createNewTab = () => {

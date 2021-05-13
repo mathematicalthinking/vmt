@@ -12,7 +12,7 @@ if (process.env.REACT_APP_STAGING) {
 // legacy config
 // const socket = io.connect(url);
 
-// updated config that includes options object, skips long polling connection
+// updated config that includes options object, includes long polling connection
 const socket = io(url);
 
 // helper socket methods to print socket messages
