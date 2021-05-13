@@ -296,6 +296,7 @@ class Chat extends Component {
       goToReplayer,
       createActivity,
       pendingUsers,
+      isSlowConnection,
     } = this.props;
     const { highlightedMessage, hasNewMessages } = this.state;
     const DropdownMenu = () => {
@@ -420,6 +421,7 @@ class Chat extends Component {
                   className={[
                     'fas fa-wifi',
                     user.connected ? classes.Connected : classes.Disconnected,
+                    isSlowConnection ? classes.Slow : classes.Connected,
                   ].join(' ')}
                   title={user.connected ? 'Connected' : 'Disconnected'}
                 />
@@ -540,6 +542,7 @@ Chat.propTypes = {
   goToReplayer: PropTypes.func,
   createActivity: PropTypes.func,
   pendingUsers: PropTypes.shape({}),
+  isSlowConnection: PropTypes.bool,
 };
 
 Chat.defaultProps = {
@@ -565,6 +568,7 @@ Chat.defaultProps = {
   goToReplayer: null,
   createActivity: null,
   pendingUsers: null,
+  isSlowConnection: true,
 };
 
 export default Chat;
