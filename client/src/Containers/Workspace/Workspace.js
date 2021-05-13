@@ -306,12 +306,10 @@ class Workspace extends Component {
 
     // helper to determine latency
     // 0-3 local, <50 good, <100 ok, >100 potential issues
-    let latency = 0;
-    socket.on('pong', function(ms) {
-      latency = ms;
-      if (latency < 100) {
-        this.setStartingPoint({ isSlowConnection: false });
-      }
+    // Set Threshold const to max acceptable latency in ms
+    const THRESHOLD = 100;
+    socket.on('pong', (latency) => {
+      this.setState({ isSlowConnection: latency > THRESHOLD });
       console.log('Socket pong latency: ', latency);
     });
   };
