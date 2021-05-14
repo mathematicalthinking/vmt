@@ -310,7 +310,7 @@ class Workspace extends Component {
     const THRESHOLD = 100;
     socket.on('pong', (latency) => {
       this.setState({ isSlowConnection: latency > THRESHOLD });
-      console.log('Socket pong latency: ', latency);
+      console.log('Heartbeat<3 Socket latency: ', latency);
     });
   };
 

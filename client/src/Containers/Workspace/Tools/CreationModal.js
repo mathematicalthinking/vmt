@@ -70,7 +70,6 @@ const CreationModal = (props) => {
         },
       ];
     }
-    console.log('New resource body: ', resourceBody);
     updateFn(resourceBody);
     setIsCreatingActivity(false);
     history.push(`/myVMT/${myVMTEndPt}`);
