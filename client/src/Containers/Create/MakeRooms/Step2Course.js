@@ -12,6 +12,7 @@ class Step1Course extends Component {
       setManual,
       error,
       submit,
+      setNumber,
     } = this.props;
     return (
       <div className={classes.Container}>
@@ -42,7 +43,7 @@ class Step1Course extends Component {
               light
               label="Number of participants per room"
               type="number"
-              change={this.setNumber}
+              change={setNumber}
             />
           </div>
         ) : (
@@ -65,6 +66,7 @@ Step1Course.propTypes = {
   isRandom: PropTypes.bool,
   setRandom: PropTypes.func.isRequired,
   setManual: PropTypes.func.isRequired,
+  setNumber: PropTypes.func.isRequired,
   error: PropTypes.string,
   submit: PropTypes.func.isRequired,
 };
