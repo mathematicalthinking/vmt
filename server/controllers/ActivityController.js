@@ -129,6 +129,7 @@ module.exports = {
   post: (body) => {
     return new Promise(async (resolve, reject) => {
       let existingTabs;
+
       // This indicates we're copying 1 or more activities
       if (body.activities) {
         // We should save these "SOURCE" activities on the new acitivty so we know where they cam from
@@ -170,9 +171,21 @@ module.exports = {
       if (body.ggbFiles) {
         ggbFiles = [...body.ggbFiles];
       }
+      if (existingTabs) {
+        existingTabs.forEach((tab, i, array) => {
+          // will eventually want to handle des graph states
+          if (body.mathState[tab._id] && tab.tabType === 'geogebra') {
+            array[i].currentStateBase64 = body.mathState[tab._id];
+          } else if (body.mathState[tab._id] && tab.tabType === 'desmos') {
+            array[i].currentState = body.mathState[tab._id];
+          }
+        });
+      }
       delete body.ggbFiles;
       delete body.activities;
       delete body.tabs;
+      delete body.mathState;
+
       db.Activity.create(body)
         .then((activity) => {
           createdActivity = activity;
@@ -203,8 +216,8 @@ module.exports = {
                 activity: activity._id,
                 ggbFile: tab.ggbFile,
                 currentState: tab.currentState,
-                startingPoint: tab.startingPoint,
-                startingPointBase64: tab.startingPointBase64,
+                startingPoint: tab.currentState,
+                startingPointBase64: tab.currentStateBase64,
                 currentStateBase64: tab.currentStateBase64,
                 tabType: tab.tabType,
               });

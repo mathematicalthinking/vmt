@@ -233,7 +233,6 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
       // Prepare the tabs if they exist
       let existingTabs;
-      let existingState;
       if (body.tabs) {
         existingTabs = Object.assign([], body.tabs);
       } else if (body.activities) {
@@ -258,9 +257,7 @@ module.exports = {
           _id: { $in: body.selectedTabIds },
         });
       }
-      if (body.mathState) {
-        existingState = Object.assign([], body.mathState);
-      }
+
       if (existingTabs) {
         existingTabs.forEach((tab, i, array) => {
           // will eventually want to handle des graph states
