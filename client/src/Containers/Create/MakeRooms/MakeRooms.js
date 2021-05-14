@@ -6,6 +6,7 @@ import { Aux, Modal } from '../../../Components';
 import { Step1, Step2Course, Step2, ParticipantList } from './index';
 import createClasses from '../create.css';
 import { createRoom } from '../../../store/actions';
+import AssignmentMatrix from './AssignmentMatrix';
 
 // @TODO CONSIDER DOING THIS DIFFERENTLY
 const shuffle = (array) => {
@@ -36,6 +37,7 @@ class MakeRooms extends Component {
     this.state = {
       isRandom: false,
       participantsPerRoom: 0,
+      roomNum: 1,
       selectedParticipants: [],
       roomsCreated: 0,
       remainingParticipants: participants,
@@ -70,6 +72,10 @@ class MakeRooms extends Component {
 
   setParticipantNumber = (event) =>
     this.setState({ participantsPerRoom: event.target.value });
+
+  setRoomNumber = (event) => {
+    this.setState({ roomNum: event.target.value });
+  };
 
   setNumber = (event) => {
     this.setState({
@@ -236,6 +242,7 @@ class MakeRooms extends Component {
       dueDate,
       isRandom,
       selectedParticipants,
+      roomNum,
       remainingParticipants,
       participantsPerRoom,
       error,
@@ -244,6 +251,13 @@ class MakeRooms extends Component {
     // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
     const participantList = (
       <ParticipantList
+        list={course ? remainingParticipants : []}
+        selectedParticipants={selectedParticipants}
+        select={this.selectParticipant}
+      />
+    );
+    const assignmentMatrix = (
+      <AssignmentMatrix
         list={course ? remainingParticipants : []}
         selectedParticipants={selectedParticipants}
         select={this.selectParticipant}
@@ -264,11 +278,14 @@ class MakeRooms extends Component {
           <Step2Course
             activity={activity}
             participantList={participantList}
+            assignmentMatrix={assignmentMatrix}
             submit={this.submit}
             setRandom={this.setRandom}
             setManual={this.setManual}
             setNumber={this.setNumber}
             participantsPerRoom={participantsPerRoom}
+            roomNum={roomNum}
+            setRoomNumber={this.setRoomNumber}
             setParticipantNumber={this.setParticipantNumber}
             isRandom={isRandom}
             error={error}
