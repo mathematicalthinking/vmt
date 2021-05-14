@@ -13,6 +13,7 @@ class Step1Course extends Component {
       error,
       submit,
       setNumber,
+      participantsPerRoom,
     } = this.props;
     return (
       <div className={classes.Container}>
@@ -22,7 +23,8 @@ class Step1Course extends Component {
             name="random"
             checked={isRandom}
             check={setRandom}
-            defaultChecked
+            defaultChecked={false}
+            isDisabled
           >
             Assign Randomly
           </RadioBtn>
@@ -30,7 +32,7 @@ class Step1Course extends Component {
             data-testid="assign-manually"
             name="manual"
             checked={!isRandom}
-            defaultChecked={false}
+            defaultChecked
             check={setManual}
           >
             Assign Manually
@@ -44,6 +46,8 @@ class Step1Course extends Component {
               label="Number of participants per room"
               type="number"
               change={setNumber}
+              value={participantsPerRoom}
+              name="participants"
             />
           </div>
         ) : (
@@ -63,6 +67,7 @@ class Step1Course extends Component {
 
 Step1Course.propTypes = {
   participantList: PropTypes.element.isRequired,
+  participantsPerRoom: PropTypes.number,
   isRandom: PropTypes.bool,
   setRandom: PropTypes.func.isRequired,
   setManual: PropTypes.func.isRequired,
@@ -74,6 +79,7 @@ Step1Course.propTypes = {
 Step1Course.defaultProps = {
   error: null,
   isRandom: false,
+  participantsPerRoom: 0,
 };
 
 export default Step1Course;

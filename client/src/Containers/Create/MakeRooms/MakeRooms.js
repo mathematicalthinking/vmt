@@ -125,6 +125,7 @@ class MakeRooms extends Component {
       close,
       history,
       match,
+      participants,
     } = this.props;
     const {
       dueDate,
@@ -194,26 +195,33 @@ class MakeRooms extends Component {
         error: 'Please enter the number of participants per room',
       });
     } else {
-      // @TODO IF THIS.STATE.REMAININGSTUDENTS !== THIS.PROPS.STUDENTS THEN WE KNOW
-      // THEY ALREADY STARTED ADDING SOME MANUALLY AND NOW ARE TRYING TO ADD THE REST
-      // RANDOMLY. WE SHOULD WARN AGAINST THIS
-      // @TODO THIS COULD PROBABLY BE OPTIMIZED
-      const updatedParticipants = shuffle(remainingParticipants);
-      const numRooms = remainingParticipants.length / participantsPerRoom;
+      // Is Random assignment
+      // @TODO THIS COULD PROBABLY BE OPTIMIZED - currently broken
+      const updatedParticipants = shuffle(participants);
+      const numRooms = updatedParticipants.length / participantsPerRoom;
       const roomsToCreate = [];
       for (let i = 0; i < numRooms; i++) {
+        if (updatedParticipants.length < 1) break;
         const currentRoom = { ...newRoom };
         const members = updatedParticipants
-          .splice(0, participantsPerRoom)
+          .slice(0, participantsPerRoom)
           .map((participant) => ({
             user: participant.user._id,
             role: 'participant',
           }));
+        updatedParticipants.splice(0, participantsPerRoom);
+        if (updatedParticipants.length === 1)
+          members.push({
+            user: updatedParticipants[0].user._id,
+            role: 'participant',
+          });
         members.push({ user: userId, role: 'facilitator' });
-        currentRoom.name = `${name} (room ${i + 1})`;
+        currentRoom.name = `${name} (CourseID:${course.slice(-5)}, room ${i +
+          1})`;
         currentRoom.members = members;
         roomsToCreate.push(currentRoom);
       }
+      console.log('Random Room assignment rooms: ', roomsToCreate);
       roomsToCreate.forEach((room) => connectCreateRoom(room));
       close();
       const { url } = match;
@@ -259,6 +267,7 @@ class MakeRooms extends Component {
             submit={this.submit}
             setRandom={this.setRandom}
             setManual={this.setManual}
+            setNumber={this.setNumber}
             participantsPerRoom={participantsPerRoom}
             setParticipantNumber={this.setParticipantNumber}
             isRandom={isRandom}
