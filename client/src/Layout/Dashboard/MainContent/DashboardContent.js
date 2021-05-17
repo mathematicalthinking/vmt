@@ -1,8 +1,8 @@
 /* eslint-disable prettier/prettier */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { MonitoringView } from '../../../Containers';
 import ResourceList from './ResourceList';
-import MonitoringView from './MonitoringView';
 
 export default function DashboardContent(props) {
   const { resource } = props;

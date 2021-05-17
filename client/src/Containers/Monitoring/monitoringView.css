@@ -1,4 +1,4 @@
-:import('../../../colors.css') {
+:import('../../colors.css') {
   blue: blue;
   blueHover: blueHover;
   gray: backgroundGray;

@@ -8,14 +8,12 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from 'react-query';
 import { connect } from 'react-redux';
-import API from '../../../utils/apiRequests';
-import SimpleChat from '../../../Components/Chat/SimpleChat';
-import ToggleGroup from './ToggleGroup';
+import { updateMonitorSelections } from '../../store/actions';
+import { Chart, statsReducer, initialState } from '..';
+import { NavItem, ToggleGroup } from '../../Components';
+import SimpleChat from '../../Components/Chat/SimpleChat';
+import { API, buildLog } from '../../utils';
 import SelectionTable from './SelectionTable';
-import { updateMonitorSelections } from '../../../store/actions';
-import { Chart, statsReducer, initialState } from '../../../Containers';
-import { NavItem } from '../../../Components';
-import buildLog from '../../../utils/buildLog';
 import classes from './monitoringView.css';
 import DropdownMenuClasses from './dropdownmenu.css';
 
@@ -94,7 +92,7 @@ function MonitoringView({
         !storedSelections ||
         (storedSelections && storedSelections[room._id] === undefined)
       ) {
-        result[room.id] = _wasRecentlyUpdated(room);
+        result[room._id] = _wasRecentlyUpdated(room);
       } else {
         result[room._id] = storedSelections[room._id];
       }
@@ -304,9 +302,11 @@ function MonitoringView({
               return { _id, ...queryStates[_id].data };
             })}
           selections={selections}
-          onChange={(newSelections) =>
-            setSelections({ ...selections, ...newSelections })
-          }
+          onChange={(newSelections) => {
+            setSelections((prev) => {
+              return { ...prev, ...newSelections };
+            });
+          }}
         />
       ) : (
         <div className={classes.TileGroup}>
