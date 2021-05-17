@@ -41,8 +41,9 @@ export const useSortableData = (items, config = null) => {
 
 export function useSnapshots(callback) {
   const timer = React.createRef();
-  const cancelSnapshot = React.createRef(false);
+  const cancelSnapshot = React.createRef();
   const elementRef = React.createRef();
+  cancelSnapshot.current = false;
 
   const startSnapshots = () => {
     if (!elementRef.current) return;
@@ -66,6 +67,13 @@ export function useSnapshots(callback) {
     }
   };
 
+  // adapted from https://stackoverflow.com/questions/475074/regex-to-parse-or-validate-base64-data
+  const _isWellFormedPNG = (dataURL) => {
+    return /^data:image\/png;base64,(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)/g.test(
+      dataURL
+    );
+  };
+
   const takeSnapshot = debounce(
     () => {
       if (!elementRef.current) return;
@@ -76,7 +84,8 @@ export function useSnapshots(callback) {
       }).then((canvas) => {
         if (!cancelSnapshot.current) {
           const dataURL = canvas.toDataURL();
-          callback({ dataURL, timestamp: Date.now() });
+          if (dataURL && _isWellFormedPNG(dataURL))
+            callback({ dataURL, timestamp: Date.now() });
         } else {
           cancelSnapshot.current = false;
         }

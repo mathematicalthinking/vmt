@@ -120,18 +120,18 @@ class Workspace extends Component {
     if (roomId && roomId !== '') {
       const { elementRef, takeSnapshot, cancelSnaphots } = useSnapshots(
         (data) => {
-          const { currentScreen } = this.props;
+          const { currentScreen, connectUpdateRoom } = this.props;
           const { currentTabId } = this.state;
-          if (data && data.dataURL.length > 10) {
-            console.log('Creating snap for ', roomId);
-            console.log(data);
-            API.put('rooms', roomId, {
-              snapshot: {
-                ...populatedRoom.snapshot,
-                [`${currentTabId}SCREEN_${currentScreen || ''}`]: data,
-              },
-            });
-          }
+          console.log('Creating snap for ', roomId);
+          console.log(data);
+          const newSnapshot = {
+            ...populatedRoom.snapshot,
+            [`${currentTabId}SCREEN_${currentScreen.toString()}`]: data,
+          };
+          connectUpdateRoom(roomId, {
+            snapshot: newSnapshot,
+          });
+          populatedRoom.snapshot = newSnapshot; // not sure why connectUpdateRoom doesn't essentially do this...
         }
       );
       this.setState({
@@ -139,6 +139,8 @@ class Workspace extends Component {
         snapshotRef: elementRef,
         cancelSnaphots,
       });
+
+      this._takeSnapshotIfNeeded();
     }
   }
 
@@ -172,6 +174,8 @@ class Workspace extends Component {
       this.goBack();
     }
 
+    // this._takeSnapshotIfNeeded(); // likely too CPU intensive and noticible by user.
+
     // const { takeSnapshot } = this.state;
     // if (prevProps.controlledBy === user._id) takeSnapshot();
   }
@@ -189,6 +193,20 @@ class Workspace extends Component {
     const { cancelSnapshots } = this.state;
     cancelSnapshots(); // if Workspace were a functional component, we'd do this directly in the custom hook.
   }
+
+  _takeSnapshotIfNeeded = () => {
+    const { populatedRoom, currentScreen } = this.props;
+    const { takeSnapshot, currentTabId } = this.state;
+
+    if (
+      populatedRoom.snapshot &&
+      // eslint-disable-next-line no-prototype-builtins
+      !populatedRoom.snapshot.hasOwnProperty(
+        `${currentTabId}SCREEN_${currentScreen.toString()}`
+      )
+    )
+      takeSnapshot();
+  };
 
   addToLog = (entry) => {
     const { log } = this.state;
