@@ -37,6 +37,7 @@ import {
   Error,
 } from '../Components';
 import Access from './Access';
+import RoomMonitorView from './Monitoring/RoomMonitorView';
 
 class Room extends Component {
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
@@ -49,6 +50,7 @@ class Room extends Component {
       tabs: [
         { name: 'Details' },
         { name: 'Members' },
+        { name: 'Monitoring' },
         { name: 'Stats' },
         { name: 'Settings' },
       ],
@@ -453,6 +455,9 @@ class Room extends Component {
         );
       } else if (resource === 'stats') {
         const MainContent = withRouter(withPopulatedRoom(Stats));
+        mainContent = <MainContent />;
+      } else if (resource === 'monitoring') {
+        const MainContent = withRouter(withPopulatedRoom(RoomMonitorView));
         mainContent = <MainContent />;
       }
       return (
