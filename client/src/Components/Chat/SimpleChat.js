@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import Button from 'Components/UI/Button/Button';
 import Message from './Message';
 import ChatClasses from './chat.css';
-import { Button } from '..';
 
 /**
  * A simplifield version of Chat, which uses some of the original's CSS.
