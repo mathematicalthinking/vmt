@@ -1,5 +1,6 @@
 export { default as Background } from './Background/Background';
 export { default as Chat } from './Chat/Chat';
+export { default as SimpleChat } from './Chat/SimpleChat';
 export { default as CurrentMembers } from './CurrentMembers/CurrentMembers';
 export { default as Checkbox } from './Form/Checkbox/Checkbox';
 export { default as Dropdown } from './Form/Dropdown/Dropdown';
@@ -30,6 +31,7 @@ export { default as Trash } from './UI/Trash/Trash';
 export { default as MousePointer } from './UI/Icons/MousePointer';
 export { default as ArrowLeft } from './UI/Icons/ArrowLeft';
 export { default as ArrowDown } from './UI/Icons/ArrowDown';
+export { default as ToggleGroup } from './UI/ToggleGroup/ToggleGroup';
 export { default as EditableText } from './EditableText/EditableText';
 export { default as EditText } from './EditableText/EditText';
 export { default as SelectionList } from './Form/SelectionList/SelectionList';

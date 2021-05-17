@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import Button from 'Components/UI/Button/Button';
 import Message from './Message';
 import ChatClasses from './chat.css';
-import { Button } from '..';
 
 /**
  * A simplifield version of Chat, which uses some of the original's CSS.
@@ -13,6 +13,7 @@ import { Button } from '..';
 function SimpleChat({ log, isSimplified }) {
   if (!log) log = [];
   const chatScroll = React.createRef();
+  const prevLogLength = React.useRef(0);
   const [showNewMessages, setShowNewMessages] = React.useState(false);
 
   const _scrollToBottom = () => {
@@ -33,8 +34,10 @@ function SimpleChat({ log, isSimplified }) {
   }, []);
 
   React.useEffect(() => {
-    if (_isNearBottom()) _scrollToBottom();
+    if (_isNearBottom() || prevLogLength.current === 0) _scrollToBottom();
     else setShowNewMessages(true);
+
+    prevLogLength.current = log.length;
   }, [log]);
 
   return (

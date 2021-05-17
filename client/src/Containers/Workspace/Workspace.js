@@ -50,6 +50,9 @@ class Workspace extends Component {
     this.state = {
       takeSnapshot: () => {},
       cancelSnapshots: () => {},
+      getSnapshot: () => {
+        return undefined;
+      },
       snapshotRef: React.createRef(),
       tabs: populatedRoom.tabs || [],
       log: populatedRoom.log || [],
@@ -118,27 +121,28 @@ class Workspace extends Component {
     // Set up snapshots
     const roomId = populatedRoom._id;
     if (roomId && roomId !== '') {
-      const { elementRef, takeSnapshot, cancelSnaphots } = useSnapshots(
-        (data) => {
-          const { currentScreen } = this.props;
-          const { currentTabId } = this.state;
-          if (data && data.dataURL.length > 10) {
-            console.log('Creating snap for ', roomId);
-            console.log(data);
-            API.put('rooms', roomId, {
-              snapshot: {
-                ...populatedRoom.snapshot,
-                [`${currentTabId}SCREEN_${currentScreen || ''}`]: data,
-              },
-            });
-          }
-        }
-      );
+      const {
+        elementRef,
+        takeSnapshot,
+        cancelSnaphots,
+        getSnapshot,
+      } = useSnapshots((newSnapshot) => {
+        const { connectUpdateRoom } = this.props;
+        console.log('Creating snap for ', roomId);
+        console.log(newSnapshot);
+        connectUpdateRoom(roomId, {
+          snapshot: newSnapshot,
+        });
+        populatedRoom.snapshot = newSnapshot; // not sure why connectUpdateRoom doesn't do this...
+      }, populatedRoom.snapshot || {});
       this.setState({
         takeSnapshot,
         snapshotRef: elementRef,
         cancelSnaphots,
+        getSnapshot,
       });
+
+      this._takeSnapshotIfNeeded();
     }
   }
 
@@ -172,6 +176,8 @@ class Workspace extends Component {
       this.goBack();
     }
 
+    // this._takeSnapshotIfNeeded(); // likely too CPU intensive and noticible by user.
+
     // const { takeSnapshot } = this.state;
     // if (prevProps.controlledBy === user._id) takeSnapshot();
   }
@@ -189,6 +195,33 @@ class Workspace extends Component {
     const { cancelSnapshots } = this.state;
     cancelSnapshots(); // if Workspace were a functional component, we'd do this directly in the custom hook.
   }
+
+  /** ********************
+   *
+   * FUNCTIONS NEEDED FOR SNAPSHOTS (spring/summer 2021)
+   *
+   * Snapshots are a recent addition to VMT. They are used in the MonitoringView and RoomPreview as thumbnail images, for
+   * example. They are created and accessed via the useSnapshot utility hook. All the snapshots for a room are stored in
+   * the 'snapshot' property of the room, keyed by the tab and screen the snapshot was taken of.  As of this writing,
+   * taking a snapshot might be noticible on a slow machine, so care is taken not to take too many snapshots. A snapshot
+   * is taken when the user takes and then releases control (if the computer slows then, the person might not notice) or
+   * when the room first loads if there's not already a snapshot for this room's current tab and (if a DesmosActivity) screen.
+   *
+   * If snapshots have no chance of being too resource intensive, we could increase the frequency, which would give monitoring
+   * and previews a more real-time sense.
+   */
+  _snapshotKey = () => {
+    const { currentScreen } = this.props;
+    const { currentTabId } = this.state;
+    return { currentTabId, currentScreen };
+  };
+
+  _takeSnapshotIfNeeded = () => {
+    const { takeSnapshot, getSnapshot } = this.state;
+    const key = this._snapshotKey();
+    if (!getSnapshot(key)) takeSnapshot(key);
+  };
+  /** ******************** */
 
   addToLog = (entry) => {
     const { log } = this.state;
@@ -377,7 +410,7 @@ class Workspace extends Component {
 
     if (controlledBy === user._id) {
       const { takeSnapshot } = this.state;
-      takeSnapshot();
+      takeSnapshot(this._snapshotKey());
 
       // Releasing control
       const message = {
@@ -1071,7 +1104,7 @@ Workspace.defaultProps = {
   lastMessage: null,
   save: null,
   temp: false,
-  currentScreen: '',
+  currentScreen: 0,
 };
 const mapStateToProps = (state, ownProps) => {
   const { tabs } = state.rooms.byId[ownProps.populatedRoom._id];
@@ -1083,6 +1116,9 @@ const mapStateToProps = (state, ownProps) => {
   return {
     user: state.user._id ? state.user : ownProps.user, // with tempWorkspace we won't have a user in the store
     loading: state.loading.loading,
+    // currentScreen, only important now for DesmosActivities, is used by the snapshot facililty.
+    // Even on DesmosActivities, this won't be set if the person doesn't navigate before a snapshot is taken. THus, it's
+    // important that the default is 0 (indicating the first screen)
     currentScreen: currentTabInfo.currentScreen || 0,
   };
 };
