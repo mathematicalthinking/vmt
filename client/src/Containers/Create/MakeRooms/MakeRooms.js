@@ -74,7 +74,15 @@ class MakeRooms extends Component {
     this.setState({ participantsPerRoom: event.target.value });
 
   setRoomNumber = (event) => {
-    this.setState({ roomNum: event.target.value });
+    const number = +event.target.value;
+    if (number === 0) this.setState({ roomNum: '' });
+    if (number > 0 && number < 8) {
+      this.setState({ roomNum: number, error: null });
+    } else {
+      this.setState({
+        error: 'Please create between 1 and 7 rooms',
+      });
+    }
   };
 
   setNumber = (event) => {
@@ -261,6 +269,10 @@ class MakeRooms extends Component {
         list={course ? remainingParticipants : []}
         selectedParticipants={selectedParticipants}
         select={this.selectParticipant}
+        roomNum={roomNum}
+        activity={activity}
+        course={course}
+        dueDate={dueDate}
       />
     );
 

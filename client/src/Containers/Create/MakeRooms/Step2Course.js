@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classes from './makeRooms.css';
-import { RadioBtn, TextInput, Button } from '../../../Components';
+import { TextInput, Button } from '../../../Components';
 
 class Step1Course extends Component {
   render() {
@@ -9,8 +9,6 @@ class Step1Course extends Component {
       // participantList,
       assignmentMatrix,
       isRandom,
-      setRandom,
-      setManual,
       error,
       submit,
       setNumber,
@@ -21,26 +19,6 @@ class Step1Course extends Component {
     return (
       <div className={classes.Container}>
         <h2 className={classes.Title}>Assign To Rooms</h2>
-        <div className={classes.Radios}>
-          <RadioBtn
-            name="random"
-            checked={isRandom}
-            check={setRandom}
-            defaultChecked={false}
-            isDisabled
-          >
-            Assign Randomly
-          </RadioBtn>
-          <RadioBtn
-            data-testid="assign-manually"
-            name="manual"
-            checked={!isRandom}
-            defaultChecked
-            check={setManual}
-          >
-            Assign Manually
-          </RadioBtn>
-        </div>
         {isRandom ? (
           <div className={classes.SubContainer}>
             <div className={classes.Error}>{error || ''}</div>
@@ -59,7 +37,7 @@ class Step1Course extends Component {
             <div className={classes.Error}>{error || ''}</div>
             <TextInput
               light
-              label="Number of rooms"
+              label="Number of rooms to create"
               type="number"
               change={setRoomNumber}
               value={roomNum}
@@ -84,8 +62,6 @@ Step1Course.propTypes = {
   participantsPerRoom: PropTypes.number,
   roomNum: PropTypes.number,
   isRandom: PropTypes.bool,
-  setRandom: PropTypes.func.isRequired,
-  setManual: PropTypes.func.isRequired,
   setNumber: PropTypes.func.isRequired,
   setRoomNumber: PropTypes.func,
   error: PropTypes.string,
