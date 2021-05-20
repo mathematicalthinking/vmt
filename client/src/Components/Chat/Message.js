@@ -1,8 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import Filter from 'bad-words';
 import Button from '../UI/Button/Button';
 import classes from './chat.css';
+
+const filter = new Filter();
+// add words
+// const addWordList = [];
+// filter.addWords(...addWordList);
 
 const Message = React.forwardRef((props, ref) => {
   const {
@@ -19,6 +25,7 @@ const Message = React.forwardRef((props, ref) => {
   let highlightClass = '';
   let referenceClass = '';
   let referenceArrow = null;
+
   const nameGen = () => {
     let shortName = message.user.username;
     const maxLen = 12;
@@ -65,7 +72,6 @@ const Message = React.forwardRef((props, ref) => {
     }
 
     const formattedTimestamp = momentTimestamp.format(format);
-
     return (
       <div
         key={id}
@@ -90,7 +96,7 @@ const Message = React.forwardRef((props, ref) => {
             tabIndex="0"
             data-testid={`msg-${id}`}
           >
-            {message.text}
+            {filter.clean(message.text)}
           </span>
         </div>
         {/* CONSIDER CONDITIONALLLY FORMATIING THE DATE BASED ON HOW FAR IN THE PAST IT IS
