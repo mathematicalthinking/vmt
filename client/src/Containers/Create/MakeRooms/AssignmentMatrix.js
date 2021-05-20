@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import classes from './makeRooms.css';
-import { Checkbox } from '../../../Components';
+// import { Checkbox } from '../../../Components';
 
 const AssignmentMatrix = (props) => {
   const {
@@ -24,22 +24,83 @@ const AssignmentMatrix = (props) => {
     members: [],
   };
 
+  // let defaultMembers = {};
+  // useEffect(() => {
+  //   //  default member list
+  //   list.forEach((member) => {
+  //     defaultMembers = { ...defaultMembers, [member.user._id]: false };
+  //   });
+  // }, [list]);
+
   useEffect(() => {
-    setRooms([]);
+    // setRooms([]);
     let roomList = [];
     for (let i = 0; i < roomNum; i++) {
       const currentRoom = { ...newRoom };
       currentRoom.roomIndex = i;
       currentRoom.name = `${activity.name} room ${i + 1} (${dateStamp})`;
       currentRoom.course = course;
+      currentRoom.members = [];
       roomList = [...roomList, currentRoom];
     }
     setRooms(roomList);
   }, [roomNum]);
+  // logging this to avoid unused prop
+  console.log('Select function: ', select);
+
+  const selectParticipant = (event, dataId) => {
+    console.log('rooms:', rooms);
+    const userId = dataId.split('rm')[0];
+    const roomId = dataId.split('rm')[1];
+    console.log('Selected: ', userId, ' in room ', roomId);
+    if (userId && roomId >= 0) {
+      const roomsUpdate = [...rooms];
+      const index = roomsUpdate[roomId].members.indexOf(userId);
+      // console.log('Rooms before: ', roomsUpdate, ' index: ', index);
+      if (index < 0) {
+        roomsUpdate[roomId].members.push(userId);
+      }
+      if (index >= 0) {
+        roomsUpdate[roomId].members.splice(index, 1);
+      }
+      setRooms(roomsUpdate);
+      console.log('All rooms: ', roomsUpdate);
+    }
+    // let updatedSelectedParticipants = [...selectedParticipants];
+    // // if user is already selected, remove them from the selected lis
+    // if (selectedParticipants.includes(newParticipant)) {
+    //   updatedSelectedParticipants = selectedParticipants.filter(
+    //     (participant) => participant !== newParticipant
+    //   );
+    //   // updatedRemainingParticipants.push()
+    //   // if the user is not already selected, add them to selected and remove from remaining
+    // } else {
+    //   updatedSelectedParticipants.push(newParticipant);
+    // }
+    // this.setState({
+    //   selectedParticipants: updatedSelectedParticipants,
+    // });
+    // Else add them
+  };
+
+  // const checkSelection = (userId, roomId) => {
+  //   if (rooms[roomId]) {
+  //     console.log(
+  //       'Checking ',
+  //       rooms[roomId],
+  //       ' for ',
+  //       userId,
+  //       ':',
+  //       rooms[roomId].members.includes(userId)
+  //     );
+  //     return rooms[roomId].members.includes(userId);
+  //   }
+  //   return false;
+  //  };
 
   return (
     <Fragment>
-      <table>
+      <table className={classes.Table}>
         {/* top row rooms list */}
         <thead>
           <tr>
@@ -70,18 +131,31 @@ const AssignmentMatrix = (props) => {
               >
                 <td>{`${i + 1}. ${participant.user.username}`}</td>
                 {rooms.map((room, j) => {
+                  const roomKey = `${participant.user._id}rm${room.roomIndex}`;
                   return (
                     <td key={`${participant.user._id}rm${j + 1}`}>
-                      <Checkbox
-                        label={`${j + 1}. `}
-                        change={select}
-                        dataId={`${participant.user._id}rm${j + 1}`}
-                        key={`${participant.user._id}rm${j + 1}`}
-                        checked={
-                          selectedParticipants.indexOf(participant.user._id) >
-                          -1
-                        }
+                      <input
+                        type="checkbox"
+                        id={roomKey}
+                        userid={roomKey}
+                        onChange={(event) => {
+                          selectParticipant(event, roomKey);
+                        }}
+                        checked={rooms[j].members.includes(
+                          participant.user._id
+                        )}
                       />
+                      {/* <Checkbox
+                        change={selectParticipant}
+                        dataId={roomKey}
+                        id={roomKey}
+                        checked={checkSelection(
+                          participant.user._id,
+                          room.roomIndex
+                        )}
+                      >
+                        {' '}
+                      </Checkbox> */}
                     </td>
                   );
                 })}

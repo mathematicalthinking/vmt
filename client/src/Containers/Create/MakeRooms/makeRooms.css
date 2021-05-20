@@ -71,6 +71,10 @@
   background-color: #ddd;
 }
 
+.Table {
+  vertical-align: middle;
+}
+
 .Error {
   color: red;
   height: 20px;
