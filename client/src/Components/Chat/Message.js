@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import Filter from 'bad-words';
+// import Filter from 'bad-words';
 import Button from '../UI/Button/Button';
 import classes from './chat.css';
 
-const filter = new Filter();
+// const filter = new Filter();
 // add words
 // const addWordList = [];
 // filter.addWords(...addWordList);
@@ -96,7 +96,7 @@ const Message = React.forwardRef((props, ref) => {
             tabIndex="0"
             data-testid={`msg-${id}`}
           >
-            {filter.clean(message.text)}
+            {message.text}
           </span>
         </div>
         {/* CONSIDER CONDITIONALLLY FORMATIING THE DATE BASED ON HOW FAR IN THE PAST IT IS
