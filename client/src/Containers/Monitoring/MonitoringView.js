@@ -46,7 +46,8 @@ import DropdownMenuClasses from './dropdownmenu.css';
  *  - Store entire state (room selections, toggle choices, scrollTop for each tile, etc.) in Redux store and restore MonitorView state accordingly
  *  - Show notifications for rooms
  *  - indicate 'last update' on each tile as well as number currently in room (but how to do this so isn't overly busy)
- *
+ *  - UPDATE TO USE USESNAPSHOT HOOK. This encapsulates a lot of the thumbnail logic.  Similarly, need to use the
+ *      usePopulatedRoom hook.
  */
 
 function MonitoringView({

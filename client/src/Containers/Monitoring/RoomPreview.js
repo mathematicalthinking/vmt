@@ -15,20 +15,16 @@ import classes from './monitoringView.css';
  * chart because the Stats tab has this already. The Chat tile is always
  * the same, but the thumbnail changes depending on the tab/screen selection.
  *
- * Because this view appears in the lobby, we need the room title or actions menu on the thumbnail tile.
+ * Because this view appears in the lobby, we don't need the room title or actions menu on the thumbnail tile.
  *
  * We don't need to keep track of selections, as those might change as the room changes. However, we *DO* need to keep
  * the possible selections available in the drop-downs up to date. For example, if a new tab gets created, that should
  * be reflected in the dropdown.
  *
- * @TODO:
- *  - move MonitoringView and related files to this location so that all Monitoring code is together. -- DONE
- *  - compare this component to MonitoringView and figure out places to break out shared components or functionality
- *  - implement selection of tabs/screens
- *  - implement detection if number of tabs changes. Number of screens can't change, can it?
- *  - for now, doesn't allow switching between simplified and detailed chat.
- *  - fix chat so starts at bottom.
  *
+ * NOTES:
+ *  - The snapshot keys are of the form {currentTabId: string, currentScreen: number}. These keys are generated in the
+ *    Workspace container, where the snapshots are taken.
  */
 
 function RoomPreview({ roomId }) {
@@ -41,7 +37,10 @@ function RoomPreview({ roomId }) {
     refetchInterval: 10000, // check for new info every 10 seconds
   });
 
-  // Functions for accessing information in the snapshot object
+  // Functions for accessing information in the snapshot object.
+  // getKeys() returns an array of all the keys being used for snapshots
+  // getSnapshot(key) returns the snapshot (dataURL) at that key
+  // getTimestamp(key) returns the timestamp (Unix epoch time) at that key
   const { getKeys, getSnapshot, getTimestamp } = useSnapshots(
     () => {},
     isSuccess ? data.snapshot : {}
@@ -58,22 +57,18 @@ function RoomPreview({ roomId }) {
         currentScreen: screenSelection && screenSelection.value,
       });
     }
-    // const snapshot = _getMostRecentSnapshot(tabSelection && tabSelection.value);
 
     setThumbnail(snapshot);
   }, [tabSelection, screenSelection, data]);
 
   /**
    *
-   * FUNCTIONS THAT ARE USED TO SIMPLIFY THE RENDER LOGIC
+   * HELPER FUNCTIONS
    *
    */
 
-  // eslint-disable-next-line no-unused-vars
   const _getMostRecentSnapshot = (tabId) => {
-    // if (!isSuccess) return null;
-
-    let relevantKeys = getKeys();
+    let relevantKeys = getKeys(); // if no tabId, return the most recent of all the room's snapshots
     if (tabId) {
       relevantKeys = relevantKeys.filter((key) => key.currentTabId === tabId);
     }
@@ -88,17 +83,22 @@ function RoomPreview({ roomId }) {
     return result;
   };
 
+  // returns an array of the screen numbers for which we have snapshots on this tab.
   const _getScreens = (tabId) => {
     const tabKeys = getKeys().filter((key) => key.currentTabId === tabId);
     return tabKeys.map((key) => key.currentScreen);
   };
 
+  /**
+   *
+   * FUNCTION USED TO SIMPLIFY THE RENDER LOGIC. Creates the Select components, if needed, for tabs and screens.
+   *
+   */
   const _tabsAndScreens = () => {
     const tabOptions = data.tabs.map((tab) => {
       return { value: tab._id, label: tab.name };
     });
 
-    // cases: no selections & only one tab, no selections & >1 tab, a selection
     let screens = [];
     if (tabOptions.length === 1) {
       screens = _getScreens(tabOptions[0].value);
