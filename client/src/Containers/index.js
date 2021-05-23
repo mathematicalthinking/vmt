@@ -35,4 +35,4 @@ export { default as Dashboard } from './Dashboard';
 export { default as Chart } from './Stats/Chart';
 export { default as statsReducer, initialState } from './Stats/statsReducer';
 export { default as MonitoringView } from './Monitoring/MonitoringView';
-export { default as RoomMonitorView } from './Monitoring/RoomMonitorView';
+export { default as RoomPreview } from './Monitoring/RoomPreview';

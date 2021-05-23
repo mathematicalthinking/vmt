@@ -13,6 +13,7 @@ import ChatClasses from './chat.css';
 function SimpleChat({ log, isSimplified }) {
   if (!log) log = [];
   const chatScroll = React.createRef();
+  const prevLogLength = React.useRef(0);
   const [showNewMessages, setShowNewMessages] = React.useState(false);
 
   const _scrollToBottom = () => {
@@ -33,8 +34,10 @@ function SimpleChat({ log, isSimplified }) {
   }, []);
 
   React.useEffect(() => {
-    if (_isNearBottom()) _scrollToBottom();
+    if (_isNearBottom() || prevLogLength.current === 0) _scrollToBottom();
     else setShowNewMessages(true);
+
+    prevLogLength.current = log.length;
   }, [log]);
 
   return (
