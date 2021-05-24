@@ -58,11 +58,12 @@ export function useSnapshots(callback, initialObject = {}) {
     }
   };
 
-  // adapted from https://stackoverflow.com/questions/475074/regex-to-parse-or-validate-base64-data
+  // Commented code adapted from https://stackoverflow.com/questions/475074/regex-to-parse-or-validate-base64-data, but it seemed too
+  // slow. Current code adapted from: https://hashnode.com/post/how-do-you-validate-a-base64-image-cjcftg4fy03s0p7wtn31oqjx7
   const _isWellFormedPNG = (dataURL) => {
-    return /^data:image\/png;base64,(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)/g.test(
-      dataURL
-    );
+    // return /^data:image\/png;base64,(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)/g.test(
+    //   dataURL);
+    return /^data:image\/png;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/g.test(dataURL);
   };
 
   const _hash = (key) => {
@@ -88,6 +89,7 @@ export function useSnapshots(callback, initialObject = {}) {
 
   const takeSnapshot = debounce(
     (key) => {
+      console.log('starting snapshot for', key);
       if (!elementRef.current) {
         console.log('no elementRef');
         return;
@@ -105,7 +107,7 @@ export function useSnapshots(callback, initialObject = {}) {
               [_hash(key)]: { dataURL, timestamp: Date.now(), key: _hash(key) },
             };
             callback(referenceObject.current);
-          } else console.log('snapshot not well formed');
+          } else console.log('snapshot not well formed:', dataURL);
         } else {
           cancelSnapshot.current = false;
           console.log('snapshot cancelled');
