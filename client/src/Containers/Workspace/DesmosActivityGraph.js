@@ -37,7 +37,9 @@ class DesmosActivityGraph extends Component {
     if (prevProps.currentTab !== currentTab) {
       if (role === 'facilitator') {
         const updatedTabs = [...prevProps.activity.tabs];
-        const updatedTab = updatedTabs[prevProps.currentTab];
+        const updatedTab =
+          updatedTabs[prevProps.currentTab] ||
+          updatedTabs.find((tab) => tab._id === prevProps.currentTab);
         updatedTab.currentState = JSON.stringify({
           ...this.calculator.getState(),
         });
@@ -46,7 +48,9 @@ class DesmosActivityGraph extends Component {
           currentState: updatedTab.currentState,
         });
       }
-      this.calculator.setState(activity.tabs[currentTab].currentState);
+      if (activity.tabs[currentTab]) {
+        this.calculator.setState(activity.tabs[currentTab].currentState);
+      }
     }
   }
 

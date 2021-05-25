@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { Aux, Modal } from '../../../Components';
-import { Step1, Step2Course, Step2, ParticipantList } from './index';
+import { Aux, BigModal } from 'Components';
+import { Step1, Step2Course, ParticipantList } from './index';
 import createClasses from '../create.css';
 import { createRoom } from '../../../store/actions';
 import AssignmentMatrix from './AssignmentMatrix';
@@ -39,7 +39,8 @@ class MakeRooms extends Component {
       participantsPerRoom: 0,
       roomNum: 1,
       selectedParticipants: [],
-      roomsCreated: 0,
+      roomDrafts: [],
+      // roomsCreated: 0,
       remainingParticipants: participants,
       dueDate: null,
       error: null,
@@ -128,6 +129,31 @@ class MakeRooms extends Component {
     // Else add them
   };
 
+  setParticipants = (event, user) => {
+    const { selectedParticipants } = this.state;
+    let updatedParticpants = [...selectedParticipants];
+    if (
+      selectedParticipants.findIndex((userObj) => userObj.id === user._id) > -1
+    ) {
+      updatedParticpants = selectedParticipants.filter(
+        (participant) => participant !== user
+      );
+      // updatedRemainingParticipants.push()
+      // if the user is not already selected, add them to selected and remove from remaining
+    } else {
+      updatedParticpants.push(user);
+    }
+    this.setState({
+      selectedParticipants: updatedParticpants,
+    });
+  };
+
+  updateParticipants = (selectionMatrix) => {
+    const { roomNum } = this.state;
+    console.log('Passed matrix: ', selectionMatrix, ' Room num: ', roomNum);
+    this.setState({ roomDrafts: selectionMatrix });
+  };
+
   // NOW THAT WE HAVE A CREATEROOMFROMACTIVITY ACTION THINK ABOUT REFACTORING ALL OF THIS
   // TO UTILIZE THAT FUNCTIONALITY
   submit = () => {
@@ -141,14 +167,7 @@ class MakeRooms extends Component {
       match,
       participants,
     } = this.props;
-    const {
-      dueDate,
-      isRandom,
-      selectedParticipants,
-      roomsCreated,
-      remainingParticipants,
-      participantsPerRoom,
-    } = this.state;
+    const { dueDate, isRandom, roomDrafts, participantsPerRoom } = this.state;
     const {
       _id,
       name,
@@ -175,32 +194,26 @@ class MakeRooms extends Component {
     };
     if (!isRandom) {
       // create a room with the selected participants
-      const members = selectedParticipants.map((participant) => ({
-        user: participant,
-        role: 'participant',
-      }));
-      members.push({ user: userId, role: 'facilitator' });
-      newRoom.name = `${name} (room ${roomsCreated + 1})`;
-      newRoom.members = members;
-      connectCreateRoom(newRoom);
-      const updatedParticipants = remainingParticipants.filter(
-        (participant) => {
-          if (selectedParticipants.includes(participant.user._id)) {
-            return false;
-          }
-          return true;
-        }
-      );
-      this.setState((prevState) => ({
-        selectedParticipants: [],
-        roomsCreated: prevState.roomsCreated + 1,
-        remainingParticipants: updatedParticipants,
-      }));
-      if (updatedParticipants.length === 0) {
-        close();
-        const { url } = match;
-        history.push(`${url.slice(0, url.length - 7)}rooms`);
+      const roomsToCreate = [];
+      for (let i = 0; i < roomDrafts.length; i++) {
+        // const currentRoom = { ...roomDrafts[i] };
+        const currentRoom = { ...newRoom };
+        const members = roomDrafts[i].members.map((id) => ({
+          user: id,
+          role: 'participant',
+        }));
+        members.push({ user: userId, role: 'facilitator' });
+        currentRoom.members = members;
+        currentRoom.name = roomDrafts[i].name;
+        currentRoom.activity = roomDrafts[i].activity;
+        currentRoom.course = roomDrafts[i].course;
+        roomsToCreate.push(currentRoom);
       }
+      console.log('Room assignment rooms: ', roomsToCreate);
+      roomsToCreate.forEach((room) => connectCreateRoom(room));
+      close();
+      const { url } = match;
+      history.push(`${url.slice(0, url.length - 7)}rooms`);
     } else if (
       parseInt(participantsPerRoom, 10) <= 0 ||
       Number.isNaN(parseInt(participantsPerRoom, 10))
@@ -259,16 +272,16 @@ class MakeRooms extends Component {
     // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
     const participantList = (
       <ParticipantList
-        list={course ? remainingParticipants : []}
+        list={course ? remainingParticipants : selectedParticipants}
         selectedParticipants={selectedParticipants}
-        select={this.selectParticipant}
+        select={this.setParticipants}
       />
     );
     const assignmentMatrix = (
       <AssignmentMatrix
-        list={course ? remainingParticipants : []}
+        list={course ? remainingParticipants : selectedParticipants}
         selectedParticipants={selectedParticipants}
-        select={this.selectParticipant}
+        select={this.updateParticipants}
         roomNum={roomNum}
         activity={activity}
         course={course}
@@ -281,40 +294,45 @@ class MakeRooms extends Component {
         dueDate={dueDate}
         setDueDate={this.setDate}
         nextStep={this.nextStep}
+        participantList={participantList}
+        userId={userId}
+        select={this.selectParticipant}
+        course={course}
+        selectedParticipants={selectedParticipants}
       />
     );
 
     if (step === 1) {
-      if (course) {
-        CurrentStep = (
-          <Step2Course
-            activity={activity}
-            participantList={participantList}
-            assignmentMatrix={assignmentMatrix}
-            submit={this.submit}
-            setRandom={this.setRandom}
-            setManual={this.setManual}
-            setNumber={this.setNumber}
-            participantsPerRoom={participantsPerRoom}
-            roomNum={roomNum}
-            setRoomNumber={this.setRoomNumber}
-            setParticipantNumber={this.setParticipantNumber}
-            isRandom={isRandom}
-            error={error}
-          />
-        );
-      } else {
-        CurrentStep = (
-          <Step2
-            activity={activity}
-            participantList={participantList}
-            userId={userId}
-            submit={this.submit}
-            select={this.selectParticipant}
-            selectedParticipants={selectedParticipants}
-          />
-        );
-      }
+      // if (course) {
+      CurrentStep = (
+        <Step2Course
+          activity={activity}
+          participantList={participantList}
+          assignmentMatrix={assignmentMatrix}
+          submit={this.submit}
+          setRandom={this.setRandom}
+          setManual={this.setManual}
+          setNumber={this.setNumber}
+          participantsPerRoom={participantsPerRoom}
+          roomNum={roomNum}
+          setRoomNumber={this.setRoomNumber}
+          setParticipantNumber={this.setParticipantNumber}
+          isRandom={isRandom}
+          error={error}
+        />
+      );
+      // } else {
+      //   CurrentStep = (
+      //     <Step2
+      //       activity={activity}
+      //       participantList={participantList}
+      //       userId={userId}
+      //       submit={this.submit}
+      //       select={this.selectParticipant}
+      //       selectedParticipants={selectedParticipants}
+      //     />
+      //   );
+      // }
     }
     const stepDisplays = [];
     for (let i = 0; i < 2; i++) {
@@ -330,7 +348,7 @@ class MakeRooms extends Component {
     }
 
     return (
-      <Modal show closeModal={close}>
+      <BigModal show closeModal={close} height="65%">
         <Aux>
           {step > 0 ? (
             <i
@@ -348,7 +366,7 @@ class MakeRooms extends Component {
             {stepDisplays}
           </div>
         </Aux>
-      </Modal>
+      </BigModal>
     );
   }
 }

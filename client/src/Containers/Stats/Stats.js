@@ -7,19 +7,20 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
+import { Loading, Button, ToolTip, InfoBox } from 'Components';
+import { usePopulatedRoom } from 'utils/utilityHooks';
 import Chart from './Chart';
 import Table from './Table';
 import classes from './stats.css';
 import statsReducer, { initialState } from './statsReducer';
 import { exportCSV } from './stats.utils';
 import Filters from './Filters';
-import Loading from '../../Components/Loading/Loading';
-import Button from '../../Components/UI/Button/Button';
-import ToolTip from '../../Components/ToolTip/ToolTip';
-import InfoBox from '../../Components/InfoBox/InfoBox';
 
-const Stats = ({ populatedRoom }) => {
-  const hasLog = populatedRoom.log.length > 0;
+const Stats = ({ roomId }) => {
+  const { isSuccess, data } = usePopulatedRoom(roomId, true);
+
+  const populatedRoom = isSuccess ? data : { log: [], name: 'Loading...' };
+  const hasLog = populatedRoom.log && populatedRoom.log.length > 0;
 
   const [state, dispatch] = useReducer(statsReducer, initialState);
   const [isResizing, setResizing] = useState(false);
@@ -35,23 +36,21 @@ const Stats = ({ populatedRoom }) => {
     chart = <Loading isSmall />;
   }
 
-  if (hasLog) {
-    useEffect(() => {
-      dispatch({ type: 'GENERATE_DATA', data: populatedRoom.log });
-    }, [populatedRoom.log]);
+  useEffect(() => {
+    if (hasLog) dispatch({ type: 'GENERATE_DATA', data: populatedRoom.log });
+  }, [populatedRoom.log]);
 
-    // resize
-    useEffect(() => {
-      const handleResize = () => {
-        setResizing(true);
-        debounceResize();
-      };
-      window.addEventListener('resize', handleResize);
-      return () => {
-        window.removeEventListener('resize', handleResize);
-      };
-    });
-  }
+  // resize
+  useEffect(() => {
+    const handleResize = () => {
+      setResizing(true);
+      debounceResize();
+    };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  });
 
   return hasLog ? (
     <div>
@@ -109,7 +108,8 @@ const Stats = ({ populatedRoom }) => {
 };
 
 Stats.propTypes = {
-  populatedRoom: PropTypes.shape({}).isRequired,
+  // populatedRoom: PropTypes.shape({}).isRequired,
+  roomId: PropTypes.string.isRequired,
 };
 
 export default Stats;

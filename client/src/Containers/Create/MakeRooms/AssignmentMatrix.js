@@ -15,7 +15,7 @@ const AssignmentMatrix = (props) => {
   } = props;
   const [rooms, setRooms] = useState([]);
   const date = dueDate ? new Date(dueDate) : new Date();
-  const dateStamp = `${date.getMonth()}-${date.getDate()}`;
+  const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
 
   const newRoom = {
     activity: activity._id,
@@ -45,14 +45,12 @@ const AssignmentMatrix = (props) => {
     }
     setRooms(roomList);
   }, [roomNum]);
-  // logging this to avoid unused prop
-  console.log('Select function: ', select);
 
   const selectParticipant = (event, dataId) => {
-    console.log('rooms:', rooms);
+    // console.log('rooms:', rooms);
     const userId = dataId.split('rm')[0];
     const roomId = dataId.split('rm')[1];
-    console.log('Selected: ', userId, ' in room ', roomId);
+    // console.log('Selected: ', userId, ' in room ', roomId);
     if (userId && roomId >= 0) {
       const roomsUpdate = [...rooms];
       const index = roomsUpdate[roomId].members.indexOf(userId);
@@ -64,7 +62,8 @@ const AssignmentMatrix = (props) => {
         roomsUpdate[roomId].members.splice(index, 1);
       }
       setRooms(roomsUpdate);
-      console.log('All rooms: ', roomsUpdate);
+      select(roomsUpdate);
+      // console.log('All rooms: ', roomsUpdate);
     }
     // let updatedSelectedParticipants = [...selectedParticipants];
     // // if user is already selected, remove them from the selected lis
@@ -120,7 +119,7 @@ const AssignmentMatrix = (props) => {
         </thead>
         <tbody>
           {list.map((participant, i) => {
-            const rowClass = selectedParticipants.includes(participant.user._id)
+            const rowClass = selectedParticipants.includes(participant)
               ? [classes.Participant, classes.Selected].join(' ')
               : classes.Participant;
             return (
@@ -170,7 +169,7 @@ const AssignmentMatrix = (props) => {
 
 AssignmentMatrix.propTypes = {
   list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  selectedParticipants: PropTypes.arrayOf(PropTypes.string).isRequired,
+  selectedParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   select: PropTypes.func.isRequired,
   roomNum: PropTypes.number,
   activity: PropTypes.shape({}),

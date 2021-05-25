@@ -334,7 +334,8 @@ class Chat extends Component {
                   }}
                   data-testid="create-workspace"
                 >
-                  Create Template or Room
+                  Create Template
+                  {/* or Room */}
                 </button>
               </div>
             ) : null}
