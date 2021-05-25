@@ -193,6 +193,7 @@ class Workspace extends Component {
       clearTimeout(this.controlTimer);
     }
 
+    socket.off('pong');
     const { cancelSnapshots } = this.state;
     cancelSnapshots(); // if Workspace were a functional component, we'd do this directly in the custom hook.
   }
