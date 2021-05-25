@@ -9,17 +9,17 @@ import {
   Button,
   SelectionList,
   TextInput,
-  RadioBtn,
+  // RadioBtn,
 } from '../../../Components';
 import modalClasses from '../../../Components/UI/Modal/modal.css';
-import createClasses from '../../Create/create.css';
+// import createClasses from '../../Create/create.css';
 import formatImageUrl from '../../Create/tinyGraphs.utils';
 
 const CreationModal = (props) => {
   const { populatedRoom, user, history, mathState, currentTabId } = props;
 
   const [newName, setNewName] = useState('');
-  const [newResourceType, setNewResourceType] = useState();
+  const [newResourceType] = useState('activity');
   const [selectedTabIdsToCopy, setSelectedIdsToCopy] = useState([currentTabId]);
   const [createActivityError, setCreateActivityError] = useState(`${' '}`);
   const [isCreatingActivity, setIsCreatingActivity] = useState(true);
@@ -70,7 +70,6 @@ const CreationModal = (props) => {
         },
       ];
     }
-    console.log('New resource body: ', resourceBody);
     updateFn(resourceBody);
     setIsCreatingActivity(false);
     history.push(`/myVMT/${myVMTEndPt}`);
@@ -146,9 +145,9 @@ const CreationModal = (props) => {
   return (
     <Modal show={isCreatingActivity} closeModal={closeModal}>
       <p style={{ marginBottom: 10 }}>
-        Create a new Room or Template based on this room
+        Create a new Template based on this room
       </p>
-      <div className={createClasses.RadioButtons}>
+      {/* <div className={createClasses.RadioButtons}>
         <RadioBtn
           name="activity"
           checked={newResourceType === 'activity'}
@@ -167,7 +166,7 @@ const CreationModal = (props) => {
         >
           Room
         </RadioBtn>
-      </div>
+      </div> */}
       <TextInput
         show={isCreatingActivity}
         light

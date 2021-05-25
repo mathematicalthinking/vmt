@@ -233,7 +233,6 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
       // Prepare the tabs if they exist
       let existingTabs;
-      let existingState;
       if (body.tabs) {
         existingTabs = Object.assign([], body.tabs);
       } else if (body.activities) {
@@ -258,22 +257,19 @@ module.exports = {
           _id: { $in: body.selectedTabIds },
         });
       }
+
       if (body.mathState) {
-        existingState = Object.assign([], body.mathState);
-      }
-      if (existingTabs) {
         existingTabs.forEach((tab, i, array) => {
-          // will eventually want to handle des graph states
           if (body.mathState[tab._id] && tab.tabType === 'geogebra') {
             array[i].currentStateBase64 = body.mathState[tab._id];
-            console.log('Updated tab!');
+          } else if (body.mathState[tab._id] && tab.tabType === 'desmos') {
+            array[i].currentState = body.mathState[tab._id];
           }
         });
       }
       let tabModels;
       delete body.tabs;
       delete body.mathState;
-      delete body.roomType;
       let ggbFiles;
 
       if (Array.isArray(body.ggbFiles)) {
@@ -295,7 +291,6 @@ module.exports = {
             tabType: tab.tabType,
             appName: tab.appName,
           });
-          console.log('Added new tab');
           return newTab;
         });
       } else if (Array.isArray(ggbFiles) && ggbFiles.length > 0) {

@@ -82,6 +82,7 @@ class Workspace extends Component {
       showInstructionsModal: false,
       instructionsModalMsg: '',
       isCreatingActivity: false,
+      isSlowConnection: true,
     };
   }
 
@@ -334,6 +335,15 @@ class Workspace extends Component {
 
     socket.on('RECEIVED_UPDATED_REFERENCES', (data) => {
       this.setState({ eventsWithRefs: data });
+    });
+
+    // helper to determine latency
+    // 0-3 local, <50 good, <100 ok, >100 potential issues
+    // Set Threshold const to max acceptable latency in ms
+    const THRESHOLD = 100;
+    socket.on('pong', (latency) => {
+      this.setState({ isSlowConnection: latency > THRESHOLD });
+      console.log('Heartbeat<3 Socket latency: ', latency);
     });
   };
 
@@ -845,6 +855,7 @@ class Workspace extends Component {
       instructionsModalMsg,
       snapshotRef,
       isCreatingActivity,
+      isSlowConnection,
     } = this.state;
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
@@ -896,6 +907,7 @@ class Workspace extends Component {
         eventsWithRefs={eventsWithRefs}
         goToReplayer={this.goToReplayer}
         createActivity={this.beginCreatingActivity}
+        isSlowConnection={isSlowConnection}
       />
     );
     const graphs = currentTabs.map((tab) => {

@@ -231,20 +231,25 @@ class SharedReplayer extends Component {
     }
   };
 
+  // records latest math state per tab
   setMathState = (newState) => {
-    const { currentTabId, mathState } = this.state;
+    const { currentTabId } = this.state;
     this.setState((prevState) => ({
       mathState: { ...prevState.mathState, [currentTabId]: newState },
     }));
-    console.log('Set new math space: ', mathState);
   };
 
+  // sets starting point for math states from each tab
   _setInitialMathState = () => {
     const { populatedRoom } = this.props;
     populatedRoom.tabs.forEach((tab) => {
       if (tab.tabType === 'geogebra') {
         this.setState({
           mathState: { [tab._id]: tab.startingPointBase64 },
+        });
+      } else if (tab.tabType === 'desmos') {
+        this.setState({
+          mathState: { [tab._id]: tab.startingPoint },
         });
       }
     });
@@ -540,6 +545,7 @@ class SharedReplayer extends Component {
           tab={tab}
           key={tab._id}
           inView={currentTabId === tab._id}
+          setMathState={this.setMathState}
         />
       );
     });
