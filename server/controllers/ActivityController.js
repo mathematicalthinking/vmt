@@ -171,9 +171,8 @@ module.exports = {
       if (body.ggbFiles) {
         ggbFiles = [...body.ggbFiles];
       }
-      if (existingTabs) {
+      if (body.mathState) {
         existingTabs.forEach((tab, i, array) => {
-          // will eventually want to handle des graph states
           if (body.mathState[tab._id] && tab.tabType === 'geogebra') {
             array[i].currentStateBase64 = body.mathState[tab._id];
           } else if (body.mathState[tab._id] && tab.tabType === 'desmos') {
