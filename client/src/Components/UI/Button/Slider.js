@@ -22,7 +22,7 @@ Slider.propTypes = {
   action: PropTypes.func.isRequired,
   isOn: PropTypes.bool.isRequired,
   'data-testid': PropTypes.string.isRequired,
-  name: PropTypes.func.isRequired,
+  name: PropTypes.string.isRequired,
 };
 
 export default Slider;

@@ -4,18 +4,17 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from 'react-query';
 import { connect } from 'react-redux';
-import API from '../../../utils/apiRequests';
-import SimpleChat from '../../../Components/Chat/SimpleChat';
-import ToggleGroup from './ToggleGroup';
+import { NavItem, ToggleGroup } from 'Components';
+import { updateMonitorSelections } from 'store/actions';
+import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
+import Chart from 'Containers/Stats/Chart';
+import SimpleChat from 'Components/Chat/SimpleChat';
+import { API, buildLog } from 'utils';
 import SelectionTable from './SelectionTable';
-import { updateMonitorSelections } from '../../../store/actions';
-import { Chart, statsReducer, initialState } from '../../../Containers';
-import { NavItem } from '../../../Components';
-import buildLog from '../../../utils/buildLog';
 import classes from './monitoringView.css';
 import DropdownMenuClasses from './dropdownmenu.css';
 
@@ -47,7 +46,8 @@ import DropdownMenuClasses from './dropdownmenu.css';
  *  - Store entire state (room selections, toggle choices, scrollTop for each tile, etc.) in Redux store and restore MonitorView state accordingly
  *  - Show notifications for rooms
  *  - indicate 'last update' on each tile as well as number currently in room (but how to do this so isn't overly busy)
- *
+ *  - UPDATE TO USE USESNAPSHOT HOOK. This encapsulates a lot of the thumbnail logic.  Similarly, need to use the
+ *      usePopulatedRoom hook.
  */
 
 function MonitoringView({
@@ -63,6 +63,8 @@ function MonitoringView({
     CHAT: 'Chat',
     THUMBNAIL: 'Thumbnail',
     GRAPH: 'Graph',
+    SIMPLE: 'Simple Chat',
+    DETAILED: 'Detailed Chat',
   };
 
   // Monitoring is allowed only on the rooms that the user manages.
@@ -70,6 +72,16 @@ function MonitoringView({
     () => allResources.filter((res) => res.myRole === 'facilitator'),
     [allResources]
   );
+
+  const _wasRecentlyUpdated = (room) => {
+    // integrated logic to determine default rooms to view
+    // hours is time window to determine recent rooms
+    const hours = 24;
+    const recent = 3600000 * hours;
+    const lastUpdated = new Date(room.updatedAt);
+    const now = new Date();
+    return now - lastUpdated < recent;
+  };
 
   // we have to check whether the rooms in userResources are consistent
   // with the collection of rooms that were available for selection
@@ -82,7 +94,7 @@ function MonitoringView({
         !storedSelections ||
         (storedSelections && storedSelections[room._id] === undefined)
       ) {
-        result[room._id] = true;
+        result[room._id] = _wasRecentlyUpdated(room);
       } else {
         result[room._id] = storedSelections[room._id];
       }
@@ -95,6 +107,7 @@ function MonitoringView({
     _initializeSelections(userResources)
   );
   const [viewType, setViewType] = React.useState(constants.CHAT);
+  const [chatType, setChatType] = React.useState(constants.DETAILED);
   const savedState = React.useRef();
 
   // Because "useQuery" is the equivalent of useState, do this
@@ -166,6 +179,14 @@ function MonitoringView({
     );
   };
 
+  const _checkForSelection = (roomsSelections) => {
+    if (Object.keys(roomsSelections).length === 0) return false;
+    if (Object.values(roomsSelections).indexOf(true) > -1) {
+      return true;
+    }
+    return false;
+  };
+
   const _makeMenu = (id) => {
     return [
       {
@@ -219,6 +240,7 @@ function MonitoringView({
       case constants.CHAT:
         return (
           <SimpleChat
+            isSimplified={chatType === constants.SIMPLE}
             log={queryStates[id].isSuccess ? queryStates[id].data.chat : []}
           />
         );
@@ -228,12 +250,24 @@ function MonitoringView({
           <img alt={`Snapshot of room ${id}`} src={snapshot} />
         ) : (
           <span className={classes.NoSnapshot}>No snapshot currently</span>
-          // <img alt={`No snapshot available for room ${id}`} src={NoSnapshot} />
         );
       }
       default:
         return null;
     }
+  };
+
+  // @TODO VMT should have a standard way of displaying timestamps, perhaps in utilities. This function should be there.
+  const _roomDateStamp = (lastUpdated) => {
+    const d = new Date(lastUpdated);
+    let month = d.getMonth() + 1;
+    let day = d.getDate();
+    const year = d.getFullYear();
+
+    if (month.length < 2) month = `0${month}`;
+    if (day.length < 2) day = `0${day}`;
+
+    return [month, day, year].join('-');
   };
 
   return (
@@ -245,10 +279,21 @@ function MonitoringView({
           buttons={[constants.VIEW, constants.SELECT]}
           onChange={setViewOrSelect}
         />
-        <ToggleGroup
-          buttons={[constants.CHAT, constants.THUMBNAIL, constants.GRAPH]}
-          onChange={setViewType}
-        />
+
+        {viewOrSelect === constants.VIEW && (
+          <Fragment>
+            <ToggleGroup
+              buttons={[constants.CHAT, constants.THUMBNAIL, constants.GRAPH]}
+              onChange={setViewType}
+            />
+            {viewType === constants.CHAT && (
+              <ToggleGroup
+                buttons={[constants.DETAILED, constants.SIMPLE]}
+                onChange={setChatType}
+              />
+            )}
+          </Fragment>
+        )}
       </div>
 
       {viewOrSelect === constants.SELECT ? (
@@ -259,12 +304,19 @@ function MonitoringView({
               return { _id, ...queryStates[_id].data };
             })}
           selections={selections}
-          onChange={(newSelections) =>
-            setSelections({ ...selections, ...newSelections })
-          }
+          onChange={(newSelections) => {
+            setSelections((prev) => {
+              return { ...prev, ...newSelections };
+            });
+          }}
         />
       ) : (
         <div className={classes.TileGroup}>
+          {!_checkForSelection(selections) && (
+            <div className={classes.NoSnapshot}>
+              No rooms in current selection
+            </div>
+          )}
           {userResources.map((room) => {
             // for each of the rooms managed by a user, if that
             // room is selected, display its title bar (title and menu) and
@@ -287,9 +339,19 @@ function MonitoringView({
                         list={_makeMenu(room._id)}
                         name={<i className="fas fa-bars" />}
                       />
-                      {queryStates[room._id].isSuccess
-                        ? queryStates[room._id].data.name
-                        : 'Loading...'}
+                      {queryStates[room._id].isSuccess ? (
+                        <Fragment>
+                          {queryStates[room._id].data.name}
+                          <span className={classes.Timestamp}>
+                            updated:{' '}
+                            {_roomDateStamp(
+                              queryStates[room._id].data.updatedAt
+                            )}
+                          </span>
+                        </Fragment>
+                      ) : (
+                        'Loading...'
+                      )}
                     </div>
 
                     {queryStates[room._id].isSuccess &&
