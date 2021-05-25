@@ -1,4 +1,4 @@
-:import('../../../colors.css') {
+:import('../../colors.css') {
   blue: blue;
   blueHover: blueHover;
   gray: backgroundGray;
@@ -92,4 +92,8 @@
   color: blue;
   padding: 8px 8px;
   font-size: 17px;
+}
+
+.Select {
+  flex: 1;
 }
