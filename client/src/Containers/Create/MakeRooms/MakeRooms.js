@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Aux, Modal } from '../../../Components';
-import { Step1, Step2Course, Step2, ParticipantList } from './index';
+import { Step1, Step2Course, ParticipantList } from './index';
 import createClasses from '../create.css';
 import { createRoom } from '../../../store/actions';
 import AssignmentMatrix from './AssignmentMatrix';
@@ -127,6 +127,25 @@ class MakeRooms extends Component {
       selectedParticipants: updatedSelectedParticipants,
     });
     // Else add them
+  };
+
+  setParticipants = (event, user) => {
+    const { selectedParticipants } = this.state;
+    let updatedParticpants = [...selectedParticipants];
+    if (
+      selectedParticipants.findIndex((userObj) => userObj.id === user._id) > -1
+    ) {
+      updatedParticpants = selectedParticipants.filter(
+        (participant) => participant !== user
+      );
+      // updatedRemainingParticipants.push()
+      // if the user is not already selected, add them to selected and remove from remaining
+    } else {
+      updatedParticpants.push(user);
+    }
+    this.setState({
+      selectedParticipants: updatedParticpants,
+    });
   };
 
   updateParticipants = (selectionMatrix) => {
@@ -253,14 +272,14 @@ class MakeRooms extends Component {
     // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
     const participantList = (
       <ParticipantList
-        list={course ? remainingParticipants : []}
+        list={course ? remainingParticipants : selectedParticipants}
         selectedParticipants={selectedParticipants}
-        select={this.selectParticipant}
+        select={this.setParticipants}
       />
     );
     const assignmentMatrix = (
       <AssignmentMatrix
-        list={course ? remainingParticipants : []}
+        list={course ? remainingParticipants : selectedParticipants}
         selectedParticipants={selectedParticipants}
         select={this.updateParticipants}
         roomNum={roomNum}
@@ -275,40 +294,45 @@ class MakeRooms extends Component {
         dueDate={dueDate}
         setDueDate={this.setDate}
         nextStep={this.nextStep}
+        participantList={participantList}
+        userId={userId}
+        select={this.selectParticipant}
+        course={course}
+        selectedParticipants={selectedParticipants}
       />
     );
 
     if (step === 1) {
-      if (course) {
-        CurrentStep = (
-          <Step2Course
-            activity={activity}
-            participantList={participantList}
-            assignmentMatrix={assignmentMatrix}
-            submit={this.submit}
-            setRandom={this.setRandom}
-            setManual={this.setManual}
-            setNumber={this.setNumber}
-            participantsPerRoom={participantsPerRoom}
-            roomNum={roomNum}
-            setRoomNumber={this.setRoomNumber}
-            setParticipantNumber={this.setParticipantNumber}
-            isRandom={isRandom}
-            error={error}
-          />
-        );
-      } else {
-        CurrentStep = (
-          <Step2
-            activity={activity}
-            participantList={participantList}
-            userId={userId}
-            submit={this.submit}
-            select={this.selectParticipant}
-            selectedParticipants={selectedParticipants}
-          />
-        );
-      }
+      // if (course) {
+      CurrentStep = (
+        <Step2Course
+          activity={activity}
+          participantList={participantList}
+          assignmentMatrix={assignmentMatrix}
+          submit={this.submit}
+          setRandom={this.setRandom}
+          setManual={this.setManual}
+          setNumber={this.setNumber}
+          participantsPerRoom={participantsPerRoom}
+          roomNum={roomNum}
+          setRoomNumber={this.setRoomNumber}
+          setParticipantNumber={this.setParticipantNumber}
+          isRandom={isRandom}
+          error={error}
+        />
+      );
+      // } else {
+      //   CurrentStep = (
+      //     <Step2
+      //       activity={activity}
+      //       participantList={participantList}
+      //       userId={userId}
+      //       submit={this.submit}
+      //       select={this.selectParticipant}
+      //       selectedParticipants={selectedParticipants}
+      //     />
+      //   );
+      // }
     }
     const stepDisplays = [];
     for (let i = 0; i < 2; i++) {

@@ -119,7 +119,7 @@ const AssignmentMatrix = (props) => {
         </thead>
         <tbody>
           {list.map((participant, i) => {
-            const rowClass = selectedParticipants.includes(participant.user._id)
+            const rowClass = selectedParticipants.includes(participant)
               ? [classes.Participant, classes.Selected].join(' ')
               : classes.Participant;
             return (
@@ -169,7 +169,7 @@ const AssignmentMatrix = (props) => {
 
 AssignmentMatrix.propTypes = {
   list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  selectedParticipants: PropTypes.arrayOf(PropTypes.string).isRequired,
+  selectedParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   select: PropTypes.func.isRequired,
   roomNum: PropTypes.number,
   activity: PropTypes.shape({}),
