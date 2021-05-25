@@ -10,13 +10,14 @@
 
 .Modal {
   position: absolute;
-  right: calc(50% - var(--modal-width) / 2);
-  left: calc(50% - var(--modal-width) / 2);
   display: flex;
+  float: left;
+  top: 50%;
+  left: 20%;
+  transform: translate(-50%, -50%);
   flex-flow: column;
   justify-content: center;
   width: var(--modal-width);
-  top: 50%;
   min-height: 300px;
   max-height: 900px;
   text-align: center;
