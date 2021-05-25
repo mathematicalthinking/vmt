@@ -9,9 +9,9 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import gif from './Ripple.gif';
 import Backdrop from '../Backdrop/Backdrop';
-import classes from './modal.css';
+import classes from './bigModal.css';
 
-const Modal = ({ show, closeModal, message, children, height, testId }) => (
+const BigModal = ({ show, closeModal, message, children, height, testId }) => (
   <Fragment>
     <Backdrop show={show} clicked={closeModal} />
     <div
@@ -21,6 +21,7 @@ const Modal = ({ show, closeModal, message, children, height, testId }) => (
         transform: show ? 'translateY(-50%)' : 'translateY(-150vh)',
         opacity: show ? '1' : '0',
         height: height || 'auto',
+        width: height || 'auto',
       }}
     >
       {children ? (
@@ -49,7 +50,7 @@ const Modal = ({ show, closeModal, message, children, height, testId }) => (
   </Fragment>
 );
 
-Modal.propTypes = {
+BigModal.propTypes = {
   show: PropTypes.bool.isRequired,
   closeModal: PropTypes.func.isRequired,
   message: PropTypes.string,
@@ -58,10 +59,10 @@ Modal.propTypes = {
   testId: PropTypes.string,
 };
 
-Modal.defaultProps = {
+BigModal.defaultProps = {
   message: null,
   height: null,
   testId: null,
 };
 
-export default Modal;
+export default BigModal;

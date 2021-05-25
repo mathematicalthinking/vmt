@@ -85,7 +85,7 @@ class Step1 extends Component {
         <DueDate dueDate={dueDate} selectDate={setDueDate} />
         {!course && (
           <Fragment>
-            <h2 className={classes.Title}>Assign To Rooms</h2>
+            <h2 className={classes.Title}>Add Participants</h2>
             <div className={classes.SubContainer}>
               <Search
                 theme="Dark"

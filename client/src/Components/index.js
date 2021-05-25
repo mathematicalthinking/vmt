@@ -24,6 +24,7 @@ export { default as ContentBox } from './UI/ContentBox/ContentBox';
 export { default as Member } from './UI/Member/Member';
 export { default as EditMember } from './UI/Member/EditMember';
 export { default as Modal } from './UI/Modal/Modal';
+export { default as BigModal } from './UI/Modal/BigModal';
 export { default as PrivateAccess } from './UI/Modal/PrivateAccess';
 export { default as PublicAccess } from './UI/Modal/PublicAccess';
 export { default as FirstView } from './UI/Modal/FirstView';

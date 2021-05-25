@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { Aux, Modal } from '../../../Components';
+import { Aux, BigModal } from 'Components';
 import { Step1, Step2Course, ParticipantList } from './index';
 import createClasses from '../create.css';
 import { createRoom } from '../../../store/actions';
@@ -348,7 +348,7 @@ class MakeRooms extends Component {
     }
 
     return (
-      <Modal show closeModal={close} height="75%">
+      <BigModal show closeModal={close} height="65%">
         <Aux>
           {step > 0 ? (
             <i
@@ -366,7 +366,7 @@ class MakeRooms extends Component {
             {stepDisplays}
           </div>
         </Aux>
-      </Modal>
+      </BigModal>
     );
   }
 }
