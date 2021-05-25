@@ -89,7 +89,7 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
-    const { currentTabId } = this.props;
+    // const { currentTabId } = this.props;
     // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
     this.throttledSendEvent = throttle(this.sendEvent, 500, {
       leading: true,
@@ -111,7 +111,7 @@ class GgbGraph extends Component {
         this.unlockWindowScroll
       );
     }
-    console.log('Mounted - Tab Id: ', currentTabId);
+    // console.log('Mounted - Tab Id: ', currentTabId);
     socket.on('RECEIVE_EVENT', (data) => {
       this.handleUpdate(data);
     });
@@ -746,12 +746,12 @@ class GgbGraph extends Component {
         }
         break;
       case 'perspectiveChange':
-        console.log(
-          'Perspective change... Can edit?: ',
-          this.userCanEdit(),
-          ' can change: ',
-          canChangePerspective
-        );
+        // console.log(
+        //   'Perspective change... Can edit?: ',
+        //   this.userCanEdit(),
+        //   ' can change: ',
+        //   canChangePerspective
+        // );
         if (this.userCanEdit()) {
           this.parseVisibleViews()
             .then((visibleViews) => {

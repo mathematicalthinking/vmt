@@ -18,6 +18,7 @@ const Tools = ({
   clearReference,
   startNewReference,
   inAdminMode,
+  createActivity,
 }) => {
   let controlText;
   if (!replayer) {
@@ -95,6 +96,15 @@ const Tools = ({
                 {controlText}
               </Button>
             ) : null}
+            {replayer && (
+              <Button
+                theme="xs"
+                data-testid="create-resource"
+                click={createActivity}
+              >
+                Create Template
+              </Button>
+            )}
             <Button theme="xs-cancel" click={goBack} data-testid="exit-room">
               Exit {replayer ? 'Replayer' : 'Room'}
             </Button>
@@ -117,6 +127,7 @@ Tools.propTypes = {
   toggleSimpleChat: PropTypes.func,
   clearReference: PropTypes.func,
   startNewReference: PropTypes.func,
+  createActivity: PropTypes.func,
   inAdminMode: PropTypes.bool,
 };
 
@@ -132,6 +143,7 @@ Tools.defaultProps = {
   replayer: false,
   save: null,
   inAdminMode: false,
+  createActivity: () => {},
 };
 
 export default Tools;

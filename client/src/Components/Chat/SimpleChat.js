@@ -1,18 +1,19 @@
 /* eslint-disable prettier/prettier */
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import Button from 'Components/UI/Button/Button';
 import Message from './Message';
 import ChatClasses from './chat.css';
-import { Button } from '..';
 
 /**
  * A simplifield version of Chat, which uses some of the original's CSS.
  * Shows an alert if new messages have appeared off screen.
  */
 
-function SimpleChat({ log }) {
+function SimpleChat({ log, isSimplified }) {
   if (!log) log = [];
   const chatScroll = React.createRef();
+  const prevLogLength = React.useRef(0);
   const [showNewMessages, setShowNewMessages] = React.useState(false);
 
   const _scrollToBottom = () => {
@@ -33,8 +34,10 @@ function SimpleChat({ log }) {
   }, []);
 
   React.useEffect(() => {
-    if (_isNearBottom()) _scrollToBottom();
+    if (_isNearBottom() || prevLogLength.current === 0) _scrollToBottom();
     else setShowNewMessages(true);
+
+    prevLogLength.current = log.length;
   }, [log]);
 
   return (
@@ -61,10 +64,11 @@ function SimpleChat({ log }) {
                   highlighted={false}
                   reference={false}
                   referencing={false}
-                  isSimplified={false}
+                  isSimplified={isSimplified}
                 />
               );
             })}
+        <div className={ChatClasses.Timestamp}>End of message log</div>
       </div>
       {showNewMessages && (
         <Button
@@ -83,8 +87,11 @@ function SimpleChat({ log }) {
 
 SimpleChat.propTypes = {
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  isSimplified: PropTypes.bool,
 };
 
-SimpleChat.defaultProps = {};
+SimpleChat.defaultProps = {
+  isSimplified: true,
+};
 
 export default SimpleChat;

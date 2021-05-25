@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
@@ -6,15 +7,8 @@ import {
   updateActivityTab,
   setActivityStartingPoint,
   getCurrentActivity,
-  createActivity,
 } from '../../store/actions';
-import {
-  Modal,
-  TextInput,
-  Button,
-  Loading,
-  SelectionList,
-} from '../../Components';
+import { Modal, Loading } from '../../Components';
 import {
   DesmosActivityGraph,
   DesmosActivity,
@@ -25,7 +19,7 @@ import {
 } from './index';
 import { WorkspaceLayout } from '../../Layout';
 import NewTabForm from '../Create/NewTabForm';
-import ModalClasses from '../../Components/UI/Modal/modal.css';
+import CreationModal from './Tools/CreationModal';
 
 class ActivityWorkspace extends Component {
   constructor(props) {
@@ -37,9 +31,6 @@ class ActivityWorkspace extends Component {
       creatingNewTab: false,
       addingToMyActivities: false,
       isFirstTabLoaded: false,
-      newName: '',
-      selectedTabIdsToCopy: [],
-      copyActivityError: null,
     };
   }
 
@@ -67,45 +58,9 @@ class ActivityWorkspace extends Component {
 
   addToMyActivities = () => {
     // create a new activity that belongs to the current user
-    const { activity } = this.props;
     this.setState({
       addingToMyActivities: true,
-      selectedTabIdsToCopy: activity.tabs.map((t) => t._id),
     });
-  };
-
-  createNewActivity = () => {
-    const { activity } = this.props;
-    const copy = { ...activity };
-    const { user, connectCreateActivity, history } = this.props;
-    const { newName, selectedTabIdsToCopy } = this.state;
-
-    if (!selectedTabIdsToCopy.length > 0) {
-      this.setState({
-        copyActivityError: 'Please select at least one tab to copy',
-      });
-      return;
-    }
-
-    if (!newName) {
-      this.setState({
-        copyActivityError: 'Please provide a name for your new activity',
-      });
-      return;
-    }
-    copy.activities = [copy._id];
-    delete copy._id;
-    delete copy.createdAt;
-    delete copy.updatedAt;
-    delete copy.course;
-    delete copy.courses;
-    copy.creator = user._id;
-    copy.name = newName;
-    copy.tabs = copy.tabs.map((tab) => tab._id);
-    copy.selectedTabIds = selectedTabIdsToCopy;
-    connectCreateActivity(copy);
-    this.setState({ addingToMyActivities: false, selectedTabIdsToCopy: [] });
-    history.push('/myVMT/activities');
   };
 
   setFirstTabLoaded = () => {
@@ -115,19 +70,6 @@ class ActivityWorkspace extends Component {
   goBack = () => {
     const { history } = this.props;
     history.goBack();
-  };
-
-  addTabIdToCopy = (event, id) => {
-    const { selectedTabIdsToCopy } = this.state;
-    if (selectedTabIdsToCopy.indexOf(id) === -1) {
-      this.setState({ selectedTabIdsToCopy: [...selectedTabIdsToCopy, id] });
-    } else {
-      this.setState({
-        selectedTabIdsToCopy: selectedTabIdsToCopy.filter(
-          (tabId) => tabId !== id
-        ),
-      });
-    }
   };
 
   render() {
@@ -143,9 +85,6 @@ class ActivityWorkspace extends Component {
       isFirstTabLoaded,
       creatingNewTab,
       addingToMyActivities,
-      newName,
-      selectedTabIdsToCopy,
-      copyActivityError,
     } = this.state;
     let role = 'participant';
     let graphs;
@@ -275,42 +214,15 @@ class ActivityWorkspace extends Component {
             user={user}
           />
         </Modal>
-        <Modal
-          show={addingToMyActivities}
-          closeModal={() =>
-            this.setState({
-              addingToMyActivities: false,
-              copyActivityError: null,
-            })
-          }
-        >
-          <TextInput
-            show={addingToMyActivities}
-            light
-            focus
-            name="new name"
-            value={newName}
-            change={(event) => {
-              this.setState({ newName: event.target.value });
-            }}
-            label="New Activity Template Name"
+        {addingToMyActivities && (
+          <CreationModal
+            closeModal={this.closeCreate}
+            isCreatingActivity={addingToMyActivities}
+            populatedRoom={activity}
+            user={user}
+            currentTabId={currentTabId}
           />
-          {activity && activity.tabs.length > 1 ? (
-            <div>
-              <p>Choose at least one tab to include</p>
-              <SelectionList
-                listToSelectFrom={activity.tabs}
-                selectItem={this.addTabIdToCopy}
-                selected={selectedTabIdsToCopy}
-              />
-            </div>
-          ) : null}
-          {copyActivityError ? (
-            <div className={ModalClasses.Error}>{copyActivityError}</div>
-          ) : null}
-
-          <Button click={this.createNewActivity}>Copy Activity Template</Button>
-        </Modal>
+        )}
       </Fragment>
     );
   }
@@ -325,7 +237,6 @@ ActivityWorkspace.propTypes = {
   connectUpdatedActivity: PropTypes.func.isRequired,
   connectSetActivityStartingPoint: PropTypes.func.isRequired,
   connectGetCurrentActivity: PropTypes.func.isRequired,
-  connectCreateActivity: PropTypes.func.isRequired,
   connectUpdateActivityTab: PropTypes.func.isRequired,
 };
 ActivityWorkspace.defaultProps = { temp: false, activity: null };
@@ -336,13 +247,14 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    connectUpdatedActivity: updatedActivity,
-    connectSetActivityStartingPoint: setActivityStartingPoint,
-    connectGetCurrentActivity: getCurrentActivity,
-    connectCreateActivity: createActivity,
-    connectUpdateActivityTab: updateActivityTab,
-  }
-)(ActivityWorkspace);
+export default withRouter(
+  connect(
+    mapStateToProps,
+    {
+      connectUpdatedActivity: updatedActivity,
+      connectSetActivityStartingPoint: setActivityStartingPoint,
+      connectGetCurrentActivity: getCurrentActivity,
+      connectUpdateActivityTab: updateActivityTab,
+    }
+  )(ActivityWorkspace)
+);

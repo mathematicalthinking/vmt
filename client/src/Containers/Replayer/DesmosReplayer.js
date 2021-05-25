@@ -39,10 +39,11 @@ class DesmosReplayer extends Component {
   // }
 
   componentDidUpdate(prevProps) {
-    const { inView, index, log } = this.props;
+    const { inView, index, log, setMathState } = this.props;
     if (inView) {
       if (prevProps.index !== index && log[index].currentState) {
         this.calculator.setState(log[index].currentState);
+        setMathState(log[index].currentState);
       }
     }
   }
@@ -100,6 +101,7 @@ DesmosReplayer.propTypes = {
   index: PropTypes.number.isRequired,
   tab: PropTypes.shape({}).isRequired,
   setTabLoaded: PropTypes.func.isRequired,
+  setMathState: PropTypes.func.isRequired,
 };
 
 export default DesmosReplayer;
