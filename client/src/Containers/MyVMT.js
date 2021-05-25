@@ -27,7 +27,7 @@ class MyVMT extends Component {
       { name: 'Rooms' },
       { name: 'Courses' },
       { name: 'Activities' },
-      { name: 'Monitoring' },
+      { name: 'Monitor' },
     ],
     // touring: false,
     // displayResources: [],
@@ -161,11 +161,11 @@ MyVMT.propTypes = {
 // OF CONDITIONAL LOGIC CHECKING THE RESOURCE TYPE AND THEN GRABBING DATA BASED
 // ON ITS VALUE. INSTEAD, WITH THE CURRENT METHOD WE CAN DO LIKE user[resource] or get[resource]
 const mapStateToProps = (store) => ({
-  user: { ...store.user, monitoring: store.user.rooms },
+  user: { ...store.user, monitor: store.user.rooms },
   rooms: store.rooms,
   courses: store.courses,
   activities: store.activities,
-  monitoring: store.rooms,
+  monitor: store.rooms,
   loading: store.loading.loading,
 });
 

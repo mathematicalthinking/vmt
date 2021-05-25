@@ -37,6 +37,7 @@ const initialState = {
   dueDate: null,
   activities: [],
   privacySetting: 'public',
+  roomType: 'geogebra',
 };
 
 class NewResourceContainer extends Component {

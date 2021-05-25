@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classes from './makeRooms.css';
-import { Checkbox } from '../../../Components';
+// import { Checkbox } from '../../../Components';
 
 class ParticipantList extends Component {
   render() {
@@ -9,7 +9,9 @@ class ParticipantList extends Component {
     return !list || list.length === 0
       ? 'there are no users to display yet'
       : list.map((participant, i) => {
-          const rowClass = selectedParticipants.includes(participant.user._id)
+          const rowClass = selectedParticipants.some(
+            (u) => u.user._id === participant.user._id
+          )
             ? [classes.Participant, classes.Selected].join(' ')
             : classes.Participant;
           return (
@@ -18,7 +20,21 @@ class ParticipantList extends Component {
               key={participant.user._id}
               id={participant.user._id}
             >
-              <Checkbox
+              <input
+                type="checkbox"
+                id={participant.user._id}
+                onChange={(event) => {
+                  select(event, participant);
+                }}
+                checked={selectedParticipants.some(
+                  (u) => u.user._id === participant.user._id
+                )}
+              />
+              <label htmlFor={participant.user._id}>
+                {' '}
+                {`${i + 1}. ${participant.user.username}`}
+              </label>
+              {/* <Checkbox
                 label={`${i + 1}. ${participant.user.username}`}
                 change={select}
                 dataId={participant.user._id}
@@ -27,7 +43,7 @@ class ParticipantList extends Component {
                 }
               >
                 {`${i + 1}. ${participant.user.username}`}
-              </Checkbox>
+              </Checkbox> */}
             </div>
           );
         });
@@ -36,7 +52,7 @@ class ParticipantList extends Component {
 
 ParticipantList.propTypes = {
   list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  selectedParticipants: PropTypes.arrayOf(PropTypes.string).isRequired,
+  selectedParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   select: PropTypes.func.isRequired,
 };
 export default ParticipantList;

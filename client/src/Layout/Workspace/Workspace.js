@@ -234,7 +234,10 @@ WorkspaceLayout.propTypes = {
   referToEl: PropTypes.shape({
     elementType: PropTypes.string.isRequired,
   }),
-  snapshotRef: PropTypes.node,
+  snapshotRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.any }),
+  ]),
 };
 
 WorkspaceLayout.defaultProps = {

@@ -1,40 +1,24 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classes from './makeRooms.css';
-import { RadioBtn, TextInput, Button } from '../../../Components';
+import { TextInput, Button } from '../../../Components';
 
 class Step1Course extends Component {
   render() {
     const {
-      participantList,
+      // participantList,
+      assignmentMatrix,
       isRandom,
-      setRandom,
-      setManual,
       error,
       submit,
+      setNumber,
+      participantsPerRoom,
+      roomNum,
+      setRoomNumber,
     } = this.props;
     return (
       <div className={classes.Container}>
         <h2 className={classes.Title}>Assign To Rooms</h2>
-        <div className={classes.Radios}>
-          <RadioBtn
-            name="random"
-            checked={isRandom}
-            check={setRandom}
-            defaultChecked
-          >
-            Assign Randomly
-          </RadioBtn>
-          <RadioBtn
-            data-testid="assign-manually"
-            name="manual"
-            checked={!isRandom}
-            defaultChecked={false}
-            check={setManual}
-          >
-            Assign Manually
-          </RadioBtn>
-        </div>
         {isRandom ? (
           <div className={classes.SubContainer}>
             <div className={classes.Error}>{error || ''}</div>
@@ -42,12 +26,25 @@ class Step1Course extends Component {
               light
               label="Number of participants per room"
               type="number"
-              change={this.setNumber}
+              change={setNumber}
+              value={participantsPerRoom}
+              name="participants"
             />
           </div>
         ) : (
+          // manual assignment display
           <div className={classes.SubContainer}>
-            <div className={classes.ParticipantList}>{participantList}</div>
+            <div className={classes.Error}>{error || ''}</div>
+            <TextInput
+              light
+              label="Number of rooms to create"
+              type="number"
+              change={setRoomNumber}
+              value={roomNum}
+              name="rooms"
+            />
+            {/* <div className={classes.ParticipantList}>{participantList}</div> */}
+            <div> {assignmentMatrix}</div>
           </div>
         )}
         <div className={classes.Button}>
@@ -61,10 +58,12 @@ class Step1Course extends Component {
 }
 
 Step1Course.propTypes = {
-  participantList: PropTypes.element.isRequired,
+  assignmentMatrix: PropTypes.element.isRequired,
+  participantsPerRoom: PropTypes.number,
+  roomNum: PropTypes.number,
   isRandom: PropTypes.bool,
-  setRandom: PropTypes.func.isRequired,
-  setManual: PropTypes.func.isRequired,
+  setNumber: PropTypes.func.isRequired,
+  setRoomNumber: PropTypes.func,
   error: PropTypes.string,
   submit: PropTypes.func.isRequired,
 };
@@ -72,6 +71,9 @@ Step1Course.propTypes = {
 Step1Course.defaultProps = {
   error: null,
   isRandom: false,
+  participantsPerRoom: 0,
+  roomNum: 1,
+  setRoomNumber: () => {},
 };
 
 export default Step1Course;
