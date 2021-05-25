@@ -9,7 +9,7 @@ import { Player } from '../../external/js/api.full.es';
 import socket from '../../utils/sockets';
 import mongoIdGenerator from '../../utils/createMongoId';
 import ControlWarningModal from './ControlWarningModal';
-import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
+// import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
 import Modal from '../../Components/UI/Modal/Modal';
 import API from '../../utils/apiRequests';
 
@@ -64,6 +64,7 @@ const DesmosActivity = (props) => {
     if (calculatorInst.current) {
       updateObject.currentScreen = calculatorInst.current.getActiveScreenIndex();
     }
+    console.log('Update object: ', updateObject);
     API.put('tabs', _id, updateObject)
       .then(() => updateRoomTab(room._id, _id, updateObject))
       .catch((err) => {
@@ -102,8 +103,10 @@ const DesmosActivity = (props) => {
 
   // Event listener callback on the persistent Activity instance
   const handleResponseData = (updates, type) => {
+    // console.log('Screenpage(state): ', screenPage, ' Tab data: ', tab);
     const transient = type === 'transient';
     if (initializing) return;
+    // console.log('Receiving data: ', receivingData);
     const { room, user, myColor, tab, resetControlTimer } = props;
     const currentState = {
       desmosState: updates,
@@ -204,12 +207,13 @@ const DesmosActivity = (props) => {
       setFirstTabLoaded();
       setShowConfigError(true);
     }
+
     const data = await result.json();
     return data;
   };
 
   const initPlayer = async () => {
-    const { tab } = props;
+    const { tab, setFirstTabLoaded } = props;
     const playerOptions = {
       activityConfig: await fetchData(),
       targetElement: calculatorRef.current,
@@ -232,7 +236,15 @@ const DesmosActivity = (props) => {
       playerOptions.responseData = savedData;
     }
 
-    calculatorInst.current = new Player(playerOptions);
+    try {
+      calculatorInst.current = new Player(playerOptions);
+    } catch (err) {
+      console.log('Player initialization error: ', err);
+      initializing = false;
+      setFirstTabLoaded();
+      setShowConfigError(true);
+      return null;
+    }
 
     // callback method to handle transient state
     // eslint-disable-next-line no-unused-vars
@@ -252,7 +264,7 @@ const DesmosActivity = (props) => {
     // Go to screen last used
     if (tab.currentScreen) {
       const { currentScreen } = tab;
-      // console.log('Prior screen index loaded: ', currentScreen);
+      console.log('Prior screen index loaded: ', currentScreen);
       calculatorInst.current.setActiveScreenIndex(currentScreen);
       setScreenPage(currentScreen + 1);
     }
@@ -279,6 +291,7 @@ const DesmosActivity = (props) => {
     const page = calculatorInst.current.getActiveScreenIndex() + increment;
     calculatorInst.current.setActiveScreenIndex(page);
     setScreenPage(page + 1);
+    putState();
   }
 
   function _hasControl() {
@@ -299,18 +312,19 @@ const DesmosActivity = (props) => {
   const {
     inControl,
     user,
-    showRefWarning,
-    refWarningMsg,
-    closeRefWarning,
-    doPreventFutureRefWarnings,
-    togglePreventRefWarning,
+    // @TODO **NONE OF THESE PROPS ARE RECEIVED RIGHT NOW **
+    // showRefWarning,
+    // refWarningMsg,
+    // closeRefWarning,
+    // doPreventFutureRefWarnings,
+    // togglePreventRefWarning,
   } = props;
   return (
     <Fragment>
       <Modal show={showConfigError} closeModal={handleOnErrorClick}>
         {' '}
         Error retrieving Activity Configuration, please make sure this activity
-        is publiclly accessible
+        is publiclly accessible and supported in VMT
       </Modal>
       <ControlWarningModal
         showControlWarning={showControlWarning}
@@ -327,6 +341,7 @@ const DesmosActivity = (props) => {
         }}
         inAdminMode={user ? user.inAdminMode : false}
       />
+      {/* @TODO None of the needed props are received right now
       <CheckboxModal
         show={showRefWarning}
         infoMessage={refWarningMsg}
@@ -334,7 +349,7 @@ const DesmosActivity = (props) => {
         isChecked={doPreventFutureRefWarnings}
         checkboxDataId="ref-warning"
         onSelect={togglePreventRefWarning}
-      />
+      /> */}
       <div
         id="activityNavigation"
         className={classes.ActivityNav}

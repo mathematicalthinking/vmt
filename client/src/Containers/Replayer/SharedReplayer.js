@@ -16,6 +16,7 @@ import Loading from '../../Components/Loading/Loading';
 import Tabs from '../Workspace/Tabs';
 import Tools from '../Workspace/Tools/Tools';
 import buildReplayerLog from './SharedReplayer.utils';
+import CreationModal from '../Workspace/Tools/CreationModal';
 
 const PLAYBACK_FIDELITY = 100;
 const INITIAL_STATE = {
@@ -35,6 +36,8 @@ const INITIAL_STATE = {
   stopTime: null,
   showControls: true,
   errorMessage: null,
+  isCreatingActivity: false,
+  mathState: {},
 };
 class SharedReplayer extends Component {
   state = INITIAL_STATE;
@@ -57,6 +60,7 @@ class SharedReplayer extends Component {
       // @TODO We should never populate the tabs events before getting here
       // we dont need them for the regular room activity only for playback
       this.buildReplayerLog();
+      this._setInitialMathState();
     }
   }
 
@@ -142,6 +146,20 @@ class SharedReplayer extends Component {
     this.setState({ loading: false });
   };
 
+  beginCreatingActivity = () => {
+    // create a new activity that belongs to the current user
+    // const { tabs } = this.state;
+    this.setState({
+      isCreatingActivity: true,
+    });
+  };
+
+  closeCreate = () => {
+    this.setState({
+      isCreatingActivity: false,
+    });
+  };
+
   playing = () => {
     // eslint-disable-next-line consistent-return
     this.interval = setInterval(() => {
@@ -213,6 +231,30 @@ class SharedReplayer extends Component {
     }
   };
 
+  // records latest math state per tab
+  setMathState = (newState) => {
+    const { currentTabId } = this.state;
+    this.setState((prevState) => ({
+      mathState: { ...prevState.mathState, [currentTabId]: newState },
+    }));
+  };
+
+  // sets starting point for math states from each tab
+  _setInitialMathState = () => {
+    const { populatedRoom } = this.props;
+    populatedRoom.tabs.forEach((tab) => {
+      if (tab.tabType === 'geogebra') {
+        this.setState({
+          mathState: { [tab._id]: tab.startingPointBase64 },
+        });
+      } else if (tab.tabType === 'desmos') {
+        this.setState({
+          mathState: { [tab._id]: tab.startingPoint },
+        });
+      }
+    });
+  };
+
   // Takes a % of total progress and goes to the nearest timestamp
   goToTime = (percent, doAutoPlay = false, stopTime = null) => {
     const { populatedRoom } = this.props;
@@ -232,11 +274,13 @@ class SharedReplayer extends Component {
         return false;
       });
     }
-    populatedRoom.tabs.forEach((tab) => {
-      if (tab._id === this.updatedLog[logIndex].tab) {
-        currentTabId = tab._id;
-      }
-    });
+    if (populatedRoom.tabs) {
+      populatedRoom.tabs.forEach((tab) => {
+        if (tab._id === this.updatedLog[logIndex].tab) {
+          currentTabId = tab._id;
+        }
+      });
+    }
 
     const { logIndex: previousIndex } = this.state;
     const updatedMembers = this.deriveCurrentMembers(previousIndex, logIndex);
@@ -368,7 +412,7 @@ class SharedReplayer extends Component {
   };
 
   render() {
-    const { populatedRoom, encompass } = this.props;
+    const { populatedRoom, encompass, user } = this.props;
     const {
       playing,
       playbackSpeed,
@@ -382,6 +426,8 @@ class SharedReplayer extends Component {
       currentMembers,
       allTabsLoaded,
       errorMessage,
+      isCreatingActivity,
+      mathState,
     } = this.state;
     if (errorMessage) {
       return (
@@ -465,6 +511,7 @@ class SharedReplayer extends Component {
             style={{
               pointerEvents: 'none',
             }}
+            setMathState={this.setMathState}
           />
         );
       }
@@ -498,6 +545,7 @@ class SharedReplayer extends Component {
           tab={tab}
           key={tab._id}
           inView={currentTabId === tab._id}
+          setMathState={this.setMathState}
         />
       );
     });
@@ -540,6 +588,7 @@ class SharedReplayer extends Component {
               toggleControl={this.toggleControl}
               lastEvent={this.updatedLog[logIndex]}
               replayer
+              createActivity={this.beginCreatingActivity}
             />
           }
           replayer
@@ -550,6 +599,17 @@ class SharedReplayer extends Component {
           instructionsExpanded
           encompass={encompass}
         />
+        {isCreatingActivity && (
+          <CreationModal
+            closeModal={this.closeCreate}
+            isCreatingActivity
+            populatedRoom={populatedRoom}
+            currentTabs={populatedRoom.tabs || []}
+            user={user}
+            mathState={mathState}
+            currentTabId={currentTabId}
+          />
+        )}
         {!allTabsLoaded && this.updatedLog.length > 0 ? (
           <Loading message="Preparing the replayer..." />
         ) : null}
@@ -562,7 +622,7 @@ SharedReplayer.propTypes = {
   encompass: PropTypes.bool,
   // match: PropTypes.shape({}).isRequired,
   populatedRoom: PropTypes.shape({}).isRequired,
-  // user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({}).isRequired,
   updateEnc: PropTypes.func,
   history: PropTypes.shape({}).isRequired,
 };

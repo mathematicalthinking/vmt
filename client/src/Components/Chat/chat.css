@@ -60,6 +60,10 @@
   color: red;
 }
 
+.Slow {
+  color: orange;
+}
+
 .Settings {
   padding-left: 3px;
   /* color: darkGray; */

@@ -228,7 +228,7 @@ class GgbActivityGraph extends Component {
       <Aux>
         {tab ? (
           <Script
-            url="https://cdn.geogebra.org/apps/deployggb.js"
+            url="https://www.geogebra.org/apps/deployggb.js"
             onLoad={this.onScriptLoad}
           />
         ) : null}
