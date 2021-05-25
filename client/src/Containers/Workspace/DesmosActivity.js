@@ -207,12 +207,13 @@ const DesmosActivity = (props) => {
       setFirstTabLoaded();
       setShowConfigError(true);
     }
+
     const data = await result.json();
     return data;
   };
 
   const initPlayer = async () => {
-    const { tab } = props;
+    const { tab, setFirstTabLoaded } = props;
     const playerOptions = {
       activityConfig: await fetchData(),
       targetElement: calculatorRef.current,
@@ -235,7 +236,15 @@ const DesmosActivity = (props) => {
       playerOptions.responseData = savedData;
     }
 
-    calculatorInst.current = new Player(playerOptions);
+    try {
+      calculatorInst.current = new Player(playerOptions);
+    } catch (err) {
+      console.log('Player initialization error: ', err);
+      initializing = false;
+      setFirstTabLoaded();
+      setShowConfigError(true);
+      return null;
+    }
 
     // callback method to handle transient state
     // eslint-disable-next-line no-unused-vars
@@ -315,7 +324,7 @@ const DesmosActivity = (props) => {
       <Modal show={showConfigError} closeModal={handleOnErrorClick}>
         {' '}
         Error retrieving Activity Configuration, please make sure this activity
-        is publiclly accessible
+        is publiclly accessible and supported in VMT
       </Modal>
       <ControlWarningModal
         showControlWarning={showControlWarning}
