@@ -110,42 +110,53 @@ class MakeRooms extends Component {
   };
 
   selectParticipant = (event, userId) => {
-    const { selectedParticipants } = this.state;
-    const newParticipant = userId;
-    let updatedSelectedParticipants = [...selectedParticipants];
-    // if user is already selected, remove them from the selected lis
-    if (selectedParticipants.includes(newParticipant)) {
-      updatedSelectedParticipants = selectedParticipants.filter(
-        (participant) => participant !== newParticipant
-      );
-      // updatedRemainingParticipants.push()
-      // if the user is not already selected, add them to selected and remove from remaining
-    } else {
-      updatedSelectedParticipants.push(newParticipant);
-    }
-    this.setState({
-      selectedParticipants: updatedSelectedParticipants,
-    });
+    const _updateParticipantList = (selectedParticipants) => {
+      const newParticipant = userId;
+      let updatedSelectedParticipants = [...selectedParticipants];
+      // if user is already selected, remove them from the selected lis
+      if (selectedParticipants.includes(newParticipant)) {
+        updatedSelectedParticipants = selectedParticipants.filter(
+          (participant) => participant !== newParticipant
+        );
+        // updatedRemainingParticipants.push()
+        // if the user is not already selected, add them to selected and remove from remaining
+      } else {
+        updatedSelectedParticipants.push(newParticipant);
+      }
+      return updatedSelectedParticipants;
+    };
+
+    this.setState((previousState) => ({
+      selectedParticipants: _updateParticipantList(
+        previousState.selectParticipant
+      ),
+    }));
     // Else add them
   };
 
   setParticipants = (event, user) => {
-    const { selectedParticipants } = this.state;
-    let updatedParticpants = [...selectedParticipants];
-    if (
-      selectedParticipants.findIndex((userObj) => userObj.id === user._id) > -1
-    ) {
-      updatedParticpants = selectedParticipants.filter(
-        (participant) => participant !== user
-      );
-      // updatedRemainingParticipants.push()
-      // if the user is not already selected, add them to selected and remove from remaining
-    } else {
-      updatedParticpants.push(user);
-    }
-    this.setState({
-      selectedParticipants: updatedParticpants,
-    });
+    const _updateParticipantsList = (selectedParticipants) => {
+      let updatedParticpants = [...selectedParticipants];
+      if (
+        selectedParticipants.findIndex((userObj) => userObj.id === user._id) >
+        -1
+      ) {
+        updatedParticpants = selectedParticipants.filter(
+          (participant) => participant !== user
+        );
+        // updatedRemainingParticipants.push()
+        // if the user is not already selected, add them to selected and remove from remaining
+      } else {
+        updatedParticpants.push(user);
+      }
+      return updatedParticpants;
+    };
+
+    this.setState((previousState) => ({
+      selectedParticipants: _updateParticipantsList(
+        previousState.updatedParticpants
+      ),
+    }));
   };
 
   updateParticipants = (selectionMatrix) => {
