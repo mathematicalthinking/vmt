@@ -53,7 +53,10 @@ function RoomPreview({ roomId }) {
       snapshot = _getMostRecentSnapshot(tabSelection && tabSelection.value);
     } else {
       snapshot = getSnapshot({
-        currentTabId: tabSelection && tabSelection.value,
+        // if there's not a current tab selection, then just grab the first (and only) tab id.
+        currentTabId: tabSelection
+          ? tabSelection.value
+          : getKeys()[0].currentTabId,
         currentScreen: screenSelection && screenSelection.value,
       });
     }
