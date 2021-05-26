@@ -160,8 +160,8 @@ class MakeRooms extends Component {
   };
 
   updateParticipants = (selectionMatrix) => {
-    const { roomNum } = this.state;
-    console.log('Passed matrix: ', selectionMatrix, ' Room num: ', roomNum);
+    // const { roomNum } = this.state;
+    // console.log('Passed matrix: ', selectionMatrix, ' Room num: ', roomNum);
     this.setState({ roomDrafts: selectionMatrix });
   };
 
@@ -218,6 +218,15 @@ class MakeRooms extends Component {
         currentRoom.name = roomDrafts[i].name;
         currentRoom.activity = roomDrafts[i].activity;
         currentRoom.course = roomDrafts[i].course;
+        roomsToCreate.push(currentRoom);
+      }
+      if (roomDrafts.length === 0) {
+        // create a room with just the facilitator
+        const currentRoom = { ...newRoom };
+        const members = [];
+        members.push({ user: userId, role: 'facilitator' });
+        currentRoom.members = members;
+        currentRoom.name = `${activity.name} room copy`;
         roomsToCreate.push(currentRoom);
       }
       console.log('Room assignment rooms: ', roomsToCreate);
