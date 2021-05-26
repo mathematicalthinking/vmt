@@ -186,14 +186,16 @@ class NewResourceContainer extends Component {
   };
 
   addActivity = (event, id) => {
-    const { activities } = this.state;
-    let updatedActivities;
-    if (activities.indexOf(id) >= 0) {
-      updatedActivities = activities.filter((acId) => acId !== id);
-    } else {
-      updatedActivities = [...activities, id]; // becaue we're filtering above we probably don't need to spread activities here we could just push the id
-    }
-    this.setState({ activities: updatedActivities });
+    const _updatedActivities = (activities) => {
+      if (activities.indexOf(id) >= 0) {
+        return activities.filter((acId) => acId !== id);
+      }
+      return [...activities, id]; // becaue we're filtering above we probably don't need to spread activities here we could just push the id
+    };
+    // TODO CHECK THIS REFACTOR
+    this.setState((previousState) => ({
+      activities: _updatedActivities(previousState.activities),
+    }));
   };
 
   setRoomType = (event) => {
@@ -217,25 +219,27 @@ class NewResourceContainer extends Component {
     this.setState({ privacySetting });
   };
   nextStep = (direction) => {
-    let { copying } = this.state;
-    const { step } = this.state;
-    if (step === 0) {
-      if (direction === 'copy') {
-        copying = true;
+    const _isCopy = (step) => {
+      if (step === 0) {
+        if (direction === 'copy') {
+          return true;
+        }
       }
-    }
-    this.setState({
-      step: step + 1,
-      copying,
-    });
+      // TODO CHECK THIS REFACTOR
+      return false;
+    };
+    this.setState((previousState) => ({
+      step: previousState.step + 1,
+      copying: _isCopy(previousState.step),
+    }));
   };
 
   prevStep = () => {
-    const { step, copying } = this.state;
-    this.setState({
-      copying: step === 1 ? false : copying,
-      step: step - 1 || 0,
-    });
+    // TODO CHECK THIS REFACTOR
+    this.setState((previousState) => ({
+      copying: previousState.step === 1 ? false : previousState.copying,
+      step: previousState.step - 1 || 0,
+    }));
   };
 
   closeModal = () => {
