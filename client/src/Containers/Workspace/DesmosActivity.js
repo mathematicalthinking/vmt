@@ -14,7 +14,7 @@ import Modal from '../../Components/UI/Modal/Modal';
 import API from '../../utils/apiRequests';
 
 const DesmosActivity = (props) => {
-  const [screenPage, setScreenPage] = useState(1);
+  // const [screenPage, setScreenPage] = useState(1);
   // every persistent event since session started (component loaded)
   const [activityHistory, setActivityHistory] = useState({});
   // single latest persistent event
@@ -22,7 +22,7 @@ const DesmosActivity = (props) => {
   // single latest transient event
   const [transientUpdates, setTransientUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
-  const [showConfigError, setShowConfigError] = useState(false);
+  const [showConfigError, setShowConfigError] = useState('');
   const calculatorRef = useRef();
   const calculatorInst = useRef();
 
@@ -32,12 +32,9 @@ const DesmosActivity = (props) => {
   const { history } = props;
   const handleOnErrorClick = () => history.goBack();
 
-  const backBtn = calculatorInst.current
-    ? calculatorInst.current.getActiveScreenIndex() > 0
-    : false;
+  const backBtn = calculatorInst.current ? getCurrentScreen() > 0 : false;
   const fwdBtn = calculatorInst.current
-    ? calculatorInst.current.getActiveScreenIndex() <
-      calculatorInst.current.getScreenCount() - 1
+    ? getCurrentScreen() < calculatorInst.current.getScreenCount() - 1
     : true;
 
   // function updateSavedData(updates) {
@@ -62,9 +59,9 @@ const DesmosActivity = (props) => {
       currentStateBase64: JSON.stringify(responseData),
     };
     if (calculatorInst.current) {
-      updateObject.currentScreen = calculatorInst.current.getActiveScreenIndex();
+      updateObject.currentScreen = getCurrentScreen();
     }
-    console.log('Update object: ', updateObject);
+    // console.log('Update object: ', updateObject);
     API.put('tabs', _id, updateObject)
       .then(() => updateRoomTab(room._id, _id, updateObject))
       .catch((err) => {
@@ -93,7 +90,7 @@ const DesmosActivity = (props) => {
       handleResponseData(activityUpdates, type);
     }
   }, [activityUpdates]);
-  // Transient Events
+  // Transient Events including page changes
   useEffect(() => {
     const type = 'transient';
     if (props.inControl === 'ME') {
@@ -110,7 +107,7 @@ const DesmosActivity = (props) => {
     const { room, user, myColor, tab, resetControlTimer } = props;
     const currentState = {
       desmosState: updates,
-      screen: screenPage - 1,
+      screen: getCurrentScreen(),
       transient,
     };
     if (!receivingData) {
@@ -119,7 +116,7 @@ const DesmosActivity = (props) => {
         updates
         // stateDifference
       );
-      console.log('Sent state: ', currentState);
+      console.log('Sent ', currentState.transient, ' state');
 
       const currentStateString = JSON.stringify(currentState);
       // console.log(this.calculator.getState());
@@ -165,13 +162,14 @@ const DesmosActivity = (props) => {
         updatedRoom(room._id, { tabs: updatedTabs });
         // updatedRoom(room._id, { tabs: updatedTabs });
         const updatesState = JSON.parse(data.currentState);
-        console.log('Received state: ', updatesState);
-        if (
-          updatesState.screen !== calculatorInst.current.getActiveScreenIndex()
-        ) {
-          setScreenPage(updatesState.screen + 1);
-          setShowControlWarning(false);
-        }
+        console.log('Received ', updatesState.transient, ' state ');
+        // let transient event handle page change
+        // if (
+        //   updatesState.screen !== calculatorInst.current.getActiveScreenIndex()
+        // ) {
+        //   setScreenPage(updatesState.screen + 1);
+        //   setShowControlWarning(false);
+        // }
         // set persistent state
         if (updatesState.desmosState && !updatesState.transient) {
           calculatorInst.current.dangerouslySetResponses(
@@ -198,18 +196,27 @@ const DesmosActivity = (props) => {
     const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
     console.log('adapted activity url: ', URL);
     // calling Desmos to get activity config
-    const result = await fetch(URL, {
-      headers: { Accept: 'application/json' },
-    });
-    console.log('Result: ', result);
-    if (result.status !== 200) {
-      initializing = false;
-      setFirstTabLoaded();
-      setShowConfigError(true);
+    try {
+      const result = await fetch(URL, {
+        headers: { Accept: 'application/json' },
+      });
+      console.log('Result: ', result);
+      // TODO handle this error message
+      const status = await result.status;
+      if (status !== 200) {
+        initializing = false;
+        setFirstTabLoaded();
+        setShowConfigError(
+          'This activity could not be accessed from Teacher.Desmos. Make sure the activity is publically accessible.'
+        );
+        return null;
+      }
+      const data = await result.json();
+      return data;
+    } catch (err) {
+      console.log('Initalization fetch error: ', err);
+      return null;
     }
-
-    const data = await result.json();
-    return data;
   };
 
   const initPlayer = async () => {
@@ -224,7 +231,10 @@ const DesmosActivity = (props) => {
       },
       // callback to handle persistent state
       onResponseDataUpdated: (responses) => {
-        setActivityUpdates(responses);
+        // milisecond timeout to ensure transient events are sent prior to persistent
+        setTimeout(() => {
+          setActivityUpdates(responses);
+        }, 1);
         setActivityHistory((oldState) => ({ ...oldState, ...responses }));
       },
     };
@@ -242,7 +252,17 @@ const DesmosActivity = (props) => {
       console.log('Player initialization error: ', err);
       initializing = false;
       setFirstTabLoaded();
-      setShowConfigError(true);
+      if (!showConfigError) {
+        if (playerOptions.activityConfig) {
+          setShowConfigError(
+            'This activity configuration has unsupported components and cannot be loaded into VMT.'
+          );
+        } else {
+          setShowConfigError(
+            'This activity could not be accessed from Teacher.Desmos. Please check the configuration code or url.'
+          );
+        }
+      }
       return null;
     }
 
@@ -266,7 +286,6 @@ const DesmosActivity = (props) => {
       const { currentScreen } = tab;
       console.log('Prior screen index loaded: ', currentScreen);
       calculatorInst.current.setActiveScreenIndex(currentScreen);
-      setScreenPage(currentScreen + 1);
     }
     return unsubToken;
   };
@@ -281,17 +300,23 @@ const DesmosActivity = (props) => {
     return () => {
       if (calculatorInst.current) {
         if (unsub) calculatorInst.current.unsubscribeFromSync(unsub);
-        calculatorInst.current.destroy();
+        if (!calculatorInst.current.isDestroyed())
+          calculatorInst.current.destroy();
       }
-      // sessionStorage.clear();  @TODO Is this leftover from somewhere?
     };
   }, []);
 
   function navigateBy(increment) {
-    const page = calculatorInst.current.getActiveScreenIndex() + increment;
+    const page = getCurrentScreen() + increment;
     calculatorInst.current.setActiveScreenIndex(page);
-    setScreenPage(page + 1);
     putState();
+  }
+
+  function getCurrentScreen() {
+    if (calculatorInst.current) {
+      return calculatorInst.current.getActiveScreenIndex();
+    }
+    return 0;
   }
 
   function _hasControl() {
@@ -323,8 +348,7 @@ const DesmosActivity = (props) => {
     <Fragment>
       <Modal show={showConfigError} closeModal={handleOnErrorClick}>
         {' '}
-        Error retrieving Activity Configuration, please make sure this activity
-        is publiclly accessible and supported in VMT
+        {showConfigError}
       </Modal>
       <ControlWarningModal
         showControlWarning={showControlWarning}
@@ -364,7 +388,7 @@ const DesmosActivity = (props) => {
           </Button>
         )}
         <span id="show-screen" className={classes.Title}>
-          Screen {screenPage}
+          Screen {getCurrentScreen() + 1}
         </span>
         {_hasControl() && fwdBtn && (
           <Button theme="Small" id="nav-right" click={() => navigateBy(1)}>
