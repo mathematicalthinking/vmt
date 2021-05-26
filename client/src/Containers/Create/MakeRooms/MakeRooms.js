@@ -128,7 +128,7 @@ class MakeRooms extends Component {
 
     this.setState((previousState) => ({
       selectedParticipants: _updateParticipantList(
-        previousState.selectParticipant
+        previousState.selectedParticipants
       ),
     }));
     // Else add them
@@ -154,7 +154,7 @@ class MakeRooms extends Component {
 
     this.setState((previousState) => ({
       selectedParticipants: _updateParticipantsList(
-        previousState.updatedParticpants
+        previousState.selectedParticipants
       ),
     }));
   };
