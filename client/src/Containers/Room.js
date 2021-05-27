@@ -1,18 +1,24 @@
 /* eslint-disable react/no-did-update-set-state */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import {
   DashboardLayout,
   SidePanel,
   RoomDetails,
   RoomSettings,
-} from '../Layout/Dashboard';
-import Members from './Members/Members';
-import Stats from './Stats/Stats';
-import withPopulatedRoom from './Data/withPopulatedRoom';
-import getUserNotifications from '../utils/notifications';
+} from 'Layout/Dashboard';
+import {
+  Aux,
+  Modal,
+  Button,
+  BreadCrumbs,
+  TabList,
+  EditText,
+  TrashModal,
+  Error,
+} from 'Components';
 import {
   joinWithCode,
   requestAccess,
@@ -25,18 +31,13 @@ import {
   clearLoadingInfo,
   // populateRoom,
   updateUser,
-} from '../store/actions';
-import {
-  Aux,
-  Modal,
-  Button,
-  BreadCrumbs,
-  TabList,
-  EditText,
-  TrashModal,
-  Error,
-} from '../Components';
+} from 'store/actions';
+import getUserNotifications from 'utils/notifications';
+import Members from './Members/Members';
+import Stats from './Stats/Stats';
+// import withPopulatedRoom from './Data/withPopulatedRoom';
 import Access from './Access';
+import RoomPreview from './Monitoring/RoomPreview';
 
 class Room extends Component {
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
@@ -49,6 +50,7 @@ class Room extends Component {
       tabs: [
         { name: 'Details' },
         { name: 'Members' },
+        { name: 'Preview' },
         { name: 'Stats' },
         { name: 'Settings' },
       ],
@@ -335,15 +337,18 @@ class Room extends Component {
       let ggb = false;
       let desmos = false;
       let desmosActivity = false;
+      let pyret = false;
       room.tabs.forEach((tab) => {
         if (tab.tabType === 'geogebra') ggb = true;
         else if (tab.tabType === 'desmos') desmos = true;
         else if (tab.tabType === 'desmosActivity') desmosActivity = true;
+        else if (tab.tabType === 'pyret') pyret = true;
       });
       let roomType;
       if (ggb && (desmos || desmosActivity)) roomType = 'GeoGebra/Desmos';
       else if (ggb) roomType = 'GeoGebra';
       else if (desmos) roomType = 'Desmos';
+      else if (pyret) roomType = 'Pyret';
       else roomType = 'Desmos Activity';
 
       const { updateFail, updateKeys } = loading;
@@ -452,8 +457,11 @@ class Room extends Component {
           />
         );
       } else if (resource === 'stats') {
-        const MainContent = withRouter(withPopulatedRoom(Stats));
-        mainContent = <MainContent />;
+        // const MainContent = withRouter(withPopulatedRoom(Stats));
+        // mainContent = <MainContent />;
+        mainContent = <Stats roomId={room._id} />;
+      } else if (resource === 'preview') {
+        mainContent = <RoomPreview roomId={room._id} />;
       }
       return (
         <Aux>

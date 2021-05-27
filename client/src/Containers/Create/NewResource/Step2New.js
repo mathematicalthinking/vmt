@@ -30,6 +30,13 @@ const Step2New = (props) => {
         >
           Desmos Activity
         </RadioBtn>
+        <RadioBtn
+          name="pyret"
+          checked={roomType === 'pyret'}
+          check={setRoomType}
+        >
+          Pyret Activity
+        </RadioBtn>
       </div>
     </Aux>
   );

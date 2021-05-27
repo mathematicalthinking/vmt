@@ -8,14 +8,13 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from 'react-query';
 import { connect } from 'react-redux';
-import API from '../../../utils/apiRequests';
-import SimpleChat from '../../../Components/Chat/SimpleChat';
-import ToggleGroup from './ToggleGroup';
+import { NavItem, ToggleGroup } from 'Components';
+import { updateMonitorSelections } from 'store/actions';
+import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
+import Chart from 'Containers/Stats/Chart';
+import SimpleChat from 'Components/Chat/SimpleChat';
+import { API, buildLog } from 'utils';
 import SelectionTable from './SelectionTable';
-import { updateMonitorSelections } from '../../../store/actions';
-import { Chart, statsReducer, initialState } from '../../../Containers';
-import { NavItem } from '../../../Components';
-import buildLog from '../../../utils/buildLog';
 import classes from './monitoringView.css';
 import DropdownMenuClasses from './dropdownmenu.css';
 
@@ -47,7 +46,8 @@ import DropdownMenuClasses from './dropdownmenu.css';
  *  - Store entire state (room selections, toggle choices, scrollTop for each tile, etc.) in Redux store and restore MonitorView state accordingly
  *  - Show notifications for rooms
  *  - indicate 'last update' on each tile as well as number currently in room (but how to do this so isn't overly busy)
- *
+ *  - UPDATE TO USE USESNAPSHOT HOOK. This encapsulates a lot of the thumbnail logic.  Similarly, need to use the
+ *      usePopulatedRoom hook.
  */
 
 function MonitoringView({
@@ -94,7 +94,7 @@ function MonitoringView({
         !storedSelections ||
         (storedSelections && storedSelections[room._id] === undefined)
       ) {
-        result[room.id] = _wasRecentlyUpdated(room);
+        result[room._id] = _wasRecentlyUpdated(room);
       } else {
         result[room._id] = storedSelections[room._id];
       }
@@ -304,9 +304,11 @@ function MonitoringView({
               return { _id, ...queryStates[_id].data };
             })}
           selections={selections}
-          onChange={(newSelections) =>
-            setSelections({ ...selections, ...newSelections })
-          }
+          onChange={(newSelections) => {
+            setSelections((prev) => {
+              return { ...prev, ...newSelections };
+            });
+          }}
         />
       ) : (
         <div className={classes.TileGroup}>

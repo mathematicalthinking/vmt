@@ -59,7 +59,7 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
             />
             {/* optional monitoring link from home */}
             {/* {user.accountType === 'facilitator' ? (
-              <NavItem link="/myVMT/monitoring" name="Monitoring" />
+              <NavItem link="/myVMT/monitor" name="Monitor" />
             ) : null} */}
             {user.isAdmin ? (
               <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
