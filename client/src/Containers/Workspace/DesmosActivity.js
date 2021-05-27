@@ -349,7 +349,7 @@ const DesmosActivity = (props) => {
   } = props;
   return (
     <Fragment>
-      <Modal show={showConfigError} closeModal={handleOnErrorClick}>
+      <Modal show={!!showConfigError} closeModal={handleOnErrorClick}>
         {' '}
         {showConfigError}
       </Modal>
