@@ -55,6 +55,7 @@ export {
   inviteToRoom,
   addCourseRooms,
   removeCourseRooms,
+  updateMonitorSelections,
 } from './rooms';
 export {
   getCourses,

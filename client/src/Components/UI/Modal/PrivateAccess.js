@@ -35,7 +35,7 @@ class PrivateAccess extends Component {
     } else if (resource === 'room') {
       pluralResource = 'rooms';
     } else if (resource === 'activity') {
-      pluralResource = 'activities';
+      pluralResource = 'templates';
     }
 
     let query = '?privacy=all&roomType=all';
@@ -77,11 +77,11 @@ class PrivateAccess extends Component {
   render() {
     const { resource, user, setAdmin, error } = this.props;
     const { show, entryCode } = this.state;
-    let displayResource = 'activity';
+    let displayResource = 'template';
     if (resource === 'rooms') displayResource = 'room';
     if (resource === 'courses') displayResource = 'course';
 
-    if (displayResource === 'activity') {
+    if (displayResource === 'template') {
       return (
         <Modal show={show} closeModal={this.closeModal}>
           <p className={classes.Description}>

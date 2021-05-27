@@ -1,18 +1,24 @@
 /* eslint-disable react/no-did-update-set-state */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import {
   DashboardLayout,
   SidePanel,
   RoomDetails,
   RoomSettings,
-} from '../Layout/Dashboard';
-import Members from './Members/Members';
-import Stats from './Stats/Stats';
-import withPopulatedRoom from './Data/withPopulatedRoom';
-import getUserNotifications from '../utils/notifications';
+} from 'Layout/Dashboard';
+import {
+  Aux,
+  Modal,
+  Button,
+  BreadCrumbs,
+  TabList,
+  EditText,
+  TrashModal,
+  Error,
+} from 'Components';
 import {
   joinWithCode,
   requestAccess,
@@ -25,18 +31,13 @@ import {
   clearLoadingInfo,
   // populateRoom,
   updateUser,
-} from '../store/actions';
-import {
-  Aux,
-  Modal,
-  Button,
-  BreadCrumbs,
-  TabList,
-  EditText,
-  TrashModal,
-  Error,
-} from '../Components';
+} from 'store/actions';
+import getUserNotifications from 'utils/notifications';
+import Members from './Members/Members';
+import Stats from './Stats/Stats';
+// import withPopulatedRoom from './Data/withPopulatedRoom';
 import Access from './Access';
+import RoomPreview from './Monitoring/RoomPreview';
 
 class Room extends Component {
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
@@ -49,6 +50,7 @@ class Room extends Component {
       tabs: [
         { name: 'Details' },
         { name: 'Members' },
+        { name: 'Preview' },
         { name: 'Stats' },
         { name: 'Settings' },
       ],
@@ -76,10 +78,11 @@ class Room extends Component {
     if (room) {
       // check access
       let updatedTabs = [...tabs];
-      const owner = false;
+      let owner = false;
       let firstView = false;
       let invited = false;
       if (room.myRole === 'facilitator') {
+        owner = true;
         updatedTabs = this.displayNotifications(updatedTabs);
       }
       if (notifications.length > 0) {
@@ -454,8 +457,11 @@ class Room extends Component {
           />
         );
       } else if (resource === 'stats') {
-        const MainContent = withRouter(withPopulatedRoom(Stats));
-        mainContent = <MainContent />;
+        // const MainContent = withRouter(withPopulatedRoom(Stats));
+        // mainContent = <MainContent />;
+        mainContent = <Stats roomId={room._id} />;
+      } else if (resource === 'preview') {
+        mainContent = <RoomPreview roomId={room._id} />;
       }
       return (
         <Aux>

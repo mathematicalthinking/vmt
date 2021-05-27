@@ -37,6 +37,7 @@ const initialState = {
   dueDate: null,
   activities: [],
   privacySetting: 'public',
+  roomType: 'geogebra',
 };
 
 class NewResourceContainer extends Component {
@@ -46,6 +47,16 @@ class NewResourceContainer extends Component {
 
   changeHandler = (event) => {
     this.setState({
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  graphLinkMod = (event) => {
+    const codeLength = 10;
+    const link = event.target.value.split('/');
+    const code = link[link.length - 1].slice(0, codeLength);
+    this.setState({
+      desmosLink: `https://www.desmos.com/calculator/${code}`,
       [event.target.name]: event.target.value,
     });
   };
@@ -253,7 +264,7 @@ class NewResourceContainer extends Component {
     } = this.state;
     let displayResource;
     if (resource === 'activities') {
-      displayResource = 'activity';
+      displayResource = 'template';
     } else {
       displayResource = resource.slice(0, resource.length - 1);
     }
@@ -307,7 +318,7 @@ class NewResourceContainer extends Component {
           setGgbApp={this.setGgbApp}
           desmosLink={desmosLink}
           setDesmosLink={this.linkMod}
-          setDesmosCalcLink={this.changeHandler}
+          setDesmosCalcLink={this.graphLinkMod}
           appName={appName}
         />
       );
@@ -356,7 +367,7 @@ class NewResourceContainer extends Component {
                 m={5}
                 tabIndex={0}
               >
-                copy existing activities
+                copy existing template
               </Button>
             </div>
           </Aux>
@@ -389,8 +400,7 @@ class NewResourceContainer extends Component {
             ) : null}
             <div className={classes.Container}>
               <h2 className={classes.ModalTitle}>
-                Create {resource === 'activities' ? 'an' : 'a'}{' '}
-                {displayResource}
+                Create {resource === 'activities' ? 'a' : 'a'} {displayResource}
               </h2>
               <div className={classes.MainModalContent}>{steps[step]}</div>
               <div className={classes.Row}>{buttons}</div>

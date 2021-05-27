@@ -3,10 +3,12 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import find from 'lodash/find';
-import Modal from '../UI/Modal/Modal';
+// import Modal from '../UI/Modal/Modal';
 import Message from './Message';
 import Event from './Event';
+import Pending from './Pending';
 import classes from './chat.css';
+import DropdownMenuClasses from '../../Layout/Dashboard/MainContent/dropdownmenu.css';
 import Button from '../UI/Button/Button';
 
 class Chat extends Component {
@@ -19,7 +21,8 @@ class Chat extends Component {
       chatCoords: null,
       chatInputCoords: null,
       highlightedMessage: null,
-      settings: false,
+      // settings: false,
+      hasNewMessages: false,
     };
     this.chatContainer = React.createRef();
     this.chatInput = chatInput || React.createRef();
@@ -57,11 +60,13 @@ class Chat extends Component {
       setToElAndCoords,
       referToEl,
       showingReference,
+      isSimplified,
     } = this.props;
     if (prevProps.log.length !== log.length) {
       // create a ref for the new element
       this[`message-${log[log.length - 1]._id}`] = React.createRef();
-      this.scrollToBottom();
+      if (this.nearBottom()) this.scrollToBottom();
+      else this.setState({ hasNewMessages: true });
     } else if (!prevProps.referencing && referencing) {
       setFromElAndCoords(
         this.chatInput.current,
@@ -85,6 +90,10 @@ class Chat extends Component {
         this.chatInput.current,
         this.getRelativeCoords(this.chatInput.current)
       );
+    }
+
+    if (prevProps.isSimplified !== isSimplified) {
+      this.scrollToBottom();
     }
   }
 
@@ -122,6 +131,18 @@ class Chat extends Component {
     // window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
   };
 
+  nearBottom = () => {
+    const chat = this.chatEnd.current;
+    return (
+      chat.scrollHeight - Math.floor(chat.scrollTop) - chat.clientHeight - 100 <
+      0
+    );
+  };
+
+  clearNewMessages = () => {
+    this.setState({ hasNewMessages: false });
+  };
+
   showReference = (event, reference, messageId) => {
     const {
       showReference,
@@ -141,6 +162,8 @@ class Chat extends Component {
       let toCoords;
       this.currentRefMessageId = messageId;
       if (reference.elementType === 'chat_message') {
+        // escape hatch in case referenced message is not rendred in current display
+        if (!this[`message-${reference.element}`].current) return;
         toCoords = this.getRelativeCoords(
           this[`message-${reference.element}`].current
         );
@@ -181,7 +204,10 @@ class Chat extends Component {
     setToElAndCoords({ element: id, elementType: 'chat_message' }, position);
   };
 
-  scrollHandler = () => {};
+  scrollHandler = () => {
+    this.updateReferencePositions();
+    if (this.nearBottom()) this.clearNewMessages();
+  };
 
   updateReferencePositions = () => {
     const {
@@ -244,13 +270,13 @@ class Chat extends Component {
 
   createActivity = () => {
     const { createActivity } = this.props;
-    this.setState({ settings: false });
+    // this.setState({ settings: false });
     createActivity();
   };
 
   openReplayer = () => {
     const { goToReplayer } = this.props;
-    this.setState({ settings: false });
+    // this.setState({ settings: false });
     goToReplayer();
   };
 
@@ -264,12 +290,60 @@ class Chat extends Component {
       expanded,
       referToEl,
       referencing,
+      isSimplified,
       user,
       startNewReference,
       goToReplayer,
       createActivity,
+      pendingUsers,
+      isSlowConnection,
     } = this.props;
-    const { settings, highlightedMessage } = this.state;
+    const { highlightedMessage, hasNewMessages } = this.state;
+    const DropdownMenu = () => {
+      return (
+        <div className={DropdownMenuClasses.Container}>
+          <i className="fas fa-bars" />
+
+          <div className={DropdownMenuClasses.DropdownContent}>
+            {goToReplayer ? (
+              <div className={DropdownMenuClasses.DropdownItem}>
+                <button
+                  type="button"
+                  className={classes.Button}
+                  onClick={(e) => {
+                    this.openReplayer();
+                    e.stopPropagation();
+                  }}
+                  data-testid="open-replayer"
+                >
+                  Open Replayer
+                  <span className={classes.ExternalLink}>
+                    <i className="fas fa-external-link-alt" />
+                  </span>
+                </button>
+              </div>
+            ) : null}
+            {createActivity ? (
+              <div className={DropdownMenuClasses.DropdownItem}>
+                <button
+                  type="button"
+                  className={classes.Button}
+                  onClick={(e) => {
+                    this.createActivity();
+                    e.stopPropagation();
+                  }}
+                  data-testid="create-workspace"
+                >
+                  Create Template
+                  {/* or Room */}
+                </button>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      );
+    };
+
     let displayMessages = [];
     if (log) {
       displayMessages = log.map((message) => {
@@ -308,12 +382,15 @@ class Chat extends Component {
               highlighted={highlighted}
               reference={reference}
               referencing={referencing}
+              isSimplified={isSimplified}
             />
           );
         }
-        if (!message.synthetic) {
-          // for replayer only. should not show up in chat, only slider
-          return <Event event={message} id={message._id} key={message._id} />;
+        if (!isSimplified) {
+          if (!message.synthetic) {
+            // for replayer only. should not show up in chat, only slider
+            return <Event event={message} id={message._id} key={message._id} />;
+          }
         }
         return null;
       });
@@ -333,6 +410,11 @@ class Chat extends Component {
             tabIndex="0"
             role="button"
           >
+            {!replayer ? (
+              <div className={classes.DropdownContainer}>
+                <DropdownMenu />{' '}
+              </div>
+            ) : null}
             Chat
             {!replayer ? (
               <div className={classes.Status}>
@@ -340,21 +422,13 @@ class Chat extends Component {
                   className={[
                     'fas fa-wifi',
                     user.connected ? classes.Connected : classes.Disconnected,
+                    isSlowConnection ? classes.Slow : classes.Connected,
                   ].join(' ')}
                   title={user.connected ? 'Connected' : 'Disconnected'}
                 />
                 <div className={classes.StatusText}>
                   {user.connected ? '' : 'disconnected!'}
                 </div>
-                <i
-                  onClick={() => this.setState({ settings: true })}
-                  onKeyPress={() => this.setState({ settings: true })}
-                  className={['fas fa-ellipsis-v', classes.Settings].join(' ')}
-                  tabIndex="-1"
-                  role="button"
-                  data-testid="more-menu"
-                  title="More options"
-                />
               </div>
             ) : null}
           </div>
@@ -362,11 +436,17 @@ class Chat extends Component {
             className={expanded ? classes.ChatScroll : classes.Collapsed}
             data-testid="chat"
             ref={this.chatEnd}
-            onScroll={this.updateReferencePositions}
+            onScroll={this.scrollHandler}
             id="scrollable"
           >
             {displayMessages}
           </div>
+          {hasNewMessages && (
+            <Button click={this.scrollToBottom} theme="xs">
+              New Messages
+            </Button>
+          )}
+          <Pending pendingUsers={pendingUsers} />
           {!replayer ? (
             <div className={classes.ChatInput}>
               <input
@@ -396,7 +476,7 @@ class Chat extends Component {
             </div>
           ) : null}
         </div>
-        {settings ? (
+        {/* {settings ? (
           <Modal
             show={settings}
             closeModal={() => this.setState({ settings: false })}
@@ -425,7 +505,7 @@ class Chat extends Component {
               ) : null}
             </div>
           </Modal>
-        ) : null}
+        ) : null} */}
       </Fragment>
     );
   }
@@ -442,6 +522,7 @@ Chat.propTypes = {
   },
   toggleExpansion: PropTypes.func,
   referencing: PropTypes.bool,
+  isSimplified: PropTypes.bool,
   referToEl: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]),
   referFromEl: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]),
   setFromElAndCoords: PropTypes.func,
@@ -461,6 +542,8 @@ Chat.propTypes = {
   eventsWithRefs: PropTypes.arrayOf(PropTypes.shape({})),
   goToReplayer: PropTypes.func,
   createActivity: PropTypes.func,
+  pendingUsers: PropTypes.shape({}),
+  isSlowConnection: PropTypes.bool,
 };
 
 Chat.defaultProps = {
@@ -474,6 +557,7 @@ Chat.defaultProps = {
   change: null,
   submit: null,
   referencing: false,
+  isSimplified: true,
   setFromElAndCoords: null,
   setToElAndCoords: null,
   startNewReference: null,
@@ -484,6 +568,8 @@ Chat.defaultProps = {
   eventsWithRefs: [],
   goToReplayer: null,
   createActivity: null,
+  pendingUsers: null,
+  isSlowConnection: true,
 };
 
 export default Chat;

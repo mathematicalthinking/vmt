@@ -45,6 +45,7 @@ class WorkspaceLayout extends Component {
       membersExpanded,
       referToEl,
       graphCoords,
+      snapshotRef,
     } = this.props;
     const { offSet } = this.state;
     let x2;
@@ -79,7 +80,7 @@ class WorkspaceLayout extends Component {
     }
     let chatFlexGrow = 2;
     let membersFlexGrow = 1;
-    let chatFlexBasis = '66%';
+    let chatFlexBasis = '50%';
     let membersFlexBasis = '20%';
     if (!chatExpanded) {
       chatFlexGrow = 0;
@@ -97,7 +98,10 @@ class WorkspaceLayout extends Component {
       >
         {/* {!encompass ? <div className={classes.Background} /> : null} */}
         <div className={classes.Container}>
-          <div className={replayer ? classes.ReplayerLeft : classes.Left}>
+          <div
+            ref={snapshotRef}
+            className={replayer ? classes.ReplayerLeft : classes.Left}
+          >
             <div className={classes.TabsAndTitle}>
               <div className={classes.WorkspaceTabs}>{tabs}</div>
               <h2 className={classes.Title} data-testid="room-name">
@@ -115,12 +119,14 @@ class WorkspaceLayout extends Component {
                     key={graph.key}
                     className={replayer ? classes.ReplayerGraph : classes.Graph}
                     style={{
-                      zIndex: currentTabId === graph.props.tab._id ? 100 : 0,
+                      display:
+                        currentTabId === graph.props.tab._id ? 'block' : 'none',
                       position: 'absolute',
                       top: 0,
                       left: 1,
                       bottom: 1,
                       right: 1,
+                      pointerEvents: replayer ? 'none' : 'auto',
                     }}
                   >
                     {graph}
@@ -228,9 +234,14 @@ WorkspaceLayout.propTypes = {
   referToEl: PropTypes.shape({
     elementType: PropTypes.string.isRequired,
   }),
+  snapshotRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.any }),
+  ]),
 };
 
 WorkspaceLayout.defaultProps = {
+  snapshotRef: React.createRef(),
   activity: false,
   currentMembers: null,
   chat: null,

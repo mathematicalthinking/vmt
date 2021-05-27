@@ -367,7 +367,7 @@ class Course extends Component {
         facilitators: course.members.filter(
           (member) => member.role === 'facilitator'
         ).length,
-        acitivities: course.activities.length,
+        activities: course.activities.length,
         rooms: course.rooms.length,
         privacy: (
           <Error

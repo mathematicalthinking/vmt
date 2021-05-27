@@ -60,7 +60,7 @@ class ActivityDetails extends Component {
               }}
               data-testid="assign"
             >
-              Assign Activity
+              Assign Template
             </Button>
           </div>
         </div>

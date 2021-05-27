@@ -71,7 +71,9 @@ class FromActivity extends Component {
     return (
       <Modal show={show} closeModal={close}>
         <div className={classes.Container}>
-          <h3 className={classes.Title}>Create from an Existing Activity</h3>
+          <h3 className={classes.Title}>
+            Create from an Existing Activity Template
+          </h3>
           <div className={classes.Form}>
             <div className={classes.FormSection}>
               <div className={classes.VerticalButtons}>
@@ -99,7 +101,7 @@ class FromActivity extends Component {
                     })
                   }
                 >
-                  From Your Activities
+                  From Your Activity Templates
                 </RadioBtn>
                 {course && resource !== 'activities' ? (
                   <RadioBtn
@@ -132,7 +134,7 @@ class FromActivity extends Component {
               </div>
             ) : null}
             <div className={classes.Status}>
-              You&#39;ve selected {selected.length} activities
+              You&#39;ve selected {selected.length} activity templates
             </div>
             <div className={classes.ActivityList}>
               <BoxList

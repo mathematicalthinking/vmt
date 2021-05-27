@@ -60,6 +60,10 @@
   color: red;
 }
 
+.Slow {
+  color: orange;
+}
+
 .Settings {
   padding-left: 3px;
   /* color: darkGray; */
@@ -226,4 +230,111 @@
 
 .MoreMenuOption {
   margin: 10px;
+}
+
+.NewMessages {
+  z-index: 1;
+  background-color: blueHover;
+  color: white;
+  font-size: 0.75em;
+  position: relative;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  border-radius: 10px;
+}
+
+.NewMessages:hover {
+  background-color: blue;
+}
+
+.DropdownContainer {
+  float: left;
+  display: flex;
+  align-items: center;
+  margin-left: 4px;
+  margin-right: 3px;
+
+  position: relative;
+  height: 100%;
+  cursor: pointer;
+}
+
+.DropdownContent {
+  display: none;
+  position: absolute;
+  top: 12px;
+  left: auto;
+  right: 0;
+  z-index: 1000;
+  box-shadow: lightShadow;
+  background: white;
+  color: white;
+  border: 1px solid #ddd;
+  min-width: 150px;
+  width: max-content;
+  flex-flow: column;
+  transition: 0.2s;
+}
+
+.DropdownItem {
+  margin: 8px 0;
+}
+
+.DropdownContainer:hover .DropdownContent {
+  display: flex;
+  animation: showDropdown 0.2s;
+}
+
+@keyframes showDropdown {
+  /* style rules */
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.Button {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 10;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-basis: 100px;
+  list-style-type: none;
+  transition: 0.2;
+  position: relative;
+  max-width: 125px;
+  /* border: 1px solid white; */
+  margin: 2px 10px;
+  font-weight: 300;
+}
+
+.Button:after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  width: 0;
+  height: 2px;
+  display: block;
+  border-radius: 4px;
+  /* margin-top: 10px; */
+  right: 0;
+  background: white;
+  transition: width 0.2s ease-in;
+  /* -webkit-transition: width .2s; */
+}
+
+.Button:hover:after {
+  width: 100%;
 }

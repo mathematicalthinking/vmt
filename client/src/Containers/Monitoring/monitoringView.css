@@ -1,0 +1,99 @@
+:import('../../colors.css') {
+  blue: blue;
+  blueHover: blueHover;
+  gray: backgroundGray;
+  coldGray: coldGray;
+  darkGray: darkGray;
+  lightGray: lightGray;
+  lightBorder: lightBorder;
+  background: mainBackground;
+  scrollBackground: scrollBackground;
+  scrollBar: scrollBar;
+  red: red;
+  darkBorder: darkBorder;
+  hoverBackground: hoverBackground2;
+  lightShadow: lightestShadow;
+}
+
+.Container > * {
+  margin-top: 0px;
+}
+
+.Container > *:first-child {
+  margin-top: 0px;
+}
+
+.TogglesContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.TileGroup {
+  display: flex;
+  flex-direction: row;
+  flex-flow: wrap;
+  padding: 0 10px;
+  margin-bottom: 200px;
+}
+
+.ViewOrSelect {
+  font-size: 0.75em;
+  margin-top: 10px;
+}
+
+.Tile {
+  display: flex;
+  resize: both;
+  flex-flow: wrap;
+  flex-direction: row;
+  box-shadow: lightestShadow;
+  align-self: auto;
+  border-radius: 3px;
+  overflow: auto;
+  width: 500px;
+  height: 300px;
+  margin: 10px;
+  min-height: 200px;
+}
+
+.TileContainer {
+  display: flex;
+  flex-flow: column;
+  background-color: white;
+  height: 100%;
+  width: 100%;
+  border-radius: 3px;
+  box-shadow: lightShadow;
+}
+
+.Title {
+  padding: 8px 0;
+  border-bottom: 1px solid lightBorder;
+  background-color: coldGray;
+  border-radius: 3px 3px 0 0;
+  color: darkGray;
+  font-size: 17px;
+  letter-spacing: 1.12px;
+  cursor: pointer;
+}
+
+.Timestamp {
+  font-style: italic;
+  color: #999;
+  font-size: 0.7em;
+  margin-right: 7px;
+  margin-top: 15px;
+  margin-left: auto;
+}
+
+.NoSnapshot {
+  color: blue;
+  padding: 8px 8px;
+  font-size: 17px;
+}
+
+.Select {
+  flex: 1;
+}

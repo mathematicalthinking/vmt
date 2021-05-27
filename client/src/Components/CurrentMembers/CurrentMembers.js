@@ -31,6 +31,15 @@ class CurrentMembers extends Component {
 
   render() {
     const { currentMembers, members, activeMember, expanded } = this.props;
+
+    let presentMembers = [];
+    const currmembers = currentMembers.filter((m) => m && m._id);
+    // Creatings new array of only members in the room so that we have all of the member metadata (inc color)
+    if (currmembers.length > 0) {
+      const memId = currmembers.map((cm) => cm._id);
+      presentMembers = members.filter((m) => memId.includes(m.user._id));
+    }
+
     return (
       <div className={classes.Container}>
         <div
@@ -41,39 +50,27 @@ class CurrentMembers extends Component {
           tabIndex="-1"
         >
           Currently in this room
-          <div className={classes.Count}>{currentMembers.length}</div>
+          <div className={classes.Count}>{presentMembers.length}</div>
         </div>
         <div
           className={expanded ? classes.Expanded : classes.Collapsed}
           data-testid="current-members"
         >
-          {currentMembers.map((user) => {
-            // get the users color
-            const member = members.filter((m) => m.user._id === user._id)[0];
-            if (member) {
-              return (
-                <div
-                  className={[
-                    classes.Avatar,
-                    activeMember && user._id === activeMember._id
-                      ? classes.Active
-                      : classes.Passive,
-                  ].join(' ')}
-                  key={user._id}
-                >
-                  <Avatar username={user.username} color={member.color} />
-                </div>
-              );
-            }
+          {presentMembers.map((presMember) => {
             return (
               <div
-                key={user._id}
                 className={[
                   classes.Avatar,
-                  user._id === activeMember ? classes.Active : classes.Passive,
+                  activeMember && presMember.user._id === activeMember
+                    ? classes.Active
+                    : classes.Passive,
                 ].join(' ')}
+                key={presMember._id}
               >
-                <Avatar username={`${user.username} (admin)`} color="#ffd549" />
+                <Avatar
+                  username={presMember.user.username}
+                  color={presMember.color}
+                />
               </div>
             );
           })}
