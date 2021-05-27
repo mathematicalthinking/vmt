@@ -82,7 +82,7 @@ class Workspace extends Component {
       showInstructionsModal: false,
       instructionsModalMsg: '',
       isCreatingActivity: false,
-      isSlowConnection: true,
+      connectionStatus: 'None',
     };
   }
 
@@ -136,15 +136,18 @@ class Workspace extends Component {
         });
         populatedRoom.snapshot = newSnapshot; // not sure why connectUpdateRoom doesn't do this...
       }, populatedRoom.snapshot || {});
-      this.setState({
-        takeSnapshot,
-        snapshotRef: elementRef,
-        cancelSnaphots,
-        getSnapshot,
-      });
-
-      this._takeSnapshotIfNeeded();
+      this.setState(
+        {
+          takeSnapshot,
+          snapshotRef: elementRef,
+          cancelSnaphots,
+          getSnapshot,
+        },
+        () => this._takeSnapshotIfNeeded()
+      );
     }
+
+    this.setHeartbeatTimer();
   }
 
   componentDidUpdate(prevProps) {
@@ -196,6 +199,7 @@ class Workspace extends Component {
     socket.off('pong');
     const { cancelSnapshots } = this.state;
     cancelSnapshots(); // if Workspace were a functional component, we'd do this directly in the custom hook.
+    this.clearHeartbeatTimer();
   }
 
   /** ********************
@@ -341,11 +345,28 @@ class Workspace extends Component {
     // helper to determine latency
     // 0-3 local, <50 good, <100 ok, >100 potential issues
     // Set Threshold const to max acceptable latency in ms
+    // bad connection latency threshold
     const THRESHOLD = 100;
+
     socket.on('pong', (latency) => {
-      this.setState({ isSlowConnection: latency > THRESHOLD });
-      console.log('Heartbeat<3 Socket latency: ', latency);
+      this.setHeartbeatTimer();
+      if (latency > THRESHOLD) this.setState({ connectionStatus: 'Bad' });
+      else this.setState({ connectionStatus: 'Good' });
+      console.log('Heartbeat<3 latency: ', latency);
     });
+  };
+
+  setHeartbeatTimer = () => {
+    // no heartbeat threshold
+    const TIMEOUT = 90000;
+    this.clearHeartbeatTimer();
+    this.timer = setTimeout(() => {
+      this.setState({ connectionStatus: 'Error' });
+    }, TIMEOUT);
+  };
+
+  clearHeartbeatTimer = () => {
+    if (this.timer) clearTimeout(this.timer);
   };
 
   createNewTab = () => {
@@ -856,7 +877,7 @@ class Workspace extends Component {
       instructionsModalMsg,
       snapshotRef,
       isCreatingActivity,
-      isSlowConnection,
+      connectionStatus,
     } = this.state;
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
@@ -908,7 +929,7 @@ class Workspace extends Component {
         eventsWithRefs={eventsWithRefs}
         goToReplayer={this.goToReplayer}
         createActivity={this.beginCreatingActivity}
-        isSlowConnection={isSlowConnection}
+        connectionStatus={connectionStatus}
       />
     );
     const graphs = currentTabs.map((tab) => {

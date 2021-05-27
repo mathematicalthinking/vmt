@@ -52,16 +52,20 @@
   /*  ^ // HACKY! */
 }
 
-.Connected {
+.Good {
   color: #34a505;
 }
 
-.Disconnected {
+.Error {
   color: red;
 }
 
-.Slow {
+.Bad {
   color: orange;
+}
+
+.None {
+  color: darkgray;
 }
 
 .Settings {

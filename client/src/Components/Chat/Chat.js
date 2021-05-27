@@ -296,7 +296,7 @@ class Chat extends Component {
       goToReplayer,
       createActivity,
       pendingUsers,
-      isSlowConnection,
+      connectionStatus,
     } = this.props;
     const { highlightedMessage, hasNewMessages } = this.state;
     const DropdownMenu = () => {
@@ -421,13 +421,13 @@ class Chat extends Component {
                 <i
                   className={[
                     'fas fa-wifi',
-                    user.connected ? classes.Connected : classes.Disconnected,
-                    isSlowConnection ? classes.Slow : classes.Connected,
+                    // user.connected ? classes.Connected : classes.Disconnected,
+                    classes[connectionStatus],
                   ].join(' ')}
-                  title={user.connected ? 'Connected' : 'Disconnected'}
+                  title={`Connection: ${connectionStatus}`}
                 />
                 <div className={classes.StatusText}>
-                  {user.connected ? '' : 'disconnected!'}
+                  {user.connected ? '' : 'Disconnected!'}
                 </div>
               </div>
             ) : null}
@@ -543,7 +543,7 @@ Chat.propTypes = {
   goToReplayer: PropTypes.func,
   createActivity: PropTypes.func,
   pendingUsers: PropTypes.shape({}),
-  isSlowConnection: PropTypes.bool,
+  connectionStatus: PropTypes.string,
 };
 
 Chat.defaultProps = {
@@ -569,7 +569,7 @@ Chat.defaultProps = {
   goToReplayer: null,
   createActivity: null,
   pendingUsers: null,
-  isSlowConnection: true,
+  connectionStatus: 'None',
 };
 
 export default Chat;
