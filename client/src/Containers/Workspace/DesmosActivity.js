@@ -28,6 +28,7 @@ const DesmosActivity = (props) => {
 
   let receivingData = false;
   let initializing = false;
+  let configResponse;
 
   const { history } = props;
   const handleOnErrorClick = () => history.goBack();
@@ -188,7 +189,7 @@ const DesmosActivity = (props) => {
   }
 
   const fetchData = async () => {
-    const { tab, setFirstTabLoaded } = props;
+    const { tab } = props;
     const code =
       tab.desmosLink ||
       // fallback to turtle time trials, used for demo
@@ -204,11 +205,7 @@ const DesmosActivity = (props) => {
       // TODO handle this error message
       const status = await result.status;
       if (status !== 200) {
-        initializing = false;
-        setFirstTabLoaded();
-        setShowConfigError(
-          'This activity could not be accessed from Teacher.Desmos. Make sure the activity is publically accessible.'
-        );
+        configResponse = status;
         return null;
       }
       const data = await result.json();
@@ -256,6 +253,10 @@ const DesmosActivity = (props) => {
         if (playerOptions.activityConfig) {
           setShowConfigError(
             'This activity configuration has unsupported components and cannot be loaded into VMT.'
+          );
+        } else if (configResponse) {
+          setShowConfigError(
+            'This activity could not be accessed from Teacher.Desmos. Make sure the activity is publicly accessible.'
           );
         } else {
           setShowConfigError(
