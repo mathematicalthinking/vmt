@@ -28,6 +28,7 @@ const DesmosActivity = (props) => {
 
   let receivingData = false;
   let initializing = false;
+  // trigger variable for any Desmos server response other than 200
   let configResponse;
 
   const { history } = props;
@@ -205,6 +206,7 @@ const DesmosActivity = (props) => {
       // TODO handle this error message
       const status = await result.status;
       if (status !== 200) {
+        // any denied respose sets the trigger
         configResponse = status;
         return null;
       }
