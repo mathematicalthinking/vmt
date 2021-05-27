@@ -103,6 +103,9 @@ class TempWorkspace extends Component {
     if (graphType === 'desmosActivity' && firstEntry) {
       updatedTabs[0].tabType = 'desmosActivity';
     }
+    if (graphType === 'pyret' && firstEntry) {
+      updatedTabs[0].tabType = 'pyret';
+    }
     // this.setState({enteredRoom: true, graph: graphType})
     return socket.emit('JOIN_TEMP', sendData, (res, err) => {
       if (err) {
@@ -206,6 +209,14 @@ class TempWorkspace extends Component {
               disabled={!loggedIn && !tempUsername}
             >
               GeoGebra
+            </Button>
+            <Button
+              data-testid="temp-pyret"
+              m={5}
+              click={() => this.joinRoom('pyret')}
+              disabled={!loggedIn && !tempUsername}
+            >
+              Pyret
             </Button>
           </div>
         ) : (

@@ -337,15 +337,18 @@ class Room extends Component {
       let ggb = false;
       let desmos = false;
       let desmosActivity = false;
+      let pyret = false;
       room.tabs.forEach((tab) => {
         if (tab.tabType === 'geogebra') ggb = true;
         else if (tab.tabType === 'desmos') desmos = true;
         else if (tab.tabType === 'desmosActivity') desmosActivity = true;
+        else if (tab.tabType === 'pyret') pyret = true;
       });
       let roomType;
       if (ggb && (desmos || desmosActivity)) roomType = 'GeoGebra/Desmos';
       else if (ggb) roomType = 'GeoGebra';
       else if (desmos) roomType = 'Desmos';
+      else if (pyret) roomType = 'Pyret';
       else roomType = 'Desmos Activity';
 
       const { updateFail, updateKeys } = loading;
