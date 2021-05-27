@@ -183,7 +183,8 @@ const CodePyretOrg = (props) => {
       const savedData = JSON.parse(currentStateBase64);
       console.log('Prior state data loaded: ');
       console.log(savedData);
-      const contents = savedData.data[0].currentState;
+      const hasSaved = savedData.data && savedData.data.length > 0;
+      const contents = hasSaved ? savedData.data[0].currentState : '';
       pyret.setParams(`#warnOnExit=false&editorContents=${contents}`);
       /*
       pyret.postMessage({
