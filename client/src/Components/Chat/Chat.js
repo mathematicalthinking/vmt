@@ -301,7 +301,13 @@ class Chat extends Component {
     const { highlightedMessage, hasNewMessages } = this.state;
     const DropdownMenu = () => {
       return (
-        <div className={DropdownMenuClasses.Container}>
+        // eslint-disable-next-line
+        <div
+          className={DropdownMenuClasses.Container}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
           <i className="fas fa-bars" />
 
           <div className={DropdownMenuClasses.DropdownContent}>
@@ -417,17 +423,26 @@ class Chat extends Component {
             ) : null}
             Chat
             {!replayer ? (
-              <div className={classes.Status}>
+              // eslint-disable-next-line
+              <div
+                className={classes.Status}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
                 <i
                   className={[
                     'fas fa-wifi',
                     // user.connected ? classes.Connected : classes.Disconnected,
                     classes[connectionStatus],
                   ].join(' ')}
-                  title={`Connection: ${connectionStatus}`}
+                  // title={`Connection: ${connectionStatus}`}
                 />
                 <div className={classes.StatusText}>
                   {user.connected ? '' : 'Disconnected!'}
+                </div>
+                <div className={classes.TooltipContent}>
+                  {`Connection Status: ${connectionStatus}`}
                 </div>
               </div>
             ) : null}

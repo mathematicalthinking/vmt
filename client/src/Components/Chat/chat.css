@@ -271,7 +271,7 @@
   align-items: center;
   margin-left: 4px;
   margin-right: 3px;
-
+  padding: 3px 3px;
   position: relative;
   height: 100%;
   cursor: pointer;
@@ -280,6 +280,7 @@
 .DropdownContent {
   display: none;
   position: absolute;
+  padding: 15px 15px;
   top: 12px;
   left: auto;
   right: 0;
@@ -299,6 +300,28 @@
 }
 
 .DropdownContainer:hover .DropdownContent {
+  display: flex;
+  animation: showDropdown 0.2s;
+}
+
+.TooltipContent {
+  display: none;
+  position: absolute;
+  padding: 5px 5px;
+  top: 12px;
+  left: auto;
+  right: 0;
+  z-index: 1000;
+  box-shadow: lightShadow;
+  background: white;
+  color: blue;
+  border: 1px solid #ddd;
+  min-width: 150px;
+  width: max-content;
+  transition: 0.2s;
+}
+
+.Status:hover .TooltipContent {
   display: flex;
   animation: showDropdown 0.2s;
 }
