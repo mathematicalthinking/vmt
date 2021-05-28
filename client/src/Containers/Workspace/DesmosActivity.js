@@ -118,7 +118,7 @@ const DesmosActivity = (props) => {
         updates
         // stateDifference
       );
-      console.log('Sent ', currentState.transient, ' state');
+      console.log('Sent ', type, ' state');
 
       const currentStateString = JSON.stringify(currentState);
       // console.log(this.calculator.getState());
@@ -164,7 +164,11 @@ const DesmosActivity = (props) => {
         updatedRoom(room._id, { tabs: updatedTabs });
         // updatedRoom(room._id, { tabs: updatedTabs });
         const updatesState = JSON.parse(data.currentState);
-        console.log('Received ', updatesState.transient, ' state ');
+        console.log(
+          'Received ',
+          updatesState.transient ? 'transient' : 'persistent',
+          ' state '
+        );
         // let transient event handle page change
         // if (
         //   updatesState.screen !== calculatorInst.current.getActiveScreenIndex()
