@@ -77,7 +77,7 @@ TextInput.propTypes = {
   placeholder: PropTypes.string,
   change: PropTypes.func.isRequired,
   onKeyDown: PropTypes.func,
-  value: PropTypes.string.isRequired,
+  value: PropTypes.string,
   size: PropTypes.string,
   label: PropTypes.string,
 };
@@ -91,6 +91,7 @@ TextInput.defaultProps = {
   label: null,
   size: null,
   light: false,
+  value: '',
 };
 
 export default TextInput;
