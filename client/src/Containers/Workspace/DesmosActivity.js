@@ -326,6 +326,13 @@ const DesmosActivity = (props) => {
     return 0;
   }
 
+  function getScreenCount() {
+    if (calculatorInst.current) {
+      return calculatorInst.current.getScreenCount();
+    }
+    return 0;
+  }
+
   function _hasControl() {
     return props.inControl === 'ME';
   }
@@ -394,8 +401,15 @@ const DesmosActivity = (props) => {
             Prev
           </Button>
         )}
-        <span id="show-screen" className={classes.Title}>
-          Screen {getCurrentScreen() + 1}
+        <span
+          title="Navigation buttons only seen when in control"
+          id="show-screen"
+          className={classes.Title}
+        >
+          <div>Screen {getCurrentScreen() + 1}</div>
+          <div id="screen-count" className={classes.Screens}>
+            of {getScreenCount()}
+          </div>
         </span>
         {_hasControl() && fwdBtn && (
           <Button theme="Small" id="nav-right" click={() => navigateBy(1)}>
