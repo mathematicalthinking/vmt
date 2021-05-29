@@ -11,6 +11,7 @@ function withPopulatedRoom(WrappedComponent) {
     };
 
     componentDidMount() {
+      this.cancelFetch = false;
       const { match } = this.props;
       API.getPopulatedById('rooms', match.params.room_id, false, true)
         .then((res) => {
@@ -19,13 +20,17 @@ function withPopulatedRoom(WrappedComponent) {
             this.populatedRoom.tabs,
             this.populatedRoom.chat
           );
-          this.setState({ loading: false });
+          if (!this.cancelFetch) this.setState({ loading: false });
         })
         .catch(() => {
           console.log(
             'we should probably just go back to the previous page? maybe display the error'
           );
         });
+    }
+
+    componentWillUnmount() {
+      this.cancelFetch = true;
     }
     render() {
       const { history } = this.props;
