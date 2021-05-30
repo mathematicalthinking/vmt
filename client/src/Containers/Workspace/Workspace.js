@@ -35,7 +35,7 @@ class Workspace extends Component {
   constructor(props) {
     super(props);
     const { user, populatedRoom, tempCurrentMembers } = this.props;
-    let myColor = null;
+    let myColor = '#f26247'; // default in the case of Temp rooms. @TODO The temp user from the server should be fully formed, with a color and inAdminMode property
     if (populatedRoom.members) {
       try {
         myColor = populatedRoom.members.filter(
@@ -76,7 +76,7 @@ class Workspace extends Component {
       instructionsExpanded: true,
       toolsExpanded: true,
       isFirstTabLoaded: false,
-      showAdminWarning: user ? user.inAdminMode : false,
+      showAdminWarning: user ? !!user.inAdminMode : false, // in a temp room, user.inAdminMode is undefined @TODO: fix on server side
       graphCoords: null,
       eventsWithRefs: [],
       showInstructionsModal: false,
@@ -121,7 +121,7 @@ class Workspace extends Component {
 
     // Set up snapshots
     const roomId = populatedRoom._id;
-    if (roomId && roomId !== '') {
+    if (roomId && roomId !== '' && !temp) {
       const {
         elementRef,
         takeSnapshot,

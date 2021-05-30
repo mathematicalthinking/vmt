@@ -91,7 +91,7 @@ TextInput.defaultProps = {
   label: null,
   size: null,
   light: false,
-  value: '',
+  value: undefined,
 };
 
 export default TextInput;
