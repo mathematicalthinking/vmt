@@ -116,7 +116,6 @@ function MonitoringView({
   // of a useEffect.
   const queryStates = {};
   userResources.forEach((room) => {
-    console.log(room._id, savedState.current && savedState.current[room._id]);
     queryStates[room._id] = useQuery(
       room._id,
       () =>
