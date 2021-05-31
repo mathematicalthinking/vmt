@@ -108,7 +108,7 @@ function MonitoringView({
   );
   const [viewType, setViewType] = React.useState(constants.CHAT);
   const [chatType, setChatType] = React.useState(constants.DETAILED);
-  const savedState = React.useRef();
+  const savedState = React.useRef(selections);
 
   // Because "useQuery" is the equivalent of useState, do this
   // initialization of queryStates (an object containing the states
@@ -116,6 +116,7 @@ function MonitoringView({
   // of a useEffect.
   const queryStates = {};
   userResources.forEach((room) => {
+    console.log(room._id, savedState.current && savedState.current[room._id]);
     queryStates[room._id] = useQuery(
       room._id,
       () =>
