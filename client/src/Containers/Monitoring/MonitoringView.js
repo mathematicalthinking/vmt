@@ -6,14 +6,13 @@
 
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { useQuery } from 'react-query';
 import { connect } from 'react-redux';
 import { NavItem, ToggleGroup } from 'Components';
 import { updateMonitorSelections } from 'store/actions';
 import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
 import Chart from 'Containers/Stats/Chart';
 import SimpleChat from 'Components/Chat/SimpleChat';
-import { API, buildLog } from 'utils';
+import { usePopulatedRoom } from 'utils';
 import SelectionTable from './SelectionTable';
 import classes from './monitoringView.css';
 import DropdownMenuClasses from './dropdownmenu.css';
@@ -108,7 +107,7 @@ function MonitoringView({
   );
   const [viewType, setViewType] = React.useState(constants.CHAT);
   const [chatType, setChatType] = React.useState(constants.DETAILED);
-  const savedState = React.useRef();
+  const savedState = React.useRef(selections);
 
   // Because "useQuery" is the equivalent of useState, do this
   // initialization of queryStates (an object containing the states
@@ -116,13 +115,10 @@ function MonitoringView({
   // of a useEffect.
   const queryStates = {};
   userResources.forEach((room) => {
-    queryStates[room._id] = useQuery(
+    queryStates[room._id] = usePopulatedRoom(
       room._id,
-      () =>
-        API.getPopulatedById('rooms', room._id, false, true).then(
-          (res) => res.data.result
-        ),
-      // Check for updates constantly. If we are viewing rooms (i.e., Chat, Thumbnail, or Graph), then we need
+      true,
+      // Check for updates every 10 sec. If we are viewing rooms (i.e., Chat, Thumbnail, or Graph), then we need
       // to update only the currently selected rooms. If we are selecting rooms via the selection table, then we
       // should try to update all rooms so that the "current in room" column remains correct.
       {
@@ -230,11 +226,7 @@ function MonitoringView({
       case constants.GRAPH:
         return (
           <ChartUpdater
-            log={
-              queryStates[id].isSuccess
-                ? buildLog(queryStates[id].data.tabs, queryStates[id].data.chat)
-                : []
-            }
+            log={queryStates[id].isSuccess ? queryStates[id].data.log : []}
           />
         );
       case constants.CHAT:
