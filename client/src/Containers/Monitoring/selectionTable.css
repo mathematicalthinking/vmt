@@ -26,17 +26,17 @@ thead button {
 
 /* not sure why below doesn't work */
 
-/* thead button.ascending::after {
-  content: '👇';
+.ascending::after {
+  content: '↑';
   display: inline-block;
   margin-left: 1em;
 }
 
-thead button.descending::after {
-  content: '☝️';
+.descending::after {
+  content: '↓';
   display: inline-block;
   margin-left: 1em;
-} */
+}
 
 tbody td {
   padding: 0.5em;
