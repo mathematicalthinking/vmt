@@ -358,7 +358,7 @@ class Workspace extends Component {
 
   setHeartbeatTimer = () => {
     // no heartbeat threshold
-    const TIMEOUT = 90001;
+    const TIMEOUT = 150001;
     this.clearHeartbeatTimer();
     this.timer = setTimeout(() => {
       this.setState({ connectionStatus: 'Error' });

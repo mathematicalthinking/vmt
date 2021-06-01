@@ -7,6 +7,7 @@ import { Step1, Step2Course, ParticipantList } from './index';
 import createClasses from '../create.css';
 import { createRoom } from '../../../store/actions';
 import AssignmentMatrix from './AssignmentMatrix';
+import COLOR_MAP from '../../../utils/colorMap';
 
 // @TODO CONSIDER DOING THIS DIFFERENTLY
 const shuffle = (array) => {
@@ -209,11 +210,16 @@ class MakeRooms extends Component {
       for (let i = 0; i < roomDrafts.length; i++) {
         // const currentRoom = { ...roomDrafts[i] };
         const currentRoom = { ...newRoom };
-        const members = roomDrafts[i].members.map((id) => ({
+        const members = roomDrafts[i].members.map((id, index) => ({
           user: id,
           role: 'participant',
+          color: COLOR_MAP[index + 1],
         }));
-        members.push({ user: userId, role: 'facilitator' });
+        members.push({
+          user: userId,
+          role: 'facilitator',
+          color: COLOR_MAP[0],
+        });
         currentRoom.members = members;
         currentRoom.name = roomDrafts[i].name;
         currentRoom.activity = roomDrafts[i].activity;

@@ -55,7 +55,7 @@ BigModal.propTypes = {
   closeModal: PropTypes.func.isRequired,
   message: PropTypes.string,
   children: PropTypes.node.isRequired,
-  height: PropTypes.number,
+  height: PropTypes.string,
   testId: PropTypes.string,
 };
 

@@ -134,7 +134,7 @@ class PrivateAccess extends Component {
 
 PrivateAccess.propTypes = {
   resource: PropTypes.string.isRequired,
-  owners: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  owners: PropTypes.arrayOf(PropTypes.string).isRequired,
   resourceId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
   requestAccess: PropTypes.func.isRequired,
