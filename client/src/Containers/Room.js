@@ -580,24 +580,26 @@ class Room extends Component {
               history={history}
             >
               <p>
-                Welcome to {room.name}. If this is your first time joining a
-                room, we recommend you take a tour. Otherwise you can start
-                exploring this room&#39;s features.
+                Hey {user.firstName}- Welcome to {room.name}. Join and click the
+                &#34;Enter&#34; button to collaborate with other mathematical
+                thinkers like you.
               </p>
+              <br />
               <Button
                 data-testid="explore-room"
                 click={() => this.setState({ firstView: false })}
               >
-                Explore
+                I&#39;m ready!
               </Button>
             </Modal>
           ) : null}
           <Modal show={invited} closeModal={this.clearFirstViewModal}>
             <p>
-              You have been invited to {room.name}. If you think you&#39;ve been
-              added to this course in error you can click &#34;leave&#34; and
-              you will be removed.
+              Hey {user.firstName}- You have been invited to {room.name}. Join
+              and click the &#34;Enter&#34; button to collaborate with other
+              mathematical thinkers like you.
             </p>
+            <br />
             <div style={{ display: 'flex', justifyContent: 'space-around' }}>
               <Button
                 data-testid="join"
@@ -606,13 +608,13 @@ class Room extends Component {
               >
                 Join
               </Button>
-              <Button
+              {/* <Button
                 data-testid="leave"
                 theme="Small"
                 click={this.removeMeFromRoom}
               >
                 Leave
-              </Button>
+              </Button> */}
             </div>
           </Modal>
           {trashing ? (
