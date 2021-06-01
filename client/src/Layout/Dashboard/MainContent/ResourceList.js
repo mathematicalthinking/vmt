@@ -58,10 +58,12 @@ class ResourceList extends Component {
     const participantList = [];
     if (resources) {
       resources.forEach((userResource) => {
-        if (userResource.myRole === 'facilitator') {
-          facilitatorList.push(userResource);
-        } else {
-          participantList.push(userResource);
+        if (userResource) {
+          if (userResource.myRole === 'facilitator') {
+            facilitatorList.push(userResource);
+          } else {
+            participantList.push(userResource);
+          }
         }
       });
     }
