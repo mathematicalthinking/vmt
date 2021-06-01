@@ -5,7 +5,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { useSortableData } from '../../utils';
-import './selectionTable.css';
+import classes from './selectionTable.css';
 
 /**
  * Implements a table that allows for selecting / deselecting of each row and for sorting based on columns.  Right now, the implementation
@@ -64,7 +64,7 @@ export default function SelectionTable(props) {
             <button
               type="button"
               onClick={() => requestSort('name')}
-              className={getClassNamesFor('name')}
+              className={classes[getClassNamesFor('name')]}
             >
               Room Name
             </button>
@@ -73,7 +73,7 @@ export default function SelectionTable(props) {
             <button
               type="button"
               onClick={() => requestSort('currentMembers')}
-              className={getClassNamesFor('currentMembers')}
+              className={classes[getClassNamesFor('currentMembers')]}
             >
               Currently In Room
             </button>
@@ -82,7 +82,7 @@ export default function SelectionTable(props) {
             <button
               type="button"
               onClick={() => requestSort('updatedAt')}
-              className={getClassNamesFor('updatedAt')}
+              className={classes[getClassNamesFor('updatedAt')]}
             >
               Last Updated
             </button>
@@ -91,7 +91,7 @@ export default function SelectionTable(props) {
             <button
               type="button"
               onClick={() => requestSort('createdAt')}
-              className={getClassNamesFor('createdAt')}
+              className={classes[getClassNamesFor('createdAt')]}
             >
               Created
             </button>

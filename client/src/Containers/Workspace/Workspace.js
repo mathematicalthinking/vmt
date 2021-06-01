@@ -28,8 +28,7 @@ import {
 import { Modal, CurrentMembers, Loading } from '../../Components';
 import NewTabForm from '../Create/NewTabForm';
 import CreationModal from './Tools/CreationModal';
-import { socket, useSnapshots } from '../../utils';
-import API from '../../utils/apiRequests';
+import { socket, useSnapshots, API } from '../../utils';
 
 class Workspace extends Component {
   constructor(props) {
@@ -120,22 +119,40 @@ class Workspace extends Component {
     window.addEventListener('keydown', this.keyListener);
 
     // Set up snapshots
-    const roomId = populatedRoom._id;
-    if (roomId && roomId !== '' && !temp) {
+
+    // const roomId = populatedRoom._id;
+    // if (roomId && roomId !== '' && !temp) {
+    //   const {
+    //     elementRef,
+    //     takeSnapshot,
+    //     cancelSnaphots,
+    //     getSnapshot,
+    //   } = useSnapshots((newSnapshot) => {
+    //     const { connectUpdateRoom } = this.props;
+    //     console.log('Creating snap for ', roomId);
+    //     console.log(newSnapshot);
+    //     connectUpdateRoom(roomId, {
+    //       snapshot: newSnapshot,
+    //     });
+    //     populatedRoom.snapshot = newSnapshot; // not sure why connectUpdateRoom doesn't do this...
+    //   }, populatedRoom.snapshot || {});
+
+    if (!temp) {
       const {
         elementRef,
         takeSnapshot,
         cancelSnaphots,
         getSnapshot,
       } = useSnapshots((newSnapshot) => {
-        const { connectUpdateRoom } = this.props;
-        console.log('Creating snap for ', roomId);
+        const { currentTabId } = this.state;
+        console.log('Creating snap for ', currentTabId);
         console.log(newSnapshot);
-        connectUpdateRoom(roomId, {
-          snapshot: newSnapshot,
+        const updateBody = { snapshot: newSnapshot };
+        API.put('tabs', currentTabId, updateBody).then(() => {
+          this.updateTab(currentTabId, updateBody);
         });
-        populatedRoom.snapshot = newSnapshot; // not sure why connectUpdateRoom doesn't do this...
-      }, populatedRoom.snapshot || {});
+      });
+
       this.setState(
         {
           takeSnapshot,
@@ -222,10 +239,18 @@ class Workspace extends Component {
     return { currentTabId, currentScreen };
   };
 
+  _currentSnapshot = () => {
+    const { currentTabId, tabs } = this.state;
+    const currentTab = tabs.find((tab) => tab._id === currentTabId);
+    const result = currentTab ? currentTab.snapshot : null;
+    return result;
+  };
+
   _takeSnapshotIfNeeded = () => {
     const { takeSnapshot, getSnapshot } = this.state;
     const key = this._snapshotKey();
-    if (!getSnapshot(key)) takeSnapshot(key);
+    const currentSnapshot = this._currentSnapshot();
+    if (!getSnapshot(key, currentSnapshot)) takeSnapshot(key, currentSnapshot);
   };
   /** ******************** */
 
@@ -442,7 +467,7 @@ class Workspace extends Component {
 
     if (controlledBy === user._id) {
       const { takeSnapshot } = this.state;
-      takeSnapshot(this._snapshotKey());
+      takeSnapshot(this._snapshotKey(), this._currentSnapshot());
 
       // Releasing control
       const message = {

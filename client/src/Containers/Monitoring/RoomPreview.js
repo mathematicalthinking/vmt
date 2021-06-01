@@ -43,7 +43,9 @@ function RoomPreview({ roomId }) {
   // getTimestamp(key) returns the timestamp (Unix epoch time) at that key
   const { getKeys, getSnapshot, getTimestamp } = useSnapshots(
     () => {},
-    isSuccess ? data.snapshot : {}
+    isSuccess
+      ? data.tabs.reduce((acc, tab) => ({ ...acc, ...tab.snapshot }), {})
+      : {}
   );
 
   // Update the thumbnail either when the selection changes or when new data come in (potentially a new snapshot)

@@ -12,7 +12,7 @@ import { updateMonitorSelections } from 'store/actions';
 import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
 import Chart from 'Containers/Stats/Chart';
 import SimpleChat from 'Components/Chat/SimpleChat';
-import { usePopulatedRoom } from 'utils';
+import { usePopulatedRoom, useSnapshots } from 'utils';
 import SelectionTable from './SelectionTable';
 import classes from './monitoringView.css';
 import DropdownMenuClasses from './dropdownmenu.css';
@@ -108,6 +108,7 @@ function MonitoringView({
   const [viewType, setViewType] = React.useState(constants.CHAT);
   const [chatType, setChatType] = React.useState(constants.DETAILED);
   const savedState = React.useRef(selections);
+  const { getKeys, getTimestamp, getSnapshot } = useSnapshots();
 
   // Because "useQuery" is the equivalent of useState, do this
   // initialization of queryStates (an object containing the states
@@ -206,14 +207,18 @@ function MonitoringView({
 
   const _getMostRecentSnapshot = (roomId) => {
     if (!queryStates[roomId].isSuccess) return null;
-    const snapshotData = queryStates[roomId].data.snapshot; // all the snapshots, indexed by tabIds
-    if (!snapshotData) return null;
+    // all the snapshots
+    const snapshotData = queryStates[roomId].data.tabs.reduce(
+      (acc, tab) => ({ ...acc, ...tab.snapshot }),
+      {}
+    );
+
     let maxSoFar = 0;
     let result = null;
-    Object.values(snapshotData).forEach((snapDatum) => {
-      if (snapDatum.timestamp > maxSoFar) {
-        maxSoFar = snapDatum.timestamp;
-        result = snapDatum.dataURL;
+    getKeys(snapshotData).forEach((key) => {
+      if (getTimestamp(key, snapshotData) > maxSoFar) {
+        maxSoFar = getTimestamp(key, snapshotData);
+        result = getSnapshot(key, snapshotData);
       }
     });
     return result;
