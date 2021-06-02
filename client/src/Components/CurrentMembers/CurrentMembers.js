@@ -7,6 +7,23 @@ class CurrentMembers extends Component {
   constructor(props) {
     super(props);
 
+    this.state = { presentMembers: this.getPresentMembers() };
+  }
+
+  componentDidUpdate = (prevProps) => {
+    const { currentMembers } = this.props;
+    if (prevProps.currentMembers === currentMembers) return;
+    this.setState({ presentMembers: this.getPresentMembers() });
+  };
+
+  toggleExpansion = () => {
+    const { toggleExpansion } = this.props;
+    if (toggleExpansion) {
+      toggleExpansion('members');
+    }
+  };
+
+  getPresentMembers = () => {
     const { currentMembers, members } = this.props;
 
     // filter out any malformed members. Of course, this has the effect of potentially not showing someone who is there.
@@ -16,15 +33,7 @@ class CurrentMembers extends Component {
     const presentMembers = currmembers.map((member) =>
       members.find((m) => m.user._id === member._id)
     );
-
-    this.state = { presentMembers };
-  }
-
-  toggleExpansion = () => {
-    const { toggleExpansion } = this.props;
-    if (toggleExpansion) {
-      toggleExpansion('members');
-    }
+    return presentMembers;
   };
 
   render() {
