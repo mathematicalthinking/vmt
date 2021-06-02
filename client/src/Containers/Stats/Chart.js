@@ -69,9 +69,9 @@ const Chart = ({ state }) => {
             width={width}
             height={height}
           />
-          {lines.map((line) => (
+          {lines.map((line, index) => (
             <Line
-              key={line.color}
+              key={line.color + String(index)} // Through various flukes, sometimes users can have the same color
               leftMargin={margin.left}
               data={line.data}
               color={line.color}

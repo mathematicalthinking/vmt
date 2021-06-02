@@ -4,23 +4,21 @@ import classes from './currentMembers.css';
 import Avatar from '../UI/Avatar/Avatar';
 
 class CurrentMembers extends Component {
-  // state = {
-  //   expanded: true
-  // }
-  // shouldComponentUpdate(nextProps) {
-  //   const { currentMembers, activeMember } = this.props;
-  //   console.log(
-  //     nextProps.currentMembers.length !== currentMembers.length ||
-  //       nextProps.activeMember !== activeMember
-  //   );
-  //   if (
-  //     nextProps.currentMembers.length !== currentMembers.length ||
-  //     nextProps.activeMember !== activeMember
-  //   ) {
-  //     return true;
-  //   }
-  //   return false;
-  // }
+  constructor(props) {
+    super(props);
+
+    const { currentMembers, members } = this.props;
+
+    // filter out any malformed members. Of course, this has the effect of potentially not showing someone who is there.
+    const currmembers = currentMembers.filter((m) => m && m._id);
+    // Creatings new array of members in the room so that we have all of the member metadata (inc color)
+    // note that the members array and the currentMembers array have objects of different structure.
+    const presentMembers = currmembers.map((member) =>
+      members.find((m) => m.user._id === member._id)
+    );
+
+    this.state = { presentMembers };
+  }
 
   toggleExpansion = () => {
     const { toggleExpansion } = this.props;
@@ -30,15 +28,8 @@ class CurrentMembers extends Component {
   };
 
   render() {
-    const { currentMembers, members, activeMember, expanded } = this.props;
-
-    let presentMembers = [];
-    const currmembers = currentMembers.filter((m) => m && m._id);
-    // Creatings new array of only members in the room so that we have all of the member metadata (inc color)
-    if (currmembers.length > 0) {
-      const memId = currmembers.map((cm) => cm._id);
-      presentMembers = members.filter((m) => memId.includes(m.user._id));
-    }
+    const { activeMember, expanded } = this.props;
+    const { presentMembers } = this.state;
 
     return (
       <div className={classes.Container}>
