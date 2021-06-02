@@ -27,7 +27,7 @@ class Step1Course extends Component {
               label="Number of participants per room"
               type="number"
               change={setNumber}
-              value={participantsPerRoom}
+              value={String(participantsPerRoom)} // TextInput expects values to be text (i.e., strings)
               name="participants"
             />
           </div>
@@ -40,7 +40,7 @@ class Step1Course extends Component {
               label="Number of rooms to create"
               type="number"
               change={setRoomNumber}
-              value={roomNum}
+              value={String(roomNum)}
               name="rooms"
             />
             {/* <div className={classes.ParticipantList}>{participantList}</div> */}

@@ -33,7 +33,7 @@ import { socket, useSnapshots, API } from '../../utils';
 class Workspace extends Component {
   constructor(props) {
     super(props);
-    const { user, populatedRoom, tempCurrentMembers } = this.props;
+    const { user, populatedRoom, tempCurrentMembers, temp } = this.props;
     let myColor = '#f26247'; // default in the case of Temp rooms. @TODO The temp user from the server should be fully formed, with a color and inAdminMode property
     if (populatedRoom.members) {
       try {
@@ -46,6 +46,7 @@ class Workspace extends Component {
         }
       }
     }
+
     this.state = {
       takeSnapshot: () => {},
       cancelSnapshots: () => {},
@@ -58,7 +59,7 @@ class Workspace extends Component {
       myColor,
       controlledBy: populatedRoom.controlledBy,
       activeMember: '',
-      currentMembers: tempCurrentMembers || populatedRoom.currentMembers,
+      currentMembers: temp ? tempCurrentMembers : populatedRoom.currentMembers,
       referencing: false,
       showingReference: false,
       isSimplified: true,
@@ -145,8 +146,6 @@ class Workspace extends Component {
         getSnapshot,
       } = useSnapshots((newSnapshot) => {
         const { currentTabId } = this.state;
-        console.log('Creating snap for ', currentTabId);
-        console.log(newSnapshot);
         const updateBody = { snapshot: newSnapshot };
         API.put('tabs', currentTabId, updateBody).then(() => {
           this.updateTab(currentTabId, updateBody);
@@ -910,8 +909,8 @@ class Workspace extends Component {
 
     const currentMembers = (
       <CurrentMembers
-        members={tempMembers || populatedRoom.members}
-        currentMembers={tempCurrentMembers || activeMembers}
+        members={temp ? tempMembers : populatedRoom.members}
+        currentMembers={temp ? tempCurrentMembers : activeMembers}
         activeMember={controlledBy}
         expanded={membersExpanded}
         toggleExpansion={this.toggleExpansion}
