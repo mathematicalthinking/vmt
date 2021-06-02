@@ -154,6 +154,7 @@ class NewResourceContainer extends Component {
           connectCreateCourse(newResource);
           break;
         case 'activities':
+          console.log(`New template created: ${newResource}`);
           connectCreateActivity(newResource);
           break;
         case 'rooms':
@@ -167,6 +168,7 @@ class NewResourceContainer extends Component {
           if (roomType === 'geogebra') {
             newResource.appName = appName;
           }
+          console.log(`New room created: ${newResource}`);
           connectCreateRoom(newResource);
           break;
         default:

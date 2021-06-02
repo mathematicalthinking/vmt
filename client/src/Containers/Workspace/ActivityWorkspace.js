@@ -216,7 +216,11 @@ class ActivityWorkspace extends Component {
         </Modal>
         {addingToMyActivities && (
           <CreationModal
-            closeModal={this.closeCreate}
+            closeModal={() => {
+              this.setState({
+                addingToMyActivities: false,
+              });
+            }}
             isCreatingActivity={addingToMyActivities}
             populatedRoom={activity}
             user={user}
