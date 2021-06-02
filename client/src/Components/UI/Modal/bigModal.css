@@ -10,7 +10,6 @@
 
 .Modal {
   position: absolute;
-  display: flex;
   float: left;
   top: 50%;
   left: 20%;
@@ -18,8 +17,11 @@
   flex-flow: column;
   justify-content: center;
   width: var(--modal-width);
-  min-height: 300px;
+  min-height: 370px;
   max-height: 900px;
+  min-width: 50%;
+  width: auto;
+  max-width: 1000px;
   text-align: center;
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -29,7 +31,9 @@
   padding: 16px;
   z-index: 1500;
   overflow: scroll;
-  transition: all 0.3s ease-out;
+  transition: all 0.5s ease-out;
+  transition: max-width 2.5s ease-in;
+  transition-delay: 1s;
 }
 
 .Close {

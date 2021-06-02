@@ -374,7 +374,7 @@ class MakeRooms extends Component {
     }
 
     return (
-      <BigModal show closeModal={close} height="65%">
+      <BigModal show closeModal={close} height={course ? '' : '65%'}>
         <Aux>
           {step > 0 ? (
             <i
