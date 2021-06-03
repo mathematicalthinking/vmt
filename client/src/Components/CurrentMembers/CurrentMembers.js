@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import classes from './currentMembers.css';
 import Avatar from '../UI/Avatar/Avatar';
@@ -10,7 +10,7 @@ function CurrentMembers({
   expanded,
   toggleExpansion,
 }) {
-  const [presentMembers, setPresentMembers] = React.useState([]);
+  const [presentMembers, setPresentMembers] = useState([]);
 
   React.useEffect(() => {
     // filter out any malformed members. Of course, this has the effect of potentially not showing someone who is there.
