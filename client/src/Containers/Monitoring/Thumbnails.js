@@ -42,6 +42,11 @@ export default function Thumbnails({ populatedRoom, defaultLabel }) {
     setThumbnail(snapshot);
   }, [tabSelection, screenSelection, populatedRoom]);
 
+  // reset the screen selection when a tab is selected
+  React.useEffect(() => {
+    setScreenSelection(0);
+  }, [tabSelection]);
+
   /**
    *
    * HELPER FUNCTIONS
