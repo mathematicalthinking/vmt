@@ -260,11 +260,13 @@ function MonitoringView({
           <Fragment>
             <ToggleGroup
               buttons={[constants.CHAT, constants.THUMBNAIL, constants.GRAPH]}
+              value={viewType}
               onChange={setViewType}
             />
             {viewType === constants.CHAT && (
               <ToggleGroup
                 buttons={[constants.DETAILED, constants.SIMPLE]}
+                value={chatType}
                 onChange={setChatType}
               />
             )}
