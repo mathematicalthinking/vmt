@@ -36,6 +36,7 @@ class Member extends PureComponent {
     this.setState({ editing: false });
     info.role = newRole;
     changeRole(info);
+    this.setState({ role: newRole });
   };
 
   trash = () => {

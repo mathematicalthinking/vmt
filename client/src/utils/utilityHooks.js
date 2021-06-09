@@ -50,10 +50,10 @@ export function useSnapshots(callback, initialObject = {}) {
   referenceObject.current = initialObject;
   cancelSnapshot.current = false;
 
-  const startSnapshots = (key) => {
+  const startSnapshots = (key, snapshotObj) => {
     if (!timer.current) {
       timer.current = setInterval(() => {
-        takeSnapshot(key);
+        takeSnapshot(key, snapshotObj);
       }, 5000);
     }
   };
@@ -88,7 +88,7 @@ export function useSnapshots(callback, initialObject = {}) {
   };
 
   const takeSnapshot = debounce(
-    (key) => {
+    (key, snapshotObj) => {
       console.log('starting snapshot for', key);
       if (!elementRef.current) {
         console.log('no elementRef');
@@ -102,11 +102,22 @@ export function useSnapshots(callback, initialObject = {}) {
         if (!cancelSnapshot.current) {
           const dataURL = canvas.toDataURL();
           if (dataURL && _isWellFormedPNG(dataURL)) {
-            referenceObject.current = {
-              ...referenceObject.current,
-              [_hash(key)]: { dataURL, timestamp: Date.now(), key: _hash(key) },
+            const newSnap = {
+              [_hash(key)]: {
+                dataURL,
+                timestamp: Date.now(),
+                key: _hash(key),
+              },
             };
-            callback(referenceObject.current);
+            if (arguments.length < 1) {
+              referenceObject.current = {
+                ...referenceObject.current,
+                ...newSnap,
+              };
+              callback(referenceObject.current);
+            } else {
+              callback({ ...snapshotObj, ...newSnap });
+            }
           } else console.log('snapshot not well formed:', dataURL);
         } else {
           cancelSnapshot.current = false;
@@ -128,23 +139,24 @@ export function useSnapshots(callback, initialObject = {}) {
 
   // Keep saving and extraction details inside the hook so that
   // if (when) we change how we store snapshots, we only have to adjust
-  // code inside this custom hook
-  const getSnapshot = (key) => {
+  // code inside this custom hook.
+
+  // Note that if referenceObject is not being used, referenceObject.current will be {}
+  const getSnapshot = (key, snapshotObj) => {
+    const refObj = snapshotObj || referenceObject.current;
     const hashedKey = _hash(key);
-    return referenceObject.current[hashedKey]
-      ? referenceObject.current[hashedKey].dataURL
-      : null;
+    return refObj[hashedKey] ? refObj[hashedKey].dataURL : null;
   };
 
-  const getTimestamp = (key) => {
+  const getTimestamp = (key, snapshotObj) => {
+    const refObj = snapshotObj || referenceObject.current;
     const hashedKey = _hash(key);
-    return referenceObject.current[hashedKey]
-      ? referenceObject.current[hashedKey].timestamp
-      : 0;
+    return refObj[hashedKey] ? refObj[hashedKey].timestamp : 0;
   };
 
-  const getKeys = () => {
-    return Object.keys(referenceObject.current).map((key) => _dehash(key));
+  const getKeys = (snapshotObj) => {
+    const refObj = snapshotObj || referenceObject.current;
+    return Object.keys(refObj).map((key) => _dehash(key));
   };
 
   return {

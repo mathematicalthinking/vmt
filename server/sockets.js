@@ -335,7 +335,16 @@ module.exports = function() {
           }
         })
         .catch((err) => {
-          console.log('ERROR LEAVING ROOM ', room, ' user: ', socket.user._id);
+          if (socket.user) {
+            console.log(
+              'ERROR LEAVING ROOM ',
+              room,
+              ' user: ',
+              socket.user._id
+            );
+          } else {
+            console.log('ERROR LEAVING ROOM ', room, ' user not found!');
+          }
           console.log('socketid: ', socket.id);
           if (cb) cb(null, err);
         });

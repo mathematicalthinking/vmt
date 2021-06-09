@@ -38,6 +38,7 @@ const INITIAL_STATE = {
   errorMessage: null,
   isCreatingActivity: false,
   mathState: {},
+  isSimplified: false,
 };
 class SharedReplayer extends Component {
   state = INITIAL_STATE;
@@ -388,6 +389,12 @@ class SharedReplayer extends Component {
     }
   };
 
+  toggleSimpleChat = () => {
+    this.setState((prevState) => ({
+      isSimplified: !prevState.isSimplified,
+    }));
+  };
+
   onEncMessage = (event) => {
     const allowedOrigin = window.location.origin;
     const { origin, data } = event;
@@ -428,6 +435,7 @@ class SharedReplayer extends Component {
       errorMessage,
       isCreatingActivity,
       mathState,
+      isSimplified,
     } = this.state;
     if (errorMessage) {
       return (
@@ -486,6 +494,7 @@ class SharedReplayer extends Component {
         roomId={populatedRoom._id}
         log={this.updatedLog}
         index={logIndex}
+        isSimplified={isSimplified}
         changingIndex={changingIndex}
         reset={this.reset}
         setCurrentMembers={this.setCurrentMembers}
@@ -589,6 +598,8 @@ class SharedReplayer extends Component {
               lastEvent={this.updatedLog[logIndex]}
               replayer
               createActivity={this.beginCreatingActivity}
+              isSimplified={isSimplified}
+              toggleSimpleChat={this.toggleSimpleChat}
             />
           }
           replayer

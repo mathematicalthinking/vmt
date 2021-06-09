@@ -59,6 +59,7 @@ const CreationModal = (props) => {
     if (newResourceType === 'activity') {
       updateFn = connectCreateActivity;
       myVMTEndPt = 'activities';
+      // resourceBody.activties = [populatedRoom._id]
     } else {
       updateFn = connectCreateRoom;
       myVMTEndPt = 'rooms';
@@ -70,6 +71,7 @@ const CreationModal = (props) => {
         },
       ];
     }
+    console.log(`New stuff being created: `, resourceBody);
     updateFn(resourceBody);
     setIsCreatingActivity(false);
     history.push(`/myVMT/${myVMTEndPt}`);

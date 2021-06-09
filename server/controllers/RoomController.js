@@ -6,7 +6,7 @@ const db = require('../models');
 const { Tab } = db;
 const { Room } = db;
 
-const colorMap = require('../constants/colorMap.js');
+const colorMap = require('../constants/colorMap');
 
 module.exports = {
   get: (params) => {
@@ -283,7 +283,7 @@ module.exports = {
             name: tab.name,
             room: room._id,
             ggbFile: tab.ggbFile,
-            desmosLink: body.desmosLink,
+            desmosLink: tab.desmosLink,
             currentState: tab.currentState,
             startingPoint: tab.currentState,
             startingPointBase64: tab.currentStateBase64,

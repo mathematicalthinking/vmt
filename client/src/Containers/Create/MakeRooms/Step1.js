@@ -14,9 +14,9 @@ class Step1 extends Component {
     nominatedParticipants: [], // nominated as opposed to selectedParticipants (which we get from props) when we
   };
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const { selectedParticipants } = this.props;
-    const { searchResults, nominatedParticipants } = this.state;
+    const { searchResults } = prevState;
     // Add users to the selected list so we can persist them after we start a new a search
     // Perhpas this would be a good time to deriveStateFromProps since...that's what we're doing
     // this seems bad actualy...we're duplicating parent state here...we ashould just rename this local state
@@ -25,17 +25,22 @@ class Step1 extends Component {
       const selectedUser = searchResults.filter((user) =>
         selectedParticipants.find((userId) => user._id.toString() === userId)
       );
-      this.setState({
-        nominatedParticipants: nominatedParticipants.concat(selectedUser),
-      });
+      this.setState((previousState) => ({
+        nominatedParticipants: previousState.nominatedParticipants.concat(
+          selectedUser
+        ),
+      }));
       // Remove users who have been de-selected
     } else if (
       prevProps.selectedParticipants.length > selectedParticipants.length
     ) {
-      const updatedNominated = nominatedParticipants.filter((user) => {
-        return selectedParticipants.find((userId) => user._id === userId);
-      });
-      this.setState({ nominatedParticipants: updatedNominated });
+      this.setState((previousState) => ({
+        nominatedParticipants: previousState.nominatedParticipants.filter(
+          (user) => {
+            return selectedParticipants.find((userId) => user._id === userId);
+          }
+        ),
+      }));
     }
   }
 
@@ -85,6 +90,16 @@ class Step1 extends Component {
         <DueDate dueDate={dueDate} selectDate={setDueDate} />
         {!course && (
           <Fragment>
+            <h2 className={classes.Title}>Selected Participants</h2>
+            <ParticipantList
+              list={selectedParticipants}
+              selectedParticipants={selectedParticipants}
+              select={select}
+            />
+          </Fragment>
+        )}
+        {!course && (
+          <Fragment>
             <h2 className={classes.Title}>Add Participants</h2>
             <div className={classes.SubContainer}>
               <Search
@@ -120,11 +135,11 @@ Step1.propTypes = {
   userId: PropTypes.string.isRequired,
   selectedParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   select: PropTypes.func.isRequired,
-  course: PropTypes.bool,
+  course: PropTypes.string,
 };
 
 Step1.defaultProps = {
   dueDate: null,
-  course: false,
+  course: null,
 };
 export default Step1;

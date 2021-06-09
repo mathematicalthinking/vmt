@@ -82,7 +82,23 @@ const Tools = ({
               />
             </div>
           </Fragment>
-        ) : null}
+        ) : (
+          <div
+            className={
+              !isSimplified
+                ? classes.ActiveReferenceWindow
+                : classes.ReferenceWindow
+            }
+          >
+            Detailed Chat
+            <Slider
+              data-testid="simple-chat"
+              action={toggleSimpleChat}
+              isOn={!isSimplified}
+              name="isSimplified"
+            />
+          </div>
+        )}
         <div>
           <div className={classes.Controls}>
             {!replayer && !inAdminMode ? (

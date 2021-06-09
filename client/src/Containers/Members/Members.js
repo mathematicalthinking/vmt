@@ -52,7 +52,6 @@ class Members extends PureComponent {
       connectInviteToCourse,
       connectInviteToRoom,
     } = this.props;
-    const { searchResults } = this.state;
     if (resourceType === 'course') {
       connectInviteToCourse(resourceId, id, username);
     } else if (courseMembers) {
@@ -67,14 +66,13 @@ class Members extends PureComponent {
     } else {
       connectInviteToRoom(resourceId, id, username);
     }
-    // Remove the invited member from the search results
-    const updatedResults = searchResults.filter((user) => user._id !== id);
-    this.setState({
+    this.setState((prevState) => ({
       confirmingInvitation,
-      searchResults: updatedResults,
+      // Remove the invited member from the search results
+      searchResults: prevState.searchResults.filter((user) => user._id !== id),
       username: confirmingInvitation ? username : null,
       userId: confirmingInvitation ? id : null,
-    });
+    }));
   };
 
   confirmInvitation = () => {

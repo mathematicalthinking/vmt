@@ -179,7 +179,7 @@ class TempWorkspace extends Component {
         {!loggedIn ? (
           <Aux>
             <div>Enter a temporary username</div>
-            <TextInput light change={this.setName} />
+            <TextInput light change={this.setName} name="tempName" />
             <div>{errorMessage}</div>
           </Aux>
         ) : null}

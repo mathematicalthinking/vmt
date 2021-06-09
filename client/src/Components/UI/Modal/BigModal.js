@@ -21,7 +21,7 @@ const BigModal = ({ show, closeModal, message, children, height, testId }) => (
         transform: show ? 'translateY(-50%)' : 'translateY(-150vh)',
         opacity: show ? '1' : '0',
         height: height || 'auto',
-        width: height || 'auto',
+        // width: height || 'auto',
       }}
     >
       {children ? (
@@ -55,7 +55,7 @@ BigModal.propTypes = {
   closeModal: PropTypes.func.isRequired,
   message: PropTypes.string,
   children: PropTypes.node.isRequired,
-  height: PropTypes.number,
+  height: PropTypes.string,
   testId: PropTypes.string,
 };
 

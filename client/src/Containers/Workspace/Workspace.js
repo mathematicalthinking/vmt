@@ -29,14 +29,13 @@ import {
 import { Modal, CurrentMembers, Loading } from '../../Components';
 import NewTabForm from '../Create/NewTabForm';
 import CreationModal from './Tools/CreationModal';
-import { socket, useSnapshots } from '../../utils';
-import API from '../../utils/apiRequests';
+import { socket, useSnapshots, API } from '../../utils';
 
 class Workspace extends Component {
   constructor(props) {
     super(props);
-    const { user, populatedRoom, tempCurrentMembers } = this.props;
-    let myColor = null;
+    const { user, populatedRoom, tempCurrentMembers, temp } = this.props;
+    let myColor = '#f26247'; // default in the case of Temp rooms. @TODO The temp user from the server should be fully formed, with a color and inAdminMode property
     if (populatedRoom.members) {
       try {
         myColor = populatedRoom.members.filter(
@@ -48,6 +47,7 @@ class Workspace extends Component {
         }
       }
     }
+
     this.state = {
       takeSnapshot: () => {},
       cancelSnapshots: () => {},
@@ -60,7 +60,7 @@ class Workspace extends Component {
       myColor,
       controlledBy: populatedRoom.controlledBy,
       activeMember: '',
-      currentMembers: tempCurrentMembers || populatedRoom.currentMembers,
+      currentMembers: temp ? tempCurrentMembers : populatedRoom.currentMembers,
       referencing: false,
       showingReference: false,
       isSimplified: true,
@@ -77,13 +77,17 @@ class Workspace extends Component {
       instructionsExpanded: true,
       toolsExpanded: true,
       isFirstTabLoaded: false,
-      showAdminWarning: user ? user.inAdminMode : false,
+      showAdminWarning: user ? !!user.inAdminMode : false, // in a temp room, user.inAdminMode is undefined @TODO: fix on server side
       graphCoords: null,
       eventsWithRefs: [],
       showInstructionsModal: false,
       instructionsModalMsg: '',
       isCreatingActivity: false,
-      isSlowConnection: true,
+      connectionStatus: 'None',
+      // currentScreen, only important now for DesmosActivities, is used by the snapshot facililty.
+      // Even on DesmosActivities, this won't be set if the person doesn't navigate before a snapshot is taken. THus, it's
+      // important that the default is 0 (indicating the first screen)
+      currentScreen: 0,
     };
   }
 
@@ -121,31 +125,50 @@ class Workspace extends Component {
     window.addEventListener('keydown', this.keyListener);
 
     // Set up snapshots
-    const roomId = populatedRoom._id;
-    if (roomId && roomId !== '') {
+
+    // const roomId = populatedRoom._id;
+    // if (roomId && roomId !== '' && !temp) {
+    //   const {
+    //     elementRef,
+    //     takeSnapshot,
+    //     cancelSnaphots,
+    //     getSnapshot,
+    //   } = useSnapshots((newSnapshot) => {
+    //     const { connectUpdateRoom } = this.props;
+    //     console.log('Creating snap for ', roomId);
+    //     console.log(newSnapshot);
+    //     connectUpdateRoom(roomId, {
+    //       snapshot: newSnapshot,
+    //     });
+    //     populatedRoom.snapshot = newSnapshot; // not sure why connectUpdateRoom doesn't do this...
+    //   }, populatedRoom.snapshot || {});
+
+    if (!temp) {
       const {
         elementRef,
         takeSnapshot,
         cancelSnaphots,
         getSnapshot,
       } = useSnapshots((newSnapshot) => {
-        const { connectUpdateRoom } = this.props;
-        console.log('Creating snap for ', roomId);
-        console.log(newSnapshot);
-        connectUpdateRoom(roomId, {
-          snapshot: newSnapshot,
+        const { currentTabId } = this.state;
+        const updateBody = { snapshot: newSnapshot };
+        API.put('tabs', currentTabId, updateBody).then(() => {
+          this.updateTab(currentTabId, updateBody);
         });
-        populatedRoom.snapshot = newSnapshot; // not sure why connectUpdateRoom doesn't do this...
-      }, populatedRoom.snapshot || {});
-      this.setState({
-        takeSnapshot,
-        snapshotRef: elementRef,
-        cancelSnaphots,
-        getSnapshot,
       });
 
-      this._takeSnapshotIfNeeded();
+      this.setState(
+        {
+          takeSnapshot,
+          snapshotRef: elementRef,
+          cancelSnaphots,
+          getSnapshot,
+        },
+        () => this._takeSnapshotIfNeeded()
+      );
     }
+
+    this.setHeartbeatTimer();
   }
 
   componentDidUpdate(prevProps) {
@@ -197,6 +220,7 @@ class Workspace extends Component {
     socket.off('pong');
     const { cancelSnapshots } = this.state;
     cancelSnapshots(); // if Workspace were a functional component, we'd do this directly in the custom hook.
+    this.clearHeartbeatTimer();
   }
 
   /** ********************
@@ -214,15 +238,22 @@ class Workspace extends Component {
    * and previews a more real-time sense.
    */
   _snapshotKey = () => {
-    const { currentScreen } = this.props;
-    const { currentTabId } = this.state;
+    const { currentTabId, currentScreen } = this.state;
     return { currentTabId, currentScreen };
+  };
+
+  _currentSnapshot = () => {
+    const { currentTabId, tabs } = this.state;
+    const currentTab = tabs.find((tab) => tab._id === currentTabId);
+    const result = currentTab ? currentTab.snapshot : null;
+    return result;
   };
 
   _takeSnapshotIfNeeded = () => {
     const { takeSnapshot, getSnapshot } = this.state;
     const key = this._snapshotKey();
-    if (!getSnapshot(key)) takeSnapshot(key);
+    const currentSnapshot = this._currentSnapshot();
+    if (!getSnapshot(key, currentSnapshot)) takeSnapshot(key, currentSnapshot);
   };
   /** ******************** */
 
@@ -342,11 +373,28 @@ class Workspace extends Component {
     // helper to determine latency
     // 0-3 local, <50 good, <100 ok, >100 potential issues
     // Set Threshold const to max acceptable latency in ms
+    // bad connection latency threshold
     const THRESHOLD = 100;
+
     socket.on('pong', (latency) => {
-      this.setState({ isSlowConnection: latency > THRESHOLD });
-      console.log('Heartbeat<3 Socket latency: ', latency);
+      this.setHeartbeatTimer();
+      if (latency > THRESHOLD) this.setState({ connectionStatus: 'Bad' });
+      else this.setState({ connectionStatus: 'Good' });
+      console.log('Heartbeat<3 latency: ', latency);
     });
+  };
+
+  setHeartbeatTimer = () => {
+    // no heartbeat threshold
+    const TIMEOUT = 150001;
+    this.clearHeartbeatTimer();
+    this.timer = setTimeout(() => {
+      this.setState({ connectionStatus: 'Error' });
+    }, TIMEOUT);
+  };
+
+  clearHeartbeatTimer = () => {
+    if (this.timer) clearTimeout(this.timer);
   };
 
   createNewTab = () => {
@@ -422,7 +470,7 @@ class Workspace extends Component {
 
     if (controlledBy === user._id) {
       const { takeSnapshot } = this.state;
-      takeSnapshot(this._snapshotKey());
+      takeSnapshot(this._snapshotKey(), this._currentSnapshot());
 
       // Releasing control
       const message = {
@@ -637,6 +685,13 @@ class Workspace extends Component {
     this.setState((prevState) => ({
       [`${element}Expanded`]: !prevState[`${element}Expanded`],
     }));
+  };
+
+  handleScreenChange = (screenNum) => {
+    // set screen in state
+    this.setState({ currentScreen: screenNum });
+    // takeSnap if needed
+    this._takeSnapshotIfNeeded();
   };
 
   goBack = () => {
@@ -857,7 +912,7 @@ class Workspace extends Component {
       instructionsModalMsg,
       snapshotRef,
       isCreatingActivity,
-      isSlowConnection,
+      connectionStatus,
     } = this.state;
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
@@ -865,8 +920,8 @@ class Workspace extends Component {
 
     const currentMembers = (
       <CurrentMembers
-        members={tempMembers || populatedRoom.members}
-        currentMembers={tempCurrentMembers || activeMembers}
+        members={temp ? tempMembers : populatedRoom.members}
+        currentMembers={temp ? tempCurrentMembers : activeMembers}
         activeMember={controlledBy}
         expanded={membersExpanded}
         toggleExpansion={this.toggleExpansion}
@@ -909,7 +964,7 @@ class Workspace extends Component {
         eventsWithRefs={eventsWithRefs}
         goToReplayer={this.goToReplayer}
         createActivity={this.beginCreatingActivity}
-        isSlowConnection={isSlowConnection}
+        connectionStatus={connectionStatus}
       />
     );
     const graphs = currentTabs.map((tab) => {
@@ -956,6 +1011,7 @@ class Workspace extends Component {
             referencing={referencing}
             updateUserSettings={connectUpdateUserSettings}
             addToLog={this.addToLog}
+            onScreenChange={this.handleScreenChange}
           />
         );
       }
@@ -1124,7 +1180,6 @@ Workspace.propTypes = {
   tempMembers: PropTypes.arrayOf(PropTypes.shape({})),
   lastMessage: PropTypes.shape({}),
   user: PropTypes.shape({}).isRequired,
-  currentScreen: PropTypes.number,
   temp: PropTypes.bool,
   history: PropTypes.shape({}).isRequired,
   save: PropTypes.func,
@@ -1141,22 +1196,11 @@ Workspace.defaultProps = {
   lastMessage: null,
   save: null,
   temp: false,
-  currentScreen: 0,
 };
 const mapStateToProps = (state, ownProps) => {
-  const { tabs } = state.rooms.byId[ownProps.populatedRoom._id];
-  const currentTabId = ownProps.populatedRoom.tabs[0]._id;
-  const currentTabInfo = tabs.find((tab) => {
-    return tab._id === currentTabId;
-  });
-
   return {
     user: state.user._id ? state.user : ownProps.user, // with tempWorkspace we won't have a user in the store
     loading: state.loading.loading,
-    // currentScreen, only important now for DesmosActivities, is used by the snapshot facililty.
-    // Even on DesmosActivities, this won't be set if the person doesn't navigate before a snapshot is taken. THus, it's
-    // important that the default is 0 (indicating the first screen)
-    currentScreen: currentTabInfo.currentScreen || 0,
   };
 };
 

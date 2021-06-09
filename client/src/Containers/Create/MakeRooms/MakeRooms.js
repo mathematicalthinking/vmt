@@ -7,6 +7,7 @@ import { Step1, Step2Course, ParticipantList } from './index';
 import createClasses from '../create.css';
 import { createRoom } from '../../../store/actions';
 import AssignmentMatrix from './AssignmentMatrix';
+import COLOR_MAP from '../../../utils/colorMap';
 
 // @TODO CONSIDER DOING THIS DIFFERENTLY
 const shuffle = (array) => {
@@ -110,47 +111,58 @@ class MakeRooms extends Component {
   };
 
   selectParticipant = (event, userId) => {
-    const { selectedParticipants } = this.state;
-    const newParticipant = userId;
-    let updatedSelectedParticipants = [...selectedParticipants];
-    // if user is already selected, remove them from the selected lis
-    if (selectedParticipants.includes(newParticipant)) {
-      updatedSelectedParticipants = selectedParticipants.filter(
-        (participant) => participant !== newParticipant
-      );
-      // updatedRemainingParticipants.push()
-      // if the user is not already selected, add them to selected and remove from remaining
-    } else {
-      updatedSelectedParticipants.push(newParticipant);
-    }
-    this.setState({
-      selectedParticipants: updatedSelectedParticipants,
-    });
+    const _updateParticipantList = (selectedParticipants) => {
+      const newParticipant = userId;
+      let updatedSelectedParticipants = [...selectedParticipants];
+      // if user is already selected, remove them from the selected lis
+      if (selectedParticipants.includes(newParticipant)) {
+        updatedSelectedParticipants = selectedParticipants.filter(
+          (participant) => participant !== newParticipant
+        );
+        // updatedRemainingParticipants.push()
+        // if the user is not already selected, add them to selected and remove from remaining
+      } else {
+        updatedSelectedParticipants.push(newParticipant);
+      }
+      return updatedSelectedParticipants;
+    };
+
+    this.setState((previousState) => ({
+      selectedParticipants: _updateParticipantList(
+        previousState.selectedParticipants
+      ),
+    }));
     // Else add them
   };
 
   setParticipants = (event, user) => {
-    const { selectedParticipants } = this.state;
-    let updatedParticpants = [...selectedParticipants];
-    if (
-      selectedParticipants.findIndex((userObj) => userObj.id === user._id) > -1
-    ) {
-      updatedParticpants = selectedParticipants.filter(
-        (participant) => participant !== user
-      );
-      // updatedRemainingParticipants.push()
-      // if the user is not already selected, add them to selected and remove from remaining
-    } else {
-      updatedParticpants.push(user);
-    }
-    this.setState({
-      selectedParticipants: updatedParticpants,
-    });
+    const _updateParticipantsList = (selectedParticipants) => {
+      let updatedParticpants = [...selectedParticipants];
+      if (
+        selectedParticipants.findIndex((userObj) => userObj.id === user._id) >
+        -1
+      ) {
+        updatedParticpants = selectedParticipants.filter(
+          (participant) => participant !== user
+        );
+        // updatedRemainingParticipants.push()
+        // if the user is not already selected, add them to selected and remove from remaining
+      } else {
+        updatedParticpants.push(user);
+      }
+      return updatedParticpants;
+    };
+
+    this.setState((previousState) => ({
+      selectedParticipants: _updateParticipantsList(
+        previousState.selectedParticipants
+      ),
+    }));
   };
 
   updateParticipants = (selectionMatrix) => {
-    const { roomNum } = this.state;
-    console.log('Passed matrix: ', selectionMatrix, ' Room num: ', roomNum);
+    // const { roomNum } = this.state;
+    // console.log('Passed matrix: ', selectionMatrix, ' Room num: ', roomNum);
     this.setState({ roomDrafts: selectionMatrix });
   };
 
@@ -198,15 +210,29 @@ class MakeRooms extends Component {
       for (let i = 0; i < roomDrafts.length; i++) {
         // const currentRoom = { ...roomDrafts[i] };
         const currentRoom = { ...newRoom };
-        const members = roomDrafts[i].members.map((id) => ({
+        const members = roomDrafts[i].members.map((id, index) => ({
           user: id,
           role: 'participant',
+          color: COLOR_MAP[index + 1],
         }));
-        members.push({ user: userId, role: 'facilitator' });
+        members.push({
+          user: userId,
+          role: 'facilitator',
+          color: COLOR_MAP[0],
+        });
         currentRoom.members = members;
         currentRoom.name = roomDrafts[i].name;
         currentRoom.activity = roomDrafts[i].activity;
         currentRoom.course = roomDrafts[i].course;
+        roomsToCreate.push(currentRoom);
+      }
+      if (roomDrafts.length === 0) {
+        // create a room with just the facilitator
+        const currentRoom = { ...newRoom };
+        const members = [];
+        members.push({ user: userId, role: 'facilitator' });
+        currentRoom.members = members;
+        currentRoom.name = `${activity.name} room copy`;
         roomsToCreate.push(currentRoom);
       }
       console.log('Room assignment rooms: ', roomsToCreate);
@@ -348,7 +374,7 @@ class MakeRooms extends Component {
     }
 
     return (
-      <BigModal show closeModal={close} height="65%">
+      <BigModal show closeModal={close} height={course ? '' : '65%'}>
         <Aux>
           {step > 0 ? (
             <i

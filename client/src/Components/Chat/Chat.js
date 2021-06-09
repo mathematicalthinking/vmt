@@ -296,12 +296,18 @@ class Chat extends Component {
       goToReplayer,
       createActivity,
       pendingUsers,
-      isSlowConnection,
+      connectionStatus,
     } = this.props;
     const { highlightedMessage, hasNewMessages } = this.state;
     const DropdownMenu = () => {
       return (
-        <div className={DropdownMenuClasses.Container}>
+        // eslint-disable-next-line
+        <div
+          className={DropdownMenuClasses.Container}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
           <i className="fas fa-bars" />
 
           <div className={DropdownMenuClasses.DropdownContent}>
@@ -417,17 +423,26 @@ class Chat extends Component {
             ) : null}
             Chat
             {!replayer ? (
-              <div className={classes.Status}>
+              // eslint-disable-next-line
+              <div
+                className={classes.Status}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
                 <i
                   className={[
                     'fas fa-wifi',
-                    user.connected ? classes.Connected : classes.Disconnected,
-                    isSlowConnection ? classes.Slow : classes.Connected,
+                    // user.connected ? classes.Connected : classes.Disconnected,
+                    classes[connectionStatus],
                   ].join(' ')}
-                  title={user.connected ? 'Connected' : 'Disconnected'}
+                  // title={`Connection: ${connectionStatus}`}
                 />
                 <div className={classes.StatusText}>
-                  {user.connected ? '' : 'disconnected!'}
+                  {user.connected ? '' : 'Disconnected!'}
+                </div>
+                <div className={classes.TooltipContent}>
+                  {`Connection Status: ${connectionStatus}`}
                 </div>
               </div>
             ) : null}
@@ -543,7 +558,7 @@ Chat.propTypes = {
   goToReplayer: PropTypes.func,
   createActivity: PropTypes.func,
   pendingUsers: PropTypes.shape({}),
-  isSlowConnection: PropTypes.bool,
+  connectionStatus: PropTypes.string,
 };
 
 Chat.defaultProps = {
@@ -569,7 +584,7 @@ Chat.defaultProps = {
   goToReplayer: null,
   createActivity: null,
   pendingUsers: null,
-  isSlowConnection: true,
+  connectionStatus: 'None',
 };
 
 export default Chat;
