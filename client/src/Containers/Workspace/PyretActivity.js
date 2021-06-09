@@ -257,7 +257,7 @@ const CodePyretOrg = (props) => {
           ref={cpoIframe}
           style={style}
           title="pyret"
-          src="http://localhost:5000/editor"
+          src="https://pyret-horizon.herokuapp.com/editor" // "http://localhost:5000/editor"
         />
         ;
       </div>
