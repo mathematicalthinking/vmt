@@ -314,9 +314,11 @@ const DesmosActivity = (props) => {
   }, []);
 
   function navigateBy(increment) {
+    const { onScreenChange } = props;
     const page = getCurrentScreen() + increment;
     calculatorInst.current.setActiveScreenIndex(page);
     putState();
+    onScreenChange(page);
   }
 
   function getCurrentScreen() {
@@ -453,6 +455,11 @@ DesmosActivity.propTypes = {
   // referencing: PropTypes.bool.isRequired,
   // updateUserSettings: PropTypes.func,
   addToLog: PropTypes.func.isRequired,
+  onScreenChange: PropTypes.func,
+};
+
+DesmosActivity.defaultProps = {
+  onScreenChange: () => {},
 };
 
 export default withRouter(DesmosActivity);

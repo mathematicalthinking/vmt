@@ -83,6 +83,10 @@ class Workspace extends Component {
       instructionsModalMsg: '',
       isCreatingActivity: false,
       connectionStatus: 'None',
+      // currentScreen, only important now for DesmosActivities, is used by the snapshot facililty.
+      // Even on DesmosActivities, this won't be set if the person doesn't navigate before a snapshot is taken. THus, it's
+      // important that the default is 0 (indicating the first screen)
+      currentScreen: 0,
     };
   }
 
@@ -233,8 +237,7 @@ class Workspace extends Component {
    * and previews a more real-time sense.
    */
   _snapshotKey = () => {
-    const { currentScreen } = this.props;
-    const { currentTabId } = this.state;
+    const { currentTabId, currentScreen } = this.state;
     return { currentTabId, currentScreen };
   };
 
@@ -683,6 +686,13 @@ class Workspace extends Component {
     }));
   };
 
+  handleScreenChange = (screenNum) => {
+    // set screen in state
+    this.setState({ currentScreen: screenNum });
+    // takeSnap if needed
+    this._takeSnapshotIfNeeded();
+  };
+
   goBack = () => {
     const { populatedRoom, history } = this.props;
     const { _id } = populatedRoom;
@@ -1000,6 +1010,7 @@ class Workspace extends Component {
             referencing={referencing}
             updateUserSettings={connectUpdateUserSettings}
             addToLog={this.addToLog}
+            onScreenChange={this.handleScreenChange}
           />
         );
       }
@@ -1145,7 +1156,6 @@ Workspace.propTypes = {
   tempMembers: PropTypes.arrayOf(PropTypes.shape({})),
   lastMessage: PropTypes.shape({}),
   user: PropTypes.shape({}).isRequired,
-  currentScreen: PropTypes.number,
   temp: PropTypes.bool,
   history: PropTypes.shape({}).isRequired,
   save: PropTypes.func,
@@ -1162,22 +1172,11 @@ Workspace.defaultProps = {
   lastMessage: null,
   save: null,
   temp: false,
-  currentScreen: 0,
 };
 const mapStateToProps = (state, ownProps) => {
-  const { tabs } = state.rooms.byId[ownProps.populatedRoom._id];
-  const currentTabId = ownProps.populatedRoom.tabs[0]._id;
-  const currentTabInfo = tabs.find((tab) => {
-    return tab._id === currentTabId;
-  });
-
   return {
     user: state.user._id ? state.user : ownProps.user, // with tempWorkspace we won't have a user in the store
     loading: state.loading.loading,
-    // currentScreen, only important now for DesmosActivities, is used by the snapshot facililty.
-    // Even on DesmosActivities, this won't be set if the person doesn't navigate before a snapshot is taken. THus, it's
-    // important that the default is 0 (indicating the first screen)
-    currentScreen: currentTabInfo.currentScreen || 0,
   };
 };
 
