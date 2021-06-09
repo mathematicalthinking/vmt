@@ -7,12 +7,12 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { NavItem, ToggleGroup } from 'Components';
+import { NavItem, ToggleGroup, SimpleChat } from 'Components';
+import { Chart } from 'Containers';
 import { updateMonitorSelections } from 'store/actions';
-import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
-import Chart from 'Containers/Stats/Chart';
-import SimpleChat from 'Components/Chat/SimpleChat';
 import { usePopulatedRoom, useSnapshots } from 'utils';
+import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
+import Thumbnails from './Thumbnails';
 import SelectionTable from './SelectionTable';
 import classes from './monitoringView.css';
 import DropdownMenuClasses from './dropdownmenu.css';
@@ -45,8 +45,6 @@ import DropdownMenuClasses from './dropdownmenu.css';
  *  - Store entire state (room selections, toggle choices, scrollTop for each tile, etc.) in Redux store and restore MonitorView state accordingly
  *  - Show notifications for rooms
  *  - indicate 'last update' on each tile as well as number currently in room (but how to do this so isn't overly busy)
- *  - UPDATE TO USE USESNAPSHOT HOOK. This encapsulates a lot of the thumbnail logic.  Similarly, need to use the
- *      usePopulatedRoom hook.
  */
 
 function MonitoringView({
@@ -108,7 +106,6 @@ function MonitoringView({
   const [viewType, setViewType] = React.useState(constants.CHAT);
   const [chatType, setChatType] = React.useState(constants.DETAILED);
   const savedState = React.useRef(selections);
-  const { getKeys, getTimestamp, getSnapshot } = useSnapshots();
 
   // Because "useQuery" is the equivalent of useState, do this
   // initialization of queryStates (an object containing the states
@@ -205,25 +202,6 @@ function MonitoringView({
     ];
   };
 
-  const _getMostRecentSnapshot = (roomId) => {
-    if (!queryStates[roomId].isSuccess) return null;
-    // all the snapshots
-    const snapshotData = queryStates[roomId].data.tabs.reduce(
-      (acc, tab) => ({ ...acc, ...tab.snapshot }),
-      {}
-    );
-
-    let maxSoFar = 0;
-    let result = null;
-    getKeys(snapshotData).forEach((key) => {
-      if (getTimestamp(key, snapshotData) > maxSoFar) {
-        maxSoFar = getTimestamp(key, snapshotData);
-        result = getSnapshot(key, snapshotData);
-      }
-    });
-    return result;
-  };
-
   // The isSuccess test is really not needed because we don't render unless it's true. However,
   // it just seems clearer to keep the test here as we are using queryStates[].data
   const _displayViewType = (id) => {
@@ -242,11 +220,12 @@ function MonitoringView({
           />
         );
       case constants.THUMBNAIL: {
-        const snapshot = _getMostRecentSnapshot(id);
-        return snapshot && snapshot !== '' ? (
-          <img alt={`Snapshot of room ${id}`} src={snapshot} />
-        ) : (
-          <span className={classes.NoSnapshot}>No snapshot currently</span>
+        return (
+          <Thumbnails
+            populatedRoom={
+              queryStates[id].isSuccess ? queryStates[id].data : {}
+            }
+          />
         );
       }
       default:
@@ -281,11 +260,13 @@ function MonitoringView({
           <Fragment>
             <ToggleGroup
               buttons={[constants.CHAT, constants.THUMBNAIL, constants.GRAPH]}
+              value={viewType}
               onChange={setViewType}
             />
             {viewType === constants.CHAT && (
               <ToggleGroup
                 buttons={[constants.DETAILED, constants.SIMPLE]}
+                value={chatType}
                 onChange={setChatType}
               />
             )}
