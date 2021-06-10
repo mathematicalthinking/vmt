@@ -93,9 +93,11 @@ export default function Thumbnails({ populatedRoom, defaultLabel }) {
       screens = _getScreens(tabSelection.value);
     }
 
-    const screenOptions = screens.sort().map((screen) => {
-      return { value: screen, label: `Screen ${screen + 1}` };
-    });
+    const screenOptions = screens
+      .sort((a, b) => a - b)
+      .map((screen) => {
+        return { value: screen, label: `Screen ${screen + 1}` };
+      });
 
     // Display something only if there's a tab selection, screen selection, or default label
     return tabOptions.length > 1 || screenOptions.length > 1 || defaultLabel ? (
