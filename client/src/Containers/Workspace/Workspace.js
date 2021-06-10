@@ -249,11 +249,23 @@ class Workspace extends Component {
   };
 
   _takeSnapshotIfNeeded = () => {
-    const { takeSnapshot, getSnapshot } = this.state;
+    const { takeSnapshot, getSnapshot, cancelSnapshots } = this.state;
     const key = this._snapshotKey();
     const currentSnapshot = this._currentSnapshot();
-    if (!getSnapshot(key, currentSnapshot)) takeSnapshot(key, currentSnapshot);
+    if (!getSnapshot(key, currentSnapshot)) {
+      cancelSnapshots(); // keeps prior snap from being sent via callback dur quick subsequent snaps
+      takeSnapshot(key, currentSnapshot);
+    }
   };
+
+  handleScreenChange = (screenNum) => {
+    // set screen in state
+    this.setState({ currentScreen: screenNum }, () => {
+      // takeSnap if needed
+      this._takeSnapshotIfNeeded();
+    });
+  };
+
   /** ******************** */
 
   addToLog = (entry) => {
@@ -684,13 +696,6 @@ class Workspace extends Component {
     this.setState((prevState) => ({
       [`${element}Expanded`]: !prevState[`${element}Expanded`],
     }));
-  };
-
-  handleScreenChange = (screenNum) => {
-    // set screen in state
-    this.setState({ currentScreen: screenNum });
-    // takeSnap if needed
-    this._takeSnapshotIfNeeded();
   };
 
   goBack = () => {
