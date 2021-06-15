@@ -188,6 +188,7 @@ export const createCourse = (body) => {
           // NB If we're creating a template we're going to get back two results in an array (the course that was created & then template that was created)
           return dispatch(addUserCourses(res.data.result[0]._id));
         }
+        res.data.result.myRole = 'facilitator'; // follows the pattern used when adding a room
         dispatch(createdCourse(res.data.result));
         dispatch(addUserCourses([res.data.result._id]));
         return dispatch(loading.success());
