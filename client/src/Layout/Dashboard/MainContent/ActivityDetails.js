@@ -72,13 +72,7 @@ class ActivityDetails extends Component {
             close={() => {
               this.setState({ assigning: false });
             }}
-            participants={
-              course
-                ? course.members.filter(
-                    (member) => member.role === 'participant'
-                  )
-                : []
-            }
+            participants={course ? course.members : []}
           />
         ) : null}
       </Aux>
