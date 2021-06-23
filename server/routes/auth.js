@@ -301,7 +301,7 @@ router.get('/confirmEmail/confirm/:token', async (req, res) => {
     const isLoggedIn = !isNil(currentUser);
     const confirmedUser = results.user;
 
-    const wasSuccess = results.isValid === true && !isNil(confirmedUser);
+    const wasSuccess = results.isValid && !isNil(confirmedUser);
 
     if (!wasSuccess) {
       return res.json(results);
