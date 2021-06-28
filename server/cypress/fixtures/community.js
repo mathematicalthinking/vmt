@@ -47,15 +47,15 @@ const augmentedActivities = [...seedActivities].map(addRoomTypeToResource);
 
 const allResourcesMap = {
   rooms: sortLatest(augmentedRooms.filter((r) => !r.isTrashed)),
-  activities: sortLatest(augmentedActivities.filter((a) => !a.isTrashed)),
+  templates: sortLatest(augmentedActivities.filter((a) => !a.isTrashed)),
   courses: sortLatest(seedCourses.filter((c) => !c.isTrashed)),
 };
 const fixtures = {
   rooms: {},
-  activities: {},
+  templates: {},
   courses: {},
 };
-const resourceTypes = ['rooms', 'activities', 'courses'];
+const resourceTypes = ['rooms', 'templates', 'courses'];
 
 resourceTypes.forEach((type) => {
   const allResources = allResourcesMap[type];
