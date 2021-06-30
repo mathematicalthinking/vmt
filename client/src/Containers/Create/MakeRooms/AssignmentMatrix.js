@@ -136,6 +136,7 @@ const AssignmentMatrix = (props) => {
                       <input
                         type="checkbox"
                         id={roomKey}
+                        data-testid={`checkbox${i + 1}-${j + 1}`}
                         userid={roomKey}
                         onChange={(event) => {
                           selectParticipant(event, roomKey);
