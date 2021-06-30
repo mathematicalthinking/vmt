@@ -92,6 +92,7 @@ class Chat extends Component {
       );
     }
 
+    // if the view is switched, always scroll to the bottom after updating
     if (prevProps.isSimplified !== isSimplified) {
       this.scrollToBottom();
     }

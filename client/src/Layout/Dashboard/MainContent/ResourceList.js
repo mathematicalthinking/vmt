@@ -42,10 +42,10 @@ class ResourceList extends Component {
       userResources
     );
     facilitatorList = facilitatorList.filter((resource) => {
-      return resource.name.indexOf(criteria) > -1;
+      return resource.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1;
     });
     participantList = participantList.filter((resource) => {
-      return resource.name.indexOf(criteria) > -1;
+      return resource.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1;
     });
     this.setState({
       facilitatorList,
