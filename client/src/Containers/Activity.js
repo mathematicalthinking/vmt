@@ -183,17 +183,17 @@ class Activity extends Component {
         ),
       };
 
-      let crumbs = [{ title: 'My VMT', link: '/myVMT/templates' }];
+      let crumbs = [{ title: 'My VMT', link: '/myVMT/activities' }];
       if (course) {
         crumbs = [
           { title: 'My VMT', link: '/myVMT/courses' },
           {
             title: `${course.name}`,
-            link: `/myVMT/courses/${course._id}/templates`,
+            link: `/myVMT/courses/${course._id}/activities`,
           },
           {
             title: `${activity.name}`,
-            link: `/myVMT/courses/${course._id}/templates/${
+            link: `/myVMT/courses/${course._id}/activities/${
               activity._id
             }/details`,
           },
@@ -201,7 +201,7 @@ class Activity extends Component {
       } else {
         crumbs.push({
           title: `${activity.name}`,
-          link: `/myVMT/templates/${activity._id}/details`,
+          link: `/myVMT/activities/${activity._id}/details`,
         });
       }
 
@@ -343,7 +343,7 @@ class Activity extends Component {
     return (
       <Access
         closeModal={() =>
-          history.push('/community/templates?privacy=all&roomType=all')
+          history.push('/community/activities?privacy=all&roomType=all')
         }
         resource="activities"
         resourceId={match.params.activity_id}
