@@ -60,7 +60,7 @@ const DesActivityReplayer = (props) => {
   function updatePlayer() {
     const { log } = props;
     // Take updated player data with new Player state to update
-    let newData = log[index].currentState;
+    let newData = log[index] ? log[index].currentState : null;
     if (newData) {
       newData = JSON.parse(newData);
       // eslint-disable-next-line no-console
