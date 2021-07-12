@@ -61,6 +61,7 @@ class Chat extends Component {
       referToEl,
       showingReference,
       isSimplified,
+      replayer,
     } = this.props;
     if (prevProps.log.length !== log.length) {
       // create a ref for the new element
@@ -94,6 +95,10 @@ class Chat extends Component {
 
     // if the view is switched, always scroll to the bottom after updating
     if (prevProps.isSimplified !== isSimplified) {
+      this.scrollToBottom();
+    }
+    // if we are in replayer and skip ahead, scroll to bottom
+    if (replayer && prevProps.changingIndex) {
       this.scrollToBottom();
     }
   }
@@ -560,6 +565,7 @@ Chat.propTypes = {
   createActivity: PropTypes.func,
   pendingUsers: PropTypes.shape({}),
   connectionStatus: PropTypes.string,
+  changingIndex: PropTypes.bool,
 };
 
 Chat.defaultProps = {
@@ -586,6 +592,7 @@ Chat.defaultProps = {
   createActivity: null,
   pendingUsers: null,
   connectionStatus: 'None',
+  changingIndex: false,
 };
 
 export default Chat;
