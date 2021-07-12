@@ -277,8 +277,10 @@ class SharedReplayer extends Component {
     }
     if (populatedRoom.tabs) {
       populatedRoom.tabs.forEach((tab) => {
-        if (tab._id === this.updatedLog[logIndex].tab) {
-          currentTabId = tab._id;
+        if (typeof this.updatedLog[logIndex].tab !== 'undefined') {
+          if (tab._id === this.updatedLog[logIndex].tab) {
+            currentTabId = tab._id;
+          }
         }
       });
     }
