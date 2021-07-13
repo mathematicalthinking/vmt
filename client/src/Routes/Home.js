@@ -58,12 +58,6 @@ class Home extends PureComponent {
   render() {
     const { location, user } = this.props;
     const { scrollPosition, errorMsgSeen } = this.state;
-    console.log(
-      'Mobile? : ',
-      this.isMobile(),
-      ' , errorMsgSeen? : ',
-      errorMsgSeen
-    );
     return (
       <Aux>
         {location.pathname.indexOf('community') > -1 ||
