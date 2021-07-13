@@ -29,6 +29,15 @@ function CurrentMembers({
     }
   };
 
+  const usernameGen = (usrnm) => {
+    let shortName = usrnm;
+    const maxLen = 12;
+    if (shortName.includes('@'))
+      shortName = shortName.substring(0, shortName.lastIndexOf('@'));
+    if (shortName.length > maxLen) shortName = shortName.substring(0, maxLen);
+    return shortName;
+  };
+
   return (
     <div className={classes.Container}>
       <div
@@ -46,6 +55,7 @@ function CurrentMembers({
         data-testid="current-members"
       >
         {presentMembers.map((presMember) => {
+          const shortName = usernameGen(presMember.user.username);
           return (
             <div
               className={[
@@ -56,10 +66,7 @@ function CurrentMembers({
               ].join(' ')}
               key={presMember._id}
             >
-              <Avatar
-                username={presMember.user.username}
-                color={presMember.color}
-              />
+              <Avatar username={shortName} color={presMember.color} />
             </div>
           );
         })}

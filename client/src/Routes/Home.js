@@ -76,6 +76,7 @@ class Home extends PureComponent {
           show={this.isMobile() && !errorMsgSeen}
           closeModal={this.closeModal}
           height={120}
+          width={150}
         >
           {'Welcome to Virtual Math Teams! '}
           <br />

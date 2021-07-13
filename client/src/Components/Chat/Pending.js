@@ -15,7 +15,7 @@ function Pending({ pendingUsers }) {
     if (shortName.length > maxLen) shortName = shortName.substring(0, maxLen);
     return shortName;
   };
-
+  // returning null if no users typing, therfore rendering nothing
   if (!pendingUsers || Object.keys(pendingUsers).length === 0) return null;
   let statusMessage = '';
   if (Object.keys(pendingUsers).length === 1)
